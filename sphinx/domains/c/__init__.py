@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -13,6 +13,7 @@ from sphinx.domains import Domain, ObjType
 from sphinx.domains.c._ast import (
     ASTDeclaration,
     ASTIdentifier,
+    ASTIntersphinx_v2,
     ASTNestedName,
 )
 from sphinx.domains.c._ids import _macroKeywords, _max_id
@@ -666,6 +667,10 @@ class CDomain(Domain):
         'objects': {},  # fullname -> docname, node_id, objtype
     }
 
+    initial_intersphinx_inventory = {
+        'root_symbol': Symbol(None, None, None, None, None),
+    }
+
     def clear_doc(self, docname: str) -> None:
         if Symbol.debug_show_tree:
             logger.debug("clear_doc: %s", docname)
@@ -712,9 +717,10 @@ class CDomain(Domain):
                     ourObjects[fullname] = (fn, id_, objtype)
                 # no need to warn on duplicates, the symbol merge already does that
 
-    def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                            typ: str, target: str, node: pending_xref,
-                            contnode: Element) -> tuple[Element | None, str | None]:
+    def _resolve_xref_in_tree(self, env: BuildEnvironment, root: Symbol,
+                              softParent: bool,
+                              typ: str, target: str,
+                              node: pending_xref) -> tuple[Symbol, ASTNestedName]:
         parser = DefinitionParser(target, location=node, config=env.config)
         try:
             name = parser.parse_xref_object()
@@ -723,19 +729,31 @@ class CDomain(Domain):
                            location=node)
             return None, None
         parentKey: LookupKey = node.get("c:parent_key", None)
-        rootSymbol = self.data['root_symbol']
         if parentKey:
-            parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
+            parentSymbol: Symbol = root.direct_lookup(parentKey)
             if not parentSymbol:
-                logger.debug("Target: %s", target)
-                logger.debug("ParentKey: %s", parentKey)
-                logger.debug(rootSymbol.dump(1))
-            assert parentSymbol  # should be there
+                if softParent:
+                    parentSymbol = root
+                else:
+                    msg = f"Target: {target}\nParentKey: {parentKey}\n{root.dump(1)}\n"
+                    raise AssertionError(msg)
         else:
-            parentSymbol = rootSymbol
+            parentSymbol = root
         s = parentSymbol.find_declaration(name, typ,
                                           matchSelf=True, recurseInAnon=True)
         if s is None or s.declaration is None:
+            return None, None
+            # TODO: conditionally warn about xrefs with incorrect tagging?
+        return s, name
+
+    def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
+                            typ: str, target: str, node: pending_xref,
+                            contnode: Element) -> tuple[Element, str]:
+        if Symbol.debug_lookup:
+            Symbol.debug_print("C._resolve_xref_inner(type={}, target={})".format(typ, target))
+        s, name = self._resolve_xref_in_tree(env, self.data['root_symbol'],
+                                             False, typ, target, node)
+        if s is None:
             return None, None
 
         # TODO: check role type vs. object type
@@ -778,6 +796,51 @@ class CDomain(Domain):
             docname = symbol.docname
             newestId = symbol.declaration.get_newest_id()
             yield (name, dispname, objectType, docname, newestId, 1)
+
+    def intersphinx_add_entries_v2(self, store: dict,
+                                   data: dict[str, dict[str, Any]]) -> None:
+        root = store['root_symbol']  # type: Symbol
+        for object_type, per_type_data in data.items():
+            for object_name, item_set in per_type_data.items():
+                parser = DefinitionParser(
+                    object_name, location=('intersphinx', 0), config=self.env.config)
+                try:
+                    ast = parser._parse_nested_name()
+                except DefinitionError as e:
+                    logger.warning("Error in C entry in intersphinx inventory:\n" + str(e))
+                    continue
+                decl = ASTDeclaration(object_type, 'intersphinx',
+                                      ASTIntersphinx_v2(ast, item_set))
+                root.add_declaration(decl, docname="$FakeIntersphinxDoc", line=0)
+
+    def _intersphinx_resolve_xref_inner(self, env: "BuildEnvironment", store: dict,
+                                        target: str,
+                                        node: pending_xref,
+                                        typ: str) -> Any | None:
+        if Symbol.debug_lookup:
+            Symbol.debug_print(
+                f"C._intersphinx_resolve_xref_inner(type={typ}, target={target})")
+        s, name = self._resolve_xref_in_tree(env, store['root_symbol'],
+                                             True, typ, target, node)
+        if s is None:
+            return None
+        assert s.declaration is not None
+        decl = cast(ASTIntersphinx_v2, s.declaration.declaration)
+        return decl.data
+
+    def intersphinx_resolve_xref(self, env: "BuildEnvironment",
+                                 store: Any,
+                                 typ: str, target: str,
+                                 disabled_object_types: list[str],
+                                 node: pending_xref, contnode: Element
+                                 ) -> Any | None:
+        if typ == 'any':
+            with logging.suppress_logging():
+                return self._intersphinx_resolve_xref_inner(
+                    env, store, target, node, typ)
+        else:
+            return self._intersphinx_resolve_xref_inner(
+                env, store, target, node, typ)
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
