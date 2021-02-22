@@ -9,8 +9,8 @@
 """
 
 import re
-from typing import (Any, Callable, Dict, Generator, Iterator, List, Tuple, Type, TypeVar,
-                    Union, cast)
+from typing import (Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple, Type,
+                    TypeVar, Union, cast)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement, system_message
@@ -78,8 +78,8 @@ _expression_unary_ops = ["++", "--", "*", "&", "+", "-", "!", "not", "~", "compl
 _expression_assignment_ops = ["=", "*=", "/=", "%=", "+=", "-=",
                               ">>=", "<<=", "&=", "and_eq", "^=", "xor_eq", "|=", "or_eq"]
 
-_max_id = 1
-_id_prefix = [None, 'c.', 'Cv2.']
+_max_id = 2
+_id_prefix = [None, 'c.', 'C2-']
 # Ids are used in lookup keys which are used across pickled files,
 # so when _max_id changes, make sure to update the ENV_VERSION.
 
@@ -108,31 +108,59 @@ class ASTBase(ASTBaseBase):
 ################################################################################
 
 class ASTIdentifier(ASTBaseBase):
-    def __init__(self, identifier: str) -> None:
+    def __init__(self, identifier: str, tag: Optional[str]) -> None:
+        # tag:
+        # - len > 0: it's a struct/union/enum
+        # - len == 0: it's not a struct/union/enum
+        # - None: for matching, can be either
         assert identifier is not None
         assert len(identifier) != 0
         self.identifier = identifier
-
-    def __eq__(self, other: Any) -> bool:
-        return type(other) is ASTIdentifier and self.identifier == other.identifier
+        self.tag = tag
 
     def is_anon(self) -> bool:
         return self.identifier[0] == '@'
 
+    def get_id(self, version: int) -> str:
+        if version <= 1:
+            return self.identifier
+        if self.tag:
+            assert len(self.tag) != 0
+            return '-' + self.identifier
+        else:
+            return self.identifier
+
+    def matches(self, other: "ASTIdentifier") -> bool:
+        if self.identifier != other.identifier:
+            return False
+        if self.tag is None:
+            return True
+        assert other.tag is not None
+        isTag = self.tag == ''
+        isOtherTag = other.tag == ''
+        return isTag == isOtherTag
+
     # and this is where we finally make a difference between __str__ and the display string
 
     def __str__(self) -> str:
-        return self.identifier
+        return self.tag + " " + self.identifier if self.tag else self.identifier
 
     def get_display_string(self) -> str:
-        return "[anonymous]" if self.is_anon() else self.identifier
+        id = "[anonymous]" if self.is_anon() else self.identifier
+        return self.tag + " " + id if self.tag else id
 
     def describe_signature(self, signode: TextElement, mode: str, env: "BuildEnvironment",
                            prefix: str, symbol: "Symbol") -> None:
         # note: slightly different signature of describe_signature due to the prefix
         verify_description_mode(mode)
+        if self.tag:
+            signode += nodes.Text(self.tag)
+            signode += nodes.Text(' ')
         if mode == 'markType':
-            targetText = prefix + self.identifier
+            if self.tag:
+                targetText = prefix + self.tag + ' ' + self.identifier
+            else:
+                targetText = prefix + self.identifier
             pnode = addnodes.pending_xref('', refdomain='c',
                                           reftype='identifier',
                                           reftarget=targetText, modname=None,
@@ -163,12 +191,17 @@ class ASTNestedName(ASTBase):
         self.names = names
         self.rooted = rooted
 
+    def setTagsToPattern(self) -> None:
+        for n in self.names:
+            if n.tag == '':
+                n.tag = None
+
     @property
     def name(self) -> "ASTNestedName":
         return self
 
     def get_id(self, version: int) -> str:
-        return '.'.join(str(n) for n in self.names)
+        return '.'.join(n.get_id(version) for n in self.names)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = '.'.join(transform(n) for n in self.names)
@@ -387,19 +420,6 @@ class ASTPostfixDec(ASTPostfixOp):
         signode.append(nodes.Text('--'))
 
 
-class ASTPostfixMember(ASTPostfixOp):
-    def __init__(self, name):
-        self.name = name
-
-    def _stringify(self, transform: StringifyTransform) -> str:
-        return '.' + transform(self.name)
-
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode.append(nodes.Text('.'))
-        self.name.describe_signature(signode, 'noneIsName', env, symbol)
-
-
 class ASTPostfixMemberOfPointer(ASTPostfixOp):
     def __init__(self, name):
         self.name = name
@@ -607,8 +627,7 @@ class ASTTrailingTypeSpecFundamental(ASTTrailingTypeSpec):
 
 
 class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
-    def __init__(self, prefix: str, nestedName: ASTNestedName) -> None:
-        self.prefix = prefix
+    def __init__(self, nestedName: ASTNestedName) -> None:
         self.nestedName = nestedName
 
     @property
@@ -616,18 +635,10 @@ class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
         return self.nestedName
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
-        if self.prefix:
-            res.append(self.prefix)
-            res.append(' ')
-        res.append(transform(self.nestedName))
-        return ''.join(res)
+        return transform(self.nestedName)
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
-        if self.prefix:
-            signode += addnodes.desc_annotation(self.prefix, self.prefix)
-            signode += nodes.Text(' ')
         self.nestedName.describe_signature(signode, mode, env, symbol=symbol)
 
 
@@ -1678,7 +1689,7 @@ class Symbol:
             if Symbol.debug_lookup:
                 Symbol.debug_print("candidate:")
                 print(s.to_string(Symbol.debug_indent + 1), end="")
-            if s.ident == ident:
+            if s.ident and ident.matches(s.ident):
                 if Symbol.debug_lookup:
                     Symbol.debug_indent += 1
                     Symbol.debug_print("matches")
@@ -1875,23 +1886,9 @@ class Symbol:
                 candSymbol.isRedeclaration = True
                 raise _DuplicateSymbolError(symbol, declaration)
 
-            if declaration.objectType != "function":
-                assert len(withDecl) <= 1
-                handleDuplicateDeclaration(withDecl[0], candSymbol)
-                # (not reachable)
-
-            # a function, so compare IDs
-            candId = declaration.get_newest_id()
-            if Symbol.debug_lookup:
-                Symbol.debug_print("candId:", candId)
-            for symbol in withDecl:
-                oldId = symbol.declaration.get_newest_id()
-                if Symbol.debug_lookup:
-                    Symbol.debug_print("oldId: ", oldId)
-                if candId == oldId:
-                    handleDuplicateDeclaration(symbol, candSymbol)
-                    # (not reachable)
-            # no candidate symbol found with matching ID
+            assert len(withDecl) <= 1
+            handleDuplicateDeclaration(withDecl[0], candSymbol)
+            # (not reachable)
         # if there is an empty symbol, fill that one
         if len(noDecl) == 0:
             if Symbol.debug_lookup:
@@ -1973,8 +1970,12 @@ class Symbol:
             Symbol.debug_print("add_declaration:")
         assert declaration is not None
         assert docname is not None
-        assert line is not None
-        nestedName = declaration.name
+        assert declaration.name.names[-1].tag == ''
+        if declaration.objectType in ('struct', 'union', 'enum'):
+            nestedName = declaration.name.clone()
+            nestedName.names[-1].tag = declaration.objectType
+        else:
+            nestedName = declaration.name
         res = self._add_symbols(nestedName, declaration, docname, line)
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 1
@@ -2000,11 +2001,11 @@ class Symbol:
                 Symbol.debug_print("trying:")
                 print(current.to_string(Symbol.debug_indent + 1), end="")
                 Symbol.debug_indent -= 2
-            if matchSelf and current.ident == ident:
+            if matchSelf and ident.matches(current.ident):
                 return current
             children = current.children_recurse_anon if recurseInAnon else current._children
             for s in children:
-                if s.ident == ident:
+                if ident.matches(s.ident):
                     return s
             if not searchInSiblings:
                 break
@@ -2102,8 +2103,6 @@ class DefinitionParser(BaseParser):
         '__int64',
     )
 
-    _prefix_keys = ('struct', 'enum', 'union')
-
     @property
     def language(self) -> str:
         return 'C'
@@ -2195,10 +2194,9 @@ class DefinitionParser(BaseParser):
         res = self._parse_paren_expression()
         if res is not None:
             return res
-        nn = self._parse_nested_name()
-        if nn is not None:
-            return ASTIdExpression(nn)
-        return None
+        nn = self._parse_nested_name(allowTags=None)
+        assert nn is not None
+        return ASTIdExpression(nn)
 
     def _parse_initializer_list(self, name: str, open: str, close: str
                                 ) -> Tuple[List[ASTExpression], bool]:
@@ -2256,7 +2254,7 @@ class DefinitionParser(BaseParser):
         #  | postfix "[" expression "]"
         #  | postfix "[" braced-init-list [opt] "]"
         #  | postfix "(" expression-list [opt] ")"
-        #  | postfix "." id-expression
+        #  | postfix "." id-expression  // taken care of in primary by nested name
         #  | postfix "->" id-expression
         #  | postfix "++"
         #  | postfix "--"
@@ -2274,23 +2272,12 @@ class DefinitionParser(BaseParser):
                     self.fail("Expected ']' in end of postfix expression.")
                 postFixes.append(ASTPostfixArray(expr))
                 continue
-            if self.skip_string('.'):
-                if self.skip_string('*'):
-                    # don't steal the dot
-                    self.pos -= 2
-                elif self.skip_string('..'):
-                    # don't steal the dot
-                    self.pos -= 3
-                else:
-                    name = self._parse_nested_name()
-                    postFixes.append(ASTPostfixMember(name))
-                    continue
             if self.skip_string('->'):
                 if self.skip_string('*'):
                     # don't steal the arrow
                     self.pos -= 3
                 else:
-                    name = self._parse_nested_name()
+                    name = self._parse_nested_name(allowTags=None)
                     postFixes.append(ASTPostfixMemberOfPointer(name))
                     continue
             if self.skip_string('++'):
@@ -2508,15 +2495,26 @@ class DefinitionParser(BaseParser):
             value = self.definition[startPos:self.pos].strip()
         return ASTFallbackExpr(value.strip())
 
-    def _parse_nested_name(self) -> ASTNestedName:
-        names = []  # type: List[Any]
+    def _parse_nested_name(self, *, allowTags: Optional[str] = 'not last') -> ASTNestedName:
+        # A dot-separated list of identifiers, each with an optional struct/union/enum tag.
+        # A leading dot makes the name rooted at global scope.
 
-        self.skip_ws()
+        assert allowTags in (None, 'all', 'not last')
+
+        names = []  # type: List[ASTIdentifier]
+
         rooted = False
         if self.skip_string('.'):
             rooted = True
         while 1:
             self.skip_ws()
+            tag = ''
+            if allowTags is not None:
+                for k in ('struct', 'union', 'enum'):
+                    if self.skip_word_and_ws(k):
+                        tag = k
+                        break
+            afterTagPos = self.pos
             if not self.match(identifier_re):
                 self.fail("Expected identifier in nested name.")
             identifier = self.matched_text
@@ -2524,13 +2522,19 @@ class DefinitionParser(BaseParser):
             if identifier in _keywords:
                 self.fail("Expected identifier in nested name, "
                           "got keyword: %s" % identifier)
-            ident = ASTIdentifier(identifier)
+            ident = ASTIdentifier(identifier, tag)
             names.append(ident)
 
             self.skip_ws()
             if not self.skip_string('.'):
                 break
-        return ASTNestedName(names, rooted)
+
+        # post hax to explicitly forbid the last one to have a tag
+        if allowTags == 'not last' and names[-1].tag != '':
+            self.pos = afterTagPos
+            self.fail("Expected identifier in nested name, "
+                      "got keyword: %s" % names[-1].tag)
+        return ASTNestedName(names, rooted=rooted)
 
     def _parse_trailing_type_spec(self) -> ASTTrailingTypeSpec:
         # fundamental types
@@ -2563,16 +2567,8 @@ class DefinitionParser(BaseParser):
         if len(elements) > 0:
             return ASTTrailingTypeSpecFundamental(' '.join(elements))
 
-        # prefixed
-        prefix = None
-        self.skip_ws()
-        for k in self._prefix_keys:
-            if self.skip_word_and_ws(k):
-                prefix = k
-                break
-
-        nestedName = self._parse_nested_name()
-        return ASTTrailingTypeSpecName(prefix, nestedName)
+        nestedName = self._parse_nested_name(allowTags='all')
+        return ASTTrailingTypeSpecName(nestedName)
 
     def _parse_parameters(self, paramMode: str) -> ASTParameters:
         self.skip_ws()
@@ -2693,17 +2689,14 @@ class DefinitionParser(BaseParser):
     def _parse_declarator_name_suffix(
             self, named: Union[bool, str], paramMode: str, typed: bool
     ) -> ASTDeclarator:
+        assert named in (True, False, 'single')
         # now we should parse the name, and then suffixes
-        if named == 'maybe':
-            pos = self.pos
-            try:
-                declId = self._parse_nested_name()
-            except DefinitionError:
-                self.pos = pos
-                declId = None
-        elif named == 'single':
+        if named == 'single':
             if self.match(identifier_re):
-                identifier = ASTIdentifier(self.matched_text)
+                if self.matched_text in _keywords:
+                    self.fail("Expected identifier, "
+                              "got keyword: %s" % self.matched_text)
+                identifier = ASTIdentifier(self.matched_text, '')
                 declId = ASTNestedName([identifier], rooted=False)
             else:
                 declId = None
@@ -2880,8 +2873,8 @@ class DefinitionParser(BaseParser):
 
     def _parse_type(self, named: Union[bool, str], outer: str = None) -> ASTType:
         """
-        named=False|'maybe'|True: 'maybe' is e.g., for function objects which
-        doesn't need to name the arguments
+        named=False|'single'|True: 'single' is e.g., for function objects which
+        doesn't need to name the arguments, but otherwise is a single name
         """
         if outer:  # always named
             if outer not in ('type', 'member', 'function'):
@@ -2965,7 +2958,7 @@ class DefinitionParser(BaseParser):
                 break
             if not self.match(identifier_re):
                 self.fail("Expected identifier in macro parameters.")
-            nn = ASTNestedName([ASTIdentifier(self.matched_text)], rooted=False)
+            nn = ASTNestedName([ASTIdentifier(self.matched_text, '')], rooted=False)
             # Allow named variadic args:
             # https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
             self.skip_ws()
@@ -3062,10 +3055,10 @@ class DefinitionParser(BaseParser):
         return ASTDeclaration(objectType, directiveType, declaration, semicolon)
 
     def parse_namespace_object(self) -> ASTNestedName:
-        return self._parse_nested_name()
+        return self._parse_nested_name(allowTags='all')
 
     def parse_xref_object(self) -> ASTNestedName:
-        name = self._parse_nested_name()
+        name = self._parse_nested_name(allowTags='all')
         # if there are '()' left, just skip them
         self.skip_ws()
         self.skip_string('()')
@@ -3095,7 +3088,7 @@ class DefinitionParser(BaseParser):
 
 
 def _make_phony_error_name() -> ASTNestedName:
-    return ASTNestedName([ASTIdentifier("PhonyNameDueToError")], rooted=False)
+    return ASTNestedName([ASTIdentifier("PhonyNameDueToError", None)], rooted=False)
 
 
 class CObject(ObjectDescription[ASTDeclaration]):
@@ -3809,6 +3802,11 @@ class CDomain(Domain):
             logger.warning('Unparseable C cross-reference: %r\n%s', target, e,
                            location=node)
             return None, None
+        if typ in ('struct', 'union', 'enum'):
+            last = name.names[-1]
+            if last.tag == '':
+                last.tag = typ
+
         parentKey = node.get("c:parent_key", None)  # type: LookupKey
         rootSymbol = self.data['root_symbol']
         if parentKey:
@@ -3820,10 +3818,61 @@ class CDomain(Domain):
             assert parentSymbol  # should be there
         else:
             parentSymbol = rootSymbol
+
         s = parentSymbol.find_declaration(name, typ,
                                           matchSelf=True, recurseInAnon=True)
         if s is None or s.declaration is None:
-            return None, None
+            # try with relaxed tagging
+            name.setTagsToPattern()
+            s = parentSymbol.find_declaration(name, typ,
+                                              matchSelf=True, recurseInAnon=True)
+            if s is None or s.declaration is None:
+                return None, None
+            # only warn for identifiers, as they should contain the correct tagging
+            if typ == 'identifier':
+                logger.warning(
+                    "c:%s reference has incorrect tagging:"
+                    " Full reference name is '%s'."
+                    " Full found name is '%s'.",
+                    typ, name, s.get_full_nested_name(), location=node)
+            # TODO: conditionally warn about xrefs with incorrect tagging?
+
+        # check if tags are used correctly
+        sName = s.get_full_nested_name()
+        assert len(name.names) <= len(sName.names)
+        nextName = len(sName.names) - 1
+        # print("Matching '{}' to '{}'".format(name, sName))
+        for xRefName in reversed(name.names):
+            # find the next symbol name that matches the xref name
+            # potentially skipping anon names
+            # print("\tMatching:", xRefName)
+            stop = False
+            while True:
+                if nextName == -1:
+                    stop = True
+                    break
+                ns = sName.names[nextName]
+                nextName -= 1
+                if xRefName.identifier == ns.identifier:
+                    # print("\t\tSame ident:", ns)
+                    break
+                else:
+                    # print("\t\tSkipping:", ns)
+                    assert ns.is_anon()
+            if stop:
+                break
+            # print("\t\tRes(nextName={}): '{}' vs. '{}'".format(nextName, xRefName, ns))
+            if xRefName.tag is None:
+                continue
+            assert ns.tag is not None
+            assert (xRefName.tag == '') == (ns.tag == '')
+            if xRefName.tag != ns.tag:
+                logger.warning(
+                    "c:%s reference uses wrong tag:"
+                    " reference name is '%s' but found name is '%s'."
+                    " Full reference name is '%s'."
+                    " Full found name is '%s'.",
+                    typ, xRefName, ns, name, sName, location=node)
 
         # TODO: check role type vs. object type
 
@@ -3876,9 +3925,18 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value("c_allow_pre_v3", False, 'env')
     app.add_config_value("c_warn_on_allowed_pre_v3", True, 'env')
 
+    # debug stuff
+    app.add_config_value("c_debug_lookup", False, '')
+    app.add_config_value("c_debug_show_tree", False, '')
+
+    def setDebugFlags(app):
+        Symbol.debug_lookup = app.config.c_debug_lookup
+        Symbol.debug_show_tree = app.config.c_debug_show_tree
+    app.connect("builder-inited", setDebugFlags)
+
     return {
         'version': 'builtin',
-        'env_version': 2,
+        'env_version': 3,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

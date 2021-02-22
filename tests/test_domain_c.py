@@ -32,6 +32,21 @@ def parse(name, string):
     return ast
 
 
+def parse_expression(expr, allowTypeExpr=False):
+    class Config:
+        c_id_attributes = ["id_attr"]
+        c_paren_attributes = ["paren_attr"]
+    parser = DefinitionParser(expr, location=None, config=Config())
+    parser.allowFallbackExpressionParsing = False
+    if allowTypeExpr:
+        ast = parser.parse_expression()
+    else:
+        ast = parser._parse_expression()
+        parser.skip_ws()
+    parser.assert_end()
+    return ast
+
+
 def _check(name, input, idDict, output, key, asTextOutput):
     if key is None:
         key = name
@@ -113,14 +128,8 @@ def check(name, input, idDict, output=None, key=None, asTextOutput=None):
 
 
 def test_expressions():
-    def exprCheck(expr, output=None):
-        class Config:
-            c_id_attributes = ["id_attr"]
-            c_paren_attributes = ["paren_attr"]
-        parser = DefinitionParser(expr, location=None, config=Config())
-        parser.allowFallbackExpressionParsing = False
-        ast = parser.parse_expression()
-        parser.assert_end()
+    def exprCheck(expr, output=None, allowTypeExpr=False):
+        ast = parse_expression(expr, allowTypeExpr)
         # first a simple check of the AST
         if output is None:
             output = expr
@@ -141,14 +150,14 @@ def test_expressions():
             raise DefinitionError("")
 
     # type expressions
-    exprCheck('int*')
-    exprCheck('int *const*')
-    exprCheck('int *volatile*')
-    exprCheck('int *restrict*')
-    exprCheck('int *(*)(double)')
-    exprCheck('const int*')
-    exprCheck('__int64')
-    exprCheck('unsigned __int64')
+    exprCheck('int*', allowTypeExpr=True)
+    exprCheck('int *const*', allowTypeExpr=True)
+    exprCheck('int *volatile*', allowTypeExpr=True)
+    exprCheck('int *restrict*', allowTypeExpr=True)
+    exprCheck('int *(*)(double)', allowTypeExpr=True)
+    exprCheck('const int*', allowTypeExpr=True)
+    exprCheck('__int64', allowTypeExpr=True)
+    exprCheck('unsigned __int64', allowTypeExpr=True)
 
     # actual expressions
 
@@ -417,35 +426,65 @@ def test_function_definitions():
     check('function', 'void f(int arr[const static volatile 42])', {1: 'f'},
           output='void f(int arr[static volatile const 42])')
 
+    with pytest.raises(DefinitionError):
+        parse('function', 'void f(int for)')
+
 
 def test_nested_name():
-    check('struct', '{key}.A', {1: "A"})
-    check('struct', '{key}.A.B', {1: "A.B"})
+    check('struct', '{key}.A', {1: "A", 2: "-A"})
+    check('struct', '{key}.A.B', {1: "A.B", 2: "A.-B"})
     check('function', 'void f(.A a)', {1: "f"})
     check('function', 'void f(.A.B a)', {1: "f"})
 
 
 def test_struct_definitions():
-    check('struct', '{key}A', {1: 'A'})
+    check('struct', '{key}A', {1: 'A', 2: '-A'})
 
 
 def test_union_definitions():
-    check('union', '{key}A', {1: 'A'})
+    check('union', '{key}A', {1: 'A', 2: '-A'})
 
 
 def test_enum_definitions():
-    check('enum', '{key}A', {1: 'A'})
+    check('enum', '{key}A', {1: 'A', 2: '-A'})
 
     check('enumerator', '{key}A', {1: 'A'})
     check('enumerator', '{key}A = 42', {1: 'A'})
 
 
 def test_anon_definitions():
-    check('struct', '@a', {1: "@a"}, asTextOutput='struct [anonymous]')
-    check('union', '@a', {1: "@a"}, asTextOutput='union [anonymous]')
-    check('enum', '@a', {1: "@a"}, asTextOutput='enum [anonymous]')
-    check('struct', '@1', {1: "@1"}, asTextOutput='struct [anonymous]')
-    check('struct', '@a.A', {1: "@a.A"}, asTextOutput='struct [anonymous].A')
+    check('struct', '@a', {1: "@a", 2: "-@a"}, asTextOutput='struct [anonymous]')
+    check('union', '@a', {1: "@a", 2: "-@a"}, asTextOutput='union [anonymous]')
+    check('enum', '@a', {1: "@a", 2: "-@a"}, asTextOutput='enum [anonymous]')
+    check('struct', '@1', {1: "@1", 2: "-@1"}, asTextOutput='struct [anonymous]')
+    check('struct', '@a.A', {1: "@a.A", 2: "@a.-A"}, asTextOutput='struct [anonymous].A')
+
+
+def test_tagged_names():
+    for key in ('struct', 'union', 'enum'):
+        with pytest.raises(DefinitionError):
+            parse('member', "int {} A".format(key))
+        with pytest.raises(DefinitionError):
+            parse('function', "int {} A()".format(key))
+        with pytest.raises(DefinitionError):
+            parse('function', "int A(int {} a)".format(key))
+        for objType in ('macro', 'struct', 'union', 'enum', 'enumerator'):
+            with pytest.raises(DefinitionError):
+                parse(objType, '{} A'.format(key))
+        # type
+        with pytest.raises(DefinitionError):
+            parse('type', '{} A'.format(key))
+        check('type', '{key1}{key2} A A'.format(key2=key, key1="{key}"), idDict={1: 'A'}, key='typedef')
+        # TODO: namespace, namespace-push, namespace-pop
+        # TODO: alias
+        # primary expression
+        for expr in ('{} a.b', 'a.{} b.c', 'a.{} b'):
+            with pytest.raises(DefinitionError):
+                parse_expression(expr.format(key))
+        # postfix expression
+        for expr in ('a->{} b->c', 'a->{} b'):
+            with pytest.raises(DefinitionError):
+                parse_expression(expr.format(key))
 
 
 def test_initializers():
@@ -523,8 +562,15 @@ def test_attributes():
 #     raise DefinitionError("")
 
 
+def split_warnigns(warning):
+    ws = warning.getvalue().split("\n")
+    assert len(ws) >= 1
+    assert ws[-1] == ""
+    return ws[:-1]
+
+
 def filter_warnings(warning, file):
-    lines = warning.getvalue().split("\n")
+    lines = split_warnigns(warning)
     res = [l for l in lines if "domain-c" in l and "{}.rst".format(file) in l and
            "WARNING: document isn't included in any toctree" not in l]
     print("Filtered warnings for file '{}':".format(file))
@@ -579,9 +625,155 @@ def test_build_domain_c_anon_dup_decl(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
-def test_build_domain_c_semicolon(app, status, warning):
+def test_ids_vs_tags0(app, status, warning):
+    # this test is essentially the base case for the intersphinx tests,
+    # where both the primary declarations and the references are in one project
     app.builder.build_all()
-    ws = filter_warnings(warning, "semicolon")
+    ws = filter_warnings(warning, "ids-vs-tags0")
+    assert len(ws) == 3
+    msg = "WARNING: c:identifier reference has incorrect tagging:"
+    msg += " Full reference name is '{}'."
+    msg += " Full found name is '{}'."
+    assert msg.format("_struct", "struct _struct") in ws[0]
+    assert msg.format("_union", "union _union") in ws[1]
+    assert msg.format("_enum", "enum _enum") in ws[2]
+
+
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_ids_vs_tags1(app, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "ids-vs-tags1")
+    assert len(ws) == 0
+    t = (app.outdir / "ids-vs-tags1.html").read_text()
+    lis = [l for l in t.split('\n') if l.startswith("<li")]
+    entries = []
+    for l in lis:
+        li = ElementTree.fromstring(l)
+        assert li.tag == 'li'
+        assert len(li) == 1
+        p = li[0]
+        assert p.tag == 'p'
+        assert len(p) == 1
+        a = p[0]
+        assert a.tag == 'a'
+        target = a.attrib['href'].lstrip('#')
+        title = a.attrib['title']
+        assert len(a) == 1
+        code = a[0]
+        assert code.tag == 'code'
+        text = ''.join(code.itertext())
+        entries.append((target, title, text))
+    expected = []
+    idPrefix = 'C2-ids_vs_tags.'
+    for tag in ['struct', 'union', 'enum']:
+        name = 'f_' + tag
+        tagTitle = tag + ' ' + name
+        title = name
+        tagTarget = idPrefix + '-' + name
+        target = idPrefix + name
+        # using the designated role
+        expected.append((tagTarget, tagTitle, title))
+        expected.append((tagTarget, tagTitle, tagTitle))
+        # using :c:type:
+        expected.append((target, title, title))
+        expected.append((tagTarget, tagTitle, tagTitle))
+        # using :any:
+        expected.append((target, title, title))
+        expected.append((tagTarget, tagTitle, tagTitle))
+    assert entries == expected
+
+
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_ids_vs_tags2(app, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "ids-vs-tags2")
+    assert len(ws) == 0
+
+
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_ids_vs_tags3(app, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "ids-vs-tags3")
+    assert len(ws) == 0
+    t = (app.outdir / "ids-vs-tags3.html").read_text()
+    lis = [l for l in t.split('\n') if l.startswith("<li")]
+    entries = []
+    for l in lis:
+        li = ElementTree.fromstring(l)
+        assert li.tag == 'li'
+        assert len(li) == 1
+        p = li[0]
+        assert p.tag == 'p'
+        assert len(p) == 1
+        a = p[0]
+        assert a.tag == 'a'
+        target = a.attrib['href'].lstrip('#')
+        title = a.attrib['title']
+        assert len(a) == 1
+        code = a[0]
+        assert code.tag == 'code'
+        text = ''.join(code.itertext())
+        entries.append((target, title, text))
+    idPrefix = 'C2-ids_vs_tags3.'
+    expected = [
+        (idPrefix + 'f1', 'f1.i', 'f1.i'),
+        (idPrefix + '-f1.i', 'struct f1.i', 'struct f1.i'),
+        (idPrefix + 'f2', 'f2.i', 'f2.i'),
+        (idPrefix + '-f2.i', 'struct f2.i', 'struct f2.i'),
+    ]
+    assert entries == expected
+
+
+def test_duplicate_tags(app, warning):
+    text = """
+.. c:struct:: A
+.. c:union:: A
+.. c:enum:: A
+"""
+    restructuredtext.parse(app, text)
+    ws = split_warnigns(warning)
+    assert len(ws) == 4
+    assert "index.rst:3: WARNING: Duplicate C declaration" in ws[0]
+    assert "Declaration is '.. c:union:: A'." in ws[1]
+    assert "index.rst:4: WARNING: Duplicate C declaration" in ws[2]
+    assert "Declaration is '.. c:enum:: A'." in ws[3]
+
+
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_build_domain_c_wrong_tags(app, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "wrong-tags")
+    template = ".rst:%d: WARNING: c:%s reference uses wrong tag:"\
+               " reference name is '%s' but found name is '%s'."\
+               " Full reference name is '%s'."\
+               " Full found name is '%s'."
+    expected = [
+        template % (8, 'var', 'union A', 'struct A', 'union A.i', 'wrong_tag.struct A.i'),
+        template % (9, 'var', 'enum A', 'struct A', 'enum A.i', 'wrong_tag.struct A.i'),
+        template % (11, 'identifier', 'union A', 'struct A', 'union A', 'wrong_tag.struct A'),
+        template % (13, 'identifier', 'enum A', 'struct A', 'enum A', 'wrong_tag.struct A'),
+        template % (14, 'identifier', 'union A', 'struct A', 'union A', 'wrong_tag.struct A'),
+    ]
+    for i in range(len(expected)):
+        assert expected[i] in ws[i]
+    assert len(ws) == len(expected)
+
+
+def test_build_domain_c_semicolon(app, warning):
+    text = """
+.. c:member:: int member;
+.. c:var:: int var;
+.. c:function:: void f();
+.. .. c:macro:: NO_SEMICOLON;
+.. c:struct:: Struct;
+.. c:union:: Union;
+.. c:enum:: Enum;
+.. c:enumerator:: Enumerator;
+.. c:type:: Type;
+.. c:type:: int TypeDef;
+"""
+    restructuredtext.parse(app, text)
+    ws = split_warnigns(warning)
     assert len(ws) == 0
 
 
@@ -593,8 +785,8 @@ def test_build_function_param_target(app, warning):
     assert len(ws) == 0
     entries = extract_role_links(app, "function_param_target.html")
     assert entries == [
-        ('c.f', 'i', 'i'),
-        ('c.f', 'f.i', 'f.i'),
+        ('C2-function_param_target.f', 'i', 'i'),
+        ('C2-function_param_target.f', 'f.i', 'f.i'),
     ]
 
 
@@ -621,7 +813,7 @@ def test_cfunction(app):
                 domain="c", objtype="function", noindex=False)
 
     entry = _get_obj(app, 'PyType_GenericAlloc')
-    assert entry == ('index', 'c.PyType_GenericAlloc', 'function')
+    assert entry == ('index', 'C2-PyType_GenericAlloc', 'function')
 
 
 def test_cmember(app):
@@ -631,7 +823,7 @@ def test_cmember(app):
                 domain="c", objtype="member", noindex=False)
 
     entry = _get_obj(app, 'PyTypeObject.tp_bases')
-    assert entry == ('index', 'c.PyTypeObject.tp_bases', 'member')
+    assert entry == ('index', 'C2-PyTypeObject.tp_bases', 'member')
 
 
 def test_cvar(app):
@@ -641,7 +833,7 @@ def test_cvar(app):
                 domain="c", objtype="var", noindex=False)
 
     entry = _get_obj(app, 'PyClass_Type')
-    assert entry == ('index', 'c.PyClass_Type', 'member')
+    assert entry == ('index', 'C2-PyClass_Type', 'member')
 
 
 def test_noindexentry(app):
@@ -650,18 +842,25 @@ def test_noindexentry(app):
             "   :noindexentry:\n")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
-    assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C function)', 'c.f', '', None)])
+    assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C function)', 'C2-f', '', None)])
     assert_node(doctree[2], addnodes.index, entries=[])
 
 
 @pytest.mark.sphinx(testroot='domain-c-intersphinx', confoverrides={'nitpicky': True})
-def test_intersphinx(tempdir, app, status, warning):
+def test_intersphinx_v3_remote(tempdir, app, status, warning):
+    # a splitting of test_ids_vs_tags0 into the primary directives in a remote project,
+    # and then the references in the test project
     origSource = """\
 .. c:member:: int _member
 .. c:var:: int _var
 .. c:function:: void _function()
 .. c:macro:: _macro
 .. c:struct:: _struct
+
+	.. c:union:: @anon
+
+		.. c:var:: int i
+
 .. c:union:: _union
 .. c:enum:: _enum
 
@@ -686,9 +885,69 @@ _functionParam.param c:functionParam 1 index.html#c._functionParam -
 _macro c:macro 1 index.html#c.$ -
 _member c:member 1 index.html#c.$ -
 _struct c:struct 1 index.html#c.$ -
+_struct.@anon c:union 1 index.html#c.$ _struct.[anonymous]
+_struct.@anon.i c:member 1 index.html#c.$ _struct.[anonymous].i
 _type c:type 1 index.html#c.$ -
 _union c:union 1 index.html#c.$ -
 _var c:member 1 index.html#c.$ -
+'''))  # noqa
+    app.config.intersphinx_mapping = {
+        'https://localhost/intersphinx/c/': inv_file,
+    }
+    app.config.intersphinx_cache_limit = 0
+    # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    app.builder.build_all()
+    ws = filter_warnings(warning, "index")
+    assert len(ws) == 0
+
+
+@pytest.mark.sphinx(testroot='domain-c-intersphinx', confoverrides={'nitpicky': True})
+def test_intersphinx_v4_remote(tempdir, app, status, warning):
+    # a splitting of test_ids_vs_tags0 into the primary directives in a remote project,
+    # and then the references in the test project
+    origSource = """\
+.. c:member:: int _member
+.. c:var:: int _var
+.. c:function:: void _function()
+.. c:macro:: _macro
+.. c:struct:: _struct
+
+	.. c:union:: @anon
+
+		.. c:var:: int i
+
+.. c:union:: _union
+.. c:enum:: _enum
+
+    .. c:enumerator:: _enumerator
+
+.. c:type:: _type
+.. c:function:: void _functionParam(int param)
+"""  # noqa
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(b'''\
+# Sphinx inventory version 2
+# Project: C Intersphinx Test
+# Version: 
+# The remainder of this file is compressed using zlib.
+''' + zlib.compress(b'''\
+_enumerator c:enumerator 1 index.html#C2--_enum.$ -
+_function c:function 1 index.html#C2-$ -
+_functionParam c:function 1 index.html#C2-$ -
+_functionParam.param c:functionParam 1 index.html#C2-_functionParam -
+_macro c:macro 1 index.html#C2-$ -
+_member c:member 1 index.html#C2-$ -
+_type c:type 1 index.html#C2-$ -
+_var c:member 1 index.html#C2-$ -
+enum _enum c:enum 1 index.html#C2--_enum -
+enum _enum._enumerator c:enumerator 1 index.html#C2--_enum._enumerator -
+struct _struct c:struct 1 index.html#C2--_struct -
+struct _struct.union @anon c:union 1 index.html#C2--_struct.-@anon struct _struct.union [anonymous]
+struct _struct.union @anon.i c:member 1 index.html#C2--_struct.-@anon.i struct _struct.union [anonymous].i
+union _union c:union 1 index.html#C2--_union -
 '''))  # noqa
     app.config.intersphinx_mapping = {
         'https://localhost/intersphinx/c/': inv_file,

@@ -77,6 +77,8 @@ Bugs fixed
   with size explicitly set in pixels) (fixed for ``'pdflatex'/'lualatex'`` only)
 * #8911: C++: remove the longest matching prefix in
   :confval:`cpp_index_common_prefix` instead of the first that matches.
+* C, properly reject function declarations when a keyword is used
+  as parameter name.
 
 Testing
 --------

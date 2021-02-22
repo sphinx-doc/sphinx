@@ -293,11 +293,11 @@ def test_html4_output(app, status, warning):
         (".//a[@class='reference internal'][@href='#errmod.Error']/strong", 'Error'),
         # C references
         (".//span[@class='pre']", 'CFunction()'),
-        (".//a[@href='#c.Sphinx_DoSomething']", ''),
-        (".//a[@href='#c.SphinxStruct.member']", ''),
-        (".//a[@href='#c.SPHINX_USE_PYTHON']", ''),
-        (".//a[@href='#c.SphinxType']", ''),
-        (".//a[@href='#c.sphinx_global']", ''),
+        (".//a[@href='#C2-Sphinx_DoSomething']", ''),
+        (".//a[@href='#C2-SphinxStruct.member']", ''),
+        (".//a[@href='#C2-SPHINX_USE_PYTHON']", ''),
+        (".//a[@href='#C2-SphinxType']", ''),
+        (".//a[@href='#C2-sphinx_global']", ''),
         # test global TOC created by toctree()
         (".//ul[@class='current']/li[@class='toctree-l1 current']/a[@href='#']",
          'Testing object descriptions'),

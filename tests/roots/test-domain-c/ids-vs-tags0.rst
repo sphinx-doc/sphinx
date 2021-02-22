@@ -1,3 +1,22 @@
+.. c:member:: int _member
+.. c:var:: int _var
+.. c:function:: void _function()
+.. c:macro:: _macro
+.. c:struct:: _struct
+
+	.. c:union:: @anon
+
+		.. c:var:: int i
+
+.. c:union:: _union
+.. c:enum:: _enum
+
+    .. c:enumerator:: _enumerator
+
+.. c:type:: _type
+.. c:function:: void _functionParam(int param)
+
+
 .. c:member:: void __member = _member
 
 	- :any:`_member`

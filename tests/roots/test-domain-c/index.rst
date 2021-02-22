@@ -1,3 +1,5 @@
+.. c:namespace:: index
+
 test-domain-c
 =============
 
@@ -8,7 +10,7 @@ directives
 
    :rtype: int
 
-.. c:function:: MyStruct hello2(char *name)
+.. c:function:: struct MyStruct hello2(char *name)
 
    :rtype: MyStruct
 
@@ -46,7 +48,7 @@ directives
 - :c:expr:`unsigned int`
 - :c:texpr:`unsigned int`
 
-.. c:var:: A a
+.. c:var:: struct A a
 
 - :c:expr:`a->b`
 - :c:texpr:`a->b`
