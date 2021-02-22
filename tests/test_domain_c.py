@@ -623,11 +623,19 @@ def test_build_domain_c_anon_dup_decl(app, status, warning):
     assert "WARNING: c:identifier reference target not found: @a" in ws[0]
     assert "WARNING: c:identifier reference target not found: @b" in ws[1]
 
+
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
 def test_ids_vs_tags0(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "ids-vs-tags0")
-    assert len(ws) == 0
+    assert len(ws) == 3
+    msg = "WARNING: c:identifier reference has incorrect tagging:"
+    msg += " Full reference name is '{}'."
+    msg += " Full found name is '{}'."
+    assert msg.format("_struct", "struct _struct") in ws[0]
+    assert msg.format("_union", "union _union") in ws[1]
+    assert msg.format("_enum", "enum _enum") in ws[2]
+
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
 def test_ids_vs_tags1(app, warning):
@@ -733,7 +741,7 @@ def test_duplicate_tags(app, warning):
 def test_build_domain_c_wrong_tags(app, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "wrong-tags")
-    template = ".rst:%d: WARNING: C '%s' cross-reference uses wrong tag:"\
+    template = ".rst:%d: WARNING: c:%s reference uses wrong tag:"\
                " reference name is '%s' but found name is '%s'."\
                " Full reference name is '%s'."\
                " Full found name is '%s'."
@@ -765,6 +773,7 @@ def test_build_domain_c_semicolon(app, warning):
     restructuredtext.parse(app, text)
     ws = split_warnigns(warning)
     assert len(ws) == 0
+
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
 def test_build_function_param_target(app, warning):

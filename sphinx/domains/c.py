@@ -3822,15 +3822,19 @@ class CDomain(Domain):
         s = parentSymbol.find_declaration(name, typ,
                                           matchSelf=True, recurseInAnon=True)
         if s is None or s.declaration is None:
-            if typ == 'identifier':
-                # these are from within declarations and should be tagged correctly
-                return None, None
-            # but those from xref roles may not have correct tagging
+            # try with relaxed tagging
             name.setTagsToPattern()
             s = parentSymbol.find_declaration(name, typ,
                                               matchSelf=True, recurseInAnon=True)
             if s is None or s.declaration is None:
                 return None, None
+            # only warn for identifiers, as they should contain the correct tagging
+            if typ == 'identifier':
+                logger.warning(
+                    "c:%s reference has incorrect tagging:"
+                    " Full reference name is '%s'."
+                    " Full found name is '%s'.",
+                    typ, name, s.get_full_nested_name(), location=node)
             # TODO: conditionally warn about xrefs with incorrect tagging?
 
         # check if tags are used correctly
@@ -3864,7 +3868,7 @@ class CDomain(Domain):
             assert (xRefName.tag == '') == (ns.tag == '')
             if xRefName.tag != ns.tag:
                 logger.warning(
-                    "C '%s' cross-reference uses wrong tag:"
+                    "c:%s reference uses wrong tag:"
                     " reference name is '%s' but found name is '%s'."
                     " Full reference name is '%s'."
                     " Full found name is '%s'.",
