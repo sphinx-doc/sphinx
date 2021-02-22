@@ -3,6 +3,11 @@
 .. c:function:: void _function()
 .. c:macro:: _macro
 .. c:struct:: _struct
+
+	.. c:union:: @anon
+
+		.. c:var:: int i
+
 .. c:union:: _union
 .. c:enum:: _enum
 
@@ -75,3 +80,11 @@
 	- :c:var:`_functionParam.param`
 	- :c:data:`_functionParam.param`
 
+- :any:`_struct.@anon.i`
+- :c:member:`_struct.@anon.i`
+- :c:var:`_struct.@anon.i`
+- :c:data:`_struct.@anon.i`
+- :any:`_struct.i`
+- :c:member:`_struct.i`
+- :c:var:`_struct.i`
+- :c:data:`_struct.i`

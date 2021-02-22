@@ -626,6 +626,8 @@ def test_build_domain_c_anon_dup_decl(app, status, warning):
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
 def test_ids_vs_tags0(app, status, warning):
+    # this test is essentially the base case for the intersphinx tests,
+    # where both the primary declarations and the references are in one project
     app.builder.build_all()
     ws = filter_warnings(warning, "ids-vs-tags0")
     assert len(ws) == 3
@@ -846,12 +848,19 @@ def test_noindexentry(app):
 
 @pytest.mark.sphinx(testroot='domain-c-intersphinx', confoverrides={'nitpicky': True})
 def test_intersphinx_v3_remote(tempdir, app, status, warning):
+    # a splitting of test_ids_vs_tags0 into the primary directives in a remote project,
+    # and then the references in the test project
     origSource = """\
 .. c:member:: int _member
 .. c:var:: int _var
 .. c:function:: void _function()
 .. c:macro:: _macro
 .. c:struct:: _struct
+
+	.. c:union:: @anon
+
+		.. c:var:: int i
+
 .. c:union:: _union
 .. c:enum:: _enum
 
@@ -876,6 +885,8 @@ _functionParam.param c:functionParam 1 index.html#c._functionParam -
 _macro c:macro 1 index.html#c.$ -
 _member c:member 1 index.html#c.$ -
 _struct c:struct 1 index.html#c.$ -
+_struct.@anon c:union 1 index.html#c.$ _struct.[anonymous]
+_struct.@anon.i c:member 1 index.html#c.$ _struct.[anonymous].i
 _type c:type 1 index.html#c.$ -
 _union c:union 1 index.html#c.$ -
 _var c:member 1 index.html#c.$ -
@@ -895,12 +906,19 @@ _var c:member 1 index.html#c.$ -
 
 @pytest.mark.sphinx(testroot='domain-c-intersphinx', confoverrides={'nitpicky': True})
 def test_intersphinx_v4_remote(tempdir, app, status, warning):
+    # a splitting of test_ids_vs_tags0 into the primary directives in a remote project,
+    # and then the references in the test project
     origSource = """\
 .. c:member:: int _member
 .. c:var:: int _var
 .. c:function:: void _function()
 .. c:macro:: _macro
 .. c:struct:: _struct
+
+	.. c:union:: @anon
+
+		.. c:var:: int i
+
 .. c:union:: _union
 .. c:enum:: _enum
 
@@ -927,6 +945,8 @@ _var c:member 1 index.html#C2-$ -
 enum _enum c:enum 1 index.html#C2--_enum -
 enum _enum._enumerator c:enumerator 1 index.html#C2--_enum._enumerator -
 struct _struct c:struct 1 index.html#C2--_struct -
+struct _struct.union @anon c:union 1 index.html#C2--_struct.-@anon struct _struct.union [anonymous]
+struct _struct.union @anon.i c:member 1 index.html#C2--_struct.-@anon.i struct _struct.union [anonymous].i
 union _union c:union 1 index.html#C2--_union -
 '''))  # noqa
     app.config.intersphinx_mapping = {
