@@ -742,10 +742,15 @@ def test_domain_c_build_intersphinx(tmp_path, app, status, warning):
 .. c:function:: void _function()
 .. c:macro:: _macro
 .. c:struct:: _struct
+
+   .. c:union:: @anon
+
+      .. c:var:: int i
+
 .. c:union:: _union
 .. c:enum:: _enum
 
-    .. c:enumerator:: _enumerator
+   .. c:enumerator:: _enumerator
 
 .. c:type:: _type
 .. c:function:: void _functionParam(int param)
@@ -766,6 +771,8 @@ _functionParam.param c:functionParam 1 index.html#c._functionParam -
 _macro c:macro 1 index.html#c.$ -
 _member c:member 1 index.html#c.$ -
 _struct c:struct 1 index.html#c.$ -
+_struct.@anon c:union 1 index.html#c.$ _struct.[anonymous]
+_struct.@anon.i c:member 1 index.html#c.$ _struct.[anonymous].i
 _type c:type 1 index.html#c.$ -
 _union c:union 1 index.html#c.$ -
 _var c:member 1 index.html#c.$ -
