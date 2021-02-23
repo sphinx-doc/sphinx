@@ -30,6 +30,7 @@ Incompatible changes
 * html theme: Move a script tag for documentation_options.js in
   basic/layout.html to ``script_files`` variable
 * html theme: Move CSS tags in basic/layout.html to ``css_files`` variable
+* #8915: html theme: Emit a warning for sphinx_rtd_theme-0.2.4 or older
 * #8508: LaTeX: uplatex becomes a default setting of latex_engine for Japanese
   documents
 * #5977: py domain: ``:var:``, ``:cvar:`` and ``:ivar:`` fields do not create
@@ -69,6 +70,7 @@ Bugs fixed
 ----------
 
 * #8380: html search: Paragraphs in search results are not identified as ``<p>``
+* #8915: html theme: The translation of sphinx_rtd_theme does not work
 * #8342: Emit a warning if a unknown domain is given for directive or role (ex.
   ``:unknown:doc:``)
 * #8711: LaTeX: backticks in code-blocks trigger latexpdf build warning (and font
