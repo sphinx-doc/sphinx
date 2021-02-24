@@ -343,8 +343,21 @@
     \fi\fi
 }%
 % auxiliary paragraph dissector to get max and min widths
+% but minwidth must not take into account the last line
 \newbox\spx@scratchbox
 \def\spx@verb@getwidths {%
+    \unskip\unpenalty
+    \setbox\spx@scratchbox\lastbox
+    \ifvoid\spx@scratchbox
+    \else
+       \setbox\spx@scratchbox\hbox{\unhbox\spx@scratchbox}%
+       \ifdim\spx@verb@maxwidth<\wd\spx@scratchbox
+          \xdef\spx@verb@maxwidth{\number\wd\spx@scratchbox sp}%
+       \fi
+       \expandafter\spx@verb@getwidths@loop
+    \fi
+}%
+\def\spx@verb@getwidths@loop {%
     \unskip\unpenalty
     \setbox\spx@scratchbox\lastbox
     \ifvoid\spx@scratchbox
@@ -356,7 +369,7 @@
        \ifdim\spx@verb@minwidth>\wd\spx@scratchbox
           \xdef\spx@verb@minwidth{\number\wd\spx@scratchbox sp}%
        \fi
-       \expandafter\spx@verb@getwidths
+       \expandafter\spx@verb@getwidths@loop
     \fi
 }%
 % auxiliary macros to implement "cut long line even in middle of word"
