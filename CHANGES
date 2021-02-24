@@ -55,6 +55,7 @@ Deprecated
 Features added
 --------------
 
+* #8924: autodoc: Support ``bound`` argument for TypeVar
 * #4826: py domain: Add ``:canonical:`` option to python directives to describe
   the location where the object is defined
 * #7784: i18n: The alt text for image is translated by default (without

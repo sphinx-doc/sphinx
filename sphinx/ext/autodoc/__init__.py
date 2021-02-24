@@ -1812,6 +1812,8 @@ class TypeVarMixin(DataDocumenterMixinBase):
             attrs = [repr(self.object.__name__)]
             for constraint in self.object.__constraints__:
                 attrs.append(stringify_typehint(constraint))
+            if self.object.__bound__:
+                attrs.append(r"bound=\ " + restify(self.object.__bound__))
             if self.object.__covariant__:
                 attrs.append("covariant=True")
             if self.object.__contravariant__:
