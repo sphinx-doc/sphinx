@@ -79,6 +79,8 @@ Bugs fixed
   :confval:`cpp_index_common_prefix` instead of the first that matches.
 * C, properly reject function declarations when a keyword is used
   as parameter name.
+* #8925: LaTeX: 3.5.0 ``verbatimmaxunderfull`` setting does not work as
+  expected
 
 Testing
 --------
