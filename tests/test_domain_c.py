@@ -615,8 +615,8 @@ def test_build_function_param_target(app, warning):
     assert len(ws) == 0
     entries = extract_role_links(app, "function_param_target.html")
     assert entries == [
-        ('c.f', 'i', 'i'),
-        ('c.f', 'f.i', 'f.i'),
+        ('c.function_param_target.f', 'i', 'i'),
+        ('c.function_param_target.f', 'f.i', 'f.i'),
     ]
 
 
