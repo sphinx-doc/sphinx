@@ -1993,6 +1993,14 @@ def test_autodoc_TypeVar(app):
         '',
         '   alias of :class:`int`',
         '',
+        '',
+        '.. py:data:: T7',
+        '   :module: target.typevar',
+        '',
+        '   T7',
+        '',
+        "   alias of TypeVar('T7', bound=\\ :class:`int`)",
+        '',
     ]
 
 
