@@ -166,6 +166,15 @@ def getannotations(obj: Any) -> Mapping[str, Any]:
         return {}
 
 
+def getglobals(obj: Any) -> Mapping[str, Any]:
+    """Get __globals__ from given *obj* safely."""
+    __globals__ = safe_getattr(obj, '__globals__', None)
+    if isinstance(__globals__, Mapping):
+        return __globals__
+    else:
+        return {}
+
+
 def getmro(obj: Any) -> Tuple["Type", ...]:
     """Get __mro__ from given *obj* safely."""
     __mro__ = safe_getattr(obj, '__mro__', None)
@@ -484,9 +493,9 @@ class DefaultValue:
 
 def _should_unwrap(subject: Callable) -> bool:
     """Check the function should be unwrapped on getting signature."""
-    if (safe_getattr(subject, '__globals__', None) and
-            subject.__globals__.get('__name__') == 'contextlib' and  # type: ignore
-            subject.__globals__.get('__file__') == contextlib.__file__):  # type: ignore
+    __globals__ = getglobals(subject)
+    if (__globals__.get('__name__') == 'contextlib' and
+            __globals__.get('__file__') == contextlib.__file__):
         # contextmanger should be unwrapped
         return True
 
