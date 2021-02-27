@@ -215,11 +215,23 @@ def test_math_compat(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='ext-math',
                     confoverrides={'extensions': ['sphinx.ext.mathjax'],
-                                   'mathjax_config': {'extensions': ['tex2jax.js']}})
-def test_mathjax_config(app, status, warning):
+                                   'mathjax3_config': {'extensions': ['tex2jax.js']}})
+def test_mathjax3_config(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').read_text()
+    assert MATHJAX_URL in content
+    assert ('<script>window.MathJax = {"extensions": ["tex2jax.js"]}</script>' in content)
+
+
+@pytest.mark.sphinx('html', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax'],
+                                   'mathjax2_config': {'extensions': ['tex2jax.js']}})
+def test_mathjax2_config(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text()
+    assert MATHJAX_URL in content
     assert ('<script type="text/x-mathjax-config">'
             'MathJax.Hub.Config({"extensions": ["tex2jax.js"]})'
             '</script>' in content)
