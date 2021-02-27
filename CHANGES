@@ -64,6 +64,8 @@ Features added
 * #2018: html: :confval:`html_favicon` and :confval:`html_logo` now accept URL
   for the image
 * #8070: html search: Support searching for 2characters word
+* #8195: mathjax: Add :confval:`mathjax_version` to choose the version of
+  MathJax
 * #7830: Add debug logs for change detection of sources and templates
 * #8201: Emit a warning if toctree contains duplicated entries
 

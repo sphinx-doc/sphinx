@@ -161,6 +161,13 @@ Sphinx but is set to automatically include it from a third-party site.
    :rst:role:`role <math>`, not the native MathJax ``$$``, ``\(``, etc.
 
 
+.. confval:: mathjax_version
+
+   The version of MathJax to be installed.  The value should be 2 or 3.  The
+   default is 3.
+
+   .. versionadded:: 4.0
+
 .. confval:: mathjax_path
 
    The path to the JavaScript file to include in the HTML files in order to load

@@ -17,6 +17,7 @@ from docutils import nodes
 
 import sphinx
 from sphinx.application import Sphinx
+from sphinx.config import ENUM, Config
 from sphinx.domains.math import MathDomain
 from sphinx.errors import ExtensionError
 from sphinx.locale import _
@@ -25,7 +26,9 @@ from sphinx.writers.html import HTMLTranslator
 
 # more information for mathjax secure url is here:
 # https://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
-MATHJAX_URL = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
+MATHJAX2_URL = ('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?'
+                'config=TeX-AMS-MML_HTMLorMML')
+MATHJAX3_URL = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
 
 
 def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
@@ -85,8 +88,20 @@ def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: Dict
         app.add_js_file(app.config.mathjax_path, **options)  # type: ignore
 
         if app.config.mathjax_config:
-            body = "MathJax.Hub.Config(%s)" % json.dumps(app.config.mathjax_config)
-            app.add_js_file(None, type="text/x-mathjax-config", body=body)
+            if app.config.mathjax_version == 2:
+                body = "MathJax.Hub.Config(%s)" % json.dumps(app.config.mathjax_config)
+                app.add_js_file(None, type="text/x-mathjax-config", body=body)
+            else:
+                body = "window.MathJax = %s;" % json.dumps(app.config.mathjax_config)
+                app.add_js_file(None, body=body)
+
+
+def default_mathjax_url(config: Config) -> str:
+    """Choose appropriate URL using mathjax_version."""
+    if config.mathjax_version == 2:
+        return MATHJAX2_URL
+    else:
+        return MATHJAX3_URL
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
@@ -94,7 +109,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
                                (html_visit_math, None),
                                (html_visit_displaymath, None))
 
-    app.add_config_value('mathjax_path', MATHJAX_URL, 'html')
+    app.add_config_value('mathjax_version', 3, 'html', ENUM(2, 3))
+    app.add_config_value('mathjax_path', default_mathjax_url, 'html')
     app.add_config_value('mathjax_options', {}, 'html')
     app.add_config_value('mathjax_inline', [r'\(', r'\)'], 'html')
     app.add_config_value('mathjax_display', [r'\[', r'\]'], 'html')

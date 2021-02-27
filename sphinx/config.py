@@ -61,10 +61,10 @@ class ENUM:
     Example:
         app.add_config_value('latex_show_urls', 'no', None, ENUM('no', 'footnote', 'inline'))
     """
-    def __init__(self, *candidates: str) -> None:
+    def __init__(self, *candidates: Any) -> None:
         self.candidates = candidates
 
-    def match(self, value: Union[str, List, Tuple]) -> bool:
+    def match(self, value: Union[Any, List, Tuple]) -> bool:
         if isinstance(value, (list, tuple)):
             return all(item in self.candidates for item in value)
         else:
