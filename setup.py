@@ -22,7 +22,7 @@ install_requires = [
     'sphinxcontrib-serializinghtml',
     'sphinxcontrib-qthelp',
     'Jinja2>=2.10',
-    'Pygments>=2.10',
+    'Pygments>=2.3',
     'docutils>=0.14',
     'snowballstemmer>=2.0',
     'babel>=2.6',
