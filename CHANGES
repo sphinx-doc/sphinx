@@ -4,9 +4,17 @@ Release 4.0.0 (in development)
 Dependencies
 ------------
 
-* Drop python 3.5 support
-* Drop docutils 0.12 and 0.13 support
-* LaTeX: add ``tex-gyre`` font dependency
+The following dependencies were updated new minumum versions:
+
+* Python 3.6 
+* Docutils 0.14
+* Jinja2 2.10 
+* Pygments 2.3
+* Snowballstemmer 2.0
+* Babel 2.6
+* Requests 2.22
+
+LaTeX: add ``tex-gyre`` font dependency
 
 Incompatible changes
 --------------------
