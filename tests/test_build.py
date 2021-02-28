@@ -48,12 +48,12 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
             =======================
             """))
 
-        master_doc = srcdir / 'index.txt'
-        master_doc.write_text(master_doc.read_text() + dedent("""
-                              .. toctree::
+        root_doc = srcdir / 'index.txt'
+        root_doc.write_text(root_doc.read_text() + dedent("""
+                            .. toctree::
 
-                                 %(test_name)s/%(test_name)s
-                              """ % {'test_name': test_name}))
+                               %(test_name)s/%(test_name)s
+                            """ % {'test_name': test_name}))
     return srcdir
 
 
@@ -71,7 +71,7 @@ def test_build_all(requests_head, make_app, nonascii_srcdir, buildername):
     app.build()
 
 
-def test_master_doc_not_found(tempdir, make_app):
+def test_root_doc_not_found(tempdir, make_app):
     (tempdir / 'conf.py').write_text('')
     assert tempdir.listdir() == ['conf.py']
 

@@ -163,7 +163,7 @@ def test_quickstart_all_answers(tempdir):
     ]
     assert ns['templates_path'] == ['.templates']
     assert ns['source_suffix'] == '.txt'
-    assert ns['master_doc'] == 'contents'
+    assert ns['root_doc'] == 'contents'
     assert ns['project'] == 'STASI™'
     assert ns['copyright'] == '%s, Wolfgang Schäuble & G\'Beckstein' % \
         time.strftime('%Y')

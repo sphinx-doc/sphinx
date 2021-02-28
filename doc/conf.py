@@ -9,7 +9,7 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
               'sphinx.ext.intersphinx',
               'sphinx.ext.viewcode', 'sphinx.ext.inheritance_diagram']
 
-master_doc = 'contents'
+root_doc = 'contents'
 templates_path = ['_templates']
 exclude_patterns = ['_build']
 

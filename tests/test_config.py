@@ -20,7 +20,7 @@ from sphinx.testing.path import path
 
 
 @pytest.mark.sphinx(testroot='config', confoverrides={
-    'master_doc': 'master',
+    'root_doc': 'root',
     'nonexisting_value': 'True',
     'latex_elements.maketitle': 'blah blah blah',
     'modindex_common_prefix': 'path1,path2'})
@@ -33,7 +33,7 @@ def test_core_config(app, status, warning):
     assert cfg.templates_path == ['_templates']
 
     # overrides
-    assert cfg.master_doc == 'master'
+    assert cfg.root_doc == 'root'
     assert cfg.latex_elements['maketitle'] == 'blah blah blah'
     assert cfg.modindex_common_prefix == ['path1', 'path2']
 
@@ -78,11 +78,11 @@ def test_extension_values():
     config = Config()
 
     # check standard settings
-    assert config.master_doc == 'index'
+    assert config.root_doc == 'index'
 
     # can't override it by add_config_value()
     with pytest.raises(ExtensionError) as excinfo:
-        config.add('master_doc', 'index', 'env', None)
+        config.add('root_doc', 'index', 'env', None)
     assert 'already present' in str(excinfo.value)
 
     # add a new config value
@@ -201,13 +201,13 @@ def test_config_eol(logger, tempdir):
         assert logger.called is False
 
 
-@pytest.mark.sphinx(confoverrides={'master_doc': 123,
+@pytest.mark.sphinx(confoverrides={'root_doc': 123,
                                    'language': 'foo',
                                    'primary_domain': None})
 def test_builtin_conf(app, status, warning):
     warnings = warning.getvalue()
-    assert 'master_doc' in warnings, (
-        'override on builtin "master_doc" should raise a type warning')
+    assert 'root_doc' in warnings, (
+        'override on builtin "root_doc" should raise a type warning')
     assert 'language' not in warnings, (
         'explicitly permitted override on builtin "language" should NOT raise '
         'a type warning')

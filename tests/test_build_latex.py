@@ -1037,7 +1037,7 @@ def test_toctree_maxdepth_howto(app, status, warning):
 
 @pytest.mark.sphinx(
     'latex', testroot='toctree-maxdepth',
-    confoverrides={'master_doc': 'foo'})
+    confoverrides={'root_doc': 'foo'})
 def test_toctree_not_found(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'python.tex').read_text()
@@ -1051,7 +1051,7 @@ def test_toctree_not_found(app, status, warning):
 
 @pytest.mark.sphinx(
     'latex', testroot='toctree-maxdepth',
-    confoverrides={'master_doc': 'bar'})
+    confoverrides={'root_doc': 'bar'})
 def test_toctree_without_maxdepth(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'python.tex').read_text()
@@ -1064,7 +1064,7 @@ def test_toctree_without_maxdepth(app, status, warning):
 
 @pytest.mark.sphinx(
     'latex', testroot='toctree-maxdepth',
-    confoverrides={'master_doc': 'qux'})
+    confoverrides={'root_doc': 'qux'})
 def test_toctree_with_deeper_maxdepth(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'python.tex').read_text()
@@ -1532,7 +1532,7 @@ def test_latex_figure_in_admonition(app, status, warning):
 def test_default_latex_documents():
     from sphinx.util import texescape
     texescape.init()
-    config = Config({'master_doc': 'index',
+    config = Config({'root_doc': 'index',
                      'project': 'STASI™ Documentation',
                      'author': "Wolfgang Schäuble & G'Beckstein."})
     config.init_values()
