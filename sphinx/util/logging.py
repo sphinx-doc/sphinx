@@ -12,7 +12,7 @@ import logging
 import logging.handlers
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import IO, Any, Dict, Generator, List, Tuple, Union
+from typing import IO, TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple, Type, Union
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -21,10 +21,7 @@ from docutils.utils import get_source_line
 from sphinx.errors import SphinxWarning
 from sphinx.util.console import colorize
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
@@ -356,6 +353,8 @@ def is_suppressed_warning(type: str, subtype: str, suppress_warnings: List[str])
     if type is None:
         return False
 
+    subtarget: Optional[str]
+
     for warning_type in suppress_warnings:
         if '.' in warning_type:
             target, subtarget = warning_type.split('.', 1)
@@ -509,7 +508,7 @@ class WarningLogRecordTranslator(SphinxLogRecordTranslator):
     LogRecordClass = SphinxWarningLogRecord
 
 
-def get_node_location(node: Node) -> str:
+def get_node_location(node: Node) -> Optional[str]:
     (source, line) = get_source_line(node)
     if source and line:
         return "%s:%s" % (source, line)

@@ -109,7 +109,7 @@ class ManualPageBuilder(Builder):
 def default_man_pages(config: Config) -> List[Tuple[str, str, str, List[str], int]]:
     """ Better default man_pages settings. """
     filename = make_filename_from_project(config.project)
-    return [(config.master_doc, filename, '%s %s' % (config.project, config.release),
+    return [(config.root_doc, filename, '%s %s' % (config.project, config.release),
              [config.author], 1)]
 
 
@@ -118,7 +118,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     app.add_config_value('man_pages', default_man_pages, None)
     app.add_config_value('man_show_urls', False, None)
-    app.add_config_value('man_make_section_directory', False, None)
+    app.add_config_value('man_make_section_directory', True, None)
 
     return {
         'version': 'builtin',

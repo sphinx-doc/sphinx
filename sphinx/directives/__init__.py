@@ -9,7 +9,7 @@
 """
 
 import re
-from typing import Any, Dict, Generic, List, Tuple, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Dict, Generic, List, Tuple, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -17,15 +17,13 @@ from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature
-from sphinx.deprecation import (RemovedInSphinx40Warning, RemovedInSphinx50Warning,
-                                deprecated_alias)
+from sphinx.deprecation import RemovedInSphinx50Warning, deprecated_alias
 from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.typing import DirectiveOption
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
@@ -266,52 +264,6 @@ class DefaultDomain(SphinxDirective):
         self.env.temp_data['default_domain'] = self.env.domains.get(domain_name)
         return []
 
-from sphinx.directives.code import CodeBlock, Highlight, LiteralInclude  # noqa
-from sphinx.directives.other import (Acks, Author, Centered, Class, HList, Include,  # noqa
-                                     Only, SeeAlso, TabularColumns, TocTree, VersionChange)
-from sphinx.directives.patches import Figure, Meta  # noqa
-from sphinx.domains.index import IndexDirective  # noqa
-
-deprecated_alias('sphinx.directives',
-                 {
-                     'Highlight': Highlight,
-                     'CodeBlock': CodeBlock,
-                     'LiteralInclude': LiteralInclude,
-                     'TocTree': TocTree,
-                     'Author': Author,
-                     'Index': IndexDirective,
-                     'VersionChange': VersionChange,
-                     'SeeAlso': SeeAlso,
-                     'TabularColumns': TabularColumns,
-                     'Centered': Centered,
-                     'Acks': Acks,
-                     'HList': HList,
-                     'Only': Only,
-                     'Include': Include,
-                     'Class': Class,
-                     'Figure': Figure,
-                     'Meta': Meta,
-                 },
-                 RemovedInSphinx40Warning,
-                 {
-                     'Highlight': 'sphinx.directives.code.Highlight',
-                     'CodeBlock': 'sphinx.directives.code.CodeBlock',
-                     'LiteralInclude': 'sphinx.directives.code.LiteralInclude',
-                     'TocTree': 'sphinx.directives.other.TocTree',
-                     'Author': 'sphinx.directives.other.Author',
-                     'Index': 'sphinx.directives.other.IndexDirective',
-                     'VersionChange': 'sphinx.directives.other.VersionChange',
-                     'SeeAlso': 'sphinx.directives.other.SeeAlso',
-                     'TabularColumns': 'sphinx.directives.other.TabularColumns',
-                     'Centered': 'sphinx.directives.other.Centered',
-                     'Acks': 'sphinx.directives.other.Acks',
-                     'HList': 'sphinx.directives.other.HList',
-                     'Only': 'sphinx.directives.other.Only',
-                     'Include': 'sphinx.directives.other.Include',
-                     'Class': 'sphinx.directives.other.Class',
-                     'Figure': 'sphinx.directives.patches.Figure',
-                     'Meta': 'sphinx.directives.patches.Meta',
-                 })
 
 deprecated_alias('sphinx.directives',
                  {

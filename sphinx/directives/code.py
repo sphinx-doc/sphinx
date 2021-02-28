@@ -8,9 +8,8 @@
 
 import sys
 import textwrap
-import warnings
 from difflib import unified_diff
-from typing import Any, Dict, List, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -19,14 +18,12 @@ from docutils.statemachine import StringList
 
 from sphinx import addnodes
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.directives import optional_int
 from sphinx.locale import __
 from sphinx.util import logging, parselinenos
 from sphinx.util.docutils import SphinxDirective
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
@@ -56,16 +53,6 @@ class Highlight(SphinxDirective):
         return [addnodes.highlightlang(lang=language,
                                        force=force,
                                        linenothreshold=linenothreshold)]
-
-
-class HighlightLang(Highlight):
-    """highlightlang directive (deprecated)"""
-
-    def run(self) -> List[Node]:
-        warnings.warn('highlightlang directive is deprecated. '
-                      'Please use highlight directive instead.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        return super().run()
 
 
 def dedent_lines(lines: List[str], dedent: int, location: Tuple[str, int] = None) -> List[str]:
@@ -470,7 +457,6 @@ class LiteralInclude(SphinxDirective):
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
     directives.register_directive('highlight', Highlight)
-    directives.register_directive('highlightlang', HighlightLang)
     directives.register_directive('code-block', CodeBlock)
     directives.register_directive('sourcecode', CodeBlock)
     directives.register_directive('literalinclude', LiteralInclude)

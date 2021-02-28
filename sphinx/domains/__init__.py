@@ -10,7 +10,9 @@
 """
 
 import copy
-from typing import Any, Callable, Dict, Iterable, List, NamedTuple, Tuple, Union, cast
+from abc import ABC, abstractmethod
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, List, NamedTuple, Tuple,
+                    Type, Union, cast)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -22,10 +24,7 @@ from sphinx.locale import _
 from sphinx.roles import XRefRole
 from sphinx.util.typing import RoleFunction
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
+if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
 
@@ -56,16 +55,17 @@ class ObjType:
         self.attrs.update(attrs)
 
 
-IndexEntry = NamedTuple('IndexEntry', [('name', str),
-                                       ('subtype', int),
-                                       ('docname', str),
-                                       ('anchor', str),
-                                       ('extra', str),
-                                       ('qualifier', str),
-                                       ('descr', str)])
+class IndexEntry(NamedTuple):
+    name: str
+    subtype: int
+    docname: str
+    anchor: str
+    extra: str
+    qualifier: str
+    descr: str
 
 
-class Index:
+class Index(ABC):
     """
     An Index is the description for a domain-specific index.  To add an index to
     a domain, subclass Index, overriding the three name attributes:
@@ -98,6 +98,7 @@ class Index:
                               % self.__class__.__name__)
         self.domain = domain
 
+    @abstractmethod
     def generate(self, docnames: Iterable[str] = None
                  ) -> Tuple[List[Tuple[str, List[IndexEntry]]], bool]:
         """Get entries for the index.

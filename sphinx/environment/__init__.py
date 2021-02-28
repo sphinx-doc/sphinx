@@ -11,18 +11,18 @@
 import os
 import pickle
 import posixpath
-import warnings
 from collections import defaultdict
 from copy import copy
+from datetime import datetime
 from os import path
-from typing import Any, Callable, Dict, Generator, Iterator, List, Set, Tuple, Union, cast
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Generator, Iterator, List, Set, Tuple,
+                    Union)
 
 from docutils import nodes
 from docutils.nodes import Node
 
 from sphinx import addnodes
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.domains import Domain
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.errors import BuildEnvironmentError, DocumentError, ExtensionError, SphinxError
@@ -35,8 +35,7 @@ from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.nodes import is_translatable
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
 
@@ -320,28 +319,13 @@ class BuildEnvironment:
         """
         return self.project.path2doc(filename)
 
-    def doc2path(self, docname: str, base: Union[bool, str] = True, suffix: str = None) -> str:
+    def doc2path(self, docname: str, base: bool = True) -> str:
         """Return the filename for the document name.
 
         If *base* is True, return absolute path under self.srcdir.
-        If *base* is None, return relative path to self.srcdir.
-        If *base* is a path string, return absolute path under that.
-        If *suffix* is not None, add it instead of config.source_suffix.
+        If *base* is False, return relative path to self.srcdir.
         """
-        if suffix:
-            warnings.warn('The suffix argument for doc2path() is deprecated.',
-                          RemovedInSphinx40Warning, stacklevel=2)
-        if base not in (True, False, None):
-            warnings.warn('The string style base argument for doc2path() is deprecated.',
-                          RemovedInSphinx40Warning, stacklevel=2)
-
-        pathname = self.project.doc2path(docname, base is True)
-        if suffix:
-            filename, _ = path.splitext(pathname)
-            pathname = filename + suffix
-        if base and base is not True:
-            pathname = path.join(base, pathname)  # type: ignore
-        return pathname
+        return self.project.doc2path(docname, base)
 
     def relfn2path(self, filename: str, docname: str = None) -> Tuple[str, str]:
         """Return paths to a file referenced from a document, relative to
@@ -409,21 +393,28 @@ class BuildEnvironment:
         else:
             for docname in self.found_docs:
                 if docname not in self.all_docs:
+                    logger.debug('[build target] added %r', docname)
                     added.add(docname)
                     continue
                 # if the doctree file is not there, rebuild
                 filename = path.join(self.doctreedir, docname + '.doctree')
                 if not path.isfile(filename):
+                    logger.debug('[build target] changed %r', docname)
                     changed.add(docname)
                     continue
                 # check the "reread always" list
                 if docname in self.reread_always:
+                    logger.debug('[build target] changed %r', docname)
                     changed.add(docname)
                     continue
                 # check the mtime of the document
                 mtime = self.all_docs[docname]
                 newmtime = path.getmtime(self.doc2path(docname))
                 if newmtime > mtime:
+                    logger.debug('[build target] outdated %r: %s -> %s',
+                                 docname,
+                                 datetime.utcfromtimestamp(mtime),
+                                 datetime.utcfromtimestamp(newmtime))
                     changed.add(docname)
                     continue
                 # finally, check the mtime of dependencies
@@ -609,7 +600,7 @@ class BuildEnvironment:
                         traversed.add(subdocname)
 
         relations = {}
-        docnames = traverse_toctree(None, self.config.master_doc)
+        docnames = traverse_toctree(None, self.config.root_doc)
         prevdoc = None
         parent, docname = next(docnames)
         for nextparent, nextdoc in docnames:
@@ -627,7 +618,7 @@ class BuildEnvironment:
         included = set().union(*self.included.values())  # type: ignore
         for docname in sorted(self.all_docs):
             if docname not in self.files_to_rebuild:
-                if docname == self.config.master_doc:
+                if docname == self.config.root_doc:
                     # the master file is not included anywhere ;)
                     continue
                 if docname in included:
@@ -642,19 +633,3 @@ class BuildEnvironment:
         for domain in self.domains.values():
             domain.check_consistency()
         self.events.emit('env-check-consistency', self)
-
-    @property
-    def indexentries(self) -> Dict[str, List[Tuple[str, str, str, str, str]]]:
-        warnings.warn('env.indexentries() is deprecated. Please use IndexDomain instead.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        from sphinx.domains.index import IndexDomain
-        domain = cast(IndexDomain, self.get_domain('index'))
-        return domain.entries
-
-    @indexentries.setter
-    def indexentries(self, entries: Dict[str, List[Tuple[str, str, str, str, str]]]) -> None:
-        warnings.warn('env.indexentries() is deprecated. Please use IndexDomain instead.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        from sphinx.domains.index import IndexDomain
-        domain = cast(IndexDomain, self.get_domain('index'))
-        domain.data['entries'] = entries

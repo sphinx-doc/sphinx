@@ -11,10 +11,9 @@
 import importlib
 import traceback
 import warnings
-from typing import Any, Callable, Dict, List, Mapping, NamedTuple, Optional, Tuple
+from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
 
-from sphinx.deprecation import (RemovedInSphinx40Warning, RemovedInSphinx50Warning,
-                                deprecated_alias)
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.ext.autodoc.mock import ismock, undecorate
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import logging
@@ -164,21 +163,10 @@ def get_module_members(module: Any) -> List[Tuple[str, Any]]:
     return sorted(list(members.values()))
 
 
-Attribute = NamedTuple('Attribute', [('name', str),
-                                     ('directly_defined', bool),
-                                     ('value', Any)])
-
-
-def _getmro(obj: Any) -> Tuple["Type", ...]:
-    warnings.warn('sphinx.ext.autodoc.importer._getmro() is deprecated.',
-                  RemovedInSphinx40Warning)
-    return getmro(obj)
-
-
-def _getannotations(obj: Any) -> Mapping[str, Any]:
-    warnings.warn('sphinx.ext.autodoc.importer._getannotations() is deprecated.',
-                  RemovedInSphinx40Warning)
-    return getannotations(obj)
+class Attribute(NamedTuple):
+    name: str
+    directly_defined: bool
+    value: Any
 
 
 def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
@@ -327,24 +315,3 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable
         pass
 
     return members
-
-
-from sphinx.ext.autodoc.mock import (MockFinder, MockLoader, _MockModule, _MockObject,  # NOQA
-                                     mock)
-
-deprecated_alias('sphinx.ext.autodoc.importer',
-                 {
-                     '_MockModule': _MockModule,
-                     '_MockObject': _MockObject,
-                     'MockFinder': MockFinder,
-                     'MockLoader': MockLoader,
-                     'mock': mock,
-                 },
-                 RemovedInSphinx40Warning,
-                 {
-                     '_MockModule': 'sphinx.ext.autodoc.mock._MockModule',
-                     '_MockObject': 'sphinx.ext.autodoc.mock._MockObject',
-                     'MockFinder': 'sphinx.ext.autodoc.mock.MockFinder',
-                     'MockLoader': 'sphinx.ext.autodoc.mock.MockLoader',
-                     'mock': 'sphinx.ext.autodoc.mock.mock',
-                 })

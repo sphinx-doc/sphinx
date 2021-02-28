@@ -13,7 +13,7 @@ from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta, tzinfo
 from os import getenv, path, walk
 from time import time
-from typing import Any, Dict, Generator, Iterable, List, Set, Tuple, Union
+from typing import Any, DefaultDict, Dict, Generator, Iterable, List, Set, Tuple, Union
 from uuid import uuid4
 
 from docutils import nodes
@@ -33,32 +33,7 @@ from sphinx.util.osutil import canon_path, ensuredir, relpath
 from sphinx.util.tags import Tags
 from sphinx.util.template import SphinxRenderer
 
-if False:
-    # For type annotation
-    from typing import DefaultDict  # for python3.5.1
-
 logger = logging.getLogger(__name__)
-
-POHEADER = r"""
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) %(copyright)s
-# This file is distributed under the same license as the %(project)s package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
-msgid ""
-msgstr ""
-"Project-Id-Version: %(project)s %(version)s\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: %(ctime)s\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-
-"""[1:]  # RemovedInSphinx40Warning
 
 
 class Message:

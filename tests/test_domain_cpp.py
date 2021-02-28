@@ -21,7 +21,6 @@ from sphinx.domains.cpp import (DefinitionError, DefinitionParser, NoOldIdError,
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
-from sphinx.util import docutils
 
 
 def parse(name, string):
@@ -1081,8 +1080,6 @@ def test_build_domain_cpp_misuse_of_roles(app, status, warning):
     assert len(ws) == len(warn)
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'add_function_parentheses': True})
 def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, warning):
     app.builder.build_all()
@@ -1124,8 +1121,6 @@ def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, war
         check(s, t, f)
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'add_function_parentheses': False})
 def test_build_domain_cpp_with_add_function_parentheses_is_False(app, status, warning):
     app.builder.build_all()

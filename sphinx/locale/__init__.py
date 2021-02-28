@@ -106,7 +106,7 @@ class _TranslationProxy(UserString):
 translators = defaultdict(NullTranslations)  # type: Dict[Tuple[str, str], NullTranslations]
 
 
-def init(locale_dirs: List[Optional[str]], language: str,
+def init(locale_dirs: List[Optional[str]], language: Optional[str],
          catalog: str = 'sphinx', namespace: str = 'general') -> Tuple[NullTranslations, bool]:
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
     least a NullTranslations catalog set in `translators`. If called multiple
@@ -123,9 +123,11 @@ def init(locale_dirs: List[Optional[str]], language: str,
 
     if language and '_' in language:
         # for language having country code (like "de_AT")
-        languages = [language, language.split('_')[0]]
-    else:
+        languages = [language, language.split('_')[0]]  # type: Optional[List[str]]
+    elif language:
         languages = [language]
+    else:
+        languages = None
 
     # loading
     for dir_ in locale_dirs:

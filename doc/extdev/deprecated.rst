@@ -22,6 +22,51 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``favicon`` variable in HTML templates
+     - 4.0
+     - TBD
+     - ``favicon_url``
+
+   * - ``logo`` variable in HTML templates
+     - 4.0
+     - TBD
+     - ``logo_url``
+
+   * - ``sphinx.directives.patches.CSVTable``
+     - 4.0
+     - 6.0
+     - ``docutils.parsers.rst.diretives.tables.CSVTable``
+
+   * - ``sphinx.directives.patches.ListTable``
+     - 4.0
+     - 6.0
+     - ``docutils.parsers.rst.diretives.tables.ListSVTable``
+
+   * - ``sphinx.directives.patches.RSTTable``
+     - 4.0
+     - 6.0
+     - ``docutils.parsers.rst.diretives.tables.RSTTable``
+
+   * - ``sphinx.transforms.FigureAligner``
+     - 4.0
+     - 6.0
+     - N/A
+
+   * - ``sphinx.util.pycompat.convert_with_2to3()``
+     - 4.0
+     - 6.0
+     - N/A
+
+   * - ``sphinx.util.pycompat.execfile_()``
+     - 4.0
+     - 6.0
+     - N/A
+
+   * - ``sphinx.util.smartypants``
+     - 4.0
+     - 6.0
+     - ``docutils.utils.smartyquotes``
+
    * - pending_xref node for viewcode extension
      - 3.5
      - 5.0

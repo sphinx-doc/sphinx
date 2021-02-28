@@ -194,10 +194,17 @@ def test_stringify_type_hints_typevars():
     T_co = TypeVar('T_co', covariant=True)
     T_contra = TypeVar('T_contra', contravariant=True)
 
-    assert stringify(T) == "T"
-    assert stringify(T_co) == "T_co"
-    assert stringify(T_contra) == "T_contra"
-    assert stringify(List[T]) == "List[T]"
+    if sys.version_info < (3, 7):
+        assert stringify(T) == "T"
+        assert stringify(T_co) == "T_co"
+        assert stringify(T_contra) == "T_contra"
+        assert stringify(List[T]) == "List[T]"
+    else:
+        assert stringify(T) == "tests.test_util_typing.T"
+        assert stringify(T_co) == "tests.test_util_typing.T_co"
+        assert stringify(T_contra) == "tests.test_util_typing.T_contra"
+        assert stringify(List[T]) == "List[tests.test_util_typing.T]"
+
     assert stringify(MyInt) == "MyInt"
 
 

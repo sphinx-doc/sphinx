@@ -7,7 +7,7 @@
 """
 
 import re
-from typing import Any, Dict, List, cast
+from typing import TYPE_CHECKING, Any, Dict, List, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -17,7 +17,6 @@ from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.domains.changeset import VersionChange  # NOQA  # for compatibility
 from sphinx.locale import _
 from sphinx.util import docname_join, url_re
@@ -25,8 +24,7 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.matching import Matcher, patfilter
 from sphinx.util.nodes import explicit_title_re
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
@@ -137,7 +135,13 @@ class TocTree(SphinxDirective):
                                                                     line=self.lineno))
                     self.env.note_reread()
                 else:
-                    all_docnames.discard(docname)
+                    if docname in all_docnames:
+                        all_docnames.remove(docname)
+                    else:
+                        message = 'duplicated entry found in toctree: %s'
+                        ret.append(self.state.document.reporter.warning(message % docname,
+                                                                        line=self.lineno))
+
                     toctree['entries'].append((title, docname))
                     toctree['includefiles'].append(docname)
 
@@ -359,19 +363,6 @@ class Include(BaseInclude, SphinxDirective):
         self.arguments[0] = filename
         self.env.note_included(filename)
         return super().run()
-
-
-# Import old modules here for compatibility
-from sphinx.domains.index import IndexDirective  # NOQA
-
-deprecated_alias('sphinx.directives.other',
-                 {
-                     'Index': IndexDirective,
-                 },
-                 RemovedInSphinx40Warning,
-                 {
-                     'Index': 'sphinx.domains.index.IndexDirective',
-                 })
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:

@@ -10,7 +10,7 @@
 import os
 import re
 import zlib
-from typing import IO, Callable, Iterator
+from typing import IO, TYPE_CHECKING, Callable, Iterator
 
 from sphinx.util import logging
 from sphinx.util.typing import Inventory
@@ -18,8 +18,7 @@ from sphinx.util.typing import Inventory
 BUFSIZE = 16 * 1024
 logger = logging.getLogger(__name__)
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
 

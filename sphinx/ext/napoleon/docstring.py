@@ -14,7 +14,7 @@ import collections
 import inspect
 import re
 from functools import partial
-from typing import Any, Callable, Dict, List, Tuple, Union
+from typing import Any, Callable, Dict, List, Tuple, Type, Union
 
 from sphinx.application import Sphinx
 from sphinx.config import Config as SphinxConfig
@@ -23,11 +23,6 @@ from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.inspect import stringify_annotation
 from sphinx.util.typing import get_type_hints
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
 
 logger = logging.getLogger(__name__)
 
@@ -723,7 +718,13 @@ class GoogleDocstring:
         return self._parse_generic_section(_('Notes'), use_admonition)
 
     def _parse_other_parameters_section(self, section: str) -> List[str]:
-        return self._format_fields(_('Other Parameters'), self._consume_fields())
+        if self._config.napoleon_use_param:
+            # Allow to declare multiple parameters at once (ex: x, y: int)
+            fields = self._consume_fields(multiple=True)
+            return self._format_docutils_params(fields)
+        else:
+            fields = self._consume_fields()
+            return self._format_fields(_('Other Parameters'), fields)
 
     def _parse_parameters_section(self, section: str) -> List[str]:
         if self._config.napoleon_use_param:

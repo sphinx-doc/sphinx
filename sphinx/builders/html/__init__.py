@@ -13,9 +13,9 @@ import os
 import posixpath
 import re
 import sys
-import warnings
+from datetime import datetime
 from os import path
-from typing import IO, Any, Dict, Iterable, Iterator, List, Set, Tuple
+from typing import IO, Any, Dict, Iterable, Iterator, List, Set, Tuple, Type
 from urllib.parse import quote
 
 from docutils import nodes
@@ -29,7 +29,6 @@ from sphinx import __display_version__, package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import ENUM, Config
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.domains import Domain, Index, IndexEntry
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
@@ -39,7 +38,7 @@ from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
-from sphinx.util import logging, md5, progress_message, status_iterator
+from sphinx.util import isurl, logging, md5, progress_message, status_iterator
 from sphinx.util.docutils import is_html5_writer_available, new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
@@ -48,11 +47,6 @@ from sphinx.util.matching import DOTFILES, Matcher, patmatch
 from sphinx.util.osutil import copyfile, ensuredir, os_path, relative_uri
 from sphinx.util.tags import Tags
 from sphinx.writers.html import HTMLTranslator, HTMLWriter
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
 
 # HTML5 Writer is available or not
 if is_html5_writer_available():
@@ -256,6 +250,14 @@ class StandaloneHTMLBuilder(Builder):
                 return jsfile
         return None
 
+    def _get_style_filename(self) -> str:
+        if self.config.html_style is not None:
+            return self.config.html_style
+        elif self.theme:
+            return self.theme.get_config('theme', 'stylesheet')
+        else:
+            return 'default.css'
+
     def get_theme_config(self) -> Tuple[str, Dict]:
         return self.config.html_theme, self.config.html_theme_options
 
@@ -291,6 +293,9 @@ class StandaloneHTMLBuilder(Builder):
             self.dark_highlighter = None
 
     def init_css_files(self) -> None:
+        self.add_css_file('pygments.css', priority=200)
+        self.add_css_file(self._get_style_filename(), priority=200)
+
         for filename, attrs in self.app.registry.css_files:
             self.add_css_file(filename, **attrs)
 
@@ -305,6 +310,8 @@ class StandaloneHTMLBuilder(Builder):
         self.css_files.append(Stylesheet(filename, **kwargs))  # type: ignore
 
     def init_js_files(self) -> None:
+        self.add_js_file('documentation_options.js', id="documentation_options",
+                         data_url_root='', priority=200)
         self.add_js_file('jquery.js', priority=200)
         self.add_js_file('underscore.js', priority=200)
         self.add_js_file('doctools.js', priority=200)
@@ -358,6 +365,7 @@ class StandaloneHTMLBuilder(Builder):
                 buildinfo = BuildInfo.load(fp)
 
             if self.build_info != buildinfo:
+                logger.debug('[build target] did not match: build_info ')
                 yield from self.env.found_docs
                 return
         except ValueError as exc:
@@ -372,6 +380,7 @@ class StandaloneHTMLBuilder(Builder):
             template_mtime = 0
         for docname in self.env.found_docs:
             if docname not in self.env.all_docs:
+                logger.debug('[build target] did not in env: %r', docname)
                 yield docname
                 continue
             targetname = self.get_outfilename(docname)
@@ -383,6 +392,14 @@ class StandaloneHTMLBuilder(Builder):
                 srcmtime = max(path.getmtime(self.env.doc2path(docname)),
                                template_mtime)
                 if srcmtime > targetmtime:
+                    logger.debug(
+                        '[build target] targetname %r(%s), template(%s), docname %r(%s)',
+                        targetname,
+                        datetime.utcfromtimestamp(targetmtime),
+                        datetime.utcfromtimestamp(template_mtime),
+                        docname,
+                        datetime.utcfromtimestamp(path.getmtime(self.env.doc2path(docname))),
+                    )
                     yield docname
             except OSError:
                 # source doesn't exist anymore
@@ -470,13 +487,6 @@ class StandaloneHTMLBuilder(Builder):
         self._script_files = list(self.script_files)
         self._css_files = list(self.css_files)
 
-        if self.config.html_style is not None:
-            stylename = self.config.html_style
-        elif self.theme:
-            stylename = self.theme.get_config('theme', 'stylesheet')
-        else:
-            stylename = 'default.css'
-
         self.globalcontext = {
             'embedded': self.embedded,
             'project': self.config.project,
@@ -484,7 +494,8 @@ class StandaloneHTMLBuilder(Builder):
             'version': self.config.version,
             'last_updated': self.last_updated,
             'copyright': self.config.copyright,
-            'master_doc': self.config.master_doc,
+            'master_doc': self.config.root_doc,
+            'root_doc': self.config.root_doc,
             'use_opensearch': self.config.html_use_opensearch,
             'docstitle': self.config.html_title,
             'shorttitle': self.config.html_short_title,
@@ -499,7 +510,7 @@ class StandaloneHTMLBuilder(Builder):
             'language': self.config.language,
             'css_files': self.css_files,
             'sphinx_version': __display_version__,
-            'style': stylename,
+            'style': self._get_style_filename(),
             'rellinks': rellinks,
             'builder': self.name,
             'parents': [],
@@ -786,12 +797,12 @@ class StandaloneHTMLBuilder(Builder):
                        excluded, context=context, renderer=self.templates, onerror=onerror)
 
     def copy_html_logo(self) -> None:
-        if self.config.html_logo:
+        if self.config.html_logo and not isurl(self.config.html_logo):
             copy_asset(path.join(self.confdir, self.config.html_logo),
                        path.join(self.outdir, '_static'))
 
     def copy_html_favicon(self) -> None:
-        if self.config.html_favicon:
+        if self.config.html_favicon and not isurl(self.config.html_favicon):
             copy_asset(path.join(self.confdir, self.config.html_favicon),
                        path.join(self.outdir, '_static'))
 
@@ -889,21 +900,11 @@ class StandaloneHTMLBuilder(Builder):
         # only index pages with title
         if self.indexer is not None and title:
             filename = self.env.doc2path(pagename, base=None)
-            try:
-                metadata = self.env.metadata.get(pagename, {})
-                if 'nosearch' in metadata:
-                    self.indexer.feed(pagename, filename, '', new_document(''))
-                else:
-                    self.indexer.feed(pagename, filename, title, doctree)
-            except TypeError:
-                # fallback for old search-adapters
-                self.indexer.feed(pagename, title, doctree)  # type: ignore
-                indexer_name = self.indexer.__class__.__name__
-                warnings.warn(
-                    'The %s.feed() method signature is deprecated. Update to '
-                    '%s.feed(docname, filename, title, doctree).' % (
-                        indexer_name, indexer_name),
-                    RemovedInSphinx40Warning, stacklevel=2)
+            metadata = self.env.metadata.get(pagename, {})
+            if 'nosearch' in metadata:
+                self.indexer.feed(pagename, filename, '', new_document(''))
+            else:
+                self.indexer.feed(pagename, filename, title, doctree)
 
     def _get_local_toctree(self, docname: str, collapse: bool = True, **kwargs: Any) -> str:
         if 'includehidden' not in kwargs:
@@ -1157,6 +1158,8 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatexname: str,
                 if value is not None:
                     if key == 'body':
                         body = value
+                    elif key == 'data_url_root':
+                        attrs.append('data-url_root="%s"' % pathto('', resource=True))
                     else:
                         attrs.append('%s="%s"' % (key, html.escape(value, True)))
             if js.filename:
@@ -1167,6 +1170,26 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatexname: str,
         return '<script %s>%s</script>' % (' '.join(attrs), body)
 
     context['js_tag'] = js_tag
+
+
+def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,
+                         context: Dict, doctree: Node) -> None:
+    """Set up relative resource paths."""
+    pathto = context.get('pathto')
+
+    # favicon_url
+    favicon = context.get('favicon')
+    if favicon and not isurl(favicon):
+        context['favicon_url'] = pathto('_static/' + favicon, resource=True)
+    else:
+        context['favicon_url'] = favicon
+
+    # logo_url
+    logo = context.get('logo')
+    if logo and not isurl(logo):
+        context['logo_url'] = pathto('_static/' + logo, resource=True)
+    else:
+        context['logo_url'] = logo
 
 
 def validate_math_renderer(app: Sphinx) -> None:
@@ -1209,14 +1232,18 @@ def validate_html_static_path(app: Sphinx, config: Config) -> None:
 
 def validate_html_logo(app: Sphinx, config: Config) -> None:
     """Check html_logo setting."""
-    if config.html_logo and not path.isfile(path.join(app.confdir, config.html_logo)):
+    if (config.html_logo and
+            not path.isfile(path.join(app.confdir, config.html_logo)) and
+            not isurl(config.html_logo)):
         logger.warning(__('logo file %r does not exist'), config.html_logo)
         config.html_logo = None  # type: ignore
 
 
 def validate_html_favicon(app: Sphinx, config: Config) -> None:
     """Check html_favicon setting."""
-    if config.html_favicon and not path.isfile(path.join(app.confdir, config.html_favicon)):
+    if (config.html_favicon and
+            not path.isfile(path.join(app.confdir, config.html_favicon)) and
+            not isurl(config.html_favicon)):
         logger.warning(__('favicon file %r does not exist'), config.html_favicon)
         config.html_favicon = None  # type: ignore
 
@@ -1230,6 +1257,9 @@ def migrate_html_add_permalinks(app: Sphinx, config: Config) -> None:
     if html_add_permalinks is UNSET:
         return
 
+    # RemovedInSphinx60Warning
+    logger.warning(__('html_add_permalinks has been deprecated since v3.5.0. '
+                      'Please use html_permalinks and html_permalinks_icon instead.'))
     if (
         html_add_permalinks is None or
         html_add_permalinks is False or
@@ -1294,7 +1324,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_search_scorer', '', None)
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_baseurl', '', 'html')
-    app.add_config_value('html_codeblock_linenos_style', 'table', 'html',
+    app.add_config_value('html_codeblock_linenos_style', 'inline', 'html',  # RemovedInSphinx60Warning  # NOQA
                          ENUM('table', 'inline'))
     app.add_config_value('html_math_renderer', None, 'env')
     app.add_config_value('html4_writer', False, 'html')
@@ -1313,6 +1343,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('config-inited', validate_html_favicon, priority=800)
     app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_js_tag_helper)
+    app.connect('html-page-context', setup_resource_paths)
 
     # load default math renderer
     app.setup_extension('sphinx.ext.mathjax')

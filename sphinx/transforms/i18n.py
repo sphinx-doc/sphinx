@@ -10,7 +10,7 @@
 
 from os import path
 from textwrap import indent
-from typing import Any, Dict, List, Tuple, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Type, TypeVar
 
 from docutils import nodes
 from docutils.io import StringInput
@@ -28,10 +28,7 @@ from sphinx.util.i18n import docname_to_domain
 from sphinx.util.nodes import (IMAGE_TYPE_NODES, LITERAL_TYPE_NODES, NodeMatcher,
                                extract_messages, is_pending_meta, traverse_translatable_index)
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
@@ -245,6 +242,10 @@ class Locale(SphinxTransform):
                 node.details['nodes'][0]['content'] = msgstr
                 continue
 
+            if isinstance(node, nodes.image) and node.get('alt') == msg:
+                node['alt'] = msgstr
+                continue
+
             # Avoid "Literal block expected; none found." warnings.
             # If msgstr ends with '::' then it cause warning message at
             # parser.parse() processing.
@@ -446,8 +447,9 @@ class Locale(SphinxTransform):
             if isinstance(node, LITERAL_TYPE_NODES):
                 node.rawsource = node.astext()
 
-            if isinstance(node, IMAGE_TYPE_NODES):
-                node.update_all_atts(patch)
+            if isinstance(node, nodes.image) and node.get('alt') != msg:
+                node['uri'] = patch['uri']
+                continue  # do not mark translated
 
             node['translated'] = True  # to avoid double translation
 

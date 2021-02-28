@@ -1,3 +1,99 @@
+Release 4.0.0 (in development)
+==============================
+
+Dependencies
+------------
+
+* Drop python 3.5 support
+* Drop docutils 0.12 and 0.13 support
+* LaTeX: add ``tex-gyre`` font dependency
+
+Incompatible changes
+--------------------
+
+* domain: The ``Index`` class becomes subclasses of ``abc.ABC`` to indicate
+  methods that must be overrided in the concrete classes
+* #4826: py domain: The structure of python objects is changed.  A boolean value
+  is added to indicate that the python object is canonical one
+* #7425: MathJax: The MathJax was changed from 2 to 3. Users using a custom
+  MathJax configuration may have to set the old MathJax path or update their
+  configuration for version 3. See :mod:`sphinx.ext.mathjax`.
+* #7784: i18n: The msgid for alt text of image is changed
+* #5560: napoleon: :confval:`napoleon_use_param` also affect "other parameters"
+  section
+* #7996: manpage: Make a section directory on build manpage by default (see
+  :confval:`man_make_section_directory`)
+* #7849: html: Change the default setting of
+  :confval:`html_codeblock_linenos_style` to ``'inline'``
+* #8380: html search: search results are wrapped with ``<p>`` instead of
+  ``<div>``
+* html theme: Move a script tag for documentation_options.js in
+  basic/layout.html to ``script_files`` variable
+* html theme: Move CSS tags in basic/layout.html to ``css_files`` variable
+* #8915: html theme: Emit a warning for sphinx_rtd_theme-0.2.4 or older
+* #8508: LaTeX: uplatex becomes a default setting of latex_engine for Japanese
+  documents
+* #5977: py domain: ``:var:``, ``:cvar:`` and ``:ivar:`` fields do not create
+  cross-references
+* #4550: The ``align`` attribute of ``figure`` and ``table`` nodes becomes
+  ``None`` by default instead of ``'default'``
+* #8769: LaTeX refactoring: split sphinx.sty into multiple files and rename
+  some auxiliary files created in ``latex`` build output repertory
+
+Deprecated
+----------
+
+* :confval:`html_codeblock_linenos_style`
+* ``favicon`` and ``logo`` variable in HTML templates
+* ``sphinx.directives.patches.CSVTable``
+* ``sphinx.directives.patches.ListTable``
+* ``sphinx.directives.patches.RSTTable``
+* ``sphinx.transforms.FigureAligner``
+* ``sphinx.util.pycompat.convert_with_2to3()``
+* ``sphinx.util.pycompat.execfile_()``
+* ``sphinx.util.smartypants``
+
+Features added
+--------------
+
+* #8924: autodoc: Support ``bound`` argument for TypeVar
+* #4826: py domain: Add ``:canonical:`` option to python directives to describe
+  the location where the object is defined
+* #7784: i18n: The alt text for image is translated by default (without
+  :confval:`gettext_additional_targets` setting)
+* #2018: html: :confval:`html_favicon` and :confval:`html_logo` now accept URL
+  for the image
+* #8070: html search: Support searching for 2characters word
+* #8938: imgconverter: Show the error of the command availability check
+* #7830: Add debug logs for change detection of sources and templates
+* #8201: Emit a warning if toctree contains duplicated entries
+* #8326: ``master_doc`` is now renamed to :confval:`root_doc`
+
+Bugs fixed
+----------
+
+* #8917: autodoc: Raises a warning if function has wrong __globals__ value
+* #8415: autodoc: a TypeVar imported from other module is not resolved (in
+  Python 3.7 or above)
+* #8380: html search: Paragraphs in search results are not identified as ``<p>``
+* #8915: html theme: The translation of sphinx_rtd_theme does not work
+* #8342: Emit a warning if a unknown domain is given for directive or role (ex.
+  ``:unknown:doc:``)
+* #8711: LaTeX: backticks in code-blocks trigger latexpdf build warning (and font
+  change) with late TeXLive 2019
+* #8253: LaTeX: Figures with no size defined get overscaled (compared to images
+  with size explicitly set in pixels) (fixed for ``'pdflatex'/'lualatex'`` only)
+* #8925: LaTeX: 3.5.0 ``verbatimmaxunderfull`` setting does not work as
+  expected
+* #8911: C++: remove the longest matching prefix in
+  :confval:`cpp_index_common_prefix` instead of the first that matches.
+* C, properly reject function declarations when a keyword is used
+  as parameter name.
+* #8933: viewcode: Failed to create back-links on parallel build
+
+Testing
+--------
+
 Release 3.5.2 (in development)
 ==============================
 

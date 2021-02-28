@@ -10,8 +10,7 @@
 
 import re
 import unicodedata
-import warnings
-from typing import Any, Callable, Iterable, List, Set, Tuple, cast
+from typing import TYPE_CHECKING, Any, Callable, Iterable, List, Set, Tuple, Type, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -20,14 +19,10 @@ from docutils.parsers.rst.states import Inliner
 from docutils.statemachine import StringList
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import logging
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
+if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.domain import IndexEntry
     from sphinx.environment import BuildEnvironment
@@ -201,6 +196,10 @@ def is_translatable(node: Node) -> bool:
     if isinstance(node, addnodes.translatable):
         return True
 
+    # image node marked as translatable or having alt text
+    if isinstance(node, nodes.image) and (node.get('translatable') or node.get('alt')):
+        return True
+
     if isinstance(node, nodes.Inline) and 'translatable' not in node:  # type: ignore
         # inline node must not be translated if 'translatable' is not set
         return False
@@ -226,9 +225,6 @@ def is_translatable(node: Node) -> bool:
             logger.debug('[i18n] SKIP %r because orphan node: %s',
                          get_full_module_name(node), repr_domxml(node))
             return False
-        return True
-
-    if isinstance(node, nodes.image) and node.get('translatable'):
         return True
 
     if isinstance(node, addnodes.meta):
@@ -264,10 +260,13 @@ def extract_messages(doctree: Element) -> Iterable[Tuple[Element, str]]:
             msg = node.rawsource
             if not msg:
                 msg = node.astext()
-        elif isinstance(node, IMAGE_TYPE_NODES):
-            msg = '.. image:: %s' % node['uri']
+        elif isinstance(node, nodes.image):
             if node.get('alt'):
-                msg += '\n   :alt: %s' % node['alt']
+                yield node, node['alt']
+            if node.get('translatable'):
+                msg = '.. image:: %s' % node['uri']
+            else:
+                msg = None
         elif isinstance(node, META_TYPE_NODES):
             msg = node.rawcontent
         elif isinstance(node, nodes.pending) and is_pending_meta(node):
@@ -278,12 +277,6 @@ def extract_messages(doctree: Element) -> Iterable[Tuple[Element, str]]:
         # XXX nodes rendering empty are likely a bug in sphinx.addnodes
         if msg:
             yield node, msg
-
-
-def find_source_node(node: Element) -> str:
-    warnings.warn('find_source_node() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    return get_node_source(node)
 
 
 def get_node_source(node: Element) -> str:
@@ -613,10 +606,12 @@ def process_only_nodes(document: Node, tags: "Tags") -> None:
                 node.replace_self(nodes.comment())
 
 
-# monkey-patch Element.copy to copy the rawsource and line
-# for docutils-0.14 or older versions.
-
 def _new_copy(self: Element) -> Element:
+    """monkey-patch Element.copy to copy the rawsource and line
+    for docutils-0.16 or older versions.
+
+    refs: https://sourceforge.net/p/docutils/patches/165/
+    """
     newnode = self.__class__(self.rawsource, **self.attributes)
     if isinstance(self, nodes.Element):
         newnode.source = self.source

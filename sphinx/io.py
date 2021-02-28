@@ -8,8 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 import codecs
-import warnings
-from typing import Any, List
+from typing import TYPE_CHECKING, Any, List, Type
 
 from docutils import nodes
 from docutils.core import Publisher
@@ -23,9 +22,7 @@ from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.environment import BuildEnvironment
-from sphinx.errors import FiletypeNotFoundError
 from sphinx.transforms import (AutoIndexUpgrader, DoctreeReadEvent, FigureAligner,
                                SphinxTransformer)
 from sphinx.transforms.i18n import (Locale, PreserveTranslatableMessages,
@@ -35,10 +32,7 @@ from sphinx.util import UnicodeDecodeErrorHandler, get_filetype, logging
 from sphinx.util.docutils import LoggingReporter
 from sphinx.versioning import UIDTransform
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
@@ -62,18 +56,6 @@ class SphinxBaseReader(standalone.Reader):
             args = args[1:]
 
         super().__init__(*args, **kwargs)
-
-    @property
-    def app(self) -> "Sphinx":
-        warnings.warn('SphinxBaseReader.app is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        return self._app
-
-    @property
-    def env(self) -> BuildEnvironment:
-        warnings.warn('SphinxBaseReader.env is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        return self._env
 
     def setup(self, app: "Sphinx") -> None:
         self._app = app      # hold application object only for compatibility
@@ -220,15 +202,3 @@ def read_doc(app: "Sphinx", env: BuildEnvironment, filename: str) -> nodes.docum
 
     pub.publish()
     return pub.document
-
-
-deprecated_alias('sphinx.io',
-                 {
-                     'FiletypeNotFoundError': FiletypeNotFoundError,
-                     'get_filetype': get_filetype,
-                 },
-                 RemovedInSphinx40Warning,
-                 {
-                     'FiletypeNotFoundError': 'sphinx.errors.FiletypeNotFoundError',
-                     'get_filetype': 'sphinx.util.get_filetype',
-                 })

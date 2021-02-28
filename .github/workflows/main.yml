@@ -4,16 +4,12 @@ on: [push, pull_request]
 
 jobs:
   ubuntu:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-18.04
     strategy:
       fail-fast: false
       matrix:
-        name: [py35, py36, py37, py38, py39]
-        os: [ubuntu-16.04]
+        name: [py36, py37, py38, py39, py310-dev]
         include:
-        - name: py35
-          python: 3.5
-          docutils: du12
         - name: py36
           python: 3.6
           docutils: du13
@@ -30,7 +26,6 @@ jobs:
         - name: py310-dev
           python: 3.10-dev
           docutils: du16
-          os: ubuntu-latest  # required
     env:
       PYTEST_ADDOPTS: ${{ matrix.coverage }}
 

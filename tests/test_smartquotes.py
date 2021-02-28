@@ -10,8 +10,6 @@
 
 import pytest
 
-from sphinx.util import docutils
-
 
 @pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True)
 def test_basic(app, status, warning):
@@ -33,7 +31,7 @@ def test_text_builder(app, status, warning):
 def test_man_builder(app, status, warning):
     app.build()
 
-    content = (app.outdir / 'python.1').read_text()
+    content = (app.outdir / '1' / 'python.1').read_text()
     assert '\\-\\- "Sphinx" is a tool that makes it easy ...' in content
 
 
@@ -63,8 +61,6 @@ def test_smartquotes_disabled(app, status, warning):
     assert '<p>-- &quot;Sphinx&quot; is a tool that makes it easy ...</p>' in content
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 14),
-                    reason='docutils-0.14 or above is required')
 @pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True,
                     confoverrides={'smartquotes_action': 'q'})
 def test_smartquotes_action(app, status, warning):
@@ -88,5 +84,5 @@ def test_smartquotes_excludes_language(app, status, warning):
 def test_smartquotes_excludes_builders(app, status, warning):
     app.build()
 
-    content = (app.outdir / 'python.1').read_text()
+    content = (app.outdir / '1' / 'python.1').read_text()
     assert '– “Sphinx” is a tool that makes it easy …' in content

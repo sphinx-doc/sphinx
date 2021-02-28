@@ -14,11 +14,10 @@ import os
 import pickle
 import platform
 import sys
-import warnings
 from collections import deque
 from io import StringIO
 from os import path
-from typing import IO, Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import IO, TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 from docutils import nodes
 from docutils.nodes import Element, TextElement
@@ -30,14 +29,13 @@ from pygments.lexer import Lexer
 import sphinx
 from sphinx import locale, package_dir
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.domains import Domain, Index
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
 from sphinx.extension import Extension
-from sphinx.highlighting import lexer_classes, lexers
+from sphinx.highlighting import lexer_classes
 from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
@@ -52,10 +50,7 @@ from sphinx.util.osutil import abspath, ensuredir, relpath
 from sphinx.util.tags import Tags
 from sphinx.util.typing import RoleFunction, TitleGetter
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
+if TYPE_CHECKING:
     from docutils.nodes import Node  # NOQA
 
     from sphinx.builders import Builder
@@ -134,6 +129,9 @@ class Sphinx:
     :ivar doctreedir: Directory for storing pickled doctrees.
     :ivar outdir: Directory for storing build documents.
     """
+
+    warningiserror: bool
+    _warncount: int
 
     def __init__(self, srcdir: str, confdir: Optional[str], outdir: str, doctreedir: str,
                  buildername: str, confoverrides: Dict = None,
@@ -946,13 +944,6 @@ class Sphinx:
         """
         self.registry.add_post_transform(transform)
 
-    def add_javascript(self, filename: str, **kwargs: Any) -> None:
-        """An alias of :meth:`add_js_file`."""
-        warnings.warn('The app.add_javascript() is deprecated. '
-                      'Please use app.add_js_file() instead.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        self.add_js_file(filename, **kwargs)
-
     def add_js_file(self, filename: str, priority: int = 500, **kwargs: Any) -> None:
         """Register a JavaScript file to include in the HTML output.
 
@@ -1032,6 +1023,8 @@ class Sphinx:
 
            * - Priority
              - Main purpose in Sphinx
+           * - 200
+             - default priority for built-in CSS files
            * - 500
              - default priority for extensions
            * - 800
@@ -1061,24 +1054,6 @@ class Sphinx:
         if hasattr(self.builder, 'add_css_file'):
             self.builder.add_css_file(filename, priority=priority, **kwargs)  # type: ignore
 
-    def add_stylesheet(self, filename: str, alternate: bool = False, title: str = None
-                       ) -> None:
-        """An alias of :meth:`add_css_file`."""
-        warnings.warn('The app.add_stylesheet() is deprecated. '
-                      'Please use app.add_css_file() instead.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-
-        attributes = {}  # type: Dict[str, Any]
-        if alternate:
-            attributes['rel'] = 'alternate stylesheet'
-        else:
-            attributes['rel'] = 'stylesheet'
-
-        if title:
-            attributes['title'] = title
-
-        self.add_css_file(filename, **attributes)
-
     def add_latex_package(self, packagename: str, options: str = None,
                           after_hyperref: bool = False) -> None:
         r"""Register a package to include in the LaTeX source code.
@@ -1102,7 +1077,7 @@ class Sphinx:
         """
         self.registry.add_latex_package(packagename, options, after_hyperref)
 
-    def add_lexer(self, alias: str, lexer: Union[Lexer, "Type[Lexer]"]) -> None:
+    def add_lexer(self, alias: str, lexer: Type[Lexer]) -> None:
         """Register a new lexer for source code.
 
         Use *lexer* to highlight code blocks with the given language *alias*.
@@ -1113,13 +1088,7 @@ class Sphinx:
            still supported until Sphinx-3.x.
         """
         logger.debug('[app] adding lexer: %r', (alias, lexer))
-        if isinstance(lexer, Lexer):
-            warnings.warn('app.add_lexer() API changed; '
-                          'Please give lexer class instead of instance',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            lexers[alias] = lexer
-        else:
-            lexer_classes[alias] = lexer
+        lexer_classes[alias] = lexer
 
     def add_autodocumenter(self, cls: Any, override: bool = False) -> None:
         """Register a new documenter class for the autodoc extension.

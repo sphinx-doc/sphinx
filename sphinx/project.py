@@ -10,15 +10,15 @@
 
 import os
 from glob import glob
+from typing import TYPE_CHECKING
 
 from sphinx.locale import __
 from sphinx.util import get_matching_files, logging, path_stabilize
 from sphinx.util.matching import compile_matchers
 from sphinx.util.osutil import SEP, relpath
 
-if False:
-    # For type annotation
-    from typing import Dict, List, Set  # NOQA
+if TYPE_CHECKING:
+    from typing import Dict, List, Set
 
 
 logger = logging.getLogger(__name__)

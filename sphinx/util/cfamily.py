@@ -9,7 +9,6 @@
 """
 
 import re
-import warnings
 from copy import deepcopy
 from typing import Any, Callable, List, Match, Optional, Pattern, Tuple, Union
 
@@ -17,7 +16,6 @@ from docutils import nodes
 from docutils.nodes import TextElement
 
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.util import logging
 
 logger = logging.getLogger(__name__)
@@ -85,12 +83,7 @@ def verify_description_mode(mode: str) -> None:
 
 class NoOldIdError(Exception):
     # Used to avoid implementing unneeded id generation for old id schemes.
-    @property
-    def description(self) -> str:
-        warnings.warn('%s.description is deprecated. '
-                      'Coerce the instance to a string instead.' % self.__class__.__name__,
-                      RemovedInSphinx40Warning, stacklevel=2)
-        return str(self)
+    pass
 
 
 class ASTBaseBase:
@@ -213,21 +206,11 @@ class ASTBaseParenExprList(ASTBaseBase):
 ################################################################################
 
 class UnsupportedMultiCharacterCharLiteral(Exception):
-    @property
-    def decoded(self) -> str:
-        warnings.warn('%s.decoded is deprecated. '
-                      'Coerce the instance to a string instead.' % self.__class__.__name__,
-                      RemovedInSphinx40Warning, stacklevel=2)
-        return str(self)
+    pass
 
 
 class DefinitionError(Exception):
-    @property
-    def description(self) -> str:
-        warnings.warn('%s.description is deprecated. '
-                      'Coerce the instance to a string instead.' % self.__class__.__name__,
-                      RemovedInSphinx40Warning, stacklevel=2)
-        return str(self)
+    pass
 
 
 class BaseParser:

@@ -14,16 +14,15 @@ import re
 import warnings
 from inspect import Parameter, Signature
 from types import ModuleType
-from typing import (Any, Callable, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Type,
-                    TypeVar, Union)
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Optional, Sequence,
+                    Set, Tuple, Type, TypeVar, Union)
 
 from docutils.statemachine import StringList
 
 import sphinx
 from sphinx.application import Sphinx
 from sphinx.config import ENUM, Config
-from sphinx.deprecation import (RemovedInSphinx40Warning, RemovedInSphinx50Warning,
-                                RemovedInSphinx60Warning)
+from sphinx.deprecation import RemovedInSphinx50Warning, RemovedInSphinx60Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc.importer import (get_class_members, get_object_members, import_module,
                                          import_object)
@@ -37,10 +36,7 @@ from sphinx.util.inspect import (evaluate_signature, getdoc, object_description,
 from sphinx.util.typing import get_type_hints, restify
 from sphinx.util.typing import stringify as stringify_typehint
 
-if False:
-    # For type annotation
-    from typing import Type  # NOQA # for python3.5.1
-
+if TYPE_CHECKING:
     from sphinx.ext.autodoc.directive import DocumenterBridge
 
 
@@ -327,7 +323,7 @@ class Documenter:
 
     def __init__(self, directive: "DocumenterBridge", name: str, indent: str = '') -> None:
         self.directive = directive
-        self.config = directive.env.config
+        self.config = directive.env.config  # type: Config
         self.env = directive.env    # type: BuildEnvironment
         self.options = directive.genopt
         self.name = name
@@ -351,7 +347,7 @@ class Documenter:
         self.analyzer = None        # type: ModuleAnalyzer
 
     @property
-    def documenters(self) -> Dict[str, "Type[Documenter]"]:
+    def documenters(self) -> Dict[str, Type["Documenter"]]:
         """Returns registered Documenter classes"""
         return self.env.app.registry.documenters
 
@@ -540,16 +536,12 @@ class Documenter:
             # etc. don't support a prepended module name
             self.add_line('   :module: %s' % self.modname, sourcename)
 
-    def get_doc(self, encoding: str = None, ignore: int = None) -> Optional[List[List[str]]]:
+    def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         """Decode and return lines of the docstring(s) for the object.
 
         When it returns None value, autodoc-process-docstring will not be called for this
         object.
         """
-        if encoding is not None:
-            warnings.warn("The 'encoding' argument to autodoc.%s.get_doc() is deprecated."
-                          % self.__class__.__name__,
-                          RemovedInSphinx40Warning, stacklevel=2)
         if ignore is not None:
             warnings.warn("The 'ignore' argument to autodoc.%s.get_doc() is deprecated."
                           % self.__class__.__name__,
@@ -910,7 +902,7 @@ class Documenter:
         # This is used for situations where you have a module that collects the
         # functions and classes of internal submodules.
         guess_modname = self.get_real_modname()
-        self.real_modname = real_modname or guess_modname
+        self.real_modname = real_modname or guess_modname  # type: str
 
         # try to also get a source code analyzer for attribute docs
         try:
@@ -1103,7 +1095,7 @@ class ModuleDocumenter(Documenter):
             # Sort by __all__
             def keyfunc(entry: Tuple[Documenter, bool]) -> int:
                 name = entry[0].name.split('::')[1]
-                if name in self.__all__:
+                if self.__all__ and name in self.__all__:
                     return self.__all__.index(name)
                 else:
                     return len(self.__all__)
@@ -1176,12 +1168,7 @@ class DocstringSignatureMixin:
     _new_docstrings = None  # type: List[List[str]]
     _signatures = None      # type: List[str]
 
-    def _find_signature(self, encoding: str = None) -> Tuple[str, str]:
-        if encoding is not None:
-            warnings.warn("The 'encoding' argument to autodoc.%s._find_signature() is "
-                          "deprecated." % self.__class__.__name__,
-                          RemovedInSphinx40Warning, stacklevel=2)
-
+    def _find_signature(self) -> Tuple[str, str]:
         # candidates of the object name
         valid_names = [self.objpath[-1]]  # type: ignore
         if isinstance(self, ClassDocumenter):
@@ -1242,14 +1229,10 @@ class DocstringSignatureMixin:
 
         return result
 
-    def get_doc(self, encoding: str = None, ignore: int = None) -> Optional[List[List[str]]]:
-        if encoding is not None:
-            warnings.warn("The 'encoding' argument to autodoc.%s.get_doc() is deprecated."
-                          % self.__class__.__name__,
-                          RemovedInSphinx40Warning, stacklevel=2)
+    def get_doc(self, ignore: int = None) -> List[List[str]]:
         if self._new_docstrings is not None:
             return self._new_docstrings
-        return super().get_doc(None, ignore)  # type: ignore
+        return super().get_doc(ignore)  # type: ignore
 
     def format_signature(self, **kwargs: Any) -> str:
         if self.args is None and self.config.autodoc_docstring_signature:  # type: ignore
@@ -1649,11 +1632,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         else:
             return False, [m for m in members.values() if m.class_ == self.object]
 
-    def get_doc(self, encoding: str = None, ignore: int = None) -> Optional[List[List[str]]]:
-        if encoding is not None:
-            warnings.warn("The 'encoding' argument to autodoc.%s.get_doc() is deprecated."
-                          % self.__class__.__name__,
-                          RemovedInSphinx40Warning, stacklevel=2)
+    def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         if self.doc_as_attr:
             # Don't show the docstring of the class when it is an alias.
             return None
@@ -1814,7 +1793,7 @@ class TypeVarMixin(DataDocumenterMixinBase):
         return (isinstance(self.object, TypeVar) or
                 super().should_suppress_directive_header())
 
-    def get_doc(self, encoding: str = None, ignore: int = None) -> Optional[List[List[str]]]:
+    def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         if ignore is not None:
             warnings.warn("The 'ignore' argument to autodoc.%s.get_doc() is deprecated."
                           % self.__class__.__name__,
@@ -1833,6 +1812,8 @@ class TypeVarMixin(DataDocumenterMixinBase):
             attrs = [repr(self.object.__name__)]
             for constraint in self.object.__constraints__:
                 attrs.append(stringify_typehint(constraint))
+            if self.object.__bound__:
+                attrs.append(r"bound=\ " + restify(self.object.__bound__))
             if self.object.__covariant__:
                 attrs.append("covariant=True")
             if self.object.__contravariant__:
@@ -1878,11 +1859,11 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
         return (self.object is UNINITIALIZED_ATTR or
                 super().should_suppress_value_header())
 
-    def get_doc(self, encoding: str = None, ignore: int = None) -> Optional[List[List[str]]]:
+    def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         if self.object is UNINITIALIZED_ATTR:
             return []
         else:
-            return super().get_doc(encoding, ignore)  # type: ignore
+            return super().get_doc(ignore)  # type: ignore
 
 
 class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
@@ -1977,13 +1958,13 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
 
         return None
 
-    def get_doc(self, encoding: str = None, ignore: int = None) -> List[List[str]]:
+    def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         # Check the variable has a docstring-comment
         comment = self.get_module_comment(self.objpath[-1])
         if comment:
             return [comment]
         else:
-            return super().get_doc(encoding, ignore)
+            return super().get_doc(ignore)
 
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
@@ -2204,13 +2185,13 @@ class NonDataDescriptorMixin(DataDocumenterMixinBase):
         return (not getattr(self, 'non_data_descriptor', False) or
                 super().should_suppress_directive_header())
 
-    def get_doc(self, encoding: str = None, ignore: int = None) -> Optional[List[List[str]]]:
+    def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         if getattr(self, 'non_data_descriptor', False):
             # the docstring of non datadescriptor is very probably the wrong thing
             # to display
             return None
         else:
-            return super().get_doc(encoding, ignore)  # type: ignore
+            return super().get_doc(ignore)  # type: ignore
 
 
 class SlotsMixin(DataDocumenterMixinBase):
@@ -2243,7 +2224,7 @@ class SlotsMixin(DataDocumenterMixinBase):
         else:
             return super().should_suppress_directive_header()
 
-    def get_doc(self, encoding: str = None, ignore: int = None) -> Optional[List[List[str]]]:
+    def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         if self.object is SLOTSATTR:
             try:
                 __slots__ = inspect.getslots(self.parent)
@@ -2257,7 +2238,7 @@ class SlotsMixin(DataDocumenterMixinBase):
                                (self.parent.__qualname__, exc), type='autodoc')
                 return []
         else:
-            return super().get_doc(encoding, ignore)  # type: ignore
+            return super().get_doc(ignore)  # type: ignore
 
 
 class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
@@ -2361,11 +2342,11 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
         return (self.object is UNINITIALIZED_ATTR or
                 super().should_suppress_value_header())
 
-    def get_doc(self, encoding: str = None, ignore: int = None) -> Optional[List[List[str]]]:
+    def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         if self.object is UNINITIALIZED_ATTR:
             return None
         else:
-            return super().get_doc(encoding, ignore)  # type: ignore
+            return super().get_doc(ignore)  # type: ignore
 
 
 class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: ignore
@@ -2512,7 +2493,7 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
 
         return None
 
-    def get_doc(self, encoding: str = None, ignore: int = None) -> Optional[List[List[str]]]:
+    def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         # Check the attribute has a docstring-comment
         comment = self.get_attribute_comment(self.parent, self.objpath[-1])
         if comment:
@@ -2524,7 +2505,7 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
             # ref: https://github.com/sphinx-doc/sphinx/issues/7805
             orig = self.config.autodoc_inherit_docstrings
             self.config.autodoc_inherit_docstrings = False  # type: ignore
-            return super().get_doc(encoding, ignore)
+            return super().get_doc(ignore)
         finally:
             self.config.autodoc_inherit_docstrings = orig  # type: ignore
 
@@ -2589,7 +2570,7 @@ class NewTypeAttributeDocumenter(AttributeDocumenter):
         return not isinstance(parent, ModuleDocumenter) and inspect.isNewType(member)
 
 
-def get_documenters(app: Sphinx) -> Dict[str, "Type[Documenter]"]:
+def get_documenters(app: Sphinx) -> Dict[str, Type[Documenter]]:
     """Returns registered Documenter classes"""
     warnings.warn("get_documenters() is deprecated.", RemovedInSphinx50Warning, stacklevel=2)
     return app.registry.documenters

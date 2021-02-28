@@ -8,14 +8,13 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Dict, List, Set
+from typing import TYPE_CHECKING, Dict, List, Set
 
 from docutils import nodes
 
 from sphinx.environment import BuildEnvironment
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 

@@ -19,7 +19,7 @@ from os import path
 from typing import IO, Any, Dict, List, Optional, Tuple
 from zipfile import ZipFile
 
-from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.errors import PycodeError
 from sphinx.pycode.parser import Parser
 
@@ -79,7 +79,7 @@ class ModuleAnalyzer:
     @classmethod
     def for_string(cls, string: str, modname: str, srcname: str = '<string>'
                    ) -> "ModuleAnalyzer":
-        return cls(StringIO(string), modname, srcname, decoded=True)
+        return cls(StringIO(string), modname, srcname)
 
     @classmethod
     def for_file(cls, filename: str, modname: str) -> "ModuleAnalyzer":
@@ -87,7 +87,7 @@ class ModuleAnalyzer:
             return cls.cache['file', filename]
         try:
             with tokenize.open(filename) as f:
-                obj = cls(f, modname, filename, decoded=True)
+                obj = cls(f, modname, filename)
                 cls.cache['file', filename] = obj
         except Exception as err:
             if '.egg' + path.sep in filename:
@@ -127,21 +127,12 @@ class ModuleAnalyzer:
         cls.cache['module', modname] = obj
         return obj
 
-    def __init__(self, source: IO, modname: str, srcname: str, decoded: bool = False) -> None:
+    def __init__(self, source: IO, modname: str, srcname: str) -> None:
         self.modname = modname  # name of the module
         self.srcname = srcname  # name of the source file
 
         # cache the source code as well
-        pos = source.tell()
-        if not decoded:
-            warnings.warn('decode option for ModuleAnalyzer is deprecated.',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            self._encoding, _ = tokenize.detect_encoding(source.readline)
-            source.seek(pos)
-            self.code = source.read().decode(self._encoding)
-        else:
-            self._encoding = None
-            self.code = source.read()
+        self.code = source.read()
 
         # will be filled by analyze()
         self.annotations = None  # type: Dict[Tuple[str, str], str]
@@ -164,7 +155,7 @@ class ModuleAnalyzer:
             return None
 
         try:
-            parser = Parser(self.code, self._encoding)
+            parser = Parser(self.code)
             parser.parse()
 
             self.attr_docs = OrderedDict()
@@ -192,9 +183,3 @@ class ModuleAnalyzer:
         """Find class, function and method definitions and their location."""
         self.analyze()
         return self.tags
-
-    @property
-    def encoding(self) -> str:
-        warnings.warn('ModuleAnalyzer.encoding is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        return self._encoding

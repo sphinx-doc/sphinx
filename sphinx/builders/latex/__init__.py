@@ -24,7 +24,7 @@ from sphinx.builders.latex.constants import ADDITIONAL_SETTINGS, DEFAULT_SETTING
 from sphinx.builders.latex.theming import Theme, ThemeFactory
 from sphinx.builders.latex.util import ExtBabel
 from sphinx.config import ENUM, Config
-from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
@@ -216,14 +216,18 @@ class LaTeXBuilder(Builder):
             if not self.babel.uses_cyrillic():
                 if 'X2' in self.context['fontenc']:
                     self.context['substitutefont'] = '\\usepackage{substitutefont}'
-                    self.context['textcyrillic'] = '\\usepackage[Xtwo]{sphinxcyrillic}'
+                    self.context['textcyrillic'] = ('\\usepackage[Xtwo]'
+                                                    '{sphinxpackagecyrillic}')
                 elif 'T2A' in self.context['fontenc']:
                     self.context['substitutefont'] = '\\usepackage{substitutefont}'
-                    self.context['textcyrillic'] = '\\usepackage[TtwoA]{sphinxcyrillic}'
+                    self.context['textcyrillic'] = ('\\usepackage[TtwoA]'
+                                                    '{sphinxpackagecyrillic}')
             if 'LGR' in self.context['fontenc']:
                 self.context['substitutefont'] = '\\usepackage{substitutefont}'
             else:
                 self.context['textgreek'] = ''
+            if self.context['substitutefont'] == '':
+                self.context['fontsubstitution'] = ''
 
         # 'babel' key is public and user setting must be obeyed
         if self.context['babel']:
@@ -261,7 +265,6 @@ class LaTeXBuilder(Builder):
             defaults=self.env.settings,
             components=(docwriter,),
             read_config_files=True).get_default_values()  # type: Any
-        patch_settings(docsettings)
 
         self.init_document_data()
         self.write_stylesheet()
@@ -364,10 +367,6 @@ class LaTeXBuilder(Builder):
             pendingnode.replace_self(newnodes)
         return largetree
 
-    def apply_transforms(self, doctree: nodes.document) -> None:
-        warnings.warn('LaTeXBuilder.apply_transforms() is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-
     def finish(self) -> None:
         self.copy_image_files()
         self.write_message_catalog()
@@ -462,44 +461,6 @@ class LaTeXBuilder(Builder):
         return self.app.registry.latex_packages_after_hyperref
 
 
-def patch_settings(settings: Any) -> Any:
-    """Make settings object to show deprecation messages."""
-
-    class Values(type(settings)):  # type: ignore
-        @property
-        def author(self) -> str:
-            warnings.warn('settings.author is deprecated',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            return self._author
-
-        @property
-        def title(self) -> str:
-            warnings.warn('settings.title is deprecated',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            return self._title
-
-        @property
-        def contentsname(self) -> str:
-            warnings.warn('settings.contentsname is deprecated',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            return self._contentsname
-
-        @property
-        def docname(self) -> str:
-            warnings.warn('settings.docname is deprecated',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            return self._docname
-
-        @property
-        def docclass(self) -> str:
-            warnings.warn('settings.docclass is deprecated',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            return self._docclass
-
-    # dynamic subclassing
-    settings.__class__ = Values
-
-
 def validate_config_values(app: Sphinx, config: Config) -> None:
     for key in list(config.latex_elements):
         if key not in DEFAULT_SETTINGS:
@@ -525,7 +486,7 @@ def install_packages_for_ja(app: Sphinx) -> None:
 def default_latex_engine(config: Config) -> str:
     """ Better default latex_engine settings for specific languages. """
     if config.language == 'ja':
-        return 'platex'
+        return 'uplatex'
     elif (config.language or '').startswith('zh'):
         return 'xelatex'
     elif config.language == 'el':
@@ -556,7 +517,7 @@ def default_latex_documents(config: Config) -> List[Tuple[str, str, str, str, st
     """ Better default latex_documents settings. """
     project = texescape.escape(config.project, config.latex_engine)
     author = texescape.escape(config.author, config.latex_engine)
-    return [(config.master_doc,
+    return [(config.root_doc,
              make_filename_from_project(config.project) + '.tex',
              texescape.escape_abbr(project),
              texescape.escape_abbr(author),

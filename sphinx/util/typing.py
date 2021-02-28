@@ -22,7 +22,7 @@ else:
     from typing import _ForwardRef  # type: ignore
 
     class ForwardRef:
-        """A pseudo ForwardRef class for py35 and py36."""
+        """A pseudo ForwardRef class for py36."""
         def __init__(self, arg: Any, is_argument: bool = True) -> None:
             self.arg = arg
 
@@ -82,9 +82,6 @@ def get_type_hints(obj: Any, globalns: Dict = None, localns: Dict = None) -> Dic
         return safe_getattr(obj, '__annotations__', {})
     except KeyError:
         # a broken class found (refs: https://github.com/sphinx-doc/sphinx/issues/8084)
-        return {}
-    except AttributeError:
-        # AttributeError is raised on 3.5.2 (fixed by 3.5.3)
         return {}
 
 
@@ -196,7 +193,7 @@ def _restify_py36(cls: Optional["Type"]) -> str:
         qualname = repr(cls)
 
     if (isinstance(cls, typing.TupleMeta) and  # type: ignore
-            not hasattr(cls, '__tuple_params__')):  # for Python 3.6
+            not hasattr(cls, '__tuple_params__')):
         params = cls.__args__
         if params:
             param_str = ', '.join(restify(p) for p in params)
@@ -204,40 +201,22 @@ def _restify_py36(cls: Optional["Type"]) -> str:
         else:
             return ':class:`%s`' % qualname
     elif isinstance(cls, typing.GenericMeta):
-        params = None
-        if hasattr(cls, '__args__'):
-            # for Python 3.5.2+
-            if cls.__args__ is None or len(cls.__args__) <= 2:  # type: ignore  # NOQA
-                params = cls.__args__  # type: ignore
-            elif cls.__origin__ == Generator:  # type: ignore
-                params = cls.__args__  # type: ignore
-            else:  # typing.Callable
-                args = ', '.join(restify(arg) for arg in cls.__args__[:-1])  # type: ignore
-                result = restify(cls.__args__[-1])  # type: ignore
-                return ':class:`%s`\\ [[%s], %s]' % (qualname, args, result)
-        elif hasattr(cls, '__parameters__'):
-            # for Python 3.5.0 and 3.5.1
-            params = cls.__parameters__  # type: ignore
+        if cls.__args__ is None or len(cls.__args__) <= 2:  # type: ignore  # NOQA
+            params = cls.__args__  # type: ignore
+        elif cls.__origin__ == Generator:  # type: ignore
+            params = cls.__args__  # type: ignore
+        else:  # typing.Callable
+            args = ', '.join(restify(arg) for arg in cls.__args__[:-1])  # type: ignore
+            result = restify(cls.__args__[-1])  # type: ignore
+            return ':class:`%s`\\ [[%s], %s]' % (qualname, args, result)
 
         if params:
             param_str = ', '.join(restify(p) for p in params)
             return ':class:`%s`\\ [%s]' % (qualname, param_str)
         else:
             return ':class:`%s`' % qualname
-    elif (hasattr(typing, 'UnionMeta') and
-            isinstance(cls, typing.UnionMeta) and  # type: ignore
-            hasattr(cls, '__union_params__')):  # for Python 3.5
-        params = cls.__union_params__
-        if params is not None:
-            if len(params) == 2 and params[1] is NoneType:
-                return ':obj:`Optional`\\ [%s]' % restify(params[0])
-            else:
-                param_str = ', '.join(restify(p) for p in params)
-                return ':obj:`%s`\\ [%s]' % (qualname, param_str)
-        else:
-            return ':obj:`%s`' % qualname
     elif (hasattr(cls, '__origin__') and
-          cls.__origin__ is typing.Union):  # for Python 3.5.2+
+          cls.__origin__ is typing.Union):
         params = cls.__args__
         if params is not None:
             if len(params) > 1 and params[-1] is NoneType:
@@ -251,31 +230,6 @@ def _restify_py36(cls: Optional["Type"]) -> str:
                 return ':obj:`Union`\\ [%s]' % param_str
         else:
             return ':obj:`Union`'
-    elif (isinstance(cls, typing.CallableMeta) and  # type: ignore
-          getattr(cls, '__args__', None) is not None and
-          hasattr(cls, '__result__')):  # for Python 3.5
-        # Skipped in the case of plain typing.Callable
-        args = cls.__args__
-        if args is None:
-            return qualname
-        elif args is Ellipsis:
-            args_str = '...'
-        else:
-            formatted_args = (restify(a) for a in args)  # type: ignore
-            args_str = '[%s]' % ', '.join(formatted_args)
-
-        return ':class:`%s`\\ [%s, %s]' % (qualname, args_str, stringify(cls.__result__))
-    elif (isinstance(cls, typing.TupleMeta) and  # type: ignore
-          hasattr(cls, '__tuple_params__') and
-          hasattr(cls, '__tuple_use_ellipsis__')):  # for Python 3.5
-        params = cls.__tuple_params__
-        if params is not None:
-            param_strings = [restify(p) for p in params]
-            if cls.__tuple_use_ellipsis__:
-                param_strings.append('...')
-            return ':class:`%s`\\ [%s]' % (qualname, ', '.join(param_strings))
-        else:
-            return ':class:`%s`' % qualname
     elif hasattr(cls, '__qualname__'):
         if cls.__module__ == 'typing':
             return ':class:`%s`' % cls.__qualname__
@@ -309,7 +263,10 @@ def stringify(annotation: Any) -> str:
         else:
             return annotation
     elif isinstance(annotation, TypeVar):
-        return annotation.__name__
+        if annotation.__module__ == 'typing':
+            return annotation.__name__
+        else:
+            return '.'.join([annotation.__module__, annotation.__name__])
     elif inspect.isNewType(annotation):
         # Could not get the module where it defiend
         return annotation.__name__
@@ -393,7 +350,7 @@ def _stringify_py37(annotation: Any) -> str:
 
 
 def _stringify_py36(annotation: Any) -> str:
-    """stringify() for py35 and py36."""
+    """stringify() for py36."""
     module = getattr(annotation, '__module__', None)
     if module == 'typing':
         if getattr(annotation, '_name', None):
@@ -421,35 +378,20 @@ def _stringify_py36(annotation: Any) -> str:
             return qualname
     elif isinstance(annotation, typing.GenericMeta):
         params = None
-        if hasattr(annotation, '__args__'):
-            # for Python 3.5.2+
-            if annotation.__args__ is None or len(annotation.__args__) <= 2:  # type: ignore  # NOQA
-                params = annotation.__args__  # type: ignore
-            elif annotation.__origin__ == Generator:  # type: ignore
-                params = annotation.__args__  # type: ignore
-            else:  # typing.Callable
-                args = ', '.join(stringify(arg) for arg
-                                 in annotation.__args__[:-1])  # type: ignore
-                result = stringify(annotation.__args__[-1])  # type: ignore
-                return '%s[[%s], %s]' % (qualname, args, result)
-        elif hasattr(annotation, '__parameters__'):
-            # for Python 3.5.0 and 3.5.1
-            params = annotation.__parameters__  # type: ignore
+        if annotation.__args__ is None or len(annotation.__args__) <= 2:  # type: ignore  # NOQA
+            params = annotation.__args__  # type: ignore
+        elif annotation.__origin__ == Generator:  # type: ignore
+            params = annotation.__args__  # type: ignore
+        else:  # typing.Callable
+            args = ', '.join(stringify(arg) for arg
+                             in annotation.__args__[:-1])  # type: ignore
+            result = stringify(annotation.__args__[-1])  # type: ignore
+            return '%s[[%s], %s]' % (qualname, args, result)
         if params is not None:
             param_str = ', '.join(stringify(p) for p in params)
             return '%s[%s]' % (qualname, param_str)
-    elif (hasattr(typing, 'UnionMeta') and
-          isinstance(annotation, typing.UnionMeta) and  # type: ignore
-          hasattr(annotation, '__union_params__')):  # for Python 3.5
-        params = annotation.__union_params__
-        if params is not None:
-            if len(params) == 2 and params[1] is NoneType:
-                return 'Optional[%s]' % stringify(params[0])
-            else:
-                param_str = ', '.join(stringify(p) for p in params)
-                return '%s[%s]' % (qualname, param_str)
     elif (hasattr(annotation, '__origin__') and
-          annotation.__origin__ is typing.Union):  # for Python 3.5.2+
+          annotation.__origin__ is typing.Union):
         params = annotation.__args__
         if params is not None:
             if len(params) > 1 and params[-1] is NoneType:
@@ -461,30 +403,5 @@ def _stringify_py36(annotation: Any) -> str:
             else:
                 param_str = ', '.join(stringify(p) for p in params)
                 return 'Union[%s]' % param_str
-    elif (isinstance(annotation, typing.CallableMeta) and  # type: ignore
-          getattr(annotation, '__args__', None) is not None and
-          hasattr(annotation, '__result__')):  # for Python 3.5
-        # Skipped in the case of plain typing.Callable
-        args = annotation.__args__
-        if args is None:
-            return qualname
-        elif args is Ellipsis:
-            args_str = '...'
-        else:
-            formatted_args = (stringify(a) for a in args)
-            args_str = '[%s]' % ', '.join(formatted_args)
-        return '%s[%s, %s]' % (qualname,
-                               args_str,
-                               stringify(annotation.__result__))
-    elif (isinstance(annotation, typing.TupleMeta) and  # type: ignore
-          hasattr(annotation, '__tuple_params__') and
-          hasattr(annotation, '__tuple_use_ellipsis__')):  # for Python 3.5
-        params = annotation.__tuple_params__
-        if params is not None:
-            param_strings = [stringify(p) for p in params]
-            if annotation.__tuple_use_ellipsis__:
-                param_strings.append('...')
-            return '%s[%s]' % (qualname,
-                               ', '.join(param_strings))
 
     return qualname

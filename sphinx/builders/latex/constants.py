@@ -11,7 +11,12 @@
 from typing import Any, Dict
 
 PDFLATEX_DEFAULT_FONTPKG = r'''
-\usepackage{times}
+\usepackage{tgtermes}
+\usepackage{tgheros}
+\renewcommand{\ttdefault}{txtt}
+'''
+
+PDFLATEX_DEFAULT_FONTSUBSTITUTION = r'''
 \expandafter\ifx\csname T@LGR\endcsname\relax
 \else
 % LGR was declared as font encoding
@@ -76,7 +81,7 @@ DEFAULT_SETTINGS = {
     'maxlistdepth':    '',
     'sphinxpkgoptions':     '',
     'sphinxsetup':     '',
-    'fvset':           '\\fvset{fontsize=\\small}',
+    'fvset':           '\\fvset{fontsize=auto}',
     'passoptionstopackages': '',
     'geometry':        '\\usepackage{geometry}',
     'inputenc':        '',
@@ -88,6 +93,7 @@ DEFAULT_SETTINGS = {
     'babel':           '\\usepackage{babel}',
     'polyglossia':     '',
     'fontpkg':         PDFLATEX_DEFAULT_FONTPKG,
+    'fontsubstitution': PDFLATEX_DEFAULT_FONTSUBSTITUTION,
     'substitutefont':  '',
     'textcyrillic':    '',
     'textgreek':       '\\usepackage{textalpha}',
@@ -142,6 +148,8 @@ ADDITIONAL_SETTINGS = {
         'fontenc':     ('\\usepackage{fontspec}\n'
                         '\\defaultfontfeatures[\\rmfamily,\\sffamily,\\ttfamily]{}'),
         'fontpkg':      XELATEX_DEFAULT_FONTPKG,
+        'fvset':        '\\fvset{fontsize=\\small}',
+        'fontsubstitution': '',
         'textgreek':    '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
                         '{\\leavevmode\\nobreak\\ }'),
@@ -153,6 +161,8 @@ ADDITIONAL_SETTINGS = {
         'fontenc':     ('\\usepackage{fontspec}\n'
                         '\\defaultfontfeatures[\\rmfamily,\\sffamily,\\ttfamily]{}'),
         'fontpkg':      LUALATEX_DEFAULT_FONTPKG,
+        'fvset':        '\\fvset{fontsize=\\small}',
+        'fontsubstitution': '',
         'textgreek':    '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
                         '{\\leavevmode\\nobreak\\ }'),
@@ -161,7 +171,8 @@ ADDITIONAL_SETTINGS = {
         'latex_engine': 'platex',
         'babel':        '',
         'classoptions': ',dvipdfmx',
-        'fontpkg':      '\\usepackage{times}',
+        'fontpkg':      PDFLATEX_DEFAULT_FONTPKG,
+        'fontsubstitution': '',
         'textgreek':    '',
         'fncychap':     '',
         'geometry':     '\\usepackage[dvipdfm]{geometry}',
@@ -170,7 +181,8 @@ ADDITIONAL_SETTINGS = {
         'latex_engine': 'uplatex',
         'babel':        '',
         'classoptions': ',dvipdfmx',
-        'fontpkg':      '\\usepackage{times}',
+        'fontpkg':      PDFLATEX_DEFAULT_FONTPKG,
+        'fontsubstitution': '',
         'textgreek':    '',
         'fncychap':     '',
         'geometry':     '\\usepackage[dvipdfm]{geometry}',

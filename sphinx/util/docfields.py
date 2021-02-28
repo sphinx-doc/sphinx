@@ -9,20 +9,15 @@
     :license: BSD, see LICENSE for details.
 """
 
-import warnings
-from typing import Any, Dict, List, Tuple, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Type, Union, cast
 
 from docutils import nodes
 from docutils.nodes import Node
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.util.typing import TextlikeNode
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
+if TYPE_CHECKING:
     from sphinx.directive import ObjectDescription
     from sphinx.environment import BuildEnvironment
 
@@ -219,26 +214,7 @@ class DocFieldTransformer:
     def __init__(self, directive: "ObjectDescription") -> None:
         self.directive = directive
 
-        try:
-            self.typemap = directive.get_field_type_map()
-        except Exception:
-            # for 3rd party extensions directly calls this transformer.
-            warnings.warn('DocFieldTransformer expects given directive object is a subclass '
-                          'of ObjectDescription.', RemovedInSphinx40Warning, stacklevel=2)
-            self.typemap = self.preprocess_fieldtypes(directive.__class__.doc_field_types)
-
-    def preprocess_fieldtypes(self, types: List[Field]) -> Dict[str, Tuple[Field, bool]]:
-        warnings.warn('DocFieldTransformer.preprocess_fieldtypes() is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        typemap = {}
-        for fieldtype in types:
-            for name in fieldtype.names:
-                typemap[name] = fieldtype, False
-            if fieldtype.is_typed:
-                typed_field = cast(TypedField, fieldtype)
-                for name in typed_field.typenames:
-                    typemap[name] = typed_field, True
-        return typemap
+        self.typemap = directive.get_field_type_map()
 
     def transform_all(self, node: addnodes.desc_content) -> None:
         """Transform all field list children of a node."""

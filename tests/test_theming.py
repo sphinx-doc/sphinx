@@ -127,7 +127,7 @@ def test_dark_style(app, status, warning):
     assert (app.outdir / '_static' / 'pygments_dark.css').exists()
 
     result = (app.outdir / 'index.html').read_text()
-    assert '<link rel="stylesheet" href="_static/pygments.css" type="text/css" />' in result
+    assert '<link rel="stylesheet" type="text/css" href="_static/pygments.css" />' in result
     assert ('<link id="pygments_dark_css" media="(prefers-color-scheme: dark)" '
             'rel="stylesheet" type="text/css" '
             'href="_static/pygments_dark.css" />') in result

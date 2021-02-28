@@ -17,9 +17,7 @@
 {%- set reldelim2 = reldelim2 is not defined and ' |' or reldelim2 %}
 {%- set render_sidebar = (not embedded) and (not theme_nosidebar|tobool) and
                          (sidebars != []) %}
-{%- set url_root = pathto('', 1) %}
 {# URL root should never be #, then all links are fragments #}
-{%- if url_root == '#' %}{% set url_root = '' %}{% endif %}
 {%- if not embedded and docstitle %}
   {%- set titlesuffix = " &#8212; "|safe + docstitle|e %}
 {%- else %}
@@ -37,7 +35,7 @@
           {%- if not loop.first %}{{ reldelim2 }}{% endif %}</li>
         {%- endfor %}
         {%- block rootrellink %}
-        <li class="nav-item nav-item-0"><a href="{{ pathto(master_doc)|e }}">{{ shorttitle|e }}</a>{{ reldelim1 }}</li>
+        <li class="nav-item nav-item-0"><a href="{{ pathto(root_doc)|e }}">{{ shorttitle|e }}</a>{{ reldelim1 }}</li>
         {%- endblock %}
         {%- for parent in parents %}
           <li class="nav-item nav-item-{{ loop.index }}"><a href="{{ parent.link|e }}" {% if loop.last %}{{ accesskey("U") }}{% endif %}>{{ parent.title }}</a>{{ reldelim1 }}</li>
@@ -53,9 +51,9 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
           {%- block sidebarlogo %}
-          {%- if logo %}
-            <p class="logo"><a href="{{ pathto(master_doc)|e }}">
-              <img class="logo" src="{{ pathto('_static/' + logo, 1)|e }}" alt="Logo"/>
+          {%- if logo_url %}
+            <p class="logo"><a href="{{ pathto(root_doc)|e }}">
+              <img class="logo" src="{{ logo_url|e }}" alt="Logo"/>
             </a></p>
           {%- endif %}
           {%- endblock %}
@@ -88,15 +86,12 @@
 {%- endmacro %}
 
 {%- macro script() %}
-    <script id="documentation_options" data-url_root="{{ url_root }}" src="{{ pathto('_static/documentation_options.js', 1) }}"></script>
     {%- for js in script_files %}
     {{ js_tag(js) }}
     {%- endfor %}
 {%- endmacro %}
 
 {%- macro css() %}
-    <link rel="stylesheet" href="{{ pathto('_static/pygments.css', 1) }}" type="text/css" />
-    <link rel="stylesheet" href="{{ pathto('_static/' + style, 1)|e }}" type="text/css" />
     {%- for css in css_files %}
       {%- if css|attr("filename") %}
     {{ css_tag(css) }}
@@ -140,8 +135,8 @@
           title="{% trans docstitle=docstitle|e %}Search within {{ docstitle }}{% endtrans %}"
           href="{{ pathto('_static/opensearch.xml', 1) }}"/>
     {%- endif %}
-    {%- if favicon %}
-    <link rel="shortcut icon" href="{{ pathto('_static/' + favicon, 1)|e }}"/>
+    {%- if favicon_url %}
+    <link rel="shortcut icon" href="{{ favicon_url|e }}"/>
     {%- endif %}
     {%- endif %}
 {%- block linktags %}
