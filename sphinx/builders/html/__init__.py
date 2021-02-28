@@ -1260,11 +1260,7 @@ def migrate_html_add_permalinks(app: Sphinx, config: Config) -> None:
     # RemovedInSphinx60Warning
     logger.warning(__('html_add_permalinks has been deprecated since v3.5.0. '
                       'Please use html_permalinks and html_permalinks_icon instead.'))
-    if (
-        html_add_permalinks is None or
-        html_add_permalinks is False or
-        html_add_permalinks == ""
-    ):
+    if not html_add_permalinks:
         config.html_permalinks = False  # type: ignore[attr-defined]
         return
 
