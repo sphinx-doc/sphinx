@@ -1265,7 +1265,7 @@ def migrate_html_add_permalinks(app: Sphinx, config: Config) -> None:
         return
 
     config.html_permalinks_icon = html.escape(  # type: ignore[attr-defined]
-        config.html_add_permalinks
+        html_add_permalinks
     )
 
 # for compatibility
