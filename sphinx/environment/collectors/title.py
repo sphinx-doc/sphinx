@@ -39,10 +39,9 @@ class TitleCollector(EnvironmentCollector):
         longtitlenode = titlenode
         # explicit title set with title directive; use this only for
         # the <title> tag in HTML output
-        explicit_title = nodes.Text(doctree['title']) if 'title' in doctree else None
-        if explicit_title:
+        if 'title' in doctree:
             longtitlenode = nodes.title()
-            longtitlenode += explicit_title
+            longtitlenode += nodes.Text(doctree['title'])
         # look for first section title and use that as the title
         for node in doctree.traverse(nodes.section):
             visitor = SphinxContentsFilter(doctree)
@@ -51,7 +50,7 @@ class TitleCollector(EnvironmentCollector):
             break
         else:
             # document has no title
-            titlenode += explicit_title or nodes.Text('<no title>')
+            titlenode += nodes.Text(doctree.get('title', '<no title>'))
         app.env.titles[app.env.docname] = titlenode
         app.env.longtitles[app.env.docname] = longtitlenode
 
