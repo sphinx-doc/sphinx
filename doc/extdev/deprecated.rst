@@ -47,6 +47,16 @@ The following is a list of deprecated interfaces.
      - 6.0
      - ``docutils.parsers.rst.diretives.tables.RSTTable``
 
+   * - ``sphinx.registry.SphinxComponentRegistry.get_source_input()``
+     - 4.0
+     - 6.0
+     - N/A
+
+   * - ``sphinx.registry.SphinxComponentRegistry.source_inputs``
+     - 4.0
+     - 6.0
+     - N/A
+
    * - ``sphinx.transforms.FigureAligner``
      - 4.0
      - 6.0
