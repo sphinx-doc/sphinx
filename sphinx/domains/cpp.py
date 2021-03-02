@@ -306,6 +306,7 @@ _operator_re = re.compile(r'''(?x)
     |   \+\+ | --
     |   ->\*? | \,
     |   (<<|>>)=? | && | \|\|
+    |   <=>
     |   [!<>=/*%+|&^~-]=?
     |   (\b(and|and_eq|bitand|bitor|compl|not|not_eq|or|or_eq|xor|xor_eq)\b)
 ''')
@@ -494,6 +495,7 @@ _id_operator_v2 = {
     '>': 'gt',
     '<=': 'le',
     '>=': 'ge',
+    '<=>': 'ss',
     '!': 'nt', 'not': 'nt',
     '&&': 'aa', 'and': 'aa',
     '||': 'oo', 'or': 'oo',
@@ -528,7 +530,7 @@ _expression_bin_ops = [
     ['^', 'xor'],
     ['&', 'bitand'],
     ['==', '!=', 'not_eq'],
-    ['<=', '>=', '<', '>'],
+    ['<=>', '<=', '>=', '<', '>'],
     ['<<', '>>'],
     ['+', '-'],
     ['*', '/', '%'],
@@ -5309,7 +5311,7 @@ class DefinitionParser(BaseParser):
         # exclusive-or   = and              ^
         # and            = equality         &
         # equality       = relational       ==, !=
-        # relational     = shift            <, >, <=, >=
+        # relational     = shift            <, >, <=, >=, <=>
         # shift          = additive         <<, >>
         # additive       = multiplicative   +, -
         # multiplicative = pm               *, /, %
