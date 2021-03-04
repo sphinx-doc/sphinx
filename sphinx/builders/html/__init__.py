@@ -1248,7 +1248,13 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
         config.html_favicon = None  # type: ignore
 
 
-UNSET = object()
+class _stable_repr_object():
+
+    def __repr__(self):
+        return '<object>'
+
+
+UNSET = _stable_repr_object()
 
 
 def migrate_html_add_permalinks(app: Sphinx, config: Config) -> None:
