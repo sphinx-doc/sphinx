@@ -168,14 +168,13 @@ class ReferencesResolver(SphinxPostTransform):
         if self.app.emit_firstresult('warn-missing-reference', domain, node):
             return
         elif domain and typ in domain.dangling_warnings:
-            msg = domain.dangling_warnings[typ]
+            msg = domain.dangling_warnings[typ] % {'target': target}
         elif node.get('refdomain', 'std') not in ('', 'std'):
-            msg = (__('%s:%s reference target not found: %%(target)s') %
-                   (node['refdomain'], typ))
+            msg = (__('%s:%s reference target not found: %s') %
+                   (node['refdomain'], typ, target))
         else:
-            msg = __('%r reference target not found: %%(target)s') % typ
-        logger.warning(msg % {'target': target},
-                       location=node, type='ref', subtype=typ)
+            msg = __('%r reference target not found: %s') % (typ, target)
+        logger.warning(msg, location=node, type='ref', subtype=typ)
 
 
 class OnlyNodeTransform(SphinxPostTransform):
