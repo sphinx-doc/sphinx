@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #8952: Exceptions raised in a Directive cause parallel builds to hang
+
 Testing
 --------
 
