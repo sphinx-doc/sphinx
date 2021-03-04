@@ -49,6 +49,8 @@ Deprecated
 * ``sphinx.directives.patches.CSVTable``
 * ``sphinx.directives.patches.ListTable``
 * ``sphinx.directives.patches.RSTTable``
+* ``sphinx.registry.SphinxComponentRegistry.get_source_input()``
+* ``sphinx.registry.SphinxComponentRegistry.source_inputs``
 * ``sphinx.transforms.FigureAligner``
 * ``sphinx.util.pycompat.convert_with_2to3()``
 * ``sphinx.util.pycompat.execfile_()``
