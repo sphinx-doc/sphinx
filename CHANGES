@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #8943: i18n: Crashed by broken translation messages in ES, EL and HR
+
 Testing
 --------
 
