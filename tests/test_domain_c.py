@@ -420,6 +420,9 @@ def test_function_definitions():
     with pytest.raises(DefinitionError):
         parse('function', 'void f(int for)')
 
+    # from #8960
+    check('function', 'void f(void (*p)(int, double), int i)', {1: 'f'})
+
 
 def test_nested_name():
     check('struct', '{key}.A', {1: "A"})

@@ -93,6 +93,8 @@ Bugs fixed
 * C, properly reject function declarations when a keyword is used
   as parameter name.
 * #8933: viewcode: Failed to create back-links on parallel build
+* #8960: C and C++, fix rendering of (member) function pointer types in
+  function parameter lists.
 
 Testing
 --------
