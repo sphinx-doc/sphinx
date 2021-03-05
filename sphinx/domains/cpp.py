@@ -1967,15 +1967,23 @@ class ASTParametersQualifiers(ASTBase):
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
-        paramlist = addnodes.desc_parameterlist()
-        for arg in self.args:
-            param = addnodes.desc_parameter('', '', noemph=True)
-            if mode == 'lastIsName':  # i.e., outer-function params
+        # only use the desc_parameterlist for the outer list, not for inner lists
+        if mode == 'lastIsName':
+            paramlist = addnodes.desc_parameterlist()
+            for arg in self.args:
+                param = addnodes.desc_parameter('', '', noemph=True)
                 arg.describe_signature(param, 'param', env, symbol=symbol)
-            else:
-                arg.describe_signature(param, 'markType', env, symbol=symbol)
-            paramlist += param
-        signode += paramlist
+                paramlist += param
+            signode += paramlist
+        else:
+            signode += nodes.Text('(', '(')
+            first = True
+            for arg in self.args:
+                if not first:
+                    signode += nodes.Text(', ', ', ')
+                first = False
+                arg.describe_signature(signode, 'markType', env, symbol=symbol)
+            signode += nodes.Text(')', ')')
 
         def _add_anno(signode: TextElement, text: str) -> None:
             signode += nodes.Text(' ')
