@@ -172,10 +172,10 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
            :members:
            :special-members: __init__, __name__
 
-     .. versionadded:: 1.1
+      .. versionadded:: 1.1
 
-     .. versionchanged:: 1.2
-        The option can now take arguments
+      .. versionchanged:: 1.2
+         The option can now take arguments
 
    **Options and advanced usage**
 
