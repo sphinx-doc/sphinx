@@ -19,9 +19,12 @@ import sphinx
 from sphinx.application import Sphinx
 from sphinx.domains.math import MathDomain
 from sphinx.errors import ExtensionError
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.util.math import get_node_equation_number
 from sphinx.writers.html import HTMLTranslator
+from sphinx.util import logging
+
+logger = logging.getLogger(__name__)
 
 # more information for mathjax secure url is here:
 # https://docs.mathjax.org/en/latest/web/configuration.html#loading-mathjax
@@ -77,9 +80,33 @@ def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: Dict
                              'mathjax extension to work')
 
     domain = cast(MathDomain, app.env.get_domain('math'))
+
     if domain.has_equations(pagename):
         # The configuration script must come before the MathJax script
         if app.config.mathjax_config:
+            mathjax2_options = {
+                # Core options: https://docs.mathjax.org/en/v2.7-latest/options/hub.html
+                "jax", "extensions", "config", "styleSheets", "styles", "preJax", "postJax",
+                "preRemoveClass", "showProcessingMessages", "messageStyle", "displayAlign",
+                "displayIndent", "delayStartupUntil", "skipStartupTypeset", "elements",
+                "positionToHash", "showMathMenu", "showMathMenuMSIE", "menuSettings",
+                "errorSettings", "ignoreMMLattributes", "root", "v1.0-compatible",
+                # TeX preprocessor and processor options
+                # https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html
+                # https://docs.mathjax.org/en/v2.7-latest/options/input-processors/TeX.html
+                "tex2jax", "TeX",
+                # Output processor options
+                # https://docs.mathjax.org/en/v2.7-latest/options/output-processors/HTML-CSS.html
+                "HTML-CSS",
+                # https://docs.mathjax.org/en/v2.7-latest/options/output-processors/CommonHTML.html
+                "CommonHTML"
+            }
+            configured_for_v2 = set(app.config.mathjax_config.keys()) & mathjax2_options
+            if configured_for_v2 and app.config.mathjax_path == MATHJAX_URL:
+                mj2_url = "https://docs.mathjax.org/en/v2.7-latest/start.html#using-a-content-delivery-network-cdn"
+                logger.warning(__("'mathjax_config' appears to be for MathJax v2. You may "
+                                  "need to set the 'mathjax_path' option to load MathJax v2, "
+                                  "see %s"), mj2_url)
             body = "window.MathJax = {:s}".format(json.dumps(app.config.mathjax_config))
             app.add_js_file(None, body=body)
 
