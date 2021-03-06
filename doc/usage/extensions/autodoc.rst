@@ -134,6 +134,27 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
            :members:
            :undoc-members:
 
+   .. rst:directive:option:: private-members
+      :type: no value or comma separated list
+
+      If set, autodoc will also generate document for the private members
+      (that is, those named like ``_private`` or ``__private``)::
+
+        .. automodule:: noodle
+           :members:
+           :private-members:
+
+      It can also take an explicit list of member names to be documented as
+      arguments::
+
+        .. automodule:: noodle
+           :members:
+           :private-members: _spicy, _garlickly
+
+      .. versionadded:: 1.1
+      .. versionchanged:: 3.2
+         The option can now take arguments.
+
    **Options and advanced usage**
 
    * If you want to make the ``members`` option (or other options described
@@ -158,24 +179,6 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionchanged:: 3.5
         The default options can be overridden or extended temporarily.
-
-   * "Private" members (that is, those named like ``_private`` or ``__private``)
-     will be included if the ``private-members`` flag option is given::
-
-        .. automodule:: noodle
-           :members:
-           :private-members:
-
-     It can also take an explicit list of member names to be documented as
-     arguments::
-
-        .. automodule:: noodle
-           :members:
-           :private-members: _spicy, _garlickly
-
-     .. versionadded:: 1.1
-     .. versionchanged:: 3.2
-        The option can now take arguments.
 
    * autodoc considers a member private if its docstring contains
      ``:meta private:`` in its :ref:`info-field-lists`.
