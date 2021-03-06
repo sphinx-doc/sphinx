@@ -124,6 +124,16 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
         .. autoclass:: Noodle
            :members: eat, slurp
 
+   .. rst:directive:option:: undoc-members
+      :type: no value
+
+      If set, autodoc will also generate document for the members not having
+      docstrings::
+
+        .. automodule:: noodle
+           :members:
+           :undoc-members:
+
    **Options and advanced usage**
 
    * If you want to make the ``members`` option (or other options described
@@ -148,13 +158,6 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionchanged:: 3.5
         The default options can be overridden or extended temporarily.
-
-   * Members without docstrings will be left out, unless you give the
-     ``undoc-members`` flag option::
-
-        .. automodule:: noodle
-           :members:
-           :undoc-members:
 
    * "Private" members (that is, those named like ``_private`` or ``__private``)
      will be included if the ``private-members`` flag option is given::
