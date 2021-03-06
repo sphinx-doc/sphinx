@@ -123,6 +123,9 @@ Features added
 Bugs fixed
 ----------
 
+* #8936: LaTeX: A custom LaTeX builder fails with unknown node error
+* #8952: Exceptions raised in a Directive cause parallel builds to hang
+
 Testing
 --------
 
