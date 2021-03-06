@@ -92,7 +92,7 @@ class CSVTable(tables.CSVTable):
     Only for docutils-0.13 or older version."""
 
     def run(self) -> List[Node]:
-        warnings.warn('RSTTable is deprecated.',
+        warnings.warn('CSVTable is deprecated.',
                       RemovedInSphinx60Warning)
         return super().run()
 
@@ -110,7 +110,7 @@ class ListTable(tables.ListTable):
     Only for docutils-0.13 or older version."""
 
     def run(self) -> List[Node]:
-        warnings.warn('RSTTable is deprecated.',
+        warnings.warn('ListTable is deprecated.',
                       RemovedInSphinx60Warning)
         return super().run()
 
