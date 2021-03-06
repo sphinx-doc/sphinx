@@ -89,32 +89,42 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
             Boil the noodle *time* minutes.
 
-   **Options and advanced usage**
+   .. rubric:: Options
 
-   * If you want to automatically document members, there's a ``members``
-     option::
+   .. rst:directive:option:: members
+      :type: no value or comma separated list
+
+      If set, autodoc will generate document for the members of the target
+      module, class or exception.
+
+      For example::
 
         .. automodule:: noodle
            :members:
 
-     will document all module members (recursively), and ::
+      will document all module members (recursively), and ::
 
         .. autoclass:: Noodle
            :members:
 
-     will document all non-private member functions and properties (that is,
-     those whose name doesn't start with ``_``).
+      will document all class member methods and properties.
 
-     For modules, ``__all__`` will be respected when looking for members unless
-     you give the ``ignore-module-all`` flag option.  Without
-     ``ignore-module-all``, the order of the members will also be the order in
-     ``__all__``.
+      By default, autodoc will not generate document for the members that are
+      private, not having docstrings, inherited from super class, or special
+      members.
 
-     You can also give an explicit list of members; only these will then be
-     documented::
+      For modules, ``__all__`` will be respected when looking for members unless
+      you give the ``ignore-module-all`` flag option.  Without
+      ``ignore-module-all``, the order of the members will also be the order in
+      ``__all__``.
+
+      You can also give an explicit list of members; only these will then be
+      documented::
 
         .. autoclass:: Noodle
            :members: eat, slurp
+
+   **Options and advanced usage**
 
    * If you want to make the ``members`` option (or other options described
      below) the default, see :confval:`autodoc_default_options`.
