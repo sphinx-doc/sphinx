@@ -144,7 +144,9 @@ are built:
    Version 4.0 changes the version of MathJax used to version 3. You may need to
    override ``mathjax_path`` to
    ``https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML``
-   or update your configuration options for version 3.
+   or `update your configuration options for version 3`_.
+
+.. _update your configuration options for version 3: http://docs.mathjax.org/en/latest/web/configuration.html#converting-your-v2-configuration-to-v3
 
 .. versionadded:: 1.1
 
@@ -152,7 +154,7 @@ This extension puts math as-is into the HTML files.  The JavaScript package
 MathJax_ is then loaded and transforms the LaTeX markup to readable math live in
 the browser.
 
-Because MathJax (and the necessary fonts) is very large, it is not included in
+Because MathJax and the necessary fonts are very large, it is not included in
 Sphinx but is set to automatically include it from a third-party site.
 
 .. attention::
@@ -188,7 +190,7 @@ Sphinx but is set to automatically include it from a third-party site.
 
 .. confval:: mathjax_options
 
-   The options to script tag for mathjax.  For example, you can set integrity
+   The options to the ``script`` tag for MathJax.  For example, you can set integrity
    option with following setting::
 
        mathjax_options = {
@@ -201,22 +203,36 @@ Sphinx but is set to automatically include it from a third-party site.
 
 .. confval:: mathjax_config
 
-   The inline configuration options for mathjax.  The value is used as a
-   parameter of ``MathJax.Hub.Config()``.  For more information, please
-   read `Using in-line configuration options`_.
+   The inline configuration options for MathJax. The value is set on the ``window.MathJax`` object.
+   For more information, please read `Configuration Using an In-Line Script`_.
 
-   For example::
+   For example (for MathJax v3)::
 
        mathjax_config = {
-           'extensions': ['tex2jax.js'],
-           'jax': ['input/TeX', 'output/HTML-CSS'],
+           "tex": {
+               "macros": {
+                   "RR": "\\mathbb{R}",
+               },
+               "processEscapes": True,
+           },
        }
 
-   The default is empty (not configured).
+   would add the macro ``\\RR``, which would typeset a blackboard-style R when used, and process escaped
+   dollar signs to produce a literal ``$`` character. To see the available configuration options with
+   the `default MathJax components`_, see `TeX Input Processor Options`_,
+   `MathML Input Processor Options`_, and `CommonHTML Output Processor Options`_. General configuration
+   options are described at `Configuring MathJax`_.
+
+   The default value of ``mathjax_config`` is empty (not configured).
 
    .. versionadded:: 1.8
 
-.. _Using in-line configuration options: https://docs.mathjax.org/en/latest/configuration.html#using-in-line-configuration-options
+.. _Configuration Using an In-Line Script: http://docs.mathjax.org/en/latest/web/configuration.html#configuration-using-an-in-line-script
+.. _default MathJax components: http://docs.mathjax.org/en/latest/web/components/combined.html#tex-mml-chtml
+.. _TeX Input Processor Options: http://docs.mathjax.org/en/latest/options/input/tex.html
+.. _MathML Input Processor Options: http://docs.mathjax.org/en/latest/options/input/mathml.html
+.. _CommonHTML Output Processor Options: http://docs.mathjax.org/en/latest/options/output/chtml.html
+.. _Configuring MathJax: http://docs.mathjax.org/en/latest/options/index.html
 
 :mod:`sphinx.ext.jsmath` -- Render math via JavaScript
 ------------------------------------------------------

@@ -24,7 +24,7 @@ from sphinx.util.math import get_node_equation_number
 from sphinx.writers.html import HTMLTranslator
 
 # more information for mathjax secure url is here:
-# https://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
+# https://docs.mathjax.org/en/latest/web/configuration.html#loading-mathjax
 MATHJAX_URL = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
 
 
@@ -78,15 +78,16 @@ def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: Dict
 
     domain = cast(MathDomain, app.env.get_domain('math'))
     if domain.has_equations(pagename):
+        # The configuration script must come before the MathJax script
+        if app.config.mathjax_config:
+            body = "window.MathJax = {:s}".format(json.dumps(app.config.mathjax_config))
+            app.add_js_file(None, body=body)
+
         # Enable mathjax only if equations exists
         options = {'async': 'async'}
         if app.config.mathjax_options:
             options.update(app.config.mathjax_options)
         app.add_js_file(app.config.mathjax_path, **options)  # type: ignore
-
-        if app.config.mathjax_config:
-            body = "MathJax.Hub.Config(%s)" % json.dumps(app.config.mathjax_config)
-            app.add_js_file(None, type="text/x-mathjax-config", body=body)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
