@@ -40,6 +40,8 @@ Incompatible changes
 * #8769: LaTeX refactoring: split sphinx.sty into multiple files and rename
   some auxiliary files created in ``latex`` build output repertory
 * #8937: Use explicit title instead of <no title>
+* #8487: The :file: option for csv-table directive now recognizes an absolute
+  path as a relative path from source directory
 
 Deprecated
 ----------
