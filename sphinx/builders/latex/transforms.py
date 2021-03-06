@@ -42,7 +42,7 @@ class SubstitutionDefinitionsRemover(SphinxPostTransform):
 
     # should be invoked after Substitutions process
     default_priority = Substitutions.default_priority + 1
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         for node in self.document.traverse(nodes.substitution_definition):
@@ -57,7 +57,7 @@ class ShowUrlsTransform(SphinxPostTransform):
     .. note:: This transform is used for integrated doctree
     """
     default_priority = 400
-    builders = ('latex',)
+    formats = ('latex',)
 
     # references are expanded to footnotes (or not)
     expanded = False
@@ -345,7 +345,7 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
     """
 
     default_priority = 600
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         footnotes = list(self.document.traverse(nodes.footnote))
@@ -497,7 +497,7 @@ class BibliographyTransform(SphinxPostTransform):
                     ...
     """
     default_priority = 750
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         citations = thebibliography()
@@ -516,7 +516,7 @@ class CitationReferenceTransform(SphinxPostTransform):
     pending_xref nodes to citation_reference.
     """
     default_priority = 5  # before ReferencesResolver
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         domain = cast(CitationDomain, self.env.get_domain('citation'))
@@ -536,7 +536,7 @@ class MathReferenceTransform(SphinxPostTransform):
     nodes to math_reference.
     """
     default_priority = 5  # before ReferencesResolver
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         equations = self.env.get_domain('math').data['objects']
@@ -551,7 +551,7 @@ class MathReferenceTransform(SphinxPostTransform):
 class LiteralBlockTransform(SphinxPostTransform):
     """Replace container nodes for literal_block by captioned_literal_block."""
     default_priority = 400
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.container, literal_block=True)
@@ -563,7 +563,7 @@ class LiteralBlockTransform(SphinxPostTransform):
 class DocumentTargetTransform(SphinxPostTransform):
     """Add :doc label to the first section of each document."""
     default_priority = 400
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         for node in self.document.traverse(addnodes.start_of_file):
@@ -599,7 +599,7 @@ class IndexInSectionTitleTransform(SphinxPostTransform):
             ...
     """
     default_priority = 400
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         for node in self.document.traverse(nodes.title):
