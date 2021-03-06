@@ -107,7 +107,8 @@ Anaconda
 Windows
 -------
 
-Sphinx can be install using `Chocolatey`__ or :ref:`installed manually <windows-other-method>`.
+Sphinx can be install using `Chocolatey`__ or
+:ref:`installed manually <windows-other-method>`.
 
 __ https://chocolatey.org/
 
@@ -119,7 +120,7 @@ Chocolatey
    $ choco install sphinx
    
 You would need to `install Chocolatey
-<https://chocolatey.org/install/>`_.
+<https://chocolatey.org/install/>`_
 before running this.
 
 For more information, refer to the `chocolatey page`__.
