@@ -999,6 +999,25 @@ def test_noindexentry(app):
     assert_node(doctree[2], addnodes.index, entries=[])
 
 
+@pytest.mark.sphinx('html', testroot='domain-py-python_use_unqualified_type_names')
+def test_python_python_use_unqualified_type_names(app, status, warning):
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+    assert ('<span class="n"><a class="reference internal" href="#foo.Name" title="foo.Name">'
+            '<span class="pre">Name</span></a></span>' in content)
+    assert '<span class="n"><span class="pre">foo.Age</span></span>' in content
+
+
+@pytest.mark.sphinx('html', testroot='domain-py-python_use_unqualified_type_names',
+                    confoverrides={'python_use_unqualified_type_names': False})
+def test_python_python_use_unqualified_type_names_disabled(app, status, warning):
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+    assert ('<span class="n"><a class="reference internal" href="#foo.Name" title="foo.Name">'
+            '<span class="pre">foo.Name</span></a></span>' in content)
+    assert '<span class="n"><span class="pre">foo.Age</span></span>' in content
+
+
 @pytest.mark.sphinx('dummy', testroot='domain-py-xref-warning')
 def test_warn_missing_reference(app, status, warning):
     app.build()

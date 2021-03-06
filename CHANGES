@@ -62,6 +62,8 @@ Features added
 * #8924: autodoc: Support ``bound`` argument for TypeVar
 * #4826: py domain: Add ``:canonical:`` option to python directives to describe
   the location where the object is defined
+* #7199: py domain: Add :confval:`python_use_unqualified_type_names` to suppress
+  the module name of the python reference if it can be resolved (experimental)
 * #7784: i18n: The alt text for image is translated by default (without
   :confval:`gettext_additional_targets` setting)
 * #2018: html: :confval:`html_favicon` and :confval:`html_logo` now accept URL
@@ -72,6 +74,8 @@ Features added
 * #8201: Emit a warning if toctree contains duplicated entries
 * #8326: ``master_doc`` is now renamed to :confval:`root_doc`
 * #8942: C++, add support for the C++20 spaceship operator, ``<=>``.
+* #7199: A new node, ``sphinx.addnodes.pending_xref_condition`` has been added.
+  It can be used to choose appropriate content of the reference by conditions.
 
 Bugs fixed
 ----------
