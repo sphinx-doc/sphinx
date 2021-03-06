@@ -3305,7 +3305,7 @@ msgstr "%s:%s reference target nije pronađen: %%(target)s"
 #: sphinx/transforms/post_transforms/__init__.py:174
 #, python-format
 msgid "%r reference target not found: %%(target)s"
-msgstr "%r referenca target nije pronađena: %% (target)"
+msgstr "%r referenca target nije pronađena: %%(target)s"
 
 #: sphinx/transforms/post_transforms/images.py:86
 #, python-format

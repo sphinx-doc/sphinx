@@ -3301,12 +3301,12 @@ msgstr "περισσότεροι από ένας στόχοι βρέθηκαν �
 #: sphinx/transforms/post_transforms/__init__.py:171
 #, python-format
 msgid "%s:%s reference target not found: %%(target)s"
-msgstr "Ο %s:%s στόχος αναφοράς δεν βρέθηκε: %% (στόχος)"
+msgstr "Ο %s:%s στόχος αναφοράς δεν βρέθηκε: %%(target)s"
 
 #: sphinx/transforms/post_transforms/__init__.py:174
 #, python-format
 msgid "%r reference target not found: %%(target)s"
-msgstr "ο στόχος αναφοράς %r δεν βρέθηκε: %%(στόχος)"
+msgstr "ο στόχος αναφοράς %r δεν βρέθηκε: %%(target)s"
 
 #: sphinx/transforms/post_transforms/images.py:86
 #, python-format

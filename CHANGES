@@ -1,4 +1,4 @@
-Release 3.5.2 (in development)
+Release 3.5.3 (in development)
 ==============================
 
 Dependencies
@@ -16,11 +16,18 @@ Features added
 Bugs fixed
 ----------
 
-* #8936: LaTeX: A custom LaTeX builder fails with unknown node error
-* #8952: Exceptions raised in a Directive cause parallel builds to hang
-
 Testing
 --------
+
+Release 3.5.2 (released Mar 06, 2021)
+=====================================
+
+Bugs fixed
+----------
+
+* #8943: i18n: Crashed by broken translation messages in ES, EL and HR
+* #8936: LaTeX: A custom LaTeX builder fails with unknown node error
+* #8952: Exceptions raised in a Directive cause parallel builds to hang
 
 Release 3.5.1 (released Feb 16, 2021)
 =====================================
