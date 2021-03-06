@@ -155,6 +155,28 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
       .. versionchanged:: 3.2
          The option can now take arguments.
 
+   .. rst:directive:option:: special-members
+      :type: no value or comma separated list
+
+      If set, autodoc will also generate document for the special members
+      (that is, those named like ``__special__``)::
+
+        .. autoclass:: my.Class
+           :members:
+           :special-members:
+
+      It can also take an explicit list of member names to be documented as
+      arguments::
+
+        .. autoclass:: my.Class
+           :members:
+           :special-members: __init__, __name__
+
+     .. versionadded:: 1.1
+
+     .. versionchanged:: 1.2
+        The option can now take arguments
+
    **Options and advanced usage**
 
    * If you want to make the ``members`` option (or other options described
@@ -218,21 +240,6 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
         var1 = None  #: :meta hide-value:
 
      .. versionadded:: 3.5
-
-   * Python "special" members (that is, those named like ``__special__``) will
-     be included if the ``special-members`` flag option is given::
-
-        .. autoclass:: my.Class
-           :members:
-           :private-members:
-           :special-members:
-
-     would document both "private" and "special" members of the class.
-
-     .. versionadded:: 1.1
-
-     .. versionchanged:: 1.2
-        The option can now take arguments, i.e. the special members to document.
 
    * For classes and exceptions, members inherited from base classes will be
      left out when documenting all members, unless you give the
