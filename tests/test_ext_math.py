@@ -215,14 +215,42 @@ def test_math_compat(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='ext-math',
                     confoverrides={'extensions': ['sphinx.ext.mathjax'],
-                                   'mathjax_config': {'extensions': ['tex2jax.js']}})
+                                   'mathjax_config': {'tex': {'processEscapes': True}}})
 def test_mathjax_config(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').read_text()
-    assert ('<script type="text/x-mathjax-config">'
-            'MathJax.Hub.Config({"extensions": ["tex2jax.js"]})'
+    print(repr(content))
+    assert ('<script >'
+            'window.MathJax = {"tex": {"processEscapes": true}}'
             '</script>' in content)
+
+
+@pytest.mark.sphinx('html', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax'],
+                                   'mathjax_config': {'extensions': ['tex2jax.js']}})
+def test_mathjax_config_v2_warning(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text()
+    assert ('<script >'
+            'window.MathJax = {"extensions": ["tex2jax.js"]}'
+            '</script>' in content)
+    assert "'mathjax_config' appears to be" in warning.getvalue()
+
+
+@pytest.mark.sphinx('html', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax'],
+                                   'mathjax_config': {'extensions': ['tex2jax.js']},
+                                   'mathjax_path': 'https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML'})
+def test_mathjax_config_v2_no_warning(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text()
+    assert ('<script >'
+            'window.MathJax = {"extensions": ["tex2jax.js"]}'
+            '</script>' in content)
+    assert "'mathjax_config' appears to be" not in warning.getvalue()
 
 
 @pytest.mark.sphinx('html', testroot='ext-math',
