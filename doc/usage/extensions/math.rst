@@ -190,7 +190,7 @@ Sphinx but is set to automatically include it from a third-party site.
 
 .. confval:: mathjax_options
 
-   The options to the ``script`` tag for MathJax.  For example, you can set integrity
+   The options to the ``script`` tag for MathJax. For example, you can set integrity
    option with following setting::
 
        mathjax_options = {
@@ -203,8 +203,9 @@ Sphinx but is set to automatically include it from a third-party site.
 
 .. confval:: mathjax_config
 
-   The inline configuration options for MathJax. The value is set on the ``window.MathJax`` object.
-   For more information, please read `Configuration Using an In-Line Script`_.
+   The inline configuration options for MathJax. The value is set on the
+   ``window.MathJax`` object. For more information, please read
+   `Configuration Using an In-Line Script`_.
 
    For example (for MathJax v3)::
 
@@ -217,11 +218,12 @@ Sphinx but is set to automatically include it from a third-party site.
            },
        }
 
-   would add the macro ``\\RR``, which would typeset a blackboard-style R when used, and process escaped
-   dollar signs to produce a literal ``$`` character. To see the available configuration options with
-   the `default MathJax components`_, see `TeX Input Processor Options`_,
-   `MathML Input Processor Options`_, and `CommonHTML Output Processor Options`_. General configuration
-   options are described at `Configuring MathJax`_.
+   would add the macro ``\\RR``, which would typeset a blackboard-style R when used,
+   and process escaped dollar signs to produce a literal ``$`` character. To see
+   the available configuration options with the `default MathJax components`_, see
+   `TeX Input Processor Options`_, `MathML Input Processor Options`_, and
+   `CommonHTML Output Processor Options`_. General configuration options are
+   described at `Configuring MathJax`_.
 
    The default value of ``mathjax_config`` is empty (not configured).
 

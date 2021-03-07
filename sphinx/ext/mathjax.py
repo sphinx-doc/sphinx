@@ -20,9 +20,9 @@ from sphinx.application import Sphinx
 from sphinx.domains.math import MathDomain
 from sphinx.errors import ExtensionError
 from sphinx.locale import _, __
+from sphinx.util import logging
 from sphinx.util.math import get_node_equation_number
 from sphinx.writers.html import HTMLTranslator
-from sphinx.util import logging
 
 logger = logging.getLogger(__name__)
 
@@ -103,7 +103,8 @@ def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: Dict
             }
             configured_for_v2 = set(app.config.mathjax_config.keys()) & mathjax2_options
             if configured_for_v2 and app.config.mathjax_path == MATHJAX_URL:
-                mj2_url = "https://docs.mathjax.org/en/v2.7-latest/start.html#using-a-content-delivery-network-cdn"
+                mj2_url = ("https://docs.mathjax.org/en/v2.7-latest/start.html#using-a-"
+                           "content-delivery-network-cdn")
                 logger.warning(__("'mathjax_config' appears to be for MathJax v2. You may "
                                   "need to set the 'mathjax_path' option to load MathJax v2, "
                                   "see %s"), mj2_url)
