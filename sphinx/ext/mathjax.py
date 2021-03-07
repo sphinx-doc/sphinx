@@ -81,6 +81,7 @@ def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: Dict
 
     domain = cast(MathDomain, app.env.get_domain('math'))
 
+    # Enable mathjax only if equations exists
     if domain.has_equations(pagename):
         # The configuration script must come before the MathJax script
         if app.config.mathjax_config:
@@ -102,16 +103,17 @@ def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: Dict
                 "CommonHTML"
             }
             configured_for_v2 = set(app.config.mathjax_config.keys()) & mathjax2_options
-            if configured_for_v2 and app.config.mathjax_path == MATHJAX_URL:
+            default_url = app.config.mathjax_path == MATHJAX_URL
+            if (configured_for_v2 and default_url and not app.config.mathjax_no_v2_warning):
                 mj2_url = ("https://docs.mathjax.org/en/v2.7-latest/start.html#using-a-"
                            "content-delivery-network-cdn")
                 logger.warning(__("'mathjax_config' appears to be for MathJax v2. You may "
                                   "need to set the 'mathjax_path' option to load MathJax v2, "
-                                  "see %s"), mj2_url)
+                                  "see %s.\nThis message can be suppressed by setting "
+                                  "'mathjax_no_v2_warning' to be 'True' in conf.py."), mj2_url)
             body = "window.MathJax = {:s}".format(json.dumps(app.config.mathjax_config))
             app.add_js_file(None, body=body)
 
-        # Enable mathjax only if equations exists
         options = {'async': 'async'}
         if app.config.mathjax_options:
             options.update(app.config.mathjax_options)
@@ -128,6 +130,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('mathjax_inline', [r'\(', r'\)'], 'html')
     app.add_config_value('mathjax_display', [r'\[', r'\]'], 'html')
     app.add_config_value('mathjax_config', None, 'html')
+    app.add_config_value('mathjax_no_v2_warning', False, 'html')
     app.connect('html-page-context', install_mathjax)
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

@@ -225,6 +225,11 @@ Sphinx but is set to automatically include it from a third-party site.
    `CommonHTML Output Processor Options`_. General configuration options are
    described at `Configuring MathJax`_.
 
+   If any of the options described in the `MathJax v2.7 documentation`_ are used,
+   and the ``mathjax_path`` is set to the default, a warning is raised notifying of
+   the configuration mismatch. This warning can be suppressed by setting
+   ``mathjax_no_v2_warning`` to ``True`` in ``conf.py``.
+
    The default value of ``mathjax_config`` is empty (not configured).
 
    .. versionadded:: 1.8
@@ -235,6 +240,14 @@ Sphinx but is set to automatically include it from a third-party site.
 .. _MathML Input Processor Options: http://docs.mathjax.org/en/latest/options/input/mathml.html
 .. _CommonHTML Output Processor Options: http://docs.mathjax.org/en/latest/options/output/chtml.html
 .. _Configuring MathJax: http://docs.mathjax.org/en/latest/options/index.html
+.. _MathJax v2.7 documentation: https://docs.mathjax.org/en/v2.7-latest/options/hub.html
+
+.. confval:: mathjax_no_v2_warning
+
+   A Boolean option that suppresses the warning when ``mathjax_config`` appears to
+   be set up for MathJax v2.
+
+   .. versionadded:: 4.0
 
 :mod:`sphinx.ext.jsmath` -- Render math via JavaScript
 ------------------------------------------------------
