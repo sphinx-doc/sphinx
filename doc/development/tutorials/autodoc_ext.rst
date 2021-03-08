@@ -1,3 +1,5 @@
+.. _autodoc_ext_tutorial:
+
 Developing autodoc extension for IntEnum
 ========================================
 
