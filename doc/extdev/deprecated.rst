@@ -32,11 +32,6 @@ The following is a list of deprecated interfaces.
      - TBD
      - ``logo_url``
 
-   * - ``sphinx.directives.patches.CSVTable``
-     - 4.0
-     - 6.0
-     - ``docutils.parsers.rst.diretives.tables.CSVTable``
-
    * - ``sphinx.directives.patches.ListTable``
      - 4.0
      - 6.0
