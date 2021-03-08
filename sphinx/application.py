@@ -1102,7 +1102,7 @@ class Sphinx:
         If *override* is True, the given *cls* is forcedly installed even if
         a documenter having the same name is already installed.
 
-        .. todo:: Add real docs for Documenter and subclassing
+        See :ref:`autodoc_ext_tutorial`.
 
         .. versionadded:: 0.6
         .. versionchanged:: 2.2
