@@ -251,7 +251,7 @@ META_TYPE_NODES = (
 
 def extract_messages(doctree: Element) -> Iterable[Tuple[Element, str]]:
     """Extract translatable messages from a document tree."""
-    for node in doctree.traverse(is_translatable):  # type: nodes.Element
+    for node in doctree.traverse(is_translatable):  # type: Element
         if isinstance(node, addnodes.translatable):
             for msg in node.extract_original_messages():
                 yield node, msg
@@ -363,7 +363,7 @@ indextypes = [
 def process_index_entry(entry: str, targetid: str) -> List[Tuple[str, str, str, str, str]]:
     from sphinx.domains.python import pairindextypes
 
-    indexentries = []  # type: List[Tuple[str, str, str, str, str]]
+    indexentries: List[Tuple[str, str, str, str, str]] = []
     entry = entry.strip()
     oentry = entry
     main = ''

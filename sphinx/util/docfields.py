@@ -27,7 +27,7 @@ def _is_single_paragraph(node: nodes.field_body) -> bool:
     if len(node) == 0:
         return False
     elif len(node) > 1:
-        for subnode in node[1:]:  # type: nodes.Node
+        for subnode in node[1:]:  # type: Node
             if not isinstance(subnode, nodes.system_message):
                 return False
     if isinstance(node[0], nodes.paragraph):
@@ -195,7 +195,7 @@ class TypedField(GroupedField):
         fieldname = nodes.field_name('', self.label)
         if len(items) == 1 and self.can_collapse:
             fieldarg, content = items[0]
-            bodynode = handle_item(fieldarg, content)  # type: nodes.Node
+            bodynode: Node = handle_item(fieldarg, content)
         else:
             bodynode = self.list_type()
             for fieldarg, content in items:
@@ -209,7 +209,7 @@ class DocFieldTransformer:
     Transforms field lists in "doc field" syntax into better-looking
     equivalents, using the field type definitions given on a domain.
     """
-    typemap = None  # type: Dict[str, Tuple[Field, bool]]
+    typemap: Dict[str, Tuple[Field, bool]] = None
 
     def __init__(self, directive: "ObjectDescription") -> None:
         self.directive = directive
@@ -227,9 +227,9 @@ class DocFieldTransformer:
         """Transform a single field list *node*."""
         typemap = self.typemap
 
-        entries = []        # type: List[Union[nodes.field, Tuple[Field, Any]]]
-        groupindices = {}   # type: Dict[str, int]
-        types = {}          # type: Dict[str, Dict]
+        entries: List[Union[nodes.field, Tuple[Field, Any]]] = []
+        groupindices: Dict[str, int] = {}
+        types: Dict[str, Dict] = {}
 
         # step 1: traverse all fields and collect field types and content
         for field in cast(List[nodes.field], node):

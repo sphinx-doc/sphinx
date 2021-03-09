@@ -47,8 +47,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 # Generally useful regular expressions.
-ws_re = re.compile(r'\s+')
-url_re = re.compile(r'(?P<schema>.+)://.*')
+ws_re: Pattern = re.compile(r'\s+')
+url_re: Pattern = re.compile(r'(?P<schema>.+)://.*')
 
 
 # High-level utility functions.
@@ -107,7 +107,7 @@ class FilenameUniqDict(dict):
     appear in.  Used for images and downloadable files in the environment.
     """
     def __init__(self) -> None:
-        self._existing = set()  # type: Set[str]
+        self._existing: Set[str] = set()
 
     def add_file(self, docname: str, newfile: str) -> str:
         if newfile in self:
@@ -379,7 +379,7 @@ def format_exception_cut_frames(x: int = 1) -> str:
     """Format an exception with traceback, but only the last x frames."""
     typ, val, tb = sys.exc_info()
     # res = ['Traceback (most recent call last):\n']
-    res = []  # type: List[str]
+    res: List[str] = []
     tbres = traceback.format_tb(tb)
     res += tbres[-x:]
     res += traceback.format_exception_only(typ, val)

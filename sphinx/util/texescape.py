@@ -98,12 +98,12 @@ unicode_tex_replacements = [
 # %, {, }, \, #, and ~ are the only ones which must be replaced by _ character
 # It would be simpler to define it entirely here rather than in init().
 # Unicode replacements are superfluous, as idescape() uses backslashreplace
-tex_replace_map = {}  # type: Dict[int, str]
+tex_replace_map: Dict[int, str] = {}
 
-_tex_escape_map = {}  # type: Dict[int, str]
-_tex_escape_map_without_unicode = {}  # type: Dict[int, str]
-_tex_hlescape_map = {}  # type: Dict[int, str]
-_tex_hlescape_map_without_unicode = {}  # type: Dict[int, str]
+_tex_escape_map: Dict[int, str] = {}
+_tex_escape_map_without_unicode: Dict[int, str] = {}
+_tex_hlescape_map: Dict[int, str] = {}
+_tex_hlescape_map_without_unicode: Dict[int, str] = {}
 
 
 def escape(s: str, latex_engine: str = None) -> str:
