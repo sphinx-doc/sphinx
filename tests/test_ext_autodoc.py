@@ -1033,9 +1033,8 @@ def test_autodoc_descriptor(app):
         '      Descriptor instance docstring.',
         '',
         '',
-        '   .. py:method:: Class.prop',
+        '   .. py:property:: Class.prop',
         '      :module: target.descriptor',
-        '      :property:',
         '',
         '      Property.',
         ''
@@ -1055,9 +1054,8 @@ def test_autodoc_cached_property(app):
         '   :module: target.cached_property',
         '',
         '',
-        '   .. py:method:: Foo.prop',
+        '   .. py:property:: Foo.prop',
         '      :module: target.cached_property',
-        '      :property:',
         '',
     ]
 
@@ -1516,10 +1514,9 @@ def test_abstractmethods(app):
         '      :module: target.abstractmethods',
         '',
         '',
-        '   .. py:method:: Base.prop',
+        '   .. py:property:: Base.prop',
         '      :module: target.abstractmethods',
         '      :abstractmethod:',
-        '      :property:',
         '',
         '',
         '   .. py:method:: Base.staticmeth()',
