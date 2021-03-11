@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 NAMESPACE = 'sphinx'
 VERBOSE = 15
 
-LEVEL_NAMES = defaultdict(lambda: logging.WARNING)  # type: Dict[str, int]
+LEVEL_NAMES: Dict[str, int] = defaultdict(lambda: logging.WARNING)
 LEVEL_NAMES.update({
     'CRITICAL': logging.CRITICAL,
     'SEVERE': logging.CRITICAL,
@@ -39,7 +39,7 @@ LEVEL_NAMES.update({
     'DEBUG': logging.DEBUG,
 })
 
-VERBOSITY_MAP = defaultdict(lambda: 0)  # type: Dict[int, int]
+VERBOSITY_MAP: Dict[int, int] = defaultdict(lambda: 0)
 VERBOSITY_MAP.update({
     0: logging.INFO,
     1: VERBOSE,
@@ -91,7 +91,7 @@ def convert_serializable(records: List[logging.LogRecord]) -> None:
 class SphinxLogRecord(logging.LogRecord):
     """Log record class supporting location"""
     prefix = ''
-    location = None  # type: Any
+    location: Any = None
 
     def getMessage(self) -> str:
         message = super().getMessage()
@@ -163,6 +163,8 @@ class NewLineStreamHandler(logging.StreamHandler):
 class MemoryHandler(logging.handlers.BufferingHandler):
     """Handler buffering all logs."""
 
+    buffer: List[logging.LogRecord]
+
     def __init__(self) -> None:
         super().__init__(-1)
 
@@ -174,7 +176,7 @@ class MemoryHandler(logging.handlers.BufferingHandler):
         try:
             for record in self.buffer:
                 logger.handle(record)
-            self.buffer = []  # type: List[logging.LogRecord]
+            self.buffer = []
         finally:
             self.release()
 
@@ -328,7 +330,7 @@ def prefixed_warnings(prefix: str) -> Generator[None, None, None]:
 
 class LogCollector:
     def __init__(self) -> None:
-        self.logs = []  # type: List[logging.LogRecord]
+        self.logs: List[logging.LogRecord] = []
 
     @contextmanager
     def collect(self) -> Generator[None, None, None]:
@@ -449,7 +451,7 @@ class OnceFilter(logging.Filter):
 
     def __init__(self, name: str = '') -> None:
         super().__init__(name)
-        self.messages = {}  # type: Dict[str, List]
+        self.messages: Dict[str, List] = {}
 
     def filter(self, record: logging.LogRecord) -> bool:
         once = getattr(record, 'once', '')
@@ -470,7 +472,7 @@ class SphinxLogRecordTranslator(logging.Filter):
     * Make a instance of SphinxLogRecord
     * docname to path if location given
     """
-    LogRecordClass = None  # type: Type[logging.LogRecord]
+    LogRecordClass: Type[logging.LogRecord] = None
 
     def __init__(self, app: "Sphinx") -> None:
         self.app = app

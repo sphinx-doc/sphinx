@@ -11,7 +11,7 @@
 import os
 import re
 import sys
-from typing import Dict
+from typing import Dict, Pattern
 
 try:
     # check if colorama is installed to support color on Windows
@@ -20,8 +20,8 @@ except ImportError:
     colorama = None
 
 
-_ansi_re = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
-codes = {}  # type: Dict[str, str]
+_ansi_re: Pattern = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
+codes: Dict[str, str] = {}
 
 
 def terminal_safe(s: str) -> str:
@@ -44,7 +44,7 @@ def get_terminal_width() -> int:
     return terminal_width
 
 
-_tw = get_terminal_width()
+_tw: int = get_terminal_width()
 
 
 def term_width_line(text: str) -> str:
