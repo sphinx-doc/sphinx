@@ -83,7 +83,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
     Our custom HTML translator.
     """
 
-    builder = None  # type: StandaloneHTMLBuilder
+    builder: "StandaloneHTMLBuilder" = None
 
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
@@ -371,7 +371,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
     def depart_classifier(self, node: Element) -> None:
         self.body.append('</span>')
 
-        next_node = node.next_node(descend=False, siblings=True)  # type: Node
+        next_node: Node = node.next_node(descend=False, siblings=True)
         if not isinstance(next_node, nodes.classifier):
             # close `<dt>` tag at the tail of classifiers
             self.body.append('</dt>')
@@ -382,7 +382,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
 
     # overwritten
     def depart_term(self, node: Element) -> None:
-        next_node = node.next_node(descend=False, siblings=True)  # type: Node
+        next_node: Node = node.next_node(descend=False, siblings=True)
         if isinstance(next_node, nodes.classifier):
             # Leave the end tag to `self.depart_classifier()`, in case
             # there's a classifier.

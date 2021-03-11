@@ -73,7 +73,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     Custom translator.
     """
 
-    _docinfo = {}  # type: Dict[str, Any]
+    _docinfo: Dict[str, Any] = {}
 
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)

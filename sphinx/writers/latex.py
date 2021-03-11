@@ -79,14 +79,14 @@ class LaTeXWriter(writers.Writer):
         ('Document class', ['--docclass'], {'default': 'manual'}),
         ('Author', ['--author'], {'default': ''}),
     ))
-    settings_defaults = {}  # type: Dict
+    settings_defaults: Dict = {}
 
     output = None
 
     def __init__(self, builder: "LaTeXBuilder") -> None:
         super().__init__()
         self.builder = builder
-        self.theme = None  # type: Theme
+        self.theme: Theme = None
 
     def translate(self) -> None:
         try:
@@ -106,28 +106,26 @@ class Table:
     """A table data"""
 
     def __init__(self, node: Element) -> None:
-        self.header = []                        # type: List[str]
-        self.body = []                          # type: List[str]
+        self.header: List[str] = []
+        self.body: List[str] = []
         self.align = node.get('align', 'default')
+        self.classes: List[str] = node.get('classes', [])
         self.colcount = 0
-        self.colspec = None                     # type: str
-        self.colwidths = []                     # type: List[int]
+        self.colspec: str = None
+        self.colwidths: List[int] = []
         self.has_problematic = False
         self.has_oldproblematic = False
         self.has_verbatim = False
-        self.caption = None                     # type: List[str]
-        self.stubs = []                         # type: List[int]
+        self.caption: List[str] = None
+        self.stubs: List[int] = []
 
         # current position
         self.col = 0
         self.row = 0
 
-        # for internal use
-        self.classes = node.get('classes', [])  # type: List[str]
-        self.cells = defaultdict(int)           # type: Dict[Tuple[int, int], int]
-                                                # it maps table location to cell_id
-                                                # (cell = rectangular area)
-        self.cell_id = 0                        # last assigned cell_id
+        # A mapping a table location to the cell_id (cell = rectangular area)
+        self.cells: Dict[Tuple[int, int], int] = defaultdict(int)
+        self.cell_id = 0  # last assigned cell_id
 
     def is_longtable(self) -> bool:
         """True if and only if table uses longtable environment."""
@@ -272,7 +270,7 @@ def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
 
 
 class LaTeXTranslator(SphinxTranslator):
-    builder = None  # type: LaTeXBuilder
+    builder: "LaTeXBuilder" = None
 
     secnumdepth = 2  # legacy sphinxhowto.cls uses this, whereas article.cls
     # default is originally 3. For book/report, 2 is already LaTeX default.
@@ -284,7 +282,7 @@ class LaTeXTranslator(SphinxTranslator):
     def __init__(self, document: nodes.document, builder: "LaTeXBuilder",
                  theme: "Theme" = None) -> None:
         super().__init__(document, builder)
-        self.body = []  # type: List[str]
+        self.body: List[str] = []
         self.theme = theme
 
         if theme is None:
@@ -427,15 +425,15 @@ class LaTeXTranslator(SphinxTranslator):
 
         self.highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style,
                                                        latex_engine=self.config.latex_engine)
-        self.context = []                   # type: List[Any]
-        self.descstack = []                 # type: List[str]
-        self.tables = []                    # type: List[Table]
-        self.next_table_colspec = None      # type: str
-        self.bodystack = []                 # type: List[List[str]]
-        self.footnote_restricted = None     # type: nodes.Element
-        self.pending_footnotes = []         # type: List[nodes.footnote_reference]
-        self.curfilestack = []              # type: List[str]
-        self.handled_abbrs = set()          # type: Set[str]
+        self.context: List[Any] = []
+        self.descstack: List[str] = []
+        self.tables: List[Table] = []
+        self.next_table_colspec: str = None
+        self.bodystack: List[List[str]] = []
+        self.footnote_restricted: Element = None
+        self.pending_footnotes: List[nodes.footnote_reference] = []
+        self.curfilestack: List[str] = []
+        self.handled_abbrs: Set[str] = set()
 
     def pushbody(self, newbody: List[str]) -> None:
         self.bodystack.append(self.body)
@@ -1228,9 +1226,8 @@ class LaTeXTranslator(SphinxTranslator):
         return isinstance(node.parent, nodes.TextElement)
 
     def visit_image(self, node: Element) -> None:
-        pre = []    # type: List[str]
-                    # in reverse order
-        post = []   # type: List[str]
+        pre: List[str] = []  # in reverse order
+        post: List[str] = []
         include_graphics_options = []
         has_hyperlink = isinstance(node.parent, nodes.reference)
         if has_hyperlink:
@@ -1441,7 +1438,7 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append(self.hypertarget(id, anchor=anchor))
 
         # skip if visitor for next node supports hyperlink
-        next_node = node  # type: nodes.Node
+        next_node: Node = node
         while isinstance(next_node, nodes.target):
             next_node = next_node.next_node(ascend=True)
 
