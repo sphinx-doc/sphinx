@@ -303,6 +303,8 @@ def missing_reference(app: Sphinx, env: BuildEnvironment, node: pending_xref,
                 full_qualified_name = env.get_domain(domain).get_full_qualified_name(node)
                 if full_qualified_name:
                     to_try.append((inventories.named_inventory[setname], full_qualified_name))
+    elif app.config.intersphinx_strict_prefix:
+        return None
     for inventory, target in to_try:
         for objtype in objtypes:
             if objtype not in inventory or target not in inventory[objtype]:
@@ -368,6 +370,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('intersphinx_mapping', {}, True)
     app.add_config_value('intersphinx_cache_limit', 5, False)
     app.add_config_value('intersphinx_timeout', None, False)
+    app.add_config_value('intersphinx_strict_prefix', False, True)
     app.connect('config-inited', normalize_intersphinx_mapping, priority=800)
     app.connect('builder-inited', load_mappings)
     app.connect('missing-reference', missing_reference)
@@ -388,6 +391,7 @@ def inspect_main(argv: List[str]) -> None:
 
     class MockConfig:
         intersphinx_timeout: int = None
+        intersphinx_strict_prefix: bool = False
         tls_verify = False
         user_agent = None
 

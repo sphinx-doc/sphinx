@@ -148,6 +148,20 @@ linking:
       exception is raised if the server has not issued a response for timeout
       seconds.
 
+.. confval:: intersphinx_strict_prefix
+
+   .. versionadded:: 4.0.0
+
+   Turn on strict matching of references in Sphinx - all intersphinx links
+   needs to have a prefix. This disables looking up the non-prefixed targets in
+   intersphinx and will fail the build if such target is not present.
+
+   .. hint::
+
+      Strictly using prefix for intersphinx links gives a better control on
+      external links - only links explicitely declared will point to the
+      external documentation.
+
 
 Showing all links of an Intersphinx mapping file
 ------------------------------------------------

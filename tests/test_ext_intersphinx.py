@@ -97,6 +97,7 @@ def test_missing_reference(tempdir, app, status, warning):
         'py3krelparent': ('../../py3k', inv_file),  # relative path, parent dir
     }
     app.config.intersphinx_cache_limit = 0
+    app.config.intersphinx_strict_prefix = False
 
     # load the inventory and check if it's done correctly
     normalize_intersphinx_mapping(app, app.config)
@@ -165,6 +166,13 @@ def test_missing_reference(tempdir, app, status, warning):
     rn = reference_check(app, 'std', 'doc', 'docname', 'docname')
     assert rn['refuri'] == 'https://docs.python.org/docname.html'
 
+    # check resolution when strict prefix is enabled
+    app.config.intersphinx_strict_prefix = True
+    rn = reference_check(app, 'py', 'func', 'module1.func', 'foo')
+    assert rn is None
+    rn = reference_check(app, 'py', 'func', 'py3k:module1.func', 'foo')
+    assert rn is not None
+
 
 def test_missing_reference_pydomain(tempdir, app, status, warning):
     inv_file = tempdir / 'inventory'
@@ -173,6 +181,7 @@ def test_missing_reference_pydomain(tempdir, app, status, warning):
         'https://docs.python.org/': inv_file,
     }
     app.config.intersphinx_cache_limit = 0
+    app.config.intersphinx_strict_prefix = False
 
     # load the inventory and check if it's done correctly
     normalize_intersphinx_mapping(app, app.config)
@@ -204,6 +213,7 @@ def test_missing_reference_stddomain(tempdir, app, status, warning):
         'cmd': ('https://docs.python.org/', inv_file),
     }
     app.config.intersphinx_cache_limit = 0
+    app.config.intersphinx_strict_prefix = False
 
     # load the inventory and check if it's done correctly
     normalize_intersphinx_mapping(app, app.config)
@@ -236,6 +246,7 @@ def test_missing_reference_cppdomain(tempdir, app, status, warning):
         'https://docs.python.org/': inv_file,
     }
     app.config.intersphinx_cache_limit = 0
+    app.config.intersphinx_strict_prefix = False
 
     # load the inventory and check if it's done correctly
     normalize_intersphinx_mapping(app, app.config)
@@ -263,6 +274,7 @@ def test_missing_reference_jsdomain(tempdir, app, status, warning):
         'https://docs.python.org/': inv_file,
     }
     app.config.intersphinx_cache_limit = 0
+    app.config.intersphinx_strict_prefix = False
 
     # load the inventory and check if it's done correctly
     normalize_intersphinx_mapping(app, app.config)
@@ -289,6 +301,7 @@ def test_inventory_not_having_version(tempdir, app, status, warning):
         'https://docs.python.org/': inv_file,
     }
     app.config.intersphinx_cache_limit = 0
+    app.config.intersphinx_strict_prefix = False
 
     # load the inventory and check if it's done correctly
     normalize_intersphinx_mapping(app, app.config)
@@ -318,6 +331,7 @@ def test_load_mappings_warnings(tempdir, app, status, warning):
     }
 
     app.config.intersphinx_cache_limit = 0
+    app.config.intersphinx_strict_prefix = False
     # load the inventory and check if it's done correctly
     normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
@@ -328,6 +342,7 @@ def test_load_mappings_fallback(tempdir, app, status, warning):
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
     app.config.intersphinx_cache_limit = 0
+    app.config.intersphinx_strict_prefix = False
 
     # connect to invalid path
     app.config.intersphinx_mapping = {
