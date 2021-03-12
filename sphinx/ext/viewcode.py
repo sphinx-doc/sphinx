@@ -146,13 +146,24 @@ def env_merge_info(app: Sphinx, env: BuildEnvironment, docnames: Iterable[str],
     if not hasattr(env, '_viewcode_modules'):
         env._viewcode_modules = {}  # type: ignore
     # now merge in the information from the subprocess
-    env._viewcode_modules.update(other._viewcode_modules)  # type: ignore
+    for modname, entry in other._viewcode_modules.items():  # type: ignore
+        if modname not in env._viewcode_modules:  # type: ignore
+            env._viewcode_modules[modname] = entry  # type: ignore
+        else:
+            used = env._viewcode_modules[modname][2]  # type: ignore
+            for fullname, docname in entry[2].items():
+                if fullname not in used:
+                    used[fullname] = docname
 
 
 def env_purge_doc(app: Sphinx, env: BuildEnvironment, docname: str) -> None:
     modules = getattr(env, '_viewcode_modules', {})
 
-    for modname, (code, tags, used, refname) in list(modules.items()):
+    for modname, entry in list(modules.items()):
+        if entry is False:
+            continue
+
+        code, tags, used, refname = entry
         for fullname in list(used):
             if used[fullname] == docname:
                 used.pop(fullname)

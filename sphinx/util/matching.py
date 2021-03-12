@@ -21,7 +21,7 @@ def _translate_pattern(pat: str) -> str:
     match slashes.
     """
     i, n = 0, len(pat)
-    res = ''  # type: str
+    res = ''
     while i < n:
         c = pat[i]
         i += 1
@@ -86,7 +86,7 @@ class Matcher:
 DOTFILES = Matcher(['**/.*'])
 
 
-_pat_cache = {}  # type: Dict[str, Pattern]
+_pat_cache: Dict[str, Pattern] = {}
 
 
 def patmatch(name: str, pat: str) -> Optional[Match[str]]:

@@ -60,15 +60,15 @@ class ParallelTasks:
     def __init__(self, nproc: int) -> None:
         self.nproc = nproc
         # (optional) function performed by each task on the result of main task
-        self._result_funcs = {}  # type: Dict[int, Callable]
+        self._result_funcs: Dict[int, Callable] = {}
         # task arguments
-        self._args = {}  # type: Dict[int, List[Any]]
+        self._args: Dict[int, List[Any]] = {}
         # list of subprocesses (both started and waiting)
-        self._procs = {}  # type: Dict[int, multiprocessing.Process]
+        self._procs: Dict[int, multiprocessing.Process] = {}
         # list of receiving pipe connections of running subprocesses
-        self._precvs = {}  # type: Dict[int, Any]
+        self._precvs: Dict[int, Any] = {}
         # list of receiving pipe connections of waiting subprocesses
-        self._precvsWaiting = {}  # type: Dict[int, Any]
+        self._precvsWaiting: Dict[int, Any] = {}
         # number of working subprocesses
         self._pworking = 0
         # task number of each subprocess
@@ -103,8 +103,21 @@ class ParallelTasks:
         self._join_one()
 
     def join(self) -> None:
-        while self._pworking:
-            self._join_one()
+        try:
+            while self._pworking:
+                self._join_one()
+        except Exception:
+            # shutdown other child processes on failure
+            self.terminate()
+            raise
+
+    def terminate(self) -> None:
+        for tid in list(self._precvs):
+            self._procs[tid].terminate()
+            self._result_funcs.pop(tid)
+            self._procs.pop(tid)
+            self._precvs.pop(tid)
+            self._pworking -= 1
 
     def _join_one(self) -> None:
         for tid, pipe in self._precvs.items():

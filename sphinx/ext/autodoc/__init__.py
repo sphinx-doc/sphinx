@@ -1377,7 +1377,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             params[0] = params[0].replace(annotation=typ)
             try:
                 func.__signature__ = sig.replace(parameters=params)  # type: ignore
-            except TypeError:
+            except (AttributeError, TypeError):
                 # failed to update signature (ex. built-in or extension types)
                 return
 
@@ -1812,6 +1812,8 @@ class TypeVarMixin(DataDocumenterMixinBase):
             attrs = [repr(self.object.__name__)]
             for constraint in self.object.__constraints__:
                 attrs.append(stringify_typehint(constraint))
+            if self.object.__bound__:
+                attrs.append(r"bound=\ " + restify(self.object.__bound__))
             if self.object.__covariant__:
                 attrs.append("covariant=True")
             if self.object.__contravariant__:
@@ -2156,7 +2158,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             params[1] = params[1].replace(annotation=typ)
             try:
                 func.__signature__ = sig.replace(parameters=params)  # type: ignore
-            except TypeError:
+            except (AttributeError, TypeError):
                 # failed to update signature (ex. built-in or extension types)
                 return
 
@@ -2422,7 +2424,7 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
                             annotations[attrname] = annotation
                 except (AttributeError, PycodeError):
                     pass
-        except TypeError:
+        except (AttributeError, TypeError):
             # Failed to set __annotations__ (built-in, extensions, etc.)
             pass
 
@@ -2632,6 +2634,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     app.connect('config-inited', migrate_autodoc_member_order, priority=800)
 
+    app.setup_extension('sphinx.ext.autodoc.preserve_defaults')
     app.setup_extension('sphinx.ext.autodoc.type_comment')
     app.setup_extension('sphinx.ext.autodoc.typehints')
 

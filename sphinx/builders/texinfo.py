@@ -197,7 +197,7 @@ class TexinfoBuilder(Builder):
 def default_texinfo_documents(config: Config) -> List[Tuple[str, str, str, str, str, str, str]]:  # NOQA
     """ Better default texinfo_documents settings. """
     filename = make_filename_from_project(config.project)
-    return [(config.master_doc, filename, config.project, config.author, filename,
+    return [(config.root_doc, filename, config.project, config.author, filename,
              'One line description of project', 'Miscellaneous')]
 
 

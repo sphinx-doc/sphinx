@@ -166,7 +166,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
 
         if self.config.epub_tocscope == 'default':
             doctree = self.env.get_and_resolve_doctree(
-                self.config.master_doc, self,
+                self.config.root_doc, self,
                 prune_toctrees=False, includehidden=False)
             refnodes = self.get_refnodes(doctree, [])
             self.toc_add_files(refnodes)

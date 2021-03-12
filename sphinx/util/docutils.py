@@ -42,7 +42,7 @@ if TYPE_CHECKING:
 
 
 __version_info__ = tuple(LooseVersion(docutils.__version__).version)
-additional_nodes = set()  # type: Set[Type[nodes.Element]]
+additional_nodes: Set[Type[Element]] = set()
 
 
 @contextmanager
@@ -176,8 +176,8 @@ class sphinx_domains:
     """
     def __init__(self, env: "BuildEnvironment") -> None:
         self.env = env
-        self.directive_func = None  # type: Callable
-        self.roles_func = None  # type: Callable
+        self.directive_func: Callable = None
+        self.roles_func: Callable = None
 
     def __enter__(self) -> None:
         self.enable()
@@ -491,7 +491,7 @@ class SphinxTranslator(nodes.NodeVisitor):
 
 # cache a vanilla instance of nodes.document
 # Used in new_document() function
-__document_cache__ = None  # type: nodes.document
+__document_cache__: nodes.document = None
 
 
 def new_document(source_path: str, settings: Any = None) -> nodes.document:

@@ -6,7 +6,9 @@
     :license: BSD, see LICENSE for details.
 """
 
+import os
 import warnings
+from os import path
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple, cast
 
 from docutils import nodes
@@ -18,11 +20,17 @@ from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.directives import optional_int
 from sphinx.domains.math import MathDomain
+from sphinx.locale import __
+from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
+from sphinx.util.osutil import SEP, os_path, relpath
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+
+
+logger = logging.getLogger(__name__)
 
 
 class Figure(images.Figure):
@@ -87,21 +95,25 @@ class RSTTable(tables.RSTTable):
 
 
 class CSVTable(tables.CSVTable):
-    """The csv-table directive which sets source and line information to its caption.
-
-    Only for docutils-0.13 or older version."""
+    """The csv-table directive which searches a CSV file from Sphinx project's source
+    directory when an absolute path is given via :file: option.
+    """
 
     def run(self) -> List[Node]:
-        warnings.warn('RSTTable is deprecated.',
-                      RemovedInSphinx60Warning)
+        if 'file' in self.options and self.options['file'].startswith((SEP, os.sep)):
+            env = self.state.document.settings.env
+            filename = self.options['file']
+            if path.exists(filename):
+                logger.warning(__('":file:" option for csv-table directive now recognizes '
+                                  'an absolute path as a relative path from source directory. '
+                                  'Please update your document.'),
+                               location=(env.docname, self.lineno))
+            else:
+                abspath = path.join(env.srcdir, os_path(self.options['file'][1:]))
+                docdir = path.dirname(env.doc2path(env.docname))
+                self.options['file'] = relpath(abspath, docdir)
+
         return super().run()
-
-    def make_title(self) -> Tuple[nodes.title, List[system_message]]:
-        title, message = super().make_title()
-        if title:
-            set_source_info(self, title)
-
-        return title, message
 
 
 class ListTable(tables.ListTable):
@@ -110,7 +122,7 @@ class ListTable(tables.ListTable):
     Only for docutils-0.13 or older version."""
 
     def run(self) -> List[Node]:
-        warnings.warn('RSTTable is deprecated.',
+        warnings.warn('ListTable is deprecated.',
                       RemovedInSphinx60Warning)
         return super().run()
 
@@ -224,6 +236,7 @@ class MathDirective(SphinxDirective):
 def setup(app: "Sphinx") -> Dict[str, Any]:
     directives.register_directive('figure', Figure)
     directives.register_directive('meta', Meta)
+    directives.register_directive('csv-table', CSVTable)
     directives.register_directive('code', Code)
     directives.register_directive('math', MathDirective)
 

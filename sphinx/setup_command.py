@@ -190,6 +190,6 @@ class BuildDoc(Command):
             if not self.link_index:
                 continue
 
-            src = app.config.master_doc + app.builder.out_suffix  # type: ignore
+            src = app.config.root_doc + app.builder.out_suffix  # type: ignore
             dst = app.builder.get_outfilename('index')  # type: ignore
             os.symlink(src, dst)

@@ -494,7 +494,8 @@ class StandaloneHTMLBuilder(Builder):
             'version': self.config.version,
             'last_updated': self.last_updated,
             'copyright': self.config.copyright,
-            'master_doc': self.config.master_doc,
+            'master_doc': self.config.root_doc,
+            'root_doc': self.config.root_doc,
             'use_opensearch': self.config.html_use_opensearch,
             'docstitle': self.config.html_title,
             'shorttitle': self.config.html_short_title,
@@ -764,9 +765,13 @@ class StandaloneHTMLBuilder(Builder):
     def copy_stemmer_js(self) -> None:
         """Copy a JavaScript file for stemmer."""
         if self.indexer is not None:
-            jsfile = self.indexer.get_js_stemmer_rawcode()
-            if jsfile:
-                copyfile(jsfile, path.join(self.outdir, '_static', '_stemmer.js'))
+            if hasattr(self.indexer, 'get_js_stemmer_rawcodes'):
+                for jsfile in self.indexer.get_js_stemmer_rawcodes():
+                    copyfile(jsfile, path.join(self.outdir, '_static', path.basename(jsfile)))
+            else:
+                jsfile = self.indexer.get_js_stemmer_rawcode()
+                if jsfile:
+                    copyfile(jsfile, path.join(self.outdir, '_static', '_stemmer.js'))
 
     def copy_theme_static_files(self, context: Dict) -> None:
         def onerror(filename: str, error: Exception) -> None:
@@ -1031,8 +1036,20 @@ class StandaloneHTMLBuilder(Builder):
             templatename = newtmpl
 
         # sort JS/CSS before rendering HTML
-        ctx['script_files'].sort(key=lambda js: js.priority)
-        ctx['css_files'].sort(key=lambda js: js.priority)
+        try:
+            # Convert script_files to list to support non-list script_files (refs: #8889)
+            ctx['script_files'] = sorted(list(ctx['script_files']), key=lambda js: js.priority)
+        except AttributeError:
+            # Skip sorting if users modifies script_files directly (maybe via `html_context`).
+            # refs: #8885
+            #
+            # Note: priority sorting feature will not work in this case.
+            pass
+
+        try:
+            ctx['css_files'] = sorted(list(ctx['css_files']), key=lambda css: css.priority)
+        except AttributeError:
+            pass
 
         try:
             output = self.templates.render(templatename, ctx)
@@ -1231,18 +1248,31 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
         config.html_favicon = None  # type: ignore
 
 
+class _stable_repr_object():
+
+    def __repr__(self):
+        return '<object>'
+
+
+UNSET = _stable_repr_object()
+
+
 def migrate_html_add_permalinks(app: Sphinx, config: Config) -> None:
     """Migrate html_add_permalinks to html_permalinks*."""
-    if config.html_add_permalinks:
-        # RemovedInSphinx60Warning
-        logger.warning(__('html_add_permalinks has been deprecated since v3.5.0. '
-                          'Please use html_permalinks and html_permalinks_icon instead.'))
-        if (isinstance(config.html_add_permalinks, bool) and
-                config.html_add_permalinks is False):
-            config.html_permalinks = False  # type: ignore
-        else:
-            config.html_permalinks_icon = html.escape(config.html_add_permalinks)  # type: ignore  # NOQA
+    html_add_permalinks = config.html_add_permalinks
+    if html_add_permalinks is UNSET:
+        return
 
+    # RemovedInSphinx60Warning
+    logger.warning(__('html_add_permalinks has been deprecated since v3.5.0. '
+                      'Please use html_permalinks and html_permalinks_icon instead.'))
+    if not html_add_permalinks:
+        config.html_permalinks = False  # type: ignore[attr-defined]
+        return
+
+    config.html_permalinks_icon = html.escape(  # type: ignore[attr-defined]
+        html_add_permalinks
+    )
 
 # for compatibility
 import sphinxcontrib.serializinghtml  # NOQA
@@ -1274,7 +1304,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
     app.add_config_value('html_domain_indices', True, 'html', [list])
-    app.add_config_value('html_add_permalinks', None, 'html')
+    app.add_config_value('html_add_permalinks', UNSET, 'html')
     app.add_config_value('html_permalinks', True, 'html')
     app.add_config_value('html_permalinks_icon', '¶', 'html')
     app.add_config_value('html_use_index', True, 'html')

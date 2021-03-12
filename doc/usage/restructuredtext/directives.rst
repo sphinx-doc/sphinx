@@ -197,9 +197,9 @@ tables of contents.  The ``toctree`` directive is the central element.
    <metadata>` to let a document be built, but notify Sphinx that it is not
    reachable via a toctree.
 
-   The "master document" (selected by :confval:`master_doc`) is the "root" of
-   the TOC tree hierarchy.  It can be used as the documentation's main page, or
-   as a "full table of contents" if you don't give a ``maxdepth`` option.
+   The "root document" (selected by :confval:`root_doc`) is the "root" of the TOC
+   tree hierarchy.  It can be used as the documentation's main page, or as a
+   "full table of contents" if you don't give a ``maxdepth`` option.
 
    .. versionchanged:: 0.3
       Added "globbing" option.

@@ -3306,12 +3306,12 @@ msgstr "más de un objetivo destino encontrado para 'cualquier' referencia cruza
 #: sphinx/transforms/post_transforms/__init__.py:171
 #, python-format
 msgid "%s:%s reference target not found: %%(target)s"
-msgstr "%s:%s destino de referencia no encontrada: %% (destino)s"
+msgstr "%s:%s destino de referencia no encontrada: %%(target)s"
 
 #: sphinx/transforms/post_transforms/__init__.py:174
 #, python-format
 msgid "%r reference target not found: %%(target)s"
-msgstr "%r destino de referencia no encontrada: %% (destino)s"
+msgstr "%r destino de referencia no encontrada: %%(target)s"
 
 #: sphinx/transforms/post_transforms/images.py:86
 #, python-format

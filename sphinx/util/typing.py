@@ -263,7 +263,10 @@ def stringify(annotation: Any) -> str:
         else:
             return annotation
     elif isinstance(annotation, TypeVar):
-        return annotation.__name__
+        if annotation.__module__ == 'typing':
+            return annotation.__name__
+        else:
+            return '.'.join([annotation.__module__, annotation.__name__])
     elif inspect.isNewType(annotation):
         # Could not get the module where it defiend
         return annotation.__name__

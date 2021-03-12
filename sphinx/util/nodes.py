@@ -10,7 +10,7 @@
 
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Any, Callable, Iterable, List, Set, Tuple, Type, cast
+from typing import TYPE_CHECKING, Any, Callable, Iterable, List, Set, Tuple, Type, Union, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -251,7 +251,7 @@ META_TYPE_NODES = (
 
 def extract_messages(doctree: Element) -> Iterable[Tuple[Element, str]]:
     """Extract translatable messages from a document tree."""
-    for node in doctree.traverse(is_translatable):  # type: nodes.Element
+    for node in doctree.traverse(is_translatable):  # type: Element
         if isinstance(node, addnodes.translatable):
             for msg in node.extract_original_messages():
                 yield node, msg
@@ -363,7 +363,7 @@ indextypes = [
 def process_index_entry(entry: str, targetid: str) -> List[Tuple[str, str, str, str, str]]:
     from sphinx.domains.python import pairindextypes
 
-    indexentries = []  # type: List[Tuple[str, str, str, str, str]]
+    indexentries: List[Tuple[str, str, str, str, str]] = []
     entry = entry.strip()
     oentry = entry
     main = ''
@@ -531,8 +531,18 @@ def make_id(env: "BuildEnvironment", document: nodes.document,
     return node_id
 
 
+def find_pending_xref_condition(node: addnodes.pending_xref, condition: str) -> Element:
+    """Pick matched pending_xref_condition node up from the pending_xref."""
+    for subnode in node:
+        if (isinstance(subnode, addnodes.pending_xref_condition) and
+                subnode.get('condition') == condition):
+            return subnode
+    else:
+        return None
+
+
 def make_refnode(builder: "Builder", fromdocname: str, todocname: str, targetid: str,
-                 child: Node, title: str = None) -> nodes.reference:
+                 child: Union[Node, List[Node]], title: str = None) -> nodes.reference:
     """Shortcut to create a reference node."""
     node = nodes.reference('', '', internal=True)
     if fromdocname == todocname and targetid:
@@ -545,7 +555,7 @@ def make_refnode(builder: "Builder", fromdocname: str, todocname: str, targetid:
             node['refuri'] = builder.get_relative_uri(fromdocname, todocname)
     if title:
         node['reftitle'] = title
-    node.append(child)
+    node += child
     return node
 
 

@@ -289,13 +289,16 @@ def test_expressions():
     exprCheck('5 == 42', 'eqL5EL42E')
     exprCheck('5 != 42', 'neL5EL42E')
     exprCheck('5 not_eq 42', 'neL5EL42E')
-    # ['<=', '>=', '<', '>']
+    # ['<=', '>=', '<', '>', '<=>']
     exprCheck('5 <= 42', 'leL5EL42E')
     exprCheck('A <= 42', 'le1AL42E')
     exprCheck('5 >= 42', 'geL5EL42E')
     exprCheck('5 < 42', 'ltL5EL42E')
     exprCheck('A < 42', 'lt1AL42E')
     exprCheck('5 > 42', 'gtL5EL42E')
+    exprCheck('A > 42', 'gt1AL42E')
+    exprCheck('5 <=> 42', 'ssL5EL42E')
+    exprCheck('A <=> 42', 'ss1AL42E')
     # ['<<', '>>']
     exprCheck('5 << 42', 'lsL5EL42E')
     exprCheck('A << 42', 'ls1AL42E')
@@ -616,6 +619,9 @@ def test_function_definitions():
     # from breathe#441
     check('function', 'auto MakeThingy() -> Thingy*', {1: 'MakeThingy', 2: '10MakeThingyv'})
 
+    # from #8960
+    check('function', 'void f(void (*p)(int, double), int i)', {2: '1fPFvidEi'})
+
 
 def test_operators():
     check('function', 'void operator new()', {1: "new-operator", 2: "nwv"})
@@ -661,6 +667,7 @@ def test_operators():
     check('function', 'void operator>()', {1: "gt-operator", 2: "gtv"})
     check('function', 'void operator<=()', {1: "lte-operator", 2: "lev"})
     check('function', 'void operator>=()', {1: "gte-operator", 2: "gev"})
+    check('function', 'void operator<=>()', {1: None, 2: "ssv"})
     check('function', 'void operator!()', {1: "not-operator", 2: "ntv"})
     check('function', 'void operator not()', {2: "ntv"})
     check('function', 'void operator&&()', {1: "sand-operator", 2: "aav"})

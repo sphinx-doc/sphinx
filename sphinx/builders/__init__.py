@@ -413,9 +413,9 @@ class Builder:
         else:
             self._read_serial(docnames)
 
-        if self.config.master_doc not in self.env.all_docs:
-            raise SphinxError('master file %s not found' %
-                              self.env.doc2path(self.config.master_doc))
+        if self.config.root_doc not in self.env.all_docs:
+            raise SphinxError('root file %s not found' %
+                              self.env.doc2path(self.config.root_doc))
 
         for retval in self.events.emit('env-updated', self.env):
             if retval is not None:
@@ -517,7 +517,7 @@ class Builder:
             for tocdocname in self.env.files_to_rebuild.get(docname, set()):
                 if tocdocname in self.env.found_docs:
                     docnames.add(tocdocname)
-        docnames.add(self.config.master_doc)
+        docnames.add(self.config.root_doc)
 
         with progress_message(__('preparing documents')):
             self.prepare_writing(docnames)
