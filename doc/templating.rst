@@ -325,7 +325,19 @@ in the future.
 
 .. data:: master_doc
 
-   The value of :confval:`master_doc`, for usage with :func:`pathto`.
+   Same as :data:`root_doc`.
+
+   .. versionchanged:: 4.0
+
+      Renamed to ``root_doc``.
+
+.. data:: root_doc
+
+   The value of :confval:`root_doc`, for usage with :func:`pathto`.
+
+   .. versionchanged:: 4.0
+
+      Renamed from ``master_doc``.
 
 .. data:: pagename
 

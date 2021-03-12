@@ -387,19 +387,6 @@ class ASTPostfixDec(ASTPostfixOp):
         signode.append(nodes.Text('--'))
 
 
-class ASTPostfixMember(ASTPostfixOp):
-    def __init__(self, name):
-        self.name = name
-
-    def _stringify(self, transform: StringifyTransform) -> str:
-        return '.' + transform(self.name)
-
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode.append(nodes.Text('.'))
-        self.name.describe_signature(signode, 'noneIsName', env, symbol)
-
-
 class ASTPostfixMemberOfPointer(ASTPostfixOp):
     def __init__(self, name):
         self.name = name
@@ -682,15 +669,24 @@ class ASTParameters(ASTBase):
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
-        paramlist = addnodes.desc_parameterlist()
-        for arg in self.args:
-            param = addnodes.desc_parameter('', '', noemph=True)
-            if mode == 'lastIsName':  # i.e., outer-function params
+        # only use the desc_parameterlist for the outer list, not for inner lists
+        if mode == 'lastIsName':
+            paramlist = addnodes.desc_parameterlist()
+            for arg in self.args:
+                param = addnodes.desc_parameter('', '', noemph=True)
                 arg.describe_signature(param, 'param', env, symbol=symbol)
-            else:
-                arg.describe_signature(param, 'markType', env, symbol=symbol)
-            paramlist += param
-        signode += paramlist
+                paramlist += param
+            signode += paramlist
+        else:
+            signode += nodes.Text('(', '(')
+            first = True
+            for arg in self.args:
+                if not first:
+                    signode += nodes.Text(', ', ', ')
+                first = False
+                arg.describe_signature(signode, 'markType', env, symbol=symbol)
+            signode += nodes.Text(')', ')')
+
         for attr in self.attrs:
             signode += nodes.Text(' ')
             attr.describe_signature(signode)
@@ -2256,7 +2252,7 @@ class DefinitionParser(BaseParser):
         #  | postfix "[" expression "]"
         #  | postfix "[" braced-init-list [opt] "]"
         #  | postfix "(" expression-list [opt] ")"
-        #  | postfix "." id-expression
+        #  | postfix "." id-expression  // taken care of in primary by nested name
         #  | postfix "->" id-expression
         #  | postfix "++"
         #  | postfix "--"
@@ -2274,17 +2270,6 @@ class DefinitionParser(BaseParser):
                     self.fail("Expected ']' in end of postfix expression.")
                 postFixes.append(ASTPostfixArray(expr))
                 continue
-            if self.skip_string('.'):
-                if self.skip_string('*'):
-                    # don't steal the dot
-                    self.pos -= 2
-                elif self.skip_string('..'):
-                    # don't steal the dot
-                    self.pos -= 3
-                else:
-                    name = self._parse_nested_name()
-                    postFixes.append(ASTPostfixMember(name))
-                    continue
             if self.skip_string('->'):
                 if self.skip_string('*'):
                     # don't steal the arrow
@@ -2693,16 +2678,13 @@ class DefinitionParser(BaseParser):
     def _parse_declarator_name_suffix(
             self, named: Union[bool, str], paramMode: str, typed: bool
     ) -> ASTDeclarator:
+        assert named in (True, False, 'single')
         # now we should parse the name, and then suffixes
-        if named == 'maybe':
-            pos = self.pos
-            try:
-                declId = self._parse_nested_name()
-            except DefinitionError:
-                self.pos = pos
-                declId = None
-        elif named == 'single':
+        if named == 'single':
             if self.match(identifier_re):
+                if self.matched_text in _keywords:
+                    self.fail("Expected identifier, "
+                              "got keyword: %s" % self.matched_text)
                 identifier = ASTIdentifier(self.matched_text)
                 declId = ASTNestedName([identifier], rooted=False)
             else:
@@ -2880,8 +2862,8 @@ class DefinitionParser(BaseParser):
 
     def _parse_type(self, named: Union[bool, str], outer: str = None) -> ASTType:
         """
-        named=False|'maybe'|True: 'maybe' is e.g., for function objects which
-        doesn't need to name the arguments
+        named=False|'single'|True: 'single' is e.g., for function objects which
+        doesn't need to name the arguments, but otherwise is a single name
         """
         if outer:  # always named
             if outer not in ('type', 'member', 'function'):

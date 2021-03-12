@@ -89,32 +89,95 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
             Boil the noodle *time* minutes.
 
-   **Options and advanced usage**
+   .. rubric:: Options
 
-   * If you want to automatically document members, there's a ``members``
-     option::
+   .. rst:directive:option:: members
+      :type: no value or comma separated list
+
+      If set, autodoc will generate document for the members of the target
+      module, class or exception.
+
+      For example::
 
         .. automodule:: noodle
            :members:
 
-     will document all module members (recursively), and ::
+      will document all module members (recursively), and ::
 
         .. autoclass:: Noodle
            :members:
 
-     will document all non-private member functions and properties (that is,
-     those whose name doesn't start with ``_``).
+      will document all class member methods and properties.
 
-     For modules, ``__all__`` will be respected when looking for members unless
-     you give the ``ignore-module-all`` flag option.  Without
-     ``ignore-module-all``, the order of the members will also be the order in
-     ``__all__``.
+      By default, autodoc will not generate document for the members that are
+      private, not having docstrings, inherited from super class, or special
+      members.
 
-     You can also give an explicit list of members; only these will then be
-     documented::
+      For modules, ``__all__`` will be respected when looking for members unless
+      you give the ``ignore-module-all`` flag option.  Without
+      ``ignore-module-all``, the order of the members will also be the order in
+      ``__all__``.
+
+      You can also give an explicit list of members; only these will then be
+      documented::
 
         .. autoclass:: Noodle
            :members: eat, slurp
+
+   .. rst:directive:option:: undoc-members
+      :type: no value
+
+      If set, autodoc will also generate document for the members not having
+      docstrings::
+
+        .. automodule:: noodle
+           :members:
+           :undoc-members:
+
+   .. rst:directive:option:: private-members
+      :type: no value or comma separated list
+
+      If set, autodoc will also generate document for the private members
+      (that is, those named like ``_private`` or ``__private``)::
+
+        .. automodule:: noodle
+           :members:
+           :private-members:
+
+      It can also take an explicit list of member names to be documented as
+      arguments::
+
+        .. automodule:: noodle
+           :members:
+           :private-members: _spicy, _garlickly
+
+      .. versionadded:: 1.1
+      .. versionchanged:: 3.2
+         The option can now take arguments.
+
+   .. rst:directive:option:: special-members
+      :type: no value or comma separated list
+
+      If set, autodoc will also generate document for the special members
+      (that is, those named like ``__special__``)::
+
+        .. autoclass:: my.Class
+           :members:
+           :special-members:
+
+      It can also take an explicit list of member names to be documented as
+      arguments::
+
+        .. autoclass:: my.Class
+           :members:
+           :special-members: __init__, __name__
+
+      .. versionadded:: 1.1
+
+      .. versionchanged:: 1.2
+         The option can now take arguments
+
+   **Options and advanced usage**
 
    * If you want to make the ``members`` option (or other options described
      below) the default, see :confval:`autodoc_default_options`.
@@ -138,31 +201,6 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionchanged:: 3.5
         The default options can be overridden or extended temporarily.
-
-   * Members without docstrings will be left out, unless you give the
-     ``undoc-members`` flag option::
-
-        .. automodule:: noodle
-           :members:
-           :undoc-members:
-
-   * "Private" members (that is, those named like ``_private`` or ``__private``)
-     will be included if the ``private-members`` flag option is given::
-
-        .. automodule:: noodle
-           :members:
-           :private-members:
-
-     It can also take an explicit list of member names to be documented as
-     arguments::
-
-        .. automodule:: noodle
-           :members:
-           :private-members: _spicy, _garlickly
-
-     .. versionadded:: 1.1
-     .. versionchanged:: 3.2
-        The option can now take arguments.
 
    * autodoc considers a member private if its docstring contains
      ``:meta private:`` in its :ref:`info-field-lists`.
@@ -202,21 +240,6 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
         var1 = None  #: :meta hide-value:
 
      .. versionadded:: 3.5
-
-   * Python "special" members (that is, those named like ``__special__``) will
-     be included if the ``special-members`` flag option is given::
-
-        .. autoclass:: my.Class
-           :members:
-           :private-members:
-           :special-members:
-
-     would document both "private" and "special" members of the class.
-
-     .. versionadded:: 1.1
-
-     .. versionchanged:: 1.2
-        The option can now take arguments, i.e. the special members to document.
 
    * For classes and exceptions, members inherited from base classes will be
      left out when documenting all members, unless you give the
@@ -585,6 +608,16 @@ There are also config values that you can set:
    .. __: https://www.python.org/dev/peps/pep-0563/
    .. __: https://mypy.readthedocs.io/en/latest/kinds_of_types.html#type-aliases
    .. versionadded:: 3.3
+
+.. confval:: autodoc_preserve_defaults
+
+   If True, the default argument values of functions will be not evaluated on
+   generating document.  It preserves them as is in the source code.
+
+   .. versionadded:: 4.0
+
+      Added as an experimental feature.  This will be integrated into autodoc core
+      in the future.
 
 .. confval:: autodoc_warningiserror
 

@@ -64,9 +64,9 @@ templates_path = ['{{ dot }}templates']
 source_suffix = {{ suffix | repr }}
 
 {% endif -%}
-{% if master != 'index' -%}
-# The master toctree document.
-master_doc = {{ master | repr }}
+{% if root_doc != 'index' -%}
+# The root document.
+root_doc = {{ root_doc | repr }}
 
 {% endif -%}
 {% if language -%}

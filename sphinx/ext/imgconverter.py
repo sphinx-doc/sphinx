@@ -37,10 +37,10 @@ class ImagemagickConverter(ImageConverter):
             logger.debug('Invoking %r ...', args)
             subprocess.run(args, stdout=PIPE, stderr=PIPE, check=True)
             return True
-        except OSError:
+        except OSError as exc:
             logger.warning(__('convert command %r cannot be run, '
-                              'check the image_converter setting'),
-                           self.config.image_converter)
+                              'check the image_converter setting: %s'),
+                           self.config.image_converter, exc)
             return False
         except CalledProcessError as exc:
             logger.warning(__('convert exited with error:\n'

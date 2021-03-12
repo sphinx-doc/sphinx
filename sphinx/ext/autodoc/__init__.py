@@ -1812,6 +1812,8 @@ class TypeVarMixin(DataDocumenterMixinBase):
             attrs = [repr(self.object.__name__)]
             for constraint in self.object.__constraints__:
                 attrs.append(stringify_typehint(constraint))
+            if self.object.__bound__:
+                attrs.append(r"bound=\ " + restify(self.object.__bound__))
             if self.object.__covariant__:
                 attrs.append("covariant=True")
             if self.object.__contravariant__:
@@ -2632,6 +2634,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     app.connect('config-inited', migrate_autodoc_member_order, priority=800)
 
+    app.setup_extension('sphinx.ext.autodoc.preserve_defaults')
     app.setup_extension('sphinx.ext.autodoc.type_comment')
     app.setup_extension('sphinx.ext.autodoc.typehints')
 

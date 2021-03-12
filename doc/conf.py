@@ -9,7 +9,7 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
               'sphinx.ext.intersphinx',
               'sphinx.ext.viewcode', 'sphinx.ext.inheritance_diagram']
 
-master_doc = 'contents'
+root_doc = 'contents'
 templates_path = ['_templates']
 exclude_patterns = ['_build']
 
@@ -78,6 +78,7 @@ latex_show_urls = 'footnote'
 latex_use_xindy = True
 
 autodoc_member_order = 'groupwise'
+autosummary_generate = False
 todo_include_todos = True
 extlinks = {'duref': ('http://docutils.sourceforge.net/docs/ref/rst/'
                       'restructuredtext.html#%s', ''),

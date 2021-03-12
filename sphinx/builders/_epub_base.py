@@ -222,14 +222,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 appeared.add(node['refuri'])
 
     def get_toc(self) -> None:
-        """Get the total table of contents, containing the master_doc
+        """Get the total table of contents, containing the root_doc
         and pre and post files not managed by sphinx.
         """
-        doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
+        doctree = self.env.get_and_resolve_doctree(self.config.root_doc,
                                                    self, prune_toctrees=False,
                                                    includehidden=True)
         self.refnodes = self.get_refnodes(doctree, [])
-        master_dir = path.dirname(self.config.master_doc)
+        master_dir = path.dirname(self.config.root_doc)
         if master_dir:
             master_dir += '/'  # XXX or os.sep?
             for item in self.refnodes:
@@ -237,13 +237,13 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.toc_add_files(self.refnodes)
 
     def toc_add_files(self, refnodes: List[Dict[str, Any]]) -> None:
-        """Add the master_doc, pre and post files to a list of refnodes.
+        """Add the root_doc, pre and post files to a list of refnodes.
         """
         refnodes.insert(0, {
             'level': 1,
-            'refuri': html.escape(self.config.master_doc + self.out_suffix),
+            'refuri': html.escape(self.config.root_doc + self.out_suffix),
             'text': ssp(html.escape(
-                self.env.titles[self.config.master_doc].astext()))
+                self.env.titles[self.config.root_doc].astext()))
         })
         for file, text in reversed(self.config.epub_pre_files):
             refnodes.insert(0, {
@@ -677,7 +677,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         logger.info(__('writing toc.ncx file...'))
 
         if self.config.epub_tocscope == 'default':
-            doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
+            doctree = self.env.get_and_resolve_doctree(self.config.root_doc,
                                                        self, prune_toctrees=False,
                                                        includehidden=False)
             refnodes = self.get_refnodes(doctree, [])

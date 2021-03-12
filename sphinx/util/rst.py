@@ -30,8 +30,7 @@ symbols_re = re.compile(r'([!-\-/:-@\[-`{-~])')  # symbols without dot(0x2e)
 SECTIONING_CHARS = ['=', '-', '~']
 
 # width of characters
-WIDECHARS = defaultdict(lambda: "WF")   # type: Dict[str, str]
-                                        # WF: Wide + Full-width
+WIDECHARS: Dict[str, str] = defaultdict(lambda: "WF")  # WF: Wide + Full-width
 WIDECHARS["ja"] = "WFA"  # In Japanese, Ambiguous characters also have double width
 
 

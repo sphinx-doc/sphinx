@@ -178,27 +178,12 @@ def read_doc(app: "Sphinx", env: BuildEnvironment, filename: str) -> nodes.docum
         #   CommonMarkParser.
         parser.settings_spec = RSTParser.settings_spec
 
-    input_class = app.registry.get_source_input(filetype)
-    if input_class:
-        # Sphinx-1.8 style
-        source = input_class(app, env, source=None, source_path=filename,  # type: ignore
-                             encoding=env.config.source_encoding)
-        pub = Publisher(reader=reader,
-                        parser=parser,
-                        writer=SphinxDummyWriter(),
-                        source_class=SphinxDummySourceClass,  # type: ignore
-                        destination=NullOutput())
-        pub.process_programmatic_settings(None, env.settings, None)
-        pub.set_source(source, filename)
-    else:
-        # Sphinx-2.0 style
-        pub = Publisher(reader=reader,
-                        parser=parser,
-                        writer=SphinxDummyWriter(),
-                        source_class=SphinxFileInput,
-                        destination=NullOutput())
-        pub.process_programmatic_settings(None, env.settings, None)
-        pub.set_source(source_path=filename)
-
+    pub = Publisher(reader=reader,
+                    parser=parser,
+                    writer=SphinxDummyWriter(),
+                    source_class=SphinxFileInput,
+                    destination=NullOutput())
+    pub.process_programmatic_settings(None, env.settings, None)
+    pub.set_source(source_path=filename)
     pub.publish()
     return pub.document

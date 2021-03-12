@@ -93,7 +93,7 @@ class InventoryFile:
 
     @classmethod
     def load_v1(cls, stream: InventoryFileReader, uri: str, join: Callable) -> Inventory:
-        invdata = {}  # type: Inventory
+        invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
         for line in stream.readlines():
@@ -111,7 +111,7 @@ class InventoryFile:
 
     @classmethod
     def load_v2(cls, stream: InventoryFileReader, uri: str, join: Callable) -> Inventory:
-        invdata = {}  # type: Inventory
+        invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
         line = stream.readline()

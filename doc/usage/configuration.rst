@@ -183,11 +183,20 @@ General configuration
 
 .. confval:: master_doc
 
-   The document name of the "master" document, that is, the document that
+   Same as :confval:`root_doc`.
+
+   .. versionchanged:: 4.0
+      Renamed ``master_doc`` to ``master_doc``.
+
+.. confval:: root_doc
+
+   The document name of the "root" document, that is, the document that
    contains the root :rst:dir:`toctree` directive.  Default is ``'index'``.
 
    .. versionchanged:: 2.0
       The default is changed to ``'index'`` from ``'contents'``.
+   .. versionchanged:: 4.0
+      Renamed ``master_doc`` from ``master_doc``.
 
 .. confval:: exclude_patterns
 
@@ -2023,8 +2032,8 @@ These options influence LaTeX output.
    *startdocname*
      String that specifies the :term:`document name` of the LaTeX file's master
      document.  All documents referenced by the *startdoc* document in TOC trees
-     will be included in the LaTeX file.  (If you want to use the default master
-     document for your LaTeX build, provide your :confval:`master_doc` here.)
+     will be included in the LaTeX file.  (If you want to use the default root
+     document for your LaTeX build, provide your :confval:`root_doc` here.)
 
    *targetname*
      File name of the LaTeX file in the output directory.
@@ -2293,7 +2302,7 @@ These options influence manual page output.
      String that specifies the :term:`document name` of the manual page's master
      document. All documents referenced by the *startdoc* document in TOC trees
      will be included in the manual file.  (If you want to use the default
-     master document for your manual pages build, use your :confval:`master_doc`
+     root document for your manual pages build, use your :confval:`root_doc`
      here.)
 
    *name*
@@ -2349,7 +2358,7 @@ These options influence Texinfo output.
      master document.  All documents referenced by the *startdoc* document in
      TOC trees will be included in the Texinfo file.  (If you want to use the
      default master document for your Texinfo build, provide your
-     :confval:`master_doc` here.)
+     :confval:`root_doc` here.)
 
    *targetname*
      File name (no extension) of the Texinfo file in the output directory.
@@ -2705,6 +2714,17 @@ Options for the C++ domain
 
    .. versionadded:: 1.5
 
+Options for the Python domain
+-----------------------------
+
+.. confval:: python_use_unqualified_type_names
+
+   If true, suppress the module name of the python reference if it can be
+   resolved.  The default is ``False``.
+
+   .. versionadded:: 4.0
+
+   .. note:: This configuration is still in experimental
 
 Example of configuration file
 =============================

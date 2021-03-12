@@ -1,7 +1,7 @@
 extensions = ['sphinx.ext.doctest']
 
 project = 'test project for the doctest :skipif: directive'
-master_doc = 'skipif'
+root_doc = 'skipif'
 source_suffix = '.txt'
 exclude_patterns = ['_build']
 

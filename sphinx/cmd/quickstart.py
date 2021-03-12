@@ -162,10 +162,22 @@ class QuickstartRenderer(SphinxRenderer):
         self.templatedir = templatedir or ''
         super().__init__()
 
+    def _has_custom_template(self, template_name: str) -> bool:
+        """Check if custom template file exists.
+
+        Note: Please don't use this function from extensions.
+              It will be removed in the future without deprecation period.
+        """
+        template = path.join(self.templatedir, path.basename(template_name))
+        if self.templatedir and path.exists(template):
+            return True
+        else:
+            return False
+
     def render(self, template_name: str, context: Dict) -> str:
-        user_template = path.join(self.templatedir, path.basename(template_name))
-        if self.templatedir and path.exists(user_template):
-            return self.render_from_file(user_template, context)
+        if self._has_custom_template(template_name):
+            custom_template = path.join(self.templatedir, path.basename(template_name))
+            return self.render_from_file(custom_template, context)
         else:
             return super().render(template_name, context)
 
@@ -318,6 +330,7 @@ def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir:
     if 'mastertocmaxdepth' not in d:
         d['mastertocmaxdepth'] = 2
 
+    d['root_doc'] = d['master']
     d['now'] = time.asctime()
     d['project_underline'] = column_width(d['project']) * '='
     d.setdefault('extensions', [])
@@ -362,7 +375,13 @@ def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir:
     write_file(path.join(srcdir, 'conf.py'), template.render_string(conf_text, d))
 
     masterfile = path.join(srcdir, d['master'] + d['suffix'])
-    write_file(masterfile, template.render('quickstart/master_doc.rst_t', d))
+    if template._has_custom_template('quickstart/master_doc.rst_t'):
+        msg = ('A custom template `master_doc.rst_t` found. It has been renamed to '
+               '`root_doc.rst_t`.  Please rename it on your project too.')
+        print(colorize('red', msg))  # RemovedInSphinx60Warning
+        write_file(masterfile, template.render('quickstart/master_doc.rst_t', d))
+    else:
+        write_file(masterfile, template.render('quickstart/root_doc.rst_t', d))
 
     if d.get('make_mode') is True:
         makefile_template = 'quickstart/Makefile.new_t'

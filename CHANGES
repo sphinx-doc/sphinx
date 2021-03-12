@@ -30,6 +30,7 @@ Incompatible changes
 * html theme: Move a script tag for documentation_options.js in
   basic/layout.html to ``script_files`` variable
 * html theme: Move CSS tags in basic/layout.html to ``css_files`` variable
+* #8915: html theme: Emit a warning for sphinx_rtd_theme-0.2.4 or older
 * #8508: LaTeX: uplatex becomes a default setting of latex_engine for Japanese
   documents
 * #5977: py domain: ``:var:``, ``:cvar:`` and ``:ivar:`` fields do not create
@@ -38,6 +39,9 @@ Incompatible changes
   ``None`` by default instead of ``'default'``
 * #8769: LaTeX refactoring: split sphinx.sty into multiple files and rename
   some auxiliary files created in ``latex`` build output repertory
+* #8937: Use explicit title instead of <no title>
+* #8487: The :file: option for csv-table directive now recognizes an absolute
+  path as a relative path from source directory
 
 Deprecated
 ----------
@@ -47,6 +51,8 @@ Deprecated
 * ``sphinx.directives.patches.CSVTable``
 * ``sphinx.directives.patches.ListTable``
 * ``sphinx.directives.patches.RSTTable``
+* ``sphinx.registry.SphinxComponentRegistry.get_source_input()``
+* ``sphinx.registry.SphinxComponentRegistry.source_inputs``
 * ``sphinx.transforms.FigureAligner``
 * ``sphinx.util.pycompat.convert_with_2to3()``
 * ``sphinx.util.pycompat.execfile_()``
@@ -55,20 +61,34 @@ Deprecated
 Features added
 --------------
 
+* #8924: autodoc: Support ``bound`` argument for TypeVar
+* #7549: autosummary: Enable :confval:`autosummary_generate` by default
 * #4826: py domain: Add ``:canonical:`` option to python directives to describe
   the location where the object is defined
+* #7199: py domain: Add :confval:`python_use_unqualified_type_names` to suppress
+  the module name of the python reference if it can be resolved (experimental)
 * #7784: i18n: The alt text for image is translated by default (without
   :confval:`gettext_additional_targets` setting)
 * #2018: html: :confval:`html_favicon` and :confval:`html_logo` now accept URL
   for the image
 * #8070: html search: Support searching for 2characters word
+* #8938: imgconverter: Show the error of the command availability check
 * #7830: Add debug logs for change detection of sources and templates
 * #8201: Emit a warning if toctree contains duplicated entries
+* #8326: ``master_doc`` is now renamed to :confval:`root_doc`
+* #8942: C++, add support for the C++20 spaceship operator, ``<=>``.
+* #7199: A new node, ``sphinx.addnodes.pending_xref_condition`` has been added.
+  It can be used to choose appropriate content of the reference by conditions.
 
 Bugs fixed
 ----------
 
+* #8917: autodoc: Raises a warning if function has wrong __globals__ value
+* #8415: autodoc: a TypeVar imported from other module is not resolved (in
+  Python 3.7 or above)
+* #8905: html: html_add_permalinks=None and html_add_permalinks="" are ignored
 * #8380: html search: Paragraphs in search results are not identified as ``<p>``
+* #8915: html theme: The translation of sphinx_rtd_theme does not work
 * #8342: Emit a warning if a unknown domain is given for directive or role (ex.
   ``:unknown:doc:``)
 * #8711: LaTeX: backticks in code-blocks trigger latexpdf build warning (and font
@@ -76,11 +96,20 @@ Bugs fixed
 * #8253: LaTeX: Figures with no size defined get overscaled (compared to images
   with size explicitly set in pixels) (fixed for ``'pdflatex'/'lualatex'`` only)
 * #8881: LaTeX: The depth of bookmarks panel in PDF is not enough for navigation
+* #8925: LaTeX: 3.5.0 ``verbatimmaxunderfull`` setting does not work as
+  expected
+* #8911: C++: remove the longest matching prefix in
+  :confval:`cpp_index_common_prefix` instead of the first that matches.
+* C, properly reject function declarations when a keyword is used
+  as parameter name.
+* #8933: viewcode: Failed to create back-links on parallel build
+* #8960: C and C++, fix rendering of (member) function pointer types in
+  function parameter lists.
 
 Testing
 --------
 
-Release 3.5.2 (in development)
+Release 3.5.3 (in development)
 ==============================
 
 Dependencies
@@ -100,6 +129,16 @@ Bugs fixed
 
 Testing
 --------
+
+Release 3.5.2 (released Mar 06, 2021)
+=====================================
+
+Bugs fixed
+----------
+
+* #8943: i18n: Crashed by broken translation messages in ES, EL and HR
+* #8936: LaTeX: A custom LaTeX builder fails with unknown node error
+* #8952: Exceptions raised in a Directive cause parallel builds to hang
 
 Release 3.5.1 (released Feb 16, 2021)
 =====================================
@@ -164,6 +203,9 @@ Features added
 * #8775: autodoc: Support type union operator (PEP-604) in Python 3.10 or above
 * #8297: autodoc: Allow to extend :confval:`autodoc_default_options` via
   directive options
+* #759: autodoc: Add a new configuration :confval:`autodoc_preserve_defaults` as
+  an experimental feature.  It preserves the default argument values of
+  functions in source code and keep them not evaluated for readability.
 * #8619: html: kbd role generates customizable HTML tags for compound keys
 * #8634: html: Allow to change the order of JS/CSS via ``priority`` parameter
   for :meth:`Sphinx.add_js_file()` and :meth:`Sphinx.add_css_file()`

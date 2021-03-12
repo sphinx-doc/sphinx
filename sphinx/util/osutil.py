@@ -185,7 +185,7 @@ class FileAvoidWrite:
     """
     def __init__(self, path: str) -> None:
         self._path = path
-        self._io = None  # type: Optional[StringIO]
+        self._io: Optional[StringIO] = None
 
     def write(self, data: str) -> None:
         if not self._io:
