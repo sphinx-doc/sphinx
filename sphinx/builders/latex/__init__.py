@@ -256,7 +256,8 @@ class LaTeXBuilder(Builder):
         with open(stylesheet, 'w') as f:
             f.write('\\NeedsTeXFormat{LaTeX2e}[1995/12/01]\n')
             f.write('\\ProvidesPackage{sphinxhighlight}'
-                    '[2016/05/29 stylesheet for highlighting with pygments]\n\n')
+                    '[2016/05/29 stylesheet for highlighting with pygments]\n')
+            f.write('% Its contents depend on pygments_style configuration variable.\n\n')
             f.write(highlighter.get_stylesheet())
 
     def write(self, *ignored: Any) -> None:
