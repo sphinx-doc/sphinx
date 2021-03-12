@@ -95,6 +95,8 @@ Bugs fixed
   change) with late TeXLive 2019
 * #8253: LaTeX: Figures with no size defined get overscaled (compared to images
   with size explicitly set in pixels) (fixed for ``'pdflatex'/'lualatex'`` only)
+* #8874: LaTeX: the fix to two minor Pygments LaTeXFormatter output issues ignore
+  Pygments style
 * #8925: LaTeX: 3.5.0 ``verbatimmaxunderfull`` setting does not work as
   expected
 * #8911: C++: remove the longest matching prefix in
