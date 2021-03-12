@@ -61,11 +61,10 @@ latex_elements = {
     'fontenc': r'\usepackage[LGR,X2,T1]{fontenc}',
     'passoptionstopackages': r'''
 \PassOptionsToPackage{svgnames}{xcolor}
-\PassOptionsToPackage{bookmarksdepth=3}{hyperref}% depth of pdf bookmarks
 ''',
     'preamble': r'''
 \DeclareUnicodeCharacter{229E}{\ensuremath{\boxplus}}
-\setcounter{tocdepth}{3}%    depth of what is kept from toc file
+\setcounter{tocdepth}{3}%    depth of what main TOC shows (3=subsubsection)
 \setcounter{secnumdepth}{1}% depth of section numbering
 ''',
     # fix missing index entry due to RTD doing only once pdflatex after makeindex

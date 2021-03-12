@@ -65,6 +65,8 @@
 \DeclareStringOption[-1]{numfigreset}
 \DeclareBoolOption[false]{nonumfigreset}
 \DeclareBoolOption[false]{mathnumfig}
+\define@key{sphinx}{bookmarksdepth}{\AtBeginDocument{\hypersetup{bookmarksdepth=#1}}}
+\AtBeginDocument{\define@key{sphinx}{bookmarksdepth}{\hypersetup{bookmarksdepth=#1}}}
 % \DeclareBoolOption[false]{usespart}% not used
 % dimensions, we declare the \dimen registers here.
 \newdimen\sphinxverbatimsep
