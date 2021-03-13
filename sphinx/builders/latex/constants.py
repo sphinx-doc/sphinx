@@ -71,7 +71,7 @@ XELATEX_GREEK_DEFAULT_FONTPKG = (XELATEX_DEFAULT_FONTPKG +
 
 LUALATEX_DEFAULT_FONTPKG = XELATEX_DEFAULT_FONTPKG
 
-DEFAULT_SETTINGS = {
+DEFAULT_SETTINGS: Dict[str, Any] = {
     'latex_engine':    'pdflatex',
     'papersize':       '',
     'pointsize':       '',
@@ -121,9 +121,9 @@ DEFAULT_SETTINGS = {
     'figure_align':    'htbp',
     'tocdepth':        '',
     'secnumdepth':     '',
-}  # type: Dict[str, Any]
+}
 
-ADDITIONAL_SETTINGS = {
+ADDITIONAL_SETTINGS: Dict[Any, Dict[str, Any]] = {
     'pdflatex': {
         'inputenc':     '\\usepackage[utf8]{inputenc}',
         'utf8extra':   ('\\ifdefined\\DeclareUnicodeCharacter\n'
@@ -202,7 +202,7 @@ ADDITIONAL_SETTINGS = {
     ('xelatex', 'el'): {
         'fontpkg':      XELATEX_GREEK_DEFAULT_FONTPKG,
     },
-}  # type: Dict[Any, Dict[str, Any]]
+}
 
 
 SHORTHANDOFF = r'''

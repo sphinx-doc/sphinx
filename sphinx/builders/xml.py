@@ -37,7 +37,7 @@ class XMLBuilder(Builder):
     out_suffix = '.xml'
     allow_parallel = True
 
-    _writer_class = XMLWriter  # type: Union[Type[XMLWriter], Type[PseudoXMLWriter]]
+    _writer_class: Union[Type[XMLWriter], Type[PseudoXMLWriter]] = XMLWriter
     default_translator_class = XMLTranslator
 
     def init(self) -> None:

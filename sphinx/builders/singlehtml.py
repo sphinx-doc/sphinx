@@ -93,7 +93,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         #
         #       There are related codes in inline_all_toctres() and
         #       HTMLTranslter#add_secnumber().
-        new_secnumbers = {}  # type: Dict[str, Tuple[int, ...]]
+        new_secnumbers: Dict[str, Tuple[int, ...]] = {}
         for docname, secnums in self.env.toc_secnumbers.items():
             for id, secnum in secnums.items():
                 alias = "%s/%s" % (docname, id)
@@ -111,7 +111,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         #
         #       There are related codes in inline_all_toctres() and
         #       HTMLTranslter#add_fignumber().
-        new_fignumbers = {}  # type: Dict[str, Dict[str, Tuple[int, ...]]]
+        new_fignumbers: Dict[str, Dict[str, Tuple[int, ...]]] = {}
         # {'foo': {'figure': {'id2': (2,), 'id1': (1,)}}, 'bar': {'figure': {'id1': (3,)}}}
         for docname, fignumlist in self.env.toc_fignumbers.items():
             for figtype, fignums in fignumlist.items():

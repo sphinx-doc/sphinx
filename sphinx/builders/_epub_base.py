@@ -165,9 +165,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.link_suffix = '.xhtml'
         self.playorder = 0
         self.tocid = 0
-        self.id_cache = {}  # type: Dict[str, str]
+        self.id_cache: Dict[str, str] = {}
         self.use_index = self.get_builder_config('use_index', 'epub')
-        self.refnodes = []  # type: List[Dict[str, Any]]
+        self.refnodes: List[Dict[str, Any]] = []
 
     def create_build_info(self) -> BuildInfo:
         return BuildInfo(self.config, self.tags, ['html', 'epub'])
@@ -209,7 +209,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return result
 
     def check_refnodes(self, nodes: List[Dict[str, Any]]) -> None:
-        appeared = set()  # type: Set[str]
+        appeared: Set[str] = set()
         for node in nodes:
             if node['refuri'] in appeared:
                 logger.warning(
@@ -288,7 +288,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         for target in tree.traverse(nodes.target):
             update_node_id(target)
 
-            next_node = target.next_node(ascend=True)  # type: Node
+            next_node: Node = target.next_node(ascend=True)
             if isinstance(next_node, nodes.Element):
                 update_node_id(next_node)
 
@@ -482,7 +482,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
         """
-        metadata = {}  # type: Dict[str, Any]
+        metadata: Dict[str, Any] = {}
         metadata['title'] = html.escape(self.config.epub_title)
         metadata['author'] = html.escape(self.config.epub_author)
         metadata['uid'] = html.escape(self.config.epub_uid)
@@ -508,7 +508,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         if not self.outdir.endswith(os.sep):
             self.outdir += os.sep
         olen = len(self.outdir)
-        self.files = []  # type: List[str]
+        self.files: List[str] = []
         self.ignored_files = ['.buildinfo', 'mimetype', 'content.opf',
                               'toc.ncx', 'META-INF/container.xml',
                               'Thumbs.db', 'ehthumbs.db', '.DS_Store',
@@ -623,7 +623,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         Subelements of a node are nested inside the navpoint.  For nested nodes
         the parent node is reinserted in the subnav.
         """
-        navstack = []  # type: List[NavPoint]
+        navstack: List[NavPoint] = []
         navstack.append(NavPoint('dummy', 0, '', '', []))
         level = 0
         lastnode = None
@@ -665,7 +665,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Create a dictionary with all metadata for the toc.ncx file
         properly escaped.
         """
-        metadata = {}  # type: Dict[str, Any]
+        metadata: Dict[str, Any] = {}
         metadata['uid'] = self.config.epub_uid
         metadata['title'] = html.escape(self.config.epub_title)
         metadata['level'] = level

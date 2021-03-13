@@ -48,10 +48,10 @@ class Catalog:
     """Catalog of translatable messages."""
 
     def __init__(self) -> None:
-        self.messages = []  # type: List[str]
-                            # retain insertion order, a la OrderedDict
-        self.metadata = OrderedDict()   # type: Dict[str, List[Tuple[str, int, str]]]
-                                        # msgid -> file, line, uid
+        self.messages: List[str] = []  # retain insertion order, a la OrderedDict
+
+        # msgid -> file, line, uid
+        self.metadata: Dict[str, List[Tuple[str, int, str]]] = OrderedDict()
 
     def add(self, msg: str, origin: Union[Element, "MsgOrigin"]) -> None:
         if not hasattr(origin, 'uid'):
@@ -121,8 +121,7 @@ class I18nBuilder(Builder):
     """
     name = 'i18n'
     versioning_method = 'text'
-    versioning_compare = None   # type: bool
-                                # be set by `gettext_uuid`
+    versioning_compare: bool = None  # be set by `gettext_uuid`
     use_message_catalog = False
 
     def init(self) -> None:
@@ -130,7 +129,7 @@ class I18nBuilder(Builder):
         self.env.set_versioning_method(self.versioning_method,
                                        self.env.config.gettext_uuid)
         self.tags = I18nTags()
-        self.catalogs = defaultdict(Catalog)  # type: DefaultDict[str, Catalog]
+        self.catalogs: DefaultDict[str, Catalog] = defaultdict(Catalog)
 
     def get_target_uri(self, docname: str, typ: str = None) -> str:
         return ''

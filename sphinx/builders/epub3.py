@@ -118,7 +118,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         The difference from build_navpoints method is templates which are used
         when generating navigation documents.
         """
-        navstack = []  # type: List[NavPoint]
+        navstack: List[NavPoint] = []
         navstack.append(NavPoint('', '', []))
         level = 0
         for node in navnodes:
@@ -154,7 +154,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         """Create a dictionary with all metadata for the nav.xhtml file
         properly escaped.
         """
-        metadata = {}  # type: Dict
+        metadata: Dict = {}
         metadata['lang'] = html.escape(self.config.epub_language)
         metadata['toc_locale'] = html.escape(self.guide_titles['toc'])
         metadata['navlist'] = navlist
@@ -223,7 +223,7 @@ def validate_config_values(app: Sphinx) -> None:
 
 def convert_epub_css_files(app: Sphinx, config: Config) -> None:
     """This converts string styled epub_css_files to tuple styled one."""
-    epub_css_files = []  # type: List[Tuple[str, Dict]]
+    epub_css_files: List[Tuple[str, Dict]] = []
     for entry in config.epub_css_files:
         if isinstance(entry, str):
             epub_css_files.append((entry, {}))

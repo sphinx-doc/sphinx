@@ -15,6 +15,7 @@ from typing import Any, Dict, Iterable, List, Tuple, Union
 from docutils import nodes
 from docutils.frontend import OptionParser
 from docutils.io import FileOutput
+from docutils.nodes import Node
 
 from sphinx import addnodes, package_dir
 from sphinx.application import Sphinx
@@ -154,7 +155,7 @@ class TexinfoBuilder(Builder):
         for pendingnode in largetree.traverse(addnodes.pending_xref):
             docname = pendingnode['refdocname']
             sectname = pendingnode['refsectname']
-            newnodes = [nodes.emphasis(sectname, sectname)]  # type: List[nodes.Node]
+            newnodes: List[Node] = [nodes.emphasis(sectname, sectname)]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
                     newnodes.append(nodes.Text(_(' (in '), _(' (in ')))
