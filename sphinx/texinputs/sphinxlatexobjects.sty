@@ -58,11 +58,14 @@
 
 % {fulllineitems} is the main environment for object descriptions.
 %
-\newcommand{\py@itemnewline}[1]{%
-  \kern\labelsep
-  \@tempdima\linewidth
-  \advance\@tempdima \labelwidth\makebox[\@tempdima][l]{#1}%
-  \kern-\labelsep
+% With 4.0.0 \pysigline (and \pysiglinewithargsret), used in a fulllineitems
+% environment the #1 will already be of the width which is computed here, i.e.
+% the available width on line, so the \makebox becomes a bit superfluous
+\newcommand{\py@itemnewline}[1]{% macro used as \makelabel in fulllineitems
+% Memo: this presupposes \itemindent is 0pt
+  \kern\labelsep  % because \@labels core latex box does \hskip-\labelsep
+  \makebox[\dimexpr\linewidth+\labelwidth\relax][l]{#1}%
+  \kern-\labelsep % because at end of \@labels box there is \hskip\labelsep
 }
 
 \newenvironment{fulllineitems}{%
@@ -76,13 +79,27 @@
 %
 \newlength{\py@argswidth}
 \newcommand{\py@sigparams}[2]{%
-  \parbox[t]{\py@argswidth}{#1\sphinxcode{)}#2}}
-\newcommand{\pysigline}[1]{\item[{#1}]}
+  % The \py@argswidth has been computed in \pysiglinewithargsret to make this
+  % occupy full available width on line.
+  \parbox[t]{\py@argswidth}{\raggedright #1\sphinxcode{)}#2\strut}%
+  % final strut is to help get correct vertical separation in case of multi-line
+  % box with the item contents. 
+}
+\newcommand{\pysigline}[1]{%
+% the \py@argswidth is available we use it despite its name (no "args" here)
+% the \relax\relax is because \py@argswidth is a "skip" variable and the first
+% \relax only ends its "dimen" part
+  \py@argswidth=\dimexpr\linewidth+\labelwidth\relax\relax
+  \item[{\parbox[t]{\py@argswidth}{\raggedright #1\strut}}]
+% this strange incantation is because at its root LaTeX in fact did not
+% imagine a multi-line label, it is always wrapped in a horizontal box at core
+% LaTeX level and we have to find tricks to get correct interline distances.
+  \leavevmode\par\nobreak\vskip-\parskip\prevdepth\dp\strutbox}
 \newcommand{\pysiglinewithargsret}[3]{%
   \settowidth{\py@argswidth}{#1\sphinxcode{(}}%
-  \addtolength{\py@argswidth}{-2\py@argswidth}%
-  \addtolength{\py@argswidth}{\linewidth}%
-  \item[{#1\sphinxcode{(}\py@sigparams{#2}{#3}}]}
+  \py@argswidth=\dimexpr\linewidth+\labelwidth-\py@argswidth\relax\relax
+  \item[{#1\sphinxcode{(}\py@sigparams{#2}{#3}}]
+  \leavevmode\par\nobreak\vskip-\parskip\prevdepth\dp\strutbox}
 \newcommand{\pysigstartmultiline}{%
  \def\pysigstartmultiline{\vskip\smallskipamount\parskip\z@skip\itemsep\z@skip}%
  \edef\pysigstopmultiline
