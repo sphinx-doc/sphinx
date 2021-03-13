@@ -92,6 +92,7 @@ Bugs fixed
 * #8915: html theme: The translation of sphinx_rtd_theme does not work
 * #8342: Emit a warning if a unknown domain is given for directive or role (ex.
   ``:unknown:doc:``)
+* #7241: LaTeX: No wrapping for ``cpp:enumerator``
 * #8711: LaTeX: backticks in code-blocks trigger latexpdf build warning (and font
   change) with late TeXLive 2019
 * #8253: LaTeX: Figures with no size defined get overscaled (compared to images
@@ -101,6 +102,9 @@ Bugs fixed
   Pygments style
 * #8925: LaTeX: 3.5.0 ``verbatimmaxunderfull`` setting does not work as
   expected
+* #8980: LaTeX: missing line break in ``\pysigline``
+* #8995: LaTeX: legacy ``\pysiglinewithargsret`` does not compute correctly
+  available  horizontal space and should use a ragged right style
 * #8911: C++: remove the longest matching prefix in
   :confval:`cpp_index_common_prefix` instead of the first that matches.
 * C, properly reject function declarations when a keyword is used
