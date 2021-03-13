@@ -1250,7 +1250,7 @@ class ASTSizeofParamPack(ASTExpression):
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text('sizeof...('))
-        self.identifier.describe_signature(signode, mode, env,
+        self.identifier.describe_signature(signode, 'markType', env,
                                            symbol=symbol, prefix="", templateArgs="")
         signode.append(nodes.Text(')'))
 
