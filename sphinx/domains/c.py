@@ -39,6 +39,7 @@ from sphinx.util.cfamily import (ASTAttribute, ASTBaseBase, ASTBaseParenExprList
 from sphinx.util.docfields import Field, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
+from sphinx.util.typing import OptionSpec
 
 logger = logging.getLogger(__name__)
 T = TypeVar('T')
@@ -3095,7 +3096,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
               names=('rtype',)),
     ]
 
-    option_spec = {
+    option_spec: OptionSpec = {
         'noindexentry': directives.flag,
     }
 
@@ -3335,7 +3336,7 @@ class CNamespaceObject(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
         rootSymbol = self.env.domaindata['c']['root_symbol']
@@ -3365,7 +3366,7 @@ class CNamespacePushObject(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
@@ -3396,7 +3397,7 @@ class CNamespacePopObject(SphinxDirective):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
         stack = self.env.temp_data.get('c:namespace_stack', None)
@@ -3550,10 +3551,10 @@ class AliasTransform(SphinxTransform):
 
 
 class CAliasObject(ObjectDescription):
-    option_spec = {
+    option_spec: OptionSpec = {
         'maxdepth': directives.nonnegative_int,
         'noroot': directives.flag,
-    }  # type: Dict
+    }
 
     def run(self) -> List[Node]:
         """

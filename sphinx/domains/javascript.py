@@ -28,6 +28,7 @@ from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_id, make_refnode
+from sphinx.util.typing import OptionSpec
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +48,7 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
     #: based on directive nesting
     allow_nesting = False
 
-    option_spec = {
+    option_spec: OptionSpec = {
         'noindex': directives.flag,
         'noindexentry': directives.flag,
     }
@@ -253,7 +254,7 @@ class JSModule(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {
+    option_spec: OptionSpec = {
         'noindex': directives.flag
     }
 

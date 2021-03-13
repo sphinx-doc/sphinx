@@ -16,6 +16,8 @@ from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, TypeVa
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
 
+from sphinx.deprecation import RemovedInSphinx60Warning, deprecated_alias
+
 if sys.version_info > (3, 7):
     from typing import ForwardRef
 else:
@@ -40,9 +42,6 @@ if False:
     from typing import Type  # NOQA # for python3.5.1
 
 
-# An entry of Directive.option_spec
-DirectiveOption = Callable[[str], Any]
-
 # Text like nodes which are initialized with text and rawsource
 TextlikeNode = Union[nodes.Text, nodes.TextElement]
 
@@ -55,6 +54,9 @@ PathMatcher = Callable[[str], bool]
 # common role functions
 RoleFunction = Callable[[str, str, str, int, Inliner, Dict[str, Any], List[str]],
                         Tuple[List[nodes.Node], List[nodes.system_message]]]
+
+# A option spec for directive
+OptionSpec = Dict[str, Callable[[Optional[str]], Any]]
 
 # title getter functions for enumerable nodes (see sphinx.domains.std)
 TitleGetter = Callable[[nodes.Node], str]
@@ -405,3 +407,10 @@ def _stringify_py36(annotation: Any) -> str:
                 return 'Union[%s]' % param_str
 
     return qualname
+
+
+deprecated_alias('sphinx.util.typing',
+                 {
+                     'DirectiveOption': Callable[[str], Any],
+                 },
+                 RemovedInSphinx60Warning)

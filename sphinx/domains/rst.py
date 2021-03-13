@@ -25,6 +25,7 @@ from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.nodes import make_id, make_refnode
+from sphinx.util.typing import OptionSpec
 
 logger = logging.getLogger(__name__)
 
@@ -117,7 +118,7 @@ class ReSTDirectiveOption(ReSTMarkup):
     """
     Description of an option for reST directive.
     """
-    option_spec = ReSTMarkup.option_spec.copy()
+    option_spec: OptionSpec = ReSTMarkup.option_spec.copy()
     option_spec.update({
         'type': directives.unchanged,
     })

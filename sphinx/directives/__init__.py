@@ -21,7 +21,7 @@ from sphinx.deprecation import RemovedInSphinx50Warning, deprecated_alias
 from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.typing import DirectiveOption
+from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -58,9 +58,9 @@ class ObjectDescription(SphinxDirective, Generic[T]):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {
+    option_spec: OptionSpec = {
         'noindex': directives.flag,
-    }  # type: Dict[str, DirectiveOption]
+    }
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
     doc_field_types = []    # type: List[Field]
@@ -251,7 +251,7 @@ class DefaultDomain(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
         domain_name = self.arguments[0].lower()

@@ -28,6 +28,7 @@ import sphinx
 from sphinx.application import Sphinx
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import nested_parse_with_titles
+from sphinx.util.typing import OptionSpec
 
 
 class ifconfig(nodes.Element):
@@ -40,7 +41,7 @@ class IfConfig(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
         node = ifconfig()

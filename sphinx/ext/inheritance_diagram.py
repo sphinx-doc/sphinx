@@ -53,6 +53,7 @@ from sphinx.ext.graphviz import (figure_wrapper, graphviz, render_dot_html, rend
                                  render_dot_texinfo)
 from sphinx.util import md5
 from sphinx.util.docutils import SphinxDirective
+from sphinx.util.typing import OptionSpec
 from sphinx.writers.html import HTMLTranslator
 from sphinx.writers.latex import LaTeXTranslator
 from sphinx.writers.texinfo import TexinfoTranslator
@@ -331,7 +332,7 @@ class InheritanceDiagram(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {
+    option_spec: OptionSpec = {
         'parts': int,
         'private-bases': directives.flag,
         'caption': directives.unchanged,

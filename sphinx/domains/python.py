@@ -38,7 +38,7 @@ from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.inspect import signature_from_str
 from sphinx.util.nodes import find_pending_xref_condition, make_id, make_refnode
-from sphinx.util.typing import TextlikeNode
+from sphinx.util.typing import OptionSpec, TextlikeNode
 
 logger = logging.getLogger(__name__)
 
@@ -357,7 +357,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
     :cvar allow_nesting: Class is an object that allows for nested namespaces
     :vartype allow_nesting: bool
     """
-    option_spec = {
+    option_spec: OptionSpec = {
         'noindex': directives.flag,
         'noindexentry': directives.flag,
         'module': directives.unchanged,
@@ -575,7 +575,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
 class PyFunction(PyObject):
     """Description of a function."""
 
-    option_spec = PyObject.option_spec.copy()
+    option_spec: OptionSpec = PyObject.option_spec.copy()
     option_spec.update({
         'async': directives.flag,
     })
@@ -629,7 +629,7 @@ class PyDecoratorFunction(PyFunction):
 class PyVariable(PyObject):
     """Description of a variable."""
 
-    option_spec = PyObject.option_spec.copy()
+    option_spec: OptionSpec = PyObject.option_spec.copy()
     option_spec.update({
         'type': directives.unchanged,
         'value': directives.unchanged,
@@ -662,7 +662,7 @@ class PyClasslike(PyObject):
     Description of a class-like object (classes, interfaces, exceptions).
     """
 
-    option_spec = PyObject.option_spec.copy()
+    option_spec: OptionSpec = PyObject.option_spec.copy()
     option_spec.update({
         'final': directives.flag,
     })
@@ -689,7 +689,7 @@ class PyClasslike(PyObject):
 class PyMethod(PyObject):
     """Description of a method."""
 
-    option_spec = PyObject.option_spec.copy()
+    option_spec: OptionSpec = PyObject.option_spec.copy()
     option_spec.update({
         'abstractmethod': directives.flag,
         'async': directives.flag,
@@ -750,7 +750,7 @@ class PyMethod(PyObject):
 class PyClassMethod(PyMethod):
     """Description of a classmethod."""
 
-    option_spec = PyObject.option_spec.copy()
+    option_spec: OptionSpec = PyObject.option_spec.copy()
 
     def run(self) -> List[Node]:
         self.name = 'py:method'
@@ -762,7 +762,7 @@ class PyClassMethod(PyMethod):
 class PyStaticMethod(PyMethod):
     """Description of a staticmethod."""
 
-    option_spec = PyObject.option_spec.copy()
+    option_spec: OptionSpec = PyObject.option_spec.copy()
 
     def run(self) -> List[Node]:
         self.name = 'py:method'
@@ -790,7 +790,7 @@ class PyDecoratorMethod(PyMethod):
 class PyAttribute(PyObject):
     """Description of an attribute."""
 
-    option_spec = PyObject.option_spec.copy()
+    option_spec: OptionSpec = PyObject.option_spec.copy()
     option_spec.update({
         'type': directives.unchanged,
         'value': directives.unchanged,
@@ -857,7 +857,7 @@ class PyModule(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {
+    option_spec: OptionSpec = {
         'platform': lambda x: x,
         'synopsis': lambda x: x,
         'noindex': directives.flag,
@@ -921,7 +921,7 @@ class PyCurrentModule(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
         modname = self.arguments[0].strip()
