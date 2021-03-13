@@ -67,6 +67,7 @@ Features added
   the location where the object is defined
 * #7199: py domain: Add :confval:`python_use_unqualified_type_names` to suppress
   the module name of the python reference if it can be resolved (experimental)
+* #7068: py domain: Add :rst:dir:`py:property` directive to describe a property
 * #7784: i18n: The alt text for image is translated by default (without
   :confval:`gettext_additional_targets` setting)
 * #2018: html: :confval:`html_favicon` and :confval:`html_logo` now accept URL

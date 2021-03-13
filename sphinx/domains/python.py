@@ -825,6 +825,46 @@ class PyAttribute(PyObject):
         return _('%s (%s attribute)') % (attrname, clsname)
 
 
+class PyProperty(PyObject):
+    """Description of an attribute."""
+
+    option_spec = PyObject.option_spec.copy()
+    option_spec.update({
+        'abstractmethod': directives.flag,
+        'type': directives.unchanged,
+    })
+
+    def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
+        fullname, prefix = super().handle_signature(sig, signode)
+
+        typ = self.options.get('type')
+        if typ:
+            signode += addnodes.desc_annotation(typ, ': ' + typ)
+
+        return fullname, prefix
+
+    def get_signature_prefix(self, sig: str) -> str:
+        prefix = ['property']
+        if 'abstractmethod' in self.options:
+            prefix.insert(0, 'abstract')
+
+        return ' '.join(prefix) + ' '
+
+    def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
+        name, cls = name_cls
+        try:
+            clsname, attrname = name.rsplit('.', 1)
+            if modname and self.env.config.add_module_names:
+                clsname = '.'.join([modname, clsname])
+        except ValueError:
+            if modname:
+                return _('%s (in module %s)') % (name, modname)
+            else:
+                return name
+
+        return _('%s (%s property)') % (attrname, clsname)
+
+
 class PyDecoratorMixin:
     """
     Mixin for decorator directives.
@@ -1056,6 +1096,7 @@ class PythonDomain(Domain):
         'classmethod':  ObjType(_('class method'),  'meth', 'obj'),
         'staticmethod': ObjType(_('static method'), 'meth', 'obj'),
         'attribute':    ObjType(_('attribute'),     'attr', 'obj'),
+        'property':     ObjType(_('property'),      'attr', '_prop', 'obj'),
         'module':       ObjType(_('module'),        'mod', 'obj'),
     }  # type: Dict[str, ObjType]
 
@@ -1068,6 +1109,7 @@ class PythonDomain(Domain):
         'classmethod':     PyClassMethod,
         'staticmethod':    PyStaticMethod,
         'attribute':       PyAttribute,
+        'property':        PyProperty,
         'module':          PyModule,
         'currentmodule':   PyCurrentModule,
         'decorator':       PyDecoratorFunction,
@@ -1205,8 +1247,17 @@ class PythonDomain(Domain):
                                 type, searchmode)
 
         if not matches and type == 'attr':
-            # fallback to meth (for property)
+            # fallback to meth (for property; Sphinx-2.4.x)
+            # this ensures that `:attr:` role continues to refer to the old property entry
+            # that defined by ``method`` directive in old reST files.
             matches = self.find_obj(env, modname, clsname, target, 'meth', searchmode)
+        if not matches and type == 'meth':
+            # fallback to attr (for property)
+            # this ensures that `:meth:` in the old reST files can refer to the property
+            # entry that defined by ``property`` directive.
+            #
+            # Note: _prop is a secret role only for internal look-up.
+            matches = self.find_obj(env, modname, clsname, target, '_prop', searchmode)
 
         if not matches:
             return None
