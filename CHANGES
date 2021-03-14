@@ -109,6 +109,7 @@ Bugs fixed
   function parameter lists.
 * C++, fix linking of names in array declarators and pointer to member
   (function) declarators.
+* C, fix linking of names in array declarators.
 
 Testing
 --------
