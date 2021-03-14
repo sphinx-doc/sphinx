@@ -1303,7 +1303,7 @@ def builtin_resolver(app: Sphinx, env: BuildEnvironment,
 
     content = find_pending_xref_condition(node, 'resolved')
     if content:
-        contnode = content.children[0]
+        contnode = content.children[0]  # type: ignore
 
     if node.get('refdomain') != 'py':
         return None
