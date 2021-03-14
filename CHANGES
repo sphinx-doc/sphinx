@@ -107,6 +107,8 @@ Bugs fixed
 * #8933: viewcode: Failed to create back-links on parallel build
 * #8960: C and C++, fix rendering of (member) function pointer types in
   function parameter lists.
+* C++, fix linking of names in array declarators and pointer to member
+  (function) declarators.
 
 Testing
 --------
