@@ -179,7 +179,6 @@ T = TypeVar('T')
         declarator ->
               ptr-declarator
             | noptr-declarator parameters-and-qualifiers trailing-return-type
-              (TODO: for now we don't support trailing-eturn-type)
         ptr-declarator ->
               noptr-declarator
             | ptr-operator ptr-declarator
@@ -718,8 +717,7 @@ class ASTNestedName(ASTBase):
             res.append('')
         for i in range(len(self.names)):
             n = self.names[i]
-            t = self.templates[i]
-            if t:
+            if self.templates[i]:
                 res.append("template " + transform(n))
             else:
                 res.append(transform(n))
@@ -730,10 +728,23 @@ class ASTNestedName(ASTBase):
         verify_description_mode(mode)
         # just print the name part, with template args, not template params
         if mode == 'noneIsName':
-            signode += nodes.Text(str(self))
+            if self.rooted:
+                signode += nodes.Text('::')
+            for i in range(len(self.names)):
+                if i != 0:
+                    signode += nodes.Text('::')
+                n = self.names[i]
+                if self.templates[i]:
+                    signode += nodes.Text("template")
+                    signode += nodes.Text(" ")
+                n.describe_signature(signode, mode, env, '', symbol)
         elif mode == 'param':
-            name = str(self)
-            signode += nodes.emphasis(name, name)
+            assert not self.rooted, str(self)
+            assert len(self.names) == 1
+            assert not self.templates[0]
+            node = nodes.emphasis()
+            self.names[0].describe_signature(node, 'noneIsName', env, '', symbol)
+            signode += node
         elif mode == 'markType' or mode == 'lastIsName' or mode == 'markName':
             # Each element should be a pending xref targeting the complete
             # prefix. however, only the identifier part should be a link, such
@@ -1250,7 +1261,7 @@ class ASTSizeofParamPack(ASTExpression):
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode.append(nodes.Text('sizeof...('))
-        self.identifier.describe_signature(signode, mode, env,
+        self.identifier.describe_signature(signode, 'markType', env,
                                            symbol=symbol, prefix="", templateArgs="")
         signode.append(nodes.Text(')'))
 
@@ -2199,7 +2210,7 @@ class ASTArray(ASTBase):
         verify_description_mode(mode)
         signode.append(nodes.Text("["))
         if self.size:
-            self.size.describe_signature(signode, mode, env, symbol)
+            self.size.describe_signature(signode, 'markType', env, symbol)
         signode.append(nodes.Text("]"))
 
 
@@ -2667,7 +2678,7 @@ class ASTDeclaratorMemPtr(ASTDeclarator):
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
-        self.className.describe_signature(signode, mode, env, symbol)
+        self.className.describe_signature(signode, 'markType', env, symbol)
         signode += nodes.Text('::*')
 
         def _add_anno(signode: TextElement, text: str) -> None:
@@ -6171,7 +6182,7 @@ class DefinitionParser(BaseParser):
                                                       typed=typed)
         else:
             paramMode = 'type'
-            if outer == 'member':  # i.e., member
+            if outer == 'member':
                 named = True
             elif outer == 'operatorCast':
                 paramMode = 'operatorCast'

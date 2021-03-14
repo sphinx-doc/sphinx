@@ -182,10 +182,19 @@ class ASTNestedName(ASTBase):
         verify_description_mode(mode)
         # just print the name part, with template args, not template params
         if mode == 'noneIsName':
-            signode += nodes.Text(str(self))
+            if self.rooted:
+                signode += nodes.Text('.')
+            for i in range(len(self.names)):
+                if i != 0:
+                    signode += nodes.Text('.')
+                n = self.names[i]
+                n.describe_signature(signode, mode, env, '', symbol)
         elif mode == 'param':
-            name = str(self)
-            signode += nodes.emphasis(name, name)
+            assert not self.rooted, str(self)
+            assert len(self.names) == 1
+            node = nodes.emphasis()
+            self.names[0].describe_signature(node, 'noneIsName', env, '', symbol)
+            signode += node
         elif mode == 'markType' or mode == 'lastIsName' or mode == 'markName':
             # Each element should be a pending xref targeting the complete
             # prefix.
@@ -869,7 +878,7 @@ class ASTArray(ASTBase):
         elif self.size:
             if addSpace:
                 signode += nodes.Text(' ')
-            self.size.describe_signature(signode, mode, env, symbol)
+            self.size.describe_signature(signode, 'markType', env, symbol)
         signode.append(nodes.Text("]"))
 
 
