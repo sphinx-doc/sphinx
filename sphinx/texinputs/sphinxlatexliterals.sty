@@ -318,6 +318,26 @@
 % box does not store in an accessible way what was the maximal
 % line-width during paragraph building.
 %
+% Avoid LaTeX 2021 alteration of \@@par which potentially could break our
+% measurement step (typically if the para/after hook is configured to use
+% \vspace).  Of course, breakage could happen only from user or package
+% adding things to basic Sphinx latex.  And perhaps spring LaTeX 2021 will
+% provide a non-hooked \@@par, but this should work anyway and can't be
+% beaten for speed.
+\ltx@ifundefined{tex_par:D}
+% We could use \@ifl@t@r\fmtversion{2020/02/02}{use \tex_par:D}{use \@@par}.
+  {\let\spx@par\@@par}% \@@par is then expected to be TeX's original \par
+  {\expandafter\let\expandafter\spx@par\csname tex_par:D\endcsname}
+% More hesitation for avoiding the at-start-of-par hooks for our
+% measurement : 1. with old LaTeX, we can not avoid hooks from everyhook
+% or similar packages, 2. and perhaps the hooks add stuff which we should
+% actually measure.  Ideally, hooks are for inserting things in margin
+% which do not change spacing.  Most everything else in fact should not be
+% executed in our scratch box for measurement, such as counter stepping.
+\ltx@ifundefined{tex_everypar:D}
+  {\let\spx@everypar\everypar}
+  {\expandafter\let\expandafter\spx@everypar\csname tex_everypar:D\endcsname}
+%
 % If the max width exceeds the linewidth by more than verbatimmaxoverfull
 % character widths, or if the min width plus verbatimmaxunderfull character
 % widths is inferior to linewidth, then we apply the "force wrapping" with
@@ -329,7 +349,7 @@
     \setbox\spx@image@box
     \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
           \doublehyphendemerits\z@\finalhyphendemerits\z@
-          \strut #1\strut\@@par
+          \spx@everypar{}\noindent\strut #1\strut\spx@par
           \spx@verb@getwidths}%
     \ifdim\spx@verb@maxwidth>
           \dimexpr\linewidth+\spx@opt@verbatimmaxoverfull\fontcharwd\font`X \relax
