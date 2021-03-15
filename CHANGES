@@ -107,6 +107,7 @@ Bugs fixed
 * #8980: LaTeX: missing line break in ``\pysigline``
 * #8995: LaTeX: legacy ``\pysiglinewithargsret`` does not compute correctly
   available  horizontal space and should use a ragged right style
+* #9009: LaTeX: "release" value with underscore leads to invalid LaTeX
 * #8911: C++: remove the longest matching prefix in
   :confval:`cpp_index_common_prefix` instead of the first that matches.
 * C, properly reject function declarations when a keyword is used
