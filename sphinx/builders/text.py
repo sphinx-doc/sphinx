@@ -33,11 +33,11 @@ class TextBuilder(Builder):
     allow_parallel = True
     default_translator_class = TextTranslator
 
-    current_docname = None  # type: str
+    current_docname: str = None
 
     def init(self) -> None:
         # section numbers for headings in the currently visited document
-        self.secnumbers = {}  # type: Dict[str, Tuple[int, ...]]
+        self.secnumbers: Dict[str, Tuple[int, ...]] = {}
 
     def get_outdated_docs(self) -> Iterator[str]:
         for docname in self.env.found_docs:

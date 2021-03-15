@@ -63,7 +63,7 @@ class Builder:
 
     #: default translator class for the builder.  This can be overridden by
     #: :py:meth:`app.set_translator()`.
-    default_translator_class = None  # type: Type[nodes.NodeVisitor]
+    default_translator_class: Type[nodes.NodeVisitor] = None
     # doctree versioning method
     versioning_method = 'none'
     versioning_compare = False
@@ -74,7 +74,7 @@ class Builder:
 
     #: The list of MIME types of image formats supported by the builder.
     #: Image files are searched in the order in which they appear here.
-    supported_image_types = []  # type: List[str]
+    supported_image_types: List[str] = []
     #: The builder supports remote images or not.
     supported_remote_images = False
     #: The builder supports data URIs or not.
@@ -87,18 +87,18 @@ class Builder:
         self.doctreedir = app.doctreedir
         ensuredir(self.doctreedir)
 
-        self.app = app              # type: Sphinx
-        self.env = None             # type: BuildEnvironment
-        self.events = app.events    # type: EventManager
-        self.config = app.config    # type: Config
-        self.tags = app.tags        # type: Tags
+        self.app: Sphinx = app
+        self.env: BuildEnvironment = None
+        self.events: EventManager = app.events
+        self.config: Config = app.config
+        self.tags: Tags = app.tags
         self.tags.add(self.format)
         self.tags.add(self.name)
         self.tags.add("format_%s" % self.format)
         self.tags.add("builder_%s" % self.name)
 
         # images that need to be copied over (source -> dest)
-        self.images = {}  # type: Dict[str, str]
+        self.images: Dict[str, str] = {}
         # basename of images directory
         self.imagedir = ""
         # relative path to image directory from current docname (used at writing docs)
@@ -106,7 +106,7 @@ class Builder:
 
         # these get set later
         self.parallel_ok = False
-        self.finish_tasks = None  # type: Any
+        self.finish_tasks: Any = None
 
     def set_environment(self, env: BuildEnvironment) -> None:
         """Store BuildEnvironment object."""
@@ -261,8 +261,7 @@ class Builder:
         # relative to the source directory and without source_suffix.
         dirlen = len(self.srcdir) + 1
         to_write = []
-        suffixes = None  # type: Tuple[str]
-        suffixes = tuple(self.config.source_suffix)  # type: ignore
+        suffixes: Tuple[str] = tuple(self.config.source_suffix)  # type: ignore
         for filename in filenames:
             filename = path.normpath(path.abspath(filename))
             if not filename.startswith(self.srcdir):

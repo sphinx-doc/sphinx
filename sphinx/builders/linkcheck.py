@@ -9,7 +9,6 @@
 """
 
 import json
-import queue
 import re
 import socket
 import time
@@ -18,6 +17,7 @@ from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from html.parser import HTMLParser
 from os import path
+from queue import PriorityQueue, Queue
 from threading import Thread
 from typing import (Any, Dict, Generator, List, NamedTuple, Optional, Pattern, Set, Tuple,
                     Union, cast)
@@ -120,16 +120,16 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 '%(outdir)s/output.txt')
 
     def init(self) -> None:
-        self.hyperlinks = {}    # type: Dict[str, Hyperlink]
-        self._good = set()       # type: Set[str]
-        self._broken = {}        # type: Dict[str, str]
-        self._redirected = {}    # type: Dict[str, Tuple[str, int]]
+        self.hyperlinks: Dict[str, Hyperlink] = {}
+        self._good: Set[str] = set()
+        self._broken: Dict[str, str] = {}
+        self._redirected: Dict[str, Tuple[str, int]] = {}
         # set a timeout for non-responding servers
         socket.setdefaulttimeout(5.0)
 
         # create queues and worker threads
-        self._wqueue = queue.PriorityQueue()  # type: queue.PriorityQueue[CheckRequestType]
-        self._rqueue = queue.Queue()  # type: queue.Queue
+        self._wqueue: PriorityQueue[CheckRequestType] = PriorityQueue()
+        self._rqueue: Queue = Queue()
 
     @property
     def anchors_ignore(self) -> List[Pattern]:
@@ -204,7 +204,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                                                   None, None, {})
         return worker.limit_rate(response)
 
-    def rqueue(self, response: Response) -> queue.Queue:
+    def rqueue(self, response: Response) -> Queue:
         warnings.warn(
             "%s.%s is deprecated." % (self.__class__.__name__, "rqueue"),
             RemovedInSphinx50Warning,
@@ -220,7 +220,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         )
         return []
 
-    def wqueue(self, response: Response) -> queue.Queue:
+    def wqueue(self, response: Response) -> Queue:
         warnings.warn(
             "%s.%s is deprecated." % (self.__class__.__name__, "wqueue"),
             RemovedInSphinx50Warning,
@@ -313,8 +313,8 @@ class HyperlinkAvailabilityChecker:
         self.builder = builder
         self.config = config
         self.env = env
-        self.rate_limits = {}  # type: Dict[str, RateLimit]
-        self.workers = []  # type: List[Thread]
+        self.rate_limits: Dict[str, RateLimit] = {}
+        self.workers: List[Thread] = []
 
         self.to_ignore = [re.compile(x) for x in self.config.linkcheck_ignore]
 
@@ -322,8 +322,8 @@ class HyperlinkAvailabilityChecker:
             self.rqueue = builder._rqueue
             self.wqueue = builder._wqueue
         else:
-            self.rqueue = queue.Queue()
-            self.wqueue = queue.PriorityQueue()
+            self.rqueue = Queue()
+            self.wqueue = PriorityQueue()
 
     def invoke_threads(self) -> None:
         for i in range(self.config.linkcheck_workers):
@@ -364,8 +364,8 @@ class HyperlinkAvailabilityChecker:
 class HyperlinkAvailabilityCheckWorker(Thread):
     """A worker class for checking the availability of hyperlinks."""
 
-    def __init__(self, env: BuildEnvironment, config: Config, rqueue: queue.Queue,
-                 wqueue: queue.Queue, rate_limits: Dict[str, RateLimit],
+    def __init__(self, env: BuildEnvironment, config: Config, rqueue: Queue,
+                 wqueue: Queue, rate_limits: Dict[str, RateLimit],
                  builder: CheckExternalLinksBuilder = None) -> None:
         # Warning: builder argument will be removed in the sphinx-5.0.
         # Don't use it from extensions.

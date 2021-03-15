@@ -122,10 +122,10 @@ class LaTeXBuilder(Builder):
     default_translator_class = LaTeXTranslator
 
     def init(self) -> None:
-        self.babel = None           # type: ExtBabel
-        self.context = {}           # type: Dict[str, Any]
-        self.docnames = []          # type: Iterable[str]
-        self.document_data = []     # type: List[Tuple[str, str, str, str, str, bool]]
+        self.babel: ExtBabel = None
+        self.context: Dict[str, Any] = {}
+        self.docnames: Iterable[str] = {}
+        self.document_data: List[Tuple[str, str, str, str, str, bool]] = []
         self.themes = ThemeFactory(self.app)
         texescape.init()
 
@@ -153,7 +153,7 @@ class LaTeXBuilder(Builder):
                               'will be written'))
             return
         # assign subdirs to titles
-        self.titles = []  # type: List[Tuple[str, str]]
+        self.titles: List[Tuple[str, str]] = []
         for entry in preliminary_document_data:
             docname = entry[0]
             if docname not in self.env.all_docs:
@@ -262,10 +262,10 @@ class LaTeXBuilder(Builder):
 
     def write(self, *ignored: Any) -> None:
         docwriter = LaTeXWriter(self)
-        docsettings = OptionParser(
+        docsettings: Any = OptionParser(
             defaults=self.env.settings,
             components=(docwriter,),
-            read_config_files=True).get_default_values()  # type: Any
+            read_config_files=True).get_default_values()
 
         self.init_document_data()
         self.write_stylesheet()
@@ -356,7 +356,7 @@ class LaTeXBuilder(Builder):
         for pendingnode in largetree.traverse(addnodes.pending_xref):
             docname = pendingnode['refdocname']
             sectname = pendingnode['refsectname']
-            newnodes = [nodes.emphasis(sectname, sectname)]  # type: List[Node]
+            newnodes: List[Node] = [nodes.emphasis(sectname, sectname)]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
                     newnodes.append(nodes.Text(_(' (in '), _(' (in ')))

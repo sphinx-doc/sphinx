@@ -82,9 +82,9 @@ class Stylesheet(str):
     its filename (str).
     """
 
-    attributes = None   # type: Dict[str, str]
-    filename = None     # type: str
-    priority = None     # type: int
+    attributes: Dict[str, str] = None
+    filename: str = None
+    priority: int = None
 
     def __new__(cls, filename: str, *args: str, priority: int = 500, **attributes: Any
                 ) -> "Stylesheet":
@@ -108,9 +108,9 @@ class JavaScript(str):
     its filename (str).
     """
 
-    attributes = None   # type: Dict[str, str]
-    filename = None     # type: str
-    priority = None     # type: int
+    attributes: Dict[str, str] = None
+    filename: str = None
+    priority: int = None
 
     def __new__(cls, filename: str, priority: int = 500, **attributes: str) -> "JavaScript":
         self = str.__new__(cls, filename)
@@ -179,7 +179,7 @@ class StandaloneHTMLBuilder(Builder):
     allow_parallel = True
     out_suffix = '.html'
     link_suffix = '.html'  # defaults to matching out_suffix
-    indexer_format = js_index  # type: Any
+    indexer_format: Any = js_index
     indexer_dumps_unicode = True
     # create links to original images from images [True/False]
     html_scaled_image_link = True
@@ -195,26 +195,26 @@ class StandaloneHTMLBuilder(Builder):
     use_index = False
     download_support = True  # enable download role
 
-    imgpath = None          # type: str
-    domain_indices = []     # type: List[Tuple[str, Type[Index], List[Tuple[str, List[IndexEntry]]], bool]]  # NOQA
+    imgpath: str = None
+    domain_indices: List[Tuple[str, Type[Index], List[Tuple[str, List[IndexEntry]]], bool]] = []  # NOQA
 
     def __init__(self, app: Sphinx) -> None:
         super().__init__(app)
 
         # CSS files
-        self.css_files = []  # type: List[Dict[str, str]]
+        self.css_files: List[Dict[str, str]] = []
 
         # JS files
-        self.script_files = []  # type: List[JavaScript]
+        self.script_files: List[JavaScript] = []
 
     def init(self) -> None:
         self.build_info = self.create_build_info()
         # basename of images directory
         self.imagedir = '_images'
         # section numbers for headings in the currently visited document
-        self.secnumbers = {}  # type: Dict[str, Tuple[int, ...]]
+        self.secnumbers: Dict[str, Tuple[int, ...]] = {}
         # currently written docname
-        self.current_docname = None  # type: str
+        self.current_docname: str = None
 
         self.init_templates()
         self.init_highlighter()
@@ -436,10 +436,10 @@ class StandaloneHTMLBuilder(Builder):
             self.load_indexer(docnames)
 
         self.docwriter = HTMLWriter(self)
-        self.docsettings = OptionParser(
+        self.docsettings: Any = OptionParser(
             defaults=self.env.settings,
             components=(self.docwriter,),
-            read_config_files=True).get_default_values()  # type: Any
+            read_config_files=True).get_default_values()
         self.docsettings.compact_lists = bool(self.config.html_compact_lists)
 
         # determine the additional indices to include
@@ -448,8 +448,7 @@ class StandaloneHTMLBuilder(Builder):
         indices_config = self.config.html_domain_indices
         if indices_config:
             for domain_name in sorted(self.env.domains):
-                domain = None  # type: Domain
-                domain = self.env.domains[domain_name]
+                domain: Domain = self.env.domains[domain_name]
                 for indexcls in domain.indices:
                     indexname = '%s-%s' % (domain.name, indexcls.name)
                     if isinstance(indices_config, list):
@@ -474,7 +473,7 @@ class StandaloneHTMLBuilder(Builder):
 
         self.relations = self.env.collect_relations()
 
-        rellinks = []  # type: List[Tuple[str, str, str, str]]
+        rellinks: List[Tuple[str, str, str, str]] = []
         if self.use_index:
             rellinks.append(('genindex', _('General Index'), 'I', _('index')))
         for indexname, indexcls, content, collapse in self.domain_indices:
@@ -1109,7 +1108,7 @@ class StandaloneHTMLBuilder(Builder):
 
 def convert_html_css_files(app: Sphinx, config: Config) -> None:
     """This converts string styled html_css_files to tuple styled one."""
-    html_css_files = []  # type: List[Tuple[str, Dict]]
+    html_css_files: List[Tuple[str, Dict]] = []
     for entry in config.html_css_files:
         if isinstance(entry, str):
             html_css_files.append((entry, {}))
@@ -1126,7 +1125,7 @@ def convert_html_css_files(app: Sphinx, config: Config) -> None:
 
 def convert_html_js_files(app: Sphinx, config: Config) -> None:
     """This converts string styled html_js_files to tuple styled one."""
-    html_js_files = []  # type: List[Tuple[str, Dict]]
+    html_js_files: List[Tuple[str, Dict]] = []
     for entry in config.html_js_files:
         if isinstance(entry, str):
             html_js_files.append((entry, {}))

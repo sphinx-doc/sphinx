@@ -33,7 +33,7 @@ class FootnoteDocnameUpdater(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(*self.TARGET_NODES)
-        for node in self.document.traverse(matcher):  # type: nodes.Element
+        for node in self.document.traverse(matcher):  # type: Element
             node['docname'] = self.env.docname
 
 
@@ -65,7 +65,7 @@ class ShowUrlsTransform(SphinxPostTransform):
     def run(self, **kwargs: Any) -> None:
         try:
             # replace id_prefix temporarily
-            settings = self.document.settings  # type: Any
+            settings: Any = self.document.settings
             id_prefix = settings.id_prefix
             settings.id_prefix = 'show_urls'
 
@@ -157,9 +157,9 @@ class FootnoteCollector(nodes.NodeVisitor):
     """Collect footnotes and footnote references on the document"""
 
     def __init__(self, document: nodes.document) -> None:
-        self.auto_footnotes = []            # type: List[nodes.footnote]
-        self.used_footnote_numbers = set()  # type: Set[str]
-        self.footnote_refs = []             # type: List[nodes.footnote_reference]
+        self.auto_footnotes: List[nodes.footnote] = []
+        self.used_footnote_numbers: Set[str] = set()
+        self.footnote_refs: List[nodes.footnote_reference] = []
         super().__init__(document)
 
     def unknown_visit(self, node: Node) -> None:
@@ -358,11 +358,11 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
 
 class LaTeXFootnoteVisitor(nodes.NodeVisitor):
     def __init__(self, document: nodes.document, footnotes: List[nodes.footnote]) -> None:
-        self.appeared = set()       # type: Set[Tuple[str, str]]
-        self.footnotes = footnotes  # type: List[nodes.footnote]
-        self.pendings = []          # type: List[nodes.footnote]
-        self.table_footnotes = []   # type: List[nodes.footnote]
-        self.restricted = None      # type: nodes.Element
+        self.appeared: Set[Tuple[str, str]] = set()
+        self.footnotes: List[nodes.footnote] = footnotes
+        self.pendings: List[nodes.footnote] = []
+        self.table_footnotes: List[nodes.footnote] = []
+        self.restricted: Element = None
         super().__init__(document)
 
     def unknown_visit(self, node: Node) -> None:
