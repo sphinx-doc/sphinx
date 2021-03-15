@@ -27,7 +27,7 @@ class _MockObject:
 
     __display_name__ = '_MockObject'
     __sphinx_mock__ = True
-    __sphinx_decorator_args__ = ()  # type: Tuple[Any, ...]
+    __sphinx_decorator_args__: Tuple[Any, ...] = ()
 
     def __new__(cls, *args: Any, **kwargs: Any) -> Any:
         if len(args) == 3 and isinstance(args[1], tuple):
@@ -86,8 +86,8 @@ class _MockModule(ModuleType):
 
     def __init__(self, name: str) -> None:
         super().__init__(name)
-        self.__all__ = []  # type: List[str]
-        self.__path__ = []  # type: List[str]
+        self.__all__: List[str] = []
+        self.__path__: List[str] = []
 
     def __getattr__(self, name: str) -> _MockObject:
         return _make_subclass(name, self.__name__)()
@@ -118,7 +118,7 @@ class MockFinder(MetaPathFinder):
         super().__init__()
         self.modnames = modnames
         self.loader = MockLoader(self)
-        self.mocked_modules = []  # type: List[str]
+        self.mocked_modules: List[str] = []
 
     def find_spec(self, fullname: str, path: Optional[Sequence[Union[bytes, str]]],
                   target: ModuleType = None) -> Optional[ModuleSpec]:

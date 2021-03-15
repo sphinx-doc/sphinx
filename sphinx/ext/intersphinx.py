@@ -264,7 +264,7 @@ def missing_reference(app: Sphinx, env: BuildEnvironment, node: pending_xref,
     """Attempt to resolve a missing reference via intersphinx references."""
     target = node['reftarget']
     inventories = InventoryAdapter(env)
-    objtypes = None  # type: List[str]
+    objtypes: List[str] = None
     if node['reftype'] == 'any':
         # we search anything!
         objtypes = ['%s:%s' % (domain.name, objtype)
@@ -398,7 +398,7 @@ def inspect_main(argv: List[str]) -> None:
         sys.exit(1)
 
     class MockConfig:
-        intersphinx_timeout = None  # type: int
+        intersphinx_timeout: int = None
         tls_verify = False
         user_agent = None
 

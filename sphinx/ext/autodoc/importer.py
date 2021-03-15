@@ -147,7 +147,7 @@ def get_module_members(module: Any) -> List[Tuple[str, Any]]:
     warnings.warn('sphinx.ext.autodoc.importer.get_module_members() is deprecated.',
                   RemovedInSphinx50Warning)
 
-    members = {}  # type: Dict[str, Tuple[str, Any]]
+    members: Dict[str, Tuple[str, Any]] = {}
     for name in dir(module):
         try:
             value = safe_getattr(module, name, None)
@@ -177,7 +177,7 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
     # the members directly defined in the class
     obj_dict = attrgetter(subject, '__dict__', {})
 
-    members = {}  # type: Dict[str, Attribute]
+    members: Dict[str, Attribute] = {}
 
     # enum members
     if isenumclass(subject):
@@ -238,7 +238,7 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable
     # the members directly defined in the class
     obj_dict = attrgetter(subject, '__dict__', {})
 
-    members = {}  # type: Dict[str, ObjectMember]
+    members: Dict[str, ObjectMember] = {}
 
     # enum members
     if isenumclass(subject):

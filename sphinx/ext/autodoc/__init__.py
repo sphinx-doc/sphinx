@@ -325,28 +325,28 @@ class Documenter:
 
     def __init__(self, directive: "DocumenterBridge", name: str, indent: str = '') -> None:
         self.directive = directive
-        self.config = directive.env.config  # type: Config
-        self.env = directive.env    # type: BuildEnvironment
+        self.config: Config = directive.env.config
+        self.env: BuildEnvironment = directive.env
         self.options = directive.genopt
         self.name = name
         self.indent = indent
         # the module and object path within the module, and the fully
         # qualified name (all set after resolve_name succeeds)
-        self.modname = None         # type: str
-        self.module = None          # type: ModuleType
-        self.objpath = None         # type: List[str]
-        self.fullname = None        # type: str
+        self.modname: str = None
+        self.module: ModuleType = None
+        self.objpath: List[str] = None
+        self.fullname: str = None
         # extra signature items (arguments and return annotation,
         # also set after resolve_name succeeds)
-        self.args = None            # type: str
-        self.retann = None          # type: str
+        self.args: str = None
+        self.retann: str = None
         # the object to document (set after import_object succeeds)
-        self.object = None          # type: Any
-        self.object_name = None     # type: str
+        self.object: Any = None
+        self.object_name: str = None
         # the parent/owner of the object to document
-        self.parent = None          # type: Any
+        self.parent: Any = None
         # the module analyzer to get at attribute docs, or None
-        self.analyzer = None        # type: ModuleAnalyzer
+        self.analyzer: ModuleAnalyzer = None
 
     @property
     def documenters(self) -> Dict[str, Type["Documenter"]]:
@@ -822,7 +822,7 @@ class Documenter:
         members_check_module, members = self.get_object_members(want_all)
 
         # document non-skipped members
-        memberdocumenters = []  # type: List[Tuple[Documenter, bool]]
+        memberdocumenters: List[Tuple[Documenter, bool]] = []
         for (mname, member, isattr) in self.filter_members(members, want_all):
             classes = [cls for cls in self.documenters.values()
                        if cls.can_document_member(member, mname, isattr, self)]
@@ -904,7 +904,7 @@ class Documenter:
         # This is used for situations where you have a module that collects the
         # functions and classes of internal submodules.
         guess_modname = self.get_real_modname()
-        self.real_modname = real_modname or guess_modname  # type: str
+        self.real_modname: str = real_modname or guess_modname
 
         # try to also get a source code analyzer for attribute docs
         try:
@@ -985,7 +985,7 @@ class ModuleDocumenter(Documenter):
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
         merge_members_option(self.options)
-        self.__all__ = None  # type: Optional[Sequence[str]]
+        self.__all__: Optional[Sequence[str]] = None
 
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
@@ -1042,7 +1042,7 @@ class ModuleDocumenter(Documenter):
         else:
             attr_docs = {}
 
-        members = {}  # type: Dict[str, ObjectMember]
+        members: Dict[str, ObjectMember] = {}
         for name in dir(self.object):
             try:
                 value = safe_getattr(self.object, name, None)
@@ -1167,8 +1167,8 @@ class DocstringSignatureMixin:
     Mixin for FunctionDocumenter and MethodDocumenter to provide the
     feature of reading the signature from the docstring.
     """
-    _new_docstrings = None  # type: List[List[str]]
-    _signatures = None      # type: List[str]
+    _new_docstrings: List[List[str]] = None
+    _signatures: List[str] = None
 
     def _find_signature(self) -> Tuple[str, str]:
         # candidates of the object name
@@ -1429,8 +1429,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         'private-members': members_option, 'special-members': members_option,
     }
 
-    _signature_class = None  # type: Any
-    _signature_method_name = None  # type: str
+    _signature_class: Any = None
+    _signature_method_name: str = None
 
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
@@ -1727,12 +1727,12 @@ class ExceptionDocumenter(ClassDocumenter):
 
 class DataDocumenterMixinBase:
     # define types of instance variables
-    config = None  # type: Config
-    env = None  # type: BuildEnvironment
-    modname = None  # type: str
-    parent = None  # type: Any
-    object = None  # type: Any
-    objpath = None  # type: List[str]
+    config: Config = None
+    env: BuildEnvironment = None
+    modname: str = None
+    parent: Any = None
+    object: Any = None
+    objpath: List[str] = None
 
     def should_suppress_directive_header(self) -> bool:
         """Check directive header should be suppressed."""

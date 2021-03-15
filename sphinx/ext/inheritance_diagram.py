@@ -155,7 +155,7 @@ class InheritanceGraph:
 
     def _import_classes(self, class_names: List[str], currmodule: str) -> List[Any]:
         """Import a list of classes."""
-        classes = []  # type: List[Any]
+        classes: List[Any] = []
         for name in class_names:
             classes.extend(import_classes(name, currmodule))
         return classes
@@ -199,7 +199,7 @@ class InheritanceGraph:
             except Exception:  # might raise AttributeError for strange classes
                 pass
 
-            baselist = []  # type: List[str]
+            baselist: List[str] = []
             all_classes[cls] = (nodename, fullname, baselist, tooltip)
 
             if fullname in top_classes:
@@ -293,7 +293,7 @@ class InheritanceGraph:
             n_attrs.update(env.config.inheritance_node_attrs)
             e_attrs.update(env.config.inheritance_edge_attrs)
 
-        res = []  # type: List[str]
+        res: List[str] = []
         res.append('digraph %s {\n' % name)
         res.append(self._format_graph_attrs(g_attrs))
 
