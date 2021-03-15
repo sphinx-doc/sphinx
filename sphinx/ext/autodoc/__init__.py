@@ -33,7 +33,7 @@ from sphinx.util import inspect, logging
 from sphinx.util.docstrings import extract_metadata, prepare_docstring
 from sphinx.util.inspect import (evaluate_signature, getdoc, object_description, safe_getattr,
                                  stringify_signature)
-from sphinx.util.typing import get_type_hints, restify
+from sphinx.util.typing import OptionSpec, get_type_hints, restify
 from sphinx.util.typing import stringify as stringify_typehint
 
 if TYPE_CHECKING:
@@ -309,7 +309,9 @@ class Documenter:
     #: true if the generated content may contain titles
     titles_allowed = False
 
-    option_spec = {'noindex': bool_option}  # type: Dict[str, Callable]
+    option_spec: OptionSpec = {
+        'noindex': bool_option
+    }
 
     def get_attr(self, obj: Any, name: str, *defargs: Any) -> Any:
         """getattr() override for types such as Zope interfaces."""
@@ -970,7 +972,7 @@ class ModuleDocumenter(Documenter):
     content_indent = ''
     titles_allowed = True
 
-    option_spec = {
+    option_spec: OptionSpec = {
         'members': members_option, 'undoc-members': bool_option,
         'noindex': bool_option, 'inherited-members': inherited_members_option,
         'show-inheritance': bool_option, 'synopsis': identity,
@@ -978,7 +980,7 @@ class ModuleDocumenter(Documenter):
         'member-order': member_order_option, 'exclude-members': exclude_members_option,
         'private-members': members_option, 'special-members': members_option,
         'imported-members': bool_option, 'ignore-module-all': bool_option
-    }  # type: Dict[str, Callable]
+    }
 
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
@@ -1419,13 +1421,13 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     """
     objtype = 'class'
     member_order = 20
-    option_spec = {
+    option_spec: OptionSpec = {
         'members': members_option, 'undoc-members': bool_option,
         'noindex': bool_option, 'inherited-members': inherited_members_option,
         'show-inheritance': bool_option, 'member-order': member_order_option,
         'exclude-members': exclude_members_option,
         'private-members': members_option, 'special-members': members_option,
-    }  # type: Dict[str, Callable]
+    }
 
     _signature_class = None  # type: Any
     _signature_method_name = None  # type: str
@@ -1874,7 +1876,7 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
     objtype = 'data'
     member_order = 40
     priority = -10
-    option_spec = dict(ModuleLevelDocumenter.option_spec)
+    option_spec: OptionSpec = dict(ModuleLevelDocumenter.option_spec)
     option_spec["annotation"] = annotation_option
     option_spec["no-value"] = bool_option
 
@@ -2358,7 +2360,7 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
     """
     objtype = 'attribute'
     member_order = 60
-    option_spec = dict(ModuleLevelDocumenter.option_spec)
+    option_spec: OptionSpec = dict(ModuleLevelDocumenter.option_spec)
     option_spec["annotation"] = annotation_option
     option_spec["no-value"] = bool_option
 

@@ -22,6 +22,7 @@ from sphinx.directives import optional_int
 from sphinx.locale import __
 from sphinx.util import logging, parselinenos
 from sphinx.util.docutils import SphinxDirective
+from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -39,7 +40,7 @@ class Highlight(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {
+    option_spec: OptionSpec = {
         'force': directives.flag,
         'linenothreshold': directives.positive_int,
     }
@@ -103,7 +104,7 @@ class CodeBlock(SphinxDirective):
     required_arguments = 0
     optional_arguments = 1
     final_argument_whitespace = False
-    option_spec = {
+    option_spec: OptionSpec = {
         'force': directives.flag,
         'linenos': directives.flag,
         'dedent': optional_int,
@@ -379,7 +380,7 @@ class LiteralInclude(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {
+    option_spec: OptionSpec = {
         'dedent': optional_int,
         'linenos': directives.flag,
         'lineno-start': int,

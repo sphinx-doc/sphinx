@@ -25,6 +25,7 @@ from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import SEP, os_path, relpath
+from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -140,7 +141,7 @@ class Code(SphinxDirective):
     This is compatible with docutils' :rst:dir:`code` directive.
     """
     optional_arguments = 1
-    option_spec = {
+    option_spec: OptionSpec = {
         'class': directives.class_option,
         'force': directives.flag,
         'name': directives.unchanged,
@@ -184,7 +185,7 @@ class MathDirective(SphinxDirective):
     required_arguments = 0
     optional_arguments = 1
     final_argument_whitespace = True
-    option_spec = {
+    option_spec: OptionSpec = {
         'label': directives.unchanged,
         'name': directives.unchanged,
         'class': directives.class_option,

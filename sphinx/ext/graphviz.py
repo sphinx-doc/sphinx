@@ -30,6 +30,7 @@ from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import search_image_for_language
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import ensuredir
+from sphinx.util.typing import OptionSpec
 from sphinx.writers.html import HTMLTranslator
 from sphinx.writers.latex import LaTeXTranslator
 from sphinx.writers.manpage import ManualPageTranslator
@@ -113,7 +114,7 @@ class Graphviz(SphinxDirective):
     required_arguments = 0
     optional_arguments = 1
     final_argument_whitespace = False
-    option_spec = {
+    option_spec: OptionSpec = {
         'alt': directives.unchanged,
         'align': align_spec,
         'caption': directives.unchanged,
@@ -181,7 +182,7 @@ class GraphvizSimple(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {
+    option_spec: OptionSpec = {
         'alt': directives.unchanged,
         'align': align_spec,
         'caption': directives.unchanged,

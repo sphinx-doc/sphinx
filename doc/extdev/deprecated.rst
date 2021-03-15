@@ -72,6 +72,11 @@ The following is a list of deprecated interfaces.
      - 6.0
      - ``docutils.utils.smartyquotes``
 
+   * - ``sphinx.util.typing.DirectiveOption``
+     - 4.0
+     - 6.0
+     - N/A
+
    * - pending_xref node for viewcode extension
      - 3.5
      - 5.0

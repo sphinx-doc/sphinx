@@ -17,6 +17,7 @@ from sphinx import addnodes
 from sphinx.domains import Domain
 from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective
+from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -53,7 +54,7 @@ class VersionChange(SphinxDirective):
     required_arguments = 1
     optional_arguments = 1
     final_argument_whitespace = True
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
         node = addnodes.versionmodified()

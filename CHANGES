@@ -57,6 +57,7 @@ Deprecated
 * ``sphinx.util.pycompat.convert_with_2to3()``
 * ``sphinx.util.pycompat.execfile_()``
 * ``sphinx.util.smartypants``
+* ``sphinx.util.typing.DirectiveOption``
 
 Features added
 --------------
