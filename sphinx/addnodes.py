@@ -154,6 +154,10 @@ class desc_signature_line(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 
 # nodes to use within a desc_signature or desc_signature_line
 
+class desc_name(nodes.Part, nodes.Inline, nodes.FixedTextElement):
+    """Node for the main object name."""
+
+
 class desc_addname(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for additional name parts (module name, class name)."""
 
@@ -168,12 +172,9 @@ class desc_type(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 
 class desc_returns(desc_type):
     """Node for a "returns" annotation (a la -> in Python)."""
+
     def astext(self) -> str:
         return ' -> ' + super().astext()
-
-
-class desc_name(nodes.Part, nodes.Inline, nodes.FixedTextElement):
-    """Node for the main object name."""
 
 
 class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
@@ -207,6 +208,10 @@ class desc_content(nodes.General, nodes.Element):
     """
 
 
+# Signature text elements, generally translated to node.inline
+# in SigElementFallbackTransform.
+# When adding a new one, add it to SIG_ELEMENTS.
+
 class desc_sig_element(nodes.inline):
     """Common parent class of nodes for inline text of a signature."""
     classes: List[str] = []
@@ -217,8 +222,19 @@ class desc_sig_element(nodes.inline):
         self['classes'].extend(self.classes)
 
 
+# to not reinvent the wheel, the classes in the following desc_sig classes
+# are based on those used in Pygments
+
+class desc_sig_space(desc_sig_element):
+    """Node for a space in a signature."""
+    classes = ["w"]
+
+    def __init__(self) -> None:
+        super().__init__(' ', ' ')
+
+
 class desc_sig_name(desc_sig_element):
-    """Node for a name in a signature."""
+    """Node for an identifier in a signature."""
     classes = ["n"]
 
 
@@ -228,8 +244,41 @@ class desc_sig_operator(desc_sig_element):
 
 
 class desc_sig_punctuation(desc_sig_element):
-    """Node for a punctuation in a signature."""
+    """Node for punctuation in a signature."""
     classes = ["p"]
+
+
+class desc_sig_keyword(desc_sig_element):
+    """Node for a general keyword in a signature."""
+    classes = ["k"]
+
+
+class desc_sig_keyword_type(desc_sig_element):
+    """Node for a keyword which is a built-in type in a signature."""
+    classes = ["kt"]
+
+
+class desc_sig_literal_number(desc_sig_element):
+    """Node for a numeric literal in a signature."""
+    classes = ["m"]
+
+
+class desc_sig_literal_string(desc_sig_element):
+    """Node for a string literal in a signature."""
+    classes = ["s"]
+
+
+class desc_sig_literal_char(desc_sig_element):
+    """Node for a character literal in a signature."""
+    classes = ["sc"]
+
+
+SIG_ELEMENTS = [desc_sig_space,
+                desc_sig_name,
+                desc_sig_operator,
+                desc_sig_punctuation,
+                desc_sig_keyword, desc_sig_keyword_type,
+                desc_sig_literal_number, desc_sig_literal_string, desc_sig_literal_char]
 
 
 # new admonition-like constructs
@@ -336,6 +385,7 @@ class pending_xref(nodes.Inline, nodes.Element):
     These nodes are resolved before writing output, in
     BuildEnvironment.resolve_references.
     """
+    child_text_separator = ''
 
 
 class pending_xref_condition(nodes.Inline, nodes.TextElement):
@@ -424,9 +474,8 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_node(desc_optional)
     app.add_node(desc_annotation)
     app.add_node(desc_content)
-    app.add_node(desc_sig_name)
-    app.add_node(desc_sig_operator)
-    app.add_node(desc_sig_punctuation)
+    for n in SIG_ELEMENTS:
+        app.add_node(n)
     app.add_node(versionmodified)
     app.add_node(seealso)
     app.add_node(productionlist)

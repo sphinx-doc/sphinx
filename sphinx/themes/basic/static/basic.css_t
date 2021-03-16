@@ -508,6 +508,30 @@ table.hlist td {
     vertical-align: top;
 }
 
+/* -- object description styles --------------------------------------------- */
+
+.sig-name, code.descname {
+    background-color: transparent;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.sig-prename, code.descclassname {
+    background-color: transparent;
+}
+
+.optional {
+    font-size: 1.3em;
+}
+
+.sig-paren {
+    font-size: larger;
+}
+
+.sig-param.n {
+	font-style: italic;
+}
+
 
 /* -- other body styles ----------------------------------------------------- */
 
@@ -632,14 +656,6 @@ rect.highlighted {
 dl.glossary dt {
     font-weight: bold;
     font-size: 1.1em;
-}
-
-.optional {
-    font-size: 1.3em;
-}
-
-.sig-paren {
-    font-size: larger;
 }
 
 .versionmodified {
@@ -784,16 +800,6 @@ div.code-block-caption span.caption-text {
 
 div.literal-block-wrapper {
     margin: 1em 0;
-}
-
-code.descname {
-    background-color: transparent;
-    font-weight: bold;
-    font-size: 1.2em;
-}
-
-code.descclassname {
-    background-color: transparent;
 }
 
 code.xref, a code {

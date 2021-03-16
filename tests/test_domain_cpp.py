@@ -73,6 +73,7 @@ def _check(name, input, idDict, output, key, asTextOutput):
         print("Input:    ", input)
         print("astext(): ", resAsText)
         print("Expected: ", outputAsText)
+        print("Node:", parentNode)
         raise DefinitionError("")
 
     idExpected = [None]
@@ -742,6 +743,9 @@ def test_anon_definitions():
     check('enum', '@a', {3: "Ut1_a"}, asTextOutput='enum [anonymous]')
     check('class', '@1', {3: "Ut1_1"}, asTextOutput='class [anonymous]')
     check('class', '@a::A', {3: "NUt1_a1AE"}, asTextOutput='class [anonymous]::A')
+
+    check('function', 'int f(int @a)', {1: 'f__i', 2: '1fi'},
+          asTextOutput='int f(int [anonymous])')
 
 
 def test_templates():

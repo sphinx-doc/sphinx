@@ -209,10 +209,6 @@ class SigElementFallbackTransform(SphinxPostTransform):
     """Fallback desc_sig_element nodes to inline if translator does not supported them."""
     default_priority = 200
 
-    SIG_ELEMENTS = [addnodes.desc_sig_name,
-                    addnodes.desc_sig_operator,
-                    addnodes.desc_sig_punctuation]
-
     def run(self, **kwargs: Any) -> None:
         def has_visitor(translator: Type[nodes.NodeVisitor], node: Type[Element]) -> bool:
             return hasattr(translator, "visit_%s" % node.__name__)
@@ -222,7 +218,7 @@ class SigElementFallbackTransform(SphinxPostTransform):
             # subclass of SphinxTranslator supports desc_sig_element nodes automatically.
             return
 
-        if all(has_visitor(translator, node) for node in self.SIG_ELEMENTS):
+        if all(has_visitor(translator, node) for node in addnodes.SIG_ELEMENTS):
             # the translator supports all desc_sig_element nodes
             return
         else:
