@@ -3155,7 +3155,7 @@ msgstr "Aktivér venligst JavaScript for at aktivere\n    søgefunktionalitet."
 msgid ""
 "Searching for multiple words only shows matches that contain\n"
 "    all words."
-msgstr "Bemærk: Hvis du søger efter flere ord, vises kun resultater der indeholder alle ord."
+msgstr "Bemærk: Hvis du søger efter flere ord, vises kun resultater der indeholder alle ordene."
 
 #: sphinx/themes/basic/search.html:32
 msgid "search"
