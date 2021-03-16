@@ -215,7 +215,7 @@ def walk(rootpath: str, excludes: List[str], opts: Any
         # remove hidden ('.') and private ('_') directories, as well as
         # excluded dirs
         if includeprivate:
-            exclude_prefixes = ('.',)  # type: Tuple[str, ...]
+            exclude_prefixes: Tuple[str, ...] = ('.',)
         else:
             exclude_prefixes = ('.', '_')
 

@@ -56,7 +56,7 @@ class DocumenterBridge:
         self._reporter = reporter
         self.genopt = options
         self.lineno = lineno
-        self.filename_set = set()  # type: Set[str]
+        self.filename_set: Set[str] = set()
         self.result = StringList()
         self.state = state
 
@@ -101,7 +101,7 @@ def parse_generated_content(state: RSTState, content: StringList, documenter: Do
     """Parse a generated content by Documenter."""
     with switch_source_input(state, content):
         if documenter.titles_allowed:
-            node = nodes.section()  # type: Element
+            node: Element = nodes.section()
             # necessary so that the child nodes get the right source/line set
             node.document = state.document
             nested_parse_with_titles(state, content, node)

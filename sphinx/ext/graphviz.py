@@ -50,10 +50,10 @@ class ClickableMapDefinition:
     href_re = re.compile('href=".*?"')
 
     def __init__(self, filename: str, content: str, dot: str = '') -> None:
-        self.id = None  # type: str
+        self.id: str = None
         self.filename = filename
         self.content = content.splitlines()
-        self.clickable = []  # type: List[str]
+        self.clickable: List[str] = []
 
         self.parse(dot=dot)
 

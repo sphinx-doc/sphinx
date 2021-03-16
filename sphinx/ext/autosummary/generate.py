@@ -59,7 +59,7 @@ class DummyApplication:
     def __init__(self, translator: NullTranslations) -> None:
         self.config = Config()
         self.registry = SphinxComponentRegistry()
-        self.messagelog = []  # type: List[str]
+        self.messagelog: List[str] = []
         self.srcdir = "/"
         self.translator = translator
         self.verbosity = 0
