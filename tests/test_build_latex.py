@@ -277,14 +277,14 @@ def test_latex_title_after_admonitions(app, status, warning):
 
 
 @pytest.mark.sphinx('latex', testroot='basic',
-                    confoverrides={'release': '1.0'})
+                    confoverrides={'release': '1.0_0'})
 def test_latex_release(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').read_text()
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert r'\release{1.0}' in result
+    assert r'\release{1.0\_0}' in result
     assert r'\renewcommand{\releasename}{Release}' in result
 
 

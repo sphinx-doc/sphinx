@@ -71,7 +71,7 @@
 
 \title{<%= title %>}
 \date{<%= date %>}
-\release{<%= release %>}
+\release{<%= release | e %>}
 \author{<%= author %>}
 <%- if logofilename %>
 \newcommand{\sphinxlogo}{\sphinxincludegraphics{<%= logofilename %>}\par}
