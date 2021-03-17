@@ -89,6 +89,7 @@ Bugs fixed
 * #8917: autodoc: Raises a warning if function has wrong __globals__ value
 * #8415: autodoc: a TypeVar imported from other module is not resolved (in
   Python 3.7 or above)
+* #8992: autodoc: Failed to resolve types.TracebackType type annotation
 * #8905: html: html_add_permalinks=None and html_add_permalinks="" are ignored
 * #8380: html search: Paragraphs in search results are not identified as ``<p>``
 * #8915: html theme: The translation of sphinx_rtd_theme does not work
