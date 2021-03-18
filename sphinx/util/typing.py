@@ -11,6 +11,7 @@
 import sys
 import typing
 from struct import Struct
+from types import TracebackType
 from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, TypeVar, Union
 
 from docutils import nodes
@@ -40,6 +41,13 @@ else:
 if False:
     # For type annotation
     from typing import Type  # NOQA # for python3.5.1
+
+
+# builtin classes that have incorrect __module__
+INVALID_BUILTIN_CLASSES = {
+    Struct: 'struct.Struct',  # Before Python 3.9
+    TracebackType: 'types.TracebackType',
+}
 
 
 # Text like nodes which are initialized with text and rawsource
@@ -101,9 +109,8 @@ def restify(cls: Optional["Type"]) -> str:
         return ':obj:`None`'
     elif cls is Ellipsis:
         return '...'
-    elif cls is Struct:
-        # Before Python 3.9, struct.Struct class has incorrect __module__.
-        return ':class:`struct.Struct`'
+    elif cls in INVALID_BUILTIN_CLASSES:
+        return ':class:`%s`' % INVALID_BUILTIN_CLASSES[cls]
     elif inspect.isNewType(cls):
         return ':class:`%s`' % cls.__name__
     elif types_Union and isinstance(cls, types_Union):
@@ -276,14 +283,13 @@ def stringify(annotation: Any) -> str:
         return repr(annotation)
     elif annotation is NoneType:
         return 'None'
+    elif annotation in INVALID_BUILTIN_CLASSES:
+        return INVALID_BUILTIN_CLASSES[annotation]
     elif (getattr(annotation, '__module__', None) == 'builtins' and
           hasattr(annotation, '__qualname__')):
         return annotation.__qualname__
     elif annotation is Ellipsis:
         return '...'
-    elif annotation is Struct:
-        # Before Python 3.9, struct.Struct class has incorrect __module__.
-        return 'struct.Struct'
 
     if sys.version_info >= (3, 7):  # py37+
         return _stringify_py37(annotation)
