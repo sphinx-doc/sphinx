@@ -94,7 +94,7 @@ class VersionChange(SphinxDirective):
         domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
         domain.note_changeset(node)
 
-        ret = [node]  # type: List[Node]
+        ret: List[Node] = [node]
         ret += messages
         return ret
 
@@ -105,9 +105,9 @@ class ChangeSetDomain(Domain):
     name = 'changeset'
     label = 'changeset'
 
-    initial_data = {
+    initial_data: Dict = {
         'changes': {},      # version -> list of ChangeSet
-    }  # type: Dict
+    }
 
     @property
     def changesets(self) -> Dict[str, List[ChangeSet]]:
