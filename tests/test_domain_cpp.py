@@ -1210,7 +1210,7 @@ not found in `{test}`
     cpp_any_role = RoleClasses('cpp-any', 'a', ['code'])
     # NYI: consistent looks
     # texpr_role = RoleClasses('cpp-texpr', 'span', ['a', 'code'])
-    expr_role = RoleClasses('cpp-expr', 'code', ['a'])
+    expr_role = RoleClasses('cpp-expr', 'span', ['a'])
     texpr_role = RoleClasses('cpp-texpr', 'span', ['a', 'span'])
 
     # XRefRole-style classes
@@ -1227,8 +1227,7 @@ not found in `{test}`
     for role in (expr_role, texpr_role):
         name = role.name
         expect = '`{name}` puts the domain and role classes at its root'.format(name=name)
-        # NYI: xref should go in the references
-        assert {'xref', 'cpp', name} <= role.classes, expect
+        assert {'sig', 'sig-inline', 'cpp', name} <= role.classes, expect
 
     # reference classes
 
