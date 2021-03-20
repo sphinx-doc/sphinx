@@ -542,6 +542,18 @@ table.hlist td {
 	font-family: unset;
 }
 
+.sig.cpp .k, .sig.cpp .kt {
+	color: #0033B3;
+}
+
+.sig.cpp .m {
+	color: #1750EB;
+}
+
+.sig.cpp .s {
+	color: #067D17;
+}
+
 
 /* -- other body styles ----------------------------------------------------- */
 
