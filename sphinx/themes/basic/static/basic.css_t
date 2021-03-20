@@ -532,6 +532,12 @@ table.hlist td {
 	font-style: italic;
 }
 
+/* C++ specific styling */
+
+.sig-inline.cpp-expr {
+	font-family: monospace;
+}
+
 
 /* -- other body styles ----------------------------------------------------- */
 

@@ -7,6 +7,9 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #9023: Change the CSS classes on :rst:role:`cpp:expr` and
+  :rst:role:`cpp:texpr`.
+
 Deprecated
 ----------
 

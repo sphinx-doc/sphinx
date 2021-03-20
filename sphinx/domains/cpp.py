@@ -7395,11 +7395,9 @@ class CPPExprRole(SphinxRole):
         if asCode:
             # render the expression as inline code
             self.class_type = 'cpp-expr'
-            self.node_type: Type[TextElement] = nodes.literal
         else:
             # render the expression as inline text
             self.class_type = 'cpp-texpr'
-            self.node_type = nodes.inline
 
     def run(self) -> Tuple[List[Node], List[system_message]]:
         text = self.text.replace('\n', ' ')
@@ -7407,20 +7405,19 @@ class CPPExprRole(SphinxRole):
                                   location=self.get_source_info(),
                                   config=self.config)
         # attempt to mimic XRefRole classes, except that...
-        classes = ['xref', 'cpp', self.class_type]
         try:
             ast = parser.parse_expression()
         except DefinitionError as ex:
             logger.warning('Unparseable C++ expression: %r\n%s', text, ex,
                            location=self.get_source_info())
             # see below
-            return [self.node_type(text, text, classes=classes)], []
+            return [addnodes.desc_inline('cpp', text, text, classes=[self.class_type])], []
         parentSymbol = self.env.temp_data.get('cpp:parent_symbol', None)
         if parentSymbol is None:
             parentSymbol = self.env.domaindata['cpp']['root_symbol']
         # ...most if not all of these classes should really apply to the individual references,
         # not the container node
-        signode = self.node_type(classes=classes)
+        signode = addnodes.desc_inline('cpp', classes=[self.class_type])
         ast.describe_signature(signode, 'markType', self.env, parentSymbol)
         return [signode], []
 

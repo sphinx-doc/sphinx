@@ -151,13 +151,16 @@ class desc(nodes.Admonition, nodes.Element):
     #  that forces the specification of the domain and objtyp?
 
 
-class desc_signature(nodes.Part, nodes.Inline, nodes.TextElement):
+class desc_signature(_desc_classes_injector, nodes.Part, nodes.Inline, nodes.TextElement):
     """Node for a single object signature.
 
     As default the signature is a single-line signature.
     Set ``is_multiline = True`` to describe a multi-line signature.
     In that case all child nodes must be :py:class:`desc_signature_line` nodes.
+
+    This node always has the classes ``sig`` and ``sig-object``.
     """
+    classes = ['sig', 'sig-object']
 
     @property
     def child_text_separator(self):
@@ -182,6 +185,22 @@ class desc_content(nodes.General, nodes.Element):
 
     Must be the last child node in a :py:class:`desc` node.
     """
+
+
+class desc_inline(_desc_classes_injector, nodes.Inline, nodes.TextElement):
+    """Node for a signature fragment in inline text.
+
+    This is for example used for roles like :rst:role:`cpp:expr`.
+
+    This node always has the classes ``sig``, ``sig-inline``,
+    and the name of the domain it belongs to.
+    """
+    classes = ['sig', 'sig-inline']
+
+    def __init__(self, domain: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self['classes'].append(domain)
+
 
 # Nodes for high-level structure in signatures
 ##############################################
@@ -507,20 +526,25 @@ class manpage(nodes.Inline, nodes.FixedTextElement):
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_node(toctree)
+
     app.add_node(desc)
     app.add_node(desc_signature)
     app.add_node(desc_signature_line)
+    app.add_node(desc_content)
+    app.add_node(desc_inline)
+
+    app.add_node(desc_name)
     app.add_node(desc_addname)
     app.add_node(desc_type)
     app.add_node(desc_returns)
-    app.add_node(desc_name)
     app.add_node(desc_parameterlist)
     app.add_node(desc_parameter)
     app.add_node(desc_optional)
     app.add_node(desc_annotation)
-    app.add_node(desc_content)
+
     for n in SIG_ELEMENTS:
         app.add_node(n)
+
     app.add_node(versionmodified)
     app.add_node(seealso)
     app.add_node(productionlist)

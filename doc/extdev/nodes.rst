@@ -17,6 +17,7 @@ These nodes form the top-most levels of object descriptions.
 .. autoclass:: desc_signature
 .. autoclass:: desc_signature_line
 .. autoclass:: desc_content
+.. autoclass:: desc_inline
 
 Nodes for high-level structure in signatures
 ............................................

@@ -117,6 +117,12 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_desc_content(self, node: Element) -> None:
         self.body.append('</dd>')
 
+    def visit_desc_inline(self, node: Element) -> None:
+        self.body.append(self.starttag(node, 'span', ''))
+
+    def depart_desc_inline(self, node: Element) -> None:
+        self.body.append('</span>')
+
     # Nodes for high-level structure in signatures
     ##############################################
 
