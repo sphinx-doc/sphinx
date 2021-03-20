@@ -172,6 +172,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         node['noindex'] = noindex = ('noindex' in self.options)
         if self.domain:
             node['classes'].append(self.domain)
+        node['classes'].append(node['objtype'])
 
         self.names: List[T] = []
         signatures = self.get_signatures()

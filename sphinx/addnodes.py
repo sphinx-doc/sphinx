@@ -134,6 +134,9 @@ class desc(nodes.Admonition, nodes.Element):
     - The name of the object type in the domain, e.g., ``function``.
     """
 
+    # TODO: can we introduce a constructor
+    #  that forces the specification of the domain and objtyp?
+
 
 class desc_signature(nodes.Part, nodes.Inline, nodes.TextElement):
     """Node for a single object signature.

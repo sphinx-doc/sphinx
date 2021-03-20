@@ -107,8 +107,15 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
     def depart_start_of_file(self, node: Element) -> None:
         self.docnames.pop()
 
+    #############################################################
+    # Domain-specific object descriptions
+    #############################################################
+
+    # Top-level nodes for descriptions
+    ##################################
+
     def visit_desc(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'dl', CLASS=node['objtype']))
+        self.body.append(self.starttag(node, 'dl'))
 
     def depart_desc(self, node: Element) -> None:
         self.body.append('</dl>\n\n')
@@ -132,6 +139,15 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
             # the permalink info is on the parent desc_signature node
             self.add_permalink_ref(node.parent, _('Permalink to this definition'))
         self.body.append('<br />')
+
+    def visit_desc_content(self, node: Element) -> None:
+        self.body.append(self.starttag(node, 'dd', ''))
+
+    def depart_desc_content(self, node: Element) -> None:
+        self.body.append('</dd>')
+
+    # Nodes for high-level structure in signatures
+    ##############################################
 
     def visit_desc_addname(self, node: Element) -> None:
         self.body.append(self.starttag(node, 'code', '', CLASS='descclassname'))
@@ -205,11 +221,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
     def depart_desc_annotation(self, node: Element) -> None:
         self.body.append('</em>')
 
-    def visit_desc_content(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'dd', ''))
-
-    def depart_desc_content(self, node: Element) -> None:
-        self.body.append('</dd>')
+    ##############################################
 
     def visit_versionmodified(self, node: Element) -> None:
         self.body.append(self.starttag(node, 'div', CLASS=node['type']))
