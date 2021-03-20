@@ -10,7 +10,6 @@
 
 import os
 import pickle
-import posixpath
 from collections import defaultdict
 from copy import copy
 from datetime import datetime
@@ -34,6 +33,7 @@ from sphinx.util import DownloadFiles, FilenameUniqDict, logging
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.nodes import is_translatable
+from sphinx.util.osutil import canon_path, os_path
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -335,6 +335,7 @@ class BuildEnvironment:
         source dir, while relative filenames are relative to the dir of the
         containing document.
         """
+        filename = os_path(filename)
         if filename.startswith('/') or filename.startswith(os.sep):
             rel_fn = filename[1:]
         else:
@@ -342,7 +343,7 @@ class BuildEnvironment:
                                                 base=None))
             rel_fn = path.join(docdir, filename)
 
-        return (posixpath.normpath(rel_fn),
+        return (canon_path(path.normpath(rel_fn)),
                 path.normpath(path.join(self.srcdir, rel_fn)))
 
     @property
