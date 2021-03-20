@@ -13,6 +13,8 @@ Deprecated
 Features added
 --------------
 
+* #8959: using UNIX path separator in image directive confuses Sphinx on Windows
+
 Bugs fixed
 ----------
 

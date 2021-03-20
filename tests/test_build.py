@@ -16,7 +16,6 @@ import pytest
 from docutils import nodes
 
 from sphinx.errors import SphinxError
-from sphinx.testing.path import path
 
 
 def request_session_head(url, **kwargs):
@@ -137,17 +136,16 @@ def test_image_glob(app, status, warning):
     doctree = app.env.get_doctree('subdir/index')
 
     assert isinstance(doctree[0][1], nodes.image)
-    sub = path('subdir')
-    assert doctree[0][1]['candidates'] == {'*': sub / 'rimg.png'}
-    assert doctree[0][1]['uri'] == sub / 'rimg.png'
+    assert doctree[0][1]['candidates'] == {'*': 'subdir/rimg.png'}
+    assert doctree[0][1]['uri'] == 'subdir/rimg.png'
 
     assert isinstance(doctree[0][2], nodes.image)
     assert doctree[0][2]['candidates'] == {'application/pdf': 'subdir/svgimg.pdf',
                                            'image/svg+xml': 'subdir/svgimg.svg'}
-    assert doctree[0][2]['uri'] == sub / 'svgimg.*'
+    assert doctree[0][2]['uri'] == 'subdir/svgimg.*'
 
     assert isinstance(doctree[0][3], nodes.figure)
     assert isinstance(doctree[0][3][0], nodes.image)
     assert doctree[0][3][0]['candidates'] == {'application/pdf': 'subdir/svgimg.pdf',
                                               'image/svg+xml': 'subdir/svgimg.svg'}
-    assert doctree[0][3][0]['uri'] == sub / 'svgimg.*'
+    assert doctree[0][3][0]['uri'] == 'subdir/svgimg.*'
