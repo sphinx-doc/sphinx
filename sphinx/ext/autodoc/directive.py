@@ -16,7 +16,7 @@ from docutils.statemachine import StringList
 from docutils.utils import Reporter, assemble_option_dict
 
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx50Warning
+from sphinx.deprecation import RemovedInSphinx50Warning, RemovedInSphinx60Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc import Documenter, Options
 from sphinx.util import logging
@@ -56,12 +56,18 @@ class DocumenterBridge:
         self._reporter = reporter
         self.genopt = options
         self.lineno = lineno
-        self.filename_set: Set[str] = set()
+        self.record_dependencies: Set[str] = set()
         self.result = StringList()
         self.state = state
 
     def warn(self, msg: str) -> None:
         logger.warning(msg, location=(self.env.docname, self.lineno))
+
+    @property
+    def filename_set(self) -> Set:
+        warnings.warn('DocumenterBridge.filename_set is deprecated.',
+                      RemovedInSphinx60Warning, stacklevel=2)
+        return self.record_dependencies
 
     @property
     def reporter(self) -> Reporter:
@@ -158,7 +164,7 @@ class AutodocDirective(SphinxDirective):
 
         # record all filenames as dependencies -- this will at least
         # partially make automatic invalidation possible
-        for fn in params.filename_set:
+        for fn in params.record_dependencies:
             self.state.document.settings.record_dependencies.add(fn)
 
         result = parse_generated_content(self.state, params.result, documenter)
