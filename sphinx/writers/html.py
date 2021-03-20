@@ -149,8 +149,14 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
     # Nodes for high-level structure in signatures
     ##############################################
 
+    def visit_desc_name(self, node: Element) -> None:
+        self.body.append(self.starttag(node, 'code', ''))
+
+    def depart_desc_name(self, node: Element) -> None:
+        self.body.append('</code>')
+
     def visit_desc_addname(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'code', '', CLASS='descclassname'))
+        self.body.append(self.starttag(node, 'code', ''))
 
     def depart_desc_addname(self, node: Element) -> None:
         self.body.append('</code>')
@@ -166,12 +172,6 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
 
     def depart_desc_returns(self, node: Element) -> None:
         pass
-
-    def visit_desc_name(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'code', '', CLASS='descname'))
-
-    def depart_desc_name(self, node: Element) -> None:
-        self.body.append('</code>')
 
     def visit_desc_parameterlist(self, node: Element) -> None:
         self.body.append('<span class="sig-paren">(</span>')

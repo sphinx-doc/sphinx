@@ -119,6 +119,19 @@ class toctree(nodes.General, nodes.Element, translatable):
 # Domain-specific object descriptions (class, function etc.)
 #############################################################
 
+class _desc_classes_injector:
+    """Helper base class for injecting a fixes list of classes.
+
+    Use as the first base class.
+    """
+
+    classes = []  # type: List[str]
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self['classes'].extend(self.classes)
+
+
 # Top-level nodes
 #################
 
@@ -175,20 +188,26 @@ class desc_content(nodes.General, nodes.Element):
 
 # nodes to use within a desc_signature or desc_signature_line
 
-class desc_name(nodes.Part, nodes.Inline, nodes.FixedTextElement):
+class desc_name(_desc_classes_injector, nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for the main object name.
 
     For example, in the declaration of a Python class ``MyModule.MyClass``,
     the main name is ``MyClass``.
+
+    This node always has the class ``sig-name``.
     """
+    classes = ['sig-name', 'descname']  # 'descname' is for backwards compatibility
 
 
-class desc_addname(nodes.Part, nodes.Inline, nodes.FixedTextElement):
+class desc_addname(_desc_classes_injector, nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for additional name parts for an object.
 
     For example, in the declaration of a Python class ``MyModule.MyClass``,
     the additional name part is ``MyModule.``.
+
+    This node always has the class ``sig-prename``.
     """
+    classes = ['sig-prename', 'descclassname']  # 'descclassname' is for backwards compatibility
 
 
 # compatibility alias
@@ -237,7 +256,7 @@ class desc_annotation(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 # in SigElementFallbackTransform.
 # When adding a new one, add it to SIG_ELEMENTS.
 
-class desc_sig_element(nodes.inline):
+class desc_sig_element(nodes.inline, _desc_classes_injector):
     """Common parent class of nodes for inline text of a signature."""
     classes: List[str] = []
 
