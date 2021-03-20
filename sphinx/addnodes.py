@@ -115,24 +115,32 @@ class toctree(nodes.General, nodes.Element, translatable):
         return messages
 
 
-# domain-specific object descriptions (class, function etc.)
+#############################################################
+# Domain-specific object descriptions (class, function etc.)
+#############################################################
+
+# Top-level nodes
+#################
 
 class desc(nodes.Admonition, nodes.Element):
-    """Node for object descriptions.
+    """Node for a list of object signatures and a common description of them.
 
-    This node is similar to a "definition list" with one definition.  It
-    contains one or more ``desc_signature`` and a ``desc_content``.
+    Contains one or more :py:class:`desc_signature` nodes
+    and then a single :py:class:`desc_content` node.
+
+    This node always has two classes:
+
+    - The name of the domain it belongs to, e.g., ``py`` or ``cpp``.
+    - The name of the object type in the domain, e.g., ``function``.
     """
 
 
 class desc_signature(nodes.Part, nodes.Inline, nodes.TextElement):
-    """Node for object signatures.
+    """Node for a single object signature.
 
-    The "term" part of the custom Sphinx definition list.
-
-    As default the signature is a single line signature,
-    but set ``is_multiline = True`` to describe a multi-line signature.
-    In that case all child nodes must be ``desc_signature_line`` nodes.
+    As default the signature is a single-line signature.
+    Set ``is_multiline = True`` to describe a multi-line signature.
+    In that case all child nodes must be :py:class:`desc_signature_line` nodes.
     """
 
     @property
@@ -144,22 +152,40 @@ class desc_signature(nodes.Part, nodes.Inline, nodes.TextElement):
 
 
 class desc_signature_line(nodes.Part, nodes.Inline, nodes.FixedTextElement):
-    """Node for a line in a multi-line object signatures.
+    """Node for a line in a multi-line object signature.
 
-    It should only be used in a ``desc_signature`` with ``is_multiline`` set.
+    It should only be used as a child of a :py:class:`desc_signature`
+    with ``is_multiline`` set to ``True``.
     Set ``add_permalink = True`` for the line that should get the permalink.
     """
     sphinx_line_type = ''
 
 
+class desc_content(nodes.General, nodes.Element):
+    """Node for object description content.
+
+    Must be the last child node in a :py:class:`desc` node.
+    """
+
+# Nodes for high-level structure in signatures
+##############################################
+
 # nodes to use within a desc_signature or desc_signature_line
 
 class desc_name(nodes.Part, nodes.Inline, nodes.FixedTextElement):
-    """Node for the main object name."""
+    """Node for the main object name.
+
+    For example, in the declaration of a Python class ``MyModule.MyClass``,
+    the main name is ``MyClass``.
+    """
 
 
 class desc_addname(nodes.Part, nodes.Inline, nodes.FixedTextElement):
-    """Node for additional name parts (module name, class name)."""
+    """Node for additional name parts for an object.
+
+    For example, in the declaration of a Python class ``MyModule.MyClass``,
+    the additional name part is ``MyModule.``.
+    """
 
 
 # compatibility alias
@@ -201,12 +227,8 @@ class desc_annotation(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for signature annotations (not Python 3-style annotations)."""
 
 
-class desc_content(nodes.General, nodes.Element):
-    """Node for object description content.
-
-    This is the "definition" part of the custom Sphinx definition list.
-    """
-
+# Leaf nodes for markup of text fragments
+#########################################
 
 # Signature text elements, generally translated to node.inline
 # in SigElementFallbackTransform.
@@ -281,6 +303,7 @@ SIG_ELEMENTS = [desc_sig_space,
                 desc_sig_literal_number, desc_sig_literal_string, desc_sig_literal_char]
 
 
+###############################################################
 # new admonition-like constructs
 
 class versionmodified(nodes.Admonition, nodes.TextElement):
