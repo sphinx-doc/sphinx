@@ -127,16 +127,16 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     ##############################################
 
     def visit_desc_name(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'code', ''))
+        self.body.append(self.starttag(node, 'span', ''))
 
     def depart_desc_name(self, node: Element) -> None:
-        self.body.append('</code>')
+        self.body.append('</span>')
 
     def visit_desc_addname(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'code', ''))
+        self.body.append(self.starttag(node, 'span', ''))
 
     def depart_desc_addname(self, node: Element) -> None:
-        self.body.append('</code>')
+        self.body.append('</span>')
 
     def visit_desc_type(self, node: Element) -> None:
         pass

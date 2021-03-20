@@ -510,6 +510,10 @@ table.hlist td {
 
 /* -- object description styles --------------------------------------------- */
 
+.sig {
+	font-family: monospace;
+}
+
 .sig-name, code.descname {
     background-color: transparent;
     font-weight: bold;
@@ -534,8 +538,8 @@ table.hlist td {
 
 /* C++ specific styling */
 
-.sig-inline.cpp-expr {
-	font-family: monospace;
+.sig-inline.cpp-texpr {
+	font-family: unset;
 }
 
 

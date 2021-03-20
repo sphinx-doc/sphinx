@@ -16,6 +16,8 @@ Deprecated
 Features added
 --------------
 
+* #9023: More CSS classes on domain descriptions, see :ref:`nodes` for details.
+
 Bugs fixed
 ----------
 
