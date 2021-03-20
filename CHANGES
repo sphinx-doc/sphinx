@@ -1,25 +1,10 @@
-Release 3.5.3 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
+Release 3.5.3 (released Mar 20, 2021)
+=====================================
 
 Features added
 --------------
 
 * #8959: using UNIX path separator in image directive confuses Sphinx on Windows
-
-Bugs fixed
-----------
-
-Testing
---------
 
 Release 3.5.2 (released Mar 06, 2021)
 =====================================
