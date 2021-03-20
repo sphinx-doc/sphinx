@@ -9,7 +9,7 @@
 """
 
 import re
-from typing import (Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple, Type,
+from typing import (Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple,
                     TypeVar, Union, cast)
 
 from docutils import nodes
@@ -1623,9 +1623,9 @@ class ASTOperator(ASTBase):
                            symbol: "Symbol") -> None:
         verify_description_mode(mode)
         if mode == 'lastIsName':
-            identnode = addnodes.desc_name()
-            self._describe_identifier(identnode, identnode, env, symbol)
-            signode += identnode
+            mainName = addnodes.desc_name()
+            self._describe_identifier(mainName, mainName, env, symbol)
+            signode += mainName
         elif mode == 'markType':
             targetText = prefix + str(self) + templateArgs
             pnode = addnodes.pending_xref('', refdomain='cpp',
@@ -1637,15 +1637,15 @@ class ASTOperator(ASTBase):
             # and make that the a link to this operator.
             # E.g., if it is 'operator SomeType', then 'SomeType' becomes
             # a link to the operator, not to 'SomeType'.
-            identnode = nodes.literal()
-            self._describe_identifier(signode, identnode, env, symbol)
-            txt = identnode.astext()
+            container = nodes.literal()
+            self._describe_identifier(signode, container, env, symbol)
+            txt = container.astext()
             pnode += addnodes.desc_name(txt, txt)
             signode += pnode
         else:
-            identnode = addnodes.desc_addname()
-            self._describe_identifier(identnode, identnode, env, symbol)
-            signode += identnode
+            addName = addnodes.desc_addname()
+            self._describe_identifier(addName, addName, env, symbol)
+            signode += addName
 
 
 class ASTOperatorBuildIn(ASTOperator):
@@ -7690,8 +7690,8 @@ class CPPDomain(Domain):
             # and reconstruct the title again
             contnode += nodes.Text(title)
         res = make_refnode(builder, fromdocname, docname,
-                            declaration.get_newest_id(), contnode, displayName
-                            ), declaration.objectType
+                           declaration.get_newest_id(), contnode, displayName
+                           ), declaration.objectType
         return res
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,

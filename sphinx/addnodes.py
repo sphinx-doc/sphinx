@@ -119,7 +119,7 @@ class toctree(nodes.General, nodes.Element, translatable):
 # Domain-specific object descriptions (class, function etc.)
 #############################################################
 
-class _desc_classes_injector:
+class _desc_classes_injector(nodes.TextElement):
     """Helper base class for injecting a fixes list of classes.
 
     Use as the first base class.
@@ -127,7 +127,7 @@ class _desc_classes_injector:
 
     classes = []  # type: List[str]
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self['classes'].extend(self.classes)
 
@@ -197,7 +197,7 @@ class desc_inline(_desc_classes_injector, nodes.Inline, nodes.TextElement):
     """
     classes = ['sig', 'sig-inline']
 
-    def __init__(self, domain: str, *args, **kwargs):
+    def __init__(self, domain: str, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self['classes'].append(domain)
 
@@ -226,7 +226,8 @@ class desc_addname(_desc_classes_injector, nodes.Part, nodes.Inline, nodes.Fixed
 
     This node always has the class ``sig-prename``.
     """
-    classes = ['sig-prename', 'descclassname']  # 'descclassname' is for backwards compatibility
+    # 'descclassname' is for backwards compatibility
+    classes = ['sig-prename', 'descclassname']
 
 
 # compatibility alias
