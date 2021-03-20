@@ -9,8 +9,8 @@
 """
 
 import re
-from typing import (Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple,
-                    TypeVar, Union, cast)
+from typing import (Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple, TypeVar,
+                    Union, cast)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement, system_message
