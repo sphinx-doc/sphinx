@@ -158,8 +158,9 @@ class desc_signature(_desc_classes_injector, nodes.Part, nodes.Inline, nodes.Tex
     Set ``is_multiline = True`` to describe a multi-line signature.
     In that case all child nodes must be :py:class:`desc_signature_line` nodes.
 
-    This node always has the classes ``sig`` and ``sig-object``.
+    This node always has the classes ``sig``, ``sig-object``, and the domain it belongs to.
     """
+    # Note: the domain name is being added through a post-transform DescSigAddDomainAsClass
     classes = ['sig', 'sig-object']
 
     @property
