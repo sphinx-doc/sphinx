@@ -2474,3 +2474,34 @@ def test_hide_value(app):
         '   :meta hide-value:',
         '',
     ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_canonical(app):
+    options = {'members': None,
+               'imported-members': None}
+    actual = do_autodoc(app, 'module', 'target.canonical', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.canonical',
+        '',
+        '',
+        '.. py:class:: Bar()',
+        '   :module: target.canonical',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.canonical',
+        '   :canonical: target.canonical.original.Foo',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:method:: Foo.meth()',
+        '      :module: target.canonical',
+        '',
+        '      docstring',
+        '',
+    ]
