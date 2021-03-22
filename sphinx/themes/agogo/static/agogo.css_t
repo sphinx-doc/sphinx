@@ -41,6 +41,10 @@ a {
   color: {{ theme_linkcolor }};
 }
 
+a:visited {
+  color: initial;
+}
+
 div.bodywrapper a, div.footer a {
   text-decoration: underline;
 }

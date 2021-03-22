@@ -177,6 +177,10 @@ a, a .pre {
     text-decoration: none;
 }
 
+a:visited {
+    color: initial;
+}
+
 a:hover, a:hover .pre {
     text-decoration: underline;
 }

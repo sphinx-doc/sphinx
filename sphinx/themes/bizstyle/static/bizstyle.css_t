@@ -176,6 +176,10 @@ a {
     text-decoration: none;
 }
 
+a:visited {
+    color: initial;
+}
+
 a:hover {
     color: {{ theme_maincolor }};
     text-decoration: underline;

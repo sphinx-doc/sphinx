@@ -147,6 +147,10 @@ a {
     text-decoration: none;
 }
 
+a:visited {
+    color: initial;
+}
+
 a:hover {
     color: #2491CF;
 }
