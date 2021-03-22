@@ -206,7 +206,7 @@ class MathDirective(SphinxDirective):
         self.add_name(node)
         self.set_source_info(node)
 
-        ret = [node]  # type: List[Node]
+        ret: List[Node] = [node]
         self.add_target(ret)
         return ret
 

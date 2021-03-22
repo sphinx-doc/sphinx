@@ -63,13 +63,13 @@ class ObjectDescription(SphinxDirective, Generic[T]):
     }
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
-    doc_field_types = []    # type: List[Field]
-    domain = None           # type: str
-    objtype = None          # type: str
-    indexnode = None        # type: addnodes.index
+    doc_field_types: List[Field] = []
+    domain: str = None
+    objtype: str = None
+    indexnode: addnodes.index = None
 
     # Warning: this might be removed in future version. Don't touch this from extensions.
-    _doc_field_type_map = {}  # type: Dict[str, Tuple[Field, bool]]
+    _doc_field_type_map: Dict[str, Tuple[Field, bool]] = {}
 
     def get_field_type_map(self) -> Dict[str, Tuple[Field, bool]]:
         if self._doc_field_type_map == {}:
@@ -173,7 +173,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         if self.domain:
             node['classes'].append(self.domain)
 
-        self.names = []  # type: List[T]
+        self.names: List[T] = []
         signatures = self.get_signatures()
         for i, sig in enumerate(signatures):
             # add a signature node for each signature in the current unit

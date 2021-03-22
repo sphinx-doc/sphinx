@@ -142,7 +142,7 @@ class CodeBlock(SphinxDirective):
             lines = dedent_lines(lines, self.options['dedent'], location=location)
             code = '\n'.join(lines)
 
-        literal = nodes.literal_block(code, code)  # type: Element
+        literal: Element = nodes.literal_block(code, code)
         if 'linenos' in self.options or 'lineno-start' in self.options:
             literal['linenos'] = True
         literal['classes'] += self.options.get('class', [])
@@ -422,7 +422,7 @@ class LiteralInclude(SphinxDirective):
             reader = LiteralIncludeReader(filename, self.options, self.config)
             text, lines = reader.read(location=location)
 
-            retnode = nodes.literal_block(text, text, source=filename)  # type: Element
+            retnode: Element = nodes.literal_block(text, text, source=filename)
             retnode['force'] = 'force' in self.options
             self.set_source_info(retnode)
             if self.options.get('diff'):  # if diff is set, set udiff

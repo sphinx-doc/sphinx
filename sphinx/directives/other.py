@@ -90,7 +90,7 @@ class TocTree(SphinxDirective):
         all_docnames = self.env.found_docs.copy()
         all_docnames.remove(self.env.docname)  # remove current document
 
-        ret = []  # type: List[Node]
+        ret: List[Node] = []
         excluded = Matcher(self.config.exclude_patterns)
         for entry in self.content:
             if not entry:
@@ -168,7 +168,7 @@ class Author(SphinxDirective):
     def run(self) -> List[Node]:
         if not self.config.show_authors:
             return []
-        para = nodes.paragraph(translatable=False)  # type: Element
+        para: Element = nodes.paragraph(translatable=False)
         emph = nodes.emphasis()
         para += emph
         if self.name == 'sectionauthor':
@@ -183,7 +183,7 @@ class Author(SphinxDirective):
         inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
         emph.extend(inodes)
 
-        ret = [para]  # type: List[Node]
+        ret: List[Node] = [para]
         ret += messages
         return ret
 
@@ -225,11 +225,11 @@ class Centered(SphinxDirective):
     def run(self) -> List[Node]:
         if not self.arguments:
             return []
-        subnode = addnodes.centered()  # type: Element
+        subnode: Element = addnodes.centered()
         inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
         subnode.extend(inodes)
 
-        ret = [subnode]  # type: List[Node]
+        ret: List[Node] = [subnode]
         ret += messages
         return ret
 
@@ -309,7 +309,7 @@ class Only(SphinxDirective):
 
         # Same as util.nested_parse_with_titles but try to handle nested
         # sections which should be raised higher up the doctree.
-        memo = self.state.memo  # type: Any
+        memo: Any = self.state.memo
         surrounding_title_styles = memo.title_styles
         surrounding_section_level = memo.section_level
         memo.title_styles = []
