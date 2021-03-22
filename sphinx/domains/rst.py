@@ -218,9 +218,9 @@ class ReSTDomain(Domain):
         'dir':  XRefRole(),
         'role': XRefRole(),
     }
-    initial_data = {
+    initial_data: Dict[str, Dict[Tuple[str, str], str]] = {
         'objects': {},  # fullname -> docname, objtype
-    }  # type: Dict[str, Dict[Tuple[str, str], str]]
+    }
 
     @property
     def objects(self) -> Dict[Tuple[str, str], Tuple[str, str]]:
@@ -259,7 +259,7 @@ class ReSTDomain(Domain):
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element
                          ) -> List[Tuple[str, Element]]:
-        results = []  # type: List[Tuple[str, Element]]
+        results: List[Tuple[str, Element]] = []
         for objtype in self.object_types:
             todocname, node_id = self.objects.get((objtype, target), (None, None))
             if todocname:

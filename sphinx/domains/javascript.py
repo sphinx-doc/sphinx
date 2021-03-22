@@ -42,7 +42,7 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
     has_arguments = False
 
     #: what is displayed right before the documentation entry
-    display_prefix = None  # type: str
+    display_prefix: str = None
 
     #: If ``allow_nesting`` is ``True``, the object prefixes will be accumulated
     #: based on directive nesting
@@ -262,7 +262,7 @@ class JSModule(SphinxDirective):
         mod_name = self.arguments[0].strip()
         self.env.ref_context['js:module'] = mod_name
         noindex = 'noindex' in self.options
-        ret = []  # type: List[Node]
+        ret: List[Node] = []
         if not noindex:
             domain = cast(JavaScriptDomain, self.env.get_domain('js'))
 
@@ -346,10 +346,10 @@ class JavaScriptDomain(Domain):
         'attr':  JSXRefRole(),
         'mod':   JSXRefRole(),
     }
-    initial_data = {
+    initial_data: Dict[str, Dict[str, Tuple[str, str]]] = {
         'objects': {},  # fullname -> docname, node_id, objtype
         'modules': {},  # modname  -> docname, node_id
-    }  # type: Dict[str, Dict[str, Tuple[str, str]]]
+    }
 
     @property
     def objects(self) -> Dict[str, Tuple[str, str, str]]:

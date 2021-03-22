@@ -41,10 +41,10 @@ class MathDomain(Domain):
     name = 'math'
     label = 'mathematics'
 
-    initial_data = {
+    initial_data: Dict = {
         'objects': {},  # labelid -> (docname, eqno)
         'has_equations': {},  # docname -> bool
-    }  # type: Dict
+    }
     dangling_warnings = {
         'eq': 'equation not found: %(target)s',
     }

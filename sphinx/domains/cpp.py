@@ -518,10 +518,10 @@ _id_operator_unary_v2 = {
     '!': 'nt', 'not': 'nt',
     '~': 'co', 'compl': 'co'
 }
-_id_char_from_prefix = {
+_id_char_from_prefix: Dict[Optional[str], str] = {
     None: 'c', 'u8': 'c',
     'u': 'Ds', 'U': 'Di', 'L': 'w'
-}  # type: Dict[Any, str]
+}
 # these are ordered by preceedence
 _expression_bin_ops = [
     ['||', 'or'],
@@ -751,7 +751,7 @@ class ASTNestedName(ASTBase):
             # prefix. however, only the identifier part should be a link, such
             # that template args can be a link as well.
             # For 'lastIsName' we should also prepend template parameter lists.
-            templateParams = []  # type: List[Any]
+            templateParams: List[Any] = []
             if mode == 'lastIsName':
                 assert symbol is not None
                 if symbol.declaration.templatePrefix is not None:
@@ -2057,7 +2057,7 @@ class ASTDeclSpecsSimple(ASTBase):
                                   self.attrs + other.attrs)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []  # type: List[str]
+        res: List[str] = []
         res.extend(transform(attr) for attr in self.attrs)
         if self.storage:
             res.append(self.storage)
@@ -2144,7 +2144,7 @@ class ASTDeclSpecs(ASTBase):
         return ''.join(res)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []  # type: List[str]
+        res: List[str] = []
         l = transform(self.leftSpecs)
         if len(l) > 0:
             res.append(l)
@@ -3635,9 +3635,9 @@ class ASTDeclaration(ASTBase):
         self.trailingRequiresClause = trailingRequiresClause
         self.semicolon = semicolon
 
-        self.symbol = None  # type: Symbol
+        self.symbol: Symbol = None
         # set by CPPObject._add_enumerator_to_parent
-        self.enumeratorScopedSymbol = None  # type: Symbol
+        self.enumeratorScopedSymbol: Symbol = None
 
     def clone(self) -> "ASTDeclaration":
         templatePrefixClone = self.templatePrefix.clone() if self.templatePrefix else None
@@ -3857,8 +3857,8 @@ class Symbol:
                  docname: str, line: int) -> None:
         self.parent = parent
         # declarations in a single directive are linked together
-        self.siblingAbove = None  # type: Symbol
-        self.siblingBelow = None  # type: Symbol
+        self.siblingAbove: Symbol = None
+        self.siblingBelow: Symbol = None
         self.identOrOp = identOrOp
         self.templateParams = templateParams  # template<templateParams>
         self.templateArgs = templateArgs  # identifier<templateArgs>
@@ -3869,8 +3869,8 @@ class Symbol:
         self._assert_invariants()
 
         # Remember to modify Symbol.remove if modifications to the parent change.
-        self._children = []  # type: List[Symbol]
-        self._anonChildren = []  # type: List[Symbol]
+        self._children: List[Symbol] = []
+        self._anonChildren: List[Symbol] = []
         # note: _children includes _anonChildren
         if self.parent:
             self.parent._children.append(self)
@@ -3940,7 +3940,7 @@ class Symbol:
         self.parent = None
 
     def clear_doc(self, docname: str) -> None:
-        newChildren = []  # type: List[Symbol]
+        newChildren: List[Symbol] = []
         for sChild in self._children:
             sChild.clear_doc(docname)
             if sChild.declaration and sChild.docname == docname:
@@ -4972,7 +4972,7 @@ class DefinitionParser(BaseParser):
         # fold-expression
         # id-expression -> we parse this with _parse_nested_name
         self.skip_ws()
-        res = self._parse_literal()  # type: ASTExpression
+        res: ASTExpression = self._parse_literal()
         if res is not None:
             return res
         self.skip_ws()
@@ -5000,7 +5000,7 @@ class DefinitionParser(BaseParser):
         if self.skip_string(close):
             return [], False
 
-        exprs = []  # type: List[Union[ASTExpression, ASTBracedInitList]]
+        exprs: List[Union[ASTExpression, ASTBracedInitList]] = []
         trailingComma = False
         while True:
             self.skip_ws()
@@ -5079,7 +5079,7 @@ class DefinitionParser(BaseParser):
         #  | "typeid" "(" type-id ")"
 
         prefixType = None
-        prefix = None  # type: Any
+        prefix: Any = None
         self.skip_ws()
 
         cast = None
@@ -5162,7 +5162,7 @@ class DefinitionParser(BaseParser):
                     raise self._make_multi_error(errors, header) from eInner
 
         # and now parse postfixes
-        postFixes = []  # type: List[ASTPostfixOp]
+        postFixes: List[ASTPostfixOp] = []
         while True:
             self.skip_ws()
             if prefixType in ['expr', 'cast', 'typeid']:
@@ -5392,7 +5392,7 @@ class DefinitionParser(BaseParser):
         #     logical-or-expression
         #   | logical-or-expression "?" expression ":" assignment-expression
         #   | logical-or-expression assignment-operator initializer-clause
-        exprs = []  # type: List[Union[ASTExpression, ASTBracedInitList]]
+        exprs: List[Union[ASTExpression, ASTBracedInitList]] = []
         ops = []
         orExpr = self._parse_logical_or_expression(inTemplate=inTemplate)
         exprs.append(orExpr)
@@ -5465,7 +5465,7 @@ class DefinitionParser(BaseParser):
         else:
             # TODO: add handling of more bracket-like things, and quote handling
             brackets = {'(': ')', '{': '}', '[': ']', '<': '>'}
-            symbols = []  # type: List[str]
+            symbols: List[str] = []
             while not self.eof:
                 if (len(symbols) == 0 and self.current_char in end):
                     break
@@ -5528,7 +5528,7 @@ class DefinitionParser(BaseParser):
         if self.skip_string('>'):
             return ASTTemplateArgs([], False)
         prevErrors = []
-        templateArgs = []  # type: List[Union[ASTType, ASTTemplateArgConstant]]
+        templateArgs: List[Union[ASTType, ASTTemplateArgConstant]] = []
         packExpansion = False
         while 1:
             pos = self.pos
@@ -5580,8 +5580,8 @@ class DefinitionParser(BaseParser):
         return ASTTemplateArgs(templateArgs, packExpansion)
 
     def _parse_nested_name(self, memberPointer: bool = False) -> ASTNestedName:
-        names = []  # type: List[ASTNestedNameElement]
-        templates = []  # type: List[bool]
+        names: List[ASTNestedNameElement] = []
+        templates: List[bool] = []
 
         self.skip_ws()
         rooted = False
@@ -5594,7 +5594,7 @@ class DefinitionParser(BaseParser):
             else:
                 template = False
             templates.append(template)
-            identOrOp = None  # type: Union[ASTIdentifier, ASTOperator]
+            identOrOp: Union[ASTIdentifier, ASTOperator] = None
             if self.skip_word_and_ws('operator'):
                 identOrOp = self._parse_operator()
             else:
@@ -6097,7 +6097,7 @@ class DefinitionParser(BaseParser):
             return ASTInitializer(bracedInit)
 
         if outer == 'member':
-            fallbackEnd = []  # type: List[str]
+            fallbackEnd: List[str] = []
         elif outer == 'templateParam':
             fallbackEnd = [',', '>']
         elif outer is None:  # function parameter
@@ -6376,7 +6376,7 @@ class DefinitionParser(BaseParser):
     def _parse_template_parameter_list(self) -> ASTTemplateParams:
         # only: '<' parameter-list '>'
         # we assume that 'template' has just been parsed
-        templateParams = []  # type: List[ASTTemplateParam]
+        templateParams: List[ASTTemplateParam] = []
         self.skip_ws()
         if not self.skip_string("<"):
             self.fail("Expected '<' after 'template'")
@@ -6499,11 +6499,11 @@ class DefinitionParser(BaseParser):
 
     def _parse_template_declaration_prefix(self, objectType: str
                                            ) -> Optional[ASTTemplateDeclarationPrefix]:
-        templates = []  # type: List[Union[ASTTemplateParams, ASTTemplateIntroduction]]
+        templates: List[Union[ASTTemplateParams, ASTTemplateIntroduction]] = []
         while 1:
             self.skip_ws()
             # the saved position is only used to provide a better error message
-            params = None  # type: Union[ASTTemplateParams, ASTTemplateIntroduction]
+            params: Union[ASTTemplateParams, ASTTemplateIntroduction] = None
             pos = self.pos
             if self.skip_word("template"):
                 try:
@@ -6559,7 +6559,7 @@ class DefinitionParser(BaseParser):
                 msg += str(nestedName)
                 self.warn(msg)
 
-            newTemplates = []  # type: List[Union[ASTTemplateParams, ASTTemplateIntroduction]]
+            newTemplates: List[Union[ASTTemplateParams, ASTTemplateIntroduction]] = []
             for i in range(numExtra):
                 newTemplates.append(ASTTemplateParams([]))
             if templatePrefix and not isMemberInstantiation:
@@ -6579,7 +6579,7 @@ class DefinitionParser(BaseParser):
         templatePrefix = None
         requiresClause = None
         trailingRequiresClause = None
-        declaration = None  # type: Any
+        declaration: Any = None
 
         self.skip_ws()
         if self.match(_visibility_re):
@@ -6878,7 +6878,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         return super().run()
 
     def handle_signature(self, sig: str, signode: desc_signature) -> ASTDeclaration:
-        parentSymbol = self.env.temp_data['cpp:parent_symbol']  # type: Symbol
+        parentSymbol: Symbol = self.env.temp_data['cpp:parent_symbol']
 
         parser = DefinitionParser(sig, location=signode, config=self.env.config)
         try:
@@ -6925,10 +6925,10 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         return ast
 
     def before_content(self) -> None:
-        lastSymbol = self.env.temp_data['cpp:last_symbol']  # type: Symbol
+        lastSymbol: Symbol = self.env.temp_data['cpp:last_symbol']
         assert lastSymbol
         self.oldParentSymbol = self.env.temp_data['cpp:parent_symbol']
-        self.oldParentKey = self.env.ref_context['cpp:parent_key']  # type: LookupKey
+        self.oldParentKey: LookupKey = self.env.ref_context['cpp:parent_key']
         self.env.temp_data['cpp:parent_symbol'] = lastSymbol
         self.env.ref_context['cpp:parent_key'] = lastSymbol.get_lookup_key()
 
@@ -6991,7 +6991,7 @@ class CPPNamespaceObject(SphinxDirective):
         rootSymbol = self.env.domaindata['cpp']['root_symbol']
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
             symbol = rootSymbol
-            stack = []  # type: List[Symbol]
+            stack: List[Symbol] = []
         else:
             parser = DefinitionParser(self.arguments[0],
                                       location=self.get_source_info(),
@@ -7103,7 +7103,7 @@ class AliasTransform(SphinxTransform):
             maxdepth -= 1
             recurse = True
 
-        nodes = []  # type: List[Node]
+        nodes: List[Node] = []
         if not skipThis:
             signode = addnodes.desc_signature('', '')
             nodes.append(signode)
@@ -7111,7 +7111,7 @@ class AliasTransform(SphinxTransform):
 
         if recurse:
             if skipThis:
-                childContainer = nodes  # type: Union[List[Node], addnodes.desc]
+                childContainer: Union[List[Node], addnodes.desc] = nodes
             else:
                 content = addnodes.desc_content()
                 desc = addnodes.desc()
@@ -7160,15 +7160,15 @@ class AliasTransform(SphinxTransform):
                 node.replace_self(signode)
                 continue
 
-            rootSymbol = self.env.domains['cpp'].data['root_symbol']  # type: Symbol
-            parentSymbol = rootSymbol.direct_lookup(parentKey)  # type: Symbol
+            rootSymbol: Symbol = self.env.domains['cpp'].data['root_symbol']
+            parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
                 print("Target: ", sig)
                 print("ParentKey: ", parentKey)
                 print(rootSymbol.dump(1))
             assert parentSymbol  # should be there
 
-            symbols = []  # type: List[Symbol]
+            symbols: List[Symbol] = []
             if isShorthand:
                 assert isinstance(ast, ASTNamespace)
                 ns = ast
@@ -7247,7 +7247,7 @@ class CPPAliasObject(ObjectDescription):
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
 
-        self.names = []  # type: List[str]
+        self.names: List[str] = []
         aliasOptions = {
             'maxdepth': self.options.get('maxdepth', 1),
             'noroot': 'noroot' in self.options,
@@ -7307,7 +7307,7 @@ class CPPExprRole(SphinxRole):
         if asCode:
             # render the expression as inline code
             self.class_type = 'cpp-expr'
-            self.node_type = nodes.literal  # type: Type[TextElement]
+            self.node_type: Type[TextElement] = nodes.literal
         else:
             # render the expression as inline text
             self.class_type = 'cpp-texpr'
@@ -7488,10 +7488,10 @@ class CPPDomain(Domain):
             logger.warning('Unparseable C++ cross-reference: %r\n%s', t, ex,
                            location=node)
             return None, None
-        parentKey = node.get("cpp:parent_key", None)  # type: LookupKey
+        parentKey: LookupKey = node.get("cpp:parent_key", None)
         rootSymbol = self.data['root_symbol']
         if parentKey:
-            parentSymbol = rootSymbol.direct_lookup(parentKey)  # type: Symbol
+            parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
                 print("Target: ", target)
                 print("ParentKey: ", parentKey.data)
@@ -7645,7 +7645,7 @@ class CPPDomain(Domain):
         target = node.get('reftarget', None)
         if target is None:
             return None
-        parentKey = node.get("cpp:parent_key", None)  # type: LookupKey
+        parentKey: LookupKey = node.get("cpp:parent_key", None)
         if parentKey is None or len(parentKey.data) <= 0:
             return None
 

@@ -725,7 +725,7 @@ class ASTDeclSpecsSimple(ASTBaseBase):
                                   self.attrs + other.attrs)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []  # type: List[str]
+        res: List[str] = []
         res.extend(transform(attr) for attr in self.attrs)
         if self.storage:
             res.append(self.storage)
@@ -779,7 +779,7 @@ class ASTDeclSpecs(ASTBase):
         self.trailingTypeSpec = trailing
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []  # type: List[str]
+        res: List[str] = []
         l = transform(self.leftSpecs)
         if len(l) > 0:
             res.append(l)
@@ -797,7 +797,7 @@ class ASTDeclSpecs(ASTBase):
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
-        modifiers = []  # type: List[Node]
+        modifiers: List[Node] = []
 
         def _add(modifiers: List[Node], text: str) -> None:
             if len(modifiers) > 0:
@@ -1369,9 +1369,9 @@ class ASTDeclaration(ASTBaseBase):
         self.declaration = declaration
         self.semicolon = semicolon
 
-        self.symbol = None  # type: Symbol
+        self.symbol: Symbol = None
         # set by CObject._add_enumerator_to_parent
-        self.enumeratorScopedSymbol = None  # type: Symbol
+        self.enumeratorScopedSymbol: Symbol = None
 
     def clone(self) -> "ASTDeclaration":
         return ASTDeclaration(self.objectType, self.directiveType,
@@ -1503,8 +1503,8 @@ class Symbol:
                  declaration: ASTDeclaration, docname: str, line: int) -> None:
         self.parent = parent
         # declarations in a single directive are linked together
-        self.siblingAbove = None  # type: Symbol
-        self.siblingBelow = None  # type: Symbol
+        self.siblingAbove: Symbol = None
+        self.siblingBelow: Symbol = None
         self.ident = ident
         self.declaration = declaration
         self.docname = docname
@@ -1513,8 +1513,8 @@ class Symbol:
         self._assert_invariants()
 
         # Remember to modify Symbol.remove if modifications to the parent change.
-        self._children = []  # type: List[Symbol]
-        self._anonChildren = []  # type: List[Symbol]
+        self._children: List[Symbol] = []
+        self._anonChildren: List[Symbol] = []
         # note: _children includes _anonChildren
         if self.parent:
             self.parent._children.append(self)
@@ -2195,7 +2195,7 @@ class DefinitionParser(BaseParser):
         # "(" expression ")"
         # id-expression -> we parse this with _parse_nested_name
         self.skip_ws()
-        res = self._parse_literal()  # type: ASTExpression
+        res: ASTExpression = self._parse_literal()
         if res is not None:
             return res
         res = self._parse_paren_expression()
@@ -2270,7 +2270,7 @@ class DefinitionParser(BaseParser):
         prefix = self._parse_primary_expression()
 
         # and now parse postfixes
-        postFixes = []  # type: List[ASTPostfixOp]
+        postFixes: List[ASTPostfixOp] = []
         while True:
             self.skip_ws()
             if self.skip_string_and_ws('['):
@@ -2488,7 +2488,7 @@ class DefinitionParser(BaseParser):
         else:
             # TODO: add handling of more bracket-like things, and quote handling
             brackets = {'(': ')', '{': '}', '[': ']'}
-            symbols = []  # type: List[str]
+            symbols: List[str] = []
             while not self.eof:
                 if (len(symbols) == 0 and self.current_char in end):
                     break
@@ -2504,7 +2504,7 @@ class DefinitionParser(BaseParser):
         return ASTFallbackExpr(value.strip())
 
     def _parse_nested_name(self) -> ASTNestedName:
-        names = []  # type: List[Any]
+        names: List[Any] = []
 
         self.skip_ws()
         rooted = False
@@ -2857,7 +2857,7 @@ class DefinitionParser(BaseParser):
             return ASTInitializer(bracedInit)
 
         if outer == 'member':
-            fallbackEnd = []  # type: List[str]
+            fallbackEnd: List[str] = []
         elif outer is None:  # function parameter
             fallbackEnd = [',', ')']
         else:
@@ -3004,7 +3004,7 @@ class DefinitionParser(BaseParser):
 
     def parse_pre_v3_type_definition(self) -> ASTDeclaration:
         self.skip_ws()
-        declaration = None  # type: DeclarationType
+        declaration: DeclarationType = None
         if self.skip_word('struct'):
             typ = 'struct'
             declaration = self._parse_struct()
@@ -3027,7 +3027,7 @@ class DefinitionParser(BaseParser):
                                  'macro', 'struct', 'union', 'enum', 'enumerator', 'type'):
             raise Exception('Internal error, unknown directiveType "%s".' % directiveType)
 
-        declaration = None  # type: DeclarationType
+        declaration: DeclarationType = None
         if objectType == 'member':
             declaration = self._parse_type_with_init(named=True, outer='member')
         elif objectType == 'function':
@@ -3066,7 +3066,7 @@ class DefinitionParser(BaseParser):
 
     def parse_expression(self) -> Union[ASTExpression, ASTType]:
         pos = self.pos
-        res = None  # type: Union[ASTExpression, ASTType]
+        res: Union[ASTExpression, ASTType] = None
         try:
             res = self._parse_expression()
             self.skip_ws()
@@ -3213,7 +3213,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
         return super().run()
 
     def handle_signature(self, sig: str, signode: TextElement) -> ASTDeclaration:
-        parentSymbol = self.env.temp_data['c:parent_symbol']  # type: Symbol
+        parentSymbol: Symbol = self.env.temp_data['c:parent_symbol']
 
         parser = DefinitionParser(sig, location=signode, config=self.env.config)
         try:
@@ -3277,10 +3277,10 @@ class CObject(ObjectDescription[ASTDeclaration]):
         return ast
 
     def before_content(self) -> None:
-        lastSymbol = self.env.temp_data['c:last_symbol']  # type: Symbol
+        lastSymbol: Symbol = self.env.temp_data['c:last_symbol']
         assert lastSymbol
         self.oldParentSymbol = self.env.temp_data['c:parent_symbol']
-        self.oldParentKey = self.env.ref_context['c:parent_key']  # type: LookupKey
+        self.oldParentKey: LookupKey = self.env.ref_context['c:parent_key']
         self.env.temp_data['c:parent_symbol'] = lastSymbol
         self.env.ref_context['c:parent_key'] = lastSymbol.get_lookup_key()
 
@@ -3351,7 +3351,7 @@ class CNamespaceObject(SphinxDirective):
         rootSymbol = self.env.domaindata['c']['root_symbol']
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
             symbol = rootSymbol
-            stack = []  # type: List[Symbol]
+            stack: List[Symbol] = []
         else:
             parser = DefinitionParser(self.arguments[0],
                                       location=self.get_source_info(),
@@ -3462,7 +3462,7 @@ class AliasTransform(SphinxTransform):
             maxdepth -= 1
             recurse = True
 
-        nodes = []  # type: List[Node]
+        nodes: List[Node] = []
         if not skipThis:
             signode = addnodes.desc_signature('', '')
             nodes.append(signode)
@@ -3470,7 +3470,7 @@ class AliasTransform(SphinxTransform):
 
         if recurse:
             if skipThis:
-                childContainer = nodes  # type: Union[List[Node], addnodes.desc]
+                childContainer: Union[List[Node], addnodes.desc] = nodes
             else:
                 content = addnodes.desc_content()
                 desc = addnodes.desc()
@@ -3516,8 +3516,8 @@ class AliasTransform(SphinxTransform):
                 node.replace_self(signode)
                 continue
 
-            rootSymbol = self.env.domains['c'].data['root_symbol']  # type: Symbol
-            parentSymbol = rootSymbol.direct_lookup(parentKey)  # type: Symbol
+            rootSymbol: Symbol = self.env.domains['c'].data['root_symbol']
+            parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
                 print("Target: ", sig)
                 print("ParentKey: ", parentKey)
@@ -3583,7 +3583,7 @@ class CAliasObject(ObjectDescription):
         node['objtype'] = node['desctype'] = self.objtype
         node['noindex'] = True
 
-        self.names = []  # type: List[str]
+        self.names: List[str] = []
         aliasOptions = {
             'maxdepth': self.options.get('maxdepth', 1),
             'noroot': 'noroot' in self.options,
@@ -3661,7 +3661,7 @@ class CExprRole(SphinxRole):
         if asCode:
             # render the expression as inline code
             self.class_type = 'c-expr'
-            self.node_type = nodes.literal  # type: Type[TextElement]
+            self.node_type: Type[TextElement] = nodes.literal
         else:
             # render the expression as inline text
             self.class_type = 'c-texpr'
@@ -3740,10 +3740,10 @@ class CDomain(Domain):
         'expr': CExprRole(asCode=True),
         'texpr': CExprRole(asCode=False)
     }
-    initial_data = {
+    initial_data: Dict[str, Union[Symbol, Dict[str, Tuple[str, str, str]]]] = {
         'root_symbol': Symbol(None, None, None, None, None),
         'objects': {},  # fullname -> docname, node_id, objtype
-    }  # type: Dict[str, Union[Symbol, Dict[str, Tuple[str, str, str]]]]
+    }
 
     def clear_doc(self, docname: str) -> None:
         if Symbol.debug_show_tree:
@@ -3801,10 +3801,10 @@ class CDomain(Domain):
             logger.warning('Unparseable C cross-reference: %r\n%s', target, e,
                            location=node)
             return None, None
-        parentKey = node.get("c:parent_key", None)  # type: LookupKey
+        parentKey: LookupKey = node.get("c:parent_key", None)
         rootSymbol = self.data['root_symbol']
         if parentKey:
-            parentSymbol = rootSymbol.direct_lookup(parentKey)  # type: Symbol
+            parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
                 print("Target: ", target)
                 print("ParentKey: ", parentKey)

@@ -97,8 +97,8 @@ def type_to_xref(text: str, env: BuildEnvironment = None) -> addnodes.pending_xr
         # nested classes.  But python domain can't access the real python object because this
         # module should work not-dynamically.
         shortname = text.split('.')[-1]
-        contnodes = [pending_xref_condition('', shortname, condition='resolved'),
-                     pending_xref_condition('', text, condition='*')]  # type: List[Node]
+        contnodes: List[Node] = [pending_xref_condition('', shortname, condition='resolved'),
+                                 pending_xref_condition('', text, condition='*')]
     else:
         contnodes = [nodes.Text(text)]
 
@@ -112,7 +112,7 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
         if isinstance(node, ast.Attribute):
             return [nodes.Text("%s.%s" % (unparse(node.value)[0], node.attr))]
         elif isinstance(node, ast.BinOp):
-            result = unparse(node.left)  # type: List[Node]
+            result: List[Node] = unparse(node.left)
             result.extend(unparse(node.op))
             result.extend(unparse(node.right))
             return result
@@ -239,7 +239,7 @@ def _pseudo_parse_arglist(signode: desc_signature, arglist: str) -> None:
     string literal (e.g. default argument value).
     """
     paramlist = addnodes.desc_parameterlist()
-    stack = [paramlist]  # type: List[Element]
+    stack: List[Element] = [paramlist]
     try:
         for argument in arglist.split(','):
             argument = argument.strip()
@@ -910,7 +910,7 @@ class PyModule(SphinxDirective):
         modname = self.arguments[0].strip()
         noindex = 'noindex' in self.options
         self.env.ref_context['py:module'] = modname
-        ret = []  # type: List[Node]
+        ret: List[Node] = []
         if not noindex:
             # note module to the domain
             node_id = make_id(self.env, self.state.document, 'module', modname)
@@ -1021,10 +1021,9 @@ class PythonModuleIndex(Index):
 
     def generate(self, docnames: Iterable[str] = None
                  ) -> Tuple[List[Tuple[str, List[IndexEntry]]], bool]:
-        content = {}  # type: Dict[str, List[IndexEntry]]
+        content: Dict[str, List[IndexEntry]] = {}
         # list of prefixes to ignore
-        ignores = None  # type: List[str]
-        ignores = self.domain.env.config['modindex_common_prefix']  # type: ignore
+        ignores: List[str] = self.domain.env.config['modindex_common_prefix']  # type: ignore
         ignores = sorted(ignores, key=len, reverse=True)
         # list of all modules, sorted by module name
         modules = sorted(self.domain.data['modules'].items(),
@@ -1087,7 +1086,7 @@ class PythonDomain(Domain):
     """Python language domain."""
     name = 'py'
     label = 'Python'
-    object_types = {
+    object_types: Dict[str, ObjType] = {
         'function':     ObjType(_('function'),      'func', 'obj'),
         'data':         ObjType(_('data'),          'data', 'obj'),
         'class':        ObjType(_('class'),         'class', 'exc', 'obj'),
@@ -1098,7 +1097,7 @@ class PythonDomain(Domain):
         'attribute':    ObjType(_('attribute'),     'attr', 'obj'),
         'property':     ObjType(_('property'),      'attr', '_prop', 'obj'),
         'module':       ObjType(_('module'),        'mod', 'obj'),
-    }  # type: Dict[str, ObjType]
+    }
 
     directives = {
         'function':        PyFunction,
@@ -1126,10 +1125,10 @@ class PythonDomain(Domain):
         'mod':   PyXRefRole(),
         'obj':   PyXRefRole(),
     }
-    initial_data = {
+    initial_data: Dict[str, Dict[str, Tuple[Any]]] = {
         'objects': {},  # fullname -> docname, objtype
         'modules': {},  # modname -> docname, synopsis, platform, deprecated
-    }  # type: Dict[str, Dict[str, Tuple[Any]]]
+    }
     indices = [
         PythonModuleIndex,
     ]
@@ -1194,7 +1193,7 @@ class PythonDomain(Domain):
         if not name:
             return []
 
-        matches = []  # type: List[Tuple[str, ObjectEntry]]
+        matches: List[Tuple[str, ObjectEntry]] = []
 
         newname = None
         if searchmode == 1:
@@ -1285,7 +1284,7 @@ class PythonDomain(Domain):
                          ) -> List[Tuple[str, Element]]:
         modname = node.get('py:module')
         clsname = node.get('py:class')
-        results = []  # type: List[Tuple[str, Element]]
+        results: List[Tuple[str, Element]] = []
 
         # always search in "refspecific" mode with the :any: role
         matches = self.find_obj(env, modname, clsname, target, None, 1)
