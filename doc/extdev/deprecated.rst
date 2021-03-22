@@ -47,6 +47,11 @@ The following is a list of deprecated interfaces.
      - 6.0
      - ``sphinx.ext.autodoc.directive.DocumenterBridge.record_dependencies``
 
+   * - ``sphinx.ext.autodoc.directive.DocumenterBridge.warn()``
+     - 4.0
+     - 6.0
+     - :ref:`logging-api`
+
    * - ``sphinx.registry.SphinxComponentRegistry.get_source_input()``
      - 4.0
      - 6.0

@@ -61,6 +61,9 @@ class DocumenterBridge:
         self.state = state
 
     def warn(self, msg: str) -> None:
+        warnings.warn('DocumenterBridge.warn is deprecated.  Plase use sphinx.util.logging '
+                      'module instead.',
+                      RemovedInSphinx60Warning, stacklevel=2)
         logger.warning(msg, location=(self.env.docname, self.lineno))
 
     @property

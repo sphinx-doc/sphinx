@@ -52,6 +52,7 @@ Deprecated
 * ``sphinx.directives.patches.ListTable``
 * ``sphinx.directives.patches.RSTTable``
 * ``sphinx.ext.autodoc.directive.DocumenterBridge.filename_set``
+* ``sphinx.ext.autodoc.directive.DocumenterBridge.warn()``
 * ``sphinx.registry.SphinxComponentRegistry.get_source_input()``
 * ``sphinx.registry.SphinxComponentRegistry.source_inputs``
 * ``sphinx.transforms.FigureAligner``
