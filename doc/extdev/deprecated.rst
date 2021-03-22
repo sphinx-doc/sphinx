@@ -42,6 +42,11 @@ The following is a list of deprecated interfaces.
      - 6.0
      - ``docutils.parsers.rst.diretives.tables.RSTTable``
 
+   * - ``sphinx.ext.autodoc.directive.DocumenterBridge.filename_set``
+     - 4.0
+     - 6.0
+     - ``sphinx.ext.autodoc.directive.DocumenterBridge.record_dependencies``
+
    * - ``sphinx.registry.SphinxComponentRegistry.get_source_input()``
      - 4.0
      - 6.0

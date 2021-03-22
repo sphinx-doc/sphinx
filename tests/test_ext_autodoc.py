@@ -68,7 +68,7 @@ def make_directive_bridge(env):
         env = env,
         genopt = options,
         result = ViewList(),
-        filename_set = set(),
+        record_dependencies = set(),
         state = Mock(),
     )
     directive.state.document.settings.tab_width = 8

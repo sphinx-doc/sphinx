@@ -918,15 +918,15 @@ class Documenter:
             self.analyzer = None
             # at least add the module.__file__ as a dependency
             if hasattr(self.module, '__file__') and self.module.__file__:
-                self.directive.filename_set.add(self.module.__file__)
+                self.directive.record_dependencies.add(self.module.__file__)
         else:
-            self.directive.filename_set.add(self.analyzer.srcname)
+            self.directive.record_dependencies.add(self.analyzer.srcname)
 
         if self.real_modname != guess_modname:
             # Add module to dependency list if target object is defined in other module.
             try:
                 analyzer = ModuleAnalyzer.for_module(guess_modname)
-                self.directive.filename_set.add(analyzer.srcname)
+                self.directive.record_dependencies.add(analyzer.srcname)
             except PycodeError:
                 pass
 
