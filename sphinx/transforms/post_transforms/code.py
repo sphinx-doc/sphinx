@@ -49,7 +49,7 @@ class HighlightLanguageTransform(SphinxTransform):
 class HighlightLanguageVisitor(nodes.NodeVisitor):
     def __init__(self, document: nodes.document, default_language: str) -> None:
         self.default_setting = HighlightSetting(default_language, False, sys.maxsize)
-        self.settings = []  # type: List[HighlightSetting]
+        self.settings: List[HighlightSetting] = []
         super().__init__(document)
 
     def unknown_visit(self, node: Node) -> None:

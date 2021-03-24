@@ -72,8 +72,8 @@ class SphinxTransformer(Transformer):
     A transformer for Sphinx.
     """
 
-    document = None  # type: nodes.document
-    env = None  # type: BuildEnvironment
+    document: nodes.document = None
+    env: "BuildEnvironment" = None
 
     def set_environment(self, env: "BuildEnvironment") -> None:
         self.env = env
@@ -170,7 +170,7 @@ class AutoNumbering(SphinxTransform):
     default_priority = 210
 
     def apply(self, **kwargs: Any) -> None:
-        domain = self.env.get_domain('std')  # type: StandardDomain
+        domain: StandardDomain = self.env.get_domain('std')
 
         for node in self.document.traverse(nodes.Element):
             if (domain.is_enumerable_node(node) and
