@@ -128,11 +128,11 @@ def find_catalog(docname: str, compaction: bool) -> str:
     return ret
 
 
-def docname_to_domain(docname: str, compation: Union[bool, str]) -> str:
+def docname_to_domain(docname: str, compaction: Union[bool, str]) -> str:
     """Convert docname to domain for catalogs."""
-    if isinstance(compation, str):
-        return compation
-    if compation:
+    if isinstance(compaction, str):
+        return compaction
+    if compaction:
         return docname.split(SEP, 1)[0]
     else:
         return docname
