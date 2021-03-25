@@ -1,3 +1,25 @@
+Release 4.0.0
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+* #1708: Made visited links default color different for all themes except alabaster
+
+Testing
+--------
+
 Release 3.5.4 (in development)
 ==============================
 
@@ -50,7 +72,6 @@ Bugs fixed
   :confval:`html_context`
 * #8880: viewcode: ExtensionError is raised on incremental build after
   unparsable python module found
-* #1708: Made visited links default color different for all themes except alabaster
 
 Release 3.5.0 (released Feb 14, 2021)
 =====================================
