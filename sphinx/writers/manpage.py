@@ -120,6 +120,13 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_start_of_file(self, node: Element) -> None:
         pass
 
+    #############################################################
+    # Domain-specific object descriptions
+    #############################################################
+
+    # Top-level nodes for descriptions
+    ##################################
+
     def visit_desc(self, node: Element) -> None:
         self.visit_definition_list(node)
 
@@ -139,6 +146,21 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_desc_signature_line(self, node: Element) -> None:
         self.body.append(' ')
 
+    def visit_desc_content(self, node: Element) -> None:
+        self.visit_definition(node)
+
+    def depart_desc_content(self, node: Element) -> None:
+        self.depart_definition(node)
+
+    # Nodes for high-level structure in signatures
+    ##############################################
+
+    def visit_desc_name(self, node: Element) -> None:
+        pass
+
+    def depart_desc_name(self, node: Element) -> None:
+        pass
+
     def visit_desc_addname(self, node: Element) -> None:
         pass
 
@@ -155,12 +177,6 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         self.body.append(' -> ')
 
     def depart_desc_returns(self, node: Element) -> None:
-        pass
-
-    def visit_desc_name(self, node: Element) -> None:
-        pass
-
-    def depart_desc_name(self, node: Element) -> None:
         pass
 
     def visit_desc_parameterlist(self, node: Element) -> None:
@@ -191,11 +207,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_desc_annotation(self, node: Element) -> None:
         pass
 
-    def visit_desc_content(self, node: Element) -> None:
-        self.visit_definition(node)
-
-    def depart_desc_content(self, node: Element) -> None:
-        self.depart_definition(node)
+    ##############################################
 
     def visit_versionmodified(self, node: Element) -> None:
         self.visit_paragraph(node)

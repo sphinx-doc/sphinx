@@ -206,7 +206,7 @@ class OnlyNodeTransform(SphinxPostTransform):
 
 
 class SigElementFallbackTransform(SphinxPostTransform):
-    """Fallback desc_sig_element nodes to inline if translator does not supported them."""
+    """Fallback various desc_* nodes to inline if translator does not supported them."""
     default_priority = 200
 
     def run(self, **kwargs: Any) -> None:
@@ -218,14 +218,15 @@ class SigElementFallbackTransform(SphinxPostTransform):
             # subclass of SphinxTranslator supports desc_sig_element nodes automatically.
             return
 
-        if all(has_visitor(translator, node) for node in addnodes.SIG_ELEMENTS):
-            # the translator supports all desc_sig_element nodes
-            return
-        else:
-            self.fallback()
+        # for the leaf elements (desc_sig_element), the translator should support _all_
+        if not all(has_visitor(translator, node) for node in addnodes.SIG_ELEMENTS):
+            self.fallback(addnodes.desc_sig_element)
 
-    def fallback(self) -> None:
-        for node in self.document.traverse(addnodes.desc_sig_element):
+        if not has_visitor(translator, addnodes.desc_inline):
+            self.fallback(addnodes.desc_inline)
+
+    def fallback(self, nodeType: Any) -> None:
+        for node in self.document.traverse(nodeType):
             newnode = nodes.inline()
             newnode.update_all_atts(node)
             newnode.extend(node)

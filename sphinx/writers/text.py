@@ -536,6 +536,13 @@ class TextTranslator(SphinxTranslator):
     def depart_attribution(self, node: Element) -> None:
         pass
 
+    #############################################################
+    # Domain-specific object descriptions
+    #############################################################
+
+    # Top-level nodes
+    #################
+
     def visit_desc(self, node: Element) -> None:
         pass
 
@@ -554,6 +561,22 @@ class TextTranslator(SphinxTranslator):
 
     def depart_desc_signature_line(self, node: Element) -> None:
         self.add_text('\n')
+
+    def visit_desc_content(self, node: Element) -> None:
+        self.new_state()
+        self.add_text(self.nl)
+
+    def depart_desc_content(self, node: Element) -> None:
+        self.end_state()
+
+    def visit_desc_inline(self, node: Element) -> None:
+        pass
+
+    def depart_desc_inline(self, node: Element) -> None:
+        pass
+
+    # Nodes for high-level structure in signatures
+    ##############################################
 
     def visit_desc_name(self, node: Element) -> None:
         pass
@@ -606,12 +629,7 @@ class TextTranslator(SphinxTranslator):
     def depart_desc_annotation(self, node: Element) -> None:
         pass
 
-    def visit_desc_content(self, node: Element) -> None:
-        self.new_state()
-        self.add_text(self.nl)
-
-    def depart_desc_content(self, node: Element) -> None:
-        self.end_state()
+    ##############################################
 
     def visit_figure(self, node: Element) -> None:
         self.new_state()
