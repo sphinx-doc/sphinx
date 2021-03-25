@@ -1,25 +1,3 @@
-Release 4.0.0
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-* #1708: Made visited links default color different for all themes except alabaster
-
-Testing
---------
-
 Release 3.5.4 (in development)
 ==============================
 
