@@ -25,8 +25,7 @@ from sphinx.writers.html import HTMLTranslator
 
 # more information for mathjax secure url is here:
 # https://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
-MATHJAX_URL = ('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?'
-               'config=TeX-AMS-MML_HTMLorMML')
+MATHJAX_URL = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
 
 
 def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:

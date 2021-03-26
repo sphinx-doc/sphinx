@@ -13,7 +13,7 @@ Sphinx focuses on documentation, in particular handwritten documentation,
 however, Sphinx can also be used to generate blogs, homepages and even books.
 Much of Sphinx's power comes from the richness of its default plain-text markup
 format, :doc:`reStructuredText </usage/restructuredtext/index>`, along with
-it's :doc:`significant extensibility capabilities </development/index>`.
+its :doc:`significant extensibility capabilities </development/index>`.
 
 The goal of this document is to give you a quick taste of what Sphinx is and
 how you might use it. When you're done here, you can check out the

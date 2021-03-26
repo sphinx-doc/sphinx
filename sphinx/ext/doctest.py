@@ -13,10 +13,10 @@ import doctest
 import re
 import sys
 import time
-import warnings
 from io import StringIO
 from os import path
-from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple,
+                    Type)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement
@@ -26,17 +26,14 @@ from packaging.version import Version
 
 import sphinx
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.osutil import relpath
+from sphinx.util.typing import OptionSpec
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
@@ -44,12 +41,6 @@ logger = logging.getLogger(__name__)
 
 blankline_re = re.compile(r'^\s*<BLANKLINE>', re.MULTILINE)
 doctestopt_re = re.compile(r'#\s*doctest:.+$', re.MULTILINE)
-
-
-def doctest_encode(text: str, encoding: str) -> str:
-    warnings.warn('doctest_encode() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    return text
 
 
 def is_allowed_version(spec: str, version: str) -> bool:
@@ -160,15 +151,19 @@ class TestDirective(SphinxDirective):
 
 
 class TestsetupDirective(TestDirective):
-    option_spec = {'skipif': directives.unchanged_required}  # type: Dict
+    option_spec: OptionSpec = {
+        'skipif': directives.unchanged_required
+    }
 
 
 class TestcleanupDirective(TestDirective):
-    option_spec = {'skipif': directives.unchanged_required}  # type: Dict
+    option_spec: OptionSpec = {
+        'skipif': directives.unchanged_required
+    }
 
 
 class DoctestDirective(TestDirective):
-    option_spec = {
+    option_spec: OptionSpec = {
         'hide': directives.flag,
         'no-trim-doctest-flags': directives.flag,
         'options': directives.unchanged,
@@ -179,7 +174,7 @@ class DoctestDirective(TestDirective):
 
 
 class TestcodeDirective(TestDirective):
-    option_spec = {
+    option_spec: OptionSpec = {
         'hide': directives.flag,
         'no-trim-doctest-flags': directives.flag,
         'pyversion': directives.unchanged_required,
@@ -189,7 +184,7 @@ class TestcodeDirective(TestDirective):
 
 
 class TestoutputDirective(TestDirective):
-    option_spec = {
+    option_spec: OptionSpec = {
         'hide': directives.flag,
         'no-trim-doctest-flags': directives.flag,
         'options': directives.unchanged,

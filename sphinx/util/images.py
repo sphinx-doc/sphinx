@@ -12,7 +12,7 @@ import base64
 import imghdr
 from collections import OrderedDict
 from os import path
-from typing import IO, NamedTuple, Optional, Tuple
+from typing import IO, BinaryIO, NamedTuple, Optional, Tuple
 
 import imagesize
 
@@ -31,9 +31,11 @@ mime_suffixes = OrderedDict([
     ('.ai', 'application/illustrator'),
 ])
 
-DataURI = NamedTuple('DataURI', [('mimetype', str),
-                                 ('charset', str),
-                                 ('data', bytes)])
+
+class DataURI(NamedTuple):
+    mimetype: str
+    charset: str
+    data: bytes
 
 
 def get_image_size(filename: str) -> Optional[Tuple[int, int]]:
@@ -101,7 +103,7 @@ def parse_data_uri(uri: str) -> Optional[DataURI]:
     return DataURI(mimetype, charset, image_data)
 
 
-def test_svg(h: bytes, f: IO) -> Optional[str]:
+def test_svg(h: bytes, f: Optional[BinaryIO]) -> Optional[str]:
     """An additional imghdr library helper; test the header is SVG's or not."""
     try:
         if '<svg' in h.decode().lower():

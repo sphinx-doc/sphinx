@@ -80,7 +80,7 @@ def insert_field_list(node: Element) -> nodes.field_list:
 
 
 def modify_field_list(node: nodes.field_list, annotations: Dict[str, str]) -> None:
-    arguments = {}  # type: Dict[str, Dict[str, bool]]
+    arguments: Dict[str, Dict[str, bool]] = {}
     fields = cast(Iterable[nodes.field], node)
     for field in fields:
         field_name = field[0].astext()

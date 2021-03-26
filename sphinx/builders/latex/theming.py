@@ -106,7 +106,7 @@ class ThemeFactory:
     """A factory class for LaTeX Themes."""
 
     def __init__(self, app: Sphinx) -> None:
-        self.themes = {}  # type: Dict[str, Theme]
+        self.themes: Dict[str, Theme] = {}
         self.theme_paths = [path.join(app.srcdir, p) for p in app.config.latex_theme_path]
         self.config = app.config
         self.load_builtin_themes(app.config)

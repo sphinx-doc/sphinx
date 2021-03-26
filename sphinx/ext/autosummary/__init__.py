@@ -60,19 +60,19 @@ import sys
 import warnings
 from os import path
 from types import ModuleType
-from typing import Any, Dict, List, Tuple, cast
+from typing import Any, Dict, List, Tuple, Type, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.states import Inliner, RSTStateMachine, Struct, state_classes
+from docutils.parsers.rst.states import RSTStateMachine, Struct, state_classes
 from docutils.statemachine import StringList
 
 import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.ext.autodoc import INSTANCEATTR, Documenter
@@ -85,12 +85,8 @@ from sphinx.util import logging, rst
 from sphinx.util.docutils import (NullReporter, SphinxDirective, SphinxRole, new_document,
                                   switch_source_input)
 from sphinx.util.matching import Matcher
+from sphinx.util.typing import OptionSpec
 from sphinx.writers.html import HTMLTranslator
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
 
 logger = logging.getLogger(__name__)
 
@@ -230,7 +226,7 @@ class Autosummary(SphinxDirective):
     optional_arguments = 0
     final_argument_whitespace = False
     has_content = True
-    option_spec = {
+    option_spec: OptionSpec = {
         'caption': directives.unchanged_required,
         'toctree': directives.unchanged,
         'nosignatures': directives.flag,
@@ -434,29 +430,6 @@ class Autosummary(SphinxDirective):
             append_row(col1, col2)
 
         return [table_spec, table]
-
-    def warn(self, msg: str) -> None:
-        warnings.warn('Autosummary.warn() is deprecated',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        logger.warning(msg)
-
-    @property
-    def genopt(self) -> Options:
-        warnings.warn('Autosummary.genopt is deprecated',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        return self.bridge.genopt
-
-    @property
-    def warnings(self) -> List[Node]:
-        warnings.warn('Autosummary.warnings is deprecated',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        return []
-
-    @property
-    def result(self) -> StringList:
-        warnings.warn('Autosummary.result is deprecated',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        return self.bridge.result
 
 
 def strip_arg_typehint(s: str) -> str:
@@ -700,33 +673,6 @@ def import_ivar_by_name(name: str, prefixes: List[str] = [None]) -> Tuple[str, A
 
 # -- :autolink: (smart default role) -------------------------------------------
 
-def autolink_role(typ: str, rawtext: str, etext: str, lineno: int, inliner: Inliner,
-                  options: Dict = {}, content: List[str] = []
-                  ) -> Tuple[List[Node], List[system_message]]:
-    """Smart linking role.
-
-    Expands to ':obj:`text`' if `text` is an object that can be imported;
-    otherwise expands to '*text*'.
-    """
-    warnings.warn('autolink_role() is deprecated.', RemovedInSphinx40Warning, stacklevel=2)
-    env = inliner.document.settings.env
-    pyobj_role = env.get_domain('py').role('obj')
-    objects, msg = pyobj_role('obj', rawtext, etext, lineno, inliner, options, content)
-    if msg != []:
-        return objects, msg
-
-    assert len(objects) == 1
-    pending_xref = cast(addnodes.pending_xref, objects[0])
-    prefixes = get_import_prefixes_from_env(env)
-    try:
-        name, obj, parent, modname = import_by_name(pending_xref['reftarget'], prefixes)
-    except ImportError:
-        literal = cast(nodes.literal, pending_xref[0])
-        objects[0] = nodes.emphasis(rawtext, literal.astext(), classes=literal['classes'])
-
-    return objects, msg
-
-
 class AutoLink(SphinxRole):
     """Smart linking role.
 
@@ -827,7 +773,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('builder-inited', process_generate_options)
     app.add_config_value('autosummary_context', {}, True)
     app.add_config_value('autosummary_filename_map', {}, 'html')
-    app.add_config_value('autosummary_generate', [], True, [bool])
+    app.add_config_value('autosummary_generate', True, True, [bool])
     app.add_config_value('autosummary_generate_overwrite', True, False)
     app.add_config_value('autosummary_mock_imports',
                          lambda config: config.autodoc_mock_imports, 'env')

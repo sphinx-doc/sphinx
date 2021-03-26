@@ -167,26 +167,33 @@ type for that event::
    4. event.env-before-read-docs(app, env, docnames)
 
    for docname in docnames:
-      5.  event.env-purge-doc(app, env, docname)
+      5. event.env-purge-doc(app, env, docname)
+      
       if doc changed and not removed:
          6. source-read(app, docname, source)
-         7. run source parsers: text -> docutils.document (parsers can be added with the app.add_source_parser() API)
-         8. apply transforms (by priority): docutils.document -> docutils.document
-            - event.doctree-read(app, doctree) is called in the middly of transforms,
+         7. run source parsers: text -> docutils.document
+            - parsers can be added with the app.add_source_parser() API
+         8. apply transforms based on priority: docutils.document -> docutils.document
+            - event.doctree-read(app, doctree) is called in the middle of transforms,
               transforms come before/after this event depending on their priority.
-   9. (if running in parallel mode, for each process) event.env-merged-info(app, env, docnames, other)
+   
+   9. event.env-merged-info(app, env, docnames, other)
+      - if running in parallel mode, this event will be emitted for each process
+   
    10. event.env-updated(app, env)
    11. event.env-get-updated(app, env)
    12. event.env-check-consistency(app, env)
 
    # The updated-docs list can be builder dependent, but generally includes all new/changed documents,
    # plus any output from `env-get-updated`, and then all "parent" documents in the ToC tree
-   # For builders that output a single page, they are first joined into a single doctree before post-transforms/doctree-resolved
+   # For builders that output a single page, they are first joined into a single doctree before post-transforms
+   # or the doctree-resolved event is emitted
    for docname in updated-docs:
       13. apply post-transforms (by priority): docutils.document -> docutils.document
       14. event.doctree-resolved(app, doctree, docname)
-          - (for any reference node that fails to resolve) event.missing-reference(env, node, contnode)
-          - (for any reference node that fails to resolve) event.warn-missing-reference(domain, node)
+          - In the event that any reference nodes fail to resolve, the following may emit:
+          - event.missing-reference(env, node, contnode)
+          - event.warn-missing-reference(domain, node)
 
    15. Generate output files
    16. event.build-finished(app, exception)

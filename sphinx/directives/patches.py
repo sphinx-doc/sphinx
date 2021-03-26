@@ -6,7 +6,10 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, Tuple, cast
+import os
+import warnings
+from os import path
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Node, make_id, system_message
@@ -14,14 +17,21 @@ from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import html, images, tables
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.directives import optional_int
 from sphinx.domains.math import MathDomain
+from sphinx.locale import __
+from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
+from sphinx.util.osutil import SEP, os_path, relpath
+from sphinx.util.typing import OptionSpec
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
+
+
+logger = logging.getLogger(__name__)
 
 
 class Figure(images.Figure):
@@ -72,6 +82,11 @@ class RSTTable(tables.RSTTable):
 
     Only for docutils-0.13 or older version."""
 
+    def run(self) -> List[Node]:
+        warnings.warn('RSTTable is deprecated.',
+                      RemovedInSphinx60Warning)
+        return super().run()
+
     def make_title(self) -> Tuple[nodes.title, List[system_message]]:
         title, message = super().make_title()
         if title:
@@ -81,22 +96,36 @@ class RSTTable(tables.RSTTable):
 
 
 class CSVTable(tables.CSVTable):
-    """The csv-table directive which sets source and line information to its caption.
+    """The csv-table directive which searches a CSV file from Sphinx project's source
+    directory when an absolute path is given via :file: option.
+    """
 
-    Only for docutils-0.13 or older version."""
+    def run(self) -> List[Node]:
+        if 'file' in self.options and self.options['file'].startswith((SEP, os.sep)):
+            env = self.state.document.settings.env
+            filename = self.options['file']
+            if path.exists(filename):
+                logger.warning(__('":file:" option for csv-table directive now recognizes '
+                                  'an absolute path as a relative path from source directory. '
+                                  'Please update your document.'),
+                               location=(env.docname, self.lineno))
+            else:
+                abspath = path.join(env.srcdir, os_path(self.options['file'][1:]))
+                docdir = path.dirname(env.doc2path(env.docname))
+                self.options['file'] = relpath(abspath, docdir)
 
-    def make_title(self) -> Tuple[nodes.title, List[system_message]]:
-        title, message = super().make_title()
-        if title:
-            set_source_info(self, title)
-
-        return title, message
+        return super().run()
 
 
 class ListTable(tables.ListTable):
     """The list-table directive which sets source and line information to its caption.
 
     Only for docutils-0.13 or older version."""
+
+    def run(self) -> List[Node]:
+        warnings.warn('ListTable is deprecated.',
+                      RemovedInSphinx60Warning)
+        return super().run()
 
     def make_title(self) -> Tuple[nodes.title, List[system_message]]:
         title, message = super().make_title()
@@ -112,7 +141,7 @@ class Code(SphinxDirective):
     This is compatible with docutils' :rst:dir:`code` directive.
     """
     optional_arguments = 1
-    option_spec = {
+    option_spec: OptionSpec = {
         'class': directives.class_option,
         'force': directives.flag,
         'name': directives.unchanged,
@@ -156,7 +185,7 @@ class MathDirective(SphinxDirective):
     required_arguments = 0
     optional_arguments = 1
     final_argument_whitespace = True
-    option_spec = {
+    option_spec: OptionSpec = {
         'label': directives.unchanged,
         'name': directives.unchanged,
         'class': directives.class_option,
@@ -177,7 +206,7 @@ class MathDirective(SphinxDirective):
         self.add_name(node)
         self.set_source_info(node)
 
-        ret = [node]  # type: List[Node]
+        ret: List[Node] = [node]
         self.add_target(ret)
         return ret
 
@@ -208,9 +237,7 @@ class MathDirective(SphinxDirective):
 def setup(app: "Sphinx") -> Dict[str, Any]:
     directives.register_directive('figure', Figure)
     directives.register_directive('meta', Meta)
-    directives.register_directive('table', RSTTable)
     directives.register_directive('csv-table', CSVTable)
-    directives.register_directive('list-table', ListTable)
     directives.register_directive('code', Code)
     directives.register_directive('math', MathDirective)
 

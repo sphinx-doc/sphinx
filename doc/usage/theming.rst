@@ -334,38 +334,15 @@ These themes are:
 Third Party Themes
 ~~~~~~~~~~~~~~~~~~
 
-.. cssclass:: longtable
+There are many third-party themes available for Sphinx. Some of these are for
+general use, while others are specific to an individual project.
 
-+--------------------+--------------------+
-| **Theme overview** |                    |
-+--------------------+--------------------+
-| |sphinx_rtd_theme| |                    |
-|                    |                    |
-| *sphinx_rtd_theme* |                    |
-+--------------------+--------------------+
+sphinx-themes.org__ is a gallery that showcases various themes for Sphinx,
+with demo documentation rendered under each theme. Themes can also be found
+on PyPI__ (using the classifier ``Framework :: Sphinx :: Theme``), GitHub__
+and GitLab__.
 
-.. |sphinx_rtd_theme| image:: /_static/themes/sphinx_rtd_theme.png
-
-There are many third-party themes available. Some of these are general use,
-while others are specific to an individual project. A section of third-party
-themes is listed below. Many more can be found on PyPI__, GitHub__, GitLab__ and
-sphinx-themes.org__.
-
-.. cssclass:: clear
-
-**sphinx_rtd_theme**
-  `Read the Docs Sphinx Theme`_.
-  This is a mobile-friendly sphinx theme that was made for readthedocs.org.
-  View a working demo over on readthedocs.org. You can get install and options
-  information at `Read the Docs Sphinx Theme`_ page.
-
-  .. _Read the Docs Sphinx Theme: https://pypi.org/project/sphinx_rtd_theme/
-
-  .. versionchanged:: 1.4
-     **sphinx_rtd_theme** has become optional.
-
-
-.. __: https://pypi.org/search/?q=&o=&c=Framework+%3A%3A+Sphinx+%3A%3A+Theme
-.. __: https://github.com/search?utf8=%E2%9C%93&q=sphinx+theme&type=
-.. __: https://gitlab.com/explore?name=sphinx+theme
 .. __: https://sphinx-themes.org/
+.. __: https://pypi.org/search/?q=&o=&c=Framework+%3A%3A+Sphinx+%3A%3A+Theme
+.. __: https://github.com/search?utf8=%E2%9C%93&q=sphinx+theme
+.. __: https://gitlab.com/explore?name=sphinx+theme

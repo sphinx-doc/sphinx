@@ -9,9 +9,10 @@
 """
 
 import traceback
+import warnings
 from importlib import import_module
 from types import MethodType
-from typing import Any, Callable, Dict, Iterator, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Tuple, Type, Union
 
 from docutils import nodes
 from docutils.io import Input
@@ -23,6 +24,7 @@ from pkg_resources import iter_entry_points
 
 from sphinx.builders import Builder
 from sphinx.config import Config
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.domains import Domain, Index, ObjType
 from sphinx.domains.std import GenericObject, Target
 from sphinx.environment import BuildEnvironment
@@ -35,10 +37,7 @@ from sphinx.util import logging
 from sphinx.util.logging import prefixed_warnings
 from sphinx.util.typing import RoleFunction, TitleGetter
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.ext.autodoc import Documenter
 
@@ -288,6 +287,9 @@ class SphinxComponentRegistry:
         return parser
 
     def get_source_input(self, filetype: str) -> "Type[Input]":
+        warnings.warn('SphinxComponentRegistry.get_source_input() is deprecated.',
+                      RemovedInSphinx60Warning)
+
         try:
             return self.source_inputs[filetype]
         except KeyError:

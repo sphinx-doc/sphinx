@@ -8,7 +8,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import os
 import subprocess
 import sys
 from collections import namedtuple
@@ -90,7 +89,6 @@ def app_params(request: Any, test_params: Dict, shared_result: SharedResult,
     args = [pargs[i] for i in sorted(pargs.keys())]
 
     # ##### process pytest.mark.test_params
-
     if test_params['shared_result']:
         if 'srcdir' in kwargs:
             raise pytest.Exception('You can not specify shared_result and '
@@ -236,10 +234,7 @@ def sphinx_test_tempdir(tmpdir_factory: Any) -> "util.path":
     """
     temporary directory that wrapped with `path` class.
     """
-    tmpdir = os.environ.get('SPHINX_TEST_TEMPDIR')  # RemovedInSphinx40Warning
-    if tmpdir is None:
-        tmpdir = tmpdir_factory.getbasetemp()
-
+    tmpdir = tmpdir_factory.getbasetemp()
     return util.path(tmpdir).abspath()
 
 

@@ -9,7 +9,6 @@
 """
 
 import contextlib
-import errno
 import filecmp
 import os
 import re
@@ -18,9 +17,9 @@ import sys
 import warnings
 from io import StringIO
 from os import path
-from typing import Any, Generator, Iterator, List, Optional, Tuple
+from typing import Any, Generator, Iterator, List, Optional, Type
 
-from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
+from sphinx.deprecation import RemovedInSphinx50Warning
 
 try:
     # for ALT Linux (#6712)
@@ -28,15 +27,6 @@ try:
 except ImportError:
     Path = None  # type: ignore
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
-# Errnos that we need.
-EEXIST = getattr(errno, 'EEXIST', 0)  # RemovedInSphinx40Warning
-ENOENT = getattr(errno, 'ENOENT', 0)  # RemovedInSphinx40Warning
-EPIPE = getattr(errno, 'EPIPE', 0)    # RemovedInSphinx40Warning
-EINVAL = getattr(errno, 'EINVAL', 0)  # RemovedInSphinx40Warning
 
 # SEP separates path elements in the canonical file names
 #
@@ -81,13 +71,6 @@ def relative_uri(base: str, to: str) -> str:
 def ensuredir(path: str) -> None:
     """Ensure that a path exists."""
     os.makedirs(path, exist_ok=True)
-
-
-def walk(top: str, topdown: bool = True, followlinks: bool = False) -> Iterator[Tuple[str, List[str], List[str]]]:  # NOQA
-    warnings.warn('sphinx.util.osutil.walk() is deprecated for removal. '
-                  'Please use os.walk() instead.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    return os.walk(top, topdown=topdown, followlinks=followlinks)
 
 
 def mtimes_of_files(dirnames: List[str], suffix: str) -> Iterator[float]:
@@ -178,13 +161,6 @@ def abspath(pathdir: str) -> str:
         return pathdir
 
 
-def getcwd() -> str:
-    warnings.warn('sphinx.util.osutil.getcwd() is deprecated. '
-                  'Please use os.getcwd() instead.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    return os.getcwd()
-
-
 @contextlib.contextmanager
 def cd(target_dir: str) -> Generator[None, None, None]:
     cwd = os.getcwd()
@@ -209,7 +185,7 @@ class FileAvoidWrite:
     """
     def __init__(self, path: str) -> None:
         self._path = path
-        self._io = None  # type: Optional[StringIO]
+        self._io: Optional[StringIO] = None
 
     def write(self, data: str) -> None:
         if not self._io:

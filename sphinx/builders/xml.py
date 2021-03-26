@@ -9,7 +9,7 @@
 """
 
 from os import path
-from typing import Any, Dict, Iterator, Set, Union
+from typing import Any, Dict, Iterator, Set, Type, Union
 
 from docutils import nodes
 from docutils.io import StringOutput
@@ -22,11 +22,6 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
 from sphinx.writers.xml import PseudoXMLWriter, XMLWriter
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +37,7 @@ class XMLBuilder(Builder):
     out_suffix = '.xml'
     allow_parallel = True
 
-    _writer_class = XMLWriter  # type: Union[Type[XMLWriter], Type[PseudoXMLWriter]]
+    _writer_class: Union[Type[XMLWriter], Type[PseudoXMLWriter]] = XMLWriter
     default_translator_class = XMLTranslator
 
     def init(self) -> None:

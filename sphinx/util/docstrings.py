@@ -23,7 +23,7 @@ field_list_item_re = re.compile(Body.patterns['field_marker'])
 def extract_metadata(s: str) -> Dict[str, str]:
     """Extract metadata from docstring."""
     in_other_element = False
-    metadata = {}  # type: Dict[str, str]
+    metadata: Dict[str, str] = {}
 
     if not s:
         return metadata

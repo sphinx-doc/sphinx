@@ -16,6 +16,7 @@ import sys
 from distutils.cmd import Command
 from distutils.errors import DistutilsExecError
 from io import StringIO
+from typing import TYPE_CHECKING
 
 from sphinx.application import Sphinx
 from sphinx.cmd.build import handle_exception
@@ -23,9 +24,8 @@ from sphinx.util.console import color_terminal, nocolor
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath
 
-if False:
-    # For type annotation
-    from typing import Any, Dict  # NOQA
+if TYPE_CHECKING:
+    from typing import Any, Dict
 
 
 class BuildDoc(Command):
@@ -190,6 +190,6 @@ class BuildDoc(Command):
             if not self.link_index:
                 continue
 
-            src = app.config.master_doc + app.builder.out_suffix  # type: ignore
+            src = app.config.root_doc + app.builder.out_suffix  # type: ignore
             dst = app.builder.get_outfilename('index')  # type: ignore
             os.symlink(src, dst)

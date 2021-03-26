@@ -11,8 +11,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-import warnings
-from typing import Any, Dict, Iterable, List, Tuple, cast
+from typing import Any, Dict, List, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -22,14 +21,13 @@ from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.domains import Domain
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging, texescape
 from sphinx.util.docutils import SphinxDirective, new_document
-from sphinx.util.nodes import make_refnode
+from sphinx.util.typing import OptionSpec
 from sphinx.writers.html import HTMLTranslator
 from sphinx.writers.latex import LaTeXTranslator
 
@@ -54,7 +52,7 @@ class Todo(BaseAdmonition, SphinxDirective):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {
+    option_spec: OptionSpec = {
         'class': directives.class_option,
         'name': directives.unchanged,
     }
@@ -104,33 +102,6 @@ class TodoDomain(Domain):
                                location=todo)
 
 
-def process_todos(app: Sphinx, doctree: nodes.document) -> None:
-    warnings.warn('process_todos() is deprecated.', RemovedInSphinx40Warning, stacklevel=2)
-    # collect all todos in the environment
-    # this is not done in the directive itself because it some transformations
-    # must have already been run, e.g. substitutions
-    env = app.builder.env
-    if not hasattr(env, 'todo_all_todos'):
-        env.todo_all_todos = []  # type: ignore
-    for node in doctree.traverse(todo_node):
-        app.events.emit('todo-defined', node)
-
-        newnode = node.deepcopy()
-        newnode['ids'] = []
-        env.todo_all_todos.append({  # type: ignore
-            'docname': env.docname,
-            'source': node.source or env.doc2path(env.docname),
-            'lineno': node.line,
-            'todo': newnode,
-            'target': node['ids'][0],
-        })
-
-        if env.config.todo_emit_warnings:
-            label = cast(nodes.Element, node[1])
-            logger.warning(__("TODO entry found: %s"), label.astext(),
-                           location=node)
-
-
 class TodoList(SphinxDirective):
     """
     A list of all todo entries.
@@ -140,7 +111,7 @@ class TodoList(SphinxDirective):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
         # Simply insert an empty todolist node which will be replaced later
@@ -221,80 +192,6 @@ class TodoListProcessor:
         self.document += todo
         self.env.resolve_references(self.document, docname, self.builder)
         self.document.remove(todo)
-
-
-def process_todo_nodes(app: Sphinx, doctree: nodes.document, fromdocname: str) -> None:
-    """Replace all todolist nodes with a list of the collected todos.
-    Augment each todo with a backlink to the original location.
-    """
-    warnings.warn('process_todo_nodes() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-
-    domain = cast(TodoDomain, app.env.get_domain('todo'))
-    todos = sum(domain.todos.values(), [])  # type: List[todo_node]
-
-    for node in doctree.traverse(todolist):
-        if node.get('ids'):
-            content = [nodes.target()]  # type: List[Element]
-        else:
-            content = []
-
-        if not app.config['todo_include_todos']:
-            node.replace_self(content)
-            continue
-
-        for todo_info in todos:
-            para = nodes.paragraph(classes=['todo-source'])
-            if app.config['todo_link_only']:
-                description = _('<<original entry>>')
-            else:
-                description = (
-                    _('(The <<original entry>> is located in %s, line %d.)') %
-                    (todo_info.source, todo_info.line)
-                )
-            desc1 = description[:description.find('<<')]
-            desc2 = description[description.find('>>') + 2:]
-            para += nodes.Text(desc1, desc1)
-
-            # Create a reference
-            innernode = nodes.emphasis(_('original entry'), _('original entry'))
-            try:
-                para += make_refnode(app.builder, fromdocname, todo_info['docname'],
-                                     todo_info['ids'][0], innernode)
-            except NoUri:
-                # ignore if no URI can be determined, e.g. for LaTeX output
-                pass
-            para += nodes.Text(desc2, desc2)
-
-            todo_entry = todo_info.deepcopy()
-            todo_entry['ids'].clear()
-
-            # (Recursively) resolve references in the todo content
-            app.env.resolve_references(todo_entry, todo_info['docname'], app.builder)  # type: ignore  # NOQA
-
-            # Insert into the todolist
-            content.append(todo_entry)
-            content.append(para)
-
-        node.replace_self(content)
-
-
-def purge_todos(app: Sphinx, env: BuildEnvironment, docname: str) -> None:
-    warnings.warn('purge_todos() is deprecated.', RemovedInSphinx40Warning, stacklevel=2)
-    if not hasattr(env, 'todo_all_todos'):
-        return
-    env.todo_all_todos = [todo for todo in env.todo_all_todos  # type: ignore
-                          if todo['docname'] != docname]
-
-
-def merge_info(app: Sphinx, env: BuildEnvironment, docnames: Iterable[str],
-               other: BuildEnvironment) -> None:
-    warnings.warn('merge_info() is deprecated.', RemovedInSphinx40Warning, stacklevel=2)
-    if not hasattr(other, 'todo_all_todos'):
-        return
-    if not hasattr(env, 'todo_all_todos'):
-        env.todo_all_todos = []  # type: ignore
-    env.todo_all_todos.extend(other.todo_all_todos)  # type: ignore
 
 
 def visit_todo_node(self: HTMLTranslator, node: todo_node) -> None:

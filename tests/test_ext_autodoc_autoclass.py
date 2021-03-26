@@ -200,6 +200,27 @@ def test_decorators(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_properties(app):
+    options = {"members": None}
+    actual = do_autodoc(app, 'class', 'target.properties.Foo', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.properties',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:property:: Foo.prop',
+        '      :module: target.properties',
+        '      :type: int',
+        '',
+        '      docstring',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_slots_attribute(app):
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.slots.Bar', options)

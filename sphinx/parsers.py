@@ -9,7 +9,7 @@
 """
 
 import warnings
-from typing import Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, Union
 
 import docutils.parsers
 import docutils.parsers.rst
@@ -21,10 +21,7 @@ from docutils.transforms.universal import SmartQuotes
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.util.rst import append_epilog, prepend_prolog
 
-if False:
-    # For type annotation
-    from typing import Type  # NOQA # for python3.5.1
-
+if TYPE_CHECKING:
     from docutils.transforms import Transform  # NOQA
 
     from sphinx.application import Sphinx
@@ -73,7 +70,7 @@ class Parser(docutils.parsers.Parser):
 class RSTParser(docutils.parsers.rst.Parser, Parser):
     """A reST parser for Sphinx."""
 
-    def get_transforms(self) -> List["Type[Transform]"]:
+    def get_transforms(self) -> List[Type["Transform"]]:
         """Sphinx's reST parser replaces a transform class for smart-quotes by own's
 
         refs: sphinx.io.SphinxStandaloneReader

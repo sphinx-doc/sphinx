@@ -11,18 +11,14 @@
 import sys
 import warnings
 from importlib import import_module
-from typing import Any, Dict
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
+from typing import Any, Dict, Type
 
 
 class RemovedInSphinx40Warning(DeprecationWarning):
     pass
 
 
-class RemovedInSphinx50Warning(PendingDeprecationWarning):
+class RemovedInSphinx50Warning(DeprecationWarning):
     pass
 
 
@@ -30,11 +26,11 @@ class RemovedInSphinx60Warning(PendingDeprecationWarning):
     pass
 
 
-RemovedInNextVersionWarning = RemovedInSphinx40Warning
+RemovedInNextVersionWarning = RemovedInSphinx50Warning
 
 
 def deprecated_alias(modname: str, objects: Dict[str, object],
-                     warning: "Type[Warning]", names: Dict[str, str] = None) -> None:
+                     warning: "Type[Warning]", names: Dict[str, str] = {}) -> None:
     module = import_module(modname)
     sys.modules[modname] = _ModuleWrapper(  # type: ignore
         module, modname, objects, warning, names)

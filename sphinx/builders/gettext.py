@@ -13,7 +13,7 @@ from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta, tzinfo
 from os import getenv, path, walk
 from time import time
-from typing import Any, Dict, Generator, Iterable, List, Set, Tuple, Union
+from typing import Any, DefaultDict, Dict, Generator, Iterable, List, Set, Tuple, Union
 from uuid import uuid4
 
 from docutils import nodes
@@ -33,32 +33,7 @@ from sphinx.util.osutil import canon_path, ensuredir, relpath
 from sphinx.util.tags import Tags
 from sphinx.util.template import SphinxRenderer
 
-if False:
-    # For type annotation
-    from typing import DefaultDict  # for python3.5.1
-
 logger = logging.getLogger(__name__)
-
-POHEADER = r"""
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) %(copyright)s
-# This file is distributed under the same license as the %(project)s package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
-msgid ""
-msgstr ""
-"Project-Id-Version: %(project)s %(version)s\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: %(ctime)s\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-
-"""[1:]  # RemovedInSphinx40Warning
 
 
 class Message:
@@ -73,10 +48,10 @@ class Catalog:
     """Catalog of translatable messages."""
 
     def __init__(self) -> None:
-        self.messages = []  # type: List[str]
-                            # retain insertion order, a la OrderedDict
-        self.metadata = OrderedDict()   # type: Dict[str, List[Tuple[str, int, str]]]
-                                        # msgid -> file, line, uid
+        self.messages: List[str] = []  # retain insertion order, a la OrderedDict
+
+        # msgid -> file, line, uid
+        self.metadata: Dict[str, List[Tuple[str, int, str]]] = OrderedDict()
 
     def add(self, msg: str, origin: Union[Element, "MsgOrigin"]) -> None:
         if not hasattr(origin, 'uid'):
@@ -146,8 +121,7 @@ class I18nBuilder(Builder):
     """
     name = 'i18n'
     versioning_method = 'text'
-    versioning_compare = None   # type: bool
-                                # be set by `gettext_uuid`
+    versioning_compare: bool = None  # be set by `gettext_uuid`
     use_message_catalog = False
 
     def init(self) -> None:
@@ -155,7 +129,7 @@ class I18nBuilder(Builder):
         self.env.set_versioning_method(self.versioning_method,
                                        self.env.config.gettext_uuid)
         self.tags = I18nTags()
-        self.catalogs = defaultdict(Catalog)  # type: DefaultDict[str, Catalog]
+        self.catalogs: DefaultDict[str, Catalog] = defaultdict(Catalog)
 
     def get_target_uri(self, docname: str, typ: str = None) -> str:
         return ''

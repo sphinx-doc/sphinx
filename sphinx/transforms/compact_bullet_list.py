@@ -32,7 +32,7 @@ class RefOnlyListChecker(nodes.GenericNodeVisitor):
         pass
 
     def visit_list_item(self, node: nodes.list_item) -> None:
-        children = []  # type: List[Node]
+        children: List[Node] = []
         for child in node.children:
             if not isinstance(child, nodes.Invisible):
                 children.append(child)

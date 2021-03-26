@@ -41,7 +41,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
 
     for objnode in doctree.traverse(addnodes.desc):
         domain = objnode.get('domain')
-        uris = set()  # type: Set[str]
+        uris: Set[str] = set()
         for signode in objnode:
             if not isinstance(signode, addnodes.desc_signature):
                 continue

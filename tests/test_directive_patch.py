@@ -8,6 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import pytest
 from docutils import nodes
 
 from sphinx.testing import restructuredtext
@@ -52,6 +53,37 @@ def test_code_directive(app):
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, [nodes.document, nodes.literal_block, 'print("hello world")'])
     assert_node(doctree[0], language="python", linenos=True, highlight_args={'linenostart': 5})
+
+
+@pytest.mark.sphinx(testroot='directive-csv-table')
+def test_csv_table_directive(app):
+    # relative path from current document
+    text = ('.. csv-table::\n'
+            '   :file: example.csv\n')
+    doctree = restructuredtext.parse(app, text, docname="subdir/index")
+    assert_node(doctree,
+                ([nodes.table, nodes.tgroup, (nodes.colspec,
+                                              nodes.colspec,
+                                              nodes.colspec,
+                                              [nodes.tbody, nodes.row])],))
+    assert_node(doctree[0][0][3][0],
+                ([nodes.entry, nodes.paragraph, "FOO"],
+                 [nodes.entry, nodes.paragraph, "BAR"],
+                 [nodes.entry, nodes.paragraph, "BAZ"]))
+
+    # absolute path from source directory
+    text = ('.. csv-table::\n'
+            '   :file: /example.csv\n')
+    doctree = restructuredtext.parse(app, text, docname="subdir/index")
+    assert_node(doctree,
+                ([nodes.table, nodes.tgroup, (nodes.colspec,
+                                              nodes.colspec,
+                                              nodes.colspec,
+                                              [nodes.tbody, nodes.row])],))
+    assert_node(doctree[0][0][3][0],
+                ([nodes.entry, nodes.paragraph, "foo"],
+                 [nodes.entry, nodes.paragraph, "bar"],
+                 [nodes.entry, nodes.paragraph, "baz"]))
 
 
 def test_math_directive(app):

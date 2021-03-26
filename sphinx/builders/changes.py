@@ -51,9 +51,9 @@ class ChangesBuilder(Builder):
     def write(self, *ignored: Any) -> None:
         version = self.config.version
         domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
-        libchanges = {}     # type: Dict[str, List[Tuple[str, str, int]]]
-        apichanges = []     # type: List[Tuple[str, str, int]]
-        otherchanges = {}   # type: Dict[Tuple[str, str], List[Tuple[str, str, int]]]
+        libchanges: Dict[str, List[Tuple[str, str, int]]] = {}
+        apichanges: List[Tuple[str, str, int]] = []
+        otherchanges: Dict[Tuple[str, str], List[Tuple[str, str, int]]] = {}
 
         changesets = domain.get_changesets_for(version)
         if not changesets:

@@ -8,7 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, Set, Tuple, TypeVar, cast
+from typing import Any, Dict, List, Set, Tuple, Type, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -21,11 +21,6 @@ from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.locale import __
 from sphinx.transforms import SphinxContentsFilter
 from sphinx.util import logging, url_re
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
 
 N = TypeVar('N')
 
@@ -286,7 +281,7 @@ class TocTreeCollector(EnvironmentCollector):
                 _walk_doctree(docname, doctree, secnum)
 
         if env.config.numfig:
-            _walk_doc(env.config.master_doc, tuple())
+            _walk_doc(env.config.root_doc, tuple())
             for docname, fignums in env.toc_fignumbers.items():
                 if fignums != old_fignumbers.get(docname):
                     rewrite_needed.append(docname)

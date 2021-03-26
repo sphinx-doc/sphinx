@@ -15,6 +15,7 @@ from typing import Any, Dict, Iterable, List, Tuple, Union
 from docutils import nodes
 from docutils.frontend import OptionParser
 from docutils.io import FileOutput
+from docutils.nodes import Node
 
 from sphinx import addnodes, package_dir
 from sphinx.application import Sphinx
@@ -154,7 +155,7 @@ class TexinfoBuilder(Builder):
         for pendingnode in largetree.traverse(addnodes.pending_xref):
             docname = pendingnode['refdocname']
             sectname = pendingnode['refsectname']
-            newnodes = [nodes.emphasis(sectname, sectname)]  # type: List[nodes.Node]
+            newnodes: List[Node] = [nodes.emphasis(sectname, sectname)]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
                     newnodes.append(nodes.Text(_(' (in '), _(' (in ')))
@@ -197,7 +198,7 @@ class TexinfoBuilder(Builder):
 def default_texinfo_documents(config: Config) -> List[Tuple[str, str, str, str, str, str, str]]:  # NOQA
     """ Better default texinfo_documents settings. """
     filename = make_filename_from_project(config.project)
-    return [(config.master_doc, filename, config.project, config.author, filename,
+    return [(config.root_doc, filename, config.project, config.author, filename,
              'One line description of project', 'Miscellaneous')]
 
 

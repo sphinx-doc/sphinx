@@ -11,6 +11,7 @@
 import sys
 from numbers import Integral
 from struct import Struct
+from types import TracebackType
 from typing import (Any, Callable, Dict, Generator, List, NewType, Optional, Tuple, TypeVar,
                     Union)
 
@@ -45,6 +46,7 @@ def test_restify():
     assert restify(None) == ":obj:`None`"
     assert restify(Integral) == ":class:`numbers.Integral`"
     assert restify(Struct) == ":class:`struct.Struct`"
+    assert restify(TracebackType) == ":class:`types.TracebackType`"
     assert restify(Any) == ":obj:`Any`"
 
 
@@ -133,7 +135,8 @@ def test_stringify():
     assert stringify(str) == "str"
     assert stringify(None) == "None"
     assert stringify(Integral) == "numbers.Integral"
-    assert restify(Struct) == ":class:`struct.Struct`"
+    assert stringify(Struct) == "struct.Struct"
+    assert stringify(TracebackType) == "types.TracebackType"
     assert stringify(Any) == "Any"
 
 
@@ -194,10 +197,17 @@ def test_stringify_type_hints_typevars():
     T_co = TypeVar('T_co', covariant=True)
     T_contra = TypeVar('T_contra', contravariant=True)
 
-    assert stringify(T) == "T"
-    assert stringify(T_co) == "T_co"
-    assert stringify(T_contra) == "T_contra"
-    assert stringify(List[T]) == "List[T]"
+    if sys.version_info < (3, 7):
+        assert stringify(T) == "T"
+        assert stringify(T_co) == "T_co"
+        assert stringify(T_contra) == "T_contra"
+        assert stringify(List[T]) == "List[T]"
+    else:
+        assert stringify(T) == "tests.test_util_typing.T"
+        assert stringify(T_co) == "tests.test_util_typing.T_co"
+        assert stringify(T_contra) == "tests.test_util_typing.T_contra"
+        assert stringify(List[T]) == "List[tests.test_util_typing.T]"
+
     assert stringify(MyInt) == "MyInt"
 
 

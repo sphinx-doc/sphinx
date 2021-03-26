@@ -12,7 +12,8 @@ import re
 import unicodedata
 import warnings
 from copy import copy
-from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union, cast
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, List, Optional,
+                    Tuple, Type, Union, cast)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -21,7 +22,7 @@ from docutils.statemachine import StringList
 
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature, pending_xref
-from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.locale import _, __
@@ -29,12 +30,9 @@ from sphinx.roles import XRefRole
 from sphinx.util import docname_join, logging, ws_re
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import clean_astext, make_id, make_refnode
-from sphinx.util.typing import RoleFunction
+from sphinx.util.typing import OptionSpec, RoleFunction
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
@@ -52,8 +50,8 @@ class GenericObject(ObjectDescription[str]):
     """
     A generic x-ref directive registered with Sphinx.add_object_type().
     """
-    indextemplate = ''
-    parse_node = None  # type: Callable[[GenericObject, BuildEnvironment, str, desc_signature], str]  # NOQA
+    indextemplate: str = ''
+    parse_node: Callable[["GenericObject", "BuildEnvironment", str, desc_signature], str] = None  # NOQA
 
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         if self.parse_node:
@@ -134,7 +132,7 @@ class Target(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
         # normalize whitespace in fullname like XRefRole does
@@ -150,7 +148,7 @@ class Target(SphinxDirective):
             node['ids'].append(old_node_id)
 
         self.state.document.note_explicit_target(node)
-        ret = [node]  # type: List[Node]
+        ret: List[Node] = [node]
         if self.indextemplate:
             indexentry = self.indextemplate % (fullname,)
             indextype = 'single'
@@ -267,7 +265,7 @@ class Program(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
         program = ws_re.sub('-', self.arguments[0].strip())
@@ -292,8 +290,8 @@ def split_term_classifiers(line: str) -> List[Optional[str]]:
 
 
 def make_glossary_term(env: "BuildEnvironment", textnodes: Iterable[Node], index_key: str,
-                       source: str, lineno: int, node_id: str = None,
-                       document: nodes.document = None) -> nodes.term:
+                       source: str, lineno: int, node_id: str, document: nodes.document
+                       ) -> nodes.term:
     # get a text-only representation of the term and register it
     # as a cross-reference target
     term = nodes.term('', '', *textnodes)
@@ -304,23 +302,10 @@ def make_glossary_term(env: "BuildEnvironment", textnodes: Iterable[Node], index
     if node_id:
         # node_id is given from outside (mainly i18n module), use it forcedly
         term['ids'].append(node_id)
-    elif document:
+    else:
         node_id = make_id(env, document, 'term', termtext)
         term['ids'].append(node_id)
         document.note_explicit_target(term)
-    else:
-        warnings.warn('make_glossary_term() expects document is passed as an argument.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        gloss_entries = env.temp_data.setdefault('gloss_entries', set())
-        node_id = nodes.make_id('term-' + termtext)
-        if node_id == 'term':
-            # "term" is not good for node_id.  Generate it by sequence number instead.
-            node_id = 'term-%d' % env.new_serialno('glossary')
-
-        while node_id in gloss_entries:
-            node_id = 'term-%d' % env.new_serialno('glossary')
-        gloss_entries.add(node_id)
-        term['ids'].append(node_id)
 
     std = cast(StandardDomain, env.get_domain('std'))
     std._note_term(termtext, node_id, location=term)
@@ -344,7 +329,7 @@ class Glossary(SphinxDirective):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {
+    option_spec: OptionSpec = {
         'sorted': directives.flag,
     }
 
@@ -358,11 +343,11 @@ class Glossary(SphinxDirective):
         # be* a definition list.
 
         # first, collect single entries
-        entries = []  # type: List[Tuple[List[Tuple[str, str, int]], StringList]]
+        entries: List[Tuple[List[Tuple[str, str, int]], StringList]] = []
         in_definition = True
         in_comment = False
         was_empty = True
-        messages = []  # type: List[Node]
+        messages: List[Node] = []
         for line, (source, lineno) in zip(self.content, self.content.items):
             # empty line -> add to last definition
             if not line:
@@ -417,9 +402,9 @@ class Glossary(SphinxDirective):
         # now, parse all the entries into a big definition list
         items = []
         for terms, definition in entries:
-            termtexts = []          # type: List[str]
-            termnodes = []          # type: List[Node]
-            system_messages = []    # type: List[Node]
+            termtexts: List[str] = []
+            termnodes: List[Node] = []
+            system_messages: List[Node] = []
             for line, source, lineno in terms:
                 parts = split_term_classifiers(line)
                 # parse the term with inline markup
@@ -428,7 +413,7 @@ class Glossary(SphinxDirective):
 
                 # use first classifier as a index key
                 term = make_glossary_term(self.env, textnodes, parts[1], source, lineno,
-                                          document=self.state.document)
+                                          node_id=None, document=self.state.document)
                 term.rawsource = line
                 system_messages.extend(sysmsg)
                 termtexts.append(term.astext())
@@ -458,7 +443,7 @@ class Glossary(SphinxDirective):
 def token_xrefs(text: str, productionGroup: str = '') -> List[Node]:
     if len(productionGroup) != 0:
         productionGroup += ':'
-    retnodes = []  # type: List[Node]
+    retnodes: List[Node] = []
     pos = 0
     for m in token_re.finditer(text):
         if m.start() > pos:
@@ -497,11 +482,11 @@ class ProductionList(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
         domain = cast(StandardDomain, self.env.get_domain('std'))
-        node = addnodes.productionlist()  # type: Element
+        node: Element = addnodes.productionlist()
         self.set_source_info(node)
         # The backslash handling is from ObjectDescription.get_signatures
         nl_escape_re = re.compile(r'\\\n')
@@ -574,7 +559,7 @@ class StandardDomain(Domain):
     name = 'std'
     label = 'Default'
 
-    object_types = {
+    object_types: Dict[str, ObjType] = {
         'term': ObjType(_('glossary term'), 'term', searchprio=-1),
         'token': ObjType(_('grammar token'), 'token', searchprio=-1),
         'label': ObjType(_('reference label'), 'ref', 'keyword',
@@ -582,17 +567,17 @@ class StandardDomain(Domain):
         'envvar': ObjType(_('environment variable'), 'envvar'),
         'cmdoption': ObjType(_('program option'), 'option'),
         'doc': ObjType(_('document'), 'doc', searchprio=-1)
-    }  # type: Dict[str, ObjType]
+    }
 
-    directives = {
+    directives: Dict[str, Type[Directive]] = {
         'program': Program,
         'cmdoption': Cmdoption,  # old name for backwards compatibility
         'option': Cmdoption,
         'envvar': EnvVar,
         'glossary': Glossary,
         'productionlist': ProductionList,
-    }  # type: Dict[str, Type[Directive]]
-    roles = {
+    }
+    roles: Dict[str, Union[RoleFunction, XRefRole]] = {
         'option':  OptionXRefRole(warn_dangling=True),
         'envvar':  EnvVarXRefRole(),
         # links to tokens in grammar productions
@@ -610,7 +595,7 @@ class StandardDomain(Domain):
         'keyword': XRefRole(warn_dangling=True),
         # links to documents
         'doc':     XRefRole(warn_dangling=True, innernodeclass=nodes.inline),
-    }  # type: Dict[str, Union[RoleFunction, XRefRole]]
+    }
 
     initial_data = {
         'progoptions': {},      # (program, name) -> docname, labelid
@@ -635,11 +620,12 @@ class StandardDomain(Domain):
         'option': 'unknown option: %(target)s',
     }
 
-    enumerable_nodes = {  # node_class -> (figtype, title_getter)
+    # node_class -> (figtype, title_getter)
+    enumerable_nodes: Dict[Type[Node], Tuple[str, Callable]] = {
         nodes.figure: ('figure', None),
         nodes.table: ('table', None),
         nodes.container: ('code-block', None),
-    }  # type: Dict[Type[Node], Tuple[str, Callable]]
+    }
 
     def __init__(self, env: "BuildEnvironment") -> None:
         super().__init__(env)
@@ -721,7 +707,7 @@ class StandardDomain(Domain):
         return self.data.setdefault('anonlabels', {})  # labelname -> docname, labelid
 
     def clear_doc(self, docname: str) -> None:
-        key = None  # type: Any
+        key: Any = None
         for key, (fn, _l) in list(self.progoptions.items()):
             if fn == docname:
                 del self.progoptions[key]
@@ -837,11 +823,6 @@ class StandardDomain(Domain):
             resolver = self._resolve_doc_xref
         elif typ == 'option':
             resolver = self._resolve_option_xref
-        elif typ == 'citation':
-            warnings.warn('pending_xref(domain=std, type=citation) is deprecated: %r' % node,
-                          RemovedInSphinx40Warning, stacklevel=2)
-            domain = env.get_domain('citation')
-            return domain.resolve_xref(env, fromdocname, builder, typ, target, node, contnode)
         elif typ == 'term':
             resolver = self._resolve_term_xref
         else:
@@ -1012,7 +993,7 @@ class StandardDomain(Domain):
     def resolve_any_xref(self, env: "BuildEnvironment", fromdocname: str,
                          builder: "Builder", target: str, node: pending_xref,
                          contnode: Element) -> List[Tuple[str, Element]]:
-        results = []  # type: List[Tuple[str, Element]]
+        results: List[Tuple[str, Element]] = []
         ltarget = target.lower()  # :ref: lowercases its target automatically
         for role in ('ref', 'option'):  # do not try "keyword"
             res = self.resolve_xref(env, fromdocname, builder, role,
@@ -1126,18 +1107,6 @@ class StandardDomain(Domain):
                 return None
         else:
             return None
-
-    def note_citations(self, env: "BuildEnvironment", docname: str, document: nodes.document) -> None:  # NOQA
-        warnings.warn('StandardDomain.note_citations() is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-
-    def note_citation_refs(self, env: "BuildEnvironment", docname: str, document: nodes.document) -> None:  # NOQA
-        warnings.warn('StandardDomain.note_citation_refs() is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-
-    def note_labels(self, env: "BuildEnvironment", docname: str, document: nodes.document) -> None:  # NOQA
-        warnings.warn('StandardDomain.note_labels() is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
 
 
 def warn_missing_reference(app: "Sphinx", domain: Domain, node: pending_xref) -> bool:
