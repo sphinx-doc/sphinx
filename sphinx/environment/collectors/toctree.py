@@ -64,7 +64,7 @@ class TocTreeCollector(EnvironmentCollector):
 
         def traverse_in_section(node: Element, cls: "Type[N]") -> List[N]:
             """Like traverse(), but stay within the same section."""
-            result = []  # type: List[N]
+            result: List[N] = []
             if isinstance(node, cls):
                 result.append(node)
             for child in node.children:
@@ -75,7 +75,7 @@ class TocTreeCollector(EnvironmentCollector):
             return result
 
         def build_toc(node: Element, depth: int = 1) -> nodes.bullet_list:
-            entries = []  # type: List[Element]
+            entries: List[Element] = []
             for sectionnode in node:
                 # find all toctree nodes in this section and add them
                 # to the toc (just copying the toctree node which is then
@@ -100,7 +100,7 @@ class TocTreeCollector(EnvironmentCollector):
                         '', '', internal=True, refuri=docname,
                         anchorname=anchorname, *nodetext)
                     para = addnodes.compact_paragraph('', '', reference)
-                    item = nodes.list_item('', para)  # type: Element
+                    item: Element = nodes.list_item('', para)
                     sub_item = build_toc(sectionnode, depth + 1)
                     if sub_item:
                         item += sub_item
@@ -136,7 +136,7 @@ class TocTreeCollector(EnvironmentCollector):
         # a list of all docnames whose section numbers changed
         rewrite_needed = []
 
-        assigned = set()  # type: Set[str]
+        assigned: Set[str] = set()
         old_secnumbers = env.toc_secnumbers
         env.toc_secnumbers = {}
 
@@ -186,7 +186,7 @@ class TocTreeCollector(EnvironmentCollector):
                                       '(nested numbered toctree?)'), ref,
                                    location=toctreenode, type='toc', subtype='secnum')
                 elif ref in env.tocs:
-                    secnums = {}  # type: Dict[str, Tuple[int, ...]]
+                    secnums: Dict[str, Tuple[int, ...]] = {}
                     env.toc_secnumbers[ref] = secnums
                     assigned.add(ref)
                     _walk_toc(env.tocs[ref], secnums, depth, env.titles.get(ref))
@@ -210,10 +210,10 @@ class TocTreeCollector(EnvironmentCollector):
 
         rewrite_needed = []
 
-        assigned = set()  # type: Set[str]
+        assigned: Set[str] = set()
         old_fignumbers = env.toc_fignumbers
         env.toc_fignumbers = {}
-        fignum_counter = {}  # type: Dict[str, Dict[Tuple[int, ...], int]]
+        fignum_counter: Dict[str, Dict[Tuple[int, ...], int]] = {}
 
         def get_figtype(node: Node) -> str:
             for domain in env.domains.values():

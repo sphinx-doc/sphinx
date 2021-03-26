@@ -31,7 +31,7 @@ class IndexEntries:
                      _fixre: Pattern = re.compile(r'(.*) ([(][^()]*[)])')
                      ) -> List[Tuple[str, List[Tuple[str, Any]]]]:
         """Create the real index from the collected index entries."""
-        new = {}  # type: Dict[str, List]
+        new: Dict[str, List] = {}
 
         def add_entry(word: str, subword: str, main: str, link: bool = True,
                       dic: Dict = new, key: str = None) -> None:
@@ -126,7 +126,7 @@ class IndexEntries:
             #     (in module foo)
             #     (in module bar)
             oldkey = ''
-            oldsubitems = None  # type: Dict[str, List]
+            oldsubitems: Dict[str, List] = None
             i = 0
             while i < len(newlist):
                 key, (targets, subitems, _key) = newlist[i]

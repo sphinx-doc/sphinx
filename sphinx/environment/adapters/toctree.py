@@ -102,7 +102,7 @@ class TocTree:
                         if not subnode['anchorname']:
                             # give the whole branch a 'current' class
                             # (useful for styling it differently)
-                            branchnode = subnode  # type: Element
+                            branchnode: Element = subnode
                             while branchnode:
                                 branchnode['classes'].append('current')
                                 branchnode = branchnode.parent
@@ -119,7 +119,7 @@ class TocTree:
                                   ) -> List[Element]:
             """Return TOC entries for a toctree node."""
             refs = [(e[0], e[1]) for e in toctreenode['entries']]
-            entries = []  # type: List[Element]
+            entries: List[Element] = []
             for (title, ref) in refs:
                 try:
                     refdoc = None
@@ -268,7 +268,7 @@ class TocTree:
         for p, children in self.env.toctree_includes.items():
             for child in children:
                 parent[child] = p
-        ancestors = []  # type: List[str]
+        ancestors: List[str] = []
         d = docname
         while d in parent and d not in ancestors:
             ancestors.append(d)
@@ -316,7 +316,7 @@ class TocTree:
                         **kwargs: Any) -> Element:
         """Return the global TOC nodetree."""
         doctree = self.env.get_doctree(self.env.config.root_doc)
-        toctrees = []  # type: List[Element]
+        toctrees: List[Element] = []
         if 'includehidden' not in kwargs:
             kwargs['includehidden'] = True
         if 'maxdepth' not in kwargs or not kwargs['maxdepth']:
