@@ -1140,7 +1140,7 @@ def convert_html_js_files(app: Sphinx, config: Config) -> None:
     config.html_js_files = html_js_files  # type: ignore
 
 
-def setup_js_tag_helper(app: Sphinx, pagename: str, templatexname: str,
+def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
                         context: Dict, doctree: Node) -> None:
     """Set up js_tag() template helper.
 
