@@ -21,7 +21,7 @@ else:
         import ast  # type: ignore
 
 
-OPERATORS = {
+OPERATORS: Dict[Type[ast.AST], str] = {
     ast.Add: "+",
     ast.And: "and",
     ast.BitAnd: "&",
@@ -41,7 +41,7 @@ OPERATORS = {
     ast.Sub: "-",
     ast.UAdd: "+",
     ast.USub: "-",
-}  # type: Dict[Type[ast.AST], str]
+}
 
 
 def parse(code: str, mode: str = 'exec') -> "ast.AST":
@@ -108,7 +108,7 @@ class _UnparseVisitor(ast.NodeVisitor):
         return name
 
     def visit_arguments(self, node: ast.arguments) -> str:
-        defaults = list(node.defaults)  # type: List[Optional[ast.expr]]
+        defaults: List[Optional[ast.expr]] = list(node.defaults)
         positionals = len(node.args)
         posonlyargs = 0
         if hasattr(node, "posonlyargs"):  # for py38+
@@ -117,11 +117,11 @@ class _UnparseVisitor(ast.NodeVisitor):
         for _ in range(len(defaults), positionals):
             defaults.insert(0, None)
 
-        kw_defaults = list(node.kw_defaults)  # type: List[Optional[ast.expr]]
+        kw_defaults: List[Optional[ast.expr]] = list(node.kw_defaults)
         for _ in range(len(kw_defaults), len(node.kwonlyargs)):
             kw_defaults.insert(0, None)
 
-        args = []  # type: List[str]
+        args: List[str] = []
         if hasattr(node, "posonlyargs"):  # for py38+
             for i, arg in enumerate(node.posonlyargs):  # type: ignore
                 args.append(self._visit_arg_with_default(arg, defaults[i]))

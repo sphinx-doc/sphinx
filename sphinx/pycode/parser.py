@@ -129,8 +129,8 @@ class TokenProcessor:
         lines = iter(buffers)
         self.buffers = buffers
         self.tokens = tokenize.generate_tokens(lambda: next(lines))
-        self.current = None     # type: Token
-        self.previous = None    # type: Token
+        self.current: Token = None
+        self.previous: Token = None
 
     def get_line(self, lineno: int) -> str:
         """Returns specified line."""
@@ -178,7 +178,7 @@ class AfterCommentParser(TokenProcessor):
 
     def __init__(self, lines: List[str]) -> None:
         super().__init__(lines)
-        self.comment = None  # type: str
+        self.comment: str = None
 
     def fetch_rvalue(self) -> List[Token]:
         """Fetch right-hand value of assignment."""
@@ -221,18 +221,18 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.counter = itertools.count()
         self.buffers = buffers
         self.encoding = encoding
-        self.context = []               # type: List[str]
-        self.current_classes = []       # type: List[str]
-        self.current_function = None    # type: ast.FunctionDef
-        self.comments = OrderedDict()   # type: Dict[Tuple[str, str], str]
-        self.annotations = {}           # type: Dict[Tuple[str, str], str]
-        self.previous = None            # type: ast.AST
-        self.deforders = {}             # type: Dict[str, int]
-        self.finals = []                # type: List[str]
-        self.overloads = {}             # type: Dict[str, List[Signature]]
-        self.typing = None              # type: str
-        self.typing_final = None        # type: str
-        self.typing_overload = None     # type: str
+        self.context: List[str] = []
+        self.current_classes: List[str] = []
+        self.current_function: ast.FunctionDef = None
+        self.comments: Dict[Tuple[str, str], str] = OrderedDict()
+        self.annotations: Dict[Tuple[str, str], str] = {}
+        self.previous: ast.AST = None
+        self.deforders: Dict[str, int] = {}
+        self.finals: List[str] = []
+        self.overloads: Dict[str, List[Signature]] = {}
+        self.typing: str = None
+        self.typing_final: str = None
+        self.typing_overload: str = None
         super().__init__()
 
     def get_qualname_for(self, name: str) -> Optional[List[str]]:
@@ -350,7 +350,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Handles Assign node and pick up a variable comment."""
         try:
             targets = get_assign_targets(node)
-            varnames = sum([get_lvar_names(t, self=self.get_self()) for t in targets], [])  # type: List[str]  # NOQA
+            varnames: List[str] = sum([get_lvar_names(t, self=self.get_self()) for t in targets], [])  # NOQA
             current_line = self.get_line(node.lineno)
         except TypeError:
             return  # this assignment is not new definition!
@@ -466,10 +466,10 @@ class DefinitionFinder(TokenProcessor):
 
     def __init__(self, lines: List[str]) -> None:
         super().__init__(lines)
-        self.decorator = None   # type: Token
-        self.context = []       # type: List[str]
-        self.indents = []       # type: List
-        self.definitions = {}   # type: Dict[str, Tuple[str, int, int]]
+        self.decorator: Token = None
+        self.context: List[str] = []
+        self.indents: List = []
+        self.definitions: Dict[str, Tuple[str, int, int]] = {}
 
     def add_definition(self, name: str, entry: Tuple[str, int, int]) -> None:
         """Add a location of definition."""
@@ -543,12 +543,12 @@ class Parser:
     def __init__(self, code: str, encoding: str = 'utf-8') -> None:
         self.code = filter_whitespace(code)
         self.encoding = encoding
-        self.annotations = {}       # type: Dict[Tuple[str, str], str]
-        self.comments = {}          # type: Dict[Tuple[str, str], str]
-        self.deforders = {}         # type: Dict[str, int]
-        self.definitions = {}       # type: Dict[str, Tuple[str, int, int]]
-        self.finals = []            # type: List[str]
-        self.overloads = {}         # type: Dict[str, List[Signature]]
+        self.annotations: Dict[Tuple[str, str], str] = {}
+        self.comments: Dict[Tuple[str, str], str] = {}
+        self.deforders: Dict[str, int] = {}
+        self.definitions: Dict[str, Tuple[str, int, int]] = {}
+        self.finals: List[str] = []
+        self.overloads: Dict[str, List[Signature]] = {}
 
     def parse(self) -> None:
         """Parse the source code."""
