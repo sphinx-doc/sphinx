@@ -1584,6 +1584,7 @@ def test_bound_method(app):
         '',
         '.. py:function:: bound_method()',
         '   :module: target.bound_method',
+        '   :canonical: target.bound_method.Cls.method',
         '',
         '   Method docstring',
         '',
@@ -1639,6 +1640,7 @@ def test_coroutine(app):
         '',
         '.. py:function:: sync_func()',
         '   :module: target.coroutine',
+        '   :canonical: target.coroutine._other_coro_func',
         '',
     ]
 
@@ -1937,6 +1939,7 @@ def test_autodoc_TypeVar(app):
         '',
         '   .. py:attribute:: Class.T1',
         '      :module: target.typevar',
+        '      :canonical: target.typevar.T1',
         '',
         '      T1',
         '',
