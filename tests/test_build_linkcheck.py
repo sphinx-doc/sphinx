@@ -97,7 +97,7 @@ def test_defaults_json(app):
     assert "Anchor 'top' not found" == \
         rowsby["https://www.google.com/#top"]["info"]
     assert "Anchor 'does-not-exist' not found" == \
-        rowsby["http://www.sphinx-doc.org/en/1.7/intro.html#does-not-exist"]["info"]
+        rowsby["http://www.sphinx-doc.org/en/master/index.html#does-not-exist"]["info"]
     # images should fail
     assert "Not Found for url: https://www.google.com/image.png" in \
         rowsby["https://www.google.com/image.png"]["info"]
@@ -108,7 +108,7 @@ def test_defaults_json(app):
     confoverrides={'linkcheck_anchors_ignore': ["^!", "^top$"],
                    'linkcheck_ignore': [
                        'https://localhost:7777/doesnotexist',
-                       'http://www.sphinx-doc.org/en/1.7/intro.html#',
+                       'http://www.sphinx-doc.org/en/master/index.html#',
                        'https://www.google.com/image.png',
                        'https://www.google.com/image2.png',
                        'path/to/notfound']
