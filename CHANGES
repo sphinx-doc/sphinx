@@ -66,6 +66,8 @@ Features added
 
 * #8924: autodoc: Support ``bound`` argument for TypeVar
 * #7383: autodoc: Support typehints for properties
+* #5603: autodoc: Allow to refer to a python class using its canonical name
+  when the class has two different names; a canonical name and an alias name
 * #7549: autosummary: Enable :confval:`autosummary_generate` by default
 * #4826: py domain: Add ``:canonical:`` option to python directives to describe
   the location where the object is defined

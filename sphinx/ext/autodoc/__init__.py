@@ -1590,6 +1590,20 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         return []
 
+    def get_canonical_fullname(self) -> Optional[str]:
+        __modname__ = safe_getattr(self.object, '__module__', self.modname)
+        __qualname__ = safe_getattr(self.object, '__qualname__', None)
+        if __qualname__ is None:
+            __qualname__ = safe_getattr(self.object, '__name__', None)
+        if __qualname__ and '<locals>' in __qualname__:
+            # No valid qualname found if the object is defined as locals
+            __qualname__ = None
+
+        if __modname__ and __qualname__:
+            return '.'.join([__modname__, __qualname__])
+        else:
+            return None
+
     def add_directive_header(self, sig: str) -> None:
         sourcename = self.get_sourcename()
 
@@ -1599,6 +1613,10 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         if self.analyzer and '.'.join(self.objpath) in self.analyzer.finals:
             self.add_line('   :final:', sourcename)
+
+        canonical_fullname = self.get_canonical_fullname()
+        if not self.doc_as_attr and canonical_fullname and self.fullname != canonical_fullname:
+            self.add_line('   :canonical: %s' % canonical_fullname, sourcename)
 
         # add inheritance info, if wanted
         if not self.doc_as_attr and self.options.show_inheritance:
