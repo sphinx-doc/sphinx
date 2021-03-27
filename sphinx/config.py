@@ -309,7 +309,7 @@ class Config:
         self.__dict__.update(state)
 
 
-def eval_config_file(filename: str, tags: Tags) -> Dict[str, Any]:
+def eval_config_file(filename: str, tags: Optional[Tags]) -> Dict[str, Any]:
     """Evaluate a config file."""
     namespace: Dict[str, Any] = {}
     namespace['__file__'] = filename

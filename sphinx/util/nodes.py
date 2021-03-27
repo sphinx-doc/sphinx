@@ -10,7 +10,8 @@
 
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Any, Callable, Iterable, List, Set, Tuple, Type, Union, cast
+from typing import (TYPE_CHECKING, Any, Callable, Iterable, List, Optional, Set, Tuple, Type,
+                    Union, cast)
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -170,7 +171,7 @@ def apply_source_workaround(node: Element) -> None:
     ))):
         logger.debug('[i18n] PATCH: %r to have source and line: %s',
                      get_full_module_name(node), repr_domxml(node))
-        node.source = get_node_source(node)
+        node.source = get_node_source(node) or ''
         node.line = 0  # need fix docutils to get `node.line`
         return
 
@@ -266,7 +267,7 @@ def extract_messages(doctree: Element) -> Iterable[Tuple[Element, str]]:
             if node.get('translatable'):
                 msg = '.. image:: %s' % node['uri']
             else:
-                msg = None
+                msg = ''
         elif isinstance(node, META_TYPE_NODES):
             msg = node.rawcontent
         elif isinstance(node, nodes.pending) and is_pending_meta(node):
@@ -279,14 +280,14 @@ def extract_messages(doctree: Element) -> Iterable[Tuple[Element, str]]:
             yield node, msg
 
 
-def get_node_source(node: Element) -> str:
+def get_node_source(node: Element) -> Optional[str]:
     for pnode in traverse_parent(node):
         if pnode.source:
             return pnode.source
     return None
 
 
-def get_node_line(node: Element) -> int:
+def get_node_line(node: Element) -> Optional[int]:
     for pnode in traverse_parent(node):
         if pnode.line:
             return pnode.line
@@ -300,7 +301,7 @@ def traverse_parent(node: Element, cls: Any = None) -> Iterable[Element]:
         node = node.parent
 
 
-def get_prev_node(node: Node) -> Node:
+def get_prev_node(node: Node) -> Optional[Node]:
     pos = node.parent.index(node)
     if pos > 0:
         return node.parent[pos - 1]
@@ -360,10 +361,11 @@ indextypes = [
 ]
 
 
-def process_index_entry(entry: str, targetid: str) -> List[Tuple[str, str, str, str, str]]:
+def process_index_entry(entry: str, targetid: str
+                        ) -> List[Tuple[str, str, str, str, Optional[str]]]:
     from sphinx.domains.python import pairindextypes
 
-    indexentries: List[Tuple[str, str, str, str, str]] = []
+    indexentries: List[Tuple[str, str, str, str, Optional[str]]] = []
     entry = entry.strip()
     oentry = entry
     main = ''
@@ -531,7 +533,8 @@ def make_id(env: "BuildEnvironment", document: nodes.document,
     return node_id
 
 
-def find_pending_xref_condition(node: addnodes.pending_xref, condition: str) -> Element:
+def find_pending_xref_condition(node: addnodes.pending_xref, condition: str
+                                ) -> Optional[Element]:
     """Pick matched pending_xref_condition node up from the pending_xref."""
     for subnode in node:
         if (isinstance(subnode, addnodes.pending_xref_condition) and

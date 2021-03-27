@@ -209,7 +209,7 @@ class DocFieldTransformer:
     Transforms field lists in "doc field" syntax into better-looking
     equivalents, using the field type definitions given on a domain.
     """
-    typemap: Dict[str, Tuple[Field, bool]] = None
+    typemap: Dict[str, Tuple[Field, bool]]
 
     def __init__(self, directive: "ObjectDescription") -> None:
         self.directive = directive

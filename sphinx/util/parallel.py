@@ -14,7 +14,7 @@ import sys
 import time
 import traceback
 from math import sqrt
-from typing import Any, Callable, Dict, List, Sequence
+from typing import Any, Callable, Dict, List, Optional, Sequence
 
 try:
     import multiprocessing
@@ -62,7 +62,7 @@ class ParallelTasks:
         # (optional) function performed by each task on the result of main task
         self._result_funcs: Dict[int, Callable] = {}
         # task arguments
-        self._args: Dict[int, List[Any]] = {}
+        self._args: Dict[int, Optional[List[Any]]] = {}
         # list of subprocesses (both started and waiting)
         self._procs: Dict[int, multiprocessing.Process] = {}
         # list of receiving pipe connections of running subprocesses
