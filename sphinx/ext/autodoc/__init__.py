@@ -1131,7 +1131,9 @@ class PyObjectDocumenter(Documenter):
             # No valid qualname found if the object is defined as locals
             qualname = None
 
-        if modname and qualname:
+        if modname == 'typing' and not self.real_modname.startswith('typing'):
+            return None  # Python 3.6 TypeVars
+        elif modname and qualname:
             return '.'.join([modname, qualname])
         else:
             return None
