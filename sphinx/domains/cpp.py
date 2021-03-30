@@ -1246,10 +1246,12 @@ class ASTUnaryOpExpr(ASTExpression):
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_operator(self.op, self.op)
         if self.op[0] in 'cn':
+            signode += addnodes.desc_sig_keyword(self.op, self.op)
             signode += addnodes.desc_sig_space()
-        self.expr.describe_signature(signode, mode, env, symbol)
+        else:
+            signode += addnodes.desc_sig_operator(self.op, self.op)
+            self.expr.describe_signature(signode, mode, env, symbol)
 
 
 class ASTSizeofParamPack(ASTExpression):
@@ -1484,7 +1486,11 @@ class ASTBinOpExpr(ASTExpression):
         self.exprs[0].describe_signature(signode, mode, env, symbol)
         for i in range(1, len(self.exprs)):
             signode += addnodes.desc_sig_space()
-            signode += addnodes.desc_sig_operator(self.ops[i - 1], self.ops[i - 1])
+            op = self.ops[i - 1]
+            if ord(op[0]) >= ord('a') and ord(op[0]) <= ord('z'):
+                signode += addnodes.desc_sig_keyword(op, op)
+            else:
+                signode += addnodes.desc_sig_operator(op, op)
             signode += addnodes.desc_sig_space()
             self.exprs[i].describe_signature(signode, mode, env, symbol)
 
@@ -1550,7 +1556,11 @@ class ASTAssignmentExpr(ASTExpression):
         self.exprs[0].describe_signature(signode, mode, env, symbol)
         for i in range(1, len(self.exprs)):
             signode += addnodes.desc_sig_space()
-            signode += addnodes.desc_sig_operator(self.ops[i - 1], self.ops[i - 1])
+            op = self.ops[i - 1]
+            if ord(op[0]) >= ord('a') and ord(op[0]) <= ord('z'):
+                signode += addnodes.desc_sig_keyword(op, op)
+            else:
+                signode += addnodes.desc_sig_operator(op, op)
             signode += addnodes.desc_sig_space()
             self.exprs[i].describe_signature(signode, mode, env, symbol)
 
