@@ -538,19 +538,23 @@ table.hlist td {
 
 /* C++ specific styling */
 
+.sig-inline.c-texpr,
 .sig-inline.cpp-texpr {
 	font-family: unset;
 }
 
+.sig.c   .k, .sig.c   .kt,
 .sig.cpp .k, .sig.cpp .kt {
 	color: #0033B3;
 }
 
+.sig.c   .m,
 .sig.cpp .m {
 	color: #1750EB;
 }
 
-.sig.cpp .s {
+.sig.c   .s, .sig.c   .sc,
+.sig.cpp .s, .sig.cpp .sc {
 	color: #067D17;
 }
 
