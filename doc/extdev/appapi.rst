@@ -177,7 +177,7 @@ type for that event::
             - event.doctree-read(app, doctree) is called in the middle of transforms,
               transforms come before/after this event depending on their priority.
    
-   9. event.env-merged-info(app, env, docnames, other)
+   9. event.env-merge-info(app, env, docnames, other)
       - if running in parallel mode, this event will be emitted for each process
    
    10. event.env-updated(app, env)
