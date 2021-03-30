@@ -446,7 +446,7 @@ class ASTUnaryOpExpr(ASTExpression):
             signode += addnodes.desc_sig_space()
         else:
             signode += addnodes.desc_sig_operator(self.op, self.op)
-            self.expr.describe_signature(signode, mode, env, symbol)
+        self.expr.describe_signature(signode, mode, env, symbol)
 
 
 class ASTSizeofType(ASTExpression):
