@@ -1033,6 +1033,127 @@ class ASTParenExpr(ASTExpression):
         signode += addnodes.desc_sig_punctuation(')', ')')
 
 
+###############################################################################
+# Requirements
+
+class ASTRequiresExpression(ASTExpression):
+    def __init__(self, reqs: List["ASTRequirement"]):
+        self.reqs = reqs
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        res = ["requires "]
+        res.append("{")
+        for r in self.reqs:
+            res.append(' ')
+            res.append(transform(r))
+            res.append(';')
+        if len(self.reqs) != 0:
+            res.append(' ')
+        res.append("}")
+        return ''.join(res)
+
+    def get_id(self, version: int) -> str:
+        if version <= 3:
+            raise NoOldIdError
+        elif version == 4:
+            return "missing-requires-expression-mangling--dont-rely-on-this-link"
+        assert False
+
+    def describe_signature(self, signode: TextElement, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        signode += addnodes.desc_sig_keyword('requires', 'requires')
+        signode += addnodes.desc_sig_space()
+        signode += addnodes.desc_sig_punctuation('{', '{')
+        for r in self.reqs:
+            signode += addnodes.desc_sig_space()
+            r.describe_signature(signode, mode, env, symbol)
+            signode += addnodes.desc_sig_punctuation(';', ';')
+        if len(self.reqs) != 0:
+            signode += addnodes.desc_sig_space()
+        signode += addnodes.desc_sig_punctuation('}', '}')
+
+
+class ASTRequirement(ASTBase):
+    def describe_signature(self, signode: TextElement, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        raise NotImplementedError(repr(self))
+
+
+class ASTTypeRequirement(ASTRequirement):
+    def __init__(self, typ: "ASTType") -> None:
+        self.typ = typ
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return 'typename ' + transform(self.typ)
+
+    def describe_signature(self, signode: TextElement, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        signode += addnodes.desc_sig_keyword('typename', 'typename')
+        signode += addnodes.desc_sig_space()
+        self.typ.describe_signature(signode, mode, env, symbol)
+
+
+class ASTCompoundRequirement(ASTRequirement):
+    def __init__(self, expr: ASTExpression, noexcept: bool,
+                 returnTypeReq: Optional["ASTType"]) -> None:
+        self.expr = expr
+        self.noexcept = noexcept
+        self.returnTypeReq = returnTypeReq
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        res = ['{ ', transform(self.expr), ' }']
+        if self.noexcept:
+            res.append(' noexcept')
+        if self.returnTypeReq is not None:
+            res.append(' -> ')
+            res.append(transform(self.returnTypeReq))
+        return ''.join(res)
+
+    def describe_signature(self, signode: TextElement, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        signode += addnodes.desc_sig_punctuation('{', '{')
+        signode += addnodes.desc_sig_space()
+        self.expr.describe_signature(signode, mode, env, symbol)
+        signode += addnodes.desc_sig_space()
+        signode += addnodes.desc_sig_punctuation('}', '}')
+        if self.noexcept:
+            signode += addnodes.desc_sig_space()
+            signode += addnodes.desc_sig_keyword('noexcept', 'noexcept')
+        if self.returnTypeReq is not None:
+            signode += addnodes.desc_sig_space()
+            signode += addnodes.desc_sig_punctuation('->', '->')
+            signode += addnodes.desc_sig_space()
+            self.returnTypeReq.describe_signature(signode, mode, env, symbol)
+
+
+class ASTNestedRequirement(ASTRequirement):
+    def __init__(self, constraint: ASTExpression) -> None:
+        self.constraint = constraint
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return 'requires ' + transform(self.constraint)
+
+    def describe_signature(self, signode: TextElement, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        signode += addnodes.desc_sig_keyword('requires', 'requires')
+        signode += addnodes.desc_sig_space()
+        self.constraint.describe_signature(signode, mode, env, symbol)
+
+
+class ASTSimpleRequirement(ASTRequirement):
+    def __init__(self, expr: ASTExpression) -> None:
+        self.expr = expr
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return transform(self.expr)
+
+    def describe_signature(self, signode: TextElement, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        self.expr.describe_signature(signode, mode, env, symbol)
+
+###############################################################################
+
+
 class ASTIdExpression(ASTExpression):
     def __init__(self, name: ASTNestedName):
         # note: this class is basically to cast a nested name as an expression
@@ -3217,9 +3338,9 @@ class ASTTypeUsing(ASTBase):
 ##############################################################################################
 
 class ASTConcept(ASTBase):
-    def __init__(self, nestedName: ASTNestedName, initializer: ASTInitializer) -> None:
+    def __init__(self, nestedName: ASTNestedName, constraint: Optional[ASTExpression]) -> None:
         self.nestedName = nestedName
-        self.initializer = initializer
+        self.constraint = constraint
 
     @property
     def name(self) -> ASTNestedName:
@@ -3233,15 +3354,19 @@ class ASTConcept(ASTBase):
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = transform(self.nestedName)
-        if self.initializer:
-            res += transform(self.initializer)
+        if self.constraint is not None:
+            res += " = "
+            res += transform(self.constraint)
         return res
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         self.nestedName.describe_signature(signode, mode, env, symbol)
-        if self.initializer:
-            self.initializer.describe_signature(signode, mode, env, symbol)
+        if self.constraint is not None:
+            signode += addnodes.desc_sig_space()
+            signode += addnodes.desc_sig_punctuation('=', '=')
+            signode += addnodes.desc_sig_space()
+            self.constraint.describe_signature(signode, 'markType', env, symbol)
 
 
 class ASTBaseClass(ASTBase):
@@ -5155,12 +5280,54 @@ class DefinitionParser(BaseParser):
             self.fail("Expected ')' to end binary fold expression.")
         return ASTFoldExpr(leftExpr, op, rightExpr)
 
+    def _parse_requires_expression(self) -> ASTRequiresExpression:
+        self.skip_ws()
+        if not self.skip_word_and_ws('requires'):
+            return None
+        if self.skip_string_and_ws('('):
+            self.fail('Parametrised requires expressions not yet supported.')
+        if not self.skip_string('{'):
+            self.fail('Expected { to start body of requires expression.')
+        reqs = []  # type: List[ASTRequirement]
+        while True:
+            self.skip_ws()
+            if self.skip_word('typename'):
+                # type-requirement
+                typ = self._parse_type(named=False)
+                reqs.append(ASTTypeRequirement(typ))
+            elif self.skip_string('{'):
+                # compound-requirement
+                expr = self._parse_expression()
+                self.skip_ws()
+                if not self.skip_string_and_ws('}'):
+                    self.fail("Expected } to end expression in compound requirement.")
+                noexcept = self.skip_word_and_ws('noexcept')
+                returnTypeReq = None
+                if self.skip_string('->'):
+                    returnTypeReq = self._parse_type(named=False)
+                reqs.append(ASTCompoundRequirement(expr, noexcept, returnTypeReq))
+            elif self.skip_word('requires'):
+                # nested-requirement
+                expr = self._parse_constraint_expression()
+                reqs.append(ASTNestedRequirement(expr))
+            elif self.skip_string('}'):
+                break
+            else:
+                # simple-requirement
+                expr = self._parse_expression()
+                reqs.append(ASTSimpleRequirement(expr))
+            self.skip_ws()
+            if not self.skip_string(';'):
+                self.fail('Expected ; to requirement.')
+        return ASTRequiresExpression(reqs)
+
     def _parse_primary_expression(self) -> ASTExpression:
         # literal
         # "this"
         # lambda-expression
         # "(" expression ")"
         # fold-expression
+        # requires-expression
         # id-expression -> we parse this with _parse_nested_name
         self.skip_ws()
         res: ASTExpression = self._parse_literal()
@@ -5169,6 +5336,9 @@ class DefinitionParser(BaseParser):
         self.skip_ws()
         if self.skip_word("this"):
             return ASTThisLiteral()
+        res = self._parse_requires_expression()
+        if res is not None:
+            return res
         # TODO: try lambda expression
         res = self._parse_fold_or_paren_expression()
         if res is not None:
@@ -5568,6 +5738,9 @@ class DefinitionParser(BaseParser):
                     break
             return ASTBinOpExpr(exprs, ops)
         return _parse_bin_op_expr(self, 0, inTemplate=inTemplate)
+
+    def _parse_constraint_expression(self) -> ASTExpression:
+        return self._parse_logical_or_expression(inTemplate=False)
 
     def _parse_conditional_expression_tail(self, orExprHead: Any) -> None:
         # -> "?" expression ":" assignment-expression
@@ -6472,8 +6645,11 @@ class DefinitionParser(BaseParser):
     def _parse_concept(self) -> ASTConcept:
         nestedName = self._parse_nested_name()
         self.skip_ws()
-        initializer = self._parse_initializer('member')
-        return ASTConcept(nestedName, initializer)
+        if self.skip_string('='):
+            constraint = self._parse_constraint_expression()
+        else:
+            constraint = None
+        return ASTConcept(nestedName, constraint)
 
     def _parse_class(self) -> ASTClass:
         name = self._parse_nested_name()

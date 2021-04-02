@@ -65,6 +65,9 @@ Features added
     (e.g., ``Sortable auto &v``).
 
 * C, add support for digit separators in literals.
+* #7296: C++, add experimental support for non-parametrised requires
+  expressions. Permalinks to entities where they are used may currently not be
+  unique, and they will not be stable for future versions.
 
 
 Bugs fixed
