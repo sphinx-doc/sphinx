@@ -573,14 +573,26 @@ There are also config values that you can set:
    This value controls how to represent typehints.  The setting takes the
    following values:
 
-   * ``'signature'`` -- Show typehints as its signature (default)
-   * ``'description'`` -- Show typehints as content of function or method
+   * ``'signature'`` -- Show typehints in the signature (default)
+   * ``'description'`` -- Show typehints as content of the function or method
+     The typehints of overloaded functions or methods will still be represented
+     in the signature.
    * ``'none'`` -- Do not show typehints
+   * ``'both'`` -- Show typehints in the signature and as content of
+     the function or method
+
+   Overloaded functions or methods will not have typehints included in the
+   description because it is impossible to accurately represent all possible
+   overloads as a list of parameters.
 
    .. versionadded:: 2.1
    .. versionadded:: 3.0
 
       New option ``'description'`` is added.
+
+   .. versionadded:: 4.0
+
+      New option ``'both'`` is added.
 
 .. confval:: autodoc_typehints_description_target
 
