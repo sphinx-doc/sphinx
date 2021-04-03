@@ -2656,6 +2656,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('autodoc_mock_imports', [], True)
     app.add_config_value('autodoc_typehints', "signature", True,
                          ENUM("signature", "description", "none"))
+    app.add_config_value('autodoc_typehints_description_target', 'all', True,
+                         ENUM('all', 'documented'))
     app.add_config_value('autodoc_type_aliases', {}, True)
     app.add_config_value('autodoc_warningiserror', True, True)
     app.add_config_value('autodoc_inherit_docstrings', True, True)

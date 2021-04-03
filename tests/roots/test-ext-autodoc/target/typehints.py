@@ -68,3 +68,13 @@ def missing_attr(c,
                  ):
     # type: (...) -> str
     return a + (b or "")
+
+
+class _ClassWithDocumentedInit:
+    """Class docstring."""
+
+    def __init__(self, x: int) -> None:
+        """Init docstring.
+
+        :param x: Some integer
+        """
