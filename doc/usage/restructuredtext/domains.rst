@@ -50,7 +50,7 @@ give the directive option flag ``:noindexentry:``.
 If you want to typeset an object description, without even making it available
 for cross-referencing, you can give the directive option flag ``:noindex:``
 (which implies ``:noindexentry:``).
-Though, note that not every directive en every domain may support these
+Though, note that not every directive in every domain may support these
 options.
 
 .. versionadded:: 3.2
