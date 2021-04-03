@@ -237,7 +237,7 @@ class TocTree:
         newnode = addnodes.compact_paragraph('', '')
         caption = toctree.attributes.get('caption')
         if caption:
-            caption_node = nodes.caption(caption, '', *[nodes.Text(caption)])
+            caption_node = nodes.title(caption, '', *[nodes.Text(caption)])
             caption_node.line = toctree.line
             caption_node.source = toctree.source
             caption_node.rawsource = toctree['rawcaption']
