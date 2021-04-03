@@ -1331,7 +1331,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         sigs = []
         if (self.analyzer and
                 '.'.join(self.objpath) in self.analyzer.overloads and
-                self.config.autodoc_typehints == 'signature'):
+                self.config.autodoc_typehints != 'none'):
             # Use signatures for overloaded functions instead of the implementation function.
             overloaded = True
         else:
@@ -1570,7 +1570,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         sigs = []
 
         overloads = self.get_overloaded_signatures()
-        if overloads and self.config.autodoc_typehints == 'signature':
+        if overloads and self.config.autodoc_typehints != 'none':
             # Use signatures for overloaded methods instead of the implementation method.
             method = safe_getattr(self._signature_class, self._signature_method_name, None)
             __globals__ = safe_getattr(method, '__globals__', {})
@@ -2104,7 +2104,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         sigs = []
         if (self.analyzer and
                 '.'.join(self.objpath) in self.analyzer.overloads and
-                self.config.autodoc_typehints == 'signature'):
+                self.config.autodoc_typehints != 'none'):
             # Use signatures for overloaded methods instead of the implementation method.
             overloaded = True
         else:
@@ -2642,7 +2642,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('autodoc_docstring_signature', True, True)
     app.add_config_value('autodoc_mock_imports', [], True)
     app.add_config_value('autodoc_typehints', "signature", True,
-                         ENUM("signature", "description", "none"))
+                         ENUM("signature", "description", "none", "both"))
     app.add_config_value('autodoc_type_aliases', {}, True)
     app.add_config_value('autodoc_warningiserror', True, True)
     app.add_config_value('autodoc_inherit_docstrings', True, True)

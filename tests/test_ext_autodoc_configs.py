@@ -685,12 +685,53 @@ def test_autodoc_typehints_description(app):
             '      Tuple[int, int]\n'
             in context)
 
+    # Overloads still get displyed in the signature
+    assert ('target.overload.sum(x: int, y: int = 0) -> int\n'
+            'target.overload.sum(x: float, y: float = 0.0) -> float\n'
+            'target.overload.sum(x: str, y: str = None) -> str\n'
+            '\n'
+            '   docstring\n'
+            in context)
+
 
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
                     confoverrides={'autodoc_typehints': "description"})
 def test_autodoc_typehints_description_for_invalid_node(app):
     text = ".. py:function:: hello; world"
     restructuredtext.parse(app, text)  # raises no error
+
+
+@pytest.mark.sphinx('text', testroot='ext-autodoc',
+                    confoverrides={'autodoc_typehints': "both"})
+def test_autodoc_typehints_both(app):
+    app.build()
+    context = (app.outdir / 'index.txt').read_text()
+    assert ('target.typehints.incr(a: int, b: int = 1) -> int\n'
+            '\n'
+            '   Parameters:\n'
+            '      * **a** (*int*) --\n'
+            '\n'
+            '      * **b** (*int*) --\n'
+            '\n'
+            '   Return type:\n'
+            '      int\n'
+            in context)
+    assert ('target.typehints.tuple_args(x: Tuple[int, Union[int, str]]) -> Tuple[int, int]\n'
+            '\n'
+            '   Parameters:\n'
+            '      **x** (*Tuple**[**int**, **Union**[**int**, **str**]**]*) --\n'
+            '\n'
+            '   Return type:\n'
+            '      Tuple[int, int]\n'
+            in context)
+
+    # Overloads still get displyed in the signature
+    assert ('target.overload.sum(x: int, y: int = 0) -> int\n'
+            'target.overload.sum(x: float, y: float = 0.0) -> float\n'
+            'target.overload.sum(x: str, y: str = None) -> str\n'
+            '\n'
+            '   docstring\n'
+            in context)
 
 
 @pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
