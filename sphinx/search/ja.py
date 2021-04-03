@@ -54,8 +54,8 @@ class BaseSplitter:
 class MecabSplitter(BaseSplitter):
     def __init__(self, options: Dict) -> None:
         super().__init__(options)
-        self.ctypes_libmecab = None     # type: Any
-        self.ctypes_mecab = None        # type: Any
+        self.ctypes_libmecab: Any = None
+        self.ctypes_mecab: Any = None
         if not native_module:
             self.init_ctypes(options)
         else:
