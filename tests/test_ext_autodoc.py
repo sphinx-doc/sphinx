@@ -1370,9 +1370,16 @@ def test_slots(app):
 def test_enum_class(app):
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.enums.EnumCls', options)
+
+    if sys.version_info < (3, 10):
+        sig = '(value)'
+    else:
+        sig = ('(value, names=None, *, module=None, qualname=None, type=None, start=1, '
+               'boundary=None)')
+
     assert list(actual) == [
         '',
-        '.. py:class:: EnumCls(value)',
+        '.. py:class:: EnumCls%s' % sig,
         '   :module: target.enums',
         '',
         '   this is enum class',
