@@ -26,7 +26,7 @@ from sphinx.pycode.parser import Parser
 
 class ModuleAnalyzer:
     # cache for analyzer objects -- caches both by module and file name
-    cache = {}  # type: Dict[Tuple[str, str], Any]
+    cache: Dict[Tuple[str, str], Any] = {}
 
     @staticmethod
     def get_module_source(modname: str) -> Tuple[Optional[str], Optional[str]]:
@@ -135,12 +135,12 @@ class ModuleAnalyzer:
         self.code = source.read()
 
         # will be filled by analyze()
-        self.annotations = None  # type: Dict[Tuple[str, str], str]
-        self.attr_docs = None    # type: Dict[Tuple[str, str], List[str]]
-        self.finals = None       # type: List[str]
-        self.overloads = None    # type: Dict[str, List[Signature]]
-        self.tagorder = None     # type: Dict[str, int]
-        self.tags = None         # type: Dict[str, Tuple[str, int, int]]
+        self.annotations: Dict[Tuple[str, str], str] = None
+        self.attr_docs: Dict[Tuple[str, str], List[str]] = None
+        self.finals: List[str] = None
+        self.overloads: Dict[str, List[Signature]] = None
+        self.tagorder: Dict[str, int] = None
+        self.tags: Dict[str, Tuple[str, int, int]] = None
         self._analyzed = False
 
     def parse(self) -> None:
