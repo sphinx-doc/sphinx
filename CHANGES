@@ -11,6 +11,8 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #8539: autodoc: info-field-list is generated into the class description when
+  ``autodoc_typehints='description'`` and ``autoclass_content='class'`` set
 * domain: The ``Index`` class becomes subclasses of ``abc.ABC`` to indicate
   methods that must be overrided in the concrete classes
 * #4826: py domain: The structure of python objects is changed.  A boolean value
@@ -68,6 +70,8 @@ Features added
 * #7383: autodoc: Support typehints for properties
 * #5603: autodoc: Allow to refer to a python class using its canonical name
   when the class has two different names; a canonical name and an alias name
+* #8539: autodoc: Add :confval:`autodoc_typehints_description_target` to control
+  the behavior of ``autodoc_typehints=description``
 * #7549: autosummary: Enable :confval:`autosummary_generate` by default
 * #4826: py domain: Add ``:canonical:`` option to python directives to describe
   the location where the object is defined
