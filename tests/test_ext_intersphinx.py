@@ -461,3 +461,49 @@ def test_inspect_main_url(capsys):
     stdout, stderr = capsys.readouterr()
     assert stdout.startswith("c:function\n")
     assert stderr == ""
+
+
+@pytest.mark.sphinx('html', testroot='ext-intersphinx-role')
+def test_intersphinx_role(app):
+    inv_file = app.srcdir / 'inventory'
+    inv_file.write_bytes(inventory_v2)
+    app.config.intersphinx_mapping = {
+        'inv': ('http://example.org/', inv_file),
+    }
+    app.config.intersphinx_cache_limit = 0
+    app.config.nitpicky = True
+
+    # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+
+    # :intersphinx:py:module:`module1`
+    assert ('<a class="reference external" href="http://example.org/foo.html#module-module1"'
+            ' title="(in foo v2.0)">' in content)
+
+    # :intersphinx:py:module:`inv:module2`
+    assert ('<a class="reference external" href="http://example.org/foo.html#module-module2"'
+            ' title="(in foo v2.0)">' in content)
+
+    # py:module + :intersphinx:py:function:`func`
+    assert ('<a class="reference external" href="http://example.org/sub/foo.html#module1.func"'
+            ' title="(in foo v2.0)">' in content)
+
+    # py:module + :intersphinx:py:method:`Foo.bar`
+    assert ('<a class="reference external" href="http://example.org/index.html#foo.Bar.baz"'
+            ' title="(in foo v2.0)">' in content)
+
+    # :intersphinx:c:function:`CFunc`
+    assert ('<a class="reference external" href="http://example.org/cfunc.html#CFunc"'
+            ' title="(in foo v2.0)">' in content)
+
+    # :intersphinx:doc:`docname`
+    assert ('<a class="reference external" href="http://example.org/docname.html"'
+            ' title="(in foo v2.0)">' in content)
+
+    # :intersphinx:option:`ls -l`
+    assert ('<a class="reference external" href="http://example.org/index.html#cmdoption-ls-l"'
+            ' title="(in foo v2.0)">' in content)
