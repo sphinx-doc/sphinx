@@ -166,16 +166,14 @@ def patch_docutils(confdir: Optional[str] = None) -> Generator[None, None, None]
         yield
 
 
-class ElementLookupError(Exception):
-    pass
+class CustomReSTDispatcher:
+    """Custom reST's mark-up dispatcher.
 
-
-class sphinx_domains:
-    """Monkey-patch directive and role dispatch, so that domain-specific
-    markup takes precedence.
+    This replaces docutils's directives and roles dispatch mechanism for reST parser
+    by original one temporarily.
     """
-    def __init__(self, env: "BuildEnvironment") -> None:
-        self.env = env
+
+    def __init__(self) -> None:
         self.directive_func: Callable = lambda *args: (None, [])
         self.roles_func: Callable = lambda *args: (None, [])
 
@@ -189,12 +187,34 @@ class sphinx_domains:
         self.directive_func = directives.directive
         self.role_func = roles.role
 
-        directives.directive = self.lookup_directive
-        roles.role = self.lookup_role
+        directives.directive = self.directive
+        roles.role = self.role
 
     def disable(self) -> None:
         directives.directive = self.directive_func
         roles.role = self.role_func
+
+    def directive(self,
+                  directive_name: str, language_module: ModuleType, document: nodes.document
+                  ) -> Tuple[Optional[Type[Directive]], List[system_message]]:
+        return self.directive_func(directive_name, language_module, document)
+
+    def role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter
+             ) -> Tuple[RoleFunction, List[system_message]]:
+        return self.role_func(role_name, language_module, lineno, reporter)
+
+
+class ElementLookupError(Exception):
+    pass
+
+
+class sphinx_domains(CustomReSTDispatcher):
+    """Monkey-patch directive and role dispatch, so that domain-specific
+    markup takes precedence.
+    """
+    def __init__(self, env: "BuildEnvironment") -> None:
+        self.env = env
+        super().__init__()
 
     def lookup_domain_element(self, type: str, name: str) -> Any:
         """Lookup a markup element (directive or role), given its name which can
@@ -226,17 +246,20 @@ class sphinx_domains:
 
         raise ElementLookupError
 
-    def lookup_directive(self, directive_name: str, language_module: ModuleType, document: nodes.document) -> Tuple[Optional[Type[Directive]], List[system_message]]:  # NOQA
+    def directive(self,
+                  directive_name: str, language_module: ModuleType, document: nodes.document
+                  ) -> Tuple[Optional[Type[Directive]], List[system_message]]:
         try:
             return self.lookup_domain_element('directive', directive_name)
         except ElementLookupError:
-            return self.directive_func(directive_name, language_module, document)
+            return super().directive(directive_name, language_module, document)
 
-    def lookup_role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter) -> Tuple[RoleFunction, List[system_message]]:  # NOQA
+    def role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter
+             ) -> Tuple[RoleFunction, List[system_message]]:
         try:
             return self.lookup_domain_element('role', role_name)
         except ElementLookupError:
-            return self.role_func(role_name, language_module, lineno, reporter)
+            return super().role(role_name, language_module, lineno, reporter)
 
 
 class WarningStream:
