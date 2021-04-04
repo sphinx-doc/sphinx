@@ -61,7 +61,7 @@ class Field:
         self.bodyrolename = bodyrolename
 
     def make_xref(self, rolename: str, domain: str, target: str,
-                  innernode: "Type[TextlikeNode]" = addnodes.literal_emphasis,
+                  innernode: Type[TextlikeNode] = addnodes.literal_emphasis,
                   contnode: Node = None, env: "BuildEnvironment" = None) -> Node:
         if not rolename:
             return contnode or innernode(target, target)
@@ -73,7 +73,7 @@ class Field:
         return refnode
 
     def make_xrefs(self, rolename: str, domain: str, target: str,
-                   innernode: "Type[TextlikeNode]" = addnodes.literal_emphasis,
+                   innernode: Type[TextlikeNode] = addnodes.literal_emphasis,
                    contnode: Node = None, env: "BuildEnvironment" = None) -> List[Node]:
         return [self.make_xref(rolename, domain, target, innernode, contnode, env)]
 

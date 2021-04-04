@@ -12,7 +12,7 @@ import sys
 import typing
 from struct import Struct
 from types import TracebackType
-from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, TypeVar, Union
+from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Type, TypeVar, Union
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
@@ -101,7 +101,7 @@ def is_system_TypeVar(typ: Any) -> bool:
     return modname == 'typing' and isinstance(typ, TypeVar)
 
 
-def restify(cls: Optional["Type"]) -> str:
+def restify(cls: Optional[Type]) -> str:
     """Convert python class to a reST reference."""
     from sphinx.util import inspect  # lazy loading
 
@@ -128,7 +128,7 @@ def restify(cls: Optional["Type"]) -> str:
             return _restify_py36(cls)
 
 
-def _restify_py37(cls: Optional["Type"]) -> str:
+def _restify_py37(cls: Optional[Type]) -> str:
     """Convert python class to a reST reference."""
     from sphinx.util import inspect  # lazy loading
 
@@ -183,7 +183,7 @@ def _restify_py37(cls: Optional["Type"]) -> str:
         return ':obj:`%s.%s`' % (cls.__module__, cls.__name__)
 
 
-def _restify_py36(cls: Optional["Type"]) -> str:
+def _restify_py36(cls: Optional[Type]) -> str:
     module = getattr(cls, '__module__', None)
     if module == 'typing':
         if getattr(cls, '_name', None):

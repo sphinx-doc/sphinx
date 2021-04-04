@@ -114,7 +114,7 @@ class Builder:
         self.env.set_versioning_method(self.versioning_method,
                                        self.versioning_compare)
 
-    def get_translator_class(self, *args: Any) -> "Type[nodes.NodeVisitor]":
+    def get_translator_class(self, *args: Any) -> Type[nodes.NodeVisitor]:
         """Return a class of translator."""
         return self.app.registry.get_translator_class(self)
 

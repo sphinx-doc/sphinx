@@ -826,7 +826,7 @@ class GoogleDocstring:
                 colon,
                 "".join(after_colon).strip())
 
-    def _qualify_name(self, attr_name: str, klass: "Type") -> str:
+    def _qualify_name(self, attr_name: str, klass: Type) -> str:
         if klass and '.' not in attr_name:
             if attr_name.startswith('~'):
                 attr_name = attr_name[1:]
