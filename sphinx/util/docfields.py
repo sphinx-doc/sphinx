@@ -15,11 +15,11 @@ from docutils import nodes
 from docutils.nodes import Node
 
 from sphinx import addnodes
+from sphinx.environment import BuildEnvironment
 from sphinx.util.typing import TextlikeNode
 
 if TYPE_CHECKING:
     from sphinx.directive import ObjectDescription
-    from sphinx.environment import BuildEnvironment
 
 
 def _is_single_paragraph(node: nodes.field_body) -> bool:
@@ -62,7 +62,7 @@ class Field:
 
     def make_xref(self, rolename: str, domain: str, target: str,
                   innernode: Type[TextlikeNode] = addnodes.literal_emphasis,
-                  contnode: Node = None, env: "BuildEnvironment" = None) -> Node:
+                  contnode: Node = None, env: BuildEnvironment = None) -> Node:
         if not rolename:
             return contnode or innernode(target, target)
         refnode = addnodes.pending_xref('', refdomain=domain, refexplicit=False,
@@ -74,14 +74,14 @@ class Field:
 
     def make_xrefs(self, rolename: str, domain: str, target: str,
                    innernode: Type[TextlikeNode] = addnodes.literal_emphasis,
-                   contnode: Node = None, env: "BuildEnvironment" = None) -> List[Node]:
+                   contnode: Node = None, env: BuildEnvironment = None) -> List[Node]:
         return [self.make_xref(rolename, domain, target, innernode, contnode, env)]
 
     def make_entry(self, fieldarg: str, content: List[Node]) -> Tuple[str, List[Node]]:
         return (fieldarg, content)
 
     def make_field(self, types: Dict[str, List[Node]], domain: str,
-                   item: Tuple, env: "BuildEnvironment" = None) -> nodes.field:
+                   item: Tuple, env: BuildEnvironment = None) -> nodes.field:
         fieldarg, content = item
         fieldname = nodes.field_name('', self.label)
         if fieldarg:
@@ -121,7 +121,7 @@ class GroupedField(Field):
         self.can_collapse = can_collapse
 
     def make_field(self, types: Dict[str, List[Node]], domain: str,
-                   items: Tuple, env: "BuildEnvironment" = None) -> nodes.field:
+                   items: Tuple, env: BuildEnvironment = None) -> nodes.field:
         fieldname = nodes.field_name('', self.label)
         listnode = self.list_type()
         for fieldarg, content in items:
@@ -170,7 +170,7 @@ class TypedField(GroupedField):
         self.typerolename = typerolename
 
     def make_field(self, types: Dict[str, List[Node]], domain: str,
-                   items: Tuple, env: "BuildEnvironment" = None) -> nodes.field:
+                   items: Tuple, env: BuildEnvironment = None) -> nodes.field:
         def handle_item(fieldarg: str, content: str) -> nodes.paragraph:
             par = nodes.paragraph()
             par.extend(self.make_xrefs(self.rolename, domain, fieldarg,

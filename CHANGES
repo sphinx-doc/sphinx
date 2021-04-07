@@ -72,6 +72,8 @@ Features added
   when the class has two different names; a canonical name and an alias name
 * #8539: autodoc: Add :confval:`autodoc_typehints_description_target` to control
   the behavior of ``autodoc_typehints=description``
+* #8841: autodoc: :confval:`autodoc_docstring_signature` will continue to look
+  for multiple signature lines without backslash character
 * #7549: autosummary: Enable :confval:`autosummary_generate` by default
 * #4826: py domain: Add ``:canonical:`` option to python directives to describe
   the location where the object is defined
