@@ -233,7 +233,7 @@ class SigElementFallbackTransform(SphinxPostTransform):
             node.replace_self(newnode)
 
 
-class DescSigAddDomainAsClass(SphinxPostTransform):
+class PropagateDescDomain(SphinxPostTransform):
     """Add the domain name of the parent node as a class in each desc_signature node."""
     default_priority = 200
 
@@ -246,7 +246,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_post_transform(ReferencesResolver)
     app.add_post_transform(OnlyNodeTransform)
     app.add_post_transform(SigElementFallbackTransform)
-    app.add_post_transform(DescSigAddDomainAsClass)
+    app.add_post_transform(PropagateDescDomain)
 
     return {
         'version': 'builtin',

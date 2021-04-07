@@ -119,13 +119,13 @@ class toctree(nodes.General, nodes.Element, translatable):
 # Domain-specific object descriptions (class, function etc.)
 #############################################################
 
-class _desc_classes_injector(nodes.TextElement):
+class _desc_classes_injector(nodes.Element):
     """Helper base class for injecting a fixes list of classes.
 
     Use as the first base class.
     """
 
-    classes = []  # type: List[str]
+    classes: List[str] = []
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
