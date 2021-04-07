@@ -67,7 +67,7 @@ def is_directive_registered(name: str) -> bool:
     return name in directives._directives  # type: ignore
 
 
-def register_directive(name: str, directive: "Type[Directive]") -> None:
+def register_directive(name: str, directive: Type[Directive]) -> None:
     """Register a directive to docutils.
 
     This modifies global state of docutils.  So it is better to use this
@@ -95,12 +95,12 @@ def unregister_role(name: str) -> None:
     roles._roles.pop(name, None)  # type: ignore
 
 
-def is_node_registered(node: "Type[Element]") -> bool:
+def is_node_registered(node: Type[Element]) -> bool:
     """Check the *node* is already registered."""
     return hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__)
 
 
-def register_node(node: "Type[Element]") -> None:
+def register_node(node: Type[Element]) -> None:
     """Register a node to docutils.
 
     This modifies global state of some visitors.  So it is better to use this
@@ -111,7 +111,7 @@ def register_node(node: "Type[Element]") -> None:
         additional_nodes.add(node)
 
 
-def unregister_node(node: "Type[Element]") -> None:
+def unregister_node(node: Type[Element]) -> None:
     """Unregister a node from docutils.
 
     This is inverse of ``nodes._add_nodes_class_names()``.
@@ -182,7 +182,7 @@ class sphinx_domains:
     def __enter__(self) -> None:
         self.enable()
 
-    def __exit__(self, exc_type: "Type[Exception]", exc_value: Exception, traceback: Any) -> None:  # NOQA
+    def __exit__(self, exc_type: Type[Exception], exc_value: Exception, traceback: Any) -> None:  # NOQA
         self.disable()
 
     def enable(self) -> None:
@@ -226,7 +226,7 @@ class sphinx_domains:
 
         raise ElementLookupError
 
-    def lookup_directive(self, directive_name: str, language_module: ModuleType, document: nodes.document) -> Tuple[Optional["Type[Directive]"], List[system_message]]:  # NOQA
+    def lookup_directive(self, directive_name: str, language_module: ModuleType, document: nodes.document) -> Tuple[Optional[Type[Directive]], List[system_message]]:  # NOQA
         try:
             return self.lookup_domain_element('directive', directive_name)
         except ElementLookupError:

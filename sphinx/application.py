@@ -443,7 +443,7 @@ class Sphinx:
         self.events.disconnect(listener_id)
 
     def emit(self, event: str, *args: Any,
-             allowed_exceptions: Tuple["Type[Exception]", ...] = ()) -> List:
+             allowed_exceptions: Tuple[Type[Exception], ...] = ()) -> List:
         """Emit *event* and pass *arguments* to the callback functions.
 
         Return the return values of all callbacks as a list.  Do not emit core
@@ -460,7 +460,7 @@ class Sphinx:
         return self.events.emit(event, *args, allowed_exceptions=allowed_exceptions)
 
     def emit_firstresult(self, event: str, *args: Any,
-                         allowed_exceptions: Tuple["Type[Exception]", ...] = ()) -> Any:
+                         allowed_exceptions: Tuple[Type[Exception], ...] = ()) -> Any:
         """Emit *event* and pass *arguments* to the callback functions.
 
         Return the result of the first callback that doesn't return ``None``.
@@ -479,7 +479,7 @@ class Sphinx:
 
     # registering addon parts
 
-    def add_builder(self, builder: "Type[Builder]", override: bool = False) -> None:
+    def add_builder(self, builder: Type["Builder"], override: bool = False) -> None:
         """Register a new builder.
 
         :param builder: A builder class
@@ -542,7 +542,7 @@ class Sphinx:
         logger.debug('[app] adding event: %r', name)
         self.events.add(name)
 
-    def set_translator(self, name: str, translator_class: "Type[nodes.NodeVisitor]",
+    def set_translator(self, name: str, translator_class: Type[nodes.NodeVisitor],
                        override: bool = False) -> None:
         """Register or override a Docutils translator class.
 
@@ -561,7 +561,7 @@ class Sphinx:
         """
         self.registry.add_translator(name, translator_class, override=override)
 
-    def add_node(self, node: "Type[Element]", override: bool = False,
+    def add_node(self, node: Type[Element], override: bool = False,
                  **kwargs: Tuple[Callable, Callable]) -> None:
         """Register a Docutils node class.
 
@@ -605,7 +605,7 @@ class Sphinx:
         docutils.register_node(node)
         self.registry.add_translation_handlers(node, **kwargs)
 
-    def add_enumerable_node(self, node: "Type[Element]", figtype: str,
+    def add_enumerable_node(self, node: Type[Element], figtype: str,
                             title_getter: TitleGetter = None, override: bool = False,
                             **kwargs: Tuple[Callable, Callable]) -> None:
         """Register a Docutils node class as a numfig target.
@@ -634,7 +634,7 @@ class Sphinx:
         self.registry.add_enumerable_node(node, figtype, title_getter, override=override)
         self.add_node(node, override=override, **kwargs)
 
-    def add_directive(self, name: str, cls: "Type[Directive]", override: bool = False) -> None:
+    def add_directive(self, name: str, cls: Type[Directive], override: bool = False) -> None:
         """Register a Docutils directive.
 
         :param name: The name of directive
@@ -724,7 +724,7 @@ class Sphinx:
         role = roles.GenericRole(name, nodeclass)
         docutils.register_role(name, role)
 
-    def add_domain(self, domain: "Type[Domain]", override: bool = False) -> None:
+    def add_domain(self, domain: Type[Domain], override: bool = False) -> None:
         """Register a domain.
 
         :param domain: A domain class
@@ -738,7 +738,7 @@ class Sphinx:
         self.registry.add_domain(domain, override=override)
 
     def add_directive_to_domain(self, domain: str, name: str,
-                                cls: "Type[Directive]", override: bool = False) -> None:
+                                cls: Type[Directive], override: bool = False) -> None:
         """Register a Docutils directive in a domain.
 
         Like :meth:`add_directive`, but the directive is added to the domain
@@ -775,7 +775,7 @@ class Sphinx:
         """
         self.registry.add_role_to_domain(domain, name, role, override=override)
 
-    def add_index_to_domain(self, domain: str, index: "Type[Index]", override: bool = False
+    def add_index_to_domain(self, domain: str, index: Type[Index], override: bool = False
                             ) -> None:
         """Register a custom index for a domain.
 
@@ -793,7 +793,7 @@ class Sphinx:
         self.registry.add_index_to_domain(domain, index)
 
     def add_object_type(self, directivename: str, rolename: str, indextemplate: str = '',
-                        parse_node: Callable = None, ref_nodeclass: "Type[TextElement]" = None,
+                        parse_node: Callable = None, ref_nodeclass: Type[TextElement] = None,
                         objname: str = '', doc_field_types: List = [], override: bool = False
                         ) -> None:
         """Register a new object type.
@@ -860,7 +860,7 @@ class Sphinx:
                                       override=override)
 
     def add_crossref_type(self, directivename: str, rolename: str, indextemplate: str = '',
-                          ref_nodeclass: "Type[TextElement]" = None, objname: str = '',
+                          ref_nodeclass: Type[TextElement] = None, objname: str = '',
                           override: bool = False) -> None:
         """Register a new crossref object type.
 
@@ -898,7 +898,7 @@ class Sphinx:
                                         indextemplate, ref_nodeclass, objname,
                                         override=override)
 
-    def add_transform(self, transform: "Type[Transform]") -> None:
+    def add_transform(self, transform: Type[Transform]) -> None:
         """Register a Docutils transform to be applied after parsing.
 
         Add the standard docutils :class:`Transform` subclass *transform* to
@@ -933,7 +933,7 @@ class Sphinx:
         """  # NOQA
         self.registry.add_transform(transform)
 
-    def add_post_transform(self, transform: "Type[Transform]") -> None:
+    def add_post_transform(self, transform: Type[Transform]) -> None:
         """Register a Docutils transform to be applied before writing.
 
         Add the standard docutils :class:`Transform` subclass *transform* to
@@ -1113,7 +1113,7 @@ class Sphinx:
         self.registry.add_documenter(cls.objtype, cls)
         self.add_directive('auto' + cls.objtype, AutodocDirective, override=override)
 
-    def add_autodoc_attrgetter(self, typ: "Type", getter: Callable[[Any, str, Any], Any]
+    def add_autodoc_attrgetter(self, typ: Type, getter: Callable[[Any, str, Any], Any]
                                ) -> None:
         """Register a new ``getattr``-like function for the autodoc extension.
 
@@ -1157,7 +1157,7 @@ class Sphinx:
         """
         self.registry.add_source_suffix(suffix, filetype, override=override)
 
-    def add_source_parser(self, parser: "Type[Parser]", override: bool = False) -> None:
+    def add_source_parser(self, parser: Type[Parser], override: bool = False) -> None:
         """Register a parser class.
 
         If *override* is True, the given *parser* is forcedly installed even if
@@ -1172,7 +1172,7 @@ class Sphinx:
         """
         self.registry.add_source_parser(parser, override=override)
 
-    def add_env_collector(self, collector: "Type[EnvironmentCollector]") -> None:
+    def add_env_collector(self, collector: Type[EnvironmentCollector]) -> None:
         """Register an environment collector class.
 
         Refer to :ref:`collector-api`.

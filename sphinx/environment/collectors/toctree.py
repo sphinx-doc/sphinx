@@ -62,7 +62,7 @@ class TocTreeCollector(EnvironmentCollector):
         docname = app.env.docname
         numentries = [0]  # nonlocal again...
 
-        def traverse_in_section(node: Element, cls: "Type[N]") -> List[N]:
+        def traverse_in_section(node: Element, cls: Type[N]) -> List[N]:
             """Like traverse(), but stay within the same section."""
             result: List[N] = []
             if isinstance(node, cls):

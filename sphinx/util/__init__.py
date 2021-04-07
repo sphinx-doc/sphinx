@@ -510,7 +510,7 @@ class progress_message:
     def __enter__(self) -> None:
         logger.info(bold(self.message + '... '), nonl=True)
 
-    def __exit__(self, exc_type: "Type[Exception]", exc_value: Exception, traceback: Any) -> bool:  # NOQA
+    def __exit__(self, exc_type: Type[Exception], exc_value: Exception, traceback: Any) -> bool:  # NOQA
         if isinstance(exc_value, SkipProgressMessage):
             logger.info(__('skipped'))
             if exc_value.args:

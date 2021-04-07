@@ -20,7 +20,7 @@ import warnings
 from functools import partial, partialmethod
 from inspect import Parameter, isclass, ismethod, ismethoddescriptor, ismodule  # NOQA
 from io import StringIO
-from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, cast
+from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, Type, cast
 
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.pycode.ast import ast  # for py36-37
@@ -175,7 +175,7 @@ def getglobals(obj: Any) -> Mapping[str, Any]:
         return {}
 
 
-def getmro(obj: Any) -> Tuple["Type", ...]:
+def getmro(obj: Any) -> Tuple[Type, ...]:
     """Get __mro__ from given *obj* safely."""
     __mro__ = safe_getattr(obj, '__mro__', None)
     if isinstance(__mro__, tuple):

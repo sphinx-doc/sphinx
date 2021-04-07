@@ -122,7 +122,7 @@ class SphinxComponentRegistry:
         #: additional transforms; list of transforms
         self.transforms = []            # type: List[Type[Transform]]
 
-    def add_builder(self, builder: "Type[Builder]", override: bool = False) -> None:
+    def add_builder(self, builder: Type[Builder], override: bool = False) -> None:
         logger.debug('[app] adding builder: %r', builder)
         if not hasattr(builder, 'name'):
             raise ExtensionError(__('Builder class %s has no "name" attribute') % builder)
@@ -151,7 +151,7 @@ class SphinxComponentRegistry:
 
         return self.builders[name](app)
 
-    def add_domain(self, domain: "Type[Domain]", override: bool = False) -> None:
+    def add_domain(self, domain: Type[Domain], override: bool = False) -> None:
         logger.debug('[app] adding domain: %r', domain)
         if domain.name in self.domains and not override:
             raise ExtensionError(__('domain %s already registered') % domain.name)
@@ -174,7 +174,7 @@ class SphinxComponentRegistry:
             yield domain
 
     def add_directive_to_domain(self, domain: str, name: str,
-                                cls: "Type[Directive]", override: bool = False) -> None:
+                                cls: Type[Directive], override: bool = False) -> None:
         logger.debug('[app] adding directive to domain: %r', (domain, name, cls))
         if domain not in self.domains:
             raise ExtensionError(__('domain %s not yet registered') % domain)
@@ -197,7 +197,7 @@ class SphinxComponentRegistry:
                                  (name, domain))
         roles[name] = role
 
-    def add_index_to_domain(self, domain: str, index: "Type[Index]",
+    def add_index_to_domain(self, domain: str, index: Type[Index],
                             override: bool = False) -> None:
         logger.debug('[app] adding index to domain: %r', (domain, index))
         if domain not in self.domains:
@@ -209,7 +209,7 @@ class SphinxComponentRegistry:
         indices.append(index)
 
     def add_object_type(self, directivename: str, rolename: str, indextemplate: str = '',
-                        parse_node: Callable = None, ref_nodeclass: "Type[TextElement]" = None,
+                        parse_node: Callable = None, ref_nodeclass: Type[TextElement] = None,
                         objname: str = '', doc_field_types: List = [], override: bool = False
                         ) -> None:
         logger.debug('[app] adding object type: %r',
@@ -233,7 +233,7 @@ class SphinxComponentRegistry:
         object_types[directivename] = ObjType(objname or directivename, rolename)
 
     def add_crossref_type(self, directivename: str, rolename: str, indextemplate: str = '',
-                          ref_nodeclass: "Type[TextElement]" = None, objname: str = '',
+                          ref_nodeclass: Type[TextElement] = None, objname: str = '',
                           override: bool = False) -> None:
         logger.debug('[app] adding crossref type: %r',
                      (directivename, rolename, indextemplate, ref_nodeclass, objname))
@@ -259,7 +259,7 @@ class SphinxComponentRegistry:
         else:
             self.source_suffix[suffix] = filetype
 
-    def add_source_parser(self, parser: "Type[Parser]", override: bool = False) -> None:
+    def add_source_parser(self, parser: Type[Parser], override: bool = False) -> None:
         logger.debug('[app] adding search source_parser: %r', parser)
 
         # create a map from filetype to parser
@@ -270,13 +270,13 @@ class SphinxComponentRegistry:
             else:
                 self.source_parsers[filetype] = parser
 
-    def get_source_parser(self, filetype: str) -> "Type[Parser]":
+    def get_source_parser(self, filetype: str) -> Type[Parser]:
         try:
             return self.source_parsers[filetype]
         except KeyError as exc:
             raise SphinxError(__('Source parser for %s not registered') % filetype) from exc
 
-    def get_source_parsers(self) -> Dict[str, "Type[Parser]"]:
+    def get_source_parsers(self) -> Dict[str, Type[Parser]]:
         return self.source_parsers
 
     def create_source_parser(self, app: "Sphinx", filename: str) -> Parser:
@@ -286,7 +286,7 @@ class SphinxComponentRegistry:
             parser.set_application(app)
         return parser
 
-    def get_source_input(self, filetype: str) -> "Type[Input]":
+    def get_source_input(self, filetype: str) -> Type[Input]:
         warnings.warn('SphinxComponentRegistry.get_source_input() is deprecated.',
                       RemovedInSphinx60Warning)
 
@@ -299,14 +299,14 @@ class SphinxComponentRegistry:
             except KeyError:
                 return None
 
-    def add_translator(self, name: str, translator: "Type[nodes.NodeVisitor]",
+    def add_translator(self, name: str, translator: Type[nodes.NodeVisitor],
                        override: bool = False) -> None:
         logger.debug('[app] Change of translator for the %s builder.', name)
         if name in self.translators and not override:
             raise ExtensionError(__('Translator for %r already exists') % name)
         self.translators[name] = translator
 
-    def add_translation_handlers(self, node: "Type[Element]",
+    def add_translation_handlers(self, node: Type[Element],
                                  **kwargs: Tuple[Callable, Callable]) -> None:
         logger.debug('[app] adding translation_handlers: %r, %r', node, kwargs)
         for builder_name, handlers in kwargs.items():
@@ -320,7 +320,7 @@ class SphinxComponentRegistry:
                        'function tuple: %r=%r') % (builder_name, handlers)
                 ) from exc
 
-    def get_translator_class(self, builder: Builder) -> "Type[nodes.NodeVisitor]":
+    def get_translator_class(self, builder: Builder) -> Type[nodes.NodeVisitor]:
         return self.translators.get(builder.name,
                                     builder.default_translator_class)
 
@@ -342,24 +342,24 @@ class SphinxComponentRegistry:
 
         return translator
 
-    def add_transform(self, transform: "Type[Transform]") -> None:
+    def add_transform(self, transform: Type[Transform]) -> None:
         logger.debug('[app] adding transform: %r', transform)
         self.transforms.append(transform)
 
-    def get_transforms(self) -> List["Type[Transform]"]:
+    def get_transforms(self) -> List[Type[Transform]]:
         return self.transforms
 
-    def add_post_transform(self, transform: "Type[Transform]") -> None:
+    def add_post_transform(self, transform: Type[Transform]) -> None:
         logger.debug('[app] adding post transform: %r', transform)
         self.post_transforms.append(transform)
 
-    def get_post_transforms(self) -> List["Type[Transform]"]:
+    def get_post_transforms(self) -> List[Type[Transform]]:
         return self.post_transforms
 
-    def add_documenter(self, objtype: str, documenter: "Type[Documenter]") -> None:
+    def add_documenter(self, objtype: str, documenter: Type["Documenter"]) -> None:
         self.documenters[objtype] = documenter
 
-    def add_autodoc_attrgetter(self, typ: "Type",
+    def add_autodoc_attrgetter(self, typ: Type,
                                attrgetter: Callable[[Any, str, Any], Any]) -> None:
         self.autodoc_attrgettrs[typ] = attrgetter
 
@@ -384,7 +384,7 @@ class SphinxComponentRegistry:
         else:
             self.latex_packages.append((name, options))
 
-    def add_enumerable_node(self, node: "Type[Node]", figtype: str,
+    def add_enumerable_node(self, node: Type[Node], figtype: str,
                             title_getter: TitleGetter = None, override: bool = False) -> None:
         logger.debug('[app] adding enumerable node: (%r, %r, %r)', node, figtype, title_getter)
         if node in self.enumerable_nodes and not override:

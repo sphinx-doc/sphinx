@@ -79,7 +79,7 @@ class DocumenterBridge:
         return self._reporter
 
 
-def process_documenter_options(documenter: "Type[Documenter]", config: Config, options: Dict
+def process_documenter_options(documenter: Type[Documenter], config: Config, options: Dict
                                ) -> Options:
     """Recognize options of Documenter from user input."""
     for name in AUTODOC_DEFAULT_OPTIONS:

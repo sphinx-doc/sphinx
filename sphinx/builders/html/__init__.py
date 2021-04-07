@@ -333,7 +333,7 @@ class StandaloneHTMLBuilder(Builder):
         self.script_files.append(JavaScript(filename, **kwargs))
 
     @property
-    def default_translator_class(self) -> "Type[nodes.NodeVisitor]":  # type: ignore
+    def default_translator_class(self) -> Type[nodes.NodeVisitor]:  # type: ignore
         if not html5_ready or self.config.html4_writer:
             return HTMLTranslator
         else:

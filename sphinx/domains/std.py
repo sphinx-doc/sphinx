@@ -1057,7 +1057,7 @@ class StandardDomain(Domain):
 
     def get_enumerable_node_type(self, node: Node) -> str:
         """Get type of enumerable nodes."""
-        def has_child(node: Element, cls: "Type") -> bool:
+        def has_child(node: Element, cls: Type) -> bool:
             return any(isinstance(child, cls) for child in node)
 
         if isinstance(node, nodes.section):
