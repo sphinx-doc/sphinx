@@ -347,7 +347,12 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     # overwritten
     def visit_title(self, node: Element) -> None:
-        super().visit_title(node)
+        if isinstance(node.parent, addnodes.compact_paragraph) and node.parent.get('toctree'):
+            self.body.append(self.starttag(node, 'p', '', CLASS='caption'))
+            self.body.append('<span class="caption-text">')
+            self.context.append('</span></p>\n')
+        else:
+            super().visit_title(node)
         self.add_secnumber(node)
         self.add_fignumber(node.parent)
         if isinstance(node.parent, nodes.table):
