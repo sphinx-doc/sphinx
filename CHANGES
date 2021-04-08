@@ -17,6 +17,7 @@ Bugs fixed
 ----------
 
 * #8870: The style of toctree captions has been changed with docutils-0.17
+* #9001: The style of ``sidebar`` directive has been changed with docutils-0.17
 
 Testing
 --------
