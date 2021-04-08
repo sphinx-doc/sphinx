@@ -53,74 +53,74 @@ EXTENSION_BLACKLIST = {
 class SphinxComponentRegistry:
     def __init__(self) -> None:
         #: special attrgetter for autodoc; class object -> attrgetter
-        self.autodoc_attrgettrs = {}    # type: Dict[Type, Callable[[Any, str, Any], Any]]
+        self.autodoc_attrgettrs: Dict[Type, Callable[[Any, str, Any], Any]] = {}
 
         #: builders; a dict of builder name -> bulider class
-        self.builders = {}              # type: Dict[str, Type[Builder]]
+        self.builders: Dict[str, Type[Builder]] = {}
 
         #: autodoc documenters; a dict of documenter name -> documenter class
-        self.documenters = {}           # type: Dict[str, Type[Documenter]]
+        self.documenters: Dict[str, Type[Documenter]] = {}
 
         #: css_files; a list of tuple of filename and attributes
-        self.css_files = []             # type: List[Tuple[str, Dict[str, Any]]]
+        self.css_files: List[Tuple[str, Dict[str, Any]]] = []
 
         #: domains; a dict of domain name -> domain class
-        self.domains = {}               # type: Dict[str, Type[Domain]]
+        self.domains: Dict[str, Type[Domain]] = {}
 
         #: additional directives for domains
         #: a dict of domain name -> dict of directive name -> directive
-        self.domain_directives = {}     # type: Dict[str, Dict[str, Any]]
+        self.domain_directives: Dict[str, Dict[str, Any]] = {}
 
         #: additional indices for domains
         #: a dict of domain name -> list of index class
-        self.domain_indices = {}        # type: Dict[str, List[Type[Index]]]
+        self.domain_indices: Dict[str, List[Type[Index]]] = {}
 
         #: additional object types for domains
         #: a dict of domain name -> dict of objtype name -> objtype
-        self.domain_object_types = {}   # type: Dict[str, Dict[str, ObjType]]
+        self.domain_object_types: Dict[str, Dict[str, ObjType]] = {}
 
         #: additional roles for domains
         #: a dict of domain name -> dict of role name -> role impl.
-        self.domain_roles = {}          # type: Dict[str, Dict[str, Union[RoleFunction, XRefRole]]]  # NOQA
+        self.domain_roles: Dict[str, Dict[str, Union[RoleFunction, XRefRole]]] = {}
 
         #: additional enumerable nodes
         #: a dict of node class -> tuple of figtype and title_getter function
-        self.enumerable_nodes = {}      # type: Dict[Type[Node], Tuple[str, TitleGetter]]
+        self.enumerable_nodes: Dict[Type[Node], Tuple[str, TitleGetter]] = {}
 
         #: HTML inline and block math renderers
         #: a dict of name -> tuple of visit function and depart function
-        self.html_inline_math_renderers = {}    # type: Dict[str, Tuple[Callable, Callable]]
-        self.html_block_math_renderers = {}     # type: Dict[str, Tuple[Callable, Callable]]
+        self.html_inline_math_renderers: Dict[str, Tuple[Callable, Callable]] = {}
+        self.html_block_math_renderers: Dict[str, Tuple[Callable, Callable]] = {}
 
         #: js_files; list of JS paths or URLs
-        self.js_files = []              # type: List[Tuple[str, Dict[str, Any]]]
+        self.js_files: List[Tuple[str, Dict[str, Any]]] = []
 
         #: LaTeX packages; list of package names and its options
-        self.latex_packages = []        # type: List[Tuple[str, str]]
+        self.latex_packages: List[Tuple[str, str]] = []
 
-        self.latex_packages_after_hyperref = []     # type: List[Tuple[str, str]]
+        self.latex_packages_after_hyperref: List[Tuple[str, str]] = []
 
         #: post transforms; list of transforms
-        self.post_transforms = []       # type: List[Type[Transform]]
+        self.post_transforms: List[Type[Transform]] = []
 
         #: source paresrs; file type -> parser class
-        self.source_parsers = {}        # type: Dict[str, Type[Parser]]
+        self.source_parsers: Dict[str, Type[Parser]] = {}
 
         #: source inputs; file type -> input class
-        self.source_inputs = {}         # type: Dict[str, Type[Input]]
+        self.source_inputs: Dict[str, Type[Input]] = {}
 
         #: source suffix: suffix -> file type
-        self.source_suffix = {}         # type: Dict[str, str]
+        self.source_suffix: Dict[str, str] = {}
 
         #: custom translators; builder name -> translator class
-        self.translators = {}           # type: Dict[str, Type[nodes.NodeVisitor]]
+        self.translators: Dict[str, Type[nodes.NodeVisitor]] = {}
 
         #: custom handlers for translators
         #: a dict of builder name -> dict of node name -> visitor and departure functions
-        self.translation_handlers = {}  # type: Dict[str, Dict[str, Tuple[Callable, Callable]]]
+        self.translation_handlers: Dict[str, Dict[str, Tuple[Callable, Callable]]] = {}
 
         #: additional transforms; list of transforms
-        self.transforms = []            # type: List[Type[Transform]]
+        self.transforms: List[Type[Transform]] = []
 
     def add_builder(self, builder: Type[Builder], override: bool = False) -> None:
         logger.debug('[app] adding builder: %r', builder)
@@ -426,7 +426,7 @@ class SphinxComponentRegistry:
             if setup is None:
                 logger.warning(__('extension %r has no setup() function; is it really '
                                   'a Sphinx extension module?'), extname)
-                metadata = {}  # type: Dict[str, Any]
+                metadata: Dict[str, Any] = {}
             else:
                 try:
                     metadata = setup(app)

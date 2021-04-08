@@ -31,8 +31,8 @@ from sphinx.util import logging, texescape
 
 logger = logging.getLogger(__name__)
 
-lexers = {}  # type: Dict[str, Lexer]
-lexer_classes = {
+lexers: Dict[str, Lexer] = {}
+lexer_classes: Dict[str, Lexer] = {
     'none': partial(TextLexer, stripnl=False),
     'python': partial(PythonLexer, stripnl=False),
     'python3': partial(Python3Lexer, stripnl=False),
@@ -40,7 +40,7 @@ lexer_classes = {
     'pycon3': partial(PythonConsoleLexer, python3=True, stripnl=False),
     'rest': partial(RstLexer, stripnl=False),
     'c': partial(CLexer, stripnl=False),
-}  # type: Dict[str, Lexer]
+}
 
 
 escape_hl_chars = {ord('\\'): '\\PYGZbs{}',
@@ -80,7 +80,7 @@ class PygmentsBridge:
         self.latex_engine = latex_engine
 
         style = self.get_style(stylename)
-        self.formatter_args = {'style': style}  # type: Dict[str, Any]
+        self.formatter_args: Dict[str, Any] = {'style': style}
         if dest == 'html':
             self.formatter = self.html_formatter
         else:

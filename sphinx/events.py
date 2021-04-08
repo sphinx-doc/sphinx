@@ -58,7 +58,7 @@ class EventManager:
     def __init__(self, app: "Sphinx") -> None:
         self.app = app
         self.events = core_events.copy()
-        self.listeners = defaultdict(list)  # type: Dict[str, List[EventListener]]
+        self.listeners: Dict[str, List[EventListener]] = defaultdict(list)
         self.next_listener_id = 0
 
     def add(self, name: str) -> None:

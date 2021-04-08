@@ -111,7 +111,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
     for objnode in doctree.traverse(addnodes.desc):
         if objnode.get('domain') != 'py':
             continue
-        names = set()  # type: Set[str]
+        names: Set[str] = set()
         for signode in objnode:
             if not isinstance(signode, addnodes.desc_signature):
                 continue

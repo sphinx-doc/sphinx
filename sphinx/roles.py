@@ -65,8 +65,8 @@ class XRefRole(ReferenceRole):
     * Subclassing and overwriting `process_link()` and/or `result_nodes()`.
     """
 
-    nodeclass = addnodes.pending_xref   # type: Type[Element]
-    innernodeclass = nodes.literal      # type: Type[TextElement]
+    nodeclass: Type[Element] = addnodes.pending_xref
+    innernodeclass: Type[TextElement] = nodes.literal
 
     def __init__(self, fix_parens: bool = False, lowercase: bool = False,
                  nodeclass: Type[Element] = None, innernodeclass: Type[TextElement] = None,
@@ -284,7 +284,7 @@ class EmphasizedLiteral(SphinxRole):
         return [node], []
 
     def parse(self, text: str) -> List[Node]:
-        result = []  # type: List[Node]
+        result: List[Node] = []
 
         stack = ['']
         for part in self.parens_re.split(text):
@@ -341,7 +341,7 @@ class Abbreviation(SphinxRole):
         return [nodes.abbreviation(self.rawtext, text, **options)], []
 
 
-specific_docroles = {
+specific_docroles: Dict[str, RoleFunction] = {
     # links to download references
     'download': XRefRole(nodeclass=addnodes.download_reference),
     # links to anything
@@ -354,7 +354,7 @@ specific_docroles = {
     'file': EmphasizedLiteral(),
     'samp': EmphasizedLiteral(),
     'abbr': Abbreviation(),
-}  # type: Dict[str, RoleFunction]
+}
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:

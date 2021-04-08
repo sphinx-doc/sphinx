@@ -211,7 +211,7 @@ class HTMLThemeFactory:
 
     def find_themes(self, theme_path: str) -> Dict[str, str]:
         """Search themes from specified directory."""
-        themes = {}  # type: Dict[str, str]
+        themes: Dict[str, str] = {}
         if not path.isdir(theme_path):
             return themes
 

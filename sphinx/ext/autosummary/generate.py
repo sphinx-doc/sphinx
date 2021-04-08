@@ -87,11 +87,11 @@ def setup_documenters(app: Any) -> None:
                                     FunctionDocumenter, MethodDocumenter, ModuleDocumenter,
                                     NewTypeAttributeDocumenter, NewTypeDataDocumenter,
                                     PropertyDocumenter)
-    documenters = [
+    documenters: List[Type[Documenter]] = [
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, NewTypeAttributeDocumenter,
         NewTypeDataDocumenter, AttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
-    ]  # type: List[Type[Documenter]]
+    ]
     for documenter in documenters:
         app.registry.add_documenter(documenter.objtype, documenter)
 
@@ -241,8 +241,8 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
 
     def get_members(obj: Any, types: Set[str], include_public: List[str] = [],
                     imported: bool = True) -> Tuple[List[str], List[str]]:
-        items = []  # type: List[str]
-        public = []  # type: List[str]
+        items: List[str] = []
+        public: List[str] = []
         for name in dir(obj):
             try:
                 value = safe_getattr(obj, name)
@@ -282,7 +282,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         return public, attrs
 
     def get_modules(obj: Any) -> Tuple[List[str], List[str]]:
-        items = []  # type: List[str]
+        items: List[str] = []
         for _, modname, ispkg in pkgutil.iter_modules(obj.__path__):
             fullname = name + '.' + modname
             try:
@@ -296,7 +296,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         public = [x for x in items if not x.split('.')[-1].startswith('_')]
         return public, items
 
-    ns = {}  # type: Dict[str, Any]
+    ns: Dict[str, Any] = {}
     ns.update(context)
 
     if doc.objtype == 'module':
@@ -447,7 +447,7 @@ def find_autosummary_in_files(filenames: List[str]) -> List[AutosummaryEntry]:
 
     See `find_autosummary_in_lines`.
     """
-    documented = []  # type: List[AutosummaryEntry]
+    documented: List[AutosummaryEntry] = []
     for filename in filenames:
         with open(filename, encoding='utf-8', errors='ignore') as f:
             lines = f.read().splitlines()
@@ -501,10 +501,10 @@ def find_autosummary_in_lines(lines: List[str], module: str = None, filename: st
     toctree_arg_re = re.compile(r'^\s+:toctree:\s*(.*?)\s*$')
     template_arg_re = re.compile(r'^\s+:template:\s*(.*?)\s*$')
 
-    documented = []  # type: List[AutosummaryEntry]
+    documented: List[AutosummaryEntry] = []
 
     recursive = False
-    toctree = None  # type: str
+    toctree: str = None
     template = None
     current_module = module
     in_autosummary = False

@@ -53,8 +53,8 @@ class TexinfoBuilder(Builder):
     default_translator_class = TexinfoTranslator
 
     def init(self) -> None:
-        self.docnames = []       # type: Iterable[str]
-        self.document_data = []  # type: List[Tuple[str, str, str, str, str, str, str, bool]]
+        self.docnames: Iterable[str] = []
+        self.document_data: List[Tuple[str, str, str, str, str, str, str, bool]] = []
 
     def get_outdated_docs(self) -> Union[str, List[str]]:
         return 'all documents'  # for now
@@ -76,7 +76,7 @@ class TexinfoBuilder(Builder):
                               'will be written'))
             return
         # assign subdirs to titles
-        self.titles = []  # type: List[Tuple[str, str]]
+        self.titles: List[Tuple[str, str]] = []
         for entry in preliminary_document_data:
             docname = entry[0]
             if docname not in self.env.all_docs:
@@ -109,10 +109,10 @@ class TexinfoBuilder(Builder):
             with progress_message(__("writing")):
                 self.post_process_images(doctree)
                 docwriter = TexinfoWriter(self)
-                settings = OptionParser(
+                settings: Any = OptionParser(
                     defaults=self.env.settings,
                     components=(docwriter,),
-                    read_config_files=True).get_default_values()  # type: Any
+                    read_config_files=True).get_default_values()
                 settings.author = author
                 settings.title = title
                 settings.texinfo_filename = targetname[:-5] + '.info'

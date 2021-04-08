@@ -10,16 +10,12 @@
 
 import os
 from glob import glob
-from typing import TYPE_CHECKING
+from typing import Dict, List, Set
 
 from sphinx.locale import __
 from sphinx.util import get_matching_files, logging, path_stabilize
 from sphinx.util.matching import compile_matchers
 from sphinx.util.osutil import SEP, relpath
-
-if TYPE_CHECKING:
-    from typing import Dict, List, Set
-
 
 logger = logging.getLogger(__name__)
 EXCLUDE_PATHS = ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
@@ -28,8 +24,7 @@ EXCLUDE_PATHS = ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
 class Project:
     """A project is source code set of Sphinx document."""
 
-    def __init__(self, srcdir, source_suffix):
-        # type: (str, Dict[str, str]) -> None
+    def __init__(self, srcdir: str, source_suffix: Dict[str, str]) -> None:
         #: Source directory.
         self.srcdir = srcdir
 
@@ -37,15 +32,13 @@ class Project:
         self.source_suffix = source_suffix
 
         #: The name of documents belongs to this project.
-        self.docnames = set()  # type: Set[str]
+        self.docnames: Set[str] = set()
 
-    def restore(self, other):
-        # type: (Project) -> None
+    def restore(self, other: "Project") -> None:
         """Take over a result of last build."""
         self.docnames = other.docnames
 
-    def discover(self, exclude_paths=[]):
-        # type: (List[str]) -> Set[str]
+    def discover(self, exclude_paths: List[str] = []) -> Set[str]:
         """Find all document files in the source directory and put them in
         :attr:`docnames`.
         """
@@ -67,8 +60,7 @@ class Project:
 
         return self.docnames
 
-    def path2doc(self, filename):
-        # type: (str) -> str
+    def path2doc(self, filename: str) -> str:
         """Return the docname for the filename if the file is document.
 
         *filename* should be absolute or relative to the source directory.
@@ -83,8 +75,7 @@ class Project:
         # the file does not have docname
         return None
 
-    def doc2path(self, docname, basedir=True):
-        # type: (str, bool) -> str
+    def doc2path(self, docname: str, basedir: bool = True) -> str:
         """Return the filename for the document name.
 
         If *basedir* is True, return as an absolute path.

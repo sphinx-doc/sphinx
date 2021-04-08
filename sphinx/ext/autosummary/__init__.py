@@ -60,7 +60,7 @@ import sys
 import warnings
 from os import path
 from types import ModuleType
-from typing import Any, Dict, List, Tuple, Type, cast
+from typing import Any, Dict, List, Optional, Tuple, Type, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -165,7 +165,7 @@ def autosummary_table_visit_html(self: HTMLTranslator, node: autosummary_table) 
 # -- autodoc integration -------------------------------------------------------
 
 # current application object (used in `get_documenter()`).
-_app = None  # type: Sphinx
+_app: Sphinx = None
 
 
 class FakeDirective(DocumenterBridge):
@@ -311,7 +311,7 @@ class Autosummary(SphinxDirective):
         """
         prefixes = get_import_prefixes_from_env(self.env)
 
-        items = []  # type: List[Tuple[str, str, str, str]]
+        items: List[Tuple[str, str, str, str]] = []
 
         max_item_chars = 50
 
@@ -461,8 +461,8 @@ def mangle_signature(sig: str, max_chars: int = 30) -> str:
         s = re.sub(r'{[^}]*}', '', s)
 
     # Parse the signature to arguments + options
-    args = []  # type: List[str]
-    opts = []  # type: List[str]
+    args: List[str] = []
+    opts: List[str] = []
 
     opt_re = re.compile(r"^(.*, |)([a-zA-Z0-9_*]+)\s*=\s*")
     while s:
@@ -579,7 +579,7 @@ def get_import_prefixes_from_env(env: BuildEnvironment) -> List[str]:
     Obtain current Python import prefixes (for `import_by_name`)
     from ``document.env``
     """
-    prefixes = [None]  # type: List[str]
+    prefixes: List[Optional[str]] = [None]
 
     currmodule = env.ref_context.get('py:module')
     if currmodule:
@@ -707,7 +707,7 @@ def get_rst_suffix(app: Sphinx) -> str:
             return ('restructuredtext',)
         return parser_class.supported
 
-    suffix = None  # type: str
+    suffix: str = None
     for suffix in app.config.source_suffix:
         if 'restructuredtext' in get_supported_format(suffix):
             return suffix

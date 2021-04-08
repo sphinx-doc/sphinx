@@ -41,7 +41,7 @@ def rootdir() -> str:
 
 
 class SharedResult:
-    cache = {}  # type: Dict[str, Dict[str, str]]
+    cache: Dict[str, Dict[str, str]] = {}
 
     def store(self, key: str, app_: SphinxTestApp) -> Any:
         if key in self.cache:
@@ -77,7 +77,7 @@ def app_params(request: Any, test_params: Dict, shared_result: SharedResult,
     else:
         markers = request.node.get_marker("sphinx")
     pargs = {}
-    kwargs = {}  # type: Dict[str, Any]
+    kwargs: Dict[str, Any] = {}
 
     if markers is not None:
         # to avoid stacking positional args
@@ -190,7 +190,7 @@ def make_app(test_params: Dict, monkeypatch: Any) -> Generator[Callable, None, N
         status, warning = StringIO(), StringIO()
         kwargs.setdefault('status', status)
         kwargs.setdefault('warning', warning)
-        app_ = SphinxTestApp(*args, **kwargs)  # type: Any
+        app_: Any = SphinxTestApp(*args, **kwargs)
         apps.append(app_)
         if test_params['shared_result']:
             app_ = SphinxTestAppWrapperForSkipBuilding(app_)
