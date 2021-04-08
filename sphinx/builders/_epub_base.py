@@ -270,7 +270,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """
         def update_node_id(node: Element) -> None:
             """Update IDs of given *node*."""
-            new_ids = []
+            new_ids: List[str] = []
             for node_id in node['ids']:
                 new_id = self.fix_fragment('', node_id)
                 if new_id not in new_ids:

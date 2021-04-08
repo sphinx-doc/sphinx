@@ -407,7 +407,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
                 logger.warning(__('[autosummary] failed to import %r: %s') % (entry.name, e))
                 continue
 
-        context = {}
+        context: Dict[str, Any] = {}
         if app:
             context.update(app.config.autosummary_context)
 

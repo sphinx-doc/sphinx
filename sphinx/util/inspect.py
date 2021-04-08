@@ -749,7 +749,7 @@ def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
     elif doc is None and allow_inherited:
         doc = inspect.getdoc(obj)
 
-        if doc is None and cls:
+        if doc is None and cls and name:
             # inspect.getdoc() does not support some kind of inherited and decorated methods.
             # This tries to obtain the docstring from super classes.
             for basecls in getattr(cls, '__mro__', []):

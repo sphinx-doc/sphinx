@@ -526,8 +526,7 @@ class Sphinx:
            ``'env'``) to a string.  However, booleans are still accepted and
            converted internally.
         """
-        logger.debug('[app] adding config value: %r',
-                     (name, default, rebuild) + ((types,) if types else ()))
+        logger.debug('[app] adding config value: %r', (name, default, rebuild, types))
         if rebuild in (False, True):
             rebuild = 'env' if rebuild else ''
         self.config.add(name, default, rebuild, types)
