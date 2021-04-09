@@ -179,6 +179,7 @@ The builder's "name" must be given to the **-b** command-line option of
 
    * ``texlive-latex-recommended``
    * ``texlive-fonts-recommended``
+   * ``tex-gyre`` (if :confval:`latex_engine` is ``'pdflatex'``)
    * ``texlive-latex-extra``
    * ``latexmk`` (this is a Sphinx requirement on GNU/Linux and MacOS X
      for functioning of ``make latexpdf``)
@@ -186,17 +187,14 @@ The builder's "name" must be given to the **-b** command-line option of
    Additional packages are needed in some circumstances (see the discussion of
    the ``'fontpkg'`` key of :confval:`latex_elements` for more information):
 
-   * to support occasional Cyrillic letters or words, and a fortiori if
-     :confval:`language` is set to a Cyrillic language, the package
-     ``texlive-lang-cyrillic`` is required, and, with unmodified ``'fontpkg'``,
-     also ``cm-super`` or ``cm-super-minimal``,
-   * to support occasional Greek letters or words (in text, not in
-     :rst:dir:`math` directive contents), ``texlive-lang-greek`` is required,
-     and, with unmodified ``'fontpkg'``, also ``cm-super`` or
-     ``cm-super-minimal``,
-   * for ``'xelatex'`` or ``'lualatex'`` (see :confval:`latex_engine`),
-     ``texlive-xetex`` resp. ``texlive-luatex``, and, if leaving unchanged
-     ``'fontpkg'``, ``fonts-freefont-otf``.
+   * ``texlive-lang-cyrillic`` for Cyrillic (even individual letters), and,
+     ``cm-super`` or ``cm-super-minimal`` (if default fonts),
+   * ``texlive-lang-greek`` for Greek (even individual letters), and,
+     ``cm-super`` or ``cm-super-minimal`` (if default fonts),
+   * ``texlive-xetex`` if :confval:`latex_engine` is ``'xelatex'``,
+   * ``texlive-luatex`` if :confval:`latex_engine` is ``'lualatex'``,
+   * ``fonts-freefont-otf`` if :confval:`latex_engine` is ``'xelatex'``
+     or ``'lualatex'``.
 
    The testing of Sphinx LaTeX is done on Ubuntu xenial whose TeX distribution
    is based on a TeXLive 2015 snapshot dated March 2016.
@@ -206,6 +204,9 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. versionchanged:: 2.0
       Formerly, testing had been done on Ubuntu trusty (TeXLive 2013).
+
+   .. versionchanged:: 4.0.0
+      TeX Gyre fonts dependency for the default LaTeX font configuration.
 
    .. note::
 

@@ -22,7 +22,7 @@ class BooleanParser(Parser):
     """
 
     def parse_compare(self) -> Node:
-        node = None  # type: Node
+        node: Node
         token = self.stream.current
         if token.type == 'name':
             if token.value in ('true', 'false', 'True', 'False'):

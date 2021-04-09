@@ -10,7 +10,9 @@
 """
 
 import copy
-from typing import Any, Callable, Dict, Iterable, List, NamedTuple, Tuple, Union, cast
+from abc import ABC, abstractmethod
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, List, NamedTuple, Tuple,
+                    Type, Union, cast)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -22,10 +24,7 @@ from sphinx.locale import _
 from sphinx.roles import XRefRole
 from sphinx.util.typing import RoleFunction
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
+if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
 
@@ -51,21 +50,22 @@ class ObjType:
 
     def __init__(self, lname: str, *roles: Any, **attrs: Any) -> None:
         self.lname = lname
-        self.roles = roles                      # type: Tuple
-        self.attrs = self.known_attrs.copy()    # type: Dict
+        self.roles: Tuple = roles
+        self.attrs: Dict = self.known_attrs.copy()
         self.attrs.update(attrs)
 
 
-IndexEntry = NamedTuple('IndexEntry', [('name', str),
-                                       ('subtype', int),
-                                       ('docname', str),
-                                       ('anchor', str),
-                                       ('extra', str),
-                                       ('qualifier', str),
-                                       ('descr', str)])
+class IndexEntry(NamedTuple):
+    name: str
+    subtype: int
+    docname: str
+    anchor: str
+    extra: str
+    qualifier: str
+    descr: str
 
 
-class Index:
+class Index(ABC):
     """
     An Index is the description for a domain-specific index.  To add an index to
     a domain, subclass Index, overriding the three name attributes:
@@ -88,9 +88,9 @@ class Index:
        :rst:role:`ref` role.
     """
 
-    name = None  # type: str
-    localname = None  # type: str
-    shortname = None  # type: str
+    name: str = None
+    localname: str = None
+    shortname: str = None
 
     def __init__(self, domain: "Domain") -> None:
         if self.name is None or self.localname is None:
@@ -98,6 +98,7 @@ class Index:
                               % self.__class__.__name__)
         self.domain = domain
 
+    @abstractmethod
     def generate(self, docnames: Iterable[str] = None
                  ) -> Tuple[List[Tuple[str, List[IndexEntry]]], bool]:
         """Get entries for the index.
@@ -180,31 +181,31 @@ class Domain:
     #: domain label: longer, more descriptive (used in messages)
     label = ''
     #: type (usually directive) name -> ObjType instance
-    object_types = {}       # type: Dict[str, ObjType]
+    object_types: Dict[str, ObjType] = {}
     #: directive name -> directive class
-    directives = {}         # type: Dict[str, Any]
+    directives: Dict[str, Any] = {}
     #: role name -> role callable
-    roles = {}              # type: Dict[str, Union[RoleFunction, XRefRole]]
+    roles: Dict[str, Union[RoleFunction, XRefRole]] = {}
     #: a list of Index subclasses
-    indices = []            # type: List[Type[Index]]
+    indices: List[Type[Index]] = []
     #: role name -> a warning message if reference is missing
-    dangling_warnings = {}  # type: Dict[str, str]
+    dangling_warnings: Dict[str, str] = {}
     #: node_class -> (enum_node_type, title_getter)
-    enumerable_nodes = {}   # type: Dict[Type[Node], Tuple[str, Callable]]
+    enumerable_nodes: Dict[Type[Node], Tuple[str, Callable]] = {}
 
     #: data value for a fresh environment
-    initial_data = {}       # type: Dict
+    initial_data: Dict = {}
     #: data value
-    data = None             # type: Dict
+    data: Dict = None
     #: data version, bump this when the format of `self.data` changes
     data_version = 0
 
     def __init__(self, env: "BuildEnvironment") -> None:
-        self.env = env              # type: BuildEnvironment
-        self._role_cache = {}       # type: Dict[str, Callable]
-        self._directive_cache = {}  # type: Dict[str, Callable]
-        self._role2type = {}        # type: Dict[str, List[str]]
-        self._type2role = {}        # type: Dict[str, str]
+        self.env: BuildEnvironment = env
+        self._role_cache: Dict[str, Callable] = {}
+        self._directive_cache: Dict[str, Callable] = {}
+        self._role2type: Dict[str, List[str]] = {}
+        self._type2role: Dict[str, str] = {}
 
         # convert class variables to instance one (to enhance through API)
         self.object_types = dict(self.object_types)
@@ -225,8 +226,8 @@ class Domain:
             for rolename in obj.roles:
                 self._role2type.setdefault(rolename, []).append(name)
             self._type2role[name] = obj.roles[0] if obj.roles else ''
-        self.objtypes_for_role = self._role2type.get    # type: Callable[[str], List[str]]
-        self.role_for_objtype = self._type2role.get     # type: Callable[[str], str]
+        self.objtypes_for_role: Callable[[str], List[str]] = self._role2type.get
+        self.role_for_objtype: Callable[[str], str] = self._type2role.get
 
     def setup(self) -> None:
         """Set up domain object."""

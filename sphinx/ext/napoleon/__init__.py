@@ -388,7 +388,7 @@ def _process_docstring(app: Sphinx, what: str, name: str, obj: Any,
 
     """
     result_lines = lines
-    docstring = None  # type: GoogleDocstring
+    docstring: GoogleDocstring = None
     if app.config.napoleon_numpy_docstring:
         docstring = NumpyDocstring(result_lines, app.config, app, what, name,
                                    obj, options)

@@ -21,15 +21,12 @@ from docutils.nodes import Node
 from docutils.parsers.rst import directives, roles
 
 from sphinx import application, locale
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.testing.path import path
 from sphinx.util.osutil import relpath
 
 __all__ = [
-    'Struct',
-    'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding',
-    'remove_unicode_literals',
+    'Struct', 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding',
 ]
 
 
@@ -102,8 +99,8 @@ class SphinxTestApp(application.Sphinx):
     A subclass of :class:`Sphinx` that runs on the test root, with some
     better default values for the initialization parameters.
     """
-    _status = None  # type: StringIO
-    _warning = None  # type: StringIO
+    _status: StringIO = None
+    _warning: StringIO = None
 
     def __init__(self, buildername: str = 'html', srcdir: path = None, freshenv: bool = False,
                  confoverrides: Dict = None, status: IO = None, warning: IO = None,
@@ -175,12 +172,6 @@ class SphinxTestAppWrapperForSkipBuilding:
 
 
 _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
-
-
-def remove_unicode_literals(s: str) -> str:
-    warnings.warn('remove_unicode_literals() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    return _unicode_literals_re.sub(lambda x: x.group(1) or x.group(2), s)
 
 
 def find_files(root: str, suffix: bool = None) -> Generator[str, None, None]:

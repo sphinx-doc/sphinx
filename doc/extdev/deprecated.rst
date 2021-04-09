@@ -22,6 +22,71 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``favicon`` variable in HTML templates
+     - 4.0
+     - TBD
+     - ``favicon_url``
+
+   * - ``logo`` variable in HTML templates
+     - 4.0
+     - TBD
+     - ``logo_url``
+
+   * - ``sphinx.directives.patches.ListTable``
+     - 4.0
+     - 6.0
+     - ``docutils.parsers.rst.diretives.tables.ListSVTable``
+
+   * - ``sphinx.directives.patches.RSTTable``
+     - 4.0
+     - 6.0
+     - ``docutils.parsers.rst.diretives.tables.RSTTable``
+
+   * - ``sphinx.ext.autodoc.directive.DocumenterBridge.filename_set``
+     - 4.0
+     - 6.0
+     - ``sphinx.ext.autodoc.directive.DocumenterBridge.record_dependencies``
+
+   * - ``sphinx.ext.autodoc.directive.DocumenterBridge.warn()``
+     - 4.0
+     - 6.0
+     - :ref:`logging-api`
+
+   * - ``sphinx.registry.SphinxComponentRegistry.get_source_input()``
+     - 4.0
+     - 6.0
+     - N/A
+
+   * - ``sphinx.registry.SphinxComponentRegistry.source_inputs``
+     - 4.0
+     - 6.0
+     - N/A
+
+   * - ``sphinx.transforms.FigureAligner``
+     - 4.0
+     - 6.0
+     - N/A
+
+   * - ``sphinx.util.pycompat.convert_with_2to3()``
+     - 4.0
+     - 6.0
+     - N/A
+
+   * - ``sphinx.util.pycompat.execfile_()``
+     - 4.0
+     - 6.0
+     - N/A
+
+   * - ``sphinx.util.smartypants``
+     - 4.0
+     - 6.0
+     - ``docutils.utils.smartyquotes``
+
+   * - ``sphinx.util.typing.DirectiveOption``
+     - 4.0
+     - 6.0
+     - N/A
+
    * - pending_xref node for viewcode extension
      - 3.5
      - 5.0

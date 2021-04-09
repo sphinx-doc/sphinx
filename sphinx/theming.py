@@ -13,7 +13,7 @@ import os
 import shutil
 import tempfile
 from os import path
-from typing import Any, Dict, List
+from typing import TYPE_CHECKING, Any, Dict, List
 from zipfile import ZipFile
 
 import pkg_resources
@@ -24,8 +24,7 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
@@ -179,8 +178,6 @@ class HTMLThemeFactory:
         """Try to load a theme having specifed name."""
         if name == 'alabaster':
             self.load_alabaster_theme()
-        elif name == 'sphinx_rtd_theme':
-            self.load_sphinx_rtd_theme()
         else:
             self.load_external_theme(name)
 
@@ -214,7 +211,7 @@ class HTMLThemeFactory:
 
     def find_themes(self, theme_path: str) -> Dict[str, str]:
         """Search themes from specified directory."""
-        themes = {}  # type: Dict[str, str]
+        themes: Dict[str, str] = {}
         if not path.isdir(theme_path):
             return themes
 
@@ -238,13 +235,13 @@ class HTMLThemeFactory:
         if name not in self.themes:
             self.load_extra_theme(name)
 
+        if name not in self.themes and name == 'sphinx_rtd_theme':
+            # sphinx_rtd_theme (< 0.2.5)  # RemovedInSphinx60Warning
+            logger.warning(__('sphinx_rtd_theme (< 0.3.0) found. '
+                              'It will not be available since Sphinx-6.0'))
+            self.load_sphinx_rtd_theme()
+
         if name not in self.themes:
-            if name == 'sphinx_rtd_theme':
-                raise ThemeError(__('sphinx_rtd_theme is no longer a hard dependency '
-                                    'since version 1.4.0. Please install it manually.'
-                                    '(pip install sphinx_rtd_theme)'))
-            else:
-                raise ThemeError(__('no theme named %r found '
-                                    '(missing theme.conf?)') % name)
+            raise ThemeError(__('no theme named %r found (missing theme.conf?)') % name)
 
         return Theme(name, self.themes[name], factory=self)

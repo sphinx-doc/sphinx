@@ -15,6 +15,7 @@ include sphinx-quickstart.py
 include sphinx-apidoc.py
 include tox.ini
 include sphinx/locale/.tx/config
+include sphinx/py.typed
 
 recursive-include sphinx/templates *
 recursive-include sphinx/texinputs *

@@ -8,7 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, Iterable, List, Tuple
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Tuple
 
 from docutils import nodes
 from docutils.nodes import Node, system_message
@@ -20,9 +20,9 @@ from sphinx.environment import BuildEnvironment
 from sphinx.util import logging, split_index_msg
 from sphinx.util.docutils import ReferenceRole, SphinxDirective
 from sphinx.util.nodes import process_index_entry
+from sphinx.util.typing import OptionSpec
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
@@ -68,7 +68,7 @@ class IndexDirective(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {
+    option_spec: OptionSpec = {
         'name': directives.unchanged,
     }
 

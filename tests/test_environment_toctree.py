@@ -10,7 +10,7 @@
 
 import pytest
 from docutils import nodes
-from docutils.nodes import bullet_list, caption, comment, list_item, reference
+from docutils.nodes import bullet_list, comment, list_item, reference, title
 
 from sphinx import addnodes
 from sphinx.addnodes import compact_paragraph, only
@@ -211,7 +211,7 @@ def test_get_toctree_for(app):
     app.build()
     toctree = TocTree(app.env).get_toctree_for('index', app.builder, collapse=False)
     assert_node(toctree,
-                [compact_paragraph, ([caption, "Table of Contents"],
+                [compact_paragraph, ([title, "Table of Contents"],
                                      bullet_list,
                                      bullet_list,
                                      bullet_list)])
@@ -251,7 +251,7 @@ def test_get_toctree_for_collapse(app):
     app.build()
     toctree = TocTree(app.env).get_toctree_for('index', app.builder, collapse=True)
     assert_node(toctree,
-                [compact_paragraph, ([caption, "Table of Contents"],
+                [compact_paragraph, ([title, "Table of Contents"],
                                      bullet_list,
                                      bullet_list,
                                      bullet_list)])
@@ -283,7 +283,7 @@ def test_get_toctree_for_maxdepth(app):
     toctree = TocTree(app.env).get_toctree_for('index', app.builder,
                                                collapse=False, maxdepth=3)
     assert_node(toctree,
-                [compact_paragraph, ([caption, "Table of Contents"],
+                [compact_paragraph, ([title, "Table of Contents"],
                                      bullet_list,
                                      bullet_list,
                                      bullet_list)])
@@ -329,7 +329,7 @@ def test_get_toctree_for_includehidden(app):
     toctree = TocTree(app.env).get_toctree_for('index', app.builder, collapse=False,
                                                includehidden=False)
     assert_node(toctree,
-                [compact_paragraph, ([caption, "Table of Contents"],
+                [compact_paragraph, ([title, "Table of Contents"],
                                      bullet_list,
                                      bullet_list)])
 

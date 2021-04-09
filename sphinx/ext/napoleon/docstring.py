@@ -14,7 +14,7 @@ import collections
 import inspect
 import re
 from functools import partial
-from typing import Any, Callable, Dict, List, Tuple, Union
+from typing import Any, Callable, Dict, List, Tuple, Type, Union
 
 from sphinx.application import Sphinx
 from sphinx.config import Config as SphinxConfig
@@ -23,11 +23,6 @@ from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.inspect import stringify_annotation
 from sphinx.util.typing import get_type_hints
-
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
 
 logger = logging.getLogger(__name__)
 
@@ -167,13 +162,13 @@ class GoogleDocstring:
         else:
             lines = docstring
         self._line_iter = modify_iter(lines, modifier=lambda s: s.rstrip())
-        self._parsed_lines = []  # type: List[str]
+        self._parsed_lines: List[str] = []
         self._is_in_section = False
         self._section_indent = 0
         if not hasattr(self, '_directive_sections'):
-            self._directive_sections = []  # type: List[str]
+            self._directive_sections: List[str] = []
         if not hasattr(self, '_sections'):
-            self._sections = {
+            self._sections: Dict[str, Callable] = {
                 'args': self._parse_parameters_section,
                 'arguments': self._parse_parameters_section,
                 'attention': partial(self._parse_admonition, 'attention'),
@@ -208,7 +203,7 @@ class GoogleDocstring:
                 'warns': self._parse_warns_section,
                 'yield': self._parse_yields_section,
                 'yields': self._parse_yields_section,
-            }  # type: Dict[str, Callable]
+            }
 
         self._load_custom_sections()
 
@@ -466,7 +461,7 @@ class GoogleDocstring:
         field_type = ':%s:' % field_type.strip()
         padding = ' ' * len(field_type)
         multi = len(fields) > 1
-        lines = []  # type: List[str]
+        lines: List[str] = []
         for _name, _type, _desc in fields:
             field = self._format_field(_name, _type, _desc)
             if multi:
@@ -590,7 +585,7 @@ class GoogleDocstring:
         if self._name and self._what in ('attribute', 'data', 'property'):
             # Implicit stop using StopIteration no longer allowed in
             # Python 3.7; see PEP 479
-            res = []  # type: List[str]
+            res: List[str] = []
             try:
                 res = self._parse_attribute_docstring()
             except StopIteration:
@@ -708,7 +703,7 @@ class GoogleDocstring:
             return self._format_fields(_('Keyword Arguments'), fields)
 
     def _parse_methods_section(self, section: str) -> List[str]:
-        lines = []  # type: List[str]
+        lines: List[str] = []
         for _name, _type, _desc in self._consume_fields(parse_type=False):
             lines.append('.. method:: %s' % _name)
             if self._opt and 'noindex' in self._opt:
@@ -723,7 +718,13 @@ class GoogleDocstring:
         return self._parse_generic_section(_('Notes'), use_admonition)
 
     def _parse_other_parameters_section(self, section: str) -> List[str]:
-        return self._format_fields(_('Other Parameters'), self._consume_fields())
+        if self._config.napoleon_use_param:
+            # Allow to declare multiple parameters at once (ex: x, y: int)
+            fields = self._consume_fields(multiple=True)
+            return self._format_docutils_params(fields)
+        else:
+            fields = self._consume_fields()
+            return self._format_fields(_('Other Parameters'), fields)
 
     def _parse_parameters_section(self, section: str) -> List[str]:
         if self._config.napoleon_use_param:
@@ -736,7 +737,7 @@ class GoogleDocstring:
 
     def _parse_raises_section(self, section: str) -> List[str]:
         fields = self._consume_fields(parse_type=False, prefer_type=True)
-        lines = []  # type: List[str]
+        lines: List[str] = []
         for _name, _type, _desc in fields:
             m = self._name_rgx.match(_type)
             if m and m.group('name'):
@@ -773,7 +774,7 @@ class GoogleDocstring:
         else:
             use_rtype = self._config.napoleon_use_rtype
 
-        lines = []  # type: List[str]
+        lines: List[str] = []
         for _name, _type, _desc in fields:
             if use_rtype:
                 field = self._format_field(_name, '', _desc)
@@ -825,7 +826,7 @@ class GoogleDocstring:
                 colon,
                 "".join(after_colon).strip())
 
-    def _qualify_name(self, attr_name: str, klass: "Type") -> str:
+    def _qualify_name(self, attr_name: str, klass: Type) -> str:
         if klass and '.' not in attr_name:
             if attr_name.startswith('~'):
                 attr_name = attr_name[1:]
@@ -1280,7 +1281,7 @@ class NumpyDocstring(GoogleDocstring):
             return new_func, description, role
 
         current_func = None
-        rest = []  # type: List[str]
+        rest: List[str] = []
 
         for line in content:
             if not line.strip():
@@ -1315,7 +1316,7 @@ class NumpyDocstring(GoogleDocstring):
             for func, description, role in items
         ]
 
-        lines = []  # type: List[str]
+        lines: List[str] = []
         last_had_desc = True
         for name, desc, role in items:
             if role:

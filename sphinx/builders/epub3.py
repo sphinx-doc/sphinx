@@ -10,16 +10,13 @@
 """
 
 import html
-import warnings
-from collections import namedtuple
 from os import path
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, NamedTuple, Set, Tuple
 
 from sphinx import package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import _epub_base
 from sphinx.config import ENUM, Config
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import logging, xmlname_checker
 from sphinx.util.fileutil import copy_asset_file
@@ -29,7 +26,12 @@ from sphinx.util.osutil import make_filename
 logger = logging.getLogger(__name__)
 
 
-NavPoint = namedtuple('NavPoint', ['text', 'refuri', 'children'])
+class NavPoint(NamedTuple):
+    text: str
+    refuri: str
+    children: List[Any]     # mypy does not support recursive types
+                            # https://github.com/python/mypy/issues/7069
+
 
 # writing modes
 PAGE_PROGRESSION_DIRECTIONS = {
@@ -81,10 +83,6 @@ class Epub3Builder(_epub_base.EpubBuilder):
         self.build_toc()
         self.build_epub()
 
-    def validate_config_value(self) -> None:
-        warnings.warn('Epub3Builder.validate_config_value() is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-
     def content_metadata(self) -> Dict:
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
@@ -120,7 +118,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         The difference from build_navpoints method is templates which are used
         when generating navigation documents.
         """
-        navstack = []  # type: List[NavPoint]
+        navstack: List[NavPoint] = []
         navstack.append(NavPoint('', '', []))
         level = 0
         for node in navnodes:
@@ -156,25 +154,19 @@ class Epub3Builder(_epub_base.EpubBuilder):
         """Create a dictionary with all metadata for the nav.xhtml file
         properly escaped.
         """
-        metadata = {}  # type: Dict
+        metadata: Dict = {}
         metadata['lang'] = html.escape(self.config.epub_language)
         metadata['toc_locale'] = html.escape(self.guide_titles['toc'])
         metadata['navlist'] = navlist
         return metadata
 
-    def build_navigation_doc(self, outdir: str = None, outname: str = 'nav.xhtml') -> None:
+    def build_navigation_doc(self) -> None:
         """Write the metainfo file nav.xhtml."""
-        if outdir:
-            warnings.warn('The arguments of Epub3Builder.build_navigation_doc() '
-                          'is deprecated.', RemovedInSphinx40Warning, stacklevel=2)
-        else:
-            outdir = self.outdir
-
-        logger.info(__('writing %s file...'), outname)
+        logger.info(__('writing nav.xhtml file...'))
 
         if self.config.epub_tocscope == 'default':
             doctree = self.env.get_and_resolve_doctree(
-                self.config.master_doc, self,
+                self.config.root_doc, self,
                 prune_toctrees=False, includehidden=False)
             refnodes = self.get_refnodes(doctree, [])
             self.toc_add_files(refnodes)
@@ -182,13 +174,12 @@ class Epub3Builder(_epub_base.EpubBuilder):
             # 'includehidden'
             refnodes = self.refnodes
         navlist = self.build_navlist(refnodes)
-        copy_asset_file(path.join(self.template_dir, 'nav.xhtml_t'),
-                        path.join(outdir, outname),
+        copy_asset_file(path.join(self.template_dir, 'nav.xhtml_t'), self.outdir,
                         self.navigation_doc_metadata(navlist))
 
         # Add nav.xhtml to epub file
-        if outname not in self.files:
-            self.files.append(outname)
+        if 'nav.xhtml' not in self.files:
+            self.files.append('nav.xhtml')
 
 
 def validate_config_values(app: Sphinx) -> None:
@@ -232,7 +223,7 @@ def validate_config_values(app: Sphinx) -> None:
 
 def convert_epub_css_files(app: Sphinx, config: Config) -> None:
     """This converts string styled epub_css_files to tuple styled one."""
-    epub_css_files = []  # type: List[Tuple[str, Dict]]
+    epub_css_files: List[Tuple[str, Dict]] = []
     for entry in config.epub_css_files:
         if isinstance(entry, str):
             epub_css_files.append((entry, {}))

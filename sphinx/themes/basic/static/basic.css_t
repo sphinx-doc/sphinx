@@ -130,7 +130,7 @@ ul.search li a {
     font-weight: bold;
 }
 
-ul.search li div.context {
+ul.search li p.context {
     color: #888;
     margin: 2px 0 0 30px;
     text-align: left;

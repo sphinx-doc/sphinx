@@ -10,7 +10,7 @@
 import os
 import re
 import zlib
-from typing import IO, Callable, Iterator
+from typing import IO, TYPE_CHECKING, Callable, Iterator
 
 from sphinx.util import logging
 from sphinx.util.typing import Inventory
@@ -18,8 +18,7 @@ from sphinx.util.typing import Inventory
 BUFSIZE = 16 * 1024
 logger = logging.getLogger(__name__)
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
 
@@ -94,7 +93,7 @@ class InventoryFile:
 
     @classmethod
     def load_v1(cls, stream: InventoryFileReader, uri: str, join: Callable) -> Inventory:
-        invdata = {}  # type: Inventory
+        invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
         for line in stream.readlines():
@@ -112,7 +111,7 @@ class InventoryFile:
 
     @classmethod
     def load_v2(cls, stream: InventoryFileReader, uri: str, join: Callable) -> Inventory:
-        invdata = {}  # type: Inventory
+        invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
         line = stream.readline()

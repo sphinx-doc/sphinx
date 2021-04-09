@@ -21,7 +21,7 @@
         «&#160;&#160;<a href="{{ prev.link|e }}">{{ prev.title }}</a>
         &#160;&#160;::&#160;&#160;
         {%- endif %}
-        <a class="uplink" href="{{ pathto(master_doc)|e }}">{{ _('Contents') }}</a>
+        <a class="uplink" href="{{ pathto(root_doc)|e }}">{{ _('Contents') }}</a>
         {%- if next %}
         &#160;&#160;::&#160;&#160;
         <a href="{{ next.link|e }}">{{ next.title }}</a>&#160;&#160;»
@@ -36,11 +36,11 @@
         {%- block haikuheader %}
         {%- if theme_full_logo != "false" %}
         <a href="{{ pathto('index') }}">
-          <img class="logo" src="{{ pathto('_static/' + logo, 1)|e }}" alt="Logo"/>
+          <img class="logo" src="{{ logo_url|e }}" alt="Logo"/>
         </a>
         {%- else %}
         {%- if logo -%}
-          <img class="rightlogo" src="{{ pathto('_static/' + logo, 1)|e }}" alt="Logo"/>
+          <img class="rightlogo" src="{{ logo_url|e }}" alt="Logo"/>
         {%- endif -%}
         <h1 class="heading"><a href="{{ pathto('index') }}">
           <span>{{ shorttitle|e }}</span></a></h1>

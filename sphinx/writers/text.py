@@ -12,7 +12,8 @@ import os
 import re
 import textwrap
 from itertools import chain, groupby
-from typing import Any, Dict, Generator, Iterable, List, Optional, Set, Tuple, Union, cast
+from typing import (TYPE_CHECKING, Any, Dict, Generator, Iterable, List, Optional, Set, Tuple,
+                    Union, cast)
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
@@ -22,8 +23,7 @@ from sphinx import addnodes
 from sphinx.locale import _, admonitionlabels
 from sphinx.util.docutils import SphinxTranslator
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.builders.text import TextBuilder
 
 
@@ -33,11 +33,11 @@ class Cell:
     """
     def __init__(self, text: str = "", rowspan: int = 1, colspan: int = 1) -> None:
         self.text = text
-        self.wrapped = []  # type: List[str]
+        self.wrapped: List[str] = []
         self.rowspan = rowspan
         self.colspan = colspan
-        self.col = None  # type: Optional[int]
-        self.row = None  # type: Optional[int]
+        self.col: Optional[int] = None
+        self.row: Optional[int] = None
 
     def __repr__(self) -> str:
         return "<Cell {!r} {}v{}/{}>{}>".format(
@@ -98,10 +98,9 @@ class Table:
 
     """
     def __init__(self, colwidth: List[int] = None) -> None:
-        self.lines = []  # type: List[List[Cell]]
+        self.lines: List[List[Cell]] = []
         self.separator = 0
-        self.colwidth = (colwidth if colwidth is not None
-                         else [])  # type: List[int]
+        self.colwidth: List[int] = (colwidth if colwidth is not None else [])
         self.current_line = 0
         self.current_col = 0
 
@@ -168,7 +167,7 @@ class Table:
 
     @property
     def cells(self) -> Generator[Cell, None, None]:
-        seen = set()  # type: Set[Cell]
+        seen: Set[Cell] = set()
         for lineno, line in enumerate(self.lines):
             for colno, cell in enumerate(line):
                 if cell and cell not in seen:
@@ -205,7 +204,7 @@ class Table:
             """Called on the line *before* lineno.
             Called with no *lineno* for the last sep.
             """
-            out = []  # type: List[str]
+            out: List[str] = []
             for colno, width in enumerate(self.measured_widths):
                 if (
                     lineno is not None and
@@ -267,7 +266,7 @@ class TextWrapper(textwrap.TextWrapper):
         The original _wrap_chunks uses len() to calculate width.
         This method respects wide/fullwidth characters for width adjustment.
         """
-        lines = []  # type: List[str]
+        lines: List[str] = []
         if self.width <= 0:
             raise ValueError("invalid width %r (must be > 0)" % self.width)
 
@@ -328,7 +327,7 @@ class TextWrapper(textwrap.TextWrapper):
         """
         def split(t: str) -> List[str]:
             return super(TextWrapper, self)._split(t)
-        chunks = []  # type: List[str]
+        chunks: List[str] = []
         for chunk in split(text):
             for w, g in groupby(chunk, column_width):
                 if w == 1:
@@ -367,9 +366,9 @@ def my_wrap(text: str, width: int = MAXWIDTH, **kwargs: Any) -> List[str]:
 class TextWriter(writers.Writer):
     supported = ('text',)
     settings_spec = ('No options here.', '', ())
-    settings_defaults = {}  # type: Dict
+    settings_defaults: Dict = {}
 
-    output = None  # type: str
+    output: str = None
 
     def __init__(self, builder: "TextBuilder") -> None:
         super().__init__()
@@ -382,7 +381,7 @@ class TextWriter(writers.Writer):
 
 
 class TextTranslator(SphinxTranslator):
-    builder = None  # type: TextBuilder
+    builder: "TextBuilder" = None
 
     def __init__(self, document: nodes.document, builder: "TextBuilder") -> None:
         super().__init__(document, builder)
@@ -397,12 +396,12 @@ class TextTranslator(SphinxTranslator):
         self.sectionchars = self.config.text_sectionchars
         self.add_secnumbers = self.config.text_add_secnumbers
         self.secnumber_suffix = self.config.text_secnumber_suffix
-        self.states = [[]]      # type: List[List[Tuple[int, Union[str, List[str]]]]]
+        self.states: List[List[Tuple[int, Union[str, List[str]]]]] = [[]]
         self.stateindent = [0]
-        self.list_counter = []  # type: List[int]
+        self.list_counter: List[int] = []
         self.sectionlevel = 0
         self.lineblocklevel = 0
-        self.table = None       # type: Table
+        self.table: Table = None
 
     def add_text(self, text: str) -> None:
         self.states[-1].append((-1, text))
@@ -415,8 +414,8 @@ class TextTranslator(SphinxTranslator):
         content = self.states.pop()
         maxindent = sum(self.stateindent)
         indent = self.stateindent.pop()
-        result = []     # type: List[Tuple[int, List[str]]]
-        toformat = []   # type: List[str]
+        result: List[Tuple[int, List[str]]] = []
+        toformat: List[str] = []
 
         def do_format() -> None:
             if not toformat:

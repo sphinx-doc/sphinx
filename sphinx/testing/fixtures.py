@@ -8,7 +8,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import os
 import subprocess
 import sys
 from collections import namedtuple
@@ -42,7 +41,7 @@ def rootdir() -> str:
 
 
 class SharedResult:
-    cache = {}  # type: Dict[str, Dict[str, str]]
+    cache: Dict[str, Dict[str, str]] = {}
 
     def store(self, key: str, app_: SphinxTestApp) -> Any:
         if key in self.cache:
@@ -78,7 +77,7 @@ def app_params(request: Any, test_params: Dict, shared_result: SharedResult,
     else:
         markers = request.node.get_marker("sphinx")
     pargs = {}
-    kwargs = {}  # type: Dict[str, Any]
+    kwargs: Dict[str, Any] = {}
 
     if markers is not None:
         # to avoid stacking positional args
@@ -90,7 +89,6 @@ def app_params(request: Any, test_params: Dict, shared_result: SharedResult,
     args = [pargs[i] for i in sorted(pargs.keys())]
 
     # ##### process pytest.mark.test_params
-
     if test_params['shared_result']:
         if 'srcdir' in kwargs:
             raise pytest.Exception('You can not specify shared_result and '
@@ -192,7 +190,7 @@ def make_app(test_params: Dict, monkeypatch: Any) -> Generator[Callable, None, N
         status, warning = StringIO(), StringIO()
         kwargs.setdefault('status', status)
         kwargs.setdefault('warning', warning)
-        app_ = SphinxTestApp(*args, **kwargs)  # type: Any
+        app_: Any = SphinxTestApp(*args, **kwargs)
         apps.append(app_)
         if test_params['shared_result']:
             app_ = SphinxTestAppWrapperForSkipBuilding(app_)
@@ -236,10 +234,7 @@ def sphinx_test_tempdir(tmpdir_factory: Any) -> "util.path":
     """
     temporary directory that wrapped with `path` class.
     """
-    tmpdir = os.environ.get('SPHINX_TEST_TEMPDIR')  # RemovedInSphinx40Warning
-    if tmpdir is None:
-        tmpdir = tmpdir_factory.getbasetemp()
-
+    tmpdir = tmpdir_factory.getbasetemp()
     return util.path(tmpdir).abspath()
 
 

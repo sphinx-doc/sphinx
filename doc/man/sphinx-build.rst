@@ -19,12 +19,11 @@ files, including ``conf.py``.
 :program:`sphinx-build` can create documentation in different formats.  A
 format is selected by specifying the builder name on the command line; it
 defaults to HTML.  Builders can also perform other tasks related to
-documentation processing.
+documentation processing.  For a list of available builders, refer to
+:option:`sphinx-build -b`.
 
 By default, everything that is outdated is built.  Output only for selected
 files can be built by specifying individual filenames.
-
-For a list of available options, refer to :option:`sphinx-build -b`.
 
 Options
 -------

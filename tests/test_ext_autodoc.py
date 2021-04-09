@@ -68,7 +68,7 @@ def make_directive_bridge(env):
         env = env,
         genopt = options,
         result = ViewList(),
-        filename_set = set(),
+        record_dependencies = set(),
         state = Mock(),
     )
     directive.state.document.settings.tab_width = 8
@@ -286,7 +286,6 @@ def test_format_signature(app):
         '(b, c=42, *d, **e)'
 
 
-@pytest.mark.skipif(sys.version_info < (3, 5), reason='typing is available since python3.5.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_process_signature_typing_generic(app):
     actual = do_autodoc(app, 'class', 'target.generic_class.A', {})
@@ -1034,9 +1033,8 @@ def test_autodoc_descriptor(app):
         '      Descriptor instance docstring.',
         '',
         '',
-        '   .. py:method:: Class.prop',
+        '   .. py:property:: Class.prop',
         '      :module: target.descriptor',
-        '      :property:',
         '',
         '      Property.',
         ''
@@ -1056,9 +1054,8 @@ def test_autodoc_cached_property(app):
         '   :module: target.cached_property',
         '',
         '',
-        '   .. py:method:: Foo.prop',
+        '   .. py:property:: Foo.prop',
         '      :module: target.cached_property',
-        '      :property:',
         '',
     ]
 
@@ -1524,10 +1521,9 @@ def test_abstractmethods(app):
         '      :module: target.abstractmethods',
         '',
         '',
-        '   .. py:method:: Base.prop',
+        '   .. py:property:: Base.prop',
         '      :module: target.abstractmethods',
         '      :abstractmethod:',
-        '      :property:',
         '',
         '',
         '   .. py:method:: Base.staticmeth()',
@@ -1719,7 +1715,6 @@ def test_partialmethod_undoc_members(app):
     assert list(actual) == expected
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='py36+ is available since python3.6.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_typed_instance_variables(app):
     options = {"members": None,
@@ -1818,7 +1813,6 @@ def test_autodoc_typed_instance_variables(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='py36+ is available since python3.6.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_typed_inherited_instance_variables(app):
     options = {"members": None,
@@ -2003,6 +1997,14 @@ def test_autodoc_TypeVar(app):
         '',
         '   alias of :class:`int`',
         '',
+        '',
+        '.. py:data:: T7',
+        '   :module: target.typevar',
+        '',
+        '   T7',
+        '',
+        "   alias of TypeVar('T7', bound=\\ :class:`int`)",
+        '',
     ]
 
 
@@ -2024,7 +2026,6 @@ def test_autodoc_Annotated(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='py36+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_TYPE_CHECKING(app):
     options = {"members": None,
@@ -2073,26 +2074,19 @@ def test_autodoc_for_egged_code(app):
 def test_singledispatch(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.singledispatch', options)
-    if sys.version_info < (3, 6):
-        # check the result via "in" because the order of singledispatch signatures is
-        # usually changed (because dict is not OrderedDict yet!)
-        assert '.. py:function:: func(arg, kwarg=None)' in actual
-        assert '                 func(arg: int, kwarg=None)' in actual
-        assert '                 func(arg: str, kwarg=None)' in actual
-    else:
-        assert list(actual) == [
-            '',
-            '.. py:module:: target.singledispatch',
-            '',
-            '',
-            '.. py:function:: func(arg, kwarg=None)',
-            '                 func(arg: int, kwarg=None)',
-            '                 func(arg: str, kwarg=None)',
-            '   :module: target.singledispatch',
-            '',
-            '   A function for general use.',
-            '',
-        ]
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.singledispatch',
+        '',
+        '',
+        '.. py:function:: func(arg, kwarg=None)',
+        '                 func(arg: int, kwarg=None)',
+        '                 func(arg: str, kwarg=None)',
+        '   :module: target.singledispatch',
+        '',
+        '   A function for general use.',
+        '',
+    ]
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8),
@@ -2485,5 +2479,36 @@ def test_hide_value(app):
         '   :module: target.hide_value',
         '',
         '   :meta hide-value:',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_canonical(app):
+    options = {'members': None,
+               'imported-members': None}
+    actual = do_autodoc(app, 'module', 'target.canonical', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.canonical',
+        '',
+        '',
+        '.. py:class:: Bar()',
+        '   :module: target.canonical',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.canonical',
+        '   :canonical: target.canonical.original.Foo',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:method:: Foo.meth()',
+        '      :module: target.canonical',
+        '',
+        '      docstring',
         '',
     ]

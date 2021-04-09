@@ -24,7 +24,7 @@ from sphinx.builders.latex.constants import ADDITIONAL_SETTINGS, DEFAULT_SETTING
 from sphinx.builders.latex.theming import Theme, ThemeFactory
 from sphinx.builders.latex.util import ExtBabel
 from sphinx.config import ENUM, Config
-from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
@@ -122,10 +122,10 @@ class LaTeXBuilder(Builder):
     default_translator_class = LaTeXTranslator
 
     def init(self) -> None:
-        self.babel = None           # type: ExtBabel
-        self.context = {}           # type: Dict[str, Any]
-        self.docnames = []          # type: Iterable[str]
-        self.document_data = []     # type: List[Tuple[str, str, str, str, str, bool]]
+        self.babel: ExtBabel = None
+        self.context: Dict[str, Any] = {}
+        self.docnames: Iterable[str] = {}
+        self.document_data: List[Tuple[str, str, str, str, str, bool]] = []
         self.themes = ThemeFactory(self.app)
         texescape.init()
 
@@ -153,7 +153,7 @@ class LaTeXBuilder(Builder):
                               'will be written'))
             return
         # assign subdirs to titles
-        self.titles = []  # type: List[Tuple[str, str]]
+        self.titles: List[Tuple[str, str]] = []
         for entry in preliminary_document_data:
             docname = entry[0]
             if docname not in self.env.all_docs:
@@ -216,14 +216,18 @@ class LaTeXBuilder(Builder):
             if not self.babel.uses_cyrillic():
                 if 'X2' in self.context['fontenc']:
                     self.context['substitutefont'] = '\\usepackage{substitutefont}'
-                    self.context['textcyrillic'] = '\\usepackage[Xtwo]{sphinxcyrillic}'
+                    self.context['textcyrillic'] = ('\\usepackage[Xtwo]'
+                                                    '{sphinxpackagecyrillic}')
                 elif 'T2A' in self.context['fontenc']:
                     self.context['substitutefont'] = '\\usepackage{substitutefont}'
-                    self.context['textcyrillic'] = '\\usepackage[TtwoA]{sphinxcyrillic}'
+                    self.context['textcyrillic'] = ('\\usepackage[TtwoA]'
+                                                    '{sphinxpackagecyrillic}')
             if 'LGR' in self.context['fontenc']:
                 self.context['substitutefont'] = '\\usepackage{substitutefont}'
             else:
                 self.context['textgreek'] = ''
+            if self.context['substitutefont'] == '':
+                self.context['fontsubstitution'] = ''
 
         # 'babel' key is public and user setting must be obeyed
         if self.context['babel']:
@@ -252,16 +256,16 @@ class LaTeXBuilder(Builder):
         with open(stylesheet, 'w') as f:
             f.write('\\NeedsTeXFormat{LaTeX2e}[1995/12/01]\n')
             f.write('\\ProvidesPackage{sphinxhighlight}'
-                    '[2016/05/29 stylesheet for highlighting with pygments]\n\n')
+                    '[2016/05/29 stylesheet for highlighting with pygments]\n')
+            f.write('% Its contents depend on pygments_style configuration variable.\n\n')
             f.write(highlighter.get_stylesheet())
 
     def write(self, *ignored: Any) -> None:
         docwriter = LaTeXWriter(self)
-        docsettings = OptionParser(
+        docsettings: Any = OptionParser(
             defaults=self.env.settings,
             components=(docwriter,),
-            read_config_files=True).get_default_values()  # type: Any
-        patch_settings(docsettings)
+            read_config_files=True).get_default_values()
 
         self.init_document_data()
         self.write_stylesheet()
@@ -352,7 +356,7 @@ class LaTeXBuilder(Builder):
         for pendingnode in largetree.traverse(addnodes.pending_xref):
             docname = pendingnode['refdocname']
             sectname = pendingnode['refsectname']
-            newnodes = [nodes.emphasis(sectname, sectname)]  # type: List[Node]
+            newnodes: List[Node] = [nodes.emphasis(sectname, sectname)]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
                     newnodes.append(nodes.Text(_(' (in '), _(' (in ')))
@@ -363,10 +367,6 @@ class LaTeXBuilder(Builder):
                 pass
             pendingnode.replace_self(newnodes)
         return largetree
-
-    def apply_transforms(self, doctree: nodes.document) -> None:
-        warnings.warn('LaTeXBuilder.apply_transforms() is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
 
     def finish(self) -> None:
         self.copy_image_files()
@@ -462,44 +462,6 @@ class LaTeXBuilder(Builder):
         return self.app.registry.latex_packages_after_hyperref
 
 
-def patch_settings(settings: Any) -> Any:
-    """Make settings object to show deprecation messages."""
-
-    class Values(type(settings)):  # type: ignore
-        @property
-        def author(self) -> str:
-            warnings.warn('settings.author is deprecated',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            return self._author
-
-        @property
-        def title(self) -> str:
-            warnings.warn('settings.title is deprecated',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            return self._title
-
-        @property
-        def contentsname(self) -> str:
-            warnings.warn('settings.contentsname is deprecated',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            return self._contentsname
-
-        @property
-        def docname(self) -> str:
-            warnings.warn('settings.docname is deprecated',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            return self._docname
-
-        @property
-        def docclass(self) -> str:
-            warnings.warn('settings.docclass is deprecated',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            return self._docclass
-
-    # dynamic subclassing
-    settings.__class__ = Values
-
-
 def validate_config_values(app: Sphinx, config: Config) -> None:
     for key in list(config.latex_elements):
         if key not in DEFAULT_SETTINGS:
@@ -525,7 +487,7 @@ def install_packages_for_ja(app: Sphinx) -> None:
 def default_latex_engine(config: Config) -> str:
     """ Better default latex_engine settings for specific languages. """
     if config.language == 'ja':
-        return 'platex'
+        return 'uplatex'
     elif (config.language or '').startswith('zh'):
         return 'xelatex'
     elif config.language == 'el':
@@ -556,7 +518,7 @@ def default_latex_documents(config: Config) -> List[Tuple[str, str, str, str, st
     """ Better default latex_documents settings. """
     project = texescape.escape(config.project, config.latex_engine)
     author = texescape.escape(config.author, config.latex_engine)
-    return [(config.master_doc,
+    return [(config.root_doc,
              make_filename_from_project(config.project) + '.tex',
              texescape.escape_abbr(project),
              texescape.escape_abbr(author),

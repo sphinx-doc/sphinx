@@ -12,8 +12,8 @@ import re
 import textwrap
 import warnings
 from os import path
-from typing import (Any, Dict, Iterable, Iterator, List, Optional, Pattern, Set, Tuple, Union,
-                    cast)
+from typing import (TYPE_CHECKING, Any, Dict, Iterable, Iterator, List, Optional, Pattern, Set,
+                    Tuple, Union, cast)
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
@@ -29,8 +29,7 @@ from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.i18n import format_date
 from sphinx.writers.latex import collected_footnote
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.builders.texinfo import TexinfoBuilder
 
 
@@ -118,17 +117,17 @@ class TexinfoWriter(writers.Writer):
     """Texinfo writer for generating Texinfo documents."""
     supported = ('texinfo', 'texi')
 
-    settings_spec = (
+    settings_spec: Tuple[str, Any, Tuple[Tuple[str, List[str], Dict[str, str]], ...]] = (
         'Texinfo Specific Options', None, (
             ("Name of the Info file", ['--texinfo-filename'], {'default': ''}),
             ('Dir entry', ['--texinfo-dir-entry'], {'default': ''}),
             ('Description', ['--texinfo-dir-description'], {'default': ''}),
             ('Category', ['--texinfo-dir-category'], {'default':
-                                                      'Miscellaneous'})))  # type: Tuple[str, Any, Tuple[Tuple[str, List[str], Dict[str, str]], ...]]  # NOQA
+                                                      'Miscellaneous'})))
 
-    settings_defaults = {}  # type: Dict
+    settings_defaults: Dict = {}
 
-    output = None  # type: str
+    output: str = None
 
     visitor_attributes = ('output', 'fragment')
 
@@ -147,7 +146,7 @@ class TexinfoWriter(writers.Writer):
 
 class TexinfoTranslator(SphinxTranslator):
 
-    builder = None  # type: TexinfoBuilder
+    builder: "TexinfoBuilder" = None
     ignore_missing_images = False
 
     default_elements = {
@@ -169,40 +168,34 @@ class TexinfoTranslator(SphinxTranslator):
         super().__init__(document, builder)
         self.init_settings()
 
-        self.written_ids = set()        # type: Set[str]
-                                        # node names and anchors in output
+        self.written_ids: Set[str] = set()          # node names and anchors in output
         # node names and anchors that should be in output
-        self.referenced_ids = set()     # type: Set[str]
-        self.indices = []               # type: List[Tuple[str, str]]
-                                        # (node name, content)
-        self.short_ids = {}             # type: Dict[str, str]
-                                        # anchors --> short ids
-        self.node_names = {}            # type: Dict[str, str]
-                                        # node name --> node's name to display
-        self.node_menus = {}            # type: Dict[str, List[str]]
-                                        # node name --> node's menu entries
-        self.rellinks = {}              # type: Dict[str, List[str]]
-                                        # node name --> (next, previous, up)
+        self.referenced_ids: Set[str] = set()
+        self.indices: List[Tuple[str, str]] = []    # (node name, content)
+        self.short_ids: Dict[str, str] = {}         # anchors --> short ids
+        self.node_names: Dict[str, str] = {}        # node name --> node's name to display
+        self.node_menus: Dict[str, List[str]] = {}  # node name --> node's menu entries
+        self.rellinks: Dict[str, List[str]] = {}    # node name --> (next, previous, up)
 
         self.collect_indices()
         self.collect_node_names()
         self.collect_node_menus()
         self.collect_rellinks()
 
-        self.body = []                  # type: List[str]
-        self.context = []               # type: List[str]
-        self.descs = []                 # type: List[addnodes.desc]
-        self.previous_section = None    # type: nodes.section
+        self.body: List[str] = []
+        self.context: List[str] = []
+        self.descs: List[addnodes.desc] = []
+        self.previous_section: nodes.section = None
         self.section_level = 0
         self.seen_title = False
-        self.next_section_ids = set()   # type: Set[str]
+        self.next_section_ids: Set[str] = set()
         self.escape_newlines = 0
         self.escape_hyphens = 0
-        self.curfilestack = []          # type: List[str]
-        self.footnotestack = []         # type: List[Dict[str, List[Union[collected_footnote, bool]]]]  # NOQA
+        self.curfilestack: List[str] = []
+        self.footnotestack: List[Dict[str, List[Union[collected_footnote, bool]]]] = []  # NOQA
         self.in_footnote = 0
-        self.handled_abbrs = set()      # type: Set[str]
-        self.colwidths = None           # type: List[int]
+        self.handled_abbrs: Set[str] = set()
+        self.colwidths: List[int] = None
 
     def finish(self) -> None:
         if self.previous_section is None:
@@ -241,7 +234,7 @@ class TexinfoTranslator(SphinxTranslator):
                                             language=self.config.language))
         })
         # title
-        title = self.settings.title  # type: str
+        title: str = self.settings.title
         if not title:
             title_node = self.document.next_node(nodes.title)
             title = title_node.astext() if title_node else '<untitled>'
@@ -300,7 +293,7 @@ class TexinfoTranslator(SphinxTranslator):
     def collect_node_menus(self) -> None:
         """Collect the menu entries for each "node" section."""
         node_menus = self.node_menus
-        targets = [self.document]  # type: List[Element]
+        targets: List[Element] = [self.document]
         targets.extend(self.document.traverse(nodes.section))
         for node in targets:
             assert 'node_name' in node and node['node_name']
@@ -518,7 +511,7 @@ class TexinfoTranslator(SphinxTranslator):
                         continue
                     elif isinstance(c, nodes.Element):
                         yield from footnotes_under(c)
-        fnotes = {}  # type: Dict[str, List[Union[collected_footnote, bool]]]
+        fnotes: Dict[str, List[Union[collected_footnote, bool]]] = {}
         for fn in footnotes_under(node):
             label = cast(nodes.label, fn[0])
             num = label.astext().strip()

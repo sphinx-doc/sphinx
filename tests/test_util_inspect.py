@@ -142,7 +142,13 @@ def test_signature_annotations():
 
     # TypeVars and generic types with TypeVars
     sig = inspect.signature(f2)
-    assert stringify_signature(sig) == '(x: List[T], y: List[T_co], z: T) -> List[T_contra]'
+    if sys.version_info < (3, 7):
+        assert stringify_signature(sig) == '(x: List[T], y: List[T_co], z: T) -> List[T_contra]'
+    else:
+        assert stringify_signature(sig) == ('(x: List[tests.typing_test_data.T],'
+                                            ' y: List[tests.typing_test_data.T_co],'
+                                            ' z: tests.typing_test_data.T'
+                                            ') -> List[tests.typing_test_data.T_contra]')
 
     # Union types
     sig = inspect.signature(f3)
@@ -223,10 +229,7 @@ def test_signature_annotations():
 
     # type hints by string
     sig = inspect.signature(Node.children)
-    if (3, 5, 0) <= sys.version_info < (3, 5, 3):
-        assert stringify_signature(sig) == '(self) -> List[Node]'
-    else:
-        assert stringify_signature(sig) == '(self) -> List[tests.typing_test_data.Node]'
+    assert stringify_signature(sig) == '(self) -> List[tests.typing_test_data.Node]'
 
     sig = inspect.signature(Node.__init__)
     assert stringify_signature(sig) == '(self, parent: Optional[tests.typing_test_data.Node]) -> None'

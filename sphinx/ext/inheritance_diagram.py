@@ -53,6 +53,7 @@ from sphinx.ext.graphviz import (figure_wrapper, graphviz, render_dot_html, rend
                                  render_dot_texinfo)
 from sphinx.util import md5
 from sphinx.util.docutils import SphinxDirective
+from sphinx.util.typing import OptionSpec
 from sphinx.writers.html import HTMLTranslator
 from sphinx.writers.latex import LaTeXTranslator
 from sphinx.writers.texinfo import TexinfoTranslator
@@ -154,7 +155,7 @@ class InheritanceGraph:
 
     def _import_classes(self, class_names: List[str], currmodule: str) -> List[Any]:
         """Import a list of classes."""
-        classes = []  # type: List[Any]
+        classes: List[Any] = []
         for name in class_names:
             classes.extend(import_classes(name, currmodule))
         return classes
@@ -198,7 +199,7 @@ class InheritanceGraph:
             except Exception:  # might raise AttributeError for strange classes
                 pass
 
-            baselist = []  # type: List[str]
+            baselist: List[str] = []
             all_classes[cls] = (nodename, fullname, baselist, tooltip)
 
             if fullname in top_classes:
@@ -292,7 +293,7 @@ class InheritanceGraph:
             n_attrs.update(env.config.inheritance_node_attrs)
             e_attrs.update(env.config.inheritance_edge_attrs)
 
-        res = []  # type: List[str]
+        res: List[str] = []
         res.append('digraph %s {\n' % name)
         res.append(self._format_graph_attrs(g_attrs))
 
@@ -331,7 +332,7 @@ class InheritanceDiagram(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {
+    option_spec: OptionSpec = {
         'parts': int,
         'private-bases': directives.flag,
         'caption': directives.unchanged,
