@@ -564,7 +564,7 @@ class Sphinx:
         self.registry.add_translator(name, translator_class, override=override)
 
     def add_node(self, node: "Type[Element]", override: bool = False,
-                 **kwargs: Tuple[Callable, Callable]) -> None:
+                 **kwargs: Tuple[Callable, Optional[Callable]]) -> None:
         """Register a Docutils node class.
 
         This is necessary for Docutils internals.  It may also be used in the
