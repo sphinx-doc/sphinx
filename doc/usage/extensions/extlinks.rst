@@ -44,8 +44,8 @@ The extension adds a config value:
 
    To produce a literal ``%`` in either *base URL* or *caption*, use ``%%``::
 
-        extlinks = {'wikipedia': ('https://en.wikipedia.org/w/index.php?search=%s&title=Special%%3ASearch&fulltext=Search&ns0=1'
-                                'Search %s on Wikipedia')}
+      extlinks = {'KnR': ('https://example.org/K%%26R/page/%s',
+                            '[K&R; page %s]')}
 
    You can also use the usual "explicit title" syntax supported by other roles
    that generate links, i.e. ``:issue:`this issue <123>```.  In this case, the
