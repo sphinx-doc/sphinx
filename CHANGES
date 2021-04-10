@@ -4,6 +4,8 @@ Release 3.5.4 (in development)
 Dependencies
 ------------
 
+* #9071: Restrict docutils to 0.16
+
 Incompatible changes
 --------------------
 
