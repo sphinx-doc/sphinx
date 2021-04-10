@@ -19,7 +19,7 @@ Bugs fixed
 ----------
 
 * #9078: autodoc: Async staticmethods and classmethods are considered as non
-  async coroutine-functions
+  async coroutine-functions with Python3.10
 * #8870, #9001, #9051: html theme: The style are not applied with docutils-0.17
 
   - toctree captions
