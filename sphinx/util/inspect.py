@@ -361,8 +361,18 @@ def isroutine(obj: Any) -> bool:
 
 def iscoroutinefunction(obj: Any) -> bool:
     """Check if the object is coroutine-function."""
-    # unwrap staticmethod, classmethod and partial (except wrappers)
-    obj = unwrap_all(obj, stop=lambda o: hasattr(o, '__wrapped__'))
+    def iswrappedcoroutine(obj: Any) -> bool:
+        """Check if the object is wrapped coroutine-function."""
+        if isstaticmethod(obj) or isclassmethod(obj) or ispartial(obj):
+            # staticmethod, classmethod and partial method are not a wrapped coroutine-function
+            # Note: Since 3.10, staticmethod and classmethod becomes a kind of wrappers
+            return False
+        elif hasattr(obj, '__wrapped__'):
+            return True
+        else:
+            return False
+
+    obj = unwrap_all(obj, stop=iswrappedcoroutine)
     if hasattr(obj, '__code__') and inspect.iscoroutinefunction(obj):
         # check obj.__code__ because iscoroutinefunction() crashes for custom method-like
         # objects (see https://github.com/sphinx-doc/sphinx/issues/6605)
