@@ -240,7 +240,7 @@ class Config:
             :returns: *bool* -- True if successful, False otherwise
 
     napoleon_preprocess_types : :obj:`bool` (Defaults to False)
-        Enable the type preprocessor for numpy style docstrings.
+        Enable the type preprocessor.
 
     napoleon_type_aliases : :obj:`dict` (Defaults to None)
         Add a mapping of strings to string, translating types in numpy
