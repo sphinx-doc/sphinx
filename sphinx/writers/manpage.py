@@ -152,6 +152,12 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_desc_content(self, node: Element) -> None:
         self.depart_definition(node)
 
+    def visit_desc_inline(self, node: Element) -> None:
+        pass
+
+    def depart_desc_inline(self, node: Element) -> None:
+        pass
+
     # Nodes for high-level structure in signatures
     ##############################################
 
