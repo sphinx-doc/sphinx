@@ -1,10 +1,8 @@
-Release 3.5.4 (in development)
+Release 3.5.5 (in development)
 ==============================
 
 Dependencies
 ------------
-
-* #9071: Restrict docutils to 0.16
 
 Incompatible changes
 --------------------
@@ -18,13 +16,27 @@ Features added
 Bugs fixed
 ----------
 
-* #9078: autodoc: Async staticmethods and classmethods are considered as non
-  async coroutine-functions with Python3.10
-* #8870: The style of toctree captions has been changed with docutils-0.17
-* #9001: The style of ``sidebar`` directive has been changed with docutils-0.17
-
 Testing
 --------
+
+Release 3.5.4 (released Apr 11, 2021)
+=====================================
+
+Dependencies
+------------
+
+* #9071: Restrict docutils to 0.16
+
+Bugs fixed
+----------
+
+* #9078: autodoc: Async staticmethods and classmethods are considered as non
+  async coroutine-functions with Python3.10
+* #8870, #9001, #9051: html theme: The style are not applied with docutils-0.17
+
+  - toctree captions
+  - The content of ``sidebar`` directive
+  - figures
 
 Release 3.5.3 (released Mar 20, 2021)
 =====================================
