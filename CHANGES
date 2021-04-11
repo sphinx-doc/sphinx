@@ -13,6 +13,7 @@ Incompatible changes
 
 * #8539: autodoc: info-field-list is generated into the class description when
   ``autodoc_typehints='description'`` and ``autoclass_content='class'`` set
+* #8898: extlinks: "%s" becomes required keyword in the link caption string
 * domain: The ``Index`` class becomes subclasses of ``abc.ABC`` to indicate
   methods that must be overrided in the concrete classes
 * #4826: py domain: The structure of python objects is changed.  A boolean value
@@ -75,6 +76,7 @@ Features added
 * #8841: autodoc: :confval:`autodoc_docstring_signature` will continue to look
   for multiple signature lines without backslash character
 * #7549: autosummary: Enable :confval:`autosummary_generate` by default
+* #8898: extlinks: Allow %s in link caption string
 * #4826: py domain: Add ``:canonical:`` option to python directives to describe
   the location where the object is defined
 * #7199: py domain: Add :confval:`python_use_unqualified_type_names` to suppress
