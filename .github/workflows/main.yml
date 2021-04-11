@@ -12,13 +12,13 @@ jobs:
         include:
         - name: py36
           python: 3.6
-          docutils: du13
+          docutils: du14
         - name: py37
           python: 3.7
-          docutils: du14
+          docutils: du15
         - name: py38
           python: 3.8
-          docutils: du15
+          docutils: du16
         - name: py39
           python: 3.9
           docutils: du16
