@@ -1,19 +1,10 @@
-Release 3.5.4 (in development)
-==============================
+Release 3.5.4 (released Apr 11, 2021)
+=====================================
 
 Dependencies
 ------------
 
 * #9071: Restrict docutils to 0.16
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
 
 Bugs fixed
 ----------
@@ -25,9 +16,6 @@ Bugs fixed
   - toctree captions
   - The content of ``sidebar`` directive
   - figures
-
-Testing
---------
 
 Release 3.5.3 (released Mar 20, 2021)
 =====================================
