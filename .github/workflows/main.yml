@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        name: [py36, py37, py38, py39, py310-dev]
+        name: [py36, py37, py38, py39]
         include:
         - name: py36
           python: 3.6
