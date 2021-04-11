@@ -1,5 +1,5 @@
-Release 4.0.0 (in development)
-==============================
+Release 4.0.0 beta1 (released Apr 12, 2021)
+===========================================
 
 Dependencies
 ------------
@@ -132,9 +132,6 @@ Bugs fixed
 * C++, fix linking of names in array declarators, pointer to member
   (function) declarators, and in the argument to ``sizeof...``.
 * C, fix linking of names in array declarators.
-
-Testing
---------
 
 Release 3.5.5 (in development)
 ==============================
