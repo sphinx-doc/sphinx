@@ -511,12 +511,19 @@ table.hlist td {
 /* -- object description styles --------------------------------------------- */
 
 .sig {
-	font-family: monospace;
+	font-family: 'Consolas', 'Menlo', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
 }
 
 .sig-name, code.descname {
     background-color: transparent;
     font-weight: bold;
+}
+
+.sig-name {
+	font-size: 1.1em;
+}
+
+code.descname {
     font-size: 1.2em;
 }
 
