@@ -7,11 +7,16 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #9023: Change the CSS classes on :rst:role:`cpp:expr` and
+  :rst:role:`cpp:texpr`.
+
 Deprecated
 ----------
 
 Features added
 --------------
+
+* #9023: More CSS classes on domain descriptions, see :ref:`nodes` for details.
 
 Bugs fixed
 ----------
