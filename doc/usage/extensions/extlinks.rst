@@ -51,6 +51,10 @@ The extension adds a config value:
    that generate links, i.e. ``:issue:`this issue <123>```.  In this case, the
    *caption* is not relevant.
 
+   .. versionchanged:: 4.0
+
+      Support to substitute by '%s' in the caption.
+
 .. note::
 
    Since links are generated from the role in the reading stage, they appear as
