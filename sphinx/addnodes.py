@@ -119,7 +119,7 @@ class toctree(nodes.General, nodes.Element, translatable):
 # Domain-specific object descriptions (class, function etc.)
 #############################################################
 
-class _desc_classes_injector(nodes.Element):
+class _desc_classes_injector(nodes.Element, not_smartquotable):
     """Helper base class for injecting a fixes list of classes.
 
     Use as the first base class.
