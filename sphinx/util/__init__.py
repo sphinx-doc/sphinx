@@ -660,6 +660,17 @@ def old_status_iterator(iterable: Iterable, summary: str, color: str = "darkgree
         logger.info('')
 
 
+def log_status_message(item: str, summary: str, color: str, progress: int,
+                       length: int, verbosity: int = 0) -> None:
+    s = '{}[{:3d}%] {}'.format(summary, (100 * progress) // length,
+                               colorize(color, item))
+    if verbosity:
+        s += '\n'
+    else:
+        s = term_width_line(s)
+    logger.info(s, nonl=True)
+
+
 # new version with progress info
 def status_iterator(iterable: Iterable, summary: str, color: str = "darkgreen",
                     length: int = 0, verbosity: int = 0,
@@ -667,18 +678,12 @@ def status_iterator(iterable: Iterable, summary: str, color: str = "darkgreen",
     if length == 0:
         yield from old_status_iterator(iterable, summary, color, stringify_func)
         return
-    l = 0
+    l = None
     summary = bold(summary)
-    for item in iterable:
-        l += 1
-        s = '%s[%3d%%] %s' % (summary, 100 * l / length, colorize(color, stringify_func(item)))
-        if verbosity:
-            s += '\n'
-        else:
-            s = term_width_line(s)
-        logger.info(s, nonl=True)
+    for l, item in enumerate(iterable):
+        log_status_message(stringify_func(item), summary, color, l + 1, length, verbosity)
         yield item
-    if l > 0:
+    if l is not None:
         logger.info('')
 
 

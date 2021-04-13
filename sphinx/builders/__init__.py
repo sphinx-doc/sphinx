@@ -23,7 +23,8 @@ from sphinx.errors import SphinxError
 from sphinx.events import EventManager
 from sphinx.io import read_doc
 from sphinx.locale import __
-from sphinx.util import import_object, logging, progress_message, rst, status_iterator
+from sphinx.util import (display_chunk, import_object, log_status_message, logging,
+                         progress_message, rst, status_iterator)
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import sphinx_domains
@@ -450,20 +451,29 @@ class Builder:
             # allow pickling self to send it back
             return pickle.dumps(self.env, pickle.HIGHEST_PROTOCOL)
 
+        chunks = make_chunks(docnames, nproc)
+
+        chunks_complete = 0
+        summary = bold(__('reading sources... '))
+
         def merge(docs: List[str], otherenv: bytes) -> None:
+            # Update progress message for each chunk completed
+            nonlocal chunks_complete
+            chunks_complete += 1
+            log_status_message(display_chunk(docs), summary, 'purple', chunks_complete,
+                               len(chunks), self.app.verbosity)
+
+            # Merge build environment from sub-process
             env = pickle.loads(otherenv)
             self.env.merge_info_from(docs, env, self.app)
 
         tasks = ParallelTasks(nproc)
-        chunks = make_chunks(docnames, nproc)
-
-        for chunk in status_iterator(chunks, __('reading sources... '), "purple",
-                                     len(chunks), self.app.verbosity):
+        for chunk in chunks:
             tasks.add_task(read_process, chunk, merge)
 
         # make sure all threads have finished
-        logger.info(bold(__('waiting for workers...')))
         tasks.join()
+        logger.info('')
 
     def read_doc(self, docname: str) -> None:
         """Parse a file and add/update inventory entries for the doctree."""
@@ -557,22 +567,41 @@ class Builder:
         self.write_doc_serialized(firstname, doctree)
         self.write_doc(firstname, doctree)
 
-        tasks = ParallelTasks(nproc)
         chunks = make_chunks(docnames, nproc)
 
+        # Each chunk is done in two steps: one serialized and one parallel
+        n_steps = 2 * len(chunks)
+        steps_done = 0
+        summary = bold(__('writing output... '))
+
+        def on_chunk_done(args: List[Tuple[str, Any]], result: Any) -> None:
+            # Update progress message for each chunk completed
+            nonlocal steps_done
+            steps_done += 1
+            if len(args) == 1:
+                chunk_name = args[0][0]
+            else:
+                chunk_name = '{} .. {}'.format(args[0][0], args[-1][0])
+
+            log_status_message(chunk_name, summary, 'darkgreen', steps_done,
+                               n_steps, self.app.verbosity)
+
+        tasks = ParallelTasks(nproc)
         self.app.phase = BuildPhase.RESOLVING
-        for chunk in status_iterator(chunks, __('writing output... '), "darkgreen",
-                                     len(chunks), self.app.verbosity):
+        for chunk in chunks:
+            log_status_message(display_chunk(chunk), summary, 'darkgreen', steps_done,
+                               n_steps, self.app.verbosity)
             arg = []
             for i, docname in enumerate(chunk):
                 doctree = self.env.get_and_resolve_doctree(docname, self)
                 self.write_doc_serialized(docname, doctree)
                 arg.append((docname, doctree))
-            tasks.add_task(write_process, arg)
+            steps_done += 1
+            tasks.add_task(write_process, arg, on_chunk_done)
 
         # make sure all threads have finished
-        logger.info(bold(__('waiting for workers...')))
         tasks.join()
+        logger.info('')
 
     def prepare_writing(self, docnames: Set[str]) -> None:
         """A place where you can add logic before :meth:`write_doc` is run"""
