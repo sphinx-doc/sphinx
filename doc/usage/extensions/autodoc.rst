@@ -563,7 +563,7 @@ There are also config values that you can set:
 
 .. confval:: autodoc_typehints
 
-   This value controls how to represents typehints.  The setting takes the
+   This value controls how to represent typehints.  The setting takes the
    following values:
 
    * ``'signature'`` -- Show typehints as its signature (default)
