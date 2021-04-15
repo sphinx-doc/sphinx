@@ -817,11 +817,15 @@ div.code-block-caption code {
     background-color: transparent;
 }
 
-table.highlighttable td.linenos,
-span.linenos,
-div.doctest > div.highlight span.gp {  /* gp: Generic.Prompt */
-    user-select: none;
+/* From https://stackoverflow.com/a/34372191 */
+span.gp {  /* gp: Generic.Prompt */ 
+  user-select: none;
+  -webkit-user-select: text; /* Safari fallback only */
+  -webkit-user-select: none; /* Chrome/Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+ */
 }
+
 
 div.code-block-caption span.caption-number {
     padding: 0.1em 0.3em;
