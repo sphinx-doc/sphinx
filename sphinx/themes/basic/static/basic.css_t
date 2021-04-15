@@ -818,6 +818,8 @@ div.code-block-caption code {
 }
 
 /* From https://stackoverflow.com/a/34372191 */
+table.highlighttable td.linenos,
+span.linenos,
 span.gp {  /* gp: Generic.Prompt */ 
   user-select: none;
   -webkit-user-select: text; /* Safari fallback only */
