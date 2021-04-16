@@ -817,7 +817,6 @@ div.code-block-caption code {
     background-color: transparent;
 }
 
-/* From https://stackoverflow.com/a/34372191 */
 table.highlighttable td.linenos,
 span.linenos,
 div.highlight span.gp {  /* gp: Generic.Prompt */
@@ -827,7 +826,6 @@ div.highlight span.gp {  /* gp: Generic.Prompt */
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* IE10+ */
 }
-
 
 div.code-block-caption span.caption-number {
     padding: 0.1em 0.3em;
