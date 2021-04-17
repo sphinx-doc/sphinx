@@ -105,7 +105,8 @@ class ParallelTasks:
     def join(self) -> None:
         try:
             while self._pworking:
-                self._join_one()
+                if not self._join_one():
+                    time.sleep(0.02)
         except Exception:
             # shutdown other child processes on failure
             self.terminate()
@@ -119,7 +120,8 @@ class ParallelTasks:
             self._precvs.pop(tid)
             self._pworking -= 1
 
-    def _join_one(self) -> None:
+    def _join_one(self) -> bool:
+        joined_any = False
         for tid, pipe in self._precvs.items():
             if pipe.poll():
                 exc, logs, result = pipe.recv()
@@ -131,14 +133,16 @@ class ParallelTasks:
                 self._procs[tid].join()
                 self._precvs.pop(tid)
                 self._pworking -= 1
+                joined_any = True
                 break
-        else:
-            time.sleep(0.02)
+
         while self._precvsWaiting and self._pworking < self.nproc:
             newtid, newprecv = self._precvsWaiting.popitem()
             self._precvs[newtid] = newprecv
             self._procs[newtid].start()
             self._pworking += 1
+
+        return joined_any
 
 
 def make_chunks(arguments: Sequence[str], nproc: int, maxbatch: int = 10) -> List[Any]:
