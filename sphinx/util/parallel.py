@@ -100,7 +100,7 @@ class ParallelTasks:
                                        args=(psend, task_func, arg))
         self._procs[tid] = proc
         self._precvsWaiting[tid] = precv
-        _ = self._join_one()
+        self._join_one()
 
     def join(self) -> None:
         try:
