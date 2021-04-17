@@ -16,6 +16,7 @@ Deprecated
 Features added
 --------------
 
+* #9103: LaTeX: imgconverter: conversion runs even if not needed
 * #9023: More CSS classes on domain descriptions, see :ref:`nodes` for details.
 
 Bugs fixed
