@@ -16,6 +16,7 @@ Deprecated
 Features added
 --------------
 
+* #8127: py domain: Ellipsis in info-field-list causes nit-picky warning
 * #9023: More CSS classes on domain descriptions, see :ref:`nodes` for details.
 
 Bugs fixed

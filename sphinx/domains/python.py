@@ -304,7 +304,7 @@ class PyXrefMixin:
     def make_xrefs(self, rolename: str, domain: str, target: str,
                    innernode: Type[TextlikeNode] = nodes.emphasis,
                    contnode: Node = None, env: BuildEnvironment = None) -> List[Node]:
-        delims = r'(\s*[\[\]\(\),](?:\s*or\s)?\s*|\s+or\s+)'
+        delims = r'(\s*[\[\]\(\),](?:\s*or\s)?\s*|\s+or\s+|\.\.\.)'
         delims_re = re.compile(delims)
         sub_targets = re.split(delims, target)
 
