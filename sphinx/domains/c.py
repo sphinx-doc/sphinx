@@ -3454,7 +3454,8 @@ class AliasNode(nodes.Element):
             if 'c:parent_symbol' not in env.temp_data:
                 root = env.domaindata['c']['root_symbol']
                 env.temp_data['c:parent_symbol'] = root
-            self.parentKey = env.temp_data['c:parent_symbol'].get_lookup_key()
+                env.ref_context['c:parent_key'] = root.get_lookup_key()
+            self.parentKey = env.ref_context['c:parent_key']
         else:
             assert parentKey is not None
             self.parentKey = parentKey

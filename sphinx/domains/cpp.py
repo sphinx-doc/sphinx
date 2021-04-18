@@ -7177,7 +7177,8 @@ class AliasNode(nodes.Element):
             if 'cpp:parent_symbol' not in env.temp_data:
                 root = env.domaindata['cpp']['root_symbol']
                 env.temp_data['cpp:parent_symbol'] = root
-            self.parentKey = env.temp_data['cpp:parent_symbol'].get_lookup_key()
+                env.ref_context['cpp:parent_key'] = root.get_lookup_key()
+            self.parentKey = env.ref_context['cpp:parent_key']
         else:
             assert parentKey is not None
             self.parentKey = parentKey
