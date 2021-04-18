@@ -138,16 +138,16 @@ def _restify_py37(cls: Optional[Type]) -> str:
         if len(cls.__args__) > 1 and cls.__args__[-1] is NoneType:
             if len(cls.__args__) > 2:
                 args = ', '.join(restify(a) for a in cls.__args__[:-1])
-                return ':obj:`Optional`\\ [:obj:`Union`\\ [%s]]' % args
+                return ':obj:`~typing.Optional`\\ [:obj:`~typing.Union`\\ [%s]]' % args
             else:
-                return ':obj:`Optional`\\ [%s]' % restify(cls.__args__[0])
+                return ':obj:`~typing.Optional`\\ [%s]' % restify(cls.__args__[0])
         else:
             args = ', '.join(restify(a) for a in cls.__args__)
-            return ':obj:`Union`\\ [%s]' % args
+            return ':obj:`~typing.Union`\\ [%s]' % args
     elif inspect.isgenericalias(cls):
         if getattr(cls, '_name', None):
             if cls.__module__ == 'typing':
-                text = ':class:`%s`' % cls._name
+                text = ':class:`~%s.%s`' % (cls.__module__, cls._name)
             else:
                 text = ':class:`%s.%s`' % (cls.__module__, cls._name)
         else:
@@ -167,20 +167,23 @@ def _restify_py37(cls: Optional[Type]) -> str:
         return text
     elif hasattr(cls, '__qualname__'):
         if cls.__module__ == 'typing':
-            return ':class:`%s`' % cls.__qualname__
+            return ':class:`~%s.%s`' % (cls.__module__, cls.__qualname__)
         else:
             return ':class:`%s.%s`' % (cls.__module__, cls.__qualname__)
     elif hasattr(cls, '_name'):
         # SpecialForm
         if cls.__module__ == 'typing':
-            return ':obj:`%s`' % cls._name
+            return ':obj:`~%s.%s`' % (cls.__module__, cls._name)
         else:
             return ':obj:`%s.%s`' % (cls.__module__, cls._name)
     elif isinstance(cls, ForwardRef):
         return ':class:`%s`' % cls.__forward_arg__
     else:
         # not a class (ex. TypeVar)
-        return ':obj:`%s.%s`' % (cls.__module__, cls.__name__)
+        if cls.__module__ == 'typing':
+            return ':obj:`~%s.%s`' % (cls.__module__, cls.__name__)
+        else:
+            return ':obj:`%s.%s`' % (cls.__module__, cls.__name__)
 
 
 def _restify_py36(cls: Optional[Type]) -> str:
@@ -203,13 +206,23 @@ def _restify_py36(cls: Optional[Type]) -> str:
 
     if (isinstance(cls, typing.TupleMeta) and  # type: ignore
             not hasattr(cls, '__tuple_params__')):
+        if module == 'typing':
+            reftext = ':class:`~typing.%s`' % qualname
+        else:
+            reftext = ':class:`%s`' % qualname
+
         params = cls.__args__
         if params:
             param_str = ', '.join(restify(p) for p in params)
-            return ':class:`%s`\\ [%s]' % (qualname, param_str)
+            return reftext + '\\ [%s]' % param_str
         else:
-            return ':class:`%s`' % qualname
+            return reftext
     elif isinstance(cls, typing.GenericMeta):
+        if module == 'typing':
+            reftext = ':class:`~typing.%s`' % qualname
+        else:
+            reftext = ':class:`%s`' % qualname
+
         if cls.__args__ is None or len(cls.__args__) <= 2:  # type: ignore  # NOQA
             params = cls.__args__  # type: ignore
         elif cls.__origin__ == Generator:  # type: ignore
@@ -217,13 +230,13 @@ def _restify_py36(cls: Optional[Type]) -> str:
         else:  # typing.Callable
             args = ', '.join(restify(arg) for arg in cls.__args__[:-1])  # type: ignore
             result = restify(cls.__args__[-1])  # type: ignore
-            return ':class:`%s`\\ [[%s], %s]' % (qualname, args, result)
+            return reftext + '\\ [[%s], %s]' % (args, result)
 
         if params:
             param_str = ', '.join(restify(p) for p in params)
-            return ':class:`%s`\\ [%s]' % (qualname, param_str)
+            return reftext + '\\ [%s]' % (param_str)
         else:
-            return ':class:`%s`' % qualname
+            return reftext
     elif (hasattr(cls, '__origin__') and
           cls.__origin__ is typing.Union):
         params = cls.__args__
@@ -231,32 +244,36 @@ def _restify_py36(cls: Optional[Type]) -> str:
             if len(params) > 1 and params[-1] is NoneType:
                 if len(params) > 2:
                     param_str = ", ".join(restify(p) for p in params[:-1])
-                    return ':obj:`Optional`\\ [:obj:`Union`\\ [%s]]' % param_str
+                    return (':obj:`~typing.Optional`\\ '
+                            '[:obj:`~typing.Union`\\ [%s]]' % param_str)
                 else:
-                    return ':obj:`Optional`\\ [%s]' % restify(params[0])
+                    return ':obj:`~typing.Optional`\\ [%s]' % restify(params[0])
             else:
                 param_str = ', '.join(restify(p) for p in params)
-                return ':obj:`Union`\\ [%s]' % param_str
+                return ':obj:`~typing.Union`\\ [%s]' % param_str
         else:
             return ':obj:`Union`'
     elif hasattr(cls, '__qualname__'):
         if cls.__module__ == 'typing':
-            return ':class:`%s`' % cls.__qualname__
+            return ':class:`~%s.%s`' % (cls.__module__, cls.__qualname__)
         else:
             return ':class:`%s.%s`' % (cls.__module__, cls.__qualname__)
     elif hasattr(cls, '_name'):
         # SpecialForm
         if cls.__module__ == 'typing':
-            return ':obj:`%s`' % cls._name
+            return ':obj:`~%s.%s`' % (cls.__module__, cls._name)
         else:
             return ':obj:`%s.%s`' % (cls.__module__, cls._name)
     elif hasattr(cls, '__name__'):
         # not a class (ex. TypeVar)
-        return ':obj:`%s.%s`' % (cls.__module__, cls.__name__)
+        if cls.__module__ == 'typing':
+            return ':obj:`~%s.%s`' % (cls.__module__, cls.__name__)
+        else:
+            return ':obj:`%s.%s`' % (cls.__module__, cls.__name__)
     else:
         # others (ex. Any)
         if cls.__module__ == 'typing':
-            return ':obj:`%s`' % qualname
+            return ':obj:`~%s.%s`' % (cls.__module__, qualname)
         else:
             return ':obj:`%s.%s`' % (cls.__module__, qualname)
 

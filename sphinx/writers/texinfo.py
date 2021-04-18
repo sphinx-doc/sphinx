@@ -1367,7 +1367,12 @@ class TexinfoTranslator(SphinxTranslator):
         self.body.append('\n\n')
         raise nodes.SkipNode
 
-    # -- Desc
+    #############################################################
+    # Domain-specific object descriptions
+    #############################################################
+
+    # Top-level nodes for descriptions
+    ##################################
 
     def visit_desc(self, node: addnodes.desc) -> None:
         self.descs.append(node)
@@ -1407,6 +1412,21 @@ class TexinfoTranslator(SphinxTranslator):
 
     def depart_desc_signature_line(self, node: Element) -> None:
         pass
+
+    def visit_desc_content(self, node: Element) -> None:
+        pass
+
+    def depart_desc_content(self, node: Element) -> None:
+        pass
+
+    def visit_desc_inline(self, node: Element) -> None:
+        pass
+
+    def depart_desc_inline(self, node: Element) -> None:
+        pass
+
+    # Nodes for high-level structure in signatures
+    ##############################################
 
     def visit_desc_name(self, node: Element) -> None:
         pass
@@ -1470,11 +1490,7 @@ class TexinfoTranslator(SphinxTranslator):
     def depart_desc_annotation(self, node: Element) -> None:
         pass
 
-    def visit_desc_content(self, node: Element) -> None:
-        pass
-
-    def depart_desc_content(self, node: Element) -> None:
-        pass
+    ##############################################
 
     def visit_inline(self, node: Element) -> None:
         pass

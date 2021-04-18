@@ -73,6 +73,7 @@ def _check(name, input, idDict, output, key, asTextOutput):
         print("Input:    ", input)
         print("astext(): ", resAsText)
         print("Expected: ", outputAsText)
+        print("Node:", parentNode)
         raise DefinitionError("")
 
     idExpected = [None]
@@ -743,6 +744,9 @@ def test_anon_definitions():
     check('class', '@1', {3: "Ut1_1"}, asTextOutput='class [anonymous]')
     check('class', '@a::A', {3: "NUt1_a1AE"}, asTextOutput='class [anonymous]::A')
 
+    check('function', 'int f(int @a)', {1: 'f__i', 2: '1fi'},
+          asTextOutput='int f(int [anonymous])')
+
 
 def test_templates():
     check('class', "A<T>", {2: "IE1AI1TE"}, output="template<> {key}A<T>")
@@ -1206,7 +1210,7 @@ not found in `{test}`
     cpp_any_role = RoleClasses('cpp-any', 'a', ['code'])
     # NYI: consistent looks
     # texpr_role = RoleClasses('cpp-texpr', 'span', ['a', 'code'])
-    expr_role = RoleClasses('cpp-expr', 'code', ['a'])
+    expr_role = RoleClasses('cpp-expr', 'span', ['a'])
     texpr_role = RoleClasses('cpp-texpr', 'span', ['a', 'span'])
 
     # XRefRole-style classes
@@ -1223,8 +1227,7 @@ not found in `{test}`
     for role in (expr_role, texpr_role):
         name = role.name
         expect = '`{name}` puts the domain and role classes at its root'.format(name=name)
-        # NYI: xref should go in the references
-        assert {'xref', 'cpp', name} <= role.classes, expect
+        assert {'sig', 'sig-inline', 'cpp', name} <= role.classes, expect
 
     # reference classes
 

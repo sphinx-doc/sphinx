@@ -698,6 +698,13 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_subtitle(self, node: Element) -> None:
         self.body.append(self.context.pop())
 
+    #############################################################
+    # Domain-specific object descriptions
+    #############################################################
+
+    # Top-level nodes for descriptions
+    ##################################
+
     def visit_desc(self, node: Element) -> None:
         if self.config.latex_show_urls == 'footnote':
             self.body.append(BLANKLINE)
@@ -750,6 +757,31 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_desc_signature_line(self, node: Element) -> None:
         self._depart_signature_line(node)
 
+    def visit_desc_content(self, node: Element) -> None:
+        if node.children and not isinstance(node.children[0], nodes.paragraph):
+            # avoid empty desc environment which causes a formatting bug
+            self.body.append('~')
+
+    def depart_desc_content(self, node: Element) -> None:
+        pass
+
+    def visit_desc_inline(self, node: Element) -> None:
+        self.body.append(r'\sphinxcode{\sphinxupquote{')
+
+    def depart_desc_inline(self, node: Element) -> None:
+        self.body.append('}}')
+
+    # Nodes for high-level structure in signatures
+    ##############################################
+
+    def visit_desc_name(self, node: Element) -> None:
+        self.body.append(r'\sphinxbfcode{\sphinxupquote{')
+        self.literal_whitespace += 1
+
+    def depart_desc_name(self, node: Element) -> None:
+        self.body.append('}}')
+        self.literal_whitespace -= 1
+
     def visit_desc_addname(self, node: Element) -> None:
         self.body.append(r'\sphinxcode{\sphinxupquote{')
         self.literal_whitespace += 1
@@ -769,14 +801,6 @@ class LaTeXTranslator(SphinxTranslator):
 
     def depart_desc_returns(self, node: Element) -> None:
         self.body.append(r'}')
-
-    def visit_desc_name(self, node: Element) -> None:
-        self.body.append(r'\sphinxbfcode{\sphinxupquote{')
-        self.literal_whitespace += 1
-
-    def depart_desc_name(self, node: Element) -> None:
-        self.body.append('}}')
-        self.literal_whitespace -= 1
 
     def visit_desc_parameterlist(self, node: Element) -> None:
         # close name, open parameterlist
@@ -811,13 +835,7 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_desc_annotation(self, node: Element) -> None:
         self.body.append('}}')
 
-    def visit_desc_content(self, node: Element) -> None:
-        if node.children and not isinstance(node.children[0], nodes.paragraph):
-            # avoid empty desc environment which causes a formatting bug
-            self.body.append('~')
-
-    def depart_desc_content(self, node: Element) -> None:
-        pass
+    ##############################################
 
     def visit_seealso(self, node: Element) -> None:
         self.body.append(BLANKLINE)

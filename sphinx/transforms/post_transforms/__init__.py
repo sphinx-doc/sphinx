@@ -206,12 +206,8 @@ class OnlyNodeTransform(SphinxPostTransform):
 
 
 class SigElementFallbackTransform(SphinxPostTransform):
-    """Fallback desc_sig_element nodes to inline if translator does not supported them."""
+    """Fallback various desc_* nodes to inline if translator does not supported them."""
     default_priority = 200
-
-    SIG_ELEMENTS = [addnodes.desc_sig_name,
-                    addnodes.desc_sig_operator,
-                    addnodes.desc_sig_punctuation]
 
     def run(self, **kwargs: Any) -> None:
         def has_visitor(translator: Type[nodes.NodeVisitor], node: Type[Element]) -> bool:
@@ -222,24 +218,35 @@ class SigElementFallbackTransform(SphinxPostTransform):
             # subclass of SphinxTranslator supports desc_sig_element nodes automatically.
             return
 
-        if all(has_visitor(translator, node) for node in self.SIG_ELEMENTS):
-            # the translator supports all desc_sig_element nodes
-            return
-        else:
-            self.fallback()
+        # for the leaf elements (desc_sig_element), the translator should support _all_
+        if not all(has_visitor(translator, node) for node in addnodes.SIG_ELEMENTS):
+            self.fallback(addnodes.desc_sig_element)
 
-    def fallback(self) -> None:
-        for node in self.document.traverse(addnodes.desc_sig_element):
+        if not has_visitor(translator, addnodes.desc_inline):
+            self.fallback(addnodes.desc_inline)
+
+    def fallback(self, nodeType: Any) -> None:
+        for node in self.document.traverse(nodeType):
             newnode = nodes.inline()
             newnode.update_all_atts(node)
             newnode.extend(node)
             node.replace_self(newnode)
 
 
+class PropagateDescDomain(SphinxPostTransform):
+    """Add the domain name of the parent node as a class in each desc_signature node."""
+    default_priority = 200
+
+    def run(self, **kwargs: Any) -> None:
+        for node in self.document.traverse(addnodes.desc_signature):
+            node['classes'].append(node.parent['domain'])
+
+
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_post_transform(ReferencesResolver)
     app.add_post_transform(OnlyNodeTransform)
     app.add_post_transform(SigElementFallbackTransform)
+    app.add_post_transform(PropagateDescDomain)
 
     return {
         'version': 'builtin',

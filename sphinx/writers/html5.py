@@ -78,8 +78,15 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_start_of_file(self, node: Element) -> None:
         self.docnames.pop()
 
+    #############################################################
+    # Domain-specific object descriptions
+    #############################################################
+
+    # Top-level nodes for descriptions
+    ##################################
+
     def visit_desc(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'dl', CLASS=node['objtype']))
+        self.body.append(self.starttag(node, 'dl'))
 
     def depart_desc(self, node: Element) -> None:
         self.body.append('</dl>\n\n')
@@ -104,11 +111,32 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             self.add_permalink_ref(node.parent, _('Permalink to this definition'))
         self.body.append('<br />')
 
+    def visit_desc_content(self, node: Element) -> None:
+        self.body.append(self.starttag(node, 'dd', ''))
+
+    def depart_desc_content(self, node: Element) -> None:
+        self.body.append('</dd>')
+
+    def visit_desc_inline(self, node: Element) -> None:
+        self.body.append(self.starttag(node, 'span', ''))
+
+    def depart_desc_inline(self, node: Element) -> None:
+        self.body.append('</span>')
+
+    # Nodes for high-level structure in signatures
+    ##############################################
+
+    def visit_desc_name(self, node: Element) -> None:
+        self.body.append(self.starttag(node, 'span', ''))
+
+    def depart_desc_name(self, node: Element) -> None:
+        self.body.append('</span>')
+
     def visit_desc_addname(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'code', '', CLASS='sig-prename descclassname'))
+        self.body.append(self.starttag(node, 'span', ''))
 
     def depart_desc_addname(self, node: Element) -> None:
-        self.body.append('</code>')
+        self.body.append('</span>')
 
     def visit_desc_type(self, node: Element) -> None:
         pass
@@ -121,12 +149,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def depart_desc_returns(self, node: Element) -> None:
         pass
-
-    def visit_desc_name(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'code', '', CLASS='sig-name descname'))
-
-    def depart_desc_name(self, node: Element) -> None:
-        self.body.append('</code>')
 
     def visit_desc_parameterlist(self, node: Element) -> None:
         self.body.append('<span class="sig-paren">(</span>')
@@ -176,11 +198,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_desc_annotation(self, node: Element) -> None:
         self.body.append('</em>')
 
-    def visit_desc_content(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'dd', ''))
-
-    def depart_desc_content(self, node: Element) -> None:
-        self.body.append('</dd>')
+    ##############################################
 
     def visit_versionmodified(self, node: Element) -> None:
         self.body.append(self.starttag(node, 'div', CLASS=node['type']))
