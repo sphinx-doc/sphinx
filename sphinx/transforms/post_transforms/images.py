@@ -197,7 +197,7 @@ class ImageConverter(BaseImageConverter):
     def match(self, node: nodes.image) -> bool:
         if not self.app.builder.supported_image_types:
             return False
-        elif set(node['candidates']) & set(self.app.builder.supported_image_types):
+        elif set(self.guess_mimetypes(node)) & set(self.app.builder.supported_image_types):
             # builder supports the image; no need to convert
             return False
         elif self.available is None:
