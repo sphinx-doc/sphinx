@@ -24,6 +24,9 @@ Features added
 Bugs fixed
 ----------
 
+* C, C++, fix ``KeyError`` when an ``alias`` directive is the first C/C++
+  directive in a file with another C/C++ directive later.
+
 Testing
 --------
 
