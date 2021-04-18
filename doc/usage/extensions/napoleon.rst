@@ -301,6 +301,7 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
     napoleon_use_ivar = False
     napoleon_use_param = True
     napoleon_use_rtype = True
+    napoleon_preprocess_types = False
     napoleon_type_aliases = None
     napoleon_attr_annotations = True
 
@@ -509,6 +510,16 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
    **If False**::
 
        :returns: *bool* -- True if successful, False otherwise
+
+.. confval:: napoleon_preprocess_types
+
+   True to convert the type definitions in the docstrings as references.
+   Defaults to *True*.
+
+   .. versionadded:: 3.2.1
+   .. versionchanged:: 3.5
+
+      Do preprocess the Google style docstrings also.
 
 .. confval:: napoleon_type_aliases
 

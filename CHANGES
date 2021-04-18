@@ -34,6 +34,8 @@ Deprecated
 Features added
 --------------
 
+* #9097: Optimize the paralell build
+
 Bugs fixed
 ----------
 
@@ -49,14 +51,25 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #9023: Change the CSS classes on :rst:role:`cpp:expr` and
+  :rst:role:`cpp:texpr`.
+
 Deprecated
 ----------
 
 Features added
 --------------
 
+* #8818: autodoc: Super class having ``Any`` arguments causes nit-picky warning
+* #9103: LaTeX: imgconverter: conversion runs even if not needed
+* #8127: py domain: Ellipsis in info-field-list causes nit-picky warning
+* #9023: More CSS classes on domain descriptions, see :ref:`nodes` for details.
+
 Bugs fixed
 ----------
+
+* C, C++, fix ``KeyError`` when an ``alias`` directive is the first C/C++
+  directive in a file with another C/C++ directive later.
 
 Testing
 --------
