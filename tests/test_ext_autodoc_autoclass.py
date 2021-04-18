@@ -256,7 +256,8 @@ def test_show_inheritance_for_subclass_of_generic_type(app):
         '.. py:class:: Quux(iterable=(), /)',
         '   :module: target.classes',
         '',
-        '   Bases: :class:`List`\\ [:obj:`Union`\\ [:class:`int`, :class:`float`]]',
+        '   Bases: :class:`~typing.List`\\ '
+        '[:obj:`~typing.Union`\\ [:class:`int`, :class:`float`]]',
         '',
         '   A subclass of List[Union[int, float]]',
         '',
