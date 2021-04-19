@@ -1023,7 +1023,7 @@ class PythonModuleIndex(Index):
                  ) -> Tuple[List[Tuple[str, List[IndexEntry]]], bool]:
         content: Dict[str, List[IndexEntry]] = {}
         # list of prefixes to ignore
-        ignores: List[str] = self.domain.env.config['modindex_common_prefix']  # type: ignore
+        ignores: List[str] = self.domain.env.config['modindex_common_prefix']
         ignores = sorted(ignores, key=len, reverse=True)
         # list of all modules, sorted by module name
         modules = sorted(self.domain.data['modules'].items(),
