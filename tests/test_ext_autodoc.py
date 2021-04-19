@@ -1915,7 +1915,7 @@ def test_autodoc_GenericAlias(app):
             '',
             '      A list of int',
             '',
-            '      alias of List[int]',
+            '      alias of :class:`~typing.List`\\ [:class:`int`]',
             '',
             '',
             '.. py:data:: T',
@@ -1923,7 +1923,7 @@ def test_autodoc_GenericAlias(app):
             '',
             '   A list of int',
             '',
-            '   alias of List[int]',
+            '   alias of :class:`~typing.List`\\ [:class:`int`]',
             '',
         ]
 
