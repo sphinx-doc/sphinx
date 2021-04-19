@@ -186,7 +186,7 @@ General configuration
    Same as :confval:`root_doc`.
 
    .. versionchanged:: 4.0
-      Renamed ``master_doc`` to ``master_doc``.
+      Renamed ``master_doc`` to ``root_doc``.
 
 .. confval:: root_doc
 
@@ -196,7 +196,7 @@ General configuration
    .. versionchanged:: 2.0
       The default is changed to ``'index'`` from ``'contents'``.
    .. versionchanged:: 4.0
-      Renamed ``master_doc`` from ``master_doc``.
+      Renamed ``root_doc`` from ``master_doc``.
 
 .. confval:: exclude_patterns
 
