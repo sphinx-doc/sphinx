@@ -108,7 +108,14 @@ def import_object(modname: str, objpath: List[str], objtype: str = '',
             logger.debug('[autodoc] getattr(_, %r)', attrname)
             mangled_name = mangle(obj, attrname)
             obj = attrgetter(obj, mangled_name)
-            logger.debug('[autodoc] => %r', obj)
+
+            try:
+                logger.debug('[autodoc] => %r', obj)
+            except TypeError:
+                # fallback of failure on logging for broken object
+                # refs: https://github.com/sphinx-doc/sphinx/issues/9095
+                logger.debug('[autodoc] => %r', (obj,))
+
             object_name = attrname
         return [module, parent, object_name, obj]
     except (AttributeError, ImportError) as exc:
