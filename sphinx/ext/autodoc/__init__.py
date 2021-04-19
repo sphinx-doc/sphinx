@@ -1767,8 +1767,7 @@ class GenericAliasMixin(DataDocumenterMixinBase):
 
     def update_content(self, more_content: StringList) -> None:
         if inspect.isgenericalias(self.object):
-            alias = stringify_typehint(self.object)
-            more_content.append(_('alias of %s') % alias, '')
+            more_content.append(_('alias of %s') % restify(self.object), '')
             more_content.append('', '')
 
         super().update_content(more_content)
