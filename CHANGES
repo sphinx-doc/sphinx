@@ -17,6 +17,7 @@ Features added
 --------------
 
 * #8818: autodoc: Super class having ``Any`` arguments causes nit-picky warning
+* #9098: html: copy-range protection for doctests doesn't work in Safari
 * #9103: LaTeX: imgconverter: conversion runs even if not needed
 * #8127: py domain: Ellipsis in info-field-list causes nit-picky warning
 * #9023: More CSS classes on domain descriptions, see :ref:`nodes` for details.
