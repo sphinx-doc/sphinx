@@ -4,6 +4,10 @@ Release 4.0.0 beta2 (in development)
 Dependencies
 ------------
 
+* Support docutils-0.17.  Please notice it changes the output of HTML builder.
+  Some themes do not support it, and you need to update your custom CSS to
+  upgrade it.
+
 Incompatible changes
 --------------------
 
