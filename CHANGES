@@ -23,6 +23,8 @@ Features added
 * #9098: html: copy-range protection for doctests doesn't work in Safari
 * #9103: LaTeX: imgconverter: conversion runs even if not needed
 * #8127: py domain: Ellipsis in info-field-list causes nit-picky warning
+* #9121: py domain: duplicated warning is emitted when both canonical and its
+  alias objects are defined on the document
 * #9023: More CSS classes on domain descriptions, see :ref:`nodes` for details.
 
 Bugs fixed
