@@ -8,6 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import re
 from typing import Any, Dict, List, Optional, Tuple, Type, cast
 
 from docutils import nodes
@@ -171,13 +172,26 @@ class ReferencesResolver(SphinxPostTransform):
         warn = node.get('refwarn')
         if self.config.nitpicky:
             warn = True
+            dtype = '%s:%s' % (domain.name, typ) if domain else typ
             if self.config.nitpick_ignore:
-                dtype = '%s:%s' % (domain.name, typ) if domain else typ
                 if (dtype, target) in self.config.nitpick_ignore:
                     warn = False
                 # for "std" types also try without domain name
                 if (not domain or domain.name == 'std') and \
                    (typ, target) in self.config.nitpick_ignore:
+                    warn = False
+            if self.config.nitpick_ignore_regex:
+                def matches_ignore(entry_type: str, entry_target: str) -> bool:
+                    for ignore_type, ignore_target in self.config.nitpick_ignore_regex:
+                        if re.fullmatch(ignore_type, entry_type) and \
+                           re.fullmatch(ignore_target, entry_target):
+                            return True
+                    return False
+                if matches_ignore(dtype, target):
+                    warn = False
+                # for "std" types also try without domain name
+                if (not domain or domain.name == 'std') and \
+                   matches_ignore(typ, target):
                     warn = False
         if not warn:
             return
