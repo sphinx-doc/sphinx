@@ -68,7 +68,7 @@ class ObjectEntry(NamedTuple):
     docname: str
     node_id: str
     objtype: str
-    canonical: bool
+    aliased: bool
 
 
 class ModuleEntry(NamedTuple):
@@ -505,7 +505,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
 
         canonical_name = self.options.get('canonical')
         if canonical_name:
-            domain.note_object(canonical_name, self.objtype, node_id, canonical=True,
+            domain.note_object(canonical_name, self.objtype, node_id, aliased=True,
                                location=signode)
 
         if 'noindexentry' not in self.options:
@@ -1138,17 +1138,25 @@ class PythonDomain(Domain):
         return self.data.setdefault('objects', {})  # fullname -> ObjectEntry
 
     def note_object(self, name: str, objtype: str, node_id: str,
-                    canonical: bool = False, location: Any = None) -> None:
+                    aliased: bool = False, location: Any = None) -> None:
         """Note a python object for cross reference.
 
         .. versionadded:: 2.1
         """
         if name in self.objects:
             other = self.objects[name]
-            logger.warning(__('duplicate object description of %s, '
-                              'other instance in %s, use :noindex: for one of them'),
-                           name, other.docname, location=location)
-        self.objects[name] = ObjectEntry(self.env.docname, node_id, objtype, canonical)
+            if other.aliased and aliased is False:
+                # The original definition found. Override it!
+                pass
+            elif other.aliased is False and aliased:
+                # The original definition is already registered.
+                return
+            else:
+                # duplicated
+                logger.warning(__('duplicate object description of %s, '
+                                  'other instance in %s, use :noindex: for one of them'),
+                               name, other.docname, location=location)
+        self.objects[name] = ObjectEntry(self.env.docname, node_id, objtype, aliased)
 
     @property
     def modules(self) -> Dict[str, ModuleEntry]:
@@ -1326,8 +1334,8 @@ class PythonDomain(Domain):
             yield (modname, modname, 'module', mod.docname, mod.node_id, 0)
         for refname, obj in self.objects.items():
             if obj.objtype != 'module':  # modules are already handled
-                if obj.canonical:
-                    # canonical names are not full-text searchable.
+                if obj.aliased:
+                    # aliased names are not full-text searchable.
                     yield (refname, refname, obj.objtype, obj.docname, obj.node_id, -1)
                 else:
                     yield (refname, refname, obj.objtype, obj.docname, obj.node_id, 1)
