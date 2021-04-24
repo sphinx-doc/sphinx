@@ -47,6 +47,8 @@ Features added
 * #9103: LaTeX: imgconverter: conversion runs even if not needed
 * #8127: py domain: Ellipsis in info-field-list causes nit-picky warning
 * #9023: More CSS classes on domain descriptions, see :ref:`nodes` for details.
+* #8195: mathjax: Rename :confval:`mathjax_config` to
+  :confval:`mathjax2_config` and add :confval:`mathjax3_config`
 
 Bugs fixed
 ----------

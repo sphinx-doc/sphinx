@@ -27,6 +27,8 @@ from sphinx.writers.html import HTMLTranslator
 # https://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
 MATHJAX_URL = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
 
+logger = sphinx.util.logging.getLogger(__name__)
+
 
 def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
     self.body.append(self.starttag(node, 'span', '', CLASS='math notranslate nohighlight'))
@@ -84,9 +86,16 @@ def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: Dict
             options.update(app.config.mathjax_options)
         app.add_js_file(app.config.mathjax_path, **options)  # type: ignore
 
-        if app.config.mathjax_config:
-            body = "MathJax.Hub.Config(%s)" % json.dumps(app.config.mathjax_config)
-            app.add_js_file(None, type="text/x-mathjax-config", body=body)
+        if app.config.mathjax2_config:
+            if app.config.mathjax_path == MATHJAX_URL:
+                logger.warning(
+                    'mathjax_config/mathjax2_config does not work '
+                    'for the current MathJax version, use mathjax3_config instead')
+            body = 'MathJax.Hub.Config(%s)' % json.dumps(app.config.mathjax2_config)
+            app.add_js_file(None, type='text/x-mathjax-config', body=body)
+        if app.config.mathjax3_config:
+            body = 'window.MathJax = %s' % json.dumps(app.config.mathjax3_config)
+            app.add_js_file(None, body=body)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
@@ -99,6 +108,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('mathjax_inline', [r'\(', r'\)'], 'html')
     app.add_config_value('mathjax_display', [r'\[', r'\]'], 'html')
     app.add_config_value('mathjax_config', None, 'html')
+    app.add_config_value('mathjax2_config', lambda c: c.mathjax_config, 'html')
+    app.add_config_value('mathjax3_config', None, 'html')
     app.connect('html-page-context', install_mathjax)
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
