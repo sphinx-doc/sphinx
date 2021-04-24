@@ -1,2 +1,1 @@
-sphinx==4.0b1
 docutils==0.17
