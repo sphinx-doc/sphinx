@@ -10,3 +10,4 @@ python:
       path: .
       extra_requirements:
         - docs
+    - requirements: doc/requirements.txt
