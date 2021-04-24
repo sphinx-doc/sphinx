@@ -13,7 +13,9 @@ Deprecated
 Features added
 --------------
 
+* #9129: html search: Show search summaries when html_copy_source = False
 * #9097: Optimize the paralell build
+
 
 Bugs fixed
 ----------
