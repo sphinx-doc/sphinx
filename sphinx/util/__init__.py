@@ -665,10 +665,9 @@ def log_status_message(item: str, summary: str, color: str, progress: int,
     s = '{}[{:3d}%] {}'.format(summary, (100 * progress) // length,
                                colorize(color, item))
     if verbosity:
-        s += '\n'
+        logger.info(s)
     else:
-        s = term_width_line(s)
-    logger.info(s, nonl=True)
+        logger.info(term_width_line(s), nonl=True)
 
 
 # new version with progress info
