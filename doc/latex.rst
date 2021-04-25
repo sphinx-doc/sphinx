@@ -158,6 +158,7 @@ Keys that you may want to override include:
       Greek or Cyrillic in a document using ``'pdflatex'`` engine.
 
    .. versionchanged:: 4.0.0
+
       - The font substitution commands added at ``2.0`` have been moved
         to the ``'fontsubstitution'`` key, as their presence here made
         it complicated for user to customize the value of ``'fontpkg'``.
@@ -165,7 +166,6 @@ Keys that you may want to override include:
         Helvetica clones for serif and sans serif, but via better, more
         complete TeX fonts and associated LaTeX packages.  The
         monospace font has been changed to better match the Times clone.
-        
 
 ``'fncychap'``
    Inclusion of the "fncychap" package (which makes fancy chapter titles),

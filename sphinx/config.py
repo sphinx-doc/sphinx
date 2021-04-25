@@ -255,7 +255,7 @@ class Config:
             return default(self)
         return default
 
-    def __getitem__(self, name: str) -> str:
+    def __getitem__(self, name: str) -> Any:
         return getattr(self, name)
 
     def __setitem__(self, name: str, value: Any) -> None:

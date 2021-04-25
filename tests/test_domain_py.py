@@ -870,6 +870,39 @@ def test_canonical(app):
     assert domain.objects['_io.StringIO'] == ('index', 'io.StringIO', 'class', True)
 
 
+def test_canonical_definition_overrides(app, warning):
+    text = (".. py:class:: io.StringIO\n"
+            "   :canonical: _io.StringIO\n"
+            ".. py:class:: _io.StringIO\n")
+    restructuredtext.parse(app, text)
+    assert warning.getvalue() == ""
+
+    domain = app.env.get_domain('py')
+    assert domain.objects['_io.StringIO'] == ('index', 'id0', 'class', False)
+
+
+def test_canonical_definition_skip(app, warning):
+    text = (".. py:class:: _io.StringIO\n"
+            ".. py:class:: io.StringIO\n"
+            "   :canonical: _io.StringIO\n")
+
+    restructuredtext.parse(app, text)
+    assert warning.getvalue() == ""
+
+    domain = app.env.get_domain('py')
+    assert domain.objects['_io.StringIO'] == ('index', 'io.StringIO', 'class', False)
+
+
+def test_canonical_duplicated(app, warning):
+    text = (".. py:class:: mypackage.StringIO\n"
+            "   :canonical: _io.StringIO\n"
+            ".. py:class:: io.StringIO\n"
+            "   :canonical: _io.StringIO\n")
+
+    restructuredtext.parse(app, text)
+    assert warning.getvalue() != ""
+
+
 def test_info_field_list(app):
     text = (".. py:module:: example\n"
             ".. py:class:: Class\n"
