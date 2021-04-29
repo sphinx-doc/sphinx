@@ -38,6 +38,8 @@ Features added
   :confval:`locale_dirs`
 * #6525: linkcheck: Add :confval:`linkcheck_warn_redirects` to emit a warning
   when the hyperlink is redirected
+* #6525: linkcheck: Add :confval:`linkcheck_ignore_redirects` to ignore
+  hyperlinks that are redirected to expected URLs
 * #9097: Optimize the paralell build
 * #9131: Add :confval:`nitpick_ignore_regex` to ignore nitpicky warnings using
   regular expressions

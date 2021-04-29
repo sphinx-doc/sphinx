@@ -2522,6 +2522,25 @@ Options for the linkcheck builder
 
    .. versionadded:: 1.1
 
+.. confval:: linkcheck_ignore_redirects
+
+   A dictionary that maps a pattern of the source URI to a pattern of the canonical
+   URI.  If set, linkcheck builder treated as "ignored" if a hyperlink in the source
+   document that matches to the pattern of the source URI, and it redirects to the
+   URL that matches to the pattern of the canonical URI.  Example:
+
+   .. code-block:: python
+
+      linkcheck_ignore_redirects = {
+          # All HTTP redirections from the source URI to the canonical URI will be ignored.
+          'http://sphinx-doc.org/.*': 'https://sphinx-doc.org/en/master/.*'
+      }
+
+   It's helpful to enable :confval:`linkcheck_warn_redirects` not to warn the URIs
+   that causes HTTP redirection as expected.
+
+   .. versionadded:: 4.1
+
 .. confval:: linkcheck_request_headers
 
    A dictionary that maps baseurls to HTTP request headers.

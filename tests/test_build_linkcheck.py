@@ -298,6 +298,26 @@ def test_linkcheck_warn_redirects(app, warning):
             "http://localhost:7777/?redirected=1\n" in strip_escseq(warning.getvalue()))
 
 
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True,
+                    confoverrides={
+                        'linkcheck_ignore_redirects': {'http://localhost:.*/': '.*'}
+                    })
+def test_linkcheck_ignore_redirects(app):
+    with http_server(make_redirect_handler(support_head=False)):
+        app.build()
+
+    with open(app.outdir / 'output.json') as fp:
+        content = json.load(fp)
+    assert content == {
+        "code": 0,
+        "status": "working",
+        "filename": "index.rst",
+        "lineno": 1,
+        "uri": "http://localhost:7777/",
+        "info": "",
+    }
+
+
 class OKHandler(http.server.BaseHTTPRequestHandler):
     def do_HEAD(self):
         self.send_response(200, "OK")

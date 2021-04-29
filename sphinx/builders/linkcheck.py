@@ -498,12 +498,22 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 new_url = response.url
                 if anchor:
                     new_url += '#' + anchor
-                # history contains any redirects, get last
-                if response.history:
+
+                if ignored_redirect(req_url, new_url):
+                    return 'working', '', 0
+                elif response.history:
+                    # history contains any redirects, get last
                     code = response.history[-1].status_code
                     return 'redirected', new_url, code
                 else:
                     return 'redirected', new_url, 0
+
+        def ignored_redirect(url: str, new_url: str) -> bool:
+            for from_url, to_url in self.config.linkcheck_ignore_redirects.items():
+                if from_url.match(url) and to_url.match(new_url):
+                    return True
+
+            return False
 
         def check(docname: str) -> Tuple[str, str, int]:
             # check for various conditions without bothering the network
@@ -646,11 +656,25 @@ class HyperlinkCollector(SphinxPostTransform):
                     hyperlinks[uri] = uri_info
 
 
+def compile_linkcheck_ignore_redirects(app: Sphinx, config: Config) -> None:
+    """Compile patterns in linkcheck_ignore_redirects to the regexp objects."""
+    for url, pattern in list(app.config.linkcheck_ignore_redirects.items()):
+        try:
+            app.config.linkcheck_ignore_redirects[re.compile(url)] = re.compile(pattern)
+        except re.error as exc:
+            logger.warning(__('Failed to compile regex in linkcheck_ignore_redirects: %r %s'),
+                           exc.pattern, exc.msg)
+        finally:
+            # Remove the original regexp-string
+            app.config.linkcheck_ignore_redirects.pop(url)
+
+
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(CheckExternalLinksBuilder)
     app.add_post_transform(HyperlinkCollector)
 
     app.add_config_value('linkcheck_ignore', [], None)
+    app.add_config_value('linkcheck_ignore_redirects', {}, None)
     app.add_config_value('linkcheck_auth', [], None)
     app.add_config_value('linkcheck_request_headers', {}, None)
     app.add_config_value('linkcheck_retries', 1, None)
@@ -662,6 +686,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('linkcheck_anchors_ignore', ["^!"], None)
     app.add_config_value('linkcheck_rate_limit_timeout', 300.0, None)
     app.add_config_value('linkcheck_warn_redirects', False, None)
+
+    app.connect('config-inited', compile_linkcheck_ignore_redirects, priority=800)
 
     return {
         'version': 'builtin',
