@@ -664,6 +664,7 @@ def import_ivar_by_name(name: str, prefixes: List[str] = [None]) -> Tuple[str, A
         qualname = real_name.replace(modname + ".", "")
         analyzer = ModuleAnalyzer.for_module(getattr(obj, '__module__', modname))
         analyzer.analyze()
+        # check for presence in `annotations` to include dataclass attributes
         if (qualname, attr) in analyzer.attr_docs or (qualname, attr) in analyzer.annotations:
             return real_name + "." + attr, INSTANCEATTR, obj, modname
     except (ImportError, ValueError, PycodeError):

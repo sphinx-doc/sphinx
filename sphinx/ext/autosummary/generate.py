@@ -39,7 +39,7 @@ from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx50Warning
-from sphinx.ext.autodoc import Documenter
+from sphinx.ext.autodoc import Documenter, ObjectMember
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autosummary import get_documenter, import_by_name, import_ivar_by_name
 from sphinx.locale import __
@@ -242,7 +242,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
     def attr_getter(obj, name, *defargs):
         return sphinx.ext.autodoc.autodoc_attrgetter(app, obj, name, *defargs)
 
-    def get_all_members(obj):
+    def get_all_members(obj: Any) -> Dict[str, ObjectMember]:
         all_members = sphinx.ext.autodoc.get_class_members(obj, [qualname], attr_getter)
         return all_members
 
