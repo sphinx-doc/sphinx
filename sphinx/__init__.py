@@ -27,8 +27,8 @@ if 'PYTHONWARNINGS' not in os.environ:
 warnings.filterwarnings('ignore', "'U' mode is deprecated",
                         DeprecationWarning, module='docutils.io')
 
-__version__ = '4.0.0+'
-__released__ = '4.0.0'  # used when Sphinx builds its own docs
+__version__ = '4.0.0b2'
+__released__ = '4.0.0b2'  # used when Sphinx builds its own docs
 
 #: Version info for better programmatic use.
 #:
