@@ -2642,6 +2642,14 @@ Options for the linkcheck builder
 
    .. versionadded:: 3.4
 
+.. confval:: linkcheck_warn_redirects
+
+   If true, emit a warning when redirection detected on checking hyperlinks.
+   It's useful to detect unexpected redirects under :option:`the warn-is-error
+   mode <sphinx-build -W>`.  Default is ``False``.
+
+    .. versionadded:: 4.1
+
 
 Options for the XML builder
 ---------------------------

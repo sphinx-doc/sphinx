@@ -272,8 +272,12 @@ class CheckExternalLinksBuilder(DummyBuilder):
             except KeyError:
                 text, color = ('with unknown code', purple)
             linkstat['text'] = text
-            logger.info(color('redirect  ') + result.uri +
-                        color(' - ' + text + ' to ' + result.message))
+            if self.config.linkcheck_warn_redirects:
+                logger.warning('redirect  ' + result.uri + ' - ' + text + ' to ' +
+                               result.message, location=(filename, result.lineno))
+            else:
+                logger.info(color('redirect  ') + result.uri +
+                            color(' - ' + text + ' to ' + result.message))
             self.write_entry('redirected ' + text, result.docname, filename,
                              result.lineno, result.uri + ' to ' + result.message)
         else:
@@ -657,6 +661,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     # commonly used for dynamic pages
     app.add_config_value('linkcheck_anchors_ignore', ["^!"], None)
     app.add_config_value('linkcheck_rate_limit_timeout', 300.0, None)
+    app.add_config_value('linkcheck_warn_redirects', False, None)
 
     return {
         'version': 'builtin',
