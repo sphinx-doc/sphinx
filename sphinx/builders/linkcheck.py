@@ -230,14 +230,15 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
     def process_result(self, result: CheckResult) -> None:
         filename = self.env.doc2path(result.docname, None)
+
         linkstat = dict(filename=filename, lineno=result.lineno,
                         status=result.status, code=result.code, uri=result.uri,
                         info=result.message)
+        self.write_linkstat(linkstat)
+
         if result.status == 'unchecked':
-            self.write_linkstat(linkstat)
             return
         if result.status == 'working' and result.message == 'old':
-            self.write_linkstat(linkstat)
             return
         if result.lineno:
             logger.info('(%16s: line %4d) ', result.docname, result.lineno, nonl=True)
@@ -246,14 +247,11 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 logger.info(darkgray('-ignored- ') + result.uri + ': ' + result.message)
             else:
                 logger.info(darkgray('-ignored- ') + result.uri)
-            self.write_linkstat(linkstat)
         elif result.status == 'local':
             logger.info(darkgray('-local-   ') + result.uri)
             self.write_entry('local', result.docname, filename, result.lineno, result.uri)
-            self.write_linkstat(linkstat)
         elif result.status == 'working':
             logger.info(darkgreen('ok        ') + result.uri + result.message)
-            self.write_linkstat(linkstat)
         elif result.status == 'broken':
             if self.app.quiet or self.app.warningiserror:
                 logger.warning(__('broken link: %s (%s)'), result.uri, result.message,
@@ -262,7 +260,6 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 logger.info(red('broken    ') + result.uri + red(' - ' + result.message))
             self.write_entry('broken', result.docname, filename, result.lineno,
                              result.uri + ': ' + result.message)
-            self.write_linkstat(linkstat)
         elif result.status == 'redirected':
             try:
                 text, color = {
@@ -279,7 +276,6 @@ class CheckExternalLinksBuilder(DummyBuilder):
                         color(' - ' + text + ' to ' + result.message))
             self.write_entry('redirected ' + text, result.docname, filename,
                              result.lineno, result.uri + ' to ' + result.message)
-            self.write_linkstat(linkstat)
         else:
             raise ValueError("Unknown status %s." % result.status)
 
