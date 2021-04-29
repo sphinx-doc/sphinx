@@ -239,15 +239,21 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                            name, exc, type='autosummary')
             return False
 
+    def attr_getter(obj, name, *defargs):
+        return sphinx.ext.autodoc.autodoc_attrgetter(app, obj, name, *defargs)
+
+    def get_all_members(obj):
+        all_members = sphinx.ext.autodoc.get_class_members(obj, [qualname], attr_getter)
+        return all_members
+
     def get_members(obj: Any, types: Set[str], include_public: List[str] = [],
                     imported: bool = True) -> Tuple[List[str], List[str]]:
         items: List[str] = []
         public: List[str] = []
-        for name in dir(obj):
-            try:
-                value = safe_getattr(obj, name)
-            except AttributeError:
-                continue
+
+        all_members = get_all_members(obj)
+        for name, member in all_members.items():
+            value = member.object
             documenter = get_documenter(app, value, obj)
             if documenter.objtype in types:
                 # skip imported members if expected
