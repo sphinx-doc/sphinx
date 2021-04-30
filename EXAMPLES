@@ -12,7 +12,6 @@ interesting examples.
 Documentation using the alabaster theme
 ---------------------------------------
 
-* `AIOHTTP <https://docs.aiohttp.org/>`__
 * `Alabaster <https://alabaster.readthedocs.io/>`__
 * `Blinker <https://pythonhosted.org/blinker/>`__
 * `Calibre <https://manual.calibre-ebook.com/>`__
@@ -311,6 +310,7 @@ Documentation using sphinx_bootstrap_theme
 Documentation using a custom theme or integrated in a website
 -------------------------------------------------------------
 
+* `AIOHTTP <https://docs.aiohttp.org/>`__
 * `Apache Cassandra <https://cassandra.apache.org/doc/>`__
 * `Astropy <http://docs.astropy.org/>`__
 * `Bokeh <https://bokeh.pydata.org/>`__
