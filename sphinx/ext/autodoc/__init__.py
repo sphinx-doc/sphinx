@@ -129,6 +129,14 @@ def member_order_option(arg: Any) -> Optional[str]:
         raise ValueError(__('invalid value for member-order option: %s') % arg)
 
 
+def class_doc_from_option(arg: Any) -> Optional[str]:
+    """Used to convert the :class-doc-from: option to autoclass directives."""
+    if arg in ('both', 'class', 'init'):
+        return arg
+    else:
+        raise ValueError(__('invalid value for class-doc-from option: %s') % arg)
+
+
 SUPPRESS = object()
 
 
@@ -1417,6 +1425,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         'show-inheritance': bool_option, 'member-order': member_order_option,
         'exclude-members': exclude_members_option,
         'private-members': members_option, 'special-members': members_option,
+        'class-doc-from': class_doc_from_option,
     }
 
     _signature_class: Any = None
@@ -1651,7 +1660,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if lines is not None:
             return lines
 
-        content = self.config.autoclass_content
+        classdoc_from = self.options.get('class-doc-from', self.config.autoclass_content)
 
         docstrings = []
         attrdocstring = self.get_attr(self.object, '__doc__', None)
@@ -1660,7 +1669,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         # for classes, what the "docstring" is can be controlled via a
         # config value; the default is only the class docstring
-        if content in ('both', 'init'):
+        if classdoc_from in ('both', 'init'):
             __init__ = self.get_attr(self.object, '__init__', None)
             initdocstring = getdoc(__init__, self.get_attr,
                                    self.config.autodoc_inherit_docstrings,
@@ -1682,7 +1691,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                      initdocstring.strip() == object.__new__.__doc__)):  # for !pypy
                     initdocstring = None
             if initdocstring:
-                if content == 'init':
+                if classdoc_from == 'init':
                     docstrings = [initdocstring]
                 else:
                     docstrings.append(initdocstring)
