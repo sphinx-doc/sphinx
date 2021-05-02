@@ -14,6 +14,8 @@ Features added
 --------------
 
 * #9129: html search: Show search summaries when html_copy_source = False
+* #9120: html theme: Eliminate prompt characters of code-block from copyable
+  text
 * #9097: Optimize the paralell build
 
 
