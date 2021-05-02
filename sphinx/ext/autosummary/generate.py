@@ -39,7 +39,7 @@ from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx50Warning
-from sphinx.ext.autodoc import Documenter, ObjectMember
+from sphinx.ext.autodoc import Documenter
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autosummary import get_documenter, import_by_name, import_ivar_by_name
 from sphinx.locale import __
@@ -239,12 +239,25 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                            name, exc, type='autosummary')
             return False
 
-    def attr_getter(obj, name, *defargs):
-        return sphinx.ext.autodoc.autodoc_attrgetter(app, obj, name, *defargs)
+    def get_class_members(obj: Any) -> Dict[str, Any]:
+        members = sphinx.ext.autodoc.get_class_members(obj, [qualname], safe_getattr)
+        return {name: member.object for name, member in members.items()}
 
-    def get_all_members(obj: Any) -> Dict[str, ObjectMember]:
-        all_members = sphinx.ext.autodoc.get_class_members(obj, [qualname], attr_getter)
-        return all_members
+    def get_module_members(obj: Any) -> Dict[str, Any]:
+        members = {}
+        for name in dir(obj):
+            try:
+                members[name] = safe_getattr(obj, name)
+            except AttributeError:
+                continue
+        return members
+
+    def get_all_members(obj: Any) -> Dict[str, Any]:
+        if doc.objtype == "module":
+            return get_module_members(obj)
+        elif doc.objtype == "class":
+            return get_class_members(obj)
+        return {}
 
     def get_members(obj: Any, types: Set[str], include_public: List[str] = [],
                     imported: bool = True) -> Tuple[List[str], List[str]]:
@@ -252,8 +265,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         public: List[str] = []
 
         all_members = get_all_members(obj)
-        for name, member in all_members.items():
-            value = member.object
+        for name, value in all_members.items():
             documenter = get_documenter(app, value, obj)
             if documenter.objtype in types:
                 # skip imported members if expected
