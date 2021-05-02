@@ -311,3 +311,34 @@ def test_check_enum_for_list_failed(logger):
     config.init_values()
     check_confval_types(None, config)
     assert logger.warning.called
+
+
+nitpick_warnings = [
+    "WARNING: py:const reference target not found: prefix.anything.postfix",
+    "WARNING: py:class reference target not found: prefix.anything",
+    "WARNING: py:class reference target not found: anything.postfix",
+    "WARNING: js:class reference target not found: prefix.anything.postfix",
+]
+
+
+@pytest.mark.sphinx(testroot='nitpicky-warnings')
+def test_nitpick_base(app, status, warning):
+    app.builder.build_all()
+
+    warning = warning.getvalue().strip().split('\n')
+    assert len(warning) == len(nitpick_warnings)
+    for actual, expected in zip(warning, nitpick_warnings):
+        assert expected in actual
+
+
+@pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
+    'nitpick_ignore': [
+        ('py:const', 'prefix.anything.postfix'),
+        ('py:class', 'prefix.anything'),
+        ('py:class', 'anything.postfix'),
+        ('js:class', 'prefix.anything.postfix'),
+    ],
+})
+def test_nitpick_ignore(app, status, warning):
+    app.builder.build_all()
+    assert not len(warning.getvalue().strip())
