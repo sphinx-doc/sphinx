@@ -342,3 +342,46 @@ def test_nitpick_base(app, status, warning):
 def test_nitpick_ignore(app, status, warning):
     app.builder.build_all()
     assert not len(warning.getvalue().strip())
+
+
+@pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
+    'nitpick_ignore_regex': [
+        (r'py:.*', r'.*postfix'),
+        (r'.*:class', r'prefix.*'),
+    ]
+})
+def test_nitpick_ignore_regex1(app, status, warning):
+    app.builder.build_all()
+    assert not len(warning.getvalue().strip())
+
+
+@pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
+    'nitpick_ignore_regex': [
+        (r'py:.*', r'prefix.*'),
+        (r'.*:class', r'.*postfix'),
+    ]
+})
+def test_nitpick_ignore_regex2(app, status, warning):
+    app.builder.build_all()
+    assert not len(warning.getvalue().strip())
+
+
+@pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
+    'nitpick_ignore_regex': [
+        # None of these should match
+        (r'py:', r'.*'),
+        (r':class', r'.*'),
+        (r'', r'.*'),
+        (r'.*', r'anything'),
+        (r'.*', r'prefix'),
+        (r'.*', r'postfix'),
+        (r'.*', r''),
+    ]
+})
+def test_nitpick_ignore_regex_fullmatch(app, status, warning):
+    app.builder.build_all()
+
+    warning = warning.getvalue().strip().split('\n')
+    assert len(warning) == len(nitpick_warnings)
+    for actual, expected in zip(warning, nitpick_warnings):
+        assert expected in actual
