@@ -736,6 +736,34 @@ def test_autodoc_undoc_members(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_undoc_members_for_metadata_only(app):
+    # metadata only member is not displayed
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.metadata', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.metadata',
+        '',
+    ]
+
+    # metadata only member is displayed when undoc-member given
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'target.metadata', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.metadata',
+        '',
+        '',
+        '.. py:function:: foo()',
+        '   :module: target.metadata',
+        '',
+        '   :meta metadata-only-docstring:',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_inherited_members(app):
     options = {"members": None,
                "inherited-members": None}

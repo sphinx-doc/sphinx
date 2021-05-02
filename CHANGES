@@ -10,6 +10,8 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.util.docstrings.extract_metadata()``
+
 Features added
 --------------
 
@@ -21,6 +23,9 @@ Features added
 
 Bugs fixed
 ----------
+
+* #8597: autodoc: a docsting having metadata only should be treated as
+  undocumented
 
 Testing
 --------
