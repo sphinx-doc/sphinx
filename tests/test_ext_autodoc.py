@@ -2080,6 +2080,7 @@ def test_singledispatch(app):
         '',
         '',
         '.. py:function:: func(arg, kwarg=None)',
+        '                 func(arg: float, kwarg=None)',
         '                 func(arg: int, kwarg=None)',
         '                 func(arg: str, kwarg=None)',
         '   :module: target.singledispatch',
@@ -2107,6 +2108,7 @@ def test_singledispatchmethod(app):
         '',
         '',
         '   .. py:method:: Foo.meth(arg, kwarg=None)',
+        '                  Foo.meth(arg: float, kwarg=None)',
         '                  Foo.meth(arg: int, kwarg=None)',
         '                  Foo.meth(arg: str, kwarg=None)',
         '      :module: target.singledispatchmethod',
@@ -2125,6 +2127,7 @@ def test_singledispatchmethod_automethod(app):
     assert list(actual) == [
         '',
         '.. py:method:: Foo.meth(arg, kwarg=None)',
+        '               Foo.meth(arg: float, kwarg=None)',
         '               Foo.meth(arg: int, kwarg=None)',
         '               Foo.meth(arg: str, kwarg=None)',
         '   :module: target.singledispatchmethod',
