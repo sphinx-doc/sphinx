@@ -792,27 +792,27 @@ def test_autodoc_typehints_description_for_invalid_node(app):
 def test_autodoc_type_aliases(app):
     # default
     options = {"members": None}
-    actual = do_autodoc(app, 'module', 'target.annotations', options)
+    actual = do_autodoc(app, 'module', 'target.autodoc_type_aliases', options)
     assert list(actual) == [
         '',
-        '.. py:module:: target.annotations',
+        '.. py:module:: target.autodoc_type_aliases',
         '',
         '',
         '.. py:class:: Foo()',
-        '   :module: target.annotations',
+        '   :module: target.autodoc_type_aliases',
         '',
         '   docstring',
         '',
         '',
         '   .. py:attribute:: Foo.attr1',
-        '      :module: target.annotations',
+        '      :module: target.autodoc_type_aliases',
         '      :type: int',
         '',
         '      docstring',
         '',
         '',
         '   .. py:attribute:: Foo.attr2',
-        '      :module: target.annotations',
+        '      :module: target.autodoc_type_aliases',
         '      :type: int',
         '',
         '      docstring',
@@ -820,26 +820,32 @@ def test_autodoc_type_aliases(app):
         '',
         '.. py:function:: mult(x: int, y: int) -> int',
         '                 mult(x: float, y: float) -> float',
-        '   :module: target.annotations',
+        '   :module: target.autodoc_type_aliases',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:function:: read(r: _io.BytesIO) -> _io.StringIO',
+        '   :module: target.autodoc_type_aliases',
         '',
         '   docstring',
         '',
         '',
         '.. py:function:: sum(x: int, y: int) -> int',
-        '   :module: target.annotations',
+        '   :module: target.autodoc_type_aliases',
         '',
         '   docstring',
         '',
         '',
         '.. py:data:: variable',
-        '   :module: target.annotations',
+        '   :module: target.autodoc_type_aliases',
         '   :type: int',
         '',
         '   docstring',
         '',
         '',
         '.. py:data:: variable2',
-        '   :module: target.annotations',
+        '   :module: target.autodoc_type_aliases',
         '   :type: int',
         '   :value: None',
         '',
@@ -848,28 +854,29 @@ def test_autodoc_type_aliases(app):
     ]
 
     # define aliases
-    app.config.autodoc_type_aliases = {'myint': 'myint'}
-    actual = do_autodoc(app, 'module', 'target.annotations', options)
+    app.config.autodoc_type_aliases = {'myint': 'myint',
+                                       'io.StringIO': 'my.module.StringIO'}
+    actual = do_autodoc(app, 'module', 'target.autodoc_type_aliases', options)
     assert list(actual) == [
         '',
-        '.. py:module:: target.annotations',
+        '.. py:module:: target.autodoc_type_aliases',
         '',
         '',
         '.. py:class:: Foo()',
-        '   :module: target.annotations',
+        '   :module: target.autodoc_type_aliases',
         '',
         '   docstring',
         '',
         '',
         '   .. py:attribute:: Foo.attr1',
-        '      :module: target.annotations',
+        '      :module: target.autodoc_type_aliases',
         '      :type: myint',
         '',
         '      docstring',
         '',
         '',
         '   .. py:attribute:: Foo.attr2',
-        '      :module: target.annotations',
+        '      :module: target.autodoc_type_aliases',
         '      :type: myint',
         '',
         '      docstring',
@@ -877,26 +884,32 @@ def test_autodoc_type_aliases(app):
         '',
         '.. py:function:: mult(x: myint, y: myint) -> myint',
         '                 mult(x: float, y: float) -> float',
-        '   :module: target.annotations',
+        '   :module: target.autodoc_type_aliases',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:function:: read(r: _io.BytesIO) -> my.module.StringIO',
+        '   :module: target.autodoc_type_aliases',
         '',
         '   docstring',
         '',
         '',
         '.. py:function:: sum(x: myint, y: myint) -> myint',
-        '   :module: target.annotations',
+        '   :module: target.autodoc_type_aliases',
         '',
         '   docstring',
         '',
         '',
         '.. py:data:: variable',
-        '   :module: target.annotations',
+        '   :module: target.autodoc_type_aliases',
         '   :type: myint',
         '',
         '   docstring',
         '',
         '',
         '.. py:data:: variable2',
-        '   :module: target.annotations',
+        '   :module: target.autodoc_type_aliases',
         '   :type: myint',
         '   :value: None',
         '',
@@ -911,10 +924,10 @@ def test_autodoc_type_aliases(app):
                     confoverrides={'autodoc_typehints': "description",
                                    'autodoc_type_aliases': {'myint': 'myint'}})
 def test_autodoc_typehints_description_and_type_aliases(app):
-    (app.srcdir / 'annotations.rst').write_text('.. autofunction:: target.annotations.sum')
+    (app.srcdir / 'autodoc_type_aliases.rst').write_text('.. autofunction:: target.autodoc_type_aliases.sum')
     app.build()
-    context = (app.outdir / 'annotations.txt').read_text()
-    assert ('target.annotations.sum(x, y)\n'
+    context = (app.outdir / 'autodoc_type_aliases.txt').read_text()
+    assert ('target.autodoc_type_aliases.sum(x, y)\n'
             '\n'
             '   docstring\n'
             '\n'

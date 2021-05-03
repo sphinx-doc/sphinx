@@ -30,7 +30,7 @@ from sphinx.ext.autodoc.mock import ismock, mock, undecorate
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import inspect, logging
-from sphinx.util.docstrings import extract_metadata, prepare_docstring
+from sphinx.util.docstrings import prepare_docstring, separate_metadata
 from sphinx.util.inspect import (evaluate_signature, getdoc, object_description, safe_getattr,
                                  stringify_signature)
 from sphinx.util.typing import OptionSpec, get_type_hints, restify
@@ -127,6 +127,14 @@ def member_order_option(arg: Any) -> Optional[str]:
         return arg
     else:
         raise ValueError(__('invalid value for member-order option: %s') % arg)
+
+
+def class_doc_from_option(arg: Any) -> Optional[str]:
+    """Used to convert the :class-doc-from: option to autoclass directives."""
+    if arg in ('both', 'class', 'init'):
+        return arg
+    else:
+        raise ValueError(__('invalid value for class-doc-from option: %s') % arg)
 
 
 SUPPRESS = object()
@@ -722,9 +730,9 @@ class Documenter:
                 # hack for ClassDocumenter to inject docstring via ObjectMember
                 doc = obj.docstring
 
+            doc, metadata = separate_metadata(doc)
             has_doc = bool(doc)
 
-            metadata = extract_metadata(doc)
             if 'private' in metadata:
                 # consider a member private if docstring has "private" metadata
                 isprivate = True
@@ -1320,12 +1328,12 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
                 if typ is object:
                     pass  # default implementation. skipped.
                 else:
-                    self.annotate_to_first_argument(func, typ)
-
-                    documenter = FunctionDocumenter(self.directive, '')
-                    documenter.object = func
-                    documenter.objpath = [None]
-                    sigs.append(documenter.format_signature())
+                    dispatchfunc = self.annotate_to_first_argument(func, typ)
+                    if dispatchfunc:
+                        documenter = FunctionDocumenter(self.directive, '')
+                        documenter.object = dispatchfunc
+                        documenter.objpath = [None]
+                        sigs.append(documenter.format_signature())
         if overloaded:
             actual = inspect.signature(self.object,
                                        type_aliases=self.config.autodoc_type_aliases)
@@ -1350,28 +1358,34 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
 
         return overload.replace(parameters=parameters)
 
-    def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
+    def annotate_to_first_argument(self, func: Callable, typ: Type) -> Optional[Callable]:
         """Annotate type hint to the first argument of function if needed."""
         try:
             sig = inspect.signature(func, type_aliases=self.config.autodoc_type_aliases)
         except TypeError as exc:
             logger.warning(__("Failed to get a function signature for %s: %s"),
                            self.fullname, exc)
-            return
+            return None
         except ValueError:
-            return
+            return None
 
         if len(sig.parameters) == 0:
-            return
+            return None
+
+        def dummy():
+            pass
 
         params = list(sig.parameters.values())
         if params[0].annotation is Parameter.empty:
             params[0] = params[0].replace(annotation=typ)
             try:
-                func.__signature__ = sig.replace(parameters=params)  # type: ignore
+                dummy.__signature__ = sig.replace(parameters=params)  # type: ignore
+                return dummy
             except (AttributeError, TypeError):
                 # failed to update signature (ex. built-in or extension types)
-                return
+                return None
+        else:
+            return None
 
 
 class DecoratorDocumenter(FunctionDocumenter):
@@ -1417,6 +1431,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         'show-inheritance': bool_option, 'member-order': member_order_option,
         'exclude-members': exclude_members_option,
         'private-members': members_option, 'special-members': members_option,
+        'class-doc-from': class_doc_from_option,
     }
 
     _signature_class: Any = None
@@ -1651,7 +1666,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if lines is not None:
             return lines
 
-        content = self.config.autoclass_content
+        classdoc_from = self.options.get('class-doc-from', self.config.autoclass_content)
 
         docstrings = []
         attrdocstring = self.get_attr(self.object, '__doc__', None)
@@ -1660,7 +1675,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         # for classes, what the "docstring" is can be controlled via a
         # config value; the default is only the class docstring
-        if content in ('both', 'init'):
+        if classdoc_from in ('both', 'init'):
             __init__ = self.get_attr(self.object, '__init__', None)
             initdocstring = getdoc(__init__, self.get_attr,
                                    self.config.autodoc_inherit_docstrings,
@@ -1682,7 +1697,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                      initdocstring.strip() == object.__new__.__doc__)):  # for !pypy
                     initdocstring = None
             if initdocstring:
-                if content == 'init':
+                if classdoc_from == 'init':
                     docstrings = [initdocstring]
                 else:
                     docstrings.append(initdocstring)
@@ -1918,7 +1933,7 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
             return True
         else:
             doc = self.get_doc()
-            metadata = extract_metadata('\n'.join(sum(doc, [])))
+            docstring, metadata = separate_metadata('\n'.join(sum(doc, [])))
             if 'hide-value' in metadata:
                 return True
 
@@ -2109,13 +2124,13 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                 if typ is object:
                     pass  # default implementation. skipped.
                 else:
-                    self.annotate_to_first_argument(func, typ)
-
-                    documenter = MethodDocumenter(self.directive, '')
-                    documenter.parent = self.parent
-                    documenter.object = func
-                    documenter.objpath = [None]
-                    sigs.append(documenter.format_signature())
+                    dispatchmeth = self.annotate_to_first_argument(func, typ)
+                    if dispatchmeth:
+                        documenter = MethodDocumenter(self.directive, '')
+                        documenter.parent = self.parent
+                        documenter.object = dispatchmeth
+                        documenter.objpath = [None]
+                        sigs.append(documenter.format_signature())
         if overloaded:
             if inspect.isstaticmethod(self.object, cls=self.parent, name=self.object_name):
                 actual = inspect.signature(self.object, bound_method=False,
@@ -2149,27 +2164,34 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
         return overload.replace(parameters=parameters)
 
-    def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
+    def annotate_to_first_argument(self, func: Callable, typ: Type) -> Optional[Callable]:
         """Annotate type hint to the first argument of function if needed."""
         try:
             sig = inspect.signature(func, type_aliases=self.config.autodoc_type_aliases)
         except TypeError as exc:
             logger.warning(__("Failed to get a method signature for %s: %s"),
                            self.fullname, exc)
-            return
+            return None
         except ValueError:
-            return
+            return None
+
         if len(sig.parameters) == 1:
-            return
+            return None
+
+        def dummy():
+            pass
 
         params = list(sig.parameters.values())
         if params[1].annotation is Parameter.empty:
             params[1] = params[1].replace(annotation=typ)
             try:
-                func.__signature__ = sig.replace(parameters=params)  # type: ignore
+                dummy.__signature__ = sig.replace(parameters=params)  # type: ignore
+                return dummy
             except (AttributeError, TypeError):
                 # failed to update signature (ex. built-in or extension types)
-                return
+                return None
+        else:
+            return None
 
 
 class NonDataDescriptorMixin(DataDocumenterMixinBase):
@@ -2456,7 +2478,7 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
         else:
             doc = self.get_doc()
             if doc:
-                metadata = extract_metadata('\n'.join(sum(doc, [])))
+                docstring, metadata = separate_metadata('\n'.join(sum(doc, [])))
                 if 'hide-value' in metadata:
                     return True
 

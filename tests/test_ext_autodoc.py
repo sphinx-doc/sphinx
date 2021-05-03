@@ -736,6 +736,34 @@ def test_autodoc_undoc_members(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_undoc_members_for_metadata_only(app):
+    # metadata only member is not displayed
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.metadata', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.metadata',
+        '',
+    ]
+
+    # metadata only member is displayed when undoc-member given
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'target.metadata', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.metadata',
+        '',
+        '',
+        '.. py:function:: foo()',
+        '   :module: target.metadata',
+        '',
+        '   :meta metadata-only-docstring:',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_inherited_members(app):
     options = {"members": None,
                "inherited-members": None}
@@ -2080,6 +2108,7 @@ def test_singledispatch(app):
         '',
         '',
         '.. py:function:: func(arg, kwarg=None)',
+        '                 func(arg: float, kwarg=None)',
         '                 func(arg: int, kwarg=None)',
         '                 func(arg: str, kwarg=None)',
         '   :module: target.singledispatch',
@@ -2107,6 +2136,7 @@ def test_singledispatchmethod(app):
         '',
         '',
         '   .. py:method:: Foo.meth(arg, kwarg=None)',
+        '                  Foo.meth(arg: float, kwarg=None)',
         '                  Foo.meth(arg: int, kwarg=None)',
         '                  Foo.meth(arg: str, kwarg=None)',
         '      :module: target.singledispatchmethod',
@@ -2125,6 +2155,7 @@ def test_singledispatchmethod_automethod(app):
     assert list(actual) == [
         '',
         '.. py:method:: Foo.meth(arg, kwarg=None)',
+        '               Foo.meth(arg: float, kwarg=None)',
         '               Foo.meth(arg: int, kwarg=None)',
         '               Foo.meth(arg: str, kwarg=None)',
         '   :module: target.singledispatchmethod',

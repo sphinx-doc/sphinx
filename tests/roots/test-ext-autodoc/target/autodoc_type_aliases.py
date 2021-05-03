@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import io
 from typing import overload
 
 myint = int
@@ -9,6 +10,10 @@ variable: myint
 
 #: docstring
 variable2 = None  # type: myint
+
+
+def read(r: io.BytesIO) -> io.StringIO:
+    """docstring"""
 
 
 def sum(x: myint, y: myint) -> myint:

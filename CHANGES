@@ -31,20 +31,34 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.util.docstrings.extract_metadata()``
+
 Features added
 --------------
 
+* #8107: autodoc: Add ``class-doc-from`` option to :rst:dir:`autoclass`
+  directive to control the content of the specific class like
+  :confval:`autoclass_content`
+* #8588: autodoc: :confval:`autodoc_type_aliases` now supports dotted name. It
+  allows you to define an alias for a class with module name like
+  ``foo.bar.BazClass``
 * #9129: html search: Show search summaries when html_copy_source = False
+* #9120: html theme: Eliminate prompt characters of code-block from copyable
+  text
 * #9097: Optimize the paralell build
 
 
 Bugs fixed
 ----------
 
+* #8872: autodoc: stacked singledispatches are wrongly rendered
+* #8597: autodoc: a docsting having metadata only should be treated as
+  undocumented
+
 Testing
 --------
 
-Release 4.0.0 beta2 (in development)
+Release 4.0.0 beta3 (in development)
 ====================================
 
 Dependencies
@@ -53,11 +67,33 @@ Dependencies
 Incompatible changes
 --------------------
 
-* #9023: Change the CSS classes on :rst:role:`cpp:expr` and
-  :rst:role:`cpp:texpr`.
-
 Deprecated
 ----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 4.0.0 beta2 (released Apr 29, 2021)
+===========================================
+
+Dependencies
+------------
+
+* Support docutils-0.17.  Please notice it changes the output of HTML builder.
+  Some themes do not support it, and you need to update your custom CSS to
+  upgrade it.
+
+Incompatible changes
+--------------------
+
+* #9023: Change the CSS classes on :rst:role:`cpp:expr` and
+  :rst:role:`cpp:texpr`.
 
 Features added
 --------------
@@ -80,9 +116,6 @@ Bugs fixed
 
 * C, C++, fix ``KeyError`` when an ``alias`` directive is the first C/C++
   directive in a file with another C/C++ directive later.
-
-Testing
---------
 
 Release 4.0.0 beta1 (released Apr 12, 2021)
 ===========================================
@@ -221,24 +254,6 @@ Bugs fixed
 
 Release 3.5.5 (in development)
 ==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
 
 Release 3.5.4 (released Apr 11, 2021)
 =====================================

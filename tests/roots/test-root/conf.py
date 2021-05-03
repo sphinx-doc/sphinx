@@ -42,7 +42,7 @@ latex_additional_files = ['svgimg.svg']
 coverage_c_path = ['special/*.h']
 coverage_c_regexes = {'function': r'^PyAPI_FUNC\(.*\)\s+([^_][\w_]+)'}
 
-extlinks = {'issue': ('http://bugs.python.org/issue%s', 'issue '),
+extlinks = {'issue': ('http://bugs.python.org/issue%s', 'issue %s'),
             'pyurl': ('http://python.org/%s', None)}
 
 # modify tags from conf.py

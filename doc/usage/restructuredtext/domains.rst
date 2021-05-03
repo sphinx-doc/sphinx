@@ -1680,6 +1680,9 @@ There is a set of directives allowing documenting command-line programs:
    then ``:option:`rm -r``` would refer to the first option, while
    ``:option:`svn -r``` would refer to the second one.
 
+   If ``None`` is passed to the argument, the directive will reset the
+   current program name.
+
    The program name may contain spaces (in case you want to document
    subcommands like ``svn add`` and ``svn commit`` separately).
 

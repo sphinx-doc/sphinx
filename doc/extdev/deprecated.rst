@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.util.docstrings.extract_metadata()``
+     - 4.1
+     - 6.0
+     - ``sphinx.util.docstrings.separate_metadata()``
+
    * - ``favicon`` variable in HTML templates
      - 4.0
      - TBD

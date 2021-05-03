@@ -129,7 +129,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
         # create queues and worker threads
         self._wqueue: PriorityQueue[CheckRequestType] = PriorityQueue()
-        self._rqueue: Queue = Queue()
+        self._rqueue: Queue[CheckResult] = Queue()
 
     @property
     def anchors_ignore(self) -> List[Pattern]:
@@ -228,43 +228,39 @@ class CheckExternalLinksBuilder(DummyBuilder):
         )
         return self._wqueue
 
-    def process_result(self, result: Tuple[str, str, int, str, str, int]) -> None:
-        uri, docname, lineno, status, info, code = result
+    def process_result(self, result: CheckResult) -> None:
+        filename = self.env.doc2path(result.docname, None)
 
-        filename = self.env.doc2path(docname, None)
-        linkstat = dict(filename=filename, lineno=lineno,
-                        status=status, code=code, uri=uri,
-                        info=info)
-        if status == 'unchecked':
-            self.write_linkstat(linkstat)
+        linkstat = dict(filename=filename, lineno=result.lineno,
+                        status=result.status, code=result.code, uri=result.uri,
+                        info=result.message)
+        self.write_linkstat(linkstat)
+
+        if result.status == 'unchecked':
             return
-        if status == 'working' and info == 'old':
-            self.write_linkstat(linkstat)
+        if result.status == 'working' and result.message == 'old':
             return
-        if lineno:
-            logger.info('(%16s: line %4d) ', docname, lineno, nonl=True)
-        if status == 'ignored':
-            if info:
-                logger.info(darkgray('-ignored- ') + uri + ': ' + info)
+        if result.lineno:
+            logger.info('(%16s: line %4d) ', result.docname, result.lineno, nonl=True)
+        if result.status == 'ignored':
+            if result.message:
+                logger.info(darkgray('-ignored- ') + result.uri + ': ' + result.message)
             else:
-                logger.info(darkgray('-ignored- ') + uri)
-            self.write_linkstat(linkstat)
-        elif status == 'local':
-            logger.info(darkgray('-local-   ') + uri)
-            self.write_entry('local', docname, filename, lineno, uri)
-            self.write_linkstat(linkstat)
-        elif status == 'working':
-            logger.info(darkgreen('ok        ') + uri + info)
-            self.write_linkstat(linkstat)
-        elif status == 'broken':
+                logger.info(darkgray('-ignored- ') + result.uri)
+        elif result.status == 'local':
+            logger.info(darkgray('-local-   ') + result.uri)
+            self.write_entry('local', result.docname, filename, result.lineno, result.uri)
+        elif result.status == 'working':
+            logger.info(darkgreen('ok        ') + result.uri + result.message)
+        elif result.status == 'broken':
             if self.app.quiet or self.app.warningiserror:
-                logger.warning(__('broken link: %s (%s)'), uri, info,
-                               location=(filename, lineno))
+                logger.warning(__('broken link: %s (%s)'), result.uri, result.message,
+                               location=(filename, result.lineno))
             else:
-                logger.info(red('broken    ') + uri + red(' - ' + info))
-            self.write_entry('broken', docname, filename, lineno, uri + ': ' + info)
-            self.write_linkstat(linkstat)
-        elif status == 'redirected':
+                logger.info(red('broken    ') + result.uri + red(' - ' + result.message))
+            self.write_entry('broken', result.docname, filename, result.lineno,
+                             result.uri + ': ' + result.message)
+        elif result.status == 'redirected':
             try:
                 text, color = {
                     301: ('permanently', purple),
@@ -272,16 +268,16 @@ class CheckExternalLinksBuilder(DummyBuilder):
                     303: ('with See Other', purple),
                     307: ('temporarily', turquoise),
                     308: ('permanently', purple),
-                }[code]
+                }[result.code]
             except KeyError:
                 text, color = ('with unknown code', purple)
             linkstat['text'] = text
-            logger.info(color('redirect  ') + uri + color(' - ' + text + ' to ' + info))
-            self.write_entry('redirected ' + text, docname, filename,
-                             lineno, uri + ' to ' + info)
-            self.write_linkstat(linkstat)
+            logger.info(color('redirect  ') + result.uri +
+                        color(' - ' + text + ' to ' + result.message))
+            self.write_entry('redirected ' + text, result.docname, filename,
+                             result.lineno, result.uri + ' to ' + result.message)
         else:
-            raise ValueError("Unknown status %s." % status)
+            raise ValueError("Unknown status %s." % result.status)
 
     def write_entry(self, what: str, docname: str, filename: str, line: int,
                     uri: str) -> None:
@@ -576,7 +572,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             if status == 'rate-limited':
                 logger.info(darkgray('-rate limited-   ') + uri + darkgray(' | sleeping...'))
             else:
-                self.rqueue.put((uri, docname, lineno, status, info, code))
+                self.rqueue.put(CheckResult(uri, docname, lineno, status, info, code))
             self.wqueue.task_done()
 
     def limit_rate(self, response: Response) -> Optional[float]:
