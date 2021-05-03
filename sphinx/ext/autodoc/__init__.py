@@ -30,7 +30,7 @@ from sphinx.ext.autodoc.mock import ismock, mock, undecorate
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import inspect, logging
-from sphinx.util.docstrings import extract_metadata, prepare_docstring
+from sphinx.util.docstrings import prepare_docstring, separate_metadata
 from sphinx.util.inspect import (evaluate_signature, getdoc, object_description, safe_getattr,
                                  stringify_signature)
 from sphinx.util.typing import OptionSpec, get_type_hints, restify
@@ -730,9 +730,9 @@ class Documenter:
                 # hack for ClassDocumenter to inject docstring via ObjectMember
                 doc = obj.docstring
 
+            doc, metadata = separate_metadata(doc)
             has_doc = bool(doc)
 
-            metadata = extract_metadata(doc)
             if 'private' in metadata:
                 # consider a member private if docstring has "private" metadata
                 isprivate = True
@@ -1933,7 +1933,7 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
             return True
         else:
             doc = self.get_doc()
-            metadata = extract_metadata('\n'.join(sum(doc, [])))
+            docstring, metadata = separate_metadata('\n'.join(sum(doc, [])))
             if 'hide-value' in metadata:
                 return True
 
@@ -2478,7 +2478,7 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
         else:
             doc = self.get_doc()
             if doc:
-                metadata = extract_metadata('\n'.join(sum(doc, [])))
+                docstring, metadata = separate_metadata('\n'.join(sum(doc, [])))
                 if 'hide-value' in metadata:
                     return True
 
