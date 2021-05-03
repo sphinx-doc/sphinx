@@ -19,7 +19,26 @@ import _testcapi
 import pytest
 
 from sphinx.util import inspect
-from sphinx.util.inspect import stringify_signature
+from sphinx.util.inspect import TypeAliasNamespace, stringify_signature
+
+
+def test_TypeAliasNamespace():
+    import logging.config
+    type_alias = TypeAliasNamespace({'logging.Filter': 'MyFilter',
+                                     'logging.Handler': 'MyHandler',
+                                     'logging.handlers.SyslogHandler': 'MySyslogHandler'})
+
+    assert type_alias['logging'].Filter == 'MyFilter'
+    assert type_alias['logging'].Handler == 'MyHandler'
+    assert type_alias['logging'].handlers.SyslogHandler == 'MySyslogHandler'
+    assert type_alias['logging'].Logger == logging.Logger
+    assert type_alias['logging'].config == logging.config
+
+    with pytest.raises(KeyError):
+        assert type_alias['log']
+
+    with pytest.raises(KeyError):
+        assert type_alias['unknown']
 
 
 def test_signature():

@@ -18,8 +18,10 @@ import types
 import typing
 import warnings
 from functools import partial, partialmethod
+from importlib import import_module
 from inspect import Parameter, isclass, ismethod, ismethoddescriptor, ismodule  # NOQA
 from io import StringIO
+from types import ModuleType
 from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, Type, cast
 
 from sphinx.deprecation import RemovedInSphinx50Warning
@@ -501,6 +503,78 @@ class DefaultValue:
         return self.value
 
 
+class TypeAliasForwardRef:
+    """Pseudo typing class for autodoc_type_aliases.
+
+    This avoids the error on evaluating the type inside `get_type_hints()`.
+    """
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+    def __call__(self) -> None:
+        # Dummy method to imitate special typing classes
+        pass
+
+    def __eq__(self, other: Any) -> bool:
+        return self.name == other
+
+
+class TypeAliasModule:
+    """Pseudo module class for autodoc_type_aliases."""
+
+    def __init__(self, modname: str, mapping: Dict[str, str]) -> None:
+        self.__modname = modname
+        self.__mapping = mapping
+
+        self.__module: Optional[ModuleType] = None
+
+    def __getattr__(self, name: str) -> Any:
+        fullname = '.'.join(filter(None, [self.__modname, name]))
+        if fullname in self.__mapping:
+            # exactly matched
+            return TypeAliasForwardRef(self.__mapping[fullname])
+        else:
+            prefix = fullname + '.'
+            nested = {k: v for k, v in self.__mapping.items() if k.startswith(prefix)}
+            if nested:
+                # sub modules or classes found
+                return TypeAliasModule(fullname, nested)
+            else:
+                # no sub modules or classes found.
+                try:
+                    # return the real submodule if exists
+                    return import_module(fullname)
+                except ImportError:
+                    # return the real class
+                    if self.__module is None:
+                        self.__module = import_module(self.__modname)
+
+                    return getattr(self.__module, name)
+
+
+class TypeAliasNamespace(Dict[str, Any]):
+    """Pseudo namespace class for autodoc_type_aliases.
+
+    This enables to look up nested modules and classes like `mod1.mod2.Class`.
+    """
+
+    def __init__(self, mapping: Dict[str, str]) -> None:
+        self.__mapping = mapping
+
+    def __getitem__(self, key: str) -> Any:
+        if key in self.__mapping:
+            # exactly matched
+            return TypeAliasForwardRef(self.__mapping[key])
+        else:
+            prefix = key + '.'
+            nested = {k: v for k, v in self.__mapping.items() if k.startswith(prefix)}
+            if nested:
+                # sub modules or classes found
+                return TypeAliasModule(key, nested)
+            else:
+                raise KeyError
+
+
 def _should_unwrap(subject: Callable) -> bool:
     """Check the function should be unwrapped on getting signature."""
     __globals__ = getglobals(subject)
@@ -549,12 +623,19 @@ def signature(subject: Callable, bound_method: bool = False, follow_wrapped: boo
 
     try:
         # Resolve annotations using ``get_type_hints()`` and type_aliases.
-        annotations = typing.get_type_hints(subject, None, type_aliases)
+        localns = TypeAliasNamespace(type_aliases)
+        annotations = typing.get_type_hints(subject, None, localns)
         for i, param in enumerate(parameters):
             if param.name in annotations:
-                parameters[i] = param.replace(annotation=annotations[param.name])
+                annotation = annotations[param.name]
+                if isinstance(annotation, TypeAliasForwardRef):
+                    annotation = annotation.name
+                parameters[i] = param.replace(annotation=annotation)
         if 'return' in annotations:
-            return_annotation = annotations['return']
+            if isinstance(annotations['return'], TypeAliasForwardRef):
+                return_annotation = annotations['return'].name
+            else:
+                return_annotation = annotations['return']
     except Exception:
         # ``get_type_hints()`` does not support some kind of objects like partial,
         # ForwardRef and so on.
