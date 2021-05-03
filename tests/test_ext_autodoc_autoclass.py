@@ -264,6 +264,53 @@ def test_show_inheritance_for_subclass_of_generic_type(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_class_doc_from_class(app):
+    options = {"members": None,
+               "class-doc-from": "class"}
+    actual = do_autodoc(app, 'class', 'target.autoclass_content.C', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: C()',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having __init__, no __new__',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_class_doc_from_init(app):
+    options = {"members": None,
+               "class-doc-from": "init"}
+    actual = do_autodoc(app, 'class', 'target.autoclass_content.C', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: C()',
+        '   :module: target.autoclass_content',
+        '',
+        '   __init__ docstring',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_class_doc_from_both(app):
+    options = {"members": None,
+               "class-doc-from": "both"}
+    actual = do_autodoc(app, 'class', 'target.autoclass_content.C', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: C()',
+        '   :module: target.autoclass_content',
+        '',
+        '   A class having __init__, no __new__',
+        '',
+        '   __init__ docstring',
+        '',
+    ]
+
+
 def test_class_alias(app):
     def autodoc_process_docstring(*args):
         """A handler always raises an error.

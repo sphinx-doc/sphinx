@@ -343,6 +343,10 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
         .. autoclass:: module.name::Noodle
 
+   * :rst:dir:`autoclass` also recognizes the ``class-doc-from`` option that
+     can be used to override the global value of :confval:`autoclass_content`.
+
+     .. versionadded:: 4.1
 
 .. rst:directive:: autofunction
                    autodecorator
@@ -507,7 +511,7 @@ There are also config values that you can set:
    The supported options are ``'members'``, ``'member-order'``,
    ``'undoc-members'``, ``'private-members'``, ``'special-members'``,
    ``'inherited-members'``, ``'show-inheritance'``, ``'ignore-module-all'``,
-   ``'imported-members'`` and ``'exclude-members'``.
+   ``'imported-members'``, ``'exclude-members'`` and ``'class-doc-from'``.
 
    .. versionadded:: 1.8
 
@@ -516,6 +520,9 @@ There are also config values that you can set:
 
    .. versionchanged:: 2.1
       Added ``'imported-members'``.
+
+   .. versionchanged:: 4.1
+      Added ``'class-doc-from'``.
 
 .. confval:: autodoc_docstring_signature
 
