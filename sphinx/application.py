@@ -141,9 +141,9 @@ class Sphinx:
         self.phase = BuildPhase.INITIALIZATION
         self.verbosity = verbosity
         self.extensions: Dict[str, Extension] = {}
-        self.builder: Builder = None
-        self.env: BuildEnvironment = None
-        self.project: Project = None
+        self.builder: Optional[Builder] = None
+        self.env: Optional[BuildEnvironment] = None
+        self.project: Optional[Project] = None
         self.registry = SphinxComponentRegistry()
         self.html_themes: Dict[str, str] = {}
 
@@ -174,7 +174,7 @@ class Sphinx:
 
         if status is None:
             self._status: IO = StringIO()
-            self.quiet = True
+            self.quiet: bool = True
         else:
             self._status = status
             self.quiet = False

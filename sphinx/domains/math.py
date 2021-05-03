@@ -8,7 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Tuple
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple
 
 from docutils import nodes
 from docutils.nodes import Element, Node, make_id, system_message
@@ -97,7 +97,7 @@ class MathDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: "Builder",
                      typ: str, target: str, node: pending_xref, contnode: Element
-                     ) -> Element:
+                     ) -> Optional[Element]:
         assert typ in ('eq', 'numref')
         docname, number = self.equations.get(target, (None, None))
         if docname:

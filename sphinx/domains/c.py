@@ -9,7 +9,8 @@
 """
 
 import re
-from typing import Any, Callable, Dict, Generator, Iterator, List, Tuple, TypeVar, Union, cast
+from typing import (Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple, TypeVar,
+                    Union, cast)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement, system_message
@@ -3807,7 +3808,7 @@ class CDomain(Domain):
 
     def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                             typ: str, target: str, node: pending_xref,
-                            contnode: Element) -> Tuple[Element, str]:
+                            contnode: Element) -> Tuple[Optional[Element], Optional[str]]:
         parser = DefinitionParser(target, location=node, config=env.config)
         try:
             name = parser.parse_xref_object()
@@ -3844,7 +3845,7 @@ class CDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref,
-                     contnode: Element) -> Element:
+                     contnode: Element) -> Optional[Element]:
         return self._resolve_xref_inner(env, fromdocname, builder, typ,
                                         target, node, contnode)[0]
 
