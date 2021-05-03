@@ -18,10 +18,16 @@ from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english
 from docutils.statemachine import StringList
 from docutils.utils import Reporter
-from jinja2 import Environment, environmentfilter
+from jinja2 import Environment
 
 from sphinx.locale import __
 from sphinx.util import docutils, logging
+
+try:
+    from jinja2.utils import pass_environment  # type: ignore  # jinja2-3.0 or above
+except ImportError:
+    from jinja2 import environmentfilter as pass_environment
+
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +57,7 @@ def textwidth(text: str, widechars: str = 'WF') -> int:
     return sum(charwidth(c, widechars) for c in text)
 
 
-@environmentfilter
+@pass_environment
 def heading(env: Environment, text: str, level: int = 1) -> str:
     """Create a heading for *level*."""
     assert level <= 3
