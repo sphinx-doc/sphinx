@@ -25,7 +25,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import warnings
 from typing import Any, Dict, List, Tuple
 
 from docutils import nodes, utils
@@ -34,9 +33,12 @@ from docutils.parsers.rst.states import Inliner
 
 import sphinx
 from sphinx.application import Sphinx
-from sphinx.deprecation import RemovedInSphinx60Warning
+from sphinx.locale import __
+from sphinx.util import logging
 from sphinx.util.nodes import split_explicit_title
 from sphinx.util.typing import RoleFunction
+
+logger = logging.getLogger(__name__)
 
 
 def make_link_role(name: str, base_url: str, caption: str) -> RoleFunction:
@@ -48,17 +50,17 @@ def make_link_role(name: str, base_url: str, caption: str) -> RoleFunction:
     try:
         base_url % 'dummy'
     except (TypeError, ValueError):
-        warnings.warn('extlinks: Sphinx-6.0 will require base URL to '
-                      'contain exactly one \'%s\' and all other \'%\' need '
-                      'to be escaped as \'%%\'.', RemovedInSphinx60Warning)
+        logger.warn(__('extlinks: Sphinx-6.0 will require base URL to '
+                       'contain exactly one \'%s\' and all other \'%\' need '
+                       'to be escaped as \'%%\'.'))  # RemovedInSphinx60Warning
         base_url = base_url.replace('%', '%%') + '%s'
     if caption is not None:
         try:
             caption % 'dummy'
         except (TypeError, ValueError):
-            warnings.warn('extlinks: Sphinx-6.0 will require a caption string to '
-                          'contain exactly one \'%s\' and all other \'%\' need '
-                          'to be escaped as \'%%\'.', RemovedInSphinx60Warning)
+            logger.warning(__('extlinks: Sphinx-6.0 will require a caption string to '
+                              'contain exactly one \'%s\' and all other \'%\' need '
+                              'to be escaped as \'%%\'.'))  # RemovedInSphinx60Warning
             caption = caption.replace('%', '%%') + '%s'
 
     def role(typ: str, rawtext: str, text: str, lineno: int,

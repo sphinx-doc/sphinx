@@ -81,11 +81,11 @@ autodoc_member_order = 'groupwise'
 autosummary_generate = False
 todo_include_todos = True
 extlinks = {'duref': ('http://docutils.sourceforge.net/docs/ref/rst/'
-                      'restructuredtext.html#%s', ''),
+                      'restructuredtext.html#%s', '%s'),
             'durole': ('http://docutils.sourceforge.net/docs/ref/rst/'
-                       'roles.html#%s', ''),
+                       'roles.html#%s', '%s'),
             'dudir': ('http://docutils.sourceforge.net/docs/ref/rst/'
-                      'directives.html#%s', '')}
+                      'directives.html#%s', '%s')}
 
 man_pages = [
     ('contents', 'sphinx-all', 'Sphinx documentation generator system manual',
