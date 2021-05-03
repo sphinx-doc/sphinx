@@ -1328,12 +1328,12 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
                 if typ is object:
                     pass  # default implementation. skipped.
                 else:
-                    self.annotate_to_first_argument(func, typ)
-
-                    documenter = FunctionDocumenter(self.directive, '')
-                    documenter.object = func
-                    documenter.objpath = [None]
-                    sigs.append(documenter.format_signature())
+                    dispatchfunc = self.annotate_to_first_argument(func, typ)
+                    if dispatchfunc:
+                        documenter = FunctionDocumenter(self.directive, '')
+                        documenter.object = dispatchfunc
+                        documenter.objpath = [None]
+                        sigs.append(documenter.format_signature())
         if overloaded:
             actual = inspect.signature(self.object,
                                        type_aliases=self.config.autodoc_type_aliases)
@@ -1358,28 +1358,34 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
 
         return overload.replace(parameters=parameters)
 
-    def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
+    def annotate_to_first_argument(self, func: Callable, typ: Type) -> Optional[Callable]:
         """Annotate type hint to the first argument of function if needed."""
         try:
             sig = inspect.signature(func, type_aliases=self.config.autodoc_type_aliases)
         except TypeError as exc:
             logger.warning(__("Failed to get a function signature for %s: %s"),
                            self.fullname, exc)
-            return
+            return None
         except ValueError:
-            return
+            return None
 
         if len(sig.parameters) == 0:
-            return
+            return None
+
+        def dummy():
+            pass
 
         params = list(sig.parameters.values())
         if params[0].annotation is Parameter.empty:
             params[0] = params[0].replace(annotation=typ)
             try:
-                func.__signature__ = sig.replace(parameters=params)  # type: ignore
+                dummy.__signature__ = sig.replace(parameters=params)  # type: ignore
+                return dummy
             except (AttributeError, TypeError):
                 # failed to update signature (ex. built-in or extension types)
-                return
+                return None
+        else:
+            return None
 
 
 class DecoratorDocumenter(FunctionDocumenter):
@@ -2118,13 +2124,13 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                 if typ is object:
                     pass  # default implementation. skipped.
                 else:
-                    self.annotate_to_first_argument(func, typ)
-
-                    documenter = MethodDocumenter(self.directive, '')
-                    documenter.parent = self.parent
-                    documenter.object = func
-                    documenter.objpath = [None]
-                    sigs.append(documenter.format_signature())
+                    dispatchmeth = self.annotate_to_first_argument(func, typ)
+                    if dispatchmeth:
+                        documenter = MethodDocumenter(self.directive, '')
+                        documenter.parent = self.parent
+                        documenter.object = dispatchmeth
+                        documenter.objpath = [None]
+                        sigs.append(documenter.format_signature())
         if overloaded:
             if inspect.isstaticmethod(self.object, cls=self.parent, name=self.object_name):
                 actual = inspect.signature(self.object, bound_method=False,
@@ -2158,27 +2164,34 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
         return overload.replace(parameters=parameters)
 
-    def annotate_to_first_argument(self, func: Callable, typ: Type) -> None:
+    def annotate_to_first_argument(self, func: Callable, typ: Type) -> Optional[Callable]:
         """Annotate type hint to the first argument of function if needed."""
         try:
             sig = inspect.signature(func, type_aliases=self.config.autodoc_type_aliases)
         except TypeError as exc:
             logger.warning(__("Failed to get a method signature for %s: %s"),
                            self.fullname, exc)
-            return
+            return None
         except ValueError:
-            return
+            return None
+
         if len(sig.parameters) == 1:
-            return
+            return None
+
+        def dummy():
+            pass
 
         params = list(sig.parameters.values())
         if params[1].annotation is Parameter.empty:
             params[1] = params[1].replace(annotation=typ)
             try:
-                func.__signature__ = sig.replace(parameters=params)  # type: ignore
+                dummy.__signature__ = sig.replace(parameters=params)  # type: ignore
+                return dummy
             except (AttributeError, TypeError):
                 # failed to update signature (ex. built-in or extension types)
-                return
+                return None
+        else:
+            return None
 
 
 class NonDataDescriptorMixin(DataDocumenterMixinBase):

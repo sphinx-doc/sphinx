@@ -10,6 +10,7 @@ class Foo:
         pass
 
     @meth.register(int)
+    @meth.register(float)
     def _meth_int(self, arg, kwarg=None):
         """A method for int."""
         pass

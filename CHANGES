@@ -25,6 +25,8 @@ Features added
 Bugs fixed
 ----------
 
+* #8872: autodoc: stacked singledispatches are wrongly rendered
+
 Testing
 --------
 
