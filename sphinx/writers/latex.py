@@ -1975,10 +1975,12 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def visit_container(self, node: Element) -> None:
-        pass
+        classes = node.get('classes', [])
+        self.body.append(
+            '\n\\bgroup\\begin{sphinxcontainer}{%s}' % ' '.join(classes))
 
     def depart_container(self, node: Element) -> None:
-        pass
+        self.body.append('\n\\end{sphinxcontainer}\\egroup')
 
     def visit_decoration(self, node: Element) -> None:
         pass
