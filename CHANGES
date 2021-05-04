@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #9167: html: Failed to add CSS files to the specific page
+
 Testing
 --------
 
