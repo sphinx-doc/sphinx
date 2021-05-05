@@ -28,6 +28,8 @@ Features added
 * #9120: html theme: Eliminate prompt characters of code-block from copyable
   text
 * #9097: Optimize the paralell build
+* #9131: Add :confval:`nitpick_ignore_regex` to ignore nitpicky warnings using
+  regular expressions
 
 
 Bugs fixed
