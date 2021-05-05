@@ -183,10 +183,7 @@ def test_signature_annotations():
 
     # Instance annotations
     sig = inspect.signature(f11)
-    if sys.version_info < (3, 10):
-        assert stringify_signature(sig) == '(x: CustomAnnotation, y: 123) -> None'
-    else:
-        assert stringify_signature(sig) == '(x: CustomAnnotation(), y: 123) -> None'
+    assert stringify_signature(sig) == '(x: CustomAnnotation, y: 123) -> None'
 
     # tuple with more than two items
     sig = inspect.signature(f12)
