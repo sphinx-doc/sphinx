@@ -32,6 +32,7 @@ install_requires = [
     'requests>=2.5.0',
     'setuptools',
     'packaging',
+    'pyyaml'
 ]
 
 extras_require = {

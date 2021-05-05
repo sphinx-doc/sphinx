@@ -16,13 +16,14 @@ from os import getenv, path
 from typing import (TYPE_CHECKING, Any, Callable, Dict, Generator, Iterator, List, NamedTuple,
                     Optional, Set, Tuple, Union)
 
-from sphinx.errors import ConfigError, ExtensionError
+from sphinx.errors import ApplicationError, ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
 from sphinx.util.osutil import cd, fs_encoding
 from sphinx.util.tags import Tags
 from sphinx.util.typing import NoneType
+import yaml
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -30,7 +31,8 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-CONFIG_FILENAME = 'conf.py'
+CONFIG_FILENAME = CONFIG_FILENAME_PY = 'conf.py'
+CONFIG_FILENAME_YAML = 'sphinx.yaml'
 UNSERIALIZABLE_TYPES = (type, types.ModuleType, types.FunctionType)
 copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 
@@ -162,10 +164,34 @@ class Config:
         self.extensions: List[str] = config.get('extensions', [])
 
     @classmethod
+    def get_config_file(cls, confdir: str) -> str:
+        """Check the configuration directory for a configuration file."""
+        config_py = path.join(confdir, CONFIG_FILENAME_PY)
+        config_yaml = path.join(confdir, CONFIG_FILENAME_YAML)
+        if path.isfile(config_py):
+            if path.isfile(config_yaml):
+                raise ApplicationError(
+                    __("config directory contains both a "
+                    "%s and %s file (%s)") % (CONFIG_FILENAME_PY, CONFIG_FILENAME_YAML, confdir)
+                )
+            return config_py
+        elif path.isfile(config_yaml):
+            return config_yaml
+        else:
+            raise ApplicationError(
+                __("config directory doesn't contain a "
+                "%s or %s file (%s)") % (CONFIG_FILENAME_PY, CONFIG_FILENAME_YAML, confdir)
+            )
+
+    @classmethod
     def read(cls, confdir: str, overrides: Dict = None, tags: Tags = None) -> "Config":
         """Create a Config object from configuration file."""
-        filename = path.join(confdir, CONFIG_FILENAME)
-        namespace = eval_config_file(filename, tags)
+        filename = cls.get_config_file(confdir)
+        namespace = {}
+        if filename.endswith(CONFIG_FILENAME_PY):
+            namespace = eval_config_file(filename, tags)
+        elif filename.endswith(CONFIG_FILENAME_YAML):
+            namespace = read_config_file_yaml(filename, tags)
         return cls(namespace, overrides or {})
 
     def convert_overrides(self, name: str, value: Any) -> Any:
@@ -335,6 +361,20 @@ def eval_config_file(filename: str, tags: Optional[Tags]) -> Dict[str, Any]:
             msg = __("There is a programmable error in your configuration file:\n\n%s")
             raise ConfigError(msg % traceback.format_exc()) from exc
 
+    return namespace
+
+
+def read_config_file_yaml(filename: str, tags: Optional[Tags]) -> Dict[str, Any]:
+    """Evaluate a YAML config file."""
+    try:
+        with open(filename, encoding='utf-8') as fp:
+            namespace = yaml.safe_load(fp)
+    except Exception as exc:
+        msg = __("There is a syntax error in your configuration file:\n\n%s")
+        raise ConfigError(msg % traceback.format_exc()) from exc
+    if not isinstance(namespace, dict):
+        raise ConfigError(__("Configuration file is not a dictionary"))
+    namespace["tags"] = tags
     return namespace
 
 

@@ -125,7 +125,7 @@ class Sphinx:
     """The main application class and extensibility interface.
 
     :ivar srcdir: Directory containing source.
-    :ivar confdir: Directory containing ``conf.py``.
+    :ivar confdir: Directory containing ``conf.py`` or ``sphinx.yaml``.
     :ivar doctreedir: Directory for storing pickled doctrees.
     :ivar outdir: Directory for storing build documents.
     """
@@ -151,12 +151,9 @@ class Sphinx:
         self.srcdir = abspath(srcdir)
         self.outdir = abspath(outdir)
         self.doctreedir = abspath(doctreedir)
-        self.confdir = confdir
+        self.confdir = abspath(confdir) if confdir else confdir
         if self.confdir:  # confdir is optional
-            self.confdir = abspath(self.confdir)
-            if not path.isfile(path.join(self.confdir, 'conf.py')):
-                raise ApplicationError(__("config directory doesn't contain a "
-                                          "conf.py file (%s)") % confdir)
+            Config.get_config_file(self.confdir)
 
         if not path.isdir(self.srcdir):
             raise ApplicationError(__('Cannot find source directory (%s)') %
