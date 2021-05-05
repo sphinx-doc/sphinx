@@ -18,7 +18,7 @@ from typing import (TYPE_CHECKING, Any, Callable, Dict, Generator, Iterator, Lis
 
 import yaml
 
-from sphinx.errors import ApplicationError, ConfigError, ExtensionError
+from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
@@ -171,7 +171,7 @@ class Config:
         config_yaml = path.join(confdir, CONFIG_FILENAME_YAML)
         if path.isfile(config_py):
             if path.isfile(config_yaml):
-                raise ApplicationError(
+                raise ConfigError(
                     __("config directory contains both a %s and %s file (%s)"
                        ) % (CONFIG_FILENAME_PY, CONFIG_FILENAME_YAML, confdir)
                 )
@@ -179,7 +179,7 @@ class Config:
         elif path.isfile(config_yaml):
             namespace = read_config_file_yaml(config_yaml)
         else:
-            raise ApplicationError(
+            raise ConfigError(
                 __("config directory doesn't contain a "
                   "%s or %s file (%s)") % (CONFIG_FILENAME_PY, CONFIG_FILENAME_YAML, confdir)
             )
@@ -361,10 +361,10 @@ def read_config_file_yaml(filename: str) -> Dict[str, Any]:
         with open(filename, encoding='utf-8') as fp:
             namespace = yaml.safe_load(fp)
     except Exception as exc:
-        msg = __("There is a syntax error in your configuration file:\n\n%s")
-        raise ConfigError(msg % traceback.format_exc()) from exc
+        msg = __("There is a syntax error in your %s file:\n\n%s")
+        raise ConfigError(msg % (CONFIG_FILENAME_YAML, traceback.format_exc())) from exc
     if not isinstance(namespace, dict):
-        raise ConfigError(__("Configuration file is not a dictionary"))
+        raise ConfigError(__("%s file is not a dictionary") % CONFIG_FILENAME_YAML)
     return namespace
 
 
