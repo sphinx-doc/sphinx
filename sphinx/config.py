@@ -177,7 +177,7 @@ class Config:
                 )
             namespace = eval_config_file(config_py, tags)
         elif path.isfile(config_yaml):
-            namespace = read_config_file_yaml(config_yaml, tags)
+            namespace = read_config_file_yaml(config_yaml)
         else:
             raise ApplicationError(
                 __("config directory doesn't contain a "
@@ -355,7 +355,7 @@ def eval_config_file(filename: str, tags: Optional[Tags]) -> Dict[str, Any]:
     return namespace
 
 
-def read_config_file_yaml(filename: str, tags: Optional[Tags]) -> Dict[str, Any]:
+def read_config_file_yaml(filename: str) -> Dict[str, Any]:
     """Evaluate a YAML config file."""
     try:
         with open(filename, encoding='utf-8') as fp:
@@ -365,7 +365,6 @@ def read_config_file_yaml(filename: str, tags: Optional[Tags]) -> Dict[str, Any]
         raise ConfigError(msg % traceback.format_exc()) from exc
     if not isinstance(namespace, dict):
         raise ConfigError(__("Configuration file is not a dictionary"))
-    namespace["tags"] = tags
     return namespace
 
 
