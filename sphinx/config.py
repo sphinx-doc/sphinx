@@ -16,6 +16,8 @@ from os import getenv, path
 from typing import (TYPE_CHECKING, Any, Callable, Dict, Generator, Iterator, List, NamedTuple,
                     Optional, Set, Tuple, Union)
 
+import yaml
+
 from sphinx.errors import ApplicationError, ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -23,7 +25,6 @@ from sphinx.util.i18n import format_date
 from sphinx.util.osutil import cd, fs_encoding
 from sphinx.util.tags import Tags
 from sphinx.util.typing import NoneType
-import yaml
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -171,8 +172,10 @@ class Config:
         if path.isfile(config_py):
             if path.isfile(config_yaml):
                 raise ApplicationError(
-                    __("config directory contains both a "
-                    "%s and %s file (%s)") % (CONFIG_FILENAME_PY, CONFIG_FILENAME_YAML, confdir)
+                    __("config directory contains both "
+                    "a %s and %s file (%s)") % (
+                        CONFIG_FILENAME_PY, CONFIG_FILENAME_YAML, confdir
+                    )
                 )
             return config_py
         elif path.isfile(config_yaml):
