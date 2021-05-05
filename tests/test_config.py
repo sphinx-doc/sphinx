@@ -74,11 +74,7 @@ def test_core_config(app, status, warning):
     assert cfg['project'] == cfg.project == 'Sphinx Tests'
 
 
-@pytest.mark.sphinx(testroot='config_yaml', confoverrides={
-    'root_doc': 'root',
-    'nonexisting_value': 'True',
-    'latex_elements.maketitle': 'blah blah blah',
-    'modindex_common_prefix': 'path1,path2'})
+@pytest.mark.sphinx(testroot='config_yaml')
 def test_core_config_yaml(app, status, warning):
     cfg = app.config
 
@@ -86,29 +82,6 @@ def test_core_config_yaml(app, status, warning):
     assert 'project' in cfg.__dict__
     assert cfg.project == 'Sphinx <Tests>'
     assert cfg.templates_path == ['_templates']
-
-    # overrides
-    assert cfg.root_doc == 'root'
-    assert cfg.latex_elements['maketitle'] == 'blah blah blah'
-    assert cfg.modindex_common_prefix == ['path1', 'path2']
-
-    # simple default values
-    assert 'locale_dirs' not in cfg.__dict__
-    assert cfg.locale_dirs == ['locales']
-    assert cfg.trim_footnote_reference_space is False
-
-    # complex default values
-    assert 'html_title' not in cfg.__dict__
-    assert cfg.html_title == 'Sphinx <Tests> 0.6alpha1 documentation'
-
-    # complex default values mustn't raise
-    for valuename in cfg.config_values:
-        getattr(cfg, valuename)
-
-    # "contains" gives True both for set and unset values
-    assert 'project' in cfg
-    assert 'html_title' in cfg
-    assert 'nonexisting_value' not in cfg
 
 
 def test_extension_values():

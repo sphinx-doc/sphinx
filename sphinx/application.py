@@ -152,8 +152,6 @@ class Sphinx:
         self.outdir = abspath(outdir)
         self.doctreedir = abspath(doctreedir)
         self.confdir = abspath(confdir) if confdir else confdir
-        if self.confdir:  # confdir is optional
-            Config.get_config_file(self.confdir)
 
         if not path.isdir(self.srcdir):
             raise ApplicationError(__('Cannot find source directory (%s)') %

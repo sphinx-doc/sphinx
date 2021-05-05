@@ -165,8 +165,8 @@ class Config:
         self.extensions: List[str] = config.get('extensions', [])
 
     @classmethod
-    def get_config_file(cls, confdir: str) -> str:
-        """Check the configuration directory for a configuration file."""
+    def read(cls, confdir: str, overrides: Dict = None, tags: Tags = None) -> "Config":
+        """Create a Config object from a configuration file."""
         config_py = path.join(confdir, CONFIG_FILENAME_PY)
         config_yaml = path.join(confdir, CONFIG_FILENAME_YAML)
         if path.isfile(config_py):
@@ -175,24 +175,14 @@ class Config:
                     __("config directory contains both a %s and %s file (%s)"
                        ) % (CONFIG_FILENAME_PY, CONFIG_FILENAME_YAML, confdir)
                 )
-            return config_py
+            namespace = eval_config_file(config_py, tags)
         elif path.isfile(config_yaml):
-            return config_yaml
+            namespace = read_config_file_yaml(config_yaml, tags)
         else:
             raise ApplicationError(
                 __("config directory doesn't contain a "
                   "%s or %s file (%s)") % (CONFIG_FILENAME_PY, CONFIG_FILENAME_YAML, confdir)
             )
-
-    @classmethod
-    def read(cls, confdir: str, overrides: Dict = None, tags: Tags = None) -> "Config":
-        """Create a Config object from configuration file."""
-        filename = cls.get_config_file(confdir)
-        namespace = {}
-        if filename.endswith(CONFIG_FILENAME_PY):
-            namespace = eval_config_file(filename, tags)
-        elif filename.endswith(CONFIG_FILENAME_YAML):
-            namespace = read_config_file_yaml(filename, tags)
         return cls(namespace, overrides or {})
 
     def convert_overrides(self, name: str, value: Any) -> Any:
