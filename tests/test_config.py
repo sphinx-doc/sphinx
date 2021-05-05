@@ -159,8 +159,7 @@ def test_errors_warnings(logger, tempdir):
     assert logger.called is False
 
 
-@mock.patch("sphinx.config.logger")
-def test_errors_in_yaml_read(logger, tempdir):
+def test_errors_in_yaml_read(tempdir):
     # test the error for syntax errors in the config file
     (tempdir / 'sphinx.yaml').write_text('- 1\n', encoding='ascii')
     with pytest.raises(ConfigError, match='sphinx.yaml file is not a dictionary'):
