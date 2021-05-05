@@ -64,7 +64,7 @@ RoleFunction = Callable[[str, str, str, int, Inliner, Dict[str, Any], List[str]]
                         Tuple[List[nodes.Node], List[nodes.system_message]]]
 
 # A option spec for directive
-OptionSpec = Dict[str, Callable[[Optional[str]], Any]]
+OptionSpec = Dict[str, Callable[[str], Any]]
 
 # title getter functions for enumerable nodes (see sphinx.domains.std)
 TitleGetter = Callable[[nodes.Node], str]
