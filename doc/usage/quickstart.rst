@@ -251,6 +251,13 @@ config values.
 
 .. todo:: Move this entire doc to a different section
 
+.. versionadded:: 4.0.0
+
+   It is now possible to use a :file:`sphinx.yaml`,
+   in-place of the :file:`conf.py` (the two may not co-exist).
+   This should contain a valid `YAML <https://yaml.org>`__
+   dictionary of the configuration variables.
+
 Autodoc
 -------
 
