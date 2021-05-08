@@ -327,7 +327,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         ns['exceptions'], ns['all_exceptions'] = \
             get_members(obj, {'exception'}, imported=imported_members)
         ns['attributes'], ns['all_attributes'] = \
-            get_module_attrs(ns['members'])
+            get_module_attrs(dir(obj))
         ispackage = hasattr(obj, '__path__')
         if ispackage and recursive:
             ns['modules'], ns['all_modules'] = get_modules(obj)
