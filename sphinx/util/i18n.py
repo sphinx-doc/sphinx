@@ -91,8 +91,11 @@ class CatalogRepository:
 
         for locale_dir in self._locale_dirs:
             locale_dir = path.join(self.basedir, locale_dir)
-            if path.exists(path.join(locale_dir, self.language, 'LC_MESSAGES')):
+            locale_path = path.join(locale_dir, self.language, 'LC_MESSAGES')
+            if path.exists(locale_path):
                 yield locale_dir
+            else:
+                logger.verbose(__('locale_dir %s does not exists'), locale_path)
 
     @property
     def pofiles(self) -> Generator[Tuple[str, str], None, None]:
