@@ -1026,7 +1026,7 @@ class StandaloneHTMLBuilder(Builder):
 
         # revert script_files and css_files
         self.script_files[:] = self._script_files
-        self.css_files[:] = self.css_files
+        self.css_files[:] = self._css_files
 
         self.update_page_context(pagename, templatename, ctx, event_arg)
         newtmpl = self.app.emit_firstresult('html-page-context', pagename,
