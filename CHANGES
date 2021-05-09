@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #8380: html search: tags for search result are broken
+
 Testing
 --------
 
