@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #9188: autosummary: warning is emitted if list value is set to
+  autosummary_generate
+
 Testing
 --------
 
