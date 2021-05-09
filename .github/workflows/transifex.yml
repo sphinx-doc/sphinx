@@ -1,0 +1,25 @@
+name: Push translations to transifex.com
+
+on:
+  schedule:
+  - cron: "0 0 * * SUN"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        ref: 4.x
+    - name: Set up Python
+      uses: actions/setup-python@v2
+    - name: Install dependencies
+      run:  pip install -U babel jinja2 transifex-client
+    - name: Extract translations from source code
+      run:  python setup.py extract_messages
+    - name: Push translations to transifex.com
+      run:  cd sphinx/locale && tx push -s --no-interactive --parallel
+      env:
+        TX_TOKEN: ${{ secrets.TX_TOKEN }}
