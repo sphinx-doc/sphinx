@@ -794,6 +794,10 @@ documentation on :ref:`intl` for details.
 
    The default is ``['locales']``.
 
+   .. note:: The :option:`-v option for sphinx-build command <sphinx-build -v>`
+             is useful to check the locale_dirs config works as expected.  It
+             emits debug messages if message catalog directory not found.
+
    .. versionchanged:: 1.5
       Use ``locales`` directory as a default value
 
