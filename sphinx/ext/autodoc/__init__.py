@@ -951,7 +951,13 @@ class Documenter:
             return
 
         # generate the directive header and options, if applicable
-        self.add_directive_header(sig)
+        try:
+            self.add_directive_header(sig)
+        except Exception as exc:
+            logger.warning(__('error while adding directive header for %s: %s'),
+                           self.fullname, exc, type='autodoc')
+            return
+
         self.add_line('', sourcename)
 
         # e.g. the module directive doesn't have content
