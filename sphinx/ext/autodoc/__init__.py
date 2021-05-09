@@ -709,6 +709,8 @@ class Documenter:
             # if isattr is True, the member is documented as an attribute
             if member is INSTANCEATTR:
                 isattr = True
+            elif (namespace, membername) in attr_docs:
+                isattr = True
             else:
                 isattr = False
 
@@ -769,7 +771,6 @@ class Documenter:
                 else:
                     # keep documented attributes
                     keep = True
-                isattr = True
             elif want_all and isprivate:
                 if has_doc or self.options.undoc_members:
                     if self.options.private_members is None:
