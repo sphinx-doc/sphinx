@@ -129,8 +129,8 @@ class TokenProcessor:
         lines = iter(buffers)
         self.buffers = buffers
         self.tokens = tokenize.generate_tokens(lambda: next(lines))
-        self.current: Token = None
-        self.previous: Token = None
+        self.current: Optional[Token] = None
+        self.previous: Optional[Token] = None
 
     def get_line(self, lineno: int) -> str:
         """Returns specified line."""
@@ -178,7 +178,7 @@ class AfterCommentParser(TokenProcessor):
 
     def __init__(self, lines: List[str]) -> None:
         super().__init__(lines)
-        self.comment: str = None
+        self.comment: Optional[str] = None
 
     def fetch_rvalue(self) -> List[Token]:
         """Fetch right-hand value of assignment."""
@@ -223,16 +223,16 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.encoding = encoding
         self.context: List[str] = []
         self.current_classes: List[str] = []
-        self.current_function: ast.FunctionDef = None
+        self.current_function: Optional[ast.FunctionDef] = None
         self.comments: Dict[Tuple[str, str], str] = OrderedDict()
         self.annotations: Dict[Tuple[str, str], str] = {}
-        self.previous: ast.AST = None
+        self.previous: Optional[ast.AST] = None
         self.deforders: Dict[str, int] = {}
         self.finals: List[str] = []
         self.overloads: Dict[str, List[Signature]] = {}
-        self.typing: str = None
-        self.typing_final: str = None
-        self.typing_overload: str = None
+        self.typing: Optional[str] = None
+        self.typing_final: Optional[str] = None
+        self.typing_overload: Optional[str] = None
         super().__init__()
 
     def get_qualname_for(self, name: str) -> Optional[List[str]]:
@@ -308,7 +308,7 @@ class VariableCommentPicker(ast.NodeVisitor):
 
         return False
 
-    def get_self(self) -> ast.arg:
+    def get_self(self) -> Optional[ast.arg]:
         """Returns the name of first argument if in function."""
         if self.current_function and self.current_function.args.args:
             return self.current_function.args.args[0]
@@ -466,7 +466,7 @@ class DefinitionFinder(TokenProcessor):
 
     def __init__(self, lines: List[str]) -> None:
         super().__init__(lines)
-        self.decorator: Token = None
+        self.decorator: Optional[Token] = None
         self.context: List[str] = []
         self.indents: List = []
         self.definitions: Dict[str, Tuple[str, int, int]] = {}
