@@ -1,31 +1,16 @@
-Release 4.0.0 beta3 (in development)
-====================================
+Release 4.0.0 (released May 09, 2021)
+=====================================
 
 Dependencies
 ------------
 
-Incompatible changes
---------------------
+4.0.0b1
 
-Deprecated
-----------
+* Drop python 3.5 support
+* Drop docutils 0.12 and 0.13 support
+* LaTeX: add ``tex-gyre`` font dependency
 
-Features added
---------------
-
-Bugs fixed
-----------
-
-* #9167: html: Failed to add CSS files to the specific page
-
-Testing
---------
-
-Release 4.0.0 beta2 (released Apr 29, 2021)
-===========================================
-
-Dependencies
-------------
+4.0.0b2
 
 * Support docutils-0.17.  Please notice it changes the output of HTML builder.
   Some themes do not support it, and you need to update your custom CSS to
@@ -34,43 +19,7 @@ Dependencies
 Incompatible changes
 --------------------
 
-* #9023: Change the CSS classes on :rst:role:`cpp:expr` and
-  :rst:role:`cpp:texpr`.
-
-Features added
---------------
-
-* #8818: autodoc: Super class having ``Any`` arguments causes nit-picky warning
-* #9095: autodoc: TypeError is raised on processing broken metaclass
-* #9110: autodoc: metadata of GenericAlias is not rendered as a reference in
-  py37+
-* #9098: html: copy-range protection for doctests doesn't work in Safari
-* #9103: LaTeX: imgconverter: conversion runs even if not needed
-* #8127: py domain: Ellipsis in info-field-list causes nit-picky warning
-* #9121: py domain: duplicated warning is emitted when both canonical and its
-  alias objects are defined on the document
-* #9023: More CSS classes on domain descriptions, see :ref:`nodes` for details.
-* #8195: mathjax: Rename :confval:`mathjax_config` to
-  :confval:`mathjax2_config` and add :confval:`mathjax3_config`
-
-Bugs fixed
-----------
-
-* C, C++, fix ``KeyError`` when an ``alias`` directive is the first C/C++
-  directive in a file with another C/C++ directive later.
-
-Release 4.0.0 beta1 (released Apr 12, 2021)
-===========================================
-
-Dependencies
-------------
-
-* Drop python 3.5 support
-* Drop docutils 0.12 and 0.13 support
-* LaTeX: add ``tex-gyre`` font dependency
-
-Incompatible changes
---------------------
+4.0.0b1
 
 * #8539: autodoc: info-field-list is generated into the class description when
   ``autodoc_typehints='description'`` and ``autoclass_content='class'`` set
@@ -107,6 +56,11 @@ Incompatible changes
 * #8487: The :file: option for csv-table directive now recognizes an absolute
   path as a relative path from source directory
 
+4.0.0b2
+
+* #9023: Change the CSS classes on :rst:role:`cpp:expr` and
+  :rst:role:`cpp:texpr`.
+
 Deprecated
 ----------
 
@@ -127,6 +81,8 @@ Deprecated
 
 Features added
 --------------
+
+4.0.0b1
 
 * #8924: autodoc: Support ``bound`` argument for TypeVar
 * #7383: autodoc: Support typehints for properties
@@ -157,8 +113,25 @@ Features added
 * #7199: A new node, ``sphinx.addnodes.pending_xref_condition`` has been added.
   It can be used to choose appropriate content of the reference by conditions.
 
+4.0.0b2
+
+* #8818: autodoc: Super class having ``Any`` arguments causes nit-picky warning
+* #9095: autodoc: TypeError is raised on processing broken metaclass
+* #9110: autodoc: metadata of GenericAlias is not rendered as a reference in
+  py37+
+* #9098: html: copy-range protection for doctests doesn't work in Safari
+* #9103: LaTeX: imgconverter: conversion runs even if not needed
+* #8127: py domain: Ellipsis in info-field-list causes nit-picky warning
+* #9121: py domain: duplicated warning is emitted when both canonical and its
+  alias objects are defined on the document
+* #9023: More CSS classes on domain descriptions, see :ref:`nodes` for details.
+* #8195: mathjax: Rename :confval:`mathjax_config` to
+  :confval:`mathjax2_config` and add :confval:`mathjax3_config`
+
 Bugs fixed
 ----------
+
+4.0.0b1
 
 * #8917: autodoc: Raises a warning if function has wrong __globals__ value
 * #8415: autodoc: a TypeVar imported from other module is not resolved (in
@@ -193,6 +166,15 @@ Bugs fixed
 * C++, fix linking of names in array declarators, pointer to member
   (function) declarators, and in the argument to ``sizeof...``.
 * C, fix linking of names in array declarators.
+
+4.0.0b2
+
+* C, C++, fix ``KeyError`` when an ``alias`` directive is the first C/C++
+  directive in a file with another C/C++ directive later.
+
+4.0.0b3
+
+* #9167: html: Failed to add CSS files to the specific page
 
 Release 3.5.5 (in development)
 ==============================
