@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #9189: autodoc: crashed when ValueError is raised on generating signature
+  from a property of the class
+
 Testing
 --------
 
