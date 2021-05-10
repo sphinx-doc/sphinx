@@ -45,7 +45,7 @@ Bugs fixed
 Testing
 --------
 
-Release 4.0.1 (in development)
+Release 4.0.2 (in development)
 ==============================
 
 Dependencies
@@ -65,6 +65,22 @@ Bugs fixed
 
 Testing
 --------
+
+Release 4.0.1 (released May 11, 2021)
+=====================================
+
+Bugs fixed
+----------
+
+* #9189: autodoc: crashed when ValueError is raised on generating signature
+  from a property of the class
+* #9188: autosummary: warning is emitted if list value is set to
+  autosummary_generate
+* #8380: html search: tags for search result are broken
+* #9198: i18n: Babel emits errors when running compile_catalog
+* #9205: py domain: The :canonical: option causes "more than one target for
+  cross-reference" warning
+* #9201: websupport: UndefinedError is raised: 'css_tag' is undefined
 
 Release 4.0.0 (released May 09, 2021)
 =====================================

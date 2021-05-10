@@ -1269,9 +1269,13 @@ class PythonDomain(Domain):
         if not matches:
             return None
         elif len(matches) > 1:
-            logger.warning(__('more than one target found for cross-reference %r: %s'),
-                           target, ', '.join(match[0] for match in matches),
-                           type='ref', subtype='python', location=node)
+            canonicals = [m for m in matches if not m[1].aliased]
+            if len(canonicals) == 1:
+                matches = canonicals
+            else:
+                logger.warning(__('more than one target found for cross-reference %r: %s'),
+                               target, ', '.join(match[0] for match in matches),
+                               type='ref', subtype='python', location=node)
         name, obj = matches[0]
 
         if obj[2] == 'module':

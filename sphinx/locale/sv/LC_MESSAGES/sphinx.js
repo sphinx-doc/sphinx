@@ -13,7 +13,7 @@ Documentation.addTranslations({
         "Complete Table of Contents": "Komplett Inneh\u00e5llsf\u00f6rteckning",
         "Contents": "Inneh\u00e5ll",
         "Copyright": "Copyright",
-        "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "Skapad med <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.",
+        "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "",
         "Expand sidebar": "Expandera sidolist",
         "Full index on one page": "Hela inneh\u00e5llsf\u00f6rteckningen p\u00e5 en sida",
         "General Index": "Huvudindex",

@@ -13,7 +13,7 @@ Documentation.addTranslations({
         "Complete Table of Contents": "Teljes tartalomjegyz\u00e9k",
         "Contents": "Tartalom",
         "Copyright": "Minden jog fenntartva",
-        "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "<a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s haszn\u00e1lat\u00e1val k\u00e9sz\u00fclt.",
+        "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "",
         "Expand sidebar": "Oldals\u00e1v kinyit\u00e1sa",
         "Full index on one page": "Teljes t\u00e1rgymutat\u00f3 egy oldalon",
         "General Index": "\u00c1ltal\u00e1nos t\u00e1rgymutat\u00f3",

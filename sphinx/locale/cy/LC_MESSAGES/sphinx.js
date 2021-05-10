@@ -13,7 +13,7 @@ Documentation.addTranslations({
         "Complete Table of Contents": "Tabl Cynnwys Llawn",
         "Contents": "Cynnwys",
         "Copyright": "Hawlfraint",
-        "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "Cr\u8c37wyd gan ddefnyddio <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s",
+        "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "",
         "Expand sidebar": "Ehangu'r bar ochr",
         "Full index on one page": "Indecs llawn ar un tudalen",
         "General Index": "Indecs cyffredinol",

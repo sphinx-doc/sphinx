@@ -2922,7 +2922,7 @@ msgstr ""
 #: sphinx/ext/autodoc/type_comment.py:133
 #, python-format
 msgid "Failed to parse type_comment for %r: %s"
-msgstr "无法解析 type_comment %s"
+msgstr ""
 
 #: sphinx/ext/autosummary/__init__.py:259
 #, python-format
