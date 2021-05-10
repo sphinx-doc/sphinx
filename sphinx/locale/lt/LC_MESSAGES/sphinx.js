@@ -13,7 +13,7 @@ Documentation.addTranslations({
         "Complete Table of Contents": "Pilnas Turinys",
         "Contents": "Turinys",
         "Copyright": "Autoriaus teis\u0117s",
-        "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "Sukurta naudojant <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.",
+        "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "",
         "Expand sidebar": "I\u0161pl\u0117sti \u0161onin\u0119 juost\u0105",
         "Full index on one page": "Pilnas indeksas viename puslapyje",
         "General Index": "Bendras indeksas",

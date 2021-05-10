@@ -13,7 +13,7 @@ Documentation.addTranslations({
         "Complete Table of Contents": "Eduki taula osoa",
         "Contents": "Edukiak",
         "Copyright": "Copyright",
-        "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "<a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s erabiliz sortutakoa.",
+        "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "",
         "Expand sidebar": "Alboko barra luzatu",
         "Full index on one page": "Indize guztia orri batean",
         "General Index": "Indize orokorra",

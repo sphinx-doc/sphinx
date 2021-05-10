@@ -385,7 +385,7 @@ msgstr "شاخص %r قبلاً برای دامنه %s ثبت شده"
 #: sphinx/registry.py:232
 #, python-format
 msgid "The %r object_type is already registered"
-msgstr "نوع شیئ(object_type) ٪r قبلاً برای دامنه %s ثبت شده"
+msgstr ""
 
 #: sphinx/registry.py:252
 #, python-format
@@ -1587,7 +1587,7 @@ msgstr "ایجاد پرونده‌ی %s."
 #: sphinx/cmd/quickstart.py:367 sphinx/ext/apidoc.py:87
 #, python-format
 msgid "File %s already exists, skipping."
-msgstr "پرونده‌ی %r در حال حاضر وجود دارد، رد شدن."
+msgstr "پرونده‌ی %s در حال حاضر وجود دارد، رد شدن."
 
 #: sphinx/cmd/quickstart.py:409
 msgid "Finished: An initial directory structure has been created."
@@ -2321,7 +2321,7 @@ msgstr "پویش اسناد %s: %r شکست خورد"
 #: sphinx/environment/__init__.py:504
 #, python-format
 msgid "Domain %r is not registered"
-msgstr "دامنه ی %s ثبت نشده"
+msgstr "دامنه ی %r ثبت نشده"
 
 #: sphinx/environment/__init__.py:585
 msgid "self referenced toctree found. Ignored."
@@ -2859,12 +2859,12 @@ msgstr "ویژگی نایاب در گزینه‌ی :members: قید شده: پی
 #: sphinx/ext/autodoc/__init__.py:2570
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
-msgstr "شکست در دریافت امضای تابع برای %r: مؤلّفه پیدا نشد: %s"
+msgstr "شکست در دریافت امضای تابع برای %s: مؤلّفه پیدا نشد: %s"
 
 #: sphinx/ext/autodoc/__init__.py:1531
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
-msgstr "شکست در دریافت امضای سازنده‌ی شیئ برای %r: مؤلّفه پیدا نشد: %s"
+msgstr "شکست در دریافت امضای سازنده‌ی شیئ برای %s: مؤلّفه پیدا نشد: %s"
 
 #: sphinx/ext/autodoc/__init__.py:1620 sphinx/ext/autodoc/__init__.py:1624
 #, python-format
@@ -2885,7 +2885,7 @@ msgstr "نام جانشین نوع متغیر(%s)"
 #: sphinx/ext/autodoc/__init__.py:2064 sphinx/ext/autodoc/__init__.py:2158
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
-msgstr "شکست در دریافت امضای شگرد برای %r: مؤلّفه پیدا نشد: %s"
+msgstr "شکست در دریافت امضای شگرد برای %s: مؤلّفه پیدا نشد: %s"
 
 #: sphinx/ext/autodoc/__init__.py:2247
 #, python-format
