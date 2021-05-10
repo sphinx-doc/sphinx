@@ -13,7 +13,7 @@ Documentation.addTranslations({
         "Complete Table of Contents": "Popoln Seznam Vsebine",
         "Contents": "",
         "Copyright": "Vse pravice pridr\u017eane",
-        "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "Narejeno s <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.",
+        "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "",
         "Expand sidebar": "",
         "Full index on one page": "Poln indeks na eni strani",
         "General Index": "Splo\u0161ni abecedni seznam",

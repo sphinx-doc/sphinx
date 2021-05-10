@@ -13,7 +13,7 @@ Documentation.addTranslations({
         "Complete Table of Contents": "Cuprinsul Complet",
         "Contents": "Cuprins",
         "Copyright": "Drepturi de autor",
-        "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "Generat cu <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.",
+        "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "",
         "Expand sidebar": "Expandare bar\u0103 lateral\u0103",
         "Full index on one page": "Index complet",
         "General Index": "Index General",

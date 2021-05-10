@@ -641,7 +641,7 @@ msgstr ""
 #: sphinx/builders/latex/__init__.py:429 sphinx/builders/texinfo.py:186
 #, python-format
 msgid "cannot copy image file %r: %s"
-msgstr "لا تستطيع نسخة ملف صورة %s:"
+msgstr ""
 
 #: sphinx/builders/_epub_base.py:435
 #, python-format
@@ -909,7 +909,7 @@ msgstr "صفحة الHTML موجودة في  %(outdir)s"
 #: sphinx/builders/html/__init__.py:372
 #, python-format
 msgid "Failed to read build info file: %r"
-msgstr "فشل في قراءة معلومات ملف البناء"
+msgstr ""
 
 #: sphinx/builders/html/__init__.py:466 sphinx/builders/latex/__init__.py:187
 #: sphinx/transforms/__init__.py:116 sphinx/writers/manpage.py:99

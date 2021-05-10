@@ -313,7 +313,7 @@ class TocTree:
         return toc
 
     def get_toctree_for(self, docname: str, builder: "Builder", collapse: bool,
-                        **kwargs: Any) -> Element:
+                        **kwargs: Any) -> Optional[Element]:
         """Return the global TOC nodetree."""
         doctree = self.env.get_doctree(self.env.config.root_doc)
         toctrees: List[Element] = []
