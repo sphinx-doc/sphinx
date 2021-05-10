@@ -2570,7 +2570,7 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
                                self.fullname, exc)
                 return None
             except ValueError:
-                raise
+                return None
 
 
 class NewTypeAttributeDocumenter(AttributeDocumenter):
