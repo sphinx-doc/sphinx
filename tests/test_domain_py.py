@@ -236,6 +236,17 @@ def test_domain_py_find_obj(app, status, warning):
               ('roles', 'NestedParentA.NestedChildA.subchild_1', 'method', False))])
 
 
+@pytest.mark.sphinx('html', testroot='domain-py', freshenv=True)
+def test_domain_py_canonical(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'canonical.html').read_text()
+    assert ('<a class="reference internal" href="#canonical.Foo" title="canonical.Foo">'
+            '<code class="xref py py-class docutils literal notranslate">'
+            '<span class="pre">Foo</span></code></a>' in content)
+    assert warning.getvalue() == ''
+
+
 def test_get_full_qualified_name():
     env = Mock(domaindata={})
     domain = PythonDomain(env)
