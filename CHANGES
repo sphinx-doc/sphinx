@@ -22,6 +22,8 @@ Bugs fixed
   autosummary_generate
 * #8380: html search: tags for search result are broken
 * #9198: i18n: Babel emits errors when running compile_catalog
+* #9205: py domain: The :canonical: option causes "more than one target for
+  cross-reference" warning
 
 Testing
 --------
