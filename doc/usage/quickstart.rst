@@ -254,7 +254,7 @@ config values.
 .. versionadded:: 4.0.0
 
    It is now possible to use a :file:`sphinx.yaml`,
-   in-place of the :file:`conf.py` (the two may not co-exist).
+   in-place of the :file:`conf.py` (the two must not co-exist).
    This should contain a valid `YAML <https://yaml.org>`__
    dictionary of the configuration variables.
 
