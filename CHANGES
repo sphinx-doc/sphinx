@@ -20,6 +20,7 @@ Bugs fixed
   from a property of the class
 * #9188: autosummary: warning is emitted if list value is set to
   autosummary_generate
+* #8380: html search: tags for search result are broken
 * #9198: i18n: Babel emits errors when running compile_catalog
 
 Testing
