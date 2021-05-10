@@ -24,6 +24,7 @@ Bugs fixed
 * #9198: i18n: Babel emits errors when running compile_catalog
 * #9205: py domain: The :canonical: option causes "more than one target for
   cross-reference" warning
+* #9201: websupport: UndefinedError is raised: 'css_tag' is undefined
 
 Testing
 --------
