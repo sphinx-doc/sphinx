@@ -13,7 +13,7 @@ Documentation.addTranslations({
         "Complete Table of Contents": "Detaljni sadr\u017eaj",
         "Contents": "Sadr\u017eaj",
         "Copyright": "Sva prava zadr\u017eana",
-        "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "Izra\u0111eno sa <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.",
+        "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "",
         "Expand sidebar": "Poka\u017ei pomo\u0107nu traku",
         "Full index on one page": "Potpun indeks na jednoj stranici",
         "General Index": "Opceniti abecedni indeks",

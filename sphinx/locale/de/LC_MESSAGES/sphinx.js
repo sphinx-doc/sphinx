@@ -13,7 +13,7 @@ Documentation.addTranslations({
         "Complete Table of Contents": "Vollst\u00e4ndiges Inhaltsverzeichnis",
         "Contents": "Inhalt",
         "Copyright": "Copyright",
-        "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "Mit <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s erstellt.",
+        "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "",
         "Expand sidebar": "Seitenleiste ausklappen",
         "Full index on one page": "Gesamtes Stichwortverzeichnis auf einer Seite",
         "General Index": "Stichwortverzeichnis",
