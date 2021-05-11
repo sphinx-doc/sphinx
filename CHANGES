@@ -25,6 +25,8 @@ Features added
   ``foo.bar.BazClass``
 * #9175: autodoc: Special member is not documented in the module
 * #9195: autodoc: The arguments of ``typing.Literal`` are wrongly rendered
+* #9185: autodoc: :confval:`autodoc_typehints` allows ``'both'`` setting to
+  allow typehints to be included both in the signature and description
 * #3257: autosummary: Support instance attributes for classes
 * #9129: html search: Show search summaries when html_copy_source = False
 * #9120: html theme: Eliminate prompt characters of code-block from copyable
@@ -42,6 +44,7 @@ Bugs fixed
 * #8872: autodoc: stacked singledispatches are wrongly rendered
 * #8597: autodoc: a docsting having metadata only should be treated as
   undocumented
+* #9185: autodoc: typehints for overloaded functions and methods are inaccurate
 
 Testing
 --------
