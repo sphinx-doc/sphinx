@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #9210: viewcode: crashed if non importable modules found on parallel build
+
 Testing
 --------
 
