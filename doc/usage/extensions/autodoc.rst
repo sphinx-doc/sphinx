@@ -590,7 +590,7 @@ There are also config values that you can set:
 
       New option ``'description'`` is added.
 
-   .. versionadded:: 4.0
+   .. versionadded:: 4.1
 
       New option ``'both'`` is added.
 
