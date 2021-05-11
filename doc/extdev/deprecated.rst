@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.application.Sphinx.html_theme``
+     - 4.1
+     - 6.0
+     - ``sphinx.registry.SphinxComponentRegistry.html_themes``
+
    * - ``sphinx.util.docstrings.extract_metadata()``
      - 4.1
      - 6.0

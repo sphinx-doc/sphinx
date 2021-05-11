@@ -155,7 +155,7 @@ class HTMLThemeFactory:
 
     def __init__(self, app: "Sphinx") -> None:
         self.app = app
-        self.themes = app.html_themes
+        self.themes = app.registry.html_themes
         self.load_builtin_themes()
         if getattr(app.config, 'html_theme_path', None):
             self.load_additional_themes(app.config.html_theme_path)

@@ -12,6 +12,7 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.application.Sphinx.html_theme``
 * ``sphinx.util.docstrings.extract_metadata()``
 
 Features added
