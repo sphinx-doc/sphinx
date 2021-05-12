@@ -24,7 +24,7 @@ from sphinx.locale import __
 from sphinx.util import docutils, logging
 
 try:
-    from jinja2.utils import pass_environment  # type: ignore  # jinja2-3.0 or above
+    from jinja2.utils import pass_environment
 except ImportError:
     from jinja2 import environmentfilter as pass_environment
 
@@ -61,7 +61,7 @@ def textwidth(text: str, widechars: str = 'WF') -> int:
 def heading(env: Environment, text: str, level: int = 1) -> str:
     """Create a heading for *level*."""
     assert level <= 3
-    width = textwidth(text, WIDECHARS[env.language])  # type: ignore
+    width = textwidth(text, WIDECHARS[env.language])
     sectioning_char = SECTIONING_CHARS[level - 1]
     return '%s\n%s' % (text, sectioning_char * width)
 

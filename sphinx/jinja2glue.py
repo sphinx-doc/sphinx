@@ -23,7 +23,7 @@ from sphinx.util import logging
 from sphinx.util.osutil import mtimes_of_files
 
 try:
-    from jinja2.utils import pass_context  # type: ignore # jinja2-3.0 or above
+    from jinja2.utils import pass_context
 except ImportError:
     from jinja2 import contextfunction as pass_context
 
