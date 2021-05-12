@@ -133,6 +133,12 @@ def test_restify_type_ForwardRef():
     assert restify(ForwardRef("myint")) == ":class:`myint`"
 
 
+@pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
+def test_restify_type_Literal():
+    from typing import Literal  # type: ignore
+    assert restify(Literal[1, "2", "\r"]) == ":obj:`~typing.Literal`\\ [1, '2', '\\r']"
+
+
 @pytest.mark.skipif(sys.version_info < (3, 10), reason='python 3.10+ is required.')
 def test_restify_type_union_operator():
     assert restify(int | None) == "Optional[:class:`int`]"  # type: ignore
@@ -235,6 +241,12 @@ def test_stringify_type_hints_alias():
     MyTuple = Tuple[str, str]
     assert stringify(MyStr) == "str"
     assert stringify(MyTuple) == "Tuple[str, str]"  # type: ignore
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
+def test_stringify_type_Literal():
+    from typing import Literal  # type: ignore
+    assert stringify(Literal[1, "2", "\r"]) == "Literal[1, '2', '\\r']"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 10), reason='python 3.10+ is required.')
