@@ -9,4 +9,9 @@
 % formatting of directives can be achieved by renewing the definition of this
 % environment, and branching on the value of the argument.
 
-\newenvironment{sphinxclass}[1]{}{}
+\ifx\sphinxclass\undefined % poor man's "provideenvironment"
+    \newenvironment{sphinxclass}[1]{
+        \def\sphinxClassFunctionName{sphinxCLASS#1}%
+        \csname \sphinxClassFunctionName \endcsname}%
+    {\csname end\sphinxClassFunctionName \endcsname}%
+\fi
