@@ -4,12 +4,15 @@ Release 4.1.0 (in development)
 Dependencies
 ------------
 
+* Support jinja2-3.0
+
 Incompatible changes
 --------------------
 
 Deprecated
 ----------
 
+* ``sphinx.application.Sphinx.html_theme``
 * ``sphinx.util.docstrings.extract_metadata()``
 
 Features added
@@ -21,10 +24,19 @@ Features added
 * #8588: autodoc: :confval:`autodoc_type_aliases` now supports dotted name. It
   allows you to define an alias for a class with module name like
   ``foo.bar.BazClass``
+* #9175: autodoc: Special member is not documented in the module
+* #9195: autodoc: The arguments of ``typing.Literal`` are wrongly rendered
+* #9185: autodoc: :confval:`autodoc_typehints` allows ``'both'`` setting to
+  allow typehints to be included both in the signature and description
+* #3257: autosummary: Support instance attributes for classes
 * #9129: html search: Show search summaries when html_copy_source = False
 * #9120: html theme: Eliminate prompt characters of code-block from copyable
   text
+* #9176: i18n: Emit a debug message if message catalog file not found under
+  :confval:`locale_dirs`
 * #9097: Optimize the paralell build
+* #9131: Add :confval:`nitpick_ignore_regex` to ignore nitpicky warnings using
+  regular expressions
 
 
 Bugs fixed
@@ -33,12 +45,13 @@ Bugs fixed
 * #8872: autodoc: stacked singledispatches are wrongly rendered
 * #8597: autodoc: a docsting having metadata only should be treated as
   undocumented
+* #9185: autodoc: typehints for overloaded functions and methods are inaccurate
 
 Testing
 --------
 
-Release 4.0.0 beta3 (in development)
-====================================
+Release 4.0.2 (in development)
+==============================
 
 Dependencies
 ------------
@@ -55,14 +68,40 @@ Features added
 Bugs fixed
 ----------
 
+* #9210: viewcode: crashed if non importable modules found on parallel build
+
 Testing
 --------
 
-Release 4.0.0 beta2 (released Apr 29, 2021)
-===========================================
+Release 4.0.1 (released May 11, 2021)
+=====================================
+
+Bugs fixed
+----------
+
+* #9189: autodoc: crashed when ValueError is raised on generating signature
+  from a property of the class
+* #9188: autosummary: warning is emitted if list value is set to
+  autosummary_generate
+* #8380: html search: tags for search result are broken
+* #9198: i18n: Babel emits errors when running compile_catalog
+* #9205: py domain: The :canonical: option causes "more than one target for
+  cross-reference" warning
+* #9201: websupport: UndefinedError is raised: 'css_tag' is undefined
+
+Release 4.0.0 (released May 09, 2021)
+=====================================
 
 Dependencies
 ------------
+
+4.0.0b1
+
+* Drop python 3.5 support
+* Drop docutils 0.12 and 0.13 support
+* LaTeX: add ``tex-gyre`` font dependency
+
+4.0.0b2
 
 * Support docutils-0.17.  Please notice it changes the output of HTML builder.
   Some themes do not support it, and you need to update your custom CSS to
@@ -71,43 +110,7 @@ Dependencies
 Incompatible changes
 --------------------
 
-* #9023: Change the CSS classes on :rst:role:`cpp:expr` and
-  :rst:role:`cpp:texpr`.
-
-Features added
---------------
-
-* #8818: autodoc: Super class having ``Any`` arguments causes nit-picky warning
-* #9095: autodoc: TypeError is raised on processing broken metaclass
-* #9110: autodoc: metadata of GenericAlias is not rendered as a reference in
-  py37+
-* #9098: html: copy-range protection for doctests doesn't work in Safari
-* #9103: LaTeX: imgconverter: conversion runs even if not needed
-* #8127: py domain: Ellipsis in info-field-list causes nit-picky warning
-* #9121: py domain: duplicated warning is emitted when both canonical and its
-  alias objects are defined on the document
-* #9023: More CSS classes on domain descriptions, see :ref:`nodes` for details.
-* #8195: mathjax: Rename :confval:`mathjax_config` to
-  :confval:`mathjax2_config` and add :confval:`mathjax3_config`
-
-Bugs fixed
-----------
-
-* C, C++, fix ``KeyError`` when an ``alias`` directive is the first C/C++
-  directive in a file with another C/C++ directive later.
-
-Release 4.0.0 beta1 (released Apr 12, 2021)
-===========================================
-
-Dependencies
-------------
-
-* Drop python 3.5 support
-* Drop docutils 0.12 and 0.13 support
-* LaTeX: add ``tex-gyre`` font dependency
-
-Incompatible changes
---------------------
+4.0.0b1
 
 * #8539: autodoc: info-field-list is generated into the class description when
   ``autodoc_typehints='description'`` and ``autoclass_content='class'`` set
@@ -144,6 +147,11 @@ Incompatible changes
 * #8487: The :file: option for csv-table directive now recognizes an absolute
   path as a relative path from source directory
 
+4.0.0b2
+
+* #9023: Change the CSS classes on :rst:role:`cpp:expr` and
+  :rst:role:`cpp:texpr`.
+
 Deprecated
 ----------
 
@@ -164,6 +172,8 @@ Deprecated
 
 Features added
 --------------
+
+4.0.0b1
 
 * #8924: autodoc: Support ``bound`` argument for TypeVar
 * #7383: autodoc: Support typehints for properties
@@ -194,8 +204,25 @@ Features added
 * #7199: A new node, ``sphinx.addnodes.pending_xref_condition`` has been added.
   It can be used to choose appropriate content of the reference by conditions.
 
+4.0.0b2
+
+* #8818: autodoc: Super class having ``Any`` arguments causes nit-picky warning
+* #9095: autodoc: TypeError is raised on processing broken metaclass
+* #9110: autodoc: metadata of GenericAlias is not rendered as a reference in
+  py37+
+* #9098: html: copy-range protection for doctests doesn't work in Safari
+* #9103: LaTeX: imgconverter: conversion runs even if not needed
+* #8127: py domain: Ellipsis in info-field-list causes nit-picky warning
+* #9121: py domain: duplicated warning is emitted when both canonical and its
+  alias objects are defined on the document
+* #9023: More CSS classes on domain descriptions, see :ref:`nodes` for details.
+* #8195: mathjax: Rename :confval:`mathjax_config` to
+  :confval:`mathjax2_config` and add :confval:`mathjax3_config`
+
 Bugs fixed
 ----------
+
+4.0.0b1
 
 * #8917: autodoc: Raises a warning if function has wrong __globals__ value
 * #8415: autodoc: a TypeVar imported from other module is not resolved (in
@@ -230,6 +257,15 @@ Bugs fixed
 * C++, fix linking of names in array declarators, pointer to member
   (function) declarators, and in the argument to ``sizeof...``.
 * C, fix linking of names in array declarators.
+
+4.0.0b2
+
+* C, C++, fix ``KeyError`` when an ``alias`` directive is the first C/C++
+  directive in a file with another C/C++ directive later.
+
+4.0.0b3
+
+* #9167: html: Failed to add CSS files to the specific page
 
 Release 3.5.5 (in development)
 ==============================

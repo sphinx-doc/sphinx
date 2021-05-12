@@ -14,6 +14,7 @@ import os
 import pickle
 import platform
 import sys
+import warnings
 from collections import deque
 from io import StringIO
 from os import path
@@ -29,6 +30,7 @@ from pygments.lexer import Lexer
 import sphinx
 from sphinx import locale, package_dir
 from sphinx.config import Config
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.domains import Domain, Index
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
@@ -141,11 +143,10 @@ class Sphinx:
         self.phase = BuildPhase.INITIALIZATION
         self.verbosity = verbosity
         self.extensions: Dict[str, Extension] = {}
-        self.builder: Builder = None
-        self.env: BuildEnvironment = None
-        self.project: Project = None
+        self.builder: Optional[Builder] = None
+        self.env: Optional[BuildEnvironment] = None
+        self.project: Optional[Project] = None
         self.registry = SphinxComponentRegistry()
-        self.html_themes: Dict[str, str] = {}
 
         # validate provided directories
         self.srcdir = abspath(srcdir)
@@ -174,7 +175,7 @@ class Sphinx:
 
         if status is None:
             self._status: IO = StringIO()
-            self.quiet = True
+            self.quiet: bool = True
         else:
             self._status = status
             self.quiet = False
@@ -1184,13 +1185,13 @@ class Sphinx:
     def add_html_theme(self, name: str, theme_path: str) -> None:
         """Register a HTML Theme.
 
-        The *name* is a name of theme, and *path* is a full path to the theme
-        (refs: :ref:`distribute-your-theme`).
+        The *name* is a name of theme, and *theme_path* is a full path to the
+        theme (refs: :ref:`distribute-your-theme`).
 
         .. versionadded:: 1.6
         """
         logger.debug('[app] adding HTML theme: %r, %r', name, theme_path)
-        self.html_themes[name] = theme_path
+        self.registry.add_html_theme(name, theme_path)
 
     def add_html_math_renderer(self, name: str,
                                inline_renderers: Tuple[Callable, Callable] = None,
@@ -1256,6 +1257,12 @@ class Sphinx:
                 return False
 
         return True
+
+    @property
+    def html_themes(self) -> Dict[str, str]:
+        warnings.warn('app.html_themes is deprecated.',
+                      RemovedInSphinx60Warning)
+        return self.registry.html_themes
 
 
 class TemplateBridge:

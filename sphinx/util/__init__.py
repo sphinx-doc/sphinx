@@ -22,8 +22,8 @@ from datetime import datetime
 from importlib import import_module
 from os import path
 from time import mktime, strptime
-from typing import (IO, TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, List, Pattern,
-                    Set, Tuple, Type)
+from typing import (IO, TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, List, Optional,
+                    Pattern, Set, Tuple, Type)
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
 from sphinx.deprecation import RemovedInSphinx50Warning
@@ -235,7 +235,7 @@ def save_traceback(app: "Sphinx") -> str:
                    platform.python_version(),
                    platform.python_implementation(),
                    docutils.__version__, docutils.__version_details__,
-                   jinja2.__version__,  # type: ignore
+                   jinja2.__version__,
                    last_msgs)).encode())
     if app is not None:
         for ext in app.extensions.values():
@@ -408,7 +408,7 @@ def import_object(objname: str, source: str = None) -> Any:
             raise ExtensionError('Could not import %s' % objname, exc) from exc
 
 
-def split_full_qualified_name(name: str) -> Tuple[str, str]:
+def split_full_qualified_name(name: str) -> Tuple[Optional[str], str]:
     """Split full qualified name to a pair of modname and qualname.
 
     A qualname is an abbreviation for "Qualified name" introduced at PEP-3155

@@ -202,10 +202,7 @@ def test_signature_annotations():
 
     # Instance annotations
     sig = inspect.signature(f11)
-    if sys.version_info < (3, 10):
-        assert stringify_signature(sig) == '(x: CustomAnnotation, y: 123) -> None'
-    else:
-        assert stringify_signature(sig) == '(x: CustomAnnotation(), y: 123) -> None'
+    assert stringify_signature(sig) == '(x: CustomAnnotation, y: 123) -> None'
 
     # tuple with more than two items
     sig = inspect.signature(f12)
@@ -217,7 +214,11 @@ def test_signature_annotations():
 
     # optional union
     sig = inspect.signature(f20)
-    assert stringify_signature(sig) == '() -> Optional[Union[int, str]]'
+    if sys.version_info < (3, 7):
+        assert stringify_signature(sig) in ('() -> Optional[Union[int, str]]',
+                                            '() -> Optional[Union[str, int]]')
+    else:
+        assert stringify_signature(sig) == '() -> Optional[Union[int, str]]'
 
     # Any
     sig = inspect.signature(f14)

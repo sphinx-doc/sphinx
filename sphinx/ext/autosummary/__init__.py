@@ -662,8 +662,10 @@ def import_ivar_by_name(name: str, prefixes: List[str] = [None]) -> Tuple[str, A
         name, attr = name.rsplit(".", 1)
         real_name, obj, parent, modname = import_by_name(name, prefixes)
         qualname = real_name.replace(modname + ".", "")
-        analyzer = ModuleAnalyzer.for_module(modname)
-        if (qualname, attr) in analyzer.find_attr_docs():
+        analyzer = ModuleAnalyzer.for_module(getattr(obj, '__module__', modname))
+        analyzer.analyze()
+        # check for presence in `annotations` to include dataclass attributes
+        if (qualname, attr) in analyzer.attr_docs or (qualname, attr) in analyzer.annotations:
             return real_name + "." + attr, INSTANCEATTR, obj, modname
     except (ImportError, ValueError, PycodeError):
         pass
@@ -773,7 +775,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('builder-inited', process_generate_options)
     app.add_config_value('autosummary_context', {}, True)
     app.add_config_value('autosummary_filename_map', {}, 'html')
-    app.add_config_value('autosummary_generate', True, True, [bool])
+    app.add_config_value('autosummary_generate', True, True, [bool, list])
     app.add_config_value('autosummary_generate_overwrite', True, False)
     app.add_config_value('autosummary_mock_imports',
                          lambda config: config.autodoc_mock_imports, 'env')

@@ -419,6 +419,20 @@ General configuration
 
    .. versionadded:: 1.1
 
+.. confval:: nitpick_ignore_regex
+
+   An extended version of :confval:`nitpick_ignore`, which instead interprets
+   the ``type`` and ``target`` strings as regular expressions. Note, that the
+   regular expression must match the whole string (as if the ``^`` and ``$``
+   markers were inserted).
+
+   For example, ``(r'py:.*', r'foo.*bar\.B.*')`` will ignore nitpicky warnings
+   for all python entities that start with ``'foo'`` and have ``'bar.B'`` in
+   them, such as ``('py:const', 'foo_package.bar.BAZ_VALUE')`` or
+   ``('py:class', 'food.bar.Barman')``.
+
+   .. versionadded:: 4.1
+
 .. confval:: numfig
 
    If true, figures, tables and code-blocks are automatically numbered if they
@@ -779,6 +793,10 @@ documentation on :ref:`intl` for details.
    individual documents depends on :confval:`gettext_compact`.
 
    The default is ``['locales']``.
+
+   .. note:: The :option:`-v option for sphinx-build command <sphinx-build -v>`
+             is useful to check the locale_dirs config works as expected.  It
+             emits debug messages if message catalog directory not found.
 
    .. versionchanged:: 1.5
       Use ``locales`` directory as a default value

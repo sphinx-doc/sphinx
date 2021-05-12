@@ -15,7 +15,7 @@ import sys
 import typing
 import warnings
 from inspect import Parameter
-from typing import Any, Dict, Iterable, Iterator, List, NamedTuple, Tuple, Type, cast
+from typing import Any, Dict, Iterable, Iterator, List, NamedTuple, Optional, Tuple, Type, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -1246,7 +1246,7 @@ class PythonDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      type: str, target: str, node: pending_xref, contnode: Element
-                     ) -> Element:
+                     ) -> Optional[Element]:
         modname = node.get('py:module')
         clsname = node.get('py:class')
         searchmode = 1 if node.hasattr('refspecific') else 0
@@ -1269,9 +1269,13 @@ class PythonDomain(Domain):
         if not matches:
             return None
         elif len(matches) > 1:
-            logger.warning(__('more than one target found for cross-reference %r: %s'),
-                           target, ', '.join(match[0] for match in matches),
-                           type='ref', subtype='python', location=node)
+            canonicals = [m for m in matches if not m[1].aliased]
+            if len(canonicals) == 1:
+                matches = canonicals
+            else:
+                logger.warning(__('more than one target found for cross-reference %r: %s'),
+                               target, ', '.join(match[0] for match in matches),
+                               type='ref', subtype='python', location=node)
         name, obj = matches[0]
 
         if obj[2] == 'module':
@@ -1340,7 +1344,7 @@ class PythonDomain(Domain):
                 else:
                     yield (refname, refname, obj.objtype, obj.docname, obj.node_id, 1)
 
-    def get_full_qualified_name(self, node: Element) -> str:
+    def get_full_qualified_name(self, node: Element) -> Optional[str]:
         modname = node.get('py:module')
         clsname = node.get('py:class')
         target = node.get('reftarget')

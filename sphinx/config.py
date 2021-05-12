@@ -131,6 +131,7 @@ class Config:
         'manpages_url': (None, 'env', []),
         'nitpicky': (False, None, []),
         'nitpick_ignore': ([], None, []),
+        'nitpick_ignore_regex': ([], None, []),
         'numfig': (False, 'env', []),
         'numfig_secnum_depth': (1, 'env', []),
         'numfig_format': ({}, 'env', []),  # will be initialized in init_numfig_format()
@@ -309,7 +310,7 @@ class Config:
         self.__dict__.update(state)
 
 
-def eval_config_file(filename: str, tags: Tags) -> Dict[str, Any]:
+def eval_config_file(filename: str, tags: Optional[Tags]) -> Dict[str, Any]:
     """Evaluate a config file."""
     namespace: Dict[str, Any] = {}
     namespace['__file__'] = filename

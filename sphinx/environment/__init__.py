@@ -14,8 +14,8 @@ from collections import defaultdict
 from copy import copy
 from datetime import datetime
 from os import path
-from typing import (TYPE_CHECKING, Any, Callable, Dict, Generator, Iterator, List, Set, Tuple,
-                    Union)
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Generator, Iterator, List, Optional,
+                    Set, Tuple, Union)
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -87,7 +87,7 @@ class BuildEnvironment:
     transformations to resolve links to them.
     """
 
-    domains: Dict[str, Domain] = None
+    domains: Dict[str, Domain]
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
@@ -266,7 +266,7 @@ class BuildEnvironment:
         raise an exception if the user tries to use an environment with an
         incompatible versioning method.
         """
-        condition: Union[bool, Callable] = None
+        condition: Union[bool, Callable]
         if callable(method):
             condition = method
         else:
@@ -309,7 +309,7 @@ class BuildEnvironment:
             domain.merge_domaindata(docnames, other.domaindata[domainname])
         self.events.emit('env-merge-info', self, docnames, other)
 
-    def path2doc(self, filename: str) -> str:
+    def path2doc(self, filename: str) -> Optional[str]:
         """Return the docname for the filename if the file is document.
 
         *filename* should be absolute or relative to the source directory.
@@ -577,7 +577,7 @@ class BuildEnvironment:
         # allow custom references to be resolved
         self.events.emit('doctree-resolved', doctree, docname)
 
-    def collect_relations(self) -> Dict[str, List[str]]:
+    def collect_relations(self) -> Dict[str, List[Optional[str]]]:
         traversed = set()
 
         def traverse_toctree(parent: str, docname: str) -> Iterator[Tuple[str, str]]:
