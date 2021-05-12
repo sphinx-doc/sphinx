@@ -198,7 +198,11 @@ def test_signature_annotations():
 
     # optional union
     sig = inspect.signature(f20)
-    assert stringify_signature(sig) == '() -> Optional[Union[int, str]]'
+    if sys.version_info < (3, 7):
+        assert stringify_signature(sig) in ('() -> Optional[Union[int, str]]',
+                                            '() -> Optional[Union[str, int]]')
+    else:
+        assert stringify_signature(sig) == '() -> Optional[Union[int, str]]'
 
     # Any
     sig = inspect.signature(f14)
