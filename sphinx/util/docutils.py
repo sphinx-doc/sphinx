@@ -4,7 +4,7 @@
 
     Utility functions for docutils.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,8 +15,8 @@ from copy import copy
 from distutils.version import LooseVersion
 from os import path
 from types import ModuleType
-from typing import Any, Callable, Dict, Generator, IO, List, Optional, Set, Tuple, Type
-from typing import TYPE_CHECKING, cast
+from typing import (IO, TYPE_CHECKING, Any, Callable, Dict, Generator, List, Optional, Set,
+                    Tuple, Type, cast)
 
 import docutils
 from docutils import nodes
@@ -24,10 +24,11 @@ from docutils.io import FileOutput
 from docutils.nodes import Element, Node, system_message
 from docutils.parsers.rst import Directive, directives, roles
 from docutils.parsers.rst.states import Inliner
-from docutils.statemachine import StateMachine, State, StringList
+from docutils.statemachine import State, StateMachine, StringList
 from docutils.utils import Reporter, unescape
 
 from sphinx.errors import SphinxError
+from sphinx.locale import _
 from sphinx.util import logging
 from sphinx.util.typing import RoleFunction
 
@@ -41,7 +42,7 @@ if TYPE_CHECKING:
 
 
 __version_info__ = tuple(LooseVersion(docutils.__version__).version)
-additional_nodes = set()  # type: Set[Type[nodes.Element]]
+additional_nodes: Set[Type[Element]] = set()
 
 
 @contextmanager
@@ -66,7 +67,7 @@ def is_directive_registered(name: str) -> bool:
     return name in directives._directives  # type: ignore
 
 
-def register_directive(name: str, directive: "Type[Directive]") -> None:
+def register_directive(name: str, directive: Type[Directive]) -> None:
     """Register a directive to docutils.
 
     This modifies global state of docutils.  So it is better to use this
@@ -94,12 +95,12 @@ def unregister_role(name: str) -> None:
     roles._roles.pop(name, None)  # type: ignore
 
 
-def is_node_registered(node: "Type[Element]") -> bool:
+def is_node_registered(node: Type[Element]) -> bool:
     """Check the *node* is already registered."""
     return hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__)
 
 
-def register_node(node: "Type[Element]") -> None:
+def register_node(node: Type[Element]) -> None:
     """Register a node to docutils.
 
     This modifies global state of some visitors.  So it is better to use this
@@ -110,7 +111,7 @@ def register_node(node: "Type[Element]") -> None:
         additional_nodes.add(node)
 
 
-def unregister_node(node: "Type[Element]") -> None:
+def unregister_node(node: Type[Element]) -> None:
     """Unregister a node from docutils.
 
     This is inverse of ``nodes._add_nodes_class_names()``.
@@ -175,13 +176,13 @@ class sphinx_domains:
     """
     def __init__(self, env: "BuildEnvironment") -> None:
         self.env = env
-        self.directive_func = None  # type: Callable
-        self.roles_func = None  # type: Callable
+        self.directive_func: Callable = lambda *args: (None, [])
+        self.roles_func: Callable = lambda *args: (None, [])
 
     def __enter__(self) -> None:
         self.enable()
 
-    def __exit__(self, exc_type: "Type[Exception]", exc_value: Exception, traceback: Any) -> None:  # NOQA
+    def __exit__(self, exc_type: Type[Exception], exc_value: Exception, traceback: Any) -> None:  # NOQA
         self.disable()
 
     def enable(self) -> None:
@@ -208,6 +209,8 @@ class sphinx_domains:
                 element = getattr(domain, type)(name)
                 if element is not None:
                     return element, []
+            else:
+                logger.warning(_('unknown directive or role name: %s:%s'), domain_name, name)
         # else look in the default domain
         else:
             def_domain = self.env.temp_data.get('default_domain')
@@ -223,7 +226,7 @@ class sphinx_domains:
 
         raise ElementLookupError
 
-    def lookup_directive(self, directive_name: str, language_module: ModuleType, document: nodes.document) -> Tuple[Optional["Type[Directive]"], List[system_message]]:  # NOQA
+    def lookup_directive(self, directive_name: str, language_module: ModuleType, document: nodes.document) -> Tuple[Optional[Type[Directive]], List[system_message]]:  # NOQA
         try:
             return self.lookup_domain_element('directive', directive_name)
         except ElementLookupError:
@@ -369,7 +372,7 @@ class SphinxRole:
         if name:
             self.name = name.lower()
         else:
-            self.name = self.env.temp_data.get('default_role')
+            self.name = self.env.temp_data.get('default_role', '')
             if not self.name:
                 self.name = self.env.config.default_role
             if not self.name:
@@ -488,7 +491,7 @@ class SphinxTranslator(nodes.NodeVisitor):
 
 # cache a vanilla instance of nodes.document
 # Used in new_document() function
-__document_cache__ = None  # type: nodes.document
+__document_cache__: Optional[nodes.document] = None
 
 
 def new_document(source_path: str, settings: Any = None) -> nodes.document:

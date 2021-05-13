@@ -6,7 +6,6 @@ from docutils.parsers.rst import Directive
 
 from sphinx import addnodes
 
-
 sys.path.append(os.path.abspath('.'))
 
 extensions = ['sphinx.ext.autodoc',
@@ -32,8 +31,6 @@ pygments_style = 'sphinx'
 show_authors = True
 numfig = True
 
-rst_epilog = '.. |subst| replace:: global substitution'
-
 html_sidebars = {'**': ['localtoc.html', 'relations.html', 'sourcelink.html',
                         'customsb.html', 'searchbox.html'],
                  'index': ['contentssb.html', 'localtoc.html', 'globaltoc.html']}
@@ -45,7 +42,7 @@ latex_additional_files = ['svgimg.svg']
 coverage_c_path = ['special/*.h']
 coverage_c_regexes = {'function': r'^PyAPI_FUNC\(.*\)\s+([^_][\w_]+)'}
 
-extlinks = {'issue': ('http://bugs.python.org/issue%s', 'issue '),
+extlinks = {'issue': ('http://bugs.python.org/issue%s', 'issue %s'),
             'pyurl': ('http://python.org/%s', None)}
 
 # modify tags from conf.py

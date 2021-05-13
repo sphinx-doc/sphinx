@@ -13,7 +13,7 @@ Documentation.addTranslations({
         "Complete Table of Contents": "Pilns saturs",
         "Contents": "Saturs",
         "Copyright": "Copyright",
-        "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "Sagatavots izmantojot <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.",
+        "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "",
         "Expand sidebar": "Izplest s\u0101njoslu",
         "Full index on one page": "Pilns indekss vien\u0101 lappus\u0113",
         "General Index": "Visp\u0101r\u0113js indekss",

@@ -7,12 +7,11 @@
     all todos of your project and lists them along with a backlink to the
     original location.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, Tuple
-from typing import cast
+from typing import Any, Dict, List, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -20,6 +19,7 @@ from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 
 import sphinx
+from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.domains import Domain
 from sphinx.environment import BuildEnvironment
@@ -27,6 +27,7 @@ from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging, texescape
 from sphinx.util.docutils import SphinxDirective, new_document
+from sphinx.util.typing import OptionSpec
 from sphinx.writers.html import HTMLTranslator
 from sphinx.writers.latex import LaTeXTranslator
 
@@ -51,7 +52,7 @@ class Todo(BaseAdmonition, SphinxDirective):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {
+    option_spec: OptionSpec = {
         'class': directives.class_option,
         'name': directives.unchanged,
     }
@@ -110,7 +111,7 @@ class TodoList(SphinxDirective):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
         # Simply insert an empty todolist node which will be replaced later
@@ -124,19 +125,19 @@ class TodoListProcessor:
         self.config = app.config
         self.env = app.env
         self.domain = cast(TodoDomain, app.env.get_domain('todo'))
+        self.document = new_document('')
 
         self.process(doctree, docname)
 
     def process(self, doctree: nodes.document, docname: str) -> None:
-        todos = sum(self.domain.todos.values(), [])  # type: List[todo_node]
-        document = new_document('')
+        todos: List[todo_node] = sum(self.domain.todos.values(), [])
         for node in doctree.traverse(todolist):
             if not self.config.todo_include_todos:
                 node.parent.remove(node)
                 continue
 
             if node.get('ids'):
-                content = [nodes.target()]  # type: List[Element]
+                content: List[Element] = [nodes.target()]
             else:
                 content = []
 
@@ -145,12 +146,7 @@ class TodoListProcessor:
                 new_todo = todo.deepcopy()
                 new_todo['ids'].clear()
 
-                # (Recursively) resolve references in the todo content
-                #
-                # Note: To resolve references, it is needed to wrap it with document node
-                document += new_todo
-                self.env.resolve_references(document, todo['docname'], self.builder)
-                document.remove(new_todo)
+                self.resolve_reference(new_todo, docname)
                 content.append(new_todo)
 
                 todo_ref = self.create_todo_reference(todo, docname)
@@ -185,6 +181,17 @@ class TodoListProcessor:
         para += nodes.Text(suffix, suffix)
 
         return para
+
+    def resolve_reference(self, todo: todo_node, docname: str) -> None:
+        """Resolve references in the todo content."""
+        for node in todo.traverse(addnodes.pending_xref):
+            if 'refdoc' in node:
+                node['refdoc'] = docname
+
+        # Note: To resolve references, it is needed to wrap it with document node
+        self.document += todo
+        self.env.resolve_references(self.document, docname, self.builder)
+        self.document.remove(todo)
 
 
 def visit_todo_node(self: HTMLTranslator, node: todo_node) -> None:

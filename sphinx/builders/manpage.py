@@ -4,7 +4,7 @@
 
     Manual pages builder.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -20,13 +20,11 @@ from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.errors import NoUri
 from sphinx.locale import __
-from sphinx.util import logging
-from sphinx.util import progress_message
+from sphinx.util import logging, progress_message
 from sphinx.util.console import darkgreen  # type: ignore
 from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.osutil import make_filename_from_project
-from sphinx.writers.manpage import ManualPageWriter, ManualPageTranslator
-
+from sphinx.util.osutil import ensuredir, make_filename_from_project
+from sphinx.writers.manpage import ManualPageTranslator, ManualPageWriter
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +38,7 @@ class ManualPageBuilder(Builder):
     epilog = __('The manual pages are in %(outdir)s.')
 
     default_translator_class = ManualPageTranslator
-    supported_image_types = []  # type: List[str]
+    supported_image_types: List[str] = []
 
     def init(self) -> None:
         if not self.config.man_pages:
@@ -58,10 +56,10 @@ class ManualPageBuilder(Builder):
     @progress_message(__('writing'))
     def write(self, *ignored: Any) -> None:
         docwriter = ManualPageWriter(self)
-        docsettings = OptionParser(
+        docsettings: Any = OptionParser(
             defaults=self.env.settings,
             components=(docwriter,),
-            read_config_files=True).get_default_values()  # type: Any
+            read_config_files=True).get_default_values()
 
         for info in self.config.man_pages:
             docname, name, description, authors, section = info
@@ -80,14 +78,19 @@ class ManualPageBuilder(Builder):
             docsettings.authors = authors
             docsettings.section = section
 
-            targetname = '%s.%s' % (name, section)
+            if self.config.man_make_section_directory:
+                ensuredir(path.join(self.outdir, str(section)))
+                targetname = '%s/%s.%s' % (section, name, section)
+            else:
+                targetname = '%s.%s' % (name, section)
+
             logger.info(darkgreen(targetname) + ' { ', nonl=True)
             destination = FileOutput(
                 destination_path=path.join(self.outdir, targetname),
                 encoding='utf-8')
 
             tree = self.env.get_doctree(docname)
-            docnames = set()  # type: Set[str]
+            docnames: Set[str] = set()
             largetree = inline_all_toctrees(self, docnames, docname, tree,
                                             darkgreen, [docname])
             largetree.settings = docsettings
@@ -106,7 +109,7 @@ class ManualPageBuilder(Builder):
 def default_man_pages(config: Config) -> List[Tuple[str, str, str, List[str], int]]:
     """ Better default man_pages settings. """
     filename = make_filename_from_project(config.project)
-    return [(config.master_doc, filename, '%s %s' % (config.project, config.release),
+    return [(config.root_doc, filename, '%s %s' % (config.project, config.release),
              [config.author], 1)]
 
 
@@ -115,6 +118,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     app.add_config_value('man_pages', default_man_pages, None)
     app.add_config_value('man_show_urls', False, None)
+    app.add_config_value('man_make_section_directory', True, None)
 
     return {
         'version': 'builtin',

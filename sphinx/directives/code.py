@@ -2,14 +2,14 @@
     sphinx.directives.code
     ~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import sys
+import textwrap
 from difflib import unified_diff
-from typing import Any, Dict, List, Tuple
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -18,10 +18,11 @@ from docutils.statemachine import StringList
 
 from sphinx import addnodes
 from sphinx.config import Config
+from sphinx.directives import optional_int
 from sphinx.locale import __
-from sphinx.util import logging
-from sphinx.util import parselinenos
+from sphinx.util import logging, parselinenos
 from sphinx.util.docutils import SphinxDirective
+from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -39,7 +40,7 @@ class Highlight(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {
+    option_spec: OptionSpec = {
         'force': directives.flag,
         'linenothreshold': directives.positive_int,
     }
@@ -57,10 +58,10 @@ class Highlight(SphinxDirective):
 
 def dedent_lines(lines: List[str], dedent: int, location: Tuple[str, int] = None) -> List[str]:
     if not dedent:
-        return lines
+        return textwrap.dedent(''.join(lines)).splitlines(True)
 
     if any(s[:dedent].strip() for s in lines):
-        logger.warning(__('Over dedent has detected'), location=location)
+        logger.warning(__('non-whitespace stripped by dedent'), location=location)
 
     new_lines = []
     for line in lines:
@@ -103,10 +104,10 @@ class CodeBlock(SphinxDirective):
     required_arguments = 0
     optional_arguments = 1
     final_argument_whitespace = False
-    option_spec = {
+    option_spec: OptionSpec = {
         'force': directives.flag,
         'linenos': directives.flag,
-        'dedent': int,
+        'dedent': optional_int,
         'lineno-start': int,
         'emphasize-lines': directives.unchanged_required,
         'caption': directives.unchanged_required,
@@ -141,7 +142,7 @@ class CodeBlock(SphinxDirective):
             lines = dedent_lines(lines, self.options['dedent'], location=location)
             code = '\n'.join(lines)
 
-        literal = nodes.literal_block(code, code)  # type: Element
+        literal: Element = nodes.literal_block(code, code)
         if 'linenos' in self.options or 'lineno-start' in self.options:
             literal['linenos'] = True
         literal['classes'] += self.options.get('class', [])
@@ -379,8 +380,8 @@ class LiteralInclude(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {
-        'dedent': int,
+    option_spec: OptionSpec = {
+        'dedent': optional_int,
         'linenos': directives.flag,
         'lineno-start': int,
         'lineno-match': directives.flag,
@@ -421,7 +422,7 @@ class LiteralInclude(SphinxDirective):
             reader = LiteralIncludeReader(filename, self.options, self.config)
             text, lines = reader.read(location=location)
 
-            retnode = nodes.literal_block(text, text, source=filename)  # type: Element
+            retnode: Element = nodes.literal_block(text, text, source=filename)
             retnode['force'] = 'force' in self.options
             self.set_source_info(retnode)
             if self.options.get('diff'):  # if diff is set, set udiff

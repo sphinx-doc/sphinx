@@ -4,7 +4,7 @@
 
     Test the build process with LaTeX builder with the test root.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,18 +13,18 @@ import re
 import subprocess
 from itertools import product
 from shutil import copyfile
-from subprocess import CalledProcessError, PIPE
+from subprocess import PIPE, CalledProcessError
 
 import pytest
-from test_build_html import ENV_WARNINGS
 
 from sphinx.builders.latex import default_latex_documents
 from sphinx.config import Config
-from sphinx.errors import SphinxError, ThemeError
+from sphinx.errors import SphinxError
 from sphinx.testing.util import strip_escseq
 from sphinx.util.osutil import cd, ensuredir
 from sphinx.writers.latex import LaTeXTranslator
 
+from .test_build_html import ENV_WARNINGS
 
 LATEX_ENGINES = ['pdflatex', 'lualatex', 'xelatex']
 DOCCLASSES = ['howto', 'manual']
@@ -197,7 +197,7 @@ def test_latex_basic_manual_ja(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').read_text(encoding='utf8')
     print(result)
-    assert r'\def\sphinxdocclass{jsbook}' in result
+    assert r'\def\sphinxdocclass{ujbook}' in result
     assert r'\documentclass[letterpaper,10pt,dvipdfmx]{sphinxmanual}' in result
 
 
@@ -210,7 +210,7 @@ def test_latex_basic_howto_ja(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').read_text(encoding='utf8')
     print(result)
-    assert r'\def\sphinxdocclass{jreport}' in result
+    assert r'\def\sphinxdocclass{ujreport}' in result
     assert r'\documentclass[letterpaper,10pt,dvipdfmx]{sphinxhowto}' in result
 
 
@@ -277,14 +277,14 @@ def test_latex_title_after_admonitions(app, status, warning):
 
 
 @pytest.mark.sphinx('latex', testroot='basic',
-                    confoverrides={'release': '1.0'})
+                    confoverrides={'release': '1.0_0'})
 def test_latex_release(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').read_text()
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert r'\release{1.0}' in result
+    assert r'\release{1.0\_0}' in result
     assert r'\renewcommand{\releasename}{Release}' in result
 
 
@@ -524,7 +524,7 @@ def test_babel_with_no_language_settings(app, status, warning):
     print(warning.getvalue())
     assert '\\documentclass[letterpaper,10pt,english]{sphinxmanual}' in result
     assert '\\usepackage{babel}' in result
-    assert '\\usepackage{times}' in result
+    assert '\\usepackage{tgtermes}' in result
     assert '\\usepackage[Bjarne]{fncychap}' in result
     assert ('\\addto\\captionsenglish{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
@@ -549,7 +549,7 @@ def test_babel_with_language_de(app, status, warning):
     print(warning.getvalue())
     assert '\\documentclass[letterpaper,10pt,ngerman]{sphinxmanual}' in result
     assert '\\usepackage{babel}' in result
-    assert '\\usepackage{times}' in result
+    assert '\\usepackage{tgtermes}' in result
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsngerman{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
@@ -574,7 +574,7 @@ def test_babel_with_language_ru(app, status, warning):
     print(warning.getvalue())
     assert '\\documentclass[letterpaper,10pt,russian]{sphinxmanual}' in result
     assert '\\usepackage{babel}' in result
-    assert '\\usepackage{times}' not in result
+    assert '\\usepackage{tgtermes}' not in result
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsrussian{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
@@ -599,7 +599,7 @@ def test_babel_with_language_tr(app, status, warning):
     print(warning.getvalue())
     assert '\\documentclass[letterpaper,10pt,turkish]{sphinxmanual}' in result
     assert '\\usepackage{babel}' in result
-    assert '\\usepackage{times}' in result
+    assert '\\usepackage{tgtermes}' in result
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsturkish{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
@@ -624,7 +624,7 @@ def test_babel_with_language_ja(app, status, warning):
     print(warning.getvalue())
     assert '\\documentclass[letterpaper,10pt,dvipdfmx]{sphinxmanual}' in result
     assert '\\usepackage{babel}' not in result
-    assert '\\usepackage{times}' in result
+    assert '\\usepackage{tgtermes}' in result
     assert '\\usepackage[Sonny]{fncychap}' not in result
     assert '\\renewcommand{\\contentsname}{Table of content}\n' in result
     assert '\\shorthandoff' not in result
@@ -648,7 +648,7 @@ def test_babel_with_unknown_language(app, status, warning):
     print(warning.getvalue())
     assert '\\documentclass[letterpaper,10pt,english]{sphinxmanual}' in result
     assert '\\usepackage{babel}' in result
-    assert '\\usepackage{times}' in result
+    assert '\\usepackage{tgtermes}' in result
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsenglish{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
@@ -676,7 +676,7 @@ def test_polyglossia_with_language_de(app, status, warning):
     assert '\\documentclass[letterpaper,10pt,german]{sphinxmanual}' in result
     assert '\\usepackage{polyglossia}' in result
     assert '\\setmainlanguage[spelling=new]{german}' in result
-    assert '\\usepackage{times}' not in result
+    assert '\\usepackage{tgtermes}' not in result
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsgerman{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
@@ -702,7 +702,7 @@ def test_polyglossia_with_language_de_1901(app, status, warning):
     assert '\\documentclass[letterpaper,10pt,german]{sphinxmanual}' in result
     assert '\\usepackage{polyglossia}' in result
     assert '\\setmainlanguage[spelling=old]{german}' in result
-    assert '\\usepackage{times}' not in result
+    assert '\\usepackage{tgtermes}' not in result
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsgerman{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
@@ -723,19 +723,25 @@ def test_footnote(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert ('\\begin{footnote}[1]\\sphinxAtStartFootnote\nnumbered\n%\n'
+    assert ('\\sphinxstepexplicit %\n\\begin{footnote}[1]\\phantomsection'
+            '\\label{\\thesphinxscope.1}%\n\\sphinxAtStartFootnote\nnumbered\n%\n'
             '\\end{footnote}') in result
     assert ('\\begin{footnote}[2]\\sphinxAtStartFootnote\nauto numbered\n%\n'
             '\\end{footnote}') in result
     assert '\\begin{footnote}[3]\\sphinxAtStartFootnote\nnamed\n%\n\\end{footnote}' in result
     assert '\\sphinxcite{footnote:bar}' in result
-    assert ('\\bibitem[bar]{footnote:bar}\ncite\n') in result
+    assert ('\\bibitem[bar]{footnote:bar}\n\\sphinxAtStartPar\ncite\n') in result
     assert '\\sphinxcaption{Table caption \\sphinxfootnotemark[4]' in result
-    assert ('\\hline%\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
+    assert ('\\hline%\n\\begin{footnotetext}[4]'
+            '\\phantomsection\\label{\\thesphinxscope.4}%\n'
+            '\\sphinxAtStartFootnote\n'
             'footnote in table caption\n%\n\\end{footnotetext}\\ignorespaces %\n'
-            '\\begin{footnotetext}[5]\\sphinxAtStartFootnote\n'
-            'footnote in table header\n%\n\\end{footnotetext}\\ignorespaces \n'
-            'VIDIOC\\_CROPCAP\n&\n') in result
+            '\\begin{footnotetext}[5]'
+            '\\phantomsection\\label{\\thesphinxscope.5}%\n'
+            '\\sphinxAtStartFootnote\n'
+            'footnote in table header\n%\n\\end{footnotetext}\\ignorespaces '
+            '\n\\sphinxAtStartPar\n'
+            'VIDIOC\\_CROPCAP\n&\n\\sphinxAtStartPar\n') in result
     assert ('Information about VIDIOC\\_CROPCAP %\n'
             '\\begin{footnote}[6]\\sphinxAtStartFootnote\n'
             'footnote in table not in header\n%\n\\end{footnote}\n\\\\\n\\hline\n'
@@ -758,24 +764,32 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
     assert '\\subsubsection*{The rubric title with a reference to {[}AuthorYear{]}}' in result
     assert ('\\chapter{The section with a reference to \\sphinxfootnotemark[5]}\n'
             '\\label{\\detokenize{index:the-section-with-a-reference-to}}'
-            '%\n\\begin{footnotetext}[5]\\sphinxAtStartFootnote\n'
+            '%\n\\begin{footnotetext}[5]'
+            '\\phantomsection\\label{\\thesphinxscope.5}%\n'
+            '\\sphinxAtStartFootnote\n'
             'Footnote in section\n%\n\\end{footnotetext}') in result
     assert ('\\caption{This is the figure caption with a footnote to '
             '\\sphinxfootnotemark[7].}\\label{\\detokenize{index:id29}}\\end{figure}\n'
-            '%\n\\begin{footnotetext}[7]\\sphinxAtStartFootnote\n'
-            'Footnote in caption\n%\n\\end{footnotetext}')in result
+            '%\n\\begin{footnotetext}[7]'
+            '\\phantomsection\\label{\\thesphinxscope.7}%\n'
+            '\\sphinxAtStartFootnote\n'
+            'Footnote in caption\n%\n\\end{footnotetext}') in result
     assert ('\\sphinxcaption{footnote \\sphinxfootnotemark[8] in '
             'caption of normal table}\\label{\\detokenize{index:id30}}') in result
     assert ('\\caption{footnote \\sphinxfootnotemark[9] '
             'in caption \\sphinxfootnotemark[10] of longtable\\strut}') in result
-    assert ('\\endlastfoot\n%\n\\begin{footnotetext}[9]\\sphinxAtStartFootnote\n'
+    assert ('\\endlastfoot\n%\n\\begin{footnotetext}[9]'
+            '\\phantomsection\\label{\\thesphinxscope.9}%\n'
+            '\\sphinxAtStartFootnote\n'
             'Foot note in longtable\n%\n\\end{footnotetext}\\ignorespaces %\n'
-            '\\begin{footnotetext}[10]\\sphinxAtStartFootnote\n'
+            '\\begin{footnotetext}[10]'
+            '\\phantomsection\\label{\\thesphinxscope.10}%\n'
+            '\\sphinxAtStartFootnote\n'
             'Second footnote in caption of longtable\n') in result
     assert ('This is a reference to the code\\sphinxhyphen{}block in the footnote:\n'
             '{\\hyperref[\\detokenize{index:codeblockinfootnote}]'
             '{\\sphinxcrossref{\\DUrole{std,std-ref}{I am in a footnote}}}}') in result
-    assert ('&\nThis is one more footnote with some code in it %\n'
+    assert ('&\n\\sphinxAtStartPar\nThis is one more footnote with some code in it %\n'
             '\\begin{footnote}[11]\\sphinxAtStartFootnote\n'
             'Third footnote in longtable\n') in result
     assert ('\\end{sphinxVerbatim}\n%\n\\end{footnote}.\n') in result
@@ -791,7 +805,9 @@ def test_latex_show_urls_is_inline(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert ('Same footnote number %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
+    assert ('Same footnote number \\sphinxstepexplicit %\n'
+            '\\begin{footnote}[1]\\phantomsection\\label{\\thesphinxscope.1}%\n'
+            '\\sphinxAtStartFootnote\n'
             'footnote in bar\n%\n\\end{footnote} in bar.rst') in result
     assert ('Auto footnote number %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'footnote in baz\n%\n\\end{footnote} in baz.rst') in result
@@ -805,26 +821,35 @@ def test_latex_show_urls_is_inline(app, status, warning):
             '{\\sphinxcrossref{The section with a reference to }}}' in result)
     assert ('First footnote: %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
             'First\n%\n\\end{footnote}') in result
-    assert ('Second footnote: %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
+    assert ('Second footnote: \\sphinxstepexplicit %\n'
+            '\\begin{footnote}[1]\\phantomsection\\label{\\thesphinxscope.1}%\n'
+            '\\sphinxAtStartFootnote\n'
             'Second\n%\n\\end{footnote}') in result
     assert '\\sphinxhref{http://sphinx-doc.org/}{Sphinx} (http://sphinx\\sphinxhyphen{}doc.org/)' in result
     assert ('Third footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
             'Third \\sphinxfootnotemark[4]\n%\n\\end{footnote}%\n'
-            '\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
+            '\\begin{footnotetext}[4]'
+            '\\phantomsection\\label{\\thesphinxscope.4}%\n'
+            '\\sphinxAtStartFootnote\n'
             'Footnote inside footnote\n%\n\\end{footnotetext}\\ignorespaces') in result
     assert ('\\sphinxhref{http://sphinx-doc.org/~test/}{URL including tilde} '
             '(http://sphinx\\sphinxhyphen{}doc.org/\\textasciitilde{}test/)') in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{URL in term} '
-            '(http://sphinx\\sphinxhyphen{}doc.org/)}] \\leavevmode\nDescription' in result)
+            '(http://sphinx\\sphinxhyphen{}doc.org/)}] '
+            '\\leavevmode\n\\sphinxAtStartPar\nDescription' in result)
     assert ('\\item[{Footnote in term \\sphinxfootnotemark[6]}] '
-            '\\leavevmode%\n\\begin{footnotetext}[6]\\sphinxAtStartFootnote\n'
-            'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces \n'
-            'Description') in result
+            '\\leavevmode%\n\\begin{footnotetext}[6]'
+            '\\phantomsection\\label{\\thesphinxscope.6}%\n'
+            '\\sphinxAtStartFootnote\n'
+            'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces '
+            '\n\\sphinxAtStartPar\nDescription') in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{Term in deflist} '
-            '(http://sphinx\\sphinxhyphen{}doc.org/)}] \\leavevmode\nDescription') in result
+            '(http://sphinx\\sphinxhyphen{}doc.org/)}] '
+            '\\leavevmode\n\\sphinxAtStartPar\nDescription') in result
     assert '\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result
     assert ('\\sphinxhref{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx\\sphinxhyphen{}dev@googlegroups.com}') in result
+    assert '\\begin{savenotes}\\begin{fulllineitems}' not in result
 
 
 @pytest.mark.sphinx(
@@ -836,7 +861,9 @@ def test_latex_show_urls_is_footnote(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert ('Same footnote number %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
+    assert ('Same footnote number \\sphinxstepexplicit %\n'
+            '\\begin{footnote}[1]\\phantomsection\\label{\\thesphinxscope.1}%\n'
+            '\\sphinxAtStartFootnote\n'
             'footnote in bar\n%\n\\end{footnote} in bar.rst') in result
     assert ('Auto footnote number %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
             'footnote in baz\n%\n\\end{footnote} in baz.rst') in result
@@ -849,14 +876,18 @@ def test_latex_show_urls_is_footnote(app, status, warning):
             '{\\sphinxcrossref{The section with a reference to }}}') in result
     assert ('First footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
             'First\n%\n\\end{footnote}') in result
-    assert ('Second footnote: %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
+    assert ('Second footnote: \\sphinxstepexplicit %\n'
+            '\\begin{footnote}[1]\\phantomsection\\label{\\thesphinxscope.1}%\n'
+            '\\sphinxAtStartFootnote\n'
             'Second\n%\n\\end{footnote}') in result
     assert ('\\sphinxhref{http://sphinx-doc.org/}{Sphinx}'
             '%\n\\begin{footnote}[4]\\sphinxAtStartFootnote\n'
             '\\sphinxnolinkurl{http://sphinx-doc.org/}\n%\n\\end{footnote}') in result
     assert ('Third footnote: %\n\\begin{footnote}[6]\\sphinxAtStartFootnote\n'
             'Third \\sphinxfootnotemark[7]\n%\n\\end{footnote}%\n'
-            '\\begin{footnotetext}[7]\\sphinxAtStartFootnote\n'
+            '\\begin{footnotetext}[7]'
+            '\\phantomsection\\label{\\thesphinxscope.7}%\n'
+            '\\sphinxAtStartFootnote\n'
             'Footnote inside footnote\n%\n'
             '\\end{footnotetext}\\ignorespaces') in result
     assert ('\\sphinxhref{http://sphinx-doc.org/~test/}{URL including tilde}'
@@ -864,21 +895,28 @@ def test_latex_show_urls_is_footnote(app, status, warning):
             '\\sphinxnolinkurl{http://sphinx-doc.org/~test/}\n%\n\\end{footnote}') in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}'
             '{URL in term}\\sphinxfootnotemark[9]}] '
-            '\\leavevmode%\n\\begin{footnotetext}[9]\\sphinxAtStartFootnote\n'
+            '\\leavevmode%\n\\begin{footnotetext}[9]'
+            '\\phantomsection\\label{\\thesphinxscope.9}%\n'
+            '\\sphinxAtStartFootnote\n'
             '\\sphinxnolinkurl{http://sphinx-doc.org/}\n%\n'
-            '\\end{footnotetext}\\ignorespaces \nDescription') in result
+            '\\end{footnotetext}\\ignorespaces \n\\sphinxAtStartPar\nDescription') in result
     assert ('\\item[{Footnote in term \\sphinxfootnotemark[11]}] '
-            '\\leavevmode%\n\\begin{footnotetext}[11]\\sphinxAtStartFootnote\n'
-            'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces \n'
-            'Description') in result
+            '\\leavevmode%\n\\begin{footnotetext}[11]'
+            '\\phantomsection\\label{\\thesphinxscope.11}%\n'
+            '\\sphinxAtStartFootnote\n'
+            'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces '
+            '\n\\sphinxAtStartPar\nDescription') in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{Term in deflist}'
             '\\sphinxfootnotemark[10]}] '
-            '\\leavevmode%\n\\begin{footnotetext}[10]\\sphinxAtStartFootnote\n'
+            '\\leavevmode%\n\\begin{footnotetext}[10]'
+            '\\phantomsection\\label{\\thesphinxscope.10}%\n'
+            '\\sphinxAtStartFootnote\n'
             '\\sphinxnolinkurl{http://sphinx-doc.org/}\n%\n'
-            '\\end{footnotetext}\\ignorespaces \nDescription') in result
+            '\\end{footnotetext}\\ignorespaces \n\\sphinxAtStartPar\nDescription') in result
     assert ('\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\sphinxhref{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx\\sphinxhyphen{}dev@googlegroups.com}\n') in result
+    assert '\\begin{savenotes}\\begin{fulllineitems}' in result
 
 
 @pytest.mark.sphinx(
@@ -890,7 +928,9 @@ def test_latex_show_urls_is_no(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert ('Same footnote number %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
+    assert ('Same footnote number \\sphinxstepexplicit %\n'
+            '\\begin{footnote}[1]\\phantomsection\\label{\\thesphinxscope.1}%\n'
+            '\\sphinxAtStartFootnote\n'
             'footnote in bar\n%\n\\end{footnote} in bar.rst') in result
     assert ('Auto footnote number %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'footnote in baz\n%\n\\end{footnote} in baz.rst') in result
@@ -903,25 +943,32 @@ def test_latex_show_urls_is_no(app, status, warning):
             '{\\sphinxcrossref{The section with a reference to }}}' in result)
     assert ('First footnote: %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
             'First\n%\n\\end{footnote}') in result
-    assert ('Second footnote: %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
+    assert ('Second footnote: \\sphinxstepexplicit %\n'
+            '\\begin{footnote}[1]\\phantomsection\\label{\\thesphinxscope.1}%\n'
+            '\\sphinxAtStartFootnote\n'
             'Second\n%\n\\end{footnote}') in result
     assert '\\sphinxhref{http://sphinx-doc.org/}{Sphinx}' in result
     assert ('Third footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
             'Third \\sphinxfootnotemark[4]\n%\n\\end{footnote}%\n'
-            '\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
+            '\\begin{footnotetext}[4]'
+            '\\phantomsection\\label{\\thesphinxscope.4}%\n'
+            '\\sphinxAtStartFootnote\n'
             'Footnote inside footnote\n%\n\\end{footnotetext}\\ignorespaces') in result
     assert '\\sphinxhref{http://sphinx-doc.org/~test/}{URL including tilde}' in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{URL in term}}] '
-            '\\leavevmode\nDescription') in result
+            '\\leavevmode\n\\sphinxAtStartPar\nDescription') in result
     assert ('\\item[{Footnote in term \\sphinxfootnotemark[6]}] '
-            '\\leavevmode%\n\\begin{footnotetext}[6]\\sphinxAtStartFootnote\n'
-            'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces \n'
-            'Description') in result
+            '\\leavevmode%\n\\begin{footnotetext}[6]'
+            '\\phantomsection\\label{\\thesphinxscope.6}%\n'
+            '\\sphinxAtStartFootnote\n'
+            'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces '
+            '\n\\sphinxAtStartPar\nDescription') in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{Term in deflist}}] '
-            '\\leavevmode\nDescription') in result
+            '\\leavevmode\n\\sphinxAtStartPar\nDescription') in result
     assert ('\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\sphinxhref{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx\\sphinxhyphen{}dev@googlegroups.com}\n') in result
+    assert '\\begin{savenotes}\\begin{fulllineitems}' not in result
 
 
 @pytest.mark.sphinx(
@@ -990,7 +1037,7 @@ def test_toctree_maxdepth_howto(app, status, warning):
 
 @pytest.mark.sphinx(
     'latex', testroot='toctree-maxdepth',
-    confoverrides={'master_doc': 'foo'})
+    confoverrides={'root_doc': 'foo'})
 def test_toctree_not_found(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'python.tex').read_text()
@@ -1004,7 +1051,7 @@ def test_toctree_not_found(app, status, warning):
 
 @pytest.mark.sphinx(
     'latex', testroot='toctree-maxdepth',
-    confoverrides={'master_doc': 'bar'})
+    confoverrides={'root_doc': 'bar'})
 def test_toctree_without_maxdepth(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'python.tex').read_text()
@@ -1017,7 +1064,7 @@ def test_toctree_without_maxdepth(app, status, warning):
 
 @pytest.mark.sphinx(
     'latex', testroot='toctree-maxdepth',
-    confoverrides={'master_doc': 'qux'})
+    confoverrides={'root_doc': 'qux'})
 def test_toctree_with_deeper_maxdepth(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'python.tex').read_text()
@@ -1347,7 +1394,7 @@ def test_latex_index(app, status, warning):
             '\\index{equation@\\spxentry{equation}}equation:\n' in result)
     assert ('\n\\index{Einstein@\\spxentry{Einstein}}'
             '\\index{relativity@\\spxentry{relativity}}'
-            '\\ignorespaces \nand') in result
+            '\\ignorespaces \n\\sphinxAtStartPar\nand') in result
     assert ('\n\\index{main \\sphinxleftcurlybrace{}@\\spxentry{'
             'main \\sphinxleftcurlybrace{}}}\\ignorespaces ' in result)
 
@@ -1396,7 +1443,7 @@ def test_latex_thebibliography(app, status, warning):
     result = (app.outdir / 'python.tex').read_text()
     print(result)
     assert ('\\begin{sphinxthebibliography}{AuthorYe}\n'
-            '\\bibitem[AuthorYear]{index:authoryear}\n'
+            '\\bibitem[AuthorYear]{index:authoryear}\n\\sphinxAtStartPar\n'
             'Author, Title, Year\n'
             '\\end{sphinxthebibliography}\n' in result)
     assert '\\sphinxcite{index:authoryear}' in result
@@ -1440,7 +1487,8 @@ def test_latex_labels(app, status, warning):
             r'\end{figure}' in result)
     assert (r'\caption{labeled figure}'
             '\\label{\\detokenize{index:figure3}}\n'
-            '\\begin{sphinxlegend}\nwith a legend\n\\end{sphinxlegend}\n'
+            '\\begin{sphinxlegend}\n\\sphinxAtStartPar\n'
+            'with a legend\n\\end{sphinxlegend}\n'
             r'\end{figure}' in result)
 
     # code-blocks
@@ -1484,7 +1532,7 @@ def test_latex_figure_in_admonition(app, status, warning):
 def test_default_latex_documents():
     from sphinx.util import texescape
     texescape.init()
-    config = Config({'master_doc': 'index',
+    config = Config({'root_doc': 'index',
                      'project': 'STASI™ Documentation',
                      'author': "Wolfgang Schäuble & G'Beckstein."})
     config.init_values()

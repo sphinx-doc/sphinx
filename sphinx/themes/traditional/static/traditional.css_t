@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- traditional docs.python.org theme.
  *
- * :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -743,11 +743,13 @@ div.literal-block-wrapper pre {
     margin: 0;
 }
 
-div.figure p.caption span.caption-number {
+div.figure p.caption span.caption-number,
+figcaption span.caption-number {
     font-style: italic;
 }
 
-div.figure p.caption span.caption-text {
+div.figure p.caption span.caption-text,
+figcaption span.caption-text {
 }
 
 /* :::: MATH DISPLAY :::: */

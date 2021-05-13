@@ -4,8 +4,7 @@ from docutils.parsers.rst import directives
 
 from sphinx import addnodes
 from sphinx.directives import ObjectDescription
-from sphinx.domains import Domain
-from sphinx.domains import Index
+from sphinx.domains import Domain, Index
 from sphinx.roles import XRefRole
 from sphinx.util.nodes import make_refnode
 
@@ -25,7 +24,7 @@ class RecipeDirective(ObjectDescription):
 
     def add_target_and_index(self, name_cls, sig, signode):
         signode['ids'].append('recipe' + '-' + sig)
-        if 'noindex' not in self.options:
+        if 'contains' not in self.options:
             ingredients = [
                 x.strip() for x in self.options.get('contains').split(',')]
 

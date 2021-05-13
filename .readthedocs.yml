@@ -1,0 +1,12 @@
+version: 2
+
+formats:
+  - pdf
+
+python:
+  version: 3
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - docs

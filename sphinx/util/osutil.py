@@ -4,7 +4,7 @@
 
     Operating system-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,9 +14,12 @@ import os
 import re
 import shutil
 import sys
+import warnings
 from io import StringIO
 from os import path
 from typing import Any, Generator, Iterator, List, Optional, Type
+
+from sphinx.deprecation import RemovedInSphinx50Warning
 
 try:
     # for ALT Linux (#6712)
@@ -83,6 +86,9 @@ def mtimes_of_files(dirnames: List[str], suffix: str) -> Iterator[float]:
 
 def movefile(source: str, dest: str) -> None:
     """Move a file, removing the destination if it exists."""
+    warnings.warn('sphinx.util.osutil.movefile() is deprecated for removal. '
+                  'Please use os.replace() instead.',
+                  RemovedInSphinx50Warning, stacklevel=2)
     if os.path.exists(dest):
         try:
             os.unlink(dest)
@@ -179,7 +185,7 @@ class FileAvoidWrite:
     """
     def __init__(self, path: str) -> None:
         self._path = path
-        self._io = None  # type: Optional[StringIO]
+        self._io: Optional[StringIO] = None
 
     def write(self, data: str) -> None:
         if not self._io:
@@ -195,20 +201,20 @@ class FileAvoidWrite:
         self._io.close()
 
         try:
-            with open(self._path) as old_f:
+            with open(self._path, encoding='utf-8') as old_f:
                 old_content = old_f.read()
                 if old_content == buf:
                     return
         except OSError:
             pass
 
-        with open(self._path, 'w') as f:
+        with open(self._path, 'w', encoding='utf-8') as f:
             f.write(buf)
 
     def __enter__(self) -> "FileAvoidWrite":
         return self
 
-    def __exit__(self, exc_type: "Type[Exception]", exc_value: Exception, traceback: Any) -> bool:  # NOQA
+    def __exit__(self, exc_type: Type[Exception], exc_value: Exception, traceback: Any) -> bool:  # NOQA
         self.close()
         return True
 

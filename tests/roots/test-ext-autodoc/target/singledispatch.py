@@ -1,5 +1,5 @@
-from functools import singledispatch
 import inspect
+from functools import singledispatch
 
 
 def assign_signature(func):
@@ -15,6 +15,7 @@ def func(arg, kwarg=None):
 
 
 @func.register(int)
+@func.register(float)
 def _func_int(arg, kwarg=None):
     """A function for int."""
     pass

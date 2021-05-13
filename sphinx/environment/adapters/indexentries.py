@@ -4,23 +4,21 @@
 
     Index entries adapters for sphinx.environment.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 import unicodedata
 from itertools import groupby
-from typing import Any, Dict, Pattern, List, Tuple
-from typing import cast
+from typing import Any, Dict, List, Pattern, Tuple, cast
 
 from sphinx.builders import Builder
 from sphinx.domains.index import IndexDomain
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
-from sphinx.util import split_into, logging
-
+from sphinx.util import logging, split_into
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +31,7 @@ class IndexEntries:
                      _fixre: Pattern = re.compile(r'(.*) ([(][^()]*[)])')
                      ) -> List[Tuple[str, List[Tuple[str, Any]]]]:
         """Create the real index from the collected index entries."""
-        new = {}  # type: Dict[str, List]
+        new: Dict[str, List] = {}
 
         def add_entry(word: str, subword: str, main: str, link: bool = True,
                       dic: Dict = new, key: str = None) -> None:
@@ -128,7 +126,7 @@ class IndexEntries:
             #     (in module foo)
             #     (in module bar)
             oldkey = ''
-            oldsubitems = None  # type: Dict[str, List]
+            oldsubitems: Dict[str, List] = None
             i = 0
             while i < len(newlist):
                 key, (targets, subitems, _key) = newlist[i]

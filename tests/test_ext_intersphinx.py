@@ -4,26 +4,26 @@
 
     Test the intersphinx extension.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import http.server
 import os
 import unittest
-from io import BytesIO
 from unittest import mock
 
 import pytest
-import requests
 from docutils import nodes
-from test_util_inventory import inventory_v2, inventory_v2_not_having_version
 
 from sphinx import addnodes
-from sphinx.ext.intersphinx import (
-    load_mappings, missing_reference, normalize_intersphinx_mapping, _strip_basic_auth,
-    _get_safe_url, fetch_inventory, INVENTORY_FILENAME, inspect_main
-)
+from sphinx.ext.intersphinx import (INVENTORY_FILENAME, _get_safe_url, _strip_basic_auth,
+                                    fetch_inventory, inspect_main, load_mappings,
+                                    missing_reference, normalize_intersphinx_mapping)
 from sphinx.ext.intersphinx import setup as intersphinx_setup
+
+from .test_util_inventory import inventory_v2, inventory_v2_not_having_version
+from .utils import http_server
 
 
 def fake_node(domain, type, target, content, **attrs):
@@ -46,7 +46,7 @@ def reference_check(app, *args, **kwds):
 @mock.patch('sphinx.ext.intersphinx._read_from_url')
 def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app, status, warning):
     intersphinx_setup(app)
-    _read_from_url().readline.return_value = '# Sphinx inventory version 2'.encode()
+    _read_from_url().readline.return_value = b'# Sphinx inventory version 2'
 
     # same uri and inv, not redirected
     _read_from_url().url = 'http://hostname/' + INVENTORY_FILENAME
@@ -196,6 +196,14 @@ def test_missing_reference_pydomain(tempdir, app, status, warning):
     rn = missing_reference(app, app.env, node, contnode)
     assert rn.astext() == 'Foo.bar'
 
+    # pending_xref_condition="resolved"
+    node = addnodes.pending_xref('', reftarget='Foo.bar', refdomain='py', reftype='attr')
+    node['py:module'] = 'module1'
+    node += addnodes.pending_xref_condition('', 'Foo.bar', condition='resolved')
+    node += addnodes.pending_xref_condition('', 'module1.Foo.bar', condition='*')
+    rn = missing_reference(app, app.env, node, nodes.Text('dummy-cont-node'))
+    assert rn.astext() == 'Foo.bar'
+
 
 def test_missing_reference_stddomain(tempdir, app, status, warning):
     inv_file = tempdir / 'inventory'
@@ -250,10 +258,10 @@ def test_missing_reference_cppdomain(tempdir, app, status, warning):
             '<span class="pre">Bar</span></code></a>' in html)
     assert ('<a class="reference external"'
             ' href="https://docs.python.org/index.html#foons"'
-            ' title="(in foo v2.0)">foons</a>' in html)
+            ' title="(in foo v2.0)"><span class="n"><span class="pre">foons</span></span></a>' in html)
     assert ('<a class="reference external"'
             ' href="https://docs.python.org/index.html#foons_bartype"'
-            ' title="(in foo v2.0)">bartype</a>' in html)
+            ' title="(in foo v2.0)"><span class="n"><span class="pre">bartype</span></span></a>' in html)
 
 
 def test_missing_reference_jsdomain(tempdir, app, status, warning):
@@ -433,24 +441,22 @@ def test_inspect_main_file(capsys, tempdir):
     assert stderr == ""
 
 
-@mock.patch('requests.get')
-def test_inspect_main_url(fake_get, capsys):
+def test_inspect_main_url(capsys):
     """inspect_main interface, with url argument"""
-    raw = BytesIO(inventory_v2)
-    real_read = raw.read
+    class InventoryHandler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200, "OK")
+            self.end_headers()
+            self.wfile.write(inventory_v2)
 
-    def fake_read(*args, **kwargs):
-        return real_read()
+        def log_message(*args, **kwargs):
+            # Silenced.
+            pass
 
-    raw.read = fake_read
-    url = 'http://hostname/' + INVENTORY_FILENAME
-    resp = requests.Response()
-    resp.status_code = 200
-    resp.url = url
-    resp.raw = raw
-    fake_get.return_value = resp
+    url = 'http://localhost:7777/' + INVENTORY_FILENAME
 
-    inspect_main([url])
+    with http_server(InventoryHandler):
+        inspect_main([url])
 
     stdout, stderr = capsys.readouterr()
     assert stdout.startswith("c:function\n")

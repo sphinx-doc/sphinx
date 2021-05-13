@@ -4,7 +4,7 @@
 
     Test sphinx.ext.imgconverter extension.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -19,6 +19,11 @@ def test_ext_imgconverter(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'python.tex').read_text()
+
+    # supported image (not converted)
+    assert '\\sphinxincludegraphics{{img}.pdf}' in content
+
+    # non supported image (converted)
     assert '\\sphinxincludegraphics{{svgimg}.png}' in content
     assert not (app.outdir / 'svgimg.svg').exists()
     assert (app.outdir / 'svgimg.png').exists()

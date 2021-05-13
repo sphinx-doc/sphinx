@@ -4,7 +4,7 @@
 
     Test the build process with gettext builder with the test root.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,7 +12,7 @@ import gettext
 import os
 import re
 import subprocess
-from subprocess import CalledProcessError, PIPE
+from subprocess import PIPE, CalledProcessError
 
 import pytest
 

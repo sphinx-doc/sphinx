@@ -4,7 +4,7 @@
 
     Sphinx test suite utilities
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import functools
@@ -13,7 +13,7 @@ import re
 import sys
 import warnings
 from io import StringIO
-from typing import Any, Dict, Generator, IO, List, Pattern
+from typing import IO, Any, Dict, Generator, List, Pattern
 from xml.etree import ElementTree
 
 from docutils import nodes
@@ -21,11 +21,9 @@ from docutils.nodes import Node
 from docutils.parsers.rst import directives, roles
 
 from sphinx import application, locale
-from sphinx.builders.latex import LaTeXBuilder
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.testing.path import path
 from sphinx.util.osutil import relpath
-
 
 __all__ = [
     'Struct', 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding',
@@ -101,12 +99,12 @@ class SphinxTestApp(application.Sphinx):
     A subclass of :class:`Sphinx` that runs on the test root, with some
     better default values for the initialization parameters.
     """
-    _status = None  # type: StringIO
-    _warning = None  # type: StringIO
+    _status: StringIO = None
+    _warning: StringIO = None
 
     def __init__(self, buildername: str = 'html', srcdir: path = None, freshenv: bool = False,
                  confoverrides: Dict = None, status: IO = None, warning: IO = None,
-                 tags: List[str] = None, docutilsconf: str = None) -> None:
+                 tags: List[str] = None, docutilsconf: str = None, parallel: int = 0) -> None:
 
         if docutilsconf is not None:
             (srcdir / 'docutils.conf').write_text(docutilsconf)
@@ -131,14 +129,13 @@ class SphinxTestApp(application.Sphinx):
         try:
             super().__init__(srcdir, confdir, outdir, doctreedir,
                              buildername, confoverrides, status, warning,
-                             freshenv, warningiserror, tags)
+                             freshenv, warningiserror, tags, parallel=parallel)
         except Exception:
             self.cleanup()
             raise
 
     def cleanup(self, doctrees: bool = False) -> None:
         ModuleAnalyzer.cache.clear()
-        LaTeXBuilder.usepackages = []
         locale.translators.clear()
         sys.path[:] = self._saved_path
         sys.modules.pop('autodoc_fodder', None)

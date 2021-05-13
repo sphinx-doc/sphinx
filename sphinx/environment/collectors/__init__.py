@@ -4,12 +4,11 @@
 
     The data collector components for sphinx.environment.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Dict, List, Set
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Optional, Set
 
 from docutils import nodes
 
@@ -28,7 +27,7 @@ class EnvironmentCollector:
     entries and toctrees, etc.
     """
 
-    listener_ids = None  # type: Dict[str, int]
+    listener_ids: Optional[Dict[str, int]] = None
 
     def enable(self, app: "Sphinx") -> None:
         assert self.listener_ids is None

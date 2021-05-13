@@ -4,27 +4,36 @@
 
     Utilities parsing and analyzing Python code.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 import tokenize
+import warnings
 from collections import OrderedDict
 from importlib import import_module
 from inspect import Signature
 from io import StringIO
 from os import path
-from typing import Any, Dict, IO, List, Tuple, Optional
+from typing import IO, Any, Dict, List, Optional, Tuple
 from zipfile import ZipFile
 
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.errors import PycodeError
 from sphinx.pycode.parser import Parser
 
 
 class ModuleAnalyzer:
+    annotations: Dict[Tuple[str, str], str]
+    attr_docs: Dict[Tuple[str, str], List[str]]
+    finals: List[str]
+    overloads: Dict[str, List[Signature]]
+    tagorder: Dict[str, int]
+    tags: Dict[str, Tuple[str, int, int]]
+
     # cache for analyzer objects -- caches both by module and file name
-    cache = {}  # type: Dict[Tuple[str, str], Any]
+    cache: Dict[Tuple[str, str], Any] = {}
 
     @staticmethod
     def get_module_source(modname: str) -> Tuple[Optional[str], Optional[str]]:
@@ -132,16 +141,19 @@ class ModuleAnalyzer:
         # cache the source code as well
         self.code = source.read()
 
-        # will be filled by parse()
-        self.annotations = None  # type: Dict[Tuple[str, str], str]
-        self.attr_docs = None    # type: Dict[Tuple[str, str], List[str]]
-        self.finals = None       # type: List[str]
-        self.overloads = None    # type: Dict[str, List[Signature]]
-        self.tagorder = None     # type: Dict[str, int]
-        self.tags = None         # type: Dict[str, Tuple[str, int, int]]
+        self._analyzed = False
 
     def parse(self) -> None:
         """Parse the source code."""
+        warnings.warn('ModuleAnalyzer.parse() is deprecated.',
+                      RemovedInSphinx50Warning, stacklevel=2)
+        self.analyze()
+
+    def analyze(self) -> None:
+        """Analyze the source code."""
+        if self._analyzed:
+            return None
+
         try:
             parser = Parser(self.code)
             parser.parse()
@@ -158,19 +170,16 @@ class ModuleAnalyzer:
             self.overloads = parser.overloads
             self.tags = parser.definitions
             self.tagorder = parser.deforders
+            self._analyzed = True
         except Exception as exc:
             raise PycodeError('parsing %r failed: %r' % (self.srcname, exc)) from exc
 
     def find_attr_docs(self) -> Dict[Tuple[str, str], List[str]]:
         """Find class and module-level attributes and their documentation."""
-        if self.attr_docs is None:
-            self.parse()
-
+        self.analyze()
         return self.attr_docs
 
     def find_tags(self) -> Dict[str, Tuple[str, int, int]]:
         """Find class, function and method definitions and their location."""
-        if self.tags is None:
-            self.parse()
-
+        self.analyze()
         return self.tags

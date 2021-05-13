@@ -5,7 +5,7 @@
     Build epub3 files.
     Originally derived from epub.py.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -16,7 +16,7 @@ from typing import Any, Dict, List, NamedTuple, Set, Tuple
 from sphinx import package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import _epub_base
-from sphinx.config import Config, ENUM
+from sphinx.config import ENUM, Config
 from sphinx.locale import __
 from sphinx.util import logging, xmlname_checker
 from sphinx.util.fileutil import copy_asset_file
@@ -118,7 +118,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         The difference from build_navpoints method is templates which are used
         when generating navigation documents.
         """
-        navstack = []  # type: List[NavPoint]
+        navstack: List[NavPoint] = []
         navstack.append(NavPoint('', '', []))
         level = 0
         for node in navnodes:
@@ -154,7 +154,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         """Create a dictionary with all metadata for the nav.xhtml file
         properly escaped.
         """
-        metadata = {}  # type: Dict
+        metadata: Dict = {}
         metadata['lang'] = html.escape(self.config.epub_language)
         metadata['toc_locale'] = html.escape(self.guide_titles['toc'])
         metadata['navlist'] = navlist
@@ -166,7 +166,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
 
         if self.config.epub_tocscope == 'default':
             doctree = self.env.get_and_resolve_doctree(
-                self.config.master_doc, self,
+                self.config.root_doc, self,
                 prune_toctrees=False, includehidden=False)
             refnodes = self.get_refnodes(doctree, [])
             self.toc_add_files(refnodes)
@@ -223,7 +223,7 @@ def validate_config_values(app: Sphinx) -> None:
 
 def convert_epub_css_files(app: Sphinx, config: Config) -> None:
     """This converts string styled epub_css_files to tuple styled one."""
-    epub_css_files = []  # type: List[Tuple[str, Dict]]
+    epub_css_files: List[Tuple[str, Dict]] = []
     for entry in config.epub_css_files:
         if isinstance(entry, str):
             epub_css_files.append((entry, {}))

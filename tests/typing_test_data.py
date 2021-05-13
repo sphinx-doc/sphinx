@@ -1,6 +1,6 @@
 from inspect import Signature
 from numbers import Integral
-from typing import Any, Dict, List, TypeVar, Union, Callable, Tuple, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
 
 
 def f0(x: int, y: Integral) -> None:
@@ -77,7 +77,7 @@ def f14() -> Any:
     pass
 
 
-def f15(x: "Unknown", y: "int") -> Any:
+def f15(x: "Unknown", y: "int") -> Any:  # type: ignore # NOQA
     pass
 
 

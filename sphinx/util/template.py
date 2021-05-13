@@ -4,7 +4,7 @@
 
     Templates utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -85,7 +85,7 @@ class LaTeXRenderer(SphinxRenderer):
         self.env.block_start_string = '<%'
         self.env.block_end_string = '%>'
         self.env.comment_start_string = '<#'
-        self.env.comment_end_string = '<#'
+        self.env.comment_end_string = '#>'
 
 
 class ReSTRenderer(SphinxRenderer):

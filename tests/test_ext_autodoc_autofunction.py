@@ -5,13 +5,13 @@
     Test the autodoc extension.  This tests mainly the Documenters; the auto
     directives are tested in a test source file translated by test_build.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import pytest
 
-from test_ext_autodoc import do_autodoc
+from .test_ext_autodoc import do_autodoc
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -36,6 +36,14 @@ def test_classes(app):
     assert list(actual) == [
         '',
         '.. py:function:: Baz(x, y)',
+        '   :module: target.classes',
+        '',
+    ]
+
+    actual = do_autodoc(app, 'function', 'target.classes.Qux')
+    assert list(actual) == [
+        '',
+        '.. py:function:: Qux(foo, bar)',
         '   :module: target.classes',
         '',
     ]
@@ -111,6 +119,7 @@ def test_singledispatch(app):
     assert list(actual) == [
         '',
         '.. py:function:: func(arg, kwarg=None)',
+        '                 func(arg: float, kwarg=None)',
         '                 func(arg: int, kwarg=None)',
         '                 func(arg: str, kwarg=None)',
         '   :module: target.singledispatch',

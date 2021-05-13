@@ -4,15 +4,13 @@
 
     Utility functions common to the C and C++ domains.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 from copy import deepcopy
-from typing import (
-    Any, Callable, List, Match, Optional, Pattern, Tuple, Union
-)
+from typing import Any, Callable, List, Match, Optional, Pattern, Tuple, Union
 
 from docutils import nodes
 from docutils.nodes import TextElement
@@ -100,7 +98,7 @@ class ASTBaseBase:
             return False
         return True
 
-    __hash__ = None  # type: Callable[[], int]
+    __hash__: Callable[[], int] = None
 
     def clone(self) -> Any:
         return deepcopy(self)
@@ -225,9 +223,9 @@ class BaseParser:
 
         self.pos = 0
         self.end = len(self.definition)
-        self.last_match = None  # type: Match
-        self._previous_state = (0, None)  # type: Tuple[int, Match]
-        self.otherErrors = []  # type: List[DefinitionError]
+        self.last_match: Match = None
+        self._previous_state: Tuple[int, Match] = (0, None)
+        self.otherErrors: List[DefinitionError] = []
 
         # in our tests the following is set to False to capture bad parsing
         self.allowFallbackExpressionParsing = True
@@ -358,7 +356,7 @@ class BaseParser:
         # TODO: add handling of string literals and similar
         brackets = {'(': ')', '[': ']', '{': '}'}
         startPos = self.pos
-        symbols = []  # type: List[str]
+        symbols: List[str] = []
         while not self.eof:
             if len(symbols) == 0 and self.current_char in end:
                 break

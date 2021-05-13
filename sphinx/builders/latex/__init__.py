@@ -4,11 +4,12 @@
 
     LaTeX builder.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
+import warnings
 from os import path
 from typing import Any, Dict, Iterable, List, Tuple, Union
 
@@ -16,17 +17,18 @@ from docutils.frontend import OptionParser
 from docutils.nodes import Node
 
 import sphinx.builders.latex.nodes  # NOQA  # Workaround: import this before writer to avoid ImportError
-from sphinx import package_dir, addnodes, highlighting
+from sphinx import addnodes, highlighting, package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.builders.latex.constants import ADDITIONAL_SETTINGS, DEFAULT_SETTINGS, SHORTHANDOFF
 from sphinx.builders.latex.theming import Theme, ThemeFactory
 from sphinx.builders.latex.util import ExtBabel
-from sphinx.config import Config, ENUM
+from sphinx.config import ENUM, Config
+from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
-from sphinx.util import texescape, logging, progress_message, status_iterator
+from sphinx.util import logging, progress_message, status_iterator, texescape
 from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.util.docutils import SphinxFileOutput, new_document
 from sphinx.util.fileutil import copy_asset_file
@@ -34,11 +36,10 @@ from sphinx.util.i18n import format_date
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, make_filename_from_project
 from sphinx.util.template import LaTeXRenderer
-from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
+from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 
 # load docutils.nodes after loading sphinx.builders.latex.nodes
-from docutils import nodes  # NOQA
-
+from docutils import nodes  # isort:skip
 
 XINDY_LANG_OPTIONS = {
     # language codes from docutils.writers.latex2e.Babel
@@ -121,13 +122,11 @@ class LaTeXBuilder(Builder):
     default_translator_class = LaTeXTranslator
 
     def init(self) -> None:
-        self.babel = None           # type: ExtBabel
-        self.context = {}           # type: Dict[str, Any]
-        self.docnames = []          # type: Iterable[str]
-        self.document_data = []     # type: List[Tuple[str, str, str, str, str, bool]]
+        self.babel: ExtBabel = None
+        self.context: Dict[str, Any] = {}
+        self.docnames: Iterable[str] = {}
+        self.document_data: List[Tuple[str, str, str, str, str, bool]] = []
         self.themes = ThemeFactory(self.app)
-        self.usepackages = self.app.registry.latex_packages
-        self.usepackages_after_hyperref = self.app.registry.latex_packages_after_hyperref
         texescape.init()
 
         self.init_context()
@@ -154,7 +153,7 @@ class LaTeXBuilder(Builder):
                               'will be written'))
             return
         # assign subdirs to titles
-        self.titles = []  # type: List[Tuple[str, str]]
+        self.titles: List[Tuple[str, str]] = []
         for entry in preliminary_document_data:
             docname = entry[0]
             if docname not in self.env.all_docs:
@@ -177,10 +176,6 @@ class LaTeXBuilder(Builder):
             key = (self.config.latex_engine, self.config.language[:2])
             self.context.update(ADDITIONAL_SETTINGS.get(key, {}))
 
-        # Apply extension settings to context
-        self.context['packages'] = self.usepackages
-        self.context['packages_after_hyperref'] = self.usepackages_after_hyperref
-
         # Apply user settings to context
         self.context.update(self.config.latex_elements)
         self.context['release'] = self.config.release
@@ -201,6 +196,13 @@ class LaTeXBuilder(Builder):
             # Show the release label only if release value exists
             self.context.setdefault('releasename', _('Release'))
 
+    def update_context(self) -> None:
+        """Update template variables for .tex file just before writing."""
+        # Apply extension settings to context
+        registry = self.app.registry
+        self.context['packages'] = registry.latex_packages
+        self.context['packages_after_hyperref'] = registry.latex_packages_after_hyperref
+
     def init_babel(self) -> None:
         self.babel = ExtBabel(self.config.language, not self.context['babel'])
         if self.config.language and not self.babel.is_supported_language():
@@ -214,14 +216,18 @@ class LaTeXBuilder(Builder):
             if not self.babel.uses_cyrillic():
                 if 'X2' in self.context['fontenc']:
                     self.context['substitutefont'] = '\\usepackage{substitutefont}'
-                    self.context['textcyrillic'] = '\\usepackage[Xtwo]{sphinxcyrillic}'
+                    self.context['textcyrillic'] = ('\\usepackage[Xtwo]'
+                                                    '{sphinxpackagecyrillic}')
                 elif 'T2A' in self.context['fontenc']:
                     self.context['substitutefont'] = '\\usepackage{substitutefont}'
-                    self.context['textcyrillic'] = '\\usepackage[TtwoA]{sphinxcyrillic}'
+                    self.context['textcyrillic'] = ('\\usepackage[TtwoA]'
+                                                    '{sphinxpackagecyrillic}')
             if 'LGR' in self.context['fontenc']:
                 self.context['substitutefont'] = '\\usepackage{substitutefont}'
             else:
                 self.context['textgreek'] = ''
+            if self.context['substitutefont'] == '':
+                self.context['fontsubstitution'] = ''
 
         # 'babel' key is public and user setting must be obeyed
         if self.context['babel']:
@@ -250,15 +256,16 @@ class LaTeXBuilder(Builder):
         with open(stylesheet, 'w') as f:
             f.write('\\NeedsTeXFormat{LaTeX2e}[1995/12/01]\n')
             f.write('\\ProvidesPackage{sphinxhighlight}'
-                    '[2016/05/29 stylesheet for highlighting with pygments]\n\n')
+                    '[2016/05/29 stylesheet for highlighting with pygments]\n')
+            f.write('% Its contents depend on pygments_style configuration variable.\n\n')
             f.write(highlighter.get_stylesheet())
 
     def write(self, *ignored: Any) -> None:
         docwriter = LaTeXWriter(self)
-        docsettings = OptionParser(
+        docsettings: Any = OptionParser(
             defaults=self.env.settings,
             components=(docwriter,),
-            read_config_files=True).get_default_values()  # type: Any
+            read_config_files=True).get_default_values()
 
         self.init_document_data()
         self.write_stylesheet()
@@ -287,6 +294,7 @@ class LaTeXBuilder(Builder):
                 doctree['tocdepth'] = tocdepth
                 self.post_process_images(doctree)
                 self.update_doc_context(title, author, theme)
+                self.update_context()
 
             with progress_message(__("writing")):
                 docsettings._author = author
@@ -348,7 +356,7 @@ class LaTeXBuilder(Builder):
         for pendingnode in largetree.traverse(addnodes.pending_xref):
             docname = pendingnode['refdocname']
             sectname = pendingnode['refsectname']
-            newnodes = [nodes.emphasis(sectname, sectname)]  # type: List[Node]
+            newnodes: List[Node] = [nodes.emphasis(sectname, sectname)]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
                     newnodes.append(nodes.Text(_(' (in '), _(' (in ')))
@@ -441,6 +449,18 @@ class LaTeXBuilder(Builder):
         filename = path.join(package_dir, 'templates', 'latex', 'sphinxmessages.sty_t')
         copy_asset_file(filename, self.outdir, context=context, renderer=LaTeXRenderer())
 
+    @property
+    def usepackages(self) -> List[Tuple[str, str]]:
+        warnings.warn('LaTeXBuilder.usepackages is deprecated.',
+                      RemovedInSphinx50Warning, stacklevel=2)
+        return self.app.registry.latex_packages
+
+    @property
+    def usepackages_after_hyperref(self) -> List[Tuple[str, str]]:
+        warnings.warn('LaTeXBuilder.usepackages_after_hyperref is deprecated.',
+                      RemovedInSphinx50Warning, stacklevel=2)
+        return self.app.registry.latex_packages_after_hyperref
+
 
 def validate_config_values(app: Sphinx, config: Config) -> None:
     for key in list(config.latex_elements):
@@ -458,16 +478,16 @@ def validate_latex_theme_options(app: Sphinx, config: Config) -> None:
             config.latex_theme_options.pop(key)
 
 
-def install_pakcages_for_ja(app: Sphinx) -> None:
+def install_packages_for_ja(app: Sphinx) -> None:
     """Install packages for Japanese."""
-    if app.config.language == 'ja':
+    if app.config.language == 'ja' and app.config.latex_engine in ('platex', 'uplatex'):
         app.add_latex_package('pxjahyper', after_hyperref=True)
 
 
 def default_latex_engine(config: Config) -> str:
     """ Better default latex_engine settings for specific languages. """
     if config.language == 'ja':
-        return 'platex'
+        return 'uplatex'
     elif (config.language or '').startswith('zh'):
         return 'xelatex'
     elif config.language == 'el':
@@ -498,7 +518,7 @@ def default_latex_documents(config: Config) -> List[Tuple[str, str, str, str, st
     """ Better default latex_documents settings. """
     project = texescape.escape(config.project, config.latex_engine)
     author = texescape.escape(config.author, config.latex_engine)
-    return [(config.master_doc,
+    return [(config.root_doc,
              make_filename_from_project(config.project) + '.tex',
              texescape.escape_abbr(project),
              texescape.escape_abbr(author),
@@ -511,7 +531,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(LaTeXBuilder)
     app.connect('config-inited', validate_config_values, priority=800)
     app.connect('config-inited', validate_latex_theme_options, priority=800)
-    app.connect('builder-inited', install_pakcages_for_ja)
+    app.connect('builder-inited', install_packages_for_ja)
 
     app.add_config_value('latex_engine', default_latex_engine, None,
                          ENUM('pdflatex', 'xelatex', 'lualatex', 'platex', 'uplatex'))

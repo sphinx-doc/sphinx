@@ -10,10 +10,6 @@
    :target: http://www.sphinx-doc.org/
    :alt: Documentation Status
 
-.. image:: https://travis-ci.org/sphinx-doc/sphinx.svg?branch=master
-   :target: https://travis-ci.org/sphinx-doc/sphinx
-   :alt: Build Status (Travis CI)
-
 .. image:: https://ci.appveyor.com/api/projects/status/github/sphinx-doc/sphinx?branch=master&svg=true
    :target: https://ci.appveyor.com/project/sphinxdoc/sphinx
    :alt: Build Status (AppVeyor)

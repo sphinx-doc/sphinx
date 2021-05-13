@@ -4,7 +4,7 @@
 
     Test the code-block directive.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -250,6 +250,14 @@ def test_LiteralIncludeReader_dedent(literal_inc_path):
                        "  pass\n"
                        "\n")
 
+    # dedent: None
+    options = {'lines': '9-11', 'dedent': None}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("def baz():\n"
+                       "    pass\n"
+                       "\n")
+
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_tabwidth(testroot):
@@ -415,44 +423,16 @@ def test_literal_include_linenos(app, status, warning):
     html = (app.outdir / 'linenos.html').read_text()
 
     # :linenos:
-    assert ('<td class="linenos"><div class="linenodiv"><pre>'
-            ' 1\n'
-            ' 2\n'
-            ' 3\n'
-            ' 4\n'
-            ' 5\n'
-            ' 6\n'
-            ' 7\n'
-            ' 8\n'
-            ' 9\n'
-            '10\n'
-            '11\n'
-            '12\n'
-            '13</pre></div></td>' in html)
+    assert ('<span class="linenos"> 1</span><span class="c1">'
+            '# Literally included file using Python highlighting</span>' in html)
 
     # :lineno-start:
-    assert ('<td class="linenos"><div class="linenodiv"><pre>'
-            '200\n'
-            '201\n'
-            '202\n'
-            '203\n'
-            '204\n'
-            '205\n'
-            '206\n'
-            '207\n'
-            '208\n'
-            '209\n'
-            '210\n'
-            '211\n'
-            '212</pre></div></td>' in html)
+    assert ('<span class="linenos">200</span><span class="c1">'
+            '# Literally included file using Python highlighting</span>' in html)
 
-    # :lineno-match:
-    assert ('<td class="linenos"><div class="linenodiv"><pre>'
-            '5\n'
-            '6\n'
-            '7\n'
-            '8\n'
-            '9</pre></div></td>' in html)
+    # :lines: 5-9
+    assert ('<span class="linenos">5</span><span class="k">class</span> '
+            '<span class="nc">Foo</span><span class="p">:</span>' in html)
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
@@ -586,45 +566,17 @@ def test_linenothreshold(app, status, warning):
     app.builder.build(['linenothreshold'])
     html = (app.outdir / 'linenothreshold.html').read_text()
 
-    lineos_head = '<td class="linenos"><div class="linenodiv"><pre>'
-    lineos_tail = '</pre></div></td>'
-
     # code-block using linenothreshold
-    _, matched, html = html.partition(lineos_head +
-                                      '1\n'
-                                      '2\n'
-                                      '3\n'
-                                      '4\n'
-                                      '5\n'
-                                      '6' + lineos_tail)
-    assert matched
+    assert ('<span class="linenos">1</span><span class="k">class</span> '
+            '<span class="nc">Foo</span><span class="p">:</span>' in html)
 
-    # code-block not using linenothreshold
-    html, matched, _ = html.partition(lineos_head +
-                                      '1\n'
-                                      '2' + lineos_tail)
-    assert not matched
+    # code-block not using linenothreshold (no line numbers)
+    assert '<span></span><span class="c1"># comment</span>' in html
 
     # literal include using linenothreshold
-    _, matched, html = html.partition(lineos_head +
-                                      ' 1\n'
-                                      ' 2\n'
-                                      ' 3\n'
-                                      ' 4\n'
-                                      ' 5\n'
-                                      ' 6\n'
-                                      ' 7\n'
-                                      ' 8\n'
-                                      ' 9\n'
-                                      '10\n'
-                                      '11\n'
-                                      '12\n'
-                                      '13' + lineos_tail)
-    assert matched
+    assert ('<span class="linenos"> 1</span><span class="c1">'
+            '# Literally included file using Python highlighting</span>' in html)
 
-    # literal include not using linenothreshold
-    html, matched, _ = html.partition(lineos_head +
-                                      '1\n'
-                                      '2\n'
-                                      '3' + lineos_tail)
-    assert not matched
+    # literal include not using linenothreshold (no line numbers)
+    assert ('<span></span><span class="c1"># Very small literal include '
+            '(linenothreshold check)</span>' in html)

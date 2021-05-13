@@ -48,7 +48,7 @@
     resolved to a Python object, and otherwise it becomes simple emphasis.
     This can be used as the default role to make links 'smart'.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -60,8 +60,7 @@ import sys
 import warnings
 from os import path
 from types import ModuleType
-from typing import Any, Dict, List, Tuple, Type
-from typing import cast
+from typing import Any, Dict, List, Optional, Tuple, Type, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -72,22 +71,22 @@ from docutils.statemachine import StringList
 import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
+from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.toctree import TocTree
-from sphinx.ext.autodoc import Documenter, INSTANCEATTR
+from sphinx.ext.autodoc import INSTANCEATTR, Documenter
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
-from sphinx.util import rst, logging
-from sphinx.util.docutils import (
-    NullReporter, SphinxDirective, SphinxRole, new_document, switch_source_input
-)
+from sphinx.util import logging, rst
+from sphinx.util.docutils import (NullReporter, SphinxDirective, SphinxRole, new_document,
+                                  switch_source_input)
 from sphinx.util.matching import Matcher
+from sphinx.util.typing import OptionSpec
 from sphinx.writers.html import HTMLTranslator
-
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +94,7 @@ logger = logging.getLogger(__name__)
 periods_re = re.compile(r'\.(?:\s+)')
 literal_re = re.compile(r'::\s*$')
 
-WELL_KNOWN_ABBREVIATIONS = (' i.e.',)
+WELL_KNOWN_ABBREVIATIONS = ('et al.', ' i.e.',)
 
 
 # -- autosummary_toc node ------------------------------------------------------
@@ -166,18 +165,20 @@ def autosummary_table_visit_html(self: HTMLTranslator, node: autosummary_table) 
 # -- autodoc integration -------------------------------------------------------
 
 # current application object (used in `get_documenter()`).
-_app = None  # type: Sphinx
+_app: Sphinx = None
 
 
 class FakeDirective(DocumenterBridge):
     def __init__(self) -> None:
         settings = Struct(tab_width=8)
         document = Struct(settings=settings)
+        env = BuildEnvironment()
+        env.config = Config()
         state = Struct(document=document)
-        super().__init__({}, None, Options(), 0, state)  # type: ignore
+        super().__init__(env, None, Options(), 0, state)
 
 
-def get_documenter(app: Sphinx, obj: Any, parent: Any) -> "Type[Documenter]":
+def get_documenter(app: Sphinx, obj: Any, parent: Any) -> Type[Documenter]:
     """Get an autodoc.Documenter class suitable for documenting the given
     object.
 
@@ -225,7 +226,7 @@ class Autosummary(SphinxDirective):
     optional_arguments = 0
     final_argument_whitespace = False
     has_content = True
-    option_spec = {
+    option_spec: OptionSpec = {
         'caption': directives.unchanged_required,
         'toctree': directives.unchanged,
         'nosignatures': directives.flag,
@@ -310,7 +311,7 @@ class Autosummary(SphinxDirective):
         """
         prefixes = get_import_prefixes_from_env(self.env)
 
-        items = []  # type: List[Tuple[str, str, str, str]]
+        items: List[Tuple[str, str, str, str]] = []
 
         max_item_chars = 50
 
@@ -460,8 +461,8 @@ def mangle_signature(sig: str, max_chars: int = 30) -> str:
         s = re.sub(r'{[^}]*}', '', s)
 
     # Parse the signature to arguments + options
-    args = []  # type: List[str]
-    opts = []  # type: List[str]
+    args: List[str] = []
+    opts: List[str] = []
 
     opt_re = re.compile(r"^(.*, |)([a-zA-Z0-9_*]+)\s*=\s*")
     while s:
@@ -578,7 +579,7 @@ def get_import_prefixes_from_env(env: BuildEnvironment) -> List[str]:
     Obtain current Python import prefixes (for `import_by_name`)
     from ``document.env``
     """
-    prefixes = [None]  # type: List[str]
+    prefixes: List[Optional[str]] = [None]
 
     currmodule = env.ref_context.get('py:module')
     if currmodule:
@@ -661,10 +662,12 @@ def import_ivar_by_name(name: str, prefixes: List[str] = [None]) -> Tuple[str, A
         name, attr = name.rsplit(".", 1)
         real_name, obj, parent, modname = import_by_name(name, prefixes)
         qualname = real_name.replace(modname + ".", "")
-        analyzer = ModuleAnalyzer.for_module(modname)
-        if (qualname, attr) in analyzer.find_attr_docs():
+        analyzer = ModuleAnalyzer.for_module(getattr(obj, '__module__', modname))
+        analyzer.analyze()
+        # check for presence in `annotations` to include dataclass attributes
+        if (qualname, attr) in analyzer.attr_docs or (qualname, attr) in analyzer.annotations:
             return real_name + "." + attr, INSTANCEATTR, obj, modname
-    except (ImportError, ValueError):
+    except (ImportError, ValueError, PycodeError):
         pass
 
     raise ImportError
@@ -706,7 +709,7 @@ def get_rst_suffix(app: Sphinx) -> str:
             return ('restructuredtext',)
         return parser_class.supported
 
-    suffix = None  # type: str
+    suffix: str = None
     for suffix in app.config.source_suffix:
         if 'restructuredtext' in get_supported_format(suffix):
             return suffix
@@ -772,7 +775,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('builder-inited', process_generate_options)
     app.add_config_value('autosummary_context', {}, True)
     app.add_config_value('autosummary_filename_map', {}, 'html')
-    app.add_config_value('autosummary_generate', [], True, [bool])
+    app.add_config_value('autosummary_generate', True, True, [bool, list])
     app.add_config_value('autosummary_generate_overwrite', True, False)
     app.add_config_value('autosummary_mock_imports',
                          lambda config: config.autodoc_mock_imports, 'env')

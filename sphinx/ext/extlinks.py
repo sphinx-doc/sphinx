@@ -7,19 +7,21 @@
 
     This adds a new config value called ``extlinks`` that is created like this::
 
-       extlinks = {'exmpl': ('https://example.invalid/%s.html', prefix), ...}
+       extlinks = {'exmpl': ('https://example.invalid/%s.html', caption), ...}
 
     Now you can use e.g. :exmpl:`foo` in your documents.  This will create a
     link to ``https://example.invalid/foo.html``.  The link caption depends on
-    the *prefix* value given:
+    the *caption* value given:
 
     - If it is ``None``, the caption will be the full URL.
-    - If it is a string (empty or not), the caption will be the prefix prepended
-      to the role content.
+    - If it is a string, it must contain ``%s`` exactly once.  In this case the
+      caption will be *caption* with the role content substituted for ``%s``.
 
     You can also give an explicit caption, e.g. :exmpl:`Foo <foo>`.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    Both, the url string and the caption string must escape ``%`` as ``%%``.
+
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -31,37 +33,55 @@ from docutils.parsers.rst.states import Inliner
 
 import sphinx
 from sphinx.application import Sphinx
+from sphinx.locale import __
+from sphinx.util import logging
 from sphinx.util.nodes import split_explicit_title
 from sphinx.util.typing import RoleFunction
 
+logger = logging.getLogger(__name__)
 
-def make_link_role(base_url: str, prefix: str) -> RoleFunction:
+
+def make_link_role(name: str, base_url: str, caption: str) -> RoleFunction:
+    # Check whether we have base_url and caption strings have an '%s' for
+    # expansion.  If not, fall back the the old behaviour and use the string as
+    # a prefix.
+    # Remark: It is an implementation detail that we use Pythons %-formatting.
+    # So far we only expose ``%s`` and require quoting of ``%`` using ``%%``.
+    try:
+        base_url % 'dummy'
+    except (TypeError, ValueError):
+        logger.warn(__('extlinks: Sphinx-6.0 will require base URL to '
+                       'contain exactly one \'%s\' and all other \'%\' need '
+                       'to be escaped as \'%%\'.'))  # RemovedInSphinx60Warning
+        base_url = base_url.replace('%', '%%') + '%s'
+    if caption is not None:
+        try:
+            caption % 'dummy'
+        except (TypeError, ValueError):
+            logger.warning(__('extlinks: Sphinx-6.0 will require a caption string to '
+                              'contain exactly one \'%s\' and all other \'%\' need '
+                              'to be escaped as \'%%\'.'))  # RemovedInSphinx60Warning
+            caption = caption.replace('%', '%%') + '%s'
+
     def role(typ: str, rawtext: str, text: str, lineno: int,
              inliner: Inliner, options: Dict = {}, content: List[str] = []
              ) -> Tuple[List[Node], List[system_message]]:
         text = utils.unescape(text)
         has_explicit_title, title, part = split_explicit_title(text)
-        try:
-            full_url = base_url % part
-        except (TypeError, ValueError):
-            inliner.reporter.warning(
-                'unable to expand %s extlink with base URL %r, please make '
-                'sure the base contains \'%%s\' exactly once'
-                % (typ, base_url), line=lineno)
-            full_url = base_url + part
+        full_url = base_url % part
         if not has_explicit_title:
-            if prefix is None:
+            if caption is None:
                 title = full_url
             else:
-                title = prefix + part
+                title = caption % part
         pnode = nodes.reference(title, title, internal=False, refuri=full_url)
         return [pnode], []
     return role
 
 
 def setup_link_roles(app: Sphinx) -> None:
-    for name, (base_url, prefix) in app.config.extlinks.items():
-        app.add_role(name, make_link_role(base_url, prefix))
+    for name, (base_url, caption) in app.config.extlinks.items():
+        app.add_role(name, make_link_role(name, base_url, caption))
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

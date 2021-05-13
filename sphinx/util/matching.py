@@ -4,12 +4,12 @@
 
     Pattern-matching utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
-from typing import Callable, Dict, Iterable, List, Match, Pattern
+from typing import Callable, Dict, Iterable, List, Match, Optional, Pattern
 
 from sphinx.util.osutil import canon_path
 
@@ -21,7 +21,7 @@ def _translate_pattern(pat: str) -> str:
     match slashes.
     """
     i, n = 0, len(pat)
-    res = ''  # type: str
+    res = ''
     while i < n:
         c = pat[i]
         i += 1
@@ -60,7 +60,7 @@ def _translate_pattern(pat: str) -> str:
     return res + '$'
 
 
-def compile_matchers(patterns: List[str]) -> List[Callable[[str], Match[str]]]:
+def compile_matchers(patterns: List[str]) -> List[Callable[[str], Optional[Match[str]]]]:
     return [re.compile(_translate_pattern(pat)).match for pat in patterns]
 
 
@@ -86,10 +86,10 @@ class Matcher:
 DOTFILES = Matcher(['**/.*'])
 
 
-_pat_cache = {}  # type: Dict[str, Pattern]
+_pat_cache: Dict[str, Pattern] = {}
 
 
-def patmatch(name: str, pat: str) -> Match[str]:
+def patmatch(name: str, pat: str) -> Optional[Match[str]]:
     """Return if name matches pat.  Adapted from fnmatch module."""
     if pat not in _pat_cache:
         _pat_cache[pat] = re.compile(_translate_pattern(pat))

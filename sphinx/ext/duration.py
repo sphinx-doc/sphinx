@@ -4,15 +4,14 @@
 
     Measure durations of Sphinx processing.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from datetime import datetime, timedelta
 from itertools import islice
 from operator import itemgetter
-from typing import Any, Dict, List
-from typing import cast
+from typing import Any, Dict, List, cast
 
 from docutils import nodes
 

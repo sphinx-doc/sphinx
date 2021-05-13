@@ -1,92 +1,751 @@
-Release 4.0.0 (in development)
+Release 5.0.0 (in development)
 ==============================
 
 Dependencies
 ------------
 
-* Drop python 3.5 support
-* Drop docutils 0.12 and 0.13 support
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 4.1.0 (in development)
+==============================
+
+Dependencies
+------------
+
+* Support jinja2-3.0
 
 Incompatible changes
 --------------------
 
+Deprecated
+----------
+
+* ``sphinx.application.Sphinx.html_theme``
+* ``sphinx.util.docstrings.extract_metadata()``
+
+Features added
+--------------
+
+* #8107: autodoc: Add ``class-doc-from`` option to :rst:dir:`autoclass`
+  directive to control the content of the specific class like
+  :confval:`autoclass_content`
+* #8588: autodoc: :confval:`autodoc_type_aliases` now supports dotted name. It
+  allows you to define an alias for a class with module name like
+  ``foo.bar.BazClass``
+* #9175: autodoc: Special member is not documented in the module
+* #9195: autodoc: The arguments of ``typing.Literal`` are wrongly rendered
+* #9185: autodoc: :confval:`autodoc_typehints` allows ``'both'`` setting to
+  allow typehints to be included both in the signature and description
+* #3257: autosummary: Support instance attributes for classes
+* #9129: html search: Show search summaries when html_copy_source = False
+* #9120: html theme: Eliminate prompt characters of code-block from copyable
+  text
+* #9176: i18n: Emit a debug message if message catalog file not found under
+  :confval:`locale_dirs`
+* #9097: Optimize the paralell build
+* #9131: Add :confval:`nitpick_ignore_regex` to ignore nitpicky warnings using
+  regular expressions
+
+
+Bugs fixed
+----------
+
+* #8872: autodoc: stacked singledispatches are wrongly rendered
+* #8597: autodoc: a docsting having metadata only should be treated as
+  undocumented
+* #9185: autodoc: typehints for overloaded functions and methods are inaccurate
+
+Testing
+--------
+
+Release 4.0.2 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+* #9210: viewcode: crashed if non importable modules found on parallel build
+
+Testing
+--------
+
+Release 4.0.1 (released May 11, 2021)
+=====================================
+
+Bugs fixed
+----------
+
+* #9189: autodoc: crashed when ValueError is raised on generating signature
+  from a property of the class
+* #9188: autosummary: warning is emitted if list value is set to
+  autosummary_generate
+* #8380: html search: tags for search result are broken
+* #9198: i18n: Babel emits errors when running compile_catalog
+* #9205: py domain: The :canonical: option causes "more than one target for
+  cross-reference" warning
+* #9201: websupport: UndefinedError is raised: 'css_tag' is undefined
+
+Release 4.0.0 (released May 09, 2021)
+=====================================
+
+Dependencies
+------------
+
+4.0.0b1
+
+* Drop python 3.5 support
+* Drop docutils 0.12 and 0.13 support
+* LaTeX: add ``tex-gyre`` font dependency
+
+4.0.0b2
+
+* Support docutils-0.17.  Please notice it changes the output of HTML builder.
+  Some themes do not support it, and you need to update your custom CSS to
+  upgrade it.
+
+Incompatible changes
+--------------------
+
+4.0.0b1
+
+* #8539: autodoc: info-field-list is generated into the class description when
+  ``autodoc_typehints='description'`` and ``autoclass_content='class'`` set
+* #8898: extlinks: "%s" becomes required keyword in the link caption string
+* domain: The ``Index`` class becomes subclasses of ``abc.ABC`` to indicate
+  methods that must be overrided in the concrete classes
 * #4826: py domain: The structure of python objects is changed.  A boolean value
   is added to indicate that the python object is canonical one
 * #7425: MathJax: The MathJax was changed from 2 to 3. Users using a custom
   MathJax configuration may have to set the old MathJax path or update their
   configuration for version 3. See :mod:`sphinx.ext.mathjax`.
 * #7784: i18n: The msgid for alt text of image is changed
+* #5560: napoleon: :confval:`napoleon_use_param` also affect "other parameters"
+  section
+* #7996: manpage: Make a section directory on build manpage by default (see
+  :confval:`man_make_section_directory`)
+* #7849: html: Change the default setting of
+  :confval:`html_codeblock_linenos_style` to ``'inline'``
+* #8380: html search: search results are wrapped with ``<p>`` instead of
+  ``<div>``
+* html theme: Move a script tag for documentation_options.js in
+  basic/layout.html to ``script_files`` variable
+* html theme: Move CSS tags in basic/layout.html to ``css_files`` variable
+* #8915: html theme: Emit a warning for sphinx_rtd_theme-0.2.4 or older
+* #8508: LaTeX: uplatex becomes a default setting of latex_engine for Japanese
+  documents
+* #5977: py domain: ``:var:``, ``:cvar:`` and ``:ivar:`` fields do not create
+  cross-references
+* #4550: The ``align`` attribute of ``figure`` and ``table`` nodes becomes
+  ``None`` by default instead of ``'default'``
+* #8769: LaTeX refactoring: split sphinx.sty into multiple files and rename
+  some auxiliary files created in ``latex`` build output repertory
+* #8937: Use explicit title instead of <no title>
+* #8487: The :file: option for csv-table directive now recognizes an absolute
+  path as a relative path from source directory
+
+4.0.0b2
+
+* #9023: Change the CSS classes on :rst:role:`cpp:expr` and
+  :rst:role:`cpp:texpr`.
 
 Deprecated
 ----------
 
+* :confval:`html_codeblock_linenos_style`
+* ``favicon`` and ``logo`` variable in HTML templates
 * ``sphinx.directives.patches.CSVTable``
 * ``sphinx.directives.patches.ListTable``
 * ``sphinx.directives.patches.RSTTable``
+* ``sphinx.ext.autodoc.directive.DocumenterBridge.filename_set``
+* ``sphinx.ext.autodoc.directive.DocumenterBridge.warn()``
+* ``sphinx.registry.SphinxComponentRegistry.get_source_input()``
+* ``sphinx.registry.SphinxComponentRegistry.source_inputs``
+* ``sphinx.transforms.FigureAligner``
 * ``sphinx.util.pycompat.convert_with_2to3()``
 * ``sphinx.util.pycompat.execfile_()``
 * ``sphinx.util.smartypants``
+* ``sphinx.util.typing.DirectiveOption``
 
 Features added
 --------------
 
+4.0.0b1
+
+* #8924: autodoc: Support ``bound`` argument for TypeVar
+* #7383: autodoc: Support typehints for properties
+* #5603: autodoc: Allow to refer to a python class using its canonical name
+  when the class has two different names; a canonical name and an alias name
+* #8539: autodoc: Add :confval:`autodoc_typehints_description_target` to control
+  the behavior of ``autodoc_typehints=description``
+* #8841: autodoc: :confval:`autodoc_docstring_signature` will continue to look
+  for multiple signature lines without backslash character
+* #7549: autosummary: Enable :confval:`autosummary_generate` by default
+* #8898: extlinks: Allow %s in link caption string
 * #4826: py domain: Add ``:canonical:`` option to python directives to describe
   the location where the object is defined
+* #7199: py domain: Add :confval:`python_use_unqualified_type_names` to suppress
+  the module name of the python reference if it can be resolved (experimental)
+* #7068: py domain: Add :rst:dir:`py:property` directive to describe a property
 * #7784: i18n: The alt text for image is translated by default (without
   :confval:`gettext_additional_targets` setting)
+* #2018: html: :confval:`html_favicon` and :confval:`html_logo` now accept URL
+  for the image
+* #8070: html search: Support searching for 2characters word
+* #9036: html theme: Allow to inherite the search page
+* #8938: imgconverter: Show the error of the command availability check
 * #7830: Add debug logs for change detection of sources and templates
+* #8201: Emit a warning if toctree contains duplicated entries
+* #8326: ``master_doc`` is now renamed to :confval:`root_doc`
+* #8942: C++, add support for the C++20 spaceship operator, ``<=>``.
+* #7199: A new node, ``sphinx.addnodes.pending_xref_condition`` has been added.
+  It can be used to choose appropriate content of the reference by conditions.
+
+4.0.0b2
+
+* #8818: autodoc: Super class having ``Any`` arguments causes nit-picky warning
+* #9095: autodoc: TypeError is raised on processing broken metaclass
+* #9110: autodoc: metadata of GenericAlias is not rendered as a reference in
+  py37+
+* #9098: html: copy-range protection for doctests doesn't work in Safari
+* #9103: LaTeX: imgconverter: conversion runs even if not needed
+* #8127: py domain: Ellipsis in info-field-list causes nit-picky warning
+* #9121: py domain: duplicated warning is emitted when both canonical and its
+  alias objects are defined on the document
+* #9023: More CSS classes on domain descriptions, see :ref:`nodes` for details.
+* #8195: mathjax: Rename :confval:`mathjax_config` to
+  :confval:`mathjax2_config` and add :confval:`mathjax3_config`
 
 Bugs fixed
 ----------
 
-Testing
---------
+4.0.0b1
 
-Release 3.3.0 (in development)
+* #8917: autodoc: Raises a warning if function has wrong __globals__ value
+* #8415: autodoc: a TypeVar imported from other module is not resolved (in
+  Python 3.7 or above)
+* #8992: autodoc: Failed to resolve types.TracebackType type annotation
+* #8905: html: html_add_permalinks=None and html_add_permalinks="" are ignored
+* #8380: html search: Paragraphs in search results are not identified as ``<p>``
+* #8915: html theme: The translation of sphinx_rtd_theme does not work
+* #8342: Emit a warning if a unknown domain is given for directive or role (ex.
+  ``:unknown:doc:``)
+* #7241: LaTeX: No wrapping for ``cpp:enumerator``
+* #8711: LaTeX: backticks in code-blocks trigger latexpdf build warning (and font
+  change) with late TeXLive 2019
+* #8253: LaTeX: Figures with no size defined get overscaled (compared to images
+  with size explicitly set in pixels) (fixed for ``'pdflatex'/'lualatex'`` only)
+* #8881: LaTeX: The depth of bookmarks panel in PDF is not enough for navigation
+* #8874: LaTeX: the fix to two minor Pygments LaTeXFormatter output issues ignore
+  Pygments style
+* #8925: LaTeX: 3.5.0 ``verbatimmaxunderfull`` setting does not work as
+  expected
+* #8980: LaTeX: missing line break in ``\pysigline``
+* #8995: LaTeX: legacy ``\pysiglinewithargsret`` does not compute correctly
+  available  horizontal space and should use a ragged right style
+* #9009: LaTeX: "release" value with underscore leads to invalid LaTeX
+* #8911: C++: remove the longest matching prefix in
+  :confval:`cpp_index_common_prefix` instead of the first that matches.
+* C, properly reject function declarations when a keyword is used
+  as parameter name.
+* #8933: viewcode: Failed to create back-links on parallel build
+* #8960: C and C++, fix rendering of (member) function pointer types in
+  function parameter lists.
+* C++, fix linking of names in array declarators, pointer to member
+  (function) declarators, and in the argument to ``sizeof...``.
+* C, fix linking of names in array declarators.
+
+4.0.0b2
+
+* C, C++, fix ``KeyError`` when an ``alias`` directive is the first C/C++
+  directive in a file with another C/C++ directive later.
+
+4.0.0b3
+
+* #9167: html: Failed to add CSS files to the specific page
+
+Release 3.5.5 (in development)
 ==============================
+
+Release 3.5.4 (released Apr 11, 2021)
+=====================================
 
 Dependencies
 ------------
 
+* #9071: Restrict docutils to 0.16
+
+Bugs fixed
+----------
+
+* #9078: autodoc: Async staticmethods and classmethods are considered as non
+  async coroutine-functions with Python3.10
+* #8870, #9001, #9051: html theme: The style are not applied with docutils-0.17
+
+  - toctree captions
+  - The content of ``sidebar`` directive
+  - figures
+
+Release 3.5.3 (released Mar 20, 2021)
+=====================================
+
+Features added
+--------------
+
+* #8959: using UNIX path separator in image directive confuses Sphinx on Windows
+
+Release 3.5.2 (released Mar 06, 2021)
+=====================================
+
+Bugs fixed
+----------
+
+* #8943: i18n: Crashed by broken translation messages in ES, EL and HR
+* #8936: LaTeX: A custom LaTeX builder fails with unknown node error
+* #8952: Exceptions raised in a Directive cause parallel builds to hang
+
+Release 3.5.1 (released Feb 16, 2021)
+=====================================
+
+Bugs fixed
+----------
+
+* #8883: autodoc: AttributeError is raised on assigning __annotations__ on
+  read-only class
+* #8884: html: minified js stemmers not included in the distributed package
+* #8885: html: AttributeError is raised if CSS/JS files are installed via
+  :confval:`html_context`
+* #8880: viewcode: ExtensionError is raised on incremental build after
+  unparsable python module found
+
+Release 3.5.0 (released Feb 14, 2021)
+=====================================
+
+Dependencies
+------------
+
+* LaTeX: ``multicol`` (it is anyhow a required part of the official latex2e
+  base distribution)
+
 Incompatible changes
 --------------------
+
+* Update Underscore.js to 1.12.0
+* #6550: html: The config variable ``html_add_permalinks`` is replaced by
+  :confval:`html_permalinks` and :confval:`html_permalinks_icon`
 
 Deprecated
 ----------
 
+* pending_xref node for viewcode extension
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.anchors_ignore``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.auth``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.broken``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.good``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.redirected``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.rqueue``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.to_ignore``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.workers``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.wqueue``
+* ``sphinx.builders.linkcheck.node_line_or_0()``
+* ``sphinx.ext.autodoc.AttributeDocumenter.isinstanceattribute()``
+* ``sphinx.ext.autodoc.directive.DocumenterBridge.reporter``
+* ``sphinx.ext.autodoc.importer.get_module_members()``
+* ``sphinx.ext.autosummary.generate._simple_info()``
+* ``sphinx.ext.autosummary.generate._simple_warn()``
+* ``sphinx.writers.html.HTMLTranslator.permalink_text``
+* ``sphinx.writers.html5.HTML5Translator.permalink_text``
+
 Features added
 --------------
+
+* #8022: autodoc: autodata and autoattribute directives does not show right-hand
+  value of the variable if docstring contains ``:meta hide-value:`` in
+  info-field-list
+* #8514: autodoc: Default values of overloaded functions are taken from actual
+  implementation if they're ellipsis
+* #8775: autodoc: Support type union operator (PEP-604) in Python 3.10 or above
+* #8297: autodoc: Allow to extend :confval:`autodoc_default_options` via
+  directive options
+* #759: autodoc: Add a new configuration :confval:`autodoc_preserve_defaults` as
+  an experimental feature.  It preserves the default argument values of
+  functions in source code and keep them not evaluated for readability.
+* #8619: html: kbd role generates customizable HTML tags for compound keys
+* #8634: html: Allow to change the order of JS/CSS via ``priority`` parameter
+  for :meth:`Sphinx.add_js_file()` and :meth:`Sphinx.add_css_file()`
+* #6241: html: Allow to add JS/CSS files to the specific page when an extension
+  calls ``app.add_js_file()`` or ``app.add_css_file()`` on
+  :event:`html-page-context` event
+* #6550: html: Allow to use HTML permalink texts via
+  :confval:`html_permalinks_icon`
+* #1638: html: Add permalink icons to glossary terms
+* #8868: html search: performance issue with massive lists
+* #8867: html search: Update JavaScript stemmer code to the latest version of
+  Snowball (v2.1.0)
+* #8852: i18n: Allow to translate heading syntax in MyST-Parser
+* #8649: imgconverter: Skip availability check if builder supports the image
+  type
+* #8573: napoleon: Allow to change the style of custom sections using
+  :confval:`napoleon_custom_styles`
+* #8004: napoleon: Type definitions in Google style docstrings are rendered as
+  references when :confval:`napoleon_preprocess_types` enabled
+* #6241: mathjax: Include mathjax.js only on the document using equations
+* #8775: py domain: Support type union operator (PEP-604)
+* #8651: std domain: cross-reference for a rubric having inline item is broken
+* #7642: std domain: Optimize case-insensitive match of term
+* #8681: viewcode: Support incremental build
+* #8132: Add :confval:`project_copyright` as an alias of :confval:`copyright`
+* #207: Now :confval:`highlight_language` supports multiple languages
+* #2030: :rst:dir:`code-block` and :rst:dir:`literalinclude` supports automatic
+  dedent via no-argument ``:dedent:`` option
+* C++, also hyperlink operator overloads in expressions and alias declarations.
+* #8247: Allow production lists to refer to tokens from other production groups
+* #8813: Show what extension (or module) caused it on errors on event handler
+* #8213: C++: add ``maxdepth`` option to :rst:dir:`cpp:alias` to insert nested
+  declarations.
+* C, add ``noroot`` option to :rst:dir:`c:alias` to render only nested
+  declarations.
+* C++, add ``noroot`` option to :rst:dir:`cpp:alias` to render only nested
+  declarations.
+
+Bugs fixed
+----------
+
+* #8727: apidoc: namespace module file is not generated if no submodules there
+* #741: autodoc: inherited-members doesn't work for instance attributes on super
+  class
+* #8592: autodoc: ``:meta public:`` does not effect to variables
+* #8594: autodoc: empty __all__ attribute is ignored
+* #8315: autodoc: Failed to resolve struct.Struct type annotation
+* #8652: autodoc: All variable comments in the module are ignored if the module
+  contains invalid type comments
+* #8693: autodoc: Default values for overloaded functions are rendered as string
+* #8134: autodoc: crashes when mocked decorator takes arguments
+* #8800: autodoc: Uninitialized attributes in superclass are recognized as
+  undocumented
+* #8655: autodoc: Failed to generate document if target module contains an
+  object that raises an exception on ``hasattr()``
+* #8306: autosummary: mocked modules are documented as empty page when using
+  :recursive: option
+* #8232: graphviz: Image node is not rendered if graph file is in subdirectory
+* #8618: html: kbd role produces incorrect HTML when compound-key separators (-,
+  + or ^) are used as keystrokes
+* #8629: html: A type warning for html_use_opensearch is shown twice
+* #8714: html: kbd role with "Caps Lock" rendered incorrectly
+* #8123: html search: fix searching for terms containing + (Requires a custom
+  search language that does not split on +)
+* #8665: html theme: Could not override globaltoc_maxdepth in theme.conf
+* #8446: html: consecutive spaces are displayed as single space
+* #8745: i18n: crashes with KeyError when translation message adds a new auto
+  footnote reference
+* #4304: linkcheck: Fix race condition that could lead to checking the
+  availability of the same URL twice
+* #8791: linkcheck: The docname for each hyperlink is not displayed
+* #7118: sphinx-quickstart: questionare got Mojibake if libreadline unavailable
+* #8094: texinfo: image files on the different directory with document are not
+  copied
+* #8782: todo: Cross references in todolist get broken
+* #8720: viewcode: module pages are generated for epub on incremental build
+* #8704: viewcode: anchors are generated in incremental build after singlehtml
+* #8756: viewcode: highlighted code is generated even if not referenced
+* #8671: :confval:`highlight_options` is not working
+* #8341: C, fix intersphinx lookup types for names in declarations.
+* C, C++: in general fix intersphinx and role lookup types.
+* #8683: :confval:`html_last_updated_fmt` does not support UTC offset (%z)
+* #8683: :confval:`html_last_updated_fmt` generates wrong time zone for %Z
+* #1112: ``download`` role creates duplicated copies when relative path is
+  specified
+* #2616 (fifth item): LaTeX: footnotes from captions are not clickable,
+  and for manually numbered footnotes only first one with same number is
+  an hyperlink
+* #7576: LaTeX with French babel and memoir crash: "Illegal parameter number
+  in definition of ``\FNH@prefntext``"
+* #8055: LaTeX (docs): A potential display bug with the LaTeX generation step
+  in Sphinx (how to generate one-column index)
+* #8072: LaTeX: Directive :rst:dir:`hlist` not implemented in LaTeX
+* #8214: LaTeX: The :rst:role:`index` role and the glossary generate duplicate
+  entries in the LaTeX index (if both used for same term)
+* #8735: LaTeX: wrong internal links in pdf to captioned code-blocks when
+  :confval:`numfig` is not True
+* #8442: LaTeX: some indexed terms are ignored when using xelatex engine
+  (or pdflatex and :confval:`latex_use_xindy` set to True) with memoir class
+* #8750: LaTeX: URLs as footnotes fail to show in PDF if originating from
+  inside function type signatures
+* #8780: LaTeX: long words in narrow columns may not be hyphenated
+* #8788: LaTeX: ``\titleformat`` last argument in sphinx.sty should be
+  bracketed, not braced (and is anyhow not needed) 
+* #8849: LaTex: code-block printed out of margin (see the opt-in LaTeX syntax
+  boolean :ref:`verbatimforcewraps <latexsphinxsetupforcewraps>` for use via
+  the :ref:`'sphinxsetup' <latexsphinxsetup>` key of ``latex_elements``)
+* #8183: LaTeX: Remove substitution_reference nodes from doctree only on LaTeX
+  builds
+* #8865: LaTeX: Restructure the index nodes inside title nodes only on LaTeX
+  builds
+* #8796: LaTeX: potentially critical low level TeX coding mistake has gone
+  unnoticed so far
+* C, :rst:dir:`c:alias` skip symbols without explicit declarations
+  instead of crashing.
+* C, :rst:dir:`c:alias` give a warning when the root symbol is not declared.
+* C, ``expr`` role should start symbol lookup in the current scope.
+
+Release 3.4.3 (released Jan 08, 2021)
+=====================================
+
+Bugs fixed
+----------
+
+* #8655: autodoc: Failed to generate document if target module contains an
+  object that raises an exception on ``hasattr()``
+
+Release 3.4.2 (released Jan 04, 2021)
+=====================================
+
+Bugs fixed
+----------
+
+* #8164: autodoc: Classes that inherit mocked class are not documented
+* #8602: autodoc: The ``autodoc-process-docstring`` event is emitted to the
+  non-datadescriptors unexpectedly
+* #8616: autodoc: AttributeError is raised on non-class object is passed to
+  autoclass directive
+
+Release 3.4.1 (released Dec 25, 2020)
+=====================================
+
+Bugs fixed
+----------
+
+* #8559: autodoc: AttributeError is raised when using forward-reference type
+  annotations
+* #8568: autodoc: TypeError is raised on checking slots attribute
+* #8567: autodoc: Instance attributes are incorrectly added to Parent class
+* #8566: autodoc: The ``autodoc-process-docstring`` event is emitted to the
+  alias classes unexpectedly
+* #8583: autodoc: Unnecessary object comparision via ``__eq__`` method
+* #8565: linkcheck: Fix PriorityQueue crash when link tuples are not
+  comparable
+
+Release 3.4.0 (released Dec 20, 2020)
+=====================================
+
+Incompatible changes
+--------------------
+
+* #8105: autodoc: the signature of class constructor will be shown for decorated
+  classes, not a signature of decorator
+
+Deprecated
+----------
+
+* The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
+* The ``no_docstring`` argument of
+  ``sphinx.ext.autodoc.Documenter.add_content()``
+* ``sphinx.ext.autodoc.Documenter.get_object_members()``
+* ``sphinx.ext.autodoc.DataDeclarationDocumenter``
+* ``sphinx.ext.autodoc.GenericAliasDocumenter``
+* ``sphinx.ext.autodoc.InstanceAttributeDocumenter``
+* ``sphinx.ext.autodoc.SlotsAttributeDocumenter``
+* ``sphinx.ext.autodoc.TypeVarDocumenter``
+* ``sphinx.ext.autodoc.importer._getannotations()``
+* ``sphinx.ext.autodoc.importer._getmro()``
+* ``sphinx.pycode.ModuleAnalyzer.parse()``
+* ``sphinx.util.osutil.movefile()``
+* ``sphinx.util.requests.is_ssl_error()``
+
+Features added
+--------------
+
+* #8119: autodoc: Allow to determine whether a member not included in
+  ``__all__`` attribute of the module should be documented or not via
+  :event:`autodoc-skip-member` event
+* #8219: autodoc: Parameters for generic class are not shown when super class is
+  a generic class and show-inheritance option is given (in Python 3.7 or above)
+* autodoc: Add ``Documenter.config`` as a shortcut to access the config object
+* autodoc: Add Optional[t] to annotation of function and method if a default
+  value equal to None is set.
+* #8209: autodoc: Add ``:no-value:`` option to :rst:dir:`autoattribute` and
+  :rst:dir:`autodata` directive to suppress the default value of the variable
+* #8460: autodoc: Support custom types defined by typing.NewType
+* #8285: napoleon: Add :confval:`napoleon_attr_annotations` to merge type hints
+  on source code automatically if any type is specified in docstring
+* #8236: napoleon: Support numpydoc's "Receives" section
+* #6914: Add a new event :event:`warn-missing-reference` to custom warning
+  messages when failed to resolve a cross-reference
+* #6914: Emit a detailed warning when failed to resolve a ``:ref:`` reference
+* #6629: linkcheck: The builder now handles rate limits. See
+  :confval:`linkcheck_retry_on_rate_limit` for details.
+
+Bugs fixed
+----------
+
+* #7613: autodoc: autodoc does not respect __signature__ of the class
+* #4606: autodoc: the location of the warning is incorrect for inherited method
+* #8105: autodoc: the signature of class constructor is incorrect if the class
+  is decorated
+* #8434: autodoc: :confval:`autodoc_type_aliases` does not effect to variables
+  and attributes
+* #8443: autodoc: autodata directive can't create document for PEP-526 based
+  type annotated variables
+* #8443: autodoc: autoattribute directive can't create document for PEP-526
+  based uninitalized variables
+* #8480: autodoc: autoattribute could not create document for __slots__
+  attributes
+* #8503: autodoc: autoattribute could not create document for a GenericAlias as
+  class attributes correctly
+* #8534: autodoc: autoattribute could not create document for a commented
+  attribute in alias class
+* #8452: autodoc: autodoc_type_aliases doesn't work when autodoc_typehints is
+  set to "description"
+* #8541: autodoc: autodoc_type_aliases doesn't work for the type annotation to
+  instance attributes
+* #8460: autodoc: autodata and autoattribute directives do not display type
+  information of TypeVars
+* #8493: autodoc: references to builtins not working in class aliases
+* #8522: autodoc:  ``__bool__`` method could be called
+* #8067: autodoc: A typehint for the instance variable having type_comment on
+  super class is not displayed
+* #8545: autodoc: a __slots__ attribute is not documented even having docstring
+* #741: autodoc: inherited-members doesn't work for instance attributes on super
+  class
+* #8477: autosummary: non utf-8 reST files are generated when template contains
+  multibyte characters
+* #8501: autosummary: summary extraction splits text after "el at." unexpectedly
+* #8524: html: Wrong url_root has been generated on a document named "index"
+* #8419: html search: Do not load ``language_data.js`` in non-search pages
+* #8549: i18n: ``-D gettext_compact=0`` is no longer working
+* #8454: graphviz: The layout option for graph and digraph directives don't work
+* #8131: linkcheck: Use GET when HEAD requests cause Too Many Redirects, to
+  accommodate infinite redirect loops on HEAD
+* #8437: Makefile: ``make clean`` with empty BUILDDIR is dangerous
+* #8365: py domain: ``:type:`` and ``:rtype:`` gives false ambiguous class
+  lookup warnings
+* #8352: std domain: Failed to parse an option that starts with bracket
+* #8519: LaTeX: Prevent page brake in the middle of a seealso
+* #8520: C, fix copying of AliasNode.
+
+Release 3.3.1 (released Nov 12, 2020)
+=====================================
+
+Bugs fixed
+----------
+
+* #8372: autodoc: autoclass directive became slower than Sphinx-3.2
+* #7727: autosummary: raise PycodeError when documenting python package
+  without __init__.py
+* #8350: autosummary: autosummary_mock_imports causes slow down builds
+* #8364: C, properly initialize attributes in empty symbols.
+* #8399: i18n: Put system locale path after the paths specified by configuration
+
+Release 3.3.0 (released Nov 02, 2020)
+=====================================
+
+Deprecated
+----------
+
+* ``sphinx.builders.latex.LaTeXBuilder.usepackages``
+* ``sphinx.builders.latex.LaTeXBuilder.usepackages_afger_hyperref``
+* ``sphinx.ext.autodoc.SingledispatchFunctionDocumenter``
+* ``sphinx.ext.autodoc.SingledispatchMethodDocumenter``
+
+Features added
+--------------
+
+* #8100: html: Show a better error message for failures on copying
+  html_static_files
+* #8141: C: added a ``maxdepth`` option to :rst:dir:`c:alias` to insert
+  nested declarations.
+* #8081: LaTeX: Allow to add LaTeX package via ``app.add_latex_package()`` until
+  just before writing .tex file
+* #7996: manpage: Add :confval:`man_make_section_directory` to make a section
+  directory on build man page
+* #8289: epub: Allow to suppress "duplicated ToC entry found" warnings from epub
+  builder using :confval:`suppress_warnings`.
+* #8298: sphinx-quickstart: Add :option:`sphinx-quickstart --no-sep` option
+* #8304: sphinx.testing: Register public markers in sphinx.testing.fixtures
+* #8051: napoleon: use the obj role for all See Also items
+* #8050: napoleon: Apply :confval:`napoleon_preprocess_types` to every field
+* C and C++, show line numbers for previous declarations when duplicates are
+  detected.
+* #8183: Remove substitution_reference nodes from doctree only on LaTeX builds
 
 Bugs fixed
 ----------
 
 * #8085: i18n: Add support for having single text domain
+* #6640: i18n: Failed to override system message translation
+* #8143: autodoc: AttributeError is raised when False value is passed to
+  autodoc_default_options
+* #8103: autodoc: functools.cached_property is not considered as a property
+* #8190: autodoc: parsing error is raised if some extension replaces docstring
+  by string not ending with blank lines
+* #8142: autodoc: Wrong constructor signature for the class derived from
+  typing.Generic
+* #8157: autodoc: TypeError is raised when annotation has invalid __args__
+* #7964: autodoc: Tuple in default value is wrongly rendered
+* #8200: autodoc: type aliases break type formatting of autoattribute
+* #7786: autodoc: can't detect overloaded methods defined in other file
+* #8294: autodoc: single-string __slots__ is not handled correctly
+* #7785: autodoc: autodoc_typehints='none' does not effect to overloaded functions
+* #8192: napoleon: description is disappeared when it contains inline literals
+* #8142: napoleon: Potential of regex denial of service in google style docs
+* #8169: LaTeX: pxjahyper loaded even when latex_engine is not platex
+* #8215: LaTeX: 'oneside' classoption causes build warning
+* #8175: intersphinx: Potential of regex denial of service by broken inventory
+* #8277: sphinx-build: missing and redundant spacing (and etc) for console
+  output on building
+* #7973: imgconverter: Check availability of imagemagick many times
+* #8255: py domain: number in default argument value is changed from hexadecimal
+  to decimal
+* #8316: html: Prevent arrow keys changing page when button elements are focused
+* #8343: html search: Fix unnecessary load of images when parsing the document
+* #8254: html theme: Line numbers misalign with code lines
 * #8093: The highlight warning has wrong location in some builders (LaTeX,
   singlehtml and so on)
+* #8215: Eliminate Fancyhdr build warnings for oneside documents
+* #8239: Failed to refer a token in productionlist if it is indented
+* #8268: linkcheck: Report HTTP errors when ``linkcheck_anchors`` is ``True``
+* #8245: linkcheck: take source directory into account for local files
+* #8321: linkcheck: ``tel:`` schema hyperlinks are detected as errors
+* #8323: linkcheck: An exit status is incorrect when links having unsupported
+  schema found
+* #8188: C, add missing items to internal object types dictionary,
+  e.g., preventing intersphinx from resolving them.
+* C, fix anon objects in intersphinx.
+* #8270, C++, properly reject functions as duplicate declarations if a
+  non-function declaration of the same name already exists.
+* C, fix references to function parameters.
+  Link to the function instead of a non-existing anchor.
+* #6914: figure numbers are unexpectedly assigned to uncaptioned items
+* #8320: make "inline" line numbers un-selectable
 
 Testing
 --------
 
-Release 3.2.2 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
+* #8257: Support parallel build in sphinx.testing
 
 Release 3.2.1 (released Aug 14, 2020)
 =====================================
@@ -187,7 +846,7 @@ Bugs fixed
   contains a hyperlink target
 * #7469: autosummary: "Module attributes" header is not translatable
 * #7940: apidoc: An extra newline is generated at the end of the rst file if a
-  module has submodules 
+  module has submodules
 * #4258: napoleon: decorated special methods are not shown
 * #7799: napoleon: parameters are not escaped for combined params in numpydoc
 * #7780: napoleon: multiple paramaters declaration in numpydoc was wrongly
@@ -354,7 +1013,7 @@ Features added
 * #7543: html theme: Add top and bottom margins to tables
 * #7695: html theme: Add viewport meta tag for basic theme
 * #7721: html theme: classic: default codetextcolor/codebgcolor doesn't override
-  Pygments 
+  Pygments
 * C and C++: allow semicolon in the end of declarations.
 * C++, parse parameterized noexcept specifiers.
 * #7294: C++, parse expressions with user-defined literals.

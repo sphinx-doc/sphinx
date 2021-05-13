@@ -66,11 +66,11 @@ doclinter:
 
 .PHONY: test
 test:
-	@$(PYTHON) -m pytest -v $(TEST)
+	@$(PYTHON) -X dev -m pytest -v $(TEST)
 
 .PHONY: covertest
 covertest:
-	@$(PYTHON) -m pytest -v --cov=sphinx --junitxml=.junit.xml $(TEST)
+	@$(PYTHON) -X dev -m pytest -v --cov=sphinx --junitxml=.junit.xml $(TEST)
 
 .PHONY: build
 build:

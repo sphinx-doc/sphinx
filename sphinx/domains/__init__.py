@@ -5,13 +5,14 @@
     Support for domains, which are groupings of description directives
     and roles describing e.g. constructs of one programming language.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import copy
-from typing import Any, Callable, Dict, Iterable, List, NamedTuple, Tuple, Type, Union
-from typing import TYPE_CHECKING, cast
+from abc import ABC, abstractmethod
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, List, NamedTuple, Optional,
+                    Tuple, Type, Union, cast)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -49,8 +50,8 @@ class ObjType:
 
     def __init__(self, lname: str, *roles: Any, **attrs: Any) -> None:
         self.lname = lname
-        self.roles = roles                      # type: Tuple
-        self.attrs = self.known_attrs.copy()    # type: Dict
+        self.roles: Tuple = roles
+        self.attrs: Dict = self.known_attrs.copy()
         self.attrs.update(attrs)
 
 
@@ -64,7 +65,7 @@ class IndexEntry(NamedTuple):
     descr: str
 
 
-class Index:
+class Index(ABC):
     """
     An Index is the description for a domain-specific index.  To add an index to
     a domain, subclass Index, overriding the three name attributes:
@@ -87,9 +88,9 @@ class Index:
        :rst:role:`ref` role.
     """
 
-    name = None  # type: str
-    localname = None  # type: str
-    shortname = None  # type: str
+    name: str = None
+    localname: str = None
+    shortname: str = None
 
     def __init__(self, domain: "Domain") -> None:
         if self.name is None or self.localname is None:
@@ -97,6 +98,7 @@ class Index:
                               % self.__class__.__name__)
         self.domain = domain
 
+    @abstractmethod
     def generate(self, docnames: Iterable[str] = None
                  ) -> Tuple[List[Tuple[str, List[IndexEntry]]], bool]:
         """Get entries for the index.
@@ -179,31 +181,31 @@ class Domain:
     #: domain label: longer, more descriptive (used in messages)
     label = ''
     #: type (usually directive) name -> ObjType instance
-    object_types = {}       # type: Dict[str, ObjType]
+    object_types: Dict[str, ObjType] = {}
     #: directive name -> directive class
-    directives = {}         # type: Dict[str, Any]
+    directives: Dict[str, Any] = {}
     #: role name -> role callable
-    roles = {}              # type: Dict[str, Union[RoleFunction, XRefRole]]
+    roles: Dict[str, Union[RoleFunction, XRefRole]] = {}
     #: a list of Index subclasses
-    indices = []            # type: List[Type[Index]]
+    indices: List[Type[Index]] = []
     #: role name -> a warning message if reference is missing
-    dangling_warnings = {}  # type: Dict[str, str]
+    dangling_warnings: Dict[str, str] = {}
     #: node_class -> (enum_node_type, title_getter)
-    enumerable_nodes = {}   # type: Dict[Type[Node], Tuple[str, Callable]]
+    enumerable_nodes: Dict[Type[Node], Tuple[str, Callable]] = {}
 
     #: data value for a fresh environment
-    initial_data = {}       # type: Dict
+    initial_data: Dict = {}
     #: data value
-    data = None             # type: Dict
+    data: Dict
     #: data version, bump this when the format of `self.data` changes
     data_version = 0
 
     def __init__(self, env: "BuildEnvironment") -> None:
-        self.env = env              # type: BuildEnvironment
-        self._role_cache = {}       # type: Dict[str, Callable]
-        self._directive_cache = {}  # type: Dict[str, Callable]
-        self._role2type = {}        # type: Dict[str, List[str]]
-        self._type2role = {}        # type: Dict[str, str]
+        self.env: BuildEnvironment = env
+        self._role_cache: Dict[str, Callable] = {}
+        self._directive_cache: Dict[str, Callable] = {}
+        self._role2type: Dict[str, List[str]] = {}
+        self._type2role: Dict[str, str] = {}
 
         # convert class variables to instance one (to enhance through API)
         self.object_types = dict(self.object_types)
@@ -224,8 +226,8 @@ class Domain:
             for rolename in obj.roles:
                 self._role2type.setdefault(rolename, []).append(name)
             self._type2role[name] = obj.roles[0] if obj.roles else ''
-        self.objtypes_for_role = self._role2type.get    # type: Callable[[str], List[str]]
-        self.role_for_objtype = self._type2role.get     # type: Callable[[str], str]
+        self.objtypes_for_role: Callable[[str], List[str]] = self._role2type.get
+        self.role_for_objtype: Callable[[str], str] = self._type2role.get
 
     def setup(self) -> None:
         """Set up domain object."""
@@ -249,7 +251,7 @@ class Domain:
         for role in objtype.roles:
             self._role2type.setdefault(role, []).append(name)
 
-    def role(self, name: str) -> RoleFunction:
+    def role(self, name: str) -> Optional[RoleFunction]:
         """Return a role adapter function that always gives the registered
         role its full name ('domain:name') as the first argument.
         """
@@ -267,7 +269,7 @@ class Domain:
         self._role_cache[name] = role_adapter
         return role_adapter
 
-    def directive(self, name: str) -> Callable:
+    def directive(self, name: str) -> Optional[Callable]:
         """Return a directive adapter class that always gives the registered
         directive its full name ('domain:name') as ``self.name``.
         """
@@ -316,7 +318,7 @@ class Domain:
 
     def resolve_xref(self, env: "BuildEnvironment", fromdocname: str, builder: "Builder",
                      typ: str, target: str, node: pending_xref, contnode: Element
-                     ) -> Element:
+                     ) -> Optional[Element]:
         """Resolve the pending_xref *node* with the given *typ* and *target*.
 
         This method should return a new node, to replace the xref node,
@@ -391,11 +393,11 @@ class Domain:
             return type.lname
         return _('%s %s') % (self.label, type.lname)
 
-    def get_enumerable_node_type(self, node: Node) -> str:
+    def get_enumerable_node_type(self, node: Node) -> Optional[str]:
         """Get type of enumerable nodes (experimental)."""
         enum_node_type, _ = self.enumerable_nodes.get(node.__class__, (None, None))
         return enum_node_type
 
-    def get_full_qualified_name(self, node: Element) -> str:
+    def get_full_qualified_name(self, node: Element) -> Optional[str]:
         """Return full qualified name for given node."""
         return None

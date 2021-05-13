@@ -5,12 +5,12 @@
     This module implements a simple JavaScript serializer.
     Uses the basestring encode function from simplejson by Bob Ippolito.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
-from typing import Any, Dict, IO, List, Match, Union
+from typing import IO, Any, Dict, List, Match, Union
 
 _str_re = re.compile(r'"(\\\\|\\"|[^"])*"')
 _int_re = re.compile(r'\d+')
@@ -109,8 +109,8 @@ def loads(x: str) -> Any:
     nothing = object()
     i = 0
     n = len(x)
-    stack = []  # type: List[Union[List, Dict]]
-    obj = nothing  # type: Any
+    stack: List[Union[List, Dict]] = []
+    obj: Any = nothing
     key = False
     keys = []
     while i < n:
@@ -160,7 +160,7 @@ def loads(x: str) -> Any:
                 raise ValueError("multiple values")
             key = False
         else:
-            y = None  # type: Any
+            y: Any = None
             m = _str_re.match(x, i)
             if m:
                 y = decode_string(m.group()[1:-1])

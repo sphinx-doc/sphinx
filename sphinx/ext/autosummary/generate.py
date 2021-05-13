@@ -13,7 +13,7 @@
        generate:
                sphinx-autogen -o source/generated source/*.rst
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -34,24 +34,21 @@ from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
 
 import sphinx.locale
-from sphinx import __display_version__
-from sphinx import package_dir
+from sphinx import __display_version__, package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.ext.autodoc import Documenter
-from sphinx.ext.autosummary import import_by_name, import_ivar_by_name, get_documenter
+from sphinx.ext.autodoc.importer import import_module
+from sphinx.ext.autosummary import get_documenter, import_by_name, import_ivar_by_name
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.registry import SphinxComponentRegistry
-from sphinx.util import logging
-from sphinx.util import rst
-from sphinx.util import split_full_qualified_name
+from sphinx.util import logging, rst, split_full_qualified_name
 from sphinx.util.inspect import safe_getattr
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
-
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +59,7 @@ class DummyApplication:
     def __init__(self, translator: NullTranslations) -> None:
         self.config = Config()
         self.registry = SphinxComponentRegistry()
-        self.messagelog = []  # type: List[str]
+        self.messagelog: List[str] = []
         self.srcdir = "/"
         self.translator = translator
         self.verbosity = 0
@@ -85,29 +82,29 @@ class AutosummaryEntry(NamedTuple):
 
 
 def setup_documenters(app: Any) -> None:
-    from sphinx.ext.autodoc import (
+    from sphinx.ext.autodoc import (AttributeDocumenter, ClassDocumenter, DataDocumenter,
+                                    DecoratorDocumenter, ExceptionDocumenter,
+                                    FunctionDocumenter, MethodDocumenter, ModuleDocumenter,
+                                    NewTypeAttributeDocumenter, NewTypeDataDocumenter,
+                                    PropertyDocumenter)
+    documenters: List[Type[Documenter]] = [
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
-        FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
-        InstanceAttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
-        SlotsAttributeDocumenter, DataDeclarationDocumenter, GenericAliasDocumenter,
-        SingledispatchFunctionDocumenter,
-    )
-    documenters = [
-        ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
-        FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
-        InstanceAttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
-        SlotsAttributeDocumenter, DataDeclarationDocumenter, GenericAliasDocumenter,
-        SingledispatchFunctionDocumenter,
-    ]  # type: List[Type[Documenter]]
+        FunctionDocumenter, MethodDocumenter, NewTypeAttributeDocumenter,
+        NewTypeDataDocumenter, AttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
+    ]
     for documenter in documenters:
         app.registry.add_documenter(documenter.objtype, documenter)
 
 
 def _simple_info(msg: str) -> None:
+    warnings.warn('_simple_info() is deprecated.',
+                  RemovedInSphinx50Warning, stacklevel=2)
     print(msg)
 
 
 def _simple_warn(msg: str) -> None:
+    warnings.warn('_simple_warn() is deprecated.',
+                  RemovedInSphinx50Warning, stacklevel=2)
     print('WARNING: ' + msg, file=sys.stderr)
 
 
@@ -242,15 +239,33 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                            name, exc, type='autosummary')
             return False
 
-    def get_members(obj: Any, types: Set[str], include_public: List[str] = [],
-                    imported: bool = True) -> Tuple[List[str], List[str]]:
-        items = []  # type: List[str]
-        public = []  # type: List[str]
+    def get_class_members(obj: Any) -> Dict[str, Any]:
+        members = sphinx.ext.autodoc.get_class_members(obj, [qualname], safe_getattr)
+        return {name: member.object for name, member in members.items()}
+
+    def get_module_members(obj: Any) -> Dict[str, Any]:
+        members = {}
         for name in dir(obj):
             try:
-                value = safe_getattr(obj, name)
+                members[name] = safe_getattr(obj, name)
             except AttributeError:
                 continue
+        return members
+
+    def get_all_members(obj: Any) -> Dict[str, Any]:
+        if doc.objtype == "module":
+            return get_module_members(obj)
+        elif doc.objtype == "class":
+            return get_class_members(obj)
+        return {}
+
+    def get_members(obj: Any, types: Set[str], include_public: List[str] = [],
+                    imported: bool = True) -> Tuple[List[str], List[str]]:
+        items: List[str] = []
+        public: List[str] = []
+
+        all_members = get_all_members(obj)
+        for name, value in all_members.items():
             documenter = get_documenter(app, value, obj)
             if documenter.objtype in types:
                 # skip imported members if expected
@@ -285,14 +300,21 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         return public, attrs
 
     def get_modules(obj: Any) -> Tuple[List[str], List[str]]:
-        items = []  # type: List[str]
+        items: List[str] = []
         for _, modname, ispkg in pkgutil.iter_modules(obj.__path__):
             fullname = name + '.' + modname
+            try:
+                module = import_module(fullname)
+                if module and hasattr(module, '__sphinx_mock__'):
+                    continue
+            except ImportError:
+                pass
+
             items.append(fullname)
         public = [x for x in items if not x.split('.')[-1].startswith('_')]
         return public, items
 
-    ns = {}  # type: Dict[str, Any]
+    ns: Dict[str, Any] = {}
     ns.update(context)
 
     if doc.objtype == 'module':
@@ -403,7 +425,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
                 logger.warning(__('[autosummary] failed to import %r: %s') % (entry.name, e))
                 continue
 
-        context = {}
+        context: Dict[str, Any] = {}
         if app:
             context.update(app.config.autosummary_context)
 
@@ -443,7 +465,7 @@ def find_autosummary_in_files(filenames: List[str]) -> List[AutosummaryEntry]:
 
     See `find_autosummary_in_lines`.
     """
-    documented = []  # type: List[AutosummaryEntry]
+    documented: List[AutosummaryEntry] = []
     for filename in filenames:
         with open(filename, encoding='utf-8', errors='ignore') as f:
             lines = f.read().splitlines()
@@ -497,10 +519,10 @@ def find_autosummary_in_lines(lines: List[str], module: str = None, filename: st
     toctree_arg_re = re.compile(r'^\s+:toctree:\s*(.*?)\s*$')
     template_arg_re = re.compile(r'^\s+:template:\s*(.*?)\s*$')
 
-    documented = []  # type: List[AutosummaryEntry]
+    documented: List[AutosummaryEntry] = []
 
     recursive = False
-    toctree = None  # type: str
+    toctree: str = None
     template = None
     current_module = module
     in_autosummary = False

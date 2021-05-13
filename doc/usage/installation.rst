@@ -107,7 +107,30 @@ Anaconda
 Windows
 -------
 
-.. todo:: Could we start packaging this?
+Sphinx can be install using `Chocolatey`__ or
+:ref:`installed manually <windows-other-method>`.
+
+__ https://chocolatey.org/
+
+Chocolatey
+~~~~~~~~~~
+
+::
+
+   $ choco install sphinx
+   
+You would need to `install Chocolatey
+<https://chocolatey.org/install/>`_
+before running this.
+
+For more information, refer to the `chocolatey page`__.
+
+__ https://chocolatey.org/packages/sphinx/
+
+.. _windows-other-method:
+
+Other Methods
+~~~~~~~~~~~~~
 
 Most Windows users do not have Python installed by default, so we begin with
 the installation of Python itself.  To check if you already have Python
@@ -171,7 +194,7 @@ Docker images for Sphinx are published on the `Docker Hub <https://hub.docker.co
 - `sphinxdoc/sphinx <https://hub.docker.com/repository/docker/sphinxdoc/sphinx>`_
 - `sphinxdoc/sphinx-latexpdf <https://hub.docker.com/repository/docker/sphinxdoc/sphinx-latexpdf>`_
 
-Former one is used for standard usage of Sphinx, and latter one is mainly used for PDF builds using LaTeX. 
+Former one is used for standard usage of Sphinx, and latter one is mainly used for PDF builds using LaTeX.
 Please choose one for your purpose.
 
 .. note::

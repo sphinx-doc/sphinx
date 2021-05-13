@@ -4,7 +4,7 @@
 
     Utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -22,28 +22,23 @@ from datetime import datetime
 from importlib import import_module
 from os import path
 from time import mktime, strptime
-from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Set, Tuple, Type
-from typing import TYPE_CHECKING
-from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
+from typing import (IO, TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, List, Optional,
+                    Pattern, Set, Tuple, Type)
+from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
 from sphinx.deprecation import RemovedInSphinx50Warning
-from sphinx.errors import SphinxParallelError, ExtensionError, FiletypeNotFoundError
+from sphinx.errors import ExtensionError, FiletypeNotFoundError, SphinxParallelError
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import strip_colors, colorize, bold, term_width_line  # type: ignore
-from sphinx.util.typing import PathMatcher
-from sphinx.util import smartypants  # noqa
-
+from sphinx.util.console import bold, colorize, strip_colors, term_width_line  # type: ignore
+from sphinx.util.matching import patfilter  # noqa
+from sphinx.util.nodes import (caption_ref_re, explicit_title_re,  # noqa
+                               nested_parse_with_titles, split_explicit_title)
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
-from sphinx.util.osutil import (  # noqa
-    SEP, os_path, relative_uri, ensuredir, mtimes_of_files, movefile,
-    copyfile, copytimes, make_filename)
-from sphinx.util.nodes import (   # noqa
-    nested_parse_with_titles, split_explicit_title, explicit_title_re,
-    caption_ref_re)
-from sphinx.util.matching import patfilter  # noqa
-
+from sphinx.util.osutil import (SEP, copyfile, copytimes, ensuredir, make_filename,  # noqa
+                                movefile, mtimes_of_files, os_path, relative_uri)
+from sphinx.util.typing import PathMatcher
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -52,8 +47,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 # Generally useful regular expressions.
-ws_re = re.compile(r'\s+')                      # type: Pattern
-url_re = re.compile(r'(?P<schema>.+)://.*')     # type: Pattern
+ws_re: Pattern = re.compile(r'\s+')
+url_re: Pattern = re.compile(r'(?P<schema>.+)://.*')
 
 
 # High-level utility functions.
@@ -112,7 +107,7 @@ class FilenameUniqDict(dict):
     appear in.  Used for images and downloadable files in the environment.
     """
     def __init__(self) -> None:
-        self._existing = set()  # type: Set[str]
+        self._existing: Set[str] = set()
 
     def add_file(self, docname: str, newfile: str) -> str:
         if newfile in self:
@@ -218,10 +213,12 @@ _DEBUG_HEADER = '''\
 
 def save_traceback(app: "Sphinx") -> str:
     """Save the current exception's traceback in a temporary file."""
-    import sphinx
-    import jinja2
-    import docutils
     import platform
+
+    import docutils
+    import jinja2
+
+    import sphinx
     exc = sys.exc_info()[1]
     if isinstance(exc, SphinxParallelError):
         exc_format = '(Error in parallel process)\n' + exc.traceback
@@ -238,7 +235,7 @@ def save_traceback(app: "Sphinx") -> str:
                    platform.python_version(),
                    platform.python_implementation(),
                    docutils.__version__, docutils.__version_details__,
-                   jinja2.__version__,  # type: ignore
+                   jinja2.__version__,
                    last_msgs)).encode())
     if app is not None:
         for ext in app.extensions.values():
@@ -382,7 +379,7 @@ def format_exception_cut_frames(x: int = 1) -> str:
     """Format an exception with traceback, but only the last x frames."""
     typ, val, tb = sys.exc_info()
     # res = ['Traceback (most recent call last):\n']
-    res = []  # type: List[str]
+    res: List[str] = []
     tbres = traceback.format_tb(tb)
     res += tbres[-x:]
     res += traceback.format_exception_only(typ, val)
@@ -411,7 +408,7 @@ def import_object(objname: str, source: str = None) -> Any:
             raise ExtensionError('Could not import %s' % objname, exc) from exc
 
 
-def split_full_qualified_name(name: str) -> Tuple[str, str]:
+def split_full_qualified_name(name: str) -> Tuple[Optional[str], str]:
     """Split full qualified name to a pair of modname and qualname.
 
     A qualname is an abbreviation for "Qualified name" introduced at PEP-3155
@@ -448,6 +445,14 @@ def encode_uri(uri: str) -> str:
     query = list((q, v.encode()) for (q, v) in parse_qsl(split[3]))
     split[3] = urlencode(query)
     return urlunsplit(split)
+
+
+def isurl(url: str) -> bool:
+    """Check *url* is URL or not."""
+    if url and '://' in url:
+        return True
+    else:
+        return False
 
 
 def display_chunk(chunk: Any) -> str:
@@ -505,7 +510,7 @@ class progress_message:
     def __enter__(self) -> None:
         logger.info(bold(self.message + '... '), nonl=True)
 
-    def __exit__(self, exc_type: "Type[Exception]", exc_value: Exception, traceback: Any) -> bool:  # NOQA
+    def __exit__(self, exc_type: Type[Exception], exc_value: Exception, traceback: Any) -> bool:  # NOQA
         if isinstance(exc_value, SkipProgressMessage):
             logger.info(__('skipped'))
             if exc_value.args:

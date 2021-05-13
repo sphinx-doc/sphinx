@@ -4,7 +4,7 @@
 
     Test math extensions.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,6 +15,7 @@ import warnings
 import pytest
 from docutils import nodes
 
+from sphinx.ext.mathjax import MATHJAX_URL
 from sphinx.testing.util import assert_node
 
 
@@ -214,14 +215,38 @@ def test_math_compat(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='ext-math',
                     confoverrides={'extensions': ['sphinx.ext.mathjax'],
-                                   'mathjax_config': {'extensions': ['tex2jax.js']}})
-def test_mathjax_config(app, status, warning):
+                                   'mathjax3_config': {'extensions': ['tex2jax.js']}})
+def test_mathjax3_config(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').read_text()
+    assert MATHJAX_URL in content
+    assert ('<script>window.MathJax = {"extensions": ["tex2jax.js"]}</script>' in content)
+
+
+@pytest.mark.sphinx('html', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax'],
+                                   'mathjax2_config': {'extensions': ['tex2jax.js']}})
+def test_mathjax2_config(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text()
+    assert MATHJAX_URL in content
     assert ('<script type="text/x-mathjax-config">'
             'MathJax.Hub.Config({"extensions": ["tex2jax.js"]})'
             '</script>' in content)
+
+
+@pytest.mark.sphinx('html', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax']})
+def test_mathjax_is_installed_only_if_document_having_math(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text()
+    assert MATHJAX_URL in content
+
+    content = (app.outdir / 'nomath.html').read_text()
+    assert MATHJAX_URL not in content
 
 
 @pytest.mark.sphinx('html', testroot='basic',

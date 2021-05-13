@@ -4,7 +4,7 @@
 
     Sphinx deprecation classes and utilities.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -30,7 +30,7 @@ RemovedInNextVersionWarning = RemovedInSphinx50Warning
 
 
 def deprecated_alias(modname: str, objects: Dict[str, object],
-                     warning: "Type[Warning]", names: Dict[str, str] = None) -> None:
+                     warning: Type[Warning], names: Dict[str, str] = {}) -> None:
     module = import_module(modname)
     sys.modules[modname] = _ModuleWrapper(  # type: ignore
         module, modname, objects, warning, names)
@@ -39,7 +39,7 @@ def deprecated_alias(modname: str, objects: Dict[str, object],
 class _ModuleWrapper:
     def __init__(self, module: Any, modname: str,
                  objects: Dict[str, object],
-                 warning: "Type[Warning]",
+                 warning: Type[Warning],
                  names: Dict[str, str]) -> None:
         self._module = module
         self._modname = modname
@@ -67,7 +67,7 @@ class _ModuleWrapper:
 class DeprecatedDict(dict):
     """A deprecated dict which warns on each access."""
 
-    def __init__(self, data: Dict, message: str, warning: "Type[Warning]") -> None:
+    def __init__(self, data: Dict, message: str, warning: Type[Warning]) -> None:
         self.message = message
         self.warning = warning
         super().__init__(data)

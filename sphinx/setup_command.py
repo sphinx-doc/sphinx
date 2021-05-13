@@ -7,25 +7,22 @@
 
     :author: Sebastian Wiesner
     :contact: basti.wiesner@gmx.net
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import sys
 from distutils.cmd import Command
-from distutils.errors import DistutilsOptionError, DistutilsExecError
+from distutils.errors import DistutilsExecError
 from io import StringIO
-from typing import TYPE_CHECKING
+from typing import Any, Dict
 
 from sphinx.application import Sphinx
 from sphinx.cmd.build import handle_exception
-from sphinx.util.console import nocolor, color_terminal
+from sphinx.util.console import color_terminal, nocolor
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath
-
-if TYPE_CHECKING:
-    from typing import Any, Dict
 
 
 class BuildDoc(Command):
@@ -91,18 +88,18 @@ class BuildDoc(Command):
     boolean_options = ['fresh-env', 'all-files', 'warning-is-error',
                        'link-index', 'nitpicky']
 
-    def initialize_options(self):
-        # type: () -> None
+    def initialize_options(self) -> None:
         self.fresh_env = self.all_files = False
         self.pdb = False
-        self.source_dir = self.build_dir = None  # type: str
+        self.source_dir: str = None
+        self.build_dir: str = None
         self.builder = 'html'
         self.warning_is_error = False
         self.project = ''
         self.version = ''
         self.release = ''
         self.today = ''
-        self.config_dir = None  # type: str
+        self.config_dir: str = None
         self.link_index = False
         self.copyright = ''
         # Link verbosity to distutils' (which uses 1 by default).
@@ -111,8 +108,7 @@ class BuildDoc(Command):
         self.nitpicky = False
         self.keep_going = False
 
-    def _guess_source_dir(self):
-        # type: () -> str
+    def _guess_source_dir(self) -> str:
         for guess in ('doc', 'docs'):
             if not os.path.isdir(guess):
                 continue
@@ -121,22 +117,7 @@ class BuildDoc(Command):
                     return root
         return os.curdir
 
-    # Overriding distutils' Command._ensure_stringlike which doesn't support
-    # unicode, causing finalize_options to fail if invoked again. Workaround
-    # for https://bugs.python.org/issue19570
-    def _ensure_stringlike(self, option, what, default=None):
-        # type: (str, str, Any) -> Any
-        val = getattr(self, option)
-        if val is None:
-            setattr(self, option, default)
-            return default
-        elif not isinstance(val, str):
-            raise DistutilsOptionError("'%s' must be a %s (got `%s`)"
-                                       % (option, what, val))
-        return val
-
-    def finalize_options(self):
-        # type: () -> None
+    def finalize_options(self) -> None:
         self.ensure_string_list('builder')
 
         if self.source_dir is None:
@@ -158,15 +139,14 @@ class BuildDoc(Command):
             (builder, os.path.join(self.build_dir, builder))
             for builder in self.builder]
 
-    def run(self):
-        # type: () -> None
+    def run(self) -> None:
         if not color_terminal():
             nocolor()
         if not self.verbose:  # type: ignore
             status_stream = StringIO()
         else:
             status_stream = sys.stdout  # type: ignore
-        confoverrides = {}  # type: Dict[str, Any]
+        confoverrides: Dict[str, Any] = {}
         if self.project:
             confoverrides['project'] = self.project
         if self.version:
@@ -204,6 +184,6 @@ class BuildDoc(Command):
             if not self.link_index:
                 continue
 
-            src = app.config.master_doc + app.builder.out_suffix  # type: ignore
+            src = app.config.root_doc + app.builder.out_suffix  # type: ignore
             dst = app.builder.get_outfilename('index')  # type: ignore
             os.symlink(src, dst)

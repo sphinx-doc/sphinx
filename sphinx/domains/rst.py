@@ -4,13 +4,12 @@
 
     The reStructuredText domain.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
-from typing import Any, Dict, Iterator, List, Tuple
-from typing import cast
+from typing import Any, Dict, Iterator, List, Optional, Tuple, cast
 
 from docutils.nodes import Element
 from docutils.parsers.rst import directives
@@ -26,14 +25,14 @@ from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.nodes import make_id, make_refnode
-
+from sphinx.util.typing import OptionSpec
 
 logger = logging.getLogger(__name__)
 
 dir_sig_re = re.compile(r'\.\. (.+?)::(.*)$')
 
 
-class ReSTMarkup(ObjectDescription):
+class ReSTMarkup(ObjectDescription[str]):
     """
     Description of generic reST markup.
     """
@@ -119,7 +118,7 @@ class ReSTDirectiveOption(ReSTMarkup):
     """
     Description of an option for reST directive.
     """
-    option_spec = ReSTMarkup.option_spec.copy()
+    option_spec: OptionSpec = ReSTMarkup.option_spec.copy()
     option_spec.update({
         'type': directives.unchanged,
     })
@@ -219,9 +218,9 @@ class ReSTDomain(Domain):
         'dir':  XRefRole(),
         'role': XRefRole(),
     }
-    initial_data = {
+    initial_data: Dict[str, Dict[Tuple[str, str], str]] = {
         'objects': {},  # fullname -> docname, objtype
-    }  # type: Dict[str, Dict[Tuple[str, str], str]]
+    }
 
     @property
     def objects(self) -> Dict[Tuple[str, str], Tuple[str, str]]:
@@ -248,7 +247,7 @@ class ReSTDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element
-                     ) -> Element:
+                     ) -> Optional[Element]:
         objtypes = self.objtypes_for_role(typ)
         for objtype in objtypes:
             todocname, node_id = self.objects.get((objtype, target), (None, None))
@@ -260,7 +259,7 @@ class ReSTDomain(Domain):
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element
                          ) -> List[Tuple[str, Element]]:
-        results = []  # type: List[Tuple[str, Element]]
+        results: List[Tuple[str, Element]] = []
         for objtype in self.object_types:
             todocname, node_id = self.objects.get((objtype, target), (None, None))
             if todocname:

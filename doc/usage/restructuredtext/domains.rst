@@ -50,7 +50,7 @@ give the directive option flag ``:noindexentry:``.
 If you want to typeset an object description, without even making it available
 for cross-referencing, you can give the directive option flag ``:noindex:``
 (which implies ``:noindexentry:``).
-Though, note that not every directive en every domain may support these
+Though, note that not every directive in every domain may support these
 options.
 
 .. versionadded:: 3.2
@@ -316,6 +316,22 @@ The following directives are provided for module and class contents:
 
       .. versionadded:: 4.0
 
+.. rst:directive:: .. py:property:: name
+
+   Describes an object property.
+
+   .. versionadded:: 4.0
+
+   .. rubric:: options
+
+   .. rst:directive:option:: abstractmethod
+      :type: no value
+
+      Indicate the property is abstract.
+
+   .. rst:directive:option:: type: type of the property
+      :type: text
+
 .. rst:directive:: .. py:method:: name(parameters)
 
    Describes an object method.  The parameters should not include the ``self``
@@ -367,6 +383,10 @@ The following directives are provided for module and class contents:
       Indicate the method is a property.
 
       .. versionadded:: 2.1
+
+      .. deprecated:: 4.0
+
+         Use :rst:dir:`py:property` instead.
 
    .. rst:directive:option:: staticmethod
       :type: no value
@@ -584,6 +604,8 @@ a matching identifier is found:
 
    Reference a data attribute of an object.
 
+   .. note:: The role is also able to refer to property.
+
 .. rst:role:: py:exc
 
    Reference an exception.  A dotted name may be used.
@@ -783,6 +805,25 @@ The following directive can be used for this purpose.
                 f
 
    .. versionadded:: 3.2
+
+
+   .. rubric:: Options
+
+   .. rst:directive:option:: maxdepth: int
+
+      Insert nested declarations as well, up to the total depth given.
+      Use 0 for infinite depth and 1 for just the mentioned declaration.
+      Defaults to 1.
+
+      .. versionadded:: 3.3
+
+   .. rst:directive:option:: noroot
+
+      Skip the mentioned declarations and only render nested declarations.
+      Requires ``maxdepth`` either 0 or at least 2.
+
+      .. versionadded:: 3.5
+
 
 .. c:namespace-pop::
 
@@ -1207,6 +1248,24 @@ The following directive can be used for this purpose.
    .. versionadded:: 2.0
 
 
+   .. rubric:: Options
+
+   .. rst:directive:option:: maxdepth: int
+
+      Insert nested declarations as well, up to the total depth given.
+      Use 0 for infinite depth and 1 for just the mentioned declaration.
+      Defaults to 1.
+
+      .. versionadded:: 3.5
+
+   .. rst:directive:option:: noroot
+
+      Skip the mentioned declarations and only render nested declarations.
+      Requires ``maxdepth`` either 0 or at least 2.
+
+      .. versionadded:: 3.5
+
+
 Constrained Templates
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -1621,6 +1680,9 @@ There is a set of directives allowing documenting command-line programs:
    then ``:option:`rm -r``` would refer to the first option, while
    ``:option:`svn -r``` would refer to the second one.
 
+   If ``None`` is passed to the argument, the directive will reset the
+   current program name.
+
    The program name may contain spaces (in case you want to document
    subcommands like ``svn add`` and ``svn commit`` separately).
 
@@ -1851,7 +1913,7 @@ currently Ada_, CoffeeScript_, Erlang_, HTTP_, Lasso_, MATLAB_, PHP_, and Ruby_
 domains. Also available are domains for `Chapel`_, `Common Lisp`_, dqn_, Go_,
 Jinja_, Operation_, and Scala_.
 
-.. _sphinx-contrib: https://bitbucket.org/birkenfeld/sphinx-contrib/
+.. _sphinx-contrib: https://github.com/sphinx-contrib
 
 .. _Ada: https://pypi.org/project/sphinxcontrib-adadomain/
 .. _Chapel: https://pypi.org/project/sphinxcontrib-chapeldomain/

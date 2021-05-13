@@ -8,4 +8,8 @@
 Changelog
 =========
 
+.. raw:: latex
+
+   \addtocontents{toc}{\protect\setcounter{tocdepth}{1}}%
+
 .. include:: ../CHANGES

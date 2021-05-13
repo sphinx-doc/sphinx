@@ -4,13 +4,13 @@
 
     Docutils transforms used by Sphinx when reading documents.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
-from typing import Any, Dict, Generator, List, Tuple
-from typing import TYPE_CHECKING
+import warnings
+from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
@@ -22,9 +22,9 @@ from docutils.utils.smartquotes import smartchars
 
 from sphinx import addnodes
 from sphinx.config import Config
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.locale import _, __
-from sphinx.util import docutils
-from sphinx.util import logging
+from sphinx.util import docutils, logging
 from sphinx.util.docutils import new_document
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import NodeMatcher, apply_source_workaround, is_smartquotable
@@ -72,8 +72,8 @@ class SphinxTransformer(Transformer):
     A transformer for Sphinx.
     """
 
-    document = None  # type: nodes.document
-    env = None  # type: BuildEnvironment
+    document: nodes.document
+    env: Optional["BuildEnvironment"] = None
 
     def set_environment(self, env: "BuildEnvironment") -> None:
         self.env = env
@@ -170,7 +170,7 @@ class AutoNumbering(SphinxTransform):
     default_priority = 210
 
     def apply(self, **kwargs: Any) -> None:
-        domain = self.env.get_domain('std')  # type: StandardDomain
+        domain: StandardDomain = self.env.get_domain('std')
 
         for node in self.document.traverse(nodes.Element):
             if (domain.is_enumerable_node(node) and
@@ -285,6 +285,11 @@ class FigureAligner(SphinxTransform):
     Align figures to center by default.
     """
     default_priority = 700
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        warnings.warn('FigureAilgner is deprecated.',
+                      RemovedInSphinx60Warning)
+        super().__init__(*args, **kwargs)
 
     def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.table, nodes.figure)
@@ -408,7 +413,6 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_transform(HandleCodeBlocks)
     app.add_transform(SortIds)
     app.add_transform(DoctestTransform)
-    app.add_transform(FigureAligner)
     app.add_transform(AutoNumbering)
     app.add_transform(AutoIndexUpgrader)
     app.add_transform(FilterSystemMessages)

@@ -4,34 +4,35 @@
 
     Utilities for docstring processing.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 import sys
 import warnings
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from docutils.parsers.rst.states import Body
 
-from sphinx.deprecation import RemovedInSphinx50Warning
-
+from sphinx.deprecation import RemovedInSphinx50Warning, RemovedInSphinx60Warning
 
 field_list_item_re = re.compile(Body.patterns['field_marker'])
 
 
-def extract_metadata(s: str) -> Dict[str, str]:
-    """Extract metadata from docstring."""
+def separate_metadata(s: str) -> Tuple[str, Dict[str, str]]:
+    """Separate docstring into metadata and others."""
     in_other_element = False
-    metadata = {}  # type: Dict[str, str]
+    metadata: Dict[str, str] = {}
+    lines = []
 
     if not s:
-        return metadata
+        return s, metadata
 
     for line in prepare_docstring(s):
         if line.strip() == '':
             in_other_element = False
+            lines.append(line)
         else:
             matched = field_list_item_re.match(line)
             if matched and not in_other_element:
@@ -39,9 +40,20 @@ def extract_metadata(s: str) -> Dict[str, str]:
                 if field_name.startswith('meta '):
                     name = field_name[5:].strip()
                     metadata[name] = line[matched.end():].strip()
+                else:
+                    lines.append(line)
             else:
                 in_other_element = True
+                lines.append(line)
 
+    return '\n'.join(lines), metadata
+
+
+def extract_metadata(s: str) -> Dict[str, str]:
+    warnings.warn("extract_metadata() is deprecated.",
+                  RemovedInSphinx60Warning, stacklevel=2)
+
+    docstring, metadata = separate_metadata(s)
     return metadata
 
 

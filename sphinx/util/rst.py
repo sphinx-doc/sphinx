@@ -4,7 +4,7 @@
 
     reST helper functions.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -19,11 +19,15 @@ from docutils.parsers.rst.languages import en as english
 from docutils.statemachine import StringList
 from docutils.utils import Reporter
 from jinja2 import Environment
-from jinja2 import environmentfilter
 
 from sphinx.locale import __
-from sphinx.util import docutils
-from sphinx.util import logging
+from sphinx.util import docutils, logging
+
+try:
+    from jinja2.utils import pass_environment
+except ImportError:
+    from jinja2 import environmentfilter as pass_environment
+
 
 logger = logging.getLogger(__name__)
 
@@ -32,8 +36,7 @@ symbols_re = re.compile(r'([!-\-/:-@\[-`{-~])')  # symbols without dot(0x2e)
 SECTIONING_CHARS = ['=', '-', '~']
 
 # width of characters
-WIDECHARS = defaultdict(lambda: "WF")   # type: Dict[str, str]
-                                        # WF: Wide + Full-width
+WIDECHARS: Dict[str, str] = defaultdict(lambda: "WF")  # WF: Wide + Full-width
 WIDECHARS["ja"] = "WFA"  # In Japanese, Ambiguous characters also have double width
 
 
@@ -54,11 +57,11 @@ def textwidth(text: str, widechars: str = 'WF') -> int:
     return sum(charwidth(c, widechars) for c in text)
 
 
-@environmentfilter
+@pass_environment
 def heading(env: Environment, text: str, level: int = 1) -> str:
     """Create a heading for *level*."""
     assert level <= 3
-    width = textwidth(text, WIDECHARS[env.language])  # type: ignore
+    width = textwidth(text, WIDECHARS[env.language])
     sectioning_char = SECTIONING_CHARS[level - 1]
     return '%s\n%s' % (text, sectioning_char * width)
 

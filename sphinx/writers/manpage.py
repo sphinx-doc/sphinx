@@ -4,28 +4,24 @@
 
     Manual page writer, extended for Sphinx custom nodes.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, Iterable
-from typing import cast
+from typing import Any, Dict, Iterable, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement
-from docutils.writers.manpage import (
-    Writer,
-    Translator as BaseTranslator
-)
+from docutils.writers.manpage import Translator as BaseTranslator
+from docutils.writers.manpage import Writer
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.locale import admonitionlabels, _
+from sphinx.locale import _, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import NodeMatcher
-
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +73,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     Custom translator.
     """
 
-    _docinfo = {}  # type: Dict[str, Any]
+    _docinfo: Dict[str, Any] = {}
 
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
@@ -124,6 +120,13 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_start_of_file(self, node: Element) -> None:
         pass
 
+    #############################################################
+    # Domain-specific object descriptions
+    #############################################################
+
+    # Top-level nodes for descriptions
+    ##################################
+
     def visit_desc(self, node: Element) -> None:
         self.visit_definition_list(node)
 
@@ -143,6 +146,27 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_desc_signature_line(self, node: Element) -> None:
         self.body.append(' ')
 
+    def visit_desc_content(self, node: Element) -> None:
+        self.visit_definition(node)
+
+    def depart_desc_content(self, node: Element) -> None:
+        self.depart_definition(node)
+
+    def visit_desc_inline(self, node: Element) -> None:
+        pass
+
+    def depart_desc_inline(self, node: Element) -> None:
+        pass
+
+    # Nodes for high-level structure in signatures
+    ##############################################
+
+    def visit_desc_name(self, node: Element) -> None:
+        pass
+
+    def depart_desc_name(self, node: Element) -> None:
+        pass
+
     def visit_desc_addname(self, node: Element) -> None:
         pass
 
@@ -159,12 +183,6 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         self.body.append(' -> ')
 
     def depart_desc_returns(self, node: Element) -> None:
-        pass
-
-    def visit_desc_name(self, node: Element) -> None:
-        pass
-
-    def depart_desc_name(self, node: Element) -> None:
         pass
 
     def visit_desc_parameterlist(self, node: Element) -> None:
@@ -195,11 +213,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_desc_annotation(self, node: Element) -> None:
         pass
 
-    def visit_desc_content(self, node: Element) -> None:
-        self.visit_definition(node)
-
-    def depart_desc_content(self, node: Element) -> None:
-        self.depart_definition(node)
+    ##############################################
 
     def visit_versionmodified(self, node: Element) -> None:
         self.visit_paragraph(node)
@@ -291,8 +305,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         if uri.startswith('mailto:') or uri.startswith('http:') or \
            uri.startswith('https:') or uri.startswith('ftp:'):
             # if configured, put the URL after the link
-            if self.builder.config.man_show_urls and \
-               node.astext() != uri:
+            if self.config.man_show_urls and node.astext() != uri:
                 if uri.startswith('mailto:'):
                     uri = uri[7:]
                 self.body.extend([

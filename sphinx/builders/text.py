@@ -4,7 +4,7 @@
 
     Plain-text Sphinx builder.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -19,7 +19,7 @@ from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
-from sphinx.writers.text import TextWriter, TextTranslator
+from sphinx.writers.text import TextTranslator, TextWriter
 
 logger = logging.getLogger(__name__)
 
@@ -33,11 +33,11 @@ class TextBuilder(Builder):
     allow_parallel = True
     default_translator_class = TextTranslator
 
-    current_docname = None  # type: str
+    current_docname: str = None
 
     def init(self) -> None:
         # section numbers for headings in the currently visited document
-        self.secnumbers = {}  # type: Dict[str, Tuple[int, ...]]
+        self.secnumbers: Dict[str, Tuple[int, ...]] = {}
 
     def get_outdated_docs(self) -> Iterator[str]:
         for docname in self.env.found_docs:

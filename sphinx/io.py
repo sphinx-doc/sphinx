@@ -4,12 +4,11 @@
 
     Input/Output files
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import codecs
-from typing import Any, List, Type
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, List, Type
 
 from docutils import nodes
 from docutils.core import Publisher
@@ -24,15 +23,12 @@ from docutils.writers import UnfilteredWriter
 
 from sphinx import addnodes
 from sphinx.environment import BuildEnvironment
-from sphinx.transforms import (
-    AutoIndexUpgrader, DoctreeReadEvent, FigureAligner, SphinxTransformer
-)
-from sphinx.transforms.i18n import (
-    PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
-)
+from sphinx.transforms import (AutoIndexUpgrader, DoctreeReadEvent, FigureAligner,
+                               SphinxTransformer)
+from sphinx.transforms.i18n import (Locale, PreserveTranslatableMessages,
+                                    RemoveTranslatableInline)
 from sphinx.transforms.references import SphinxDomains
-from sphinx.util import logging, get_filetype
-from sphinx.util import UnicodeDecodeErrorHandler
+from sphinx.util import UnicodeDecodeErrorHandler, get_filetype, logging
 from sphinx.util.docutils import LoggingReporter
 from sphinx.versioning import UIDTransform
 
@@ -50,7 +46,7 @@ class SphinxBaseReader(standalone.Reader):
     This replaces reporter by Sphinx's on generating document.
     """
 
-    transforms = []  # type: List[Type[Transform]]
+    transforms: List[Type[Transform]] = []
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         from sphinx.application import Sphinx
@@ -65,7 +61,7 @@ class SphinxBaseReader(standalone.Reader):
         self._app = app      # hold application object only for compatibility
         self._env = app.env
 
-    def get_transforms(self) -> List["Type[Transform]"]:
+    def get_transforms(self) -> List[Type[Transform]]:
         transforms = super().get_transforms() + self.transforms
 
         # remove transforms which is not needed for Sphinx
@@ -182,27 +178,12 @@ def read_doc(app: "Sphinx", env: BuildEnvironment, filename: str) -> nodes.docum
         #   CommonMarkParser.
         parser.settings_spec = RSTParser.settings_spec
 
-    input_class = app.registry.get_source_input(filetype)
-    if input_class:
-        # Sphinx-1.8 style
-        source = input_class(app, env, source=None, source_path=filename,  # type: ignore
-                             encoding=env.config.source_encoding)
-        pub = Publisher(reader=reader,
-                        parser=parser,
-                        writer=SphinxDummyWriter(),
-                        source_class=SphinxDummySourceClass,  # type: ignore
-                        destination=NullOutput())
-        pub.process_programmatic_settings(None, env.settings, None)
-        pub.set_source(source, filename)
-    else:
-        # Sphinx-2.0 style
-        pub = Publisher(reader=reader,
-                        parser=parser,
-                        writer=SphinxDummyWriter(),
-                        source_class=SphinxFileInput,
-                        destination=NullOutput())
-        pub.process_programmatic_settings(None, env.settings, None)
-        pub.set_source(source_path=filename)
-
+    pub = Publisher(reader=reader,
+                    parser=parser,
+                    writer=SphinxDummyWriter(),
+                    source_class=SphinxFileInput,
+                    destination=NullOutput())
+    pub.process_programmatic_settings(None, env.settings, None)
+    pub.set_source(source_path=filename)
     pub.publish()
     return pub.document

@@ -15,7 +15,7 @@
     namespace of the project configuration (that is, all variables from
     ``conf.py`` are available.)
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -28,6 +28,7 @@ import sphinx
 from sphinx.application import Sphinx
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import nested_parse_with_titles
+from sphinx.util.typing import OptionSpec
 
 
 class ifconfig(nodes.Element):
@@ -40,7 +41,7 @@ class IfConfig(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
         node = ifconfig()

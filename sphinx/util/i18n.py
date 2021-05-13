@@ -4,7 +4,7 @@
 
     Builder superclass for all builders.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,8 +12,7 @@ import os
 import re
 from datetime import datetime, timezone
 from os import path
-from typing import Callable, Generator, List, NamedTuple, Tuple, Union
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Generator, List, NamedTuple, Optional, Tuple, Union
 
 import babel.dates
 from babel.messages.mofile import write_mo
@@ -92,8 +91,11 @@ class CatalogRepository:
 
         for locale_dir in self._locale_dirs:
             locale_dir = path.join(self.basedir, locale_dir)
-            if path.exists(path.join(locale_dir, self.language, 'LC_MESSAGES')):
+            locale_path = path.join(locale_dir, self.language, 'LC_MESSAGES')
+            if path.exists(locale_path):
                 yield locale_dir
+            else:
+                logger.verbose(__('locale_dir %s does not exists'), locale_path)
 
     @property
     def pofiles(self) -> Generator[Tuple[str, str], None, None]:
@@ -117,11 +119,11 @@ class CatalogRepository:
             yield CatalogInfo(basedir, domain, self.encoding)
 
 
-def docname_to_domain(docname: str, compation: Union[bool, str]) -> str:
+def docname_to_domain(docname: str, compaction: Union[bool, str]) -> str:
     """Convert docname to domain for catalogs."""
-    if isinstance(compation, str):
-        return compation
-    if compation:
+    if isinstance(compaction, str):
+        return compaction
+    if compaction:
         return docname.split(SEP, 1)[0]
     else:
         return docname
@@ -162,14 +164,16 @@ date_format_mappings = {
     '%X':  'medium',  # Locale’s appropriate time representation.
     '%y':  'YY',      # Year without century as a zero-padded decimal number.
     '%Y':  'yyyy',    # Year with century as a decimal number.
-    '%Z':  'zzzz',    # Time zone name (no characters if no time zone exists).
+    '%Z':  'zzz',     # Time zone name (no characters if no time zone exists).
+    '%z':  'ZZZ',     # UTC offset in the form ±HHMM[SS[.ffffff]]
+                      # (empty string if the object is naive).
     '%%':  '%',
 }
 
 date_format_re = re.compile('(%s)' % '|'.join(date_format_mappings))
 
 
-def babel_format_date(date: datetime, format: str, locale: str,
+def babel_format_date(date: datetime, format: str, locale: Optional[str],
                       formatter: Callable = babel.dates.format_date) -> str:
     if locale is None:
         locale = 'en'
@@ -190,7 +194,7 @@ def babel_format_date(date: datetime, format: str, locale: str,
         return format
 
 
-def format_date(format: str, date: datetime = None, language: str = None) -> str:
+def format_date(format: str, date: datetime = None, language: Optional[str] = None) -> str:
     if date is None:
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
         # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal

@@ -4,7 +4,7 @@
 
     transforms for code-blocks.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -49,7 +49,7 @@ class HighlightLanguageTransform(SphinxTransform):
 class HighlightLanguageVisitor(nodes.NodeVisitor):
     def __init__(self, document: nodes.document, default_language: str) -> None:
         self.default_setting = HighlightSetting(default_language, False, sys.maxsize)
-        self.settings = []  # type: List[HighlightSetting]
+        self.settings: List[HighlightSetting] = []
         super().__init__(document)
 
     def unknown_visit(self, node: Node) -> None:

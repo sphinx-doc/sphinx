@@ -19,11 +19,13 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
    that contain links to the documented items, and short summary blurbs
    extracted from their docstrings.
 
-2. Optionally, the convenience script :program:`sphinx-autogen` or the new
-   :confval:`autosummary_generate` config value can be used to generate short
-   "stub" files for the entries listed in the :rst:dir:`autosummary` directives.
-   These files by default contain only the corresponding
-   :mod:`sphinx.ext.autodoc` directive, but can be customized with templates.
+2. A :rst:dir:`autosummary` directive also generates short "stub" files for the
+   entries listed in its content.  These files by default contain only the
+   corresponding :mod:`sphinx.ext.autodoc` directive, but can be customized with
+   templates.
+
+   The :program:`sphinx-autogen` script is also able to generate "stub" files
+   from command line.
 
 .. rst:directive:: autosummary
 
@@ -161,7 +163,7 @@ also use these config values:
 .. confval:: autosummary_generate
 
    Boolean indicating whether to scan all found documents for autosummary
-   directives, and to generate stub pages for each. It is disabled by default.
+   directives, and to generate stub pages for each. It is enabled by default.
 
    Can also be a list of documents for which stub pages should be generated.
 
@@ -172,6 +174,10 @@ also use these config values:
 
       Emits :event:`autodoc-skip-member` event as :mod:`~sphinx.ext.autodoc`
       does.
+
+   .. versionchanged:: 4.0
+
+      Enabled by default.
 
 .. confval:: autosummary_generate_overwrite
 
@@ -304,7 +310,7 @@ The following variables available in the templates:
 .. data:: modules
 
    List containing names of "public" modules in the package.  Only available for
-   modules that are packages.
+   modules that are packages and the ``recursive`` option is on.
 
    .. versionadded:: 3.1
 

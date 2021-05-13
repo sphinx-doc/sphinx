@@ -4,14 +4,14 @@
 
     Format colored console output.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import re
 import sys
-from typing import Dict
+from typing import Dict, Pattern
 
 try:
     # check if colorama is installed to support color on Windows
@@ -20,8 +20,8 @@ except ImportError:
     colorama = None
 
 
-_ansi_re = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
-codes = {}  # type: Dict[str, str]
+_ansi_re: Pattern = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
+codes: Dict[str, str] = {}
 
 
 def terminal_safe(s: str) -> str:
@@ -32,9 +32,9 @@ def terminal_safe(s: str) -> str:
 def get_terminal_width() -> int:
     """Borrowed from the py lib."""
     try:
-        import termios
         import fcntl
         import struct
+        import termios
         call = fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack('hhhh', 0, 0, 0, 0))
         height, width = struct.unpack('hhhh', call)[:2]
         terminal_width = width
@@ -44,7 +44,7 @@ def get_terminal_width() -> int:
     return terminal_width
 
 
-_tw = get_terminal_width()
+_tw: int = get_terminal_width()
 
 
 def term_width_line(text: str) -> str:

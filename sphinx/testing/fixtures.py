@@ -4,7 +4,7 @@
 
     Sphinx test fixtures for pytest
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -20,6 +20,20 @@ import pytest
 from sphinx.testing import util
 from sphinx.testing.util import SphinxTestApp, SphinxTestAppWrapperForSkipBuilding
 
+DEFAULT_ENABLED_MARKERS = [
+    (
+        'sphinx(builder, testroot=None, freshenv=False, confoverrides=None, tags=None,'
+        ' docutilsconf=None, parallel=0): arguments to initialize the sphinx test application.'
+    ),
+    'test_params(shared_result=...): test parameters.',
+]
+
+
+def pytest_configure(config):
+    # register custom markers
+    for marker in DEFAULT_ENABLED_MARKERS:
+        config.addinivalue_line('markers', marker)
+
 
 @pytest.fixture(scope='session')
 def rootdir() -> str:
@@ -27,7 +41,7 @@ def rootdir() -> str:
 
 
 class SharedResult:
-    cache = {}  # type: Dict[str, Dict[str, str]]
+    cache: Dict[str, Dict[str, str]] = {}
 
     def store(self, key: str, app_: SphinxTestApp) -> Any:
         if key in self.cache:
@@ -63,7 +77,7 @@ def app_params(request: Any, test_params: Dict, shared_result: SharedResult,
     else:
         markers = request.node.get_marker("sphinx")
     pargs = {}
-    kwargs = {}  # type: Dict[str, Any]
+    kwargs: Dict[str, Any] = {}
 
     if markers is not None:
         # to avoid stacking positional args
@@ -176,7 +190,7 @@ def make_app(test_params: Dict, monkeypatch: Any) -> Generator[Callable, None, N
         status, warning = StringIO(), StringIO()
         kwargs.setdefault('status', status)
         kwargs.setdefault('warning', warning)
-        app_ = SphinxTestApp(*args, **kwargs)  # type: Any
+        app_: Any = SphinxTestApp(*args, **kwargs)
         apps.append(app_)
         if test_params['shared_result']:
             app_ = SphinxTestAppWrapperForSkipBuilding(app_)
@@ -231,3 +245,15 @@ def tempdir(tmpdir: str) -> "util.path":
     this fixture is for compat with old test implementation.
     """
     return util.path(tmpdir)
+
+
+@pytest.fixture
+def rollback_sysmodules():
+    """Rollback sys.modules to before testing to unload modules during tests."""
+    try:
+        sysmodules = list(sys.modules)
+        yield
+    finally:
+        for modname in list(sys.modules):
+            if modname not in sysmodules:
+                sys.modules.pop(modname)

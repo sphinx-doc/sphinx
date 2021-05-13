@@ -4,7 +4,7 @@
 
     Tests project module.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,7 +13,6 @@ from collections import OrderedDict
 import pytest
 
 from sphinx.project import Project
-from sphinx.testing.comparer import PathComparer
 
 
 def test_project_discover(rootdir):

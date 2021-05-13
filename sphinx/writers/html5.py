@@ -4,7 +4,7 @@
 
     Experimental docutils writers for HTML5 handling Sphinx' custom nodes.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,8 +12,7 @@ import os
 import posixpath
 import re
 import warnings
-from typing import Iterable, Tuple
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Iterable, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
@@ -21,8 +20,8 @@ from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx60Warning
-from sphinx.locale import admonitionlabels, _, __
+from sphinx.deprecation import RemovedInSphinx50Warning, RemovedInSphinx60Warning
+from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
@@ -55,7 +54,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     Our custom HTML translator.
     """
 
-    builder = None  # type: StandaloneHTMLBuilder
+    builder: "StandaloneHTMLBuilder" = None
 
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
@@ -64,11 +63,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.docnames = [self.builder.current_docname]  # for singlehtml builder
         self.manpages_url = self.config.manpages_url
         self.protect_literal_text = 0
-        self.permalink_text = self.config.html_add_permalinks
-        # support backwards-compatible setting to a bool
-        if not isinstance(self.permalink_text, str):
-            self.permalink_text = '¶' if self.permalink_text else ''
-        self.permalink_text = self.encode(self.permalink_text)
         self.secnumber_suffix = self.config.html_secnumber_suffix
         self.param_separator = ''
         self.optional_param_level = 0
@@ -84,8 +78,15 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_start_of_file(self, node: Element) -> None:
         self.docnames.pop()
 
+    #############################################################
+    # Domain-specific object descriptions
+    #############################################################
+
+    # Top-level nodes for descriptions
+    ##################################
+
     def visit_desc(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'dl', CLASS=node['objtype']))
+        self.body.append(self.starttag(node, 'dl'))
 
     def depart_desc(self, node: Element) -> None:
         self.body.append('</dl>\n\n')
@@ -93,8 +94,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def visit_desc_signature(self, node: Element) -> None:
         # the id is set automatically
         self.body.append(self.starttag(node, 'dt'))
+        self.protect_literal_text += 1
 
     def depart_desc_signature(self, node: Element) -> None:
+        self.protect_literal_text -= 1
         if not node.get('is_multiline'):
             self.add_permalink_ref(node, _('Permalink to this definition'))
         self.body.append('</dt>\n')
@@ -108,11 +111,32 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             self.add_permalink_ref(node.parent, _('Permalink to this definition'))
         self.body.append('<br />')
 
+    def visit_desc_content(self, node: Element) -> None:
+        self.body.append(self.starttag(node, 'dd', ''))
+
+    def depart_desc_content(self, node: Element) -> None:
+        self.body.append('</dd>')
+
+    def visit_desc_inline(self, node: Element) -> None:
+        self.body.append(self.starttag(node, 'span', ''))
+
+    def depart_desc_inline(self, node: Element) -> None:
+        self.body.append('</span>')
+
+    # Nodes for high-level structure in signatures
+    ##############################################
+
+    def visit_desc_name(self, node: Element) -> None:
+        self.body.append(self.starttag(node, 'span', ''))
+
+    def depart_desc_name(self, node: Element) -> None:
+        self.body.append('</span>')
+
     def visit_desc_addname(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'code', '', CLASS='sig-prename descclassname'))
+        self.body.append(self.starttag(node, 'span', ''))
 
     def depart_desc_addname(self, node: Element) -> None:
-        self.body.append('</code>')
+        self.body.append('</span>')
 
     def visit_desc_type(self, node: Element) -> None:
         pass
@@ -125,12 +149,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def depart_desc_returns(self, node: Element) -> None:
         pass
-
-    def visit_desc_name(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'code', '', CLASS='sig-name descname'))
-
-    def depart_desc_name(self, node: Element) -> None:
-        self.body.append('</code>')
 
     def visit_desc_parameterlist(self, node: Element) -> None:
         self.body.append('<span class="sig-paren">(</span>')
@@ -180,11 +198,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_desc_annotation(self, node: Element) -> None:
         self.body.append('</em>')
 
-    def visit_desc_content(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'dd', ''))
-
-    def depart_desc_content(self, node: Element) -> None:
-        self.body.append('</dd>')
+    ##############################################
 
     def visit_versionmodified(self, node: Element) -> None:
         self.body.append(self.starttag(node, 'div', CLASS=node['type']))
@@ -279,7 +293,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
             if figure_id in self.builder.fignumbers.get(key, {}):
                 self.body.append('<span class="caption-number">')
-                prefix = self.builder.config.numfig_format.get(figtype)
+                prefix = self.config.numfig_format.get(figtype)
                 if prefix is None:
                     msg = __('numfig_format is not defined for %s') % figtype
                     logger.warning(msg)
@@ -297,9 +311,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                 append_fignumber(figtype, node['ids'][0])
 
     def add_permalink_ref(self, node: Element, title: str) -> None:
-        if node['ids'] and self.permalink_text and self.builder.add_permalinks:
+        if node['ids'] and self.config.html_permalinks and self.builder.add_permalinks:
             format = '<a class="headerlink" href="#%s" title="%s">%s</a>'
-            self.body.append(format % (node['ids'][0], title, self.permalink_text))
+            self.body.append(format % (node['ids'][0], title,
+                                       self.config.html_permalinks_icon))
 
     # overwritten
     def visit_bullet_list(self, node: Element) -> None:
@@ -325,7 +340,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_classifier(self, node: Element) -> None:
         self.body.append('</span>')
 
-        next_node = node.next_node(descend=False, siblings=True)  # type: Node
+        next_node: Node = node.next_node(descend=False, siblings=True)
         if not isinstance(next_node, nodes.classifier):
             # close `<dt>` tag at the tail of classifiers
             self.body.append('</dt>')
@@ -336,17 +351,26 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     # overwritten
     def depart_term(self, node: Element) -> None:
-        next_node = node.next_node(descend=False, siblings=True)  # type: Node
+        next_node: Node = node.next_node(descend=False, siblings=True)
         if isinstance(next_node, nodes.classifier):
             # Leave the end tag to `self.depart_classifier()`, in case
             # there's a classifier.
             pass
         else:
+            if isinstance(node.parent.parent.parent, addnodes.glossary):
+                # add permalink if glossary terms
+                self.add_permalink_ref(node, _('Permalink to this term'))
+
             self.body.append('</dt>')
 
     # overwritten
     def visit_title(self, node: Element) -> None:
-        super().visit_title(node)
+        if isinstance(node.parent, addnodes.compact_paragraph) and node.parent.get('toctree'):
+            self.body.append(self.starttag(node, 'p', '', CLASS='caption'))
+            self.body.append('<span class="caption-text">')
+            self.context.append('</span></p>\n')
+        else:
+            super().visit_title(node)
         self.add_secnumber(node)
         self.add_fignumber(node.parent)
         if isinstance(node.parent, nodes.table):
@@ -354,8 +378,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def depart_title(self, node: Element) -> None:
         close_tag = self.context[-1]
-        if (self.permalink_text and self.builder.add_permalinks and
-           node.parent.hasattr('ids') and node.parent['ids']):
+        if (self.config.html_permalinks and self.builder.add_permalinks and
+                node.parent.hasattr('ids') and node.parent['ids']):
             # add permalink anchor
             if close_tag.startswith('</h'):
                 self.add_permalink_ref(node.parent, _('Permalink to this headline'))
@@ -364,7 +388,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                                  node.parent['ids'][0] +
                                  'title="%s">%s' % (
                                      _('Permalink to this headline'),
-                                     self.permalink_text))
+                                     self.config.html_permalinks_icon))
             elif isinstance(node.parent, nodes.table):
                 self.body.append('</span>')
                 self.add_permalink_ref(node.parent, _('Permalink to this table'))
@@ -383,14 +407,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         linenos = node.get('linenos', False)
         highlight_args = node.get('highlight_args', {})
         highlight_args['force'] = node.get('force', False)
-        if lang is self.builder.config.highlight_language:
-            # only pass highlighter options for original language
-            opts = self.builder.config.highlight_options
-        else:
-            opts = {}
+        opts = self.config.highlight_options.get(lang, {})
 
-        if linenos and self.builder.config.html_codeblock_linenos_style:
-            linenos = self.builder.config.html_codeblock_linenos_style
+        if linenos and self.config.html_codeblock_linenos_style:
+            linenos = self.config.html_codeblock_linenos_style
 
         highlighted = self.highlighter.highlight_block(
             node.rawsource, lang, opts=opts, linenos=linenos,
@@ -515,6 +535,13 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def depart_download_reference(self, node: Element) -> None:
         self.body.append(self.context.pop())
+
+    # overwritten
+    def visit_figure(self, node: Element) -> None:
+        # set align=default if align not specified to give a default style
+        node.setdefault('align', 'default')
+
+        return super().visit_figure(node)
 
     # overwritten
     def visit_image(self, node: Element) -> None:
@@ -717,8 +744,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         atts = {}
         classes = [cls.strip(' \t\n') for cls in self.settings.table_style.split(',')]
         classes.insert(0, "docutils")  # compat
-        if 'align' in node:
-            classes.append('align-%s' % node['align'])
+
+        # set align-default if align not specified to give a default style
+        classes.append('align-%s' % node.get('align', 'default'))
+
         if 'width' in node:
             atts['style'] = 'width: %s' % node['width']
         tag = self.starttag(node, 'table', CLASS=' '.join(classes), **atts)
@@ -768,6 +797,12 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def unknown_visit(self, node: Node) -> None:
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
+
+    @property
+    def permalink_text(self) -> str:
+        warnings.warn('HTMLTranslator.permalink_text is deprecated.',
+                      RemovedInSphinx50Warning, stacklevel=2)
+        return self.config.html_permalinks_icon
 
     def generate_targets_for_table(self, node: Element) -> None:
         """Generate hyperlink targets for tables.

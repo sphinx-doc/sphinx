@@ -4,7 +4,7 @@
 
     Build configuration file handling.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,11 +12,9 @@ import re
 import traceback
 import types
 from collections import OrderedDict
-from os import path, getenv
-from typing import (
-    Any, Callable, Dict, Generator, Iterator, List, NamedTuple, Set, Tuple, Union
-)
-from typing import TYPE_CHECKING
+from os import getenv, path
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Generator, Iterator, List, NamedTuple,
+                    Optional, Set, Tuple, Union)
 
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
@@ -90,11 +88,12 @@ class Config:
     # If you add a value here, don't forget to include it in the
     # quickstart.py file template as well as in the docs!
 
-    config_values = {
+    config_values: Dict[str, Tuple] = {
         # general options
         'project': ('Python', 'env', []),
         'author': ('unknown', 'env', []),
-        'copyright': ('', 'html', []),
+        'project_copyright': ('', 'html', [str]),
+        'copyright': (lambda c: c.project_copyright, 'html', [str]),
         'version': ('', 'env', []),
         'release': ('', 'env', []),
         'today': ('', 'env', []),
@@ -106,9 +105,9 @@ class Config:
         'figure_language_filename': ('{root}.{language}{ext}', 'env', [str]),
 
         'master_doc': ('index', 'env', []),
+        'root_doc': (lambda config: config.master_doc, 'env', []),
         'source_suffix': ({'.rst': 'restructuredtext'}, 'env', Any),
         'source_encoding': ('utf-8-sig', 'env', []),
-        'source_parsers': ({}, 'env', []),
         'exclude_patterns': ([], 'env', []),
         'default_role': (None, 'env', [str]),
         'add_function_parentheses': (True, 'env', []),
@@ -132,6 +131,7 @@ class Config:
         'manpages_url': (None, 'env', []),
         'nitpicky': (False, None, []),
         'nitpick_ignore': ([], None, []),
+        'nitpick_ignore_regex': ([], None, []),
         'numfig': (False, 'env', []),
         'numfig_secnum_depth': (1, 'env', []),
         'numfig_format': ({}, 'env', []),  # will be initialized in init_numfig_format()
@@ -147,20 +147,20 @@ class Config:
         'smartquotes_excludes': ({'languages': ['ja'],
                                   'builders': ['man', 'text']},
                                  'env', []),
-    }  # type: Dict[str, Tuple]
+    }
 
     def __init__(self, config: Dict[str, Any] = {}, overrides: Dict[str, Any] = {}) -> None:
         self.overrides = dict(overrides)
         self.values = Config.config_values.copy()
         self._raw_config = config
-        self.setup = config.get('setup', None)  # type: Callable
+        self.setup: Optional[Callable] = config.get('setup', None)
 
         if 'extensions' in self.overrides:
             if isinstance(self.overrides['extensions'], str):
                 config['extensions'] = self.overrides.pop('extensions').split(',')
             else:
                 config['extensions'] = self.overrides.pop('extensions')
-        self.extensions = config.get('extensions', [])  # type: List[str]
+        self.extensions: List[str] = config.get('extensions', [])
 
     @classmethod
     def read(cls, confdir: str, overrides: Dict = None, tags: Tags = None) -> "Config":
@@ -176,6 +176,14 @@ class Config:
             defvalue = self.values[name][0]
             if self.values[name][2] == Any:
                 return value
+            elif self.values[name][2] == {bool, str}:
+                if value == '0':
+                    # given falsy string from command line option
+                    return False
+                elif value == '1':
+                    return True
+                else:
+                    return value
             elif type(defvalue) is bool or self.values[name][2] == [bool]:
                 if value == '0':
                     # given falsy string from command line option
@@ -248,7 +256,7 @@ class Config:
             return default(self)
         return default
 
-    def __getitem__(self, name: str) -> str:
+    def __getitem__(self, name: str) -> Any:
         return getattr(self, name)
 
     def __setitem__(self, name: str, value: Any) -> None:
@@ -302,9 +310,9 @@ class Config:
         self.__dict__.update(state)
 
 
-def eval_config_file(filename: str, tags: Tags) -> Dict[str, Any]:
+def eval_config_file(filename: str, tags: Optional[Tags]) -> Dict[str, Any]:
     """Evaluate a config file."""
-    namespace = {}  # type: Dict[str, Any]
+    namespace: Dict[str, Any] = {}
     namespace['__file__'] = filename
     namespace['tags'] = tags
 
@@ -354,6 +362,18 @@ def convert_source_suffix(app: "Sphinx", config: Config) -> None:
         logger.warning(__("The config value `source_suffix' expects "
                           "a string, list of strings, or dictionary. "
                           "But `%r' is given." % source_suffix))
+
+
+def convert_highlight_options(app: "Sphinx", config: Config) -> None:
+    """Convert old styled highlight_options to new styled one.
+
+    * old style: options
+    * new style: dict that maps language names to options
+    """
+    options = config.highlight_options
+    if options and not all(isinstance(v, dict) for v in options.values()):
+        # old styled option detected because all values are not dictionary.
+        config.highlight_options = {config.highlight_language: options}  # type: ignore
 
 
 def init_numfig_format(app: "Sphinx", config: Config) -> None:
@@ -443,28 +463,29 @@ def check_primary_domain(app: "Sphinx", config: Config) -> None:
         config.primary_domain = None  # type: ignore
 
 
-def check_master_doc(app: "Sphinx", env: "BuildEnvironment", added: Set[str],
-                     changed: Set[str], removed: Set[str]) -> Set[str]:
-    """Adjust master_doc to 'contents' to support an old project which does not have
-    no master_doc setting.
+def check_root_doc(app: "Sphinx", env: "BuildEnvironment", added: Set[str],
+                   changed: Set[str], removed: Set[str]) -> Set[str]:
+    """Adjust root_doc to 'contents' to support an old project which does not have
+    no root_doc setting.
     """
-    if (app.config.master_doc == 'index' and
+    if (app.config.root_doc == 'index' and
             'index' not in app.project.docnames and
             'contents' in app.project.docnames):
-        logger.warning(__('Since v2.0, Sphinx uses "index" as master_doc by default. '
-                          'Please add "master_doc = \'contents\'" to your conf.py.'))
-        app.config.master_doc = "contents"  # type: ignore
+        logger.warning(__('Since v2.0, Sphinx uses "index" as root_doc by default. '
+                          'Please add "root_doc = \'contents\'" to your conf.py.'))
+        app.config.root_doc = "contents"  # type: ignore
 
     return changed
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
     app.connect('config-inited', convert_source_suffix, priority=800)
+    app.connect('config-inited', convert_highlight_options, priority=800)
     app.connect('config-inited', init_numfig_format, priority=800)
     app.connect('config-inited', correct_copyright_year, priority=800)
     app.connect('config-inited', check_confval_types, priority=800)
     app.connect('config-inited', check_primary_domain, priority=800)
-    app.connect('env-get-outdated', check_master_doc)
+    app.connect('env-get-outdated', check_root_doc)
 
     return {
         'version': 'builtin',

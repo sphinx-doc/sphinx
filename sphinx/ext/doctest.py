@@ -5,7 +5,7 @@
     Mimic doctest by automatically executing code snippets and checking
     their results.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,13 +15,13 @@ import sys
 import time
 from io import StringIO
 from os import path
-from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple, Type
-from typing import TYPE_CHECKING
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple,
+                    Type)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement
 from docutils.parsers.rst import directives
-from packaging.specifiers import SpecifierSet, InvalidSpecifier
+from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.version import Version
 
 import sphinx
@@ -31,6 +31,7 @@ from sphinx.util import logging
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.osutil import relpath
+from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -86,7 +87,7 @@ class TestDirective(SphinxDirective):
                 if not test:
                     test = code
                 code = doctestopt_re.sub('', code)
-        nodetype = nodes.literal_block  # type: Type[TextElement]
+        nodetype: Type[TextElement] = nodes.literal_block
         if self.name in ('testsetup', 'testcleanup') or 'hide' in self.options:
             nodetype = nodes.comment
         if self.arguments:
@@ -150,15 +151,19 @@ class TestDirective(SphinxDirective):
 
 
 class TestsetupDirective(TestDirective):
-    option_spec = {'skipif': directives.unchanged_required}  # type: Dict
+    option_spec: OptionSpec = {
+        'skipif': directives.unchanged_required
+    }
 
 
 class TestcleanupDirective(TestDirective):
-    option_spec = {'skipif': directives.unchanged_required}  # type: Dict
+    option_spec: OptionSpec = {
+        'skipif': directives.unchanged_required
+    }
 
 
 class DoctestDirective(TestDirective):
-    option_spec = {
+    option_spec: OptionSpec = {
         'hide': directives.flag,
         'no-trim-doctest-flags': directives.flag,
         'options': directives.unchanged,
@@ -169,7 +174,7 @@ class DoctestDirective(TestDirective):
 
 
 class TestcodeDirective(TestDirective):
-    option_spec = {
+    option_spec: OptionSpec = {
         'hide': directives.flag,
         'no-trim-doctest-flags': directives.flag,
         'pyversion': directives.unchanged_required,
@@ -179,7 +184,7 @@ class TestcodeDirective(TestDirective):
 
 
 class TestoutputDirective(TestDirective):
-    option_spec = {
+    option_spec: OptionSpec = {
         'hide': directives.flag,
         'no-trim-doctest-flags': directives.flag,
         'options': directives.unchanged,
@@ -197,9 +202,9 @@ parser = doctest.DocTestParser()
 class TestGroup:
     def __init__(self, name: str) -> None:
         self.name = name
-        self.setup = []     # type: List[TestCode]
-        self.tests = []     # type: List[List[TestCode]]
-        self.cleanup = []   # type: List[TestCode]
+        self.setup: List[TestCode] = []
+        self.tests: List[List[TestCode]] = []
+        self.cleanup: List[TestCode] = []
 
     def add_code(self, code: "TestCode", prepend: bool = False) -> None:
         if code.type == 'testsetup':
@@ -387,7 +392,7 @@ Doctest summary
             return False
         else:
             condition = node['skipif']
-            context = {}  # type: Dict[str, Any]
+            context: Dict[str, Any] = {}
             if self.config.doctest_global_setup:
                 exec(self.config.doctest_global_setup, context)
             should_skip = eval(condition, context)
@@ -396,7 +401,7 @@ Doctest summary
             return should_skip
 
     def test_doc(self, docname: str, doctree: Node) -> None:
-        groups = {}  # type: Dict[str, TestGroup]
+        groups: Dict[str, TestGroup] = {}
         add_to_all_groups = []
         self.setup_runner = SphinxDocTestRunner(verbose=False,
                                                 optionflags=self.opt)
@@ -477,7 +482,7 @@ Doctest summary
         return compile(code, name, self.type, flags, dont_inherit)
 
     def test_group(self, group: TestGroup) -> None:
-        ns = {}  # type: Dict
+        ns: Dict = {}
 
         def run_setup_cleanup(runner: Any, testcodes: List[TestCode], what: Any) -> bool:
             examples = []

@@ -31,7 +31,7 @@ r"""
     The graph is inserted as a PNG+image map into HTML and a PDF in
     LaTeX.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -39,8 +39,7 @@ import builtins
 import inspect
 import re
 from importlib import import_module
-from typing import Any, Dict, Iterable, List, Tuple
-from typing import cast
+from typing import Any, Dict, Iterable, List, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -50,20 +49,22 @@ import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.environment import BuildEnvironment
-from sphinx.ext.graphviz import (
-    graphviz, figure_wrapper,
-    render_dot_html, render_dot_latex, render_dot_texinfo
-)
+from sphinx.ext.graphviz import (figure_wrapper, graphviz, render_dot_html, render_dot_latex,
+                                 render_dot_texinfo)
 from sphinx.util import md5
 from sphinx.util.docutils import SphinxDirective
+from sphinx.util.typing import OptionSpec
 from sphinx.writers.html import HTMLTranslator
 from sphinx.writers.latex import LaTeXTranslator
 from sphinx.writers.texinfo import TexinfoTranslator
 
-
 module_sig_re = re.compile(r'''^(?:([\w.]*)\.)?  # module names
                            (\w+)  \s* $          # class/final module name
                            ''', re.VERBOSE)
+
+
+py_builtins = [obj for obj in vars(builtins).values()
+               if inspect.isclass(obj)]
 
 
 def try_import(objname: str) -> Any:
@@ -165,7 +166,7 @@ class InheritanceGraph:
 
     def _import_classes(self, class_names: List[str], currmodule: str) -> List[Any]:
         """Import a list of classes."""
-        classes = []  # type: List[Any]
+        classes: List[Any] = []
         for name in class_names:
             classes.extend(import_classes(name, currmodule))
         return classes
@@ -189,7 +190,6 @@ class InheritanceGraph:
         traverse to. Multiple names can be specified separated by comma.
         """
         all_classes = {}
-        py_builtins = vars(builtins).values()
 
         def recurse(cls: Any) -> None:
             if not show_builtins and cls in py_builtins:
@@ -210,7 +210,7 @@ class InheritanceGraph:
             except Exception:  # might raise AttributeError for strange classes
                 pass
 
-            baselist = []  # type: List[str]
+            baselist: List[str] = []
             all_classes[cls] = (nodename, fullname, baselist, tooltip)
 
             if fullname in top_classes:
@@ -304,7 +304,7 @@ class InheritanceGraph:
             n_attrs.update(env.config.inheritance_node_attrs)
             e_attrs.update(env.config.inheritance_edge_attrs)
 
-        res = []  # type: List[str]
+        res: List[str] = []
         res.append('digraph %s {\n' % name)
         res.append(self._format_graph_attrs(g_attrs))
 
@@ -343,7 +343,7 @@ class InheritanceDiagram(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {
+    option_spec: OptionSpec = {
         'parts': int,
         'private-bases': directives.flag,
         'caption': directives.unchanged,

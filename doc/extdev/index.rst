@@ -171,9 +171,25 @@ as metadata of the extension.  Metadata keys currently recognized are:
   source files can be used when the extension is loaded.  It defaults to
   ``False``, i.e. you have to explicitly specify your extension to be
   parallel-read-safe after checking that it is.
+
+  .. note:: The *parallel-read-safe* extension must satisfy the following
+            conditions:
+
+            * The core logic of the extension is parallely executable during
+              the reading phase.
+            * It has event handlers for :event:`env-merge-info` and
+              :event:`env-purge-doc` events if it stores dataa to the build
+              environment object (env) during the reading phase.
+
 * ``'parallel_write_safe'``: a boolean that specifies if parallel writing of
   output files can be used when the extension is loaded.  Since extensions
   usually don't negatively influence the process, this defaults to ``True``.
+
+  .. note:: The *parallel-write-safe* extension must satisfy the following
+            conditions:
+
+            * The core logic of the extension is parallely executable during
+              the writing phase.
 
 
 APIs used for writing extensions

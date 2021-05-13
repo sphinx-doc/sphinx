@@ -6,7 +6,7 @@
     Classes for docstring parsing and formatting.
 
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -21,18 +21,19 @@ from sphinx.config import Config as SphinxConfig
 from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _, __
 from sphinx.util import logging
-
+from sphinx.util.inspect import stringify_annotation
+from sphinx.util.typing import get_type_hints
 
 logger = logging.getLogger(__name__)
 
 _directive_regex = re.compile(r'\.\. \S+::')
 _google_section_regex = re.compile(r'^(\s|\w)+:\s*$')
-_google_typed_arg_regex = re.compile(r'\s*(.+?)\s*\(\s*(.*[^\s]+)\s*\)')
+_google_typed_arg_regex = re.compile(r'(.+?)\(\s*(.*[^\s]+)\s*\)')
 _numpy_section_regex = re.compile(r'^[=\-`:\'"~^_*+#<>]{2,}\s*$')
 _single_colon_regex = re.compile(r'(?<!:):(?!:)')
 _xref_or_code_regex = re.compile(
     r'((?::(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:`.+?`)|'
-    r'(?:``.+``))')
+    r'(?:``.+?``))')
 _xref_regex = re.compile(
     r'(?:(?::(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:)?`.+?`)'
 )
@@ -51,6 +52,19 @@ _default_regex = re.compile(
     r"^default[^_0-9A-Za-z].*$",
 )
 _SINGLETONS = ("None", "True", "False", "Ellipsis")
+
+
+def _convert_type_spec(_type: str, translations: Dict[str, str] = {}) -> str:
+    """Convert type specification to reference in reST."""
+    if _type in translations:
+        return translations[_type]
+    else:
+        if _type == 'None':
+            return ':obj:`None`'
+        else:
+            return ':class:`%s`' % _type
+
+    return _type
 
 
 class GoogleDocstring:
@@ -148,13 +162,13 @@ class GoogleDocstring:
         else:
             lines = docstring
         self._line_iter = modify_iter(lines, modifier=lambda s: s.rstrip())
-        self._parsed_lines = []  # type: List[str]
+        self._parsed_lines: List[str] = []
         self._is_in_section = False
         self._section_indent = 0
         if not hasattr(self, '_directive_sections'):
-            self._directive_sections = []  # type: List[str]
+            self._directive_sections: List[str] = []
         if not hasattr(self, '_sections'):
-            self._sections = {
+            self._sections: Dict[str, Callable] = {
                 'args': self._parse_parameters_section,
                 'arguments': self._parse_parameters_section,
                 'attention': partial(self._parse_admonition, 'attention'),
@@ -173,6 +187,8 @@ class GoogleDocstring:
                 'notes': self._parse_notes_section,
                 'other parameters': self._parse_other_parameters_section,
                 'parameters': self._parse_parameters_section,
+                'receive': self._parse_receives_section,
+                'receives': self._parse_receives_section,
                 'return': self._parse_returns_section,
                 'returns': self._parse_returns_section,
                 'raise': self._parse_raises_section,
@@ -187,7 +203,7 @@ class GoogleDocstring:
                 'warns': self._parse_warns_section,
                 'yield': self._parse_yields_section,
                 'yields': self._parse_yields_section,
-            }  # type: Dict[str, Callable]
+            }
 
         self._load_custom_sections()
 
@@ -250,13 +266,17 @@ class GoogleDocstring:
         if parse_type:
             match = _google_typed_arg_regex.match(before)
             if match:
-                _name = match.group(1)
+                _name = match.group(1).strip()
                 _type = match.group(2)
 
         _name = self._escape_args_and_kwargs(_name)
 
         if prefer_type and not _type:
             _type, _name = _name, _type
+
+        if _type and self._config.napoleon_preprocess_types:
+            _type = _convert_type_spec(_type, self._config.napoleon_type_aliases or {})
+
         indent = self._get_indent(line) + 1
         _descs = [_desc] + self._dedent(self._consume_indented_block(indent))
         _descs = self.__class__(_descs, self._config).lines()
@@ -285,7 +305,8 @@ class GoogleDocstring:
         _descs = self.__class__(_descs, self._config).lines()
         return _type, _descs
 
-    def _consume_returns_section(self) -> List[Tuple[str, str, List[str]]]:
+    def _consume_returns_section(self, preprocess_types: bool = False
+                                 ) -> List[Tuple[str, str, List[str]]]:
         lines = self._dedent(self._consume_to_next_section())
         if lines:
             before, colon, after = self._partition_field_on_colon(lines[0])
@@ -298,6 +319,10 @@ class GoogleDocstring:
                     _desc = lines[1:]
 
                 _type = before
+
+            if (_type and preprocess_types and
+                    self._config.napoleon_preprocess_types):
+                _type = _convert_type_spec(_type, self._config.napoleon_type_aliases or {})
 
             _desc = self.__class__(_desc, self._config).lines()
             return [(_name, _type, _desc,)]
@@ -436,7 +461,7 @@ class GoogleDocstring:
         field_type = ':%s:' % field_type.strip()
         padding = ' ' * len(field_type)
         multi = len(fields) > 1
-        lines = []  # type: List[str]
+        lines: List[str] = []
         for _name, _type, _desc in fields:
             field = self._format_field(_name, _type, _desc)
             if multi:
@@ -541,11 +566,18 @@ class GoogleDocstring:
                     self._sections[entry.lower()] = self._parse_custom_generic_section
                 else:
                     # otherwise, assume entry is container;
-                    # [0] is new section, [1] is the section to alias.
-                    # in the case of key mismatch, just handle as generic section.
-                    self._sections[entry[0].lower()] = \
-                        self._sections.get(entry[1].lower(),
-                                           self._parse_custom_generic_section)
+                    if entry[1] == "params_style":
+                        self._sections[entry[0].lower()] = \
+                            self._parse_custom_params_style_section
+                    elif entry[1] == "returns_style":
+                        self._sections[entry[0].lower()] = \
+                            self._parse_custom_returns_style_section
+                    else:
+                        # [0] is new section, [1] is the section to alias.
+                        # in the case of key mismatch, just handle as generic section.
+                        self._sections[entry[0].lower()] = \
+                            self._sections.get(entry[1].lower(),
+                                               self._parse_custom_generic_section)
 
     def _parse(self) -> None:
         self._parsed_lines = self._consume_empty()
@@ -553,7 +585,7 @@ class GoogleDocstring:
         if self._name and self._what in ('attribute', 'data', 'property'):
             # Implicit stop using StopIteration no longer allowed in
             # Python 3.7; see PEP 479
-            res = []  # type: List[str]
+            res: List[str] = []
             try:
                 res = self._parse_attribute_docstring()
             except StopIteration:
@@ -596,6 +628,8 @@ class GoogleDocstring:
     def _parse_attributes_section(self, section: str) -> List[str]:
         lines = []
         for _name, _type, _desc in self._consume_fields():
+            if not _type:
+                _type = self._lookup_annotation(_name)
             if self._config.napoleon_use_ivar:
                 _name = self._qualify_name(_name, self._obj)
                 field = ':ivar %s: ' % _name
@@ -631,6 +665,13 @@ class GoogleDocstring:
         # for now, no admonition for simple custom sections
         return self._parse_generic_section(section, False)
 
+    def _parse_custom_params_style_section(self, section: str) -> List[str]:
+        return self._format_fields(section, self._consume_fields())
+
+    def _parse_custom_returns_style_section(self, section: str) -> List[str]:
+        fields = self._consume_returns_section(preprocess_types=True)
+        return self._format_fields(section, fields)
+
     def _parse_usage_section(self, section: str) -> List[str]:
         header = ['.. rubric:: Usage:', '']
         block = ['.. code-block:: python', '']
@@ -662,7 +703,7 @@ class GoogleDocstring:
             return self._format_fields(_('Keyword Arguments'), fields)
 
     def _parse_methods_section(self, section: str) -> List[str]:
-        lines = []  # type: List[str]
+        lines: List[str] = []
         for _name, _type, _desc in self._consume_fields(parse_type=False):
             lines.append('.. method:: %s' % _name)
             if self._opt and 'noindex' in self._opt:
@@ -677,7 +718,13 @@ class GoogleDocstring:
         return self._parse_generic_section(_('Notes'), use_admonition)
 
     def _parse_other_parameters_section(self, section: str) -> List[str]:
-        return self._format_fields(_('Other Parameters'), self._consume_fields())
+        if self._config.napoleon_use_param:
+            # Allow to declare multiple parameters at once (ex: x, y: int)
+            fields = self._consume_fields(multiple=True)
+            return self._format_docutils_params(fields)
+        else:
+            fields = self._consume_fields()
+            return self._format_fields(_('Other Parameters'), fields)
 
     def _parse_parameters_section(self, section: str) -> List[str]:
         if self._config.napoleon_use_param:
@@ -690,11 +737,14 @@ class GoogleDocstring:
 
     def _parse_raises_section(self, section: str) -> List[str]:
         fields = self._consume_fields(parse_type=False, prefer_type=True)
-        lines = []  # type: List[str]
+        lines: List[str] = []
         for _name, _type, _desc in fields:
             m = self._name_rgx.match(_type)
             if m and m.group('name'):
                 _type = m.group('name')
+            elif _xref_regex.match(_type):
+                pos = _type.find('`')
+                _type = _type[pos + 1:-1]
             _type = ' ' + _type if _type else ''
             _desc = self._strip_empty(_desc)
             _descs = ' ' + '\n    '.join(_desc) if any(_desc) else ''
@@ -702,6 +752,15 @@ class GoogleDocstring:
         if lines:
             lines.append('')
         return lines
+
+    def _parse_receives_section(self, section: str) -> List[str]:
+        if self._config.napoleon_use_param:
+            # Allow to declare multiple parameters at once (ex: x, y: int)
+            fields = self._consume_fields(multiple=True)
+            return self._format_docutils_params(fields)
+        else:
+            fields = self._consume_fields()
+            return self._format_fields(_('Receives'), fields)
 
     def _parse_references_section(self, section: str) -> List[str]:
         use_admonition = self._config.napoleon_use_admonition_for_references
@@ -715,7 +774,7 @@ class GoogleDocstring:
         else:
             use_rtype = self._config.napoleon_use_rtype
 
-        lines = []  # type: List[str]
+        lines: List[str] = []
         for _name, _type, _desc in fields:
             if use_rtype:
                 field = self._format_field(_name, '', _desc)
@@ -742,7 +801,7 @@ class GoogleDocstring:
         return self._format_fields(_('Warns'), self._consume_fields())
 
     def _parse_yields_section(self, section: str) -> List[str]:
-        fields = self._consume_returns_section()
+        fields = self._consume_returns_section(preprocess_types=True)
         return self._format_fields(_('Yields'), fields)
 
     def _partition_field_on_colon(self, line: str) -> Tuple[str, str, str]:
@@ -767,7 +826,7 @@ class GoogleDocstring:
                 colon,
                 "".join(after_colon).strip())
 
-    def _qualify_name(self, attr_name: str, klass: "Type") -> str:
+    def _qualify_name(self, attr_name: str, klass: Type) -> str:
         if klass and '.' not in attr_name:
             if attr_name.startswith('~'):
                 attr_name = attr_name[1:]
@@ -796,6 +855,21 @@ class GoogleDocstring:
             if start > 0 or end + 1 < len(lines):
                 lines = lines[start:end + 1]
         return lines
+
+    def _lookup_annotation(self, _name: str) -> str:
+        if self._config.napoleon_attr_annotations:
+            if self._what in ("module", "class", "exception") and self._obj:
+                # cache the class annotations
+                if not hasattr(self, "_annotations"):
+                    localns = getattr(self._config, "autodoc_type_aliases", {})
+                    localns.update(getattr(
+                                   self._config, "napoleon_type_aliases", {}
+                                   ) or {})
+                    self._annotations = get_type_hints(self._obj, None, localns)
+                if _name in self._annotations:
+                    return stringify_annotation(self._annotations[_name])
+        # No annotation found
+        return ""
 
 
 def _recombine_set_tokens(tokens: List[str]) -> List[str]:
@@ -1100,6 +1174,13 @@ class NumpyDocstring(GoogleDocstring):
             _name, _type = line, ''
         _name, _type = _name.strip(), _type.strip()
         _name = self._escape_args_and_kwargs(_name)
+
+        if parse_type and not _type:
+            _type = self._lookup_annotation(_name)
+
+        if prefer_type and not _type:
+            _type, _name = _name, _type
+
         if self._config.napoleon_preprocess_types:
             _type = _convert_numpy_type_spec(
                 _type,
@@ -1107,14 +1188,13 @@ class NumpyDocstring(GoogleDocstring):
                 translations=self._config.napoleon_type_aliases or {},
             )
 
-        if prefer_type and not _type:
-            _type, _name = _name, _type
         indent = self._get_indent(line) + 1
         _desc = self._dedent(self._consume_indented_block(indent))
         _desc = self.__class__(_desc, self._config).lines()
         return _name, _type, _desc
 
-    def _consume_returns_section(self) -> List[Tuple[str, str, List[str]]]:
+    def _consume_returns_section(self, preprocess_types: bool = False
+                                 ) -> List[Tuple[str, str, List[str]]]:
         return self._consume_fields(prefer_type=True)
 
     def _consume_section_header(self) -> str:
@@ -1184,8 +1264,24 @@ class NumpyDocstring(GoogleDocstring):
             items.append((name, list(rest), role))
             del rest[:]
 
+        def translate(func, description, role):
+            translations = self._config.napoleon_type_aliases
+            if role is not None or not translations:
+                return func, description, role
+
+            translated = translations.get(func, func)
+            match = self._name_rgx.match(translated)
+            if not match:
+                return translated, description, role
+
+            groups = match.groupdict()
+            role = groups["role"]
+            new_func = groups["name"] or groups["name2"]
+
+            return new_func, description, role
+
         current_func = None
-        rest = []  # type: List[str]
+        rest: List[str] = []
 
         for line in content:
             if not line.strip():
@@ -1214,37 +1310,19 @@ class NumpyDocstring(GoogleDocstring):
         if not items:
             return []
 
-        roles = {
-            'method': 'meth',
-            'meth': 'meth',
-            'function': 'func',
-            'func': 'func',
-            'class': 'class',
-            'exception': 'exc',
-            'exc': 'exc',
-            'object': 'obj',
-            'obj': 'obj',
-            'module': 'mod',
-            'mod': 'mod',
-            'data': 'data',
-            'constant': 'const',
-            'const': 'const',
-            'attribute': 'attr',
-            'attr': 'attr'
-        }
-        if self._what is None:
-            func_role = 'obj'
-        else:
-            func_role = roles.get(self._what, '')
-        lines = []  # type: List[str]
+        # apply type aliases
+        items = [
+            translate(func, description, role)
+            for func, description, role in items
+        ]
+
+        lines: List[str] = []
         last_had_desc = True
-        for func, desc, role in items:
+        for name, desc, role in items:
             if role:
-                link = ':%s:`%s`' % (role, func)
-            elif func_role:
-                link = ':%s:`%s`' % (func_role, func)
+                link = ':%s:`%s`' % (role, name)
             else:
-                link = "`%s`_" % func
+                link = ':obj:`%s`' % name
             if desc or last_had_desc:
                 lines += ['']
                 lines += [link]

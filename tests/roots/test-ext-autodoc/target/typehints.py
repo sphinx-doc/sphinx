@@ -1,4 +1,4 @@
-from typing import Tuple, Union
+from typing import Any, Tuple, Union
 
 
 def incr(a: int, b: int = 1) -> int:
@@ -11,7 +11,7 @@ def decr(a, b = 1):
 
 
 class Math:
-    def __init__(self, s: str, o: object = None) -> None:
+    def __init__(self, s: str, o: Any = None) -> None:
         pass
 
     def incr(self, a: int, b: int = 1) -> int:
@@ -68,3 +68,13 @@ def missing_attr(c,
                  ):
     # type: (...) -> str
     return a + (b or "")
+
+
+class _ClassWithDocumentedInit:
+    """Class docstring."""
+
+    def __init__(self, x: int) -> None:
+        """Init docstring.
+
+        :param x: Some integer
+        """

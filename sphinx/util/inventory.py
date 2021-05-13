@@ -4,18 +4,16 @@
 
     Inventory utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
 import re
 import zlib
-from typing import Callable, IO, Iterator
-from typing import TYPE_CHECKING
+from typing import IO, TYPE_CHECKING, Callable, Iterator
 
 from sphinx.util import logging
 from sphinx.util.typing import Inventory
-
 
 BUFSIZE = 16 * 1024
 logger = logging.getLogger(__name__)
@@ -95,7 +93,7 @@ class InventoryFile:
 
     @classmethod
     def load_v1(cls, stream: InventoryFileReader, uri: str, join: Callable) -> Inventory:
-        invdata = {}  # type: Inventory
+        invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
         for line in stream.readlines():
@@ -113,7 +111,7 @@ class InventoryFile:
 
     @classmethod
     def load_v2(cls, stream: InventoryFileReader, uri: str, join: Callable) -> Inventory:
-        invdata = {}  # type: Inventory
+        invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
         line = stream.readline()
@@ -122,11 +120,16 @@ class InventoryFile:
 
         for line in stream.read_compressed_lines():
             # be careful to handle names with embedded spaces correctly
-            m = re.match(r'(?x)(.+?)\s+(\S*:\S*)\s+(-?\d+)\s+?(\S*)\s+(.*)',
+            m = re.match(r'(?x)(.+?)\s+(\S+)\s+(-?\d+)\s+?(\S*)\s+(.*)',
                          line.rstrip())
             if not m:
                 continue
             name, type, prio, location, dispname = m.groups()
+            if ':' not in type:
+                # wrong type value. type should be in the form of "{domain}:{objtype}"
+                #
+                # Note: To avoid the regex DoS, this is implemented in python (refs: #8175)
+                continue
             if type == 'py:module' and type in invdata and name in invdata[type]:
                 # due to a bug in 1.1 and below,
                 # two inventory entries are created

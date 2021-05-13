@@ -89,32 +89,95 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
             Boil the noodle *time* minutes.
 
-   **Options and advanced usage**
+   .. rubric:: Options
 
-   * If you want to automatically document members, there's a ``members``
-     option::
+   .. rst:directive:option:: members
+      :type: no value or comma separated list
+
+      If set, autodoc will generate document for the members of the target
+      module, class or exception.
+
+      For example::
 
         .. automodule:: noodle
            :members:
 
-     will document all module members (recursively), and ::
+      will document all module members (recursively), and ::
 
         .. autoclass:: Noodle
            :members:
 
-     will document all non-private member functions and properties (that is,
-     those whose name doesn't start with ``_``).
+      will document all class member methods and properties.
 
-     For modules, ``__all__`` will be respected when looking for members unless
-     you give the ``ignore-module-all`` flag option.  Without
-     ``ignore-module-all``, the order of the members will also be the order in
-     ``__all__``.
+      By default, autodoc will not generate document for the members that are
+      private, not having docstrings, inherited from super class, or special
+      members.
 
-     You can also give an explicit list of members; only these will then be
-     documented::
+      For modules, ``__all__`` will be respected when looking for members unless
+      you give the ``ignore-module-all`` flag option.  Without
+      ``ignore-module-all``, the order of the members will also be the order in
+      ``__all__``.
+
+      You can also give an explicit list of members; only these will then be
+      documented::
 
         .. autoclass:: Noodle
            :members: eat, slurp
+
+   .. rst:directive:option:: undoc-members
+      :type: no value
+
+      If set, autodoc will also generate document for the members not having
+      docstrings::
+
+        .. automodule:: noodle
+           :members:
+           :undoc-members:
+
+   .. rst:directive:option:: private-members
+      :type: no value or comma separated list
+
+      If set, autodoc will also generate document for the private members
+      (that is, those named like ``_private`` or ``__private``)::
+
+        .. automodule:: noodle
+           :members:
+           :private-members:
+
+      It can also take an explicit list of member names to be documented as
+      arguments::
+
+        .. automodule:: noodle
+           :members:
+           :private-members: _spicy, _garlickly
+
+      .. versionadded:: 1.1
+      .. versionchanged:: 3.2
+         The option can now take arguments.
+
+   .. rst:directive:option:: special-members
+      :type: no value or comma separated list
+
+      If set, autodoc will also generate document for the special members
+      (that is, those named like ``__special__``)::
+
+        .. autoclass:: my.Class
+           :members:
+           :special-members:
+
+      It can also take an explicit list of member names to be documented as
+      arguments::
+
+        .. autoclass:: my.Class
+           :members:
+           :special-members: __init__, __name__
+
+      .. versionadded:: 1.1
+
+      .. versionchanged:: 1.2
+         The option can now take arguments
+
+   **Options and advanced usage**
 
    * If you want to make the ``members`` option (or other options described
      below) the default, see :confval:`autodoc_default_options`.
@@ -127,37 +190,23 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
            .. automodule:: foo
               :no-undoc-members:
 
+     .. tip::
 
-   * Members without docstrings will be left out, unless you give the
-     ``undoc-members`` flag option::
+        You can use autodoc directive options to temporarily override or
+        extend default options which takes list as an input. For example::
 
-        .. automodule:: noodle
-           :members:
-           :undoc-members:
+           .. autoclass:: Noodle
+              :members: eat
+              :private-members: +_spicy, _garlickly
 
-   * "Private" members (that is, those named like ``_private`` or ``__private``)
-     will be included if the ``private-members`` flag option is given::
-
-        .. automodule:: noodle
-           :members:
-           :private-members:
-
-     It can also take an explicit list of member names to be documented as
-     arguments::
-
-        .. automodule:: noodle
-           :members:
-           :private-members: _spicy, _garlickly
-
-     .. versionadded:: 1.1
-     .. versionchanged:: 3.2
-        The option can now take arguments.
+     .. versionchanged:: 3.5
+        The default options can be overridden or extended temporarily.
 
    * autodoc considers a member private if its docstring contains
      ``:meta private:`` in its :ref:`info-field-lists`.
      For example:
 
-     .. code-block:: rst
+     .. code-block:: python
 
         def my_function(my_arg, my_other_arg):
             """blah blah blah
@@ -172,7 +221,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      an underscore.
      For example:
 
-     .. code-block:: rst
+     .. code-block:: python
 
         def _my_function(my_arg, my_other_arg):
             """blah blah blah
@@ -182,20 +231,15 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionadded:: 3.1
 
-   * Python "special" members (that is, those named like ``__special__``) will
-     be included if the ``special-members`` flag option is given::
+   * autodoc considers a variable member does not have any default value if its
+     docstring contains ``:meta hide-value:`` in its :ref:`info-field-lists`.
+     Example:
 
-        .. autoclass:: my.Class
-           :members:
-           :private-members:
-           :special-members:
+     .. code-block:: python
 
-     would document both "private" and "special" members of the class.
+        var1 = None  #: :meta hide-value:
 
-     .. versionadded:: 1.1
-
-     .. versionchanged:: 1.2
-        The option can now take arguments, i.e. the special members to document.
+     .. versionadded:: 3.5
 
    * For classes and exceptions, members inherited from base classes will be
      left out when documenting all members, unless you give the
@@ -229,7 +273,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionchanged:: 3.0
 
-        It takes an anchestor class name as an argument.
+        It takes an ancestor class name as an argument.
 
    * It's possible to override the signature for explicitly documented callable
      objects (functions, methods, classes) with the regular syntax that will
@@ -299,6 +343,10 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
         .. autoclass:: module.name::Noodle
 
+   * :rst:dir:`autoclass` also recognizes the ``class-doc-from`` option that
+     can be used to override the global value of :confval:`autoclass_content`.
+
+     .. versionadded:: 4.1
 
 .. rst:directive:: autofunction
                    autodecorator
@@ -325,6 +373,15 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
    By default, without ``annotation`` option, Sphinx tries to obtain the value of
    the variable and print it after the name.
+
+   The ``no-value`` option can be used instead of a blank ``annotation`` to show the
+   type hint but not the value::
+
+      .. autodata:: CD_DRIVE
+         :no-value:
+
+   If both the ``annotation`` and ``no-value`` options are used, ``no-value`` has no
+   effect.
 
    For module data members and class attributes, documentation can either be put
    into a comment with special formatting (using a ``#:`` to start the comment
@@ -365,6 +422,9 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
       option.
    .. versionchanged:: 2.0
       :rst:dir:`autodecorator` added.
+   .. versionchanged:: 3.4
+      :rst:dir:`autodata` and :rst:dir:`autoattribute` now have a ``no-value``
+      option.
 
    .. note::
 
@@ -451,7 +511,7 @@ There are also config values that you can set:
    The supported options are ``'members'``, ``'member-order'``,
    ``'undoc-members'``, ``'private-members'``, ``'special-members'``,
    ``'inherited-members'``, ``'show-inheritance'``, ``'ignore-module-all'``,
-   ``'imported-members'`` and ``'exclude-members'``.
+   ``'imported-members'``, ``'exclude-members'`` and ``'class-doc-from'``.
 
    .. versionadded:: 1.8
 
@@ -460,6 +520,9 @@ There are also config values that you can set:
 
    .. versionchanged:: 2.1
       Added ``'imported-members'``.
+
+   .. versionchanged:: 4.1
+      Added ``'class-doc-from'``.
 
 .. confval:: autodoc_docstring_signature
 
@@ -473,14 +536,18 @@ There are also config values that you can set:
    looks like a signature, use the line as the signature and remove it from the
    docstring content.
 
-   If the signature line ends with backslash, autodoc considers the function has
-   multiple signatures and look at the next line of the docstring.  It is useful
-   for overloaded function.
+   autodoc will continue to look for multiple signature lines,
+   stopping at the first line that does not look like a signature.
+   This is useful for declaring overloaded function signatures.
 
    .. versionadded:: 1.1
    .. versionchanged:: 3.1
 
       Support overloaded signatures
+
+   .. versionchanged:: 4.0
+
+      Overloaded signatures do not need to be separated by a backslash
 
 .. confval:: autodoc_mock_imports
 
@@ -503,17 +570,90 @@ There are also config values that you can set:
 
 .. confval:: autodoc_typehints
 
-   This value controls how to represents typehints.  The setting takes the
+   This value controls how to represent typehints.  The setting takes the
    following values:
 
-   * ``'signature'`` -- Show typehints as its signature (default)
-   * ``'description'`` -- Show typehints as content of function or method
+   * ``'signature'`` -- Show typehints in the signature (default)
+   * ``'description'`` -- Show typehints as content of the function or method
+     The typehints of overloaded functions or methods will still be represented
+     in the signature.
    * ``'none'`` -- Do not show typehints
+   * ``'both'`` -- Show typehints in the signature and as content of
+     the function or method
+
+   Overloaded functions or methods will not have typehints included in the
+   description because it is impossible to accurately represent all possible
+   overloads as a list of parameters.
 
    .. versionadded:: 2.1
    .. versionadded:: 3.0
 
       New option ``'description'`` is added.
+
+   .. versionadded:: 4.1
+
+      New option ``'both'`` is added.
+
+.. confval:: autodoc_typehints_description_target
+
+   This value controls whether the types of undocumented parameters and return
+   values are documented when ``autodoc_typehints`` is set to ``description``.
+
+   The default value is ``"all"``, meaning that types are documented for all
+   parameters and return values, whether they are documented or not.
+
+   When set to ``"documented"``, types will only be documented for a parameter
+   or a return value that is already documented by the docstring.
+
+   .. versionadded:: 4.0
+
+.. confval:: autodoc_type_aliases
+
+   A dictionary for users defined `type aliases`__ that maps a type name to the
+   full-qualified object name.  It is used to keep type aliases not evaluated in
+   the document.  Defaults to empty (``{}``).
+
+   The type aliases are only available if your program enables `Postponed
+   Evaluation of Annotations (PEP 563)`__ feature via ``from __future__ import
+   annotations``.
+
+   For example, there is code using a type alias::
+
+     from __future__ import annotations
+
+     AliasType = Union[List[Dict[Tuple[int, str], Set[int]]], Tuple[str, List[str]]]
+
+     def f() -> AliasType:
+         ...
+
+   If ``autodoc_type_aliases`` is not set, autodoc will generate internal mark-up
+   from this code as following::
+
+     .. py:function:: f() -> Union[List[Dict[Tuple[int, str], Set[int]]], Tuple[str, List[str]]]
+
+        ...
+
+   If you set ``autodoc_type_aliases`` as
+   ``{'AliasType': 'your.module.AliasType'}``, it generates the following document
+   internally::
+
+     .. py:function:: f() -> your.module.AliasType:
+
+        ...
+
+   .. __: https://www.python.org/dev/peps/pep-0563/
+   .. __: https://mypy.readthedocs.io/en/latest/kinds_of_types.html#type-aliases
+   .. versionadded:: 3.3
+
+.. confval:: autodoc_preserve_defaults
+
+   If True, the default argument values of functions will be not evaluated on
+   generating document.  It preserves them as is in the source code.
+
+   .. versionadded:: 4.0
+
+      Added as an experimental feature.  This will be integrated into autodoc core
+      in the future.
 
 .. confval:: autodoc_warningiserror
 

@@ -213,3 +213,9 @@ CPP domain
 
    .. cpp:function:: T& operator[]( unsigned j )
                      const T& operator[]( unsigned j ) const
+
+.. cpp:function:: template<typename T1, typename T2> \
+                     requires A<T1, T2> \
+                  void f()
+
+- :cpp:expr:`a + b`

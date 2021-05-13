@@ -4,12 +4,11 @@
 
     Utilities for Sphinx extensions.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict
 
 from sphinx.config import Config
 from sphinx.errors import VersionRequirementError

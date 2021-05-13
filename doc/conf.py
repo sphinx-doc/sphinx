@@ -4,18 +4,17 @@ import re
 
 import sphinx
 
-
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
               'sphinx.ext.autosummary', 'sphinx.ext.extlinks',
               'sphinx.ext.intersphinx',
               'sphinx.ext.viewcode', 'sphinx.ext.inheritance_diagram']
 
-master_doc = 'contents'
+root_doc = 'contents'
 templates_path = ['_templates']
 exclude_patterns = ['_build']
 
 project = 'Sphinx'
-copyright = '2007-2020, Georg Brandl and the Sphinx team'
+copyright = '2007-2021, Georg Brandl and the Sphinx team'
 version = sphinx.__display_version__
 release = version
 show_authors = True
@@ -25,9 +24,11 @@ html_theme_path = ['_themes']
 modindex_common_prefix = ['sphinx.']
 html_static_path = ['_static']
 html_sidebars = {'index': ['indexsidebar.html', 'searchbox.html']}
+html_title = 'Sphinx documentation'
 html_additional_pages = {'index': 'index.html'}
 html_use_opensearch = 'https://www.sphinx-doc.org/en/master'
 html_baseurl = 'https://www.sphinx-doc.org/en/master/'
+html_favicon = '_static/favicon.svg'
 
 htmlhelp_basename = 'Sphinxdoc'
 
@@ -58,20 +59,14 @@ latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
 latex_logo = '_static/sphinx.png'
 latex_elements = {
     'fontenc': r'\usepackage[LGR,X2,T1]{fontenc}',
-    'fontpkg': r'''
-\usepackage[sc]{mathpazo}
-\usepackage[scaled]{helvet}
-\usepackage{courier}
-\substitutefont{LGR}{\rmdefault}{cmr}
-\substitutefont{LGR}{\sfdefault}{cmss}
-\substitutefont{LGR}{\ttdefault}{cmtt}
-\substitutefont{X2}{\rmdefault}{cmr}
-\substitutefont{X2}{\sfdefault}{cmss}
-\substitutefont{X2}{\ttdefault}{cmtt}
+    'passoptionstopackages': r'''
+\PassOptionsToPackage{svgnames}{xcolor}
 ''',
-    'passoptionstopackages': '\\PassOptionsToPackage{svgnames}{xcolor}',
-    'preamble': '\\DeclareUnicodeCharacter{229E}{\\ensuremath{\\boxplus}}',
-    'fvset': '\\fvset{fontsize=auto}',
+    'preamble': r'''
+\DeclareUnicodeCharacter{229E}{\ensuremath{\boxplus}}
+\setcounter{tocdepth}{3}%    depth of what main TOC shows (3=subsubsection)
+\setcounter{secnumdepth}{1}% depth of section numbering
+''',
     # fix missing index entry due to RTD doing only once pdflatex after makeindex
     'printindex': r'''
 \IfFileExists{\jobname.ind}
@@ -83,13 +78,14 @@ latex_show_urls = 'footnote'
 latex_use_xindy = True
 
 autodoc_member_order = 'groupwise'
+autosummary_generate = False
 todo_include_todos = True
 extlinks = {'duref': ('http://docutils.sourceforge.net/docs/ref/rst/'
-                      'restructuredtext.html#%s', ''),
+                      'restructuredtext.html#%s', '%s'),
             'durole': ('http://docutils.sourceforge.net/docs/ref/rst/'
-                       'roles.html#%s', ''),
+                       'roles.html#%s', '%s'),
             'dudir': ('http://docutils.sourceforge.net/docs/ref/rst/'
-                      'directives.html#%s', '')}
+                      'directives.html#%s', '%s')}
 
 man_pages = [
     ('contents', 'sphinx-all', 'Sphinx documentation generator system manual',
@@ -110,9 +106,10 @@ texinfo_documents = [
      1),
 ]
 
-# We're not using intersphinx right now, but if we did, this would be part of
-# the mapping:
-intersphinx_mapping = {'python': ('https://docs.python.org/3/', None)}
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3/', None),
+    'requests': ('https://requests.readthedocs.io/en/master', None),
+}
 
 # Sphinx document translation with sphinx gettext feature uses these settings:
 locale_dirs = ['locale/']

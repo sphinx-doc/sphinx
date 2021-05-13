@@ -4,37 +4,52 @@
 
     Test sphinx.util.docstrings.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from sphinx.util.docstrings import (
-    extract_metadata, prepare_docstring, prepare_commentdoc
-)
+from sphinx.util.docstrings import prepare_commentdoc, prepare_docstring, separate_metadata
 
 
-def test_extract_metadata():
-    metadata = extract_metadata(":meta foo: bar\n"
-                                ":meta baz:\n")
+def test_separate_metadata():
+    # metadata only
+    text = (":meta foo: bar\n"
+            ":meta baz:\n")
+    docstring, metadata = separate_metadata(text)
+    assert docstring == ''
     assert metadata == {'foo': 'bar', 'baz': ''}
 
+    # non metadata field list item
+    text = (":meta foo: bar\n"
+            ":param baz:\n")
+    docstring, metadata = separate_metadata(text)
+    assert docstring == ':param baz:\n'
+    assert metadata == {'foo': 'bar'}
+
     # field_list like text following just after paragaph is not a field_list
-    metadata = extract_metadata("blah blah blah\n"
-                                ":meta foo: bar\n"
-                                ":meta baz:\n")
+    text = ("blah blah blah\n"
+            ":meta foo: bar\n"
+            ":meta baz:\n")
+    docstring, metadata = separate_metadata(text)
+    assert docstring == text
     assert metadata == {}
 
     # field_list like text following after blank line is a field_list
-    metadata = extract_metadata("blah blah blah\n"
-                                "\n"
-                                ":meta foo: bar\n"
-                                ":meta baz:\n")
+    text = ("blah blah blah\n"
+            "\n"
+            ":meta foo: bar\n"
+            ":meta baz:\n")
+    docstring, metadata = separate_metadata(text)
+    assert docstring == "blah blah blah\n\n"
     assert metadata == {'foo': 'bar', 'baz': ''}
 
     # non field_list item breaks field_list
-    metadata = extract_metadata(":meta foo: bar\n"
-                                "blah blah blah\n"
-                                ":meta baz:\n")
+    text = (":meta foo: bar\n"
+            "blah blah blah\n"
+            ":meta baz:\n")
+    docstring, metadata = separate_metadata(text)
+    assert docstring == ("blah blah blah\n"
+                         ":meta baz:\n")
     assert metadata == {'foo': 'bar'}
 
 

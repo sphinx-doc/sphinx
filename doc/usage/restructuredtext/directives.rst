@@ -197,9 +197,9 @@ tables of contents.  The ``toctree`` directive is the central element.
    <metadata>` to let a document be built, but notify Sphinx that it is not
    reachable via a toctree.
 
-   The "master document" (selected by :confval:`master_doc`) is the "root" of
-   the TOC tree hierarchy.  It can be used as the documentation's main page, or
-   as a "full table of contents" if you don't give a ``maxdepth`` option.
+   The "root document" (selected by :confval:`root_doc`) is the "root" of the TOC
+   tree hierarchy.  It can be used as the documentation's main page, or as a
+   "full table of contents" if you don't give a ``maxdepth`` option.
 
    .. versionchanged:: 0.3
       Added "globbing" option.
@@ -404,10 +404,15 @@ Showing code examples
            single: sourcecode
 
 There are multiple ways to show syntax-highlighted literal code blocks in
-Sphinx: using :ref:`reST doctest blocks <rst-doctest-blocks>`; using :ref:`reST
-literal blocks <rst-literal-blocks>`, optionally in combination with the
-:rst:dir:`highlight` directive; using the :rst:dir:`code-block` directive; and
-using the :rst:dir:`literalinclude` directive. Doctest blocks can only be used
+Sphinx:
+
+* using :ref:`reST doctest blocks <rst-doctest-blocks>`;
+* using :ref:`reST literal blocks <rst-literal-blocks>`, optionally in
+  combination with the :rst:dir:`highlight` directive;
+* using the :rst:dir:`code-block` directive;
+* and using the :rst:dir:`literalinclude` directive.
+
+Doctest blocks can only be used
 to show interactive Python sessions, while the remaining three can be used for
 other languages. Of these three, literal blocks are useful when an entire
 document, or at least large sections of it, use code blocks with the same
@@ -569,12 +574,28 @@ __ http://pygments.org/docs/lexers
 
            print 'Explicit is better than implicit.'
 
+      In order to cross-reference a code-block using either the
+      :rst:role:`ref` or the :rst:role:`numref` role, it is necessary
+      that both :strong:`name` and :strong:`caption` be defined. The
+      argument of :strong:`name` can then be given to :rst:role:`numref`
+      to generate the cross-reference. Example::
+
+        See :numref:`this-py` for an example.
+
+      When using :rst:role:`ref`, it is possible to generate a cross-reference
+      with only :strong:`name` defined, provided an explicit title is
+      given. Example::
+
+        See :ref:`this code snippet <this-py>` for an example.
+
       .. versionadded:: 1.3
 
    .. rst:directive:option:: dedent: number
-      :type: number
+      :type: number or no value
 
-      Strip indentation characters from the code block. For example::
+      Strip indentation characters from the code block.  When number given,
+      leading N characters are removed.  When no argument given, leading spaces
+      are removed via :func:`textwrap.dedent()`.  For example::
 
          .. code-block:: ruby
             :dedent: 4
@@ -582,6 +603,8 @@ __ http://pygments.org/docs/lexers
                 some ruby code
 
       .. versionadded:: 1.3
+      .. versionchanged:: 3.5
+         Support automatic dedent.
 
    .. rst:directive:option:: force
       :type: no value
@@ -665,7 +688,7 @@ __ http://pygments.org/docs/lexers
    .. note::
 
       If you want to select only ``[second-section]`` of ini file like the
-      following, you can use ``:start-at: [second-section]`` and 
+      following, you can use ``:start-at: [second-section]`` and
       ``:end-before: [third-section]``:
 
       .. code-block:: ini
@@ -692,7 +715,7 @@ __ http://pygments.org/docs/lexers
              # [initialize]
              app.start(":8000")
              # [initialize]
-     
+
 
    When lines have been selected in any of the ways described above, the line
    numbers in ``emphasize-lines`` refer to those selected lines, counted
@@ -741,6 +764,9 @@ __ http://pygments.org/docs/lexers
 
    .. versionchanged:: 2.1
       Added the ``force`` option.
+
+   .. versionchanged:: 3.5
+      Support automatic dedent.
 
 .. _glossary-directive:
 
@@ -1199,20 +1225,29 @@ the definition of the symbol.  There is this directive:
    the following definition.  If the definition spans multiple lines, each
    continuation line must begin with a colon placed at the same column as in
    the first line.
+   Blank lines are not allowed within ``productionlist`` directive arguments.
+
+   The definition can contain token names which are marked as interpreted text
+   (e.g., "``sum ::= `integer` "+" `integer```") -- this generates
+   cross-references to the productions of these tokens.  Outside of the
+   production list, you can reference to token productions using
+   :rst:role:`token`.
 
    The *productionGroup* argument to :rst:dir:`productionlist` serves to
    distinguish different sets of production lists that belong to different
    grammars.  Multiple production lists with the same *productionGroup* thus
    define rules in the same scope.
 
-   Blank lines are not allowed within ``productionlist`` directive arguments.
+   Inside of the production list, tokens implicitly refer to productions
+   from the current group. You can refer to the production of another
+   grammar by prefixing the token with its group name and a colon, e.g,
+   "``otherGroup:sum``". If the group of the token should not be shown in
+   the production, it can be prefixed by a tilde, e.g.,
+   "``~otherGroup:sum``". To refer to a production from an unnamed
+   grammar, the token should be prefixed by a colon, e.g., "``:sum``".
 
-   The definition can contain token names which are marked as interpreted text
-   (e.g. "``sum ::= `integer` "+" `integer```") -- this generates
-   cross-references to the productions of these tokens.  Outside of the
-   production list, you can reference to token productions using
-   :rst:role:`token`.
-   However, if you have given a *productionGroup* argument you must prefix the
+   Outside of the production list,
+   if you have given a *productionGroup* argument you must prefix the
    token name in the cross-reference with the group name and a colon,
    e.g., "``myGroup:sum``" instead of just "``sum``".
    If the group should not be shown in the title of the link either

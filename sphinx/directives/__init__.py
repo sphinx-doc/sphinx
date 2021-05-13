@@ -4,13 +4,12 @@
 
     Handlers for additional ReST directives.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
-from typing import Any, Dict, List, Tuple
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, Dict, Generic, List, Tuple, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -22,7 +21,7 @@ from sphinx.deprecation import RemovedInSphinx50Warning, deprecated_alias
 from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.typing import DirectiveOption
+from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -31,6 +30,8 @@ if TYPE_CHECKING:
 # RE to strip backslash escapes
 nl_escape_re = re.compile(r'\\\n')
 strip_backslash_re = re.compile(r'\\(.)')
+
+T = TypeVar('T')
 
 
 def optional_int(argument: str) -> int:
@@ -46,7 +47,7 @@ def optional_int(argument: str) -> int:
         return value
 
 
-class ObjectDescription(SphinxDirective):
+class ObjectDescription(SphinxDirective, Generic[T]):
     """
     Directive to describe a class, function or similar object.  Not used
     directly, but subclassed (in domain-specific directives) to add custom
@@ -57,18 +58,18 @@ class ObjectDescription(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {
+    option_spec: OptionSpec = {
         'noindex': directives.flag,
-    }  # type: Dict[str, DirectiveOption]
+    }
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
-    doc_field_types = []    # type: List[Field]
-    domain = None           # type: str
-    objtype = None          # type: str
-    indexnode = None        # type: addnodes.index
+    doc_field_types: List[Field] = []
+    domain: str = None
+    objtype: str = None
+    indexnode: addnodes.index = None
 
     # Warning: this might be removed in future version. Don't touch this from extensions.
-    _doc_field_type_map = {}  # type: Dict[str, Tuple[Field, bool]]
+    _doc_field_type_map: Dict[str, Tuple[Field, bool]] = {}
 
     def get_field_type_map(self) -> Dict[str, Tuple[Field, bool]]:
         if self._doc_field_type_map == {}:
@@ -96,7 +97,7 @@ class ObjectDescription(SphinxDirective):
         else:
             return [line.strip() for line in lines]
 
-    def handle_signature(self, sig: str, signode: desc_signature) -> Any:
+    def handle_signature(self, sig: str, signode: desc_signature) -> T:
         """
         Parse the signature *sig* into individual nodes and append them to
         *signode*. If ValueError is raised, parsing is aborted and the whole
@@ -108,7 +109,7 @@ class ObjectDescription(SphinxDirective):
         """
         raise ValueError
 
-    def add_target_and_index(self, name: Any, sig: str, signode: desc_signature) -> None:
+    def add_target_and_index(self, name: T, sig: str, signode: desc_signature) -> None:
         """
         Add cross-reference IDs and entries to self.indexnode, if applicable.
 
@@ -171,8 +172,9 @@ class ObjectDescription(SphinxDirective):
         node['noindex'] = noindex = ('noindex' in self.options)
         if self.domain:
             node['classes'].append(self.domain)
+        node['classes'].append(node['objtype'])
 
-        self.names = []  # type: List[Any]
+        self.names: List[T] = []
         signatures = self.get_signatures()
         for i, sig in enumerate(signatures):
             # add a signature node for each signature in the current unit
@@ -250,7 +252,7 @@ class DefaultDomain(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
         domain_name = self.arguments[0].lower()

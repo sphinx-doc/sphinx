@@ -2,7 +2,7 @@
     sphinx.testing.path
     ~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -11,12 +11,22 @@ import os
 import shutil
 import sys
 import warnings
-from typing import Any, Callable, IO, List
+from typing import IO, Any, Callable, List
 
 from sphinx.deprecation import RemovedInSphinx50Warning
 
-
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
+
+
+def getumask() -> int:
+    """Get current umask value"""
+    umask = os.umask(0)  # Note: Change umask value temporarily to obtain it
+    os.umask(umask)
+
+    return umask
+
+
+UMASK = getumask()
 
 
 class path(str):
@@ -99,6 +109,16 @@ class path(str):
             pointed to by the symbolic links are copied.
         """
         shutil.copytree(self, destination, symlinks=symlinks)
+        if os.environ.get('SPHINX_READONLY_TESTDIR'):
+            # If source tree is marked read-only (e.g. because it is on a read-only
+            # filesystem), `shutil.copytree` will mark the destination as read-only
+            # as well.  To avoid failures when adding additional files/directories
+            # to the destination tree, ensure destination directories are not marked
+            # read-only.
+            for root, dirs, files in os.walk(destination):
+                os.chmod(root, 0o755 & ~UMASK)
+                for name in files:
+                    os.chmod(os.path.join(root, name), 0o644 & ~UMASK)
 
     def movetree(self, destination: str) -> None:
         """

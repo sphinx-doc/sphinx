@@ -6,7 +6,7 @@
     A collection of helpful iterators.
 
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -49,8 +49,8 @@ class peek_iter:
     """
     def __init__(self, *args: Any) -> None:
         """__init__(o, sentinel=None)"""
-        self._iterable = iter(*args)        # type: Iterable
-        self._cache = collections.deque()   # type: collections.deque
+        self._iterable: Iterable = iter(*args)
+        self._cache: collections.deque = collections.deque()
         if len(args) == 2:
             self.sentinel = args[1]
         else:

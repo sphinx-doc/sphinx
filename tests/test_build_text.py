@@ -4,14 +4,14 @@
 
     Test the build process with Text builder with the test root.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import pytest
 from docutils.utils import column_width
 
-from sphinx.writers.text import MAXWIDTH, Table, Cell
+from sphinx.writers.text import MAXWIDTH, Cell, Table
 
 
 def with_text_app(*args, **kw):

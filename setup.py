@@ -23,7 +23,7 @@ install_requires = [
     'sphinxcontrib-qthelp',
     'Jinja2>=2.3',
     'Pygments>=2.0',
-    'docutils>=0.14',
+    'docutils>=0.14,<0.18',
     'snowballstemmer>=1.1',
     'babel>=1.3',
     'alabaster>=0.7,<0.8',
@@ -43,15 +43,15 @@ extras_require = {
     ],
     'lint': [
         'flake8>=3.5.0',
-        'flake8-import-order',
-        'mypy>=0.780',
+        'isort',
+        'mypy>=0.800',
         'docutils-stubs',
     ],
     'test': [
         'pytest',
         'pytest-cov',
         'html5lib',
-        'typed_ast',  # for py35-37
+        "typed_ast; python_version < '3.8'",
         'cython',
     ],
 }
@@ -76,9 +76,10 @@ class Tee:
 
 
 try:
-    from babel.messages.pofile import read_po
-    from babel.messages.frontend import compile_catalog
     from json import dump
+
+    from babel.messages.frontend import compile_catalog
+    from babel.messages.pofile import read_po
 except ImportError:
     pass
 else:
@@ -202,6 +203,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Framework :: Setuptools Plugin',

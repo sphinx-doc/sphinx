@@ -4,7 +4,7 @@
 
     Stuff for Python version compatibility.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,9 +13,9 @@ from typing import Any, Callable
 
 from sphinx.deprecation import RemovedInSphinx60Warning
 
-
 # ------------------------------------------------------------------------------
 # Python 2/3 compatibility
+
 
 # convert_with_2to3():
 # support for running 2to3 over config files
@@ -24,8 +24,8 @@ def convert_with_2to3(filepath: str) -> str:
                   RemovedInSphinx60Warning, stacklevel=2)
 
     try:
-        from lib2to3.refactor import RefactoringTool, get_fixers_from_package
         from lib2to3.pgen2.parse import ParseError
+        from lib2to3.refactor import RefactoringTool, get_fixers_from_package
     except ImportError as exc:
         # python 3.9.0a6+ emits PendingDeprecationWarning for lib2to3.
         # Additionally, removal of the module is still discussed at PEP-594.

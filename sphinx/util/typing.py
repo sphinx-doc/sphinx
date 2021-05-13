@@ -4,17 +4,20 @@
 
     The composit types for Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import sys
 import typing
-from typing import Any, Callable, Dict, Generator, List, Tuple, TypeVar, Union
+from struct import Struct
+from types import TracebackType
+from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Type, TypeVar, Union
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
 
+from sphinx.deprecation import RemovedInSphinx60Warning, deprecated_alias
 
 if sys.version_info > (3, 7):
     from typing import ForwardRef
@@ -22,7 +25,7 @@ else:
     from typing import _ForwardRef  # type: ignore
 
     class ForwardRef:
-        """A pseudo ForwardRef class for py35 and py36."""
+        """A pseudo ForwardRef class for py36."""
         def __init__(self, arg: Any, is_argument: bool = True) -> None:
             self.arg = arg
 
@@ -30,9 +33,22 @@ else:
             ref = _ForwardRef(self.arg)
             return ref._eval_type(globalns, localns)
 
+if sys.version_info > (3, 10):
+    from types import Union as types_Union
+else:
+    types_Union = None
 
-# An entry of Directive.option_spec
-DirectiveOption = Callable[[str], Any]
+if False:
+    # For type annotation
+    from typing import Type  # NOQA # for python3.5.1
+
+
+# builtin classes that have incorrect __module__
+INVALID_BUILTIN_CLASSES = {
+    Struct: 'struct.Struct',  # Before Python 3.9
+    TracebackType: 'types.TracebackType',
+}
+
 
 # Text like nodes which are initialized with text and rawsource
 TextlikeNode = Union[nodes.Text, nodes.TextElement]
@@ -47,6 +63,9 @@ PathMatcher = Callable[[str], bool]
 RoleFunction = Callable[[str, str, str, int, Inliner, Dict[str, Any], List[str]],
                         Tuple[List[nodes.Node], List[nodes.system_message]]]
 
+# A option spec for directive
+OptionSpec = Dict[str, Callable[[str], Any]]
+
 # title getter functions for enumerable nodes (see sphinx.domains.std)
 TitleGetter = Callable[[nodes.Node], str]
 
@@ -54,22 +73,238 @@ TitleGetter = Callable[[nodes.Node], str]
 Inventory = Dict[str, Dict[str, Tuple[str, str, str, str]]]
 
 
+def get_type_hints(obj: Any, globalns: Dict = None, localns: Dict = None) -> Dict[str, Any]:
+    """Return a dictionary containing type hints for a function, method, module or class object.
+
+    This is a simple wrapper of `typing.get_type_hints()` that does not raise an error on
+    runtime.
+    """
+    from sphinx.util.inspect import safe_getattr  # lazy loading
+
+    try:
+        return typing.get_type_hints(obj, globalns, localns)
+    except NameError:
+        # Failed to evaluate ForwardRef (maybe TYPE_CHECKING)
+        return safe_getattr(obj, '__annotations__', {})
+    except TypeError:
+        # Invalid object is given. But try to get __annotations__ as a fallback for
+        # the code using type union operator (PEP 604) in python 3.9 or below.
+        return safe_getattr(obj, '__annotations__', {})
+    except KeyError:
+        # a broken class found (refs: https://github.com/sphinx-doc/sphinx/issues/8084)
+        return {}
+
+
 def is_system_TypeVar(typ: Any) -> bool:
     """Check *typ* is system defined TypeVar."""
     modname = getattr(typ, '__module__', '')
-    return modname == 'typing' and isinstance(typ, TypeVar)  # type: ignore
+    return modname == 'typing' and isinstance(typ, TypeVar)
+
+
+def restify(cls: Optional[Type]) -> str:
+    """Convert python class to a reST reference."""
+    from sphinx.util import inspect  # lazy loading
+
+    if cls is None or cls is NoneType:
+        return ':obj:`None`'
+    elif cls is Ellipsis:
+        return '...'
+    elif cls in INVALID_BUILTIN_CLASSES:
+        return ':class:`%s`' % INVALID_BUILTIN_CLASSES[cls]
+    elif inspect.isNewType(cls):
+        return ':class:`%s`' % cls.__name__
+    elif types_Union and isinstance(cls, types_Union):
+        if len(cls.__args__) > 1 and None in cls.__args__:
+            args = ' | '.join(restify(a) for a in cls.__args__ if a)
+            return 'Optional[%s]' % args
+        else:
+            return ' | '.join(restify(a) for a in cls.__args__)
+    elif cls.__module__ in ('__builtin__', 'builtins'):
+        return ':class:`%s`' % cls.__name__
+    else:
+        if sys.version_info >= (3, 7):  # py37+
+            return _restify_py37(cls)
+        else:
+            return _restify_py36(cls)
+
+
+def _restify_py37(cls: Optional[Type]) -> str:
+    """Convert python class to a reST reference."""
+    from sphinx.util import inspect  # lazy loading
+
+    if (inspect.isgenericalias(cls) and
+            cls.__module__ == 'typing' and cls.__origin__ is Union):
+        # Union
+        if len(cls.__args__) > 1 and cls.__args__[-1] is NoneType:
+            if len(cls.__args__) > 2:
+                args = ', '.join(restify(a) for a in cls.__args__[:-1])
+                return ':obj:`~typing.Optional`\\ [:obj:`~typing.Union`\\ [%s]]' % args
+            else:
+                return ':obj:`~typing.Optional`\\ [%s]' % restify(cls.__args__[0])
+        else:
+            args = ', '.join(restify(a) for a in cls.__args__)
+            return ':obj:`~typing.Union`\\ [%s]' % args
+    elif inspect.isgenericalias(cls):
+        if getattr(cls, '_name', None):
+            if cls.__module__ == 'typing':
+                text = ':class:`~%s.%s`' % (cls.__module__, cls._name)
+            else:
+                text = ':class:`%s.%s`' % (cls.__module__, cls._name)
+        else:
+            text = restify(cls.__origin__)
+
+        origin = getattr(cls, '__origin__', None)
+        if not hasattr(cls, '__args__'):
+            pass
+        elif all(is_system_TypeVar(a) for a in cls.__args__):
+            # Suppress arguments if all system defined TypeVars (ex. Dict[KT, VT])
+            pass
+        elif cls.__module__ == 'typing' and cls._name == 'Callable':
+            args = ', '.join(restify(a) for a in cls.__args__[:-1])
+            text += r"\ [[%s], %s]" % (args, restify(cls.__args__[-1]))
+        elif cls.__module__ == 'typing' and getattr(origin, '_name', None) == 'Literal':
+            text += r"\ [%s]" % ', '.join(repr(a) for a in cls.__args__)
+        elif cls.__args__:
+            text += r"\ [%s]" % ", ".join(restify(a) for a in cls.__args__)
+
+        return text
+    elif hasattr(cls, '__qualname__'):
+        if cls.__module__ == 'typing':
+            return ':class:`~%s.%s`' % (cls.__module__, cls.__qualname__)
+        else:
+            return ':class:`%s.%s`' % (cls.__module__, cls.__qualname__)
+    elif hasattr(cls, '_name'):
+        # SpecialForm
+        if cls.__module__ == 'typing':
+            return ':obj:`~%s.%s`' % (cls.__module__, cls._name)
+        else:
+            return ':obj:`%s.%s`' % (cls.__module__, cls._name)
+    elif isinstance(cls, ForwardRef):
+        return ':class:`%s`' % cls.__forward_arg__
+    else:
+        # not a class (ex. TypeVar)
+        if cls.__module__ == 'typing':
+            return ':obj:`~%s.%s`' % (cls.__module__, cls.__name__)
+        else:
+            return ':obj:`%s.%s`' % (cls.__module__, cls.__name__)
+
+
+def _restify_py36(cls: Optional[Type]) -> str:
+    module = getattr(cls, '__module__', None)
+    if module == 'typing':
+        if getattr(cls, '_name', None):
+            qualname = cls._name
+        elif getattr(cls, '__qualname__', None):
+            qualname = cls.__qualname__
+        elif getattr(cls, '__forward_arg__', None):
+            qualname = cls.__forward_arg__
+        elif getattr(cls, '__origin__', None):
+            qualname = stringify(cls.__origin__)  # ex. Union
+        else:
+            qualname = repr(cls).replace('typing.', '')
+    elif hasattr(cls, '__qualname__'):
+        qualname = '%s.%s' % (module, cls.__qualname__)
+    else:
+        qualname = repr(cls)
+
+    if (isinstance(cls, typing.TupleMeta) and  # type: ignore
+            not hasattr(cls, '__tuple_params__')):
+        if module == 'typing':
+            reftext = ':class:`~typing.%s`' % qualname
+        else:
+            reftext = ':class:`%s`' % qualname
+
+        params = cls.__args__
+        if params:
+            param_str = ', '.join(restify(p) for p in params)
+            return reftext + '\\ [%s]' % param_str
+        else:
+            return reftext
+    elif isinstance(cls, typing.GenericMeta):
+        if module == 'typing':
+            reftext = ':class:`~typing.%s`' % qualname
+        else:
+            reftext = ':class:`%s`' % qualname
+
+        if cls.__args__ is None or len(cls.__args__) <= 2:  # type: ignore  # NOQA
+            params = cls.__args__  # type: ignore
+        elif cls.__origin__ == Generator:  # type: ignore
+            params = cls.__args__  # type: ignore
+        else:  # typing.Callable
+            args = ', '.join(restify(arg) for arg in cls.__args__[:-1])  # type: ignore
+            result = restify(cls.__args__[-1])  # type: ignore
+            return reftext + '\\ [[%s], %s]' % (args, result)
+
+        if params:
+            param_str = ', '.join(restify(p) for p in params)
+            return reftext + '\\ [%s]' % (param_str)
+        else:
+            return reftext
+    elif (hasattr(cls, '__origin__') and
+          cls.__origin__ is typing.Union):
+        params = cls.__args__
+        if params is not None:
+            if len(params) > 1 and params[-1] is NoneType:
+                if len(params) > 2:
+                    param_str = ", ".join(restify(p) for p in params[:-1])
+                    return (':obj:`~typing.Optional`\\ '
+                            '[:obj:`~typing.Union`\\ [%s]]' % param_str)
+                else:
+                    return ':obj:`~typing.Optional`\\ [%s]' % restify(params[0])
+            else:
+                param_str = ', '.join(restify(p) for p in params)
+                return ':obj:`~typing.Union`\\ [%s]' % param_str
+        else:
+            return ':obj:`Union`'
+    elif hasattr(cls, '__qualname__'):
+        if cls.__module__ == 'typing':
+            return ':class:`~%s.%s`' % (cls.__module__, cls.__qualname__)
+        else:
+            return ':class:`%s.%s`' % (cls.__module__, cls.__qualname__)
+    elif hasattr(cls, '_name'):
+        # SpecialForm
+        if cls.__module__ == 'typing':
+            return ':obj:`~%s.%s`' % (cls.__module__, cls._name)
+        else:
+            return ':obj:`%s.%s`' % (cls.__module__, cls._name)
+    elif hasattr(cls, '__name__'):
+        # not a class (ex. TypeVar)
+        if cls.__module__ == 'typing':
+            return ':obj:`~%s.%s`' % (cls.__module__, cls.__name__)
+        else:
+            return ':obj:`%s.%s`' % (cls.__module__, cls.__name__)
+    else:
+        # others (ex. Any)
+        if cls.__module__ == 'typing':
+            return ':obj:`~%s.%s`' % (cls.__module__, qualname)
+        else:
+            return ':obj:`%s.%s`' % (cls.__module__, qualname)
 
 
 def stringify(annotation: Any) -> str:
     """Stringify type annotation object."""
+    from sphinx.util import inspect  # lazy loading
+
     if isinstance(annotation, str):
-        return annotation
-    elif isinstance(annotation, TypeVar):  # type: ignore
+        if annotation.startswith("'") and annotation.endswith("'"):
+            # might be a double Forward-ref'ed type.  Go unquoting.
+            return annotation[1:-1]
+        else:
+            return annotation
+    elif isinstance(annotation, TypeVar):
+        if annotation.__module__ == 'typing':
+            return annotation.__name__
+        else:
+            return '.'.join([annotation.__module__, annotation.__name__])
+    elif inspect.isNewType(annotation):
+        # Could not get the module where it defiend
         return annotation.__name__
     elif not annotation:
         return repr(annotation)
     elif annotation is NoneType:
         return 'None'
+    elif annotation in INVALID_BUILTIN_CLASSES:
+        return INVALID_BUILTIN_CLASSES[annotation]
     elif (getattr(annotation, '__module__', None) == 'builtins' and
           hasattr(annotation, '__qualname__')):
         return annotation.__qualname__
@@ -99,13 +334,18 @@ def _stringify_py37(annotation: Any) -> str:
     elif hasattr(annotation, '__origin__'):
         # instantiated generic provided by a user
         qualname = stringify(annotation.__origin__)
+    elif types_Union and isinstance(annotation, types_Union):  # types.Union (for py3.10+)
+        qualname = 'types.Union'
     else:
         # we weren't able to extract the base type, appending arguments would
         # only make them appear twice
         return repr(annotation)
 
     if getattr(annotation, '__args__', None):
-        if qualname == 'Union':
+        if not isinstance(annotation.__args__, (list, tuple)):
+            # broken __args__ found
+            pass
+        elif qualname == 'Union':
             if len(annotation.__args__) > 1 and annotation.__args__[-1] is NoneType:
                 if len(annotation.__args__) > 2:
                     args = ', '.join(stringify(a) for a in annotation.__args__[:-1])
@@ -115,10 +355,19 @@ def _stringify_py37(annotation: Any) -> str:
             else:
                 args = ', '.join(stringify(a) for a in annotation.__args__)
                 return 'Union[%s]' % args
+        elif qualname == 'types.Union':
+            if len(annotation.__args__) > 1 and None in annotation.__args__:
+                args = ' | '.join(stringify(a) for a in annotation.__args__ if a)
+                return 'Optional[%s]' % args
+            else:
+                return ' | '.join(stringify(a) for a in annotation.__args__)
         elif qualname == 'Callable':
             args = ', '.join(stringify(a) for a in annotation.__args__[:-1])
             returns = stringify(annotation.__args__[-1])
             return '%s[[%s], %s]' % (qualname, args, returns)
+        elif qualname == 'Literal':
+            args = ', '.join(repr(a) for a in annotation.__args__)
+            return '%s[%s]' % (qualname, args)
         elif str(annotation).startswith('typing.Annotated'):  # for py39+
             return stringify(annotation.__args__[0])
         elif all(is_system_TypeVar(a) for a in annotation.__args__):
@@ -187,3 +436,10 @@ def _stringify_py36(annotation: Any) -> str:
                 return 'Union[%s]' % param_str
 
     return qualname
+
+
+deprecated_alias('sphinx.util.typing',
+                 {
+                     'DirectiveOption': Callable[[str], Any],
+                 },
+                 RemovedInSphinx60Warning)

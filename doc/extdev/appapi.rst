@@ -25,75 +25,75 @@ package.
 
 .. currentmodule:: sphinx.application
 
-.. automethod:: Sphinx.setup_extension(name)
+.. automethod:: Sphinx.setup_extension
 
-.. automethod:: Sphinx.require_sphinx(version)
+.. automethod:: Sphinx.require_sphinx
 
-.. automethod:: Sphinx.connect(event, callback)
+.. automethod:: Sphinx.connect
 
-.. automethod:: Sphinx.disconnect(listener_id)
+.. automethod:: Sphinx.disconnect
 
-.. automethod:: Sphinx.add_builder(builder)
+.. automethod:: Sphinx.add_builder
 
-.. automethod:: Sphinx.add_config_value(name, default, rebuild)
+.. automethod:: Sphinx.add_config_value
 
-.. automethod:: Sphinx.add_event(name)
+.. automethod:: Sphinx.add_event
 
-.. automethod:: Sphinx.set_translator(name, translator_class)
+.. automethod:: Sphinx.set_translator
 
-.. automethod:: Sphinx.add_node(node, \*\*kwds)
+.. automethod:: Sphinx.add_node
 
-.. automethod:: Sphinx.add_enumerable_node(node, figtype, title_getter=None, \*\*kwds)
+.. automethod:: Sphinx.add_enumerable_node
 
-.. automethod:: Sphinx.add_directive(name, directiveclass)
+.. automethod:: Sphinx.add_directive
 
-.. automethod:: Sphinx.add_role(name, role)
+.. automethod:: Sphinx.add_role
 
-.. automethod:: Sphinx.add_generic_role(name, nodeclass)
+.. automethod:: Sphinx.add_generic_role
 
-.. automethod:: Sphinx.add_domain(domain)
+.. automethod:: Sphinx.add_domain
 
-.. automethod:: Sphinx.add_directive_to_domain(domain, name, directiveclass)
+.. automethod:: Sphinx.add_directive_to_domain
 
-.. automethod:: Sphinx.add_role_to_domain(domain, name, role)
+.. automethod:: Sphinx.add_role_to_domain
 
-.. automethod:: Sphinx.add_index_to_domain(domain, index)
+.. automethod:: Sphinx.add_index_to_domain
 
-.. automethod:: Sphinx.add_object_type(directivename, rolename, indextemplate='', parse_node=None, ref_nodeclass=None, objname='', doc_field_types=[])
+.. automethod:: Sphinx.add_object_type
 
-.. automethod:: Sphinx.add_crossref_type(directivename, rolename, indextemplate='', ref_nodeclass=None, objname='')
+.. automethod:: Sphinx.add_crossref_type
 
-.. automethod:: Sphinx.add_transform(transform)
+.. automethod:: Sphinx.add_transform
 
-.. automethod:: Sphinx.add_post_transform(transform)
+.. automethod:: Sphinx.add_post_transform
 
-.. automethod:: Sphinx.add_js_file(filename, **kwargs)
+.. automethod:: Sphinx.add_js_file
 
-.. automethod:: Sphinx.add_css_file(filename, **kwargs)
+.. automethod:: Sphinx.add_css_file
 
-.. automethod:: Sphinx.add_latex_package(packagename, options=None)
+.. automethod:: Sphinx.add_latex_package
 
-.. automethod:: Sphinx.add_lexer(alias, lexer)
+.. automethod:: Sphinx.add_lexer
 
-.. automethod:: Sphinx.add_autodocumenter(cls)
+.. automethod:: Sphinx.add_autodocumenter
 
-.. automethod:: Sphinx.add_autodoc_attrgetter(type, getter)
+.. automethod:: Sphinx.add_autodoc_attrgetter
 
-.. automethod:: Sphinx.add_search_language(cls)
+.. automethod:: Sphinx.add_search_language
 
-.. automethod:: Sphinx.add_source_suffix(suffix, filetype)
+.. automethod:: Sphinx.add_source_suffix
 
-.. automethod:: Sphinx.add_source_parser(parser)
+.. automethod:: Sphinx.add_source_parser
 
-.. automethod:: Sphinx.add_env_collector(collector)
+.. automethod:: Sphinx.add_env_collector
 
-.. automethod:: Sphinx.add_html_theme(name, theme_path)
+.. automethod:: Sphinx.add_html_theme
 
-.. automethod:: Sphinx.add_html_math_renderer(name, inline_renderers, block_renderers)
+.. automethod:: Sphinx.add_html_math_renderer
 
-.. automethod:: Sphinx.add_message_catalog(catalog, locale_dir)
+.. automethod:: Sphinx.add_message_catalog
 
-.. automethod:: Sphinx.is_parallel_allowed(typ)
+.. automethod:: Sphinx.is_parallel_allowed
 
 .. exception:: ExtensionError
 
@@ -107,9 +107,9 @@ Emitting events
 .. class:: Sphinx
    :noindex:
 
-   .. automethod:: emit(event, \*arguments)
+   .. automethod:: emit
 
-   .. automethod:: emit_firstresult(event, \*arguments)
+   .. automethod:: emit_firstresult
 
 
 Sphinx runtime information
@@ -167,27 +167,36 @@ type for that event::
    4. event.env-before-read-docs(app, env, docnames)
 
    for docname in docnames:
-      5.  event.env-purge-doc(app, env, docname)
+      5. event.env-purge-doc(app, env, docname)
+      
       if doc changed and not removed:
          6. source-read(app, docname, source)
-         7. run source parsers: text -> docutils.document (parsers can be added with the app.add_source_parser() API)
-         8. apply transforms (by priority): docutils.document -> docutils.document
-            - event.doctree-read(app, doctree) is called in the middly of transforms,
+         7. run source parsers: text -> docutils.document
+            - parsers can be added with the app.add_source_parser() API
+         8. apply transforms based on priority: docutils.document -> docutils.document
+            - event.doctree-read(app, doctree) is called in the middle of transforms,
               transforms come before/after this event depending on their priority.
-   9. (if running in parallel mode, for each process) event.env-merged-info(app, env, docnames, other)
+   
+   9. event.env-merge-info(app, env, docnames, other)
+      - if running in parallel mode, this event will be emitted for each process
+   
    10. event.env-updated(app, env)
    11. event.env-get-updated(app, env)
-   11. event.env-check-consistency(app, env)
+   12. event.env-check-consistency(app, env)
 
-   # For builders that output a single page, they are first joined into a single doctree before post-transforms/doctree-resolved
-   for docname in docnames:
-      12. apply post-transforms (by priority): docutils.document -> docutils.document
-      13. event.doctree-resolved(app, doctree, docname)
-          - (for any reference node that fails to resolve) event.missing-reference(env, node, contnode)
+   # The updated-docs list can be builder dependent, but generally includes all new/changed documents,
+   # plus any output from `env-get-updated`, and then all "parent" documents in the ToC tree
+   # For builders that output a single page, they are first joined into a single doctree before post-transforms
+   # or the doctree-resolved event is emitted
+   for docname in updated-docs:
+      13. apply post-transforms (by priority): docutils.document -> docutils.document
+      14. event.doctree-resolved(app, doctree, docname)
+          - In the event that any reference nodes fail to resolve, the following may emit:
+          - event.missing-reference(env, node, contnode)
+          - event.warn-missing-reference(domain, node)
 
-   14. Generate output files
-
-   15. event.build-finished(app, exception)
+   15. Generate output files
+   16. event.build-finished(app, exception)
 
 Here is a more detailed list of these events.
 
@@ -283,6 +292,14 @@ Here is a more detailed list of these events.
 
    .. versionadded:: 0.5
 
+.. event:: warn-missing-reference (app, domain, node)
+
+   Emitted when a cross-reference to an object cannot be resolved even after
+   :event:`missing-reference`.  If the event handler can emit warnings for
+   the missing reference, it should return ``True``.
+
+   .. versionadded:: 3.4
+
 .. event:: doctree-resolved (app, doctree, docname)
 
    Emitted when a doctree has been "resolved" by the environment, that is, all
@@ -358,6 +375,9 @@ Here is a more detailed list of these events.
 
    You can return a string from the handler, it will then replace
    ``'page.html'`` as the HTML template for this page.
+
+   .. note:: You can install JS/CSS files for the specific page via
+             :meth:`Sphinx.add_js_file` and :meth:`Sphinx.add_css_file` since v3.5.0.
 
    .. versionadded:: 0.4
 

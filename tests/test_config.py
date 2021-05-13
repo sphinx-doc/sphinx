@@ -5,7 +5,7 @@
     Test the sphinx.config.Config class and its handling in the
     Application class.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,13 +14,13 @@ from unittest import mock
 import pytest
 
 import sphinx
-from sphinx.config import Config, ENUM, check_confval_types
-from sphinx.errors import ExtensionError, ConfigError, VersionRequirementError
+from sphinx.config import ENUM, Config, check_confval_types
+from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
 from sphinx.testing.path import path
 
 
 @pytest.mark.sphinx(testroot='config', confoverrides={
-    'master_doc': 'master',
+    'root_doc': 'root',
     'nonexisting_value': 'True',
     'latex_elements.maketitle': 'blah blah blah',
     'modindex_common_prefix': 'path1,path2'})
@@ -33,7 +33,7 @@ def test_core_config(app, status, warning):
     assert cfg.templates_path == ['_templates']
 
     # overrides
-    assert cfg.master_doc == 'master'
+    assert cfg.root_doc == 'root'
     assert cfg.latex_elements['maketitle'] == 'blah blah blah'
     assert cfg.modindex_common_prefix == ['path1', 'path2']
 
@@ -78,11 +78,11 @@ def test_extension_values():
     config = Config()
 
     # check standard settings
-    assert config.master_doc == 'index'
+    assert config.root_doc == 'index'
 
     # can't override it by add_config_value()
     with pytest.raises(ExtensionError) as excinfo:
-        config.add('master_doc', 'index', 'env', None)
+        config.add('root_doc', 'index', 'env', None)
     assert 'already present' in str(excinfo.value)
 
     # add a new config value
@@ -201,13 +201,13 @@ def test_config_eol(logger, tempdir):
         assert logger.called is False
 
 
-@pytest.mark.sphinx(confoverrides={'master_doc': 123,
+@pytest.mark.sphinx(confoverrides={'root_doc': 123,
                                    'language': 'foo',
                                    'primary_domain': None})
 def test_builtin_conf(app, status, warning):
     warnings = warning.getvalue()
-    assert 'master_doc' in warnings, (
-        'override on builtin "master_doc" should raise a type warning')
+    assert 'root_doc' in warnings, (
+        'override on builtin "root_doc" should raise a type warning')
     assert 'language' not in warnings, (
         'explicitly permitted override on builtin "language" should NOT raise '
         'a type warning')
@@ -311,3 +311,77 @@ def test_check_enum_for_list_failed(logger):
     config.init_values()
     check_confval_types(None, config)
     assert logger.warning.called
+
+
+nitpick_warnings = [
+    "WARNING: py:const reference target not found: prefix.anything.postfix",
+    "WARNING: py:class reference target not found: prefix.anything",
+    "WARNING: py:class reference target not found: anything.postfix",
+    "WARNING: js:class reference target not found: prefix.anything.postfix",
+]
+
+
+@pytest.mark.sphinx(testroot='nitpicky-warnings')
+def test_nitpick_base(app, status, warning):
+    app.builder.build_all()
+
+    warning = warning.getvalue().strip().split('\n')
+    assert len(warning) == len(nitpick_warnings)
+    for actual, expected in zip(warning, nitpick_warnings):
+        assert expected in actual
+
+
+@pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
+    'nitpick_ignore': [
+        ('py:const', 'prefix.anything.postfix'),
+        ('py:class', 'prefix.anything'),
+        ('py:class', 'anything.postfix'),
+        ('js:class', 'prefix.anything.postfix'),
+    ],
+})
+def test_nitpick_ignore(app, status, warning):
+    app.builder.build_all()
+    assert not len(warning.getvalue().strip())
+
+
+@pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
+    'nitpick_ignore_regex': [
+        (r'py:.*', r'.*postfix'),
+        (r'.*:class', r'prefix.*'),
+    ]
+})
+def test_nitpick_ignore_regex1(app, status, warning):
+    app.builder.build_all()
+    assert not len(warning.getvalue().strip())
+
+
+@pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
+    'nitpick_ignore_regex': [
+        (r'py:.*', r'prefix.*'),
+        (r'.*:class', r'.*postfix'),
+    ]
+})
+def test_nitpick_ignore_regex2(app, status, warning):
+    app.builder.build_all()
+    assert not len(warning.getvalue().strip())
+
+
+@pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
+    'nitpick_ignore_regex': [
+        # None of these should match
+        (r'py:', r'.*'),
+        (r':class', r'.*'),
+        (r'', r'.*'),
+        (r'.*', r'anything'),
+        (r'.*', r'prefix'),
+        (r'.*', r'postfix'),
+        (r'.*', r''),
+    ]
+})
+def test_nitpick_ignore_regex_fullmatch(app, status, warning):
+    app.builder.build_all()
+
+    warning = warning.getvalue().strip().split('\n')
+    assert len(warning) == len(nitpick_warnings)
+    for actual, expected in zip(warning, nitpick_warnings):
+        assert expected in actual

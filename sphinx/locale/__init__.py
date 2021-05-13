@@ -4,7 +4,7 @@
 
     Locale utilities.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -103,10 +103,10 @@ class _TranslationProxy(UserString):
             return '<%s broken>' % self.__class__.__name__
 
 
-translators = defaultdict(NullTranslations)  # type: Dict[Tuple[str, str], NullTranslations]
+translators: Dict[Tuple[str, str], NullTranslations] = defaultdict(NullTranslations)
 
 
-def init(locale_dirs: List[str], language: str,
+def init(locale_dirs: List[Optional[str]], language: Optional[str],
          catalog: str = 'sphinx', namespace: str = 'general') -> Tuple[NullTranslations, bool]:
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
     least a NullTranslations catalog set in `translators`. If called multiple
@@ -123,9 +123,11 @@ def init(locale_dirs: List[str], language: str,
 
     if language and '_' in language:
         # for language having country code (like "de_AT")
-        languages = [language, language.split('_')[0]]
-    else:
+        languages: Optional[List[str]] = [language, language.split('_')[0]]
+    elif language:
         languages = [language]
+    else:
+        languages = None
 
     # loading
     for dir_ in locale_dirs:
@@ -260,7 +262,7 @@ admonitionlabels = {
 }
 
 # Moved to sphinx.directives.other (will be overriden later)
-versionlabels = {}  # type: Dict[str, str]
+versionlabels: Dict[str, str] = {}
 
 # Moved to sphinx.domains.python (will be overriden later)
-pairindextypes = {}  # type: Dict[str, str]
+pairindextypes: Dict[str, str] = {}

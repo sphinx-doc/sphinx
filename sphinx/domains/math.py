@@ -4,16 +4,14 @@
 
     The math domain.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, Iterable, List, Tuple
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple
 
 from docutils import nodes
-from docutils.nodes import Element, Node, system_message
-from docutils.nodes import make_id
+from docutils.nodes import Element, Node, make_id, system_message
 
 from sphinx.addnodes import pending_xref
 from sphinx.domains import Domain
@@ -43,10 +41,10 @@ class MathDomain(Domain):
     name = 'math'
     label = 'mathematics'
 
-    initial_data = {
+    initial_data: Dict = {
         'objects': {},  # labelid -> (docname, eqno)
         'has_equations': {},  # docname -> bool
-    }  # type: Dict
+    }
     dangling_warnings = {
         'eq': 'equation not found: %(target)s',
     }
@@ -99,7 +97,7 @@ class MathDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: "Builder",
                      typ: str, target: str, node: pending_xref, contnode: Element
-                     ) -> Element:
+                     ) -> Optional[Element]:
         assert typ in ('eq', 'numref')
         docname, number = self.equations.get(target, (None, None))
         if docname:
@@ -138,8 +136,11 @@ class MathDomain(Domain):
     def get_objects(self) -> List:
         return []
 
-    def has_equations(self) -> bool:
-        return any(self.data['has_equations'].values())
+    def has_equations(self, docname: str = None) -> bool:
+        if docname:
+            return self.data['has_equations'].get(docname, False)
+        else:
+            return any(self.data['has_equations'].values())
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:

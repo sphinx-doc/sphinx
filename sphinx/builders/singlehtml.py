@@ -4,7 +4,7 @@
 
     Single HTML builders.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -19,8 +19,7 @@ from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.locale import __
-from sphinx.util import logging
-from sphinx.util import progress_message
+from sphinx.util import logging, progress_message
 from sphinx.util.console import darkgreen  # type: ignore
 from sphinx.util.nodes import inline_all_toctrees
 
@@ -43,7 +42,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
     def get_target_uri(self, docname: str, typ: str = None) -> str:
         if docname in self.env.all_docs:
             # all references are on the same page...
-            return self.config.master_doc + self.out_suffix + \
+            return self.config.root_doc + self.out_suffix + \
                 '#document-' + docname
         else:
             # chances are this is a html_additional_page
@@ -55,7 +54,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 
     def fix_refuris(self, tree: Node) -> None:
         # fix refuris with double anchor
-        fname = self.config.master_doc + self.out_suffix
+        fname = self.config.root_doc + self.out_suffix
         for refnode in tree.traverse(nodes.reference):
             if 'refuri' not in refnode:
                 continue
@@ -76,7 +75,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         return self.render_partial(toctree)['fragment']
 
     def assemble_doctree(self) -> nodes.document:
-        master = self.config.master_doc
+        master = self.config.root_doc
         tree = self.env.get_doctree(master)
         tree = inline_all_toctrees(self, set(), master, tree, darkgreen, [master])
         tree['docname'] = master
@@ -94,13 +93,13 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         #
         #       There are related codes in inline_all_toctres() and
         #       HTMLTranslter#add_secnumber().
-        new_secnumbers = {}  # type: Dict[str, Tuple[int, ...]]
+        new_secnumbers: Dict[str, Tuple[int, ...]] = {}
         for docname, secnums in self.env.toc_secnumbers.items():
             for id, secnum in secnums.items():
                 alias = "%s/%s" % (docname, id)
                 new_secnumbers[alias] = secnum
 
-        return {self.config.master_doc: new_secnumbers}
+        return {self.config.root_doc: new_secnumbers}
 
     def assemble_toc_fignumbers(self) -> Dict[str, Dict[str, Dict[str, Tuple[int, ...]]]]:
         # Assemble toc_fignumbers to resolve figure numbers on SingleHTML.
@@ -112,7 +111,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         #
         #       There are related codes in inline_all_toctres() and
         #       HTMLTranslter#add_fignumber().
-        new_fignumbers = {}  # type: Dict[str, Dict[str, Tuple[int, ...]]]
+        new_fignumbers: Dict[str, Dict[str, Tuple[int, ...]]] = {}
         # {'foo': {'figure': {'id2': (2,), 'id1': (1,)}}, 'bar': {'figure': {'id1': (3,)}}}
         for docname, fignumlist in self.env.toc_fignumbers.items():
             for figtype, fignums in fignumlist.items():
@@ -121,11 +120,11 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
                 for id, fignum in fignums.items():
                     new_fignumbers[alias][id] = fignum
 
-        return {self.config.master_doc: new_fignumbers}
+        return {self.config.root_doc: new_fignumbers}
 
     def get_doc_context(self, docname: str, body: str, metatags: str) -> Dict:
         # no relation links...
-        toctree = TocTree(self.env).get_toctree_for(self.config.master_doc, self, False)
+        toctree = TocTree(self.env).get_toctree_for(self.config.root_doc, self, False)
         # if there is no toctree, toc is None
         if toctree:
             self.fix_refuris(toctree)
@@ -161,8 +160,8 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             self.env.toc_fignumbers = self.assemble_toc_fignumbers()
 
         with progress_message(__('writing')):
-            self.write_doc_serialized(self.config.master_doc, doctree)
-            self.write_doc(self.config.master_doc, doctree)
+            self.write_doc_serialized(self.config.root_doc, doctree)
+            self.write_doc(self.config.root_doc, doctree)
 
     def finish(self) -> None:
         self.write_additional_files()

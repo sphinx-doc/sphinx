@@ -4,14 +4,14 @@
 
     Docutils node-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 import unicodedata
-from typing import Any, Callable, Iterable, List, Set, Tuple, Type
-from typing import TYPE_CHECKING, cast
+from typing import (TYPE_CHECKING, Any, Callable, Iterable, List, Optional, Set, Tuple, Type,
+                    Union, cast)
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -59,7 +59,7 @@ class NodeMatcher:
         # => [<reference ...>, <reference ...>, ...]
     """
 
-    def __init__(self, *node_classes: "Type[Node]", **attrs: Any) -> None:
+    def __init__(self, *node_classes: Type[Node], **attrs: Any) -> None:
         self.classes = node_classes
         self.attrs = attrs
 
@@ -171,7 +171,7 @@ def apply_source_workaround(node: Element) -> None:
     ))):
         logger.debug('[i18n] PATCH: %r to have source and line: %s',
                      get_full_module_name(node), repr_domxml(node))
-        node.source = get_node_source(node)
+        node.source = get_node_source(node) or ''
         node.line = 0  # need fix docutils to get `node.line`
         return
 
@@ -252,7 +252,7 @@ META_TYPE_NODES = (
 
 def extract_messages(doctree: Element) -> Iterable[Tuple[Element, str]]:
     """Extract translatable messages from a document tree."""
-    for node in doctree.traverse(is_translatable):  # type: nodes.Element
+    for node in doctree.traverse(is_translatable):  # type: Element
         if isinstance(node, addnodes.translatable):
             for msg in node.extract_original_messages():
                 yield node, msg
@@ -267,7 +267,7 @@ def extract_messages(doctree: Element) -> Iterable[Tuple[Element, str]]:
             if node.get('translatable'):
                 msg = '.. image:: %s' % node['uri']
             else:
-                msg = None
+                msg = ''
         elif isinstance(node, META_TYPE_NODES):
             msg = node.rawcontent
         elif isinstance(node, nodes.pending) and is_pending_meta(node):
@@ -280,14 +280,14 @@ def extract_messages(doctree: Element) -> Iterable[Tuple[Element, str]]:
             yield node, msg
 
 
-def get_node_source(node: Element) -> str:
+def get_node_source(node: Element) -> Optional[str]:
     for pnode in traverse_parent(node):
         if pnode.source:
             return pnode.source
     return None
 
 
-def get_node_line(node: Element) -> int:
+def get_node_line(node: Element) -> Optional[int]:
     for pnode in traverse_parent(node):
         if pnode.line:
             return pnode.line
@@ -301,7 +301,7 @@ def traverse_parent(node: Element, cls: Any = None) -> Iterable[Element]:
         node = node.parent
 
 
-def get_prev_node(node: Node) -> Node:
+def get_prev_node(node: Node) -> Optional[Node]:
     pos = node.parent.index(node)
     if pos > 0:
         return node.parent[pos - 1]
@@ -361,10 +361,11 @@ indextypes = [
 ]
 
 
-def process_index_entry(entry: str, targetid: str) -> List[Tuple[str, str, str, str, str]]:
+def process_index_entry(entry: str, targetid: str
+                        ) -> List[Tuple[str, str, str, str, Optional[str]]]:
     from sphinx.domains.python import pairindextypes
 
-    indexentries = []  # type: List[Tuple[str, str, str, str, str]]
+    indexentries: List[Tuple[str, str, str, str, Optional[str]]] = []
     entry = entry.strip()
     oentry = entry
     main = ''
@@ -463,46 +464,46 @@ def _make_id(string: str) -> str:
 _non_id_chars = re.compile('[^a-zA-Z0-9._]+')
 _non_id_at_ends = re.compile('^[-0-9._]+|-+$')
 _non_id_translate = {
-    0x00f8: u'o',       # o with stroke
-    0x0111: u'd',       # d with stroke
-    0x0127: u'h',       # h with stroke
-    0x0131: u'i',       # dotless i
-    0x0142: u'l',       # l with stroke
-    0x0167: u't',       # t with stroke
-    0x0180: u'b',       # b with stroke
-    0x0183: u'b',       # b with topbar
-    0x0188: u'c',       # c with hook
-    0x018c: u'd',       # d with topbar
-    0x0192: u'f',       # f with hook
-    0x0199: u'k',       # k with hook
-    0x019a: u'l',       # l with bar
-    0x019e: u'n',       # n with long right leg
-    0x01a5: u'p',       # p with hook
-    0x01ab: u't',       # t with palatal hook
-    0x01ad: u't',       # t with hook
-    0x01b4: u'y',       # y with hook
-    0x01b6: u'z',       # z with stroke
-    0x01e5: u'g',       # g with stroke
-    0x0225: u'z',       # z with hook
-    0x0234: u'l',       # l with curl
-    0x0235: u'n',       # n with curl
-    0x0236: u't',       # t with curl
-    0x0237: u'j',       # dotless j
-    0x023c: u'c',       # c with stroke
-    0x023f: u's',       # s with swash tail
-    0x0240: u'z',       # z with swash tail
-    0x0247: u'e',       # e with stroke
-    0x0249: u'j',       # j with stroke
-    0x024b: u'q',       # q with hook tail
-    0x024d: u'r',       # r with stroke
-    0x024f: u'y',       # y with stroke
+    0x00f8: 'o',       # o with stroke
+    0x0111: 'd',       # d with stroke
+    0x0127: 'h',       # h with stroke
+    0x0131: 'i',       # dotless i
+    0x0142: 'l',       # l with stroke
+    0x0167: 't',       # t with stroke
+    0x0180: 'b',       # b with stroke
+    0x0183: 'b',       # b with topbar
+    0x0188: 'c',       # c with hook
+    0x018c: 'd',       # d with topbar
+    0x0192: 'f',       # f with hook
+    0x0199: 'k',       # k with hook
+    0x019a: 'l',       # l with bar
+    0x019e: 'n',       # n with long right leg
+    0x01a5: 'p',       # p with hook
+    0x01ab: 't',       # t with palatal hook
+    0x01ad: 't',       # t with hook
+    0x01b4: 'y',       # y with hook
+    0x01b6: 'z',       # z with stroke
+    0x01e5: 'g',       # g with stroke
+    0x0225: 'z',       # z with hook
+    0x0234: 'l',       # l with curl
+    0x0235: 'n',       # n with curl
+    0x0236: 't',       # t with curl
+    0x0237: 'j',       # dotless j
+    0x023c: 'c',       # c with stroke
+    0x023f: 's',       # s with swash tail
+    0x0240: 'z',       # z with swash tail
+    0x0247: 'e',       # e with stroke
+    0x0249: 'j',       # j with stroke
+    0x024b: 'q',       # q with hook tail
+    0x024d: 'r',       # r with stroke
+    0x024f: 'y',       # y with stroke
 }
 _non_id_translate_digraphs = {
-    0x00df: u'sz',      # ligature sz
-    0x00e6: u'ae',      # ae
-    0x0153: u'oe',      # ligature oe
-    0x0238: u'db',      # db digraph
-    0x0239: u'qp',      # qp digraph
+    0x00df: 'sz',      # ligature sz
+    0x00e6: 'ae',      # ae
+    0x0153: 'oe',      # ligature oe
+    0x0238: 'db',      # db digraph
+    0x0239: 'qp',      # qp digraph
 }
 
 
@@ -532,8 +533,19 @@ def make_id(env: "BuildEnvironment", document: nodes.document,
     return node_id
 
 
+def find_pending_xref_condition(node: addnodes.pending_xref, condition: str
+                                ) -> Optional[Element]:
+    """Pick matched pending_xref_condition node up from the pending_xref."""
+    for subnode in node:
+        if (isinstance(subnode, addnodes.pending_xref_condition) and
+                subnode.get('condition') == condition):
+            return subnode
+    else:
+        return None
+
+
 def make_refnode(builder: "Builder", fromdocname: str, todocname: str, targetid: str,
-                 child: Node, title: str = None) -> nodes.reference:
+                 child: Union[Node, List[Node]], title: str = None) -> nodes.reference:
     """Shortcut to create a reference node."""
     node = nodes.reference('', '', internal=True)
     if fromdocname == todocname and targetid:
@@ -546,7 +558,7 @@ def make_refnode(builder: "Builder", fromdocname: str, todocname: str, targetid:
             node['refuri'] = builder.get_relative_uri(fromdocname, todocname)
     if title:
         node['reftitle'] = title
-    node.append(child)
+    node += child
     return node
 
 

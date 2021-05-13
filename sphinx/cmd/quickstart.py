@@ -4,7 +4,7 @@
 
     Quickly setup documentation source to work with Sphinx.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -27,6 +27,7 @@ try:
         readline.parse_and_bind("tab: complete")
         USE_LIBEDIT = False
 except ImportError:
+    readline = None
     USE_LIBEDIT = False
 
 from docutils.utils import column_width
@@ -34,7 +35,7 @@ from docutils.utils import column_width
 import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.locale import __
-from sphinx.util.console import colorize, bold, red, nocolor, color_terminal  # type: ignore
+from sphinx.util.console import bold, color_terminal, colorize, nocolor, red  # type: ignore
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
 
@@ -139,8 +140,11 @@ def do_prompt(text: str, default: str = None, validator: Callable[[str], Any] = 
             # sequence (see #5335).  To avoid the problem, all prompts are not colored
             # on libedit.
             pass
-        else:
+        elif readline:
+            # pass input_mode=True if readline available
             prompt = colorize(COLOR_QUESTION, prompt, input_mode=True)
+        else:
+            prompt = colorize(COLOR_QUESTION, prompt, input_mode=False)
         x = term_input(prompt).strip()
         if default and not x:
             x = default
@@ -158,10 +162,22 @@ class QuickstartRenderer(SphinxRenderer):
         self.templatedir = templatedir or ''
         super().__init__()
 
+    def _has_custom_template(self, template_name: str) -> bool:
+        """Check if custom template file exists.
+
+        Note: Please don't use this function from extensions.
+              It will be removed in the future without deprecation period.
+        """
+        template = path.join(self.templatedir, path.basename(template_name))
+        if self.templatedir and path.exists(template):
+            return True
+        else:
+            return False
+
     def render(self, template_name: str, context: Dict) -> str:
-        user_template = path.join(self.templatedir, path.basename(template_name))
-        if self.templatedir and path.exists(user_template):
-            return self.render_from_file(user_template, context)
+        if self._has_custom_template(template_name):
+            custom_template = path.join(self.templatedir, path.basename(template_name))
+            return self.render_from_file(custom_template, context)
         else:
             return super().render(template_name, context)
 
@@ -314,6 +330,7 @@ def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir:
     if 'mastertocmaxdepth' not in d:
         d['mastertocmaxdepth'] = 2
 
+    d['root_doc'] = d['master']
     d['now'] = time.asctime()
     d['project_underline'] = column_width(d['project']) * '='
     d.setdefault('extensions', [])
@@ -358,7 +375,13 @@ def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir:
     write_file(path.join(srcdir, 'conf.py'), template.render_string(conf_text, d))
 
     masterfile = path.join(srcdir, d['master'] + d['suffix'])
-    write_file(masterfile, template.render('quickstart/master_doc.rst_t', d))
+    if template._has_custom_template('quickstart/master_doc.rst_t'):
+        msg = ('A custom template `master_doc.rst_t` found. It has been renamed to '
+               '`root_doc.rst_t`.  Please rename it on your project too.')
+        print(colorize('red', msg))  # RemovedInSphinx60Warning
+        write_file(masterfile, template.render('quickstart/master_doc.rst_t', d))
+    else:
+        write_file(masterfile, template.render('quickstart/root_doc.rst_t', d))
 
     if d.get('make_mode') is True:
         makefile_template = 'quickstart/Makefile.new_t'
@@ -451,8 +474,10 @@ def get_parser() -> argparse.ArgumentParser:
                         help=__('project root'))
 
     group = parser.add_argument_group(__('Structure options'))
-    group.add_argument('--sep', action='store_true', default=None,
+    group.add_argument('--sep', action='store_true', dest='sep', default=None,
                        help=__('if specified, separate source and build dirs'))
+    group.add_argument('--no-sep', action='store_false', dest='sep',
+                       help=__('if specified, create build dir under source dir'))
     group.add_argument('--dot', metavar='DOT', default='_',
                        help=__('replacement for dot in _templates etc.'))
 

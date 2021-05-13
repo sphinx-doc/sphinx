@@ -4,33 +4,32 @@
 
     The MessageCatalogBuilder class.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from codecs import open
-from collections import defaultdict, OrderedDict
-from datetime import datetime, tzinfo, timedelta
-from os import path, walk, getenv
+from collections import OrderedDict, defaultdict
+from datetime import datetime, timedelta, tzinfo
+from os import getenv, path, walk
 from time import time
-from typing import Any, DefaultDict, Dict, Iterable, Generator, List, Set, Tuple, Union
+from typing import Any, DefaultDict, Dict, Generator, Iterable, List, Set, Tuple, Union
 from uuid import uuid4
 
 from docutils import nodes
 from docutils.nodes import Element
 
-from sphinx import addnodes
-from sphinx import package_dir
+from sphinx import addnodes, package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.domains.python import pairindextypes
 from sphinx.errors import ThemeError
 from sphinx.locale import __
-from sphinx.util import split_index_msg, logging, status_iterator
+from sphinx.util import logging, split_index_msg, status_iterator
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.i18n import CatalogInfo, docname_to_domain
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
-from sphinx.util.osutil import ensuredir, canon_path, relpath
+from sphinx.util.osutil import canon_path, ensuredir, relpath
 from sphinx.util.tags import Tags
 from sphinx.util.template import SphinxRenderer
 
@@ -49,10 +48,10 @@ class Catalog:
     """Catalog of translatable messages."""
 
     def __init__(self) -> None:
-        self.messages = []  # type: List[str]
-                            # retain insertion order, a la OrderedDict
-        self.metadata = OrderedDict()   # type: Dict[str, List[Tuple[str, int, str]]]
-                                        # msgid -> file, line, uid
+        self.messages: List[str] = []  # retain insertion order, a la OrderedDict
+
+        # msgid -> file, line, uid
+        self.metadata: Dict[str, List[Tuple[str, int, str]]] = OrderedDict()
 
     def add(self, msg: str, origin: Union[Element, "MsgOrigin"]) -> None:
         if not hasattr(origin, 'uid'):
@@ -122,8 +121,7 @@ class I18nBuilder(Builder):
     """
     name = 'i18n'
     versioning_method = 'text'
-    versioning_compare = None   # type: bool
-                                # be set by `gettext_uuid`
+    versioning_compare: bool = None  # be set by `gettext_uuid`
     use_message_catalog = False
 
     def init(self) -> None:
@@ -131,7 +129,7 @@ class I18nBuilder(Builder):
         self.env.set_versioning_method(self.versioning_method,
                                        self.env.config.gettext_uuid)
         self.tags = I18nTags()
-        self.catalogs = defaultdict(Catalog)  # type: DefaultDict[str, Catalog]
+        self.catalogs: DefaultDict[str, Catalog] = defaultdict(Catalog)
 
     def get_target_uri(self, docname: str, typ: str = None) -> str:
         return ''
@@ -291,7 +289,7 @@ class MessageCatalogBuilder(I18nBuilder):
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(MessageCatalogBuilder)
 
-    app.add_config_value('gettext_compact', True, 'gettext', Any)
+    app.add_config_value('gettext_compact', True, 'gettext', {bool, str})
     app.add_config_value('gettext_location', True, 'gettext')
     app.add_config_value('gettext_uuid', False, 'gettext')
     app.add_config_value('gettext_auto_build', True, 'env')

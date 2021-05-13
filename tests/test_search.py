@@ -4,12 +4,12 @@
 
     Test the search index builder.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from io import BytesIO
 from collections import namedtuple
+from io import BytesIO
 
 import pytest
 from docutils import frontend, utils
@@ -143,6 +143,7 @@ def test_IndexBuilder():
     assert index._titles == {'docname': 'title', 'docname2': 'title2'}
     assert index._filenames == {'docname': 'filename', 'docname2': 'filename2'}
     assert index._mapping == {
+        'ar': {'docname', 'docname2'},
         'fermion': {'docname', 'docname2'},
         'comment': {'docname', 'docname2'},
         'non': {'docname', 'docname2'},
@@ -161,7 +162,8 @@ def test_IndexBuilder():
         'objects': {'': {'objdispname': (0, 0, 1, '#anchor')}},
         'objnames': {0: ('dummy', 'objtype', 'objtype')},
         'objtypes': {0: 'dummy:objtype'},
-        'terms': {'comment': [0, 1],
+        'terms': {'ar': [0, 1],
+                  'comment': [0, 1],
                   'fermion': [0, 1],
                   'index': [0, 1],
                   'non': [0, 1],
@@ -197,6 +199,7 @@ def test_IndexBuilder():
     assert index._titles == {'docname2': 'title2'}
     assert index._filenames == {'docname2': 'filename2'}
     assert index._mapping == {
+        'ar': {'docname2'},
         'fermion': {'docname2'},
         'comment': {'docname2'},
         'non': {'docname2'},
@@ -215,7 +218,8 @@ def test_IndexBuilder():
         'objects': {},
         'objnames': {0: ('dummy', 'objtype', 'objtype')},
         'objtypes': {0: 'dummy:objtype'},
-        'terms': {'comment': 0,
+        'terms': {'ar': 0,
+                  'comment': 0,
                   'fermion': 0,
                   'index': 0,
                   'non': 0,
@@ -261,4 +265,4 @@ def test_nosearch(app):
     assert index['docnames'] == ['index', 'nosearch', 'tocitem']
     assert 'latex' not in index['terms']
     assert 'zfs' in index['terms']
-    assert index['terms']['zfs'] == 0  # zfs on nosearch.rst is not registered to index
+    assert index['terms']['zfs'] == []  # zfs on nosearch.rst is not registered to index

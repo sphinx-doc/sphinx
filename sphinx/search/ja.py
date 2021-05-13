@@ -4,7 +4,7 @@
 
     Japanese search language: includes routine to split words.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -33,7 +33,7 @@ try:
 except ImportError:
     janome_module = False
 
-from sphinx.errors import SphinxError, ExtensionError
+from sphinx.errors import ExtensionError, SphinxError
 from sphinx.search import SearchLanguage
 from sphinx.util import import_object
 
@@ -54,8 +54,8 @@ class BaseSplitter:
 class MecabSplitter(BaseSplitter):
     def __init__(self, options: Dict) -> None:
         super().__init__(options)
-        self.ctypes_libmecab = None     # type: Any
-        self.ctypes_mecab = None        # type: Any
+        self.ctypes_libmecab: Any = None
+        self.ctypes_mecab: Any = None
         if not native_module:
             self.init_ctypes(options)
         else:

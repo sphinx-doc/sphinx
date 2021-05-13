@@ -4,12 +4,11 @@
 
     The changeset domain.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, NamedTuple
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, Dict, List, NamedTuple, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -18,7 +17,7 @@ from sphinx import addnodes
 from sphinx.domains import Domain
 from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective
-
+from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -55,7 +54,7 @@ class VersionChange(SphinxDirective):
     required_arguments = 1
     optional_arguments = 1
     final_argument_whitespace = True
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
         node = addnodes.versionmodified()
@@ -95,7 +94,7 @@ class VersionChange(SphinxDirective):
         domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
         domain.note_changeset(node)
 
-        ret = [node]  # type: List[Node]
+        ret: List[Node] = [node]
         ret += messages
         return ret
 
@@ -106,9 +105,9 @@ class ChangeSetDomain(Domain):
     name = 'changeset'
     label = 'changeset'
 
-    initial_data = {
+    initial_data: Dict = {
         'changes': {},      # version -> list of ChangeSet
-    }  # type: Dict
+    }
 
     @property
     def changesets(self) -> Dict[str, List[ChangeSet]]:

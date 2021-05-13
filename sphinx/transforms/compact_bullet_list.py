@@ -4,12 +4,11 @@
 
     Docutils transforms used by Sphinx when reading documents.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List
-from typing import cast
+from typing import Any, Dict, List, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -33,7 +32,7 @@ class RefOnlyListChecker(nodes.GenericNodeVisitor):
         pass
 
     def visit_list_item(self, node: nodes.list_item) -> None:
-        children = []  # type: List[Node]
+        children: List[Node] = []
         for child in node.children:
             if not isinstance(child, nodes.Invisible):
                 children.append(child)

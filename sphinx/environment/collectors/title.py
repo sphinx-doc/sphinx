@@ -4,7 +4,7 @@
 
     The title collector components for sphinx.environment.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -50,7 +50,7 @@ class TitleCollector(EnvironmentCollector):
             break
         else:
             # document has no title
-            titlenode += nodes.Text('<no title>')
+            titlenode += nodes.Text(doctree.get('title', '<no title>'))
         app.env.titles[app.env.docname] = titlenode
         app.env.longtitles[app.env.docname] = longtitlenode
 

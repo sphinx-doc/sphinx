@@ -4,7 +4,7 @@
 
     Custom docutils writer for Texinfo.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,18 +12,18 @@ import re
 import textwrap
 import warnings
 from os import path
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Pattern, Set, Tuple, Union
-from typing import TYPE_CHECKING, cast
+from typing import (TYPE_CHECKING, Any, Dict, Iterable, Iterator, List, Optional, Pattern, Set,
+                    Tuple, Union, cast)
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
 
-from sphinx import addnodes, __display_version__
+from sphinx import __display_version__, addnodes
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.domains import IndexEntry
 from sphinx.domains.index import IndexDomain
 from sphinx.errors import ExtensionError
-from sphinx.locale import admonitionlabels, _, __
+from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.i18n import format_date
@@ -117,17 +117,17 @@ class TexinfoWriter(writers.Writer):
     """Texinfo writer for generating Texinfo documents."""
     supported = ('texinfo', 'texi')
 
-    settings_spec = (
+    settings_spec: Tuple[str, Any, Tuple[Tuple[str, List[str], Dict[str, str]], ...]] = (
         'Texinfo Specific Options', None, (
             ("Name of the Info file", ['--texinfo-filename'], {'default': ''}),
             ('Dir entry', ['--texinfo-dir-entry'], {'default': ''}),
             ('Description', ['--texinfo-dir-description'], {'default': ''}),
             ('Category', ['--texinfo-dir-category'], {'default':
-                                                      'Miscellaneous'})))  # type: Tuple[str, Any, Tuple[Tuple[str, List[str], Dict[str, str]], ...]]  # NOQA
+                                                      'Miscellaneous'})))
 
-    settings_defaults = {}  # type: Dict
+    settings_defaults: Dict = {}
 
-    output = None  # type: str
+    output: str = None
 
     visitor_attributes = ('output', 'fragment')
 
@@ -146,7 +146,7 @@ class TexinfoWriter(writers.Writer):
 
 class TexinfoTranslator(SphinxTranslator):
 
-    builder = None  # type: TexinfoBuilder
+    builder: "TexinfoBuilder" = None
     ignore_missing_images = False
 
     default_elements = {
@@ -168,40 +168,34 @@ class TexinfoTranslator(SphinxTranslator):
         super().__init__(document, builder)
         self.init_settings()
 
-        self.written_ids = set()        # type: Set[str]
-                                        # node names and anchors in output
+        self.written_ids: Set[str] = set()          # node names and anchors in output
         # node names and anchors that should be in output
-        self.referenced_ids = set()     # type: Set[str]
-        self.indices = []               # type: List[Tuple[str, str]]
-                                        # (node name, content)
-        self.short_ids = {}             # type: Dict[str, str]
-                                        # anchors --> short ids
-        self.node_names = {}            # type: Dict[str, str]
-                                        # node name --> node's name to display
-        self.node_menus = {}            # type: Dict[str, List[str]]
-                                        # node name --> node's menu entries
-        self.rellinks = {}              # type: Dict[str, List[str]]
-                                        # node name --> (next, previous, up)
+        self.referenced_ids: Set[str] = set()
+        self.indices: List[Tuple[str, str]] = []    # (node name, content)
+        self.short_ids: Dict[str, str] = {}         # anchors --> short ids
+        self.node_names: Dict[str, str] = {}        # node name --> node's name to display
+        self.node_menus: Dict[str, List[str]] = {}  # node name --> node's menu entries
+        self.rellinks: Dict[str, List[str]] = {}    # node name --> (next, previous, up)
 
         self.collect_indices()
         self.collect_node_names()
         self.collect_node_menus()
         self.collect_rellinks()
 
-        self.body = []                  # type: List[str]
-        self.context = []               # type: List[str]
-        self.descs = []                 # type: List[addnodes.desc]
-        self.previous_section = None    # type: nodes.section
+        self.body: List[str] = []
+        self.context: List[str] = []
+        self.descs: List[addnodes.desc] = []
+        self.previous_section: nodes.section = None
         self.section_level = 0
         self.seen_title = False
-        self.next_section_ids = set()   # type: Set[str]
+        self.next_section_ids: Set[str] = set()
         self.escape_newlines = 0
         self.escape_hyphens = 0
-        self.curfilestack = []          # type: List[str]
-        self.footnotestack = []         # type: List[Dict[str, List[Union[collected_footnote, bool]]]]  # NOQA
+        self.curfilestack: List[str] = []
+        self.footnotestack: List[Dict[str, List[Union[collected_footnote, bool]]]] = []  # NOQA
         self.in_footnote = 0
-        self.handled_abbrs = set()      # type: Set[str]
-        self.colwidths = None           # type: List[int]
+        self.handled_abbrs: Set[str] = set()
+        self.colwidths: List[int] = None
 
     def finish(self) -> None:
         if self.previous_section is None:
@@ -232,15 +226,15 @@ class TexinfoTranslator(SphinxTranslator):
             'author': self.settings.author,
             # if empty, use basename of input file
             'filename': self.settings.texinfo_filename,
-            'release': self.escape(self.builder.config.release),
-            'project': self.escape(self.builder.config.project),
-            'copyright': self.escape(self.builder.config.copyright),
-            'date': self.escape(self.builder.config.today or
-                                format_date(self.builder.config.today_fmt or _('%b %d, %Y'),
-                                            language=self.builder.config.language))
+            'release': self.escape(self.config.release),
+            'project': self.escape(self.config.project),
+            'copyright': self.escape(self.config.copyright),
+            'date': self.escape(self.config.today or
+                                format_date(self.config.today_fmt or _('%b %d, %Y'),
+                                            language=self.config.language))
         })
         # title
-        title = self.settings.title  # type: str
+        title: str = self.settings.title
         if not title:
             title_node = self.document.next_node(nodes.title)
             title = title_node.astext() if title_node else '<untitled>'
@@ -299,7 +293,7 @@ class TexinfoTranslator(SphinxTranslator):
     def collect_node_menus(self) -> None:
         """Collect the menu entries for each "node" section."""
         node_menus = self.node_menus
-        targets = [self.document]  # type: List[Element]
+        targets: List[Element] = [self.document]
         targets.extend(self.document.traverse(nodes.section))
         for node in targets:
             assert 'node_name' in node and node['node_name']
@@ -368,7 +362,7 @@ class TexinfoTranslator(SphinxTranslator):
         """Return an escaped string suitable for use as an argument
         to a Texinfo command."""
         s = self.escape(s)
-        # commas are the argument delimeters
+        # commas are the argument delimiters
         s = s.replace(',', '@comma{}')
         # normalize white space
         s = ' '.join(s.split()).strip()
@@ -433,7 +427,7 @@ class TexinfoTranslator(SphinxTranslator):
         self.add_menu_entries(entries)
         if (node_name != 'Top' or
                 not self.node_menus[entries[0]] or
-                self.builder.config.texinfo_no_detailmenu):
+                self.config.texinfo_no_detailmenu):
             self.body.append('\n@end menu\n')
             return
 
@@ -483,7 +477,7 @@ class TexinfoTranslator(SphinxTranslator):
             ret.append('@end menu\n')
             return ''.join(ret)
 
-        indices_config = self.builder.config.texinfo_domain_indices
+        indices_config = self.config.texinfo_domain_indices
         if indices_config:
             for domain in self.builder.env.domains.values():
                 for indexcls in domain.indices:
@@ -517,7 +511,7 @@ class TexinfoTranslator(SphinxTranslator):
                         continue
                     elif isinstance(c, nodes.Element):
                         yield from footnotes_under(c)
-        fnotes = {}  # type: Dict[str, List[Union[collected_footnote, bool]]]
+        fnotes: Dict[str, List[Union[collected_footnote, bool]]] = {}
         for fn in footnotes_under(node):
             label = cast(nodes.label, fn[0])
             num = label.astext().strip()
@@ -738,7 +732,7 @@ class TexinfoTranslator(SphinxTranslator):
         else:
             uri = self.escape_arg(uri)
             name = self.escape_arg(name)
-            show_urls = self.builder.config.texinfo_show_urls
+            show_urls = self.config.texinfo_show_urls
             if self.in_footnote:
                 show_urls = 'inline'
             if not name or uri == name:
@@ -1205,11 +1199,10 @@ class TexinfoTranslator(SphinxTranslator):
             # ignore remote images
             return
         name, ext = path.splitext(uri)
-        attrs = node.attributes
         # width and height ignored in non-tex output
-        width = self.tex_image_length(attrs.get('width', ''))
-        height = self.tex_image_length(attrs.get('height', ''))
-        alt = self.escape_arg(attrs.get('alt', ''))
+        width = self.tex_image_length(node.get('width', ''))
+        height = self.tex_image_length(node.get('height', ''))
+        alt = self.escape_arg(node.get('alt', ''))
         filename = "%s-figures/%s" % (self.elements['filename'][:-5], name)  # type: ignore
         self.body.append('\n@image{%s,%s,%s,%s,%s}\n' %
                          (filename, width, height, alt, ext[1:]))
@@ -1240,6 +1233,15 @@ class TexinfoTranslator(SphinxTranslator):
 
     def depart_legend(self, node: Element) -> None:
         pass
+
+    def visit_substitution_reference(self, node: Element) -> None:
+        pass
+
+    def depart_substitution_reference(self, node: Element) -> None:
+        pass
+
+    def visit_substitution_definition(self, node: Element) -> None:
+        raise nodes.SkipNode
 
     def visit_system_message(self, node: Element) -> None:
         self.body.append('\n@verbatim\n'
@@ -1365,7 +1367,12 @@ class TexinfoTranslator(SphinxTranslator):
         self.body.append('\n\n')
         raise nodes.SkipNode
 
-    # -- Desc
+    #############################################################
+    # Domain-specific object descriptions
+    #############################################################
+
+    # Top-level nodes for descriptions
+    ##################################
 
     def visit_desc(self, node: addnodes.desc) -> None:
         self.descs.append(node)
@@ -1385,9 +1392,8 @@ class TexinfoTranslator(SphinxTranslator):
         # use the full name of the objtype for the category
         try:
             domain = self.builder.env.get_domain(node.parent['domain'])
-            primary = self.builder.config.primary_domain
             name = domain.get_type_name(domain.object_types[objtype],
-                                        primary == domain.name)
+                                        self.config.primary_domain == domain.name)
         except (KeyError, ExtensionError):
             name = objtype
         # by convention, the deffn category should be capitalized like a title
@@ -1406,6 +1412,21 @@ class TexinfoTranslator(SphinxTranslator):
 
     def depart_desc_signature_line(self, node: Element) -> None:
         pass
+
+    def visit_desc_content(self, node: Element) -> None:
+        pass
+
+    def depart_desc_content(self, node: Element) -> None:
+        pass
+
+    def visit_desc_inline(self, node: Element) -> None:
+        pass
+
+    def depart_desc_inline(self, node: Element) -> None:
+        pass
+
+    # Nodes for high-level structure in signatures
+    ##############################################
 
     def visit_desc_name(self, node: Element) -> None:
         pass
@@ -1469,11 +1490,7 @@ class TexinfoTranslator(SphinxTranslator):
     def depart_desc_annotation(self, node: Element) -> None:
         pass
 
-    def visit_desc_content(self, node: Element) -> None:
-        pass
-
-    def depart_desc_content(self, node: Element) -> None:
-        pass
+    ##############################################
 
     def visit_inline(self, node: Element) -> None:
         pass

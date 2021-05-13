@@ -4,11 +4,10 @@
 
     Tests util.inspect functions.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import _testcapi
 import ast
 import datetime
 import functools
@@ -16,10 +15,30 @@ import sys
 import types
 from inspect import Parameter
 
+import _testcapi
 import pytest
 
 from sphinx.util import inspect
-from sphinx.util.inspect import stringify_signature, is_builtin_class_method
+from sphinx.util.inspect import TypeAliasNamespace, stringify_signature
+
+
+def test_TypeAliasNamespace():
+    import logging.config
+    type_alias = TypeAliasNamespace({'logging.Filter': 'MyFilter',
+                                     'logging.Handler': 'MyHandler',
+                                     'logging.handlers.SyslogHandler': 'MySyslogHandler'})
+
+    assert type_alias['logging'].Filter == 'MyFilter'
+    assert type_alias['logging'].Handler == 'MyHandler'
+    assert type_alias['logging'].handlers.SyslogHandler == 'MySyslogHandler'
+    assert type_alias['logging'].Logger == logging.Logger
+    assert type_alias['logging'].config == logging.config
+
+    with pytest.raises(KeyError):
+        assert type_alias['log']
+
+    with pytest.raises(KeyError):
+        assert type_alias['unknown']
 
 
 def test_signature():
@@ -100,7 +119,7 @@ def test_signature_methods():
 
     # wrapped bound method
     sig = inspect.signature(wrapped_bound_method)
-    assert stringify_signature(sig) == '(*args, **kwargs)'
+    assert stringify_signature(sig) == '(arg1, **kwargs)'
 
 
 def test_signature_partialmethod():
@@ -129,8 +148,8 @@ def test_signature_partialmethod():
 
 
 def test_signature_annotations():
-    from typing_test_data import (f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10,
-                                  f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, Node)
+    from .typing_test_data import (Node, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12,
+                                   f13, f14, f15, f16, f17, f18, f19, f20, f21)
 
     # Class annotations
     sig = inspect.signature(f0)
@@ -142,7 +161,13 @@ def test_signature_annotations():
 
     # TypeVars and generic types with TypeVars
     sig = inspect.signature(f2)
-    assert stringify_signature(sig) == '(x: List[T], y: List[T_co], z: T) -> List[T_contra]'
+    if sys.version_info < (3, 7):
+        assert stringify_signature(sig) == '(x: List[T], y: List[T_co], z: T) -> List[T_contra]'
+    else:
+        assert stringify_signature(sig) == ('(x: List[tests.typing_test_data.T],'
+                                            ' y: List[tests.typing_test_data.T_co],'
+                                            ' z: tests.typing_test_data.T'
+                                            ') -> List[tests.typing_test_data.T_contra]')
 
     # Union types
     sig = inspect.signature(f3)
@@ -162,7 +187,7 @@ def test_signature_annotations():
 
     # Space around '=' for defaults
     sig = inspect.signature(f7)
-    assert stringify_signature(sig) == '(x: int = None, y: dict = {}) -> None'
+    assert stringify_signature(sig) == '(x: Optional[int] = None, y: dict = {}) -> None'
 
     # Callable types
     sig = inspect.signature(f8)
@@ -189,7 +214,11 @@ def test_signature_annotations():
 
     # optional union
     sig = inspect.signature(f20)
-    assert stringify_signature(sig) == '() -> Optional[Union[int, str]]'
+    if sys.version_info < (3, 7):
+        assert stringify_signature(sig) in ('() -> Optional[Union[int, str]]',
+                                            '() -> Optional[Union[str, int]]')
+    else:
+        assert stringify_signature(sig) == '() -> Optional[Union[int, str]]'
 
     # Any
     sig = inspect.signature(f14)
@@ -220,13 +249,10 @@ def test_signature_annotations():
 
     # type hints by string
     sig = inspect.signature(Node.children)
-    if (3, 5, 0) <= sys.version_info < (3, 5, 3):
-        assert stringify_signature(sig) == '(self) -> List[Node]'
-    else:
-        assert stringify_signature(sig) == '(self) -> List[typing_test_data.Node]'
+    assert stringify_signature(sig) == '(self) -> List[tests.typing_test_data.Node]'
 
     sig = inspect.signature(Node.__init__)
-    assert stringify_signature(sig) == '(self, parent: Optional[Node]) -> None'
+    assert stringify_signature(sig) == '(self, parent: Optional[tests.typing_test_data.Node]) -> None'
 
     # show_annotation is False
     sig = inspect.signature(f7)
@@ -234,13 +260,13 @@ def test_signature_annotations():
 
     # show_return_annotation is False
     sig = inspect.signature(f7)
-    assert stringify_signature(sig, show_return_annotation=False) == '(x: int = None, y: dict = {})'
+    assert stringify_signature(sig, show_return_annotation=False) == '(x: Optional[int] = None, y: dict = {})'
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
 @pytest.mark.sphinx(testroot='ext-autodoc')
 def test_signature_annotations_py38(app):
-    from target.pep570 import foo, bar, baz, qux
+    from target.pep570 import bar, baz, foo, qux
 
     # case: separator at head
     sig = inspect.signature(foo)
@@ -490,6 +516,28 @@ def test_dict_customtype():
     assert "<CustomType(2)>: 2" in description
 
 
+def test_getslots():
+    class Foo:
+        pass
+
+    class Bar:
+        __slots__ = ['attr']
+
+    class Baz:
+        __slots__ = {'attr': 'docstring'}
+
+    class Qux:
+        __slots__ = 'attr'
+
+    assert inspect.getslots(Foo) is None
+    assert inspect.getslots(Bar) == {'attr': None}
+    assert inspect.getslots(Baz) == {'attr': 'docstring'}
+    assert inspect.getslots(Qux) == {'attr': None}
+
+    with pytest.raises(TypeError):
+        inspect.getslots(Bar())
+
+
 @pytest.mark.sphinx(testroot='ext-autodoc')
 def test_isclassmethod(app):
     from target.methods import Base, Inherited
@@ -528,8 +576,7 @@ def test_iscoroutinefunction(app):
 
 @pytest.mark.sphinx(testroot='ext-autodoc')
 def test_isfunction(app):
-    from target.functions import builtin_func, partial_builtin_func
-    from target.functions import func, partial_func
+    from target.functions import builtin_func, func, partial_builtin_func, partial_func
     from target.methods import Base
 
     assert inspect.isfunction(func) is True                     # function
@@ -543,8 +590,7 @@ def test_isfunction(app):
 
 @pytest.mark.sphinx(testroot='ext-autodoc')
 def test_isbuiltin(app):
-    from target.functions import builtin_func, partial_builtin_func
-    from target.functions import func, partial_func
+    from target.functions import builtin_func, func, partial_builtin_func, partial_func
     from target.methods import Base
 
     assert inspect.isbuiltin(builtin_func) is True          # builtin function

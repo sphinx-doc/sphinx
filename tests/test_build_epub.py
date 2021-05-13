@@ -4,13 +4,13 @@
 
     Test the HTML builder and check output against XPath.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import subprocess
-from subprocess import CalledProcessError, PIPE
+from subprocess import PIPE, CalledProcessError
 from xml.etree import ElementTree
 
 import pytest

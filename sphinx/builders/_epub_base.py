@@ -4,7 +4,7 @@
 
     Base class of epub2/epub3 builders.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -22,11 +22,10 @@ from docutils.utils import smartquotes
 from sphinx import addnodes
 from sphinx.builders.html import BuildInfo, StandaloneHTMLBuilder
 from sphinx.locale import __
-from sphinx.util import logging
-from sphinx.util import status_iterator
+from sphinx.util import logging, status_iterator
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.i18n import format_date
-from sphinx.util.osutil import ensuredir, copyfile
+from sphinx.util.osutil import copyfile, ensuredir
 
 try:
     from PIL import Image
@@ -166,9 +165,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.link_suffix = '.xhtml'
         self.playorder = 0
         self.tocid = 0
-        self.id_cache = {}  # type: Dict[str, str]
+        self.id_cache: Dict[str, str] = {}
         self.use_index = self.get_builder_config('use_index', 'epub')
-        self.refnodes = []  # type: List[Dict[str, Any]]
+        self.refnodes: List[Dict[str, Any]] = []
 
     def create_build_info(self) -> BuildInfo:
         return BuildInfo(self.config, self.tags, ['html', 'epub'])
@@ -210,22 +209,27 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return result
 
     def check_refnodes(self, nodes: List[Dict[str, Any]]) -> None:
-        appeared = set()  # type: Set[str]
+        appeared: Set[str] = set()
         for node in nodes:
             if node['refuri'] in appeared:
-                logger.warning(__('duplicated ToC entry found: %s'), node['refuri'])
+                logger.warning(
+                    __('duplicated ToC entry found: %s'),
+                    node['refuri'],
+                    type="epub",
+                    subtype="duplicated_toc_entry",
+                )
             else:
                 appeared.add(node['refuri'])
 
     def get_toc(self) -> None:
-        """Get the total table of contents, containing the master_doc
+        """Get the total table of contents, containing the root_doc
         and pre and post files not managed by sphinx.
         """
-        doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
+        doctree = self.env.get_and_resolve_doctree(self.config.root_doc,
                                                    self, prune_toctrees=False,
                                                    includehidden=True)
         self.refnodes = self.get_refnodes(doctree, [])
-        master_dir = path.dirname(self.config.master_doc)
+        master_dir = path.dirname(self.config.root_doc)
         if master_dir:
             master_dir += '/'  # XXX or os.sep?
             for item in self.refnodes:
@@ -233,13 +237,13 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.toc_add_files(self.refnodes)
 
     def toc_add_files(self, refnodes: List[Dict[str, Any]]) -> None:
-        """Add the master_doc, pre and post files to a list of refnodes.
+        """Add the root_doc, pre and post files to a list of refnodes.
         """
         refnodes.insert(0, {
             'level': 1,
-            'refuri': html.escape(self.config.master_doc + self.out_suffix),
+            'refuri': html.escape(self.config.root_doc + self.out_suffix),
             'text': ssp(html.escape(
-                self.env.titles[self.config.master_doc].astext()))
+                self.env.titles[self.config.root_doc].astext()))
         })
         for file, text in reversed(self.config.epub_pre_files):
             refnodes.insert(0, {
@@ -266,7 +270,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """
         def update_node_id(node: Element) -> None:
             """Update IDs of given *node*."""
-            new_ids = []
+            new_ids: List[str] = []
             for node_id in node['ids']:
                 new_id = self.fix_fragment('', node_id)
                 if new_id not in new_ids:
@@ -284,7 +288,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         for target in tree.traverse(nodes.target):
             update_node_id(target)
 
-            next_node = target.next_node(ascend=True)  # type: Node
+            next_node: Node = target.next_node(ascend=True)
             if isinstance(next_node, nodes.Element):
                 update_node_id(next_node)
 
@@ -478,7 +482,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
         """
-        metadata = {}  # type: Dict[str, Any]
+        metadata: Dict[str, Any] = {}
         metadata['title'] = html.escape(self.config.epub_title)
         metadata['author'] = html.escape(self.config.epub_author)
         metadata['uid'] = html.escape(self.config.epub_uid)
@@ -504,7 +508,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         if not self.outdir.endswith(os.sep):
             self.outdir += os.sep
         olen = len(self.outdir)
-        self.files = []  # type: List[str]
+        self.files: List[str] = []
         self.ignored_files = ['.buildinfo', 'mimetype', 'content.opf',
                               'toc.ncx', 'META-INF/container.xml',
                               'Thumbs.db', 'ehthumbs.db', '.DS_Store',
@@ -619,7 +623,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         Subelements of a node are nested inside the navpoint.  For nested nodes
         the parent node is reinserted in the subnav.
         """
-        navstack = []  # type: List[NavPoint]
+        navstack: List[NavPoint] = []
         navstack.append(NavPoint('dummy', 0, '', '', []))
         level = 0
         lastnode = None
@@ -661,7 +665,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Create a dictionary with all metadata for the toc.ncx file
         properly escaped.
         """
-        metadata = {}  # type: Dict[str, Any]
+        metadata: Dict[str, Any] = {}
         metadata['uid'] = self.config.epub_uid
         metadata['title'] = html.escape(self.config.epub_title)
         metadata['level'] = level
@@ -673,7 +677,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         logger.info(__('writing toc.ncx file...'))
 
         if self.config.epub_tocscope == 'default':
-            doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
+            doctree = self.env.get_and_resolve_doctree(self.config.root_doc,
                                                        self, prune_toctrees=False,
                                                        includehidden=False)
             refnodes = self.get_refnodes(doctree, [])

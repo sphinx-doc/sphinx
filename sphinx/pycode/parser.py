@@ -4,33 +4,25 @@
 
     Utilities parsing and analyzing Python code.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import inspect
 import itertools
 import re
-import sys
 import tokenize
 from collections import OrderedDict
 from inspect import Signature
-from token import NAME, NEWLINE, INDENT, DEDENT, NUMBER, OP, STRING
+from token import DEDENT, INDENT, NAME, NEWLINE, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
 from typing import Any, Dict, List, Optional, Tuple
 
 from sphinx.pycode.ast import ast  # for py37 or older
 from sphinx.pycode.ast import parse, unparse
 
-
 comment_re = re.compile('^\\s*#: ?(.*)\r?\n?$')
 indent_re = re.compile('^\\s*$')
 emptyline_re = re.compile('^\\s*(#.*)?$')
-
-
-if sys.version_info >= (3, 6):
-    ASSIGN_NODES = (ast.Assign, ast.AnnAssign)
-else:
-    ASSIGN_NODES = (ast.Assign)
 
 
 def filter_whitespace(code: str) -> str:
@@ -137,8 +129,8 @@ class TokenProcessor:
         lines = iter(buffers)
         self.buffers = buffers
         self.tokens = tokenize.generate_tokens(lambda: next(lines))
-        self.current = None     # type: Token
-        self.previous = None    # type: Token
+        self.current: Optional[Token] = None
+        self.previous: Optional[Token] = None
 
     def get_line(self, lineno: int) -> str:
         """Returns specified line."""
@@ -186,7 +178,7 @@ class AfterCommentParser(TokenProcessor):
 
     def __init__(self, lines: List[str]) -> None:
         super().__init__(lines)
-        self.comment = None  # type: str
+        self.comment: Optional[str] = None
 
     def fetch_rvalue(self) -> List[Token]:
         """Fetch right-hand value of assignment."""
@@ -229,18 +221,18 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.counter = itertools.count()
         self.buffers = buffers
         self.encoding = encoding
-        self.context = []               # type: List[str]
-        self.current_classes = []       # type: List[str]
-        self.current_function = None    # type: ast.FunctionDef
-        self.comments = OrderedDict()   # type: Dict[Tuple[str, str], str]
-        self.annotations = {}           # type: Dict[Tuple[str, str], str]
-        self.previous = None            # type: ast.AST
-        self.deforders = {}             # type: Dict[str, int]
-        self.finals = []                # type: List[str]
-        self.overloads = {}             # type: Dict[str, List[Signature]]
-        self.typing = None              # type: str
-        self.typing_final = None        # type: str
-        self.typing_overload = None     # type: str
+        self.context: List[str] = []
+        self.current_classes: List[str] = []
+        self.current_function: Optional[ast.FunctionDef] = None
+        self.comments: Dict[Tuple[str, str], str] = OrderedDict()
+        self.annotations: Dict[Tuple[str, str], str] = {}
+        self.previous: Optional[ast.AST] = None
+        self.deforders: Dict[str, int] = {}
+        self.finals: List[str] = []
+        self.overloads: Dict[str, List[Signature]] = {}
+        self.typing: Optional[str] = None
+        self.typing_final: Optional[str] = None
+        self.typing_overload: Optional[str] = None
         super().__init__()
 
     def get_qualname_for(self, name: str) -> Optional[List[str]]:
@@ -316,7 +308,7 @@ class VariableCommentPicker(ast.NodeVisitor):
 
         return False
 
-    def get_self(self) -> ast.arg:
+    def get_self(self) -> Optional[ast.arg]:
         """Returns the name of first argument if in function."""
         if self.current_function and self.current_function.args.args:
             return self.current_function.args.args[0]
@@ -358,7 +350,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Handles Assign node and pick up a variable comment."""
         try:
             targets = get_assign_targets(node)
-            varnames = sum([get_lvar_names(t, self=self.get_self()) for t in targets], [])  # type: List[str]  # NOQA
+            varnames: List[str] = sum([get_lvar_names(t, self=self.get_self()) for t in targets], [])  # NOQA
             current_line = self.get_line(node.lineno)
         except TypeError:
             return  # this assignment is not new definition!
@@ -408,7 +400,8 @@ class VariableCommentPicker(ast.NodeVisitor):
 
     def visit_Expr(self, node: ast.Expr) -> None:
         """Handles Expr node and pick up a comment if string."""
-        if (isinstance(self.previous, ASSIGN_NODES) and isinstance(node.value, ast.Str)):
+        if (isinstance(self.previous, (ast.Assign, ast.AnnAssign)) and
+                isinstance(node.value, ast.Str)):
             try:
                 targets = get_assign_targets(self.previous)
                 varnames = get_lvar_names(targets[0], self.get_self())
@@ -473,10 +466,10 @@ class DefinitionFinder(TokenProcessor):
 
     def __init__(self, lines: List[str]) -> None:
         super().__init__(lines)
-        self.decorator = None   # type: Token
-        self.context = []       # type: List[str]
-        self.indents = []       # type: List
-        self.definitions = {}   # type: Dict[str, Tuple[str, int, int]]
+        self.decorator: Optional[Token] = None
+        self.context: List[str] = []
+        self.indents: List = []
+        self.definitions: Dict[str, Tuple[str, int, int]] = {}
 
     def add_definition(self, name: str, entry: Tuple[str, int, int]) -> None:
         """Add a location of definition."""
@@ -550,12 +543,12 @@ class Parser:
     def __init__(self, code: str, encoding: str = 'utf-8') -> None:
         self.code = filter_whitespace(code)
         self.encoding = encoding
-        self.annotations = {}       # type: Dict[Tuple[str, str], str]
-        self.comments = {}          # type: Dict[Tuple[str, str], str]
-        self.deforders = {}         # type: Dict[str, int]
-        self.definitions = {}       # type: Dict[str, Tuple[str, int, int]]
-        self.finals = []            # type: List[str]
-        self.overloads = {}         # type: Dict[str, List[Signature]]
+        self.annotations: Dict[Tuple[str, str], str] = {}
+        self.comments: Dict[Tuple[str, str], str] = {}
+        self.deforders: Dict[str, int] = {}
+        self.definitions: Dict[str, Tuple[str, int, int]] = {}
+        self.finals: List[str] = []
+        self.overloads: Dict[str, List[Signature]] = {}
 
     def parse(self) -> None:
         """Parse the source code."""

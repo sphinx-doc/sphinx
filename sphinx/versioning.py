@@ -5,15 +5,14 @@
     Implements the low-level algorithms Sphinx uses for the versioning of
     doctrees.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import pickle
 from itertools import product, zip_longest
 from operator import itemgetter
 from os import path
-from typing import Any, Dict, Iterator
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Iterator
 from uuid import uuid4
 
 from docutils.nodes import Node

@@ -5,11 +5,12 @@
     Tests for :mod:`sphinx.ext.napoleon.docstring` module.
 
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
+import sys
 from collections import namedtuple
 from contextlib import contextmanager
 from inspect import cleandoc
@@ -19,13 +20,13 @@ from unittest import TestCase, mock
 import pytest
 
 from sphinx.ext.napoleon import Config
-from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
-from sphinx.ext.napoleon.docstring import (
-    _tokenize_type_spec,
-    _recombine_set_tokens,
-    _convert_numpy_type_spec,
-    _token_type
-)
+from sphinx.ext.napoleon.docstring import (GoogleDocstring, NumpyDocstring,
+                                           _convert_numpy_type_spec, _recombine_set_tokens,
+                                           _token_type, _tokenize_type_spec)
+
+if sys.version_info >= (3, 6):
+    from .ext_napoleon_pep526_data_google import PEP526GoogleClass
+    from .ext_napoleon_pep526_data_numpy import PEP526NumpyClass
 
 
 class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
@@ -297,6 +298,34 @@ class GoogleDocstringTest(BaseDocstringTest):
                      * **arg2** (*list[int]*) -- Description
                      * **arg3** (*dict(str, int)*) -- Description
                      * **arg4** (*dict[str, int]*) -- Description
+        """
+    ), (
+        """
+        Single line summary
+
+        Receive:
+          arg1 (list(int)): Description
+          arg2 (list[int]): Description
+        """,
+        """
+        Single line summary
+
+        :Receives: * **arg1** (*list(int)*) -- Description
+                   * **arg2** (*list[int]*) -- Description
+        """
+    ), (
+        """
+        Single line summary
+
+        Receives:
+          arg1 (list(int)): Description
+          arg2 (list[int]): Description
+        """,
+        """
+        Single line summary
+
+        :Receives: * **arg1** (*list(int)*) -- Description
+                   * **arg2** (*list[int]*) -- Description
         """
     ), (
         """
@@ -1043,10 +1072,27 @@ You should listen to me!
 Sooper Warning:
     Stop hitting yourself!
 """, """:Warns: **Stop hitting yourself!**
+"""),
+                      ("""\
+Params Style:
+    arg1 (int): Description of arg1
+    arg2 (str): Description of arg2
+
+""", """\
+:Params Style: * **arg1** (*int*) -- Description of arg1
+               * **arg2** (*str*) -- Description of arg2
+"""),
+                      ("""\
+Returns Style:
+    description of custom section
+
+""", """:Returns Style: description of custom section
 """))
 
         testConfig = Config(napoleon_custom_sections=['Really Important Details',
-                                                      ('Sooper Warning', 'warns')])
+                                                      ('Sooper Warning', 'warns'),
+                                                      ('Params Style', 'params_style'),
+                                                      ('Returns Style', 'returns_style')])
 
         for docstring, expected in docstrings:
             actual = str(GoogleDocstring(docstring, testConfig))
@@ -1074,7 +1120,7 @@ Methods:
 
    
    description
-"""
+"""  # NOQA
         config = Config()
         actual = str(GoogleDocstring(docstring, config=config, app=None, what='module',
                                      options={'noindex': True}))
@@ -1093,6 +1139,55 @@ Do as you please
 
 :keyword gotham_is_yours: shall interfere.
 :kwtype gotham_is_yours: None
+"""
+        self.assertEqual(expected, actual)
+
+    def test_pep526_annotations(self):
+        if sys.version_info >= (3, 6):
+            # Test class attributes annotations
+            config = Config(
+                napoleon_attr_annotations=True
+            )
+            actual = str(GoogleDocstring(cleandoc(PEP526GoogleClass.__doc__), config, app=None, what="class",
+                                         obj=PEP526GoogleClass))
+            expected = """\
+Sample class with PEP 526 annotations and google docstring
+
+.. attribute:: attr1
+
+   Attr1 description.
+
+   :type: int
+
+.. attribute:: attr2
+
+   Attr2 description.
+
+   :type: str
+"""
+            self.assertEqual(expected, actual)
+
+    def test_preprocess_types(self):
+        docstring = """\
+Do as you please
+
+Yield:
+   str:Extended
+"""
+        actual = str(GoogleDocstring(docstring))
+        expected = """\
+Do as you please
+
+:Yields: *str* -- Extended
+"""
+        self.assertEqual(expected, actual)
+
+        config = Config(napoleon_preprocess_types=True)
+        actual = str(GoogleDocstring(docstring, config))
+        expected = """\
+Do as you please
+
+:Yields: :class:`str` -- Extended
 """
         self.assertEqual(expected, actual)
 
@@ -1177,7 +1272,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :returns: *str* -- Extended
+        :returns: :class:`str` -- Extended
                   description of return value
         """
     ), (
@@ -1193,7 +1288,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :returns: *str* -- Extended
+        :returns: :class:`str` -- Extended
                   description of return value
         """
     ), (
@@ -1237,6 +1332,48 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
+        Receive
+        -------
+        arg1:str
+            Extended
+            description of arg1
+        arg2 : int
+            Extended
+            description of arg2
+        """,
+        """
+        Single line summary
+
+        :Receives: * **arg1** (:class:`str`) -- Extended
+                     description of arg1
+                   * **arg2** (:class:`int`) -- Extended
+                     description of arg2
+        """
+    ), (
+        """
+        Single line summary
+
+        Receives
+        --------
+        arg1:str
+            Extended
+            description of arg1
+        arg2 : int
+            Extended
+            description of arg2
+        """,
+        """
+        Single line summary
+
+        :Receives: * **arg1** (:class:`str`) -- Extended
+                     description of arg1
+                   * **arg2** (:class:`int`) -- Extended
+                     description of arg2
+        """
+    ), (
+        """
+        Single line summary
+
         Yield
         -----
         str
@@ -1246,7 +1383,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :Yields: *str* -- Extended
+        :Yields: :class:`str` -- Extended
                  description of yielded value
         """
     ), (
@@ -1262,7 +1399,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
-        :Yields: *str* -- Extended
+        :Yields: :class:`str` -- Extended
                  description of yielded value
         """
     )]
@@ -1345,12 +1482,18 @@ Parameters
 ----------
 param1 : :class:`MyClass <name.space.MyClass>` instance
 
+Other Parameters
+----------------
+param2 : :class:`MyClass <name.space.MyClass>` instance
+
 """
 
         config = Config(napoleon_use_param=False)
         actual = str(NumpyDocstring(docstring, config))
         expected = """\
 :Parameters: **param1** (:class:`MyClass <name.space.MyClass>` instance)
+
+:Other Parameters: **param2** (:class:`MyClass <name.space.MyClass>` instance)
 """
         self.assertEqual(expected, actual)
 
@@ -1359,6 +1502,9 @@ param1 : :class:`MyClass <name.space.MyClass>` instance
         expected = """\
 :param param1:
 :type param1: :class:`MyClass <name.space.MyClass>` instance
+
+:param param2:
+:type param2: :class:`MyClass <name.space.MyClass>` instance
 """
         self.assertEqual(expected, actual)
 
@@ -1455,9 +1601,38 @@ numpy.multivariate_normal(mean, cov, shape=None, spam=None)
 
 .. seealso::
 
-   :meth:`some`, :meth:`other`, :meth:`funcs`
+   :obj:`some`, :obj:`other`, :obj:`funcs`
    \n\
-   :meth:`otherfunc`
+   :obj:`otherfunc`
+       relationship
+"""
+        self.assertEqual(expected, actual)
+
+        docstring = """\
+numpy.multivariate_normal(mean, cov, shape=None, spam=None)
+
+See Also
+--------
+some, other, :func:`funcs`
+otherfunc : relationship
+
+"""
+        translations = {
+            "other": "MyClass.other",
+            "otherfunc": ":func:`~my_package.otherfunc`",
+        }
+        config = Config(napoleon_type_aliases=translations)
+        app = mock.Mock()
+        actual = str(NumpyDocstring(docstring, config, app, "method"))
+
+        expected = """\
+numpy.multivariate_normal(mean, cov, shape=None, spam=None)
+
+.. seealso::
+
+   :obj:`some`, :obj:`MyClass.other`, :func:`funcs`
+   \n\
+   :func:`~my_package.otherfunc`
        relationship
 """
         self.assertEqual(expected, actual)
@@ -1524,6 +1699,52 @@ arg_ : type
         app = mock.Mock()
         actual = str(NumpyDocstring(docstring, config, app, "class"))
 
+        self.assertEqual(expected, actual)
+
+    def test_return_types(self):
+        docstring = dedent("""
+            Returns
+            -------
+            DataFrame
+                a dataframe
+        """)
+        expected = dedent("""
+           :returns: a dataframe
+           :rtype: :class:`~pandas.DataFrame`
+        """)
+        translations = {
+            "DataFrame": "~pandas.DataFrame",
+        }
+        config = Config(
+            napoleon_use_param=True,
+            napoleon_use_rtype=True,
+            napoleon_preprocess_types=True,
+            napoleon_type_aliases=translations,
+        )
+        actual = str(NumpyDocstring(docstring, config))
+        self.assertEqual(expected, actual)
+
+    def test_yield_types(self):
+        docstring = dedent("""
+            Example Function
+
+            Yields
+            ------
+            scalar or array-like
+                The result of the computation
+        """)
+        expected = dedent("""
+            Example Function
+
+            :Yields: :term:`scalar` or :class:`array-like <numpy.ndarray>` -- The result of the computation
+        """)
+        translations = {
+            "scalar": ":term:`scalar`",
+            "array-like": ":class:`array-like <numpy.ndarray>`",
+        }
+        config = Config(napoleon_type_aliases=translations, napoleon_preprocess_types=True)
+        app = mock.Mock()
+        actual = str(NumpyDocstring(docstring, config, app, "method"))
         self.assertEqual(expected, actual)
 
     def test_raises_types(self):
@@ -1692,6 +1913,34 @@ Example Function
 
 Raises
 ------
+CustomError
+    If the dimensions couldn't be parsed.
+
+""", """
+Example Function
+
+:raises package.CustomError: If the dimensions couldn't be parsed.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises
+------
+AnotherError
+    If the dimensions couldn't be parsed.
+
+""", """
+Example Function
+
+:raises ~package.AnotherError: If the dimensions couldn't be parsed.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises
+------
 :class:`exc.InvalidDimensionsError`
 :class:`exc.InvalidArgumentsError`
 
@@ -1702,7 +1951,11 @@ Example Function
 :raises exc.InvalidArgumentsError:
 """)]
         for docstring, expected in docstrings:
-            config = Config()
+            translations = {
+                "CustomError": "package.CustomError",
+                "AnotherError": ":py:exc:`~package.AnotherError`",
+            }
+            config = Config(napoleon_type_aliases=translations, napoleon_preprocess_types=True)
             app = mock.Mock()
             actual = str(NumpyDocstring(docstring, config, app, "method"))
             self.assertEqual(expected, actual)
@@ -2119,7 +2372,7 @@ definition_after_normal_text : int
             ["{", "'F'", ", ", "'C'", ", ", "'N or C'", "}", ", ", "default", " ", "'F'"],
             ["str", ", ", "default", ": ", "'F or C'"],
             ["int", ", ", "default", ": ", "None"],
-            ["int", ", " , "default", " ", "None"],
+            ["int", ", ", "default", " ", "None"],
             ["int", ", ", "default", " ", ":obj:`None`"],
             ['"ma{icious"'],
             [r"'with \'quotes\''"],
@@ -2299,3 +2552,29 @@ class TestNumpyDocstring:
         actual = numpy_docstring._escape_args_and_kwargs(name)
 
         assert actual == expected
+
+    def test_pep526_annotations(self):
+        if sys.version_info >= (3, 6):
+            # test class attributes annotations
+            config = Config(
+                napoleon_attr_annotations=True
+            )
+            actual = str(NumpyDocstring(cleandoc(PEP526NumpyClass.__doc__), config, app=None, what="class",
+                                        obj=PEP526NumpyClass))
+            expected = """\
+Sample class with PEP 526 annotations and numpy docstring
+
+.. attribute:: attr1
+
+   Attr1 description
+
+   :type: int
+
+.. attribute:: attr2
+
+   Attr2 description
+
+   :type: str
+"""
+            print(actual)
+            assert expected == actual

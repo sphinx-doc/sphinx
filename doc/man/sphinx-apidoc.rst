@@ -145,7 +145,7 @@ These options are used when :option:`--full` is specified:
    * ``module.rst_t``
    * ``package.rst_t``
    * ``toc.rst_t``
-   * ``master_doc.rst_t``
+   * ``root_doc.rst_t``
    * ``conf.py_t``
    * ``Makefile_t``
    * ``Makefile.new_t``

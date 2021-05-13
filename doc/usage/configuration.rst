@@ -73,6 +73,12 @@ Project information
 
    A copyright statement in the style ``'2008, Author Name'``.
 
+.. confval:: project_copyright
+
+   An alias of :confval:`copyright`.
+
+   .. versionadded:: 3.5
+
 .. confval:: version
 
    The major project version, used as the replacement for ``|version|``.  For
@@ -177,11 +183,20 @@ General configuration
 
 .. confval:: master_doc
 
-   The document name of the "master" document, that is, the document that
+   Same as :confval:`root_doc`.
+
+   .. versionchanged:: 4.0
+      Renamed ``master_doc`` to ``root_doc``.
+
+.. confval:: root_doc
+
+   The document name of the "root" document, that is, the document that
    contains the root :rst:dir:`toctree` directive.  Default is ``'index'``.
 
    .. versionchanged:: 2.0
       The default is changed to ``'index'`` from ``'contents'``.
+   .. versionchanged:: 4.0
+      Renamed ``root_doc`` from ``master_doc``.
 
 .. confval:: exclude_patterns
 
@@ -316,6 +331,7 @@ General configuration
    * ``toc.circular``
    * ``toc.secnum``
    * ``epub.unknown_project_files``
+   * ``epub.duplicated_toc_entry``
    * ``autosectionlabel.*``
 
    You can choose from these types.
@@ -339,6 +355,10 @@ General configuration
    .. versionchanged:: 2.1
 
       Added ``autosectionlabel.*``
+
+   .. versionchanged:: 3.3.0
+
+      Added ``epub.duplicated_toc_entry``
 
 .. confval:: needs_sphinx
 
@@ -398,6 +418,20 @@ General configuration
    ``('py:func', 'int')`` or ``('envvar', 'LD_LIBRARY_PATH')``.
 
    .. versionadded:: 1.1
+
+.. confval:: nitpick_ignore_regex
+
+   An extended version of :confval:`nitpick_ignore`, which instead interprets
+   the ``type`` and ``target`` strings as regular expressions. Note, that the
+   regular expression must match the whole string (as if the ``^`` and ``$``
+   markers were inserted).
+
+   For example, ``(r'py:.*', r'foo.*bar\.B.*')`` will ignore nitpicky warnings
+   for all python entities that start with ``'foo'`` and have ``'bar.B'`` in
+   them, such as ``('py:const', 'foo_package.bar.BAZ_VALUE')`` or
+   ``('py:class', 'food.bar.Barman')``.
+
+   .. versionadded:: 4.1
 
 .. confval:: numfig
 
@@ -550,7 +584,7 @@ General configuration
    * Otherwise, the current time is formatted using :func:`time.strftime` and
      the format given in :confval:`today_fmt`.
 
-   The default is now :confval:`today` and a :confval:`today_fmt` of ``'%B %d,
+   The default is now :confval:`today` and a :confval:`today_fmt` of ``'%b %d,
    %Y'`` (or, if translation is enabled with :confval:`language`, an equivalent
    format for the selected locale).
 
@@ -571,12 +605,27 @@ General configuration
 
 .. confval:: highlight_options
 
-   A dictionary of options that modify how the lexer specified by
-   :confval:`highlight_language` generates highlighted source code. These are
-   lexer-specific; for the options understood by each, see the
-   `Pygments documentation <https://pygments.org/docs/lexers>`_.
+   A dictionary that maps language names to options for the lexer modules of
+   Pygments.  These are lexer-specific; for the options understood by each,
+   see the `Pygments documentation <https://pygments.org/docs/lexers>`_.
+
+   Example::
+
+     highlight_options = {
+       'default': {'stripall': True},
+       'php': {'startinline': True},
+     }
+
+   A single dictionary of options are also allowed.  Then it is recognized
+   as options to the lexer specified by :confval:`highlight_language`::
+
+     # configuration for the ``highlight_language``
+     highlight_options = {'stripall': True}
 
    .. versionadded:: 1.3
+   .. versionchanged:: 3.5
+
+      Allow to configure highlight options for multiple languages
 
 .. confval:: pygments_style
 
@@ -744,6 +793,10 @@ documentation on :ref:`intl` for details.
    individual documents depends on :confval:`gettext_compact`.
 
    The default is ``['locales']``.
+
+   .. note:: The :option:`-v option for sphinx-build command <sphinx-build -v>`
+             is useful to check the locale_dirs config works as expected.  It
+             emits debug messages if message catalog directory not found.
 
    .. versionchanged:: 1.5
       Use ``locales`` directory as a default value
@@ -934,8 +987,11 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_baseurl
 
-   The URL which points to the root of the HTML documentation.  It is used to
-   indicate the location of document like ``canonical_url``.
+   The base URL which points to the root of the HTML documentation.  It is used
+   to indicate the location of document using `The Canonical Link Relation`_.
+   Default: ``''``.
+
+   .. _The Canonical Link Relation: https://tools.ietf.org/html/rfc6596
 
    .. versionadded:: 1.8
 
@@ -943,10 +999,15 @@ that use Sphinx's HTMLWriter class.
 
    The style of line numbers for code-blocks.
 
-   * ``'table'`` -- display line numbers using ``<table>`` tag (default)
-   * ``'inline'`` -- display line numbers using ``<span>`` tag
+   * ``'table'`` -- display line numbers using ``<table>`` tag
+   * ``'inline'`` -- display line numbers using ``<span>`` tag (default)
 
    .. versionadded:: 3.2
+   .. versionchanged:: 4.0
+
+      It defaults to ``'inline'``.
+
+   .. deprecated:: 4.0
 
 .. confval:: html_context
 
@@ -959,25 +1020,31 @@ that use Sphinx's HTMLWriter class.
 .. confval:: html_logo
 
    If given, this must be the name of an image file (path relative to the
-   :term:`configuration directory`) that is the logo of the docs.  It is placed
-   at the top of the sidebar; its width should therefore not exceed 200 pixels.
-   Default: ``None``.
+   :term:`configuration directory`) that is the logo of the docs, or URL that
+   points an image file for the logo.  It is placed at the top of the sidebar;
+   its width should therefore not exceed 200 pixels.  Default: ``None``.
 
    .. versionadded:: 0.4.1
       The image file will be copied to the ``_static`` directory of the output
       HTML, but only if the file does not already exist there.
 
+   .. versionchanged:: 4.0
+      Also accepts the URL for the logo file.
+
 .. confval:: html_favicon
 
    If given, this must be the name of an image file (path relative to the
-   :term:`configuration directory`) that is the favicon of the docs.  Modern
-   browsers use this as the icon for tabs, windows and bookmarks.  It should
-   be a Windows-style icon file (``.ico``), which is 16x16 or 32x32
-   pixels large.  Default: ``None``.
+   :term:`configuration directory`) that is the favicon of the docs, or URL that
+   points an image file for the favicon.  Modern browsers use this as the icon
+   for tabs, windows and bookmarks.  It should be a Windows-style icon file
+   (``.ico``), which is 16x16 or 32x32 pixels large.  Default: ``None``.
 
    .. versionadded:: 0.4
       The image file will be copied to the ``_static`` directory of the output
       HTML, but only if the file does not already exist there.
+
+   .. versionchanged:: 4.0
+      Also accepts the URL for the favicon.
 
 .. confval:: html_css_files
 
@@ -993,7 +1060,14 @@ that use Sphinx's HTMLWriter class.
                          'https://example.com/css/custom.css',
                          ('print.css', {'media': 'print'})]
 
+   As a special attribute, *priority* can be set as an integer to load the CSS
+   file earlier or lazier step.  For more information, refer
+   :meth:`Sphinx.add_css_files()`.
+
    .. versionadded:: 1.8
+   .. versionchanged:: 3.5
+
+      Support priority attribute
 
 .. confval:: html_js_files
 
@@ -1009,7 +1083,14 @@ that use Sphinx's HTMLWriter class.
                         'https://example.com/scripts/custom.js',
                         ('custom.js', {'async': 'async'})]
 
+   As a special attribute, *priority* can be set as an integer to load the CSS
+   file earlier or lazier step.  For more information, refer
+   :meth:`Sphinx.add_css_files()`.
+
    .. versionadded:: 1.8
+   .. versionchanged:: 3.5
+
+      Support priority attribute
 
 .. confval:: html_static_path
 
@@ -1092,6 +1173,23 @@ that use Sphinx's HTMLWriter class.
    .. versionchanged:: 1.1
       This can now be a string to select the actual text of the link.
       Previously, only boolean values were accepted.
+
+   .. deprecated:: 3.5
+      This has been replaced by :confval:`html_permalinks`
+
+.. confval:: html_permalinks
+
+   If true, Sphinx will add "permalinks" for each heading and description
+   environment.  Default: ``True``.
+
+   .. versionadded:: 3.5
+
+.. confval:: html_permalinks_icon
+
+   A text for permalinks for each heading and description environment.  HTML
+   tags are allowed.  Default: a paragraph sign; ``¶``
+
+   .. versionadded:: 3.5
 
 .. confval:: html_sidebars
 
@@ -1898,8 +1996,8 @@ These options influence LaTeX output.
    * ``'pdflatex'`` -- PDFLaTeX (default)
    * ``'xelatex'`` -- XeLaTeX
    * ``'lualatex'`` -- LuaLaTeX
-   * ``'platex'`` -- pLaTeX (default if :confval:`language` is ``'ja'``)
-   * ``'uplatex'`` -- upLaTeX (experimental)
+   * ``'platex'`` -- pLaTeX
+   * ``'uplatex'`` -- upLaTeX (default if :confval:`language` is ``'ja'``)
 
    ``'pdflatex'``\ 's support for Unicode characters is limited.
 
@@ -1929,6 +2027,10 @@ These options influence LaTeX output.
 
       Add ``uplatex`` support.
 
+   .. versionchanged:: 4.0
+
+      ``uplatex`` becomes the default setting of Japanese documents.
+
    Contrarily to :ref:`MathJaX math rendering in HTML output <math-support>`,
    LaTeX requires some extra configuration to support Unicode literals in
    :rst:dir:`math`: the only comprehensive solution (as far as we know) is to
@@ -1948,8 +2050,8 @@ These options influence LaTeX output.
    *startdocname*
      String that specifies the :term:`document name` of the LaTeX file's master
      document.  All documents referenced by the *startdoc* document in TOC trees
-     will be included in the LaTeX file.  (If you want to use the default master
-     document for your LaTeX build, provide your :confval:`master_doc` here.)
+     will be included in the LaTeX file.  (If you want to use the default root
+     document for your LaTeX build, provide your :confval:`root_doc` here.)
 
    *targetname*
      File name of the LaTeX file in the output directory.
@@ -2218,7 +2320,7 @@ These options influence manual page output.
      String that specifies the :term:`document name` of the manual page's master
      document. All documents referenced by the *startdoc* document in TOC trees
      will be included in the manual file.  (If you want to use the default
-     master document for your manual pages build, use your :confval:`master_doc`
+     root document for your manual pages build, use your :confval:`root_doc`
      here.)
 
    *name*
@@ -2246,6 +2348,14 @@ These options influence manual page output.
 
    .. versionadded:: 1.1
 
+.. confval:: man_make_section_directory
+
+   If true, make a section directory on build man page.  Default is True.
+
+   .. versionadded:: 3.3
+   .. versionchanged:: 4.0
+
+      The default is changed to ``False`` from ``True``.
 
 .. _texinfo-options:
 
@@ -2266,7 +2376,7 @@ These options influence Texinfo output.
      master document.  All documents referenced by the *startdoc* document in
      TOC trees will be included in the Texinfo file.  (If you want to use the
      default master document for your Texinfo build, provide your
-     :confval:`master_doc` here.)
+     :confval:`root_doc` here.)
 
    *targetname*
      File name (no extension) of the Texinfo file in the output directory.
@@ -2515,6 +2625,23 @@ Options for the linkcheck builder
 
    .. versionadded:: 2.3
 
+.. confval:: linkcheck_rate_limit_timeout
+
+   The ``linkcheck`` builder may issue a large number of requests to the same
+   site over a short period of time. This setting controls the builder behavior
+   when servers indicate that requests are rate-limited.
+
+   If a server indicates when to retry (using the `Retry-After`_ header),
+   ``linkcheck`` always follows the server indication.
+
+   Otherwise, ``linkcheck`` waits for a minute before to retry and keeps
+   doubling the wait time between attempts until it succeeds or exceeds the
+   ``linkcheck_rate_limit_timeout``. By default, the timeout is 5 minutes.
+
+   .. _Retry-After: https://tools.ietf.org/html/rfc7231#section-7.1.3
+
+   .. versionadded:: 3.4
+
 
 Options for the XML builder
 ---------------------------
@@ -2605,6 +2732,17 @@ Options for the C++ domain
 
    .. versionadded:: 1.5
 
+Options for the Python domain
+-----------------------------
+
+.. confval:: python_use_unqualified_type_names
+
+   If true, suppress the module name of the python reference if it can be
+   resolved.  The default is ``False``.
+
+   .. versionadded:: 4.0
+
+   .. note:: This configuration is still in experimental
 
 Example of configuration file
 =============================

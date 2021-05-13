@@ -4,7 +4,7 @@
 
     Template for the search page.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
 {%- extends "layout.html" %}
@@ -12,6 +12,7 @@
 {%- block scripts %}
     {{ super() }}
     <script src="{{ pathto('_static/searchtools.js', 1) }}"></script>
+    <script src="{{ pathto('_static/language_data.js', 1) }}"></script>
 {%- endblock %}
 {% block extrahead %}
   <script src="{{ pathto('searchindex.js', 1) }}" defer></script>
@@ -19,6 +20,7 @@
 {% endblock %}
 {% block body %}
   <h1 id="search-documentation">{{ _('Search') }}</h1>
+  {% block scriptwarning %}
   <div id="fallback" class="admonition warning">
   <script>$('#fallback').hide();</script>
   <p>
@@ -26,15 +28,21 @@
     functionality.{% endtrans %}
   </p>
   </div>
+  {% endblock %}
+  {% block searchtext %}
   <p>
     {% trans %}Searching for multiple words only shows matches that contain
     all words.{% endtrans %}
   </p>
+  {% endblock %}
+  {% block searchbox %}
   <form action="" method="get">
     <input type="text" name="q" aria-labelledby="search-documentation" value="" />
     <input type="submit" value="{{ _('search') }}" />
     <span id="search-progress" style="padding-left: 10px"></span>
   </form>
+  {% endblock %}
+  {% block searchresults %}
   {% if search_performed %}
     <h2>{{ _('Search Results') }}</h2>
     {% if not search_results %}
@@ -52,4 +60,5 @@
     </ul>
   {% endif %}
   </div>
+  {% endblock %}
 {% endblock %}

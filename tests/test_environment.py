@@ -4,16 +4,17 @@
 
     Test the BuildEnvironment class.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
 import shutil
+
 import pytest
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
-from sphinx.environment import CONFIG_OK, CONFIG_CHANGED, CONFIG_EXTENSIONS_CHANGED, CONFIG_NEW
+from sphinx.environment import CONFIG_CHANGED, CONFIG_EXTENSIONS_CHANGED, CONFIG_NEW, CONFIG_OK
 from sphinx.testing.comparer import PathComparer
 
 
@@ -34,14 +35,14 @@ def test_config_status(make_app, app_params):
     assert "0 added, 0 changed, 0 removed" in app2._status.getvalue()
 
     # incremental build (config entry changed)
-    app3 = make_app(*args, confoverrides={'master_doc': 'indexx'}, **kwargs)
+    app3 = make_app(*args, confoverrides={'root_doc': 'indexx'}, **kwargs)
     fname = os.path.join(app3.srcdir, 'index.rst')
     assert os.path.isfile(fname)
     shutil.move(fname, fname[:-4] + 'x.rst')
     assert app3.env.config_status == CONFIG_CHANGED
     app3.build()
     shutil.move(fname[:-4] + 'x.rst', fname)
-    assert "[config changed ('master_doc')] 1 added" in app3._status.getvalue()
+    assert "[config changed ('root_doc')] 1 added" in app3._status.getvalue()
 
     # incremental build (extension changed)
     app4 = make_app(*args, confoverrides={'extensions': ['sphinx.ext.autodoc']}, **kwargs)
@@ -136,6 +137,11 @@ def test_env_relfn2path(app):
     relfn, absfn = app.env.relfn2path('../logo.jpg', 'index')
     assert relfn == '../logo.jpg'
     assert absfn == app.srcdir.parent / 'logo.jpg'
+
+    # relative path traversal
+    relfn, absfn = app.env.relfn2path('subdir/../logo.jpg', 'index')
+    assert relfn == 'logo.jpg'
+    assert absfn == app.srcdir / 'logo.jpg'
 
     # omit docname (w/ current docname)
     app.env.temp_data['docname'] = 'subdir/document'

@@ -4,21 +4,20 @@
 
     Transforms for LaTeX builder.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, Set, Tuple
-from typing import cast
+from typing import Any, Dict, List, Set, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
+from docutils.transforms.references import Substitutions
 
 from sphinx import addnodes
 from sphinx.application import Sphinx
-from sphinx.builders.latex.nodes import (
-    captioned_literal_block, footnotemark, footnotetext, math_reference, thebibliography
-)
+from sphinx.builders.latex.nodes import (captioned_literal_block, footnotemark, footnotetext,
+                                         math_reference, thebibliography)
 from sphinx.domains.citation import CitationDomain
 from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import SphinxPostTransform
@@ -34,8 +33,20 @@ class FootnoteDocnameUpdater(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(*self.TARGET_NODES)
-        for node in self.document.traverse(matcher):  # type: nodes.Element
+        for node in self.document.traverse(matcher):  # type: Element
             node['docname'] = self.env.docname
+
+
+class SubstitutionDefinitionsRemover(SphinxPostTransform):
+    """Remove ``substitution_definition node from doctrees."""
+
+    # should be invoked after Substitutions process
+    default_priority = Substitutions.default_priority + 1
+    formats = ('latex',)
+
+    def run(self, **kwargs: Any) -> None:
+        for node in self.document.traverse(nodes.substitution_definition):
+            node.parent.remove(node)
 
 
 class ShowUrlsTransform(SphinxPostTransform):
@@ -46,7 +57,7 @@ class ShowUrlsTransform(SphinxPostTransform):
     .. note:: This transform is used for integrated doctree
     """
     default_priority = 400
-    builders = ('latex',)
+    formats = ('latex',)
 
     # references are expanded to footnotes (or not)
     expanded = False
@@ -54,7 +65,7 @@ class ShowUrlsTransform(SphinxPostTransform):
     def run(self, **kwargs: Any) -> None:
         try:
             # replace id_prefix temporarily
-            settings = self.document.settings  # type: Any
+            settings: Any = self.document.settings
             id_prefix = settings.id_prefix
             settings.id_prefix = 'show_urls'
 
@@ -146,9 +157,9 @@ class FootnoteCollector(nodes.NodeVisitor):
     """Collect footnotes and footnote references on the document"""
 
     def __init__(self, document: nodes.document) -> None:
-        self.auto_footnotes = []            # type: List[nodes.footnote]
-        self.used_footnote_numbers = set()  # type: Set[str]
-        self.footnote_refs = []             # type: List[nodes.footnote_reference]
+        self.auto_footnotes: List[nodes.footnote] = []
+        self.used_footnote_numbers: Set[str] = set()
+        self.footnote_refs: List[nodes.footnote_reference] = []
         super().__init__(document)
 
     def unknown_visit(self, node: Node) -> None:
@@ -181,7 +192,7 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
                   headings having footnotes
                   <footnote_reference>
                       1
-              <footnote ids="1">
+              <footnote ids="id1">
                   <label>
                       1
                   <paragraph>
@@ -192,11 +203,9 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
           <section>
               <title>
                   headings having footnotes
-                  <footnotemark>
+                  <footnotemark refid="id1">
                       1
-              <footnotetext>
-                  footnote body
-              <footnotetext>
+              <footnotetext ids="id1">
                   <label>
                       1
                   <paragraph>
@@ -211,7 +220,7 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
               1
           blah blah blah ...
 
-          <footnote ids="1">
+          <footnote ids="id1">
               <label>
                   1
               <paragraph>
@@ -220,7 +229,7 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
       After::
 
           blah blah blah
-          <footnote ids="1">
+          <footnote ids="id1">
               <label>
                   1
               <paragraph>
@@ -240,7 +249,7 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
               1
           blah blah blah ...
 
-          <footnote ids="1">
+          <footnote ids="id1">
               <label>
                   1
               <paragraph>
@@ -249,13 +258,13 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
       After::
 
           blah blah blah
-          <footnote ids="1">
+          <footnote ids="id1">
               <label>
                   1
               <paragraph>
                   footnote body
           blah blah blah
-          <footnotemark>
+          <footnotemark refid="id1">
               1
           blah blah blah ...
 
@@ -263,7 +272,7 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
 
       Before::
 
-          <footnote ids="1">
+          <footnote ids="id1">
               <label>
                   1
               <paragraph>
@@ -280,26 +289,26 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
           <table>
               <title>
                   title having footnote_reference
-                  <footnote_reference refid="1">
+                  <footnote_reference refid="id1">
                       1
               <tgroup>
                   <thead>
                       <row>
                           <entry>
                               header having footnote_reference
-                              <footnote_reference refid="2">
+                              <footnote_reference refid="id2">
                                   2
                   <tbody>
                       <row>
                       ...
 
-          <footnote ids="1">
+          <footnote ids="id1">
               <label>
                   1
               <paragraph>
                   footnote body
 
-          <footnote ids="2">
+          <footnote ids="id2">
               <label>
                   2
               <paragraph>
@@ -310,23 +319,23 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
           <table>
               <title>
                   title having footnote_reference
-                  <footnotemark>
+                  <footnotemark refid="id1">
                       1
               <tgroup>
                   <thead>
                       <row>
                           <entry>
                               header having footnote_reference
-                              <footnotemark>
+                              <footnotemark refid="id2">
                                   2
                   <tbody>
-                      <footnotetext>
+                      <footnotetext ids="id1">
                           <label>
                               1
                           <paragraph>
                               footnote body
 
-                      <footnotetext>
+                      <footnotetext ids="id2">
                           <label>
                               2
                           <paragraph>
@@ -336,7 +345,7 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
     """
 
     default_priority = 600
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         footnotes = list(self.document.traverse(nodes.footnote))
@@ -349,11 +358,11 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
 
 class LaTeXFootnoteVisitor(nodes.NodeVisitor):
     def __init__(self, document: nodes.document, footnotes: List[nodes.footnote]) -> None:
-        self.appeared = set()       # type: Set[Tuple[str, str]]
-        self.footnotes = footnotes  # type: List[nodes.footnote]
-        self.pendings = []          # type: List[nodes.footnote]
-        self.table_footnotes = []   # type: List[nodes.footnote]
-        self.restricted = None      # type: nodes.Element
+        self.appeared: Set[Tuple[str, str]] = set()
+        self.footnotes: List[nodes.footnote] = footnotes
+        self.pendings: List[nodes.footnote] = []
+        self.table_footnotes: List[nodes.footnote] = []
+        self.restricted: Element = None
         super().__init__(document)
 
     def unknown_visit(self, node: Node) -> None:
@@ -371,7 +380,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
             self.restricted = None
             pos = node.parent.index(node)
             for i, footnote, in enumerate(self.pendings):
-                fntext = footnotetext('', *footnote.children)
+                fntext = footnotetext('', *footnote.children, ids=footnote['ids'])
                 node.parent.insert(pos + i + 1, fntext)
             self.pendings = []
 
@@ -416,7 +425,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
     def depart_table(self, node: nodes.table) -> None:
         tbody = list(node.traverse(nodes.tbody))[0]
         for footnote in reversed(self.table_footnotes):
-            fntext = footnotetext('', *footnote.children)
+            fntext = footnotetext('', *footnote.children, ids=footnote['ids'])
             tbody.insert(0, fntext)
 
         self.table_footnotes = []
@@ -431,13 +440,13 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         number = node.astext().strip()
         docname = node['docname']
         if self.restricted:
-            mark = footnotemark('', number)
+            mark = footnotemark('', number, refid=node['refid'])
             node.replace_self(mark)
             if (docname, number) not in self.appeared:
                 footnote = self.get_footnote_by_reference(node)
                 self.pendings.append(footnote)
         elif (docname, number) in self.appeared:
-            mark = footnotemark('', number)
+            mark = footnotemark('', number, refid=node['refid'])
             node.replace_self(mark)
         else:
             footnote = self.get_footnote_by_reference(node)
@@ -488,7 +497,7 @@ class BibliographyTransform(SphinxPostTransform):
                     ...
     """
     default_priority = 750
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         citations = thebibliography()
@@ -507,7 +516,7 @@ class CitationReferenceTransform(SphinxPostTransform):
     pending_xref nodes to citation_reference.
     """
     default_priority = 5  # before ReferencesResolver
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         domain = cast(CitationDomain, self.env.get_domain('citation'))
@@ -527,7 +536,7 @@ class MathReferenceTransform(SphinxPostTransform):
     nodes to math_reference.
     """
     default_priority = 5  # before ReferencesResolver
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         equations = self.env.get_domain('math').data['objects']
@@ -542,7 +551,7 @@ class MathReferenceTransform(SphinxPostTransform):
 class LiteralBlockTransform(SphinxPostTransform):
     """Replace container nodes for literal_block by captioned_literal_block."""
     default_priority = 400
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.container, literal_block=True)
@@ -554,7 +563,7 @@ class LiteralBlockTransform(SphinxPostTransform):
 class DocumentTargetTransform(SphinxPostTransform):
     """Add :doc label to the first section of each document."""
     default_priority = 400
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         for node in self.document.traverse(addnodes.start_of_file):
@@ -563,7 +572,7 @@ class DocumentTargetTransform(SphinxPostTransform):
                 section['ids'].append(':doc')  # special label for :doc:
 
 
-class IndexInSectionTitleTransform(SphinxTransform):
+class IndexInSectionTitleTransform(SphinxPostTransform):
     """Move index nodes in section title to outside of the title.
 
     LaTeX index macro is not compatible with some handling of section titles
@@ -590,8 +599,9 @@ class IndexInSectionTitleTransform(SphinxTransform):
             ...
     """
     default_priority = 400
+    formats = ('latex',)
 
-    def apply(self, **kwargs: Any) -> None:
+    def run(self, **kwargs: Any) -> None:
         for node in self.document.traverse(nodes.title):
             if isinstance(node.parent, nodes.section):
                 for i, index in enumerate(node.traverse(addnodes.index)):
@@ -602,6 +612,7 @@ class IndexInSectionTitleTransform(SphinxTransform):
 
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_transform(FootnoteDocnameUpdater)
+    app.add_post_transform(SubstitutionDefinitionsRemover)
     app.add_post_transform(BibliographyTransform)
     app.add_post_transform(CitationReferenceTransform)
     app.add_post_transform(DocumentTargetTransform)

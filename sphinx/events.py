@@ -6,18 +6,18 @@
 
     Gracefully adapted from the TextPress system by Armin.
 
-    :copyright: Copyright 2007-2020 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from collections import defaultdict
 from operator import attrgetter
-from typing import Any, Callable, Dict, List, NamedTuple, Tuple, Type
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, NamedTuple, Tuple, Type
 
 from sphinx.errors import ExtensionError, SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util.inspect import safe_getattr
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -45,10 +45,9 @@ core_events = {
     'doctree-read': 'the doctree before being pickled',
     'env-merge-info': 'env, read docnames, other env instance',
     'missing-reference': 'env, node, contnode',
+    'warn-missing-reference': 'domain, node',
     'doctree-resolved': 'doctree, docname',
     'env-updated': 'env',
-    'html-collect-pages': 'builder',
-    'html-page-context': 'pagename, context, doctree or None',
     'build-finished': 'exception',
 }
 
@@ -59,7 +58,7 @@ class EventManager:
     def __init__(self, app: "Sphinx") -> None:
         self.app = app
         self.events = core_events.copy()
-        self.listeners = defaultdict(list)  # type: Dict[str, List[EventListener]]
+        self.listeners: Dict[str, List[EventListener]] = defaultdict(list)
         self.next_listener_id = 0
 
     def add(self, name: str) -> None:
@@ -106,8 +105,9 @@ class EventManager:
             except SphinxError:
                 raise
             except Exception as exc:
+                modname = safe_getattr(listener.handler, '__module__', None)
                 raise ExtensionError(__("Handler %r for event %r threw an exception") %
-                                     (listener.handler, name), exc) from exc
+                                     (listener.handler, name), exc, modname=modname) from exc
         return results
 
     def emit_firstresult(self, name: str, *args: Any,
