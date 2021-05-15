@@ -145,10 +145,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         pass
 
     def visit_desc_returns(self, node: Element) -> None:
-        self.body.append(' <span class="sig-arrow">&#x2192;</span> <span class="sig-returns">')
+        self.body.append(' <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint">')
 
     def depart_desc_returns(self, node: Element) -> None:
-        self.body.append('</span>')
+        self.body.append('</span></span>')
 
     def visit_desc_parameterlist(self, node: Element) -> None:
         self.body.append('<span class="sig-paren">(</span>')
