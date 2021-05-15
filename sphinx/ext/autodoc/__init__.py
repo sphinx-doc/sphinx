@@ -1626,18 +1626,23 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         # add inheritance info, if wanted
         if not self.doc_as_attr and self.options.show_inheritance:
-            sourcename = self.get_sourcename()
-            self.add_line('', sourcename)
-
             if hasattr(self.object, '__orig_bases__') and len(self.object.__orig_bases__):
                 # A subclass of generic types
                 # refs: PEP-560 <https://www.python.org/dev/peps/pep-0560/>
-                bases = [restify(cls) for cls in self.object.__orig_bases__]
-                self.add_line('   ' + _('Bases: %s') % ', '.join(bases), sourcename)
+                bases = list(self.object.__orig_bases__)
             elif hasattr(self.object, '__bases__') and len(self.object.__bases__):
                 # A normal class
-                bases = [restify(cls) for cls in self.object.__bases__]
-                self.add_line('   ' + _('Bases: %s') % ', '.join(bases), sourcename)
+                bases = list(self.object.__bases__)
+            else:
+                bases = []
+
+            self.env.events.emit('autodoc-process-bases',
+                                 self.fullname, self.object, self.options, bases)
+
+            base_classes = [restify(cls) for cls in bases]
+            sourcename = self.get_sourcename()
+            self.add_line('', sourcename)
+            self.add_line('   ' + _('Bases: %s') % ', '.join(base_classes), sourcename)
 
     def get_object_members(self, want_all: bool) -> Tuple[bool, ObjectMembers]:
         members = get_class_members(self.object, self.objpath, self.get_attr)
@@ -2676,6 +2681,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')
+    app.add_event('autodoc-process-bases')
 
     app.connect('config-inited', migrate_autodoc_member_order, priority=800)
 
