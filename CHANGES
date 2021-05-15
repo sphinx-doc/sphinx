@@ -46,6 +46,8 @@ Bugs fixed
 * #8597: autodoc: a docsting having metadata only should be treated as
   undocumented
 * #9185: autodoc: typehints for overloaded functions and methods are inaccurate
+* #9224: ``:param:`` and ``:type:`` fields does not support a type containing
+  whitespace (ex. ``Dict[str, str]``)
 
 Testing
 --------
