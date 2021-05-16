@@ -62,6 +62,9 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #9217: manpage: Stop creating a section directory on build manpage by default
+  (see :confval:`man_make_section_directory`)
+
 Deprecated
 ----------
 
