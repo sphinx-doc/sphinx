@@ -13,4 +13,5 @@
    autosummary_dummy_module.Foo.value
    autosummary_dummy_module.bar
    autosummary_dummy_module.qux
+   autosummary_dummy_module.D
    autosummary_importfail

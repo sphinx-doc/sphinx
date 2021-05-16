@@ -7,7 +7,12 @@
    C.prop_attr1
    C.prop_attr2
    C.C2
+   D.str_field
+   D.int_field
+   D.list_field
 """
+
+from dataclasses import dataclass, field
 
 
 def withSentence():
@@ -79,6 +84,14 @@ class C:
         '''
         This is a nested inner class docstring
         '''
+
+
+@dataclass
+class D:
+    #: This is str field
+    str_field: str
+    int_field: int
+    list_field: list = field(default_factory=list)
 
 
 def func(arg_, *args, **kwargs):

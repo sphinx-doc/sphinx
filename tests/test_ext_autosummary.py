@@ -165,6 +165,9 @@ def test_get_items_summary(make_app, app_params):
         'C.prop_attr1': 'This is a function docstring',
         'C.prop_attr2': 'This is a attribute docstring',
         'C.C2': 'This is a nested inner class docstring',
+        'D.str_field': 'This is str field',
+        'D.int_field': '',
+        'D.list_field': '',
     }
     for key, expected in expected_values.items():
         assert autosummary_items[key][2] == expected, 'Summary for %s was %r -'\
@@ -210,13 +213,13 @@ def test_autosummary_generate_content_for_module(app):
     assert template.render.call_args[0][0] == 'module'
 
     context = template.render.call_args[0][1]
-    assert context['members'] == ['CONSTANT1', 'CONSTANT2', 'Exc', 'Foo', '_Baz', '_Exc',
+    assert context['members'] == ['CONSTANT1', 'CONSTANT2', 'D', 'Exc', 'Foo', '_Baz', '_Exc',
                                   '__builtins__', '__cached__', '__doc__', '__file__',
                                   '__name__', '__package__', '_quux', 'bar', 'qux']
     assert context['functions'] == ['bar']
     assert context['all_functions'] == ['_quux', 'bar']
-    assert context['classes'] == ['Foo']
-    assert context['all_classes'] == ['Foo', '_Baz']
+    assert context['classes'] == ['D', 'Foo']
+    assert context['all_classes'] == ['D', 'Foo', '_Baz']
     assert context['exceptions'] == ['Exc']
     assert context['all_exceptions'] == ['Exc', '_Exc']
     assert context['attributes'] == ['CONSTANT1', 'qux']
@@ -234,7 +237,7 @@ def test_autosummary_generate_content_for_module_skipped(app):
     template = Mock()
 
     def skip_member(app, what, name, obj, skip, options):
-        if name in ('Foo', 'bar', 'Exc'):
+        if name in ('D', 'Foo', 'bar', 'Exc'):
             return True
 
     app.connect('autodoc-skip-member', skip_member)
@@ -259,14 +262,14 @@ def test_autosummary_generate_content_for_module_imported_members(app):
     assert template.render.call_args[0][0] == 'module'
 
     context = template.render.call_args[0][1]
-    assert context['members'] == ['CONSTANT1', 'CONSTANT2', 'Exc', 'Foo', 'Union', '_Baz',
+    assert context['members'] == ['CONSTANT1', 'CONSTANT2', 'D', 'Exc', 'Foo', 'Union', '_Baz',
                                   '_Exc', '__builtins__', '__cached__', '__doc__',
                                   '__file__', '__loader__', '__name__', '__package__',
-                                  '__spec__', '_quux', 'bar', 'path', 'qux']
-    assert context['functions'] == ['bar']
-    assert context['all_functions'] == ['_quux', 'bar']
-    assert context['classes'] == ['Foo']
-    assert context['all_classes'] == ['Foo', '_Baz']
+                                  '__spec__', '_quux', 'bar', 'dataclass', 'field', 'path', 'qux']
+    assert context['functions'] == ['bar', 'dataclass', 'field']
+    assert context['all_functions'] == ['_quux', 'bar', 'dataclass', 'field']
+    assert context['classes'] == ['D', 'Foo']
+    assert context['all_classes'] == ['D', 'Foo', '_Baz']
     assert context['exceptions'] == ['Exc']
     assert context['all_exceptions'] == ['Exc', '_Exc']
     assert context['attributes'] == ['CONSTANT1', 'qux']
@@ -296,20 +299,22 @@ def test_autosummary_generate(app, status, warning):
                                                                                nodes.row,
                                                                                nodes.row,
                                                                                nodes.row,
+                                                                               nodes.row,
                                                                                nodes.row)])])
     assert_node(doctree[4][0], addnodes.toctree, caption="An autosummary")
 
-    assert len(doctree[3][0][0][2]) == 6
+    assert len(doctree[3][0][0][2]) == 7
     assert doctree[3][0][0][2][0].astext() == 'autosummary_dummy_module\n\n'
     assert doctree[3][0][0][2][1].astext() == 'autosummary_dummy_module.Foo()\n\n'
     assert doctree[3][0][0][2][2].astext() == 'autosummary_dummy_module.Foo.Bar()\n\n'
     assert doctree[3][0][0][2][3].astext() == 'autosummary_dummy_module.Foo.value\n\ndocstring'
     assert doctree[3][0][0][2][4].astext() == 'autosummary_dummy_module.bar(x[, y])\n\n'
     assert doctree[3][0][0][2][5].astext() == 'autosummary_dummy_module.qux\n\na module-level attribute'
-
+    assert doctree[3][0][0][2][6].astext() == 'autosummary_dummy_module.D(str_field, …)\n\n'
     module = (app.srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text()
     assert ('   .. autosummary::\n'
             '   \n'
+            '      D\n'
             '      Foo\n'
             '   \n' in module)
     assert ('   .. autosummary::\n'
@@ -347,6 +352,15 @@ def test_autosummary_generate(app, status, warning):
     assert ('.. currentmodule:: autosummary_dummy_module\n'
             '\n'
             '.. autodata:: qux' in qux)
+
+    D = (app.srcdir / 'generated' / 'autosummary_dummy_module.D.rst').read_text()
+    assert '.. automethod:: __init__' in D
+    assert ('   .. autosummary::\n'
+            '   \n'
+            '      ~D.str_field\n'
+            '      ~D.int_field\n'
+            '      ~D.list_field\n'
+            '   \n' in D)
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary',

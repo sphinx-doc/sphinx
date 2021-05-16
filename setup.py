@@ -48,6 +48,7 @@ extras_require = {
         'docutils-stubs',
     ],
     'test': [
+        'dataclasses; python_version < "3.7"',
         'pytest',
         'pytest-cov',
         'html5lib',

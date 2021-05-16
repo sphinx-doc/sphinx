@@ -339,3 +339,68 @@ def test_class_alias_having_doccomment(app):
         '   docstring',
         '',
     ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_dataclasses(app):
+    actual = do_autodoc(app, 'class', 'target.dataclasses_.D')
+    assert list(actual) == [
+        '',
+        '.. py:class:: D(str_field: str, int_field: int, list_field: list = <factory>)',
+        '   :module: target.dataclasses_',
+        ''
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_dataclasses_members(app):
+    options = {"members": None}
+    actual = do_autodoc(app, 'class', 'target.dataclasses_.D', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: D(str_field: str, int_field: int, list_field: list = <factory>)',
+        '   :module: target.dataclasses_',
+        '',
+        '',
+        '   .. py:attribute:: D.int_field',
+        '      :module: target.dataclasses_',
+        '      :type: int',
+        '',
+        '      This is an int field',
+        '',
+        '',
+        '   .. py:attribute:: D.str_field',
+        '      :module: target.dataclasses_',
+        '      :type: str',
+        '',
+        '      This is a str field',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_dataclasses_undoc_members(app):
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'class', 'target.dataclasses_.DNoDoc', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: DNoDoc(str_field: str, int_field: int, list_field: list = <factory>)',
+        '   :module: target.dataclasses_',
+        '',
+        '',
+        '   .. py:attribute:: DNoDoc.int_field',
+        '      :module: target.dataclasses_',
+        '      :type: int',
+        '',
+        '',
+        '   .. py:attribute:: DNoDoc.list_field',
+        '      :module: target.dataclasses_',
+        '      :type: list',
+        '',
+        '',
+        '   .. py:attribute:: DNoDoc.str_field',
+        '      :module: target.dataclasses_',
+        '      :type: str',
+        ''
+    ]

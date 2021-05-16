@@ -1,3 +1,4 @@
+from dataclasses import dataclass, field
 from os import path  # NOQA
 from typing import Union
 
@@ -48,3 +49,11 @@ class _Exc(Exception):
 
 #: a module-level attribute
 qux = 2
+
+
+@dataclass
+class D:
+    #: This is str field
+    str_field: str
+    int_field: int
+    list_field: list = field(default_factory=list)
