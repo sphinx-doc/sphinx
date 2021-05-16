@@ -24,7 +24,7 @@ default markup format used by Sphinx, :doc:`reStucturedText
 For a great "introduction" to writing docs in general -- the whys and hows, see
 also `Write the docs`__, written by Eric Holscher.
 
-.. __: http://www.writethedocs.org/guide/writing/beginners-guide-to-docs/
+.. __: https://www.writethedocs.org/guide/writing/beginners-guide-to-docs/
 
 
 Setting up the documentation sources
