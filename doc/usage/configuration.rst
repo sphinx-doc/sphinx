@@ -1735,7 +1735,7 @@ Options for epub output
 These options influence the epub output.  As this builder derives from the HTML
 builder, the HTML options also apply where appropriate.  The actual values for
 some of the options is not really important, they just have to be entered into
-the `Dublin Core metadata <http://dublincore.org/>`_.
+the `Dublin Core metadata <https://dublincore.org/>`_.
 
 .. confval:: epub_basename
 
