@@ -463,6 +463,20 @@ There are also config values that you can set:
 
    .. versionadded:: 1.4
 
+.. confval:: autodoc_class_signature
+
+   This value selects how the signautre will be displayed for the class defined
+   by :rst:dir:`autoclass` directive.  The possible values are:
+
+   ``"mixed"``
+      Display the signature with the class name.
+   ``"separated"``
+      Display the signature as a method.
+
+   The default is ``"mixed"``.
+
+   .. versionadded:: 4.1
+
 .. confval:: autodoc_member_order
 
    This value selects if automatically documented members are sorted
