@@ -12,6 +12,8 @@ Incompatible changes
 Deprecated
 ----------
 
+* The ``app`` argument of ``sphinx.environment.BuildEnvironment`` becomes
+  required
 * ``sphinx.application.Sphinx.html_theme``
 * ``sphinx.util.docstrings.extract_metadata()``
 

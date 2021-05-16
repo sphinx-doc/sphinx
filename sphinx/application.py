@@ -300,8 +300,7 @@ class Sphinx:
     def _init_env(self, freshenv: bool) -> None:
         filename = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
         if freshenv or not os.path.exists(filename):
-            self.env = BuildEnvironment()
-            self.env.setup(self)
+            self.env = BuildEnvironment(self)
             self.env.find_files(self.config, self.builder)
         else:
             try:

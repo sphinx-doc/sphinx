@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - The optional argument ``app`` for ``sphinx.environment.BuildEnvironment``
+     - 4.1
+     - 6.0
+     - The required argument
+
    * - ``sphinx.application.Sphinx.html_theme``
      - 4.1
      - 6.0
