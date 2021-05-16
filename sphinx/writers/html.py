@@ -174,7 +174,9 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         pass
 
     def visit_desc_returns(self, node: Element) -> None:
-        self.body.append(' <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint">')
+        self.body.append(' <span class="sig-return"><span class="sig-return-icon">')
+        self.body.append(self.config.html_signaturereturn_icon)
+        self.body.append('</span> <span class="sig-return-typehint">')
 
     def depart_desc_returns(self, node: Element) -> None:
         self.body.append('</span></span>')
