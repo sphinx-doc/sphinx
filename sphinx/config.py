@@ -166,6 +166,9 @@ class Config:
     def read(cls, confdir: str, overrides: Dict = None, tags: Tags = None) -> "Config":
         """Create a Config object from configuration file."""
         filename = path.join(confdir, CONFIG_FILENAME)
+        if not path.isfile(filename):
+            raise ConfigError(__("config directory doesn't contain a conf.py file (%s)") %
+                              confdir)
         namespace = eval_config_file(filename, tags)
         return cls(namespace, overrides or {})
 

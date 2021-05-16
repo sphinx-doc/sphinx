@@ -74,6 +74,11 @@ def test_core_config(app, status, warning):
     assert cfg['project'] == cfg.project == 'Sphinx Tests'
 
 
+def test_config_not_found(tempdir):
+    with pytest.raises(ConfigError):
+        Config.read(tempdir)
+
+
 def test_extension_values():
     config = Config()
 
