@@ -30,3 +30,6 @@ class Quux(List[Union[int, float]]):
 
 
 Alias = Foo
+
+#: docstring
+OtherAlias = Bar
