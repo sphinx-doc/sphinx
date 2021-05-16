@@ -251,7 +251,7 @@ The parts of messages in Sphinx that go into builds are translated into several
 locales.  The translations are kept as gettext ``.po`` files translated from the
 master template :file:`sphinx/locale/sphinx.pot`.
 
-Sphinx uses `Babel <http://babel.pocoo.org/en/latest/>`_ to extract messages
+Sphinx uses `Babel <https://babel.pocoo.org/en/latest/>`_ to extract messages
 and maintain the catalog files.  It is integrated in ``setup.py``:
 
 * Use ``python setup.py extract_messages`` to update the ``.pot`` template.
