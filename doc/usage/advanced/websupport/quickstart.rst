@@ -61,7 +61,7 @@ This will return a dictionary containing the following items:
 
 This dict can then be used as context for templates.  The goal is to be easy to
 integrate with your existing templating system.  An example using `Jinja2
-<http://jinja.pocoo.org/>`_ is:
+<https://jinja.palletsprojects.com/>`_ is:
 
 .. code-block:: html+jinja
 
