@@ -1308,7 +1308,7 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_use_opensearch
 
-   If nonempty, an `OpenSearch <http://www.opensearch.org/Home>`_ description
+   If nonempty, an `OpenSearch <https://www.opensearch.org/>`_ description
    file will be output, and all pages will contain a ``<link>`` tag referring
    to it.  Since OpenSearch doesn't support relative URLs for its search page
    location, the value of this option must be the base URL from which these
