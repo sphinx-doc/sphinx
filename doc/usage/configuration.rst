@@ -18,8 +18,8 @@ and output behavior.
   directory to adjust `Docutils`_ configuration if not otherwise overridden or
   set by Sphinx.
 
-  .. _`docutils`: http://docutils.sourceforge.net/
-  .. _`docutils.conf`: http://docutils.sourceforge.net/docs/user/config.html
+  .. _`docutils`: https://docutils.sourceforge.io/
+  .. _`docutils.conf`: https://docutils.sourceforge.io/docs/user/config.html
 
 The configuration file is executed as Python code at build time (using
 :func:`execfile`, and with the current directory set to its containing
@@ -484,7 +484,7 @@ General configuration
    languages, will be used to convert quotes and dashes to typographically
    correct entities.  Default: ``True``.
 
-   __ http://docutils.sourceforge.net/docs/user/smartquotes.html
+   __ https://docutils.sourceforge.io/docs/user/smartquotes.html
    __ https://daringfireball.net/projects/smartypants/
 
    .. versionadded:: 1.6.6
@@ -497,8 +497,8 @@ General configuration
    *deactivates* smart quotes via the corresponding `Docutils option`__.  But
    if it *activates* them, then :confval:`smartquotes` does prevail.
 
-   __ http://docutils.sourceforge.net/docs/user/config.html
-   __ http://docutils.sourceforge.net/docs/user/config.html#smart-quotes
+   __ https://docutils.sourceforge.io/docs/user/config.html
+   __ https://docutils.sourceforge.io/docs/user/config.html#smart-quotes
 
 .. confval:: smartquotes_action
 
