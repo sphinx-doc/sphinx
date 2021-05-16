@@ -1051,7 +1051,7 @@ that use Sphinx's HTMLWriter class.
    A list of CSS files.  The entry must be a *filename* string or a tuple
    containing the *filename* string and the *attributes* dictionary.  The
    *filename* must be relative to the :confval:`html_static_path`, or a full URI
-   with scheme like ``http://example.org/style.css``.  The *attributes* is used
+   with scheme like ``https://example.org/style.css``.  The *attributes* is used
    for attributes of ``<link>`` tag.  It defaults to an empty list.
 
    Example::
@@ -1074,7 +1074,7 @@ that use Sphinx's HTMLWriter class.
    A list of JavaScript *filename*.  The entry must be a *filename* string or a
    tuple containing the *filename* string and the *attributes* dictionary.  The
    *filename* must be relative to the :confval:`html_static_path`, or a full
-   URI with scheme like ``http://example.org/script.js``.  The *attributes* is
+   URI with scheme like ``https://example.org/script.js``.  The *attributes* is
    used for attributes of ``<script>`` tag.  It defaults to an empty list.
 
    Example::
