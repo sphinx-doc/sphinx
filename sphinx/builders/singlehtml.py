@@ -16,7 +16,6 @@ from docutils.nodes import Node
 
 from sphinx.application import Sphinx
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.locale import __
 from sphinx.util import logging, progress_message
@@ -185,18 +184,6 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             logger.info(' opensearch', nonl=True)
             fn = path.join(self.outdir, '_static', 'opensearch.xml')
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
-
-
-# for compatibility
-deprecated_alias('sphinx.builders.html',
-                 {
-                     'SingleFileHTMLBuilder': SingleFileHTMLBuilder,
-                 },
-                 RemovedInSphinx40Warning,
-                 {
-                     'SingleFileHTMLBuilder':
-                     'sphinx.builders.singlehtml.SingleFileHTMLBuilder',
-                 })
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
