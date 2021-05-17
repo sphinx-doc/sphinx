@@ -344,9 +344,15 @@ def test_class_alias_having_doccomment(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_dataclasses(app):
     actual = do_autodoc(app, 'class', 'target.dataclasses_.D')
+
+    if sys.version_info < (3, 7):
+        args = "str_field:str, int_field:int, list_field:list=<factory>"
+    else:
+        args = "str_field: str, int_field: int, list_field: list = <factory>"
+
     assert list(actual) == [
         '',
-        '.. py:class:: D(str_field: str, int_field: int, list_field: list = <factory>)',
+        f'.. py:class:: D({args})',
         '   :module: target.dataclasses_',
         ''
     ]
@@ -356,9 +362,15 @@ def test_dataclasses(app):
 def test_dataclasses_members(app):
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.dataclasses_.D', options)
+
+    if sys.version_info < (3, 7):
+        args = "str_field:str, int_field:int, list_field:list=<factory>"
+    else:
+        args = "str_field: str, int_field: int, list_field: list = <factory>"
+
     assert list(actual) == [
         '',
-        '.. py:class:: D(str_field: str, int_field: int, list_field: list = <factory>)',
+        f'.. py:class:: D({args})',
         '   :module: target.dataclasses_',
         '',
         '',
@@ -383,9 +395,15 @@ def test_dataclasses_undoc_members(app):
     options = {"members": None,
                "undoc-members": None}
     actual = do_autodoc(app, 'class', 'target.dataclasses_.DNoDoc', options)
+
+    if sys.version_info < (3, 7):
+        args = "str_field:str, int_field:int, list_field:list=<factory>"
+    else:
+        args = "str_field: str, int_field: int, list_field: list = <factory>"
+
     assert list(actual) == [
         '',
-        '.. py:class:: DNoDoc(str_field: str, int_field: int, list_field: list = <factory>)',
+        f'.. py:class:: DNoDoc({args})',
         '   :module: target.dataclasses_',
         '',
         '',
