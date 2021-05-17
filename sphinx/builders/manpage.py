@@ -79,8 +79,9 @@ class ManualPageBuilder(Builder):
             docsettings.section = section
 
             if self.config.man_make_section_directory:
-                ensuredir(path.join(self.outdir, str(section)))
-                targetname = '%s/%s.%s' % (section, name, section)
+                dirname = 'man%s' % section
+                ensuredir(path.join(self.outdir, dirname))
+                targetname = '%s/%s.%s' % (dirname, name, section)
             else:
                 targetname = '%s.%s' % (name, section)
 
