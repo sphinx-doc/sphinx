@@ -70,6 +70,9 @@ class _All:
     def __contains__(self, item: Any) -> bool:
         return True
 
+    def append(self, item: Any) -> None:
+        pass  # nothing
+
 
 class _Empty:
     """A special value for :exclude-members: that never matches to any member."""
@@ -1440,6 +1443,15 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
+
+        if self.config.autodoc_class_signature == 'separated':
+            # show __init__() method
+            if self.options.special_members is None:
+                self.options['special-members'] = {'__new__', '__init__'}
+            else:
+                self.options.special_members.append('__new__')
+                self.options.special_members.append('__init__')
+
         merge_members_option(self.options)
 
     @classmethod
@@ -1556,6 +1568,9 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     def format_signature(self, **kwargs: Any) -> str:
         if self.doc_as_attr:
             return ''
+        if self.config.autodoc_class_signature == 'separated':
+            # do not show signatures
+            return ''
 
         sig = super().format_signature()
         sigs = []
@@ -1666,7 +1681,11 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         if self.doc_as_attr:
             # Don't show the docstring of the class when it is an alias.
-            return None
+            comment = self.get_variable_comment()
+            if comment:
+                return []
+            else:
+                return None
 
         lines = getattr(self, '_new_docstrings', None)
         if lines is not None:
@@ -1711,9 +1730,18 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         tab_width = self.directive.state.document.settings.tab_width
         return [prepare_docstring(docstring, ignore, tab_width) for docstring in docstrings]
 
+    def get_variable_comment(self) -> Optional[List[str]]:
+        try:
+            key = ('', '.'.join(self.objpath))
+            analyzer = ModuleAnalyzer.for_module(self.get_real_modname())
+            analyzer.analyze()
+            return list(self.analyzer.attr_docs.get(key, []))
+        except PycodeError:
+            return None
+
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
-        if self.doc_as_attr:
+        if self.doc_as_attr and not self.get_variable_comment():
             try:
                 more_content = StringList([_('alias of %s') % restify(self.object)], source='')
             except AttributeError:
@@ -2198,6 +2226,38 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         else:
             return None
 
+    def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
+        if self.objpath[-1] == '__init__':
+            docstring = getdoc(self.object, self.get_attr,
+                               self.config.autodoc_inherit_docstrings,
+                               self.parent, self.object_name)
+            if (docstring is not None and
+                (docstring == object.__init__.__doc__ or  # for pypy
+                 docstring.strip() == object.__init__.__doc__)):  # for !pypy
+                docstring = None
+            if docstring:
+                tab_width = self.directive.state.document.settings.tab_width
+                return [prepare_docstring(docstring, tabsize=tab_width)]
+            else:
+                return []
+        elif self.objpath[-1] == '__new__':
+            __new__ = self.get_attr(self.object, '__new__', None)
+            if __new__:
+                docstring = getdoc(__new__, self.get_attr,
+                                   self.config.autodoc_inherit_docstrings,
+                                   self.parent, self.object_name)
+                if (docstring is not None and
+                    (docstring == object.__new__.__doc__ or  # for pypy
+                     docstring.strip() == object.__new__.__doc__)):  # for !pypy
+                    docstring = None
+            if docstring:
+                tab_width = self.directive.state.document.settings.tab_width
+                return [prepare_docstring(docstring, tabsize=tab_width)]
+            else:
+                return []
+        else:
+            return super().get_doc()
+
 
 class NonDataDescriptorMixin(DataDocumenterMixinBase):
     """
@@ -2667,6 +2727,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('autoclass_content', 'class', True, ENUM('both', 'class', 'init'))
     app.add_config_value('autodoc_member_order', 'alphabetical', True,
                          ENUM('alphabetic', 'alphabetical', 'bysource', 'groupwise'))
+    app.add_config_value('autodoc_class_signature', 'mixed', True, ENUM('mixed', 'separated'))
     app.add_config_value('autodoc_default_options', {}, True)
     app.add_config_value('autodoc_docstring_signature', True, True)
     app.add_config_value('autodoc_mock_imports', [], True)

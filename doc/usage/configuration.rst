@@ -2357,6 +2357,10 @@ These options influence manual page output.
 
       The default is changed to ``False`` from ``True``.
 
+   .. versionchanged:: 4.0.2
+
+      The default is changed to ``True`` from ``False`` again.
+
 .. _texinfo-options:
 
 Options for Texinfo output

@@ -28,6 +28,9 @@ Features added
 * #9195: autodoc: The arguments of ``typing.Literal`` are wrongly rendered
 * #9185: autodoc: :confval:`autodoc_typehints` allows ``'both'`` setting to
   allow typehints to be included both in the signature and description
+* #4257: autodoc: Add :confval:`autodoc_class_signature` to separate the class
+  entry and the definition of ``__init__()`` method
+* #8061, #9218: autodoc: Support variable comment for alias classes
 * #3014: autodoc: Add :event:`autodoc-process-bases` to modify the base classes
   of the class definitions
 * #3257: autosummary: Support instance attributes for classes
@@ -60,6 +63,9 @@ Dependencies
 
 Incompatible changes
 --------------------
+
+* #9217: manpage: Stop creating a section directory on build manpage by default
+  (see :confval:`man_make_section_directory`)
 
 Deprecated
 ----------
