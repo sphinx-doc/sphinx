@@ -8,10 +8,10 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type, cast
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Type, cast
 
 from docutils import nodes
-from docutils.nodes import Element
+from docutils.nodes import Element, Node
 
 from sphinx import addnodes
 from sphinx.addnodes import pending_xref
@@ -25,10 +25,6 @@ from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.nodes import find_pending_xref_condition, process_only_nodes
 
 logger = logging.getLogger(__name__)
-
-if False:
-    # For type annotation
-    from docutils.nodes import Node
 
 
 class SphinxPostTransform(SphinxTransform):
@@ -71,7 +67,12 @@ class ReferencesResolver(SphinxPostTransform):
 
     def run(self, **kwargs: Any) -> None:
         for node in self.document.traverse(addnodes.pending_xref):
-            contnode = cast(nodes.TextElement, node[0].deepcopy())
+            content = self.find_pending_xref_condition(node, ("resolved", "*"))
+            if content:
+                contnode = cast(Element, content[0].deepcopy())
+            else:
+                contnode = cast(Element, node[0].deepcopy())
+
             newnode = None
 
             typ = node['reftype']
@@ -108,9 +109,9 @@ class ReferencesResolver(SphinxPostTransform):
             else:
                 newnodes = [contnode]
                 if newnode is None and isinstance(node[0], addnodes.pending_xref_condition):
-                    matched = find_pending_xref_condition(node, "*")
+                    matched = self.find_pending_xref_condition(node, ("*",))
                     if matched:
-                        newnodes = matched.children
+                        newnodes = matched
                     else:
                         logger.warning(__('Could not determine the fallback text for the '
                                           'cross-reference. Might be a bug.'), location=node)
@@ -192,6 +193,15 @@ class ReferencesResolver(SphinxPostTransform):
         else:
             msg = __('%r reference target not found: %s') % (typ, target)
         logger.warning(msg, location=node, type='ref', subtype=typ)
+
+    def find_pending_xref_condition(self, node: pending_xref, conditions: Sequence[str]
+                                    ) -> Optional[List[Node]]:
+        for condition in conditions:
+            matched = find_pending_xref_condition(node, condition)
+            if matched:
+                return matched.children
+        else:
+            return None
 
 
 class OnlyNodeTransform(SphinxPostTransform):
