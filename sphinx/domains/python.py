@@ -1363,10 +1363,6 @@ def builtin_resolver(app: Sphinx, env: BuildEnvironment,
 
         return s in typing.__all__  # type: ignore
 
-    content = find_pending_xref_condition(node, 'resolved')
-    if content:
-        contnode = content.children[0]  # type: ignore
-
     if node.get('refdomain') != 'py':
         return None
     elif node.get('reftype') in ('class', 'obj') and node.get('reftarget') == 'None':
