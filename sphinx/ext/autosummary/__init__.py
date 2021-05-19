@@ -174,6 +174,7 @@ class FakeDirective(DocumenterBridge):
         document = Struct(settings=settings)
         env = BuildEnvironment()
         env.config = Config()
+        env.config.add('autodoc_class_signature', 'mixed', True, None)
         state = Struct(document=document)
         super().__init__(env, None, Options(), 0, state)
 

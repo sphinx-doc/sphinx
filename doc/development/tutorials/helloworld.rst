@@ -181,9 +181,9 @@ This is the very basic principle of an extension that creates a new directive.
 For a more advanced example, refer to :doc:`todo`.
 
 
-.. _docutils: http://docutils.sourceforge.net/
-.. _docutils directives: http://docutils.sourceforge.net/docs/howto/rst-directives.html
-.. _docutils nodes: http://docutils.sourceforge.net/docs/ref/doctree.html
+.. _docutils: https://docutils.sourceforge.io/
+.. _docutils directives: https://docutils.sourceforge.io/docs/howto/rst-directives.html
+.. _docutils nodes: https://docutils.sourceforge.io/docs/ref/doctree.html
 .. _PyPI: https://pypi.org/
 .. _Python package: https://packaging.python.org/
 .. _Python path: https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH

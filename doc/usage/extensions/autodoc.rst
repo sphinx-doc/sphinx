@@ -463,6 +463,20 @@ There are also config values that you can set:
 
    .. versionadded:: 1.4
 
+.. confval:: autodoc_class_signature
+
+   This value selects how the signautre will be displayed for the class defined
+   by :rst:dir:`autoclass` directive.  The possible values are:
+
+   ``"mixed"``
+      Display the signature with the class name.
+   ``"separated"``
+      Display the signature as a method.
+
+   The default is ``"mixed"``.
+
+   .. versionadded:: 4.1
+
 .. confval:: autodoc_member_order
 
    This value selects if automatically documented members are sorted
@@ -748,6 +762,21 @@ needed docstring processing in event :event:`autodoc-process-docstring`:
 
 .. autofunction:: cut_lines
 .. autofunction:: between
+
+.. event:: autodoc-process-bases (app, name, obj, options, bases)
+
+   .. versionadded:: 4.1
+
+   Emitted when autodoc has read and processed a class to determine the
+   base-classes.  *bases* is a list of classes that the event handler can
+   modify **in place** to change what Sphinx puts into the output.  It's
+   emitted only if ``show-inheritance`` option given.
+
+   :param app: the Sphinx application object
+   :param name: the fully qualified name of the object
+   :param obj: the object itself
+   :param options: the options given to the class directive
+   :param bases: the list of base classes signature. see above.
 
 
 Skipping members

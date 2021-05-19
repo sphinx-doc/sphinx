@@ -298,7 +298,7 @@ class DocFieldTransformer:
             # also support syntax like ``:param type name:``
             if typedesc.is_typed:
                 try:
-                    argtype, argname = fieldarg.split(None, 1)
+                    argtype, argname = fieldarg.rsplit(None, 1)
                 except ValueError:
                     pass
                 else:

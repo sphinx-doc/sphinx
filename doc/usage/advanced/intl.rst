@@ -13,7 +13,7 @@ navigation bars, Sphinx provides mechanisms facilitating the translation of
    :width: 100%
 
    Workflow visualization of translations in Sphinx.  (The figure is created by
-   `plantuml <http://plantuml.com>`_.)
+   `plantuml <https://plantuml.com>`_.)
 
 .. contents::
    :local:
