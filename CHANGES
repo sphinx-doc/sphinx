@@ -4,6 +4,8 @@ Release 4.0.2 (in development)
 Dependencies
 ------------
 
+* #9216: Support jinja2-3.0
+
 Incompatible changes
 --------------------
 
