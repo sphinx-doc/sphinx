@@ -31,7 +31,7 @@ def test_text_builder(app, status, warning):
 def test_man_builder(app, status, warning):
     app.build()
 
-    content = (app.outdir / '1' / 'python.1').read_text()
+    content = (app.outdir / 'python.1').read_text()
     assert '\\-\\- "Sphinx" is a tool that makes it easy ...' in content
 
 
@@ -84,5 +84,5 @@ def test_smartquotes_excludes_language(app, status, warning):
 def test_smartquotes_excludes_builders(app, status, warning):
     app.build()
 
-    content = (app.outdir / '1' / 'python.1').read_text()
+    content = (app.outdir / 'python.1').read_text()
     assert '– “Sphinx” is a tool that makes it easy …' in content

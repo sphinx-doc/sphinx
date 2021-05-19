@@ -152,12 +152,6 @@ class Sphinx:
         self.srcdir = abspath(srcdir)
         self.outdir = abspath(outdir)
         self.doctreedir = abspath(doctreedir)
-        self.confdir = confdir
-        if self.confdir:  # confdir is optional
-            self.confdir = abspath(self.confdir)
-            if not path.isfile(path.join(self.confdir, 'conf.py')):
-                raise ApplicationError(__("config directory doesn't contain a "
-                                          "conf.py file (%s)") % confdir)
 
         if not path.isdir(self.srcdir):
             raise ApplicationError(__('Cannot find source directory (%s)') %
@@ -212,9 +206,13 @@ class Sphinx:
 
         # read config
         self.tags = Tags(tags)
-        if self.confdir is None:
+        if confdir is None:
+            # set confdir to srcdir if -C given (!= no confdir); a few pieces
+            # of code expect a confdir to be set
+            self.confdir = self.srcdir
             self.config = Config({}, confoverrides or {})
         else:
+            self.confdir = abspath(confdir)
             self.config = Config.read(self.confdir, confoverrides or {}, self.tags)
 
         # initialize some limited config variables before initialize i18n and loading
@@ -229,11 +227,6 @@ class Sphinx:
             raise VersionRequirementError(
                 __('This project needs at least Sphinx v%s and therefore cannot '
                    'be built with this version.') % self.config.needs_sphinx)
-
-        # set confdir to srcdir if -C given (!= no confdir); a few pieces
-        # of code expect a confdir to be set
-        if self.confdir is None:
-            self.confdir = self.srcdir
 
         # load all built-in extension modules
         for extension in builtin_extensions:
@@ -666,7 +659,7 @@ class Sphinx:
                add_directive('my-directive', MyDirective)
 
         For more details, see `the Docutils docs
-        <http://docutils.sourceforge.net/docs/howto/rst-directives.html>`__ .
+        <https://docutils.sourceforge.io/docs/howto/rst-directives.html>`__ .
 
         .. versionchanged:: 0.6
            Docutils 0.5-style directive classes are now supported.
@@ -691,7 +684,7 @@ class Sphinx:
                          installed as the same name
 
         For more details about role functions, see `the Docutils docs
-        <http://docutils.sourceforge.net/docs/howto/rst-roles.html>`__ .
+        <https://docutils.sourceforge.io/docs/howto/rst-roles.html>`__ .
 
         .. versionchanged:: 1.8
            Add *override* keyword.
@@ -929,7 +922,7 @@ class Sphinx:
 
         refs: `Transform Priority Range Categories`__
 
-        __ http://docutils.sourceforge.net/docs/ref/transforms.html#transform-priority-range-categories
+        __ https://docutils.sourceforge.io/docs/ref/transforms.html#transform-priority-range-categories
         """  # NOQA
         self.registry.add_transform(transform)
 

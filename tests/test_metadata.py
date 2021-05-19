@@ -9,7 +9,7 @@
 """
 
 # adapted from an example of bibliographic metadata at
-# http://docutils.sourceforge.net/docs/user/rst/demo.txt
+# https://docutils.sourceforge.io/docs/user/rst/demo.txt
 
 import pytest
 

@@ -49,7 +49,7 @@ parse them. This happens in an intermediate step while Sphinx is processing
 the documentation, so it doesn't modify any of the docstrings in your actual
 source code files.
 
-.. _ReStructuredText: http://docutils.sourceforge.net/rst.html
+.. _ReStructuredText: https://docutils.sourceforge.io/rst.html
 .. _docstrings: https://www.python.org/dev/peps/pep-0287/
 .. _Google Python Style Guide:
    https://google.github.io/styleguide/pyguide.html
