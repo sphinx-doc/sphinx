@@ -67,6 +67,8 @@ Incompatible changes
 * #9222: Update Underscore.js to 1.13.1
 * #9217: manpage: Stop creating a section directory on build manpage by default
   (see :confval:`man_make_section_directory`)
+* #9240: Unknown node error for pending_xref_condition is raised if an extension
+  that does not support the node installs a missing-reference handler
 
 Deprecated
 ----------
