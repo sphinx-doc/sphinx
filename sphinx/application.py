@@ -659,7 +659,7 @@ class Sphinx:
                add_directive('my-directive', MyDirective)
 
         For more details, see `the Docutils docs
-        <http://docutils.sourceforge.net/docs/howto/rst-directives.html>`__ .
+        <https://docutils.sourceforge.io/docs/howto/rst-directives.html>`__ .
 
         .. versionchanged:: 0.6
            Docutils 0.5-style directive classes are now supported.
@@ -684,7 +684,7 @@ class Sphinx:
                          installed as the same name
 
         For more details about role functions, see `the Docutils docs
-        <http://docutils.sourceforge.net/docs/howto/rst-roles.html>`__ .
+        <https://docutils.sourceforge.io/docs/howto/rst-roles.html>`__ .
 
         .. versionchanged:: 1.8
            Add *override* keyword.
@@ -922,7 +922,7 @@ class Sphinx:
 
         refs: `Transform Priority Range Categories`__
 
-        __ http://docutils.sourceforge.net/docs/ref/transforms.html#transform-priority-range-categories
+        __ https://docutils.sourceforge.io/docs/ref/transforms.html#transform-priority-range-categories
         """  # NOQA
         self.registry.add_transform(transform)
 

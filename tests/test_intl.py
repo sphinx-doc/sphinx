@@ -410,7 +410,7 @@ def test_text_admonitions(app):
     app.build()
     # --- admonitions
     # #1206: gettext did not translate admonition directive's title
-    # seealso: http://docutils.sourceforge.net/docs/ref/rst/directives.html#admonitions
+    # seealso: https://docutils.sourceforge.io/docs/ref/rst/directives.html#admonitions
     result = (app.outdir / 'admonitions.txt').read_text()
     directives = (
         "attention", "caution", "danger", "error", "hint",

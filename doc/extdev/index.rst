@@ -112,7 +112,7 @@ in which a Sphinx project is built: this works in several phases.
    existing files are read, temporary nodes are created.
 
    There are nodes provided by docutils, which are documented `in the docutils
-   documentation <http://docutils.sourceforge.net/docs/ref/doctree.html>`__.
+   documentation <https://docutils.sourceforge.io/docs/ref/doctree.html>`__.
    Additional nodes are provided by Sphinx and :ref:`documented here <nodes>`.
 
    During reading, the build environment is updated with all meta- and cross

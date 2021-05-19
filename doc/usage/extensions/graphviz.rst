@@ -230,7 +230,7 @@ There are also these config values:
        .. graphviz::
 
             digraph example {
-                a [label="sphinx", href="http://sphinx-doc.org", target="_top"];
+                a [label="sphinx", href="https://sphinx-doc.org", target="_top"];
                 b [label="other"];
                 a -> b;
             }
