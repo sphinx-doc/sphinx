@@ -1,5 +1,5 @@
-Release 4.0.2 (in development)
-==============================
+Release 4.0.2 (released May 20, 2021)
+=====================================
 
 Dependencies
 ------------
@@ -13,21 +13,12 @@ Incompatible changes
 * #9217: manpage: Stop creating a section directory on build manpage by default
   (see :confval:`man_make_section_directory`)
 
-Deprecated
-----------
-
-Features added
---------------
-
 Bugs fixed
 ----------
 
 * #9210: viewcode: crashed if non importable modules found on parallel build
 * #9240: Unknown node error for pending_xref_condition is raised if an extension
   that does not support the node installs a missing-reference handler
-
-Testing
---------
 
 Release 4.0.1 (released May 11, 2021)
 =====================================
