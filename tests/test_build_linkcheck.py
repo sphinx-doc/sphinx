@@ -289,33 +289,55 @@ def test_follows_redirects_on_GET(app, capsys, warning):
     assert warning.getvalue() == ''
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True,
-                    confoverrides={'linkcheck_warn_redirects': True})
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-warn-redirects',
+                    freshenv=True, confoverrides={'linkcheck_warn_redirects': True})
 def test_linkcheck_warn_redirects(app, warning):
     with http_server(make_redirect_handler(support_head=False)):
         app.build()
-    assert ("index.rst.rst:1: WARNING: redirect  http://localhost:7777/ - with Found to "
+    assert ("index.rst.rst:1: WARNING: redirect  http://localhost:7777/path1 - with Found to "
             "http://localhost:7777/?redirected=1\n" in strip_escseq(warning.getvalue()))
+    assert ("index.rst.rst:1: WARNING: redirect  http://localhost:7777/path2 - with Found to "
+            "http://localhost:7777/?redirected=1\n" in strip_escseq(warning.getvalue()))
+    assert len(warning.getvalue().splitlines()) == 2
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True,
-                    confoverrides={
-                        'linkcheck_allowed_redirects': {'http://localhost:.*/': '.*'}
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-warn-redirects',
+                    freshenv=True, confoverrides={
+                        'linkcheck_allowed_redirects': {'http://localhost:7777/.*1': '.*'}
                     })
-def test_linkcheck_allowed_redirects(app):
+def test_linkcheck_allowed_redirects(app, warning):
     with http_server(make_redirect_handler(support_head=False)):
         app.build()
 
     with open(app.outdir / 'output.json') as fp:
-        content = json.load(fp)
-    assert content == {
-        "code": 0,
-        "status": "working",
-        "filename": "index.rst",
-        "lineno": 1,
-        "uri": "http://localhost:7777/",
-        "info": "",
-    }
+        records = [json.loads(l) for l in fp.readlines()]
+
+    assert len(records) == 2
+    result = {r["uri"]: r["status"] for r in records}
+    assert result["http://localhost:7777/path1"] == "working"
+    assert result["http://localhost:7777/path2"] == "redirected"
+    assert warning.getvalue() == ''
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-warn-redirects',
+                    freshenv=True, confoverrides={
+                        'linkcheck_allowed_redirects': {'http://localhost:7777/.*1': '.*'},
+                        'linkcheck_warn_redirects': True,
+                    })
+def test_linkcheck_allowed_redirects_and_linkcheck_warn_redirects(app, warning):
+    with http_server(make_redirect_handler(support_head=False)):
+        app.build()
+
+    with open(app.outdir / 'output.json') as fp:
+        records = [json.loads(l) for l in fp.readlines()]
+
+    assert len(records) == 2
+    result = {r["uri"]: r["status"] for r in records}
+    assert result["http://localhost:7777/path1"] == "working"
+    assert result["http://localhost:7777/path2"] == "redirected"
+    assert ("index.rst.rst:1: WARNING: redirect  http://localhost:7777/path2 - with Found to "
+            "http://localhost:7777/?redirected=1\n" in strip_escseq(warning.getvalue()))
+    assert len(warning.getvalue().splitlines()) == 1
 
 
 class OKHandler(http.server.BaseHTTPRequestHandler):
