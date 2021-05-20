@@ -2525,19 +2525,22 @@ Options for the linkcheck builder
 .. confval:: linkcheck_allowed_redirects
 
    A dictionary that maps a pattern of the source URI to a pattern of the canonical
-   URI.  If set, linkcheck builder treated as "working" if a hyperlink in the source
-   document that matches to the pattern of the source URI, and it redirects to the
-   URL that matches to the pattern of the canonical URI.  Example:
+   URI. The linkcheck builder treats the redirected link as "working" when:
+
+    - the link in the document matches the source URI pattern, and
+    - the redirect location matches the canonical URI pattern.
+
+   Example:
 
    .. code-block:: python
 
       linkcheck_working_redirects = {
           # All HTTP redirections from the source URI to the canonical URI will be treated as "working".
-          'http://sphinx-doc.org/.*': 'https://sphinx-doc.org/en/master/.*'
+          r'https://sphinx-doc\.org/.*': r'https://sphinx-doc\.org/en/master/.*'
       }
 
-   It's helpful to enable :confval:`linkcheck_warn_redirects` not to warn the URIs
-   that causes HTTP redirection as expected.
+   It's helpful to enable :confval:`linkcheck_warn_redirects` to warn for URIs
+   causing unexpected HTTP redirection.
 
    .. versionadded:: 4.1
 
@@ -2663,7 +2666,7 @@ Options for the linkcheck builder
 
 .. confval:: linkcheck_warn_redirects
 
-   If true, emit a warning when redirection detected on checking hyperlinks.
+   If true, emits a warning when the response for a hyperlink is a redirect.
    It's useful to detect unexpected redirects under :option:`the warn-is-error
    mode <sphinx-build -W>`.  Default is ``False``.
 
