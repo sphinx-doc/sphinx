@@ -499,7 +499,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 if anchor:
                     new_url += '#' + anchor
 
-                if ignored_redirect(req_url, new_url):
+                if allowed_redirect(req_url, new_url):
                     return 'working', '', 0
                 elif response.history:
                     # history contains any redirects, get last
@@ -508,8 +508,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 else:
                     return 'redirected', new_url, 0
 
-        def ignored_redirect(url: str, new_url: str) -> bool:
-            for from_url, to_url in self.config.linkcheck_ignore_redirects.items():
+        def allowed_redirect(url: str, new_url: str) -> bool:
+            for from_url, to_url in self.config.linkcheck_allowed_redirects.items():
                 if from_url.match(url) and to_url.match(new_url):
                     return True
 
@@ -656,17 +656,17 @@ class HyperlinkCollector(SphinxPostTransform):
                     hyperlinks[uri] = uri_info
 
 
-def compile_linkcheck_ignore_redirects(app: Sphinx, config: Config) -> None:
-    """Compile patterns in linkcheck_ignore_redirects to the regexp objects."""
-    for url, pattern in list(app.config.linkcheck_ignore_redirects.items()):
+def compile_linkcheck_allowed_redirects(app: Sphinx, config: Config) -> None:
+    """Compile patterns in linkcheck_allowed_redirects to the regexp objects."""
+    for url, pattern in list(app.config.linkcheck_allowed_redirects.items()):
         try:
-            app.config.linkcheck_ignore_redirects[re.compile(url)] = re.compile(pattern)
+            app.config.linkcheck_allowed_redirects[re.compile(url)] = re.compile(pattern)
         except re.error as exc:
-            logger.warning(__('Failed to compile regex in linkcheck_ignore_redirects: %r %s'),
+            logger.warning(__('Failed to compile regex in linkcheck_allowed_redirects: %r %s'),
                            exc.pattern, exc.msg)
         finally:
             # Remove the original regexp-string
-            app.config.linkcheck_ignore_redirects.pop(url)
+            app.config.linkcheck_allowed_redirects.pop(url)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
@@ -674,7 +674,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_post_transform(HyperlinkCollector)
 
     app.add_config_value('linkcheck_ignore', [], None)
-    app.add_config_value('linkcheck_ignore_redirects', {}, None)
+    app.add_config_value('linkcheck_allowed_redirects', {}, None)
     app.add_config_value('linkcheck_auth', [], None)
     app.add_config_value('linkcheck_request_headers', {}, None)
     app.add_config_value('linkcheck_retries', 1, None)
@@ -687,7 +687,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('linkcheck_rate_limit_timeout', 300.0, None)
     app.add_config_value('linkcheck_warn_redirects', False, None)
 
-    app.connect('config-inited', compile_linkcheck_ignore_redirects, priority=800)
+    app.connect('config-inited', compile_linkcheck_allowed_redirects, priority=800)
 
     return {
         'version': 'builtin',

@@ -300,9 +300,9 @@ def test_linkcheck_warn_redirects(app, warning):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True,
                     confoverrides={
-                        'linkcheck_ignore_redirects': {'http://localhost:.*/': '.*'}
+                        'linkcheck_allowed_redirects': {'http://localhost:.*/': '.*'}
                     })
-def test_linkcheck_ignore_redirects(app):
+def test_linkcheck_allowed_redirects(app):
     with http_server(make_redirect_handler(support_head=False)):
         app.build()
 
