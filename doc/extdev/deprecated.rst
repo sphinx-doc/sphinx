@@ -32,6 +32,11 @@ The following is a list of deprecated interfaces.
      - 6.0
      - ``sphinx.registry.SphinxComponentRegistry.html_themes``
 
+   * - ``sphinx.ext.autosummary._app``
+     - 4.1
+     - 6.0
+     - N/A
+
    * - ``sphinx.util.docstrings.extract_metadata()``
      - 4.1
      - 6.0

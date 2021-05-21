@@ -72,7 +72,8 @@ import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx50Warning
+from sphinx.deprecation import (RemovedInSphinx50Warning, RemovedInSphinx60Warning,
+                                deprecated_alias)
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.ext.autodoc import INSTANCEATTR, Documenter
@@ -165,9 +166,13 @@ def autosummary_table_visit_html(self: HTMLTranslator, node: autosummary_table) 
 
 
 # -- autodoc integration -------------------------------------------------------
-
-# current application object (used in `get_documenter()`).
-_app: Sphinx = None
+deprecated_alias('sphinx.ext.autosummary',
+                 {
+                     '_app': None,
+                 },
+                 RemovedInSphinx60Warning,
+                 {
+                 })
 
 
 class FakeApplication:
