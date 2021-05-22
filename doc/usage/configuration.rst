@@ -1194,7 +1194,7 @@ that use Sphinx's HTMLWriter class.
 .. confval:: html_signaturereturn_icon
 
    A text for prepended to the type hint for the return type of a function or
-   method.  HTML tags are allowed.  Default: an wrrow; ``&#x2192;``
+   method.  HTML tags are allowed.  Default: an arrow; ``&#x2192;``
 
 .. confval:: html_sidebars
 
