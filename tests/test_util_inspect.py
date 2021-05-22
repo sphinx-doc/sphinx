@@ -674,7 +674,10 @@ def test_unpartial():
 def test_getdoc_inherited_decorated_method():
     class Foo:
         def meth(self):
-            """docstring."""
+            """
+            docstring
+                indented text
+            """
 
     class Bar(Foo):
         @functools.lru_cache()
@@ -683,7 +686,7 @@ def test_getdoc_inherited_decorated_method():
             pass
 
     assert inspect.getdoc(Bar.meth, getattr, False, Bar, "meth") is None
-    assert inspect.getdoc(Bar.meth, getattr, True, Bar, "meth") == "docstring."
+    assert inspect.getdoc(Bar.meth, getattr, True, Bar, "meth") == Foo.meth.__doc__
 
 
 def test_is_builtin_class_method():
