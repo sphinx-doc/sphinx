@@ -824,6 +824,24 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
     return inspect.Signature(params, return_annotation=return_annotation)
 
 
+def getclassdoc(obj: Type, allow_inherited: bool = False) -> Optional[str]:
+    """Get the docstring for the class."""
+    from sphinx.ext.autodoc.mock import ismock
+
+    if not allow_inherited:
+        return safe_getattr(obj, '__doc__', None)
+    else:
+        for basecls in getmro(obj)[:-1]:
+            if ismock(basecls):
+                break
+
+            doc = safe_getattr(basecls, '__doc__', None)
+            if doc is not None:
+                return doc
+
+        return None
+
+
 def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
            allow_inherited: bool = False, cls: Any = None, name: str = None) -> str:
     """Get the docstring for the object.

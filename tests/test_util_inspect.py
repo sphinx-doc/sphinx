@@ -671,6 +671,29 @@ def test_unpartial():
     assert inspect.unpartial(func3) is func1
 
 
+def test_getclassdoc():
+    class Foo:
+        """docstring"""
+
+    class Bar(Foo):
+        pass
+
+    assert inspect.getclassdoc(Foo) == "docstring"
+    assert inspect.getclassdoc(Bar) is None
+    assert inspect.getclassdoc(Bar, True) == "docstring"
+
+
+def test_getclassdoc_mocked():
+    from sphinx.ext.autodoc.mock import _MockModule
+
+    dummy = _MockModule('dummy')
+
+    class Foo(dummy.Dummy):  # type: ignore
+        pass
+
+    assert inspect.getclassdoc(Foo) is None
+
+
 def test_getdoc_inherited_decorated_method():
     class Foo:
         def meth(self):

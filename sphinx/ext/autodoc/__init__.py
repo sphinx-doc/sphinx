@@ -31,8 +31,8 @@ from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import inspect, logging
 from sphinx.util.docstrings import prepare_docstring, separate_metadata
-from sphinx.util.inspect import (evaluate_signature, getdoc, object_description, safe_getattr,
-                                 stringify_signature)
+from sphinx.util.inspect import (evaluate_signature, getclassdoc, getdoc, object_description,
+                                 safe_getattr, stringify_signature)
 from sphinx.util.typing import OptionSpec, get_type_hints, restify
 from sphinx.util.typing import stringify as stringify_typehint
 
@@ -1694,9 +1694,9 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         classdoc_from = self.options.get('class-doc-from', self.config.autoclass_content)
 
         docstrings = []
-        attrdocstring = self.get_attr(self.object, '__doc__', None)
-        if attrdocstring:
-            docstrings.append(attrdocstring)
+        classdocstring = getclassdoc(self.object, self.config.autodoc_inherit_docstrings)
+        if classdocstring:
+            docstrings.append(classdocstring)
 
         # for classes, what the "docstring" is can be controlled via a
         # config value; the default is only the class docstring

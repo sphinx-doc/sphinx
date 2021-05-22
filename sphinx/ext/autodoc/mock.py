@@ -166,6 +166,14 @@ def ismock(subject: Any) -> bool:
         return True
 
     try:
+        # check the object is a mock class
+        __mro__ = safe_getattr(subject, '__mro__', [])
+        if len(__mro__) > 2 and __mro__[1] is _MockObject:
+            return True
+    except AttributeError:
+        pass
+
+    try:
         # check the object is mocked object
         __mro__ = safe_getattr(type(subject), '__mro__', [])
         if len(__mro__) > 2 and __mro__[1] is _MockObject:
