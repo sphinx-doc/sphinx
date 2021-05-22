@@ -627,6 +627,10 @@ class HyperlinkCollector(SphinxPostTransform):
             if 'refuri' not in refnode:
                 continue
             uri = refnode['refuri']
+            newuri = self.app.emit_firstresult('linkcheck-process-uri', uri)
+            if newuri:
+                uri = newuri
+
             lineno = get_node_line(refnode)
             uri_info = Hyperlink(uri, self.env.docname, lineno)
             if uri not in hyperlinks:
@@ -636,10 +640,31 @@ class HyperlinkCollector(SphinxPostTransform):
         for imgnode in self.document.traverse(nodes.image):
             uri = imgnode['candidates'].get('?')
             if uri and '://' in uri:
+                newuri = self.app.emit_firstresult('linkcheck-process-uri', uri)
+                if newuri:
+                    uri = newuri
+
                 lineno = get_node_line(imgnode)
                 uri_info = Hyperlink(uri, self.env.docname, lineno)
                 if uri not in hyperlinks:
                     hyperlinks[uri] = uri_info
+
+
+def rewrite_github_anchor(app: Sphinx, uri: str) -> Optional[str]:
+    """Rewrite anchor name of the hyperlink to github.com
+
+    The hyperlink anchors in github.com are dynamically generated.  This rewrites
+    them before checking and makes them comparable.
+    """
+    if re.search('://github.com/', uri) and '#' in uri:
+        baseuri, anchor = uri.split('#', 1)
+        if anchor.startswith('user-content-'):
+            # Ignored when URI is already prefixed.
+            return None
+        else:
+            return f'{baseuri}#user-content-{anchor}'
+    else:
+        return None
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
@@ -657,6 +682,9 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     # commonly used for dynamic pages
     app.add_config_value('linkcheck_anchors_ignore', ["^!"], None)
     app.add_config_value('linkcheck_rate_limit_timeout', 300.0, None)
+
+    app.add_event('linkcheck-process-uri')
+    app.connect('linkcheck-process-uri', rewrite_github_anchor)
 
     return {
         'version': 'builtin',
