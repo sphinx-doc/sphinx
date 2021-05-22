@@ -33,6 +33,8 @@ Incompatible changes
 Deprecated
 ----------
 
+* The ``app`` argument of ``sphinx.environment.BuildEnvironment`` becomes
+  required
 * ``sphinx.application.Sphinx.html_theme``
 * ``sphinx.util.docstrings.extract_metadata()``
 
@@ -60,6 +62,7 @@ Features added
   text
 * #9176: i18n: Emit a debug message if message catalog file not found under
   :confval:`locale_dirs`
+* #1874: py domain: Support union types using ``|`` in info-field-list
 * #9097: Optimize the paralell build
 * #9131: Add :confval:`nitpick_ignore_regex` to ignore nitpicky warnings using
   regular expressions
@@ -80,8 +83,29 @@ Bugs fixed
 Testing
 --------
 
-Release 4.0.2 (in development)
+Release 4.0.3 (in development)
 ==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 4.0.2 (released May 20, 2021)
+=====================================
 
 Dependencies
 ------------
@@ -94,22 +118,13 @@ Incompatible changes
 * #9222: Update Underscore.js to 1.13.1
 * #9217: manpage: Stop creating a section directory on build manpage by default
   (see :confval:`man_make_section_directory`)
-* #9240: Unknown node error for pending_xref_condition is raised if an extension
-  that does not support the node installs a missing-reference handler
-
-Deprecated
-----------
-
-Features added
---------------
 
 Bugs fixed
 ----------
 
 * #9210: viewcode: crashed if non importable modules found on parallel build
-
-Testing
---------
+* #9240: Unknown node error for pending_xref_condition is raised if an extension
+  that does not support the node installs a missing-reference handler
 
 Release 4.0.1 (released May 11, 2021)
 =====================================

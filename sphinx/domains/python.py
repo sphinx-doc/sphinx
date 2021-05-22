@@ -304,7 +304,7 @@ class PyXrefMixin:
     def make_xrefs(self, rolename: str, domain: str, target: str,
                    innernode: Type[TextlikeNode] = nodes.emphasis,
                    contnode: Node = None, env: BuildEnvironment = None) -> List[Node]:
-        delims = r'(\s*[\[\]\(\),](?:\s*or\s)?\s*|\s+or\s+|\.\.\.)'
+        delims = r'(\s*[\[\]\(\),](?:\s*or\s)?\s*|\s+or\s+|\s*\|\s*|\.\.\.)'
         delims_re = re.compile(delims)
         sub_targets = re.split(delims, target)
 
@@ -1362,10 +1362,6 @@ def builtin_resolver(app: Sphinx, env: BuildEnvironment,
             s = s.split('.', 1)[1]
 
         return s in typing.__all__  # type: ignore
-
-    content = find_pending_xref_condition(node, 'resolved')
-    if content:
-        contnode = content.children[0]  # type: ignore
 
     if node.get('refdomain') != 'py':
         return None
