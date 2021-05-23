@@ -2296,6 +2296,8 @@ def test_overload2(app):
         '              Baz(x: str, y: str)',
         '   :module: target.overload2',
         '',
+        '   docstring',
+        '',
     ]
 
 
