@@ -838,16 +838,25 @@ def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
     if ispartial(obj) and doc == obj.__class__.__doc__:
         return getdoc(obj.func)
     elif doc is None and allow_inherited:
-        doc = inspect.getdoc(obj)
-
-        if doc is None and cls and name:
-            # inspect.getdoc() does not support some kind of inherited and decorated methods.
-            # This tries to obtain the docstring from super classes.
-            for basecls in getattr(cls, '__mro__', []):
+        if cls and name:
+            # Check a docstring of the attribute or method from super classes.
+            for basecls in getmro(cls):
                 meth = safe_getattr(basecls, name, None)
                 if meth is not None:
-                    doc = inspect.getdoc(meth)
-                    if doc:
+                    doc = attrgetter(meth, '__doc__', None)
+                    if doc is not None:
                         break
+
+            if doc is None:
+                # retry using `inspect.getdoc()`
+                for basecls in getmro(cls):
+                    meth = safe_getattr(basecls, name, None)
+                    if meth is not None:
+                        doc = inspect.getdoc(meth)
+                        if doc is not None:
+                            break
+
+        if doc is None:
+            doc = inspect.getdoc(obj)
 
     return doc
