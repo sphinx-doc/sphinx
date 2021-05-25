@@ -7,6 +7,7 @@ Sphinx documentation contents
    :maxdepth: 2
 
    usage/index
+   tutorial/index
    development/index
    man/index
 
