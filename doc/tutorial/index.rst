@@ -145,9 +145,54 @@ You should see something like this:
 
 There we go! You created your first HTML documentation using Sphinx.
 
-.. todo::
+Making some tweaks to the index
+...............................
 
-   To make this self-contained, we need:
+The ``index.rst`` file that ``sphinx-quickstart`` created
+has some content already,
+and it gets rendered as the front page of our HTML documentation.
+It is written in reStructuredText,
+a powerful markup language.
 
-   * Basic editing of the ``index.rst``,
-   * A mention to "next steps" to the rest of the documentation
+Modify the file like follows:
+
+.. code-block:: rest
+
+   Welcome to Lumache's documentation!
+   ===================================
+
+   **Lumache** (/luˈmake/) is a Python library for cooks and food lovers
+   that creates recipes mixing random ingredients.
+   It pulls data from the `Open Food Facts database <https://world.openfoodfacts.org/>`_
+   and offers a *simple* and *intuitive* API.
+
+   .. note::
+
+      This project is under active development.
+
+This showcases several features of the reStructuredText syntax, including:
+
+- a **section header** using ``===`` for the underline,
+- two examples of **inline markup**: ``**bold**`` and ``*italics*``,
+- an **inline external link**,
+- and a ``note`` **admonition**.
+
+Now, to render it with the new content,
+you can use the ``sphinx-build`` command as before,
+or leverage the convenience script like this:
+
+.. code-block:: bash
+
+   (.env) $ cd docs/
+   (.env) $ make html
+
+After running this command,
+you will see that ``index.html`` reflects the new changes!
+
+Where to go from here
+---------------------
+
+This tutorial covered
+the very first steps to create a documentation project with Sphinx.
+To continue learning more about Sphinx,
+check out the :ref:`rest of the documentation <contents>`.
