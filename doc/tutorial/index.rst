@@ -143,7 +143,7 @@ You should see something like this:
 
 .. image:: /_static/tutorial/lumache-first-light.png
 
-*Eccolo!* You created your first HTML documentation using Sphinx.
+There we go! You created your first HTML documentation using Sphinx.
 
 .. todo::
 
