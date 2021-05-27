@@ -2,7 +2,7 @@
     sphinx.ext.optionspecs
     ~~~~~~~~~~~~~~~~~~~
 """
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 import sphinx
 from sphinx.application import Sphinx
@@ -14,6 +14,7 @@ from docutils.utils import DuplicateOptionError
 from docutils import nodes, utils
 
 from sphinx.util import logging
+from sphinx.util.console import bold  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -199,11 +200,46 @@ class RFC2822List(docutils.parsers.rst.states.RFC2822List):
 ################################################################################################
 ### f*ck up default values
 
-def setup_fckUP():
-    docutils.parsers.rst.states.state_classes = (Body, BulletList, 
-        DefinitionList, EnumeratedList, FieldList,
-        OptionList, LineBlock, ExtensionOptions, Explicit, Text,
-        Definition, Line, SubstitutionDef, RFC2822Body, RFC2822List)
+def setup_fckUP_obj(arr: List, object: Any, objName: str) -> int:
+    #
+    for index, item in enumerate(arr, start=0):
+        if issubclass(object, item):
+            arr[index]=object 
+            #logger.info(('optionSpecs: replaced "%s"'), objName)
+            return 1
+    #
+    logger.warn(('optionSpecs: no FOUND "%s"'), objName)
+    return 0
+   
+ 
+def setup_fckUP() -> None:
+    cnt = 0
+    lst=list(docutils.parsers.rst.states.state_classes)
+    #
+    cnt = cnt + setup_fckUP_obj(lst, Body, 'Body') 
+    cnt = cnt + setup_fckUP_obj(lst, BulletList, 'BulletList') 
+    cnt = cnt + setup_fckUP_obj(lst, DefinitionList, 'DefinitionList') 
+    cnt = cnt + setup_fckUP_obj(lst, EnumeratedList, 'EnumeratedList') 
+    cnt = cnt + setup_fckUP_obj(lst, FieldList, 'FieldList')
+    cnt = cnt + setup_fckUP_obj(lst, OptionList, 'OptionList') 
+    cnt = cnt + setup_fckUP_obj(lst, LineBlock, 'LineBlock') 
+    cnt = cnt + setup_fckUP_obj(lst, ExtensionOptions, 'ExtensionOptions') 
+    cnt = cnt + setup_fckUP_obj(lst, Explicit, 'Explicit') 
+    cnt = cnt + setup_fckUP_obj(lst, Text, 'Text')
+    cnt = cnt + setup_fckUP_obj(lst, Definition, 'Definition') 
+    cnt = cnt + setup_fckUP_obj(lst, Line, 'Line') 
+    cnt = cnt + setup_fckUP_obj(lst, SubstitutionDef, 'SubstitutionDef') 
+    cnt = cnt + setup_fckUP_obj(lst, RFC2822Body, 'RFC2822Body') 
+    cnt = cnt + setup_fckUP_obj(lst, RFC2822List, 'RFC2822List')
+    #
+    docutils.parsers.rst.states.state_classes = tuple(lst)
+    #
+    logger.info(bold(  ('optionSpecs...')), nonl=True)
+    if len(docutils.parsers.rst.states.state_classes)==cnt:
+        logger.info('done')
+    else:
+        logger.info('NOT done')
+
 
 ################################################################################################
 ###
