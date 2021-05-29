@@ -15,10 +15,16 @@ You will create a fictional software library to generate random food recipes
 that will serve as a guide throughout the process,
 with the objective of properly documenting it.
 
-To showcase Sphinx automatic documentation generation capabilities
-you will use Python, which is the default :term:`domain`
-(even though several other languages are supported,
-they all work in a similar way).
+To showcase Sphinx capabilities for code documentation
+you will use Python,
+which also supports *automatic* documentation generation.
+
+.. note::
+
+   Several other languages are natively supported in Sphinx
+   for *manual* code documentation,
+   however they require extensions for *automatic* code documentation,
+   like `Breathe <https://breathe.readthedocs.io/>`_.
 
 To follow the instructions you will need access to a Linux-like command line
 and a basic understanding of how it works,
