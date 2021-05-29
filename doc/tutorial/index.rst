@@ -29,10 +29,7 @@ which also supports *automatic* documentation generation.
 To follow the instructions you will need access to a Linux-like command line
 and a basic understanding of how it works,
 as well as a working Python installation for development,
-since you will use *Python virtual environments* to create the project
-(you can read more about them in the `Python Packaging User Guide`_).
-
-.. _Python Packaging User Guide: https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#creating-a-virtual-environment
+since you will use *Python virtual environments* to create the project.
 
 Getting started
 ---------------
