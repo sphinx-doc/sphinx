@@ -35,6 +35,7 @@ Features added
 * #8061, #9218: autodoc: Support variable comment for alias classes
 * #3014: autodoc: Add :event:`autodoc-process-bases` to modify the base classes
   of the class definitions
+* #9272: autodoc: Render enum values for the default argument value better
 * #3257: autosummary: Support instance attributes for classes
 * #9129: html search: Show search summaries when html_copy_source = False
 * #9120: html theme: Eliminate prompt characters of code-block from copyable
