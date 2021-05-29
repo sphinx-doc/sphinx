@@ -59,6 +59,7 @@ Bugs fixed
   :confval:`man_make_section_directory` is not correct
 * #9224: ``:param:`` and ``:type:`` fields does not support a type containing
   whitespace (ex. ``Dict[str, str]``)
+* #9270: html theme : pyramid theme generates incorrect logo links
 
 Testing
 --------
