@@ -32,7 +32,7 @@ Getting started
 ---------------
 
 Setting up our project and development environment
-..................................................
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 On a new directory,
 create a file called ``README.rst``
@@ -77,7 +77,7 @@ You can do a basic verification running this command:
 If you see a similar output, you are on the right path!
 
 Creating the documentation layout
-.................................
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Then, from the command line,
 run the following command:
@@ -146,7 +146,7 @@ You should see something like this:
 There we go! You created your first HTML documentation using Sphinx.
 
 Making some tweaks to the index
-...............................
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``index.rst`` file that ``sphinx-quickstart`` created
 has some content already,
