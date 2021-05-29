@@ -16,6 +16,7 @@ from docutils.parsers.rst.states import Inliner
 
 from sphinx import addnodes
 from sphinx.environment import BuildEnvironment
+from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.typing import TextlikeNode
 
@@ -72,22 +73,18 @@ class Field:
         assert (inliner is None) == (location is None), (inliner, location)
         if not rolename:
             return contnode or innernode(target, target)
+        # The domain is passed from DocFieldTransformer. So it surely exists.
+        # So we don't need to take care the env.get_domain() raises an exception.
         role = env.get_domain(domain).role(rolename)
         if role is None or inliner is None:
             if role is None and inliner is not None:
                 msg = "Problem in %s domain: field is supposed "
                 msg += "to use role '%s', but that role is not in the domain."
-                logger.warning(msg, domain, rolename, location=location)
-            if inliner is None:
-                # msg = "Field for %s domain using role '%s' does not run the role."
-                # msg += " No inliner provided."
-                # logger.warning(msg, domain, rolename)
-                pass
+                logger.warning(__(msg), domain, rolename, location=location)
             refnode = addnodes.pending_xref('', refdomain=domain, refexplicit=False,
                                             reftype=rolename, reftarget=target)
             refnode += contnode or innernode(target, target)
-            if env:
-                env.get_domain(domain).process_field_xref(refnode)
+            env.get_domain(domain).process_field_xref(refnode)
             return refnode
         lineno = logging.get_source_line(location)[1]
         ns, messages = role(rolename, target, target, lineno, inliner, {}, [])
