@@ -184,7 +184,8 @@ Modify the file like follows:
 This showcases several features of the reStructuredText syntax, including:
 
 - a **section header** using ``===`` for the underline,
-- two examples of **inline markup**: ``**bold**`` and ``*italics*``,
+- two examples of **inline markup**: ``**strong emphasis**`` (typically bold)
+  and ``*emphasis*`` (typically italics),
 - an **inline external link**,
 - and a ``note`` **admonition**.
 
