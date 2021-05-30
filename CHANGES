@@ -15,6 +15,7 @@ Deprecated
 * The ``app`` argument of ``sphinx.environment.BuildEnvironment`` becomes
   required
 * ``sphinx.application.Sphinx.html_theme``
+* ``sphinx.ext.autosummary._app``
 * ``sphinx.util.docstrings.extract_metadata()``
 
 Features added
