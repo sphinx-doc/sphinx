@@ -10,6 +10,7 @@
 
 import ast
 import datetime
+import enum
 import functools
 import sys
 import types
@@ -514,6 +515,14 @@ def test_dict_customtype():
     description = inspect.object_description(dictionary)
     # Type is unsortable, just check that it does not crash
     assert "<CustomType(2)>: 2" in description
+
+
+def test_object_description_enum():
+    class MyEnum(enum.Enum):
+        FOO = 1
+        BAR = 2
+
+    assert inspect.object_description(MyEnum.FOO) == "MyEnum.FOO"
 
 
 def test_getslots():
