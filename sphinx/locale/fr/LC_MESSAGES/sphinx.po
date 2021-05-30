@@ -22,6 +22,7 @@
 # Larlet David <david@larlet.fr>, 2008
 # LAURENT Raphaël <laurent@ined.fr>, 2018-2019
 # 751bad527461b9b1a5628371fac587ce_51f5b30 <748bb51e7ee5d7c2fa68b9a5e88dc8fb_87395>, 2013-2014
+# Nicolas Friedli <nicolas.friedli@gmail.com>, 2021
 # Nikolaj van Omme <nikolaj.van.omme@gmail.com>, 2014-2015
 # Olivier Bonaventure <bonaventure@acm.org>, 2019
 # Pierre Grépon <pgrepon@yahoo.fr>, 2016
@@ -31,9 +32,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-05-23 00:11+0000\n"
-"PO-Revision-Date: 2021-05-11 13:54+0000\n"
-"Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
+"POT-Creation-Date: 2021-05-30 00:22+0000\n"
+"PO-Revision-Date: 2021-05-29 11:52+0000\n"
+"Last-Translator: Nicolas Friedli <nicolas.friedli@gmail.com>\n"
 "Language-Team: French (http://www.transifex.com/sphinx-doc/sphinx-1/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -684,7 +685,7 @@ msgstr ""
 
 #: sphinx/builders/_epub_base.py:504
 msgid "writing content.opf file..."
-msgstr ""
+msgstr "enregistrement du fichier content.opf..."
 
 #: sphinx/builders/_epub_base.py:530
 #, python-format
@@ -693,7 +694,7 @@ msgstr "mimetype inconnu pour %s, il sera ignoré"
 
 #: sphinx/builders/_epub_base.py:677
 msgid "writing toc.ncx file..."
-msgstr ""
+msgstr "enregistrement du fichier toc.ncx"
 
 #: sphinx/builders/_epub_base.py:702
 #, python-format
@@ -742,7 +743,7 @@ msgstr "Le fichier ePub se trouve dans %(outdir)s ."
 
 #: sphinx/builders/epub3.py:165
 msgid "writing nav.xhtml file..."
-msgstr ""
+msgstr "enregistrement du fichier nav.xhtml..."
 
 #: sphinx/builders/epub3.py:191
 msgid "conf value \"epub_language\" (or \"language\") should not be empty for EPUB3"
@@ -980,7 +981,7 @@ msgstr ""
 
 #: sphinx/builders/html/__init__.py:810
 msgid "copying static files"
-msgstr ""
+msgstr "copie des fichiers statiques"
 
 #: sphinx/builders/html/__init__.py:826
 #, python-format
@@ -1196,7 +1197,7 @@ msgid ""
 "This can happen with very large or deeply nested source files. You can "
 "carefully increase the default Python recursion limit of 1000 in conf.py "
 "with e.g.:"
-msgstr ""
+msgstr "Cela peut se produire avec des fichiers sources très volumineux ou profondément imbriqués. Vous pouvez  augmenter avec attention la limite de récursivité par défaut de Python de 1000 dans conf.py avec p. ex. :"
 
 #: sphinx/cmd/build.py:71
 msgid "Exception occurred:"
@@ -2147,7 +2148,7 @@ msgstr "méthode statique"
 
 #: sphinx/domains/python.py:1098
 msgid "property"
-msgstr ""
+msgstr "propriété"
 
 #: sphinx/domains/python.py:1156
 #, python-format
@@ -2280,7 +2281,7 @@ msgstr "le paramètre numfig est désactivé : le paramètre :numref: est ignor�
 #: sphinx/domains/std.py:878
 #, python-format
 msgid "Failed to create a cross reference. Any number is not assigned: %s"
-msgstr ""
+msgstr "Impossible de créer une référence croisée. Aucun nombre n'est attribué: %s"
 
 #: sphinx/domains/std.py:890
 #, python-format
@@ -2300,12 +2301,12 @@ msgstr "format de numfig_format invalide : %s"
 #: sphinx/domains/std.py:1120
 #, python-format
 msgid "undefined label: %s"
-msgstr ""
+msgstr "lablel non défini: 1%s"
 
 #: sphinx/domains/std.py:1122
 #, python-format
 msgid "Failed to create a cross reference. A title or caption not found: %s"
-msgstr ""
+msgstr "Impossible de créer une référence croisée. Titre ou légende introuvable: %s"
 
 #: sphinx/environment/__init__.py:73
 msgid "new config"
@@ -2560,17 +2561,17 @@ msgstr "le module %s ne pas être importé : %s"
 #: sphinx/ext/coverage.py:255
 #, python-format
 msgid "undocumented python function: %s :: %s"
-msgstr ""
+msgstr "fonction python non documentée: %s :: %s"
 
 #: sphinx/ext/coverage.py:271
 #, python-format
 msgid "undocumented python class: %s :: %s"
-msgstr ""
+msgstr "classe python non documentée: %s :: %s"
 
 #: sphinx/ext/coverage.py:284
 #, python-format
 msgid "undocumented python method: %s :: %s :: %s"
-msgstr ""
+msgstr "méthode python non documentée: %s :: %s :: %s"
 
 #: sphinx/ext/doctest.py:123
 #, python-format
@@ -2900,7 +2901,7 @@ msgstr "Bases : %s"
 #: sphinx/ext/autodoc/__init__.py:1838
 #, python-format
 msgid "alias of %s"
-msgstr ""
+msgstr "alias de %s"
 
 #: sphinx/ext/autodoc/__init__.py:1880
 #, python-format
@@ -3502,7 +3503,7 @@ msgstr "échoué"
 #: sphinx/util/docutils.py:213
 #, python-format
 msgid "unknown directive or role name: %s:%s"
-msgstr ""
+msgstr "nom de rôle ou de directive inconnu: %s:%s"
 
 #: sphinx/util/i18n.py:67
 #, python-format
@@ -3517,7 +3518,7 @@ msgstr "erreur d'écriture : %s,%s"
 #: sphinx/util/i18n.py:98
 #, python-format
 msgid "locale_dir %s does not exists"
-msgstr ""
+msgstr "le répertoire locale_dir %s n'existe pas"
 
 #: sphinx/util/i18n.py:192
 #, python-format
@@ -3553,7 +3554,7 @@ msgstr "Aucun ID assigné au node %s"
 
 #: sphinx/writers/html.py:411 sphinx/writers/html5.py:362
 msgid "Permalink to this term"
-msgstr ""
+msgstr "Lien permanent vers ce terme"
 
 #: sphinx/writers/html.py:443 sphinx/writers/html5.py:394
 msgid "Permalink to this table"
