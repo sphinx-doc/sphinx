@@ -2532,8 +2532,8 @@ Options for the linkcheck builder
    A dictionary that maps a pattern of the source URI to a pattern of the canonical
    URI. The linkcheck builder treats the redirected link as "working" when:
 
-    - the link in the document matches the source URI pattern, and
-    - the redirect location matches the canonical URI pattern.
+   - the link in the document matches the source URI pattern, and
+   - the redirect location matches the canonical URI pattern.
 
    Example:
 
