@@ -10,6 +10,7 @@
 
 import os
 import pickle
+import warnings
 from collections import defaultdict
 from copy import copy
 from datetime import datetime
@@ -22,6 +23,7 @@ from docutils.nodes import Node
 
 from sphinx import addnodes
 from sphinx.config import Config
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.domains import Domain
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.errors import BuildEnvironmentError, DocumentError, ExtensionError, SphinxError
@@ -181,6 +183,9 @@ class BuildEnvironment:
         # set up environment
         if app:
             self.setup(app)
+        else:
+            warnings.warn("The 'app' argument for BuildEnvironment() becomes required now.",
+                          RemovedInSphinx60Warning, stacklevel=2)
 
     def __getstate__(self) -> Dict:
         """Obtains serializable data for pickling."""

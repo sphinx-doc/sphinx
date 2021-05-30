@@ -94,4 +94,4 @@ message catalog template and message catalogs, for example via `Babel`_:
    $ pybabel extract --output=src/locale/myextension.pot src/
    $ pybabel update --input-file=src/locale/myextension.pot --domain=myextension --output-dir=src/locale
 
-.. _Babel: http://babel.pocoo.org/
+.. _Babel: https://babel.pocoo.org/

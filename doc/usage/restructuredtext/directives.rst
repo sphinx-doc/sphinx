@@ -424,7 +424,7 @@ code blocks using multiple varied syntaxes. Finally, the
 in your documentation.
 
 In all cases, Syntax highlighting is provided by `Pygments
-<http://pygments.org>`_. When using literal blocks, this is configured using
+<https://pygments.org>`_. When using literal blocks, this is configured using
 any :rst:dir:`highlight` directives in the source file. When a ``highlight``
 directive is encountered, it is used until the next ``highlight`` directive is
 encountered. If there is no ``highlight`` directive in the file, the global
@@ -452,7 +452,7 @@ If highlighting with the selected language fails (i.e. Pygments emits an
    want to ensure consistent highlighting, you should fix your version of
    Pygments.
 
-__ http://pygments.org/docs/lexers
+__ https://pygments.org/docs/lexers
 
 .. rst:directive:: .. highlight:: language
 

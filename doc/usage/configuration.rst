@@ -18,8 +18,8 @@ and output behavior.
   directory to adjust `Docutils`_ configuration if not otherwise overridden or
   set by Sphinx.
 
-  .. _`docutils`: http://docutils.sourceforge.net/
-  .. _`docutils.conf`: http://docutils.sourceforge.net/docs/user/config.html
+  .. _`docutils`: https://docutils.sourceforge.io/
+  .. _`docutils.conf`: https://docutils.sourceforge.io/docs/user/config.html
 
 The configuration file is executed as Python code at build time (using
 :func:`execfile`, and with the current directory set to its containing
@@ -484,7 +484,7 @@ General configuration
    languages, will be used to convert quotes and dashes to typographically
    correct entities.  Default: ``True``.
 
-   __ http://docutils.sourceforge.net/docs/user/smartquotes.html
+   __ https://docutils.sourceforge.io/docs/user/smartquotes.html
    __ https://daringfireball.net/projects/smartypants/
 
    .. versionadded:: 1.6.6
@@ -497,8 +497,8 @@ General configuration
    *deactivates* smart quotes via the corresponding `Docutils option`__.  But
    if it *activates* them, then :confval:`smartquotes` does prevail.
 
-   __ http://docutils.sourceforge.net/docs/user/config.html
-   __ http://docutils.sourceforge.net/docs/user/config.html#smart-quotes
+   __ https://docutils.sourceforge.io/docs/user/config.html
+   __ https://docutils.sourceforge.io/docs/user/config.html#smart-quotes
 
 .. confval:: smartquotes_action
 
@@ -591,17 +591,18 @@ General configuration
 .. confval:: highlight_language
 
    The default language to highlight source code in.  The default is
-   ``'python3'``.  The value should be a valid Pygments lexer name, see
+   ``'default'``.  It is similar to ``'python3'``; it is mostly a superset of
+   ``'python'`` but it fallbacks to ``'none'`` without warning if failed.
+   ``'python3'`` and other languages will emit warning if failed.
+
+   The value should be a valid Pygments lexer name, see
    :ref:`code-examples` for more details.
 
    .. versionadded:: 0.5
 
    .. versionchanged:: 1.4
-      The default is now ``'default'``. It is similar to ``'python3'``;
-      it is mostly a superset of ``'python'`` but it fallbacks to
-      ``'none'`` without warning if failed.  ``'python3'`` and other
-      languages will emit warning if failed.  If you prefer Python 2
-      only highlighting, you can set it back to ``'python'``.
+      The default is now ``'default'``.  If you prefer Python 2 only
+      highlighting, you can set it back to ``'python'``.
 
 .. confval:: highlight_options
 
@@ -1051,7 +1052,7 @@ that use Sphinx's HTMLWriter class.
    A list of CSS files.  The entry must be a *filename* string or a tuple
    containing the *filename* string and the *attributes* dictionary.  The
    *filename* must be relative to the :confval:`html_static_path`, or a full URI
-   with scheme like ``http://example.org/style.css``.  The *attributes* is used
+   with scheme like ``https://example.org/style.css``.  The *attributes* is used
    for attributes of ``<link>`` tag.  It defaults to an empty list.
 
    Example::
@@ -1074,7 +1075,7 @@ that use Sphinx's HTMLWriter class.
    A list of JavaScript *filename*.  The entry must be a *filename* string or a
    tuple containing the *filename* string and the *attributes* dictionary.  The
    *filename* must be relative to the :confval:`html_static_path`, or a full
-   URI with scheme like ``http://example.org/script.js``.  The *attributes* is
+   URI with scheme like ``https://example.org/script.js``.  The *attributes* is
    used for attributes of ``<script>`` tag.  It defaults to an empty list.
 
    Example::
@@ -1308,7 +1309,7 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_use_opensearch
 
-   If nonempty, an `OpenSearch <http://www.opensearch.org/Home>`_ description
+   If nonempty, an `OpenSearch <https://www.opensearch.org/>`_ description
    file will be output, and all pages will contain a ``<link>`` tag referring
    to it.  Since OpenSearch doesn't support relative URLs for its search page
    location, the value of this option must be the base URL from which these
@@ -1735,7 +1736,7 @@ Options for epub output
 These options influence the epub output.  As this builder derives from the HTML
 builder, the HTML options also apply where appropriate.  The actual values for
 some of the options is not really important, they just have to be entered into
-the `Dublin Core metadata <http://dublincore.org/>`_.
+the `Dublin Core metadata <https://dublincore.org/>`_.
 
 .. confval:: epub_basename
 
@@ -2357,6 +2358,10 @@ These options influence manual page output.
 
       The default is changed to ``False`` from ``True``.
 
+   .. versionchanged:: 4.0.2
+
+      The default is changed to ``True`` from ``False`` again.
+
 .. _texinfo-options:
 
 Options for Texinfo output
@@ -2614,7 +2619,7 @@ Options for the linkcheck builder
       as follows::
 
          linkcheck_ignore = [
-            'http://www.sphinx-doc.org/en/1.7/intro.html#'
+            'https://www.sphinx-doc.org/en/1.7/intro.html#'
          ]
 
    .. versionadded:: 1.5

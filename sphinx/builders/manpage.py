@@ -79,8 +79,9 @@ class ManualPageBuilder(Builder):
             docsettings.section = section
 
             if self.config.man_make_section_directory:
-                ensuredir(path.join(self.outdir, str(section)))
-                targetname = '%s/%s.%s' % (section, name, section)
+                dirname = 'man%s' % section
+                ensuredir(path.join(self.outdir, dirname))
+                targetname = '%s/%s.%s' % (dirname, name, section)
             else:
                 targetname = '%s.%s' % (name, section)
 
@@ -118,7 +119,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     app.add_config_value('man_pages', default_man_pages, None)
     app.add_config_value('man_show_urls', False, None)
-    app.add_config_value('man_make_section_directory', True, None)
+    app.add_config_value('man_make_section_directory', False, None)
 
     return {
         'version': 'builtin',

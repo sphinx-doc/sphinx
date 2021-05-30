@@ -12,7 +12,7 @@ The below guides go through the most important aspects of reST. For the
 authoritative reStructuredText reference, refer to the `docutils
 documentation`__.
 
-__ http://docutils.sourceforge.net/rst.html
+__ https://docutils.sourceforge.io/rst.html
 
 .. toctree::
    :maxdepth: 2

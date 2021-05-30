@@ -1641,18 +1641,23 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         # add inheritance info, if wanted
         if not self.doc_as_attr and self.options.show_inheritance:
-            sourcename = self.get_sourcename()
-            self.add_line('', sourcename)
-
             if hasattr(self.object, '__orig_bases__') and len(self.object.__orig_bases__):
                 # A subclass of generic types
                 # refs: PEP-560 <https://www.python.org/dev/peps/pep-0560/>
-                bases = [restify(cls) for cls in self.object.__orig_bases__]
-                self.add_line('   ' + _('Bases: %s') % ', '.join(bases), sourcename)
+                bases = list(self.object.__orig_bases__)
             elif hasattr(self.object, '__bases__') and len(self.object.__bases__):
                 # A normal class
-                bases = [restify(cls) for cls in self.object.__bases__]
-                self.add_line('   ' + _('Bases: %s') % ', '.join(bases), sourcename)
+                bases = list(self.object.__bases__)
+            else:
+                bases = []
+
+            self.env.events.emit('autodoc-process-bases',
+                                 self.fullname, self.object, self.options, bases)
+
+            base_classes = [restify(cls) for cls in bases]
+            sourcename = self.get_sourcename()
+            self.add_line('', sourcename)
+            self.add_line('   ' + _('Bases: %s') % ', '.join(base_classes), sourcename)
 
     def get_object_members(self, want_all: bool) -> Tuple[bool, ObjectMembers]:
         members = get_class_members(self.object, self.objpath, self.get_attr)
@@ -1676,7 +1681,11 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         if self.doc_as_attr:
             # Don't show the docstring of the class when it is an alias.
-            return None
+            comment = self.get_variable_comment()
+            if comment:
+                return []
+            else:
+                return None
 
         lines = getattr(self, '_new_docstrings', None)
         if lines is not None:
@@ -1695,7 +1704,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             __init__ = self.get_attr(self.object, '__init__', None)
             initdocstring = getdoc(__init__, self.get_attr,
                                    self.config.autodoc_inherit_docstrings,
-                                   self.parent, self.object_name)
+                                   self.object, '__init__')
             # for new-style classes, no __init__ means default __init__
             if (initdocstring is not None and
                 (initdocstring == object.__init__.__doc__ or  # for pypy
@@ -1706,7 +1715,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 __new__ = self.get_attr(self.object, '__new__', None)
                 initdocstring = getdoc(__new__, self.get_attr,
                                        self.config.autodoc_inherit_docstrings,
-                                       self.parent, self.object_name)
+                                       self.object, '__new__')
                 # for new-style classes, no __new__ means default __new__
                 if (initdocstring is not None and
                     (initdocstring == object.__new__.__doc__ or  # for pypy
@@ -1721,9 +1730,18 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         tab_width = self.directive.state.document.settings.tab_width
         return [prepare_docstring(docstring, ignore, tab_width) for docstring in docstrings]
 
+    def get_variable_comment(self) -> Optional[List[str]]:
+        try:
+            key = ('', '.'.join(self.objpath))
+            analyzer = ModuleAnalyzer.for_module(self.get_real_modname())
+            analyzer.analyze()
+            return list(self.analyzer.attr_docs.get(key, []))
+        except PycodeError:
+            return None
+
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
-        if self.doc_as_attr:
+        if self.doc_as_attr and not self.get_variable_comment():
             try:
                 more_content = StringList([_('alias of %s') % restify(self.object)], source='')
             except AttributeError:
@@ -2724,6 +2742,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')
+    app.add_event('autodoc-process-bases')
 
     app.connect('config-inited', migrate_autodoc_member_order, priority=800)
 
