@@ -2675,7 +2675,7 @@ Options for the linkcheck builder
    It's useful to detect unexpected redirects under :option:`the warn-is-error
    mode <sphinx-build -W>`.  Default is ``False``.
 
-    .. versionadded:: 4.1
+   .. versionadded:: 4.1
 
 
 Options for the XML builder
