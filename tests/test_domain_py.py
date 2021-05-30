@@ -477,23 +477,11 @@ def test_optional_pyfunction_signature(app):
 
 
 def test_pyexception_signature(app):
-    text = ".. py:exception:: exceptions.IOError"
+    text = ".. py:exception:: builtins.IOError"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_annotation, "exception "],
-                                                    [desc_addname, "exceptions."],
-                                                    [desc_name, "IOError"])],
-                                  desc_content)]))
-    assert_node(doctree[1], desc, desctype="exception",
-                domain="py", objtype="exception", noindex=False)
-
-
-def test_exceptions_module_is_ignored(app):
-    text = (".. py:exception:: IOError\n"
-            "   :module: exceptions\n")
-    doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, ([desc_annotation, "exception "],
+                                                    [desc_addname, "builtins."],
                                                     [desc_name, "IOError"])],
                                   desc_content)]))
     assert_node(doctree[1], desc, desctype="exception",

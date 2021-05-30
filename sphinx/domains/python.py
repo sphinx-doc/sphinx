@@ -448,12 +448,9 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
 
         if prefix:
             signode += addnodes.desc_addname(prefix, prefix)
-        elif add_module and self.env.config.add_module_names:
-            if modname and modname != 'exceptions':
-                # exceptions are a special case, since they are documented in the
-                # 'exceptions' module.
-                nodetext = modname + '.'
-                signode += addnodes.desc_addname(nodetext, nodetext)
+        elif modname and add_module and self.env.config.add_module_names:
+            nodetext = modname + '.'
+            signode += addnodes.desc_addname(nodetext, nodetext)
 
         signode += addnodes.desc_name(name, name)
         if arglist:
