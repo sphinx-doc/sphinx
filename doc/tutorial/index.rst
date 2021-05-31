@@ -55,7 +55,7 @@ For that, open a command line terminal,
 ``cd`` into the directory you just created,
 and run the following commands:
 
-.. code-block:: bash
+.. code-block:: console
 
    $ python -m venv .venv
    $ source .venv/bin/activate
@@ -72,7 +72,7 @@ If you executed these instructions correctly,
 you should have the Sphinx command line tools available.
 You can do a basic verification running this command:
 
-.. code-block:: bash
+.. code-block:: console
 
    (.venv) $ sphinx-build --version
    sphinx-build 4.0.2
@@ -85,7 +85,7 @@ Creating the documentation layout
 Then from the command line,
 run the following command:
 
-.. code-block:: bash
+.. code-block:: console
 
    (.venv) $ sphinx-quickstart docs
 
@@ -150,7 +150,7 @@ you already have everything needed
 to render the documentation as HTML for the first time.
 To do that, run this command:
 
-.. code-block:: bash
+.. code-block:: console
 
    (.venv) $ sphinx-build -b html docs/source/ docs/build/html
 
@@ -198,7 +198,7 @@ Now to render it with the new content,
 you can use the ``sphinx-build`` command as before,
 or leverage the convenience script as follows:
 
-.. code-block:: bash
+.. code-block:: console
 
    (.venv) $ cd docs
    (.venv) $ make html
