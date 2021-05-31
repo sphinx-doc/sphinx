@@ -200,8 +200,8 @@ or leverage the convenience script as follows.
 
 .. code-block:: bash
 
-   (.env) $ cd docs
-   (.env) $ make html
+   (.venv) $ cd docs
+   (.venv) $ make html
 
 After running this command,
 you will see that ``index.html`` reflects the new changes!
