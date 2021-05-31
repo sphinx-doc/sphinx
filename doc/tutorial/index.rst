@@ -92,7 +92,7 @@ run the following command:
 This will present to you a series of questions
 required to create the basic directory and configuration layout for your project
 inside the ``docs`` folder.
-To proceed, introduce these answers:
+To proceed, answer each question as follows:
 
 - ``> Separate source and build directories (y/n) [n]``: Write "``y``" (without quotes)
   and press :kbd:`Enter`.
@@ -120,7 +120,7 @@ you will see the new ``docs`` directory with the following content.
 		├── _static
 		└── _templates
 
-These files are:
+The purpose of each of these files is:
 
 ``build/``
 
@@ -170,7 +170,7 @@ and it gets rendered as the front page of our HTML documentation.
 It is written in reStructuredText,
 a powerful markup language.
 
-Modify the file as follows.
+Modify the file as follows:
 
 .. code-block:: rest
 
@@ -196,7 +196,7 @@ This showcases several features of the reStructuredText syntax, including:
 
 Now to render it with the new content,
 you can use the ``sphinx-build`` command as before,
-or leverage the convenience script as follows.
+or leverage the convenience script as follows:
 
 .. code-block:: bash
 
