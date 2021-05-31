@@ -110,7 +110,7 @@ you will see the new ``docs`` directory with the following content.
 
 .. code-block:: text
 
-	docs/
+	docs
 	├── build
 	├── make.bat
 	├── Makefile
@@ -200,7 +200,7 @@ or leverage the convenience script as follows.
 
 .. code-block:: bash
 
-   (.env) $ cd docs/
+   (.env) $ cd docs
    (.env) $ make html
 
 After running this command,
