@@ -189,10 +189,10 @@ Modify the file as follows.
 This showcases several features of the reStructuredText syntax, including:
 
 - a **section header** using ``===`` for the underline,
-- two examples of **inline markup**: ``**strong emphasis**`` (typically bold)
+- two examples of :ref:`rst-inline-markup`: ``**strong emphasis**`` (typically bold)
   and ``*emphasis*`` (typically italics),
 - an **inline external link**,
-- and a ``note`` **admonition**.
+- and a ``note`` **admonition** (one of the available :ref:`directives <rst-directives>`)
 
 Now to render it with the new content,
 you can use the ``sphinx-build`` command as before,
