@@ -190,8 +190,8 @@ Using virtual environments
 
 When installing Sphinx using pip,
 it is highly recommended to use *virtual environments*,
-which isolate the Installation
-and remove the need to use administrator privileges.
+which isolate the installed packages from the system packages,
+thus removing the need to use administrator privileges.
 To create a virtual environment in the ``.venv`` directory,
 use the following command.
 
@@ -205,8 +205,11 @@ You can read more about them in the `Python Packaging User Guide`_.
 
 .. warning::
 
-   Note like in some Linux distributions like Debian and Ubuntu
-   this might require an extra installation step::
+   Note that in some Linux distributions, such as Debian and Ubuntu,
+   this might require an extra installation step as follows.
+
+    .. code-block:: bash
+   
 
      $ apt-get install python3-venv
 
