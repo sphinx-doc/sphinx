@@ -2544,8 +2544,9 @@ Options for the linkcheck builder
           r'https://sphinx-doc\.org/.*': r'https://sphinx-doc\.org/en/master/.*'
       }
 
-   It's helpful to enable :confval:`linkcheck_warn_redirects` to warn for URIs
-   causing unexpected HTTP redirection.
+   If set, linkcheck builder will emit a warning when disallowed redirection
+   found.  It's useful to detect unexpected redirects under :option:`the
+   warn-is-error mode <sphinx-build -W>`.
 
    .. versionadded:: 4.1
 
@@ -2668,14 +2669,6 @@ Options for the linkcheck builder
    .. _Retry-After: https://tools.ietf.org/html/rfc7231#section-7.1.3
 
    .. versionadded:: 3.4
-
-.. confval:: linkcheck_warn_redirects
-
-   If true, emits a warning when the response for a hyperlink is a redirect.
-   It's useful to detect unexpected redirects under :option:`the warn-is-error
-   mode <sphinx-build -W>`.  Default is ``False``.
-
-   .. versionadded:: 4.1
 
 
 Options for the XML builder

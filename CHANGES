@@ -43,8 +43,6 @@ Features added
   text
 * #9176: i18n: Emit a debug message if message catalog file not found under
   :confval:`locale_dirs`
-* #6525: linkcheck: Add :confval:`linkcheck_warn_redirects` to emit a warning
-  when the hyperlink is redirected
 * #6525: linkcheck: Add :confval:`linkcheck_allowed_redirects` to mark
   hyperlinks that are redirected to expected URLs as "working"
 * #1874: py domain: Support union types using ``|`` in info-field-list
