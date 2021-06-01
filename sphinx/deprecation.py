@@ -14,10 +14,6 @@ from importlib import import_module
 from typing import Any, Dict, Type
 
 
-class RemovedInSphinx40Warning(DeprecationWarning):
-    pass
-
-
 class RemovedInSphinx50Warning(DeprecationWarning):
     pass
 
