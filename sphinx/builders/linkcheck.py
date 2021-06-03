@@ -656,15 +656,13 @@ def rewrite_github_anchor(app: Sphinx, uri: str) -> Optional[str]:
     The hyperlink anchors in github.com are dynamically generated.  This rewrites
     them before checking and makes them comparable.
     """
-    if re.search('://github.com/', uri) and '#' in uri:
-        baseuri, anchor = uri.split('#', 1)
-        if anchor.startswith('user-content-'):
-            # Ignored when URI is already prefixed.
-            return None
-        else:
-            return f'{baseuri}#user-content-{anchor}'
-    else:
-        return None
+    parsed = urlparse(uri)
+    if parsed.hostname == "github.com" and parsed.fragment:
+        prefixed = parsed.fragment.startswith('user-content-')
+        if not prefixed:
+            fragment = f'user-content-{parsed.fragment}'
+            return urlunparse(parsed._replace(fragment=fragment))
+    return None
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
