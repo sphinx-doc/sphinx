@@ -384,6 +384,14 @@ Here is a more detailed list of these events.
    .. versionchanged:: 1.3
       The return value can now specify a template name.
 
+.. event:: linkcheck-process-uri (app, uri)
+
+   Emitted when the linkcheck builder collects hyperlinks from document.  *uri*
+   is a collected URI.  The event handlers can modify the URI by returning a
+   string.
+
+   .. versionadded:: 4.1
+
 .. event:: build-finished (app, exception)
 
    Emitted when a build has finished, before Sphinx exits, usually used for

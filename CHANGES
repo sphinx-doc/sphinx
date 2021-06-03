@@ -43,6 +43,9 @@ Features added
   text
 * #9176: i18n: Emit a debug message if message catalog file not found under
   :confval:`locale_dirs`
+* #9016: linkcheck: Support checking anchors on github.com
+* #9016: linkcheck: Add a new event :event:`linkcheck-process-uri` to modify
+  URIs before checking hyperlinks
 * #1874: py domain: Support union types using ``|`` in info-field-list
 * #9268: py domain: :confval:`python_use_unqualified_type_names` supports type
   field in info-field-list
