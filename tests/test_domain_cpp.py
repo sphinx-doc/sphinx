@@ -1237,6 +1237,13 @@ not found in `{test}`
     assert any_role.classes == texpr_role.content_classes['a'], expect
 
 
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+def test_build_domain_cpp_field_role(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "field-role")
+    assert len(ws) == 0
+
+
 def test_noindexentry(app):
     text = (".. cpp:function:: void f()\n"
             ".. cpp:function:: void g()\n"
