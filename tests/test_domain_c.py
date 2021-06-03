@@ -630,6 +630,13 @@ def test_build_ns_lookup(app, warning):
     assert len(ws) == 0
 
 
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_build_field_role(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "field-role")
+    assert len(ws) == 0
+
+
 def _get_obj(app, queryName):
     domain = app.env.get_domain('c')
     for name, dispname, objectType, docname, anchor, prio in domain.get_objects():

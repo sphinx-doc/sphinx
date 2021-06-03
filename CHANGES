@@ -70,6 +70,8 @@ Bugs fixed
 * #9280: py domain: "exceptions" module is not displayed
 * #9224: ``:param:`` and ``:type:`` fields does not support a type containing
   whitespace (ex. ``Dict[str, str]``)
+* #8945: when transforming typed fields, call the specified role instead of
+  making an single xref. For C and C++, use the ``expr`` role for typed fields.
 
 Testing
 --------
