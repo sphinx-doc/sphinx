@@ -21,7 +21,7 @@ from queue import PriorityQueue, Queue
 from threading import Thread
 from typing import (Any, Dict, Generator, List, NamedTuple, Optional, Pattern, Set, Tuple,
                     Union, cast)
-from urllib.parse import unquote, urlparse
+from urllib.parse import unquote, urlparse, urlunparse
 
 from docutils import nodes
 from docutils.nodes import Element
