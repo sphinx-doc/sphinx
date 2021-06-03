@@ -299,6 +299,16 @@ class PyXrefMixin:
             for node in result.traverse(nodes.Text):
                 node.parent[node.parent.index(node)] = nodes.Text(text)
                 break
+        elif isinstance(result, pending_xref) and env.config.python_use_unqualified_type_names:
+            children = result.children
+            result.clear()
+
+            shortname = target.split('.')[-1]
+            textnode = innernode('', shortname)
+            contnodes = [pending_xref_condition('', '', textnode, condition='resolved'),
+                         pending_xref_condition('', '', *children, condition='*')]
+            result.extend(contnodes)
+
         return result
 
     def make_xrefs(self, rolename: str, domain: str, target: str,
