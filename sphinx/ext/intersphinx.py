@@ -305,19 +305,28 @@ def missing_reference(app: Sphinx, env: BuildEnvironment, node: pending_xref,
                     to_try.append((inventories.named_inventory[setname], full_qualified_name))
     for inventory, target in to_try:
         for objtype in objtypes:
-            # Special case handling for term to search in a case insensitive fashion
-            if objtype == 'std:term' and objtype in inventory:
-                cased_keys = {k.lower(): k for k in inventory[objtype].keys()}
-                if target.lower() in cased_keys:
-                    corrected_target = cased_keys[target.lower()]
-                    proj, version, uri, dispname = inventory[objtype][corrected_target]
+            if objtype not in inventory:
+                # Continue if there's nothing of this kind in the inventory
+                continue
+            if target in inventory[objtype]:
+                # Case sensitive match, use it
+                proj, version, uri, dispname = inventory[objtype][target]
+            elif objtype == 'std:term':
+                # Check for potential case insensitive matches for terms only
+                target_lower = target.lower()
+                insensitive_matches = list(filter(lambda k: k.lower() == target_lower,
+                                                  inventory[objtype].keys()))
+                if insensitive_matches:
+                    proj, version, uri, dispname = inventory[objtype][insensitive_matches[0]]
                 else:
+                    # No case insensitive match either, continue to the next candidate
                     continue
             else:
-                # Default behaviour pre-patch
-                if objtype not in inventory or target not in inventory[objtype]:
-                    continue
-                proj, version, uri, dispname = inventory[objtype][target]
+                # Could reach here if we're not a term but have a case insensitive match.
+                # This is a fix for terms specifically, but potentially should apply to
+                # other types.
+                continue
+
             if '://' not in uri and node.get('refdoc'):
                 # get correct path in case of subdirectories
                 uri = path.join(relative_path(node['refdoc'], '.'), uri)
