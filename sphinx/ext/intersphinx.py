@@ -305,9 +305,19 @@ def missing_reference(app: Sphinx, env: BuildEnvironment, node: pending_xref,
                     to_try.append((inventories.named_inventory[setname], full_qualified_name))
     for inventory, target in to_try:
         for objtype in objtypes:
-            if objtype not in inventory or target not in inventory[objtype]:
-                continue
-            proj, version, uri, dispname = inventory[objtype][target]
+            # Special case handling for term to search in a case insensitive fashion
+            if objtype == 'std:term' and objtype in inventory:
+                cased_keys = {k.lower(): k for k in inventory[objtype].keys()}
+                if target.lower() in cased_keys:
+                    corrected_target = cased_keys[target.lower()]
+                    proj, version, uri, dispname = inventory[objtype][corrected_target]
+                else:
+                    continue
+            else:
+                # Default behaviour pre-patch
+                if objtype not in inventory or target not in inventory[objtype]:
+                    continue
+                proj, version, uri, dispname = inventory[objtype][target]
             if '://' not in uri and node.get('refdoc'):
                 # get correct path in case of subdirectories
                 uri = path.join(relative_path(node['refdoc'], '.'), uri)
