@@ -249,7 +249,8 @@ def setup_builder_inited(app: Sphinx) -> None:
     global optionspecs_builder_format
     optionspecs_builder_name=app.builder.name
     optionspecs_builder_format=app.builder.format
-    logger.info(('optionSpecs %s:%s'), optionspecs_builder_name, optionspecs_builder_format)
+    logger.info(bold(  ('optionSpecs')), nonl=True)
+    logger.info((' %s:%s'), optionspecs_builder_name, optionspecs_builder_format)
     return
 
 
