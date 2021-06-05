@@ -1,6 +1,62 @@
 """
     sphinx.ext.optionspecs
     ~~~~~~~~~~~~~~~~~~~
+
+EN:-------------------------------------------------------------------
+
+Trigger for Directive[*1] options.
+
+Use different settings (values) of the Directive options, 
+depending on the selected Builders[*2] and the format.
+
+RU:----------------------------------------------------------------------
+
+Триггер срабатывания опций Директив[*1].
+
+Использование различных настроек (значений) опций Директив в
+зависимости от выбранного Builders[*2] и формата.
+
+----------------------------------------------------------------------
+[*1] https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html
+[*2] https://www.sphinx-doc.org/en/master/usage/builders/index.html
+----------------------------------------------------------------------
+
+use
+---
+
+``` rst
+
+.. dective::
+   option[:builder][:format]: value
+
+```   
+
+setup
+-----
+
+file `conf.py`
+```  
+extensions = [
+    ..
+    'sphinx.ext.optionspecs', #< add a line
+    ..
+] 
+```
+
+example
+-------
+
+file `index.rst`
+```  
+.. tocTREE::
+  :caption:           Title for the GENERAL case
+  :caption:html:html: Title for `builder:html` and `format:html`
+  :caption::html:     Header of other builders with `format:html`
+  :caption:epub:      Header for `epub` builder
+``` 
+
+
+
 """
 from typing import Any, Dict, List
 
