@@ -75,7 +75,7 @@ class ImageDownloader(BaseImageConverter):
 
             headers = {}
             if os.path.exists(path):
-                timestamp = ceil(os.stat(path).st_mtime)  # type: float
+                timestamp: float = ceil(os.stat(path).st_mtime)
                 headers['If-Modified-Since'] = epoch_to_rfc1123(timestamp)
 
             r = requests.get(node['uri'], headers=headers)
@@ -178,7 +178,7 @@ class ImageConverter(BaseImageConverter):
     #:
     #: .. todo:: This should be refactored not to store the state without class
     #:           variable.
-    available = None  # type: Optional[bool]
+    available: Optional[bool] = None
 
     #: A conversion rules the image converter supports.
     #: It is represented as a list of pair of source image format (mimetype) and
@@ -189,7 +189,7 @@ class ImageConverter(BaseImageConverter):
     #:         ('image/gif', 'image/png'),
     #:         ('application/pdf', 'image/png'),
     #:     ]
-    conversion_rules = []  # type: List[Tuple[str, str]]
+    conversion_rules: List[Tuple[str, str]] = []
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -197,7 +197,7 @@ class ImageConverter(BaseImageConverter):
     def match(self, node: nodes.image) -> bool:
         if not self.app.builder.supported_image_types:
             return False
-        elif set(node['candidates']) & set(self.app.builder.supported_image_types):
+        elif set(self.guess_mimetypes(node)) & set(self.app.builder.supported_image_types):
             # builder supports the image; no need to convert
             return False
         elif self.available is None:

@@ -8,14 +8,13 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Dict, List, Set
+from typing import TYPE_CHECKING, Dict, List, Set
 
 from docutils import nodes
 
 from sphinx.environment import BuildEnvironment
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
@@ -28,7 +27,7 @@ class EnvironmentCollector:
     entries and toctrees, etc.
     """
 
-    listener_ids = None  # type: Dict[str, int]
+    listener_ids: Dict[str, int] = None
 
     def enable(self, app: "Sphinx") -> None:
         assert self.listener_ids is None

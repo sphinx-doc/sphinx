@@ -1,8 +1,13 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{footnotehyper-sphinx}%
- [2021/02/04 v1.1d hyperref aware footnote.sty for sphinx (JFB)]
+\ProvidesPackage{sphinxpackagefootnote}%
+ [2021/02/04 v1.1d footnotehyper adapted to sphinx (Sphinx team)]
+% Provides support for this output mark-up from Sphinx latex writer:
+% - footnote environment
+% - savenotes environment (table templates)
+% - \sphinxfootnotemark
+%
 %%
-%% Package: footnotehyper-sphinx
+%% Package: sphinxpackagefootnote
 %% Version: based on footnotehyper.sty 2021/02/04 v1.1d
 %% as available at https://www.ctan.org/pkg/footnotehyper
 %% License: the one applying to Sphinx
@@ -18,7 +23,7 @@
 %% 5. macro definition \sphinxlongtablepatch
 %% 6. replaced some \undefined by \@undefined
 \newif\iffootnotehyperparse\footnotehyperparsetrue
-\DeclareOption*{\PackageWarning{footnotehyper-sphinx}{Option `\CurrentOption' is unknown}}%
+\DeclareOption*{\PackageWarning{sphinxpackagefootnote}{Option `\CurrentOption' is unknown}}%
 \ProcessOptions\relax
 \newbox\FNH@notes
 \newtoks\FNH@toks % 1.1c
@@ -292,7 +297,7 @@
 }%
 % slight reformulation for Sphinx
 \def\FNH@bad@makefntext@alert{%
-  \PackageWarningNoLine{footnotehyper-sphinx}%
+  \PackageWarningNoLine{sphinxpackagefootnote}%
     {Footnotes will be sub-optimal, sorry. This is due to the document class or^^J
   some package modifying macro \string\@makefntext.^^J
   You can try to report this incompatibility at^^J
@@ -322,6 +327,7 @@
     \noexpand\if@endpe\noexpand\@endpetrue\noexpand\fi
   }%
 }%
+%
 % some extras for Sphinx :
 % \sphinxfootnotemark: usable in section titles and silently removed from TOCs.
 \def\sphinxfootnotemark [#1]%
@@ -387,4 +393,4 @@
 }%
 \endinput
 %%
-%% End of file `footnotehyper-sphinx.sty'.
+%% End of file `sphinxpackagefootnote.sty'.

@@ -81,7 +81,7 @@ def test_js_source(app, status, warning):
     jquery_src = (app.outdir / '_static' / 'jquery-{v}.js'.format(v=v)).read_text()
     assert 'jQuery JavaScript Library v{v}'.format(v=v) in jquery_src, msg
 
-    v = '1.12.0'
+    v = '1.13.1'
     msg = 'underscore.js version does not match to {v}'.format(v=v)
     underscore_min = (app.outdir / '_static' / 'underscore.js').read_text()
     assert 'Underscore.js {v}'.format(v=v) in underscore_min, msg
@@ -127,7 +127,7 @@ def test_dark_style(app, status, warning):
     assert (app.outdir / '_static' / 'pygments_dark.css').exists()
 
     result = (app.outdir / 'index.html').read_text()
-    assert '<link rel="stylesheet" href="_static/pygments.css" type="text/css" />' in result
+    assert '<link rel="stylesheet" type="text/css" href="_static/pygments.css" />' in result
     assert ('<link id="pygments_dark_css" media="(prefers-color-scheme: dark)" '
             'rel="stylesheet" type="text/css" '
             'href="_static/pygments_dark.css" />') in result

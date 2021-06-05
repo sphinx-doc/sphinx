@@ -9,7 +9,7 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
               'sphinx.ext.intersphinx',
               'sphinx.ext.viewcode', 'sphinx.ext.inheritance_diagram']
 
-master_doc = 'contents'
+root_doc = 'contents'
 templates_path = ['_templates']
 exclude_patterns = ['_build']
 
@@ -59,27 +59,14 @@ latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
 latex_logo = '_static/sphinx.png'
 latex_elements = {
     'fontenc': r'\usepackage[LGR,X2,T1]{fontenc}',
-    'fontpkg': r'''
-\usepackage[sc]{mathpazo}
-\usepackage[scaled]{helvet}
-\usepackage{courier}
-\substitutefont{LGR}{\rmdefault}{cmr}
-\substitutefont{LGR}{\sfdefault}{cmss}
-\substitutefont{LGR}{\ttdefault}{cmtt}
-\substitutefont{X2}{\rmdefault}{cmr}
-\substitutefont{X2}{\sfdefault}{cmss}
-\substitutefont{X2}{\ttdefault}{cmtt}
-''',
     'passoptionstopackages': r'''
 \PassOptionsToPackage{svgnames}{xcolor}
-\PassOptionsToPackage{bookmarksdepth=3}{hyperref}% depth of pdf bookmarks
 ''',
     'preamble': r'''
 \DeclareUnicodeCharacter{229E}{\ensuremath{\boxplus}}
-\setcounter{tocdepth}{3}%    depth of what is kept from toc file
+\setcounter{tocdepth}{3}%    depth of what main TOC shows (3=subsubsection)
 \setcounter{secnumdepth}{1}% depth of section numbering
 ''',
-    'fvset': '\\fvset{fontsize=auto}',
     # fix missing index entry due to RTD doing only once pdflatex after makeindex
     'printindex': r'''
 \IfFileExists{\jobname.ind}
@@ -91,6 +78,7 @@ latex_show_urls = 'footnote'
 latex_use_xindy = True
 
 autodoc_member_order = 'groupwise'
+autosummary_generate = False
 todo_include_todos = True
 extlinks = {'duref': ('http://docutils.sourceforge.net/docs/ref/rst/'
                       'restructuredtext.html#%s', ''),

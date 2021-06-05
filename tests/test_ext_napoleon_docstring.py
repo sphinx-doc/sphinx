@@ -1482,12 +1482,18 @@ Parameters
 ----------
 param1 : :class:`MyClass <name.space.MyClass>` instance
 
+Other Parameters
+----------------
+param2 : :class:`MyClass <name.space.MyClass>` instance
+
 """
 
         config = Config(napoleon_use_param=False)
         actual = str(NumpyDocstring(docstring, config))
         expected = """\
 :Parameters: **param1** (:class:`MyClass <name.space.MyClass>` instance)
+
+:Other Parameters: **param2** (:class:`MyClass <name.space.MyClass>` instance)
 """
         self.assertEqual(expected, actual)
 
@@ -1496,6 +1502,9 @@ param1 : :class:`MyClass <name.space.MyClass>` instance
         expected = """\
 :param param1:
 :type param1: :class:`MyClass <name.space.MyClass>` instance
+
+:param param2:
+:type param2: :class:`MyClass <name.space.MyClass>` instance
 """
         self.assertEqual(expected, actual)
 

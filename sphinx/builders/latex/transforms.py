@@ -33,7 +33,7 @@ class FootnoteDocnameUpdater(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(*self.TARGET_NODES)
-        for node in self.document.traverse(matcher):  # type: nodes.Element
+        for node in self.document.traverse(matcher):  # type: Element
             node['docname'] = self.env.docname
 
 
@@ -42,7 +42,7 @@ class SubstitutionDefinitionsRemover(SphinxPostTransform):
 
     # should be invoked after Substitutions process
     default_priority = Substitutions.default_priority + 1
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         for node in self.document.traverse(nodes.substitution_definition):
@@ -57,7 +57,7 @@ class ShowUrlsTransform(SphinxPostTransform):
     .. note:: This transform is used for integrated doctree
     """
     default_priority = 400
-    builders = ('latex',)
+    formats = ('latex',)
 
     # references are expanded to footnotes (or not)
     expanded = False
@@ -65,7 +65,7 @@ class ShowUrlsTransform(SphinxPostTransform):
     def run(self, **kwargs: Any) -> None:
         try:
             # replace id_prefix temporarily
-            settings = self.document.settings  # type: Any
+            settings: Any = self.document.settings
             id_prefix = settings.id_prefix
             settings.id_prefix = 'show_urls'
 
@@ -157,9 +157,9 @@ class FootnoteCollector(nodes.NodeVisitor):
     """Collect footnotes and footnote references on the document"""
 
     def __init__(self, document: nodes.document) -> None:
-        self.auto_footnotes = []            # type: List[nodes.footnote]
-        self.used_footnote_numbers = set()  # type: Set[str]
-        self.footnote_refs = []             # type: List[nodes.footnote_reference]
+        self.auto_footnotes: List[nodes.footnote] = []
+        self.used_footnote_numbers: Set[str] = set()
+        self.footnote_refs: List[nodes.footnote_reference] = []
         super().__init__(document)
 
     def unknown_visit(self, node: Node) -> None:
@@ -345,7 +345,7 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
     """
 
     default_priority = 600
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         footnotes = list(self.document.traverse(nodes.footnote))
@@ -358,11 +358,11 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
 
 class LaTeXFootnoteVisitor(nodes.NodeVisitor):
     def __init__(self, document: nodes.document, footnotes: List[nodes.footnote]) -> None:
-        self.appeared = set()       # type: Set[Tuple[str, str]]
-        self.footnotes = footnotes  # type: List[nodes.footnote]
-        self.pendings = []          # type: List[nodes.footnote]
-        self.table_footnotes = []   # type: List[nodes.footnote]
-        self.restricted = None      # type: nodes.Element
+        self.appeared: Set[Tuple[str, str]] = set()
+        self.footnotes: List[nodes.footnote] = footnotes
+        self.pendings: List[nodes.footnote] = []
+        self.table_footnotes: List[nodes.footnote] = []
+        self.restricted: Element = None
         super().__init__(document)
 
     def unknown_visit(self, node: Node) -> None:
@@ -497,7 +497,7 @@ class BibliographyTransform(SphinxPostTransform):
                     ...
     """
     default_priority = 750
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         citations = thebibliography()
@@ -516,7 +516,7 @@ class CitationReferenceTransform(SphinxPostTransform):
     pending_xref nodes to citation_reference.
     """
     default_priority = 5  # before ReferencesResolver
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         domain = cast(CitationDomain, self.env.get_domain('citation'))
@@ -536,7 +536,7 @@ class MathReferenceTransform(SphinxPostTransform):
     nodes to math_reference.
     """
     default_priority = 5  # before ReferencesResolver
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         equations = self.env.get_domain('math').data['objects']
@@ -551,7 +551,7 @@ class MathReferenceTransform(SphinxPostTransform):
 class LiteralBlockTransform(SphinxPostTransform):
     """Replace container nodes for literal_block by captioned_literal_block."""
     default_priority = 400
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.container, literal_block=True)
@@ -563,7 +563,7 @@ class LiteralBlockTransform(SphinxPostTransform):
 class DocumentTargetTransform(SphinxPostTransform):
     """Add :doc label to the first section of each document."""
     default_priority = 400
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         for node in self.document.traverse(addnodes.start_of_file):
@@ -599,7 +599,7 @@ class IndexInSectionTitleTransform(SphinxPostTransform):
             ...
     """
     default_priority = 400
-    builders = ('latex',)
+    formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
         for node in self.document.traverse(nodes.title):

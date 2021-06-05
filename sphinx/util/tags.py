@@ -22,7 +22,7 @@ class BooleanParser(Parser):
     """
 
     def parse_compare(self) -> Node:
-        node = None  # type: Node
+        node: Node
         token = self.stream.current
         if token.type == 'name':
             if token.value in ('true', 'false', 'True', 'False'):
@@ -69,18 +69,18 @@ class Tags:
 
         def eval_node(node: Node) -> bool:
             if isinstance(node, nodes.CondExpr):
-                if eval_node(node.test):  # type: ignore
-                    return eval_node(node.expr1)  # type: ignore
+                if eval_node(node.test):
+                    return eval_node(node.expr1)
                 else:
-                    return eval_node(node.expr2)  # type: ignore
+                    return eval_node(node.expr2)
             elif isinstance(node, nodes.And):
-                return eval_node(node.left) and eval_node(node.right)  # type: ignore
+                return eval_node(node.left) and eval_node(node.right)
             elif isinstance(node, nodes.Or):
-                return eval_node(node.left) or eval_node(node.right)  # type: ignore
+                return eval_node(node.left) or eval_node(node.right)
             elif isinstance(node, nodes.Not):
-                return not eval_node(node.node)  # type: ignore
+                return not eval_node(node.node)
             elif isinstance(node, nodes.Name):
-                return self.tags.get(node.name, False)  # type: ignore
+                return self.tags.get(node.name, False)
             else:
                 raise ValueError('invalid node, check parsing')
 

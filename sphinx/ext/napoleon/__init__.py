@@ -240,7 +240,7 @@ class Config:
             :returns: *bool* -- True if successful, False otherwise
 
     napoleon_preprocess_types : :obj:`bool` (Defaults to False)
-        Enable the type preprocessor for numpy style docstrings.
+        Enable the type preprocessor.
 
     napoleon_type_aliases : :obj:`dict` (Defaults to None)
         Add a mapping of strings to string, translating types in numpy
@@ -388,7 +388,7 @@ def _process_docstring(app: Sphinx, what: str, name: str, obj: Any,
 
     """
     result_lines = lines
-    docstring = None  # type: GoogleDocstring
+    docstring: GoogleDocstring = None
     if app.config.napoleon_numpy_docstring:
         docstring = NumpyDocstring(result_lines, app.config, app, what, name,
                                    obj, options)

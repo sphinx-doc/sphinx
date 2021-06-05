@@ -17,6 +17,9 @@ T5 = TypeVar("T5", contravariant=True)
 #: T6
 T6 = NewType("T6", int)
 
+#: T7
+T7 = TypeVar("T7", bound=int)
+
 
 class Class:
     #: T1

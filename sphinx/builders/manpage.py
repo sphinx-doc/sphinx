@@ -38,7 +38,7 @@ class ManualPageBuilder(Builder):
     epilog = __('The manual pages are in %(outdir)s.')
 
     default_translator_class = ManualPageTranslator
-    supported_image_types = []  # type: List[str]
+    supported_image_types: List[str] = []
 
     def init(self) -> None:
         if not self.config.man_pages:
@@ -56,10 +56,10 @@ class ManualPageBuilder(Builder):
     @progress_message(__('writing'))
     def write(self, *ignored: Any) -> None:
         docwriter = ManualPageWriter(self)
-        docsettings = OptionParser(
+        docsettings: Any = OptionParser(
             defaults=self.env.settings,
             components=(docwriter,),
-            read_config_files=True).get_default_values()  # type: Any
+            read_config_files=True).get_default_values()
 
         for info in self.config.man_pages:
             docname, name, description, authors, section = info
@@ -90,7 +90,7 @@ class ManualPageBuilder(Builder):
                 encoding='utf-8')
 
             tree = self.env.get_doctree(docname)
-            docnames = set()  # type: Set[str]
+            docnames: Set[str] = set()
             largetree = inline_all_toctrees(self, docnames, docname, tree,
                                             darkgreen, [docname])
             largetree.settings = docsettings
@@ -109,7 +109,7 @@ class ManualPageBuilder(Builder):
 def default_man_pages(config: Config) -> List[Tuple[str, str, str, List[str], int]]:
     """ Better default man_pages settings. """
     filename = make_filename_from_project(config.project)
-    return [(config.master_doc, filename, '%s %s' % (config.project, config.release),
+    return [(config.root_doc, filename, '%s %s' % (config.project, config.release),
              [config.author], 1)]
 
 

@@ -12,7 +12,7 @@ import os
 import posixpath
 import re
 import warnings
-from typing import Any, Iterable, Tuple, cast
+from typing import TYPE_CHECKING, Iterable, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
@@ -20,14 +20,13 @@ from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx40Warning, RemovedInSphinx50Warning
+from sphinx.deprecation import RemovedInSphinx50Warning, RemovedInSphinx60Warning
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.builders.html import StandaloneHTMLBuilder
 
 
@@ -55,16 +54,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     Our custom HTML translator.
     """
 
-    builder = None  # type: StandaloneHTMLBuilder
+    builder: "StandaloneHTMLBuilder" = None
 
-    def __init__(self, *args: Any) -> None:
-        if isinstance(args[0], nodes.document) and isinstance(args[1], Builder):
-            document, builder = args
-        else:
-            warnings.warn('The order of arguments for HTML5Translator has been changed. '
-                          'Please give "document" as 1st and "builder" as 2nd.',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            builder, document = args
+    def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
 
         self.highlighter = self.builder.highlighter
@@ -86,8 +78,15 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_start_of_file(self, node: Element) -> None:
         self.docnames.pop()
 
+    #############################################################
+    # Domain-specific object descriptions
+    #############################################################
+
+    # Top-level nodes for descriptions
+    ##################################
+
     def visit_desc(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'dl', CLASS=node['objtype']))
+        self.body.append(self.starttag(node, 'dl'))
 
     def depart_desc(self, node: Element) -> None:
         self.body.append('</dl>\n\n')
@@ -112,11 +111,32 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             self.add_permalink_ref(node.parent, _('Permalink to this definition'))
         self.body.append('<br />')
 
+    def visit_desc_content(self, node: Element) -> None:
+        self.body.append(self.starttag(node, 'dd', ''))
+
+    def depart_desc_content(self, node: Element) -> None:
+        self.body.append('</dd>')
+
+    def visit_desc_inline(self, node: Element) -> None:
+        self.body.append(self.starttag(node, 'span', ''))
+
+    def depart_desc_inline(self, node: Element) -> None:
+        self.body.append('</span>')
+
+    # Nodes for high-level structure in signatures
+    ##############################################
+
+    def visit_desc_name(self, node: Element) -> None:
+        self.body.append(self.starttag(node, 'span', ''))
+
+    def depart_desc_name(self, node: Element) -> None:
+        self.body.append('</span>')
+
     def visit_desc_addname(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'code', '', CLASS='sig-prename descclassname'))
+        self.body.append(self.starttag(node, 'span', ''))
 
     def depart_desc_addname(self, node: Element) -> None:
-        self.body.append('</code>')
+        self.body.append('</span>')
 
     def visit_desc_type(self, node: Element) -> None:
         pass
@@ -129,12 +149,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def depart_desc_returns(self, node: Element) -> None:
         pass
-
-    def visit_desc_name(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'code', '', CLASS='sig-name descname'))
-
-    def depart_desc_name(self, node: Element) -> None:
-        self.body.append('</code>')
 
     def visit_desc_parameterlist(self, node: Element) -> None:
         self.body.append('<span class="sig-paren">(</span>')
@@ -184,11 +198,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_desc_annotation(self, node: Element) -> None:
         self.body.append('</em>')
 
-    def visit_desc_content(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'dd', ''))
-
-    def depart_desc_content(self, node: Element) -> None:
-        self.body.append('</dd>')
+    ##############################################
 
     def visit_versionmodified(self, node: Element) -> None:
         self.body.append(self.starttag(node, 'div', CLASS=node['type']))
@@ -330,7 +340,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_classifier(self, node: Element) -> None:
         self.body.append('</span>')
 
-        next_node = node.next_node(descend=False, siblings=True)  # type: Node
+        next_node: Node = node.next_node(descend=False, siblings=True)
         if not isinstance(next_node, nodes.classifier):
             # close `<dt>` tag at the tail of classifiers
             self.body.append('</dt>')
@@ -341,7 +351,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     # overwritten
     def depart_term(self, node: Element) -> None:
-        next_node = node.next_node(descend=False, siblings=True)  # type: Node
+        next_node: Node = node.next_node(descend=False, siblings=True)
         if isinstance(next_node, nodes.classifier):
             # Leave the end tag to `self.depart_classifier()`, in case
             # there's a classifier.
@@ -355,7 +365,12 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     # overwritten
     def visit_title(self, node: Element) -> None:
-        super().visit_title(node)
+        if isinstance(node.parent, addnodes.compact_paragraph) and node.parent.get('toctree'):
+            self.body.append(self.starttag(node, 'p', '', CLASS='caption'))
+            self.body.append('<span class="caption-text">')
+            self.context.append('</span></p>\n')
+        else:
+            super().visit_title(node)
         self.add_secnumber(node)
         self.add_fignumber(node.parent)
         if isinstance(node.parent, nodes.table):
@@ -520,6 +535,13 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def depart_download_reference(self, node: Element) -> None:
         self.body.append(self.context.pop())
+
+    # overwritten
+    def visit_figure(self, node: Element) -> None:
+        # set align=default if align not specified to give a default style
+        node.setdefault('align', 'default')
+
+        return super().visit_figure(node)
 
     # overwritten
     def visit_image(self, node: Element) -> None:
@@ -716,29 +738,16 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     # overwritten to add even/odd classes
 
-    def generate_targets_for_table(self, node: Element) -> None:
-        """Generate hyperlink targets for tables.
-
-        Original visit_table() generates hyperlink targets inside table tags
-        (<table>) if multiple IDs are assigned to listings.
-        That is invalid DOM structure.  (This is a bug of docutils <= 0.13.1)
-
-        This exports hyperlink targets before tables to make valid DOM structure.
-        """
-        for id in node['ids'][1:]:
-            self.body.append('<span id="%s"></span>' % id)
-            node['ids'].remove(id)
-
     def visit_table(self, node: Element) -> None:
-        self.generate_targets_for_table(node)
-
         self._table_row_index = 0
 
         atts = {}
         classes = [cls.strip(' \t\n') for cls in self.settings.table_style.split(',')]
         classes.insert(0, "docutils")  # compat
-        if 'align' in node:
-            classes.append('align-%s' % node['align'])
+
+        # set align-default if align not specified to give a default style
+        classes.append('align-%s' % node.get('align', 'default'))
+
         if 'width' in node:
             atts['style'] = 'width: %s' % node['width']
         tag = self.starttag(node, 'table', CLASS=' '.join(classes), **atts)
@@ -794,3 +803,18 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         warnings.warn('HTMLTranslator.permalink_text is deprecated.',
                       RemovedInSphinx50Warning, stacklevel=2)
         return self.config.html_permalinks_icon
+
+    def generate_targets_for_table(self, node: Element) -> None:
+        """Generate hyperlink targets for tables.
+
+        Original visit_table() generates hyperlink targets inside table tags
+        (<table>) if multiple IDs are assigned to listings.
+        That is invalid DOM structure.  (This is a bug of docutils <= 0.13.1)
+
+        This exports hyperlink targets before tables to make valid DOM structure.
+        """
+        warnings.warn('generate_targets_for_table() is deprecated',
+                      RemovedInSphinx60Warning, stacklevel=2)
+        for id in node['ids'][1:]:
+            self.body.append('<span id="%s"></span>' % id)
+            node['ids'].remove(id)

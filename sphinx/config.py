@@ -11,24 +11,20 @@
 import re
 import traceback
 import types
-import warnings
 from collections import OrderedDict
 from os import getenv, path
-from typing import (Any, Callable, Dict, Generator, Iterator, List, NamedTuple, Set, Tuple,
-                    Union)
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Generator, Iterator, List, NamedTuple,
+                    Optional, Set, Tuple, Union)
 
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
-from sphinx.util.osutil import cd
-from sphinx.util.pycompat import execfile_
+from sphinx.util.osutil import cd, fs_encoding
 from sphinx.util.tags import Tags
 from sphinx.util.typing import NoneType
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
 
@@ -38,9 +34,11 @@ CONFIG_FILENAME = 'conf.py'
 UNSERIALIZABLE_TYPES = (type, types.ModuleType, types.FunctionType)
 copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 
-ConfigValue = NamedTuple('ConfigValue', [('name', str),
-                                         ('value', Any),
-                                         ('rebuild', Union[bool, str])])
+
+class ConfigValue(NamedTuple):
+    name: str
+    value: Any
+    rebuild: Union[bool, str]
 
 
 def is_serializable(obj: Any) -> bool:
@@ -73,10 +71,6 @@ class ENUM:
             return value in self.candidates
 
 
-# RemovedInSphinx40Warning
-string_classes = [str]  # type: List
-
-
 class Config:
     """Configuration file abstraction.
 
@@ -94,7 +88,7 @@ class Config:
     # If you add a value here, don't forget to include it in the
     # quickstart.py file template as well as in the docs!
 
-    config_values = {
+    config_values: Dict[str, Tuple] = {
         # general options
         'project': ('Python', 'env', []),
         'author': ('unknown', 'env', []),
@@ -111,9 +105,9 @@ class Config:
         'figure_language_filename': ('{root}.{language}{ext}', 'env', [str]),
 
         'master_doc': ('index', 'env', []),
+        'root_doc': (lambda config: config.master_doc, 'env', []),
         'source_suffix': ({'.rst': 'restructuredtext'}, 'env', Any),
         'source_encoding': ('utf-8-sig', 'env', []),
-        'source_parsers': ({}, 'env', []),
         'exclude_patterns': ([], 'env', []),
         'default_role': (None, 'env', [str]),
         'add_function_parentheses': (True, 'env', []),
@@ -152,20 +146,20 @@ class Config:
         'smartquotes_excludes': ({'languages': ['ja'],
                                   'builders': ['man', 'text']},
                                  'env', []),
-    }  # type: Dict[str, Tuple]
+    }
 
     def __init__(self, config: Dict[str, Any] = {}, overrides: Dict[str, Any] = {}) -> None:
         self.overrides = dict(overrides)
         self.values = Config.config_values.copy()
         self._raw_config = config
-        self.setup = config.get('setup', None)  # type: Callable
+        self.setup: Optional[Callable] = config.get('setup', None)
 
         if 'extensions' in self.overrides:
             if isinstance(self.overrides['extensions'], str):
                 config['extensions'] = self.overrides.pop('extensions').split(',')
             else:
                 config['extensions'] = self.overrides.pop('extensions')
-        self.extensions = config.get('extensions', [])  # type: List[str]
+        self.extensions: List[str] = config.get('extensions', [])
 
     @classmethod
     def read(cls, confdir: str, overrides: Dict = None, tags: Tags = None) -> "Config":
@@ -261,7 +255,7 @@ class Config:
             return default(self)
         return default
 
-    def __getitem__(self, name: str) -> str:
+    def __getitem__(self, name: str) -> Any:
         return getattr(self, name)
 
     def __setitem__(self, name: str, value: Any) -> None:
@@ -317,14 +311,16 @@ class Config:
 
 def eval_config_file(filename: str, tags: Tags) -> Dict[str, Any]:
     """Evaluate a config file."""
-    namespace = {}  # type: Dict[str, Any]
+    namespace: Dict[str, Any] = {}
     namespace['__file__'] = filename
     namespace['tags'] = tags
 
     with cd(path.dirname(filename)):
         # during executing config file, current dir is changed to ``confdir``.
         try:
-            execfile_(filename, namespace)
+            with open(filename, 'rb') as f:
+                code = compile(f.read(), filename.encode(fs_encoding), 'exec')
+                exec(code, namespace)
         except SyntaxError as err:
             msg = __("There is a syntax error in your configuration file: %s\n")
             raise ConfigError(msg % err) from err
@@ -459,22 +455,6 @@ def check_confval_types(app: "Sphinx", config: Config) -> None:
                                           default=type(default)))
 
 
-def check_unicode(config: Config) -> None:
-    """check all string values for non-ASCII characters in bytestrings,
-    since that can result in UnicodeErrors all over the place
-    """
-    warnings.warn('sphinx.config.check_unicode() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-
-    nonascii_re = re.compile(br'[\x80-\xff]')
-
-    for name, value in config._raw_config.items():
-        if isinstance(value, bytes) and nonascii_re.search(value):
-            logger.warning(__('the config value %r is set to a string with non-ASCII '
-                              'characters; this can lead to Unicode errors occurring. '
-                              'Please use Unicode strings, e.g. %r.'), name, 'Content')
-
-
 def check_primary_domain(app: "Sphinx", config: Config) -> None:
     primary_domain = config.primary_domain
     if primary_domain and not app.registry.has_domain(primary_domain):
@@ -482,17 +462,17 @@ def check_primary_domain(app: "Sphinx", config: Config) -> None:
         config.primary_domain = None  # type: ignore
 
 
-def check_master_doc(app: "Sphinx", env: "BuildEnvironment", added: Set[str],
-                     changed: Set[str], removed: Set[str]) -> Set[str]:
-    """Adjust master_doc to 'contents' to support an old project which does not have
-    no master_doc setting.
+def check_root_doc(app: "Sphinx", env: "BuildEnvironment", added: Set[str],
+                   changed: Set[str], removed: Set[str]) -> Set[str]:
+    """Adjust root_doc to 'contents' to support an old project which does not have
+    no root_doc setting.
     """
-    if (app.config.master_doc == 'index' and
+    if (app.config.root_doc == 'index' and
             'index' not in app.project.docnames and
             'contents' in app.project.docnames):
-        logger.warning(__('Since v2.0, Sphinx uses "index" as master_doc by default. '
-                          'Please add "master_doc = \'contents\'" to your conf.py.'))
-        app.config.master_doc = "contents"  # type: ignore
+        logger.warning(__('Since v2.0, Sphinx uses "index" as root_doc by default. '
+                          'Please add "root_doc = \'contents\'" to your conf.py.'))
+        app.config.root_doc = "contents"  # type: ignore
 
     return changed
 
@@ -504,7 +484,7 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.connect('config-inited', correct_copyright_year, priority=800)
     app.connect('config-inited', check_confval_types, priority=800)
     app.connect('config-inited', check_primary_domain, priority=800)
-    app.connect('env-get-outdated', check_master_doc)
+    app.connect('env-get-outdated', check_root_doc)
 
     return {
         'version': 'builtin',

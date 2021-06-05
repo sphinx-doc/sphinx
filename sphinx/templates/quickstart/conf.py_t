@@ -64,9 +64,9 @@ templates_path = ['{{ dot }}templates']
 source_suffix = {{ suffix | repr }}
 
 {% endif -%}
-{% if master != 'index' -%}
-# The master toctree document.
-master_doc = {{ master | repr }}
+{% if root_doc != 'index' -%}
+# The root document.
+root_doc = {{ root_doc | repr }}
 
 {% endif -%}
 {% if language -%}
@@ -105,7 +105,9 @@ html_static_path = ['{{ dot }}static']
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/3/': None}
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+}
 {%- endif %}
 {%- if 'sphinx.ext.todo' in extensions %}
 

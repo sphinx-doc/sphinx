@@ -8,10 +8,12 @@
     :license: BSD, see LICENSE for details.
 """
 
+from distutils.version import LooseVersion
 from functools import partial
 from importlib import import_module
 from typing import Any, Dict
 
+from pygments import __version__ as pygmentsversion
 from pygments import highlight
 from pygments.filters import ErrorToken
 from pygments.formatter import Formatter
@@ -29,8 +31,8 @@ from sphinx.util import logging, texescape
 
 logger = logging.getLogger(__name__)
 
-lexers = {}  # type: Dict[str, Lexer]
-lexer_classes = {
+lexers: Dict[str, Lexer] = {}
+lexer_classes: Dict[str, Lexer] = {
     'none': partial(TextLexer, stripnl=False),
     'python': partial(PythonLexer, stripnl=False),
     'python3': partial(Python3Lexer, stripnl=False),
@@ -38,7 +40,7 @@ lexer_classes = {
     'pycon3': partial(PythonConsoleLexer, python3=True, stripnl=False),
     'rest': partial(RstLexer, stripnl=False),
     'c': partial(CLexer, stripnl=False),
-}  # type: Dict[str, Lexer]
+}
 
 
 escape_hl_chars = {ord('\\'): '\\PYGZbs{}',
@@ -50,6 +52,20 @@ escape_hl_chars = {ord('\\'): '\\PYGZbs{}',
 _LATEX_ADD_STYLES = r'''
 \renewcommand\PYGZsq{\textquotesingle}
 '''
+# fix extra space between lines when Pygments highlighting uses \fcolorbox
+# add a {..} to limit \fboxsep scope, and force \fcolorbox use correct value
+# cf pygments #1708 which makes this unneeded for Pygments > 2.7.4
+_LATEX_ADD_STYLES_FIXPYG = r'''
+\makeatletter
+% fix for Pygments <= 2.7.4
+\let\spx@original@fcolorbox\fcolorbox
+\def\spx@fixpyg@fcolorbox{\fboxsep-\fboxrule\spx@original@fcolorbox}
+\def\PYG#1#2{\PYG@reset\PYG@toks#1+\relax+%
+             {\let\fcolorbox\spx@fixpyg@fcolorbox\PYG@do{#2}}}
+\makeatother
+'''
+if tuple(LooseVersion(pygmentsversion).version) <= (2, 7, 4):
+    _LATEX_ADD_STYLES += _LATEX_ADD_STYLES_FIXPYG
 
 
 class PygmentsBridge:
@@ -64,7 +80,7 @@ class PygmentsBridge:
         self.latex_engine = latex_engine
 
         style = self.get_style(stylename)
-        self.formatter_args = {'style': style}  # type: Dict[str, Any]
+        self.formatter_args: Dict[str, Any] = {'style': style}
         if dest == 'html':
             self.formatter = self.html_formatter
         else:

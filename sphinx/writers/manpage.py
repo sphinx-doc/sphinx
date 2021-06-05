@@ -8,7 +8,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import warnings
 from typing import Any, Dict, Iterable, cast
 
 from docutils import nodes
@@ -18,7 +17,6 @@ from docutils.writers.manpage import Writer
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import _, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
@@ -75,16 +73,9 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     Custom translator.
     """
 
-    _docinfo = {}  # type: Dict[str, Any]
+    _docinfo: Dict[str, Any] = {}
 
-    def __init__(self, *args: Any) -> None:
-        if isinstance(args[0], nodes.document) and isinstance(args[1], Builder):
-            document, builder = args
-        else:
-            warnings.warn('The order of arguments for ManualPageTranslator has been changed. '
-                          'Please give "document" as 1st and "builder" as 2nd.',
-                          RemovedInSphinx40Warning, stacklevel=2)
-            builder, document = args
+    def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
 
         self.in_productionlist = 0
@@ -129,6 +120,13 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_start_of_file(self, node: Element) -> None:
         pass
 
+    #############################################################
+    # Domain-specific object descriptions
+    #############################################################
+
+    # Top-level nodes for descriptions
+    ##################################
+
     def visit_desc(self, node: Element) -> None:
         self.visit_definition_list(node)
 
@@ -148,6 +146,27 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_desc_signature_line(self, node: Element) -> None:
         self.body.append(' ')
 
+    def visit_desc_content(self, node: Element) -> None:
+        self.visit_definition(node)
+
+    def depart_desc_content(self, node: Element) -> None:
+        self.depart_definition(node)
+
+    def visit_desc_inline(self, node: Element) -> None:
+        pass
+
+    def depart_desc_inline(self, node: Element) -> None:
+        pass
+
+    # Nodes for high-level structure in signatures
+    ##############################################
+
+    def visit_desc_name(self, node: Element) -> None:
+        pass
+
+    def depart_desc_name(self, node: Element) -> None:
+        pass
+
     def visit_desc_addname(self, node: Element) -> None:
         pass
 
@@ -164,12 +183,6 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         self.body.append(' -> ')
 
     def depart_desc_returns(self, node: Element) -> None:
-        pass
-
-    def visit_desc_name(self, node: Element) -> None:
-        pass
-
-    def depart_desc_name(self, node: Element) -> None:
         pass
 
     def visit_desc_parameterlist(self, node: Element) -> None:
@@ -200,11 +213,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def depart_desc_annotation(self, node: Element) -> None:
         pass
 
-    def visit_desc_content(self, node: Element) -> None:
-        self.visit_definition(node)
-
-    def depart_desc_content(self, node: Element) -> None:
-        self.depart_definition(node)
+    ##############################################
 
     def visit_versionmodified(self, node: Element) -> None:
         self.visit_paragraph(node)

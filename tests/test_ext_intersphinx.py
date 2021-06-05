@@ -196,6 +196,14 @@ def test_missing_reference_pydomain(tempdir, app, status, warning):
     rn = missing_reference(app, app.env, node, contnode)
     assert rn.astext() == 'Foo.bar'
 
+    # pending_xref_condition="resolved"
+    node = addnodes.pending_xref('', reftarget='Foo.bar', refdomain='py', reftype='attr')
+    node['py:module'] = 'module1'
+    node += addnodes.pending_xref_condition('', 'Foo.bar', condition='resolved')
+    node += addnodes.pending_xref_condition('', 'module1.Foo.bar', condition='*')
+    rn = missing_reference(app, app.env, node, nodes.Text('dummy-cont-node'))
+    assert rn.astext() == 'Foo.bar'
+
 
 def test_missing_reference_stddomain(tempdir, app, status, warning):
     inv_file = tempdir / 'inventory'
@@ -250,10 +258,10 @@ def test_missing_reference_cppdomain(tempdir, app, status, warning):
             '<span class="pre">Bar</span></code></a>' in html)
     assert ('<a class="reference external"'
             ' href="https://docs.python.org/index.html#foons"'
-            ' title="(in foo v2.0)"><span class="pre">foons</span></a>' in html)
+            ' title="(in foo v2.0)"><span class="n"><span class="pre">foons</span></span></a>' in html)
     assert ('<a class="reference external"'
             ' href="https://docs.python.org/index.html#foons_bartype"'
-            ' title="(in foo v2.0)"><span class="pre">bartype</span></a>' in html)
+            ' title="(in foo v2.0)"><span class="n"><span class="pre">bartype</span></span></a>' in html)
 
 
 def test_missing_reference_jsdomain(tempdir, app, status, warning):

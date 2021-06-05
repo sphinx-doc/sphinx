@@ -21,7 +21,6 @@ from sphinx.domains.cpp import (DefinitionError, DefinitionParser, NoOldIdError,
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
-from sphinx.util import docutils
 
 
 def parse(name, string):
@@ -74,6 +73,7 @@ def _check(name, input, idDict, output, key, asTextOutput):
         print("Input:    ", input)
         print("astext(): ", resAsText)
         print("Expected: ", outputAsText)
+        print("Node:", parentNode)
         raise DefinitionError("")
 
     idExpected = [None]
@@ -290,13 +290,16 @@ def test_expressions():
     exprCheck('5 == 42', 'eqL5EL42E')
     exprCheck('5 != 42', 'neL5EL42E')
     exprCheck('5 not_eq 42', 'neL5EL42E')
-    # ['<=', '>=', '<', '>']
+    # ['<=', '>=', '<', '>', '<=>']
     exprCheck('5 <= 42', 'leL5EL42E')
     exprCheck('A <= 42', 'le1AL42E')
     exprCheck('5 >= 42', 'geL5EL42E')
     exprCheck('5 < 42', 'ltL5EL42E')
     exprCheck('A < 42', 'lt1AL42E')
     exprCheck('5 > 42', 'gtL5EL42E')
+    exprCheck('A > 42', 'gt1AL42E')
+    exprCheck('5 <=> 42', 'ssL5EL42E')
+    exprCheck('A <=> 42', 'ss1AL42E')
     # ['<<', '>>']
     exprCheck('5 << 42', 'lsL5EL42E')
     exprCheck('A << 42', 'ls1AL42E')
@@ -617,6 +620,9 @@ def test_function_definitions():
     # from breathe#441
     check('function', 'auto MakeThingy() -> Thingy*', {1: 'MakeThingy', 2: '10MakeThingyv'})
 
+    # from #8960
+    check('function', 'void f(void (*p)(int, double), int i)', {2: '1fPFvidEi'})
+
 
 def test_operators():
     check('function', 'void operator new()', {1: "new-operator", 2: "nwv"})
@@ -662,6 +668,7 @@ def test_operators():
     check('function', 'void operator>()', {1: "gt-operator", 2: "gtv"})
     check('function', 'void operator<=()', {1: "lte-operator", 2: "lev"})
     check('function', 'void operator>=()', {1: "gte-operator", 2: "gev"})
+    check('function', 'void operator<=>()', {1: None, 2: "ssv"})
     check('function', 'void operator!()', {1: "not-operator", 2: "ntv"})
     check('function', 'void operator not()', {2: "ntv"})
     check('function', 'void operator&&()', {1: "sand-operator", 2: "aav"})
@@ -736,6 +743,9 @@ def test_anon_definitions():
     check('enum', '@a', {3: "Ut1_a"}, asTextOutput='enum [anonymous]')
     check('class', '@1', {3: "Ut1_1"}, asTextOutput='class [anonymous]')
     check('class', '@a::A', {3: "NUt1_a1AE"}, asTextOutput='class [anonymous]::A')
+
+    check('function', 'int f(int @a)', {1: 'f__i', 2: '1fi'},
+          asTextOutput='int f(int [anonymous])')
 
 
 def test_templates():
@@ -1081,8 +1091,6 @@ def test_build_domain_cpp_misuse_of_roles(app, status, warning):
     assert len(ws) == len(warn)
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'add_function_parentheses': True})
 def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, warning):
     app.builder.build_all()
@@ -1124,8 +1132,6 @@ def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, war
         check(s, t, f)
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'add_function_parentheses': False})
 def test_build_domain_cpp_with_add_function_parentheses_is_False(app, status, warning):
     app.builder.build_all()
@@ -1204,7 +1210,7 @@ not found in `{test}`
     cpp_any_role = RoleClasses('cpp-any', 'a', ['code'])
     # NYI: consistent looks
     # texpr_role = RoleClasses('cpp-texpr', 'span', ['a', 'code'])
-    expr_role = RoleClasses('cpp-expr', 'code', ['a'])
+    expr_role = RoleClasses('cpp-expr', 'span', ['a'])
     texpr_role = RoleClasses('cpp-texpr', 'span', ['a', 'span'])
 
     # XRefRole-style classes
@@ -1221,8 +1227,7 @@ not found in `{test}`
     for role in (expr_role, texpr_role):
         name = role.name
         expect = '`{name}` puts the domain and role classes at its root'.format(name=name)
-        # NYI: xref should go in the references
-        assert {'xref', 'cpp', name} <= role.classes, expect
+        assert {'sig', 'sig-inline', 'cpp', name} <= role.classes, expect
 
     # reference classes
 

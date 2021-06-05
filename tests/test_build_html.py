@@ -24,6 +24,12 @@ from sphinx.testing.util import strip_escseq
 from sphinx.util import docutils, md5
 from sphinx.util.inventory import InventoryFile
 
+if docutils.__version_info__ < (0, 17):
+    FIGURE_CAPTION = ".//div[@class='figure align-default']/p[@class='caption']"
+else:
+    FIGURE_CAPTION = ".//figure/figcaption/p"
+
+
 ENV_WARNINGS = """\
 %(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
 WARNING: Explicit markup ends without a blank line; unexpected unindent.
@@ -279,10 +285,10 @@ def test_html4_output(app, status, warning):
     'objects.html': [
         (".//dt[@id='mod.Cls.meth1']", ''),
         (".//dt[@id='errmod.Error']", ''),
-        (".//dt/code/span", r'long\(parameter,'),
-        (".//dt/code/span", r'list\)'),
-        (".//dt/code/span", 'another'),
-        (".//dt/code/span", 'one'),
+        (".//dt/span[@class='sig-name descname']/span[@class='pre']", r'long\(parameter,'),
+        (".//dt/span[@class='sig-name descname']/span[@class='pre']", r'list\)'),
+        (".//dt/span[@class='sig-name descname']/span[@class='pre']", 'another'),
+        (".//dt/span[@class='sig-name descname']/span[@class='pre']", 'one'),
         (".//a[@href='#mod.Cls'][@class='reference internal']", ''),
         (".//dl[@class='std userdesc']", ''),
         (".//dt[@id='userdesc-myobj']", ''),
@@ -413,8 +419,6 @@ def test_html4_output(app, status, warning):
         (".//a[@href='_sources/otherext.foo.txt']", ''),
     ]
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', tags=['testtag'],
                     confoverrides={'html_context.hckey_co': 'hcval_co'})
 @pytest.mark.test_params(shared_result='test_build_html_output')
@@ -429,8 +433,6 @@ def test_html_parallel(app):
     app.build()
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html')
 @pytest.mark.test_params(shared_result='test_build_html_output')
 def test_html_download(app):
@@ -455,8 +457,6 @@ def test_html_download(app):
     assert matched.group(1) == filename
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='roles-download')
 def test_html_download_role(app, status, warning):
     app.build()
@@ -535,8 +535,6 @@ def test_html_translator(app):
         (".//h1//span[@class='section-number']", '2.1.1. ', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='tocdepth')
 @pytest.mark.test_params(shared_result='test_build_html_tocdepth')
 def test_tocdepth(app, cached_etree_parse, fname, expect):
@@ -582,8 +580,6 @@ def test_tocdepth(app, cached_etree_parse, fname, expect):
         (".//h4//span[@class='section-number']", '2.1.1. ', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('singlehtml', testroot='tocdepth')
 @pytest.mark.test_params(shared_result='test_build_html_tocdepth')
 def test_tocdepth_singlehtml(app, cached_etree_parse, fname, expect):
@@ -603,8 +599,7 @@ def test_numfig_disabled_warn(app, warning):
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", None, True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", None, True),
         (".//table/caption/span[@class='caption-number']", None, True),
         (".//div[@class='code-block-caption']/"
          "span[@class='caption-number']", None, True),
@@ -620,29 +615,24 @@ def test_numfig_disabled_warn(app, warning):
         (".//li/p/a/span", '^Sect.1 Foo$', True),
     ],
     'foo.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", None, True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", None, True),
         (".//table/caption/span[@class='caption-number']", None, True),
         (".//div[@class='code-block-caption']/"
          "span[@class='caption-number']", None, True),
     ],
     'bar.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", None, True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", None, True),
         (".//table/caption/span[@class='caption-number']", None, True),
         (".//div[@class='code-block-caption']/"
          "span[@class='caption-number']", None, True),
     ],
     'baz.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", None, True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", None, True),
         (".//table/caption/span[@class='caption-number']", None, True),
         (".//div[@class='code-block-caption']/"
          "span[@class='caption-number']", None, True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='numfig')
 @pytest.mark.test_params(shared_result='test_build_html_numfig')
 def test_numfig_disabled(app, cached_etree_parse, fname, expect):
@@ -671,10 +661,8 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 9 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 10 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 9 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 10 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 9 $', True),
         (".//table/caption/span[@class='caption-number']",
@@ -695,14 +683,10 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
         (".//li/p/code/span", '^Sect.{number}$', True),
     ],
     'foo.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 1 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 2 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 3 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 4 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 3 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 4 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 1 $', True),
         (".//table/caption/span[@class='caption-number']",
@@ -721,12 +705,9 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
          "span[@class='caption-number']", '^Listing 4 $', True),
     ],
     'bar.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 5 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 7 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 8 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 5 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 7 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 8 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 5 $', True),
         (".//table/caption/span[@class='caption-number']",
@@ -741,16 +722,13 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
          "span[@class='caption-number']", '^Listing 8 $', True),
     ],
     'baz.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 6 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 6 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 6 $', True),
         (".//div[@class='code-block-caption']/"
          "span[@class='caption-number']", '^Listing 6 $', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx(
     'html', testroot='numfig',
     srcdir='test_numfig_without_numbered_toctree',
@@ -779,10 +757,8 @@ def test_numfig_with_numbered_toctree_warn(app, warning):
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 1 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 2 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 1 $', True),
         (".//table/caption/span[@class='caption-number']",
@@ -803,14 +779,10 @@ def test_numfig_with_numbered_toctree_warn(app, warning):
         (".//li/p/a/span", '^Sect.1 Foo$', True),
     ],
     'foo.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 1.1 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 1.2 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 1.3 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 1.4 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1.1 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1.2 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1.3 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1.4 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 1.1 $', True),
         (".//table/caption/span[@class='caption-number']",
@@ -829,12 +801,9 @@ def test_numfig_with_numbered_toctree_warn(app, warning):
          "span[@class='caption-number']", '^Listing 1.4 $', True),
     ],
     'bar.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 2.1 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 2.3 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 2.4 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2.1 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2.3 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2.4 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 2.1 $', True),
         (".//table/caption/span[@class='caption-number']",
@@ -849,16 +818,13 @@ def test_numfig_with_numbered_toctree_warn(app, warning):
          "span[@class='caption-number']", '^Listing 2.4 $', True),
     ],
     'baz.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 2.2 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2.2 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 2.2 $', True),
         (".//div[@class='code-block-caption']/"
          "span[@class='caption-number']", '^Listing 2.2 $', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='numfig', confoverrides={'numfig': True})
 @pytest.mark.test_params(shared_result='test_build_html_numfig_on')
 def test_numfig_with_numbered_toctree(app, cached_etree_parse, fname, expect):
@@ -884,10 +850,8 @@ def test_numfig_with_prefix_warn(app, warning):
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Figure:1 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Figure:2 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Figure:1 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Figure:2 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Tab_1 $', True),
         (".//table/caption/span[@class='caption-number']",
@@ -908,14 +872,10 @@ def test_numfig_with_prefix_warn(app, warning):
         (".//li/p/a/span", '^Sect.1 Foo$', True),
     ],
     'foo.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Figure:1.1 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Figure:1.2 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Figure:1.3 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Figure:1.4 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Figure:1.1 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Figure:1.2 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Figure:1.3 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Figure:1.4 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Tab_1.1 $', True),
         (".//table/caption/span[@class='caption-number']",
@@ -934,12 +894,9 @@ def test_numfig_with_prefix_warn(app, warning):
          "span[@class='caption-number']", '^Code-1.4 $', True),
     ],
     'bar.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Figure:2.1 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Figure:2.3 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Figure:2.4 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Figure:2.1 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Figure:2.3 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Figure:2.4 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Tab_2.1 $', True),
         (".//table/caption/span[@class='caption-number']",
@@ -954,16 +911,13 @@ def test_numfig_with_prefix_warn(app, warning):
          "span[@class='caption-number']", '^Code-2.4 $', True),
     ],
     'baz.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Figure:2.2 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Figure:2.2 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Tab_2.2 $', True),
         (".//div[@class='code-block-caption']/"
          "span[@class='caption-number']", '^Code-2.2 $', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='numfig',
                     confoverrides={'numfig': True,
                                    'numfig_format': {'figure': 'Figure:%s',
@@ -990,10 +944,8 @@ def test_numfig_with_secnum_depth_warn(app, warning):
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 1 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 2 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 1 $', True),
         (".//table/caption/span[@class='caption-number']",
@@ -1014,14 +966,10 @@ def test_numfig_with_secnum_depth_warn(app, warning):
         (".//li/p/a/span", '^Sect.1 Foo$', True),
     ],
     'foo.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 1.1 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 1.1.1 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 1.1.2 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 1.2.1 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1.1 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1.1.1 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1.1.2 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1.2.1 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 1.1 $', True),
         (".//table/caption/span[@class='caption-number']",
@@ -1040,12 +988,9 @@ def test_numfig_with_secnum_depth_warn(app, warning):
          "span[@class='caption-number']", '^Listing 1.2.1 $', True),
     ],
     'bar.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 2.1.1 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 2.1.3 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 2.2.1 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2.1.1 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2.1.3 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2.2.1 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 2.1.1 $', True),
         (".//table/caption/span[@class='caption-number']",
@@ -1060,16 +1005,13 @@ def test_numfig_with_secnum_depth_warn(app, warning):
          "span[@class='caption-number']", '^Listing 2.2.1 $', True),
     ],
     'baz.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 2.1.2 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2.1.2 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 2.1.2 $', True),
         (".//div[@class='code-block-caption']/"
          "span[@class='caption-number']", '^Listing 2.1.2 $', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='numfig',
                     confoverrides={'numfig': True,
                                    'numfig_secnum_depth': 2})
@@ -1081,10 +1023,8 @@ def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, expect):
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 1 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 2 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 1 $', True),
         (".//table/caption/span[@class='caption-number']",
@@ -1103,14 +1043,10 @@ def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, expect):
         (".//li/p/a/span", '^Section.2.1$', True),
         (".//li/p/a/span", '^Fig.1 should be Fig.1$', True),
         (".//li/p/a/span", '^Sect.1 Foo$', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 1.1 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 1.2 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 1.3 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 1.4 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1.1 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1.2 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1.3 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 1.4 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 1.1 $', True),
         (".//table/caption/span[@class='caption-number']",
@@ -1127,12 +1063,9 @@ def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, expect):
          "span[@class='caption-number']", '^Listing 1.3 $', True),
         (".//div[@class='code-block-caption']/"
          "span[@class='caption-number']", '^Listing 1.4 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 2.1 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 2.3 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 2.4 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2.1 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2.3 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2.4 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 2.1 $', True),
         (".//table/caption/span[@class='caption-number']",
@@ -1145,16 +1078,13 @@ def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, expect):
          "span[@class='caption-number']", '^Listing 2.3 $', True),
         (".//div[@class='code-block-caption']/"
          "span[@class='caption-number']", '^Listing 2.4 $', True),
-        (".//div[@class='figure align-default']/p[@class='caption']/"
-         "span[@class='caption-number']", '^Fig. 2.2 $', True),
+        (FIGURE_CAPTION + "/span[@class='caption-number']", '^Fig. 2.2 $', True),
         (".//table/caption/span[@class='caption-number']",
          '^Table 2.2 $', True),
         (".//div[@class='code-block-caption']/"
          "span[@class='caption-number']", '^Listing 2.2 $', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('singlehtml', testroot='numfig', confoverrides={'numfig': True})
 @pytest.mark.test_params(shared_result='test_build_html_numfig_on')
 def test_numfig_with_singlehtml(app, cached_etree_parse, fname, expect):
@@ -1164,12 +1094,9 @@ def test_numfig_with_singlehtml(app, cached_etree_parse, fname, expect):
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
-        (".//div[@class='figure align-default']/p[@class='caption']"
-         "/span[@class='caption-number']", "Fig. 1", True),
-        (".//div[@class='figure align-default']/p[@class='caption']"
-         "/span[@class='caption-number']", "Fig. 2", True),
-        (".//div[@class='figure align-default']/p[@class='caption']"
-         "/span[@class='caption-number']", "Fig. 3", True),
+        (FIGURE_CAPTION + "//span[@class='caption-number']", "Fig. 1", True),
+        (FIGURE_CAPTION + "//span[@class='caption-number']", "Fig. 2", True),
+        (FIGURE_CAPTION + "//span[@class='caption-number']", "Fig. 3", True),
         (".//div//span[@class='caption-number']", "No.1 ", True),
         (".//div//span[@class='caption-number']", "No.2 ", True),
         (".//li/p/a/span", 'Fig. 1', True),
@@ -1179,8 +1106,6 @@ def test_numfig_with_singlehtml(app, cached_etree_parse, fname, expect):
         (".//li/p/a/span", 'No.2', True),
     ],
 }))
-@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
-                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='add_enumerable_node',
                     srcdir='test_enumerable_node')
 def test_enumerable_node(app, cached_etree_parse, fname, expect):
@@ -1247,7 +1172,7 @@ def test_assets_order(app):
     content = (app.outdir / 'index.html').read_text()
 
     # css_files
-    expected = ['_static/pygments.css', '_static/alabaster.css', '_static/early.css',
+    expected = ['_static/early.css', '_static/pygments.css', '_static/alabaster.css',
                 'https://example.com/custom.css', '_static/normal.css', '_static/late.css',
                 '_static/css/style.css', '_static/lazy.css']
     pattern = '.*'.join('href="%s"' % f for f in expected)
@@ -1332,9 +1257,14 @@ def test_html_inventory(app):
 def test_html_anchor_for_figure(app):
     app.builder.build_all()
     content = (app.outdir / 'index.html').read_text()
-    assert ('<p class="caption"><span class="caption-text">The caption of pic</span>'
-            '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>'
-            in content)
+    if docutils.__version_info__ < (0, 17):
+        assert ('<p class="caption"><span class="caption-text">The caption of pic</span>'
+                '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>'
+                in content)
+    else:
+        assert ('<figcaption>\n<p><span class="caption-text">The caption of pic</span>'
+                '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>\n</figcaption>'
+                in content)
 
 
 @pytest.mark.sphinx('html', testroot='directives-raw')
@@ -1385,8 +1315,8 @@ def test_alternate_stylesheets(app, cached_etree_parse, fname, expect):
 def test_html_style(app, status, warning):
     app.build()
     result = (app.outdir / 'index.html').read_text()
-    assert '<link rel="stylesheet" href="_static/default.css" type="text/css" />' in result
-    assert ('<link rel="stylesheet" href="_static/alabaster.css" type="text/css" />'
+    assert '<link rel="stylesheet" type="text/css" href="_static/default.css" />' in result
+    assert ('<link rel="stylesheet" type="text/css" href="_static/alabaster.css" />'
             not in result)
 
 

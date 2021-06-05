@@ -13,7 +13,7 @@ Documentation.addTranslations({
         "Complete Table of Contents": "Daftar Isi Lengkap",
         "Contents": "Konten",
         "Copyright": "Hak Cipta",
-        "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "Dibuat menggunakan <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.",
+        "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "",
         "Expand sidebar": "Buka sidebar",
         "Full index on one page": "Index penuh dalam satu halaman",
         "General Index": "Indeks Umum",

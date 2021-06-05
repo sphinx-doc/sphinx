@@ -50,7 +50,7 @@ class TitleCollector(EnvironmentCollector):
             break
         else:
             # document has no title
-            titlenode += nodes.Text('<no title>')
+            titlenode += nodes.Text(doctree.get('title', '<no title>'))
         app.env.titles[app.env.docname] = titlenode
         app.env.longtitles[app.env.docname] = longtitlenode
 

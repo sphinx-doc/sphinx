@@ -140,6 +140,13 @@ are built:
 .. module:: sphinx.ext.mathjax
    :synopsis: Render math using JavaScript via MathJax.
 
+.. warning::
+   Version 4.0 changes the version of MathJax used to version 3. You may need to
+   override ``mathjax_path`` to
+   ``https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML``
+   or update your configuration options for version 3
+   (see :confval:`mathjax3_config`).
+
 .. versionadded:: 1.1
 
 This extension puts math as-is into the HTML files.  The JavaScript package
@@ -161,14 +168,14 @@ Sphinx but is set to automatically include it from a third-party site.
    MathJax.
 
    The default is the ``https://`` URL that loads the JS files from the
-   `cdnjs`__ Content Delivery Network. See the `MathJax Getting Started
+   `jsdelivr`__ Content Delivery Network. See the `MathJax Getting Started
    page`__ for details. If you want MathJax to be available offline or
    without including resources from a third-party site, you have to
    download it and set this value to a different path.
 
-   __ https://cdnjs.com
+   __ https://www.jsdelivr.com/
 
-   __ https://docs.mathjax.org/en/latest/start.html
+   __ https://www.mathjax.org/#gettingstarted
 
    The path can be absolute or relative; if it is relative, it is relative to
    the ``_static`` directory of the built docs.
@@ -193,24 +200,58 @@ Sphinx but is set to automatically include it from a third-party site.
 
    .. versionadded:: 1.8
 
-.. confval:: mathjax_config
+.. confval:: mathjax3_config
 
-   The inline configuration options for mathjax.  The value is used as a
-   parameter of ``MathJax.Hub.Config()``.  For more information, please
-   read `Using in-line configuration options`_.
+   The configuration options for MathJax v3 (which is used by default).
+   The given dictionary is assigned to the JavaScript variable
+   ``window.MathJax``.
+   For more information, please read `Configuring MathJax`__.
+
+   __ https://docs.mathjax.org/en/latest/web/configuration.html#configuration
+
+   The default is empty (not configured).
+
+   .. versionadded:: 4.0
+
+.. confval:: mathjax2_config
+
+   The configuration options for MathJax v2 (which can be loaded via
+   :confval:`mathjax_path`).
+   The value is used as a parameter of ``MathJax.Hub.Config()``.
+   For more information, please read `Using in-line configuration options`__.
+
+   __ http://docs.mathjax.org/en/v2.7-latest/
+      configuration.html#using-in-line-configuration-options
 
    For example::
 
-       mathjax_config = {
+       mathjax2_config = {
            'extensions': ['tex2jax.js'],
            'jax': ['input/TeX', 'output/HTML-CSS'],
        }
 
    The default is empty (not configured).
 
+   .. versionadded:: 4.0
+
+      :confval:`mathjax_config` has been renamed to :confval:`mathjax2_config`.
+
+.. confval:: mathjax_config
+
+   Former name of :confval:`mathjax2_config`.
+
+   For help converting your old MathJax configuration to to the new
+   :confval:`mathjax3_config`, see `Converting Your v2 Configuration to v3`__.
+
+   __ https://docs.mathjax.org/en/latest/web/
+      configuration.html#converting-your-v2-configuration-to-v3
+
    .. versionadded:: 1.8
 
-.. _Using in-line configuration options: https://docs.mathjax.org/en/latest/configuration.html#using-in-line-configuration-options
+   .. versionchanged:: 4.0
+
+      This has been renamed to :confval:`mathjax2_config`.
+      :confval:`mathjax_config` is still supported for backwards compatibility.
 
 :mod:`sphinx.ext.jsmath` -- Render math via JavaScript
 ------------------------------------------------------

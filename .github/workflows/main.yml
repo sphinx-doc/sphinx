@@ -4,33 +4,28 @@ on: [push, pull_request]
 
 jobs:
   ubuntu:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-18.04
     strategy:
       fail-fast: false
       matrix:
-        name: [py35, py36, py37, py38, py39]
-        os: [ubuntu-16.04]
+        name: [py36, py37, py38, py39]
         include:
-        - name: py35
-          python: 3.5
-          docutils: du12
         - name: py36
           python: 3.6
-          docutils: du13
+          docutils: du14
         - name: py37
           python: 3.7
-          docutils: du14
+          docutils: du15
         - name: py38
           python: 3.8
-          docutils: du15
+          docutils: du16
         - name: py39
           python: 3.9
-          docutils: du16
+          docutils: du17
           coverage: "--cov ./ --cov-append --cov-config setup.cfg"
-        - name: py310-dev
-          python: 3.10-dev
-          docutils: du16
-          os: ubuntu-latest  # required
+        # - name: py310-dev
+        #   python: 3.10-dev
+        #   docutils: du16
     env:
       PYTEST_ADDOPTS: ${{ matrix.coverage }}
 

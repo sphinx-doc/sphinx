@@ -10,9 +10,9 @@
 
 from os import path
 from pprint import pformat
-from typing import Any, Callable, Dict, Iterator, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Tuple, Union
 
-from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound, contextfunction
+from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
 from jinja2.environment import Environment
 from jinja2.sandbox import SandboxedEnvironment
 from jinja2.utils import open_if_exists
@@ -22,8 +22,12 @@ from sphinx.theming import Theme
 from sphinx.util import logging
 from sphinx.util.osutil import mtimes_of_files
 
-if False:
-    # For type annotation
+try:
+    from jinja2.utils import pass_context
+except ImportError:
+    from jinja2 import contextfunction as pass_context
+
+if TYPE_CHECKING:
     from sphinx.builders import Builder
 
 
@@ -102,7 +106,7 @@ class idgen:
     next = __next__  # Python 2/Jinja compatibility
 
 
-@contextfunction
+@pass_context
 def warning(context: Dict, message: str, *args: Any, **kwargs: Any) -> str:
     if 'pagename' in context:
         filename = context.get('pagename') + context.get('file_suffix', '')
@@ -181,9 +185,9 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.environment.filters['toint'] = _toint
         self.environment.filters['todim'] = _todim
         self.environment.filters['slice_index'] = _slice_index
-        self.environment.globals['debug'] = contextfunction(pformat)
+        self.environment.globals['debug'] = pass_context(pformat)
         self.environment.globals['warning'] = warning
-        self.environment.globals['accesskey'] = contextfunction(accesskey)
+        self.environment.globals['accesskey'] = pass_context(accesskey)
         self.environment.globals['idgen'] = idgen
         if use_i18n:
             self.environment.install_gettext_translations(builder.app.translator)

@@ -26,7 +26,6 @@ from sphinx import package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging, sha1
@@ -58,35 +57,8 @@ class InvokeError(SphinxError):
 
 SUPPORT_FORMAT = ('png', 'svg')
 
-DOC_HEAD = r'''
-\documentclass[12pt]{article}
-\usepackage[utf8x]{inputenc}
-\usepackage{amsmath}
-\usepackage{amsthm}
-\usepackage{amssymb}
-\usepackage{amsfonts}
-\usepackage{anyfontsize}
-\usepackage{bm}
-\pagestyle{empty}
-'''
-
-DOC_BODY = r'''
-\begin{document}
-\fontsize{%d}{%d}\selectfont %s
-\end{document}
-'''
-
-DOC_BODY_PREVIEW = r'''
-\usepackage[active]{preview}
-\begin{document}
-\begin{preview}
-\fontsize{%s}{%s}\selectfont %s
-\end{preview}
-\end{document}
-'''
-
-depth_re = re.compile(br'\[\d+ depth=(-?\d+)\]')
-depthsvg_re = re.compile(br'.*, depth=(.*)pt')
+depth_re = re.compile(r'\[\d+ depth=(-?\d+)\]')
+depthsvg_re = re.compile(r'.*, depth=(.*)pt')
 depthsvgcomment_re = re.compile(r'<!-- DEPTH=(-?\d+) -->')
 
 
@@ -174,10 +146,10 @@ def compile_math(latex: str, builder: Builder) -> str:
         raise MathExtError('latex exited with error', exc.stderr, exc.stdout) from exc
 
 
-def convert_dvi_to_image(command: List[str], name: str) -> Tuple[bytes, bytes]:
+def convert_dvi_to_image(command: List[str], name: str) -> Tuple[str, str]:
     """Convert DVI file to specific image format."""
     try:
-        ret = subprocess.run(command, stdout=PIPE, stderr=PIPE, check=True)
+        ret = subprocess.run(command, stdout=PIPE, stderr=PIPE, check=True, encoding='ascii')
         return ret.stdout, ret.stderr
     except OSError as exc:
         logger.warning(__('%s command %r cannot be run (needed for math '
@@ -368,15 +340,6 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
         self.body.append(('<img src="%s"' % fname) + get_tooltip(self, node) +
                          '/></p>\n</div>')
     raise nodes.SkipNode
-
-
-deprecated_alias('sphinx.ext.imgmath',
-                 {
-                     'DOC_BODY': DOC_BODY,
-                     'DOC_BODY_PREVIEW': DOC_BODY_PREVIEW,
-                     'DOC_HEAD': DOC_HEAD,
-                 },
-                 RemovedInSphinx40Warning)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

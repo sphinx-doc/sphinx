@@ -7,7 +7,7 @@
 """
 
 import re
-from typing import Any, Dict, List, cast
+from typing import TYPE_CHECKING, Any, Dict, List, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -17,16 +17,15 @@ from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.domains.changeset import VersionChange  # NOQA  # for compatibility
 from sphinx.locale import _
 from sphinx.util import docname_join, url_re
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.matching import Matcher, patfilter
 from sphinx.util.nodes import explicit_title_re
+from sphinx.util.typing import OptionSpec
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
@@ -91,7 +90,7 @@ class TocTree(SphinxDirective):
         all_docnames = self.env.found_docs.copy()
         all_docnames.remove(self.env.docname)  # remove current document
 
-        ret = []  # type: List[Node]
+        ret: List[Node] = []
         excluded = Matcher(self.config.exclude_patterns)
         for entry in self.content:
             if not entry:
@@ -137,7 +136,13 @@ class TocTree(SphinxDirective):
                                                                     line=self.lineno))
                     self.env.note_reread()
                 else:
-                    all_docnames.discard(docname)
+                    if docname in all_docnames:
+                        all_docnames.remove(docname)
+                    else:
+                        message = 'duplicated entry found in toctree: %s'
+                        ret.append(self.state.document.reporter.warning(message % docname,
+                                                                        line=self.lineno))
+
                     toctree['entries'].append((title, docname))
                     toctree['includefiles'].append(docname)
 
@@ -158,12 +163,12 @@ class Author(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
         if not self.config.show_authors:
             return []
-        para = nodes.paragraph(translatable=False)  # type: Element
+        para: Element = nodes.paragraph(translatable=False)
         emph = nodes.emphasis()
         para += emph
         if self.name == 'sectionauthor':
@@ -178,7 +183,7 @@ class Author(SphinxDirective):
         inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
         emph.extend(inodes)
 
-        ret = [para]  # type: List[Node]
+        ret: List[Node] = [para]
         ret += messages
         return ret
 
@@ -198,7 +203,7 @@ class TabularColumns(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
         node = addnodes.tabular_col_spec()
@@ -215,16 +220,16 @@ class Centered(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
         if not self.arguments:
             return []
-        subnode = addnodes.centered()  # type: Element
+        subnode: Element = addnodes.centered()
         inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
         subnode.extend(inodes)
 
-        ret = [subnode]  # type: List[Node]
+        ret: List[Node] = [subnode]
         ret += messages
         return ret
 
@@ -237,7 +242,7 @@ class Acks(SphinxDirective):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
         node = addnodes.acks()
@@ -258,7 +263,7 @@ class HList(SphinxDirective):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {
+    option_spec: OptionSpec = {
         'columns': int,
     }
 
@@ -294,7 +299,7 @@ class Only(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
         node = addnodes.only()
@@ -304,7 +309,7 @@ class Only(SphinxDirective):
 
         # Same as util.nested_parse_with_titles but try to handle nested
         # sections which should be raised higher up the doctree.
-        memo = self.state.memo  # type: Any
+        memo: Any = self.state.memo
         surrounding_title_styles = memo.title_styles
         surrounding_section_level = memo.section_level
         memo.title_styles = []
@@ -359,19 +364,6 @@ class Include(BaseInclude, SphinxDirective):
         self.arguments[0] = filename
         self.env.note_included(filename)
         return super().run()
-
-
-# Import old modules here for compatibility
-from sphinx.domains.index import IndexDirective  # NOQA
-
-deprecated_alias('sphinx.directives.other',
-                 {
-                     'Index': IndexDirective,
-                 },
-                 RemovedInSphinx40Warning,
-                 {
-                     'Index': 'sphinx.domains.index.IndexDirective',
-                 })
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:

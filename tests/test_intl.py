@@ -20,6 +20,7 @@ from docutils import nodes
 from sphinx import locale
 from sphinx.testing.util import (assert_node, assert_not_re_search, assert_re_search,
                                  assert_startswith, etree_parse, path, strip_escseq)
+from sphinx.util import docutils
 
 sphinx_intl = pytest.mark.sphinx(
     testroot='intl',
@@ -335,9 +336,9 @@ def test_text_figure_captions(app):
               "14.2. IMAGE URL AND ALT\n"
               "=======================\n"
               "\n"
-              "[image: i18n][image]\n"
+              "[image: I18N -> IMG][image]\n"
               "\n"
-              "   [image: img][image]\n"
+              "   [image: IMG -> I18N][image]\n"
               "\n"
               "\n"
               "14.3. IMAGE ON SUBSTITUTION\n"
@@ -1083,19 +1084,23 @@ def test_additional_targets_should_not_be_translated(app):
     result = (app.outdir / 'raw.html').read_text()
 
     # raw block should not be translated
-    expected_expr = """<iframe src="http://sphinx-doc.org"></iframe></div>"""
-    assert_count(expected_expr, result, 1)
+    if docutils.__version_info__ < (0, 17):
+        expected_expr = """<iframe src="http://sphinx-doc.org"></iframe></div>"""
+        assert_count(expected_expr, result, 1)
+    else:
+        expected_expr = """<iframe src="http://sphinx-doc.org"></iframe></section>"""
+        assert_count(expected_expr, result, 1)
 
     # [figure.txt]
 
     result = (app.outdir / 'figure.html').read_text()
 
-    # alt and src for image block should not be translated
-    expected_expr = """<img alt="i18n" src="_images/i18n.png" />"""
+    # src for image block should not be translated (alt is translated)
+    expected_expr = """<img alt="I18N -&gt; IMG" src="_images/i18n.png" />"""
     assert_count(expected_expr, result, 1)
 
-    # alt and src for figure block should not be translated
-    expected_expr = """<img alt="img" src="_images/img.png" />"""
+    # src for figure block should not be translated (alt is translated)
+    expected_expr = """<img alt="IMG -&gt; I18N" src="_images/img.png" />"""
     assert_count(expected_expr, result, 1)
 
 
@@ -1157,8 +1162,12 @@ def test_additional_targets_should_be_translated(app):
     result = (app.outdir / 'raw.html').read_text()
 
     # raw block should be translated
-    expected_expr = """<iframe src="HTTP://SPHINX-DOC.ORG"></iframe></div>"""
-    assert_count(expected_expr, result, 1)
+    if docutils.__version_info__ < (0, 17):
+        expected_expr = """<iframe src="HTTP://SPHINX-DOC.ORG"></iframe></div>"""
+        assert_count(expected_expr, result, 1)
+    else:
+        expected_expr = """<iframe src="HTTP://SPHINX-DOC.ORG"></iframe></section>"""
+        assert_count(expected_expr, result, 1)
 
     # [figure.txt]
 

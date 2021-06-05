@@ -35,14 +35,14 @@ def test_config_status(make_app, app_params):
     assert "0 added, 0 changed, 0 removed" in app2._status.getvalue()
 
     # incremental build (config entry changed)
-    app3 = make_app(*args, confoverrides={'master_doc': 'indexx'}, **kwargs)
+    app3 = make_app(*args, confoverrides={'root_doc': 'indexx'}, **kwargs)
     fname = os.path.join(app3.srcdir, 'index.rst')
     assert os.path.isfile(fname)
     shutil.move(fname, fname[:-4] + 'x.rst')
     assert app3.env.config_status == CONFIG_CHANGED
     app3.build()
     shutil.move(fname[:-4] + 'x.rst', fname)
-    assert "[config changed ('master_doc')] 1 added" in app3._status.getvalue()
+    assert "[config changed ('root_doc')] 1 added" in app3._status.getvalue()
 
     # incremental build (extension changed)
     app4 = make_app(*args, confoverrides={'extensions': ['sphinx.ext.autodoc']}, **kwargs)
@@ -85,7 +85,7 @@ def test_object_inventory(app):
     refs = app.env.domaindata['py']['objects']
 
     assert 'func_without_module' in refs
-    assert refs['func_without_module'] == ('objects', 'func_without_module', 'function')
+    assert refs['func_without_module'] == ('objects', 'func_without_module', 'function', False)
     assert 'func_without_module2' in refs
     assert 'mod.func_in_module' in refs
     assert 'mod.Cls' in refs

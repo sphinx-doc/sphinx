@@ -9,7 +9,7 @@
 """
 
 import re
-from typing import Any, Dict, Generic, List, Tuple, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Dict, Generic, List, Tuple, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -17,15 +17,13 @@ from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature
-from sphinx.deprecation import (RemovedInSphinx40Warning, RemovedInSphinx50Warning,
-                                deprecated_alias)
+from sphinx.deprecation import RemovedInSphinx50Warning, deprecated_alias
 from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.typing import DirectiveOption
+from sphinx.util.typing import OptionSpec
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
@@ -60,18 +58,18 @@ class ObjectDescription(SphinxDirective, Generic[T]):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {
+    option_spec: OptionSpec = {
         'noindex': directives.flag,
-    }  # type: Dict[str, DirectiveOption]
+    }
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
-    doc_field_types = []    # type: List[Field]
-    domain = None           # type: str
-    objtype = None          # type: str
-    indexnode = None        # type: addnodes.index
+    doc_field_types: List[Field] = []
+    domain: str = None
+    objtype: str = None
+    indexnode: addnodes.index = None
 
     # Warning: this might be removed in future version. Don't touch this from extensions.
-    _doc_field_type_map = {}  # type: Dict[str, Tuple[Field, bool]]
+    _doc_field_type_map: Dict[str, Tuple[Field, bool]] = {}
 
     def get_field_type_map(self) -> Dict[str, Tuple[Field, bool]]:
         if self._doc_field_type_map == {}:
@@ -174,8 +172,9 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         node['noindex'] = noindex = ('noindex' in self.options)
         if self.domain:
             node['classes'].append(self.domain)
+        node['classes'].append(node['objtype'])
 
-        self.names = []  # type: List[T]
+        self.names: List[T] = []
         signatures = self.get_signatures()
         for i, sig in enumerate(signatures):
             # add a signature node for each signature in the current unit
@@ -253,7 +252,7 @@ class DefaultDomain(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {}  # type: Dict
+    option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
         domain_name = self.arguments[0].lower()
@@ -266,52 +265,6 @@ class DefaultDomain(SphinxDirective):
         self.env.temp_data['default_domain'] = self.env.domains.get(domain_name)
         return []
 
-from sphinx.directives.code import CodeBlock, Highlight, LiteralInclude  # noqa
-from sphinx.directives.other import (Acks, Author, Centered, Class, HList, Include,  # noqa
-                                     Only, SeeAlso, TabularColumns, TocTree, VersionChange)
-from sphinx.directives.patches import Figure, Meta  # noqa
-from sphinx.domains.index import IndexDirective  # noqa
-
-deprecated_alias('sphinx.directives',
-                 {
-                     'Highlight': Highlight,
-                     'CodeBlock': CodeBlock,
-                     'LiteralInclude': LiteralInclude,
-                     'TocTree': TocTree,
-                     'Author': Author,
-                     'Index': IndexDirective,
-                     'VersionChange': VersionChange,
-                     'SeeAlso': SeeAlso,
-                     'TabularColumns': TabularColumns,
-                     'Centered': Centered,
-                     'Acks': Acks,
-                     'HList': HList,
-                     'Only': Only,
-                     'Include': Include,
-                     'Class': Class,
-                     'Figure': Figure,
-                     'Meta': Meta,
-                 },
-                 RemovedInSphinx40Warning,
-                 {
-                     'Highlight': 'sphinx.directives.code.Highlight',
-                     'CodeBlock': 'sphinx.directives.code.CodeBlock',
-                     'LiteralInclude': 'sphinx.directives.code.LiteralInclude',
-                     'TocTree': 'sphinx.directives.other.TocTree',
-                     'Author': 'sphinx.directives.other.Author',
-                     'Index': 'sphinx.directives.other.IndexDirective',
-                     'VersionChange': 'sphinx.directives.other.VersionChange',
-                     'SeeAlso': 'sphinx.directives.other.SeeAlso',
-                     'TabularColumns': 'sphinx.directives.other.TabularColumns',
-                     'Centered': 'sphinx.directives.other.Centered',
-                     'Acks': 'sphinx.directives.other.Acks',
-                     'HList': 'sphinx.directives.other.HList',
-                     'Only': 'sphinx.directives.other.Only',
-                     'Include': 'sphinx.directives.other.Include',
-                     'Class': 'sphinx.directives.other.Class',
-                     'Figure': 'sphinx.directives.patches.Figure',
-                     'Meta': 'sphinx.directives.patches.Meta',
-                 })
 
 deprecated_alias('sphinx.directives',
                  {

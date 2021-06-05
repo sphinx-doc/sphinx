@@ -9,25 +9,18 @@
 """
 
 import re
-import warnings
-from typing import Any, Dict, List, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Type
 
 from docutils import nodes, utils
 from docutils.nodes import Element, Node, TextElement, system_message
-from docutils.parsers.rst.states import Inliner
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import _
 from sphinx.util import ws_re
 from sphinx.util.docutils import ReferenceRole, SphinxRole
-from sphinx.util.nodes import process_index_entry, set_role_source_info, split_explicit_title
 from sphinx.util.typing import RoleFunction
 
-if False:
-    # For type annotation
-    from typing import Type  # for python3.5.1
-
+if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
 
@@ -72,11 +65,11 @@ class XRefRole(ReferenceRole):
     * Subclassing and overwriting `process_link()` and/or `result_nodes()`.
     """
 
-    nodeclass = addnodes.pending_xref   # type: Type[Element]
-    innernodeclass = nodes.literal      # type: Type[TextElement]
+    nodeclass: Type[Element] = addnodes.pending_xref
+    innernodeclass: Type[TextElement] = nodes.literal
 
     def __init__(self, fix_parens: bool = False, lowercase: bool = False,
-                 nodeclass: "Type[Element]" = None, innernodeclass: "Type[TextElement]" = None,
+                 nodeclass: Type[Element] = None, innernodeclass: Type[TextElement] = None,
                  warn_dangling: bool = False) -> None:
         self.fix_parens = fix_parens
         self.lowercase = lowercase
@@ -87,22 +80,6 @@ class XRefRole(ReferenceRole):
             self.innernodeclass = innernodeclass
 
         super().__init__()
-
-    def _fix_parens(self, env: "BuildEnvironment", has_explicit_title: bool, title: str,
-                    target: str) -> Tuple[str, str]:
-        warnings.warn('XRefRole._fix_parens() is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        if not has_explicit_title:
-            if title.endswith('()'):
-                # remove parentheses
-                title = title[:-2]
-            if env.config.add_function_parentheses:
-                # add them back to all occurrences if configured
-                title += '()'
-        # remove parentheses from the target too
-        if target.endswith('()'):
-            target = target[:-2]
-        return title, target
 
     def update_title_and_target(self, title: str, target: str) -> Tuple[str, str]:
         if not self.has_explicit_title:
@@ -194,75 +171,6 @@ class AnyXRefRole(XRefRole):
         return result
 
 
-def indexmarkup_role(typ: str, rawtext: str, text: str, lineno: int, inliner: Inliner,
-                     options: Dict = {}, content: List[str] = []
-                     ) -> Tuple[List[Node], List[system_message]]:
-    """Role for PEP/RFC references that generate an index entry."""
-    warnings.warn('indexmarkup_role() is deprecated.  Please use PEP or RFC class instead.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    env = inliner.document.settings.env
-    if not typ:
-        assert env.temp_data['default_role']
-        typ = env.temp_data['default_role'].lower()
-    else:
-        typ = typ.lower()
-
-    has_explicit_title, title, target = split_explicit_title(text)
-    title = utils.unescape(title)
-    target = utils.unescape(target)
-    targetid = 'index-%s' % env.new_serialno('index')
-    indexnode = addnodes.index()
-    targetnode = nodes.target('', '', ids=[targetid])
-    inliner.document.note_explicit_target(targetnode)
-    if typ == 'pep':
-        indexnode['entries'] = [
-            ('single', _('Python Enhancement Proposals; PEP %s') % target,
-             targetid, '', None)]
-        anchor = ''
-        anchorindex = target.find('#')
-        if anchorindex > 0:
-            target, anchor = target[:anchorindex], target[anchorindex:]
-        if not has_explicit_title:
-            title = "PEP " + utils.unescape(title)
-        try:
-            pepnum = int(target)
-        except ValueError:
-            msg = inliner.reporter.error('invalid PEP number %s' % target,
-                                         line=lineno)
-            prb = inliner.problematic(rawtext, rawtext, msg)
-            return [prb], [msg]
-        ref = inliner.document.settings.pep_base_url + 'pep-%04d' % pepnum
-        sn = nodes.strong(title, title)
-        rn = nodes.reference('', '', internal=False, refuri=ref + anchor,
-                             classes=[typ])
-        rn += sn
-        return [indexnode, targetnode, rn], []
-    elif typ == 'rfc':
-        indexnode['entries'] = [
-            ('single', 'RFC; RFC %s' % target, targetid, '', None)]
-        anchor = ''
-        anchorindex = target.find('#')
-        if anchorindex > 0:
-            target, anchor = target[:anchorindex], target[anchorindex:]
-        if not has_explicit_title:
-            title = "RFC " + utils.unescape(title)
-        try:
-            rfcnum = int(target)
-        except ValueError:
-            msg = inliner.reporter.error('invalid RFC number %s' % target,
-                                         line=lineno)
-            prb = inliner.problematic(rawtext, rawtext, msg)
-            return [prb], [msg]
-        ref = inliner.document.settings.rfc_base_url + inliner.rfc_url % rfcnum
-        sn = nodes.strong(title, title)
-        rn = nodes.reference('', '', internal=False, refuri=ref + anchor,
-                             classes=[typ])
-        rn += sn
-        return [indexnode, targetnode, rn], []
-    else:
-        raise ValueError('unknown role type: %s' % typ)
-
-
 class PEP(ReferenceRole):
     def run(self) -> Tuple[List[Node], List[system_message]]:
         target_id = 'index-%s' % self.env.new_serialno('index')
@@ -335,44 +243,6 @@ class RFC(ReferenceRole):
 _amp_re = re.compile(r'(?<!&)&(?![&\s])')
 
 
-def menusel_role(typ: str, rawtext: str, text: str, lineno: int, inliner: Inliner,
-                 options: Dict = {}, content: List[str] = []
-                 ) -> Tuple[List[Node], List[system_message]]:
-    warnings.warn('menusel_role() is deprecated. '
-                  'Please use MenuSelection or GUILabel class instead.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    env = inliner.document.settings.env
-    if not typ:
-        assert env.temp_data['default_role']
-        typ = env.temp_data['default_role'].lower()
-    else:
-        typ = typ.lower()
-
-    text = utils.unescape(text)
-    if typ == 'menuselection':
-        text = text.replace('-->', '\N{TRIANGULAR BULLET}')
-    spans = _amp_re.split(text)
-
-    node = nodes.inline(rawtext=rawtext)
-    for i, span in enumerate(spans):
-        span = span.replace('&&', '&')
-        if i == 0:
-            if len(span) > 0:
-                textnode = nodes.Text(span)
-                node += textnode
-            continue
-        accel_node = nodes.inline()
-        letter_node = nodes.Text(span[0])
-        accel_node += letter_node
-        accel_node['classes'].append('accelerator')
-        node += accel_node
-        textnode = nodes.Text(span[1:])
-        node += textnode
-
-    node['classes'].append(typ)
-    return [node], []
-
-
 class GUILabel(SphinxRole):
     amp_re = re.compile(r'(?<!&)&(?![&\s])')
 
@@ -403,59 +273,6 @@ _litvar_re = re.compile('{([^}]+)}')
 parens_re = re.compile(r'(\\*{|\\*})')
 
 
-def emph_literal_role(typ: str, rawtext: str, text: str, lineno: int, inliner: Inliner,
-                      options: Dict = {}, content: List[str] = []
-                      ) -> Tuple[List[Node], List[system_message]]:
-    warnings.warn('emph_literal_role() is deprecated. '
-                  'Please use EmphasizedLiteral class instead.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    env = inliner.document.settings.env
-    if not typ:
-        assert env.temp_data['default_role']
-        typ = env.temp_data['default_role'].lower()
-    else:
-        typ = typ.lower()
-
-    retnode = nodes.literal(role=typ.lower(), classes=[typ])
-    parts = list(parens_re.split(utils.unescape(text)))
-    stack = ['']
-    for part in parts:
-        matched = parens_re.match(part)
-        if matched:
-            backslashes = len(part) - 1
-            if backslashes % 2 == 1:    # escaped
-                stack[-1] += "\\" * int((backslashes - 1) / 2) + part[-1]
-            elif part[-1] == '{':       # rparen
-                stack[-1] += "\\" * int(backslashes / 2)
-                if len(stack) >= 2 and stack[-2] == "{":
-                    # nested
-                    stack[-1] += "{"
-                else:
-                    # start emphasis
-                    stack.append('{')
-                    stack.append('')
-            else:                       # lparen
-                stack[-1] += "\\" * int(backslashes / 2)
-                if len(stack) == 3 and stack[1] == "{" and len(stack[2]) > 0:
-                    # emphasized word found
-                    if stack[0]:
-                        retnode += nodes.Text(stack[0], stack[0])
-                    retnode += nodes.emphasis(stack[2], stack[2])
-                    stack = ['']
-                else:
-                    # emphasized word not found; the rparen is not a special symbol
-                    stack.append('}')
-                    stack = [''.join(stack)]
-        else:
-            stack[-1] += part
-    if ''.join(stack):
-        # remaining is treated as Text
-        text = ''.join(stack)
-        retnode += nodes.Text(text, text)
-
-    return [retnode], []
-
-
 class EmphasizedLiteral(SphinxRole):
     parens_re = re.compile(r'(\\\\|\\{|\\}|{|})')
 
@@ -467,7 +284,7 @@ class EmphasizedLiteral(SphinxRole):
         return [node], []
 
     def parse(self, text: str) -> List[Node]:
-        result = []  # type: List[Node]
+        result: List[Node] = []
 
         stack = ['']
         for part in self.parens_re.split(text):
@@ -509,22 +326,6 @@ class EmphasizedLiteral(SphinxRole):
 _abbr_re = re.compile(r'\((.*)\)$', re.S)
 
 
-def abbr_role(typ: str, rawtext: str, text: str, lineno: int, inliner: Inliner,
-              options: Dict = {}, content: List[str] = []
-              ) -> Tuple[List[Node], List[system_message]]:
-    warnings.warn('abbr_role() is deprecated.  Please use Abbrevation class instead.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    text = utils.unescape(text)
-    m = _abbr_re.search(text)
-    if m is None:
-        return [nodes.abbreviation(text, text, **options)], []
-    abbr = text[:m.start()].strip()
-    expl = m.group(1)
-    options = options.copy()
-    options['explanation'] = expl
-    return [nodes.abbreviation(abbr, abbr, **options)], []
-
-
 class Abbreviation(SphinxRole):
     abbr_re = re.compile(r'\((.*)\)$', re.S)
 
@@ -540,63 +341,7 @@ class Abbreviation(SphinxRole):
         return [nodes.abbreviation(self.rawtext, text, **options)], []
 
 
-def index_role(typ: str, rawtext: str, text: str, lineno: int, inliner: Inliner,
-               options: Dict = {}, content: List[str] = []
-               ) -> Tuple[List[Node], List[system_message]]:
-    warnings.warn('index_role() is deprecated.  Please use Index class instead.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    # create new reference target
-    env = inliner.document.settings.env
-    targetid = 'index-%s' % env.new_serialno('index')
-    targetnode = nodes.target('', '', ids=[targetid])
-    # split text and target in role content
-    has_explicit_title, title, target = split_explicit_title(text)
-    title = utils.unescape(title)
-    target = utils.unescape(target)
-    # if an explicit target is given, we can process it as a full entry
-    if has_explicit_title:
-        entries = process_index_entry(target, targetid)
-    # otherwise we just create a "single" entry
-    else:
-        # but allow giving main entry
-        main = ''
-        if target.startswith('!'):
-            target = target[1:]
-            title = title[1:]
-            main = 'main'
-        entries = [('single', target, targetid, main, None)]
-    indexnode = addnodes.index()
-    indexnode['entries'] = entries
-    set_role_source_info(inliner, lineno, indexnode)
-    textnode = nodes.Text(title, title)
-    return [indexnode, targetnode, textnode], []
-
-
-class Index(ReferenceRole):
-    def run(self) -> Tuple[List[Node], List[system_message]]:
-        warnings.warn('Index role is deprecated.', RemovedInSphinx40Warning, stacklevel=2)
-        target_id = 'index-%s' % self.env.new_serialno('index')
-        if self.has_explicit_title:
-            # if an explicit target is given, process it as a full entry
-            title = self.title
-            entries = process_index_entry(self.target, target_id)
-        else:
-            # otherwise we just create a single entry
-            if self.target.startswith('!'):
-                title = self.title[1:]
-                entries = [('single', self.target[1:], target_id, 'main', None)]
-            else:
-                title = self.title
-                entries = [('single', self.target, target_id, '', None)]
-
-        index = addnodes.index(entries=entries)
-        target = nodes.target('', '', ids=[target_id])
-        text = nodes.Text(title, title)
-        self.set_source_info(index)
-        return [index, target, text], []
-
-
-specific_docroles = {
+specific_docroles: Dict[str, RoleFunction] = {
     # links to download references
     'download': XRefRole(nodeclass=addnodes.download_reference),
     # links to anything
@@ -609,7 +354,7 @@ specific_docroles = {
     'file': EmphasizedLiteral(),
     'samp': EmphasizedLiteral(),
     'abbr': Abbreviation(),
-}  # type: Dict[str, RoleFunction]
+}
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:

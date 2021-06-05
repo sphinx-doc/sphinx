@@ -13,7 +13,7 @@ Documentation.addTranslations({
         "Complete Table of Contents": "Kompletny spis tre\u015bci",
         "Contents": "Tre\u015b\u0107",
         "Copyright": "Copyright",
-        "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "Utworzone przy pomocy <a href=\"http://sphinx-doc.org/\">Sphinx</a>'a %(sphinx_version)s.",
+        "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "",
         "Expand sidebar": "Rozwi\u0144 pasek boczny",
         "Full index on one page": "Ca\u0142y indeks na jednej stronie",
         "General Index": "Indeks og\u00f3lny",

@@ -72,8 +72,8 @@ def test_mathjax_options(app, status, warning):
 
     content = (app.outdir / 'index.html').read_text()
     assert ('<script async="async" integrity="sha384-0123456789" '
-            'src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?'
-            'config=TeX-AMS-MML_HTMLorMML"></script>' in content)
+            'src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">'
+            '</script>' in content)
 
 
 @pytest.mark.sphinx('html', testroot='ext-math',
@@ -215,11 +215,23 @@ def test_math_compat(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='ext-math',
                     confoverrides={'extensions': ['sphinx.ext.mathjax'],
-                                   'mathjax_config': {'extensions': ['tex2jax.js']}})
-def test_mathjax_config(app, status, warning):
+                                   'mathjax3_config': {'extensions': ['tex2jax.js']}})
+def test_mathjax3_config(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').read_text()
+    assert MATHJAX_URL in content
+    assert ('<script>window.MathJax = {"extensions": ["tex2jax.js"]}</script>' in content)
+
+
+@pytest.mark.sphinx('html', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax'],
+                                   'mathjax2_config': {'extensions': ['tex2jax.js']}})
+def test_mathjax2_config(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text()
+    assert MATHJAX_URL in content
     assert ('<script type="text/x-mathjax-config">'
             'MathJax.Hub.Config({"extensions": ["tex2jax.js"]})'
             '</script>' in content)
