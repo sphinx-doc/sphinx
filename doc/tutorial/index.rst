@@ -94,8 +94,8 @@ required to create the basic directory and configuration layout for your project
 inside the ``docs`` folder.
 To proceed, answer each question as follows:
 
-- ``> Separate source and build directories (y/n) [n]``: Write "``y``" (without quotes)
-  and press :kbd:`Enter`.
+- ``> Separate source and build directories (y/n) [n]``: Write "``y``"
+  (without quotes) and press :kbd:`Enter`.
 - ``> Project name``: Write "``Lumache``" (without quotes)
   and press :kbd:`Enter`.
 - ``> Author name(s)``: Write "``Graziella``" (without quotes)
@@ -192,7 +192,8 @@ This showcases several features of the reStructuredText syntax, including:
 - two examples of :ref:`rst-inline-markup`: ``**strong emphasis**`` (typically bold)
   and ``*emphasis*`` (typically italics),
 - an **inline external link**,
-- and a ``note`` **admonition** (one of the available :ref:`directives <rst-directives>`)
+- and a ``note`` **admonition** (one of the available
+  :ref:`directives <rst-directives>`)
 
 Now to render it with the new content,
 you can use the ``sphinx-build`` command as before,
