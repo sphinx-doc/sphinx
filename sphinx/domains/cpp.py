@@ -576,6 +576,10 @@ class ASTIdentifier(ASTBase):
     def is_anon(self) -> bool:
         return self.identifier[0] == '@'
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from []
+
     def get_id(self, version: int) -> str:
         if self.is_anon() and version < 3:
             raise NoOldIdError()
@@ -647,12 +651,18 @@ class ASTIdentifier(ASTBase):
 
 class ASTNestedNameElement(ASTBase):
     def __init__(self, identOrOp: Union[ASTIdentifier, "ASTOperator"],
-                 templateArgs: "ASTTemplateArgs") -> None:
+                 templateArgs: Optional["ASTTemplateArgs"]) -> None:
         self.identOrOp = identOrOp
         self.templateArgs = templateArgs
 
     def is_operator(self) -> bool:
         return False
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.identOrOp.requires_expressions
+        if self.templateArgs is not None:
+            yield from self.templateArgs.requires_expressions
 
     def get_id(self, version: int) -> str:
         res = self.identOrOp.get_id(version)
@@ -695,6 +705,11 @@ class ASTNestedName(ASTBase):
             if n.templateArgs:
                 count += 1
         return count
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        for n in self.names:
+            yield from n.requires_expressions
 
     def get_id(self, version: int, modifiers: str = '') -> str:
         if version == 1:
@@ -812,6 +827,10 @@ class ASTNestedName(ASTBase):
 ################################################################################
 
 class ASTExpression(ASTBase):
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        raise NotImplementedError(repr(self))
+
     def get_id(self, version: int) -> str:
         raise NotImplementedError(repr(self))
 
@@ -828,6 +847,10 @@ class ASTLiteral(ASTExpression):
 
 
 class ASTPointerLiteral(ASTLiteral):
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from []
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return 'nullptr'
 
@@ -842,6 +865,10 @@ class ASTPointerLiteral(ASTLiteral):
 class ASTBooleanLiteral(ASTLiteral):
     def __init__(self, value: bool) -> None:
         self.value = value
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from []
 
     def _stringify(self, transform: StringifyTransform) -> str:
         if self.value:
@@ -864,6 +891,10 @@ class ASTNumberLiteral(ASTLiteral):
     def __init__(self, data: str) -> None:
         self.data = data
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from []
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return self.data
 
@@ -879,6 +910,10 @@ class ASTNumberLiteral(ASTLiteral):
 class ASTStringLiteral(ASTLiteral):
     def __init__(self, data: str) -> None:
         self.data = data
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from []
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return self.data
@@ -904,6 +939,10 @@ class ASTCharLiteral(ASTLiteral):
         else:
             raise UnsupportedMultiCharacterCharLiteral(decoded)
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from []
+
     def _stringify(self, transform: StringifyTransform) -> str:
         if self.prefix is None:
             return "'" + self.data + "'"
@@ -927,6 +966,10 @@ class ASTUserDefinedLiteral(ASTLiteral):
         self.literal = literal
         self.ident = ident
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from []
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return transform(self.literal) + transform(self.ident)
 
@@ -943,6 +986,10 @@ class ASTUserDefinedLiteral(ASTLiteral):
 ################################################################################
 
 class ASTThisLiteral(ASTExpression):
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from []
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return "this"
 
@@ -962,15 +1009,22 @@ class ASTFoldExpr(ASTExpression):
         self.op = op
         self.rightExpr = rightExpr
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        if self.leftExpr is not None:
+            yield from self.leftExpr.requires_expressions
+        if self.rightExpr is not None:
+            yield from self.rightExpr.requires_expressions
+
     def _stringify(self, transform: StringifyTransform) -> str:
         res = ['(']
-        if self.leftExpr:
+        if self.leftExpr is not None:
             res.append(transform(self.leftExpr))
             res.append(' ')
             res.append(self.op)
             res.append(' ')
         res.append('...')
-        if self.rightExpr:
+        if self.rightExpr is not None:
             res.append(' ')
             res.append(self.op)
             res.append(' ')
@@ -1020,6 +1074,10 @@ class ASTParenExpr(ASTExpression):
     def __init__(self, expr: ASTExpression) -> None:
         self.expr = expr
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.expr.requires_expressions
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return '(' + transform(self.expr) + ')'
 
@@ -1041,6 +1099,10 @@ class ASTRequiresExpression(ASTExpression):
                  reqs: List["ASTRequirement"]) -> None:
         self.params = params
         self.reqs = reqs
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield self
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = ["requires"]
@@ -1165,6 +1227,10 @@ class ASTIdExpression(ASTExpression):
         # note: this class is basically to cast a nested name as an expression
         self.name = name
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.name.requires_expressions
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return transform(self.name)
 
@@ -1180,6 +1246,10 @@ class ASTIdExpression(ASTExpression):
 ################################################################################
 
 class ASTPostfixOp(ASTBase):
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        raise NotImplementedError(repr(self))
+
     def get_id(self, idPrefix: str, version: int) -> str:
         raise NotImplementedError(repr(self))
 
@@ -1191,6 +1261,10 @@ class ASTPostfixOp(ASTBase):
 class ASTPostfixArray(ASTPostfixOp):
     def __init__(self, expr: ASTExpression):
         self.expr = expr
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.expr.requires_expressions
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return '[' + transform(self.expr) + ']'
@@ -1209,6 +1283,10 @@ class ASTPostfixMember(ASTPostfixOp):
     def __init__(self, name: ASTNestedName):
         self.name = name
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.name.requires_expressions
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return '.' + transform(self.name)
 
@@ -1225,6 +1303,10 @@ class ASTPostfixMemberOfPointer(ASTPostfixOp):
     def __init__(self, name: ASTNestedName):
         self.name = name
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.name.requires_expressions
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return '->' + transform(self.name)
 
@@ -1238,6 +1320,10 @@ class ASTPostfixMemberOfPointer(ASTPostfixOp):
 
 
 class ASTPostfixInc(ASTPostfixOp):
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from []
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return '++'
 
@@ -1250,6 +1336,10 @@ class ASTPostfixInc(ASTPostfixOp):
 
 
 class ASTPostfixDec(ASTPostfixOp):
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from []
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return '--'
 
@@ -1264,6 +1354,10 @@ class ASTPostfixDec(ASTPostfixOp):
 class ASTPostfixCallExpr(ASTPostfixOp):
     def __init__(self, lst: Union["ASTParenExprList", "ASTBracedInitList"]) -> None:
         self.lst = lst
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.lst.requires_expressions
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return transform(self.lst)
@@ -1284,6 +1378,12 @@ class ASTPostfixExpr(ASTExpression):
     def __init__(self, prefix: "ASTType", postFixes: List[ASTPostfixOp]):
         self.prefix = prefix
         self.postFixes = postFixes
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.prefix.requires_expressions
+        for p in self.postFixes:
+            yield from p.requires_expressions
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = [transform(self.prefix)]
@@ -1310,6 +1410,11 @@ class ASTExplicitCast(ASTExpression):
         self.cast = cast
         self.typ = typ
         self.expr = expr
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.typ.requires_expressions
+        yield from self.expr.requires_expressions
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = [self.cast]
@@ -1341,6 +1446,10 @@ class ASTTypeId(ASTExpression):
         self.typeOrExpr = typeOrExpr
         self.isType = isType
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.typeOrExpr.requires_expressions
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return 'typeid(' + transform(self.typeOrExpr) + ')'
 
@@ -1363,6 +1472,10 @@ class ASTUnaryOpExpr(ASTExpression):
     def __init__(self, op: str, expr: ASTExpression):
         self.op = op
         self.expr = expr
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.expr.requires_expressions
 
     def _stringify(self, transform: StringifyTransform) -> str:
         if self.op[0] in 'cn':
@@ -1387,6 +1500,10 @@ class ASTSizeofParamPack(ASTExpression):
     def __init__(self, identifier: ASTIdentifier):
         self.identifier = identifier
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from []
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return "sizeof...(" + transform(self.identifier) + ")"
 
@@ -1407,6 +1524,10 @@ class ASTSizeofType(ASTExpression):
     def __init__(self, typ: "ASTType"):
         self.typ = typ
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.typ.requires_expressions
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return "sizeof(" + transform(self.typ) + ")"
 
@@ -1425,6 +1546,10 @@ class ASTSizeofExpr(ASTExpression):
     def __init__(self, expr: ASTExpression):
         self.expr = expr
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.expr.requires_expressions
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return "sizeof " + transform(self.expr)
 
@@ -1441,6 +1566,10 @@ class ASTSizeofExpr(ASTExpression):
 class ASTAlignofExpr(ASTExpression):
     def __init__(self, typ: "ASTType"):
         self.typ = typ
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.typ.requires_expressions
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return "alignof(" + transform(self.typ) + ")"
@@ -1460,6 +1589,10 @@ class ASTNoexceptExpr(ASTExpression):
     def __init__(self, expr: ASTExpression):
         self.expr = expr
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.expr.requires_expressions
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return 'noexcept(' + transform(self.expr) + ')'
 
@@ -1476,11 +1609,16 @@ class ASTNoexceptExpr(ASTExpression):
 
 class ASTNewExpr(ASTExpression):
     def __init__(self, rooted: bool, isNewTypeId: bool, typ: "ASTType",
-                 initList: Union["ASTParenExprList", "ASTBracedInitList"]) -> None:
+                 initList: Optional[Union["ASTParenExprList", "ASTBracedInitList"]]) -> None:
         self.rooted = rooted
         self.isNewTypeId = isNewTypeId
         self.typ = typ
         self.initList = initList
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        if self.initList is not None:
+            yield from self.initList.requires_expressions
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
@@ -1529,6 +1667,10 @@ class ASTDeleteExpr(ASTExpression):
         self.array = array
         self.expr = expr
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.expr.requires_expressions
+
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
         if self.rooted:
@@ -1566,6 +1708,11 @@ class ASTCastExpr(ASTExpression):
         self.typ = typ
         self.expr = expr
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.typ.requires_expressions
+        yield from self.expr.requires_expressions
+
     def _stringify(self, transform: StringifyTransform) -> str:
         res = ['(']
         res.append(transform(self.typ))
@@ -1590,6 +1737,11 @@ class ASTBinOpExpr(ASTExpression):
         assert len(exprs) == len(ops) + 1
         self.exprs = exprs
         self.ops = ops
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        for e in self.exprs:
+            yield from e.requires_expressions
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
@@ -1638,6 +1790,11 @@ class ASTBracedInitList(ASTBase):
         trailingComma = ',' if self.trailingComma else ''
         return '{%s%s}' % (', '.join(exprs), trailingComma)
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        for e in self.exprs:
+            yield from e.requires_expressions
+
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
@@ -1661,6 +1818,11 @@ class ASTAssignmentExpr(ASTExpression):
         assert len(exprs) == len(ops) + 1
         self.exprs = exprs
         self.ops = ops
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        for e in self.exprs:
+            yield from e.requires_expressions
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
@@ -1699,6 +1861,11 @@ class ASTCommaExpr(ASTExpression):
         assert len(exprs) > 0
         self.exprs = exprs
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        for e in self.exprs:
+            yield from e.requires_expressions
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return ', '.join(transform(e) for e in self.exprs)
 
@@ -1724,6 +1891,10 @@ class ASTFallbackExpr(ASTExpression):
     def __init__(self, expr: str):
         self.expr = expr
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from []
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return self.expr
 
@@ -1748,6 +1919,10 @@ class ASTOperator(ASTBase):
 
     def is_operator(self) -> bool:
         return True
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from []
 
     def get_id(self, version: int) -> str:
         raise NotImplementedError()
@@ -1841,6 +2016,10 @@ class ASTOperatorType(ASTOperator):
     def __init__(self, type: "ASTType") -> None:
         self.type = type
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.type.requires_expressions
+
     def get_id(self, version: int) -> str:
         if version == 1:
             return 'castto-%s-operator' % self.type.get_id(version)
@@ -1864,6 +2043,10 @@ class ASTTemplateArgConstant(ASTBase):
     def __init__(self, value: ASTExpression) -> None:
         self.value = value
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.value.requires_expressions
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return transform(self.value)
 
@@ -1886,6 +2069,11 @@ class ASTTemplateArgs(ASTBase):
         assert args is not None
         self.args = args
         self.packExpansion = packExpansion
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        for a in self.args:
+            yield from a.requires_expressions
 
     def get_id(self, version: int) -> str:
         if version == 1:
@@ -1937,6 +2125,10 @@ class ASTTrailingTypeSpec(ASTBase):
     def get_id(self, version: int) -> str:
         raise NotImplementedError(repr(self))
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        raise NotImplementedError(repr(self))
+
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         raise NotImplementedError(repr(self))
@@ -1948,6 +2140,10 @@ class ASTTrailingTypeSpecFundamental(ASTTrailingTypeSpec):
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return self.name
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from []
 
     def get_id(self, version: int) -> str:
         if version == 1:
@@ -1975,6 +2171,10 @@ class ASTTrailingTypeSpecDecltypeAuto(ASTTrailingTypeSpec):
     def _stringify(self, transform: StringifyTransform) -> str:
         return 'decltype(auto)'
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from []
+
     def get_id(self, version: int) -> str:
         if version == 1:
             raise NoOldIdError()
@@ -1991,6 +2191,10 @@ class ASTTrailingTypeSpecDecltypeAuto(ASTTrailingTypeSpec):
 class ASTTrailingTypeSpecDecltype(ASTTrailingTypeSpec):
     def __init__(self, expr: ASTExpression):
         self.expr = expr
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.expr.requires_expressions
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return 'decltype(' + transform(self.expr) + ')'
@@ -2018,6 +2222,10 @@ class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
     @property
     def name(self) -> ASTNestedName:
         return self.nestedName
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.nestedName.requires_expressions
 
     def get_id(self, version: int) -> str:
         return self.nestedName.get_id(version)
@@ -2053,11 +2261,16 @@ class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
 
 
 class ASTFunctionParameter(ASTBase):
-    def __init__(self, arg: Union["ASTTypeWithInit",
-                                  "ASTTemplateParamConstrainedTypeWithInit"],
+    def __init__(self, arg: Optional[Union["ASTTypeWithInit",
+                                           "ASTTemplateParamConstrainedTypeWithInit"]],
                  ellipsis: bool = False) -> None:
         self.arg = arg
         self.ellipsis = ellipsis
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        if self.arg is not None:
+            yield from self.arg.requires_expressions
 
     def get_id(self, version: int, objectType: str = None, symbol: "Symbol" = None) -> str:
         # this is not part of the normal name mangling in C++
@@ -2089,6 +2302,11 @@ class ASTNoexceptSpec(ASTBase):
     def __init__(self, expr: Optional[ASTExpression]):
         self.expr = expr
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        if self.expr is not None:
+            yield from self.expr.requires_expressions
+
     def _stringify(self, transform: StringifyTransform) -> str:
         if self.expr:
             return 'noexcept(' + transform(self.expr) + ')'
@@ -2105,8 +2323,8 @@ class ASTNoexceptSpec(ASTBase):
 
 class ASTParametersQualifiers(ASTBase):
     def __init__(self, args: List[ASTFunctionParameter], volatile: bool, const: bool,
-                 refQual: Optional[str], exceptionSpec: ASTNoexceptSpec,
-                 trailingReturn: "ASTType",
+                 refQual: Optional[str], exceptionSpec: Optional[ASTNoexceptSpec],
+                 trailingReturn: Optional["ASTType"],
                  override: bool, final: bool, attrs: List[ASTAttribute],
                  initializer: Optional[str]) -> None:
         self.args = args
@@ -2149,6 +2367,15 @@ class ASTParametersQualifiers(ASTBase):
             return 'v'
         else:
             return ''.join(a.get_id(version) for a in self.args)
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        for a in self.args:
+            yield from a.requires_expressions
+        if self.exceptionSpec is not None:
+            yield from self.exceptionSpec.requires_expressions
+        if self.trailingReturn is not None:
+            yield from self.trailingReturn.requires_expressions
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
@@ -2372,7 +2599,7 @@ class ASTDeclSpecsSimple(ASTBase):
 class ASTDeclSpecs(ASTBase):
     def __init__(self, outer: str,
                  leftSpecs: ASTDeclSpecsSimple, rightSpecs: ASTDeclSpecsSimple,
-                 trailing: ASTTrailingTypeSpec) -> None:
+                 trailing: Optional[ASTTrailingTypeSpec]) -> None:
         # leftSpecs and rightSpecs are used for output
         # allSpecs are used for id generation
         self.outer = outer
@@ -2415,6 +2642,11 @@ class ASTDeclSpecs(ASTBase):
                 res.append(r)
         return "".join(res)
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        if self.trailingTypeSpec is not None:
+            yield from self.trailingTypeSpec.requires_expressions
+
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
@@ -2440,11 +2672,16 @@ class ASTDeclSpecs(ASTBase):
 ################################################################################
 
 class ASTArray(ASTBase):
-    def __init__(self, size: ASTExpression):
+    def __init__(self, size: Optional[ASTExpression]):
         self.size = size
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        if self.size is not None:
+            yield from self.size.requires_expressions
+
     def _stringify(self, transform: StringifyTransform) -> str:
-        if self.size:
+        if self.size is not None:
             return '[' + transform(self.size) + ']'
         else:
             return '[]'
@@ -2453,11 +2690,11 @@ class ASTArray(ASTBase):
         if version == 1:
             return 'A'
         if version == 2:
-            if self.size:
+            if self.size is not None:
                 return 'A' + str(self.size) + '_'
             else:
                 return 'A_'
-        if self.size:
+        if self.size is not None:
             return 'A' + self.size.get_id(version) + '_'
         else:
             return 'A_'
@@ -2510,15 +2747,19 @@ class ASTDeclarator(ASTBase):
     def is_function_type(self) -> bool:
         raise NotImplementedError(repr(self))
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        raise NotImplementedError(repr(self))
+
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         raise NotImplementedError(repr(self))
 
 
 class ASTDeclaratorNameParamQual(ASTDeclarator):
-    def __init__(self, declId: ASTNestedName,
+    def __init__(self, declId: Optional[ASTNestedName],
                  arrayOps: List[ASTArray],
-                 paramQual: ASTParametersQualifiers) -> None:
+                 paramQual: Optional[ASTParametersQualifiers]) -> None:
         self.declId = declId
         self.arrayOps = arrayOps
         self.paramQual = paramQual
@@ -2542,6 +2783,15 @@ class ASTDeclaratorNameParamQual(ASTDeclarator):
     @property
     def trailingReturn(self) -> "ASTType":
         return self.paramQual.trailingReturn
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        if self.declId is not None:
+            yield from self.declId.requires_expressions
+        for a in self.arrayOps:
+            yield from a.requires_expressions
+        if self.paramQual is not None:
+            yield from self.paramQual.requires_expressions
 
     # only the modifiers for a function, e.g.,
     def get_modifiers_id(self, version: int) -> str:
@@ -2616,6 +2866,12 @@ class ASTDeclaratorNameBitField(ASTDeclarator):
     def name(self, name: ASTNestedName) -> None:
         self.declId = name
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        if self.declId is not None:
+            yield from self.declId.requires_expressions
+        yield from self.size.requires_expressions
+
     def get_param_id(self, version: int) -> str:  # only the parameters (if any)
         return ''
 
@@ -2673,6 +2929,10 @@ class ASTDeclaratorPtr(ASTDeclarator):
     @property
     def trailingReturn(self) -> "ASTType":
         return self.next.trailingReturn
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.next.requires_expressions
 
     def require_space_after_declSpecs(self) -> bool:
         return self.next.require_space_after_declSpecs()
@@ -2781,6 +3041,10 @@ class ASTDeclaratorRef(ASTDeclarator):
     def trailingReturn(self) -> "ASTType":
         return self.next.trailingReturn
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.next.requires_expressions
+
     def require_space_after_declSpecs(self) -> bool:
         return self.next.require_space_after_declSpecs()
 
@@ -2845,6 +3109,10 @@ class ASTDeclaratorParamPack(ASTDeclarator):
     def trailingReturn(self) -> "ASTType":
         return self.next.trailingReturn
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.next.requires_expressions
+
     def require_space_after_declSpecs(self) -> bool:
         return False
 
@@ -2908,6 +3176,11 @@ class ASTDeclaratorMemPtr(ASTDeclarator):
     @property
     def trailingReturn(self) -> "ASTType":
         return self.next.trailingReturn
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.className.requires_expressions
+        yield from self.next.requires_expressions
 
     def require_space_after_declSpecs(self) -> bool:
         return True
@@ -3006,6 +3279,11 @@ class ASTDeclaratorParen(ASTDeclarator):
     def trailingReturn(self) -> "ASTType":
         return self.inner.trailingReturn
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.inner.requires_expressions
+        yield from self.next.requires_expressions
+
     def require_space_after_declSpecs(self) -> bool:
         return True
 
@@ -3056,6 +3334,10 @@ class ASTPackExpansionExpr(ASTExpression):
     def __init__(self, expr: Union[ASTExpression, ASTBracedInitList]):
         self.expr = expr
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.expr.requires_expressions
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return transform(self.expr) + '...'
 
@@ -3072,6 +3354,11 @@ class ASTPackExpansionExpr(ASTExpression):
 class ASTParenExprList(ASTBaseParenExprList):
     def __init__(self, exprs: List[Union[ASTExpression, ASTBracedInitList]]) -> None:
         self.exprs = exprs
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        for e in self.exprs:
+            yield from e.requires_expressions
 
     def get_id(self, version: int) -> str:
         return "pi%sE" % ''.join(e.get_id(version) for e in self.exprs)
@@ -3107,6 +3394,10 @@ class ASTInitializer(ASTBase):
             return ' = ' + val
         else:
             return val
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.value.requires_expressions
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
@@ -3144,6 +3435,11 @@ class ASTType(ASTBase):
     @property
     def trailingReturn(self) -> "ASTType":
         return self.decl.trailingReturn
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.declSpecs.requires_expressions
+        yield from self.decl.requires_expressions
 
     def get_id(self, version: int, objectType: str = None,
                symbol: "Symbol" = None) -> str:
@@ -3244,6 +3540,11 @@ class ASTTemplateParamConstrainedTypeWithInit(ASTBase):
     def isPack(self) -> bool:
         return self.type.isPack
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.type.requires_expressions
+        yield from self.init.requires_expressions
+
     def get_id(self, version: int, objectType: str = None, symbol: "Symbol" = None) -> str:
         # this is not part of the normal name mangling in C++
         assert version >= 2
@@ -3271,7 +3572,7 @@ class ASTTemplateParamConstrainedTypeWithInit(ASTBase):
 
 
 class ASTTypeWithInit(ASTBase):
-    def __init__(self, type: ASTType, init: ASTInitializer) -> None:
+    def __init__(self, type: ASTType, init: Optional[ASTInitializer]) -> None:
         self.type = type
         self.init = init
 
@@ -3295,9 +3596,15 @@ class ASTTypeWithInit(ASTBase):
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
         res.append(transform(self.type))
-        if self.init:
+        if self.init is not None:
             res.append(transform(self.init))
         return ''.join(res)
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.type.requires_expressions
+        if self.init is not None:
+            yield from self.init.requires_expressions
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
@@ -3308,9 +3615,15 @@ class ASTTypeWithInit(ASTBase):
 
 
 class ASTTypeUsing(ASTBase):
-    def __init__(self, name: ASTNestedName, type: ASTType) -> None:
+    def __init__(self, name: ASTNestedName, type: Optional[ASTType]) -> None:
         self.name = name
         self.type = type
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.name.requires_expressions
+        if self.type is not None:
+            yield from self.type.requires_expressions
 
     def get_id(self, version: int, objectType: str = None,
                symbol: "Symbol" = None) -> str:
@@ -3321,7 +3634,7 @@ class ASTTypeUsing(ASTBase):
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
         res.append(transform(self.name))
-        if self.type:
+        if self.type is not None:
             res.append(' = ')
             res.append(transform(self.type))
         return ''.join(res)
@@ -3333,7 +3646,7 @@ class ASTTypeUsing(ASTBase):
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
         self.name.describe_signature(signode, mode, env, symbol=symbol)
-        if self.type:
+        if self.type is not None:
             signode += addnodes.desc_sig_space()
             signode += addnodes.desc_sig_punctuation('=', '=')
             signode += addnodes.desc_sig_space()
@@ -3351,6 +3664,12 @@ class ASTConcept(ASTBase):
     @property
     def name(self) -> ASTNestedName:
         return self.nestedName
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.nestedName.requires_expressions
+        if self.constraint is not None:
+            yield from self.constraint.requires_expressions
 
     def get_id(self, version: int, objectType: str = None,
                symbol: "Symbol" = None) -> str:
@@ -3382,6 +3701,10 @@ class ASTBaseClass(ASTBase):
         self.visibility = visibility
         self.virtual = virtual
         self.pack = pack
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.name.requires_expressions
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
@@ -3415,6 +3738,12 @@ class ASTClass(ASTBase):
         self.name = name
         self.final = final
         self.bases = bases
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.name.requires_expressions
+        for b in self.bases:
+            yield from b.requires_expressions
 
     def get_id(self, version: int, objectType: str, symbol: "Symbol") -> str:
         return symbol.get_full_nested_name().get_id(version)
@@ -3457,6 +3786,10 @@ class ASTUnion(ASTBase):
     def __init__(self, name: ASTNestedName) -> None:
         self.name = name
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.name.requires_expressions
+
     def get_id(self, version: int, objectType: str, symbol: "Symbol") -> str:
         if version == 1:
             raise NoOldIdError()
@@ -3473,10 +3806,16 @@ class ASTUnion(ASTBase):
 
 class ASTEnum(ASTBase):
     def __init__(self, name: ASTNestedName, scoped: str,
-                 underlyingType: ASTType) -> None:
+                 underlyingType: Optional[ASTType]) -> None:
         self.name = name
         self.scoped = scoped
         self.underlyingType = underlyingType
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.name.requires_expressions
+        if self.underlyingType is not None:
+            yield from self.underlyingType.requires_expressions
 
     def get_id(self, version: int, objectType: str, symbol: "Symbol") -> str:
         if version == 1:
@@ -3489,7 +3828,7 @@ class ASTEnum(ASTBase):
             res.append(self.scoped)
             res.append(' ')
         res.append(transform(self.name))
-        if self.underlyingType:
+        if self.underlyingType is not None:
             res.append(' : ')
             res.append(transform(self.underlyingType))
         return ''.join(res)
@@ -3508,9 +3847,15 @@ class ASTEnum(ASTBase):
 
 
 class ASTEnumerator(ASTBase):
-    def __init__(self, name: ASTNestedName, init: ASTInitializer) -> None:
+    def __init__(self, name: ASTNestedName, init: Optional[ASTInitializer]) -> None:
         self.name = name
         self.init = init
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.name.requires_expressions
+        if self.init is not None:
+            yield from self.init.requires_expressions
 
     def get_id(self, version: int, objectType: str, symbol: "Symbol") -> str:
         if version == 1:
@@ -3520,7 +3865,7 @@ class ASTEnumerator(ASTBase):
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
         res.append(transform(self.name))
-        if self.init:
+        if self.init is not None:
             res.append(transform(self.init))
         return ''.join(res)
 
@@ -3528,7 +3873,7 @@ class ASTEnumerator(ASTBase):
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
         self.name.describe_signature(signode, mode, env, symbol)
-        if self.init:
+        if self.init is not None:
             self.init.describe_signature(signode, 'markType', env, symbol)
 
 
@@ -3543,6 +3888,10 @@ class ASTTemplateParam(ASTBase):
     def get_identifier(self) -> ASTIdentifier:
         raise NotImplementedError(repr(self))
 
+    @property
+    def requires_expressions(self) -> Generator[ASTRequiresExpression, None, None]:
+        raise NotImplementedError(repr(self))
+
     def get_id(self, version: int) -> str:
         raise NotImplementedError(repr(self))
 
@@ -3553,7 +3902,7 @@ class ASTTemplateParam(ASTBase):
 
 class ASTTemplateKeyParamPackIdDefault(ASTTemplateParam):
     def __init__(self, key: str, identifier: ASTIdentifier,
-                 parameterPack: bool, default: ASTType) -> None:
+                 parameterPack: bool, default: Optional[ASTType]) -> None:
         assert key
         if parameterPack:
             assert default is None
@@ -3561,6 +3910,11 @@ class ASTTemplateKeyParamPackIdDefault(ASTTemplateParam):
         self.identifier = identifier
         self.parameterPack = parameterPack
         self.default = default
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        if self.default is not None:
+            yield from self.default.requires_expressions
 
     def get_identifier(self) -> ASTIdentifier:
         return self.identifier
@@ -3581,11 +3935,11 @@ class ASTTemplateKeyParamPackIdDefault(ASTTemplateParam):
             if self.identifier:
                 res.append(' ')
             res.append('...')
-        if self.identifier:
+        if self.identifier is not None:
             if not self.parameterPack:
                 res.append(' ')
             res.append(transform(self.identifier))
-        if self.default:
+        if self.default is not None:
             res.append(' = ')
             res.append(transform(self.default))
         return ''.join(res)
@@ -3597,11 +3951,11 @@ class ASTTemplateKeyParamPackIdDefault(ASTTemplateParam):
             if self.identifier:
                 signode += addnodes.desc_sig_space()
             signode += addnodes.desc_sig_punctuation('...', '...')
-        if self.identifier:
+        if self.identifier is not None:
             if not self.parameterPack:
                 signode += addnodes.desc_sig_space()
             self.identifier.describe_signature(signode, mode, env, '', '', symbol)
-        if self.default:
+        if self.default is not None:
             signode += addnodes.desc_sig_space()
             signode += addnodes.desc_sig_punctuation('=', '=')
             signode += addnodes.desc_sig_space()
@@ -3621,6 +3975,10 @@ class ASTTemplateParamType(ASTTemplateParam):
     @property
     def isPack(self) -> bool:
         return self.data.parameterPack
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.data.requires_expressions
 
     def get_identifier(self) -> ASTIdentifier:
         return self.data.get_identifier()
@@ -3658,6 +4016,11 @@ class ASTTemplateParamTemplateType(ASTTemplateParam):
     @property
     def isPack(self) -> bool:
         return self.data.parameterPack
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.nestedParams.requires_expressions
+        yield from self.data.requires_expressions
 
     def get_identifier(self) -> ASTIdentifier:
         return self.data.get_identifier()
@@ -3697,6 +4060,10 @@ class ASTTemplateParamNonType(ASTTemplateParam):
     def isPack(self) -> bool:
         return self.param.isPack
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.param.requires_expressions
+
     def get_identifier(self) -> ASTIdentifier:
         name = self.param.name
         if name:
@@ -3728,8 +4095,12 @@ class ASTTemplateParamNonType(ASTTemplateParam):
 
 class ASTTemplateParams(ASTBase):
     def __init__(self, params: List[ASTTemplateParam]) -> None:
-        assert params is not None
         self.params = params
+
+    @property
+    def requires_expressions(self) -> Generator[ASTRequiresExpression, None, None]:
+        for p in self.params:
+            yield from p.requires_expressions
 
     def get_id(self, version: int) -> str:
         assert version >= 2
@@ -3802,6 +4173,10 @@ class ASTTemplateIntroductionParameter(ASTBase):
     def isPack(self) -> bool:
         return self.parameterPack
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from []
+
     def get_identifier(self) -> ASTIdentifier:
         return self.identifier
 
@@ -3846,6 +4221,10 @@ class ASTTemplateIntroduction(ASTBase):
         assert len(params) > 0
         self.concept = concept
         self.params = params
+
+    @property
+    def requires_expressions(self) -> Generator[ASTRequiresExpression, None, None]:
+        yield from []
 
     def get_id(self, version: int) -> str:
         assert version >= 2
@@ -3901,6 +4280,12 @@ class ASTTemplateDeclarationPrefix(ASTBase):
         # templates is None means it's an explicit instantiation of a variable
         self.templates = templates
 
+    @property
+    def requires_expressions(self) -> Generator[ASTRequiresExpression, None, None]:
+        if self.templates is not None:
+            for t in self.templates:
+                yield from t.requires_expressions
+
     def get_id(self, version: int) -> str:
         assert version >= 2
         # this is not part of a normal name mangling system
@@ -3926,6 +4311,10 @@ class ASTRequiresClause(ASTBase):
     def __init__(self, expr: ASTExpression) -> None:
         self.expr = expr
 
+    @property
+    def requires_expressions(self) -> Generator[ASTRequiresExpression, None, None]:
+        yield from self.expr.requires_expressions
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return 'requires ' + transform(self.expr)
 
@@ -3940,10 +4329,11 @@ class ASTRequiresClause(ASTBase):
 ################################################################################
 
 class ASTDeclaration(ASTBase):
-    def __init__(self, objectType: str, directiveType: str, visibility: str,
-                 templatePrefix: ASTTemplateDeclarationPrefix,
-                 requiresClause: ASTRequiresClause, declaration: Any,
-                 trailingRequiresClause: ASTRequiresClause,
+    def __init__(self, objectType: str, directiveType: Optional[str],
+                 visibility: Optional[str],
+                 templatePrefix: Optional[ASTTemplateDeclarationPrefix],
+                 requiresClause: Optional[ASTRequiresClause], declaration: Any,
+                 trailingRequiresClause: Optional[ASTRequiresClause],
                  semicolon: bool = False) -> None:
         self.objectType = objectType
         self.directiveType = directiveType
@@ -3977,6 +4367,16 @@ class ASTDeclaration(ASTBase):
         if self.objectType != 'function':
             return None
         return self.declaration.function_params
+
+    @property
+    def requires_expressions(self) -> Generator[ASTRequiresExpression, None, None]:
+        if self.templatePrefix is not None:
+            yield from self.templatePrefix.requires_expressions
+        if self.requiresClause is not None:
+            yield from self.requiresClause.requires_expressions
+        yield from self.declaration.requires_expressions
+        if self.trailingRequiresClause is not None:
+            yield from self.trailingRequiresClause.requires_expressions
 
     def get_id(self, version: int, prefixed: bool = True) -> str:
         if version == 1:
@@ -4200,7 +4600,7 @@ class Symbol:
             self.declaration.symbol = self
 
         # Do symbol addition after self._children has been initialised.
-        self._add_template_and_function_params()
+        self._add_implicit_symbols()
 
     def _fill_empty(self, declaration: ASTDeclaration, docname: str, line: int) -> None:
         self._assert_invariants()
@@ -4216,12 +4616,16 @@ class Symbol:
         self.line = line
         self._assert_invariants()
         # and symbol addition should be done as well
-        self._add_template_and_function_params()
+        self._add_implicit_symbols()
 
-    def _add_template_and_function_params(self) -> None:
+    def _add_implicit_symbols(self) -> None:
+        # add symbols for:
+        # - template parameters
+        # - function parameters
+        # - requires expressions
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
-            Symbol.debug_print("_add_template_and_function_params:")
+            Symbol.debug_print("_add_implicit_symbols:")
         # Note: we may be called from _fill_empty, so the symbols we want
         #       to add may actually already be present (as empty symbols).
 
@@ -4251,6 +4655,10 @@ class Symbol:
                 assert not nn.rooted
                 assert len(nn.names) == 1
                 self._add_symbols(nn, [], decl, self.docname, self.line)
+        if self.declaration is not None:
+            for reqExpr in self.declaration.requires_expressions:
+                pass
+            pass
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 1
 
