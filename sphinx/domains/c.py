@@ -3115,7 +3115,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
     doc_field_types = [
         TypedField('parameter', label=_('Parameters'),
                    names=('param', 'parameter', 'arg', 'argument'),
-                   typerolename='type', typenames=('type',)),
+                   typerolename='expr', typenames=('type',)),
         Field('returnvalue', label=_('Returns'), has_arg=False,
               names=('returns', 'return')),
         Field('returntype', label=_('Return type'), has_arg=False,

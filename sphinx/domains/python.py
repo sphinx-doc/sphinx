@@ -20,6 +20,7 @@ from typing import Any, Dict, Iterable, Iterator, List, NamedTuple, Optional, Tu
 from docutils import nodes
 from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
+from docutils.parsers.rst.states import Inliner
 
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature, pending_xref, pending_xref_condition
@@ -284,9 +285,13 @@ def _pseudo_parse_arglist(signode: desc_signature, arglist: str) -> None:
 class PyXrefMixin:
     def make_xref(self, rolename: str, domain: str, target: str,
                   innernode: Type[TextlikeNode] = nodes.emphasis,
-                  contnode: Node = None, env: BuildEnvironment = None) -> Node:
+                  contnode: Node = None, env: BuildEnvironment = None,
+                  inliner: Inliner = None, location: Node = None) -> Node:
+        # we use inliner=None to make sure we get the old behaviour with a single
+        # pending_xref node
         result = super().make_xref(rolename, domain, target,  # type: ignore
-                                   innernode, contnode, env)
+                                   innernode, contnode,
+                                   env, inliner=None, location=None)
         result['refspecific'] = True
         result['py:module'] = env.ref_context.get('py:module')
         result['py:class'] = env.ref_context.get('py:class')
@@ -299,11 +304,22 @@ class PyXrefMixin:
             for node in result.traverse(nodes.Text):
                 node.parent[node.parent.index(node)] = nodes.Text(text)
                 break
+        elif isinstance(result, pending_xref) and env.config.python_use_unqualified_type_names:
+            children = result.children
+            result.clear()
+
+            shortname = target.split('.')[-1]
+            textnode = innernode('', shortname)
+            contnodes = [pending_xref_condition('', '', textnode, condition='resolved'),
+                         pending_xref_condition('', '', *children, condition='*')]
+            result.extend(contnodes)
+
         return result
 
     def make_xrefs(self, rolename: str, domain: str, target: str,
                    innernode: Type[TextlikeNode] = nodes.emphasis,
-                   contnode: Node = None, env: BuildEnvironment = None) -> List[Node]:
+                   contnode: Node = None, env: BuildEnvironment = None,
+                   inliner: Inliner = None, location: Node = None) -> List[Node]:
         delims = r'(\s*[\[\]\(\),](?:\s*or\s)?\s*|\s+or\s+|\s*\|\s*|\.\.\.)'
         delims_re = re.compile(delims)
         sub_targets = re.split(delims, target)
@@ -319,7 +335,7 @@ class PyXrefMixin:
                 results.append(contnode or innernode(sub_target, sub_target))
             else:
                 results.append(self.make_xref(rolename, domain, sub_target,
-                                              innernode, contnode, env))
+                                              innernode, contnode, env, inliner, location))
 
         return results
 
@@ -327,12 +343,14 @@ class PyXrefMixin:
 class PyField(PyXrefMixin, Field):
     def make_xref(self, rolename: str, domain: str, target: str,
                   innernode: Type[TextlikeNode] = nodes.emphasis,
-                  contnode: Node = None, env: BuildEnvironment = None) -> Node:
+                  contnode: Node = None, env: BuildEnvironment = None,
+                  inliner: Inliner = None, location: Node = None) -> Node:
         if rolename == 'class' and target == 'None':
             # None is not a type, so use obj role instead.
             rolename = 'obj'
 
-        return super().make_xref(rolename, domain, target, innernode, contnode, env)
+        return super().make_xref(rolename, domain, target, innernode, contnode,
+                                 env, inliner, location)
 
 
 class PyGroupedField(PyXrefMixin, GroupedField):
@@ -342,12 +360,14 @@ class PyGroupedField(PyXrefMixin, GroupedField):
 class PyTypedField(PyXrefMixin, TypedField):
     def make_xref(self, rolename: str, domain: str, target: str,
                   innernode: Type[TextlikeNode] = nodes.emphasis,
-                  contnode: Node = None, env: BuildEnvironment = None) -> Node:
+                  contnode: Node = None, env: BuildEnvironment = None,
+                  inliner: Inliner = None, location: Node = None) -> Node:
         if rolename == 'class' and target == 'None':
             # None is not a type, so use obj role instead.
             rolename = 'obj'
 
-        return super().make_xref(rolename, domain, target, innernode, contnode, env)
+        return super().make_xref(rolename, domain, target, innernode, contnode,
+                                 env, inliner, location)
 
 
 class PyObject(ObjectDescription[Tuple[str, str]]):
@@ -448,12 +468,9 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
 
         if prefix:
             signode += addnodes.desc_addname(prefix, prefix)
-        elif add_module and self.env.config.add_module_names:
-            if modname and modname != 'exceptions':
-                # exceptions are a special case, since they are documented in the
-                # 'exceptions' module.
-                nodetext = modname + '.'
-                signode += addnodes.desc_addname(nodetext, nodetext)
+        elif modname and add_module and self.env.config.add_module_names:
+            nodetext = modname + '.'
+            signode += addnodes.desc_addname(nodetext, nodetext)
 
         signode += addnodes.desc_name(name, name)
         if arglist:

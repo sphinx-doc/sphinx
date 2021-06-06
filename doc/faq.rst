@@ -259,7 +259,9 @@ The following list gives some hints for the creation of epub files:
 
      ``parent.xhtml`` -> ``child.xhtml`` -> ``parent.xhtml``
 
-  If you get the following error, fix your document structure::
+  If you get the following error, fix your document structure:
+
+  .. code-block:: none
 
      Error(prcgen):E24011: TOC section scope is not included in the parent chapter:(title)
      Error(prcgen):E24001: The table of content could not be built.
