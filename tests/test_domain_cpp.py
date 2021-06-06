@@ -362,7 +362,9 @@ def test_domain_cpp_ast_expressions():
     exprCheck('a(b(c, 1 + d...)..., e(f..., g))', 'cl1aspcl1b1cspplL1E1dEcl1esp1f1gEE')
 
     # requires expressions
+    # --------------------
     requires_v4_id = 'missing-requires-expression-mangling--dont-rely-on-this-link'
+    # non-parametrised
     exprCheck('requires {{}}', None, requires_v4_id)
     exprCheck('requires {{ typename T::type; }}', None, requires_v4_id)
     exprCheck('requires {{ {{ a++ }}; }}', None, requires_v4_id)
@@ -375,6 +377,8 @@ def test_domain_cpp_ast_expressions():
               ' {{ a++ }} noexcept -> int;'
               ' requires C<T>;'
               ' a++; }}', None, requires_v4_id)
+    # parametrised
+    exprCheck('requires(T a) {{}}', None, requires_v4_id)
 
 
 def test_domain_cpp_ast_type_definitions():

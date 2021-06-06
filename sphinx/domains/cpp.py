@@ -1017,7 +1017,7 @@ class ASTFoldExpr(ASTExpression):
 
 
 class ASTParenExpr(ASTExpression):
-    def __init__(self, expr: ASTExpression):
+    def __init__(self, expr: ASTExpression) -> None:
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -1037,12 +1037,16 @@ class ASTParenExpr(ASTExpression):
 # Requirements
 
 class ASTRequiresExpression(ASTExpression):
-    def __init__(self, reqs: List["ASTRequirement"]):
+    def __init__(self, params: Optional["ASTParametersQualifiers"],
+                 reqs: List["ASTRequirement"]) -> None:
+        self.params = params
         self.reqs = reqs
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = ["requires "]
-        res.append("{")
+        res = ["requires"]
+        if self.params is not None:
+            res.append(transform(self.params))
+        res.append(" {")
         for r in self.reqs:
             res.append(' ')
             res.append(transform(r))
@@ -1062,6 +1066,8 @@ class ASTRequiresExpression(ASTExpression):
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode += addnodes.desc_sig_keyword('requires', 'requires')
+        if self.params is not None:
+            self.params.describe_signature(signode, mode, env, symbol)
         signode += addnodes.desc_sig_space()
         signode += addnodes.desc_sig_punctuation('{', '{')
         for r in self.reqs:
@@ -5284,8 +5290,7 @@ class DefinitionParser(BaseParser):
         self.skip_ws()
         if not self.skip_word_and_ws('requires'):
             return None
-        if self.skip_string_and_ws('('):
-            self.fail('Parametrised requires expressions not yet supported.')
+        params = self._parse_parameters_and_qualifiers('requires')
         if not self.skip_string('{'):
             self.fail('Expected { to start body of requires expression.')
         reqs = []  # type: List[ASTRequirement]
@@ -5319,7 +5324,7 @@ class DefinitionParser(BaseParser):
             self.skip_ws()
             if not self.skip_string(';'):
                 self.fail('Expected ; to requirement.')
-        return ASTRequiresExpression(reqs)
+        return ASTRequiresExpression(params, reqs)
 
     def _parse_primary_expression(self) -> ASTExpression:
         # literal
