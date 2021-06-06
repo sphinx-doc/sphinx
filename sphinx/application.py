@@ -655,7 +655,7 @@ class Sphinx:
                    ...
 
            def setup(app):
-               add_directive('my-directive', MyDirective)
+               app.add_directive('my-directive', MyDirective)
 
         For more details, see `the Docutils docs
         <https://docutils.sourceforge.io/docs/howto/rst-directives.html>`__ .
