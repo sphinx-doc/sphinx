@@ -579,3 +579,20 @@ def test_limit_rate_bails_out_after_waiting_max_time(app):
                                               rate_limits)
     next_check = worker.limit_rate(FakeResponse())
     assert next_check is None
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-connection-error-on-http-head', freshenv=True)
+def test_get_after_head_raises_connection_error(app):
+    class InternalServerErrorHandler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_error(500, "Internal Server Error")
+
+    with http_server(InternalServerErrorHandler):
+        app.build()
+    content = (app.outdir / 'output.txt').read_text()
+    assert "broken" not in content
+    # assert content == (
+    #     "index.rst:1: [broken] http://localhost:7777/#anchor: "
+    #     "500 Server Error: Internal Server Error "
+    #     "for url: http://localhost:7777/\n"
+    # )
