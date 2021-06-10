@@ -26,7 +26,7 @@ from urllib.parse import unquote, urlparse
 from docutils import nodes
 from docutils.nodes import Element
 from requests import Response
-from requests.exceptions import HTTPError, TooManyRedirects, ConnectionError
+from requests.exceptions import ConnectionError, HTTPError, TooManyRedirects
 
 from sphinx.application import Sphinx
 from sphinx.builders.dummy import DummyBuilder
