@@ -586,7 +586,7 @@ class ConnectionResetHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-connection-error-on-http-head', freshenv=True)
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
 def test_get_after_head_raises_connection_error(app):
     with http_server(ConnectionResetHandler):
         app.build()
