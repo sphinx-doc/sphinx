@@ -579,7 +579,7 @@ def test_limit_rate_bails_out_after_waiting_max_time(app):
 
 class ConnectionResetHandler(http.server.BaseHTTPRequestHandler):
     def do_HEAD(self):
-        raise requests.ConnectionError
+        self.connection.close()
 
     def do_GET(self):
         self.send_response(200, "OK")
