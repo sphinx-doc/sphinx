@@ -460,6 +460,11 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                                                  config=self.config, auth=auth_info,
                                                  **kwargs)
                         response.raise_for_status()
+                    # When there is a ConnectionError from the HEAD request, it might be due to
+                    # the webserver intentionally dropping the connection when it sees HEAD requests
+                    # but still responding properly to GET requests. This has been observed in the
+                    # wild with at https://patft.uspto.gov/.
+                    # See https://github.com/sphinx-doc/sphinx/issues/9306 for more details.
                     except (HTTPError, TooManyRedirects, ConnectionError) as err:
                         if isinstance(err, HTTPError) and err.response.status_code == 429:
                             raise
