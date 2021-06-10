@@ -588,8 +588,7 @@ class ConnectionResetHandler(http.server.BaseHTTPRequestHandler):
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-connection-error-on-http-head', freshenv=True)
 def test_get_after_head_raises_connection_error(app):
-    app.config.tls_verify = False
-    with https_server(ConnectionResetHandler):
+    with http_server(ConnectionResetHandler):
         app.build()
     content = (app.outdir / 'output.txt').read_text()
     assert not content
