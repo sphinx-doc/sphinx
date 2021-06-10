@@ -16,7 +16,7 @@ Features added
 Bugs fixed
 ----------
 
-* #9306: Linkcheck Reports Broken Link when Remote Server Closes on HEAD Request
+* #9306: Linkcheck reports broken link when remote server closes on HEAD request
 
 Testing
 --------
