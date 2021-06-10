@@ -592,3 +592,12 @@ def test_get_after_head_raises_connection_error(app):
         app.build()
     content = (app.outdir / 'output.txt').read_text()
     assert not content
+    content = (app.outdir / 'output.json').read_text()
+    assert json.loads(content) == {
+        "filename": "index.rst",
+        "lineno": 1,
+        "status": "working",
+        "code": 0,
+        "uri": "http://localhost:7777/",
+        "info": "",
+    }
