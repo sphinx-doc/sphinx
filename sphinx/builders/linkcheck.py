@@ -465,7 +465,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     # but still responding properly to GET requests. This has been observed in the
                     # wild with at https://patft.uspto.gov/.
                     # See https://github.com/sphinx-doc/sphinx/issues/9306 for more details.
-                    except (HTTPError, TooManyRedirects, ConnectionError) as err:
+                    except (ConnectionError, HTTPError, TooManyRedirects) as err:
                         if isinstance(err, HTTPError) and err.response.status_code == 429:
                             raise
                         # retry with GET request if that fails, some servers
