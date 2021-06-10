@@ -577,8 +577,19 @@ def test_limit_rate_bails_out_after_waiting_max_time(app):
     assert next_check is None
 
 
+class ConnectionResetHandler(http.server.BaseHTTPRequestHandler):
+    def do_HEAD(self):
+        raise requests.ConnectionError
+
+    def do_GET(self):
+        self.send_response(200, "OK")
+        self.end_headers()
+
+
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-connection-error-on-http-head', freshenv=True)
 def test_get_after_head_raises_connection_error(app):
-    app.build()
+    app.config.tls_verify = False
+    with https_server(ConnectionResetHandler):
+        app.build()
     content = (app.outdir / 'output.txt').read_text()
     assert not content
