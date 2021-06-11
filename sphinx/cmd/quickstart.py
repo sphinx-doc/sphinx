@@ -220,12 +220,9 @@ def ask_user(d: Dict) -> None:
         print()
         print(bold(__('Error: an existing conf.py has been found in the '
                       'selected root path.')))
-        print(__('sphinx-quickstart will not overwrite existing Sphinx projects.'))
+        print(__('sphinx-quickstart will not overwrite existing Sphinx projects. Try another directory?'))
         print()
-        d['path'] = do_prompt(__('Please enter a new root path (or just Enter to exit)'),
-                              '', ok)
-        if not d['path']:
-            sys.exit(1)
+        sys.exit(1)
 
     if 'sep' not in d:
         print()

@@ -251,16 +251,13 @@ def test_extensions(tempdir):
     exec(conffile.read_text(), ns)
     assert ns['extensions'] == ['foo', 'bar', 'baz']
 
-def test_easy_exit_when_existing_confpy(monkeypatch):
+def test_exits_upon_existing_confpy(monkeypatch):
     # The code detects existing conf.py with isfile() so we mock it
     def mock_isfile(path):
         return True
     monkeypatch.setattr(path, 'isfile', mock_isfile)
     
-    answers = {
-        'Please enter a new root path': '',
-    }
-    qs.term_input = mock_input(answers)
+    qs.term_input = mock_input({})
     d = {}
     with pytest.raises(SystemExit):
         qs.ask_user(d)
