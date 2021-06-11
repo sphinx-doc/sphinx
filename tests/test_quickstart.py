@@ -10,6 +10,7 @@
 
 import time
 from io import StringIO
+from os import path
 
 import pytest
 
@@ -121,7 +122,6 @@ def test_quickstart_defaults(tempdir):
     assert (tempdir / 'index.rst').isfile()
     assert (tempdir / 'Makefile').isfile()
     assert (tempdir / 'make.bat').isfile()
-
 
 def test_quickstart_all_answers(tempdir):
     answers = {
@@ -250,3 +250,17 @@ def test_extensions(tempdir):
     ns = {}
     exec(conffile.read_text(), ns)
     assert ns['extensions'] == ['foo', 'bar', 'baz']
+
+def test_easy_exit_when_existing_confpy(monkeypatch):
+    # The code detects existing conf.py with isfile() so we mock it
+    def mock_isfile(path):
+        return True
+    monkeypatch.setattr(path, 'isfile', mock_isfile)
+    
+    answers = {
+        'Please enter a new root path': '',
+    }
+    qs.term_input = mock_input(answers)
+    d = {}
+    with pytest.raises(SystemExit):
+        qs.ask_user(d)
