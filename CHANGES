@@ -17,6 +17,7 @@ Bugs fixed
 ----------
 
 * #9313: LaTeX: complex table with merged cells broken since 4.0
+* #9322: KeyError is raised on PropagateDescDomain transform
 
 Testing
 --------
