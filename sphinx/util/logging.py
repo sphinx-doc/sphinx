@@ -573,13 +573,13 @@ def setup(app: "Sphinx", status: IO, warning: IO) -> None:
     for handler in logger.handlers[:]:
         logger.removeHandler(handler)
 
-    info_handler = NewLineStreamHandler(SafeEncodingWriter(status))  # type: ignore
+    info_handler = NewLineStreamHandler(SafeEncodingWriter(status))
     info_handler.addFilter(InfoFilter())
     info_handler.addFilter(InfoLogRecordTranslator(app))
     info_handler.setLevel(VERBOSITY_MAP[app.verbosity])
     info_handler.setFormatter(ColorizeFormatter())
 
-    warning_handler = WarningStreamHandler(SafeEncodingWriter(warning))  # type: ignore
+    warning_handler = WarningStreamHandler(SafeEncodingWriter(warning))
     warning_handler.addFilter(WarningSuppressor(app))
     warning_handler.addFilter(WarningLogRecordTranslator(app))
     warning_handler.addFilter(WarningIsErrorFilter(app))
@@ -587,7 +587,7 @@ def setup(app: "Sphinx", status: IO, warning: IO) -> None:
     warning_handler.setLevel(logging.WARNING)
     warning_handler.setFormatter(ColorizeFormatter())
 
-    messagelog_handler = logging.StreamHandler(LastMessagesWriter(app, status))  # type: ignore
+    messagelog_handler = logging.StreamHandler(LastMessagesWriter(app, status))
     messagelog_handler.addFilter(InfoFilter())
     messagelog_handler.setLevel(VERBOSITY_MAP[app.verbosity])
     messagelog_handler.setFormatter(ColorizeFormatter())
