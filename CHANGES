@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #9330: changeset domain: :rst:dir:`versionchanged` with contents being a list
+  will cause error during pdf build
 * #9313: LaTeX: complex table with merged cells broken since 4.0
 
 Testing
