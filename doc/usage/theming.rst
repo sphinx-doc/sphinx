@@ -248,7 +248,8 @@ These themes are:
 
 **scrolls**
   A more lightweight theme, based on `the Jinja documentation
-  <https://jinja.palletsprojects.com/>`_.  The following color options are available:
+  <https://jinja.palletsprojects.com/>`_.  The following color options are
+  available:
 
   - **headerbordercolor**
   - **subheadlinecolor**

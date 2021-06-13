@@ -6846,7 +6846,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         GroupedField('template parameter', label=_('Template Parameters'),
                      names=('tparam', 'template parameter'),
                      can_collapse=True),
-        GroupedField('exceptions', label=_('Throws'), rolename='cpp:class',
+        GroupedField('exceptions', label=_('Throws'), rolename='expr',
                      names=('throws', 'throw', 'exception'),
                      can_collapse=True),
         Field('returnvalue', label=_('Returns'), has_arg=False,
