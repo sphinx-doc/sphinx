@@ -39,6 +39,7 @@ Features added
 * #9272: autodoc: Render enum values for the default argument value better
 * #3257: autosummary: Support instance attributes for classes
 * #9129: html search: Show search summaries when html_copy_source = False
+* #9307: html search: Prevent corrections and completions in search field
 * #9120: html theme: Eliminate prompt characters of code-block from copyable
   text
 * #9176: i18n: Emit a debug message if message catalog file not found under
