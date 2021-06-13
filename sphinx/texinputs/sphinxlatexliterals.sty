@@ -765,7 +765,8 @@
       % break at . , ; ? ! /
       \sphinxbreaksviaactive
       % break also at \
-      \let\sphinx@textbackslash\textbackslash
+      \setbox8=\hbox{\textbackslash}%
+      \def\sphinx@textbackslash{\copy8}%
       \let\textbackslash\sphinxtextbackslash
       % by default, no continuation symbol on next line but may be added
       \let\sphinxafterbreak\sphinxafterbreakofinlineliteral
