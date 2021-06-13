@@ -13,6 +13,9 @@ Deprecated
 Features added
 --------------
 
+* Revert the removal of ``sphinx.util:force_decode()`` to become some 3rd party
+  extensions available again during 5.0
+
 Bugs fixed
 ----------
 

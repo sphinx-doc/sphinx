@@ -1015,7 +1015,7 @@ The following is a list of deprecated interfaces.
 
    * - ``sphinx.util.force_decode()``
      - 2.0
-     - 4.0
+     - 5.0
      - N/A
 
    * - ``sphinx.util.get_matching_docs()``
