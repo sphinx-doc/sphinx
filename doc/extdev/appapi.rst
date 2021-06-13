@@ -159,7 +159,9 @@ connect handlers to the events.  Example:
 
 Below is an overview of each event that happens during a build. In the list
 below, we include the event name, its callback parameters, and the input and output
-type for that event::
+type for that event:
+
+.. code-block:: none
 
    1. event.config-inited(app,config)
    2. event.builder-inited(app)
@@ -168,7 +170,7 @@ type for that event::
 
    for docname in docnames:
       5. event.env-purge-doc(app, env, docname)
-      
+
       if doc changed and not removed:
          6. source-read(app, docname, source)
          7. run source parsers: text -> docutils.document
@@ -176,10 +178,10 @@ type for that event::
          8. apply transforms based on priority: docutils.document -> docutils.document
             - event.doctree-read(app, doctree) is called in the middle of transforms,
               transforms come before/after this event depending on their priority.
-   
+
    9. event.env-merge-info(app, env, docnames, other)
       - if running in parallel mode, this event will be emitted for each process
-   
+
    10. event.env-updated(app, env)
    11. event.env-get-updated(app, env)
    12. event.env-check-consistency(app, env)
@@ -377,12 +379,21 @@ Here is a more detailed list of these events.
    ``'page.html'`` as the HTML template for this page.
 
    .. note:: You can install JS/CSS files for the specific page via
-             :meth:`Sphinx.add_js_file` and :meth:`Sphinx.add_css_file` since v3.5.0.
+             :meth:`Sphinx.add_js_file` and :meth:`Sphinx.add_css_file` since
+             v3.5.0.
 
    .. versionadded:: 0.4
 
    .. versionchanged:: 1.3
       The return value can now specify a template name.
+
+.. event:: linkcheck-process-uri (app, uri)
+
+   Emitted when the linkcheck builder collects hyperlinks from document.  *uri*
+   is a collected URI.  The event handlers can modify the URI by returning a
+   string.
+
+   .. versionadded:: 4.1
 
 .. event:: build-finished (app, exception)
 

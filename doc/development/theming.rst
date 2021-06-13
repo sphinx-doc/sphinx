@@ -207,9 +207,9 @@ inside your module:
 First, define the registration function, which accepts the arguments for
 :event:`html-page-context`.
 
-Within the registration function, define the template function that you'd like to use
-within Jinja. The template function should return a string or Python objects (lists,
-dictionaries) with strings inside that Jinja uses in the templating process
+Within the registration function, define the template function that you'd like to
+use within Jinja. The template function should return a string or Python objects
+(lists, dictionaries) with strings inside that Jinja uses in the templating process
 
 .. note::
 

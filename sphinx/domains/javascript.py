@@ -215,7 +215,7 @@ class JSCallable(JSObject):
         TypedField('arguments', label=_('Arguments'),
                    names=('argument', 'arg', 'parameter', 'param'),
                    typerolename='func', typenames=('paramtype', 'type')),
-        GroupedField('errors', label=_('Throws'), rolename='err',
+        GroupedField('errors', label=_('Throws'), rolename='func',
                      names=('throws', ),
                      can_collapse=True),
         Field('returnvalue', label=_('Returns'), has_arg=False,

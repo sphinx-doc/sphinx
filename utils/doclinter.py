@@ -41,7 +41,7 @@ def lint(path: str) -> int:
                 pass
             else:
                 spaces = LEADING_SPACES.match(line).group(1)
-                if len(spaces) < code_block_depth:
+                if len(spaces) <= code_block_depth:
                     in_code_block = False
         elif LONG_INTERPRETED_TEXT.match(line):
             pass

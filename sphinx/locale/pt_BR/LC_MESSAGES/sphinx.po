@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-05-30 00:22+0000\n"
+"POT-Creation-Date: 2021-06-06 00:16+0000\n"
 "PO-Revision-Date: 2021-05-11 13:54+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/sphinx-doc/sphinx-1/language/pt_BR/)\n"
@@ -1845,17 +1845,17 @@ msgid ""
 msgstr "Declaração C duplicada, também definida em %s:%s.\nA declaração é '.. c:%s:: %s'."
 
 #: sphinx/domains/c.py:3116 sphinx/domains/cpp.py:6843
-#: sphinx/domains/python.py:369 sphinx/ext/napoleon/docstring.py:736
+#: sphinx/domains/python.py:389 sphinx/ext/napoleon/docstring.py:736
 msgid "Parameters"
 msgstr "Parâmetros"
 
 #: sphinx/domains/c.py:3119 sphinx/domains/cpp.py:6852
-#: sphinx/domains/javascript.py:221 sphinx/domains/python.py:381
+#: sphinx/domains/javascript.py:221 sphinx/domains/python.py:401
 msgid "Returns"
 msgstr "Retorna"
 
 #: sphinx/domains/c.py:3121 sphinx/domains/javascript.py:223
-#: sphinx/domains/python.py:383
+#: sphinx/domains/python.py:403
 msgid "Return type"
 msgstr "Tipo de retorno"
 
@@ -1873,7 +1873,7 @@ msgid "variable"
 msgstr "variável"
 
 #: sphinx/domains/c.py:3716 sphinx/domains/cpp.py:7489
-#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1090
+#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1107
 msgid "function"
 msgstr "função"
 
@@ -1951,7 +1951,7 @@ msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
 #: sphinx/domains/cpp.py:7487 sphinx/domains/javascript.py:328
-#: sphinx/domains/python.py:1092
+#: sphinx/domains/python.py:1109
 msgid "class"
 msgstr "classe"
 
@@ -1968,7 +1968,7 @@ msgstr "parâmetro de modelo"
 msgid "%s() (built-in function)"
 msgstr "%s() (função interna)"
 
-#: sphinx/domains/javascript.py:137 sphinx/domains/python.py:747
+#: sphinx/domains/javascript.py:137 sphinx/domains/python.py:764
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (método %s)"
@@ -1983,7 +1983,7 @@ msgstr "%s() (classe)"
 msgid "%s (global variable or constant)"
 msgstr "%s (variável global ou constante)"
 
-#: sphinx/domains/javascript.py:143 sphinx/domains/python.py:825
+#: sphinx/domains/javascript.py:143 sphinx/domains/python.py:842
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (atributo %s)"
@@ -1997,20 +1997,20 @@ msgstr "Argumentos"
 msgid "%s (module)"
 msgstr "%s (módulo)"
 
-#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1094
+#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1111
 msgid "method"
 msgstr "método"
 
-#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1091
+#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1108
 msgid "data"
 msgstr "dado"
 
-#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1097
+#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1114
 msgid "attribute"
 msgstr "atributo"
 
-#: sphinx/domains/javascript.py:331 sphinx/domains/python.py:57
-#: sphinx/domains/python.py:1099
+#: sphinx/domains/javascript.py:331 sphinx/domains/python.py:58
+#: sphinx/domains/python.py:1116
 msgid "module"
 msgstr "módulo"
 
@@ -2029,121 +2029,121 @@ msgstr "rótulo duplicado da equação %s, outra instância em %s"
 msgid "Invalid math_eqref_format: %r"
 msgstr "math_eqref_format inválido: %r"
 
-#: sphinx/domains/python.py:58
+#: sphinx/domains/python.py:59
 msgid "keyword"
 msgstr "palavra-chave"
 
-#: sphinx/domains/python.py:59
+#: sphinx/domains/python.py:60
 msgid "operator"
 msgstr "operador"
 
-#: sphinx/domains/python.py:60
+#: sphinx/domains/python.py:61
 msgid "object"
 msgstr "objeto"
 
-#: sphinx/domains/python.py:61 sphinx/domains/python.py:1093
+#: sphinx/domains/python.py:62 sphinx/domains/python.py:1110
 msgid "exception"
 msgstr "exceção"
 
-#: sphinx/domains/python.py:62
+#: sphinx/domains/python.py:63
 msgid "statement"
 msgstr "comando"
 
-#: sphinx/domains/python.py:63
+#: sphinx/domains/python.py:64
 msgid "built-in function"
 msgstr "função interna"
 
-#: sphinx/domains/python.py:374
+#: sphinx/domains/python.py:394
 msgid "Variables"
 msgstr "Variáveis"
 
-#: sphinx/domains/python.py:378
+#: sphinx/domains/python.py:398
 msgid "Raises"
 msgstr "Levanta"
 
-#: sphinx/domains/python.py:601 sphinx/domains/python.py:736
+#: sphinx/domains/python.py:618 sphinx/domains/python.py:753
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (no módulo %s)"
 
-#: sphinx/domains/python.py:655 sphinx/domains/python.py:821
-#: sphinx/domains/python.py:861
+#: sphinx/domains/python.py:672 sphinx/domains/python.py:838
+#: sphinx/domains/python.py:878
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (no módulo %s)"
 
-#: sphinx/domains/python.py:657
+#: sphinx/domains/python.py:674
 #, python-format
 msgid "%s (built-in variable)"
 msgstr "%s (variável interna)"
 
-#: sphinx/domains/python.py:681
+#: sphinx/domains/python.py:698
 #, python-format
 msgid "%s (built-in class)"
 msgstr "%s (classe interna)"
 
-#: sphinx/domains/python.py:682
+#: sphinx/domains/python.py:699
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s (classe em %s)"
 
-#: sphinx/domains/python.py:741
+#: sphinx/domains/python.py:758
 #, python-format
 msgid "%s() (%s class method)"
 msgstr "%s() (método de classe %s)"
 
-#: sphinx/domains/python.py:743
+#: sphinx/domains/python.py:760
 #, python-format
 msgid "%s() (%s property)"
 msgstr "%s() (propriedade %s )"
 
-#: sphinx/domains/python.py:745
+#: sphinx/domains/python.py:762
 #, python-format
 msgid "%s() (%s static method)"
 msgstr "%s() (método estático %s)"
 
-#: sphinx/domains/python.py:865
+#: sphinx/domains/python.py:882
 #, python-format
 msgid "%s (%s property)"
 msgstr "%s (propriedade %s )"
 
-#: sphinx/domains/python.py:1019
+#: sphinx/domains/python.py:1036
 msgid "Python Module Index"
 msgstr "Índice de Módulos Python"
 
-#: sphinx/domains/python.py:1020
+#: sphinx/domains/python.py:1037
 msgid "modules"
 msgstr "módulos"
 
-#: sphinx/domains/python.py:1069
+#: sphinx/domains/python.py:1086
 msgid "Deprecated"
 msgstr "Obsoleto"
 
-#: sphinx/domains/python.py:1095
+#: sphinx/domains/python.py:1112
 msgid "class method"
 msgstr "método de classe"
 
-#: sphinx/domains/python.py:1096
+#: sphinx/domains/python.py:1113
 msgid "static method"
 msgstr "método estático"
 
-#: sphinx/domains/python.py:1098
+#: sphinx/domains/python.py:1115
 msgid "property"
 msgstr "propriedade"
 
-#: sphinx/domains/python.py:1156
+#: sphinx/domains/python.py:1173
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr "descrição duplicada de objeto de %s, outra instância em %s, use :noindex: para um deles"
 
-#: sphinx/domains/python.py:1276
+#: sphinx/domains/python.py:1293
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "mais de um alvo localizado para referência cruzada %r: %s"
 
-#: sphinx/domains/python.py:1330
+#: sphinx/domains/python.py:1347
 msgid " (deprecated)"
 msgstr " (obsoleto)"
 
@@ -2863,7 +2863,7 @@ msgid ""
 msgstr "faltando atributo mencionado na opção :members: : módulo %s, atributo %s"
 
 #: sphinx/ext/autodoc/__init__.py:1296 sphinx/ext/autodoc/__init__.py:1370
-#: sphinx/ext/autodoc/__init__.py:2656
+#: sphinx/ext/autodoc/__init__.py:2683
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "Falha ao obter uma assinatura de função para %s: %s"
@@ -2899,7 +2899,7 @@ msgstr "Falha ao obter uma assinatura de método para %s: %s"
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "__slots__ inválido encontrado em %s. Ignorado."
 
-#: sphinx/ext/autodoc/__init__.py:2699
+#: sphinx/ext/autodoc/__init__.py:2726
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
@@ -2920,43 +2920,43 @@ msgstr "Falha ao atualizar a assinatura para %r: parâmetro não encontrado: %s"
 msgid "Failed to parse type_comment for %r: %s"
 msgstr "Falha ao analisar type_comment para %r: %s"
 
-#: sphinx/ext/autosummary/__init__.py:273
+#: sphinx/ext/autosummary/__init__.py:278
 #, python-format
 msgid "autosummary references excluded document %r. Ignored."
 msgstr "referências de autosummmary excluíram o documento %r. Ignorado."
 
-#: sphinx/ext/autosummary/__init__.py:275
+#: sphinx/ext/autosummary/__init__.py:280
 #, python-format
 msgid ""
 "autosummary: stub file not found %r. Check your autosummary_generate "
 "setting."
 msgstr "autosummary: arquivo stub não encontrado %r. Verifique sua configuração autosummary_generate."
 
-#: sphinx/ext/autosummary/__init__.py:294
+#: sphinx/ext/autosummary/__init__.py:299
 msgid "A captioned autosummary requires :toctree: option. ignored."
 msgstr "Um autosummary com legenda requer a opção :toctree:. Ignorado."
 
-#: sphinx/ext/autosummary/__init__.py:341
+#: sphinx/ext/autosummary/__init__.py:346
 #, python-format
 msgid "autosummary: failed to import %s"
 msgstr "autosummary: falha ao importar %s"
 
-#: sphinx/ext/autosummary/__init__.py:355
+#: sphinx/ext/autosummary/__init__.py:360
 #, python-format
 msgid "failed to parse name %s"
 msgstr "falha ao analisar o nome %s"
 
-#: sphinx/ext/autosummary/__init__.py:360
+#: sphinx/ext/autosummary/__init__.py:365
 #, python-format
 msgid "failed to import object %s"
 msgstr "falha ao importar o objecto %s"
 
-#: sphinx/ext/autosummary/__init__.py:750
+#: sphinx/ext/autosummary/__init__.py:755
 #, python-format
 msgid "autosummary_generate: file not found: %s"
 msgstr "autosummary_generate: arquivo não encontrado: %s"
 
-#: sphinx/ext/autosummary/__init__.py:758
+#: sphinx/ext/autosummary/__init__.py:763
 msgid ""
 "autosummary generats .rst files internally. But your source_suffix does not "
 "contain .rst. Skipped."
