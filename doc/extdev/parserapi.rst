@@ -8,7 +8,7 @@ Parser API
     The Parser analyzes the input document and creates a node tree
     representation.
 
-__ http://docutils.sourceforge.net/docs/dev/hacking.html#parsing-the-document
+__ https://docutils.sourceforge.io/docs/dev/hacking.html#parsing-the-document
 
 In Sphinx, the parser modules works as same as docutils.  The parsers are
 registered to Sphinx by extensions using Application APIs;

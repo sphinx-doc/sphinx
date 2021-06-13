@@ -45,7 +45,6 @@ from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.util import logging, requests
 from sphinx.util.inventory import InventoryFile
-from sphinx.util.nodes import find_pending_xref_condition
 from sphinx.util.typing import Inventory
 
 logger = logging.getLogger(__name__)
@@ -287,16 +286,6 @@ def missing_reference(app: Sphinx, env: BuildEnvironment, node: pending_xref,
         # Since Sphinx-2.1, properties are stored as py:method
         objtypes.append('py:method')
 
-    # determine the contnode by pending_xref_condition
-    content = find_pending_xref_condition(node, 'resolved')
-    if content:
-        # resolved condition found.
-        contnodes = content.children
-        contnode = content.children[0]  # type: ignore
-    else:
-        # not resolved. Use the given contnode
-        contnodes = [contnode]
-
     to_try = [(inventories.main_inventory, target)]
     if domain:
         full_qualified_name = env.get_domain(domain).get_full_qualified_name(node)
@@ -329,7 +318,7 @@ def missing_reference(app: Sphinx, env: BuildEnvironment, node: pending_xref,
             newnode = nodes.reference('', '', internal=False, refuri=uri, reftitle=reftitle)
             if node.get('refexplicit'):
                 # use whatever title was given
-                newnode.extend(contnodes)
+                newnode.append(contnode)
             elif dispname == '-' or \
                     (domain == 'std' and node['reftype'] == 'keyword'):
                 # use whatever title was given, but strip prefix
@@ -338,7 +327,7 @@ def missing_reference(app: Sphinx, env: BuildEnvironment, node: pending_xref,
                     newnode.append(contnode.__class__(title[len(in_set) + 1:],
                                                       title[len(in_set) + 1:]))
                 else:
-                    newnode.extend(contnodes)
+                    newnode.append(contnode)
             else:
                 # else use the given display name (used for :ref:)
                 newnode.append(contnode.__class__(dispname, dispname))

@@ -8,7 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import TYPE_CHECKING, Dict, List, Set
+from typing import TYPE_CHECKING, Dict, List, Optional, Set
 
 from docutils import nodes
 
@@ -27,7 +27,7 @@ class EnvironmentCollector:
     entries and toctrees, etc.
     """
 
-    listener_ids: Dict[str, int] = None
+    listener_ids: Optional[Dict[str, int]] = None
 
     def enable(self, app: "Sphinx") -> None:
         assert self.listener_ids is None

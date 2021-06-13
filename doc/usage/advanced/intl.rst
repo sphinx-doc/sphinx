@@ -13,7 +13,7 @@ navigation bars, Sphinx provides mechanisms facilitating the translation of
    :width: 100%
 
    Workflow visualization of translations in Sphinx.  (The figure is created by
-   `plantuml <http://plantuml.com>`_.)
+   `plantuml <https://plantuml.com>`_.)
 
 .. contents::
    :local:
@@ -118,7 +118,7 @@ section describe an easy way to translate with *sphinx-intl*.
 
 #. Translate po files.
 
-   AS noted above, these are located in the ``./locale/<lang>/LC_MESSAGES``
+   As noted above, these are located in the ``./locale/<lang>/LC_MESSAGES``
    directory.  An example of one such file, from Sphinx, ``builders.po``, is
    given below.
 
@@ -193,7 +193,7 @@ pot file to the po file, use the :command:`sphinx-intl update` command.
 
 .. code-block:: console
 
-   $ sphinx-intl update -p _build/locale
+   $ sphinx-intl update -p _build/gettext
 
 
 Using Transifex service for team translation

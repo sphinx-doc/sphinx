@@ -14,7 +14,7 @@ import sys
 import time
 import traceback
 from math import sqrt
-from typing import Any, Callable, Dict, List, Sequence
+from typing import Any, Callable, Dict, List, Optional, Sequence
 
 try:
     import multiprocessing
@@ -62,7 +62,7 @@ class ParallelTasks:
         # (optional) function performed by each task on the result of main task
         self._result_funcs: Dict[int, Callable] = {}
         # task arguments
-        self._args: Dict[int, List[Any]] = {}
+        self._args: Dict[int, Optional[List[Any]]] = {}
         # list of subprocesses (both started and waiting)
         self._procs: Dict[int, multiprocessing.Process] = {}
         # list of receiving pipe connections of running subprocesses
@@ -105,7 +105,8 @@ class ParallelTasks:
     def join(self) -> None:
         try:
             while self._pworking:
-                self._join_one()
+                if not self._join_one():
+                    time.sleep(0.02)
         except Exception:
             # shutdown other child processes on failure
             self.terminate()
@@ -119,7 +120,8 @@ class ParallelTasks:
             self._precvs.pop(tid)
             self._pworking -= 1
 
-    def _join_one(self) -> None:
+    def _join_one(self) -> bool:
+        joined_any = False
         for tid, pipe in self._precvs.items():
             if pipe.poll():
                 exc, logs, result = pipe.recv()
@@ -131,14 +133,16 @@ class ParallelTasks:
                 self._procs[tid].join()
                 self._precvs.pop(tid)
                 self._pworking -= 1
+                joined_any = True
                 break
-        else:
-            time.sleep(0.02)
+
         while self._precvsWaiting and self._pworking < self.nproc:
             newtid, newprecv = self._precvsWaiting.popitem()
             self._precvs[newtid] = newprecv
             self._procs[newtid].start()
             self._pworking += 1
+
+        return joined_any
 
 
 def make_chunks(arguments: Sequence[str], nproc: int, maxbatch: int = 10) -> List[Any]:

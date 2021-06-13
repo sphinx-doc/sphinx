@@ -2292,6 +2292,10 @@ class ASTDeclarator(ASTBase):
     def name(self) -> ASTNestedName:
         raise NotImplementedError(repr(self))
 
+    @name.setter
+    def name(self, name: ASTNestedName) -> None:
+        raise NotImplementedError(repr(self))
+
     @property
     def isPack(self) -> bool:
         raise NotImplementedError(repr(self))
@@ -2338,6 +2342,10 @@ class ASTDeclaratorNameParamQual(ASTDeclarator):
     @property
     def name(self) -> ASTNestedName:
         return self.declId
+
+    @name.setter
+    def name(self, name: ASTNestedName) -> None:
+        self.declId = name
 
     @property
     def isPack(self) -> bool:
@@ -2420,6 +2428,10 @@ class ASTDeclaratorNameBitField(ASTDeclarator):
     def name(self) -> ASTNestedName:
         return self.declId
 
+    @name.setter
+    def name(self, name: ASTNestedName) -> None:
+        self.declId = name
+
     def get_param_id(self, version: int) -> str:  # only the parameters (if any)
         return ''
 
@@ -2465,6 +2477,10 @@ class ASTDeclaratorPtr(ASTDeclarator):
     @property
     def name(self) -> ASTNestedName:
         return self.next.name
+
+    @name.setter
+    def name(self, name: ASTNestedName) -> None:
+        self.next.name = name
 
     @property
     def function_params(self) -> List[ASTFunctionParameter]:
@@ -2565,6 +2581,10 @@ class ASTDeclaratorRef(ASTDeclarator):
     def name(self) -> ASTNestedName:
         return self.next.name
 
+    @name.setter
+    def name(self, name: ASTNestedName) -> None:
+        self.next.name = name
+
     @property
     def isPack(self) -> bool:
         return True
@@ -2629,6 +2649,10 @@ class ASTDeclaratorParamPack(ASTDeclarator):
     def name(self) -> ASTNestedName:
         return self.next.name
 
+    @name.setter
+    def name(self, name: ASTNestedName) -> None:
+        self.next.name = name
+
     @property
     def function_params(self) -> List[ASTFunctionParameter]:
         return self.next.function_params
@@ -2688,6 +2712,10 @@ class ASTDeclaratorMemPtr(ASTDeclarator):
     @property
     def name(self) -> ASTNestedName:
         return self.next.name
+
+    @name.setter
+    def name(self, name: ASTNestedName) -> None:
+        self.next.name = name
 
     @property
     def function_params(self) -> List[ASTFunctionParameter]:
@@ -2781,6 +2809,10 @@ class ASTDeclaratorParen(ASTDeclarator):
     @property
     def name(self) -> ASTNestedName:
         return self.inner.name
+
+    @name.setter
+    def name(self, name: ASTNestedName) -> None:
+        self.inner.name = name
 
     @property
     def function_params(self) -> List[ASTFunctionParameter]:
@@ -2912,6 +2944,10 @@ class ASTType(ASTBase):
     @property
     def name(self) -> ASTNestedName:
         return self.decl.name
+
+    @name.setter
+    def name(self, name: ASTNestedName) -> None:
+        self.decl.name = name
 
     @property
     def isPack(self) -> bool:
@@ -6810,7 +6846,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         GroupedField('template parameter', label=_('Template Parameters'),
                      names=('tparam', 'template parameter'),
                      can_collapse=True),
-        GroupedField('exceptions', label=_('Throws'), rolename='cpp:class',
+        GroupedField('exceptions', label=_('Throws'), rolename='expr',
                      names=('throws', 'throw', 'exception'),
                      can_collapse=True),
         Field('returnvalue', label=_('Returns'), has_arg=False,
@@ -7558,7 +7594,7 @@ class CPPDomain(Domain):
 
     def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                             typ: str, target: str, node: pending_xref,
-                            contnode: Element) -> Tuple[Element, str]:
+                            contnode: Element) -> Tuple[Optional[Element], Optional[str]]:
         # add parens again for those that could be functions
         if typ == 'any' or typ == 'func':
             target += '()'
@@ -7707,7 +7743,7 @@ class CPPDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element
-                     ) -> Element:
+                     ) -> Optional[Element]:
         return self._resolve_xref_inner(env, fromdocname, builder, typ,
                                         target, node, contnode)[0]
 

@@ -35,7 +35,7 @@ htmlhelp_basename = 'Sphinxdoc'
 epub_theme = 'epub'
 epub_basename = 'sphinx'
 epub_author = 'Georg Brandl'
-epub_publisher = 'http://sphinx-doc.org/'
+epub_publisher = 'https://sphinx-doc.org/'
 epub_uid = 'web-site'
 epub_scheme = 'url'
 epub_identifier = epub_publisher
@@ -80,11 +80,11 @@ latex_use_xindy = True
 autodoc_member_order = 'groupwise'
 autosummary_generate = False
 todo_include_todos = True
-extlinks = {'duref': ('http://docutils.sourceforge.net/docs/ref/rst/'
+extlinks = {'duref': ('https://docutils.sourceforge.io/docs/ref/rst/'
                       'restructuredtext.html#%s', ''),
-            'durole': ('http://docutils.sourceforge.net/docs/ref/rst/'
+            'durole': ('https://docutils.sourceforge.io/docs/ref/rst/'
                        'roles.html#%s', ''),
-            'dudir': ('http://docutils.sourceforge.net/docs/ref/rst/'
+            'dudir': ('https://docutils.sourceforge.io/docs/ref/rst/'
                       'directives.html#%s', '')}
 
 man_pages = [
