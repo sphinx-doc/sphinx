@@ -1673,7 +1673,7 @@ There is a set of directives allowing documenting command-line programs:
 
       .. program:: svn
 
-      .. option:: -r revision
+      .. option:: -r <revision>
 
          Specify the revision to work upon.
 
