@@ -41,7 +41,7 @@ content.
    Lumache
    =======
 
-   **Lumache** (/luˈmake/) is a Python library for cooks and food lovers that
+   **Lumache** (/lu'make/) is a Python library for cooks and food lovers that
    creates recipes mixing random ingredients.
 
 It is a good moment to create a Python virtual environment and install the
@@ -84,11 +84,14 @@ directory and configuration layout for your project inside the ``docs`` folder.
 To proceed, answer each question as follows:
 
 - ``> Separate source and build directories (y/n) [n]``: Write "``y``" (without
-  quotes) and press :kbd:`Enter`.  - ``> Project name``: Write "``Lumache``"
-  (without quotes) and press :kbd:`Enter`.  - ``> Author name(s)``: Write
-  "``Graziella``" (without quotes) and press :kbd:`Enter`.  - ``> Project
-  release []``: Write "``0.1``" (without quotes) and press :kbd:`Enter`.  - ``>
-  Project language [en]``: Leave it empty (the default, English) and press
+  quotes) and press :kbd:`Enter`.
+- ``> Project name``: Write "``Lumache``" (without quotes) and press
+  :kbd:`Enter`.
+- ``> Author name(s)``: Write "``Graziella``" (without quotes) and press
+  :kbd:`Enter`.
+- ``> Project release []``: Write "``0.1``" (without quotes) and press
+  :kbd:`Enter`.
+- ``> Project language [en]``: Leave it empty (the default, English) and press
   :kbd:`Enter`.
 
 After the last question, you will see the new ``docs`` directory with the
@@ -96,28 +99,31 @@ following content.
 
 .. code-block:: text
 
-    docs ├── build ├── make.bat ├── Makefile └── source ├── conf.py ├──
-    index.rst ├── _static └── _templates
+   docs
+   ├── build
+   ├── make.bat
+   ├── Makefile
+   └── source
+      ├── conf.py
+      ├── index.rst
+      ├── _static
+      └── _templates
 
 The purpose of each of these files is:
 
 ``build/``
-
   An empty directory (for now) that will hold the rendered documentation.
 
 ``make.bat`` and ``Makefile``
-
   Convenience scripts to simplify some common Sphinx operations, such as
   rendering the content.
 
 ``source/conf.py``
-
   A Python script holding the configuration of the Sphinx project.  It contains
   the project name and release you specified to ``sphinx-quickstart``, as well
   as some extra configuration keys.
 
 ``source/index.rst``
-
   The :term:`master document` of the project, which serves as welcome page and
   contains the root of the "table of contents tree" (or *toctree*).
 
@@ -149,7 +155,7 @@ Modify the file as follows:
    Welcome to Lumache's documentation!
    ===================================
 
-   **Lumache** (/luˈmake/) is a Python library for cooks and food lovers that
+   **Lumache** (/lu'make/) is a Python library for cooks and food lovers that
    creates recipes mixing random ingredients.  It pulls data from the `Open Food
    Facts database <https://world.openfoodfacts.org/>`_ and offers a *simple* and
    *intuitive* API.
@@ -160,10 +166,11 @@ Modify the file as follows:
 
 This showcases several features of the reStructuredText syntax, including:
 
-- a **section header** using ``===`` for the underline, - two examples of
-  :ref:`rst-inline-markup`: ``**strong emphasis**`` (typically bold) and
-  ``*emphasis*`` (typically italics), - an **inline external link**, - and a
-  ``note`` **admonition** (one of the available :ref:`directives
+- a **section header** using ``===`` for the underline,
+- two examples of :ref:`rst-inline-markup`: ``**strong emphasis**`` (typically
+  bold) and ``*emphasis*`` (typically italics),
+- an **inline external link**,
+- and a ``note`` **admonition** (one of the available :ref:`directives
   <rst-directives>`)
 
 Now to render it with the new content, you can use the ``sphinx-build`` command
