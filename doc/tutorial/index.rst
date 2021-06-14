@@ -112,22 +112,18 @@ following content.
 The purpose of each of these files is:
 
 ``build/``
-
   An empty directory (for now) that will hold the rendered documentation.
 
 ``make.bat`` and ``Makefile``
-
   Convenience scripts to simplify some common Sphinx operations, such as
   rendering the content.
 
 ``source/conf.py``
-
   A Python script holding the configuration of the Sphinx project.  It contains
   the project name and release you specified to ``sphinx-quickstart``, as well
   as some extra configuration keys.
 
 ``source/index.rst``
-
   The :term:`master document` of the project, which serves as welcome page and
   contains the root of the "table of contents tree" (or *toctree*).
 
