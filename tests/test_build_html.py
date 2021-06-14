@@ -1628,17 +1628,8 @@ def test_html_permalink_icon(app):
 
 
 @pytest.mark.sphinx('html', testroot='html_signaturereturn_icon')
-def test_html_signaturereturn_icon_default(app):
+def test_html_signaturereturn_icon(app):
     app.build()
     content = (app.outdir / 'index.html').read_text()
 
     assert ('<span class="sig-return-icon">&#x2192;</span>' in content)
-
-
-@pytest.mark.sphinx('html', testroot='html_signaturereturn_icon',
-                    confoverrides={'html_signaturereturn_icon': '<span>RETURN</span>'})
-def test_html_signaturereturn_icon_custon(app):
-    app.build()
-    content = (app.outdir / 'index.html').read_text()
-
-    assert ('<span class="sig-return-icon"><span>RETURN</span></span>' in content)
