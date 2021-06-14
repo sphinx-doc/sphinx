@@ -84,11 +84,14 @@ directory and configuration layout for your project inside the ``docs`` folder.
 To proceed, answer each question as follows:
 
 - ``> Separate source and build directories (y/n) [n]``: Write "``y``" (without
-  quotes) and press :kbd:`Enter`.  - ``> Project name``: Write "``Lumache``"
-  (without quotes) and press :kbd:`Enter`.  - ``> Author name(s)``: Write
-  "``Graziella``" (without quotes) and press :kbd:`Enter`.  - ``> Project
-  release []``: Write "``0.1``" (without quotes) and press :kbd:`Enter`.  - ``>
-  Project language [en]``: Leave it empty (the default, English) and press
+  quotes) and press :kbd:`Enter`.
+- ``> Project name``: Write "``Lumache``" (without quotes) and press
+  :kbd:`Enter`.
+- ``> Author name(s)``: Write "``Graziella``" (without quotes) and press
+  :kbd:`Enter`.
+- ``> Project release []``: Write "``0.1``" (without quotes) and press
+  :kbd:`Enter`.
+- ``> Project language [en]``: Leave it empty (the default, English) and press
   :kbd:`Enter`.
 
 After the last question, you will see the new ``docs`` directory with the
