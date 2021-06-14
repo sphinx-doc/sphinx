@@ -96,8 +96,15 @@ following content.
 
 .. code-block:: text
 
-    docs ├── build ├── make.bat ├── Makefile └── source ├── conf.py ├──
-    index.rst ├── _static └── _templates
+   docs
+   ├── build
+   ├── make.bat
+   ├── Makefile
+   └── source
+      ├── conf.py
+      ├── index.rst
+      ├── _static
+      └── _templates
 
 The purpose of each of these files is:
 
