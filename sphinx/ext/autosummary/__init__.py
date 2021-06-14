@@ -72,7 +72,8 @@ import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx50Warning
+from sphinx.deprecation import (RemovedInSphinx50Warning, RemovedInSphinx60Warning,
+                                deprecated_alias)
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.ext.autodoc import INSTANCEATTR, Documenter
@@ -80,7 +81,9 @@ from sphinx.ext.autodoc.directive import DocumenterBridge, Options
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
+from sphinx.project import Project
 from sphinx.pycode import ModuleAnalyzer, PycodeError
+from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging, rst
 from sphinx.util.docutils import (NullReporter, SphinxDirective, SphinxRole, new_document,
                                   switch_source_input)
@@ -163,17 +166,33 @@ def autosummary_table_visit_html(self: HTMLTranslator, node: autosummary_table) 
 
 
 # -- autodoc integration -------------------------------------------------------
+deprecated_alias('sphinx.ext.autosummary',
+                 {
+                     '_app': None,
+                 },
+                 RemovedInSphinx60Warning,
+                 {
+                 })
 
-# current application object (used in `get_documenter()`).
-_app: Sphinx = None
+
+class FakeApplication:
+    def __init__(self):
+        self.doctreedir = None
+        self.events = None
+        self.extensions = {}
+        self.srcdir = None
+        self.config = Config()
+        self.project = Project(None, None)
+        self.registry = SphinxComponentRegistry()
 
 
 class FakeDirective(DocumenterBridge):
     def __init__(self) -> None:
         settings = Struct(tab_width=8)
         document = Struct(settings=settings)
-        env = BuildEnvironment()
-        env.config = Config()
+        app = FakeApplication()
+        app.config.add('autodoc_class_signature', 'mixed', True, None)
+        env = BuildEnvironment(app)  # type: ignore
         state = Struct(document=document)
         super().__init__(env, None, Options(), 0, state)
 
@@ -775,7 +794,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('builder-inited', process_generate_options)
     app.add_config_value('autosummary_context', {}, True)
     app.add_config_value('autosummary_filename_map', {}, 'html')
-    app.add_config_value('autosummary_generate', True, True, [bool])
+    app.add_config_value('autosummary_generate', True, True, [bool, list])
     app.add_config_value('autosummary_generate_overwrite', True, False)
     app.add_config_value('autosummary_mock_imports',
                          lambda config: config.autodoc_mock_imports, 'env')

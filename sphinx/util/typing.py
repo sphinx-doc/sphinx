@@ -153,6 +153,7 @@ def _restify_py37(cls: Optional[Type]) -> str:
         else:
             text = restify(cls.__origin__)
 
+        origin = getattr(cls, '__origin__', None)
         if not hasattr(cls, '__args__'):
             pass
         elif all(is_system_TypeVar(a) for a in cls.__args__):
@@ -161,6 +162,8 @@ def _restify_py37(cls: Optional[Type]) -> str:
         elif cls.__module__ == 'typing' and cls._name == 'Callable':
             args = ', '.join(restify(a) for a in cls.__args__[:-1])
             text += r"\ [[%s], %s]" % (args, restify(cls.__args__[-1]))
+        elif cls.__module__ == 'typing' and getattr(origin, '_name', None) == 'Literal':
+            text += r"\ [%s]" % ', '.join(repr(a) for a in cls.__args__)
         elif cls.__args__:
             text += r"\ [%s]" % ", ".join(restify(a) for a in cls.__args__)
 
@@ -223,13 +226,13 @@ def _restify_py36(cls: Optional[Type]) -> str:
         else:
             reftext = ':class:`%s`' % qualname
 
-        if cls.__args__ is None or len(cls.__args__) <= 2:  # type: ignore  # NOQA
-            params = cls.__args__  # type: ignore
-        elif cls.__origin__ == Generator:  # type: ignore
-            params = cls.__args__  # type: ignore
+        if cls.__args__ is None or len(cls.__args__) <= 2:
+            params = cls.__args__
+        elif cls.__origin__ == Generator:
+            params = cls.__args__
         else:  # typing.Callable
-            args = ', '.join(restify(arg) for arg in cls.__args__[:-1])  # type: ignore
-            result = restify(cls.__args__[-1])  # type: ignore
+            args = ', '.join(restify(arg) for arg in cls.__args__[:-1])
+            result = restify(cls.__args__[-1])
             return reftext + '\\ [[%s], %s]' % (args, result)
 
         if params:
@@ -362,6 +365,9 @@ def _stringify_py37(annotation: Any) -> str:
             args = ', '.join(stringify(a) for a in annotation.__args__[:-1])
             returns = stringify(annotation.__args__[-1])
             return '%s[[%s], %s]' % (qualname, args, returns)
+        elif qualname == 'Literal':
+            args = ', '.join(repr(a) for a in annotation.__args__)
+            return '%s[%s]' % (qualname, args)
         elif str(annotation).startswith('typing.Annotated'):  # for py39+
             return stringify(annotation.__args__[0])
         elif all(is_system_TypeVar(a) for a in annotation.__args__):

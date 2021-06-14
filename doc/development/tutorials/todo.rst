@@ -105,7 +105,7 @@ is just a "general" node.
 
    Many extensions will not have to create their own node classes and work fine
    with the nodes already provided by `docutils
-   <http://docutils.sourceforge.net/docs/ref/doctree.html>`__ and :ref:`Sphinx
+   <https://docutils.sourceforge.io/docs/ref/doctree.html>`__ and :ref:`Sphinx
    <nodes>`.
 
 .. attention::
@@ -362,6 +362,6 @@ For more information, refer to the `docutils`_ documentation and
 :doc:`/extdev/index`.
 
 
-.. _docutils: http://docutils.sourceforge.net/docs/
+.. _docutils: https://docutils.sourceforge.io/docs/
 .. _Python path: https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH
-.. _docutils documentation: http://docutils.sourceforge.net/docs/ref/rst/directives.html
+.. _docutils documentation: https://docutils.sourceforge.io/docs/ref/rst/directives.html

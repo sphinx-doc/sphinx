@@ -6846,7 +6846,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         GroupedField('template parameter', label=_('Template Parameters'),
                      names=('tparam', 'template parameter'),
                      can_collapse=True),
-        GroupedField('exceptions', label=_('Throws'), rolename='cpp:class',
+        GroupedField('exceptions', label=_('Throws'), rolename='expr',
                      names=('throws', 'throw', 'exception'),
                      can_collapse=True),
         Field('returnvalue', label=_('Returns'), has_arg=False,
@@ -7594,7 +7594,7 @@ class CPPDomain(Domain):
 
     def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                             typ: str, target: str, node: pending_xref,
-                            contnode: Element) -> Tuple[Element, str]:
+                            contnode: Element) -> Tuple[Optional[Element], Optional[str]]:
         # add parens again for those that could be functions
         if typ == 'any' or typ == 'func':
             target += '()'
@@ -7743,7 +7743,7 @@ class CPPDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element
-                     ) -> Element:
+                     ) -> Optional[Element]:
         return self._resolve_xref_inner(env, fromdocname, builder, typ,
                                         target, node, contnode)[0]
 

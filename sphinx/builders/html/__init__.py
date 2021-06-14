@@ -1000,16 +1000,6 @@ class StandaloneHTMLBuilder(Builder):
             return uri
         ctx['pathto'] = pathto
 
-        def css_tag(css: Stylesheet) -> str:
-            attrs = []
-            for key in sorted(css.attributes):
-                value = css.attributes[key]
-                if value is not None:
-                    attrs.append('%s="%s"' % (key, html.escape(value, True)))
-            attrs.append('href="%s"' % pathto(css.filename, resource=True))
-            return '<link %s />' % ' '.join(attrs)
-        ctx['css_tag'] = css_tag
-
         def hasdoc(name: str) -> bool:
             if name in self.env.all_docs:
                 return True
@@ -1026,7 +1016,7 @@ class StandaloneHTMLBuilder(Builder):
 
         # revert script_files and css_files
         self.script_files[:] = self._script_files
-        self.css_files[:] = self.css_files
+        self.css_files[:] = self._css_files
 
         self.update_page_context(pagename, templatename, ctx, event_arg)
         newtmpl = self.app.emit_firstresult('html-page-context', pagename,
@@ -1138,6 +1128,26 @@ def convert_html_js_files(app: Sphinx, config: Config) -> None:
                 continue
 
     config.html_js_files = html_js_files  # type: ignore
+
+
+def setup_css_tag_helper(app: Sphinx, pagename: str, templatename: str,
+                         context: Dict, doctree: Node) -> None:
+    """Set up css_tag() template helper.
+
+    .. note:: This set up function is added to keep compatibility with webhelper.
+    """
+    pathto = context.get('pathto')
+
+    def css_tag(css: Stylesheet) -> str:
+        attrs = []
+        for key in sorted(css.attributes):
+            value = css.attributes[key]
+            if value is not None:
+                attrs.append('%s="%s"' % (key, html.escape(value, True)))
+        attrs.append('href="%s"' % pathto(css.filename, resource=True))
+        return '<link %s />' % ' '.join(attrs)
+
+    context['css_tag'] = css_tag
 
 
 def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
@@ -1347,6 +1357,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('config-inited', validate_html_logo, priority=800)
     app.connect('config-inited', validate_html_favicon, priority=800)
     app.connect('builder-inited', validate_math_renderer)
+    app.connect('html-page-context', setup_css_tag_helper)
     app.connect('html-page-context', setup_js_tag_helper)
     app.connect('html-page-context', setup_resource_paths)
 

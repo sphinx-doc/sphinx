@@ -13,7 +13,7 @@ Documentation.addTranslations({
         "Complete Table of Contents": "\u041f\u043e\u0432\u043d\u0438\u0439 \u0417\u043c\u0456\u0441\u0442",
         "Contents": "",
         "Copyright": "\u0410\u0432\u0442\u043e\u0440\u0441\u044c\u043a\u0456 \u043f\u0440\u0430\u0432\u0430",
-        "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "\u0421\u0442\u0432\u043e\u0440\u0435\u043d\u043e \u0437 \u0432\u0438\u043a\u043e\u0440\u0438\u0441\u0442\u0430\u043d\u043d\u044f\u043c <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.",
+        "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "",
         "Expand sidebar": "",
         "Full index on one page": "\u041f\u043e\u0432\u043d\u0438\u0439 \u0456\u043d\u0434\u0435\u043a\u0441 \u043d\u0430 \u043e\u0434\u043d\u0456\u0439 \u0441\u0442\u043e\u0440\u0456\u043d\u0446\u0456",
         "General Index": "\u0417\u0430\u0433\u0430\u043b\u044c\u043d\u0438\u0439 \u0456\u043d\u0434\u0435\u043a\u0441",

@@ -145,7 +145,7 @@ Google Search
 
 .. _Getting Started: https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html
 .. _api role: https://git.savannah.gnu.org/cgit/kenozooid.git/tree/doc/extapi.py
-.. _xhtml to reST: http://docutils.sourceforge.net/sandbox/xhtml2rest/xhtml2rest.py
+.. _xhtml to reST: https://docutils.sourceforge.io/sandbox/xhtml2rest/xhtml2rest.py
 
 
 Sphinx vs. Docutils
@@ -179,10 +179,10 @@ of the *writers* provided by docutils. This allows Sphinx to provide many
 features that would simply not be possible with docutils, such as those
 outlined above.
 
-__ http://docutils.sourceforge.io/
-__ http://docutils.sourceforge.io/docs/dev/hacking.html
-__ http://docutils.sourceforge.io/rst.html
-__ http://docutils.sourceforge.net/docs/user/tools.html
+__ https://docutils.sourceforge.io/
+__ https://docutils.sourceforge.io/docs/dev/hacking.html
+__ https://docutils.sourceforge.io/rst.html
+__ https://docutils.sourceforge.io/docs/user/tools.html
 
 
 .. _epub-faq:
@@ -259,7 +259,9 @@ The following list gives some hints for the creation of epub files:
 
      ``parent.xhtml`` -> ``child.xhtml`` -> ``parent.xhtml``
 
-  If you get the following error, fix your document structure::
+  If you get the following error, fix your document structure:
+
+  .. code-block:: none
 
      Error(prcgen):E24011: TOC section scope is not included in the parent chapter:(title)
      Error(prcgen):E24001: The table of content could not be built.

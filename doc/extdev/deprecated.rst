@@ -22,6 +22,21 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - The optional argument ``app`` for ``sphinx.environment.BuildEnvironment``
+     - 4.1
+     - 6.0
+     - The required argument
+
+   * - ``sphinx.application.Sphinx.html_theme``
+     - 4.1
+     - 6.0
+     - ``sphinx.registry.SphinxComponentRegistry.html_themes``
+
+   * - ``sphinx.ext.autosummary._app``
+     - 4.1
+     - 6.0
+     - N/A
+
    * - ``sphinx.util.docstrings.extract_metadata()``
      - 4.1
      - 6.0
@@ -40,12 +55,12 @@ The following is a list of deprecated interfaces.
    * - ``sphinx.directives.patches.ListTable``
      - 4.0
      - 6.0
-     - ``docutils.parsers.rst.diretives.tables.ListSVTable``
+     - ``docutils.parsers.rst.directives.tables.ListSVTable``
 
    * - ``sphinx.directives.patches.RSTTable``
      - 4.0
      - 6.0
-     - ``docutils.parsers.rst.diretives.tables.RSTTable``
+     - ``docutils.parsers.rst.directives.tables.RSTTable``
 
    * - ``sphinx.ext.autodoc.directive.DocumenterBridge.filename_set``
      - 4.0
@@ -85,7 +100,7 @@ The following is a list of deprecated interfaces.
    * - ``sphinx.util.smartypants``
      - 4.0
      - 6.0
-     - ``docutils.utils.smartyquotes``
+     - ``docutils.utils.smartquotes``
 
    * - ``sphinx.util.typing.DirectiveOption``
      - 4.0

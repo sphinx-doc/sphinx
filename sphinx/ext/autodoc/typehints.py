@@ -40,7 +40,7 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
 def merge_typehints(app: Sphinx, domain: str, objtype: str, contentnode: Element) -> None:
     if domain != 'py':
         return
-    if app.config.autodoc_typehints != 'description':
+    if app.config.autodoc_typehints not in ('both', 'description'):
         return
 
     try:

@@ -13,7 +13,7 @@ Documentation.addTranslations({
         "Complete Table of Contents": "Komplett Innholdsfortegnelse",
         "Contents": "Innhold",
         "Copyright": "Copyright",
-        "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "Lagd med <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.",
+        "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "",
         "Expand sidebar": "Utvid sidepanelet",
         "Full index on one page": "Hele innholdsfortegnelsen p\u00e5 en side",
         "General Index": "Hovedindex",
