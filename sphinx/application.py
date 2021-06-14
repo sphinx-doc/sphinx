@@ -146,7 +146,6 @@ class Sphinx:
         self.project: Project = None
         self.registry = SphinxComponentRegistry()
         self.html_themes: Dict[str, str] = {}
-        self.html_assets_in_all_pages: bool = False
 
         # validate provided directories
         self.srcdir = abspath(srcdir)
@@ -1182,13 +1181,6 @@ class Sphinx:
         logger.debug('[app] adding environment collector: %r', collector)
         collector().enable(self)
 
-    def add_html_assets_in_all_pages(self):
-        """Tell extensions to insert HTML assets in all the pages.
-
-        .. versionadded: 4.1
-        """
-        self.html_assets_in_all_pages = True
-
     def add_html_theme(self, name: str, theme_path: str) -> None:
         """Register a HTML Theme.
 
@@ -1264,6 +1256,18 @@ class Sphinx:
                 return False
 
         return True
+
+    def set_html_assets_policy(self, policy):
+        """Set the policy to include assets in HTML pages.
+
+        - always: include the assets in all the pages
+        - per_page: include the assets only in pages where they are used
+
+        .. versionadded: 4.1
+        """
+        if policy not in ('always', 'per_page'):
+            raise ValueError('policy %s is not supported' % policy)
+        self.registry.html_assets_policy = policy
 
 
 class TemplateBridge:

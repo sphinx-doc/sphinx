@@ -93,6 +93,9 @@ class SphinxComponentRegistry:
         self.html_inline_math_renderers: Dict[str, Tuple[Callable, Callable]] = {}
         self.html_block_math_renderers: Dict[str, Tuple[Callable, Callable]] = {}
 
+        #: HTML assets
+        self.html_assets_policy: str = 'per_page'
+
         #: js_files; list of JS paths or URLs
         self.js_files: List[Tuple[str, Dict[str, Any]]] = []
 
