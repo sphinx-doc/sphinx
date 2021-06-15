@@ -141,8 +141,11 @@ something like this:
 
 There we go! You created your first HTML documentation using Sphinx.
 
-Making some tweaks to the index
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+First steps to document your project using Sphinx
+-------------------------------------------------
+
+Converting your documentation to HTML
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``index.rst`` file that ``sphinx-quickstart`` created has some content
 already, and it gets rendered as the front page of your HTML documentation.  It
@@ -183,6 +186,51 @@ as before, or leverage the convenience script as follows:
 
 After running this command, you will see that ``index.html`` reflects the new
 changes!
+
+Exporting your documentation to other formats
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sphinx supports a variety of formats apart from HTML, including PDF, EPUB,
+:ref:`and more <builders>`.  For example, to build your documentation as an
+e-book in EPUB format, run this command from the ``docs`` directory:
+
+.. code-block:: console
+
+   (.venv) $ make epub
+
+After that, you will see the files corresponding to the e-book under
+``docs/build/html/``.  You can either open ``Lumache.epub`` with an
+EPUB-compatible e-book viewer, like `Calibre <https://calibre-ebook.com/>`_,
+or preview ``index.xhtml`` on a web browser.
+
+.. note::
+
+   To quickly display a complete list of possible output formats, plus some
+   extra useful commands, you can run :code:`make help`.
+
+Each output format has some specific configuration options that you can tune,
+:ref:`including EPUB <epub-options>`.  For instance, the default value of
+:confval:`epub_show_urls` is ``inline``, which means that, by default, URLs are
+shown right after the corresponding link, in parentheses.  You can change that
+behavior by adding the following code at the end of your ``conf.py``:
+
+.. code-block:: python
+
+   # EPUB options
+   epub_show_urls = 'footnote'
+
+With this configuration value, and after running ``make epub`` again, you will
+notice that URLs appear now as footnotes, which avoids cluttering the text.
+Sweet!
+
+.. warning::
+
+   Generating a PDF using Sphinx can be done running ``make latexpdf``,
+   provided that the system has a working :math:`\LaTeX` installation,
+   as explained in the documentation of :class:`sphinx.builders.latex.LaTeXBuilder`.
+   Although this is perfectly feasible, such installations are often big,
+   and in general LaTeX requires careful configuration in some cases,
+   so PDF generation is out of scope for this tutorial.
 
 Where to go from here
 ---------------------
