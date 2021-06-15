@@ -134,7 +134,7 @@ the documentation as HTML for the first time.  To do that, run this command:
 
    (.venv) $ sphinx-build -b html docs/source/ docs/build/html
 
-And finally, open `docs/build/html/index.html` in your browser.  You should see
+And finally, open ``docs/build/html/index.html`` in your browser.  You should see
 something like this:
 
 .. image:: /_static/tutorial/lumache-first-light.png
@@ -145,7 +145,7 @@ Making some tweaks to the index
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``index.rst`` file that ``sphinx-quickstart`` created has some content
-already, and it gets rendered as the front page of our HTML documentation.  It
+already, and it gets rendered as the front page of your HTML documentation.  It
 is written in reStructuredText, a powerful markup language.
 
 Modify the file as follows:
