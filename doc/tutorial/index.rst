@@ -311,6 +311,77 @@ appearance:
 
    HTML documentation of Lumache with the Furo theme
 
+Narrative documentation in Sphinx
+---------------------------------
+
+Inserting documents in the project hierarchy
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As discussed at the beginning, ``index.rst`` is the :term:`master document`,
+whose main function is to serve as a welcome page and to contain the root of
+the "table of contents tree" (or *toctree*).  Sphinx allows you to assemble
+a project from different files, which is helpful when the project grows.
+
+As an example, create a new file ``docs/source/usage.rst`` (next to
+``index.rst``) with these contents:
+
+.. code-block:: rest
+
+   Usage
+   =====
+
+   Installation
+   ------------
+
+   To use Lumache, first install it using pip:
+
+   .. code-block:: console
+
+      (.venv) $ pip install lumache
+
+This new file contains two :ref:`section <rst-sections>` headers, normal
+paragraph text, and a ``code-block`` directive that renders a block of content
+as source code, with appropriate syntax highlighting (in this case, generic
+``console`` text).
+
+.. note::
+
+   You can read `the list of available highlight
+   languages <https://pygments.org/docs/lexers/>`_ in the Pygments
+   documentation.
+
+The structure of the document is determined by the succession of heading
+styles, which means that, by using ``---`` for the "Installation" section
+after ``===`` for the "Usage" section, you have declared "Installation" to
+be a *subsection* of "Usage".
+
+In addition, add a ``toctree`` :ref:`directive <rst-directives>` at the end
+of ``index.rst`` including the document you just created,
+as follows:
+
+.. code-block:: rest
+
+   Contents
+   --------
+
+   .. toctree::
+
+      usage
+
+This step inserts that document in the root of the *toctree*, so now it belongs
+to the structure of your project.  If you export the documentation to HTML
+running ``make html``, you will see that the ``toctree`` gets rendered as a
+list of hyperlinks, and this allows you to navigate to the new page you
+just created.  Neat!
+
+.. warning::
+
+   Every document should belong to a *toctree*.  Otherwise, Sphinx will emit a
+   ``WARNING: document isn't included in any toctree``, and the end result
+   will depend on the builder.  For the HTML builder, the page will not be
+   linked from anywhere (therefore it will not be discoverable), whereas for
+   the PDF builder, it will not be included at all.
+
 Where to go from here
 ---------------------
 
