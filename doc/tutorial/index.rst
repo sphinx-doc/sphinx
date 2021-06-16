@@ -137,7 +137,12 @@ the documentation as HTML for the first time.  To do that, run this command:
 And finally, open ``docs/build/html/index.html`` in your browser.  You should see
 something like this:
 
-.. image:: /_static/tutorial/lumache-first-light.png
+.. figure:: /_static/tutorial/lumache-first-light.png
+   :width: 80%
+   :align: center
+   :alt: Freshly created documentation of Lumache
+
+   Freshly created documentation of Lumache
 
 There we go! You created your first HTML documentation using Sphinx.
 
