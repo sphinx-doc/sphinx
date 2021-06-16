@@ -299,7 +299,7 @@ its value as follows:
    # The theme to use for HTML and HTML Help pages.  See the documentation for
    # a list of builtin themes.
    #
-   html_theme = 'alabaster'
+   html_theme = 'furo'
 
 With this change, you will notice that your HTML documentation has now a new
 appearance:
