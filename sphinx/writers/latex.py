@@ -1009,7 +1009,7 @@ class LaTeXTranslator(SphinxTranslator):
         if cell.width > 1 or cell.height > 1:
             self.body.append(r'\begin{varwidth}[t]{\sphinxcolwidth{%d}{%d}}'
                              % (cell.width, self.table.colcount) + CR)
-            context = (r'\par' + CR + r'\vskip-\baselineskip'
+            context = (r'\par' + CR + r'\vskip-\baselineskip\vskip0pt'
                        r'\vbox{\hbox{\strut}}\end{varwidth}%' + CR + context)
             self.needs_linetrimming = 1
         if len(node.traverse(nodes.paragraph)) >= 2:
