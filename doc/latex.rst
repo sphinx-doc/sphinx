@@ -282,7 +282,29 @@ Keys that don't need to be overridden unless in special cases are:
    "inputenc" package inclusion.
 
    Default: ``'\\usepackage[utf8]{inputenc}'`` when using pdflatex, else
-   ``''``
+   ``''``.
+
+   .. note::
+
+      If using ``utf8x`` in place of ``utf8`` it is mandatory to extend the
+      LaTeX preamble with suitable ``\PreloadUnicodePage{<number>}`` commands,
+      as per the ``utf8x`` documentation (``texdoc ucs`` on a TeXLive based
+      TeX installation).  Else, unexpected and possibly hard-to-spot problems
+      (i.e. not causing a build crash) may arise in the PDF, in particular
+      regarding hyperlinks.
+
+      Even if these precautions are taken, PDF build via ``pdflatex`` engine
+      may crash due to upstream LaTeX not being fully compatible with
+      ``utf8x``.  For example, in certain circumstances related to
+      code-blocks, or attempting to include images whose filenames contain
+      Unicode characters.  Indeed, starting in 2015, upstream LaTeX with
+      ``pdflatex`` engine has somewhat enhanced native support for Unicode and
+      is becoming more and more incompatible with ``utf8x``.  In particular,
+      since the October 2019 LaTeX release, filenames can use Unicode
+      characters, and even spaces.  At Sphinx level this means e.g. that the
+      :dudir:`image` and :dudir:`figure` directives are now compatible with
+      such filenames for PDF via LaTeX output.  But this is broken if
+      ``utf8x`` is in use.
 
    .. versionchanged:: 1.4.3
       Previously ``'\\usepackage[utf8]{inputenc}'`` was used for all
