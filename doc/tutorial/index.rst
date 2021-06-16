@@ -382,6 +382,56 @@ just created.  Neat!
    linked from anywhere (therefore it will not be discoverable), whereas for
    the PDF builder, it will not be included at all.
 
+Adding cross-references
+~~~~~~~~~~~~~~~~~~~~~~~
+
+One powerful feature of Sphinx is the ability to seamlessly add
+:ref:`cross-references <xref-syntax>` to specific parts of the documentation:
+a document, a section, a figure, a code object, etc.  This tutorial is full of
+them!
+
+To add a straightforward cross-reference, write this sentence right after the
+introduction paragraph in ``index.rst``:
+
+.. code-block:: rest
+
+   Check out the :doc:`usage` section for further information.
+
+The :rst:role:`doc` role you used automatically references a specific document
+in the project, in this case the ``usage.rst`` you created earlier.
+
+Alternatively, you can also add a cross-reference to an arbitrary part of the
+project. For that, you need to use the :rst:role:`ref` role, and add an
+explicit *label* that can act as a target.
+
+For example, to reference the "Installation" subsection, add a label right
+before the heading, as follows:
+
+.. code-block:: rest
+
+   Usage
+   =====
+
+   .. _installation:
+
+   Installation
+   ------------
+
+   ...
+
+And make the sentence you added in ``index.rst`` look like this:
+
+.. code-block:: rest
+
+   Check out the :doc:`usage` section for further information, including how to
+   :ref:`install <installation>` the project.
+
+Notice a trick here: the ``install`` part specifies how the link will look like
+(we want it to be a specific word, so the sentence makes sense), whereas the
+``<installation>`` part refers to the actual label we want to add a
+cross-reference to. Both the ``:doc:`` and the ``:ref:`` roles will be rendered
+as hyperlinks in the HTML documentation.
+
 Where to go from here
 ---------------------
 
