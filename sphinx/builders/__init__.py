@@ -347,7 +347,7 @@ class Builder:
             with progress_message(__('checking consistency')):
                 self.env.check_consistency()
         else:
-            if method == 'update' and not docnames:
+            if method == 'update' and (not docnames or docnames == ['__all__']):
                 logger.info(bold(__('no targets are out of date.')))
                 return
 
