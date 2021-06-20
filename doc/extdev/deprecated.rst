@@ -750,8 +750,9 @@ The following is a list of deprecated interfaces.
 
    * - ``sphinx.environment.NoUri``
      - 2.1
-     - 4.0
+     - 3.0
      - ``sphinx.errors.NoUri``
+
    * - ``sphinx.ext.apidoc.format_directive()``
      - 2.1
      - 4.0
