@@ -364,10 +364,16 @@ the end of ``index.rst`` including the document you just created, as follows:
       usage
 
 This step inserts that document in the root of the *toctree*, so now it belongs
-to the structure of your project.  If you export the documentation to HTML
-running ``make html``, you will see that the ``toctree`` gets rendered as a
-list of hyperlinks, and this allows you to navigate to the new page you
-just created.  Neat!
+to the structure of your project, which so far looks like this:
+
+.. code-block:: text
+
+   index
+   └── usage
+
+If you export the documentation to HTML running ``make html``, you will see
+that the ``toctree`` gets rendered as a list of hyperlinks, and this allows you
+to navigate to the new page you just created.  Neat!
 
 .. warning::
 
