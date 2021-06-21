@@ -280,7 +280,7 @@ Using a third-party theme
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Themes, on the other hand, are a particular class of extensions that allow you
-to customize the appearance of your documentation.  Again, Sphinx has several
+to customize the appearance of your documentation.  Sphinx has several
 :ref:`built-in themes <builtin-themes>`, and there are also third-party ones.
 
 For example, to use the `Furo <https://pradyunsg.me/furo/>`_ third-party theme
@@ -355,9 +355,8 @@ styles, which means that, by using ``---`` for the "Installation" section
 after ``===`` for the "Usage" section, you have declared "Installation" to
 be a *subsection* of "Usage".
 
-In addition, add a ``toctree`` :ref:`directive <rst-directives>` at the end
-of ``index.rst`` including the document you just created,
-as follows:
+To complete the process, add a ``toctree`` :ref:`directive <rst-directives>` at
+the end of ``index.rst`` including the document you just created, as follows:
 
 .. code-block:: rest
 
@@ -390,7 +389,7 @@ One powerful feature of Sphinx is the ability to seamlessly add
 a document, a section, a figure, a code object, etc.  This tutorial is full of
 them!
 
-To add a straightforward cross-reference, write this sentence right after the
+To add a cross-reference, write this sentence right after the
 introduction paragraph in ``index.rst``:
 
 .. code-block:: rest
@@ -408,6 +407,7 @@ For example, to reference the "Installation" subsection, add a label right
 before the heading, as follows:
 
 .. code-block:: rest
+   :emphasize-lines: 4
 
    Usage
    =====
