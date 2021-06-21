@@ -276,8 +276,8 @@ durations report at the end of the console output, like this one:
    ====================== slowest reading durations =======================
    0.042 temp/source/index
 
-Using a third-party theme
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Using a third-party HTML theme
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Themes, on the other hand, are a particular class of extensions that allow you
 to customize the appearance of your documentation.  Sphinx has several
@@ -285,7 +285,7 @@ to customize the appearance of your documentation.  Sphinx has several
 ones <https://sphinx-themes.org/>`_.
 
 For example, to use the `Furo <https://pradyunsg.me/furo/>`_ third-party theme
-in your HTML documentation, first you will need to install it with ``pip`` on
+in your HTML documentation, first you will need to install it with ``pip`` in
 your Python virtual environment, like this:
 
 .. code-block:: console
