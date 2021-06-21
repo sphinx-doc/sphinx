@@ -40,6 +40,7 @@ In a new directory, create a file called ``README.rst`` with the following
 content.
 
 .. code-block:: rest
+   :caption: README.rst
 
    Lumache
    =======
@@ -162,6 +163,7 @@ is written in reStructuredText, a powerful markup language.
 Modify the file as follows:
 
 .. code-block:: rest
+   :caption: docs/source/index.rst
 
    Welcome to Lumache's documentation!
    ===================================
@@ -256,6 +258,7 @@ locate the ``extensions`` list in your ``conf.py`` and add one element as
 follows:
 
 .. code-block:: python
+   :caption: docs/source/conf.py
 
    # Add any Sphinx extension module names here, as strings. They can be
    # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -296,6 +299,7 @@ And then, locate the ``html_theme`` variable on your ``conf.py`` and replace
 its value as follows:
 
 .. code-block:: python
+   :caption: docs/source/conf.py
 
    # The theme to use for HTML and HTML Help pages.  See the documentation for
    # a list of builtin themes.
@@ -328,6 +332,7 @@ As an example, create a new file ``docs/source/usage.rst`` (next to
 ``index.rst``) with these contents:
 
 .. code-block:: rest
+   :caption: docs/source/usage.rst
 
    Usage
    =====
@@ -355,6 +360,7 @@ To complete the process, add a ``toctree`` :ref:`directive <rst-directives>` at
 the end of ``index.rst`` including the document you just created, as follows:
 
 .. code-block:: rest
+   :caption: docs/source/index.rst
 
    Contents
    --------
@@ -393,6 +399,7 @@ To add a cross-reference, write this sentence right after the
 introduction paragraph in ``index.rst``:
 
 .. code-block:: rest
+   :caption: docs/source/index.rst
 
    Check out the :doc:`usage` section for further information.
 
@@ -407,6 +414,7 @@ For example, to reference the "Installation" subsection, add a label right
 before the heading, as follows:
 
 .. code-block:: rest
+   :caption: docs/source/usage.rst
    :emphasize-lines: 4
 
    Usage
@@ -422,6 +430,7 @@ before the heading, as follows:
 And make the sentence you added in ``index.rst`` look like this:
 
 .. code-block:: rest
+   :caption: docs/source/index.rst
 
    Check out the :doc:`usage` section for further information, including how to
    :ref:`install <installation>` the project.
