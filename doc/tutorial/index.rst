@@ -247,7 +247,7 @@ Enabling a built-in extension
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In addition to these configuration values, you can customize Sphinx even more
-by using :doc:`extensions <../usage/extensions/index>`.  Sphinx ships several
+by using :doc:`extensions </usage/extensions/index>`.  Sphinx ships several
 :ref:`built-in ones <built-in-extensions>`, and there are many more
 :ref:`maintained by the community <third-party-extensions>`.
 
