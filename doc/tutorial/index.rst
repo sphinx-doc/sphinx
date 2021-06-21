@@ -371,11 +371,9 @@ just created.  Neat!
 
 .. warning::
 
-   Every document should belong to a *toctree*.  Otherwise, Sphinx will emit a
-   ``WARNING: document isn't included in any toctree``, and the end result
-   will depend on the builder.  For the HTML builder, the page will not be
-   linked from anywhere (therefore it will not be discoverable), whereas for
-   the PDF builder, it will not be included at all.
+   Documents outside a *toctree* will result in ``WARNING: document isn't
+   included in any toctree`` messages during the build process, and will be
+   unreachable for users.
 
 Adding cross-references
 ~~~~~~~~~~~~~~~~~~~~~~~
