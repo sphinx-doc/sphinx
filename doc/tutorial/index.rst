@@ -209,7 +209,7 @@ e-book in EPUB format, run this command from the ``docs`` directory:
    (.venv) $ make epub
 
 After that, you will see the files corresponding to the e-book under
-``docs/build/html/``.  You can either open ``Lumache.epub`` with an
+``docs/build/epub/``.  You can either open ``Lumache.epub`` with an
 EPUB-compatible e-book viewer, like `Calibre <https://calibre-ebook.com/>`_,
 or preview ``index.xhtml`` on a web browser.
 
