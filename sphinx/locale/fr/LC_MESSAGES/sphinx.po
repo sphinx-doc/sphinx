@@ -2382,7 +2382,7 @@ msgstr "table des matières avec une référence circulaire détectée, elle ser
 msgid ""
 "toctree contains reference to document %r that doesn't have a title: no link"
 " will be generated"
-msgstr "la table des matière contient une référence à un document %r qui n'a pas de titre : aucun lien ne sera généré"
+msgstr "la table des matières contient une référence à un document %r qui n'a pas de titre : aucun lien ne sera généré"
 
 #: sphinx/environment/adapters/toctree.py:176
 #, python-format
@@ -2392,7 +2392,7 @@ msgstr "le toctree contient une référence à des documents exclus %r"
 #: sphinx/environment/adapters/toctree.py:178
 #, python-format
 msgid "toctree contains reference to nonexisting document %r"
-msgstr "la table des matière contient des références à des documents inexistants %r"
+msgstr "la table des matières contient des références à des documents inexistants %r"
 
 #: sphinx/environment/collectors/asset.py:90
 #, python-format
