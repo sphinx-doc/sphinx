@@ -281,7 +281,8 @@ Using a third-party theme
 
 Themes, on the other hand, are a particular class of extensions that allow you
 to customize the appearance of your documentation.  Sphinx has several
-:ref:`built-in themes <builtin-themes>`, and there are also third-party ones.
+:ref:`built-in themes <builtin-themes>`, and there are also `third-party
+ones <https://sphinx-themes.org/>`_.
 
 For example, to use the `Furo <https://pradyunsg.me/furo/>`_ third-party theme
 in your HTML documentation, first you will need to install it with ``pip`` on
