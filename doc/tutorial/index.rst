@@ -318,10 +318,11 @@ Narrative documentation in Sphinx
 Inserting documents in the project hierarchy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As discussed at the beginning, ``index.rst`` is the :term:`master document`,
-whose main function is to serve as a welcome page and to contain the root of
-the "table of contents tree" (or *toctree*).  Sphinx allows you to assemble
-a project from different files, which is helpful when the project grows.
+The file ``index.rst`` created by ``sphinx-quickstart`` is the :term:`master
+document`, whose main function is to serve as a welcome page and to contain the
+root of the "table of contents tree" (or *toctree*).  Sphinx allows you to
+assemble a project from different files, which is helpful when the project
+grows.
 
 As an example, create a new file ``docs/source/usage.rst`` (next to
 ``index.rst``) with these contents:
