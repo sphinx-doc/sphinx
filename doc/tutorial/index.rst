@@ -342,15 +342,9 @@ As an example, create a new file ``docs/source/usage.rst`` (next to
       (.venv) $ pip install lumache
 
 This new file contains two :ref:`section <rst-sections>` headers, normal
-paragraph text, and a ``code-block`` directive that renders a block of content
-as source code, with appropriate syntax highlighting (in this case, generic
-``console`` text).
-
-.. note::
-
-   You can read `the list of available highlight
-   languages <https://pygments.org/docs/lexers/>`_ in the Pygments
-   documentation.
+paragraph text, and a :ref:`code-block <rst-code-block>` directive that renders
+a block of content as source code, with appropriate syntax highlighting
+(in this case, generic ``console`` text).
 
 The structure of the document is determined by the succession of heading
 styles, which means that, by using ``---`` for the "Installation" section
