@@ -319,8 +319,8 @@ appearance:
 Narrative documentation in Sphinx
 ---------------------------------
 
-Inserting documents in the project hierarchy
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Structuring your documentation across multiple pages
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The file ``index.rst`` created by ``sphinx-quickstart`` is the :term:`master
 document`, whose main function is to serve as a welcome page and to contain the
