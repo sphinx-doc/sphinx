@@ -233,7 +233,7 @@ With this configuration value, and after running ``make epub`` again, you will
 notice that URLs appear now as footnotes, which avoids cluttering the text.
 Sweet!
 
-.. warning::
+.. note::
 
    Generating a PDF using Sphinx can be done running ``make latexpdf``,
    provided that the system has a working :math:`\LaTeX` installation,
