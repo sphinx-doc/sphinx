@@ -242,8 +242,11 @@ Sweet!
    and in general LaTeX requires careful configuration in some cases,
    so PDF generation is out of scope for this tutorial.
 
-More Sphinx customization using extensions
-------------------------------------------
+More Sphinx customization
+-------------------------
+
+There are two main ways to customize your documentation beyond what is possible
+with core Sphinx: extensions and themes.
 
 Enabling a built-in extension
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -282,10 +285,9 @@ durations report at the end of the console output, like this one:
 Using a third-party HTML theme
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Themes, on the other hand, are a particular class of extensions that allow you
-to customize the appearance of your documentation.  Sphinx has several
-:ref:`built-in themes <builtin-themes>`, and there are also `third-party
-ones <https://sphinx-themes.org/>`_.
+Themes, on the other hand, are a way to customize the appearance of your
+documentation.  Sphinx has several :ref:`built-in themes <builtin-themes>`, and
+there are also `third-party ones <https://sphinx-themes.org/>`_.
 
 For example, to use the `Furo <https://pradyunsg.me/furo/>`_ third-party theme
 in your HTML documentation, first you will need to install it with ``pip`` in
