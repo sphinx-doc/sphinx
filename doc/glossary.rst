@@ -73,7 +73,7 @@ Glossary
 
      For more information, refer to :doc:`/usage/extensions/index`.
 
-   master document
+   root document
       The document that contains the root :rst:dir:`toctree` directive.
 
    object

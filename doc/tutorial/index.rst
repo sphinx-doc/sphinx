@@ -128,7 +128,7 @@ The purpose of each of these files is:
   as some extra configuration keys.
 
 ``source/index.rst``
-  The :term:`master document` of the project, which serves as welcome page and
+  The :term:`root document` of the project, which serves as welcome page and
   contains the root of the "table of contents tree" (or *toctree*).
 
 Thanks to this bootstrapping step, you already have everything needed to render
@@ -322,7 +322,7 @@ Narrative documentation in Sphinx
 Structuring your documentation across multiple pages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The file ``index.rst`` created by ``sphinx-quickstart`` is the :term:`master
+The file ``index.rst`` created by ``sphinx-quickstart`` is the :term:`root
 document`, whose main function is to serve as a welcome page and to contain the
 root of the "table of contents tree" (or *toctree*).  Sphinx allows you to
 assemble a project from different files, which is helpful when the project

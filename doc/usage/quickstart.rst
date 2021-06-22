@@ -48,8 +48,8 @@ Defining document structure
 ---------------------------
 
 Let's assume you've run :program:`sphinx-quickstart`.  It created a source
-directory with :file:`conf.py` and a master document, :file:`index.rst`.  The
-main function of the :term:`master document` is to serve as a welcome page, and
+directory with :file:`conf.py` and a root document, :file:`index.rst`.  The
+main function of the :term:`root document` is to serve as a welcome page, and
 to contain the root of the "table of contents tree" (or *toctree*).  This is one
 of the main things that Sphinx adds to reStructuredText, a way to connect
 multiple files to a single hierarchy of documents.
