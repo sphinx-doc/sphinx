@@ -1132,7 +1132,7 @@ class ASTRequiresExpression(ASTExpression):
         if version <= 3:
             raise NoOldIdError
         elif version == 4:
-            return "missing-requires-expression-mangling--dont-rely-on-this-link"
+            return "missing_requires_expression_mangling__dont_rely_on_this_link"
         assert False
 
     def describe_signature(self, signode: TextElement, mode: str,
@@ -5383,7 +5383,7 @@ class Symbol:
         if expr.params is None:
             return
 
-        name = "__requires-expression-dont-rely-on-this-link{}"
+        name = "__requires_expression__dont_rely_on_this_link{}"
         name = name.format(env.new_serialno('cpp-requires-expr'))
         nn = ASTNestedName([ASTNestedNameElement(ASTIdentifier(name), None)], [False], False)
         decl = ASTDeclaration(objectType='requiresExpression', directiveType=None,

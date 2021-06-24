@@ -371,7 +371,7 @@ def test_domain_cpp_ast_expressions():
 
     # requires expressions
     # --------------------
-    requires_v4_id = 'missing-requires-expression-mangling--dont-rely-on-this-link'
+    requires_v4_id = 'missing_requires_expression_mangling__dont_rely_on_this_link'
     # non-parametrised
     exprCheck('requires {{}}', None, requires_v4_id)
     exprCheck('requires {{ typename T::type; }}', None, requires_v4_id)
