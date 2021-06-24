@@ -319,8 +319,8 @@ _fold_operator_re = re.compile(r'''(?x)
 # see https://en.cppreference.com/w/cpp/keyword
 _keywords = [
     'alignas', 'alignof', 'and', 'and_eq', 'asm', 'auto', 'bitand', 'bitor',
-    'bool', 'break', 'case', 'catch', 'char', 'char16_t', 'char32_t', 'class',
-    'compl', 'concept', 'const', 'consteval', 'constexpr', 'constinit',
+    'bool', 'break', 'case', 'catch', 'char', 'char8_t', 'char16_t', 'char32_t',
+    'class', 'compl', 'concept', 'const', 'consteval', 'constexpr', 'constinit',
     'const_cast', 'continue',
     'decltype', 'default', 'delete', 'do', 'double', 'dynamic_cast', 'else',
     'enum', 'explicit', 'export', 'extern', 'false', 'float', 'for', 'friend',
@@ -427,6 +427,7 @@ _id_fundamental_v2 = {
     'wchar_t': 'w',
     'char32_t': 'Di',
     'char16_t': 'Ds',
+    'char8_t': 'Du',
     'short': 's',
     'short int': 's',
     'signed short': 's',
@@ -4956,8 +4957,8 @@ class DefinitionParser(BaseParser):
     # those without signedness and size modifiers
     # see https://en.cppreference.com/w/cpp/language/types
     _simple_fundemental_types = (
-        'void', 'bool', 'char', 'wchar_t', 'char16_t', 'char32_t', 'int',
-        'float', 'double', 'auto'
+        'void', 'bool', 'char', 'wchar_t', 'char8_t', 'char16_t', 'char32_t',
+        'int', 'float', 'double', 'auto'
     )
 
     _prefix_keys = ('class', 'struct', 'enum', 'union', 'typename')

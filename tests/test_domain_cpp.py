@@ -126,6 +126,7 @@ def test_domain_cpp_ast_fundamental_types():
             id = t.replace(" ", "-").replace("long", "l").replace("int", "i")
             id = id.replace("bool", "b").replace("char", "c")
             id = id.replace("wc_t", "wchar_t").replace("c16_t", "char16_t")
+            id = id.replace("c8_t", "char8_t")
             id = id.replace("c32_t", "char32_t")
             return "f__%s" % id
 

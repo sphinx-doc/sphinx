@@ -57,7 +57,8 @@ Features added
 
   - ``inline`` variables,
   - ``consteval`` functions,
-  - ``constinit`` variables.
+  - ``constinit`` variables,
+  - ``char8_t``.
 
 
 Bugs fixed
