@@ -155,7 +155,8 @@ def test_domain_c_ast_expressions():
     # primary
     exprCheck('true')
     exprCheck('false')
-    ints = ['5', '0', '075', '0x0123456789ABCDEF', '0XF', '0b1', '0B1']
+    ints = ['5', '0', '075', '0x0123456789ABCDEF', '0XF', '0b1', '0B1',
+            "0b0'1'0", "00'1'2", "0x0'1'2", "1'2'3"]
     unsignedSuffix = ['', 'u', 'U']
     longSuffix = ['', 'l', 'L', 'll', 'LL']
     for i in ints:
@@ -170,14 +171,18 @@ def test_domain_c_ast_expressions():
                 '5e42', '5e+42', '5e-42',
                 '5.', '5.e42', '5.e+42', '5.e-42',
                 '.5', '.5e42', '.5e+42', '.5e-42',
-                '5.0', '5.0e42', '5.0e+42', '5.0e-42']:
+                '5.0', '5.0e42', '5.0e+42', '5.0e-42',
+                "1'2'3e7'8'9", "1'2'3.e7'8'9",
+                ".4'5'6e7'8'9", "1'2'3.4'5'6e7'8'9"]:
             expr = e + suffix
             exprCheck(expr)
         for e in [
                 'ApF', 'Ap+F', 'Ap-F',
                 'A.', 'A.pF', 'A.p+F', 'A.p-F',
                 '.A', '.ApF', '.Ap+F', '.Ap-F',
-                'A.B', 'A.BpF', 'A.Bp+F', 'A.Bp-F']:
+                'A.B', 'A.BpF', 'A.Bp+F', 'A.Bp-F',
+                "A'B'Cp1'2'3", "A'B'C.p1'2'3",
+                ".D'E'Fp1'2'3", "A'B'C.D'E'Fp1'2'3"]:
             expr = "0x" + e + suffix
             exprCheck(expr)
     exprCheck('"abc\\"cba"')  # string

@@ -59,7 +59,10 @@ Features added
   - ``consteval`` functions,
   - ``constinit`` variables,
   - ``char8_t``,
-  - ``explicit(<constant expression>)`` specifier.
+  - ``explicit(<constant expression>)`` specifier,
+  - digit separators in literals.
+
+* C, add support for digit separators in literals.
 
 
 Bugs fixed

@@ -33,10 +33,10 @@ identifier_re = re.compile(r'''(?x)
     )
     [a-zA-Z0-9_]*\b
 ''')
-integer_literal_re = re.compile(r'[1-9][0-9]*')
-octal_literal_re = re.compile(r'0[0-7]*')
-hex_literal_re = re.compile(r'0[xX][0-9a-fA-F][0-9a-fA-F]*')
-binary_literal_re = re.compile(r'0[bB][01][01]*')
+integer_literal_re = re.compile(r'[1-9][0-9]*(\'[0-9]+)*')
+octal_literal_re = re.compile(r'0[0-7]*(\'[0-7]+)*')
+hex_literal_re = re.compile(r'0[xX][0-9a-fA-F]+(\'[0-9a-fA-F]+)*')
+binary_literal_re = re.compile(r'0[bB][01]+(\'[01]+)*')
 integers_literal_suffix_re = re.compile(r'''(?x)
     # unsigned and/or (long) long, in any order, but at least one of them
     (
@@ -50,13 +50,14 @@ integers_literal_suffix_re = re.compile(r'''(?x)
 float_literal_re = re.compile(r'''(?x)
     [+-]?(
     # decimal
-      ([0-9]+[eE][+-]?[0-9]+)
-    | ([0-9]*\.[0-9]+([eE][+-]?[0-9]+)?)
-    | ([0-9]+\.([eE][+-]?[0-9]+)?)
+      ([0-9]+(\'[0-9]+)*[eE][+-]?[0-9]+(\'[0-9]+)*)
+    | (([0-9]+(\'[0-9]+)*)?\.[0-9]+(\'[0-9]+)*([eE][+-]?[0-9]+(\'[0-9]+)*)?)
+    | ([0-9]+(\'[0-9]+)*\.([eE][+-]?[0-9]+(\'[0-9]+)*)?)
     # hex
-    | (0[xX][0-9a-fA-F]+[pP][+-]?[0-9a-fA-F]+)
-    | (0[xX][0-9a-fA-F]*\.[0-9a-fA-F]+([pP][+-]?[0-9a-fA-F]+)?)
-    | (0[xX][0-9a-fA-F]+\.([pP][+-]?[0-9a-fA-F]+)?)
+    | (0[xX][0-9a-fA-F]+(\'[0-9a-fA-F]+)*[pP][+-]?[0-9a-fA-F]+(\'[0-9a-fA-F]+)*)
+    | (0[xX]([0-9a-fA-F]+(\'[0-9a-fA-F]+)*)?\.
+        [0-9a-fA-F]+(\'[0-9a-fA-F]+)*([pP][+-]?[0-9a-fA-F]+(\'[0-9a-fA-F]+)*)?)
+    | (0[xX][0-9a-fA-F]+(\'[0-9a-fA-F]+)*\.([pP][+-]?[0-9a-fA-F]+(\'[0-9a-fA-F]+)*)?)
     )
 ''')
 float_literal_suffix_re = re.compile(r'[fFlL]\b')
