@@ -2261,16 +2261,16 @@ class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
 
 
 class ASTFunctionParameter(ASTBase):
-    def __init__(self, arg: Optional[Union["ASTTypeWithInit",
-                                           "ASTTemplateParamConstrainedTypeWithInit"]],
+    def __init__(self, param: Optional[Union["ASTTypeWithInit",
+                                             "ASTTemplateParamConstrainedTypeWithInit"]],
                  ellipsis: bool = False) -> None:
-        self.arg = arg
+        self.param = param
         self.ellipsis = ellipsis
 
     @property
     def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
-        if self.arg is not None:
-            yield from self.arg.requires_expressions
+        if self.param is not None:
+            yield from self.param.requires_expressions
 
     def get_id(self, version: int, objectType: str = None, symbol: "Symbol" = None) -> str:
         # this is not part of the normal name mangling in C++
@@ -2281,13 +2281,13 @@ class ASTFunctionParameter(ASTBase):
         if self.ellipsis:
             return 'z'
         else:
-            return self.arg.get_id(version)
+            return self.param.get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         if self.ellipsis:
             return '...'
         else:
-            return transform(self.arg)
+            return transform(self.param)
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
@@ -2295,7 +2295,7 @@ class ASTFunctionParameter(ASTBase):
         if self.ellipsis:
             signode += addnodes.desc_sig_punctuation('...', '...')
         else:
-            self.arg.describe_signature(signode, mode, env, symbol=symbol)
+            self.param.describe_signature(signode, mode, env, symbol=symbol)
 
 
 class ASTNoexceptSpec(ASTBase):
@@ -4645,9 +4645,9 @@ class Symbol:
         # add symbols for function parameters, if any
         if self.declaration is not None and self.declaration.function_params is not None:
             for fp in self.declaration.function_params:
-                if fp.arg is None:
+                if fp.param is None:
                     continue
-                nn = fp.arg.name
+                nn = fp.param.name
                 if nn is None:
                     continue
                 # (comparing to the template params: we have checked that we are a declaration)
@@ -6481,13 +6481,13 @@ class DefinitionParser(BaseParser):
                 self.fail('Expecting "(" in parameters-and-qualifiers.')
             else:
                 return None
-        args = []
+        params = []
         self.skip_ws()
         if not self.skip_string(')'):
             while 1:
                 self.skip_ws()
                 if self.skip_string('...'):
-                    args.append(ASTFunctionParameter(None, True))
+                    params.append(ASTFunctionParameter(None, True))
                     self.skip_ws()
                     if not self.skip_string(')'):
                         self.fail('Expected ")" after "..." in '
@@ -6495,9 +6495,9 @@ class DefinitionParser(BaseParser):
                     break
                 # note: it seems that function arguments can always be named,
                 # even in function pointers and similar.
-                arg = self._parse_type_with_init(outer=None, named='single')
+                param = self._parse_type_with_init(outer=None, named='single')
                 # TODO: parse default parameters # TODO: didn't we just do that?
-                args.append(ASTFunctionParameter(arg))
+                params.append(ASTFunctionParameter(param))
 
                 self.skip_ws()
                 if self.skip_string(','):
@@ -6514,7 +6514,7 @@ class DefinitionParser(BaseParser):
         # it's needed for pointer to member functions
         if paramMode != 'function' and False:
             return ASTParametersQualifiers(
-                args, None, None, None, None, None, None, None)
+                params, None, None, None, None, None, None, None)
 
         self.skip_ws()
         const = self.skip_word_and_ws('const')
@@ -6575,7 +6575,7 @@ class DefinitionParser(BaseParser):
                     % '" or "'.join(valid))
 
         return ASTParametersQualifiers(
-            args, volatile, const, refQual, exceptionSpec, trailingReturn,
+            params, volatile, const, refQual, exceptionSpec, trailingReturn,
             override, final, attrs, initializer)
 
     def _parse_decl_specs_simple(self, outer: str, typed: bool) -> ASTDeclSpecsSimple:
