@@ -58,7 +58,8 @@ Features added
   - ``inline`` variables,
   - ``consteval`` functions,
   - ``constinit`` variables,
-  - ``char8_t``.
+  - ``char8_t``,
+  - ``explicit(<constant expression>)`` specifier.
 
 
 Bugs fixed

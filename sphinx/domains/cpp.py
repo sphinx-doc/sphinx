@@ -2101,16 +2101,38 @@ class ASTParametersQualifiers(ASTBase):
                 signode += addnodes.desc_sig_keyword(self.initializer, self.initializer)
 
 
+class ASTExplicitSpec(ASTBase):
+    def __init__(self, expr: Optional[ASTExpression]) -> None:
+        self.expr = expr
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        res = ['explicit']
+        if self.expr is not None:
+            res.append('(')
+            res.append(transform(self.expr))
+            res.append(')')
+        return ''.join(res)
+
+    def describe_signature(self, signode: TextElement,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        signode += addnodes.desc_sig_keyword('explicit', 'explicit')
+        if self.expr is not None:
+            signode += addnodes.desc_sig_punctuation('(', '(')
+            self.expr.describe_signature(signode, 'markType', env, symbol)
+            signode += addnodes.desc_sig_punctuation(')', ')')
+
+
 class ASTDeclSpecsSimple(ASTBase):
     def __init__(self, storage: str, threadLocal: bool, inline: bool, virtual: bool,
-                 explicit: bool, consteval: bool, constexpr: bool, constinit: bool,
+                 explicitSpec: Optional[ASTExplicitSpec],
+                 consteval: bool, constexpr: bool, constinit: bool,
                  volatile: bool, const: bool, friend: bool,
                  attrs: List[ASTAttribute]) -> None:
         self.storage = storage
         self.threadLocal = threadLocal
         self.inline = inline
         self.virtual = virtual
-        self.explicit = explicit
+        self.explicitSpec = explicitSpec
         self.consteval = consteval
         self.constexpr = constexpr
         self.constinit = constinit
@@ -2126,7 +2148,7 @@ class ASTDeclSpecsSimple(ASTBase):
                                   self.threadLocal or other.threadLocal,
                                   self.inline or other.inline,
                                   self.virtual or other.virtual,
-                                  self.explicit or other.explicit,
+                                  self.explicitSpec or other.explicitSpec,
                                   self.consteval or other.consteval,
                                   self.constexpr or other.constexpr,
                                   self.constinit or other.constinit,
@@ -2148,8 +2170,8 @@ class ASTDeclSpecsSimple(ASTBase):
             res.append('friend')
         if self.virtual:
             res.append('virtual')
-        if self.explicit:
-            res.append('explicit')
+        if self.explicitSpec:
+            res.append(transform(self.explicitSpec))
         if self.consteval:
             res.append('consteval')
         if self.constexpr:
@@ -2162,7 +2184,8 @@ class ASTDeclSpecsSimple(ASTBase):
             res.append('const')
         return ' '.join(res)
 
-    def describe_signature(self, signode: TextElement) -> None:
+    def describe_signature(self, signode: TextElement,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         addSpace = False
         for attr in self.attrs:
             if addSpace:
@@ -2186,8 +2209,11 @@ class ASTDeclSpecsSimple(ASTBase):
             addSpace = _add(signode, 'friend')
         if self.virtual:
             addSpace = _add(signode, 'virtual')
-        if self.explicit:
-            addSpace = _add(signode, 'explicit')
+        if self.explicitSpec:
+            if addSpace:
+                signode += addnodes.desc_sig_space()
+            self.explicitSpec.describe_signature(signode, env, symbol)
+            addSpace = True
         if self.consteval:
             addSpace = _add(signode, 'consteval')
         if self.constexpr:
@@ -2250,7 +2276,7 @@ class ASTDeclSpecs(ASTBase):
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
         numChildren = len(signode)
-        self.leftSpecs.describe_signature(signode)
+        self.leftSpecs.describe_signature(signode, env, symbol)
         addSpace = len(signode) != numChildren
 
         if self.trailingTypeSpec:
@@ -2264,7 +2290,7 @@ class ASTDeclSpecs(ASTBase):
             if len(str(self.rightSpecs)) > 0:
                 if addSpace:
                     signode += addnodes.desc_sig_space()
-                self.rightSpecs.describe_signature(signode)
+                self.rightSpecs.describe_signature(signode, env, symbol)
 
 
 # Declarator
@@ -5944,7 +5970,7 @@ class DefinitionParser(BaseParser):
         threadLocal = None
         inline = None
         virtual = None
-        explicit = None
+        explicitSpec = None
         consteval = None
         constexpr = None
         constinit = None
@@ -6008,9 +6034,19 @@ class DefinitionParser(BaseParser):
                     virtual = self.skip_word('virtual')
                     if virtual:
                         continue
-                if not explicit:
-                    explicit = self.skip_word('explicit')
+                if not explicitSpec:
+                    explicit = self.skip_word_and_ws('explicit')
                     if explicit:
+                        expr: ASTExpression = None
+                        if self.skip_string('('):
+                            expr = self._parse_constant_expression(inTemplate=False)
+                            if not expr:
+                                self.fail("Expected constant expression after '('" +
+                                          " in explicit specifier.")
+                            self.skip_ws()
+                            if not self.skip_string(')'):
+                                self.fail("Expected ')' to end explicit specifier.")
+                        explicitSpec = ASTExplicitSpec(expr)
                         continue
             attr = self._parse_attribute()
             if attr:
@@ -6018,7 +6054,7 @@ class DefinitionParser(BaseParser):
                 continue
             break
         return ASTDeclSpecsSimple(storage, threadLocal, inline, virtual,
-                                  explicit, consteval, constexpr, constinit,
+                                  explicitSpec, consteval, constexpr, constinit,
                                   volatile, const, friend, attrs)
 
     def _parse_decl_specs(self, outer: str, typed: bool = True) -> ASTDeclSpecs:

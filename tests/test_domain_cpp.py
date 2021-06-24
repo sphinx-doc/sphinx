@@ -571,6 +571,8 @@ def test_domain_cpp_ast_function_definitions():
     check('function', 'extern int f()', {1: 'f', 2: '1fv'})
     check('function', 'consteval int f()', {1: 'f', 2: '1fv'})
 
+    check('function', 'explicit(true) void f()', {1: 'f', 2: '1fv'})
+
     check('function', 'decltype(auto) f()', {1: 'f', 2: "1fv"})
 
     # TODO: make tests for functions in a template, e.g., Test<int&&()>
