@@ -120,7 +120,7 @@ p.admonition-title {
   font-weight: bold;
 }
 
-dt:target, .highlighted {
+dt:target, .highlighted, .sig span:target {
   background-color: #fbe54e;
 }
 
