@@ -436,6 +436,7 @@ def test_domain_cpp_ast_member_definitions():
     check('member', 'int b : 1 || new int{0}', {1: 'b__i', 2: '1b'})
 
     check('member', 'inline int n', {1: 'n__i', 2: '1n'})
+    check('member', 'constinit int n', {1: 'n__i', 2: '1n'})
 
 
 def test_domain_cpp_ast_function_definitions():
@@ -567,6 +568,7 @@ def test_domain_cpp_ast_function_definitions():
     check("function", "void f(int *volatile const p)", {1: "f__iPVC", 2: "1fPVCi"})
 
     check('function', 'extern int f()', {1: 'f', 2: '1fv'})
+    check('function', 'consteval int f()', {1: 'f', 2: '1fv'})
 
     check('function', 'decltype(auto) f()', {1: 'f', 2: "1fv"})
 

@@ -320,7 +320,8 @@ _fold_operator_re = re.compile(r'''(?x)
 _keywords = [
     'alignas', 'alignof', 'and', 'and_eq', 'asm', 'auto', 'bitand', 'bitor',
     'bool', 'break', 'case', 'catch', 'char', 'char16_t', 'char32_t', 'class',
-    'compl', 'concept', 'const', 'constexpr', 'const_cast', 'continue',
+    'compl', 'concept', 'const', 'consteval', 'constexpr', 'constinit',
+    'const_cast', 'continue',
     'decltype', 'default', 'delete', 'do', 'double', 'dynamic_cast', 'else',
     'enum', 'explicit', 'export', 'extern', 'false', 'float', 'for', 'friend',
     'goto', 'if', 'inline', 'int', 'long', 'mutable', 'namespace', 'new',
@@ -2101,14 +2102,17 @@ class ASTParametersQualifiers(ASTBase):
 
 class ASTDeclSpecsSimple(ASTBase):
     def __init__(self, storage: str, threadLocal: bool, inline: bool, virtual: bool,
-                 explicit: bool, constexpr: bool, volatile: bool, const: bool,
-                 friend: bool, attrs: List[ASTAttribute]) -> None:
+                 explicit: bool, consteval: bool, constexpr: bool, constinit: bool,
+                 volatile: bool, const: bool, friend: bool,
+                 attrs: List[ASTAttribute]) -> None:
         self.storage = storage
         self.threadLocal = threadLocal
         self.inline = inline
         self.virtual = virtual
         self.explicit = explicit
+        self.consteval = consteval
         self.constexpr = constexpr
+        self.constinit = constinit
         self.volatile = volatile
         self.const = const
         self.friend = friend
@@ -2122,7 +2126,9 @@ class ASTDeclSpecsSimple(ASTBase):
                                   self.inline or other.inline,
                                   self.virtual or other.virtual,
                                   self.explicit or other.explicit,
+                                  self.consteval or other.consteval,
                                   self.constexpr or other.constexpr,
+                                  self.constinit or other.constinit,
                                   self.volatile or other.volatile,
                                   self.const or other.const,
                                   self.friend or other.friend,
@@ -2143,8 +2149,12 @@ class ASTDeclSpecsSimple(ASTBase):
             res.append('virtual')
         if self.explicit:
             res.append('explicit')
+        if self.consteval:
+            res.append('consteval')
         if self.constexpr:
             res.append('constexpr')
+        if self.constinit:
+            res.append('constinit')
         if self.volatile:
             res.append('volatile')
         if self.const:
@@ -2177,8 +2187,12 @@ class ASTDeclSpecsSimple(ASTBase):
             addSpace = _add(signode, 'virtual')
         if self.explicit:
             addSpace = _add(signode, 'explicit')
+        if self.consteval:
+            addSpace = _add(signode, 'consteval')
         if self.constexpr:
             addSpace = _add(signode, 'constexpr')
+        if self.constinit:
+            addSpace = _add(signode, 'constinit')
         if self.volatile:
             addSpace = _add(signode, 'volatile')
         if self.const:
@@ -5930,13 +5944,23 @@ class DefinitionParser(BaseParser):
         inline = None
         virtual = None
         explicit = None
+        consteval = None
         constexpr = None
+        constinit = None
         volatile = None
         const = None
         friend = None
         attrs = []
         while 1:  # accept any permutation of a subset of some decl-specs
             self.skip_ws()
+            if not const and typed:
+                const = self.skip_word('const')
+                if const:
+                    continue
+            if not volatile and typed:
+                volatile = self.skip_word('volatile')
+                if volatile:
+                    continue
             if not storage:
                 if outer in ('member', 'function'):
                     if self.skip_word('static'):
@@ -5952,18 +5976,29 @@ class DefinitionParser(BaseParser):
                 if self.skip_word('register'):
                     storage = 'register'
                     continue
-            if not threadLocal and outer == 'member':
-                threadLocal = self.skip_word('thread_local')
-                if threadLocal:
-                    continue
-
             if not inline and outer in ('function', 'member'):
                 inline = self.skip_word('inline')
                 if inline:
                     continue
+            if not constexpr and outer in ('member', 'function'):
+                constexpr = self.skip_word("constexpr")
+                if constexpr:
+                    continue
 
+            if outer == 'member':
+                if not constinit:
+                    constinit = self.skip_word('constinit')
+                    if constinit:
+                        continue
+                if not threadLocal:
+                    threadLocal = self.skip_word('thread_local')
+                    if threadLocal:
+                        continue
             if outer == 'function':
-                # function-specifiers
+                if not consteval:
+                    consteval = self.skip_word('consteval')
+                    if consteval:
+                        continue
                 if not friend:
                     friend = self.skip_word('friend')
                     if friend:
@@ -5976,27 +6011,14 @@ class DefinitionParser(BaseParser):
                     explicit = self.skip_word('explicit')
                     if explicit:
                         continue
-
-            if not constexpr and outer in ('member', 'function'):
-                constexpr = self.skip_word("constexpr")
-                if constexpr:
-                    continue
-            if not volatile and typed:
-                volatile = self.skip_word('volatile')
-                if volatile:
-                    continue
-            if not const and typed:
-                const = self.skip_word('const')
-                if const:
-                    continue
             attr = self._parse_attribute()
             if attr:
                 attrs.append(attr)
                 continue
             break
         return ASTDeclSpecsSimple(storage, threadLocal, inline, virtual,
-                                  explicit, constexpr, volatile, const,
-                                  friend, attrs)
+                                  explicit, consteval, constexpr, constinit,
+                                  volatile, const, friend, attrs)
 
     def _parse_decl_specs(self, outer: str, typed: bool = True) -> ASTDeclSpecs:
         if outer:

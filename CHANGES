@@ -53,7 +53,11 @@ Features added
 * #9097: Optimize the paralell build
 * #9131: Add :confval:`nitpick_ignore_regex` to ignore nitpicky warnings using
   regular expressions
-* C++, add support for inline variables.
+* C++, add support for
+
+  - ``inline`` variables,
+  - ``consteval`` functions,
+  - ``constinit`` variables.
 
 
 Bugs fixed
