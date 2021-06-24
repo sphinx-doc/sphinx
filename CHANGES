@@ -53,6 +53,18 @@ Features added
 * #9097: Optimize the paralell build
 * #9131: Add :confval:`nitpick_ignore_regex` to ignore nitpicky warnings using
   regular expressions
+* C++, add support for
+
+  - ``inline`` variables,
+  - ``consteval`` functions,
+  - ``constinit`` variables,
+  - ``char8_t``,
+  - ``explicit(<constant expression>)`` specifier,
+  - digit separators in literals, and
+  - constraints in placeholder type specifiers, aka. adjective syntax
+    (e.g., ``Sortable auto &v``).
+
+* C, add support for digit separators in literals.
 
 
 Bugs fixed
