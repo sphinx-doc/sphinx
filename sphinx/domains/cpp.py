@@ -5957,12 +5957,13 @@ class DefinitionParser(BaseParser):
                 if threadLocal:
                     continue
 
+            if not inline and outer in ('function', 'member'):
+                inline = self.skip_word('inline')
+                if inline:
+                    continue
+
             if outer == 'function':
                 # function-specifiers
-                if not inline:
-                    inline = self.skip_word('inline')
-                    if inline:
-                        continue
                 if not friend:
                     friend = self.skip_word('friend')
                     if friend:

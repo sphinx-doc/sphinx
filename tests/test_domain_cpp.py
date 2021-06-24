@@ -435,6 +435,8 @@ def test_domain_cpp_ast_member_definitions():
     # check('member', 'int b : (true ? 8 : a) = 42', {1: 'b__i', 2: '1b'})
     check('member', 'int b : 1 || new int{0}', {1: 'b__i', 2: '1b'})
 
+    check('member', 'inline int n', {1: 'n__i', 2: '1n'})
+
 
 def test_domain_cpp_ast_function_definitions():
     check('function', 'void f(volatile int)', {1: "f__iV", 2: "1fVi"})
