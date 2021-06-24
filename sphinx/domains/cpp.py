@@ -1100,9 +1100,19 @@ class ASTRequiresExpression(ASTExpression):
         self.params = params
         self.reqs = reqs
 
+        # this must be set when adding the top-level declaration/expression to the
+        # symbol table / document
+        self.parent_key: LookupKey = None
+
     @property
     def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        # only yield top-level expressions
         yield self
+
+    @property
+    def nested_requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        for req in self.reqs:
+            yield from req.requires_expressions
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = ["requires"]
@@ -1129,7 +1139,14 @@ class ASTRequiresExpression(ASTExpression):
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode += addnodes.desc_sig_keyword('requires', 'requires')
         if self.params is not None:
-            self.params.describe_signature(signode, mode, env, symbol)
+            paramNode = nodes.inline()
+            signode += paramNode
+            self.params.describe_signature(paramNode, mode, env, symbol)
+            assert self.parent_key is not None
+            symbol = symbol.direct_lookup(self.parent_key)
+            assert symbol is not None  # it must be there
+            paramNode['ids'].append(symbol.declaration.get_id(_max_id))
+
         signode += addnodes.desc_sig_space()
         signode += addnodes.desc_sig_punctuation('{', '{')
         for r in self.reqs:
@@ -1142,6 +1159,10 @@ class ASTRequiresExpression(ASTExpression):
 
 
 class ASTRequirement(ASTBase):
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        raise NotImplementedError(repr(self))
+
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         raise NotImplementedError(repr(self))
@@ -1153,6 +1174,10 @@ class ASTTypeRequirement(ASTRequirement):
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return 'typename ' + transform(self.typ)
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.typ.requires_expressions
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
@@ -1176,6 +1201,11 @@ class ASTCompoundRequirement(ASTRequirement):
             res.append(' -> ')
             res.append(transform(self.returnTypeReq))
         return ''.join(res)
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.expr.requires_expressions
+        yield from self.returnTypeReq.requires_expressions
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
@@ -1201,6 +1231,10 @@ class ASTNestedRequirement(ASTRequirement):
     def _stringify(self, transform: StringifyTransform) -> str:
         return 'requires ' + transform(self.constraint)
 
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.constraint.requires_expressions
+
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         signode += addnodes.desc_sig_keyword('requires', 'requires')
@@ -1214,6 +1248,10 @@ class ASTSimpleRequirement(ASTRequirement):
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return transform(self.expr)
+
+    @property
+    def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+        yield from self.expr.requires_expressions
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
@@ -2263,7 +2301,7 @@ class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
 class ASTFunctionParameter(ASTBase):
     def __init__(self, param: Optional[Union["ASTTypeWithInit",
                                              "ASTTemplateParamConstrainedTypeWithInit"]],
-                 ellipsis: bool = False) -> None:
+                 *, ellipsis: bool) -> None:
         self.param = param
         self.ellipsis = ellipsis
 
@@ -2274,7 +2312,7 @@ class ASTFunctionParameter(ASTBase):
 
     def get_id(self, version: int, objectType: str = None, symbol: "Symbol" = None) -> str:
         # this is not part of the normal name mangling in C++
-        if symbol:
+        if symbol is not None:
             # the anchor will be our parent
             return symbol.parent.declaration.get_id(version, prefixed=False)
         # else, do the usual
@@ -4329,10 +4367,11 @@ class ASTRequiresClause(ASTBase):
 ################################################################################
 
 class ASTDeclaration(ASTBase):
-    def __init__(self, objectType: str, directiveType: Optional[str],
+    def __init__(self, *, objectType: str, directiveType: Optional[str],
                  visibility: Optional[str],
                  templatePrefix: Optional[ASTTemplateDeclarationPrefix],
-                 requiresClause: Optional[ASTRequiresClause], declaration: Any,
+                 requiresClause: Optional[ASTRequiresClause],
+                 declaration: Any,
                  trailingRequiresClause: Optional[ASTRequiresClause],
                  semicolon: bool = False) -> None:
         self.objectType = objectType
@@ -4341,6 +4380,7 @@ class ASTDeclaration(ASTBase):
         self.templatePrefix = templatePrefix
         self.requiresClause = requiresClause
         self.declaration = declaration
+        assert declaration is not None
         self.trailingRequiresClause = trailingRequiresClause
         self.semicolon = semicolon
 
@@ -4353,10 +4393,13 @@ class ASTDeclaration(ASTBase):
         requiresClasueClone = self.requiresClause.clone() if self.requiresClause else None
         trailingRequiresClasueClone = self.trailingRequiresClause.clone() \
             if self.trailingRequiresClause else None
-        return ASTDeclaration(self.objectType, self.directiveType, self.visibility,
-                              templatePrefixClone, requiresClasueClone,
-                              self.declaration.clone(), trailingRequiresClasueClone,
-                              self.semicolon)
+        return ASTDeclaration(objectType=self.objectType, directiveType=self.directiveType,
+                              visibility=self.visibility,
+                              templatePrefix=templatePrefixClone,
+                              requiresClause=requiresClasueClone,
+                              declaration=self.declaration.clone(),
+                              trailingRequiresClause=trailingRequiresClasueClone,
+                              semicolon=self.semicolon)
 
     @property
     def name(self) -> ASTNestedName:
@@ -4548,7 +4591,7 @@ class Symbol:
             assert False  # shouldn't happen
         else:
             # the domain base class makes a copy of the initial data, which is fine
-            return Symbol(None, None, None, None, None, None, None)
+            return Symbol(None, None, None, None, None, None, None, None)
 
     @staticmethod
     def debug_print(*args: Any) -> None:
@@ -4573,10 +4616,15 @@ class Symbol:
         else:
             return super().__setattr__(key, value)
 
-    def __init__(self, parent: "Symbol", identOrOp: Union[ASTIdentifier, ASTOperator],
-                 templateParams: Union[ASTTemplateParams, ASTTemplateIntroduction],
-                 templateArgs: Any, declaration: ASTDeclaration,
-                 docname: str, line: int) -> None:
+    def __init__(self, parent: Optional["Symbol"],
+                 identOrOp: Optional[Union[ASTIdentifier, ASTOperator]],
+                 templateParams: Optional[Union[ASTTemplateParams, ASTTemplateIntroduction]],
+                 templateArgs: Optional[Any],
+                 declaration: Optional[ASTDeclaration],
+                 docname: Optional[str], line: Optional[int],
+                 env: Optional[BuildEnvironment]) -> None:
+        if declaration is not None:
+            assert env is not None
         self.parent = parent
         # declarations in a single directive are linked together
         self.siblingAbove: Symbol = None
@@ -4600,9 +4648,10 @@ class Symbol:
             self.declaration.symbol = self
 
         # Do symbol addition after self._children has been initialised.
-        self._add_implicit_symbols()
+        self._add_implicit_symbols(env)
 
-    def _fill_empty(self, declaration: ASTDeclaration, docname: str, line: int) -> None:
+    def _fill_empty(self, declaration: ASTDeclaration, docname: str, line: int,
+                    env: BuildEnvironment) -> None:
         self._assert_invariants()
         assert self.declaration is None
         assert self.docname is None
@@ -4610,15 +4659,16 @@ class Symbol:
         assert declaration is not None
         assert docname is not None
         assert line is not None
+        assert env is not None
         self.declaration = declaration
         self.declaration.symbol = self
         self.docname = docname
         self.line = line
         self._assert_invariants()
         # and symbol addition should be done as well
-        self._add_implicit_symbols()
+        self._add_implicit_symbols(env)
 
-    def _add_implicit_symbols(self) -> None:
+    def _add_implicit_symbols(self, env: Optional[BuildEnvironment]) -> None:
         # add symbols for:
         # - template parameters
         # - function parameters
@@ -4636,31 +4686,41 @@ class Symbol:
                     continue
                 # only add a declaration if we our self are from a declaration
                 if self.declaration:
-                    decl = ASTDeclaration('templateParam', None, None, None, None, tp, None)
+                    decl = ASTDeclaration(objectType='templateParam',
+                                          directiveType=None, visibility=None,
+                                          templatePrefix=None, requiresClause=None,
+                                          declaration=tp, trailingRequiresClause=None)
                 else:
                     decl = None
                 nne = ASTNestedNameElement(tp.get_identifier(), None)
                 nn = ASTNestedName([nne], [False], rooted=False)
-                self._add_symbols(nn, [], decl, self.docname, self.line)
+                self._add_symbols(nn, [], decl, self.docname, self.line, env)
         # add symbols for function parameters, if any
         if self.declaration is not None and self.declaration.function_params is not None:
             for fp in self.declaration.function_params:
-                if fp.param is None:
-                    continue
-                nn = fp.param.name
-                if nn is None:
-                    continue
-                # (comparing to the template params: we have checked that we are a declaration)
-                decl = ASTDeclaration('functionParam', None, None, None, None, fp, None)
-                assert not nn.rooted
-                assert len(nn.names) == 1
-                self._add_symbols(nn, [], decl, self.docname, self.line)
+                self._add_function_param(fp, env)
+        # add symbols for requires expressions, if any
         if self.declaration is not None:
-            for reqExpr in self.declaration.requires_expressions:
-                pass
-            pass
+            assert env is not None
+            for expr in self.declaration.requires_expressions:
+                self.add_requires_expression(expr, self.docname, self.line, env)
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 1
+
+    def _add_function_param(self, fp: ASTFunctionParameter, env: BuildEnvironment) -> None:
+        if fp.param is None:
+            return
+        nn = fp.param.name
+        if nn is None:
+            return
+        # (comparing to the template params: we have checked that we are a declaration)
+        decl = ASTDeclaration(objectType='functionParam', directiveType=None,
+                              visibility=None, templatePrefix=None, requiresClause=None,
+                              declaration=fp,
+                              trailingRequiresClause=None)
+        assert not nn.rooted
+        assert len(nn.names) == 1
+        self._add_symbols(nn, [], decl, self.docname, self.line, env)
 
     def remove(self) -> None:
         if self.parent is None:
@@ -4986,7 +5046,8 @@ class Symbol:
                                   identOrOp, templateParams, templateArgs)
 
     def _add_symbols(self, nestedName: ASTNestedName, templateDecls: List[Any],
-                     declaration: ASTDeclaration, docname: str, line: int) -> "Symbol":
+                     declaration: ASTDeclaration, docname: str, line: int,
+                     env: BuildEnvironment) -> "Symbol":
         # Used for adding a whole path of symbols, where the last may or may not
         # be an actual declaration.
 
@@ -5014,7 +5075,7 @@ class Symbol:
             return Symbol(parent=parentSymbol, identOrOp=identOrOp,
                           templateParams=templateParams,
                           templateArgs=templateArgs, declaration=None,
-                          docname=None, line=None)
+                          docname=None, line=None, env=None)
 
         lookupResult = self._symbol_lookup(nestedName, templateDecls,
                                            onMissingQualifiedSymbol,
@@ -5042,7 +5103,7 @@ class Symbol:
                             templateParams=lookupResult.templateParams,
                             templateArgs=lookupResult.templateArgs,
                             declaration=declaration,
-                            docname=docname, line=line)
+                            docname=docname, line=line, env=env)
             if Symbol.debug_lookup:
                 Symbol.debug_indent -= 2
             return symbol
@@ -5091,7 +5152,7 @@ class Symbol:
                             templateParams=lookupResult.templateParams,
                             templateArgs=lookupResult.templateArgs,
                             declaration=declaration,
-                            docname=docname, line=line)
+                            docname=docname, line=line, env=env)
             if Symbol.debug_lookup:
                 Symbol.debug_print("end:   creating candidate symbol")
             return symbol
@@ -5163,7 +5224,7 @@ class Symbol:
             # .. namespace:: Test
             # .. namespace:: nullptr
             # .. class:: Test
-            symbol._fill_empty(declaration, docname, line)
+            symbol._fill_empty(declaration, docname, line, env)
             return symbol
 
     def merge_with(self, other: "Symbol", docnames: List[str],
@@ -5243,7 +5304,8 @@ class Symbol:
             if otherChild.declaration and otherChild.docname in docnames:
                 if not ourChild.declaration:
                     ourChild._fill_empty(otherChild.declaration,
-                                         otherChild.docname, otherChild.line)
+                                         otherChild.docname, otherChild.line,
+                                         env)
                 elif ourChild.docname != otherChild.docname:
                     name = str(ourChild.declaration)
                     msg = __("Duplicate C++ declaration, also defined at %s:%s.\n"
@@ -5265,7 +5327,7 @@ class Symbol:
             Symbol.debug_indent -= 2
 
     def add_name(self, nestedName: ASTNestedName,
-                 templatePrefix: ASTTemplateDeclarationPrefix = None) -> "Symbol":
+                 templatePrefix: Optional[ASTTemplateDeclarationPrefix] = None) -> "Symbol":
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
             Symbol.debug_print("add_name:")
@@ -5274,13 +5336,13 @@ class Symbol:
         else:
             templateDecls = []
         res = self._add_symbols(nestedName, templateDecls,
-                                declaration=None, docname=None, line=None)
+                                declaration=None, docname=None, line=None, env=None)
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 1
         return res
 
     def add_declaration(self, declaration: ASTDeclaration,
-                        docname: str, line: int) -> "Symbol":
+                        docname: str, line: int, env: BuildEnvironment) -> "Symbol":
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
             Symbol.debug_print("add_declaration:")
@@ -5292,10 +5354,49 @@ class Symbol:
             templateDecls = declaration.templatePrefix.templates
         else:
             templateDecls = []
-        res = self._add_symbols(nestedName, templateDecls, declaration, docname, line)
+        res = self._add_symbols(nestedName, templateDecls, declaration, docname, line, env)
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 1
         return res
+
+    class RequiresExpressionDeclaration:
+        # in order to get an anchor for a requires expression
+        # we have this fake declaration that we use in the symbol table
+
+        def __init__(self, id_: str) -> None:
+            self.id_ = id_
+
+        def get_id(self, version: int,
+                   objectType: str = None, symbol: "Symbol" = None) -> str:
+            return self.id_
+
+        @property
+        def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
+            yield from []
+
+        def __str__(self) -> str:
+            return "FakeRequiresExpressionDeclaration({})".format(self.id_)
+
+    def add_requires_expression(self, expr: ASTRequiresExpression,
+                                docname: str, line: int,
+                                env: BuildEnvironment) -> None:
+        if expr.params is None:
+            return
+
+        name = "__requires-expression-dont-rely-on-this-link{}"
+        name = name.format(env.new_serialno('cpp-requires-expr'))
+        nn = ASTNestedName([ASTNestedNameElement(ASTIdentifier(name), None)], [False], False)
+        decl = ASTDeclaration(objectType='requiresExpression', directiveType=None,
+                              visibility=None, templatePrefix=None, requiresClause=None,
+                              declaration=Symbol.RequiresExpressionDeclaration(name),
+                              trailingRequiresClause=None)
+        s = self._add_symbols(nn, [], decl, docname, line, env)
+        expr.parent_key = s.get_lookup_key()
+        for fp in expr.params.params:
+            s._add_function_param(fp, env)
+
+        for subExpr in expr.nested_requires_expressions:
+            s.add_requires_expression(subExpr, docname, line, env)
 
     def find_identifier(self, identOrOp: Union[ASTIdentifier, ASTOperator],
                         matchSelf: bool, recurseInAnon: bool, searchInSiblings: bool
@@ -5334,6 +5435,8 @@ class Symbol:
             Symbol.debug_print("direct_lookup:")
             Symbol.debug_indent += 1
         s = self
+        while s.parent is not None:
+            s = s.parent
         for name, templateParams, id_ in key.data:
             if id_ is not None:
                 res = None
@@ -5447,7 +5550,8 @@ class Symbol:
             return None, None
 
     def find_declaration(self, declaration: ASTDeclaration, typ: str, templateShorthand: bool,
-                         matchSelf: bool, recurseInAnon: bool) -> "Symbol":
+                         matchSelf: bool, recurseInAnon: bool,
+                         env: BuildEnvironment) -> "Symbol":
         # templateShorthand: missing template parameter lists for templates is ok
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
@@ -5488,7 +5592,7 @@ class Symbol:
                              templateArgs=lookupResult.templateArgs,
                              declaration=declaration,
                              docname='fakeDocnameForQuery',
-                             line=42)
+                             line=42, env=env)
         queryId = declaration.get_newest_id()
         for symbol in symbols:
             if symbol.declaration is None:
@@ -5731,7 +5835,7 @@ class DefinitionParser(BaseParser):
                 reqs.append(ASTSimpleRequirement(expr))
             self.skip_ws()
             if not self.skip_string(';'):
-                self.fail('Expected ; to requirement.')
+                self.fail('Expected ; to end requirement.')
         return ASTRequiresExpression(params, reqs)
 
     def _parse_primary_expression(self) -> ASTExpression:
@@ -6487,7 +6591,7 @@ class DefinitionParser(BaseParser):
             while 1:
                 self.skip_ws()
                 if self.skip_string('...'):
-                    params.append(ASTFunctionParameter(None, True))
+                    params.append(ASTFunctionParameter(None, ellipsis=True))
                     self.skip_ws()
                     if not self.skip_string(')'):
                         self.fail('Expected ")" after "..." in '
@@ -6497,7 +6601,7 @@ class DefinitionParser(BaseParser):
                 # even in function pointers and similar.
                 param = self._parse_type_with_init(outer=None, named='single')
                 # TODO: parse default parameters # TODO: didn't we just do that?
-                params.append(ASTFunctionParameter(param))
+                params.append(ASTFunctionParameter(param, ellipsis=False))
 
                 self.skip_ws()
                 if self.skip_string(','):
@@ -7443,9 +7547,12 @@ class DefinitionParser(BaseParser):
                                                           isMember=objectType == 'member')
         self.skip_ws()
         semicolon = self.skip_string(';')
-        return ASTDeclaration(objectType, directiveType, visibility,
-                              templatePrefix, requiresClause, declaration,
-                              trailingRequiresClause, semicolon)
+        return ASTDeclaration(objectType=objectType, directiveType=directiveType,
+                              visibility=visibility,
+                              templatePrefix=templatePrefix, requiresClause=requiresClause,
+                              declaration=declaration,
+                              trailingRequiresClause=trailingRequiresClause,
+                              semicolon=semicolon)
 
     def parse_namespace_object(self) -> ASTNamespace:
         templatePrefix = self._parse_template_declaration_prefix(objectType="namespace")
@@ -7535,7 +7642,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         'tparam-line-spec': directives.flag,
     }
 
-    def _add_enumerator_to_parent(self, ast: ASTDeclaration) -> None:
+    def _add_enumerator_to_parent(self, ast: ASTDeclaration, env: BuildEnvironment) -> None:
         assert ast.objectType == 'enumerator'
         # find the parent, if it exists && is an enum
         #                     && it's unscoped,
@@ -7575,7 +7682,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         Symbol(parent=targetSymbol, identOrOp=symbol.identOrOp,
                templateParams=None, templateArgs=None,
                declaration=declClone,
-               docname=self.env.docname, line=self.get_source_info()[1])
+               docname=self.env.docname, line=self.get_source_info()[1], env=env)
 
     def add_target_and_index(self, ast: ASTDeclaration, sig: str,
                              signode: TextElement) -> None:
@@ -7706,7 +7813,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
 
         try:
             symbol = parentSymbol.add_declaration(
-                ast, docname=self.env.docname, line=self.get_source_info()[1])
+                ast, docname=self.env.docname, line=self.get_source_info()[1], env=self.env)
             # append the new declaration to the sibling list
             assert symbol.siblingAbove is None
             assert symbol.siblingBelow is None
@@ -7726,7 +7833,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             logger.warning(msg, location=signode)
 
         if ast.objectType == 'enumerator':
-            self._add_enumerator_to_parent(ast)
+            self._add_enumerator_to_parent(ast, self.env)
 
         # note: handle_signature may be called multiple time per directive,
         # if it has multiple signatures, so don't mess with the original options.
@@ -8004,7 +8111,8 @@ class AliasTransform(SphinxTransform):
                 name = decl.name
                 s = parentSymbol.find_declaration(decl, 'any',
                                                   templateShorthand=True,
-                                                  matchSelf=True, recurseInAnon=True)
+                                                  matchSelf=True, recurseInAnon=True,
+                                                  env=self.env)
                 if s is not None:
                     symbols.append(s)
 
@@ -8136,12 +8244,16 @@ class CPPExprRole(SphinxRole):
                            location=self.get_source_info())
             # see below
             return [addnodes.desc_inline('cpp', text, text, classes=[self.class_type])], []
-        parentSymbol = self.env.temp_data.get('cpp:parent_symbol', None)
+        parentSymbol: Symbol = self.env.temp_data.get('cpp:parent_symbol', None)
         if parentSymbol is None:
             parentSymbol = self.env.domaindata['cpp']['root_symbol']
         # ...most if not all of these classes should really apply to the individual references,
         # not the container node
         signode = addnodes.desc_inline('cpp', classes=[self.class_type])
+        # process requres expressions before rendering
+        for expr in ast.requires_expressions:
+            parentSymbol.add_requires_expression(expr, self.env.docname,
+                                                 self.get_source_info()[1], self.env)
         ast.describe_signature(signode, 'markType', self.env, parentSymbol)
         return [signode], []
 
@@ -8212,7 +8324,7 @@ class CPPDomain(Domain):
         'texpr': CPPExprRole(asCode=False)
     }
     initial_data = {
-        'root_symbol': Symbol(None, None, None, None, None, None, None),
+        'root_symbol': Symbol(None, None, None, None, None, None, None, None),
         'names': {}  # full name for indexing -> docname
     }
 
@@ -8340,7 +8452,8 @@ class CPPDomain(Domain):
             name = decl.name
             s = parentSymbol.find_declaration(decl, typ,
                                               templateShorthand=True,
-                                              matchSelf=True, recurseInAnon=True)
+                                              matchSelf=True, recurseInAnon=True,
+                                              env=self.env)
         if s is None or s.declaration is None:
             txtName = str(name)
             if txtName.startswith('std::') or txtName == 'std':

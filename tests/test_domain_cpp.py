@@ -37,6 +37,14 @@ def parse(name, string):
     return ast
 
 
+class MockEnv:
+    i = 0
+
+    def new_serialno(self, category: str = '') -> int:
+        MockEnv.i += 1
+        return MockEnv.i - 1
+
+
 def _check(name, input, idDict, output, key, asTextOutput):
     if key is None:
         key = name
@@ -61,8 +69,8 @@ def _check(name, input, idDict, output, key, asTextOutput):
         print("Result:   ", res)
         print("Expected: ", outputAst)
         raise DefinitionError("")
-    rootSymbol = Symbol(None, None, None, None, None, None, None)
-    symbol = rootSymbol.add_declaration(ast, docname="TestDoc", line=42)
+    rootSymbol = Symbol(None, None, None, None, None, None, None, None)
+    symbol = rootSymbol.add_declaration(ast, docname="TestDoc", line=42, env=MockEnv())
     parentNode = addnodes.desc()
     signode = addnodes.desc_signature(input, '')
     parentNode += signode
