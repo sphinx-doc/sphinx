@@ -60,7 +60,9 @@ Features added
   - ``constinit`` variables,
   - ``char8_t``,
   - ``explicit(<constant expression>)`` specifier,
-  - digit separators in literals.
+  - digit separators in literals, and
+  - constraints in placeholder type specifiers, aka. adjective syntax
+    (e.g., ``Sortable auto &v``).
 
 * C, add support for digit separators in literals.
 

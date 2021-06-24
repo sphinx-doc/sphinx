@@ -1882,9 +1882,11 @@ class ASTTrailingTypeSpecDecltype(ASTTrailingTypeSpec):
 
 
 class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
-    def __init__(self, prefix: str, nestedName: ASTNestedName) -> None:
+    def __init__(self, prefix: str, nestedName: ASTNestedName,
+                 placeholderType: Optional[str]) -> None:
         self.prefix = prefix
         self.nestedName = nestedName
+        self.placeholderType = placeholderType
 
     @property
     def name(self) -> ASTNestedName:
@@ -1899,6 +1901,9 @@ class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
             res.append(self.prefix)
             res.append(' ')
         res.append(transform(self.nestedName))
+        if self.placeholderType is not None:
+            res.append(' ')
+            res.append(self.placeholderType)
         return ''.join(res)
 
     def describe_signature(self, signode: TextElement, mode: str,
@@ -1907,6 +1912,17 @@ class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
             signode += addnodes.desc_sig_keyword(self.prefix, self.prefix)
             signode += addnodes.desc_sig_space()
         self.nestedName.describe_signature(signode, mode, env, symbol=symbol)
+        if self.placeholderType is not None:
+            signode += addnodes.desc_sig_space()
+            if self.placeholderType == 'auto':
+                signode += addnodes.desc_sig_keyword('auto', 'auto')
+            elif self.placeholderType == 'decltype(auto)':
+                signode += addnodes.desc_sig_keyword('decltype', 'decltype')
+                signode += addnodes.desc_sig_punctuation('(', '(')
+                signode += addnodes.desc_sig_keyword('auto', 'auto')
+                signode += addnodes.desc_sig_punctuation(')', ')')
+            else:
+                assert False, self.placeholderType
 
 
 class ASTFunctionParameter(ASTBase):
@@ -5856,7 +5872,19 @@ class DefinitionParser(BaseParser):
                 prefix = k
                 break
         nestedName = self._parse_nested_name()
-        return ASTTrailingTypeSpecName(prefix, nestedName)
+        self.skip_ws()
+        placeholderType = None
+        if self.skip_word('auto'):
+            placeholderType = 'auto'
+        elif self.skip_word_and_ws('decltype'):
+            if not self.skip_string_and_ws('('):
+                self.fail("Expected '(' after 'decltype' in placeholder type specifier.")
+            if not self.skip_word_and_ws('auto'):
+                self.fail("Expected 'auto' after 'decltype(' in placeholder type specifier.")
+            if not self.skip_string_and_ws(')'):
+                self.fail("Expected ')' after 'decltype(auto' in placeholder type specifier.")
+            placeholderType = 'decltype(auto)'
+        return ASTTrailingTypeSpecName(prefix, nestedName, placeholderType)
 
     def _parse_parameters_and_qualifiers(self, paramMode: str) -> ASTParametersQualifiers:
         if paramMode == 'new':

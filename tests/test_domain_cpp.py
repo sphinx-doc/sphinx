@@ -866,6 +866,15 @@ def test_domain_cpp_ast_templates():
     check('type', 'template<C T = int&> {key}A', {2: 'I_1CE1A'}, key='using')
 
 
+def test_domain_cpp_ast_placeholder_types():
+    check('function', 'void f(Sortable auto &v)', {1: 'f__SortableR', 2: '1fR8Sortable'})
+    check('function', 'void f(const Sortable auto &v)', {1: 'f__SortableCR', 2: '1fRK8Sortable'})
+    check('function', 'void f(Sortable decltype(auto) &v)', {1: 'f__SortableR', 2: '1fR8Sortable'})
+    check('function', 'void f(const Sortable decltype(auto) &v)', {1: 'f__SortableCR', 2: '1fRK8Sortable'})
+    check('function', 'void f(Sortable decltype ( auto ) &v)', {1: 'f__SortableR', 2: '1fR8Sortable'},
+          output='void f(Sortable decltype(auto) &v)')
+
+
 def test_domain_cpp_ast_requires_clauses():
     check('function', 'template<typename T> requires A auto f() -> void requires B',
           {4: 'I0EIQaa1A1BE1fvv'})
