@@ -2322,12 +2322,12 @@ class ASTNoexceptSpec(ASTBase):
 
 
 class ASTParametersQualifiers(ASTBase):
-    def __init__(self, args: List[ASTFunctionParameter], volatile: bool, const: bool,
+    def __init__(self, params: List[ASTFunctionParameter], volatile: bool, const: bool,
                  refQual: Optional[str], exceptionSpec: Optional[ASTNoexceptSpec],
                  trailingReturn: Optional["ASTType"],
                  override: bool, final: bool, attrs: List[ASTAttribute],
                  initializer: Optional[str]) -> None:
-        self.args = args
+        self.params = params
         self.volatile = volatile
         self.const = const
         self.refQual = refQual
@@ -2340,7 +2340,7 @@ class ASTParametersQualifiers(ASTBase):
 
     @property
     def function_params(self) -> List[ASTFunctionParameter]:
-        return self.args
+        return self.params
 
     def get_modifiers_id(self, version: int) -> str:
         res = []
@@ -2359,18 +2359,18 @@ class ASTParametersQualifiers(ASTBase):
 
     def get_param_id(self, version: int) -> str:
         if version == 1:
-            if len(self.args) == 0:
+            if len(self.params) == 0:
                 return ''
             else:
-                return '__' + '.'.join(a.get_id(version) for a in self.args)
-        if len(self.args) == 0:
+                return '__' + '.'.join(a.get_id(version) for a in self.params)
+        if len(self.params) == 0:
             return 'v'
         else:
-            return ''.join(a.get_id(version) for a in self.args)
+            return ''.join(a.get_id(version) for a in self.params)
 
     @property
     def requires_expressions(self) -> Generator["ASTRequiresExpression", None, None]:
-        for a in self.args:
+        for a in self.params:
             yield from a.requires_expressions
         if self.exceptionSpec is not None:
             yield from self.exceptionSpec.requires_expressions
@@ -2381,7 +2381,7 @@ class ASTParametersQualifiers(ASTBase):
         res = []
         res.append('(')
         first = True
-        for a in self.args:
+        for a in self.params:
             if not first:
                 res.append(', ')
             first = False
@@ -2418,7 +2418,7 @@ class ASTParametersQualifiers(ASTBase):
         # only use the desc_parameterlist for the outer list, not for inner lists
         if mode == 'lastIsName':
             paramlist = addnodes.desc_parameterlist()
-            for arg in self.args:
+            for arg in self.params:
                 param = addnodes.desc_parameter('', '', noemph=True)
                 arg.describe_signature(param, 'param', env, symbol=symbol)
                 paramlist += param
@@ -2426,7 +2426,7 @@ class ASTParametersQualifiers(ASTBase):
         else:
             signode += addnodes.desc_sig_punctuation('(', '(')
             first = True
-            for arg in self.args:
+            for arg in self.params:
                 if not first:
                     signode += addnodes.desc_sig_punctuation(',', ',')
                     signode += addnodes.desc_sig_space()
