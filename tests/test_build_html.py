@@ -1330,6 +1330,16 @@ def test_html_remote_images(app, status, warning):
     assert not (app.outdir / 'python-logo.png').exists()
 
 
+@pytest.mark.sphinx('html', testroot='remote-logo')
+def test_html_remote_logo(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'index.html').read_text()
+    assert ('<img class="logo" src="https://www.python.org/static/img/python-logo.png" alt="Logo"/>' in result)
+    assert ('<link rel="shortcut icon" href="https://www.python.org/static/favicon.ico"/>' in result)
+    assert not (app.outdir / 'python-logo.png').exists()
+
+
 @pytest.mark.sphinx('html', testroot='basic')
 def test_html_sidebar(app, status, warning):
     ctx = {}
