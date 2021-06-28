@@ -7895,7 +7895,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     return {
         'version': 'builtin',
-        'env_version': 3,
+        'env_version': 4,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
