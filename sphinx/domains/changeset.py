@@ -74,8 +74,10 @@ class VersionChange(SphinxDirective):
         if self.content:
             self.state.nested_parse(self.content, self.content_offset, node)
         classes = ['versionmodified', versionlabel_classes[self.name]]
-        if len(node):
-            if isinstance(node[0], nodes.paragraph) and node[0].rawsource:
+        if len(node) > 0 and isinstance(node[0], nodes.paragraph):
+            # the contents start with a paragraph
+            if node[0].rawsource:
+                # make the first paragraph translatable
                 content = nodes.inline(node[0].rawsource, translatable=True)
                 content.source = node[0].source
                 content.line = node[0].line
@@ -84,10 +86,16 @@ class VersionChange(SphinxDirective):
 
             para = cast(nodes.paragraph, node[0])
             para.insert(0, nodes.inline('', '%s: ' % text, classes=classes))
-        else:
+        elif len(node) > 0:
+            # the contents do not starts with a paragraph
             para = nodes.paragraph('', '',
-                                   nodes.inline('', '%s.' % text,
-                                                classes=classes),
+                                   nodes.inline('', '%s: ' % text, classes=classes),
+                                   translatable=False)
+            node.insert(0, para)
+        else:
+            # the contents are empty
+            para = nodes.paragraph('', '',
+                                   nodes.inline('', '%s.' % text, classes=classes),
                                    translatable=False)
             node.append(para)
 

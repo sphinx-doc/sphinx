@@ -10,7 +10,7 @@
 
 import re
 import warnings
-from typing import TYPE_CHECKING, Any, Dict, Generator, List, Tuple
+from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
@@ -72,8 +72,8 @@ class SphinxTransformer(Transformer):
     A transformer for Sphinx.
     """
 
-    document: nodes.document = None
-    env: "BuildEnvironment" = None
+    document: nodes.document
+    env: Optional["BuildEnvironment"] = None
 
     def set_environment(self, env: "BuildEnvironment") -> None:
         self.env = env

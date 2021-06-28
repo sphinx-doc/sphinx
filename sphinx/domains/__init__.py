@@ -11,8 +11,8 @@
 
 import copy
 from abc import ABC, abstractmethod
-from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, List, NamedTuple, Tuple,
-                    Type, Union, cast)
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, List, NamedTuple, Optional,
+                    Tuple, Type, Union, cast)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -196,7 +196,7 @@ class Domain:
     #: data value for a fresh environment
     initial_data: Dict = {}
     #: data value
-    data: Dict = None
+    data: Dict
     #: data version, bump this when the format of `self.data` changes
     data_version = 0
 
@@ -251,7 +251,7 @@ class Domain:
         for role in objtype.roles:
             self._role2type.setdefault(role, []).append(name)
 
-    def role(self, name: str) -> RoleFunction:
+    def role(self, name: str) -> Optional[RoleFunction]:
         """Return a role adapter function that always gives the registered
         role its full name ('domain:name') as the first argument.
         """
@@ -269,7 +269,7 @@ class Domain:
         self._role_cache[name] = role_adapter
         return role_adapter
 
-    def directive(self, name: str) -> Callable:
+    def directive(self, name: str) -> Optional[Callable]:
         """Return a directive adapter class that always gives the registered
         directive its full name ('domain:name') as ``self.name``.
         """
@@ -318,7 +318,7 @@ class Domain:
 
     def resolve_xref(self, env: "BuildEnvironment", fromdocname: str, builder: "Builder",
                      typ: str, target: str, node: pending_xref, contnode: Element
-                     ) -> Element:
+                     ) -> Optional[Element]:
         """Resolve the pending_xref *node* with the given *typ* and *target*.
 
         This method should return a new node, to replace the xref node,
@@ -393,11 +393,11 @@ class Domain:
             return type.lname
         return _('%s %s') % (self.label, type.lname)
 
-    def get_enumerable_node_type(self, node: Node) -> str:
+    def get_enumerable_node_type(self, node: Node) -> Optional[str]:
         """Get type of enumerable nodes (experimental)."""
         enum_node_type, _ = self.enumerable_nodes.get(node.__class__, (None, None))
         return enum_node_type
 
-    def get_full_qualified_name(self, node: Element) -> str:
+    def get_full_qualified_name(self, node: Element) -> Optional[str]:
         """Return full qualified name for given node."""
         return None

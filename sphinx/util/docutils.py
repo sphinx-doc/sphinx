@@ -176,8 +176,8 @@ class sphinx_domains:
     """
     def __init__(self, env: "BuildEnvironment") -> None:
         self.env = env
-        self.directive_func: Callable = None
-        self.roles_func: Callable = None
+        self.directive_func: Callable = lambda *args: (None, [])
+        self.roles_func: Callable = lambda *args: (None, [])
 
     def __enter__(self) -> None:
         self.enable()
@@ -372,7 +372,7 @@ class SphinxRole:
         if name:
             self.name = name.lower()
         else:
-            self.name = self.env.temp_data.get('default_role')
+            self.name = self.env.temp_data.get('default_role', '')
             if not self.name:
                 self.name = self.env.config.default_role
             if not self.name:
@@ -491,7 +491,7 @@ class SphinxTranslator(nodes.NodeVisitor):
 
 # cache a vanilla instance of nodes.document
 # Used in new_document() function
-__document_cache__: nodes.document = None
+__document_cache__: Optional[nodes.document] = None
 
 
 def new_document(source_path: str, settings: Any = None) -> nodes.document:

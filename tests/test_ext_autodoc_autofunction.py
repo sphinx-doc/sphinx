@@ -119,6 +119,7 @@ def test_singledispatch(app):
     assert list(actual) == [
         '',
         '.. py:function:: func(arg, kwarg=None)',
+        '                 func(arg: float, kwarg=None)',
         '                 func(arg: int, kwarg=None)',
         '                 func(arg: str, kwarg=None)',
         '   :module: target.singledispatch',

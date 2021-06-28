@@ -149,4 +149,4 @@ return ``node.children`` from the Directive.
 
    `Creating directives`_ HOWTO of the Docutils documentation
 
-.. _Creating directives: http://docutils.sourceforge.net/docs/howto/rst-directives.html
+.. _Creating directives: https://docutils.sourceforge.io/docs/howto/rst-directives.html

@@ -8,7 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Any, Dict, Iterator, List, Tuple, cast
+from typing import Any, Dict, Iterator, List, Optional, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -215,7 +215,7 @@ class JSCallable(JSObject):
         TypedField('arguments', label=_('Arguments'),
                    names=('argument', 'arg', 'parameter', 'param'),
                    typerolename='func', typenames=('paramtype', 'type')),
-        GroupedField('errors', label=_('Throws'), rolename='err',
+        GroupedField('errors', label=_('Throws'), rolename='func',
                      names=('throws', ),
                      can_collapse=True),
         Field('returnvalue', label=_('Returns'), has_arg=False,
@@ -413,7 +413,7 @@ class JavaScriptDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element
-                     ) -> Element:
+                     ) -> Optional[Element]:
         mod_name = node.get('js:module')
         prefix = node.get('js:object')
         searchorder = 1 if node.hasattr('refspecific') else 0

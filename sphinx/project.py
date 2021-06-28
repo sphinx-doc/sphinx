@@ -10,7 +10,7 @@
 
 import os
 from glob import glob
-from typing import Dict, List, Set
+from typing import Dict, List, Optional, Set
 
 from sphinx.locale import __
 from sphinx.util import get_matching_files, logging, path_stabilize
@@ -60,7 +60,7 @@ class Project:
 
         return self.docnames
 
-    def path2doc(self, filename: str) -> str:
+    def path2doc(self, filename: str) -> Optional[str]:
         """Return the docname for the filename if the file is document.
 
         *filename* should be absolute or relative to the source directory.

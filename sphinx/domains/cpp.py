@@ -319,8 +319,9 @@ _fold_operator_re = re.compile(r'''(?x)
 # see https://en.cppreference.com/w/cpp/keyword
 _keywords = [
     'alignas', 'alignof', 'and', 'and_eq', 'asm', 'auto', 'bitand', 'bitor',
-    'bool', 'break', 'case', 'catch', 'char', 'char16_t', 'char32_t', 'class',
-    'compl', 'concept', 'const', 'constexpr', 'const_cast', 'continue',
+    'bool', 'break', 'case', 'catch', 'char', 'char8_t', 'char16_t', 'char32_t',
+    'class', 'compl', 'concept', 'const', 'consteval', 'constexpr', 'constinit',
+    'const_cast', 'continue',
     'decltype', 'default', 'delete', 'do', 'double', 'dynamic_cast', 'else',
     'enum', 'explicit', 'export', 'extern', 'false', 'float', 'for', 'friend',
     'goto', 'if', 'inline', 'int', 'long', 'mutable', 'namespace', 'new',
@@ -426,6 +427,7 @@ _id_fundamental_v2 = {
     'wchar_t': 'w',
     'char32_t': 'Di',
     'char16_t': 'Ds',
+    'char8_t': 'Du',
     'short': 's',
     'short int': 's',
     'signed short': 's',
@@ -1880,9 +1882,11 @@ class ASTTrailingTypeSpecDecltype(ASTTrailingTypeSpec):
 
 
 class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
-    def __init__(self, prefix: str, nestedName: ASTNestedName) -> None:
+    def __init__(self, prefix: str, nestedName: ASTNestedName,
+                 placeholderType: Optional[str]) -> None:
         self.prefix = prefix
         self.nestedName = nestedName
+        self.placeholderType = placeholderType
 
     @property
     def name(self) -> ASTNestedName:
@@ -1897,6 +1901,9 @@ class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
             res.append(self.prefix)
             res.append(' ')
         res.append(transform(self.nestedName))
+        if self.placeholderType is not None:
+            res.append(' ')
+            res.append(self.placeholderType)
         return ''.join(res)
 
     def describe_signature(self, signode: TextElement, mode: str,
@@ -1905,6 +1912,17 @@ class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
             signode += addnodes.desc_sig_keyword(self.prefix, self.prefix)
             signode += addnodes.desc_sig_space()
         self.nestedName.describe_signature(signode, mode, env, symbol=symbol)
+        if self.placeholderType is not None:
+            signode += addnodes.desc_sig_space()
+            if self.placeholderType == 'auto':
+                signode += addnodes.desc_sig_keyword('auto', 'auto')
+            elif self.placeholderType == 'decltype(auto)':
+                signode += addnodes.desc_sig_keyword('decltype', 'decltype')
+                signode += addnodes.desc_sig_punctuation('(', '(')
+                signode += addnodes.desc_sig_keyword('auto', 'auto')
+                signode += addnodes.desc_sig_punctuation(')', ')')
+            else:
+                assert False, self.placeholderType
 
 
 class ASTFunctionParameter(ASTBase):
@@ -2099,16 +2117,41 @@ class ASTParametersQualifiers(ASTBase):
                 signode += addnodes.desc_sig_keyword(self.initializer, self.initializer)
 
 
+class ASTExplicitSpec(ASTBase):
+    def __init__(self, expr: Optional[ASTExpression]) -> None:
+        self.expr = expr
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        res = ['explicit']
+        if self.expr is not None:
+            res.append('(')
+            res.append(transform(self.expr))
+            res.append(')')
+        return ''.join(res)
+
+    def describe_signature(self, signode: TextElement,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        signode += addnodes.desc_sig_keyword('explicit', 'explicit')
+        if self.expr is not None:
+            signode += addnodes.desc_sig_punctuation('(', '(')
+            self.expr.describe_signature(signode, 'markType', env, symbol)
+            signode += addnodes.desc_sig_punctuation(')', ')')
+
+
 class ASTDeclSpecsSimple(ASTBase):
     def __init__(self, storage: str, threadLocal: bool, inline: bool, virtual: bool,
-                 explicit: bool, constexpr: bool, volatile: bool, const: bool,
-                 friend: bool, attrs: List[ASTAttribute]) -> None:
+                 explicitSpec: Optional[ASTExplicitSpec],
+                 consteval: bool, constexpr: bool, constinit: bool,
+                 volatile: bool, const: bool, friend: bool,
+                 attrs: List[ASTAttribute]) -> None:
         self.storage = storage
         self.threadLocal = threadLocal
         self.inline = inline
         self.virtual = virtual
-        self.explicit = explicit
+        self.explicitSpec = explicitSpec
+        self.consteval = consteval
         self.constexpr = constexpr
+        self.constinit = constinit
         self.volatile = volatile
         self.const = const
         self.friend = friend
@@ -2121,8 +2164,10 @@ class ASTDeclSpecsSimple(ASTBase):
                                   self.threadLocal or other.threadLocal,
                                   self.inline or other.inline,
                                   self.virtual or other.virtual,
-                                  self.explicit or other.explicit,
+                                  self.explicitSpec or other.explicitSpec,
+                                  self.consteval or other.consteval,
                                   self.constexpr or other.constexpr,
+                                  self.constinit or other.constinit,
                                   self.volatile or other.volatile,
                                   self.const or other.const,
                                   self.friend or other.friend,
@@ -2141,17 +2186,22 @@ class ASTDeclSpecsSimple(ASTBase):
             res.append('friend')
         if self.virtual:
             res.append('virtual')
-        if self.explicit:
-            res.append('explicit')
+        if self.explicitSpec:
+            res.append(transform(self.explicitSpec))
+        if self.consteval:
+            res.append('consteval')
         if self.constexpr:
             res.append('constexpr')
+        if self.constinit:
+            res.append('constinit')
         if self.volatile:
             res.append('volatile')
         if self.const:
             res.append('const')
         return ' '.join(res)
 
-    def describe_signature(self, signode: TextElement) -> None:
+    def describe_signature(self, signode: TextElement,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
         addSpace = False
         for attr in self.attrs:
             if addSpace:
@@ -2175,10 +2225,17 @@ class ASTDeclSpecsSimple(ASTBase):
             addSpace = _add(signode, 'friend')
         if self.virtual:
             addSpace = _add(signode, 'virtual')
-        if self.explicit:
-            addSpace = _add(signode, 'explicit')
+        if self.explicitSpec:
+            if addSpace:
+                signode += addnodes.desc_sig_space()
+            self.explicitSpec.describe_signature(signode, env, symbol)
+            addSpace = True
+        if self.consteval:
+            addSpace = _add(signode, 'consteval')
         if self.constexpr:
             addSpace = _add(signode, 'constexpr')
+        if self.constinit:
+            addSpace = _add(signode, 'constinit')
         if self.volatile:
             addSpace = _add(signode, 'volatile')
         if self.const:
@@ -2235,7 +2292,7 @@ class ASTDeclSpecs(ASTBase):
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
         numChildren = len(signode)
-        self.leftSpecs.describe_signature(signode)
+        self.leftSpecs.describe_signature(signode, env, symbol)
         addSpace = len(signode) != numChildren
 
         if self.trailingTypeSpec:
@@ -2249,7 +2306,7 @@ class ASTDeclSpecs(ASTBase):
             if len(str(self.rightSpecs)) > 0:
                 if addSpace:
                     signode += addnodes.desc_sig_space()
-                self.rightSpecs.describe_signature(signode)
+                self.rightSpecs.describe_signature(signode, env, symbol)
 
 
 # Declarator
@@ -2290,6 +2347,10 @@ class ASTArray(ASTBase):
 class ASTDeclarator(ASTBase):
     @property
     def name(self) -> ASTNestedName:
+        raise NotImplementedError(repr(self))
+
+    @name.setter
+    def name(self, name: ASTNestedName) -> None:
         raise NotImplementedError(repr(self))
 
     @property
@@ -2338,6 +2399,10 @@ class ASTDeclaratorNameParamQual(ASTDeclarator):
     @property
     def name(self) -> ASTNestedName:
         return self.declId
+
+    @name.setter
+    def name(self, name: ASTNestedName) -> None:
+        self.declId = name
 
     @property
     def isPack(self) -> bool:
@@ -2420,6 +2485,10 @@ class ASTDeclaratorNameBitField(ASTDeclarator):
     def name(self) -> ASTNestedName:
         return self.declId
 
+    @name.setter
+    def name(self, name: ASTNestedName) -> None:
+        self.declId = name
+
     def get_param_id(self, version: int) -> str:  # only the parameters (if any)
         return ''
 
@@ -2465,6 +2534,10 @@ class ASTDeclaratorPtr(ASTDeclarator):
     @property
     def name(self) -> ASTNestedName:
         return self.next.name
+
+    @name.setter
+    def name(self, name: ASTNestedName) -> None:
+        self.next.name = name
 
     @property
     def function_params(self) -> List[ASTFunctionParameter]:
@@ -2565,6 +2638,10 @@ class ASTDeclaratorRef(ASTDeclarator):
     def name(self) -> ASTNestedName:
         return self.next.name
 
+    @name.setter
+    def name(self, name: ASTNestedName) -> None:
+        self.next.name = name
+
     @property
     def isPack(self) -> bool:
         return True
@@ -2629,6 +2706,10 @@ class ASTDeclaratorParamPack(ASTDeclarator):
     def name(self) -> ASTNestedName:
         return self.next.name
 
+    @name.setter
+    def name(self, name: ASTNestedName) -> None:
+        self.next.name = name
+
     @property
     def function_params(self) -> List[ASTFunctionParameter]:
         return self.next.function_params
@@ -2688,6 +2769,10 @@ class ASTDeclaratorMemPtr(ASTDeclarator):
     @property
     def name(self) -> ASTNestedName:
         return self.next.name
+
+    @name.setter
+    def name(self, name: ASTNestedName) -> None:
+        self.next.name = name
 
     @property
     def function_params(self) -> List[ASTFunctionParameter]:
@@ -2781,6 +2866,10 @@ class ASTDeclaratorParen(ASTDeclarator):
     @property
     def name(self) -> ASTNestedName:
         return self.inner.name
+
+    @name.setter
+    def name(self, name: ASTNestedName) -> None:
+        self.inner.name = name
 
     @property
     def function_params(self) -> List[ASTFunctionParameter]:
@@ -2912,6 +3001,10 @@ class ASTType(ASTBase):
     @property
     def name(self) -> ASTNestedName:
         return self.decl.name
+
+    @name.setter
+    def name(self, name: ASTNestedName) -> None:
+        self.decl.name = name
 
     @property
     def isPack(self) -> bool:
@@ -4906,8 +4999,8 @@ class DefinitionParser(BaseParser):
     # those without signedness and size modifiers
     # see https://en.cppreference.com/w/cpp/language/types
     _simple_fundemental_types = (
-        'void', 'bool', 'char', 'wchar_t', 'char16_t', 'char32_t', 'int',
-        'float', 'double', 'auto'
+        'void', 'bool', 'char', 'wchar_t', 'char8_t', 'char16_t', 'char32_t',
+        'int', 'float', 'double', 'auto'
     )
 
     _prefix_keys = ('class', 'struct', 'enum', 'union', 'typename')
@@ -5779,7 +5872,19 @@ class DefinitionParser(BaseParser):
                 prefix = k
                 break
         nestedName = self._parse_nested_name()
-        return ASTTrailingTypeSpecName(prefix, nestedName)
+        self.skip_ws()
+        placeholderType = None
+        if self.skip_word('auto'):
+            placeholderType = 'auto'
+        elif self.skip_word_and_ws('decltype'):
+            if not self.skip_string_and_ws('('):
+                self.fail("Expected '(' after 'decltype' in placeholder type specifier.")
+            if not self.skip_word_and_ws('auto'):
+                self.fail("Expected 'auto' after 'decltype(' in placeholder type specifier.")
+            if not self.skip_string_and_ws(')'):
+                self.fail("Expected ')' after 'decltype(auto' in placeholder type specifier.")
+            placeholderType = 'decltype(auto)'
+        return ASTTrailingTypeSpecName(prefix, nestedName, placeholderType)
 
     def _parse_parameters_and_qualifiers(self, paramMode: str) -> ASTParametersQualifiers:
         if paramMode == 'new':
@@ -5893,14 +5998,24 @@ class DefinitionParser(BaseParser):
         threadLocal = None
         inline = None
         virtual = None
-        explicit = None
+        explicitSpec = None
+        consteval = None
         constexpr = None
+        constinit = None
         volatile = None
         const = None
         friend = None
         attrs = []
         while 1:  # accept any permutation of a subset of some decl-specs
             self.skip_ws()
+            if not const and typed:
+                const = self.skip_word('const')
+                if const:
+                    continue
+            if not volatile and typed:
+                volatile = self.skip_word('volatile')
+                if volatile:
+                    continue
             if not storage:
                 if outer in ('member', 'function'):
                     if self.skip_word('static'):
@@ -5916,16 +6031,28 @@ class DefinitionParser(BaseParser):
                 if self.skip_word('register'):
                     storage = 'register'
                     continue
-            if not threadLocal and outer == 'member':
-                threadLocal = self.skip_word('thread_local')
-                if threadLocal:
+            if not inline and outer in ('function', 'member'):
+                inline = self.skip_word('inline')
+                if inline:
+                    continue
+            if not constexpr and outer in ('member', 'function'):
+                constexpr = self.skip_word("constexpr")
+                if constexpr:
                     continue
 
+            if outer == 'member':
+                if not constinit:
+                    constinit = self.skip_word('constinit')
+                    if constinit:
+                        continue
+                if not threadLocal:
+                    threadLocal = self.skip_word('thread_local')
+                    if threadLocal:
+                        continue
             if outer == 'function':
-                # function-specifiers
-                if not inline:
-                    inline = self.skip_word('inline')
-                    if inline:
+                if not consteval:
+                    consteval = self.skip_word('consteval')
+                    if consteval:
                         continue
                 if not friend:
                     friend = self.skip_word('friend')
@@ -5935,31 +6062,28 @@ class DefinitionParser(BaseParser):
                     virtual = self.skip_word('virtual')
                     if virtual:
                         continue
-                if not explicit:
-                    explicit = self.skip_word('explicit')
+                if not explicitSpec:
+                    explicit = self.skip_word_and_ws('explicit')
                     if explicit:
+                        expr: ASTExpression = None
+                        if self.skip_string('('):
+                            expr = self._parse_constant_expression(inTemplate=False)
+                            if not expr:
+                                self.fail("Expected constant expression after '('" +
+                                          " in explicit specifier.")
+                            self.skip_ws()
+                            if not self.skip_string(')'):
+                                self.fail("Expected ')' to end explicit specifier.")
+                        explicitSpec = ASTExplicitSpec(expr)
                         continue
-
-            if not constexpr and outer in ('member', 'function'):
-                constexpr = self.skip_word("constexpr")
-                if constexpr:
-                    continue
-            if not volatile and typed:
-                volatile = self.skip_word('volatile')
-                if volatile:
-                    continue
-            if not const and typed:
-                const = self.skip_word('const')
-                if const:
-                    continue
             attr = self._parse_attribute()
             if attr:
                 attrs.append(attr)
                 continue
             break
         return ASTDeclSpecsSimple(storage, threadLocal, inline, virtual,
-                                  explicit, constexpr, volatile, const,
-                                  friend, attrs)
+                                  explicitSpec, consteval, constexpr, constinit,
+                                  volatile, const, friend, attrs)
 
     def _parse_decl_specs(self, outer: str, typed: bool = True) -> ASTDeclSpecs:
         if outer:
@@ -6810,7 +6934,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         GroupedField('template parameter', label=_('Template Parameters'),
                      names=('tparam', 'template parameter'),
                      can_collapse=True),
-        GroupedField('exceptions', label=_('Throws'), rolename='cpp:class',
+        GroupedField('exceptions', label=_('Throws'), rolename='expr',
                      names=('throws', 'throw', 'exception'),
                      can_collapse=True),
         Field('returnvalue', label=_('Returns'), has_arg=False,
@@ -7558,7 +7682,7 @@ class CPPDomain(Domain):
 
     def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                             typ: str, target: str, node: pending_xref,
-                            contnode: Element) -> Tuple[Element, str]:
+                            contnode: Element) -> Tuple[Optional[Element], Optional[str]]:
         # add parens again for those that could be functions
         if typ == 'any' or typ == 'func':
             target += '()'
@@ -7707,7 +7831,7 @@ class CPPDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element
-                     ) -> Element:
+                     ) -> Optional[Element]:
         return self._resolve_xref_inner(env, fromdocname, builder, typ,
                                         target, node, contnode)[0]
 

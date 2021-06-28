@@ -10,7 +10,7 @@
 
 from os import path
 from textwrap import indent
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Type, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, TypeVar
 
 from docutils import nodes
 from docutils.io import StringInput
@@ -261,7 +261,7 @@ class Locale(SphinxTransform):
 
             # Structural Subelements phase1
             # There is a possibility that only the title node is created.
-            # see: http://docutils.sourceforge.net/docs/ref/doctree.html#structural-subelements
+            # see: https://docutils.sourceforge.io/docs/ref/doctree.html#structural-subelements
             if isinstance(node, nodes.title):
                 # This generates: <section ...><title>msgstr</title></section>
                 msgstr = msgstr + '\n' + '=' * len(msgstr) * 2
@@ -416,7 +416,7 @@ class Locale(SphinxTransform):
                                .format(old_xref_rawsources, new_xref_rawsources),
                                location=node)
 
-            def get_ref_key(node: addnodes.pending_xref) -> Tuple[str, str, str]:
+            def get_ref_key(node: addnodes.pending_xref) -> Optional[Tuple[str, str, str]]:
                 case = node["refdomain"], node["reftype"]
                 if case == ('std', 'term'):
                     return None
