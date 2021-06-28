@@ -182,9 +182,9 @@ def test_domain_cpp_ast_expressions():
         for u in unsignedSuffix:
             for l in longSuffix:
                 expr = i + u + l
-                exprCheck(expr, 'L' + expr + 'E')
+                exprCheck(expr, 'L' + expr.replace("'", "") + 'E')
                 expr = i + l + u
-                exprCheck(expr, 'L' + expr + 'E')
+                exprCheck(expr, 'L' + expr.replace("'", "") + 'E')
     decimalFloats = ['5e42', '5e+42', '5e-42',
                      '5.', '5.e42', '5.e+42', '5.e-42',
                      '.5', '.5e42', '.5e+42', '.5e-42',
@@ -200,10 +200,10 @@ def test_domain_cpp_ast_expressions():
     for suffix in ['', 'f', 'F', 'l', 'L']:
         for e in decimalFloats:
             expr = e + suffix
-            exprCheck(expr, 'L' + expr + 'E')
+            exprCheck(expr, 'L' + expr.replace("'", "") + 'E')
         for e in hexFloats:
             expr = "0x" + e + suffix
-            exprCheck(expr, 'L' + expr + 'E')
+            exprCheck(expr, 'L' + expr.replace("'", "") + 'E')
     exprCheck('"abc\\"cba"', 'LA8_KcE')  # string
     exprCheck('this', 'fpT')
     # character literals
@@ -216,13 +216,13 @@ def test_domain_cpp_ast_expressions():
             exprCheck("{}'{}'".format(p, c), t + val)
     # user-defined literals
     for i in ints:
-        exprCheck(i + '_udl', 'clL_Zli4_udlEL' + i + 'EE')
-        exprCheck(i + 'uludl', 'clL_Zli5uludlEL' + i + 'EE')
+        exprCheck(i + '_udl', 'clL_Zli4_udlEL' + i.replace("'", "") + 'EE')
+        exprCheck(i + 'uludl', 'clL_Zli5uludlEL' + i.replace("'", "") + 'EE')
     for f in decimalFloats:
-        exprCheck(f + '_udl', 'clL_Zli4_udlEL' + f + 'EE')
-        exprCheck(f + 'fudl', 'clL_Zli4fudlEL' + f + 'EE')
+        exprCheck(f + '_udl', 'clL_Zli4_udlEL' + f.replace("'", "") + 'EE')
+        exprCheck(f + 'fudl', 'clL_Zli4fudlEL' + f.replace("'", "") + 'EE')
     for f in hexFloats:
-        exprCheck('0x' + f + '_udl', 'clL_Zli4_udlEL0x' + f + 'EE')
+        exprCheck('0x' + f + '_udl', 'clL_Zli4_udlEL0x' + f.replace("'", "") + 'EE')
     for p, t in charPrefixAndIds:
         for c, val in chars:
             exprCheck("{}'{}'_udl".format(p, c), 'clL_Zli4_udlE' + t + val + 'E')
