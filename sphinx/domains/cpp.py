@@ -869,7 +869,7 @@ class ASTNumberLiteral(ASTLiteral):
 
     def get_id(self, version: int) -> str:
         # TODO: floats should be mangled by writing the hex of the binary representation
-        return "L%sE" % self.data
+        return "L%sE" % self.data.replace("'", "")
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
@@ -7895,7 +7895,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     return {
         'version': 'builtin',
-        'env_version': 3,
+        'env_version': 4,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
