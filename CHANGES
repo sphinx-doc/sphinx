@@ -13,11 +13,23 @@ Deprecated
 Features added
 --------------
 
+* C, add C23 keywords ``_Decimal32``, ``_Decimal64``, and ``_Decimal128``.
+* #9354: C, add :confval:`c_extra_keywords` to allow user-defined keywords
+  during parsing.
 * Revert the removal of ``sphinx.util:force_decode()`` to become some 3rd party
   extensions available again during 5.0
 
 Bugs fixed
 ----------
+
+* #9330: changeset domain: :rst:dir:`versionchanged` with contents being a list
+  will cause error during pdf build
+* #9313: LaTeX: complex table with merged cells broken since 4.0
+* #9305: LaTeX: backslash may cause Improper discretionary list pdf build error
+  with Japanese engines
+* #9354: C, remove special macro names from the keyword list.
+  See also :confval:`c_extra_keywords`.
+* #9322: KeyError is raised on PropagateDescDomain transform
 
 Testing
 --------

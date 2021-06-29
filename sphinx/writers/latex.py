@@ -966,7 +966,7 @@ class LaTeXTranslator(SphinxTranslator):
                     # insert suitable strut for equalizing row heights in given multirow
                     self.body.append(r'\sphinxtablestrut{%d}' % cell.cell_id)
                 else:  # use \multicolumn for wide multirow cell
-                    self.body.append(r'\multicolumn{%d}{|l|}\sphinxtablestrut{%d}}' %
+                    self.body.append(r'\multicolumn{%d}{|l|}{\sphinxtablestrut{%d}}' %
                                      (cell.width, cell.cell_id))
 
     def depart_row(self, node: Element) -> None:

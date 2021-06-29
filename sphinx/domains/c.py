@@ -54,10 +54,15 @@ _keywords = [
     'else', 'enum', 'extern', 'float', 'for', 'goto', 'if', 'inline', 'int', 'long',
     'register', 'restrict', 'return', 'short', 'signed', 'sizeof', 'static', 'struct',
     'switch', 'typedef', 'union', 'unsigned', 'void', 'volatile', 'while',
-    '_Alignas', 'alignas', '_Alignof', 'alignof', '_Atomic', '_Bool', 'bool',
-    '_Complex', 'complex', '_Generic', '_Imaginary', 'imaginary',
-    '_Noreturn', 'noreturn', '_Static_assert', 'static_assert',
-    '_Thread_local', 'thread_local',
+    '_Alignas', '_Alignof', '_Atomic', '_Bool', '_Complex',
+    '_Decimal32', '_Decimal64', '_Decimal128',
+    '_Generic', '_Imaginary', '_Noreturn', '_Static_assert', '_Thread_local',
+]
+# These are only keyword'y when the corresponding headers are included.
+# They are used as default value for c_extra_keywords.
+_macroKeywords = [
+    'alignas', 'alignof', 'bool', 'complex', 'imaginary', 'noreturn', 'static_assert',
+    'thread_local',
 ]
 
 # these are ordered by preceedence
@@ -2535,6 +2540,12 @@ class DefinitionParser(BaseParser):
             if identifier in _keywords:
                 self.fail("Expected identifier in nested name, "
                           "got keyword: %s" % identifier)
+            if self.matched_text in self.config.c_extra_keywords:
+                msg = "Expected identifier, got user-defined keyword: %s." \
+                      + " Remove it from c_extra_keywords to allow it as identifier.\n" \
+                      + "Currently c_extra_keywords is %s."
+                self.fail(msg % (self.matched_text,
+                                 str(self.config.c_extra_keywords)))
             ident = ASTIdentifier(identifier)
             names.append(ident)
 
@@ -2711,6 +2722,12 @@ class DefinitionParser(BaseParser):
                 if self.matched_text in _keywords:
                     self.fail("Expected identifier, "
                               "got keyword: %s" % self.matched_text)
+                if self.matched_text in self.config.c_extra_keywords:
+                    msg = "Expected identifier, got user-defined keyword: %s." \
+                          + " Remove it from c_extra_keywords to allow it as identifier.\n" \
+                          + "Currently c_extra_keywords is %s."
+                    self.fail(msg % (self.matched_text,
+                                     str(self.config.c_extra_keywords)))
                 identifier = ASTIdentifier(self.matched_text)
                 declId = ASTNestedName([identifier], rooted=False)
             else:
@@ -3877,6 +3894,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_domain(CDomain)
     app.add_config_value("c_id_attributes", [], 'env')
     app.add_config_value("c_paren_attributes", [], 'env')
+    app.add_config_value("c_extra_keywords", _macroKeywords, 'env')
     app.add_post_transform(AliasTransform)
 
     app.add_config_value("c_allow_pre_v3", False, 'env')

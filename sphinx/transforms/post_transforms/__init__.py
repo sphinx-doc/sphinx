@@ -249,7 +249,8 @@ class PropagateDescDomain(SphinxPostTransform):
 
     def run(self, **kwargs: Any) -> None:
         for node in self.document.traverse(addnodes.desc_signature):
-            node['classes'].append(node.parent['domain'])
+            if node.parent.get('domain'):
+                node['classes'].append(node.parent['domain'])
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
