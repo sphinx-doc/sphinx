@@ -27,6 +27,7 @@ Bugs fixed
   with Japanese engines
 * #9354: C, remove special macro names from the keyword list.
   See also :confval:`c_extra_keywords`.
+* #9322: KeyError is raised on PropagateDescDomain transform
 
 Testing
 --------
