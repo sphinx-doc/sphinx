@@ -16,6 +16,8 @@ Features added
 * C, add C23 keywords ``_Decimal32``, ``_Decimal64``, and ``_Decimal128``.
 * #9354: C, add :confval:`c_extra_keywords` to allow user-defined keywords
   during parsing.
+* Revert the removal of ``sphinx.util:force_decode()`` to become some 3rd party
+  extensions available again during 5.0
 
 Bugs fixed
 ----------
