@@ -468,9 +468,6 @@ class StandaloneHTMLBuilder(Builder):
         else:
             self.last_updated = None
 
-        logo = path.basename(self.config.html_logo) if self.config.html_logo else ''
-        favicon = path.basename(self.config.html_favicon) if self.config.html_favicon else ''
-
         self.relations = self.env.collect_relations()
 
         rellinks: List[Tuple[str, str, str, str]] = []
@@ -513,8 +510,8 @@ class StandaloneHTMLBuilder(Builder):
             'rellinks': rellinks,
             'builder': self.name,
             'parents': [],
-            'logo': logo,
-            'favicon': favicon,
+            'logo': self.config.html_logo or '',
+            'favicon': self.config.html_favicon or '',
             'html5_doctype': html5_ready and not self.config.html4_writer,
         }
         if self.theme:
