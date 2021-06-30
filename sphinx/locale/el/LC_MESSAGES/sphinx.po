@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-06-13 00:08+0000\n"
+"POT-Creation-Date: 2021-06-27 00:10+0000\n"
 "PO-Revision-Date: 2021-05-11 13:54+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Greek (http://www.transifex.com/sphinx-doc/sphinx-1/language/el/)\n"
@@ -913,7 +913,7 @@ msgid "Failed to read build info file: %r"
 msgstr "Αδυναμία ανάγνωσης αρχείου πληροφοριών μεταγλώττισης: %r"
 
 #: sphinx/builders/html/__init__.py:466 sphinx/builders/latex/__init__.py:187
-#: sphinx/transforms/__init__.py:116 sphinx/writers/manpage.py:99
+#: sphinx/transforms/__init__.py:116 sphinx/writers/manpage.py:102
 #: sphinx/writers/texinfo.py:233
 #, python-format
 msgid "%b %d, %Y"
@@ -1841,12 +1841,12 @@ msgid ""
 "Declaration is '.. c:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/c.py:3116 sphinx/domains/cpp.py:6843
+#: sphinx/domains/c.py:3116 sphinx/domains/cpp.py:6931
 #: sphinx/domains/python.py:389 sphinx/ext/napoleon/docstring.py:736
 msgid "Parameters"
 msgstr "Παράμετροι"
 
-#: sphinx/domains/c.py:3119 sphinx/domains/cpp.py:6852
+#: sphinx/domains/c.py:3119 sphinx/domains/cpp.py:6940
 #: sphinx/domains/javascript.py:221 sphinx/domains/python.py:401
 msgid "Returns"
 msgstr "Επιστρέφει"
@@ -1861,7 +1861,7 @@ msgstr "Επιστρεφόμενος τύπος"
 msgid "%s (C %s)"
 msgstr ""
 
-#: sphinx/domains/c.py:3714 sphinx/domains/cpp.py:7490
+#: sphinx/domains/c.py:3714 sphinx/domains/cpp.py:7578
 msgid "member"
 msgstr "μέλος"
 
@@ -1869,7 +1869,7 @@ msgstr "μέλος"
 msgid "variable"
 msgstr "μεταβλητή"
 
-#: sphinx/domains/c.py:3716 sphinx/domains/cpp.py:7489
+#: sphinx/domains/c.py:3716 sphinx/domains/cpp.py:7577
 #: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1107
 msgid "function"
 msgstr "συνάρτηση"
@@ -1882,23 +1882,23 @@ msgstr "μακροεντολή"
 msgid "struct"
 msgstr ""
 
-#: sphinx/domains/c.py:3719 sphinx/domains/cpp.py:7488
+#: sphinx/domains/c.py:3719 sphinx/domains/cpp.py:7576
 msgid "union"
 msgstr "ένωση"
 
-#: sphinx/domains/c.py:3720 sphinx/domains/cpp.py:7493
+#: sphinx/domains/c.py:3720 sphinx/domains/cpp.py:7581
 msgid "enum"
 msgstr "enum"
 
-#: sphinx/domains/c.py:3721 sphinx/domains/cpp.py:7494
+#: sphinx/domains/c.py:3721 sphinx/domains/cpp.py:7582
 msgid "enumerator"
 msgstr "enumerator"
 
-#: sphinx/domains/c.py:3722 sphinx/domains/cpp.py:7491
+#: sphinx/domains/c.py:3722 sphinx/domains/cpp.py:7579
 msgid "type"
 msgstr "τύπος"
 
-#: sphinx/domains/c.py:3724 sphinx/domains/cpp.py:7496
+#: sphinx/domains/c.py:3724 sphinx/domains/cpp.py:7584
 msgid "function parameter"
 msgstr ""
 
@@ -1927,36 +1927,36 @@ msgstr "διπλότυπη ετικέτα %s, άλλη εμφάνιση στο %
 msgid "Citation [%s] is not referenced."
 msgstr "Η παραπομπή [%s] δεν αναφέρεται."
 
-#: sphinx/domains/cpp.py:4653 sphinx/domains/cpp.py:7045
+#: sphinx/domains/cpp.py:4710 sphinx/domains/cpp.py:7133
 #, python-format
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/cpp.py:6846
+#: sphinx/domains/cpp.py:6934
 msgid "Template Parameters"
 msgstr "Παράμετροι Προτύπου"
 
-#: sphinx/domains/cpp.py:6849 sphinx/domains/javascript.py:218
+#: sphinx/domains/cpp.py:6937 sphinx/domains/javascript.py:218
 msgid "Throws"
 msgstr "Προκαλεί"
 
-#: sphinx/domains/cpp.py:6968
+#: sphinx/domains/cpp.py:7056
 #, python-format
 msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
-#: sphinx/domains/cpp.py:7487 sphinx/domains/javascript.py:328
+#: sphinx/domains/cpp.py:7575 sphinx/domains/javascript.py:328
 #: sphinx/domains/python.py:1109
 msgid "class"
 msgstr "κλάση"
 
-#: sphinx/domains/cpp.py:7492
+#: sphinx/domains/cpp.py:7580
 msgid "concept"
 msgstr "έννοια"
 
-#: sphinx/domains/cpp.py:7497
+#: sphinx/domains/cpp.py:7585
 msgid "template parameter"
 msgstr ""
 
@@ -3572,7 +3572,7 @@ msgid ""
 "encountered title node not in section, topic, table, admonition or sidebar"
 msgstr "ο ανακαλυφθέν τίτλος κόμβος δεν βρίσκεται σε τομέα, θέμα, πίνακα, προειδοποίηση ή πλαϊνή μπάρα"
 
-#: sphinx/writers/latex.py:849 sphinx/writers/manpage.py:243
+#: sphinx/writers/latex.py:849 sphinx/writers/manpage.py:246
 #: sphinx/writers/texinfo.py:637
 msgid "Footnotes"
 msgstr "Σημειώσεις υποσέλιδου"
@@ -3592,12 +3592,12 @@ msgstr "η μονάδα διάστασης %s δεν είναι έγκυρη. Θ
 msgid "unknown index entry type %s found"
 msgstr "βρέθηκε άγνωστος τύπος εγγραφής ευρετηρίου %s"
 
-#: sphinx/writers/manpage.py:292 sphinx/writers/text.py:804
+#: sphinx/writers/manpage.py:295 sphinx/writers/text.py:804
 #, python-format
 msgid "[image: %s]"
 msgstr "[εικόνα: %s]"
 
-#: sphinx/writers/manpage.py:293 sphinx/writers/text.py:805
+#: sphinx/writers/manpage.py:296 sphinx/writers/text.py:805
 msgid "[image]"
 msgstr "[εικόνα]"
 

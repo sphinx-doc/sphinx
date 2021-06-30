@@ -579,3 +579,29 @@ def test_limit_rate_bails_out_after_waiting_max_time(app):
                                               rate_limits)
     next_check = worker.limit_rate(FakeResponse())
     assert next_check is None
+
+
+class ConnectionResetHandler(http.server.BaseHTTPRequestHandler):
+    def do_HEAD(self):
+        self.connection.close()
+
+    def do_GET(self):
+        self.send_response(200, "OK")
+        self.end_headers()
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+def test_get_after_head_raises_connection_error(app):
+    with http_server(ConnectionResetHandler):
+        app.build()
+    content = (app.outdir / 'output.txt').read_text()
+    assert not content
+    content = (app.outdir / 'output.json').read_text()
+    assert json.loads(content) == {
+        "filename": "index.rst",
+        "lineno": 1,
+        "status": "working",
+        "code": 0,
+        "uri": "http://localhost:7777/",
+        "info": "",
+    }

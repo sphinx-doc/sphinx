@@ -26,7 +26,7 @@ from urllib.parse import unquote, urlparse, urlunparse
 from docutils import nodes
 from docutils.nodes import Element
 from requests import Response
-from requests.exceptions import HTTPError, TooManyRedirects
+from requests.exceptions import ConnectionError, HTTPError, TooManyRedirects
 
 from sphinx.application import Sphinx
 from sphinx.builders.dummy import DummyBuilder
@@ -456,7 +456,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                                                  config=self.config, auth=auth_info,
                                                  **kwargs)
                         response.raise_for_status()
-                    except (HTTPError, TooManyRedirects) as err:
+                    # Servers drop the connection on HEAD requests, causing
+                    # ConnectionError.
+                    except (ConnectionError, HTTPError, TooManyRedirects) as err:
                         if isinstance(err, HTTPError) and err.response.status_code == 429:
                             raise
                         # retry with GET request if that fails, some servers

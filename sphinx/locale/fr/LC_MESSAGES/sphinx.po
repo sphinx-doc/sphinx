@@ -32,7 +32,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-06-13 00:08+0000\n"
+"POT-Creation-Date: 2021-06-27 00:10+0000\n"
 "PO-Revision-Date: 2021-05-29 11:52+0000\n"
 "Last-Translator: Nicolas Friedli <nicolas.friedli@gmail.com>\n"
 "Language-Team: French (http://www.transifex.com/sphinx-doc/sphinx-1/language/fr/)\n"
@@ -935,7 +935,7 @@ msgid "Failed to read build info file: %r"
 msgstr "Échec de lecture du fichier de configuration de construction : %r"
 
 #: sphinx/builders/html/__init__.py:466 sphinx/builders/latex/__init__.py:187
-#: sphinx/transforms/__init__.py:116 sphinx/writers/manpage.py:99
+#: sphinx/transforms/__init__.py:116 sphinx/writers/manpage.py:102
 #: sphinx/writers/texinfo.py:233
 #, python-format
 msgid "%b %d, %Y"
@@ -1863,12 +1863,12 @@ msgid ""
 "Declaration is '.. c:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/c.py:3116 sphinx/domains/cpp.py:6843
+#: sphinx/domains/c.py:3116 sphinx/domains/cpp.py:6931
 #: sphinx/domains/python.py:389 sphinx/ext/napoleon/docstring.py:736
 msgid "Parameters"
 msgstr "Paramètres"
 
-#: sphinx/domains/c.py:3119 sphinx/domains/cpp.py:6852
+#: sphinx/domains/c.py:3119 sphinx/domains/cpp.py:6940
 #: sphinx/domains/javascript.py:221 sphinx/domains/python.py:401
 msgid "Returns"
 msgstr "Renvoie"
@@ -1883,7 +1883,7 @@ msgstr "Type renvoyé"
 msgid "%s (C %s)"
 msgstr ""
 
-#: sphinx/domains/c.py:3714 sphinx/domains/cpp.py:7490
+#: sphinx/domains/c.py:3714 sphinx/domains/cpp.py:7578
 msgid "member"
 msgstr "membre"
 
@@ -1891,7 +1891,7 @@ msgstr "membre"
 msgid "variable"
 msgstr "variable"
 
-#: sphinx/domains/c.py:3716 sphinx/domains/cpp.py:7489
+#: sphinx/domains/c.py:3716 sphinx/domains/cpp.py:7577
 #: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1107
 msgid "function"
 msgstr "fonction"
@@ -1904,23 +1904,23 @@ msgstr "macro"
 msgid "struct"
 msgstr ""
 
-#: sphinx/domains/c.py:3719 sphinx/domains/cpp.py:7488
+#: sphinx/domains/c.py:3719 sphinx/domains/cpp.py:7576
 msgid "union"
 msgstr "union"
 
-#: sphinx/domains/c.py:3720 sphinx/domains/cpp.py:7493
+#: sphinx/domains/c.py:3720 sphinx/domains/cpp.py:7581
 msgid "enum"
 msgstr "énumération"
 
-#: sphinx/domains/c.py:3721 sphinx/domains/cpp.py:7494
+#: sphinx/domains/c.py:3721 sphinx/domains/cpp.py:7582
 msgid "enumerator"
 msgstr "énumérateur"
 
-#: sphinx/domains/c.py:3722 sphinx/domains/cpp.py:7491
+#: sphinx/domains/c.py:3722 sphinx/domains/cpp.py:7579
 msgid "type"
 msgstr "type"
 
-#: sphinx/domains/c.py:3724 sphinx/domains/cpp.py:7496
+#: sphinx/domains/c.py:3724 sphinx/domains/cpp.py:7584
 msgid "function parameter"
 msgstr ""
 
@@ -1949,36 +1949,36 @@ msgstr "citation dupliquée %s, une autre instance dans %s"
 msgid "Citation [%s] is not referenced."
 msgstr "La citation [%s] n'est pas référencée"
 
-#: sphinx/domains/cpp.py:4653 sphinx/domains/cpp.py:7045
+#: sphinx/domains/cpp.py:4710 sphinx/domains/cpp.py:7133
 #, python-format
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/cpp.py:6846
+#: sphinx/domains/cpp.py:6934
 msgid "Template Parameters"
 msgstr "Paramètres du modèle"
 
-#: sphinx/domains/cpp.py:6849 sphinx/domains/javascript.py:218
+#: sphinx/domains/cpp.py:6937 sphinx/domains/javascript.py:218
 msgid "Throws"
 msgstr "Déclenche"
 
-#: sphinx/domains/cpp.py:6968
+#: sphinx/domains/cpp.py:7056
 #, python-format
 msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
-#: sphinx/domains/cpp.py:7487 sphinx/domains/javascript.py:328
+#: sphinx/domains/cpp.py:7575 sphinx/domains/javascript.py:328
 #: sphinx/domains/python.py:1109
 msgid "class"
 msgstr "classe"
 
-#: sphinx/domains/cpp.py:7492
+#: sphinx/domains/cpp.py:7580
 msgid "concept"
 msgstr "concept"
 
-#: sphinx/domains/cpp.py:7497
+#: sphinx/domains/cpp.py:7585
 msgid "template parameter"
 msgstr ""
 
@@ -3594,7 +3594,7 @@ msgid ""
 "encountered title node not in section, topic, table, admonition or sidebar"
 msgstr "le titre de node rencontré n'est apparenté à aucun parmi section, topic, table, admonition ou sidebar"
 
-#: sphinx/writers/latex.py:849 sphinx/writers/manpage.py:243
+#: sphinx/writers/latex.py:849 sphinx/writers/manpage.py:246
 #: sphinx/writers/texinfo.py:637
 msgid "Footnotes"
 msgstr "Notes de bas de page"
@@ -3614,12 +3614,12 @@ msgstr "%s est invalide comme unité de dimension. Ignoré."
 msgid "unknown index entry type %s found"
 msgstr "le type inconnu d’entrée d’index %s a été trouvé"
 
-#: sphinx/writers/manpage.py:292 sphinx/writers/text.py:804
+#: sphinx/writers/manpage.py:295 sphinx/writers/text.py:804
 #, python-format
 msgid "[image: %s]"
 msgstr "[image: %s]"
 
-#: sphinx/writers/manpage.py:293 sphinx/writers/text.py:805
+#: sphinx/writers/manpage.py:296 sphinx/writers/text.py:805
 msgid "[image]"
 msgstr "[image]"
 
