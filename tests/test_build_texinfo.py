@@ -112,3 +112,14 @@ def test_texinfo_escape_id(app, status, warning):
     assert translator.escape_id('Hello(world)') == 'Hello world'
     assert translator.escape_id('Hello world.') == 'Hello world'
     assert translator.escape_id('.') == '.'
+
+
+@pytest.mark.sphinx('texinfo', testroot='root')
+def test_texinfo_samp_with_variable(app, status, warning):
+    app.build()
+
+    output = (app.outdir / 'sphinxtests.texi').read_text()
+
+    assert '@code{@var{variable_only}}' in output
+    assert '@code{@var{variable} and text}' in output
+    assert '@code{Show @var{variable} in the middle}' in output
