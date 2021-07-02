@@ -256,6 +256,9 @@ Here is some sample code to accomplish this:
 
 .. code-block:: python
 
+   from os import path
+   from sphinx.util.fileutil import copy_asset_file
+
    def copy_custom_files(app, exc):
        if app.builder.format == 'html' and not exc:
            staticdir = path.join(app.builder.outdir, '_static')
