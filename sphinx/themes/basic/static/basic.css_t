@@ -222,6 +222,7 @@ table.modindextable td {
 /* -- general body styles --------------------------------------------------- */
 
 div.body {
+    text-align: justify;
     min-width: {{ theme_body_min_width|todim }};
     max-width: {{ theme_body_max_width|todim }};
 }
