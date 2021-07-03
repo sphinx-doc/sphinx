@@ -325,9 +325,9 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
    **If True**::
 
        def __init__(self):
-           \"\"\"
+           """
            This will be included in the docs because it has a docstring
-           \"\"\"
+           """
 
        def __init__(self):
            # This will NOT be included in the docs
