@@ -1605,5 +1605,5 @@ def test_latex_nested_tables(app, status, warning):
 def test_latex_container(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'python.tex').read_text()
-    assert r'\begin{sphinxclass}{classname}' in result
-    assert r'\end{sphinxclass}' in result
+    assert r'\begin{sphinxuseclass}{classname}' in result
+    assert r'\end{sphinxuseclass}' in result
