@@ -58,6 +58,8 @@ Features added
 * #3014: autodoc: Add :event:`autodoc-process-bases` to modify the base classes
   of the class definitions
 * #9272: autodoc: Render enum values for the default argument value better
+* #9384: autodoc: ``autodoc_typehints='none'`` now erases typehints for
+  variables, attributes and properties
 * #3257: autosummary: Support instance attributes for classes
 * #9129: html search: Show search summaries when html_copy_source = False
 * #9307: html search: Prevent corrections and completions in search field
@@ -98,6 +100,8 @@ Bugs fixed
 * #9250: autodoc: The inherited method not having docstring is wrongly parsed
 * #9283: autodoc: autoattribute directive failed to generate document for an
   attribute not having any comment
+* #9364: autodoc: single element tuple on the default argument value is wrongly
+  rendered
 * #9317: html: Pushing left key causes visiting the next page at the first page
 * #9381: html: URL for html_favicon and html_log does not work
 * #9270: html theme : pyramid theme generates incorrect logo links
