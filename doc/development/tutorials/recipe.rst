@@ -223,4 +223,4 @@ Further reading
 For more information, refer to the `docutils`_ documentation and
 :doc:`/extdev/index`.
 
-.. _docutils: http://docutils.sourceforge.net/docs/
+.. _docutils: https://docutils.sourceforge.io/docs/

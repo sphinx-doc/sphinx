@@ -61,7 +61,7 @@ This will return a dictionary containing the following items:
 
 This dict can then be used as context for templates.  The goal is to be easy to
 integrate with your existing templating system.  An example using `Jinja2
-<http://jinja.pocoo.org/>`_ is:
+<https://jinja.palletsprojects.com/>`_ is:
 
 .. code-block:: html+jinja
 
@@ -112,8 +112,8 @@ must update the websupport package's data::
 should be a boolean representing whether the user has moderation privileges.
 The default value for *moderator* is ``False``.
 
-An example `Flask <http://flask.pocoo.org/>`_ function that checks whether a
-user is logged in and then retrieves a document is::
+An example `Flask <https://flask.palletsprojects.com/>`_ function that checks
+whether a user is logged in and then retrieves a document is::
 
    from sphinxcontrib.websupport.errors import *
 
@@ -152,8 +152,8 @@ To use the search form built-in to the Sphinx sidebar, create a function to
 handle requests to the URL 'search' relative to the documentation root.  The
 user's search query will be in the GET parameters, with the key `q`.  Then use
 the :meth:`~sphinxcontrib.websupport.WebSupport.get_search_results` method to
-retrieve search results. In `Flask <http://flask.pocoo.org/>`_ that would be
-like this::
+retrieve search results. In `Flask <https://flask.palletsprojects.com/>`_ that
+would be like this::
 
    @app.route('/search')
    def search():

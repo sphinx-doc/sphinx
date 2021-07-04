@@ -261,7 +261,7 @@ class Locale(SphinxTransform):
 
             # Structural Subelements phase1
             # There is a possibility that only the title node is created.
-            # see: http://docutils.sourceforge.net/docs/ref/doctree.html#structural-subelements
+            # see: https://docutils.sourceforge.io/docs/ref/doctree.html#structural-subelements
             if isinstance(node, nodes.title):
                 # This generates: <section ...><title>msgstr</title></section>
                 msgstr = msgstr + '\n' + '=' * len(msgstr) * 2

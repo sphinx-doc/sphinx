@@ -65,8 +65,8 @@ def test_defaults_json(app):
                  "info"]:
         assert attr in row
 
-    assert len(content.splitlines()) == 10
-    assert len(rows) == 10
+    assert len(content.splitlines()) == 12
+    assert len(rows) == 12
     # the output order of the rows is not stable
     # due to possible variance in network latency
     rowsby = {row["uri"]: row for row in rows}
@@ -87,7 +87,7 @@ def test_defaults_json(app):
     assert dnerow['uri'] == 'https://localhost:7777/doesnotexist'
     assert rowsby['https://www.google.com/image2.png'] == {
         'filename': 'links.txt',
-        'lineno': 18,
+        'lineno': 20,
         'status': 'broken',
         'code': 0,
         'uri': 'https://www.google.com/image2.png',
@@ -101,6 +101,10 @@ def test_defaults_json(app):
     # images should fail
     assert "Not Found for url: https://www.google.com/image.png" in \
         rowsby["https://www.google.com/image.png"]["info"]
+    # The anchor of the URI for github.com is automatically modified
+    assert 'https://github.com/sphinx-doc/sphinx#documentation' not in rowsby
+    assert 'https://github.com/sphinx-doc/sphinx#user-content-documentation' in rowsby
+    assert 'https://github.com/sphinx-doc/sphinx#user-content-testing' in rowsby
 
 
 @pytest.mark.sphinx(
@@ -575,3 +579,29 @@ def test_limit_rate_bails_out_after_waiting_max_time(app):
                                               rate_limits)
     next_check = worker.limit_rate(FakeResponse())
     assert next_check is None
+
+
+class ConnectionResetHandler(http.server.BaseHTTPRequestHandler):
+    def do_HEAD(self):
+        self.connection.close()
+
+    def do_GET(self):
+        self.send_response(200, "OK")
+        self.end_headers()
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
+def test_get_after_head_raises_connection_error(app):
+    with http_server(ConnectionResetHandler):
+        app.build()
+    content = (app.outdir / 'output.txt').read_text()
+    assert not content
+    content = (app.outdir / 'output.json').read_text()
+    assert json.loads(content) == {
+        "filename": "index.rst",
+        "lineno": 1,
+        "status": "working",
+        "code": 0,
+        "uri": "http://localhost:7777/",
+        "info": "",
+    }

@@ -25,11 +25,14 @@ def register_application_for_autosummary(app: "Sphinx") -> None:
     """
     if 'sphinx.ext.autosummary' in sys.modules:
         from sphinx.ext import autosummary
-        autosummary._app = app
+        if hasattr(autosummary, '_objects'):
+            autosummary._objects['_app'] = app  # type: ignore
+        else:
+            autosummary._app = app  # type: ignore
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
-    app.connect('builder-inited', register_application_for_autosummary)
+    app.connect('builder-inited', register_application_for_autosummary, priority=100)
 
     return {
         'version': 'builtin',

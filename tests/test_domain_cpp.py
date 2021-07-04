@@ -117,7 +117,7 @@ def check(name, input, idDict, output=None, key=None, asTextOutput=None):
            asTextOutput + ';' if asTextOutput is not None else None)
 
 
-def test_fundamental_types():
+def test_domain_cpp_ast_fundamental_types():
     # see https://en.cppreference.com/w/cpp/language/types
     for t, id_v2 in cppDomain._id_fundamental_v2.items():
         def makeIdV1():
@@ -126,6 +126,7 @@ def test_fundamental_types():
             id = t.replace(" ", "-").replace("long", "l").replace("int", "i")
             id = id.replace("bool", "b").replace("char", "c")
             id = id.replace("wc_t", "wchar_t").replace("c16_t", "char16_t")
+            id = id.replace("c8_t", "char8_t")
             id = id.replace("c32_t", "char32_t")
             return "f__%s" % id
 
@@ -137,7 +138,7 @@ def test_fundamental_types():
         check("function", "void f(%s arg)" % t, {1: makeIdV1(), 2: makeIdV2()})
 
 
-def test_expressions():
+def test_domain_cpp_ast_expressions():
     def exprCheck(expr, id, id4=None):
         ids = 'IE1CIA%s_1aE'
         # call .format() on the expr to unescape double curly braces
@@ -173,31 +174,36 @@ def test_expressions():
     exprCheck('nullptr', 'LDnE')
     exprCheck('true', 'L1E')
     exprCheck('false', 'L0E')
-    ints = ['5', '0', '075', '0x0123456789ABCDEF', '0XF', '0b1', '0B1']
+    ints = ['5', '0', '075', '0x0123456789ABCDEF', '0XF', '0b1', '0B1',
+            "0b0'1'0", "00'1'2", "0x0'1'2", "1'2'3"]
     unsignedSuffix = ['', 'u', 'U']
     longSuffix = ['', 'l', 'L', 'll', 'LL']
     for i in ints:
         for u in unsignedSuffix:
             for l in longSuffix:
                 expr = i + u + l
-                exprCheck(expr, 'L' + expr + 'E')
+                exprCheck(expr, 'L' + expr.replace("'", "") + 'E')
                 expr = i + l + u
-                exprCheck(expr, 'L' + expr + 'E')
+                exprCheck(expr, 'L' + expr.replace("'", "") + 'E')
     decimalFloats = ['5e42', '5e+42', '5e-42',
                      '5.', '5.e42', '5.e+42', '5.e-42',
                      '.5', '.5e42', '.5e+42', '.5e-42',
-                     '5.0', '5.0e42', '5.0e+42', '5.0e-42']
+                     '5.0', '5.0e42', '5.0e+42', '5.0e-42',
+                     "1'2'3e7'8'9", "1'2'3.e7'8'9",
+                     ".4'5'6e7'8'9", "1'2'3.4'5'6e7'8'9"]
     hexFloats = ['ApF', 'Ap+F', 'Ap-F',
                  'A.', 'A.pF', 'A.p+F', 'A.p-F',
                  '.A', '.ApF', '.Ap+F', '.Ap-F',
-                 'A.B', 'A.BpF', 'A.Bp+F', 'A.Bp-F']
+                 'A.B', 'A.BpF', 'A.Bp+F', 'A.Bp-F',
+                 "A'B'Cp1'2'3", "A'B'C.p1'2'3",
+                 ".D'E'Fp1'2'3", "A'B'C.D'E'Fp1'2'3"]
     for suffix in ['', 'f', 'F', 'l', 'L']:
         for e in decimalFloats:
             expr = e + suffix
-            exprCheck(expr, 'L' + expr + 'E')
+            exprCheck(expr, 'L' + expr.replace("'", "") + 'E')
         for e in hexFloats:
             expr = "0x" + e + suffix
-            exprCheck(expr, 'L' + expr + 'E')
+            exprCheck(expr, 'L' + expr.replace("'", "") + 'E')
     exprCheck('"abc\\"cba"', 'LA8_KcE')  # string
     exprCheck('this', 'fpT')
     # character literals
@@ -210,13 +216,13 @@ def test_expressions():
             exprCheck("{}'{}'".format(p, c), t + val)
     # user-defined literals
     for i in ints:
-        exprCheck(i + '_udl', 'clL_Zli4_udlEL' + i + 'EE')
-        exprCheck(i + 'uludl', 'clL_Zli5uludlEL' + i + 'EE')
+        exprCheck(i + '_udl', 'clL_Zli4_udlEL' + i.replace("'", "") + 'EE')
+        exprCheck(i + 'uludl', 'clL_Zli5uludlEL' + i.replace("'", "") + 'EE')
     for f in decimalFloats:
-        exprCheck(f + '_udl', 'clL_Zli4_udlEL' + f + 'EE')
-        exprCheck(f + 'fudl', 'clL_Zli4fudlEL' + f + 'EE')
+        exprCheck(f + '_udl', 'clL_Zli4_udlEL' + f.replace("'", "") + 'EE')
+        exprCheck(f + 'fudl', 'clL_Zli4fudlEL' + f.replace("'", "") + 'EE')
     for f in hexFloats:
-        exprCheck('0x' + f + '_udl', 'clL_Zli4_udlEL0x' + f + 'EE')
+        exprCheck('0x' + f + '_udl', 'clL_Zli4_udlEL0x' + f.replace("'", "") + 'EE')
     for p, t in charPrefixAndIds:
         for c, val in chars:
             exprCheck("{}'{}'_udl".format(p, c), 'clL_Zli4_udlE' + t + val + 'E')
@@ -351,7 +357,7 @@ def test_expressions():
     exprCheck('a(b(c, 1 + d...)..., e(f..., g))', 'cl1aspcl1b1cspplL1E1dEcl1esp1f1gEE')
 
 
-def test_type_definitions():
+def test_domain_cpp_ast_type_definitions():
     check("type", "public bool b", {1: "b", 2: "1b"}, "{key}bool b", key='typedef')
     check("type", "{key}bool A::b", {1: "A::b", 2: "N1A1bE"}, key='typedef')
     check("type", "{key}bool *b", {1: "b", 2: "1b"}, key='typedef')
@@ -396,7 +402,7 @@ def test_type_definitions():
     check('type', '{key}T = Q<A::operator bool>', {2: '1T'}, key='using')
 
 
-def test_concept_definitions():
+def test_domain_cpp_ast_concept_definitions():
     check('concept', 'template<typename Param> {key}A::B::Concept',
           {2: 'I0EN1A1B7ConceptE'})
     check('concept', 'template<typename A, typename B, typename ...C> {key}Foo',
@@ -407,7 +413,7 @@ def test_concept_definitions():
         parse('concept', 'template<typename T> template<typename U> {key}Foo')
 
 
-def test_member_definitions():
+def test_domain_cpp_ast_member_definitions():
     check('member', '  const  std::string  &  name = 42',
           {1: "name__ssCR", 2: "4name"}, output='const std::string &name = 42')
     check('member', '  const  std::string  &  name', {1: "name__ssCR", 2: "4name"},
@@ -435,8 +441,11 @@ def test_member_definitions():
     # check('member', 'int b : (true ? 8 : a) = 42', {1: 'b__i', 2: '1b'})
     check('member', 'int b : 1 || new int{0}', {1: 'b__i', 2: '1b'})
 
+    check('member', 'inline int n', {1: 'n__i', 2: '1n'})
+    check('member', 'constinit int n', {1: 'n__i', 2: '1n'})
 
-def test_function_definitions():
+
+def test_domain_cpp_ast_function_definitions():
     check('function', 'void f(volatile int)', {1: "f__iV", 2: "1fVi"})
     check('function', 'void f(std::size_t)', {1: "f__std::s", 2: "1fNSt6size_tE"})
     check('function', 'operator bool() const', {1: "castto-b-operatorC", 2: "NKcvbEv"})
@@ -565,6 +574,9 @@ def test_function_definitions():
     check("function", "void f(int *volatile const p)", {1: "f__iPVC", 2: "1fPVCi"})
 
     check('function', 'extern int f()', {1: 'f', 2: '1fv'})
+    check('function', 'consteval int f()', {1: 'f', 2: '1fv'})
+
+    check('function', 'explicit(true) void f()', {1: 'f', 2: '1fv'})
 
     check('function', 'decltype(auto) f()', {1: 'f', 2: "1fv"})
 
@@ -624,7 +636,7 @@ def test_function_definitions():
     check('function', 'void f(void (*p)(int, double), int i)', {2: '1fPFvidEi'})
 
 
-def test_operators():
+def test_domain_cpp_ast_operators():
     check('function', 'void operator new()', {1: "new-operator", 2: "nwv"})
     check('function', 'void operator new[]()', {1: "new-array-operator", 2: "nav"})
     check('function', 'void operator delete()', {1: "delete-operator", 2: "dlv"})
@@ -684,14 +696,14 @@ def test_operators():
     check('function', 'void operator[]()', {1: "subscript-operator", 2: "ixv"})
 
 
-def test_nested_name():
+def test_domain_cpp_ast_nested_name():
     check('class', '{key}::A', {1: "A", 2: "1A"})
     check('class', '{key}::A::B', {1: "A::B", 2: "N1A1BE"})
     check('function', 'void f(::A a)', {1: "f__A", 2: "1f1A"})
     check('function', 'void f(::A::B a)', {1: "f__A::B", 2: "1fN1A1BE"})
 
 
-def test_class_definitions():
+def test_domain_cpp_ast_class_definitions():
     check('class', 'public A', {1: "A", 2: "1A"}, output='{key}A')
     check('class', 'private {key}A', {1: "A", 2: "1A"})
     check('class', '{key}A final', {1: 'A', 2: '1A'})
@@ -722,11 +734,11 @@ def test_class_definitions():
           {2: 'I_DpiE1TIJX(Is)EEE', 3: 'I_DpiE1TIJX2IsEEE'})
 
 
-def test_union_definitions():
+def test_domain_cpp_ast_union_definitions():
     check('union', '{key}A', {2: "1A"})
 
 
-def test_enum_definitions():
+def test_domain_cpp_ast_enum_definitions():
     check('enum', '{key}A', {2: "1A"})
     check('enum', '{key}A : std::underlying_type<B>::type', {2: "1A"})
     check('enum', '{key}A : unsigned int', {2: "1A"})
@@ -737,7 +749,7 @@ def test_enum_definitions():
     check('enumerator', '{key}A = std::numeric_limits<unsigned long>::max()', {2: "1A"})
 
 
-def test_anon_definitions():
+def test_domain_cpp_ast_anon_definitions():
     check('class', '@a', {3: "Ut1_a"}, asTextOutput='class [anonymous]')
     check('union', '@a', {3: "Ut1_a"}, asTextOutput='union [anonymous]')
     check('enum', '@a', {3: "Ut1_a"}, asTextOutput='enum [anonymous]')
@@ -748,7 +760,7 @@ def test_anon_definitions():
           asTextOutput='int f(int [anonymous])')
 
 
-def test_templates():
+def test_domain_cpp_ast_templates():
     check('class', "A<T>", {2: "IE1AI1TE"}, output="template<> {key}A<T>")
     # first just check which objects support templating
     check('class', "template<> {key}A", {2: "IE1A"})
@@ -854,7 +866,16 @@ def test_templates():
     check('type', 'template<C T = int&> {key}A', {2: 'I_1CE1A'}, key='using')
 
 
-def test_requires_clauses():
+def test_domain_cpp_ast_placeholder_types():
+    check('function', 'void f(Sortable auto &v)', {1: 'f__SortableR', 2: '1fR8Sortable'})
+    check('function', 'void f(const Sortable auto &v)', {1: 'f__SortableCR', 2: '1fRK8Sortable'})
+    check('function', 'void f(Sortable decltype(auto) &v)', {1: 'f__SortableR', 2: '1fR8Sortable'})
+    check('function', 'void f(const Sortable decltype(auto) &v)', {1: 'f__SortableCR', 2: '1fRK8Sortable'})
+    check('function', 'void f(Sortable decltype ( auto ) &v)', {1: 'f__SortableR', 2: '1fR8Sortable'},
+          output='void f(Sortable decltype(auto) &v)')
+
+
+def test_domain_cpp_ast_requires_clauses():
     check('function', 'template<typename T> requires A auto f() -> void requires B',
           {4: 'I0EIQaa1A1BE1fvv'})
     check('function', 'template<typename T> requires A || B or C void f()',
@@ -863,7 +884,7 @@ def test_requires_clauses():
           {4: 'I0EIQooaa1A1Baa1C1DE1fvv'})
 
 
-def test_template_args():
+def test_domain_cpp_ast_template_args():
     # from breathe#218
     check('function',
           "template<typename F> "
@@ -878,7 +899,7 @@ def test_template_args():
           key='using')
 
 
-def test_initializers():
+def test_domain_cpp_ast_initializers():
     idsMember = {1: 'v__T', 2: '1v'}
     idsFunction = {1: 'f__T', 2: '1f1T'}
     idsTemplate = {2: 'I_1TE1fv', 4: 'I_1TE1fvv'}
@@ -912,7 +933,7 @@ def test_initializers():
     check('member', 'T v = T{}', idsMember)
 
 
-def test_attributes():
+def test_domain_cpp_ast_attributes():
     # style: C++
     check('member', '[[]] int f', {1: 'f__i', 2: '1f'})
     check('member', '[ [ ] ] int f', {1: 'f__i', 2: '1f'},
@@ -960,7 +981,7 @@ def test_attributes():
     check('function', 'void f() [[attr1]] [[attr2]]', {1: 'f', 2: '1fv'})
 
 
-def test_xref_parsing():
+def test_domain_cpp_ast_xref_parsing():
     def check(target):
         class Config:
             cpp_id_attributes = ["id_attr"]
@@ -993,7 +1014,7 @@ def filter_warnings(warning, file):
 
 
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
-def test_build_domain_cpp_multi_decl_lookup(app, status, warning):
+def test_domain_cpp_build_multi_decl_lookup(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "lookup-key-overload")
     assert len(ws) == 0
@@ -1003,7 +1024,7 @@ def test_build_domain_cpp_multi_decl_lookup(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
-def test_build_domain_cpp_warn_template_param_qualified_name(app, status, warning):
+def test_domain_cpp_build_warn_template_param_qualified_name(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "warn-template-param-qualified-name")
     assert len(ws) == 2
@@ -1012,14 +1033,14 @@ def test_build_domain_cpp_warn_template_param_qualified_name(app, status, warnin
 
 
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
-def test_build_domain_cpp_backslash_ok_true(app, status, warning):
+def test_domain_cpp_build_backslash_ok_true(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "backslash")
     assert len(ws) == 0
 
 
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
-def test_build_domain_cpp_semicolon(app, status, warning):
+def test_domain_cpp_build_semicolon(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "semicolon")
     assert len(ws) == 0
@@ -1027,7 +1048,7 @@ def test_build_domain_cpp_semicolon(app, status, warning):
 
 @pytest.mark.sphinx(testroot='domain-cpp',
                     confoverrides={'nitpicky': True, 'strip_signature_backslash': True})
-def test_build_domain_cpp_backslash_ok_false(app, status, warning):
+def test_domain_cpp_build_backslash_ok_false(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "backslash")
     assert len(ws) == 1
@@ -1035,7 +1056,7 @@ def test_build_domain_cpp_backslash_ok_false(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
-def test_build_domain_cpp_anon_dup_decl(app, status, warning):
+def test_domain_cpp_build_anon_dup_decl(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "anon-dup-decl")
     assert len(ws) == 2
@@ -1044,7 +1065,7 @@ def test_build_domain_cpp_anon_dup_decl(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='domain-cpp')
-def test_build_domain_cpp_misuse_of_roles(app, status, warning):
+def test_domain_cpp_build_misuse_of_roles(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "roles-targets-ok")
     assert len(ws) == 0
@@ -1092,7 +1113,7 @@ def test_build_domain_cpp_misuse_of_roles(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'add_function_parentheses': True})
-def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, warning):
+def test_domain_cpp_build_with_add_function_parentheses_is_True(app, status, warning):
     app.builder.build_all()
 
     def check(spec, text, file):
@@ -1133,7 +1154,7 @@ def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, war
 
 
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'add_function_parentheses': False})
-def test_build_domain_cpp_with_add_function_parentheses_is_False(app, status, warning):
+def test_domain_cpp_build_with_add_function_parentheses_is_False(app, status, warning):
     app.builder.build_all()
 
     def check(spec, text, file):
@@ -1174,7 +1195,7 @@ def test_build_domain_cpp_with_add_function_parentheses_is_False(app, status, wa
 
 
 @pytest.mark.sphinx(testroot='domain-cpp')
-def test_xref_consistency(app, status, warning):
+def test_domain_cpp_build_xref_consistency(app, status, warning):
     app.builder.build_all()
 
     test = 'xref_consistency.html'
@@ -1237,33 +1258,15 @@ not found in `{test}`
     assert any_role.classes == texpr_role.content_classes['a'], expect
 
 
-def test_noindexentry(app):
-    text = (".. cpp:function:: void f()\n"
-            ".. cpp:function:: void g()\n"
-            "   :noindexentry:\n")
-    doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
-    assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C++ function)', '_CPPv41fv', '', None)])
-    assert_node(doctree[2], addnodes.index, entries=[])
-
-
-def test_mix_decl_duplicate(app, warning):
-    # Issue 8270
-    text = (".. cpp:struct:: A\n"
-            ".. cpp:function:: void A()\n"
-            ".. cpp:struct:: A\n")
-    restructuredtext.parse(app, text)
-    ws = warning.getvalue().split("\n")
-    assert len(ws) == 5
-    assert "index.rst:2: WARNING: Duplicate C++ declaration, also defined at index:1." in ws[0]
-    assert "Declaration is '.. cpp:function:: void A()'." in ws[1]
-    assert "index.rst:3: WARNING: Duplicate C++ declaration, also defined at index:1." in ws[2]
-    assert "Declaration is '.. cpp:struct:: A'." in ws[3]
-    assert ws[4] == ""
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+def test_domain_cpp_build_field_role(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "field-role")
+    assert len(ws) == 0
 
 
 @pytest.mark.sphinx(testroot='domain-cpp-intersphinx', confoverrides={'nitpicky': True})
-def test_intersphinx(tempdir, app, status, warning):
+def test_domain_cpp_build_intersphinx(tempdir, app, status, warning):
     origSource = """\
 .. cpp:class:: _class
 .. cpp:struct:: _struct
@@ -1323,3 +1326,28 @@ _var cpp:member 1 index.html#_CPPv44$ -
     app.builder.build_all()
     ws = filter_warnings(warning, "index")
     assert len(ws) == 0
+
+
+def test_domain_cpp_parse_noindexentry(app):
+    text = (".. cpp:function:: void f()\n"
+            ".. cpp:function:: void g()\n"
+            "   :noindexentry:\n")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
+    assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C++ function)', '_CPPv41fv', '', None)])
+    assert_node(doctree[2], addnodes.index, entries=[])
+
+
+def test_domain_cpp_parse_mix_decl_duplicate(app, warning):
+    # Issue 8270
+    text = (".. cpp:struct:: A\n"
+            ".. cpp:function:: void A()\n"
+            ".. cpp:struct:: A\n")
+    restructuredtext.parse(app, text)
+    ws = warning.getvalue().split("\n")
+    assert len(ws) == 5
+    assert "index.rst:2: WARNING: Duplicate C++ declaration, also defined at index:1." in ws[0]
+    assert "Declaration is '.. cpp:function:: void A()'." in ws[1]
+    assert "index.rst:3: WARNING: Duplicate C++ declaration, also defined at index:1." in ws[2]
+    assert "Declaration is '.. cpp:struct:: A'." in ws[3]
+    assert ws[4] == ""

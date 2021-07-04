@@ -93,6 +93,9 @@ class SphinxComponentRegistry:
         self.html_inline_math_renderers: Dict[str, Tuple[Callable, Callable]] = {}
         self.html_block_math_renderers: Dict[str, Tuple[Callable, Callable]] = {}
 
+        #: HTML assets
+        self.html_assets_policy: str = 'per_page'
+
         #: HTML themes
         self.html_themes: Dict[str, str] = {}
 

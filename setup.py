@@ -44,8 +44,11 @@ extras_require = {
     'lint': [
         'flake8>=3.5.0',
         'isort',
-        'mypy>=0.800',
+        'mypy>=0.900',
         'docutils-stubs',
+        "types-typed-ast",
+        "types-pkg_resources",
+        "types-requests",
     ],
     'test': [
         'pytest',
@@ -173,7 +176,7 @@ else:
 setup(
     name='Sphinx',
     version=sphinx.__version__,
-    url='http://sphinx-doc.org/',
+    url='https://sphinx-doc.org/',
     download_url='https://pypi.org/project/Sphinx/',
     license='BSD',
     author='Georg Brandl',
