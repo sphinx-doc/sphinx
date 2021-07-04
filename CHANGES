@@ -55,6 +55,9 @@ Features added
 * #9097: Optimize the paralell build
 * #9131: Add :confval:`nitpick_ignore_regex` to ignore nitpicky warnings using
   regular expressions
+* #9174: Add ``Sphinx.set_html_assets_policy`` to tell extensions to include
+  HTML assets in all the pages. Extensions can check this via
+  ``Sphinx.registry.html_assets_policy``
 * C++, add support for
 
   - ``inline`` variables,
