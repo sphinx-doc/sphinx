@@ -678,7 +678,7 @@ dl > dd:last-child > :last-child {
     margin-bottom: 0;
 }
 
-dt:target, span.highlighted {
+dt:target, span.highlighted, .sig span:target {
     background-color: #fbe54e;
 }
 

@@ -378,7 +378,7 @@ dd {
     margin-left: 30px;
 }
 
-dt:target, .highlighted {
+dt:target, .highlighted, .sig span:target {
     background-color: #ddd;
 }
 

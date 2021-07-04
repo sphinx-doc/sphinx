@@ -37,6 +37,14 @@ def parse(name, string):
     return ast
 
 
+class MockEnv:
+    i = 0
+
+    def new_serialno(self, category: str = '') -> int:
+        MockEnv.i += 1
+        return MockEnv.i - 1
+
+
 def _check(name, input, idDict, output, key, asTextOutput):
     if key is None:
         key = name
@@ -61,8 +69,8 @@ def _check(name, input, idDict, output, key, asTextOutput):
         print("Result:   ", res)
         print("Expected: ", outputAst)
         raise DefinitionError("")
-    rootSymbol = Symbol(None, None, None, None, None, None, None)
-    symbol = rootSymbol.add_declaration(ast, docname="TestDoc", line=42)
+    rootSymbol = Symbol(None, None, None, None, None, None, None, None)
+    symbol = rootSymbol.add_declaration(ast, docname="TestDoc", line=42, env=MockEnv())
     parentNode = addnodes.desc()
     signode = addnodes.desc_signature(input, '')
     parentNode += signode
@@ -142,7 +150,10 @@ def test_domain_cpp_ast_expressions():
     def exprCheck(expr, id, id4=None):
         ids = 'IE1CIA%s_1aE'
         # call .format() on the expr to unescape double curly braces
-        idDict = {2: ids % expr.format(), 3: ids % id}
+        if id is not None:
+            idDict = {2: ids % expr.format(), 3: ids % id}
+        else:
+            idDict = {2: ids % expr.format(), 3: None}
         if id4 is not None:
             idDict[4] = ids % id4
         check('class', 'template<> {key}C<a[%s]>' % expr, idDict)
@@ -151,14 +162,15 @@ def test_domain_cpp_ast_expressions():
             cpp_id_attributes = ["id_attr"]
             cpp_paren_attributes = ["paren_attr"]
 
-        parser = DefinitionParser(expr, location=None,
+        parser = DefinitionParser(expr.format(), location=None,
                                   config=Config())
         parser.allowFallbackExpressionParsing = False
         ast = parser.parse_expression()
         res = str(ast)
-        if res != expr:
+        if res != expr.format():
             print("")
             print("Input:    ", expr)
+            print("FInput:   ", expr.format())
             print("Result:   ", res)
             raise DefinitionError("")
         displayString = ast.get_display_string()
@@ -166,6 +178,7 @@ def test_domain_cpp_ast_expressions():
             # note: if the expression contains an anon name then this will trigger a falsely
             print("")
             print("Input:    ", expr)
+            print("FInput:   ", expr.format())
             print("Result:   ", res)
             print("Display:  ", displayString)
             raise DefinitionError("")
@@ -355,6 +368,25 @@ def test_domain_cpp_ast_expressions():
 
     # pack expansion
     exprCheck('a(b(c, 1 + d...)..., e(f..., g))', 'cl1aspcl1b1cspplL1E1dEcl1esp1f1gEE')
+
+    # requires expressions
+    # --------------------
+    requires_v4_id = 'missing_requires_expression_mangling__dont_rely_on_this_link'
+    # non-parametrised
+    exprCheck('requires {{}}', None, requires_v4_id)
+    exprCheck('requires {{ typename T::type; }}', None, requires_v4_id)
+    exprCheck('requires {{ {{ a++ }}; }}', None, requires_v4_id)
+    exprCheck('requires {{ {{ a++ }} noexcept; }}', None, requires_v4_id)
+    exprCheck('requires {{ {{ a++ }} -> int; }}', None, requires_v4_id)
+    exprCheck('requires {{ {{ a++ }} noexcept -> int; }}', None, requires_v4_id)
+    exprCheck('requires {{ requires C<T>; }}', None, requires_v4_id)
+    exprCheck('requires {{ a++; }}', None, requires_v4_id)
+    exprCheck('requires {{ typename T::type;'
+              ' {{ a++ }} noexcept -> int;'
+              ' requires C<T>;'
+              ' a++; }}', None, requires_v4_id)
+    # parametrised
+    exprCheck('requires(T a) {{}}', None, requires_v4_id)
 
 
 def test_domain_cpp_ast_type_definitions():
