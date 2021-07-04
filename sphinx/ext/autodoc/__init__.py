@@ -1982,11 +1982,13 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
             self.add_line('   :annotation: %s' % self.options.annotation,
                           sourcename)
         else:
-            # obtain annotation for this data
-            annotations = get_type_hints(self.parent, None, self.config.autodoc_type_aliases)
-            if self.objpath[-1] in annotations:
-                objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
-                self.add_line('   :type: ' + objrepr, sourcename)
+            if self.config.autodoc_typehints != 'none':
+                # obtain annotation for this data
+                annotations = get_type_hints(self.parent, None,
+                                             self.config.autodoc_type_aliases)
+                if self.objpath[-1] in annotations:
+                    objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
+                    self.add_line('   :type: ' + objrepr, sourcename)
 
             try:
                 if self.options.no_value or self.should_suppress_value_header():
@@ -2584,11 +2586,13 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
         elif self.options.annotation:
             self.add_line('   :annotation: %s' % self.options.annotation, sourcename)
         else:
-            # obtain type annotation for this attribute
-            annotations = get_type_hints(self.parent, None, self.config.autodoc_type_aliases)
-            if self.objpath[-1] in annotations:
-                objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
-                self.add_line('   :type: ' + objrepr, sourcename)
+            if self.config.autodoc_typehints != 'none':
+                # obtain type annotation for this attribute
+                annotations = get_type_hints(self.parent, None,
+                                             self.config.autodoc_type_aliases)
+                if self.objpath[-1] in annotations:
+                    objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
+                    self.add_line('   :type: ' + objrepr, sourcename)
 
             try:
                 if self.options.no_value or self.should_suppress_value_header():
@@ -2672,7 +2676,7 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
         if inspect.isabstractmethod(self.object):
             self.add_line('   :abstractmethod:', sourcename)
 
-        if safe_getattr(self.object, 'fget', None):
+        if safe_getattr(self.object, 'fget', None) and self.config.autodoc_typehints != 'none':
             try:
                 signature = inspect.signature(self.object.fget,
                                               type_aliases=self.config.autodoc_type_aliases)
