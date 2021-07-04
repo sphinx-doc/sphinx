@@ -9,13 +9,14 @@
 # Hsiaoming Yang <me@lepture.com>, 2018
 # Liang-Bo Wang <me@liang2.tw>, 2016
 # Liang-Bo Wang <me@liang2.tw>, 2016-2017
+# Steven Hsu <hsuhaochun@gmail.com>, 2021
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-06-06 00:16+0000\n"
-"PO-Revision-Date: 2021-05-11 13:54+0000\n"
-"Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
+"POT-Creation-Date: 2021-07-04 00:08+0000\n"
+"PO-Revision-Date: 2021-06-21 00:58+0000\n"
+"Last-Translator: Steven Hsu <hsuhaochun@gmail.com>\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/sphinx-doc/sphinx-1/language/zh_TW/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -78,7 +79,7 @@ msgstr "目前在 conf.py 裡指定的 'setup' 並非一個 Python 的可呼叫�
 msgid "loading translations [%s]... "
 msgstr ""
 
-#: sphinx/application.py:296 sphinx/util/__init__.py:522
+#: sphinx/application.py:296 sphinx/util/__init__.py:539
 msgid "done"
 msgstr "完成"
 
@@ -631,7 +632,7 @@ msgstr ""
 msgid "duplicated ToC entry found: %s"
 msgstr ""
 
-#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:719
+#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:716
 #: sphinx/builders/latex/__init__.py:421 sphinx/builders/texinfo.py:176
 msgid "copying images... "
 msgstr ""
@@ -641,7 +642,7 @@ msgstr ""
 msgid "cannot read image file %r: copying it instead"
 msgstr ""
 
-#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:727
+#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:724
 #: sphinx/builders/latex/__init__.py:429 sphinx/builders/texinfo.py:186
 #, python-format
 msgid "cannot copy image file %r: %s"
@@ -766,7 +767,7 @@ msgstr ""
 msgid "conf value \"version\" should not be empty for EPUB3"
 msgstr ""
 
-#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1110
+#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1107
 #, python-format
 msgid "invalid css_file: %r, ignored"
 msgstr ""
@@ -884,7 +885,7 @@ msgstr ""
 msgid "The text files are in %(outdir)s."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1063 sphinx/builders/text.py:77
+#: sphinx/builders/html/__init__.py:1060 sphinx/builders/text.py:77
 #: sphinx/builders/xml.py:91
 #, python-format
 msgid "error writing file %s: %s"
@@ -916,158 +917,158 @@ msgid "Failed to read build info file: %r"
 msgstr ""
 
 #: sphinx/builders/html/__init__.py:466 sphinx/builders/latex/__init__.py:187
-#: sphinx/transforms/__init__.py:116 sphinx/writers/manpage.py:99
+#: sphinx/transforms/__init__.py:116 sphinx/writers/manpage.py:102
 #: sphinx/writers/texinfo.py:233
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%Y 年 %m 月 %d 日"
 
-#: sphinx/builders/html/__init__.py:478 sphinx/themes/basic/defindex.html:30
+#: sphinx/builders/html/__init__.py:475 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
 msgstr "總索引"
 
-#: sphinx/builders/html/__init__.py:478
+#: sphinx/builders/html/__init__.py:475
 msgid "index"
 msgstr "索引"
 
-#: sphinx/builders/html/__init__.py:540
+#: sphinx/builders/html/__init__.py:537
 msgid "next"
 msgstr "下一頁"
 
-#: sphinx/builders/html/__init__.py:549
+#: sphinx/builders/html/__init__.py:546
 msgid "previous"
 msgstr "上一頁"
 
-#: sphinx/builders/html/__init__.py:643
+#: sphinx/builders/html/__init__.py:640
 msgid "generating indices"
-msgstr ""
+msgstr "正在產生索引"
 
-#: sphinx/builders/html/__init__.py:658
+#: sphinx/builders/html/__init__.py:655
 msgid "writing additional pages"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:737
+#: sphinx/builders/html/__init__.py:734
 msgid "copying downloadable files... "
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:745
+#: sphinx/builders/html/__init__.py:742
 #, python-format
 msgid "cannot copy downloadable file %r: %s"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:777 sphinx/builders/html/__init__.py:789
+#: sphinx/builders/html/__init__.py:774 sphinx/builders/html/__init__.py:786
 #, python-format
 msgid "Failed to copy a file in html_static_file: %s: %r"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:810
+#: sphinx/builders/html/__init__.py:807
 msgid "copying static files"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:826
+#: sphinx/builders/html/__init__.py:823
 #, python-format
 msgid "cannot copy static file %r"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:831
+#: sphinx/builders/html/__init__.py:828
 msgid "copying extra files"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:837
+#: sphinx/builders/html/__init__.py:834
 #, python-format
 msgid "cannot copy extra file %r"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:844
+#: sphinx/builders/html/__init__.py:841
 #, python-format
 msgid "Failed to write build info file: %r"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:892
+#: sphinx/builders/html/__init__.py:889
 msgid ""
 "search index couldn't be loaded, but not all documents will be built: the "
 "index will be incomplete."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:953
+#: sphinx/builders/html/__init__.py:950
 #, python-format
 msgid "page %s matches two patterns in html_sidebars: %r and %r"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1046
+#: sphinx/builders/html/__init__.py:1043
 #, python-format
 msgid ""
 "a Unicode error occurred when rendering the page %s. Please make sure all "
 "config values that contain non-ASCII content are Unicode strings."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1051
+#: sphinx/builders/html/__init__.py:1048
 #, python-format
 msgid ""
 "An error happened in rendering the page %s.\n"
 "Reason: %r"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1080
+#: sphinx/builders/html/__init__.py:1077
 msgid "dumping object inventory"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1085
+#: sphinx/builders/html/__init__.py:1082
 #, python-format
 msgid "dumping search index in %s"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1127
+#: sphinx/builders/html/__init__.py:1124
 #, python-format
 msgid "invalid js_file: %r, ignored"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1214
+#: sphinx/builders/html/__init__.py:1211
 msgid "Many math_renderers are registered. But no math_renderer is selected."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1217
+#: sphinx/builders/html/__init__.py:1214
 #, python-format
 msgid "Unknown math_renderer %r is given."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1225
+#: sphinx/builders/html/__init__.py:1222
 #, python-format
 msgid "html_extra_path entry %r does not exist"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1229
+#: sphinx/builders/html/__init__.py:1226
 #, python-format
 msgid "html_extra_path entry %r is placed inside outdir"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1238
+#: sphinx/builders/html/__init__.py:1235
 #, python-format
 msgid "html_static_path entry %r does not exist"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1242
+#: sphinx/builders/html/__init__.py:1239
 #, python-format
 msgid "html_static_path entry %r is placed inside outdir"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1251 sphinx/builders/latex/__init__.py:433
+#: sphinx/builders/html/__init__.py:1248 sphinx/builders/latex/__init__.py:433
 #, python-format
 msgid "logo file %r does not exist"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1260
+#: sphinx/builders/html/__init__.py:1257
 #, python-format
 msgid "favicon file %r does not exist"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1280
+#: sphinx/builders/html/__init__.py:1277
 msgid ""
 "html_add_permalinks has been deprecated since v3.5.0. Please use "
 "html_permalinks and html_permalinks_icon instead."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1306
+#: sphinx/builders/html/__init__.py:1303
 #, python-format
 msgid "%s %s documentation"
 msgstr "%s %s 說明文件"
@@ -1837,73 +1838,73 @@ msgstr ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: sphinx/domains/c.py:1969 sphinx/domains/c.py:3282
+#: sphinx/domains/c.py:1974 sphinx/domains/c.py:3299
 #, python-format
 msgid ""
 "Duplicate C declaration, also defined at %s:%s.\n"
 "Declaration is '.. c:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/c.py:3116 sphinx/domains/cpp.py:6843
+#: sphinx/domains/c.py:3133 sphinx/domains/cpp.py:6931
 #: sphinx/domains/python.py:389 sphinx/ext/napoleon/docstring.py:736
 msgid "Parameters"
 msgstr "參數"
 
-#: sphinx/domains/c.py:3119 sphinx/domains/cpp.py:6852
+#: sphinx/domains/c.py:3136 sphinx/domains/cpp.py:6940
 #: sphinx/domains/javascript.py:221 sphinx/domains/python.py:401
 msgid "Returns"
-msgstr "傳回"
+msgstr "回傳"
 
-#: sphinx/domains/c.py:3121 sphinx/domains/javascript.py:223
+#: sphinx/domains/c.py:3138 sphinx/domains/javascript.py:223
 #: sphinx/domains/python.py:403
 msgid "Return type"
-msgstr "傳回型態"
+msgstr "回傳型態"
 
-#: sphinx/domains/c.py:3207
+#: sphinx/domains/c.py:3224
 #, python-format
 msgid "%s (C %s)"
-msgstr ""
+msgstr "%s (C %s)"
 
-#: sphinx/domains/c.py:3714 sphinx/domains/cpp.py:7490
+#: sphinx/domains/c.py:3731 sphinx/domains/cpp.py:7578
 msgid "member"
 msgstr "成員函數"
 
-#: sphinx/domains/c.py:3715
+#: sphinx/domains/c.py:3732
 msgid "variable"
 msgstr "變數"
 
-#: sphinx/domains/c.py:3716 sphinx/domains/cpp.py:7489
+#: sphinx/domains/c.py:3733 sphinx/domains/cpp.py:7577
 #: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1107
 msgid "function"
 msgstr "函式"
 
-#: sphinx/domains/c.py:3717
+#: sphinx/domains/c.py:3734
 msgid "macro"
 msgstr "巨集"
 
-#: sphinx/domains/c.py:3718
+#: sphinx/domains/c.py:3735
 msgid "struct"
-msgstr ""
+msgstr "結構"
 
-#: sphinx/domains/c.py:3719 sphinx/domains/cpp.py:7488
+#: sphinx/domains/c.py:3736 sphinx/domains/cpp.py:7576
 msgid "union"
-msgstr ""
+msgstr "union"
 
-#: sphinx/domains/c.py:3720 sphinx/domains/cpp.py:7493
+#: sphinx/domains/c.py:3737 sphinx/domains/cpp.py:7581
 msgid "enum"
 msgstr "enum"
 
-#: sphinx/domains/c.py:3721 sphinx/domains/cpp.py:7494
+#: sphinx/domains/c.py:3738 sphinx/domains/cpp.py:7582
 msgid "enumerator"
 msgstr "enumerator"
 
-#: sphinx/domains/c.py:3722 sphinx/domains/cpp.py:7491
+#: sphinx/domains/c.py:3739 sphinx/domains/cpp.py:7579
 msgid "type"
-msgstr "類型"
+msgstr "型別"
 
-#: sphinx/domains/c.py:3724 sphinx/domains/cpp.py:7496
+#: sphinx/domains/c.py:3741 sphinx/domains/cpp.py:7584
 msgid "function parameter"
-msgstr ""
+msgstr "函式參數"
 
 #: sphinx/domains/changeset.py:28
 #, python-format
@@ -1923,45 +1924,45 @@ msgstr "%s 版後已棄用"
 #: sphinx/domains/citation.py:75
 #, python-format
 msgid "duplicate citation %s, other instance in %s"
-msgstr ""
+msgstr "重複引用 %s，亦出現於 %s"
 
 #: sphinx/domains/citation.py:86
 #, python-format
 msgid "Citation [%s] is not referenced."
 msgstr ""
 
-#: sphinx/domains/cpp.py:4653 sphinx/domains/cpp.py:7045
+#: sphinx/domains/cpp.py:4710 sphinx/domains/cpp.py:7133
 #, python-format
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/cpp.py:6846
+#: sphinx/domains/cpp.py:6934
 msgid "Template Parameters"
-msgstr "範本參數"
+msgstr "模板參數"
 
-#: sphinx/domains/cpp.py:6849 sphinx/domains/javascript.py:218
+#: sphinx/domains/cpp.py:6937 sphinx/domains/javascript.py:218
 msgid "Throws"
 msgstr "拋出"
 
-#: sphinx/domains/cpp.py:6968
+#: sphinx/domains/cpp.py:7056
 #, python-format
 msgid "%s (C++ %s)"
-msgstr ""
+msgstr "%s (C++ %s)"
 
-#: sphinx/domains/cpp.py:7487 sphinx/domains/javascript.py:328
+#: sphinx/domains/cpp.py:7575 sphinx/domains/javascript.py:328
 #: sphinx/domains/python.py:1109
 msgid "class"
 msgstr "類別"
 
-#: sphinx/domains/cpp.py:7492
+#: sphinx/domains/cpp.py:7580
 msgid "concept"
-msgstr "concept"
+msgstr "概念"
 
-#: sphinx/domains/cpp.py:7497
+#: sphinx/domains/cpp.py:7585
 msgid "template parameter"
-msgstr ""
+msgstr "模板參數"
 
 #: sphinx/domains/javascript.py:136
 #, python-format
@@ -2003,7 +2004,7 @@ msgstr "成員函式"
 
 #: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1108
 msgid "data"
-msgstr "data"
+msgstr "資料"
 
 #: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1114
 msgid "attribute"
@@ -2022,7 +2023,7 @@ msgstr ""
 #: sphinx/domains/math.py:65
 #, python-format
 msgid "duplicate label of equation %s, other instance in %s"
-msgstr "重覆公式標籤 %s，亦出現於 %s"
+msgstr "重複公式標籤 %s，亦出現於 %s"
 
 #: sphinx/domains/math.py:119 sphinx/writers/latex.py:2070
 #, python-format
@@ -2059,7 +2060,7 @@ msgstr "變數"
 
 #: sphinx/domains/python.py:398
 msgid "Raises"
-msgstr "丟出"
+msgstr "引發"
 
 #: sphinx/domains/python.py:618 sphinx/domains/python.py:753
 #, python-format
@@ -2095,7 +2096,7 @@ msgstr "%s() (%s 的類別成員)"
 #: sphinx/domains/python.py:760
 #, python-format
 msgid "%s() (%s property)"
-msgstr ""
+msgstr "%s() (%s 的特性)"
 
 #: sphinx/domains/python.py:762
 #, python-format
@@ -2105,7 +2106,7 @@ msgstr "%s() (%s 的靜態成員)"
 #: sphinx/domains/python.py:882
 #, python-format
 msgid "%s (%s property)"
-msgstr ""
+msgstr "%s (%s 的特性)"
 
 #: sphinx/domains/python.py:1036
 msgid "Python Module Index"
@@ -2129,7 +2130,7 @@ msgstr "靜態成員"
 
 #: sphinx/domains/python.py:1115
 msgid "property"
-msgstr ""
+msgstr "特性"
 
 #: sphinx/domains/python.py:1173
 #, python-format
@@ -2234,7 +2235,7 @@ msgstr "程式選項"
 
 #: sphinx/domains/std.py:569
 msgid "document"
-msgstr ""
+msgstr "文件"
 
 #: sphinx/domains/std.py:605
 msgid "Module Index"
@@ -2248,12 +2249,12 @@ msgstr "搜尋頁面"
 #: sphinx/ext/autosectionlabel.py:51
 #, python-format
 msgid "duplicate label %s, other instance in %s"
-msgstr ""
+msgstr "重複標籤 %s，亦出現於 %s"
 
 #: sphinx/domains/std.py:674
 #, python-format
 msgid "duplicate %s description of %s, other instance in %s"
-msgstr ""
+msgstr "重複 %s 的描述 %s，亦出現於 %s"
 
 #: sphinx/domains/std.py:870
 msgid "numfig is disabled. :numref: is ignored."
@@ -3029,19 +3030,19 @@ msgstr "關鍵字引數"
 
 #: sphinx/ext/napoleon/docstring.py:657
 msgid "Example"
-msgstr ""
+msgstr "範例"
 
 #: sphinx/ext/napoleon/docstring.py:658
 msgid "Examples"
-msgstr ""
+msgstr "範例"
 
 #: sphinx/ext/napoleon/docstring.py:718
 msgid "Notes"
-msgstr ""
+msgstr "備註"
 
 #: sphinx/ext/napoleon/docstring.py:727
 msgid "Other Parameters"
-msgstr ""
+msgstr "其他參數"
 
 #: sphinx/ext/napoleon/docstring.py:763
 msgid "Receives"
@@ -3127,15 +3128,15 @@ msgstr "繼續上一頁"
 #: sphinx/templates/latex/longtable.tex_t:29
 #: sphinx/templates/latex/sphinxmessages.sty_t:9
 msgid "continues on next page"
-msgstr ""
+msgstr "繼續下一頁"
 
 #: sphinx/templates/latex/sphinxmessages.sty_t:10
 msgid "Non-alphabetical"
-msgstr ""
+msgstr "非依字母順序"
 
 #: sphinx/templates/latex/sphinxmessages.sty_t:12
 msgid "Numbers"
-msgstr ""
+msgstr "數字"
 
 #: sphinx/templates/latex/sphinxmessages.sty_t:13
 msgid "page"
@@ -3144,7 +3145,7 @@ msgstr "頁"
 #: sphinx/themes/agogo/layout.html:38 sphinx/themes/basic/globaltoc.html:10
 #: sphinx/themes/basic/localtoc.html:11 sphinx/themes/scrolls/layout.html:41
 msgid "Table of Contents"
-msgstr ""
+msgstr "目錄"
 
 #: sphinx/themes/agogo/layout.html:43 sphinx/themes/basic/layout.html:150
 #: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:22
@@ -3153,7 +3154,7 @@ msgstr "搜尋"
 
 #: sphinx/themes/agogo/layout.html:46 sphinx/themes/basic/searchbox.html:16
 msgid "Go"
-msgstr "搜"
+msgstr "前往"
 
 #: sphinx/themes/agogo/layout.html:90 sphinx/themes/basic/sourcelink.html:15
 msgid "Show Source"
@@ -3185,11 +3186,11 @@ msgstr "完整目錄"
 
 #: sphinx/themes/basic/defindex.html:24
 msgid "lists all sections and subsections"
-msgstr "列出所有段落與子段落"
+msgstr "列出所有章節與小節"
 
 #: sphinx/themes/basic/defindex.html:26
 msgid "search this documentation"
-msgstr "搜尋本說明文件"
+msgstr "搜尋這份說明文件"
 
 #: sphinx/themes/basic/defindex.html:28
 msgid "Global Module Index"
@@ -3197,7 +3198,7 @@ msgstr "全域模組索引"
 
 #: sphinx/themes/basic/defindex.html:29
 msgid "quick access to all modules"
-msgstr "快速前往所有的模組"
+msgstr "迅速找到所有模組"
 
 #: sphinx/themes/basic/defindex.html:31
 msgid "all functions, classes, terms"
@@ -3217,7 +3218,7 @@ msgstr "單頁完整索引"
 
 #: sphinx/themes/basic/genindex-split.html:16
 msgid "Index pages by letter"
-msgstr "索引頁面按字母"
+msgstr "按字母索引頁面"
 
 #: sphinx/themes/basic/genindex-split.html:25
 msgid "can be huge"
@@ -3260,7 +3261,7 @@ msgstr "最後更新於 %(last_updated)s。"
 msgid ""
 "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
-msgstr ""
+msgstr "使用 <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s 建立。"
 
 #: sphinx/themes/basic/opensearch.xml:4
 #, python-format
@@ -3293,7 +3294,7 @@ msgstr "請啟用 Javascript 以開啟搜尋功能。"
 msgid ""
 "Searching for multiple words only shows matches that contain\n"
 "    all words."
-msgstr ""
+msgstr "搜尋多個關鍵字時，只會顯示包含所有關鍵字的結果。"
 
 #: sphinx/themes/basic/search.html:41
 msgid "search"
@@ -3323,7 +3324,7 @@ msgstr "本頁"
 #: sphinx/themes/basic/changes/versionchanges.html:12
 #, python-format
 msgid "Changes in Version %(version)s &#8212; %(docstitle)s"
-msgstr "於 %(version)s 版本中的所有更變 &#8212; %(docstitle)s"
+msgstr "於 %(version)s 版本中的所有變更 &#8212; %(docstitle)s"
 
 #: sphinx/themes/basic/changes/rstsource.html:5
 #, python-format
@@ -3333,19 +3334,19 @@ msgstr "%(filename)s &#8212; %(docstitle)s"
 #: sphinx/themes/basic/changes/versionchanges.html:17
 #, python-format
 msgid "Automatically generated list of changes in version %(version)s"
-msgstr "自動產生的 %(version)s 版本改變列表"
+msgstr "自動產生的 %(version)s 版本變更列表"
 
 #: sphinx/themes/basic/changes/versionchanges.html:18
 msgid "Library changes"
-msgstr "程式庫的改變"
+msgstr "程式庫的變更"
 
 #: sphinx/themes/basic/changes/versionchanges.html:23
 msgid "C API changes"
-msgstr "C API 改變"
+msgstr "C API 的變更"
 
 #: sphinx/themes/basic/changes/versionchanges.html:25
 msgid "Other changes"
-msgstr "其他改變"
+msgstr "其他變更"
 
 #: sphinx/themes/basic/static/doctools.js:199 sphinx/writers/html.py:434
 #: sphinx/writers/html.py:439 sphinx/writers/html5.py:385
@@ -3378,7 +3379,7 @@ msgstr "搜尋完成，共找到 %s 頁面滿足搜尋條件。"
 
 #: sphinx/themes/basic/static/searchtools.js:355
 msgid ", in "
-msgstr " 於 "
+msgstr "，於 "
 
 #: sphinx/themes/classic/static/sidebar.js_t:83
 msgid "Expand sidebar"
@@ -3473,11 +3474,11 @@ msgstr ""
 msgid "undecodable source characters, replacing with \"?\": %r"
 msgstr ""
 
-#: sphinx/util/__init__.py:515
+#: sphinx/util/__init__.py:532
 msgid "skipped"
 msgstr ""
 
-#: sphinx/util/__init__.py:520
+#: sphinx/util/__init__.py:537
 msgid "failed"
 msgstr ""
 
@@ -3535,7 +3536,7 @@ msgstr ""
 
 #: sphinx/writers/html.py:411 sphinx/writers/html5.py:362
 msgid "Permalink to this term"
-msgstr ""
+msgstr "本術語的永久連結"
 
 #: sphinx/writers/html.py:443 sphinx/writers/html5.py:394
 msgid "Permalink to this table"
@@ -3575,10 +3576,10 @@ msgid ""
 "encountered title node not in section, topic, table, admonition or sidebar"
 msgstr ""
 
-#: sphinx/writers/latex.py:849 sphinx/writers/manpage.py:243
+#: sphinx/writers/latex.py:849 sphinx/writers/manpage.py:246
 #: sphinx/writers/texinfo.py:637
 msgid "Footnotes"
-msgstr "頁尾"
+msgstr "註解"
 
 #: sphinx/writers/latex.py:908
 msgid ""
@@ -3595,12 +3596,12 @@ msgstr ""
 msgid "unknown index entry type %s found"
 msgstr ""
 
-#: sphinx/writers/manpage.py:292 sphinx/writers/text.py:804
+#: sphinx/writers/manpage.py:295 sphinx/writers/text.py:804
 #, python-format
 msgid "[image: %s]"
 msgstr "[圖片：%s]"
 
-#: sphinx/writers/manpage.py:293 sphinx/writers/text.py:805
+#: sphinx/writers/manpage.py:296 sphinx/writers/text.py:805
 msgid "[image]"
 msgstr "[圖片]"
 

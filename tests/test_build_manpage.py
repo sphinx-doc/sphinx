@@ -27,6 +27,11 @@ def test_all(app, status, warning):
     assert '\n.B term1\n' in content
     assert '\nterm2 (\\fBstronged partially\\fP)\n' in content
 
+    # test samp with braces
+    assert '\n\\fIvariable_only\\fP\n' in content
+    assert '\n\\fIvariable\\fP\\fB and text\\fP\n' in content
+    assert '\n\\fBShow \\fP\\fIvariable\\fP\\fB in the middle\\fP\n' in content
+
     assert 'Footnotes' not in content
 
 

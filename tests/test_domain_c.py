@@ -15,16 +15,20 @@ import pytest
 
 from sphinx import addnodes
 from sphinx.addnodes import desc
-from sphinx.domains.c import DefinitionError, DefinitionParser, Symbol, _id_prefix, _max_id
+from sphinx.domains.c import (DefinitionError, DefinitionParser, Symbol, _id_prefix,
+                              _macroKeywords, _max_id)
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
 
+class Config:
+    c_id_attributes = ["id_attr", 'LIGHTGBM_C_EXPORT']
+    c_paren_attributes = ["paren_attr"]
+    c_extra_keywords = _macroKeywords
+
+
 def parse(name, string):
-    class Config:
-        c_id_attributes = ["id_attr", 'LIGHTGBM_C_EXPORT']
-        c_paren_attributes = ["paren_attr"]
     parser = DefinitionParser(string, location=None, config=Config())
     parser.allowFallbackExpressionParsing = False
     ast = parser.parse_declaration(name, name)
@@ -114,9 +118,6 @@ def check(name, input, idDict, output=None, key=None, asTextOutput=None):
 
 def test_domain_c_ast_expressions():
     def exprCheck(expr, output=None):
-        class Config:
-            c_id_attributes = ["id_attr"]
-            c_paren_attributes = ["paren_attr"]
         parser = DefinitionParser(expr, location=None, config=Config())
         parser.allowFallbackExpressionParsing = False
         ast = parser.parse_expression()
@@ -155,7 +156,8 @@ def test_domain_c_ast_expressions():
     # primary
     exprCheck('true')
     exprCheck('false')
-    ints = ['5', '0', '075', '0x0123456789ABCDEF', '0XF', '0b1', '0B1']
+    ints = ['5', '0', '075', '0x0123456789ABCDEF', '0XF', '0b1', '0B1',
+            "0b0'1'0", "00'1'2", "0x0'1'2", "1'2'3"]
     unsignedSuffix = ['', 'u', 'U']
     longSuffix = ['', 'l', 'L', 'll', 'LL']
     for i in ints:
@@ -170,14 +172,18 @@ def test_domain_c_ast_expressions():
                 '5e42', '5e+42', '5e-42',
                 '5.', '5.e42', '5.e+42', '5.e-42',
                 '.5', '.5e42', '.5e+42', '.5e-42',
-                '5.0', '5.0e42', '5.0e+42', '5.0e-42']:
+                '5.0', '5.0e42', '5.0e+42', '5.0e-42',
+                "1'2'3e7'8'9", "1'2'3.e7'8'9",
+                ".4'5'6e7'8'9", "1'2'3.4'5'6e7'8'9"]:
             expr = e + suffix
             exprCheck(expr)
         for e in [
                 'ApF', 'Ap+F', 'Ap-F',
                 'A.', 'A.pF', 'A.p+F', 'A.p-F',
                 '.A', '.ApF', '.Ap+F', '.Ap-F',
-                'A.B', 'A.BpF', 'A.Bp+F', 'A.Bp-F']:
+                'A.B', 'A.BpF', 'A.Bp+F', 'A.Bp-F',
+                "A'B'Cp1'2'3", "A'B'C.p1'2'3",
+                ".D'E'Fp1'2'3", "A'B'C.D'E'Fp1'2'3"]:
             expr = "0x" + e + suffix
             exprCheck(expr)
     exprCheck('"abc\\"cba"')  # string
@@ -521,6 +527,16 @@ def test_domain_c_ast_attributes():
     # issue michaeljones/breathe#500
     check('function', 'LIGHTGBM_C_EXPORT int LGBM_BoosterFree(int handle)',
           {1: 'LGBM_BoosterFree'})
+
+
+def test_extra_keywords():
+    with pytest.raises(DefinitionError,
+                       match='Expected identifier, got user-defined keyword: complex.'):
+        parse('function', 'void f(int complex)')
+    with pytest.raises(DefinitionError,
+                       match='Expected identifier, got user-defined keyword: complex.'):
+        parse('function', 'void complex(void)')
+
 
 # def test_print():
 #     # used for getting all the ids out for checking
