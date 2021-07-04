@@ -509,7 +509,7 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
 .. confval:: napoleon_preprocess_types
 
    True to convert the type definitions in the docstrings as references.
-   Defaults to *True*.
+   Defaults to *False*.
 
    .. versionadded:: 3.2.1
    .. versionchanged:: 3.5
