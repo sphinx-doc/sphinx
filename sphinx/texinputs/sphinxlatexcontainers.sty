@@ -3,15 +3,20 @@
 % change this info string if making any custom modification
 \ProvidesFile{sphinxlatexcontainers.sty}[2021/05/03 containers]
 
-% The purpose of this file is to provide a dummy environment sphinxclass
-% which will be inserted for each class in each container directive. The class
-% name will be passed as the argument to the environment. User-defined
-% formatting of directives can be achieved by renewing the definition of this
-% environment, and branching on the value of the argument.
+% The purpose of this file is to provide a dummy environment sphinxclass which
+% will be inserted for each class in each container directive. The class name
+% will be passed as the argument to the environment. 
+%
+% For a class foo, the user can define customised handling of that class by
+% defining the sphinxclassfoo LaTeX environment.
 
-\ifx\sphinxclass\undefined % poor man's "provideenvironment"
-    \newenvironment{sphinxclass}[1]{
-        \def\sphinxClassFunctionName{sphinxCLASS#1}%
-        \csname \sphinxClassFunctionName \endcsname}%
-    {\csname end\sphinxClassFunctionName \endcsname}%
-\fi
+\newenvironment{sphinxuseclass}[1]{%
+    \def\sphinxClassFunctionName{sphinxclass#1}%
+    \ltx@ifundefined{\sphinxClassFunctionName}%
+        {}% undefined so do nothing
+        {\expandafter\begin\expandafter{\sphinxClassFunctionName}}%
+{%
+    \ltx@ifundefined{\sphinxClassFunctionName}%
+        {}% we did nothing so we keep doing nothing
+        {\expandafter\end\expandafter{\sphinxClassFunctionName}}%
+}%
