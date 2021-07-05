@@ -346,7 +346,7 @@ As an example, create a new file ``docs/source/usage.rst`` (next to
       (.venv) $ pip install lumache
 
 This new file contains two :ref:`section <rst-sections>` headers, normal
-paragraph text, and a :ref:`code-block <rst-code-block>` directive that renders
+paragraph text, and a :rst:dir:`code-block` directive that renders
 a block of content as source code, with appropriate syntax highlighting
 (in this case, generic ``console`` text).
 

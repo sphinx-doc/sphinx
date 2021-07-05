@@ -488,8 +488,6 @@ __ https://pygments.org/docs/lexers
 
       .. versionadded:: 2.1
 
-.. _rst-code-block:
-
 .. rst:directive:: .. code-block:: [language]
 
    Example::
