@@ -70,6 +70,7 @@ Features added
     (e.g., ``Sortable auto &v``).
 
 * C, add support for digit separators in literals.
+* #9166: LaTeX: support containers in LaTeX output
 
 
 Bugs fixed
