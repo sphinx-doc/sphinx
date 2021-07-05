@@ -101,7 +101,7 @@ Bugs fixed
 Testing
 --------
 
-Release 4.0.3 (in development)
+Release 4.0.4 (in development)
 ==============================
 
 Dependencies
@@ -112,6 +112,18 @@ Incompatible changes
 
 Deprecated
 ----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 4.0.3 (released Jul 05, 2021)
+=====================================
 
 Features added
 --------------
@@ -133,9 +145,6 @@ Bugs fixed
 * #9354: C, remove special macro names from the keyword list.
   See also :confval:`c_extra_keywords`.
 * #9322: KeyError is raised on PropagateDescDomain transform
-
-Testing
---------
 
 Release 4.0.2 (released May 20, 2021)
 =====================================
