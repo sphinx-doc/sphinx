@@ -36,7 +36,7 @@ Setting up your project and development environment
 In a new directory, create a file called ``README.rst`` with the following
 content.
 
-.. code-block:: rest
+.. code-block:: rst
    :caption: README.rst
 
    Lumache
@@ -159,7 +159,7 @@ is written in reStructuredText, a powerful markup language.
 
 Modify the file as follows:
 
-.. code-block:: rest
+.. code-block:: rst
    :caption: docs/source/index.rst
 
    Welcome to Lumache's documentation!
@@ -330,7 +330,7 @@ grows.
 As an example, create a new file ``docs/source/usage.rst`` (next to
 ``index.rst``) with these contents:
 
-.. code-block:: rest
+.. code-block:: rst
    :caption: docs/source/usage.rst
 
    Usage
@@ -358,7 +358,7 @@ be a *subsection* of "Usage".
 To complete the process, add a ``toctree`` :ref:`directive <rst-directives>` at
 the end of ``index.rst`` including the document you just created, as follows:
 
-.. code-block:: rest
+.. code-block:: rst
    :caption: docs/source/index.rst
 
    Contents
@@ -397,7 +397,7 @@ them!
 To add a cross-reference, write this sentence right after the
 introduction paragraph in ``index.rst``:
 
-.. code-block:: rest
+.. code-block:: rst
    :caption: docs/source/index.rst
 
    Check out the :doc:`usage` section for further information.
@@ -412,7 +412,7 @@ explicit *label* that can act as a target.
 For example, to reference the "Installation" subsection, add a label right
 before the heading, as follows:
 
-.. code-block:: rest
+.. code-block:: rst
    :caption: docs/source/usage.rst
    :emphasize-lines: 4
 
@@ -428,7 +428,7 @@ before the heading, as follows:
 
 And make the sentence you added in ``index.rst`` look like this:
 
-.. code-block:: rest
+.. code-block:: rst
    :caption: docs/source/index.rst
 
    Check out the :doc:`usage` section for further information, including how to
