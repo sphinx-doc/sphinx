@@ -73,8 +73,11 @@ Glossary
 
      For more information, refer to :doc:`/usage/extensions/index`.
 
-   root document
+   master document
       The document that contains the root :rst:dir:`toctree` directive.
+
+   root document
+      Same as :term:`master document`.
 
    object
       The basic building block of Sphinx documentation.  Every "object
