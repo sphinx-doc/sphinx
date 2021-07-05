@@ -150,8 +150,8 @@ There we go! You created your first HTML documentation using Sphinx.
 First steps to document your project using Sphinx
 -------------------------------------------------
 
-Converting your documentation to HTML
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Building your HTML documentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``index.rst`` file that ``sphinx-quickstart`` created has some content
 already, and it gets rendered as the front page of your HTML documentation.  It
@@ -194,12 +194,12 @@ as before, or leverage the convenience script as follows:
 After running this command, you will see that ``index.html`` reflects the new
 changes!
 
-Exporting your documentation to other formats
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Building your documentation in other formats
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Sphinx supports a variety of formats apart from HTML, including PDF, EPUB,
-:ref:`and more <builders>`.  For example, to build your documentation as an
-e-book in EPUB format, run this command from the ``docs`` directory:
+:ref:`and more <builders>`.  For example, to build your documentation
+in EPUB format, run this command from the ``docs`` directory:
 
 .. code-block:: console
 
@@ -376,7 +376,7 @@ to the structure of your project, which so far looks like this:
    index
    └── usage
 
-If you export the documentation to HTML running ``make html``, you will see
+If you build the HTML documentation running ``make html``, you will see
 that the ``toctree`` gets rendered as a list of hyperlinks, and this allows you
 to navigate to the new page you just created.  Neat!
 
