@@ -250,7 +250,7 @@ Enabling a built-in extension
 
 In addition to these configuration values, you can customize Sphinx even more
 by using :doc:`extensions </usage/extensions/index>`.  Sphinx ships several
-:ref:`built-in ones <built-in-extensions>`, and there are many more
+:ref:`builtin ones <builtin-extensions>`, and there are many more
 :ref:`maintained by the community <third-party-extensions>`.
 
 For example, to enable the :mod:`sphinx.ext.duration` extension,
@@ -283,7 +283,7 @@ Using a third-party HTML theme
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Themes, on the other hand, are a way to customize the appearance of your
-documentation.  Sphinx has several :ref:`built-in themes <builtin-themes>`, and
+documentation.  Sphinx has several :ref:`builtin themes <builtin-themes>`, and
 there are also `third-party ones <https://sphinx-themes.org/>`_.
 
 For example, to use the `Furo <https://pradyunsg.me/furo/>`_ third-party theme

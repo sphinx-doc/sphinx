@@ -10,7 +10,7 @@ This chapter describes the extensions bundled with Sphinx.  For the API
 documentation on writing your own extension, refer to :ref:`dev-extensions`.
 
 
-.. _built-in-extensions:
+.. _builtin-extensions:
 
 Built-in extensions
 -------------------
