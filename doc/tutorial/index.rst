@@ -27,9 +27,6 @@ a basic understanding of how it works, as well as a working Python installation
 for development, since you will use *Python virtual environments* to create the
 project.
 
-.. contents:: Contents
-   :local:
-
 Getting started
 ---------------
 
