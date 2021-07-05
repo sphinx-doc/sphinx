@@ -49,6 +49,9 @@ def lint(path: str) -> int:
             if re.match(r'^\s*\.\. ', line):
                 # ignore directives and hyperlink targets
                 pass
+            elif re.match(r'^\s*__ ', line):
+                # ignore anonymous hyperlink targets
+                pass
             elif re.match(r'^\s*``[^`]+``$', line):
                 # ignore a very long literal string
                 pass
