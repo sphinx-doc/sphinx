@@ -214,7 +214,7 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable:
 
 
         def setup(app):
-            package_dir = path.abspath(path.dirname(__file__))
+            package_dir = os.path.abspath(os.path.dirname(__file__))
             locale_dir = os.path.join(package_dir, 'locales')
             app.add_message_catalog(MESSAGE_CATALOG_NAME, locale_dir)
 
