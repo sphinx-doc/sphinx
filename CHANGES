@@ -94,6 +94,7 @@ Bugs fixed
 * #9306: Linkcheck reports broken link when remote server closes the connection
   on HEAD request
 * #9280: py domain: "exceptions" module is not displayed
+* #9387: xml: XML Builder ignores custom visitors
 * #9224: ``:param:`` and ``:type:`` fields does not support a type containing
   whitespace (ex. ``Dict[str, str]``)
 * #8945: when transforming typed fields, call the specified role instead of
