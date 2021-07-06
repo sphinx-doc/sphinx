@@ -50,6 +50,8 @@ Features added
 * #9016: linkcheck: Support checking anchors on github.com
 * #9016: linkcheck: Add a new event :event:`linkcheck-process-uri` to modify
   URIs before checking hyperlinks
+* #6525: linkcheck: Add :confval:`linkcheck_allowed_redirects` to mark
+  hyperlinks that are redirected to expected URLs as "working"
 * #1874: py domain: Support union types using ``|`` in info-field-list
 * #9268: py domain: :confval:`python_use_unqualified_type_names` supports type
   field in info-field-list

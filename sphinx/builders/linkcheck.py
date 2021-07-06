@@ -272,8 +272,12 @@ class CheckExternalLinksBuilder(DummyBuilder):
             except KeyError:
                 text, color = ('with unknown code', purple)
             linkstat['text'] = text
-            logger.info(color('redirect  ') + result.uri +
-                        color(' - ' + text + ' to ' + result.message))
+            if self.config.linkcheck_allowed_redirects:
+                logger.warning('redirect  ' + result.uri + ' - ' + text + ' to ' +
+                               result.message, location=(filename, result.lineno))
+            else:
+                logger.info(color('redirect  ') + result.uri +
+                            color(' - ' + text + ' to ' + result.message))
             self.write_entry('redirected ' + text, result.docname, filename,
                              result.lineno, result.uri + ' to ' + result.message)
         else:
@@ -496,12 +500,22 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 new_url = response.url
                 if anchor:
                     new_url += '#' + anchor
-                # history contains any redirects, get last
-                if response.history:
+
+                if allowed_redirect(req_url, new_url):
+                    return 'working', '', 0
+                elif response.history:
+                    # history contains any redirects, get last
                     code = response.history[-1].status_code
                     return 'redirected', new_url, code
                 else:
                     return 'redirected', new_url, 0
+
+        def allowed_redirect(url: str, new_url: str) -> bool:
+            for from_url, to_url in self.config.linkcheck_allowed_redirects.items():
+                if from_url.match(url) and to_url.match(new_url):
+                    return True
+
+            return False
 
         def check(docname: str) -> Tuple[str, str, int]:
             # check for various conditions without bothering the network
@@ -667,11 +681,25 @@ def rewrite_github_anchor(app: Sphinx, uri: str) -> Optional[str]:
     return None
 
 
+def compile_linkcheck_allowed_redirects(app: Sphinx, config: Config) -> None:
+    """Compile patterns in linkcheck_allowed_redirects to the regexp objects."""
+    for url, pattern in list(app.config.linkcheck_allowed_redirects.items()):
+        try:
+            app.config.linkcheck_allowed_redirects[re.compile(url)] = re.compile(pattern)
+        except re.error as exc:
+            logger.warning(__('Failed to compile regex in linkcheck_allowed_redirects: %r %s'),
+                           exc.pattern, exc.msg)
+        finally:
+            # Remove the original regexp-string
+            app.config.linkcheck_allowed_redirects.pop(url)
+
+
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(CheckExternalLinksBuilder)
     app.add_post_transform(HyperlinkCollector)
 
     app.add_config_value('linkcheck_ignore', [], None)
+    app.add_config_value('linkcheck_allowed_redirects', {}, None)
     app.add_config_value('linkcheck_auth', [], None)
     app.add_config_value('linkcheck_request_headers', {}, None)
     app.add_config_value('linkcheck_retries', 1, None)
@@ -684,6 +712,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('linkcheck_rate_limit_timeout', 300.0, None)
 
     app.add_event('linkcheck-process-uri')
+
+    app.connect('config-inited', compile_linkcheck_allowed_redirects, priority=800)
     app.connect('linkcheck-process-uri', rewrite_github_anchor)
 
     return {
