@@ -115,7 +115,7 @@ The following blocks exist in the ``layout.html`` template:
 ``rootrellink``, ``relbaritems``
     Inside the relbar there are three sections: The ``rootrellink``, the links
     from the documentation and the custom ``relbaritems``.  The ``rootrellink``
-    is a block that by default contains a list item pointing to the master
+    is a block that by default contains a list item pointing to the root
     document by default, the ``relbaritems`` is an empty block.  If you
     override them to add extra links into the bar make sure that they are list
     items and end with the :data:`reldelim1`.

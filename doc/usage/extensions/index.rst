@@ -10,6 +10,8 @@ This chapter describes the extensions bundled with Sphinx.  For the API
 documentation on writing your own extension, refer to :ref:`dev-extensions`.
 
 
+.. _builtin-extensions:
+
 Built-in extensions
 -------------------
 
@@ -37,6 +39,8 @@ These extensions are built in and can be activated by respective entries in the
    todo
    viewcode
 
+
+.. _third-party-extensions:
 
 Third-party extensions
 ----------------------

@@ -36,7 +36,8 @@ Setting up your project and development environment
 In a new directory, create a file called ``README.rst`` with the following
 content.
 
-.. code-block:: rest
+.. code-block:: rst
+   :caption: README.rst
 
    Lumache
    =======
@@ -124,7 +125,7 @@ The purpose of each of these files is:
   as some extra configuration keys.
 
 ``source/index.rst``
-  The :term:`master document` of the project, which serves as welcome page and
+  The :term:`root document` of the project, which serves as welcome page and
   contains the root of the "table of contents tree" (or *toctree*).
 
 Thanks to this bootstrapping step, you already have everything needed to render
@@ -134,23 +135,32 @@ the documentation as HTML for the first time.  To do that, run this command:
 
    (.venv) $ sphinx-build -b html docs/source/ docs/build/html
 
-And finally, open `docs/build/html/index.html` in your browser.  You should see
+And finally, open ``docs/build/html/index.html`` in your browser.  You should see
 something like this:
 
-.. image:: /_static/tutorial/lumache-first-light.png
+.. figure:: /_static/tutorial/lumache-first-light.png
+   :width: 80%
+   :align: center
+   :alt: Freshly created documentation of Lumache
+
+   Freshly created documentation of Lumache
 
 There we go! You created your first HTML documentation using Sphinx.
 
-Making some tweaks to the index
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+First steps to document your project using Sphinx
+-------------------------------------------------
+
+Building your HTML documentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``index.rst`` file that ``sphinx-quickstart`` created has some content
-already, and it gets rendered as the front page of our HTML documentation.  It
+already, and it gets rendered as the front page of your HTML documentation.  It
 is written in reStructuredText, a powerful markup language.
 
 Modify the file as follows:
 
-.. code-block:: rest
+.. code-block:: rst
+   :caption: docs/source/index.rst
 
    Welcome to Lumache's documentation!
    ===================================
@@ -183,6 +193,256 @@ as before, or leverage the convenience script as follows:
 
 After running this command, you will see that ``index.html`` reflects the new
 changes!
+
+Building your documentation in other formats
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sphinx supports a variety of formats apart from HTML, including PDF, EPUB,
+:ref:`and more <builders>`.  For example, to build your documentation
+in EPUB format, run this command from the ``docs`` directory:
+
+.. code-block:: console
+
+   (.venv) $ make epub
+
+After that, you will see the files corresponding to the e-book under
+``docs/build/epub/``.  You can either open ``Lumache.epub`` with an
+EPUB-compatible e-book viewer, like `Calibre <https://calibre-ebook.com/>`_,
+or preview ``index.xhtml`` on a web browser.
+
+.. note::
+
+   To quickly display a complete list of possible output formats, plus some
+   extra useful commands, you can run :code:`make help`.
+
+Each output format has some specific configuration options that you can tune,
+:ref:`including EPUB <epub-options>`.  For instance, the default value of
+:confval:`epub_show_urls` is ``inline``, which means that, by default, URLs are
+shown right after the corresponding link, in parentheses.  You can change that
+behavior by adding the following code at the end of your ``conf.py``:
+
+.. code-block:: python
+
+   # EPUB options
+   epub_show_urls = 'footnote'
+
+With this configuration value, and after running ``make epub`` again, you will
+notice that URLs appear now as footnotes, which avoids cluttering the text.
+Sweet!
+
+.. note::
+
+   Generating a PDF using Sphinx can be done running ``make latexpdf``,
+   provided that the system has a working :math:`\LaTeX` installation,
+   as explained in the documentation of :class:`sphinx.builders.latex.LaTeXBuilder`.
+   Although this is perfectly feasible, such installations are often big,
+   and in general LaTeX requires careful configuration in some cases,
+   so PDF generation is out of scope for this tutorial.
+
+More Sphinx customization
+-------------------------
+
+There are two main ways to customize your documentation beyond what is possible
+with core Sphinx: extensions and themes.
+
+Enabling a built-in extension
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In addition to these configuration values, you can customize Sphinx even more
+by using :doc:`extensions </usage/extensions/index>`.  Sphinx ships several
+:ref:`builtin ones <builtin-extensions>`, and there are many more
+:ref:`maintained by the community <third-party-extensions>`.
+
+For example, to enable the :mod:`sphinx.ext.duration` extension,
+locate the ``extensions`` list in your ``conf.py`` and add one element as
+follows:
+
+.. code-block:: python
+   :caption: docs/source/conf.py
+
+   # Add any Sphinx extension module names here, as strings. They can be
+   # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
+   # ones.
+   extensions = [
+       'sphinx.ext.duration',
+   ]
+
+After that, every time you generate your documentation, you will see a short
+durations report at the end of the console output, like this one:
+
+.. code-block:: console
+
+   (.venv) $ make html
+   ...
+   The HTML pages are in build/html.
+
+   ====================== slowest reading durations =======================
+   0.042 temp/source/index
+
+Using a third-party HTML theme
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Themes, on the other hand, are a way to customize the appearance of your
+documentation.  Sphinx has several :ref:`builtin themes <builtin-themes>`, and
+there are also `third-party ones <https://sphinx-themes.org/>`_.
+
+For example, to use the `Furo <https://pradyunsg.me/furo/>`_ third-party theme
+in your HTML documentation, first you will need to install it with ``pip`` in
+your Python virtual environment, like this:
+
+.. code-block:: console
+
+   (.venv) $ pip install furo
+
+And then, locate the ``html_theme`` variable on your ``conf.py`` and replace
+its value as follows:
+
+.. code-block:: python
+   :caption: docs/source/conf.py
+
+   # The theme to use for HTML and HTML Help pages.  See the documentation for
+   # a list of builtin themes.
+   #
+   html_theme = 'furo'
+
+With this change, you will notice that your HTML documentation has now a new
+appearance:
+
+.. figure:: /_static/tutorial/lumache-furo.png
+   :width: 80%
+   :align: center
+   :alt: HTML documentation of Lumache with the Furo theme
+
+   HTML documentation of Lumache with the Furo theme
+
+Narrative documentation in Sphinx
+---------------------------------
+
+Structuring your documentation across multiple pages
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The file ``index.rst`` created by ``sphinx-quickstart`` is the :term:`root
+document`, whose main function is to serve as a welcome page and to contain the
+root of the "table of contents tree" (or *toctree*).  Sphinx allows you to
+assemble a project from different files, which is helpful when the project
+grows.
+
+As an example, create a new file ``docs/source/usage.rst`` (next to
+``index.rst``) with these contents:
+
+.. code-block:: rst
+   :caption: docs/source/usage.rst
+
+   Usage
+   =====
+
+   Installation
+   ------------
+
+   To use Lumache, first install it using pip:
+
+   .. code-block:: console
+
+      (.venv) $ pip install lumache
+
+This new file contains two :ref:`section <rst-sections>` headers, normal
+paragraph text, and a :rst:dir:`code-block` directive that renders
+a block of content as source code, with appropriate syntax highlighting
+(in this case, generic ``console`` text).
+
+The structure of the document is determined by the succession of heading
+styles, which means that, by using ``---`` for the "Installation" section
+after ``===`` for the "Usage" section, you have declared "Installation" to
+be a *subsection* of "Usage".
+
+To complete the process, add a ``toctree`` :ref:`directive <rst-directives>` at
+the end of ``index.rst`` including the document you just created, as follows:
+
+.. code-block:: rst
+   :caption: docs/source/index.rst
+
+   Contents
+   --------
+
+   .. toctree::
+
+      usage
+
+This step inserts that document in the root of the *toctree*, so now it belongs
+to the structure of your project, which so far looks like this:
+
+.. code-block:: text
+
+   index
+   └── usage
+
+If you build the HTML documentation running ``make html``, you will see
+that the ``toctree`` gets rendered as a list of hyperlinks, and this allows you
+to navigate to the new page you just created.  Neat!
+
+.. warning::
+
+   Documents outside a *toctree* will result in ``WARNING: document isn't
+   included in any toctree`` messages during the build process, and will be
+   unreachable for users.
+
+Adding cross-references
+~~~~~~~~~~~~~~~~~~~~~~~
+
+One powerful feature of Sphinx is the ability to seamlessly add
+:ref:`cross-references <xref-syntax>` to specific parts of the documentation:
+a document, a section, a figure, a code object, etc.  This tutorial is full of
+them!
+
+To add a cross-reference, write this sentence right after the
+introduction paragraph in ``index.rst``:
+
+.. code-block:: rst
+   :caption: docs/source/index.rst
+
+   Check out the :doc:`usage` section for further information.
+
+The :rst:role:`doc` role you used automatically references a specific document
+in the project, in this case the ``usage.rst`` you created earlier.
+
+Alternatively, you can also add a cross-reference to an arbitrary part of the
+project. For that, you need to use the :rst:role:`ref` role, and add an
+explicit *label* that acts as `a target`__.
+
+__ https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#hyperlink-targets
+
+For example, to reference the "Installation" subsection, add a label right
+before the heading, as follows:
+
+.. code-block:: rst
+   :caption: docs/source/usage.rst
+   :emphasize-lines: 4
+
+   Usage
+   =====
+
+   .. _installation:
+
+   Installation
+   ------------
+
+   ...
+
+And make the sentence you added in ``index.rst`` look like this:
+
+.. code-block:: rst
+   :caption: docs/source/index.rst
+
+   Check out the :doc:`usage` section for further information, including how to
+   :ref:`install <installation>` the project.
+
+Notice a trick here: the ``install`` part specifies how the link will look like
+(we want it to be a specific word, so the sentence makes sense), whereas the
+``<installation>`` part refers to the actual label we want to add a
+cross-reference to. If you do not include an explicit title, hence using
+``:ref:`installation```, the section title will be used (in this case,
+``Installation``). Both the ``:doc:`` and the ``:ref:`` roles will be rendered
+as hyperlinks in the HTML documentation.
 
 Where to go from here
 ---------------------

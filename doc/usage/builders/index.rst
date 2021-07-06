@@ -51,7 +51,7 @@ The builder's "name" must be given to the **-b** command-line option of
 
    This is an HTML builder that combines the whole project in one output file.
    (Obviously this only works with smaller projects.)  The file is named like
-   the master document.  No indices will be generated.
+   the root document.  No indices will be generated.
 
    .. autoattribute:: name
 
