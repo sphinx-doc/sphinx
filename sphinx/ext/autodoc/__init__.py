@@ -1982,11 +1982,13 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
             self.add_line('   :annotation: %s' % self.options.annotation,
                           sourcename)
         else:
-            # obtain annotation for this data
-            annotations = get_type_hints(self.parent, None, self.config.autodoc_type_aliases)
-            if self.objpath[-1] in annotations:
-                objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
-                self.add_line('   :type: ' + objrepr, sourcename)
+            if self.config.autodoc_typehints != 'none':
+                # obtain annotation for this data
+                annotations = get_type_hints(self.parent, None,
+                                             self.config.autodoc_type_aliases)
+                if self.objpath[-1] in annotations:
+                    objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
+                    self.add_line('   :type: ' + objrepr, sourcename)
 
             try:
                 if self.options.no_value or self.should_suppress_value_header():
@@ -2356,8 +2358,28 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
         # An instance variable defined in __init__().
         if self.get_attribute_comment(parent, self.objpath[-1]):  # type: ignore
             return True
+        elif self.is_runtime_instance_attribute_not_commented(parent):
+            return True
         else:
             return False
+
+    def is_runtime_instance_attribute_not_commented(self, parent: Any) -> bool:
+        """Check the subject is an attribute defined in __init__() without comment."""
+        for cls in inspect.getmro(parent):
+            try:
+                module = safe_getattr(cls, '__module__')
+                qualname = safe_getattr(cls, '__qualname__')
+
+                analyzer = ModuleAnalyzer.for_module(module)
+                analyzer.analyze()
+                if qualname and self.objpath:
+                    key = '.'.join([qualname, self.objpath[-1]])
+                    if key in analyzer.tagorder:
+                        return True
+            except (AttributeError, PycodeError):
+                pass
+
+        return None
 
     def import_object(self, raiseerror: bool = False) -> bool:
         """Check the existence of runtime instance attribute when failed to import the
@@ -2388,6 +2410,13 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
     def should_suppress_value_header(self) -> bool:
         return (self.object is self.RUNTIME_INSTANCE_ATTRIBUTE or
                 super().should_suppress_value_header())
+
+    def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
+        if (self.object is self.RUNTIME_INSTANCE_ATTRIBUTE and
+                self.is_runtime_instance_attribute_not_commented(self.parent)):
+            return None
+        else:
+            return super().get_doc(ignore)  # type: ignore
 
 
 class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
@@ -2557,11 +2586,13 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
         elif self.options.annotation:
             self.add_line('   :annotation: %s' % self.options.annotation, sourcename)
         else:
-            # obtain type annotation for this attribute
-            annotations = get_type_hints(self.parent, None, self.config.autodoc_type_aliases)
-            if self.objpath[-1] in annotations:
-                objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
-                self.add_line('   :type: ' + objrepr, sourcename)
+            if self.config.autodoc_typehints != 'none':
+                # obtain type annotation for this attribute
+                annotations = get_type_hints(self.parent, None,
+                                             self.config.autodoc_type_aliases)
+                if self.objpath[-1] in annotations:
+                    objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
+                    self.add_line('   :type: ' + objrepr, sourcename)
 
             try:
                 if self.options.no_value or self.should_suppress_value_header():
@@ -2645,7 +2676,7 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
         if inspect.isabstractmethod(self.object):
             self.add_line('   :abstractmethod:', sourcename)
 
-        if safe_getattr(self.object, 'fget', None):
+        if safe_getattr(self.object, 'fget', None) and self.config.autodoc_typehints != 'none':
             try:
                 signature = inspect.signature(self.object.fget,
                                               type_aliases=self.config.autodoc_type_aliases)

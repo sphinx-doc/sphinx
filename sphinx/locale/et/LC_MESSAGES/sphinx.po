@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-05-30 00:22+0000\n"
+"POT-Creation-Date: 2021-07-04 00:08+0000\n"
 "PO-Revision-Date: 2021-05-11 13:54+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Estonian (http://www.transifex.com/sphinx-doc/sphinx-1/language/et/)\n"
@@ -76,7 +76,7 @@ msgstr ""
 msgid "loading translations [%s]... "
 msgstr "tõlgete laadimine [%s]... "
 
-#: sphinx/application.py:296 sphinx/util/__init__.py:522
+#: sphinx/application.py:296 sphinx/util/__init__.py:539
 msgid "done"
 msgstr "valmis"
 
@@ -629,7 +629,7 @@ msgstr "dokumentide ettevalmistamine"
 msgid "duplicated ToC entry found: %s"
 msgstr ""
 
-#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:719
+#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:716
 #: sphinx/builders/latex/__init__.py:421 sphinx/builders/texinfo.py:176
 msgid "copying images... "
 msgstr "kujutiste kopeerimine... "
@@ -639,7 +639,7 @@ msgstr "kujutiste kopeerimine... "
 msgid "cannot read image file %r: copying it instead"
 msgstr ""
 
-#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:727
+#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:724
 #: sphinx/builders/latex/__init__.py:429 sphinx/builders/texinfo.py:186
 #, python-format
 msgid "cannot copy image file %r: %s"
@@ -764,7 +764,7 @@ msgstr ""
 msgid "conf value \"version\" should not be empty for EPUB3"
 msgstr ""
 
-#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1110
+#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1107
 #, python-format
 msgid "invalid css_file: %r, ignored"
 msgstr "vigane css_file: %r, eiratakse"
@@ -882,7 +882,7 @@ msgstr "viga faili Makefile kirjutamisel: %s"
 msgid "The text files are in %(outdir)s."
 msgstr "Tekstifailid asuvad kataloogis %(outdir)s."
 
-#: sphinx/builders/html/__init__.py:1063 sphinx/builders/text.py:77
+#: sphinx/builders/html/__init__.py:1060 sphinx/builders/text.py:77
 #: sphinx/builders/xml.py:91
 #, python-format
 msgid "error writing file %s: %s"
@@ -914,158 +914,158 @@ msgid "Failed to read build info file: %r"
 msgstr "Viga ehitamise infofaili lugemisel: %r"
 
 #: sphinx/builders/html/__init__.py:466 sphinx/builders/latex/__init__.py:187
-#: sphinx/transforms/__init__.py:116 sphinx/writers/manpage.py:99
+#: sphinx/transforms/__init__.py:116 sphinx/writers/manpage.py:102
 #: sphinx/writers/texinfo.py:233
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%d. %b %Y"
 
-#: sphinx/builders/html/__init__.py:478 sphinx/themes/basic/defindex.html:30
+#: sphinx/builders/html/__init__.py:475 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
 msgstr "Üldindeks"
 
-#: sphinx/builders/html/__init__.py:478
+#: sphinx/builders/html/__init__.py:475
 msgid "index"
 msgstr "indeks"
 
-#: sphinx/builders/html/__init__.py:540
+#: sphinx/builders/html/__init__.py:537
 msgid "next"
 msgstr "järgmine"
 
-#: sphinx/builders/html/__init__.py:549
+#: sphinx/builders/html/__init__.py:546
 msgid "previous"
 msgstr "eelmine"
 
-#: sphinx/builders/html/__init__.py:643
+#: sphinx/builders/html/__init__.py:640
 msgid "generating indices"
 msgstr "indeksite genereerimine"
 
-#: sphinx/builders/html/__init__.py:658
+#: sphinx/builders/html/__init__.py:655
 msgid "writing additional pages"
 msgstr "täiendavate lehtede kirjutamine"
 
-#: sphinx/builders/html/__init__.py:737
+#: sphinx/builders/html/__init__.py:734
 msgid "copying downloadable files... "
 msgstr "allalaaditavate failide kopeerimine..."
 
-#: sphinx/builders/html/__init__.py:745
+#: sphinx/builders/html/__init__.py:742
 #, python-format
 msgid "cannot copy downloadable file %r: %s"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:777 sphinx/builders/html/__init__.py:789
+#: sphinx/builders/html/__init__.py:774 sphinx/builders/html/__init__.py:786
 #, python-format
 msgid "Failed to copy a file in html_static_file: %s: %r"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:810
+#: sphinx/builders/html/__init__.py:807
 msgid "copying static files"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:826
+#: sphinx/builders/html/__init__.py:823
 #, python-format
 msgid "cannot copy static file %r"
 msgstr "staatilist faili %r pole võimalik kopeerida"
 
-#: sphinx/builders/html/__init__.py:831
+#: sphinx/builders/html/__init__.py:828
 msgid "copying extra files"
 msgstr "lisafailide kopeerimine"
 
-#: sphinx/builders/html/__init__.py:837
+#: sphinx/builders/html/__init__.py:834
 #, python-format
 msgid "cannot copy extra file %r"
 msgstr "lisafaili %r pole võimalik kopeerida"
 
-#: sphinx/builders/html/__init__.py:844
+#: sphinx/builders/html/__init__.py:841
 #, python-format
 msgid "Failed to write build info file: %r"
 msgstr "Viga ehitamise infofaili kirjutamisel: %r"
 
-#: sphinx/builders/html/__init__.py:892
+#: sphinx/builders/html/__init__.py:889
 msgid ""
 "search index couldn't be loaded, but not all documents will be built: the "
 "index will be incomplete."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:953
+#: sphinx/builders/html/__init__.py:950
 #, python-format
 msgid "page %s matches two patterns in html_sidebars: %r and %r"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1046
+#: sphinx/builders/html/__init__.py:1043
 #, python-format
 msgid ""
 "a Unicode error occurred when rendering the page %s. Please make sure all "
 "config values that contain non-ASCII content are Unicode strings."
 msgstr "lehe %s renderdamisel tekkis Unicode viga. Palun veendu, et kõik mitte-ASCII sisuga seadistusparameetrid on kirjeldatud Unicode stringidena."
 
-#: sphinx/builders/html/__init__.py:1051
+#: sphinx/builders/html/__init__.py:1048
 #, python-format
 msgid ""
 "An error happened in rendering the page %s.\n"
 "Reason: %r"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1080
+#: sphinx/builders/html/__init__.py:1077
 msgid "dumping object inventory"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1085
+#: sphinx/builders/html/__init__.py:1082
 #, python-format
 msgid "dumping search index in %s"
 msgstr "otsinguindeksi tõmmise kirjutamine keelele %s"
 
-#: sphinx/builders/html/__init__.py:1127
+#: sphinx/builders/html/__init__.py:1124
 #, python-format
 msgid "invalid js_file: %r, ignored"
 msgstr "vigane js_file: %r, eiratakse"
 
-#: sphinx/builders/html/__init__.py:1214
+#: sphinx/builders/html/__init__.py:1211
 msgid "Many math_renderers are registered. But no math_renderer is selected."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1217
+#: sphinx/builders/html/__init__.py:1214
 #, python-format
 msgid "Unknown math_renderer %r is given."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1225
+#: sphinx/builders/html/__init__.py:1222
 #, python-format
 msgid "html_extra_path entry %r does not exist"
 msgstr "html_extra_path kirjet %r pole olemas"
 
-#: sphinx/builders/html/__init__.py:1229
+#: sphinx/builders/html/__init__.py:1226
 #, python-format
 msgid "html_extra_path entry %r is placed inside outdir"
 msgstr "html_extra_path kirje %r asub väljaspool väljundkataloogi"
 
-#: sphinx/builders/html/__init__.py:1238
+#: sphinx/builders/html/__init__.py:1235
 #, python-format
 msgid "html_static_path entry %r does not exist"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1242
+#: sphinx/builders/html/__init__.py:1239
 #, python-format
 msgid "html_static_path entry %r is placed inside outdir"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1251 sphinx/builders/latex/__init__.py:433
+#: sphinx/builders/html/__init__.py:1248 sphinx/builders/latex/__init__.py:433
 #, python-format
 msgid "logo file %r does not exist"
 msgstr "logofaili %r pole olemas"
 
-#: sphinx/builders/html/__init__.py:1260
+#: sphinx/builders/html/__init__.py:1257
 #, python-format
 msgid "favicon file %r does not exist"
 msgstr "favicon faili %r pole olemas"
 
-#: sphinx/builders/html/__init__.py:1280
+#: sphinx/builders/html/__init__.py:1277
 msgid ""
 "html_add_permalinks has been deprecated since v3.5.0. Please use "
 "html_permalinks and html_permalinks_icon instead."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1306
+#: sphinx/builders/html/__init__.py:1303
 #, python-format
 msgid "%s %s documentation"
 msgstr "%s %s dokumentatsioon"
@@ -1835,71 +1835,71 @@ msgstr ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: sphinx/domains/c.py:1969 sphinx/domains/c.py:3282
+#: sphinx/domains/c.py:1974 sphinx/domains/c.py:3299
 #, python-format
 msgid ""
 "Duplicate C declaration, also defined at %s:%s.\n"
 "Declaration is '.. c:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/c.py:3116 sphinx/domains/cpp.py:6843
-#: sphinx/domains/python.py:369 sphinx/ext/napoleon/docstring.py:736
+#: sphinx/domains/c.py:3133 sphinx/domains/cpp.py:6931
+#: sphinx/domains/python.py:389 sphinx/ext/napoleon/docstring.py:736
 msgid "Parameters"
 msgstr "Parameetrid"
 
-#: sphinx/domains/c.py:3119 sphinx/domains/cpp.py:6852
-#: sphinx/domains/javascript.py:221 sphinx/domains/python.py:381
+#: sphinx/domains/c.py:3136 sphinx/domains/cpp.py:6940
+#: sphinx/domains/javascript.py:221 sphinx/domains/python.py:401
 msgid "Returns"
 msgstr "Tagastab"
 
-#: sphinx/domains/c.py:3121 sphinx/domains/javascript.py:223
-#: sphinx/domains/python.py:383
+#: sphinx/domains/c.py:3138 sphinx/domains/javascript.py:223
+#: sphinx/domains/python.py:403
 msgid "Return type"
 msgstr "Tagastustüüp"
 
-#: sphinx/domains/c.py:3207
+#: sphinx/domains/c.py:3224
 #, python-format
 msgid "%s (C %s)"
 msgstr ""
 
-#: sphinx/domains/c.py:3714 sphinx/domains/cpp.py:7490
+#: sphinx/domains/c.py:3731 sphinx/domains/cpp.py:7578
 msgid "member"
 msgstr "liige"
 
-#: sphinx/domains/c.py:3715
+#: sphinx/domains/c.py:3732
 msgid "variable"
 msgstr "muutuja"
 
-#: sphinx/domains/c.py:3716 sphinx/domains/cpp.py:7489
-#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1090
+#: sphinx/domains/c.py:3733 sphinx/domains/cpp.py:7577
+#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1107
 msgid "function"
 msgstr "funktsioon"
 
-#: sphinx/domains/c.py:3717
+#: sphinx/domains/c.py:3734
 msgid "macro"
 msgstr "makro"
 
-#: sphinx/domains/c.py:3718
+#: sphinx/domains/c.py:3735
 msgid "struct"
 msgstr ""
 
-#: sphinx/domains/c.py:3719 sphinx/domains/cpp.py:7488
+#: sphinx/domains/c.py:3736 sphinx/domains/cpp.py:7576
 msgid "union"
 msgstr ""
 
-#: sphinx/domains/c.py:3720 sphinx/domains/cpp.py:7493
+#: sphinx/domains/c.py:3737 sphinx/domains/cpp.py:7581
 msgid "enum"
 msgstr ""
 
-#: sphinx/domains/c.py:3721 sphinx/domains/cpp.py:7494
+#: sphinx/domains/c.py:3738 sphinx/domains/cpp.py:7582
 msgid "enumerator"
 msgstr "loend"
 
-#: sphinx/domains/c.py:3722 sphinx/domains/cpp.py:7491
+#: sphinx/domains/c.py:3739 sphinx/domains/cpp.py:7579
 msgid "type"
 msgstr "tüüp"
 
-#: sphinx/domains/c.py:3724 sphinx/domains/cpp.py:7496
+#: sphinx/domains/c.py:3741 sphinx/domains/cpp.py:7584
 msgid "function parameter"
 msgstr ""
 
@@ -1928,36 +1928,36 @@ msgstr ""
 msgid "Citation [%s] is not referenced."
 msgstr ""
 
-#: sphinx/domains/cpp.py:4653 sphinx/domains/cpp.py:7045
+#: sphinx/domains/cpp.py:4710 sphinx/domains/cpp.py:7133
 #, python-format
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/cpp.py:6846
+#: sphinx/domains/cpp.py:6934
 msgid "Template Parameters"
 msgstr "Malli parameetrid"
 
-#: sphinx/domains/cpp.py:6849 sphinx/domains/javascript.py:218
+#: sphinx/domains/cpp.py:6937 sphinx/domains/javascript.py:218
 msgid "Throws"
 msgstr ""
 
-#: sphinx/domains/cpp.py:6968
+#: sphinx/domains/cpp.py:7056
 #, python-format
 msgid "%s (C++ %s)"
 msgstr ""
 
-#: sphinx/domains/cpp.py:7487 sphinx/domains/javascript.py:328
-#: sphinx/domains/python.py:1092
+#: sphinx/domains/cpp.py:7575 sphinx/domains/javascript.py:328
+#: sphinx/domains/python.py:1109
 msgid "class"
 msgstr "klass"
 
-#: sphinx/domains/cpp.py:7492
+#: sphinx/domains/cpp.py:7580
 msgid "concept"
 msgstr ""
 
-#: sphinx/domains/cpp.py:7497
+#: sphinx/domains/cpp.py:7585
 msgid "template parameter"
 msgstr ""
 
@@ -1966,7 +1966,7 @@ msgstr ""
 msgid "%s() (built-in function)"
 msgstr "%s() (sisseehitatud funktsioon)"
 
-#: sphinx/domains/javascript.py:137 sphinx/domains/python.py:747
+#: sphinx/domains/javascript.py:137 sphinx/domains/python.py:764
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (%s meetod)"
@@ -1981,7 +1981,7 @@ msgstr "%s() (klass)"
 msgid "%s (global variable or constant)"
 msgstr "%s (globaalmuutuja või konstant)"
 
-#: sphinx/domains/javascript.py:143 sphinx/domains/python.py:825
+#: sphinx/domains/javascript.py:143 sphinx/domains/python.py:842
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (%s atribuut)"
@@ -1995,20 +1995,20 @@ msgstr "Argumendid"
 msgid "%s (module)"
 msgstr "%s (moodul)"
 
-#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1094
+#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1111
 msgid "method"
 msgstr "meetod"
 
-#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1091
+#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1108
 msgid "data"
 msgstr "andmed"
 
-#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1097
+#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1114
 msgid "attribute"
 msgstr "atribuut"
 
-#: sphinx/domains/javascript.py:331 sphinx/domains/python.py:57
-#: sphinx/domains/python.py:1099
+#: sphinx/domains/javascript.py:331 sphinx/domains/python.py:58
+#: sphinx/domains/python.py:1116
 msgid "module"
 msgstr "moodul"
 
@@ -2027,121 +2027,121 @@ msgstr "võrrandil %s on topeltsilt, teine instants on %s"
 msgid "Invalid math_eqref_format: %r"
 msgstr "Vigane math_eqref_format: %r"
 
-#: sphinx/domains/python.py:58
+#: sphinx/domains/python.py:59
 msgid "keyword"
 msgstr "võtmesõna"
 
-#: sphinx/domains/python.py:59
+#: sphinx/domains/python.py:60
 msgid "operator"
 msgstr "operaator"
 
-#: sphinx/domains/python.py:60
+#: sphinx/domains/python.py:61
 msgid "object"
 msgstr "objekt"
 
-#: sphinx/domains/python.py:61 sphinx/domains/python.py:1093
+#: sphinx/domains/python.py:62 sphinx/domains/python.py:1110
 msgid "exception"
 msgstr "erind"
 
-#: sphinx/domains/python.py:62
+#: sphinx/domains/python.py:63
 msgid "statement"
 msgstr "lause"
 
-#: sphinx/domains/python.py:63
+#: sphinx/domains/python.py:64
 msgid "built-in function"
 msgstr "sisseehitatud funktsioon"
 
-#: sphinx/domains/python.py:374
+#: sphinx/domains/python.py:394
 msgid "Variables"
 msgstr "Muutujad"
 
-#: sphinx/domains/python.py:378
+#: sphinx/domains/python.py:398
 msgid "Raises"
 msgstr ""
 
-#: sphinx/domains/python.py:601 sphinx/domains/python.py:736
+#: sphinx/domains/python.py:618 sphinx/domains/python.py:753
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (moodulis %s)"
 
-#: sphinx/domains/python.py:655 sphinx/domains/python.py:821
-#: sphinx/domains/python.py:861
+#: sphinx/domains/python.py:672 sphinx/domains/python.py:838
+#: sphinx/domains/python.py:878
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (moodulis %s)"
 
-#: sphinx/domains/python.py:657
+#: sphinx/domains/python.py:674
 #, python-format
 msgid "%s (built-in variable)"
 msgstr "%s (sisseehitatud muutuja)"
 
-#: sphinx/domains/python.py:681
+#: sphinx/domains/python.py:698
 #, python-format
 msgid "%s (built-in class)"
 msgstr "%s (sisseehitatud klass)"
 
-#: sphinx/domains/python.py:682
+#: sphinx/domains/python.py:699
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s (klass moodulis %s)"
 
-#: sphinx/domains/python.py:741
+#: sphinx/domains/python.py:758
 #, python-format
 msgid "%s() (%s class method)"
 msgstr "%s() (klassi %s meetod)"
 
-#: sphinx/domains/python.py:743
+#: sphinx/domains/python.py:760
 #, python-format
 msgid "%s() (%s property)"
 msgstr ""
 
-#: sphinx/domains/python.py:745
+#: sphinx/domains/python.py:762
 #, python-format
 msgid "%s() (%s static method)"
 msgstr "%s() (%s staatiline meetod)"
 
-#: sphinx/domains/python.py:865
+#: sphinx/domains/python.py:882
 #, python-format
 msgid "%s (%s property)"
 msgstr ""
 
-#: sphinx/domains/python.py:1019
+#: sphinx/domains/python.py:1036
 msgid "Python Module Index"
 msgstr "Pythoni moodulite indeks"
 
-#: sphinx/domains/python.py:1020
+#: sphinx/domains/python.py:1037
 msgid "modules"
 msgstr "moodulid"
 
-#: sphinx/domains/python.py:1069
+#: sphinx/domains/python.py:1086
 msgid "Deprecated"
 msgstr "Iganenud"
 
-#: sphinx/domains/python.py:1095
+#: sphinx/domains/python.py:1112
 msgid "class method"
 msgstr "klassi meetod"
 
-#: sphinx/domains/python.py:1096
+#: sphinx/domains/python.py:1113
 msgid "static method"
 msgstr "staatiline meetod"
 
-#: sphinx/domains/python.py:1098
+#: sphinx/domains/python.py:1115
 msgid "property"
 msgstr ""
 
-#: sphinx/domains/python.py:1156
+#: sphinx/domains/python.py:1173
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr ""
 
-#: sphinx/domains/python.py:1276
+#: sphinx/domains/python.py:1293
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr ""
 
-#: sphinx/domains/python.py:1330
+#: sphinx/domains/python.py:1347
 msgid " (deprecated)"
 msgstr " (iganenud)"
 
@@ -2861,7 +2861,7 @@ msgid ""
 msgstr ""
 
 #: sphinx/ext/autodoc/__init__.py:1296 sphinx/ext/autodoc/__init__.py:1370
-#: sphinx/ext/autodoc/__init__.py:2656
+#: sphinx/ext/autodoc/__init__.py:2683
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr ""
@@ -2897,7 +2897,7 @@ msgstr ""
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2699
+#: sphinx/ext/autodoc/__init__.py:2726
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
@@ -2918,43 +2918,43 @@ msgstr ""
 msgid "Failed to parse type_comment for %r: %s"
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:273
+#: sphinx/ext/autosummary/__init__.py:278
 #, python-format
 msgid "autosummary references excluded document %r. Ignored."
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:275
+#: sphinx/ext/autosummary/__init__.py:280
 #, python-format
 msgid ""
 "autosummary: stub file not found %r. Check your autosummary_generate "
 "setting."
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:294
+#: sphinx/ext/autosummary/__init__.py:299
 msgid "A captioned autosummary requires :toctree: option. ignored."
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:341
+#: sphinx/ext/autosummary/__init__.py:346
 #, python-format
 msgid "autosummary: failed to import %s"
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:355
+#: sphinx/ext/autosummary/__init__.py:360
 #, python-format
 msgid "failed to parse name %s"
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:360
+#: sphinx/ext/autosummary/__init__.py:365
 #, python-format
 msgid "failed to import object %s"
 msgstr "tõrge objekti %s importimisel"
 
-#: sphinx/ext/autosummary/__init__.py:750
+#: sphinx/ext/autosummary/__init__.py:755
 #, python-format
 msgid "autosummary_generate: file not found: %s"
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:758
+#: sphinx/ext/autosummary/__init__.py:763
 msgid ""
 "autosummary generats .rst files internally. But your source_suffix does not "
 "contain .rst. Skipped."
@@ -3471,11 +3471,11 @@ msgstr "Tundmatu pildivorming: %s..."
 msgid "undecodable source characters, replacing with \"?\": %r"
 msgstr ""
 
-#: sphinx/util/__init__.py:515
+#: sphinx/util/__init__.py:532
 msgid "skipped"
 msgstr ""
 
-#: sphinx/util/__init__.py:520
+#: sphinx/util/__init__.py:537
 msgid "failed"
 msgstr ""
 
@@ -3573,7 +3573,7 @@ msgid ""
 "encountered title node not in section, topic, table, admonition or sidebar"
 msgstr ""
 
-#: sphinx/writers/latex.py:849 sphinx/writers/manpage.py:243
+#: sphinx/writers/latex.py:849 sphinx/writers/manpage.py:246
 #: sphinx/writers/texinfo.py:637
 msgid "Footnotes"
 msgstr "Joonealused märkused"
@@ -3593,12 +3593,12 @@ msgstr ""
 msgid "unknown index entry type %s found"
 msgstr ""
 
-#: sphinx/writers/manpage.py:292 sphinx/writers/text.py:804
+#: sphinx/writers/manpage.py:295 sphinx/writers/text.py:804
 #, python-format
 msgid "[image: %s]"
 msgstr "[pilt: %s]"
 
-#: sphinx/writers/manpage.py:293 sphinx/writers/text.py:805
+#: sphinx/writers/manpage.py:296 sphinx/writers/text.py:805
 msgid "[image]"
 msgstr "[pilt]"
 

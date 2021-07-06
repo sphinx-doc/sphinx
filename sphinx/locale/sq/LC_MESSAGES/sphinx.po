@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-05-30 00:22+0000\n"
+"POT-Creation-Date: 2021-06-27 00:10+0000\n"
 "PO-Revision-Date: 2021-05-11 16:11+0000\n"
 "Last-Translator: Besnik Bleta <besnik@programeshqip.org>\n"
 "Language-Team: Albanian (http://www.transifex.com/sphinx-doc/sphinx-1/language/sq/)\n"
@@ -911,7 +911,7 @@ msgid "Failed to read build info file: %r"
 msgstr "S’u arrit të lexohet kartelë të dhënash montimi: %r"
 
 #: sphinx/builders/html/__init__.py:466 sphinx/builders/latex/__init__.py:187
-#: sphinx/transforms/__init__.py:116 sphinx/writers/manpage.py:99
+#: sphinx/transforms/__init__.py:116 sphinx/writers/manpage.py:102
 #: sphinx/writers/texinfo.py:233
 #, python-format
 msgid "%b %d, %Y"
@@ -1839,18 +1839,18 @@ msgid ""
 "Declaration is '.. c:%s:: %s'."
 msgstr "Deklarim C i përsëdytur, përkufizuar edhe te %s:%s.\nDeklarimi është '.. c:%s:: %s'."
 
-#: sphinx/domains/c.py:3116 sphinx/domains/cpp.py:6843
-#: sphinx/domains/python.py:369 sphinx/ext/napoleon/docstring.py:736
+#: sphinx/domains/c.py:3116 sphinx/domains/cpp.py:6931
+#: sphinx/domains/python.py:389 sphinx/ext/napoleon/docstring.py:736
 msgid "Parameters"
 msgstr "Parametra"
 
-#: sphinx/domains/c.py:3119 sphinx/domains/cpp.py:6852
-#: sphinx/domains/javascript.py:221 sphinx/domains/python.py:381
+#: sphinx/domains/c.py:3119 sphinx/domains/cpp.py:6940
+#: sphinx/domains/javascript.py:221 sphinx/domains/python.py:401
 msgid "Returns"
 msgstr "Kthime"
 
 #: sphinx/domains/c.py:3121 sphinx/domains/javascript.py:223
-#: sphinx/domains/python.py:383
+#: sphinx/domains/python.py:403
 msgid "Return type"
 msgstr "Lloj kthimi"
 
@@ -1859,7 +1859,7 @@ msgstr "Lloj kthimi"
 msgid "%s (C %s)"
 msgstr "%s (C %s)"
 
-#: sphinx/domains/c.py:3714 sphinx/domains/cpp.py:7490
+#: sphinx/domains/c.py:3714 sphinx/domains/cpp.py:7578
 msgid "member"
 msgstr "anëtar"
 
@@ -1867,8 +1867,8 @@ msgstr "anëtar"
 msgid "variable"
 msgstr "ndryshore"
 
-#: sphinx/domains/c.py:3716 sphinx/domains/cpp.py:7489
-#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1090
+#: sphinx/domains/c.py:3716 sphinx/domains/cpp.py:7577
+#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1107
 msgid "function"
 msgstr "funksion"
 
@@ -1880,23 +1880,23 @@ msgstr "makro"
 msgid "struct"
 msgstr ""
 
-#: sphinx/domains/c.py:3719 sphinx/domains/cpp.py:7488
+#: sphinx/domains/c.py:3719 sphinx/domains/cpp.py:7576
 msgid "union"
 msgstr "bashkim"
 
-#: sphinx/domains/c.py:3720 sphinx/domains/cpp.py:7493
+#: sphinx/domains/c.py:3720 sphinx/domains/cpp.py:7581
 msgid "enum"
 msgstr ""
 
-#: sphinx/domains/c.py:3721 sphinx/domains/cpp.py:7494
+#: sphinx/domains/c.py:3721 sphinx/domains/cpp.py:7582
 msgid "enumerator"
 msgstr ""
 
-#: sphinx/domains/c.py:3722 sphinx/domains/cpp.py:7491
+#: sphinx/domains/c.py:3722 sphinx/domains/cpp.py:7579
 msgid "type"
 msgstr "lloj"
 
-#: sphinx/domains/c.py:3724 sphinx/domains/cpp.py:7496
+#: sphinx/domains/c.py:3724 sphinx/domains/cpp.py:7584
 msgid "function parameter"
 msgstr "parametër funksioni"
 
@@ -1925,36 +1925,36 @@ msgstr "citim i përsëdytur %s, tjetër instancë te %s"
 msgid "Citation [%s] is not referenced."
 msgstr "Përmendja [%s] s’është në referencë."
 
-#: sphinx/domains/cpp.py:4653 sphinx/domains/cpp.py:7045
+#: sphinx/domains/cpp.py:4710 sphinx/domains/cpp.py:7133
 #, python-format
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
 msgstr "Deklarim C++ i përsëdytur, përkufizuar edhe te %s:%s.\nDeklarimi është '.. cpp:%s:: %s'."
 
-#: sphinx/domains/cpp.py:6846
+#: sphinx/domains/cpp.py:6934
 msgid "Template Parameters"
 msgstr "Parametra Gjedhesh"
 
-#: sphinx/domains/cpp.py:6849 sphinx/domains/javascript.py:218
+#: sphinx/domains/cpp.py:6937 sphinx/domains/javascript.py:218
 msgid "Throws"
 msgstr ""
 
-#: sphinx/domains/cpp.py:6968
+#: sphinx/domains/cpp.py:7056
 #, python-format
 msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
-#: sphinx/domains/cpp.py:7487 sphinx/domains/javascript.py:328
-#: sphinx/domains/python.py:1092
+#: sphinx/domains/cpp.py:7575 sphinx/domains/javascript.py:328
+#: sphinx/domains/python.py:1109
 msgid "class"
 msgstr "klasë"
 
-#: sphinx/domains/cpp.py:7492
+#: sphinx/domains/cpp.py:7580
 msgid "concept"
 msgstr "koncept"
 
-#: sphinx/domains/cpp.py:7497
+#: sphinx/domains/cpp.py:7585
 msgid "template parameter"
 msgstr "parametër gjedheje"
 
@@ -1963,7 +1963,7 @@ msgstr "parametër gjedheje"
 msgid "%s() (built-in function)"
 msgstr "%s() (funksion i brendshëm)"
 
-#: sphinx/domains/javascript.py:137 sphinx/domains/python.py:747
+#: sphinx/domains/javascript.py:137 sphinx/domains/python.py:764
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (metodë %s)"
@@ -1978,7 +1978,7 @@ msgstr "%s() (klasë)"
 msgid "%s (global variable or constant)"
 msgstr "%s ( ndryshore globale ose konstante)"
 
-#: sphinx/domains/javascript.py:143 sphinx/domains/python.py:825
+#: sphinx/domains/javascript.py:143 sphinx/domains/python.py:842
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (atribut %s)"
@@ -1992,20 +1992,20 @@ msgstr "Argumente"
 msgid "%s (module)"
 msgstr "%s (modul)"
 
-#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1094
+#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1111
 msgid "method"
 msgstr "metodë"
 
-#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1091
+#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1108
 msgid "data"
 msgstr "të dhëna"
 
-#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1097
+#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1114
 msgid "attribute"
 msgstr "atribut"
 
-#: sphinx/domains/javascript.py:331 sphinx/domains/python.py:57
-#: sphinx/domains/python.py:1099
+#: sphinx/domains/javascript.py:331 sphinx/domains/python.py:58
+#: sphinx/domains/python.py:1116
 msgid "module"
 msgstr "modul"
 
@@ -2024,121 +2024,121 @@ msgstr "etiketë e përsëdytur ekuacioni %s, instancë tjetër te %s"
 msgid "Invalid math_eqref_format: %r"
 msgstr "math_eqref_format i pavlefshëm: %r"
 
-#: sphinx/domains/python.py:58
+#: sphinx/domains/python.py:59
 msgid "keyword"
 msgstr "fjalëkyç"
 
-#: sphinx/domains/python.py:59
+#: sphinx/domains/python.py:60
 msgid "operator"
 msgstr "operator"
 
-#: sphinx/domains/python.py:60
+#: sphinx/domains/python.py:61
 msgid "object"
 msgstr "objekt"
 
-#: sphinx/domains/python.py:61 sphinx/domains/python.py:1093
+#: sphinx/domains/python.py:62 sphinx/domains/python.py:1110
 msgid "exception"
 msgstr "përjashtim"
 
-#: sphinx/domains/python.py:62
+#: sphinx/domains/python.py:63
 msgid "statement"
 msgstr "deklarim"
 
-#: sphinx/domains/python.py:63
+#: sphinx/domains/python.py:64
 msgid "built-in function"
 msgstr "funksion i brendshëm"
 
-#: sphinx/domains/python.py:374
+#: sphinx/domains/python.py:394
 msgid "Variables"
 msgstr "Ndryshore"
 
-#: sphinx/domains/python.py:378
+#: sphinx/domains/python.py:398
 msgid "Raises"
 msgstr ""
 
-#: sphinx/domains/python.py:601 sphinx/domains/python.py:736
+#: sphinx/domains/python.py:618 sphinx/domains/python.py:753
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (te moduli %s)"
 
-#: sphinx/domains/python.py:655 sphinx/domains/python.py:821
-#: sphinx/domains/python.py:861
+#: sphinx/domains/python.py:672 sphinx/domains/python.py:838
+#: sphinx/domains/python.py:878
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (te moduli %s)"
 
-#: sphinx/domains/python.py:657
+#: sphinx/domains/python.py:674
 #, python-format
 msgid "%s (built-in variable)"
 msgstr "%s (ndryshore e brendshme)"
 
-#: sphinx/domains/python.py:681
+#: sphinx/domains/python.py:698
 #, python-format
 msgid "%s (built-in class)"
 msgstr "%s (klasë e brendshme)"
 
-#: sphinx/domains/python.py:682
+#: sphinx/domains/python.py:699
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s (klasë te %s)"
 
-#: sphinx/domains/python.py:741
+#: sphinx/domains/python.py:758
 #, python-format
 msgid "%s() (%s class method)"
 msgstr "%s() (metodë klase %s)"
 
-#: sphinx/domains/python.py:743
+#: sphinx/domains/python.py:760
 #, python-format
 msgid "%s() (%s property)"
 msgstr "%s() (veti %s)"
 
-#: sphinx/domains/python.py:745
+#: sphinx/domains/python.py:762
 #, python-format
 msgid "%s() (%s static method)"
 msgstr "%s() (metodë statike %s)"
 
-#: sphinx/domains/python.py:865
+#: sphinx/domains/python.py:882
 #, python-format
 msgid "%s (%s property)"
 msgstr "%s (veti %s)"
 
-#: sphinx/domains/python.py:1019
+#: sphinx/domains/python.py:1036
 msgid "Python Module Index"
 msgstr "Tregues Modulesh Python"
 
-#: sphinx/domains/python.py:1020
+#: sphinx/domains/python.py:1037
 msgid "modules"
 msgstr "module"
 
-#: sphinx/domains/python.py:1069
+#: sphinx/domains/python.py:1086
 msgid "Deprecated"
 msgstr "Nxjerrë nga përdorimi"
 
-#: sphinx/domains/python.py:1095
+#: sphinx/domains/python.py:1112
 msgid "class method"
 msgstr "metodë klase"
 
-#: sphinx/domains/python.py:1096
+#: sphinx/domains/python.py:1113
 msgid "static method"
 msgstr "metodë statike"
 
-#: sphinx/domains/python.py:1098
+#: sphinx/domains/python.py:1115
 msgid "property"
 msgstr "veti"
 
-#: sphinx/domains/python.py:1156
+#: sphinx/domains/python.py:1173
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr "përshkrim i përsëdytur objekti për %s, instancë tjetër te %s, përdorni :noindex: për një prej tyre"
 
-#: sphinx/domains/python.py:1276
+#: sphinx/domains/python.py:1293
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "për ndërreferencën %r u gjet më shumë se një objektiv: %s"
 
-#: sphinx/domains/python.py:1330
+#: sphinx/domains/python.py:1347
 msgid " (deprecated)"
 msgstr " (nxjerrë nga përdorimi)"
 
@@ -2858,7 +2858,7 @@ msgid ""
 msgstr "u përmend atribut që mungon në :members: mundësi: modul %s, atributi %s"
 
 #: sphinx/ext/autodoc/__init__.py:1296 sphinx/ext/autodoc/__init__.py:1370
-#: sphinx/ext/autodoc/__init__.py:2656
+#: sphinx/ext/autodoc/__init__.py:2683
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "S’u arrit të merret një nënshkrim funksioni për %s: %s"
@@ -2894,7 +2894,7 @@ msgstr "S’u arrit të merre një nënshkrim metode për %s: %s"
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "U gjet __slots__ i pavlefshëm në %s. U shpërfill."
 
-#: sphinx/ext/autodoc/__init__.py:2699
+#: sphinx/ext/autodoc/__init__.py:2726
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
@@ -2915,43 +2915,43 @@ msgstr "S’u arrit të përditësohet nënshkrim për %r: s’u gjet parametër
 msgid "Failed to parse type_comment for %r: %s"
 msgstr "S’u arrit të përtypet type_comment për %r: %s"
 
-#: sphinx/ext/autosummary/__init__.py:273
+#: sphinx/ext/autosummary/__init__.py:278
 #, python-format
 msgid "autosummary references excluded document %r. Ignored."
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:275
+#: sphinx/ext/autosummary/__init__.py:280
 #, python-format
 msgid ""
 "autosummary: stub file not found %r. Check your autosummary_generate "
 "setting."
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:294
+#: sphinx/ext/autosummary/__init__.py:299
 msgid "A captioned autosummary requires :toctree: option. ignored."
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:341
+#: sphinx/ext/autosummary/__init__.py:346
 #, python-format
 msgid "autosummary: failed to import %s"
 msgstr "vetëpërmbledhje: s’u arrit të importohej %s"
 
-#: sphinx/ext/autosummary/__init__.py:355
+#: sphinx/ext/autosummary/__init__.py:360
 #, python-format
 msgid "failed to parse name %s"
 msgstr "s’u arrit të përtypej emri %s"
 
-#: sphinx/ext/autosummary/__init__.py:360
+#: sphinx/ext/autosummary/__init__.py:365
 #, python-format
 msgid "failed to import object %s"
 msgstr "s’u arrit të importohej objekti %s"
 
-#: sphinx/ext/autosummary/__init__.py:750
+#: sphinx/ext/autosummary/__init__.py:755
 #, python-format
 msgid "autosummary_generate: file not found: %s"
 msgstr "autosummary_generate: s’u gjet kartelë: %s"
 
-#: sphinx/ext/autosummary/__init__.py:758
+#: sphinx/ext/autosummary/__init__.py:763
 msgid ""
 "autosummary generats .rst files internally. But your source_suffix does not "
 "contain .rst. Skipped."
@@ -3570,7 +3570,7 @@ msgid ""
 "encountered title node not in section, topic, table, admonition or sidebar"
 msgstr "u has nyje titulli jo në ndarje, temë, tabelë, paralajmërim ose anështyllë"
 
-#: sphinx/writers/latex.py:849 sphinx/writers/manpage.py:243
+#: sphinx/writers/latex.py:849 sphinx/writers/manpage.py:246
 #: sphinx/writers/texinfo.py:637
 msgid "Footnotes"
 msgstr "Poshtëshënime"
@@ -3590,12 +3590,12 @@ msgstr "njësia e përmasave %s është e pavlefshme. U shpërfill."
 msgid "unknown index entry type %s found"
 msgstr "u gjet lloj i panjohur %s zërash treguesi"
 
-#: sphinx/writers/manpage.py:292 sphinx/writers/text.py:804
+#: sphinx/writers/manpage.py:295 sphinx/writers/text.py:804
 #, python-format
 msgid "[image: %s]"
 msgstr "[figurë: %s]"
 
-#: sphinx/writers/manpage.py:293 sphinx/writers/text.py:805
+#: sphinx/writers/manpage.py:296 sphinx/writers/text.py:805
 msgid "[image]"
 msgstr "[figurë]"
 

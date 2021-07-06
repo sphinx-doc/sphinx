@@ -224,6 +224,8 @@ Internal linking is done via a special reST role provided by Sphinx, see the
 section on specific markup, :ref:`ref-role`.
 
 
+.. _rst-sections:
+
 Sections
 --------
 

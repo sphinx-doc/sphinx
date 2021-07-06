@@ -1,5 +1,8 @@
 from typing import Any, Tuple, Union
 
+CONST1: int
+CONST2: int = 1
+
 
 def incr(a: int, b: int = 1) -> int:
     return a + b
@@ -11,6 +14,9 @@ def decr(a, b = 1):
 
 
 class Math:
+    CONST1: int
+    CONST2: int = 1
+
     def __init__(self, s: str, o: Any = None) -> None:
         pass
 
@@ -31,6 +37,10 @@ class Math:
               ):
         # type: (...) -> None
         return
+
+    @property
+    def prop(self) -> int:
+        return 0
 
 
 def tuple_args(x: Tuple[int, Union[int, str]]) -> Tuple[int, int]:

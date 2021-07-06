@@ -267,14 +267,9 @@ Google style with types in docstrings::
    `Python 2/3 compatible annotations`_ aren't currently
    supported by Sphinx and won't show up in the docs.
 
-.. _PEP 484:
-   https://www.python.org/dev/peps/pep-0484/
-
-.. _PEP 526:
-    https://www.python.org/dev/peps/pep-0526/
-
-.. _Python 2/3 compatible annotations:
-   https://www.python.org/dev/peps/pep-0484/#suggested-syntax-for-python-2-7-and-straddling-code
+.. _PEP 484: https://www.python.org/dev/peps/pep-0484/
+.. _PEP 526: https://www.python.org/dev/peps/pep-0526/
+.. _Python 2/3 compatible annotations: https://www.python.org/dev/peps/pep-0484/#suggested-syntax-for-python-2-7-and-straddling-code
 
 
 Configuration
@@ -330,9 +325,9 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
    **If True**::
 
        def __init__(self):
-           \"\"\"
+           """
            This will be included in the docs because it has a docstring
-           \"\"\"
+           """
 
        def __init__(self):
            # This will NOT be included in the docs
@@ -514,7 +509,7 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
 .. confval:: napoleon_preprocess_types
 
    True to convert the type definitions in the docstrings as references.
-   Defaults to *True*.
+   Defaults to *False*.
 
    .. versionadded:: 3.2.1
    .. versionchanged:: 3.5

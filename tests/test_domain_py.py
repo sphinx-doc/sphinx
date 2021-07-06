@@ -1147,6 +1147,9 @@ def test_python_python_use_unqualified_type_names(app, status, warning):
     assert ('<span class="n"><a class="reference internal" href="#foo.Name" title="foo.Name">'
             '<span class="pre">Name</span></a></span>' in content)
     assert '<span class="n"><span class="pre">foo.Age</span></span>' in content
+    assert ('<p><strong>name</strong> (<a class="reference internal" href="#foo.Name" '
+            'title="foo.Name"><em>Name</em></a>) – blah blah</p>' in content)
+    assert '<p><strong>age</strong> (<em>foo.Age</em>) – blah blah</p>' in content
 
 
 @pytest.mark.sphinx('html', testroot='domain-py-python_use_unqualified_type_names',
@@ -1157,6 +1160,9 @@ def test_python_python_use_unqualified_type_names_disabled(app, status, warning)
     assert ('<span class="n"><a class="reference internal" href="#foo.Name" title="foo.Name">'
             '<span class="pre">foo.Name</span></a></span>' in content)
     assert '<span class="n"><span class="pre">foo.Age</span></span>' in content
+    assert ('<p><strong>name</strong> (<a class="reference internal" href="#foo.Name" '
+            'title="foo.Name"><em>foo.Name</em></a>) – blah blah</p>' in content)
+    assert '<p><strong>age</strong> (<em>foo.Age</em>) – blah blah</p>' in content
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py-xref-warning')

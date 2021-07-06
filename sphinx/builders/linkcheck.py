@@ -21,12 +21,12 @@ from queue import PriorityQueue, Queue
 from threading import Thread
 from typing import (Any, Dict, Generator, List, NamedTuple, Optional, Pattern, Set, Tuple,
                     Union, cast)
-from urllib.parse import unquote, urlparse
+from urllib.parse import unquote, urlparse, urlunparse
 
 from docutils import nodes
 from docutils.nodes import Element
 from requests import Response
-from requests.exceptions import HTTPError, TooManyRedirects
+from requests.exceptions import ConnectionError, HTTPError, TooManyRedirects
 
 from sphinx.application import Sphinx
 from sphinx.builders.dummy import DummyBuilder
@@ -460,7 +460,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                                                  config=self.config, auth=auth_info,
                                                  **kwargs)
                         response.raise_for_status()
-                    except (HTTPError, TooManyRedirects) as err:
+                    # Servers drop the connection on HEAD requests, causing
+                    # ConnectionError.
+                    except (ConnectionError, HTTPError, TooManyRedirects) as err:
                         if isinstance(err, HTTPError) and err.response.status_code == 429:
                             raise
                         # retry with GET request if that fails, some servers
@@ -641,6 +643,10 @@ class HyperlinkCollector(SphinxPostTransform):
             if 'refuri' not in refnode:
                 continue
             uri = refnode['refuri']
+            newuri = self.app.emit_firstresult('linkcheck-process-uri', uri)
+            if newuri:
+                uri = newuri
+
             lineno = get_node_line(refnode)
             uri_info = Hyperlink(uri, self.env.docname, lineno)
             if uri not in hyperlinks:
@@ -650,10 +656,29 @@ class HyperlinkCollector(SphinxPostTransform):
         for imgnode in self.document.traverse(nodes.image):
             uri = imgnode['candidates'].get('?')
             if uri and '://' in uri:
+                newuri = self.app.emit_firstresult('linkcheck-process-uri', uri)
+                if newuri:
+                    uri = newuri
+
                 lineno = get_node_line(imgnode)
                 uri_info = Hyperlink(uri, self.env.docname, lineno)
                 if uri not in hyperlinks:
                     hyperlinks[uri] = uri_info
+
+
+def rewrite_github_anchor(app: Sphinx, uri: str) -> Optional[str]:
+    """Rewrite anchor name of the hyperlink to github.com
+
+    The hyperlink anchors in github.com are dynamically generated.  This rewrites
+    them before checking and makes them comparable.
+    """
+    parsed = urlparse(uri)
+    if parsed.hostname == "github.com" and parsed.fragment:
+        prefixed = parsed.fragment.startswith('user-content-')
+        if not prefixed:
+            fragment = f'user-content-{parsed.fragment}'
+            return urlunparse(parsed._replace(fragment=fragment))
+    return None
 
 
 def compile_linkcheck_allowed_redirects(app: Sphinx, config: Config) -> None:
@@ -686,7 +711,10 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('linkcheck_anchors_ignore', ["^!"], None)
     app.add_config_value('linkcheck_rate_limit_timeout', 300.0, None)
 
+    app.add_event('linkcheck-process-uri')
+
     app.connect('config-inited', compile_linkcheck_allowed_redirects, priority=800)
+    app.connect('linkcheck-process-uri', rewrite_github_anchor)
 
     return {
         'version': 'builtin',

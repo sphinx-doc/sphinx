@@ -33,7 +33,7 @@
     <li>{%trans path=pathto('ext/builtins')%}<b>Extensions:</b> automatic testing of code snippets, inclusion of
       docstrings from Python modules (API docs), and
       <a href="{{ path }}#builtin-sphinx-extensions">more</a>{%endtrans%}</li>
-    <li>{%trans path=pathto("usage/extensions")%}<b>Contributed extensions:</b> dozens of
+    <li>{%trans path=pathto("usage/extensions/index")%}<b>Contributed extensions:</b> dozens of
       extensions <a href="{{ path }}#third-party-extensions">contributed by users</a>;
       most of them installable from PyPI{%endtrans%}</li>
   </ul>
@@ -52,23 +52,25 @@
         <p class="biglink"><a class="biglink" href="{{ pathto("usage/quickstart") }}">{%trans%}First steps with Sphinx{%endtrans%}</a><br/>
            <span class="linkdescr">{%trans%}overview of basic tasks{%endtrans%}</span></p>
       </td><td>
-        {%- if hasdoc('search') %}<p class="biglink"><a class="biglink" href="{{ pathto("search") }}">{%trans%}Search page{%endtrans%}</a><br/>
-           <span class="linkdescr">{%trans%}search the documentation{%endtrans%}</span></p>{%- endif %}
+        <p class="biglink"><a class="biglink" href="{{ pathto("tutorial/index") }}">{%trans%}Tutorial{%endtrans%}</a><br/>
+           <span class="linkdescr">{%trans%}beginners tutorial{%endtrans%}</span></p>
       </td>
     </tr><tr>
       <td>
         <p class="biglink"><a class="biglink" href="{{ pathto("contents") }}">{%trans%}Contents{%endtrans%}</a><br/>
            <span class="linkdescr">{%trans%}for a complete overview{%endtrans%}</span></p>
       </td><td>
-        {%- if hasdoc('genindex') %}<p class="biglink"><a class="biglink" href="{{ pathto("genindex") }}">{%trans%}General Index{%endtrans%}</a><br/>
-           <span class="linkdescr">{%trans%}all functions, classes, terms{%endtrans%}</span></p>{%- endif %}
+        {%- if hasdoc('search') %}<p class="biglink"><a class="biglink" href="{{ pathto("search") }}">{%trans%}Search page{%endtrans%}</a><br/>
+           <span class="linkdescr">{%trans%}search the documentation{%endtrans%}</span></p>{%- endif %}
       </td>
     </tr><tr>
       <td>
         <p class="biglink"><a class="biglink" href="{{ pathto("changes") }}">{%trans%}Changes{%endtrans%}</a><br/>
            <span class="linkdescr">{%trans%}release history{%endtrans%}</span></p>
       </td><td>
-      </td>
+        {%- if hasdoc('genindex') %}<p class="biglink"><a class="biglink" href="{{ pathto("genindex") }}">{%trans%}General Index{%endtrans%}</a><br/>
+           <span class="linkdescr">{%trans%}all functions, classes, terms{%endtrans%}</span></p>{%- endif %}
+      </td><td>
     </tr>
   </table>
 

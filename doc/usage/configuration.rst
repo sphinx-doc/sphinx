@@ -2712,6 +2712,14 @@ Options for the C domain
 
    .. versionadded:: 3.0
 
+.. confval:: c_extra_keywords
+
+  A list of identifiers to be recognized as keywords by the C parser.
+  It defaults to ``['alignas', 'alignof', 'bool', 'complex', 'imaginary',
+  'noreturn', 'static_assert', 'thread_local']``.
+
+  .. versionadded:: 4.0.3
+
 .. confval:: c_allow_pre_v3
 
    A boolean (default ``False``) controlling whether to parse and try to

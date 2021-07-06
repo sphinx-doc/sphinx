@@ -48,8 +48,8 @@ Defining document structure
 ---------------------------
 
 Let's assume you've run :program:`sphinx-quickstart`.  It created a source
-directory with :file:`conf.py` and a master document, :file:`index.rst`.  The
-main function of the :term:`master document` is to serve as a welcome page, and
+directory with :file:`conf.py` and a root document, :file:`index.rst`.  The
+main function of the :term:`root document` is to serve as a welcome page, and
 to contain the root of the "table of contents tree" (or *toctree*).  This is one
 of the main things that Sphinx adds to reStructuredText, a way to connect
 multiple files to a single hierarchy of documents.
@@ -74,14 +74,14 @@ multiple files to a single hierarchy of documents.
 
 The ``toctree`` directive initially is empty, and looks like so:
 
-.. code-block:: rest
+.. code-block:: rst
 
    .. toctree::
       :maxdepth: 2
 
 You add documents listing them in the *content* of the directive:
 
-.. code-block:: rest
+.. code-block:: rst
 
    .. toctree::
       :maxdepth: 2
@@ -172,7 +172,7 @@ The most prominent domain is the Python domain. For example, to document
 Python's built-in function ``enumerate()``, you would add this to one of your
 source files.
 
-.. code-block:: restructuredtext
+.. code-block:: rst
 
    .. py:function:: enumerate(sequence[, start=0])
 
@@ -193,7 +193,7 @@ given, each in its own line.
 The Python domain also happens to be the default domain, so you don't need to
 prefix the markup with the domain name.
 
-.. code-block:: restructuredtext
+.. code-block:: rst
 
    .. function:: enumerate(sequence[, start=0])
 

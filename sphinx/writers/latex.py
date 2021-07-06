@@ -966,7 +966,7 @@ class LaTeXTranslator(SphinxTranslator):
                     # insert suitable strut for equalizing row heights in given multirow
                     self.body.append(r'\sphinxtablestrut{%d}' % cell.cell_id)
                 else:  # use \multicolumn for wide multirow cell
-                    self.body.append(r'\multicolumn{%d}{|l|}\sphinxtablestrut{%d}}' %
+                    self.body.append(r'\multicolumn{%d}{|l|}{\sphinxtablestrut{%d}}' %
                                      (cell.width, cell.cell_id))
 
     def depart_row(self, node: Element) -> None:
@@ -1975,10 +1975,14 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def visit_container(self, node: Element) -> None:
-        pass
+        classes = node.get('classes', [])
+        for c in classes:
+            self.body.append('\n\\begin{sphinxuseclass}{%s}' % c)
 
     def depart_container(self, node: Element) -> None:
-        pass
+        classes = node.get('classes', [])
+        for c in classes:
+            self.body.append('\n\\end{sphinxuseclass}')
 
     def visit_decoration(self, node: Element) -> None:
         pass

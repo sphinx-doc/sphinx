@@ -19,7 +19,9 @@ class XMLWriter(BaseXMLWriter):
     def __init__(self, builder: Builder) -> None:
         super().__init__()
         self.builder = builder
-        self.translator_class = self.builder.get_translator_class()
+
+        # A lambda function to generate translator lazily
+        self.translator_class = lambda document: self.builder.create_translator(document)
 
     def translate(self, *args: Any, **kwargs: Any) -> None:
         self.document.settings.newlines = \

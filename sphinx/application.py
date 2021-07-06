@@ -655,7 +655,7 @@ class Sphinx:
                    ...
 
            def setup(app):
-               add_directive('my-directive', MyDirective)
+               app.add_directive('my-directive', MyDirective)
 
         For more details, see `the Docutils docs
         <https://docutils.sourceforge.io/docs/howto/rst-directives.html>`__ .
@@ -1249,6 +1249,18 @@ class Sphinx:
                 return False
 
         return True
+
+    def set_html_assets_policy(self, policy):
+        """Set the policy to include assets in HTML pages.
+
+        - always: include the assets in all the pages
+        - per_page: include the assets only in pages where they are used
+
+        .. versionadded: 4.1
+        """
+        if policy not in ('always', 'per_page'):
+            raise ValueError('policy %s is not supported' % policy)
+        self.registry.html_assets_policy = policy
 
     @property
     def html_themes(self) -> Dict[str, str]:

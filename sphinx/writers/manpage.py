@@ -59,13 +59,16 @@ class NestedInlineTransform:
         for node in self.document.traverse(matcher):  # type: TextElement
             if any(matcher(subnode) for subnode in node):
                 pos = node.parent.index(node)
-                for subnode in reversed(node[1:]):
+                for subnode in reversed(list(node)):
                     node.remove(subnode)
                     if matcher(subnode):
                         node.parent.insert(pos + 1, subnode)
                     else:
                         newnode = node.__class__('', '', subnode, **node.attributes)
                         node.parent.insert(pos + 1, newnode)
+                # move node if all children became siblings of the node
+                if not len(node):
+                    node.parent.remove(node)
 
 
 class ManualPageTranslator(SphinxTranslator, BaseTranslator):
