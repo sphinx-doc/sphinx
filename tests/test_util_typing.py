@@ -60,6 +60,7 @@ def test_restify_type_hints_containers():
     assert restify(Tuple[str, str, str]) == (":class:`~typing.Tuple`\\ "
                                              "[:class:`str`, :class:`str`, :class:`str`]")
     assert restify(Tuple[str, ...]) == ":class:`~typing.Tuple`\\ [:class:`str`, ...]"
+    assert restify(Tuple[()]) == ":class:`~typing.Tuple`\\ [()]"
     assert restify(List[Dict[str, Tuple]]) == (":class:`~typing.List`\\ "
                                                "[:class:`~typing.Dict`\\ "
                                                "[:class:`str`, :class:`~typing.Tuple`]]")
@@ -168,6 +169,7 @@ def test_stringify_type_hints_containers():
     assert stringify(Dict[str, float]) == "Dict[str, float]"
     assert stringify(Tuple[str, str, str]) == "Tuple[str, str, str]"
     assert stringify(Tuple[str, ...]) == "Tuple[str, ...]"
+    assert stringify(Tuple[()]) == "Tuple[()]"
     assert stringify(List[Dict[str, Tuple]]) == "List[Dict[str, Tuple]]"
     assert stringify(MyList[Tuple[int, int]]) == "tests.test_util_typing.MyList[Tuple[int, int]]"
     assert stringify(Generator[None, None, None]) == "Generator[None, None, None]"

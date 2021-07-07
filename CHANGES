@@ -88,6 +88,7 @@ Bugs fixed
   attribute not having any comment
 * #9364: autodoc: single element tuple on the default argument value is wrongly
   rendered
+* #9362: autodoc: AttributeError is raised on processing a subclass of Tuple[()]
 * #9317: html: Pushing left key causes visiting the next page at the first page
 * #9381: html: URL for html_favicon and html_log does not work
 * #9270: html theme : pyramid theme generates incorrect logo links
