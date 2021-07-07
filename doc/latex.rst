@@ -531,6 +531,10 @@ Keys that don't need to be overridden unless in special cases are:
       Changed default for ``'pdflatex'``. Previously it was using 
       ``'\\fvset{fontsize=\\small}'``.
 
+   .. versionchanged:: 4.1.0
+      Changed default for Chinese documents to
+      ``'\\fvset{fontsize=\\small,formatcom=\\xeCJKVerbAddon}'``
+
 Keys that are set by other options and therefore should not be overridden are:
 
 ``'docclass'``
