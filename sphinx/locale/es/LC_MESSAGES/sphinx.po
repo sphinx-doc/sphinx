@@ -427,7 +427,7 @@ msgstr "enumerable_node %r ya esta registrado"
 
 #: sphinx/registry.py:404
 #, python-format
-msgid "math renderer %s is already registred"
+msgid "math renderer %s is already registered"
 msgstr "Renderizador matemático %s ya fue registrado"
 
 #: sphinx/registry.py:417

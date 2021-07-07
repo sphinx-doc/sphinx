@@ -435,7 +435,7 @@ msgstr "可数节点 %r 已注册"
 
 #: sphinx/registry.py:404
 #, python-format
-msgid "math renderer %s is already registred"
+msgid "math renderer %s is already registered"
 msgstr "公式渲染器 %s 已注册"
 
 #: sphinx/registry.py:417

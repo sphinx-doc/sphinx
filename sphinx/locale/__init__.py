@@ -261,8 +261,8 @@ admonitionlabels = {
     'warning':   _('Warning'),
 }
 
-# Moved to sphinx.directives.other (will be overriden later)
+# Moved to sphinx.directives.other (will be overridden later)
 versionlabels: Dict[str, str] = {}
 
-# Moved to sphinx.domains.python (will be overriden later)
+# Moved to sphinx.domains.python (will be overridden later)
 pairindextypes: Dict[str, str] = {}

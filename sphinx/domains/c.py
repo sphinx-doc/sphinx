@@ -2478,7 +2478,7 @@ class DefinitionParser(BaseParser):
 
     def _parse_expression(self) -> ASTExpression:
         # -> assignment-expression
-        #  | expression "," assignment-expresion
+        #  | expression "," assignment-expression
         # TODO: actually parse the second production
         return self._parse_assignment_expression()
 

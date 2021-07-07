@@ -324,7 +324,7 @@ def educate_tokens(text_tokens: Iterable[Tuple[str, str]],
 
     for (ttype, text) in text_tokens:
 
-        # skip HTML and/or XML tags as well as emtpy text tokens
+        # skip HTML and/or XML tags as well as empty text tokens
         # without updating the last character
         if ttype == 'tag' or not text:
             yield text

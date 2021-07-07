@@ -38,7 +38,7 @@ class SearchLanguage:
 
     .. attribute:: js_splitter_code
 
-       Return splitter funcion of JavaScript version.  The function should be
+       Return splitter function of JavaScript version.  The function should be
        named as ``splitQuery``.  And it should take a string and return list of
        strings.
 

@@ -404,7 +404,7 @@ class SphinxComponentRegistry:
         logger.debug('[app] adding html_math_renderer: %s, %r, %r',
                      name, inline_renderers, block_renderers)
         if name in self.html_inline_math_renderers:
-            raise ExtensionError(__('math renderer %s is already registred') % name)
+            raise ExtensionError(__('math renderer %s is already registered') % name)
 
         self.html_inline_math_renderers[name] = inline_renderers
         self.html_block_math_renderers[name] = block_renderers

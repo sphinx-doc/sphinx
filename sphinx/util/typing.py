@@ -297,7 +297,7 @@ def stringify(annotation: Any) -> str:
         else:
             return '.'.join([annotation.__module__, annotation.__name__])
     elif inspect.isNewType(annotation):
-        # Could not get the module where it defiend
+        # Could not get the module where it defined
         return annotation.__name__
     elif not annotation:
         return repr(annotation)
