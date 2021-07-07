@@ -71,6 +71,7 @@ class XMLBuilder(Builder):
         # work around multiple string % tuple issues in docutils;
         # replace tuples in attribute values with lists
         doctree = doctree.deepcopy()
+        doctree.document.attributes["xmlns:py"] = "https://github.com/sphinx-doc/sphinx/issues/9413"
         for node in doctree.traverse(nodes.Element):
             for att, value in node.attributes.items():
                 if isinstance(value, tuple):
