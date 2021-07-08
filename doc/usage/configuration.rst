@@ -747,6 +747,7 @@ documentation on :ref:`intl` for details.
    * ``hr`` -- Croatian
    * ``hu`` -- Hungarian
    * ``id`` -- Indonesian
+   * ``is`` -- Icelandic
    * ``it`` -- Italian
    * ``ja`` -- Japanese
    * ``ko`` -- Korean
