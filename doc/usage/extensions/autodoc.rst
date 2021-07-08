@@ -41,7 +41,7 @@ you can also enable the :mod:`napoleon <sphinx.ext.napoleon>` extension.
 docstrings to correct reStructuredText before :mod:`autodoc` processes them.
 
 .. _Google: https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings
-.. _NumPy: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+.. _NumPy: https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
 
 Directives
