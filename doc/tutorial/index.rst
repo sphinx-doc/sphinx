@@ -444,6 +444,67 @@ cross-reference to. If you do not include an explicit title, hence using
 ``Installation``). Both the ``:doc:`` and the ``:ref:`` roles will be rendered
 as hyperlinks in the HTML documentation.
 
+Referencing external projects with intersphinx
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Most likely you are depending on some open source libraries for your own
+project, and there is a chance those dependencies have their documentation
+written in Sphinx and available online. One of the most powerful features of
+Sphinx is the ability to generate cross-references to objects from other
+projects available online, using the
+:doc:`intersphinx </usage/extensions/intersphinx>` extension.
+
+To enable it, first add ``sphinx.ext.intersphinx`` to the list of extensions:
+
+.. code-block:: python
+   :caption: docs/source/conf.py
+
+   extensions = [
+       'sphinx.ext.duration',
+       'sphinx.ext.intersphinx',
+   ]
+
+The way to know whether you can reference an external project is to check
+if it has a publicly available ``objects.inv``, which can be parsed calling
+``python -m sphinx.ext.intersphinx``. For example, this is the output for
+Sphinx itself:
+
+.. code-block:: console
+   :emphasize-lines: 4
+
+   (.venv) $ python -msphinx.ext.intersphinx https://www.sphinx-doc.org/en/master/objects.inv  | grep 'std:doc' -A5
+   std:doc
+           changes                                  Changelog                               : changes.html
+           contents                                 Sphinx documentation contents           : contents.html
+           development/builders                     Configuring builders                    : development/builders.html
+           development/index                        Extending Sphinx                        : development/index.html
+           development/overview                     Developing extensions overview          : development/overview.html
+
+You can now introduce a cross-reference to the ``contents`` section of the
+Sphinx documentation as follows, prefixing it by `sphinx:` to better identify
+it is an external one:
+
+.. code-block:: rst
+   :caption: docs/source/index.rst
+
+   .. note::
+
+      This documentation is built on Sphinx,
+      :doc:`find out more in their docs <sphinx:contents>`.
+
+And finally, to actually link our documentation with the Sphinx one, add a
+:confval:`intersphinx_mapping` dictionary to your  as follows:
+
+.. code-block:: python
+   :caption: docs/source/conf.py
+
+   intersphinx_mapping = {
+       'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
+   }
+
+After you build the HTML documentation with ``make html``, you will see a link
+pointing to that specific section of the Sphinx documentation!
+
 Where to go from here
 ---------------------
 
