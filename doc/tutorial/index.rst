@@ -447,10 +447,10 @@ as hyperlinks in the HTML documentation.
 Referencing external projects with intersphinx
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Most likely you are depending on some open source libraries for your own
+You are likely depending on some open source libraries for your own
 project, and there is a chance those dependencies have their documentation
 written in Sphinx and available online. One of the most powerful features of
-Sphinx is the ability to generate cross-references to objects from other
+Sphinx is the ability to generate cross-references to other
 projects available online, using the
 :doc:`intersphinx </usage/extensions/intersphinx>` extension.
 
@@ -482,7 +482,7 @@ Sphinx itself:
 
 You can now introduce a cross-reference to the ``contents`` section of the
 Sphinx documentation as follows, prefixing it by `sphinx:` to better identify
-it is an external one:
+it as an external reference:
 
 .. code-block:: rst
    :caption: docs/source/index.rst
@@ -503,7 +503,7 @@ And finally, to actually link our documentation with the Sphinx one, add a
    }
 
 After you build the HTML documentation with ``make html``, you will see a link
-pointing to that specific section of the Sphinx documentation!
+pointing to that specific page of the Sphinx documentation!
 
 Where to go from here
 ---------------------
