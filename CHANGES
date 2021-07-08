@@ -55,7 +55,7 @@ Features added
 * #1874: py domain: Support union types using ``|`` in info-field-list
 * #9268: py domain: :confval:`python_use_unqualified_type_names` supports type
   field in info-field-list
-* #9097: Optimize the paralell build
+* #9097: Optimize the parallel build
 * #9131: Add :confval:`nitpick_ignore_regex` to ignore nitpicky warnings using
   regular expressions
 * #9174: Add ``Sphinx.set_html_assets_policy`` to tell extensions to include
@@ -625,7 +625,7 @@ Bugs fixed
 * #8567: autodoc: Instance attributes are incorrectly added to Parent class
 * #8566: autodoc: The ``autodoc-process-docstring`` event is emitted to the
   alias classes unexpectedly
-* #8583: autodoc: Unnecessary object comparision via ``__eq__`` method
+* #8583: autodoc: Unnecessary object comparison via ``__eq__`` method
 * #8565: linkcheck: Fix PriorityQueue crash when link tuples are not
   comparable
 
@@ -691,7 +691,7 @@ Bugs fixed
 * #8443: autodoc: autodata directive can't create document for PEP-526 based
   type annotated variables
 * #8443: autodoc: autoattribute directive can't create document for PEP-526
-  based uninitalized variables
+  based uninitialized variables
 * #8480: autodoc: autoattribute could not create document for __slots__
   attributes
 * #8503: autodoc: autoattribute could not create document for a GenericAlias as
@@ -848,7 +848,7 @@ Bugs fixed
 * #8091: autodoc: AttributeError is raised on documenting an attribute on Python
   3.5.2
 * #8099: autodoc: NameError is raised when target code uses ``TYPE_CHECKING``
-* C++, fix parsing of template template paramters, broken by the fix of #7944
+* C++, fix parsing of template template parameters, broken by the fix of #7944
 
 Release 3.2.0 (released Aug 08, 2020)
 =====================================
@@ -1137,7 +1137,7 @@ Bugs fixed
 * #3673: autodoc: member-order="bysource" does not work for a module having
   __all__
 * #7668: autodoc: wrong retann value is passed to a handler of
-  autodoc-proccess-signature
+  autodoc-process-signature
 * #7711: autodoc: fails with ValueError when processing numpy objects
 * #7791: autodoc: TypeError is raised on documenting singledispatch function
 * #7551: autosummary: a nested class is indexed as non-nested class
@@ -1343,7 +1343,7 @@ Features added
 * #6417: py domain: Allow to make a style for arguments of functions and methods
 * #7238, #7239: py domain: Emit a warning on describing a python object if the
   entry is already added as the same name
-* #7341: py domain: type annotations in singature are converted to cross refs
+* #7341: py domain: type annotations in signature are converted to cross refs
 * Support priority of event handlers. For more detail, see
   :py:meth:`.Sphinx.connect()`
 * #3077: Implement the scoping for :rst:dir:`productionlist` as indicated

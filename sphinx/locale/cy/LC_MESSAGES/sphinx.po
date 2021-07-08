@@ -422,7 +422,7 @@ msgstr ""
 
 #: sphinx/registry.py:404
 #, python-format
-msgid "math renderer %s is already registred"
+msgid "math renderer %s is already registered"
 msgstr ""
 
 #: sphinx/registry.py:417

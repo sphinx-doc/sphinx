@@ -84,7 +84,7 @@ def publish_msgstr(app: "Sphinx", source: str, source_path: str, source_line: in
 
 class PreserveTranslatableMessages(SphinxTransform):
     """
-    Preserve original translatable messages befor translation
+    Preserve original translatable messages before translation
     """
     default_priority = 10  # this MUST be invoked before Locale transform
 

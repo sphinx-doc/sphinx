@@ -424,7 +424,7 @@ msgstr "enumerable_node %r पहले से पंजीकृत है"
 
 #: sphinx/registry.py:404
 #, python-format
-msgid "math renderer %s is already registred"
+msgid "math renderer %s is already registered"
 msgstr "गणित प्रस्तोता %s पहले से पंजीकृत है"
 
 #: sphinx/registry.py:417

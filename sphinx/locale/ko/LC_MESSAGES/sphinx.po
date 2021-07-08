@@ -422,7 +422,7 @@ msgstr "enumerable_node %r이(가) 이미 등록되었습니다"
 
 #: sphinx/registry.py:404
 #, python-format
-msgid "math renderer %s is already registred"
+msgid "math renderer %s is already registered"
 msgstr "수식 렌더러 %s이(가) 이미 등록되었습니다"
 
 #: sphinx/registry.py:417

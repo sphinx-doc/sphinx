@@ -423,7 +423,7 @@ msgstr "το enumerable_node %r είναι ήδη καταχωρημένο"
 
 #: sphinx/registry.py:404
 #, python-format
-msgid "math renderer %s is already registred"
+msgid "math renderer %s is already registered"
 msgstr "ο συνθέτης μαθηματικών %s είναι ήδη καταχωρημένος"
 
 #: sphinx/registry.py:417

@@ -175,7 +175,7 @@ class HTMLThemeFactory:
                 self.themes[name] = theme
 
     def load_extra_theme(self, name: str) -> None:
-        """Try to load a theme having specifed name."""
+        """Try to load a theme having specified name."""
         if name == 'alabaster':
             self.load_alabaster_theme()
         else:

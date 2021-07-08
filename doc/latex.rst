@@ -708,7 +708,7 @@ Do not use quotes to enclose values, whether numerical or strings.
     As the default is set to a high value, the forceful algorithm is triggered
     only in overfull case, i.e. in presence of a string longer than full
     linewidth. Set this to ``0`` to force all input lines to be hard wrapped
-    at the current avaiable linewidth::
+    at the current available linewidth::
 
       latex_elements = {
           'sphinxsetup': "verbatimforcewraps, verbatimmaxunderfull=0",
@@ -778,7 +778,7 @@ Do not use quotes to enclose values, whether numerical or strings.
 
     .. versionchanged:: 1.5
        The breaking of long code lines was added at 1.4.2. The default
-       definition of the continuation symbol was changed at 1.5 to accomodate
+       definition of the continuation symbol was changed at 1.5 to accommodate
        various font sizes (e.g. code-blocks can be in footnotes).
 
 ``TitleColor``
