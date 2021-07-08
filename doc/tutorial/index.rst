@@ -480,9 +480,19 @@ Sphinx itself:
            development/index                        Extending Sphinx                        : development/index.html
            development/overview                     Developing extensions overview          : development/overview.html
 
+To link your documentation with the Sphinx one, add a
+:confval:`intersphinx_mapping` dictionary to your ``conf.py`` as follows:
+
+.. code-block:: python
+   :caption: docs/source/conf.py
+
+   intersphinx_mapping = {
+       'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
+   }
+
 You can now introduce a cross-reference to the ``contents`` section of the
-Sphinx documentation as follows, prefixing it by `sphinx:` to better identify
-it as an external reference:
+Sphinx documentation as follows, optionally prefixing it by ``sphinx:``, the
+key you used in the ``intersphinx_mapping`` configuration:
 
 .. code-block:: rst
    :caption: docs/source/index.rst
@@ -491,16 +501,6 @@ it as an external reference:
 
       This documentation is built on Sphinx,
       :doc:`find out more in their docs <sphinx:contents>`.
-
-And finally, to actually link our documentation with the Sphinx one, add a
-:confval:`intersphinx_mapping` dictionary to your  as follows:
-
-.. code-block:: python
-   :caption: docs/source/conf.py
-
-   intersphinx_mapping = {
-       'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
-   }
 
 After you build the HTML documentation with ``make html``, you will see a link
 pointing to that specific page of the Sphinx documentation!
