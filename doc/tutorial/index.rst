@@ -472,7 +472,7 @@ Sphinx itself:
 .. code-block:: console
    :emphasize-lines: 4
 
-   (.venv) $ python -msphinx.ext.intersphinx https://www.sphinx-doc.org/en/master/objects.inv  | grep 'std:doc' -A5
+   (.venv) $ python -msphinx.ext.intersphinx https://www.sphinx-doc.org/en/master/objects.inv  | grep 'std:doc' --after-context 5
    std:doc
            changes                                  Changelog                               : changes.html
            contents                                 Sphinx documentation contents           : contents.html
