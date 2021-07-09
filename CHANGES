@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #9418: a Callable annotation with no parameters (e.g. Callable[[], None]) will
+  be rendered with a bracket missing (Callable[], None])
+
 Testing
 --------
 
