@@ -449,7 +449,7 @@ Referencing external projects with intersphinx
 
 You are likely depending on some open source libraries for your own
 project, and there is a chance those dependencies have their documentation
-written in Sphinx and available online. One of the most powerful features of
+written in Sphinx and available online. One of the powerful features of
 Sphinx is the ability to generate cross-references to other
 projects available online, using the
 :doc:`intersphinx </usage/extensions/intersphinx>` extension.
