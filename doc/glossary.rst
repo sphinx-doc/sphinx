@@ -76,6 +76,9 @@ Glossary
    master document
       The document that contains the root :rst:dir:`toctree` directive.
 
+   root document
+      Same as :term:`master document`.
+
    object
       The basic building block of Sphinx documentation.  Every "object
       directive" (e.g. :rst:dir:`function` or :rst:dir:`object`) creates such a

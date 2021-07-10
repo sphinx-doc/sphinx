@@ -1225,7 +1225,7 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def depart_hlistcol(self, node: Element) -> None:
-        # \columnbreak would guarantee same columns as in html ouput.  But
+        # \columnbreak would guarantee same columns as in html output.  But
         # some testing with long items showed that columns may be too uneven.
         # And in case only of short items, the automatic column breaks should
         # match the ones pre-computed by the hlist() directive.
@@ -1890,7 +1890,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.context[-1] += 1
 
     def visit_option_argument(self, node: Element) -> None:
-        """The delimiter betweeen an option and its argument."""
+        """The delimiter between an option and its argument."""
         self.body.append(node.get('delimiter', ' '))
 
     def depart_option_argument(self, node: Element) -> None:
@@ -1975,10 +1975,14 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def visit_container(self, node: Element) -> None:
-        pass
+        classes = node.get('classes', [])
+        for c in classes:
+            self.body.append('\n\\begin{sphinxuseclass}{%s}' % c)
 
     def depart_container(self, node: Element) -> None:
-        pass
+        classes = node.get('classes', [])
+        for c in classes:
+            self.body.append('\n\\end{sphinxuseclass}')
 
     def visit_decoration(self, node: Element) -> None:
         pass

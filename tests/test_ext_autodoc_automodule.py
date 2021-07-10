@@ -29,6 +29,95 @@ def test_empty_all(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_automodule(app):
+    options = {'members': None}
+    actual = do_autodoc(app, 'module', 'target.module', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.module',
+        '',
+        '',
+        '.. py:data:: annotated',
+        '   :module: target.module',
+        '   :type: int',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:data:: documented',
+        '   :module: target.module',
+        '   :value: 1',
+        '',
+        '   docstring',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_automodule_undoc_members(app):
+    options = {'members': None,
+               'undoc-members': None}
+    actual = do_autodoc(app, 'module', 'target.module', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.module',
+        '',
+        '',
+        '.. py:data:: annotated',
+        '   :module: target.module',
+        '   :type: int',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:data:: documented',
+        '   :module: target.module',
+        '   :value: 1',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:data:: undoc_annotated',
+        '   :module: target.module',
+        '   :type: int',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_automodule_special_members(app):
+    options = {'members': None,
+               'special-members': None}
+    actual = do_autodoc(app, 'module', 'target.module', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.module',
+        '',
+        '',
+        '.. py:data:: __documented_special__',
+        '   :module: target.module',
+        '   :value: 1',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:data:: annotated',
+        '   :module: target.module',
+        '   :type: int',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:data:: documented',
+        '   :module: target.module',
+        '   :value: 1',
+        '',
+        '   docstring',
+        '',
+    ]
+
+
 @pytest.mark.sphinx('html', testroot='ext-autodoc',
                     confoverrides={'autodoc_mock_imports': ['missing_module',
                                                             'missing_package1',

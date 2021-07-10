@@ -74,6 +74,11 @@ def test_core_config(app, status, warning):
     assert cfg['project'] == cfg.project == 'Sphinx Tests'
 
 
+def test_config_not_found(tempdir):
+    with pytest.raises(ConfigError):
+        Config.read(tempdir)
+
+
 def test_extension_values():
     config = Config()
 
@@ -311,3 +316,77 @@ def test_check_enum_for_list_failed(logger):
     config.init_values()
     check_confval_types(None, config)
     assert logger.warning.called
+
+
+nitpick_warnings = [
+    "WARNING: py:const reference target not found: prefix.anything.postfix",
+    "WARNING: py:class reference target not found: prefix.anything",
+    "WARNING: py:class reference target not found: anything.postfix",
+    "WARNING: js:class reference target not found: prefix.anything.postfix",
+]
+
+
+@pytest.mark.sphinx(testroot='nitpicky-warnings')
+def test_nitpick_base(app, status, warning):
+    app.builder.build_all()
+
+    warning = warning.getvalue().strip().split('\n')
+    assert len(warning) == len(nitpick_warnings)
+    for actual, expected in zip(warning, nitpick_warnings):
+        assert expected in actual
+
+
+@pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
+    'nitpick_ignore': [
+        ('py:const', 'prefix.anything.postfix'),
+        ('py:class', 'prefix.anything'),
+        ('py:class', 'anything.postfix'),
+        ('js:class', 'prefix.anything.postfix'),
+    ],
+})
+def test_nitpick_ignore(app, status, warning):
+    app.builder.build_all()
+    assert not len(warning.getvalue().strip())
+
+
+@pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
+    'nitpick_ignore_regex': [
+        (r'py:.*', r'.*postfix'),
+        (r'.*:class', r'prefix.*'),
+    ]
+})
+def test_nitpick_ignore_regex1(app, status, warning):
+    app.builder.build_all()
+    assert not len(warning.getvalue().strip())
+
+
+@pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
+    'nitpick_ignore_regex': [
+        (r'py:.*', r'prefix.*'),
+        (r'.*:class', r'.*postfix'),
+    ]
+})
+def test_nitpick_ignore_regex2(app, status, warning):
+    app.builder.build_all()
+    assert not len(warning.getvalue().strip())
+
+
+@pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
+    'nitpick_ignore_regex': [
+        # None of these should match
+        (r'py:', r'.*'),
+        (r':class', r'.*'),
+        (r'', r'.*'),
+        (r'.*', r'anything'),
+        (r'.*', r'prefix'),
+        (r'.*', r'postfix'),
+        (r'.*', r''),
+    ]
+})
+def test_nitpick_ignore_regex_fullmatch(app, status, warning):
+    app.builder.build_all()
+
+    warning = warning.getvalue().strip().split('\n')
+    assert len(warning) == len(nitpick_warnings)
+    for actual, expected in zip(warning, nitpick_warnings):
+        assert expected in actual

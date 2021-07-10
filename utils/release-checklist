@@ -30,8 +30,6 @@ for first beta releases
 
 * open "https://github.com/sphinx-doc/sphinx/actions?query=branch:master" and all tests has passed
 * Run ``git fetch; git status`` and check nothing changed
-* Run ``python setup.py extract_messages``
-* Run ``(cd sphinx/locale; tx push -s)``
 * ``python utils/bump_version.py X.Y.0b1``
 * Check diff by ``git diff``
 * ``git commit -am 'Bump to X.Y.0 beta1'``
@@ -83,8 +81,6 @@ for major releases
 
 * open "https://github.com/sphinx-doc/sphinx/actions?query=branch:X.x" and all tests has passed
 * Run ``git fetch; git status`` and check nothing changed
-* Run ``(cd sphinx/locale; tx pull -a -f)``
-* Run ``python setup.py compile_catalog``
 * Run ``git add sphinx``
 * Run ``git commit -am 'Update message catalogs'``
 * ``python utils/bump_version.py X.Y.0``

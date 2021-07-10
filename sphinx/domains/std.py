@@ -285,7 +285,7 @@ class OptionXRefRole(XRefRole):
 
 def split_term_classifiers(line: str) -> List[Optional[str]]:
     # split line into a term and classifiers. if no classifier, None is used..
-    parts = re.split(' +: +', line) + [None]
+    parts: List[Optional[str]] = re.split(' +: +', line) + [None]
     return parts
 
 
@@ -621,7 +621,7 @@ class StandardDomain(Domain):
     }
 
     # node_class -> (figtype, title_getter)
-    enumerable_nodes: Dict[Type[Node], Tuple[str, Callable]] = {
+    enumerable_nodes: Dict[Type[Node], Tuple[str, Optional[Callable]]] = {
         nodes.figure: ('figure', None),
         nodes.table: ('table', None),
         nodes.container: ('code-block', None),
@@ -812,7 +812,8 @@ class StandardDomain(Domain):
         return newnode
 
     def resolve_xref(self, env: "BuildEnvironment", fromdocname: str, builder: "Builder",
-                     typ: str, target: str, node: pending_xref, contnode: Element) -> Element:
+                     typ: str, target: str, node: pending_xref, contnode: Element
+                     ) -> Optional[Element]:
         if typ == 'ref':
             resolver = self._resolve_ref_xref
         elif typ == 'numref':
@@ -832,7 +833,7 @@ class StandardDomain(Domain):
 
     def _resolve_ref_xref(self, env: "BuildEnvironment", fromdocname: str,
                           builder: "Builder", typ: str, target: str, node: pending_xref,
-                          contnode: Element) -> Element:
+                          contnode: Element) -> Optional[Element]:
         if node['refexplicit']:
             # reference to anonymous label; the reference uses
             # the supplied link caption
@@ -850,7 +851,7 @@ class StandardDomain(Domain):
 
     def _resolve_numref_xref(self, env: "BuildEnvironment", fromdocname: str,
                              builder: "Builder", typ: str, target: str,
-                             node: pending_xref, contnode: Element) -> Element:
+                             node: pending_xref, contnode: Element) -> Optional[Element]:
         if target in self.labels:
             docname, labelid, figname = self.labels.get(target, ('', '', ''))
         else:
@@ -913,7 +914,7 @@ class StandardDomain(Domain):
 
     def _resolve_keyword_xref(self, env: "BuildEnvironment", fromdocname: str,
                               builder: "Builder", typ: str, target: str,
-                              node: pending_xref, contnode: Element) -> Element:
+                              node: pending_xref, contnode: Element) -> Optional[Element]:
         # keywords are oddballs: they are referenced by named labels
         docname, labelid, _ = self.labels.get(target, ('', '', ''))
         if not docname:
@@ -923,7 +924,7 @@ class StandardDomain(Domain):
 
     def _resolve_doc_xref(self, env: "BuildEnvironment", fromdocname: str,
                           builder: "Builder", typ: str, target: str,
-                          node: pending_xref, contnode: Element) -> Element:
+                          node: pending_xref, contnode: Element) -> Optional[Element]:
         # directly reference to document by source name; can be absolute or relative
         refdoc = node.get('refdoc', fromdocname)
         docname = docname_join(refdoc, node['reftarget'])
@@ -940,7 +941,7 @@ class StandardDomain(Domain):
 
     def _resolve_option_xref(self, env: "BuildEnvironment", fromdocname: str,
                              builder: "Builder", typ: str, target: str,
-                             node: pending_xref, contnode: Element) -> Element:
+                             node: pending_xref, contnode: Element) -> Optional[Element]:
         progname = node.get('std:program')
         target = target.strip()
         docname, labelid = self.progoptions.get((progname, target), ('', ''))
@@ -977,7 +978,7 @@ class StandardDomain(Domain):
 
     def _resolve_obj_xref(self, env: "BuildEnvironment", fromdocname: str,
                           builder: "Builder", typ: str, target: str,
-                          node: pending_xref, contnode: Element) -> Element:
+                          node: pending_xref, contnode: Element) -> Optional[Element]:
         objtypes = self.objtypes_for_role(typ) or []
         for objtype in objtypes:
             if (objtype, target) in self.objects:
@@ -1041,7 +1042,7 @@ class StandardDomain(Domain):
     def is_enumerable_node(self, node: Node) -> bool:
         return node.__class__ in self.enumerable_nodes
 
-    def get_numfig_title(self, node: Node) -> str:
+    def get_numfig_title(self, node: Node) -> Optional[str]:
         """Get the title of enumerable nodes to refer them using its title"""
         if self.is_enumerable_node(node):
             elem = cast(Element, node)
@@ -1055,7 +1056,7 @@ class StandardDomain(Domain):
 
         return None
 
-    def get_enumerable_node_type(self, node: Node) -> str:
+    def get_enumerable_node_type(self, node: Node) -> Optional[str]:
         """Get type of enumerable nodes."""
         def has_child(node: Element, cls: Type) -> bool:
             return any(isinstance(child, cls) for child in node)
@@ -1094,7 +1095,7 @@ class StandardDomain(Domain):
                 # Maybe it is defined in orphaned document.
                 raise ValueError from exc
 
-    def get_full_qualified_name(self, node: Element) -> str:
+    def get_full_qualified_name(self, node: Element) -> Optional[str]:
         if node.get('reftype') == 'option':
             progname = node.get('std:program')
             command = ws_re.split(node.get('reftarget'))
@@ -1109,7 +1110,8 @@ class StandardDomain(Domain):
             return None
 
 
-def warn_missing_reference(app: "Sphinx", domain: Domain, node: pending_xref) -> bool:
+def warn_missing_reference(app: "Sphinx", domain: Domain, node: pending_xref
+                           ) -> Optional[bool]:
     if (domain and domain.name != 'std') or node['reftype'] != 'ref':
         return None
     else:

@@ -6,10 +6,11 @@
 Templating
 ==========
 
-Sphinx uses the `Jinja <http://jinja.pocoo.org>`_ templating engine for its HTML
-templates.  Jinja is a text-based engine, inspired by Django templates, so
-anyone having used Django will already be familiar with it.  It also has
-excellent documentation for those who need to make themselves familiar with it.
+Sphinx uses the `Jinja <https://jinja.palletsprojects.com/>`_ templating engine
+for its HTML templates.  Jinja is a text-based engine, inspired by Django
+templates, so anyone having used Django will already be familiar with it. It
+also has excellent documentation for those who need to make themselves familiar
+with it.
 
 
 Do I need to use Sphinx's templates to produce HTML?
@@ -114,7 +115,7 @@ The following blocks exist in the ``layout.html`` template:
 ``rootrellink``, ``relbaritems``
     Inside the relbar there are three sections: The ``rootrellink``, the links
     from the documentation and the custom ``relbaritems``.  The ``rootrellink``
-    is a block that by default contains a list item pointing to the master
+    is a block that by default contains a list item pointing to the root
     document by default, the ``relbaritems`` is an empty block.  If you
     override them to add extra links into the bar make sure that they are list
     items and end with the :data:`reldelim1`.

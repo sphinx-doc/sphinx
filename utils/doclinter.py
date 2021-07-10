@@ -41,13 +41,16 @@ def lint(path: str) -> int:
                 pass
             else:
                 spaces = LEADING_SPACES.match(line).group(1)
-                if len(spaces) < code_block_depth:
+                if len(spaces) <= code_block_depth:
                     in_code_block = False
         elif LONG_INTERPRETED_TEXT.match(line):
             pass
         elif len(line) > MAX_LINE_LENGTH:
             if re.match(r'^\s*\.\. ', line):
                 # ignore directives and hyperlink targets
+                pass
+            elif re.match(r'^\s*__ ', line):
+                # ignore anonymous hyperlink targets
                 pass
             elif re.match(r'^\s*``[^`]+``$', line):
                 # ignore a very long literal string

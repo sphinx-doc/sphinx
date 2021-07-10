@@ -320,8 +320,8 @@ def prefixed_warnings(prefix: str) -> Generator[None, None, None]:
             prefix_filter.prefix = previous
     else:
         # not prefixed yet
+        prefix_filter = MessagePrefixFilter(prefix)
         try:
-            prefix_filter = MessagePrefixFilter(prefix)
             warning_handler.addFilter(prefix_filter)
             yield
         finally:
@@ -472,7 +472,7 @@ class SphinxLogRecordTranslator(logging.Filter):
     * Make a instance of SphinxLogRecord
     * docname to path if location given
     """
-    LogRecordClass: Type[logging.LogRecord] = None
+    LogRecordClass: Type[logging.LogRecord]
 
     def __init__(self, app: "Sphinx") -> None:
         self.app = app

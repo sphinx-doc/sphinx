@@ -14,6 +14,7 @@ import os
 import pickle
 import platform
 import sys
+import warnings
 from collections import deque
 from io import StringIO
 from os import path
@@ -29,6 +30,7 @@ from pygments.lexer import Lexer
 import sphinx
 from sphinx import locale, package_dir
 from sphinx.config import Config
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.domains import Domain, Index
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
@@ -141,22 +143,15 @@ class Sphinx:
         self.phase = BuildPhase.INITIALIZATION
         self.verbosity = verbosity
         self.extensions: Dict[str, Extension] = {}
-        self.builder: Builder = None
-        self.env: BuildEnvironment = None
-        self.project: Project = None
+        self.builder: Optional[Builder] = None
+        self.env: Optional[BuildEnvironment] = None
+        self.project: Optional[Project] = None
         self.registry = SphinxComponentRegistry()
-        self.html_themes: Dict[str, str] = {}
 
         # validate provided directories
         self.srcdir = abspath(srcdir)
         self.outdir = abspath(outdir)
         self.doctreedir = abspath(doctreedir)
-        self.confdir = confdir
-        if self.confdir:  # confdir is optional
-            self.confdir = abspath(self.confdir)
-            if not path.isfile(path.join(self.confdir, 'conf.py')):
-                raise ApplicationError(__("config directory doesn't contain a "
-                                          "conf.py file (%s)") % confdir)
 
         if not path.isdir(self.srcdir):
             raise ApplicationError(__('Cannot find source directory (%s)') %
@@ -174,7 +169,7 @@ class Sphinx:
 
         if status is None:
             self._status: IO = StringIO()
-            self.quiet = True
+            self.quiet: bool = True
         else:
             self._status = status
             self.quiet = False
@@ -211,9 +206,13 @@ class Sphinx:
 
         # read config
         self.tags = Tags(tags)
-        if self.confdir is None:
+        if confdir is None:
+            # set confdir to srcdir if -C given (!= no confdir); a few pieces
+            # of code expect a confdir to be set
+            self.confdir = self.srcdir
             self.config = Config({}, confoverrides or {})
         else:
+            self.confdir = abspath(confdir)
             self.config = Config.read(self.confdir, confoverrides or {}, self.tags)
 
         # initialize some limited config variables before initialize i18n and loading
@@ -228,11 +227,6 @@ class Sphinx:
             raise VersionRequirementError(
                 __('This project needs at least Sphinx v%s and therefore cannot '
                    'be built with this version.') % self.config.needs_sphinx)
-
-        # set confdir to srcdir if -C given (!= no confdir); a few pieces
-        # of code expect a confdir to be set
-        if self.confdir is None:
-            self.confdir = self.srcdir
 
         # load all built-in extension modules
         for extension in builtin_extensions:
@@ -306,8 +300,7 @@ class Sphinx:
     def _init_env(self, freshenv: bool) -> None:
         filename = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
         if freshenv or not os.path.exists(filename):
-            self.env = BuildEnvironment()
-            self.env.setup(self)
+            self.env = BuildEnvironment(self)
             self.env.find_files(self.config, self.builder)
         else:
             try:
@@ -662,10 +655,10 @@ class Sphinx:
                    ...
 
            def setup(app):
-               add_directive('my-directive', MyDirective)
+               app.add_directive('my-directive', MyDirective)
 
         For more details, see `the Docutils docs
-        <http://docutils.sourceforge.net/docs/howto/rst-directives.html>`__ .
+        <https://docutils.sourceforge.io/docs/howto/rst-directives.html>`__ .
 
         .. versionchanged:: 0.6
            Docutils 0.5-style directive classes are now supported.
@@ -690,7 +683,7 @@ class Sphinx:
                          installed as the same name
 
         For more details about role functions, see `the Docutils docs
-        <http://docutils.sourceforge.net/docs/howto/rst-roles.html>`__ .
+        <https://docutils.sourceforge.io/docs/howto/rst-roles.html>`__ .
 
         .. versionchanged:: 1.8
            Add *override* keyword.
@@ -928,7 +921,7 @@ class Sphinx:
 
         refs: `Transform Priority Range Categories`__
 
-        __ http://docutils.sourceforge.net/docs/ref/transforms.html#transform-priority-range-categories
+        __ https://docutils.sourceforge.io/docs/ref/transforms.html#transform-priority-range-categories
         """  # NOQA
         self.registry.add_transform(transform)
 
@@ -1184,13 +1177,13 @@ class Sphinx:
     def add_html_theme(self, name: str, theme_path: str) -> None:
         """Register a HTML Theme.
 
-        The *name* is a name of theme, and *path* is a full path to the theme
-        (refs: :ref:`distribute-your-theme`).
+        The *name* is a name of theme, and *theme_path* is a full path to the
+        theme (refs: :ref:`distribute-your-theme`).
 
         .. versionadded:: 1.6
         """
         logger.debug('[app] adding HTML theme: %r, %r', name, theme_path)
-        self.html_themes[name] = theme_path
+        self.registry.add_html_theme(name, theme_path)
 
     def add_html_math_renderer(self, name: str,
                                inline_renderers: Tuple[Callable, Callable] = None,
@@ -1256,6 +1249,24 @@ class Sphinx:
                 return False
 
         return True
+
+    def set_html_assets_policy(self, policy):
+        """Set the policy to include assets in HTML pages.
+
+        - always: include the assets in all the pages
+        - per_page: include the assets only in pages where they are used
+
+        .. versionadded: 4.1
+        """
+        if policy not in ('always', 'per_page'):
+            raise ValueError('policy %s is not supported' % policy)
+        self.registry.html_assets_policy = policy
+
+    @property
+    def html_themes(self) -> Dict[str, str]:
+        warnings.warn('app.html_themes is deprecated.',
+                      RemovedInSphinx60Warning)
+        return self.registry.html_themes
 
 
 class TemplateBridge:

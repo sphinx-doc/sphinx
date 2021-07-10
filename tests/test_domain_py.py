@@ -486,23 +486,11 @@ def test_optional_pyfunction_signature(app):
 
 
 def test_pyexception_signature(app):
-    text = ".. py:exception:: exceptions.IOError"
+    text = ".. py:exception:: builtins.IOError"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_annotation, "exception "],
-                                                    [desc_addname, "exceptions."],
-                                                    [desc_name, "IOError"])],
-                                  desc_content)]))
-    assert_node(doctree[1], desc, desctype="exception",
-                domain="py", objtype="exception", noindex=False)
-
-
-def test_exceptions_module_is_ignored(app):
-    text = (".. py:exception:: IOError\n"
-            "   :module: exceptions\n")
-    doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, ([desc_annotation, "exception "],
+                                                    [desc_addname, "builtins."],
                                                     [desc_name, "IOError"])],
                                   desc_content)]))
     assert_node(doctree[1], desc, desctype="exception",
@@ -931,7 +919,8 @@ def test_info_field_list(app):
             "   :param age: blah blah\n"
             "   :type age: int\n"
             "   :param items: blah blah\n"
-            "   :type items: Tuple[str, ...]\n")
+            "   :type items: Tuple[str, ...]\n"
+            "   :param Dict[str, str] params: blah blah\n")
     doctree = restructuredtext.parse(app, text)
     print(doctree)
 
@@ -945,6 +934,7 @@ def test_info_field_list(app):
     assert_node(doctree[3][1][0][0],
                 ([nodes.field_name, "Parameters"],
                  [nodes.field_body, nodes.bullet_list, ([nodes.list_item, nodes.paragraph],
+                                                        [nodes.list_item, nodes.paragraph],
                                                         [nodes.list_item, nodes.paragraph],
                                                         [nodes.list_item, nodes.paragraph])]))
 
@@ -989,6 +979,63 @@ def test_info_field_list(app):
                 refdomain="py", reftype="class", reftarget="Tuple",
                 **{"py:module": "example", "py:class": "Class"})
     assert_node(doctree[3][1][0][0][1][0][2][0][4], pending_xref,
+                refdomain="py", reftype="class", reftarget="str",
+                **{"py:module": "example", "py:class": "Class"})
+
+    # :param Dict[str, str] params:
+    assert_node(doctree[3][1][0][0][1][0][3][0],
+                ([addnodes.literal_strong, "params"],
+                 " (",
+                 [pending_xref, addnodes.literal_emphasis, "Dict"],
+                 [addnodes.literal_emphasis, "["],
+                 [pending_xref, addnodes.literal_emphasis, "str"],
+                 [addnodes.literal_emphasis, ", "],
+                 [pending_xref, addnodes.literal_emphasis, "str"],
+                 [addnodes.literal_emphasis, "]"],
+                 ")",
+                 " -- ",
+                 "blah blah"))
+    assert_node(doctree[3][1][0][0][1][0][3][0][2], pending_xref,
+                refdomain="py", reftype="class", reftarget="Dict",
+                **{"py:module": "example", "py:class": "Class"})
+    assert_node(doctree[3][1][0][0][1][0][3][0][4], pending_xref,
+                refdomain="py", reftype="class", reftarget="str",
+                **{"py:module": "example", "py:class": "Class"})
+    assert_node(doctree[3][1][0][0][1][0][3][0][6], pending_xref,
+                refdomain="py", reftype="class", reftarget="str",
+                **{"py:module": "example", "py:class": "Class"})
+
+
+def test_info_field_list_piped_type(app):
+    text = (".. py:module:: example\n"
+            ".. py:class:: Class\n"
+            "\n"
+            "   :param age: blah blah\n"
+            "   :type age: int | str\n")
+    doctree = restructuredtext.parse(app, text)
+
+    assert_node(doctree,
+                (nodes.target,
+                 addnodes.index,
+                 addnodes.index,
+                 [desc, ([desc_signature, ([desc_annotation, "class "],
+                                           [desc_addname, "example."],
+                                           [desc_name, "Class"])],
+                         [desc_content, nodes.field_list, nodes.field, (nodes.field_name,
+                                                                        nodes.field_body)])]))
+    assert_node(doctree[3][1][0][0][1],
+                ([nodes.paragraph, ([addnodes.literal_strong, "age"],
+                                    " (",
+                                    [pending_xref, addnodes.literal_emphasis, "int"],
+                                    [addnodes.literal_emphasis, " | "],
+                                    [pending_xref, addnodes.literal_emphasis, "str"],
+                                    ")",
+                                    " -- ",
+                                    "blah blah")],))
+    assert_node(doctree[3][1][0][0][1][0][2], pending_xref,
+                refdomain="py", reftype="class", reftarget="int",
+                **{"py:module": "example", "py:class": "Class"})
+    assert_node(doctree[3][1][0][0][1][0][4], pending_xref,
                 refdomain="py", reftype="class", reftarget="str",
                 **{"py:module": "example", "py:class": "Class"})
 
@@ -1109,6 +1156,9 @@ def test_python_python_use_unqualified_type_names(app, status, warning):
     assert ('<span class="n"><a class="reference internal" href="#foo.Name" title="foo.Name">'
             '<span class="pre">Name</span></a></span>' in content)
     assert '<span class="n"><span class="pre">foo.Age</span></span>' in content
+    assert ('<p><strong>name</strong> (<a class="reference internal" href="#foo.Name" '
+            'title="foo.Name"><em>Name</em></a>) – blah blah</p>' in content)
+    assert '<p><strong>age</strong> (<em>foo.Age</em>) – blah blah</p>' in content
 
 
 @pytest.mark.sphinx('html', testroot='domain-py-python_use_unqualified_type_names',
@@ -1119,6 +1169,9 @@ def test_python_python_use_unqualified_type_names_disabled(app, status, warning)
     assert ('<span class="n"><a class="reference internal" href="#foo.Name" title="foo.Name">'
             '<span class="pre">foo.Name</span></a></span>' in content)
     assert '<span class="n"><span class="pre">foo.Age</span></span>' in content
+    assert ('<p><strong>name</strong> (<a class="reference internal" href="#foo.Name" '
+            'title="foo.Name"><em>foo.Name</em></a>) – blah blah</p>' in content)
+    assert '<p><strong>age</strong> (<em>foo.Age</em>) – blah blah</p>' in content
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py-xref-warning')

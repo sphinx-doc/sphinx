@@ -21,12 +21,12 @@ from queue import PriorityQueue, Queue
 from threading import Thread
 from typing import (Any, Dict, Generator, List, NamedTuple, Optional, Pattern, Set, Tuple,
                     Union, cast)
-from urllib.parse import unquote, urlparse
+from urllib.parse import unquote, urlparse, urlunparse
 
 from docutils import nodes
 from docutils.nodes import Element
 from requests import Response
-from requests.exceptions import HTTPError, TooManyRedirects
+from requests.exceptions import ConnectionError, HTTPError, TooManyRedirects
 
 from sphinx.application import Sphinx
 from sphinx.builders.dummy import DummyBuilder
@@ -129,7 +129,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
         # create queues and worker threads
         self._wqueue: PriorityQueue[CheckRequestType] = PriorityQueue()
-        self._rqueue: Queue = Queue()
+        self._rqueue: Queue[CheckResult] = Queue()
 
     @property
     def anchors_ignore(self) -> List[Pattern]:
@@ -228,43 +228,39 @@ class CheckExternalLinksBuilder(DummyBuilder):
         )
         return self._wqueue
 
-    def process_result(self, result: Tuple[str, str, int, str, str, int]) -> None:
-        uri, docname, lineno, status, info, code = result
+    def process_result(self, result: CheckResult) -> None:
+        filename = self.env.doc2path(result.docname, None)
 
-        filename = self.env.doc2path(docname, None)
-        linkstat = dict(filename=filename, lineno=lineno,
-                        status=status, code=code, uri=uri,
-                        info=info)
-        if status == 'unchecked':
-            self.write_linkstat(linkstat)
+        linkstat = dict(filename=filename, lineno=result.lineno,
+                        status=result.status, code=result.code, uri=result.uri,
+                        info=result.message)
+        self.write_linkstat(linkstat)
+
+        if result.status == 'unchecked':
             return
-        if status == 'working' and info == 'old':
-            self.write_linkstat(linkstat)
+        if result.status == 'working' and result.message == 'old':
             return
-        if lineno:
-            logger.info('(%16s: line %4d) ', docname, lineno, nonl=True)
-        if status == 'ignored':
-            if info:
-                logger.info(darkgray('-ignored- ') + uri + ': ' + info)
+        if result.lineno:
+            logger.info('(%16s: line %4d) ', result.docname, result.lineno, nonl=True)
+        if result.status == 'ignored':
+            if result.message:
+                logger.info(darkgray('-ignored- ') + result.uri + ': ' + result.message)
             else:
-                logger.info(darkgray('-ignored- ') + uri)
-            self.write_linkstat(linkstat)
-        elif status == 'local':
-            logger.info(darkgray('-local-   ') + uri)
-            self.write_entry('local', docname, filename, lineno, uri)
-            self.write_linkstat(linkstat)
-        elif status == 'working':
-            logger.info(darkgreen('ok        ') + uri + info)
-            self.write_linkstat(linkstat)
-        elif status == 'broken':
+                logger.info(darkgray('-ignored- ') + result.uri)
+        elif result.status == 'local':
+            logger.info(darkgray('-local-   ') + result.uri)
+            self.write_entry('local', result.docname, filename, result.lineno, result.uri)
+        elif result.status == 'working':
+            logger.info(darkgreen('ok        ') + result.uri + result.message)
+        elif result.status == 'broken':
             if self.app.quiet or self.app.warningiserror:
-                logger.warning(__('broken link: %s (%s)'), uri, info,
-                               location=(filename, lineno))
+                logger.warning(__('broken link: %s (%s)'), result.uri, result.message,
+                               location=(filename, result.lineno))
             else:
-                logger.info(red('broken    ') + uri + red(' - ' + info))
-            self.write_entry('broken', docname, filename, lineno, uri + ': ' + info)
-            self.write_linkstat(linkstat)
-        elif status == 'redirected':
+                logger.info(red('broken    ') + result.uri + red(' - ' + result.message))
+            self.write_entry('broken', result.docname, filename, result.lineno,
+                             result.uri + ': ' + result.message)
+        elif result.status == 'redirected':
             try:
                 text, color = {
                     301: ('permanently', purple),
@@ -272,16 +268,20 @@ class CheckExternalLinksBuilder(DummyBuilder):
                     303: ('with See Other', purple),
                     307: ('temporarily', turquoise),
                     308: ('permanently', purple),
-                }[code]
+                }[result.code]
             except KeyError:
                 text, color = ('with unknown code', purple)
             linkstat['text'] = text
-            logger.info(color('redirect  ') + uri + color(' - ' + text + ' to ' + info))
-            self.write_entry('redirected ' + text, docname, filename,
-                             lineno, uri + ' to ' + info)
-            self.write_linkstat(linkstat)
+            if self.config.linkcheck_allowed_redirects:
+                logger.warning('redirect  ' + result.uri + ' - ' + text + ' to ' +
+                               result.message, location=(filename, result.lineno))
+            else:
+                logger.info(color('redirect  ') + result.uri +
+                            color(' - ' + text + ' to ' + result.message))
+            self.write_entry('redirected ' + text, result.docname, filename,
+                             result.lineno, result.uri + ' to ' + result.message)
         else:
-            raise ValueError("Unknown status %s." % status)
+            raise ValueError("Unknown status %s." % result.status)
 
     def write_entry(self, what: str, docname: str, filename: str, line: int,
                     uri: str) -> None:
@@ -460,7 +460,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                                                  config=self.config, auth=auth_info,
                                                  **kwargs)
                         response.raise_for_status()
-                    except (HTTPError, TooManyRedirects) as err:
+                    # Servers drop the connection on HEAD requests, causing
+                    # ConnectionError.
+                    except (ConnectionError, HTTPError, TooManyRedirects) as err:
                         if isinstance(err, HTTPError) and err.response.status_code == 429:
                             raise
                         # retry with GET request if that fails, some servers
@@ -498,12 +500,22 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 new_url = response.url
                 if anchor:
                     new_url += '#' + anchor
-                # history contains any redirects, get last
-                if response.history:
+
+                if allowed_redirect(req_url, new_url):
+                    return 'working', '', 0
+                elif response.history:
+                    # history contains any redirects, get last
                     code = response.history[-1].status_code
                     return 'redirected', new_url, code
                 else:
                     return 'redirected', new_url, 0
+
+        def allowed_redirect(url: str, new_url: str) -> bool:
+            for from_url, to_url in self.config.linkcheck_allowed_redirects.items():
+                if from_url.match(url) and to_url.match(new_url):
+                    return True
+
+            return False
 
         def check(docname: str) -> Tuple[str, str, int]:
             # check for various conditions without bothering the network
@@ -576,7 +588,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             if status == 'rate-limited':
                 logger.info(darkgray('-rate limited-   ') + uri + darkgray(' | sleeping...'))
             else:
-                self.rqueue.put((uri, docname, lineno, status, info, code))
+                self.rqueue.put(CheckResult(uri, docname, lineno, status, info, code))
             self.wqueue.task_done()
 
     def limit_rate(self, response: Response) -> Optional[float]:
@@ -631,6 +643,10 @@ class HyperlinkCollector(SphinxPostTransform):
             if 'refuri' not in refnode:
                 continue
             uri = refnode['refuri']
+            newuri = self.app.emit_firstresult('linkcheck-process-uri', uri)
+            if newuri:
+                uri = newuri
+
             lineno = get_node_line(refnode)
             uri_info = Hyperlink(uri, self.env.docname, lineno)
             if uri not in hyperlinks:
@@ -640,10 +656,42 @@ class HyperlinkCollector(SphinxPostTransform):
         for imgnode in self.document.traverse(nodes.image):
             uri = imgnode['candidates'].get('?')
             if uri and '://' in uri:
+                newuri = self.app.emit_firstresult('linkcheck-process-uri', uri)
+                if newuri:
+                    uri = newuri
+
                 lineno = get_node_line(imgnode)
                 uri_info = Hyperlink(uri, self.env.docname, lineno)
                 if uri not in hyperlinks:
                     hyperlinks[uri] = uri_info
+
+
+def rewrite_github_anchor(app: Sphinx, uri: str) -> Optional[str]:
+    """Rewrite anchor name of the hyperlink to github.com
+
+    The hyperlink anchors in github.com are dynamically generated.  This rewrites
+    them before checking and makes them comparable.
+    """
+    parsed = urlparse(uri)
+    if parsed.hostname == "github.com" and parsed.fragment:
+        prefixed = parsed.fragment.startswith('user-content-')
+        if not prefixed:
+            fragment = f'user-content-{parsed.fragment}'
+            return urlunparse(parsed._replace(fragment=fragment))
+    return None
+
+
+def compile_linkcheck_allowed_redirects(app: Sphinx, config: Config) -> None:
+    """Compile patterns in linkcheck_allowed_redirects to the regexp objects."""
+    for url, pattern in list(app.config.linkcheck_allowed_redirects.items()):
+        try:
+            app.config.linkcheck_allowed_redirects[re.compile(url)] = re.compile(pattern)
+        except re.error as exc:
+            logger.warning(__('Failed to compile regex in linkcheck_allowed_redirects: %r %s'),
+                           exc.pattern, exc.msg)
+        finally:
+            # Remove the original regexp-string
+            app.config.linkcheck_allowed_redirects.pop(url)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
@@ -651,6 +699,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_post_transform(HyperlinkCollector)
 
     app.add_config_value('linkcheck_ignore', [], None)
+    app.add_config_value('linkcheck_allowed_redirects', {}, None)
     app.add_config_value('linkcheck_auth', [], None)
     app.add_config_value('linkcheck_request_headers', {}, None)
     app.add_config_value('linkcheck_retries', 1, None)
@@ -661,6 +710,11 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     # commonly used for dynamic pages
     app.add_config_value('linkcheck_anchors_ignore', ["^!"], None)
     app.add_config_value('linkcheck_rate_limit_timeout', 300.0, None)
+
+    app.add_event('linkcheck-process-uri')
+
+    app.connect('config-inited', compile_linkcheck_allowed_redirects, priority=800)
+    app.connect('linkcheck-process-uri', rewrite_github_anchor)
 
     return {
         'version': 'builtin',

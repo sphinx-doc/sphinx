@@ -207,9 +207,9 @@ inside your module:
 First, define the registration function, which accepts the arguments for
 :event:`html-page-context`.
 
-Within the registration function, define the template function that you'd like to use
-within Jinja. The template function should return a string or Python objects (lists,
-dictionaries) with strings inside that Jinja uses in the templating process
+Within the registration function, define the template function that you'd like to
+use within Jinja. The template function should return a string or Python objects
+(lists, dictionaries) with strings inside that Jinja uses in the templating process
 
 .. note::
 
@@ -255,6 +255,9 @@ into a build's ``_static/`` folder at build time, generally via an event hook.
 Here is some sample code to accomplish this:
 
 .. code-block:: python
+
+   from os import path
+   from sphinx.util.fileutil import copy_asset_file
 
    def copy_custom_files(app, exc):
        if app.builder.format == 'html' and not exc:

@@ -282,7 +282,29 @@ Keys that don't need to be overridden unless in special cases are:
    "inputenc" package inclusion.
 
    Default: ``'\\usepackage[utf8]{inputenc}'`` when using pdflatex, else
-   ``''``
+   ``''``.
+
+   .. note::
+
+      If using ``utf8x`` in place of ``utf8`` it is mandatory to extend the
+      LaTeX preamble with suitable ``\PreloadUnicodePage{<number>}`` commands,
+      as per the ``utf8x`` documentation (``texdoc ucs`` on a TeXLive based
+      TeX installation).  Else, unexpected and possibly hard-to-spot problems
+      (i.e. not causing a build crash) may arise in the PDF, in particular
+      regarding hyperlinks.
+
+      Even if these precautions are taken, PDF build via ``pdflatex`` engine
+      may crash due to upstream LaTeX not being fully compatible with
+      ``utf8x``.  For example, in certain circumstances related to
+      code-blocks, or attempting to include images whose filenames contain
+      Unicode characters.  Indeed, starting in 2015, upstream LaTeX with
+      ``pdflatex`` engine has somewhat enhanced native support for Unicode and
+      is becoming more and more incompatible with ``utf8x``.  In particular,
+      since the October 2019 LaTeX release, filenames can use Unicode
+      characters, and even spaces.  At Sphinx level this means e.g. that the
+      :dudir:`image` and :dudir:`figure` directives are now compatible with
+      such filenames for PDF via LaTeX output.  But this is broken if
+      ``utf8x`` is in use.
 
    .. versionchanged:: 1.4.3
       Previously ``'\\usepackage[utf8]{inputenc}'`` was used for all
@@ -509,6 +531,10 @@ Keys that don't need to be overridden unless in special cases are:
       Changed default for ``'pdflatex'``. Previously it was using 
       ``'\\fvset{fontsize=\\small}'``.
 
+   .. versionchanged:: 4.1.0
+      Changed default for Chinese documents to
+      ``'\\fvset{fontsize=\\small,formatcom=\\xeCJKVerbAddon}'``
+
 Keys that are set by other options and therefore should not be overridden are:
 
 ``'docclass'``
@@ -686,7 +712,7 @@ Do not use quotes to enclose values, whether numerical or strings.
     As the default is set to a high value, the forceful algorithm is triggered
     only in overfull case, i.e. in presence of a string longer than full
     linewidth. Set this to ``0`` to force all input lines to be hard wrapped
-    at the current avaiable linewidth::
+    at the current available linewidth::
 
       latex_elements = {
           'sphinxsetup': "verbatimforcewraps, verbatimmaxunderfull=0",
@@ -756,7 +782,7 @@ Do not use quotes to enclose values, whether numerical or strings.
 
     .. versionchanged:: 1.5
        The breaking of long code lines was added at 1.4.2. The default
-       definition of the continuation symbol was changed at 1.5 to accomodate
+       definition of the continuation symbol was changed at 1.5 to accommodate
        various font sizes (e.g. code-blocks can be in footnotes).
 
 ``TitleColor``

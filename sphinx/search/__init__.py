@@ -12,7 +12,7 @@ import pickle
 import re
 from importlib import import_module
 from os import path
-from typing import IO, Any, Dict, Iterable, List, Set, Tuple, Type
+from typing import IO, Any, Dict, Iterable, List, Optional, Set, Tuple, Type
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -38,7 +38,7 @@ class SearchLanguage:
 
     .. attribute:: js_splitter_code
 
-       Return splitter funcion of JavaScript version.  The function should be
+       Return splitter function of JavaScript version.  The function should be
        named as ``splitQuery``.  And it should take a string and return list of
        strings.
 
@@ -440,7 +440,7 @@ class IndexBuilder:
         else:
             return []
 
-    def get_js_stemmer_rawcode(self) -> str:
+    def get_js_stemmer_rawcode(self) -> Optional[str]:
         return None
 
     def get_js_stemmer_code(self) -> str:

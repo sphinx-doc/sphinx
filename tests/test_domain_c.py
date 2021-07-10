@@ -116,7 +116,7 @@ def check(name, input, idDict, output=None, key=None, asTextOutput=None):
                asTextOutput + ';' if asTextOutput is not None else None)
 
 
-def test_expressions():
+def test_domain_c_ast_expressions():
     def exprCheck(expr, output=None):
         parser = DefinitionParser(expr, location=None, config=Config())
         parser.allowFallbackExpressionParsing = False
@@ -156,7 +156,8 @@ def test_expressions():
     # primary
     exprCheck('true')
     exprCheck('false')
-    ints = ['5', '0', '075', '0x0123456789ABCDEF', '0XF', '0b1', '0B1']
+    ints = ['5', '0', '075', '0x0123456789ABCDEF', '0XF', '0b1', '0B1',
+            "0b0'1'0", "00'1'2", "0x0'1'2", "1'2'3"]
     unsignedSuffix = ['', 'u', 'U']
     longSuffix = ['', 'l', 'L', 'll', 'LL']
     for i in ints:
@@ -171,14 +172,18 @@ def test_expressions():
                 '5e42', '5e+42', '5e-42',
                 '5.', '5.e42', '5.e+42', '5.e-42',
                 '.5', '.5e42', '.5e+42', '.5e-42',
-                '5.0', '5.0e42', '5.0e+42', '5.0e-42']:
+                '5.0', '5.0e42', '5.0e+42', '5.0e-42',
+                "1'2'3e7'8'9", "1'2'3.e7'8'9",
+                ".4'5'6e7'8'9", "1'2'3.4'5'6e7'8'9"]:
             expr = e + suffix
             exprCheck(expr)
         for e in [
                 'ApF', 'Ap+F', 'Ap-F',
                 'A.', 'A.pF', 'A.p+F', 'A.p-F',
                 '.A', '.ApF', '.Ap+F', '.Ap-F',
-                'A.B', 'A.BpF', 'A.Bp+F', 'A.Bp-F']:
+                'A.B', 'A.BpF', 'A.Bp+F', 'A.Bp-F',
+                "A'B'Cp1'2'3", "A'B'C.p1'2'3",
+                ".D'E'Fp1'2'3", "A'B'C.D'E'Fp1'2'3"]:
             expr = "0x" + e + suffix
             exprCheck(expr)
     exprCheck('"abc\\"cba"')  # string
@@ -270,7 +275,7 @@ def test_expressions():
     exprCheck('a or_eq 5')
 
 
-def test_type_definitions():
+def test_domain_c_ast_type_definitions():
     check('type', "{key}T", {1: "T"})
 
     check('type', "{key}bool *b", {1: 'b'}, key='typedef')
@@ -291,7 +296,7 @@ def test_type_definitions():
           {1: 'gpio_callback_t'}, key='typedef')
 
 
-def test_macro_definitions():
+def test_domain_c_ast_macro_definitions():
     check('macro', 'M', {1: 'M'})
     check('macro', 'M()', {1: 'M'})
     check('macro', 'M(arg)', {1: 'M'})
@@ -307,7 +312,7 @@ def test_macro_definitions():
         check('macro', 'M(arg1, arg2..., arg3)', {1: 'M'})
 
 
-def test_member_definitions():
+def test_domain_c_ast_member_definitions():
     check('member', 'void a', {1: 'a'})
     check('member', '_Bool a', {1: 'a'})
     check('member', 'bool a', {1: 'a'})
@@ -365,7 +370,7 @@ def test_member_definitions():
     check('member', 'int b : 3', {1: 'b'})
 
 
-def test_function_definitions():
+def test_domain_c_ast_function_definitions():
     check('function', 'void f()', {1: 'f'})
     check('function', 'void f(int)', {1: 'f'})
     check('function', 'void f(int i)', {1: 'f'})
@@ -425,29 +430,29 @@ def test_function_definitions():
     check('function', 'void f(void (*p)(int, double), int i)', {1: 'f'})
 
 
-def test_nested_name():
+def test_domain_c_ast_nested_name():
     check('struct', '{key}.A', {1: "A"})
     check('struct', '{key}.A.B', {1: "A.B"})
     check('function', 'void f(.A a)', {1: "f"})
     check('function', 'void f(.A.B a)', {1: "f"})
 
 
-def test_struct_definitions():
+def test_domain_c_ast_struct_definitions():
     check('struct', '{key}A', {1: 'A'})
 
 
-def test_union_definitions():
+def test_domain_c_ast_union_definitions():
     check('union', '{key}A', {1: 'A'})
 
 
-def test_enum_definitions():
+def test_domain_c_ast_enum_definitions():
     check('enum', '{key}A', {1: 'A'})
 
     check('enumerator', '{key}A', {1: 'A'})
     check('enumerator', '{key}A = 42', {1: 'A'})
 
 
-def test_anon_definitions():
+def test_domain_c_ast_anon_definitions():
     check('struct', '@a', {1: "@a"}, asTextOutput='struct [anonymous]')
     check('union', '@a', {1: "@a"}, asTextOutput='union [anonymous]')
     check('enum', '@a', {1: "@a"}, asTextOutput='enum [anonymous]')
@@ -455,7 +460,7 @@ def test_anon_definitions():
     check('struct', '@a.A', {1: "@a.A"}, asTextOutput='struct [anonymous].A')
 
 
-def test_initializers():
+def test_domain_c_ast_initializers():
     idsMember = {1: 'v'}
     idsFunction = {1: 'f'}
     # no init
@@ -474,7 +479,7 @@ def test_initializers():
     # TODO: designator-list
 
 
-def test_attributes():
+def test_domain_c_ast_attributes():
     # style: C++
     check('member', '[[]] int f', {1: 'f'})
     check('member', '[ [ ] ] int f', {1: 'f'},
@@ -577,14 +582,14 @@ def extract_role_links(app, filename):
 
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
-def test_build_domain_c(app, status, warning):
+def test_domain_c_build(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "index")
     assert len(ws) == 0
 
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
-def test_build_domain_c_namespace(app, status, warning):
+def test_domain_c_build_namespace(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "namespace")
     assert len(ws) == 0
@@ -594,7 +599,7 @@ def test_build_domain_c_namespace(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
-def test_build_domain_c_anon_dup_decl(app, status, warning):
+def test_domain_c_build_anon_dup_decl(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "anon-dup-decl")
     assert len(ws) == 2
@@ -603,7 +608,7 @@ def test_build_domain_c_anon_dup_decl(app, status, warning):
 
 
 @pytest.mark.sphinx(confoverrides={'nitpicky': True})
-def test_build_domain_c_semicolon(app, warning):
+def test_domain_c_build_semicolon(app, warning):
     text = """
 .. c:member:: int member;
 .. c:var:: int var;
@@ -622,7 +627,7 @@ def test_build_domain_c_semicolon(app, warning):
 
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
-def test_build_function_param_target(app, warning):
+def test_domain_c_build_function_param_target(app, warning):
     # the anchor for function parameters should be the function
     app.builder.build_all()
     ws = filter_warnings(warning, "function_param_target")
@@ -635,9 +640,16 @@ def test_build_function_param_target(app, warning):
 
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
-def test_build_ns_lookup(app, warning):
+def test_domain_c_build_ns_lookup(app, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "ns_lookup")
+    assert len(ws) == 0
+
+
+@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+def test_domain_c_build_field_role(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "field-role")
     assert len(ws) == 0
 
 
@@ -649,49 +661,8 @@ def _get_obj(app, queryName):
     return (queryName, "not", "found")
 
 
-def test_cfunction(app):
-    text = (".. c:function:: PyObject* "
-            "PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)")
-    doctree = restructuredtext.parse(app, text)
-    assert_node(doctree[1], addnodes.desc, desctype="function",
-                domain="c", objtype="function", noindex=False)
-
-    entry = _get_obj(app, 'PyType_GenericAlloc')
-    assert entry == ('index', 'c.PyType_GenericAlloc', 'function')
-
-
-def test_cmember(app):
-    text = ".. c:member:: PyObject* PyTypeObject.tp_bases"
-    doctree = restructuredtext.parse(app, text)
-    assert_node(doctree[1], addnodes.desc, desctype="member",
-                domain="c", objtype="member", noindex=False)
-
-    entry = _get_obj(app, 'PyTypeObject.tp_bases')
-    assert entry == ('index', 'c.PyTypeObject.tp_bases', 'member')
-
-
-def test_cvar(app):
-    text = ".. c:var:: PyObject* PyClass_Type"
-    doctree = restructuredtext.parse(app, text)
-    assert_node(doctree[1], addnodes.desc, desctype="var",
-                domain="c", objtype="var", noindex=False)
-
-    entry = _get_obj(app, 'PyClass_Type')
-    assert entry == ('index', 'c.PyClass_Type', 'member')
-
-
-def test_noindexentry(app):
-    text = (".. c:function:: void f()\n"
-            ".. c:function:: void g()\n"
-            "   :noindexentry:\n")
-    doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
-    assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C function)', 'c.f', '', None)])
-    assert_node(doctree[2], addnodes.index, entries=[])
-
-
 @pytest.mark.sphinx(testroot='domain-c-intersphinx', confoverrides={'nitpicky': True})
-def test_intersphinx(tempdir, app, status, warning):
+def test_domain_c_build_intersphinx(tempdir, app, status, warning):
     # a splitting of test_ids_vs_tags0 into the primary directives in a remote project,
     # and then the references in the test project
     origSource = """\
@@ -739,3 +710,44 @@ _var c:member 1 index.html#c.$ -
     app.builder.build_all()
     ws = filter_warnings(warning, "index")
     assert len(ws) == 0
+
+
+def test_domain_c_parse_cfunction(app):
+    text = (".. c:function:: PyObject* "
+            "PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="c", objtype="function", noindex=False)
+
+    entry = _get_obj(app, 'PyType_GenericAlloc')
+    assert entry == ('index', 'c.PyType_GenericAlloc', 'function')
+
+
+def test_domain_c_parse_cmember(app):
+    text = ".. c:member:: PyObject* PyTypeObject.tp_bases"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree[1], addnodes.desc, desctype="member",
+                domain="c", objtype="member", noindex=False)
+
+    entry = _get_obj(app, 'PyTypeObject.tp_bases')
+    assert entry == ('index', 'c.PyTypeObject.tp_bases', 'member')
+
+
+def test_domain_c_parse_cvar(app):
+    text = ".. c:var:: PyObject* PyClass_Type"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree[1], addnodes.desc, desctype="var",
+                domain="c", objtype="var", noindex=False)
+
+    entry = _get_obj(app, 'PyClass_Type')
+    assert entry == ('index', 'c.PyClass_Type', 'member')
+
+
+def test_domain_c_parse_noindexentry(app):
+    text = (".. c:function:: void f()\n"
+            ".. c:function:: void g()\n"
+            "   :noindexentry:\n")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
+    assert_node(doctree[0], addnodes.index, entries=[('single', 'f (C function)', 'c.f', '', None)])
+    assert_node(doctree[2], addnodes.index, entries=[])

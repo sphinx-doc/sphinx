@@ -239,15 +239,33 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                            name, exc, type='autosummary')
             return False
 
+    def get_class_members(obj: Any) -> Dict[str, Any]:
+        members = sphinx.ext.autodoc.get_class_members(obj, [qualname], safe_getattr)
+        return {name: member.object for name, member in members.items()}
+
+    def get_module_members(obj: Any) -> Dict[str, Any]:
+        members = {}
+        for name in dir(obj):
+            try:
+                members[name] = safe_getattr(obj, name)
+            except AttributeError:
+                continue
+        return members
+
+    def get_all_members(obj: Any) -> Dict[str, Any]:
+        if doc.objtype == "module":
+            return get_module_members(obj)
+        elif doc.objtype == "class":
+            return get_class_members(obj)
+        return {}
+
     def get_members(obj: Any, types: Set[str], include_public: List[str] = [],
                     imported: bool = True) -> Tuple[List[str], List[str]]:
         items: List[str] = []
         public: List[str] = []
-        for name in dir(obj):
-            try:
-                value = safe_getattr(obj, name)
-            except AttributeError:
-                continue
+
+        all_members = get_all_members(obj)
+        for name, value in all_members.items():
             documenter = get_documenter(app, value, obj)
             if documenter.objtype in types:
                 # skip imported members if expected

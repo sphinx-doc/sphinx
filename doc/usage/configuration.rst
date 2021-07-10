@@ -18,8 +18,8 @@ and output behavior.
   directory to adjust `Docutils`_ configuration if not otherwise overridden or
   set by Sphinx.
 
-  .. _`docutils`: http://docutils.sourceforge.net/
-  .. _`docutils.conf`: http://docutils.sourceforge.net/docs/user/config.html
+  .. _`docutils`: https://docutils.sourceforge.io/
+  .. _`docutils.conf`: https://docutils.sourceforge.io/docs/user/config.html
 
 The configuration file is executed as Python code at build time (using
 :func:`execfile`, and with the current directory set to its containing
@@ -419,6 +419,20 @@ General configuration
 
    .. versionadded:: 1.1
 
+.. confval:: nitpick_ignore_regex
+
+   An extended version of :confval:`nitpick_ignore`, which instead interprets
+   the ``type`` and ``target`` strings as regular expressions. Note, that the
+   regular expression must match the whole string (as if the ``^`` and ``$``
+   markers were inserted).
+
+   For example, ``(r'py:.*', r'foo.*bar\.B.*')`` will ignore nitpicky warnings
+   for all python entities that start with ``'foo'`` and have ``'bar.B'`` in
+   them, such as ``('py:const', 'foo_package.bar.BAZ_VALUE')`` or
+   ``('py:class', 'food.bar.Barman')``.
+
+   .. versionadded:: 4.1
+
 .. confval:: numfig
 
    If true, figures, tables and code-blocks are automatically numbered if they
@@ -470,7 +484,7 @@ General configuration
    languages, will be used to convert quotes and dashes to typographically
    correct entities.  Default: ``True``.
 
-   __ http://docutils.sourceforge.net/docs/user/smartquotes.html
+   __ https://docutils.sourceforge.io/docs/user/smartquotes.html
    __ https://daringfireball.net/projects/smartypants/
 
    .. versionadded:: 1.6.6
@@ -483,8 +497,8 @@ General configuration
    *deactivates* smart quotes via the corresponding `Docutils option`__.  But
    if it *activates* them, then :confval:`smartquotes` does prevail.
 
-   __ http://docutils.sourceforge.net/docs/user/config.html
-   __ http://docutils.sourceforge.net/docs/user/config.html#smart-quotes
+   __ https://docutils.sourceforge.io/docs/user/config.html
+   __ https://docutils.sourceforge.io/docs/user/config.html#smart-quotes
 
 .. confval:: smartquotes_action
 
@@ -577,17 +591,18 @@ General configuration
 .. confval:: highlight_language
 
    The default language to highlight source code in.  The default is
-   ``'python3'``.  The value should be a valid Pygments lexer name, see
+   ``'default'``.  It is similar to ``'python3'``; it is mostly a superset of
+   ``'python'`` but it fallbacks to ``'none'`` without warning if failed.
+   ``'python3'`` and other languages will emit warning if failed.
+
+   The value should be a valid Pygments lexer name, see
    :ref:`code-examples` for more details.
 
    .. versionadded:: 0.5
 
    .. versionchanged:: 1.4
-      The default is now ``'default'``. It is similar to ``'python3'``;
-      it is mostly a superset of ``'python'`` but it fallbacks to
-      ``'none'`` without warning if failed.  ``'python3'`` and other
-      languages will emit warning if failed.  If you prefer Python 2
-      only highlighting, you can set it back to ``'python'``.
+      The default is now ``'default'``.  If you prefer Python 2 only
+      highlighting, you can set it back to ``'python'``.
 
 .. confval:: highlight_options
 
@@ -779,6 +794,10 @@ documentation on :ref:`intl` for details.
    individual documents depends on :confval:`gettext_compact`.
 
    The default is ``['locales']``.
+
+   .. note:: The :option:`-v option for sphinx-build command <sphinx-build -v>`
+             is useful to check the locale_dirs config works as expected.  It
+             emits debug messages if message catalog directory not found.
 
    .. versionchanged:: 1.5
       Use ``locales`` directory as a default value
@@ -1033,7 +1052,7 @@ that use Sphinx's HTMLWriter class.
    A list of CSS files.  The entry must be a *filename* string or a tuple
    containing the *filename* string and the *attributes* dictionary.  The
    *filename* must be relative to the :confval:`html_static_path`, or a full URI
-   with scheme like ``http://example.org/style.css``.  The *attributes* is used
+   with scheme like ``https://example.org/style.css``.  The *attributes* is used
    for attributes of ``<link>`` tag.  It defaults to an empty list.
 
    Example::
@@ -1056,7 +1075,7 @@ that use Sphinx's HTMLWriter class.
    A list of JavaScript *filename*.  The entry must be a *filename* string or a
    tuple containing the *filename* string and the *attributes* dictionary.  The
    *filename* must be relative to the :confval:`html_static_path`, or a full
-   URI with scheme like ``http://example.org/script.js``.  The *attributes* is
+   URI with scheme like ``https://example.org/script.js``.  The *attributes* is
    used for attributes of ``<script>`` tag.  It defaults to an empty list.
 
    Example::
@@ -1290,7 +1309,7 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_use_opensearch
 
-   If nonempty, an `OpenSearch <http://www.opensearch.org/Home>`_ description
+   If nonempty, an `OpenSearch <https://www.opensearch.org/>`_ description
    file will be output, and all pages will contain a ``<link>`` tag referring
    to it.  Since OpenSearch doesn't support relative URLs for its search page
    location, the value of this option must be the base URL from which these
@@ -1717,7 +1736,7 @@ Options for epub output
 These options influence the epub output.  As this builder derives from the HTML
 builder, the HTML options also apply where appropriate.  The actual values for
 some of the options is not really important, they just have to be entered into
-the `Dublin Core metadata <http://dublincore.org/>`_.
+the `Dublin Core metadata <https://dublincore.org/>`_.
 
 .. confval:: epub_basename
 
@@ -2508,6 +2527,29 @@ Options for the linkcheck builder
 
    .. versionadded:: 1.1
 
+.. confval:: linkcheck_allowed_redirects
+
+   A dictionary that maps a pattern of the source URI to a pattern of the canonical
+   URI. The linkcheck builder treats the redirected link as "working" when:
+
+   - the link in the document matches the source URI pattern, and
+   - the redirect location matches the canonical URI pattern.
+
+   Example:
+
+   .. code-block:: python
+
+      linkcheck_allowed_redirects = {
+          # All HTTP redirections from the source URI to the canonical URI will be treated as "working".
+          r'https://sphinx-doc\.org/.*': r'https://sphinx-doc\.org/en/master/.*'
+      }
+
+   If set, linkcheck builder will emit a warning when disallowed redirection
+   found.  It's useful to detect unexpected redirects under :option:`the
+   warn-is-error mode <sphinx-build -W>`.
+
+   .. versionadded:: 4.1
+
 .. confval:: linkcheck_request_headers
 
    A dictionary that maps baseurls to HTTP request headers.
@@ -2578,7 +2620,7 @@ Options for the linkcheck builder
       as follows::
 
          linkcheck_ignore = [
-            'http://www.sphinx-doc.org/en/1.7/intro.html#'
+            'https://www.sphinx-doc.org/en/1.7/intro.html#'
          ]
 
    .. versionadded:: 1.5

@@ -15,7 +15,7 @@ language, this will not take too long.
 .. seealso::
 
    The authoritative `reStructuredText User Documentation
-   <http://docutils.sourceforge.net/rst.html>`_.  The "ref" links in this
+   <https://docutils.sourceforge.io/rst.html>`_.  The "ref" links in this
    document link to the description of the individual constructs in the reST
    reference.
 
@@ -223,6 +223,8 @@ Internal links
 Internal linking is done via a special reST role provided by Sphinx, see the
 section on specific markup, :ref:`ref-role`.
 
+
+.. _rst-sections:
 
 Sections
 --------

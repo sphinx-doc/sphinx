@@ -93,6 +93,12 @@ class SphinxComponentRegistry:
         self.html_inline_math_renderers: Dict[str, Tuple[Callable, Callable]] = {}
         self.html_block_math_renderers: Dict[str, Tuple[Callable, Callable]] = {}
 
+        #: HTML assets
+        self.html_assets_policy: str = 'per_page'
+
+        #: HTML themes
+        self.html_themes: Dict[str, str] = {}
+
         #: js_files; list of JS paths or URLs
         self.js_files: List[Tuple[str, Dict[str, Any]]] = []
 
@@ -398,10 +404,13 @@ class SphinxComponentRegistry:
         logger.debug('[app] adding html_math_renderer: %s, %r, %r',
                      name, inline_renderers, block_renderers)
         if name in self.html_inline_math_renderers:
-            raise ExtensionError(__('math renderer %s is already registred') % name)
+            raise ExtensionError(__('math renderer %s is already registered') % name)
 
         self.html_inline_math_renderers[name] = inline_renderers
         self.html_block_math_renderers[name] = block_renderers
+
+    def add_html_theme(self, name: str, theme_path: str) -> None:
+        self.html_themes[name] = theme_path
 
     def load_extension(self, app: "Sphinx", extname: str) -> None:
         """Load a Sphinx extension."""

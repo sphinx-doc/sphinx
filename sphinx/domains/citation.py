@@ -8,7 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import TYPE_CHECKING, Any, Dict, List, Set, Tuple, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element
@@ -88,7 +88,7 @@ class CitationDomain(Domain):
 
     def resolve_xref(self, env: "BuildEnvironment", fromdocname: str, builder: "Builder",
                      typ: str, target: str, node: pending_xref, contnode: Element
-                     ) -> Element:
+                     ) -> Optional[Element]:
         docname, labelid, lineno = self.citations.get(target, ('', '', 0))
         if not docname:
             return None

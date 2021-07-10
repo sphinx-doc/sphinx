@@ -410,7 +410,7 @@ def test_text_admonitions(app):
     app.build()
     # --- admonitions
     # #1206: gettext did not translate admonition directive's title
-    # seealso: http://docutils.sourceforge.net/docs/ref/rst/directives.html#admonitions
+    # seealso: https://docutils.sourceforge.io/docs/ref/rst/directives.html#admonitions
     result = (app.outdir / 'admonitions.txt').read_text()
     directives = (
         "attention", "caution", "danger", "error", "hint",
@@ -622,7 +622,7 @@ def test_html_meta(app):
     assert expected_expr in result
     expected_expr = '<meta content="I18N, SPHINX, MARKUP" name="keywords" />'
     assert expected_expr in result
-    expected_expr = '<p class="caption"><span class="caption-text">HIDDEN TOC</span></p>'
+    expected_expr = '<p class="caption" role="heading"><span class="caption-text">HIDDEN TOC</span></p>'
     assert expected_expr in result
 
 

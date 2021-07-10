@@ -101,6 +101,17 @@ def test_autoattribute_instance_variable_in_alias(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autoattribute_instance_variable_without_comment(app):
+    actual = do_autodoc(app, 'attribute', 'target.instance_variable.Bar.attr4')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: Bar.attr4',
+        '   :module: target.instance_variable',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_slots_variable_list(app):
     actual = do_autodoc(app, 'attribute', 'target.slots.Foo.attr')
     assert list(actual) == [

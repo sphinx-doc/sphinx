@@ -29,6 +29,8 @@ tex_replacements = [
     # map special Unicode characters to TeX commands
     ('✓', r'\(\checkmark\)'),
     ('✔', r'\(\pmb{\checkmark}\)'),
+    ('✕', r'\(\times\)'),
+    ('✖', r'\(\pmb{\times}\)'),
     # used to separate -- in options
     ('﻿', r'{}'),
     # map some special Unicode characters to similar ASCII ones

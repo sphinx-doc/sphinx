@@ -10,6 +10,7 @@
 
 import ast
 import datetime
+import enum
 import functools
 import sys
 import types
@@ -19,7 +20,26 @@ import _testcapi
 import pytest
 
 from sphinx.util import inspect
-from sphinx.util.inspect import stringify_signature
+from sphinx.util.inspect import TypeAliasNamespace, stringify_signature
+
+
+def test_TypeAliasNamespace():
+    import logging.config
+    type_alias = TypeAliasNamespace({'logging.Filter': 'MyFilter',
+                                     'logging.Handler': 'MyHandler',
+                                     'logging.handlers.SyslogHandler': 'MySyslogHandler'})
+
+    assert type_alias['logging'].Filter == 'MyFilter'
+    assert type_alias['logging'].Handler == 'MyHandler'
+    assert type_alias['logging'].handlers.SyslogHandler == 'MySyslogHandler'
+    assert type_alias['logging'].Logger == logging.Logger
+    assert type_alias['logging'].config == logging.config
+
+    with pytest.raises(KeyError):
+        assert type_alias['log']
+
+    with pytest.raises(KeyError):
+        assert type_alias['unknown']
 
 
 def test_signature():
@@ -183,10 +203,7 @@ def test_signature_annotations():
 
     # Instance annotations
     sig = inspect.signature(f11)
-    if sys.version_info < (3, 10):
-        assert stringify_signature(sig) == '(x: CustomAnnotation, y: 123) -> None'
-    else:
-        assert stringify_signature(sig) == '(x: CustomAnnotation(), y: 123) -> None'
+    assert stringify_signature(sig) == '(x: CustomAnnotation, y: 123) -> None'
 
     # tuple with more than two items
     sig = inspect.signature(f12)
@@ -500,6 +517,14 @@ def test_dict_customtype():
     assert "<CustomType(2)>: 2" in description
 
 
+def test_object_description_enum():
+    class MyEnum(enum.Enum):
+        FOO = 1
+        BAR = 2
+
+    assert inspect.object_description(MyEnum.FOO) == "MyEnum.FOO"
+
+
 def test_getslots():
     class Foo:
         pass
@@ -658,7 +683,10 @@ def test_unpartial():
 def test_getdoc_inherited_decorated_method():
     class Foo:
         def meth(self):
-            """docstring."""
+            """
+            docstring
+                indented text
+            """
 
     class Bar(Foo):
         @functools.lru_cache()
@@ -667,7 +695,7 @@ def test_getdoc_inherited_decorated_method():
             pass
 
     assert inspect.getdoc(Bar.meth, getattr, False, Bar, "meth") is None
-    assert inspect.getdoc(Bar.meth, getattr, True, Bar, "meth") == "docstring."
+    assert inspect.getdoc(Bar.meth, getattr, True, Bar, "meth") == Foo.meth.__doc__
 
 
 def test_is_builtin_class_method():

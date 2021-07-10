@@ -256,3 +256,16 @@ def test_mathjax_is_not_installed_if_no_equations(app, status, warning):
 
     content = (app.outdir / 'index.html').read_text()
     assert 'MathJax.js' not in content
+
+
+@pytest.mark.sphinx('html', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax']})
+def test_mathjax_is_installed_if_no_equations_when_forced(app, status, warning):
+    app.set_html_assets_policy('always')
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text()
+    assert MATHJAX_URL in content
+
+    content = (app.outdir / 'nomath.html').read_text()
+    assert MATHJAX_URL in content

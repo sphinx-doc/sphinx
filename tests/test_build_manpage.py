@@ -27,6 +27,11 @@ def test_all(app, status, warning):
     assert '\n.B term1\n' in content
     assert '\nterm2 (\\fBstronged partially\\fP)\n' in content
 
+    # test samp with braces
+    assert '\n\\fIvariable_only\\fP\n' in content
+    assert '\n\\fIvariable\\fP\\fB and text\\fP\n' in content
+    assert '\n\\fBShow \\fP\\fIvariable\\fP\\fB in the middle\\fP\n' in content
+
     assert 'Footnotes' not in content
 
 
@@ -34,7 +39,7 @@ def test_all(app, status, warning):
                     confoverrides={'man_make_section_directory': True})
 def test_man_make_section_directory(app, status, warning):
     app.build()
-    assert (app.outdir / '1' / 'python.1').exists()
+    assert (app.outdir / 'man1' / 'python.1').exists()
 
 
 @pytest.mark.sphinx('man', testroot='directive-code')

@@ -60,6 +60,7 @@ def test_restify_type_hints_containers():
     assert restify(Tuple[str, str, str]) == (":class:`~typing.Tuple`\\ "
                                              "[:class:`str`, :class:`str`, :class:`str`]")
     assert restify(Tuple[str, ...]) == ":class:`~typing.Tuple`\\ [:class:`str`, ...]"
+    assert restify(Tuple[()]) == ":class:`~typing.Tuple`\\ [()]"
     assert restify(List[Dict[str, Tuple]]) == (":class:`~typing.List`\\ "
                                                "[:class:`~typing.Dict`\\ "
                                                "[:class:`str`, :class:`~typing.Tuple`]]")
@@ -133,6 +134,12 @@ def test_restify_type_ForwardRef():
     assert restify(ForwardRef("myint")) == ":class:`myint`"
 
 
+@pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
+def test_restify_type_Literal():
+    from typing import Literal  # type: ignore
+    assert restify(Literal[1, "2", "\r"]) == ":obj:`~typing.Literal`\\ [1, '2', '\\r']"
+
+
 @pytest.mark.skipif(sys.version_info < (3, 10), reason='python 3.10+ is required.')
 def test_restify_type_union_operator():
     assert restify(int | None) == "Optional[:class:`int`]"  # type: ignore
@@ -162,6 +169,7 @@ def test_stringify_type_hints_containers():
     assert stringify(Dict[str, float]) == "Dict[str, float]"
     assert stringify(Tuple[str, str, str]) == "Tuple[str, str, str]"
     assert stringify(Tuple[str, ...]) == "Tuple[str, ...]"
+    assert stringify(Tuple[()]) == "Tuple[()]"
     assert stringify(List[Dict[str, Tuple]]) == "List[Dict[str, Tuple]]"
     assert stringify(MyList[Tuple[int, int]]) == "tests.test_util_typing.MyList[Tuple[int, int]]"
     assert stringify(Generator[None, None, None]) == "Generator[None, None, None]"
@@ -235,6 +243,12 @@ def test_stringify_type_hints_alias():
     MyTuple = Tuple[str, str]
     assert stringify(MyStr) == "str"
     assert stringify(MyTuple) == "Tuple[str, str]"  # type: ignore
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
+def test_stringify_type_Literal():
+    from typing import Literal  # type: ignore
+    assert stringify(Literal[1, "2", "\r"]) == "Literal[1, '2', '\\r']"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 10), reason='python 3.10+ is required.')
