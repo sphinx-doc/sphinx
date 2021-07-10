@@ -47,6 +47,7 @@ Features added
   text
 * #9176: i18n: Emit a debug message if message catalog file not found under
   :confval:`locale_dirs`
+* #9414: LaTeX: Add xeCJKVerbAddon to default fvset config for Chinese documents
 * #9016: linkcheck: Support checking anchors on github.com
 * #9016: linkcheck: Add a new event :event:`linkcheck-process-uri` to modify
   URIs before checking hyperlinks
