@@ -99,6 +99,9 @@ Bugs fixed
 * #9306: Linkcheck reports broken link when remote server closes the connection
   on HEAD request
 * #9280: py domain: "exceptions" module is not displayed
+* #9418: py domain: a Callable annotation with no parameters
+  (e.g. ``Callable[[], None])`` will be rendered with a bracket missing
+  (``Callable[], None]``)
 * #9319: quickstart: Make sphinx-quickstart exit when conf.py already exists
 * #9387: xml: XML Builder ignores custom visitors
 * #9224: ``:param:`` and ``:type:`` fields does not support a type containing
@@ -126,9 +129,6 @@ Features added
 
 Bugs fixed
 ----------
-
-* #9418: a Callable annotation with no parameters (e.g. Callable[[], None]) will
-  be rendered with a bracket missing (Callable[], None])
 
 Testing
 --------
