@@ -37,8 +37,8 @@ module_level_variable1 : int
     with it.
 
 
-.. _NumPy Documentation HOWTO:
-   https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+.. _NumPy docstring standard:
+   https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
 """
 

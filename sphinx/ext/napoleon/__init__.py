@@ -49,7 +49,7 @@ class Config:
     .. _Google style:
        https://google.github.io/styleguide/pyguide.html
     .. _NumPy style:
-       https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+       https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
     Attributes
     ----------
