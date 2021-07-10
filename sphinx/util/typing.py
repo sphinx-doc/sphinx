@@ -127,7 +127,7 @@ def restify(cls: Optional[Type]) -> str:
                 return _restify_py37(cls)
             else:
                 return _restify_py36(cls)
-    except AttributeError:
+    except (AttributeError, TypeError):
         return repr(cls)
 
 
