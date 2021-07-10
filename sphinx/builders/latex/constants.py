@@ -198,6 +198,9 @@ ADDITIONAL_SETTINGS: Dict[Any, Dict[str, Any]] = {
         'polyglossia':  '',
         'babel':        '\\usepackage{babel}',
         'fontenc':      '\\usepackage{xeCJK}',
+        # set formatcom=\xeCJKVerbAddon to prevent xeCJK from adding extra spaces in
+        # fancyvrb Verbatim enviroment.
+        'fvset':        '\\fvset{fontsize=\\small,formatcom=\\xeCJKVerbAddon}',
     },
     ('xelatex', 'el'): {
         'fontpkg':      XELATEX_GREEK_DEFAULT_FONTPKG,
