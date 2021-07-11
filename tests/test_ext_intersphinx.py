@@ -196,6 +196,16 @@ def test_missing_reference_pydomain(tempdir, app, status, warning):
     rn = missing_reference(app, app.env, node, contnode)
     assert rn.astext() == 'Foo.bar'
 
+    # term reference (normal)
+    node, contnode = fake_node('std', 'term', 'a term', 'a term')
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == 'a term'
+
+    # term reference (case insensitive)
+    node, contnode = fake_node('std', 'term', 'A TERM', 'A TERM')
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == 'A TERM'
+
 
 def test_missing_reference_stddomain(tempdir, app, status, warning):
     inv_file = tempdir / 'inventory'

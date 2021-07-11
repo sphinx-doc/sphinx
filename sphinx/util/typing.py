@@ -105,27 +105,30 @@ def restify(cls: Optional[Type]) -> str:
     """Convert python class to a reST reference."""
     from sphinx.util import inspect  # lazy loading
 
-    if cls is None or cls is NoneType:
-        return ':obj:`None`'
-    elif cls is Ellipsis:
-        return '...'
-    elif cls in INVALID_BUILTIN_CLASSES:
-        return ':class:`%s`' % INVALID_BUILTIN_CLASSES[cls]
-    elif inspect.isNewType(cls):
-        return ':class:`%s`' % cls.__name__
-    elif types_Union and isinstance(cls, types_Union):
-        if len(cls.__args__) > 1 and None in cls.__args__:
-            args = ' | '.join(restify(a) for a in cls.__args__ if a)
-            return 'Optional[%s]' % args
+    try:
+        if cls is None or cls is NoneType:
+            return ':obj:`None`'
+        elif cls is Ellipsis:
+            return '...'
+        elif cls in INVALID_BUILTIN_CLASSES:
+            return ':class:`%s`' % INVALID_BUILTIN_CLASSES[cls]
+        elif inspect.isNewType(cls):
+            return ':class:`%s`' % cls.__name__
+        elif types_Union and isinstance(cls, types_Union):
+            if len(cls.__args__) > 1 and None in cls.__args__:
+                args = ' | '.join(restify(a) for a in cls.__args__ if a)
+                return 'Optional[%s]' % args
+            else:
+                return ' | '.join(restify(a) for a in cls.__args__)
+        elif cls.__module__ in ('__builtin__', 'builtins'):
+            return ':class:`%s`' % cls.__name__
         else:
-            return ' | '.join(restify(a) for a in cls.__args__)
-    elif cls.__module__ in ('__builtin__', 'builtins'):
-        return ':class:`%s`' % cls.__name__
-    else:
-        if sys.version_info >= (3, 7):  # py37+
-            return _restify_py37(cls)
-        else:
-            return _restify_py36(cls)
+            if sys.version_info >= (3, 7):  # py37+
+                return _restify_py37(cls)
+            else:
+                return _restify_py36(cls)
+    except (AttributeError, TypeError):
+        return repr(cls)
 
 
 def _restify_py37(cls: Optional[Type]) -> str:
@@ -297,7 +300,7 @@ def stringify(annotation: Any) -> str:
         else:
             return '.'.join([annotation.__module__, annotation.__name__])
     elif inspect.isNewType(annotation):
-        # Could not get the module where it defiend
+        # Could not get the module where it defined
         return annotation.__name__
     elif not annotation:
         return repr(annotation)

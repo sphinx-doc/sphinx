@@ -43,7 +43,7 @@ Most domains provide a number of :dfn:`object description directives`, used to
 describe specific objects provided by modules.  Each directive requires one or
 more signatures to provide basic information about what is being described, and
 the content should be the description.  A domain will typically keep an
-internal index of all entites to aid cross-referencing. Typically it will
+internal index of all entities to aid cross-referencing. Typically it will
 also add entries in the shown general index.
 If you want to suppress the addition of an entry in the shown index, you can
 give the directive option flag ``:noindexentry:``.
@@ -1673,7 +1673,7 @@ There is a set of directives allowing documenting command-line programs:
 
       .. program:: svn
 
-      .. option:: -r revision
+      .. option:: -r <revision>
 
          Specify the revision to work upon.
 

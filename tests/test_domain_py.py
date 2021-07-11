@@ -321,6 +321,15 @@ def test_parse_annotation(app):
                           [pending_xref, "int"],
                           [desc_sig_punctuation, "]"]))
 
+    doctree = _parse_annotation("Callable[[], int]", app.env)
+    assert_node(doctree, ([pending_xref, "Callable"],
+                          [desc_sig_punctuation, "["],
+                          [desc_sig_punctuation, "["],
+                          [desc_sig_punctuation, "]"],
+                          [desc_sig_punctuation, ", "],
+                          [pending_xref, "int"],
+                          [desc_sig_punctuation, "]"]))
+
     doctree = _parse_annotation("List[None]", app.env)
     assert_node(doctree, ([pending_xref, "List"],
                           [desc_sig_punctuation, "["],

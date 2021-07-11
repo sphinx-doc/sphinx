@@ -145,10 +145,12 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         pass
 
     def visit_desc_returns(self, node: Element) -> None:
-        self.body.append(' &#x2192; ')
+        self.body.append(' <span class="sig-return">')
+        self.body.append('<span class="sig-return-icon">&#x2192;</span>')
+        self.body.append(' <span class="sig-return-typehint">')
 
     def depart_desc_returns(self, node: Element) -> None:
-        pass
+        self.body.append('</span></span>')
 
     def visit_desc_parameterlist(self, node: Element) -> None:
         self.body.append('<span class="sig-paren">(</span>')
@@ -366,7 +368,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     # overwritten
     def visit_title(self, node: Element) -> None:
         if isinstance(node.parent, addnodes.compact_paragraph) and node.parent.get('toctree'):
-            self.body.append(self.starttag(node, 'p', '', CLASS='caption'))
+            self.body.append(self.starttag(node, 'p', '', CLASS='caption', ROLE='heading'))
             self.body.append('<span class="caption-text">')
             self.context.append('</span></p>\n')
         else:

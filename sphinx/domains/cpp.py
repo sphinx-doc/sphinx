@@ -144,7 +144,7 @@ T = TypeVar('T')
               simple-type-specifier ->
                 ::[opt] nested-name-specifier[opt] type-name
               | ::[opt] nested-name-specifier "template" simple-template-id
-              | "char" | "bool" | ect.
+              | "char" | "bool" | etc.
               | decltype-specifier
             | elaborated-type-specifier ->
                 class-key attribute-specifier-seq[opt] ::[opt]
@@ -162,7 +162,7 @@ T = TypeVar('T')
         trailing-type-specifier ->
             rest-of-trailing
             ("class" | "struct" | "union" | "typename") rest-of-trailing
-            build-in -> "char" | "bool" | ect.
+            build-in -> "char" | "bool" | etc.
             decltype-specifier
         rest-of-trailing -> (with some simplification)
             "::"[opt] list-of-elements-separated-by-::
@@ -198,7 +198,7 @@ T = TypeVar('T')
             | "::"[opt] nested-name-specifier "*" attribute-specifier-seq[opt]
                 cv-qualifier-seq[opt]
         # function_object must use a parameters-and-qualifiers, the others may
-        # use it (e.g., function poitners)
+        # use it (e.g., function pointers)
         parameters-and-qualifiers ->
             "(" parameter-clause ")" attribute-specifier-seq[opt]
             cv-qualifier-seq[opt] ref-qualifier[opt]
@@ -5281,7 +5281,7 @@ class DefinitionParser(BaseParser):
         if cast is not None:
             prefixType = "cast"
             if not self.skip_string("<"):
-                self.fail("Expected '<' afer '%s'." % cast)
+                self.fail("Expected '<' after '%s'." % cast)
             typ = self._parse_type(False)
             self.skip_ws()
             if not self.skip_string_and_ws(">"):
@@ -5617,7 +5617,7 @@ class DefinitionParser(BaseParser):
 
     def _parse_expression(self) -> ASTExpression:
         # -> assignment-expression
-        #  | expression "," assignment-expresion
+        #  | expression "," assignment-expression
         exprs = [self._parse_assignment_expression(inTemplate=False)]
         while True:
             self.skip_ws()

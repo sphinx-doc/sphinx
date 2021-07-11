@@ -61,7 +61,7 @@ def parse_version(version):
         release = RELEASE_TYPE.get(typ, typ)
         return (int(major), int(minor), int(rev), release, int(relver))
 
-    raise RuntimeError('Unknown vesion: %s' % version)
+    raise RuntimeError('Unknown version: %s' % version)
 
 
 class Skip(Exception):

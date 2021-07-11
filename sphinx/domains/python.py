@@ -130,10 +130,14 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
             return unparse(node.value)
         elif isinstance(node, ast.List):
             result = [addnodes.desc_sig_punctuation('', '[')]
-            for elem in node.elts:
-                result.extend(unparse(elem))
-                result.append(addnodes.desc_sig_punctuation('', ', '))
-            result.pop()
+            if node.elts:
+                # check if there are elements in node.elts to only pop the
+                # last element of result if the for-loop was run at least
+                # once
+                for elem in node.elts:
+                    result.extend(unparse(elem))
+                    result.append(addnodes.desc_sig_punctuation('', ', '))
+                result.pop()
             result.append(addnodes.desc_sig_punctuation('', ']'))
             return result
         elif isinstance(node, ast.Module):

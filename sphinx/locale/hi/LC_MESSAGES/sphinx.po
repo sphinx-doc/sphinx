@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-04 00:08+0000\n"
-"PO-Revision-Date: 2021-05-11 13:54+0000\n"
+"POT-Creation-Date: 2021-07-11 00:07+0000\n"
+"PO-Revision-Date: 2021-07-11 00:07+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Hindi (http://www.transifex.com/sphinx-doc/sphinx-1/language/hi/)\n"
 "MIME-Version: 1.0\n"
@@ -59,7 +59,7 @@ msgstr "इस परियोजना में स्फिंक्स क�
 msgid "making output directory"
 msgstr "परिणाम निर्देशिका बनाई जा रही है"
 
-#: sphinx/application.py:248 sphinx/registry.py:423
+#: sphinx/application.py:248 sphinx/registry.py:426
 #, python-format
 msgid "while setting up extension %s:"
 msgstr "%s आयाम को स्थापित करते हुए:"
@@ -337,127 +337,127 @@ msgstr ""
 msgid "document not readable. Ignored."
 msgstr "लेखपत्र पठनीय नहीं है. उपेक्षित."
 
-#: sphinx/registry.py:132
+#: sphinx/registry.py:135
 #, python-format
 msgid "Builder class %s has no \"name\" attribute"
 msgstr "निर्माण वर्ग %s का कोई \"नाम\" भाव नहीं है"
 
-#: sphinx/registry.py:134
+#: sphinx/registry.py:137
 #, python-format
 msgid "Builder %r already exists (in module %s)"
 msgstr "निर्माता %r पहले से (%s प्रभाग में) उपलब्ध है"
 
-#: sphinx/registry.py:147
+#: sphinx/registry.py:150
 #, python-format
 msgid "Builder name %s not registered or available through entry point"
 msgstr "निर्माता नाम %s पंजीकृत नहीं है अथवा प्रवेश स्थान पर उपलब्ध नहीं है."
 
-#: sphinx/registry.py:154
+#: sphinx/registry.py:157
 #, python-format
 msgid "Builder name %s not registered"
 msgstr "निर्माता नाम %s पंजीकृत नहीं है"
 
-#: sphinx/registry.py:161
+#: sphinx/registry.py:164
 #, python-format
 msgid "domain %s already registered"
 msgstr "अधिकारक्षेत्र %s पहले से पंजीकृत है"
 
-#: sphinx/registry.py:184 sphinx/registry.py:197 sphinx/registry.py:208
+#: sphinx/registry.py:187 sphinx/registry.py:200 sphinx/registry.py:211
 #, python-format
 msgid "domain %s not yet registered"
 msgstr "अधिकारक्षेत्र %s अभी पंजीकृत नहीं है"
 
-#: sphinx/registry.py:188
+#: sphinx/registry.py:191
 #, python-format
 msgid "The %r directive is already registered to domain %s"
 msgstr "%r निर्देश पहले से अधिकार-क्षेत्र %s में पंजीकृत है, "
 
-#: sphinx/registry.py:200
+#: sphinx/registry.py:203
 #, python-format
 msgid "The %r role is already registered to domain %s"
 msgstr "%r भूमिका पहले से अधिकार-क्षेत्र %s में पंजीकृत है, "
 
-#: sphinx/registry.py:211
+#: sphinx/registry.py:214
 #, python-format
 msgid "The %r index is already registered to domain %s"
 msgstr "%r अनुक्रमणिका  पहले से अधिकार-क्षेत्र %s में पंजीकृत है"
 
-#: sphinx/registry.py:235
+#: sphinx/registry.py:238
 #, python-format
 msgid "The %r object_type is already registered"
 msgstr "%r object_type पहले से पंजीकृत है"
 
-#: sphinx/registry.py:255
+#: sphinx/registry.py:258
 #, python-format
 msgid "The %r crossref_type is already registered"
 msgstr "%r crossref_type पहले से पंजीकृत है"
 
-#: sphinx/registry.py:262
+#: sphinx/registry.py:265
 #, python-format
 msgid "source_suffix %r is already registered"
 msgstr "source_suffix %r पहले से पंजीकृत है"
 
-#: sphinx/registry.py:272
+#: sphinx/registry.py:275
 #, python-format
 msgid "source_parser for %r is already registered"
 msgstr "%r का source_parser पहले से पंजीकृत है"
 
-#: sphinx/registry.py:281
+#: sphinx/registry.py:284
 #, python-format
 msgid "Source parser for %s not registered"
 msgstr "%s का स्रोत व्याख्याता पंजीकृत नहीं है"
 
-#: sphinx/registry.py:310
+#: sphinx/registry.py:313
 #, python-format
 msgid "Translator for %r already exists"
 msgstr "%r के लिए अनुवादक पहले से विद्यमान है"
 
-#: sphinx/registry.py:323
+#: sphinx/registry.py:326
 #, python-format
 msgid "kwargs for add_node() must be a (visit, depart) function tuple: %r=%r"
 msgstr "add_node() के kwargs एक (visit, depart) फंक्शन टपल #function tuple# होने चाहिए: %r=%r"
 
-#: sphinx/registry.py:395
+#: sphinx/registry.py:398
 #, python-format
 msgid "enumerable_node %r already registered"
 msgstr "enumerable_node %r पहले से पंजीकृत है"
 
-#: sphinx/registry.py:404
+#: sphinx/registry.py:407
 #, python-format
-msgid "math renderer %s is already registred"
-msgstr "गणित प्रस्तोता %s पहले से पंजीकृत है"
+msgid "math renderer %s is already registered"
+msgstr ""
 
-#: sphinx/registry.py:417
+#: sphinx/registry.py:420
 #, python-format
 msgid ""
 "the extension %r was already merged with Sphinx since version %s; this "
 "extension is ignored."
 msgstr "%r आयाम को %sसंस्करण से स्फिंक्स में सम्मिलित किया जा चुका है; आयाम की उपेक्षा की गयी."
 
-#: sphinx/registry.py:428
+#: sphinx/registry.py:431
 msgid "Original exception:\n"
 msgstr "मौलिक अपवाद:\n"
 
-#: sphinx/registry.py:429
+#: sphinx/registry.py:432
 #, python-format
 msgid "Could not import extension %s"
 msgstr "%s आयाम का आयात नहीं किया जा सका"
 
-#: sphinx/registry.py:434
+#: sphinx/registry.py:437
 #, python-format
 msgid ""
 "extension %r has no setup() function; is it really a Sphinx extension "
 "module?"
 msgstr "आयाम %r में कोई सेटअप #setup()# कारक नहीं है; क्या यह वास्तव में स्फिंक्स का परिवर्धक प्रभाग है?"
 
-#: sphinx/registry.py:443
+#: sphinx/registry.py:446
 #, python-format
 msgid ""
 "The %s extension used by this project needs at least Sphinx v%s; it "
 "therefore cannot be built with this version."
 msgstr "इस परियोजना में प्रयुक्त %s परिवर्धक को स्फिंक्स का कम से कम %s संस्करण चाहिए; इसलिए इस संस्करण से बनाना संभव नहीं है."
 
-#: sphinx/registry.py:451
+#: sphinx/registry.py:454
 #, python-format
 msgid ""
 "extension %r returned an unsupported object from its setup() function; it "
@@ -797,10 +797,15 @@ msgstr "उपरोक्त परिणाम में अथवा %(outdir
 msgid "broken link: %s (%s)"
 msgstr "खंडित कड़ी: %s (%s)"
 
-#: sphinx/builders/linkcheck.py:450
+#: sphinx/builders/linkcheck.py:454
 #, python-format
 msgid "Anchor '%s' not found"
 msgstr "लक्ष्य '%s' नहीं मिला"
+
+#: sphinx/builders/linkcheck.py:690
+#, python-format
+msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
+msgstr ""
 
 #: sphinx/builders/manpage.py:38
 #, python-format
@@ -1198,7 +1203,7 @@ msgstr "त्रुटि की सूचना <https://github.com/sphinx-doc
 msgid "job number should be a positive number"
 msgstr "कार्य संख्या एक धनात्मक संख्या होनी चाहिए"
 
-#: sphinx/cmd/build.py:104 sphinx/cmd/quickstart.py:464
+#: sphinx/cmd/build.py:104 sphinx/cmd/quickstart.py:470
 #: sphinx/ext/apidoc.py:307 sphinx/ext/autosummary/generate.py:598
 msgid "For more information, visit <http://sphinx-doc.org/>."
 msgstr "अधिक जानकारी के लिए <http://sphinx-doc.org/> देखें."
@@ -1398,95 +1403,95 @@ msgstr "गिटहब GitHub पर लेखपत्र प्रकाश�
 msgid "Please enter a valid path name."
 msgstr "कृपया एक मान्य पथ का नाम दें"
 
-#: sphinx/cmd/quickstart.py:104
+#: sphinx/cmd/quickstart.py:110
 msgid "Please enter some text."
 msgstr "कृपया कुछ वाक्यांश लिखें"
 
-#: sphinx/cmd/quickstart.py:111
+#: sphinx/cmd/quickstart.py:117
 #, python-format
 msgid "Please enter one of %s."
 msgstr "%s में से एक चुनें"
 
-#: sphinx/cmd/quickstart.py:118
+#: sphinx/cmd/quickstart.py:124
 msgid "Please enter either 'y' or 'n'."
 msgstr "कृपया हाँ के लिए 'y' अथवा नहीं के लिए 'n' मात्र दें. "
 
-#: sphinx/cmd/quickstart.py:124
+#: sphinx/cmd/quickstart.py:130
 msgid "Please enter a file suffix, e.g. '.rst' or '.txt'."
 msgstr "कृपया एक फाइल प्रत्यय दें, जैसे कि '.rst' अथवा '.txt'."
 
-#: sphinx/cmd/quickstart.py:205
+#: sphinx/cmd/quickstart.py:211
 #, python-format
 msgid "Welcome to the Sphinx %s quickstart utility."
 msgstr "स्फिंक्स %s त्वरित-आरंभ #sphinx-quickstart# उपकरण के लिए अभिनन्दन"
 
-#: sphinx/cmd/quickstart.py:207
+#: sphinx/cmd/quickstart.py:213
 msgid ""
 "Please enter values for the following settings (just press Enter to\n"
 "accept a default value, if one is given in brackets)."
 msgstr "कृपया निम्न विन्यासों के लिए मान प्रदान करें (मानक मान, यदि कोष्ठक में हो तो, स्वीकार करने के लिए एन्टर दबाएँ)"
 
-#: sphinx/cmd/quickstart.py:212
+#: sphinx/cmd/quickstart.py:218
 #, python-format
 msgid "Selected root path: %s"
 msgstr "चुना हुआ बुनियादी तथा मूल स्थान: %s"
 
-#: sphinx/cmd/quickstart.py:215
+#: sphinx/cmd/quickstart.py:221
 msgid "Enter the root path for documentation."
 msgstr "आलेख का बुनियादी स्थान बताएं."
 
-#: sphinx/cmd/quickstart.py:216
+#: sphinx/cmd/quickstart.py:222
 msgid "Root path for the documentation"
 msgstr "आलेख का बुनियादी पथ"
 
-#: sphinx/cmd/quickstart.py:221
+#: sphinx/cmd/quickstart.py:227
 msgid "Error: an existing conf.py has been found in the selected root path."
 msgstr "त्रुटि: एक मौजूदा conf.py फाइल दिए गए मूल पथ में प्राप्त हुई है."
 
-#: sphinx/cmd/quickstart.py:223
+#: sphinx/cmd/quickstart.py:229
 msgid "sphinx-quickstart will not overwrite existing Sphinx projects."
 msgstr "स्फिंक्स-त्वरित-आरम्भ #sphinx-quickstart# मौजूदा स्फिंक्स परियोजनाओं पर पुनर्लेखन नहीं करेगा."
 
-#: sphinx/cmd/quickstart.py:225
+#: sphinx/cmd/quickstart.py:231
 msgid "Please enter a new root path (or just Enter to exit)"
 msgstr "कृपया एक नया मूल पथ दें (अथवा निकलने हेतु सिर्फ एन्टर #Enter# कर दें)"
 
-#: sphinx/cmd/quickstart.py:232
+#: sphinx/cmd/quickstart.py:238
 msgid ""
 "You have two options for placing the build directory for Sphinx output.\n"
 "Either, you use a directory \"_build\" within the root path, or you separate\n"
 "\"source\" and \"build\" directories within the root path."
 msgstr "आपके पास Sphinx द्वारा बनाई गई फाइलों को सहेजने के लिए दो विकल्प हैं.\nया तो आप मूल स्थान में ही \"_build\" निर्देशिका प्रयोग करें, अथवा\nमूल पथ में भिन्न \"स्रोत\" और \"build\" निर्देशिका प्रयोग करें."
 
-#: sphinx/cmd/quickstart.py:235
+#: sphinx/cmd/quickstart.py:241
 msgid "Separate source and build directories (y/n)"
 msgstr "विभिन्न स्रोत और निर्माण डायरेक्टरी (y/n)"
 
-#: sphinx/cmd/quickstart.py:239
+#: sphinx/cmd/quickstart.py:245
 msgid ""
 "Inside the root directory, two more directories will be created; \"_templates\"\n"
 "for custom HTML templates and \"_static\" for custom stylesheets and other static\n"
 "files. You can enter another prefix (such as \".\") to replace the underscore."
 msgstr "मूल निर्देशिका के अन्दर, दो और निर्देशिका बनाई जाएँगी;\nपरिवर्धित एच.टी.एम्.एल. नमूनों के लिए \"_templates\" और परिवर्धित रुपपत्रों और अन्य स्थैतिक फाइलों के लिए \"_static\"\nआप अधोरेखा के स्थान पर अन्य पूर्व-प्रत्यय (जैसे कि \".\") का प्रयोग कर सकते हैं."
 
-#: sphinx/cmd/quickstart.py:242
+#: sphinx/cmd/quickstart.py:248
 msgid "Name prefix for templates and static dir"
 msgstr "नमूने और स्थैतिक डायरेक्टरी के लिए पूर्व-प्रत्यय"
 
-#: sphinx/cmd/quickstart.py:246
+#: sphinx/cmd/quickstart.py:252
 msgid ""
 "The project name will occur in several places in the built documentation."
 msgstr "परियोजना का नाम बनाये गए प्रपत्रों में बहुत से स्थानों पर प्रयुक्त होगा."
 
-#: sphinx/cmd/quickstart.py:247
+#: sphinx/cmd/quickstart.py:253
 msgid "Project name"
 msgstr "परियोजना का नाम"
 
-#: sphinx/cmd/quickstart.py:249
+#: sphinx/cmd/quickstart.py:255
 msgid "Author name(s)"
 msgstr "लेखक(कों) का नाम"
 
-#: sphinx/cmd/quickstart.py:253
+#: sphinx/cmd/quickstart.py:259
 msgid ""
 "Sphinx has the notion of a \"version\" and a \"release\" for the\n"
 "software. Each version can have multiple releases. For example, for\n"
@@ -1495,15 +1500,15 @@ msgid ""
 "just set both to the same value."
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:258
+#: sphinx/cmd/quickstart.py:264
 msgid "Project version"
 msgstr "परियोजना संस्करण"
 
-#: sphinx/cmd/quickstart.py:260
+#: sphinx/cmd/quickstart.py:266
 msgid "Project release"
 msgstr "परियोजना आवृत्ति"
 
-#: sphinx/cmd/quickstart.py:264
+#: sphinx/cmd/quickstart.py:270
 msgid ""
 "If the documents are to be written in a language other than English,\n"
 "you can select a language here by its language code. Sphinx will then\n"
@@ -1513,21 +1518,21 @@ msgid ""
 "https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language."
 msgstr "यदि प्रलेखों को अंग्रेजी के अलावा अन्य किसी भाषा में लिखा जाना है,\nतो यहाँ पर आप भाषा का कूटशब्द दे सकते हैं. स्फिंक्स तदपुरांत,\nजो वाक्यांश बनाता है उसे उस भाषा में अनुवादित करेगा.\n\nमान्य भाषा कूटशब्द सूची यहाँ पर देखें\nhttps://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language."
 
-#: sphinx/cmd/quickstart.py:270
+#: sphinx/cmd/quickstart.py:276
 msgid "Project language"
 msgstr "परियोजना की भाषा"
 
-#: sphinx/cmd/quickstart.py:276
+#: sphinx/cmd/quickstart.py:282
 msgid ""
 "The file name suffix for source files. Commonly, this is either \".txt\"\n"
 "or \".rst\". Only files with this suffix are considered documents."
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:278
+#: sphinx/cmd/quickstart.py:284
 msgid "Source file suffix"
 msgstr "स्रोत फाइल का प्रत्यय"
 
-#: sphinx/cmd/quickstart.py:282
+#: sphinx/cmd/quickstart.py:288
 msgid ""
 "One document is special in that it is considered the top node of the\n"
 "\"contents tree\", that is, it is the root of the hierarchical structure\n"
@@ -1535,91 +1540,91 @@ msgid ""
 "document is a custom template, you can also set this to another filename."
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:286
+#: sphinx/cmd/quickstart.py:292
 msgid "Name of your master document (without suffix)"
 msgstr "आपने मुख्य लेखपत्र का नाम दें (प्रत्यय रहित)"
 
-#: sphinx/cmd/quickstart.py:291
+#: sphinx/cmd/quickstart.py:297
 #, python-format
 msgid ""
 "Error: the master file %s has already been found in the selected root path."
 msgstr "त्रुटि: मुख्य फाइल %s चुने हुए मूल पथ में पहले से उपलब्ध है."
 
-#: sphinx/cmd/quickstart.py:293
+#: sphinx/cmd/quickstart.py:299
 msgid "sphinx-quickstart will not overwrite the existing file."
 msgstr "स्फिंक्स-त्वरित-आरम्भ मौजूदा फाइलों पर पुनर्लेखन नहीं करेगा."
 
-#: sphinx/cmd/quickstart.py:295
+#: sphinx/cmd/quickstart.py:301
 msgid ""
 "Please enter a new file name, or rename the existing file and press Enter"
 msgstr "कृपया एक नया फाइल नाम दें, अथवा मौजूदा फाइल का पुनर्नामकरण करें और एन्टर दबाएँ"
 
-#: sphinx/cmd/quickstart.py:299
+#: sphinx/cmd/quickstart.py:305
 msgid "Indicate which of the following Sphinx extensions should be enabled:"
 msgstr "इनमें से कौन सा स्फिंक्स आयाम प्रयोग करना है, इंगित करें:"
 
-#: sphinx/cmd/quickstart.py:307
+#: sphinx/cmd/quickstart.py:313
 msgid ""
 "Note: imgmath and mathjax cannot be enabled at the same time. imgmath has "
 "been deselected."
 msgstr "टिप्पणी: imgmath और mathjax एक साथ समर्थ नहीं हो सकते. imgmath को अचिन्हित कर दिया गया है."
 
-#: sphinx/cmd/quickstart.py:313
+#: sphinx/cmd/quickstart.py:319
 msgid ""
 "A Makefile and a Windows command file can be generated for you so that you\n"
 "only have to run e.g. `make html' instead of invoking sphinx-build\n"
 "directly."
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:316
+#: sphinx/cmd/quickstart.py:322
 msgid "Create Makefile? (y/n)"
 msgstr "मेकफाइल बनाएं? (हाँ के लिए y/ ना के लिए n)"
 
-#: sphinx/cmd/quickstart.py:319
+#: sphinx/cmd/quickstart.py:325
 msgid "Create Windows command file? (y/n)"
 msgstr "विंडोज़ कमांड फाइल बनाएं? (हाँ के लिए y/ ना के लिए n)"
 
-#: sphinx/cmd/quickstart.py:362 sphinx/ext/apidoc.py:90
+#: sphinx/cmd/quickstart.py:368 sphinx/ext/apidoc.py:90
 #, python-format
 msgid "Creating file %s."
 msgstr "फाइल बनाई जा रही है ...%s"
 
-#: sphinx/cmd/quickstart.py:367 sphinx/ext/apidoc.py:87
+#: sphinx/cmd/quickstart.py:373 sphinx/ext/apidoc.py:87
 #, python-format
 msgid "File %s already exists, skipping."
 msgstr "फाइल %s पहले से उपस्थित है, छोड़ दी गई."
 
-#: sphinx/cmd/quickstart.py:409
+#: sphinx/cmd/quickstart.py:415
 msgid "Finished: An initial directory structure has been created."
 msgstr "समाप्त: एक प्रारंभिक निर्देशिका का ढांचा बना दिया गया है."
 
-#: sphinx/cmd/quickstart.py:411
+#: sphinx/cmd/quickstart.py:417
 #, python-format
 msgid ""
 "You should now populate your master file %s and create other documentation\n"
 "source files. "
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:414
+#: sphinx/cmd/quickstart.py:420
 msgid ""
 "Use the Makefile to build the docs, like so:\n"
 "   make builder"
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:417
+#: sphinx/cmd/quickstart.py:423
 #, python-format
 msgid ""
 "Use the sphinx-build command to build the docs, like so:\n"
 "   sphinx-build -b builder %s %s"
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:419
+#: sphinx/cmd/quickstart.py:425
 msgid ""
 "where \"builder\" is one of the supported builders, e.g. html, latex or "
 "linkcheck."
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:454
+#: sphinx/cmd/quickstart.py:460
 msgid ""
 "\n"
 "Generate required files for a Sphinx project.\n"
@@ -1629,135 +1634,135 @@ msgid ""
 "Makefile to be used with sphinx-build.\n"
 msgstr "\nस्फिंक्स परियोजना के लिए आवश्यक फाइल बनाएं.\n\nस्फिंक्स-त्वरित-आरम्भ एक संवादपूर्ण उपकरण है जो आपकी परियोजना के \nबारे में कुछ प्रश्न पूछकर पूरी प्रलेखों की निर्देशिका और नमूना मेकफाइल \nबना देता है जिसे स्फिंक्स-बिल्ड में प्रयोग किया जा सकता है.\n"
 
-#: sphinx/cmd/quickstart.py:469
+#: sphinx/cmd/quickstart.py:475
 msgid "quiet mode"
 msgstr "शांत ढंग "
 
-#: sphinx/cmd/quickstart.py:474
+#: sphinx/cmd/quickstart.py:480
 msgid "project root"
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:476
+#: sphinx/cmd/quickstart.py:482
 msgid "Structure options"
 msgstr "ढांचे के विकल्प"
 
-#: sphinx/cmd/quickstart.py:478
+#: sphinx/cmd/quickstart.py:484
 msgid "if specified, separate source and build dirs"
 msgstr "यदि निर्दिष्ट हो तो विभिन्न स्रोत और निर्माण पथ"
 
-#: sphinx/cmd/quickstart.py:480
+#: sphinx/cmd/quickstart.py:486
 msgid "if specified, create build dir under source dir"
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:482
+#: sphinx/cmd/quickstart.py:488
 msgid "replacement for dot in _templates etc."
 msgstr "_templates आदि में बिंदु का बदलाव"
 
-#: sphinx/cmd/quickstart.py:484
+#: sphinx/cmd/quickstart.py:490
 msgid "Project basic options"
 msgstr "परोयोजना के मूलभूत विकल्प"
 
-#: sphinx/cmd/quickstart.py:486
+#: sphinx/cmd/quickstart.py:492
 msgid "project name"
 msgstr "परियोजना का नाम"
 
-#: sphinx/cmd/quickstart.py:488
+#: sphinx/cmd/quickstart.py:494
 msgid "author names"
 msgstr "लेखकों के नाम"
 
-#: sphinx/cmd/quickstart.py:490
+#: sphinx/cmd/quickstart.py:496
 msgid "version of project"
 msgstr "परियोजना का संस्करण"
 
-#: sphinx/cmd/quickstart.py:492
+#: sphinx/cmd/quickstart.py:498
 msgid "release of project"
 msgstr "परियोजना की आवृत्ति"
 
-#: sphinx/cmd/quickstart.py:494
+#: sphinx/cmd/quickstart.py:500
 msgid "document language"
 msgstr "लेखपत्र की भाषा"
 
-#: sphinx/cmd/quickstart.py:496
+#: sphinx/cmd/quickstart.py:502
 msgid "source file suffix"
 msgstr "स्रोत फाइल का प्रत्यय"
 
-#: sphinx/cmd/quickstart.py:498
+#: sphinx/cmd/quickstart.py:504
 msgid "master document name"
 msgstr "मुख्य लेखपत्र का नाम"
 
-#: sphinx/cmd/quickstart.py:500
+#: sphinx/cmd/quickstart.py:506
 msgid "use epub"
 msgstr "ई-पब प्रयोग करें"
 
-#: sphinx/cmd/quickstart.py:502
+#: sphinx/cmd/quickstart.py:508
 msgid "Extension options"
 msgstr "आयाम के विकल्प"
 
-#: sphinx/cmd/quickstart.py:506 sphinx/ext/apidoc.py:390
+#: sphinx/cmd/quickstart.py:512 sphinx/ext/apidoc.py:390
 #, python-format
 msgid "enable %s extension"
 msgstr "आयाम %s सक्षम करें"
 
-#: sphinx/cmd/quickstart.py:508 sphinx/ext/apidoc.py:386
+#: sphinx/cmd/quickstart.py:514 sphinx/ext/apidoc.py:386
 msgid "enable arbitrary extensions"
 msgstr "स्वेच्छित आयाम सक्षम करें"
 
-#: sphinx/cmd/quickstart.py:510
+#: sphinx/cmd/quickstart.py:516
 msgid "Makefile and Batchfile creation"
 msgstr "मेकफाइल और बैचफाइल का सर्जन"
 
-#: sphinx/cmd/quickstart.py:512
+#: sphinx/cmd/quickstart.py:518
 msgid "create makefile"
 msgstr "मेकफाइल बनाएं"
 
-#: sphinx/cmd/quickstart.py:514
+#: sphinx/cmd/quickstart.py:520
 msgid "do not create makefile"
 msgstr "मेकफाइल नहीं बनाएं"
 
-#: sphinx/cmd/quickstart.py:516
+#: sphinx/cmd/quickstart.py:522
 msgid "create batchfile"
 msgstr "बैचफाइल बनाएं"
 
-#: sphinx/cmd/quickstart.py:519
+#: sphinx/cmd/quickstart.py:525
 msgid "do not create batchfile"
 msgstr "बैचफाइल नहीं बनाएं"
 
-#: sphinx/cmd/quickstart.py:522
+#: sphinx/cmd/quickstart.py:528
 msgid "use make-mode for Makefile/make.bat"
 msgstr "Makefile/make.bat के लिए make-mode का प्रयोग करें"
 
-#: sphinx/cmd/quickstart.py:525
+#: sphinx/cmd/quickstart.py:531
 msgid "do not use make-mode for Makefile/make.bat"
 msgstr "Makefile/make.bat के लिए make-mode का प्रयोग नहीं करें"
 
-#: sphinx/cmd/quickstart.py:527 sphinx/ext/apidoc.py:392
+#: sphinx/cmd/quickstart.py:533 sphinx/ext/apidoc.py:392
 msgid "Project templating"
 msgstr "परियोजना नमूनावृत्ति"
 
-#: sphinx/cmd/quickstart.py:530 sphinx/ext/apidoc.py:395
+#: sphinx/cmd/quickstart.py:536 sphinx/ext/apidoc.py:395
 msgid "template directory for template files"
 msgstr "नमूना फाइलों के लिए नमूना निर्देशिका"
 
-#: sphinx/cmd/quickstart.py:533
+#: sphinx/cmd/quickstart.py:539
 msgid "define a template variable"
 msgstr "नमूना चर-पद का निरूपण करें"
 
-#: sphinx/cmd/quickstart.py:566
+#: sphinx/cmd/quickstart.py:572
 msgid "\"quiet\" is specified, but any of \"project\" or \"author\" is not specified."
 msgstr "\"शांत\" निर्दिष्ट है, परन्तु कोई भी \"परियोजना\" अथवा \"लेखक\" निर्दिष्ट नहीं है."
 
-#: sphinx/cmd/quickstart.py:580
+#: sphinx/cmd/quickstart.py:586
 msgid ""
 "Error: specified path is not a directory, or sphinx files already exist."
 msgstr "त्रुटि: दिया गया पथ निर्देशिका नहीं है, अथवा स्फिंक्स फाइलें पहले से उपस्थित हैं."
 
-#: sphinx/cmd/quickstart.py:582
+#: sphinx/cmd/quickstart.py:588
 msgid ""
 "sphinx-quickstart only generate into a empty directory. Please specify a new"
 " root path."
 msgstr "स्फिंक्स-त्वरित-आरम्भ केवल एक खाली निर्देशिका में कार्यशील हो सकती है. कृपया एक नया मूल पथ निर्दिष्ट करें."
 
-#: sphinx/cmd/quickstart.py:597
+#: sphinx/cmd/quickstart.py:603
 #, python-format
 msgid "Invalid template variable: %s"
 msgstr "अमान्य नमूना चर-पद: %s"
@@ -1843,17 +1848,17 @@ msgid ""
 msgstr ""
 
 #: sphinx/domains/c.py:3133 sphinx/domains/cpp.py:6931
-#: sphinx/domains/python.py:389 sphinx/ext/napoleon/docstring.py:736
+#: sphinx/domains/python.py:393 sphinx/ext/napoleon/docstring.py:736
 msgid "Parameters"
 msgstr "मापदण्ड"
 
 #: sphinx/domains/c.py:3136 sphinx/domains/cpp.py:6940
-#: sphinx/domains/javascript.py:221 sphinx/domains/python.py:401
+#: sphinx/domains/javascript.py:221 sphinx/domains/python.py:405
 msgid "Returns"
 msgstr "प्रदत्त "
 
 #: sphinx/domains/c.py:3138 sphinx/domains/javascript.py:223
-#: sphinx/domains/python.py:403
+#: sphinx/domains/python.py:407
 msgid "Return type"
 msgstr "प्रदत्त प्रकार "
 
@@ -1871,7 +1876,7 @@ msgid "variable"
 msgstr "चर पद"
 
 #: sphinx/domains/c.py:3733 sphinx/domains/cpp.py:7577
-#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1107
+#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1111
 msgid "function"
 msgstr "फंक्शन"
 
@@ -1949,7 +1954,7 @@ msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
 #: sphinx/domains/cpp.py:7575 sphinx/domains/javascript.py:328
-#: sphinx/domains/python.py:1109
+#: sphinx/domains/python.py:1113
 msgid "class"
 msgstr "वर्ग"
 
@@ -1966,7 +1971,7 @@ msgstr ""
 msgid "%s() (built-in function)"
 msgstr "%s() (अंतर्निर्मित फंक्शन)"
 
-#: sphinx/domains/javascript.py:137 sphinx/domains/python.py:764
+#: sphinx/domains/javascript.py:137 sphinx/domains/python.py:768
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (%s विधि)"
@@ -1981,7 +1986,7 @@ msgstr "%s() (वर्ग)"
 msgid "%s (global variable or constant)"
 msgstr "%s (वैश्विक चरपद अथवा अचर) "
 
-#: sphinx/domains/javascript.py:143 sphinx/domains/python.py:842
+#: sphinx/domains/javascript.py:143 sphinx/domains/python.py:846
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (%s लक्षण)"
@@ -1995,20 +2000,20 @@ msgstr "चर "
 msgid "%s (module)"
 msgstr "%s (प्रभाग)"
 
-#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1111
+#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1115
 msgid "method"
 msgstr "पद्धति"
 
-#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1108
+#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1112
 msgid "data"
 msgstr "आंकड़े "
 
-#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1114
+#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1118
 msgid "attribute"
 msgstr "लक्षण"
 
 #: sphinx/domains/javascript.py:331 sphinx/domains/python.py:58
-#: sphinx/domains/python.py:1116
+#: sphinx/domains/python.py:1120
 msgid "module"
 msgstr "प्रभाग"
 
@@ -2022,7 +2027,7 @@ msgstr ""
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "समीकरण का प्रतिरूप शीर्षक %s, दूसरी प्रतिकृति %s में है "
 
-#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2070
+#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2074
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "अमान्य math_eqref_format: %r"
@@ -2039,7 +2044,7 @@ msgstr "चालक"
 msgid "object"
 msgstr "वस्तु"
 
-#: sphinx/domains/python.py:62 sphinx/domains/python.py:1110
+#: sphinx/domains/python.py:62 sphinx/domains/python.py:1114
 msgid "exception"
 msgstr "अपवाद "
 
@@ -2051,97 +2056,97 @@ msgstr "वक्तव्य "
 msgid "built-in function"
 msgstr "अंतर्निर्मित कर्म"
 
-#: sphinx/domains/python.py:394
+#: sphinx/domains/python.py:398
 msgid "Variables"
 msgstr "चर पद "
 
-#: sphinx/domains/python.py:398
+#: sphinx/domains/python.py:402
 msgid "Raises"
 msgstr "उभारता है "
 
-#: sphinx/domains/python.py:618 sphinx/domains/python.py:753
+#: sphinx/domains/python.py:622 sphinx/domains/python.py:757
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (%s प्रभाग में )"
 
-#: sphinx/domains/python.py:672 sphinx/domains/python.py:838
-#: sphinx/domains/python.py:878
+#: sphinx/domains/python.py:676 sphinx/domains/python.py:842
+#: sphinx/domains/python.py:882
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (%s प्रभाग में )"
 
-#: sphinx/domains/python.py:674
+#: sphinx/domains/python.py:678
 #, python-format
 msgid "%s (built-in variable)"
 msgstr "%s (अंतर्निर्मित चर पद)"
 
-#: sphinx/domains/python.py:698
+#: sphinx/domains/python.py:702
 #, python-format
 msgid "%s (built-in class)"
 msgstr "%s (अंतर्निर्मित वर्ग)"
 
-#: sphinx/domains/python.py:699
+#: sphinx/domains/python.py:703
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s (%s वर्ग में)"
 
-#: sphinx/domains/python.py:758
+#: sphinx/domains/python.py:762
 #, python-format
 msgid "%s() (%s class method)"
 msgstr "%s() (%s वर्ग विधि) "
 
-#: sphinx/domains/python.py:760
+#: sphinx/domains/python.py:764
 #, python-format
 msgid "%s() (%s property)"
 msgstr ""
 
-#: sphinx/domains/python.py:762
+#: sphinx/domains/python.py:766
 #, python-format
 msgid "%s() (%s static method)"
 msgstr "%s() (%s स्थैतिक विधि)"
 
-#: sphinx/domains/python.py:882
+#: sphinx/domains/python.py:886
 #, python-format
 msgid "%s (%s property)"
 msgstr ""
 
-#: sphinx/domains/python.py:1036
+#: sphinx/domains/python.py:1040
 msgid "Python Module Index"
 msgstr "पाइथन प्रभाग सूची"
 
-#: sphinx/domains/python.py:1037
+#: sphinx/domains/python.py:1041
 msgid "modules"
 msgstr "प्रभाग"
 
-#: sphinx/domains/python.py:1086
+#: sphinx/domains/python.py:1090
 msgid "Deprecated"
 msgstr "अवमानित "
 
-#: sphinx/domains/python.py:1112
+#: sphinx/domains/python.py:1116
 msgid "class method"
 msgstr "वर्ग विधि"
 
-#: sphinx/domains/python.py:1113
+#: sphinx/domains/python.py:1117
 msgid "static method"
 msgstr "स्थैतिक पद्धति"
 
-#: sphinx/domains/python.py:1115
+#: sphinx/domains/python.py:1119
 msgid "property"
 msgstr ""
 
-#: sphinx/domains/python.py:1173
+#: sphinx/domains/python.py:1177
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr ""
 
-#: sphinx/domains/python.py:1293
+#: sphinx/domains/python.py:1297
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "पारस्परिक-सन्दर्भों के लिए एक से अधिक लक्ष्य मिले %r: %s"
 
-#: sphinx/domains/python.py:1347
+#: sphinx/domains/python.py:1351
 msgid " (deprecated)"
 msgstr "(अवमानित)"
 
@@ -2861,7 +2866,7 @@ msgid ""
 msgstr ""
 
 #: sphinx/ext/autodoc/__init__.py:1296 sphinx/ext/autodoc/__init__.py:1370
-#: sphinx/ext/autodoc/__init__.py:2683
+#: sphinx/ext/autodoc/__init__.py:2687
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr ""
@@ -2887,17 +2892,17 @@ msgstr ""
 msgid "alias of TypeVar(%s)"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2111 sphinx/ext/autodoc/__init__.py:2205
+#: sphinx/ext/autodoc/__init__.py:2113 sphinx/ext/autodoc/__init__.py:2207
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2333
+#: sphinx/ext/autodoc/__init__.py:2335
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2726
+#: sphinx/ext/autodoc/__init__.py:2730
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."

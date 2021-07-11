@@ -1635,3 +1635,11 @@ def test_html_permalink_icon(app):
     assert ('<h1>The basic Sphinx documentation for testing<a class="headerlink" '
             'href="#the-basic-sphinx-documentation-for-testing" '
             'title="Permalink to this headline"><span>[PERMALINK]</span></a></h1>' in content)
+
+
+@pytest.mark.sphinx('html', testroot='html_signaturereturn_icon')
+def test_html_signaturereturn_icon(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+
+    assert ('<span class="sig-return-icon">&#x2192;</span>' in content)

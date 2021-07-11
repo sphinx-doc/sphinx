@@ -79,7 +79,7 @@ def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: Dict
                              'mathjax extension to work')
 
     domain = cast(MathDomain, app.env.get_domain('math'))
-    if domain.has_equations(pagename):
+    if app.registry.html_assets_policy == 'always' or domain.has_equations(pagename):
         # Enable mathjax only if equations exists
         options = {'async': 'async'}
         if app.config.mathjax_options:
