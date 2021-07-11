@@ -1,13 +1,10 @@
-Release 4.1.0 (in development)
-==============================
+Release 4.1.0 (released Jul 12, 2021)
+=====================================
 
 Dependencies
 ------------
 
 * Support jinja2-3.0
-
-Incompatible changes
---------------------
 
 Deprecated
 ----------
@@ -111,30 +108,6 @@ Bugs fixed
   whitespace (ex. ``Dict[str, str]``)
 * #8945: when transforming typed fields, call the specified role instead of
   making an single xref. For C and C++, use the ``expr`` role for typed fields.
-
-Testing
---------
-
-Release 4.0.4 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
 
 Release 4.0.3 (released Jul 05, 2021)
 =====================================
