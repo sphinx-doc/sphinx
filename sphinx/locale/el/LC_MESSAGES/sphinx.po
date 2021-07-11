@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-04 00:08+0000\n"
-"PO-Revision-Date: 2021-05-11 13:54+0000\n"
+"POT-Creation-Date: 2021-07-11 00:07+0000\n"
+"PO-Revision-Date: 2021-07-11 00:07+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Greek (http://www.transifex.com/sphinx-doc/sphinx-1/language/el/)\n"
 "MIME-Version: 1.0\n"
@@ -58,7 +58,7 @@ msgstr "Αυτό το έργο απαιτεί Sphinx έκδοσης τουλάχ
 msgid "making output directory"
 msgstr "δημιουργία καταλόγου εξόδου"
 
-#: sphinx/application.py:248 sphinx/registry.py:423
+#: sphinx/application.py:248 sphinx/registry.py:426
 #, python-format
 msgid "while setting up extension %s:"
 msgstr "κατά τον καθορισμό της επέκτασης %s"
@@ -336,127 +336,127 @@ msgstr ""
 msgid "document not readable. Ignored."
 msgstr "το έγγραφο δεν είναι αναγνωσιμό. Θα αγνοηθεί."
 
-#: sphinx/registry.py:132
+#: sphinx/registry.py:135
 #, python-format
 msgid "Builder class %s has no \"name\" attribute"
 msgstr "Η κλάση μεταγλώττισης %s δεν έχει χαρακτηριστικό \"name\" "
 
-#: sphinx/registry.py:134
+#: sphinx/registry.py:137
 #, python-format
 msgid "Builder %r already exists (in module %s)"
 msgstr "Ο μεταγλωττιστής %r υφίσταται ήδη (στο δομοστοιχείο %s)"
 
-#: sphinx/registry.py:147
+#: sphinx/registry.py:150
 #, python-format
 msgid "Builder name %s not registered or available through entry point"
 msgstr "Το όνομα μεταγλωττιστή %s δεν είναι καταχωρημένο ή διαθέσιμο δια μέσου του σημείου εισαγωγής"
 
-#: sphinx/registry.py:154
+#: sphinx/registry.py:157
 #, python-format
 msgid "Builder name %s not registered"
 msgstr "Το όνομα μεταγλωττιστή %sδεν είναι καταχορημένο"
 
-#: sphinx/registry.py:161
+#: sphinx/registry.py:164
 #, python-format
 msgid "domain %s already registered"
 msgstr "ο τομέας %s είναι ήδη καταχωρημένος"
 
-#: sphinx/registry.py:184 sphinx/registry.py:197 sphinx/registry.py:208
+#: sphinx/registry.py:187 sphinx/registry.py:200 sphinx/registry.py:211
 #, python-format
 msgid "domain %s not yet registered"
 msgstr "ο τομέας %s δεν έχει καταχωρηθεί ακόμη"
 
-#: sphinx/registry.py:188
+#: sphinx/registry.py:191
 #, python-format
 msgid "The %r directive is already registered to domain %s"
 msgstr "Η οδηγία %r είναι ήδη καταχωρημένη στον τομέα %s"
 
-#: sphinx/registry.py:200
+#: sphinx/registry.py:203
 #, python-format
 msgid "The %r role is already registered to domain %s"
 msgstr "Ο ρόλος %r είναι ήδη καταχωρημένος στον τομέα %s"
 
-#: sphinx/registry.py:211
+#: sphinx/registry.py:214
 #, python-format
 msgid "The %r index is already registered to domain %s"
 msgstr "Ο δείκτης %r είναι ήδη καταχωρημένος στον τομέα %s"
 
-#: sphinx/registry.py:235
+#: sphinx/registry.py:238
 #, python-format
 msgid "The %r object_type is already registered"
 msgstr "Το object_type %r είναι ήδη καταχωρημένο"
 
-#: sphinx/registry.py:255
+#: sphinx/registry.py:258
 #, python-format
 msgid "The %r crossref_type is already registered"
 msgstr "Το crossref_type %r είναι ήδη καταχωρημένο"
 
-#: sphinx/registry.py:262
+#: sphinx/registry.py:265
 #, python-format
 msgid "source_suffix %r is already registered"
 msgstr "το source_suffix %r είναι ήδη καταχωρημένο"
 
-#: sphinx/registry.py:272
+#: sphinx/registry.py:275
 #, python-format
 msgid "source_parser for %r is already registered"
 msgstr "το source_parser για το %r είναι ήδη καταχωρημένο"
 
-#: sphinx/registry.py:281
+#: sphinx/registry.py:284
 #, python-format
 msgid "Source parser for %s not registered"
 msgstr "Ο αναλυτής πηγής για το %s δεν είναι καταχωρημένος"
 
-#: sphinx/registry.py:310
+#: sphinx/registry.py:313
 #, python-format
 msgid "Translator for %r already exists"
 msgstr "Ο μεταφραστής για το %r υφίσταται ήδη"
 
-#: sphinx/registry.py:323
+#: sphinx/registry.py:326
 #, python-format
 msgid "kwargs for add_node() must be a (visit, depart) function tuple: %r=%r"
 msgstr "το kwargs για το add_node() πρέπει να είναι μία (visit, depart) συνάρτηση πλειάδας: %r=%r"
 
-#: sphinx/registry.py:395
+#: sphinx/registry.py:398
 #, python-format
 msgid "enumerable_node %r already registered"
 msgstr "το enumerable_node %r είναι ήδη καταχωρημένο"
 
-#: sphinx/registry.py:404
+#: sphinx/registry.py:407
 #, python-format
 msgid "math renderer %s is already registered"
-msgstr "ο συνθέτης μαθηματικών %s είναι ήδη καταχωρημένος"
+msgstr ""
 
-#: sphinx/registry.py:417
+#: sphinx/registry.py:420
 #, python-format
 msgid ""
 "the extension %r was already merged with Sphinx since version %s; this "
 "extension is ignored."
 msgstr "η επέκταση %r συγχωνεύθηκε ήδη με το Sphinx από την έκδοση %s; η επέκταση αυτή θα αγνοηθεί."
 
-#: sphinx/registry.py:428
+#: sphinx/registry.py:431
 msgid "Original exception:\n"
 msgstr "Αρχική εξαίρεση:\n"
 
-#: sphinx/registry.py:429
+#: sphinx/registry.py:432
 #, python-format
 msgid "Could not import extension %s"
 msgstr "Δεν ήταν δυνατή η εισαγωγή της επέκτασης %s"
 
-#: sphinx/registry.py:434
+#: sphinx/registry.py:437
 #, python-format
 msgid ""
 "extension %r has no setup() function; is it really a Sphinx extension "
 "module?"
 msgstr "η επέκταση %r δεν έχει συνάρτηση setup(); αποτελεί δομοστοιχείο επέκτασης του Sphinx;"
 
-#: sphinx/registry.py:443
+#: sphinx/registry.py:446
 #, python-format
 msgid ""
 "The %s extension used by this project needs at least Sphinx v%s; it "
 "therefore cannot be built with this version."
 msgstr "Η επέκταση %s η οποία χρησιμοποιείται από αυτό το έργο απαιτεί Sphinx έκδοσης τουλάχιστον %s: επομένως δεν είναι δυνατή η μεταγλώττιση με αυτή την έκδοση."
 
-#: sphinx/registry.py:451
+#: sphinx/registry.py:454
 #, python-format
 msgid ""
 "extension %r returned an unsupported object from its setup() function; it "
@@ -796,10 +796,15 @@ msgstr "Αναζητήστε οποιαδήποτε λάθη στο παραπά
 msgid "broken link: %s (%s)"
 msgstr "λανθασμένος σύνδεσμος: %s (%s)"
 
-#: sphinx/builders/linkcheck.py:450
+#: sphinx/builders/linkcheck.py:454
 #, python-format
 msgid "Anchor '%s' not found"
 msgstr "Δεν βρέθηκε το anchor '%s'"
+
+#: sphinx/builders/linkcheck.py:690
+#, python-format
+msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
+msgstr ""
 
 #: sphinx/builders/manpage.py:38
 #, python-format
@@ -1197,7 +1202,7 @@ msgstr "Μία αναφορά σφάλματος μπορεί να υποβλη�
 msgid "job number should be a positive number"
 msgstr "ο αριθμός εργασίας θα πρέπει να είναι θετικός αριθμός"
 
-#: sphinx/cmd/build.py:104 sphinx/cmd/quickstart.py:464
+#: sphinx/cmd/build.py:104 sphinx/cmd/quickstart.py:470
 #: sphinx/ext/apidoc.py:307 sphinx/ext/autosummary/generate.py:598
 msgid "For more information, visit <http://sphinx-doc.org/>."
 msgstr "Για περισσότερες πληροφορίες, επισκεφτείτε το <http://sphinx-doc.org/>."
@@ -1397,95 +1402,95 @@ msgstr "δημιουργία αρχείου .nojekyll για έκδοση του
 msgid "Please enter a valid path name."
 msgstr "Παρακαλείστε να εισάγετε ένα έγκυρο όνομα μονοπατιού."
 
-#: sphinx/cmd/quickstart.py:104
+#: sphinx/cmd/quickstart.py:110
 msgid "Please enter some text."
 msgstr "Παρακαλείστε να εισάγετε κάποιο κείμενο."
 
-#: sphinx/cmd/quickstart.py:111
+#: sphinx/cmd/quickstart.py:117
 #, python-format
 msgid "Please enter one of %s."
 msgstr "Παρακαλείστε να εισάγετε ένα από τα %s."
 
-#: sphinx/cmd/quickstart.py:118
+#: sphinx/cmd/quickstart.py:124
 msgid "Please enter either 'y' or 'n'."
 msgstr "Παρακαλείστε να εισάγετε είτε 'y' είτε 'n'."
 
-#: sphinx/cmd/quickstart.py:124
+#: sphinx/cmd/quickstart.py:130
 msgid "Please enter a file suffix, e.g. '.rst' or '.txt'."
 msgstr "Παρακαλείστε να εισάγετε μία επέκταση αρχείου, π.χ. '.rst' ή '.txt'."
 
-#: sphinx/cmd/quickstart.py:205
+#: sphinx/cmd/quickstart.py:211
 #, python-format
 msgid "Welcome to the Sphinx %s quickstart utility."
 msgstr "Καλώς ήρθατε στο εργαλείο γρήγορης εκκίνησης Sphinx %s."
 
-#: sphinx/cmd/quickstart.py:207
+#: sphinx/cmd/quickstart.py:213
 msgid ""
 "Please enter values for the following settings (just press Enter to\n"
 "accept a default value, if one is given in brackets)."
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:212
+#: sphinx/cmd/quickstart.py:218
 #, python-format
 msgid "Selected root path: %s"
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:215
+#: sphinx/cmd/quickstart.py:221
 msgid "Enter the root path for documentation."
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:216
+#: sphinx/cmd/quickstart.py:222
 msgid "Root path for the documentation"
 msgstr "Ριζικό μονοπάτι για την τεκμηρίωση"
 
-#: sphinx/cmd/quickstart.py:221
+#: sphinx/cmd/quickstart.py:227
 msgid "Error: an existing conf.py has been found in the selected root path."
 msgstr "Σφάλμα: ένα υπάρχον conf.py έχει βρεθεί στοn επιλεγμένο ριζικό κατάλογο."
 
-#: sphinx/cmd/quickstart.py:223
+#: sphinx/cmd/quickstart.py:229
 msgid "sphinx-quickstart will not overwrite existing Sphinx projects."
 msgstr "το sphinx-quickstart δεν θα αντικαταστήσει υπάρχοντα έργα Sphinx."
 
-#: sphinx/cmd/quickstart.py:225
+#: sphinx/cmd/quickstart.py:231
 msgid "Please enter a new root path (or just Enter to exit)"
 msgstr "Παρακαλείστε να εισάγετε ένα νέο ριζικό μονοπάτι (ή απλά πιέστε το Enter για έξοδο)"
 
-#: sphinx/cmd/quickstart.py:232
+#: sphinx/cmd/quickstart.py:238
 msgid ""
 "You have two options for placing the build directory for Sphinx output.\n"
 "Either, you use a directory \"_build\" within the root path, or you separate\n"
 "\"source\" and \"build\" directories within the root path."
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:235
+#: sphinx/cmd/quickstart.py:241
 msgid "Separate source and build directories (y/n)"
 msgstr "Ξεχωριστοί κατάλογοι για πηγή και μεταγλώττιση (y/n)"
 
-#: sphinx/cmd/quickstart.py:239
+#: sphinx/cmd/quickstart.py:245
 msgid ""
 "Inside the root directory, two more directories will be created; \"_templates\"\n"
 "for custom HTML templates and \"_static\" for custom stylesheets and other static\n"
 "files. You can enter another prefix (such as \".\") to replace the underscore."
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:242
+#: sphinx/cmd/quickstart.py:248
 msgid "Name prefix for templates and static dir"
 msgstr "Πρόθεμα ονόματος για πρότυπα και στατικούς καταλόγους"
 
-#: sphinx/cmd/quickstart.py:246
+#: sphinx/cmd/quickstart.py:252
 msgid ""
 "The project name will occur in several places in the built documentation."
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:247
+#: sphinx/cmd/quickstart.py:253
 msgid "Project name"
 msgstr "Όνομα έργου"
 
-#: sphinx/cmd/quickstart.py:249
+#: sphinx/cmd/quickstart.py:255
 msgid "Author name(s)"
 msgstr "Όνομα(τα) συγγραφέα"
 
-#: sphinx/cmd/quickstart.py:253
+#: sphinx/cmd/quickstart.py:259
 msgid ""
 "Sphinx has the notion of a \"version\" and a \"release\" for the\n"
 "software. Each version can have multiple releases. For example, for\n"
@@ -1494,15 +1499,15 @@ msgid ""
 "just set both to the same value."
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:258
+#: sphinx/cmd/quickstart.py:264
 msgid "Project version"
 msgstr "Έκδοση έργου"
 
-#: sphinx/cmd/quickstart.py:260
+#: sphinx/cmd/quickstart.py:266
 msgid "Project release"
 msgstr "Κυκλοφορία έργου"
 
-#: sphinx/cmd/quickstart.py:264
+#: sphinx/cmd/quickstart.py:270
 msgid ""
 "If the documents are to be written in a language other than English,\n"
 "you can select a language here by its language code. Sphinx will then\n"
@@ -1512,21 +1517,21 @@ msgid ""
 "https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language."
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:270
+#: sphinx/cmd/quickstart.py:276
 msgid "Project language"
 msgstr "Γλώσσα έργου"
 
-#: sphinx/cmd/quickstart.py:276
+#: sphinx/cmd/quickstart.py:282
 msgid ""
 "The file name suffix for source files. Commonly, this is either \".txt\"\n"
 "or \".rst\". Only files with this suffix are considered documents."
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:278
+#: sphinx/cmd/quickstart.py:284
 msgid "Source file suffix"
 msgstr "Επέκταση αρχείου πηγής"
 
-#: sphinx/cmd/quickstart.py:282
+#: sphinx/cmd/quickstart.py:288
 msgid ""
 "One document is special in that it is considered the top node of the\n"
 "\"contents tree\", that is, it is the root of the hierarchical structure\n"
@@ -1534,91 +1539,91 @@ msgid ""
 "document is a custom template, you can also set this to another filename."
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:286
+#: sphinx/cmd/quickstart.py:292
 msgid "Name of your master document (without suffix)"
 msgstr "Όνομα του κυρίους σας εγγράφου (χωρίς επέκταση)"
 
-#: sphinx/cmd/quickstart.py:291
+#: sphinx/cmd/quickstart.py:297
 #, python-format
 msgid ""
 "Error: the master file %s has already been found in the selected root path."
 msgstr "Σφάλμα: το κύριο αρχείο %s έχει ήδη βρεθεί στο επιλεγμένο ριζικό κατάλογο."
 
-#: sphinx/cmd/quickstart.py:293
+#: sphinx/cmd/quickstart.py:299
 msgid "sphinx-quickstart will not overwrite the existing file."
 msgstr "το sphinx-quickstart δεν θα αντικαταστήσει υπάρχοντα αρχεία."
 
-#: sphinx/cmd/quickstart.py:295
+#: sphinx/cmd/quickstart.py:301
 msgid ""
 "Please enter a new file name, or rename the existing file and press Enter"
 msgstr "Παρακαλείσθε να εισάγετε ένα νέο όνομα αρχείου, ή να μεταονομάσετε το υπάρχον αρχείο και να πιέσετε το Enter"
 
-#: sphinx/cmd/quickstart.py:299
+#: sphinx/cmd/quickstart.py:305
 msgid "Indicate which of the following Sphinx extensions should be enabled:"
 msgstr "Υποδείξτε ποιά απο τις ακόλουθες επεκτάσεις Sphinx πρέπει να ενεργοποιηθούν:"
 
-#: sphinx/cmd/quickstart.py:307
+#: sphinx/cmd/quickstart.py:313
 msgid ""
 "Note: imgmath and mathjax cannot be enabled at the same time. imgmath has "
 "been deselected."
 msgstr "Σημείωση: τα imgmath και mathjax δεν είναι δυνατό να ενεργοποιηθούν ταυτόχρονα. Το imgmath έχει αποεπιλεγθεί. "
 
-#: sphinx/cmd/quickstart.py:313
+#: sphinx/cmd/quickstart.py:319
 msgid ""
 "A Makefile and a Windows command file can be generated for you so that you\n"
 "only have to run e.g. `make html' instead of invoking sphinx-build\n"
 "directly."
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:316
+#: sphinx/cmd/quickstart.py:322
 msgid "Create Makefile? (y/n)"
 msgstr "Δημιουργία Makefile; (y/n)"
 
-#: sphinx/cmd/quickstart.py:319
+#: sphinx/cmd/quickstart.py:325
 msgid "Create Windows command file? (y/n)"
 msgstr "Δημιουργία αρχείου εντολών Windows; (y/n)"
 
-#: sphinx/cmd/quickstart.py:362 sphinx/ext/apidoc.py:90
+#: sphinx/cmd/quickstart.py:368 sphinx/ext/apidoc.py:90
 #, python-format
 msgid "Creating file %s."
 msgstr "Δημιουργία αρχείου %s."
 
-#: sphinx/cmd/quickstart.py:367 sphinx/ext/apidoc.py:87
+#: sphinx/cmd/quickstart.py:373 sphinx/ext/apidoc.py:87
 #, python-format
 msgid "File %s already exists, skipping."
 msgstr "Το αρχείο %s υπάρχει ήδη, παραλείπεται."
 
-#: sphinx/cmd/quickstart.py:409
+#: sphinx/cmd/quickstart.py:415
 msgid "Finished: An initial directory structure has been created."
 msgstr "Ολοκλήρωση: μία αρχική δομή καταλόγου δημιουργήθηκε."
 
-#: sphinx/cmd/quickstart.py:411
+#: sphinx/cmd/quickstart.py:417
 #, python-format
 msgid ""
 "You should now populate your master file %s and create other documentation\n"
 "source files. "
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:414
+#: sphinx/cmd/quickstart.py:420
 msgid ""
 "Use the Makefile to build the docs, like so:\n"
 "   make builder"
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:417
+#: sphinx/cmd/quickstart.py:423
 #, python-format
 msgid ""
 "Use the sphinx-build command to build the docs, like so:\n"
 "   sphinx-build -b builder %s %s"
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:419
+#: sphinx/cmd/quickstart.py:425
 msgid ""
 "where \"builder\" is one of the supported builders, e.g. html, latex or "
 "linkcheck."
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:454
+#: sphinx/cmd/quickstart.py:460
 msgid ""
 "\n"
 "Generate required files for a Sphinx project.\n"
@@ -1628,135 +1633,135 @@ msgid ""
 "Makefile to be used with sphinx-build.\n"
 msgstr "\nΔημιουργία απαιτούμενων αρχείων για ένα έργο Sphinx.\n\nΤο sphinx-quickstart είναι ένα διαδραστικό εργαλείο το οποίο κάνει κάποιες ερωτήσεις για το δικό σας \nέργο και μετά δημιουργεί έναν πλήρη κατάλογο τεκμηρίωσης και δείγμα \nMakefile για να χρησιμοποιηθεί με το sphinx-build.\n"
 
-#: sphinx/cmd/quickstart.py:469
+#: sphinx/cmd/quickstart.py:475
 msgid "quiet mode"
 msgstr "ήσυχος τρόπος"
 
-#: sphinx/cmd/quickstart.py:474
+#: sphinx/cmd/quickstart.py:480
 msgid "project root"
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:476
+#: sphinx/cmd/quickstart.py:482
 msgid "Structure options"
 msgstr "Επιλογές δομής"
 
-#: sphinx/cmd/quickstart.py:478
+#: sphinx/cmd/quickstart.py:484
 msgid "if specified, separate source and build dirs"
 msgstr "αν ορίζεται, θα ξεχωρίσουν οι κατάλογοι πηγής και μεταγλώττισης"
 
-#: sphinx/cmd/quickstart.py:480
+#: sphinx/cmd/quickstart.py:486
 msgid "if specified, create build dir under source dir"
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:482
+#: sphinx/cmd/quickstart.py:488
 msgid "replacement for dot in _templates etc."
 msgstr "αντικατάσταση για τελεία σε _templates κλπ."
 
-#: sphinx/cmd/quickstart.py:484
+#: sphinx/cmd/quickstart.py:490
 msgid "Project basic options"
 msgstr "Βασικές επιλογές έργου"
 
-#: sphinx/cmd/quickstart.py:486
+#: sphinx/cmd/quickstart.py:492
 msgid "project name"
 msgstr "όνομα έργου"
 
-#: sphinx/cmd/quickstart.py:488
+#: sphinx/cmd/quickstart.py:494
 msgid "author names"
 msgstr "ονόματα συγγραφέων"
 
-#: sphinx/cmd/quickstart.py:490
+#: sphinx/cmd/quickstart.py:496
 msgid "version of project"
 msgstr "έκδοση του έργου"
 
-#: sphinx/cmd/quickstart.py:492
+#: sphinx/cmd/quickstart.py:498
 msgid "release of project"
 msgstr "δημοσίευση του έργου"
 
-#: sphinx/cmd/quickstart.py:494
+#: sphinx/cmd/quickstart.py:500
 msgid "document language"
 msgstr "γλώσσα εγγράφου"
 
-#: sphinx/cmd/quickstart.py:496
+#: sphinx/cmd/quickstart.py:502
 msgid "source file suffix"
 msgstr "επέκταση αρχείου πηγής"
 
-#: sphinx/cmd/quickstart.py:498
+#: sphinx/cmd/quickstart.py:504
 msgid "master document name"
 msgstr "κύριο όνομα εγγράφου"
 
-#: sphinx/cmd/quickstart.py:500
+#: sphinx/cmd/quickstart.py:506
 msgid "use epub"
 msgstr "χρηση epub"
 
-#: sphinx/cmd/quickstart.py:502
+#: sphinx/cmd/quickstart.py:508
 msgid "Extension options"
 msgstr "Επιλογές επέκτασης"
 
-#: sphinx/cmd/quickstart.py:506 sphinx/ext/apidoc.py:390
+#: sphinx/cmd/quickstart.py:512 sphinx/ext/apidoc.py:390
 #, python-format
 msgid "enable %s extension"
 msgstr "ενεργοποίηση της επέκτασης %s"
 
-#: sphinx/cmd/quickstart.py:508 sphinx/ext/apidoc.py:386
+#: sphinx/cmd/quickstart.py:514 sphinx/ext/apidoc.py:386
 msgid "enable arbitrary extensions"
 msgstr "ενεργοποίηση αυθαίρετων επεκτάσεων"
 
-#: sphinx/cmd/quickstart.py:510
+#: sphinx/cmd/quickstart.py:516
 msgid "Makefile and Batchfile creation"
 msgstr "Δημιουργία Makefile και Batchfile"
 
-#: sphinx/cmd/quickstart.py:512
+#: sphinx/cmd/quickstart.py:518
 msgid "create makefile"
 msgstr "δημιουργία makefile"
 
-#: sphinx/cmd/quickstart.py:514
+#: sphinx/cmd/quickstart.py:520
 msgid "do not create makefile"
 msgstr "να μη δημιουργηθεί makefile"
 
-#: sphinx/cmd/quickstart.py:516
+#: sphinx/cmd/quickstart.py:522
 msgid "create batchfile"
 msgstr "δημιουργία batchfile"
 
-#: sphinx/cmd/quickstart.py:519
+#: sphinx/cmd/quickstart.py:525
 msgid "do not create batchfile"
 msgstr "να μη δημιουργηθεί batchfile"
 
-#: sphinx/cmd/quickstart.py:522
+#: sphinx/cmd/quickstart.py:528
 msgid "use make-mode for Makefile/make.bat"
 msgstr "χρησιμοποιήστε το make-mode για το Makefile/make.bat"
 
-#: sphinx/cmd/quickstart.py:525
+#: sphinx/cmd/quickstart.py:531
 msgid "do not use make-mode for Makefile/make.bat"
 msgstr "μην χρησιμοποιείτε make-mode για Makefile/make.bat"
 
-#: sphinx/cmd/quickstart.py:527 sphinx/ext/apidoc.py:392
+#: sphinx/cmd/quickstart.py:533 sphinx/ext/apidoc.py:392
 msgid "Project templating"
 msgstr "Προτυποποίηση έργου"
 
-#: sphinx/cmd/quickstart.py:530 sphinx/ext/apidoc.py:395
+#: sphinx/cmd/quickstart.py:536 sphinx/ext/apidoc.py:395
 msgid "template directory for template files"
 msgstr "πρότυπος κατάλογος για πρότυπα αρχεία"
 
-#: sphinx/cmd/quickstart.py:533
+#: sphinx/cmd/quickstart.py:539
 msgid "define a template variable"
 msgstr "ορίστε μία τιμή προτύπου"
 
-#: sphinx/cmd/quickstart.py:566
+#: sphinx/cmd/quickstart.py:572
 msgid "\"quiet\" is specified, but any of \"project\" or \"author\" is not specified."
 msgstr "καθορίστηκε το \"quiet\", αλλά δεν καθορίστηκε είτε το \"project\" είτε το \"author\"."
 
-#: sphinx/cmd/quickstart.py:580
+#: sphinx/cmd/quickstart.py:586
 msgid ""
 "Error: specified path is not a directory, or sphinx files already exist."
 msgstr "Σφάλμα: το καθορισθέν μονοπάτι δεν είναι κατάλογος, ή τα αρχεία sphinx υπάρχουν ήδη."
 
-#: sphinx/cmd/quickstart.py:582
+#: sphinx/cmd/quickstart.py:588
 msgid ""
 "sphinx-quickstart only generate into a empty directory. Please specify a new"
 " root path."
 msgstr "Το sphinx-quickstart δημιουργεί μόνο εντός ενός κενού καταλόγου. Παρακαλείσθε να καθορίσετε ένα νέο ριζικό μονοπάτι."
 
-#: sphinx/cmd/quickstart.py:597
+#: sphinx/cmd/quickstart.py:603
 #, python-format
 msgid "Invalid template variable: %s"
 msgstr "Ανέγκυρη μεταβλητή προτύπου: %s"
@@ -1842,17 +1847,17 @@ msgid ""
 msgstr ""
 
 #: sphinx/domains/c.py:3133 sphinx/domains/cpp.py:6931
-#: sphinx/domains/python.py:389 sphinx/ext/napoleon/docstring.py:736
+#: sphinx/domains/python.py:393 sphinx/ext/napoleon/docstring.py:736
 msgid "Parameters"
 msgstr "Παράμετροι"
 
 #: sphinx/domains/c.py:3136 sphinx/domains/cpp.py:6940
-#: sphinx/domains/javascript.py:221 sphinx/domains/python.py:401
+#: sphinx/domains/javascript.py:221 sphinx/domains/python.py:405
 msgid "Returns"
 msgstr "Επιστρέφει"
 
 #: sphinx/domains/c.py:3138 sphinx/domains/javascript.py:223
-#: sphinx/domains/python.py:403
+#: sphinx/domains/python.py:407
 msgid "Return type"
 msgstr "Επιστρεφόμενος τύπος"
 
@@ -1870,7 +1875,7 @@ msgid "variable"
 msgstr "μεταβλητή"
 
 #: sphinx/domains/c.py:3733 sphinx/domains/cpp.py:7577
-#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1107
+#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1111
 msgid "function"
 msgstr "συνάρτηση"
 
@@ -1948,7 +1953,7 @@ msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
 #: sphinx/domains/cpp.py:7575 sphinx/domains/javascript.py:328
-#: sphinx/domains/python.py:1109
+#: sphinx/domains/python.py:1113
 msgid "class"
 msgstr "κλάση"
 
@@ -1965,7 +1970,7 @@ msgstr ""
 msgid "%s() (built-in function)"
 msgstr "%s() (ενσωματωμένη συνάρτηση)"
 
-#: sphinx/domains/javascript.py:137 sphinx/domains/python.py:764
+#: sphinx/domains/javascript.py:137 sphinx/domains/python.py:768
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (μέθοδος της %s)"
@@ -1980,7 +1985,7 @@ msgstr "%s() (κλάση)"
 msgid "%s (global variable or constant)"
 msgstr "%s (καθολική μεταβλητή ή σταθερά)"
 
-#: sphinx/domains/javascript.py:143 sphinx/domains/python.py:842
+#: sphinx/domains/javascript.py:143 sphinx/domains/python.py:846
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (ιδιότητα της %s)"
@@ -1994,20 +1999,20 @@ msgstr "Παράμετροι"
 msgid "%s (module)"
 msgstr "%s (μονάδα)"
 
-#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1111
+#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1115
 msgid "method"
 msgstr "μέθοδος"
 
-#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1108
+#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1112
 msgid "data"
 msgstr "δεδομένα"
 
-#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1114
+#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1118
 msgid "attribute"
 msgstr "ιδιότητα"
 
 #: sphinx/domains/javascript.py:331 sphinx/domains/python.py:58
-#: sphinx/domains/python.py:1116
+#: sphinx/domains/python.py:1120
 msgid "module"
 msgstr "μονάδα"
 
@@ -2021,7 +2026,7 @@ msgstr ""
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "διπλότυπη ετικέτα της εξίσωσης %s, άλλη εμφάνιση στο %s"
 
-#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2070
+#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2074
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "Ανέγκυρο math_eqref_format: %r"
@@ -2038,7 +2043,7 @@ msgstr "τελεστής"
 msgid "object"
 msgstr "αντικείμενο"
 
-#: sphinx/domains/python.py:62 sphinx/domains/python.py:1110
+#: sphinx/domains/python.py:62 sphinx/domains/python.py:1114
 msgid "exception"
 msgstr "εξαίρεση"
 
@@ -2050,97 +2055,97 @@ msgstr "δήλωση"
 msgid "built-in function"
 msgstr "ενσωματωμένη συνάρτηση"
 
-#: sphinx/domains/python.py:394
+#: sphinx/domains/python.py:398
 msgid "Variables"
 msgstr "Μεταβλητές"
 
-#: sphinx/domains/python.py:398
+#: sphinx/domains/python.py:402
 msgid "Raises"
 msgstr "Προκαλεί"
 
-#: sphinx/domains/python.py:618 sphinx/domains/python.py:753
+#: sphinx/domains/python.py:622 sphinx/domains/python.py:757
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (στη μονάδα %s)"
 
-#: sphinx/domains/python.py:672 sphinx/domains/python.py:838
-#: sphinx/domains/python.py:878
+#: sphinx/domains/python.py:676 sphinx/domains/python.py:842
+#: sphinx/domains/python.py:882
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (στη μονάδα %s)"
 
-#: sphinx/domains/python.py:674
+#: sphinx/domains/python.py:678
 #, python-format
 msgid "%s (built-in variable)"
 msgstr "%s (ενσωματωμένη μεταβλητή)"
 
-#: sphinx/domains/python.py:698
+#: sphinx/domains/python.py:702
 #, python-format
 msgid "%s (built-in class)"
 msgstr "%s (ενσωματωμένη κλάση)"
 
-#: sphinx/domains/python.py:699
+#: sphinx/domains/python.py:703
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s (κλάση σε %s)"
 
-#: sphinx/domains/python.py:758
+#: sphinx/domains/python.py:762
 #, python-format
 msgid "%s() (%s class method)"
 msgstr "%s() (μέθοδος κλάσης της %s)"
 
-#: sphinx/domains/python.py:760
+#: sphinx/domains/python.py:764
 #, python-format
 msgid "%s() (%s property)"
 msgstr ""
 
-#: sphinx/domains/python.py:762
+#: sphinx/domains/python.py:766
 #, python-format
 msgid "%s() (%s static method)"
 msgstr "%s() (στατική μέθοδος της %s)"
 
-#: sphinx/domains/python.py:882
+#: sphinx/domains/python.py:886
 #, python-format
 msgid "%s (%s property)"
 msgstr ""
 
-#: sphinx/domains/python.py:1036
+#: sphinx/domains/python.py:1040
 msgid "Python Module Index"
 msgstr "Ευρετήριο Μονάδων της Python"
 
-#: sphinx/domains/python.py:1037
+#: sphinx/domains/python.py:1041
 msgid "modules"
 msgstr "μονάδες"
 
-#: sphinx/domains/python.py:1086
+#: sphinx/domains/python.py:1090
 msgid "Deprecated"
 msgstr "Αποσύρθηκε"
 
-#: sphinx/domains/python.py:1112
+#: sphinx/domains/python.py:1116
 msgid "class method"
 msgstr "μέθοδος της κλάσης"
 
-#: sphinx/domains/python.py:1113
+#: sphinx/domains/python.py:1117
 msgid "static method"
 msgstr "στατική μέθοδος"
 
-#: sphinx/domains/python.py:1115
+#: sphinx/domains/python.py:1119
 msgid "property"
 msgstr ""
 
-#: sphinx/domains/python.py:1173
+#: sphinx/domains/python.py:1177
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr ""
 
-#: sphinx/domains/python.py:1293
+#: sphinx/domains/python.py:1297
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "περισσότεροι από έναν στόχοι βρέθηκα για την παραπομπή %r: %s"
 
-#: sphinx/domains/python.py:1347
+#: sphinx/domains/python.py:1351
 msgid " (deprecated)"
 msgstr " (αποσύρθηκε)"
 
@@ -2860,7 +2865,7 @@ msgid ""
 msgstr ""
 
 #: sphinx/ext/autodoc/__init__.py:1296 sphinx/ext/autodoc/__init__.py:1370
-#: sphinx/ext/autodoc/__init__.py:2683
+#: sphinx/ext/autodoc/__init__.py:2687
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr ""
@@ -2886,17 +2891,17 @@ msgstr ""
 msgid "alias of TypeVar(%s)"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2111 sphinx/ext/autodoc/__init__.py:2205
+#: sphinx/ext/autodoc/__init__.py:2113 sphinx/ext/autodoc/__init__.py:2207
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2333
+#: sphinx/ext/autodoc/__init__.py:2335
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2726
+#: sphinx/ext/autodoc/__init__.py:2730
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."

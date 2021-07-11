@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-04 00:08+0000\n"
+"POT-Creation-Date: 2021-07-11 00:07+0000\n"
 "PO-Revision-Date: 2021-05-11 13:54+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/sphinx-doc/sphinx-1/language/es/)\n"
@@ -62,7 +62,7 @@ msgstr "Este proyecto necesita al menos Sphinx v%s y por lo tanto no se puede co
 msgid "making output directory"
 msgstr "creando directorio de salida"
 
-#: sphinx/application.py:248 sphinx/registry.py:423
+#: sphinx/application.py:248 sphinx/registry.py:426
 #, python-format
 msgid "while setting up extension %s:"
 msgstr "mientras configura la extensión %s:"
@@ -340,127 +340,127 @@ msgstr ""
 msgid "document not readable. Ignored."
 msgstr "documento no legible. Ignorado."
 
-#: sphinx/registry.py:132
+#: sphinx/registry.py:135
 #, python-format
 msgid "Builder class %s has no \"name\" attribute"
 msgstr "Constructor clase %s no tiene ningún atributo \"name\""
 
-#: sphinx/registry.py:134
+#: sphinx/registry.py:137
 #, python-format
 msgid "Builder %r already exists (in module %s)"
 msgstr "Constructor %r ya existe (en el módulo %s)"
 
-#: sphinx/registry.py:147
+#: sphinx/registry.py:150
 #, python-format
 msgid "Builder name %s not registered or available through entry point"
 msgstr "Nombre de constructor %s no registrados o disponibles a través del punto de entrada"
 
-#: sphinx/registry.py:154
+#: sphinx/registry.py:157
 #, python-format
 msgid "Builder name %s not registered"
 msgstr "Nombre de constructor %s no registrado"
 
-#: sphinx/registry.py:161
+#: sphinx/registry.py:164
 #, python-format
 msgid "domain %s already registered"
 msgstr "dominio %s ya esta registrado"
 
-#: sphinx/registry.py:184 sphinx/registry.py:197 sphinx/registry.py:208
+#: sphinx/registry.py:187 sphinx/registry.py:200 sphinx/registry.py:211
 #, python-format
 msgid "domain %s not yet registered"
 msgstr "dominio %s no esta registrado"
 
-#: sphinx/registry.py:188
+#: sphinx/registry.py:191
 #, python-format
 msgid "The %r directive is already registered to domain %s"
 msgstr "La directiva %r ya fue registrada en el dominio %s"
 
-#: sphinx/registry.py:200
+#: sphinx/registry.py:203
 #, python-format
 msgid "The %r role is already registered to domain %s"
 msgstr "El rol %r ya fue registrado en el dominio %s"
 
-#: sphinx/registry.py:211
+#: sphinx/registry.py:214
 #, python-format
 msgid "The %r index is already registered to domain %s"
 msgstr "El índice %r ya fue registrado en el dominio %s"
 
-#: sphinx/registry.py:235
+#: sphinx/registry.py:238
 #, python-format
 msgid "The %r object_type is already registered"
 msgstr "El %r object_type ya está registrado"
 
-#: sphinx/registry.py:255
+#: sphinx/registry.py:258
 #, python-format
 msgid "The %r crossref_type is already registered"
 msgstr "El %r crossref_type ya está registrado"
 
-#: sphinx/registry.py:262
+#: sphinx/registry.py:265
 #, python-format
 msgid "source_suffix %r is already registered"
 msgstr "source_suffix %r ya está registrado"
 
-#: sphinx/registry.py:272
+#: sphinx/registry.py:275
 #, python-format
 msgid "source_parser for %r is already registered"
 msgstr "source_parser para %r ya está registrado"
 
-#: sphinx/registry.py:281
+#: sphinx/registry.py:284
 #, python-format
 msgid "Source parser for %s not registered"
 msgstr "Analizador de fuentes para %s no registrado"
 
-#: sphinx/registry.py:310
+#: sphinx/registry.py:313
 #, python-format
 msgid "Translator for %r already exists"
 msgstr "Traductor para %r ya existe"
 
-#: sphinx/registry.py:323
+#: sphinx/registry.py:326
 #, python-format
 msgid "kwargs for add_node() must be a (visit, depart) function tuple: %r=%r"
 msgstr "kwargs para la función add_node() debe ser una tupla de función (visitar, salir): %r=%r"
 
-#: sphinx/registry.py:395
+#: sphinx/registry.py:398
 #, python-format
 msgid "enumerable_node %r already registered"
 msgstr "enumerable_node %r ya esta registrado"
 
-#: sphinx/registry.py:404
+#: sphinx/registry.py:407
 #, python-format
 msgid "math renderer %s is already registered"
-msgstr "Renderizador matemático %s ya fue registrado"
+msgstr ""
 
-#: sphinx/registry.py:417
+#: sphinx/registry.py:420
 #, python-format
 msgid ""
 "the extension %r was already merged with Sphinx since version %s; this "
 "extension is ignored."
 msgstr "la extensión %r ya se fusionó con Sphinx desde la versión %s; esta extensión se omite."
 
-#: sphinx/registry.py:428
+#: sphinx/registry.py:431
 msgid "Original exception:\n"
 msgstr "Excepción original:\n"
 
-#: sphinx/registry.py:429
+#: sphinx/registry.py:432
 #, python-format
 msgid "Could not import extension %s"
 msgstr "No puede importar la extensión %s"
 
-#: sphinx/registry.py:434
+#: sphinx/registry.py:437
 #, python-format
 msgid ""
 "extension %r has no setup() function; is it really a Sphinx extension "
 "module?"
 msgstr "extensión %r no tiene ninguna función setup(); ¿es realmente un módulo de extensión de Sphinx?"
 
-#: sphinx/registry.py:443
+#: sphinx/registry.py:446
 #, python-format
 msgid ""
 "The %s extension used by this project needs at least Sphinx v%s; it "
 "therefore cannot be built with this version."
 msgstr "La extensión %s utilizada por este proyecto necesita al menos la versión de Sphinx v%s; por lo tanto no puede ser construido con esta versión."
 
-#: sphinx/registry.py:451
+#: sphinx/registry.py:454
 #, python-format
 msgid ""
 "extension %r returned an unsupported object from its setup() function; it "
@@ -800,10 +800,15 @@ msgstr "Busque cualquier error en la salida anterior o en el archivo %(outdir)s/
 msgid "broken link: %s (%s)"
 msgstr "enlace roto: %s (%s)"
 
-#: sphinx/builders/linkcheck.py:450
+#: sphinx/builders/linkcheck.py:454
 #, python-format
 msgid "Anchor '%s' not found"
 msgstr "Ancla '%s' no encontrado"
+
+#: sphinx/builders/linkcheck.py:690
+#, python-format
+msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
+msgstr ""
 
 #: sphinx/builders/manpage.py:38
 #, python-format
@@ -1201,7 +1206,7 @@ msgstr "Se puede presentar un informe de error en el rastreador en <https://gith
 msgid "job number should be a positive number"
 msgstr "número de trabajo debe ser un número positivo"
 
-#: sphinx/cmd/build.py:104 sphinx/cmd/quickstart.py:464
+#: sphinx/cmd/build.py:104 sphinx/cmd/quickstart.py:470
 #: sphinx/ext/apidoc.py:307 sphinx/ext/autosummary/generate.py:598
 msgid "For more information, visit <http://sphinx-doc.org/>."
 msgstr "Para más información, visita <http://sphinx-doc.org/>."
@@ -1401,95 +1406,95 @@ msgstr "crear archivo .nojekyll para publicar el documento en páginas GitHub"
 msgid "Please enter a valid path name."
 msgstr "Por favor, ingrese un nombre de ruta válido."
 
-#: sphinx/cmd/quickstart.py:104
+#: sphinx/cmd/quickstart.py:110
 msgid "Please enter some text."
 msgstr "Por favor, ingrese algún texto."
 
-#: sphinx/cmd/quickstart.py:111
+#: sphinx/cmd/quickstart.py:117
 #, python-format
 msgid "Please enter one of %s."
 msgstr "Por favor, ingrese uno de %s."
 
-#: sphinx/cmd/quickstart.py:118
+#: sphinx/cmd/quickstart.py:124
 msgid "Please enter either 'y' or 'n'."
 msgstr "Por favor, ingrese cualquiera de 'y' o 'n'"
 
-#: sphinx/cmd/quickstart.py:124
+#: sphinx/cmd/quickstart.py:130
 msgid "Please enter a file suffix, e.g. '.rst' or '.txt'."
 msgstr "Por favor, ingrese un archivo de sufijo, por ejemplo, '.rst' o '.txt'."
 
-#: sphinx/cmd/quickstart.py:205
+#: sphinx/cmd/quickstart.py:211
 #, python-format
 msgid "Welcome to the Sphinx %s quickstart utility."
 msgstr "Bienvenido a la utilidad de inicio rápido de Sphinx %s."
 
-#: sphinx/cmd/quickstart.py:207
+#: sphinx/cmd/quickstart.py:213
 msgid ""
 "Please enter values for the following settings (just press Enter to\n"
 "accept a default value, if one is given in brackets)."
 msgstr "Ingrese los valores para las siguientes configuraciones (solo presione Entrar para\naceptar un valor predeterminado, si se da uno entre paréntesis)."
 
-#: sphinx/cmd/quickstart.py:212
+#: sphinx/cmd/quickstart.py:218
 #, python-format
 msgid "Selected root path: %s"
 msgstr "Ruta raíz seleccionada: %s"
 
-#: sphinx/cmd/quickstart.py:215
+#: sphinx/cmd/quickstart.py:221
 msgid "Enter the root path for documentation."
 msgstr "Ingrese la ruta raíz para la documentación."
 
-#: sphinx/cmd/quickstart.py:216
+#: sphinx/cmd/quickstart.py:222
 msgid "Root path for the documentation"
 msgstr "Ruta raíz para la documentación"
 
-#: sphinx/cmd/quickstart.py:221
+#: sphinx/cmd/quickstart.py:227
 msgid "Error: an existing conf.py has been found in the selected root path."
 msgstr "Error: un archivo conf.py ya existe en la ruta raíz seleccionada."
 
-#: sphinx/cmd/quickstart.py:223
+#: sphinx/cmd/quickstart.py:229
 msgid "sphinx-quickstart will not overwrite existing Sphinx projects."
 msgstr "sphinx-quickstart no sobreescribirá proyectos existentes de Sphinx."
 
-#: sphinx/cmd/quickstart.py:225
+#: sphinx/cmd/quickstart.py:231
 msgid "Please enter a new root path (or just Enter to exit)"
 msgstr "Por favor, ingrese una nueva ruta raíz (o ingrese Enter para salir)"
 
-#: sphinx/cmd/quickstart.py:232
+#: sphinx/cmd/quickstart.py:238
 msgid ""
 "You have two options for placing the build directory for Sphinx output.\n"
 "Either, you use a directory \"_build\" within the root path, or you separate\n"
 "\"source\" and \"build\" directories within the root path."
 msgstr "Tiene dos opciones para colocar el directorio de compilación para la salida de Sphinx.\nO usas un directorio \"_build\" dentro de la ruta raíz, o separas\ndirectorios \"fuente\" y \"compilación\" dentro de la ruta raíz."
 
-#: sphinx/cmd/quickstart.py:235
+#: sphinx/cmd/quickstart.py:241
 msgid "Separate source and build directories (y/n)"
 msgstr "Separar directorios fuente y compilado (y/n)"
 
-#: sphinx/cmd/quickstart.py:239
+#: sphinx/cmd/quickstart.py:245
 msgid ""
 "Inside the root directory, two more directories will be created; \"_templates\"\n"
 "for custom HTML templates and \"_static\" for custom stylesheets and other static\n"
 "files. You can enter another prefix (such as \".\") to replace the underscore."
 msgstr "Dentro del directorio raíz, se crearán dos directorios más; \"_templates\"\npara plantillas HTML personalizadas y \"_static\" para hojas de estilo personalizadas y otras archivos\nestáticos. Puede ingresar otro prefijo (como \".\") Para reemplazar el guión bajo."
 
-#: sphinx/cmd/quickstart.py:242
+#: sphinx/cmd/quickstart.py:248
 msgid "Name prefix for templates and static dir"
 msgstr "Prefijo de nombre para directorios de plantillas y estático"
 
-#: sphinx/cmd/quickstart.py:246
+#: sphinx/cmd/quickstart.py:252
 msgid ""
 "The project name will occur in several places in the built documentation."
 msgstr "El nombre del proyecto aparecerá en varios lugares en la documentación construida."
 
-#: sphinx/cmd/quickstart.py:247
+#: sphinx/cmd/quickstart.py:253
 msgid "Project name"
 msgstr "Nombre de proyecto"
 
-#: sphinx/cmd/quickstart.py:249
+#: sphinx/cmd/quickstart.py:255
 msgid "Author name(s)"
 msgstr "Autor(es)"
 
-#: sphinx/cmd/quickstart.py:253
+#: sphinx/cmd/quickstart.py:259
 msgid ""
 "Sphinx has the notion of a \"version\" and a \"release\" for the\n"
 "software. Each version can have multiple releases. For example, for\n"
@@ -1498,15 +1503,15 @@ msgid ""
 "just set both to the same value."
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:258
+#: sphinx/cmd/quickstart.py:264
 msgid "Project version"
 msgstr "Versión del proyecto"
 
-#: sphinx/cmd/quickstart.py:260
+#: sphinx/cmd/quickstart.py:266
 msgid "Project release"
 msgstr "Liberación del proyecto"
 
-#: sphinx/cmd/quickstart.py:264
+#: sphinx/cmd/quickstart.py:270
 msgid ""
 "If the documents are to be written in a language other than English,\n"
 "you can select a language here by its language code. Sphinx will then\n"
@@ -1516,21 +1521,21 @@ msgid ""
 "https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language."
 msgstr "Si los documentos deben escribirse en un idioma que no sea inglés,\npuede seleccionar un idioma aquí por su código de idioma. Sphinx entonces\ntraducir el texto que genera a ese idioma.\n\nPara obtener una lista de códigos compatibles, vea\nhttps://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language."
 
-#: sphinx/cmd/quickstart.py:270
+#: sphinx/cmd/quickstart.py:276
 msgid "Project language"
 msgstr "Lenguaje del proyecto"
 
-#: sphinx/cmd/quickstart.py:276
+#: sphinx/cmd/quickstart.py:282
 msgid ""
 "The file name suffix for source files. Commonly, this is either \".txt\"\n"
 "or \".rst\". Only files with this suffix are considered documents."
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:278
+#: sphinx/cmd/quickstart.py:284
 msgid "Source file suffix"
 msgstr "Sufijo del archivo fuente"
 
-#: sphinx/cmd/quickstart.py:282
+#: sphinx/cmd/quickstart.py:288
 msgid ""
 "One document is special in that it is considered the top node of the\n"
 "\"contents tree\", that is, it is the root of the hierarchical structure\n"
@@ -1538,91 +1543,91 @@ msgid ""
 "document is a custom template, you can also set this to another filename."
 msgstr "Un documento es especial porque se considera el nodo superior del\n\"contents tree\", es decir, es la raíz de la estructura jerárquica\nde los documentos. Normalmente, esto es \"index\", pero si su documento \"index\"\nes una plantilla personalizada, también puede establecerlo en otro nombre de archivo."
 
-#: sphinx/cmd/quickstart.py:286
+#: sphinx/cmd/quickstart.py:292
 msgid "Name of your master document (without suffix)"
 msgstr "Nombre del documento maestro (sin sufijo)"
 
-#: sphinx/cmd/quickstart.py:291
+#: sphinx/cmd/quickstart.py:297
 #, python-format
 msgid ""
 "Error: the master file %s has already been found in the selected root path."
 msgstr "Error: el archivo maestro %s ya se ha encontrado en la ruta raíz seleccionada."
 
-#: sphinx/cmd/quickstart.py:293
+#: sphinx/cmd/quickstart.py:299
 msgid "sphinx-quickstart will not overwrite the existing file."
 msgstr "sphinx-quickstart no sobreescribirá el archivo existente."
 
-#: sphinx/cmd/quickstart.py:295
+#: sphinx/cmd/quickstart.py:301
 msgid ""
 "Please enter a new file name, or rename the existing file and press Enter"
 msgstr "Ingrese un nuevo nombre de archivo o cambie el nombre del archivo existente y presione Enter"
 
-#: sphinx/cmd/quickstart.py:299
+#: sphinx/cmd/quickstart.py:305
 msgid "Indicate which of the following Sphinx extensions should be enabled:"
 msgstr "Indique cuál de las siguientes extensiones de Sphinx deben habilitarse:"
 
-#: sphinx/cmd/quickstart.py:307
+#: sphinx/cmd/quickstart.py:313
 msgid ""
 "Note: imgmath and mathjax cannot be enabled at the same time. imgmath has "
 "been deselected."
 msgstr "Nota: imgmath y mathjax no se pueden habilitar al mismo tiempo. imgmath ha sido deseleccionado."
 
-#: sphinx/cmd/quickstart.py:313
+#: sphinx/cmd/quickstart.py:319
 msgid ""
 "A Makefile and a Windows command file can be generated for you so that you\n"
 "only have to run e.g. `make html' instead of invoking sphinx-build\n"
 "directly."
 msgstr "Se puede generar un archivo Makefile y un archivo de comandos de Windows para que usted\nsolo tiene que ejecutar, por ejemplo, `make html' en lugar de invocar sphinx-build\ndirectamente."
 
-#: sphinx/cmd/quickstart.py:316
+#: sphinx/cmd/quickstart.py:322
 msgid "Create Makefile? (y/n)"
 msgstr "Crear Makefile? (y/n)"
 
-#: sphinx/cmd/quickstart.py:319
+#: sphinx/cmd/quickstart.py:325
 msgid "Create Windows command file? (y/n)"
 msgstr "¿Crear archivo de comandos para Windows? (y/n)"
 
-#: sphinx/cmd/quickstart.py:362 sphinx/ext/apidoc.py:90
+#: sphinx/cmd/quickstart.py:368 sphinx/ext/apidoc.py:90
 #, python-format
 msgid "Creating file %s."
 msgstr "Creando archivo %s."
 
-#: sphinx/cmd/quickstart.py:367 sphinx/ext/apidoc.py:87
+#: sphinx/cmd/quickstart.py:373 sphinx/ext/apidoc.py:87
 #, python-format
 msgid "File %s already exists, skipping."
 msgstr "El archivo %s ya existe, omitiendo."
 
-#: sphinx/cmd/quickstart.py:409
+#: sphinx/cmd/quickstart.py:415
 msgid "Finished: An initial directory structure has been created."
 msgstr "Terminado: se ha creado una estructura de directorio inicial."
 
-#: sphinx/cmd/quickstart.py:411
+#: sphinx/cmd/quickstart.py:417
 #, python-format
 msgid ""
 "You should now populate your master file %s and create other documentation\n"
 "source files. "
 msgstr "Ahora debe completar su archivo maestro %s y crear otros archivos fuente\nde documentación."
 
-#: sphinx/cmd/quickstart.py:414
+#: sphinx/cmd/quickstart.py:420
 msgid ""
 "Use the Makefile to build the docs, like so:\n"
 "   make builder"
 msgstr "Use el archivo Makefile para compilar los documentos, así ejecute el comando:\n    make builder"
 
-#: sphinx/cmd/quickstart.py:417
+#: sphinx/cmd/quickstart.py:423
 #, python-format
 msgid ""
 "Use the sphinx-build command to build the docs, like so:\n"
 "   sphinx-build -b builder %s %s"
 msgstr "Use el comando sphinx-build para compilar los documentos, así ejecute el comando:\n   sphinx-build -b builder %s %s"
 
-#: sphinx/cmd/quickstart.py:419
+#: sphinx/cmd/quickstart.py:425
 msgid ""
 "where \"builder\" is one of the supported builders, e.g. html, latex or "
 "linkcheck."
 msgstr "donde \"builder\" es uno de los constructores compatibles, por ejemplo, html, latex o linkcheck."
 
-#: sphinx/cmd/quickstart.py:454
+#: sphinx/cmd/quickstart.py:460
 msgid ""
 "\n"
 "Generate required files for a Sphinx project.\n"
@@ -1632,135 +1637,135 @@ msgid ""
 "Makefile to be used with sphinx-build.\n"
 msgstr "\nGenere los archivos necesarios para un proyecto Sphinx.\n\nsphinx-quickstart es una herramienta interactiva que hace algunas preguntas sobre su\nproyecto y luego genera un directorio completo de documentación y un ejemplo del archivo\nMakefilepara ser utilizado con el comando sphinx-build.\n"
 
-#: sphinx/cmd/quickstart.py:469
+#: sphinx/cmd/quickstart.py:475
 msgid "quiet mode"
 msgstr "modo silencioso"
 
-#: sphinx/cmd/quickstart.py:474
+#: sphinx/cmd/quickstart.py:480
 msgid "project root"
 msgstr "raíz del proyecto"
 
-#: sphinx/cmd/quickstart.py:476
+#: sphinx/cmd/quickstart.py:482
 msgid "Structure options"
 msgstr "Opciones de estructura"
 
-#: sphinx/cmd/quickstart.py:478
+#: sphinx/cmd/quickstart.py:484
 msgid "if specified, separate source and build dirs"
 msgstr "si se especifica, separe los directorios de fuentes y de compilación"
 
-#: sphinx/cmd/quickstart.py:480
+#: sphinx/cmd/quickstart.py:486
 msgid "if specified, create build dir under source dir"
 msgstr ""
 
-#: sphinx/cmd/quickstart.py:482
+#: sphinx/cmd/quickstart.py:488
 msgid "replacement for dot in _templates etc."
 msgstr "reemplazo para punto en _templates, etc."
 
-#: sphinx/cmd/quickstart.py:484
+#: sphinx/cmd/quickstart.py:490
 msgid "Project basic options"
 msgstr "Opciones básicas del proyecto"
 
-#: sphinx/cmd/quickstart.py:486
+#: sphinx/cmd/quickstart.py:492
 msgid "project name"
 msgstr "nombre del proyecto"
 
-#: sphinx/cmd/quickstart.py:488
+#: sphinx/cmd/quickstart.py:494
 msgid "author names"
 msgstr "autores"
 
-#: sphinx/cmd/quickstart.py:490
+#: sphinx/cmd/quickstart.py:496
 msgid "version of project"
 msgstr "versión del proyecto"
 
-#: sphinx/cmd/quickstart.py:492
+#: sphinx/cmd/quickstart.py:498
 msgid "release of project"
 msgstr "liberación del proyecto"
 
-#: sphinx/cmd/quickstart.py:494
+#: sphinx/cmd/quickstart.py:500
 msgid "document language"
 msgstr "lenguaje del documento"
 
-#: sphinx/cmd/quickstart.py:496
+#: sphinx/cmd/quickstart.py:502
 msgid "source file suffix"
 msgstr "sufijo de archivo fuente"
 
-#: sphinx/cmd/quickstart.py:498
+#: sphinx/cmd/quickstart.py:504
 msgid "master document name"
 msgstr "nombre de documento maestro"
 
-#: sphinx/cmd/quickstart.py:500
+#: sphinx/cmd/quickstart.py:506
 msgid "use epub"
 msgstr "usar epub"
 
-#: sphinx/cmd/quickstart.py:502
+#: sphinx/cmd/quickstart.py:508
 msgid "Extension options"
 msgstr "Opciones de extensión"
 
-#: sphinx/cmd/quickstart.py:506 sphinx/ext/apidoc.py:390
+#: sphinx/cmd/quickstart.py:512 sphinx/ext/apidoc.py:390
 #, python-format
 msgid "enable %s extension"
 msgstr "habilitada extensión %s"
 
-#: sphinx/cmd/quickstart.py:508 sphinx/ext/apidoc.py:386
+#: sphinx/cmd/quickstart.py:514 sphinx/ext/apidoc.py:386
 msgid "enable arbitrary extensions"
 msgstr "habilitar extensiones arbitrarias"
 
-#: sphinx/cmd/quickstart.py:510
+#: sphinx/cmd/quickstart.py:516
 msgid "Makefile and Batchfile creation"
 msgstr "creación del Makefile y Batchfile"
 
-#: sphinx/cmd/quickstart.py:512
+#: sphinx/cmd/quickstart.py:518
 msgid "create makefile"
 msgstr "crear makefile"
 
-#: sphinx/cmd/quickstart.py:514
+#: sphinx/cmd/quickstart.py:520
 msgid "do not create makefile"
 msgstr "no crear makefile"
 
-#: sphinx/cmd/quickstart.py:516
+#: sphinx/cmd/quickstart.py:522
 msgid "create batchfile"
 msgstr "crear batchfile"
 
-#: sphinx/cmd/quickstart.py:519
+#: sphinx/cmd/quickstart.py:525
 msgid "do not create batchfile"
 msgstr "no crear batchfile"
 
-#: sphinx/cmd/quickstart.py:522
+#: sphinx/cmd/quickstart.py:528
 msgid "use make-mode for Makefile/make.bat"
 msgstr "use el modo make para Makefile/make.bat"
 
-#: sphinx/cmd/quickstart.py:525
+#: sphinx/cmd/quickstart.py:531
 msgid "do not use make-mode for Makefile/make.bat"
 msgstr "no use el modo make para Makefile/make.bat"
 
-#: sphinx/cmd/quickstart.py:527 sphinx/ext/apidoc.py:392
+#: sphinx/cmd/quickstart.py:533 sphinx/ext/apidoc.py:392
 msgid "Project templating"
 msgstr "Plantillas de proyecto"
 
-#: sphinx/cmd/quickstart.py:530 sphinx/ext/apidoc.py:395
+#: sphinx/cmd/quickstart.py:536 sphinx/ext/apidoc.py:395
 msgid "template directory for template files"
 msgstr "directorio de plantillas para archivos de plantillas"
 
-#: sphinx/cmd/quickstart.py:533
+#: sphinx/cmd/quickstart.py:539
 msgid "define a template variable"
 msgstr "definir una variable de proyceto"
 
-#: sphinx/cmd/quickstart.py:566
+#: sphinx/cmd/quickstart.py:572
 msgid "\"quiet\" is specified, but any of \"project\" or \"author\" is not specified."
 msgstr "se especifica \"quiet\", pero no se especifica ninguno de \"project\" o \"author\"."
 
-#: sphinx/cmd/quickstart.py:580
+#: sphinx/cmd/quickstart.py:586
 msgid ""
 "Error: specified path is not a directory, or sphinx files already exist."
 msgstr "Error: la ruta especificada no es un directorio, o ya existen archivos sphinx."
 
-#: sphinx/cmd/quickstart.py:582
+#: sphinx/cmd/quickstart.py:588
 msgid ""
 "sphinx-quickstart only generate into a empty directory. Please specify a new"
 " root path."
 msgstr "sphinx-quickstart solo se genera en un directorio vacío. Por favor, especifique una nueva ruta raíz."
 
-#: sphinx/cmd/quickstart.py:597
+#: sphinx/cmd/quickstart.py:603
 #, python-format
 msgid "Invalid template variable: %s"
 msgstr "Variable de plantilla inválida: %s"
@@ -1846,17 +1851,17 @@ msgid ""
 msgstr ""
 
 #: sphinx/domains/c.py:3133 sphinx/domains/cpp.py:6931
-#: sphinx/domains/python.py:389 sphinx/ext/napoleon/docstring.py:736
+#: sphinx/domains/python.py:393 sphinx/ext/napoleon/docstring.py:736
 msgid "Parameters"
 msgstr "Parámetros"
 
 #: sphinx/domains/c.py:3136 sphinx/domains/cpp.py:6940
-#: sphinx/domains/javascript.py:221 sphinx/domains/python.py:401
+#: sphinx/domains/javascript.py:221 sphinx/domains/python.py:405
 msgid "Returns"
 msgstr "Devuelve"
 
 #: sphinx/domains/c.py:3138 sphinx/domains/javascript.py:223
-#: sphinx/domains/python.py:403
+#: sphinx/domains/python.py:407
 msgid "Return type"
 msgstr "Tipo del valor devuelto"
 
@@ -1874,7 +1879,7 @@ msgid "variable"
 msgstr "variable"
 
 #: sphinx/domains/c.py:3733 sphinx/domains/cpp.py:7577
-#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1107
+#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1111
 msgid "function"
 msgstr "función"
 
@@ -1952,7 +1957,7 @@ msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
 #: sphinx/domains/cpp.py:7575 sphinx/domains/javascript.py:328
-#: sphinx/domains/python.py:1109
+#: sphinx/domains/python.py:1113
 msgid "class"
 msgstr "clase"
 
@@ -1969,7 +1974,7 @@ msgstr ""
 msgid "%s() (built-in function)"
 msgstr "%s() (función incorporada)"
 
-#: sphinx/domains/javascript.py:137 sphinx/domains/python.py:764
+#: sphinx/domains/javascript.py:137 sphinx/domains/python.py:768
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (método de %s)"
@@ -1984,7 +1989,7 @@ msgstr "%s() (clase)"
 msgid "%s (global variable or constant)"
 msgstr "%s (variable global o constante)"
 
-#: sphinx/domains/javascript.py:143 sphinx/domains/python.py:842
+#: sphinx/domains/javascript.py:143 sphinx/domains/python.py:846
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (atributo de %s)"
@@ -1998,20 +2003,20 @@ msgstr "Argumentos"
 msgid "%s (module)"
 msgstr "%s (módulo)"
 
-#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1111
+#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1115
 msgid "method"
 msgstr "método"
 
-#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1108
+#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1112
 msgid "data"
 msgstr "dato"
 
-#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1114
+#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1118
 msgid "attribute"
 msgstr "atributo"
 
 #: sphinx/domains/javascript.py:331 sphinx/domains/python.py:58
-#: sphinx/domains/python.py:1116
+#: sphinx/domains/python.py:1120
 msgid "module"
 msgstr "módulo"
 
@@ -2025,7 +2030,7 @@ msgstr "duplicada %s descripción de %s, otra %s en %s"
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "etiqueta duplicada de la ecuación %s, otra instancia en %s"
 
-#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2070
+#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2074
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "No válido math_eqref_format: %r"
@@ -2042,7 +2047,7 @@ msgstr "operador"
 msgid "object"
 msgstr "objeto"
 
-#: sphinx/domains/python.py:62 sphinx/domains/python.py:1110
+#: sphinx/domains/python.py:62 sphinx/domains/python.py:1114
 msgid "exception"
 msgstr "excepción"
 
@@ -2054,97 +2059,97 @@ msgstr "sentencia"
 msgid "built-in function"
 msgstr "función incorporada"
 
-#: sphinx/domains/python.py:394
+#: sphinx/domains/python.py:398
 msgid "Variables"
 msgstr "Variables"
 
-#: sphinx/domains/python.py:398
+#: sphinx/domains/python.py:402
 msgid "Raises"
 msgstr "Muestra"
 
-#: sphinx/domains/python.py:618 sphinx/domains/python.py:753
+#: sphinx/domains/python.py:622 sphinx/domains/python.py:757
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (en el módulo %s)"
 
-#: sphinx/domains/python.py:672 sphinx/domains/python.py:838
-#: sphinx/domains/python.py:878
+#: sphinx/domains/python.py:676 sphinx/domains/python.py:842
+#: sphinx/domains/python.py:882
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (en el módulo %s)"
 
-#: sphinx/domains/python.py:674
+#: sphinx/domains/python.py:678
 #, python-format
 msgid "%s (built-in variable)"
 msgstr "%s (variable incorporada)"
 
-#: sphinx/domains/python.py:698
+#: sphinx/domains/python.py:702
 #, python-format
 msgid "%s (built-in class)"
 msgstr "%s (clase incorporada)"
 
-#: sphinx/domains/python.py:699
+#: sphinx/domains/python.py:703
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s (clase en %s)"
 
-#: sphinx/domains/python.py:758
+#: sphinx/domains/python.py:762
 #, python-format
 msgid "%s() (%s class method)"
 msgstr "%s() (método de clase de %s)"
 
-#: sphinx/domains/python.py:760
+#: sphinx/domains/python.py:764
 #, python-format
 msgid "%s() (%s property)"
 msgstr "%s() (propiedad de %s)"
 
-#: sphinx/domains/python.py:762
+#: sphinx/domains/python.py:766
 #, python-format
 msgid "%s() (%s static method)"
 msgstr "%s() (método estático de %s)"
 
-#: sphinx/domains/python.py:882
+#: sphinx/domains/python.py:886
 #, python-format
 msgid "%s (%s property)"
 msgstr ""
 
-#: sphinx/domains/python.py:1036
+#: sphinx/domains/python.py:1040
 msgid "Python Module Index"
 msgstr "Índice de Módulos Python"
 
-#: sphinx/domains/python.py:1037
+#: sphinx/domains/python.py:1041
 msgid "modules"
 msgstr "módulos"
 
-#: sphinx/domains/python.py:1086
+#: sphinx/domains/python.py:1090
 msgid "Deprecated"
 msgstr "Obsoleto"
 
-#: sphinx/domains/python.py:1112
+#: sphinx/domains/python.py:1116
 msgid "class method"
 msgstr "método de la clase"
 
-#: sphinx/domains/python.py:1113
+#: sphinx/domains/python.py:1117
 msgid "static method"
 msgstr "método estático"
 
-#: sphinx/domains/python.py:1115
+#: sphinx/domains/python.py:1119
 msgid "property"
 msgstr ""
 
-#: sphinx/domains/python.py:1173
+#: sphinx/domains/python.py:1177
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr "descripción duplicada del objeto de %s, otra instancia en %s, utilice :noindex: para uno de ellos"
 
-#: sphinx/domains/python.py:1293
+#: sphinx/domains/python.py:1297
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "se encontró más de un objetivo para la referencia cruzada %r: %s"
 
-#: sphinx/domains/python.py:1347
+#: sphinx/domains/python.py:1351
 msgid " (deprecated)"
 msgstr " (obsoleto)"
 
@@ -2864,7 +2869,7 @@ msgid ""
 msgstr ""
 
 #: sphinx/ext/autodoc/__init__.py:1296 sphinx/ext/autodoc/__init__.py:1370
-#: sphinx/ext/autodoc/__init__.py:2683
+#: sphinx/ext/autodoc/__init__.py:2687
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr ""
@@ -2890,17 +2895,17 @@ msgstr ""
 msgid "alias of TypeVar(%s)"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2111 sphinx/ext/autodoc/__init__.py:2205
+#: sphinx/ext/autodoc/__init__.py:2113 sphinx/ext/autodoc/__init__.py:2207
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2333
+#: sphinx/ext/autodoc/__init__.py:2335
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2726
+#: sphinx/ext/autodoc/__init__.py:2730
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
