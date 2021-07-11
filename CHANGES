@@ -41,6 +41,7 @@ Features added
   variables, attributes and properties
 * #3257: autosummary: Support instance attributes for classes
 * #9358: html: Add "heading" role to the toctree items
+* #9225: html: Add span tag to the return typehint of method/function
 * #9129: html search: Show search summaries when html_copy_source = False
 * #9307: html search: Prevent corrections and completions in search field
 * #9120: html theme: Eliminate prompt characters of code-block from copyable
