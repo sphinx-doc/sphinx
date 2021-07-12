@@ -113,8 +113,9 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def header(self) -> str:
         tmpl = (".TH \"%(title_upper)s\" \"%(manual_section)s\""
                 " \"%(date)s\" \"%(version)s\" \"%(manual_group)s\"\n"
-                ".SH NAME\n"
-                "%(title)s \\- %(subtitle)s\n")
+                ".SH NAME\n")
+        if (not self.config.man_skip_desc_subtitle):
+            tmpl += "%(title)s \\- %(subtitle)s\n"
         return tmpl % self._docinfo
 
     def visit_start_of_file(self, node: Element) -> None:

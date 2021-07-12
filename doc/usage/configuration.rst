@@ -402,6 +402,12 @@ General configuration
 
    .. versionadded:: 1.7
 
+
+.. confval:: man_skip_desc_subtitle
+
+   If true, Sphinx manpage builder will not generate a descriptive subtitle
+   for each man page. Default is ``False``.
+
 .. confval:: nitpicky
 
    If true, Sphinx will warn about *all* references where the target cannot be

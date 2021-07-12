@@ -129,6 +129,7 @@ class Config:
         'needs_sphinx': (None, None, [str]),
         'needs_extensions': ({}, None, []),
         'manpages_url': (None, 'env', []),
+        'man_skip_desc_subtitle': (False, 'env', []),
         'nitpicky': (False, None, []),
         'nitpick_ignore': ([], None, []),
         'nitpick_ignore_regex': ([], None, []),
