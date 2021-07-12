@@ -15,12 +15,12 @@ if sys.version_info < (3, 6):
     sys.exit(1)
 
 install_requires = [
-    'sphinxcontrib-applehelp',
-    'sphinxcontrib-devhelp',
-    'sphinxcontrib-jsmath',
-    'sphinxcontrib-htmlhelp',
-    'sphinxcontrib-serializinghtml',
-    'sphinxcontrib-qthelp',
+    'sphinxcontrib-applehelp>=1.0.2',
+    'sphinxcontrib-devhelp>=1.0.2',
+    'sphinxcontrib-jsmath>=1.0.1',
+    'sphinxcontrib-htmlhelp>=2.0.0',
+    'sphinxcontrib-serializinghtml>=1.1.5',
+    'sphinxcontrib-qthelp>=1.0.3',
     'Jinja2>=2.3',
     'Pygments>=2.0',
     'docutils>=0.14,<0.18',
