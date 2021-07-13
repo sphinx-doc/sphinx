@@ -468,6 +468,16 @@ class StandaloneHTMLBuilder(Builder):
         else:
             self.last_updated = None
 
+        # If the logo or favicon are urls, keep them as-is, otherwise
+        # strip the relative path as the files will be copied into _static.
+        logo = self.config.html_logo or ''
+        favicon = self.config.html_favicon or ''
+
+        if not isurl(logo):
+            logo = path.basename(logo)
+        if not isurl(favicon):
+            favicon = path.basename(favicon)
+
         self.relations = self.env.collect_relations()
 
         rellinks: List[Tuple[str, str, str, str]] = []
@@ -510,8 +520,8 @@ class StandaloneHTMLBuilder(Builder):
             'rellinks': rellinks,
             'builder': self.name,
             'parents': [],
-            'logo': self.config.html_logo or '',
-            'favicon': self.config.html_favicon or '',
+            'logo': logo,
+            'favicon': favicon,
             'html5_doctype': html5_ready and not self.config.html4_writer,
         }
         if self.theme:
