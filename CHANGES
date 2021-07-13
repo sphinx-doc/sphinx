@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #9438: html: HTML logo or Favicon specified as file not being found on output
+
 Testing
 --------
 
