@@ -471,9 +471,9 @@ def missing_reference(app: Sphinx, env: BuildEnvironment, node: pending_xref,
 
 
 class IntersphinxDispatcher(CustomReSTDispatcher):
-    """Custom dispatcher for intersphinx role.
+    """Custom dispatcher for external role.
 
-    This enables :intersphinx:***: roles on parsing reST document.
+    This enables :external:***: roles on parsing reST document.
     """
 
     def __init__(self) -> None:
@@ -481,7 +481,7 @@ class IntersphinxDispatcher(CustomReSTDispatcher):
 
     def role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter
              ) -> Tuple[RoleFunction, List[system_message]]:
-        if role_name.split(':')[0] == 'intersphinx':
+        if role_name.split(':')[0] == 'external':
             return IntersphinxRole(), []
         else:
             return super().role(role_name, language_module, lineno, reporter)
@@ -505,11 +505,11 @@ class IntersphinxRole(SphinxRole):
     def get_role_name(self, name: str) -> Optional[Tuple[str, str]]:
         names = name.split(':')
         if len(names) == 2:
-            # :intersphinx:role:
+            # :external:role:
             domain = self.env.temp_data.get('default_domain')
             role = names[1]
         elif len(names) == 3:
-            # :intersphinx:domain:role:
+            # :external:domain:role:
             domain = names[1]
             role = names[2]
         else:
