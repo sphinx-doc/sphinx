@@ -543,30 +543,18 @@ def test_intersphinx_role(app):
     app.build()
     content = (app.outdir / 'index.html').read_text()
 
-    # :intersphinx:py:module:`module1`
-    assert ('<a class="reference external" href="http://example.org/foo.html#module-module1"'
-            ' title="(in foo v2.0)">' in content)
-
-    # :intersphinx:py:module:`inv:module2`
-    assert ('<a class="reference external" href="http://example.org/foo.html#module-module2"'
-            ' title="(in foo v2.0)">' in content)
-
-    # py:module + :intersphinx:py:function:`func`
-    assert ('<a class="reference external" href="http://example.org/sub/foo.html#module1.func"'
-            ' title="(in foo v2.0)">' in content)
-
-    # py:module + :intersphinx:py:method:`Foo.bar`
-    assert ('<a class="reference external" href="http://example.org/index.html#foo.Bar.baz"'
-            ' title="(in foo v2.0)">' in content)
-
-    # :intersphinx:c:function:`CFunc`
-    assert ('<a class="reference external" href="http://example.org/cfunc.html#CFunc"'
-            ' title="(in foo v2.0)">' in content)
-
-    # :intersphinx:doc:`docname`
-    assert ('<a class="reference external" href="http://example.org/docname.html"'
-            ' title="(in foo v2.0)">' in content)
-
-    # :intersphinx:option:`ls -l`
-    assert ('<a class="reference external" href="http://example.org/index.html#cmdoption-ls-l"'
-            ' title="(in foo v2.0)">' in content)
+    targets = (
+        'foo.html#module-module1',
+        'foo.html#module-module2',
+        'sub/foo.html#module1.func',
+        'index.html#foo.Bar.baz',
+        'cfunc.html#CFunc',
+        'docname.html',
+        'index.html#cmdoption-ls-l',
+        'index.html#std_uint8_t',
+        'index.html#foons',
+        'index.html#foons_bartype',
+    )
+    html = '<a class="reference external" href="http://example.org/{}" title="(in foo v2.0)">'
+    for t in targets:
+        assert html.format(t) in content
