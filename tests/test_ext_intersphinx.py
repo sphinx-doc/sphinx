@@ -558,3 +558,5 @@ def test_intersphinx_role(app):
     html = '<a class="reference external" href="http://example.org/{}" title="(in foo v2.0)">'
     for t in targets:
         assert html.format(t) in content
+
+    assert html.format('index.html#cpp_foo_bar_baz') not in content

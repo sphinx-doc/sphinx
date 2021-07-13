@@ -20,6 +20,7 @@
 
 :external:cpp:type:`std::uint8_t`
 :external:cpp:class:`inv:foo::Bar`
+:external:cpp:func:`:inv2:foo::Bar::baz`
 
 :external:cpp:type:`FoonsTitle <foons>`
 :external:cpp:type:`inv:BarType <foons::bartype>`
