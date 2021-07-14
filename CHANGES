@@ -4,6 +4,9 @@ Release 4.1.1 (in development)
 Dependencies
 ------------
 
+* #9434: sphinxcontrib-htmlhelp-2.0.0 or above
+* #9434: sphinxcontrib-serializinghtml-1.1.5 or above
+
 Incompatible changes
 --------------------
 
