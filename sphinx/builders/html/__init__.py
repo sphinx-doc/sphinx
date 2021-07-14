@@ -509,7 +509,7 @@ class StandaloneHTMLBuilder(Builder):
             'script_files': self.script_files,
             'language': self.config.language,
             'css_files': self.css_files,
-            'sphinx_version': sphinx_version,
+            'sphinx_version': __display_version__,
             'sphinx_version_tuple': sphinx_version,
             'style': self._get_style_filename(),
             'rellinks': rellinks,
