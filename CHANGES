@@ -1,5 +1,5 @@
-Release 4.1.1 (in development)
-==============================
+Release 4.1.1 (released Jul 15, 2021)
+=====================================
 
 Dependencies
 ------------
@@ -7,22 +7,10 @@ Dependencies
 * #9434: sphinxcontrib-htmlhelp-2.0.0 or above
 * #9434: sphinxcontrib-serializinghtml-1.1.5 or above
 
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
 Bugs fixed
 ----------
 
 * #9438: html: HTML logo or Favicon specified as file not being found on output
-
-Testing
---------
 
 Release 4.1.0 (released Jul 12, 2021)
 =====================================
