@@ -46,7 +46,7 @@ from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging, rst, split_full_qualified_name
-from sphinx.util.inspect import safe_getattr
+from sphinx.util.inspect import safe_getattr, getall
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
 
@@ -192,7 +192,8 @@ class ModuleScanner:
 
     def scan(self, imported_members: bool) -> List[str]:
         members = []
-        for name in dir(self.object):
+        # Iterate over __all__ if it exists
+        for name in getall(self.object) or dir(self.object):
             try:
                 value = safe_getattr(self.object, name)
             except AttributeError:
@@ -245,7 +246,8 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
 
     def get_module_members(obj: Any) -> Dict[str, Any]:
         members = {}
-        for name in dir(obj):
+        # Iterate over __all__ if it exists
+        for name in getall(obj) or dir(obj):
             try:
                 members[name] = safe_getattr(obj, name)
             except AttributeError:
