@@ -133,12 +133,12 @@ def test_missing_reference(tempdir, app, status, warning):
                          refexplicit=True)
     assert rn[0].astext() == 'py3k:module2'
 
-    # prefix given, target not found and nonexplicit title: prefix is stripped
+    # prefix given, target not found and nonexplicit title: prefix is not stripped
     node, contnode = fake_node('py', 'mod', 'py3k:unknown', 'py3k:unknown',
                                refexplicit=False)
     rn = missing_reference(app, app.env, node, contnode)
     assert rn is None
-    assert contnode[0].astext() == 'unknown'
+    assert contnode[0].astext() == 'py3k:unknown'
 
     # prefix given, target not found and explicit title: nothing is changed
     node, contnode = fake_node('py', 'mod', 'py3k:unknown', 'py3k:unknown',

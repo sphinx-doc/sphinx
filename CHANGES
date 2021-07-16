@@ -85,6 +85,8 @@ Bugs fixed
 * #9733: Fix for logging handler flushing warnings in the middle of the docs
   build
 * #9656: Fix warnings without subtype being incorrectly suppressed
+* Intersphinx, for unresolved references with an explicit inventory,
+  e.g., ``proj:myFunc``, leave the inventory prefix in the unresolved text.
 
 Testing
 --------
