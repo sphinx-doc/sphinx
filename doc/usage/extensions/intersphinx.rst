@@ -148,6 +148,25 @@ linking:
       exception is raised if the server has not issued a response for timeout
       seconds.
 
+.. confval:: intersphinx_disabled_domains
+
+   .. versionadded:: 4.2
+
+   A list of strings being the name of a domain, or the special name ``all``.
+   When a cross-reference without an explicit inventory specification is being
+   resolve by intersphinx, skip resolution if either the domain of the
+   cross-reference is in this list or the special name ``all`` is in the list.
+
+   For example, with ``intersphinx_disabled_domains = ['std']`` a cross-reference
+   ``:doc:`installation``` will not be attempted to be resolved by intersphinx, but
+   ``:doc:`otherbook:installation``` will be attempted to be resolved in the
+   inventory named ``otherbook`` in :confval:`intersphinx_mapping`.
+   At the same time, all cross-references generated in, e.g., Python, declarations
+   will still be attempted to be resolved by intersphinx.
+
+   If ``all`` is in the list of domains, then no references without an explicit
+   inventory will be resolved by intersphinx.
+
 
 Showing all links of an Intersphinx mapping file
 ------------------------------------------------

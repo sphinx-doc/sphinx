@@ -108,6 +108,10 @@ html_static_path = ['{{ dot }}static']
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
 }
+
+# Prevent accidental intersphinx resolution for labels, documents, and other
+# basic cross-references.
+intersphinx_disabled_domains = ['std']
 {%- endif %}
 {%- if 'sphinx.ext.todo' in extensions %}
 

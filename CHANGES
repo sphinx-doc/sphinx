@@ -47,6 +47,11 @@ Features added
 * #9695: More CSS classes on Javascript domain descriptions
 * #9683: Revert the removal of ``add_stylesheet()`` API.  It will be kept until
   the Sphinx-6.0 release
+* #2068, add :confval:`intersphinx_disabled_domains` for disabling
+  interphinx resolution of cross-references in specific domains when they
+  do not have an explicit inventory specification.
+  ``sphinx-quickstart`` will insert
+  ``intersphinx_disabled_domains = ['std']`` in its generated ``conf.py``.
 
 Bugs fixed
 ----------
