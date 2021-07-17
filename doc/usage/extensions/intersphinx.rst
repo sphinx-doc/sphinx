@@ -154,7 +154,7 @@ linking:
 
    A list of strings being the name of a domain, or the special name ``all``.
    When a cross-reference without an explicit inventory specification is being
-   resolve by intersphinx, skip resolution if either the domain of the
+   resolved by intersphinx, skip resolution if either the domain of the
    cross-reference is in this list or the special name ``all`` is in the list.
 
    For example, with ``intersphinx_disabled_domains = ['std']`` a cross-reference
