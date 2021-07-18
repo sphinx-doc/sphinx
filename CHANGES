@@ -7,6 +7,9 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #9435: linkcheck: Disable checking automatically generated anchors on
+  github.com (ex. anchors in reST/Markdown documents)
+
 Deprecated
 ----------
 
@@ -15,6 +18,8 @@ Features added
 
 Bugs fixed
 ----------
+
+* #9435: linkcheck: Failed to check anchors in github.com
 
 Testing
 --------
