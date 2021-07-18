@@ -176,6 +176,18 @@ def test_stringify_type_hints_containers():
 
 
 @pytest.mark.skipif(sys.version_info < (3, 9), reason='python 3.9+ is required.')
+def test_stringify_type_hints_pep_585():
+    assert stringify(list[int]) == "list[int]"
+    assert stringify(list[str]) == "list[str]"
+    assert stringify(dict[str, float]) == "dict[str, float]"
+    assert stringify(tuple[str, str, str]) == "tuple[str, str, str]"
+    assert stringify(tuple[str, ...]) == "tuple[str, ...]"
+    assert stringify(tuple[()]) == "tuple[()]"
+    assert stringify(list[dict[str, tuple]]) == "list[dict[str, tuple]]"
+    assert stringify(type[int]) == "type[int]"
+
+
+@pytest.mark.skipif(sys.version_info < (3, 9), reason='python 3.9+ is required.')
 def test_stringify_Annotated():
     from typing import Annotated  # type: ignore
     assert stringify(Annotated[str, "foo", "bar"]) == "str"  # NOQA

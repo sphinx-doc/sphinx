@@ -312,7 +312,8 @@ def stringify(annotation: Any) -> str:
           hasattr(annotation, '__qualname__')):
         if hasattr(annotation, '__args__'):  # PEP 585 generic
             return repr(annotation)
-        return annotation.__qualname__
+        else:
+            return annotation.__qualname__
     elif annotation is Ellipsis:
         return '...'
 
