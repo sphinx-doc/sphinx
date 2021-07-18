@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-11 00:07+0000\n"
+"POT-Creation-Date: 2021-07-18 00:08+0000\n"
 "PO-Revision-Date: 2021-07-11 00:07+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Greek (http://www.transifex.com/sphinx-doc/sphinx-1/language/el/)\n"
@@ -628,7 +628,7 @@ msgstr "προετοιμασία κειμένων"
 msgid "duplicated ToC entry found: %s"
 msgstr "βρέθηκε διπλότυπη εγγραφή ToC: %s"
 
-#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:716
+#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:726
 #: sphinx/builders/latex/__init__.py:421 sphinx/builders/texinfo.py:176
 msgid "copying images... "
 msgstr "αντιγραφή εικόνων..."
@@ -638,7 +638,7 @@ msgstr "αντιγραφή εικόνων..."
 msgid "cannot read image file %r: copying it instead"
 msgstr "δεν είναι δυνατή η ανάγωνση αρχείου εικόνας %r: αντί αυτού θα αντιγραφεί"
 
-#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:724
+#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:734
 #: sphinx/builders/latex/__init__.py:429 sphinx/builders/texinfo.py:186
 #, python-format
 msgid "cannot copy image file %r: %s"
@@ -763,7 +763,7 @@ msgstr "η τιμή παραμετροποίησης \"epub_identifier\" δεν 
 msgid "conf value \"version\" should not be empty for EPUB3"
 msgstr "η τιμή παραμετροποίησης \"version\" δεν πρέπει να είναι κενή για EPUB3"
 
-#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1107
+#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1117
 #, python-format
 msgid "invalid css_file: %r, ignored"
 msgstr "ανέγκυρο css_file: %r, θα αγνοηθεί"
@@ -886,7 +886,7 @@ msgstr "σφάλμα κατά την εγγραφή του αρχείου Makefi
 msgid "The text files are in %(outdir)s."
 msgstr "Τα αρχεία κειένου βρίσκονται σε %(outdir)s."
 
-#: sphinx/builders/html/__init__.py:1060 sphinx/builders/text.py:77
+#: sphinx/builders/html/__init__.py:1070 sphinx/builders/text.py:77
 #: sphinx/builders/xml.py:91
 #, python-format
 msgid "error writing file %s: %s"
@@ -924,152 +924,152 @@ msgstr "Αδυναμία ανάγνωσης αρχείου πληροφοριώ�
 msgid "%b %d, %Y"
 msgstr "%d %B %Y"
 
-#: sphinx/builders/html/__init__.py:475 sphinx/themes/basic/defindex.html:30
+#: sphinx/builders/html/__init__.py:485 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
 msgstr "Κεντρικό Ευρετήριοο"
 
-#: sphinx/builders/html/__init__.py:475
+#: sphinx/builders/html/__init__.py:485
 msgid "index"
 msgstr "ευρετήριο"
 
-#: sphinx/builders/html/__init__.py:537
+#: sphinx/builders/html/__init__.py:547
 msgid "next"
 msgstr "επόμενο"
 
-#: sphinx/builders/html/__init__.py:546
+#: sphinx/builders/html/__init__.py:556
 msgid "previous"
 msgstr "προηγούμενο"
 
-#: sphinx/builders/html/__init__.py:640
+#: sphinx/builders/html/__init__.py:650
 msgid "generating indices"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:655
+#: sphinx/builders/html/__init__.py:665
 msgid "writing additional pages"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:734
+#: sphinx/builders/html/__init__.py:744
 msgid "copying downloadable files... "
 msgstr "αντιγραφή αρχείων μεταφόρτωσης..."
 
-#: sphinx/builders/html/__init__.py:742
+#: sphinx/builders/html/__init__.py:752
 #, python-format
 msgid "cannot copy downloadable file %r: %s"
 msgstr "δεν είναι δυνατή η αντιγραφή του μεταφορτωμένου αρχείου %r: %s"
 
-#: sphinx/builders/html/__init__.py:774 sphinx/builders/html/__init__.py:786
+#: sphinx/builders/html/__init__.py:784 sphinx/builders/html/__init__.py:796
 #, python-format
 msgid "Failed to copy a file in html_static_file: %s: %r"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:807
+#: sphinx/builders/html/__init__.py:817
 msgid "copying static files"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:823
+#: sphinx/builders/html/__init__.py:833
 #, python-format
 msgid "cannot copy static file %r"
 msgstr "δεν είναι δυνατή η αντιγραφή στατικού αρχείου %r"
 
-#: sphinx/builders/html/__init__.py:828
+#: sphinx/builders/html/__init__.py:838
 msgid "copying extra files"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:834
+#: sphinx/builders/html/__init__.py:844
 #, python-format
 msgid "cannot copy extra file %r"
 msgstr "δεν είναι δυνατή η αντιγραφή του επιπλέον αρχείου %r"
 
-#: sphinx/builders/html/__init__.py:841
+#: sphinx/builders/html/__init__.py:851
 #, python-format
 msgid "Failed to write build info file: %r"
 msgstr "Αδυναμία εγγραφής του αρχείου πληροφοριών μεταγλώττισης: %r"
 
-#: sphinx/builders/html/__init__.py:889
+#: sphinx/builders/html/__init__.py:899
 msgid ""
 "search index couldn't be loaded, but not all documents will be built: the "
 "index will be incomplete."
 msgstr "ο κατάλογος εύρεσης δεν ήταν δυνατό να φορτωθεί, αλλά δε θα μεταγλωττιστούν όλα τα έγγραφα: ο κατάλογος δε θα είναι πλήρης."
 
-#: sphinx/builders/html/__init__.py:950
+#: sphinx/builders/html/__init__.py:960
 #, python-format
 msgid "page %s matches two patterns in html_sidebars: %r and %r"
 msgstr "η σελιδα %s ταιριάζει δύο σχέδια στo html_sidebars: %r and %r"
 
-#: sphinx/builders/html/__init__.py:1043
+#: sphinx/builders/html/__init__.py:1053
 #, python-format
 msgid ""
 "a Unicode error occurred when rendering the page %s. Please make sure all "
 "config values that contain non-ASCII content are Unicode strings."
 msgstr "ένα σφάλμα Unicode παρουσιάστηκε κατά τη δημιουργία της σελίδας %s. Παρακαλείστε να επιβεβαιώσετε ότι όλες οι τιμές παραμετροποίησης οι οποίες περιλαμβάνουν μη-ASCII περιεχόμενο είναι στοιχειοσειρές Unicode."
 
-#: sphinx/builders/html/__init__.py:1048
+#: sphinx/builders/html/__init__.py:1058
 #, python-format
 msgid ""
 "An error happened in rendering the page %s.\n"
 "Reason: %r"
 msgstr "Ένα σφάλμα συνέβη κατά τη σύνθεση της σελίδας %s.\n\nΑιτία %r "
 
-#: sphinx/builders/html/__init__.py:1077
+#: sphinx/builders/html/__init__.py:1087
 msgid "dumping object inventory"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1082
+#: sphinx/builders/html/__init__.py:1092
 #, python-format
 msgid "dumping search index in %s"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1124
+#: sphinx/builders/html/__init__.py:1134
 #, python-format
 msgid "invalid js_file: %r, ignored"
 msgstr "ανέγκυρο js_file: %r, θα αγνοηθεί"
 
-#: sphinx/builders/html/__init__.py:1211
+#: sphinx/builders/html/__init__.py:1221
 msgid "Many math_renderers are registered. But no math_renderer is selected."
 msgstr "Πολλά math_renderers έχουν καταγραφεί. Αλλά δεν έχει επιλεγεί κανένα math_renderer."
 
-#: sphinx/builders/html/__init__.py:1214
+#: sphinx/builders/html/__init__.py:1224
 #, python-format
 msgid "Unknown math_renderer %r is given."
 msgstr "Δόθηκε άγνωστο math_renderer %r."
 
-#: sphinx/builders/html/__init__.py:1222
+#: sphinx/builders/html/__init__.py:1232
 #, python-format
 msgid "html_extra_path entry %r does not exist"
 msgstr "Η εγγραφή html_extra_path %r δεν υπάρχει"
 
-#: sphinx/builders/html/__init__.py:1226
+#: sphinx/builders/html/__init__.py:1236
 #, python-format
 msgid "html_extra_path entry %r is placed inside outdir"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1235
+#: sphinx/builders/html/__init__.py:1245
 #, python-format
 msgid "html_static_path entry %r does not exist"
 msgstr "η εγγραφή html_static_path %r δεν υπάρχει"
 
-#: sphinx/builders/html/__init__.py:1239
+#: sphinx/builders/html/__init__.py:1249
 #, python-format
 msgid "html_static_path entry %r is placed inside outdir"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1248 sphinx/builders/latex/__init__.py:433
+#: sphinx/builders/html/__init__.py:1258 sphinx/builders/latex/__init__.py:433
 #, python-format
 msgid "logo file %r does not exist"
 msgstr "το αρχείο logo %r δεν υπάρχει"
 
-#: sphinx/builders/html/__init__.py:1257
+#: sphinx/builders/html/__init__.py:1267
 #, python-format
 msgid "favicon file %r does not exist"
 msgstr "το αρχείο favicon %r δεν υπάρχει"
 
-#: sphinx/builders/html/__init__.py:1277
+#: sphinx/builders/html/__init__.py:1287
 msgid ""
 "html_add_permalinks has been deprecated since v3.5.0. Please use "
 "html_permalinks and html_permalinks_icon instead."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1303
+#: sphinx/builders/html/__init__.py:1313
 #, python-format
 msgid "%s %s documentation"
 msgstr "Τεκμηρίωση του %s - %s"
@@ -2726,22 +2726,22 @@ msgstr "παρουσιάστηκαν κάποια ζητήματα με μερι
 msgid "failed to reach any of the inventories with the following issues:"
 msgstr "αδυναμία προσέγγισης οποιασδήποτε αποθήκης με τα ακόλουθα ζητήματα:"
 
-#: sphinx/ext/intersphinx.py:315
+#: sphinx/ext/intersphinx.py:334
 #, python-format
 msgid "(in %s v%s)"
 msgstr "(στη %s έκδοση %s)"
 
-#: sphinx/ext/intersphinx.py:317
+#: sphinx/ext/intersphinx.py:336
 #, python-format
 msgid "(in %s)"
 msgstr "(στο %s)"
 
-#: sphinx/ext/intersphinx.py:350
+#: sphinx/ext/intersphinx.py:369
 #, python-format
 msgid "intersphinx identifier %r is not string. Ignored"
 msgstr "το αναγνωριστικό intersphinx %r δεν είναι στοιχειοσειρά. Θα αγνοηθεί"
 
-#: sphinx/ext/intersphinx.py:363
+#: sphinx/ext/intersphinx.py:382
 #, python-format
 msgid "Failed to read intersphinx_mapping[%s], ignored: %r"
 msgstr ""
@@ -3349,9 +3349,9 @@ msgstr "Αλλαγές στο API της C"
 msgid "Other changes"
 msgstr "Άλλες αλλαγές"
 
-#: sphinx/themes/basic/static/doctools.js:199 sphinx/writers/html.py:434
-#: sphinx/writers/html.py:439 sphinx/writers/html5.py:385
-#: sphinx/writers/html5.py:390
+#: sphinx/themes/basic/static/doctools.js:199 sphinx/writers/html.py:436
+#: sphinx/writers/html.py:441 sphinx/writers/html5.py:387
+#: sphinx/writers/html5.py:392
 msgid "Permalink to this headline"
 msgstr "Μόνιμος σύνδεσμος σε αυτήν την κεφαλίδα"
 
@@ -3525,37 +3525,37 @@ msgstr "εξαίρεση κατά την αξιολόγηση μόνο της έ
 msgid "default role %s not found"
 msgstr "ο προεπιλεγμένος ρόλος %s δεν βρέθηκε"
 
-#: sphinx/writers/html.py:327 sphinx/writers/html5.py:298
+#: sphinx/writers/html.py:329 sphinx/writers/html5.py:300
 #, python-format
 msgid "numfig_format is not defined for %s"
 msgstr "δεν έχει καθοριστεί numfig_format για το %s"
 
-#: sphinx/writers/html.py:337 sphinx/writers/html5.py:308
+#: sphinx/writers/html.py:339 sphinx/writers/html5.py:310
 #, python-format
 msgid "Any IDs not assigned for %s node"
 msgstr "Κανένα ID δεν έχει ανατεθεί στο κόμβο %s"
 
-#: sphinx/writers/html.py:411 sphinx/writers/html5.py:362
+#: sphinx/writers/html.py:413 sphinx/writers/html5.py:364
 msgid "Permalink to this term"
 msgstr ""
 
-#: sphinx/writers/html.py:443 sphinx/writers/html5.py:394
+#: sphinx/writers/html.py:445 sphinx/writers/html5.py:396
 msgid "Permalink to this table"
 msgstr "Απευθείας σύνδεσμος σε αυτόν τον πίνακα"
 
-#: sphinx/writers/html.py:486 sphinx/writers/html5.py:437
+#: sphinx/writers/html.py:488 sphinx/writers/html5.py:439
 msgid "Permalink to this code"
 msgstr "Απευθείας σύνδεσμος σε αυτόν τον κώδικα"
 
-#: sphinx/writers/html.py:488 sphinx/writers/html5.py:439
+#: sphinx/writers/html.py:490 sphinx/writers/html5.py:441
 msgid "Permalink to this image"
 msgstr "Απευθείας σύνδεσμος σε αυτήν την εικόνα"
 
-#: sphinx/writers/html.py:490 sphinx/writers/html5.py:441
+#: sphinx/writers/html.py:492 sphinx/writers/html5.py:443
 msgid "Permalink to this toctree"
 msgstr "Απευθείας σύνδεσμος σε αυτόν τον πίνακα περιεχομένων"
 
-#: sphinx/writers/html.py:621 sphinx/writers/html5.py:561
+#: sphinx/writers/html.py:623 sphinx/writers/html5.py:563
 msgid "Could not obtain image size. :scale: option is ignored."
 msgstr "Δεν ήταν δυνατή η λήψη του μεγέθους της εικόνας. Η επιλογή :scale: θα αγνοηθεί."
 
