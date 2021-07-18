@@ -73,7 +73,7 @@ class NestedInlineTransform:
 
 class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     """
-    Custom translator.
+    Custom man page translator.
     """
 
     _docinfo: Dict[str, Any] = {}
