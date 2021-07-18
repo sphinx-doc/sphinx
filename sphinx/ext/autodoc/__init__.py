@@ -306,7 +306,7 @@ class Documenter:
 
     A Documenter has an *option_spec* that works like a docutils directive's;
     in fact, it will be used to parse an auto directive's options that matches
-    the documenter.
+    the Documenter.
     """
     #: name by which the directive is called (auto...) and the default
     #: generated directive name
@@ -331,7 +331,7 @@ class Documenter:
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
                             ) -> bool:
-        """Called to see if a member can be documented by this documenter."""
+        """Called to see if a member can be documented by this Documenter."""
         raise NotImplementedError('must be implemented in subclasses')
 
     def __init__(self, directive: "DocumenterBridge", name: str, indent: str = '') -> None:
@@ -552,7 +552,7 @@ class Documenter:
     def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         """Decode and return lines of the docstring(s) for the object.
 
-        When it returns None value, autodoc-process-docstring will not be called for this
+        When it returns None, autodoc-process-docstring will not be called for this
         object.
         """
         if ignore is not None:
@@ -643,7 +643,7 @@ class Documenter:
         list of `(membername, member)` pairs of the members of *self.object*.
 
         If *want_all* is True, return all members.  Else, only return those
-        members given by *self.options.members* (which may also be none).
+        members given by *self.options.members* (which may also be None).
         """
         warnings.warn('The implementation of Documenter.get_object_members() will be '
                       'removed from Sphinx-6.0.', RemovedInSphinx60Warning)
@@ -820,7 +820,7 @@ class Documenter:
     def document_members(self, all_members: bool = False) -> None:
         """Generate reST for member documentation.
 
-        If *all_members* is True, do all members, else those given by
+        If *all_members* is True, document all members, else those given by
         *self.options.members*.
         """
         # set current namespace for finding members
@@ -2382,7 +2382,7 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
         return None
 
     def import_object(self, raiseerror: bool = False) -> bool:
-        """Check the existence of runtime instance attribute when failed to import the
+        """Check the existence of runtime instance attribute after failing to import the
         attribute."""
         try:
             return super().import_object(raiseerror=True)  # type: ignore
