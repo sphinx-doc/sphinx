@@ -35,7 +35,7 @@ from sphinx.util.texescape import tex_replace_map
 try:
     from docutils.utils.roman import toRoman
 except ImportError:
-    # In Debain/Ubuntu, roman package is provided as roman, not as docutils.utils.roman
+    # In Debian/Ubuntu, roman package is provided as roman, not as docutils.utils.roman
     from roman import toRoman  # type: ignore
 
 if TYPE_CHECKING:
@@ -123,7 +123,7 @@ class Table:
         self.col = 0
         self.row = 0
 
-        # A mapping a table location to the cell_id (cell = rectangular area)
+        # A dict mapping a table location to a cell_id (cell = rectangular area)
         self.cells: Dict[Tuple[int, int], int] = defaultdict(int)
         self.cell_id = 0  # last assigned cell_id
 
@@ -202,7 +202,7 @@ class Table:
 
 
 class TableCell:
-    """A cell data of tables."""
+    """Data of a cell in a table."""
 
     def __init__(self, table: Table, row: int, col: int) -> None:
         if table.cells[(row, col)] == 0:
@@ -445,8 +445,7 @@ class LaTeXTranslator(SphinxTranslator):
         return body
 
     def format_docclass(self, docclass: str) -> str:
-        """ prepends prefix to sphinx document classes
-        """
+        """Prepends prefix to sphinx document classes"""
         warnings.warn('LaTeXWriter.format_docclass() is deprecated.',
                       RemovedInSphinx50Warning, stacklevel=2)
         if docclass in self.docclasses:
