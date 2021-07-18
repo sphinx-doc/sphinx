@@ -30,7 +30,7 @@ DEFAULT_ENABLED_MARKERS = [
 
 
 def pytest_configure(config):
-    # register custom markers
+    """Register custom markers"""
     for marker in DEFAULT_ENABLED_MARKERS:
         config.addinivalue_line('markers', marker)
 
@@ -66,7 +66,7 @@ class SharedResult:
 def app_params(request: Any, test_params: Dict, shared_result: SharedResult,
                sphinx_test_tempdir: str, rootdir: str) -> Tuple[Dict, Dict]:
     """
-    parameters that is specified by 'pytest.mark.sphinx' for
+    Parameters that are specified by 'pytest.mark.sphinx' for
     sphinx.application.Sphinx initialization
     """
 
@@ -113,13 +113,13 @@ def app_params(request: Any, test_params: Dict, shared_result: SharedResult,
 @pytest.fixture
 def test_params(request: Any) -> Dict:
     """
-    test parameters that is specified by 'pytest.mark.test_params'
+    Test parameters that are specified by 'pytest.mark.test_params'
 
     :param Union[str] shared_result:
        If the value is provided, app._status and app._warning objects will be
        shared in the parametrized test functions and/or test functions that
        have same 'shared_result' value.
-       **NOTE**: You can not specify shared_result and srcdir in same time.
+       **NOTE**: You can not specify both shared_result and srcdir.
     """
     if hasattr(request.node, 'get_closest_marker'):  # pytest-3.6.0 or newer
         env = request.node.get_closest_marker('test_params')
@@ -141,7 +141,7 @@ def test_params(request: Any) -> Dict:
 def app(test_params: Dict, app_params: Tuple[Dict, Dict], make_app: Callable,
         shared_result: SharedResult) -> Generator[SphinxTestApp, None, None]:
     """
-    provides sphinx.application.Sphinx object
+    Provides the 'sphinx.application.Sphinx' object
     """
     args, kwargs = app_params
     app_ = make_app(*args, **kwargs)
@@ -161,7 +161,7 @@ def app(test_params: Dict, app_params: Tuple[Dict, Dict], make_app: Callable,
 @pytest.fixture(scope='function')
 def status(app: SphinxTestApp) -> StringIO:
     """
-    compat for testing with previous @with_app decorator
+    Back-compatibility for testing with previous @with_app decorator
     """
     return app._status
 
@@ -169,7 +169,7 @@ def status(app: SphinxTestApp) -> StringIO:
 @pytest.fixture(scope='function')
 def warning(app: SphinxTestApp) -> StringIO:
     """
-    compat for testing with previous @with_app decorator
+    Back-compatibility for testing with previous @with_app decorator
     """
     return app._warning
 
@@ -177,7 +177,7 @@ def warning(app: SphinxTestApp) -> StringIO:
 @pytest.fixture()
 def make_app(test_params: Dict, monkeypatch: Any) -> Generator[Callable, None, None]:
     """
-    provides make_app function to initialize SphinxTestApp instance.
+    Provides make_app function to initialize SphinxTestApp instance.
     if you want to initialize 'app' in your test function. please use this
     instead of using SphinxTestApp class directory.
     """
@@ -232,7 +232,7 @@ def if_graphviz_found(app: SphinxTestApp) -> None:
 @pytest.fixture(scope='session')
 def sphinx_test_tempdir(tmpdir_factory: Any) -> "util.path":
     """
-    temporary directory that wrapped with `path` class.
+    Temporary directory wrapped with `path` class.
     """
     tmpdir = tmpdir_factory.getbasetemp()
     return util.path(tmpdir).abspath()
@@ -241,15 +241,21 @@ def sphinx_test_tempdir(tmpdir_factory: Any) -> "util.path":
 @pytest.fixture
 def tempdir(tmpdir: str) -> "util.path":
     """
-    temporary directory that wrapped with `path` class.
-    this fixture is for compat with old test implementation.
+    Temporary directory wrapped with `path` class.
+    This fixture is for back-compatibility with old test implementation.
     """
     return util.path(tmpdir)
 
 
 @pytest.fixture
 def rollback_sysmodules():
-    """Rollback sys.modules to before testing to unload modules during tests."""
+    """
+    Rollback sys.modules to its value before testing to unload modules
+    during tests.
+    
+    For example, used in test_ext_autosummary.py to permit unloading the
+    target module to clear its cache.
+    """
     try:
         sysmodules = list(sys.modules)
         yield
