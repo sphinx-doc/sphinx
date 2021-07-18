@@ -467,7 +467,9 @@ class SphinxComponentRegistry:
 
 
 def merge_source_suffix(app: "Sphinx", config: Config) -> None:
-    """Merge source_suffix which specified by user and added by extensions."""
+    """
+    Merge any user-specified source_suffix with any added by extensions.
+    """
     for suffix, filetype in app.registry.source_suffix.items():
         if suffix not in app.config.source_suffix:
             app.config.source_suffix[suffix] = filetype
