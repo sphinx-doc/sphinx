@@ -1449,6 +1449,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             if self.options.special_members is None:
                 self.options['special-members'] = {'__new__', '__init__'}
             else:
+                # TODO: It is unclear is special_members is supposed to be a list or a set
+                self.options.special_members = list(self.options.special_members)
                 self.options.special_members.append('__new__')
                 self.options.special_members.append('__init__')
 
