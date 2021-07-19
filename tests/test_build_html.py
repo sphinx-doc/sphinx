@@ -1340,6 +1340,15 @@ def test_html_remote_logo(app, status, warning):
     assert not (app.outdir / 'python-logo.png').exists()
 
 
+@pytest.mark.sphinx('html', testroot='local-logo')
+def test_html_local_logo(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'index.html').read_text()
+    assert ('<img class="logo" src="_static/img.png" alt="Logo"/>' in result)
+    assert (app.outdir / '_static/img.png').exists()
+
+
 @pytest.mark.sphinx('html', testroot='basic')
 def test_html_sidebar(app, status, warning):
     ctx = {}
