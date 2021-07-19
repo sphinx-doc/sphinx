@@ -310,7 +310,10 @@ def stringify(annotation: Any) -> str:
         return INVALID_BUILTIN_CLASSES[annotation]
     elif (getattr(annotation, '__module__', None) == 'builtins' and
           hasattr(annotation, '__qualname__')):
-        return annotation.__qualname__
+        if hasattr(annotation, '__args__'):  # PEP 585 generic
+            return repr(annotation)
+        else:
+            return annotation.__qualname__
     elif annotation is Ellipsis:
         return '...'
 
