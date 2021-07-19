@@ -142,9 +142,9 @@ def test_restify_type_Literal():
 
 @pytest.mark.skipif(sys.version_info < (3, 10), reason='python 3.10+ is required.')
 def test_restify_type_union_operator():
-    assert restify(int | None) == "Optional[:class:`int`]"  # type: ignore
+    assert restify(int | None) == ":class:`int` | :obj:`None`"  # type: ignore
     assert restify(int | str) == ":class:`int` | :class:`str`"  # type: ignore
-    assert restify(int | str | None) == "Optional[:class:`int` | :class:`str`]"  # type: ignore
+    assert restify(int | str | None) == ":class:`int` | :class:`str` | :obj:`None`"  # type: ignore
 
 
 def test_restify_broken_type_hints():
@@ -253,9 +253,9 @@ def test_stringify_type_Literal():
 
 @pytest.mark.skipif(sys.version_info < (3, 10), reason='python 3.10+ is required.')
 def test_stringify_type_union_operator():
-    assert stringify(int | None) == "Optional[int]"  # type: ignore
+    assert stringify(int | None) == "int | None"  # type: ignore
     assert stringify(int | str) == "int | str"  # type: ignore
-    assert stringify(int | str | None) == "Optional[int | str]"  # type: ignore
+    assert stringify(int | str | None) == "int | str | None"  # type: ignore
 
 
 def test_stringify_broken_type_hints():
