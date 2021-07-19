@@ -52,8 +52,7 @@ class Parser(docutils.parsers.Parser):
     """
 
     def set_application(self, app: "Sphinx") -> None:
-        """
-        set_application will be called from Sphinx to set app and other instance variables
+        """set_application will be called from Sphinx to set app and other instance variables
 
         :param sphinx.application.Sphinx app: Sphinx application object
         """
