@@ -1151,6 +1151,20 @@ Miscellany
      Formerly, use of *fncychap* with other styles than ``Bjarne`` was
      dysfunctional.
 
+- Docutils :dudir:`container` directives are supported in LaTeX output: to
+  let a container class with name ``foo`` influence the final PDF via LaTeX,
+  it is only needed to define in the preamble an environment
+  ``sphinxclassfoo``.  A simple example would be:
+
+  .. code-block:: latex
+
+     \newenvironment{sphinxclassred}{\color{red}}{}
+
+  Currently the class names must contain only ascii characters and avoid
+  characters special to LaTeX such as ``\``.
+
+  .. versionadded:: 4.1.0
+
 .. hint::
 
    As an experimental feature, Sphinx can use user-defined template file for
