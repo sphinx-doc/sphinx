@@ -30,6 +30,7 @@ CONTENTS
    refs
    section
    topic
+   prolog_epilog_substitution
 
 .. toctree::
    :maxdepth: 2
