@@ -144,6 +144,17 @@ class I18nBuilder(Builder):
         return
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
+        def is_node_part_of_substitution_definition(node: nodes.Node) -> bool:
+            """Check the node and its parents to see if any of them is a substitution
+            definition.
+            """
+            # return False
+            if isinstance(node, nodes.substitution_definition):
+                return True
+            if node.parent:
+                return is_node_part_of_substitution_definition(node.parent)
+            return False
+
         catalog = self.catalogs[docname_to_domain(docname, self.config.gettext_compact)]
 
         for toctree in self.env.tocs[docname].traverse(addnodes.toctree):
@@ -152,6 +163,8 @@ class I18nBuilder(Builder):
                 catalog.add(msg, node)
 
         for node, msg in extract_messages(doctree):
+            if is_node_part_of_substitution_definition(node):
+                continue
             catalog.add(msg, node)
 
         if 'index' in self.env.config.gettext_additional_targets:
