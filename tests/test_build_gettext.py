@@ -192,3 +192,41 @@ def test_build_single_pot(app):
          'msgid "Generated section".*'),
         result,
         flags=re.S)
+
+
+@pytest.mark.sphinx(
+    'gettext', testroot='intl', srcdir='gettext-subst',
+    confoverrides={'gettext_compact': False,
+                   'gettext_additional_targets': ['image']})
+def test_gettext_prolog_epilog_substitution(app):
+    app.builder.build_all()
+
+    _msgid_getter = re.compile(r'msgid "(.*)"').search
+
+    def msgid_getter(msgid):
+        m = _msgid_getter(msgid)
+        if m:
+            return m.groups()[0]
+        return None
+
+    assert (app.outdir / 'prolog_epilog_substitution.pot').isfile()
+    pot = (app.outdir / 'prolog_epilog_substitution.pot').read_text()
+    msgids = [_f for _f in map(msgid_getter, pot.splitlines()) if _f]
+
+    expected_msgids = [
+        "i18n with prolog and epilog substitutions",
+        "This is content that contains |subst_prolog_1|.",
+        "Substituted image |subst_prolog_2| here.",
+        "This is content that contains |subst_epilog_1|.",
+        "Substituted image |subst_epilog_2| here.",
+        "subst_prolog_2",
+        ".. image:: /img.png",
+        "subst_epilog_2",
+        ".. image:: /i18n.png",
+    ]
+    for expect in expected_msgids:
+        assert expect in msgids
+        msgids.remove(expect)
+
+    # unexpected msgid existent
+    assert msgids == []
