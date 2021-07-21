@@ -230,3 +230,35 @@ def test_gettext_prolog_epilog_substitution(app):
 
     # unexpected msgid existent
     assert msgids == []
+
+
+@pytest.mark.sphinx(
+    'gettext', testroot='intl', srcdir='gettext-subst',
+    confoverrides={'gettext_compact': False,
+                   'gettext_additional_targets': ['image']})
+def test_gettext_prolog_epilog_substitution_excluded(app):
+    # regression test for #9428
+    app.builder.build_all()
+
+    _msgid_getter = re.compile(r'msgid "(.*)"').search
+
+    def msgid_getter(msgid):
+        m = _msgid_getter(msgid)
+        if m:
+            return m.groups()[0]
+        return None
+
+    assert (app.outdir / 'prolog_epilog_substitution_excluded.pot').isfile()
+    pot = (app.outdir / 'prolog_epilog_substitution_excluded.pot').read_text()
+    msgids = [_f for _f in map(msgid_getter, pot.splitlines()) if _f]
+
+    expected_msgids = [
+        "i18n without prolog and epilog substitutions",
+        "This is content that does not include prolog and epilog substitutions.",
+    ]
+    for expect in expected_msgids:
+        assert expect in msgids
+        msgids.remove(expect)
+
+    # unexpected msgid existent
+    assert msgids == []
