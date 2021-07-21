@@ -1194,6 +1194,18 @@ def test_additional_targets_should_be_translated(app):
     expected_expr = """<img alt="IMG -&gt; I18N" src="_images/i18n.png" />"""
     assert_count(expected_expr, result, 1)
 
+    # [prolog_epilog_substitution.txt]
+
+    result = (app.outdir / 'prolog_epilog_substitution.html').read_text()
+
+    # alt and src for image block should be translated
+    expected_expr = """<img alt="SUBST_PROLOG_2 TRANSLATED" src="_images/i18n.png" />"""
+    assert_count(expected_expr, result, 1)
+
+    # alt and src for image block should be translated
+    expected_expr = """<img alt="SUBST_EPILOG_2 TRANSLATED" src="_images/img.png" />"""
+    assert_count(expected_expr, result, 1)
+
 
 @sphinx_intl
 @pytest.mark.sphinx('text')
@@ -1204,6 +1216,22 @@ def test_text_references(app, warning):
     warnings = warning.getvalue().replace(os.sep, '/')
     warning_expr = 'refs.txt:\\d+: ERROR: Unknown target name:'
     assert_count(warning_expr, warnings, 0)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.test_params(shared_result='test_intl_basic')
+def test_text_prolog_epilog_substitution(app, warning):
+    app.build()
+    # --- check warning for literal block
+    result = (app.outdir / 'prolog_epilog_substitution.txt').read_text()
+    expect = ("26. I18N WITH PROLOG AND EPILOG SUBSTITUTIONS"
+              "\n*********************************************\n"
+              "\nTHIS IS CONTENT THAT CONTAINS prolog substitute text.\n"
+              "\nSUBSTITUTED IMAGE [image: SUBST_PROLOG_2 TRANSLATED][image] HERE.\n"
+              "\nTHIS IS CONTENT THAT CONTAINS epilog substitute text.\n"
+              "\nSUBSTITUTED IMAGE [image: SUBST_EPILOG_2 TRANSLATED][image] HERE.\n")
+    assert_startswith(result, expect)
 
 
 @pytest.mark.sphinx(
