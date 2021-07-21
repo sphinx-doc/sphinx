@@ -79,8 +79,11 @@ class ImageCollector(EnvironmentCollector):
 
                 # Update `node['uri']` to a relative path from srcdir
                 # from a relative path from current document.
+                original_uri = node['uri']
                 node['uri'], _ = app.env.relfn2path(imguri, docname)
                 candidates['*'] = node['uri']
+                if node['uri'] != original_uri:
+                    node['original_uri'] = original_uri
 
             # map image paths to unique image names (so that they can be put
             # into a single directory)
