@@ -19,6 +19,8 @@ Features added
 Bugs fixed
 ----------
 
+* #9489: autodoc: Custom types using ``typing.NewType`` are not displayed well
+  with the HEAD of 3.10
 * #9435: linkcheck: Failed to check anchors in github.com
 
 Testing
