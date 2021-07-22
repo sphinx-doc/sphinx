@@ -171,17 +171,17 @@ def _restify_py37(cls: Optional[Type]) -> str:
             text += r"\ [%s]" % ", ".join(restify(a) for a in cls.__args__)
 
         return text
-    elif hasattr(cls, '__qualname__'):
-        if cls.__module__ == 'typing':
-            return ':class:`~%s.%s`' % (cls.__module__, cls.__qualname__)
-        else:
-            return ':class:`%s.%s`' % (cls.__module__, cls.__qualname__)
     elif hasattr(cls, '_name'):
         # SpecialForm
         if cls.__module__ == 'typing':
             return ':obj:`~%s.%s`' % (cls.__module__, cls._name)
         else:
             return ':obj:`%s.%s`' % (cls.__module__, cls._name)
+    elif hasattr(cls, '__qualname__'):
+        if cls.__module__ == 'typing':
+            return ':class:`~%s.%s`' % (cls.__module__, cls.__qualname__)
+        else:
+            return ':class:`%s.%s`' % (cls.__module__, cls.__qualname__)
     elif isinstance(cls, ForwardRef):
         return ':class:`%s`' % cls.__forward_arg__
     else:
@@ -309,7 +309,7 @@ def stringify(annotation: Any) -> str:
     elif annotation in INVALID_BUILTIN_CLASSES:
         return INVALID_BUILTIN_CLASSES[annotation]
     elif (getattr(annotation, '__module__', None) == 'builtins' and
-          hasattr(annotation, '__qualname__')):
+          getattr(annotation, '__qualname__', None)):
         return annotation.__qualname__
     elif annotation is Ellipsis:
         return '...'
