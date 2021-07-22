@@ -2,5 +2,10 @@ class Foo:
     """docstring"""
 
     @property
-    def prop(self) -> int:
+    def prop1(self) -> int:
+        """docstring"""
+
+    @classmethod
+    @property
+    def prop2(self) -> int:
         """docstring"""
