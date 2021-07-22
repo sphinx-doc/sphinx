@@ -1084,6 +1084,7 @@ def test_autodoc_cached_property(app):
         '',
         '   .. py:property:: Foo.prop',
         '      :module: target.cached_property',
+        '      :type: int',
         '',
     ]
 
