@@ -34,6 +34,9 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #9435: linkcheck: Disable checking automatically generated anchors on
+  github.com (ex. anchors in reST/Markdown documents)
+
 Deprecated
 ----------
 
@@ -42,6 +45,12 @@ Features added
 
 Bugs fixed
 ----------
+
+* #9489: autodoc: Custom types using ``typing.NewType`` are not displayed well
+  with the HEAD of 3.10
+* #9490: autodoc: Some objects under ``typing`` module are not displayed well
+  with the HEAD of 3.10
+* #9435: linkcheck: Failed to check anchors in github.com
 
 Testing
 --------

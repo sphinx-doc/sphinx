@@ -66,8 +66,8 @@ def test_defaults_json(app):
                  "info"]:
         assert attr in row
 
-    assert len(content.splitlines()) == 12
-    assert len(rows) == 12
+    assert len(content.splitlines()) == 11
+    assert len(rows) == 11
     # the output order of the rows is not stable
     # due to possible variance in network latency
     rowsby = {row["uri"]: row for row in rows}
@@ -88,7 +88,7 @@ def test_defaults_json(app):
     assert dnerow['uri'] == 'https://localhost:7777/doesnotexist'
     assert rowsby['https://www.google.com/image2.png'] == {
         'filename': 'links.txt',
-        'lineno': 20,
+        'lineno': 19,
         'status': 'broken',
         'code': 0,
         'uri': 'https://www.google.com/image2.png',
@@ -102,10 +102,6 @@ def test_defaults_json(app):
     # images should fail
     assert "Not Found for url: https://www.google.com/image.png" in \
         rowsby["https://www.google.com/image.png"]["info"]
-    # The anchor of the URI for github.com is automatically modified
-    assert 'https://github.com/sphinx-doc/sphinx#documentation' not in rowsby
-    assert 'https://github.com/sphinx-doc/sphinx#user-content-documentation' in rowsby
-    assert 'https://github.com/sphinx-doc/sphinx#user-content-testing' in rowsby
 
 
 @pytest.mark.sphinx(
