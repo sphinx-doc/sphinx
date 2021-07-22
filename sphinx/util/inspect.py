@@ -211,12 +211,15 @@ def getslots(obj: Any) -> Optional[Dict]:
 
 def isNewType(obj: Any) -> bool:
     """Check the if object is a kind of NewType."""
-    __module__ = safe_getattr(obj, '__module__', None)
-    __qualname__ = safe_getattr(obj, '__qualname__', None)
-    if __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type':
-        return True
+    if sys.version_info >= (3, 10):
+        return isinstance(obj, typing.NewType)
     else:
-        return False
+        __module__ = safe_getattr(obj, '__module__', None)
+        __qualname__ = safe_getattr(obj, '__qualname__', None)
+        if __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type':
+            return True
+        else:
+            return False
 
 
 def isenumclass(x: Any) -> bool:
