@@ -608,9 +608,9 @@ class Sphinx:
         :param node: A node class
         :param figtype: The type of enumerable nodes.  Each figtype has individual numbering
                         sequences.  As system figtypes, ``figure``, ``table`` and
-                        ``code-block`` are defined.  It is possible to add custom nodes to these
-                        default figtypes.  It is also possible to define new custom figtype if
-                        a new figtype is given.
+                        ``code-block`` are defined.  It is possible to add custom nodes to
+                        these default figtypes.  It is also possible to define new custom
+                        figtype if a new figtype is given.
         :param title_getter: A getter function to obtain the title of node.  It takes an
                              instance of the enumerable node, and it must return its title as
                              string.  The title is used to the default title of references for

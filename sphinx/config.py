@@ -215,7 +215,8 @@ class Config:
 
     def pre_init_values(self) -> None:
         """
-        Initialize some limited config variables before initializing i18n and loading extensions
+        Initialize some limited config variables before initializing i18n and loading
+        extensions.
         """
         variables = ['needs_sphinx', 'suppress_warnings', 'language', 'locale_dirs']
         for name in variables:

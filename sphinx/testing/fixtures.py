@@ -252,7 +252,7 @@ def rollback_sysmodules():
     """
     Rollback sys.modules to its value before testing to unload modules
     during tests.
-    
+
     For example, used in test_ext_autosummary.py to permit unloading the
     target module to clear its cache.
     """
