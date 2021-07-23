@@ -714,7 +714,10 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_event('linkcheck-process-uri')
 
     app.connect('config-inited', compile_linkcheck_allowed_redirects, priority=800)
-    app.connect('linkcheck-process-uri', rewrite_github_anchor)
+
+    # FIXME: Disable URL rewrite handler for github.com temporarily.
+    # ref: https://github.com/sphinx-doc/sphinx/issues/9435
+    # app.connect('linkcheck-process-uri', rewrite_github_anchor)
 
     return {
         'version': 'builtin',
