@@ -120,7 +120,7 @@ from sphinx.search.en import SearchEnglish
 
 def parse_stop_word(source: str) -> Set[str]:
     """
-    parse snowball style word list like this:
+    Parse snowball style word list like this:
 
     * http://snowball.tartarus.org/algorithms/finnish/stop.txt
     """
@@ -155,7 +155,7 @@ languages: Dict[str, Any] = {
 
 class _JavaScriptIndex:
     """
-    The search index as javascript file that calls a function
+    The search index as JavaScript file that calls a function
     on the documentation search object to register the index.
     """
 
@@ -228,7 +228,7 @@ class WordCollector(nodes.NodeVisitor):
 
 class IndexBuilder:
     """
-    Helper class that creates a searchindex based on the doctrees
+    Helper class that creates a search index based on the doctrees
     passed to the `feed` method.
     """
     formats = {

@@ -568,7 +568,7 @@ def extract_summary(doc: List[str], document: Any) -> str:
 
 def limited_join(sep: str, items: List[str], max_chars: int = 30,
                  overflow_marker: str = "...") -> str:
-    """Join a number of strings to one, limiting the length to *max_chars*.
+    """Join a number of strings into one, limiting the length to *max_chars*.
 
     If the string overflows this limit, replace the last fitting item by
     *overflow_marker*.
