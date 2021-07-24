@@ -23,6 +23,7 @@ Bugs fixed
   with the HEAD of 3.10
 * #9490: autodoc: Some objects under ``typing`` module are not displayed well
   with the HEAD of 3.10
+* #9436, #9471: autodoc: crashed if ``autodoc_class_signature = "separated"``
 * #9435: linkcheck: Failed to check anchors in github.com
 
 Testing
