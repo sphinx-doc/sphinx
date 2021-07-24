@@ -2703,9 +2703,16 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
         if self.isclassmethod:
             self.add_line('   :classmethod:', sourcename)
 
-        if safe_getattr(self.object, 'fget', None) and self.config.autodoc_typehints != 'none':
+        if safe_getattr(self.object, 'fget', None):  # property
+            func = self.object.fget
+        elif safe_getattr(self.object, 'func', None):  # cached_property
+            func = self.object.func
+        else:
+            func = None
+
+        if func and self.config.autodoc_typehints != 'none':
             try:
-                signature = inspect.signature(self.object.fget,
+                signature = inspect.signature(func,
                                               type_aliases=self.config.autodoc_type_aliases)
                 if signature.return_annotation is not Parameter.empty:
                     objrepr = stringify_typehint(signature.return_annotation)

@@ -20,6 +20,8 @@ Features added
 Bugs fixed
 ----------
 
+* #9487: autodoc: typehint for cached_property is not shown
+
 Testing
 --------
 
