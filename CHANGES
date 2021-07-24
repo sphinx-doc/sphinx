@@ -23,6 +23,7 @@ Bugs fixed
   with the HEAD of 3.10
 * #9490: autodoc: Some objects under ``typing`` module are not displayed well
   with the HEAD of 3.10
+* #9456: html search: html_copy_source can't control the search summaries
 * #9435: linkcheck: Failed to check anchors in github.com
 
 Testing
