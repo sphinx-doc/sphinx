@@ -353,6 +353,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
                    autodata
                    automethod
                    autoattribute
+                   autoproperty
 
    These work exactly like :rst:dir:`autoclass` etc.,
    but do not offer the options used for automatic member documentation.
@@ -422,6 +423,8 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
       option.
    .. versionchanged:: 2.0
       :rst:dir:`autodecorator` added.
+   .. versionchanged:: 2.1
+      :rst:dir:`autoproperty` added.
    .. versionchanged:: 3.4
       :rst:dir:`autodata` and :rst:dir:`autoattribute` now have a ``no-value``
       option.
