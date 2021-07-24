@@ -21,6 +21,8 @@ Bugs fixed
 ----------
 
 * #9487: autodoc: typehint for cached_property is not shown
+* #9456: html search: abbreation marks are inserted to the search result if
+  failed to fetch the content of the page
 
 Testing
 --------
