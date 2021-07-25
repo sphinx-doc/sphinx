@@ -257,6 +257,9 @@ def between(marker: str, what: Sequence[str] = None, keepempty: bool = False,
 # But we define this class here to keep compatibility (see #4538)
 class Options(dict):
     """A dict/attribute hybrid that returns None on nonexisting keys."""
+    def copy(self) -> "Options":
+        return Options(super().copy())
+
     def __getattr__(self, name: str) -> Any:
         try:
             return self[name.replace('_', '-')]
@@ -1445,9 +1448,11 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         super().__init__(*args)
 
         if self.config.autodoc_class_signature == 'separated':
+            self.options = self.options.copy()
+
             # show __init__() method
             if self.options.special_members is None:
-                self.options['special-members'] = {'__new__', '__init__'}
+                self.options['special-members'] = ['__new__', '__init__']
             else:
                 self.options.special_members.append('__new__')
                 self.options.special_members.append('__init__')
