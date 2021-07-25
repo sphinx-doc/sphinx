@@ -25,6 +25,7 @@ Bugs fixed
   with the HEAD of 3.10
 * #9436, #9471: autodoc: crashed if ``autodoc_class_signature = "separated"``
 * #9456: html search: html_copy_source can't control the search summaries
+* #9500: LaTeX: Failed to build Japanese document on Windows
 * #9435: linkcheck: Failed to check anchors in github.com
 
 Testing
