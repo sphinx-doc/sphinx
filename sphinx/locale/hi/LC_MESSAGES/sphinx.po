@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-18 00:08+0000\n"
-"PO-Revision-Date: 2021-07-11 00:07+0000\n"
+"POT-Creation-Date: 2021-07-25 02:33+0000\n"
+"PO-Revision-Date: 2021-07-25 00:08+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Hindi (http://www.transifex.com/sphinx-doc/sphinx-1/language/hi/)\n"
 "MIME-Version: 1.0\n"
@@ -43,7 +43,7 @@ msgstr "स्फिंक्स %s संस्करण चल रहा ह�
 
 #: sphinx/application.py:200
 msgid ""
-"For security reason, parallel mode is disabled on macOS and python3.8 and "
+"For security reasons, parallel mode is disabled on macOS and python3.8 and "
 "above. For more details, please read https://github.com/sphinx-"
 "doc/sphinx/issues/6803"
 msgstr ""
@@ -198,32 +198,32 @@ msgstr "विन्यास मान %r के लिए अमान्य �
 msgid "cannot override config setting %r with unsupported type, ignoring"
 msgstr "असमर्थित प्रकार के साथ विन्यास मान %r का उल्लंघन नहीं किया जा सकता, अनदेखा किया गया"
 
-#: sphinx/config.py:239
+#: sphinx/config.py:240
 #, python-format
 msgid "unknown config value %r in override, ignoring"
 msgstr "आरोहण में अज्ञात विन्यास मान %r, अनदेखा किया गया"
 
-#: sphinx/config.py:256
+#: sphinx/config.py:257
 #, python-format
 msgid "No such config value: %s"
 msgstr "ऐसा कोई विन्यास मान नहीं है: %s"
 
-#: sphinx/config.py:280
+#: sphinx/config.py:281
 #, python-format
 msgid "Config value %r already present"
 msgstr "विन्यास मान %r पहले से विद्यमान है"
 
-#: sphinx/config.py:329
+#: sphinx/config.py:330
 #, python-format
 msgid "There is a syntax error in your configuration file: %s\n"
 msgstr "आपकी विन्यास फाइल में रचनाक्रम की त्रुटि है: %s\n"
 
-#: sphinx/config.py:332
+#: sphinx/config.py:333
 msgid ""
 "The configuration file (or one of the modules it imports) called sys.exit()"
 msgstr "विन्यास फाइल (अथवा इसके द्वारा आयातित प्रभागों) द्वारा sys.exit() का आह्वान किया गया"
 
-#: sphinx/config.py:339
+#: sphinx/config.py:340
 #, python-format
 msgid ""
 "There is a programmable error in your configuration file:\n"
@@ -231,57 +231,57 @@ msgid ""
 "%s"
 msgstr "विन्यास फाइल में प्रोग्राम के योग्य त्रुटि है:\n\n%s"
 
-#: sphinx/config.py:365
+#: sphinx/config.py:366
 #, python-format
 msgid ""
 "The config value `source_suffix' expects a string, list of strings, or "
 "dictionary. But `%r' is given."
 msgstr "विन्यास मान `source_suffix' में अक्षर-समूह, अक्षर-समूहों की सूची, अथवा कोष की अनुमति है. लेकिन `%r' दिया गया है."
 
-#: sphinx/config.py:384
+#: sphinx/config.py:385
 #, python-format
 msgid "Section %s"
 msgstr "भाग %s"
 
-#: sphinx/config.py:385
+#: sphinx/config.py:386
 #, python-format
 msgid "Fig. %s"
 msgstr "चित्र %s"
 
-#: sphinx/config.py:386
+#: sphinx/config.py:387
 #, python-format
 msgid "Table %s"
 msgstr "सारणी %s"
 
-#: sphinx/config.py:387
+#: sphinx/config.py:388
 #, python-format
 msgid "Listing %s"
 msgstr "सूची %s"
 
-#: sphinx/config.py:424
+#: sphinx/config.py:425
 msgid ""
 "The config value `{name}` has to be a one of {candidates}, but `{current}` "
 "is given."
 msgstr "`{name}` विन्यास मान, {candidates} में से एक होना चाहिए, परन्तु `{current}` दिया गया है."
 
-#: sphinx/config.py:442
+#: sphinx/config.py:443
 msgid ""
 "The config value `{name}' has type `{current.__name__}'; expected "
 "{permitted}."
 msgstr "विन्यास मान `{name}' का प्रकार `{current.__name__}' है; अपेक्षित {permitted}."
 
-#: sphinx/config.py:455
+#: sphinx/config.py:456
 msgid ""
 "The config value `{name}' has type `{current.__name__}', defaults to "
 "`{default.__name__}'."
 msgstr "विन्यास मान `{name}' का प्रकार `{current.__name__}' है; मानक `{default.__name__}' का प्रयोग किया गया."
 
-#: sphinx/config.py:465
+#: sphinx/config.py:466
 #, python-format
 msgid "primary_domain %r not found, ignored."
 msgstr "primary_domain %r नहीं मिला, अनदेखा किया गया."
 
-#: sphinx/config.py:477
+#: sphinx/config.py:478
 msgid ""
 "Since v2.0, Sphinx uses \"index\" as root_doc by default. Please add "
 "\"root_doc = 'contents'\" to your conf.py."
@@ -1876,7 +1876,7 @@ msgid "variable"
 msgstr "चर पद"
 
 #: sphinx/domains/c.py:3733 sphinx/domains/cpp.py:7577
-#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1111
+#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1115
 msgid "function"
 msgstr "फंक्शन"
 
@@ -1954,7 +1954,7 @@ msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
 #: sphinx/domains/cpp.py:7575 sphinx/domains/javascript.py:328
-#: sphinx/domains/python.py:1113
+#: sphinx/domains/python.py:1117
 msgid "class"
 msgstr "वर्ग"
 
@@ -2000,20 +2000,20 @@ msgstr "चर "
 msgid "%s (module)"
 msgstr "%s (प्रभाग)"
 
-#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1115
+#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1119
 msgid "method"
 msgstr "पद्धति"
 
-#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1112
+#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1116
 msgid "data"
 msgstr "आंकड़े "
 
-#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1118
+#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1122
 msgid "attribute"
 msgstr "लक्षण"
 
 #: sphinx/domains/javascript.py:331 sphinx/domains/python.py:58
-#: sphinx/domains/python.py:1120
+#: sphinx/domains/python.py:1124
 msgid "module"
 msgstr "प्रभाग"
 
@@ -2027,7 +2027,7 @@ msgstr ""
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "समीकरण का प्रतिरूप शीर्षक %s, दूसरी प्रतिकृति %s में है "
 
-#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2074
+#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2073
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "अमान्य math_eqref_format: %r"
@@ -2044,7 +2044,7 @@ msgstr "चालक"
 msgid "object"
 msgstr "वस्तु"
 
-#: sphinx/domains/python.py:62 sphinx/domains/python.py:1114
+#: sphinx/domains/python.py:62 sphinx/domains/python.py:1118
 msgid "exception"
 msgstr "अपवाद "
 
@@ -2070,7 +2070,7 @@ msgid "%s() (in module %s)"
 msgstr "%s() (%s प्रभाग में )"
 
 #: sphinx/domains/python.py:676 sphinx/domains/python.py:842
-#: sphinx/domains/python.py:882
+#: sphinx/domains/python.py:886
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (%s प्रभाग में )"
@@ -2105,48 +2105,48 @@ msgstr ""
 msgid "%s() (%s static method)"
 msgstr "%s() (%s स्थैतिक विधि)"
 
-#: sphinx/domains/python.py:886
+#: sphinx/domains/python.py:890
 #, python-format
 msgid "%s (%s property)"
 msgstr ""
 
-#: sphinx/domains/python.py:1040
+#: sphinx/domains/python.py:1044
 msgid "Python Module Index"
 msgstr "पाइथन प्रभाग सूची"
 
-#: sphinx/domains/python.py:1041
+#: sphinx/domains/python.py:1045
 msgid "modules"
 msgstr "प्रभाग"
 
-#: sphinx/domains/python.py:1090
+#: sphinx/domains/python.py:1094
 msgid "Deprecated"
 msgstr "अवमानित "
 
-#: sphinx/domains/python.py:1116
+#: sphinx/domains/python.py:1120
 msgid "class method"
 msgstr "वर्ग विधि"
 
-#: sphinx/domains/python.py:1117
+#: sphinx/domains/python.py:1121
 msgid "static method"
 msgstr "स्थैतिक पद्धति"
 
-#: sphinx/domains/python.py:1119
+#: sphinx/domains/python.py:1123
 msgid "property"
 msgstr ""
 
-#: sphinx/domains/python.py:1177
+#: sphinx/domains/python.py:1181
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr ""
 
-#: sphinx/domains/python.py:1297
+#: sphinx/domains/python.py:1301
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "पारस्परिक-सन्दर्भों के लिए एक से अधिक लक्ष्य मिले %r: %s"
 
-#: sphinx/domains/python.py:1351
+#: sphinx/domains/python.py:1355
 msgid " (deprecated)"
 msgstr "(अवमानित)"
 
@@ -2866,7 +2866,7 @@ msgid ""
 msgstr ""
 
 #: sphinx/ext/autodoc/__init__.py:1296 sphinx/ext/autodoc/__init__.py:1370
-#: sphinx/ext/autodoc/__init__.py:2687
+#: sphinx/ext/autodoc/__init__.py:2721
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr ""
@@ -2902,7 +2902,7 @@ msgstr ""
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2730
+#: sphinx/ext/autodoc/__init__.py:2764
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
@@ -3569,41 +3569,41 @@ msgstr "अज्ञात %r उच्चतमस्तर_विभाजन 
 msgid "too large :maxdepth:, ignored."
 msgstr "अत्याधिक अधिकतम गहराई # :maxdepth: #, उपेक्षित किया गया."
 
-#: sphinx/writers/latex.py:645
+#: sphinx/writers/latex.py:644
 msgid "document title is not a single Text node"
 msgstr "लेखपत्र का शीर्षक एकल पाठ बिंदु नहीं है"
 
-#: sphinx/writers/latex.py:677 sphinx/writers/texinfo.py:622
+#: sphinx/writers/latex.py:676 sphinx/writers/texinfo.py:622
 msgid ""
 "encountered title node not in section, topic, table, admonition or sidebar"
 msgstr "पाया गया शीर्ष बिंदु किसी भाग, प्रसंग, तालिका, विषय-प्रबोध अथवा पार्श्व-स्थान में नहीं है"
 
-#: sphinx/writers/latex.py:849 sphinx/writers/manpage.py:246
+#: sphinx/writers/latex.py:848 sphinx/writers/manpage.py:246
 #: sphinx/writers/texinfo.py:637
 msgid "Footnotes"
 msgstr "पाद टिप्पणियां"
 
-#: sphinx/writers/latex.py:908
+#: sphinx/writers/latex.py:907
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "दोनों तालिका-स्तंभ और :चौड़ाई: विकल्प दिए गए हैं. :चौड़ाई:  मान की उपेक्षा की जाएगी."
 
-#: sphinx/writers/latex.py:1239
+#: sphinx/writers/latex.py:1238
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
 msgstr "परिमाण मात्रक %s अमान्य है. उपेक्षा की जाएगी."
 
-#: sphinx/writers/latex.py:1552
+#: sphinx/writers/latex.py:1551
 #, python-format
 msgid "unknown index entry type %s found"
 msgstr "अनुक्रमणिका की प्रविष्टि का प्रकार %s मिला"
 
-#: sphinx/writers/manpage.py:295 sphinx/writers/text.py:804
+#: sphinx/writers/manpage.py:295 sphinx/writers/text.py:803
 #, python-format
 msgid "[image: %s]"
 msgstr "[चित्र: %s]"
 
-#: sphinx/writers/manpage.py:296 sphinx/writers/text.py:805
+#: sphinx/writers/manpage.py:296 sphinx/writers/text.py:804
 msgid "[image]"
 msgstr "[चित्र]"
 

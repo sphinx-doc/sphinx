@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-18 00:08+0000\n"
-"PO-Revision-Date: 2021-07-11 00:07+0000\n"
+"POT-Creation-Date: 2021-07-25 02:33+0000\n"
+"PO-Revision-Date: 2021-07-25 00:08+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Slovak (http://www.transifex.com/sphinx-doc/sphinx-1/language/sk/)\n"
 "MIME-Version: 1.0\n"
@@ -42,10 +42,10 @@ msgstr "Spúšťanie Sphinx v%s"
 
 #: sphinx/application.py:200
 msgid ""
-"For security reason, parallel mode is disabled on macOS and python3.8 and "
+"For security reasons, parallel mode is disabled on macOS and python3.8 and "
 "above. For more details, please read https://github.com/sphinx-"
 "doc/sphinx/issues/6803"
-msgstr "Z bezpečnostných dôvodov je paralelný režim na macOS s Python3.8 a novším vypnutý. ďalšie podrobnosti nájdete v https://github.com/sphinx-doc/sphinx/issues/6803"
+msgstr ""
 
 #: sphinx/application.py:228
 #, python-format
@@ -197,32 +197,32 @@ msgstr "neplatný počet %r pre konfiguračnú hodnotu %r, ignorované"
 msgid "cannot override config setting %r with unsupported type, ignoring"
 msgstr "nemožno prepísať konfiguračné nastavenie %r s nepodporovaným typom, ignorované"
 
-#: sphinx/config.py:239
+#: sphinx/config.py:240
 #, python-format
 msgid "unknown config value %r in override, ignoring"
 msgstr "neznáma konfiguračná hodnota %r v prepísaní, ignorované"
 
-#: sphinx/config.py:256
+#: sphinx/config.py:257
 #, python-format
 msgid "No such config value: %s"
 msgstr "Neznáma konfiguračná hodnota: %s"
 
-#: sphinx/config.py:280
+#: sphinx/config.py:281
 #, python-format
 msgid "Config value %r already present"
 msgstr "Konfiguračná hodnota %r už existuje"
 
-#: sphinx/config.py:329
+#: sphinx/config.py:330
 #, python-format
 msgid "There is a syntax error in your configuration file: %s\n"
 msgstr "Vo svojom konfiguračnom súbore máte chybu: %s\n"
 
-#: sphinx/config.py:332
+#: sphinx/config.py:333
 msgid ""
 "The configuration file (or one of the modules it imports) called sys.exit()"
 msgstr "Konfiguračný súbor (alebo jeden z modulov, ktoré importuje) volal sys.exit()"
 
-#: sphinx/config.py:339
+#: sphinx/config.py:340
 #, python-format
 msgid ""
 "There is a programmable error in your configuration file:\n"
@@ -230,57 +230,57 @@ msgid ""
 "%s"
 msgstr "V konfiguračnom súbore je programová chyba:\n\n%s"
 
-#: sphinx/config.py:365
+#: sphinx/config.py:366
 #, python-format
 msgid ""
 "The config value `source_suffix' expects a string, list of strings, or "
 "dictionary. But `%r' is given."
 msgstr "Konfiguračná hodnota „source_suffix” očakáva reťazec, zoznam reťazcov alebo slovník, ale zadali ste „%r”."
 
-#: sphinx/config.py:384
+#: sphinx/config.py:385
 #, python-format
 msgid "Section %s"
 msgstr "Sekcia %s"
 
-#: sphinx/config.py:385
+#: sphinx/config.py:386
 #, python-format
 msgid "Fig. %s"
 msgstr "Obr. %s"
 
-#: sphinx/config.py:386
+#: sphinx/config.py:387
 #, python-format
 msgid "Table %s"
 msgstr "Tabuľka %s"
 
-#: sphinx/config.py:387
+#: sphinx/config.py:388
 #, python-format
 msgid "Listing %s"
 msgstr "Výpis %s"
 
-#: sphinx/config.py:424
+#: sphinx/config.py:425
 msgid ""
 "The config value `{name}` has to be a one of {candidates}, but `{current}` "
 "is given."
 msgstr "Konfiguračná hodnota `{name}` má byť jedno z {candidates}, ale je zadané `{current}`."
 
-#: sphinx/config.py:442
+#: sphinx/config.py:443
 msgid ""
 "The config value `{name}' has type `{current.__name__}'; expected "
 "{permitted}."
 msgstr "Konfiguračná hodnota `{name}' má typ `{current.__name__}'; očakávané {permitted}."
 
-#: sphinx/config.py:455
+#: sphinx/config.py:456
 msgid ""
 "The config value `{name}' has type `{current.__name__}', defaults to "
 "`{default.__name__}'."
 msgstr "Konfiguračná hodnota `{name}' má typ `{current.__name__}', predvolene `{default.__name__}'."
 
-#: sphinx/config.py:465
+#: sphinx/config.py:466
 #, python-format
 msgid "primary_domain %r not found, ignored."
 msgstr "primary_domain %r nenájdená, ignorované."
 
-#: sphinx/config.py:477
+#: sphinx/config.py:478
 msgid ""
 "Since v2.0, Sphinx uses \"index\" as root_doc by default. Please add "
 "\"root_doc = 'contents'\" to your conf.py."
@@ -1875,7 +1875,7 @@ msgid "variable"
 msgstr "premenná"
 
 #: sphinx/domains/c.py:3733 sphinx/domains/cpp.py:7577
-#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1111
+#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1115
 msgid "function"
 msgstr "funkcia"
 
@@ -1953,7 +1953,7 @@ msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
 #: sphinx/domains/cpp.py:7575 sphinx/domains/javascript.py:328
-#: sphinx/domains/python.py:1113
+#: sphinx/domains/python.py:1117
 msgid "class"
 msgstr "trieda"
 
@@ -1999,20 +1999,20 @@ msgstr "Argumenty"
 msgid "%s (module)"
 msgstr "%s (modul)"
 
-#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1115
+#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1119
 msgid "method"
 msgstr "metóda"
 
-#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1112
+#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1116
 msgid "data"
 msgstr "dáta"
 
-#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1118
+#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1122
 msgid "attribute"
 msgstr "atribút"
 
 #: sphinx/domains/javascript.py:331 sphinx/domains/python.py:58
-#: sphinx/domains/python.py:1120
+#: sphinx/domains/python.py:1124
 msgid "module"
 msgstr "modul"
 
@@ -2026,7 +2026,7 @@ msgstr "duplicitný %s popis %s, ďalší výskyt%s v %s"
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "duplicitná menovka vzorca %s, ďalší výskyt v %s"
 
-#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2074
+#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2073
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "neplatný math_eqref_format: %r"
@@ -2043,7 +2043,7 @@ msgstr "operátor"
 msgid "object"
 msgstr "objekt"
 
-#: sphinx/domains/python.py:62 sphinx/domains/python.py:1114
+#: sphinx/domains/python.py:62 sphinx/domains/python.py:1118
 msgid "exception"
 msgstr "výnimka"
 
@@ -2069,7 +2069,7 @@ msgid "%s() (in module %s)"
 msgstr "%s() (v module %s)"
 
 #: sphinx/domains/python.py:676 sphinx/domains/python.py:842
-#: sphinx/domains/python.py:882
+#: sphinx/domains/python.py:886
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (v module %s)"
@@ -2104,48 +2104,48 @@ msgstr "%s() (vlastnosť %s)"
 msgid "%s() (%s static method)"
 msgstr "%s() (statická metóda %s)"
 
-#: sphinx/domains/python.py:886
+#: sphinx/domains/python.py:890
 #, python-format
 msgid "%s (%s property)"
 msgstr "%s (vlastnosť %s)"
 
-#: sphinx/domains/python.py:1040
+#: sphinx/domains/python.py:1044
 msgid "Python Module Index"
 msgstr "Index modulov Python"
 
-#: sphinx/domains/python.py:1041
+#: sphinx/domains/python.py:1045
 msgid "modules"
 msgstr "moduly"
 
-#: sphinx/domains/python.py:1090
+#: sphinx/domains/python.py:1094
 msgid "Deprecated"
 msgstr "Zastarané"
 
-#: sphinx/domains/python.py:1116
+#: sphinx/domains/python.py:1120
 msgid "class method"
 msgstr "metóda triedy"
 
-#: sphinx/domains/python.py:1117
+#: sphinx/domains/python.py:1121
 msgid "static method"
 msgstr "statická metóda"
 
-#: sphinx/domains/python.py:1119
+#: sphinx/domains/python.py:1123
 msgid "property"
 msgstr "vlastnosť"
 
-#: sphinx/domains/python.py:1177
+#: sphinx/domains/python.py:1181
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr "duplicitný popis objektu  %s, ďalší výskyt v %s, použite :noindex: pre jeden z nich"
 
-#: sphinx/domains/python.py:1297
+#: sphinx/domains/python.py:1301
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "nájdený viac ako jeden cieľ krížového odkazu %r: %s"
 
-#: sphinx/domains/python.py:1351
+#: sphinx/domains/python.py:1355
 msgid " (deprecated)"
 msgstr " (zastarané)"
 
@@ -2865,7 +2865,7 @@ msgid ""
 msgstr "chýbajúci atribút spomenutý vo voľbe :members: : modul %s, atribút %s"
 
 #: sphinx/ext/autodoc/__init__.py:1296 sphinx/ext/autodoc/__init__.py:1370
-#: sphinx/ext/autodoc/__init__.py:2687
+#: sphinx/ext/autodoc/__init__.py:2721
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr ""
@@ -2901,7 +2901,7 @@ msgstr ""
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "Neplatné __slots__ nájdené v %s. Ignorované."
 
-#: sphinx/ext/autodoc/__init__.py:2730
+#: sphinx/ext/autodoc/__init__.py:2764
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
@@ -3568,41 +3568,41 @@ msgstr ""
 msgid "too large :maxdepth:, ignored."
 msgstr "príliš veľké :maxdepth:, ignorované."
 
-#: sphinx/writers/latex.py:645
+#: sphinx/writers/latex.py:644
 msgid "document title is not a single Text node"
 msgstr "názov dokumentu nie je jeden uzol Text"
 
-#: sphinx/writers/latex.py:677 sphinx/writers/texinfo.py:622
+#: sphinx/writers/latex.py:676 sphinx/writers/texinfo.py:622
 msgid ""
 "encountered title node not in section, topic, table, admonition or sidebar"
 msgstr ""
 
-#: sphinx/writers/latex.py:849 sphinx/writers/manpage.py:246
+#: sphinx/writers/latex.py:848 sphinx/writers/manpage.py:246
 #: sphinx/writers/texinfo.py:637
 msgid "Footnotes"
 msgstr "Poznámky pod čiarou"
 
-#: sphinx/writers/latex.py:908
+#: sphinx/writers/latex.py:907
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "sú zadané obe, tabularcolumns aj voľba :widths:. :widths: je ignorované."
 
-#: sphinx/writers/latex.py:1239
+#: sphinx/writers/latex.py:1238
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
 msgstr ""
 
-#: sphinx/writers/latex.py:1552
+#: sphinx/writers/latex.py:1551
 #, python-format
 msgid "unknown index entry type %s found"
 msgstr ""
 
-#: sphinx/writers/manpage.py:295 sphinx/writers/text.py:804
+#: sphinx/writers/manpage.py:295 sphinx/writers/text.py:803
 #, python-format
 msgid "[image: %s]"
 msgstr "[obrázok: %s]"
 
-#: sphinx/writers/manpage.py:296 sphinx/writers/text.py:805
+#: sphinx/writers/manpage.py:296 sphinx/writers/text.py:804
 msgid "[image]"
 msgstr "[obrázok]"
 
