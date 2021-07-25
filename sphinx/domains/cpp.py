@@ -7005,7 +7005,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         if not re.compile(r'^[a-zA-Z0-9_]*$').match(newestId):
             logger.warning('Index id generation for C++ object "%s" failed, please '
                            'report as bug (id=%s).', ast, newestId,
-                           location=self.get_source_info())
+                           location=self.get_location())
 
         name = ast.symbol.get_full_nested_name().get_display_string().lstrip(':')
         # Add index entry, but not if it's a declaration inside a concept
@@ -7088,7 +7088,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             logger.warning(msg.format(
                 str(parentSymbol.get_full_nested_name()),
                 self.name, self.arguments[0]
-            ), location=self.get_source_info())
+            ), location=self.get_location())
             name = _make_phony_error_name()
             symbol = parentSymbol.add_name(name)
             env.temp_data['cpp:last_symbol'] = symbol
@@ -7216,13 +7216,13 @@ class CPPNamespaceObject(SphinxDirective):
             stack: List[Symbol] = []
         else:
             parser = DefinitionParser(self.arguments[0],
-                                      location=self.get_source_info(),
+                                      location=self.get_location(),
                                       config=self.config)
             try:
                 ast = parser.parse_namespace_object()
                 parser.assert_end()
             except DefinitionError as e:
-                logger.warning(e, location=self.get_source_info())
+                logger.warning(e, location=self.get_location())
                 name = _make_phony_error_name()
                 ast = ASTNamespace(name, None)
             symbol = rootSymbol.add_name(ast.nestedName, ast.templatePrefix)
@@ -7244,13 +7244,13 @@ class CPPNamespacePushObject(SphinxDirective):
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
             return []
         parser = DefinitionParser(self.arguments[0],
-                                  location=self.get_source_info(),
+                                  location=self.get_location(),
                                   config=self.config)
         try:
             ast = parser.parse_namespace_object()
             parser.assert_end()
         except DefinitionError as e:
-            logger.warning(e, location=self.get_source_info())
+            logger.warning(e, location=self.get_location())
             name = _make_phony_error_name()
             ast = ASTNamespace(name, None)
         oldParent = self.env.temp_data.get('cpp:parent_symbol', None)
@@ -7276,7 +7276,7 @@ class CPPNamespacePopObject(SphinxDirective):
         stack = self.env.temp_data.get('cpp:namespace_stack', None)
         if not stack or len(stack) == 0:
             logger.warning("C++ namespace pop on empty stack. Defaulting to gobal scope.",
-                           location=self.get_source_info())
+                           location=self.get_location())
             stack = []
         else:
             stack.pop()
@@ -7480,7 +7480,7 @@ class CPPAliasObject(ObjectDescription):
                            " Requested 'noroot' but 'maxdepth' 1."
                            " When skipping the root declaration,"
                            " need 'maxdepth' 0 for infinite or at least 2.",
-                           location=self.get_source_info())
+                           location=self.get_location())
         signatures = self.get_signatures()
         for i, sig in enumerate(signatures):
             node.append(AliasNode(sig, aliasOptions, env=self.env))
@@ -7537,14 +7537,14 @@ class CPPExprRole(SphinxRole):
     def run(self) -> Tuple[List[Node], List[system_message]]:
         text = self.text.replace('\n', ' ')
         parser = DefinitionParser(text,
-                                  location=self.get_source_info(),
+                                  location=self.get_location(),
                                   config=self.config)
         # attempt to mimic XRefRole classes, except that...
         try:
             ast = parser.parse_expression()
         except DefinitionError as ex:
             logger.warning('Unparseable C++ expression: %r\n%s', text, ex,
-                           location=self.get_source_info())
+                           location=self.get_location())
             # see below
             return [addnodes.desc_inline('cpp', text, text, classes=[self.class_type])], []
         parentSymbol = self.env.temp_data.get('cpp:parent_symbol', None)
