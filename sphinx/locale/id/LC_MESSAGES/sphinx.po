@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-18 00:08+0000\n"
-"PO-Revision-Date: 2021-07-11 00:07+0000\n"
+"POT-Creation-Date: 2021-07-25 02:33+0000\n"
+"PO-Revision-Date: 2021-07-25 00:08+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Indonesian (http://www.transifex.com/sphinx-doc/sphinx-1/language/id/)\n"
 "MIME-Version: 1.0\n"
@@ -44,7 +44,7 @@ msgstr "Menjalankan Sphinx v%s"
 
 #: sphinx/application.py:200
 msgid ""
-"For security reason, parallel mode is disabled on macOS and python3.8 and "
+"For security reasons, parallel mode is disabled on macOS and python3.8 and "
 "above. For more details, please read https://github.com/sphinx-"
 "doc/sphinx/issues/6803"
 msgstr ""
@@ -199,32 +199,32 @@ msgstr "nomor %r yang salah untuk konfigurasi nilai %r, mengabaikan"
 msgid "cannot override config setting %r with unsupported type, ignoring"
 msgstr "tidak dapat menulis ulang pengaturan konfigurasi %r dengan tipe yang tidak didukung, mengabaikan"
 
-#: sphinx/config.py:239
+#: sphinx/config.py:240
 #, python-format
 msgid "unknown config value %r in override, ignoring"
 msgstr "nilai konfigurasi %r yang tidak dikenal pada penulisan ulang, mengabaikan"
 
-#: sphinx/config.py:256
+#: sphinx/config.py:257
 #, python-format
 msgid "No such config value: %s"
 msgstr "Tidak terdapat nilai konfigurasi demikian: %s"
 
-#: sphinx/config.py:280
+#: sphinx/config.py:281
 #, python-format
 msgid "Config value %r already present"
 msgstr "Nilai konfigurasi %r sudah ada"
 
-#: sphinx/config.py:329
+#: sphinx/config.py:330
 #, python-format
 msgid "There is a syntax error in your configuration file: %s\n"
 msgstr "Ada kesalahan sintaksis dalam file konfigurasi Anda: %s\n"
 
-#: sphinx/config.py:332
+#: sphinx/config.py:333
 msgid ""
 "The configuration file (or one of the modules it imports) called sys.exit()"
 msgstr "Berkas konfigurasi (atau salah satu dari modul terimpor) disebut sys.exit()"
 
-#: sphinx/config.py:339
+#: sphinx/config.py:340
 #, python-format
 msgid ""
 "There is a programmable error in your configuration file:\n"
@@ -232,57 +232,57 @@ msgid ""
 "%s"
 msgstr "Terdapat kesalahan programmable dalam berkas konfigurasi anda:\n\n%s"
 
-#: sphinx/config.py:365
+#: sphinx/config.py:366
 #, python-format
 msgid ""
 "The config value `source_suffix' expects a string, list of strings, or "
 "dictionary. But `%r' is given."
 msgstr "Nilai konfigurasi `source_suffix 'mengharapkan sebuah string, daftar string, atau kamus. Tetapi `%r' diberikan."
 
-#: sphinx/config.py:384
+#: sphinx/config.py:385
 #, python-format
 msgid "Section %s"
 msgstr "Bab %s"
 
-#: sphinx/config.py:385
+#: sphinx/config.py:386
 #, python-format
 msgid "Fig. %s"
 msgstr "Gambar. %s"
 
-#: sphinx/config.py:386
+#: sphinx/config.py:387
 #, python-format
 msgid "Table %s"
 msgstr "Tabel %s"
 
-#: sphinx/config.py:387
+#: sphinx/config.py:388
 #, python-format
 msgid "Listing %s"
 msgstr "Daftar %s"
 
-#: sphinx/config.py:424
+#: sphinx/config.py:425
 msgid ""
 "The config value `{name}` has to be a one of {candidates}, but `{current}` "
 "is given."
 msgstr "Nilai konfigurasi `{name}` harus salah satu dari {candidates}, tapi `{current}` diberikan."
 
-#: sphinx/config.py:442
+#: sphinx/config.py:443
 msgid ""
 "The config value `{name}' has type `{current.__name__}'; expected "
 "{permitted}."
 msgstr "Nilai konfigurasi `{name}' memiliki tipe `{current.__name__}'; diharapkan {permitted}."
 
-#: sphinx/config.py:455
+#: sphinx/config.py:456
 msgid ""
 "The config value `{name}' has type `{current.__name__}', defaults to "
 "`{default.__name__}'."
 msgstr "Nilai konfigurasi `{name}` bertipe `{current.__name__}', default menjadi `{default.__name__}'."
 
-#: sphinx/config.py:465
+#: sphinx/config.py:466
 #, python-format
 msgid "primary_domain %r not found, ignored."
 msgstr "primary_domain %r tidak ditemukan, diabaikan."
 
-#: sphinx/config.py:477
+#: sphinx/config.py:478
 msgid ""
 "Since v2.0, Sphinx uses \"index\" as root_doc by default. Please add "
 "\"root_doc = 'contents'\" to your conf.py."
@@ -1877,7 +1877,7 @@ msgid "variable"
 msgstr "variabel"
 
 #: sphinx/domains/c.py:3733 sphinx/domains/cpp.py:7577
-#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1111
+#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1115
 msgid "function"
 msgstr "fungsi"
 
@@ -1955,7 +1955,7 @@ msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
 #: sphinx/domains/cpp.py:7575 sphinx/domains/javascript.py:328
-#: sphinx/domains/python.py:1113
+#: sphinx/domains/python.py:1117
 msgid "class"
 msgstr "class"
 
@@ -2001,20 +2001,20 @@ msgstr "Argumen"
 msgid "%s (module)"
 msgstr "%s (module)"
 
-#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1115
+#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1119
 msgid "method"
 msgstr "method"
 
-#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1112
+#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1116
 msgid "data"
 msgstr "data"
 
-#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1118
+#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1122
 msgid "attribute"
 msgstr "atribut"
 
 #: sphinx/domains/javascript.py:331 sphinx/domains/python.py:58
-#: sphinx/domains/python.py:1120
+#: sphinx/domains/python.py:1124
 msgid "module"
 msgstr "modul"
 
@@ -2028,7 +2028,7 @@ msgstr ""
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "duplikasi label persamaan %s, misalnya di %s"
 
-#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2074
+#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2073
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "Math_eqref_format tidak valid: %r"
@@ -2045,7 +2045,7 @@ msgstr "operator"
 msgid "object"
 msgstr "object"
 
-#: sphinx/domains/python.py:62 sphinx/domains/python.py:1114
+#: sphinx/domains/python.py:62 sphinx/domains/python.py:1118
 msgid "exception"
 msgstr "eksepsi"
 
@@ -2071,7 +2071,7 @@ msgid "%s() (in module %s)"
 msgstr "%s() (di modul %s)"
 
 #: sphinx/domains/python.py:676 sphinx/domains/python.py:842
-#: sphinx/domains/python.py:882
+#: sphinx/domains/python.py:886
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (di modul %s)"
@@ -2106,48 +2106,48 @@ msgstr ""
 msgid "%s() (%s static method)"
 msgstr "%s() (method static %s)"
 
-#: sphinx/domains/python.py:886
+#: sphinx/domains/python.py:890
 #, python-format
 msgid "%s (%s property)"
 msgstr ""
 
-#: sphinx/domains/python.py:1040
+#: sphinx/domains/python.py:1044
 msgid "Python Module Index"
 msgstr "Indeks Modul Python"
 
-#: sphinx/domains/python.py:1041
+#: sphinx/domains/python.py:1045
 msgid "modules"
 msgstr "modul"
 
-#: sphinx/domains/python.py:1090
+#: sphinx/domains/python.py:1094
 msgid "Deprecated"
 msgstr "Akan ditinggalkan"
 
-#: sphinx/domains/python.py:1116
+#: sphinx/domains/python.py:1120
 msgid "class method"
 msgstr "method class"
 
-#: sphinx/domains/python.py:1117
+#: sphinx/domains/python.py:1121
 msgid "static method"
 msgstr "method static"
 
-#: sphinx/domains/python.py:1119
+#: sphinx/domains/python.py:1123
 msgid "property"
 msgstr ""
 
-#: sphinx/domains/python.py:1177
+#: sphinx/domains/python.py:1181
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr ""
 
-#: sphinx/domains/python.py:1297
+#: sphinx/domains/python.py:1301
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "lebih dari satu target ditemukan untuk referensi silang %r: %s"
 
-#: sphinx/domains/python.py:1351
+#: sphinx/domains/python.py:1355
 msgid " (deprecated)"
 msgstr " (obsolet)"
 
@@ -2867,7 +2867,7 @@ msgid ""
 msgstr ""
 
 #: sphinx/ext/autodoc/__init__.py:1296 sphinx/ext/autodoc/__init__.py:1370
-#: sphinx/ext/autodoc/__init__.py:2687
+#: sphinx/ext/autodoc/__init__.py:2721
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr ""
@@ -2903,7 +2903,7 @@ msgstr ""
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2730
+#: sphinx/ext/autodoc/__init__.py:2764
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
@@ -3570,41 +3570,41 @@ msgstr "%r toplevel_sectioning tidak diketahui untuk kelas %r"
 msgid "too large :maxdepth:, ignored."
 msgstr ":maxdepth: terlalu besar, diabaikan."
 
-#: sphinx/writers/latex.py:645
+#: sphinx/writers/latex.py:644
 msgid "document title is not a single Text node"
 msgstr "judul dokumen bukan simpul Text tunggal"
 
-#: sphinx/writers/latex.py:677 sphinx/writers/texinfo.py:622
+#: sphinx/writers/latex.py:676 sphinx/writers/texinfo.py:622
 msgid ""
 "encountered title node not in section, topic, table, admonition or sidebar"
 msgstr "simpul judul tidak ditemui dalam bagian, topik, tabel, peringatan atau sisi bilah"
 
-#: sphinx/writers/latex.py:849 sphinx/writers/manpage.py:246
+#: sphinx/writers/latex.py:848 sphinx/writers/manpage.py:246
 #: sphinx/writers/texinfo.py:637
 msgid "Footnotes"
 msgstr "Catatan kaki"
 
-#: sphinx/writers/latex.py:908
+#: sphinx/writers/latex.py:907
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "opsi tabularcolumns dan :widths: opsi diberikan bersamaan. :widths: diabaikan."
 
-#: sphinx/writers/latex.py:1239
+#: sphinx/writers/latex.py:1238
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
 msgstr "unit dimensi %s tidak valid. Diabaikan"
 
-#: sphinx/writers/latex.py:1552
+#: sphinx/writers/latex.py:1551
 #, python-format
 msgid "unknown index entry type %s found"
 msgstr "entri indeks tidak diketahui ditemukan tipe %s"
 
-#: sphinx/writers/manpage.py:295 sphinx/writers/text.py:804
+#: sphinx/writers/manpage.py:295 sphinx/writers/text.py:803
 #, python-format
 msgid "[image: %s]"
 msgstr "[gambar: %s]"
 
-#: sphinx/writers/manpage.py:296 sphinx/writers/text.py:805
+#: sphinx/writers/manpage.py:296 sphinx/writers/text.py:804
 msgid "[image]"
 msgstr "[gambar]"
 
