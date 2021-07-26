@@ -386,7 +386,7 @@ General configuration
 
 .. confval:: manpages_url
 
-   A URL to cross-reference :rst:role:`manpage` directives. If this is
+   A URL to cross-reference :rst:role:`manpage` roles. If this is
    defined to ``https://manpages.debian.org/{path}``, the
    :literal:`:manpage:`man(1)`` role will link to
    <https://manpages.debian.org/man(1)>. The patterns available are:
