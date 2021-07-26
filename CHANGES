@@ -21,6 +21,9 @@ Bugs fixed
 ----------
 
 * #9487: autodoc: typehint for cached_property is not shown
+* #9481: autosummary: some warnings contain non-existing filenames
+* #9481: c domain: some warnings contain non-existing filenames
+* #9481: cpp domain: some warnings contain non-existing filenames
 
 Testing
 --------

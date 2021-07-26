@@ -339,6 +339,10 @@ class SphinxDirective(Directive):
         """Set source and line number to the node."""
         node.source, node.line = self.get_source_info()
 
+    def get_location(self) -> str:
+        """Get current location info for logging."""
+        return ':'.join(str(s) for s in self.get_source_info())
+
 
 class SphinxRole:
     """A base class for Sphinx roles.
@@ -400,6 +404,10 @@ class SphinxRole:
 
     def set_source_info(self, node: Node, lineno: int = None) -> None:
         node.source, node.line = self.get_source_info(lineno)
+
+    def get_location(self) -> str:
+        """Get current location info for logging."""
+        return ':'.join(str(s) for s in self.get_source_info())
 
 
 class ReferenceRole(SphinxRole):
