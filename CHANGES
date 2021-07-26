@@ -1,20 +1,11 @@
-Release 4.1.2 (in development)
-==============================
-
-Dependencies
-------------
+Release 4.1.2 (released Jul 27, 2021)
+=====================================
 
 Incompatible changes
 --------------------
 
 * #9435: linkcheck: Disable checking automatically generated anchors on
   github.com (ex. anchors in reST/Markdown documents)
-
-Deprecated
-----------
-
-Features added
---------------
 
 Bugs fixed
 ----------
@@ -26,9 +17,6 @@ Bugs fixed
 * #9436, #9471: autodoc: crashed if ``autodoc_class_signature = "separated"``
 * #9456: html search: html_copy_source can't control the search summaries
 * #9435: linkcheck: Failed to check anchors in github.com
-
-Testing
---------
 
 Release 4.1.1 (released Jul 15, 2021)
 =====================================
