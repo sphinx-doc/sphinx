@@ -46,7 +46,7 @@ from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging, rst, split_full_qualified_name
-from sphinx.util.inspect import safe_getattr, getall
+from sphinx.util.inspect import getall, safe_getattr
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
 
