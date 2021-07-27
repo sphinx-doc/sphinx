@@ -14,6 +14,7 @@ Features added
 --------------
 
 * #9445: autodoc: Support class properties
+* #9479: autodoc: Emit a warning if target is a mocked object
 * #9445: py domain: ``:py:property:`` directive supports ``:classmethod:``
   option to describe the class property
 
