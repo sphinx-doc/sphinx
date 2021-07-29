@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #9512: sphinx-build: crashed with the HEAD of Python 3.10
+
 Testing
 --------
 
