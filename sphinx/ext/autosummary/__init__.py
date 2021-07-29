@@ -280,7 +280,7 @@ class Autosummary(SphinxDirective):
                         msg = __('autosummary: stub file not found %r. '
                                  'Check your autosummary_generate setting.')
 
-                    logger.warning(msg, real_name, location=self.get_source_info())
+                    logger.warning(msg, real_name, location=self.get_location())
                     continue
 
                 docnames.append(docname)
@@ -344,7 +344,7 @@ class Autosummary(SphinxDirective):
                 real_name, obj, parent, modname = self.import_by_name(name, prefixes=prefixes)
             except ImportError:
                 logger.warning(__('autosummary: failed to import %s'), name,
-                               location=self.get_source_info())
+                               location=self.get_location())
                 continue
 
             self.bridge.result = StringList()  # initialize for each documenter
@@ -358,12 +358,12 @@ class Autosummary(SphinxDirective):
             documenter = self.create_documenter(self.env.app, obj, parent, full_name)
             if not documenter.parse_name():
                 logger.warning(__('failed to parse name %s'), real_name,
-                               location=self.get_source_info())
+                               location=self.get_location())
                 items.append((display_name, '', '', real_name))
                 continue
             if not documenter.import_object():
                 logger.warning(__('failed to import object %s'), real_name,
-                               location=self.get_source_info())
+                               location=self.get_location())
                 items.append((display_name, '', '', real_name))
                 continue
             if documenter.options.members and not documenter.check_module():
@@ -568,7 +568,7 @@ def extract_summary(doc: List[str], document: Any) -> str:
 
 def limited_join(sep: str, items: List[str], max_chars: int = 30,
                  overflow_marker: str = "...") -> str:
-    """Join a number of strings to one, limiting the length to *max_chars*.
+    """Join a number of strings into one, limiting the length to *max_chars*.
 
     If the string overflows this limit, replace the last fitting item by
     *overflow_marker*.

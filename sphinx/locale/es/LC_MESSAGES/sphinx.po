@@ -14,8 +14,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-18 00:08+0000\n"
-"PO-Revision-Date: 2021-07-11 00:07+0000\n"
+"POT-Creation-Date: 2021-07-25 02:36+0000\n"
+"PO-Revision-Date: 2021-07-25 00:08+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/sphinx-doc/sphinx-1/language/es/)\n"
 "MIME-Version: 1.0\n"
@@ -46,7 +46,7 @@ msgstr "Ejecutando Sphinx v%s"
 
 #: sphinx/application.py:200
 msgid ""
-"For security reason, parallel mode is disabled on macOS and python3.8 and "
+"For security reasons, parallel mode is disabled on macOS and python3.8 and "
 "above. For more details, please read https://github.com/sphinx-"
 "doc/sphinx/issues/6803"
 msgstr ""
@@ -201,32 +201,32 @@ msgstr "número no válido %r de valor de configuración %r, haciendo caso omiso
 msgid "cannot override config setting %r with unsupported type, ignoring"
 msgstr "no se puede reemplazar los ajustes de configuración %r con tipo no compatible, haciendo caso omiso"
 
-#: sphinx/config.py:239
+#: sphinx/config.py:240
 #, python-format
 msgid "unknown config value %r in override, ignoring"
 msgstr "valor de configuración desconocido %r en anulación, ignorando"
 
-#: sphinx/config.py:256
+#: sphinx/config.py:257
 #, python-format
 msgid "No such config value: %s"
 msgstr "No hay tal valor de configuración: %s"
 
-#: sphinx/config.py:280
+#: sphinx/config.py:281
 #, python-format
 msgid "Config value %r already present"
 msgstr "Valor de configuración %r ya presente"
 
-#: sphinx/config.py:329
+#: sphinx/config.py:330
 #, python-format
 msgid "There is a syntax error in your configuration file: %s\n"
 msgstr "Hay un error de sintaxis en su archivo de configuración: %s\n"
 
-#: sphinx/config.py:332
+#: sphinx/config.py:333
 msgid ""
 "The configuration file (or one of the modules it imports) called sys.exit()"
 msgstr "El archivo de configuración (o uno de los módulos que importa) invocó sys.exit()"
 
-#: sphinx/config.py:339
+#: sphinx/config.py:340
 #, python-format
 msgid ""
 "There is a programmable error in your configuration file:\n"
@@ -234,57 +234,57 @@ msgid ""
 "%s"
 msgstr "Hay un error programable en su archivo de configuración:\n\n%s"
 
-#: sphinx/config.py:365
+#: sphinx/config.py:366
 #, python-format
 msgid ""
 "The config value `source_suffix' expects a string, list of strings, or "
 "dictionary. But `%r' is given."
 msgstr "El valor de configuración `source_suffix' espera una cadena de caracteres, una lista de cadena de caracteres o un diccionario. Pero `%r' es dado."
 
-#: sphinx/config.py:384
+#: sphinx/config.py:385
 #, python-format
 msgid "Section %s"
 msgstr "Sección %s"
 
-#: sphinx/config.py:385
+#: sphinx/config.py:386
 #, python-format
 msgid "Fig. %s"
 msgstr "Figura %s"
 
-#: sphinx/config.py:386
+#: sphinx/config.py:387
 #, python-format
 msgid "Table %s"
 msgstr "Tabla %s"
 
-#: sphinx/config.py:387
+#: sphinx/config.py:388
 #, python-format
 msgid "Listing %s"
 msgstr "Lista %s"
 
-#: sphinx/config.py:424
+#: sphinx/config.py:425
 msgid ""
 "The config value `{name}` has to be a one of {candidates}, but `{current}` "
 "is given."
 msgstr "El valor de configuración `{name}` tiene que ser uno de {candidates}, pero fue dado `{current}`."
 
-#: sphinx/config.py:442
+#: sphinx/config.py:443
 msgid ""
 "The config value `{name}' has type `{current.__name__}'; expected "
 "{permitted}."
 msgstr "El valor de configuración `{name}' tiene tipo `{current.__name__}'; esperado {permitted}."
 
-#: sphinx/config.py:455
+#: sphinx/config.py:456
 msgid ""
 "The config value `{name}' has type `{current.__name__}', defaults to "
 "`{default.__name__}'."
 msgstr "El valor de configuración `{name}' tiene el tipo `{current.__name__}', el valor predeterminado es `{default.__name__}'."
 
-#: sphinx/config.py:465
+#: sphinx/config.py:466
 #, python-format
 msgid "primary_domain %r not found, ignored."
 msgstr "primary_domain %r no fue encontrado, se ignora."
 
-#: sphinx/config.py:477
+#: sphinx/config.py:478
 msgid ""
 "Since v2.0, Sphinx uses \"index\" as root_doc by default. Please add "
 "\"root_doc = 'contents'\" to your conf.py."
@@ -1879,7 +1879,7 @@ msgid "variable"
 msgstr "variable"
 
 #: sphinx/domains/c.py:3733 sphinx/domains/cpp.py:7577
-#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1111
+#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1115
 msgid "function"
 msgstr "función"
 
@@ -1957,7 +1957,7 @@ msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
 #: sphinx/domains/cpp.py:7575 sphinx/domains/javascript.py:328
-#: sphinx/domains/python.py:1113
+#: sphinx/domains/python.py:1117
 msgid "class"
 msgstr "clase"
 
@@ -2003,20 +2003,20 @@ msgstr "Argumentos"
 msgid "%s (module)"
 msgstr "%s (módulo)"
 
-#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1115
+#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1119
 msgid "method"
 msgstr "método"
 
-#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1112
+#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1116
 msgid "data"
 msgstr "dato"
 
-#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1118
+#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1122
 msgid "attribute"
 msgstr "atributo"
 
 #: sphinx/domains/javascript.py:331 sphinx/domains/python.py:58
-#: sphinx/domains/python.py:1120
+#: sphinx/domains/python.py:1124
 msgid "module"
 msgstr "módulo"
 
@@ -2030,7 +2030,7 @@ msgstr "duplicada %s descripción de %s, otra %s en %s"
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "etiqueta duplicada de la ecuación %s, otra instancia en %s"
 
-#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2074
+#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2073
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "No válido math_eqref_format: %r"
@@ -2047,7 +2047,7 @@ msgstr "operador"
 msgid "object"
 msgstr "objeto"
 
-#: sphinx/domains/python.py:62 sphinx/domains/python.py:1114
+#: sphinx/domains/python.py:62 sphinx/domains/python.py:1118
 msgid "exception"
 msgstr "excepción"
 
@@ -2073,7 +2073,7 @@ msgid "%s() (in module %s)"
 msgstr "%s() (en el módulo %s)"
 
 #: sphinx/domains/python.py:676 sphinx/domains/python.py:842
-#: sphinx/domains/python.py:882
+#: sphinx/domains/python.py:886
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (en el módulo %s)"
@@ -2108,48 +2108,48 @@ msgstr "%s() (propiedad de %s)"
 msgid "%s() (%s static method)"
 msgstr "%s() (método estático de %s)"
 
-#: sphinx/domains/python.py:886
+#: sphinx/domains/python.py:890
 #, python-format
 msgid "%s (%s property)"
 msgstr ""
 
-#: sphinx/domains/python.py:1040
+#: sphinx/domains/python.py:1044
 msgid "Python Module Index"
 msgstr "Índice de Módulos Python"
 
-#: sphinx/domains/python.py:1041
+#: sphinx/domains/python.py:1045
 msgid "modules"
 msgstr "módulos"
 
-#: sphinx/domains/python.py:1090
+#: sphinx/domains/python.py:1094
 msgid "Deprecated"
 msgstr "Obsoleto"
 
-#: sphinx/domains/python.py:1116
+#: sphinx/domains/python.py:1120
 msgid "class method"
 msgstr "método de la clase"
 
-#: sphinx/domains/python.py:1117
+#: sphinx/domains/python.py:1121
 msgid "static method"
 msgstr "método estático"
 
-#: sphinx/domains/python.py:1119
+#: sphinx/domains/python.py:1123
 msgid "property"
 msgstr ""
 
-#: sphinx/domains/python.py:1177
+#: sphinx/domains/python.py:1181
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr "descripción duplicada del objeto de %s, otra instancia en %s, utilice :noindex: para uno de ellos"
 
-#: sphinx/domains/python.py:1297
+#: sphinx/domains/python.py:1301
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "se encontró más de un objetivo para la referencia cruzada %r: %s"
 
-#: sphinx/domains/python.py:1351
+#: sphinx/domains/python.py:1355
 msgid " (deprecated)"
 msgstr " (obsoleto)"
 
@@ -2869,7 +2869,7 @@ msgid ""
 msgstr ""
 
 #: sphinx/ext/autodoc/__init__.py:1296 sphinx/ext/autodoc/__init__.py:1370
-#: sphinx/ext/autodoc/__init__.py:2687
+#: sphinx/ext/autodoc/__init__.py:2721
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr ""
@@ -2905,7 +2905,7 @@ msgstr ""
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2730
+#: sphinx/ext/autodoc/__init__.py:2764
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
@@ -3572,41 +3572,41 @@ msgstr "desconocida %r toplevel_sectioning para la clase %r"
 msgid "too large :maxdepth:, ignored."
 msgstr "demasiado grande :maxdepth:, ignorado."
 
-#: sphinx/writers/latex.py:645
+#: sphinx/writers/latex.py:644
 msgid "document title is not a single Text node"
 msgstr "El título del documento no es un nodo de texto único"
 
-#: sphinx/writers/latex.py:677 sphinx/writers/texinfo.py:622
+#: sphinx/writers/latex.py:676 sphinx/writers/texinfo.py:622
 msgid ""
 "encountered title node not in section, topic, table, admonition or sidebar"
 msgstr "no se encontró el nodo de título en la sección, tema, tabla, advertencia o barra lateral"
 
-#: sphinx/writers/latex.py:849 sphinx/writers/manpage.py:246
+#: sphinx/writers/latex.py:848 sphinx/writers/manpage.py:246
 #: sphinx/writers/texinfo.py:637
 msgid "Footnotes"
 msgstr "Notas a pie de página"
 
-#: sphinx/writers/latex.py:908
+#: sphinx/writers/latex.py:907
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "ambas columnas tabulares y la opción :widths: se dan. La opción :widths: se ignora."
 
-#: sphinx/writers/latex.py:1239
+#: sphinx/writers/latex.py:1238
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
 msgstr "la unidad de dimensión %s no es válida. Ignorado."
 
-#: sphinx/writers/latex.py:1552
+#: sphinx/writers/latex.py:1551
 #, python-format
 msgid "unknown index entry type %s found"
 msgstr "tipo de entrada de índice desconocido %s encontrado"
 
-#: sphinx/writers/manpage.py:295 sphinx/writers/text.py:804
+#: sphinx/writers/manpage.py:295 sphinx/writers/text.py:803
 #, python-format
 msgid "[image: %s]"
 msgstr "[imagen: %s]"
 
-#: sphinx/writers/manpage.py:296 sphinx/writers/text.py:805
+#: sphinx/writers/manpage.py:296 sphinx/writers/text.py:804
 msgid "[image]"
 msgstr "[imagen]"
 

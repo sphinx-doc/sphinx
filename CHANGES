@@ -41,10 +41,15 @@ Features added
 Bugs fixed
 ----------
 
+* #9487: autodoc: typehint for cached_property is not shown
+* #9481: autosummary: some warnings contain non-existing filenames
+* #9481: c domain: some warnings contain non-existing filenames
+* #9481: cpp domain: some warnings contain non-existing filenames
+
 Testing
 --------
 
-Release 4.1.2 (in development)
+Release 4.1.3 (in development)
 ==============================
 
 Dependencies
@@ -52,9 +57,6 @@ Dependencies
 
 Incompatible changes
 --------------------
-
-* #9435: linkcheck: Disable checking automatically generated anchors on
-  github.com (ex. anchors in reST/Markdown documents)
 
 Deprecated
 ----------
@@ -65,14 +67,30 @@ Features added
 Bugs fixed
 ----------
 
+* #9512: sphinx-build: crashed with the HEAD of Python 3.10
+
+Testing
+--------
+
+Release 4.1.2 (released Jul 27, 2021)
+=====================================
+
+Incompatible changes
+--------------------
+
+* #9435: linkcheck: Disable checking automatically generated anchors on
+  github.com (ex. anchors in reST/Markdown documents)
+
+Bugs fixed
+----------
+
 * #9489: autodoc: Custom types using ``typing.NewType`` are not displayed well
   with the HEAD of 3.10
 * #9490: autodoc: Some objects under ``typing`` module are not displayed well
   with the HEAD of 3.10
+* #9436, #9471: autodoc: crashed if ``autodoc_class_signature = "separated"``
+* #9456: html search: html_copy_source can't control the search summaries
 * #9435: linkcheck: Failed to check anchors in github.com
-
-Testing
---------
 
 Release 4.1.1 (released Jul 15, 2021)
 =====================================

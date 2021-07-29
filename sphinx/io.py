@@ -73,7 +73,8 @@ class SphinxBaseReader(standalone.Reader):
         return transforms
 
     def new_document(self) -> nodes.document:
-        """Creates a new document object which having a special reporter object good
+        """
+        Creates a new document object which has a special reporter object good
         for logging.
         """
         document = super().new_document()

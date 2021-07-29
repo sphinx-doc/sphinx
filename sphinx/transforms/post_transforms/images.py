@@ -154,13 +154,13 @@ class ImageConverter(BaseImageConverter):
     """A base class for image converters.
 
     An image converter is kind of Docutils transform module.  It is used to
-    convert image files which does not supported by builder to appropriate
-    format for that builder.
+    convert image files which are not supported by a builder to the
+    appropriate format for that builder.
 
     For example, :py:class:`LaTeX builder <.LaTeXBuilder>` supports PDF,
     PNG and JPEG as image formats.  However it does not support SVG images.
-    For such case, to use image converters allows to embed these
-    unsupported images into the document.  One of image converters;
+    For such case, using image converters allows to embed these
+    unsupported images into the document.  One of the image converters;
     :ref:`sphinx.ext.imgconverter <sphinx.ext.imgconverter>` can convert
     a SVG image to PNG format using Imagemagick internally.
 
@@ -258,10 +258,10 @@ class ImageConverter(BaseImageConverter):
             self.env.images.add_file(self.env.docname, destpath)
 
     def convert(self, _from: str, _to: str) -> bool:
-        """Convert a image file to expected format.
+        """Convert an image file to the expected format.
 
-        *_from* is a path for source image file, and *_to* is a path for
-        destination file.
+        *_from* is a path of the source image file, and *_to* is a path
+        of the destination file.
         """
         raise NotImplementedError()
 

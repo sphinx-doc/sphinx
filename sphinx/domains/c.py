@@ -3388,13 +3388,13 @@ class CNamespaceObject(SphinxDirective):
             stack: List[Symbol] = []
         else:
             parser = DefinitionParser(self.arguments[0],
-                                      location=self.get_source_info(),
+                                      location=self.get_location(),
                                       config=self.env.config)
             try:
                 name = parser.parse_namespace_object()
                 parser.assert_end()
             except DefinitionError as e:
-                logger.warning(e, location=self.get_source_info())
+                logger.warning(e, location=self.get_location())
                 name = _make_phony_error_name()
             symbol = rootSymbol.add_name(name)
             stack = [symbol]
@@ -3415,13 +3415,13 @@ class CNamespacePushObject(SphinxDirective):
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
             return []
         parser = DefinitionParser(self.arguments[0],
-                                  location=self.get_source_info(),
+                                  location=self.get_location(),
                                   config=self.env.config)
         try:
             name = parser.parse_namespace_object()
             parser.assert_end()
         except DefinitionError as e:
-            logger.warning(e, location=self.get_source_info())
+            logger.warning(e, location=self.get_location())
             name = _make_phony_error_name()
         oldParent = self.env.temp_data.get('c:parent_symbol', None)
         if not oldParent:
@@ -3446,7 +3446,7 @@ class CNamespacePopObject(SphinxDirective):
         stack = self.env.temp_data.get('c:namespace_stack', None)
         if not stack or len(stack) == 0:
             logger.warning("C namespace pop on empty stack. Defaulting to gobal scope.",
-                           location=self.get_source_info())
+                           location=self.get_location())
             stack = []
         else:
             stack.pop()
@@ -3628,7 +3628,7 @@ class CAliasObject(ObjectDescription):
                            " Requested 'noroot' but 'maxdepth' 1."
                            " When skipping the root declaration,"
                            " need 'maxdepth' 0 for infinite or at least 2.",
-                           location=self.get_source_info())
+                           location=self.get_location())
         signatures = self.get_signatures()
         for i, sig in enumerate(signatures):
             node.append(AliasNode(sig, aliasOptions, self.state.document, env=self.env))
@@ -3661,7 +3661,7 @@ class CXRefRole(XRefRole):
             return super().run()
 
         text = self.text.replace('\n', ' ')
-        parser = DefinitionParser(text, location=self.get_source_info(),
+        parser = DefinitionParser(text, location=self.get_location(),
                                   config=self.env.config)
         try:
             parser.parse_xref_object()
@@ -3686,7 +3686,7 @@ class CXRefRole(XRefRole):
                 msg = "{}: Pre-v3 C type role ':c:type:`{}`' converted to ':c:expr:`{}`'."
                 msg += "\nThe original parsing error was:\n{}"
                 msg = msg.format(RemovedInSphinx50Warning.__name__, text, text, eOrig)
-                logger.warning(msg, location=self.get_source_info())
+                logger.warning(msg, location=self.get_location())
             return [signode], []
 
 
@@ -3702,14 +3702,14 @@ class CExprRole(SphinxRole):
 
     def run(self) -> Tuple[List[Node], List[system_message]]:
         text = self.text.replace('\n', ' ')
-        parser = DefinitionParser(text, location=self.get_source_info(),
+        parser = DefinitionParser(text, location=self.get_location(),
                                   config=self.env.config)
         # attempt to mimic XRefRole classes, except that...
         try:
             ast = parser.parse_expression()
         except DefinitionError as ex:
             logger.warning('Unparseable C expression: %r\n%s', text, ex,
-                           location=self.get_source_info())
+                           location=self.get_location())
             # see below
             return [addnodes.desc_inline('c', text, text, classes=[self.class_type])], []
         parentSymbol = self.env.temp_data.get('c:parent_symbol', None)

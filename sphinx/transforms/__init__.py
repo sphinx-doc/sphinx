@@ -202,7 +202,7 @@ TRANSLATABLE_NODES = {
 
 class ApplySourceWorkaround(SphinxTransform):
     """
-    update source and rawsource attributes
+    Update source and rawsource attributes
     """
     default_priority = 10
 
@@ -214,7 +214,7 @@ class ApplySourceWorkaround(SphinxTransform):
 
 class AutoIndexUpgrader(SphinxTransform):
     """
-    Detect old style; 4 column based indices and automatically upgrade to new style.
+    Detect old style (4 column based indices) and automatically upgrade to new style.
     """
     default_priority = 210
 
@@ -231,7 +231,7 @@ class AutoIndexUpgrader(SphinxTransform):
 
 class ExtraTranslatableNodes(SphinxTransform):
     """
-    make nodes translatable
+    Make nodes translatable
     """
     default_priority = 10
 
@@ -250,7 +250,7 @@ class ExtraTranslatableNodes(SphinxTransform):
 
 class UnreferencedFootnotesDetector(SphinxTransform):
     """
-    detect unreferenced footnotes and emit warnings
+    Detect unreferenced footnotes and emit warnings
     """
     default_priority = 200
 

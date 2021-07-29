@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
 class Cell:
     """Represents a cell in a table.
-    It can span on multiple columns or on multiple lines.
+    It can span multiple columns or multiple lines.
     """
     def __init__(self, text: str = "", rowspan: int = 1, colspan: int = 1) -> None:
         self.text = text
@@ -52,7 +52,7 @@ class Cell:
 
 
 class Table:
-    """Represents a table, handling cells that can span on multiple lines
+    """Represents a table, handling cells that can span multiple lines
     or rows, like::
 
        +-----------+-----+
@@ -63,22 +63,22 @@ class Table:
        | DDD | CCC       |
        +-----+-----------+
 
-    This class can be used in two ways:
+    This class can be used in two ways, either:
 
-    - Either with absolute positions: call ``table[line, col] = Cell(...)``,
-      this overwrite an existing cell if any.
+    - With absolute positions: call ``table[line, col] = Cell(...)``,
+      this overwrites any existing cell(s) at these positions.
 
-    - Either with relative positions: call the ``add_row()`` and
+    - With relative positions: call the ``add_row()`` and
       ``add_cell(Cell(...))`` as needed.
 
-    Cell spanning on multiple rows or multiple columns (having a
+    Cells spanning multiple rows or multiple columns (having a
     colspan or rowspan greater than one) are automatically referenced
-    by all the table cells they covers. This is a useful
-    representation as we can simply check ``if self[x, y] is self[x,
-    y+1]`` to recognize a rowspan.
+    by all the table cells they cover. This is a useful
+    representation as we can simply check
+    ``if self[x, y] is self[x, y+1]`` to recognize a rowspan.
 
     Colwidth is not automatically computed, it has to be given, either
-    at construction time, either during the table construction.
+    at construction time, or during the table construction.
 
     Example usage::
 
@@ -112,14 +112,13 @@ class Table:
         self.current_col = 0
 
     def set_separator(self) -> None:
-        """Sets the separator below the current line.
-        """
+        """Sets the separator below the current line."""
         self.separator = len(self.lines)
 
     def add_cell(self, cell: Cell) -> None:
         """Add a cell to the current line, to use with ``add_row()``.  To add
-        a cell spanning on multiple lines or rows, simply set the
-        ``cell.colspan`` or ``cell.rowspan`` BEFORE inserting it to
+        a cell spanning multiple lines or rows, simply set the
+        ``cell.colspan`` or ``cell.rowspan`` BEFORE inserting it into
         the table.
         """
         while self[self.current_line, self.current_col]:
@@ -158,7 +157,7 @@ class Table:
     def cell_width(self, cell: Cell, source: List[int]) -> int:
         """Give the cell width, according to the given source (either
         ``self.colwidth`` or ``self.measured_widths``).
-        This take into account cells spanning on multiple columns.
+        This takes into account cells spanning multiple columns.
         """
         width = 0
         for i in range(self[cell.row, cell.col].colspan):
@@ -188,7 +187,7 @@ class Table:
                 self.measured_widths[col] = max(self.measured_widths[col], width)
 
     def physical_lines_for_line(self, line: List[Cell]) -> int:
-        """From a given line, compute the number of physical lines it spans
+        """For a given line, compute the number of physical lines it spans
         due to text wrapping.
         """
         physical_lines = 1
@@ -323,7 +322,7 @@ class TextWrapper(textwrap.TextWrapper):
         """_split(text : string) -> [string]
 
         Override original method that only split by 'wordsep_re'.
-        This '_split' split wide-characters into chunk by one character.
+        This '_split' splits wide-characters into chunks by one character.
         """
         def split(t: str) -> List[str]:
             return super(TextWrapper, self)._split(t)
