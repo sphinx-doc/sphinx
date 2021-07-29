@@ -86,6 +86,9 @@ def get_type_hints(obj: Any, globalns: Dict = None, localns: Dict = None) -> Dic
     except NameError:
         # Failed to evaluate ForwardRef (maybe TYPE_CHECKING)
         return safe_getattr(obj, '__annotations__', {})
+    except AttributeError:
+        # Failed to evaluate ForwardRef (maybe not runtime checkable)
+        return safe_getattr(obj, '__annotations__', {})
     except TypeError:
         # Invalid object is given. But try to get __annotations__ as a fallback for
         # the code using type union operator (PEP 604) in python 3.9 or below.
