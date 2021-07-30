@@ -171,12 +171,8 @@ def _restify_py37(cls: Optional[Type]) -> str:
             text += r"\ [%s]" % ", ".join(restify(a) for a in cls.__args__)
 
         return text
-    elif hasattr(cls, '_name'):
-        # SpecialForm
-        if cls.__module__ == 'typing':
-            return ':obj:`~%s.%s`' % (cls.__module__, cls._name)
-        else:
-            return ':obj:`%s.%s`' % (cls.__module__, cls._name)
+    elif isinstance(cls, typing._SpecialForm):
+        return ':obj:`~%s.%s`' % (cls.__module__, cls._name)
     elif hasattr(cls, '__qualname__'):
         if cls.__module__ == 'typing':
             return ':class:`~%s.%s`' % (cls.__module__, cls.__qualname__)
