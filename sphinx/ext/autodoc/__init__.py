@@ -2234,6 +2234,12 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             return None
 
     def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
+        if self._new_docstrings is not None:
+            # docstring already returned previously, then modified by
+            # `DocstringSignatureMixin`.  Just return the previously-computed
+            # result, so that we don't lose the processing done by
+            # `DocstringSignatureMixin`.
+            return self._new_docstrings
         if self.objpath[-1] == '__init__':
             docstring = getdoc(self.object, self.get_attr,
                                self.config.autodoc_inherit_docstrings,
@@ -2248,15 +2254,13 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             else:
                 return []
         elif self.objpath[-1] == '__new__':
-            __new__ = self.get_attr(self.object, '__new__', None)
-            if __new__:
-                docstring = getdoc(__new__, self.get_attr,
-                                   self.config.autodoc_inherit_docstrings,
-                                   self.parent, self.object_name)
-                if (docstring is not None and
-                    (docstring == object.__new__.__doc__ or  # for pypy
-                     docstring.strip() == object.__new__.__doc__)):  # for !pypy
-                    docstring = None
+            docstring = getdoc(self.object, self.get_attr,
+                               self.config.autodoc_inherit_docstrings,
+                               self.parent, self.object_name)
+            if (docstring is not None and
+                (docstring == object.__new__.__doc__ or  # for pypy
+                 docstring.strip() == object.__new__.__doc__)):  # for !pypy
+                docstring = None
             if docstring:
                 tab_width = self.directive.state.document.settings.tab_width
                 return [prepare_docstring(docstring, tabsize=tab_width)]

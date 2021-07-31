@@ -287,12 +287,32 @@ def test_autodoc_inherit_docstrings(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_docstring_signature(app):
-    options = {"members": None}
+    options = {"members": None, "special-members": "__init__, __new__"}
     actual = do_autodoc(app, 'class', 'target.DocstringSig', options)
     assert list(actual) == [
         '',
-        '.. py:class:: DocstringSig()',
+        # FIXME: Ideally this would instead be: `DocstringSig(d, e=1)` but
+        # currently `ClassDocumenter` does not apply the docstring signature
+        # logic when extracting a signature from a __new__ or __init__ method.
+        '.. py:class:: DocstringSig(*new_args, **new_kwargs)',
         '   :module: target',
+        '',
+        '',
+        '   .. py:method:: DocstringSig.__init__(self, a, b=1) -> None',
+        '      :module: target',
+        '',
+        '      First line of docstring',
+        '',
+        '      rest of docstring',
+        '',
+        '',
+        '   .. py:method:: DocstringSig.__new__(cls, d, e=1) -> DocstringSig',
+        '      :module: target',
+        '      :staticmethod:',
+        '',
+        '      First line of docstring',
+        '',
+        '      rest of docstring',
         '',
         '',
         '   .. py:method:: DocstringSig.meth(FOO, BAR=1) -> BAZ',
@@ -331,8 +351,29 @@ def test_autodoc_docstring_signature(app):
     actual = do_autodoc(app, 'class', 'target.DocstringSig', options)
     assert list(actual) == [
         '',
-        '.. py:class:: DocstringSig()',
+        '.. py:class:: DocstringSig(*new_args, **new_kwargs)',
         '   :module: target',
+        '',
+        '',
+        '   .. py:method:: DocstringSig.__init__(*init_args, **init_kwargs)',
+        '      :module: target',
+        '',
+        '      __init__(self, a, b=1) -> None',
+        '      First line of docstring',
+        '',
+        '              rest of docstring',
+        '',
+        '',
+        '',
+        '   .. py:method:: DocstringSig.__new__(cls, *new_args, **new_kwargs)',
+        '      :module: target',
+        '      :staticmethod:',
+        '',
+        '      __new__(cls, d, e=1) -> DocstringSig',
+        '      First line of docstring',
+        '',
+        '              rest of docstring',
+        '',
         '',
         '',
         '   .. py:method:: DocstringSig.meth()',
