@@ -16,7 +16,6 @@ body:
       label: How to Reproduce
       description: Please provide steps to reproduce this bug.
       value: |
-        <Paste your command-line here which cause the problem>
         ```
         $ git clone https://github.com/.../some_project
         $ cd some_project
