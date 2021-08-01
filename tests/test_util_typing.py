@@ -140,11 +140,19 @@ def test_restify_type_Literal():
     assert restify(Literal[1, "2", "\r"]) == ":obj:`~typing.Literal`\\ [1, '2', '\\r']"
 
 
-@pytest.mark.skipif(sys.version_info < (3, 10), reason='python 3.10+ is required.')
-def test_restify_type_union_operator():
+@pytest.mark.skipif(sys.version_info < (3, 9), reason='python 3.9+ is required.')
+def test_restify_pep_585():
     assert restify(int | None) == "Optional[:class:`int`]"  # type: ignore
     assert restify(int | str) == ":class:`int` | :class:`str`"  # type: ignore
     assert restify(int | str | None) == "Optional[:class:`int` | :class:`str`]"  # type: ignore
+
+
+@pytest.mark.skipif(sys.version_info < (3, 10), reason='python 3.10+ is required.')
+def test_restify_type_union_operator():
+    assert restify(list[str]) == ":class:`list`\\ [:class:`str`]"  # type: ignore
+    assert restify(dict[str, str]) == ":class:`dict`\\ [:class:`str`, :class:`str`]"  # type: ignore
+    assert restify(dict[str, tuple[int, ...]]) == \
+        ":class:`dict`\\ [:class:`str`, :class:`tuple`\\ [:class:`int`, ...]]"  # type: ignore
 
 
 def test_restify_broken_type_hints():
