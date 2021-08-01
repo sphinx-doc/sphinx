@@ -59,7 +59,7 @@ def docname_join(basedocname: str, docname: str) -> str:
 
 
 def path_stabilize(filepath: str) -> str:
-    "normalize path separater and unicode string"
+    "Normalize path separator and unicode string"
     newpath = filepath.replace(os.path.sep, SEP)
     return unicodedata.normalize('NFC', newpath)
 
@@ -435,7 +435,7 @@ def split_full_qualified_name(name: str) -> Tuple[Optional[str], str]:
     A "full" qualified name means a string containing both module name and
     qualified name.
 
-    .. note:: This function imports module actually to check the exisitence.
+    .. note:: This function actually imports the module to check its existence.
               Therefore you need to mock 3rd party modules if needed before
               calling this function.
     """

@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 def mangle(subject: Any, name: str) -> str:
-    """mangle the given name."""
+    """Mangle the given name."""
     try:
         if isclass(subject) and name.startswith('__') and not name.endswith('__'):
             return "_%s%s" % (subject.__name__, name)
@@ -41,7 +41,7 @@ def mangle(subject: Any, name: str) -> str:
 
 
 def unmangle(subject: Any, name: str) -> Optional[str]:
-    """unmangle the given name."""
+    """Unmangle the given name."""
     try:
         if isclass(subject) and not name.endswith('__'):
             prefix = "_%s__" % subject.__name__

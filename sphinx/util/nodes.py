@@ -40,8 +40,8 @@ caption_ref_re = explicit_title_re  # b/w compat alias
 class NodeMatcher:
     """A helper class for Node.traverse().
 
-    It checks that given node is an instance of specified node-classes and it has
-    specified node-attributes.
+    It checks that the given node is an instance of the specified node-classes and
+    has the specified node-attributes.
 
     For example, following example searches ``reference`` node having ``refdomain``
     and ``reftype`` attributes::
@@ -91,7 +91,7 @@ class NodeMatcher:
 
 def get_full_module_name(node: Node) -> str:
     """
-    return full module dotted path like: 'docutils.nodes.paragraph'
+    Return full module dotted path like: 'docutils.nodes.paragraph'
 
     :param nodes.Node node: target node
     :return: full module dotted path
@@ -588,7 +588,7 @@ NON_SMARTQUOTABLE_PARENT_NODES = (
 
 
 def is_smartquotable(node: Node) -> bool:
-    """Check the node is smart-quotable or not."""
+    """Check whether the node is smart-quotable or not."""
     if isinstance(node.parent, NON_SMARTQUOTABLE_PARENT_NODES):
         return False
     elif node.parent.get('support_smartquotes', None) is False:
@@ -600,7 +600,7 @@ def is_smartquotable(node: Node) -> bool:
 
 
 def process_only_nodes(document: Node, tags: "Tags") -> None:
-    """Filter ``only`` nodes which does not match *tags*."""
+    """Filter ``only`` nodes which do not match *tags*."""
     for node in document.traverse(addnodes.only):
         try:
             ret = tags.eval_condition(node['expr'])

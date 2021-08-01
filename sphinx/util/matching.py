@@ -90,14 +90,16 @@ _pat_cache: Dict[str, Pattern] = {}
 
 
 def patmatch(name: str, pat: str) -> Optional[Match[str]]:
-    """Return if name matches pat.  Adapted from fnmatch module."""
+    """Return if name matches the regular expression (pattern)
+    ``pat```. Adapted from fnmatch module."""
     if pat not in _pat_cache:
         _pat_cache[pat] = re.compile(_translate_pattern(pat))
     return _pat_cache[pat].match(name)
 
 
 def patfilter(names: Iterable[str], pat: str) -> List[str]:
-    """Return the subset of the list NAMES that match PAT.
+    """Return the subset of the list ``names`` that match
+    the regular expression (pattern) ``pat``.
 
     Adapted from fnmatch module.
     """

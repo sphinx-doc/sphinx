@@ -187,7 +187,7 @@ class MemoryHandler(logging.handlers.BufferingHandler):
 
 @contextmanager
 def pending_warnings() -> Generator[logging.Handler, None, None]:
-    """Contextmanager to pend logging warnings temporary.
+    """Context manager to postpone logging warnings temporarily.
 
     Similar to :func:`pending_logging`.
     """
@@ -215,7 +215,7 @@ def pending_warnings() -> Generator[logging.Handler, None, None]:
 
 @contextmanager
 def suppress_logging() -> Generator[MemoryHandler, None, None]:
-    """Contextmanager to suppress logging all logs temporary.
+    """Context manager to suppress logging all logs temporarily.
 
     For example::
 
@@ -244,7 +244,7 @@ def suppress_logging() -> Generator[MemoryHandler, None, None]:
 
 @contextmanager
 def pending_logging() -> Generator[MemoryHandler, None, None]:
-    """Contextmanager to pend logging all logs temporary.
+    """Context manager to postpone logging all logs temporarily.
 
     For example::
 
@@ -264,7 +264,7 @@ def pending_logging() -> Generator[MemoryHandler, None, None]:
 
 @contextmanager
 def skip_warningiserror(skip: bool = True) -> Generator[None, None, None]:
-    """contextmanager to skip WarningIsErrorFilter for a while."""
+    """Context manager to skip WarningIsErrorFilter temporarily."""
     logger = logging.getLogger(NAMESPACE)
 
     if skip is False:
@@ -284,7 +284,7 @@ def skip_warningiserror(skip: bool = True) -> Generator[None, None, None]:
 
 @contextmanager
 def prefixed_warnings(prefix: str) -> Generator[None, None, None]:
-    """Prepend prefix to all records for a while.
+    """Context manager to prepend prefix to all warning log records temporarily.
 
     For example::
 
@@ -351,7 +351,7 @@ class InfoFilter(logging.Filter):
 
 
 def is_suppressed_warning(type: str, subtype: str, suppress_warnings: List[str]) -> bool:
-    """Check the warning is suppressed or not."""
+    """Check whether the warning is suppressed or not."""
     if type is None:
         return False
 
@@ -434,7 +434,7 @@ class DisableWarningIsErrorFilter(logging.Filter):
 
 
 class MessagePrefixFilter(logging.Filter):
-    """Prepend prefix to all records."""
+    """Prepend prefix to all log records."""
 
     def __init__(self, prefix: str) -> None:
         self.prefix = prefix
@@ -555,7 +555,7 @@ class SafeEncodingWriter:
 
 
 class LastMessagesWriter:
-    """Stream writer which memories last 10 messages to save trackback"""
+    """Stream writer storing last 10 messages in memory to save trackback"""
     def __init__(self, app: "Sphinx", stream: IO) -> None:
         self.app = app
 

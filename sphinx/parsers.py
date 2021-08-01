@@ -32,7 +32,7 @@ class Parser(docutils.parsers.Parser):
     of ``docutils.parsers.Parser``.  Compared with ``docutils.parsers.Parser``, this class
     improves accessibility to Sphinx APIs.
 
-    The subclasses can access following objects and functions:
+    The subclasses can access the following objects and functions:
 
     self.app
         The application object (:class:`sphinx.application.Sphinx`)
@@ -43,7 +43,7 @@ class Parser(docutils.parsers.Parser):
     self.warn()
         Emit a warning. (Same as :meth:`sphinx.application.Sphinx.warn()`)
     self.info()
-        Emit a informational message. (Same as :meth:`sphinx.application.Sphinx.info()`)
+        Emit an info message. (Same as :meth:`sphinx.application.Sphinx.info()`)
 
     .. deprecated:: 1.6
        ``warn()`` and ``info()`` is deprecated.  Use :mod:`sphinx.util.logging` instead.
@@ -70,7 +70,8 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
     """A reST parser for Sphinx."""
 
     def get_transforms(self) -> List[Type[Transform]]:
-        """Sphinx's reST parser replaces a transform class for smart-quotes by own's
+        """
+        Sphinx's reST parser replaces a transform class for smart-quotes by its own
 
         refs: sphinx.io.SphinxStandaloneReader
         """

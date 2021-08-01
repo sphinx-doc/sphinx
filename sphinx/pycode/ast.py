@@ -45,7 +45,7 @@ OPERATORS: Dict[Type[ast.AST], str] = {
 
 
 def parse(code: str, mode: str = 'exec') -> "ast.AST":
-    """Parse the *code* using built-in ast or typed_ast.
+    """Parse the *code* using the built-in ast or typed_ast libraries.
 
     This enables "type_comments" feature if possible.
     """

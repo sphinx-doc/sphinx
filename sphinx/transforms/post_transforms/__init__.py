@@ -32,7 +32,7 @@ class SphinxPostTransform(SphinxTransform):
     """A base class of post-transforms.
 
     Post transforms are invoked to modify the document to restructure it for outputting.
-    They do resolving references, convert images, special transformation for each output
+    They resolve references, convert images, do special transformation for each output
     formats and so on.  This class helps to implement these post transforms.
     """
     builders: Tuple[str, ...] = ()
@@ -52,7 +52,7 @@ class SphinxPostTransform(SphinxTransform):
         return True
 
     def run(self, **kwargs: Any) -> None:
-        """main method of post transforms.
+        """Main method of post transforms.
 
         Subclasses should override this method instead of ``apply()``.
         """
@@ -230,7 +230,7 @@ class OnlyNodeTransform(SphinxPostTransform):
 
 
 class SigElementFallbackTransform(SphinxPostTransform):
-    """Fallback various desc_* nodes to inline if translator does not supported them."""
+    """Fallback various desc_* nodes to inline if translator does not support them."""
     default_priority = 200
 
     def run(self, **kwargs: Any) -> None:

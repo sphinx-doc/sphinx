@@ -257,6 +257,9 @@ def between(marker: str, what: Sequence[str] = None, keepempty: bool = False,
 # But we define this class here to keep compatibility (see #4538)
 class Options(dict):
     """A dict/attribute hybrid that returns None on nonexisting keys."""
+    def copy(self) -> "Options":
+        return Options(super().copy())
+
     def __getattr__(self, name: str) -> Any:
         try:
             return self[name.replace('_', '-')]
@@ -306,7 +309,7 @@ class Documenter:
 
     A Documenter has an *option_spec* that works like a docutils directive's;
     in fact, it will be used to parse an auto directive's options that matches
-    the documenter.
+    the Documenter.
     """
     #: name by which the directive is called (auto...) and the default
     #: generated directive name
@@ -331,7 +334,7 @@ class Documenter:
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
                             ) -> bool:
-        """Called to see if a member can be documented by this documenter."""
+        """Called to see if a member can be documented by this Documenter."""
         raise NotImplementedError('must be implemented in subclasses')
 
     def __init__(self, directive: "DocumenterBridge", name: str, indent: str = '') -> None:
@@ -552,7 +555,7 @@ class Documenter:
     def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         """Decode and return lines of the docstring(s) for the object.
 
-        When it returns None value, autodoc-process-docstring will not be called for this
+        When it returns None, autodoc-process-docstring will not be called for this
         object.
         """
         if ignore is not None:
@@ -643,7 +646,7 @@ class Documenter:
         list of `(membername, member)` pairs of the members of *self.object*.
 
         If *want_all* is True, return all members.  Else, only return those
-        members given by *self.options.members* (which may also be none).
+        members given by *self.options.members* (which may also be None).
         """
         warnings.warn('The implementation of Documenter.get_object_members() will be '
                       'removed from Sphinx-6.0.', RemovedInSphinx60Warning)
@@ -718,7 +721,7 @@ class Documenter:
                 isattr = False
 
             doc = getdoc(member, self.get_attr, self.config.autodoc_inherit_docstrings,
-                         self.parent, self.object_name)
+                         self.object, membername)
             if not isinstance(doc, str):
                 # Ignore non-string __doc__
                 doc = None
@@ -820,7 +823,7 @@ class Documenter:
     def document_members(self, all_members: bool = False) -> None:
         """Generate reST for member documentation.
 
-        If *all_members* is True, do all members, else those given by
+        If *all_members* is True, document all members, else those given by
         *self.options.members*.
         """
         # set current namespace for finding members
@@ -909,6 +912,10 @@ class Documenter:
         # now, import the module and get object to document
         if not self.import_object():
             return
+
+        if ismock(self.object):
+            logger.warning(__('A mocked object is detected: %r'),
+                           self.name, type='autodoc')
 
         # If there is no real module defined, figure out which to use.
         # The real module is used in the module analyzer to look up the module
@@ -1445,9 +1452,11 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         super().__init__(*args)
 
         if self.config.autodoc_class_signature == 'separated':
+            self.options = self.options.copy()
+
             # show __init__() method
             if self.options.special_members is None:
-                self.options['special-members'] = {'__new__', '__init__'}
+                self.options['special-members'] = ['__new__', '__init__']
             else:
                 self.options.special_members.append('__new__')
                 self.options.special_members.append('__init__')
@@ -2229,6 +2238,12 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             return None
 
     def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
+        if self._new_docstrings is not None:
+            # docstring already returned previously, then modified by
+            # `DocstringSignatureMixin`.  Just return the previously-computed
+            # result, so that we don't lose the processing done by
+            # `DocstringSignatureMixin`.
+            return self._new_docstrings
         if self.objpath[-1] == '__init__':
             docstring = getdoc(self.object, self.get_attr,
                                self.config.autodoc_inherit_docstrings,
@@ -2243,15 +2258,13 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             else:
                 return []
         elif self.objpath[-1] == '__new__':
-            __new__ = self.get_attr(self.object, '__new__', None)
-            if __new__:
-                docstring = getdoc(__new__, self.get_attr,
-                                   self.config.autodoc_inherit_docstrings,
-                                   self.parent, self.object_name)
-                if (docstring is not None and
-                    (docstring == object.__new__.__doc__ or  # for pypy
-                     docstring.strip() == object.__new__.__doc__)):  # for !pypy
-                    docstring = None
+            docstring = getdoc(self.object, self.get_attr,
+                               self.config.autodoc_inherit_docstrings,
+                               self.parent, self.object_name)
+            if (docstring is not None and
+                (docstring == object.__new__.__doc__ or  # for pypy
+                 docstring.strip() == object.__new__.__doc__)):  # for !pypy
+                docstring = None
             if docstring:
                 tab_width = self.directive.state.document.settings.tab_width
                 return [prepare_docstring(docstring, tabsize=tab_width)]
@@ -2382,7 +2395,7 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
         return None
 
     def import_object(self, raiseerror: bool = False) -> bool:
-        """Check the existence of runtime instance attribute when failed to import the
+        """Check the existence of runtime instance attribute after failing to import the
         attribute."""
         try:
             return super().import_object(raiseerror=True)  # type: ignore
@@ -2661,7 +2674,32 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
                             ) -> bool:
-        return inspect.isproperty(member) and isinstance(parent, ClassDocumenter)
+        if isinstance(parent, ClassDocumenter):
+            if inspect.isproperty(member):
+                return True
+            else:
+                __dict__ = safe_getattr(parent.object, '__dict__', {})
+                obj = __dict__.get(membername)
+                return isinstance(obj, classmethod) and inspect.isproperty(obj.__func__)
+        else:
+            return False
+
+    def import_object(self, raiseerror: bool = False) -> bool:
+        """Check the exisitence of uninitialized instance attribute when failed to import
+        the attribute."""
+        ret = super().import_object(raiseerror)
+        if ret and not inspect.isproperty(self.object):
+            __dict__ = safe_getattr(self.parent, '__dict__', {})
+            obj = __dict__.get(self.objpath[-1])
+            if isinstance(obj, classmethod) and inspect.isproperty(obj.__func__):
+                self.object = obj.__func__
+                self.isclassmethod = True
+                return True
+            else:
+                return False
+
+        self.isclassmethod = False
+        return ret
 
     def document_members(self, all_members: bool = False) -> None:
         pass
@@ -2675,10 +2713,19 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
         sourcename = self.get_sourcename()
         if inspect.isabstractmethod(self.object):
             self.add_line('   :abstractmethod:', sourcename)
+        if self.isclassmethod:
+            self.add_line('   :classmethod:', sourcename)
 
-        if safe_getattr(self.object, 'fget', None) and self.config.autodoc_typehints != 'none':
+        if safe_getattr(self.object, 'fget', None):  # property
+            func = self.object.fget
+        elif safe_getattr(self.object, 'func', None):  # cached_property
+            func = self.object.func
+        else:
+            func = None
+
+        if func and self.config.autodoc_typehints != 'none':
             try:
-                signature = inspect.signature(self.object.fget,
+                signature = inspect.signature(func,
                                               type_aliases=self.config.autodoc_type_aliases)
                 if signature.return_annotation is not Parameter.empty:
                     objrepr = stringify_typehint(signature.return_annotation)

@@ -329,6 +329,13 @@ The following directives are provided for module and class contents:
 
       Indicate the property is abstract.
 
+   .. rst:directive:option:: classmethod
+      :type: no value
+
+      Indicate the property is a classmethod.
+
+      .. versionaddedd: 4.2
+
    .. rst:directive:option:: type: type of the property
       :type: text
 

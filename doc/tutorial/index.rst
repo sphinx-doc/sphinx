@@ -233,7 +233,7 @@ Sweet!
 .. note::
 
    Generating a PDF using Sphinx can be done running ``make latexpdf``,
-   provided that the system has a working :math:`\LaTeX` installation,
+   provided that the system has a working LaTeX installation,
    as explained in the documentation of :class:`sphinx.builders.latex.LaTeXBuilder`.
    Although this is perfectly feasible, such installations are often big,
    and in general LaTeX requires careful configuration in some cases,

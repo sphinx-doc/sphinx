@@ -211,12 +211,15 @@ def getslots(obj: Any) -> Optional[Dict]:
 
 def isNewType(obj: Any) -> bool:
     """Check the if object is a kind of NewType."""
-    __module__ = safe_getattr(obj, '__module__', None)
-    __qualname__ = safe_getattr(obj, '__qualname__', None)
-    if __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type':
-        return True
+    if sys.version_info >= (3, 10):
+        return isinstance(obj, typing.NewType)
     else:
-        return False
+        __module__ = safe_getattr(obj, '__module__', None)
+        __qualname__ = safe_getattr(obj, '__qualname__', None)
+        if __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type':
+            return True
+        else:
+            return False
 
 
 def isenumclass(x: Any) -> bool:
@@ -245,12 +248,17 @@ def ispartial(obj: Any) -> bool:
     return isinstance(obj, (partial, partialmethod))
 
 
-def isclassmethod(obj: Any) -> bool:
+def isclassmethod(obj: Any, cls: Any = None, name: str = None) -> bool:
     """Check if the object is classmethod."""
     if isinstance(obj, classmethod):
         return True
     elif inspect.ismethod(obj) and obj.__self__ is not None and isclass(obj.__self__):
         return True
+    elif cls and name:
+        for basecls in getmro(cls):
+            meth = basecls.__dict__.get(name)
+            if meth:
+                return isclassmethod(meth)
 
     return False
 
@@ -837,6 +845,12 @@ def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
     * inherited docstring
     * inherited decorated methods
     """
+    if cls and name and isclassmethod(obj, cls, name):
+        for basecls in getmro(cls):
+            meth = basecls.__dict__.get(name)
+            if meth:
+                return getdoc(meth.__func__)
+
     doc = attrgetter(obj, '__doc__', None)
     if ispartial(obj) and doc == obj.__class__.__doc__:
         return getdoc(obj.func)

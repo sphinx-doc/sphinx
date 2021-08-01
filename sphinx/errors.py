@@ -129,5 +129,5 @@ class NoUri(Exception):
 
 
 class FiletypeNotFoundError(Exception):
-    "Raised by get_filetype() if a filename matches no source suffix."
+    """Raised by get_filetype() if a filename matches no source suffix."""
     pass

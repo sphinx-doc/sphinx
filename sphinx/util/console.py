@@ -25,7 +25,7 @@ codes: Dict[str, str] = {}
 
 
 def terminal_safe(s: str) -> str:
-    """safely encode a string for printing to the terminal."""
+    """Safely encode a string for printing to the terminal."""
     return s.encode('ascii', 'backslashreplace').decode('ascii')
 
 
