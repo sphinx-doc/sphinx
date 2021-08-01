@@ -28,6 +28,8 @@ Bugs fixed
 * #9481: autosummary: some warnings contain non-existing filenames
 * #9481: c domain: some warnings contain non-existing filenames
 * #9481: cpp domain: some warnings contain non-existing filenames
+* #9456: html search: abbreation marks are inserted to the search result if
+  failed to fetch the content of the page
 
 Testing
 --------
