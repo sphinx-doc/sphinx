@@ -15,6 +15,8 @@ Features added
 
 * #9445: autodoc: Support class properties
 * #9479: autodoc: Emit a warning if target is a mocked object
+* #9447: html theme: Expose the version of Sphinx in the form of tuple as a
+  template variable ``sphinx_version_tuple``
 * #9445: py domain: ``:py:property:`` directive supports ``:classmethod:``
   option to describe the class property
 
