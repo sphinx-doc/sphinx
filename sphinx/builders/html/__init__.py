@@ -26,6 +26,7 @@ from docutils.nodes import Node
 from docutils.utils import relative_path
 
 from sphinx import __display_version__, package_dir
+from sphinx import version_info as sphinx_version
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import ENUM, Config
@@ -516,6 +517,7 @@ class StandaloneHTMLBuilder(Builder):
             'language': self.config.language,
             'css_files': self.css_files,
             'sphinx_version': __display_version__,
+            'sphinx_version_tuple': sphinx_version,
             'style': self._get_style_filename(),
             'rellinks': rellinks,
             'builder': self.name,
