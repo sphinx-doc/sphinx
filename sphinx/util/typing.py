@@ -33,10 +33,10 @@ else:
             ref = _ForwardRef(self.arg)
             return ref._eval_type(globalns, localns)
 
-if sys.version_info > (3, 10):
-    from types import Union as types_Union
-else:
-    types_Union = None
+try:
+    from types import UnionType  # type: ignore  # python 3.10 or above
+except ImportError:
+    UnionType = None
 
 if False:
     # For type annotation
@@ -86,6 +86,9 @@ def get_type_hints(obj: Any, globalns: Dict = None, localns: Dict = None) -> Dic
     except NameError:
         # Failed to evaluate ForwardRef (maybe TYPE_CHECKING)
         return safe_getattr(obj, '__annotations__', {})
+    except AttributeError:
+        # Failed to evaluate ForwardRef (maybe not runtime checkable)
+        return safe_getattr(obj, '__annotations__', {})
     except TypeError:
         # Invalid object is given. But try to get __annotations__ as a fallback for
         # the code using type union operator (PEP 604) in python 3.9 or below.
@@ -114,7 +117,7 @@ def restify(cls: Optional[Type]) -> str:
             return ':class:`%s`' % INVALID_BUILTIN_CLASSES[cls]
         elif inspect.isNewType(cls):
             return ':class:`%s`' % cls.__name__
-        elif types_Union and isinstance(cls, types_Union):
+        elif UnionType and isinstance(cls, UnionType):
             if len(cls.__args__) > 1 and None in cls.__args__:
                 args = ' | '.join(restify(a) for a in cls.__args__ if a)
                 return 'Optional[%s]' % args
@@ -340,7 +343,7 @@ def _stringify_py37(annotation: Any) -> str:
     elif hasattr(annotation, '__origin__'):
         # instantiated generic provided by a user
         qualname = stringify(annotation.__origin__)
-    elif types_Union and isinstance(annotation, types_Union):  # types.Union (for py3.10+)
+    elif UnionType and isinstance(annotation, UnionType):  # types.Union (for py3.10+)
         qualname = 'types.Union'
     else:
         # we weren't able to extract the base type, appending arguments would

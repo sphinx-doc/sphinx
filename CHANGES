@@ -22,6 +22,7 @@ Bugs fixed
 ----------
 
 * #9487: autodoc: typehint for cached_property is not shown
+* #9509: autodoc: AttributeError is raised on failed resolving typehints
 * #9481: autosummary: some warnings contain non-existing filenames
 * #9481: c domain: some warnings contain non-existing filenames
 * #9481: cpp domain: some warnings contain non-existing filenames
@@ -46,6 +47,8 @@ Features added
 
 Bugs fixed
 ----------
+
+* #9512: sphinx-build: crashed with the HEAD of Python 3.10
 
 Testing
 --------
