@@ -122,7 +122,7 @@ def restify(cls: Optional[Type]) -> str:
                 return ' | '.join(restify(a) for a in cls.__args__)
         elif cls.__module__ in ('__builtin__', 'builtins'):
             if hasattr(cls, '__args__'):
-                return ':class:`%s`\\[%s]' % (cls.__name__, ', '.join(restify(arg) for arg in cls.__args__))
+                return ':class:`%s`\\ [%s]' % (cls.__name__, ', '.join(restify(arg) for arg in cls.__args__))
             else:
                 return ':class:`%s`' % cls.__name__
         else:
