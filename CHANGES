@@ -16,6 +16,8 @@ Features added
 * #9445: autodoc: Support class properties
 * #9445: py domain: ``:py:property:`` directive supports ``:classmethod:``
   option to describe the class property
+* #9378: setuptools: Add the build directory to sys.path automatically if
+  ``build_sphinx`` command is invoked after ``build`` command
 
 Bugs fixed
 ----------

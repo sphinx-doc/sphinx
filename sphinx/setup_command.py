@@ -160,6 +160,8 @@ class BuildDoc(Command):
         if self.nitpicky:
             confoverrides['nitpicky'] = self.nitpicky
 
+        self.setup_syspath()
+
         for builder, builder_target_dir in self.builder_target_dirs:
             app = None
 
@@ -187,3 +189,10 @@ class BuildDoc(Command):
             src = app.config.root_doc + app.builder.out_suffix  # type: ignore
             dst = app.builder.get_outfilename('index')  # type: ignore
             os.symlink(src, dst)
+
+    def setup_syspath(self) -> None:
+        """Set up sys.path to import target modules from the build directory."""
+        build = self.distribution.command_obj.get('build')  # type: ignore
+        build_lib = getattr(build, 'build_lib', None)
+        if build_lib and os.path.exists(build_lib) and build_lib not in sys.path:
+            sys.path.append(build_lib)
