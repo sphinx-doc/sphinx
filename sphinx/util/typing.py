@@ -124,7 +124,13 @@ def restify(cls: Optional[Type]) -> str:
             else:
                 return ' | '.join(restify(a) for a in cls.__args__)
         elif cls.__module__ in ('__builtin__', 'builtins'):
-            return ':class:`%s`' % cls.__name__
+            if hasattr(cls, '__args__'):
+                return ':class:`%s`\\ [%s]' % (
+                    cls.__name__,
+                    ', '.join(restify(arg) for arg in cls.__args__),
+                )
+            else:
+                return ':class:`%s`' % cls.__name__
         else:
             if sys.version_info >= (3, 7):  # py37+
                 return _restify_py37(cls)
