@@ -27,6 +27,8 @@ Bugs fixed
 * #9509: autodoc: AttributeError is raised on failed resolving typehints
 * #9518: autodoc: autodoc_docstring_signature does not effect to ``__init__()``
   and ``__new__()``
+* #9522: autodoc: PEP 585 style typehints having arguments (ex. ``list[int]``)
+  are not displayed well
 * #9481: autosummary: some warnings contain non-existing filenames
 * #9481: c domain: some warnings contain non-existing filenames
 * #9481: cpp domain: some warnings contain non-existing filenames
