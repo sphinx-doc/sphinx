@@ -33,4 +33,5 @@ project.
    first-steps
    more-sphinx-customization
    narrative-documentation
+   describing-code
    end
