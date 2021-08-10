@@ -235,7 +235,7 @@ var Documentation = {
         });
       }, 10);
       $('<p class="highlight-link"><a href="javascript:Documentation.' +
-        'hideSearchWords()">' + _('Hide Search Matches') + '</a></p>')
+        'hideSearchWords()" accesskey="H">' + _('Hide Search Matches') + '</a></p>')
           .appendTo($('#searchbox'));
     }
   },
