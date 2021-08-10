@@ -157,7 +157,9 @@ def _restify_py37(cls: Optional[Type]) -> str:
             args = ', '.join(restify(a) for a in cls.__args__)
             return ':obj:`~typing.Union`\\ [%s]' % args
     elif inspect.isgenericalias(cls):
-        if getattr(cls, '_name', None):
+        if isinstance(cls.__origin__, typing._SpecialForm):
+            text = restify(cls.__origin__)  # type: ignore
+        elif getattr(cls, '_name', None):
             if cls.__module__ == 'typing':
                 text = ':class:`~%s.%s`' % (cls.__module__, cls._name)
             else:
@@ -180,12 +182,8 @@ def _restify_py37(cls: Optional[Type]) -> str:
             text += r"\ [%s]" % ", ".join(restify(a) for a in cls.__args__)
 
         return text
-    elif hasattr(cls, '_name'):
-        # SpecialForm
-        if cls.__module__ == 'typing':
-            return ':obj:`~%s.%s`' % (cls.__module__, cls._name)
-        else:
-            return ':obj:`%s.%s`' % (cls.__module__, cls._name)
+    elif isinstance(cls, typing._SpecialForm):
+        return ':obj:`~%s.%s`' % (cls.__module__, cls._name)
     elif hasattr(cls, '__qualname__'):
         if cls.__module__ == 'typing':
             return ':class:`~%s.%s`' % (cls.__module__, cls.__qualname__)
@@ -360,7 +358,7 @@ def _stringify_py37(annotation: Any) -> str:
         if not isinstance(annotation.__args__, (list, tuple)):
             # broken __args__ found
             pass
-        elif qualname == 'Union':
+        elif qualname in ('Optional', 'Union'):
             if len(annotation.__args__) > 1 and annotation.__args__[-1] is NoneType:
                 if len(annotation.__args__) > 2:
                     args = ', '.join(stringify(a) for a in annotation.__args__[:-1])

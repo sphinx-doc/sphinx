@@ -56,6 +56,10 @@ Features added
 Bugs fixed
 ----------
 
+* #9504: autodoc: generate incorrect reference to the parent class if the target
+  class inherites the class having ``_name`` attribute
+* #9537: autodoc: Some objects under ``typing`` module are not displayed well
+  with the HEAD of 3.10
 * #9512: sphinx-build: crashed with the HEAD of Python 3.10
 
 Testing
