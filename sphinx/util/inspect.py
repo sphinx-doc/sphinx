@@ -255,9 +255,10 @@ def isclassmethod(obj: Any, cls: Any = None, name: str = None) -> bool:
     elif inspect.ismethod(obj) and obj.__self__ is not None and isclass(obj.__self__):
         return True
     elif cls and name:
+        placeholder = object()
         for basecls in getmro(cls):
-            meth = basecls.__dict__.get(name)
-            if meth:
+            meth = basecls.__dict__.get(name, placeholder)
+            if meth is not placeholder:
                 return isclassmethod(meth)
 
     return False
