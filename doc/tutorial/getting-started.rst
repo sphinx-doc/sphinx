@@ -1,6 +1,8 @@
 Getting started
 ===============
 
+.. _tutorial-getting-started:
+
 Setting up your project and development environment
 ---------------------------------------------------
 
