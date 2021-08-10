@@ -182,3 +182,127 @@ Congratulations! You have created a basic Python library.
    An alternative is to not create ``pyproject.toml`` at all,
    and setting the :envvar:`PYTHONPATH`, :py:data:`sys.path`, or
    equivalent. However, the ``pyproject.toml`` approach is more robust.
+
+Adding some doctests to the documentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To add doctests to your documentation, first enable the
+:doc:`doctest </usage/extensions/doctest>` extension in ``conf.py``:
+
+.. code-block:: python
+   :caption: docs/source/conf.py
+   :emphasize-lines: 3
+
+   extensions = [
+       'sphinx.ext.duration',
+       'sphinx.ext.doctest',
+   ]
+
+Then, write a doctest block as follows:
+
+.. code-block:: rst
+   :caption: docs/source/usage.rst
+
+   >>> import lumache
+   >>> lumache.get_random_ingredients()
+   ['shells', 'gorgonzola', 'parsley']
+
+You can now run ``make doctest`` to execute the doctests of your documentation.
+However, initially this will display an error, since the actual code does not
+exist yet:
+
+.. code-block:: console
+
+   (.venv) $ make doctest
+   Running Sphinx v4.2.0+
+   loading pickled environment... done
+   ...
+   running tests...
+
+   Document: usage
+   ---------------
+   **********************************************************************
+   File "usage.rst", line 44, in default
+   Failed example:
+       lumache.get_random_ingredients()
+   Exception raised:
+       Traceback (most recent call last):
+         File "/usr/lib/python3.9/doctest.py", line 1336, in __run
+           exec(compile(example.source, filename, "single",
+         File "<doctest default[1]>", line 1, in <module>
+           lumache.get_random_ingredients()
+       AttributeError: module 'lumache' has no attribute 'get_random_ingredients'
+   **********************************************************************
+   1 items had failures:
+      1 of   2 in default
+   2 tests in 1 items.
+   1 passed and 1 failed.
+   ***Test Failed*** 1 failures.
+
+   Doctest summary
+   ===============
+       2 tests
+       1 failure in tests
+       0 failures in setup code
+       0 failures in cleanup code
+   build finished with problems.
+   make: *** [Makefile:20: doctest] Error 1
+
+Therefore, you will need to make adjustments to your ``lumache.py``. To observe
+how a doctest failure looks like (rather than a code error as above), let's
+write the return value incorrectly first. Therefore, add a function
+``get_random_ingredients`` like this:
+
+.. code-block:: python
+   :caption: lumache.py
+
+   def get_random_ingredients():
+       return ["eggs", "bacon", "spam"]
+
+Now ``make doctest`` will give an output similar to this:
+
+.. code-block:: console
+
+   (.venv) $ make doctest
+   Running Sphinx v4.2.0+
+   loading pickled environment... done
+   ...
+   running tests...
+
+   Document: usage
+   ---------------
+   **********************************************************************
+   File "usage.rst", line 44, in default
+   Failed example:
+       lumache.get_random_ingredients()
+   Expected:
+       ['shells', 'gorgonzola', 'parsley']
+   Got:
+       ['eggs', 'bacon', 'spam']
+   **********************************************************************
+   1 items had failures:
+      1 of   2 in default
+   2 tests in 1 items.
+   1 passed and 1 failed.
+   ***Test Failed*** 1 failures.
+
+   Doctest summary
+   ===============
+       2 tests
+       1 failure in tests
+       0 failures in setup code
+       0 failures in cleanup code
+   build finished with problems.
+   make: *** [Makefile:20: doctest] Error 1
+
+As you can see, doctest reports the expected and the actual results,
+for easy examination. It is now time to fix the function:
+
+.. code-block:: python
+   :caption: lumache.py
+   :emphasize-lines: 2
+
+   def get_random_ingredients():
+       return ["shells", "gorgonzola", "parsley"]
+
+And finally, ``make test`` reports success!
