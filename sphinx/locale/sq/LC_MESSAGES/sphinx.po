@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-07-25 02:33+0000\n"
-"PO-Revision-Date: 2021-07-25 00:08+0000\n"
-"Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
+"POT-Creation-Date: 2021-08-01 00:09+0000\n"
+"PO-Revision-Date: 2021-07-25 09:24+0000\n"
+"Last-Translator: Besnik Bleta <besnik@programeshqip.org>\n"
 "Language-Team: Albanian (http://www.transifex.com/sphinx-doc/sphinx-1/language/sq/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -43,7 +43,7 @@ msgid ""
 "For security reasons, parallel mode is disabled on macOS and python3.8 and "
 "above. For more details, please read https://github.com/sphinx-"
 "doc/sphinx/issues/6803"
-msgstr ""
+msgstr "Për arsye sigurie, mënyra paralele është e çaktivizuar në macOS dhe python3.8 dhe më sipër.  Për më tepër hollësi, ju lutemi, lexoni https://github.com/sphinx-doc/sphinx/issues/6803"
 
 #: sphinx/application.py:228
 #, python-format
@@ -2262,7 +2262,7 @@ msgstr "numfig është i çaktivizuar. :numref: është shpërfillur."
 #: sphinx/domains/std.py:878
 #, python-format
 msgid "Failed to create a cross reference. Any number is not assigned: %s"
-msgstr ""
+msgstr "S’u arrit të krijohej një ndërreferencë. S’u caktua ndonjë numër: %s"
 
 #: sphinx/domains/std.py:890
 #, python-format
@@ -2287,7 +2287,7 @@ msgstr "etiketë e papërcaktuar: %s"
 #: sphinx/domains/std.py:1122
 #, python-format
 msgid "Failed to create a cross reference. A title or caption not found: %s"
-msgstr ""
+msgstr "S’u arrit të krijohej një ndërreferencë. S’u gjet titull ose legjendë: %s"
 
 #: sphinx/environment/__init__.py:73
 msgid "new config"
@@ -2693,12 +2693,12 @@ msgstr "Urdhri %s %r s’mund të xhirohet (i nevojshëm për shfaqje formulash 
 #: sphinx/ext/imgmath.py:300
 #, python-format
 msgid "display latex %r: %s"
-msgstr ""
+msgstr "shfaq latex %r: %s"
 
 #: sphinx/ext/imgmath.py:326
 #, python-format
 msgid "inline latex %r: %s"
-msgstr ""
+msgstr "latex brendazi %r: %s"
 
 #: sphinx/ext/imgmath.py:333 sphinx/ext/mathjax.py:52
 msgid "Permalink to this equation"
@@ -2805,29 +2805,29 @@ msgstr "vlerë e pavlefshme mundësie për member-order: %s"
 msgid "invalid value for class-doc-from option: %s"
 msgstr "vlerë e pavlefshme për mundësinë class-doc-from: %s"
 
-#: sphinx/ext/autodoc/__init__.py:398
+#: sphinx/ext/autodoc/__init__.py:401
 #, python-format
 msgid "invalid signature for auto%s (%r)"
 msgstr "nënshkrim i pavlefshëm për auto%s (%r)"
 
-#: sphinx/ext/autodoc/__init__.py:515
+#: sphinx/ext/autodoc/__init__.py:518
 #, python-format
 msgid "error while formatting arguments for %s: %s"
 msgstr "gabim gjatë formatimi argumentesh për %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:660 sphinx/ext/autodoc/__init__.py:1673
+#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1678
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr "atribut %s që mungon te objekt %s"
 
-#: sphinx/ext/autodoc/__init__.py:810
+#: sphinx/ext/autodoc/__init__.py:813
 #, python-format
 msgid ""
 "autodoc: failed to determine %r to be documented, the following exception was raised:\n"
 "%s"
 msgstr "autodoc: s’u arrit të përcaktohet %r për dokumentim, u shfaq përjashtimi vijues:\n%s"
 
-#: sphinx/ext/autodoc/__init__.py:903
+#: sphinx/ext/autodoc/__init__.py:906
 #, python-format
 msgid ""
 "don't know which module to import for autodocumenting %r (try placing a "
@@ -2835,71 +2835,71 @@ msgid ""
 "explicit module name)"
 msgstr "s’dihet cili modul të importohet për vetëdokumentim të %r (provoni të vendosni te dokumenti një direktivë \"module\" ose \"currentmodule\", ose të jepni shprehimisht një emër moduli)"
 
-#: sphinx/ext/autodoc/__init__.py:961
+#: sphinx/ext/autodoc/__init__.py:964
 #, python-format
 msgid "error while formatting signature for %s: %s"
 msgstr "gabim gjatë formatimi nënshkrimesh për %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1011
+#: sphinx/ext/autodoc/__init__.py:1014
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr "\"::\" në emër automoduli nuk ka kuptim"
 
-#: sphinx/ext/autodoc/__init__.py:1018
+#: sphinx/ext/autodoc/__init__.py:1021
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1031
+#: sphinx/ext/autodoc/__init__.py:1034
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr "__all__ should duhet të jetë një listë vargjesh, jo %r (në module %s) -- ignoring __all__"
 
-#: sphinx/ext/autodoc/__init__.py:1097
+#: sphinx/ext/autodoc/__init__.py:1100
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr "u përmend atribut që mungon në :members: mundësi: modul %s, atributi %s"
 
-#: sphinx/ext/autodoc/__init__.py:1296 sphinx/ext/autodoc/__init__.py:1370
-#: sphinx/ext/autodoc/__init__.py:2721
+#: sphinx/ext/autodoc/__init__.py:1299 sphinx/ext/autodoc/__init__.py:1373
+#: sphinx/ext/autodoc/__init__.py:2726
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "S’u arrit të merret një nënshkrim funksioni për %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1559
+#: sphinx/ext/autodoc/__init__.py:1564
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr "S’u arrit të merrej nënshkrim konstruktori për %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1660
+#: sphinx/ext/autodoc/__init__.py:1665
 #, python-format
 msgid "Bases: %s"
 msgstr "Baza: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1746 sphinx/ext/autodoc/__init__.py:1819
-#: sphinx/ext/autodoc/__init__.py:1838
+#: sphinx/ext/autodoc/__init__.py:1751 sphinx/ext/autodoc/__init__.py:1824
+#: sphinx/ext/autodoc/__init__.py:1843
 #, python-format
 msgid "alias of %s"
 msgstr "alias për %s"
 
-#: sphinx/ext/autodoc/__init__.py:1880
+#: sphinx/ext/autodoc/__init__.py:1885
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr "alias për TypeVar(%s)"
 
-#: sphinx/ext/autodoc/__init__.py:2113 sphinx/ext/autodoc/__init__.py:2207
+#: sphinx/ext/autodoc/__init__.py:2118 sphinx/ext/autodoc/__init__.py:2212
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr "S’u arrit të merre një nënshkrim metode për %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:2335
+#: sphinx/ext/autodoc/__init__.py:2340
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "U gjet __slots__ i pavlefshëm në %s. U shpërfill."
 
-#: sphinx/ext/autodoc/__init__.py:2764
+#: sphinx/ext/autodoc/__init__.py:2769
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
@@ -2923,7 +2923,7 @@ msgstr "S’u arrit të përtypet type_comment për %r: %s"
 #: sphinx/ext/autosummary/__init__.py:278
 #, python-format
 msgid "autosummary references excluded document %r. Ignored."
-msgstr ""
+msgstr "referenca vetëpërmbledhjeje përjashtuan dokumentin %r. U shpërfill."
 
 #: sphinx/ext/autosummary/__init__.py:280
 #, python-format
@@ -3300,12 +3300,12 @@ msgid "search"
 msgstr "kërko"
 
 #: sphinx/themes/basic/search.html:47
-#: sphinx/themes/basic/static/searchtools.js:297
+#: sphinx/themes/basic/static/searchtools.js:303
 msgid "Search Results"
 msgstr "Përfundime Kërkimi"
 
 #: sphinx/themes/basic/search.html:49
-#: sphinx/themes/basic/static/searchtools.js:299
+#: sphinx/themes/basic/static/searchtools.js:305
 msgid ""
 "Your search did not match any documents. Please make sure that all words are"
 " spelled correctly and that you've selected enough categories."
@@ -3371,12 +3371,12 @@ msgstr "Kërkim"
 msgid "Preparing search..."
 msgstr "Po përgatitet kërkim..."
 
-#: sphinx/themes/basic/static/searchtools.js:301
+#: sphinx/themes/basic/static/searchtools.js:307
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
 msgstr "Kërkimi përfundoi, u gjetën %s page(s) me përputhje me shprehjen e kërkuar."
 
-#: sphinx/themes/basic/static/searchtools.js:355
+#: sphinx/themes/basic/static/searchtools.js:361
 msgid ", in "
 msgstr ", në "
 

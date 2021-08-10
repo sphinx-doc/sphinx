@@ -372,7 +372,16 @@ in the future.
 
 .. data:: sphinx_version
 
-   The version of Sphinx used to build.
+   The version of Sphinx used to build represented as a string for example "3.5.1".
+
+.. data:: sphinx_version_tuple
+
+   The version of Sphinx used to build represented as a tuple of five elements.
+   For Sphinx version 3.5.1 beta 3 this would be `(3, 5, 1, 'beta', 3)``.
+   The fourth element can be one of: ``alpha``, ``beta``, ``rc``, ``final``.
+   ``final`` always has 0 as the last element.
+
+   .. versionadded:: 4.2
 
 .. data:: style
 

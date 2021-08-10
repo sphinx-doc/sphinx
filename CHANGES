@@ -35,6 +35,9 @@ Features added
 --------------
 
 * #9445: autodoc: Support class properties
+* #9479: autodoc: Emit a warning if target is a mocked object
+* #9447: html theme: Expose the version of Sphinx in the form of tuple as a
+  template variable ``sphinx_version_tuple``
 * #9445: py domain: ``:py:property:`` directive supports ``:classmethod:``
   option to describe the class property
 
@@ -42,9 +45,16 @@ Bugs fixed
 ----------
 
 * #9487: autodoc: typehint for cached_property is not shown
+* #9509: autodoc: AttributeError is raised on failed resolving typehints
+* #9518: autodoc: autodoc_docstring_signature does not effect to ``__init__()``
+  and ``__new__()``
+* #9522: autodoc: PEP 585 style typehints having arguments (ex. ``list[int]``)
+  are not displayed well
 * #9481: autosummary: some warnings contain non-existing filenames
 * #9481: c domain: some warnings contain non-existing filenames
 * #9481: cpp domain: some warnings contain non-existing filenames
+* #9456: html search: abbreation marks are inserted to the search result if
+  failed to fetch the content of the page
 
 Testing
 --------
@@ -67,6 +77,10 @@ Features added
 Bugs fixed
 ----------
 
+* #9504: autodoc: generate incorrect reference to the parent class if the target
+  class inherites the class having ``_name`` attribute
+* #9537: autodoc: Some objects under ``typing`` module are not displayed well
+  with the HEAD of 3.10
 * #9512: sphinx-build: crashed with the HEAD of Python 3.10
 
 Testing

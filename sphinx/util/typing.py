@@ -86,6 +86,9 @@ def get_type_hints(obj: Any, globalns: Dict = None, localns: Dict = None) -> Dic
     except NameError:
         # Failed to evaluate ForwardRef (maybe TYPE_CHECKING)
         return safe_getattr(obj, '__annotations__', {})
+    except AttributeError:
+        # Failed to evaluate ForwardRef (maybe not runtime checkable)
+        return safe_getattr(obj, '__annotations__', {})
     except TypeError:
         # Invalid object is given. But try to get __annotations__ as a fallback for
         # the code using type union operator (PEP 604) in python 3.9 or below.
@@ -121,7 +124,13 @@ def restify(cls: Optional[Type]) -> str:
             else:
                 return ' | '.join(restify(a) for a in cls.__args__)
         elif cls.__module__ in ('__builtin__', 'builtins'):
-            return ':class:`%s`' % cls.__name__
+            if hasattr(cls, '__args__'):
+                return ':class:`%s`\\ [%s]' % (
+                    cls.__name__,
+                    ', '.join(restify(arg) for arg in cls.__args__),
+                )
+            else:
+                return ':class:`%s`' % cls.__name__
         else:
             if sys.version_info >= (3, 7):  # py37+
                 return _restify_py37(cls)
@@ -148,7 +157,9 @@ def _restify_py37(cls: Optional[Type]) -> str:
             args = ', '.join(restify(a) for a in cls.__args__)
             return ':obj:`~typing.Union`\\ [%s]' % args
     elif inspect.isgenericalias(cls):
-        if getattr(cls, '_name', None):
+        if isinstance(cls.__origin__, typing._SpecialForm):
+            text = restify(cls.__origin__)  # type: ignore
+        elif getattr(cls, '_name', None):
             if cls.__module__ == 'typing':
                 text = ':class:`~%s.%s`' % (cls.__module__, cls._name)
             else:
@@ -171,12 +182,8 @@ def _restify_py37(cls: Optional[Type]) -> str:
             text += r"\ [%s]" % ", ".join(restify(a) for a in cls.__args__)
 
         return text
-    elif hasattr(cls, '_name'):
-        # SpecialForm
-        if cls.__module__ == 'typing':
-            return ':obj:`~%s.%s`' % (cls.__module__, cls._name)
-        else:
-            return ':obj:`%s.%s`' % (cls.__module__, cls._name)
+    elif isinstance(cls, typing._SpecialForm):
+        return ':obj:`~%s.%s`' % (cls.__module__, cls._name)
     elif hasattr(cls, '__qualname__'):
         if cls.__module__ == 'typing':
             return ':class:`~%s.%s`' % (cls.__module__, cls.__qualname__)
@@ -351,7 +358,7 @@ def _stringify_py37(annotation: Any) -> str:
         if not isinstance(annotation.__args__, (list, tuple)):
             # broken __args__ found
             pass
-        elif qualname == 'Union':
+        elif qualname in ('Optional', 'Union'):
             if len(annotation.__args__) > 1 and annotation.__args__[-1] is NoneType:
                 if len(annotation.__args__) > 2:
                     args = ', '.join(stringify(a) for a in annotation.__args__[:-1])
