@@ -5,6 +5,8 @@ In the previous sections of the tutorial you can read how to write narrative
 or prose documentation in Sphinx. In this section you will describe code
 objects instead.
 
+.. _tutorial-describing-objects:
+
 Documenting Python objects
 --------------------------
 

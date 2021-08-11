@@ -34,4 +34,5 @@ project.
    more-sphinx-customization
    narrative-documentation
    describing-code
+   automatic-doc-generation
    end
