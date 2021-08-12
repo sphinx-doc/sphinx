@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-08-01 00:09+0000\n"
-"PO-Revision-Date: 2021-07-25 09:24+0000\n"
-"Last-Translator: Besnik Bleta <besnik@programeshqip.org>\n"
+"POT-Creation-Date: 2021-08-08 00:08+0000\n"
+"PO-Revision-Date: 2021-08-08 00:08+0000\n"
+"Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Albanian (http://www.transifex.com/sphinx-doc/sphinx-1/language/sq/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -626,7 +626,7 @@ msgstr "po përgatiten dokumente"
 msgid "duplicated ToC entry found: %s"
 msgstr "u gjet zë TeL i përsëdytur: %s"
 
-#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:726
+#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:728
 #: sphinx/builders/latex/__init__.py:421 sphinx/builders/texinfo.py:176
 msgid "copying images... "
 msgstr "po kopjohen figura… "
@@ -636,7 +636,7 @@ msgstr "po kopjohen figura… "
 msgid "cannot read image file %r: copying it instead"
 msgstr "s’lexohet dot kartelë figure %r: në vend të tij, po kopjohet"
 
-#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:734
+#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:736
 #: sphinx/builders/latex/__init__.py:429 sphinx/builders/texinfo.py:186
 #, python-format
 msgid "cannot copy image file %r: %s"
@@ -761,7 +761,7 @@ msgstr "vlera e formësimit \"epub_identifier\" s’duhet të jetë e zbrazët p
 msgid "conf value \"version\" should not be empty for EPUB3"
 msgstr "vlera e formësimit \"version\" s’duhet të jetë e zbrazët për EPUB3"
 
-#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1117
+#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1119
 #, python-format
 msgid "invalid css_file: %r, ignored"
 msgstr "css_file e pavlefshme: %r, u shpërfill"
@@ -884,7 +884,7 @@ msgstr "gabim në shkrim kartele Makefile: %s"
 msgid "The text files are in %(outdir)s."
 msgstr "Kartelat tekst gjenden në %(outdir)s."
 
-#: sphinx/builders/html/__init__.py:1070 sphinx/builders/text.py:77
+#: sphinx/builders/html/__init__.py:1072 sphinx/builders/text.py:77
 #: sphinx/builders/xml.py:91
 #, python-format
 msgid "error writing file %s: %s"
@@ -900,174 +900,174 @@ msgstr "Kartelat XML gjenden në %(outdir)s."
 msgid "The pseudo-XML files are in %(outdir)s."
 msgstr "Kartelat pseudo-XML gjenden në %(outdir)s."
 
-#: sphinx/builders/html/__init__.py:144
+#: sphinx/builders/html/__init__.py:145
 #, python-format
 msgid "build info file is broken: %r"
 msgstr "kartela e të dhënave të montimit është e dëmtuar: %r"
 
-#: sphinx/builders/html/__init__.py:176
+#: sphinx/builders/html/__init__.py:177
 #, python-format
 msgid "The HTML pages are in %(outdir)s."
 msgstr "Faqet HTML gjenden në %(outdir)s."
 
-#: sphinx/builders/html/__init__.py:372
+#: sphinx/builders/html/__init__.py:373
 #, python-format
 msgid "Failed to read build info file: %r"
 msgstr "S’u arrit të lexohet kartelë të dhënash montimi: %r"
 
-#: sphinx/builders/html/__init__.py:466 sphinx/builders/latex/__init__.py:187
+#: sphinx/builders/html/__init__.py:467 sphinx/builders/latex/__init__.py:187
 #: sphinx/transforms/__init__.py:116 sphinx/writers/manpage.py:102
 #: sphinx/writers/texinfo.py:233
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%d %b, %Y"
 
-#: sphinx/builders/html/__init__.py:485 sphinx/themes/basic/defindex.html:30
+#: sphinx/builders/html/__init__.py:486 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
 msgstr "Tregues i Përgjithshëm"
 
-#: sphinx/builders/html/__init__.py:485
+#: sphinx/builders/html/__init__.py:486
 msgid "index"
 msgstr "tregues"
 
-#: sphinx/builders/html/__init__.py:547
+#: sphinx/builders/html/__init__.py:549
 msgid "next"
 msgstr "pasuesi"
 
-#: sphinx/builders/html/__init__.py:556
+#: sphinx/builders/html/__init__.py:558
 msgid "previous"
 msgstr "i mëparshmi"
 
-#: sphinx/builders/html/__init__.py:650
+#: sphinx/builders/html/__init__.py:652
 msgid "generating indices"
 msgstr "po prodhohen tregues"
 
-#: sphinx/builders/html/__init__.py:665
+#: sphinx/builders/html/__init__.py:667
 msgid "writing additional pages"
 msgstr "po shkruhen faqe shtesë"
 
-#: sphinx/builders/html/__init__.py:744
+#: sphinx/builders/html/__init__.py:746
 msgid "copying downloadable files... "
 msgstr "po kopjohen kartela të shkarkueshme… "
 
-#: sphinx/builders/html/__init__.py:752
+#: sphinx/builders/html/__init__.py:754
 #, python-format
 msgid "cannot copy downloadable file %r: %s"
 msgstr "s’kopjohet dot kartelë e shkarkueshme %r: %s"
 
-#: sphinx/builders/html/__init__.py:784 sphinx/builders/html/__init__.py:796
+#: sphinx/builders/html/__init__.py:786 sphinx/builders/html/__init__.py:798
 #, python-format
 msgid "Failed to copy a file in html_static_file: %s: %r"
 msgstr "S’u arrit të kopjohet një kartelë te html_static_file: %s: %r"
 
-#: sphinx/builders/html/__init__.py:817
+#: sphinx/builders/html/__init__.py:819
 msgid "copying static files"
 msgstr "po kopjohen kartela statike"
 
-#: sphinx/builders/html/__init__.py:833
+#: sphinx/builders/html/__init__.py:835
 #, python-format
 msgid "cannot copy static file %r"
 msgstr "s’kopjohet dot kartelë statike %r"
 
-#: sphinx/builders/html/__init__.py:838
+#: sphinx/builders/html/__init__.py:840
 msgid "copying extra files"
 msgstr "po kopjohen kartela ekstra"
 
-#: sphinx/builders/html/__init__.py:844
+#: sphinx/builders/html/__init__.py:846
 #, python-format
 msgid "cannot copy extra file %r"
 msgstr "s’kopjohet dot kartelë ekstra %r"
 
-#: sphinx/builders/html/__init__.py:851
+#: sphinx/builders/html/__init__.py:853
 #, python-format
 msgid "Failed to write build info file: %r"
 msgstr "S’u arrit të shkruhet kartelë të dhënash montimi: %r"
 
-#: sphinx/builders/html/__init__.py:899
+#: sphinx/builders/html/__init__.py:901
 msgid ""
 "search index couldn't be loaded, but not all documents will be built: the "
 "index will be incomplete."
 msgstr "treguesi i kërkimi s’u ngarkua dot, por jo krejt dokumentet do të montohen: treguesi do të jetë i paplotë."
 
-#: sphinx/builders/html/__init__.py:960
+#: sphinx/builders/html/__init__.py:962
 #, python-format
 msgid "page %s matches two patterns in html_sidebars: %r and %r"
 msgstr "faqja %s ka përputhje me dy rregullsi te html_sidebars: %r dhe %r"
 
-#: sphinx/builders/html/__init__.py:1053
+#: sphinx/builders/html/__init__.py:1055
 #, python-format
 msgid ""
 "a Unicode error occurred when rendering the page %s. Please make sure all "
 "config values that contain non-ASCII content are Unicode strings."
 msgstr "ndodhi një gabim Unikod, kur vizatohej faqja %s. Ju lutemi, siguroni që krejt vlerat e formësimit që përmbajnë lëndë jo-ASCII të jenë vargje Unikod."
 
-#: sphinx/builders/html/__init__.py:1058
+#: sphinx/builders/html/__init__.py:1060
 #, python-format
 msgid ""
 "An error happened in rendering the page %s.\n"
 "Reason: %r"
 msgstr "Ndodhi një gabim gjatë vizatimit të faqes %s.\nArsye: %r"
 
-#: sphinx/builders/html/__init__.py:1087
+#: sphinx/builders/html/__init__.py:1089
 msgid "dumping object inventory"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1092
+#: sphinx/builders/html/__init__.py:1094
 #, python-format
 msgid "dumping search index in %s"
 msgstr "po shkruhet lënda e treguesit të kërkimeve në %s"
 
-#: sphinx/builders/html/__init__.py:1134
+#: sphinx/builders/html/__init__.py:1136
 #, python-format
 msgid "invalid js_file: %r, ignored"
 msgstr "js_file e pavlefshme: %r, u shpërfill"
 
-#: sphinx/builders/html/__init__.py:1221
+#: sphinx/builders/html/__init__.py:1223
 msgid "Many math_renderers are registered. But no math_renderer is selected."
 msgstr "Janë të regjistruar plot math_renderers. Por s’u përzgjodh math_renderer."
 
-#: sphinx/builders/html/__init__.py:1224
+#: sphinx/builders/html/__init__.py:1226
 #, python-format
 msgid "Unknown math_renderer %r is given."
 msgstr "U dha math_renderer %r i panjohur."
 
-#: sphinx/builders/html/__init__.py:1232
+#: sphinx/builders/html/__init__.py:1234
 #, python-format
 msgid "html_extra_path entry %r does not exist"
 msgstr "zëri html_extra_path %r s’ekziston"
 
-#: sphinx/builders/html/__init__.py:1236
+#: sphinx/builders/html/__init__.py:1238
 #, python-format
 msgid "html_extra_path entry %r is placed inside outdir"
 msgstr "zëri %r i html_extra_path entry është vendosur jashtë outdir-it"
 
-#: sphinx/builders/html/__init__.py:1245
+#: sphinx/builders/html/__init__.py:1247
 #, python-format
 msgid "html_static_path entry %r does not exist"
 msgstr "zëri html_static_path %r s’ekziston"
 
-#: sphinx/builders/html/__init__.py:1249
+#: sphinx/builders/html/__init__.py:1251
 #, python-format
 msgid "html_static_path entry %r is placed inside outdir"
 msgstr "zëri %r i html_extra_path entry është vendosur brenda outdir-it"
 
-#: sphinx/builders/html/__init__.py:1258 sphinx/builders/latex/__init__.py:433
+#: sphinx/builders/html/__init__.py:1260 sphinx/builders/latex/__init__.py:433
 #, python-format
 msgid "logo file %r does not exist"
 msgstr "kartela stemë %r s’ekziston"
 
-#: sphinx/builders/html/__init__.py:1267
+#: sphinx/builders/html/__init__.py:1269
 #, python-format
 msgid "favicon file %r does not exist"
 msgstr "kartela favikonë %r s’ekziston"
 
-#: sphinx/builders/html/__init__.py:1287
+#: sphinx/builders/html/__init__.py:1289
 msgid ""
 "html_add_permalinks has been deprecated since v3.5.0. Please use "
 "html_permalinks and html_permalinks_icon instead."
 msgstr "html_add_permalinks është nxjerrë nga përdorimi që me v3.5.0. Ju lutemi, në vend të tyre përdorni html_permalinks dhe html_permalinks_icon."
 
-#: sphinx/builders/html/__init__.py:1313
+#: sphinx/builders/html/__init__.py:1315
 #, python-format
 msgid "%s %s documentation"
 msgstr "Dokumentim i %s %s"
@@ -2815,7 +2815,7 @@ msgstr "nënshkrim i pavlefshëm për auto%s (%r)"
 msgid "error while formatting arguments for %s: %s"
 msgstr "gabim gjatë formatimi argumentesh për %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1678
+#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1682
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr "atribut %s që mungon te objekt %s"
@@ -2835,71 +2835,76 @@ msgid ""
 "explicit module name)"
 msgstr "s’dihet cili modul të importohet për vetëdokumentim të %r (provoni të vendosni te dokumenti një direktivë \"module\" ose \"currentmodule\", ose të jepni shprehimisht një emër moduli)"
 
-#: sphinx/ext/autodoc/__init__.py:964
+#: sphinx/ext/autodoc/__init__.py:917
+#, python-format
+msgid "A mocked object is detected: %r"
+msgstr ""
+
+#: sphinx/ext/autodoc/__init__.py:968
 #, python-format
 msgid "error while formatting signature for %s: %s"
 msgstr "gabim gjatë formatimi nënshkrimesh për %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1014
+#: sphinx/ext/autodoc/__init__.py:1018
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr "\"::\" në emër automoduli nuk ka kuptim"
 
-#: sphinx/ext/autodoc/__init__.py:1021
+#: sphinx/ext/autodoc/__init__.py:1025
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1034
+#: sphinx/ext/autodoc/__init__.py:1038
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr "__all__ should duhet të jetë një listë vargjesh, jo %r (në module %s) -- ignoring __all__"
 
-#: sphinx/ext/autodoc/__init__.py:1100
+#: sphinx/ext/autodoc/__init__.py:1104
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr "u përmend atribut që mungon në :members: mundësi: modul %s, atributi %s"
 
-#: sphinx/ext/autodoc/__init__.py:1299 sphinx/ext/autodoc/__init__.py:1373
-#: sphinx/ext/autodoc/__init__.py:2726
+#: sphinx/ext/autodoc/__init__.py:1303 sphinx/ext/autodoc/__init__.py:1377
+#: sphinx/ext/autodoc/__init__.py:2734
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "S’u arrit të merret një nënshkrim funksioni për %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1564
+#: sphinx/ext/autodoc/__init__.py:1568
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr "S’u arrit të merrej nënshkrim konstruktori për %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1665
+#: sphinx/ext/autodoc/__init__.py:1669
 #, python-format
 msgid "Bases: %s"
 msgstr "Baza: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1751 sphinx/ext/autodoc/__init__.py:1824
-#: sphinx/ext/autodoc/__init__.py:1843
+#: sphinx/ext/autodoc/__init__.py:1755 sphinx/ext/autodoc/__init__.py:1828
+#: sphinx/ext/autodoc/__init__.py:1847
 #, python-format
 msgid "alias of %s"
 msgstr "alias për %s"
 
-#: sphinx/ext/autodoc/__init__.py:1885
+#: sphinx/ext/autodoc/__init__.py:1889
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr "alias për TypeVar(%s)"
 
-#: sphinx/ext/autodoc/__init__.py:2118 sphinx/ext/autodoc/__init__.py:2212
+#: sphinx/ext/autodoc/__init__.py:2122 sphinx/ext/autodoc/__init__.py:2216
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr "S’u arrit të merre një nënshkrim metode për %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:2340
+#: sphinx/ext/autodoc/__init__.py:2348
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "U gjet __slots__ i pavlefshëm në %s. U shpërfill."
 
-#: sphinx/ext/autodoc/__init__.py:2769
+#: sphinx/ext/autodoc/__init__.py:2777
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
@@ -3300,12 +3305,12 @@ msgid "search"
 msgstr "kërko"
 
 #: sphinx/themes/basic/search.html:47
-#: sphinx/themes/basic/static/searchtools.js:303
+#: sphinx/themes/basic/static/searchtools.js:306
 msgid "Search Results"
 msgstr "Përfundime Kërkimi"
 
 #: sphinx/themes/basic/search.html:49
-#: sphinx/themes/basic/static/searchtools.js:305
+#: sphinx/themes/basic/static/searchtools.js:308
 msgid ""
 "Your search did not match any documents. Please make sure that all words are"
 " spelled correctly and that you've selected enough categories."
@@ -3371,12 +3376,12 @@ msgstr "Kërkim"
 msgid "Preparing search..."
 msgstr "Po përgatitet kërkim..."
 
-#: sphinx/themes/basic/static/searchtools.js:307
+#: sphinx/themes/basic/static/searchtools.js:310
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
 msgstr "Kërkimi përfundoi, u gjetën %s page(s) me përputhje me shprehjen e kërkuar."
 
-#: sphinx/themes/basic/static/searchtools.js:361
+#: sphinx/themes/basic/static/searchtools.js:364
 msgid ", in "
 msgstr ", në "
 

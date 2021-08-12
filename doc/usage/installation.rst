@@ -223,7 +223,7 @@ of images:
 
 .. _Docker Hub: https://hub.docker.com/
 .. _sphinxdoc/sphinx: https://hub.docker.com/repository/docker/sphinxdoc/sphinx
-.. _sphinxdoc/sphinx-latexpdf: https://hub.docker.com/repository/docker/sphinxdoc/sphinx-latexpdf>
+.. _sphinxdoc/sphinx-latexpdf: https://hub.docker.com/repository/docker/sphinxdoc/sphinx-latexpdf
 
 Former one is used for standard usage of Sphinx, and latter one is mainly used for
 PDF builds using LaTeX.  Please choose one for your purpose.

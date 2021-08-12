@@ -203,7 +203,7 @@ class StandaloneHTMLBuilder(Builder):
         super().__init__(app)
 
         # CSS files
-        self.css_files: List[Dict[str, str]] = []
+        self.css_files: List[Stylesheet] = []
 
         # JS files
         self.script_files: List[JavaScript] = []
@@ -308,7 +308,7 @@ class StandaloneHTMLBuilder(Builder):
         if '://' not in filename:
             filename = posixpath.join('_static', filename)
 
-        self.css_files.append(Stylesheet(filename, **kwargs))  # type: ignore
+        self.css_files.append(Stylesheet(filename, **kwargs))
 
     def init_js_files(self) -> None:
         self.add_js_file('documentation_options.js', id="documentation_options",

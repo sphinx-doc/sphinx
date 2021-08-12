@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-08-01 00:09+0000\n"
+"POT-Creation-Date: 2021-08-08 00:08+0000\n"
 "PO-Revision-Date: 2021-07-25 00:08+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Macedonian (http://www.transifex.com/sphinx-doc/sphinx-1/language/mk/)\n"
@@ -626,7 +626,7 @@ msgstr ""
 msgid "duplicated ToC entry found: %s"
 msgstr ""
 
-#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:726
+#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:728
 #: sphinx/builders/latex/__init__.py:421 sphinx/builders/texinfo.py:176
 msgid "copying images... "
 msgstr ""
@@ -636,7 +636,7 @@ msgstr ""
 msgid "cannot read image file %r: copying it instead"
 msgstr ""
 
-#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:734
+#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:736
 #: sphinx/builders/latex/__init__.py:429 sphinx/builders/texinfo.py:186
 #, python-format
 msgid "cannot copy image file %r: %s"
@@ -761,7 +761,7 @@ msgstr ""
 msgid "conf value \"version\" should not be empty for EPUB3"
 msgstr ""
 
-#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1117
+#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1119
 #, python-format
 msgid "invalid css_file: %r, ignored"
 msgstr ""
@@ -884,7 +884,7 @@ msgstr ""
 msgid "The text files are in %(outdir)s."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1070 sphinx/builders/text.py:77
+#: sphinx/builders/html/__init__.py:1072 sphinx/builders/text.py:77
 #: sphinx/builders/xml.py:91
 #, python-format
 msgid "error writing file %s: %s"
@@ -900,174 +900,174 @@ msgstr ""
 msgid "The pseudo-XML files are in %(outdir)s."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:144
+#: sphinx/builders/html/__init__.py:145
 #, python-format
 msgid "build info file is broken: %r"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:176
+#: sphinx/builders/html/__init__.py:177
 #, python-format
 msgid "The HTML pages are in %(outdir)s."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:372
+#: sphinx/builders/html/__init__.py:373
 #, python-format
 msgid "Failed to read build info file: %r"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:466 sphinx/builders/latex/__init__.py:187
+#: sphinx/builders/html/__init__.py:467 sphinx/builders/latex/__init__.py:187
 #: sphinx/transforms/__init__.py:116 sphinx/writers/manpage.py:102
 #: sphinx/writers/texinfo.py:233
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%d %b, %Y"
 
-#: sphinx/builders/html/__init__.py:485 sphinx/themes/basic/defindex.html:30
+#: sphinx/builders/html/__init__.py:486 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
 msgstr "Главна содржина"
 
-#: sphinx/builders/html/__init__.py:485
+#: sphinx/builders/html/__init__.py:486
 msgid "index"
 msgstr "содржина"
 
-#: sphinx/builders/html/__init__.py:547
+#: sphinx/builders/html/__init__.py:549
 msgid "next"
 msgstr "следна"
 
-#: sphinx/builders/html/__init__.py:556
+#: sphinx/builders/html/__init__.py:558
 msgid "previous"
 msgstr "претходна"
 
-#: sphinx/builders/html/__init__.py:650
+#: sphinx/builders/html/__init__.py:652
 msgid "generating indices"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:665
+#: sphinx/builders/html/__init__.py:667
 msgid "writing additional pages"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:744
+#: sphinx/builders/html/__init__.py:746
 msgid "copying downloadable files... "
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:752
+#: sphinx/builders/html/__init__.py:754
 #, python-format
 msgid "cannot copy downloadable file %r: %s"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:784 sphinx/builders/html/__init__.py:796
+#: sphinx/builders/html/__init__.py:786 sphinx/builders/html/__init__.py:798
 #, python-format
 msgid "Failed to copy a file in html_static_file: %s: %r"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:817
+#: sphinx/builders/html/__init__.py:819
 msgid "copying static files"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:833
+#: sphinx/builders/html/__init__.py:835
 #, python-format
 msgid "cannot copy static file %r"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:838
+#: sphinx/builders/html/__init__.py:840
 msgid "copying extra files"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:844
+#: sphinx/builders/html/__init__.py:846
 #, python-format
 msgid "cannot copy extra file %r"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:851
+#: sphinx/builders/html/__init__.py:853
 #, python-format
 msgid "Failed to write build info file: %r"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:899
+#: sphinx/builders/html/__init__.py:901
 msgid ""
 "search index couldn't be loaded, but not all documents will be built: the "
 "index will be incomplete."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:960
+#: sphinx/builders/html/__init__.py:962
 #, python-format
 msgid "page %s matches two patterns in html_sidebars: %r and %r"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1053
+#: sphinx/builders/html/__init__.py:1055
 #, python-format
 msgid ""
 "a Unicode error occurred when rendering the page %s. Please make sure all "
 "config values that contain non-ASCII content are Unicode strings."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1058
+#: sphinx/builders/html/__init__.py:1060
 #, python-format
 msgid ""
 "An error happened in rendering the page %s.\n"
 "Reason: %r"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1087
+#: sphinx/builders/html/__init__.py:1089
 msgid "dumping object inventory"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1092
+#: sphinx/builders/html/__init__.py:1094
 #, python-format
 msgid "dumping search index in %s"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1134
+#: sphinx/builders/html/__init__.py:1136
 #, python-format
 msgid "invalid js_file: %r, ignored"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1221
+#: sphinx/builders/html/__init__.py:1223
 msgid "Many math_renderers are registered. But no math_renderer is selected."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1224
+#: sphinx/builders/html/__init__.py:1226
 #, python-format
 msgid "Unknown math_renderer %r is given."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1232
+#: sphinx/builders/html/__init__.py:1234
 #, python-format
 msgid "html_extra_path entry %r does not exist"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1236
+#: sphinx/builders/html/__init__.py:1238
 #, python-format
 msgid "html_extra_path entry %r is placed inside outdir"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1245
+#: sphinx/builders/html/__init__.py:1247
 #, python-format
 msgid "html_static_path entry %r does not exist"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1249
+#: sphinx/builders/html/__init__.py:1251
 #, python-format
 msgid "html_static_path entry %r is placed inside outdir"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1258 sphinx/builders/latex/__init__.py:433
+#: sphinx/builders/html/__init__.py:1260 sphinx/builders/latex/__init__.py:433
 #, python-format
 msgid "logo file %r does not exist"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1267
+#: sphinx/builders/html/__init__.py:1269
 #, python-format
 msgid "favicon file %r does not exist"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1287
+#: sphinx/builders/html/__init__.py:1289
 msgid ""
 "html_add_permalinks has been deprecated since v3.5.0. Please use "
 "html_permalinks and html_permalinks_icon instead."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1313
+#: sphinx/builders/html/__init__.py:1315
 #, python-format
 msgid "%s %s documentation"
 msgstr "%s %s документација"
@@ -2815,7 +2815,7 @@ msgstr ""
 msgid "error while formatting arguments for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1678
+#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1682
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr ""
@@ -2835,71 +2835,76 @@ msgid ""
 "explicit module name)"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:964
+#: sphinx/ext/autodoc/__init__.py:917
+#, python-format
+msgid "A mocked object is detected: %r"
+msgstr ""
+
+#: sphinx/ext/autodoc/__init__.py:968
 #, python-format
 msgid "error while formatting signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1014
+#: sphinx/ext/autodoc/__init__.py:1018
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1021
+#: sphinx/ext/autodoc/__init__.py:1025
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1034
+#: sphinx/ext/autodoc/__init__.py:1038
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1100
+#: sphinx/ext/autodoc/__init__.py:1104
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1299 sphinx/ext/autodoc/__init__.py:1373
-#: sphinx/ext/autodoc/__init__.py:2726
+#: sphinx/ext/autodoc/__init__.py:1303 sphinx/ext/autodoc/__init__.py:1377
+#: sphinx/ext/autodoc/__init__.py:2734
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1564
+#: sphinx/ext/autodoc/__init__.py:1568
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1665
+#: sphinx/ext/autodoc/__init__.py:1669
 #, python-format
 msgid "Bases: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1751 sphinx/ext/autodoc/__init__.py:1824
-#: sphinx/ext/autodoc/__init__.py:1843
+#: sphinx/ext/autodoc/__init__.py:1755 sphinx/ext/autodoc/__init__.py:1828
+#: sphinx/ext/autodoc/__init__.py:1847
 #, python-format
 msgid "alias of %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1885
+#: sphinx/ext/autodoc/__init__.py:1889
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2118 sphinx/ext/autodoc/__init__.py:2212
+#: sphinx/ext/autodoc/__init__.py:2122 sphinx/ext/autodoc/__init__.py:2216
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2340
+#: sphinx/ext/autodoc/__init__.py:2348
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2769
+#: sphinx/ext/autodoc/__init__.py:2777
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
@@ -3300,12 +3305,12 @@ msgid "search"
 msgstr ""
 
 #: sphinx/themes/basic/search.html:47
-#: sphinx/themes/basic/static/searchtools.js:303
+#: sphinx/themes/basic/static/searchtools.js:306
 msgid "Search Results"
 msgstr ""
 
 #: sphinx/themes/basic/search.html:49
-#: sphinx/themes/basic/static/searchtools.js:305
+#: sphinx/themes/basic/static/searchtools.js:308
 msgid ""
 "Your search did not match any documents. Please make sure that all words are"
 " spelled correctly and that you've selected enough categories."
@@ -3371,12 +3376,12 @@ msgstr ""
 msgid "Preparing search..."
 msgstr ""
 
-#: sphinx/themes/basic/static/searchtools.js:307
+#: sphinx/themes/basic/static/searchtools.js:310
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
 msgstr ""
 
-#: sphinx/themes/basic/static/searchtools.js:361
+#: sphinx/themes/basic/static/searchtools.js:364
 msgid ", in "
 msgstr ""
 
