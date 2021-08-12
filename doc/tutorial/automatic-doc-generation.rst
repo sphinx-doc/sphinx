@@ -86,3 +86,81 @@ as follows:
    .. autoexception:: lumache.InvalidKindError
 
 And again, after running ``make html``, the output will be the same as before.
+
+Generating comprehensive API references
+---------------------------------------
+
+While using ``sphinx.ext.autodoc`` makes keeping the code and the documentation
+in sync much easier, it still requires you to write an ``auto*`` directive
+for every object you want to document. Sphinx provides yet another level of
+automation: the :doc:`autosummary </usage/extensions/autosummary>` extension.
+
+The :rst:dir:`autosummary` directive generates documents that contain all the
+necessary ``autodoc`` directives. To use it, first enable the autosummary
+extension:
+
+.. code-block:: python
+   :caption: docs/source/conf.py
+   :emphasize-lines: 5
+
+   extensions = [
+      'sphinx.ext.duration',
+      'sphinx.ext.doctest',
+      'sphinx.ext.autodoc',
+      'sphinx.ext.autosummary',
+   ]
+
+Next, create a new ``api.rst`` file with these contents:
+
+.. code-block:: rst
+   :caption: docs/source/api.rst
+
+   API
+   ===
+
+   .. autosummary::
+      :toctree: generated
+
+      lumache
+
+Remember to include the new document in the root toctree:
+
+.. code-block:: rst
+   :caption: docs/source/index.rst
+   :emphasize-lines: 7
+
+   Contents
+   --------
+
+   .. toctree::
+
+      usage
+      api
+
+Finally, after you build the HTML documentation running ``make html``, it will
+contain two new pages:
+
+- ``api.html``, corresponding to ``docs/source/api.rst`` and containing a table
+  with the objects you included in the ``autosummary`` directive (in this case,
+  only one).
+- ``generated/lumache.html``, corresponding to a newly created reST file
+  ``generated/lumache.rst`` and containing a summary of members of the module,
+  in this case one function and one exception.
+
+.. figure:: /_static/tutorial/lumache-autosummary.png
+   :width: 80%
+   :align: center
+   :alt: Summary page created by autosummary
+
+   Summary page created by autosummary
+
+Each of the links in the summary page will take you to the places where you
+originally used the correspoding ``autodoc`` directive, in this case in the
+``usage.rst`` document.
+
+.. note::
+
+   The generated files are based on `Jinja2
+   templates <https://jinja2docs.readthedocs.io/>`_ that
+   :ref:`can be customized <autosummary-customizing-templates>`,
+   but that is out of scope for this tutorial.
