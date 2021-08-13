@@ -453,7 +453,7 @@ General configuration
    As a special character, ``%s`` will be replaced to figure number.
 
    Default is to use ``'Fig. %s'`` for ``'figure'``, ``'Table %s'`` for
-   ``'table'``, ``'Listing %s'`` for ``'code-block'`` and ``'Section'`` for
+   ``'table'``, ``'Listing %s'`` for ``'code-block'`` and ``'Section %s'`` for
    ``'section'``.
 
    .. versionadded:: 1.3
