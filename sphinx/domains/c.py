@@ -111,7 +111,7 @@ _simple_type_sepcifiers_re = re.compile(r"""(?x)
     |__float80|_Float64x|__float128|_Float128|__ibm128
     |__fp16
     # Fixed-point, extension
-    |(_Sat\s+)?((signed|unsigned)\s+)?((short|long|long\s+long)\s+)?(_Fract|_Accum)
+    |(_Sat\s+)?((signed|unsigned)\s+)?((short|long|long\s+long)\s+)?(_Fract|fract|_Accum|accum)
     # Integer types that could be prefixes of the previous ones
     # ---------------------------------------------------------
     |((signed|unsigned)\s+)?(short|long\s+long|long)

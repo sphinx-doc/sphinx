@@ -318,7 +318,7 @@ def test_domain_c_ast_fundamental_types():
         # -----------------------------
         # https://gcc.gnu.org/onlinedocs/gcc/Fixed-Point.html#Fixed-Point
         for sat in ('', '_Sat '):
-            for t in ('_Fract', '_Accum'):
+            for t in ('_Fract', 'fract', '_Accum', 'accum'):
                 for size in ('short ', '', 'long ', 'long long '):
                     for tt in signed(size + t):
                         yield sat + tt
