@@ -102,14 +102,17 @@ class SphinxTestApp(application.Sphinx):
     _status: StringIO = None
     _warning: StringIO = None
 
-    def __init__(self, buildername: str = 'html', srcdir: path = None, freshenv: bool = False,
-                 confoverrides: Dict = None, status: IO = None, warning: IO = None,
-                 tags: List[str] = None, docutilsconf: str = None, parallel: int = 0) -> None:
+    def __init__(self, buildername: str = 'html', srcdir: path = None, builddir: path = None,
+                 freshenv: bool = False, confoverrides: Dict = None, status: IO = None,
+                 warning: IO = None, tags: List[str] = None, docutilsconf: str = None,
+                 parallel: int = 0) -> None:
 
         if docutilsconf is not None:
             (srcdir / 'docutils.conf').write_text(docutilsconf)
 
-        builddir = srcdir / '_build'
+        if builddir is None:
+            builddir = srcdir / '_build'
+
         confdir = srcdir
         outdir = builddir.joinpath(buildername)
         outdir.makedirs(exist_ok=True)
