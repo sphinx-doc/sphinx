@@ -92,6 +92,33 @@ _id_prefix = [None, 'c.', 'Cv2.']
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
 
+_simple_type_sepcifiers_re = re.compile(r"""(?x)
+    \b(
+    void|_Bool|bool
+    # Integer
+    # -------
+    |((signed|unsigned)\s+)?(char|(
+        ((long\s+long|long)\s+)?int
+    ))
+    |__uint128|__int128
+    # extensions
+    |((signed|unsigned)\s+)?__int(8|16|32|64|128)
+    # Floating-point
+    # --------------
+    |(float|double|long\s+double)(\s+(_Complex|complex|_Imaginary|imaginary))?
+    |_Decimal(32|64|128)
+    # extensions
+    |__float80|_Float64x|__float128|_Float128|__ibm128
+    |__fp16
+    # Fixed-point, extension
+    |(_Sat\s+)?((signed|unsigned)\s+)?((short|long|long\s+long)\s+)?(_Fract|_Accum)
+    # Integer types that could be prefixes of the previous ones
+    # ---------------------------------------------------------
+    |((signed|unsigned)\s+)?(short|long\s+long|long)
+    |signed|unsigned
+    )\b
+""")
+
 
 class _DuplicateSymbolError(Exception):
     def __init__(self, symbol: "Symbol", declaration: "ASTDeclaration") -> None:
@@ -2123,15 +2150,6 @@ class Symbol:
 
 
 class DefinitionParser(BaseParser):
-    # those without signedness and size modifiers
-    # see https://en.cppreference.com/w/cpp/language/types
-    _simple_fundamental_types = (
-        'void', '_Bool', 'bool', 'char', 'int', 'float', 'double',
-        '__int64',
-    )
-
-    _prefix_keys = ('struct', 'enum', 'union')
-
     @property
     def language(self) -> str:
         return 'C'
@@ -2556,40 +2574,16 @@ class DefinitionParser(BaseParser):
         return ASTNestedName(names, rooted)
 
     def _parse_trailing_type_spec(self) -> ASTTrailingTypeSpec:
-        # fundamental types
+        # fundamental types, https://en.cppreference.com/w/c/language/type
+        # and extensions
         self.skip_ws()
-        for t in self._simple_fundamental_types:
-            if self.skip_word(t):
-                return ASTTrailingTypeSpecFundamental(t)
-
-        # TODO: this could/should be more strict
-        elements = []
-        if self.skip_word_and_ws('signed'):
-            elements.append('signed')
-        elif self.skip_word_and_ws('unsigned'):
-            elements.append('unsigned')
-        while 1:
-            if self.skip_word_and_ws('short'):
-                elements.append('short')
-            elif self.skip_word_and_ws('long'):
-                elements.append('long')
-            else:
-                break
-        if self.skip_word_and_ws('char'):
-            elements.append('char')
-        elif self.skip_word_and_ws('int'):
-            elements.append('int')
-        elif self.skip_word_and_ws('double'):
-            elements.append('double')
-        elif self.skip_word_and_ws('__int64'):
-            elements.append('__int64')
-        if len(elements) > 0:
-            return ASTTrailingTypeSpecFundamental(' '.join(elements))
+        if self.match(_simple_type_sepcifiers_re):
+            return ASTTrailingTypeSpecFundamental(self.matched_text)
 
         # prefixed
         prefix = None
         self.skip_ws()
-        for k in self._prefix_keys:
+        for k in ('struct', 'enum', 'union'):
             if self.skip_word_and_ws(k):
                 prefix = k
                 break

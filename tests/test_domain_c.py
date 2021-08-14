@@ -275,6 +275,58 @@ def test_domain_c_ast_expressions():
     exprCheck('a or_eq 5')
 
 
+def test_domain_c_ast_fundamental_types():
+    def types():
+        def signed(t):
+            yield t
+            yield 'signed ' + t
+            yield 'unsigned ' + t
+
+        # integer types
+        # -------------
+        yield 'void'
+        yield from ('_Bool', 'bool')
+        yield from signed('char')
+        yield from signed('short')
+        yield from signed('int')
+        yield from ('signed', 'unsigned')
+        yield from signed('long')
+        yield from signed('long int')
+        yield from signed('long long')
+        yield from signed('long long int')
+        yield from ('__int128', '__uint128')
+        # extensions
+        for t in ('__int8', '__int16', '__int32', '__int64', '__int128'):
+            yield from signed(t)
+
+        # floating point types
+        # --------------------
+        yield from ('_Decimal32', '_Decimal64', '_Decimal128')
+        for f in ('float', 'double', 'long double'):
+            yield f
+            yield from (f + " _Complex", f + " complex")
+            yield from (f + " _Imaginary", f + " imaginary")
+        # extensions
+        # https://gcc.gnu.org/onlinedocs/gcc/Floating-Types.html#Floating-Types
+        yield from ('__float80', '_Float64x',
+                    '__float128', '_Float128',
+                    '__ibm128')
+        # https://gcc.gnu.org/onlinedocs/gcc/Half-Precision.html#Half-Precision
+        yield '__fp16'
+
+        # fixed-point types (extension)
+        # -----------------------------
+        # https://gcc.gnu.org/onlinedocs/gcc/Fixed-Point.html#Fixed-Point
+        for sat in ('', '_Sat '):
+            for t in ('_Fract', '_Accum'):
+                for size in ('short ', '', 'long ', 'long long '):
+                    for tt in signed(size + t):
+                        yield sat + tt
+
+    for t in types():
+        check('type', "{key}%s foo" % t, {1: 'foo'}, key='typedef')
+
+
 def test_domain_c_ast_type_definitions():
     check('type', "{key}T", {1: "T"})
 
