@@ -5936,13 +5936,6 @@ class DefinitionParser(BaseParser):
                         'Expecting "," or ")" in parameters-and-qualifiers, '
                         'got "%s".' % self.current_char)
 
-        # TODO: why did we have this bail-out?
-        # does it hurt to parse the extra stuff?
-        # it's needed for pointer to member functions
-        if paramMode != 'function' and False:
-            return ASTParametersQualifiers(
-                args, None, None, None, None, None, None, None)
-
         self.skip_ws()
         const = self.skip_word_and_ws('const')
         volatile = self.skip_word_and_ws('volatile')
@@ -5989,7 +5982,8 @@ class DefinitionParser(BaseParser):
 
         self.skip_ws()
         initializer = None
-        if self.skip_string('='):
+        # if this is a function pointer we should not swallow an initializer
+        if paramMode == 'function' and self.skip_string('='):
             self.skip_ws()
             valid = ('0', 'delete', 'default')
             for w in valid:
