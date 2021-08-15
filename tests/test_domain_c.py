@@ -279,8 +279,8 @@ def test_domain_c_ast_fundamental_types():
     def types():
         def signed(t):
             yield t
-            yield 'signed ' + t
-            yield 'unsigned ' + t
+            yield 'signed  ' + t
+            yield 'unsigned  ' + t
 
         # integer types
         # -------------
@@ -288,6 +288,7 @@ def test_domain_c_ast_fundamental_types():
         yield from ('_Bool', 'bool')
         yield from signed('char')
         yield from signed('short')
+        yield from signed('short int')
         yield from signed('int')
         yield from ('signed', 'unsigned')
         yield from signed('long')
@@ -304,8 +305,8 @@ def test_domain_c_ast_fundamental_types():
         yield from ('_Decimal32', '_Decimal64', '_Decimal128')
         for f in ('float', 'double', 'long double'):
             yield f
-            yield from (f + " _Complex", f + " complex")
-            yield from (f + " _Imaginary", f + " imaginary")
+            yield from (f + "  _Complex", f + "  complex")
+            yield from (f + "  _Imaginary", f + "  imaginary")
         # extensions
         # https://gcc.gnu.org/onlinedocs/gcc/Floating-Types.html#Floating-Types
         yield from ('__float80', '_Float64x',
@@ -317,14 +318,16 @@ def test_domain_c_ast_fundamental_types():
         # fixed-point types (extension)
         # -----------------------------
         # https://gcc.gnu.org/onlinedocs/gcc/Fixed-Point.html#Fixed-Point
-        for sat in ('', '_Sat '):
+        for sat in ('', '_Sat  '):
             for t in ('_Fract', 'fract', '_Accum', 'accum'):
-                for size in ('short ', '', 'long ', 'long long '):
+                for size in ('short  ', '', 'long  ', 'long long  '):
                     for tt in signed(size + t):
                         yield sat + tt
 
     for t in types():
-        check('type', "{key}%s foo" % t, {1: 'foo'}, key='typedef')
+        input = "{key}%s foo" % t
+        output = ' '.join(input.split())
+        check('type', input, {1: 'foo'}, key='typedef', output=output)
 
 
 def test_domain_c_ast_type_definitions():

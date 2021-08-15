@@ -98,7 +98,7 @@ _simple_type_sepcifiers_re = re.compile(r"""(?x)
     # Integer
     # -------
     |((signed|unsigned)\s+)?(char|(
-        ((long\s+long|long)\s+)?int
+        ((long\s+long|long|short)\s+)?int
     ))
     |__uint128|__int128
     # extensions
@@ -114,7 +114,7 @@ _simple_type_sepcifiers_re = re.compile(r"""(?x)
     |(_Sat\s+)?((signed|unsigned)\s+)?((short|long|long\s+long)\s+)?(_Fract|fract|_Accum|accum)
     # Integer types that could be prefixes of the previous ones
     # ---------------------------------------------------------
-    |((signed|unsigned)\s+)?(short|long\s+long|long)
+    |((signed|unsigned)\s+)?(long\s+long|long|short)
     |signed|unsigned
     )\b
 """)
@@ -636,14 +636,20 @@ class ASTTrailingTypeSpec(ASTBase):
 
 class ASTTrailingTypeSpecFundamental(ASTTrailingTypeSpec):
     def __init__(self, name: str) -> None:
-        self.name = name
+        self.names = name.split()
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return self.name
+        return ' '.join(self.names)
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_keyword_type(self.name, self.name)
+        first = True
+        for n in self.names:
+            if not first:
+                signode += addnodes.desc_sig_space()
+            else:
+                first = False
+            signode += addnodes.desc_sig_keyword_type(n, n)
 
 
 class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
