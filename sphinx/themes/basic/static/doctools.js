@@ -264,6 +264,9 @@ var Documentation = {
   hideSearchWords : function() {
     $('#searchbox .highlight-link').fadeOut(300);
     $('span.highlighted').removeClass('highlighted');
+    var url = new URL(window.location);
+    url.searchParams.delete('highlight');
+    window.history.replaceState({}, '', url);
   },
 
   /**
