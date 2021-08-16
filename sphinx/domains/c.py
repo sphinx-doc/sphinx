@@ -106,6 +106,7 @@ _simple_type_sepcifiers_re = re.compile(r"""(?x)
     # Floating-point
     # --------------
     |(float|double|long\s+double)(\s+(_Complex|complex|_Imaginary|imaginary))?
+    |(_Complex|complex|_Imaginary|imaginary)\s+(float|double|long\s+double)
     |_Decimal(32|64|128)
     # extensions
     |__float80|_Float64x|__float128|_Float128|__ibm128

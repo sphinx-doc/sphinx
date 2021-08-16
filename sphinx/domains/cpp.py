@@ -349,6 +349,7 @@ _simple_type_sepcifiers_re = re.compile(r"""(?x)
     # Floating-point
     # --------------
     |(float|double|long\s+double)(\s+(_Complex|_Imaginary))?
+    |(_Complex|_Imaginary)\s+(float|double|long\s+double)
     # extensions
     |__float80|_Float64x|__float128|_Float128
     # Integer types that could be prefixes of the previous ones
@@ -482,16 +483,14 @@ _id_fundamental_v2 = {
     'float': 'f',
     'double': 'd',
     'long double': 'e',
-    '__float80': 'e',
-    '_Float64x': 'e',
-    '__float128': 'g',
-    '_Float128': 'g',
-    'float _Complex': 'Cf',
-    'double _Complex': 'Cd',
-    'long double _Complex': 'Ce',
-    'float _Imaginary': 'f',
-    'double _Imaginary': 'd',
-    'long double _Imaginary': 'e',
+    '__float80': 'e', '_Float64x': 'e',
+    '__float128': 'g', '_Float128': 'g',
+    'float _Complex': 'Cf', '_Complex float': 'Cf',
+    'double _Complex': 'Cd', '_Complex double': 'Cd',
+    'long double _Complex': 'Ce', '_Complex long double': 'Ce',
+    'float _Imaginary': 'f', '_Imaginary float': 'f',
+    'double _Imaginary': 'd', '_Imaginary double': 'd',
+    'long double _Imaginary': 'e', '_Imaginary long double': 'e',
     'auto': 'Da',
     'decltype(auto)': 'Dc',
     'std::nullptr_t': 'Dn'

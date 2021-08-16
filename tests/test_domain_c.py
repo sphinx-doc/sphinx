@@ -306,7 +306,8 @@ def test_domain_c_ast_fundamental_types():
         for f in ('float', 'double', 'long double'):
             yield f
             yield from (f + "  _Complex", f + "  complex")
-            yield from (f + "  _Imaginary", f + "  imaginary")
+            yield from ("_Complex  " + f, "complex  " + f)
+            yield from ("_Imaginary  " + f, "imaginary  " + f)
         # extensions
         # https://gcc.gnu.org/onlinedocs/gcc/Floating-Types.html#Floating-Types
         yield from ('__float80', '_Float64x',
