@@ -677,7 +677,7 @@ def _import_by_name(name: str, last_errors = None) -> Tuple[Any, Any, str]:
         raise ImportError(*e.args) from e
 
 
-def import_ivar_by_name(name: str, prefixes: List[str] = [None]) -> Tuple[str, Any, Any, str]:
+def import_ivar_by_name(name: str, prefixes: List[str] = [None], last_errors = None) -> Tuple[str, Any, Any, str]:
     """Import an instance variable that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
@@ -690,7 +690,9 @@ def import_ivar_by_name(name: str, prefixes: List[str] = [None]) -> Tuple[str, A
         # check for presence in `annotations` to include dataclass attributes
         if (qualname, attr) in analyzer.attr_docs or (qualname, attr) in analyzer.annotations:
             return real_name + "." + attr, INSTANCEATTR, obj, modname
-    except (ImportError, ValueError, PycodeError):
+    except (ImportError, ValueError, PycodeError) as e:
+        if last_errors is not None:
+            last_errors.append(str(e.args[0]))
         pass
 
     raise ImportError

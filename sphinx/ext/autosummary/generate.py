@@ -421,9 +421,11 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
         except ImportError as e:
             try:
                 # try to importl as an instance attribute
-                name, obj, parent, modname = import_ivar_by_name(entry.name)
+                name, obj, parent, modname = import_ivar_by_name(entry.name, last_errors=last_errors)
                 qualname = name.replace(modname + ".", "")
             except ImportError:
+                # remove duplicates
+                last_errors = list(set(last_errors))
                 logger.warning(__('[autosummary] failed to import %r: %s. Possible hints: %s') % (entry.name, e, last_errors))
                 continue
 
