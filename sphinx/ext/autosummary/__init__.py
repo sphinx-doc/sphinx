@@ -614,7 +614,7 @@ def get_import_prefixes_from_env(env: BuildEnvironment) -> List[str]:
     return prefixes
 
 
-def import_by_name(name: str, prefixes: List[str] = [None]) -> Tuple[str, Any, Any, str]:
+def import_by_name(name: str, prefixes: List[str] = [None], last_errors = None) -> Tuple[str, Any, Any, str]:
     """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
@@ -625,14 +625,14 @@ def import_by_name(name: str, prefixes: List[str] = [None]) -> Tuple[str, Any, A
                 prefixed_name = '.'.join([prefix, name])
             else:
                 prefixed_name = name
-            obj, parent, modname = _import_by_name(prefixed_name)
+            obj, parent, modname = _import_by_name(prefixed_name, last_errors)
             return prefixed_name, obj, parent, modname
         except ImportError:
             tried.append(prefixed_name)
     raise ImportError('no module named %s' % ' or '.join(tried))
 
 
-def _import_by_name(name: str) -> Tuple[Any, Any, str]:
+def _import_by_name(name: str, last_errors = None) -> Tuple[Any, Any, str]:
     """Import a Python object given its full name."""
     try:
         name_parts = name.split('.')
@@ -643,7 +643,9 @@ def _import_by_name(name: str) -> Tuple[Any, Any, str]:
             try:
                 mod = import_module(modname)
                 return getattr(mod, name_parts[-1]), mod, modname
-            except (ImportError, IndexError, AttributeError):
+            except (ImportError, IndexError, AttributeError) as e:
+                if last_errors is not None:
+                    last_errors.append(str(str(e.args[0])))
                 pass
 
         # ... then as MODNAME, MODNAME.OBJ1, MODNAME.OBJ1.OBJ2, ...
@@ -654,7 +656,9 @@ def _import_by_name(name: str) -> Tuple[Any, Any, str]:
             modname = '.'.join(name_parts[:j])
             try:
                 import_module(modname)
-            except ImportError:
+            except ImportError as e:
+                if last_errors is not None:
+                    last_errors.append(str(e.args[0]))
                 continue
 
             if modname in sys.modules:
