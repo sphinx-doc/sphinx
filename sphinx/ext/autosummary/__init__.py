@@ -658,7 +658,7 @@ def _import_by_name(name: str, last_errors = None) -> Tuple[Any, Any, str]:
                 import_module(modname)
             except ImportError as e:
                 if last_errors is not None:
-                    last_errors.append(str(e.args[0]))
+                    last_errors.append(str(e))
                 continue
 
             if modname in sys.modules:
@@ -692,7 +692,7 @@ def import_ivar_by_name(name: str, prefixes: List[str] = [None], last_errors = N
             return real_name + "." + attr, INSTANCEATTR, obj, modname
     except (ImportError, ValueError, PycodeError) as e:
         if last_errors is not None:
-            last_errors.append(str(e.args[0]))
+            last_errors.append(str(e))
         pass
 
     raise ImportError
