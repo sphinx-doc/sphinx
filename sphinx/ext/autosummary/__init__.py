@@ -645,7 +645,7 @@ def _import_by_name(name: str, last_errors = None) -> Tuple[Any, Any, str]:
                 return getattr(mod, name_parts[-1]), mod, modname
             except (ImportError, IndexError, AttributeError) as e:
                 if last_errors is not None:
-                    last_errors.append(str(str(e.args[0])))
+                    last_errors.append(str(e))
                 pass
 
         # ... then as MODNAME, MODNAME.OBJ1, MODNAME.OBJ1.OBJ2, ...
