@@ -38,6 +38,8 @@ Bugs fixed
 * #9267: html theme: CSS and JS files added by theme were loaded twice
 * #9535 comment: C++, fix parsing of defaulted function parameters that are
   function pointers.
+* #9564: smartquotes: don't adjust typography for text with
+  language-highlighted ``:code:`` role.
 
 Testing
 --------
