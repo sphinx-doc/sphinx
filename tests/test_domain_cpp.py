@@ -639,6 +639,9 @@ def test_domain_cpp_ast_function_definitions():
     # from #8960
     check('function', 'void f(void (*p)(int, double), int i)', {2: '1fPFvidEi'})
 
+    # from #9535 comment
+    check('function', 'void f(void (*p)(int) = &foo)', {2: '1fPFviE'})
+
 
 def test_domain_cpp_ast_operators():
     check('function', 'void operator new()', {1: "new-operator", 2: "nwv"})
