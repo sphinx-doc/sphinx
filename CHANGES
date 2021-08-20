@@ -19,6 +19,7 @@ Features added
   template variable ``sphinx_version_tuple``
 * #9445: py domain: ``:py:property:`` directive supports ``:classmethod:``
   option to describe the class property
+* #9535: C and C++, support more fundamental types, including GNU extensions.
 
 Bugs fixed
 ----------
