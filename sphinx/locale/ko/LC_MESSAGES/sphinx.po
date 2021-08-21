@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-08-08 00:08+0000\n"
-"PO-Revision-Date: 2021-07-25 02:19+0000\n"
+"POT-Creation-Date: 2021-08-15 00:08+0000\n"
+"PO-Revision-Date: 2021-08-08 12:15+0000\n"
 "Last-Translator: YT H <dev@theYT.net>\n"
 "Language-Team: Korean (http://www.transifex.com/sphinx-doc/sphinx-1/language/ko/)\n"
 "MIME-Version: 1.0\n"
@@ -2839,7 +2839,7 @@ msgstr "%r의 자동 문서화를 위해 가져올 모듈을 알 수 없습니�
 #: sphinx/ext/autodoc/__init__.py:917
 #, python-format
 msgid "A mocked object is detected: %r"
-msgstr ""
+msgstr "모의 객체가 감지되었습니다: %r"
 
 #: sphinx/ext/autodoc/__init__.py:968
 #, python-format

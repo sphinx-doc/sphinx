@@ -40,6 +40,7 @@ Features added
   template variable ``sphinx_version_tuple``
 * #9445: py domain: ``:py:property:`` directive supports ``:classmethod:``
   option to describe the class property
+* #9535: C and C++, support more fundamental types, including GNU extensions.
 
 Bugs fixed
 ----------
@@ -55,6 +56,9 @@ Bugs fixed
 * #9481: cpp domain: some warnings contain non-existing filenames
 * #9456: html search: abbreation marks are inserted to the search result if
   failed to fetch the content of the page
+* #9267: html theme: CSS and JS files added by theme were loaded twice
+* #9535 comment: C++, fix parsing of defaulted function parameters that are
+  function pointers.
 
 Testing
 --------

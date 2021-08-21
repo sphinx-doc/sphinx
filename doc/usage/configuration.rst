@@ -453,7 +453,7 @@ General configuration
    As a special character, ``%s`` will be replaced to figure number.
 
    Default is to use ``'Fig. %s'`` for ``'figure'``, ``'Table %s'`` for
-   ``'table'``, ``'Listing %s'`` for ``'code-block'`` and ``'Section'`` for
+   ``'table'``, ``'Listing %s'`` for ``'code-block'`` and ``'Section %s'`` for
    ``'section'``.
 
    .. versionadded:: 1.3
@@ -1309,11 +1309,11 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_use_opensearch
 
-   If nonempty, an `OpenSearch <https://www.opensearch.org/>`_ description
-   file will be output, and all pages will contain a ``<link>`` tag referring
-   to it.  Since OpenSearch doesn't support relative URLs for its search page
-   location, the value of this option must be the base URL from which these
-   documents are served (without trailing slash), e.g.
+   If nonempty, an `OpenSearch <https://github.com/dewitt/opensearch>`_
+   description file will be output, and all pages will contain a ``<link>``
+   tag referring to it.  Since OpenSearch doesn't support relative URLs for
+   its search page location, the value of this option must be the base URL
+   from which these documents are served (without trailing slash), e.g.
    ``"https://docs.python.org"``.  The default is ``''``.
 
 .. confval:: html_file_suffix
