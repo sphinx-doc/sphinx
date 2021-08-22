@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-08-15 00:08+0000\n"
+"POT-Creation-Date: 2021-08-22 00:08+0000\n"
 "PO-Revision-Date: 2021-08-08 00:08+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Persian (http://www.transifex.com/sphinx-doc/sphinx-1/language/fa/)\n"
@@ -629,7 +629,7 @@ msgstr "آماده سازی اسناد"
 msgid "duplicated ToC entry found: %s"
 msgstr "عنوان تکراری در فهرست مطالب پیدا شد:%s"
 
-#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:728
+#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:730
 #: sphinx/builders/latex/__init__.py:421 sphinx/builders/texinfo.py:176
 msgid "copying images... "
 msgstr "در حال رونوشت از تصاویر... "
@@ -639,7 +639,7 @@ msgstr "در حال رونوشت از تصاویر... "
 msgid "cannot read image file %r: copying it instead"
 msgstr "امکان خواندن پرونده‌ی تصویری %r نبود: در عوض کپی می‌شود"
 
-#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:736
+#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:738
 #: sphinx/builders/latex/__init__.py:429 sphinx/builders/texinfo.py:186
 #, python-format
 msgid "cannot copy image file %r: %s"
@@ -764,7 +764,7 @@ msgstr "مقدار پیکربندی شناسه (\"epub_identifier\") نباید 
 msgid "conf value \"version\" should not be empty for EPUB3"
 msgstr "مقدار پیکربندی ویراست (\"version\") نباید برای نسخه‌ی سوم پرونده‌های انتشار الکترونیک(EPUB3) خالی باشد"
 
-#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1119
+#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1121
 #, python-format
 msgid "invalid css_file: %r, ignored"
 msgstr "پرونده‌ی css نامعتبر%r: نادیده گرفته می‌شود"
@@ -887,7 +887,7 @@ msgstr "خطای نوشتن پرونده‌ی ساخت (Makefile) : %s"
 msgid "The text files are in %(outdir)s."
 msgstr "پرونده‌ی متنی در پوشه‌ی %(outdir)s است."
 
-#: sphinx/builders/html/__init__.py:1072 sphinx/builders/text.py:77
+#: sphinx/builders/html/__init__.py:1074 sphinx/builders/text.py:77
 #: sphinx/builders/xml.py:91
 #, python-format
 msgid "error writing file %s: %s"
@@ -913,164 +913,164 @@ msgstr "پرونده‌ی اطّلاعات ساخت خراب است: %r"
 msgid "The HTML pages are in %(outdir)s."
 msgstr "صفحات HTML در %(outdir)s است."
 
-#: sphinx/builders/html/__init__.py:373
+#: sphinx/builders/html/__init__.py:375
 #, python-format
 msgid "Failed to read build info file: %r"
 msgstr "شکست در خواندن پرونده‌ی اطّلاعات ساخت: %r"
 
-#: sphinx/builders/html/__init__.py:467 sphinx/builders/latex/__init__.py:187
+#: sphinx/builders/html/__init__.py:469 sphinx/builders/latex/__init__.py:187
 #: sphinx/transforms/__init__.py:116 sphinx/writers/manpage.py:102
 #: sphinx/writers/texinfo.py:233
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%b %d, %Y"
 
-#: sphinx/builders/html/__init__.py:486 sphinx/themes/basic/defindex.html:30
+#: sphinx/builders/html/__init__.py:488 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
 msgstr "فهرست کلی"
 
-#: sphinx/builders/html/__init__.py:486
+#: sphinx/builders/html/__init__.py:488
 msgid "index"
 msgstr "فهرست"
 
-#: sphinx/builders/html/__init__.py:549
+#: sphinx/builders/html/__init__.py:551
 msgid "next"
 msgstr "بعدی"
 
-#: sphinx/builders/html/__init__.py:558
+#: sphinx/builders/html/__init__.py:560
 msgid "previous"
 msgstr "قبلی"
 
-#: sphinx/builders/html/__init__.py:652
+#: sphinx/builders/html/__init__.py:654
 msgid "generating indices"
 msgstr "تولید نمایه‌ها"
 
-#: sphinx/builders/html/__init__.py:667
+#: sphinx/builders/html/__init__.py:669
 msgid "writing additional pages"
 msgstr "نوشتن صفحات اضافی"
 
-#: sphinx/builders/html/__init__.py:746
+#: sphinx/builders/html/__init__.py:748
 msgid "copying downloadable files... "
 msgstr "رونوشت از پرونده‌های قابل دریافت... "
 
-#: sphinx/builders/html/__init__.py:754
+#: sphinx/builders/html/__init__.py:756
 #, python-format
 msgid "cannot copy downloadable file %r: %s"
 msgstr "نمی تواند از پرونده‌ی قابل دریافت %r: %s رونوشت بگیرد"
 
-#: sphinx/builders/html/__init__.py:786 sphinx/builders/html/__init__.py:798
+#: sphinx/builders/html/__init__.py:788 sphinx/builders/html/__init__.py:800
 #, python-format
 msgid "Failed to copy a file in html_static_file: %s: %r"
 msgstr "شکست در رونوشت یک پرونده‌ی به html_static_file: %s: %r"
 
-#: sphinx/builders/html/__init__.py:819
+#: sphinx/builders/html/__init__.py:821
 msgid "copying static files"
 msgstr "رونوشت از پرونده‌های ثابت"
 
-#: sphinx/builders/html/__init__.py:835
+#: sphinx/builders/html/__init__.py:837
 #, python-format
 msgid "cannot copy static file %r"
 msgstr "نمی تواند از پرونده‌ی ثابت %r رونوشت بگیرد"
 
-#: sphinx/builders/html/__init__.py:840
+#: sphinx/builders/html/__init__.py:842
 msgid "copying extra files"
 msgstr "رونوشت برداری از پرونده‌های اضافی"
 
-#: sphinx/builders/html/__init__.py:846
+#: sphinx/builders/html/__init__.py:848
 #, python-format
 msgid "cannot copy extra file %r"
 msgstr "نمی تواند از پرونده‌ی اضافه‌ی %r رونوشت بگیرد"
 
-#: sphinx/builders/html/__init__.py:853
+#: sphinx/builders/html/__init__.py:855
 #, python-format
 msgid "Failed to write build info file: %r"
 msgstr "شکست در نوشتن پرونده‌ی اطّلاعات ساخت: %r"
 
-#: sphinx/builders/html/__init__.py:901
+#: sphinx/builders/html/__init__.py:903
 msgid ""
 "search index couldn't be loaded, but not all documents will be built: the "
 "index will be incomplete."
 msgstr "نمایه‌ی جستجو نمی‌تواند بارگزاری شود، ولی برای همه‌ی مستندات ساخته‌ نمی‌شود: نمایه‌ ناقص خواهد بود."
 
-#: sphinx/builders/html/__init__.py:962
+#: sphinx/builders/html/__init__.py:964
 #, python-format
 msgid "page %s matches two patterns in html_sidebars: %r and %r"
 msgstr "صفحه‌ی %s با دو الگو در نوار کناری صفحه (html_sidebars) هم‌خوانی دارد: %r و%r"
 
-#: sphinx/builders/html/__init__.py:1055
+#: sphinx/builders/html/__init__.py:1057
 #, python-format
 msgid ""
 "a Unicode error occurred when rendering the page %s. Please make sure all "
 "config values that contain non-ASCII content are Unicode strings."
 msgstr "هنگام ارائه‌ی صفحه‌ی %s خطای یونیکد رخ داد. لطفاً اطمینان حاصل کنید که تمام مقدارهای پیکربندی‌ها دارای محتوای غیر اَسکی، رشته‌متن‌های یونکد هستند."
 
-#: sphinx/builders/html/__init__.py:1060
+#: sphinx/builders/html/__init__.py:1062
 #, python-format
 msgid ""
 "An error happened in rendering the page %s.\n"
 "Reason: %r"
 msgstr "خطایی در نمایش صفحه‌ی %s رخ داد.\nعلّت: %r"
 
-#: sphinx/builders/html/__init__.py:1089
+#: sphinx/builders/html/__init__.py:1091
 msgid "dumping object inventory"
 msgstr "خالی کردن فهرست اشیاء"
 
-#: sphinx/builders/html/__init__.py:1094
+#: sphinx/builders/html/__init__.py:1096
 #, python-format
 msgid "dumping search index in %s"
 msgstr "خالی کردن نمایه‌ی جستجو در %s"
 
-#: sphinx/builders/html/__init__.py:1136
+#: sphinx/builders/html/__init__.py:1138
 #, python-format
 msgid "invalid js_file: %r, ignored"
 msgstr "پرونده‌ی js نامعتبر%r: نادیده گرفته می‌شود"
 
-#: sphinx/builders/html/__init__.py:1223
+#: sphinx/builders/html/__init__.py:1225
 msgid "Many math_renderers are registered. But no math_renderer is selected."
 msgstr "ارا‌ئه کننده‌های ریاضی زیادی ثبت شده‌اند، ولی هیچ کدام انتخاب نشده."
 
-#: sphinx/builders/html/__init__.py:1226
+#: sphinx/builders/html/__init__.py:1228
 #, python-format
 msgid "Unknown math_renderer %r is given."
 msgstr "نمایش‌دهنده‌ی ریاضی نامشخّص %r داده شده."
 
-#: sphinx/builders/html/__init__.py:1234
+#: sphinx/builders/html/__init__.py:1236
 #, python-format
 msgid "html_extra_path entry %r does not exist"
 msgstr "مدخل مسیر اضافی (html_extra_path) %r وجود ندارد"
 
-#: sphinx/builders/html/__init__.py:1238
+#: sphinx/builders/html/__init__.py:1240
 #, python-format
 msgid "html_extra_path entry %r is placed inside outdir"
 msgstr "مدخل مسیر اضافی (html_extra_path) %r درون شاخه‌ی خارجی قرار دارد"
 
-#: sphinx/builders/html/__init__.py:1247
+#: sphinx/builders/html/__init__.py:1249
 #, python-format
 msgid "html_static_path entry %r does not exist"
 msgstr "مدخل مسیر ثابت (html_static_path) %r وجود ندارد"
 
-#: sphinx/builders/html/__init__.py:1251
+#: sphinx/builders/html/__init__.py:1253
 #, python-format
 msgid "html_static_path entry %r is placed inside outdir"
 msgstr "مدخل مسیر ثابت (html_static_path) %r درون شاخه‌ی خارجی قرار دارد"
 
-#: sphinx/builders/html/__init__.py:1260 sphinx/builders/latex/__init__.py:433
+#: sphinx/builders/html/__init__.py:1262 sphinx/builders/latex/__init__.py:433
 #, python-format
 msgid "logo file %r does not exist"
 msgstr "پرونده‌ی آرم %r وجود ندارد"
 
-#: sphinx/builders/html/__init__.py:1269
+#: sphinx/builders/html/__init__.py:1271
 #, python-format
 msgid "favicon file %r does not exist"
 msgstr "پرونده‌ی آیکون مورد علاقه %r وجود ندارد"
 
-#: sphinx/builders/html/__init__.py:1289
+#: sphinx/builders/html/__init__.py:1291
 msgid ""
 "html_add_permalinks has been deprecated since v3.5.0. Please use "
 "html_permalinks and html_permalinks_icon instead."
 msgstr "از نسخه‌ی ۳.۵.۰ به بعد افزودن پیوند همیشگی (html_add_permalinks) منسوخ شده. لطفاً از به جایش html_permalinks و html_permalinks_icon را به کار ببرید."
 
-#: sphinx/builders/html/__init__.py:1315
+#: sphinx/builders/html/__init__.py:1317
 #, python-format
 msgid "%s %s documentation"
 msgstr "مستندات %s%s"
@@ -1840,71 +1840,71 @@ msgstr "گزینه‌ی \":file:\" برای دستورالمعل جدول داد
 msgid "%s %s"
 msgstr "%s %s"
 
-#: sphinx/domains/c.py:1974 sphinx/domains/c.py:3299
+#: sphinx/domains/c.py:2008 sphinx/domains/c.py:3300
 #, python-format
 msgid ""
 "Duplicate C declaration, also defined at %s:%s.\n"
 "Declaration is '.. c:%s:: %s'."
 msgstr "اعلان C تکراری، که در %s:%s هم تعریف شده.\nاعلان '.. c:%s:: %s' است."
 
-#: sphinx/domains/c.py:3133 sphinx/domains/cpp.py:6931
+#: sphinx/domains/c.py:3134 sphinx/domains/cpp.py:6938
 #: sphinx/domains/python.py:393 sphinx/ext/napoleon/docstring.py:736
 msgid "Parameters"
 msgstr "پارامترها"
 
-#: sphinx/domains/c.py:3136 sphinx/domains/cpp.py:6940
+#: sphinx/domains/c.py:3137 sphinx/domains/cpp.py:6947
 #: sphinx/domains/javascript.py:221 sphinx/domains/python.py:405
 msgid "Returns"
 msgstr "بازگشت ها"
 
-#: sphinx/domains/c.py:3138 sphinx/domains/javascript.py:223
+#: sphinx/domains/c.py:3139 sphinx/domains/javascript.py:223
 #: sphinx/domains/python.py:407
 msgid "Return type"
 msgstr "نوع برگشتی"
 
-#: sphinx/domains/c.py:3224
+#: sphinx/domains/c.py:3225
 #, python-format
 msgid "%s (C %s)"
 msgstr "%s (C %s)"
 
-#: sphinx/domains/c.py:3731 sphinx/domains/cpp.py:7578
+#: sphinx/domains/c.py:3732 sphinx/domains/cpp.py:7585
 msgid "member"
 msgstr "عضو"
 
-#: sphinx/domains/c.py:3732
+#: sphinx/domains/c.py:3733
 msgid "variable"
 msgstr "متغیّر"
 
-#: sphinx/domains/c.py:3733 sphinx/domains/cpp.py:7577
+#: sphinx/domains/c.py:3734 sphinx/domains/cpp.py:7584
 #: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1115
 msgid "function"
 msgstr "تابع"
 
-#: sphinx/domains/c.py:3734
+#: sphinx/domains/c.py:3735
 msgid "macro"
 msgstr "ماکرو"
 
-#: sphinx/domains/c.py:3735
+#: sphinx/domains/c.py:3736
 msgid "struct"
 msgstr "ساختار"
 
-#: sphinx/domains/c.py:3736 sphinx/domains/cpp.py:7576
+#: sphinx/domains/c.py:3737 sphinx/domains/cpp.py:7583
 msgid "union"
 msgstr "اجتماع"
 
-#: sphinx/domains/c.py:3737 sphinx/domains/cpp.py:7581
+#: sphinx/domains/c.py:3738 sphinx/domains/cpp.py:7588
 msgid "enum"
 msgstr "شمارش"
 
-#: sphinx/domains/c.py:3738 sphinx/domains/cpp.py:7582
+#: sphinx/domains/c.py:3739 sphinx/domains/cpp.py:7589
 msgid "enumerator"
 msgstr "شمارنده"
 
-#: sphinx/domains/c.py:3739 sphinx/domains/cpp.py:7579
+#: sphinx/domains/c.py:3740 sphinx/domains/cpp.py:7586
 msgid "type"
 msgstr "گونه"
 
-#: sphinx/domains/c.py:3741 sphinx/domains/cpp.py:7584
+#: sphinx/domains/c.py:3742 sphinx/domains/cpp.py:7591
 msgid "function parameter"
 msgstr "مؤلّفه‌ی تابع"
 
@@ -1933,36 +1933,36 @@ msgstr "نقل‌قول %s تکراری، مورد دیگر در %s قرار د�
 msgid "Citation [%s] is not referenced."
 msgstr "نقل [%s] قول ارجاع داده نشده."
 
-#: sphinx/domains/cpp.py:4710 sphinx/domains/cpp.py:7133
+#: sphinx/domains/cpp.py:4754 sphinx/domains/cpp.py:7140
 #, python-format
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
 msgstr "اعلان ++C تکراری، که در %s:%s هم تعریف شده.\nاعلان '.. cpp:%s:: %s' است."
 
-#: sphinx/domains/cpp.py:6934
+#: sphinx/domains/cpp.py:6941
 msgid "Template Parameters"
 msgstr "پارامترهای قالب"
 
-#: sphinx/domains/cpp.py:6937 sphinx/domains/javascript.py:218
+#: sphinx/domains/cpp.py:6944 sphinx/domains/javascript.py:218
 msgid "Throws"
 msgstr "ایجاد"
 
-#: sphinx/domains/cpp.py:7056
+#: sphinx/domains/cpp.py:7063
 #, python-format
 msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
-#: sphinx/domains/cpp.py:7575 sphinx/domains/javascript.py:328
+#: sphinx/domains/cpp.py:7582 sphinx/domains/javascript.py:328
 #: sphinx/domains/python.py:1117
 msgid "class"
 msgstr "کلاس"
 
-#: sphinx/domains/cpp.py:7580
+#: sphinx/domains/cpp.py:7587
 msgid "concept"
 msgstr "کانسپت"
 
-#: sphinx/domains/cpp.py:7585
+#: sphinx/domains/cpp.py:7592
 msgid "template parameter"
 msgstr "مؤلّفه‌ی قالب"
 
