@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-08-15 00:08+0000\n"
+"POT-Creation-Date: 2021-08-22 00:08+0000\n"
 "PO-Revision-Date: 2021-08-08 00:08+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Hindi (http://www.transifex.com/sphinx-doc/sphinx-1/language/hi/)\n"
@@ -629,7 +629,7 @@ msgstr "लेखपत्र बनाए जा रहे हैं"
 msgid "duplicated ToC entry found: %s"
 msgstr "विषय-सूची प्रविष्टि की प्रतिलिपि पायी गई: %s"
 
-#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:728
+#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:730
 #: sphinx/builders/latex/__init__.py:421 sphinx/builders/texinfo.py:176
 msgid "copying images... "
 msgstr "चित्रों की प्रतिलिपि बनाई जा रही है..."
@@ -639,7 +639,7 @@ msgstr "चित्रों की प्रतिलिपि बनाई �
 msgid "cannot read image file %r: copying it instead"
 msgstr "चित्रलेख फाइल %r नहीं पढ़ा जा सका: इसकी प्रतिलिपि बनाई जा रही है"
 
-#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:736
+#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:738
 #: sphinx/builders/latex/__init__.py:429 sphinx/builders/texinfo.py:186
 #, python-format
 msgid "cannot copy image file %r: %s"
@@ -764,7 +764,7 @@ msgstr "ई-पब3 के लिए विन्यास मान \"epub_iden
 msgid "conf value \"version\" should not be empty for EPUB3"
 msgstr "ई-पब3 के लिए विन्यास मान \"version\" खाली नहीं होना चाहिए"
 
-#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1119
+#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1121
 #, python-format
 msgid "invalid css_file: %r, ignored"
 msgstr "अमान्य css_file: %r, उपेक्षित"
@@ -887,7 +887,7 @@ msgstr "मेकफाइल लिखने में त्रुटि: %s"
 msgid "The text files are in %(outdir)s."
 msgstr "पाठ फाइल %(outdir)s में हैं."
 
-#: sphinx/builders/html/__init__.py:1072 sphinx/builders/text.py:77
+#: sphinx/builders/html/__init__.py:1074 sphinx/builders/text.py:77
 #: sphinx/builders/xml.py:91
 #, python-format
 msgid "error writing file %s: %s"
@@ -913,164 +913,164 @@ msgstr "निर्माण सूचनापत्र फाइल खंड
 msgid "The HTML pages are in %(outdir)s."
 msgstr "एच.टी.एम्.एल. पृष्ठ %(outdir)sमें हैं."
 
-#: sphinx/builders/html/__init__.py:373
+#: sphinx/builders/html/__init__.py:375
 #, python-format
 msgid "Failed to read build info file: %r"
 msgstr "निर्माण सूचनापत्र फाइल को नहीं पढ़ा जा सका: %r"
 
-#: sphinx/builders/html/__init__.py:467 sphinx/builders/latex/__init__.py:187
+#: sphinx/builders/html/__init__.py:469 sphinx/builders/latex/__init__.py:187
 #: sphinx/transforms/__init__.py:116 sphinx/writers/manpage.py:102
 #: sphinx/writers/texinfo.py:233
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%b %d, %Y"
 
-#: sphinx/builders/html/__init__.py:486 sphinx/themes/basic/defindex.html:30
+#: sphinx/builders/html/__init__.py:488 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
 msgstr "सामान्य अनुक्रमाणिका"
 
-#: sphinx/builders/html/__init__.py:486
+#: sphinx/builders/html/__init__.py:488
 msgid "index"
 msgstr "अनुक्रमणिका"
 
-#: sphinx/builders/html/__init__.py:549
+#: sphinx/builders/html/__init__.py:551
 msgid "next"
 msgstr "आगामी"
 
-#: sphinx/builders/html/__init__.py:558
+#: sphinx/builders/html/__init__.py:560
 msgid "previous"
 msgstr "पूर्ववर्ती"
 
-#: sphinx/builders/html/__init__.py:652
+#: sphinx/builders/html/__init__.py:654
 msgid "generating indices"
 msgstr "अनुक्रमाणिका निर्मित की जा रही है"
 
-#: sphinx/builders/html/__init__.py:667
+#: sphinx/builders/html/__init__.py:669
 msgid "writing additional pages"
 msgstr "अतिरिक्त पृष्ठ लिखे जा रहे हैं"
 
-#: sphinx/builders/html/__init__.py:746
+#: sphinx/builders/html/__init__.py:748
 msgid "copying downloadable files... "
 msgstr "उतारी गई फाइलों की प्रतिलिपि बनाई जा रही है..."
 
-#: sphinx/builders/html/__init__.py:754
+#: sphinx/builders/html/__init__.py:756
 #, python-format
 msgid "cannot copy downloadable file %r: %s"
 msgstr "उतारी गई फाइलों %r की प्रतिलिपि नहीं की जा सकी: %s"
 
-#: sphinx/builders/html/__init__.py:786 sphinx/builders/html/__init__.py:798
+#: sphinx/builders/html/__init__.py:788 sphinx/builders/html/__init__.py:800
 #, python-format
 msgid "Failed to copy a file in html_static_file: %s: %r"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:819
+#: sphinx/builders/html/__init__.py:821
 msgid "copying static files"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:835
+#: sphinx/builders/html/__init__.py:837
 #, python-format
 msgid "cannot copy static file %r"
 msgstr "स्थैतिक फाइल %r की प्रतिलिपि नहीं की जा सकी"
 
-#: sphinx/builders/html/__init__.py:840
+#: sphinx/builders/html/__init__.py:842
 msgid "copying extra files"
 msgstr "अतिरिक्त फाइलों की प्रतिलिपियां बनाये जा रहे है| "
 
-#: sphinx/builders/html/__init__.py:846
+#: sphinx/builders/html/__init__.py:848
 #, python-format
 msgid "cannot copy extra file %r"
 msgstr "अतिरिक्त फाइल %r की प्रतिलिपि नहीं की जा सकी"
 
-#: sphinx/builders/html/__init__.py:853
+#: sphinx/builders/html/__init__.py:855
 #, python-format
 msgid "Failed to write build info file: %r"
 msgstr "निर्माण फाइल को नहीं लिखा जा सका: %r"
 
-#: sphinx/builders/html/__init__.py:901
+#: sphinx/builders/html/__init__.py:903
 msgid ""
 "search index couldn't be loaded, but not all documents will be built: the "
 "index will be incomplete."
 msgstr "खोज अनुक्रमाणिका नहीं चढाई जा सकी, लेकिन सभी लेखपत्र नहीं बनाए जाएंगे: अनुक्रमणिका अपूर्ण रहेगी."
 
-#: sphinx/builders/html/__init__.py:962
+#: sphinx/builders/html/__init__.py:964
 #, python-format
 msgid "page %s matches two patterns in html_sidebars: %r and %r"
 msgstr "पृष्ठ %s html_sidebars में दो आकृतियों से मिलता है: %r  %r"
 
-#: sphinx/builders/html/__init__.py:1055
+#: sphinx/builders/html/__init__.py:1057
 #, python-format
 msgid ""
 "a Unicode error occurred when rendering the page %s. Please make sure all "
 "config values that contain non-ASCII content are Unicode strings."
 msgstr "पृष्ठ %s की प्रस्तुति करते समय यूनिकोड त्रुटि हुई. कृपया यह सुनिश्चित कर लें कि सभी नॉन-असकी #non-ASCII# विहित विन्यास मान यूनिकोड अक्षरों में हैं."
 
-#: sphinx/builders/html/__init__.py:1060
+#: sphinx/builders/html/__init__.py:1062
 #, python-format
 msgid ""
 "An error happened in rendering the page %s.\n"
 "Reason: %r"
 msgstr "पृष्ठ %s की प्रस्तुति करते समय एक त्रुटि हुई.\nकारण: %r"
 
-#: sphinx/builders/html/__init__.py:1089
+#: sphinx/builders/html/__init__.py:1091
 msgid "dumping object inventory"
 msgstr "विषयवस्तुओं का भंडार बनाया जा रहा है"
 
-#: sphinx/builders/html/__init__.py:1094
+#: sphinx/builders/html/__init__.py:1096
 #, python-format
 msgid "dumping search index in %s"
 msgstr "%s में खोज अनुक्रमाणिका भंडार बनाया जा रहा है"
 
-#: sphinx/builders/html/__init__.py:1136
+#: sphinx/builders/html/__init__.py:1138
 #, python-format
 msgid "invalid js_file: %r, ignored"
 msgstr "अमान्य js_file: %r, उपेक्षित"
 
-#: sphinx/builders/html/__init__.py:1223
+#: sphinx/builders/html/__init__.py:1225
 msgid "Many math_renderers are registered. But no math_renderer is selected."
 msgstr "कई math_renderers पंजीकृत हैं. लेकिन कोई math_renderers नहीं चुना गया है."
 
-#: sphinx/builders/html/__init__.py:1226
+#: sphinx/builders/html/__init__.py:1228
 #, python-format
 msgid "Unknown math_renderer %r is given."
 msgstr "अज्ञात math_renderer %r दिया गया."
 
-#: sphinx/builders/html/__init__.py:1234
+#: sphinx/builders/html/__init__.py:1236
 #, python-format
 msgid "html_extra_path entry %r does not exist"
 msgstr "html_extra_path प्रविष्टि %r का अस्तित्व नहीं है"
 
-#: sphinx/builders/html/__init__.py:1238
+#: sphinx/builders/html/__init__.py:1240
 #, python-format
 msgid "html_extra_path entry %r is placed inside outdir"
 msgstr "html_extra_path का प्रविष्टि %r outdir में है|  "
 
-#: sphinx/builders/html/__init__.py:1247
+#: sphinx/builders/html/__init__.py:1249
 #, python-format
 msgid "html_static_path entry %r does not exist"
 msgstr "html_static_path प्रविष्टि %r का अस्तित्व नहीं है"
 
-#: sphinx/builders/html/__init__.py:1251
+#: sphinx/builders/html/__init__.py:1253
 #, python-format
 msgid "html_static_path entry %r is placed inside outdir"
 msgstr "html_static_path का  प्रविष्टि %r outdir में है|  "
 
-#: sphinx/builders/html/__init__.py:1260 sphinx/builders/latex/__init__.py:433
+#: sphinx/builders/html/__init__.py:1262 sphinx/builders/latex/__init__.py:433
 #, python-format
 msgid "logo file %r does not exist"
 msgstr "प्रतीकचिन्ह फाइल %r का अस्तित्व नहीं है"
 
-#: sphinx/builders/html/__init__.py:1269
+#: sphinx/builders/html/__init__.py:1271
 #, python-format
 msgid "favicon file %r does not exist"
 msgstr "इष्ट चिन्ह फाइल %r का अस्तित्व नहीं है"
 
-#: sphinx/builders/html/__init__.py:1289
+#: sphinx/builders/html/__init__.py:1291
 msgid ""
 "html_add_permalinks has been deprecated since v3.5.0. Please use "
 "html_permalinks and html_permalinks_icon instead."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1315
+#: sphinx/builders/html/__init__.py:1317
 #, python-format
 msgid "%s %s documentation"
 msgstr "%s %s दिग्दर्शिका"
@@ -1840,71 +1840,71 @@ msgstr ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: sphinx/domains/c.py:1974 sphinx/domains/c.py:3299
+#: sphinx/domains/c.py:2008 sphinx/domains/c.py:3300
 #, python-format
 msgid ""
 "Duplicate C declaration, also defined at %s:%s.\n"
 "Declaration is '.. c:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/c.py:3133 sphinx/domains/cpp.py:6931
+#: sphinx/domains/c.py:3134 sphinx/domains/cpp.py:6938
 #: sphinx/domains/python.py:393 sphinx/ext/napoleon/docstring.py:736
 msgid "Parameters"
 msgstr "मापदण्ड"
 
-#: sphinx/domains/c.py:3136 sphinx/domains/cpp.py:6940
+#: sphinx/domains/c.py:3137 sphinx/domains/cpp.py:6947
 #: sphinx/domains/javascript.py:221 sphinx/domains/python.py:405
 msgid "Returns"
 msgstr "प्रदत्त "
 
-#: sphinx/domains/c.py:3138 sphinx/domains/javascript.py:223
+#: sphinx/domains/c.py:3139 sphinx/domains/javascript.py:223
 #: sphinx/domains/python.py:407
 msgid "Return type"
 msgstr "प्रदत्त प्रकार "
 
-#: sphinx/domains/c.py:3224
+#: sphinx/domains/c.py:3225
 #, python-format
 msgid "%s (C %s)"
 msgstr ""
 
-#: sphinx/domains/c.py:3731 sphinx/domains/cpp.py:7578
+#: sphinx/domains/c.py:3732 sphinx/domains/cpp.py:7585
 msgid "member"
 msgstr "सदस्य"
 
-#: sphinx/domains/c.py:3732
+#: sphinx/domains/c.py:3733
 msgid "variable"
 msgstr "चर पद"
 
-#: sphinx/domains/c.py:3733 sphinx/domains/cpp.py:7577
+#: sphinx/domains/c.py:3734 sphinx/domains/cpp.py:7584
 #: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1115
 msgid "function"
 msgstr "फंक्शन"
 
-#: sphinx/domains/c.py:3734
+#: sphinx/domains/c.py:3735
 msgid "macro"
 msgstr "मैक्रो"
 
-#: sphinx/domains/c.py:3735
+#: sphinx/domains/c.py:3736
 msgid "struct"
 msgstr ""
 
-#: sphinx/domains/c.py:3736 sphinx/domains/cpp.py:7576
+#: sphinx/domains/c.py:3737 sphinx/domains/cpp.py:7583
 msgid "union"
 msgstr "युग्म"
 
-#: sphinx/domains/c.py:3737 sphinx/domains/cpp.py:7581
+#: sphinx/domains/c.py:3738 sphinx/domains/cpp.py:7588
 msgid "enum"
 msgstr "गणक"
 
-#: sphinx/domains/c.py:3738 sphinx/domains/cpp.py:7582
+#: sphinx/domains/c.py:3739 sphinx/domains/cpp.py:7589
 msgid "enumerator"
 msgstr "प्रगणक "
 
-#: sphinx/domains/c.py:3739 sphinx/domains/cpp.py:7579
+#: sphinx/domains/c.py:3740 sphinx/domains/cpp.py:7586
 msgid "type"
 msgstr "प्रकार"
 
-#: sphinx/domains/c.py:3741 sphinx/domains/cpp.py:7584
+#: sphinx/domains/c.py:3742 sphinx/domains/cpp.py:7591
 msgid "function parameter"
 msgstr ""
 
@@ -1933,36 +1933,36 @@ msgstr "प्रतिरूप उद्धरण %s, दूसरी प्�
 msgid "Citation [%s] is not referenced."
 msgstr "उद्धरण [%s] सन्दर्भ कहीं नहीं है"
 
-#: sphinx/domains/cpp.py:4710 sphinx/domains/cpp.py:7133
+#: sphinx/domains/cpp.py:4754 sphinx/domains/cpp.py:7140
 #, python-format
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/cpp.py:6934
+#: sphinx/domains/cpp.py:6941
 msgid "Template Parameters"
 msgstr "नमूना मानदण्ड "
 
-#: sphinx/domains/cpp.py:6937 sphinx/domains/javascript.py:218
+#: sphinx/domains/cpp.py:6944 sphinx/domains/javascript.py:218
 msgid "Throws"
 msgstr "देता है "
 
-#: sphinx/domains/cpp.py:7056
+#: sphinx/domains/cpp.py:7063
 #, python-format
 msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
-#: sphinx/domains/cpp.py:7575 sphinx/domains/javascript.py:328
+#: sphinx/domains/cpp.py:7582 sphinx/domains/javascript.py:328
 #: sphinx/domains/python.py:1117
 msgid "class"
 msgstr "वर्ग"
 
-#: sphinx/domains/cpp.py:7580
+#: sphinx/domains/cpp.py:7587
 msgid "concept"
 msgstr "अवधारणा "
 
-#: sphinx/domains/cpp.py:7585
+#: sphinx/domains/cpp.py:7592
 msgid "template parameter"
 msgstr ""
 
