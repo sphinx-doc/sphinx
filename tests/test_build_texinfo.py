@@ -112,3 +112,17 @@ def test_texinfo_escape_id(app, status, warning):
     assert translator.escape_id('Hello(world)') == 'Hello world'
     assert translator.escape_id('Hello world.') == 'Hello world'
     assert translator.escape_id('.') == '.'
+
+
+@pytest.mark.sphinx('texinfo')
+def test_texinfo_xrefs(app, status, warning):
+    app.builder.build_all()
+    output = (app.outdir / 'sphinxtests.texi').read_text()
+    assert re.search(r'@ref{\w+,,--plugin\.option}', output)
+
+    # Now rebuild it without xrefs
+    app.config.texinfo_cross_references = False
+    app.builder.build_all()
+    output = (app.outdir / 'sphinxtests.texi').read_text()
+    assert not re.search(r'@ref{\w+,,--plugin\.option}', output)
+    assert 'Link to perl +p, --ObjC++, --plugin.option, create-auth-token, arg and -j' in output

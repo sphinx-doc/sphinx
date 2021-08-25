@@ -545,9 +545,12 @@ class TexinfoTranslator(SphinxTranslator):
     def add_xref(self, id: str, name: str, node: Node) -> None:
         name = self.escape_menu(name)
         sid = self.get_short_id(id)
-        self.body.append('@ref{%s,,%s}' % (sid, name))
-        self.referenced_ids.add(sid)
-        self.referenced_ids.add(self.escape_id(id))
+        if self.config.texinfo_cross_references:
+            self.body.append('@ref{%s,,%s}' % (sid, name))
+            self.referenced_ids.add(sid)
+            self.referenced_ids.add(self.escape_id(id))
+        else:
+            self.body.append(name)
 
     # -- Visiting
 

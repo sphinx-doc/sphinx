@@ -299,6 +299,10 @@ appear in the source.  Emacs, on the other-hand, will by default replace
 
     :ref:`texinfo-links`
 
+One can disable generation of the inline references in a document
+with :confval:`texinfo_cross_references`.  That makes
+an info file more readable with stand-alone reader (``info``).
+
 The exact behavior of how Emacs displays references is dependent on the variable
 ``Info-hide-note-references``.  If set to the value of ``hide``, Emacs will hide
 both the ``*note:`` part and the ``target-id``.  This is generally the best way
