@@ -540,7 +540,10 @@ def extract_summary(doc: List[str], document: Any) -> str:
 
     # parse the docstring
     node = parse(doc, document.settings)
-    if not isinstance(node[0], nodes.paragraph):
+    if isinstance(node[0], nodes.section):
+        # document starts with a section heading, so use that.
+        summary = node[0].astext().strip()
+    elif not isinstance(node[0], nodes.paragraph):
         # document starts with non-paragraph: pick up the first line
         summary = doc[0].strip()
     else:
