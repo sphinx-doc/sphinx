@@ -6,14 +6,14 @@
 # Ajay Singh <ajaysajay@gmail.com>, 2019
 # Purnank H. Ghumalia <me@purnank.in>, 2015-2016
 # Sumanjali Damarla <damarlasumanjali@gmail.com>, 2020
-# Komiya Takeshi <i.tkomiya@gmail.com>, 2019
+# Takeshi KOMIYA <i.tkomiya@gmail.com>, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-08-22 00:08+0000\n"
+"POT-Creation-Date: 2021-08-29 00:09+0000\n"
 "PO-Revision-Date: 2021-08-08 00:08+0000\n"
-"Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
+"Last-Translator: Takeshi KOMIYA <i.tkomiya@gmail.com>\n"
 "Language-Team: Hindi (http://www.transifex.com/sphinx-doc/sphinx-1/language/hi/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"

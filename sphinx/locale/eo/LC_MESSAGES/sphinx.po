@@ -4,13 +4,14 @@
 # 
 # Translators:
 # Dinu Gherman <gherman@darwin.in-berlin.de>, 2014
+# Tatsuro YOKOTA <hidaruma@outlook.jp>, 2021
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-08-22 00:08+0000\n"
-"PO-Revision-Date: 2021-08-08 00:08+0000\n"
-"Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
+"POT-Creation-Date: 2021-08-29 00:09+0000\n"
+"PO-Revision-Date: 2021-08-25 12:41+0000\n"
+"Last-Translator: Tatsuro YOKOTA <hidaruma@outlook.jp>\n"
 "Language-Team: Esperanto (http://www.transifex.com/sphinx-doc/sphinx-1/language/eo/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -3058,7 +3059,7 @@ msgstr ""
 
 #: sphinx/ext/napoleon/docstring.py:801
 msgid "Warns"
-msgstr ""
+msgstr "Avertoj"
 
 #: sphinx/ext/napoleon/docstring.py:805
 msgid "Yields"
@@ -3122,7 +3123,7 @@ msgstr ""
 
 #: sphinx/locale/__init__.py:261
 msgid "Warning"
-msgstr ""
+msgstr "Averto"
 
 #: sphinx/templates/latex/longtable.tex_t:23
 #: sphinx/templates/latex/sphinxmessages.sty_t:8
