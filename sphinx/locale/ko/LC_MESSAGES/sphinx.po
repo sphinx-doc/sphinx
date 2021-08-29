@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-08-15 00:08+0000\n"
+"POT-Creation-Date: 2021-08-22 00:08+0000\n"
 "PO-Revision-Date: 2021-08-08 12:15+0000\n"
 "Last-Translator: YT H <dev@theYT.net>\n"
 "Language-Team: Korean (http://www.transifex.com/sphinx-doc/sphinx-1/language/ko/)\n"
@@ -627,7 +627,7 @@ msgstr "문서 준비 중"
 msgid "duplicated ToC entry found: %s"
 msgstr "중복된 목차 항목 발견: %s"
 
-#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:728
+#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:730
 #: sphinx/builders/latex/__init__.py:421 sphinx/builders/texinfo.py:176
 msgid "copying images... "
 msgstr "이미지를 복사하는 중… "
@@ -637,7 +637,7 @@ msgstr "이미지를 복사하는 중… "
 msgid "cannot read image file %r: copying it instead"
 msgstr "이미지 파일 %r을(를) 읽을 수 없으며, 대신 복사합니다"
 
-#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:736
+#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:738
 #: sphinx/builders/latex/__init__.py:429 sphinx/builders/texinfo.py:186
 #, python-format
 msgid "cannot copy image file %r: %s"
@@ -762,7 +762,7 @@ msgstr "설정값 \"epub_identifier\"는 EPUB3의 경우 비워 둘 수 없습�
 msgid "conf value \"version\" should not be empty for EPUB3"
 msgstr "설정값 \"version\"은 EPUB3의 경우 비워 둘 수 없습니다"
 
-#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1119
+#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1121
 #, python-format
 msgid "invalid css_file: %r, ignored"
 msgstr "잘못된 css_file: %r, 무시합니다"
@@ -885,7 +885,7 @@ msgstr "Makefile 쓰기 오류: %s"
 msgid "The text files are in %(outdir)s."
 msgstr "텍스트 파일은 %(outdir)s에 있습니다."
 
-#: sphinx/builders/html/__init__.py:1072 sphinx/builders/text.py:77
+#: sphinx/builders/html/__init__.py:1074 sphinx/builders/text.py:77
 #: sphinx/builders/xml.py:91
 #, python-format
 msgid "error writing file %s: %s"
@@ -911,164 +911,164 @@ msgstr "빌드 정보 파일이 손상되었습니다: %r"
 msgid "The HTML pages are in %(outdir)s."
 msgstr "HTML 페이지는 %(outdir)s에 있습니다."
 
-#: sphinx/builders/html/__init__.py:373
+#: sphinx/builders/html/__init__.py:375
 #, python-format
 msgid "Failed to read build info file: %r"
 msgstr "빌드 정보 파일을 읽을 수 없습니다: %r"
 
-#: sphinx/builders/html/__init__.py:467 sphinx/builders/latex/__init__.py:187
+#: sphinx/builders/html/__init__.py:469 sphinx/builders/latex/__init__.py:187
 #: sphinx/transforms/__init__.py:116 sphinx/writers/manpage.py:102
 #: sphinx/writers/texinfo.py:233
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%Y년 %m월 %d일"
 
-#: sphinx/builders/html/__init__.py:486 sphinx/themes/basic/defindex.html:30
+#: sphinx/builders/html/__init__.py:488 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
 msgstr "전체 색인"
 
-#: sphinx/builders/html/__init__.py:486
+#: sphinx/builders/html/__init__.py:488
 msgid "index"
 msgstr "색인"
 
-#: sphinx/builders/html/__init__.py:549
+#: sphinx/builders/html/__init__.py:551
 msgid "next"
 msgstr "다음"
 
-#: sphinx/builders/html/__init__.py:558
+#: sphinx/builders/html/__init__.py:560
 msgid "previous"
 msgstr "이전"
 
-#: sphinx/builders/html/__init__.py:652
+#: sphinx/builders/html/__init__.py:654
 msgid "generating indices"
 msgstr "색인 생성 중"
 
-#: sphinx/builders/html/__init__.py:667
+#: sphinx/builders/html/__init__.py:669
 msgid "writing additional pages"
 msgstr "추가 페이지 작성 중"
 
-#: sphinx/builders/html/__init__.py:746
+#: sphinx/builders/html/__init__.py:748
 msgid "copying downloadable files... "
 msgstr "다운로드 가능한 파일을 복사하는 중… "
 
-#: sphinx/builders/html/__init__.py:754
+#: sphinx/builders/html/__init__.py:756
 #, python-format
 msgid "cannot copy downloadable file %r: %s"
 msgstr "다운로드 가능한 파일 %r을(를) 복사할 수 없습니다: %s"
 
-#: sphinx/builders/html/__init__.py:786 sphinx/builders/html/__init__.py:798
+#: sphinx/builders/html/__init__.py:788 sphinx/builders/html/__init__.py:800
 #, python-format
 msgid "Failed to copy a file in html_static_file: %s: %r"
 msgstr "html_static_file에 있는 파일을 복사할 수 없습니다: %s: %r"
 
-#: sphinx/builders/html/__init__.py:819
+#: sphinx/builders/html/__init__.py:821
 msgid "copying static files"
 msgstr "정적 파일을 복사하는 중"
 
-#: sphinx/builders/html/__init__.py:835
+#: sphinx/builders/html/__init__.py:837
 #, python-format
 msgid "cannot copy static file %r"
 msgstr "정적 파일을 복사할 수 없습니다: %r"
 
-#: sphinx/builders/html/__init__.py:840
+#: sphinx/builders/html/__init__.py:842
 msgid "copying extra files"
 msgstr "추가 파일을 복사하는 중"
 
-#: sphinx/builders/html/__init__.py:846
+#: sphinx/builders/html/__init__.py:848
 #, python-format
 msgid "cannot copy extra file %r"
 msgstr "추가 파일을 복사할 수 없습니다: %r"
 
-#: sphinx/builders/html/__init__.py:853
+#: sphinx/builders/html/__init__.py:855
 #, python-format
 msgid "Failed to write build info file: %r"
 msgstr "빌드 정보 파일 쓰기 실패: %r"
 
-#: sphinx/builders/html/__init__.py:901
+#: sphinx/builders/html/__init__.py:903
 msgid ""
 "search index couldn't be loaded, but not all documents will be built: the "
 "index will be incomplete."
 msgstr "검색 색인을 불러올 수 없지만 모든 문서가 작성되지는 않은 것은 아닙니다. 색인이 불완전합니다."
 
-#: sphinx/builders/html/__init__.py:962
+#: sphinx/builders/html/__init__.py:964
 #, python-format
 msgid "page %s matches two patterns in html_sidebars: %r and %r"
 msgstr "%s 페이지가 html_sidebars의 두 패턴(%r 및 %r)과 일치합니다"
 
-#: sphinx/builders/html/__init__.py:1055
+#: sphinx/builders/html/__init__.py:1057
 #, python-format
 msgid ""
 "a Unicode error occurred when rendering the page %s. Please make sure all "
 "config values that contain non-ASCII content are Unicode strings."
 msgstr "%s 페이지를 렌더링 할 때 유니코드 오류가 발생했습니다. ASCII가 아닌 내용을 포함하는 모든 설정값이 유니코드 문자열인지 확인하십시오."
 
-#: sphinx/builders/html/__init__.py:1060
+#: sphinx/builders/html/__init__.py:1062
 #, python-format
 msgid ""
 "An error happened in rendering the page %s.\n"
 "Reason: %r"
 msgstr "%s 페이지를 렌더링하는 중에 오류가 발생했습니다.\n원인: %r"
 
-#: sphinx/builders/html/__init__.py:1089
+#: sphinx/builders/html/__init__.py:1091
 msgid "dumping object inventory"
 msgstr "객체 인벤토리 덤프 중"
 
-#: sphinx/builders/html/__init__.py:1094
+#: sphinx/builders/html/__init__.py:1096
 #, python-format
 msgid "dumping search index in %s"
 msgstr "%s에서 검색 인덱스 덤프 중"
 
-#: sphinx/builders/html/__init__.py:1136
+#: sphinx/builders/html/__init__.py:1138
 #, python-format
 msgid "invalid js_file: %r, ignored"
 msgstr "잘못된 js_file: %r, 무시합니다"
 
-#: sphinx/builders/html/__init__.py:1223
+#: sphinx/builders/html/__init__.py:1225
 msgid "Many math_renderers are registered. But no math_renderer is selected."
 msgstr "여러 math_renderers가 등록되어 있습니다. 하지만 math_renderer가 선택되지 않았습니다."
 
-#: sphinx/builders/html/__init__.py:1226
+#: sphinx/builders/html/__init__.py:1228
 #, python-format
 msgid "Unknown math_renderer %r is given."
 msgstr "알 수 없는 math_renderer %r이(가) 지정되었습니다."
 
-#: sphinx/builders/html/__init__.py:1234
+#: sphinx/builders/html/__init__.py:1236
 #, python-format
 msgid "html_extra_path entry %r does not exist"
 msgstr "html_extra_path 항목 %r이(가) 없습니다"
 
-#: sphinx/builders/html/__init__.py:1238
+#: sphinx/builders/html/__init__.py:1240
 #, python-format
 msgid "html_extra_path entry %r is placed inside outdir"
 msgstr "html_extra_path 항목 %r이(가) outdir 안에 있습니다"
 
-#: sphinx/builders/html/__init__.py:1247
+#: sphinx/builders/html/__init__.py:1249
 #, python-format
 msgid "html_static_path entry %r does not exist"
 msgstr "html_static_path 항목 %r이(가) 없습니다"
 
-#: sphinx/builders/html/__init__.py:1251
+#: sphinx/builders/html/__init__.py:1253
 #, python-format
 msgid "html_static_path entry %r is placed inside outdir"
 msgstr "html_static_path 항목 %r이(가) outdir 안에 있습니다"
 
-#: sphinx/builders/html/__init__.py:1260 sphinx/builders/latex/__init__.py:433
+#: sphinx/builders/html/__init__.py:1262 sphinx/builders/latex/__init__.py:433
 #, python-format
 msgid "logo file %r does not exist"
 msgstr "로고 파일 %r이(가) 존재하지 않습니다"
 
-#: sphinx/builders/html/__init__.py:1269
+#: sphinx/builders/html/__init__.py:1271
 #, python-format
 msgid "favicon file %r does not exist"
 msgstr "Favicon 파일 %r이(가) 존재하지 않습니다"
 
-#: sphinx/builders/html/__init__.py:1289
+#: sphinx/builders/html/__init__.py:1291
 msgid ""
 "html_add_permalinks has been deprecated since v3.5.0. Please use "
 "html_permalinks and html_permalinks_icon instead."
 msgstr "html_add_permalinks는 3.5.0 버전부터 더 이상 사용되지 않습니다. 대신 html_permalinks 및 html_permalinks_icon을 사용하십시오."
 
-#: sphinx/builders/html/__init__.py:1315
+#: sphinx/builders/html/__init__.py:1317
 #, python-format
 msgid "%s %s documentation"
 msgstr "%s %s 문서"
@@ -1838,71 +1838,71 @@ msgstr "csv-table 지시문의 \":file:\" 옵션은 이제 절대 경로를 소�
 msgid "%s %s"
 msgstr "%s %s"
 
-#: sphinx/domains/c.py:1974 sphinx/domains/c.py:3299
+#: sphinx/domains/c.py:2008 sphinx/domains/c.py:3300
 #, python-format
 msgid ""
 "Duplicate C declaration, also defined at %s:%s.\n"
 "Declaration is '.. c:%s:: %s'."
 msgstr "중복 C 선언이며, %s:%s에 정의되었습니다.\n선언은 '.. c:%s:: %s' 입니다."
 
-#: sphinx/domains/c.py:3133 sphinx/domains/cpp.py:6931
+#: sphinx/domains/c.py:3134 sphinx/domains/cpp.py:6938
 #: sphinx/domains/python.py:393 sphinx/ext/napoleon/docstring.py:736
 msgid "Parameters"
 msgstr "매개변수"
 
-#: sphinx/domains/c.py:3136 sphinx/domains/cpp.py:6940
+#: sphinx/domains/c.py:3137 sphinx/domains/cpp.py:6947
 #: sphinx/domains/javascript.py:221 sphinx/domains/python.py:405
 msgid "Returns"
 msgstr "반환값"
 
-#: sphinx/domains/c.py:3138 sphinx/domains/javascript.py:223
+#: sphinx/domains/c.py:3139 sphinx/domains/javascript.py:223
 #: sphinx/domains/python.py:407
 msgid "Return type"
 msgstr "반환 형식"
 
-#: sphinx/domains/c.py:3224
+#: sphinx/domains/c.py:3225
 #, python-format
 msgid "%s (C %s)"
 msgstr "%s (C %s)"
 
-#: sphinx/domains/c.py:3731 sphinx/domains/cpp.py:7578
+#: sphinx/domains/c.py:3732 sphinx/domains/cpp.py:7585
 msgid "member"
 msgstr "멤버 변수"
 
-#: sphinx/domains/c.py:3732
+#: sphinx/domains/c.py:3733
 msgid "variable"
 msgstr "변수"
 
-#: sphinx/domains/c.py:3733 sphinx/domains/cpp.py:7577
+#: sphinx/domains/c.py:3734 sphinx/domains/cpp.py:7584
 #: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1115
 msgid "function"
 msgstr "함수"
 
-#: sphinx/domains/c.py:3734
+#: sphinx/domains/c.py:3735
 msgid "macro"
 msgstr "매크로"
 
-#: sphinx/domains/c.py:3735
+#: sphinx/domains/c.py:3736
 msgid "struct"
 msgstr "구조체"
 
-#: sphinx/domains/c.py:3736 sphinx/domains/cpp.py:7576
+#: sphinx/domains/c.py:3737 sphinx/domains/cpp.py:7583
 msgid "union"
 msgstr "공용체"
 
-#: sphinx/domains/c.py:3737 sphinx/domains/cpp.py:7581
+#: sphinx/domains/c.py:3738 sphinx/domains/cpp.py:7588
 msgid "enum"
 msgstr "열거형"
 
-#: sphinx/domains/c.py:3738 sphinx/domains/cpp.py:7582
+#: sphinx/domains/c.py:3739 sphinx/domains/cpp.py:7589
 msgid "enumerator"
 msgstr "열거자"
 
-#: sphinx/domains/c.py:3739 sphinx/domains/cpp.py:7579
+#: sphinx/domains/c.py:3740 sphinx/domains/cpp.py:7586
 msgid "type"
 msgstr "자료형"
 
-#: sphinx/domains/c.py:3741 sphinx/domains/cpp.py:7584
+#: sphinx/domains/c.py:3742 sphinx/domains/cpp.py:7591
 msgid "function parameter"
 msgstr "함수 매개변수"
 
@@ -1931,36 +1931,36 @@ msgstr "중복 인용 %s, 다른 인스턴스는 %s에 있음"
 msgid "Citation [%s] is not referenced."
 msgstr "인용 [%s]이(가) 참조되지 않았습니다."
 
-#: sphinx/domains/cpp.py:4710 sphinx/domains/cpp.py:7133
+#: sphinx/domains/cpp.py:4754 sphinx/domains/cpp.py:7140
 #, python-format
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
 msgstr "중복 C++ 선언이며, %s:%s에 정의되었습니다.\n선언은 '.. cpp:%s:: %s' 입니다."
 
-#: sphinx/domains/cpp.py:6934
+#: sphinx/domains/cpp.py:6941
 msgid "Template Parameters"
 msgstr "템플릿 매개변수"
 
-#: sphinx/domains/cpp.py:6937 sphinx/domains/javascript.py:218
+#: sphinx/domains/cpp.py:6944 sphinx/domains/javascript.py:218
 msgid "Throws"
 msgstr "예외"
 
-#: sphinx/domains/cpp.py:7056
+#: sphinx/domains/cpp.py:7063
 #, python-format
 msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
-#: sphinx/domains/cpp.py:7575 sphinx/domains/javascript.py:328
+#: sphinx/domains/cpp.py:7582 sphinx/domains/javascript.py:328
 #: sphinx/domains/python.py:1117
 msgid "class"
 msgstr "클래스"
 
-#: sphinx/domains/cpp.py:7580
+#: sphinx/domains/cpp.py:7587
 msgid "concept"
 msgstr "콘셉트"
 
-#: sphinx/domains/cpp.py:7585
+#: sphinx/domains/cpp.py:7592
 msgid "template parameter"
 msgstr "템플릿 매개변수"
 
