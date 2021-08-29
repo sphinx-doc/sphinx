@@ -9,6 +9,7 @@
 """
 
 import pytest
+from html5lib import HTMLParser
 
 
 @pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True)
@@ -17,6 +18,24 @@ def test_basic(app, status, warning):
 
     content = (app.outdir / 'index.html').read_text()
     assert '<p>– “Sphinx” is a tool that makes it easy …</p>' in content
+
+
+@pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True)
+def test_literals(app, status, warning):
+    app.build()
+
+    with (app.outdir / 'literals.html').open() as html_file:
+        etree = HTMLParser(namespaceHTMLElements=False).parse(html_file)
+
+    for code_element in etree.iter('code'):
+        code_text = ''.join(code_element.itertext())
+
+        if code_text.startswith('code role'):
+            assert "'quotes'" in code_text
+        elif code_text.startswith('{'):
+            assert code_text == "{'code': 'role', 'with': 'quotes'}"
+        elif code_text.startswith('literal'):
+            assert code_text == "literal with 'quotes'"
 
 
 @pytest.mark.sphinx(buildername='text', testroot='smartquotes', freshenv=True)
