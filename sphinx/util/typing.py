@@ -315,6 +315,8 @@ def stringify(annotation: Any) -> str:
         return 'None'
     elif annotation in INVALID_BUILTIN_CLASSES:
         return INVALID_BUILTIN_CLASSES[annotation]
+    elif str(annotation).startswith('typing.Annotated'):  # for py310+
+        pass
     elif (getattr(annotation, '__module__', None) == 'builtins' and
           getattr(annotation, '__qualname__', None)):
         if hasattr(annotation, '__args__'):  # PEP 585 generic

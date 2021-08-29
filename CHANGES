@@ -19,6 +19,7 @@ Features added
   template variable ``sphinx_version_tuple``
 * #9445: py domain: ``:py:property:`` directive supports ``:classmethod:``
   option to describe the class property
+* #9535: C and C++, support more fundamental types, including GNU extensions.
 
 Bugs fixed
 ----------
@@ -36,6 +37,8 @@ Bugs fixed
 * #9456: html search: abbreation marks are inserted to the search result if
   failed to fetch the content of the page
 * #9267: html theme: CSS and JS files added by theme were loaded twice
+* #9535 comment: C++, fix parsing of defaulted function parameters that are
+  function pointers.
 
 Testing
 --------
@@ -60,8 +63,8 @@ Bugs fixed
 
 * #9504: autodoc: generate incorrect reference to the parent class if the target
   class inherites the class having ``_name`` attribute
-* #9537: autodoc: Some objects under ``typing`` module are not displayed well
-  with the HEAD of 3.10
+* #9537, #9589: autodoc: Some objects under ``typing`` module are not displayed
+  well with the HEAD of 3.10
 * #9512: sphinx-build: crashed with the HEAD of Python 3.10
 
 Testing
