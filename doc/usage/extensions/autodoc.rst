@@ -468,7 +468,7 @@ There are also config values that you can set:
 
 .. confval:: autodoc_class_signature
 
-   This value selects how the signautre will be displayed for the class defined
+   This value selects how the signature will be displayed for the class defined
    by :rst:dir:`autoclass` directive.  The possible values are:
 
    ``"mixed"``
