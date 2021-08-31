@@ -861,7 +861,8 @@ class PyProperty(PyObject):
 
         typ = self.options.get('type')
         if typ:
-            signode += addnodes.desc_annotation(typ, ': ' + typ)
+            annotations = _parse_annotation(typ, self.env)
+            signode += addnodes.desc_annotation(typ, '', nodes.Text(': '), *annotations)
 
         return fullname, prefix
 
