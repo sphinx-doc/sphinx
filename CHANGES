@@ -33,6 +33,8 @@ Bugs fixed
   are not displayed well
 * #9481: autosummary: some warnings contain non-existing filenames
 * #9568: autosummary: summarise overlined sectioned headings correctly
+* #9600: autosummary: Type annotations which contain commas in autosummary table
+  are not removed completely
 * #9481: c domain: some warnings contain non-existing filenames
 * #9481: cpp domain: some warnings contain non-existing filenames
 * #9456: html search: abbreation marks are inserted to the search result if
