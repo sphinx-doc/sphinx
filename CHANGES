@@ -25,6 +25,8 @@ Features added
 Bugs fixed
 ----------
 
+* #9608: apidoc: apidoc does not generate a module definition for implicit
+  namespace package
 * #9487: autodoc: typehint for cached_property is not shown
 * #9509: autodoc: AttributeError is raised on failed resolving typehints
 * #9518: autodoc: autodoc_docstring_signature does not effect to ``__init__()``
