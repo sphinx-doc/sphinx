@@ -113,7 +113,11 @@ def test_restify_type_hints_typevars():
     assert restify(T_co) == ":obj:`tests.test_util_typing.T_co`"
     assert restify(T_contra) == ":obj:`tests.test_util_typing.T_contra`"
     assert restify(List[T]) == ":class:`~typing.List`\\ [:obj:`tests.test_util_typing.T`]"
-    assert restify(MyInt) == ":class:`MyInt`"
+
+    if sys.version_info >= (3, 10):
+        assert restify(MyInt) == ":class:`tests.test_util_typing.MyInt`"
+    else:
+        assert restify(MyInt) == ":class:`MyInt`"
 
 
 def test_restify_type_hints_custom_class():
@@ -250,7 +254,10 @@ def test_stringify_type_hints_typevars():
         assert stringify(T_contra) == "tests.test_util_typing.T_contra"
         assert stringify(List[T]) == "List[tests.test_util_typing.T]"
 
-    assert stringify(MyInt) == "MyInt"
+    if sys.version_info >= (3, 10):
+        assert stringify(MyInt) == "tests.test_util_typing.MyInt"
+    else:
+        assert stringify(MyInt) == "MyInt"
 
 
 def test_stringify_type_hints_custom_class():

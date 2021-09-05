@@ -116,7 +116,12 @@ def restify(cls: Optional[Type]) -> str:
         elif cls in INVALID_BUILTIN_CLASSES:
             return ':class:`%s`' % INVALID_BUILTIN_CLASSES[cls]
         elif inspect.isNewType(cls):
-            return ':class:`%s`' % cls.__name__
+            if sys.version_info > (3, 10):
+                # newtypes have correct module info since Python 3.10+
+                print(cls, type(cls), dir(cls))
+                return ':class:`%s.%s`' % (cls.__module__, cls.__name__)
+            else:
+                return ':class:`%s`' % cls.__name__
         elif UnionType and isinstance(cls, UnionType):
             if len(cls.__args__) > 1 and None in cls.__args__:
                 args = ' | '.join(restify(a) for a in cls.__args__ if a)
@@ -307,8 +312,11 @@ def stringify(annotation: Any) -> str:
         else:
             return '.'.join([annotation.__module__, annotation.__name__])
     elif inspect.isNewType(annotation):
-        # Could not get the module where it defined
-        return annotation.__name__
+        if sys.version_info > (3, 10):
+            # newtypes have correct module info since Python 3.10+
+            return '%s.%s' % (annotation.__module__, annotation.__name__)
+        else:
+            return annotation.__name__
     elif not annotation:
         return repr(annotation)
     elif annotation is NoneType:
