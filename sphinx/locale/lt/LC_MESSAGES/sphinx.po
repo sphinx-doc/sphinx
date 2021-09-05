@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-08-29 00:09+0000\n"
+"POT-Creation-Date: 2021-09-05 07:26+0000\n"
 "PO-Revision-Date: 2021-08-08 00:08+0000\n"
 "Last-Translator: Takeshi KOMIYA <i.tkomiya@gmail.com>\n"
 "Language-Team: Lithuanian (http://www.transifex.com/sphinx-doc/sphinx-1/language/lt/)\n"
@@ -1873,7 +1873,7 @@ msgid "variable"
 msgstr "kintamasis"
 
 #: sphinx/domains/c.py:3734 sphinx/domains/cpp.py:7584
-#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1115
+#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1116
 msgid "function"
 msgstr "funkcija"
 
@@ -1951,7 +1951,7 @@ msgid "%s (C++ %s)"
 msgstr ""
 
 #: sphinx/domains/cpp.py:7582 sphinx/domains/javascript.py:328
-#: sphinx/domains/python.py:1117
+#: sphinx/domains/python.py:1118
 msgid "class"
 msgstr "klasė"
 
@@ -1997,20 +1997,20 @@ msgstr "Argumentais"
 msgid "%s (module)"
 msgstr "%s (modulis)"
 
-#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1119
+#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1120
 msgid "method"
 msgstr "metodas"
 
-#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1116
+#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1117
 msgid "data"
 msgstr "duomenys"
 
-#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1122
+#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1123
 msgid "attribute"
 msgstr "atribudas"
 
 #: sphinx/domains/javascript.py:331 sphinx/domains/python.py:58
-#: sphinx/domains/python.py:1124
+#: sphinx/domains/python.py:1125
 msgid "module"
 msgstr "modulis"
 
@@ -2041,7 +2041,7 @@ msgstr "operatorius"
 msgid "object"
 msgstr "objektas"
 
-#: sphinx/domains/python.py:62 sphinx/domains/python.py:1118
+#: sphinx/domains/python.py:62 sphinx/domains/python.py:1119
 msgid "exception"
 msgstr "išimtis"
 
@@ -2067,7 +2067,7 @@ msgid "%s() (in module %s)"
 msgstr "%s() (modulyje %s)"
 
 #: sphinx/domains/python.py:676 sphinx/domains/python.py:842
-#: sphinx/domains/python.py:886
+#: sphinx/domains/python.py:887
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (modulje %s)"
@@ -2102,48 +2102,48 @@ msgstr ""
 msgid "%s() (%s static method)"
 msgstr "%s() (%s statinis metodas)"
 
-#: sphinx/domains/python.py:890
+#: sphinx/domains/python.py:891
 #, python-format
 msgid "%s (%s property)"
 msgstr ""
 
-#: sphinx/domains/python.py:1044
+#: sphinx/domains/python.py:1045
 msgid "Python Module Index"
 msgstr ""
 
-#: sphinx/domains/python.py:1045
+#: sphinx/domains/python.py:1046
 msgid "modules"
 msgstr "moduliai"
 
-#: sphinx/domains/python.py:1094
+#: sphinx/domains/python.py:1095
 msgid "Deprecated"
 msgstr "Atmestas"
 
-#: sphinx/domains/python.py:1120
+#: sphinx/domains/python.py:1121
 msgid "class method"
 msgstr "klasės metodas"
 
-#: sphinx/domains/python.py:1121
+#: sphinx/domains/python.py:1122
 msgid "static method"
 msgstr "statinis metodas"
 
-#: sphinx/domains/python.py:1123
+#: sphinx/domains/python.py:1124
 msgid "property"
 msgstr ""
 
-#: sphinx/domains/python.py:1181
+#: sphinx/domains/python.py:1182
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr ""
 
-#: sphinx/domains/python.py:1301
+#: sphinx/domains/python.py:1302
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr ""
 
-#: sphinx/domains/python.py:1355
+#: sphinx/domains/python.py:1356
 msgid " (deprecated)"
 msgstr " (atmestas)"
 
@@ -2956,12 +2956,12 @@ msgstr ""
 msgid "failed to import object %s"
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:755
+#: sphinx/ext/autosummary/__init__.py:758
 #, python-format
 msgid "autosummary_generate: file not found: %s"
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:763
+#: sphinx/ext/autosummary/__init__.py:766
 msgid ""
 "autosummary generats .rst files internally. But your source_suffix does not "
 "contain .rst. Skipped."
@@ -3518,7 +3518,7 @@ msgstr ""
 msgid "toctree contains ref to nonexisting file %r"
 msgstr ""
 
-#: sphinx/util/nodes.py:608
+#: sphinx/util/nodes.py:610
 #, python-format
 msgid "exception while evaluating only directive expression: %s"
 msgstr ""
