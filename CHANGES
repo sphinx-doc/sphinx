@@ -40,6 +40,7 @@ Bugs fixed
 * #9267: html theme: CSS and JS files added by theme were loaded twice
 * #9585: py domain: ``:type:`` option for :rst:dir:`py:property` directive does
   not create a hyperlink
+* #9576: py domain: Literal typehint was converted to a cross reference
 * #9535 comment: C++, fix parsing of defaulted function parameters that are
   function pointers.
 * #9564: smartquotes: don't adjust typography for text with
