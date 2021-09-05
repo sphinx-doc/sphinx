@@ -13,7 +13,7 @@
 # Lenville Leo <lenville@gmail.com>, 2013
 # Nomaka <nomakacyx@gmail.com>, 2018
 # Ryekee Zhong <ryekee@gmail.com>, 2013
-# Komiya Takeshi <i.tkomiya@gmail.com>, 2019,2021
+# Takeshi KOMIYA <i.tkomiya@gmail.com>, 2019,2021
 # Tower Joo<zhutao.iscas@gmail.com>, 2009
 # wendi cao <651645601@qq.com>, 2020
 # Yinian Chin <yinian1992@live.com>, 2013,2018,2020
@@ -22,9 +22,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-08-22 00:08+0000\n"
+"POT-Creation-Date: 2021-09-05 07:26+0000\n"
 "PO-Revision-Date: 2021-08-08 00:08+0000\n"
-"Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
+"Last-Translator: Takeshi KOMIYA <i.tkomiya@gmail.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/sphinx-doc/sphinx-1/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1887,7 +1887,7 @@ msgid "variable"
 msgstr "变量"
 
 #: sphinx/domains/c.py:3734 sphinx/domains/cpp.py:7584
-#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1115
+#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1116
 msgid "function"
 msgstr "函数"
 
@@ -1965,7 +1965,7 @@ msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
 #: sphinx/domains/cpp.py:7582 sphinx/domains/javascript.py:328
-#: sphinx/domains/python.py:1117
+#: sphinx/domains/python.py:1118
 msgid "class"
 msgstr "类"
 
@@ -2011,20 +2011,20 @@ msgstr "参数"
 msgid "%s (module)"
 msgstr "%s (模块)"
 
-#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1119
+#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1120
 msgid "method"
 msgstr "方法"
 
-#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1116
+#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1117
 msgid "data"
 msgstr "数据"
 
-#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1122
+#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1123
 msgid "attribute"
 msgstr "属性"
 
 #: sphinx/domains/javascript.py:331 sphinx/domains/python.py:58
-#: sphinx/domains/python.py:1124
+#: sphinx/domains/python.py:1125
 msgid "module"
 msgstr "模块"
 
@@ -2055,7 +2055,7 @@ msgstr "运算符"
 msgid "object"
 msgstr "对象"
 
-#: sphinx/domains/python.py:62 sphinx/domains/python.py:1118
+#: sphinx/domains/python.py:62 sphinx/domains/python.py:1119
 msgid "exception"
 msgstr "例外"
 
@@ -2081,7 +2081,7 @@ msgid "%s() (in module %s)"
 msgstr "%s() (在 %s 模块中)"
 
 #: sphinx/domains/python.py:676 sphinx/domains/python.py:842
-#: sphinx/domains/python.py:886
+#: sphinx/domains/python.py:887
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s() (在 %s 模块中)"
@@ -2116,48 +2116,48 @@ msgstr "%s() (%s 所有权)"
 msgid "%s() (%s static method)"
 msgstr "%s() (%s 静态方法)"
 
-#: sphinx/domains/python.py:890
+#: sphinx/domains/python.py:891
 #, python-format
 msgid "%s (%s property)"
 msgstr ""
 
-#: sphinx/domains/python.py:1044
+#: sphinx/domains/python.py:1045
 msgid "Python Module Index"
 msgstr "Python 模块索引"
 
-#: sphinx/domains/python.py:1045
+#: sphinx/domains/python.py:1046
 msgid "modules"
 msgstr "模块"
 
-#: sphinx/domains/python.py:1094
+#: sphinx/domains/python.py:1095
 msgid "Deprecated"
 msgstr "已移除"
 
-#: sphinx/domains/python.py:1120
+#: sphinx/domains/python.py:1121
 msgid "class method"
 msgstr "类方法"
 
-#: sphinx/domains/python.py:1121
+#: sphinx/domains/python.py:1122
 msgid "static method"
 msgstr "静态方法"
 
-#: sphinx/domains/python.py:1123
+#: sphinx/domains/python.py:1124
 msgid "property"
 msgstr ""
 
-#: sphinx/domains/python.py:1181
+#: sphinx/domains/python.py:1182
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr "重复的对象描述%s ，另一实例出现在使用 noindex 中：对它们其中的一个 %s"
 
-#: sphinx/domains/python.py:1301
+#: sphinx/domains/python.py:1302
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "交叉引用 %r 找到了多个目标：%s"
 
-#: sphinx/domains/python.py:1355
+#: sphinx/domains/python.py:1356
 msgid " (deprecated)"
 msgstr " (已移除)"
 
@@ -2970,12 +2970,12 @@ msgstr "无法解析名称 %s"
 msgid "failed to import object %s"
 msgstr "无法导入对象 %s"
 
-#: sphinx/ext/autosummary/__init__.py:755
+#: sphinx/ext/autosummary/__init__.py:758
 #, python-format
 msgid "autosummary_generate: file not found: %s"
 msgstr "autosummary_generate：无法找到文件 %s"
 
-#: sphinx/ext/autosummary/__init__.py:763
+#: sphinx/ext/autosummary/__init__.py:766
 msgid ""
 "autosummary generats .rst files internally. But your source_suffix does not "
 "contain .rst. Skipped."
@@ -3532,7 +3532,7 @@ msgstr "无效的日期格式。如果你想直接输出日期字符串，请用
 msgid "toctree contains ref to nonexisting file %r"
 msgstr "目录树引用的文件 %r 不存在"
 
-#: sphinx/util/nodes.py:608
+#: sphinx/util/nodes.py:610
 #, python-format
 msgid "exception while evaluating only directive expression: %s"
 msgstr "only 指令表达式求值时抛出异常：%s"
