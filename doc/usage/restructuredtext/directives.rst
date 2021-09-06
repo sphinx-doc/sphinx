@@ -1269,6 +1269,14 @@ The following is an example taken from the Python Reference Manual::
                : "finally" ":" `suite`
 
 
+Other
+-----
+
+.. rst:directive:: .. rst-class:: [classNames]
+
+   Sets classes on its content, Sphinx equivalent of docutils :dudir:`class`.
+
+
 .. rubric:: Footnotes
 
 .. [#] The LaTeX writer only refers the ``maxdepth`` option of first toctree
