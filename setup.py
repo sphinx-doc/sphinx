@@ -176,7 +176,7 @@ else:
 setup(
     name='Sphinx',
     version=sphinx.__version__,
-    url='https://sphinx-doc.org/',
+    url='https://www.sphinx-doc.org/',
     download_url='https://pypi.org/project/Sphinx/',
     license='BSD',
     author='Georg Brandl',

@@ -101,7 +101,7 @@ def jobs_argument(value: str) -> int:
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]',
-        epilog=__('For more information, visit <http://sphinx-doc.org/>.'),
+        epilog=__('For more information, visit <https://www.sphinx-doc.org/>.'),
         description=__("""
 Generate documentation from source files.
 

@@ -227,13 +227,13 @@ There are also these config values:
    attribute must be set, such as ``"_top"`` and ``"_blank"``. For example, the
    link in the following graph should work in the svg output: ::
 
-       .. graphviz::
+     .. graphviz::
 
-            digraph example {
-                a [label="sphinx", href="https://sphinx-doc.org", target="_top"];
-                b [label="other"];
-                a -> b;
-            }
+          digraph example {
+              a [label="sphinx", href="https://www.sphinx-doc.org/", target="_top"];
+              b [label="other"];
+              a -> b;
+          }
 
    .. versionadded:: 1.0
       Previously, output always was PNG.

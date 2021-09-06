@@ -2554,7 +2554,7 @@ Options for the linkcheck builder
 
    A dictionary that maps baseurls to HTTP request headers.
 
-   The key is a URL base string like ``"https://sphinx-doc.org/"``.  To specify
+   The key is a URL base string like ``"https://www.sphinx-doc.org/"``.  To specify
    headers for other hosts, ``"*"`` can be used.  It matches all hosts only when
    the URL does not match other settings.
 
@@ -2565,7 +2565,7 @@ Options for the linkcheck builder
    .. code-block:: python
 
       linkcheck_request_headers = {
-          "https://sphinx-doc.org/": {
+          "https://www.sphinx-doc.org/": {
               "Accept": "text/html",
               "Accept-Encoding": "utf-8",
           },
