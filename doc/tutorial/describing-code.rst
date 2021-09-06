@@ -127,71 +127,27 @@ documentation, called *doctests*, that are executed when the documentation is
 built.
 
 To demonstrate doctests and other Sphinx features covered in this tutorial,
-you will need to setup some basic Python infrastructure first.
-
-Preparing the Python library
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Begin by activating the virtual environment (as seen in the :ref:`getting
-started <tutorial-getting-started>` section of the tutorial) and install
-`flit <https://pypi.org/project/flit/>`_ on it:
-
-.. code-block:: console
-
-   $ source .venv/bin/activate
-   (.venv) $ python -m pip install "flit~=3.3"
-
-Next, create two files on the same level as ``README.rst``: ``pyproject.toml``
-and ``lumache.py``, with these contents:
-
-.. code-block:: toml
-   :caption: pyproject.toml
-
-   [build-system]
-   requires = ["flit_core >=3.2,<4"]
-   build-backend = "flit_core.buildapi"
-
-   [project]
-   name = "lumache"
-   authors = [{name = "Graziella", email = "graziella@lumache"}]
-   dynamic = ["version", "description"]
+Sphinx will need to be able to import the code. To achieve that, write this
+at the beginning of ``conf.py``:
 
 .. code-block:: python
-   :caption: lumache.py
+   :caption: docs/source/conf.py
+   :emphasize-lines: 3-5
 
-   """
-   Lumache - Python library for cooks and food lovers.
-   """
-
-   __version__ = "0.1.0"
-
-And finally, install your own code and check that importing it works:
-
-.. code-block:: console
-
-   (.venv) $ flit install --symlink
-   ...
-   (.venv) $ python -c 'import lumache; print("OK!")'
-   OK!
-
-Congratulations! You have created a basic Python library.
+   # If extensions (or modules to document with autodoc) are in another directory,
+   # add these directories to sys.path here.
+   import pathlib
+   import sys
+   sys.path.insert(0, pathlib.Path(__file__).parents[2].resolve().as_posix())
 
 .. note::
 
-   The ``pyproject.toml`` file you created above is required so that
-   your library can be installed. On the other hand,
-   ``flit install --symlink`` is an alternative to ``pip install .``
-   that removes the need to reinstall the library every time you make
-   a change, which is convenient.
+   An alternative to changing the :py:data:`sys.path` variable is to create a
+   ``pyproject.toml`` file and make the code installable,
+   so it behaves like any other Python library. However, the ``sys.path``
+   approach is simpler.
 
-   An alternative is to not create ``pyproject.toml`` at all,
-   and setting the :envvar:`PYTHONPATH`, :py:data:`sys.path`, or
-   equivalent. However, the ``pyproject.toml`` approach is more robust.
-
-Adding some doctests to the documentation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-To add doctests to your documentation, first enable the
+Then, before adding doctests to your documentation, enable the
 :doc:`doctest </usage/extensions/doctest>` extension in ``conf.py``:
 
 .. code-block:: python
@@ -203,7 +159,7 @@ To add doctests to your documentation, first enable the
        'sphinx.ext.doctest',
    ]
 
-Then, write a doctest block as follows:
+Next, write a doctest block as follows:
 
 .. code-block:: rst
    :caption: docs/source/usage.rst
