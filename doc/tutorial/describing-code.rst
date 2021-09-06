@@ -212,6 +212,11 @@ Then, write a doctest block as follows:
    >>> lumache.get_random_ingredients()
    ['shells', 'gorgonzola', 'parsley']
 
+Doctests include the Python instructions to be run preceded by ``>>>``,
+the standard Python interpreter prompt, as well as the expected output
+of each instruction. This way, Sphinx can check whether the actual output
+matches the expected one.
+
 To observe how a doctest failure looks like (rather than a code error as
 above), let's write the return value incorrectly first. Therefore, add a
 function ``get_random_ingredients`` like this:
