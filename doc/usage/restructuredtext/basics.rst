@@ -370,7 +370,7 @@ Docutils supports the following directives:
   - :dudir:`include` (include reStructuredText from another file) -- in Sphinx,
     when given an absolute include file path, this directive takes it as
     relative to the source directory
-  - :dudir:`class` (assign a class attribute to the next element) [1]_
+  - :rst:dir:`rst-class` (assign a class attribute to the next element) [1]_
 
 * HTML specifics:
 
@@ -605,6 +605,6 @@ There are some problems one commonly runs into while authoring reST documents:
 
 .. rubric:: Footnotes
 
-.. [1] When the default domain contains a :rst:dir:`class` directive, this
-       directive will be shadowed.  Therefore, Sphinx re-exports it as
+.. [1] Since some domains contain a ``class`` directive, it shadows
+       :dudir:`class` coming from docutils.  Therefore, Sphinx re-exports it as
        :rst:dir:`rst-class`.
