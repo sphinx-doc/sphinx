@@ -127,3 +127,6 @@ cross-reference to. If you do not include an explicit title, hence using
 ``:ref:`installation```, the section title will be used (in this case,
 ``Installation``). Both the ``:doc:`` and the ``:ref:`` roles will be rendered
 as hyperlinks in the HTML documentation.
+
+What about :doc:`documenting code objects in Sphinx </tutorial/describing-code>`?
+Read on!
