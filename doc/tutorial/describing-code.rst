@@ -102,7 +102,7 @@ Then, add this exception to the original description of the function:
       :return: The ingredients list.
       :rtype: list[str]
 
-And finally, this is how the result would look like:
+And finally, this is how the result would look:
 
 .. figure:: /_static/tutorial/lumache-py-function-full.png
    :width: 80%
