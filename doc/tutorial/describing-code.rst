@@ -55,9 +55,12 @@ Notice several things:
 
 .. note::
 
-   Since Python is the default :term:`domain`, you can write
-   ``.. function::`` directly without having to prefix the directive with
-   ``py:``.
+   The ``py:`` prefix specifies the :term:`domain`. You may configure the
+   default domain so you can omit the prefix, either globally using the
+   :confval:`primary_domain` configuration, or per-file using the
+   :rst:dir:`default-domain` directive.
+   For example, if you set it to ``py`` (the default), you can write
+   ``.. function::`` directly.
 
 Cross-referencing Python objects
 --------------------------------
