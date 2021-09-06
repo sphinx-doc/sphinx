@@ -47,8 +47,8 @@ Notice several things:
 
 - Sphinx parsed the argument of the ``.. py:function`` directive and
   highlighted the module, the function name, and the parameters appropriately.
-- Putting a parameter inside square brackets usually conveys that it is
-  optional (although it is not mandatory to use this syntax).
+- Putting a parameter inside square brackets is a convention that conveys it is
+  optional. This syntax is not mandatory but can be useful for readers.
 - The directive content includes a one-line description of the function,
   as well as a :ref:`field list <rst-field-lists>` containing the function
   parameter, its expected type, the return value, and the return type.
