@@ -77,7 +77,7 @@ you can use :rst:role:`py:func` for that, as follows:
    or ``"veggies"``. Otherwise, :py:func:`lumache.get_random_ingredients`
    will raise an exception.
 
-In some contexts, Sphinx will generate a cross-reference automatically just
+When generating code documentation, Sphinx will generate a cross-reference automatically just
 by using the name of the object, without you having to explicitly use a role
 for that. For example, you can describe the custom exception raised by the
 function using the :rst:dir:`py:exception` directive:
