@@ -45,7 +45,7 @@ def test_SphinxFileOutput(tmpdir):
     output.write(content)
     os.utime(filename, (0, 0))
 
-    # overrite it again
+    # overwrite it again
     output.write(content)
     assert os.stat(filename).st_mtime != 0  # updated
 
@@ -55,11 +55,11 @@ def test_SphinxFileOutput(tmpdir):
     output.write(content)
     os.utime(filename, (0, 0))
 
-    # overrite it again
+    # overwrite it again
     output.write(content)
     assert os.stat(filename).st_mtime == 0  # not updated
 
-    # overrite it again (content changed)
+    # overwrite it again (content changed)
     output.write(content + "; content change")
     assert os.stat(filename).st_mtime != 0  # updated
 

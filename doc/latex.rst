@@ -574,7 +574,7 @@ The colors used in the above are provided by the ``svgnames`` option of the
 It is possible to insert further uses of the ``\sphinxsetup`` LaTeX macro
 directly into the body of the document, via the help of the :rst:dir:`raw`
 directive. This chapter is styled in the PDF output using the following at the
-start of the chaper::
+start of the chapter::
 
   .. raw:: latex
 
@@ -607,7 +607,7 @@ macros may be significant.
 Do not use quotes to enclose values, whether numerical or strings.
 
 ``bookmarksdepth``
-    Controls the depth of the collapsable bookmarks panel in the PDF.
+    Controls the depth of the collapsible bookmarks panel in the PDF.
     May be either a number (e.g. ``3``) or a LaTeX sectioning name (e.g.
     ``subsubsection``, i.e. without backslash).
     For details, refer to the ``hyperref`` LaTeX docs.

@@ -199,7 +199,7 @@ ADDITIONAL_SETTINGS: Dict[Any, Dict[str, Any]] = {
         'babel':        '\\usepackage{babel}',
         'fontenc':      '\\usepackage{xeCJK}',
         # set formatcom=\xeCJKVerbAddon to prevent xeCJK from adding extra spaces in
-        # fancyvrb Verbatim enviroment.
+        # fancyvrb Verbatim environment.
         'fvset':        '\\fvset{fontsize=\\small,formatcom=\\xeCJKVerbAddon}',
     },
     ('xelatex', 'el'): {

@@ -83,7 +83,7 @@ It adds these directives:
       .. versionadded:: 1.6
 
    .. rst:directive:option:: class: class names
-      :type: a list of class names separeted by spaces
+      :type: a list of class names separated by spaces
 
       The class name of the graph.
 
@@ -139,7 +139,7 @@ It adds these directives:
       .. versionadded:: 1.6
 
    .. rst:directive:option:: class: class names
-      :type: a list of class names separeted by spaces
+      :type: a list of class names separated by spaces
 
       The class name of the graph.
 
@@ -191,7 +191,7 @@ It adds these directives:
       .. versionadded:: 1.6
 
    .. rst:directive:option:: class: class names
-      :type: a list of class names separeted by spaces
+      :type: a list of class names separated by spaces
 
       The class name of the graph.
 

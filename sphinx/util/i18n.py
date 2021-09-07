@@ -129,7 +129,7 @@ def docname_to_domain(docname: str, compaction: Union[bool, str]) -> str:
         return docname
 
 
-# date_format mappings: ustrftime() to bable.dates.format_datetime()
+# date_format mappings: ustrftime() to babel.dates.format_datetime()
 date_format_mappings = {
     '%a':  'EEE',     # Weekday as locale’s abbreviated name.
     '%A':  'EEEE',    # Weekday as locale’s full name.

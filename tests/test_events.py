@@ -34,7 +34,7 @@ def test_event_allowed_exceptions():
     events = EventManager(object())  # pass an dummy object as an app
     events.connect('builder-inited', raise_error, priority=500)
 
-    # all errors are conveted to ExtensionError
+    # all errors are converted to ExtensionError
     with pytest.raises(ExtensionError):
         events.emit('builder-inited')
 
