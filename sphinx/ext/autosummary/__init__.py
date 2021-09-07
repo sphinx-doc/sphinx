@@ -617,6 +617,8 @@ def get_import_prefixes_from_env(env: BuildEnvironment) -> List[str]:
 def import_by_name(name: str, prefixes: List[str] = [None], last_errors = None) -> Tuple[str, Any, Any, str]:
     """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
+    If importing fails, *last_errors* will contain the exceptions raised during
+    import and may help to identify the problem.
     """
     tried = []
     for prefix in prefixes:
@@ -645,8 +647,7 @@ def _import_by_name(name: str, last_errors = None) -> Tuple[Any, Any, str]:
                 return getattr(mod, name_parts[-1]), mod, modname
             except (ImportError, IndexError, AttributeError) as e:
                 if last_errors is not None:
-                    last_errors.append(str(e))
-                pass
+                    last_errors.append(e)
 
         # ... then as MODNAME, MODNAME.OBJ1, MODNAME.OBJ1.OBJ2, ...
         last_j = 0
@@ -658,7 +659,7 @@ def _import_by_name(name: str, last_errors = None) -> Tuple[Any, Any, str]:
                 import_module(modname)
             except ImportError as e:
                 if last_errors is not None:
-                    last_errors.append(str(e))
+                    last_errors.append(e)
                 continue
 
             if modname in sys.modules:
@@ -692,8 +693,7 @@ def import_ivar_by_name(name: str, prefixes: List[str] = [None], last_errors = N
             return real_name + "." + attr, INSTANCEATTR, obj, modname
     except (ImportError, ValueError, PycodeError) as e:
         if last_errors is not None:
-            last_errors.append(str(e))
-        pass
+            last_errors.append(e)
 
     raise ImportError
 

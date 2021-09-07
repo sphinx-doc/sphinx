@@ -413,20 +413,21 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
         path = output_dir or os.path.abspath(entry.path)
         ensuredir(path)
 
-        last_errors = list()
+        last_errors = []
 
         try:
             name, obj, parent, modname = import_by_name(entry.name, last_errors=last_errors)
             qualname = name.replace(modname + ".", "")
         except ImportError as e:
             try:
-                # try to importl as an instance attribute
+                # try to import as an instance attribute
                 name, obj, parent, modname = import_ivar_by_name(entry.name, last_errors=last_errors)
                 qualname = name.replace(modname + ".", "")
             except ImportError:
-                # remove duplicates
-                last_errors = list(set(last_errors))
-                logger.warning(__('[autosummary] failed to import %r: %s. Possible hints: %s') % (entry.name, e, last_errors))
+                # Convert exceptions to strings and remove duplicates (covert to set, then to list)
+                last_errors_str = list({str(e) in last_errors})
+                logger.warning(__('[autosummary] failed to import %r: %s. Possible hints: %s') %
+                               (entry.name, e, last_errors_str))
                 continue
 
         context: Dict[str, Any] = {}
