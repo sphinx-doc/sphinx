@@ -224,7 +224,7 @@ def get_documenter(app: Sphinx, obj: Any, parent: Any) -> Type[Documenter]:
     else:
         parent_doc = parent_doc_cls(FakeDirective(), "")
 
-    # Get the corrent documenter class for *obj*
+    # Get the correct documenter class for *obj*
     classes = [cls for cls in app.registry.documenters.values()
                if cls.can_document_member(obj, '', False, parent_doc)]
     if classes:

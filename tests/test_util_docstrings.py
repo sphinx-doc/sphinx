@@ -26,7 +26,7 @@ def test_separate_metadata():
     assert docstring == ':param baz:\n'
     assert metadata == {'foo': 'bar'}
 
-    # field_list like text following just after paragaph is not a field_list
+    # field_list like text following just after paragraph is not a field_list
     text = ("blah blah blah\n"
             ":meta foo: bar\n"
             ":meta baz:\n")

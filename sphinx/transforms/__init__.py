@@ -181,7 +181,7 @@ class AutoNumbering(SphinxTransform):
 
 class SortIds(SphinxTransform):
     """
-    Sort secion IDs so that the "id[0-9]+" one comes last.
+    Sort section IDs so that the "id[0-9]+" one comes last.
     """
     default_priority = 261
 

@@ -35,7 +35,7 @@ Options
 
 .. option:: --no-sep
 
-   If specified, create build directroy under source directroy.
+   If specified, create build directory under source directory.
 
 .. option:: --dot=DOT
 

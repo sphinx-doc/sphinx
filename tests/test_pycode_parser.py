@@ -224,7 +224,7 @@ def test_class():
               '\n'
               '    def __init__(self):\n'
               '        self.a = 1 + 1  #: comment3\n'
-              '        self.attr2 = 1 + 1  #: overrided\n'
+              '        self.attr2 = 1 + 1  #: overridden\n'
               '        b = 1 + 1  #: comment5\n'
               '\n'
               '    def some_method(self):\n'

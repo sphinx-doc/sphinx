@@ -178,7 +178,7 @@ class Locale(SphinxTransform):
                     #        old_name entry still exists in nameids and
                     #        nametypes for another duplicated entry.
                     #
-                    #   * if _id is provided: bellow process
+                    #   * if _id is provided: below process
                     if _id:
                         if not explicit:
                             # _id was not duplicated.

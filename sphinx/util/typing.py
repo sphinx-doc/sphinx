@@ -2,7 +2,7 @@
     sphinx.util.typing
     ~~~~~~~~~~~~~~~~~~
 
-    The composit types for Sphinx.
+    The composite types for Sphinx.
 
     :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.

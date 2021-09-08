@@ -1313,7 +1313,7 @@ class LaTeXTranslator(SphinxTranslator):
         base, ext = path.splitext(uri)
         if self.in_title and base:
             # Lowercase tokens forcely because some fncychap themes capitalize
-            # the options of \sphinxincludegraphics unexpectly (ex. WIDTH=...).
+            # the options of \sphinxincludegraphics unexpectedly (ex. WIDTH=...).
             self.body.append(r'\lowercase{\sphinxincludegraphics%s}{{%s}%s}' %
                              (options, base, ext))
         else:

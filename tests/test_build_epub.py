@@ -346,7 +346,7 @@ def test_epub_css_files(app):
     content = (app.outdir / 'index.xhtml').read_text()
     assert '<link rel="stylesheet" type="text/css" href="_static/css/epub.css" />' in content
 
-    # files in html_css_files are not outputed
+    # files in html_css_files are not outputted
     assert ('<link rel="stylesheet" type="text/css" href="_static/css/style.css" />'
             not in content)
     assert ('<link media="print" rel="stylesheet" title="title" type="text/css" '
