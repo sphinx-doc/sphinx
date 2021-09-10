@@ -38,6 +38,12 @@ Configuration
    - ``javascript``: ``object`` (name of the object), ``fullname``
      (name of the item)
 
+   The ``start_line`` and ``end_line`` keys are also always present in the
+   ``info`` dictionnary, but may be None if they are not found. By default,
+   theses values are found using the :event:`viewcode-find-source` event but you
+   can set the :confval:`linkcode_line_try_import` setting to ``True`` to use
+   the same import mechanism as in :mod:`sphinx.ext.viewcode`.
+
    Example:
 
    .. code-block:: python
@@ -48,4 +54,43 @@ Configuration
           if not info['module']:
               return None
           filename = info['module'].replace('.', '/')
-          return "https://somesite/sourcerepo/%s.py" % filename
+          line_anchor = ""
+          if info['start_line'] is not None:
+            line_anchor = "#L%s" % info['start_line']
+          return "https://somesite/sourcerepo/%s.py%s" % filename, line_anchor
+
+.. confval:: linkcode_line_try_import
+
+   .. versionadded:: 4.1.3
+
+   If this is ``True``, the extension will try to find the related source lines
+   using the same import mechanism used by :mod:`sphinx.ext.viewcode`
+   (:class:`~sphinx.pycode.ModuleAnalyzer`) after the
+   :event:`viewcode-find-source` event has been tried. Otherwise only the event
+   is used.
+
+   .. warning::
+
+      The same warning as in :mod:`sphinx.ext.viewcode` applies: using this
+      method will import the modules being linked to.
+      If any modules have side effects on import, these will be executed when
+      ``sphinx-build`` is run.
+
+      If you document scripts (as opposed to library modules), make sure their
+      main routine is protected by a ``if __name__ == '__main__'`` condition.
+
+   The default is ``False``.
+
+.. event:: viewcode-find-source (app, modname)
+
+   .. versionadded:: 4.1.3
+
+   Find the source code for a module.
+   An event handler for this event should return a tuple of the source code
+   itself and a dictionary of tags.
+   The dictionary maps the name of a class, function, attribute, etc to a tuple
+   of its type, the start line number, and the end line number.
+   The type should be one of "class", "def", or "other".
+
+   :param app: The Sphinx application object.
+   :param modname: The name of the module to find source code for.

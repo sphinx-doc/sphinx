@@ -18,6 +18,7 @@ from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import _
+from sphinx.pycode import ModuleAnalyzer
 
 
 class LinkcodeError(SphinxError):
@@ -56,6 +57,29 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
             if not info:
                 continue
 
+            # Get the source lines
+            info['start_line'] = None
+            info['end_line'] = None
+            tags_source = False
+            modname = signode.get('module')
+            code_tags = app.emit_firstresult('viewcode-find-source', modname)
+            if code_tags is not None:
+                tags_source = code_tags[1]
+            else:
+                if env.config.linkcode_line_try_import:
+                    try:
+                        analyzer = ModuleAnalyzer.for_module(modname)
+                        analyzer.find_tags()
+                    except Exception:
+                        pass  # Keep tags = False
+                    else:
+                        tags_source = analyzer.tags
+            if tags_source:
+                tag_fullname = signode.get('fullname')
+                if tag_fullname in tags_source:
+                    info['start_line'] = tags_source[tag_fullname][1]
+                    info['end_line'] = tags_source[tag_fullname][2]
+
             # Call user code to resolve the link
             uri = resolve_target(domain, info)
             if not uri:
@@ -74,6 +98,8 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
-    app.connect('doctree-read', doctree_read)
     app.add_config_value('linkcode_resolve', None, '')
+    app.add_config_value('linkcode_line_try_import', False, '')
+    app.connect('doctree-read', doctree_read)
+    app.add_event('viewcode-find-source')
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
