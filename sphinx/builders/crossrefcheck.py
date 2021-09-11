@@ -1,6 +1,6 @@
 """
-    sphinx.ext.crossrefcheck
-    ~~~~~~~~~~~~~~~~~~~~~~~~
+    sphinx.builders.crossrefcheck
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     TODO
 
@@ -8,7 +8,17 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Iterator, NamedTuple, Tuple, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    NamedTuple,
+    Tuple,
+    cast,
+)
 
 import docutils.nodes
 
@@ -102,7 +112,7 @@ class ExternalLinkChecker(sphinx.builders.dummy.DummyBuilder):
 
     def __init__(self, app: "sphinx.application.Sphinx") -> None:
         super().__init__(app)
-        self.uris: list[URIInfo] = []
+        self.uris: List[URIInfo] = []
 
     def finish(self) -> None:
         intersphinx_cache = getattr(self.app.env, "intersphinx_cache", dict())
