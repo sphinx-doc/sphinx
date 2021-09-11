@@ -41,6 +41,7 @@ Bugs fixed
 * #9481: cpp domain: some warnings contain non-existing filenames
 * #9456: html search: abbreation marks are inserted to the search result if
   failed to fetch the content of the page
+* #9617: html search: The JS requirement warning is shown if browser is slow
 * #9267: html theme: CSS and JS files added by theme were loaded twice
 * #9585: py domain: ``:type:`` option for :rst:dir:`py:property` directive does
   not create a hyperlink
