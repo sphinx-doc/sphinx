@@ -8,17 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    NamedTuple,
-    Tuple,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Iterator, List, NamedTuple, Tuple, cast
 
 import docutils.nodes
 
