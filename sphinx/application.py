@@ -57,6 +57,7 @@ if TYPE_CHECKING:
 builtin_extensions: tuple[str, ...] = (
     'sphinx.addnodes',
     'sphinx.builders.changes',
+    'sphinx.builders.crossrefcheck',
     'sphinx.builders.epub3',
     'sphinx.builders.dirhtml',
     'sphinx.builders.dummy',
