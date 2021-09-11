@@ -8,8 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-import sys
-from typing import TYPE_CHECKING, Any, Iterable, Iterator, NamedTuple, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Iterator, NamedTuple, Tuple, cast
 
 import docutils.nodes
 
@@ -23,13 +22,8 @@ if TYPE_CHECKING:
     import sphinx.application
     import sphinx.domains
 
-if sys.version_info >= (3, 9):
-    Inventory = dict[str, dict[str, tuple[str, str, str, str]]]
-else:
-    from typing import Dict, Tuple
 
-    Inventory = Dict[str, Dict[str, Tuple[str, str, str, str]]]
-
+Inventory = Dict[str, Dict[str, Tuple[str, str, str, str]]]
 
 logger = sphinx.util.logging.getLogger(__name__)
 
@@ -162,7 +156,7 @@ def find_replacements(
                         yield f":{domain_name}:{role}:`{target}`"
 
 
-def setup(app: "sphinx.application.Sphinx") -> dict[str, Any]:
+def setup(app: "sphinx.application.Sphinx") -> Dict[str, Any]:
     """Register this extension."""
     app.add_builder(ExternalLinkChecker)
     app.add_post_transform(LinkCollector)
