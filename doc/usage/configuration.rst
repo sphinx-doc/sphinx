@@ -2331,6 +2331,8 @@ These options influence manual page output.
 
    *description*
      Description of the manual page.  This is used in the NAME section.
+     Can be an empty string if you do not want to automatically generate
+     the NAME section.
 
    *authors*
      A list of strings with authors, or a single string.  Can be an empty
