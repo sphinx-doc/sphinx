@@ -595,7 +595,7 @@ def find_autosummary_in_lines(lines: List[str], module: str = None, filename: st
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] <SOURCE_FILE>...',
-        epilog=__('For more information, visit <http://sphinx-doc.org/>.'),
+        epilog=__('For more information, visit <https://www.sphinx-doc.org/>.'),
         description=__("""
 Generate ReStructuredText using autosummary directives.
 
