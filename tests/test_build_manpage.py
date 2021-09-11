@@ -23,6 +23,9 @@ def test_all(app, status, warning):
     assert r'\fBprint \fP\fIi\fP\fB\en\fP' in content
     assert r'\fBmanpage\en\fP' in content
 
+    # heading (title + description)
+    assert r'sphinxtests \- Sphinx <Tests> 0.6alpha1' in content
+
     # term of definition list including nodes.strong
     assert '\n.B term1\n' in content
     assert '\nterm2 (\\fBstronged partially\\fP)\n' in content
@@ -33,6 +36,15 @@ def test_all(app, status, warning):
     assert '\n\\fBShow \\fP\\fIvariable\\fP\\fB in the middle\\fP\n' in content
 
     assert 'Footnotes' not in content
+
+
+@pytest.mark.sphinx('man', testroot='basic',
+                    confoverrides={'man_pages': [('index', 'title', None, [], 1)]})
+def test_man_pages_empty_description(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'title.1').read_text()
+    assert r'title \-' not in content
 
 
 @pytest.mark.sphinx('man', testroot='basic',
