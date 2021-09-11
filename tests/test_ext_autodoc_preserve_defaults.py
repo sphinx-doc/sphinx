@@ -29,14 +29,14 @@ def test_preserve_defaults(app):
         '   docstring',
         '',
         '',
-        '   .. py:method:: Class.meth(name: str = CONSTANT, sentinal: Any = SENTINEL, '
+        '   .. py:method:: Class.meth(name: str = CONSTANT, sentinel: Any = SENTINEL, '
         'now: datetime.datetime = datetime.now()) -> None',
         '      :module: target.preserve_defaults',
         '',
         '      docstring',
         '',
         '',
-        '.. py:function:: foo(name: str = CONSTANT, sentinal: Any = SENTINEL, now: '
+        '.. py:function:: foo(name: str = CONSTANT, sentinel: Any = SENTINEL, now: '
         'datetime.datetime = datetime.now()) -> None',
         '   :module: target.preserve_defaults',
         '',

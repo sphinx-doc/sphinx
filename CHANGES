@@ -62,6 +62,7 @@ Bugs fixed
 * #9481: cpp domain: some warnings contain non-existing filenames
 * #9456: html search: abbreation marks are inserted to the search result if
   failed to fetch the content of the page
+* #9617: html search: The JS requirement warning is shown if browser is slow
 * #9267: html theme: CSS and JS files added by theme were loaded twice
 * #9585: py domain: ``:type:`` option for :rst:dir:`py:property` directive does
   not create a hyperlink
@@ -335,7 +336,7 @@ Incompatible changes
   ``autodoc_typehints='description'`` and ``autoclass_content='class'`` set
 * #8898: extlinks: "%s" becomes required keyword in the link caption string
 * domain: The ``Index`` class becomes subclasses of ``abc.ABC`` to indicate
-  methods that must be overrided in the concrete classes
+  methods that must be overridden in the concrete classes
 * #4826: py domain: The structure of python objects is changed.  A boolean value
   is added to indicate that the python object is canonical one
 * #7425: MathJax: The MathJax was changed from 2 to 3. Users using a custom
@@ -1047,7 +1048,7 @@ Bugs fixed
   module has submodules
 * #4258: napoleon: decorated special methods are not shown
 * #7799: napoleon: parameters are not escaped for combined params in numpydoc
-* #7780: napoleon: multiple paramaters declaration in numpydoc was wrongly
+* #7780: napoleon: multiple parameters declaration in numpydoc was wrongly
   recognized when napoleon_use_params=True
 * #7715: LaTeX: ``numfig_secnum_depth > 1`` leads to wrong figure links
 * #7846: html theme: XML-invalid files were generated
@@ -1413,7 +1414,7 @@ Incompatible changes
   has been renamed to ``sphinx_line_type``.
 * #6462: double backslashes in domain directives are no longer replaced by
   single backslashes as default. A new configuration value
-  :confval:`strip_signature_backslash` can be used by users to reenable it.
+  :confval:`strip_signature_backslash` can be used by users to re-enable it.
 
 3.0.0 final
 
@@ -1486,7 +1487,7 @@ Features added
 
   - Cross-referencing respecting the current scope.
   - Possible to document anonymous entities.
-  - More specific directives and roles for each type of entitiy,
+  - More specific directives and roles for each type of entity,
     e.g., handling scoping of enumerators.
   - New role :rst:role:`c:expr` for rendering expressions and types
     in text.
@@ -1873,7 +1874,7 @@ Features added
 * #6533: LaTeX: refactor visit_enumerated_list() to use ``\sphinxsetlistlabels``
 * #6628: quickstart: Use ``https://docs.python.org/3/`` for default setting of
   :confval:`intersphinx_mapping`
-* #6419: sphinx-build: give reasons why rebuilded
+* #6419: sphinx-build: give reasons why rebuilt
 
 Bugs fixed
 ----------

@@ -272,7 +272,7 @@ def test_pending_warnings(app, status, warning):
 
     logger.warning('message1')
     with logging.pending_warnings():
-        # not logged yet (bufferred) in here
+        # not logged yet (buffered) in here
         logger.warning('message2')
         logger.warning('message3')
         assert 'WARNING: message1' in warning.getvalue()

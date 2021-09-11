@@ -224,7 +224,7 @@ def test_class():
               '\n'
               '    def __init__(self):\n'
               '        self.a = 1 + 1  #: comment3\n'
-              '        self.attr2 = 1 + 1  #: overrided\n'
+              '        self.attr2 = 1 + 1  #: overridden\n'
               '        b = 1 + 1  #: comment5\n'
               '\n'
               '    def some_method(self):\n'
@@ -233,7 +233,7 @@ def test_class():
     parser.parse()
     assert parser.comments == {('Foo', 'attr1'): 'comment1',
                                ('Foo', 'a'): 'comment3',
-                               ('Foo', 'attr2'): 'overrided'}
+                               ('Foo', 'attr2'): 'overridden'}
     assert parser.definitions == {'Foo': ('class', 1, 11),
                                   'Foo.__init__': ('def', 5, 8),
                                   'Foo.some_method': ('def', 10, 11)}

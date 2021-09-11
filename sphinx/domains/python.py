@@ -1062,7 +1062,7 @@ class PythonModuleIndex(Index):
         # list of all modules, sorted by module name
         modules = sorted(self.domain.data['modules'].items(),
                          key=lambda x: x[0].lower())
-        # sort out collapsable modules
+        # sort out collapsible modules
         prev_modname = ''
         num_toplevels = 0
         for modname, (docname, node_id, synopsis, platforms, deprecated) in modules:

@@ -825,7 +825,7 @@ def test_autodoc_typehints_description(app):
             '      Tuple[int, int]\n'
             in context)
 
-    # Overloads still get displyed in the signature
+    # Overloads still get displayed in the signature
     assert ('target.overload.sum(x: int, y: int = 0) -> int\n'
             'target.overload.sum(x: float, y: float = 0.0) -> float\n'
             'target.overload.sum(x: str, y: str = None) -> str\n'
@@ -956,7 +956,7 @@ def test_autodoc_typehints_both(app):
             '      Tuple[int, int]\n'
             in context)
 
-    # Overloads still get displyed in the signature
+    # Overloads still get displayed in the signature
     assert ('target.overload.sum(x: int, y: int = 0) -> int\n'
             'target.overload.sum(x: float, y: float = 0.0) -> float\n'
             'target.overload.sum(x: str, y: str = None) -> str\n'

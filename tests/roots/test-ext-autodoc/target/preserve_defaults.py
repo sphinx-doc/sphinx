@@ -6,7 +6,7 @@ SENTINEL = object()
 
 
 def foo(name: str = CONSTANT,
-        sentinal: Any = SENTINEL,
+        sentinel: Any = SENTINEL,
         now: datetime = datetime.now()) -> None:
     """docstring"""
 
@@ -14,6 +14,6 @@ def foo(name: str = CONSTANT,
 class Class:
     """docstring"""
 
-    def meth(self, name: str = CONSTANT, sentinal: Any = SENTINEL,
+    def meth(self, name: str = CONSTANT, sentinel: Any = SENTINEL,
              now: datetime = datetime.now()) -> None:
         """docstring"""

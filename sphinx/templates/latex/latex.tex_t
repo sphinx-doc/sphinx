@@ -16,7 +16,7 @@
 \ifdefined\pdfimageresolution
     \pdfimageresolution= \numexpr \dimexpr1in\relax/\sphinxpxdimen\relax
 \fi
-%% let collapsable pdf bookmarks panel have high depth per default
+%% let collapsible pdf bookmarks panel have high depth per default
 \PassOptionsToPackage{bookmarksdepth=5}{hyperref}
 <% if use_xindy -%>
 %% turn off hyperref patch of \index as sphinx.xdy xindy module takes care of

@@ -107,7 +107,7 @@ class IndexEntries:
                 lckey = lckey[1:]
 
             if lckey[0:1].isalpha() or lckey.startswith('_'):
-                # put non-symbol characters at the folloing group (1)
+                # put non-symbol characters at the following group (1)
                 sortkey = (1, lckey)
             else:
                 # put symbols at the front of the index (0)

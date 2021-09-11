@@ -21,13 +21,14 @@
 {% block body %}
   <h1 id="search-documentation">{{ _('Search') }}</h1>
   {% block scriptwarning %}
-  <div id="fallback" class="admonition warning">
-  <script>$('#fallback').hide();</script>
+  <noscript>
+  <div class="admonition warning">
   <p>
     {% trans %}Please activate JavaScript to enable the search
     functionality.{% endtrans %}
   </p>
   </div>
+  </noscript>
   {% endblock %}
   {% block searchtext %}
   <p>
