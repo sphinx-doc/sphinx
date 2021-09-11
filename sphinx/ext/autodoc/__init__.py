@@ -1424,7 +1424,7 @@ _METACLASS_CALL_BLACKLIST = [
 ]
 
 
-# Types whose __new__ signature is a pass-thru.
+# Types whose __new__ signature is a pass-through.
 _CLASS_NEW_BLACKLIST = [
     'typing.Generic.__new__',
 ]
@@ -1613,7 +1613,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                     if qualname in analyzer.overloads:
                         return analyzer.overloads.get(qualname)
                     elif qualname in analyzer.tagorder:
-                        # the constructor is defined in the class, but not overrided.
+                        # the constructor is defined in the class, but not overridden.
                         return []
                 except PycodeError:
                     pass

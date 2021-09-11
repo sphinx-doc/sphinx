@@ -413,7 +413,7 @@ class SphinxRole:
 class ReferenceRole(SphinxRole):
     """A base class for reference roles.
 
-    The reference roles can accpet ``link title <target>`` style as a text for
+    The reference roles can accept ``link title <target>`` style as a text for
     the role.  The parsed result; link title and target will be stored to
     ``self.title`` and ``self.target``.
     """
@@ -514,7 +514,7 @@ def new_document(source_path: str, settings: Any = None) -> nodes.document:
         __document_cache__ = docutils.utils.new_document(source_path)
 
     if settings is None:
-        # Make a copy of ``settings`` from cache to accelerate instansiation
+        # Make a copy of ``settings`` from cache to accelerate instantiation
         settings = copy(__document_cache__.settings)
 
     # Create a new instance of nodes.document using cached reporter

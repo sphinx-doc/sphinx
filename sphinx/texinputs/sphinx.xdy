@@ -15,7 +15,7 @@
 
 ;; xindy base module latex.xdy loads tex.xdy and the latter instructs
 ;; xindy to ignore **all** TeX macros in .idx entries, except those
-;; explicitely described in merge rule.  But when after applying all
+;; explicitly described in merge rule.  But when after applying all
 ;; merge rules an empty string results, xindy raises an error:
 
 ;;   ERROR: CHAR: index 0 should be less than the length of the string
@@ -31,7 +31,7 @@
 ;; scripts for the pdflatex engine.
 
 ;; Another issue caused by xindy ignoring all TeX macros except those
-;; explicitely declared reveals itself when attempting to index ">>>",
+;; explicitly declared reveals itself when attempting to index ">>>",
 ;; as the ">" is converted to "\textgreater{}" by Sphinx's LaTeX
 ;; escaping.
 

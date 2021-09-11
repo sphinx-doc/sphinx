@@ -415,7 +415,7 @@ def check_confval_types(app: "Sphinx", config: Config) -> None:
         if hasattr(default, '__call__'):
             default = default(config)  # evaluate default value
         if default is None and not annotations:
-            continue  # neither inferrable nor expliclitly annotated types
+            continue  # neither inferable nor expliclitly annotated types
 
         if annotations is Any:
             # any type of value is accepted

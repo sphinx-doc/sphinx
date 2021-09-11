@@ -2255,7 +2255,7 @@ class DefinitionParser(BaseParser):
 
     def _parse_initializer_list(self, name: str, open: str, close: str
                                 ) -> Tuple[List[ASTExpression], bool]:
-        # Parse open and close with the actual initializer-list inbetween
+        # Parse open and close with the actual initializer-list in between
         # -> initializer-clause '...'[opt]
         #  | initializer-list ',' initializer-clause '...'[opt]
         # TODO: designators
@@ -3446,7 +3446,7 @@ class CNamespacePopObject(SphinxDirective):
     def run(self) -> List[Node]:
         stack = self.env.temp_data.get('c:namespace_stack', None)
         if not stack or len(stack) == 0:
-            logger.warning("C namespace pop on empty stack. Defaulting to gobal scope.",
+            logger.warning("C namespace pop on empty stack. Defaulting to global scope.",
                            location=self.get_location())
             stack = []
         else:

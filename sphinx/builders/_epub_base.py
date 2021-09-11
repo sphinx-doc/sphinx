@@ -143,7 +143,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
     embedded = True
     # disable download role
     download_support = False
-    # dont' create links to original images from images
+    # don't create links to original images from images
     html_scaled_image_link = False
     # don't generate search index or include search page
     search = False
