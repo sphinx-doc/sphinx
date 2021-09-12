@@ -132,7 +132,8 @@ class TocTree(SphinxDirective):
                     else:
                         message = __('toctree contains reference to nonexisting document %r')
 
-                    logger.warning(message, docname, location=toctree)
+                    logger.warning(message, docname, type='toc', subtype='not_readable',
+                                   location=toctree)
                     self.env.note_reread()
                 else:
                     if docname in all_docnames:

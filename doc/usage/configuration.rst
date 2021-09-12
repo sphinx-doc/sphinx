@@ -329,6 +329,7 @@ General configuration
    * ``ref.python``
    * ``misc.highlighting_failure``
    * ``toc.circular``
+   * ``toc.not_readable``
    * ``toc.secnum``
    * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``

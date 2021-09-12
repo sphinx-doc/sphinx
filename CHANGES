@@ -13,6 +13,9 @@ Deprecated
 Features added
 --------------
 
+* #9623: Allow to suppress "toctree contains reference to excluded document"
+  warnings using :confval:`suppress_warnings`
+
 Bugs fixed
 ----------
 
