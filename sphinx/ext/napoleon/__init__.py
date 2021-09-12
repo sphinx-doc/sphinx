@@ -309,11 +309,11 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     See Also
     --------
     `The Sphinx documentation on Extensions
-    <http://sphinx-doc.org/extensions.html>`_
+    <https://www.sphinx-doc.org/extensions.html>`_
 
-    `The Extension Tutorial <http://sphinx-doc.org/extdev/tutorial.html>`_
+    `The Extension Tutorial <https://www.sphinx-doc.org/extdev/tutorial.html>`_
 
-    `The Extension API <http://sphinx-doc.org/extdev/appapi.html>`_
+    `The Extension API <https://www.sphinx-doc.org/extdev/appapi.html>`_
 
     """
     if not isinstance(app, Sphinx):

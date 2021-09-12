@@ -467,7 +467,7 @@ def get_parser() -> argparse.ArgumentParser:
     )
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] <PROJECT_DIR>',
-        epilog=__("For more information, visit <http://sphinx-doc.org/>."),
+        epilog=__("For more information, visit <https://www.sphinx-doc.org/>."),
         description=description)
 
     parser.add_argument('-q', '--quiet', action='store_true', dest='quiet',

@@ -1204,7 +1204,7 @@ msgstr ""
 #: sphinx/cmd/build.py:104 sphinx/cmd/quickstart.py:470
 #: sphinx/ext/apidoc.py:307 sphinx/ext/autosummary/generate.py:598
 msgid "For more information, visit <http://sphinx-doc.org/>."
-msgstr ""
+msgstr "5e7b0c9ebee41421f616bcddd4433b80_tr"
 
 #: sphinx/cmd/build.py:105
 msgid ""

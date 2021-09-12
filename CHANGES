@@ -19,7 +19,7 @@ Bugs fixed
 Testing
 --------
 
-Release 4.2.0 (in development)
+Release 4.3.0 (in development)
 ==============================
 
 Dependencies
@@ -34,10 +34,46 @@ Deprecated
 Features added
 --------------
 
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 4.2.1 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 4.2.0 (released Sep 12, 2021)
+=====================================
+
+Features added
+--------------
+
 * #9445: autodoc: Support class properties
 * #9479: autodoc: Emit a warning if target is a mocked object
+* #9560: autodoc: Allow to refer NewType instances with module name in Python
+  3.10 or above
 * #9447: html theme: Expose the version of Sphinx in the form of tuple as a
   template variable ``sphinx_version_tuple``
+* #9594: manpage: Suppress the title of man page if description is empty
 * #9445: py domain: ``:py:property:`` directive supports ``:classmethod:``
   option to describe the class property
 * #9524: test: SphinxTestApp can take ``builddir`` as an argument
@@ -48,6 +84,10 @@ Bugs fixed
 
 * #9608: apidoc: apidoc does not generate a module definition for implicit
   namespace package
+* #9504: autodoc: generate incorrect reference to the parent class if the target
+  class inherites the class having ``_name`` attribute
+* #9537, #9589: autodoc: Some objects under ``typing`` module are not displayed
+  well with the HEAD of 3.10
 * #9487: autodoc: typehint for cached_property is not shown
 * #9509: autodoc: AttributeError is raised on failed resolving typehints
 * #9518: autodoc: autodoc_docstring_signature does not effect to ``__init__()``
@@ -71,36 +111,7 @@ Bugs fixed
   function pointers.
 * #9564: smartquotes: don't adjust typography for text with
   language-highlighted ``:code:`` role.
-
-Testing
---------
-
-Release 4.1.3 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-* #9504: autodoc: generate incorrect reference to the parent class if the target
-  class inherites the class having ``_name`` attribute
-* #9537, #9589: autodoc: Some objects under ``typing`` module are not displayed
-  well with the HEAD of 3.10
 * #9512: sphinx-build: crashed with the HEAD of Python 3.10
-
-Testing
---------
 
 Release 4.1.2 (released Jul 27, 2021)
 =====================================
