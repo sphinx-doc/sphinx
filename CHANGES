@@ -1,14 +1,5 @@
-Release 4.2.0 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
+Release 4.2.0 (released Sep 12, 2021)
+=====================================
 
 Features added
 --------------
@@ -58,9 +49,6 @@ Bugs fixed
 * #9564: smartquotes: don't adjust typography for text with
   language-highlighted ``:code:`` role.
 * #9512: sphinx-build: crashed with the HEAD of Python 3.10
-
-Testing
---------
 
 Release 4.1.2 (released Jul 27, 2021)
 =====================================
