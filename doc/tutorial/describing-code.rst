@@ -41,7 +41,7 @@ Which will render like this:
    :align: center
    :alt: HTML result of documenting a Python function in Sphinx
 
-   HTML result of documenting a Python function in Sphinx
+   The rendered result of documenting a Python function in Sphinx
 
 Notice several things:
 
