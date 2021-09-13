@@ -33,7 +33,7 @@ as follows:
 
 .. code-block:: python
    :caption: lumache.py
-   :emphasize-lines: 1-9
+   :emphasize-lines: 2-11
 
    def get_random_ingredients(kind=None):
        """
