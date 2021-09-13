@@ -188,7 +188,7 @@ as specified:
 .. code-block:: console
 
    (.venv) $ make doctest
-   Running Sphinx v4.2.0+
+   Running Sphinx v4.2.0
    loading pickled environment... done
    ...
    running tests...
