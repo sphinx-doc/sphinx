@@ -24,7 +24,7 @@ as follows:
    To retrieve a list of random ingredients,
    you can use the ``lumache.get_random_ingredients()`` function:
 
-   .. py:function:: lumache.get_random_ingredients([kind=None])
+   .. py:function:: lumache.get_random_ingredients(kind=None)
 
       Return a list of random ingredients as strings.
 
@@ -46,8 +46,6 @@ Notice several things:
 
 - Sphinx parsed the argument of the ``.. py:function`` directive and
   highlighted the module, the function name, and the parameters appropriately.
-- Putting a parameter inside square brackets is a convention that conveys it is
-  optional. This syntax is not mandatory but can be useful for readers.
 - The directive content includes a one-line description of the function,
   as well as a :ref:`field list <rst-field-lists>` containing the function
   parameter, its expected type, the return value, and the return type.
@@ -94,7 +92,7 @@ Then, add this exception to the original description of the function:
    :caption: docs/source/usage.rst
    :emphasize-lines: 7
 
-   .. py:function:: lumache.get_random_ingredients([kind=None])
+   .. py:function:: lumache.get_random_ingredients(kind=None)
 
       Return a list of random ingredients as strings.
 
