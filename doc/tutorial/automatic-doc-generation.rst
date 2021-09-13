@@ -156,7 +156,7 @@ contain two new pages:
    Summary page created by autosummary
 
 Each of the links in the summary page will take you to the places where you
-originally used the correspoding ``autodoc`` directive, in this case in the
+originally used the corresponding ``autodoc`` directive, in this case in the
 ``usage.rst`` document.
 
 .. note::
