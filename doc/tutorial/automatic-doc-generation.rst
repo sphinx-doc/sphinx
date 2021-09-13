@@ -60,6 +60,7 @@ with :rst:dir:`autofunction`:
    .. autofunction:: lumache.get_random_ingredients
 
 If you now build the HTML documentation, the output will be the same!
+With the advantage that it is generated from the code itself.
 Sphinx took the reStructuredText from the docstring and included it,
 also generating proper cross-references.
 
