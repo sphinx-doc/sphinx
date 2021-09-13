@@ -54,8 +54,9 @@ Notice several things:
 
    The ``py:`` prefix specifies the :term:`domain`. You may configure the
    default domain so you can omit the prefix, either globally using the
-   :confval:`primary_domain` configuration, or per-file using the
-   :rst:dir:`default-domain` directive.
+   :confval:`primary_domain` configuration, or use the
+   :rst:dir:`default-domain` directive to change it from the point it is called
+   until the end of the file.
    For example, if you set it to ``py`` (the default), you can write
    ``.. function::`` directly.
 
