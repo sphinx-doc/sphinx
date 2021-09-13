@@ -178,7 +178,7 @@ function ``get_random_ingredients`` like this:
 .. code-block:: python
    :caption: lumache.py
 
-   def get_random_ingredients():
+   def get_random_ingredients(kind=None):
        return ["eggs", "bacon", "spam"]
 
 You can now run ``make doctest`` to execute the doctests of your documentation.
@@ -214,7 +214,7 @@ for easy examination. It is now time to fix the function:
    :caption: lumache.py
    :emphasize-lines: 2
 
-   def get_random_ingredients():
+   def get_random_ingredients(kind=None):
        return ["shells", "gorgonzola", "parsley"]
 
 And finally, ``make test`` reports success!

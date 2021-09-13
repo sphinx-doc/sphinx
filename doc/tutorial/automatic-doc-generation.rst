@@ -28,8 +28,7 @@ To use autodoc, first add it to the list of enabled extensions:
    ]
 
 Next, move the content of the ``.. py:function`` directive to the function
-docstring in the original Python file and add an optional ``kind`` argument,
-as follows:
+docstring in the original Python file, as follows:
 
 .. code-block:: python
    :caption: lumache.py
