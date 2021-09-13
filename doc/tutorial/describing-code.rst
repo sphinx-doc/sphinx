@@ -11,8 +11,7 @@ Documenting Python objects
 --------------------------
 
 Sphinx offers several roles and directives to document Python objects,
-all grouped together in the Python
-:doc:`domain </usage/restructuredtext/domains>`. For example, you can
+all grouped together in :ref:`the Python domain <python-domain>`. For example, you can
 use the :rst:dir:`py:function` directive to document a Python function,
 as follows:
 

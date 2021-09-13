@@ -9,7 +9,7 @@ docstrings <https://www.python.org/dev/peps/pep-0257/#what-is-a-docstring>`_
 in the documentation, rather than having to write the information in two
 places.
 
-Fortunately, :doc:`autodoc </usage/extensions/autodoc>` provides this
+Fortunately, :doc:`the autodoc extension </usage/extensions/autodoc>` provides this
 functionality.
 
 Reusing signatures and docstrings with autodoc
