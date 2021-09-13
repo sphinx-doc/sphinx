@@ -5,6 +5,13 @@ In the :doc:`previous sections of the tutorial </tutorial/index>` you can read
 how to write narrative or prose documentation in Sphinx. In this section you
 will describe code objects instead.
 
+Sphinx supports documenting code objects in several languages, namely Python,
+C, C++, JavaScript, and reStructuredText. Each of them can be documented using
+a series of directives and roles grouped by
+:doc:`domain </usage/restructuredtext/domains>`. For the remainder of the
+tutorial you will use the Python domain, but all the concepts seen in this
+section apply for the other domains as well.
+
 .. _tutorial-describing-objects:
 
 Documenting Python objects
