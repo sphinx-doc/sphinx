@@ -1613,6 +1613,7 @@ def test_bound_method(app):
         '',
         '.. py:function:: bound_method()',
         '   :module: target.bound_method',
+        '   :canonical: target.bound_method.Cls.method',
         '',
         '   Method docstring',
         '',
@@ -1668,6 +1669,7 @@ def test_coroutine(app):
         '',
         '.. py:function:: sync_func()',
         '   :module: target.coroutine',
+        '   :canonical: target.coroutine._other_coro_func',
         '',
     ]
 
@@ -2533,7 +2535,15 @@ def test_canonical(app):
         '',
         '   .. py:method:: Foo.meth()',
         '      :module: target.canonical',
+        '      :canonical: target.canonical.original.Foo.meth',
         '',
         '      docstring',
+        '',
+        '',
+        '.. py:function:: bar()',
+        '   :module: target.canonical',
+        '   :canonical: target.canonical.original.bar',
+        '',
+        '   docstring',
         '',
     ]
