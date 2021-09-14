@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #9630: autodoc: Failed to build cross references if :confval:`primary_domain`
+  is not 'py'
+
 Testing
 --------
 
