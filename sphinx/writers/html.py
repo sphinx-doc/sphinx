@@ -12,6 +12,7 @@ import copy
 import os
 import posixpath
 import re
+import urllib.parse
 import warnings
 from typing import TYPE_CHECKING, Iterable, Tuple, cast
 
@@ -589,7 +590,8 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
             self.context.append('</a>')
         elif 'filename' in node:
             atts['class'] += ' internal'
-            atts['href'] = posixpath.join(self.builder.dlpath, node['filename'])
+            atts['href'] = posixpath.join(self.builder.dlpath,
+                                          urllib.parse.quote(node['filename']))
             self.body.append(self.starttag(node, 'a', '', **atts))
             self.context.append('</a>')
         else:
