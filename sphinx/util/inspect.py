@@ -19,7 +19,8 @@ import typing
 import warnings
 from functools import partial, partialmethod
 from importlib import import_module
-from inspect import Parameter, isclass, ismethod, ismethoddescriptor, ismodule  # NOQA
+from inspect import (Parameter, isasyncgenfunction, isclass, ismethod,  # NOQA
+                     ismethoddescriptor, ismodule)
 from io import StringIO
 from types import ModuleType
 from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, Type, cast

@@ -13,6 +13,8 @@ Deprecated
 Features added
 --------------
 
+* #9639: autodoc: Support asynchronous generator functions
+
 Bugs fixed
 ----------
 

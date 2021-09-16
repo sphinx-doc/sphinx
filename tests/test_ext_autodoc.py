@@ -1620,59 +1620,6 @@ def test_bound_method(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_coroutine(app):
-    actual = do_autodoc(app, 'function', 'target.functions.coroutinefunc')
-    assert list(actual) == [
-        '',
-        '.. py:function:: coroutinefunc()',
-        '   :module: target.functions',
-        '   :async:',
-        '',
-    ]
-
-    options = {"members": None}
-    actual = do_autodoc(app, 'class', 'target.coroutine.AsyncClass', options)
-    assert list(actual) == [
-        '',
-        '.. py:class:: AsyncClass()',
-        '   :module: target.coroutine',
-        '',
-        '',
-        '   .. py:method:: AsyncClass.do_coroutine()',
-        '      :module: target.coroutine',
-        '      :async:',
-        '',
-        '      A documented coroutine function',
-        '',
-        '',
-        '   .. py:method:: AsyncClass.do_coroutine2()',
-        '      :module: target.coroutine',
-        '      :async:',
-        '      :classmethod:',
-        '',
-        '      A documented coroutine classmethod',
-        '',
-        '',
-        '   .. py:method:: AsyncClass.do_coroutine3()',
-        '      :module: target.coroutine',
-        '      :async:',
-        '      :staticmethod:',
-        '',
-        '      A documented coroutine staticmethod',
-        '',
-    ]
-
-    # force-synchronized wrapper
-    actual = do_autodoc(app, 'function', 'target.coroutine.sync_func')
-    assert list(actual) == [
-        '',
-        '.. py:function:: sync_func()',
-        '   :module: target.coroutine',
-        '',
-    ]
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_partialmethod(app):
     expected = [
         '',
