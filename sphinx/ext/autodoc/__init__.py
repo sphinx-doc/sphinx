@@ -585,8 +585,8 @@ class Documenter:
             yield from docstringlines
 
     def get_sourcename(self) -> str:
-        if (getattr(self.object, '__module__', None) and
-                getattr(self.object, '__qualname__', None)):
+        if (inspect.safe_getattr(self.object, '__module__', None) and
+                inspect.safe_getattr(self.object, '__qualname__', None)):
             # Get the correct location of docstring from self.object
             # to support inherited methods
             fullname = '%s.%s' % (self.object.__module__, self.object.__qualname__)
