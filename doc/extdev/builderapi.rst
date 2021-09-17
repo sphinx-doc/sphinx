@@ -16,6 +16,7 @@ Builder API
    .. autoattribute:: name
    .. autoattribute:: format
    .. autoattribute:: epilog
+   .. autoattribute:: allow_parallel
    .. autoattribute:: supported_image_types
    .. autoattribute:: supported_remote_images
    .. autoattribute:: supported_data_uri_images
