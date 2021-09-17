@@ -88,3 +88,15 @@ class _ClassWithDocumentedInit:
 
         :param x: Some integer
         """
+
+
+class _ClassWithDocumentedInitAndStarArgs:
+    """Class docstring."""
+
+    def __init__(self, x: int, *args: int, **kwargs: int) -> None:
+        """Init docstring.
+
+        :param x: Some integer
+        :param *args: Some integer
+        :param **kwargs: Some integer
+        """
