@@ -984,7 +984,7 @@ def test_autodoc_inner_class(app):
         '   .. py:attribute:: Outer.factory',
         '      :module: target',
         '',
-        '      alias of :class:`dict`'
+        '      alias of :py:class:`dict`'
     ]
 
     actual = do_autodoc(app, 'class', 'target.Outer.Inner', options)
@@ -1009,7 +1009,7 @@ def test_autodoc_inner_class(app):
         '',
         '.. py:class:: InnerChild()',
         '   :module: target', '',
-        '   Bases: :class:`target.Outer.Inner`',
+        '   Bases: :py:class:`target.Outer.Inner`',
         '',
         '   InnerChild docstring',
         '',
@@ -1750,7 +1750,7 @@ def test_autodoc_typed_instance_variables(app):
         '.. py:attribute:: Alias',
         '   :module: target.typed_vars',
         '',
-        '   alias of :class:`target.typed_vars.Derived`',
+        '   alias of :py:class:`target.typed_vars.Derived`',
         '',
         '.. py:class:: Class()',
         '   :module: target.typed_vars',
@@ -1915,12 +1915,12 @@ def test_autodoc_GenericAlias(app):
             '   .. py:attribute:: Class.T',
             '      :module: target.genericalias',
             '',
-            '      alias of :class:`~typing.List`\\ [:class:`int`]',
+            '      alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
             '',
             '.. py:attribute:: T',
             '   :module: target.genericalias',
             '',
-            '   alias of :class:`~typing.List`\\ [:class:`int`]',
+            '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
         ]
     else:
         assert list(actual) == [
@@ -1937,7 +1937,7 @@ def test_autodoc_GenericAlias(app):
             '',
             '      A list of int',
             '',
-            '      alias of :class:`~typing.List`\\ [:class:`int`]',
+            '      alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
             '',
             '',
             '.. py:data:: T',
@@ -1945,7 +1945,7 @@ def test_autodoc_GenericAlias(app):
             '',
             '   A list of int',
             '',
-            '   alias of :class:`~typing.List`\\ [:class:`int`]',
+            '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
             '',
         ]
 
@@ -1977,7 +1977,7 @@ def test_autodoc_TypeVar(app):
         '',
         '      T6',
         '',
-        '      alias of :class:`int`',
+        '      alias of :py:class:`int`',
         '',
         '',
         '.. py:data:: T1',
@@ -2017,7 +2017,7 @@ def test_autodoc_TypeVar(app):
         '',
         '   T6',
         '',
-        '   alias of :class:`int`',
+        '   alias of :py:class:`int`',
         '',
         '',
         '.. py:data:: T7',
@@ -2025,7 +2025,7 @@ def test_autodoc_TypeVar(app):
         '',
         '   T7',
         '',
-        "   alias of TypeVar('T7', bound=\\ :class:`int`)",
+        "   alias of TypeVar('T7', bound=\\ :py:class:`int`)",
         '',
     ]
 

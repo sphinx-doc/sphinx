@@ -265,8 +265,8 @@ def test_show_inheritance_for_subclass_of_generic_type(app):
         '.. py:class:: Quux(iterable=(), /)',
         '   :module: target.classes',
         '',
-        '   Bases: :class:`~typing.List`\\ '
-        '[:obj:`~typing.Union`\\ [:class:`int`, :class:`float`]]',
+        '   Bases: :py:class:`~typing.List`\\ '
+        '[:py:obj:`~typing.Union`\\ [:py:class:`int`, :py:class:`float`]]',
         '',
         '   A subclass of List[Union[int, float]]',
         '',
@@ -296,7 +296,7 @@ def test_autodoc_process_bases(app):
             '.. py:class:: Quux(*args, **kwds)',
             '   :module: target.classes',
             '',
-            '   Bases: :class:`int`, :class:`str`',
+            '   Bases: :py:class:`int`, :py:class:`str`',
             '',
             '   A subclass of List[Union[int, float]]',
             '',
@@ -307,7 +307,7 @@ def test_autodoc_process_bases(app):
             '.. py:class:: Quux(iterable=(), /)',
             '   :module: target.classes',
             '',
-            '   Bases: :class:`int`, :class:`str`',
+            '   Bases: :py:class:`int`, :py:class:`str`',
             '',
             '   A subclass of List[Union[int, float]]',
             '',
@@ -375,7 +375,7 @@ def test_class_alias(app):
         '.. py:attribute:: Alias',
         '   :module: target.classes',
         '',
-        '   alias of :class:`target.classes.Foo`',
+        '   alias of :py:class:`target.classes.Foo`',
     ]
 
 

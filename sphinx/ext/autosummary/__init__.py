@@ -444,9 +444,9 @@ class Autosummary(SphinxDirective):
         for name, sig, summary, real_name in items:
             qualifier = 'obj'
             if 'nosignatures' not in self.options:
-                col1 = ':%s:`%s <%s>`\\ %s' % (qualifier, name, real_name, rst.escape(sig))
+                col1 = ':py:%s:`%s <%s>`\\ %s' % (qualifier, name, real_name, rst.escape(sig))
             else:
-                col1 = ':%s:`%s <%s>`' % (qualifier, name, real_name)
+                col1 = ':py:%s:`%s <%s>`' % (qualifier, name, real_name)
             col2 = summary
             append_row(col1, col2)
 
