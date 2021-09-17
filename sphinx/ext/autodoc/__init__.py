@@ -1318,7 +1318,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         sourcename = self.get_sourcename()
         super().add_directive_header(sig)
 
-        if inspect.iscoroutinefunction(self.object):
+        if inspect.iscoroutinefunction(self.object) or inspect.isasyncgenfunction(self.object):
             self.add_line('   :async:', sourcename)
 
     def format_signature(self, **kwargs: Any) -> str:
@@ -2137,7 +2137,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         obj = self.parent.__dict__.get(self.object_name, self.object)
         if inspect.isabstractmethod(obj):
             self.add_line('   :abstractmethod:', sourcename)
-        if inspect.iscoroutinefunction(obj):
+        if inspect.iscoroutinefunction(obj) or inspect.isasyncgenfunction(obj):
             self.add_line('   :async:', sourcename)
         if inspect.isclassmethod(obj):
             self.add_line('   :classmethod:', sourcename)

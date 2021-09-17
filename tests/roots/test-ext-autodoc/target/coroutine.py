@@ -17,6 +17,10 @@ class AsyncClass:
         """A documented coroutine staticmethod"""
         pass
 
+    async def do_asyncgen(self):
+        """A documented async generator"""
+        yield
+
 
 async def _other_coro_func():
     return "run"
