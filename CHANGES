@@ -20,6 +20,7 @@ Bugs fixed
 
 * #9630: autodoc: Failed to build cross references if :confval:`primary_domain`
   is not 'py'
+* #9644: autodoc: Crashed on getting source info from problematic object
 * #9630: autosummary: Failed to build summary table if :confval:`primary_domain`
   is not 'py'
 
