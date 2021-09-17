@@ -20,6 +20,12 @@ from sphinx.application import Sphinx
 from sphinx.util import inspect, typing
 
 
+__ANNOTATION_KIND_TO_PARAM_PREFIX = {
+    inspect.Parameter.VAR_POSITIONAL: '*',
+    inspect.Parameter.VAR_KEYWORD: '**',
+}
+
+
 def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
                      options: Dict, args: str, retann: str) -> None:
     """Record type hints to env object."""
@@ -30,7 +36,9 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
             sig = inspect.signature(obj, type_aliases=app.config.autodoc_type_aliases)
             for param in sig.parameters.values():
                 if param.annotation is not param.empty:
-                    annotation[param.name] = typing.stringify(param.annotation)
+                    prefix = __ANNOTATION_KIND_TO_PARAM_PREFIX.get(param.kind, '')
+                    name = f'{prefix}{param.name}'
+                    annotation[name] = typing.stringify(param.annotation)
             if sig.return_annotation is not sig.empty:
                 annotation['return'] = typing.stringify(sig.return_annotation)
     except (TypeError, ValueError):
