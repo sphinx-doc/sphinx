@@ -304,8 +304,8 @@ class IndexBuilder:
         format.dump(self.freeze(), stream)
 
     def get_objects(self, fn2index: Dict[str, int]
-                    ) -> Dict[str, Dict[str, Tuple[int, int, int, str]]]:
-        rv: Dict[str, Dict[str, Tuple[int, int, int, str]]] = {}
+                    ) -> Dict[str, List[Tuple[int, int, int, str, str]]]:
+        rv: Dict[str, List[Tuple[int, int, int, str, str]]] = {}
         otypes = self._objtypes
         onames = self._objnames
         for domainname, domain in sorted(self.env.domains.items()):
