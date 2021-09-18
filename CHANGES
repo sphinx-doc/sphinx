@@ -50,8 +50,6 @@ Features added
 * #2068, add :confval:`intersphinx_disabled_domains` for disabling
   interphinx resolution of cross-references in specific domains when they
   do not have an explicit inventory specification.
-  ``sphinx-quickstart`` will insert
-  ``intersphinx_disabled_domains = ['std']`` in its generated ``conf.py``.
 
 Bugs fixed
 ----------
