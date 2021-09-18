@@ -66,7 +66,11 @@ test that non-comments are indexed: fermion
 def test_objects_are_escaped(app, status, warning):
     app.builder.build_all()
     index = jsload(app.outdir / 'searchindex.js')
-    assert 'n::Array&lt;T, d&gt;' in index.get('objects').get('')  # n::Array<T,d> is escaped
+    for item in index.get('objects').get(''):
+        if item[-1] == 'n::Array&lt;T, d&gt;':  # n::Array<T,d> is escaped
+            break
+    else:
+        assert False, index.get('objects').get('')
 
 
 @pytest.mark.sphinx(testroot='search')
@@ -165,7 +169,8 @@ def test_IndexBuilder():
         'docnames': ('docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'),
         'envversion': '1.0',
         'filenames': ['filename1_1', 'filename1_2', 'filename2_1', 'filename2_2'],
-        'objects': {'': {'objdispname1': (2, 1, 1, '#anchor')}},
+        'objects': {'': [(0, 0, 1, '#anchor', 'objdispname1'),
+                         (2, 1, 1, '#anchor', 'objdispname1')]},
         'objnames': {0: ('dummy1', 'objtype1', 'objtype1'), 1: ('dummy2', 'objtype1', 'objtype1')},
         'objtypes': {0: 'dummy1:objtype1', 1: 'dummy2:objtype1'},
         'terms': {'ar': [0, 1, 2, 3],

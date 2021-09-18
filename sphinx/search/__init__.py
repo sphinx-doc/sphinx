@@ -318,7 +318,7 @@ class IndexBuilder:
                 fullname = html.escape(fullname)
                 dispname = html.escape(dispname)
                 prefix, _, name = dispname.rpartition('.')
-                pdict = rv.setdefault(prefix, {})
+                plist = rv.setdefault(prefix, [])
                 try:
                     typeindex = otypes[domainname, type]
                 except KeyError:
@@ -337,7 +337,7 @@ class IndexBuilder:
                     shortanchor = '-'
                 else:
                     shortanchor = anchor
-                pdict[name] = (fn2index[docname], typeindex, prio, shortanchor)
+                plist.append((fn2index[docname], typeindex, prio, shortanchor, name))
         return rv
 
     def get_terms(self, fn2index: Dict) -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
