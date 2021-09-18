@@ -930,16 +930,21 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc(app):
     )
     app.build()
     context = (app.outdir / 'index.txt').read_text()
-    assert ('class target.typehints._ClassWithDocumentedInit(x)\n'
+    assert ('class target.typehints._ClassWithDocumentedInit(x, args, kwargs)\n'
             '\n'
             '   Class docstring.\n'
             '\n'
-            '   __init__(x)\n'
+            '   __init__(x, args, kwargs)\n'
             '\n'
             '      Init docstring.\n'
             '\n'
             '      Parameters:\n'
-            '         **x** (*int*) -- Some integer\n' == context)
+            '         * **x** (*int*) -- Some integer\n'
+            '\n'
+            '         * **args** (*int*) -- Some integer\n'
+            '\n'
+            '         * **kwargs** (*int*) -- Some integer\n'
+            == context)
 
 
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
