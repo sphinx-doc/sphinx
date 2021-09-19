@@ -457,6 +457,8 @@ class BuildEnvironment:
         self.temp_data['default_domain'] = \
             self.domains.get(self.config.primary_domain)
 
+        self.events.emit('env-prepare', self, docname)
+
     # utilities to use while reading a document
 
     @property

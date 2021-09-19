@@ -17,6 +17,7 @@ from docutils.nodes import Node
 from sphinx.application import Sphinx
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.environment.adapters.toctree import TocTree
+from sphinx.environment import BuildEnvironment
 from sphinx.locale import __
 from sphinx.util import logging, progress_message
 from sphinx.util.console import darkgreen  # type: ignore
@@ -186,11 +187,23 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
 
 
+def setup_singlehtml_env(app: Sphinx, env: BuildEnvironment, docname: str) -> None:
+    if app.builder.name != 'singlehtml':
+        return
+
+    # configure document-specific prefixes to prevent conflicting ids in an
+    # assembled doctree
+    prefix = '{}-'.format(docname)
+    env.settings['id_prefix'] = prefix
+    env.settings['auto_id_prefix'] = prefix
+
+
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.setup_extension('sphinx.builders.html')
 
     app.add_builder(SingleFileHTMLBuilder)
     app.add_config_value('singlehtml_sidebars', lambda self: self.html_sidebars, 'html')
+    app.connect('env-prepare', setup_singlehtml_env)
 
     return {
         'version': 'builtin',

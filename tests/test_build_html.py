@@ -1652,3 +1652,12 @@ def test_html_signaturereturn_icon(app):
     content = (app.outdir / 'index.html').read_text()
 
     assert ('<span class="sig-return-icon">&#x2192;</span>' in content)
+
+
+@pytest.mark.sphinx('singlehtml', testroot='singlehtml_ids')
+def test_singlehtml_ids(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+
+    section_ids = re.findall(r'<section id="(.+?)"', content)
+    assert len(section_ids) == len(set(section_ids))
