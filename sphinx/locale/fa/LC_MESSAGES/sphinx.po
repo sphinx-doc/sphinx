@@ -11,9 +11,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-12 00:10+0000\n"
-"PO-Revision-Date: 2021-09-12 00:10+0000\n"
-"Last-Translator: Takeshi KOMIYA <i.tkomiya@gmail.com>\n"
+"POT-Creation-Date: 2021-09-19 00:09+0000\n"
+"PO-Revision-Date: 2021-09-14 05:37+0000\n"
+"Last-Translator: Hadi F <h_adi_f@yahoo.com>\n"
 "Language-Team: Persian (http://www.transifex.com/sphinx-doc/sphinx-1/language/fa/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -46,7 +46,7 @@ msgid ""
 "For security reasons, parallel mode is disabled on macOS and python3.8 and "
 "above. For more details, please read https://github.com/sphinx-"
 "doc/sphinx/issues/6803"
-msgstr ""
+msgstr "به دلایل امنیّتی، حالت موازی در macOS و پایتون 3.8 و جدیدتر از آن غیرفعّال است. برای جزئیّات بیشتر لطفاً این مقاله را بخوانید: https://github.com/sphinx-doc/sphinx/issues/6803"
 
 #: sphinx/application.py:228
 #, python-format
@@ -425,7 +425,7 @@ msgstr "بست قابل شمارش (enumerable_node) %r قبلاً ثبت شده
 #: sphinx/registry.py:407
 #, python-format
 msgid "math renderer %s is already registered"
-msgstr ""
+msgstr "ترسیم‌گر ریاضی %s قبلاً ثبت شده"
 
 #: sphinx/registry.py:420
 #, python-format
@@ -805,7 +805,7 @@ msgstr "مهار '%s' پیدا نشد"
 #: sphinx/builders/linkcheck.py:690
 #, python-format
 msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
-msgstr ""
+msgstr "شکست در گردآوری عبارات باقاعده در linkcheck_allowed_redirects: %r %s"
 
 #: sphinx/builders/manpage.py:38
 #, python-format
@@ -1206,7 +1206,7 @@ msgstr "شماره‌ی کار باید یک عدد مثبت باشد"
 #: sphinx/cmd/build.py:104 sphinx/cmd/quickstart.py:470
 #: sphinx/ext/apidoc.py:307 sphinx/ext/autosummary/generate.py:598
 msgid "For more information, visit <https://www.sphinx-doc.org/>."
-msgstr ""
+msgstr "برای اطّلاعات بیشتر به <https://www.sphinx-doc.org/> بروید."
 
 #: sphinx/cmd/build.py:105
 msgid ""
@@ -2841,7 +2841,7 @@ msgstr "مشخّص نیست کدام پیمانه را برای مستندساز
 #: sphinx/ext/autodoc/__init__.py:917
 #, python-format
 msgid "A mocked object is detected: %r"
-msgstr ""
+msgstr "شیئ ساختگی شناسایی شد: %r"
 
 #: sphinx/ext/autodoc/__init__.py:968
 #, python-format
@@ -3507,7 +3507,7 @@ msgstr "خطای نوشتن: %s, %s"
 #: sphinx/util/i18n.py:98
 #, python-format
 msgid "locale_dir %s does not exists"
-msgstr ""
+msgstr "پوشه‌ی محلّی %s وجود ندارد"
 
 #: sphinx/util/i18n.py:192
 #, python-format
