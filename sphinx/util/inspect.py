@@ -187,6 +187,21 @@ def getmro(obj: Any) -> Tuple[Type, ...]:
         return tuple()
 
 
+def getorigbases(obj: Any) -> Optional[Tuple[Any, ...]]:
+    """Get __orig_bases__ from *obj* safely."""
+    if not inspect.isclass(obj):
+        return None
+
+    # Get __orig_bases__ from obj.__dict__ to avoid accessing the parent's __orig_bases__.
+    # refs: https://github.com/sphinx-doc/sphinx/issues/9607
+    __dict__ = safe_getattr(obj, '__dict__', {})
+    __orig_bases__ = __dict__.get('__orig_bases__')
+    if isinstance(__orig_bases__, tuple) and len(__orig_bases__) > 0:
+        return __orig_bases__
+    else:
+        return None
+
+
 def getslots(obj: Any) -> Optional[Dict]:
     """Get __slots__ attribute of the class as dict.
 
