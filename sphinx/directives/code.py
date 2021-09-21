@@ -58,7 +58,7 @@ class Highlight(SphinxDirective):
 
 def dedent_lines(lines: List[str], dedent: int, location: Tuple[str, int] = None) -> List[str]:
     if dedent is None:
-        return textwrap.dedent(''.join(lines)).splitlines(True)
+        return textwrap.dedent('\n'.join(lines)).split('\n')
 
     if any(s[:dedent].strip() for s in lines):
         logger.warning(__('non-whitespace stripped by dedent'), location=location)

@@ -24,6 +24,7 @@ Bugs fixed
 * #9630: autosummary: Failed to build summary table if :confval:`primary_domain`
   is not 'py'
 * #9636: code-block: ``:dedent:`` handled numeric argument ``0`` like no argument was given
+* #9636: code-block: ``:dedent:`` without argument did strip newlines
 
 Testing
 --------
