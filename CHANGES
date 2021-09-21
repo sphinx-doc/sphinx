@@ -23,6 +23,7 @@ Bugs fixed
 * #9644: autodoc: Crashed on getting source info from problematic object
 * #9630: autosummary: Failed to build summary table if :confval:`primary_domain`
   is not 'py'
+* #9636: code-block: ``:dedent:`` handled numeric argument ``0`` like no argument was given
 
 Testing
 --------

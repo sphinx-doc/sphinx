@@ -57,7 +57,7 @@ class Highlight(SphinxDirective):
 
 
 def dedent_lines(lines: List[str], dedent: int, location: Tuple[str, int] = None) -> List[str]:
-    if not dedent:
+    if dedent is None:
         return textwrap.dedent(''.join(lines)).splitlines(True)
 
     if any(s[:dedent].strip() for s in lines):
