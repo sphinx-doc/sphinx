@@ -913,10 +913,6 @@ class Documenter:
         if not self.import_object():
             return
 
-        if ismock(self.object):
-            logger.warning(__('A mocked object is detected: %r'),
-                           self.name, type='autodoc')
-
         # If there is no real module defined, figure out which to use.
         # The real module is used in the module analyzer to look up the module
         # where the attribute documentation would actually be found in.
@@ -948,6 +944,11 @@ class Documenter:
                 self.directive.record_dependencies.add(analyzer.srcname)
             except PycodeError:
                 pass
+
+        docstrings: List[str] = sum(self.get_doc() or [], [])
+        if ismock(self.object) and not docstrings:
+            logger.warning(__('A mocked object is detected: %r'),
+                           self.name, type='autodoc')
 
         # check __module__ of object (for members not given explicitly)
         if check_module:
