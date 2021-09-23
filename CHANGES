@@ -14,6 +14,8 @@ Features added
 --------------
 
 * #9639: autodoc: Support asynchronous generator functions
+* #9664: autodoc: ``autodoc-process-bases`` supports to inject reST snippet as a
+  base class
 
 Bugs fixed
 ----------
