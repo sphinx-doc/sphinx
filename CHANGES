@@ -22,6 +22,7 @@ Features added
 * #9691: C, added new info-field ``retval``
   for :rst:dir:`c:function` and :rst:dir:`c:macro`.
 * C++, added new info-field ``retval`` for :rst:dir:`cpp:function`.
+* #9672: More CSS classes on Python domain descriptions
 
 Bugs fixed
 ----------
