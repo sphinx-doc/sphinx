@@ -138,7 +138,9 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
                 # once
                 for elem in node.elts:
                     result.extend(unparse(elem))
-                    result.append(addnodes.desc_sig_punctuation('', ', '))
+                    result.append(addnodes.desc_sig_punctuation('', ','))
+                    result.append(addnodes.desc_sig_space())
+                result.pop()
                 result.pop()
             result.append(addnodes.desc_sig_punctuation('', ']'))
             return result
