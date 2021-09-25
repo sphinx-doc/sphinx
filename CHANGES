@@ -24,6 +24,9 @@ Bugs fixed
   is not 'py'
 * #9644: autodoc: Crashed on getting source info from problematic object
 * #9655: autodoc: mocked object having doc comment is warned unexpectedly
+* #9651: autodoc: return type field is not generated even if
+  :confval:`autodoc_typehints_description_target` is set to "documented" when
+  its info-field-list contains ``:returns:`` field
 * #9630: autosummary: Failed to build summary table if :confval:`primary_domain`
   is not 'py'
 * #9670: html: Fix download file with special characters
