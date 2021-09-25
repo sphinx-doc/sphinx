@@ -537,7 +537,12 @@ def test_pydata_signature(app):
                                                     [desc_annotation, ([desc_sig_punctuation, ':'],
                                                                        desc_sig_space,
                                                                        [pending_xref, "int"])],
-                                                    [desc_annotation, " = 1"])],
+                                                    [desc_annotation, (
+                                                        desc_sig_space,
+                                                        [desc_sig_punctuation, '='],
+                                                        desc_sig_space,
+                                                        "1")]
+                                                    )],
                                   desc_content)]))
     assert_node(doctree[1], addnodes.desc, desctype="data",
                 domain="py", objtype="data", noindex=False)
