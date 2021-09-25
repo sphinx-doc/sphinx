@@ -534,7 +534,8 @@ def test_pydata_signature(app):
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_name, "version"],
-                                                    [desc_annotation, (": ",
+                                                    [desc_annotation, ([desc_sig_punctuation, ':'],
+                                                                       desc_sig_space,
                                                                        [pending_xref, "int"])],
                                                     [desc_annotation, " = 1"])],
                                   desc_content)]))
@@ -560,7 +561,8 @@ def test_pydata_with_union_type_operator(app):
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree[1][0],
                 ([desc_name, "version"],
-                 [desc_annotation, (": ",
+                 [desc_annotation, ([desc_sig_punctuation, ':'],
+                                    desc_sig_space,
                                     [pending_xref, "int"],
                                     desc_sig_space,
                                     [desc_sig_punctuation, "|"],
@@ -596,10 +598,11 @@ def test_pydata(app):
                           addnodes.index,
                           [desc, ([desc_signature, ([desc_addname, "example."],
                                                     [desc_name, "var"],
-                                                    [desc_annotation, (": ",
+                                                    [desc_annotation, ([desc_sig_punctuation, ':'],
+                                                                       desc_sig_space,
                                                                        [pending_xref, "int"])])],
                                   [desc_content, ()])]))
-    assert_node(doctree[3][0][2][1], pending_xref, **{"py:module": "example"})
+    assert_node(doctree[3][0][2][2], pending_xref, **{"py:module": "example"})
     assert 'example.var' in domain.objects
     assert domain.objects['example.var'] == ('index', 'example.var', 'data', False)
 

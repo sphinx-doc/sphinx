@@ -676,7 +676,9 @@ class PyVariable(PyObject):
         typ = self.options.get('type')
         if typ:
             annotations = _parse_annotation(typ, self.env)
-            signode += addnodes.desc_annotation(typ, '', nodes.Text(': '), *annotations)
+            signode += addnodes.desc_annotation(typ, '',
+                                                addnodes.desc_sig_punctuation('', ':'),
+                                                addnodes.desc_sig_space(), *annotations)
 
         value = self.options.get('value')
         if value:
