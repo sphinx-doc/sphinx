@@ -124,6 +124,12 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
         elif isinstance(node, ast.Constant):  # type: ignore
             if node.value is Ellipsis:
                 return [addnodes.desc_sig_punctuation('', "...")]
+            elif isinstance(node.value, bool):
+                return [addnodes.desc_sig_keyword('', repr(node.value))]
+            elif isinstance(node.value, int):
+                return [addnodes.desc_sig_literal_number('', repr(node.value))]
+            elif isinstance(node.value, str):
+                return [addnodes.desc_sig_literal_string('', repr(node.value))]
             else:
                 return [nodes.Text(repr(node.value))]
         elif isinstance(node, ast.Expr):
@@ -513,7 +519,9 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
 
         anno = self.options.get('annotation')
         if anno:
-            signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
+            signode += addnodes.desc_annotation(' ' + anno, '',
+                                                addnodes.desc_sig_space(),
+                                                nodes.Text(anno))
 
         return fullname, prefix
 

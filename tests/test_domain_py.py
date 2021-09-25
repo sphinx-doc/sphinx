@@ -18,7 +18,7 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.addnodes import (desc, desc_addname, desc_annotation, desc_content, desc_name,
                              desc_optional, desc_parameter, desc_parameterlist, desc_returns,
-                             desc_sig_keyword,
+                             desc_sig_keyword, desc_sig_literal_number, desc_sig_literal_string,
                              desc_sig_name, desc_sig_operator, desc_sig_punctuation,
                              desc_signature, desc_sig_space, pending_xref)
 from sphinx.domains import IndexEntry
@@ -354,22 +354,22 @@ def test_parse_annotation_Literal(app):
     doctree = _parse_annotation("Literal[True, False]", app.env)
     assert_node(doctree, ([pending_xref, "Literal"],
                           [desc_sig_punctuation, "["],
-                          "True",
+                          [desc_sig_keyword, "True"],
                           [desc_sig_punctuation, ","],
                           desc_sig_space,
-                          "False",
+                          [desc_sig_keyword, "False"],
                           [desc_sig_punctuation, "]"]))
 
     doctree = _parse_annotation("typing.Literal[0, 1, 'abc']", app.env)
     assert_node(doctree, ([pending_xref, "typing.Literal"],
                           [desc_sig_punctuation, "["],
-                          "0",
+                          [desc_sig_literal_number, "0"],
                           [desc_sig_punctuation, ","],
                           desc_sig_space,
-                          "1",
+                          [desc_sig_literal_number, "1"],
                           [desc_sig_punctuation, ","],
                           desc_sig_space,
-                          "'abc'",
+                          [desc_sig_literal_string, "'abc'"],
                           [desc_sig_punctuation, "]"]))
 
 
@@ -555,7 +555,8 @@ def test_pydata_signature_old(app):
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_name, "version"],
-                                                    [desc_annotation, " = 1"])],
+                                                    [desc_annotation, (desc_sig_space,
+                                                                       "= 1")])],
                                   desc_content)]))
     assert_node(doctree[1], addnodes.desc, desctype="data",
                 domain="py", objtype="data", noindex=False)
