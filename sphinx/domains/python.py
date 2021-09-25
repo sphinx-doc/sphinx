@@ -424,11 +424,11 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
 
     allow_nesting = False
 
-    def get_signature_prefix(self, sig: str) -> str:
+    def get_signature_prefix(self, sig: str) -> List[nodes.Node]:
         """May return a prefix to put before the object name in the
         signature.
         """
-        return ''
+        return []
 
     def needs_arglist(self) -> bool:
         """May return true if an empty argument list is to be generated even if
@@ -482,7 +482,10 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
 
         sig_prefix = self.get_signature_prefix(sig)
         if sig_prefix:
-            signode += addnodes.desc_annotation(sig_prefix, sig_prefix)
+            if isinstance(sig_prefix, str):
+                signode += addnodes.desc_annotation(sig_prefix, sig_prefix)
+            else:
+                signode += addnodes.desc_annotation(str(sig_prefix), '', *sig_prefix)
 
         if prefix:
             signode += addnodes.desc_addname(prefix, prefix)
