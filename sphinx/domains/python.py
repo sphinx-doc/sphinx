@@ -850,7 +850,11 @@ class PyAttribute(PyObject):
 
         value = self.options.get('value')
         if value:
-            signode += addnodes.desc_annotation(value, ' = ' + value)
+            signode += addnodes.desc_annotation(value, '',
+                                                addnodes.desc_sig_space(),
+                                                addnodes.desc_sig_punctuation('', '='),
+                                                addnodes.desc_sig_space(),
+                                                nodes.Text(value))
 
         return fullname, prefix
 

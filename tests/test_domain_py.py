@@ -841,7 +841,11 @@ def test_pyattribute(app):
                                                                         [desc_sig_punctuation, "["],
                                                                         [pending_xref, "str"],
                                                                         [desc_sig_punctuation, "]"])],
-                                                     [desc_annotation, " = ''"])],
+                                                     [desc_annotation, (desc_sig_space,
+                                                                        [desc_sig_punctuation, '='],
+                                                                        desc_sig_space,
+                                                                        "''")]
+                                                     )],
                                    [desc_content, ()]))
     assert_node(doctree[1][1][1][0][1][2], pending_xref, **{"py:class": "Class"})
     assert_node(doctree[1][1][1][0][1][4], pending_xref, **{"py:class": "Class"})
