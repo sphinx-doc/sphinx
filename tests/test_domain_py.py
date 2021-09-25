@@ -291,7 +291,7 @@ def test_parse_annotation(app):
                           [desc_sig_punctuation, "["],
                           [pending_xref, "int"],
                           [desc_sig_punctuation, ","],
-                          [desc_sig_space],
+                          desc_sig_space,
                           [pending_xref, "int"],
                           [desc_sig_punctuation, "]"]))
 
@@ -307,7 +307,7 @@ def test_parse_annotation(app):
                           [desc_sig_punctuation, "["],
                           [pending_xref, "int"],
                           [desc_sig_punctuation, ","],
-                          [desc_sig_space],
+                          desc_sig_space,
                           [desc_sig_punctuation, "..."],
                           [desc_sig_punctuation, "]"]))
 
@@ -385,7 +385,7 @@ def test_pyfunction_signature(app):
     assert_node(doctree[1][0][1],
                 [desc_parameterlist, desc_parameter, ([desc_sig_name, "name"],
                                                       [desc_sig_punctuation, ":"],
-                                                      " ",
+                                                      desc_sig_space,
                                                       [nodes.inline, pending_xref, "str"])])
 
 
@@ -403,7 +403,7 @@ def test_pyfunction_signature_full(app):
     assert_node(doctree[1][0][1],
                 [desc_parameterlist, ([desc_parameter, ([desc_sig_name, "a"],
                                                         [desc_sig_punctuation, ":"],
-                                                        " ",
+                                                        desc_sig_space,
                                                         [desc_sig_name, pending_xref, "str"])],
                                       [desc_parameter, ([desc_sig_name, "b"],
                                                         [desc_sig_operator, "="],
@@ -411,28 +411,28 @@ def test_pyfunction_signature_full(app):
                                       [desc_parameter, ([desc_sig_operator, "*"],
                                                         [desc_sig_name, "args"],
                                                         [desc_sig_punctuation, ":"],
-                                                        " ",
+                                                        desc_sig_space,
                                                         [desc_sig_name, pending_xref, "str"])],
                                       [desc_parameter, ([desc_sig_name, "c"],
                                                         [desc_sig_punctuation, ":"],
-                                                        " ",
+                                                        desc_sig_space,
                                                         [desc_sig_name, pending_xref, "bool"],
-                                                        " ",
+                                                        desc_sig_space,
                                                         [desc_sig_operator, "="],
-                                                        " ",
+                                                        desc_sig_space,
                                                         [nodes.inline, "True"])],
                                       [desc_parameter, ([desc_sig_name, "d"],
                                                         [desc_sig_punctuation, ":"],
-                                                        " ",
+                                                        desc_sig_space,
                                                         [desc_sig_name, pending_xref, "tuple"],
-                                                        " ",
+                                                        desc_sig_space,
                                                         [desc_sig_operator, "="],
-                                                        " ",
+                                                        desc_sig_space,
                                                         [nodes.inline, "(1, 2)"])],
                                       [desc_parameter, ([desc_sig_operator, "**"],
                                                         [desc_sig_name, "kwargs"],
                                                         [desc_sig_punctuation, ":"],
-                                                        " ",
+                                                        desc_sig_space,
                                                         [desc_sig_name, pending_xref, "str"])])])
 
 
@@ -491,7 +491,7 @@ def test_pyfunction_with_union_type_operator(app):
     assert_node(doctree[1][0][1],
                 [desc_parameterlist, ([desc_parameter, ([desc_sig_name, "age"],
                                                         [desc_sig_punctuation, ":"],
-                                                        " ",
+                                                        desc_sig_space,
                                                         [desc_sig_name, ([pending_xref, "int"],
                                                                          desc_sig_space,
                                                                          [desc_sig_punctuation, "|"],

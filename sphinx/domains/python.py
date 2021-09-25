@@ -228,13 +228,13 @@ def _parse_arglist(arglist: str, env: BuildEnvironment = None) -> addnodes.desc_
         if param.annotation is not param.empty:
             children = _parse_annotation(param.annotation, env)
             node += addnodes.desc_sig_punctuation('', ':')
-            node += nodes.Text(' ')
+            node += addnodes.desc_sig_space()
             node += addnodes.desc_sig_name('', '', *children)  # type: ignore
         if param.default is not param.empty:
             if param.annotation is not param.empty:
-                node += nodes.Text(' ')
+                node += addnodes.desc_sig_space()
                 node += addnodes.desc_sig_operator('', '=')
-                node += nodes.Text(' ')
+                node += addnodes.desc_sig_space()
             else:
                 node += addnodes.desc_sig_operator('', '=')
             node += nodes.inline('', param.default, classes=['default_value'],
