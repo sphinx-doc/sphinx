@@ -290,7 +290,8 @@ def test_parse_annotation(app):
     assert_node(doctree, ([pending_xref, "Tuple"],
                           [desc_sig_punctuation, "["],
                           [pending_xref, "int"],
-                          [desc_sig_punctuation, ", "],
+                          [desc_sig_punctuation, ","],
+                          [desc_sig_space],
                           [pending_xref, "int"],
                           [desc_sig_punctuation, "]"]))
 
@@ -305,7 +306,8 @@ def test_parse_annotation(app):
     assert_node(doctree, ([pending_xref, "Tuple"],
                           [desc_sig_punctuation, "["],
                           [pending_xref, "int"],
-                          [desc_sig_punctuation, ", "],
+                          [desc_sig_punctuation, ","],
+                          [desc_sig_space],
                           [desc_sig_punctuation, "..."],
                           [desc_sig_punctuation, "]"]))
 
@@ -319,7 +321,8 @@ def test_parse_annotation(app):
                           desc_sig_space,
                           [pending_xref, "int"],
                           [desc_sig_punctuation, "]"],
-                          [desc_sig_punctuation, ", "],
+                          [desc_sig_punctuation, ","],
+                          desc_sig_space,
                           [pending_xref, "int"],
                           [desc_sig_punctuation, "]"]))
 
@@ -328,7 +331,8 @@ def test_parse_annotation(app):
                           [desc_sig_punctuation, "["],
                           [desc_sig_punctuation, "["],
                           [desc_sig_punctuation, "]"],
-                          [desc_sig_punctuation, ", "],
+                          [desc_sig_punctuation, ","],
+                          desc_sig_space,
                           [pending_xref, "int"],
                           [desc_sig_punctuation, "]"]))
 
@@ -350,7 +354,8 @@ def test_parse_annotation_Literal(app):
     assert_node(doctree, ([pending_xref, "Literal"],
                           [desc_sig_punctuation, "["],
                           "True",
-                          [desc_sig_punctuation, ", "],
+                          [desc_sig_punctuation, ","],
+                          desc_sig_space,
                           "False",
                           [desc_sig_punctuation, "]"]))
 
@@ -358,9 +363,11 @@ def test_parse_annotation_Literal(app):
     assert_node(doctree, ([pending_xref, "typing.Literal"],
                           [desc_sig_punctuation, "["],
                           "0",
-                          [desc_sig_punctuation, ", "],
+                          [desc_sig_punctuation, ","],
+                          desc_sig_space,
                           "1",
-                          [desc_sig_punctuation, ", "],
+                          [desc_sig_punctuation, ","],
+                          desc_sig_space,
                           "'abc'",
                           [desc_sig_punctuation, "]"]))
 
