@@ -267,11 +267,38 @@ class PropagateDescDomain(SphinxPostTransform):
                 node['classes'].append(node.parent['domain'])
 
 
+class HideHiddenDesc(SphinxPostTransform):
+    """Change all desc nodes to a node just with all ids in the subtree."""
+    default_priority = 200
+
+    def run(self, **kwargs: Any) -> None:
+        for node in self.document.traverse(addnodes.desc):
+            if not node.get('hidden'):
+                continue
+
+            def collectIds(node, ids):
+                if not isinstance(node, nodes.Element):
+                    return
+                theseIds = node.get('ids')
+                if theseIds:
+                    ids.extend(theseIds)
+                for c in node.children:
+                    collectIds(c, ids)
+
+            ids: List[str] = []
+            collectIds(node, ids)
+            newNode = nodes.inline()
+            newNode['ids'] = ids
+            node.replace_self(newNode)
+            node['classes'] = []  # replace_self seems to copy attributes
+
+
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_post_transform(ReferencesResolver)
     app.add_post_transform(OnlyNodeTransform)
     app.add_post_transform(SigElementFallbackTransform)
     app.add_post_transform(PropagateDescDomain)
+    app.add_post_transform(HideHiddenDesc)
 
     return {
         'version': 'builtin',

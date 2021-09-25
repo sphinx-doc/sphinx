@@ -48,10 +48,11 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
     #: based on directive nesting
     allow_nesting = False
 
-    option_spec: OptionSpec = {
+    option_spec: OptionSpec = ObjectDescription.option_spec.copy()
+    option_spec.update({
         'noindex': directives.flag,
         'noindexentry': directives.flag,
-    }
+    })
 
     def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
         """Breaks down construct signatures
