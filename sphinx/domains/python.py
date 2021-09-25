@@ -618,11 +618,12 @@ class PyFunction(PyObject):
         'async': directives.flag,
     })
 
-    def get_signature_prefix(self, sig: str) -> str:
+    def get_signature_prefix(self, sig: str) -> List[nodes.Node]:
         if 'async' in self.options:
-            return 'async '
+            return [addnodes.desc_sig_keyword('', 'async'),
+                    addnodes.desc_sig_space()]
         else:
-            return ''
+            return []
 
     def needs_arglist(self) -> bool:
         return True

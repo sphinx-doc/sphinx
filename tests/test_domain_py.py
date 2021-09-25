@@ -18,6 +18,7 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.addnodes import (desc, desc_addname, desc_annotation, desc_content, desc_name,
                              desc_optional, desc_parameter, desc_parameterlist, desc_returns,
+                             desc_sig_keyword,
                              desc_sig_name, desc_sig_operator, desc_sig_punctuation,
                              desc_signature, desc_sig_space, pending_xref)
 from sphinx.domains import IndexEntry
@@ -626,7 +627,8 @@ def test_pyfunction(app):
                           nodes.target,
                           addnodes.index,
                           addnodes.index,
-                          [desc, ([desc_signature, ([desc_annotation, "async "],
+                          [desc, ([desc_signature, ([desc_annotation, ([desc_sig_keyword, 'async'],
+                                                                       desc_sig_space)],
                                                     [desc_addname, "example."],
                                                     [desc_name, "func2"],
                                                     [desc_parameterlist, ()])],
