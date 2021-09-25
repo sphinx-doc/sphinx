@@ -3140,9 +3140,11 @@ class CObject(ObjectDescription[ASTDeclaration]):
               names=('rtype',)),
     ]
 
-    option_spec: OptionSpec = {
+    option_spec: OptionSpec = ObjectDescription.option_spec.copy()
+    option_spec.update({
         'noindexentry': directives.flag,
-    }
+    })
+    del option_spec['noindex']  # is in ObjectDescription but doesn't make sense here
 
     def _add_enumerator_to_parent(self, ast: ASTDeclaration) -> None:
         assert ast.objectType == 'enumerator'
