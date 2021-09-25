@@ -131,6 +131,8 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
             elif isinstance(node.value, str):
                 return [addnodes.desc_sig_literal_string('', repr(node.value))]
             else:
+                # handles None, which is further handled by type_to_xref later
+                # and fallback for other types that should be converted
                 return [nodes.Text(repr(node.value))]
         elif isinstance(node, ast.Expr):
             return unparse(node.value)
