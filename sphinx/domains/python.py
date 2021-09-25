@@ -751,25 +751,27 @@ class PyMethod(PyObject):
         else:
             return True
 
-    def get_signature_prefix(self, sig: str) -> str:
-        prefix = []
+    def get_signature_prefix(self, sig: str) -> List[nodes.Node]:
+        prefix: List[nodes.Node] = []
         if 'final' in self.options:
-            prefix.append('final')
+            prefix.append(nodes.Text('final'))
+            prefix.append(addnodes.desc_sig_space())
         if 'abstractmethod' in self.options:
-            prefix.append('abstract')
+            prefix.append(nodes.Text('abstract'))
+            prefix.append(addnodes.desc_sig_space())
         if 'async' in self.options:
-            prefix.append('async')
+            prefix.append(nodes.Text('async'))
+            prefix.append(addnodes.desc_sig_space())
         if 'classmethod' in self.options:
-            prefix.append('classmethod')
+            prefix.append(nodes.Text('classmethod'))
+            prefix.append(addnodes.desc_sig_space())
         if 'property' in self.options:
-            prefix.append('property')
+            prefix.append(nodes.Text('property'))
+            prefix.append(addnodes.desc_sig_space())
         if 'staticmethod' in self.options:
-            prefix.append('static')
-
-        if prefix:
-            return ' '.join(prefix) + ' '
-        else:
-            return ''
+            prefix.append(nodes.Text('static'))
+            prefix.append(addnodes.desc_sig_space())
+        return prefix
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
         name, cls = name_cls

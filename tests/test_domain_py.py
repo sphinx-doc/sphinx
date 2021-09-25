@@ -725,7 +725,7 @@ def test_pymethod_options(app):
     # :classmethod:
     assert_node(doctree[1][1][2], addnodes.index,
                 entries=[('single', 'meth2() (Class class method)', 'Class.meth2', '', None)])
-    assert_node(doctree[1][1][3], ([desc_signature, ([desc_annotation, "classmethod "],
+    assert_node(doctree[1][1][3], ([desc_signature, ([desc_annotation, ("classmethod", desc_sig_space)],
                                                      [desc_name, "meth2"],
                                                      [desc_parameterlist, ()])],
                                    [desc_content, ()]))
@@ -735,7 +735,7 @@ def test_pymethod_options(app):
     # :staticmethod:
     assert_node(doctree[1][1][4], addnodes.index,
                 entries=[('single', 'meth3() (Class static method)', 'Class.meth3', '', None)])
-    assert_node(doctree[1][1][5], ([desc_signature, ([desc_annotation, "static "],
+    assert_node(doctree[1][1][5], ([desc_signature, ([desc_annotation, ("static", desc_sig_space)],
                                                      [desc_name, "meth3"],
                                                      [desc_parameterlist, ()])],
                                    [desc_content, ()]))
@@ -745,7 +745,7 @@ def test_pymethod_options(app):
     # :async:
     assert_node(doctree[1][1][6], addnodes.index,
                 entries=[('single', 'meth4() (Class method)', 'Class.meth4', '', None)])
-    assert_node(doctree[1][1][7], ([desc_signature, ([desc_annotation, "async "],
+    assert_node(doctree[1][1][7], ([desc_signature, ([desc_annotation, ("async", desc_sig_space)],
                                                      [desc_name, "meth4"],
                                                      [desc_parameterlist, ()])],
                                    [desc_content, ()]))
@@ -755,7 +755,7 @@ def test_pymethod_options(app):
     # :property:
     assert_node(doctree[1][1][8], addnodes.index,
                 entries=[('single', 'meth5() (Class property)', 'Class.meth5', '', None)])
-    assert_node(doctree[1][1][9], ([desc_signature, ([desc_annotation, "property "],
+    assert_node(doctree[1][1][9], ([desc_signature, ([desc_annotation, ("property", desc_sig_space)],
                                                      [desc_name, "meth5"])],
                                    [desc_content, ()]))
     assert 'Class.meth5' in domain.objects
@@ -764,7 +764,7 @@ def test_pymethod_options(app):
     # :abstractmethod:
     assert_node(doctree[1][1][10], addnodes.index,
                 entries=[('single', 'meth6() (Class method)', 'Class.meth6', '', None)])
-    assert_node(doctree[1][1][11], ([desc_signature, ([desc_annotation, "abstract "],
+    assert_node(doctree[1][1][11], ([desc_signature, ([desc_annotation, ("abstract", desc_sig_space)],
                                                       [desc_name, "meth6"],
                                                       [desc_parameterlist, ()])],
                                     [desc_content, ()]))
@@ -774,7 +774,7 @@ def test_pymethod_options(app):
     # :final:
     assert_node(doctree[1][1][12], addnodes.index,
                 entries=[('single', 'meth7() (Class method)', 'Class.meth7', '', None)])
-    assert_node(doctree[1][1][13], ([desc_signature, ([desc_annotation, "final "],
+    assert_node(doctree[1][1][13], ([desc_signature, ([desc_annotation, ("final", desc_sig_space)],
                                                       [desc_name, "meth7"],
                                                       [desc_parameterlist, ()])],
                                     [desc_content, ()]))
@@ -795,7 +795,7 @@ def test_pyclassmethod(app):
                                                   desc)])]))
     assert_node(doctree[1][1][0], addnodes.index,
                 entries=[('single', 'meth() (Class class method)', 'Class.meth', '', None)])
-    assert_node(doctree[1][1][1], ([desc_signature, ([desc_annotation, "classmethod "],
+    assert_node(doctree[1][1][1], ([desc_signature, ([desc_annotation, ("classmethod", desc_sig_space)],
                                                      [desc_name, "meth"],
                                                      [desc_parameterlist, ()])],
                                    [desc_content, ()]))
@@ -816,7 +816,7 @@ def test_pystaticmethod(app):
                                                   desc)])]))
     assert_node(doctree[1][1][0], addnodes.index,
                 entries=[('single', 'meth() (Class static method)', 'Class.meth', '', None)])
-    assert_node(doctree[1][1][1], ([desc_signature, ([desc_annotation, "static "],
+    assert_node(doctree[1][1][1], ([desc_signature, ([desc_annotation, ("static", desc_sig_space)],
                                                      [desc_name, "meth"],
                                                      [desc_parameterlist, ()])],
                                    [desc_content, ()]))
