@@ -768,8 +768,6 @@ needed docstring processing in event :event:`autodoc-process-docstring`:
 
 .. event:: autodoc-process-bases (app, name, obj, options, bases)
 
-   .. versionadded:: 4.1
-
    Emitted when autodoc has read and processed a class to determine the
    base-classes.  *bases* is a list of classes that the event handler can
    modify **in place** to change what Sphinx puts into the output.  It's
@@ -780,6 +778,12 @@ needed docstring processing in event :event:`autodoc-process-docstring`:
    :param obj: the object itself
    :param options: the options given to the class directive
    :param bases: the list of base classes signature. see above.
+
+   .. versionadded:: 4.1
+   .. versionchanged:: 4.3
+
+      ``bases`` can contain a string as a base class name.  It will be processed
+      as reST mark-up'ed text.
 
 
 Skipping members

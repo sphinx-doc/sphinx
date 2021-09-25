@@ -113,6 +113,8 @@ def restify(cls: Optional[Type]) -> str:
             return ':py:obj:`None`'
         elif cls is Ellipsis:
             return '...'
+        elif isinstance(cls, str):
+            return cls
         elif cls in INVALID_BUILTIN_CLASSES:
             return ':py:class:`%s`' % INVALID_BUILTIN_CLASSES[cls]
         elif inspect.isNewType(cls):
