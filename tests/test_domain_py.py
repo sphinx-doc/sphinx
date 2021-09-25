@@ -520,7 +520,7 @@ def test_pyexception_signature(app):
     text = ".. py:exception:: builtins.IOError"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, ([desc_annotation, "exception "],
+                          [desc, ([desc_signature, ([desc_annotation, ('exception', desc_sig_space)],
                                                     [desc_addname, "builtins."],
                                                     [desc_name, "IOError"])],
                                   desc_content)]))
@@ -583,7 +583,7 @@ def test_pyobject_prefix(app):
             "   .. py:method:: FooBar.say")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                          [desc, ([desc_signature, ([desc_annotation, ('class', desc_sig_space)],
                                                     [desc_name, "Foo"])],
                                   [desc_content, (addnodes.index,
                                                   desc,
@@ -653,11 +653,14 @@ def test_pyclass_options(app):
     domain = app.env.get_domain('py')
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                          [desc, ([desc_signature, ([desc_annotation, ("class", desc_sig_space)],
                                                     [desc_name, "Class1"])],
                                   [desc_content, ()])],
                           addnodes.index,
-                          [desc, ([desc_signature, ([desc_annotation, "final class "],
+                          [desc, ([desc_signature, ([desc_annotation, ("final",
+                                                                       desc_sig_space,
+                                                                       "class",
+                                                                       desc_sig_space)],
                                                     [desc_name, "Class2"])],
                                   [desc_content, ()])]))
 
@@ -693,7 +696,7 @@ def test_pymethod_options(app):
     domain = app.env.get_domain('py')
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                          [desc, ([desc_signature, ([desc_annotation, ("class", desc_sig_space)],
                                                     [desc_name, "Class"])],
                                   [desc_content, (addnodes.index,
                                                   desc,
@@ -786,7 +789,7 @@ def test_pyclassmethod(app):
     domain = app.env.get_domain('py')
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                          [desc, ([desc_signature, ([desc_annotation, ("class", desc_sig_space)],
                                                     [desc_name, "Class"])],
                                   [desc_content, (addnodes.index,
                                                   desc)])]))
@@ -807,7 +810,7 @@ def test_pystaticmethod(app):
     domain = app.env.get_domain('py')
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                          [desc, ([desc_signature, ([desc_annotation, ("class", desc_sig_space)],
                                                     [desc_name, "Class"])],
                                   [desc_content, (addnodes.index,
                                                   desc)])]))
@@ -830,7 +833,7 @@ def test_pyattribute(app):
     domain = app.env.get_domain('py')
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                          [desc, ([desc_signature, ([desc_annotation, ("class", desc_sig_space)],
                                                     [desc_name, "Class"])],
                                   [desc_content, (addnodes.index,
                                                   desc)])]))
@@ -868,7 +871,7 @@ def test_pyproperty(app):
     domain = app.env.get_domain('py')
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                          [desc, ([desc_signature, ([desc_annotation, ("class", desc_sig_space)],
                                                     [desc_name, "Class"])],
                                   [desc_content, (addnodes.index,
                                                   desc,
@@ -932,7 +935,7 @@ def test_canonical(app):
     domain = app.env.get_domain('py')
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                          [desc, ([desc_signature, ([desc_annotation, ("class", desc_sig_space)],
                                                     [desc_addname, "io."],
                                                     [desc_name, "StringIO"])],
                                   desc_content)]))
@@ -990,7 +993,7 @@ def test_info_field_list(app):
     assert_node(doctree, (nodes.target,
                           addnodes.index,
                           addnodes.index,
-                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                          [desc, ([desc_signature, ([desc_annotation, ("class", desc_sig_space)],
                                                     [desc_addname, "example."],
                                                     [desc_name, "Class"])],
                                   [desc_content, nodes.field_list, nodes.field])]))
@@ -1081,7 +1084,7 @@ def test_info_field_list_piped_type(app):
                 (nodes.target,
                  addnodes.index,
                  addnodes.index,
-                 [desc, ([desc_signature, ([desc_annotation, "class "],
+                 [desc, ([desc_signature, ([desc_annotation, ("class", desc_sig_space)],
                                            [desc_addname, "example."],
                                            [desc_name, "Class"])],
                          [desc_content, nodes.field_list, nodes.field, (nodes.field_name,

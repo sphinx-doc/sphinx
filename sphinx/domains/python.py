@@ -714,11 +714,12 @@ class PyClasslike(PyObject):
 
     allow_nesting = True
 
-    def get_signature_prefix(self, sig: str) -> str:
+    def get_signature_prefix(self, sig: str) -> List[nodes.Node]:
         if 'final' in self.options:
-            return 'final %s ' % self.objtype
+            return [nodes.Text('final'), addnodes.desc_sig_space(),
+                    nodes.Text(self.objtype), addnodes.desc_sig_space()]
         else:
-            return '%s ' % self.objtype
+            return [nodes.Text(self.objtype), addnodes.desc_sig_space()]
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
         if self.objtype == 'class':
