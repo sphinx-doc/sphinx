@@ -19,7 +19,7 @@ from sphinx import addnodes
 from sphinx.addnodes import (desc, desc_addname, desc_annotation, desc_content, desc_name,
                              desc_optional, desc_parameter, desc_parameterlist, desc_returns,
                              desc_sig_name, desc_sig_operator, desc_sig_punctuation,
-                             desc_signature, pending_xref)
+                             desc_signature, desc_sig_space, pending_xref)
 from sphinx.domains import IndexEntry
 from sphinx.domains.python import (PythonDomain, PythonModuleIndex, _parse_annotation,
                                    _pseudo_parse_arglist, py_sig_re)
@@ -484,9 +484,9 @@ def test_pyfunction_with_union_type_operator(app):
                                                         [desc_sig_punctuation, ":"],
                                                         " ",
                                                         [desc_sig_name, ([pending_xref, "int"],
-                                                                         " ",
+                                                                         desc_sig_space,
                                                                          [desc_sig_punctuation, "|"],
-                                                                         " ",
+                                                                         desc_sig_space,
                                                                          [pending_xref, "None"])])])])
 
 
@@ -553,9 +553,9 @@ def test_pydata_with_union_type_operator(app):
                 ([desc_name, "version"],
                  [desc_annotation, (": ",
                                     [pending_xref, "int"],
-                                    " ",
+                                    desc_sig_space,
                                     [desc_sig_punctuation, "|"],
-                                    " ",
+                                    desc_sig_space,
                                     [pending_xref, "str"])]))
 
 

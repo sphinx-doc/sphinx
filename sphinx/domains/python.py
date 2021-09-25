@@ -118,7 +118,9 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
             result.extend(unparse(node.right))
             return result
         elif isinstance(node, ast.BitOr):
-            return [nodes.Text(' '), addnodes.desc_sig_punctuation('', '|'), nodes.Text(' ')]
+            return [addnodes.desc_sig_space(),
+                    addnodes.desc_sig_punctuation('', '|'),
+                    addnodes.desc_sig_space()]
         elif isinstance(node, ast.Constant):  # type: ignore
             if node.value is Ellipsis:
                 return [addnodes.desc_sig_punctuation('', "...")]
