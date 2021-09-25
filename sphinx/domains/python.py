@@ -903,15 +903,18 @@ class PyProperty(PyObject):
 
         return fullname, prefix
 
-    def get_signature_prefix(self, sig: str) -> str:
-        prefix = []
+    def get_signature_prefix(self, sig: str) -> List[nodes.Node]:
+        prefix: List[nodes.Node] = []
         if 'abstractmethod' in self.options:
-            prefix.append('abstract')
+            prefix.append(nodes.Text('abstract'))
+            prefix.append(addnodes.desc_sig_space())
         if 'classmethod' in self.options:
-            prefix.append('class')
+            prefix.append(nodes.Text('class'))
+            prefix.append(addnodes.desc_sig_space())
 
-        prefix.append('property')
-        return ' '.join(prefix) + ' '
+        prefix.append(nodes.Text('property'))
+        prefix.append(addnodes.desc_sig_space())
+        return prefix
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
         name, cls = name_cls
