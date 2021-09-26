@@ -31,6 +31,8 @@ Bugs fixed
   :confval:`autodoc_typehints_description_target` is set to "documented" when
   its info-field-list contains ``:returns:`` field
 * #9657: autodoc: The base class for a subclass of mocked object is incorrect
+* #9607: autodoc: Incorrect base class detection for the subclasses of the
+  generic class
 * #9630: autosummary: Failed to build summary table if :confval:`primary_domain`
   is not 'py'
 * #9670: html: Fix download file with special characters

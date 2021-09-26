@@ -1651,7 +1651,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         # add inheritance info, if wanted
         if not self.doc_as_attr and self.options.show_inheritance:
-            if hasattr(self.object, '__orig_bases__') and len(self.object.__orig_bases__):
+            if inspect.getorigbases(self.object):
                 # A subclass of generic types
                 # refs: PEP-560 <https://www.python.org/dev/peps/pep-0560/>
                 bases = list(self.object.__orig_bases__)
