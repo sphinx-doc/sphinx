@@ -304,8 +304,8 @@ class IndexBuilder:
         format.dump(self.freeze(), stream)
 
     def get_objects(self, fn2index: Dict[str, int]
-                    ) -> Dict[str, Dict[str, Tuple[int, int, int, str]]]:
-        rv: Dict[str, Dict[str, Tuple[int, int, int, str]]] = {}
+                    ) -> Dict[str, List[Tuple[int, int, int, str, str]]]:
+        rv: Dict[str, List[Tuple[int, int, int, str, str]]] = {}
         otypes = self._objtypes
         onames = self._objnames
         for domainname, domain in sorted(self.env.domains.items()):
@@ -318,7 +318,7 @@ class IndexBuilder:
                 fullname = html.escape(fullname)
                 dispname = html.escape(dispname)
                 prefix, _, name = dispname.rpartition('.')
-                pdict = rv.setdefault(prefix, {})
+                plist = rv.setdefault(prefix, [])
                 try:
                     typeindex = otypes[domainname, type]
                 except KeyError:
@@ -337,7 +337,7 @@ class IndexBuilder:
                     shortanchor = '-'
                 else:
                     shortanchor = anchor
-                pdict[name] = (fn2index[docname], typeindex, prio, shortanchor)
+                plist.append((fn2index[docname], typeindex, prio, shortanchor, name))
         return rv
 
     def get_terms(self, fn2index: Dict) -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:

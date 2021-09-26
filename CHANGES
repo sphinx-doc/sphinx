@@ -7,6 +7,9 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #9649: ``searchindex.js``: the embedded data has changed format to allow
+  objects with the same name in different domains.
+
 Deprecated
 ----------
 
@@ -27,6 +30,8 @@ Bugs fixed
 * #9630: autosummary: Failed to build summary table if :confval:`primary_domain`
   is not 'py'
 * #9670: html: Fix download file with special characters
+* #9649: HTML search: when objects have the same name but in different domains,
+  return all of them as result instead of just one.
 
 Testing
 --------
