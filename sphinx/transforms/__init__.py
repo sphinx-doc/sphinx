@@ -405,6 +405,80 @@ class ManpageLink(SphinxTransform):
             node.attributes.update(info)
 
 
+class ReorderConsecutiveTargetAndIndexNodes(SphinxTransform):
+    """Index nodes interspersed between target nodes prevent other
+    Transformations from combining those target nodes.  This transformation
+    reorders them:
+
+    Given the following ``document`` as input::
+
+        <document>
+            <target ids="id1" ...>
+            <index entries="...1...">
+            <target ids="id2" ...>
+            <target ids="id3" ...>
+            <index entries="...2...">
+            <target ids="id4" ...>
+
+    The transformed result will be::
+
+        <document>
+            <index entries="...1...">
+            <index entries="...2...">
+            <target ids="id1" ...>
+            <target ids="id2" ...>
+            <target ids="id3" ...>
+            <target ids="id4" ...>
+    """
+
+    # Priority must smaller than the one of PropagateTargets transform, which
+    # has 260.
+    default_priority = 250
+
+    def apply(self, **kwargs: Any) -> None:
+        for target in self.document.traverse(nodes.target):
+            self.reorder_around(target)
+
+    def reorder_around(self, start_node: nodes.Node) -> None:
+        # collect all follow up target or index sibling nodes (including node
+        # itself).  Note that we cannot use the 'condition' to filter for index
+        # and target as we want *consecutive* target/index nodes.
+        nodes_to_reorder: List[Union[nodes.target, addnodes.index]] = []
+        for node in start_node.traverse(condition=None,
+                                    include_self=True,
+                                    descend=False,
+                                    siblings=True):
+            if not isinstance(node, nodes.target) and \
+                    not isinstance(node, addnodes.index):
+                break # consecutive strike is broken
+            nodes_to_reorder.append(node)
+
+        if len(nodes_to_reorder) < 2:
+            return # Nothing to reorder
+
+        # Since we have at least two siblings, their parent is not None and
+        # supports children (e.g. is not Text)
+
+        parent_node: nodes.Element = nodes_to_reorder[0].parent
+        assert parent_node == nodes_to_reorder[-1].parent
+        first_idx = parent_node.index(nodes_to_reorder[0])
+        last_idx = parent_node.index(nodes_to_reorder[-1])
+        assert first_idx + len(nodes_to_reorder) - 1 == last_idx
+
+        def sortkey(node: nodes.Node):
+            if isinstance(node, addnodes.index):
+                return 1
+            elif isinstance(node, nodes.target):
+                return 2
+            else:
+                raise Error('This cannot happen')
+        # Important: The sort algorithm used must be a stable sort.
+        nodes_to_reorder.sort(key = sortkey)
+
+        # '+1' since slices are excluding the right hand index
+        parent_node[first_idx:last_idx+1] = nodes_to_reorder
+
+
 def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_transform(ApplySourceWorkaround)
     app.add_transform(ExtraTranslatableNodes)
@@ -420,6 +494,7 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_transform(SphinxSmartQuotes)
     app.add_transform(DoctreeReadEvent)
     app.add_transform(ManpageLink)
+    app.add_transform(ReorderConsecutiveTargetAndIndexNodes)
 
     return {
         'version': 'builtin',
