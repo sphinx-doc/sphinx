@@ -217,6 +217,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
 
         if node['hidden']:
             node = self.replace_node_with_target(node)
+            self.set_source_info(node)
 
         return [self.indexnode, node]
 
