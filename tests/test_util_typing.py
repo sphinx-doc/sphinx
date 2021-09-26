@@ -17,6 +17,7 @@ from typing import (Any, Callable, Dict, Generator, List, NewType, Optional, Tup
 
 import pytest
 
+from sphinx.ext.autodoc import mock
 from sphinx.util.typing import restify, stringify
 
 
@@ -48,6 +49,7 @@ def test_restify():
     assert restify(Struct) == ":py:class:`struct.Struct`"
     assert restify(TracebackType) == ":py:class:`types.TracebackType`"
     assert restify(Any) == ":py:obj:`~typing.Any`"
+    assert restify('str') == "str"
 
 
 def test_restify_type_hints_containers():
@@ -167,6 +169,12 @@ def test_restify_type_union_operator():
 
 def test_restify_broken_type_hints():
     assert restify(BrokenType) == ':py:class:`tests.test_util_typing.BrokenType`'
+
+
+def test_restify_mock():
+    with mock(['unknown']):
+        import unknown
+        assert restify(unknown.secret.Class) == ':py:class:`unknown.secret.Class`'
 
 
 def test_stringify():
@@ -293,3 +301,9 @@ def test_stringify_type_union_operator():
 
 def test_stringify_broken_type_hints():
     assert stringify(BrokenType) == 'tests.test_util_typing.BrokenType'
+
+
+def test_stringify_mock():
+    with mock(['unknown']):
+        import unknown
+        assert stringify(unknown.secret.Class) == 'unknown.secret.Class'

@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-19 00:09+0000\n"
+"POT-Creation-Date: 2021-09-26 00:10+0000\n"
 "PO-Revision-Date: 2021-09-14 05:37+0000\n"
 "Last-Translator: Hadi F <h_adi_f@yahoo.com>\n"
 "Language-Team: Persian (http://www.transifex.com/sphinx-doc/sphinx-1/language/fa/)\n"
@@ -2818,7 +2818,7 @@ msgstr "امضای ناشناخته‌ برای %s (%r)"
 msgid "error while formatting arguments for %s: %s"
 msgstr "خطا در قالب بندی نشانوند برای %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1682
+#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1683
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr "ویژگی ناموجود %s در شیئ %s"
@@ -2838,76 +2838,76 @@ msgid ""
 "explicit module name)"
 msgstr "مشخّص نیست کدام پیمانه را برای مستندسازی خودکار فراخوان کند %r (سعی کنید دستورالعمل «module» یا «currentmodule» را در سند قرار دهید، یا یک نام واضح برای پیمانه ارائه دهید)"
 
-#: sphinx/ext/autodoc/__init__.py:917
+#: sphinx/ext/autodoc/__init__.py:950
 #, python-format
 msgid "A mocked object is detected: %r"
 msgstr "شیئ ساختگی شناسایی شد: %r"
 
-#: sphinx/ext/autodoc/__init__.py:968
+#: sphinx/ext/autodoc/__init__.py:969
 #, python-format
 msgid "error while formatting signature for %s: %s"
 msgstr "خطا در قالب بندی امضا برای %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1018
+#: sphinx/ext/autodoc/__init__.py:1019
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr "\"::\"  در پیمانه‌ی خودکار معنی نمی‌دهد"
 
-#: sphinx/ext/autodoc/__init__.py:1025
+#: sphinx/ext/autodoc/__init__.py:1026
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr "نشانوند‌های امضا یا یادداشت مقدار برگشتی داده شده برای پیمانه‌ی خودکار %s"
 
-#: sphinx/ext/autodoc/__init__.py:1038
+#: sphinx/ext/autodoc/__init__.py:1039
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr "__all__ باید لیستی از رشته‌متن ها باشد، نه %r (در پیمانه‌ی %s) -- __all__ نادیده گرفته می‌شود"
 
-#: sphinx/ext/autodoc/__init__.py:1104
+#: sphinx/ext/autodoc/__init__.py:1105
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr "ویژگی نایاب در گزینه‌ی :members: قید شده: پیمانه‌ی:%s، ویژگی %s"
 
-#: sphinx/ext/autodoc/__init__.py:1303 sphinx/ext/autodoc/__init__.py:1377
-#: sphinx/ext/autodoc/__init__.py:2734
+#: sphinx/ext/autodoc/__init__.py:1304 sphinx/ext/autodoc/__init__.py:1378
+#: sphinx/ext/autodoc/__init__.py:2735
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "شکست در دریافت امضای تابع برای %s: مؤلّفه پیدا نشد: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1568
+#: sphinx/ext/autodoc/__init__.py:1569
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr "شکست در دریافت امضای سازنده‌ی شیئ برای %s: مؤلّفه پیدا نشد: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1669
+#: sphinx/ext/autodoc/__init__.py:1670
 #, python-format
 msgid "Bases: %s"
 msgstr "پایه ها:%s"
 
-#: sphinx/ext/autodoc/__init__.py:1755 sphinx/ext/autodoc/__init__.py:1828
-#: sphinx/ext/autodoc/__init__.py:1847
+#: sphinx/ext/autodoc/__init__.py:1756 sphinx/ext/autodoc/__init__.py:1829
+#: sphinx/ext/autodoc/__init__.py:1848
 #, python-format
 msgid "alias of %s"
 msgstr "نام جانشین %s"
 
-#: sphinx/ext/autodoc/__init__.py:1889
+#: sphinx/ext/autodoc/__init__.py:1890
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr "نام جانشین نوع متغیر(%s)"
 
-#: sphinx/ext/autodoc/__init__.py:2122 sphinx/ext/autodoc/__init__.py:2216
+#: sphinx/ext/autodoc/__init__.py:2123 sphinx/ext/autodoc/__init__.py:2217
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr "شکست در دریافت امضای شگرد برای %s: مؤلّفه پیدا نشد: %s"
 
-#: sphinx/ext/autodoc/__init__.py:2348
+#: sphinx/ext/autodoc/__init__.py:2349
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "__slots__ نامعتبر در %sیدا شد و نادیده گرفته شد."
 
-#: sphinx/ext/autodoc/__init__.py:2777
+#: sphinx/ext/autodoc/__init__.py:2778
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
@@ -3355,15 +3355,15 @@ msgstr "C API تغییرات"
 msgid "Other changes"
 msgstr "دگر تغییرات"
 
-#: sphinx/themes/basic/static/doctools.js:199 sphinx/writers/html.py:436
-#: sphinx/writers/html.py:441 sphinx/writers/html5.py:387
-#: sphinx/writers/html5.py:392
+#: sphinx/themes/basic/static/doctools.js:199 sphinx/writers/html.py:437
+#: sphinx/writers/html.py:442 sphinx/writers/html5.py:388
+#: sphinx/writers/html5.py:393
 msgid "Permalink to this headline"
 msgstr "پیوند ثابت به این سر مقاله"
 
-#: sphinx/themes/basic/static/doctools.js:205 sphinx/writers/html.py:131
-#: sphinx/writers/html.py:140 sphinx/writers/html5.py:102
-#: sphinx/writers/html5.py:111
+#: sphinx/themes/basic/static/doctools.js:205 sphinx/writers/html.py:132
+#: sphinx/writers/html.py:141 sphinx/writers/html5.py:103
+#: sphinx/writers/html5.py:112
 msgid "Permalink to this definition"
 msgstr "پیوند ثابت به این تعریف"
 
@@ -3531,37 +3531,37 @@ msgstr "ایراد در هنگام ارزیابی تنها عبارت دستور
 msgid "default role %s not found"
 msgstr "نقش پیش‌فرض %s یافت نشد"
 
-#: sphinx/writers/html.py:329 sphinx/writers/html5.py:300
+#: sphinx/writers/html.py:330 sphinx/writers/html5.py:301
 #, python-format
 msgid "numfig_format is not defined for %s"
 msgstr "قالب عدد شکل برای %s تعریف نشده"
 
-#: sphinx/writers/html.py:339 sphinx/writers/html5.py:310
+#: sphinx/writers/html.py:340 sphinx/writers/html5.py:311
 #, python-format
 msgid "Any IDs not assigned for %s node"
 msgstr "هر کدام از شناسه‌هایی که به بست %s اختصاص داده نشده"
 
-#: sphinx/writers/html.py:413 sphinx/writers/html5.py:364
+#: sphinx/writers/html.py:414 sphinx/writers/html5.py:365
 msgid "Permalink to this term"
 msgstr "پیوند ثابت به این اصطلاح"
 
-#: sphinx/writers/html.py:445 sphinx/writers/html5.py:396
+#: sphinx/writers/html.py:446 sphinx/writers/html5.py:397
 msgid "Permalink to this table"
 msgstr "پیوند ثابت به این جدول"
 
-#: sphinx/writers/html.py:488 sphinx/writers/html5.py:439
+#: sphinx/writers/html.py:489 sphinx/writers/html5.py:440
 msgid "Permalink to this code"
 msgstr "پیوند ثابت به این کد"
 
-#: sphinx/writers/html.py:490 sphinx/writers/html5.py:441
+#: sphinx/writers/html.py:491 sphinx/writers/html5.py:442
 msgid "Permalink to this image"
 msgstr "پیوند ثابت به این تصویر"
 
-#: sphinx/writers/html.py:492 sphinx/writers/html5.py:443
+#: sphinx/writers/html.py:493 sphinx/writers/html5.py:444
 msgid "Permalink to this toctree"
 msgstr "پیوند ثابت به این فهرست عنوان ها"
 
-#: sphinx/writers/html.py:623 sphinx/writers/html5.py:563
+#: sphinx/writers/html.py:625 sphinx/writers/html5.py:565
 msgid "Could not obtain image size. :scale: option is ignored."
 msgstr "امکان دست یابی به اندازه‌ی عکس نبود. گزینه‌ی تغییر اندازه :scale: نادیده گرفته می‌شود."
 

@@ -7,6 +7,9 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #9649: ``searchindex.js``: the embedded data has changed format to allow
+  objects with the same name in different domains.
+
 Deprecated
 ----------
 
@@ -14,6 +17,8 @@ Features added
 --------------
 
 * #9639: autodoc: Support asynchronous generator functions
+* #9664: autodoc: ``autodoc-process-bases`` supports to inject reST snippet as a
+  base class
 
 Bugs fixed
 ----------
@@ -21,10 +26,18 @@ Bugs fixed
 * #9630: autodoc: Failed to build cross references if :confval:`primary_domain`
   is not 'py'
 * #9644: autodoc: Crashed on getting source info from problematic object
+* #9655: autodoc: mocked object having doc comment is warned unexpectedly
+* #9651: autodoc: return type field is not generated even if
+  :confval:`autodoc_typehints_description_target` is set to "documented" when
+  its info-field-list contains ``:returns:`` field
+* #9657: autodoc: The base class for a subclass of mocked object is incorrect
 * #9607: autodoc: Incorrect base class detection for the subclasses of the
   generic class
 * #9630: autosummary: Failed to build summary table if :confval:`primary_domain`
   is not 'py'
+* #9670: html: Fix download file with special characters
+* #9649: HTML search: when objects have the same name but in different domains,
+  return all of them as result instead of just one.
 
 Testing
 --------

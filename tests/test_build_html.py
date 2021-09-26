@@ -456,6 +456,12 @@ def test_html_download(app):
     assert (app.outdir / matched.group(1)).exists()
     assert matched.group(1) == filename
 
+    pattern = ('<a class="reference download internal" download="" '
+               'href="(_downloads/.*/)(file_with_special_%23_chars.xyz)">')
+    matched = re.search(pattern, result)
+    assert matched
+    assert (app.outdir / matched.group(1) / "file_with_special_#_chars.xyz").exists()
+
 
 @pytest.mark.sphinx('html', testroot='roles-download')
 def test_html_download_role(app, status, warning):
