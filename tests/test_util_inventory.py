@@ -12,6 +12,7 @@ inventory_v1 = b'''\
 # Project: foo
 # Version: 1.0
 module mod foo.html
+module1 mod foo.html
 module.cls class foo.html
 '''
 

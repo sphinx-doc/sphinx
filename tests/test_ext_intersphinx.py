@@ -1,6 +1,8 @@
 """Test the intersphinx extension."""
 
 import http.server
+import os
+import zlib
 from unittest import mock
 
 import pytest
@@ -12,6 +14,7 @@ from sphinx.ext.intersphinx import (
     _get_safe_url,
     _strip_basic_auth,
     fetch_inventory,
+    find_replacements,
     inspect_main,
     load_mappings,
     missing_reference,
@@ -19,7 +22,7 @@ from sphinx.ext.intersphinx import (
 )
 from sphinx.ext.intersphinx import setup as intersphinx_setup
 
-from .test_util_inventory import inventory_v2, inventory_v2_not_having_version
+from .test_util_inventory import inventory_v1, inventory_v2, inventory_v2_not_having_version
 from .utils import http_server
 
 
@@ -566,3 +569,79 @@ def test_intersphinx_role(app, warning):
 
     # explicit title
     assert html.format('index.html#foons') in content
+
+
+empty_inventory_v1 = b'''\
+# Sphinx inventory version 1
+# Project: foo
+# Version: 1.0
+'''
+
+
+empty_inventory_v2 = b'''\
+# Sphinx inventory version 2
+# Project: foo
+# Version: 2.0
+# The remainder of this file is compressed with zlib.
+''' + zlib.compress(b'')
+
+
+@pytest.mark.parametrize('inventory', (empty_inventory_v1, empty_inventory_v2))
+def test_no_replacement_found_for_uri_in_empty_inventory(tmp_path, app, inventory):
+    inv_file = tmp_path / 'inventory'
+    inv_file.write_bytes(inventory)
+    app.config.intersphinx_mapping = {
+        'https://example.com/': str(inv_file),
+    }
+    app.config.intersphinx_cache_limit = 0
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    assert next(find_replacements(app, 'https://example.com'), None) is None
+
+
+@pytest.mark.parametrize('inventory', (inventory_v1, inventory_v2))
+def test_no_replacement_found_for_non_matching_uri(tmp_path, app, inventory):
+    inv_file = tmp_path / 'inventory'
+    inv_file.write_bytes(inventory)
+    app.config.intersphinx_mapping = {
+        'https://docs.python.org/': str(inv_file),
+    }
+    app.config.intersphinx_cache_limit = 0
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    uri = 'https://example.com/foo.html#module-module1'
+    replacement = next(find_replacements(app, uri), None)
+    assert replacement is None
+
+
+@pytest.mark.parametrize('inventory', (inventory_v1, inventory_v2))
+def test_replacement_found_for_matching_uri(tmp_path, app, inventory):
+    inv_file = tmp_path / 'inventory'
+    inv_file.write_bytes(inventory)
+    app.config.intersphinx_mapping = {
+        'https://docs.python.org/': str(inv_file),
+    }
+    app.config.intersphinx_cache_limit = 0
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    uri = 'https://docs.python.org/foo.html#module-module1'
+    replacement = next(find_replacements(app, uri))
+    assert replacement == ':py:mod:`module1`'
+
+
+@pytest.mark.sphinx('html', testroot='ext-intersphinx-hardcoded-urls')
+def test_replaceable_uris_emit_intersphinx_warnings(app, warning):
+    app.build()
+    warning_output = warning.getvalue()
+    # there should be exactly three warnings for replaceable URLs
+    message = (
+        "WARNING: hardcoded link 'https://example.com/foo.html#module-module1' "
+        "could be replaced by a cross-reference to 'python' inventory "
+        "(try using ':py:mod:`module1`' instead)"
+    )
+    assert f"index.rst:11: {message}" in warning_output
+    assert f"index.rst:13: {message}" in warning_output
+    assert f"index.rst:15: {message}" in warning_output

@@ -106,41 +106,49 @@ class InventoryAdapter:
 
 
 class ExternalLinksChecker(SphinxPostTransform):
-    """Traverse the document and check each ``reference`` node without ``internal`` attribute whether it can be replaced by an ``intersphinx`` crossreference."""
+    """
+    For each external link, check if it can be replaced by a crossreference.
+
+    We treat each ``reference`` node without ``internal`` attribute as an external link.
+    """
 
     default_priority = 900
 
     def run(self, **kwargs: Any) -> None:
         for refnode in self.document.traverse(reference):
-            if "internal" in refnode or "refuri" not in refnode:
-                continue
-            uri = refnode["refuri"]
-            lineno = sphinx.util.nodes.get_node_line(refnode)
+            self.check_uri(refnode)
 
-            for inventory_uri, (
-                inventory_name,
-                _,
-                inventory,
-            ) in self.app.env.intersphinx_cache.items():
-                if uri.startswith(inventory_uri):
-                    # build a replacement suggestion
-                    replacements = find_replacements(self.app, uri)
-                    try:
-                        suggestion = f"try using {next(replacements)!r} instead"
-                    except StopIteration:
-                        suggestion = "no suggestion"
+    def check_uri(self, refnode: reference) -> None:
+        """
+        If the URI in ``refnode`` has a replacement in an ``intersphinx`` inventory,
+        emit a warning with a replacement suggestion.
+        """
+        if 'internal' in refnode or 'refuri' not in refnode:
+            return
 
+        uri = refnode['refuri']
+        lineno = sphinx.util.nodes.get_node_line(refnode)
+        cache = getattr(self.app.env, 'intersphinx_cache', dict())
+
+        for inventory_uri, (inventory_name, size, inventory) in cache.items():
+            if uri.startswith(inventory_uri):
+                # build a replacement suggestion
+                replacements = find_replacements(self.app, uri)
+                try:
+                    suggestion = f'try using {next(replacements)!r} instead'
                     location = (self.env.docname, lineno)
                     logger.warning(
                         (
-                            "hardcoded link %r could be replaced by a "
-                            "cross-reference to %r inventory (%s)"
+                            'hardcoded link %r could be replaced by '
+                            'a cross-reference to %r inventory (%s)'
                         ),
                         uri,
                         inventory_name,
                         suggestion,
                         location=location,
                     )
+                except StopIteration:
+                    pass
 
 
 def find_replacements(app: Sphinx, uri: str) -> Iterator[str]:
@@ -151,20 +159,23 @@ def find_replacements(app: Sphinx, uri: str) -> Iterator[str]:
     for an entry that points to the given ``uri`` and build
     a ReST markup that should replace ``uri`` with a crossref.
     """
-    for inventory_uri, (
-        inventory_name,
-        _,
-        inventory,
-    ) in app.env.intersphinx_cache.items():
+    cache = getattr(app.env, 'intersphinx_cache', dict())
+
+    for inventory_uri, (inventory_name, size, inventory) in cache.items():
         if uri.startswith(inventory_uri):
             for key, entries in inventory.items():
-                domain_name, directive_type = key.split(":")
-                for target, (_, _, target_uri, _) in entries.items():
+                domain_name, directive_type = key.split(':')
+                for target, (
+                    project_name,
+                    version,
+                    target_uri,
+                    display_name,
+                ) in entries.items():
                     if uri == target_uri:
                         for domain in app.env.domains.values():
                             if domain_name == domain.name:
-                                role = domain.role_for_objtype(directive_type) or "any"
-                                yield f":{domain_name}:{role}:`{target}`"
+                                role = domain.role_for_objtype(directive_type) or 'any'
+                                yield f':{domain_name}:{role}:`{target}`'
 
 
 def _strip_basic_auth(url: str) -> str:
@@ -253,12 +264,8 @@ def fetch_inventory(app: Sphinx, uri: str, inv: str) -> Inventory:
         else:
             f = open(path.join(app.srcdir, inv), 'rb')  # NoQA: SIM115
     except Exception as err:
-        err.args = (
-            'intersphinx inventory %r not fetchable due to %s: %s',
-            inv,
-            err.__class__,
-            str(err),
-        )
+        err.args = ('intersphinx inventory %r not fetchable due to %s: %s',
+                    inv, err.__class__, str(err))
         raise
     try:
         if hasattr(f, 'url'):
@@ -274,12 +281,8 @@ def fetch_inventory(app: Sphinx, uri: str, inv: str) -> Inventory:
             except ValueError as exc:
                 raise ValueError('unknown or unsupported inventory version: %r' % exc) from exc
     except Exception as err:
-        err.args = (
-            'intersphinx inventory %r not readable due to %s: %s',
-            inv,
-            err.__class__.__name__,
-            str(err),
-        )
+        err.args = ('intersphinx inventory %r not readable due to %s: %s',
+                    inv, err.__class__.__name__, str(err))
         raise
     else:
         return invdata
@@ -317,21 +320,14 @@ def fetch_inventory_group(
         if failures == []:
             pass
         elif len(failures) < len(invs):
-            logger.info(
-                __(
-                    "encountered some issues with some of the inventories,"
-                    " but they had working alternatives:"
-                )
-            )
+            logger.info(__("encountered some issues with some of the inventories,"
+                           " but they had working alternatives:"))
             for fail in failures:
                 logger.info(*fail)
         else:
             issues = '\n'.join([f[0] % f[1:] for f in failures])
-            logger.warning(
-                __("failed to reach any of the inventories " "with the following issues:")
-                + "\n"
-                + issues
-            )
+            logger.warning(__("failed to reach any of the inventories "
+                           "with the following issues:") + "\n" + issues)
 
 
 def load_mappings(app: Sphinx) -> None:
@@ -739,9 +735,8 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
                 # new format
                 name, (uri, inv) = key, value
                 if not isinstance(name, str):
-                    logger.warning(
-                        __('intersphinx identifier %r is not string. Ignored'), name
-                    )
+                    logger.warning(__('intersphinx identifier %r is not string. Ignored'),
+                                   name)
                     config.intersphinx_mapping.pop(key)
                     continue
             else:
@@ -781,7 +776,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     return {
         'version': sphinx.__display_version__,
         'env_version': 1,
-        'parallel_read_safe': True,
+        'parallel_read_safe': True
     }
 
 
