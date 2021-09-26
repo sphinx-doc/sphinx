@@ -49,6 +49,7 @@ def test_restify():
     assert restify(Struct) == ":py:class:`struct.Struct`"
     assert restify(TracebackType) == ":py:class:`types.TracebackType`"
     assert restify(Any) == ":py:obj:`~typing.Any`"
+    assert restify('str') == "str"
 
 
 def test_restify_type_hints_containers():
