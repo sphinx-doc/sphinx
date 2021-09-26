@@ -149,8 +149,8 @@ For example:
 .. tip::
 
    We're not distributing this extension as a `Python package`_, we need to
-   modify the :std:envvar:`PYTHONPATH` so Sphinx can find our extension. This is why we
-   need the call to ``sys.path.append``.
+   modify the :std:envvar:`PYTHONPATH` so Sphinx can find our extension.
+   This is why we need the call to ``sys.path.append``.
 
 You can now use the extension in a file. For example:
 
