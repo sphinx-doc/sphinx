@@ -129,7 +129,7 @@ Using the extension
 The extension has to be declared in your :file:`conf.py` file to make Sphinx
 aware of it. There are two steps necessary here:
 
-#. Add the :file:`_ext` directory to the `Python path`_ using
+#. Add the :file:`_ext` directory to the :std:envvar:`PYTHONPATH` using
    ``sys.path.append``. This should be placed at the top of the file.
 
 #. Update or create the :confval:`extensions` list and add the extension file
@@ -149,7 +149,7 @@ For example:
 .. tip::
 
    We're not distributing this extension as a `Python package`_, we need to
-   modify the `Python path`_ so Sphinx can find our extension. This is why we
+   modify the :std:envvar:`PYTHONPATH` so Sphinx can find our extension. This is why we
    need the call to ``sys.path.append``.
 
 You can now use the extension in a file. For example:
@@ -186,4 +186,3 @@ For a more advanced example, refer to :doc:`todo`.
 .. _docutils nodes: https://docutils.sourceforge.io/docs/ref/doctree.html
 .. _PyPI: https://pypi.org/
 .. _Python package: https://packaging.python.org/
-.. _Python path: https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH

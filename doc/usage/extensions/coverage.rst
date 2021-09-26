@@ -24,7 +24,7 @@ should check:
 
 .. confval:: coverage_ignore_pyobjects
 
-   List of `Python regular expressions`_.
+   List of :std:doc:`Python regular expressions <library/re>`.
 
    If any of these regular expressions matches any part of the full import path
    of a Python object, that Python object is excluded from the documentation
