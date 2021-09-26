@@ -223,17 +223,17 @@ class ObjectDescription(SphinxDirective, Generic[T]):
 
     # TODO: This method does not need access to self, make a (non-class) function out of it?
     def replace_node_with_target(self, node: nodes.Node) -> nodes.target:
-        def collect_ids(node: nodes.Node, ids: List[str]) -> List[str]:
-            if not isinstance(node, nodes.Element):
-                return
-            theseIds = node.get('ids')
-            if theseIds:
-                ids.extend(theseIds)
-            for c in node.children:
-                collect_ids(c, ids)
 
-        ids: List[str] = []
-        collect_ids(node, ids)
+        def collect_ids(node: nodes.Node) -> List[str]:
+            if isinstance(node, nodes.Element):
+                ids: List[str] = node.get('ids', [])
+                for c in node.children:
+                    ids.extend(collect_ids(c))
+                return ids
+            else:
+                return []
+
+        ids: List[str] = collect_ids(node)
         target_node = nodes.target()
         target_node['ids'] = ids
         return target_node
