@@ -9,6 +9,10 @@ Incompatible changes
 
 * #9649: ``searchindex.js``: the embedded data has changed format to allow
   objects with the same name in different domains.
+* #9672: The rendering of Python domain declarations is implemented
+  with more docutils nodes to allow better CSS styling.
+  It may break existing styling.
+
 
 Deprecated
 ----------
