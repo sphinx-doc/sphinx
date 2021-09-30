@@ -4,7 +4,7 @@ REM Command file for Sphinx documentation
 
 pushd %~dp0
 
-{% if latex_engine == 'platex' -%}
+{% if latex_engine in ('platex', 'uplatex') -%}
 REM latexmkrc is read then overridden by latexmkjarc
 set PDFLATEX=latexmk -r latexmkjarc -pdfdvi -dvi- -ps-
 {% else -%}
