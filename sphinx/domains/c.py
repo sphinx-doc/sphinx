@@ -36,7 +36,7 @@ from sphinx.util.cfamily import (ASTAttribute, ASTBaseBase, ASTBaseParenExprList
                                  float_literal_suffix_re, hex_literal_re, identifier_re,
                                  integer_literal_re, integers_literal_suffix_re,
                                  octal_literal_re, verify_description_mode)
-from sphinx.util.docfields import Field, TypedField
+from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
 from sphinx.util.typing import OptionSpec
@@ -3134,6 +3134,8 @@ class CObject(ObjectDescription[ASTDeclaration]):
         TypedField('parameter', label=_('Parameters'),
                    names=('param', 'parameter', 'arg', 'argument'),
                    typerolename='expr', typenames=('type',)),
+        GroupedField('retval', label=_('Return values'),
+                     names=('retvals', 'retval')),
         Field('returnvalue', label=_('Returns'), has_arg=False,
               names=('returns', 'return')),
         Field('returntype', label=_('Return type'), has_arg=False,
