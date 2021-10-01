@@ -3130,18 +3130,6 @@ class CObject(ObjectDescription[ASTDeclaration]):
     Description of a C language object.
     """
 
-    doc_field_types = [
-        TypedField('parameter', label=_('Parameters'),
-                   names=('param', 'parameter', 'arg', 'argument'),
-                   typerolename='expr', typenames=('type',)),
-        GroupedField('retval', label=_('Return values'),
-                     names=('retvals', 'retval')),
-        Field('returnvalue', label=_('Returns'), has_arg=False,
-              names=('returns', 'return')),
-        Field('returntype', label=_('Return type'), has_arg=False,
-              names=('rtype',)),
-    ]
-
     option_spec: OptionSpec = {
         'noindexentry': directives.flag,
     }
@@ -3344,12 +3332,29 @@ class CMemberObject(CObject):
         return self.objtype
 
 
+_function_doc_field_types = [
+    TypedField('parameter', label=_('Parameters'),
+               names=('param', 'parameter', 'arg', 'argument'),
+               typerolename='expr', typenames=('type',)),
+    GroupedField('retval', label=_('Return values'),
+                 names=('retvals', 'retval')),
+    Field('returnvalue', label=_('Returns'), has_arg=False,
+          names=('returns', 'return')),
+    Field('returntype', label=_('Return type'), has_arg=False,
+          names=('rtype',)),
+]
+
+
 class CFunctionObject(CObject):
     object_type = 'function'
+
+    doc_field_types = _function_doc_field_types.copy()
 
 
 class CMacroObject(CObject):
     object_type = 'macro'
+
+    doc_field_types = _function_doc_field_types.copy()
 
 
 class CStructObject(CObject):
