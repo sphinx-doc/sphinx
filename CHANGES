@@ -19,8 +19,9 @@ Features added
 * #9639: autodoc: Support asynchronous generator functions
 * #9664: autodoc: ``autodoc-process-bases`` supports to inject reST snippet as a
   base class
-* 9691: C, added new info-field ``retval``
+* #9691: C, added new info-field ``retval``
   for :rst:dir:`c:function` and :rst:dir:`c:macro`.
+* C++, added new info-field ``retval`` for :rst:dir:`cpp:function`.
 
 Bugs fixed
 ----------
