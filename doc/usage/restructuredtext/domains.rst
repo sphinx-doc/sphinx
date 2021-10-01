@@ -1496,13 +1496,22 @@ The ``cpp:namespace-pop`` directive undoes the most recent
 Info field lists
 ~~~~~~~~~~~~~~~~~
 
-The C++ directives support the following info fields (see also
-:ref:`info-field-lists`):
+All the C++ directives for declaring entities support the following
+info fields (see also :ref:`info-field-lists`):
 
-* `param`, `parameter`, `arg`, `argument`: Description of a parameter.
-* `tparam`: Description of a template parameter.
-* `returns`, `return`: Description of a return value.
+* ``tparam``: Description of a template parameter.
+
+The :rst:dir:`cpp:function` directive additionally supports the
+following fields:
+
+* ``param``, ``parameter``, ``arg``, ``argument``: Description of a parameter.
+* ``returns``, ``return``: Description of a return value.
+* ``retval``, ``retvals``: An alternative to ``returns`` for describing
+  the result of the function.
 * `throws`, `throw`, `exception`: Description of a possibly thrown exception.
+
+.. versionadded:: 4.3
+   The ``retval`` field type.
 
 .. _cpp-roles:
 

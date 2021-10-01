@@ -21,6 +21,7 @@ Features added
   base class
 * 9691: C, added new info-field ``retval``
   for :rst:dir:`c:function` and :rst:dir:`c:macro`.
+* C++, added new info-field ``retval`` for :rst:dir:`cpp:function`.
 
 Bugs fixed
 ----------
