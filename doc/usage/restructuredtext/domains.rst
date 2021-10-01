@@ -677,7 +677,7 @@ The C domain (name **c**) is suited for documentation of C API.
    Note that you don't have to backslash-escape asterisks in the signature, as
    it is not parsed by the reST inliner.
 
-   In the description of a function you can use the following info-fields
+   In the description of a function you can use the following info fields
    (see also :ref:`info-field-lists`).
 
    * ``param``, ``parameter``, ``arg``, ``argument``,
@@ -723,7 +723,7 @@ The C domain (name **c**) is suited for documentation of C API.
    Describes a C macro, i.e., a C-language ``#define``, without the replacement
    text.
 
-   In the description of a macro you can use the same info-fields as for the
+   In the description of a macro you can use the same info fields as for the
    :rst:dir:`c:function` directive.
 
    .. versionadded:: 3.0
