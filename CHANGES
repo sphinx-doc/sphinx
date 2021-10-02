@@ -12,7 +12,9 @@ Incompatible changes
 * #9672: The rendering of Python domain declarations is implemented
   with more docutils nodes to allow better CSS styling.
   It may break existing styling.
-
+* #9672: the signature of
+  :py:meth:`domains.py.PyObject.def get_signature_prefix` has changed to
+  return a list of nodes instead of a plain string.
 
 Deprecated
 ----------
