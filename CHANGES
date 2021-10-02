@@ -18,6 +18,10 @@ Incompatible changes
 * ``domains.js.JSObject.display_prefix`` has been changed into a method
   ``get_display_prefix`` which now returns a list of nodes
   instead of a plain string.
+* The rendering of Javascript domain declarations is implemented
+  with more docutils nodes to allow better CSS styling.
+  It may break existing styling.
+
 
 Deprecated
 ----------
@@ -32,6 +36,7 @@ Features added
   for :rst:dir:`c:function` and :rst:dir:`c:macro`.
 * C++, added new info-field ``retval`` for :rst:dir:`cpp:function`.
 * #9672: More CSS classes on Python domain descriptions
+* More CSS classes on Javascript domain descriptions
 
 Bugs fixed
 ----------
