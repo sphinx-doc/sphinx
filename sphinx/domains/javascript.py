@@ -108,7 +108,7 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
                 addName += addnodes.desc_sig_name(p, p)
                 addName += addnodes.desc_sig_punctuation('.', '.')
             signode += addName
-        signode += addnodes.desc_name(name, name)
+        signode += addnodes.desc_name('', '', addnodes.desc_sig_name(name, name))
         if self.has_arguments:
             if not arglist:
                 signode += addnodes.desc_parameterlist()
