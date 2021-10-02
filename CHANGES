@@ -50,6 +50,11 @@ Features added
 * #2068, add :confval:`intersphinx_disabled_domains` for disabling
   interphinx resolution of cross-references in specific domains when they
   do not have an explicit inventory specification.
+* #2068, add :confval:`intersphinx_disabled_refs` for disabling
+  interphinx resolution of cross-references that do not have an explicit
+  inventory specification. Specific types of cross-references can be disabled,
+  e.g., ``std:doc`` or all cross-references in a specific domain,
+  e.g., ``std``.
 
 Bugs fixed
 ----------

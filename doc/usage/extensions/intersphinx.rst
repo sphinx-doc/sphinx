@@ -148,21 +148,28 @@ linking:
       exception is raised if the server has not issued a response for timeout
       seconds.
 
-.. confval:: intersphinx_disabled_domains
+.. confval:: intersphinx_disabled_refs
 
-   .. versionadded:: 4.2
+   .. versionadded:: 4.3
 
-   A list of strings being the name of a domain, or the special name ``all``.
+   A list of strings being either:
+
+   - the name of a specific reference type,
+     e.g., ``std:doc``, ``py:func``, or ``cpp:class``,
+   - the name of a whole domain, e.g., ``std``, ``py``, or ``cpp``, or
+   - the special name ``all``.
+
    When a cross-reference without an explicit inventory specification is being
-   resolved by intersphinx, skip resolution if either the domain of the
-   cross-reference is in this list or the special name ``all`` is in the list.
+   resolved by intersphinx, skip resolution it matches one of the
+   specifications in this list.
 
-   For example, with ``intersphinx_disabled_domains = ['std']`` a cross-reference
-   ``:doc:`installation``` will not be attempted to be resolved by intersphinx, but
-   ``:doc:`otherbook:installation``` will be attempted to be resolved in the
-   inventory named ``otherbook`` in :confval:`intersphinx_mapping`.
-   At the same time, all cross-references generated in, e.g., Python, declarations
-   will still be attempted to be resolved by intersphinx.
+   For example, with ``intersphinx_disabled_refs = ['std:doc']``
+   a cross-reference ``:doc:`installation``` will not be attempted to be
+   resolved by intersphinx, but ``:doc:`otherbook:installation``` will be
+   attempted to be resolved in the inventory named ``otherbook`` in
+   :confval:`intersphinx_mapping`.
+   At the same time, all cross-references generated in, e.g., Python,
+   declarations will still be attempted to be resolved by intersphinx.
 
    If ``all`` is in the list of domains, then no references without an explicit
    inventory will be resolved by intersphinx.

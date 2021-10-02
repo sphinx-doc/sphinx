@@ -321,7 +321,9 @@ def _resolve_reference_in_domain_by_target(
     return None
 
 
-def _resolve_reference_in_domain(inv_name: Optional[str], inventory: Inventory,
+def _resolve_reference_in_domain(env: BuildEnvironment,
+                                 inv_name: Optional[str], inventory: Inventory,
+                                 honor_disabled_refs: bool,
                                  domain: Domain, objtypes: List[str],
                                  node: pending_xref, contnode: TextElement
                                  ) -> Optional[Element]:
@@ -335,6 +337,11 @@ def _resolve_reference_in_domain(inv_name: Optional[str], inventory: Inventory,
 
     # the inventory contains domain:type as objtype
     objtypes = ["{}:{}".format(domain.name, t) for t in objtypes]
+
+    # now that the objtypes list is complete we can remove the disabled ones
+    if honor_disabled_refs:
+        disabled = env.config.intersphinx_disabled_refs
+        objtypes = [o for o in objtypes if o not in disabled]
 
     # without qualification
     res = _resolve_reference_in_domain_by_target(inv_name, inventory, domain, objtypes,
@@ -351,22 +358,23 @@ def _resolve_reference_in_domain(inv_name: Optional[str], inventory: Inventory,
 
 
 def _resolve_reference(env: BuildEnvironment, inv_name: Optional[str], inventory: Inventory,
-                       honor_disabled_domains: bool,
+                       honor_disabled_refs: bool,
                        node: pending_xref, contnode: TextElement) -> Optional[Element]:
     # disabling should only be done if no inventory is given
-    honor_disabled_domains = honor_disabled_domains and inv_name is None
+    honor_disabled_refs = honor_disabled_refs and inv_name is None
 
-    if honor_disabled_domains and 'all' in env.config.intersphinx_disabled_domains:
+    if honor_disabled_refs and 'all' in env.config.intersphinx_disabled_refs:
         return None
 
     typ = node['reftype']
     if typ == 'any':
         for domain_name, domain in env.domains.items():
-            if honor_disabled_domains \
-                    and domain_name in env.config.intersphinx_disabled_domains:
+            if honor_disabled_refs \
+                    and domain_name in env.config.intersphinx_disabled_refs:
                 continue
             objtypes = list(domain.object_types)
-            res = _resolve_reference_in_domain(inv_name, inventory,
+            res = _resolve_reference_in_domain(env, inv_name, inventory,
+                                               honor_disabled_refs,
                                                domain, objtypes,
                                                node, contnode)
             if res is not None:
@@ -377,14 +385,15 @@ def _resolve_reference(env: BuildEnvironment, inv_name: Optional[str], inventory
         if not domain_name:
             # only objects in domains are in the inventory
             return None
-        if honor_disabled_domains \
-                and domain_name in env.config.intersphinx_disabled_domains:
+        if honor_disabled_refs \
+                and domain_name in env.config.intersphinx_disabled_refs:
             return None
         domain = env.get_domain(domain_name)
         objtypes = domain.objtypes_for_role(typ)
         if not objtypes:
             return None
-        return _resolve_reference_in_domain(inv_name, inventory,
+        return _resolve_reference_in_domain(env, inv_name, inventory,
+                                            honor_disabled_refs,
                                             domain, objtypes,
                                             node, contnode)
 
@@ -409,7 +418,7 @@ def resolve_reference_in_inventory(env: BuildEnvironment,
 
 
 def resolve_reference_any_inventory(env: BuildEnvironment,
-                                    honor_disabled_domains: bool,
+                                    honor_disabled_refs: bool,
                                     node: pending_xref, contnode: TextElement
                                     ) -> Optional[Element]:
     """Attempt to resolve a missing reference via intersphinx references.
@@ -417,12 +426,12 @@ def resolve_reference_any_inventory(env: BuildEnvironment,
     Resolution is tried with the target as is in any inventory.
     """
     return _resolve_reference(env, None, InventoryAdapter(env).main_inventory,
-                              honor_disabled_domains,
+                              honor_disabled_refs,
                               node, contnode)
 
 
 def resolve_reference_detect_inventory(env: BuildEnvironment,
-                                       honor_disabled_domains: bool,
+                                       honor_disabled_refs: bool,
                                        node: pending_xref, contnode: TextElement
                                        ) -> Optional[Element]:
     """Attempt to resolve a missing reference via intersphinx references.
@@ -434,7 +443,7 @@ def resolve_reference_detect_inventory(env: BuildEnvironment,
     """
 
     # ordinary direct lookup, use data as is
-    res = resolve_reference_any_inventory(env, honor_disabled_domains, node, contnode)
+    res = resolve_reference_any_inventory(env, honor_disabled_refs, node, contnode)
     if res is not None:
         return res
 
@@ -486,7 +495,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('intersphinx_mapping', {}, True)
     app.add_config_value('intersphinx_cache_limit', 5, False)
     app.add_config_value('intersphinx_timeout', None, False)
-    app.add_config_value('intersphinx_disabled_domains', [], True)
+    app.add_config_value('intersphinx_disabled_refs', [], True)
     app.connect('config-inited', normalize_intersphinx_mapping, priority=800)
     app.connect('builder-inited', load_mappings)
     app.connect('missing-reference', missing_reference)

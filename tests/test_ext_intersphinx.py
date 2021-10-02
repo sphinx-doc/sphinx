@@ -45,7 +45,7 @@ def reference_check(app, *args, **kwds):
 def set_config(app, mapping):
     app.config.intersphinx_mapping = mapping
     app.config.intersphinx_cache_limit = 0
-    app.config.intersphinx_disabled_domains = []
+    app.config.intersphinx_disabled_refs = []
 
 
 @mock.patch('sphinx.ext.intersphinx.InventoryFile')
@@ -303,7 +303,7 @@ def test_missing_reference_disabled_domain(tempdir, app, status, warning):
     normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
-    def case(std_without, std_with, py_without, py_with):
+    def case(*, term, doc, py):
         def assert_(rn, expected):
             if expected is None:
                 assert rn is None
@@ -312,34 +312,46 @@ def test_missing_reference_disabled_domain(tempdir, app, status, warning):
 
         kwargs = {}
 
+        node, contnode = fake_node('std', 'term', 'a term', 'a term', **kwargs)
+        rn = missing_reference(app, app.env, node, contnode)
+        assert_(rn, 'a term' if term else None)
+
+        node, contnode = fake_node('std', 'term', 'inv:a term', 'a term', **kwargs)
+        rn = missing_reference(app, app.env, node, contnode)
+        assert_(rn, 'a term')
+
         node, contnode = fake_node('std', 'doc', 'docname', 'docname', **kwargs)
         rn = missing_reference(app, app.env, node, contnode)
-        assert_(rn, std_without)
+        assert_(rn, 'docname' if doc else None)
 
         node, contnode = fake_node('std', 'doc', 'inv:docname', 'docname', **kwargs)
         rn = missing_reference(app, app.env, node, contnode)
-        assert_(rn, std_with)
+        assert_(rn, 'docname')
 
         # an arbitrary ref in another domain
         node, contnode = fake_node('py', 'func', 'module1.func', 'func()', **kwargs)
         rn = missing_reference(app, app.env, node, contnode)
-        assert_(rn, py_without)
+        assert_(rn, 'func()' if py else None)
 
         node, contnode = fake_node('py', 'func', 'inv:module1.func', 'func()', **kwargs)
         rn = missing_reference(app, app.env, node, contnode)
-        assert_(rn, py_with)
+        assert_(rn, 'func()')
 
     # the base case, everything should resolve
-    assert app.config.intersphinx_disabled_domains == []
-    case('docname', 'docname', 'func()', 'func()')
+    assert app.config.intersphinx_disabled_refs == []
+    case(term=True, doc=True, py=True)
 
-    # disabled one domain
-    app.config.intersphinx_disabled_domains = ['std']
-    case(None, 'docname', 'func()', 'func()')
+    # disabled a single ref type
+    app.config.intersphinx_disabled_refs = ['std:doc']
+    case(term=True, doc=False, py=True)
+
+    # disabled a whole domain
+    app.config.intersphinx_disabled_refs = ['std']
+    case(term=False, doc=False, py=True)
 
     # disabled all domains
-    app.config.intersphinx_disabled_domains = ['all']
-    case(None, 'docname', None, 'func()')
+    app.config.intersphinx_disabled_refs = ['all']
+    case(term=False, doc=False, py=False)
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Path separator mismatch issue")
