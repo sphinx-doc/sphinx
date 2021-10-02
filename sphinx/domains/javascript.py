@@ -72,6 +72,7 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         # If construct is nested, prefix the current prefix
         prefix = self.env.ref_context.get('js:object', None)
         mod_name = self.env.ref_context.get('js:module')
+
         name = member
         try:
             member_prefix, member_name = member.rsplit('.', 1)
@@ -95,10 +96,18 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         display_prefix = self.get_display_prefix()
         if display_prefix:
             signode += addnodes.desc_annotation('', '', *display_prefix)
+
+        actualPrefix = None
         if prefix:
-            signode += addnodes.desc_addname(prefix + '.', prefix + '.')
+            actualPrefix = prefix
         elif mod_name:
-            signode += addnodes.desc_addname(mod_name + '.', mod_name + '.')
+            actualPrefix = mod_name
+        if actualPrefix:
+            addName = addnodes.desc_addname('', '')
+            for p in actualPrefix.split('.'):
+                addName += addnodes.desc_sig_name(p, p)
+                addName += addnodes.desc_sig_punctuation('.', '.')
+            signode += addName
         signode += addnodes.desc_name(name, name)
         if self.has_arguments:
             if not arglist:
