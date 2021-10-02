@@ -41,9 +41,6 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
     #: added
     has_arguments = False
 
-    #: what is displayed right before the documentation entry
-    display_prefix: str = None
-
     #: If ``allow_nesting`` is ``True``, the object prefixes will be accumulated
     #: based on directive nesting
     allow_nesting = False
@@ -52,6 +49,10 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         'noindex': directives.flag,
         'noindexentry': directives.flag,
     }
+
+    def get_display_prefix(self) -> List[nodes.Node]:
+        #: what is displayed right before the documentation entry
+        return []
 
     def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
         """Breaks down construct signatures
@@ -91,9 +92,9 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         signode['object'] = prefix
         signode['fullname'] = fullname
 
-        if self.display_prefix:
-            signode += addnodes.desc_annotation(self.display_prefix,
-                                                self.display_prefix)
+        display_prefix = self.get_display_prefix()
+        if display_prefix:
+            signode += addnodes.desc_annotation('', '', *display_prefix)
         if prefix:
             signode += addnodes.desc_addname(prefix + '.', prefix + '.')
         elif mod_name:
@@ -227,8 +228,12 @@ class JSCallable(JSObject):
 
 class JSConstructor(JSCallable):
     """Like a callable but with a different prefix."""
-    display_prefix = 'class '
+
     allow_nesting = True
+
+    def get_display_prefix(self) -> List[nodes.Node]:
+        return [addnodes.desc_sig_keyword('class', 'class'),
+                addnodes.desc_sig_space()]
 
 
 class JSModule(SphinxDirective):

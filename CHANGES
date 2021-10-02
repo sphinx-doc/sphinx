@@ -15,6 +15,9 @@ Incompatible changes
 * #9672: the signature of
   :py:meth:`domains.py.PyObject.get_signature_prefix` has changed to
   return a list of nodes instead of a plain string.
+* ``domains.js.JSObject.display_prefix`` has been changed into a method
+  ``get_display_prefix`` which now returns a list of nodes
+  instead of a plain string.
 
 Deprecated
 ----------

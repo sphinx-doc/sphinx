@@ -15,7 +15,8 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.addnodes import (desc, desc_annotation, desc_content, desc_name, desc_parameter,
-                             desc_parameterlist, desc_signature)
+                             desc_parameterlist, desc_sig_keyword, desc_sig_space,
+                             desc_signature)
 from sphinx.domains.javascript import JavaScriptDomain
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
@@ -198,7 +199,8 @@ def test_js_class(app):
     text = ".. js:class:: Application"
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
-                          [desc, ([desc_signature, ([desc_annotation, "class "],
+                          [desc, ([desc_signature, ([desc_annotation, ([desc_sig_keyword, 'class'],
+                                                                       desc_sig_space)],
                                                     [desc_name, "Application"],
                                                     [desc_parameterlist, ()])],
                                   [desc_content, ()])]))
