@@ -188,8 +188,8 @@ def test_js_function(app):
                           [desc, ([desc_signature, ([desc_name, ([desc_sig_name, "sum"])],
                                                     desc_parameterlist)],
                                   [desc_content, ()])]))
-    assert_node(doctree[1][0][1], [desc_parameterlist, ([desc_parameter, "a"],
-                                                        [desc_parameter, "b"])])
+    assert_node(doctree[1][0][1], [desc_parameterlist, ([desc_parameter, ([desc_sig_name, "a"])],
+                                                        [desc_parameter, ([desc_sig_name, "b"])])])
     assert_node(doctree[0], addnodes.index,
                 entries=[("single", "sum() (built-in function)", "sum", "", None)])
     assert_node(doctree[1], addnodes.desc, domain="js", objtype="function", noindex=False)
