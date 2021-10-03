@@ -97,14 +97,14 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         if display_prefix:
             signode += addnodes.desc_annotation('', '', *display_prefix)
 
-        actualPrefix = None
+        actual_prefix = None
         if prefix:
-            actualPrefix = prefix
+            actual_prefix = prefix
         elif mod_name:
-            actualPrefix = mod_name
-        if actualPrefix:
+            actual_prefix = mod_name
+        if actual_prefix:
             addName = addnodes.desc_addname('', '')
-            for p in actualPrefix.split('.'):
+            for p in actual_prefix.split('.'):
                 addName += addnodes.desc_sig_name(p, p)
                 addName += addnodes.desc_sig_punctuation('.', '.')
             signode += addName
