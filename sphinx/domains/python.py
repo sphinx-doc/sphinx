@@ -769,7 +769,7 @@ class PyMethod(PyObject):
         if 'classmethod' in self.options:
             return _('%s() (%s class method)') % (methname, clsname)
         elif 'property' in self.options:
-            return _('%s() (%s property)') % (methname, clsname)
+            return _('%s (%s property)') % (methname, clsname)
         elif 'staticmethod' in self.options:
             return _('%s() (%s static method)') % (methname, clsname)
         else:

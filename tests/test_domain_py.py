@@ -732,7 +732,7 @@ def test_pymethod_options(app):
 
     # :property:
     assert_node(doctree[1][1][8], addnodes.index,
-                entries=[('single', 'meth5() (Class property)', 'Class.meth5', '', None)])
+                entries=[('single', 'meth5 (Class property)', 'Class.meth5', '', None)])
     assert_node(doctree[1][1][9], ([desc_signature, ([desc_annotation, "property "],
                                                      [desc_name, "meth5"])],
                                    [desc_content, ()]))
