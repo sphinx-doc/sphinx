@@ -13,7 +13,7 @@ Incompatible changes
   with more docutils nodes to allow better CSS styling.
   It may break existing styling.
 * #9672: the signature of
-  :py:meth:`domains.py.PyObject.def get_signature_prefix` has changed to
+  :py:meth:`domains.py.PyObject.get_signature_prefix` has changed to
   return a list of nodes instead of a plain string.
 
 Deprecated
