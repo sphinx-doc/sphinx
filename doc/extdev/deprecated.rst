@@ -1207,7 +1207,7 @@ The following is a list of deprecated interfaces.
 
    * - :meth:`~sphinx.application.Sphinx.add_stylesheet()`
      - 1.8
-     - 4.0
+     - 6.0
      - :meth:`~sphinx.application.Sphinx.add_css_file()`
 
    * - :meth:`~sphinx.application.Sphinx.add_javascript()`

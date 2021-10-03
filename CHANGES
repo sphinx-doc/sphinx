@@ -22,6 +22,8 @@ Features added
 * #9691: C, added new info-field ``retval``
   for :rst:dir:`c:function` and :rst:dir:`c:macro`.
 * C++, added new info-field ``retval`` for :rst:dir:`cpp:function`.
+* #9683: Revert the removal of ``add_stylesheet()`` API.  It will be kept until
+  the Sphinx-6.0 release
 
 Bugs fixed
 ----------

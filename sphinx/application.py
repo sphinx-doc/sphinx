@@ -1046,6 +1046,26 @@ class Sphinx:
         if hasattr(self.builder, 'add_css_file'):
             self.builder.add_css_file(filename, priority=priority, **kwargs)  # type: ignore
 
+    def add_stylesheet(self, filename: str, alternate: bool = False, title: str = None
+                       ) -> None:
+        """An alias of :meth:`add_css_file`.
+
+        .. deprecated:: 1.8
+        """
+        logger.warning('The app.add_stylesheet() is deprecated. '
+                       'Please use app.add_css_file() instead.')
+
+        attributes = {}  # type: Dict[str, Any]
+        if alternate:
+            attributes['rel'] = 'alternate stylesheet'
+        else:
+            attributes['rel'] = 'stylesheet'
+
+        if title:
+            attributes['title'] = title
+
+        self.add_css_file(filename, **attributes)
+
     def add_latex_package(self, packagename: str, options: str = None,
                           after_hyperref: bool = False) -> None:
         r"""Register a package to include in the LaTeX source code.
