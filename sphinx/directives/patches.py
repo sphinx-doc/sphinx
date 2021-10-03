@@ -152,6 +152,7 @@ class Code(SphinxDirective):
     def run(self) -> List[Node]:
         self.assert_has_content()
 
+        set_classes(self.options)
         code = '\n'.join(self.content)
         node = nodes.literal_block(code, code,
                                    classes=self.options.get('classes', []),

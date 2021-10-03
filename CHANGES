@@ -41,6 +41,7 @@ Bugs fixed
 * #9649: HTML search: when objects have the same name but in different domains,
   return all of them as result instead of just one.
 * #9678: linkcheck: file extension was shown twice in warnings
+* Fix bug ``.. code::`` recognising ``:classes:`` option instead of ``:class:`` option.  The new behaviour is to only accept the ``:class:`` option.
 
 Testing
 --------
