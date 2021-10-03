@@ -50,7 +50,7 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         'noindexentry': directives.flag,
     }
 
-    def get_display_prefix(self) -> List[nodes.Node]:
+    def get_display_prefix(self) -> List[Node]:
         #: what is displayed right before the documentation entry
         return []
 
@@ -240,7 +240,7 @@ class JSConstructor(JSCallable):
 
     allow_nesting = True
 
-    def get_display_prefix(self) -> List[nodes.Node]:
+    def get_display_prefix(self) -> List[Node]:
         return [addnodes.desc_sig_keyword('class', 'class'),
                 addnodes.desc_sig_space()]
 
