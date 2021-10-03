@@ -25,7 +25,7 @@ jobs:
           coverage: "--cov ./ --cov-append --cov-config setup.cfg"
         - name: py310-dev
           python: 3.10-dev
-          docutils: du17
+          docutils: du-latest
     env:
       PYTEST_ADDOPTS: ${{ matrix.coverage }}
 
