@@ -8,7 +8,7 @@
 # gilberto dos santos alves <gsavix@gmail.com>, 2015-2016
 # Rafael Fontenelle <rafaelff@gnome.org>, 2019
 # Rafael Fontenelle <rffontenelle@gmail.com>, 2019-2021
-# Takeshi KOMIYA <i.tkomiya@gmail.com>, 2016
+# Komiya Takeshi <i.tkomiya@gmail.com>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
