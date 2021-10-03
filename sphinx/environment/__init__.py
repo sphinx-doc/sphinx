@@ -45,6 +45,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 default_settings: Dict[str, Any] = {
+    'embed_images': False,
     'embed_stylesheet': False,
     'cloak_email_addresses': True,
     'pep_base_url': 'https://www.python.org/dev/peps/',
@@ -54,6 +55,7 @@ default_settings: Dict[str, Any] = {
     'input_encoding': 'utf-8-sig',
     'doctitle_xform': False,
     'sectsubtitle_xform': False,
+    'section_self_link': False,
     'halt_level': 5,
     'file_insertion_enabled': True,
     'smartquotes_locales': [],
