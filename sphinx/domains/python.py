@@ -285,7 +285,8 @@ def _pseudo_parse_arglist(signode: desc_signature, arglist: str) -> None:
                 ends_open += 1
                 argument = argument[:-1].strip()
             if argument:
-                stack[-1] += addnodes.desc_parameter(argument, argument)
+                stack[-1] += addnodes.desc_parameter(
+                    '', '', addnodes.desc_sig_name(argument, argument))
             while ends_open:
                 stack.append(addnodes.desc_optional())
                 stack[-2] += stack[-1]

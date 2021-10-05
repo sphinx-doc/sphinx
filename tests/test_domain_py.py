@@ -512,9 +512,9 @@ def test_optional_pyfunction_signature(app):
     assert_node(doctree[1], addnodes.desc, desctype="function",
                 domain="py", objtype="function", noindex=False)
     assert_node(doctree[1][0][1],
-                ([desc_parameter, "source"],
-                 [desc_optional, ([desc_parameter, "filename"],
-                                  [desc_optional, desc_parameter, "symbol"])]))
+                ([desc_parameter, ([desc_sig_name, "source"])],
+                 [desc_optional, ([desc_parameter, ([desc_sig_name, "filename"])],
+                                  [desc_optional, desc_parameter, ([desc_sig_name, "symbol"])])]))
 
 
 def test_pyexception_signature(app):
