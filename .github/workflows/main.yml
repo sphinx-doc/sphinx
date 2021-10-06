@@ -28,7 +28,7 @@ jobs:
           docutils: du17
         - name: py311-dev
           python: 3.11-dev
-          docutils: du17
+          docutils: py311
     env:
       PYTEST_ADDOPTS: ${{ matrix.coverage }}
 
