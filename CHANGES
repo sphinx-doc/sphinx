@@ -59,6 +59,7 @@ Bugs fixed
 * #9649: HTML search: when objects have the same name but in different domains,
   return all of them as result instead of just one.
 * #9678: linkcheck: file extension was shown twice in warnings
+* #9708: needs_extension failed to check double-digit version correctly
 
 Testing
 --------
