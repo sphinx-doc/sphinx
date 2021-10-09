@@ -66,7 +66,11 @@ test that non-comments are indexed: fermion
 def test_objects_are_escaped(app, status, warning):
     app.builder.build_all()
     index = jsload(app.outdir / 'searchindex.js')
-    assert 'n::Array&lt;T, d&gt;' in index.get('objects').get('')  # n::Array<T,d> is escaped
+    for item in index.get('objects').get(''):
+        if item[-1] == 'n::Array&lt;T, d&gt;':  # n::Array<T,d> is escaped
+            break
+    else:
+        assert False, index.get('objects').get('')
 
 
 @pytest.mark.sphinx(testroot='search')
@@ -129,50 +133,58 @@ def test_term_in_raw_directive(app, status, warning):
 
 
 def test_IndexBuilder():
-    domain = DummyDomain([('objname', 'objdispname', 'objtype', 'docname', '#anchor', 1),
-                          ('objname2', 'objdispname2', 'objtype2', 'docname2', '', -1)])
-    env = DummyEnvironment('1.0', {'dummy': domain})
+    domain1 = DummyDomain([('objname1', 'objdispname1', 'objtype1', 'docname1_1', '#anchor', 1),
+                          ('objname2', 'objdispname2', 'objtype2', 'docname1_2', '', -1)])
+    domain2 = DummyDomain([('objname1', 'objdispname1', 'objtype1', 'docname2_1', '#anchor', 1),
+                           ('objname2', 'objdispname2', 'objtype2', 'docname2_2', '', -1)])
+    env = DummyEnvironment('1.0', {'dummy1': domain1, 'dummy2': domain2})
     doc = utils.new_document(b'test data', settings)
     doc['file'] = 'dummy'
     parser.parse(FILE_CONTENTS, doc)
 
     # feed
     index = IndexBuilder(env, 'en', {}, None)
-    index.feed('docname', 'filename', 'title', doc)
-    index.feed('docname2', 'filename2', 'title2', doc)
-    assert index._titles == {'docname': 'title', 'docname2': 'title2'}
-    assert index._filenames == {'docname': 'filename', 'docname2': 'filename2'}
+    index.feed('docname1_1', 'filename1_1', 'title1_1', doc)
+    index.feed('docname1_2', 'filename1_2', 'title1_2', doc)
+    index.feed('docname2_1', 'filename2_1', 'title2_1', doc)
+    index.feed('docname2_2', 'filename2_2', 'title2_2', doc)
+    assert index._titles == {'docname1_1': 'title1_1', 'docname1_2': 'title1_2',
+                             'docname2_1': 'title2_1', 'docname2_2': 'title2_2'}
+    assert index._filenames == {'docname1_1': 'filename1_1', 'docname1_2': 'filename1_2',
+                                'docname2_1': 'filename2_1', 'docname2_2': 'filename2_2'}
     assert index._mapping == {
-        'ar': {'docname', 'docname2'},
-        'fermion': {'docname', 'docname2'},
-        'comment': {'docname', 'docname2'},
-        'non': {'docname', 'docname2'},
-        'index': {'docname', 'docname2'},
-        'test': {'docname', 'docname2'}
+        'ar': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
+        'fermion': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
+        'comment': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
+        'non': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
+        'index': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
+        'test': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'}
     }
-    assert index._title_mapping == {'section_titl': {'docname', 'docname2'}}
+    assert index._title_mapping == {'section_titl': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'}}
     assert index._objtypes == {}
     assert index._objnames == {}
 
     # freeze
     assert index.freeze() == {
-        'docnames': ('docname', 'docname2'),
+        'docnames': ('docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'),
         'envversion': '1.0',
-        'filenames': ['filename', 'filename2'],
-        'objects': {'': {'objdispname': (0, 0, 1, '#anchor')}},
-        'objnames': {0: ('dummy', 'objtype', 'objtype')},
-        'objtypes': {0: 'dummy:objtype'},
-        'terms': {'ar': [0, 1],
-                  'comment': [0, 1],
-                  'fermion': [0, 1],
-                  'index': [0, 1],
-                  'non': [0, 1],
-                  'test': [0, 1]},
-        'titles': ('title', 'title2'),
-        'titleterms': {'section_titl': [0, 1]}
+        'filenames': ['filename1_1', 'filename1_2', 'filename2_1', 'filename2_2'],
+        'objects': {'': [(0, 0, 1, '#anchor', 'objdispname1'),
+                         (2, 1, 1, '#anchor', 'objdispname1')]},
+        'objnames': {0: ('dummy1', 'objtype1', 'objtype1'), 1: ('dummy2', 'objtype1', 'objtype1')},
+        'objtypes': {0: 'dummy1:objtype1', 1: 'dummy2:objtype1'},
+        'terms': {'ar': [0, 1, 2, 3],
+                  'comment': [0, 1, 2, 3],
+                  'fermion': [0, 1, 2, 3],
+                  'index': [0, 1, 2, 3],
+                  'non': [0, 1, 2, 3],
+                  'test': [0, 1, 2, 3]},
+        'titles': ('title1_1', 'title1_2', 'title2_1', 'title2_2'),
+        'titleterms': {'section_titl': [0, 1, 2, 3]}
     }
-    assert index._objtypes == {('dummy', 'objtype'): 0}
-    assert index._objnames == {0: ('dummy', 'objtype', 'objtype')}
+    assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
+    assert index._objnames == {0: ('dummy1', 'objtype1', 'objtype1'),
+                               1: ('dummy2', 'objtype1', 'objtype1')}
 
     # dump / load
     stream = BytesIO()
@@ -195,40 +207,41 @@ def test_IndexBuilder():
     assert index2._objnames == index._objnames
 
     # prune
-    index.prune(['docname2'])
-    assert index._titles == {'docname2': 'title2'}
-    assert index._filenames == {'docname2': 'filename2'}
+    index.prune(['docname1_2', 'docname2_2'])
+    assert index._titles == {'docname1_2': 'title1_2', 'docname2_2': 'title2_2'}
+    assert index._filenames == {'docname1_2': 'filename1_2', 'docname2_2': 'filename2_2'}
     assert index._mapping == {
-        'ar': {'docname2'},
-        'fermion': {'docname2'},
-        'comment': {'docname2'},
-        'non': {'docname2'},
-        'index': {'docname2'},
-        'test': {'docname2'}
+        'ar': {'docname1_2', 'docname2_2'},
+        'fermion': {'docname1_2', 'docname2_2'},
+        'comment': {'docname1_2', 'docname2_2'},
+        'non': {'docname1_2', 'docname2_2'},
+        'index': {'docname1_2', 'docname2_2'},
+        'test': {'docname1_2', 'docname2_2'}
     }
-    assert index._title_mapping == {'section_titl': {'docname2'}}
-    assert index._objtypes == {('dummy', 'objtype'): 0}
-    assert index._objnames == {0: ('dummy', 'objtype', 'objtype')}
+    assert index._title_mapping == {'section_titl': {'docname1_2', 'docname2_2'}}
+    assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
+    assert index._objnames == {0: ('dummy1', 'objtype1', 'objtype1'), 1: ('dummy2', 'objtype1', 'objtype1')}
 
     # freeze after prune
     assert index.freeze() == {
-        'docnames': ('docname2',),
+        'docnames': ('docname1_2', 'docname2_2'),
         'envversion': '1.0',
-        'filenames': ['filename2'],
+        'filenames': ['filename1_2', 'filename2_2'],
         'objects': {},
-        'objnames': {0: ('dummy', 'objtype', 'objtype')},
-        'objtypes': {0: 'dummy:objtype'},
-        'terms': {'ar': 0,
-                  'comment': 0,
-                  'fermion': 0,
-                  'index': 0,
-                  'non': 0,
-                  'test': 0},
-        'titles': ('title2',),
-        'titleterms': {'section_titl': 0}
+        'objnames': {0: ('dummy1', 'objtype1', 'objtype1'), 1: ('dummy2', 'objtype1', 'objtype1')},
+        'objtypes': {0: 'dummy1:objtype1', 1: 'dummy2:objtype1'},
+        'terms': {'ar': [0, 1],
+                  'comment': [0, 1],
+                  'fermion': [0, 1],
+                  'index': [0, 1],
+                  'non': [0, 1],
+                  'test': [0, 1]},
+        'titles': ('title1_2', 'title2_2'),
+        'titleterms': {'section_titl': [0, 1]}
     }
-    assert index._objtypes == {('dummy', 'objtype'): 0}
-    assert index._objnames == {0: ('dummy', 'objtype', 'objtype')}
+    assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
+    assert index._objnames == {0: ('dummy1', 'objtype1', 'objtype1'),
+                               1: ('dummy2', 'objtype1', 'objtype1')}
 
 
 def test_IndexBuilder_lookup():

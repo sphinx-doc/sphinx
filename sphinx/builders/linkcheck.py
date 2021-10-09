@@ -138,7 +138,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         elif result.status == 'broken':
             if self.app.quiet or self.app.warningiserror:
                 logger.warning(__('broken link: %s (%s)'), result.uri, result.message,
-                               location=(filename, result.lineno))
+                               location=(result.docname, result.lineno))
             else:
                 logger.info(red('broken    ') + result.uri + red(' - ' + result.message))
             self.write_entry('broken', result.docname, filename, result.lineno,
@@ -158,7 +158,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
             linkstat['text'] = text
             if self.config.linkcheck_allowed_redirects:
                 logger.warning('redirect  ' + result.uri + ' - ' + text + ' to ' +
-                               result.message, location=(filename, result.lineno))
+                               result.message, location=(result.docname, result.lineno))
             else:
                 logger.info(color('redirect  ') + result.uri +
                             color(' - ' + text + ' to ' + result.message))

@@ -585,8 +585,8 @@ class Documenter:
             yield from docstringlines
 
     def get_sourcename(self) -> str:
-        if (getattr(self.object, '__module__', None) and
-                getattr(self.object, '__qualname__', None)):
+        if (inspect.safe_getattr(self.object, '__module__', None) and
+                inspect.safe_getattr(self.object, '__qualname__', None)):
             # Get the correct location of docstring from self.object
             # to support inherited methods
             fullname = '%s.%s' % (self.object.__module__, self.object.__qualname__)
@@ -913,10 +913,6 @@ class Documenter:
         if not self.import_object():
             return
 
-        if ismock(self.object):
-            logger.warning(__('A mocked object is detected: %r'),
-                           self.name, type='autodoc')
-
         # If there is no real module defined, figure out which to use.
         # The real module is used in the module analyzer to look up the module
         # where the attribute documentation would actually be found in.
@@ -948,6 +944,11 @@ class Documenter:
                 self.directive.record_dependencies.add(analyzer.srcname)
             except PycodeError:
                 pass
+
+        docstrings: List[str] = sum(self.get_doc() or [], [])
+        if ismock(self.object) and not docstrings:
+            logger.warning(__('A mocked object is detected: %r'),
+                           self.name, type='autodoc')
 
         # check __module__ of object (for members not given explicitly)
         if check_module:
@@ -1318,7 +1319,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         sourcename = self.get_sourcename()
         super().add_directive_header(sig)
 
-        if inspect.iscoroutinefunction(self.object):
+        if inspect.iscoroutinefunction(self.object) or inspect.isasyncgenfunction(self.object):
             self.add_line('   :async:', sourcename)
 
     def format_signature(self, **kwargs: Any) -> str:
@@ -1650,7 +1651,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         # add inheritance info, if wanted
         if not self.doc_as_attr and self.options.show_inheritance:
-            if hasattr(self.object, '__orig_bases__') and len(self.object.__orig_bases__):
+            if inspect.getorigbases(self.object):
                 # A subclass of generic types
                 # refs: PEP-560 <https://www.python.org/dev/peps/pep-0560/>
                 bases = list(self.object.__orig_bases__)
@@ -2137,7 +2138,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         obj = self.parent.__dict__.get(self.object_name, self.object)
         if inspect.isabstractmethod(obj):
             self.add_line('   :abstractmethod:', sourcename)
-        if inspect.iscoroutinefunction(obj):
+        if inspect.iscoroutinefunction(obj) or inspect.isasyncgenfunction(obj):
             self.add_line('   :async:', sourcename)
         if inspect.isclassmethod(obj):
             self.add_line('   :classmethod:', sourcename)

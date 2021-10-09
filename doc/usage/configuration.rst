@@ -22,9 +22,9 @@ and output behavior.
   .. _`docutils.conf`: https://docutils.sourceforge.io/docs/user/config.html
 
 The configuration file is executed as Python code at build time (using
-:func:`execfile`, and with the current directory set to its containing
-directory), and therefore can execute arbitrarily complex code.  Sphinx then
-reads simple names from the file's namespace as its configuration.
+:func:`importlib.import_module`, and with the current directory set to its
+containing directory), and therefore can execute arbitrarily complex code.
+Sphinx then reads simple names from the file's namespace as its configuration.
 
 Important points to note:
 

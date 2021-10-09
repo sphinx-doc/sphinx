@@ -7,13 +7,14 @@
 # Akitoshi Ohta <fire.kuma8@gmail.com>, 2011
 # tomo, 2018
 # Hisahiro Ohmura, 2017
+# Komiya Takeshi <i.tkomiya@gmail.com>, 2021
 # Kouhei Sutou <kou@clear-code.com>, 2011
 # sutefu7, 2019-2020
 # shirou - しろう <shirou.faw@gmail.com>, 2017
 # Taizo Ito <taizo.ito@hennge.com>, 2019
 # Takayuki Shimizukawa <shimizukawa@gmail.com>, 2013-2016
 # Takayuki Shimizukawa <shimizukawa@gmail.com>, 2016-2017,2019
-# Takeshi KOMIYA <i.tkomiya@gmail.com>, 2016-2017,2019
+# Komiya Takeshi <i.tkomiya@gmail.com>, 2016-2017,2019
 # Tetsuo Koyama <tkoyama010@gmail.com>, 2020
 # tomo, 2019
 # shirou - しろう <shirou.faw@gmail.com>, 2014
@@ -22,9 +23,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-12 00:10+0000\n"
-"PO-Revision-Date: 2021-09-12 00:10+0000\n"
-"Last-Translator: Takeshi KOMIYA <i.tkomiya@gmail.com>\n"
+"POT-Creation-Date: 2021-09-26 00:10+0000\n"
+"PO-Revision-Date: 2021-09-30 11:48+0000\n"
+"Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Japanese (http://www.transifex.com/sphinx-doc/sphinx-1/language/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -41,7 +42,7 @@ msgstr "ソースディレクトリが存在しません (%s)"
 #: sphinx/application.py:161
 #, python-format
 msgid "Output directory (%s) is not a directory"
-msgstr ""
+msgstr "出力先ディレクトリ (%s) はディレクトリではありません"
 
 #: sphinx/application.py:165
 msgid "Source directory and destination directory cannot be identical"
@@ -57,7 +58,7 @@ msgid ""
 "For security reasons, parallel mode is disabled on macOS and python3.8 and "
 "above. For more details, please read https://github.com/sphinx-"
 "doc/sphinx/issues/6803"
-msgstr ""
+msgstr "セキュリティ上の問題により、macOS で python3.8 以上をお使いの場合はパラレルモードは利用できません。詳しくは https://github.com/sphinx-doc/sphinx/issues/6803 をお読みください。"
 
 #: sphinx/application.py:228
 #, python-format
@@ -436,7 +437,7 @@ msgstr "enumerable_node %r はすでに登録されています"
 #: sphinx/registry.py:407
 #, python-format
 msgid "math renderer %s is already registered"
-msgstr ""
+msgstr "math renderer %s はすでに登録されています"
 
 #: sphinx/registry.py:420
 #, python-format
@@ -513,7 +514,7 @@ msgstr "テーマパス上のファイル %r は正しいzipファイルでは�
 #: sphinx/theming.py:240
 msgid ""
 "sphinx_rtd_theme (< 0.3.0) found. It will not be available since Sphinx-6.0"
-msgstr ""
+msgstr "sphinx_rtd_theme (< 0.3.0) が検出されました。Sphinx-6.0 以降では利用できなくなります。"
 
 #: sphinx/theming.py:245
 #, python-format
@@ -633,7 +634,7 @@ msgstr "書き込むdocname: %s"
 
 #: sphinx/builders/__init__.py:522 sphinx/builders/singlehtml.py:153
 msgid "preparing documents"
-msgstr "preparing documents"
+msgstr "ドキュメントの出力準備中"
 
 #: sphinx/builders/_epub_base.py:216
 #, python-format
@@ -667,15 +668,15 @@ msgstr "Pillowがインストールされていません。代わりに画像を
 
 #: sphinx/builders/_epub_base.py:471
 msgid "writing mimetype file..."
-msgstr ""
+msgstr "mimetype を書き込み中..."
 
 #: sphinx/builders/_epub_base.py:476
 msgid "writing META-INF/container.xml file..."
-msgstr ""
+msgstr "META-INF/container.xml を書き込み中..."
 
 #: sphinx/builders/_epub_base.py:504
 msgid "writing content.opf file..."
-msgstr ""
+msgstr "content.opf を書き込み中..."
 
 #: sphinx/builders/_epub_base.py:530
 #, python-format
@@ -684,7 +685,7 @@ msgstr "不明なmimetype %sのため無視します"
 
 #: sphinx/builders/_epub_base.py:677
 msgid "writing toc.ncx file..."
-msgstr ""
+msgstr "tox.ncx を書き込み中..."
 
 #: sphinx/builders/_epub_base.py:702
 #, python-format
@@ -733,7 +734,7 @@ msgstr "ePubファイルは%(outdir)sにあります。"
 
 #: sphinx/builders/epub3.py:165
 msgid "writing nav.xhtml file..."
-msgstr ""
+msgstr "nav.xhtml を書き込み中..."
 
 #: sphinx/builders/epub3.py:191
 msgid "conf value \"epub_language\" (or \"language\") should not be empty for EPUB3"
@@ -816,7 +817,7 @@ msgstr "アンカー '%s' が見つかりません"
 #: sphinx/builders/linkcheck.py:690
 #, python-format
 msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
-msgstr ""
+msgstr "linkcheck_allowed_redirects 内の正規表現のコンパイルに失敗しました: %r %s"
 
 #: sphinx/builders/manpage.py:38
 #, python-format
@@ -972,11 +973,11 @@ msgstr "ダウンロードファイル %r をコピーできません: %s"
 #: sphinx/builders/html/__init__.py:788 sphinx/builders/html/__init__.py:800
 #, python-format
 msgid "Failed to copy a file in html_static_file: %s: %r"
-msgstr ""
+msgstr "html_static_file 内のファイルのコピーに失敗しました: %s: %r"
 
 #: sphinx/builders/html/__init__.py:821
 msgid "copying static files"
-msgstr ""
+msgstr "静的ファイルをコピー中"
 
 #: sphinx/builders/html/__init__.py:837
 #, python-format
@@ -1148,7 +1149,7 @@ msgstr "不明な設定値 latex_elements[%r] は無視されました。"
 #: sphinx/builders/latex/__init__.py:476
 #, python-format
 msgid "Unknown theme option: latex_theme_options[%r], ignored."
-msgstr ""
+msgstr "不明なテーマオプション latex_theme_options[%r] は無視されました。"
 
 #: sphinx/builders/latex/theming.py:91
 #, python-format
@@ -1876,7 +1877,7 @@ msgstr "戻り値の型"
 #: sphinx/domains/c.py:3225
 #, python-format
 msgid "%s (C %s)"
-msgstr ""
+msgstr "%s (C %s)"
 
 #: sphinx/domains/c.py:3732 sphinx/domains/cpp.py:7585
 msgid "member"
@@ -1897,7 +1898,7 @@ msgstr "のマクロ"
 
 #: sphinx/domains/c.py:3736
 msgid "struct"
-msgstr ""
+msgstr "struct"
 
 #: sphinx/domains/c.py:3737 sphinx/domains/cpp.py:7583
 msgid "union"
@@ -2119,7 +2120,7 @@ msgstr "%s() (%s の静的メソッド)"
 #: sphinx/domains/python.py:899
 #, python-format
 msgid "%s (%s property)"
-msgstr ""
+msgstr "%s (%s のプロパティ)"
 
 #: sphinx/domains/python.py:1053
 msgid "Python Module Index"
@@ -2143,7 +2144,7 @@ msgstr "の静的メソッド"
 
 #: sphinx/domains/python.py:1132
 msgid "property"
-msgstr ""
+msgstr "プロパティ"
 
 #: sphinx/domains/python.py:1190
 #, python-format
@@ -2829,7 +2830,7 @@ msgstr "auto%s (%r) の署名が無効です"
 msgid "error while formatting arguments for %s: %s"
 msgstr "%sの引数のフォーマット中にエラーが発生しました: %s "
 
-#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1682
+#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1683
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr "オブジェクト %s に属性 %s がありません"
@@ -2849,76 +2850,76 @@ msgid ""
 "explicit module name)"
 msgstr "ドキュメントの自動生成 %r のためにどのモジュールをインポートするのか分かりません (ドキュメントに \"module\"または \"currentmodule\"ディレクティブを配置するか、明示的なモジュール名を指定してください)"
 
-#: sphinx/ext/autodoc/__init__.py:917
+#: sphinx/ext/autodoc/__init__.py:950
 #, python-format
 msgid "A mocked object is detected: %r"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:968
+#: sphinx/ext/autodoc/__init__.py:969
 #, python-format
 msgid "error while formatting signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1018
+#: sphinx/ext/autodoc/__init__.py:1019
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr "automodule 名の \"::\" は意味がありません"
 
-#: sphinx/ext/autodoc/__init__.py:1025
+#: sphinx/ext/autodoc/__init__.py:1026
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr "automodule に与えられた署名引数、または戻り値となるアノテーション %s"
 
-#: sphinx/ext/autodoc/__init__.py:1038
+#: sphinx/ext/autodoc/__init__.py:1039
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr "__all__ は文字列のリストでなければなりません。%r (%s モジュールの中) ではないです -- ignoring __all__"
 
-#: sphinx/ext/autodoc/__init__.py:1104
+#: sphinx/ext/autodoc/__init__.py:1105
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1303 sphinx/ext/autodoc/__init__.py:1377
-#: sphinx/ext/autodoc/__init__.py:2734
+#: sphinx/ext/autodoc/__init__.py:1304 sphinx/ext/autodoc/__init__.py:1378
+#: sphinx/ext/autodoc/__init__.py:2735
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1568
+#: sphinx/ext/autodoc/__init__.py:1569
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1669
+#: sphinx/ext/autodoc/__init__.py:1670
 #, python-format
 msgid "Bases: %s"
 msgstr "ベースクラス: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1755 sphinx/ext/autodoc/__init__.py:1828
-#: sphinx/ext/autodoc/__init__.py:1847
+#: sphinx/ext/autodoc/__init__.py:1756 sphinx/ext/autodoc/__init__.py:1829
+#: sphinx/ext/autodoc/__init__.py:1848
 #, python-format
 msgid "alias of %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1889
+#: sphinx/ext/autodoc/__init__.py:1890
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2122 sphinx/ext/autodoc/__init__.py:2216
+#: sphinx/ext/autodoc/__init__.py:2123 sphinx/ext/autodoc/__init__.py:2217
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2348
+#: sphinx/ext/autodoc/__init__.py:2349
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2777
+#: sphinx/ext/autodoc/__init__.py:2778
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
@@ -3366,15 +3367,15 @@ msgstr "C API に関する変更"
 msgid "Other changes"
 msgstr "その他の変更"
 
-#: sphinx/themes/basic/static/doctools.js:199 sphinx/writers/html.py:436
-#: sphinx/writers/html.py:441 sphinx/writers/html5.py:387
-#: sphinx/writers/html5.py:392
+#: sphinx/themes/basic/static/doctools.js:199 sphinx/writers/html.py:437
+#: sphinx/writers/html.py:442 sphinx/writers/html5.py:388
+#: sphinx/writers/html5.py:393
 msgid "Permalink to this headline"
 msgstr "このヘッドラインへのパーマリンク"
 
-#: sphinx/themes/basic/static/doctools.js:205 sphinx/writers/html.py:131
-#: sphinx/writers/html.py:140 sphinx/writers/html5.py:102
-#: sphinx/writers/html5.py:111
+#: sphinx/themes/basic/static/doctools.js:205 sphinx/writers/html.py:132
+#: sphinx/writers/html.py:141 sphinx/writers/html5.py:103
+#: sphinx/writers/html5.py:112
 msgid "Permalink to this definition"
 msgstr "この定義へのパーマリンク"
 
@@ -3518,7 +3519,7 @@ msgstr "書き込みエラー: %s, %s"
 #: sphinx/util/i18n.py:98
 #, python-format
 msgid "locale_dir %s does not exists"
-msgstr ""
+msgstr "locale_dir %s は存在しません"
 
 #: sphinx/util/i18n.py:192
 #, python-format
@@ -3542,37 +3543,37 @@ msgstr "only ディレクティブの条件式の評価中に例外が発生し�
 msgid "default role %s not found"
 msgstr "デフォルトのロール %s が見つかりません"
 
-#: sphinx/writers/html.py:329 sphinx/writers/html5.py:300
+#: sphinx/writers/html.py:330 sphinx/writers/html5.py:301
 #, python-format
 msgid "numfig_format is not defined for %s"
 msgstr "%s に numfig_format は定義されていません"
 
-#: sphinx/writers/html.py:339 sphinx/writers/html5.py:310
+#: sphinx/writers/html.py:340 sphinx/writers/html5.py:311
 #, python-format
 msgid "Any IDs not assigned for %s node"
 msgstr "いくつかの ID が %s ノードに割り当てられていません"
 
-#: sphinx/writers/html.py:413 sphinx/writers/html5.py:364
+#: sphinx/writers/html.py:414 sphinx/writers/html5.py:365
 msgid "Permalink to this term"
 msgstr ""
 
-#: sphinx/writers/html.py:445 sphinx/writers/html5.py:396
+#: sphinx/writers/html.py:446 sphinx/writers/html5.py:397
 msgid "Permalink to this table"
 msgstr "このテーブルへのパーマリンク"
 
-#: sphinx/writers/html.py:488 sphinx/writers/html5.py:439
+#: sphinx/writers/html.py:489 sphinx/writers/html5.py:440
 msgid "Permalink to this code"
 msgstr "このコードへのパーマリンク"
 
-#: sphinx/writers/html.py:490 sphinx/writers/html5.py:441
+#: sphinx/writers/html.py:491 sphinx/writers/html5.py:442
 msgid "Permalink to this image"
 msgstr "この画像へのパーマリンク"
 
-#: sphinx/writers/html.py:492 sphinx/writers/html5.py:443
+#: sphinx/writers/html.py:493 sphinx/writers/html5.py:444
 msgid "Permalink to this toctree"
 msgstr "この目次へのパーマリンク"
 
-#: sphinx/writers/html.py:623 sphinx/writers/html5.py:563
+#: sphinx/writers/html.py:625 sphinx/writers/html5.py:565
 msgid "Could not obtain image size. :scale: option is ignored."
 msgstr "画像サイズを取得できませんでした。:scale: オプションは無視されます。"
 

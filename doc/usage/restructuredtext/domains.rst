@@ -125,6 +125,7 @@ In short:
   component of the target.  For example, ``:py:meth:`~Queue.Queue.get``` will
   refer to ``Queue.Queue.get`` but only display ``get`` as the link text.
 
+.. _python-domain:
 
 The Python Domain
 -----------------
@@ -677,11 +678,54 @@ The C domain (name **c**) is suited for documentation of C API.
    Note that you don't have to backslash-escape asterisks in the signature, as
    it is not parsed by the reST inliner.
 
+   In the description of a function you can use the following info fields
+   (see also :ref:`info-field-lists`).
+
+   * ``param``, ``parameter``, ``arg``, ``argument``,
+     Description of a parameter.
+   * ``type``: Type of a parameter,
+     written as if passed to the :rst:role:`c:expr` role.
+   * ``returns``, ``return``: Description of the return value.
+   * ``rtype``: Return type,
+     written as if passed to the :rst:role:`c:expr` role.
+   * ``retval``, ``retvals``: An alternative to ``returns`` for describing
+     the result of the function.
+
+   .. versionadded:: 4.3
+      The ``retval`` field type.
+
+   For example::
+
+      .. c:function:: PyObject *PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)
+
+         :param type: description of the first parameter.
+         :param nitems: description of the second parameter.
+         :returns: a result.
+         :retval NULL: under some conditions.
+         :retval NULL: under some other conditions as well.
+
+   which renders as
+
+   .. c:function:: PyObject *PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)
+
+      ..
+         ** for some editors (e.g., vim) to stop bold-highlighting the source
+
+      :param type: description of the first parameter.
+      :param nitems: description of the second parameter.
+      :returns: a result.
+      :retval NULL: under some conditions.
+      :retval NULL: under some other conditions as well.
+
+
 .. rst:directive:: .. c:macro:: name
                    .. c:macro:: name(arg list)
 
    Describes a C macro, i.e., a C-language ``#define``, without the replacement
    text.
+
+   In the description of a macro you can use the same info fields as for the
+   :rst:dir:`c:function` directive.
 
    .. versionadded:: 3.0
       The function style variant.
@@ -1453,13 +1497,22 @@ The ``cpp:namespace-pop`` directive undoes the most recent
 Info field lists
 ~~~~~~~~~~~~~~~~~
 
-The C++ directives support the following info fields (see also
-:ref:`info-field-lists`):
+All the C++ directives for declaring entities support the following
+info fields (see also :ref:`info-field-lists`):
 
-* `param`, `parameter`, `arg`, `argument`: Description of a parameter.
-* `tparam`: Description of a template parameter.
-* `returns`, `return`: Description of a return value.
+* ``tparam``: Description of a template parameter.
+
+The :rst:dir:`cpp:function` directive additionally supports the
+following fields:
+
+* ``param``, ``parameter``, ``arg``, ``argument``: Description of a parameter.
+* ``returns``, ``return``: Description of a return value.
+* ``retval``, ``retvals``: An alternative to ``returns`` for describing
+  the result of the function.
 * `throws`, `throw`, `exception`: Description of a possibly thrown exception.
+
+.. versionadded:: 4.3
+   The ``retval`` field type.
 
 .. _cpp-roles:
 
