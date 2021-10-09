@@ -50,6 +50,9 @@ jobs:
       run: sudo apt-get install graphviz
     - name: Install dependencies
       run: pip install -U tox codecov
+    - name: Install the latest py package (for py3.11-dev)
+      run: pip install -U git+https://github.com/pytest-dev/py
+      if: ${{ matrix.python == '3.11-dev' }}
     - name: Run Tox
       run: tox -e ${{ matrix.docutils }} -- -vv
     - name: codecov
