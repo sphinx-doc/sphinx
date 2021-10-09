@@ -210,6 +210,7 @@ also use these config values:
 
    .. versionadded:: 3.2
 
+.. _autosummary-customizing-templates:
 
 Customizing templates
 ---------------------

@@ -73,3 +73,6 @@ appearance:
    :alt: HTML documentation of Lumache with the Furo theme
 
    HTML documentation of Lumache with the Furo theme
+
+It is now time to :doc:`expand the narrative documentation and split it into
+several documents </tutorial/narrative-documentation>`.

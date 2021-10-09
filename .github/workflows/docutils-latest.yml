@@ -1,0 +1,25 @@
+name: Test with the HEAD of docutils
+
+on:
+  schedule:
+  - cron: "0 0 * * SUN"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+    - name: Check Python version
+      run: python --version
+    - name: Unpin docutils
+      run: sed -i -e "s/'docutils>=.*'/'docutils'/" setup.py
+    - name: Install graphviz
+      run: sudo apt-get install graphviz
+    - name: Install dependencies
+      run: pip install -U tox codecov
+    - name: Run Tox
+      run: tox -e du-latest -- -vv

@@ -125,6 +125,7 @@ In short:
   component of the target.  For example, ``:py:meth:`~Queue.Queue.get``` will
   refer to ``Queue.Queue.get`` but only display ``get`` as the link text.
 
+.. _python-domain:
 
 The Python Domain
 -----------------
