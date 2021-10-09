@@ -64,6 +64,8 @@ Bugs fixed
 * #9697: py domain: An index entry with parens was registered for ``py:method``
   directive with ``:property:`` option
 * #9708: needs_extension failed to check double-digit version correctly
+* Fix bug ``.. code::`` recognising ``:classes:`` option instead of ``:class:``
+  option.  The new behaviour is to only accept the ``:class:`` option.
 
 Testing
 --------
