@@ -13,8 +13,6 @@ from typing import TYPE_CHECKING, Any, Dict, List, Sequence
 from docutils import nodes
 from docutils.nodes import Element
 
-from sphinx.util import docutils
-
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
@@ -530,6 +528,8 @@ class manpage(nodes.Inline, nodes.FixedTextElement):
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
+    from sphinx.util import docutils  # lazy import
+
     app.add_node(toctree)
 
     app.add_node(desc)
