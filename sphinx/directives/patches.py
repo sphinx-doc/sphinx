@@ -15,6 +15,7 @@ from docutils import nodes
 from docutils.nodes import Node, make_id, system_message
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import images, tables
+from docutils.parsers.rst.roles import set_classes
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx60Warning
