@@ -28,6 +28,11 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.writers.html.HTMLTranslator._fieldlist_row_index``
+* ``sphinx.writers.html.HTMLTranslator._table_row_index``
+* ``sphinx.writers.html5.HTML5Translator._fieldlist_row_index``
+* ``sphinx.writers.html5.HTML5Translator._table_row_index``
+
 Features added
 --------------
 
@@ -58,6 +63,7 @@ Bugs fixed
 * #9630: autosummary: Failed to build summary table if :confval:`primary_domain`
   is not 'py'
 * #9670: html: Fix download file with special characters
+* #9710: html: Wrong styles for even/odd rows in nested tables
 * #9649: HTML search: when objects have the same name but in different domains,
   return all of them as result instead of just one.
 * #9678: linkcheck: file extension was shown twice in warnings
