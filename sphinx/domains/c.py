@@ -36,7 +36,7 @@ from sphinx.util.cfamily import (ASTAttribute, ASTBaseBase, ASTBaseParenExprList
                                  float_literal_suffix_re, hex_literal_re, identifier_re,
                                  integer_literal_re, integers_literal_suffix_re,
                                  octal_literal_re, verify_description_mode)
-from sphinx.util.docfields import Field, TypedField
+from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
 from sphinx.util.typing import OptionSpec
@@ -3130,16 +3130,6 @@ class CObject(ObjectDescription[ASTDeclaration]):
     Description of a C language object.
     """
 
-    doc_field_types = [
-        TypedField('parameter', label=_('Parameters'),
-                   names=('param', 'parameter', 'arg', 'argument'),
-                   typerolename='expr', typenames=('type',)),
-        Field('returnvalue', label=_('Returns'), has_arg=False,
-              names=('returns', 'return')),
-        Field('returntype', label=_('Return type'), has_arg=False,
-              names=('rtype',)),
-    ]
-
     option_spec: OptionSpec = {
         'noindexentry': directives.flag,
     }
@@ -3342,12 +3332,30 @@ class CMemberObject(CObject):
         return self.objtype
 
 
+_function_doc_field_types = [
+    TypedField('parameter', label=_('Parameters'),
+               names=('param', 'parameter', 'arg', 'argument'),
+               typerolename='expr', typenames=('type',)),
+    GroupedField('retval', label=_('Return values'),
+                 names=('retvals', 'retval'),
+                 can_collapse=True),
+    Field('returnvalue', label=_('Returns'), has_arg=False,
+          names=('returns', 'return')),
+    Field('returntype', label=_('Return type'), has_arg=False,
+          names=('rtype',)),
+]
+
+
 class CFunctionObject(CObject):
     object_type = 'function'
+
+    doc_field_types = _function_doc_field_types.copy()
 
 
 class CMacroObject(CObject):
     object_type = 'macro'
+
+    doc_field_types = _function_doc_field_types.copy()
 
 
 class CStructObject(CObject):
