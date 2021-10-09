@@ -79,7 +79,8 @@ behavior by adding the following code at the end of your ``conf.py``:
 
 With this configuration value, and after running ``make epub`` again, you will
 notice that URLs appear now as footnotes, which avoids cluttering the text.
-Sweet!
+Sweet! Read on to explore :doc:`other ways to customize
+Sphinx </tutorial/more-sphinx-customization>`.
 
 .. note::
 
