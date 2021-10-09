@@ -25,6 +25,8 @@ Release 4.3.0 (in development)
 Dependencies
 ------------
 
+* Support Python 3.10
+
 Incompatible changes
 --------------------
 
