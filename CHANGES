@@ -59,6 +59,8 @@ Bugs fixed
 * #9649: HTML search: when objects have the same name but in different domains,
   return all of them as result instead of just one.
 * #9678: linkcheck: file extension was shown twice in warnings
+* #9697: py domain: An index entry with parens was registered for ``py:method``
+  directive with ``:property:`` option
 
 Testing
 --------
