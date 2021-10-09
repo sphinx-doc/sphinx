@@ -11,11 +11,16 @@
 import pickle
 
 import pytest
-from docutils.parsers.rst.directives.html import MetaBody
 
 from sphinx import addnodes
 from sphinx.testing.util import SphinxTestApp
 from sphinx.versioning import add_uids, get_ratio, merge_doctrees
+
+try:
+    from docutils.parsers.rst.directives.html import MetaBody
+    meta = MetaBody.meta
+except ImportError:
+    from docutils.nodes import meta
 
 app = original = original_uids = None
 
@@ -64,7 +69,7 @@ def test_picklablility():
     copy.settings.warning_stream = None
     copy.settings.env = None
     copy.settings.record_dependencies = None
-    for metanode in copy.traverse(MetaBody.meta):
+    for metanode in copy.traverse(meta):
         metanode.__class__ = addnodes.meta
     loaded = pickle.loads(pickle.dumps(copy, pickle.HIGHEST_PROTOCOL))
     assert all(getattr(n, 'uid', False) for n in loaded.traverse(is_paragraph))
