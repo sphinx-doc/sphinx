@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 4.3.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-26 00:10+0000\n"
+"POT-Creation-Date: 2021-10-03 00:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1854,71 +1854,75 @@ msgstr ""
 msgid "%s %s"
 msgstr ""
 
-#: sphinx/domains/c.py:2008 sphinx/domains/c.py:3300
+#: sphinx/domains/c.py:2008 sphinx/domains/c.py:3290
 #, python-format
 msgid ""
 "Duplicate C declaration, also defined at %s:%s.\n"
 "Declaration is '.. c:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/c.py:3134 sphinx/domains/cpp.py:6938
-#: sphinx/domains/python.py:401 sphinx/ext/napoleon/docstring.py:736
-msgid "Parameters"
-msgstr ""
-
-#: sphinx/domains/c.py:3137 sphinx/domains/cpp.py:6947
-#: sphinx/domains/javascript.py:221 sphinx/domains/python.py:413
-msgid "Returns"
-msgstr ""
-
-#: sphinx/domains/c.py:3139 sphinx/domains/javascript.py:223
-#: sphinx/domains/python.py:415
-msgid "Return type"
-msgstr ""
-
-#: sphinx/domains/c.py:3225
+#: sphinx/domains/c.py:3215
 #, python-format
 msgid "%s (C %s)"
 msgstr ""
 
-#: sphinx/domains/c.py:3732 sphinx/domains/cpp.py:7585
+#: sphinx/domains/c.py:3336 sphinx/domains/cpp.py:7177
+#: sphinx/domains/python.py:401 sphinx/ext/napoleon/docstring.py:736
+msgid "Parameters"
+msgstr ""
+
+#: sphinx/domains/c.py:3339 sphinx/domains/cpp.py:7183
+msgid "Return values"
+msgstr ""
+
+#: sphinx/domains/c.py:3342 sphinx/domains/cpp.py:7186
+#: sphinx/domains/javascript.py:221 sphinx/domains/python.py:413
+msgid "Returns"
+msgstr ""
+
+#: sphinx/domains/c.py:3344 sphinx/domains/javascript.py:223
+#: sphinx/domains/python.py:415
+msgid "Return type"
+msgstr ""
+
+#: sphinx/domains/c.py:3740 sphinx/domains/cpp.py:7591
 msgid "member"
 msgstr ""
 
-#: sphinx/domains/c.py:3733
+#: sphinx/domains/c.py:3741
 msgid "variable"
 msgstr ""
 
-#: sphinx/domains/c.py:3734 sphinx/domains/cpp.py:7584
+#: sphinx/domains/c.py:3742 sphinx/domains/cpp.py:7590
 #: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1124
 msgid "function"
 msgstr ""
 
-#: sphinx/domains/c.py:3735
+#: sphinx/domains/c.py:3743
 msgid "macro"
 msgstr ""
 
-#: sphinx/domains/c.py:3736
+#: sphinx/domains/c.py:3744
 msgid "struct"
 msgstr ""
 
-#: sphinx/domains/c.py:3737 sphinx/domains/cpp.py:7583
+#: sphinx/domains/c.py:3745 sphinx/domains/cpp.py:7589
 msgid "union"
 msgstr ""
 
-#: sphinx/domains/c.py:3738 sphinx/domains/cpp.py:7588
+#: sphinx/domains/c.py:3746 sphinx/domains/cpp.py:7594
 msgid "enum"
 msgstr ""
 
-#: sphinx/domains/c.py:3739 sphinx/domains/cpp.py:7589
+#: sphinx/domains/c.py:3747 sphinx/domains/cpp.py:7595
 msgid "enumerator"
 msgstr ""
 
-#: sphinx/domains/c.py:3740 sphinx/domains/cpp.py:7586
+#: sphinx/domains/c.py:3748 sphinx/domains/cpp.py:7592
 msgid "type"
 msgstr ""
 
-#: sphinx/domains/c.py:3742 sphinx/domains/cpp.py:7591
+#: sphinx/domains/c.py:3750 sphinx/domains/cpp.py:7597
 msgid "function parameter"
 msgstr ""
 
@@ -1947,36 +1951,36 @@ msgstr ""
 msgid "Citation [%s] is not referenced."
 msgstr ""
 
-#: sphinx/domains/cpp.py:4754 sphinx/domains/cpp.py:7140
+#: sphinx/domains/cpp.py:4754 sphinx/domains/cpp.py:7132
 #, python-format
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/cpp.py:6941
+#: sphinx/domains/cpp.py:6938
 msgid "Template Parameters"
 msgstr ""
 
-#: sphinx/domains/cpp.py:6944 sphinx/domains/javascript.py:218
-msgid "Throws"
-msgstr ""
-
-#: sphinx/domains/cpp.py:7063
+#: sphinx/domains/cpp.py:7055
 #, python-format
 msgid "%s (C++ %s)"
 msgstr ""
 
-#: sphinx/domains/cpp.py:7582 sphinx/domains/javascript.py:328
+#: sphinx/domains/cpp.py:7180 sphinx/domains/javascript.py:218
+msgid "Throws"
+msgstr ""
+
+#: sphinx/domains/cpp.py:7588 sphinx/domains/javascript.py:328
 #: sphinx/domains/python.py:1126
 msgid "class"
 msgstr ""
 
-#: sphinx/domains/cpp.py:7587
+#: sphinx/domains/cpp.py:7593
 msgid "concept"
 msgstr ""
 
-#: sphinx/domains/cpp.py:7592
+#: sphinx/domains/cpp.py:7598
 msgid "template parameter"
 msgstr ""
 
@@ -3401,7 +3405,7 @@ msgstr ""
 msgid "Search finished, found %s page(s) matching the search query."
 msgstr ""
 
-#: sphinx/themes/basic/static/searchtools.js:364
+#: sphinx/themes/basic/static/searchtools.js:365
 msgid ", in "
 msgstr ""
 

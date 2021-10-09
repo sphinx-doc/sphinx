@@ -118,11 +118,21 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
             result.extend(unparse(node.right))
             return result
         elif isinstance(node, ast.BitOr):
-            return [nodes.Text(' '), addnodes.desc_sig_punctuation('', '|'), nodes.Text(' ')]
+            return [addnodes.desc_sig_space(),
+                    addnodes.desc_sig_punctuation('', '|'),
+                    addnodes.desc_sig_space()]
         elif isinstance(node, ast.Constant):  # type: ignore
             if node.value is Ellipsis:
                 return [addnodes.desc_sig_punctuation('', "...")]
+            elif isinstance(node.value, bool):
+                return [addnodes.desc_sig_keyword('', repr(node.value))]
+            elif isinstance(node.value, int):
+                return [addnodes.desc_sig_literal_number('', repr(node.value))]
+            elif isinstance(node.value, str):
+                return [addnodes.desc_sig_literal_string('', repr(node.value))]
             else:
+                # handles None, which is further handled by type_to_xref later
+                # and fallback for other types that should be converted
                 return [nodes.Text(repr(node.value))]
         elif isinstance(node, ast.Expr):
             return unparse(node.value)
@@ -136,7 +146,9 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
                 # once
                 for elem in node.elts:
                     result.extend(unparse(elem))
-                    result.append(addnodes.desc_sig_punctuation('', ', '))
+                    result.append(addnodes.desc_sig_punctuation('', ','))
+                    result.append(addnodes.desc_sig_space())
+                result.pop()
                 result.pop()
             result.append(addnodes.desc_sig_punctuation('', ']'))
             return result
@@ -161,7 +173,9 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
                 result = []
                 for elem in node.elts:
                     result.extend(unparse(elem))
-                    result.append(addnodes.desc_sig_punctuation('', ', '))
+                    result.append(addnodes.desc_sig_punctuation('', ','))
+                    result.append(addnodes.desc_sig_space())
+                result.pop()
                 result.pop()
             else:
                 result = [addnodes.desc_sig_punctuation('', '('),
@@ -222,13 +236,13 @@ def _parse_arglist(arglist: str, env: BuildEnvironment = None) -> addnodes.desc_
         if param.annotation is not param.empty:
             children = _parse_annotation(param.annotation, env)
             node += addnodes.desc_sig_punctuation('', ':')
-            node += nodes.Text(' ')
+            node += addnodes.desc_sig_space()
             node += addnodes.desc_sig_name('', '', *children)  # type: ignore
         if param.default is not param.empty:
             if param.annotation is not param.empty:
-                node += nodes.Text(' ')
+                node += addnodes.desc_sig_space()
                 node += addnodes.desc_sig_operator('', '=')
-                node += nodes.Text(' ')
+                node += addnodes.desc_sig_space()
             else:
                 node += addnodes.desc_sig_operator('', '=')
             node += nodes.inline('', param.default, classes=['default_value'],
@@ -271,7 +285,8 @@ def _pseudo_parse_arglist(signode: desc_signature, arglist: str) -> None:
                 ends_open += 1
                 argument = argument[:-1].strip()
             if argument:
-                stack[-1] += addnodes.desc_parameter(argument, argument)
+                stack[-1] += addnodes.desc_parameter(
+                    '', '', addnodes.desc_sig_name(argument, argument))
             while ends_open:
                 stack.append(addnodes.desc_optional())
                 stack[-2] += stack[-1]
@@ -418,11 +433,11 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
 
     allow_nesting = False
 
-    def get_signature_prefix(self, sig: str) -> str:
+    def get_signature_prefix(self, sig: str) -> List[nodes.Node]:
         """May return a prefix to put before the object name in the
         signature.
         """
-        return ''
+        return []
 
     def needs_arglist(self) -> bool:
         """May return true if an empty argument list is to be generated even if
@@ -476,7 +491,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
 
         sig_prefix = self.get_signature_prefix(sig)
         if sig_prefix:
-            signode += addnodes.desc_annotation(sig_prefix, sig_prefix)
+            signode += addnodes.desc_annotation(str(sig_prefix), '', *sig_prefix)
 
         if prefix:
             signode += addnodes.desc_addname(prefix, prefix)
@@ -507,7 +522,9 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
 
         anno = self.options.get('annotation')
         if anno:
-            signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
+            signode += addnodes.desc_annotation(' ' + anno, '',
+                                                addnodes.desc_sig_space(),
+                                                nodes.Text(anno))
 
         return fullname, prefix
 
@@ -609,11 +626,12 @@ class PyFunction(PyObject):
         'async': directives.flag,
     })
 
-    def get_signature_prefix(self, sig: str) -> str:
+    def get_signature_prefix(self, sig: str) -> List[nodes.Node]:
         if 'async' in self.options:
-            return 'async '
+            return [addnodes.desc_sig_keyword('', 'async'),
+                    addnodes.desc_sig_space()]
         else:
-            return ''
+            return []
 
     def needs_arglist(self) -> bool:
         return True
@@ -670,11 +688,17 @@ class PyVariable(PyObject):
         typ = self.options.get('type')
         if typ:
             annotations = _parse_annotation(typ, self.env)
-            signode += addnodes.desc_annotation(typ, '', nodes.Text(': '), *annotations)
+            signode += addnodes.desc_annotation(typ, '',
+                                                addnodes.desc_sig_punctuation('', ':'),
+                                                addnodes.desc_sig_space(), *annotations)
 
         value = self.options.get('value')
         if value:
-            signode += addnodes.desc_annotation(value, ' = ' + value)
+            signode += addnodes.desc_annotation(value, '',
+                                                addnodes.desc_sig_space(),
+                                                addnodes.desc_sig_punctuation('', '='),
+                                                addnodes.desc_sig_space(),
+                                                nodes.Text(value))
 
         return fullname, prefix
 
@@ -698,11 +722,12 @@ class PyClasslike(PyObject):
 
     allow_nesting = True
 
-    def get_signature_prefix(self, sig: str) -> str:
+    def get_signature_prefix(self, sig: str) -> List[nodes.Node]:
         if 'final' in self.options:
-            return 'final %s ' % self.objtype
+            return [nodes.Text('final'), addnodes.desc_sig_space(),
+                    nodes.Text(self.objtype), addnodes.desc_sig_space()]
         else:
-            return '%s ' % self.objtype
+            return [nodes.Text(self.objtype), addnodes.desc_sig_space()]
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
         if self.objtype == 'class':
@@ -734,25 +759,27 @@ class PyMethod(PyObject):
         else:
             return True
 
-    def get_signature_prefix(self, sig: str) -> str:
-        prefix = []
+    def get_signature_prefix(self, sig: str) -> List[nodes.Node]:
+        prefix: List[nodes.Node] = []
         if 'final' in self.options:
-            prefix.append('final')
+            prefix.append(nodes.Text('final'))
+            prefix.append(addnodes.desc_sig_space())
         if 'abstractmethod' in self.options:
-            prefix.append('abstract')
+            prefix.append(nodes.Text('abstract'))
+            prefix.append(addnodes.desc_sig_space())
         if 'async' in self.options:
-            prefix.append('async')
+            prefix.append(nodes.Text('async'))
+            prefix.append(addnodes.desc_sig_space())
         if 'classmethod' in self.options:
-            prefix.append('classmethod')
+            prefix.append(nodes.Text('classmethod'))
+            prefix.append(addnodes.desc_sig_space())
         if 'property' in self.options:
-            prefix.append('property')
+            prefix.append(nodes.Text('property'))
+            prefix.append(addnodes.desc_sig_space())
         if 'staticmethod' in self.options:
-            prefix.append('static')
-
-        if prefix:
-            return ' '.join(prefix) + ' '
-        else:
-            return ''
+            prefix.append(nodes.Text('static'))
+            prefix.append(addnodes.desc_sig_space())
+        return prefix
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
         name, cls = name_cls
@@ -769,7 +796,7 @@ class PyMethod(PyObject):
         if 'classmethod' in self.options:
             return _('%s() (%s class method)') % (methname, clsname)
         elif 'property' in self.options:
-            return _('%s() (%s property)') % (methname, clsname)
+            return _('%s (%s property)') % (methname, clsname)
         elif 'staticmethod' in self.options:
             return _('%s() (%s static method)') % (methname, clsname)
         else:
@@ -831,11 +858,18 @@ class PyAttribute(PyObject):
         typ = self.options.get('type')
         if typ:
             annotations = _parse_annotation(typ, self.env)
-            signode += addnodes.desc_annotation(typ, '', nodes.Text(': '), *annotations)
+            signode += addnodes.desc_annotation(typ, '',
+                                                addnodes.desc_sig_punctuation('', ':'),
+                                                addnodes.desc_sig_space(),
+                                                *annotations)
 
         value = self.options.get('value')
         if value:
-            signode += addnodes.desc_annotation(value, ' = ' + value)
+            signode += addnodes.desc_annotation(value, '',
+                                                addnodes.desc_sig_space(),
+                                                addnodes.desc_sig_punctuation('', '='),
+                                                addnodes.desc_sig_space(),
+                                                nodes.Text(value))
 
         return fullname, prefix
 
@@ -870,19 +904,25 @@ class PyProperty(PyObject):
         typ = self.options.get('type')
         if typ:
             annotations = _parse_annotation(typ, self.env)
-            signode += addnodes.desc_annotation(typ, '', nodes.Text(': '), *annotations)
+            signode += addnodes.desc_annotation(typ, '',
+                                                addnodes.desc_sig_punctuation('', ':'),
+                                                addnodes.desc_sig_space(),
+                                                *annotations)
 
         return fullname, prefix
 
-    def get_signature_prefix(self, sig: str) -> str:
-        prefix = []
+    def get_signature_prefix(self, sig: str) -> List[nodes.Node]:
+        prefix: List[nodes.Node] = []
         if 'abstractmethod' in self.options:
-            prefix.append('abstract')
+            prefix.append(nodes.Text('abstract'))
+            prefix.append(addnodes.desc_sig_space())
         if 'classmethod' in self.options:
-            prefix.append('class')
+            prefix.append(nodes.Text('class'))
+            prefix.append(addnodes.desc_sig_space())
 
-        prefix.append('property')
-        return ' '.join(prefix) + ' '
+        prefix.append(nodes.Text('property'))
+        prefix.append(addnodes.desc_sig_space())
+        return prefix
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
         name, cls = name_cls

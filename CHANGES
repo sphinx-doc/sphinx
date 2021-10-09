@@ -4,11 +4,26 @@ Release 4.3.0 (in development)
 Dependencies
 ------------
 
+* Support Python 3.10
+
 Incompatible changes
 --------------------
 
 * #9649: ``searchindex.js``: the embedded data has changed format to allow
   objects with the same name in different domains.
+* #9672: The rendering of Python domain declarations is implemented
+  with more docutils nodes to allow better CSS styling.
+  It may break existing styling.
+* #9672: the signature of
+  :py:meth:`domains.py.PyObject.get_signature_prefix` has changed to
+  return a list of nodes instead of a plain string.
+* #9695: ``domains.js.JSObject.display_prefix`` has been changed into a method
+  ``get_display_prefix`` which now returns a list of nodes
+  instead of a plain string.
+* #9695: The rendering of Javascript domain declarations is implemented
+  with more docutils nodes to allow better CSS styling.
+  It may break existing styling.
+
 
 Deprecated
 ----------
@@ -19,8 +34,13 @@ Features added
 * #9639: autodoc: Support asynchronous generator functions
 * #9664: autodoc: ``autodoc-process-bases`` supports to inject reST snippet as a
   base class
-* 9691: C, added new info-field ``retval``
+* #9691: C, added new info-field ``retval``
   for :rst:dir:`c:function` and :rst:dir:`c:macro`.
+* C++, added new info-field ``retval`` for :rst:dir:`cpp:function`.
+* #9672: More CSS classes on Python domain descriptions
+* #9695: More CSS classes on Javascript domain descriptions
+* #9683: Revert the removal of ``add_stylesheet()`` API.  It will be kept until
+  the Sphinx-6.0 release
 
 Bugs fixed
 ----------
@@ -41,7 +61,10 @@ Bugs fixed
 * #9649: HTML search: when objects have the same name but in different domains,
   return all of them as result instead of just one.
 * #9678: linkcheck: file extension was shown twice in warnings
-* Fix bug ``.. code::`` recognising ``:classes:`` option instead of ``:class:`` option.  The new behaviour is to only accept the ``:class:`` option.
+* #9697: py domain: An index entry with parens was registered for ``py:method``
+  directive with ``:property:`` option
+* Fix bug ``.. code::`` recognising ``:classes:`` option instead of ``:class:``
+  option.  The new behaviour is to only accept the ``:class:`` option.
 
 Testing
 --------
