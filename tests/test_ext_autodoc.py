@@ -1399,9 +1399,16 @@ def test_slots(app):
 def test_enum_class(app):
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.enums.EnumCls', options)
+
+    if sys.version_info > (3, 11):
+        args = ('(value, names=None, *, module=None, qualname=None, '
+                'type=None, start=1, boundary=None)')
+    else:
+        args = '(value)'
+
     assert list(actual) == [
         '',
-        '.. py:class:: EnumCls(value)',
+        '.. py:class:: EnumCls' + args,
         '   :module: target.enums',
         '',
         '   this is enum class',
@@ -2106,6 +2113,9 @@ def test_singledispatchmethod_automethod(app):
     ]
 
 
+@pytest.mark.skipif(sys.version_info > (3, 11),
+                    reason=('cython does not support python-3.11 yet. '
+                            'see https://github.com/cython/cython/issues/4365'))
 @pytest.mark.skipif(pyximport is None, reason='cython is not installed')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_cython(app):
