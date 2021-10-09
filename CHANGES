@@ -39,6 +39,8 @@ Features added
 * C++, added new info-field ``retval`` for :rst:dir:`cpp:function`.
 * #9672: More CSS classes on Python domain descriptions
 * #9695: More CSS classes on Javascript domain descriptions
+* #9683: Revert the removal of ``add_stylesheet()`` API.  It will be kept until
+  the Sphinx-6.0 release
 
 Bugs fixed
 ----------
