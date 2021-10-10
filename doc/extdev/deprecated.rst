@@ -22,6 +22,26 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.writers.html.HTMLTranslator._fieldlist_row_index``
+     - 4.3
+     - 6.0
+     - ``sphinx.writers.html.HTMLTranslator._fieldlist_row_indices``
+
+   * - ``sphinx.writers.html.HTMLTranslator._table_row_index``
+     - 4.3
+     - 6.0
+     - ``sphinx.writers.html.HTMLTranslator._table_row_indices``
+
+   * - ``sphinx.writers.html5.HTML5Translator._fieldlist_row_index``
+     - 4.3
+     - 6.0
+     - ``sphinx.writers.html5.HTML5Translator._fieldlist_row_indices``
+
+   * - ``sphinx.writers.html5.HTML5Translator._table_row_index``
+     - 4.3
+     - 6.0
+     - ``sphinx.writers.html5.HTML5Translator._table_row_indices``
+
    * - The optional argument ``app`` for ``sphinx.environment.BuildEnvironment``
      - 4.1
      - 6.0
