@@ -850,7 +850,7 @@ class TextTranslator(SphinxTranslator):
             self.end_state(first='%s. ' % self.list_counter[-1])
 
     def visit_definition_list_item(self, node: Element) -> None:
-        self._classifier_count_in_li = len(node.traverse(nodes.classifier))
+        self._classifier_count_in_li = len(list(node.traverse(nodes.classifier)))
 
     def depart_definition_list_item(self, node: Element) -> None:
         pass

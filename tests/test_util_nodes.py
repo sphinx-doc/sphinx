@@ -60,31 +60,31 @@ def test_NodeMatcher():
 
     # search by node class
     matcher = NodeMatcher(nodes.paragraph)
-    assert len(doctree.traverse(matcher)) == 3
+    assert len(list(doctree.traverse(matcher))) == 3
 
     # search by multiple node classes
     matcher = NodeMatcher(nodes.paragraph, nodes.literal_block)
-    assert len(doctree.traverse(matcher)) == 4
+    assert len(list(doctree.traverse(matcher))) == 4
 
     # search by node attribute
     matcher = NodeMatcher(block=1)
-    assert len(doctree.traverse(matcher)) == 1
+    assert len(list(doctree.traverse(matcher))) == 1
 
     # search by node attribute (Any)
     matcher = NodeMatcher(block=Any)
-    assert len(doctree.traverse(matcher)) == 3
+    assert len(list(doctree.traverse(matcher))) == 3
 
     # search by both class and attribute
     matcher = NodeMatcher(nodes.paragraph, block=Any)
-    assert len(doctree.traverse(matcher)) == 2
+    assert len(list(doctree.traverse(matcher))) == 2
 
     # mismatched
     matcher = NodeMatcher(nodes.title)
-    assert len(doctree.traverse(matcher)) == 0
+    assert len(list(doctree.traverse(matcher))) == 0
 
     # search with Any does not match to Text node
     matcher = NodeMatcher(blah=Any)
-    assert len(doctree.traverse(matcher)) == 0
+    assert len(list(doctree.traverse(matcher))) == 0
 
 
 @pytest.mark.parametrize(
