@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-26 00:10+0000\n"
-"PO-Revision-Date: 2021-09-12 00:10+0000\n"
+"POT-Creation-Date: 2021-10-10 09:52+0000\n"
+"PO-Revision-Date: 2021-10-10 00:10+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Basque (http://www.transifex.com/sphinx-doc/sphinx-1/language/eu/)\n"
 "MIME-Version: 1.0\n"
@@ -143,7 +143,7 @@ msgstr ""
 msgid "role %r is already registered, it will be overridden"
 msgstr ""
 
-#: sphinx/application.py:1225
+#: sphinx/application.py:1245
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel reading, "
@@ -151,12 +151,12 @@ msgid ""
 "explicit"
 msgstr ""
 
-#: sphinx/application.py:1229
+#: sphinx/application.py:1249
 #, python-format
 msgid "the %s extension is not safe for parallel reading"
 msgstr ""
 
-#: sphinx/application.py:1232
+#: sphinx/application.py:1252
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel writing, "
@@ -164,12 +164,12 @@ msgid ""
 "explicit"
 msgstr ""
 
-#: sphinx/application.py:1236
+#: sphinx/application.py:1256
 #, python-format
 msgid "the %s extension is not safe for parallel writing"
 msgstr ""
 
-#: sphinx/application.py:1244 sphinx/application.py:1248
+#: sphinx/application.py:1264 sphinx/application.py:1268
 #, python-format
 msgid "doing serial %s"
 msgstr ""
@@ -300,14 +300,14 @@ msgstr ""
 msgid "Handler %r for event %r threw an exception"
 msgstr ""
 
-#: sphinx/extension.py:50
+#: sphinx/extension.py:52
 #, python-format
 msgid ""
 "The %s extension is required by needs_extensions settings, but it is not "
 "loaded."
 msgstr ""
 
-#: sphinx/extension.py:55
+#: sphinx/extension.py:68
 #, python-format
 msgid ""
 "This project needs the extension %s at least in version %s and therefore "
@@ -1827,7 +1827,7 @@ msgstr "Kodearen egilea: "
 msgid "Author: "
 msgstr "Egilea:"
 
-#: sphinx/directives/patches.py:108
+#: sphinx/directives/patches.py:118
 msgid ""
 "\":file:\" option for csv-table directive now recognizes an absolute path as"
 " a relative path from source directory. Please update your document."
@@ -1838,71 +1838,75 @@ msgstr ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: sphinx/domains/c.py:2008 sphinx/domains/c.py:3300
+#: sphinx/domains/c.py:2008 sphinx/domains/c.py:3290
 #, python-format
 msgid ""
 "Duplicate C declaration, also defined at %s:%s.\n"
 "Declaration is '.. c:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/c.py:3134 sphinx/domains/cpp.py:6938
-#: sphinx/domains/python.py:401 sphinx/ext/napoleon/docstring.py:736
-msgid "Parameters"
-msgstr "Parametroak"
-
-#: sphinx/domains/c.py:3137 sphinx/domains/cpp.py:6947
-#: sphinx/domains/javascript.py:221 sphinx/domains/python.py:413
-msgid "Returns"
-msgstr "Itzultzen du"
-
-#: sphinx/domains/c.py:3139 sphinx/domains/javascript.py:223
-#: sphinx/domains/python.py:415
-msgid "Return type"
-msgstr "Itzulketa mota"
-
-#: sphinx/domains/c.py:3225
+#: sphinx/domains/c.py:3215
 #, python-format
 msgid "%s (C %s)"
 msgstr ""
 
-#: sphinx/domains/c.py:3732 sphinx/domains/cpp.py:7585
+#: sphinx/domains/c.py:3336 sphinx/domains/cpp.py:7177
+#: sphinx/domains/python.py:416 sphinx/ext/napoleon/docstring.py:736
+msgid "Parameters"
+msgstr "Parametroak"
+
+#: sphinx/domains/c.py:3339 sphinx/domains/cpp.py:7183
+msgid "Return values"
+msgstr ""
+
+#: sphinx/domains/c.py:3342 sphinx/domains/cpp.py:7186
+#: sphinx/domains/javascript.py:231 sphinx/domains/python.py:428
+msgid "Returns"
+msgstr "Itzultzen du"
+
+#: sphinx/domains/c.py:3344 sphinx/domains/javascript.py:233
+#: sphinx/domains/python.py:430
+msgid "Return type"
+msgstr "Itzulketa mota"
+
+#: sphinx/domains/c.py:3740 sphinx/domains/cpp.py:7591
 msgid "member"
 msgstr "partaidea"
 
-#: sphinx/domains/c.py:3733
+#: sphinx/domains/c.py:3741
 msgid "variable"
 msgstr "aldagaia"
 
-#: sphinx/domains/c.py:3734 sphinx/domains/cpp.py:7584
-#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1124
+#: sphinx/domains/c.py:3742 sphinx/domains/cpp.py:7590
+#: sphinx/domains/javascript.py:340 sphinx/domains/python.py:1164
 msgid "function"
 msgstr "funtzioa"
 
-#: sphinx/domains/c.py:3735
+#: sphinx/domains/c.py:3743
 msgid "macro"
 msgstr "makroa"
 
-#: sphinx/domains/c.py:3736
+#: sphinx/domains/c.py:3744
 msgid "struct"
 msgstr ""
 
-#: sphinx/domains/c.py:3737 sphinx/domains/cpp.py:7583
+#: sphinx/domains/c.py:3745 sphinx/domains/cpp.py:7589
 msgid "union"
 msgstr ""
 
-#: sphinx/domains/c.py:3738 sphinx/domains/cpp.py:7588
+#: sphinx/domains/c.py:3746 sphinx/domains/cpp.py:7594
 msgid "enum"
 msgstr ""
 
-#: sphinx/domains/c.py:3739 sphinx/domains/cpp.py:7589
+#: sphinx/domains/c.py:3747 sphinx/domains/cpp.py:7595
 msgid "enumerator"
 msgstr ""
 
-#: sphinx/domains/c.py:3740 sphinx/domains/cpp.py:7586
+#: sphinx/domains/c.py:3748 sphinx/domains/cpp.py:7592
 msgid "type"
 msgstr "mota"
 
-#: sphinx/domains/c.py:3742 sphinx/domains/cpp.py:7591
+#: sphinx/domains/c.py:3750 sphinx/domains/cpp.py:7597
 msgid "function parameter"
 msgstr ""
 
@@ -1931,91 +1935,91 @@ msgstr ""
 msgid "Citation [%s] is not referenced."
 msgstr ""
 
-#: sphinx/domains/cpp.py:4754 sphinx/domains/cpp.py:7140
+#: sphinx/domains/cpp.py:4754 sphinx/domains/cpp.py:7132
 #, python-format
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/cpp.py:6941
+#: sphinx/domains/cpp.py:6938
 msgid "Template Parameters"
 msgstr ""
 
-#: sphinx/domains/cpp.py:6944 sphinx/domains/javascript.py:218
-msgid "Throws"
-msgstr "Jaurtitzen du"
-
-#: sphinx/domains/cpp.py:7063
+#: sphinx/domains/cpp.py:7055
 #, python-format
 msgid "%s (C++ %s)"
 msgstr ""
 
-#: sphinx/domains/cpp.py:7582 sphinx/domains/javascript.py:328
-#: sphinx/domains/python.py:1126
+#: sphinx/domains/cpp.py:7180 sphinx/domains/javascript.py:228
+msgid "Throws"
+msgstr "Jaurtitzen du"
+
+#: sphinx/domains/cpp.py:7588 sphinx/domains/javascript.py:342
+#: sphinx/domains/python.py:1166
 msgid "class"
 msgstr "klasea"
 
-#: sphinx/domains/cpp.py:7587
+#: sphinx/domains/cpp.py:7593
 msgid "concept"
 msgstr ""
 
-#: sphinx/domains/cpp.py:7592
+#: sphinx/domains/cpp.py:7598
 msgid "template parameter"
 msgstr ""
 
-#: sphinx/domains/javascript.py:136
+#: sphinx/domains/javascript.py:146
 #, python-format
 msgid "%s() (built-in function)"
 msgstr ""
 
-#: sphinx/domains/javascript.py:137 sphinx/domains/python.py:776
+#: sphinx/domains/javascript.py:147 sphinx/domains/python.py:803
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (%s metodoa)"
 
-#: sphinx/domains/javascript.py:139
+#: sphinx/domains/javascript.py:149
 #, python-format
 msgid "%s() (class)"
 msgstr "%s() (klasea)"
 
-#: sphinx/domains/javascript.py:141
+#: sphinx/domains/javascript.py:151
 #, python-format
 msgid "%s (global variable or constant)"
 msgstr "%s (aldagai globala edo konstantea)"
 
-#: sphinx/domains/javascript.py:143 sphinx/domains/python.py:854
+#: sphinx/domains/javascript.py:153 sphinx/domains/python.py:888
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (%s atributua)"
 
-#: sphinx/domains/javascript.py:215
+#: sphinx/domains/javascript.py:225
 msgid "Arguments"
 msgstr "Argumentuak"
 
-#: sphinx/domains/javascript.py:286
+#: sphinx/domains/javascript.py:300
 #, python-format
 msgid "%s (module)"
 msgstr "%s (modulua)"
 
-#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1128
+#: sphinx/domains/javascript.py:341 sphinx/domains/python.py:1168
 msgid "method"
 msgstr "metodoa"
 
-#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1125
+#: sphinx/domains/javascript.py:343 sphinx/domains/python.py:1165
 msgid "data"
 msgstr "datuak"
 
-#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1131
+#: sphinx/domains/javascript.py:344 sphinx/domains/python.py:1171
 msgid "attribute"
 msgstr "atributua"
 
-#: sphinx/domains/javascript.py:331 sphinx/domains/python.py:58
-#: sphinx/domains/python.py:1133
+#: sphinx/domains/javascript.py:345 sphinx/domains/python.py:58
+#: sphinx/domains/python.py:1173
 msgid "module"
 msgstr "modulua"
 
-#: sphinx/domains/javascript.py:362
+#: sphinx/domains/javascript.py:376
 #, python-format
 msgid "duplicate %s description of %s, other %s in %s"
 msgstr ""
@@ -2042,7 +2046,7 @@ msgstr "eragiketa"
 msgid "object"
 msgstr "objetua"
 
-#: sphinx/domains/python.py:62 sphinx/domains/python.py:1127
+#: sphinx/domains/python.py:62 sphinx/domains/python.py:1167
 msgid "exception"
 msgstr "salbuespena"
 
@@ -2054,97 +2058,92 @@ msgstr "sententzia"
 msgid "built-in function"
 msgstr ""
 
-#: sphinx/domains/python.py:406
+#: sphinx/domains/python.py:421
 msgid "Variables"
 msgstr "Aldagaiak"
 
-#: sphinx/domains/python.py:410
+#: sphinx/domains/python.py:425
 msgid "Raises"
 msgstr "Goratzen du"
 
-#: sphinx/domains/python.py:630 sphinx/domains/python.py:765
+#: sphinx/domains/python.py:648 sphinx/domains/python.py:792
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (%s moduluan)"
 
-#: sphinx/domains/python.py:684 sphinx/domains/python.py:850
-#: sphinx/domains/python.py:895
+#: sphinx/domains/python.py:708 sphinx/domains/python.py:884
+#: sphinx/domains/python.py:935
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (%s moduluan)"
 
-#: sphinx/domains/python.py:686
+#: sphinx/domains/python.py:710
 #, python-format
 msgid "%s (built-in variable)"
 msgstr ""
 
-#: sphinx/domains/python.py:710
+#: sphinx/domains/python.py:735
 #, python-format
 msgid "%s (built-in class)"
 msgstr ""
 
-#: sphinx/domains/python.py:711
+#: sphinx/domains/python.py:736
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s (klasea %s-(e)n)"
 
-#: sphinx/domains/python.py:770
+#: sphinx/domains/python.py:797
 #, python-format
 msgid "%s() (%s class method)"
 msgstr "%s() (%s klaseko metodoa)"
 
-#: sphinx/domains/python.py:772
-#, python-format
-msgid "%s() (%s property)"
-msgstr ""
-
-#: sphinx/domains/python.py:774
-#, python-format
-msgid "%s() (%s static method)"
-msgstr "%s() (%s metodo estatikoa)"
-
-#: sphinx/domains/python.py:899
+#: sphinx/domains/python.py:799 sphinx/domains/python.py:939
 #, python-format
 msgid "%s (%s property)"
 msgstr ""
 
-#: sphinx/domains/python.py:1053
+#: sphinx/domains/python.py:801
+#, python-format
+msgid "%s() (%s static method)"
+msgstr "%s() (%s metodo estatikoa)"
+
+#: sphinx/domains/python.py:1093
 msgid "Python Module Index"
 msgstr "Python moduluen indizea"
 
-#: sphinx/domains/python.py:1054
+#: sphinx/domains/python.py:1094
 msgid "modules"
 msgstr "moduluak"
 
-#: sphinx/domains/python.py:1103
+#: sphinx/domains/python.py:1143
 msgid "Deprecated"
 msgstr "Zaharkitua"
 
-#: sphinx/domains/python.py:1129
+#: sphinx/domains/python.py:1169
 msgid "class method"
 msgstr "klaseko metodoa"
 
-#: sphinx/domains/python.py:1130
+#: sphinx/domains/python.py:1170
 msgid "static method"
 msgstr "metodo estatikoa"
 
-#: sphinx/domains/python.py:1132
+#: sphinx/domains/python.py:1172
 msgid "property"
 msgstr ""
 
-#: sphinx/domains/python.py:1190
+#: sphinx/domains/python.py:1230
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr ""
 
-#: sphinx/domains/python.py:1310
+#: sphinx/domains/python.py:1350
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr ""
 
-#: sphinx/domains/python.py:1364
+#: sphinx/domains/python.py:1404
 msgid " (deprecated)"
 msgstr " (zaharkitua)"
 
@@ -2290,47 +2289,47 @@ msgstr ""
 msgid "Failed to create a cross reference. A title or caption not found: %s"
 msgstr ""
 
-#: sphinx/environment/__init__.py:73
+#: sphinx/environment/__init__.py:75
 msgid "new config"
 msgstr ""
 
-#: sphinx/environment/__init__.py:74
+#: sphinx/environment/__init__.py:76
 msgid "config changed"
 msgstr ""
 
-#: sphinx/environment/__init__.py:75
+#: sphinx/environment/__init__.py:77
 msgid "extensions changed"
 msgstr ""
 
-#: sphinx/environment/__init__.py:202
+#: sphinx/environment/__init__.py:204
 msgid "build environment version not current"
 msgstr ""
 
-#: sphinx/environment/__init__.py:204
+#: sphinx/environment/__init__.py:206
 msgid "source directory has changed"
 msgstr ""
 
-#: sphinx/environment/__init__.py:283
+#: sphinx/environment/__init__.py:285
 msgid ""
 "This environment is incompatible with the selected builder, please choose "
 "another doctree directory."
 msgstr ""
 
-#: sphinx/environment/__init__.py:382
+#: sphinx/environment/__init__.py:384
 #, python-format
 msgid "Failed to scan documents in %s: %r"
 msgstr ""
 
-#: sphinx/environment/__init__.py:509
+#: sphinx/environment/__init__.py:511
 #, python-format
 msgid "Domain %r is not registered"
 msgstr ""
 
-#: sphinx/environment/__init__.py:590
+#: sphinx/environment/__init__.py:592
 msgid "self referenced toctree found. Ignored."
 msgstr ""
 
-#: sphinx/environment/__init__.py:632
+#: sphinx/environment/__init__.py:634
 msgid "document isn't included in any toctree"
 msgstr ""
 
@@ -3382,7 +3381,7 @@ msgstr ""
 msgid "Search finished, found %s page(s) matching the search query."
 msgstr ""
 
-#: sphinx/themes/basic/static/searchtools.js:364
+#: sphinx/themes/basic/static/searchtools.js:365
 msgid ", in "
 msgstr ""
 

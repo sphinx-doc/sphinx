@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-26 00:10+0000\n"
-"PO-Revision-Date: 2021-09-12 00:10+0000\n"
+"POT-Creation-Date: 2021-10-10 09:52+0000\n"
+"PO-Revision-Date: 2021-10-10 00:10+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Slovak (http://www.transifex.com/sphinx-doc/sphinx-1/language/sk/)\n"
 "MIME-Version: 1.0\n"
@@ -144,7 +144,7 @@ msgstr "direktíva %r už je registrovaná, bude prepísaná"
 msgid "role %r is already registered, it will be overridden"
 msgstr "rola %r už je registrovaná, bude prepísaná"
 
-#: sphinx/application.py:1225
+#: sphinx/application.py:1245
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel reading, "
@@ -152,12 +152,12 @@ msgid ""
 "explicit"
 msgstr "rozšírenie %s nedeklaruje, či je bezpečné pri paralelnom čítaní, predpokladá sa, že nie - prosím, požiadajte autora aby to skontroloval a explicitne to nastavil"
 
-#: sphinx/application.py:1229
+#: sphinx/application.py:1249
 #, python-format
 msgid "the %s extension is not safe for parallel reading"
 msgstr "rozšírenie %s nie je bezpečné pre paralelné zostavenie"
 
-#: sphinx/application.py:1232
+#: sphinx/application.py:1252
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel writing, "
@@ -165,12 +165,12 @@ msgid ""
 "explicit"
 msgstr "rozšírenie %s nedeklaruje, či je bezpečné pri paralelnom čítaní, predpokladáme, že nie je – prosím, požiadajte autora aby to skontroloval a explicitne to nastavil"
 
-#: sphinx/application.py:1236
+#: sphinx/application.py:1256
 #, python-format
 msgid "the %s extension is not safe for parallel writing"
 msgstr "rozšírenie %s nie je bezpečné pre paralelné zostavenie"
 
-#: sphinx/application.py:1244 sphinx/application.py:1248
+#: sphinx/application.py:1264 sphinx/application.py:1268
 #, python-format
 msgid "doing serial %s"
 msgstr "sériové spracovanie %s"
@@ -301,14 +301,14 @@ msgstr "Neznáme meno udalosti %s"
 msgid "Handler %r for event %r threw an exception"
 msgstr "Obsluha %r udalosti %r vyvolala výnimku"
 
-#: sphinx/extension.py:50
+#: sphinx/extension.py:52
 #, python-format
 msgid ""
 "The %s extension is required by needs_extensions settings, but it is not "
 "loaded."
 msgstr "Rozšírenie %s je vyžadované nastavením needs_extensions, ale nie je načítané."
 
-#: sphinx/extension.py:55
+#: sphinx/extension.py:68
 #, python-format
 msgid ""
 "This project needs the extension %s at least in version %s and therefore "
@@ -1828,7 +1828,7 @@ msgstr "Autor kódu:"
 msgid "Author: "
 msgstr "Autor:"
 
-#: sphinx/directives/patches.py:108
+#: sphinx/directives/patches.py:118
 msgid ""
 "\":file:\" option for csv-table directive now recognizes an absolute path as"
 " a relative path from source directory. Please update your document."
@@ -1839,71 +1839,75 @@ msgstr "voľba \":file:\" direktívy csv-table teraz rozpoznáva absolútnu cest
 msgid "%s %s"
 msgstr "%s %s"
 
-#: sphinx/domains/c.py:2008 sphinx/domains/c.py:3300
+#: sphinx/domains/c.py:2008 sphinx/domains/c.py:3290
 #, python-format
 msgid ""
 "Duplicate C declaration, also defined at %s:%s.\n"
 "Declaration is '.. c:%s:: %s'."
 msgstr "Duplicitná deklarácia C, definovaná aj v %s:%s.\nDeklarácia je '.. c:%s:: %s'."
 
-#: sphinx/domains/c.py:3134 sphinx/domains/cpp.py:6938
-#: sphinx/domains/python.py:401 sphinx/ext/napoleon/docstring.py:736
-msgid "Parameters"
-msgstr "Parametre"
-
-#: sphinx/domains/c.py:3137 sphinx/domains/cpp.py:6947
-#: sphinx/domains/javascript.py:221 sphinx/domains/python.py:413
-msgid "Returns"
-msgstr "Vracia"
-
-#: sphinx/domains/c.py:3139 sphinx/domains/javascript.py:223
-#: sphinx/domains/python.py:415
-msgid "Return type"
-msgstr "Návratový typ"
-
-#: sphinx/domains/c.py:3225
+#: sphinx/domains/c.py:3215
 #, python-format
 msgid "%s (C %s)"
 msgstr "%s (C %s)"
 
-#: sphinx/domains/c.py:3732 sphinx/domains/cpp.py:7585
+#: sphinx/domains/c.py:3336 sphinx/domains/cpp.py:7177
+#: sphinx/domains/python.py:416 sphinx/ext/napoleon/docstring.py:736
+msgid "Parameters"
+msgstr "Parametre"
+
+#: sphinx/domains/c.py:3339 sphinx/domains/cpp.py:7183
+msgid "Return values"
+msgstr ""
+
+#: sphinx/domains/c.py:3342 sphinx/domains/cpp.py:7186
+#: sphinx/domains/javascript.py:231 sphinx/domains/python.py:428
+msgid "Returns"
+msgstr "Vracia"
+
+#: sphinx/domains/c.py:3344 sphinx/domains/javascript.py:233
+#: sphinx/domains/python.py:430
+msgid "Return type"
+msgstr "Návratový typ"
+
+#: sphinx/domains/c.py:3740 sphinx/domains/cpp.py:7591
 msgid "member"
 msgstr "člen"
 
-#: sphinx/domains/c.py:3733
+#: sphinx/domains/c.py:3741
 msgid "variable"
 msgstr "premenná"
 
-#: sphinx/domains/c.py:3734 sphinx/domains/cpp.py:7584
-#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1124
+#: sphinx/domains/c.py:3742 sphinx/domains/cpp.py:7590
+#: sphinx/domains/javascript.py:340 sphinx/domains/python.py:1164
 msgid "function"
 msgstr "funkcia"
 
-#: sphinx/domains/c.py:3735
+#: sphinx/domains/c.py:3743
 msgid "macro"
 msgstr "makro"
 
-#: sphinx/domains/c.py:3736
+#: sphinx/domains/c.py:3744
 msgid "struct"
 msgstr ""
 
-#: sphinx/domains/c.py:3737 sphinx/domains/cpp.py:7583
+#: sphinx/domains/c.py:3745 sphinx/domains/cpp.py:7589
 msgid "union"
 msgstr ""
 
-#: sphinx/domains/c.py:3738 sphinx/domains/cpp.py:7588
+#: sphinx/domains/c.py:3746 sphinx/domains/cpp.py:7594
 msgid "enum"
 msgstr "enum"
 
-#: sphinx/domains/c.py:3739 sphinx/domains/cpp.py:7589
+#: sphinx/domains/c.py:3747 sphinx/domains/cpp.py:7595
 msgid "enumerator"
 msgstr "enumerátor"
 
-#: sphinx/domains/c.py:3740 sphinx/domains/cpp.py:7586
+#: sphinx/domains/c.py:3748 sphinx/domains/cpp.py:7592
 msgid "type"
 msgstr "typ"
 
-#: sphinx/domains/c.py:3742 sphinx/domains/cpp.py:7591
+#: sphinx/domains/c.py:3750 sphinx/domains/cpp.py:7597
 msgid "function parameter"
 msgstr "parameter funkcie"
 
@@ -1932,91 +1936,91 @@ msgstr "duplicitná citácia  %s, ďalší výskyt v %s"
 msgid "Citation [%s] is not referenced."
 msgstr "Citácia [%s] nie je odkazovaná."
 
-#: sphinx/domains/cpp.py:4754 sphinx/domains/cpp.py:7140
+#: sphinx/domains/cpp.py:4754 sphinx/domains/cpp.py:7132
 #, python-format
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
 msgstr "Duplicitná deklarácia C++, definovaná aj v %s:%s.\nDeklarácia je '.. cpp:%s:: %s'."
 
-#: sphinx/domains/cpp.py:6941
+#: sphinx/domains/cpp.py:6938
 msgid "Template Parameters"
 msgstr "Parametre šablóny"
 
-#: sphinx/domains/cpp.py:6944 sphinx/domains/javascript.py:218
-msgid "Throws"
-msgstr "Vyvoláva"
-
-#: sphinx/domains/cpp.py:7063
+#: sphinx/domains/cpp.py:7055
 #, python-format
 msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
-#: sphinx/domains/cpp.py:7582 sphinx/domains/javascript.py:328
-#: sphinx/domains/python.py:1126
+#: sphinx/domains/cpp.py:7180 sphinx/domains/javascript.py:228
+msgid "Throws"
+msgstr "Vyvoláva"
+
+#: sphinx/domains/cpp.py:7588 sphinx/domains/javascript.py:342
+#: sphinx/domains/python.py:1166
 msgid "class"
 msgstr "trieda"
 
-#: sphinx/domains/cpp.py:7587
+#: sphinx/domains/cpp.py:7593
 msgid "concept"
 msgstr "koncept"
 
-#: sphinx/domains/cpp.py:7592
+#: sphinx/domains/cpp.py:7598
 msgid "template parameter"
 msgstr "parameter šablóny"
 
-#: sphinx/domains/javascript.py:136
+#: sphinx/domains/javascript.py:146
 #, python-format
 msgid "%s() (built-in function)"
 msgstr "%s() (zabudovaná funkcia)"
 
-#: sphinx/domains/javascript.py:137 sphinx/domains/python.py:776
+#: sphinx/domains/javascript.py:147 sphinx/domains/python.py:803
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (metóda %s)"
 
-#: sphinx/domains/javascript.py:139
+#: sphinx/domains/javascript.py:149
 #, python-format
 msgid "%s() (class)"
 msgstr "%s() (trieda)"
 
-#: sphinx/domains/javascript.py:141
+#: sphinx/domains/javascript.py:151
 #, python-format
 msgid "%s (global variable or constant)"
 msgstr "%s (globálna premenná alebo konštanta)"
 
-#: sphinx/domains/javascript.py:143 sphinx/domains/python.py:854
+#: sphinx/domains/javascript.py:153 sphinx/domains/python.py:888
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (atribút %s)"
 
-#: sphinx/domains/javascript.py:215
+#: sphinx/domains/javascript.py:225
 msgid "Arguments"
 msgstr "Argumenty"
 
-#: sphinx/domains/javascript.py:286
+#: sphinx/domains/javascript.py:300
 #, python-format
 msgid "%s (module)"
 msgstr "%s (modul)"
 
-#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1128
+#: sphinx/domains/javascript.py:341 sphinx/domains/python.py:1168
 msgid "method"
 msgstr "metóda"
 
-#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1125
+#: sphinx/domains/javascript.py:343 sphinx/domains/python.py:1165
 msgid "data"
 msgstr "dáta"
 
-#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1131
+#: sphinx/domains/javascript.py:344 sphinx/domains/python.py:1171
 msgid "attribute"
 msgstr "atribút"
 
-#: sphinx/domains/javascript.py:331 sphinx/domains/python.py:58
-#: sphinx/domains/python.py:1133
+#: sphinx/domains/javascript.py:345 sphinx/domains/python.py:58
+#: sphinx/domains/python.py:1173
 msgid "module"
 msgstr "modul"
 
-#: sphinx/domains/javascript.py:362
+#: sphinx/domains/javascript.py:376
 #, python-format
 msgid "duplicate %s description of %s, other %s in %s"
 msgstr "duplicitný %s popis %s, ďalší výskyt%s v %s"
@@ -2043,7 +2047,7 @@ msgstr "operátor"
 msgid "object"
 msgstr "objekt"
 
-#: sphinx/domains/python.py:62 sphinx/domains/python.py:1127
+#: sphinx/domains/python.py:62 sphinx/domains/python.py:1167
 msgid "exception"
 msgstr "výnimka"
 
@@ -2055,97 +2059,92 @@ msgstr "príkaz"
 msgid "built-in function"
 msgstr "zabudovaná funkcia"
 
-#: sphinx/domains/python.py:406
+#: sphinx/domains/python.py:421
 msgid "Variables"
 msgstr "Premenné"
 
-#: sphinx/domains/python.py:410
+#: sphinx/domains/python.py:425
 msgid "Raises"
 msgstr "Vyzdvihuje"
 
-#: sphinx/domains/python.py:630 sphinx/domains/python.py:765
+#: sphinx/domains/python.py:648 sphinx/domains/python.py:792
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (v module %s)"
 
-#: sphinx/domains/python.py:684 sphinx/domains/python.py:850
-#: sphinx/domains/python.py:895
+#: sphinx/domains/python.py:708 sphinx/domains/python.py:884
+#: sphinx/domains/python.py:935
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (v module %s)"
 
-#: sphinx/domains/python.py:686
+#: sphinx/domains/python.py:710
 #, python-format
 msgid "%s (built-in variable)"
 msgstr "%s (zabudovaná premenná)"
 
-#: sphinx/domains/python.py:710
+#: sphinx/domains/python.py:735
 #, python-format
 msgid "%s (built-in class)"
 msgstr "%s (zabudovaná trieda)"
 
-#: sphinx/domains/python.py:711
+#: sphinx/domains/python.py:736
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s (trieda v %s)"
 
-#: sphinx/domains/python.py:770
+#: sphinx/domains/python.py:797
 #, python-format
 msgid "%s() (%s class method)"
 msgstr "%s() (metóda triedy %s)"
 
-#: sphinx/domains/python.py:772
-#, python-format
-msgid "%s() (%s property)"
-msgstr "%s() (vlastnosť %s)"
-
-#: sphinx/domains/python.py:774
-#, python-format
-msgid "%s() (%s static method)"
-msgstr "%s() (statická metóda %s)"
-
-#: sphinx/domains/python.py:899
+#: sphinx/domains/python.py:799 sphinx/domains/python.py:939
 #, python-format
 msgid "%s (%s property)"
 msgstr "%s (vlastnosť %s)"
 
-#: sphinx/domains/python.py:1053
+#: sphinx/domains/python.py:801
+#, python-format
+msgid "%s() (%s static method)"
+msgstr "%s() (statická metóda %s)"
+
+#: sphinx/domains/python.py:1093
 msgid "Python Module Index"
 msgstr "Index modulov Python"
 
-#: sphinx/domains/python.py:1054
+#: sphinx/domains/python.py:1094
 msgid "modules"
 msgstr "moduly"
 
-#: sphinx/domains/python.py:1103
+#: sphinx/domains/python.py:1143
 msgid "Deprecated"
 msgstr "Zastarané"
 
-#: sphinx/domains/python.py:1129
+#: sphinx/domains/python.py:1169
 msgid "class method"
 msgstr "metóda triedy"
 
-#: sphinx/domains/python.py:1130
+#: sphinx/domains/python.py:1170
 msgid "static method"
 msgstr "statická metóda"
 
-#: sphinx/domains/python.py:1132
+#: sphinx/domains/python.py:1172
 msgid "property"
 msgstr "vlastnosť"
 
-#: sphinx/domains/python.py:1190
+#: sphinx/domains/python.py:1230
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr "duplicitný popis objektu  %s, ďalší výskyt v %s, použite :noindex: pre jeden z nich"
 
-#: sphinx/domains/python.py:1310
+#: sphinx/domains/python.py:1350
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "nájdený viac ako jeden cieľ krížového odkazu %r: %s"
 
-#: sphinx/domains/python.py:1364
+#: sphinx/domains/python.py:1404
 msgid " (deprecated)"
 msgstr " (zastarané)"
 
@@ -2291,47 +2290,47 @@ msgstr "nedefinovaná menovka: %s"
 msgid "Failed to create a cross reference. A title or caption not found: %s"
 msgstr "Zlyhalo vytvorenie krížového odkazu. nenájdení názov alebo titulok: %s"
 
-#: sphinx/environment/__init__.py:73
+#: sphinx/environment/__init__.py:75
 msgid "new config"
 msgstr "nová konfigurácia"
 
-#: sphinx/environment/__init__.py:74
+#: sphinx/environment/__init__.py:76
 msgid "config changed"
 msgstr "zmenená konfigurácia"
 
-#: sphinx/environment/__init__.py:75
+#: sphinx/environment/__init__.py:77
 msgid "extensions changed"
 msgstr "zmenené rozšírenie"
 
-#: sphinx/environment/__init__.py:202
+#: sphinx/environment/__init__.py:204
 msgid "build environment version not current"
 msgstr "prostredie zostavenia nie je aktuálne"
 
-#: sphinx/environment/__init__.py:204
+#: sphinx/environment/__init__.py:206
 msgid "source directory has changed"
 msgstr "zdrojový adresár zmenený"
 
-#: sphinx/environment/__init__.py:283
+#: sphinx/environment/__init__.py:285
 msgid ""
 "This environment is incompatible with the selected builder, please choose "
 "another doctree directory."
 msgstr "Toto prostredie nie je kompatibilné zo zvoleným zostavovačom, prosím, zvoľte iný adresár doctree."
 
-#: sphinx/environment/__init__.py:382
+#: sphinx/environment/__init__.py:384
 #, python-format
 msgid "Failed to scan documents in %s: %r"
 msgstr "Zlyhalo skenovanie dokumentov v %s: %r"
 
-#: sphinx/environment/__init__.py:509
+#: sphinx/environment/__init__.py:511
 #, python-format
 msgid "Domain %r is not registered"
 msgstr "Doména %r nie je zaregistrovaná"
 
-#: sphinx/environment/__init__.py:590
+#: sphinx/environment/__init__.py:592
 msgid "self referenced toctree found. Ignored."
 msgstr "nájdený na seba odkazujúci strom obsahu. Ignorované."
 
-#: sphinx/environment/__init__.py:632
+#: sphinx/environment/__init__.py:634
 msgid "document isn't included in any toctree"
 msgstr "dokument nie je zahrnutý v žiadnom strome obsahu"
 
@@ -3383,7 +3382,7 @@ msgstr "Príprava hľadania..."
 msgid "Search finished, found %s page(s) matching the search query."
 msgstr "Hľadanie dokončené, nájdené %s strana(y), ktoré vyhovujú hľadanému výrazu."
 
-#: sphinx/themes/basic/static/searchtools.js:364
+#: sphinx/themes/basic/static/searchtools.js:365
 msgid ", in "
 msgstr ", v "
 
