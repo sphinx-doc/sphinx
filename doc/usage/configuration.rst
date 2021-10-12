@@ -333,6 +333,8 @@ General configuration
    * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``
    * ``autosectionlabel.*``
+   * ``autodoc.import_object`
+   * ``autodoc.mocked_object`
 
    You can choose from these types.
 
@@ -359,6 +361,10 @@ General configuration
    .. versionchanged:: 3.3.0
 
       Added ``epub.duplicated_toc_entry``
+
+   .. versionchanged:: 4.2.0
+
+      Added ``autodoc.import_object`` and ``autodoc.mocked_object``
 
 .. confval:: needs_sphinx
 
