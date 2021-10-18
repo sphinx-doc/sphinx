@@ -365,7 +365,7 @@ def rpartition(s: str, t: str) -> Tuple[str, str]:
 
 def split_into(n: int, type: str, value: str) -> List[str]:
     """Split an index entry into a given number of parts at semicolons."""
-    parts = [x.strip() for x in value.split(';', n - 1)]
+    parts = [x.strip() for x in value.split('; ', n - 1)]
     if sum(1 for part in parts if part) < n:
         raise ValueError('invalid %s index entry %r' % (type, value))
     return parts
