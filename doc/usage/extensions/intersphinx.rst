@@ -158,7 +158,7 @@ searching for the root cause of a broken Intersphinx link in a documentation
 project. The following example prints the Intersphinx mapping of the Python 3
 documentation::
 
-   $ python -msphinx.ext.intersphinx https://docs.python.org/3/objects.inv
+   $ python -m sphinx.ext.intersphinx https://docs.python.org/3/objects.inv
 
 Using Intersphinx with inventory file under Basic Authorization
 ---------------------------------------------------------------
