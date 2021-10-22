@@ -45,6 +45,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 default_settings: Dict[str, Any] = {
+    'auto_id_prefix': 'id',
     'embed_images': False,
     'embed_stylesheet': False,
     'cloak_email_addresses': True,
