@@ -60,6 +60,7 @@ Bugs fixed
 * #9657: autodoc: The base class for a subclass of mocked object is incorrect
 * #9607: autodoc: Incorrect base class detection for the subclasses of the
   generic class
+* #9756: autodoc: Crashed if classmethod does not have __func__ attribute
 * #9630: autosummary: Failed to build summary table if :confval:`primary_domain`
   is not 'py'
 * #9670: html: Fix download file with special characters
