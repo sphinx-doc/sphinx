@@ -15,6 +15,7 @@ from docutils import nodes
 from docutils.nodes import Node, make_id, system_message
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import images, tables
+from docutils.parsers.rst.roles import set_classes
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx60Warning
@@ -161,6 +162,7 @@ class Code(SphinxDirective):
     def run(self) -> List[Node]:
         self.assert_has_content()
 
+        set_classes(self.options)
         code = '\n'.join(self.content)
         node = nodes.literal_block(code, code,
                                    classes=self.options.get('classes', []),

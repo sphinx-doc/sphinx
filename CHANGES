@@ -49,6 +49,11 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.writers.html.HTMLTranslator._fieldlist_row_index``
+* ``sphinx.writers.html.HTMLTranslator._table_row_index``
+* ``sphinx.writers.html5.HTML5Translator._fieldlist_row_index``
+* ``sphinx.writers.html5.HTML5Translator._table_row_index``
+
 Features added
 --------------
 
@@ -60,6 +65,8 @@ Features added
 * C++, added new info-field ``retval`` for :rst:dir:`cpp:function`.
 * #9672: More CSS classes on Python domain descriptions
 * #9695: More CSS classes on Javascript domain descriptions
+* #9683: Revert the removal of ``add_stylesheet()`` API.  It will be kept until
+  the Sphinx-6.0 release
 
 Bugs fixed
 ----------
@@ -77,9 +84,14 @@ Bugs fixed
 * #9630: autosummary: Failed to build summary table if :confval:`primary_domain`
   is not 'py'
 * #9670: html: Fix download file with special characters
+* #9710: html: Wrong styles for even/odd rows in nested tables
 * #9649: HTML search: when objects have the same name but in different domains,
   return all of them as result instead of just one.
 * #9678: linkcheck: file extension was shown twice in warnings
+* #9697: py domain: An index entry with parens was registered for ``py:method``
+  directive with ``:property:`` option
+* #9708: needs_extension failed to check double-digit version correctly
+* #9688: Fix :rst:dir:`code`` does not recognize ``:class:`` option
 
 Testing
 --------
