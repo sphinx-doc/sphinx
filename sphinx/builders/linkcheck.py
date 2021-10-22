@@ -472,7 +472,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                                                 auth=auth_info, **kwargs)
                         response.raise_for_status()
             except HTTPError as err:
-                if err.response.status_code == 401:
+                if err.response.status_code in (401, 403):
                     # We'll take "Unauthorized" as working.
                     return 'working', ' - unauthorized', 0
                 elif err.response.status_code == 429:
