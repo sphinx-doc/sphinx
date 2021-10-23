@@ -2329,12 +2329,11 @@ class SlotsMixin(DataDocumenterMixinBase):
 
         return ret
 
-    def should_suppress_directive_header(self) -> bool:
+    def should_suppress_value_header(self) -> bool:
         if self.object is SLOTSATTR:
-            self._datadescriptor = True
             return True
         else:
-            return super().should_suppress_directive_header()
+            return super().should_suppress_value_header()
 
     def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         if self.object is SLOTSATTR:
@@ -2351,6 +2350,15 @@ class SlotsMixin(DataDocumenterMixinBase):
                 return []
         else:
             return super().get_doc(ignore)  # type: ignore
+
+    @property
+    def _datadescriptor(self) -> bool:
+        warnings.warn('AttributeDocumenter._datadescriptor() is deprecated.',
+                      RemovedInSphinx60Warning)
+        if self.object is SLOTSATTR:
+            return True
+        else:
+            return False
 
 
 class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):

@@ -28,6 +28,7 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.ext.autodoc.AttributeDocumenter._datadescriptor``
 * ``sphinx.writers.html.HTMLTranslator._fieldlist_row_index``
 * ``sphinx.writers.html.HTMLTranslator._table_row_index``
 * ``sphinx.writers.html5.HTML5Translator._fieldlist_row_index``
@@ -61,6 +62,7 @@ Bugs fixed
 * #9607: autodoc: Incorrect base class detection for the subclasses of the
   generic class
 * #9755: autodoc: memory addresses are shown for aliases
+* #9752: autodoc: Failed to detect type annotation for slots attribute
 * #9630: autosummary: Failed to build summary table if :confval:`primary_domain`
   is not 'py'
 * #9670: html: Fix download file with special characters
