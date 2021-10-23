@@ -92,7 +92,7 @@ _id_prefix = [None, 'c.', 'Cv2.']
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
 
-_simple_type_sepcifiers_re = re.compile(r"""(?x)
+_simple_type_specifiers_re = re.compile(r"""(?x)
     \b(
     void|_Bool|bool
     # Integer
@@ -2584,7 +2584,7 @@ class DefinitionParser(BaseParser):
         # fundamental types, https://en.cppreference.com/w/c/language/type
         # and extensions
         self.skip_ws()
-        if self.match(_simple_type_sepcifiers_re):
+        if self.match(_simple_type_specifiers_re):
             return ASTTrailingTypeSpecFundamental(self.matched_text)
 
         # prefixed

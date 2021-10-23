@@ -335,7 +335,7 @@ _keywords = [
 ]
 
 
-_simple_type_sepcifiers_re = re.compile(r"""(?x)
+_simple_type_specifiers_re = re.compile(r"""(?x)
     \b(
     auto|void|bool
     # Integer
@@ -5859,7 +5859,7 @@ class DefinitionParser(BaseParser):
         # fundamental types, https://en.cppreference.com/w/cpp/language/type
         # and extensions
         self.skip_ws()
-        if self.match(_simple_type_sepcifiers_re):
+        if self.match(_simple_type_specifiers_re):
             return ASTTrailingTypeSpecFundamental(self.matched_text)
 
         # decltype
