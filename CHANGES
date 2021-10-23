@@ -65,6 +65,7 @@ Bugs fixed
   is not 'py'
 * #9670: html: Fix download file with special characters
 * #9710: html: Wrong styles for even/odd rows in nested tables
+* #9763: html: parameter name and its type annotation are not separated in HTML
 * #9649: HTML search: when objects have the same name but in different domains,
   return all of them as result instead of just one.
 * #9678: linkcheck: file extension was shown twice in warnings
