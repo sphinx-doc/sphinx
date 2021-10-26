@@ -63,6 +63,7 @@ Bugs fixed
   generic class
 * #9755: autodoc: memory addresses are shown for aliases
 * #9752: autodoc: Failed to detect type annotation for slots attribute
+* #9756: autodoc: Crashed if classmethod does not have __func__ attribute
 * #9630: autosummary: Failed to build summary table if :confval:`primary_domain`
   is not 'py'
 * #9670: html: Fix download file with special characters
