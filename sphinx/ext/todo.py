@@ -131,7 +131,7 @@ class TodoListProcessor:
 
     def process(self, doctree: nodes.document, docname: str) -> None:
         todos: List[todo_node] = sum(self.domain.todos.values(), [])
-        for node in doctree.traverse(todolist):
+        for node in list(doctree.traverse(todolist)):
             if not self.config.todo_include_todos:
                 node.parent.remove(node)
                 continue
