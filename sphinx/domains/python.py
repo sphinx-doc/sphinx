@@ -328,7 +328,7 @@ class PyXrefMixin:
                 text = target[1:]
             elif prefix == '~':
                 text = target.split('.')[-1]
-            for node in result.traverse(nodes.Text):
+            for node in list(result.traverse(nodes.Text)):
                 node.parent[node.parent.index(node)] = nodes.Text(text)
                 break
         elif isinstance(result, pending_xref) and env.config.python_use_unqualified_type_names:

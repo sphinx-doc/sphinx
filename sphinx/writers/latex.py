@@ -651,7 +651,7 @@ class LaTeXTranslator(SphinxTranslator):
                 raise nodes.SkipNode
             else:
                 short = ''
-                if node.traverse(nodes.image):
+                if list(node.traverse(nodes.image)):
                     short = ('[%s]' % self.escape(' '.join(clean_astext(node).split())))
 
                 try:
@@ -1210,7 +1210,7 @@ class LaTeXTranslator(SphinxTranslator):
         ncolumns = node['ncolumns']
         if self.compact_list > 1:
             self.body.append(r'\setlength{\multicolsep}{0pt}' + CR)
-        self.body.append(r'\begin{multicols}{' + ncolumns + '}\raggedright' + CR)
+        self.body.append(r'\begin{multicols}{' + ncolumns + r'}\raggedright' + CR)
         self.body.append(r'\begin{itemize}\setlength{\itemsep}{0pt}'
                          r'\setlength{\parskip}{0pt}' + CR)
         if self.table:

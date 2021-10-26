@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-10-10 09:52+0000\n"
+"POT-Creation-Date: 2021-10-25 16:47+0000\n"
 "PO-Revision-Date: 2021-10-10 00:10+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Korean (http://www.transifex.com/sphinx-doc/sphinx-1/language/ko/)\n"
@@ -2289,47 +2289,47 @@ msgstr "정의되지 않은 레이블: %s"
 msgid "Failed to create a cross reference. A title or caption not found: %s"
 msgstr "상호 참조를 생성하지 못했습니다. 제목 또는 캡션을 찾을 수 없습니다: %s"
 
-#: sphinx/environment/__init__.py:75
+#: sphinx/environment/__init__.py:76
 msgid "new config"
 msgstr "새로운 설정"
 
-#: sphinx/environment/__init__.py:76
+#: sphinx/environment/__init__.py:77
 msgid "config changed"
 msgstr "설정이 변경됨"
 
-#: sphinx/environment/__init__.py:77
+#: sphinx/environment/__init__.py:78
 msgid "extensions changed"
 msgstr "확장 기능이 변경됨"
 
-#: sphinx/environment/__init__.py:204
+#: sphinx/environment/__init__.py:205
 msgid "build environment version not current"
 msgstr "빌드 환경 버전이 최신이 아님"
 
-#: sphinx/environment/__init__.py:206
+#: sphinx/environment/__init__.py:207
 msgid "source directory has changed"
 msgstr "원본 디렉토리가 변경됨"
 
-#: sphinx/environment/__init__.py:285
+#: sphinx/environment/__init__.py:286
 msgid ""
 "This environment is incompatible with the selected builder, please choose "
 "another doctree directory."
 msgstr "이 환경은 선택한 빌더와 호환되지 않습니다. 다른 doctree 디렉토리를 선택하십시오."
 
-#: sphinx/environment/__init__.py:384
+#: sphinx/environment/__init__.py:385
 #, python-format
 msgid "Failed to scan documents in %s: %r"
 msgstr "%s에서 문서를 탐색하지 못했습니다: %r"
 
-#: sphinx/environment/__init__.py:511
+#: sphinx/environment/__init__.py:512
 #, python-format
 msgid "Domain %r is not registered"
 msgstr "%r 영역이 등록되지 않았습니다"
 
-#: sphinx/environment/__init__.py:592
+#: sphinx/environment/__init__.py:593
 msgid "self referenced toctree found. Ignored."
 msgstr "자체 참조된 toctree가 발견되었습니다. 무시합니다."
 
-#: sphinx/environment/__init__.py:634
+#: sphinx/environment/__init__.py:635
 msgid "document isn't included in any toctree"
 msgstr "문서가 어느 toctree에도 포함되어 있지 않음"
 
@@ -3437,23 +3437,23 @@ msgid ""
 "translated: {1}"
 msgstr "번역된 메시지의 용어 참조가 일치하지 않습니다. 원본: {0}, 번역: {1}"
 
-#: sphinx/transforms/post_transforms/__init__.py:117
+#: sphinx/transforms/post_transforms/__init__.py:118
 msgid ""
 "Could not determine the fallback text for the cross-reference. Might be a "
 "bug."
 msgstr "상호 참조에 대한 대체 텍스트를 결정할 수 없습니다. 버그일 수 있습니다."
 
-#: sphinx/transforms/post_transforms/__init__.py:157
+#: sphinx/transforms/post_transforms/__init__.py:158
 #, python-format
 msgid "more than one target found for 'any' cross-reference %r: could be %s"
 msgstr "'any' 상호 참조 %r에 대해 둘 이상의 대상이 발견되었습니다: %s 일 수 있습니다"
 
-#: sphinx/transforms/post_transforms/__init__.py:205
+#: sphinx/transforms/post_transforms/__init__.py:206
 #, python-format
 msgid "%s:%s reference target not found: %s"
 msgstr "%s:%s 참조 대상을 찾을 수 없음: %s"
 
-#: sphinx/transforms/post_transforms/__init__.py:208
+#: sphinx/transforms/post_transforms/__init__.py:209
 #, python-format
 msgid "%r reference target not found: %s"
 msgstr "%r 참조 대상을 찾을 수 없음: %s"

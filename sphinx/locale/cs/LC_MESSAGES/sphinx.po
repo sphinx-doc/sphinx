@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-10-17 00:10+0000\n"
+"POT-Creation-Date: 2021-10-25 16:47+0000\n"
 "PO-Revision-Date: 2021-10-10 00:10+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Czech (http://www.transifex.com/sphinx-doc/sphinx-1/language/cs/)\n"
@@ -2289,47 +2289,47 @@ msgstr ""
 msgid "Failed to create a cross reference. A title or caption not found: %s"
 msgstr ""
 
-#: sphinx/environment/__init__.py:75
+#: sphinx/environment/__init__.py:76
 msgid "new config"
 msgstr ""
 
-#: sphinx/environment/__init__.py:76
+#: sphinx/environment/__init__.py:77
 msgid "config changed"
 msgstr ""
 
-#: sphinx/environment/__init__.py:77
+#: sphinx/environment/__init__.py:78
 msgid "extensions changed"
 msgstr ""
 
-#: sphinx/environment/__init__.py:204
+#: sphinx/environment/__init__.py:205
 msgid "build environment version not current"
 msgstr ""
 
-#: sphinx/environment/__init__.py:206
+#: sphinx/environment/__init__.py:207
 msgid "source directory has changed"
 msgstr ""
 
-#: sphinx/environment/__init__.py:285
+#: sphinx/environment/__init__.py:286
 msgid ""
 "This environment is incompatible with the selected builder, please choose "
 "another doctree directory."
 msgstr ""
 
-#: sphinx/environment/__init__.py:384
+#: sphinx/environment/__init__.py:385
 #, python-format
 msgid "Failed to scan documents in %s: %r"
 msgstr ""
 
-#: sphinx/environment/__init__.py:511
+#: sphinx/environment/__init__.py:512
 #, python-format
 msgid "Domain %r is not registered"
 msgstr ""
 
-#: sphinx/environment/__init__.py:592
+#: sphinx/environment/__init__.py:593
 msgid "self referenced toctree found. Ignored."
 msgstr ""
 
-#: sphinx/environment/__init__.py:634
+#: sphinx/environment/__init__.py:635
 msgid "document isn't included in any toctree"
 msgstr ""
 
@@ -3437,23 +3437,23 @@ msgid ""
 "translated: {1}"
 msgstr ""
 
-#: sphinx/transforms/post_transforms/__init__.py:117
+#: sphinx/transforms/post_transforms/__init__.py:118
 msgid ""
 "Could not determine the fallback text for the cross-reference. Might be a "
 "bug."
 msgstr ""
 
-#: sphinx/transforms/post_transforms/__init__.py:157
+#: sphinx/transforms/post_transforms/__init__.py:158
 #, python-format
 msgid "more than one target found for 'any' cross-reference %r: could be %s"
 msgstr ""
 
-#: sphinx/transforms/post_transforms/__init__.py:205
+#: sphinx/transforms/post_transforms/__init__.py:206
 #, python-format
 msgid "%s:%s reference target not found: %s"
 msgstr ""
 
-#: sphinx/transforms/post_transforms/__init__.py:208
+#: sphinx/transforms/post_transforms/__init__.py:209
 #, python-format
 msgid "%r reference target not found: %s"
 msgstr ""

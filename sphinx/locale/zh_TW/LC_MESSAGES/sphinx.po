@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-10-10 09:52+0000\n"
+"POT-Creation-Date: 2021-10-25 16:47+0000\n"
 "PO-Revision-Date: 2021-10-16 06:15+0000\n"
 "Last-Translator: Steven Hsu <hsuhaochun@gmail.com>\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/sphinx-doc/sphinx-1/language/zh_TW/)\n"
@@ -2295,47 +2295,47 @@ msgstr "未定義的標籤： %s"
 msgid "Failed to create a cross reference. A title or caption not found: %s"
 msgstr "無法建立一個交互參照。未找到標題或題目： %s"
 
-#: sphinx/environment/__init__.py:75
+#: sphinx/environment/__init__.py:76
 msgid "new config"
 msgstr "新的組態"
 
-#: sphinx/environment/__init__.py:76
+#: sphinx/environment/__init__.py:77
 msgid "config changed"
 msgstr "組態已變更"
 
-#: sphinx/environment/__init__.py:77
+#: sphinx/environment/__init__.py:78
 msgid "extensions changed"
 msgstr "擴充套件已變更"
 
-#: sphinx/environment/__init__.py:204
+#: sphinx/environment/__init__.py:205
 msgid "build environment version not current"
 msgstr "建立環境的版本不是目前的"
 
-#: sphinx/environment/__init__.py:206
+#: sphinx/environment/__init__.py:207
 msgid "source directory has changed"
 msgstr "來源資料夾已變更"
 
-#: sphinx/environment/__init__.py:285
+#: sphinx/environment/__init__.py:286
 msgid ""
 "This environment is incompatible with the selected builder, please choose "
 "another doctree directory."
 msgstr "這個環境與所選的 builder 不相容，請選擇另一個 doctree 資料夾。"
 
-#: sphinx/environment/__init__.py:384
+#: sphinx/environment/__init__.py:385
 #, python-format
 msgid "Failed to scan documents in %s: %r"
 msgstr "無法掃描 %s 中的文件： %r"
 
-#: sphinx/environment/__init__.py:511
+#: sphinx/environment/__init__.py:512
 #, python-format
 msgid "Domain %r is not registered"
 msgstr "Domain %r 未被註冊"
 
-#: sphinx/environment/__init__.py:592
+#: sphinx/environment/__init__.py:593
 msgid "self referenced toctree found. Ignored."
 msgstr "找到自我參照的 toctree。已略過。"
 
-#: sphinx/environment/__init__.py:634
+#: sphinx/environment/__init__.py:635
 msgid "document isn't included in any toctree"
 msgstr "文件未被包含於任何 toctree"
 
@@ -3443,23 +3443,23 @@ msgid ""
 "translated: {1}"
 msgstr "被翻譯訊息中有不一致的術語參照。原文： {0}，譯文： {1}"
 
-#: sphinx/transforms/post_transforms/__init__.py:117
+#: sphinx/transforms/post_transforms/__init__.py:118
 msgid ""
 "Could not determine the fallback text for the cross-reference. Might be a "
 "bug."
 msgstr "無法為交互參照決定備用文字。可能是個錯誤。"
 
-#: sphinx/transforms/post_transforms/__init__.py:157
+#: sphinx/transforms/post_transforms/__init__.py:158
 #, python-format
 msgid "more than one target found for 'any' cross-reference %r: could be %s"
 msgstr "為「任一個」交互參照 %r 找到多於一個目標：可能是 %s"
 
-#: sphinx/transforms/post_transforms/__init__.py:205
+#: sphinx/transforms/post_transforms/__init__.py:206
 #, python-format
 msgid "%s:%s reference target not found: %s"
 msgstr "%s:%s 參照目標未找到： %s"
 
-#: sphinx/transforms/post_transforms/__init__.py:208
+#: sphinx/transforms/post_transforms/__init__.py:209
 #, python-format
 msgid "%r reference target not found: %s"
 msgstr "%r 參照目標未找到： %s"

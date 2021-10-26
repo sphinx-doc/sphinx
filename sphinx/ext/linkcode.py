@@ -39,7 +39,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
         'js': ['object', 'fullname'],
     }
 
-    for objnode in doctree.traverse(addnodes.desc):
+    for objnode in list(doctree.traverse(addnodes.desc)):
         domain = objnode.get('domain')
         uris: Set[str] = set()
         for signode in objnode:
