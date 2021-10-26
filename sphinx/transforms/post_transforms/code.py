@@ -42,7 +42,7 @@ class HighlightLanguageTransform(SphinxTransform):
                                            self.config.highlight_language)
         self.document.walkabout(visitor)
 
-        for node in self.document.traverse(addnodes.highlightlang):
+        for node in list(self.document.traverse(addnodes.highlightlang)):
             node.parent.remove(node)
 
 

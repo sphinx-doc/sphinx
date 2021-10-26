@@ -193,13 +193,13 @@ class TocTree:
                         for toplevel in children:
                             # nodes with length 1 don't have any children anyway
                             if len(toplevel) > 1:
-                                subtrees = toplevel.traverse(addnodes.toctree)
+                                subtrees = list(toplevel.traverse(addnodes.toctree))
                                 if subtrees:
                                     toplevel[1][:] = subtrees  # type: ignore
                                 else:
                                     toplevel.pop(1)
                     # resolve all sub-toctrees
-                    for subtocnode in toc.traverse(addnodes.toctree):
+                    for subtocnode in list(toc.traverse(addnodes.toctree)):
                         if not (subtocnode.get('hidden', False) and
                                 not includehidden):
                             i = subtocnode.parent.index(subtocnode) + 1

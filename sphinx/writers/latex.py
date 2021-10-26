@@ -651,7 +651,7 @@ class LaTeXTranslator(SphinxTranslator):
                 raise nodes.SkipNode
             else:
                 short = ''
-                if node.traverse(nodes.image):
+                if list(node.traverse(nodes.image)):
                     short = ('[%s]' % self.escape(' '.join(clean_astext(node).split())))
 
                 try:

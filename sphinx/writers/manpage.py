@@ -56,7 +56,7 @@ class NestedInlineTransform:
 
     def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.literal, nodes.emphasis, nodes.strong)
-        for node in self.document.traverse(matcher):  # type: TextElement
+        for node in list(self.document.traverse(matcher)):  # type: TextElement
             if any(matcher(subnode) for subnode in node):
                 pos = node.parent.index(node)
                 for subnode in reversed(list(node)):
@@ -227,7 +227,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     # overwritten -- don't make whole of term bold if it includes strong node
     def visit_term(self, node: Element) -> None:
-        if node.traverse(nodes.strong):
+        if list(node.traverse(nodes.strong)):
             self.body.append('\n')
         else:
             super().visit_term(node)

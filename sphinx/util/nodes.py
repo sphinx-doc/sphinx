@@ -343,7 +343,7 @@ def clean_astext(node: Element) -> str:
     node = node.deepcopy()
     for img in node.traverse(nodes.image):
         img['alt'] = ''
-    for raw in node.traverse(nodes.raw):
+    for raw in list(node.traverse(nodes.raw)):
         raw.parent.remove(raw)
     return node.astext()
 
@@ -408,7 +408,7 @@ def inline_all_toctrees(builder: "Builder", docnameset: Set[str], docname: str,
     Record all docnames in *docnameset*, and output docnames with *colorfunc*.
     """
     tree = cast(nodes.document, tree.deepcopy())
-    for toctreenode in tree.traverse(addnodes.toctree):
+    for toctreenode in list(tree.traverse(addnodes.toctree)):
         newnodes = []
         includefiles = map(str, toctreenode['includefiles'])
         for includefile in includefiles:
