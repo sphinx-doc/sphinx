@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.ext.autodoc.AttributeDocumenter._datadescriptor``
+     - 4.3
+     - 6.0
+     - N/A
+
    * - ``sphinx.writers.html.HTMLTranslator._fieldlist_row_index``
      - 4.3
      - 6.0

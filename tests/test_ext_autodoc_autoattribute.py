@@ -129,6 +129,7 @@ def test_autoattribute_slots_variable_dict(app):
         '',
         '.. py:attribute:: Bar.attr1',
         '   :module: target.slots',
+        '   :type: int',
         '',
         '   docstring of attr1',
         '',

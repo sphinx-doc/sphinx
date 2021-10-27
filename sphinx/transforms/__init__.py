@@ -128,7 +128,7 @@ class MoveModuleTargets(SphinxTransform):
     default_priority = 210
 
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.traverse(nodes.target):
+        for node in list(self.document.traverse(nodes.target)):
             if not node['ids']:
                 continue
             if ('ismod' in node and
@@ -303,7 +303,7 @@ class FilterSystemMessages(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         filterlevel = 2 if self.config.keep_warnings else 5
-        for node in self.document.traverse(nodes.system_message):
+        for node in list(self.document.traverse(nodes.system_message)):
             if node['level'] < filterlevel:
                 logger.debug('%s [filtered system message]', node.astext())
                 node.parent.remove(node)

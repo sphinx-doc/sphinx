@@ -49,6 +49,7 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.ext.autodoc.AttributeDocumenter._datadescriptor``
 * ``sphinx.writers.html.HTMLTranslator._fieldlist_row_index``
 * ``sphinx.writers.html.HTMLTranslator._table_row_index``
 * ``sphinx.writers.html5.HTML5Translator._fieldlist_row_index``
@@ -81,12 +82,18 @@ Bugs fixed
 * #9657: autodoc: The base class for a subclass of mocked object is incorrect
 * #9607: autodoc: Incorrect base class detection for the subclasses of the
   generic class
+* #9755: autodoc: memory addresses are shown for aliases
+* #9752: autodoc: Failed to detect type annotation for slots attribute
+* #9756: autodoc: Crashed if classmethod does not have __func__ attribute
 * #9630: autosummary: Failed to build summary table if :confval:`primary_domain`
   is not 'py'
 * #9670: html: Fix download file with special characters
 * #9710: html: Wrong styles for even/odd rows in nested tables
+* #9763: html: parameter name and its type annotation are not separated in HTML
 * #9649: HTML search: when objects have the same name but in different domains,
   return all of them as result instead of just one.
+* #7634: intersphinx: references on the file in sub directory are broken
+* #9737: LaTeX: hlist is rendered as a list containing "aggedright" text
 * #9678: linkcheck: file extension was shown twice in warnings
 * #9697: py domain: An index entry with parens was registered for ``py:method``
   directive with ``:property:`` option

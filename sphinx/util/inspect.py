@@ -865,7 +865,7 @@ def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
     if cls and name and isclassmethod(obj, cls, name):
         for basecls in getmro(cls):
             meth = basecls.__dict__.get(name)
-            if meth:
+            if meth and hasattr(meth, '__func__'):
                 return getdoc(meth.__func__)
 
     doc = attrgetter(obj, '__doc__', None)

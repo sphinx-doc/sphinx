@@ -488,7 +488,7 @@ class RemoveTranslatableInline(SphinxTransform):
             return
 
         matcher = NodeMatcher(nodes.inline, translatable=Any)
-        for inline in self.document.traverse(matcher):  # type: nodes.inline
+        for inline in list(self.document.traverse(matcher)):  # type: nodes.inline
             inline.parent.remove(inline)
             inline.parent += inline.children
 
