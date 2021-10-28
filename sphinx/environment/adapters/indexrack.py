@@ -286,6 +286,8 @@ class IndexEntry(nodes.Element):
                     index_units.append(_index_unit(self[i], '', ''))
             else:
                 logger.warning(__('unknown index entry type %r'), etype, location=fn)
+        except IndexError as err:
+            raise IndexError(str(err), repr(self), location=fn)
         except ValueError as err:
             logger.warning(str(err), location=fn)
 
