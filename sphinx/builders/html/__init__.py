@@ -32,7 +32,7 @@ from sphinx.builders import Builder
 from sphinx.config import ENUM, Config
 from sphinx.domains import Domain, Index, IndexEntry
 from sphinx.environment.adapters.asset import ImageAdapter
-from sphinx.environment.adapters.indexentries import IndexEntries
+from sphinx.environment.adapters.indexrack import IndexRack
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.errors import ConfigError, ThemeError
 from sphinx.highlighting import PygmentsBridge
@@ -687,7 +687,7 @@ class StandaloneHTMLBuilder(Builder):
     def write_genindex(self) -> None:
         # the total count of lines for each index letter, used to distribute
         # the entries into two columns
-        genindex = IndexEntries(self.env).create_index(self)
+        genindex = IndexRack(self).create_index()
         indexcounts = []
         for _k, entries in genindex:
             indexcounts.append(sum(1 + len(subitems)
