@@ -2814,6 +2814,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
                          ENUM("signature", "description", "none", "both"))
     app.add_config_value('autodoc_typehints_description_target', 'all', True,
                          ENUM('all', 'documented'))
+    app.add_config_value('autodoc_typehints_types_qualified', 'full', True,
+                         ENUM('full', 'class-only'))
     app.add_config_value('autodoc_type_aliases', {}, True)
     app.add_config_value('autodoc_warningiserror', True, True)
     app.add_config_value('autodoc_inherit_docstrings', True, True)
