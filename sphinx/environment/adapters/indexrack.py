@@ -1,10 +1,5 @@
 """
-Sphindexer
-~~~~~~~~~~
-A Sphinx Indexer.
-
-:copyright: Copyright 2021 by @koKekkoh.
-:license: BSD, see LICENSE for details.
+A Sphinx Indexer
 """
 
 import re
