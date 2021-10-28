@@ -166,7 +166,7 @@ class IndexUnit(object):
 # ------------------------------------------------------------
 
 
-_each_words = re.compile(r' *; +')
+_each_words = re.compile(r' *; *')
 
 
 class IndexEntry(nodes.Element):
