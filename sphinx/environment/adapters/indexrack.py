@@ -457,13 +457,15 @@ class IndexRack(object):
         # If you have a function name and a module name in the format that _fixre expects,
         # and you have multiple functions with the same name.
         if m and self._function_catalog[m.group(1)] > 1:
+            unit[self.UNIT_TERM] = self.textclass(m.group(1))
+
             if unit[self.UNIT_SBTM]:
                 subterm = unit[self.UNIT_SBTM].astext()
-                unit[self.UNIT_TERM] = self.textclass(m.group(1) + ', ' + subterm)
+                term = self.textclass(m.group(2) + ', ' + subterm)
             else:
-                unit[self.UNIT_TERM] = self.textclass(m.group(1))
+                term = self.textclass(m.group(2))
 
-            term = self.textclass(m.group(2))
+ 
             unit[self.UNIT_SBTM] = self.packclass(unit[self.UNIT_EMPH], term)
 
     def sort_units(self):
