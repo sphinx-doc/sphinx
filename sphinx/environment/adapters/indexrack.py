@@ -462,7 +462,7 @@ class IndexRack(object):
         # If you have a function name and a module name in the format that _fixre expects,
         # and you have multiple functions with the same name.
         if m and self._function_catalog[m.group(1)] > 1:
-            assert not unit[self.UNIT_SBTM], f'{self.__class__.__name__}: subterm is not null'
+            assert not unit[self.UNIT_SBTM], repr(unit)
 
             unit[self.UNIT_TERM] = self.textclass(m.group(1))
             term = self.textclass(m.group(2))
