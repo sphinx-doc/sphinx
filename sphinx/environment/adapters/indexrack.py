@@ -166,7 +166,7 @@ _each_words = re.compile(r' *; *')
 
 class IndexEntry(nodes.Element):
 
-    _number_of_terms = {'test': 99}
+    other_entry_types = ('list')
 
     def __init__(self, rawtext, entry_type='single', file_name=None, target=None,
                  main='', index_key='', textclass=None):
@@ -276,7 +276,7 @@ class IndexEntry(nodes.Element):
                 index_units.append(_index_unit(self[0], self[1], ''))
             elif etype == 'seealso':
                 index_units.append(_index_unit(self[0], self[1], ''))
-            elif etype in self._number_of_terms:
+            elif etype in self.other_entry_types:
                 for i in range(len(self)):
                     index_units.append(_index_unit(self[i], '', ''))
             else:
