@@ -866,7 +866,9 @@ def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
         for basecls in getmro(cls):
             meth = basecls.__dict__.get(name)
             if meth and hasattr(meth, '__func__'):
-                return getdoc(meth.__func__)
+                doc = getdoc(meth.__func__)
+                if doc is not None or not allow_inherited:
+                    return doc
 
     doc = attrgetter(obj, '__doc__', None)
     if ispartial(obj) and doc == obj.__class__.__doc__:
