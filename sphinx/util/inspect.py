@@ -614,6 +614,17 @@ def _should_unwrap(subject: Callable) -> bool:
     return False
 
 
+def _fix_type_alias_forward_ref(annotation: Any) -> Any:
+    if isinstance(annotation, TypeAliasForwardRef):
+        return annotation.name
+
+    if hasattr(annotation, "__args__"):
+        new_args = tuple(_fix_type_alias_forward_ref(arg) for arg in annotation.__args__)
+        return annotation.copy_with(new_args)
+
+    return annotation
+
+
 def signature(subject: Callable, bound_method: bool = False, follow_wrapped: bool = None,
               type_aliases: Dict = {}) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
@@ -655,15 +666,10 @@ def signature(subject: Callable, bound_method: bool = False, follow_wrapped: boo
         annotations = typing.get_type_hints(subject, None, localns)
         for i, param in enumerate(parameters):
             if param.name in annotations:
-                annotation = annotations[param.name]
-                if isinstance(annotation, TypeAliasForwardRef):
-                    annotation = annotation.name
+                annotation = _fix_type_alias_forward_ref(annotations[param.name])
                 parameters[i] = param.replace(annotation=annotation)
         if 'return' in annotations:
-            if isinstance(annotations['return'], TypeAliasForwardRef):
-                return_annotation = annotations['return'].name
-            else:
-                return_annotation = annotations['return']
+            return_annotation = _fix_type_alias_forward_ref(annotations['return'])
     except Exception:
         # ``get_type_hints()`` does not support some kind of objects like partial,
         # ForwardRef and so on.
