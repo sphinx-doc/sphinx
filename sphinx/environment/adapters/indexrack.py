@@ -441,13 +441,25 @@ class IndexRack(object):
 
         # ［重要］if/elifの判定順
         if ikey:
-            clsf = self.textclass(ikey)
+            ikey = unicodedata.normalize('NFD', ikey)
+            if ikey.startswith('\N{RIGHT-TO-LEFT MARK}'):
+                ikey = ikey[1:]
+            _raw, _key = ikey, ikey
         elif word in self._classifier_catalog:
-            clsf = self.textclass(self._classifier_catalog[word])
+            _raw, _key = word, self._classifier_catalog[word]
         else:
-            char = self.make_classifier_from_first_letter(term.astext())
-            clsf = self.textclass(char)
+            _raw, _key = term.astext(), self.make_classifier_from_first_letter(term.astext())
+
+        clsf = self.textclass(_key)
         clsf.whatiam = 'classifier'
+
+        _raw = unicodedata.normalize('NFD', _raw[0:1])
+        if _raw.isalpha() or _raw == '_':
+            unit._category_key = 1
+        else:
+            # symbol
+            unit._category_key = 0
+
         unit[self.UNIT_CLSF] = clsf
 
     def update_unit_with_function_catalog(self, unit):
@@ -478,13 +490,15 @@ class IndexRack(object):
             unit[self.UNIT_SBTM] = self.packclass(unit[self.UNIT_EMPH], term)
 
     def sort_units(self):
-        self._rack.sort(key=lambda x: (
-            x[self.UNIT_CLSF].astext(),  # classifier
-            x[self.UNIT_TERM].astext(),  # term
-            x._sort_order,               # entry type in('see', 'seealso')
-            x[self.UNIT_SBTM].astext(),  # subterm
-            x[self.UNIT_EMPH],           # emphasis(main)
-            x['file_name'], x['target']))
+        self._rack.sort(key=lambda unit: (
+            unit._category_key,
+            unit[self.UNIT_CLSF].astext().lower(),  # classifier
+            unit[self.UNIT_TERM].astext().lower(),  # term
+            unit._sort_order,                       # entry type in('see', 'seealso')
+            unit[self.UNIT_SBTM].astext().lower(),  # subterm
+            unit[self.UNIT_EMPH],                   # emphasis(main)
+            unit['file_name'],
+            unit['target']), )
         # about x['file_name'], x['target'].
         # Reversing it will make it dependent on the presence of "make clean".
 
