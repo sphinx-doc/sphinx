@@ -12,6 +12,9 @@ Deprecated
 
 Features added
 --------------
+ 
+* #9800: extlinks: Emit warning if a hardcoded link is replaceable
+  by an extlink, suggesting a replacement.
 
 * #9815: html theme: Wrap sidebar components in div to allow customizing their
   layout via CSS
