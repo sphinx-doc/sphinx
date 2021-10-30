@@ -66,6 +66,8 @@ Bugs fixed
 * #9756: autodoc: Crashed if classmethod does not have __func__ attribute
 * #9757: autodoc: :confval:`autodoc_inherit_docstrings` does not effect to
   overriden classmethods
+* #9781: autodoc: :confval:`autodoc_preserve_defaults` does not support
+  hexadecimal numeric
 * #9630: autosummary: Failed to build summary table if :confval:`primary_domain`
   is not 'py'
 * #9670: html: Fix download file with special characters
