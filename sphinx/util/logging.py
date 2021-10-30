@@ -171,6 +171,11 @@ class MemoryHandler(logging.handlers.BufferingHandler):
     def shouldFlush(self, record: logging.LogRecord) -> bool:
         return False  # never flush
 
+    def flush(self) -> None:
+        # suppress any flushes triggered by importing packages that flush
+        # all handlers at initialization time
+        pass
+
     def flushTo(self, logger: logging.Logger) -> None:
         self.acquire()
         try:
