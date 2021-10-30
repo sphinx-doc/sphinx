@@ -80,6 +80,8 @@ Bugs fixed
   directive with ``:property:`` option
 * #9708: needs_extension failed to check double-digit version correctly
 * #9688: Fix :rst:dir:`code`` does not recognize ``:class:`` option
+* #9733: Fix for logging handler flushing warnings in the middle of the docs
+  build
 
 Testing
 --------
