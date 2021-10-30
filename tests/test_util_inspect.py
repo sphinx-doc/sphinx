@@ -677,6 +677,25 @@ def test_unpartial():
     assert inspect.unpartial(func3) is func1
 
 
+def test_getdoc_inherited_classmethod():
+    class Foo:
+        @classmethod
+        def meth(self):
+            """
+            docstring
+                indented text
+            """
+
+    class Bar(Foo):
+        @classmethod
+        def meth(self):
+            # inherited classmethod
+            pass
+
+    assert inspect.getdoc(Bar.meth, getattr, False, Bar, "meth") is None
+    assert inspect.getdoc(Bar.meth, getattr, True, Bar, "meth") == Foo.meth.__doc__
+
+
 def test_getdoc_inherited_decorated_method():
     class Foo:
         def meth(self):
