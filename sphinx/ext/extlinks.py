@@ -26,6 +26,7 @@
 """
 
 import warnings
+import re
 from typing import Any, Dict, List, Tuple
 
 from docutils import nodes, utils
@@ -35,8 +36,51 @@ from docutils.parsers.rst.states import Inliner
 import sphinx
 from sphinx.application import Sphinx
 from sphinx.deprecation import RemovedInSphinx60Warning
+from sphinx.locale import __
+from sphinx.transforms.post_transforms import SphinxPostTransform
+from sphinx.util import logging
 from sphinx.util.nodes import split_explicit_title
 from sphinx.util.typing import RoleFunction
+
+
+class ExternalLinksChecker(SphinxPostTransform):
+    """
+    For each external link, check if it can be replaced by an extlink.
+
+    We treat each ``reference`` node without ``internal`` attribute as an external link.
+    """
+
+    default_priority = 900
+
+    def run(self, **kwargs: Any) -> None:
+        for refnode in self.document.traverse(nodes.reference):
+            self.check_uri(refnode)
+
+    def check_uri(self, refnode: nodes.reference) -> None:
+        """
+        If the URI in ``refnode`` has a replacement in ``extlinks``,
+        emit a warning with a replacement suggestion.
+        """
+        if 'internal' in refnode or 'refuri' not in refnode:
+            return
+
+        uri = refnode['refuri']
+        lineno = sphinx.util.nodes.get_node_line(refnode)
+        extlinks_config = getattr(self.app.config, 'extlinks', dict())
+
+        for alias, (base_uri, caption) in extlinks_config.items():
+            uri_pattern = re.compile(base_uri.replace('%s', '(?P<value>.+)'))
+            match = uri_pattern.match(uri)
+            if match and match.groupdict().get('value'):
+                # build a replacement suggestion
+                replacement = f":{alias}:`{match.groupdict().get('value')}`"
+                location = (self.env.docname, lineno)
+                logger.warning(
+                    'hardcoded link %r could be replaced by an extlink (try using %r instead)',
+                    uri,
+                    replacement,
+                    location=location,
+                )
 
 
 def make_link_role(name: str, base_url: str, caption: str) -> RoleFunction:
@@ -85,4 +129,5 @@ def setup_link_roles(app: Sphinx) -> None:
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('extlinks', {}, 'env')
     app.connect('builder-inited', setup_link_roles)
+    app.add_post_transform(ExternalLinksChecker)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
