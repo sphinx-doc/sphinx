@@ -3,6 +3,7 @@ A Sphinx Indexer
 """
 
 import re
+import unicodedata
 from typing import Any, List, Tuple, Pattern, cast
 
 from docutils import nodes
@@ -188,6 +189,9 @@ class IndexEntry(nodes.Element):
 
         terms = []
         for rawword in rawwords:
+            rawword = unicodedata.normalize('NFD', rawword)
+            if rawword.startswith('\N{RIGHT-TO-LEFT MARK}'):
+                rawword = rawword[1:]
             terms.append(textclass(rawword))
 
         super().__init__(rawtext, *terms, entry_type=entry_type,
@@ -406,7 +410,12 @@ class IndexRack(object):
                 pass
 
     def make_classifier_from_first_letter(self, text):
-        return text[:1].upper()
+        letter = text[:1].upper()
+        if letter.isalpha() or letter == '_':
+            return letter
+        else:
+            # get all other symbols under one heading
+            return _('Symbols')
 
     def update_units(self):
         """Update with the catalog."""
