@@ -45,7 +45,6 @@ def test_create_single_index(app):
     # ignored when getting the first letter.
     assert index[5] == ('ע', [('‏עברית‎', [[('', '#index-7')], [], None])])
 
-
 @pytest.mark.sphinx('dummy', freshenv=True)
 def test_create_pair_index(app):
     text = (".. index:: pair: docutils; reStructuredText\n"
@@ -169,3 +168,21 @@ def test_create_index_by_key(app):
     assert index[0] == ('D', [('docutils', [[('main', '#term-docutils')], [], None])])
     assert index[1] == ('P', [('Python', [[('main', '#term-Python')], [], None])])
     assert index[2] == ('ス', [('スフィンクス', [[('main', '#term-0')], [], 'ス'])])
+
+@pytest.mark.sphinx('dummy', freshenv=True)
+def test_issue9795(app):
+    text = (".. index:: Ель\n"
+            ".. index:: ёлка\n")
+    restructuredtext.parse(app, text)
+    index = IndexRack(app.builder).create_index()
+    assert len(index) == 1
+    assert index[0][0] == 'Е'
+    assert index[0][1][1] == ('Ель', [[('', '#index-0')], [], None])
+    assert index[0][1][0][1] == [[('', '#index-1')], [], None]
+    assert index[0][1][0][0] == 'ёлка'
+    assert index[0][1][0] == ('ёлка', [[('', '#index-1')], [], None])
+    assert index[0][1] == [('ёлка', [[('', '#index-1')], [], None]),
+                           ('Ель', [[('', '#index-0')], [], None])]
+    assert index[0] == ('Е',
+                        [('ёлка', [[('', '#index-1')], [], None]),
+                         ('Ель', [[('', '#index-0')], [], None])])
