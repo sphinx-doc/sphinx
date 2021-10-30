@@ -296,9 +296,9 @@ class Locale(SphinxTransform):
                     lst.append(new)
 
             is_autofootnote_ref = NodeMatcher(nodes.footnote_reference, auto=Any)
-            old_foot_refs: List[nodes.footnote_reference] = node.traverse(is_autofootnote_ref)
-            new_foot_refs: List[nodes.footnote_reference] = patch.traverse(is_autofootnote_ref)
-            if len(list(old_foot_refs)) != len(list(new_foot_refs)):
+            old_foot_refs: List[nodes.footnote_reference] = list(node.traverse(is_autofootnote_ref))  # NOQA
+            new_foot_refs: List[nodes.footnote_reference] = list(patch.traverse(is_autofootnote_ref))  # NOQA
+            if len(old_foot_refs) != len(new_foot_refs):
                 old_foot_ref_rawsources = [ref.rawsource for ref in old_foot_refs]
                 new_foot_ref_rawsources = [ref.rawsource for ref in new_foot_refs]
                 logger.warning(__('inconsistent footnote references in translated message.' +
@@ -339,9 +339,9 @@ class Locale(SphinxTransform):
             # * use translated refname for section refname.
             # * inline reference "`Python <...>`_" has no 'refname'.
             is_refnamed_ref = NodeMatcher(nodes.reference, refname=Any)
-            old_refs: List[nodes.reference] = node.traverse(is_refnamed_ref)
-            new_refs: List[nodes.reference] = patch.traverse(is_refnamed_ref)
-            if len(list(old_refs)) != len(list(new_refs)):
+            old_refs: List[nodes.reference] = list(node.traverse(is_refnamed_ref))
+            new_refs: List[nodes.reference] = list(patch.traverse(is_refnamed_ref))
+            if len(old_refs) != len(new_refs):
                 old_ref_rawsources = [ref.rawsource for ref in old_refs]
                 new_ref_rawsources = [ref.rawsource for ref in new_refs]
                 logger.warning(__('inconsistent references in translated message.' +
@@ -366,10 +366,10 @@ class Locale(SphinxTransform):
 
             # refnamed footnote should use original 'ids'.
             is_refnamed_footnote_ref = NodeMatcher(nodes.footnote_reference, refname=Any)
-            old_foot_refs = node.traverse(is_refnamed_footnote_ref)
-            new_foot_refs = patch.traverse(is_refnamed_footnote_ref)
+            old_foot_refs = list(node.traverse(is_refnamed_footnote_ref))
+            new_foot_refs = list(patch.traverse(is_refnamed_footnote_ref))
             refname_ids_map: Dict[str, List[str]] = {}
-            if len(list(old_foot_refs)) != len(list(new_foot_refs)):
+            if len(old_foot_refs) != len(new_foot_refs):
                 old_foot_ref_rawsources = [ref.rawsource for ref in old_foot_refs]
                 new_foot_ref_rawsources = [ref.rawsource for ref in new_foot_refs]
                 logger.warning(__('inconsistent footnote references in translated message.' +
@@ -385,10 +385,10 @@ class Locale(SphinxTransform):
 
             # citation should use original 'ids'.
             is_citation_ref = NodeMatcher(nodes.citation_reference, refname=Any)
-            old_cite_refs: List[nodes.citation_reference] = node.traverse(is_citation_ref)
-            new_cite_refs: List[nodes.citation_reference] = patch.traverse(is_citation_ref)
+            old_cite_refs: List[nodes.citation_reference] = list(node.traverse(is_citation_ref))  # NOQA
+            new_cite_refs: List[nodes.citation_reference] = list(patch.traverse(is_citation_ref))  # NOQA
             refname_ids_map = {}
-            if len(list(old_cite_refs)) != len(list(new_cite_refs)):
+            if len(old_cite_refs) != len(new_cite_refs):
                 old_cite_ref_rawsources = [ref.rawsource for ref in old_cite_refs]
                 new_cite_ref_rawsources = [ref.rawsource for ref in new_cite_refs]
                 logger.warning(__('inconsistent citation references in translated message.' +
@@ -405,10 +405,10 @@ class Locale(SphinxTransform):
             # Original pending_xref['reftarget'] contain not-translated
             # target name, new pending_xref must use original one.
             # This code restricts to change ref-targets in the translation.
-            old_xrefs = node.traverse(addnodes.pending_xref)
-            new_xrefs = patch.traverse(addnodes.pending_xref)
+            old_xrefs = list(node.traverse(addnodes.pending_xref))
+            new_xrefs = list(patch.traverse(addnodes.pending_xref))
             xref_reftarget_map = {}
-            if len(list(old_xrefs)) != len(list(new_xrefs)):
+            if len(old_xrefs) != len(new_xrefs):
                 old_xref_rawsources = [xref.rawsource for xref in old_xrefs]
                 new_xref_rawsources = [xref.rawsource for xref in new_xrefs]
                 logger.warning(__('inconsistent term references in translated message.' +
