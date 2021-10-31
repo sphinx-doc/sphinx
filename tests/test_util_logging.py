@@ -131,6 +131,7 @@ def test_is_suppressed_warning():
     assert is_suppressed_warning("ref", "option", suppress_warnings) is True
     assert is_suppressed_warning("files", "image", suppress_warnings) is True
     assert is_suppressed_warning("files", "stylesheet", suppress_warnings) is True
+    assert is_suppressed_warning("rest", None, suppress_warnings) is False
     assert is_suppressed_warning("rest", "syntax", suppress_warnings) is False
     assert is_suppressed_warning("rest", "duplicated_labels", suppress_warnings) is True
 
@@ -143,33 +144,39 @@ def test_suppress_warnings(app, status, warning):
 
     app.config.suppress_warnings = []
     warning.truncate(0)
+    logger.warning('message0', type='test')
     logger.warning('message1', type='test', subtype='logging')
     logger.warning('message2', type='test', subtype='crash')
     logger.warning('message3', type='actual', subtype='logging')
+    assert 'message0' in warning.getvalue()
     assert 'message1' in warning.getvalue()
     assert 'message2' in warning.getvalue()
     assert 'message3' in warning.getvalue()
-    assert app._warncount == 3
+    assert app._warncount == 4
 
     app.config.suppress_warnings = ['test']
     warning.truncate(0)
+    logger.warning('message0', type='test')
     logger.warning('message1', type='test', subtype='logging')
     logger.warning('message2', type='test', subtype='crash')
     logger.warning('message3', type='actual', subtype='logging')
+    assert 'message0' not in warning.getvalue()
     assert 'message1' not in warning.getvalue()
     assert 'message2' not in warning.getvalue()
     assert 'message3' in warning.getvalue()
-    assert app._warncount == 4
+    assert app._warncount == 5
 
     app.config.suppress_warnings = ['test.logging']
     warning.truncate(0)
+    logger.warning('message0', type='test')
     logger.warning('message1', type='test', subtype='logging')
     logger.warning('message2', type='test', subtype='crash')
     logger.warning('message3', type='actual', subtype='logging')
+    assert 'message0' in warning.getvalue()
     assert 'message1' not in warning.getvalue()
     assert 'message2' in warning.getvalue()
     assert 'message3' in warning.getvalue()
-    assert app._warncount == 6
+    assert app._warncount == 8
 
 
 def test_warningiserror(app, status, warning):
