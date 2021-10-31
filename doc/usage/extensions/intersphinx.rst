@@ -148,6 +148,35 @@ linking:
       exception is raised if the server has not issued a response for timeout
       seconds.
 
+.. confval:: intersphinx_disabled_reftypes
+
+   .. versionadded:: 4.3
+
+   A list of strings being either:
+
+   - the name of a specific reference type in a domain,
+     e.g., ``std:doc``, ``py:func``, or ``cpp:class``,
+   - the name of a domain, and a wildcard, e.g.,
+     ``std:*``, ``py:*``, or ``cpp:*``, or
+   - simply a wildcard ``*``.
+
+   The default value is an empty list.
+
+   When a cross-reference without an explicit inventory specification is being
+   resolved by intersphinx, skip resolution if it matches one of the
+   specifications in this list.
+
+   For example, with ``intersphinx_disabled_reftypes = ['std:doc']``
+   a cross-reference ``:doc:`installation``` will not be attempted to be
+   resolved by intersphinx, but ``:doc:`otherbook:installation``` will be
+   attempted to be resolved in the inventory named ``otherbook`` in
+   :confval:`intersphinx_mapping`.
+   At the same time, all cross-references generated in, e.g., Python,
+   declarations will still be attempted to be resolved by intersphinx.
+
+   If ``*`` is in the list of domains, then no references without an explicit
+   inventory will be resolved by intersphinx.
+
 
 Showing all links of an Intersphinx mapping file
 ------------------------------------------------
