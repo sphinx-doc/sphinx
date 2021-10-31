@@ -169,6 +169,7 @@ def test_create_index_by_key(app):
     assert index[1] == ('P', [('Python', [[('main', '#term-Python')], [], None])])
     assert index[2] == ('ス', [('スフィンクス', [[('main', '#term-0')], [], 'ス'])])
 
+
 @pytest.mark.sphinx('dummy', freshenv=True)
 def test_issue9795(app):
     text = (".. index:: Ель\n"
@@ -178,16 +179,97 @@ def test_issue9795(app):
     index = rack.create_index()
     assert len(index) == 1
     assert index[0][0] == 'Е'
-    assert rack._rack[0][1].rawsource == 'ёлка'
     assert index[0][1][1] == ('Ель', [[('', '#index-0')], [], None])
     assert index[0][1][0][1] == [[('', '#index-1')], [], None]
-    assert str(rack._rack[0][1].rawsource) == str('ёлка')
     assert rack._rack[0][1].rawsource == 'ёлка'
     assert rack._rack[0][1].astext() == 'ёлка'
     assert index[0][1][0][0] == 'ёлка'
-    assert index[0][1][0] == ('ёлка', [[('', '#index-1')], [], None])
-    assert index[0][1] == [('ёлка', [[('', '#index-1')], [], None]),
-                           ('Ель', [[('', '#index-0')], [], None])]
-    assert index[0] == ('Е',
-                        [('ёлка', [[('', '#index-1')], [], None]),
-                         ('Ель', [[('', '#index-0')], [], None])])
+
+
+class domain(object):
+    def __init__(self, entries):
+        self.entries = entries
+
+
+class environment(object):
+    def __init__(self, entries):
+        self.domain = {}
+        self.domain['index'] = domain(entries)
+    def get_domain(self, domain_type):
+        return self.domain[domain_type]
+
+
+class config(object):
+    def __init__(self):
+        self.parameter_name = 'value'
+
+
+class builder(object):
+    def __init__(self, entries):
+        self.env = environment(entries)
+        self.get_domain = self.env.get_domain
+        self.config = config()
+    def get_relative_uri(self, uri_type, file_name):
+        return f'{file_name}.html'
+
+
+def test_issue9744(app):
+    # classifier
+    testcase01 = { 
+        'doc1': [('single', 'aaa', 'id-111', '', 'clf1'),
+                 ('single', 'bbb', 'id-112', '', None), ],
+        'doc2': [('single', 'aaa', 'id-121', '', None),
+                 ('single', 'bbb', 'id-122', '', 'clf2'), ], }
+    bld = builder(testcase01)
+    index = IndexRack(bld).create_index()
+    assert len(index) == 2
+    assert index[0][0] == 'clf1'
+    assert index[0][1] == [('aaa', [[('', 'doc1.html#id-111'), ('', 'doc2.html#id-121')],
+                                    [], 'clf1']), ]
+    assert index[1][0] == 'clf2'
+    assert index[1][1] == [('bbb', [[('', 'doc1.html#id-112'), ('', 'doc2.html#id-122')],
+                                    [], None]), ]
+
+    # see/seealso
+    testcase02 = {
+        'doc1': [('see','hogehoge; foo','id-211','main',None),
+                 ('seealso','hogehoge; bar','id-212','main',None), ], }
+    bld = builder(testcase02)
+    index = IndexRack(bld).create_index()
+    assert len(index) == 1
+    assert index[0][0] == 'H'
+    assert index[0][1] == [('hogehoge', [[],
+                                         [('see also bar', []), ('see foo', [])],
+                                         None]), ]
+
+    # function
+    testcase03 = {
+        'doc1': [('single','func1() (aaa module)','id-311','',None),
+                 ('single','func1() (bbb module)','id-312','',None),
+                 ('single','func1() (ccc module)','id-313','',None), ], }
+    bld = builder(testcase03)
+    index = IndexRack(bld).create_index()
+    assert len(index) == 1
+    assert index[0][0] == 'F'
+    assert index[0][1] == [('func1()',
+                           [[],
+                            [('(aaa module)', [('', 'doc1.html#id-311')]),
+                             ('(bbb module)', [('', 'doc1.html#id-312')]),
+                             ('(ccc module)', [('', 'doc1.html#id-313')]), ],
+                            None], ), ]
+
+    # function with 'main'
+    testcase04 = {
+        'doc1': [('single','func1() (aaa module)','id-411','',None),
+                 ('single','func1() (bbb module)','id-412','',None),
+                 ('single','func1() (ccc module)','id-413','main',None), ], }
+    bld = builder(testcase04)
+    index = IndexRack(bld).create_index()
+    assert len(index) == 1
+    assert index[0][0] == 'F'
+    assert index[0][1] == [('func1()',
+                            [[],
+                             [('(aaa module)', [('', 'doc1.html#id-411')]),
+                              ('(bbb module)', [('', 'doc1.html#id-412')]),
+                              ('(ccc module)', [('main', 'doc1.html#id-413')]), ],
+                             None], ), ]
