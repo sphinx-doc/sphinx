@@ -11,7 +11,8 @@
 
 import ast
 import inspect
-from typing import Any, Dict
+import sys
+from typing import Any, Dict, List, Optional
 
 from sphinx.application import Sphinx
 from sphinx.locale import __
@@ -49,10 +50,31 @@ def get_function_def(obj: Any) -> ast.FunctionDef:
         return None
 
 
+def get_default_value(lines: List[str], position: ast.AST) -> Optional[str]:
+    try:
+        if sys.version_info < (3, 8):  # only for py38+
+            return None
+        elif position.lineno == position.end_lineno:
+            line = lines[position.lineno - 1]
+            return line[position.col_offset:position.end_col_offset]
+        else:
+            # multiline value is not supported now
+            return None
+    except (AttributeError, IndexError):
+        return None
+
+
 def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
     """Update defvalue info of *obj* using type_comments."""
     if not app.config.autodoc_preserve_defaults:
         return
+
+    try:
+        lines = inspect.getsource(obj).splitlines()
+        if lines[0].startswith((' ', r'\t')):
+            lines.insert(0, '')  # insert a dummy line to follow what get_function_def() does.
+    except OSError:
+        lines = []
 
     try:
         function = get_function_def(obj)
@@ -64,11 +86,17 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
             for i, param in enumerate(parameters):
                 if param.default is not param.empty:
                     if param.kind in (param.POSITIONAL_ONLY, param.POSITIONAL_OR_KEYWORD):
-                        value = DefaultValue(ast_unparse(defaults.pop(0)))  # type: ignore
-                        parameters[i] = param.replace(default=value)
+                        default = defaults.pop(0)
+                        value = get_default_value(lines, default)
+                        if value is None:
+                            value = ast_unparse(default)  # type: ignore
+                        parameters[i] = param.replace(default=DefaultValue(value))
                     else:
-                        value = DefaultValue(ast_unparse(kw_defaults.pop(0)))  # type: ignore
-                        parameters[i] = param.replace(default=value)
+                        default = kw_defaults.pop(0)
+                        value = get_default_value(lines, default)
+                        if value is None:
+                            value = ast_unparse(default)  # type: ignore
+                        parameters[i] = param.replace(default=DefaultValue(value))
             sig = sig.replace(parameters=parameters)
             obj.__signature__ = sig
     except (AttributeError, TypeError):
