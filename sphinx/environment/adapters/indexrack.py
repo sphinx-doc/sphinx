@@ -3,7 +3,7 @@ A Sphinx Indexer
 """
 
 import re
-import unicodedata
+from unicodedata import normalize
 from typing import Any, List, Tuple, Pattern, cast
 
 from docutils import nodes
@@ -189,10 +189,7 @@ class IndexEntry(nodes.Element):
 
         terms = []
         for rawword in rawwords:
-            rawword = unicodedata.normalize('NFD', rawword)
-            if rawword.startswith('\N{RIGHT-TO-LEFT MARK}'):
-                rawword = rawword[1:]
-            terms.append(textclass(rawword))
+            terms.append(textclass(rawword, rawword))
 
         super().__init__(rawtext, *terms, entry_type=entry_type,
                          file_name=file_name, target=target, main=main, index_key=index_key)
@@ -359,8 +356,8 @@ class IndexRack(object):
         # entries: Dict{file name: List[Tuple(type, value, tid, main, index_key)]}
 
         for fn, entries in entries.items():
-            for entry_type, value, tid, main, index_key in entries:
-                entry = self.entryclass(value, entry_type, fn, tid, main, index_key, self.textclass)
+            for entry_type, value, tid, main, ikey in entries:
+                entry = self.entryclass(value, entry_type, fn, tid, main, ikey, self.textclass)
                 entry.unitclass = self.unitclass
                 entry.packclass = self.packclass
                 index_units = entry.make_index_units()
@@ -410,11 +407,13 @@ class IndexRack(object):
                 pass
 
     def make_classifier_from_first_letter(self, text):
-        letter = text[:1].upper()
-        if letter.isalpha() or letter == '_':
-            return letter
+        text = normalize('NFD', text)
+        if text.startswith('\N{RIGHT-TO-LEFT MARK}'):
+            text = text[1:]
+
+        if text[0].upper().isalpha() or text.startswith('_'):
+            return text[0].upper()
         else:
-            # get all other symbols under one heading
             return _('Symbols')
 
     def update_units(self):
@@ -439,26 +438,16 @@ class IndexRack(object):
         term = unit[self.UNIT_TERM]
         word = self.get_word(term)
 
-        # ［重要］if/elifの判定順
+        # Important: The order in which if/elif decisions are made.
         if ikey:
-            ikey = unicodedata.normalize('NFD', ikey)
-            if ikey.startswith('\N{RIGHT-TO-LEFT MARK}'):
-                ikey = ikey[1:]
-            _raw, _key = ikey, ikey
+            _key, _raw = ikey, ikey
         elif word in self._classifier_catalog:
-            _raw, _key = word, self._classifier_catalog[word]
+            _key, _raw = self._classifier_catalog[word], word
         else:
-            _raw, _key = term.astext(), self.make_classifier_from_first_letter(term.astext())
+            _key, _raw = self.make_classifier_from_first_letter(term.astext()), term.astext()
 
-        clsf = self.textclass(_key)
+        clsf = self.textclass(_key, _raw)
         clsf.whatiam = 'classifier'
-
-        _raw = unicodedata.normalize('NFD', _raw[0:1])
-        if _raw.isalpha() or _raw == '_':
-            unit._category_key = 1
-        else:
-            # symbol
-            unit._category_key = 0
 
         unit[self.UNIT_CLSF] = clsf
 
@@ -489,14 +478,28 @@ class IndexRack(object):
  
             unit[self.UNIT_SBTM] = self.packclass(unit[self.UNIT_EMPH], term)
 
+    def for_sort(self, term):
+        text = term.astext()
+        if text == _('Symbols'):
+            return (0, text)
+
+        text = normalize('NFD', text.lower())
+        if text.startswith('\N{RIGHT-TO-LEFT MARK}'):
+            text = text[1:]
+
+        if text[0:1].isalpha() or text.startswith('_'):
+            return (1, text)
+        else:
+            # symbol
+            return (0, text)
+
     def sort_units(self):
         self._rack.sort(key=lambda unit: (
-            unit._category_key,
-            unit[self.UNIT_CLSF].astext().lower(),  # classifier
-            unit[self.UNIT_TERM].astext().lower(),  # term
-            unit._sort_order,                       # entry type in('see', 'seealso')
-            unit[self.UNIT_SBTM].astext().lower(),  # subterm
-            unit[self.UNIT_EMPH],                   # emphasis(main)
+            self.for_sort(unit[self.UNIT_CLSF]),  # classifier
+            self.for_sort(unit[self.UNIT_TERM]),  # term
+            unit._sort_order,                     # entry type in('see', 'seealso')
+            self.for_sort(unit[self.UNIT_SBTM]),  # subterm
+            unit[self.UNIT_EMPH],                 # emphasis(main)
             unit['file_name'],
             unit['target']), )
         # about x['file_name'], x['target'].

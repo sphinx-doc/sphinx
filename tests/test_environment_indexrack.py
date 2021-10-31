@@ -174,11 +174,16 @@ def test_issue9795(app):
     text = (".. index:: Ель\n"
             ".. index:: ёлка\n")
     restructuredtext.parse(app, text)
-    index = IndexRack(app.builder).create_index()
+    rack = IndexRack(app.builder)
+    index = rack.create_index()
     assert len(index) == 1
     assert index[0][0] == 'Е'
+    assert rack._rack[0][1].rawsource == 'ёлка'
     assert index[0][1][1] == ('Ель', [[('', '#index-0')], [], None])
     assert index[0][1][0][1] == [[('', '#index-1')], [], None]
+    assert str(rack._rack[0][1].rawsource) == str('ёлка')
+    assert rack._rack[0][1].rawsource == 'ёлка'
+    assert rack._rack[0][1].astext() == 'ёлка'
     assert index[0][1][0][0] == 'ёлка'
     assert index[0][1][0] == ('ёлка', [[('', '#index-1')], [], None])
     assert index[0][1] == [('ёлка', [[('', '#index-1')], [], None]),
