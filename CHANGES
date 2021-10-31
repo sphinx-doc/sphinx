@@ -85,6 +85,8 @@ Bugs fixed
 * #9755: autodoc: memory addresses are shown for aliases
 * #9752: autodoc: Failed to detect type annotation for slots attribute
 * #9756: autodoc: Crashed if classmethod does not have __func__ attribute
+* #9757: autodoc: :confval:`autodoc_inherit_docstrings` does not effect to
+  overriden classmethods
 * #9630: autosummary: Failed to build summary table if :confval:`primary_domain`
   is not 'py'
 * #9670: html: Fix download file with special characters
@@ -97,8 +99,12 @@ Bugs fixed
 * #9678: linkcheck: file extension was shown twice in warnings
 * #9697: py domain: An index entry with parens was registered for ``py:method``
   directive with ``:property:`` option
+* #9775: py domain: Literal typehint was converted to a cross reference when
+  :confval:`autodoc_typehints='description'`
 * #9708: needs_extension failed to check double-digit version correctly
 * #9688: Fix :rst:dir:`code`` does not recognize ``:class:`` option
+* #9733: Fix for logging handler flushing warnings in the middle of the docs
+  build
 
 Testing
 --------
