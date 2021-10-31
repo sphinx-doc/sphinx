@@ -46,7 +46,7 @@ from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.util import logging, requests
 from sphinx.util.inventory import InventoryFile
-from sphinx.util.typing import Inventory, InventoryInner
+from sphinx.util.typing import Inventory, InventoryItem
 
 logger = logging.getLogger(__name__)
 
@@ -260,7 +260,7 @@ def load_mappings(app: Sphinx) -> None:
 
 
 def _create_element_from_result(domain: Domain, inv_name: Optional[str],
-                                data: InventoryInner,
+                                data: InventoryItem,
                                 node: pending_xref, contnode: TextElement) -> Element:
     proj, version, uri, dispname = data
     if '://' not in uri and node.get('refdoc'):

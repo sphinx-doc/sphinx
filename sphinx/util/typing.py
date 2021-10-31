@@ -70,8 +70,8 @@ OptionSpec = Dict[str, Callable[[str], Any]]
 TitleGetter = Callable[[nodes.Node], str]
 
 # inventory data on memory
-InventoryInner = Tuple[str, str, str, str]
-Inventory = Dict[str, Dict[str, InventoryInner]]
+InventoryItem = Tuple[str, str, str, str]
+Inventory = Dict[str, Dict[str, InventoryItem]]
 
 
 def get_type_hints(obj: Any, globalns: Dict = None, localns: Dict = None) -> Dict[str, Any]:
