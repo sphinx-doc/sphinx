@@ -10,7 +10,8 @@
 
 import pytest
 
-from sphinx.environment.adapters.indexrack import IndexRack
+from docutils.nodes import Text as txtcls
+from sphinx.environment.adapters import indexrack as irack
 from sphinx.testing import restructuredtext
 
 
@@ -28,7 +29,7 @@ def test_create_single_index(app):
             ".. index:: &-symbol\n"
             ".. index:: £100\n")
     restructuredtext.parse(app, text)
-    index = IndexRack(app.builder).create_index()
+    index = irack.IndexRack(app.builder).create_index()
     assert len(index) == 6
     assert index[0] == ('Symbols', [('&-symbol', [[('', '#index-9')], [], None]),
                                     ('9-symbol', [[('', '#index-8')], [], None]),
@@ -54,7 +55,7 @@ def test_create_pair_index(app):
             ".. index:: pair: Sphinx; Ель\n"
             ".. index:: pair: Sphinx; ёлка\n")
     restructuredtext.parse(app, text)
-    index = IndexRack(app.builder).create_index()
+    index = irack.IndexRack(app.builder).create_index()
     assert len(index) == 7
     assert index[0] == ('Symbols', [(':+1:', [[], [('Sphinx', [('', '#index-3')])], None])])
     assert index[1] == ('D',
@@ -81,7 +82,7 @@ def test_create_triple_index(app):
     text = (".. index:: triple: foo; bar; baz\n"
             ".. index:: triple: Python; Sphinx; reST\n")
     restructuredtext.parse(app, text)
-    index = IndexRack(app.builder).create_index()
+    index = irack.IndexRack(app.builder).create_index()
     assert len(index) == 5
     assert index[0] == ('B', [('bar', [[], [('baz, foo', [('', '#index-0')])], None]),
                               ('baz', [[], [('foo bar', [('', '#index-0')])], None])])
@@ -97,7 +98,7 @@ def test_create_see_index(app):
             ".. index:: see: Python; interpreter\n"
             ".. index:: see: Sphinx; documentation tool\n")
     restructuredtext.parse(app, text)
-    index = IndexRack(app.builder).create_index()
+    index = irack.IndexRack(app.builder).create_index()
     assert len(index) == 3
     assert index[0] == ('D', [('docutils', [[], [('see reStructuredText', [])], None])])
     assert index[1] == ('P', [('Python', [[], [('see interpreter', [])], None])])
@@ -110,7 +111,7 @@ def test_create_seealso_index(app):
             ".. index:: seealso: Python; interpreter\n"
             ".. index:: seealso: Sphinx; documentation tool\n")
     restructuredtext.parse(app, text)
-    index = IndexRack(app.builder).create_index()
+    index = irack.IndexRack(app.builder).create_index()
     assert len(index) == 3
     assert index[0] == ('D', [('docutils', [[], [('see also reStructuredText', [])], None])])
     assert index[1] == ('P', [('Python', [[], [('see also interpreter', [])], None])])
@@ -124,7 +125,7 @@ def test_create_main_index(app):
             ".. index:: pip; install\n"
             ".. index:: !pip; install\n")
     restructuredtext.parse(app, text)
-    index = IndexRack(app.builder).create_index()
+    index = irack.IndexRack(app.builder).create_index()
     assert len(index) == 2
     assert index[0] == ('D', [('docutils', [[('main', '#index-0'),
                                              ('', '#index-1')], [], None])])
@@ -140,7 +141,7 @@ def test_create_index_with_name(app):
             "   :name: ref2\n"
             ".. index:: Sphinx\n")
     restructuredtext.parse(app, text)
-    index = IndexRack(app.builder).create_index()
+    index = irack.IndexRack(app.builder).create_index()
 
     # check index is created correctly
     assert len(index) == 3
@@ -163,7 +164,7 @@ def test_create_index_by_key(app):
             "   Python\n"
             "   スフィンクス : ス\n")
     restructuredtext.parse(app, text)
-    index = IndexRack(app.builder).create_index()
+    index = irack.IndexRack(app.builder).create_index()
     assert len(index) == 3
     assert index[0] == ('D', [('docutils', [[('main', '#term-docutils')], [], None])])
     assert index[1] == ('P', [('Python', [[('main', '#term-Python')], [], None])])
@@ -175,7 +176,7 @@ def test_issue9795(app):
     text = (".. index:: Ель\n"
             ".. index:: ёлка\n")
     restructuredtext.parse(app, text)
-    rack = IndexRack(app.builder)
+    rack = irack.IndexRack(app.builder)
     index = rack.create_index()
     assert len(index) == 1
     assert index[0][0] == 'Е'
@@ -213,6 +214,131 @@ class builder(object):
         return f'{file_name}.html'
 
 
+@pytest.mark.sphinx('dummy', freshenv=True)
+def test_class_IndexUnit(app):
+    main = "3"
+    repr00 = "<Subterm: len=2 <#text: 'sphinx'><#text: 'python'>>"
+
+    # triple/repr
+    pack = irack.Subterm(main, txtcls('sphinx'), txtcls('python'))
+    unit = irack.IndexUnit(txtcls('docutils'), pack, '2', main, 'doc1', 'term-1', 'clsf')
+    assert repr(pack) == repr00
+    assert repr(unit) == "<IndexUnit: main='3' file_name='doc1' target='term-1' " \
+                         "<#empty><#text: 'docutils'>" \
+                         "<Subterm: len=2 <#text: 'sphinx'><#text: 'python'>>>"
+
+    # triple/repr
+    pack = irack.Subterm(main, txtcls('sphinx'), txtcls('python'))
+    unit = irack.IndexUnit(txtcls('docutils'), pack, '2', main, 'doc1', 'term-1', 'clsf')
+    unit[0] = txtcls(unit['index_key'])
+    assert repr(unit) == "<IndexUnit: main='3' file_name='doc1' target='term-1' " \
+                         "<#text: 'clsf'><#text: 'docutils'>" \
+                         "<Subterm: len=2 <#text: 'sphinx'><#text: 'python'>>>"
+
+    # triple/each attribute
+    pack = irack.Subterm(main, txtcls('sphinx'), txtcls('python'))
+    unit = irack.IndexUnit(txtcls('docutils'), pack, '2', main, 'doc1', 'term-1', 'clsf')
+    assert unit['main'] == main
+    assert unit['file_name'] == 'doc1'
+    assert unit['target'] == 'term-1'
+    assert unit['index_key'] == 'clsf'
+
+    # triple/each object
+    pack = irack.Subterm(main, txtcls('sphinx'), txtcls('python'))
+    unit = irack.IndexUnit(txtcls('docutils'), pack, '2', main, 'doc1', 'term-1', 'clsf')
+    assert repr(unit[0]) == "<#empty>"
+    assert repr(unit[1]) == "<#text: 'docutils'>"
+    assert repr(unit[2]) == repr00
+    assert unit[3] == main
+    unit[0] = txtcls(unit['index_key'])
+    unit[1] = txtcls(unit[1])
+    unit[2] = irack.Subterm(main, txtcls('sphinx'), txtcls('python'))
+    assert repr(unit[0]) == "<#text: 'clsf'>"
+    assert repr(unit[1]) == "<#text: 'docutils'>"
+    assert repr(unit[2]) == repr00
+
+    # triple/method
+    pack = irack.Subterm(main, txtcls('sphinx'), txtcls('python'))
+    unit = irack.IndexUnit(txtcls('docutils'), pack, '2', main, 'doc1', 'term-1', 'clsf')
+    children = unit.get_children()
+    assert children == ['docutils', 'sphinx', 'python']
+
+    # triple/method
+    pack = irack.Subterm(main, txtcls('sphinx'), txtcls('python'))
+    unit = irack.IndexUnit(txtcls('docutils'), pack, '2', main, 'doc1', 'term-1', 'clsf')
+    texts = unit.astexts()
+    assert texts == ['docutils', 'sphinx', 'python']
+    unit.set_subterm_delimiter()
+    text = unit[2].astext()
+    assert text == 'sphinx, python'
+
+    # exception
+    pack = irack.Subterm(main, txtcls('sphinx'), txtcls('python'))
+    unit = irack.IndexUnit(txtcls('docutils'), pack, '2', main, 'doc1', 'term-1', 'clsf')
+    with pytest.raises(KeyError):
+        a = unit['forbar']
+
+    # exception
+    pack = irack.Subterm(main, txtcls('sphinx'), txtcls('python'))
+    unit = irack.IndexUnit(txtcls('docutils'), pack, '2', main, 'doc1', 'term-1', 'clsf')
+    with pytest.raises(KeyError):
+        a = unit[99]
+
+    # exception
+    pack = irack.Subterm(main, txtcls('sphinx'), txtcls('python'))
+    unit = irack.IndexUnit(txtcls('docutils'), pack, '2', main, 'doc1', 'term-1', 'clsf')
+    with pytest.raises(TypeError):
+        a = unit[(99,'a')]
+
+    # exception
+    pack = irack.Subterm(main, txtcls('sphinx'), txtcls('python'))
+    unit = irack.IndexUnit(txtcls('docutils'), pack, '2', main, 'doc1', 'term-1', 'clsf')
+    with pytest.raises(KeyError):
+        unit[99] = 1
+
+    # exception
+    pack = irack.Subterm(main, txtcls('sphinx'), txtcls('python'))
+    unit = irack.IndexUnit(txtcls('docutils'), pack, '2', main, 'doc1', 'term-1', 'clsf')
+    with pytest.raises(TypeError):
+        unit[(99,'a')] = 1
+
+
+@pytest.mark.sphinx('dummy', freshenv=True)
+def test_class_Subterm(app):
+    # no text
+    pack = irack.Subterm('5')
+    assert str(pack) == ''
+    assert repr(pack) == '<Subterm: len=0 >'
+
+    # no text/see
+    pack = irack.Subterm('8')
+    assert str(pack) == ''
+    assert repr(pack) == "<Subterm: len=0 tpl='see %s' >"
+
+    # no text/seealso
+    pack = irack.Subterm('9')
+    assert str(pack) == ''
+    assert repr(pack) == "<Subterm: len=0 tpl='see also %s' >"
+
+    # text
+    pack = irack.Subterm('5', txtcls('sphinx'))
+    assert str(pack) == 'sphinx'
+    assert repr(pack) == "<Subterm: len=1 <#text: 'sphinx'>>"
+
+    # text/see
+    pack = irack.Subterm('8', txtcls('sphinx'))
+    assert str(pack) == 'see sphinx'
+    assert repr(pack) == "<Subterm: len=1 tpl='see %s' <#text: 'sphinx'>>"
+
+    pack = irack.Subterm('5', txtcls('sphinx'), txtcls('python'))
+    assert str(pack) == 'sphinx python'
+    assert repr(pack) == "<Subterm: len=2 <#text: 'sphinx'><#text: 'python'>>"
+    pack.set_delimiter(', ')
+    assert str(pack) == 'sphinx, python'
+    #assert repr(pack) == "<Subterm: len=2 <#text: 'sphinx'><#text: 'python'>>"
+
+
+@pytest.mark.sphinx('dummy', freshenv=True)
 def test_issue9744(app):
     # classifier
     testcase01 = { 
@@ -221,7 +347,7 @@ def test_issue9744(app):
         'doc2': [('single', 'aaa', 'id-121', '', None),
                  ('single', 'bbb', 'id-122', '', 'clf2'), ], }
     bld = builder(testcase01)
-    index = IndexRack(bld).create_index()
+    index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert index[0][0] == 'clf1'
     assert index[0][1] == [('aaa', [[('', 'doc1.html#id-111'), ('', 'doc2.html#id-121')],
@@ -235,7 +361,7 @@ def test_issue9744(app):
         'doc1': [('see','hogehoge; foo','id-211','main',None),
                  ('seealso','hogehoge; bar','id-212','main',None), ], }
     bld = builder(testcase02)
-    index = IndexRack(bld).create_index()
+    index = irack.IndexRack(bld).create_index()
     assert len(index) == 1
     assert index[0][0] == 'H'
     assert index[0][1] == [('hogehoge', [[],
@@ -248,7 +374,7 @@ def test_issue9744(app):
                  ('single','func1() (bbb module)','id-312','',None),
                  ('single','func1() (ccc module)','id-313','',None), ], }
     bld = builder(testcase03)
-    index = IndexRack(bld).create_index()
+    index = irack.IndexRack(bld).create_index()
     assert len(index) == 1
     assert index[0][0] == 'F'
     assert index[0][1] == [('func1()',
@@ -264,7 +390,7 @@ def test_issue9744(app):
                  ('single','func1() (bbb module)','id-412','',None),
                  ('single','func1() (ccc module)','id-413','main',None), ], }
     bld = builder(testcase04)
-    index = IndexRack(bld).create_index()
+    index = irack.IndexRack(bld).create_index()
     assert len(index) == 1
     assert index[0][0] == 'F'
     assert index[0][1] == [('func1()',
