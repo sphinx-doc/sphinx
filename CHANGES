@@ -47,9 +47,6 @@ Features added
 * #9695: More CSS classes on Javascript domain descriptions
 * #9683: Revert the removal of ``add_stylesheet()`` API.  It will be kept until
   the Sphinx-6.0 release
-* #2068, add :confval:`intersphinx_disabled_domains` for disabling
-  interphinx resolution of cross-references in specific domains when they
-  do not have an explicit inventory specification.
 * #2068, add :confval:`intersphinx_disabled_refs` for disabling
   interphinx resolution of cross-references that do not have an explicit
   inventory specification. Specific types of cross-references can be disabled,
