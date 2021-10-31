@@ -214,8 +214,109 @@ class builder(object):
         return f'{file_name}.html'
 
 
+#-------------------------------------------------------------------
+
 @pytest.mark.sphinx('dummy', freshenv=True)
-def test_class_IndexUnit(app):
+def test_class_IndexEntry_repr(app):
+    main = "3"
+
+    # single/one
+    entry = irack.IndexEntry('sphinx', 'single', 'doc1', 'term-1', 'main', 'key')
+    assert repr(entry) == "<IndexEntry: entry_type='single' " \
+                           "main='main' file_name='doc1' target='term-1' index_key='key' " \
+                           "<#text: 'sphinx'>>"
+    assert entry.astext() == "sphinx"
+    units = entry.make_index_units()
+    assert repr(units[0]) ==  "<IndexUnit: main='3' file_name='doc1' target='term-1' " \
+                              "<#empty><#text: 'sphinx'>>"
+
+    # single/two
+    entry = irack.IndexEntry('sphinx; python', 'single', 'doc1', 'term-1', 'main', 'key')
+    assert repr(entry) == "<IndexEntry: entry_type='single' " \
+                          "main='main' file_name='doc1' target='term-1' index_key='key' " \
+                          "<#text: 'sphinx'><#text: 'python'>>"
+    assert entry.astext() == "sphinx; python"
+    units = entry.make_index_units()
+    assert repr(units[0]) == "<IndexUnit: main='3' file_name='doc1' target='term-1' " \
+                            "<#empty><#text: 'sphinx'><Subterm: len=1 <#text: 'python'>>>"
+
+    # pair
+    entry = irack.IndexEntry('sphinx; python', 'pair', 'doc1', 'term-1', 'main', 'key')
+    assert repr(entry) == "<IndexEntry: entry_type='pair' " \
+                          "main='main' file_name='doc1' target='term-1' index_key='key' " \
+                          "<#text: 'sphinx'><#text: 'python'>>"
+    assert entry.astext() == "sphinx; python"
+    units = entry.make_index_units()
+    assert repr(units[0]) == "<IndexUnit: main='3' file_name='doc1' target='term-1' " \
+                             "<#empty><#text: 'sphinx'><Subterm: len=1 <#text: 'python'>>>"
+    assert repr(units[1]) == "<IndexUnit: main='3' file_name='doc1' target='term-1' " \
+                             "<#empty><#text: 'python'><Subterm: len=1 <#text: 'sphinx'>>>"
+
+    # triple
+    value = 'docutils; sphinx; python'
+    entry = irack.IndexEntry(value, 'triple', 'doc1', 'term-1', 'main', 'key')
+    assert repr(entry) == "<IndexEntry: entry_type='triple' " \
+                          "main='main' file_name='doc1' target='term-1' index_key='key' " \
+                          "<#text: 'docutils'><#text: 'sphinx'><#text: 'python'>>"
+    assert entry.astext() == "docutils; sphinx; python"
+    units = entry.make_index_units()
+    assert repr(units[0]) == "<IndexUnit: main='3' file_name='doc1' target='term-1' " \
+                             "<#empty><#text: 'docutils'>" \
+                             "<Subterm: len=2 <#text: 'sphinx'><#text: 'python'>>>"
+    assert repr(units[1]) == "<IndexUnit: main='3' file_name='doc1' target='term-1' " \
+                             "<#empty><#text: 'sphinx'>" \
+                             "<Subterm: len=2 <#text: 'python'><#text: 'docutils'>>>"
+    assert repr(units[2]) == "<IndexUnit: main='3' file_name='doc1' target='term-1' " \
+                             "<#empty><#text: 'python'>" \
+                             "<Subterm: len=2 <#text: 'docutils'><#text: 'sphinx'>>>"
+
+    # see
+    entry = irack.IndexEntry('sphinx; python', 'see', 'doc1', 'term-1', 'main', 'key')
+    assert repr(entry) == "<IndexEntry: entry_type='see' " \
+                          "main='main' file_name='doc1' target='term-1' index_key='key' " \
+                          "<#text: 'sphinx'><#text: 'python'>>"
+    assert entry.astext() == "sphinx; python"
+    units = entry.make_index_units()
+    assert repr(units[0]) == "<IndexUnit: main='8' file_name='doc1' target='term-1' " \
+                             "<#empty><#text: 'sphinx'>" \
+                             "<Subterm: len=1 tpl='see %s' <#text: 'python'>>>"
+
+    # seealso
+    entry = irack.IndexEntry('sphinx; python', 'seealso', 'doc1', 'term-1', 'main', 'key')
+    assert repr(entry) == "<IndexEntry: entry_type='seealso' " \
+                          "main='main' file_name='doc1' target='term-1' index_key='key' " \
+                          "<#text: 'sphinx'><#text: 'python'>>"
+    assert entry.astext() == "sphinx; python"
+    units = entry.make_index_units()
+    assert repr(units[0]) == "<IndexUnit: main='9' file_name='doc1' target='term-1' " \
+                             "<#empty><#text: 'sphinx'>" \
+                             "<Subterm: len=1 tpl='see also %s' <#text: 'python'>>>"
+
+    # other entry type
+    value = 'docutils; sphinx; python'
+    entry = irack.IndexEntry(value, 'list', 'doc1', 'term-1', 'main', 'key')
+    assert repr(entry) == "<IndexEntry: entry_type='list' " \
+                          "main='main' file_name='doc1' target='term-1' index_key='key' " \
+                          "<#text: 'docutils'><#text: 'sphinx'><#text: 'python'>>"
+    assert entry.astext() == "docutils; sphinx; python"
+    units = entry.make_index_units()
+    assert repr(units[0]) == "<IndexUnit: main='3' file_name='doc1' target='term-1' " \
+                             "<#empty><#text: 'docutils'>>"
+
+    # exception
+    value = 'docutils; sphinx; python'
+    entry = irack.IndexEntry(value, 'foobar', 'doc1', 'term-1', 'main', 'key')
+    assert repr(entry) == "<IndexEntry: entry_type='foobar' " \
+                          "main='main' file_name='doc1' target='term-1' index_key='key' " \
+                          "<#text: 'docutils'><#text: 'sphinx'><#text: 'python'>>"
+    assert entry.astext() == "docutils; sphinx; python"
+    units = entry.make_index_units()
+    with pytest.raises(IndexError):
+        a = repr(units[0])
+
+
+@pytest.mark.sphinx('dummy', freshenv=True)
+def test_class_IndexUnit_repr(app):
     main = "3"
     repr00 = "<Subterm: len=2 <#text: 'sphinx'><#text: 'python'>>"
 
@@ -304,7 +405,7 @@ def test_class_IndexUnit(app):
 
 
 @pytest.mark.sphinx('dummy', freshenv=True)
-def test_class_Subterm(app):
+def test_class_Subterm_repr(app):
     # no text
     pack = irack.Subterm('5')
     assert str(pack) == ''
