@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 4.3.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-10-25 16:47+0000\n"
+"POT-Creation-Date: 2021-10-31 00:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2884,7 +2884,7 @@ msgid "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr ""
 
 #: sphinx/ext/autodoc/__init__.py:1304 sphinx/ext/autodoc/__init__.py:1378
-#: sphinx/ext/autodoc/__init__.py:2735
+#: sphinx/ext/autodoc/__init__.py:2743
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr ""
@@ -2915,12 +2915,12 @@ msgstr ""
 msgid "Failed to get a method signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2349
+#: sphinx/ext/autodoc/__init__.py:2348
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2778
+#: sphinx/ext/autodoc/__init__.py:2786
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of "
 "\"alphabetic\". Please update your setting."
