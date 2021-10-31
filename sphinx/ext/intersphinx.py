@@ -340,7 +340,7 @@ def _resolve_reference_in_domain(env: BuildEnvironment,
 
     # now that the objtypes list is complete we can remove the disabled ones
     if honor_disabled_refs:
-        disabled = env.config.intersphinx_disabled_refs
+        disabled = env.config.intersphinx_disabled_reftypes
         objtypes = [o for o in objtypes if o not in disabled]
 
     # without qualification
@@ -363,14 +363,14 @@ def _resolve_reference(env: BuildEnvironment, inv_name: Optional[str], inventory
     # disabling should only be done if no inventory is given
     honor_disabled_refs = honor_disabled_refs and inv_name is None
 
-    if honor_disabled_refs and '*' in env.config.intersphinx_disabled_refs:
+    if honor_disabled_refs and '*' in env.config.intersphinx_disabled_reftypes:
         return None
 
     typ = node['reftype']
     if typ == 'any':
         for domain_name, domain in env.domains.items():
             if honor_disabled_refs \
-                    and domain_name in env.config.intersphinx_disabled_refs:
+                    and (domain_name + ":*") in env.config.intersphinx_disabled_reftypes:
                 continue
             objtypes = list(domain.object_types)
             res = _resolve_reference_in_domain(env, inv_name, inventory,
@@ -386,7 +386,7 @@ def _resolve_reference(env: BuildEnvironment, inv_name: Optional[str], inventory
             # only objects in domains are in the inventory
             return None
         if honor_disabled_refs \
-                and domain_name in env.config.intersphinx_disabled_refs:
+                and (domain_name + ":*") in env.config.intersphinx_disabled_reftypes:
             return None
         domain = env.get_domain(domain_name)
         objtypes = domain.objtypes_for_role(typ)
@@ -494,7 +494,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('intersphinx_mapping', {}, True)
     app.add_config_value('intersphinx_cache_limit', 5, False)
     app.add_config_value('intersphinx_timeout', None, False)
-    app.add_config_value('intersphinx_disabled_refs', [], True)
+    app.add_config_value('intersphinx_disabled_reftypes', [], True)
     app.connect('config-inited', normalize_intersphinx_mapping, priority=800)
     app.connect('builder-inited', load_mappings)
     app.connect('missing-reference', missing_reference)

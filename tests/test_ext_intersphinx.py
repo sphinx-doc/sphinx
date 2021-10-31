@@ -45,7 +45,7 @@ def reference_check(app, *args, **kwds):
 def set_config(app, mapping):
     app.config.intersphinx_mapping = mapping
     app.config.intersphinx_cache_limit = 0
-    app.config.intersphinx_disabled_refs = []
+    app.config.intersphinx_disabled_reftypes = []
 
 
 @mock.patch('sphinx.ext.intersphinx.InventoryFile')
@@ -338,19 +338,19 @@ def test_missing_reference_disabled_domain(tempdir, app, status, warning):
         assert_(rn, 'func()')
 
     # the base case, everything should resolve
-    assert app.config.intersphinx_disabled_refs == []
+    assert app.config.intersphinx_disabled_reftypes == []
     case(term=True, doc=True, py=True)
 
     # disabled a single ref type
-    app.config.intersphinx_disabled_refs = ['std:doc']
+    app.config.intersphinx_disabled_reftypes = ['std:doc']
     case(term=True, doc=False, py=True)
 
     # disabled a whole domain
-    app.config.intersphinx_disabled_refs = ['std']
+    app.config.intersphinx_disabled_reftypes = ['std:*']
     case(term=False, doc=False, py=True)
 
     # disabled all domains
-    app.config.intersphinx_disabled_refs = ['*']
+    app.config.intersphinx_disabled_reftypes = ['*']
     case(term=False, doc=False, py=False)
 
 
