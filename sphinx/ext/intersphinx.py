@@ -431,7 +431,6 @@ def resolve_reference_any_inventory(env: BuildEnvironment,
 
 
 def resolve_reference_detect_inventory(env: BuildEnvironment,
-                                       honor_disabled_refs: bool,
                                        node: pending_xref, contnode: TextElement
                                        ) -> Optional[Element]:
     """Attempt to resolve a missing reference via intersphinx references.
@@ -443,7 +442,7 @@ def resolve_reference_detect_inventory(env: BuildEnvironment,
     """
 
     # ordinary direct lookup, use data as is
-    res = resolve_reference_any_inventory(env, honor_disabled_refs, node, contnode)
+    res = resolve_reference_any_inventory(env, True, node, contnode)
     if res is not None:
         return res
 
@@ -464,7 +463,7 @@ def missing_reference(app: Sphinx, env: BuildEnvironment, node: pending_xref,
                       contnode: TextElement) -> Optional[Element]:
     """Attempt to resolve a missing reference via intersphinx references."""
 
-    return resolve_reference_detect_inventory(env, True, node, contnode)
+    return resolve_reference_detect_inventory(env, node, contnode)
 
 
 def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
