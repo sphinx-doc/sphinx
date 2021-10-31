@@ -350,7 +350,7 @@ def test_missing_reference_disabled_domain(tempdir, app, status, warning):
     case(term=False, doc=False, py=True)
 
     # disabled all domains
-    app.config.intersphinx_disabled_refs = ['all']
+    app.config.intersphinx_disabled_refs = ['*']
     case(term=False, doc=False, py=False)
 
 

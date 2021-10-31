@@ -157,7 +157,7 @@ linking:
    - the name of a specific reference type,
      e.g., ``std:doc``, ``py:func``, or ``cpp:class``,
    - the name of a whole domain, e.g., ``std``, ``py``, or ``cpp``, or
-   - the special name ``all``.
+   - the special name ``*``.
 
    When a cross-reference without an explicit inventory specification is being
    resolved by intersphinx, skip resolution it matches one of the
@@ -171,7 +171,7 @@ linking:
    At the same time, all cross-references generated in, e.g., Python,
    declarations will still be attempted to be resolved by intersphinx.
 
-   If ``all`` is in the list of domains, then no references without an explicit
+   If ``*`` is in the list of domains, then no references without an explicit
    inventory will be resolved by intersphinx.
 
 

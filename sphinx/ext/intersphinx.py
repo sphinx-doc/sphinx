@@ -363,7 +363,7 @@ def _resolve_reference(env: BuildEnvironment, inv_name: Optional[str], inventory
     # disabling should only be done if no inventory is given
     honor_disabled_refs = honor_disabled_refs and inv_name is None
 
-    if honor_disabled_refs and 'all' in env.config.intersphinx_disabled_refs:
+    if honor_disabled_refs and '*' in env.config.intersphinx_disabled_refs:
         return None
 
     typ = node['reftype']
