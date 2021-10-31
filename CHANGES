@@ -84,6 +84,7 @@ Bugs fixed
 * #9688: Fix :rst:dir:`code`` does not recognize ``:class:`` option
 * #9733: Fix for logging handler flushing warnings in the middle of the docs
   build
+* #9656: Fix warnings without subtype being incorrectly suppressed
 
 Testing
 --------
