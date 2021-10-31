@@ -159,6 +159,8 @@ linking:
    - the name of a whole domain, e.g., ``std``, ``py``, or ``cpp``, or
    - the special name ``*``.
 
+   The default value is an empty list.
+
    When a cross-reference without an explicit inventory specification is being
    resolved by intersphinx, skip resolution it matches one of the
    specifications in this list.
