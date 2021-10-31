@@ -563,17 +563,21 @@ class IntersphinxRoleResolver(ReferencesResolver):
 
     def run(self, **kwargs: Any) -> None:
         for node in self.document.traverse(pending_xref):
-            if 'intersphinx' in node:
-                contnode = cast(nodes.TextElement, node[0].deepcopy())
-                # temporary hax to glue on inventory info again
-                if node['inventory'] is not None:
-                    node['reftarget'] = node['inventory'] + ":" + node['reftarget']
-                newnode = missing_reference(self.app, self.env, node, contnode)
-                if newnode is None:
-                    # no warning, the normal missing_reference handler will do that
-                    pass
-                else:
-                    node.replace_self(newnode)
+            if 'intersphinx' not in node:
+                continue
+            contnode = cast(nodes.TextElement, node[0].deepcopy())
+            inv_name = node['inventory']
+            if inv_name is not None:
+                if not inventory_exists(self.env, inv_name):
+                    continue
+                newnode = resolve_reference_in_inventory(self.env, inv_name, node, contnode)
+            else:
+                newnode = resolve_reference_any_inventory(self.env, False, node, contnode)
+            if newnode is None:
+                # no warning, the normal missing_reference handler will do that
+                pass
+            else:
+                node.replace_self(newnode)
 
 
 def install_dispatcher(app: Sphinx, docname: str, source: List[str]) -> None:
