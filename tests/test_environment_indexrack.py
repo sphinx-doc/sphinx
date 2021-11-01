@@ -218,6 +218,75 @@ class builder(object):
 
 
 #-------------------------------------------------------------------
+
+
+@pytest.mark.sphinx('dummy', freshenv=True)
+def test_class_IndexRack_see_and_seealso(app):
+    # see
+    testcase01 = {'doc1': [ ('single','python','id-111','',None), ],
+                  'doc2': [ ('see','sphinx; python','id-121','',None), ], }
+    bld = builder(testcase01)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 2
+    assert len(index[0][1]) == 1
+    assert len(index[1][1]) == 1
+    assert index[0][0] == 'P'
+    assert index[1][0] == 'S'
+    assert index[0][1] == [('python', [[('', 'doc1.html#id-111')], [], None])]
+    assert index[1][1] == [('sphinx', [[], [('see python', [])], None])]
+
+    # seealso
+    testcase02 = {'doc1': [ ('single','python','id-211','',None), ],
+                  'doc2': [ ('seealso','sphinx; python','id-221','',None), ], }
+    bld = builder(testcase02)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 2
+    assert len(index[0][1]) == 1
+    assert len(index[1][1]) == 1
+    assert index[0][0] == 'P'
+    assert index[1][0] == 'S'
+    assert index[0][1] == [('python', [[('', 'doc1.html#id-211')], [], None])]
+    assert index[1][1] == [('sphinx', [[], [('see also python', [])], None])]
+
+    # see
+    testcase03 = {'doc1': [ ('single','python','id-311','',None), ],
+                  'doc2': [ ('single','sphinx; directive','id-321','',None), ],
+                  'doc3': [ ('see','sphinx; python','id-331','',None), ],
+                  'doc4': [ ('single','sphinx; role','id-341','',None), ], }
+    bld = builder(testcase03)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 2
+    assert len(index[0][1]) == 1
+    assert len(index[1][1]) == 1
+    assert index[0][0] == 'P'
+    assert index[1][0] == 'S'
+    assert index[0][1] == [('python', [[('', 'doc1.html#id-311')], [], None])]
+    assert index[1][1] == [('sphinx', [[],
+                                       [('see python', []),
+                                        ('directive', [('', 'doc2.html#id-321')]),
+                                        ('role', [('', 'doc4.html#id-341')])],
+                                       None])]
+
+    # seealso
+    testcase04 = {'doc1': [ ('single','python','id-411','',None), ],
+                  'doc2': [ ('single','sphinx; directive','id-421','',None), ],
+                  'doc3': [ ('seealso','sphinx; python','id-431','',None), ],
+                  'doc4': [ ('single','sphinx; role','id-441','',None), ], }
+    bld = builder(testcase04)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 2
+    assert len(index[0][1]) == 1
+    assert len(index[1][1]) == 1
+    assert index[0][0] == 'P'
+    assert index[1][0] == 'S'
+    assert index[0][1] == [('python', [[('', 'doc1.html#id-411')], [], None])]
+    assert index[1][1] == [('sphinx', [[],
+                                       [('see also python', []),
+                                        ('directive', [('', 'doc2.html#id-421')]),
+                                        ('role', [('', 'doc4.html#id-441')])],
+                                      None])]
+
+
 @pytest.mark.sphinx('dummy', freshenv=True)
 def test_class_IndexRack_triple(app):
     # basic
