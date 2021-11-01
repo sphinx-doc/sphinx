@@ -387,16 +387,14 @@ def test_class_IndexRack_single_mixing(app):
     assert len(index[1][1]) == 1
     assert index[0][0] == 'P'
     assert index[1][0] == 'S'
-    assert index[0][1] == [('python',
-                           [[('', 'doc4.html#id-741'),
-                             ('', 'doc6.html#id-761'), ],
-                            [('ruby', [('', 'doc2.html#id-721'), ]), ],
-                            None]), ]
-    assert index[1][1] == [('sphinx',
-                           [[('', 'doc3.html#id-731'),
-                             ('', 'doc5.html#id-751'), ],
-                            [('reST', [('', 'doc1.html#id-711'), ]), ],
-                            None]), ]
+    assert index[0][1] == [('python', [[('', 'doc4.html#id-741'),
+                                        ('', 'doc6.html#id-761'), ],
+                                       [('ruby', [('', 'doc2.html#id-721'), ]), ],
+                                       None]), ]
+    assert index[1][1] == [('sphinx', [[('', 'doc3.html#id-731'),
+                                        ('', 'doc5.html#id-751'), ],
+                                       [('reST', [('', 'doc1.html#id-711'), ]), ],
+                                       None]), ]
 
     # same term/main
     testcase02 = {'doc1': [ ('single','sphinx; reST','id-811','',None), ],
@@ -412,16 +410,14 @@ def test_class_IndexRack_single_mixing(app):
     assert len(index[1][1]) == 1
     assert index[0][0] == 'P'
     assert index[1][0] == 'S'
-    assert index[0][1] == [('python',
-                           [[('main', 'doc6.html#id-861'),
-                             ('', 'doc4.html#id-841'), ],
-                            [('ruby', [('', 'doc2.html#id-821')])],
-                            None]), ]
-    assert index[1][1] == [('sphinx',
-                           [[('main', 'doc5.html#id-851'),
-                             ('', 'doc3.html#id-831'), ],
-                            [('reST', [('', 'doc1.html#id-811')]), ],
-                            None]), ]
+    assert index[0][1] == [('python', [[('main', 'doc6.html#id-861'),
+                                        ('', 'doc4.html#id-841'), ],
+                                       [('ruby', [('', 'doc2.html#id-821')])],
+                                       None]), ]
+    assert index[1][1] == [('sphinx', [[('main', 'doc5.html#id-851'),
+                                        ('', 'doc3.html#id-831'), ],
+                                       [('reST', [('', 'doc1.html#id-811')]), ],
+                                       None]), ]
 
     # same term/file name
     testcase03 = {'doc1': [ ('single','sphinx; reST','id-911','',None), ],
@@ -437,16 +433,14 @@ def test_class_IndexRack_single_mixing(app):
     assert len(index[1][1]) == 1
     assert index[0][0] == 'P'
     assert index[1][0] == 'S'
-    assert index[0][1] == [('python',
-                           [[('', 'doc4.html#id-961'),
-                             ('', 'doc6.html#id-941'), ],
-                            [('ruby', [('', 'doc2.html#id-921'), ]), ],
-                            None]), ]
-    assert index[1][1] == [('sphinx',
-                            [[('', 'doc3.html#id-951'),
-                              ('', 'doc5.html#id-931'), ],
-                             [('reST', [('', 'doc1.html#id-911')]), ],
-                             None])]
+    assert index[0][1] == [('python', [[('', 'doc4.html#id-961'),
+                                        ('', 'doc6.html#id-941'), ],
+                                       [('ruby', [('', 'doc2.html#id-921'), ]), ],
+                                       None]), ]
+    assert index[1][1] == [('sphinx', [[('', 'doc3.html#id-951'),
+                                        ('', 'doc5.html#id-931'), ],
+                                       [('reST', [('', 'doc1.html#id-911')]), ],
+                                       None])]
 
 
 @pytest.mark.sphinx('dummy', freshenv=True)
@@ -461,14 +455,12 @@ def test_class_IndexRack_single_two_terms(app):
     assert len(index[1][1]) == 1
     assert index[0][0] == 'P'
     assert index[1][0] == 'S'
-    assert index[0][1] == [('python',
-                           [[],
-                            [('php', [('', 'doc2.html#id-121')]), ],
-                            None]), ]
-    assert index[1][1] == [('sphinx',
-                           [[],
-                            [('bash', [('', 'doc1.html#id-111')]), ],
-                            None]), ]
+    assert index[0][1] == [('python', [[],
+                                       [('php', [('', 'doc2.html#id-121')]), ],
+                                       None]), ]
+    assert index[1][1] == [('sphinx', [[],
+                                       [('bash', [('', 'doc1.html#id-111')]), ],
+                                       None]), ]
 
     #basic
     testcase02 = {'doc1': [ ('single','sphinx; tcsh','id-211','',None), ],
@@ -482,16 +474,14 @@ def test_class_IndexRack_single_two_terms(app):
     assert len(index[1][1]) == 1
     assert index[0][0] == 'P'
     assert index[1][0] == 'S'
-    assert index[0][1] == [('python',
-                           [[],
-                            [('perl', [('', 'doc4.html#id-241')]),
-                             ('ruby', [('', 'doc2.html#id-221')]), ],
-                            None]), ]
-    assert index[1][1] == [('sphinx',
-                           [[],
-                            [('bash', [('', 'doc3.html#id-231')]),
-                             ('tcsh', [('', 'doc1.html#id-211')]), ],
-                            None]), ]
+    assert index[0][1] == [('python', [[],
+                                       [('perl', [('', 'doc4.html#id-241')]),
+                                        ('ruby', [('', 'doc2.html#id-221')]), ],
+                                       None]), ]
+    assert index[1][1] == [('sphinx', [[],
+                                       [('bash', [('', 'doc3.html#id-231')]),
+                                        ('tcsh', [('', 'doc1.html#id-211')]), ],
+                                       None]), ]
 
     # same subterm
     testcase03 = {'doc1': [ ('single','sphinx; sphinx','id-311','',None), ],
@@ -505,18 +495,14 @@ def test_class_IndexRack_single_two_terms(app):
     assert len(index[1][1]) == 1
     assert index[0][0] == 'P'
     assert index[1][0] == 'S'
-    assert index[0][1] == [('python',
-                           [[],
-                            [('python',
-                             [('', 'doc2.html#id-321'),
-                              ('', 'doc4.html#id-341'), ]), ],
-                            None]), ]
-    assert index[1][1] == [('sphinx',
-                           [[],
-                            [('sphinx',
-                             [('', 'doc1.html#id-311'),
-                              ('', 'doc3.html#id-331'), ]), ],
-                            None])]
+    assert index[0][1] == [('python', [[],
+                                       [('python', [('', 'doc2.html#id-321'),
+                                                    ('', 'doc4.html#id-341'), ]), ],
+                                       None]), ]
+    assert index[1][1] == [('sphinx', [[],
+                                       [('sphinx', [('', 'doc1.html#id-311'),
+                                                    ('', 'doc3.html#id-331'), ]), ],
+                                       None])]
 
     # same subterm/main
     testcase04 = {'doc1': [ ('single','sphinx; sphinx','id-411','',None), ],
@@ -530,18 +516,14 @@ def test_class_IndexRack_single_two_terms(app):
     assert len(index[1][1]) == 1
     assert index[0][0] == 'P'
     assert index[1][0] == 'S'
-    assert index[0][1] == [('python',
-                           [[],
-                            [('python',
-                             [('main', 'doc4.html#id-441'),
-                              ('', 'doc2.html#id-421'), ]), ],
-                            None]), ]
-    assert index[1][1] == [('sphinx',
-                           [[],
-                            [('sphinx',
-                             [('main', 'doc3.html#id-431'),
-                              ('', 'doc1.html#id-411'), ])],
-                            None]), ]
+    assert index[0][1] == [('python', [[],
+                                       [('python', [('main', 'doc4.html#id-441'),
+                                                    ('', 'doc2.html#id-421'), ]), ],
+                                       None]), ]
+    assert index[1][1] == [('sphinx', [[],
+                                       [('sphinx', [('main', 'doc3.html#id-431'),
+                                                    ('', 'doc1.html#id-411'), ])],
+                                       None]), ]
 
     # same subterm/main/file name
     testcase05 = {'doc1': [ ('single','sphinx; sphinx','id-511','',None), ],
@@ -557,20 +539,16 @@ def test_class_IndexRack_single_two_terms(app):
     assert len(index[1][1]) == 1
     assert index[0][0] == 'P'
     assert index[1][0] == 'S'
-    assert index[0][1] == [('python',
-                           [[],
-                            [('python',
-                             [('main', 'doc4.html#id-561'),
-                              ('main', 'doc6.html#id-541'),
-                              ('', 'doc2.html#id-521'), ]), ],
-                            None]), ]
-    assert index[1][1] == [('sphinx',
-                           [[],
-                            [('sphinx',
-                             [('main', 'doc3.html#id-551'),
-                              ('main', 'doc5.html#id-531'),
-                              ('', 'doc1.html#id-511'), ]), ],
-                            None]), ]
+    assert index[0][1] == [('python', [[],
+                                       [('python', [('main', 'doc4.html#id-561'),
+                                                    ('main', 'doc6.html#id-541'),
+                                                    ('', 'doc2.html#id-521'), ]), ],
+                                       None]), ]
+    assert index[1][1] == [('sphinx', [[],
+                                       [('sphinx', [('main', 'doc3.html#id-551'),
+                                                    ('main', 'doc5.html#id-531'),
+                                                    ('', 'doc1.html#id-511'), ]), ],
+                                       None]), ]
 
     # same subterm/file name
     testcase06 = {'doc3': [ ('single','sphinx; reST','id-611','',None), ],
@@ -584,18 +562,14 @@ def test_class_IndexRack_single_two_terms(app):
     assert len(index[1][1]) == 1
     assert index[0][0] == 'P'
     assert index[1][0] == 'S'
-    assert index[0][1] == [('python',
-                           [[],
-                            [('ruby',
-                             [('', 'doc2.html#id-641'),
-                              ('', 'doc4.html#id-621'), ]), ],
-                           None]), ]
-    assert index[1][1] == [('sphinx',
-                           [[],
-                            [('reST',
-                             [('', 'doc1.html#id-631'),
-                              ('', 'doc3.html#id-611'), ]), ],
-                           None]), ]
+    assert index[0][1] == [('python', [[],
+                                       [('ruby', [('', 'doc2.html#id-641'),
+                                                  ('', 'doc4.html#id-621'), ]), ],
+                                       None]), ]
+    assert index[1][1] == [('sphinx', [[],
+                                       [('reST', [('', 'doc1.html#id-631'),
+                                                  ('', 'doc3.html#id-611'), ]), ],
+                                       None]), ]
 
     # same subterm/file name
     testcase07 = {'doc1': [ ('single','sphinx; ruby','id-711','',None), ],
@@ -609,16 +583,14 @@ def test_class_IndexRack_single_two_terms(app):
     assert len(index[1][1]) == 1
     assert index[0][0] == 'P'
     assert index[1][0] == 'S'
-    assert index[0][1] == [('python',
-                           [[],
-                            [('reST', [('', 'doc4.html#id-741'), ]),
-                             ('ruby', [('', 'doc2.html#id-721'), ]), ],
-                           None]), ]
-    assert index[1][1] == [('sphinx',
-                           [[],
-                            [('reST', [('', 'doc3.html#id-731'), ]),
-                             ('ruby', [('', 'doc1.html#id-711'), ]), ],
-                           None]), ]
+    assert index[0][1] == [('python', [[],
+                                       [('reST', [('', 'doc4.html#id-741'), ]),
+                                        ('ruby', [('', 'doc2.html#id-721'), ]), ],
+                                       None]), ]
+    assert index[1][1] == [('sphinx', [[],
+                                       [('reST', [('', 'doc3.html#id-731'), ]),
+                                        ('ruby', [('', 'doc1.html#id-711'), ]), ],
+                                       None]), ]
 
     #same term, same subterm.
     testcase08 = {'doc1': [ ('single','sphinx; python','id-811','',None), ],
@@ -628,12 +600,10 @@ def test_class_IndexRack_single_two_terms(app):
     assert len(index) == 1
     assert len(index[0][1]) == 1
     assert index[0][0] == 'S'
-    assert index[0][1] == [('sphinx',
-                           [[],
-                            [('python',
-                             [('', 'doc1.html#id-811'),
-                              ('', 'doc2.html#id-821'), ]), ],
-                           None]), ]
+    assert index[0][1] == [('sphinx', [[],
+                                       [('python', [('', 'doc1.html#id-811'),
+                                                    ('', 'doc2.html#id-821'), ]), ],
+                                       None]), ]
 
 
 @pytest.mark.sphinx('dummy', freshenv=True)
@@ -655,10 +625,9 @@ def test_class_IndexRack_single_one_term(app):
     assert len(index) == 1
     assert len(index[0][1]) == 1
     assert index[0][0] == 'S'
-    assert index[0][1] == [('sphinx',
-                           [[('', 'doc1.html#id-211'),
-                             ('', 'doc2.html#id-221')],
-                            [], None]), ]
+    assert index[0][1] == [('sphinx', [[('', 'doc1.html#id-211'),
+                                        ('', 'doc2.html#id-221')],
+                                       [], None]), ]
 
     # sort/main
     testcase03 = {'doc1': [ ('single','sphinx','id-311','main',None), ],
@@ -668,10 +637,9 @@ def test_class_IndexRack_single_one_term(app):
     assert len(index) == 1
     assert len(index[0][1]) == 1
     assert index[0][0] == 'S'
-    assert index[0][1] == [('sphinx',
-                           [[('main', 'doc1.html#id-311'),
-                             ('', 'doc2.html#id-321')],
-                            [], None]), ]
+    assert index[0][1] == [('sphinx', [[('main', 'doc1.html#id-311'),
+                                        ('', 'doc2.html#id-321')],
+                                       [], None]), ]
 
     # sort/main
     testcase04 = {'doc1': [ ('single','sphinx','id-411','',None), ],
@@ -681,10 +649,9 @@ def test_class_IndexRack_single_one_term(app):
     assert len(index) == 1
     assert len(index[0][1]) == 1
     assert index[0][0] == 'S'
-    assert index[0][1] == [('sphinx',
-                           [[('main', 'doc2.html#id-421'),
-                             ('', 'doc1.html#id-411')],
-                            [], None]), ]
+    assert index[0][1] == [('sphinx', [[('main', 'doc2.html#id-421'),
+                                        ('', 'doc1.html#id-411')],
+                                       [], None]), ]
 
     # sort/main
     testcase05 = {'doc1': [ ('single','sphinx','id-511','main',None), ],
@@ -694,10 +661,9 @@ def test_class_IndexRack_single_one_term(app):
     assert len(index) == 1
     assert len(index[0][1]) == 1
     assert index[0][0] == 'S'
-    assert index[0][1] == [('sphinx',
-                           [[('main', 'doc1.html#id-511'),
-                             ('main', 'doc2.html#id-521')],
-                            [], None]), ]
+    assert index[0][1] == [('sphinx', [[('main', 'doc1.html#id-511'),
+                                        ('main', 'doc2.html#id-521')],
+                                       [], None]), ]
 
     # sort/two sets
     testcase06 = {'doc1': [ ('single','sphinx','id-611','',None), ],
@@ -711,14 +677,12 @@ def test_class_IndexRack_single_one_term(app):
     assert len(index[1][1]) == 1
     assert index[0][0] == 'P'
     assert index[1][0] == 'S'
-    assert index[0][1] == [('python',
-                           [[('', 'doc3.html#id-631'),
-                             ('', 'doc4.html#id-641')],
-                            [], None]), ]
-    assert index[1][1] == [('sphinx',
-                           [[('', 'doc1.html#id-611'),
-                             ('', 'doc2.html#id-621')],
-                            [], None]), ]
+    assert index[0][1] == [('python', [[('', 'doc3.html#id-631'),
+                                        ('', 'doc4.html#id-641')],
+                                       [], None]), ]
+    assert index[1][1] == [('sphinx', [[('', 'doc1.html#id-611'),
+                                        ('', 'doc2.html#id-621')],
+                                       [], None]), ]
 
     # sort/two sets/main
     testcase07 = {'doc1': [ ('single','sphinx','id-711','',None), ],
@@ -732,14 +696,12 @@ def test_class_IndexRack_single_one_term(app):
     assert len(index[1][1]) == 1
     assert index[0][0] == 'P'
     assert index[1][0] == 'S'
-    assert index[0][1] == [('python',
-                           [[('main', 'doc4.html#id-741'),
-                             ('', 'doc3.html#id-731')],
-                            [], None]), ]
-    assert index[1][1] == [('sphinx',
-                           [[('main', 'doc2.html#id-721'),
-                             ('', 'doc1.html#id-711')],
-                            [], None]), ]
+    assert index[0][1] == [('python', [[('main', 'doc4.html#id-741'),
+                                        ('', 'doc3.html#id-731')],
+                                       [], None]), ]
+    assert index[1][1] == [('sphinx', [[('main', 'doc2.html#id-721'),
+                                        ('', 'doc1.html#id-711')],
+                                       [], None]), ]
 
 
 @pytest.mark.sphinx('dummy', freshenv=True)
