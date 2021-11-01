@@ -33,11 +33,11 @@ class Empty(str):
 
 
 class Subterm(object):
-    def __init__(self, emphasis, *terms):
+    def __init__(self, link, *terms):
         self._delimiter = ' '
 
-        if   emphasis == '8': self._template = _('see %s')
-        elif emphasis == '9': self._template = _('see also %s')
+        if   link == 1: self._template = _('see %s')
+        elif link == 2: self._template = _('see also %s')
         else: self._template = None
 
         self._terms = []
@@ -53,6 +53,7 @@ class Subterm(object):
 
     def __repr__(self):
         rpr  = f"<{self.__class__.__name__}: len={len(self)} "
+        if self._delimiter != ' ': rpr += f"delimiter='{self._delimiter}' "
         if self._template: rpr += f"tpl='{self._template}' "
         for s in self._terms:
             rpr += repr(s)
@@ -85,13 +86,13 @@ class Subterm(object):
 
 class IndexUnit(object):
 
-    CLSF, TERM, SBTM, EMPH = 0, 1, 2, 3
+    CLSF, TERM, SBTM = 0, 1, 2
 
-    def __init__(self, term, subterm, sort_code, main, file_name, target, index_key):
+    def __init__(self, term, subterm, link_type, main, file_name, target, index_key):
         self._display_data = ['', term, subterm]
         self._link_data = (main, file_name, target)
         self._index_key = index_key
-        self._sort_order = sort_code
+        self._link_type = link_type
 
     def __getitem__(self, key):
         if isinstance(key, str):
@@ -99,6 +100,7 @@ class IndexUnit(object):
             if key == 'file_name': return self._link_data[1]
             if key == 'target'   : return self._link_data[2]
             if key == 'index_key': return self._index_key
+            if key == 'link_type': return self._link_type
             raise KeyError(key)
         elif isinstance(key, int):
             if key == self.CLSF:
@@ -107,7 +109,6 @@ class IndexUnit(object):
                 else: return Empty()
             if key == self.TERM: return self._display_data[self.TERM]  # term
             if key == self.SBTM: return self._display_data[self.SBTM]  # subterm
-            if key == self.EMPH: return self._link_data[0]             # emphasis(main)
             raise KeyError(key)
         else:
             raise TypeError(key)
@@ -128,7 +129,7 @@ class IndexUnit(object):
         fn = self['file_name']
         tid = self['target']
         rpr  = f"<{name}: "
-        if main: rpr += f"main='{main}' "
+        if main: rpr += f"main "
         if fn: rpr += f"file_name='{fn}' "
         if tid: rpr += f"target='{tid}' "
         if self[0]:
@@ -157,6 +158,28 @@ class IndexUnit(object):
             texts.append(subterm.astext())
 
         return texts
+
+
+# ------------------------------------------------------------
+
+
+class Convert(object):
+
+    _type_to_link = {'see': 1, 'seealso': 2, 'uri': 3}
+
+    _main_to_code = {'conf.py':1, 'rcfile':2, 'main':3, '': 4}
+    _code_to_main = {1:'conf.py', 2:'rcfile', 3:'main', 4:''}
+
+    def type2link(self, link):
+        return self._type_to_link[link]
+
+    def main2code(self, main):
+        return self._main_to_code[main]
+
+    def code2main(self, code):
+        return self._code_to_main[code]
+
+_cnv = Convert()
 
 
 # ------------------------------------------------------------
@@ -243,17 +266,17 @@ class IndexEntry(nodes.Element):
 
         def _index_unit(term, sub1, sub2):
             if etype in ('see', 'seealso'):
-                sort_code = '1'
-                emphasis = _emphasis2char[etype]
+                link = _cnv.type2link(etype)
             else:
-                sort_code = '2'
-                emphasis = _emphasis2char[main]
+                link = _cnv.type2link('uri')
+
+            emphasis = _cnv.main2code(main)
 
             if not sub1: sub1 = self.textclass('')
             if not sub2: sub2 = self.textclass('')
-            subterm = self.packclass(emphasis, sub1, sub2)
+            subterm = self.packclass(link, sub1, sub2)
 
-            index_unit = self.unitclass(term, subterm, sort_code, emphasis, fn, tid, index_key)
+            index_unit = self.unitclass(term, subterm, link, emphasis, fn, tid, index_key)
             return index_unit
 
         index_units = []
@@ -290,31 +313,6 @@ class IndexEntry(nodes.Element):
         return index_units
 
 
-# ------------------------------------------------------------
-
-
-# 1-5: Priority order in IndexRack.put_in_kana_catalog.
-# 3,5: The order in which links are displayed in the same term/subterm.
-# 8,9: Assign here for convenience. The display order will be adjusted separately.
-_emphasis2char = {
-    '_rsvd0_': '0',  # reserved
-    'conf.py': '1',  # parameter values of conf.py
-    'valuerc': '2',  # values of a file
-    'main'   : '3',  # glossaryで定義した用語. indexでは「!」が先頭にあるもの.
-    '_rsvd4_': '4',  # reserved
-    ''       : '5',  # 'main', 'see', 'seealso'以外.
-    '_rsvd6_': '6',  # reserved
-    '_rsvd7_': '7',  # reserved
-    'see'    : '8',
-    'seealso': '9',
-}
-
-_char2emphasis = {
-    '0': '', '1': '', '2': '', '3': 'main', '4': '',
-    '5': '', '6': '', '7': '', '8': 'see', '9': 'seealso',
-}
-
-
 class IndexRack(object):
     """
     1. self.__init__() Initialization. Reading from settings.
@@ -324,7 +322,7 @@ class IndexRack(object):
     5. self.generate_genindex_data()  Generating data for genindex.
     """
 
-    UNIT_CLSF, UNIT_TERM, UNIT_SBTM, UNIT_EMPH = 0, 1, 2, 3
+    UNIT_CLSF, UNIT_TERM, UNIT_SBTM = 0, 1, 2
 
     def __init__(self, builder):
 
@@ -476,7 +474,7 @@ class IndexRack(object):
                 term = self.textclass(m.group(2))
 
  
-            unit[self.UNIT_SBTM] = self.packclass(unit[self.UNIT_EMPH], term)
+            unit[self.UNIT_SBTM] = self.packclass(unit['link_type'], term)
 
     def for_sort(self, term):
         text = term.astext()
@@ -497,9 +495,9 @@ class IndexRack(object):
         self._rack.sort(key=lambda unit: (
             self.for_sort(unit[self.UNIT_CLSF]),  # classifier
             self.for_sort(unit[self.UNIT_TERM]),  # term
-            unit._sort_order,                     # entry type in('see', 'seealso')
+            unit['link_type'],                    # 1:'see', 2:'seealso', 3:'uri'. see Convert class.
             self.for_sort(unit[self.UNIT_SBTM]),  # subterm
-            unit[self.UNIT_EMPH],                 # emphasis(main)
+            unit['main'],                         # 3:'main', 4:''. see Convert class.
             unit['file_name'],
             unit['target']), )
         # about x['file_name'], x['target'].
@@ -513,7 +511,8 @@ class IndexRack(object):
             i_clf = unit[self.UNIT_CLSF]
             i_tm  = unit[self.UNIT_TERM]
             i_sub = unit[self.UNIT_SBTM]
-            i_em  = unit[self.UNIT_EMPH]
+            i_em  = unit['main']
+            i_lnk = unit['link_type']
             i_fn  = unit['file_name']
             i_tid = unit['target']
             i_iky = unit['index_key']
@@ -549,13 +548,13 @@ class IndexRack(object):
             r_subterms = r_term[1][1]    # [subterm, subterm, ..]
 
             # Change the code to string.
-            r_main = _char2emphasis[i_em]
+            r_main = _cnv.code2main(i_em)
 
             # if it's see/seealso, reset file_name for no uri.
-            if r_main in ('see', 'seealso'):
-                r_fn = None
-            else:
+            if i_lnk == 3:
                 r_fn = i_fn
+            else:
+                r_fn = None
 
             # sub(class Subterm): [], [KanaText], [KanaText, KanaText].
             if len(i_sub) == 0:
