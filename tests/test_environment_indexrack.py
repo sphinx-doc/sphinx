@@ -219,6 +219,138 @@ class builder(object):
 
 #-------------------------------------------------------------------
 @pytest.mark.sphinx('dummy', freshenv=True)
+def test_class_IndexRack_triple(app):
+    # basic
+    testcase01 = {'doc1': [ ('triple','bash; perl; tcsh','id-111','',None), ], }
+    bld = builder(testcase01)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 3
+    assert len(index[0][1]) == 1
+    assert len(index[1][1]) == 1
+    assert len(index[2][1]) == 1
+    assert index[0][0] == 'B'
+    assert index[1][0] == 'P'
+    assert index[2][0] == 'T'
+    assert index[0][1] == [('bash', [[],
+                                     [('perl tcsh', [('', 'doc1.html#id-111'), ]), ],
+                                     None]), ]
+    assert index[1][1] == [('perl', [[],
+                                     [('tcsh, bash', [('', 'doc1.html#id-111'), ]), ],
+                                     None]), ]
+    assert index[2][1] == [('tcsh', [[],
+                                     [('bash perl', [('', 'doc1.html#id-111'), ]), ],
+                                     None]), ]
+
+    # one triple and single(two terms)
+    testcase02 = {'doc1': [ ('triple','bash; perl; tcsh','id-211','',None), ],
+                  'doc2': [ ('single','bash; perl','id-221','',None), ],
+                  'doc3': [ ('single','perl; tcsh','id-231','',None), ],
+                  'doc4': [ ('single','tcsh; bash','id-241','',None), ], }
+    bld = builder(testcase02)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 3
+    assert len(index[0][1]) == 1
+    assert len(index[1][1]) == 1
+    assert len(index[2][1]) == 1
+    assert index[0][0] == 'B'
+    assert index[1][0] == 'P'
+    assert index[2][0] == 'T'
+    assert index[0][1] == [('bash', [[],
+                                     [('perl', [('', 'doc2.html#id-221'), ]),
+                                      ('perl tcsh', [('', 'doc1.html#id-211'), ]), ],
+                                     None])]
+    assert index[1][1] == [('perl', [[],
+                                     [('tcsh', [('', 'doc3.html#id-231')]),
+                                      ('tcsh, bash', [('', 'doc1.html#id-211'), ]), ],
+                                     None])]
+    assert index[2][1] == [('tcsh', [[],
+                                     [('bash', [('', 'doc4.html#id-241'), ]),
+                                      ('bash perl', [('', 'doc1.html#id-211')])],
+                                     None]), ]
+
+    # one triple and single(two terms)
+    testcase03 = {'doc1': [ ('triple','bash; perl; tcsh','id-311','',None), ],
+                  'doc2': [ ('single','bash; perl tcsh','id-321','',None), ],
+                  'doc3': [ ('single','perl; tcsh, bash','id-331','',None), ],
+                  'doc4': [ ('single','tcsh; bash perl','id-341','',None), ], }
+    bld = builder(testcase03)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 3
+    assert len(index[0][1]) == 1
+    assert len(index[1][1]) == 1
+    assert len(index[2][1]) == 1
+    assert index[0][0] == 'B'
+    assert index[1][0] == 'P'
+    assert index[2][0] == 'T'
+    assert index[0][1] == [('bash', [[],
+                                     [('perl tcsh', [('', 'doc1.html#id-311'),
+                                                     ('', 'doc2.html#id-321'), ]), ],
+                                     None])]
+    assert index[1][1] == [('perl', [[],
+                                     [('tcsh, bash', [('', 'doc1.html#id-311'),
+                                                      ('', 'doc3.html#id-331'), ]), ],
+                                     None])]
+    assert index[2][1] == [('tcsh', [[],
+                                     [('bash perl', [('', 'doc1.html#id-311'),
+                                                     ('', 'doc4.html#id-341'), ]), ],
+                                     None])]
+
+    # one triple and single(two terms)/main
+    testcase04 = {'doc1': [ ('triple','bash; perl; tcsh','id-411','',None), ],
+                  'doc2': [ ('single','bash; perl tcsh','id-421','main',None), ],
+                  'doc3': [ ('single','perl; tcsh, bash','id-431','main',None), ],
+                  'doc4': [ ('single','tcsh; bash perl','id-441','main',None), ], }
+    bld = builder(testcase04)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 3
+    assert len(index[0][1]) == 1
+    assert len(index[1][1]) == 1
+    assert len(index[2][1]) == 1
+    assert index[0][0] == 'B'
+    assert index[1][0] == 'P'
+    assert index[2][0] == 'T'
+    assert index[0][1] == [('bash', [[],
+                                     [('perl tcsh', [('main', 'doc2.html#id-421'),
+                                                     ('', 'doc1.html#id-411'), ]), ],
+                                     None])]
+    assert index[1][1] == [('perl', [[],
+                                     [('tcsh, bash', [('main', 'doc3.html#id-431'),
+                                                      ('', 'doc1.html#id-411'), ]), ],
+                                     None]), ]
+    assert index[2][1] == [('tcsh', [[],
+                                     [('bash perl', [('main', 'doc4.html#id-441'),
+                                                     ('', 'doc1.html#id-411'), ]), ],
+                                     None])]
+
+    # one triple and single(two terms)/main
+    testcase05 = {'doc1': [ ('single','bash; perl tcsh','id-511','',None), ],
+                  'doc2': [ ('single','perl; tcsh, bash','id-521','',None), ],
+                  'doc3': [ ('single','tcsh; bash perl','id-531','',None), ],
+                  'doc4': [ ('triple','bash; perl; tcsh','id-541','main',None), ], }
+    bld = builder(testcase05)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 3
+    assert len(index[0][1]) == 1
+    assert len(index[1][1]) == 1
+    assert len(index[2][1]) == 1
+    assert index[0][0] == 'B'
+    assert index[1][0] == 'P'
+    assert index[2][0] == 'T'
+    assert index[0][1] == [('bash', [[],
+                                     [('perl tcsh', [('main', 'doc4.html#id-541'),
+                                                     ('', 'doc1.html#id-511'), ]), ],
+                                     None]), ]
+    assert index[1][1] == [('perl', [[],
+                                     [('tcsh, bash', [('main', 'doc4.html#id-541'),
+                                                      ('', 'doc2.html#id-521'), ]), ],
+                                     None]), ]
+    assert index[2][1] == [('tcsh', [[],
+                                     [('bash perl', [('main', 'doc4.html#id-541'),
+                                                     ('', 'doc3.html#id-531'), ]), ],
+                                     None]), ]
+
+
+@pytest.mark.sphinx('dummy', freshenv=True)
 def test_class_IndexRack_pair(app):
     # basic
     testcase01 = { 'doc1': [ ('pair','sphinx; reST','id-111','',None), ], }
