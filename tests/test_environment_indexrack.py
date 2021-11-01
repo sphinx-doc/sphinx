@@ -218,6 +218,82 @@ class builder(object):
 
 
 #-------------------------------------------------------------------
+@pytest.mark.sphinx('dummy', freshenv=True)
+def test_class_IndexRack_single_mixing(app):
+    # same term
+    testcase01 = {'doc1': [ ('single','sphinx; reST','id-711','',None), ],
+                  'doc2': [ ('single','python; ruby','id-721','',None), ],
+                  'doc3': [ ('single','sphinx','id-731','',None), ],
+                  'doc4': [ ('single','python','id-741','',None), ],
+                  'doc5': [ ('single','sphinx','id-751','',None), ],
+                  'doc6': [ ('single','python','id-761','',None), ], }
+    bld = builder(testcase01)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 2
+    assert len(index[0][1]) == 1
+    assert len(index[1][1]) == 1
+    assert index[0][0] == 'P'
+    assert index[1][0] == 'S'
+    assert index[0][1] == [('python',
+                           [[('', 'doc4.html#id-741'),
+                             ('', 'doc6.html#id-761'), ],
+                            [('ruby', [('', 'doc2.html#id-721'), ]), ],
+                            None]), ]
+    assert index[1][1] == [('sphinx',
+                           [[('', 'doc3.html#id-731'),
+                             ('', 'doc5.html#id-751'), ],
+                            [('reST', [('', 'doc1.html#id-711'), ]), ],
+                            None]), ]
+
+    # same term/main
+    testcase02 = {'doc1': [ ('single','sphinx; reST','id-811','',None), ],
+                  'doc2': [ ('single','python; ruby','id-821','',None), ],
+                  'doc3': [ ('single','sphinx','id-831','',None), ],
+                  'doc4': [ ('single','python','id-841','',None), ],
+                  'doc5': [ ('single','sphinx','id-851','main',None), ],
+                  'doc6': [ ('single','python','id-861','main',None), ], }
+    bld = builder(testcase02)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 2
+    assert len(index[0][1]) == 1
+    assert len(index[1][1]) == 1
+    assert index[0][0] == 'P'
+    assert index[1][0] == 'S'
+    assert index[0][1] == [('python',
+                           [[('main', 'doc6.html#id-861'),
+                             ('', 'doc4.html#id-841'), ],
+                            [('ruby', [('', 'doc2.html#id-821')])],
+                            None]), ]
+    assert index[1][1] == [('sphinx',
+                           [[('main', 'doc5.html#id-851'),
+                             ('', 'doc3.html#id-831'), ],
+                            [('reST', [('', 'doc1.html#id-811')]), ],
+                            None]), ]
+
+    # same term/file name
+    testcase03 = {'doc1': [ ('single','sphinx; reST','id-911','',None), ],
+                  'doc2': [ ('single','python; ruby','id-921','',None), ],
+                  'doc5': [ ('single','sphinx','id-931','',None), ],
+                  'doc6': [ ('single','python','id-941','',None), ],
+                  'doc3': [ ('single','sphinx','id-951','',None), ],
+                  'doc4': [ ('single','python','id-961','',None), ], }
+    bld = builder(testcase03)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 2
+    assert len(index[0][1]) == 1
+    assert len(index[1][1]) == 1
+    assert index[0][0] == 'P'
+    assert index[1][0] == 'S'
+    assert index[0][1] == [('python',
+                           [[('', 'doc4.html#id-961'),
+                             ('', 'doc6.html#id-941'), ],
+                            [('ruby', [('', 'doc2.html#id-921'), ]), ],
+                            None]), ]
+    assert index[1][1] == [('sphinx',
+                            [[('', 'doc3.html#id-951'),
+                              ('', 'doc5.html#id-931'), ],
+                             [('reST', [('', 'doc1.html#id-911')]), ],
+                             None])]
 
 
 @pytest.mark.sphinx('dummy', freshenv=True)
