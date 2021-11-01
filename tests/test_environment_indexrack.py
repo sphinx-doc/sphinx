@@ -221,6 +221,138 @@ class builder(object):
 
 
 @pytest.mark.sphinx('dummy', freshenv=True)
+def test_class_IndexRack_function_catalog(app):
+    # one function
+    testcase01 = {'doc1': [ ('single','func1() (aaa module)','id-111','',None), ] }
+    bld = builder(testcase01)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 1
+    assert len(index[0][1]) == 1
+    assert index[0][0] == 'F'
+    assert index[0][1] == [('func1() (aaa module)', [[('', 'doc1.html#id-111')],
+                                                     [], None]), ]
+
+    # two functions
+    testcase02 = {'doc1': [ ('single','func1() (doc1 module)','id-211','',None),],
+                  'doc2': [ ('single','func1() (doc2 module)','id-221','',None),], }
+    bld = builder(testcase02)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 1
+    assert len(index[0][1]) == 1
+    assert index[0][0] == 'F'
+    assert index[0][1] == [('func1()', [[],
+                                        [('(doc1 module)', [('', 'doc1.html#id-211')]),
+                                         ('(doc2 module)', [('', 'doc2.html#id-221')])],
+                                        None]), ]
+
+    # two functions/module name
+    testcase03 = {'doc1': [ ('single','func1() (bbbb module)','id-311','',None),],
+                  'doc2': [ ('single','func1() (aaaa module)','id-321','',None),], }
+    bld = builder(testcase03)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 1
+    assert len(index[0][1]) == 1
+    assert index[0][0] == 'F'
+    assert index[0][1] == [('func1()', [[],
+                                        [('(aaaa module)', [('', 'doc2.html#id-321')]),
+                                         ('(bbbb module)', [('', 'doc1.html#id-311')])],
+                                        None])]
+
+    # two sets of function
+    testcase04 = {'doc1': [ ('single','func1() (doc1 module)','id-411','',None),],
+                  'doc2': [ ('single','func2() (doc2 module)','id-421','',None),],
+                  'doc3': [ ('single','func1() (doc3 module)','id-431','',None),],
+                  'doc4': [ ('single','func2() (odc4 module)','id-441','',None),], }
+    bld = builder(testcase04)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 1
+    assert len(index[0][1]) == 2
+    assert index[0][0] == 'F'
+    assert index[0][1] == [('func1()', [[],
+                                        [('(doc1 module)', [('', 'doc1.html#id-411')]),
+                                         ('(doc3 module)', [('', 'doc3.html#id-431')])],
+                                        None]),
+                           ('func2()', [[],
+                                        [('(doc2 module)', [('', 'doc2.html#id-421')]),
+                                         ('(odc4 module)', [('', 'doc4.html#id-441')])],
+                                        None])]
+
+    # two sets of function/module name
+    testcase05 = {'doc1': [ ('single','func1() (bbbb module)','id-511','',None),],
+                  'doc2': [ ('single','func2() (bbbb module)','id-521','',None),],
+                  'doc3': [ ('single','func1() (aaaa module)','id-531','',None),],
+                  'doc4': [ ('single','func2() (aaaa module)','id-541','',None),], }
+    bld = builder(testcase05)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 1
+    assert len(index[0][1]) == 2
+    assert index[0][0] == 'F'
+    assert index[0][1] == [('func1()', [[],
+                                        [('(aaaa module)', [('', 'doc3.html#id-531')]),
+                                         ('(bbbb module)', [('', 'doc1.html#id-511')])],
+                                        None]),
+                           ('func2()', [[],
+                                        [('(aaaa module)', [('', 'doc4.html#id-541')]),
+                                         ('(bbbb module)', [('', 'doc2.html#id-521')])],
+                                        None])]
+
+    # mixing
+    testcase06 = {'doc1': [ ('single','func1()','id-611','',None),],
+                  'doc2': [ ('single','func1() (doc2 module)','id-621','',None),],
+                  'doc3': [ ('single','func1() (doc3 module)','id-631','',None),],
+                  'doc4': [ ('single','func1()','id-641','',None),], }
+    bld = builder(testcase06)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 1
+    assert len(index[0][1]) == 1
+    assert index[0][0] == 'F'
+    assert index[0][1] == [('func1()', [[('', 'doc1.html#id-611'),
+                                         ('', 'doc4.html#id-641')],
+                                        [('(doc2 module)', [('', 'doc2.html#id-621')]),
+                                         ('(doc3 module)', [('', 'doc3.html#id-631')])],
+                                        None])]
+
+    # mixing/main
+    testcase07 = {'doc1': [ ('single','func1()','id-711','',None),],
+                  'doc2': [ ('single','func1() (doc2 module)','id-721','',None),],
+                  'doc3': [ ('single','func1() (doc3 module)','id-731','',None),],
+                  'doc4': [ ('single','func1()','id-741','main',None),], }
+    bld = builder(testcase07)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 1
+    assert len(index[0][1]) == 1
+    assert index[0][0] == 'F'
+    assert index[0][1] == [('func1()', [[('main', 'doc4.html#id-741'),
+                                         ('', 'doc1.html#id-711')],
+                                        [('(doc2 module)', [('', 'doc2.html#id-721')]),
+                                         ('(doc3 module)', [('', 'doc3.html#id-731')])],
+                                         None])]
+
+    # subterm
+    testcase08 = {'doc1': [ ('single','func1() (doc1 module); sphinx','id-811','',None),],
+                  'doc2': [ ('single','func2() (doc2 module); sphinx','id-821','',None),],
+                  'doc3': [ ('single','func1() (doc3 module); python','id-831','',None),],
+                  'doc4': [ ('single','func2() (odc4 module); python','id-841','',None),], }
+    bld = builder(testcase08)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 1
+    assert len(index[0][1]) == 2
+    assert index[0][0] == 'F'
+    assert index[0][1] == [('func1()', [[],
+                                        [('(doc1 module), sphinx',
+                                            [('', 'doc1.html#id-811')]),
+                                         ('(doc3 module), python',
+                                            [('', 'doc3.html#id-831')])],
+                                        None]),
+                           ('func2()', [[],
+                                        [('(doc2 module), sphinx',
+                                            [('', 'doc2.html#id-821')]),
+                                         ('(odc4 module), python',
+                                            [('', 'doc4.html#id-841')])],
+                                        None])]
+
+
+@pytest.mark.sphinx('dummy', freshenv=True)
 def test_class_IndexRack_classifier_catalog(app):
     # basic/doc1 has classifier.
     testcase01 = {'doc1': [ ('single','sphinx','id-111','','clf'), ],
