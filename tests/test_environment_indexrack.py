@@ -221,6 +221,35 @@ class builder(object):
 
 
 @pytest.mark.sphinx('dummy', freshenv=True)
+def test_class_IndexRack_classifier_catalog(app):
+    # basic/doc1 has classifier.
+    testcase01 = {'doc1': [ ('single','sphinx','id-111','','clf'), ],
+                  'doc2': [ ('single','sphinx','id-121','',None), ], }
+    bld = builder(testcase01)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 1
+    assert len(index[0][1]) == 1
+    assert index[0][0] == 'clf'
+    assert index[0][1] == [('sphinx', [[('', 'doc1.html#id-111'),
+                                        ('', 'doc2.html#id-121'), ],
+                                       [],
+                                       'clf'])]
+
+    # basic/doc2 has classifier.
+    testcase02 = {'doc1': [ ('single','sphinx','id-211','',None), ],
+                  'doc2': [ ('single','sphinx','id-221','','clf'), ], }
+    bld = builder(testcase02)
+    index = irack.IndexRack(bld).create_index()
+    assert len(index) == 1
+    assert len(index[0][1]) == 1
+    assert index[0][0] == 'clf'
+    assert index[0][1] == [('sphinx', [[('', 'doc1.html#id-211'),
+                                        ('', 'doc2.html#id-221')],
+                                       [], None])]
+
+
+
+@pytest.mark.sphinx('dummy', freshenv=True)
 def test_class_IndexRack_see_and_seealso(app):
     # see
     testcase01 = {'doc1': [ ('single','python','id-111','',None), ],
