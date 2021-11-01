@@ -7,6 +7,13 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #2068: :confval:`intersphinx_disabled_reftypes` has changed default value
+  from an empty list to ``['std:doc']`` as avoid too surprising silent
+  intersphinx resolutions.
+  To migrate: either add an explicit inventory name to the references
+  intersphinx should resolve, or explicitly set the value of this configuration
+  variable to an empty list.
+
 Deprecated
 ----------
 
