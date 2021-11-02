@@ -683,11 +683,14 @@ class StandaloneHTMLBuilder(Builder):
             logger.info('opensearch ', nonl=True)
             fn = path.join(self.outdir, '_static', 'opensearch.xml')
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
+    
+    def _index_adapter(self):
+        return IndexRack(self).create_index()
 
     def write_genindex(self) -> None:
         # the total count of lines for each index letter, used to distribute
         # the entries into two columns
-        genindex = IndexRack(self).create_index()
+        genindex = self._index_adapter()
         indexcounts = []
         for _k, entries in genindex:
             indexcounts.append(sum(1 + len(subitems)
