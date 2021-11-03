@@ -88,13 +88,6 @@ class IndexUnit(nodes.Element):
         rpr += ">"
         return rpr
 
-    def get_children(self):
-        children = [self[self.TERM]]
-        if self[2]:
-            for child in self[self.SBTM]:
-                children.append(child)
-        return children
-
     def set_subterm_delimiter(self, delimiter=', '):
         self[self.SBTM]['delimiter'] = delimiter
 

@@ -1211,12 +1211,6 @@ def test_class_IndexUnit_repr(app):
     # triple/method
     pack = irack.Subterm(main, txtcls('sphinx'), txtcls('python'))
     unit = irack.IndexUnit(txtcls('docutils'), pack, '2', main, 'doc1', 'term-1', 'clsf')
-    children = unit.get_children()
-    assert children == ['docutils', 'sphinx', 'python']
-
-    # triple/method
-    pack = irack.Subterm(main, txtcls('sphinx'), txtcls('python'))
-    unit = irack.IndexUnit(txtcls('docutils'), pack, '2', main, 'doc1', 'term-1', 'clsf')
     texts = unit.astexts()
     assert texts == ['docutils', 'sphinx', 'python']
     unit.set_subterm_delimiter()
