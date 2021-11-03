@@ -19,7 +19,22 @@ logger = logging.getLogger(__name__)
 # ------------------------------------------------------------
 
 
-class Subterm(nodes.Element):
+class Represent(object):
+    def represent(self, data, end=None):
+        name = self.__class__.__name__
+        rpr  = f"<{name}: {data}"
+        if end:
+            for o in self[0:end]: rpr += repr(o)
+            if self[end].astext(): rpr += repr(self[end])
+        else:
+            for o in self: rpr += repr(o)
+        return rpr + ">"
+
+
+# ------------------------------------------------------------
+
+
+class Subterm(Represent, nodes.Element):
     def __init__(self, link, *terms):
         if   link == 1: template = _('see %s')
         elif link == 2: template = _('see also %s')
@@ -31,13 +46,11 @@ class Subterm(nodes.Element):
 
         super().__init__(''.join([repr(term) for term in terms]), *_terms, delimiter=' ', template=template)
 
-    def __repr__(self):
-        rpr  = f"<{self.__class__.__name__}: len={len(self)} "
+    def __repr__(self, rpr=""):
+        rpr += f"len={len(self)} "
         if self['delimiter'] != ' ': rpr += f"delimiter='{self['delimiter']}' "
         if self['template']: rpr += f"tpl='{self['template']}' "
-        for s in self: rpr += repr(s)
-        rpr += ">"
-        return rpr
+        return self.represent(rpr)
 
     def __str__(self):
         """Jinja2"""
@@ -60,7 +73,7 @@ class Subterm(nodes.Element):
 # ------------------------------------------------------------
 
 
-class IndexUnit(nodes.Element):
+class IndexUnit(Represent, nodes.Element):
 
     CLSF, TERM, SBTM = 0, 1, 2
 
@@ -73,20 +86,11 @@ class IndexUnit(nodes.Element):
     def textclass(self, rawword, rawsource=""):
         return nodes.Text(rawword, rawsource)
 
-    def __repr__(self):
-        name = self.__class__.__name__
-        main = self['main']
-        fn = self['file_name']
-        tid = self['target']
-        rpr  = f"<{name}: "
-        if main: rpr += f"main "
-        if fn: rpr += f"file_name='{fn}' "
-        if tid: rpr += f"target='{tid}' "
-        rpr += repr(self[0])
-        rpr += repr(self[1])
-        if len(self[2]) > 0: rpr += repr(self[2])
-        rpr += ">"
-        return rpr
+    def __repr__(self, rpr=""):
+        if self['main']: rpr += f"main "
+        if self['file_name']: rpr += f"file_name='{self['file_name']}' "
+        if self['target']: rpr += f"target='{self['target']}' "
+        return self.represent(rpr, 2)
 
     def set_subterm_delimiter(self, delimiter=', '):
         self[self.SBTM]['delimiter'] = delimiter
@@ -128,7 +132,7 @@ _cnv = Convert()
 _each_words = re.compile(r' *; *')
 
 
-class IndexEntry(nodes.Element):
+class IndexEntry(Represent, nodes.Element):
 
     other_entry_types = ('list')
 
@@ -157,29 +161,20 @@ class IndexEntry(nodes.Element):
         super().__init__(rawtext, *terms, entry_type=entry_type,
                          file_name=file_name, target=target, main=main, index_key=index_key)
 
-    def __repr__(self):
+    def __repr__(self, rpr=""):
         """
         >>> entry = IndexEntry('sphinx; python', 'single', 'document', 'term-1')
         >>> entry
         <IndexEntry: entry_type='single' file_name='document' target='term-1' <#text: 'sphinx'><#text: 'python'>>
         """
 
-        name = self.__class__.__name__
-        prop = f"<{name}: "
+        if self['entry_type']: rpr += f"entry_type='{self['entry_type']}' "
+        if self['main']      : rpr += f"main "
+        if self['file_name'] : rpr += f"file_name='{self['file_name']}' "
+        if self['target']    : rpr += f"target='{self['target']}' "
+        if self['index_key'] : rpr += f"index_key='{self['index_key']}' "
 
-        etype, ikey = self['entry_type'], self['index_key']
-        main, fn, tid = self['main'], self['file_name'], self['target']
-
-        if etype: prop += f"entry_type='{etype}' "
-        if main : prop += f"main='{main}' "
-        if fn   : prop += f"file_name='{fn}' "
-        if tid  : prop += f"target='{tid}' "
-        if ikey : prop += f"index_key='{ikey}' "
-
-        children = ''.join([repr(c) for c in self])
-        prop += children + ">"
-
-        return prop
+        return self.represent(rpr)
 
     def astext(self):
         """

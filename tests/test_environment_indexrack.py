@@ -1073,7 +1073,7 @@ def test_class_IndexEntry_repr(app):
     # single/one
     entry = irack.IndexEntry('sphinx', 'single', 'doc1', 'term-1', 'main', 'key')
     assert repr(entry) == "<IndexEntry: entry_type='single' " \
-                           "main='main' file_name='doc1' target='term-1' index_key='key' " \
+                           "main file_name='doc1' target='term-1' index_key='key' " \
                            "<#text: 'sphinx'>>"
     assert entry.astext() == "sphinx"
     units = entry.make_index_units()
@@ -1083,7 +1083,7 @@ def test_class_IndexEntry_repr(app):
     # single/two
     entry = irack.IndexEntry('sphinx; python', 'single', 'doc1', 'term-1', 'main', 'key')
     assert repr(entry) == "<IndexEntry: entry_type='single' " \
-                          "main='main' file_name='doc1' target='term-1' index_key='key' " \
+                          "main file_name='doc1' target='term-1' index_key='key' " \
                           "<#text: 'sphinx'><#text: 'python'>>"
     assert entry.astext() == "sphinx; python"
     units = entry.make_index_units()
@@ -1093,7 +1093,7 @@ def test_class_IndexEntry_repr(app):
     # pair
     entry = irack.IndexEntry('sphinx; python', 'pair', 'doc1', 'term-1', 'main', 'key')
     assert repr(entry) == "<IndexEntry: entry_type='pair' " \
-                          "main='main' file_name='doc1' target='term-1' index_key='key' " \
+                          "main file_name='doc1' target='term-1' index_key='key' " \
                           "<#text: 'sphinx'><#text: 'python'>>"
     assert entry.astext() == "sphinx; python"
     units = entry.make_index_units()
@@ -1106,7 +1106,7 @@ def test_class_IndexEntry_repr(app):
     value = 'docutils; sphinx; python'
     entry = irack.IndexEntry(value, 'triple', 'doc1', 'term-1', 'main', 'key')
     assert repr(entry) == "<IndexEntry: entry_type='triple' " \
-                          "main='main' file_name='doc1' target='term-1' index_key='key' " \
+                          "main file_name='doc1' target='term-1' index_key='key' " \
                           "<#text: 'docutils'><#text: 'sphinx'><#text: 'python'>>"
     assert entry.astext() == "docutils; sphinx; python"
     units = entry.make_index_units()
@@ -1123,7 +1123,7 @@ def test_class_IndexEntry_repr(app):
     # see
     entry = irack.IndexEntry('sphinx; python', 'see', 'doc1', 'term-1', 'main', 'key')
     assert repr(entry) == "<IndexEntry: entry_type='see' " \
-                          "main='main' file_name='doc1' target='term-1' index_key='key' " \
+                          "main file_name='doc1' target='term-1' index_key='key' " \
                           "<#text: 'sphinx'><#text: 'python'>>"
     assert entry.astext() == "sphinx; python"
     units = entry.make_index_units()
@@ -1134,7 +1134,7 @@ def test_class_IndexEntry_repr(app):
     # seealso
     entry = irack.IndexEntry('sphinx; python', 'seealso', 'doc1', 'term-1', 'main', 'key')
     assert repr(entry) == "<IndexEntry: entry_type='seealso' " \
-                          "main='main' file_name='doc1' target='term-1' index_key='key' " \
+                          "main file_name='doc1' target='term-1' index_key='key' " \
                           "<#text: 'sphinx'><#text: 'python'>>"
     assert entry.astext() == "sphinx; python"
     units = entry.make_index_units()
@@ -1146,7 +1146,7 @@ def test_class_IndexEntry_repr(app):
     value = 'docutils; sphinx; python'
     entry = irack.IndexEntry(value, 'list', 'doc1', 'term-1', 'main', 'key')
     assert repr(entry) == "<IndexEntry: entry_type='list' " \
-                          "main='main' file_name='doc1' target='term-1' index_key='key' " \
+                          "main file_name='doc1' target='term-1' index_key='key' " \
                           "<#text: 'docutils'><#text: 'sphinx'><#text: 'python'>>"
     assert entry.astext() == "docutils; sphinx; python"
     units = entry.make_index_units()
@@ -1157,7 +1157,7 @@ def test_class_IndexEntry_repr(app):
     value = 'docutils; sphinx; python'
     entry = irack.IndexEntry(value, 'foobar', 'doc1', 'term-1', 'main', 'key')
     assert repr(entry) == "<IndexEntry: entry_type='foobar' " \
-                          "main='main' file_name='doc1' target='term-1' index_key='key' " \
+                          "main file_name='doc1' target='term-1' index_key='key' " \
                           "<#text: 'docutils'><#text: 'sphinx'><#text: 'python'>>"
     assert entry.astext() == "docutils; sphinx; python"
     units = entry.make_index_units()
