@@ -1078,7 +1078,7 @@ def test_class_IndexEntry_repr(app):
     assert entry.astext() == "sphinx"
     units = entry.make_index_units()
     assert repr(units[0]) ==  "<IndexUnit: main file_name='doc1' target='term-1' " \
-                              "<#empty><#text: 'sphinx'>>"
+                              "<#text: ''><#text: 'sphinx'>>"
 
     # single/two
     entry = irack.IndexEntry('sphinx; python', 'single', 'doc1', 'term-1', 'main', 'key')
@@ -1088,7 +1088,7 @@ def test_class_IndexEntry_repr(app):
     assert entry.astext() == "sphinx; python"
     units = entry.make_index_units()
     assert repr(units[0]) == "<IndexUnit: main file_name='doc1' target='term-1' " \
-                            "<#empty><#text: 'sphinx'><Subterm: len=1 <#text: 'python'>>>"
+                            "<#text: ''><#text: 'sphinx'><Subterm: len=1 <#text: 'python'>>>"
 
     # pair
     entry = irack.IndexEntry('sphinx; python', 'pair', 'doc1', 'term-1', 'main', 'key')
@@ -1098,9 +1098,9 @@ def test_class_IndexEntry_repr(app):
     assert entry.astext() == "sphinx; python"
     units = entry.make_index_units()
     assert repr(units[0]) == "<IndexUnit: main file_name='doc1' target='term-1' " \
-                             "<#empty><#text: 'sphinx'><Subterm: len=1 <#text: 'python'>>>"
+                             "<#text: ''><#text: 'sphinx'><Subterm: len=1 <#text: 'python'>>>"
     assert repr(units[1]) == "<IndexUnit: main file_name='doc1' target='term-1' " \
-                             "<#empty><#text: 'python'><Subterm: len=1 <#text: 'sphinx'>>>"
+                             "<#text: ''><#text: 'python'><Subterm: len=1 <#text: 'sphinx'>>>"
 
     # triple
     value = 'docutils; sphinx; python'
@@ -1111,13 +1111,13 @@ def test_class_IndexEntry_repr(app):
     assert entry.astext() == "docutils; sphinx; python"
     units = entry.make_index_units()
     assert repr(units[0]) == "<IndexUnit: main file_name='doc1' target='term-1' " \
-                             "<#empty><#text: 'docutils'>" \
+                             "<#text: ''><#text: 'docutils'>" \
                              "<Subterm: len=2 <#text: 'sphinx'><#text: 'python'>>>"
     assert repr(units[1]) == "<IndexUnit: main file_name='doc1' target='term-1' " \
-                             "<#empty><#text: 'sphinx'>" \
+                             "<#text: ''><#text: 'sphinx'>" \
                              "<Subterm: len=2 delimiter=', ' <#text: 'python'><#text: 'docutils'>>>"
     assert repr(units[2]) == "<IndexUnit: main file_name='doc1' target='term-1' " \
-                             "<#empty><#text: 'python'>" \
+                             "<#text: ''><#text: 'python'>" \
                              "<Subterm: len=2 <#text: 'docutils'><#text: 'sphinx'>>>"
 
     # see
@@ -1128,7 +1128,7 @@ def test_class_IndexEntry_repr(app):
     assert entry.astext() == "sphinx; python"
     units = entry.make_index_units()
     assert repr(units[0]) == "<IndexUnit: main file_name='doc1' target='term-1' " \
-                             "<#empty><#text: 'sphinx'>" \
+                             "<#text: ''><#text: 'sphinx'>" \
                              "<Subterm: len=1 tpl='see %s' <#text: 'python'>>>"
 
     # seealso
@@ -1139,7 +1139,7 @@ def test_class_IndexEntry_repr(app):
     assert entry.astext() == "sphinx; python"
     units = entry.make_index_units()
     assert repr(units[0]) == "<IndexUnit: main file_name='doc1' target='term-1' " \
-                             "<#empty><#text: 'sphinx'>" \
+                             "<#text: ''><#text: 'sphinx'>" \
                              "<Subterm: len=1 tpl='see also %s' <#text: 'python'>>>"
 
     # other entry type
@@ -1151,7 +1151,7 @@ def test_class_IndexEntry_repr(app):
     assert entry.astext() == "docutils; sphinx; python"
     units = entry.make_index_units()
     assert repr(units[0]) == "<IndexUnit: main file_name='doc1' target='term-1' " \
-                             "<#empty><#text: 'docutils'>>"
+                             "<#text: ''><#text: 'docutils'>>"
 
     # exception
     value = 'docutils; sphinx; python'
@@ -1175,7 +1175,7 @@ def test_class_IndexUnit_repr(app):
     unit = irack.IndexUnit(txtcls('docutils'), pack, '2', main, 'doc1', 'term-1', 'clsf')
     assert repr(pack) == repr00
     assert repr(unit) == "<IndexUnit: main file_name='doc1' target='term-1' " \
-                         "<#empty><#text: 'docutils'>" \
+                         "<#text: ''><#text: 'docutils'>" \
                          "<Subterm: len=2 <#text: 'sphinx'><#text: 'python'>>>"
 
     # triple/repr
@@ -1197,7 +1197,7 @@ def test_class_IndexUnit_repr(app):
     # triple/each object
     pack = irack.Subterm(main, txtcls('sphinx'), txtcls('python'))
     unit = irack.IndexUnit(txtcls('docutils'), pack, '2', main, 'doc1', 'term-1', 'clsf')
-    assert repr(unit[0]) == "<#empty>"
+    assert repr(unit[0]) == "<#text: ''>"
     assert repr(unit[1]) == "<#text: 'docutils'>"
     assert repr(unit[2]) == repr00
     assert unit['main'] == main
@@ -1232,7 +1232,7 @@ def test_class_IndexUnit_repr(app):
     # exception
     pack = irack.Subterm(main, txtcls('sphinx'), txtcls('python'))
     unit = irack.IndexUnit(txtcls('docutils'), pack, '2', main, 'doc1', 'term-1', 'clsf')
-    with pytest.raises(KeyError):
+    with pytest.raises(IndexError):
         a = unit[99]
 
     # exception
@@ -1244,7 +1244,7 @@ def test_class_IndexUnit_repr(app):
     # exception
     pack = irack.Subterm(main, txtcls('sphinx'), txtcls('python'))
     unit = irack.IndexUnit(txtcls('docutils'), pack, '2', main, 'doc1', 'term-1', 'clsf')
-    with pytest.raises(KeyError):
+    with pytest.raises(AttributeError):
         unit[99] = 1
 
     # exception
@@ -1284,7 +1284,7 @@ def test_class_Subterm_repr(app):
     pack = irack.Subterm(3, txtcls('sphinx'), txtcls('python'))
     assert str(pack) == 'sphinx python'
     assert repr(pack) == "<Subterm: len=2 <#text: 'sphinx'><#text: 'python'>>"
-    pack.set_delimiter(', ')
+    pack['delimiter'] = ', '
     assert str(pack) == 'sphinx, python'
     #assert repr(pack) == "<Subterm: len=2 <#text: 'sphinx'><#text: 'python'>>"
 
