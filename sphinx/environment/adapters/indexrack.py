@@ -260,7 +260,7 @@ class IndexEntry(nodes.Element):
         return index_units
 
 
-class IndexRack(object):
+class IndexRack(nodes.Element):
     """
     1. self.__init__() Initialization. Reading from settings.
     2. self.append() Importing the IndexUnit object. Preparing for self.update_units().
@@ -306,7 +306,7 @@ class IndexRack(object):
                 entry.unitclass = self.unitclass
                 entry.packclass = self.packclass
                 index_units = entry.make_index_units()
-                self.extend(index_units)
+                self += index_units
 
         self.update_units()
         self.sort_units()
