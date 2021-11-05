@@ -136,19 +136,16 @@ class IndexEntry(Represent, nodes.Element):
 
     other_entry_types = ('list')
 
+    textclass = nodes.Text
+    unitclass = IndexUnit
+    packclass = Subterm
+
     def __init__(self, rawtext, entry_type='single', file_name=None, target=None,
-                 main='', index_key='', textclass=None):
+                 main='', index_key=''):
         """
         - textclass is to expand functionality for multi-byte language.
         - textclass is given by IndexRack class.
         """
-
-        if textclass is None: textclass = nodes.Text
-        # for doctest
-
-        self.textclass = textclass
-        self.unitclass = IndexUnit
-        self.packclass = Subterm
 
         self.delimiter = '; '
 
@@ -156,7 +153,7 @@ class IndexEntry(Represent, nodes.Element):
 
         terms = []
         for rawword in rawwords:
-            terms.append(textclass(rawword, rawword))
+            terms.append(self.textclass(rawword, rawword))
 
         super().__init__(rawtext, *terms, entry_type=entry_type,
                          file_name=file_name, target=target, main=main, index_key=index_key)
@@ -259,16 +256,17 @@ class IndexRack(nodes.Element):
 
     UNIT_CLSF, UNIT_TERM, UNIT_SBTM = 0, 1, 2
 
+    textclass = nodes.Text
+    entryclass = IndexEntry
+    unitclass = IndexUnit
+    packclass = Subterm
+
     def __init__(self, builder):
 
         # Save control information.
         self.env = builder.env
         self.config = builder.config
         self.get_relative_uri = builder.get_relative_uri
-        self.textclass = nodes.Text
-        self.entryclass = IndexEntry
-        self.unitclass = IndexUnit
-        self.packclass = Subterm
 
     def create_index(self, group_entries: bool = True,
                      _fixre: Pattern = re.compile(r'(.*) ([(][^()]*[)])')
@@ -290,9 +288,7 @@ class IndexRack(nodes.Element):
 
         for fn, entries in entries.items():
             for entry_type, value, tid, main, ikey in entries:
-                entry = self.entryclass(value, entry_type, fn, tid, main, ikey, self.textclass)
-                entry.unitclass = self.unitclass
-                entry.packclass = self.packclass
+                entry = self.entryclass(value, entry_type, fn, tid, main, ikey)
                 index_units = entry.make_index_units()
                 self += index_units
 
