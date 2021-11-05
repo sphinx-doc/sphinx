@@ -1282,6 +1282,51 @@ def test_class_Subterm_repr(app):
     assert str(pack) == 'sphinx, python'
     #assert repr(pack) == "<Subterm: len=2 <#text: 'sphinx'><#text: 'python'>>"
 
+@pytest.mark.sphinx('dummy', freshenv=True)
+def test_issue9744_current_classifier(app):
+    text = (".. index:: python\n"
+            "\n"
+            ".. glossary::\n"
+            "\n"
+            "   sphinx : clsf1\n"
+            "   python : clsf2\n"
+            "\n"
+            ".. index:: sphinx\n")
+    restructuredtext.parse(app, text)
+    index = irack.IndexRack(app.builder).create_index()
+    assert len(index) == 2
+    assert index[0] == ('clsf1', [('sphinx',
+                                  [[('main', '#term-sphinx'), ('', '#index-1')],
+                                   [], 'clsf1'])])
+    assert index[1] == ('clsf2', [('python',
+                                  [[('main', '#term-python'), ('', '#index-0')],
+                                   [], 'clsf2'])])
+
+@pytest.mark.sphinx('dummy', freshenv=True)
+def test_issue9744_expected_behavior_about_see_seealso(app):
+    text = (".. index:: see: hogehoge; foo\n"
+            ".. index:: seealso: hogehoge; bar\n")
+    restructuredtext.parse(app, text)
+    index = irack.IndexRack(app.builder).create_index()
+    assert len(index) == 1
+    assert index[0] == ('H', [('hogehoge', [[],
+                                            [('see foo', []), ('see also bar', [])],
+                                            None])])
+
+@pytest.mark.sphinx('dummy', freshenv=True)
+def test_issue9744_expected_behavior_about_three_functions(app):
+    text = (".. index:: func1() (aaa module)\n"
+            ".. index:: func1() (bbb module)\n"
+            ".. index:: func1() (ccc module)\n")
+    restructuredtext.parse(app, text)
+    index = irack.IndexRack(app.builder).create_index()
+    assert len(index) == 1
+    assert index[0] == ('F', [('func1()',
+                              [[],
+                              [('(aaa module)', [('', '#index-0')]),
+                               ('(bbb module)', [('', '#index-1')]),
+                               ('(ccc module)', [('', '#index-2')])],
+                              None])])
 
 @pytest.mark.sphinx('dummy', freshenv=True)
 def test_issue9744(app):

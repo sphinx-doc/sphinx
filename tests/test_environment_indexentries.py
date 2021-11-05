@@ -169,3 +169,47 @@ def test_create_index_by_key(app):
     assert index[0] == ('D', [('docutils', [[('main', '#term-docutils')], [], None])])
     assert index[1] == ('P', [('Python', [[('main', '#term-Python')], [], None])])
     assert index[2] == ('ス', [('スフィンクス', [[('main', '#term-0')], [], 'ス'])])
+
+@pytest.mark.sphinx('dummy', freshenv=True)
+def test_issue9744_current_classifier(app):
+    text = (".. index:: python\n"
+            "\n"
+            ".. glossary::\n"
+            "\n"
+            "   sphinx : clsf1\n"
+            "   python : clsf2\n"
+            "\n"
+            ".. index:: sphinx\n")
+    restructuredtext.parse(app, text)
+    index = IndexEntries(app.env).create_index(app.builder)
+    assert len(index) == 2
+    assert index[0] == ('clsf1', [('sphinx',
+                                  [[('main', '#term-sphinx'), ('', '#index-1')],
+                                   [], 'clsf1'])])
+    assert index[1] == ('P', [('python',
+                              [[('main', '#term-python'), ('', '#index-0')], [], None])])
+
+@pytest.mark.sphinx('dummy', freshenv=True)
+def test_issue9744_current_behavior_about_see_seealso(app):
+    text = (".. index:: see: hogehoge; foo\n"
+            ".. index:: seealso: hogehoge; bar\n")
+    restructuredtext.parse(app, text)
+    index = IndexEntries(app.env).create_index(app.builder)
+    assert len(index) == 1
+    assert index[0] == ('H', [('hogehoge', [[],
+                                            [('see also bar', []), ('see foo', [])],
+                                            None])])
+
+@pytest.mark.sphinx('dummy', freshenv=True)
+def test_issue9744_current_behavior_about_three_functions(app):
+    text = (".. index:: func1() (aaa module)\n"
+            ".. index:: func1() (bbb module)\n"
+            ".. index:: func1() (ccc module)\n")
+    restructuredtext.parse(app, text)
+    index = IndexEntries(app.env).create_index(app.builder)
+    assert len(index) == 1
+    assert index[0] == ('F', [('func1() (aaa module)',
+                              [[('', '#index-0')],
+                              [('(bbb module)', [('', '#index-1')]),
+                               ('(ccc module)', [('', '#index-2')])],
+                              None])])
