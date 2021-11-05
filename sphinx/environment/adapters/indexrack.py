@@ -137,8 +137,8 @@ class IndexEntry(Represent, nodes.Element):
     other_entry_types = ('list')
 
     textclass = nodes.Text
-    unitclass = IndexUnit
     packclass = Subterm
+    unitclass = IndexUnit
 
     def __init__(self, rawtext, entry_type='single', file_name=None, target=None,
                  main='', index_key=''):
@@ -188,7 +188,7 @@ class IndexEntry(Represent, nodes.Element):
 
         >>> entry = IndexEntry('sphinx', 'single', 'document', 'term-1')
         >>> entry.make_index_units()
-        [<IndexUnit: main='5' file_name='document' target='term-1' <#empty><#text: 'sphinx'>>]
+        [<IndexUnit: main file_name='document' target='term-1' <#text: ''><#text: 'sphinx'>>]
         """
         etype = self['entry_type']
         fn = self['file_name']
@@ -257,9 +257,9 @@ class IndexRack(nodes.Element):
     UNIT_CLSF, UNIT_TERM, UNIT_SBTM = 0, 1, 2
 
     textclass = nodes.Text
-    entryclass = IndexEntry
-    unitclass = IndexUnit
     packclass = Subterm
+    unitclass = IndexUnit
+    entryclass = IndexEntry
 
     def __init__(self, builder):
 
