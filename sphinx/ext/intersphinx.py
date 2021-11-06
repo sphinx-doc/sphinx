@@ -495,20 +495,11 @@ class IntersphinxRole(SphinxRole):
                            location=(self.env.docname, self.lineno))
             return [], []
 
-        # extract inventory specification
-        inventory = None
-        if self.text.startswith('\\:'):
-            # escaped :, so not a real inventory specification
-            self.text = self.text[1:]
-        elif self.text[0] == ':':  # format: :inv:normalRoleArg
-            inventory = self.text.split(':')[1]
-            self.text = self.text[(len(inventory) + 2):]
-
         result, messages = self.invoke_role(role_name)
         for node in result:
             if isinstance(node, pending_xref):
                 node['intersphinx'] = True
-                node['inventory'] = inventory
+                node['inventory'] = None
 
         return result, messages
 
@@ -574,8 +565,11 @@ class IntersphinxRoleResolver(ReferencesResolver):
             else:
                 newnode = resolve_reference_any_inventory(self.env, False, node, contnode)
             if newnode is None:
-                # no warning, the normal missing_reference handler will do that
-                pass
+                typ = node['reftype']
+                msg = (__('external %s:%s reference target not found: %s') %
+                       (node['refdomain'], typ, node['reftarget']))
+                logger.warning(msg, location=node, type='ref', subtype=typ)
+                node.replace_self(contnode)
             else:
                 node.replace_self(newnode)
 

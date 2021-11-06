@@ -527,7 +527,7 @@ def test_inspect_main_url(capsys):
 
 
 @pytest.mark.sphinx('html', testroot='ext-intersphinx-role')
-def test_intersphinx_role(app):
+def test_intersphinx_role(app, warning):
     inv_file = app.srcdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
     app.config.intersphinx_mapping = {
@@ -542,21 +542,13 @@ def test_intersphinx_role(app):
 
     app.build()
     content = (app.outdir / 'index.html').read_text()
+    wStr = warning.getvalue()
 
-    targets = (
-        'foo.html#module-module1',
-        'foo.html#module-module2',
-        'sub/foo.html#module1.func',
-        'index.html#foo.Bar.baz',
-        'cfunc.html#CFunc',
-        'docname.html',
-        'index.html#cmdoption-ls-l',
-        'index.html#std_uint8_t',
-        'index.html#foons',
-        'index.html#foons_bartype',
-    )
     html = '<a class="reference external" href="http://example.org/{}" title="(in foo v2.0)">'
-    for t in targets:
-        assert html.format(t) in content
+    assert html.format('foo.html#module-module1') in content
+    assert html.format('foo.html#module-module2') in content
+    assert "WARNING: external py:mod reference target not found: module3" in wStr
+    assert "WARNING: external py:mod reference target not found: module10" in wStr
 
-    assert html.format('index.html#cpp_foo_bar_baz') not in content
+    assert html.format('sub/foo.html#module1.func') in content
+    assert "WARNING: external py:meth reference target not found: inv:Foo.bar" in wStr
