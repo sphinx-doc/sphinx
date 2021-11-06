@@ -495,8 +495,8 @@ class IntersphinxRole(SphinxRole):
         assert self.name == self.orig_name.lower()
         inventory, name_suffix = self.get_inventory_and_name_suffix(self.orig_name)
         if inventory and not inventory_exists(self.env, inventory):
-            logger.warning(__('inventory for external cross-reference not found: %s'), inventory,
-                           location=(self.env.docname, self.lineno))
+            logger.warning(__('inventory for external cross-reference not found: %s'),
+                           inventory, location=(self.env.docname, self.lineno))
             return [], []
 
         role_name = self.get_role_name(name_suffix)
@@ -522,7 +522,7 @@ class IntersphinxRole(SphinxRole):
             # inv+role
             # inv+domain:role
             inventory = inv_names[0]
-            name = name[len(inventory)+1:]
+            name = name[len(inventory) + 1:]
         return inventory, name
 
     def get_role_name(self, name: str) -> Optional[Tuple[str, str]]:
