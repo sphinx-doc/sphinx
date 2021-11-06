@@ -425,9 +425,9 @@ class IndexRack(nodes.Element):
         self._rack.sort(key=lambda unit: (
             self.for_sort(unit[self.UNIT_CLSF]),  # classifier
             self.for_sort(unit[self.UNIT_TERM]),  # term
-            unit['link_type'],                    # 1:'see', 2:'seealso', 3:'uri'. see Convert class.
+            unit['link_type'],                    # 1:'see', 2:'seealso', 3:'uri'. see Convert.
             self.for_sort(unit[self.UNIT_SBTM]),  # subterm
-            unit['main'],                         # 3:'main', 4:''. see Convert class.
+            unit['main'],                         # 3:'main', 4:''. see Convert.
             unit['file_name'],
             unit['target']), )
         # about x['file_name'], x['target'].
@@ -447,58 +447,68 @@ class IndexRack(nodes.Element):
             i_tid = unit['target']
             i_iky = unit['index_key']
 
-            # make a uri
-            if i_fn:
-                try:
-                    r_uri = self.get_relative_uri('genindex', i_fn) + '#' + i_tid
-                except NoUri:
-                    continue
-
             # see: KanaText.__eq__
             if len(rtnlist) == 0 or not rtnlist[_clf][0] == i_clf.astext():
+                # Enter a clsssifier.
                 rtnlist.append((i_clf, []))
 
+                # Post-processing.
                 # Update _clf to see "(clf, [])" added. Reset the others.
                 _clf, _tm, _sub = _clf + 1, -1, -1
 
             r_clsfr = rtnlist[_clf]  # [classifier, [term, term, ..]]
             r_clfnm = r_clsfr[0]     # classifier is KanaText object.
-            r_subterms = r_clsfr[1]  # [term, term, ..]
+            r_terms = r_clsfr[1]     # [term, term, ..]
 
             # see: KanaText.__eq__
-            if len(r_subterms) == 0 or not r_subterms[_tm][0] == i_tm.astext():
-                r_subterms.append((i_tm, [[], [], i_iky]))
+            if len(r_terms) == 0 or not r_terms[_tm][0] == i_tm.astext():
+                # Enter a term.
+                r_terms.append((i_tm, [[], [], i_iky]))
 
+                # Post-processing.
                 # Update _tm to see "(i_tm, [[], [], i_iky])" added. Reset the other.
                 _tm, _sub = _tm + 1, -1
+            else:
+                pass
 
-            r_term = r_subterms[_tm]     # [term, [links, [subterm, subterm, ..], index_key]
+            r_term = r_terms[_tm]        # [term, [links, [subterm, subterm, ..], index_key]
             r_term_value = r_term[0]     # term_value is KanaText object.
             r_term_links = r_term[1][0]  # [(main, uri), (main, uri), ..]
             r_subterms = r_term[1][1]    # [subterm, subterm, ..]
 
-            # Change the code to string.
-            r_main = _cnv.code2main(i_em)
-
             # if it's see/seealso, reset file_name for no uri.
+            # see Convert.
             if i_lnk == 3:
-                r_fn = i_fn
+                # Change the code to string.
+                r_main = _cnv.code2main(i_em)
+
+                # uri
+                try:
+                    r_uri = self.get_relative_uri('genindex', i_fn) + '#' + i_tid
+                except NoUri:
+                    continue
             else:
-                r_fn = None
+                r_uri= None
+
 
             # sub(class Subterm): [], [KanaText], [KanaText, KanaText].
             if len(i_sub) == 0:
-                if r_fn: r_term_links.append((r_main, r_uri))
+                if r_uri: r_term_links.append((r_main, r_uri))
             elif len(r_subterms) == 0 or not r_subterms[_sub][0] == i_sub.astext():
+                # Enter a subterm.
                 r_subterms.append((i_sub, []))
 
+                # Post-processing.
                 _sub = _sub + 1
                 r_subterm = r_subterms[_sub]
                 r_subterm_value = r_subterm[0]
                 r_subterm_links = r_subterm[1]
-                if r_fn: r_subterm_links.append((r_main, r_uri))
+
+                # Enter a link.
+                if r_uri: r_subterm_links.append((r_main, r_uri))
             else:
-                if r_fn: r_subterm_links.append((r_main, r_uri))
+                # Enter a link.
+                if r_uri: r_subterm_links.append((r_main, r_uri))
 
         return rtnlist
 
