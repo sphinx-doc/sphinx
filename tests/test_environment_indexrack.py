@@ -245,6 +245,17 @@ def test_class_IndexRack_function_catalog(app):
                                          ('(doc2 module)', [('', 'doc2.html#id-221')])],
                                         None]), ]
 
+    # two functions/group_entries = False
+    testcase02 = {'doc1': [ ('single','func1() (doc1 module)','id-211','',None),],
+                  'doc2': [ ('single','func1() (doc2 module)','id-221','',None),], }
+    bld = TemporaryBuilder(testcase02)
+    index = irack.IndexRack(bld).create_index(False)
+    assert len(index) == 1
+    assert len(index[0][1]) == 2
+    assert index[0][0] == 'F'
+    assert index[0][1] == [('func1() (doc1 module)', [[('', 'doc1.html#id-211')], [], None]),
+                           ('func1() (doc2 module)', [[('', 'doc2.html#id-221')], [], None])]
+
     # two functions/module name
     testcase03 = {'doc1': [ ('single','func1() (bbbb module)','id-311','',None),],
                   'doc2': [ ('single','func1() (aaaa module)','id-321','',None),], }
