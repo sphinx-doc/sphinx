@@ -489,9 +489,15 @@ class IntersphinxDispatcher(CustomReSTDispatcher):
 
 class IntersphinxRole(SphinxRole):
     def run(self) -> Tuple[List[Node], List[system_message]]:
-        role_name = self.get_role_name(self.name)
+        inventory, name_suffix = self.get_inventory_and_name_suffix(self.name)
+        if inventory and not inventory_exists(self.env, inventory):
+            logger.warning(__('inventory for external cross-reference not found: %s'), inventory,
+                           location=(self.env.docname, self.lineno))
+            return [], []
+
+        role_name = self.get_role_name(name_suffix)
         if role_name is None:
-            logger.warning(__('role not found: %s'), self.name,
+            logger.warning(__('role for external cross-reference not found: %s'), name_suffix,
                            location=(self.env.docname, self.lineno))
             return [], []
 
@@ -499,20 +505,33 @@ class IntersphinxRole(SphinxRole):
         for node in result:
             if isinstance(node, pending_xref):
                 node['intersphinx'] = True
-                node['inventory'] = None
+                node['inventory'] = inventory
 
         return result, messages
 
+    def get_inventory_and_name_suffix(self, name: str) -> Tuple[Optional[str], Optional[str]]:
+        assert name.startswith('external:'), name
+        name = name[9:]
+        inv_names = name.split('+')
+        inventory = None
+        if len(inv_names) > 1:
+            # inv+role
+            # inv+domain:role
+            inventory = inv_names[0]
+            name = name[len(inventory)+1:]
+        return inventory, name
+
     def get_role_name(self, name: str) -> Optional[Tuple[str, str]]:
         names = name.split(':')
-        if len(names) == 2:
-            # :external:role:
-            domain = self.env.temp_data.get('default_domain')
+        if len(names) == 1:
+            # role
+            default_domain = self.env.temp_data.get('default_domain')
+            domain = default_domain.name if default_domain else None
+            role = names[0]
+        elif len(names) == 2:
+            # domain:role:
+            domain = names[0]
             role = names[1]
-        elif len(names) == 3:
-            # :external:domain:role:
-            domain = names[1]
-            role = names[2]
         else:
             return None
 
@@ -559,8 +578,7 @@ class IntersphinxRoleResolver(ReferencesResolver):
             contnode = cast(nodes.TextElement, node[0].deepcopy())
             inv_name = node['inventory']
             if inv_name is not None:
-                if not inventory_exists(self.env, inv_name):
-                    continue
+                assert inventory_exists(self.env, inv_name)
                 newnode = resolve_reference_in_inventory(self.env, inv_name, node, contnode)
             else:
                 newnode = resolve_reference_any_inventory(self.env, False, node, contnode)

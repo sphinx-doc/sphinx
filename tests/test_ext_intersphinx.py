@@ -552,3 +552,20 @@ def test_intersphinx_role(app, warning):
 
     assert html.format('sub/foo.html#module1.func') in content
     assert "WARNING: external py:meth reference target not found: inv:Foo.bar" in wStr
+
+    assert "WARNING: role for external cross-reference not found: py:nope" in wStr
+
+    # default domain
+    assert html.format('index.html#std_uint8_t') in content
+    assert "WARNING: role for external cross-reference not found: nope" in wStr
+
+    # std roles without domain prefix
+    assert html.format('docname.html') in content
+    assert html.format('index.html#cmdoption-ls-l') in content
+
+    # explicit inventory
+    assert html.format('cfunc.html#CFunc') in content
+    #assert "WARNING: inventory for external cross-reference not found: invNope" in wStr
+
+    # explicit title
+    assert html.format('index.html#foons') in content
