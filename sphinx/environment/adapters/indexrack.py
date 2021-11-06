@@ -13,6 +13,12 @@ from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging
 
+# Update separately from the package version, since 2021-11-07
+__version__ = "1.0.20211107"
+# x.y.YYYYMMDD[.HHMI]
+# - x: changes that need to be addressed by the user.
+# - y: changes that do not require a response from the user.
+
 logger = logging.getLogger(__name__)
 
 
@@ -73,9 +79,12 @@ class Subterm(Represent, nodes.Element):
 # ------------------------------------------------------------
 
 
-class IndexUnit(Represent, nodes.Element):
+UNIT_CLSF = 0  # a classifier. The index_key and category_key are variable names.
+UNIT_TERM = 1  # a primary term.
+UNIT_SBTM = 2  # a secondary term.
 
-    CLSF, TERM, SBTM = 0, 1, 2
+
+class IndexUnit(Represent, nodes.Element):
 
     def __init__(self, term, subterm, link_type, main, file_name, target, index_key):
 
@@ -93,12 +102,12 @@ class IndexUnit(Represent, nodes.Element):
         return self.represent(rpr, 2)
 
     def set_subterm_delimiter(self, delimiter=', '):
-        self[self.SBTM]['delimiter'] = delimiter
+        self[UNIT_SBTM]['delimiter'] = delimiter
 
     def astexts(self):
-        texts = [self[self.TERM].astext()]
+        texts = [self[UNIT_TERM].astext()]
 
-        for subterm in self[self.SBTM]:
+        for subterm in self[UNIT_SBTM]:
             texts.append(subterm.astext())
 
         return texts
@@ -223,11 +232,10 @@ class IndexEntry(Represent, nodes.Element):
                 index_units.append(_index_unit(self[0], self[1], ''))
                 index_units.append(_index_unit(self[1], self[0], ''))
             elif etype == 'triple':
-                index_units.append(_index_unit(self[0], self[1], self[2]))
-                unit = _index_unit(self[1], self[2], self[0])
-                unit.set_subterm_delimiter()
-                index_units.append(unit)
-                index_units.append(_index_unit(self[2], self[0], self[1]))
+                index_units.append(_index_unit(self[0], self[1], self[2]))  # the delimiter is ' '
+                index_units.append(_index_unit(self[1], self[2], self[0]))  # the delimiter should be ', '
+                index_units.append(_index_unit(self[2], self[0], self[1]))  # the delimiter is ' '
+                index_units[1].set_subterm_delimiter()  # the delimiter became ', '
             elif etype == 'see':
                 index_units.append(_index_unit(self[0], self[1], ''))
             elif etype == 'seealso':
@@ -253,8 +261,6 @@ class IndexRack(nodes.Element):
     4. self.sort_units() Sorting.
     5. self.generate_genindex_data()  Generating data for genindex.
     """
-
-    UNIT_CLSF, UNIT_TERM, UNIT_SBTM = 0, 1, 2
 
     textclass = nodes.Text
     packclass = Subterm
@@ -302,8 +308,8 @@ class IndexRack(nodes.Element):
         Gather information for the update process, which will be determined by looking at all units.
         """
         # Gather information.
-        self.put_in_classifier_catalog(unit['index_key'], self.get_word(unit[self.UNIT_TERM]))
-        unit[self.UNIT_TERM].whatiam = 'term'
+        self.put_in_classifier_catalog(unit['index_key'], self.get_word(unit[UNIT_TERM]))
+        unit[UNIT_TERM].whatiam = 'term'
 
         # Gather information.
         if self._group_entries:
@@ -318,10 +324,10 @@ class IndexRack(nodes.Element):
 
     def put_in_classifier_catalog(self, index_key, word):
         if not index_key: return
-        if not word: return
+        if not word: raise ValueError(repr(self))
 
         if word not in self._classifier_catalog:
-            # 上書きはしない.（∵「make clean」での状況を真とするため）
+            # No overwriting. (To make the situation in "make clean" true)
             self._classifier_catalog[word] = index_key
 
     def put_in_function_catalog(self, texts, _fixre):
@@ -349,7 +355,7 @@ class IndexRack(nodes.Element):
         """Update with the catalog."""
 
         for unit in self._rack:
-            assert [unit[self.UNIT_TERM]]
+            assert [unit[UNIT_TERM]]
 
             # Update multiple functions of the same name.
             if self._group_entries:
@@ -364,7 +370,7 @@ class IndexRack(nodes.Element):
     def update_unit_with_classifier_catalog(self, unit):
 
         ikey = unit['index_key']
-        term = unit[self.UNIT_TERM]
+        term = unit[UNIT_TERM]
         word = self.get_word(term)
 
         # Important: The order in which if/elif decisions are made.
@@ -378,7 +384,7 @@ class IndexRack(nodes.Element):
         clsf = self.textclass(_key, _raw)
         clsf.whatiam = 'classifier'
 
-        unit[self.UNIT_CLSF] = clsf
+        unit[UNIT_CLSF] = clsf
 
     def update_unit_with_function_catalog(self, unit):
         """
@@ -390,21 +396,21 @@ class IndexRack(nodes.Element):
             (in module foo)
             (in module bar)
         """
-        i_tm = unit[self.UNIT_TERM]
+        i_tm = unit[UNIT_TERM]
         m = self._fixre.match(i_tm.astext())
 
         # If you have a function name and a module name in the format that _fixre expects,
         # and you have multiple functions with the same name.
         if m and self._function_catalog[m.group(1)] > 1:
-            unit[self.UNIT_TERM] = self.textclass(m.group(1))
+            unit[UNIT_TERM] = self.textclass(m.group(1))
 
-            if unit[self.UNIT_SBTM].astext():
-                subterm = unit[self.UNIT_SBTM].astext()
+            if unit[UNIT_SBTM].astext():
+                subterm = unit[UNIT_SBTM].astext()
                 term = self.textclass(m.group(2) + ', ' + subterm)
             else:
                 term = self.textclass(m.group(2))
 
-            unit[self.UNIT_SBTM] = self.packclass(unit['link_type'], term)
+            unit[UNIT_SBTM] = self.packclass(unit['link_type'], term)
 
     def for_sort(self, term):
         text = term.astext()
@@ -423,11 +429,11 @@ class IndexRack(nodes.Element):
 
     def sort_units(self):
         self._rack.sort(key=lambda unit: (
-            self.for_sort(unit[self.UNIT_CLSF]),  # classifier
-            self.for_sort(unit[self.UNIT_TERM]),  # term
-            unit['link_type'],                    # 1:'see', 2:'seealso', 3:'uri'. see Convert.
-            self.for_sort(unit[self.UNIT_SBTM]),  # subterm
-            unit['main'],                         # 3:'main', 4:''. see Convert.
+            self.for_sort(unit[UNIT_CLSF]),  # classifier
+            self.for_sort(unit[UNIT_TERM]),  # primary term
+            unit['link_type'],               # 1:'see', 2:'seealso', 3:'uri'. see Convert.
+            self.for_sort(unit[UNIT_SBTM]),  # secondary term
+            unit['main'],                    # 3:'main', 4:''. see Convert.
             unit['file_name'],
             unit['target']), )
         # about x['file_name'], x['target'].
@@ -438,9 +444,9 @@ class IndexRack(nodes.Element):
 
         _clf, _tm, _sub = -1, -1, -1
         for unit in self._rack:  # take a unit from the rack.
-            i_clf = unit[self.UNIT_CLSF]
-            i_tm  = unit[self.UNIT_TERM]
-            i_sub = unit[self.UNIT_SBTM]
+            i_clf = unit[UNIT_CLSF]
+            i_tm  = unit[UNIT_TERM]
+            i_sub = unit[UNIT_SBTM]
             i_em  = unit['main']
             i_lnk = unit['link_type']
             i_fn  = unit['file_name']
@@ -453,8 +459,8 @@ class IndexRack(nodes.Element):
                 rtnlist.append((i_clf, []))
 
                 # Post-processing.
-                # Update _clf to see "(clf, [])" added. Reset the others.
                 _clf, _tm, _sub = _clf + 1, -1, -1
+                # Update _clf to see "(clf, [])" added. Reset the others.
 
             r_clsfr = rtnlist[_clf]  # [classifier, [term, term, ..]]
             r_clfnm = r_clsfr[0]     # classifier is KanaText object.
@@ -466,8 +472,8 @@ class IndexRack(nodes.Element):
                 r_terms.append((i_tm, [[], [], i_iky]))
 
                 # Post-processing.
-                # Update _tm to see "(i_tm, [[], [], i_iky])" added. Reset the other.
                 _tm, _sub = _tm + 1, -1
+                # Update _tm to see "(i_tm, [[], [], i_iky])" added. Reset the other.
             else:
                 pass
 
@@ -476,8 +482,7 @@ class IndexRack(nodes.Element):
             r_term_links = r_term[1][0]  # [(main, uri), (main, uri), ..]
             r_subterms = r_term[1][1]    # [subterm, subterm, ..]
 
-            # if it's see/seealso, reset file_name for no uri.
-            # see Convert.
+            # if it's see/seealso, reset file_name for no uri. see Convert.
             if i_lnk == 3:
                 # Change the code to string.
                 r_main = _cnv.code2main(i_em)
