@@ -482,14 +482,18 @@ class IntersphinxDispatcher(CustomReSTDispatcher):
     def role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter
              ) -> Tuple[RoleFunction, List[system_message]]:
         if role_name.split(':')[0] == 'external':
-            return IntersphinxRole(), []
+            return IntersphinxRole(role_name), []
         else:
             return super().role(role_name, language_module, lineno, reporter)
 
 
 class IntersphinxRole(SphinxRole):
+    def __init__(self, orig_name: str) -> None:
+        self.orig_name = orig_name
+
     def run(self) -> Tuple[List[Node], List[system_message]]:
-        inventory, name_suffix = self.get_inventory_and_name_suffix(self.name)
+        assert self.name == self.orig_name.lower()
+        inventory, name_suffix = self.get_inventory_and_name_suffix(self.orig_name)
         if inventory and not inventory_exists(self.env, inventory):
             logger.warning(__('inventory for external cross-reference not found: %s'), inventory,
                            location=(self.env.docname, self.lineno))

@@ -565,7 +565,7 @@ def test_intersphinx_role(app, warning):
 
     # explicit inventory
     assert html.format('cfunc.html#CFunc') in content
-    #assert "WARNING: inventory for external cross-reference not found: invNope" in wStr
+    assert "WARNING: inventory for external cross-reference not found: invNope" in wStr
 
     # explicit title
     assert html.format('index.html#foons') in content
