@@ -52,11 +52,11 @@ class Subterm(Represent, nodes.Element):
 
         super().__init__(''.join([repr(term) for term in terms]), *_terms, delimiter=' ', template=template)
 
-    def __repr__(self, rpr=""):
-        rpr += f"len={len(self)} "
-        if self['delimiter'] != ' ': rpr += f"delimiter='{self['delimiter']}' "
-        if self['template']: rpr += f"tpl='{self['template']}' "
-        return self.represent(rpr)
+    def __repr__(self, attr=""):
+        attr += f"len={len(self)} "
+        if self['delimiter'] != ' ': attr += f"delimiter='{self['delimiter']}' "
+        if self['template']: attr += f"tpl='{self['template']}' "
+        return self.represent(attr)
 
     def __str__(self):
         """Jinja2"""
@@ -95,11 +95,11 @@ class IndexUnit(Represent, nodes.Element):
     def textclass(self, rawword, rawsource=""):
         return nodes.Text(rawword, rawsource)
 
-    def __repr__(self, rpr=""):
-        if self['main']: rpr += f"main "
-        if self['file_name']: rpr += f"file_name='{self['file_name']}' "
-        if self['target']: rpr += f"target='{self['target']}' "
-        return self.represent(rpr, 2)
+    def __repr__(self, attr=""):
+        if self['main']: attr += f"main "
+        if self['file_name']: attr += f"file_name='{self['file_name']}' "
+        if self['target']: attr += f"target='{self['target']}' "
+        return self.represent(attr, 2)
 
     def set_subterm_delimiter(self, delimiter=', '):
         self[UNIT_SBTM]['delimiter'] = delimiter
@@ -167,20 +167,20 @@ class IndexEntry(Represent, nodes.Element):
         super().__init__(rawtext, *terms, entry_type=entry_type,
                          file_name=file_name, target=target, main=main, index_key=index_key)
 
-    def __repr__(self, rpr=""):
+    def __repr__(self, attr=""):
         """
         >>> entry = IndexEntry('sphinx; python', 'single', 'document', 'term-1')
         >>> entry
         <IndexEntry: entry_type='single' file_name='document' target='term-1' <#text: 'sphinx'><#text: 'python'>>
         """
 
-        if self['entry_type']: rpr += f"entry_type='{self['entry_type']}' "
-        if self['main']      : rpr += f"main "
-        if self['file_name'] : rpr += f"file_name='{self['file_name']}' "
-        if self['target']    : rpr += f"target='{self['target']}' "
-        if self['index_key'] : rpr += f"index_key='{self['index_key']}' "
+        if self['entry_type']: attr += f"entry_type='{self['entry_type']}' "
+        if self['main']      : attr += f"main "
+        if self['file_name'] : attr += f"file_name='{self['file_name']}' "
+        if self['target']    : attr += f"target='{self['target']}' "
+        if self['index_key'] : attr += f"index_key='{self['index_key']}' "
 
-        return self.represent(rpr)
+        return self.represent(attr)
 
     def astext(self):
         """
