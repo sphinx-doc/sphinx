@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-10-31 00:10+0000\n"
+"POT-Creation-Date: 2021-11-07 00:10+0000\n"
 "PO-Revision-Date: 2021-10-10 00:10+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Turkish (http://www.transifex.com/sphinx-doc/sphinx-1/language/tr/)\n"
@@ -1853,7 +1853,7 @@ msgid "%s (C %s)"
 msgstr ""
 
 #: sphinx/domains/c.py:3336 sphinx/domains/cpp.py:7177
-#: sphinx/domains/python.py:416 sphinx/ext/napoleon/docstring.py:736
+#: sphinx/domains/python.py:420 sphinx/ext/napoleon/docstring.py:736
 msgid "Parameters"
 msgstr "Parametreler"
 
@@ -1862,12 +1862,12 @@ msgid "Return values"
 msgstr ""
 
 #: sphinx/domains/c.py:3342 sphinx/domains/cpp.py:7186
-#: sphinx/domains/javascript.py:231 sphinx/domains/python.py:428
+#: sphinx/domains/javascript.py:231 sphinx/domains/python.py:432
 msgid "Returns"
 msgstr "Dönüşler"
 
 #: sphinx/domains/c.py:3344 sphinx/domains/javascript.py:233
-#: sphinx/domains/python.py:430
+#: sphinx/domains/python.py:434
 msgid "Return type"
 msgstr "Dönüş türü"
 
@@ -1880,7 +1880,7 @@ msgid "variable"
 msgstr "değişkeni"
 
 #: sphinx/domains/c.py:3742 sphinx/domains/cpp.py:7590
-#: sphinx/domains/javascript.py:340 sphinx/domains/python.py:1164
+#: sphinx/domains/javascript.py:340 sphinx/domains/python.py:1168
 msgid "function"
 msgstr "işlevi"
 
@@ -1958,7 +1958,7 @@ msgid "Throws"
 msgstr "Şunu verir: "
 
 #: sphinx/domains/cpp.py:7588 sphinx/domains/javascript.py:342
-#: sphinx/domains/python.py:1166
+#: sphinx/domains/python.py:1170
 msgid "class"
 msgstr "sınıfı"
 
@@ -1975,7 +1975,7 @@ msgstr ""
 msgid "%s() (built-in function)"
 msgstr "%s() (yerleşik işlev)"
 
-#: sphinx/domains/javascript.py:147 sphinx/domains/python.py:803
+#: sphinx/domains/javascript.py:147 sphinx/domains/python.py:807
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (%s yöntemi)"
@@ -1990,7 +1990,7 @@ msgstr "%s() (sınıf)"
 msgid "%s (global variable or constant)"
 msgstr "%s (genel değişken veya sabit)"
 
-#: sphinx/domains/javascript.py:153 sphinx/domains/python.py:888
+#: sphinx/domains/javascript.py:153 sphinx/domains/python.py:892
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (%s özniteliği)"
@@ -2004,20 +2004,20 @@ msgstr "Bağımsız Değişkenler"
 msgid "%s (module)"
 msgstr "%s (modül)"
 
-#: sphinx/domains/javascript.py:341 sphinx/domains/python.py:1168
+#: sphinx/domains/javascript.py:341 sphinx/domains/python.py:1172
 msgid "method"
 msgstr "yöntemi"
 
-#: sphinx/domains/javascript.py:343 sphinx/domains/python.py:1165
+#: sphinx/domains/javascript.py:343 sphinx/domains/python.py:1169
 msgid "data"
 msgstr "verisi"
 
-#: sphinx/domains/javascript.py:344 sphinx/domains/python.py:1171
+#: sphinx/domains/javascript.py:344 sphinx/domains/python.py:1175
 msgid "attribute"
 msgstr "özniteliği"
 
 #: sphinx/domains/javascript.py:345 sphinx/domains/python.py:58
-#: sphinx/domains/python.py:1173
+#: sphinx/domains/python.py:1177
 msgid "module"
 msgstr "modülü"
 
@@ -2048,7 +2048,7 @@ msgstr "işleç"
 msgid "object"
 msgstr "nesne"
 
-#: sphinx/domains/python.py:62 sphinx/domains/python.py:1167
+#: sphinx/domains/python.py:62 sphinx/domains/python.py:1171
 msgid "exception"
 msgstr "özel durum"
 
@@ -2060,92 +2060,92 @@ msgstr "ifade"
 msgid "built-in function"
 msgstr "yerleşik işlev"
 
-#: sphinx/domains/python.py:421
+#: sphinx/domains/python.py:425
 msgid "Variables"
 msgstr "Değişkenler"
 
-#: sphinx/domains/python.py:425
+#: sphinx/domains/python.py:429
 msgid "Raises"
 msgstr "Harekete geçirir"
 
-#: sphinx/domains/python.py:648 sphinx/domains/python.py:792
+#: sphinx/domains/python.py:652 sphinx/domains/python.py:796
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (%s modülü içinde)"
 
-#: sphinx/domains/python.py:708 sphinx/domains/python.py:884
-#: sphinx/domains/python.py:935
+#: sphinx/domains/python.py:712 sphinx/domains/python.py:888
+#: sphinx/domains/python.py:939
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (%s modülü içinde)"
 
-#: sphinx/domains/python.py:710
+#: sphinx/domains/python.py:714
 #, python-format
 msgid "%s (built-in variable)"
 msgstr "%s (yerleşik değişken)"
 
-#: sphinx/domains/python.py:735
+#: sphinx/domains/python.py:739
 #, python-format
 msgid "%s (built-in class)"
 msgstr "%s (yerleşik sınıf)"
 
-#: sphinx/domains/python.py:736
+#: sphinx/domains/python.py:740
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s (%s içindeki sınıf)"
 
-#: sphinx/domains/python.py:797
+#: sphinx/domains/python.py:801
 #, python-format
 msgid "%s() (%s class method)"
 msgstr "%s() (%s sınıf yöntemi)"
 
-#: sphinx/domains/python.py:799 sphinx/domains/python.py:939
+#: sphinx/domains/python.py:803 sphinx/domains/python.py:943
 #, python-format
 msgid "%s (%s property)"
 msgstr ""
 
-#: sphinx/domains/python.py:801
+#: sphinx/domains/python.py:805
 #, python-format
 msgid "%s() (%s static method)"
 msgstr "%s() (%s sabit yöntemi)"
 
-#: sphinx/domains/python.py:1093
+#: sphinx/domains/python.py:1097
 msgid "Python Module Index"
 msgstr "Python Modül Dizini"
 
-#: sphinx/domains/python.py:1094
+#: sphinx/domains/python.py:1098
 msgid "modules"
 msgstr "modülleri"
 
-#: sphinx/domains/python.py:1143
+#: sphinx/domains/python.py:1147
 msgid "Deprecated"
 msgstr "Kullanım dışı"
 
-#: sphinx/domains/python.py:1169
+#: sphinx/domains/python.py:1173
 msgid "class method"
 msgstr "sınıf yöntemi"
 
-#: sphinx/domains/python.py:1170
+#: sphinx/domains/python.py:1174
 msgid "static method"
 msgstr "sabit yöntemi"
 
-#: sphinx/domains/python.py:1172
+#: sphinx/domains/python.py:1176
 msgid "property"
 msgstr ""
 
-#: sphinx/domains/python.py:1230
+#: sphinx/domains/python.py:1234
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr "%s kopya nesne açıklaması, %s içindeki diğer örnek, bunlardan biri için :noindex: kullanın"
 
-#: sphinx/domains/python.py:1350
+#: sphinx/domains/python.py:1354
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "çapraz referans %r için birden fazla hedef bulundu: %s"
 
-#: sphinx/domains/python.py:1404
+#: sphinx/domains/python.py:1408
 msgid " (deprecated)"
 msgstr " (kullanım dışı)"
 
@@ -2706,42 +2706,42 @@ msgstr "satır içi latex %r: %s"
 msgid "Permalink to this equation"
 msgstr "Bu denklem için kalıcı bağlantı"
 
-#: sphinx/ext/intersphinx.py:173
+#: sphinx/ext/intersphinx.py:174
 #, python-format
 msgid "intersphinx inventory has moved: %s -> %s"
 msgstr "intersphinx envanteri taşındı: %s -> %s"
 
-#: sphinx/ext/intersphinx.py:204
+#: sphinx/ext/intersphinx.py:205
 #, python-format
 msgid "loading intersphinx inventory from %s..."
 msgstr "%s konumundan intersphinx envanteri yükleniyor..."
 
-#: sphinx/ext/intersphinx.py:218
+#: sphinx/ext/intersphinx.py:219
 msgid ""
 "encountered some issues with some of the inventories, but they had working "
 "alternatives:"
 msgstr ""
 
-#: sphinx/ext/intersphinx.py:224
+#: sphinx/ext/intersphinx.py:225
 msgid "failed to reach any of the inventories with the following issues:"
 msgstr "aşağıdaki sorunlardan dolayı envanterlerden herhangi birine ulaşılamadı:"
 
-#: sphinx/ext/intersphinx.py:334
+#: sphinx/ext/intersphinx.py:270
 #, python-format
 msgid "(in %s v%s)"
 msgstr "(%s v%s içinde)"
 
-#: sphinx/ext/intersphinx.py:336
+#: sphinx/ext/intersphinx.py:272
 #, python-format
 msgid "(in %s)"
 msgstr "(%s içinde)"
 
-#: sphinx/ext/intersphinx.py:369
+#: sphinx/ext/intersphinx.py:476
 #, python-format
 msgid "intersphinx identifier %r is not string. Ignored"
 msgstr ""
 
-#: sphinx/ext/intersphinx.py:382
+#: sphinx/ext/intersphinx.py:489
 #, python-format
 msgid "Failed to read intersphinx_mapping[%s], ignored: %r"
 msgstr ""
@@ -2912,7 +2912,7 @@ msgid ""
 " Please update your setting."
 msgstr ""
 
-#: sphinx/ext/autodoc/preserve_defaults.py:78
+#: sphinx/ext/autodoc/preserve_defaults.py:106
 #, python-format
 msgid "Failed to parse a default argument value for %r: %s"
 msgstr ""

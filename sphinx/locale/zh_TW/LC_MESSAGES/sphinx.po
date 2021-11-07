@@ -15,8 +15,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-10-25 16:47+0000\n"
-"PO-Revision-Date: 2021-10-16 06:15+0000\n"
+"POT-Creation-Date: 2021-11-07 00:10+0000\n"
+"PO-Revision-Date: 2021-11-01 07:44+0000\n"
 "Last-Translator: Steven Hsu <hsuhaochun@gmail.com>\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/sphinx-doc/sphinx-1/language/zh_TW/)\n"
 "MIME-Version: 1.0\n"
@@ -771,7 +771,7 @@ msgstr "conf 值 \"version\" 在 EPUB3 不應該為空"
 #: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1121
 #, python-format
 msgid "invalid css_file: %r, ignored"
-msgstr ""
+msgstr "無效的 css_file: %r, 已略過"
 
 #: sphinx/builders/gettext.py:219
 #, python-format
@@ -1027,7 +1027,7 @@ msgstr ""
 #: sphinx/builders/html/__init__.py:1138
 #, python-format
 msgid "invalid js_file: %r, ignored"
-msgstr ""
+msgstr "無效的  js_file: %r, 已略過"
 
 #: sphinx/builders/html/__init__.py:1225
 msgid "Many math_renderers are registered. But no math_renderer is selected."
@@ -1857,7 +1857,7 @@ msgid "%s (C %s)"
 msgstr "%s (C %s)"
 
 #: sphinx/domains/c.py:3336 sphinx/domains/cpp.py:7177
-#: sphinx/domains/python.py:416 sphinx/ext/napoleon/docstring.py:736
+#: sphinx/domains/python.py:420 sphinx/ext/napoleon/docstring.py:736
 msgid "Parameters"
 msgstr "參數"
 
@@ -1866,12 +1866,12 @@ msgid "Return values"
 msgstr "回傳值"
 
 #: sphinx/domains/c.py:3342 sphinx/domains/cpp.py:7186
-#: sphinx/domains/javascript.py:231 sphinx/domains/python.py:428
+#: sphinx/domains/javascript.py:231 sphinx/domains/python.py:432
 msgid "Returns"
 msgstr "回傳"
 
 #: sphinx/domains/c.py:3344 sphinx/domains/javascript.py:233
-#: sphinx/domains/python.py:430
+#: sphinx/domains/python.py:434
 msgid "Return type"
 msgstr "回傳型別"
 
@@ -1884,7 +1884,7 @@ msgid "variable"
 msgstr "變數"
 
 #: sphinx/domains/c.py:3742 sphinx/domains/cpp.py:7590
-#: sphinx/domains/javascript.py:340 sphinx/domains/python.py:1164
+#: sphinx/domains/javascript.py:340 sphinx/domains/python.py:1168
 msgid "function"
 msgstr "函式"
 
@@ -1962,7 +1962,7 @@ msgid "Throws"
 msgstr "拋出"
 
 #: sphinx/domains/cpp.py:7588 sphinx/domains/javascript.py:342
-#: sphinx/domains/python.py:1166
+#: sphinx/domains/python.py:1170
 msgid "class"
 msgstr "類別"
 
@@ -1979,7 +1979,7 @@ msgstr "模板參數"
 msgid "%s() (built-in function)"
 msgstr "%s() (內建函式)"
 
-#: sphinx/domains/javascript.py:147 sphinx/domains/python.py:803
+#: sphinx/domains/javascript.py:147 sphinx/domains/python.py:807
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (%s 的方法)"
@@ -1994,7 +1994,7 @@ msgstr "%s() (類別)"
 msgid "%s (global variable or constant)"
 msgstr "%s (全域變數或常數)"
 
-#: sphinx/domains/javascript.py:153 sphinx/domains/python.py:888
+#: sphinx/domains/javascript.py:153 sphinx/domains/python.py:892
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (%s 的屬性)"
@@ -2008,20 +2008,20 @@ msgstr "引數"
 msgid "%s (module)"
 msgstr "%s (模組)"
 
-#: sphinx/domains/javascript.py:341 sphinx/domains/python.py:1168
+#: sphinx/domains/javascript.py:341 sphinx/domains/python.py:1172
 msgid "method"
 msgstr "方法"
 
-#: sphinx/domains/javascript.py:343 sphinx/domains/python.py:1165
+#: sphinx/domains/javascript.py:343 sphinx/domains/python.py:1169
 msgid "data"
 msgstr "資料"
 
-#: sphinx/domains/javascript.py:344 sphinx/domains/python.py:1171
+#: sphinx/domains/javascript.py:344 sphinx/domains/python.py:1175
 msgid "attribute"
 msgstr "屬性"
 
 #: sphinx/domains/javascript.py:345 sphinx/domains/python.py:58
-#: sphinx/domains/python.py:1173
+#: sphinx/domains/python.py:1177
 msgid "module"
 msgstr "模組"
 
@@ -2052,7 +2052,7 @@ msgstr "運算子"
 msgid "object"
 msgstr "物件"
 
-#: sphinx/domains/python.py:62 sphinx/domains/python.py:1167
+#: sphinx/domains/python.py:62 sphinx/domains/python.py:1171
 msgid "exception"
 msgstr "例外"
 
@@ -2064,92 +2064,92 @@ msgstr "陳述式"
 msgid "built-in function"
 msgstr "內建函式"
 
-#: sphinx/domains/python.py:421
+#: sphinx/domains/python.py:425
 msgid "Variables"
 msgstr "變數"
 
-#: sphinx/domains/python.py:425
+#: sphinx/domains/python.py:429
 msgid "Raises"
 msgstr "引發"
 
-#: sphinx/domains/python.py:648 sphinx/domains/python.py:792
+#: sphinx/domains/python.py:652 sphinx/domains/python.py:796
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (於 %s 模組中)"
 
-#: sphinx/domains/python.py:708 sphinx/domains/python.py:884
-#: sphinx/domains/python.py:935
+#: sphinx/domains/python.py:712 sphinx/domains/python.py:888
+#: sphinx/domains/python.py:939
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (於 %s 模組中)"
 
-#: sphinx/domains/python.py:710
+#: sphinx/domains/python.py:714
 #, python-format
 msgid "%s (built-in variable)"
 msgstr "%s (內建變數)"
 
-#: sphinx/domains/python.py:735
+#: sphinx/domains/python.py:739
 #, python-format
 msgid "%s (built-in class)"
 msgstr "%s (內建類別)"
 
-#: sphinx/domains/python.py:736
+#: sphinx/domains/python.py:740
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s (%s 中的類別)"
 
-#: sphinx/domains/python.py:797
+#: sphinx/domains/python.py:801
 #, python-format
 msgid "%s() (%s class method)"
 msgstr "%s() (%s 的類別方法)"
 
-#: sphinx/domains/python.py:799 sphinx/domains/python.py:939
+#: sphinx/domains/python.py:803 sphinx/domains/python.py:943
 #, python-format
 msgid "%s (%s property)"
 msgstr "%s (%s 的特性)"
 
-#: sphinx/domains/python.py:801
+#: sphinx/domains/python.py:805
 #, python-format
 msgid "%s() (%s static method)"
 msgstr "%s() (%s 的靜態方法)"
 
-#: sphinx/domains/python.py:1093
+#: sphinx/domains/python.py:1097
 msgid "Python Module Index"
 msgstr "Python 模組索引"
 
-#: sphinx/domains/python.py:1094
+#: sphinx/domains/python.py:1098
 msgid "modules"
 msgstr "模組"
 
-#: sphinx/domains/python.py:1143
+#: sphinx/domains/python.py:1147
 msgid "Deprecated"
 msgstr "已棄用"
 
-#: sphinx/domains/python.py:1169
+#: sphinx/domains/python.py:1173
 msgid "class method"
 msgstr "類別方法"
 
-#: sphinx/domains/python.py:1170
+#: sphinx/domains/python.py:1174
 msgid "static method"
 msgstr "靜態方法"
 
-#: sphinx/domains/python.py:1172
+#: sphinx/domains/python.py:1176
 msgid "property"
 msgstr "特性"
 
-#: sphinx/domains/python.py:1230
+#: sphinx/domains/python.py:1234
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr "%s 的重複物件敘述，其他的實例在 %s ，使用 :noindex: 給它們其中之一"
 
-#: sphinx/domains/python.py:1350
+#: sphinx/domains/python.py:1354
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "為交互參照 %r 找到多於一個目標： %s"
 
-#: sphinx/domains/python.py:1404
+#: sphinx/domains/python.py:1408
 msgid " (deprecated)"
 msgstr "（已棄用）"
 
@@ -2710,45 +2710,45 @@ msgstr ""
 msgid "Permalink to this equation"
 msgstr "本公式的永久連結"
 
-#: sphinx/ext/intersphinx.py:173
+#: sphinx/ext/intersphinx.py:174
 #, python-format
 msgid "intersphinx inventory has moved: %s -> %s"
 msgstr ""
 
-#: sphinx/ext/intersphinx.py:204
+#: sphinx/ext/intersphinx.py:205
 #, python-format
 msgid "loading intersphinx inventory from %s..."
 msgstr ""
 
-#: sphinx/ext/intersphinx.py:218
+#: sphinx/ext/intersphinx.py:219
 msgid ""
 "encountered some issues with some of the inventories, but they had working "
 "alternatives:"
 msgstr ""
 
-#: sphinx/ext/intersphinx.py:224
+#: sphinx/ext/intersphinx.py:225
 msgid "failed to reach any of the inventories with the following issues:"
 msgstr ""
 
-#: sphinx/ext/intersphinx.py:334
+#: sphinx/ext/intersphinx.py:270
 #, python-format
 msgid "(in %s v%s)"
 msgstr "(於 %s v%s)"
 
-#: sphinx/ext/intersphinx.py:336
+#: sphinx/ext/intersphinx.py:272
 #, python-format
 msgid "(in %s)"
 msgstr ""
 
-#: sphinx/ext/intersphinx.py:369
+#: sphinx/ext/intersphinx.py:476
 #, python-format
 msgid "intersphinx identifier %r is not string. Ignored"
-msgstr ""
+msgstr "intersphinx identifier %r 不是字串。已略過"
 
-#: sphinx/ext/intersphinx.py:382
+#: sphinx/ext/intersphinx.py:489
 #, python-format
 msgid "Failed to read intersphinx_mapping[%s], ignored: %r"
-msgstr ""
+msgstr "無法讀取 intersphinx_mapping[%s], 已略過: %r"
 
 #: sphinx/ext/linkcode.py:70 sphinx/ext/viewcode.py:188
 msgid "[source]"
@@ -2874,7 +2874,7 @@ msgid ""
 msgstr "缺少 :members: 選項中所述的屬性：模組 %s ，屬性 %s"
 
 #: sphinx/ext/autodoc/__init__.py:1304 sphinx/ext/autodoc/__init__.py:1378
-#: sphinx/ext/autodoc/__init__.py:2735
+#: sphinx/ext/autodoc/__init__.py:2743
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "無法取得一個函式簽名給 %s: %s"
@@ -2905,18 +2905,18 @@ msgstr "TypeVar(%s) 的別名"
 msgid "Failed to get a method signature for %s: %s"
 msgstr "無法取得一個 method 簽名給 %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:2349
+#: sphinx/ext/autodoc/__init__.py:2348
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "在 %s 找到無效的 __slots__。已略過。"
 
-#: sphinx/ext/autodoc/__init__.py:2778
+#: sphinx/ext/autodoc/__init__.py:2786
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
 msgstr "autodoc_member_order 現在接受 \"alphabetical\" 而非 \"alphabetic\"。請更新您的設定。"
 
-#: sphinx/ext/autodoc/preserve_defaults.py:78
+#: sphinx/ext/autodoc/preserve_defaults.py:106
 #, python-format
 msgid "Failed to parse a default argument value for %r: %s"
 msgstr "無法為 %r 剖析一個預設引數： %s"
