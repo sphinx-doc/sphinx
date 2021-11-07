@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-10-25 16:47+0000\n"
+"POT-Creation-Date: 2021-11-07 00:10+0000\n"
 "PO-Revision-Date: 2021-10-10 00:10+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Korean (http://www.transifex.com/sphinx-doc/sphinx-1/language/ko/)\n"
@@ -1851,7 +1851,7 @@ msgid "%s (C %s)"
 msgstr "%s (C %s)"
 
 #: sphinx/domains/c.py:3336 sphinx/domains/cpp.py:7177
-#: sphinx/domains/python.py:416 sphinx/ext/napoleon/docstring.py:736
+#: sphinx/domains/python.py:420 sphinx/ext/napoleon/docstring.py:736
 msgid "Parameters"
 msgstr "매개변수"
 
@@ -1860,12 +1860,12 @@ msgid "Return values"
 msgstr "반환값"
 
 #: sphinx/domains/c.py:3342 sphinx/domains/cpp.py:7186
-#: sphinx/domains/javascript.py:231 sphinx/domains/python.py:428
+#: sphinx/domains/javascript.py:231 sphinx/domains/python.py:432
 msgid "Returns"
 msgstr "반환"
 
 #: sphinx/domains/c.py:3344 sphinx/domains/javascript.py:233
-#: sphinx/domains/python.py:430
+#: sphinx/domains/python.py:434
 msgid "Return type"
 msgstr "반환 형식"
 
@@ -1878,7 +1878,7 @@ msgid "variable"
 msgstr "변수"
 
 #: sphinx/domains/c.py:3742 sphinx/domains/cpp.py:7590
-#: sphinx/domains/javascript.py:340 sphinx/domains/python.py:1164
+#: sphinx/domains/javascript.py:340 sphinx/domains/python.py:1168
 msgid "function"
 msgstr "함수"
 
@@ -1956,7 +1956,7 @@ msgid "Throws"
 msgstr "예외"
 
 #: sphinx/domains/cpp.py:7588 sphinx/domains/javascript.py:342
-#: sphinx/domains/python.py:1166
+#: sphinx/domains/python.py:1170
 msgid "class"
 msgstr "클래스"
 
@@ -1973,7 +1973,7 @@ msgstr "템플릿 매개변수"
 msgid "%s() (built-in function)"
 msgstr "%s() (내장 함수)"
 
-#: sphinx/domains/javascript.py:147 sphinx/domains/python.py:803
+#: sphinx/domains/javascript.py:147 sphinx/domains/python.py:807
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (%s 메서드)"
@@ -1988,7 +1988,7 @@ msgstr "%s() (클래스)"
 msgid "%s (global variable or constant)"
 msgstr "%s (전역 변수 또는 상수)"
 
-#: sphinx/domains/javascript.py:153 sphinx/domains/python.py:888
+#: sphinx/domains/javascript.py:153 sphinx/domains/python.py:892
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (%s의 속성)"
@@ -2002,20 +2002,20 @@ msgstr "인수"
 msgid "%s (module)"
 msgstr "%s (모듈)"
 
-#: sphinx/domains/javascript.py:341 sphinx/domains/python.py:1168
+#: sphinx/domains/javascript.py:341 sphinx/domains/python.py:1172
 msgid "method"
 msgstr "메서드"
 
-#: sphinx/domains/javascript.py:343 sphinx/domains/python.py:1165
+#: sphinx/domains/javascript.py:343 sphinx/domains/python.py:1169
 msgid "data"
 msgstr "데이터"
 
-#: sphinx/domains/javascript.py:344 sphinx/domains/python.py:1171
+#: sphinx/domains/javascript.py:344 sphinx/domains/python.py:1175
 msgid "attribute"
 msgstr "속성"
 
 #: sphinx/domains/javascript.py:345 sphinx/domains/python.py:58
-#: sphinx/domains/python.py:1173
+#: sphinx/domains/python.py:1177
 msgid "module"
 msgstr "모듈"
 
@@ -2046,7 +2046,7 @@ msgstr "연산자"
 msgid "object"
 msgstr "객체"
 
-#: sphinx/domains/python.py:62 sphinx/domains/python.py:1167
+#: sphinx/domains/python.py:62 sphinx/domains/python.py:1171
 msgid "exception"
 msgstr "예외"
 
@@ -2058,92 +2058,92 @@ msgstr "문"
 msgid "built-in function"
 msgstr "내장 함수"
 
-#: sphinx/domains/python.py:421
+#: sphinx/domains/python.py:425
 msgid "Variables"
 msgstr "변수"
 
-#: sphinx/domains/python.py:425
+#: sphinx/domains/python.py:429
 msgid "Raises"
 msgstr "예외 발생"
 
-#: sphinx/domains/python.py:648 sphinx/domains/python.py:792
+#: sphinx/domains/python.py:652 sphinx/domains/python.py:796
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (%s 모듈)"
 
-#: sphinx/domains/python.py:708 sphinx/domains/python.py:884
-#: sphinx/domains/python.py:935
+#: sphinx/domains/python.py:712 sphinx/domains/python.py:888
+#: sphinx/domains/python.py:939
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (%s 모듈)"
 
-#: sphinx/domains/python.py:710
+#: sphinx/domains/python.py:714
 #, python-format
 msgid "%s (built-in variable)"
 msgstr "%s (내장 변수)"
 
-#: sphinx/domains/python.py:735
+#: sphinx/domains/python.py:739
 #, python-format
 msgid "%s (built-in class)"
 msgstr "%s (내장 클래스)"
 
-#: sphinx/domains/python.py:736
+#: sphinx/domains/python.py:740
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s (%s 클래스)"
 
-#: sphinx/domains/python.py:797
+#: sphinx/domains/python.py:801
 #, python-format
 msgid "%s() (%s class method)"
 msgstr "%s() (%s의 클래스 메서드)"
 
-#: sphinx/domains/python.py:799 sphinx/domains/python.py:939
+#: sphinx/domains/python.py:803 sphinx/domains/python.py:943
 #, python-format
 msgid "%s (%s property)"
 msgstr "%s (%s의 특성)"
 
-#: sphinx/domains/python.py:801
+#: sphinx/domains/python.py:805
 #, python-format
 msgid "%s() (%s static method)"
 msgstr "%s() (%s의 정적 메서드)"
 
-#: sphinx/domains/python.py:1093
+#: sphinx/domains/python.py:1097
 msgid "Python Module Index"
 msgstr "Python 모듈 목록"
 
-#: sphinx/domains/python.py:1094
+#: sphinx/domains/python.py:1098
 msgid "modules"
 msgstr "모듈"
 
-#: sphinx/domains/python.py:1143
+#: sphinx/domains/python.py:1147
 msgid "Deprecated"
 msgstr "폐지됨"
 
-#: sphinx/domains/python.py:1169
+#: sphinx/domains/python.py:1173
 msgid "class method"
 msgstr "클래스 메서드"
 
-#: sphinx/domains/python.py:1170
+#: sphinx/domains/python.py:1174
 msgid "static method"
 msgstr "정적 메서드"
 
-#: sphinx/domains/python.py:1172
+#: sphinx/domains/python.py:1176
 msgid "property"
 msgstr "특성"
 
-#: sphinx/domains/python.py:1230
+#: sphinx/domains/python.py:1234
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr "%s의 중복 객체 설명, 다른 인스턴스는 %s에 있으며, 이 중 하나에 :noindex:를 사용하십시오"
 
-#: sphinx/domains/python.py:1350
+#: sphinx/domains/python.py:1354
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "상호 참조 %r에 대해 둘 이상의 대상을 찾았습니다: %s"
 
-#: sphinx/domains/python.py:1404
+#: sphinx/domains/python.py:1408
 msgid " (deprecated)"
 msgstr " (폐지됨)"
 
@@ -2704,42 +2704,42 @@ msgstr "인라인 LaTeX %r: %s"
 msgid "Permalink to this equation"
 msgstr "이 수식에 대한 퍼머링크"
 
-#: sphinx/ext/intersphinx.py:173
+#: sphinx/ext/intersphinx.py:174
 #, python-format
 msgid "intersphinx inventory has moved: %s -> %s"
 msgstr "intersphinx 인벤토리가 이동함: %s -> %s"
 
-#: sphinx/ext/intersphinx.py:204
+#: sphinx/ext/intersphinx.py:205
 #, python-format
 msgid "loading intersphinx inventory from %s..."
 msgstr "%s 에서 intersphinx 인벤토리 로드 중…"
 
-#: sphinx/ext/intersphinx.py:218
+#: sphinx/ext/intersphinx.py:219
 msgid ""
 "encountered some issues with some of the inventories, but they had working "
 "alternatives:"
 msgstr "일부 인벤토리에서 몇 가지 문제가 발생했지만, 동작하는 대체 인벤토리로 처리했습니다:"
 
-#: sphinx/ext/intersphinx.py:224
+#: sphinx/ext/intersphinx.py:225
 msgid "failed to reach any of the inventories with the following issues:"
 msgstr "다음 문제가 있어 어느 인벤토리도 도달하지 못했습니다:"
 
-#: sphinx/ext/intersphinx.py:334
+#: sphinx/ext/intersphinx.py:270
 #, python-format
 msgid "(in %s v%s)"
 msgstr "(%s v%s에서)"
 
-#: sphinx/ext/intersphinx.py:336
+#: sphinx/ext/intersphinx.py:272
 #, python-format
 msgid "(in %s)"
 msgstr "(%s에서)"
 
-#: sphinx/ext/intersphinx.py:369
+#: sphinx/ext/intersphinx.py:476
 #, python-format
 msgid "intersphinx identifier %r is not string. Ignored"
 msgstr "intersphinx 식별자 %r이(가) 문자열이 아닙니다. 무시합니다"
 
-#: sphinx/ext/intersphinx.py:382
+#: sphinx/ext/intersphinx.py:489
 #, python-format
 msgid "Failed to read intersphinx_mapping[%s], ignored: %r"
 msgstr "intersphinx_mapping[%s]을(를) 읽지 못했으며, 무시합니다: %r"
@@ -2868,7 +2868,7 @@ msgid ""
 msgstr ":members: 옵션에 언급된 속성이 없습니다: 모듈 %s, 속성 %s"
 
 #: sphinx/ext/autodoc/__init__.py:1304 sphinx/ext/autodoc/__init__.py:1378
-#: sphinx/ext/autodoc/__init__.py:2735
+#: sphinx/ext/autodoc/__init__.py:2743
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "%s에 대한 함수 서명을 가져오지 못했습니다: %s"
@@ -2899,18 +2899,18 @@ msgstr "TypeVar(%s)의 별칭"
 msgid "Failed to get a method signature for %s: %s"
 msgstr "%s에 대한 메소드 서명을 가져오지 못했습니다: %s"
 
-#: sphinx/ext/autodoc/__init__.py:2349
+#: sphinx/ext/autodoc/__init__.py:2348
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "%s에서 잘못된 __slots__ 가 발견되었습니다. 무시합니다."
 
-#: sphinx/ext/autodoc/__init__.py:2778
+#: sphinx/ext/autodoc/__init__.py:2786
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
 msgstr "autodoc_member_order는 이제 \"alphabetical\" 대신 \"alphabetic\"을 허용합니다. 설정을 업데이트하십시오."
 
-#: sphinx/ext/autodoc/preserve_defaults.py:78
+#: sphinx/ext/autodoc/preserve_defaults.py:106
 #, python-format
 msgid "Failed to parse a default argument value for %r: %s"
 msgstr "%r에 대한 기본 인수 값을 해석하지 못했습니다: %s"
