@@ -222,8 +222,8 @@ of images:
 - `sphinxdoc/sphinx-latexpdf`_
 
 .. _Docker Hub: https://hub.docker.com/
-.. _sphinxdoc/sphinx: https://hub.docker.com/repository/docker/sphinxdoc/sphinx
-.. _sphinxdoc/sphinx-latexpdf: https://hub.docker.com/repository/docker/sphinxdoc/sphinx-latexpdf
+.. _sphinxdoc/sphinx: https://hub.docker.com/r/sphinxdoc/sphinx
+.. _sphinxdoc/sphinx-latexpdf: https://hub.docker.com/r/sphinxdoc/sphinx-latexpdf
 
 Former one is used for standard usage of Sphinx, and latter one is mainly used for
 PDF builds using LaTeX.  Please choose one for your purpose.
@@ -251,7 +251,7 @@ PDF builds using LaTeX.  Please choose one for your purpose.
 
 For more details, please read `README file`__ of docker images.
 
-.. __: https://hub.docker.com/repository/docker/sphinxdoc/sphinx
+.. __: https://hub.docker.com/r/sphinxdoc/sphinx
 
 
 Installation from source
