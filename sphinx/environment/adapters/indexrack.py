@@ -14,7 +14,7 @@ from sphinx.locale import _, __
 from sphinx.util import logging
 
 # Update separately from the package version, since 2021-11-07
-__version__ = "1.1.20211108"
+__version__ = "1.2.20211108"
 # x.y.YYYYMMDD[.HHMI]
 # - x: changes that need to be addressed by the user.
 # - y: changes that do not require a response from the user.
@@ -23,6 +23,13 @@ logger = logging.getLogger(__name__)
 
 
 # ------------------------------------------------------------
+
+
+def chop_mark(rawtext):
+    text = normalize('NFD', rawtext)
+    if text.startswith('\N{RIGHT-TO-LEFT MARK}'):
+        text = text[1:]
+    return text
 
 
 class Represent(object):
@@ -331,16 +338,6 @@ class IndexRack(nodes.Element):
         else:
             pass
 
-    def make_classifier_from_first_letter(self, text):
-        text = normalize('NFD', text)
-        if text.startswith('\N{RIGHT-TO-LEFT MARK}'):
-            text = text[1:]
-
-        if text[0].upper().isalpha() or text.startswith('_'):
-            return text[0].upper()
-        else:
-            return _('Symbols')
-
     def update_units(self):
         """Update with the catalog."""
 
@@ -365,14 +362,21 @@ class IndexRack(nodes.Element):
 
         # Important: The order in which if/elif decisions are made.
         if ikey:
-            _key, _raw = ikey, ikey
+            _key, _raw = chop_mark(ikey), ikey
         elif word in self._classifier_catalog:
-            _key, _raw = self._classifier_catalog[word], word
+            _key, _raw = chop_mark(self._classifier_catalog[word]), word
         else:
-            _key, _raw = self.make_classifier_from_first_letter(term.astext()), term.astext()
+            _key = chop_mark(term.astext())
+            _key, _raw = self.make_classifier_from_first_letter(_key), term.astext()
 
         unit[UNIT_CLSF] = self.textclass(_key, _raw)
         unit[UNIT_CLSF].whatiam = 'classifier'
+
+    def make_classifier_from_first_letter(self, text):
+        if text[0].upper().isalpha() or text.startswith('_'):
+            return text[0].upper()
+        else:
+            return _('Symbols')
 
     def update_unit_with_function_catalog(self, unit):
         """
