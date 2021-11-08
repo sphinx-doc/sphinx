@@ -43,6 +43,8 @@ Features added
 * #9691: C, added new info-field ``retval``
   for :rst:dir:`c:function` and :rst:dir:`c:macro`.
 * C++, added new info-field ``retval`` for :rst:dir:`cpp:function`.
+* #9618: i18n: Add :confval:`gettext_allow_fuzzy_translations` to allow "fuzzy"
+  messages for translation
 * #9672: More CSS classes on Python domain descriptions
 * #9695: More CSS classes on Javascript domain descriptions
 * #9683: Revert the removal of ``add_stylesheet()`` API.  It will be kept until

@@ -802,6 +802,13 @@ documentation on :ref:`intl` for details.
    .. versionchanged:: 1.5
       Use ``locales`` directory as a default value
 
+.. confval:: gettext_allow_fuzzy_translations
+
+   If true, "fuzzy" messages in the message catalogs are used for translation.
+   The default is ``False``.
+
+   .. versionadded:: 4.3
+
 .. confval:: gettext_compact
 
    .. versionadded:: 1.1

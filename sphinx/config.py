@@ -103,6 +103,7 @@ class Config:
         'language': (None, 'env', [str]),
         'locale_dirs': (['locales'], 'env', []),
         'figure_language_filename': ('{root}.{language}{ext}', 'env', [str]),
+        'gettext_allow_fuzzy_translations': (False, 'gettext', []),
 
         'master_doc': ('index', 'env', []),
         'root_doc': (lambda config: config.master_doc, 'env', []),
