@@ -1,5 +1,10 @@
 """
-A Sphinx Indexer
+    sphinx.environment.adapters.indexrack
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    A Sphinx Indexer
+
+    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
 """
 
 import re
@@ -59,12 +64,15 @@ class Text(nodes.Text):
 class Represent(object):
     def represent(self, data, end=None):
         name = self.__class__.__name__
-        rpr  = f"<{name}: {data}"
+        rpr = f"<{name}: {data}"
         if end:
-            for o in self[0:end]: rpr += repr(o)
-            if self[end].astext(): rpr += repr(self[end])
+            for o in self[0:end]:
+                rpr += repr(o)
+            if self[end].astext():
+                rpr += repr(self[end])
         else:
-            for o in self: rpr += repr(o)
+            for o in self:
+                rpr += repr(o)
         return rpr + ">"
 
 
@@ -73,20 +81,27 @@ class Represent(object):
 
 class Subterm(Represent, nodes.Element):
     def __init__(self, link, *terms):
-        if   link == 1: template = _('see %s')
-        elif link == 2: template = _('see also %s')
-        else: template = None
+        if link == 1:
+            template = _('see %s')
+        elif link == 2:
+            template = _('see also %s')
+        else:
+            template = None
 
         _terms = []
         for term in terms:
-            if term.astext(): _terms.append(term)
+            if term.astext():
+                _terms.append(term)
 
-        super().__init__(''.join([repr(term) for term in terms]), *_terms, delimiter=' ', template=template)
+        super().__init__(''.join([repr(term) for term in terms]),
+                         *_terms, delimiter=' ', template=template)
 
     def __repr__(self, attr=""):
         attr += f"len={len(self)} "
-        if self['delimiter'] != ' ': attr += f"delimiter='{self['delimiter']}' "
-        if self['template']: attr += f"tpl='{self['template']}' "
+        if self['delimiter'] != ' ':
+            attr += f"delimiter='{self['delimiter']}' "
+        if self['template']:
+            attr += f"tpl='{self['template']}' "
         return self.represent(attr)
 
     def __str__(self):
@@ -123,16 +138,20 @@ class IndexUnit(Represent, nodes.Element):
 
     def __init__(self, term, subterm, link_type, main, file_name, target, index_key):
 
-        super().__init__(repr(term)+repr(subterm),  # rawsource used for debug.
+        super().__init__(repr(term) + repr(subterm),  # rawsource used for debug.
                          nodes.Text(''), term, subterm, link_type=link_type,
                          main=main, file_name=file_name, target=target, index_key=index_key)
         # Text is used to avoid errors in Element.__init__.
-        # Since it is always overwritten in IndexRack, consideration for extensibility isn't needed.
+        # Since it is always overwritten in IndexRack, consideration for extensibility
+        # isn't needed.
 
     def __repr__(self, attr=""):
-        if self['main']: attr += f"main "
-        if self['file_name']: attr += f"file_name='{self['file_name']}' "
-        if self['target']: attr += f"target='{self['target']}' "
+        if self['main']:
+            attr += "main "
+        if self['file_name']:
+            attr += f"file_name='{self['file_name']}' "
+        if self['target']:
+            attr += f"target='{self['target']}' "
         return self.represent(attr, 2)
 
     def set_subterm_delimiter(self, delimiter=', '):
@@ -146,8 +165,8 @@ class Convert(object):
 
     _type_to_link = {'see': 1, 'seealso': 2, 'uri': 3}
 
-    _main_to_code = {'conf.py':1, 'rcfile':2, 'main':3, '': 4}
-    _code_to_main = {1:'conf.py', 2:'rcfile', 3:'main', 4:''}
+    _main_to_code = {'conf.py': 1, 'rcfile': 2, 'main': 3, '': 4}
+    _code_to_main = {1: 'conf.py', 2: 'rcfile', 3: 'main', 4: ''}
 
     def type2link(self, link):
         return self._type_to_link[link]
@@ -157,6 +176,7 @@ class Convert(object):
 
     def code2main(self, code):
         return self._code_to_main[code]
+
 
 _cnv = Convert()
 
@@ -194,17 +214,17 @@ class IndexEntry(Represent, nodes.Element):
                          file_name=file_name, target=target, main=main, index_key=index_key)
 
     def __repr__(self, attr=""):
-        """
-        >>> entry = IndexEntry('sphinx; python', 'single', 'document', 'term-1')
-        >>> entry
-        <IndexEntry: entry_type='single' file_name='document' target='term-1' <#text: 'sphinx'><#text: 'python'>>
-        """
 
-        if self['entry_type']: attr += f"entry_type='{self['entry_type']}' "
-        if self['main']      : attr += f"main "
-        if self['file_name'] : attr += f"file_name='{self['file_name']}' "
-        if self['target']    : attr += f"target='{self['target']}' "
-        if self['index_key'] : attr += f"index_key='{self['index_key']}' "
+        if self['entry_type']:
+            attr += f"entry_type='{self['entry_type']}' "
+        if self['main']:
+            attr += "main "
+        if self['file_name']:
+            attr += f"file_name='{self['file_name']}' "
+        if self['target']:
+            attr += f"target='{self['target']}' "
+        if self['index_key']:
+            attr += f"index_key='{self['index_key']}' "
 
         return self.represent(attr)
 
@@ -219,7 +239,8 @@ class IndexEntry(Represent, nodes.Element):
 
     def make_index_units(self):
         """
-        The parts where the data structure changes between IndexEntry and IndexUnit will be handled here.
+        The parts where the data structure changes between IndexEntry and IndexUnit
+        will be handled here.
 
         >>> entry = IndexEntry('sphinx', 'single', 'document', 'term-1')
         >>> entry.make_index_units()
@@ -239,8 +260,10 @@ class IndexEntry(Represent, nodes.Element):
 
             emphasis = _cnv.main2code(main)
 
-            if not sub1: sub1 = self.textclass('')
-            if not sub2: sub2 = self.textclass('')
+            if not sub1:
+                sub1 = self.textclass('')
+            if not sub2:
+                sub2 = self.textclass('')
             subterm = self.packclass(link, sub1, sub2)
 
             index_unit = self.unitclass(term, subterm, link, emphasis, fn, tid, index_key)
@@ -258,9 +281,9 @@ class IndexEntry(Represent, nodes.Element):
                 index_units.append(_index_unit(self[0], self[1], ''))
                 index_units.append(_index_unit(self[1], self[0], ''))
             elif etype == 'triple':
-                index_units.append(_index_unit(self[0], self[1], self[2]))  # the delimiter is ' '
-                index_units.append(_index_unit(self[1], self[2], self[0]))  # the delimiter should be ', '
-                index_units.append(_index_unit(self[2], self[0], self[1]))  # the delimiter is ' '
+                index_units.append(_index_unit(self[0], self[1], self[2]))  # ' '
+                index_units.append(_index_unit(self[1], self[2], self[0]))  # ' '
+                index_units.append(_index_unit(self[2], self[0], self[1]))  # ' '
                 index_units[1].set_subterm_delimiter()  # the delimiter became ', '
             elif etype == 'see':
                 index_units.append(_index_unit(self[0], self[1], ''))
@@ -331,7 +354,8 @@ class IndexRack(nodes.Element):
 
     def append(self, unit):
         """
-        Gather information for the update process, which will be determined by looking at all units.
+        Gather information for the update process,
+        which will be determined by looking at all units.
         """
         # Gather information.
         self.put_in_classifier_catalog(unit['index_key'], unit[UNIT_TERM].astext())
@@ -349,8 +373,10 @@ class IndexRack(nodes.Element):
             self.append(unit)
 
     def put_in_classifier_catalog(self, index_key, word):
-        if not index_key: return
-        if not word: raise ValueError(repr(self))
+        if not index_key:
+            return
+        if not word:
+            raise ValueError(repr(self))
 
         if word not in self._classifier_catalog:
             # No overwriting. (To make the situation in "make clean" true)
@@ -430,7 +456,9 @@ class IndexRack(nodes.Element):
             unit[UNIT_SBTM] = self.packclass(unit['link_type'], term)
 
     def sort_units(self):
-        """What is done in Text is done in Text, and what is done in IndexUnit is done in IndexUnit."""
+        """
+        What is done in Text is done in Text,
+        and what is done in IndexUnit is done in IndexUnit."""
         self._rack.sort(key=lambda unit: (
             unit[UNIT_CLSF].assort(),  # classifier
             unit[UNIT_TERM].assort(),  # primary term
@@ -448,11 +476,11 @@ class IndexRack(nodes.Element):
         _clf, _tm, _sub = -1, -1, -1
         for unit in self._rack:  # take a unit from the rack.
             i_clf = unit[UNIT_CLSF]
-            i_tm  = unit[UNIT_TERM]
+            i_tm = unit[UNIT_TERM]
             i_sub = unit[UNIT_SBTM]
-            i_em  = unit['main']
+            i_em = unit['main']
             i_lnk = unit['link_type']
-            i_fn  = unit['file_name']
+            i_fn = unit['file_name']
             i_tid = unit['target']
             i_iky = unit['index_key']
 
@@ -466,7 +494,7 @@ class IndexRack(nodes.Element):
                 # Update _clf to see "(clf, [])" added. Reset the others.
 
             r_clsfr = rtnlist[_clf]  # [classifier, [term, term, ..]]
-            r_clfnm = r_clsfr[0]     # classifier is KanaText object.
+            # r_clfnm = r_clsfr[0]   # classifier is KanaText object.
             r_terms = r_clsfr[1]     # [term, term, ..]
 
             # see: KanaText.__eq__
@@ -481,7 +509,7 @@ class IndexRack(nodes.Element):
                 pass
 
             r_term = r_terms[_tm]        # [term, [links, [subterm, subterm, ..], index_key]
-            r_term_value = r_term[0]     # term_value is KanaText object.
+            # r_term_value = r_term[0]   # term_value is KanaText object.
             r_term_links = r_term[1][0]  # [(main, uri), (main, uri), ..]
             r_subterms = r_term[1][1]    # [subterm, subterm, ..]
 
@@ -496,12 +524,12 @@ class IndexRack(nodes.Element):
                 except NoUri:
                     continue
             else:
-                r_uri= None
-
+                r_uri = None
 
             # sub(class Subterm): [], [KanaText], [KanaText, KanaText].
             if len(i_sub) == 0:
-                if r_uri: r_term_links.append((r_main, r_uri))
+                if r_uri:
+                    r_term_links.append((r_main, r_uri))
             elif len(r_subterms) == 0 or not r_subterms[_sub][0] == i_sub.astext():
                 # Enter a subterm.
                 r_subterms.append((i_sub, []))
@@ -509,14 +537,16 @@ class IndexRack(nodes.Element):
                 # Post-processing.
                 _sub = _sub + 1
                 r_subterm = r_subterms[_sub]
-                r_subterm_value = r_subterm[0]
+                # r_subterm_value = r_subterm[0]
                 r_subterm_links = r_subterm[1]
 
                 # Enter a link.
-                if r_uri: r_subterm_links.append((r_main, r_uri))
+                if r_uri:
+                    r_subterm_links.append((r_main, r_uri))
             else:
                 # Enter a link.
-                if r_uri: r_subterm_links.append((r_main, r_uri))
+                if r_uri:
+                    r_subterm_links.append((r_main, r_uri))
 
         return rtnlist
 
