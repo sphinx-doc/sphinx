@@ -430,6 +430,7 @@ class IndexRack(nodes.Element):
             unit[UNIT_SBTM] = self.packclass(unit['link_type'], term)
 
     def sort_units(self):
+        """What is done in Text is done in Text, and what is done in IndexUnit is done in IndexUnit."""
         self._rack.sort(key=lambda unit: (
             unit[UNIT_CLSF].assort(),  # classifier
             unit[UNIT_TERM].assort(),  # primary term
