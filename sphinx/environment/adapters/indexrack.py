@@ -14,7 +14,7 @@ from sphinx.locale import _, __
 from sphinx.util import logging
 
 # Update separately from the package version, since 2021-11-07
-__version__ = "1.2.20211108"
+__version__ = "1.3.20211108"
 # x.y.YYYYMMDD[.HHMI]
 # - x: changes that need to be addressed by the user.
 # - y: changes that do not require a response from the user.
@@ -24,12 +24,29 @@ logger = logging.getLogger(__name__)
 
 # ------------------------------------------------------------
 
-
 def chop_mark(rawtext):
     text = normalize('NFD', rawtext)
     if text.startswith('\N{RIGHT-TO-LEFT MARK}'):
         text = text[1:]
     return text
+
+class Text(nodes.Text):
+
+    whatiam = 'term'
+
+    def assort(self):
+        text = chop_mark(self)
+
+        if self.whatiam == 'classifier' and text == _('Symbols'):
+            return (0, text)
+
+        if text[0].upper().isalpha() or text.startswith('_'):
+            return (1, text.upper())
+        else:
+            return (0, text.upper())
+
+
+# ------------------------------------------------------------
 
 
 class Represent(object):
@@ -143,7 +160,7 @@ class IndexEntry(Represent, nodes.Element):
 
     other_entry_types = ('list')
 
-    textclass = nodes.Text
+    textclass = Text
     packclass = Subterm
     unitclass = IndexUnit
 
@@ -260,7 +277,7 @@ class IndexRack(nodes.Element):
     5. self.generate_genindex_data()  Generating data for genindex.
     """
 
-    textclass = nodes.Text
+    textclass = Text
     packclass = Subterm
     unitclass = IndexUnit
     entryclass = IndexEntry
@@ -306,7 +323,7 @@ class IndexRack(nodes.Element):
         Gather information for the update process, which will be determined by looking at all units.
         """
         # Gather information.
-        self.put_in_classifier_catalog(unit['index_key'], self.get_word(unit[UNIT_TERM]))
+        self.put_in_classifier_catalog(unit['index_key'], unit[UNIT_TERM].astext())
         unit[UNIT_TERM].whatiam = 'term'
 
         # Gather information.
@@ -351,14 +368,11 @@ class IndexRack(nodes.Element):
             # Set the classifier.
             self.update_unit_with_classifier_catalog(unit)
 
-    def get_word(self, term):
-        return term.astext()
-
     def update_unit_with_classifier_catalog(self, unit):
 
         ikey = unit['index_key']
         term = unit[UNIT_TERM]
-        word = self.get_word(term)
+        word = term.astext()
 
         # Important: The order in which if/elif decisions are made.
         if ikey:
@@ -421,11 +435,11 @@ class IndexRack(nodes.Element):
 
     def sort_units(self):
         self._rack.sort(key=lambda unit: (
-            self.for_sort(unit[UNIT_CLSF]),  # classifier
-            self.for_sort(unit[UNIT_TERM]),  # primary term
-            unit['link_type'],               # 1:'see', 2:'seealso', 3:'uri'. see Convert.
+            unit[UNIT_CLSF].assort(),  # classifier
+            unit[UNIT_TERM].assort(),  # primary term
+            unit['link_type'],  # see Convert. 1:'see', 2:'seealso', 3:'uri'.
             self.for_sort(unit[UNIT_SBTM]),  # secondary term
-            unit['main'],                    # 3:'main', 4:''. see Convert.
+            unit['main'],       # see Convert. 3:'main', 4:''.
             unit['file_name'],
             unit['target']), )
         # about x['file_name'], x['target'].
