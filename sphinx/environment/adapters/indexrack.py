@@ -14,7 +14,7 @@ from sphinx.locale import _, __
 from sphinx.util import logging
 
 # Update separately from the package version, since 2021-11-07
-__version__ = "1.0.20211107"
+__version__ = "1.1.20211108"
 # x.y.YYYYMMDD[.HHMI]
 # - x: changes that need to be addressed by the user.
 # - y: changes that do not require a response from the user.
@@ -86,14 +86,13 @@ UNIT_SBTM = 2  # a secondary term.
 
 class IndexUnit(Represent, nodes.Element):
 
+    textclass = nodes.Text
+
     def __init__(self, term, subterm, link_type, main, file_name, target, index_key):
 
         super().__init__(repr(term)+repr(subterm),  # rawsource used for debug.
                          self.textclass(''), term, subterm, link_type=link_type,
                          main=main, file_name=file_name, target=target, index_key=index_key)
-
-    def textclass(self, rawword, rawsource=""):
-        return nodes.Text(rawword, rawsource)
 
     def __repr__(self, attr=""):
         if self['main']: attr += f"main "
@@ -103,14 +102,6 @@ class IndexUnit(Represent, nodes.Element):
 
     def set_subterm_delimiter(self, delimiter=', '):
         self[UNIT_SBTM]['delimiter'] = delimiter
-
-    def astexts(self):
-        texts = [self[UNIT_TERM].astext()]
-
-        for subterm in self[UNIT_SBTM]:
-            texts.append(subterm.astext())
-
-        return texts
 
 
 # ------------------------------------------------------------
@@ -313,7 +304,7 @@ class IndexRack(nodes.Element):
 
         # Gather information.
         if self._group_entries:
-            self.put_in_function_catalog(unit.astexts(), self._fixre)
+            self.put_in_function_catalog(unit, self._fixre)
 
         # Put the unit on the rack.
         self._rack.append(unit)
@@ -330,16 +321,15 @@ class IndexRack(nodes.Element):
             # No overwriting. (To make the situation in "make clean" true)
             self._classifier_catalog[word] = index_key
 
-    def put_in_function_catalog(self, texts, _fixre):
-        for text in texts:
-            m = _fixre.match(text)
-            if m:
-                try:
-                    self._function_catalog[m.group(1)] += 1
-                except KeyError:
-                    self._function_catalog[m.group(1)] = 1
-            else:
-                pass
+    def put_in_function_catalog(self, unit, _fixre):
+        m = _fixre.match(unit[UNIT_TERM].astext())
+        if m:
+            try:
+                self._function_catalog[m.group(1)] += 1
+            except KeyError:
+                self._function_catalog[m.group(1)] = 1
+        else:
+            pass
 
     def make_classifier_from_first_letter(self, text):
         text = normalize('NFD', text)
@@ -381,10 +371,8 @@ class IndexRack(nodes.Element):
         else:
             _key, _raw = self.make_classifier_from_first_letter(term.astext()), term.astext()
 
-        clsf = self.textclass(_key, _raw)
-        clsf.whatiam = 'classifier'
-
-        unit[UNIT_CLSF] = clsf
+        unit[UNIT_CLSF] = self.textclass(_key, _raw)
+        unit[UNIT_CLSF].whatiam = 'classifier'
 
     def update_unit_with_function_catalog(self, unit):
         """
