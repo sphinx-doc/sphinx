@@ -23,6 +23,7 @@ Incompatible changes
 * #9695: The rendering of Javascript domain declarations is implemented
   with more docutils nodes to allow better CSS styling.
   It may break existing styling.
+* #9450: mathjax: Load MathJax via "defer" strategy
 
 
 Deprecated
