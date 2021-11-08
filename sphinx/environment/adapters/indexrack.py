@@ -93,13 +93,13 @@ UNIT_SBTM = 2  # a secondary term.
 
 class IndexUnit(Represent, nodes.Element):
 
-    textclass = nodes.Text
-
     def __init__(self, term, subterm, link_type, main, file_name, target, index_key):
 
         super().__init__(repr(term)+repr(subterm),  # rawsource used for debug.
-                         self.textclass(''), term, subterm, link_type=link_type,
+                         nodes.Text(''), term, subterm, link_type=link_type,
                          main=main, file_name=file_name, target=target, index_key=index_key)
+        # Text is used to avoid errors in Element.__init__.
+        # Since it is always overwritten in IndexRack, consideration for extensibility isn't needed.
 
     def __repr__(self, attr=""):
         if self['main']: attr += f"main "
