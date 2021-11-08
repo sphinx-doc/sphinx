@@ -213,7 +213,6 @@ def test_get_toctree_for(app):
     assert_node(toctree,
                 [compact_paragraph, ([title, "Table of Contents"],
                                      bullet_list,
-                                     bullet_list,
                                      bullet_list)])
 
     assert_node(toctree[1],
@@ -237,12 +236,10 @@ def test_get_toctree_for(app):
     assert_node(toctree[1][3][0][0], reference, refuri="")
 
     assert_node(toctree[2],
-                [bullet_list, list_item, compact_paragraph, reference, "baz"])
-    assert_node(toctree[3],
                 ([list_item, compact_paragraph, reference, "Latest reference"],
                  [list_item, compact_paragraph, reference, "Python"]))
-    assert_node(toctree[3][0][0][0], reference, refuri="http://sphinx-doc.org/latest/")
-    assert_node(toctree[3][1][0][0], reference, refuri="http://python.org/")
+    assert_node(toctree[2][0][0][0], reference, refuri="http://sphinx-doc.org/latest/")
+    assert_node(toctree[2][1][0][0], reference, refuri="http://python.org/")
 
 
 @pytest.mark.sphinx('xml', testroot='toctree')
@@ -252,7 +249,6 @@ def test_get_toctree_for_collapse(app):
     toctree = TocTree(app.env).get_toctree_for('index', app.builder, collapse=True)
     assert_node(toctree,
                 [compact_paragraph, ([title, "Table of Contents"],
-                                     bullet_list,
                                      bullet_list,
                                      bullet_list)])
 
@@ -268,12 +264,10 @@ def test_get_toctree_for_collapse(app):
     assert_node(toctree[1][3][0][0], reference, refuri="")
 
     assert_node(toctree[2],
-                [bullet_list, list_item, compact_paragraph, reference, "baz"])
-    assert_node(toctree[3],
                 ([list_item, compact_paragraph, reference, "Latest reference"],
                  [list_item, compact_paragraph, reference, "Python"]))
-    assert_node(toctree[3][0][0][0], reference, refuri="http://sphinx-doc.org/latest/")
-    assert_node(toctree[3][1][0][0], reference, refuri="http://python.org/")
+    assert_node(toctree[2][0][0][0], reference, refuri="http://sphinx-doc.org/latest/")
+    assert_node(toctree[2][1][0][0], reference, refuri="http://python.org/")
 
 
 @pytest.mark.sphinx('xml', testroot='toctree')
@@ -284,7 +278,6 @@ def test_get_toctree_for_maxdepth(app):
                                                collapse=False, maxdepth=3)
     assert_node(toctree,
                 [compact_paragraph, ([title, "Table of Contents"],
-                                     bullet_list,
                                      bullet_list,
                                      bullet_list)])
 
@@ -314,12 +307,10 @@ def test_get_toctree_for_maxdepth(app):
     assert_node(toctree[1][3][0][0], reference, refuri="")
 
     assert_node(toctree[2],
-                [bullet_list, list_item, compact_paragraph, reference, "baz"])
-    assert_node(toctree[3],
                 ([list_item, compact_paragraph, reference, "Latest reference"],
                  [list_item, compact_paragraph, reference, "Python"]))
-    assert_node(toctree[3][0][0][0], reference, refuri="http://sphinx-doc.org/latest/")
-    assert_node(toctree[3][1][0][0], reference, refuri="http://python.org/")
+    assert_node(toctree[2][0][0][0], reference, refuri="http://sphinx-doc.org/latest/")
+    assert_node(toctree[2][1][0][0], reference, refuri="http://python.org/")
 
 
 @pytest.mark.sphinx('xml', testroot='toctree')
@@ -330,7 +321,6 @@ def test_get_toctree_for_includehidden(app):
                                                includehidden=False)
     assert_node(toctree,
                 [compact_paragraph, ([title, "Table of Contents"],
-                                     bullet_list,
                                      bullet_list)])
 
     assert_node(toctree[1],
@@ -351,6 +341,3 @@ def test_get_toctree_for_includehidden(app):
     assert_node(toctree[1][0][1][2][0][0], reference, refuri="foo#foo-2", secnumber=[1, 3])
     assert_node(toctree[1][1][0][0], reference, refuri="bar", secnumber=[2])
     assert_node(toctree[1][2][0][0], reference, refuri="http://sphinx-doc.org/")
-
-    assert_node(toctree[2],
-                [bullet_list, list_item, compact_paragraph, reference, "baz"])

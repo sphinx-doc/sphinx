@@ -324,6 +324,8 @@ class TocTree:
         else:
             kwargs['maxdepth'] = int(kwargs['maxdepth'])
         kwargs['collapse'] = collapse
+        # Handle only directives that wrap an entire toctree.
+        process_only_nodes(doctree, builder.tags)
         for toctreenode in doctree.traverse(addnodes.toctree):
             toctree = self.resolve(docname, builder, toctreenode, prune=True, **kwargs)
             if toctree:
