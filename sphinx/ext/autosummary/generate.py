@@ -28,7 +28,7 @@ import sys
 import warnings
 from gettext import NullTranslations
 from os import path
-from typing import Any, Dict, List, NamedTuple, Set, Tuple, Type, Union
+from typing import Any, Dict, List, NamedTuple, Sequence, Set, Tuple, Type, Union
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -46,7 +46,7 @@ from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging, rst, split_full_qualified_name
-from sphinx.util.inspect import safe_getattr
+from sphinx.util.inspect import getall, safe_getattr
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
 
@@ -68,6 +68,7 @@ class DummyApplication:
 
         self.config.add('autosummary_context', {}, True, None)
         self.config.add('autosummary_filename_map', {}, True, None)
+        self.config.add('autosummary_ignore___all__', True, 'env', bool)
         self.config.init_values()
 
     def emit_firstresult(self, *args: Any) -> None:
@@ -192,7 +193,7 @@ class ModuleScanner:
 
     def scan(self, imported_members: bool) -> List[str]:
         members = []
-        for name in dir(self.object):
+        for name in members_of(self.app.config, self.object):
             try:
                 value = safe_getattr(self.object, name)
             except AttributeError:
@@ -216,10 +217,24 @@ class ModuleScanner:
                 # list all members up
                 members.append(name)
             elif imported is False:
-                # list not-imported members up
+                # list not-imported members
+                members.append(name)
+            elif '__all__' in dir(self.object) and not self.app.config.autosummary_ignore___all__:
+                # list members that have __all__ set
                 members.append(name)
 
         return members
+
+def members_of(conf: Config, obj: Any) -> Sequence[str]:
+    """Get the members of ``obj``, possibly ignoring the ``__all__`` module attribute
+
+    Follows the ``conf.autosummary_ignore___all__`` setting."""
+
+    if conf.autosummary_ignore___all__:
+        return dir(obj)
+    else:
+        return getall(obj) or dir(obj)
+
 
 
 def generate_autosummary_content(name: str, obj: Any, parent: Any,
@@ -245,7 +260,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
 
     def get_module_members(obj: Any) -> Dict[str, Any]:
         members = {}
-        for name in dir(obj):
+        for name in members_of(app.config, obj):
             try:
                 members[name] = safe_getattr(obj, name)
             except AttributeError:
@@ -630,6 +645,10 @@ The format of the autosummary directive is documented in the
                         dest='imported_members', default=False,
                         help=__('document imported members (default: '
                                 '%(default)s)'))
+    parser.add_argument('-a', '--respect-__all__', action='store_false',
+                        dest='ignore___all__', default=True,
+                        help=__('document exactly the members in module __all__ attribute. '
+                                '(default: %(default)s)'))
 
     return parser
 
@@ -646,6 +665,7 @@ def main(argv: List[str] = sys.argv[1:]) -> None:
 
     if args.templates:
         app.config.templates_path.append(path.abspath(args.templates))
+    app.config.autosummary_ignore___all__ = args.ignore___all__
 
     generate_autosummary_docs(args.source_file, args.output_dir,
                               '.' + args.suffix,
