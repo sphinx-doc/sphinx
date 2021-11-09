@@ -18,8 +18,8 @@ from docutils.parsers.rst.directives.misc import Include as BaseInclude
 
 from sphinx import addnodes
 from sphinx.domains.changeset import VersionChange  # NOQA  # for compatibility
-from sphinx.locale import _
-from sphinx.util import docname_join, url_re
+from sphinx.locale import _, __
+from sphinx.util import docname_join, logging, url_re
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.matching import Matcher, patfilter
 from sphinx.util.nodes import explicit_title_re
@@ -30,6 +30,7 @@ if TYPE_CHECKING:
 
 
 glob_re = re.compile(r'.*[*?\[].*')
+logger = logging.getLogger(__name__)
 
 
 def int_or_nothing(argument: str) -> int:
@@ -106,9 +107,8 @@ class TocTree(SphinxDirective):
                     toctree['entries'].append((None, docname))
                     toctree['includefiles'].append(docname)
                 if not docnames:
-                    ret.append(self.state.document.reporter.warning(
-                        'toctree glob pattern %r didn\'t match any documents'
-                        % entry, line=self.lineno))
+                    logger.warning(__('toctree glob pattern %r didn\'t match any documents'),
+                                   entry, location=toctree)
             else:
                 if explicit:
                     ref = explicit.group(2)
@@ -128,20 +128,21 @@ class TocTree(SphinxDirective):
                     toctree['entries'].append((title, ref))
                 elif docname not in self.env.found_docs:
                     if excluded(self.env.doc2path(docname, None)):
-                        message = 'toctree contains reference to excluded document %r'
+                        message = __('toctree contains reference to excluded document %r')
+                        subtype = 'excluded'
                     else:
-                        message = 'toctree contains reference to nonexisting document %r'
+                        message = __('toctree contains reference to nonexisting document %r')
+                        subtype = 'not_readable'
 
-                    ret.append(self.state.document.reporter.warning(message % docname,
-                                                                    line=self.lineno))
+                    logger.warning(message, docname, type='toc', subtype=subtype,
+                                   location=toctree)
                     self.env.note_reread()
                 else:
                     if docname in all_docnames:
                         all_docnames.remove(docname)
                     else:
-                        message = 'duplicated entry found in toctree: %s'
-                        ret.append(self.state.document.reporter.warning(message % docname,
-                                                                        line=self.lineno))
+                        logger.warning(__('duplicated entry found in toctree: %s'), docname,
+                                       location=toctree)
 
                     toctree['entries'].append((title, docname))
                     toctree['includefiles'].append(docname)
@@ -250,8 +251,9 @@ class Acks(SphinxDirective):
         self.state.nested_parse(self.content, self.content_offset, node)
         if len(node.children) != 1 or not isinstance(node.children[0],
                                                      nodes.bullet_list):
-            reporter = self.state.document.reporter
-            return [reporter.warning('.. acks content is not a list', line=self.lineno)]
+            logger.warning(__('.. acks content is not a list'),
+                           location=(self.env.docname, self.lineno))
+            return []
         return [node]
 
 
@@ -274,8 +276,9 @@ class HList(SphinxDirective):
         self.state.nested_parse(self.content, self.content_offset, node)
         if len(node.children) != 1 or not isinstance(node.children[0],
                                                      nodes.bullet_list):
-            reporter = self.state.document.reporter
-            return [reporter.warning('.. hlist content is not a list', line=self.lineno)]
+            logger.warning(__('.. hlist content is not a list'),
+                           location=(self.env.docname, self.lineno))
+            return []
         fulllist = node.children[0]
         # create a hlist node where the items are distributed
         npercol, nmore = divmod(len(fulllist), ncolumns)

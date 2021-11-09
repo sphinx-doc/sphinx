@@ -55,6 +55,8 @@ Features added
   inventory specification. Specific types of cross-references can be disabled,
   e.g., ``std:doc`` or all cross-references in a specific domain,
   e.g., ``std:*``.
+* #9623: Allow to suppress "toctree contains reference to excluded document"
+  warnings using :confval:`suppress_warnings`
 
 Bugs fixed
 ----------

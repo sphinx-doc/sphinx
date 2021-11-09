@@ -329,6 +329,8 @@ General configuration
    * ``ref.python``
    * ``misc.highlighting_failure``
    * ``toc.circular``
+   * ``toc.excluded``
+   * ``toc.not_readable``
    * ``toc.secnum``
    * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``
@@ -359,6 +361,10 @@ General configuration
    .. versionchanged:: 3.3.0
 
       Added ``epub.duplicated_toc_entry``
+
+   .. versionchanged:: 4.3
+
+      Added ``toc.excluded`` and ``toc.not_readable``
 
 .. confval:: needs_sphinx
 
