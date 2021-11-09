@@ -495,7 +495,13 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
 
         sig_prefix = self.get_signature_prefix(sig)
         if sig_prefix:
-            signode += addnodes.desc_annotation(str(sig_prefix), '', *sig_prefix)
+            if type(sig_prefix) is str:
+                logger.warning("Python directive get_signature_prefix() returns a str ('{}')"
+                               " instead of a list of nodes (changed in 4.3).".format(sig_prefix),
+                               location=signode)
+                signode += addnodes.desc_annotation(sig_prefix, '', nodes.Text(sig_prefix, sig_prefix))
+            else:
+                signode += addnodes.desc_annotation(str(sig_prefix), '', *sig_prefix)
 
         if prefix:
             signode += addnodes.desc_addname(prefix, prefix)
