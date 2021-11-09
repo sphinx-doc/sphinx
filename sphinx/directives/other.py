@@ -129,10 +129,12 @@ class TocTree(SphinxDirective):
                 elif docname not in self.env.found_docs:
                     if excluded(self.env.doc2path(docname, None)):
                         message = __('toctree contains reference to excluded document %r')
+                        subtype = 'excluded'
                     else:
                         message = __('toctree contains reference to nonexisting document %r')
+                        subtype = 'not_readable'
 
-                    logger.warning(message, docname, type='toc', subtype='not_readable',
+                    logger.warning(message, docname, type='toc', subtype=subtype,
                                    location=toctree)
                     self.env.note_reread()
                 else:
