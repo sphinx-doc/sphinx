@@ -47,7 +47,7 @@ Documentation.addTranslations({
         "Table of Contents": "\u76ee\u9304",
         "This Page": "\u672c\u9801",
         "Welcome! This is": "\u6b61\u8fce\uff01\u672c",
-        "Your search did not match any documents. Please make sure that all words are spelled correctly and that you've selected enough categories.": "\u4f60\u7684\u641c\u5c0b\u627e\u4e0d\u5230\u4efb\u4f55\u6eff\u8db3\u689d\u4ef6\u7684\u6587\u4ef6\u3002\u8acb\u78ba\u5b9a\u662f\u5426\u6240\u6709\u7684\u641c\u5c0b\u8a5e\u90fd\u6b63\u78ba\u5730\u62fc\u5beb\u4e14\u4f60\u5df2\u9078\u64c7\u8db3\u5920\u7684\u5206\u985e\u3002",
+        "Your search did not match any documents. Please make sure that all words are spelled correctly and that you've selected enough categories.": "\u60a8\u7684\u641c\u5c0b\u627e\u4e0d\u5230\u4efb\u4f55\u6eff\u8db3\u689d\u4ef6\u7684\u6587\u4ef6\u3002\u8acb\u78ba\u5b9a\u662f\u5426\u6240\u6709\u7684\u641c\u5c0b\u8a5e\u90fd\u6b63\u78ba\u5730\u62fc\u5beb\u4e14\u60a8\u5df2\u9078\u64c7\u8db3\u5920\u7684\u5206\u985e\u3002",
         "all functions, classes, terms": "\u6240\u6709\u51fd\u5f0f\u3001\u985e\u5225\u3001\u8853\u8a9e",
         "can be huge": "\u53ef\u80fd\u6703\u5f88\u5927",
         "last updated": "\u6700\u5f8c\u66f4\u65b0\u65bc",

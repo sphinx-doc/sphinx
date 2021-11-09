@@ -12,6 +12,7 @@ import copy
 import os
 import posixpath
 import re
+import urllib.parse
 import warnings
 from typing import TYPE_CHECKING, Iterable, Tuple, cast
 
@@ -22,7 +23,7 @@ from docutils.writers.html4css1 import Writer
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx50Warning
+from sphinx.deprecation import RemovedInSphinx50Warning, RemovedInSphinx60Warning
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
@@ -95,8 +96,8 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         self.secnumber_suffix = self.config.html_secnumber_suffix
         self.param_separator = ''
         self.optional_param_level = 0
-        self._table_row_index = 0
-        self._fieldlist_row_index = 0
+        self._table_row_indices = [0]
+        self._fieldlist_row_indices = [0]
         self.required_params_left = 0
 
     def visit_start_of_file(self, node: Element) -> None:
@@ -589,7 +590,8 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
             self.context.append('</a>')
         elif 'filename' in node:
             atts['class'] += ' internal'
-            atts['href'] = posixpath.join(self.builder.dlpath, node['filename'])
+            atts['href'] = posixpath.join(self.builder.dlpath,
+                                          urllib.parse.quote(node['filename']))
             self.body.append(self.starttag(node, 'a', '', **atts))
             self.context.append('</a>')
         else:
@@ -805,16 +807,20 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
     # overwritten to add even/odd classes
 
     def visit_table(self, node: Element) -> None:
-        self._table_row_index = 0
+        self._table_row_indices.append(0)
 
         # set align=default if align not specified to give a default style
         node.setdefault('align', 'default')
 
         return super().visit_table(node)
 
+    def depart_table(self, node: Element) -> None:
+        self._table_row_indices.pop()
+        super().depart_table(node)
+
     def visit_row(self, node: Element) -> None:
-        self._table_row_index += 1
-        if self._table_row_index % 2 == 0:
+        self._table_row_indices[-1] += 1
+        if self._table_row_indices[-1] % 2 == 0:
             node['classes'].append('row-even')
         else:
             node['classes'].append('row-odd')
@@ -827,12 +833,16 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
             self.body[-1] = '&#160;'
 
     def visit_field_list(self, node: Element) -> None:
-        self._fieldlist_row_index = 0
+        self._fieldlist_row_indices.append(0)
         return super().visit_field_list(node)
 
+    def depart_field_list(self, node: Element) -> None:
+        self._fieldlist_row_indices.pop()
+        return super().depart_field_list(node)
+
     def visit_field(self, node: Element) -> None:
-        self._fieldlist_row_index += 1
-        if self._fieldlist_row_index % 2 == 0:
+        self._fieldlist_row_indices[-1] += 1
+        if self._fieldlist_row_indices[-1] % 2 == 0:
             node['classes'].append('field-even')
         else:
             node['classes'].append('field-odd')
@@ -874,3 +884,15 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         warnings.warn('HTMLTranslator.permalink_text is deprecated.',
                       RemovedInSphinx50Warning, stacklevel=2)
         return self.config.html_permalinks_icon
+
+    @property
+    def _fieldlist_row_index(self):
+        warnings.warn('_fieldlist_row_index is deprecated',
+                      RemovedInSphinx60Warning, stacklevel=2)
+        return self._fieldlist_row_indices[-1]
+
+    @property
+    def _table_row_index(self):
+        warnings.warn('_table_row_index is deprecated',
+                      RemovedInSphinx60Warning, stacklevel=2)
+        return self._table_row_indices[-1]

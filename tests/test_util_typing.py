@@ -17,6 +17,7 @@ from typing import (Any, Callable, Dict, Generator, List, NewType, Optional, Tup
 
 import pytest
 
+from sphinx.ext.autodoc import mock
 from sphinx.util.typing import restify, stringify
 
 
@@ -41,66 +42,70 @@ class BrokenType:
 
 
 def test_restify():
-    assert restify(int) == ":class:`int`"
-    assert restify(str) == ":class:`str`"
-    assert restify(None) == ":obj:`None`"
-    assert restify(Integral) == ":class:`numbers.Integral`"
-    assert restify(Struct) == ":class:`struct.Struct`"
-    assert restify(TracebackType) == ":class:`types.TracebackType`"
-    assert restify(Any) == ":obj:`~typing.Any`"
+    assert restify(int) == ":py:class:`int`"
+    assert restify(str) == ":py:class:`str`"
+    assert restify(None) == ":py:obj:`None`"
+    assert restify(Integral) == ":py:class:`numbers.Integral`"
+    assert restify(Struct) == ":py:class:`struct.Struct`"
+    assert restify(TracebackType) == ":py:class:`types.TracebackType`"
+    assert restify(Any) == ":py:obj:`~typing.Any`"
+    assert restify('str') == "str"
 
 
 def test_restify_type_hints_containers():
-    assert restify(List) == ":class:`~typing.List`"
-    assert restify(Dict) == ":class:`~typing.Dict`"
-    assert restify(List[int]) == ":class:`~typing.List`\\ [:class:`int`]"
-    assert restify(List[str]) == ":class:`~typing.List`\\ [:class:`str`]"
-    assert restify(Dict[str, float]) == (":class:`~typing.Dict`\\ "
-                                         "[:class:`str`, :class:`float`]")
-    assert restify(Tuple[str, str, str]) == (":class:`~typing.Tuple`\\ "
-                                             "[:class:`str`, :class:`str`, :class:`str`]")
-    assert restify(Tuple[str, ...]) == ":class:`~typing.Tuple`\\ [:class:`str`, ...]"
-    assert restify(Tuple[()]) == ":class:`~typing.Tuple`\\ [()]"
-    assert restify(List[Dict[str, Tuple]]) == (":class:`~typing.List`\\ "
-                                               "[:class:`~typing.Dict`\\ "
-                                               "[:class:`str`, :class:`~typing.Tuple`]]")
-    assert restify(MyList[Tuple[int, int]]) == (":class:`tests.test_util_typing.MyList`\\ "
-                                                "[:class:`~typing.Tuple`\\ "
-                                                "[:class:`int`, :class:`int`]]")
-    assert restify(Generator[None, None, None]) == (":class:`~typing.Generator`\\ "
-                                                    "[:obj:`None`, :obj:`None`, :obj:`None`]")
+    assert restify(List) == ":py:class:`~typing.List`"
+    assert restify(Dict) == ":py:class:`~typing.Dict`"
+    assert restify(List[int]) == ":py:class:`~typing.List`\\ [:py:class:`int`]"
+    assert restify(List[str]) == ":py:class:`~typing.List`\\ [:py:class:`str`]"
+    assert restify(Dict[str, float]) == (":py:class:`~typing.Dict`\\ "
+                                         "[:py:class:`str`, :py:class:`float`]")
+    assert restify(Tuple[str, str, str]) == (":py:class:`~typing.Tuple`\\ "
+                                             "[:py:class:`str`, :py:class:`str`, "
+                                             ":py:class:`str`]")
+    assert restify(Tuple[str, ...]) == ":py:class:`~typing.Tuple`\\ [:py:class:`str`, ...]"
+    assert restify(Tuple[()]) == ":py:class:`~typing.Tuple`\\ [()]"
+    assert restify(List[Dict[str, Tuple]]) == (":py:class:`~typing.List`\\ "
+                                               "[:py:class:`~typing.Dict`\\ "
+                                               "[:py:class:`str`, :py:class:`~typing.Tuple`]]")
+    assert restify(MyList[Tuple[int, int]]) == (":py:class:`tests.test_util_typing.MyList`\\ "
+                                                "[:py:class:`~typing.Tuple`\\ "
+                                                "[:py:class:`int`, :py:class:`int`]]")
+    assert restify(Generator[None, None, None]) == (":py:class:`~typing.Generator`\\ "
+                                                    "[:py:obj:`None`, :py:obj:`None`, "
+                                                    ":py:obj:`None`]")
 
 
 def test_restify_type_hints_Callable():
-    assert restify(Callable) == ":class:`~typing.Callable`"
+    assert restify(Callable) == ":py:class:`~typing.Callable`"
 
     if sys.version_info >= (3, 7):
-        assert restify(Callable[[str], int]) == (":class:`~typing.Callable`\\ "
-                                                 "[[:class:`str`], :class:`int`]")
-        assert restify(Callable[..., int]) == (":class:`~typing.Callable`\\ "
-                                               "[[...], :class:`int`]")
+        assert restify(Callable[[str], int]) == (":py:class:`~typing.Callable`\\ "
+                                                 "[[:py:class:`str`], :py:class:`int`]")
+        assert restify(Callable[..., int]) == (":py:class:`~typing.Callable`\\ "
+                                               "[[...], :py:class:`int`]")
     else:
-        assert restify(Callable[[str], int]) == (":class:`~typing.Callable`\\ "
-                                                 "[:class:`str`, :class:`int`]")
-        assert restify(Callable[..., int]) == (":class:`~typing.Callable`\\ "
-                                               "[..., :class:`int`]")
+        assert restify(Callable[[str], int]) == (":py:class:`~typing.Callable`\\ "
+                                                 "[:py:class:`str`, :py:class:`int`]")
+        assert restify(Callable[..., int]) == (":py:class:`~typing.Callable`\\ "
+                                               "[..., :py:class:`int`]")
 
 
 def test_restify_type_hints_Union():
-    assert restify(Optional[int]) == ":obj:`~typing.Optional`\\ [:class:`int`]"
-    assert restify(Union[str, None]) == ":obj:`~typing.Optional`\\ [:class:`str`]"
-    assert restify(Union[int, str]) == ":obj:`~typing.Union`\\ [:class:`int`, :class:`str`]"
+    assert restify(Optional[int]) == ":py:obj:`~typing.Optional`\\ [:py:class:`int`]"
+    assert restify(Union[str, None]) == ":py:obj:`~typing.Optional`\\ [:py:class:`str`]"
+    assert restify(Union[int, str]) == (":py:obj:`~typing.Union`\\ "
+                                        "[:py:class:`int`, :py:class:`str`]")
 
     if sys.version_info >= (3, 7):
-        assert restify(Union[int, Integral]) == (":obj:`~typing.Union`\\ "
-                                                 "[:class:`int`, :class:`numbers.Integral`]")
+        assert restify(Union[int, Integral]) == (":py:obj:`~typing.Union`\\ "
+                                                 "[:py:class:`int`, :py:class:`numbers.Integral`]")
         assert (restify(Union[MyClass1, MyClass2]) ==
-                (":obj:`~typing.Union`\\ "
-                 "[:class:`tests.test_util_typing.MyClass1`, "
-                 ":class:`tests.test_util_typing.<MyClass2>`]"))
+                (":py:obj:`~typing.Union`\\ "
+                 "[:py:class:`tests.test_util_typing.MyClass1`, "
+                 ":py:class:`tests.test_util_typing.<MyClass2>`]"))
     else:
-        assert restify(Union[int, Integral]) == ":class:`numbers.Integral`"
-        assert restify(Union[MyClass1, MyClass2]) == ":class:`tests.test_util_typing.MyClass1`"
+        assert restify(Union[int, Integral]) == ":py:class:`numbers.Integral`"
+        assert restify(Union[MyClass1, MyClass2]) == ":py:class:`tests.test_util_typing.MyClass1`"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
@@ -109,58 +114,67 @@ def test_restify_type_hints_typevars():
     T_co = TypeVar('T_co', covariant=True)
     T_contra = TypeVar('T_contra', contravariant=True)
 
-    assert restify(T) == ":obj:`tests.test_util_typing.T`"
-    assert restify(T_co) == ":obj:`tests.test_util_typing.T_co`"
-    assert restify(T_contra) == ":obj:`tests.test_util_typing.T_contra`"
-    assert restify(List[T]) == ":class:`~typing.List`\\ [:obj:`tests.test_util_typing.T`]"
+    assert restify(T) == ":py:obj:`tests.test_util_typing.T`"
+    assert restify(T_co) == ":py:obj:`tests.test_util_typing.T_co`"
+    assert restify(T_contra) == ":py:obj:`tests.test_util_typing.T_contra`"
+    assert restify(List[T]) == ":py:class:`~typing.List`\\ [:py:obj:`tests.test_util_typing.T`]"
 
     if sys.version_info >= (3, 10):
-        assert restify(MyInt) == ":class:`tests.test_util_typing.MyInt`"
+        assert restify(MyInt) == ":py:class:`tests.test_util_typing.MyInt`"
     else:
-        assert restify(MyInt) == ":class:`MyInt`"
+        assert restify(MyInt) == ":py:class:`MyInt`"
 
 
 def test_restify_type_hints_custom_class():
-    assert restify(MyClass1) == ":class:`tests.test_util_typing.MyClass1`"
-    assert restify(MyClass2) == ":class:`tests.test_util_typing.<MyClass2>`"
+    assert restify(MyClass1) == ":py:class:`tests.test_util_typing.MyClass1`"
+    assert restify(MyClass2) == ":py:class:`tests.test_util_typing.<MyClass2>`"
 
 
 def test_restify_type_hints_alias():
     MyStr = str
     MyTuple = Tuple[str, str]
-    assert restify(MyStr) == ":class:`str`"
-    assert restify(MyTuple) == ":class:`~typing.Tuple`\\ [:class:`str`, :class:`str`]"
+    assert restify(MyStr) == ":py:class:`str`"
+    assert restify(MyTuple) == ":py:class:`~typing.Tuple`\\ [:py:class:`str`, :py:class:`str`]"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
 def test_restify_type_ForwardRef():
     from typing import ForwardRef  # type: ignore
-    assert restify(ForwardRef("myint")) == ":class:`myint`"
+    assert restify(ForwardRef("myint")) == ":py:class:`myint`"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
 def test_restify_type_Literal():
     from typing import Literal  # type: ignore
-    assert restify(Literal[1, "2", "\r"]) == ":obj:`~typing.Literal`\\ [1, '2', '\\r']"
+    assert restify(Literal[1, "2", "\r"]) == ":py:obj:`~typing.Literal`\\ [1, '2', '\\r']"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 9), reason='python 3.9+ is required.')
 def test_restify_pep_585():
-    assert restify(list[str]) == ":class:`list`\\ [:class:`str`]"  # type: ignore
-    assert restify(dict[str, str]) == ":class:`dict`\\ [:class:`str`, :class:`str`]"  # type: ignore
-    assert restify(dict[str, tuple[int, ...]]) == \
-        ":class:`dict`\\ [:class:`str`, :class:`tuple`\\ [:class:`int`, ...]]"  # type: ignore
+    assert restify(list[str]) == ":py:class:`list`\\ [:py:class:`str`]"  # type: ignore
+    assert restify(dict[str, str]) == (":py:class:`dict`\\ "  # type: ignore
+                                       "[:py:class:`str`, :py:class:`str`]")
+    assert restify(dict[str, tuple[int, ...]]) == (":py:class:`dict`\\ "  # type: ignore
+                                                   "[:py:class:`str`, :py:class:`tuple`\\ "
+                                                   "[:py:class:`int`, ...]]")
 
 
 @pytest.mark.skipif(sys.version_info < (3, 10), reason='python 3.10+ is required.')
 def test_restify_type_union_operator():
-    assert restify(int | None) == ":class:`int` | :obj:`None`"  # type: ignore
-    assert restify(int | str) == ":class:`int` | :class:`str`"  # type: ignore
-    assert restify(int | str | None) == ":class:`int` | :class:`str` | :obj:`None`"  # type: ignore
+    assert restify(int | None) == ":py:class:`int` | :py:obj:`None`"  # type: ignore
+    assert restify(int | str) == ":py:class:`int` | :py:class:`str`"  # type: ignore
+    assert restify(int | str | None) == (":py:class:`int` | :py:class:`str` | "  # type: ignore
+                                         ":py:obj:`None`")
 
 
 def test_restify_broken_type_hints():
-    assert restify(BrokenType) == ':class:`tests.test_util_typing.BrokenType`'
+    assert restify(BrokenType) == ':py:class:`tests.test_util_typing.BrokenType`'
+
+
+def test_restify_mock():
+    with mock(['unknown']):
+        import unknown
+        assert restify(unknown.secret.Class) == ':py:class:`unknown.secret.Class`'
 
 
 def test_stringify():
@@ -287,3 +301,9 @@ def test_stringify_type_union_operator():
 
 def test_stringify_broken_type_hints():
     assert stringify(BrokenType) == 'tests.test_util_typing.BrokenType'
+
+
+def test_stringify_mock():
+    with mock(['unknown']):
+        import unknown
+        assert stringify(unknown.secret.Class) == 'unknown.secret.Class'

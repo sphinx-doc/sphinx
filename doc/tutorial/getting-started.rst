@@ -117,3 +117,4 @@ something like this:
    Freshly created documentation of Lumache
 
 There we go! You created your first HTML documentation using Sphinx.
+Now you can start :doc:`customizing it </tutorial/first-steps>`.

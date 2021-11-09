@@ -10,13 +10,13 @@
 
 import os
 import re
-from distutils.version import LooseVersion
 from itertools import chain, cycle
 from unittest.mock import ANY, call, patch
 
 import pygments
 import pytest
 from html5lib import HTMLParser
+from packaging import version
 
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.errors import ConfigError
@@ -28,6 +28,9 @@ if docutils.__version_info__ < (0, 17):
     FIGURE_CAPTION = ".//div[@class='figure align-default']/p[@class='caption']"
 else:
     FIGURE_CAPTION = ".//figure/figcaption/p"
+
+
+PYGMENTS_VERSION = version.parse(pygments.__version__).release
 
 
 ENV_WARNINGS = """\
@@ -455,6 +458,12 @@ def test_html_download(app):
     assert matched
     assert (app.outdir / matched.group(1)).exists()
     assert matched.group(1) == filename
+
+    pattern = ('<a class="reference download internal" download="" '
+               'href="(_downloads/.*/)(file_with_special_%23_chars.xyz)">')
+    matched = re.search(pattern, result)
+    assert matched
+    assert (app.outdir / matched.group(1) / "file_with_special_#_chars.xyz").exists()
 
 
 @pytest.mark.sphinx('html', testroot='roles-download')
@@ -1570,8 +1579,7 @@ def test_html_codeblock_linenos_style_table(app):
     app.build()
     content = (app.outdir / 'index.html').read_text()
 
-    pygments_version = tuple(LooseVersion(pygments.__version__).version)
-    if pygments_version >= (2, 8):
+    if PYGMENTS_VERSION >= (2, 8):
         assert ('<div class="linenodiv"><pre><span class="normal">1</span>\n'
                 '<span class="normal">2</span>\n'
                 '<span class="normal">3</span>\n'
@@ -1586,8 +1594,7 @@ def test_html_codeblock_linenos_style_inline(app):
     app.build()
     content = (app.outdir / 'index.html').read_text()
 
-    pygments_version = tuple(LooseVersion(pygments.__version__).version)
-    if pygments_version > (2, 7):
+    if PYGMENTS_VERSION > (2, 7):
         assert '<span class="linenos">1</span>' in content
     else:
         assert '<span class="lineno">1 </span>' in content

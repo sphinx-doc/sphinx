@@ -33,9 +33,12 @@ class MetadataCollector(EnvironmentCollector):
 
         Keep processing minimal -- just return what docutils says.
         """
-        if len(doctree) > 0 and isinstance(doctree[0], nodes.docinfo):
+        index = doctree.first_child_not_matching_class(nodes.PreBibliographic)
+        if index is None:
+            return
+        elif isinstance(doctree[index], nodes.docinfo):
             md = app.env.metadata[app.env.docname]
-            for node in doctree[0]:
+            for node in doctree[index]:  # type: ignore
                 # nodes are multiply inherited...
                 if isinstance(node, nodes.authors):
                     authors = cast(List[nodes.author], node)
@@ -58,7 +61,7 @@ class MetadataCollector(EnvironmentCollector):
                         value = 0
                     md[name] = value
 
-            doctree.pop(0)
+            doctree.pop(index)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

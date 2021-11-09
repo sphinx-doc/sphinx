@@ -984,7 +984,7 @@ def test_autodoc_inner_class(app):
         '   .. py:attribute:: Outer.factory',
         '      :module: target',
         '',
-        '      alias of :class:`dict`'
+        '      alias of :py:class:`dict`'
     ]
 
     actual = do_autodoc(app, 'class', 'target.Outer.Inner', options)
@@ -1009,7 +1009,7 @@ def test_autodoc_inner_class(app):
         '',
         '.. py:class:: InnerChild()',
         '   :module: target', '',
-        '   Bases: :class:`target.Outer.Inner`',
+        '   Bases: :py:class:`target.Outer.Inner`',
         '',
         '   InnerChild docstring',
         '',
@@ -1359,6 +1359,7 @@ def test_slots(app):
         '',
         '   .. py:attribute:: Bar.attr1',
         '      :module: target.slots',
+        '      :type: int',
         '',
         '      docstring of attr1',
         '',
@@ -1399,9 +1400,16 @@ def test_slots(app):
 def test_enum_class(app):
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.enums.EnumCls', options)
+
+    if sys.version_info > (3, 11):
+        args = ('(value, names=None, *, module=None, qualname=None, '
+                'type=None, start=1, boundary=None)')
+    else:
+        args = '(value)'
+
     assert list(actual) == [
         '',
-        '.. py:class:: EnumCls(value)',
+        '.. py:class:: EnumCls' + args,
         '   :module: target.enums',
         '',
         '   this is enum class',
@@ -1620,59 +1628,6 @@ def test_bound_method(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_coroutine(app):
-    actual = do_autodoc(app, 'function', 'target.functions.coroutinefunc')
-    assert list(actual) == [
-        '',
-        '.. py:function:: coroutinefunc()',
-        '   :module: target.functions',
-        '   :async:',
-        '',
-    ]
-
-    options = {"members": None}
-    actual = do_autodoc(app, 'class', 'target.coroutine.AsyncClass', options)
-    assert list(actual) == [
-        '',
-        '.. py:class:: AsyncClass()',
-        '   :module: target.coroutine',
-        '',
-        '',
-        '   .. py:method:: AsyncClass.do_coroutine()',
-        '      :module: target.coroutine',
-        '      :async:',
-        '',
-        '      A documented coroutine function',
-        '',
-        '',
-        '   .. py:method:: AsyncClass.do_coroutine2()',
-        '      :module: target.coroutine',
-        '      :async:',
-        '      :classmethod:',
-        '',
-        '      A documented coroutine classmethod',
-        '',
-        '',
-        '   .. py:method:: AsyncClass.do_coroutine3()',
-        '      :module: target.coroutine',
-        '      :async:',
-        '      :staticmethod:',
-        '',
-        '      A documented coroutine staticmethod',
-        '',
-    ]
-
-    # force-synchronized wrapper
-    actual = do_autodoc(app, 'function', 'target.coroutine.sync_func')
-    assert list(actual) == [
-        '',
-        '.. py:function:: sync_func()',
-        '   :module: target.coroutine',
-        '',
-    ]
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_partialmethod(app):
     expected = [
         '',
@@ -1750,7 +1705,7 @@ def test_autodoc_typed_instance_variables(app):
         '.. py:attribute:: Alias',
         '   :module: target.typed_vars',
         '',
-        '   alias of :class:`target.typed_vars.Derived`',
+        '   alias of :py:class:`target.typed_vars.Derived`',
         '',
         '.. py:class:: Class()',
         '   :module: target.typed_vars',
@@ -1915,12 +1870,12 @@ def test_autodoc_GenericAlias(app):
             '   .. py:attribute:: Class.T',
             '      :module: target.genericalias',
             '',
-            '      alias of :class:`~typing.List`\\ [:class:`int`]',
+            '      alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
             '',
             '.. py:attribute:: T',
             '   :module: target.genericalias',
             '',
-            '   alias of :class:`~typing.List`\\ [:class:`int`]',
+            '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
         ]
     else:
         assert list(actual) == [
@@ -1937,7 +1892,7 @@ def test_autodoc_GenericAlias(app):
             '',
             '      A list of int',
             '',
-            '      alias of :class:`~typing.List`\\ [:class:`int`]',
+            '      alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
             '',
             '',
             '.. py:data:: T',
@@ -1945,7 +1900,7 @@ def test_autodoc_GenericAlias(app):
             '',
             '   A list of int',
             '',
-            '   alias of :class:`~typing.List`\\ [:class:`int`]',
+            '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
             '',
         ]
 
@@ -1977,7 +1932,7 @@ def test_autodoc_TypeVar(app):
         '',
         '      T6',
         '',
-        '      alias of :class:`int`',
+        '      alias of :py:class:`int`',
         '',
         '',
         '.. py:data:: T1',
@@ -2017,7 +1972,7 @@ def test_autodoc_TypeVar(app):
         '',
         '   T6',
         '',
-        '   alias of :class:`int`',
+        '   alias of :py:class:`int`',
         '',
         '',
         '.. py:data:: T7',
@@ -2025,7 +1980,7 @@ def test_autodoc_TypeVar(app):
         '',
         '   T7',
         '',
-        "   alias of TypeVar('T7', bound=\\ :class:`int`)",
+        "   alias of TypeVar('T7', bound=\\ :py:class:`int`)",
         '',
     ]
 
@@ -2159,6 +2114,9 @@ def test_singledispatchmethod_automethod(app):
     ]
 
 
+@pytest.mark.skipif(sys.version_info > (3, 11),
+                    reason=('cython does not support python-3.11 yet. '
+                            'see https://github.com/cython/cython/issues/4365'))
 @pytest.mark.skipif(pyximport is None, reason='cython is not installed')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_cython(app):

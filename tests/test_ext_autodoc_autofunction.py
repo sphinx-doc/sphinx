@@ -168,3 +168,38 @@ def test_wrapped_function_contextmanager(app):
         "   You'll feel better in this context!",
         '',
     ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_coroutine(app):
+    actual = do_autodoc(app, 'function', 'target.functions.coroutinefunc')
+    assert list(actual) == [
+        '',
+        '.. py:function:: coroutinefunc()',
+        '   :module: target.functions',
+        '   :async:',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_synchronized_coroutine(app):
+    actual = do_autodoc(app, 'function', 'target.coroutine.sync_func')
+    assert list(actual) == [
+        '',
+        '.. py:function:: sync_func()',
+        '   :module: target.coroutine',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_async_generator(app):
+    actual = do_autodoc(app, 'function', 'target.functions.asyncgenerator')
+    assert list(actual) == [
+        '',
+        '.. py:function:: asyncgenerator()',
+        '   :module: target.functions',
+        '   :async:',
+        '',
+    ]

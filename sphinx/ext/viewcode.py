@@ -108,7 +108,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
 
         return False
 
-    for objnode in doctree.traverse(addnodes.desc):
+    for objnode in list(doctree.traverse(addnodes.desc)):
         if objnode.get('domain') != 'py':
             continue
         names: Set[str] = set()
@@ -191,7 +191,7 @@ class ViewcodeAnchorTransform(SphinxPostTransform):
             node.replace_self(refnode)
 
     def remove_viewcode_anchors(self) -> None:
-        for node in self.document.traverse(viewcode_anchor):
+        for node in list(self.document.traverse(viewcode_anchor)):
             node.parent.remove(node)
 
 

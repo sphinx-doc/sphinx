@@ -528,6 +528,8 @@ class manpage(nodes.Inline, nodes.FixedTextElement):
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
+    from sphinx.util import docutils  # lazy import
+
     app.add_node(toctree)
 
     app.add_node(desc)
@@ -563,13 +565,15 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_node(start_of_file)
     app.add_node(highlightlang)
     app.add_node(tabular_col_spec)
-    app.add_node(meta)
     app.add_node(pending_xref)
     app.add_node(number_reference)
     app.add_node(download_reference)
     app.add_node(literal_emphasis)
     app.add_node(literal_strong)
     app.add_node(manpage)
+
+    if docutils.__version_info__ < (0, 18):
+        app.add_node(meta)
 
     return {
         'version': 'builtin',

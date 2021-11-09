@@ -305,7 +305,7 @@ def test_linkcheck_allowed_redirects(app, warning):
     assert result["http://localhost:7777/path1"] == "working"
     assert result["http://localhost:7777/path2"] == "redirected"
 
-    assert ("index.rst.rst:1: WARNING: redirect  http://localhost:7777/path2 - with Found to "
+    assert ("index.rst:1: WARNING: redirect  http://localhost:7777/path2 - with Found to "
             "http://localhost:7777/?redirected=1\n" in strip_escseq(warning.getvalue()))
     assert len(warning.getvalue().splitlines()) == 1
 

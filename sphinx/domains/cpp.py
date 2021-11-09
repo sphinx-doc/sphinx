@@ -335,7 +335,7 @@ _keywords = [
 ]
 
 
-_simple_type_sepcifiers_re = re.compile(r"""(?x)
+_simple_type_specifiers_re = re.compile(r"""(?x)
     \b(
     auto|void|bool
     # Integer
@@ -5859,7 +5859,7 @@ class DefinitionParser(BaseParser):
         # fundamental types, https://en.cppreference.com/w/cpp/language/type
         # and extensions
         self.skip_ws()
-        if self.match(_simple_type_sepcifiers_re):
+        if self.match(_simple_type_specifiers_re):
             return ASTTrailingTypeSpecFundamental(self.matched_text)
 
         # decltype
@@ -6934,18 +6934,10 @@ def _make_phony_error_name() -> ASTNestedName:
 class CPPObject(ObjectDescription[ASTDeclaration]):
     """Description of a C++ language object."""
 
-    doc_field_types = [
-        GroupedField('parameter', label=_('Parameters'),
-                     names=('param', 'parameter', 'arg', 'argument'),
-                     can_collapse=True),
+    doc_field_types: List[Field] = [
         GroupedField('template parameter', label=_('Template Parameters'),
                      names=('tparam', 'template parameter'),
                      can_collapse=True),
-        GroupedField('exceptions', label=_('Throws'), rolename='expr',
-                     names=('throws', 'throw', 'exception'),
-                     can_collapse=True),
-        Field('returnvalue', label=_('Returns'), has_arg=False,
-              names=('returns', 'return')),
     ]
 
     option_spec: OptionSpec = {
@@ -7180,6 +7172,20 @@ class CPPMemberObject(CPPObject):
 
 class CPPFunctionObject(CPPObject):
     object_type = 'function'
+
+    doc_field_types = CPPObject.doc_field_types + [
+        GroupedField('parameter', label=_('Parameters'),
+                     names=('param', 'parameter', 'arg', 'argument'),
+                     can_collapse=True),
+        GroupedField('exceptions', label=_('Throws'), rolename='expr',
+                     names=('throws', 'throw', 'exception'),
+                     can_collapse=True),
+        GroupedField('retval', label=_('Return values'),
+                     names=('retvals', 'retval'),
+                     can_collapse=True),
+        Field('returnvalue', label=_('Returns'), has_arg=False,
+              names=('returns', 'return')),
+    ]
 
 
 class CPPClassObject(CPPObject):

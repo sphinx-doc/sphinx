@@ -68,7 +68,7 @@ class Builder:
     # doctree versioning method
     versioning_method = 'none'
     versioning_compare = False
-    # allow parallel write_doc() calls
+    #: allow parallel write_doc() calls
     allow_parallel = False
     # support translation
     use_message_catalog = True

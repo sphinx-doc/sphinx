@@ -22,6 +22,31 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.ext.autodoc.AttributeDocumenter._datadescriptor``
+     - 4.3
+     - 6.0
+     - N/A
+
+   * - ``sphinx.writers.html.HTMLTranslator._fieldlist_row_index``
+     - 4.3
+     - 6.0
+     - ``sphinx.writers.html.HTMLTranslator._fieldlist_row_indices``
+
+   * - ``sphinx.writers.html.HTMLTranslator._table_row_index``
+     - 4.3
+     - 6.0
+     - ``sphinx.writers.html.HTMLTranslator._table_row_indices``
+
+   * - ``sphinx.writers.html5.HTML5Translator._fieldlist_row_index``
+     - 4.3
+     - 6.0
+     - ``sphinx.writers.html5.HTML5Translator._fieldlist_row_indices``
+
+   * - ``sphinx.writers.html5.HTML5Translator._table_row_index``
+     - 4.3
+     - 6.0
+     - ``sphinx.writers.html5.HTML5Translator._table_row_indices``
+
    * - The optional argument ``app`` for ``sphinx.environment.BuildEnvironment``
      - 4.1
      - 6.0
@@ -748,6 +773,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.domains.std.StandardDomain.process_doc()``
 
+   * - ``sphinx.domains.js.JSObject.display_prefix``
+     - 
+     - 4.3
+     - ``sphinx.domains.js.JSObject.get_display_prefix()``
+
    * - ``sphinx.environment.NoUri``
      - 2.1
      - 3.0
@@ -1207,7 +1237,7 @@ The following is a list of deprecated interfaces.
 
    * - :meth:`~sphinx.application.Sphinx.add_stylesheet()`
      - 1.8
-     - 4.0
+     - 6.0
      - :meth:`~sphinx.application.Sphinx.add_css_file()`
 
    * - :meth:`~sphinx.application.Sphinx.add_javascript()`

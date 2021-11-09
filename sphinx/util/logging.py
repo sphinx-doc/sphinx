@@ -171,6 +171,11 @@ class MemoryHandler(logging.handlers.BufferingHandler):
     def shouldFlush(self, record: logging.LogRecord) -> bool:
         return False  # never flush
 
+    def flush(self) -> None:
+        # suppress any flushes triggered by importing packages that flush
+        # all handlers at initialization time
+        pass
+
     def flushTo(self, logger: logging.Logger) -> None:
         self.acquire()
         try:
@@ -364,8 +369,10 @@ def is_suppressed_warning(type: str, subtype: str, suppress_warnings: List[str])
             target, subtarget = warning_type, None
 
         if target == type:
-            if (subtype is None or subtarget is None or
-               subtarget == subtype or subtarget == '*'):
+            if ((subtype is None and subtarget is None) or
+                    subtarget is None or
+                    subtarget == subtype or
+                    subtarget == '*'):
                 return True
 
     return False

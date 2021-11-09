@@ -129,6 +129,7 @@ def test_autoattribute_slots_variable_dict(app):
         '',
         '.. py:attribute:: Bar.attr1',
         '   :module: target.slots',
+        '   :type: int',
         '',
         '   docstring of attr1',
         '',
@@ -167,7 +168,7 @@ def test_autoattribute_GenericAlias(app):
             '',
             '   A list of int',
             '',
-            '   alias of :class:`~typing.List`\\ [:class:`int`]',
+            '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
             '',
         ]
 
@@ -182,7 +183,7 @@ def test_autoattribute_NewType(app):
         '',
         '   T6',
         '',
-        '   alias of :class:`int`',
+        '   alias of :py:class:`int`',
         '',
     ]
 
