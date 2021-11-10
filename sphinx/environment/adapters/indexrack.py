@@ -19,7 +19,7 @@ from sphinx.locale import _, __
 from sphinx.util import logging
 
 # Update separately from the package version, since 2021-11-07
-__version__ = "1.4.20211108"
+__version__ = "1.5.20211110"
 # x.y.YYYYMMDD[.HHMI]
 # - x: changes that need to be addressed by the user.
 # - y: changes that do not require a response from the user.
@@ -30,35 +30,20 @@ logger = logging.getLogger(__name__)
 # ------------------------------------------------------------
 
 
-def chop_mark(rawtext):
-    text = normalize('NFD', rawtext)
-    if text.startswith('\N{RIGHT-TO-LEFT MARK}'):
-        text = text[1:]
-    return text
+class Character(object):
+    def chop_mark(self, rawtext):
+        text = normalize('NFD', rawtext)
+        if text.startswith('\N{RIGHT-TO-LEFT MARK}'):
+            text = text[1:]
+        return text
 
-
-def sort_key(text):
-    if not text:
-        return (0, '')
-    elif text[0].upper().isalpha() or text.startswith('_'):
-        return (1, text.upper())
-    else:
-        return (0, text.upper())
-
-
-class Text(nodes.Text):
-
-    whatiam = 'term'
-
-    def assort(self):
-        text = chop_mark(self)
-
-        if self.whatiam == 'classifier' and text == _('Symbols'):
-            return (0, text)
-
-        return sort_key(text)
-
-# ------------------------------------------------------------
+    def sort_key(self, text):
+        if not text:
+            return (0, '')
+        elif text[0].upper().isalpha() or text.startswith('_'):
+            return (1, text.upper())
+        else:
+            return (0, text.upper())
 
 
 class Represent(object):
@@ -76,10 +61,40 @@ class Represent(object):
         return rpr + ">"
 
 
+class Convert(object):
+
+    _type_to_link = {'see': 1, 'seealso': 2, 'uri': 3}
+
+    _main_to_code = {'conf.py': 1, 'rcfile': 2, 'main': 3, '': 4}
+    _code_to_main = {1: 'conf.py', 2: 'rcfile', 3: 'main', 4: ''}
+
+    def type2link(self, link):
+        return self._type_to_link[link]
+
+    def main2code(self, main):
+        return self._main_to_code[main]
+
+    def code2main(self, code):
+        return self._code_to_main[code]
+
+
 # ------------------------------------------------------------
 
 
-class Subterm(Represent, nodes.Element):
+class Text(Character, nodes.Text):
+
+    whatiam = 'term'
+
+    def assort(self):
+        text = self.chop_mark(self)
+
+        if self.whatiam == 'classifier' and text == _('Symbols'):
+            return (0, text)
+
+        return self.sort_key(text)
+
+
+class Subterm(Represent, Character, nodes.Element):
     def __init__(self, link, *terms):
         if link == 1:
             template = _('see %s')
@@ -122,8 +137,8 @@ class Subterm(Represent, nodes.Element):
         return text[:-len(self['delimiter'])]
 
     def assort(self):
-        text = chop_mark(self.astext())
-        return sort_key(text)
+        text = self.chop_mark(self.astext())
+        return self.sort_key(text)
 
 
 # ------------------------------------------------------------
@@ -161,33 +176,10 @@ class IndexUnit(Represent, nodes.Element):
 # ------------------------------------------------------------
 
 
-class Convert(object):
-
-    _type_to_link = {'see': 1, 'seealso': 2, 'uri': 3}
-
-    _main_to_code = {'conf.py': 1, 'rcfile': 2, 'main': 3, '': 4}
-    _code_to_main = {1: 'conf.py', 2: 'rcfile', 3: 'main', 4: ''}
-
-    def type2link(self, link):
-        return self._type_to_link[link]
-
-    def main2code(self, main):
-        return self._main_to_code[main]
-
-    def code2main(self, code):
-        return self._code_to_main[code]
-
-
-_cnv = Convert()
-
-
-# ------------------------------------------------------------
-
-
 _each_words = re.compile(r' *; *')
 
 
-class IndexEntry(Represent, nodes.Element):
+class IndexEntry(Convert, Represent, nodes.Element):
 
     other_entry_types = ('list')
 
@@ -254,11 +246,11 @@ class IndexEntry(Represent, nodes.Element):
 
         def _index_unit(term, sub1, sub2):
             if etype in ('see', 'seealso'):
-                link = _cnv.type2link(etype)
+                link = self.type2link(etype)
             else:
-                link = _cnv.type2link('uri')
+                link = self.type2link('uri')
 
-            emphasis = _cnv.main2code(main)
+            emphasis = self.main2code(main)
 
             if not sub1:
                 sub1 = self.textclass('')
@@ -302,7 +294,7 @@ class IndexEntry(Represent, nodes.Element):
         return index_units
 
 
-class IndexRack(nodes.Element):
+class IndexRack(Convert, Character, nodes.Element):
     """
     1. self.__init__() Initialization. Reading from settings.
     2. self.append() Importing the IndexUnit object. Preparing for self.update_units().
@@ -413,11 +405,11 @@ class IndexRack(nodes.Element):
 
         # Important: The order in which if/elif decisions are made.
         if ikey:
-            _key, _raw = chop_mark(ikey), ikey
+            _key, _raw = self.chop_mark(ikey), ikey
         elif word in self._classifier_catalog:
-            _key, _raw = chop_mark(self._classifier_catalog[word]), word
+            _key, _raw = self.chop_mark(self._classifier_catalog[word]), word
         else:
-            _key = chop_mark(term.astext())
+            _key = self.chop_mark(term.astext())
             _key, _raw = self.make_classifier_from_first_letter(_key), term.astext()
 
         unit[UNIT_CLSF] = self.textclass(_key, _raw)
@@ -516,7 +508,7 @@ class IndexRack(nodes.Element):
             # if it's see/seealso, reset file_name for no uri. see Convert.
             if i_lnk == 3:
                 # Change the code to string.
-                r_main = _cnv.code2main(i_em)
+                r_main = self.code2main(i_em)
 
                 # uri
                 try:
