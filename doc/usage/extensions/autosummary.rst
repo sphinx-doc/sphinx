@@ -201,12 +201,12 @@ also use these config values:
 
    .. versionadded:: 2.1
 
-   .. versionchanged:: 4.3
+   .. versionchanged:: 4.4
 
-      If ``autosummary_ignore___all__`` is ``False``, this configuration value
-      is ignored for members listed in ``__all__``.
+      If ``autosummary_ignore_module_all`` is ``False``, this configuration
+      value is ignored for members listed in ``__all__``.
 
-.. confval:: autosummary_ignore___all__
+.. confval:: autosummary_ignore_module_all
 
    If ``False`` and a module has the ``__all__`` attribute set, autosummary
    documents every member listed in ``__all__`` and no others. Default is
@@ -215,10 +215,10 @@ also use these config values:
    Note that if an imported member is listed in ``__all__``, it will be
    documented regardless of the value of ``autosummary_imported_members``. To
    match the behaviour of ``from module import *``, set
-   ``autosummary_ignore___all__`` to False and ``autosummary_imported_members``
-   to True.
+   ``autosummary_ignore_module_all`` to False and
+   ``autosummary_imported_members`` to True.
 
-   .. versionadded:: 4.3
+   .. versionadded:: 4.4
 
 .. confval:: autosummary_filename_map
 

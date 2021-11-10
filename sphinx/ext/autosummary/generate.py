@@ -645,7 +645,7 @@ The format of the autosummary directive is documented in the
                         dest='imported_members', default=False,
                         help=__('document imported members (default: '
                                 '%(default)s)'))
-    parser.add_argument('-a', '--respect-__all__', action='store_false',
+    parser.add_argument('-a', '--respect-module-all', action='store_false',
                         dest='ignore___all__', default=True,
                         help=__('document exactly the members in module __all__ attribute. '
                                 '(default: %(default)s)'))

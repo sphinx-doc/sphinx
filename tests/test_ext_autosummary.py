@@ -340,7 +340,7 @@ def test_autosummary_generate(app, status, warning):
     assert doctree[3][0][0][2][5].astext() == 'autosummary_dummy_module.qux\n\na module-level attribute'
 
     module = (app.srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text()
-    print(module)
+
     assert ('   .. autosummary::\n'
             '   \n'
             '      Foo\n'
