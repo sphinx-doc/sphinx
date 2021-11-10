@@ -38,11 +38,7 @@ __released__ = '5.0.0'  # used when Sphinx builds its own docs
 #:
 #: .. versionadded:: 1.2
 #:    Before version 1.2, check the string ``sphinx.__version__``.
-<<<<<<< HEAD
 version_info = (5, 0, 0, 'final', 0)
-=======
-version_info = (4, 4, 0, 'beta', 0)
->>>>>>> 4.x
 
 package_dir = path.abspath(path.dirname(__file__))
 
