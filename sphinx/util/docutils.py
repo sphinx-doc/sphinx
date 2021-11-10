@@ -12,7 +12,6 @@ import os
 import re
 from contextlib import contextmanager
 from copy import copy
-from distutils.version import LooseVersion
 from os import path
 from types import ModuleType
 from typing import (IO, TYPE_CHECKING, Any, Callable, Dict, Generator, List, Optional, Set,
@@ -26,6 +25,7 @@ from docutils.parsers.rst import Directive, directives, roles
 from docutils.parsers.rst.states import Inliner
 from docutils.statemachine import State, StateMachine, StringList
 from docutils.utils import Reporter, unescape
+from packaging import version
 
 from sphinx.errors import SphinxError
 from sphinx.locale import _
@@ -41,7 +41,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
 
 
-__version_info__ = tuple(LooseVersion(docutils.__version__).version)
+__version_info__ = version.parse(docutils.__version__).release
 additional_nodes: Set[Type[Element]] = set()
 
 

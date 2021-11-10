@@ -71,7 +71,7 @@ def test_mathjax_options(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').read_text()
-    assert ('<script async="async" integrity="sha384-0123456789" '
+    assert ('<script defer="defer" integrity="sha384-0123456789" '
             'src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">'
             '</script>' in content)
 

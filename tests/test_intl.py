@@ -1301,6 +1301,44 @@ def getwarning(warnings):
     return strip_escseq(warnings.getvalue().replace(os.sep, '/'))
 
 
+@pytest.mark.sphinx('html', testroot='basic',
+                    srcdir='gettext_allow_fuzzy_translations',
+                    confoverrides={
+                        'language': 'de',
+                        'gettext_allow_fuzzy_translations': True
+                    })
+def test_gettext_allow_fuzzy_translations(app):
+    locale_dir = app.srcdir / 'locales' / 'de' / 'LC_MESSAGES'
+    locale_dir.makedirs()
+    with (locale_dir / 'index.po').open('wb') as f:
+        catalog = Catalog()
+        catalog.add('features', 'FEATURES', flags=('fuzzy',))
+        pofile.write_po(f, catalog)
+
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+    assert 'FEATURES' in content
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    srcdir='gettext_disallow_fuzzy_translations',
+                    confoverrides={
+                        'language': 'de',
+                        'gettext_allow_fuzzy_translations': False
+                    })
+def test_gettext_disallow_fuzzy_translations(app):
+    locale_dir = app.srcdir / 'locales' / 'de' / 'LC_MESSAGES'
+    locale_dir.makedirs()
+    with (locale_dir / 'index.po').open('wb') as f:
+        catalog = Catalog()
+        catalog.add('features', 'FEATURES', flags=('fuzzy',))
+        pofile.write_po(f, catalog)
+
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+    assert 'FEATURES' not in content
+
+
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'language': 'de'})
 def test_customize_system_message(make_app, app_params, sphinx_test_tempdir):
     try:

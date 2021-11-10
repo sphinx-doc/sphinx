@@ -59,7 +59,7 @@ class CatalogInfo(LocaleFileInfoBase):
             not path.exists(self.mo_path) or
             path.getmtime(self.mo_path) < path.getmtime(self.po_path))
 
-    def write_mo(self, locale: str) -> None:
+    def write_mo(self, locale: str, use_fuzzy: bool = False) -> None:
         with open(self.po_path, encoding=self.charset) as file_po:
             try:
                 po = read_po(file_po, locale)
@@ -69,7 +69,7 @@ class CatalogInfo(LocaleFileInfoBase):
 
         with open(self.mo_path, 'wb') as file_mo:
             try:
-                write_mo(file_mo, po)
+                write_mo(file_mo, po, use_fuzzy)
             except Exception as exc:
                 logger.warning(__('writing error: %s, %s'), self.mo_path, exc)
 

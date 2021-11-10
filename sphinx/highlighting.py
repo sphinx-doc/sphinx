@@ -8,11 +8,11 @@
     :license: BSD, see LICENSE for details.
 """
 
-from distutils.version import LooseVersion
 from functools import partial
 from importlib import import_module
 from typing import Any, Dict
 
+from packaging import version
 from pygments import __version__ as pygmentsversion
 from pygments import highlight
 from pygments.filters import ErrorToken
@@ -64,7 +64,7 @@ _LATEX_ADD_STYLES_FIXPYG = r'''
              {\let\fcolorbox\spx@fixpyg@fcolorbox\PYG@do{#2}}}
 \makeatother
 '''
-if tuple(LooseVersion(pygmentsversion).version) <= (2, 7, 4):
+if version.parse(pygmentsversion).release <= (2, 7, 4):
     _LATEX_ADD_STYLES += _LATEX_ADD_STYLES_FIXPYG
 
 

@@ -284,7 +284,8 @@ class Sphinx:
                                      self.config.language, self.config.source_encoding)
             for catalog in repo.catalogs:
                 if catalog.domain == 'sphinx' and catalog.is_outdated():
-                    catalog.write_mo(self.config.language)
+                    catalog.write_mo(self.config.language,
+                                     self.config.gettext_allow_fuzzy_translations)
 
             locale_dirs: List[Optional[str]] = list(repo.locale_dirs)
             locale_dirs += [None]

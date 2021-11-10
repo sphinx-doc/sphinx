@@ -26,7 +26,7 @@ from sphinx import addnodes
 from sphinx.addnodes import desc_signature, pending_xref, pending_xref_condition
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx50Warning
+from sphinx.deprecation import RemovedInSphinx50Warning, RemovedInSphinx60Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, Index, IndexEntry, ObjType
 from sphinx.environment import BuildEnvironment
@@ -495,7 +495,17 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
 
         sig_prefix = self.get_signature_prefix(sig)
         if sig_prefix:
-            signode += addnodes.desc_annotation(str(sig_prefix), '', *sig_prefix)
+            if type(sig_prefix) is str:
+                warnings.warn(
+                    "Python directive method get_signature_prefix()"
+                    " returning a string is deprecated."
+                    " It must now return a list of nodes."
+                    " Return value was '{}'.".format(sig_prefix),
+                    RemovedInSphinx60Warning)
+                signode += addnodes.desc_annotation(sig_prefix, '',  # type: ignore
+                                                    nodes.Text(sig_prefix))  # type: ignore
+            else:
+                signode += addnodes.desc_annotation(str(sig_prefix), '', *sig_prefix)
 
         if prefix:
             signode += addnodes.desc_addname(prefix, prefix)

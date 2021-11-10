@@ -26,8 +26,50 @@ Bugs fixed
 Testing
 --------
 
-Release 4.3.0 (in development)
+Release 4.4.0 (in development)
 ==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 4.3.1 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 4.3.0 (released Nov 11, 2021)
+=====================================
 
 Dependencies
 ------------
@@ -51,7 +93,7 @@ Incompatible changes
 * #9695: The rendering of Javascript domain declarations is implemented
   with more docutils nodes to allow better CSS styling.
   It may break existing styling.
-
+* #9450: mathjax: Load MathJax via "defer" strategy
 
 Deprecated
 ----------
@@ -71,6 +113,8 @@ Features added
 * #9691: C, added new info-field ``retval``
   for :rst:dir:`c:function` and :rst:dir:`c:macro`.
 * C++, added new info-field ``retval`` for :rst:dir:`cpp:function`.
+* #9618: i18n: Add :confval:`gettext_allow_fuzzy_translations` to allow "fuzzy"
+  messages for translation
 * #9672: More CSS classes on Python domain descriptions
 * #9695: More CSS classes on Javascript domain descriptions
 * #9683: Revert the removal of ``add_stylesheet()`` API.  It will be kept until
@@ -80,6 +124,8 @@ Features added
   inventory specification. Specific types of cross-references can be disabled,
   e.g., ``std:doc`` or all cross-references in a specific domain,
   e.g., ``std:*``.
+* #9623: Allow to suppress "toctree contains reference to excluded document"
+  warnings using :confval:`suppress_warnings`
 
 Bugs fixed
 ----------
@@ -122,30 +168,6 @@ Bugs fixed
 * #9656: Fix warnings without subtype being incorrectly suppressed
 * Intersphinx, for unresolved references with an explicit inventory,
   e.g., ``proj:myFunc``, leave the inventory prefix in the unresolved text.
-
-Testing
---------
-
-Release 4.2.1 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
 
 Release 4.2.0 (released Sep 12, 2021)
 =====================================
