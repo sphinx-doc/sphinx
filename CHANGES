@@ -1,5 +1,5 @@
-Release 4.3.0 (in development)
-==============================
+Release 4.3.0 (released Nov 11, 2021)
+=====================================
 
 Dependencies
 ------------
@@ -24,7 +24,6 @@ Incompatible changes
   with more docutils nodes to allow better CSS styling.
   It may break existing styling.
 * #9450: mathjax: Load MathJax via "defer" strategy
-
 
 Deprecated
 ----------
@@ -99,30 +98,6 @@ Bugs fixed
 * #9656: Fix warnings without subtype being incorrectly suppressed
 * Intersphinx, for unresolved references with an explicit inventory,
   e.g., ``proj:myFunc``, leave the inventory prefix in the unresolved text.
-
-Testing
---------
-
-Release 4.2.1 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
 
 Release 4.2.0 (released Sep 12, 2021)
 =====================================
