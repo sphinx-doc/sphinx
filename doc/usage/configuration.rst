@@ -1553,6 +1553,13 @@ Options for Single HTML output
    are ignored.  For more information, refer to :confval:`html_sidebars`.  By
    default, it is same as :confval:`html_sidebars`.
 
+.. confval:: singlehtml_toctree
+
+   If true, TOC tree directives are inserted at their current locations,
+   instead of being replaced.  Default is ``False``.  This can be useful if a
+   documentation's theme does not support sidebar TOC trees or is configured
+   with sidebars disabled.
+
 
 .. _htmlhelp-options:
 
