@@ -401,8 +401,8 @@ def process_index_entry(entry: str, targetid: str
 
 
 def inline_all_toctrees(builder: "Builder", docnameset: Set[str], docname: str,
-                        tree: nodes.document, colorfunc: Callable, traversed: List[str]
-                        ) -> nodes.document:
+                        tree: nodes.document, colorfunc: Callable, traversed: List[str],
+                        replace: bool = True) -> nodes.document:
     """Inline all toctrees in the *tree*.
 
     Record all docnames in *docnameset*, and output docnames with *colorfunc*.
@@ -418,7 +418,7 @@ def inline_all_toctrees(builder: "Builder", docnameset: Set[str], docname: str,
                     logger.info(colorfunc(includefile) + " ", nonl=True)
                     subtree = inline_all_toctrees(builder, docnameset, includefile,
                                                   builder.env.get_doctree(includefile),
-                                                  colorfunc, traversed)
+                                                  colorfunc, traversed, replace=replace)
                     docnameset.add(includefile)
                 except Exception:
                     logger.warning(__('toctree contains ref to nonexisting file %r'),
@@ -430,7 +430,13 @@ def inline_all_toctrees(builder: "Builder", docnameset: Set[str], docname: str,
                         if 'docname' not in sectionnode:
                             sectionnode['docname'] = includefile
                     newnodes.append(sof)
-        toctreenode.parent.replace(toctreenode, newnodes)
+
+        if replace:
+            toctreenode.parent.replace(toctreenode, newnodes)
+        else:
+            for node in newnodes:
+                toctreenode.parent.append(node)
+
     return tree
 
 
