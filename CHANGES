@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #9838: autodoc: AttributeError is raised on building document for functions
+  decorated by functools.lru_cache
+
 Testing
 --------
 
