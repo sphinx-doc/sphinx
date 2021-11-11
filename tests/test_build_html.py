@@ -596,6 +596,56 @@ def test_tocdepth_singlehtml(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
+@pytest.mark.parametrize("fname,expect", flat_dict({
+    'index.html': [
+        (".//li[@class='toctree-l3']/a", '1.1.1. Foo A1', True),
+        (".//li[@class='toctree-l3']/a", '1.2.1. Foo B1', True),
+        (".//li[@class='toctree-l3']/a", '2.1.1. Bar A1', False),
+        (".//li[@class='toctree-l3']/a", '2.2.1. Bar B1', False),
+
+        # index.rst
+        (".//h1", 'test-tocdepth', True),
+
+        # foo.rst
+        (".//h2", 'Foo', True),
+        (".//h3", 'Foo A', True),
+        (".//h4", 'Foo A1', True),
+        (".//h3", 'Foo B', True),
+        (".//h4", 'Foo B1', True),
+        (".//h2//span[@class='section-number']", '1. ', True),
+        (".//h3//span[@class='section-number']", '1.1. ', True),
+        (".//h4//span[@class='section-number']", '1.1.1. ', True),
+        (".//h3//span[@class='section-number']", '1.2. ', True),
+        (".//h4//span[@class='section-number']", '1.2.1. ', True),
+
+        # bar.rst
+        (".//h2", 'Bar', True),
+        (".//h3", 'Bar A', True),
+        (".//h3", 'Bar B', True),
+        (".//h4", 'Bar B1', True),
+        (".//h2//span[@class='section-number']", '2. ', True),
+        (".//h3//span[@class='section-number']", '2.1. ', True),
+        (".//h3//span[@class='section-number']", '2.2. ', True),
+        (".//h4//span[@class='section-number']", '2.2.1. ', True),
+
+        # baz.rst
+        (".//h4", 'Baz A', True),
+        (".//h4//span[@class='section-number']", '2.1.1. ', True),
+    ],
+}))
+@pytest.mark.sphinx(
+    'singlehtml',
+    testroot='tocdepth',
+    confoverrides={
+        'html_theme': 'basic',
+        'singlehtml_toctree': True,
+    })
+@pytest.mark.test_params(shared_result='test_build_singlehtml_tocdepth_toctree')
+def test_tocdepth_singlehtml_toctree(app, cached_etree_parse, fname, expect):
+    app.build()
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+
+
 @pytest.mark.sphinx('html', testroot='numfig')
 @pytest.mark.test_params(shared_result='test_build_html_numfig')
 def test_numfig_disabled_warn(app, warning):
