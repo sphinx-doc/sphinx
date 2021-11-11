@@ -76,9 +76,10 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
     def assemble_doctree(self) -> nodes.document:
         master = self.config.root_doc
         tree = self.env.get_doctree(master)
-        tree = inline_all_toctrees(self, set(), master, tree, darkgreen, [master])
+        tree = inline_all_toctrees(self, set(), master, tree, darkgreen, [master],
+                                   replace=not self.config.singlehtml_toctree)
         tree['docname'] = master
-        self.env.resolve_references(tree, master, self)
+        self.env.get_and_resolve_doctree(master, self, doctree=tree)
         self.fix_refuris(tree)
         return tree
 
@@ -191,6 +192,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     app.add_builder(SingleFileHTMLBuilder)
     app.add_config_value('singlehtml_sidebars', lambda self: self.html_sidebars, 'html')
+    app.add_config_value('singlehtml_toctree', False, 'html')
 
     return {
         'version': 'builtin',
