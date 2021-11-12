@@ -112,7 +112,7 @@ class ExternalLinksChecker(SphinxPostTransform):
     We treat each ``reference`` node without ``internal`` attribute as an external link.
     """
 
-    default_priority = 900
+    default_priority = 100
 
     def run(self, **kwargs: Any) -> None:
         for refnode in self.document.traverse(reference):
@@ -127,8 +127,7 @@ class ExternalLinksChecker(SphinxPostTransform):
             return
 
         uri = refnode['refuri']
-        lineno = sphinx.util.nodes.get_node_line(refnode)
-        cache = getattr(self.app.env, 'intersphinx_cache', dict())
+        cache = self.app.env.intersphinx_cache
 
         for inventory_uri, (inventory_name, size, inventory) in cache.items():
             if uri.startswith(inventory_uri):
@@ -136,16 +135,15 @@ class ExternalLinksChecker(SphinxPostTransform):
                 replacements = find_replacements(self.app, uri)
                 try:
                     suggestion = f'try using {next(replacements)!r} instead'
-                    location = (self.env.docname, lineno)
                     logger.warning(
-                        (
+                        __(
                             'hardcoded link %r could be replaced by '
                             'a cross-reference to %r inventory (%s)'
                         ),
                         uri,
                         inventory_name,
                         suggestion,
-                        location=location,
+                        location=refnode,
                     )
                 except StopIteration:
                     pass
