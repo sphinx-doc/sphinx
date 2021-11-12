@@ -42,6 +42,8 @@ from sphinx.util import logging
 from sphinx.util.nodes import split_explicit_title
 from sphinx.util.typing import RoleFunction
 
+logger = logging.getLogger(__name__)
+
 
 class ExternalLinksChecker(SphinxPostTransform):
     """
@@ -50,7 +52,7 @@ class ExternalLinksChecker(SphinxPostTransform):
     We treat each ``reference`` node without ``internal`` attribute as an external link.
     """
 
-    default_priority = 900
+    default_priority = 100
 
     def run(self, **kwargs: Any) -> None:
         for refnode in self.document.traverse(nodes.reference):
@@ -65,21 +67,18 @@ class ExternalLinksChecker(SphinxPostTransform):
             return
 
         uri = refnode['refuri']
-        lineno = sphinx.util.nodes.get_node_line(refnode)
-        extlinks_config = getattr(self.app.config, 'extlinks', dict())
 
-        for alias, (base_uri, caption) in extlinks_config.items():
+        for alias, (base_uri, caption) in self.app.config.extlinks.items():
             uri_pattern = re.compile(base_uri.replace('%s', '(?P<value>.+)'))
             match = uri_pattern.match(uri)
             if match and match.groupdict().get('value'):
                 # build a replacement suggestion
                 replacement = f":{alias}:`{match.groupdict().get('value')}`"
-                location = (self.env.docname, lineno)
                 logger.warning(
-                    'hardcoded link %r could be replaced by an extlink (try using %r instead)',
+                    __('hardcoded link %r could be replaced by an extlink (try using %r instead)'),
                     uri,
                     replacement,
-                    location=location,
+                    location=refnode,
                 )
 
 
