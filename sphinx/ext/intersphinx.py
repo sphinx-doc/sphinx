@@ -127,7 +127,7 @@ class ExternalLinksChecker(SphinxPostTransform):
             return
 
         uri = refnode['refuri']
-        cache = self.app.env.intersphinx_cache
+        cache = getattr(self.app.env, 'intersphinx_cache', dict())
 
         for inventory_uri, (inventory_name, size, inventory) in cache.items():
             if uri.startswith(inventory_uri):
