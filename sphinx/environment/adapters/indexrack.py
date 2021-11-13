@@ -19,7 +19,7 @@ from sphinx.locale import _, __
 from sphinx.util import logging
 
 # Update separately from the package version, since 2021-11-07
-__version__ = "1.5.20211110"
+__version__ = "2.0.20211114"
 # x.y.YYYYMMDD[.HHMI]
 # - x: changes that need to be addressed by the user.
 # - y: changes that do not require a response from the user.
@@ -409,13 +409,13 @@ class IndexRack(Convert, Character, nodes.Element):
         elif word in self._classifier_catalog:
             _key, _raw = self.chop_mark(self._classifier_catalog[word]), word
         else:
-            _key = self.chop_mark(term.astext())
-            _key, _raw = self.make_classifier_from_first_letter(_key), term.astext()
+            _key, _raw = self.make_classifier_from_first_letter(term), term.astext()
 
         unit[UNIT_CLSF] = self.textclass(_key, _raw)
         unit[UNIT_CLSF].whatiam = 'classifier'
 
-    def make_classifier_from_first_letter(self, text):
+    def make_classifier_from_first_letter(self, term):
+        text = self.chop_mark(term.astext())
         if text[0].upper().isalpha() or text.startswith('_'):
             return text[0].upper()
         else:
