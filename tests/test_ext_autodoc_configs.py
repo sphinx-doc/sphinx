@@ -880,6 +880,43 @@ def test_autodoc_typehints_description_no_undoc(app):
 
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
                     confoverrides={'autodoc_typehints': "description"})
+def test_autodoc_typehints_description_without_documented_init(app):
+    (app.srcdir / 'index.rst').write_text(
+        '.. autoclass:: target.typehints._ClassWithDocumentedoutInitAndStarArgs\n'
+        '   :special-members: __init__\n'
+    )
+    app.build()
+    context = (app.outdir / 'index.txt').read_text()
+    assert ('class target.typehints._ClassWithDocumentedoutInitAndStarArgs(x, *args, **kwargs)\n'
+            '\n'
+            '   Class docstring.\n'
+            '\n'
+            '   Parameters:\n'
+            '      * **x** (*int*) --\n'
+            '\n'
+            '      * ***args** (*int*) --\n'
+            '\n'
+            '      * ****kwargs** (*int*) --\n'
+            '\n'
+            '   Return type:\n'
+            '      None\n'
+            '\n'
+            '   __init__(x, *args, **kwargs)\n'
+            '\n'
+            '      Parameters:\n'
+            '         * **x** (*int*) --\n'
+            '\n'
+            '         * ***args** (*int*) --\n'
+            '\n'
+            '         * ****kwargs** (*int*) --\n'
+            '\n'
+            '      Return type:\n'
+            '         None\n' == context)
+
+
+
+@pytest.mark.sphinx('text', testroot='ext-autodoc',
+                    confoverrides={'autodoc_typehints': "description"})
 def test_autodoc_typehints_description_with_documented_init(app):
     (app.srcdir / 'index.rst').write_text(
         '.. autoclass:: target.typehints._ClassWithDocumentedInitAndStarArgs\n'
@@ -944,6 +981,44 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc(app):
             '         * **args** (*int*) -- Some integer\n'
             '\n'
             '         * **kwargs** (*int*) -- Some integer\n'
+            == context)
+
+
+@pytest.mark.sphinx('text', testroot='ext-autodoc',
+                    confoverrides={'autodoc_typehints': "description"})
+def test_autodoc_typehints_description_without_documented_init_no_undoc(app):
+    (app.srcdir / 'index.rst').write_text(
+        '.. autoclass:: target.typehints._ClassWithoutDocumentedInit\n'
+        '   :special-members: __init__\n'
+    )
+    app.build()
+    context = (app.outdir / 'index.txt').read_text()
+    assert ('class target.typehints._ClassWithoutDocumentedInit(x, args, kwargs)\n'
+            '\n'
+            '   Class docstring.\n'
+            '\n'
+            '   Parameters:\n'
+            '      * **x** (*int*) --\n'
+            '\n'
+            '      * **args** (*int*) --\n'
+            '\n'
+            '      * **kwargs** (*int*) --\n'
+            '\n'
+            '   Return type:\n'
+            '      None\n'
+
+            '\n'
+            '   __init__(x, args, kwargs)\n'
+            '\n'
+            '      Parameters:\n'
+            '         * **x** (*int*) --\n'
+            '\n'
+            '         * **args** (*int*) --\n'
+            '\n'
+            '         * **kwargs** (*int*) --\n'
+            '\n'
+            '      Return type:\n'
+            '         None\n'
             == context)
 
 

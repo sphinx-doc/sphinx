@@ -92,6 +92,13 @@ class _ClassWithDocumentedInit:
         """
 
 
+class _ClassWithoutDocumentedInit:
+    """Class docstring."""
+
+    def __init__(self, x: int, args: int, kwargs: int) -> None:
+        pass
+
+
 class _ClassWithDocumentedInitAndStarArgs:
     """Class docstring."""
 
@@ -102,3 +109,10 @@ class _ClassWithDocumentedInitAndStarArgs:
         :param *args: Some integer
         :param **kwargs: Some integer
         """
+
+
+class _ClassWithDocumentedoutInitAndStarArgs:
+    """Class docstring."""
+
+    def __init__(self, x: int, *args: int, **kwargs: int) -> None:
+        pass
