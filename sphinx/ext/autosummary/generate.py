@@ -68,7 +68,7 @@ class DummyApplication:
 
         self.config.add('autosummary_context', {}, True, None)
         self.config.add('autosummary_filename_map', {}, True, None)
-        self.config.add('autosummary_ignore___all__', True, 'env', bool)
+        self.config.add('autosummary_ignore_module_all', True, 'env', bool)
         self.config.init_values()
 
     def emit_firstresult(self, *args: Any) -> None:
@@ -219,7 +219,7 @@ class ModuleScanner:
             elif imported is False:
                 # list not-imported members
                 members.append(name)
-            elif '__all__' in dir(self.object) and not self.app.config.autosummary_ignore___all__:
+            elif '__all__' in dir(self.object) and not self.app.config.autosummary_ignore_module_all:
                 # list members that have __all__ set
                 members.append(name)
 
@@ -228,9 +228,9 @@ class ModuleScanner:
 def members_of(conf: Config, obj: Any) -> Sequence[str]:
     """Get the members of ``obj``, possibly ignoring the ``__all__`` module attribute
 
-    Follows the ``conf.autosummary_ignore___all__`` setting."""
+    Follows the ``conf.autosummary_ignore_module_all`` setting."""
 
-    if conf.autosummary_ignore___all__:
+    if conf.autosummary_ignore_module_all:
         return dir(obj)
     else:
         return getall(obj) or dir(obj)
@@ -645,8 +645,8 @@ The format of the autosummary directive is documented in the
                         dest='imported_members', default=False,
                         help=__('document imported members (default: '
                                 '%(default)s)'))
-    parser.add_argument('-a', '--respect-module-all', action='store_false',
-                        dest='ignore___all__', default=True,
+    parser.add_argument('-a', '--respect-module-all', action='store_true',
+                        dest='respect_module_all', default=False,
                         help=__('document exactly the members in module __all__ attribute. '
                                 '(default: %(default)s)'))
 
@@ -665,7 +665,7 @@ def main(argv: List[str] = sys.argv[1:]) -> None:
 
     if args.templates:
         app.config.templates_path.append(path.abspath(args.templates))
-    app.config.autosummary_ignore___all__ = args.ignore___all__
+    app.config.autosummary_ignore_module_all = not args.respect_module_all
 
     generate_autosummary_docs(args.source_file, args.output_dir,
                               '.' + args.suffix,

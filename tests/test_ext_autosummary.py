@@ -238,7 +238,7 @@ def test_autosummary_generate_content_for_module(app):
 def test_autosummary_generate_content_for_module___all__(app):
     import autosummary_dummy_module
     template = Mock()
-    app.config.autosummary_ignore___all__ = False
+    app.config.autosummary_ignore_module_all = False
 
     generate_autosummary_content('autosummary_dummy_module', autosummary_dummy_module, None,
                                  template, None, False, app, False, {})
