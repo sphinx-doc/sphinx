@@ -243,8 +243,7 @@ Sphinx also supports documenting and cross-referencing objects written in
 other programming languages. There are four extra built-in domains:
 C, C++, JavaScript, and reStructuredText, and third party extensions may
 define domains for more languages, such as
-`.NET <https://sphinxcontrib-dotnetdomain.readthedocs.io>`,
-`Fortran <https://sphinx-fortran.readthedocs.io>`_,
+`Fortran <https://sphinx-fortran.readthedocs.io>`_
 or `Julia <http://bastikr.github.io/sphinx-julia>`_.
 
 For example, to document a C++ type definition, you would use the built-in
