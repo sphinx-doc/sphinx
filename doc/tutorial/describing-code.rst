@@ -262,7 +262,7 @@ Which would give the following result:
 
    A typedef-like declaration of a type.
 
-All such directives then generate generate references that can be
+All such directives then generate references that can be
 cross-referenced by using the corresponding role. For example, to reference
 the previous type definition, you can use the :rst:role:`cpp:type` role
 as follows:
