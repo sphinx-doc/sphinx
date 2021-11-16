@@ -36,7 +36,7 @@ def settings(app):
     settings.env = app.builder.env
     settings.env.temp_data['docname'] = 'dummy'
     settings.contentsname = 'dummy'
-    settings.rfc_base_url = 'http://tools.ietf.org/html/'
+    settings.rfc_base_url = 'http://datatracker.ietf.org/doc/html/'
     domain_context = sphinx_domains(settings.env)
     domain_context.enable()
     yield settings
@@ -181,10 +181,10 @@ def get_verifier(verify, verify_re):
         'verify',
         ':rfc:`2324`',
         ('<p><span class="target" id="index-0"></span><a class="rfc reference external" '
-         'href="http://tools.ietf.org/html/rfc2324.html"><strong>RFC 2324</strong></a></p>'),
+         'href="http://datatracker.ietf.org/doc/html/rfc2324.html"><strong>RFC 2324</strong></a></p>'),
         ('\\sphinxAtStartPar\n'
          '\\index{RFC@\\spxentry{RFC}!RFC 2324@\\spxentry{RFC 2324}}'
-         '\\sphinxhref{http://tools.ietf.org/html/rfc2324.html}'
+         '\\sphinxhref{http://datatracker.ietf.org/doc/html/rfc2324.html}'
          '{\\sphinxstylestrong{RFC 2324}}')
     ),
     (
@@ -192,11 +192,11 @@ def get_verifier(verify, verify_re):
         'verify',
         ':rfc:`2324#id1`',
         ('<p><span class="target" id="index-0"></span><a class="rfc reference external" '
-         'href="http://tools.ietf.org/html/rfc2324.html#id1">'
+         'href="http://datatracker.ietf.org/doc/html/rfc2324.html#id1">'
          '<strong>RFC 2324#id1</strong></a></p>'),
         ('\\sphinxAtStartPar\n'
          '\\index{RFC@\\spxentry{RFC}!RFC 2324\\#id1@\\spxentry{RFC 2324\\#id1}}'
-         '\\sphinxhref{http://tools.ietf.org/html/rfc2324.html\\#id1}'
+         '\\sphinxhref{http://datatracker.ietf.org/doc/html/rfc2324.html\\#id1}'
          '{\\sphinxstylestrong{RFC 2324\\#id1}}')
     ),
     (

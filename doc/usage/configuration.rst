@@ -1005,7 +1005,7 @@ that use Sphinx's HTMLWriter class.
    to indicate the location of document using `The Canonical Link Relation`_.
    Default: ``''``.
 
-   .. _The Canonical Link Relation: https://tools.ietf.org/html/rfc6596
+   .. _The Canonical Link Relation: https://datatracker.ietf.org/doc/html/rfc6596
 
    .. versionadded:: 1.8
 
@@ -2679,7 +2679,7 @@ Options for the linkcheck builder
    doubling the wait time between attempts until it succeeds or exceeds the
    ``linkcheck_rate_limit_timeout``. By default, the timeout is 5 minutes.
 
-   .. _Retry-After: https://tools.ietf.org/html/rfc7231#section-7.1.3
+   .. _Retry-After: https://datatracker.ietf.org/doc/html/rfc7231#section-7.1.3
 
    .. versionadded:: 3.4
 
