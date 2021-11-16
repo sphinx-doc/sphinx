@@ -19,6 +19,8 @@ Features added
 Bugs fixed
 ----------
 
+* #9857: Generated RFC links use outdated base url
+
 Testing
 --------
 
