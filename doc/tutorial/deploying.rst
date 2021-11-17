@@ -55,3 +55,27 @@ All these options have zero cost, with the option of paying for extra features.
 .. _GitLab CI: https://about.gitlab.com/stages-devops-lifecycle/continuous-integration/
 .. _Netlify: https://www.netlify.com/
 .. _"Jamstack": https://jamstack.org/
+
+Embracing the "Docs as Code" philosophy
+---------------------------------------
+
+The free offerings of most of the options listed above require your
+documentation sources to be publicly available. Moreover, these services
+expect you to use a `Version Control System`_, a technology that tracks the
+evolution of a collection of files as a series of snapshots ("commits").
+The practice of writing documentation in plain text files with the same tools
+as the ones used for software development is commonly known as `"Docs as Code"`_.
+
+The most popular Version Control System nowadays is Git_, a free and open
+source tool that is the backbone of services like GitHub and GitLab.
+Since both Read the Docs and Netlify have integrations with GitHub and GitLab,
+and both GitHub and GitLab have an integrated Pages product, the most effective
+way of automatically build your documentation online is to upload your sources
+to either of these Git hosting services.
+
+The rest of this section will focus on GitHub, which is the most popular Git
+hosting service nowadays. It is very similar to GitLab.
+
+.. _Version Control System: https://en.wikipedia.org/wiki/Version_control
+.. _"Docs as Code": https://www.writethedocs.org/guide/docs-as-code/
+.. _Git: https://git-scm.com/
