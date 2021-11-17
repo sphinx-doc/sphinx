@@ -13,11 +13,16 @@ Deprecated
 Features added
 --------------
 
+* #9864: mathjax: Support chnaging the loading method of MathJax to "defer" via
+  :confval:`mathjax_options`
+
 Bugs fixed
 ----------
 
 * #9838: autodoc: AttributeError is raised on building document for functions
   decorated by functools.lru_cache
+* #9864: mathjax: Failed to render equations via MathJax v2.  The loading method
+  of MathJax is back to "async" method again
 
 Testing
 --------
