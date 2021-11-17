@@ -1655,6 +1655,14 @@ Bugs fixed
   :confval:`intersphinx_mapping` on :event:`config-inited` event
 * #7343: Sphinx builds has been slower since 2.4.0 on debug mode
 
+Release 2.4.5 (released Nov 18, 2021)
+=====================================
+
+Dependencies
+------------
+
+* #9807: Restrict docutils to 0.17.x or older
+
 Release 2.4.4 (released Mar 05, 2020)
 =====================================
 
