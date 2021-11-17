@@ -1,25 +1,10 @@
-Release 2.4.5 (in development)
-==============================
+Release 2.4.5 (released Nov 18, 2021)
+=====================================
 
 Dependencies
 ------------
 
 * #9807: Restrict docutils to 0.17.x or older
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
 
 Release 2.4.4 (released Mar 05, 2020)
 =====================================
