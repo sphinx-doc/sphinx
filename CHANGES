@@ -4,6 +4,8 @@ Release 2.4.5 (in development)
 Dependencies
 ------------
 
+* #9807: Restrict docutils to 0.17.x or older
+
 Incompatible changes
 --------------------
 
