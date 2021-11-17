@@ -2491,6 +2491,14 @@ Testing
 
 * Add a helper function: ``sphinx.testing.restructuredtext.parse()``
 
+Release 1.8.6 (released Nov 18, 2021)
+=====================================
+
+Dependencies
+------------
+
+* #9807: Restrict docutils to 0.17.x or older
+
 Release 1.8.5 (released Mar 10, 2019)
 =====================================
 
