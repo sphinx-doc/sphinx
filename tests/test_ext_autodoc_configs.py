@@ -914,7 +914,6 @@ def test_autodoc_typehints_description_without_documented_init(app):
             '         None\n' == context)
 
 
-
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
                     confoverrides={'autodoc_typehints': "description"})
 def test_autodoc_typehints_description_with_documented_init(app):
@@ -980,8 +979,7 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc(app):
             '\n'
             '         * **args** (*int*) -- Some integer\n'
             '\n'
-            '         * **kwargs** (*int*) -- Some integer\n'
-            == context)
+            '         * **kwargs** (*int*) -- Some integer\n' == context)
 
 
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
@@ -1018,8 +1016,7 @@ def test_autodoc_typehints_description_without_documented_init_no_undoc(app):
             '         * **kwargs** (*int*) --\n'
             '\n'
             '      Return type:\n'
-            '         None\n'
-            == context)
+            '         None\n' == context)
 
 
 @pytest.mark.sphinx('text', testroot='ext-autodoc',

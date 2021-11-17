@@ -19,8 +19,7 @@ from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.util import inspect, typing
 
-
-__ANNOTATION_KIND_TO_PARAM_PREFIX = {
+__ANNOTATION_KIND_TO_PARAM_PREFIX: Dict[inspect.inspect._ParameterKind, str] = {
     inspect.Parameter.VAR_POSITIONAL: '*',
     inspect.Parameter.VAR_KEYWORD: '**',
 }
