@@ -41,8 +41,13 @@ Deprecated
 Features added
 --------------
 
+* #9815: html theme: Wrap sidebar components in div to allow customizing their
+  layout via CSS
+
 Bugs fixed
 ----------
+
+* #9857: Generated RFC links use outdated base url
 
 Testing
 --------
@@ -64,6 +69,9 @@ Features added
 
 Bugs fixed
 ----------
+
+* #9838: autodoc: AttributeError is raised on building document for functions
+  decorated by functools.lru_cache
 
 Testing
 --------
@@ -1675,6 +1683,14 @@ Bugs fixed
   :confval:`intersphinx_mapping` on :event:`config-inited` event
 * #7343: Sphinx builds has been slower since 2.4.0 on debug mode
 
+Release 2.4.5 (released Nov 18, 2021)
+=====================================
+
+Dependencies
+------------
+
+* #9807: Restrict docutils to 0.17.x or older
+
 Release 2.4.4 (released Mar 05, 2020)
 =====================================
 
@@ -2510,6 +2526,14 @@ Testing
 2.0.0b2
 
 * Add a helper function: ``sphinx.testing.restructuredtext.parse()``
+
+Release 1.8.6 (released Nov 18, 2021)
+=====================================
+
+Dependencies
+------------
+
+* #9807: Restrict docutils to 0.17.x or older
 
 Release 1.8.5 (released Mar 10, 2019)
 =====================================

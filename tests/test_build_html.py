@@ -225,9 +225,9 @@ def test_html4_output(app, status, warning):
         (".//a[@href='https://www.python.org/dev/peps/pep-0008']"
          "[@class='pep reference external']/strong",
          'Python Enhancement Proposal #8'),
-        (".//a[@href='https://tools.ietf.org/html/rfc1.html']"
+        (".//a[@href='https://datatracker.ietf.org/doc/html/rfc1.html']"
          "[@class='rfc reference external']/strong", 'RFC 1'),
-        (".//a[@href='https://tools.ietf.org/html/rfc1.html']"
+        (".//a[@href='https://datatracker.ietf.org/doc/html/rfc1.html']"
          "[@class='rfc reference external']/strong", 'Request for Comments #1'),
         (".//a[@href='objects.html#envvar-HOME']"
          "[@class='reference internal']/code/span[@class='pre']", 'HOME'),
