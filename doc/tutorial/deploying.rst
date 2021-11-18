@@ -230,3 +230,50 @@ select the ``gh-pages`` branch in the "Source" dropdown menu, and click
 the designated URL.
 
 .. _enable GitHub Pages on your repository: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
+
+GitLab Pages
+~~~~~~~~~~~~
+
+`GitLab Pages`_, on the other hand, requires you to :ref:`publish your
+sources <publishing-sources>` on `GitLab`_. When you are ready, you can
+automate the process of running ``make html`` using `GitLab CI`_.
+
+After you have published your sources on GitLab, create a file named
+``.gitlab-ci.yml`` in your repository with these contents:
+
+.. code-block:: yaml
+   :caption: .gitlab-ci.yml
+
+   stages:
+     - deploy
+
+   pages:
+     stage: deploy
+     image: python:3.9-slim
+     before_script:
+       - apt-get update && apt-get install make --no-install-recommends -y
+       - python -m pip install sphinx furo
+     script:
+       - cd docs && make html
+     after_script:
+       - mv docs/build/html/ ./public/
+     artifacts:
+       paths:
+       - public
+     rules:
+       - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+
+This contains a GitLab CI workflow with one job of several steps:
+
+1. Install the necessary dependencies.
+2. Build the HTML documentation using Sphinx.
+3. Move the output to a known artifacts location.
+
+.. note::
+   You will need to `validate your account`_ by entering a payment method
+   (you will be charged a small amount that will then be reimbursed).
+
+.. _validate your account: https://about.gitlab.com/blog/2021/05/17/prevent-crypto-mining-abuse/#validating-an-account
+
+After that, if the pipeline is successful, you should be able to see your HTML
+at the designated URL.
