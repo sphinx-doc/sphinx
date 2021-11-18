@@ -205,10 +205,6 @@ contents:
            github_token: ${{ secrets.GITHUB_TOKEN }}
            publish_dir: docs/build/html
 
-.. todo::
-   Some more changes are needed to tell the Sphinx action to install the
-   dependencies.
-
 This contains a GitHub Actions workflow with a single job of four steps:
 
 1. Checkout the code.
@@ -218,9 +214,18 @@ This contains a GitHub Actions workflow with a single job of four steps:
 4. If the change happens on the default branch, take the contents of
    ``docs/build/html`` and push it to the ``gh-pages`` branch.
 
-After that, you are ready to `enable GitHub Pages on your repository`_. For that,
-go to :guilabel:`Settings`, then :guilabel:`Pages` on the left sidebar, select
-the ``gh-pages`` branch in the "Source" dropdown menu, and click
+Next, you need to specify the dependencies for the ``make html`` step to be
+successful. For that, create a file ``docs/requirements.txt`` and add the
+following contents:
+
+.. code-block::
+   :caption: docs/requirements.txt
+
+   furo==2021.11.16
+
+And finally, you are ready to `enable GitHub Pages on your repository`_. For
+that, go to :guilabel:`Settings`, then :guilabel:`Pages` on the left sidebar,
+select the ``gh-pages`` branch in the "Source" dropdown menu, and click
 :guilabel:`Save`. After a few minutes, you should be able to see your HTML at
 the designated URL.
 
