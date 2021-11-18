@@ -109,6 +109,7 @@ texinfo_documents = [
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3/', None),
     'requests': ('https://requests.readthedocs.io/en/master', None),
+    'readthedocs': ('https://docs.readthedocs.io/en/stable', None),
 }
 
 # Sphinx document translation with sphinx gettext feature uses these settings:

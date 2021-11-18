@@ -152,3 +152,76 @@ learn more, you can:
          only the web
          interface <https://gitlab.com/gitlab-org/gitlab/-/issues/228490>`_ is
          not yet implemented.
+
+Publishing your HTML documentation
+----------------------------------
+
+Read the Docs
+~~~~~~~~~~~~~
+
+`Read the Docs`_ offers integration with both GitHub and GitLab. The quickest
+way of getting started is to follow :doc:`the RTD
+tutorial <readthedocs:tutorial/index>`, which is loosely based on this one.
+You can publish your sources on GitHub as explained :ref:`in the previous
+section <publishing-sources>`, then skip directly to
+:ref:`readthedocs:tutorial/index:Sign up for Read the Docs`.
+If you choose GitLab instead, the process is similar.
+
+GitHub Pages
+~~~~~~~~~~~~
+
+`GitHub Pages`_ requires you to :ref:`publish your
+sources <publishing-sources>` on `GitHub`_. After that, you will need an
+automated process that performs the ``make html`` step every time the sources
+change. That can be achieved using `GitHub Actions`_.
+
+After you have published your sources on GitHub, create a file named
+``.github/workflows/sphinx.yml`` in your repository with the following
+contents:
+
+.. code-block:: yaml
+   :caption: .github/workflows/
+
+   name: Sphinx build
+
+   on: push
+
+   jobs:
+     build:
+       runs-on: ubuntu-latest
+       steps:
+       - uses: actions/checkout@v2
+       - name: Build HTML
+         uses: ammaraskar/sphinx-action@0.4
+       - name: Upload artifacts
+         uses: actions/upload-artifact@v1
+         with:
+           name: html-docs
+           path: docs/build/html/
+       - name: Deploy
+         uses: peaceiris/actions-gh-pages@v3
+         if: github.ref == 'refs/heads/main'
+         with:
+           github_token: ${{ secrets.GITHUB_TOKEN }}
+           publish_dir: docs/build/html
+
+.. todo::
+   Some more changes are needed to tell the Sphinx action to install the
+   dependencies.
+
+This contains a GitHub Actions workflow with a single job of four steps:
+
+1. Checkout the code.
+2. Build the HTML documentation using Sphinx.
+3. Attach the HTML output the artifacts to the GitHub Actions job, for easier
+   inspection.
+4. If the change happens on the default branch, take the contents of
+   ``docs/build/html`` and push it to the ``gh-pages`` branch.
+
+After that, you are ready to `enable GitHub Pages on your repository`_. For that,
+go to :guilabel:`Settings`, then :guilabel:`Pages` on the left sidebar, select
+the ``gh-pages`` branch in the "Source" dropdown menu, and click
+:guilabel:`Save`. After a few minutes, you should be able to see your HTML at
+the designated URL.
+
+.. _enable GitHub Pages on your repository: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
