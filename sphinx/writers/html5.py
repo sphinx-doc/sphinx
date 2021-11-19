@@ -56,6 +56,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     """
 
     builder: "StandaloneHTMLBuilder" = None
+    # Override docutils.writers.html5_polyglot:HTMLTranslator
+    # otherwise, nodes like <inline classes="s">...</inline> will be
+    # converted to <s>...</s> by `visit_inline`.
+    supported_inline_tags = set()
 
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
