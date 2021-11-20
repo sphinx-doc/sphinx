@@ -1,8 +1,8 @@
 /*
  * searchtools.js
- * ~~~~~~~~~~~~~~~~
+ * ~~~~~~~~~~~
  *
- * Sphinx JavaScript utilities for the full-text search.
+ * Search functionality for Sphinx-based documentation websites.
  *
  * :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
@@ -502,7 +502,8 @@ var Search = {
       var valid = true;
 
       // check if all requirements are matched
-      var filteredTermCount = searchterms.filter(function (term) { // as search terms with length < 3 are discarded: ignore
+      var filteredTermCount = searchterms.filter(function (term) {
+        // as search terms with length < 3 are discarded: ignore
         return term.length > 2;
       }).length;
       if (
@@ -577,6 +578,11 @@ var Search = {
   },
 };
 
-$(document).ready(function () {
-  Search.init();
-});
+if (
+  document.readyState === "complete" ||
+  document.readyState === "interactive"
+) {
+  setTimeout(Search.init, 1);
+} else {
+  document.addEventListener("DOMContentLoaded", Search.init);
+}
