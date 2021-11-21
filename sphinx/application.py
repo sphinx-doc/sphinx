@@ -632,8 +632,9 @@ class Sphinx:
 
         :param name: The name of the directive
         :param cls: A directive class
-        :param override: If true, install the directive forcedly even if another directive
+        :param override: If false, do not install it if another directive
                          is already installed as the same name
+                         If true, unconditionally install the directive.
 
         For example, a custom directive named ``my-directive`` would be added
         like this:
@@ -680,8 +681,9 @@ class Sphinx:
 
         :param name: The name of role
         :param role: A role function
-        :param override: If true, install the role forcedly even if another role is already
-                         installed as the same name
+        :param override: If false, do not install it if another directive
+                         is already installed as the same name
+                         If true, unconditionally install the directive.
 
         For more details about role functions, see `the Docutils docs
         <https://docutils.sourceforge.io/docs/howto/rst-roles.html>`__ .
@@ -701,8 +703,9 @@ class Sphinx:
         Register a Docutils role that does nothing but wrap its contents in the
         node given by *nodeclass*.
 
-        If *override* is True, the given *nodeclass* is forcedly installed even if
-        a role named as *name* is already installed.
+        :param override: If false, do not install it if another role
+                         is already installed as the same name
+                         If true, unconditionally install the role.
 
         .. versionadded:: 0.6
         .. versionchanged:: 1.8
@@ -721,8 +724,9 @@ class Sphinx:
         """Register a domain.
 
         :param domain: A domain class
-        :param override: If true, install the domain forcedly even if another domain
+        :param override: If false, do not install it if another directive
                          is already installed as the same name
+                         If true, unconditionally install the directive.
 
         .. versionadded:: 1.0
         .. versionchanged:: 1.8
@@ -740,8 +744,9 @@ class Sphinx:
         :param domain: The name of target domain
         :param name: A name of directive
         :param cls: A directive class
-        :param override: If true, install the directive forcedly even if another directive
+        :param override: If false, do not install it if another directive
                          is already installed as the same name
+                         If true, unconditionally install the directive.
 
         .. versionadded:: 1.0
         .. versionchanged:: 1.8
@@ -759,8 +764,9 @@ class Sphinx:
         :param domain: The name of the target domain
         :param name: The name of the role
         :param role: The role function
-        :param override: If true, install the role forcedly even if another role is already
-                         installed as the same name
+        :param override: If false, do not install it if another directive
+                         is already installed as the same name
+                         If true, unconditionally install the directive.
 
         .. versionadded:: 1.0
         .. versionchanged:: 1.8
@@ -776,8 +782,9 @@ class Sphinx:
 
         :param domain: The name of the target domain
         :param index: The index class
-        :param override: If true, install the index forcedly even if another index is
-                         already installed as the same name
+        :param override: If false, do not install it if another index
+                         is already installed as the same name
+                         If true, unconditionally install the index.
 
         .. versionadded:: 1.0
         .. versionchanged:: 1.8
@@ -881,8 +888,10 @@ class Sphinx:
         (Of course, the element following the ``topic`` directive needn't be a
         section.)
 
-        If *override* is True, the given crossref_type is forcedly installed even if
-        a crossref_type having the same name is already installed.
+
+        :param override: If false, do not install it if another crossfer_type
+                         is already installed as the same name
+                         If true, unconditionally install the crossfer_type.
 
         .. versionchanged:: 1.8
            Add *override* keyword.
@@ -937,17 +946,19 @@ class Sphinx:
         """
         self.registry.add_post_transform(transform)
 
-    def add_js_file(self, filename: str, priority: int = 500, **kwargs: Any) -> None:
+    def add_js_file(self, filename: Optional[str], priority: int = 500, **kwargs: Any) -> None:
         """Register a JavaScript file to include in the HTML output.
 
-        Add *filename* to the list of JavaScript files that the default HTML
-        template will include in order of *priority* (ascending).  The filename
-        must be relative to the HTML static path , or a full URI with scheme.
-        If the priority of the JavaScript file is the same as others, the JavaScript
-        files will be included in order of registration.  If the keyword
-        argument ``body`` is given, its value will be added between the
-        ``<script>`` tags. Extra keyword arguments are included as attributes of
-        the ``<script>`` tag.
+        :param filename: The name of a file that the default HTML
+                         template will include. It must be relative to the HTML
+                         static path, or a full URI with scheme.
+        :param priority: Files are included in ascending order of priority. If
+                         multiple JavaScript files have the same priority,
+                         those files will be included in order of registration.
+        :param kwargs:   If the keyword argument ``body`` is given, its value will
+                         be added between the ``<script>`` tags.
+                         Extra keyword arguments are included as attributes of
+                         the ``<script>`` tag.
 
         Example::
 
@@ -991,12 +1002,14 @@ class Sphinx:
     def add_css_file(self, filename: str, priority: int = 500, **kwargs: Any) -> None:
         """Register a stylesheet to include in the HTML output.
 
-        Add *filename* to the list of CSS files that the default HTML template
-        will include in order of *priority* (ascending).  The filename must be
-        relative to the HTML static path, or a full URI with scheme.  If the
-        priority of the CSS file is the same as others, the CSS files will be
-        included in order of registration.  The keyword arguments are also
-        accepted for attributes of ``<link>`` tag.
+        :param filename: The name of a CSS file that the default HTML
+                         template will include. It must be relative to the HTML
+                         static path, or a full URI with scheme.
+        :param priority: Files are included in ascending order of priority. If
+                         multiple CSS files have the same priority,
+                         those files will be included in order of registration.
+        :param kwargs:   The keyword arguments are also accepted for attributes of
+                         ``<link>`` tag.
 
         Example::
 
@@ -1163,8 +1176,9 @@ class Sphinx:
         Same as :confval:`source_suffix`.  The users can override this
         using the config setting.
 
-        If *override* is True, the given *suffix* is forcedly installed even if
-        the same suffix is already installed.
+        :param override: If false, do not install it the same suffix
+                         is already installed.
+                         If true, unconditionally install the suffix.
 
         .. versionadded:: 1.8
         """
@@ -1173,8 +1187,9 @@ class Sphinx:
     def add_source_parser(self, parser: Type[Parser], override: bool = False) -> None:
         """Register a parser class.
 
-        If *override* is True, the given *parser* is forcedly installed even if
-        a parser for the same suffix is already installed.
+        :param override: If false, do not install it if another parser
+                         is already installed for the same suffix.
+                         If true, unconditionally install the suffix.
 
         .. versionadded:: 1.4
         .. versionchanged:: 1.8

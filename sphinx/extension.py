@@ -42,7 +42,12 @@ class Extension:
 
 
 def verify_needs_extensions(app: "Sphinx", config: Config) -> None:
-    """Verify the required Sphinx extensions are loaded."""
+    """Check that the needed extensions have an acceptable version if they are loaded.
+
+    Warns if a needed extension is not loaded.
+    :raises VersionRequirementError: if the version of a needed extension is
+                                     unknown or older than the required version.
+                                     """
     if config.needs_extensions is None:
         return
 
