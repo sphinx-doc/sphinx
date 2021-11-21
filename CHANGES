@@ -18,6 +18,8 @@ Bugs fixed
 
 * #9838: autodoc: AttributeError is raised on building document for functions
   decorated by functools.lru_cache
+* #9879: autodoc: AttributeError is raised on building document for an object
+  having invalid __doc__ atribute
 
 Testing
 --------
