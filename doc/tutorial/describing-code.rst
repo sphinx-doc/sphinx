@@ -14,8 +14,11 @@ section apply for the other domains as well.
 
 .. _tutorial-describing-objects:
 
+Python
+------
+
 Documenting Python objects
---------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Sphinx offers several roles and directives to document Python objects,
 all grouped together in :ref:`the Python domain <python-domain>`. For example,
@@ -68,7 +71,7 @@ Notice several things:
    ``.. function::`` directly.
 
 Cross-referencing Python objects
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 By default, most of these directives generate entities that can be
 cross-referenced from any part of the documentation by using
@@ -123,7 +126,7 @@ And finally, this is how the result would look:
 Beautiful, isn't it?
 
 Including doctests in your documentation
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Since you are now describing code from a Python library, it will become useful
 to keep both the documentation and the code as synchronized as possible.
@@ -229,3 +232,44 @@ And finally, ``make test`` reports success!
 For big projects though, this manual approach can become a bit tedious.
 In the next section, you will see :doc:`how to automate the
 process </tutorial/automatic-doc-generation>`.
+
+Other languages (C, C++, others)
+--------------------------------
+
+Documenting and cross-referencing objects
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sphinx also supports documenting and cross-referencing objects written in
+other programming languages. There are four additional built-in domains:
+C, C++, JavaScript, and reStructuredText. Third-party extensions may
+define domains for more languages, such as
+
+- `Fortran <https://sphinx-fortran.readthedocs.io>`_,
+- `Julia <http://bastikr.github.io/sphinx-julia>`_, or
+- `PHP <https://github.com/markstory/sphinxcontrib-phpdomain>`_.
+
+For example, to document a C++ type definition, you would use the built-in
+:rst:dir:`cpp:type` directive, as follows:
+
+.. code-block:: rst
+
+   .. cpp:type:: std::vector<int> CustomList
+
+      A typedef-like declaration of a type.
+
+Which would give the following result:
+
+.. cpp:type:: std::vector<int> CustomList
+
+   A typedef-like declaration of a type.
+
+All such directives then generate references that can be
+cross-referenced by using the corresponding role. For example, to reference
+the previous type definition, you can use the :rst:role:`cpp:type` role
+as follows:
+
+.. code-block:: rst
+
+   Cross reference to :cpp:type:`CustomList`.
+
+Which would produce a hyperlink to the previous definition: :cpp:type:`CustomList`.
