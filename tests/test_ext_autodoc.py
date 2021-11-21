@@ -1870,12 +1870,15 @@ def test_autodoc_GenericAlias(app):
             '   .. py:attribute:: Class.T',
             '      :module: target.genericalias',
             '',
+            '      A list of int',
+            '',
             '      alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
             '',
             '.. py:attribute:: T',
             '   :module: target.genericalias',
             '',
-            '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
+            '   A list of int',
+            '',
         ]
     else:
         assert list(actual) == [
