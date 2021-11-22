@@ -260,6 +260,7 @@ def test_autosummary_generate_content_for_module___all__(app):
     assert context['name'] == ''
     assert context['objtype'] == 'module'
 
+
 @pytest.mark.sphinx(testroot='ext-autosummary')
 def test_autosummary_generate_content_for_module_skipped(app):
     import autosummary_dummy_module

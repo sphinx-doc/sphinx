@@ -193,7 +193,7 @@ class ModuleScanner:
 
     def scan(self, imported_members: bool) -> List[str]:
         members = []
-        for name in members_of(self.app.config, self.object):
+        for name in members_of(self.object, self.app.config):
             try:
                 value = safe_getattr(self.object, name)
             except AttributeError:
@@ -213,19 +213,21 @@ class ModuleScanner:
             except AttributeError:
                 imported = False
 
+            respect_module_all = not self.app.config.autosummary_ignore_module_all
             if imported_members:
                 # list all members up
                 members.append(name)
             elif imported is False:
                 # list not-imported members
                 members.append(name)
-            elif '__all__' in dir(self.object) and not self.app.config.autosummary_ignore_module_all:
+            elif '__all__' in dir(self.object) and respect_module_all:
                 # list members that have __all__ set
                 members.append(name)
 
         return members
 
-def members_of(conf: Config, obj: Any) -> Sequence[str]:
+
+def members_of(obj: Any, conf: Config) -> Sequence[str]:
     """Get the members of ``obj``, possibly ignoring the ``__all__`` module attribute
 
     Follows the ``conf.autosummary_ignore_module_all`` setting."""
@@ -234,7 +236,6 @@ def members_of(conf: Config, obj: Any) -> Sequence[str]:
         return dir(obj)
     else:
         return getall(obj) or dir(obj)
-
 
 
 def generate_autosummary_content(name: str, obj: Any, parent: Any,
@@ -260,7 +261,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
 
     def get_module_members(obj: Any) -> Dict[str, Any]:
         members = {}
-        for name in members_of(app.config, obj):
+        for name in members_of(obj, app.config):
             try:
                 members[name] = safe_getattr(obj, name)
             except AttributeError:
@@ -665,7 +666,7 @@ def main(argv: List[str] = sys.argv[1:]) -> None:
 
     if args.templates:
         app.config.templates_path.append(path.abspath(args.templates))
-    app.config.autosummary_ignore_module_all = not args.respect_module_all
+    app.config.autosummary_ignore_module_all = not args.respect_module_all  # type: ignore
 
     generate_autosummary_docs(args.source_file, args.output_dir,
                               '.' + args.suffix,
