@@ -3401,7 +3401,7 @@ msgstr "Zoeken aan het voorbereiden..."
 #: sphinx/themes/basic/static/searchtools.js:310
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
-msgstr "Zoekopdracht voltooid, %s pagaina(s) gevonden die overeenkomen met de zoekterm."
+msgstr "Zoekopdracht voltooid, %s pagina(s) gevonden die overeenkomen met de zoekterm."
 
 #: sphinx/themes/basic/static/searchtools.js:365
 msgid ", in "
