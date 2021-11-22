@@ -19,6 +19,7 @@ Features added
 Bugs fixed
 ----------
 
+* #9866: autodoc: doccoment for the imported class was ignored
 * #9878: mathjax: MathJax configuration is placed after loading MathJax itself
 * #9857: Generated RFC links use outdated base url
 

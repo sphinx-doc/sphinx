@@ -1743,14 +1743,22 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     def get_variable_comment(self) -> Optional[List[str]]:
         try:
             key = ('', '.'.join(self.objpath))
-            analyzer = ModuleAnalyzer.for_module(self.get_real_modname())
+            if self.doc_as_attr:
+                analyzer = ModuleAnalyzer.for_module(self.modname)
+            else:
+                analyzer = ModuleAnalyzer.for_module(self.get_real_modname())
             analyzer.analyze()
-            return list(self.analyzer.attr_docs.get(key, []))
+            return list(analyzer.attr_docs.get(key, []))
         except PycodeError:
             return None
 
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
+        if self.doc_as_attr and self.modname != self.get_real_modname():
+            # override analyzer to obtain doccomment around its definition.
+            self.analyzer = ModuleAnalyzer.for_module(self.modname)
+            self.analyzer.analyze()
+
         if self.doc_as_attr and not self.get_variable_comment():
             try:
                 more_content = StringList([_('alias of %s') % restify(self.object)], source='')

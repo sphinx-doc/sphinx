@@ -407,6 +407,18 @@ def test_class_alias_having_doccomment(app):
     ]
 
 
+def test_class_alias_for_imported_object_having_doccomment(app):
+    actual = do_autodoc(app, 'class', 'target.classes.IntAlias')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: IntAlias',
+        '   :module: target.classes',
+        '',
+        '   docstring',
+        '',
+    ]
+
+
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_coroutine(app):
     options = {"members": None}
