@@ -92,10 +92,17 @@ def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: Dict
             body = 'window.MathJax = %s' % json.dumps(app.config.mathjax3_config)
             app.add_js_file(None, body=body)
 
-        options = {'defer': 'defer'}
+        options = {}
         if app.config.mathjax_options:
             options.update(app.config.mathjax_options)
-        app.add_js_file(app.config.mathjax_path, **options)  # type: ignore
+        if 'async' not in options and 'defer' not in options:
+            if app.config.mathjax3_config:
+                # Load MathJax v3 via "defer" method
+                options['defer'] = 'defer'
+            else:
+                # Load other MathJax via "async" method
+                options['async'] = 'async'
+        app.add_js_file(app.config.mathjax_path, **options)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

@@ -1704,7 +1704,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         classdoc_from = self.options.get('class-doc-from', self.config.autoclass_content)
 
         docstrings = []
-        attrdocstring = self.get_attr(self.object, '__doc__', None)
+        attrdocstring = getdoc(self.object, self.get_attr)
         if attrdocstring:
             docstrings.append(attrdocstring)
 
