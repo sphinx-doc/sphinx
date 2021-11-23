@@ -214,6 +214,15 @@ This contains a GitHub Actions workflow with a single job of four steps:
 4. If the change happens on the default branch, take the contents of
    ``docs/build/html`` and push it to the ``gh-pages`` branch.
 
+.. note::
+
+   The ``actions-gh-pages`` takes care of adding a ``.nojekyll`` file to the
+   output `so that GitHub Pages doesn't process it with its default
+   static site generator`__. Alternatively, you can enable the
+   :py:mod:`sphinx.ext.githubpages` extension on your project.
+
+.. __: https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages#static-site-generators
+
 Next, you need to specify the dependencies for the ``make html`` step to be
 successful. For that, create a file ``docs/requirements.txt`` and add the
 following contents:
