@@ -170,7 +170,8 @@ def ismock(subject: Any) -> bool:
     try:
         # check the object is mocked object
         __mro__ = safe_getattr(type(subject), '__mro__', [])
-        if len(__mro__) > 2 and __mro__[1] is _MockObject:
+        if len(__mro__) > 2 and __mro__[-2] is _MockObject:
+            # A mocked object has a MRO that ends with (..., _MockObject, object).
             return True
     except AttributeError:
         pass

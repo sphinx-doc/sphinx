@@ -751,7 +751,7 @@ class Documenter:
                 isprivate = membername.startswith('_')
 
             keep = False
-            if ismock(member):
+            if ismock(member) and (namespace, membername) not in attr_docs:
                 # mocked module or object
                 pass
             elif self.options.exclude_members and membername in self.options.exclude_members:
@@ -2009,7 +2009,8 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
                     self.add_line('   :type: ' + objrepr, sourcename)
 
             try:
-                if self.options.no_value or self.should_suppress_value_header():
+                if (self.options.no_value or self.should_suppress_value_header() or
+                        ismock(self.object)):
                     pass
                 else:
                     objrepr = object_description(self.object)
@@ -2528,11 +2529,11 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
                             ) -> bool:
-        if inspect.isattributedescriptor(member):
+        if isinstance(parent, ModuleDocumenter):
+            return False
+        elif inspect.isattributedescriptor(member):
             return True
-        elif (not isinstance(parent, ModuleDocumenter) and
-              not inspect.isroutine(member) and
-              not isinstance(member, type)):
+        elif not inspect.isroutine(member) and not isinstance(member, type):
             return True
         else:
             return False
@@ -2625,7 +2626,8 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
                     self.add_line('   :type: ' + objrepr, sourcename)
 
             try:
-                if self.options.no_value or self.should_suppress_value_header():
+                if (self.options.no_value or self.should_suppress_value_header() or
+                        ismock(self.object)):
                     pass
                 else:
                     objrepr = object_description(self.object)
