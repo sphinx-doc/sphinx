@@ -16,7 +16,6 @@ import sys
 import types
 from inspect import Parameter
 
-import _testcapi
 import pytest
 
 from sphinx.util import inspect
@@ -627,8 +626,6 @@ def test_isattributedescriptor(app):
         def __get__(self, obj, typ=None):
             pass
 
-    testinstancemethod = _testcapi.instancemethod(str.__repr__)
-
     assert inspect.isattributedescriptor(Base.prop) is True                    # property
     assert inspect.isattributedescriptor(Base.meth) is False                   # method
     assert inspect.isattributedescriptor(Base.staticmeth) is False             # staticmethod
@@ -639,7 +636,16 @@ def test_isattributedescriptor(app):
     assert inspect.isattributedescriptor(dict.__dict__['fromkeys']) is False   # ClassMethodDescriptorType  # NOQA
     assert inspect.isattributedescriptor(types.FrameType.f_locals) is True     # GetSetDescriptorType       # NOQA
     assert inspect.isattributedescriptor(datetime.timedelta.days) is True      # MemberDescriptorType       # NOQA
-    assert inspect.isattributedescriptor(testinstancemethod) is False          # instancemethod (C-API)     # NOQA
+
+    try:
+        # _testcapi module cannot be importable in some distro
+        # refs: https://github.com/sphinx-doc/sphinx/issues/9868
+        import _testcapi
+
+        testinstancemethod = _testcapi.instancemethod(str.__repr__)
+        assert inspect.isattributedescriptor(testinstancemethod) is False      # instancemethod (C-API)     # NOQA
+    except ImportError:
+        pass
 
 
 def test_isproperty(app):
