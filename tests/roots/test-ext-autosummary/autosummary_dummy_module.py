@@ -1,6 +1,16 @@
 from os import path  # NOQA
 from typing import Union
 
+__all__ = [
+    "CONSTANT1",
+    "Exc",
+    "Foo",
+    "_Baz",
+    "bar",
+    "qux",
+    "path",
+]
+
 #: module variable
 CONSTANT1 = None
 CONSTANT2 = None
@@ -48,3 +58,5 @@ class _Exc(Exception):
 
 #: a module-level attribute
 qux = 2
+#: a module-level attribute that has been excluded from __all__
+quuz = 2

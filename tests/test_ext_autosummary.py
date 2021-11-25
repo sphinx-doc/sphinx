@@ -216,14 +216,42 @@ def test_autosummary_generate_content_for_module(app):
 
     context = template.render.call_args[0][1]
     assert context['members'] == ['CONSTANT1', 'CONSTANT2', 'Exc', 'Foo', '_Baz', '_Exc',
-                                  '__builtins__', '__cached__', '__doc__', '__file__',
-                                  '__name__', '__package__', '_quux', 'bar', 'qux']
+                                  '__all__', '__builtins__', '__cached__', '__doc__',
+                                  '__file__', '__name__', '__package__', '_quux', 'bar',
+                                  'quuz', 'qux']
     assert context['functions'] == ['bar']
     assert context['all_functions'] == ['_quux', 'bar']
     assert context['classes'] == ['Foo']
     assert context['all_classes'] == ['Foo', '_Baz']
     assert context['exceptions'] == ['Exc']
     assert context['all_exceptions'] == ['Exc', '_Exc']
+    assert context['attributes'] == ['CONSTANT1', 'qux', 'quuz']
+    assert context['all_attributes'] == ['CONSTANT1', 'qux', 'quuz']
+    assert context['fullname'] == 'autosummary_dummy_module'
+    assert context['module'] == 'autosummary_dummy_module'
+    assert context['objname'] == ''
+    assert context['name'] == ''
+    assert context['objtype'] == 'module'
+
+
+@pytest.mark.sphinx(testroot='ext-autosummary')
+def test_autosummary_generate_content_for_module___all__(app):
+    import autosummary_dummy_module
+    template = Mock()
+    app.config.autosummary_ignore_module_all = False
+
+    generate_autosummary_content('autosummary_dummy_module', autosummary_dummy_module, None,
+                                 template, None, False, app, False, {})
+    assert template.render.call_args[0][0] == 'module'
+
+    context = template.render.call_args[0][1]
+    assert context['members'] == ['CONSTANT1', 'Exc', 'Foo', '_Baz', 'bar', 'qux', 'path']
+    assert context['functions'] == ['bar']
+    assert context['all_functions'] == ['bar']
+    assert context['classes'] == ['Foo']
+    assert context['all_classes'] == ['Foo', '_Baz']
+    assert context['exceptions'] == ['Exc']
+    assert context['all_exceptions'] == ['Exc']
     assert context['attributes'] == ['CONSTANT1', 'qux']
     assert context['all_attributes'] == ['CONSTANT1', 'qux']
     assert context['fullname'] == 'autosummary_dummy_module'
@@ -246,9 +274,9 @@ def test_autosummary_generate_content_for_module_skipped(app):
     generate_autosummary_content('autosummary_dummy_module', autosummary_dummy_module, None,
                                  template, None, False, app, False, {})
     context = template.render.call_args[0][1]
-    assert context['members'] == ['CONSTANT1', 'CONSTANT2', '_Baz', '_Exc', '__builtins__',
-                                  '__cached__', '__doc__', '__file__', '__name__',
-                                  '__package__', '_quux', 'qux']
+    assert context['members'] == ['CONSTANT1', 'CONSTANT2', '_Baz', '_Exc', '__all__',
+                                  '__builtins__', '__cached__', '__doc__', '__file__',
+                                  '__name__', '__package__', '_quux', 'quuz', 'qux']
     assert context['functions'] == []
     assert context['classes'] == []
     assert context['exceptions'] == []
@@ -265,17 +293,17 @@ def test_autosummary_generate_content_for_module_imported_members(app):
 
     context = template.render.call_args[0][1]
     assert context['members'] == ['CONSTANT1', 'CONSTANT2', 'Exc', 'Foo', 'Union', '_Baz',
-                                  '_Exc', '__builtins__', '__cached__', '__doc__',
+                                  '_Exc', '__all__', '__builtins__', '__cached__', '__doc__',
                                   '__file__', '__loader__', '__name__', '__package__',
-                                  '__spec__', '_quux', 'bar', 'path', 'qux']
+                                  '__spec__', '_quux', 'bar', 'path', 'quuz', 'qux']
     assert context['functions'] == ['bar']
     assert context['all_functions'] == ['_quux', 'bar']
     assert context['classes'] == ['Foo']
     assert context['all_classes'] == ['Foo', '_Baz']
     assert context['exceptions'] == ['Exc']
     assert context['all_exceptions'] == ['Exc', '_Exc']
-    assert context['attributes'] == ['CONSTANT1', 'qux']
-    assert context['all_attributes'] == ['CONSTANT1', 'qux']
+    assert context['attributes'] == ['CONSTANT1', 'qux', 'quuz']
+    assert context['all_attributes'] == ['CONSTANT1', 'qux', 'quuz']
     assert context['fullname'] == 'autosummary_dummy_module'
     assert context['module'] == 'autosummary_dummy_module'
     assert context['objname'] == ''
@@ -313,6 +341,7 @@ def test_autosummary_generate(app, status, warning):
     assert doctree[3][0][0][2][5].astext() == 'autosummary_dummy_module.qux\n\na module-level attribute'
 
     module = (app.srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text()
+
     assert ('   .. autosummary::\n'
             '   \n'
             '      Foo\n'
@@ -321,6 +350,7 @@ def test_autosummary_generate(app, status, warning):
             '   \n'
             '      CONSTANT1\n'
             '      qux\n'
+            '      quuz\n'
             '   \n' in module)
 
     Foo = (app.srcdir / 'generated' / 'autosummary_dummy_module.Foo.rst').read_text()
