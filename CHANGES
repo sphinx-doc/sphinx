@@ -23,6 +23,8 @@ Features added
   layout via CSS
 * #9899: py domain: Allows to specify cross-reference specifier (``.`` and
   ``~``) as ``:type:`` option
+* #9894: linkcheck: add option ``linkcheck_exclude_documents`` to disable link
+  checking in matched documents.
 
 Bugs fixed
 ----------
