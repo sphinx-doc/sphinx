@@ -681,9 +681,9 @@ class Sphinx:
 
         :param name: The name of role
         :param role: A role function
-        :param override: If false, do not install it if another directive
+        :param override: If false, do not install it if another role
                          is already installed as the same name
-                         If true, unconditionally install the directive.
+                         If true, unconditionally install the role.
 
         For more details about role functions, see `the Docutils docs
         <https://docutils.sourceforge.io/docs/howto/rst-roles.html>`__ .
@@ -724,9 +724,9 @@ class Sphinx:
         """Register a domain.
 
         :param domain: A domain class
-        :param override: If false, do not install it if another directive
+        :param override: If false, do not install it if another domain
                          is already installed as the same name
-                         If true, unconditionally install the directive.
+                         If true, unconditionally install the domain.
 
         .. versionadded:: 1.0
         .. versionchanged:: 1.8
@@ -764,9 +764,9 @@ class Sphinx:
         :param domain: The name of the target domain
         :param name: The name of the role
         :param role: The role function
-        :param override: If false, do not install it if another directive
+        :param override: If false, do not install it if another role
                          is already installed as the same name
-                         If true, unconditionally install the directive.
+                         If true, unconditionally install the role.
 
         .. versionadded:: 1.0
         .. versionchanged:: 1.8
@@ -889,9 +889,9 @@ class Sphinx:
         section.)
 
 
-        :param override: If false, do not install it if another crossfer_type
+        :param override: If false, do not install it if another cross-reference type
                          is already installed as the same name
-                         If true, unconditionally install the crossfer_type.
+                         If true, unconditionally install the cross-reference type.
 
         .. versionchanged:: 1.8
            Add *override* keyword.
@@ -1189,7 +1189,7 @@ class Sphinx:
 
         :param override: If false, do not install it if another parser
                          is already installed for the same suffix.
-                         If true, unconditionally install the suffix.
+                         If true, unconditionally install the parser.
 
         .. versionadded:: 1.4
         .. versionchanged:: 1.8

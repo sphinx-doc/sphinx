@@ -2,7 +2,7 @@
     sphinx.addnodes
     ~~~~~~~~~~~~~~~
 
-    Nodes that Sphinx adds on top of docutils set of nodes.
+    Document tree nodes that Sphinx defines on top of those in Docutils.
 
     :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -460,12 +460,12 @@ class pending_xref_condition(nodes.Inline, nodes.TextElement):
     condition in which this way should be used.
 
     This node is only allowed to be placed under a :py:class:`pending_xref`
-    node.  A pending_xref node must contain either no pending_xref_condition
-    nodes or it must only contains pending_xref_condition nodes.
+    node.  A **pending_xref** node must contain either no **pending_xref_condition**
+    nodes or it must only contains **pending_xref_condition** nodes.
 
     The cross-reference resolver will replace a :py:class:`pending_xref` which
     contains **pending_xref_condition** nodes by the content of exactly one of
-    those **pending_xref_condition** nodes' content. It uses the ``condition``
+    those **pending_xref_condition** nodes' content. It uses the **condition**
     attribute to decide which **pending_xref_condition** node's content to
     use. For example, let us consider how the cross-reference resolver acts on::
 
@@ -478,20 +478,20 @@ class pending_xref_condition(nodes.Inline, nodes.TextElement):
                     io.StringIO
 
     If the cross-reference resolver successfully resolves the cross-reference,
-    then it rewrites the pending_xref as::
+    then it rewrites the **pending_xref** as::
 
         <reference>
             <literal>
                 StringIO
 
     Otherwise, if the cross-reference resolution failed, it rewrites the
-    pending_xref as::
+    **pending_xref** as::
 
         <reference>
             <literal>
                 io.StringIO
 
-    The pending_xref_condition node should have **condition** attribute.
+    The **pending_xref_condition** node should have **condition** attribute.
     Domains can be store their individual conditions into the attribute to
     filter contents on resolving phase.  As a reserved condition name,
     ``condition="*"`` is used for the fallback of resolution failure.
