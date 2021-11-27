@@ -1,14 +1,5 @@
-Release 4.3.1 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
+Release 4.3.1 (released Nov 28, 2021)
+=====================================
 
 Features added
 --------------
@@ -30,9 +21,6 @@ Bugs fixed
 * #9868: imgmath: Crashed if the dvisvgm command failed to convert equation
 * #9864: mathjax: Failed to render equations via MathJax v2.  The loading method
   of MathJax is back to "async" method again
-
-Testing
---------
 
 Release 4.3.0 (released Nov 11, 2021)
 =====================================
