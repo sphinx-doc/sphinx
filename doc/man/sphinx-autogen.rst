@@ -39,6 +39,10 @@ Options
 
    Document imported members.
 
+.. option:: -a, --respect-module-all
+
+   Document exactly the members in a module's ``__all__`` attribute.
+
 Example
 -------
 
