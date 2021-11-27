@@ -73,7 +73,7 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
         lines = inspect.getsource(obj).splitlines()
         if lines[0].startswith((' ', r'\t')):
             lines.insert(0, '')  # insert a dummy line to follow what get_function_def() does.
-    except OSError:
+    except (OSError, TypeError):
         lines = []
 
     try:
