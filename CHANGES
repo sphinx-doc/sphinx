@@ -30,7 +30,7 @@ Bugs fixed
 Testing
 --------
 
-Release 4.3.1 (in development)
+Release 4.3.2 (in development)
 ==============================
 
 Dependencies
@@ -45,6 +45,18 @@ Deprecated
 Features added
 --------------
 
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 4.3.1 (released Nov 28, 2021)
+=====================================
+
+Features added
+--------------
+
 * #9864: mathjax: Support chnaging the loading method of MathJax to "defer" via
   :confval:`mathjax_options`
 
@@ -55,14 +67,13 @@ Bugs fixed
   decorated by functools.lru_cache
 * #9879: autodoc: AttributeError is raised on building document for an object
   having invalid __doc__ atribute
+* #9844: autodoc: Failed to process a function wrapped with functools.partial if
+  :confval:`autodoc_preserve_defaults` enabled
 * #9872: html: Class namespace collision between autodoc signatures and
   docutils-0.17
 * #9868: imgmath: Crashed if the dvisvgm command failed to convert equation
 * #9864: mathjax: Failed to render equations via MathJax v2.  The loading method
   of MathJax is back to "async" method again
-
-Testing
---------
 
 Release 4.3.0 (released Nov 11, 2021)
 =====================================
