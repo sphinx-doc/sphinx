@@ -25,8 +25,8 @@
     :license: BSD, see LICENSE for details.
 """
 
-import warnings
 import re
+import warnings
 from typing import Any, Dict, List, Tuple
 
 from docutils import nodes, utils
@@ -73,13 +73,10 @@ class ExternalLinksChecker(SphinxPostTransform):
             match = uri_pattern.match(uri)
             if match and match.groupdict().get('value'):
                 # build a replacement suggestion
+                msg = __('hardcoded link %r could be replaced by an extlink '
+                         '(try using %r instead)')
                 replacement = f":{alias}:`{match.groupdict().get('value')}`"
-                logger.warning(
-                    __('hardcoded link %r could be replaced by an extlink (try using %r instead)'),
-                    uri,
-                    replacement,
-                    location=refnode,
-                )
+                logger.warning(msg, uri, replacement, location=refnode)
 
 
 def make_link_role(name: str, base_url: str, caption: str) -> RoleFunction:
