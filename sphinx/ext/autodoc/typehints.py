@@ -63,8 +63,8 @@ def merge_typehints(app: Sphinx, domain: str, objtype: str, contentnode: Element
         for field_list in field_lists:
             if app.config.autodoc_typehints_description_target == "all":
                 modify_field_list(field_list, annotations[fullname])
-            elif (app.config.autodoc_typehints_description_target
-                    == "returnvalue_and_documented_params"):
+            elif (app.config.autodoc_typehints_description_target ==
+                    "returnvalue_and_documented_params"):
                 augment_descriptions_with_types(
                     field_list, annotations[fullname], force_rtype=True
                 )
@@ -174,10 +174,12 @@ def augment_descriptions_with_types(
 
     # Add 'rtype' if 'return' is present and 'rtype' isn't.
     if 'return' in annotations:
-        if 'return' not in has_type and (force_rtype or 'return' in has_description):
+        rtype = annotations['return']
+        if 'return' not in has_type and ('return' in has_description or
+                                         (force_rtype and rtype != "None")):
             field = nodes.field()
             field += nodes.field_name('', 'rtype')
-            field += nodes.field_body('', nodes.paragraph('', annotations['return']))
+            field += nodes.field_body('', nodes.paragraph('', rtype))
             node += field
 
 
