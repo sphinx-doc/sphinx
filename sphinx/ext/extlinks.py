@@ -52,7 +52,7 @@ class ExternalLinksChecker(SphinxPostTransform):
     We treat each ``reference`` node without ``internal`` attribute as an external link.
     """
 
-    default_priority = 100
+    default_priority = 500
 
     def run(self, **kwargs: Any) -> None:
         for refnode in self.document.traverse(nodes.reference):
