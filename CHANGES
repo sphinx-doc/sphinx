@@ -25,7 +25,8 @@ Features added
 Bugs fixed
 ----------
 
-* #9866: autodoc: doccoment for the imported class was ignored
+* #9866: autodoc: doccomment for the imported class was ignored
+* #9883: autodoc: doccomment for the alias to mocked object was ignored
 * #9908: autodoc: debug message is shown on building document using NewTypes
   with Python 3.10
 * #9878: mathjax: MathJax configuration is placed after loading MathJax itself

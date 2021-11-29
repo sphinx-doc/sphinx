@@ -22,6 +22,10 @@ def func(arg: missing_module.Class):
 
 class TestAutodoc(object):
     """TestAutodoc docstring."""
+
+    #: docstring
+    Alias = missing_module2.Class
+
     @missing_name
     def decoratedMethod(self):
         """TestAutodoc::decoratedMethod docstring"""
@@ -34,3 +38,6 @@ class Inherited(missing_module.Class):
 
 
 sphinx.missing_module4.missing_function(len(missing_name2))
+
+#: docstring
+Alias = missing_module2.Class

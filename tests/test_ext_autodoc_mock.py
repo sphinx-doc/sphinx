@@ -146,6 +146,7 @@ def test_ismock():
 
         assert ismock(mod1) is True
         assert ismock(mod1.Class) is True
+        assert ismock(mod1.submod.Class) is True
         assert ismock(Inherited) is False
 
         assert ismock(mod2) is False
