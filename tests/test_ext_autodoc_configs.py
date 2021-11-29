@@ -536,7 +536,7 @@ def test_mocked_module_imports(app, warning):
     sys.modules.pop('target', None)  # unload target module to clear the module cache
 
     # no autodoc_mock_imports
-    options = {"members": 'TestAutodoc,decoratedFunction,func'}
+    options = {"members": 'TestAutodoc,decoratedFunction,func,Alias'}
     actual = do_autodoc(app, 'module', 'target.need_mocks', options)
     assert list(actual) == []
     assert "autodoc: failed to import module 'need_mocks'" in warning.getvalue()
@@ -557,10 +557,22 @@ def test_mocked_module_imports(app, warning):
         '.. py:module:: target.need_mocks',
         '',
         '',
+        '.. py:data:: Alias',
+        '   :module: target.need_mocks',
+        '',
+        '   docstring',
+        '',
+        '',
         '.. py:class:: TestAutodoc()',
         '   :module: target.need_mocks',
         '',
         '   TestAutodoc docstring.',
+        '',
+        '',
+        '   .. py:attribute:: TestAutodoc.Alias',
+        '      :module: target.need_mocks',
+        '',
+        '      docstring',
         '',
         '',
         '   .. py:method:: TestAutodoc.decoratedMethod()',
