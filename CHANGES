@@ -21,6 +21,8 @@ Features added
   by an extlink, suggesting a replacement.
 * #9815: html theme: Wrap sidebar components in div to allow customizing their
   layout via CSS
+* #9899: py domain: Allows to specify cross-reference specifier (``.`` and
+  ``~``) as ``:type:`` option
 
 Bugs fixed
 ----------
