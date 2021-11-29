@@ -17,10 +17,11 @@ from sphinx.testing.util import SphinxTestApp
 from sphinx.versioning import add_uids, get_ratio, merge_doctrees
 
 try:
+    from docutils.nodes import meta
+except ImportError:
+    # docutils-0.18.0 or older
     from docutils.parsers.rst.directives.html import MetaBody
     meta = MetaBody.meta
-except ImportError:
-    from docutils.nodes import meta
 
 app = original = original_uids = None
 
