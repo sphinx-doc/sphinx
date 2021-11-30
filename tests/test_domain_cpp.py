@@ -144,7 +144,7 @@ def test_domain_cpp_ast_fundamental_types():
         output = "void f(%s arg)" % t
         check("function", input, {1: id1, 2: id2}, output=output)
         if ' ' in t:
-            # try permutations of all commponents
+            # try permutations of all components
             tcs = t.split()
             for p in itertools.permutations(tcs):
                 input = "void f(%s arg)" % ' '.join(p)
