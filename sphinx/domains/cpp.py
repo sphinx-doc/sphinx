@@ -338,24 +338,14 @@ _keywords = [
 _simple_type_specifiers_re = re.compile(r"""(?x)
     \b(
     auto|void|bool
-    # Integer
-    # -------
-    |((signed|unsigned)\s+)?(char|__int128|(
-        ((long\s+long|long|short)\s+)?int
-    ))
-    |wchar_t|char(8|16|32)_t
-    # extensions
-    |((signed|unsigned)\s+)?__int(64|128)
-    # Floating-point
-    # --------------
-    |(float|double|long\s+double)(\s+(_Complex|_Imaginary))?
-    |(_Complex|_Imaginary)\s+(float|double|long\s+double)
-    # extensions
-    |__float80|_Float64x|__float128|_Float128
-    # Integer types that could be prefixes of the previous ones
-    # ---------------------------------------------------------
-    |((signed|unsigned)\s+)?(long\s+long|long|short)
     |signed|unsigned
+    |short|long
+    |char|wchar_t|char(8|16|32)_t
+    |int
+    |__int(64|128)  # extension
+    |float|double
+    |__float80|_Float64x|__float128|_Float128  # extension
+    |_Complex|_Imaginary  # extension
     )\b
 """)
 
@@ -485,12 +475,12 @@ _id_fundamental_v2 = {
     'long double': 'e',
     '__float80': 'e', '_Float64x': 'e',
     '__float128': 'g', '_Float128': 'g',
-    'float _Complex': 'Cf', '_Complex float': 'Cf',
-    'double _Complex': 'Cd', '_Complex double': 'Cd',
-    'long double _Complex': 'Ce', '_Complex long double': 'Ce',
-    'float _Imaginary': 'f', '_Imaginary float': 'f',
-    'double _Imaginary': 'd', '_Imaginary double': 'd',
-    'long double _Imaginary': 'e', '_Imaginary long double': 'e',
+    '_Complex float': 'Cf',
+    '_Complex double': 'Cd',
+    '_Complex long double': 'Ce',
+    '_Imaginary float': 'f',
+    '_Imaginary double': 'd',
+    '_Imaginary long double': 'e',
     'auto': 'Da',
     'decltype(auto)': 'Dc',
     'std::nullptr_t': 'Dn'
@@ -1853,8 +1843,12 @@ class ASTTrailingTypeSpec(ASTBase):
 
 
 class ASTTrailingTypeSpecFundamental(ASTTrailingTypeSpec):
-    def __init__(self, name: str) -> None:
-        self.names = name.split()
+    def __init__(self, names: List[str], canonNames: List[str]) -> None:
+        assert len(names) != 0
+        assert len(names) == len(canonNames), (names, canonNames)
+        self.names = names
+        # the canonical name list is for ID lookup
+        self.canonNames = canonNames
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return ' '.join(self.names)
@@ -1862,14 +1856,14 @@ class ASTTrailingTypeSpecFundamental(ASTTrailingTypeSpec):
     def get_id(self, version: int) -> str:
         if version == 1:
             res = []
-            for a in self.names:
+            for a in self.canonNames:
                 if a in _id_fundamental_v1:
                     res.append(_id_fundamental_v1[a])
                 else:
                     res.append(a)
             return '-'.join(res)
 
-        txt = str(self)
+        txt = ' '.join(self.canonNames)
         if txt not in _id_fundamental_v2:
             raise Exception(
                 'Semi-internal error: Fundamental type "%s" can not be mapped '
@@ -5855,12 +5849,102 @@ class DefinitionParser(BaseParser):
 
     # ==========================================================================
 
+    def _parse_simple_type_specifiers(self) -> ASTTrailingTypeSpecFundamental:
+        modifier: Optional[str] = None
+        signedness: Optional[str] = None
+        width: List[str] = []
+        typ: Optional[str] = None
+        names: List[str] = []  # the parsed sequence
+
+        self.skip_ws()
+        while self.match(_simple_type_specifiers_re):
+            t = self.matched_text
+            names.append(t)
+            if t in ('auto', 'void', 'bool',
+                     'char', 'wchar_t', 'char8_t', 'char16_t', 'char32_t',
+                     'int', '__int64', '__int128',
+                     'float', 'double',
+                     '__float80', '_Float64x', '__float128', '_Float128'):
+                if typ is not None:
+                    self.fail("Can not have both {} and {}.".format(t, typ))
+                typ = t
+            elif t in ('signed', 'unsigned'):
+                if signedness is not None:
+                    self.fail("Can not have both {} and {}.".format(t, signedness))
+                signedness = t
+            elif t == 'short':
+                if len(width) != 0:
+                    self.fail("Can not have both {} and {}.".format(t, width[0]))
+                width.append(t)
+            elif t == 'long':
+                if len(width) != 0 and width[0] != 'long':
+                    self.fail("Can not have both {} and {}.".format(t, width[0]))
+                width.append(t)
+            elif t in ('_Imaginary', '_Complex'):
+                if modifier is not None:
+                    self.fail("Can not have both {} and {}.".format(t, modifier))
+                modifier = t
+            self.skip_ws()
+        if len(names) == 0:
+            return None
+
+        if typ in ('auto', 'void', 'bool',
+                   'wchar_t', 'char8_t', 'char16_t', 'char32_t',
+                   '__float80', '_Float64x', '__float128', '_Float128'):
+            if modifier is not None:
+                self.fail("Can not have both {} and {}.".format(typ, modifier))
+            if signedness is not None:
+                self.fail("Can not have both {} and {}.".format(typ, signedness))
+            if len(width) != 0:
+                self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
+        elif typ == 'char':
+            if modifier is not None:
+                self.fail("Can not have both {} and {}.".format(typ, modifier))
+            if len(width) != 0:
+                self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
+        elif typ == 'int':
+            if modifier is not None:
+                self.fail("Can not have both {} and {}.".format(typ, modifier))
+        elif typ in ('__int64', '__int128'):
+            if modifier is not None:
+                self.fail("Can not have both {} and {}.".format(typ, modifier))
+            if len(width) != 0:
+                self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
+        elif typ == 'float':
+            if signedness is not None:
+                self.fail("Can not have both {} and {}.".format(typ, signedness))
+            if len(width) != 0:
+                self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
+        elif typ == 'double':
+            if signedness is not None:
+                self.fail("Can not have both {} and {}.".format(typ, signedness))
+            if len(width) > 1:
+                self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
+            if len(width) == 1 and width[0] != 'long':
+                self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
+        elif typ is None:
+            if modifier is not None:
+                self.fail("Can not have {} without a floating point type.".format(modifier))
+        else:
+            assert False, "Unhandled type {}".format(typ)
+
+        canonNames: List[str] = []
+        if modifier is not None:
+            canonNames.append(modifier)
+        if signedness is not None:
+            canonNames.append(signedness)
+        canonNames.extend(width)
+        if typ is not None:
+            canonNames.append(typ)
+        return ASTTrailingTypeSpecFundamental(names, canonNames)
+
     def _parse_trailing_type_spec(self) -> ASTTrailingTypeSpec:
         # fundamental types, https://en.cppreference.com/w/cpp/language/type
         # and extensions
         self.skip_ws()
-        if self.match(_simple_type_specifiers_re):
-            return ASTTrailingTypeSpecFundamental(self.matched_text)
+        res = self._parse_simple_type_specifiers()
+        if res is not None:
+            return res
 
         # decltype
         self.skip_ws()
