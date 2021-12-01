@@ -12,7 +12,7 @@ import pytest
 
 from docutils.nodes import Text as txtcls
 from sphinx.environment.adapters import indexrack as irack
-from sphinx.testing import restructuredtext
+from sphinx.testing import restructuredtext, indexdomain_entries as ie
 
 
 @pytest.mark.sphinx('dummy', freshenv=True)
@@ -190,41 +190,11 @@ def test_issue9795(app):
 #-------------------------------------------------------------------
 
 
-class TemporaryDomain(object):
-    def __init__(self, entries):
-        self.entries = entries
-
-
-class TemporaryEnvironment(object):
-    def __init__(self, entries):
-        self.domain = {}
-        self.domain['index'] = TemporaryDomain(entries)
-    def get_domain(self, domain_type):
-        return self.domain[domain_type]
-
-
-class TemporaryConfiguration(object):
-    def __init__(self):
-        self.parameter_name = 'value'
-
-
-class TemporaryBuilder(object):
-    def __init__(self, entries):
-        self.env = TemporaryEnvironment(entries)
-        self.get_domain = self.env.get_domain
-        self.config = TemporaryConfiguration()
-    def get_relative_uri(self, uri_type, file_name):
-        return f'{file_name}.html'
-
-
-#-------------------------------------------------------------------
-
-
 @pytest.mark.sphinx('dummy', freshenv=True)
 def test_class_IndexRack_function_catalog(app):
     # one function
     testcase01 = {'doc1': [ ('single','func1() (aaa module)','id-111','',None), ] }
-    bld = TemporaryBuilder(testcase01)
+    bld = ie.Builder(testcase01)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 1
     assert len(index[0][1]) == 1
@@ -235,7 +205,7 @@ def test_class_IndexRack_function_catalog(app):
     # two functions
     testcase02 = {'doc1': [ ('single','func1() (doc1 module)','id-211','',None),],
                   'doc2': [ ('single','func1() (doc2 module)','id-221','',None),], }
-    bld = TemporaryBuilder(testcase02)
+    bld = ie.Builder(testcase02)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 1
     assert len(index[0][1]) == 1
@@ -248,7 +218,7 @@ def test_class_IndexRack_function_catalog(app):
     # two functions/group_entries = False
     testcase02 = {'doc1': [ ('single','func1() (doc1 module)','id-211','',None),],
                   'doc2': [ ('single','func1() (doc2 module)','id-221','',None),], }
-    bld = TemporaryBuilder(testcase02)
+    bld = ie.Builder(testcase02)
     index = irack.IndexRack(bld).create_index(False)
     assert len(index) == 1
     assert len(index[0][1]) == 2
@@ -259,7 +229,7 @@ def test_class_IndexRack_function_catalog(app):
     # two functions/module name
     testcase03 = {'doc1': [ ('single','func1() (bbbb module)','id-311','',None),],
                   'doc2': [ ('single','func1() (aaaa module)','id-321','',None),], }
-    bld = TemporaryBuilder(testcase03)
+    bld = ie.Builder(testcase03)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 1
     assert len(index[0][1]) == 1
@@ -274,7 +244,7 @@ def test_class_IndexRack_function_catalog(app):
                   'doc2': [ ('single','func2() (doc2 module)','id-421','',None),],
                   'doc3': [ ('single','func1() (doc3 module)','id-431','',None),],
                   'doc4': [ ('single','func2() (odc4 module)','id-441','',None),], }
-    bld = TemporaryBuilder(testcase04)
+    bld = ie.Builder(testcase04)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 1
     assert len(index[0][1]) == 2
@@ -293,7 +263,7 @@ def test_class_IndexRack_function_catalog(app):
                   'doc2': [ ('single','func2() (bbbb module)','id-521','',None),],
                   'doc3': [ ('single','func1() (aaaa module)','id-531','',None),],
                   'doc4': [ ('single','func2() (aaaa module)','id-541','',None),], }
-    bld = TemporaryBuilder(testcase05)
+    bld = ie.Builder(testcase05)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 1
     assert len(index[0][1]) == 2
@@ -312,7 +282,7 @@ def test_class_IndexRack_function_catalog(app):
                   'doc2': [ ('single','func1() (doc2 module)','id-621','',None),],
                   'doc3': [ ('single','func1() (doc3 module)','id-631','',None),],
                   'doc4': [ ('single','func1()','id-641','',None),], }
-    bld = TemporaryBuilder(testcase06)
+    bld = ie.Builder(testcase06)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 1
     assert len(index[0][1]) == 1
@@ -328,7 +298,7 @@ def test_class_IndexRack_function_catalog(app):
                   'doc2': [ ('single','func1() (doc2 module)','id-721','',None),],
                   'doc3': [ ('single','func1() (doc3 module)','id-731','',None),],
                   'doc4': [ ('single','func1()','id-741','main',None),], }
-    bld = TemporaryBuilder(testcase07)
+    bld = ie.Builder(testcase07)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 1
     assert len(index[0][1]) == 1
@@ -344,7 +314,7 @@ def test_class_IndexRack_function_catalog(app):
                   'doc2': [ ('single','func2() (doc2 module); sphinx','id-821','',None),],
                   'doc3': [ ('single','func1() (doc3 module); python','id-831','',None),],
                   'doc4': [ ('single','func2() (odc4 module); python','id-841','',None),], }
-    bld = TemporaryBuilder(testcase08)
+    bld = ie.Builder(testcase08)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 1
     assert len(index[0][1]) == 2
@@ -368,7 +338,7 @@ def test_class_IndexRack_classifier_catalog(app):
     # basic/doc1 has classifier.
     testcase01 = {'doc1': [ ('single','sphinx','id-111','','clf'), ],
                   'doc2': [ ('single','sphinx','id-121','',None), ], }
-    bld = TemporaryBuilder(testcase01)
+    bld = ie.Builder(testcase01)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 1
     assert len(index[0][1]) == 1
@@ -381,7 +351,7 @@ def test_class_IndexRack_classifier_catalog(app):
     # basic/doc2 has classifier.
     testcase02 = {'doc1': [ ('single','sphinx','id-211','',None), ],
                   'doc2': [ ('single','sphinx','id-221','','clf'), ], }
-    bld = TemporaryBuilder(testcase02)
+    bld = ie.Builder(testcase02)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 1
     assert len(index[0][1]) == 1
@@ -397,7 +367,7 @@ def test_class_IndexRack_see_and_seealso(app):
     # see
     testcase01 = {'doc1': [ ('single','python','id-111','',None), ],
                   'doc2': [ ('see','sphinx; python','id-121','',None), ], }
-    bld = TemporaryBuilder(testcase01)
+    bld = ie.Builder(testcase01)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -410,7 +380,7 @@ def test_class_IndexRack_see_and_seealso(app):
     # seealso
     testcase02 = {'doc1': [ ('single','python','id-211','',None), ],
                   'doc2': [ ('seealso','sphinx; python','id-221','',None), ], }
-    bld = TemporaryBuilder(testcase02)
+    bld = ie.Builder(testcase02)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -425,7 +395,7 @@ def test_class_IndexRack_see_and_seealso(app):
                   'doc2': [ ('single','sphinx; directive','id-321','',None), ],
                   'doc3': [ ('see','sphinx; python','id-331','',None), ],
                   'doc4': [ ('single','sphinx; role','id-341','',None), ], }
-    bld = TemporaryBuilder(testcase03)
+    bld = ie.Builder(testcase03)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -444,7 +414,7 @@ def test_class_IndexRack_see_and_seealso(app):
                   'doc2': [ ('single','sphinx; directive','id-421','',None), ],
                   'doc3': [ ('seealso','sphinx; python','id-431','',None), ],
                   'doc4': [ ('single','sphinx; role','id-441','',None), ], }
-    bld = TemporaryBuilder(testcase04)
+    bld = ie.Builder(testcase04)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -463,7 +433,7 @@ def test_class_IndexRack_see_and_seealso(app):
 def test_class_IndexRack_triple(app):
     # basic
     testcase01 = {'doc1': [ ('triple','bash; perl; tcsh','id-111','',None), ], }
-    bld = TemporaryBuilder(testcase01)
+    bld = ie.Builder(testcase01)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 3
     assert len(index[0][1]) == 1
@@ -487,7 +457,7 @@ def test_class_IndexRack_triple(app):
                   'doc2': [ ('single','bash; perl','id-221','',None), ],
                   'doc3': [ ('single','perl; tcsh','id-231','',None), ],
                   'doc4': [ ('single','tcsh; bash','id-241','',None), ], }
-    bld = TemporaryBuilder(testcase02)
+    bld = ie.Builder(testcase02)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 3
     assert len(index[0][1]) == 1
@@ -514,7 +484,7 @@ def test_class_IndexRack_triple(app):
                   'doc2': [ ('single','bash; perl tcsh','id-321','',None), ],
                   'doc3': [ ('single','perl; tcsh, bash','id-331','',None), ],
                   'doc4': [ ('single','tcsh; bash perl','id-341','',None), ], }
-    bld = TemporaryBuilder(testcase03)
+    bld = ie.Builder(testcase03)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 3
     assert len(index[0][1]) == 1
@@ -541,7 +511,7 @@ def test_class_IndexRack_triple(app):
                   'doc2': [ ('single','bash; perl tcsh','id-421','main',None), ],
                   'doc3': [ ('single','perl; tcsh, bash','id-431','main',None), ],
                   'doc4': [ ('single','tcsh; bash perl','id-441','main',None), ], }
-    bld = TemporaryBuilder(testcase04)
+    bld = ie.Builder(testcase04)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 3
     assert len(index[0][1]) == 1
@@ -568,7 +538,7 @@ def test_class_IndexRack_triple(app):
                   'doc2': [ ('single','perl; tcsh, bash','id-521','',None), ],
                   'doc3': [ ('single','tcsh; bash perl','id-531','',None), ],
                   'doc4': [ ('triple','bash; perl; tcsh','id-541','main',None), ], }
-    bld = TemporaryBuilder(testcase05)
+    bld = ie.Builder(testcase05)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 3
     assert len(index[0][1]) == 1
@@ -595,7 +565,7 @@ def test_class_IndexRack_triple(app):
 def test_class_IndexRack_pair(app):
     # basic
     testcase01 = { 'doc1': [ ('pair','sphinx; reST','id-111','',None), ], }
-    bld = TemporaryBuilder(testcase01)
+    bld = ie.Builder(testcase01)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -616,7 +586,7 @@ def test_class_IndexRack_pair(app):
                   'doc2': [ ('pair','python; ruby','id-221','',None), ],
                   'doc3': [ ('pair','ruby; php',   'id-231','',None), ],
                   'doc4': [ ('pair','php; python', 'id-241','',None), ], }
-    bld = TemporaryBuilder(testcase02)
+    bld = ie.Builder(testcase02)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 3
     assert len(index[0][1]) == 2
@@ -650,7 +620,7 @@ def test_class_IndexRack_pair(app):
     testcase03 = {'doc1': [ ('pair','sphinx; python','id-311','',None), ],
                   'doc2': [ ('single','sphinx','id-321','',None), ],
                   'doc3': [ ('single','python','id-331','',None), ], }
-    bld = TemporaryBuilder(testcase03)
+    bld = ie.Builder(testcase03)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -668,7 +638,7 @@ def test_class_IndexRack_pair(app):
     testcase04 = {'doc1': [ ('pair','sphinx; python','id-411','',None), ],
                   'doc2': [ ('single','sphinx; python','id-421','',None), ],
                   'doc3': [ ('single','python; sphinx','id-431','',None), ], }
-    bld = TemporaryBuilder(testcase04)
+    bld = ie.Builder(testcase04)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -688,7 +658,7 @@ def test_class_IndexRack_pair(app):
     testcase05 = {'doc1': [ ('pair','sphinx; python','id-511','',None), ],
                   'doc2': [ ('single','sphinx; python','id-521','main',None), ],
                   'doc3': [ ('single','python; sphinx','id-531','main',None), ], }
-    bld = TemporaryBuilder(testcase05)
+    bld = ie.Builder(testcase05)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -708,7 +678,7 @@ def test_class_IndexRack_pair(app):
     testcase06 = {'doc3': [ ('pair','sphinx; python','id-611','',None), ],
                   'doc1': [ ('single','sphinx; python','id-621','',None), ],
                   'doc2': [ ('single','python; sphinx','id-631','',None), ], }
-    bld = TemporaryBuilder(testcase06)
+    bld = ie.Builder(testcase06)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -728,7 +698,7 @@ def test_class_IndexRack_pair(app):
     testcase07 = {'doc3': [ ('pair','sphinx; python','id-711','main',None), ],
                   'doc1': [ ('single','sphinx; python','id-721','',None), ],
                   'doc2': [ ('single','python; sphinx','id-731','',None), ], }
-    bld = TemporaryBuilder(testcase07)
+    bld = ie.Builder(testcase07)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -753,7 +723,7 @@ def test_class_IndexRack_single_mixing(app):
                   'doc4': [ ('single','python','id-741','',None), ],
                   'doc5': [ ('single','sphinx','id-751','',None), ],
                   'doc6': [ ('single','python','id-761','',None), ], }
-    bld = TemporaryBuilder(testcase01)
+    bld = ie.Builder(testcase01)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -776,7 +746,7 @@ def test_class_IndexRack_single_mixing(app):
                   'doc4': [ ('single','python','id-841','',None), ],
                   'doc5': [ ('single','sphinx','id-851','main',None), ],
                   'doc6': [ ('single','python','id-861','main',None), ], }
-    bld = TemporaryBuilder(testcase02)
+    bld = ie.Builder(testcase02)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -799,7 +769,7 @@ def test_class_IndexRack_single_mixing(app):
                   'doc6': [ ('single','python','id-941','',None), ],
                   'doc3': [ ('single','sphinx','id-951','',None), ],
                   'doc4': [ ('single','python','id-961','',None), ], }
-    bld = TemporaryBuilder(testcase03)
+    bld = ie.Builder(testcase03)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -821,7 +791,7 @@ def test_class_IndexRack_single_two_terms(app):
     #basic
     testcase01 = {'doc1': [ ('single','sphinx; bash','id-111','',None), ],
                   'doc2': [ ('single','python; php','id-121','',None), ], }
-    bld = TemporaryBuilder(testcase01)
+    bld = ie.Builder(testcase01)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -840,7 +810,7 @@ def test_class_IndexRack_single_two_terms(app):
                   'doc2': [ ('single','python; ruby','id-221','',None), ],
                   'doc3': [ ('single','sphinx; bash','id-231','',None), ],
                   'doc4': [ ('single','python; perl','id-241','',None), ], }
-    bld = TemporaryBuilder(testcase02)
+    bld = ie.Builder(testcase02)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -861,7 +831,7 @@ def test_class_IndexRack_single_two_terms(app):
                   'doc2': [ ('single','python; python','id-321','',None), ],
                   'doc3': [ ('single','sphinx; sphinx','id-331','',None), ],
                   'doc4': [ ('single','python; python','id-341','',None), ], }
-    bld = TemporaryBuilder(testcase03)
+    bld = ie.Builder(testcase03)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -882,7 +852,7 @@ def test_class_IndexRack_single_two_terms(app):
                   'doc2': [ ('single','python; python','id-421','',None), ],
                   'doc3': [ ('single','sphinx; sphinx','id-431','main',None), ],
                   'doc4': [ ('single','python; python','id-441','main',None), ], }
-    bld = TemporaryBuilder(testcase04)
+    bld = ie.Builder(testcase04)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -905,7 +875,7 @@ def test_class_IndexRack_single_two_terms(app):
                   'doc6': [ ('single','python; python','id-541','main',None), ],
                   'doc3': [ ('single','sphinx; sphinx','id-551','main',None), ],
                   'doc4': [ ('single','python; python','id-561','main',None), ], }
-    bld = TemporaryBuilder(testcase05)
+    bld = ie.Builder(testcase05)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -928,7 +898,7 @@ def test_class_IndexRack_single_two_terms(app):
                   'doc4': [ ('single','python; ruby','id-621','',None), ],
                   'doc1': [ ('single','sphinx; reST','id-631','',None), ],
                   'doc2': [ ('single','python; ruby','id-641','',None), ], }
-    bld = TemporaryBuilder(testcase06)
+    bld = ie.Builder(testcase06)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -949,7 +919,7 @@ def test_class_IndexRack_single_two_terms(app):
                   'doc2': [ ('single','python; ruby','id-721','',None), ],
                   'doc3': [ ('single','sphinx; reST','id-731','',None), ],
                   'doc4': [ ('single','python; reST','id-741','',None), ], }
-    bld = TemporaryBuilder(testcase07)
+    bld = ie.Builder(testcase07)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -968,7 +938,7 @@ def test_class_IndexRack_single_two_terms(app):
     #same term, same subterm.
     testcase08 = {'doc1': [ ('single','sphinx; python','id-811','',None), ],
                   'doc2': [ ('single','sphinx; python','id-821','',None), ], }
-    bld = TemporaryBuilder(testcase08)
+    bld = ie.Builder(testcase08)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 1
     assert len(index[0][1]) == 1
@@ -984,7 +954,7 @@ def test_class_IndexRack_single_one_term(app):
     # sort
     testcase01 = {'doc1': [ ('single','sphinx','id-111','',None), ],
                   'doc2': [ ('single','python','id-121','',None), ], }
-    bld = TemporaryBuilder(testcase01)
+    bld = ie.Builder(testcase01)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert index[0] == ('P', [('python', [[('', 'doc2.html#id-121')], [], None])])
@@ -993,7 +963,7 @@ def test_class_IndexRack_single_one_term(app):
     # sort/same string
     testcase02 = {'doc1': [ ('single','sphinx','id-211','',None), ],
                   'doc2': [ ('single','sphinx','id-221','',None), ], }
-    bld = TemporaryBuilder(testcase02)
+    bld = ie.Builder(testcase02)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 1
     assert len(index[0][1]) == 1
@@ -1005,7 +975,7 @@ def test_class_IndexRack_single_one_term(app):
     # sort/main
     testcase03 = {'doc1': [ ('single','sphinx','id-311','main',None), ],
                   'doc2': [ ('single','sphinx','id-321','',None), ], }
-    bld = TemporaryBuilder(testcase03)
+    bld = ie.Builder(testcase03)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 1
     assert len(index[0][1]) == 1
@@ -1017,7 +987,7 @@ def test_class_IndexRack_single_one_term(app):
     # sort/main
     testcase04 = {'doc1': [ ('single','sphinx','id-411','',None), ],
                   'doc2': [ ('single','sphinx','id-421','main',None), ], }
-    bld = TemporaryBuilder(testcase04)
+    bld = ie.Builder(testcase04)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 1
     assert len(index[0][1]) == 1
@@ -1029,7 +999,7 @@ def test_class_IndexRack_single_one_term(app):
     # sort/main
     testcase05 = {'doc1': [ ('single','sphinx','id-511','main',None), ],
                   'doc2': [ ('single','sphinx','id-521','main',None), ], }
-    bld = TemporaryBuilder(testcase05)
+    bld = ie.Builder(testcase05)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 1
     assert len(index[0][1]) == 1
@@ -1043,7 +1013,7 @@ def test_class_IndexRack_single_one_term(app):
                   'doc2': [ ('single','sphinx','id-621','',None), ],
                   'doc3': [ ('single','python','id-631','',None), ],
                   'doc4': [ ('single','python','id-641','',None), ], }
-    bld = TemporaryBuilder(testcase06)
+    bld = ie.Builder(testcase06)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -1062,7 +1032,7 @@ def test_class_IndexRack_single_one_term(app):
                   'doc2': [ ('single','sphinx','id-721','main',None), ],
                   'doc3': [ ('single','python','id-731','',None), ],
                   'doc4': [ ('single','python','id-741','main',None), ], }
-    bld = TemporaryBuilder(testcase07)
+    bld = ie.Builder(testcase07)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert len(index[0][1]) == 1
@@ -1347,7 +1317,7 @@ def test_issue9744(app):
                  ('single', 'bbb', 'id-112', '', None), ],
         'doc2': [('single', 'aaa', 'id-121', '', None),
                  ('single', 'bbb', 'id-122', '', 'clf2'), ], }
-    bld = TemporaryBuilder(testcase01)
+    bld = ie.Builder(testcase01)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 2
     assert index[0][0] == 'clf1'
@@ -1361,7 +1331,7 @@ def test_issue9744(app):
     testcase02 = {
         'doc1': [('see','hogehoge; foo','id-211','main',None),
                  ('seealso','hogehoge; bar','id-212','main',None), ], }
-    bld = TemporaryBuilder(testcase02)
+    bld = ie.Builder(testcase02)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 1
     assert index[0][0] == 'H'
@@ -1374,7 +1344,7 @@ def test_issue9744(app):
         'doc1': [('single','func1() (aaa module)','id-311','',None),
                  ('single','func1() (bbb module)','id-312','',None),
                  ('single','func1() (ccc module)','id-313','',None), ], }
-    bld = TemporaryBuilder(testcase03)
+    bld = ie.Builder(testcase03)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 1
     assert index[0][0] == 'F'
@@ -1390,7 +1360,7 @@ def test_issue9744(app):
         'doc1': [('single','func1() (aaa module)','id-411','',None),
                  ('single','func1() (bbb module)','id-412','',None),
                  ('single','func1() (ccc module)','id-413','main',None), ], }
-    bld = TemporaryBuilder(testcase04)
+    bld = ie.Builder(testcase04)
     index = irack.IndexRack(bld).create_index()
     assert len(index) == 1
     assert index[0][0] == 'F'
