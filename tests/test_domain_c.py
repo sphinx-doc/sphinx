@@ -595,10 +595,7 @@ def test_domain_c_ast_attributes():
 
 def test_extra_keywords():
     with pytest.raises(DefinitionError,
-                       match='Expected identifier, got user-defined keyword: complex.'):
-        parse('function', 'void f(int complex)')
-    with pytest.raises(DefinitionError,
-                       match='Expected identifier, got user-defined keyword: complex.'):
+                       match='Expected identifier in nested name'):
         parse('function', 'void complex(void)')
 
 

@@ -92,9 +92,10 @@ _id_prefix = [None, 'c.', 'Cv2.']
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
 
+# bool, complex, and imaginary are macro "keywords", so they are handled seperately
 _simple_type_specifiers_re = re.compile(r"""(?x)
     \b(
-    void|_Bool|bool
+    void|_Bool
     |signed|unsigned
     |short|long
     |char
@@ -103,7 +104,7 @@ _simple_type_specifiers_re = re.compile(r"""(?x)
     |__int(8|16|32|64|128)  # extension
     |float|double
     |_Decimal(32|64|128)
-    |_Complex|complex|_Imaginary|imaginary
+    |_Complex|_Imaginary
     |__float80|_Float64x|__float128|_Float128|__ibm128  # extension
     |__fp16  # extension
     |_Sat|_Fract|fract|_Accum|accum  # extension
@@ -2571,12 +2572,24 @@ class DefinitionParser(BaseParser):
                 break
         return ASTNestedName(names, rooted)
 
+    def _parse_simple_type_specifier(self) -> Optional[str]:
+        if self.match(_simple_type_specifiers_re):
+            return self.matched_text
+        for t in ('bool', 'complex', 'imaginary'):
+            if t in self.config.c_extra_keywords:
+                if self.skip_word(t):
+                    return t
+        return None
+
     def _parse_simple_type_specifiers(self) -> ASTTrailingTypeSpecFundamental:
         names: List[str] = []
 
         self.skip_ws()
-        while self.match(_simple_type_specifiers_re):
-            names.append(self.matched_text)
+        while True:
+            t = self._parse_simple_type_specifier()
+            if t is None:
+                break
+            names.append(t)
             self.skip_ws()
         if len(names) == 0:
             return None
