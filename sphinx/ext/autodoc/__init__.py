@@ -1295,6 +1295,8 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
     def format_args(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
+        if self.config.autodoc_unqualified_typehints:
+            kwargs.setdefault('unqualified_typehints', True)
 
         try:
             self.env.app.emit('autodoc-before-process-signature', self.object, False)
@@ -1323,6 +1325,9 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             self.add_line('   :async:', sourcename)
 
     def format_signature(self, **kwargs: Any) -> str:
+        if self.config.autodoc_unqualified_typehints:
+            kwargs.setdefault('unqualified_typehints', True)
+
         sigs = []
         if (self.analyzer and
                 '.'.join(self.objpath) in self.analyzer.overloads and
@@ -1561,6 +1566,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     def format_args(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
+        if self.config.autodoc_unqualified_typehints:
+            kwargs.setdefault('unqualified_typehints', True)
 
         try:
             self._signature_class, self._signature_method_name, sig = self._get_signature()
@@ -1581,6 +1588,9 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if self.config.autodoc_class_signature == 'separated':
             # do not show signatures
             return ''
+
+        if self.config.autodoc_unqualified_typehints:
+            kwargs.setdefault('unqualified_typehints', True)
 
         sig = super().format_signature()
         sigs = []
@@ -2110,6 +2120,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
     def format_args(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
+        if self.config.autodoc_unqualified_typehints:
+            kwargs.setdefault('unqualified_typehints', True)
 
         try:
             if self.object == object.__init__ and self.parent != object:
@@ -2160,6 +2172,9 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         pass
 
     def format_signature(self, **kwargs: Any) -> str:
+        if self.config.autodoc_unqualified_typehints:
+            kwargs.setdefault('unqualified_typehints', True)
+
         sigs = []
         if (self.analyzer and
                 '.'.join(self.objpath) in self.analyzer.overloads and
@@ -2833,6 +2848,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('autodoc_typehints_description_target', 'all', True,
                          ENUM('all', 'documented'))
     app.add_config_value('autodoc_type_aliases', {}, True)
+    app.add_config_value('autodoc_unqualified_typehints', False, 'env')
     app.add_config_value('autodoc_warningiserror', True, True)
     app.add_config_value('autodoc_inherit_docstrings', True, True)
     app.add_event('autodoc-before-process-signature')
