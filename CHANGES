@@ -33,6 +33,7 @@ Bugs fixed
   with Python 3.10
 * #9878: mathjax: MathJax configuration is placed after loading MathJax itself
 * #9857: Generated RFC links use outdated base url
+* #9909: HTML, prevent line-wrapping in literal text.
 
 Testing
 --------
