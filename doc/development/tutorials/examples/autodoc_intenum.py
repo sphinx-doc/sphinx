@@ -9,7 +9,7 @@ from sphinx.ext.autodoc import ClassDocumenter, bool_option
 
 class IntEnumDocumenter(ClassDocumenter):
     objtype = 'intenum'
-    directivetype = 'class'
+    directivetype = ClassDocumenter.objtype
     priority = 10 + ClassDocumenter.priority
     option_spec = dict(ClassDocumenter.option_spec)
     option_spec['hex'] = bool_option
@@ -18,7 +18,10 @@ class IntEnumDocumenter(ClassDocumenter):
     def can_document_member(cls,
                             member: Any, membername: str,
                             isattr: bool, parent: Any) -> bool:
-        return isinstance(member, IntEnum)
+        try:
+            return issubclass(member, IntEnum)
+        except TypeError:
+            return False
 
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
