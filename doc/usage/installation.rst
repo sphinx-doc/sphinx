@@ -243,7 +243,7 @@ PDF builds using LaTeX.  Please choose one for your purpose.
 
       $ docker run -it --rm -v /path/to/document:/docs sphinxdoc/sphinx sphinx-quickstart
 
-   And you can following command this to build HTML document:
+   And you can use the following command to build HTML document:
 
    .. code-block:: bash
 
