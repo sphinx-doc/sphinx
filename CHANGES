@@ -73,7 +73,7 @@ Bugs fixed
 * #9838: autodoc: AttributeError is raised on building document for functions
   decorated by functools.lru_cache
 * #9879: autodoc: AttributeError is raised on building document for an object
-  having invalid __doc__ atribute
+  having invalid __doc__ attribute
 * #9844: autodoc: Failed to process a function wrapped with functools.partial if
   :confval:`autodoc_preserve_defaults` enabled
 * #9872: html: Class namespace collision between autodoc signatures and
@@ -158,7 +158,7 @@ Bugs fixed
 * #9752: autodoc: Failed to detect type annotation for slots attribute
 * #9756: autodoc: Crashed if classmethod does not have __func__ attribute
 * #9757: autodoc: :confval:`autodoc_inherit_docstrings` does not effect to
-  overriden classmethods
+  overridden classmethods
 * #9781: autodoc: :confval:`autodoc_preserve_defaults` does not support
   hexadecimal numeric
 * #9630: autosummary: Failed to build summary table if :confval:`primary_domain`
