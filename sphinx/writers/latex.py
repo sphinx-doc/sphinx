@@ -2079,9 +2079,6 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_math_reference(self, node: Element) -> None:
         pass
 
-    def unknown_visit(self, node: Node) -> None:
-        raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
-
 
 # FIXME: Workaround to avoid circular import
 # refs: https://github.com/sphinx-doc/sphinx/issues/5433

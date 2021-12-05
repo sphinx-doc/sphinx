@@ -1265,10 +1265,6 @@ class TexinfoTranslator(SphinxTranslator):
         logger.warning(__("unimplemented node type: %r"), node,
                        location=node)
 
-    def unknown_visit(self, node: Node) -> None:
-        logger.warning(__("unknown node type: %r"), node,
-                       location=node)
-
     def unknown_departure(self, node: Node) -> None:
         pass
 

@@ -462,6 +462,3 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     def depart_math_block(self, node: Element) -> None:
         self.depart_centered(node)
-
-    def unknown_visit(self, node: Node) -> None:
-        raise NotImplementedError('Unknown node: ' + node.__class__.__name__)

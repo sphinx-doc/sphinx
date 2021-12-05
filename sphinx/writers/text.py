@@ -1189,6 +1189,3 @@ class TextTranslator(SphinxTranslator):
 
     def depart_math_block(self, node: Element) -> None:
         self.end_state()
-
-    def unknown_visit(self, node: Node) -> None:
-        raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
