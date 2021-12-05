@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-21 00:10+0000\n"
-"PO-Revision-Date: 2021-11-14 06:33+0000\n"
+"POT-Creation-Date: 2021-11-28 00:11+0000\n"
+"PO-Revision-Date: 2021-11-28 15:44+0000\n"
 "Last-Translator: Rafael Fontenelle <rffontenelle@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/sphinx-doc/sphinx-1/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
@@ -1206,7 +1206,7 @@ msgid "job number should be a positive number"
 msgstr "número de tarefas deve ser um número positivo"
 
 #: sphinx/cmd/build.py:104 sphinx/cmd/quickstart.py:470
-#: sphinx/ext/apidoc.py:307 sphinx/ext/autosummary/generate.py:598
+#: sphinx/ext/apidoc.py:307 sphinx/ext/autosummary/generate.py:614
 msgid "For more information, visit <https://www.sphinx-doc.org/>."
 msgstr "Para mais informações, visite <https://www.sphinx-doc.org/>."
 
@@ -2890,7 +2890,7 @@ msgid ""
 msgstr "faltando atributo mencionado na opção :members: : módulo %s, atributo %s"
 
 #: sphinx/ext/autodoc/__init__.py:1304 sphinx/ext/autodoc/__init__.py:1378
-#: sphinx/ext/autodoc/__init__.py:2743
+#: sphinx/ext/autodoc/__init__.py:2751
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "Falha ao obter uma assinatura de função para %s: %s"
@@ -2905,28 +2905,28 @@ msgstr "Falha ao obter uma assinatura de construtor para %s: %s"
 msgid "Bases: %s"
 msgstr "Base: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1756 sphinx/ext/autodoc/__init__.py:1829
-#: sphinx/ext/autodoc/__init__.py:1848
+#: sphinx/ext/autodoc/__init__.py:1764 sphinx/ext/autodoc/__init__.py:1837
+#: sphinx/ext/autodoc/__init__.py:1856
 #, python-format
 msgid "alias of %s"
 msgstr "apelido de %s"
 
-#: sphinx/ext/autodoc/__init__.py:1890
+#: sphinx/ext/autodoc/__init__.py:1898
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr "apelido de TypeVar(%s)"
 
-#: sphinx/ext/autodoc/__init__.py:2123 sphinx/ext/autodoc/__init__.py:2217
+#: sphinx/ext/autodoc/__init__.py:2131 sphinx/ext/autodoc/__init__.py:2225
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr "Falha ao obter uma assinatura de método para %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:2348
+#: sphinx/ext/autodoc/__init__.py:2356
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "__slots__ inválido encontrado em %s. Ignorado."
 
-#: sphinx/ext/autodoc/__init__.py:2786
+#: sphinx/ext/autodoc/__init__.py:2794
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
@@ -2989,30 +2989,30 @@ msgid ""
 "contain .rst. Skipped."
 msgstr "autosummary gera arquivos .rst internamente. Mas seu source_suffix não contém .rst. Ignorado."
 
-#: sphinx/ext/autosummary/generate.py:188
-#: sphinx/ext/autosummary/generate.py:237
+#: sphinx/ext/autosummary/generate.py:189
+#: sphinx/ext/autosummary/generate.py:253
 #, python-format
 msgid ""
 "autosummary: failed to determine %r to be documented, the following exception was raised:\n"
 "%s"
 msgstr "autosummary: falhou em determinar %r a ser documentado, a seguinte exceção foi levantada:\n%s"
 
-#: sphinx/ext/autosummary/generate.py:384
+#: sphinx/ext/autosummary/generate.py:400
 #, python-format
 msgid "[autosummary] generating autosummary for: %s"
 msgstr "[autosummary] gerando autosummary para: %s"
 
-#: sphinx/ext/autosummary/generate.py:388
+#: sphinx/ext/autosummary/generate.py:404
 #, python-format
 msgid "[autosummary] writing to %s"
 msgstr "[autosummary] escrevendo em %s"
 
-#: sphinx/ext/autosummary/generate.py:425
+#: sphinx/ext/autosummary/generate.py:441
 #, python-format
 msgid "[autosummary] failed to import %r: %s"
 msgstr "[autosummary] falha ao importar %r: %s"
 
-#: sphinx/ext/autosummary/generate.py:599
+#: sphinx/ext/autosummary/generate.py:615
 msgid ""
 "\n"
 "Generate ReStructuredText using autosummary directives.\n"
@@ -3027,28 +3027,35 @@ msgid ""
 "  pydoc sphinx.ext.autosummary\n"
 msgstr "\nGera ReStructuredText usando diretivas de resumo automático.\n\nsphinx-autogen é um frontend para sphinx.ext.autosummary.generate.\nEle gera os arquivos reStructuredText a partir de diretivas autosummary\ncontidas nos arquivos de entrada fornecidos.\n\nO formato da diretiva autosummary está documentado no módulo Python\n``sphinx.ext.autosummary`` e pode ser lido usando:\n\n  pydoc sphinx.ext.autosummary\n"
 
-#: sphinx/ext/autosummary/generate.py:616
+#: sphinx/ext/autosummary/generate.py:632
 msgid "source files to generate rST files for"
 msgstr "arquivos-fonte para gerar arquivos rST"
 
-#: sphinx/ext/autosummary/generate.py:620
+#: sphinx/ext/autosummary/generate.py:636
 msgid "directory to place all output in"
 msgstr "diretório para colocar toda a saída"
 
-#: sphinx/ext/autosummary/generate.py:623
+#: sphinx/ext/autosummary/generate.py:639
 #, python-format
 msgid "default suffix for files (default: %(default)s)"
 msgstr "sufixo padrão para arquivos (padrão: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:627
+#: sphinx/ext/autosummary/generate.py:643
 #, python-format
 msgid "custom template directory (default: %(default)s)"
 msgstr "diretório de modelos personalizado (padrão: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:631
+#: sphinx/ext/autosummary/generate.py:647
 #, python-format
 msgid "document imported members (default: %(default)s)"
 msgstr "documenta membros importados (padrão: %(default)s)"
+
+#: sphinx/ext/autosummary/generate.py:651
+#, python-format
+msgid ""
+"document exactly the members in module __all__ attribute. (default: "
+"%(default)s)"
+msgstr "documenta exatamente os membros no módulo atributo __all__. (padrão: %(default)s)"
 
 #: sphinx/ext/napoleon/__init__.py:347 sphinx/ext/napoleon/docstring.py:703
 msgid "Keyword Arguments"
@@ -3375,14 +3382,14 @@ msgid "Other changes"
 msgstr "Outras alterações"
 
 #: sphinx/themes/basic/static/doctools.js:199 sphinx/writers/html.py:437
-#: sphinx/writers/html.py:442 sphinx/writers/html5.py:388
-#: sphinx/writers/html5.py:393
+#: sphinx/writers/html.py:442 sphinx/writers/html5.py:392
+#: sphinx/writers/html5.py:397
 msgid "Permalink to this headline"
 msgstr "Link permanente para este título"
 
 #: sphinx/themes/basic/static/doctools.js:205 sphinx/writers/html.py:132
-#: sphinx/writers/html.py:141 sphinx/writers/html5.py:103
-#: sphinx/writers/html5.py:112
+#: sphinx/writers/html.py:141 sphinx/writers/html5.py:107
+#: sphinx/writers/html5.py:116
 msgid "Permalink to this definition"
 msgstr "Link permanente para esta definição"
 
@@ -3550,37 +3557,37 @@ msgstr "exceção ao avaliar apenas a expressão da diretiva: %s"
 msgid "default role %s not found"
 msgstr "papel padrão %s não encontrado"
 
-#: sphinx/writers/html.py:330 sphinx/writers/html5.py:301
+#: sphinx/writers/html.py:330 sphinx/writers/html5.py:305
 #, python-format
 msgid "numfig_format is not defined for %s"
 msgstr "numfig_format não está definido para %s"
 
-#: sphinx/writers/html.py:340 sphinx/writers/html5.py:311
+#: sphinx/writers/html.py:340 sphinx/writers/html5.py:315
 #, python-format
 msgid "Any IDs not assigned for %s node"
 msgstr "Quaisquer IDs não atribuídos ao nó %s"
 
-#: sphinx/writers/html.py:414 sphinx/writers/html5.py:365
+#: sphinx/writers/html.py:414 sphinx/writers/html5.py:369
 msgid "Permalink to this term"
 msgstr "Link permanente para este termo"
 
-#: sphinx/writers/html.py:446 sphinx/writers/html5.py:397
+#: sphinx/writers/html.py:446 sphinx/writers/html5.py:401
 msgid "Permalink to this table"
 msgstr "Link Permanente para essa tabela"
 
-#: sphinx/writers/html.py:489 sphinx/writers/html5.py:440
+#: sphinx/writers/html.py:489 sphinx/writers/html5.py:444
 msgid "Permalink to this code"
 msgstr "Link Permanente para esse código"
 
-#: sphinx/writers/html.py:491 sphinx/writers/html5.py:442
+#: sphinx/writers/html.py:491 sphinx/writers/html5.py:446
 msgid "Permalink to this image"
 msgstr "Link Permanente para essa imagem"
 
-#: sphinx/writers/html.py:493 sphinx/writers/html5.py:444
+#: sphinx/writers/html.py:493 sphinx/writers/html5.py:448
 msgid "Permalink to this toctree"
 msgstr "Link permanente para esse \"toctree\""
 
-#: sphinx/writers/html.py:625 sphinx/writers/html5.py:565
+#: sphinx/writers/html.py:625 sphinx/writers/html5.py:569
 msgid "Could not obtain image size. :scale: option is ignored."
 msgstr "Não foi possível obter o tamanho da imagem. A opção :scale: foi ignorada."
 
