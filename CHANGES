@@ -39,6 +39,8 @@ Bugs fixed
 * #9925: LaTeX: prohibit also with ``'xelatex'`` line splitting at dashes of
   inline and parsed literals
 * #9944: LaTeX: extra vertical whitespace for some nested declarations
+* #9940: Multi-function declaration in Python domain has cramped vertical
+  spacing in latexpdf output
 
 Testing
 --------
