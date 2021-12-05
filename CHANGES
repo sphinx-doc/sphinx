@@ -18,6 +18,7 @@ Bugs fixed
 
 * #9917: C and C++, parse fundamental types no matter the order of simple type
   specifiers.
+* #9944: LaTeX: extra vertical whitespace for some nested declarations
 
 Testing
 --------
