@@ -36,6 +36,8 @@ Bugs fixed
 * #9878: mathjax: MathJax configuration is placed after loading MathJax itself
 * #9857: Generated RFC links use outdated base url
 * #9909: HTML, prevent line-wrapping in literal text.
+* #9925: LaTeX: prohibit also with ``'xelatex'`` line splitting at dashes of
+  inline and parsed literals
 
 Testing
 --------
