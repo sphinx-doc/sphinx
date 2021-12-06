@@ -1,7 +1,7 @@
 %% LITERAL BLOCKS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexliterals.sty}[2021/01/27 code-blocks and parsed literals]
+\ProvidesFile{sphinxlatexliterals.sty}[2021/12/06 code-blocks and parsed literals]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -711,6 +711,9 @@
  \ifspx@opt@parsedliteralwraps
    \sbox\sphinxcontinuationbox {\spx@opt@verbatimcontinued}%
    \sbox\sphinxvisiblespacebox {\spx@opt@verbatimvisiblespace}%
+% this uses a monospace font and linebreaks at dashes will be inhibited with
+% pdflatex; not so with xelatex (cf \defaultfontfeatures in latex writer) so:
+   \def\sphinxhyphen{\mbox{-}}%
    \sphinxbreaksattexescapedchars
    \sphinxbreaksviaactiveinparsedliteral
    \sphinxbreaksatspaceinparsedliteral
@@ -762,6 +765,10 @@
 \protected\def\sphinxupquote#1{{\def\@tempa{alltt}%
   \ifx\@tempa\@currenvir\else
    \ifspx@opt@inlineliteralwraps
+      % a priori, this is typeset using a monospace font (cf \sphinxcode in
+      % sphinxlatexstyletext.sty) so linebreaks at dashes are inhibited;
+      % but, for xelatex or in case of non-monospace font, let's do this:
+      \def\sphinxhyphen{\mbox{-}}%
       % break at . , ; ? ! /
       \sphinxbreaksviaactive
       % break also at \
