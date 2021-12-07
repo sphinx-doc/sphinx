@@ -39,14 +39,13 @@ class IntEnumDocumenter(ClassDocumenter):
         use_hex = self.options.hex
         self.add_line('', source_name)
 
-        for enum_value in enum_object:
-            the_value_name = enum_value.name
-            the_value_value = enum_value.value
+        for the_member_name, enum_member in enum_object.__members__.items():
+            the_member_value = enum_member.value
             if use_hex:
-                the_value_value = hex(the_value_value)
+                the_member_value = hex(the_member_value)
 
             self.add_line(
-                f"**{the_value_name}**: {the_value_value}", source_name)
+                f"**{the_member_name}**: {the_member_value}", source_name)
             self.add_line('', source_name)
 
 
