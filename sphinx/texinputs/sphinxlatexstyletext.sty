@@ -83,7 +83,9 @@
 % Inside code-blocks, dashes are escaped via another macro, from
 % Pygments latex output (search for \PYGZhy in sphinxlatexliterals.sty),
 % and are configured to allow linebreaks despite the monospace font.
+% (the #1 swallows the {} from \sphinxhyphen{} mark-up)
 \protected\def\sphinxhyphen#1{-\kern\z@}
+\protected\def\sphinxhyphennobreak#1{\mbox{-}}
 % The {} from texescape mark-up is kept, else -- gives en-dash in PDF bookmark
 \def\sphinxhyphenforbookmarks{-}
 
