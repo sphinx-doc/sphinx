@@ -53,3 +53,4 @@ jobs:
         commit-message: 'Update message catalogs'
         branch: bot/pull-translations
         title: Update message catalogs
+        labels: i18n

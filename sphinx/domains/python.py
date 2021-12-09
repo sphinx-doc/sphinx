@@ -80,9 +80,9 @@ class ModuleEntry(NamedTuple):
     deprecated: bool
 
 
-def type_to_xref(text: str, env: BuildEnvironment = None) -> addnodes.pending_xref:
+def type_to_xref(target: str, env: BuildEnvironment = None) -> addnodes.pending_xref:
     """Convert a type string to a cross reference node."""
-    if text == 'None':
+    if target == 'None':
         reftype = 'obj'
     else:
         reftype = 'class'
@@ -92,6 +92,17 @@ def type_to_xref(text: str, env: BuildEnvironment = None) -> addnodes.pending_xr
                   'py:class': env.ref_context.get('py:class')}
     else:
         kwargs = {}
+
+    refspecific = False
+    if target.startswith('.'):
+        target = target[1:]
+        text = target
+        refspecific = True
+    elif target.startswith('~'):
+        target = target[1:]
+        text = target.split('.')[-1]
+    else:
+        text = target
 
     if env.config.python_use_unqualified_type_names:
         # Note: It would be better to use qualname to describe the object to support support
@@ -104,7 +115,8 @@ def type_to_xref(text: str, env: BuildEnvironment = None) -> addnodes.pending_xr
         contnodes = [nodes.Text(text)]
 
     return pending_xref('', *contnodes,
-                        refdomain='py', reftype=reftype, reftarget=text, **kwargs)
+                        refdomain='py', reftype=reftype, reftarget=target,
+                        refspecific=refspecific, **kwargs)
 
 
 def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Node]:

@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-21 00:10+0000\n"
-"PO-Revision-Date: 2021-11-14 00:10+0000\n"
+"POT-Creation-Date: 2021-11-28 00:11+0000\n"
+"PO-Revision-Date: 2021-11-28 00:11+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Hindi (http://www.transifex.com/sphinx-doc/sphinx-1/language/hi/)\n"
 "MIME-Version: 1.0\n"
@@ -1204,7 +1204,7 @@ msgid "job number should be a positive number"
 msgstr "कार्य संख्या एक धनात्मक संख्या होनी चाहिए"
 
 #: sphinx/cmd/build.py:104 sphinx/cmd/quickstart.py:470
-#: sphinx/ext/apidoc.py:307 sphinx/ext/autosummary/generate.py:598
+#: sphinx/ext/apidoc.py:307 sphinx/ext/autosummary/generate.py:614
 msgid "For more information, visit <https://www.sphinx-doc.org/>."
 msgstr ""
 
@@ -2888,7 +2888,7 @@ msgid ""
 msgstr ""
 
 #: sphinx/ext/autodoc/__init__.py:1304 sphinx/ext/autodoc/__init__.py:1378
-#: sphinx/ext/autodoc/__init__.py:2743
+#: sphinx/ext/autodoc/__init__.py:2751
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr ""
@@ -2903,28 +2903,28 @@ msgstr ""
 msgid "Bases: %s"
 msgstr "आधार: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1756 sphinx/ext/autodoc/__init__.py:1829
-#: sphinx/ext/autodoc/__init__.py:1848
+#: sphinx/ext/autodoc/__init__.py:1764 sphinx/ext/autodoc/__init__.py:1837
+#: sphinx/ext/autodoc/__init__.py:1856
 #, python-format
 msgid "alias of %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1890
+#: sphinx/ext/autodoc/__init__.py:1898
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2123 sphinx/ext/autodoc/__init__.py:2217
+#: sphinx/ext/autodoc/__init__.py:2131 sphinx/ext/autodoc/__init__.py:2225
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2348
+#: sphinx/ext/autodoc/__init__.py:2356
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2786
+#: sphinx/ext/autodoc/__init__.py:2794
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
@@ -2987,30 +2987,30 @@ msgid ""
 "contain .rst. Skipped."
 msgstr "ऑटोसमरी आतंरिक रूप से आर.एस.टी. फाइलें बनाता है. आपके सोर्स_सफिक्स में आर.एस.टी. सम्मिलित नहीं है. छोड़ा गया."
 
-#: sphinx/ext/autosummary/generate.py:188
-#: sphinx/ext/autosummary/generate.py:237
+#: sphinx/ext/autosummary/generate.py:189
+#: sphinx/ext/autosummary/generate.py:253
 #, python-format
 msgid ""
 "autosummary: failed to determine %r to be documented, the following exception was raised:\n"
 "%s"
 msgstr ""
 
-#: sphinx/ext/autosummary/generate.py:384
+#: sphinx/ext/autosummary/generate.py:400
 #, python-format
 msgid "[autosummary] generating autosummary for: %s"
 msgstr "[ऑटोसमरी] अब इसका स्वतःसारांश बना रहा है: %s"
 
-#: sphinx/ext/autosummary/generate.py:388
+#: sphinx/ext/autosummary/generate.py:404
 #, python-format
 msgid "[autosummary] writing to %s"
 msgstr "[ऑटोसमरी] %s पर लिख रहा है"
 
-#: sphinx/ext/autosummary/generate.py:425
+#: sphinx/ext/autosummary/generate.py:441
 #, python-format
 msgid "[autosummary] failed to import %r: %s"
 msgstr ""
 
-#: sphinx/ext/autosummary/generate.py:599
+#: sphinx/ext/autosummary/generate.py:615
 msgid ""
 "\n"
 "Generate ReStructuredText using autosummary directives.\n"
@@ -3025,28 +3025,35 @@ msgid ""
 "  pydoc sphinx.ext.autosummary\n"
 msgstr "\nस्वतः सारांश #autosummary# निर्देश का प्रयोग करते हुए पुर्नसरंचितपाठ बनाता है.\n\nस्फिंक्स-ऑटोजेन स्फिंक्स.एक्स्ट.ऑटोसमरी.जेनेरेट का मुखड़ा है.\nयह प्रदत्त फाइलों में सम्मिलित ऑटो समरी निर्देशों के अनुसार पुर्नसरंचितपाठ बनाता है\n\nस्वतः सारांश #autosummary# निर्देश का प्रारूप स्फिंक्स.एक्स्ट.ऑटोसमरी \nपाइथन प्रभाग में निबंधित है और इसे आप निम्नलिखित माध्यम से पढ़ सकते हैं:\n\n  pydoc sphinx.ext.autosummary\n"
 
-#: sphinx/ext/autosummary/generate.py:616
+#: sphinx/ext/autosummary/generate.py:632
 msgid "source files to generate rST files for"
 msgstr "आर.एस.टी. फाइलें बनाने के लिए स्रोत फाइलें"
 
-#: sphinx/ext/autosummary/generate.py:620
+#: sphinx/ext/autosummary/generate.py:636
 msgid "directory to place all output in"
 msgstr "सभी परिणाम रखने के लिए निर्देशिका"
 
-#: sphinx/ext/autosummary/generate.py:623
+#: sphinx/ext/autosummary/generate.py:639
 #, python-format
 msgid "default suffix for files (default: %(default)s)"
 msgstr "फाइलों के लिए मानक प्रत्यय (मानक: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:627
+#: sphinx/ext/autosummary/generate.py:643
 #, python-format
 msgid "custom template directory (default: %(default)s)"
 msgstr "पारंपरिक प्रारूप निर्देशिका (मानक: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:631
+#: sphinx/ext/autosummary/generate.py:647
 #, python-format
 msgid "document imported members (default: %(default)s)"
 msgstr "लेखपत्र आयातित सदस्य (मानक: %(default)s)"
+
+#: sphinx/ext/autosummary/generate.py:651
+#, python-format
+msgid ""
+"document exactly the members in module __all__ attribute. (default: "
+"%(default)s)"
+msgstr ""
 
 #: sphinx/ext/napoleon/__init__.py:347 sphinx/ext/napoleon/docstring.py:703
 msgid "Keyword Arguments"
@@ -3373,14 +3380,14 @@ msgid "Other changes"
 msgstr "अन्य परिवर्तन"
 
 #: sphinx/themes/basic/static/doctools.js:199 sphinx/writers/html.py:437
-#: sphinx/writers/html.py:442 sphinx/writers/html5.py:388
-#: sphinx/writers/html5.py:393
+#: sphinx/writers/html.py:442 sphinx/writers/html5.py:392
+#: sphinx/writers/html5.py:397
 msgid "Permalink to this headline"
 msgstr "इस शीर्ष-पंक्ति की स्थायी कड़ी"
 
 #: sphinx/themes/basic/static/doctools.js:205 sphinx/writers/html.py:132
-#: sphinx/writers/html.py:141 sphinx/writers/html5.py:103
-#: sphinx/writers/html5.py:112
+#: sphinx/writers/html.py:141 sphinx/writers/html5.py:107
+#: sphinx/writers/html5.py:116
 msgid "Permalink to this definition"
 msgstr "इस परिभाषा की स्थायी कड़ी"
 
@@ -3548,37 +3555,37 @@ msgstr "केवल निर्देशक भाव का मूल्य�
 msgid "default role %s not found"
 msgstr "मानक भूमिका '%s' नहीं मिली"
 
-#: sphinx/writers/html.py:330 sphinx/writers/html5.py:301
+#: sphinx/writers/html.py:330 sphinx/writers/html5.py:305
 #, python-format
 msgid "numfig_format is not defined for %s"
 msgstr "%s के लिए नमफिग_फॉर्मेट नहीं बताया गया है"
 
-#: sphinx/writers/html.py:340 sphinx/writers/html5.py:311
+#: sphinx/writers/html.py:340 sphinx/writers/html5.py:315
 #, python-format
 msgid "Any IDs not assigned for %s node"
 msgstr "%s बिंदु के लिए कोई पहचान-चिन्ह नहीं दिया गया"
 
-#: sphinx/writers/html.py:414 sphinx/writers/html5.py:365
+#: sphinx/writers/html.py:414 sphinx/writers/html5.py:369
 msgid "Permalink to this term"
 msgstr ""
 
-#: sphinx/writers/html.py:446 sphinx/writers/html5.py:397
+#: sphinx/writers/html.py:446 sphinx/writers/html5.py:401
 msgid "Permalink to this table"
 msgstr "इस सारणी की स्थायी कड़ी"
 
-#: sphinx/writers/html.py:489 sphinx/writers/html5.py:440
+#: sphinx/writers/html.py:489 sphinx/writers/html5.py:444
 msgid "Permalink to this code"
 msgstr "इस निर्देश की स्थायी कड़ी"
 
-#: sphinx/writers/html.py:491 sphinx/writers/html5.py:442
+#: sphinx/writers/html.py:491 sphinx/writers/html5.py:446
 msgid "Permalink to this image"
 msgstr "इस चित्र की स्थायी कड़ी"
 
-#: sphinx/writers/html.py:493 sphinx/writers/html5.py:444
+#: sphinx/writers/html.py:493 sphinx/writers/html5.py:448
 msgid "Permalink to this toctree"
 msgstr "इस विषय-सूची-संरचना की स्थायी कड़ी"
 
-#: sphinx/writers/html.py:625 sphinx/writers/html5.py:565
+#: sphinx/writers/html.py:625 sphinx/writers/html5.py:569
 msgid "Could not obtain image size. :scale: option is ignored."
 msgstr "चित्र का आकार नहीं मिल सका. :scale: विकल्प की उपेक्षा की जा रही है."
 

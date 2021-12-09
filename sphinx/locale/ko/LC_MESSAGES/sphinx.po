@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-21 00:10+0000\n"
-"PO-Revision-Date: 2021-11-15 01:41+0000\n"
+"POT-Creation-Date: 2021-11-28 00:11+0000\n"
+"PO-Revision-Date: 2021-11-28 10:26+0000\n"
 "Last-Translator: YT H <dev@theYT.net>\n"
 "Language-Team: Korean (http://www.transifex.com/sphinx-doc/sphinx-1/language/ko/)\n"
 "MIME-Version: 1.0\n"
@@ -1202,7 +1202,7 @@ msgid "job number should be a positive number"
 msgstr "작업 숫자는 양수여야 합니다"
 
 #: sphinx/cmd/build.py:104 sphinx/cmd/quickstart.py:470
-#: sphinx/ext/apidoc.py:307 sphinx/ext/autosummary/generate.py:598
+#: sphinx/ext/apidoc.py:307 sphinx/ext/autosummary/generate.py:614
 msgid "For more information, visit <https://www.sphinx-doc.org/>."
 msgstr "자세한 내용은 <https://www.sphinx-doc.org/>를 참조하십시오."
 
@@ -2886,7 +2886,7 @@ msgid ""
 msgstr ":members: 옵션에 언급된 속성이 없습니다: 모듈 %s, 속성 %s"
 
 #: sphinx/ext/autodoc/__init__.py:1304 sphinx/ext/autodoc/__init__.py:1378
-#: sphinx/ext/autodoc/__init__.py:2743
+#: sphinx/ext/autodoc/__init__.py:2751
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "%s에 대한 함수 서명을 가져오지 못했습니다: %s"
@@ -2901,28 +2901,28 @@ msgstr "%s에 대한 생성자 서명을 가져오지 못했습니다: %s"
 msgid "Bases: %s"
 msgstr "기반 클래스: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1756 sphinx/ext/autodoc/__init__.py:1829
-#: sphinx/ext/autodoc/__init__.py:1848
+#: sphinx/ext/autodoc/__init__.py:1764 sphinx/ext/autodoc/__init__.py:1837
+#: sphinx/ext/autodoc/__init__.py:1856
 #, python-format
 msgid "alias of %s"
 msgstr "%s의 별칭"
 
-#: sphinx/ext/autodoc/__init__.py:1890
+#: sphinx/ext/autodoc/__init__.py:1898
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr "TypeVar(%s)의 별칭"
 
-#: sphinx/ext/autodoc/__init__.py:2123 sphinx/ext/autodoc/__init__.py:2217
+#: sphinx/ext/autodoc/__init__.py:2131 sphinx/ext/autodoc/__init__.py:2225
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr "%s에 대한 메소드 서명을 가져오지 못했습니다: %s"
 
-#: sphinx/ext/autodoc/__init__.py:2348
+#: sphinx/ext/autodoc/__init__.py:2356
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "%s에서 잘못된 __slots__ 가 발견되었습니다. 무시합니다."
 
-#: sphinx/ext/autodoc/__init__.py:2786
+#: sphinx/ext/autodoc/__init__.py:2794
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
@@ -2985,30 +2985,30 @@ msgid ""
 "contain .rst. Skipped."
 msgstr "autosummary는 내부적으로 .rst 파일을 생성합니다. 하지만 source_suffix에 .rst가 포함되어 있지 않습니다. 건너뜁니다."
 
-#: sphinx/ext/autosummary/generate.py:188
-#: sphinx/ext/autosummary/generate.py:237
+#: sphinx/ext/autosummary/generate.py:189
+#: sphinx/ext/autosummary/generate.py:253
 #, python-format
 msgid ""
 "autosummary: failed to determine %r to be documented, the following exception was raised:\n"
 "%s"
 msgstr "autosummary: 문서화 할 %r을(를) 결정하지 못했으며, 다음 예외가 발생했습니다:\n%s"
 
-#: sphinx/ext/autosummary/generate.py:384
+#: sphinx/ext/autosummary/generate.py:400
 #, python-format
 msgid "[autosummary] generating autosummary for: %s"
 msgstr "[autosummary] 자동 요약 생성: %s"
 
-#: sphinx/ext/autosummary/generate.py:388
+#: sphinx/ext/autosummary/generate.py:404
 #, python-format
 msgid "[autosummary] writing to %s"
 msgstr "[autosummary] %s에 기록"
 
-#: sphinx/ext/autosummary/generate.py:425
+#: sphinx/ext/autosummary/generate.py:441
 #, python-format
 msgid "[autosummary] failed to import %r: %s"
 msgstr "[autosummary] %r을(를) import 하지 못했습니다: %s"
 
-#: sphinx/ext/autosummary/generate.py:599
+#: sphinx/ext/autosummary/generate.py:615
 msgid ""
 "\n"
 "Generate ReStructuredText using autosummary directives.\n"
@@ -3023,28 +3023,35 @@ msgid ""
 "  pydoc sphinx.ext.autosummary\n"
 msgstr "\nautosummary 지시문을 사용하여 ReStructuredText를 생성합니다.\n\nsphinx-autogen은 sphinx.ext.autosummary.generate의 프런트엔드입니다.\n주어진 입력 파일에 포함된 autosummary 지시문에서 reStructuredText 파일을 생성합니다.\n\nautosummary 지시문의 형식은 ``sphinx.ext.autosummary`` Python 모듈에 문서화되어 있으며 다음 명령을 사용하여 읽을 수 있습니다.\n\n  pydoc sphinx.ext.autosummary\n"
 
-#: sphinx/ext/autosummary/generate.py:616
+#: sphinx/ext/autosummary/generate.py:632
 msgid "source files to generate rST files for"
 msgstr "rST 파일을 생성할 원본 파일"
 
-#: sphinx/ext/autosummary/generate.py:620
+#: sphinx/ext/autosummary/generate.py:636
 msgid "directory to place all output in"
 msgstr "모든 출력을 저장할 디렉토리"
 
-#: sphinx/ext/autosummary/generate.py:623
+#: sphinx/ext/autosummary/generate.py:639
 #, python-format
 msgid "default suffix for files (default: %(default)s)"
 msgstr "파일의 기본 확장자 (기본값: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:627
+#: sphinx/ext/autosummary/generate.py:643
 #, python-format
 msgid "custom template directory (default: %(default)s)"
 msgstr "사용자 정의 템플릿 디렉토리 (기본값: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:631
+#: sphinx/ext/autosummary/generate.py:647
 #, python-format
 msgid "document imported members (default: %(default)s)"
 msgstr "가져온 멤버 문서화 (기본값: %(default)s)"
+
+#: sphinx/ext/autosummary/generate.py:651
+#, python-format
+msgid ""
+"document exactly the members in module __all__ attribute. (default: "
+"%(default)s)"
+msgstr "모듈 __all__ 속성의 구성원만 정확히 문서화합니다. (기본값: %(default)s)"
 
 #: sphinx/ext/napoleon/__init__.py:347 sphinx/ext/napoleon/docstring.py:703
 msgid "Keyword Arguments"
@@ -3371,14 +3378,14 @@ msgid "Other changes"
 msgstr "다른 변경 사항"
 
 #: sphinx/themes/basic/static/doctools.js:199 sphinx/writers/html.py:437
-#: sphinx/writers/html.py:442 sphinx/writers/html5.py:388
-#: sphinx/writers/html5.py:393
+#: sphinx/writers/html.py:442 sphinx/writers/html5.py:392
+#: sphinx/writers/html5.py:397
 msgid "Permalink to this headline"
 msgstr "이 표제에 대한 퍼머링크"
 
 #: sphinx/themes/basic/static/doctools.js:205 sphinx/writers/html.py:132
-#: sphinx/writers/html.py:141 sphinx/writers/html5.py:103
-#: sphinx/writers/html5.py:112
+#: sphinx/writers/html.py:141 sphinx/writers/html5.py:107
+#: sphinx/writers/html5.py:116
 msgid "Permalink to this definition"
 msgstr "이 정의에 대한 퍼머링크"
 
@@ -3546,37 +3553,37 @@ msgstr "only 지시문 식을 평가하는 동안 예외 발생: %s"
 msgid "default role %s not found"
 msgstr "기본 역할 %s을(를) 찾을 수 없음"
 
-#: sphinx/writers/html.py:330 sphinx/writers/html5.py:301
+#: sphinx/writers/html.py:330 sphinx/writers/html5.py:305
 #, python-format
 msgid "numfig_format is not defined for %s"
 msgstr "numfig_format이 %s에 대해 정의되지 않음"
 
-#: sphinx/writers/html.py:340 sphinx/writers/html5.py:311
+#: sphinx/writers/html.py:340 sphinx/writers/html5.py:315
 #, python-format
 msgid "Any IDs not assigned for %s node"
 msgstr "%s 노드에 할당되지 않은 ID"
 
-#: sphinx/writers/html.py:414 sphinx/writers/html5.py:365
+#: sphinx/writers/html.py:414 sphinx/writers/html5.py:369
 msgid "Permalink to this term"
 msgstr "이 용어에 대한 퍼머링크"
 
-#: sphinx/writers/html.py:446 sphinx/writers/html5.py:397
+#: sphinx/writers/html.py:446 sphinx/writers/html5.py:401
 msgid "Permalink to this table"
 msgstr "이 표에 대한 퍼머링크"
 
-#: sphinx/writers/html.py:489 sphinx/writers/html5.py:440
+#: sphinx/writers/html.py:489 sphinx/writers/html5.py:444
 msgid "Permalink to this code"
 msgstr "이 코드에 대한 퍼머링크"
 
-#: sphinx/writers/html.py:491 sphinx/writers/html5.py:442
+#: sphinx/writers/html.py:491 sphinx/writers/html5.py:446
 msgid "Permalink to this image"
 msgstr "이 이미지에 대한 퍼머링크"
 
-#: sphinx/writers/html.py:493 sphinx/writers/html5.py:444
+#: sphinx/writers/html.py:493 sphinx/writers/html5.py:448
 msgid "Permalink to this toctree"
 msgstr "이 목차에 대한 퍼머링크"
 
-#: sphinx/writers/html.py:625 sphinx/writers/html5.py:565
+#: sphinx/writers/html.py:625 sphinx/writers/html5.py:569
 msgid "Could not obtain image size. :scale: option is ignored."
 msgstr "이미지 크기를 얻어올 수 없습니다. :scale: 옵션을 무시합니다."
 
