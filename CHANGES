@@ -33,6 +33,7 @@ Bugs fixed
 * #9883: autodoc: doccomment for the alias to mocked object was ignored
 * #9908: autodoc: debug message is shown on building document using NewTypes
   with Python 3.10
+* #9947: i18n: topic directive having a bullet list can't be translatable
 * #9878: mathjax: MathJax configuration is placed after loading MathJax itself
 * #9857: Generated RFC links use outdated base url
 * #9909: HTML, prevent line-wrapping in literal text.
