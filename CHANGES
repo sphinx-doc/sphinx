@@ -38,6 +38,7 @@ Bugs fixed
 * #9909: HTML, prevent line-wrapping in literal text.
 * #9925: LaTeX: prohibit also with ``'xelatex'`` line splitting at dashes of
   inline and parsed literals
+* #9944: LaTeX: extra vertical whitespace for some nested declarations
 
 Testing
 --------
