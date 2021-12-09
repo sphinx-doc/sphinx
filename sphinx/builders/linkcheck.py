@@ -248,6 +248,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
         self.anchors_ignore = [re.compile(x)
                                for x in self.config.linkcheck_anchors_ignore]
+        self.documents_exclude = [re.compile(doc)
+                                  for doc in self.config.linkcheck_exclude_documents]
         self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
                      in self.config.linkcheck_auth]
 
@@ -378,6 +380,15 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
         def check(docname: str) -> Tuple[str, str, int]:
             # check for various conditions without bothering the network
+
+            for doc_matcher in self.documents_exclude:
+                if doc_matcher.match(docname):
+                    info = (
+                        f'{docname} matched {doc_matcher.pattern} from '
+                        'linkcheck_exclude_documents'
+                    )
+                    return 'ignored', info, 0
+
             if len(uri) == 0 or uri.startswith(('#', 'mailto:', 'tel:')):
                 return 'unchecked', '', 0
             elif not uri.startswith(('http:', 'https:')):
@@ -544,6 +555,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_post_transform(HyperlinkCollector)
 
     app.add_config_value('linkcheck_ignore', [], None)
+    app.add_config_value('linkcheck_exclude_documents', [], None)
     app.add_config_value('linkcheck_allowed_redirects', {}, None)
     app.add_config_value('linkcheck_auth', [], None)
     app.add_config_value('linkcheck_request_headers', {}, None)

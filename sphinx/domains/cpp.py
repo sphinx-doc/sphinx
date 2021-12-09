@@ -6541,7 +6541,7 @@ class DefinitionParser(BaseParser):
 
     # ==========================================================================
 
-    def _parse_template_paramter(self) -> ASTTemplateParam:
+    def _parse_template_parameter(self) -> ASTTemplateParam:
         self.skip_ws()
         if self.skip_word('template'):
             # declare a tenplate template parameter
@@ -6613,7 +6613,7 @@ class DefinitionParser(BaseParser):
             pos = self.pos
             err = None
             try:
-                param = self._parse_template_paramter()
+                param = self._parse_template_parameter()
                 templateParams.append(param)
             except DefinitionError as eParam:
                 self.pos = pos
