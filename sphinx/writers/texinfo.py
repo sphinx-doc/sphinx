@@ -194,6 +194,7 @@ class TexinfoTranslator(SphinxTranslator):
         self.curfilestack: List[str] = []
         self.footnotestack: List[Dict[str, List[Union[collected_footnote, bool]]]] = []  # NOQA
         self.in_footnote = 0
+        self.in_samp = 0
         self.handled_abbrs: Set[str] = set()
         self.colwidths: List[int] = None
 
@@ -812,15 +813,23 @@ class TexinfoTranslator(SphinxTranslator):
         self.body.append('}')
 
     def visit_emphasis(self, node: Element) -> None:
-        self.body.append('@emph{')
+        element = 'emph' if not self.in_samp else 'var'
+        self.body.append('@%s{' % element)
 
     def depart_emphasis(self, node: Element) -> None:
         self.body.append('}')
 
+    def is_samp(self, node: Element) -> bool:
+        return 'samp' in node['classes']
+
     def visit_literal(self, node: Element) -> None:
+        if self.is_samp(node):
+            self.in_samp += 1
         self.body.append('@code{')
 
     def depart_literal(self, node: Element) -> None:
+        if self.is_samp(node):
+            self.in_samp -= 1
         self.body.append('}')
 
     def visit_superscript(self, node: Element) -> None:

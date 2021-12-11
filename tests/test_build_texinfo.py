@@ -126,3 +126,14 @@ def test_texinfo_xrefs(app, status, warning):
     output = (app.outdir / 'sphinxtests.texi').read_text()
     assert not re.search(r'@ref{\w+,,--plugin\.option}', output)
     assert 'Link to perl +p, --ObjC++, --plugin.option, create-auth-token, arg and -j' in output
+
+    
+@pytest.mark.sphinx('texinfo', testroot='root')
+def test_texinfo_samp_with_variable(app, status, warning):
+    app.build()
+
+    output = (app.outdir / 'sphinxtests.texi').read_text()
+
+    assert '@code{@var{variable_only}}' in output
+    assert '@code{@var{variable} and text}' in output
+    assert '@code{Show @var{variable} in the middle}' in output

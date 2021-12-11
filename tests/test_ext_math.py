@@ -71,7 +71,7 @@ def test_mathjax_options(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').read_text()
-    assert ('<script defer="defer" integrity="sha384-0123456789" '
+    assert ('<script async="async" integrity="sha384-0123456789" '
             'src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">'
             '</script>' in content)
 
@@ -221,6 +221,7 @@ def test_mathjax3_config(app, status, warning):
 
     content = (app.outdir / 'index.html').read_text()
     assert MATHJAX_URL in content
+    assert ('<script defer="defer" src="%s">' % MATHJAX_URL in content)
     assert ('<script>window.MathJax = {"extensions": ["tex2jax.js"]}</script>' in content)
 
 
@@ -231,10 +232,33 @@ def test_mathjax2_config(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').read_text()
-    assert MATHJAX_URL in content
+    assert ('<script async="async" src="%s">' % MATHJAX_URL in content)
     assert ('<script type="text/x-mathjax-config">'
             'MathJax.Hub.Config({"extensions": ["tex2jax.js"]})'
             '</script>' in content)
+
+
+@pytest.mark.sphinx('html', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax'],
+                                   'mathjax_options': {'async': 'async'},
+                                   'mathjax3_config': {'extensions': ['tex2jax.js']}})
+def test_mathjax_options_async_for_mathjax3(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text()
+    assert MATHJAX_URL in content
+    assert ('<script async="async" src="%s">' % MATHJAX_URL in content)
+
+
+@pytest.mark.sphinx('html', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax'],
+                                   'mathjax_options': {'defer': 'defer'},
+                                   'mathjax2_config': {'extensions': ['tex2jax.js']}})
+def test_mathjax_options_defer_for_mathjax2(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').read_text()
+    assert ('<script defer="defer" src="%s">' % MATHJAX_URL in content)
 
 
 @pytest.mark.sphinx('html', testroot='ext-math',

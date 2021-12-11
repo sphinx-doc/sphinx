@@ -12,7 +12,6 @@ import posixpath
 import re
 import shutil
 import subprocess
-import sys
 import tempfile
 from os import path
 from subprocess import PIPE, CalledProcessError
@@ -43,11 +42,11 @@ templates_path = path.join(package_dir, 'templates', 'imgmath')
 class MathExtError(SphinxError):
     category = 'Math extension error'
 
-    def __init__(self, msg: str, stderr: bytes = None, stdout: bytes = None) -> None:
+    def __init__(self, msg: str, stderr: str = None, stdout: str = None) -> None:
         if stderr:
-            msg += '\n[stderr]\n' + stderr.decode(sys.getdefaultencoding(), 'replace')
+            msg += '\n[stderr]\n' + stderr
         if stdout:
-            msg += '\n[stdout]\n' + stdout.decode(sys.getdefaultencoding(), 'replace')
+            msg += '\n[stdout]\n' + stdout
         super().__init__(msg)
 
 
@@ -135,7 +134,8 @@ def compile_math(latex: str, builder: Builder) -> str:
     command.append('math.tex')
 
     try:
-        subprocess.run(command, stdout=PIPE, stderr=PIPE, cwd=tempdir, check=True)
+        subprocess.run(command, stdout=PIPE, stderr=PIPE, cwd=tempdir, check=True,
+                       encoding='ascii')
         return path.join(tempdir, 'math.dvi')
     except OSError as exc:
         logger.warning(__('LaTeX command %r cannot be run (needed for math '

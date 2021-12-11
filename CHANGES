@@ -13,16 +13,38 @@ Deprecated
 Features added
 --------------
 
+* #9831: Autosummary now documents only the members specified in a module's
+  ``__all__`` attribute if :confval:`autosummary_ignore_module_all` is set to
+  ``False``. The default behaviour is unchanged. Autogen also now supports
+  this behavior with the ``--respect-module-all`` switch.
+* #9800: extlinks: Emit warning if a hardcoded link is replaceable
+  by an extlink, suggesting a replacement.
 * #9815: html theme: Wrap sidebar components in div to allow customizing their
   layout via CSS
+* #9899: py domain: Allows to specify cross-reference specifier (``.`` and
+  ``~``) as ``:type:`` option
+* #9894: linkcheck: add option ``linkcheck_exclude_documents`` to disable link
+  checking in matched documents.
+* #9391: texinfo: improve variable in ``samp`` role
 
 Bugs fixed
 ----------
 
+* #9866: autodoc: doccomment for the imported class was ignored
+* #9883: autodoc: doccomment for the alias to mocked object was ignored
+* #9908: autodoc: debug message is shown on building document using NewTypes
+  with Python 3.10
+* #9878: mathjax: MathJax configuration is placed after loading MathJax itself
+* #9857: Generated RFC links use outdated base url
+* #9909: HTML, prevent line-wrapping in literal text.
+* #9925: LaTeX: prohibit also with ``'xelatex'`` line splitting at dashes of
+  inline and parsed literals
+* #9944: LaTeX: extra vertical whitespace for some nested declarations
+
 Testing
 --------
 
-Release 4.3.1 (in development)
+Release 4.3.2 (in development)
 ==============================
 
 Dependencies
@@ -42,6 +64,30 @@ Bugs fixed
 
 Testing
 --------
+
+Release 4.3.1 (released Nov 28, 2021)
+=====================================
+
+Features added
+--------------
+
+* #9864: mathjax: Support chnaging the loading method of MathJax to "defer" via
+  :confval:`mathjax_options`
+
+Bugs fixed
+----------
+
+* #9838: autodoc: AttributeError is raised on building document for functions
+  decorated by functools.lru_cache
+* #9879: autodoc: AttributeError is raised on building document for an object
+  having invalid __doc__ attribute
+* #9844: autodoc: Failed to process a function wrapped with functools.partial if
+  :confval:`autodoc_preserve_defaults` enabled
+* #9872: html: Class namespace collision between autodoc signatures and
+  docutils-0.17
+* #9868: imgmath: Crashed if the dvisvgm command failed to convert equation
+* #9864: mathjax: Failed to render equations via MathJax v2.  The loading method
+  of MathJax is back to "async" method again
 
 Release 4.3.0 (released Nov 11, 2021)
 =====================================
@@ -119,7 +165,7 @@ Bugs fixed
 * #9752: autodoc: Failed to detect type annotation for slots attribute
 * #9756: autodoc: Crashed if classmethod does not have __func__ attribute
 * #9757: autodoc: :confval:`autodoc_inherit_docstrings` does not effect to
-  overriden classmethods
+  overridden classmethods
 * #9781: autodoc: :confval:`autodoc_preserve_defaults` does not support
   hexadecimal numeric
 * #9630: autosummary: Failed to build summary table if :confval:`primary_domain`
@@ -1650,6 +1696,14 @@ Bugs fixed
   :confval:`intersphinx_mapping` on :event:`config-inited` event
 * #7343: Sphinx builds has been slower since 2.4.0 on debug mode
 
+Release 2.4.5 (released Nov 18, 2021)
+=====================================
+
+Dependencies
+------------
+
+* #9807: Restrict docutils to 0.17.x or older
+
 Release 2.4.4 (released Mar 05, 2020)
 =====================================
 
@@ -2485,6 +2539,14 @@ Testing
 2.0.0b2
 
 * Add a helper function: ``sphinx.testing.restructuredtext.parse()``
+
+Release 1.8.6 (released Nov 18, 2021)
+=====================================
+
+Dependencies
+------------
+
+* #9807: Restrict docutils to 0.17.x or older
 
 Release 1.8.5 (released Mar 10, 2019)
 =====================================

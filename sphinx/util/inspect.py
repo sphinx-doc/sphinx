@@ -19,8 +19,7 @@ import typing
 import warnings
 from functools import partial, partialmethod
 from importlib import import_module
-from inspect import (Parameter, isasyncgenfunction, isclass, ismethod,  # NOQA
-                     ismethoddescriptor, ismodule)
+from inspect import Parameter, isclass, ismethod, ismethoddescriptor, ismodule  # NOQA
 from io import StringIO
 from types import ModuleType
 from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, Type, cast
@@ -403,6 +402,16 @@ def iscoroutinefunction(obj: Any) -> bool:
     if hasattr(obj, '__code__') and inspect.iscoroutinefunction(obj):
         # check obj.__code__ because iscoroutinefunction() crashes for custom method-like
         # objects (see https://github.com/sphinx-doc/sphinx/issues/6605)
+        return True
+    else:
+        return False
+
+
+def isasyncgenfunction(obj: Any) -> bool:
+    """Check if the object is async-gen function."""
+    if hasattr(obj, '__code__') and inspect.isasyncgenfunction(obj):
+        # check obj.__code__ because isasyncgenfunction() crashes for custom method-like
+        # objects on python3.7 (see https://github.com/sphinx-doc/sphinx/issues/9838)
         return True
     else:
         return False
@@ -862,6 +871,13 @@ def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
     * inherited docstring
     * inherited decorated methods
     """
+    def getdoc_internal(obj: Any, attrgetter: Callable = safe_getattr) -> Optional[str]:
+        doc = attrgetter(obj, '__doc__', None)
+        if isinstance(doc, str):
+            return doc
+        else:
+            return None
+
     if cls and name and isclassmethod(obj, cls, name):
         for basecls in getmro(cls):
             meth = basecls.__dict__.get(name)
@@ -870,7 +886,7 @@ def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
                 if doc is not None or not allow_inherited:
                     return doc
 
-    doc = attrgetter(obj, '__doc__', None)
+    doc = getdoc_internal(obj)
     if ispartial(obj) and doc == obj.__class__.__doc__:
         return getdoc(obj.func)
     elif doc is None and allow_inherited:
@@ -879,7 +895,7 @@ def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
             for basecls in getmro(cls):
                 meth = safe_getattr(basecls, name, None)
                 if meth is not None:
-                    doc = attrgetter(meth, '__doc__', None)
+                    doc = getdoc_internal(meth)
                     if doc is not None:
                         break
 

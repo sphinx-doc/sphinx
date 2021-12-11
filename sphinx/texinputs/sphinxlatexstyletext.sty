@@ -1,7 +1,7 @@
 %% TEXT STYLING
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexstyletext.sty}[2021/01/27 text styling]
+\ProvidesFile{sphinxlatexstyletext.sty}[2021/12/06 text styling]
 
 % Basically everything here consists of macros which are part of the latex
 % markup produced by the Sphinx latex writer
@@ -72,12 +72,20 @@
 
 % Special characters
 %
-% This definition prevents en-dash and em-dash TeX ligatures.
+% The \kern\z@ is to prevent en-dash and em-dash TeX ligatures.
+% A linebreak can occur after the dash in regular text (this is
+% normal behaviour of "-" in TeX, it is not related to \kern\z@).
 %
-% It inserts a potential breakpoint after the hyphen. This is to keep in sync
-% with behavior in code-blocks, parsed and inline literals. For a breakpoint
-% before the hyphen use \leavevmode\kern\z@- (within \makeatletter/\makeatother)
+% Parsed-literals and inline literals also use the \sphinxhyphen
+% but linebreaks there are prevented due to monospace font family.
+% (xelatex needs a special addition, cf. sphinxlatexliterals.sty)
+%
+% Inside code-blocks, dashes are escaped via another macro, from
+% Pygments latex output (search for \PYGZhy in sphinxlatexliterals.sty),
+% and are configured to allow linebreaks despite the monospace font.
+% (the #1 swallows the {} from \sphinxhyphen{} mark-up)
 \protected\def\sphinxhyphen#1{-\kern\z@}
+\protected\def\sphinxhyphennobreak#1{\mbox{-}}
 % The {} from texescape mark-up is kept, else -- gives en-dash in PDF bookmark
 \def\sphinxhyphenforbookmarks{-}
 
