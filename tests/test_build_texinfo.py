@@ -114,6 +114,14 @@ def test_texinfo_escape_id(app, status, warning):
     assert translator.escape_id('.') == '.'
 
 
+@pytest.mark.sphinx('texinfo', testroot='footnotes')
+def test_texinfo_footnote(app, status, warning):
+    app.builder.build_all()
+
+    output = (app.outdir / 'python.texi').read_text()
+    assert 'First footnote: @footnote{\nFirst\n}' in output
+
+
 @pytest.mark.sphinx('texinfo')
 def test_texinfo_xrefs(app, status, warning):
     app.builder.build_all()
