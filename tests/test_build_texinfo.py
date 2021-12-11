@@ -127,7 +127,7 @@ def test_texinfo_xrefs(app, status, warning):
     assert not re.search(r'@ref{\w+,,--plugin\.option}', output)
     assert 'Link to perl +p, --ObjC++, --plugin.option, create-auth-token, arg and -j' in output
 
-    
+
 @pytest.mark.sphinx('texinfo', testroot='root')
 def test_texinfo_samp_with_variable(app, status, warning):
     app.build()
