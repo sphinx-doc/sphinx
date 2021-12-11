@@ -25,6 +25,7 @@ Features added
   ``~``) as ``:type:`` option
 * #9894: linkcheck: add option ``linkcheck_exclude_documents`` to disable link
   checking in matched documents.
+* #9391: texinfo: improve variable in ``samp`` role
 
 Bugs fixed
 ----------
