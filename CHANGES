@@ -41,6 +41,9 @@ Deprecated
 Features added
 --------------
 
+* #9075: autodoc: Add a config variable :confval:`autodoc_unqualified_typehints`
+  to suppress the leading module names of typehints of function signatures (ex.
+  ``io.StringIO`` -> ``StringIO``)
 * #9831: Autosummary now documents only the members specified in a module's
   ``__all__`` attribute if :confval:`autosummary_ignore_module_all` is set to
   ``False``. The default behaviour is unchanged. Autogen also now supports
@@ -53,6 +56,11 @@ Features added
   ``~``) as ``:type:`` option
 * #9894: linkcheck: add option ``linkcheck_exclude_documents`` to disable link
   checking in matched documents.
+* #9793: sphinx-build: Allow to use the parallel build feature in macOS on macOS
+  and Python3.8+
+* #9391: texinfo: improve variable in ``samp`` role
+* #9578: texinfo: Add :confval:`texinfo_cross_references` to disable cross
+  references for readability with standalone readers
 
 Bugs fixed
 ----------
@@ -61,9 +69,14 @@ Bugs fixed
 * #9883: autodoc: doccomment for the alias to mocked object was ignored
 * #9908: autodoc: debug message is shown on building document using NewTypes
   with Python 3.10
+* #9947: i18n: topic directive having a bullet list can't be translatable
 * #9878: mathjax: MathJax configuration is placed after loading MathJax itself
 * #9857: Generated RFC links use outdated base url
 * #9909: HTML, prevent line-wrapping in literal text.
+* #9925: LaTeX: prohibit also with ``'xelatex'`` line splitting at dashes of
+  inline and parsed literals
+* #9944: LaTeX: extra vertical whitespace for some nested declarations
+* #9390: texinfo: Do not emit labels inside footnotes
 
 Testing
 --------

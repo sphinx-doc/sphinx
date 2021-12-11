@@ -662,6 +662,13 @@ There are also config values that you can set:
    .. __: https://mypy.readthedocs.io/en/latest/kinds_of_types.html#type-aliases
    .. versionadded:: 3.3
 
+.. confval:: autodoc_unqualified_typehints
+
+   If True, the leading module names of typehints of function signatures (ex.
+   ``io.StringIO`` -> ``StringIO``).  Defaults to False.
+
+   .. versionadded:: 4.4
+
 .. confval:: autodoc_preserve_defaults
 
    If True, the default argument values of functions will be not evaluated on
