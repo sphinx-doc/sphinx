@@ -744,10 +744,13 @@ def evaluate_signature(sig: inspect.Signature, globalns: Dict = None, localns: D
 
 
 def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
-                        show_return_annotation: bool = True) -> str:
+                        show_return_annotation: bool = True,
+                        unqualified_typehints: bool = False) -> str:
     """Stringify a Signature object.
 
     :param show_annotation: Show annotation in result
+    :param unqualified_typehints: Show annotations as unqualified
+                                  (ex. io.StringIO -> StringIO)
     """
     args = []
     last_kind = None
@@ -771,7 +774,7 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
 
         if show_annotation and param.annotation is not param.empty:
             arg.write(': ')
-            arg.write(stringify_annotation(param.annotation))
+            arg.write(stringify_annotation(param.annotation, unqualified_typehints))
         if param.default is not param.empty:
             if show_annotation and param.annotation is not param.empty:
                 arg.write(' = ')
@@ -791,7 +794,7 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
             show_return_annotation is False):
         return '(%s)' % ', '.join(args)
     else:
-        annotation = stringify_annotation(sig.return_annotation)
+        annotation = stringify_annotation(sig.return_annotation, unqualified_typehints)
         return '(%s) -> %s' % (', '.join(args), annotation)
 
 

@@ -1142,6 +1142,99 @@ def test_autodoc_typehints_description_and_type_aliases(app):
             '      myint\n' == context)
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc',
+                    confoverrides={'autodoc_unqualified_typehints': True})
+def test_autodoc_unqualified_typehints(app):
+    if sys.version_info < (3, 7):
+        Any = 'Any'
+    else:
+        Any = '~typing.Any'
+
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'target.typehints', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.typehints',
+        '',
+        '',
+        '.. py:data:: CONST1',
+        '   :module: target.typehints',
+        '   :type: int',
+        '',
+        '',
+        '.. py:class:: Math(s: str, o: ~typing.Optional[%s] = None)' % Any,
+        '   :module: target.typehints',
+        '',
+        '',
+        '   .. py:attribute:: Math.CONST1',
+        '      :module: target.typehints',
+        '      :type: int',
+        '',
+        '',
+        '   .. py:attribute:: Math.CONST2',
+        '      :module: target.typehints',
+        '      :type: int',
+        '      :value: 1',
+        '',
+        '',
+        '   .. py:method:: Math.decr(a: int, b: int = 1) -> int',
+        '      :module: target.typehints',
+        '',
+        '',
+        '   .. py:method:: Math.horse(a: str, b: int) -> None',
+        '      :module: target.typehints',
+        '',
+        '',
+        '   .. py:method:: Math.incr(a: int, b: int = 1) -> int',
+        '      :module: target.typehints',
+        '',
+        '',
+        '   .. py:method:: Math.nothing() -> None',
+        '      :module: target.typehints',
+        '',
+        '',
+        '   .. py:property:: Math.prop',
+        '      :module: target.typehints',
+        '      :type: int',
+        '',
+        '',
+        '.. py:class:: NewAnnotation(i: int)',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:class:: NewComment(i: int)',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:class:: SignatureFromMetaclass(a: int)',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:function:: complex_func(arg1: str, arg2: List[int], arg3: Tuple[int, '
+        'Union[str, Unknown]] = None, *args: str, **kwargs: str) -> None',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:function:: decr(a: int, b: int = 1) -> int',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:function:: incr(a: int, b: int = 1) -> int',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:function:: missing_attr(c, a: str, b: Optional[str] = None) -> str',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:function:: tuple_args(x: ~typing.Tuple[int, ~typing.Union[int, str]]) '
+        '-> ~typing.Tuple[int, int]',
+        '   :module: target.typehints',
+        '',
+    ]
+
+
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_default_options(app):
     # no settings

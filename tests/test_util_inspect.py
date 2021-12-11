@@ -259,6 +259,10 @@ def test_signature_annotations():
     sig = inspect.signature(f7)
     assert stringify_signature(sig, show_return_annotation=False) == '(x: Optional[int] = None, y: dict = {})'
 
+    # unqualified_typehints is True
+    sig = inspect.signature(f7)
+    assert stringify_signature(sig, unqualified_typehints=True) == '(x: ~typing.Optional[int] = None, y: dict = {}) -> None'
+
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
 @pytest.mark.sphinx(testroot='ext-autodoc')

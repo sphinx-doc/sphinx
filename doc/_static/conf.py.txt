@@ -319,6 +319,10 @@ texinfo_documents = [
 #
 # texinfo_no_detailmenu = False
 
+# If false, do not generate in manual @ref nodes.
+#
+# texinfo_cross_references = False
+
 # -- A random example -----------------------------------------------------
 
 import sys, os
