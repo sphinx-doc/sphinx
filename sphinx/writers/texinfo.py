@@ -765,12 +765,10 @@ class TexinfoTranslator(SphinxTranslator):
     # -- Blocks
 
     def visit_paragraph(self, node: Element) -> None:
-        if not self.in_footnote:
-            self.body.append('\n')
+        self.body.append('\n')
 
     def depart_paragraph(self, node: Element) -> None:
-        if not self.in_footnote:
-            self.body.append('\n')
+        self.body.append('\n')
 
     def visit_block_quote(self, node: Element) -> None:
         self.body.append('\n@quotation\n')

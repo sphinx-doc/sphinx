@@ -119,7 +119,7 @@ def test_texinfo_footnote(app, status, warning):
     app.builder.build_all()
 
     output = (app.outdir / 'python.texi').read_text()
-    assert 'First footnote: @footnote{First}' in output
+    assert 'First footnote: @footnote{\nFirst\n}' in output
 
 
 @pytest.mark.sphinx('texinfo')
