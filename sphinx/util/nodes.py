@@ -150,6 +150,11 @@ def apply_source_workaround(node: Element) -> None:
         for classifier in reversed(list(node.parent.traverse(nodes.classifier))):
             node.rawsource = re.sub(r'\s*:\s*%s' % re.escape(classifier.astext()),
                                     '', node.rawsource)
+    if isinstance(node, nodes.topic) and node.source is None:
+        # docutils-0.18 does not fill the source attribute of topic
+        logger.debug('[i18n] PATCH: %r to have source, line: %s',
+                     get_full_module_name(node), repr_domxml(node))
+        node.source, node.line = node.parent.source, node.parent.line
 
     # workaround: literal_block under bullet list (#4913)
     if isinstance(node, nodes.literal_block) and node.source is None:
