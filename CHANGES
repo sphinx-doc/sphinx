@@ -28,6 +28,8 @@ Features added
   ``~``) as ``:type:`` option
 * #9894: linkcheck: add option ``linkcheck_exclude_documents`` to disable link
   checking in matched documents.
+* #9793: sphinx-build: Allow to use the parallel build feature in macOS on macOS
+  and Python3.8+
 * #9391: texinfo: improve variable in ``samp`` role
 * #9578: texinfo: Add :confval:`texinfo_cross_references` to disable cross
   references for readability with standalone readers
