@@ -216,7 +216,7 @@ class DefinitionError(Exception):
 
 class BaseParser:
     def __init__(self, definition: str, *,
-                 location: Union[nodes.Node, Tuple[str, int]],
+                 location: Union[nodes.Node, Tuple[str, int], str],
                  config: "Config") -> None:
         self.definition = definition.strip()
         self.location = location  # for warnings

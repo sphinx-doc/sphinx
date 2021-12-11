@@ -38,7 +38,7 @@ class SearchLanguage:
 
     .. attribute:: js_splitter_code
 
-       Return splitter funcion of JavaScript version.  The function should be
+       Return splitter function of JavaScript version.  The function should be
        named as ``splitQuery``.  And it should take a string and return list of
        strings.
 
@@ -120,7 +120,7 @@ from sphinx.search.en import SearchEnglish
 
 def parse_stop_word(source: str) -> Set[str]:
     """
-    parse snowball style word list like this:
+    Parse snowball style word list like this:
 
     * http://snowball.tartarus.org/algorithms/finnish/stop.txt
     """
@@ -155,7 +155,7 @@ languages: Dict[str, Any] = {
 
 class _JavaScriptIndex:
     """
-    The search index as javascript file that calls a function
+    The search index as JavaScript file that calls a function
     on the documentation search object to register the index.
     """
 
@@ -228,7 +228,7 @@ class WordCollector(nodes.NodeVisitor):
 
 class IndexBuilder:
     """
-    Helper class that creates a searchindex based on the doctrees
+    Helper class that creates a search index based on the doctrees
     passed to the `feed` method.
     """
     formats = {
@@ -304,8 +304,8 @@ class IndexBuilder:
         format.dump(self.freeze(), stream)
 
     def get_objects(self, fn2index: Dict[str, int]
-                    ) -> Dict[str, Dict[str, Tuple[int, int, int, str]]]:
-        rv: Dict[str, Dict[str, Tuple[int, int, int, str]]] = {}
+                    ) -> Dict[str, List[Tuple[int, int, int, str, str]]]:
+        rv: Dict[str, List[Tuple[int, int, int, str, str]]] = {}
         otypes = self._objtypes
         onames = self._objnames
         for domainname, domain in sorted(self.env.domains.items()):
@@ -318,7 +318,7 @@ class IndexBuilder:
                 fullname = html.escape(fullname)
                 dispname = html.escape(dispname)
                 prefix, _, name = dispname.rpartition('.')
-                pdict = rv.setdefault(prefix, {})
+                plist = rv.setdefault(prefix, [])
                 try:
                     typeindex = otypes[domainname, type]
                 except KeyError:
@@ -337,7 +337,7 @@ class IndexBuilder:
                     shortanchor = '-'
                 else:
                     shortanchor = anchor
-                pdict[name] = (fn2index[docname], typeindex, prio, shortanchor)
+                plist.append((fn2index[docname], typeindex, prio, shortanchor, name))
         return rv
 
     def get_terms(self, fn2index: Dict) -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:

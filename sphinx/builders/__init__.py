@@ -68,7 +68,7 @@ class Builder:
     # doctree versioning method
     versioning_method = 'none'
     versioning_compare = False
-    # allow parallel write_doc() calls
+    #: allow parallel write_doc() calls
     allow_parallel = False
     # support translation
     use_message_catalog = True
@@ -217,7 +217,8 @@ class Builder:
         for catalog in status_iterator(catalogs, __('writing output... '), "darkgreen",
                                        len(catalogs), self.app.verbosity,
                                        stringify_func=cat2relpath):
-            catalog.write_mo(self.config.language)
+            catalog.write_mo(self.config.language,
+                             self.config.gettext_allow_fuzzy_translations)
 
     def compile_all_catalogs(self) -> None:
         repo = CatalogRepository(self.srcdir, self.config.locale_dirs,

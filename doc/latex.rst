@@ -531,6 +531,10 @@ Keys that don't need to be overridden unless in special cases are:
       Changed default for ``'pdflatex'``. Previously it was using 
       ``'\\fvset{fontsize=\\small}'``.
 
+   .. versionchanged:: 4.1.0
+      Changed default for Chinese documents to
+      ``'\\fvset{fontsize=\\small,formatcom=\\xeCJKVerbAddon}'``
+
 Keys that are set by other options and therefore should not be overridden are:
 
 ``'docclass'``
@@ -570,7 +574,7 @@ The colors used in the above are provided by the ``svgnames`` option of the
 It is possible to insert further uses of the ``\sphinxsetup`` LaTeX macro
 directly into the body of the document, via the help of the :rst:dir:`raw`
 directive. This chapter is styled in the PDF output using the following at the
-start of the chaper::
+start of the chapter::
 
   .. raw:: latex
 
@@ -603,7 +607,7 @@ macros may be significant.
 Do not use quotes to enclose values, whether numerical or strings.
 
 ``bookmarksdepth``
-    Controls the depth of the collapsable bookmarks panel in the PDF.
+    Controls the depth of the collapsible bookmarks panel in the PDF.
     May be either a number (e.g. ``3``) or a LaTeX sectioning name (e.g.
     ``subsubsection``, i.e. without backslash).
     For details, refer to the ``hyperref`` LaTeX docs.
@@ -708,7 +712,7 @@ Do not use quotes to enclose values, whether numerical or strings.
     As the default is set to a high value, the forceful algorithm is triggered
     only in overfull case, i.e. in presence of a string longer than full
     linewidth. Set this to ``0`` to force all input lines to be hard wrapped
-    at the current avaiable linewidth::
+    at the current available linewidth::
 
       latex_elements = {
           'sphinxsetup': "verbatimforcewraps, verbatimmaxunderfull=0",
@@ -778,7 +782,7 @@ Do not use quotes to enclose values, whether numerical or strings.
 
     .. versionchanged:: 1.5
        The breaking of long code lines was added at 1.4.2. The default
-       definition of the continuation symbol was changed at 1.5 to accomodate
+       definition of the continuation symbol was changed at 1.5 to accommodate
        various font sizes (e.g. code-blocks can be in footnotes).
 
 ``TitleColor``
@@ -1146,6 +1150,20 @@ Miscellany
   .. versionchanged:: 1.5
      Formerly, use of *fncychap* with other styles than ``Bjarne`` was
      dysfunctional.
+
+- Docutils :dudir:`container` directives are supported in LaTeX output: to
+  let a container class with name ``foo`` influence the final PDF via LaTeX,
+  it is only needed to define in the preamble an environment
+  ``sphinxclassfoo``.  A simple example would be:
+
+  .. code-block:: latex
+
+     \newenvironment{sphinxclassred}{\color{red}}{}
+
+  Currently the class names must contain only ascii characters and avoid
+  characters special to LaTeX such as ``\``.
+
+  .. versionadded:: 4.1.0
 
 .. hint::
 

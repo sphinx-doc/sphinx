@@ -22,7 +22,7 @@ EXCLUDE_PATHS = ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
 
 
 class Project:
-    """A project is source code set of Sphinx document."""
+    """A project is the source code set of the Sphinx document(s)."""
 
     def __init__(self, srcdir: str, source_suffix: Dict[str, str]) -> None:
         #: Source directory.
@@ -61,7 +61,7 @@ class Project:
         return self.docnames
 
     def path2doc(self, filename: str) -> Optional[str]:
-        """Return the docname for the filename if the file is document.
+        """Return the docname for the filename if the file is a document.
 
         *filename* should be absolute or relative to the source directory.
         """

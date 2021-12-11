@@ -226,7 +226,7 @@ def walk(rootpath: str, excludes: List[str], opts: Any
 
 
 def has_child_module(rootpath: str, excludes: List[str], opts: Any) -> bool:
-    """Check the given directory contains child modules at least one."""
+    """Check the given directory contains child module/s (at least one)."""
     for root, subs, files in walk(rootpath, excludes, opts):
         if files:
             return True
@@ -304,7 +304,7 @@ def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] -o <OUTPUT_PATH> <MODULE_PATH> '
               '[EXCLUDE_PATTERN, ...]',
-        epilog=__('For more information, visit <http://sphinx-doc.org/>.'),
+        epilog=__('For more information, visit <https://www.sphinx-doc.org/>.'),
         description=__("""
 Look recursively in <MODULE_PATH> for Python modules and packages and create
 one reST file with automodule directives per package in the <OUTPUT_PATH>.

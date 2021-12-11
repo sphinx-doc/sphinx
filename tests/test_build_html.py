@@ -10,13 +10,13 @@
 
 import os
 import re
-from distutils.version import LooseVersion
 from itertools import chain, cycle
 from unittest.mock import ANY, call, patch
 
 import pygments
 import pytest
 from html5lib import HTMLParser
+from packaging import version
 
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.errors import ConfigError
@@ -28,6 +28,9 @@ if docutils.__version_info__ < (0, 17):
     FIGURE_CAPTION = ".//div[@class='figure align-default']/p[@class='caption']"
 else:
     FIGURE_CAPTION = ".//figure/figcaption/p"
+
+
+PYGMENTS_VERSION = version.parse(pygments.__version__).release
 
 
 ENV_WARNINGS = """\
@@ -222,9 +225,9 @@ def test_html4_output(app, status, warning):
         (".//a[@href='https://www.python.org/dev/peps/pep-0008']"
          "[@class='pep reference external']/strong",
          'Python Enhancement Proposal #8'),
-        (".//a[@href='https://tools.ietf.org/html/rfc1.html']"
+        (".//a[@href='https://datatracker.ietf.org/doc/html/rfc1.html']"
          "[@class='rfc reference external']/strong", 'RFC 1'),
-        (".//a[@href='https://tools.ietf.org/html/rfc1.html']"
+        (".//a[@href='https://datatracker.ietf.org/doc/html/rfc1.html']"
          "[@class='rfc reference external']/strong", 'Request for Comments #1'),
         (".//a[@href='objects.html#envvar-HOME']"
          "[@class='reference internal']/code/span[@class='pre']", 'HOME'),
@@ -455,6 +458,12 @@ def test_html_download(app):
     assert matched
     assert (app.outdir / matched.group(1)).exists()
     assert matched.group(1) == filename
+
+    pattern = ('<a class="reference download internal" download="" '
+               'href="(_downloads/.*/)(file_with_special_%23_chars.xyz)">')
+    matched = re.search(pattern, result)
+    assert matched
+    assert (app.outdir / matched.group(1) / "file_with_special_#_chars.xyz").exists()
 
 
 @pytest.mark.sphinx('html', testroot='roles-download')
@@ -1330,6 +1339,25 @@ def test_html_remote_images(app, status, warning):
     assert not (app.outdir / 'python-logo.png').exists()
 
 
+@pytest.mark.sphinx('html', testroot='remote-logo')
+def test_html_remote_logo(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'index.html').read_text()
+    assert ('<img class="logo" src="https://www.python.org/static/img/python-logo.png" alt="Logo"/>' in result)
+    assert ('<link rel="shortcut icon" href="https://www.python.org/static/favicon.ico"/>' in result)
+    assert not (app.outdir / 'python-logo.png').exists()
+
+
+@pytest.mark.sphinx('html', testroot='local-logo')
+def test_html_local_logo(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'index.html').read_text()
+    assert ('<img class="logo" src="_static/img.png" alt="Logo"/>' in result)
+    assert (app.outdir / '_static/img.png').exists()
+
+
 @pytest.mark.sphinx('html', testroot='basic')
 def test_html_sidebar(app, status, warning):
     ctx = {}
@@ -1551,8 +1579,7 @@ def test_html_codeblock_linenos_style_table(app):
     app.build()
     content = (app.outdir / 'index.html').read_text()
 
-    pygments_version = tuple(LooseVersion(pygments.__version__).version)
-    if pygments_version >= (2, 8):
+    if PYGMENTS_VERSION >= (2, 8):
         assert ('<div class="linenodiv"><pre><span class="normal">1</span>\n'
                 '<span class="normal">2</span>\n'
                 '<span class="normal">3</span>\n'
@@ -1567,8 +1594,7 @@ def test_html_codeblock_linenos_style_inline(app):
     app.build()
     content = (app.outdir / 'index.html').read_text()
 
-    pygments_version = tuple(LooseVersion(pygments.__version__).version)
-    if pygments_version > (2, 7):
+    if PYGMENTS_VERSION > (2, 7):
         assert '<span class="linenos">1</span>' in content
     else:
         assert '<span class="lineno">1 </span>' in content
@@ -1625,3 +1651,11 @@ def test_html_permalink_icon(app):
     assert ('<h1>The basic Sphinx documentation for testing<a class="headerlink" '
             'href="#the-basic-sphinx-documentation-for-testing" '
             'title="Permalink to this headline"><span>[PERMALINK]</span></a></h1>' in content)
+
+
+@pytest.mark.sphinx('html', testroot='html_signaturereturn_icon')
+def test_html_signaturereturn_icon(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+
+    assert ('<span class="sig-return-icon">&#x2192;</span>' in content)

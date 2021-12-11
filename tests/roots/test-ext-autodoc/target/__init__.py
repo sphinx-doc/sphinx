@@ -114,6 +114,20 @@ class InnerChild(Outer.Inner):
 
 
 class DocstringSig(object):
+    def __new__(cls, *new_args, **new_kwargs):
+        """__new__(cls, d, e=1) -> DocstringSig
+First line of docstring
+
+        rest of docstring
+        """
+
+    def __init__(self, *init_args, **init_kwargs):
+        """__init__(self, a, b=1) -> None
+First line of docstring
+
+        rest of docstring
+        """
+
     def meth(self):
         """meth(FOO, BAR=1) -> BAZ
 First line of docstring

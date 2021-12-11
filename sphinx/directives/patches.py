@@ -14,7 +14,8 @@ from typing import TYPE_CHECKING, Any, Dict, List, Tuple, cast
 from docutils import nodes
 from docutils.nodes import Node, make_id, system_message
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.directives import html, images, tables
+from docutils.parsers.rst.directives import images, tables
+from docutils.parsers.rst.roles import set_classes
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx60Warning
@@ -26,6 +27,15 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import SEP, os_path, relpath
 from sphinx.util.typing import OptionSpec
+
+try:
+    from docutils.nodes import meta as meta_node  # type: ignore
+    from docutils.parsers.rst.directives.misc import Meta as MetaBase  # type: ignore
+except ImportError:
+    # docutils-0.17 or older
+    from docutils.parsers.rst.directives.html import Meta as MetaBase
+    from docutils.parsers.rst.directives.html import MetaBody
+    meta_node = MetaBody.meta
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -60,19 +70,19 @@ class Figure(images.Figure):
         return [figure_node]
 
 
-class Meta(html.Meta, SphinxDirective):
+class Meta(MetaBase, SphinxDirective):
     def run(self) -> List[Node]:
         result = super().run()
         for node in result:
             if (isinstance(node, nodes.pending) and
-               isinstance(node.details['nodes'][0], html.MetaBody.meta)):
+               isinstance(node.details['nodes'][0], meta_node)):
                 meta = node.details['nodes'][0]
                 meta.source = self.env.doc2path(self.env.docname)
                 meta.line = self.lineno
-                meta.rawcontent = meta['content']  # type: ignore
+                meta.rawcontent = meta['content']
 
                 # docutils' meta nodes aren't picklable because the class is nested
-                meta.__class__ = addnodes.meta  # type: ignore
+                meta.__class__ = addnodes.meta
 
         return result
 
@@ -152,6 +162,7 @@ class Code(SphinxDirective):
     def run(self) -> List[Node]:
         self.assert_has_content()
 
+        set_classes(self.options)
         code = '\n'.join(self.content)
         node = nodes.literal_block(code, code,
                                    classes=self.options.get('classes', []),

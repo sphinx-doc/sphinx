@@ -26,6 +26,7 @@ from docutils.nodes import Node
 from docutils.utils import relative_path
 
 from sphinx import __display_version__, package_dir
+from sphinx import version_info as sphinx_version
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import ENUM, Config
@@ -202,7 +203,7 @@ class StandaloneHTMLBuilder(Builder):
         super().__init__(app)
 
         # CSS files
-        self.css_files: List[Dict[str, str]] = []
+        self.css_files: List[Stylesheet] = []
 
         # JS files
         self.script_files: List[JavaScript] = []
@@ -286,13 +287,14 @@ class StandaloneHTMLBuilder(Builder):
 
         if dark_style is not None:
             self.dark_highlighter = PygmentsBridge('html', dark_style)
-            self.add_css_file('pygments_dark.css',
-                              media='(prefers-color-scheme: dark)',
-                              id='pygments_dark_css')
+            self.app.add_css_file('pygments_dark.css',
+                                  media='(prefers-color-scheme: dark)',
+                                  id='pygments_dark_css')
         else:
             self.dark_highlighter = None
 
     def init_css_files(self) -> None:
+        self.css_files = []
         self.add_css_file('pygments.css', priority=200)
         self.add_css_file(self._get_style_filename(), priority=200)
 
@@ -307,9 +309,10 @@ class StandaloneHTMLBuilder(Builder):
         if '://' not in filename:
             filename = posixpath.join('_static', filename)
 
-        self.css_files.append(Stylesheet(filename, **kwargs))  # type: ignore
+        self.css_files.append(Stylesheet(filename, **kwargs))
 
     def init_js_files(self) -> None:
+        self.script_files = []
         self.add_js_file('documentation_options.js', id="documentation_options",
                          data_url_root='', priority=200)
         self.add_js_file('jquery.js', priority=200)
@@ -468,8 +471,15 @@ class StandaloneHTMLBuilder(Builder):
         else:
             self.last_updated = None
 
-        logo = path.basename(self.config.html_logo) if self.config.html_logo else ''
-        favicon = path.basename(self.config.html_favicon) if self.config.html_favicon else ''
+        # If the logo or favicon are urls, keep them as-is, otherwise
+        # strip the relative path as the files will be copied into _static.
+        logo = self.config.html_logo or ''
+        favicon = self.config.html_favicon or ''
+
+        if not isurl(logo):
+            logo = path.basename(logo)
+        if not isurl(favicon):
+            favicon = path.basename(favicon)
 
         self.relations = self.env.collect_relations()
 
@@ -509,6 +519,7 @@ class StandaloneHTMLBuilder(Builder):
             'language': self.config.language,
             'css_files': self.css_files,
             'sphinx_version': __display_version__,
+            'sphinx_version_tuple': sphinx_version,
             'style': self._get_style_filename(),
             'rellinks': rellinks,
             'builder': self.name,

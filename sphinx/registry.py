@@ -93,6 +93,9 @@ class SphinxComponentRegistry:
         self.html_inline_math_renderers: Dict[str, Tuple[Callable, Callable]] = {}
         self.html_block_math_renderers: Dict[str, Tuple[Callable, Callable]] = {}
 
+        #: HTML assets
+        self.html_assets_policy: str = 'per_page'
+
         #: HTML themes
         self.html_themes: Dict[str, str] = {}
 
@@ -401,7 +404,7 @@ class SphinxComponentRegistry:
         logger.debug('[app] adding html_math_renderer: %s, %r, %r',
                      name, inline_renderers, block_renderers)
         if name in self.html_inline_math_renderers:
-            raise ExtensionError(__('math renderer %s is already registred') % name)
+            raise ExtensionError(__('math renderer %s is already registered') % name)
 
         self.html_inline_math_renderers[name] = inline_renderers
         self.html_block_math_renderers[name] = block_renderers
@@ -464,7 +467,7 @@ class SphinxComponentRegistry:
 
 
 def merge_source_suffix(app: "Sphinx", config: Config) -> None:
-    """Merge source_suffix which specified by user and added by extensions."""
+    """Merge any user-specified source_suffix with any added by extensions."""
     for suffix, filetype in app.registry.source_suffix.items():
         if suffix not in app.config.source_suffix:
             app.config.source_suffix[suffix] = filetype

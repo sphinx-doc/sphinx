@@ -211,6 +211,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('texinfo_domain_indices', True, None, [list])
     app.add_config_value('texinfo_show_urls', 'footnote', None)
     app.add_config_value('texinfo_no_detailmenu', False, None)
+    app.add_config_value('texinfo_cross_references', True, None)
 
     return {
         'version': 'builtin',

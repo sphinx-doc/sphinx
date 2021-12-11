@@ -123,7 +123,9 @@ def test_domain_cpp_ast_fundamental_types():
         def makeIdV1():
             if t == 'decltype(auto)':
                 return None
-            id = t.replace(" ", "-").replace("long", "l").replace("int", "i")
+            id = t.replace(" ", "-").replace("long", "l")
+            if "__int" not in t:
+                id = id.replace("int", "i")
             id = id.replace("bool", "b").replace("char", "c")
             id = id.replace("wc_t", "wchar_t").replace("c16_t", "char16_t")
             id = id.replace("c8_t", "char8_t")
@@ -135,7 +137,9 @@ def test_domain_cpp_ast_fundamental_types():
             if t == "std::nullptr_t":
                 id = "NSt9nullptr_tE"
             return "1f%s" % id
-        check("function", "void f(%s arg)" % t, {1: makeIdV1(), 2: makeIdV2()})
+        input = "void f(%s arg)" % t.replace(' ', '  ')
+        output = "void f(%s arg)" % t
+        check("function", input, {1: makeIdV1(), 2: makeIdV2()}, output=output)
 
 
 def test_domain_cpp_ast_expressions():
@@ -634,6 +638,9 @@ def test_domain_cpp_ast_function_definitions():
 
     # from #8960
     check('function', 'void f(void (*p)(int, double), int i)', {2: '1fPFvidEi'})
+
+    # from #9535 comment
+    check('function', 'void f(void (*p)(int) = &foo)', {2: '1fPFviE'})
 
 
 def test_domain_cpp_ast_operators():

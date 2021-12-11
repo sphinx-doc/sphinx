@@ -15,16 +15,20 @@ import pytest
 
 from sphinx import addnodes
 from sphinx.addnodes import desc
-from sphinx.domains.c import DefinitionError, DefinitionParser, Symbol, _id_prefix, _max_id
+from sphinx.domains.c import (DefinitionError, DefinitionParser, Symbol, _id_prefix,
+                              _macroKeywords, _max_id)
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
 
+class Config:
+    c_id_attributes = ["id_attr", 'LIGHTGBM_C_EXPORT']
+    c_paren_attributes = ["paren_attr"]
+    c_extra_keywords = _macroKeywords
+
+
 def parse(name, string):
-    class Config:
-        c_id_attributes = ["id_attr", 'LIGHTGBM_C_EXPORT']
-        c_paren_attributes = ["paren_attr"]
     parser = DefinitionParser(string, location=None, config=Config())
     parser.allowFallbackExpressionParsing = False
     ast = parser.parse_declaration(name, name)
@@ -114,9 +118,6 @@ def check(name, input, idDict, output=None, key=None, asTextOutput=None):
 
 def test_domain_c_ast_expressions():
     def exprCheck(expr, output=None):
-        class Config:
-            c_id_attributes = ["id_attr"]
-            c_paren_attributes = ["paren_attr"]
         parser = DefinitionParser(expr, location=None, config=Config())
         parser.allowFallbackExpressionParsing = False
         ast = parser.parse_expression()
@@ -272,6 +273,62 @@ def test_domain_c_ast_expressions():
     exprCheck('a xor_eq 5')
     exprCheck('a |= 5')
     exprCheck('a or_eq 5')
+
+
+def test_domain_c_ast_fundamental_types():
+    def types():
+        def signed(t):
+            yield t
+            yield 'signed  ' + t
+            yield 'unsigned  ' + t
+
+        # integer types
+        # -------------
+        yield 'void'
+        yield from ('_Bool', 'bool')
+        yield from signed('char')
+        yield from signed('short')
+        yield from signed('short int')
+        yield from signed('int')
+        yield from ('signed', 'unsigned')
+        yield from signed('long')
+        yield from signed('long int')
+        yield from signed('long long')
+        yield from signed('long long int')
+        yield from ('__int128', '__uint128')
+        # extensions
+        for t in ('__int8', '__int16', '__int32', '__int64', '__int128'):
+            yield from signed(t)
+
+        # floating point types
+        # --------------------
+        yield from ('_Decimal32', '_Decimal64', '_Decimal128')
+        for f in ('float', 'double', 'long double'):
+            yield f
+            yield from (f + "  _Complex", f + "  complex")
+            yield from ("_Complex  " + f, "complex  " + f)
+            yield from ("_Imaginary  " + f, "imaginary  " + f)
+        # extensions
+        # https://gcc.gnu.org/onlinedocs/gcc/Floating-Types.html#Floating-Types
+        yield from ('__float80', '_Float64x',
+                    '__float128', '_Float128',
+                    '__ibm128')
+        # https://gcc.gnu.org/onlinedocs/gcc/Half-Precision.html#Half-Precision
+        yield '__fp16'
+
+        # fixed-point types (extension)
+        # -----------------------------
+        # https://gcc.gnu.org/onlinedocs/gcc/Fixed-Point.html#Fixed-Point
+        for sat in ('', '_Sat  '):
+            for t in ('_Fract', 'fract', '_Accum', 'accum'):
+                for size in ('short  ', '', 'long  ', 'long long  '):
+                    for tt in signed(size + t):
+                        yield sat + tt
+
+    for t in types():
+        input = "{key}%s foo" % t
+        output = ' '.join(input.split())
+        check('type', input, {1: 'foo'}, key='typedef', output=output)
 
 
 def test_domain_c_ast_type_definitions():
@@ -526,6 +583,16 @@ def test_domain_c_ast_attributes():
     # issue michaeljones/breathe#500
     check('function', 'LIGHTGBM_C_EXPORT int LGBM_BoosterFree(int handle)',
           {1: 'LGBM_BoosterFree'})
+
+
+def test_extra_keywords():
+    with pytest.raises(DefinitionError,
+                       match='Expected identifier, got user-defined keyword: complex.'):
+        parse('function', 'void f(int complex)')
+    with pytest.raises(DefinitionError,
+                       match='Expected identifier, got user-defined keyword: complex.'):
+        parse('function', 'void complex(void)')
+
 
 # def test_print():
 #     # used for getting all the ids out for checking

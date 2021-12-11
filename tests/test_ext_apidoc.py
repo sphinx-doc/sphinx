@@ -635,6 +635,8 @@ def test_namespace_package_file(tempdir):
     assert content == ("testpkg namespace\n"
                        "=================\n"
                        "\n"
+                       ".. py:module:: testpkg\n"
+                       "\n"
                        "Submodules\n"
                        "----------\n"
                        "\n"

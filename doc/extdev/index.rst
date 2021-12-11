@@ -175,7 +175,7 @@ as metadata of the extension.  Metadata keys currently recognized are:
   .. note:: The *parallel-read-safe* extension must satisfy the following
             conditions:
 
-            * The core logic of the extension is parallely executable during
+            * The core logic of the extension is parallelly executable during
               the reading phase.
             * It has event handlers for :event:`env-merge-info` and
               :event:`env-purge-doc` events if it stores dataa to the build
@@ -188,7 +188,7 @@ as metadata of the extension.  Metadata keys currently recognized are:
   .. note:: The *parallel-write-safe* extension must satisfy the following
             conditions:
 
-            * The core logic of the extension is parallely executable during
+            * The core logic of the extension is parallelly executable during
               the writing phase.
 
 

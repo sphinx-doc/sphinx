@@ -200,6 +200,11 @@ Sphinx but is set to automatically include it from a third-party site.
 
    .. versionadded:: 1.8
 
+   .. versionchanged:: 4.4.1
+
+      Allow to change the loading method (async or defer) of MathJax if "async"
+      or "defer" key is set.
+
 .. confval:: mathjax3_config
 
    The configuration options for MathJax v3 (which is used by default).

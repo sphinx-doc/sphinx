@@ -53,8 +53,9 @@ from sphinx.pycode import ast
     ("+ a", "+ a"),                             # UAdd
     ("- 1", "- 1"),                             # UnaryOp
     ("- a", "- a"),                             # USub
-    ("(1, 2, 3)", "(1, 2, 3)"),                   # Tuple
+    ("(1, 2, 3)", "(1, 2, 3)"),                 # Tuple
     ("()", "()"),                               # Tuple (empty)
+    ("(1,)", "(1,)"),                           # Tuple (single item)
 ])
 def test_unparse(source, expected):
     module = ast.parse(source)

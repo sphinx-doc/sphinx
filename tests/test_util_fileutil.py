@@ -19,7 +19,7 @@ class DummyTemplateLoader(BuiltinTemplateLoader):
         super().__init__()
         builder = mock.Mock()
         builder.config.templates_path = []
-        builder.app.translater = None
+        builder.app.translator = None
         self.init(builder)
 
 

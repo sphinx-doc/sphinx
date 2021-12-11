@@ -35,7 +35,7 @@ htmlhelp_basename = 'Sphinxdoc'
 epub_theme = 'epub'
 epub_basename = 'sphinx'
 epub_author = 'Georg Brandl'
-epub_publisher = 'https://sphinx-doc.org/'
+epub_publisher = 'https://www.sphinx-doc.org/'
 epub_uid = 'web-site'
 epub_scheme = 'url'
 epub_identifier = epub_publisher
@@ -109,6 +109,7 @@ texinfo_documents = [
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3/', None),
     'requests': ('https://requests.readthedocs.io/en/master', None),
+    'readthedocs': ('https://docs.readthedocs.io/en/stable', None),
 }
 
 # Sphinx document translation with sphinx gettext feature uses these settings:

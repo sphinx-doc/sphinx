@@ -1,7 +1,7 @@
 %% LITERAL BLOCKS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexliterals.sty}[2021/01/27 code-blocks and parsed literals]
+\ProvidesFile{sphinxlatexliterals.sty}[2021/12/06 code-blocks and parsed literals]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -704,6 +704,10 @@
 % the \catcode13=5\relax (deactivate end of input lines) is left to callers
 \newcommand*{\sphinxunactivateextrasandspace}{\catcode32=10\relax
       \sphinxunactivateextras}%
+% alltt uses a monospace font and linebreaks at dashes (which are escaped
+% to \sphinxhyphen{} which expands to -\kern\z@) are inhibited with pdflatex.
+% Not with xelatex (cf \defaultfontfeatures in latex writer), so:
+\newcommand*{\sphinxhypheninparsedliteral}{\sphinxhyphennobreak}
 % now for the modified alltt environment
 \newenvironment{sphinxalltt}
 {% at start of next line to workaround Emacs/AUCTeX issue with this file
@@ -711,6 +715,7 @@
  \ifspx@opt@parsedliteralwraps
    \sbox\sphinxcontinuationbox {\spx@opt@verbatimcontinued}%
    \sbox\sphinxvisiblespacebox {\spx@opt@verbatimvisiblespace}%
+   \let\sphinxhyphen\sphinxhypheninparsedliteral
    \sphinxbreaksattexescapedchars
    \sphinxbreaksviaactiveinparsedliteral
    \sphinxbreaksatspaceinparsedliteral
@@ -757,10 +762,14 @@
 \protected\def\sphinxtextbackslashbreakafter
  {\discretionary{\sphinx@textbackslash}{\sphinxafterbreak}{\sphinx@textbackslash}}
 \let\sphinxtextbackslash\sphinxtextbackslashbreakafter
+% - is escaped to \sphinxhyphen{} and this default ensures no linebreak
+% behaviour (also with a non monospace font, or with xelatex)
+\newcommand*{\sphinxhyphenininlineliteral}{\sphinxhyphennobreak}
 % the macro must be protected if it ends up used in moving arguments,
 % in 'alltt' \@noligs is done already, and the \scantokens must be avoided.
 \protected\def\sphinxupquote#1{{\def\@tempa{alltt}%
   \ifx\@tempa\@currenvir\else
+   \let\sphinxhyphen\sphinxhyphenininlineliteral
    \ifspx@opt@inlineliteralwraps
       % break at . , ; ? ! /
       \sphinxbreaksviaactive

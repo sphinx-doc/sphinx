@@ -164,7 +164,7 @@ Options for setuptools integration
 
 .. setuptools-confval:: link-index
 
-   A boolean that ensures index.html will be linked to the master doc. Default
+   A boolean that ensures index.html will be linked to the root doc. Default
    is false.
 
    This can also be set by passing the `-i` flag to ``setup.py``:

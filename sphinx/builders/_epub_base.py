@@ -143,7 +143,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
     embedded = True
     # disable download role
     download_support = False
-    # dont' create links to original images from images
+    # don't create links to original images from images
     html_scaled_image_link = False
     # don't generate search index or include search page
     search = False
@@ -323,14 +323,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
             # a) place them after the last existing footnote
             # b) place them after an (empty) Footnotes rubric
             # c) create an empty Footnotes rubric at the end of the document
-            fns = tree.traverse(nodes.footnote)
+            fns = list(tree.traverse(nodes.footnote))
             if fns:
                 fn = fns[-1]
                 return fn.parent, fn.parent.index(fn) + 1
             for node in tree.traverse(nodes.rubric):
                 if len(node) == 1 and node.astext() == FOOTNOTES_RUBRIC_NAME:
                     return node.parent, node.parent.index(node) + 1
-            doc = tree.traverse(nodes.document)[0]
+            doc = list(tree.traverse(nodes.document))[0]
             rub = nodes.rubric()
             rub.append(nodes.Text(FOOTNOTES_RUBRIC_NAME))
             doc.append(rub)
@@ -339,10 +339,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
         if show_urls == 'no':
             return
         if show_urls == 'footnote':
-            doc = tree.traverse(nodes.document)[0]
+            doc = list(tree.traverse(nodes.document))[0]
             fn_spot, fn_idx = footnote_spot(tree)
             nr = 1
-        for node in tree.traverse(nodes.reference):
+        for node in list(tree.traverse(nodes.reference)):
             uri = node.get('refuri', '')
             if (uri.startswith('http:') or uri.startswith('https:') or
                     uri.startswith('ftp:')) and uri not in node.astext():

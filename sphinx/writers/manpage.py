@@ -56,7 +56,7 @@ class NestedInlineTransform:
 
     def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.literal, nodes.emphasis, nodes.strong)
-        for node in self.document.traverse(matcher):  # type: TextElement
+        for node in list(self.document.traverse(matcher)):  # type: TextElement
             if any(matcher(subnode) for subnode in node):
                 pos = node.parent.index(node)
                 for subnode in reversed(list(node)):
@@ -73,7 +73,7 @@ class NestedInlineTransform:
 
 class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     """
-    Custom translator.
+    Custom man page translator.
     """
 
     _docinfo: Dict[str, Any] = {}
@@ -112,9 +112,10 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     # overwritten -- added quotes around all .TH arguments
     def header(self) -> str:
         tmpl = (".TH \"%(title_upper)s\" \"%(manual_section)s\""
-                " \"%(date)s\" \"%(version)s\" \"%(manual_group)s\"\n"
-                ".SH NAME\n"
-                "%(title)s \\- %(subtitle)s\n")
+                " \"%(date)s\" \"%(version)s\" \"%(manual_group)s\"\n")
+        if self._docinfo['subtitle']:
+            tmpl += (".SH NAME\n"
+                     "%(title)s \\- %(subtitle)s\n")
         return tmpl % self._docinfo
 
     def visit_start_of_file(self, node: Element) -> None:
@@ -226,7 +227,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     # overwritten -- don't make whole of term bold if it includes strong node
     def visit_term(self, node: Element) -> None:
-        if node.traverse(nodes.strong):
+        if list(node.traverse(nodes.strong)):
             self.body.append('\n')
         else:
             super().visit_term(node)

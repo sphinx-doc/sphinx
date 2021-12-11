@@ -35,7 +35,7 @@ from sphinx.util.texescape import tex_replace_map
 try:
     from docutils.utils.roman import toRoman
 except ImportError:
-    # In Debain/Ubuntu, roman package is provided as roman, not as docutils.utils.roman
+    # In Debian/Ubuntu, roman package is provided as roman, not as docutils.utils.roman
     from roman import toRoman  # type: ignore
 
 if TYPE_CHECKING:
@@ -123,7 +123,7 @@ class Table:
         self.col = 0
         self.row = 0
 
-        # A mapping a table location to the cell_id (cell = rectangular area)
+        # A dict mapping a table location to a cell_id (cell = rectangular area)
         self.cells: Dict[Tuple[int, int], int] = defaultdict(int)
         self.cell_id = 0  # last assigned cell_id
 
@@ -202,7 +202,7 @@ class Table:
 
 
 class TableCell:
-    """A cell data of tables."""
+    """Data of a cell in a table."""
 
     def __init__(self, table: Table, row: int, col: int) -> None:
         if table.cells[(row, col)] == 0:
@@ -445,8 +445,7 @@ class LaTeXTranslator(SphinxTranslator):
         return body
 
     def format_docclass(self, docclass: str) -> str:
-        """ prepends prefix to sphinx document classes
-        """
+        """Prepends prefix to sphinx document classes"""
         warnings.warn('LaTeXWriter.format_docclass() is deprecated.',
                       RemovedInSphinx50Warning, stacklevel=2)
         if docclass in self.docclasses:
@@ -652,7 +651,7 @@ class LaTeXTranslator(SphinxTranslator):
                 raise nodes.SkipNode
             else:
                 short = ''
-                if node.traverse(nodes.image):
+                if list(node.traverse(nodes.image)):
                     short = ('[%s]' % self.escape(' '.join(clean_astext(node).split())))
 
                 try:
@@ -758,9 +757,7 @@ class LaTeXTranslator(SphinxTranslator):
         self._depart_signature_line(node)
 
     def visit_desc_content(self, node: Element) -> None:
-        if node.children and not isinstance(node.children[0], nodes.paragraph):
-            # avoid empty desc environment which causes a formatting bug
-            self.body.append('~')
+        pass
 
     def depart_desc_content(self, node: Element) -> None:
         pass
@@ -1012,7 +1009,7 @@ class LaTeXTranslator(SphinxTranslator):
             context = (r'\par' + CR + r'\vskip-\baselineskip'
                        r'\vbox{\hbox{\strut}}\end{varwidth}%' + CR + context)
             self.needs_linetrimming = 1
-        if len(node.traverse(nodes.paragraph)) >= 2:
+        if len(list(node.traverse(nodes.paragraph))) >= 2:
             self.table.has_oldproblematic = True
         if isinstance(node.parent.parent, nodes.thead) or (cell.col in self.table.stubs):
             if len(node) == 1 and isinstance(node[0], nodes.paragraph) and node.astext() == '':
@@ -1211,7 +1208,7 @@ class LaTeXTranslator(SphinxTranslator):
         ncolumns = node['ncolumns']
         if self.compact_list > 1:
             self.body.append(r'\setlength{\multicolsep}{0pt}' + CR)
-        self.body.append(r'\begin{multicols}{' + ncolumns + '}\raggedright' + CR)
+        self.body.append(r'\begin{multicols}{' + ncolumns + r'}\raggedright' + CR)
         self.body.append(r'\begin{itemize}\setlength{\itemsep}{0pt}'
                          r'\setlength{\parskip}{0pt}' + CR)
         if self.table:
@@ -1225,7 +1222,7 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def depart_hlistcol(self, node: Element) -> None:
-        # \columnbreak would guarantee same columns as in html ouput.  But
+        # \columnbreak would guarantee same columns as in html output.  But
         # some testing with long items showed that columns may be too uneven.
         # And in case only of short items, the automatic column breaks should
         # match the ones pre-computed by the hlist() directive.
@@ -1314,7 +1311,7 @@ class LaTeXTranslator(SphinxTranslator):
         base, ext = path.splitext(uri)
         if self.in_title and base:
             # Lowercase tokens forcely because some fncychap themes capitalize
-            # the options of \sphinxincludegraphics unexpectly (ex. WIDTH=...).
+            # the options of \sphinxincludegraphics unexpectedly (ex. WIDTH=...).
             self.body.append(r'\lowercase{\sphinxincludegraphics%s}{{%s}%s}' %
                              (options, base, ext))
         else:
@@ -1890,7 +1887,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.context[-1] += 1
 
     def visit_option_argument(self, node: Element) -> None:
-        """The delimiter betweeen an option and its argument."""
+        """The delimiter between an option and its argument."""
         self.body.append(node.get('delimiter', ' '))
 
     def depart_option_argument(self, node: Element) -> None:
@@ -1975,10 +1972,14 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def visit_container(self, node: Element) -> None:
-        pass
+        classes = node.get('classes', [])
+        for c in classes:
+            self.body.append('\n\\begin{sphinxuseclass}{%s}' % c)
 
     def depart_container(self, node: Element) -> None:
-        pass
+        classes = node.get('classes', [])
+        for c in classes:
+            self.body.append('\n\\end{sphinxuseclass}')
 
     def visit_decoration(self, node: Element) -> None:
         pass

@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        name: [py36, py37, py38, py39]
+        name: [py36, py37, py38, py39, py310]
         include:
         - name: py36
           python: 3.6
@@ -23,9 +23,12 @@ jobs:
           python: 3.9
           docutils: du17
           coverage: "--cov ./ --cov-append --cov-config setup.cfg"
-        - name: py310-dev
-          python: 3.10-dev
+        - name: py310
+          python: "3.10"
           docutils: du17
+        - name: py311-dev
+          python: 3.11-dev
+          docutils: py311
     env:
       PYTEST_ADDOPTS: ${{ matrix.coverage }}
 
@@ -47,6 +50,9 @@ jobs:
       run: sudo apt-get install graphviz
     - name: Install dependencies
       run: pip install -U tox codecov
+    - name: Install the latest py package (for py3.11-dev)
+      run: pip install -U git+https://github.com/pytest-dev/py
+      if: ${{ matrix.python == '3.11-dev' }}
     - name: Run Tox
       run: tox -e ${{ matrix.docutils }} -- -vv
     - name: codecov

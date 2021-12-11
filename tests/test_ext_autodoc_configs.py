@@ -287,12 +287,32 @@ def test_autodoc_inherit_docstrings(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_docstring_signature(app):
-    options = {"members": None}
+    options = {"members": None, "special-members": "__init__, __new__"}
     actual = do_autodoc(app, 'class', 'target.DocstringSig', options)
     assert list(actual) == [
         '',
-        '.. py:class:: DocstringSig()',
+        # FIXME: Ideally this would instead be: `DocstringSig(d, e=1)` but
+        # currently `ClassDocumenter` does not apply the docstring signature
+        # logic when extracting a signature from a __new__ or __init__ method.
+        '.. py:class:: DocstringSig(*new_args, **new_kwargs)',
         '   :module: target',
+        '',
+        '',
+        '   .. py:method:: DocstringSig.__init__(self, a, b=1) -> None',
+        '      :module: target',
+        '',
+        '      First line of docstring',
+        '',
+        '      rest of docstring',
+        '',
+        '',
+        '   .. py:method:: DocstringSig.__new__(cls, d, e=1) -> DocstringSig',
+        '      :module: target',
+        '      :staticmethod:',
+        '',
+        '      First line of docstring',
+        '',
+        '      rest of docstring',
         '',
         '',
         '   .. py:method:: DocstringSig.meth(FOO, BAR=1) -> BAZ',
@@ -331,8 +351,29 @@ def test_autodoc_docstring_signature(app):
     actual = do_autodoc(app, 'class', 'target.DocstringSig', options)
     assert list(actual) == [
         '',
-        '.. py:class:: DocstringSig()',
+        '.. py:class:: DocstringSig(*new_args, **new_kwargs)',
         '   :module: target',
+        '',
+        '',
+        '   .. py:method:: DocstringSig.__init__(*init_args, **init_kwargs)',
+        '      :module: target',
+        '',
+        '      __init__(self, a, b=1) -> None',
+        '      First line of docstring',
+        '',
+        '              rest of docstring',
+        '',
+        '',
+        '',
+        '   .. py:method:: DocstringSig.__new__(cls, *new_args, **new_kwargs)',
+        '      :module: target',
+        '      :staticmethod:',
+        '',
+        '      __new__(cls, d, e=1) -> DocstringSig',
+        '      First line of docstring',
+        '',
+        '              rest of docstring',
+        '',
         '',
         '',
         '   .. py:method:: DocstringSig.meth()',
@@ -495,7 +536,7 @@ def test_mocked_module_imports(app, warning):
     sys.modules.pop('target', None)  # unload target module to clear the module cache
 
     # no autodoc_mock_imports
-    options = {"members": 'TestAutodoc,decoratedFunction,func'}
+    options = {"members": 'TestAutodoc,decoratedFunction,func,Alias'}
     actual = do_autodoc(app, 'module', 'target.need_mocks', options)
     assert list(actual) == []
     assert "autodoc: failed to import module 'need_mocks'" in warning.getvalue()
@@ -516,10 +557,22 @@ def test_mocked_module_imports(app, warning):
         '.. py:module:: target.need_mocks',
         '',
         '',
+        '.. py:data:: Alias',
+        '   :module: target.need_mocks',
+        '',
+        '   docstring',
+        '',
+        '',
         '.. py:class:: TestAutodoc()',
         '   :module: target.need_mocks',
         '',
         '   TestAutodoc docstring.',
+        '',
+        '',
+        '   .. py:attribute:: TestAutodoc.Alias',
+        '      :module: target.need_mocks',
+        '',
+        '      docstring',
         '',
         '',
         '   .. py:method:: TestAutodoc.decoratedMethod()',
@@ -554,8 +607,24 @@ def test_autodoc_typehints_signature(app):
         '.. py:module:: target.typehints',
         '',
         '',
+        '.. py:data:: CONST1',
+        '   :module: target.typehints',
+        '   :type: int',
+        '',
+        '',
         '.. py:class:: Math(s: str, o: Optional[Any] = None)',
         '   :module: target.typehints',
+        '',
+        '',
+        '   .. py:attribute:: Math.CONST1',
+        '      :module: target.typehints',
+        '      :type: int',
+        '',
+        '',
+        '   .. py:attribute:: Math.CONST2',
+        '      :module: target.typehints',
+        '      :type: int',
+        '      :value: 1',
         '',
         '',
         '   .. py:method:: Math.decr(a: int, b: int = 1) -> int',
@@ -572,6 +641,11 @@ def test_autodoc_typehints_signature(app):
         '',
         '   .. py:method:: Math.nothing() -> None',
         '      :module: target.typehints',
+        '',
+        '',
+        '   .. py:property:: Math.prop',
+        '      :module: target.typehints',
+        '      :type: int',
         '',
         '',
         '.. py:class:: NewAnnotation(i: int)',
@@ -620,8 +694,21 @@ def test_autodoc_typehints_none(app):
         '.. py:module:: target.typehints',
         '',
         '',
+        '.. py:data:: CONST1',
+        '   :module: target.typehints',
+        '',
+        '',
         '.. py:class:: Math(s, o=None)',
         '   :module: target.typehints',
+        '',
+        '',
+        '   .. py:attribute:: Math.CONST1',
+        '      :module: target.typehints',
+        '',
+        '',
+        '   .. py:attribute:: Math.CONST2',
+        '      :module: target.typehints',
+        '      :value: 1',
         '',
         '',
         '   .. py:method:: Math.decr(a, b=1)',
@@ -637,6 +724,10 @@ def test_autodoc_typehints_none(app):
         '',
         '',
         '   .. py:method:: Math.nothing()',
+        '      :module: target.typehints',
+        '',
+        '',
+        '   .. py:property:: Math.prop',
         '      :module: target.typehints',
         '',
         '',
@@ -746,7 +837,7 @@ def test_autodoc_typehints_description(app):
             '      Tuple[int, int]\n'
             in context)
 
-    # Overloads still get displyed in the signature
+    # Overloads still get displayed in the signature
     assert ('target.overload.sum(x: int, y: int = 0) -> int\n'
             'target.overload.sum(x: float, y: float = 0.0) -> float\n'
             'target.overload.sum(x: str, y: str = None) -> str\n'
@@ -765,6 +856,10 @@ def test_autodoc_typehints_description_no_undoc(app):
     (app.srcdir / 'index.rst').write_text(
         '.. autofunction:: target.typehints.incr\n'
         '\n'
+        '.. autofunction:: target.typehints.decr\n'
+        '\n'
+        '   :returns: decremented number\n'
+        '\n'
         '.. autofunction:: target.typehints.tuple_args\n'
         '\n'
         '   :param x: arg\n'
@@ -773,6 +868,14 @@ def test_autodoc_typehints_description_no_undoc(app):
     app.build()
     context = (app.outdir / 'index.txt').read_text()
     assert ('target.typehints.incr(a, b=1)\n'
+            '\n'
+            'target.typehints.decr(a, b=1)\n'
+            '\n'
+            '   Returns:\n'
+            '      decremented number\n'
+            '\n'
+            '   Return type:\n'
+            '      int\n'
             '\n'
             'target.typehints.tuple_args(x)\n'
             '\n'
@@ -877,7 +980,7 @@ def test_autodoc_typehints_both(app):
             '      Tuple[int, int]\n'
             in context)
 
-    # Overloads still get displyed in the signature
+    # Overloads still get displayed in the signature
     assert ('target.overload.sum(x: int, y: int = 0) -> int\n'
             'target.overload.sum(x: float, y: float = 0.0) -> float\n'
             'target.overload.sum(x: str, y: str = None) -> str\n'
@@ -1037,6 +1140,99 @@ def test_autodoc_typehints_description_and_type_aliases(app):
             '\n'
             '   Return type:\n'
             '      myint\n' == context)
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc',
+                    confoverrides={'autodoc_unqualified_typehints': True})
+def test_autodoc_unqualified_typehints(app):
+    if sys.version_info < (3, 7):
+        Any = 'Any'
+    else:
+        Any = '~typing.Any'
+
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'target.typehints', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.typehints',
+        '',
+        '',
+        '.. py:data:: CONST1',
+        '   :module: target.typehints',
+        '   :type: int',
+        '',
+        '',
+        '.. py:class:: Math(s: str, o: ~typing.Optional[%s] = None)' % Any,
+        '   :module: target.typehints',
+        '',
+        '',
+        '   .. py:attribute:: Math.CONST1',
+        '      :module: target.typehints',
+        '      :type: int',
+        '',
+        '',
+        '   .. py:attribute:: Math.CONST2',
+        '      :module: target.typehints',
+        '      :type: int',
+        '      :value: 1',
+        '',
+        '',
+        '   .. py:method:: Math.decr(a: int, b: int = 1) -> int',
+        '      :module: target.typehints',
+        '',
+        '',
+        '   .. py:method:: Math.horse(a: str, b: int) -> None',
+        '      :module: target.typehints',
+        '',
+        '',
+        '   .. py:method:: Math.incr(a: int, b: int = 1) -> int',
+        '      :module: target.typehints',
+        '',
+        '',
+        '   .. py:method:: Math.nothing() -> None',
+        '      :module: target.typehints',
+        '',
+        '',
+        '   .. py:property:: Math.prop',
+        '      :module: target.typehints',
+        '      :type: int',
+        '',
+        '',
+        '.. py:class:: NewAnnotation(i: int)',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:class:: NewComment(i: int)',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:class:: SignatureFromMetaclass(a: int)',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:function:: complex_func(arg1: str, arg2: List[int], arg3: Tuple[int, '
+        'Union[str, Unknown]] = None, *args: str, **kwargs: str) -> None',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:function:: decr(a: int, b: int = 1) -> int',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:function:: incr(a: int, b: int = 1) -> int',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:function:: missing_attr(c, a: str, b: Optional[str] = None) -> str',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:function:: tuple_args(x: ~typing.Tuple[int, ~typing.Union[int, str]]) '
+        '-> ~typing.Tuple[int, int]',
+        '   :module: target.typehints',
+        '',
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')

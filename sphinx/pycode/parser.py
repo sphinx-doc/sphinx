@@ -137,7 +137,7 @@ class TokenProcessor:
         return self.buffers[lineno - 1]
 
     def fetch_token(self) -> Token:
-        """Fetch a next token from source code.
+        """Fetch the next token from source code.
 
         Returns ``None`` if sequence finished.
         """
@@ -170,10 +170,10 @@ class TokenProcessor:
 
 
 class AfterCommentParser(TokenProcessor):
-    """Python source code parser to pick up comment after assignment.
+    """Python source code parser to pick up comments after assignments.
 
-    This parser takes a python code starts with assignment statement,
-    and returns the comments for variable if exists.
+    This parser takes code which starts with an assignment statement,
+    and returns the comment for the variable if one exists.
     """
 
     def __init__(self, lines: List[str]) -> None:
@@ -236,7 +236,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         super().__init__()
 
     def get_qualname_for(self, name: str) -> Optional[List[str]]:
-        """Get qualified name for given object as a list of string."""
+        """Get qualified name for given object as a list of string(s)."""
         if self.current_function:
             if self.current_classes and self.context[-1] == "__init__":
                 # store variable comments inside __init__ method of classes
@@ -309,7 +309,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         return False
 
     def get_self(self) -> Optional[ast.arg]:
-        """Returns the name of first argument if in function."""
+        """Returns the name of the first argument if in a function."""
         if self.current_function and self.current_function.args.args:
             return self.current_function.args.args[0]
         else:
@@ -320,12 +320,12 @@ class VariableCommentPicker(ast.NodeVisitor):
         return self.buffers[lineno - 1]
 
     def visit(self, node: ast.AST) -> None:
-        """Updates self.previous to ."""
+        """Updates self.previous to the given node."""
         super().visit(node)
         self.previous = node
 
     def visit_Import(self, node: ast.Import) -> None:
-        """Handles Import node and record it to definition orders."""
+        """Handles Import node and record the order of definitions."""
         for name in node.names:
             self.add_entry(name.asname or name.name)
 
@@ -337,7 +337,7 @@ class VariableCommentPicker(ast.NodeVisitor):
                 self.typing_overload = name.asname or name.name
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
-        """Handles Import node and record it to definition orders."""
+        """Handles Import node and record the order of definitions."""
         for name in node.names:
             self.add_entry(name.asname or name.name)
 

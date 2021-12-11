@@ -1599,3 +1599,11 @@ def test_latex_elements_extrapackages(app, status, warning):
 def test_latex_nested_tables(app, status, warning):
     app.builder.build_all()
     assert '' == warning.getvalue()
+
+
+@pytest.mark.sphinx('latex', testroot='latex-container')
+def test_latex_container(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'python.tex').read_text()
+    assert r'\begin{sphinxuseclass}{classname}' in result
+    assert r'\end{sphinxuseclass}' in result

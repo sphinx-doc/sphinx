@@ -128,7 +128,7 @@ class MoveModuleTargets(SphinxTransform):
     default_priority = 210
 
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.traverse(nodes.target):
+        for node in list(self.document.traverse(nodes.target)):
             if not node['ids']:
                 continue
             if ('ismod' in node and
@@ -181,7 +181,7 @@ class AutoNumbering(SphinxTransform):
 
 class SortIds(SphinxTransform):
     """
-    Sort secion IDs so that the "id[0-9]+" one comes last.
+    Sort section IDs so that the "id[0-9]+" one comes last.
     """
     default_priority = 261
 
@@ -202,19 +202,19 @@ TRANSLATABLE_NODES = {
 
 class ApplySourceWorkaround(SphinxTransform):
     """
-    update source and rawsource attributes
+    Update source and rawsource attributes
     """
     default_priority = 10
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.traverse():  # type: Node
-            if isinstance(node, (nodes.TextElement, nodes.image)):
+            if isinstance(node, (nodes.TextElement, nodes.image, nodes.topic)):
                 apply_source_workaround(node)
 
 
 class AutoIndexUpgrader(SphinxTransform):
     """
-    Detect old style; 4 column based indices and automatically upgrade to new style.
+    Detect old style (4 column based indices) and automatically upgrade to new style.
     """
     default_priority = 210
 
@@ -231,7 +231,7 @@ class AutoIndexUpgrader(SphinxTransform):
 
 class ExtraTranslatableNodes(SphinxTransform):
     """
-    make nodes translatable
+    Make nodes translatable
     """
     default_priority = 10
 
@@ -250,7 +250,7 @@ class ExtraTranslatableNodes(SphinxTransform):
 
 class UnreferencedFootnotesDetector(SphinxTransform):
     """
-    detect unreferenced footnotes and emit warnings
+    Detect unreferenced footnotes and emit warnings
     """
     default_priority = 200
 
@@ -303,7 +303,7 @@ class FilterSystemMessages(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         filterlevel = 2 if self.config.keep_warnings else 5
-        for node in self.document.traverse(nodes.system_message):
+        for node in list(self.document.traverse(nodes.system_message)):
             if node['level'] < filterlevel:
                 logger.debug('%s [filtered system message]', node.astext())
                 node.parent.remove(node)

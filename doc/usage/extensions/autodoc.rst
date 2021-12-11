@@ -353,6 +353,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
                    autodata
                    automethod
                    autoattribute
+                   autoproperty
 
    These work exactly like :rst:dir:`autoclass` etc.,
    but do not offer the options used for automatic member documentation.
@@ -422,6 +423,8 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
       option.
    .. versionchanged:: 2.0
       :rst:dir:`autodecorator` added.
+   .. versionchanged:: 2.1
+      :rst:dir:`autoproperty` added.
    .. versionchanged:: 3.4
       :rst:dir:`autodata` and :rst:dir:`autoattribute` now have a ``no-value``
       option.
@@ -659,6 +662,13 @@ There are also config values that you can set:
    .. __: https://mypy.readthedocs.io/en/latest/kinds_of_types.html#type-aliases
    .. versionadded:: 3.3
 
+.. confval:: autodoc_unqualified_typehints
+
+   If True, the leading module names of typehints of function signatures (ex.
+   ``io.StringIO`` -> ``StringIO``).  Defaults to False.
+
+   .. versionadded:: 4.4
+
 .. confval:: autodoc_preserve_defaults
 
    If True, the default argument values of functions will be not evaluated on
@@ -765,8 +775,6 @@ needed docstring processing in event :event:`autodoc-process-docstring`:
 
 .. event:: autodoc-process-bases (app, name, obj, options, bases)
 
-   .. versionadded:: 4.1
-
    Emitted when autodoc has read and processed a class to determine the
    base-classes.  *bases* is a list of classes that the event handler can
    modify **in place** to change what Sphinx puts into the output.  It's
@@ -777,6 +785,12 @@ needed docstring processing in event :event:`autodoc-process-docstring`:
    :param obj: the object itself
    :param options: the options given to the class directive
    :param bases: the list of base classes signature. see above.
+
+   .. versionadded:: 4.1
+   .. versionchanged:: 4.3
+
+      ``bases`` can contain a string as a base class name.  It will be processed
+      as reST mark-up'ed text.
 
 
 Skipping members

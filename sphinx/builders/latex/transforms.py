@@ -45,7 +45,7 @@ class SubstitutionDefinitionsRemover(SphinxPostTransform):
     formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
-        for node in self.document.traverse(nodes.substitution_definition):
+        for node in list(self.document.traverse(nodes.substitution_definition)):
             node.parent.remove(node)
 
 
@@ -81,7 +81,7 @@ class ShowUrlsTransform(SphinxPostTransform):
         if show_urls is False or show_urls == 'no':
             return
 
-        for node in self.document.traverse(nodes.reference):
+        for node in list(self.document.traverse(nodes.reference)):
             uri = node.get('refuri', '')
             if uri.startswith(URI_SCHEMES):
                 if uri.startswith('mailto:'):
@@ -501,7 +501,7 @@ class BibliographyTransform(SphinxPostTransform):
 
     def run(self, **kwargs: Any) -> None:
         citations = thebibliography()
-        for node in self.document.traverse(nodes.citation):
+        for node in list(self.document.traverse(nodes.citation)):
             node.parent.remove(node)
             citations += node
 
@@ -602,9 +602,9 @@ class IndexInSectionTitleTransform(SphinxPostTransform):
     formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
-        for node in self.document.traverse(nodes.title):
+        for node in list(self.document.traverse(nodes.title)):
             if isinstance(node.parent, nodes.section):
-                for i, index in enumerate(node.traverse(addnodes.index)):
+                for i, index in enumerate(list(node.traverse(addnodes.index))):
                     # move the index node next to the section title
                     node.remove(index)
                     node.parent.insert(i + 1, index)

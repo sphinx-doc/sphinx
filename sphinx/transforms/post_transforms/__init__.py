@@ -32,7 +32,7 @@ class SphinxPostTransform(SphinxTransform):
     """A base class of post-transforms.
 
     Post transforms are invoked to modify the document to restructure it for outputting.
-    They do resolving references, convert images, special transformation for each output
+    They resolve references, convert images, do special transformation for each output
     formats and so on.  This class helps to implement these post transforms.
     """
     builders: Tuple[str, ...] = ()
@@ -52,7 +52,7 @@ class SphinxPostTransform(SphinxTransform):
         return True
 
     def run(self, **kwargs: Any) -> None:
-        """main method of post transforms.
+        """Main method of post transforms.
 
         Subclasses should override this method instead of ``apply()``.
         """
@@ -78,7 +78,8 @@ class ReferencesResolver(SphinxPostTransform):
 
             typ = node['reftype']
             target = node['reftarget']
-            refdoc = node.get('refdoc', self.env.docname)
+            node.setdefault('refdoc', self.env.docname)
+            refdoc = node.get('refdoc')
             domain = None
 
             try:
@@ -230,7 +231,7 @@ class OnlyNodeTransform(SphinxPostTransform):
 
 
 class SigElementFallbackTransform(SphinxPostTransform):
-    """Fallback various desc_* nodes to inline if translator does not supported them."""
+    """Fallback various desc_* nodes to inline if translator does not support them."""
     default_priority = 200
 
     def run(self, **kwargs: Any) -> None:
@@ -263,7 +264,8 @@ class PropagateDescDomain(SphinxPostTransform):
 
     def run(self, **kwargs: Any) -> None:
         for node in self.document.traverse(addnodes.desc_signature):
-            node['classes'].append(node.parent['domain'])
+            if node.parent.get('domain'):
+                node['classes'].append(node.parent['domain'])
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

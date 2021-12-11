@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 
 class InventoryFileReader:
-    """A file reader for inventory file.
+    """A file reader for an inventory file.
 
     This reader supports mixture of texts and compressed texts.
     """

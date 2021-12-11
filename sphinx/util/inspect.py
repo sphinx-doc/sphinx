@@ -186,6 +186,21 @@ def getmro(obj: Any) -> Tuple[Type, ...]:
         return tuple()
 
 
+def getorigbases(obj: Any) -> Optional[Tuple[Any, ...]]:
+    """Get __orig_bases__ from *obj* safely."""
+    if not inspect.isclass(obj):
+        return None
+
+    # Get __orig_bases__ from obj.__dict__ to avoid accessing the parent's __orig_bases__.
+    # refs: https://github.com/sphinx-doc/sphinx/issues/9607
+    __dict__ = safe_getattr(obj, '__dict__', {})
+    __orig_bases__ = __dict__.get('__orig_bases__')
+    if isinstance(__orig_bases__, tuple) and len(__orig_bases__) > 0:
+        return __orig_bases__
+    else:
+        return None
+
+
 def getslots(obj: Any) -> Optional[Dict]:
     """Get __slots__ attribute of the class as dict.
 
@@ -211,12 +226,15 @@ def getslots(obj: Any) -> Optional[Dict]:
 
 def isNewType(obj: Any) -> bool:
     """Check the if object is a kind of NewType."""
-    __module__ = safe_getattr(obj, '__module__', None)
-    __qualname__ = safe_getattr(obj, '__qualname__', None)
-    if __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type':
-        return True
+    if sys.version_info >= (3, 10):
+        return isinstance(obj, typing.NewType)
     else:
-        return False
+        __module__ = safe_getattr(obj, '__module__', None)
+        __qualname__ = safe_getattr(obj, '__qualname__', None)
+        if __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type':
+            return True
+        else:
+            return False
 
 
 def isenumclass(x: Any) -> bool:
@@ -245,12 +263,18 @@ def ispartial(obj: Any) -> bool:
     return isinstance(obj, (partial, partialmethod))
 
 
-def isclassmethod(obj: Any) -> bool:
+def isclassmethod(obj: Any, cls: Any = None, name: str = None) -> bool:
     """Check if the object is classmethod."""
     if isinstance(obj, classmethod):
         return True
     elif inspect.ismethod(obj) and obj.__self__ is not None and isclass(obj.__self__):
         return True
+    elif cls and name:
+        placeholder = object()
+        for basecls in getmro(cls):
+            meth = basecls.__dict__.get(name, placeholder)
+            if meth is not placeholder:
+                return isclassmethod(meth)
 
     return False
 
@@ -378,6 +402,16 @@ def iscoroutinefunction(obj: Any) -> bool:
     if hasattr(obj, '__code__') and inspect.iscoroutinefunction(obj):
         # check obj.__code__ because iscoroutinefunction() crashes for custom method-like
         # objects (see https://github.com/sphinx-doc/sphinx/issues/6605)
+        return True
+    else:
+        return False
+
+
+def isasyncgenfunction(obj: Any) -> bool:
+    """Check if the object is async-gen function."""
+    if hasattr(obj, '__code__') and inspect.isasyncgenfunction(obj):
+        # check obj.__code__ because isasyncgenfunction() crashes for custom method-like
+        # objects on python3.7 (see https://github.com/sphinx-doc/sphinx/issues/9838)
         return True
     else:
         return False
@@ -710,10 +744,13 @@ def evaluate_signature(sig: inspect.Signature, globalns: Dict = None, localns: D
 
 
 def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
-                        show_return_annotation: bool = True) -> str:
+                        show_return_annotation: bool = True,
+                        unqualified_typehints: bool = False) -> str:
     """Stringify a Signature object.
 
     :param show_annotation: Show annotation in result
+    :param unqualified_typehints: Show annotations as unqualified
+                                  (ex. io.StringIO -> StringIO)
     """
     args = []
     last_kind = None
@@ -737,7 +774,7 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
 
         if show_annotation and param.annotation is not param.empty:
             arg.write(': ')
-            arg.write(stringify_annotation(param.annotation))
+            arg.write(stringify_annotation(param.annotation, unqualified_typehints))
         if param.default is not param.empty:
             if show_annotation and param.annotation is not param.empty:
                 arg.write(' = ')
@@ -757,7 +794,7 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
             show_return_annotation is False):
         return '(%s)' % ', '.join(args)
     else:
-        annotation = stringify_annotation(sig.return_annotation)
+        annotation = stringify_annotation(sig.return_annotation, unqualified_typehints)
         return '(%s) -> %s' % (', '.join(args), annotation)
 
 
@@ -837,7 +874,22 @@ def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
     * inherited docstring
     * inherited decorated methods
     """
-    doc = attrgetter(obj, '__doc__', None)
+    def getdoc_internal(obj: Any, attrgetter: Callable = safe_getattr) -> Optional[str]:
+        doc = attrgetter(obj, '__doc__', None)
+        if isinstance(doc, str):
+            return doc
+        else:
+            return None
+
+    if cls and name and isclassmethod(obj, cls, name):
+        for basecls in getmro(cls):
+            meth = basecls.__dict__.get(name)
+            if meth and hasattr(meth, '__func__'):
+                doc = getdoc(meth.__func__)
+                if doc is not None or not allow_inherited:
+                    return doc
+
+    doc = getdoc_internal(obj)
     if ispartial(obj) and doc == obj.__class__.__doc__:
         return getdoc(obj.func)
     elif doc is None and allow_inherited:
@@ -846,7 +898,7 @@ def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
             for basecls in getmro(cls):
                 meth = safe_getattr(basecls, name, None)
                 if meth is not None:
-                    doc = attrgetter(meth, '__doc__', None)
+                    doc = getdoc_internal(meth)
                     if doc is not None:
                         break
 

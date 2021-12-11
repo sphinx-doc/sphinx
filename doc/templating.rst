@@ -115,7 +115,7 @@ The following blocks exist in the ``layout.html`` template:
 ``rootrellink``, ``relbaritems``
     Inside the relbar there are three sections: The ``rootrellink``, the links
     from the documentation and the custom ``relbaritems``.  The ``rootrellink``
-    is a block that by default contains a list item pointing to the master
+    is a block that by default contains a list item pointing to the root
     document by default, the ``relbaritems`` is an empty block.  If you
     override them to add extra links into the bar make sure that they are list
     items and end with the :data:`reldelim1`.
@@ -372,7 +372,16 @@ in the future.
 
 .. data:: sphinx_version
 
-   The version of Sphinx used to build.
+   The version of Sphinx used to build represented as a string for example "3.5.1".
+
+.. data:: sphinx_version_tuple
+
+   The version of Sphinx used to build represented as a tuple of five elements.
+   For Sphinx version 3.5.1 beta 3 this would be `(3, 5, 1, 'beta', 3)``.
+   The fourth element can be one of: ``alpha``, ``beta``, ``rc``, ``final``.
+   ``final`` always has 0 as the last element.
+
+   .. versionadded:: 4.2
 
 .. data:: style
 

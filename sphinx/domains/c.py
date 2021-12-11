@@ -36,7 +36,7 @@ from sphinx.util.cfamily import (ASTAttribute, ASTBaseBase, ASTBaseParenExprList
                                  float_literal_suffix_re, hex_literal_re, identifier_re,
                                  integer_literal_re, integers_literal_suffix_re,
                                  octal_literal_re, verify_description_mode)
-from sphinx.util.docfields import Field, TypedField
+from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
 from sphinx.util.typing import OptionSpec
@@ -55,10 +55,15 @@ _keywords = [
     'else', 'enum', 'extern', 'float', 'for', 'goto', 'if', 'inline', 'int', 'long',
     'register', 'restrict', 'return', 'short', 'signed', 'sizeof', 'static', 'struct',
     'switch', 'typedef', 'union', 'unsigned', 'void', 'volatile', 'while',
-    '_Alignas', 'alignas', '_Alignof', 'alignof', '_Atomic', '_Bool', 'bool',
-    '_Complex', 'complex', '_Generic', '_Imaginary', 'imaginary',
-    '_Noreturn', 'noreturn', '_Static_assert', 'static_assert',
-    '_Thread_local', 'thread_local',
+    '_Alignas', '_Alignof', '_Atomic', '_Bool', '_Complex',
+    '_Decimal32', '_Decimal64', '_Decimal128',
+    '_Generic', '_Imaginary', '_Noreturn', '_Static_assert', '_Thread_local',
+]
+# These are only keyword'y when the corresponding headers are included.
+# They are used as default value for c_extra_keywords.
+_macroKeywords = [
+    'alignas', 'alignof', 'bool', 'complex', 'imaginary', 'noreturn', 'static_assert',
+    'thread_local',
 ]
 
 # these are ordered by preceedence
@@ -86,6 +91,34 @@ _id_prefix = [None, 'c.', 'Cv2.']
 
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
+
+_simple_type_specifiers_re = re.compile(r"""(?x)
+    \b(
+    void|_Bool|bool
+    # Integer
+    # -------
+    |((signed|unsigned)\s+)?(char|(
+        ((long\s+long|long|short)\s+)?int
+    ))
+    |__uint128|__int128
+    # extensions
+    |((signed|unsigned)\s+)?__int(8|16|32|64|128)
+    # Floating-point
+    # --------------
+    |(float|double|long\s+double)(\s+(_Complex|complex|_Imaginary|imaginary))?
+    |(_Complex|complex|_Imaginary|imaginary)\s+(float|double|long\s+double)
+    |_Decimal(32|64|128)
+    # extensions
+    |__float80|_Float64x|__float128|_Float128|__ibm128
+    |__fp16
+    # Fixed-point, extension
+    |(_Sat\s+)?((signed|unsigned)\s+)?((short|long|long\s+long)\s+)?(_Fract|fract|_Accum|accum)
+    # Integer types that could be prefixes of the previous ones
+    # ---------------------------------------------------------
+    |((signed|unsigned)\s+)?(long\s+long|long|short)
+    |signed|unsigned
+    )\b
+""")
 
 
 class _DuplicateSymbolError(Exception):
@@ -604,14 +637,20 @@ class ASTTrailingTypeSpec(ASTBase):
 
 class ASTTrailingTypeSpecFundamental(ASTTrailingTypeSpec):
     def __init__(self, name: str) -> None:
-        self.name = name
+        self.names = name.split()
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return self.name
+        return ' '.join(self.names)
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_keyword_type(self.name, self.name)
+        first = True
+        for n in self.names:
+            if not first:
+                signode += addnodes.desc_sig_space()
+            else:
+                first = False
+            signode += addnodes.desc_sig_keyword_type(n, n)
 
 
 class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
@@ -2118,15 +2157,6 @@ class Symbol:
 
 
 class DefinitionParser(BaseParser):
-    # those without signedness and size modifiers
-    # see https://en.cppreference.com/w/cpp/language/types
-    _simple_fundamental_types = (
-        'void', '_Bool', 'bool', 'char', 'int', 'float', 'double',
-        '__int64',
-    )
-
-    _prefix_keys = ('struct', 'enum', 'union')
-
     @property
     def language(self) -> str:
         return 'C'
@@ -2225,7 +2255,7 @@ class DefinitionParser(BaseParser):
 
     def _parse_initializer_list(self, name: str, open: str, close: str
                                 ) -> Tuple[List[ASTExpression], bool]:
-        # Parse open and close with the actual initializer-list inbetween
+        # Parse open and close with the actual initializer-list in between
         # -> initializer-clause '...'[opt]
         #  | initializer-list ',' initializer-clause '...'[opt]
         # TODO: designators
@@ -2473,7 +2503,7 @@ class DefinitionParser(BaseParser):
 
     def _parse_expression(self) -> ASTExpression:
         # -> assignment-expression
-        #  | expression "," assignment-expresion
+        #  | expression "," assignment-expression
         # TODO: actually parse the second production
         return self._parse_assignment_expression()
 
@@ -2536,6 +2566,12 @@ class DefinitionParser(BaseParser):
             if identifier in _keywords:
                 self.fail("Expected identifier in nested name, "
                           "got keyword: %s" % identifier)
+            if self.matched_text in self.config.c_extra_keywords:
+                msg = "Expected identifier, got user-defined keyword: %s." \
+                      + " Remove it from c_extra_keywords to allow it as identifier.\n" \
+                      + "Currently c_extra_keywords is %s."
+                self.fail(msg % (self.matched_text,
+                                 str(self.config.c_extra_keywords)))
             ident = ASTIdentifier(identifier)
             names.append(ident)
 
@@ -2545,40 +2581,16 @@ class DefinitionParser(BaseParser):
         return ASTNestedName(names, rooted)
 
     def _parse_trailing_type_spec(self) -> ASTTrailingTypeSpec:
-        # fundamental types
+        # fundamental types, https://en.cppreference.com/w/c/language/type
+        # and extensions
         self.skip_ws()
-        for t in self._simple_fundamental_types:
-            if self.skip_word(t):
-                return ASTTrailingTypeSpecFundamental(t)
-
-        # TODO: this could/should be more strict
-        elements = []
-        if self.skip_word_and_ws('signed'):
-            elements.append('signed')
-        elif self.skip_word_and_ws('unsigned'):
-            elements.append('unsigned')
-        while 1:
-            if self.skip_word_and_ws('short'):
-                elements.append('short')
-            elif self.skip_word_and_ws('long'):
-                elements.append('long')
-            else:
-                break
-        if self.skip_word_and_ws('char'):
-            elements.append('char')
-        elif self.skip_word_and_ws('int'):
-            elements.append('int')
-        elif self.skip_word_and_ws('double'):
-            elements.append('double')
-        elif self.skip_word_and_ws('__int64'):
-            elements.append('__int64')
-        if len(elements) > 0:
-            return ASTTrailingTypeSpecFundamental(' '.join(elements))
+        if self.match(_simple_type_specifiers_re):
+            return ASTTrailingTypeSpecFundamental(self.matched_text)
 
         # prefixed
         prefix = None
         self.skip_ws()
-        for k in self._prefix_keys:
+        for k in ('struct', 'enum', 'union'):
             if self.skip_word_and_ws(k):
                 prefix = k
                 break
@@ -2712,6 +2724,12 @@ class DefinitionParser(BaseParser):
                 if self.matched_text in _keywords:
                     self.fail("Expected identifier, "
                               "got keyword: %s" % self.matched_text)
+                if self.matched_text in self.config.c_extra_keywords:
+                    msg = "Expected identifier, got user-defined keyword: %s." \
+                          + " Remove it from c_extra_keywords to allow it as identifier.\n" \
+                          + "Currently c_extra_keywords is %s."
+                    self.fail(msg % (self.matched_text,
+                                     str(self.config.c_extra_keywords)))
                 identifier = ASTIdentifier(self.matched_text)
                 declId = ASTNestedName([identifier], rooted=False)
             else:
@@ -3112,16 +3130,6 @@ class CObject(ObjectDescription[ASTDeclaration]):
     Description of a C language object.
     """
 
-    doc_field_types = [
-        TypedField('parameter', label=_('Parameters'),
-                   names=('param', 'parameter', 'arg', 'argument'),
-                   typerolename='expr', typenames=('type',)),
-        Field('returnvalue', label=_('Returns'), has_arg=False,
-              names=('returns', 'return')),
-        Field('returntype', label=_('Return type'), has_arg=False,
-              names=('rtype',)),
-    ]
-
     option_spec: OptionSpec = {
         'noindexentry': directives.flag,
     }
@@ -3324,12 +3332,30 @@ class CMemberObject(CObject):
         return self.objtype
 
 
+_function_doc_field_types = [
+    TypedField('parameter', label=_('Parameters'),
+               names=('param', 'parameter', 'arg', 'argument'),
+               typerolename='expr', typenames=('type',)),
+    GroupedField('retval', label=_('Return values'),
+                 names=('retvals', 'retval'),
+                 can_collapse=True),
+    Field('returnvalue', label=_('Returns'), has_arg=False,
+          names=('returns', 'return')),
+    Field('returntype', label=_('Return type'), has_arg=False,
+          names=('rtype',)),
+]
+
+
 class CFunctionObject(CObject):
     object_type = 'function'
+
+    doc_field_types = _function_doc_field_types.copy()
 
 
 class CMacroObject(CObject):
     object_type = 'macro'
+
+    doc_field_types = _function_doc_field_types.copy()
 
 
 class CStructObject(CObject):
@@ -3371,13 +3397,13 @@ class CNamespaceObject(SphinxDirective):
             stack: List[Symbol] = []
         else:
             parser = DefinitionParser(self.arguments[0],
-                                      location=self.get_source_info(),
+                                      location=self.get_location(),
                                       config=self.env.config)
             try:
                 name = parser.parse_namespace_object()
                 parser.assert_end()
             except DefinitionError as e:
-                logger.warning(e, location=self.get_source_info())
+                logger.warning(e, location=self.get_location())
                 name = _make_phony_error_name()
             symbol = rootSymbol.add_name(name)
             stack = [symbol]
@@ -3398,13 +3424,13 @@ class CNamespacePushObject(SphinxDirective):
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
             return []
         parser = DefinitionParser(self.arguments[0],
-                                  location=self.get_source_info(),
+                                  location=self.get_location(),
                                   config=self.env.config)
         try:
             name = parser.parse_namespace_object()
             parser.assert_end()
         except DefinitionError as e:
-            logger.warning(e, location=self.get_source_info())
+            logger.warning(e, location=self.get_location())
             name = _make_phony_error_name()
         oldParent = self.env.temp_data.get('c:parent_symbol', None)
         if not oldParent:
@@ -3428,8 +3454,8 @@ class CNamespacePopObject(SphinxDirective):
     def run(self) -> List[Node]:
         stack = self.env.temp_data.get('c:namespace_stack', None)
         if not stack or len(stack) == 0:
-            logger.warning("C namespace pop on empty stack. Defaulting to gobal scope.",
-                           location=self.get_source_info())
+            logger.warning("C namespace pop on empty stack. Defaulting to global scope.",
+                           location=self.get_location())
             stack = []
         else:
             stack.pop()
@@ -3611,7 +3637,7 @@ class CAliasObject(ObjectDescription):
                            " Requested 'noroot' but 'maxdepth' 1."
                            " When skipping the root declaration,"
                            " need 'maxdepth' 0 for infinite or at least 2.",
-                           location=self.get_source_info())
+                           location=self.get_location())
         signatures = self.get_signatures()
         for i, sig in enumerate(signatures):
             node.append(AliasNode(sig, aliasOptions, self.state.document, env=self.env))
@@ -3644,7 +3670,7 @@ class CXRefRole(XRefRole):
             return super().run()
 
         text = self.text.replace('\n', ' ')
-        parser = DefinitionParser(text, location=self.get_source_info(),
+        parser = DefinitionParser(text, location=self.get_location(),
                                   config=self.env.config)
         try:
             parser.parse_xref_object()
@@ -3669,7 +3695,7 @@ class CXRefRole(XRefRole):
                 msg = "{}: Pre-v3 C type role ':c:type:`{}`' converted to ':c:expr:`{}`'."
                 msg += "\nThe original parsing error was:\n{}"
                 msg = msg.format(RemovedInSphinx50Warning.__name__, text, text, eOrig)
-                logger.warning(msg, location=self.get_source_info())
+                logger.warning(msg, location=self.get_location())
             return [signode], []
 
 
@@ -3685,14 +3711,14 @@ class CExprRole(SphinxRole):
 
     def run(self) -> Tuple[List[Node], List[system_message]]:
         text = self.text.replace('\n', ' ')
-        parser = DefinitionParser(text, location=self.get_source_info(),
+        parser = DefinitionParser(text, location=self.get_location(),
                                   config=self.env.config)
         # attempt to mimic XRefRole classes, except that...
         try:
             ast = parser.parse_expression()
         except DefinitionError as ex:
             logger.warning('Unparseable C expression: %r\n%s', text, ex,
-                           location=self.get_source_info())
+                           location=self.get_location())
             # see below
             return [addnodes.desc_inline('c', text, text, classes=[self.class_type])], []
         parentSymbol = self.env.temp_data.get('c:parent_symbol', None)
@@ -3878,6 +3904,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_domain(CDomain)
     app.add_config_value("c_id_attributes", [], 'env')
     app.add_config_value("c_paren_attributes", [], 'env')
+    app.add_config_value("c_extra_keywords", _macroKeywords, 'env')
     app.add_post_transform(AliasTransform)
 
     app.add_config_value("c_allow_pre_v3", False, 'env')

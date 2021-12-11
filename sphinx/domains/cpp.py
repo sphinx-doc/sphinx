@@ -144,7 +144,7 @@ T = TypeVar('T')
               simple-type-specifier ->
                 ::[opt] nested-name-specifier[opt] type-name
               | ::[opt] nested-name-specifier "template" simple-template-id
-              | "char" | "bool" | ect.
+              | "char" | "bool" | etc.
               | decltype-specifier
             | elaborated-type-specifier ->
                 class-key attribute-specifier-seq[opt] ::[opt]
@@ -162,7 +162,7 @@ T = TypeVar('T')
         trailing-type-specifier ->
             rest-of-trailing
             ("class" | "struct" | "union" | "typename") rest-of-trailing
-            build-in -> "char" | "bool" | ect.
+            built-in -> "char" | "bool" | etc.
             decltype-specifier
         rest-of-trailing -> (with some simplification)
             "::"[opt] list-of-elements-separated-by-::
@@ -198,7 +198,7 @@ T = TypeVar('T')
             | "::"[opt] nested-name-specifier "*" attribute-specifier-seq[opt]
                 cv-qualifier-seq[opt]
         # function_object must use a parameters-and-qualifiers, the others may
-        # use it (e.g., function poitners)
+        # use it (e.g., function pointers)
         parameters-and-qualifiers ->
             "(" parameter-clause ")" attribute-specifier-seq[opt]
             cv-qualifier-seq[opt] ref-qualifier[opt]
@@ -334,6 +334,31 @@ _keywords = [
     'while', 'xor', 'xor_eq'
 ]
 
+
+_simple_type_specifiers_re = re.compile(r"""(?x)
+    \b(
+    auto|void|bool
+    # Integer
+    # -------
+    |((signed|unsigned)\s+)?(char|__int128|(
+        ((long\s+long|long|short)\s+)?int
+    ))
+    |wchar_t|char(8|16|32)_t
+    # extensions
+    |((signed|unsigned)\s+)?__int(64|128)
+    # Floating-point
+    # --------------
+    |(float|double|long\s+double)(\s+(_Complex|_Imaginary))?
+    |(_Complex|_Imaginary)\s+(float|double|long\s+double)
+    # extensions
+    |__float80|_Float64x|__float128|_Float128
+    # Integer types that could be prefixes of the previous ones
+    # ---------------------------------------------------------
+    |((signed|unsigned)\s+)?(long\s+long|long|short)
+    |signed|unsigned
+    )\b
+""")
+
 _max_id = 4
 _id_prefix = [None, '', '_CPPv2', '_CPPv3', '_CPPv4']
 # Ids are used in lookup keys which are used across pickled files,
@@ -449,11 +474,23 @@ _id_fundamental_v2 = {
     'long long int': 'x',
     'signed long long': 'x',
     'signed long long int': 'x',
+    '__int64': 'x',
     'unsigned long long': 'y',
     'unsigned long long int': 'y',
+    '__int128': 'n',
+    'signed __int128': 'n',
+    'unsigned __int128': 'o',
     'float': 'f',
     'double': 'd',
     'long double': 'e',
+    '__float80': 'e', '_Float64x': 'e',
+    '__float128': 'g', '_Float128': 'g',
+    'float _Complex': 'Cf', '_Complex float': 'Cf',
+    'double _Complex': 'Cd', '_Complex double': 'Cd',
+    'long double _Complex': 'Ce', '_Complex long double': 'Ce',
+    'float _Imaginary': 'f', '_Imaginary float': 'f',
+    'double _Imaginary': 'd', '_Imaginary double': 'd',
+    'long double _Imaginary': 'e', '_Imaginary long double': 'e',
     'auto': 'Da',
     'decltype(auto)': 'Dc',
     'std::nullptr_t': 'Dn'
@@ -1672,7 +1709,7 @@ class ASTOperatorBuildIn(ASTOperator):
         else:
             ids = _id_operator_v2
         if self.op not in ids:
-            raise Exception('Internal error: Build-in operator "%s" can not '
+            raise Exception('Internal error: Built-in operator "%s" can not '
                             'be mapped to an id.' % self.op)
         return ids[self.op]
 
@@ -1817,31 +1854,38 @@ class ASTTrailingTypeSpec(ASTBase):
 
 class ASTTrailingTypeSpecFundamental(ASTTrailingTypeSpec):
     def __init__(self, name: str) -> None:
-        self.name = name
+        self.names = name.split()
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return self.name
+        return ' '.join(self.names)
 
     def get_id(self, version: int) -> str:
         if version == 1:
             res = []
-            for a in self.name.split(' '):
+            for a in self.names:
                 if a in _id_fundamental_v1:
                     res.append(_id_fundamental_v1[a])
                 else:
                     res.append(a)
             return '-'.join(res)
 
-        if self.name not in _id_fundamental_v2:
+        txt = str(self)
+        if txt not in _id_fundamental_v2:
             raise Exception(
                 'Semi-internal error: Fundamental type "%s" can not be mapped '
-                'to an id. Is it a true fundamental type? If not so, the '
-                'parser should have rejected it.' % self.name)
-        return _id_fundamental_v2[self.name]
+                'to an ID. Is it a true fundamental type? If not so, the '
+                'parser should have rejected it.' % txt)
+        return _id_fundamental_v2[txt]
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_keyword_type(self.name, self.name)
+        first = True
+        for n in self.names:
+            if not first:
+                signode += addnodes.desc_sig_space()
+            else:
+                first = False
+            signode += addnodes.desc_sig_keyword_type(n, n)
 
 
 class ASTTrailingTypeSpecDecltypeAuto(ASTTrailingTypeSpec):
@@ -2435,7 +2479,7 @@ class ASTDeclaratorNameParamQual(ASTDeclarator):
     def get_type_id(self, version: int, returnTypeId: str) -> str:
         assert version >= 2
         res = []
-        # TOOD: can we actually have both array ops and paramQual?
+        # TODO: can we actually have both array ops and paramQual?
         res.append(self.get_ptr_suffix_id(version))
         if self.paramQual:
             res.append(self.get_modifiers_id(version))
@@ -4996,15 +5040,6 @@ class Symbol:
 
 
 class DefinitionParser(BaseParser):
-    # those without signedness and size modifiers
-    # see https://en.cppreference.com/w/cpp/language/types
-    _simple_fundemental_types = (
-        'void', 'bool', 'char', 'wchar_t', 'char8_t', 'char16_t', 'char32_t',
-        'int', 'float', 'double', 'auto'
-    )
-
-    _prefix_keys = ('class', 'struct', 'enum', 'union', 'typename')
-
     @property
     def language(self) -> str:
         return 'C++'
@@ -5182,7 +5217,7 @@ class DefinitionParser(BaseParser):
                                 ) -> Tuple[List[Union[ASTExpression,
                                                       ASTBracedInitList]],
                                            bool]:
-        # Parse open and close with the actual initializer-list inbetween
+        # Parse open and close with the actual initializer-list in between
         # -> initializer-clause '...'[opt]
         #  | initializer-list ',' initializer-clause '...'[opt]
         self.skip_ws()
@@ -5281,7 +5316,7 @@ class DefinitionParser(BaseParser):
         if cast is not None:
             prefixType = "cast"
             if not self.skip_string("<"):
-                self.fail("Expected '<' afer '%s'." % cast)
+                self.fail("Expected '<' after '%s'." % cast)
             typ = self._parse_type(False)
             self.skip_ws()
             if not self.skip_string_and_ws(">"):
@@ -5617,7 +5652,7 @@ class DefinitionParser(BaseParser):
 
     def _parse_expression(self) -> ASTExpression:
         # -> assignment-expression
-        #  | expression "," assignment-expresion
+        #  | expression "," assignment-expression
         exprs = [self._parse_assignment_expression(inTemplate=False)]
         while True:
             self.skip_ws()
@@ -5821,33 +5856,11 @@ class DefinitionParser(BaseParser):
     # ==========================================================================
 
     def _parse_trailing_type_spec(self) -> ASTTrailingTypeSpec:
-        # fundemental types
+        # fundamental types, https://en.cppreference.com/w/cpp/language/type
+        # and extensions
         self.skip_ws()
-        for t in self._simple_fundemental_types:
-            if self.skip_word(t):
-                return ASTTrailingTypeSpecFundamental(t)
-
-        # TODO: this could/should be more strict
-        elements = []
-        if self.skip_word_and_ws('signed'):
-            elements.append('signed')
-        elif self.skip_word_and_ws('unsigned'):
-            elements.append('unsigned')
-        while 1:
-            if self.skip_word_and_ws('short'):
-                elements.append('short')
-            elif self.skip_word_and_ws('long'):
-                elements.append('long')
-            else:
-                break
-        if self.skip_word_and_ws('char'):
-            elements.append('char')
-        elif self.skip_word_and_ws('int'):
-            elements.append('int')
-        elif self.skip_word_and_ws('double'):
-            elements.append('double')
-        if len(elements) > 0:
-            return ASTTrailingTypeSpecFundamental(' '.join(elements))
+        if self.match(_simple_type_specifiers_re):
+            return ASTTrailingTypeSpecFundamental(self.matched_text)
 
         # decltype
         self.skip_ws()
@@ -5867,7 +5880,7 @@ class DefinitionParser(BaseParser):
         # prefixed
         prefix = None
         self.skip_ws()
-        for k in self._prefix_keys:
+        for k in ('class', 'struct', 'enum', 'union', 'typename'):
             if self.skip_word_and_ws(k):
                 prefix = k
                 break
@@ -5923,13 +5936,6 @@ class DefinitionParser(BaseParser):
                         'Expecting "," or ")" in parameters-and-qualifiers, '
                         'got "%s".' % self.current_char)
 
-        # TODO: why did we have this bail-out?
-        # does it hurt to parse the extra stuff?
-        # it's needed for pointer to member functions
-        if paramMode != 'function' and False:
-            return ASTParametersQualifiers(
-                args, None, None, None, None, None, None, None)
-
         self.skip_ws()
         const = self.skip_word_and_ws('const')
         volatile = self.skip_word_and_ws('volatile')
@@ -5976,7 +5982,8 @@ class DefinitionParser(BaseParser):
 
         self.skip_ws()
         initializer = None
-        if self.skip_string('='):
+        # if this is a function pointer we should not swallow an initializer
+        if paramMode == 'function' and self.skip_string('='):
             self.skip_ws()
             valid = ('0', 'delete', 'default')
             for w in valid:
@@ -6351,7 +6358,7 @@ class DefinitionParser(BaseParser):
         if outer in ('type', 'function'):
             # We allow type objects to just be a name.
             # Some functions don't have normal return types: constructors,
-            # destrutors, cast operators
+            # destructors, cast operators
             prevErrors = []
             startPos = self.pos
             # first try without the type
@@ -6534,7 +6541,7 @@ class DefinitionParser(BaseParser):
 
     # ==========================================================================
 
-    def _parse_template_paramter(self) -> ASTTemplateParam:
+    def _parse_template_parameter(self) -> ASTTemplateParam:
         self.skip_ws()
         if self.skip_word('template'):
             # declare a tenplate template parameter
@@ -6555,7 +6562,7 @@ class DefinitionParser(BaseParser):
                 self.fail("Expected 'typename' or 'class' after "
                           "template template parameter list.")
             else:
-                self.fail("Expected 'typename' or 'class' in tbe "
+                self.fail("Expected 'typename' or 'class' in the "
                           "beginning of template type parameter.")
             self.skip_ws()
             parameterPack = self.skip_string('...')
@@ -6606,7 +6613,7 @@ class DefinitionParser(BaseParser):
             pos = self.pos
             err = None
             try:
-                param = self._parse_template_paramter()
+                param = self._parse_template_parameter()
                 templateParams.append(param)
             except DefinitionError as eParam:
                 self.pos = pos
@@ -6927,18 +6934,10 @@ def _make_phony_error_name() -> ASTNestedName:
 class CPPObject(ObjectDescription[ASTDeclaration]):
     """Description of a C++ language object."""
 
-    doc_field_types = [
-        GroupedField('parameter', label=_('Parameters'),
-                     names=('param', 'parameter', 'arg', 'argument'),
-                     can_collapse=True),
+    doc_field_types: List[Field] = [
         GroupedField('template parameter', label=_('Template Parameters'),
                      names=('tparam', 'template parameter'),
                      can_collapse=True),
-        GroupedField('exceptions', label=_('Throws'), rolename='expr',
-                     names=('throws', 'throw', 'exception'),
-                     can_collapse=True),
-        Field('returnvalue', label=_('Returns'), has_arg=False,
-              names=('returns', 'return')),
     ]
 
     option_spec: OptionSpec = {
@@ -7005,7 +7004,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         if not re.compile(r'^[a-zA-Z0-9_]*$').match(newestId):
             logger.warning('Index id generation for C++ object "%s" failed, please '
                            'report as bug (id=%s).', ast, newestId,
-                           location=self.get_source_info())
+                           location=self.get_location())
 
         name = ast.symbol.get_full_nested_name().get_display_string().lstrip(':')
         # Add index entry, but not if it's a declaration inside a concept
@@ -7088,7 +7087,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             logger.warning(msg.format(
                 str(parentSymbol.get_full_nested_name()),
                 self.name, self.arguments[0]
-            ), location=self.get_source_info())
+            ), location=self.get_location())
             name = _make_phony_error_name()
             symbol = parentSymbol.add_name(name)
             env.temp_data['cpp:last_symbol'] = symbol
@@ -7174,6 +7173,20 @@ class CPPMemberObject(CPPObject):
 class CPPFunctionObject(CPPObject):
     object_type = 'function'
 
+    doc_field_types = CPPObject.doc_field_types + [
+        GroupedField('parameter', label=_('Parameters'),
+                     names=('param', 'parameter', 'arg', 'argument'),
+                     can_collapse=True),
+        GroupedField('exceptions', label=_('Throws'), rolename='expr',
+                     names=('throws', 'throw', 'exception'),
+                     can_collapse=True),
+        GroupedField('retval', label=_('Return values'),
+                     names=('retvals', 'retval'),
+                     can_collapse=True),
+        Field('returnvalue', label=_('Returns'), has_arg=False,
+              names=('returns', 'return')),
+    ]
+
 
 class CPPClassObject(CPPObject):
     object_type = 'class'
@@ -7216,13 +7229,13 @@ class CPPNamespaceObject(SphinxDirective):
             stack: List[Symbol] = []
         else:
             parser = DefinitionParser(self.arguments[0],
-                                      location=self.get_source_info(),
+                                      location=self.get_location(),
                                       config=self.config)
             try:
                 ast = parser.parse_namespace_object()
                 parser.assert_end()
             except DefinitionError as e:
-                logger.warning(e, location=self.get_source_info())
+                logger.warning(e, location=self.get_location())
                 name = _make_phony_error_name()
                 ast = ASTNamespace(name, None)
             symbol = rootSymbol.add_name(ast.nestedName, ast.templatePrefix)
@@ -7244,13 +7257,13 @@ class CPPNamespacePushObject(SphinxDirective):
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
             return []
         parser = DefinitionParser(self.arguments[0],
-                                  location=self.get_source_info(),
+                                  location=self.get_location(),
                                   config=self.config)
         try:
             ast = parser.parse_namespace_object()
             parser.assert_end()
         except DefinitionError as e:
-            logger.warning(e, location=self.get_source_info())
+            logger.warning(e, location=self.get_location())
             name = _make_phony_error_name()
             ast = ASTNamespace(name, None)
         oldParent = self.env.temp_data.get('cpp:parent_symbol', None)
@@ -7275,8 +7288,8 @@ class CPPNamespacePopObject(SphinxDirective):
     def run(self) -> List[Node]:
         stack = self.env.temp_data.get('cpp:namespace_stack', None)
         if not stack or len(stack) == 0:
-            logger.warning("C++ namespace pop on empty stack. Defaulting to gobal scope.",
-                           location=self.get_source_info())
+            logger.warning("C++ namespace pop on empty stack. Defaulting to global scope.",
+                           location=self.get_location())
             stack = []
         else:
             stack.pop()
@@ -7480,7 +7493,7 @@ class CPPAliasObject(ObjectDescription):
                            " Requested 'noroot' but 'maxdepth' 1."
                            " When skipping the root declaration,"
                            " need 'maxdepth' 0 for infinite or at least 2.",
-                           location=self.get_source_info())
+                           location=self.get_location())
         signatures = self.get_signatures()
         for i, sig in enumerate(signatures):
             node.append(AliasNode(sig, aliasOptions, env=self.env))
@@ -7537,14 +7550,14 @@ class CPPExprRole(SphinxRole):
     def run(self) -> Tuple[List[Node], List[system_message]]:
         text = self.text.replace('\n', ' ')
         parser = DefinitionParser(text,
-                                  location=self.get_source_info(),
+                                  location=self.get_location(),
                                   config=self.config)
         # attempt to mimic XRefRole classes, except that...
         try:
             ast = parser.parse_expression()
         except DefinitionError as ex:
             logger.warning('Unparseable C++ expression: %r\n%s', text, ex,
-                           location=self.get_source_info())
+                           location=self.get_location())
             # see below
             return [addnodes.desc_inline('cpp', text, text, classes=[self.class_type])], []
         parentSymbol = self.env.temp_data.get('cpp:parent_symbol', None)

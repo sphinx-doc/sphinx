@@ -22,9 +22,9 @@ and output behavior.
   .. _`docutils.conf`: https://docutils.sourceforge.io/docs/user/config.html
 
 The configuration file is executed as Python code at build time (using
-:func:`execfile`, and with the current directory set to its containing
-directory), and therefore can execute arbitrarily complex code.  Sphinx then
-reads simple names from the file's namespace as its configuration.
+:func:`importlib.import_module`, and with the current directory set to its
+containing directory), and therefore can execute arbitrarily complex code.
+Sphinx then reads simple names from the file's namespace as its configuration.
 
 Important points to note:
 
@@ -329,6 +329,8 @@ General configuration
    * ``ref.python``
    * ``misc.highlighting_failure``
    * ``toc.circular``
+   * ``toc.excluded``
+   * ``toc.not_readable``
    * ``toc.secnum``
    * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``
@@ -359,6 +361,10 @@ General configuration
    .. versionchanged:: 3.3.0
 
       Added ``epub.duplicated_toc_entry``
+
+   .. versionchanged:: 4.3
+
+      Added ``toc.excluded`` and ``toc.not_readable``
 
 .. confval:: needs_sphinx
 
@@ -453,7 +459,7 @@ General configuration
    As a special character, ``%s`` will be replaced to figure number.
 
    Default is to use ``'Fig. %s'`` for ``'figure'``, ``'Table %s'`` for
-   ``'table'``, ``'Listing %s'`` for ``'code-block'`` and ``'Section'`` for
+   ``'table'``, ``'Listing %s'`` for ``'code-block'`` and ``'Section %s'`` for
    ``'section'``.
 
    .. versionadded:: 1.3
@@ -802,6 +808,13 @@ documentation on :ref:`intl` for details.
    .. versionchanged:: 1.5
       Use ``locales`` directory as a default value
 
+.. confval:: gettext_allow_fuzzy_translations
+
+   If true, "fuzzy" messages in the message catalogs are used for translation.
+   The default is ``False``.
+
+   .. versionadded:: 4.3
+
 .. confval:: gettext_compact
 
    .. versionadded:: 1.1
@@ -992,7 +1005,7 @@ that use Sphinx's HTMLWriter class.
    to indicate the location of document using `The Canonical Link Relation`_.
    Default: ``''``.
 
-   .. _The Canonical Link Relation: https://tools.ietf.org/html/rfc6596
+   .. _The Canonical Link Relation: https://datatracker.ietf.org/doc/html/rfc6596
 
    .. versionadded:: 1.8
 
@@ -1309,11 +1322,11 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_use_opensearch
 
-   If nonempty, an `OpenSearch <https://www.opensearch.org/>`_ description
-   file will be output, and all pages will contain a ``<link>`` tag referring
-   to it.  Since OpenSearch doesn't support relative URLs for its search page
-   location, the value of this option must be the base URL from which these
-   documents are served (without trailing slash), e.g.
+   If nonempty, an `OpenSearch <https://github.com/dewitt/opensearch>`_
+   description file will be output, and all pages will contain a ``<link>``
+   tag referring to it.  Since OpenSearch doesn't support relative URLs for
+   its search page location, the value of this option must be the base URL
+   from which these documents are served (without trailing slash), e.g.
    ``"https://docs.python.org"``.  The default is ``''``.
 
 .. confval:: html_file_suffix
@@ -2331,6 +2344,8 @@ These options influence manual page output.
 
    *description*
      Description of the manual page.  This is used in the NAME section.
+     Can be an empty string if you do not want to automatically generate
+     the NAME section.
 
    *authors*
      A list of strings with authors, or a single string.  Can be an empty
@@ -2484,6 +2499,13 @@ These options influence Texinfo output.
 
    .. versionadded:: 1.1
 
+.. confval:: texinfo_cross_references
+
+  If false, do not generate inline references in a document.  That makes
+  an info file more readable with stand-alone reader (``info``).
+  Default is ``True``.
+
+  .. versionadded:: 4.4
 
 .. _qthelp-options:
 
@@ -2527,11 +2549,34 @@ Options for the linkcheck builder
 
    .. versionadded:: 1.1
 
+.. confval:: linkcheck_allowed_redirects
+
+   A dictionary that maps a pattern of the source URI to a pattern of the canonical
+   URI. The linkcheck builder treats the redirected link as "working" when:
+
+   - the link in the document matches the source URI pattern, and
+   - the redirect location matches the canonical URI pattern.
+
+   Example:
+
+   .. code-block:: python
+
+      linkcheck_allowed_redirects = {
+          # All HTTP redirections from the source URI to the canonical URI will be treated as "working".
+          r'https://sphinx-doc\.org/.*': r'https://sphinx-doc\.org/en/master/.*'
+      }
+
+   If set, linkcheck builder will emit a warning when disallowed redirection
+   found.  It's useful to detect unexpected redirects under :option:`the
+   warn-is-error mode <sphinx-build -W>`.
+
+   .. versionadded:: 4.1
+
 .. confval:: linkcheck_request_headers
 
    A dictionary that maps baseurls to HTTP request headers.
 
-   The key is a URL base string like ``"https://sphinx-doc.org/"``.  To specify
+   The key is a URL base string like ``"https://www.sphinx-doc.org/"``.  To specify
    headers for other hosts, ``"*"`` can be used.  It matches all hosts only when
    the URL does not match other settings.
 
@@ -2542,7 +2587,7 @@ Options for the linkcheck builder
    .. code-block:: python
 
       linkcheck_request_headers = {
-          "https://sphinx-doc.org/": {
+          "https://www.sphinx-doc.org/": {
               "Accept": "text/html",
               "Accept-Encoding": "utf-8",
           },
@@ -2612,10 +2657,8 @@ Options for the linkcheck builder
      A regular expression that matches a URI.
    *auth_info*
      Authentication information to use for that URI. The value can be anything
-     that is understood by the ``requests`` library (see `requests
-     Authentication <requests-auth>`_ for details).
-
-     .. _requests-auth: https://requests.readthedocs.io/en/master/user/authentication/
+     that is understood by the ``requests`` library (see :ref:`requests
+     Authentication <requests:authentication>` for details).
 
    The ``linkcheck`` builder will use the first matching ``auth_info`` value
    it can find in the :confval:`linkcheck_auth` list, so values earlier in the
@@ -2643,9 +2686,22 @@ Options for the linkcheck builder
    doubling the wait time between attempts until it succeeds or exceeds the
    ``linkcheck_rate_limit_timeout``. By default, the timeout is 5 minutes.
 
-   .. _Retry-After: https://tools.ietf.org/html/rfc7231#section-7.1.3
+   .. _Retry-After: https://datatracker.ietf.org/doc/html/rfc7231#section-7.1.3
 
    .. versionadded:: 3.4
+
+.. confval:: linkcheck_exclude_documents
+
+   A list of regular expressions that match documents in which Sphinx should
+   not check the validity of links. This can be used for permitting link decay
+   in legacy or historical sections of the documentation.
+
+   Example::
+
+      # ignore all links in documents located in a subfolder named 'legacy'
+      linkcheck_exclude_documents = [r'.*/legacy/.*']
+
+   .. versionadded:: 4.4
 
 
 Options for the XML builder
@@ -2688,6 +2744,14 @@ Options for the C domain
    when attributes have been ``#define`` d for portability.
 
    .. versionadded:: 3.0
+
+.. confval:: c_extra_keywords
+
+  A list of identifiers to be recognized as keywords by the C parser.
+  It defaults to ``['alignas', 'alignof', 'bool', 'complex', 'imaginary',
+  'noreturn', 'static_assert', 'thread_local']``.
+
+  .. versionadded:: 4.0.3
 
 .. confval:: c_allow_pre_v3
 

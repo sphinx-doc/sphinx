@@ -16,7 +16,6 @@ import sys
 import types
 from inspect import Parameter
 
-import _testcapi
 import pytest
 
 from sphinx.util import inspect
@@ -215,11 +214,8 @@ def test_signature_annotations():
 
     # optional union
     sig = inspect.signature(f20)
-    if sys.version_info < (3, 7):
-        assert stringify_signature(sig) in ('() -> Optional[Union[int, str]]',
-                                            '() -> Optional[Union[str, int]]')
-    else:
-        assert stringify_signature(sig) == '() -> Optional[Union[int, str]]'
+    assert stringify_signature(sig) in ('() -> Optional[Union[int, str]]',
+                                        '() -> Optional[Union[str, int]]')
 
     # Any
     sig = inspect.signature(f14)
@@ -262,6 +258,10 @@ def test_signature_annotations():
     # show_return_annotation is False
     sig = inspect.signature(f7)
     assert stringify_signature(sig, show_return_annotation=False) == '(x: Optional[int] = None, y: dict = {})'
+
+    # unqualified_typehints is True
+    sig = inspect.signature(f7)
+    assert stringify_signature(sig, unqualified_typehints=True) == '(x: ~typing.Optional[int] = None, y: dict = {}) -> None'
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
@@ -630,8 +630,6 @@ def test_isattributedescriptor(app):
         def __get__(self, obj, typ=None):
             pass
 
-    testinstancemethod = _testcapi.instancemethod(str.__repr__)
-
     assert inspect.isattributedescriptor(Base.prop) is True                    # property
     assert inspect.isattributedescriptor(Base.meth) is False                   # method
     assert inspect.isattributedescriptor(Base.staticmeth) is False             # staticmethod
@@ -642,7 +640,16 @@ def test_isattributedescriptor(app):
     assert inspect.isattributedescriptor(dict.__dict__['fromkeys']) is False   # ClassMethodDescriptorType  # NOQA
     assert inspect.isattributedescriptor(types.FrameType.f_locals) is True     # GetSetDescriptorType       # NOQA
     assert inspect.isattributedescriptor(datetime.timedelta.days) is True      # MemberDescriptorType       # NOQA
-    assert inspect.isattributedescriptor(testinstancemethod) is False          # instancemethod (C-API)     # NOQA
+
+    try:
+        # _testcapi module cannot be importable in some distro
+        # refs: https://github.com/sphinx-doc/sphinx/issues/9868
+        import _testcapi
+
+        testinstancemethod = _testcapi.instancemethod(str.__repr__)
+        assert inspect.isattributedescriptor(testinstancemethod) is False      # instancemethod (C-API)     # NOQA
+    except ImportError:
+        pass
 
 
 def test_isproperty(app):
@@ -678,6 +685,25 @@ def test_unpartial():
 
     assert inspect.unpartial(func2) is func1
     assert inspect.unpartial(func3) is func1
+
+
+def test_getdoc_inherited_classmethod():
+    class Foo:
+        @classmethod
+        def meth(self):
+            """
+            docstring
+                indented text
+            """
+
+    class Bar(Foo):
+        @classmethod
+        def meth(self):
+            # inherited classmethod
+            pass
+
+    assert inspect.getdoc(Bar.meth, getattr, False, Bar, "meth") is None
+    assert inspect.getdoc(Bar.meth, getattr, True, Bar, "meth") == Foo.meth.__doc__
 
 
 def test_getdoc_inherited_decorated_method():

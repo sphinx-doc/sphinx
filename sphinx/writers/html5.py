@@ -2,7 +2,7 @@
     sphinx.writers.html5
     ~~~~~~~~~~~~~~~~~~~~
 
-    Experimental docutils writers for HTML5 handling Sphinx' custom nodes.
+    Experimental docutils writers for HTML5 handling Sphinx's custom nodes.
 
     :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -11,8 +11,9 @@
 import os
 import posixpath
 import re
+import urllib.parse
 import warnings
-from typing import TYPE_CHECKING, Iterable, Tuple, cast
+from typing import TYPE_CHECKING, Iterable, Set, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
@@ -55,6 +56,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     """
 
     builder: "StandaloneHTMLBuilder" = None
+    # Override docutils.writers.html5_polyglot:HTMLTranslator
+    # otherwise, nodes like <inline classes="s">...</inline> will be
+    # converted to <s>...</s> by `visit_inline`.
+    supported_inline_tags: Set[str] = set()
 
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
@@ -66,8 +71,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.secnumber_suffix = self.config.html_secnumber_suffix
         self.param_separator = ''
         self.optional_param_level = 0
-        self._table_row_index = 0
-        self._fieldlist_row_index = 0
+        self._table_row_indices = [0]
+        self._fieldlist_row_indices = [0]
         self.required_params_left = 0
 
     def visit_start_of_file(self, node: Element) -> None:
@@ -145,10 +150,12 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         pass
 
     def visit_desc_returns(self, node: Element) -> None:
-        self.body.append(' &#x2192; ')
+        self.body.append(' <span class="sig-return">')
+        self.body.append('<span class="sig-return-icon">&#x2192;</span>')
+        self.body.append(' <span class="sig-return-typehint">')
 
     def depart_desc_returns(self, node: Element) -> None:
-        pass
+        self.body.append('</span></span>')
 
     def visit_desc_parameterlist(self, node: Element) -> None:
         self.body.append('<span class="sig-paren">(</span>')
@@ -366,7 +373,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     # overwritten
     def visit_title(self, node: Element) -> None:
         if isinstance(node.parent, addnodes.compact_paragraph) and node.parent.get('toctree'):
-            self.body.append(self.starttag(node, 'p', '', CLASS='caption'))
+            self.body.append(self.starttag(node, 'p', '', CLASS='caption', ROLE='heading'))
             self.body.append('<span class="caption-text">')
             self.context.append('</span></p>\n')
         else:
@@ -527,7 +534,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             self.context.append('</a>')
         elif 'filename' in node:
             atts['class'] += ' internal'
-            atts['href'] = posixpath.join(self.builder.dlpath, node['filename'])
+            atts['href'] = posixpath.join(self.builder.dlpath,
+                                          urllib.parse.quote(node['filename']))
             self.body.append(self.starttag(node, 'a', '', **atts))
             self.context.append('</a>')
         else:
@@ -739,7 +747,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     # overwritten to add even/odd classes
 
     def visit_table(self, node: Element) -> None:
-        self._table_row_index = 0
+        self._table_row_indices.append(0)
 
         atts = {}
         classes = [cls.strip(' \t\n') for cls in self.settings.table_style.split(',')]
@@ -753,9 +761,13 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         tag = self.starttag(node, 'table', CLASS=' '.join(classes), **atts)
         self.body.append(tag)
 
+    def depart_table(self, node: Element) -> None:
+        self._table_row_indices.pop()
+        super().depart_table(node)
+
     def visit_row(self, node: Element) -> None:
-        self._table_row_index += 1
-        if self._table_row_index % 2 == 0:
+        self._table_row_indices[-1] += 1
+        if self._table_row_indices[-1] % 2 == 0:
             node['classes'].append('row-even')
         else:
             node['classes'].append('row-odd')
@@ -763,12 +775,16 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         node.column = 0  # type: ignore
 
     def visit_field_list(self, node: Element) -> None:
-        self._fieldlist_row_index = 0
+        self._fieldlist_row_indices.append(0)
         return super().visit_field_list(node)
 
+    def depart_field_list(self, node: Element) -> None:
+        self._fieldlist_row_indices.pop()
+        return super().depart_field_list(node)
+
     def visit_field(self, node: Element) -> None:
-        self._fieldlist_row_index += 1
-        if self._fieldlist_row_index % 2 == 0:
+        self._fieldlist_row_indices[-1] += 1
+        if self._fieldlist_row_indices[-1] % 2 == 0:
             node['classes'].append('field-even')
         else:
             node['classes'].append('field-odd')
@@ -818,3 +834,15 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         for id in node['ids'][1:]:
             self.body.append('<span id="%s"></span>' % id)
             node['ids'].remove(id)
+
+    @property
+    def _fieldlist_row_index(self):
+        warnings.warn('_fieldlist_row_index is deprecated',
+                      RemovedInSphinx60Warning, stacklevel=2)
+        return self._fieldlist_row_indices[-1]
+
+    @property
+    def _table_row_index(self):
+        warnings.warn('_table_row_index is deprecated',
+                      RemovedInSphinx60Warning, stacklevel=2)
+        return self._table_row_indices[-1]
