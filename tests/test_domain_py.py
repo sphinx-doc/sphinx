@@ -350,6 +350,18 @@ def test_parse_annotation(app):
     assert_node(doctree[0], pending_xref, refdomain="py", reftype="obj", reftarget="None")
 
 
+def test_parse_annotation_suppress(app):
+    doctree = _parse_annotation("~typing.Dict[str, str]", app.env)
+    assert_node(doctree, ([pending_xref, "Dict"],
+                          [desc_sig_punctuation, "["],
+                          [pending_xref, "str"],
+                          [desc_sig_punctuation, ","],
+                          desc_sig_space,
+                          [pending_xref, "str"],
+                          [desc_sig_punctuation, "]"]))
+    assert_node(doctree[0], pending_xref, refdomain="py", reftype="class", reftarget="typing.Dict")
+
+
 @pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
 def test_parse_annotation_Literal(app):
     doctree = _parse_annotation("Literal[True, False]", app.env)

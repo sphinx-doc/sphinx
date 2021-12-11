@@ -299,9 +299,18 @@ def _restify_py36(cls: Optional[Type]) -> str:
             return ':py:obj:`%s.%s`' % (cls.__module__, qualname)
 
 
-def stringify(annotation: Any) -> str:
-    """Stringify type annotation object."""
+def stringify(annotation: Any, smartref: bool = False) -> str:
+    """Stringify type annotation object.
+
+    :param smartref: If true, add "~" prefix to the result to remove the leading
+                     module and class names from the reference text
+    """
     from sphinx.util import inspect  # lazy loading
+
+    if smartref:
+        prefix = '~'
+    else:
+        prefix = ''
 
     if isinstance(annotation, str):
         if annotation.startswith("'") and annotation.endswith("'"):
@@ -313,11 +322,11 @@ def stringify(annotation: Any) -> str:
         if annotation.__module__ == 'typing':
             return annotation.__name__
         else:
-            return '.'.join([annotation.__module__, annotation.__name__])
+            return prefix + '.'.join([annotation.__module__, annotation.__name__])
     elif inspect.isNewType(annotation):
         if sys.version_info > (3, 10):
             # newtypes have correct module info since Python 3.10+
-            return '%s.%s' % (annotation.__module__, annotation.__name__)
+            return prefix + '%s.%s' % (annotation.__module__, annotation.__name__)
         else:
             return annotation.__name__
     elif not annotation:
@@ -325,7 +334,7 @@ def stringify(annotation: Any) -> str:
     elif annotation is NoneType:
         return 'None'
     elif annotation in INVALID_BUILTIN_CLASSES:
-        return INVALID_BUILTIN_CLASSES[annotation]
+        return prefix + INVALID_BUILTIN_CLASSES[annotation]
     elif str(annotation).startswith('typing.Annotated'):  # for py310+
         pass
     elif (getattr(annotation, '__module__', None) == 'builtins' and
@@ -338,28 +347,36 @@ def stringify(annotation: Any) -> str:
         return '...'
 
     if sys.version_info >= (3, 7):  # py37+
-        return _stringify_py37(annotation)
+        return _stringify_py37(annotation, smartref)
     else:
-        return _stringify_py36(annotation)
+        return _stringify_py36(annotation, smartref)
 
 
-def _stringify_py37(annotation: Any) -> str:
+def _stringify_py37(annotation: Any, smartref: bool = False) -> str:
     """stringify() for py37+."""
     module = getattr(annotation, '__module__', None)
-    if module == 'typing':
+    modprefix = ''
+    if module == 'typing' and getattr(annotation, '__forward_arg__', None):
+        qualname = annotation.__forward_arg__
+    elif module == 'typing':
         if getattr(annotation, '_name', None):
             qualname = annotation._name
         elif getattr(annotation, '__qualname__', None):
             qualname = annotation.__qualname__
-        elif getattr(annotation, '__forward_arg__', None):
-            qualname = annotation.__forward_arg__
         else:
             qualname = stringify(annotation.__origin__)  # ex. Union
+
+        if smartref:
+            modprefix = '~%s.' % module
     elif hasattr(annotation, '__qualname__'):
-        qualname = '%s.%s' % (module, annotation.__qualname__)
+        if smartref:
+            modprefix = '~%s.' % module
+        else:
+            modprefix = '%s.' % module
+        qualname = annotation.__qualname__
     elif hasattr(annotation, '__origin__'):
         # instantiated generic provided by a user
-        qualname = stringify(annotation.__origin__)
+        qualname = stringify(annotation.__origin__, smartref)
     elif UnionType and isinstance(annotation, UnionType):  # types.Union (for py3.10+)
         qualname = 'types.Union'
     else:
@@ -374,54 +391,63 @@ def _stringify_py37(annotation: Any) -> str:
         elif qualname in ('Optional', 'Union'):
             if len(annotation.__args__) > 1 and annotation.__args__[-1] is NoneType:
                 if len(annotation.__args__) > 2:
-                    args = ', '.join(stringify(a) for a in annotation.__args__[:-1])
-                    return 'Optional[Union[%s]]' % args
+                    args = ', '.join(stringify(a, smartref) for a in annotation.__args__[:-1])
+                    return '%sOptional[%sUnion[%s]]' % (modprefix, modprefix, args)
                 else:
-                    return 'Optional[%s]' % stringify(annotation.__args__[0])
+                    return '%sOptional[%s]' % (modprefix,
+                                               stringify(annotation.__args__[0], smartref))
             else:
-                args = ', '.join(stringify(a) for a in annotation.__args__)
-                return 'Union[%s]' % args
+                args = ', '.join(stringify(a, smartref) for a in annotation.__args__)
+                return '%sUnion[%s]' % (modprefix, args)
         elif qualname == 'types.Union':
             if len(annotation.__args__) > 1 and None in annotation.__args__:
                 args = ' | '.join(stringify(a) for a in annotation.__args__ if a)
-                return 'Optional[%s]' % args
+                return '%sOptional[%s]' % (modprefix, args)
             else:
                 return ' | '.join(stringify(a) for a in annotation.__args__)
         elif qualname == 'Callable':
-            args = ', '.join(stringify(a) for a in annotation.__args__[:-1])
-            returns = stringify(annotation.__args__[-1])
-            return '%s[[%s], %s]' % (qualname, args, returns)
+            args = ', '.join(stringify(a, smartref) for a in annotation.__args__[:-1])
+            returns = stringify(annotation.__args__[-1], smartref)
+            return '%s%s[[%s], %s]' % (modprefix, qualname, args, returns)
         elif qualname == 'Literal':
             args = ', '.join(repr(a) for a in annotation.__args__)
-            return '%s[%s]' % (qualname, args)
+            return '%s%s[%s]' % (modprefix, qualname, args)
         elif str(annotation).startswith('typing.Annotated'):  # for py39+
-            return stringify(annotation.__args__[0])
+            return stringify(annotation.__args__[0], smartref)
         elif all(is_system_TypeVar(a) for a in annotation.__args__):
             # Suppress arguments if all system defined TypeVars (ex. Dict[KT, VT])
-            return qualname
+            return modprefix + qualname
         else:
-            args = ', '.join(stringify(a) for a in annotation.__args__)
-            return '%s[%s]' % (qualname, args)
+            args = ', '.join(stringify(a, smartref) for a in annotation.__args__)
+            return '%s%s[%s]' % (modprefix, qualname, args)
 
-    return qualname
+    return modprefix + qualname
 
 
-def _stringify_py36(annotation: Any) -> str:
+def _stringify_py36(annotation: Any, smartref: bool = False) -> str:
     """stringify() for py36."""
     module = getattr(annotation, '__module__', None)
-    if module == 'typing':
+    modprefix = ''
+    if module == 'typing' and getattr(annotation, '__forward_arg__', None):
+        qualname = annotation.__forward_arg__
+    elif module == 'typing':
         if getattr(annotation, '_name', None):
             qualname = annotation._name
         elif getattr(annotation, '__qualname__', None):
             qualname = annotation.__qualname__
-        elif getattr(annotation, '__forward_arg__', None):
-            qualname = annotation.__forward_arg__
         elif getattr(annotation, '__origin__', None):
             qualname = stringify(annotation.__origin__)  # ex. Union
         else:
             qualname = repr(annotation).replace('typing.', '')
+
+        if smartref:
+            modprefix = '~%s.' % module
     elif hasattr(annotation, '__qualname__'):
-        qualname = '%s.%s' % (module, annotation.__qualname__)
+        if smartref:
+            modprefix = '~%s.' % module
+        else:
+            modprefix = '%s.' % module
+        qualname = annotation.__qualname__
     else:
         qualname = repr(annotation)
 
@@ -429,10 +455,10 @@ def _stringify_py36(annotation: Any) -> str:
             not hasattr(annotation, '__tuple_params__')):  # for Python 3.6
         params = annotation.__args__
         if params:
-            param_str = ', '.join(stringify(p) for p in params)
-            return '%s[%s]' % (qualname, param_str)
+            param_str = ', '.join(stringify(p, smartref) for p in params)
+            return '%s%s[%s]' % (modprefix, qualname, param_str)
         else:
-            return qualname
+            return modprefix + qualname
     elif isinstance(annotation, typing.GenericMeta):
         params = None
         if annotation.__args__ is None or len(annotation.__args__) <= 2:  # type: ignore  # NOQA
@@ -440,28 +466,28 @@ def _stringify_py36(annotation: Any) -> str:
         elif annotation.__origin__ == Generator:  # type: ignore
             params = annotation.__args__  # type: ignore
         else:  # typing.Callable
-            args = ', '.join(stringify(arg) for arg
+            args = ', '.join(stringify(arg, smartref) for arg
                              in annotation.__args__[:-1])  # type: ignore
             result = stringify(annotation.__args__[-1])  # type: ignore
-            return '%s[[%s], %s]' % (qualname, args, result)
+            return '%s%s[[%s], %s]' % (modprefix, qualname, args, result)
         if params is not None:
-            param_str = ', '.join(stringify(p) for p in params)
-            return '%s[%s]' % (qualname, param_str)
+            param_str = ', '.join(stringify(p, smartref) for p in params)
+            return '%s%s[%s]' % (modprefix, qualname, param_str)
     elif (hasattr(annotation, '__origin__') and
           annotation.__origin__ is typing.Union):
         params = annotation.__args__
         if params is not None:
             if len(params) > 1 and params[-1] is NoneType:
                 if len(params) > 2:
-                    param_str = ", ".join(stringify(p) for p in params[:-1])
-                    return 'Optional[Union[%s]]' % param_str
+                    param_str = ", ".join(stringify(p, smartref) for p in params[:-1])
+                    return '%sOptional[%sUnion[%s]]' % (modprefix, modprefix, param_str)
                 else:
-                    return 'Optional[%s]' % stringify(params[0])
+                    return '%sOptional[%s]' % (modprefix, stringify(params[0]))
             else:
-                param_str = ', '.join(stringify(p) for p in params)
-                return 'Union[%s]' % param_str
+                param_str = ', '.join(stringify(p, smartref) for p in params)
+                return '%sUnion[%s]' % (modprefix, param_str)
 
-    return qualname
+    return modprefix + qualname
 
 
 deprecated_alias('sphinx.util.typing',

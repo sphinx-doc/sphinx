@@ -80,7 +80,8 @@ class ModuleEntry(NamedTuple):
     deprecated: bool
 
 
-def type_to_xref(target: str, env: BuildEnvironment = None) -> addnodes.pending_xref:
+def type_to_xref(target: str, env: BuildEnvironment = None, suppress_prefix: bool = False
+                 ) -> addnodes.pending_xref:
     """Convert a type string to a cross reference node."""
     if target == 'None':
         reftype = 'obj'
@@ -100,6 +101,8 @@ def type_to_xref(target: str, env: BuildEnvironment = None) -> addnodes.pending_
         refspecific = True
     elif target.startswith('~'):
         target = target[1:]
+        text = target.split('.')[-1]
+    elif suppress_prefix:
         text = target.split('.')[-1]
     else:
         text = target
@@ -150,6 +153,8 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
             return unparse(node.value)
         elif isinstance(node, ast.Index):
             return unparse(node.value)
+        elif isinstance(node, ast.Invert):
+            return [addnodes.desc_sig_punctuation('', '~')]
         elif isinstance(node, ast.List):
             result = [addnodes.desc_sig_punctuation('', '[')]
             if node.elts:
@@ -180,6 +185,8 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
                     if isinstance(subnode, nodes.Text):
                         result[i] = nodes.literal('', '', subnode)
             return result
+        elif isinstance(node, ast.UnaryOp):
+            return unparse(node.op) + unparse(node.operand)
         elif isinstance(node, ast.Tuple):
             if node.elts:
                 result = []
@@ -209,12 +216,19 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
 
     try:
         tree = ast_parse(annotation)
-        result = unparse(tree)
-        for i, node in enumerate(result):
+        result: List[Node] = []
+        for node in unparse(tree):
             if isinstance(node, nodes.literal):
-                result[i] = node[0]
+                result.append(node[0])
             elif isinstance(node, nodes.Text) and node.strip():
-                result[i] = type_to_xref(str(node), env)
+                if (result and isinstance(result[-1], addnodes.desc_sig_punctuation) and
+                        result[-1].astext() == '~'):
+                    result.pop()
+                    result.append(type_to_xref(str(node), env, suppress_prefix=True))
+                else:
+                    result.append(type_to_xref(str(node), env))
+            else:
+                result.append(node)
         return result
     except SyntaxError:
         return [type_to_xref(annotation, env)]
