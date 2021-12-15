@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.writers.latex.LaTeXWriter.docclasses``
+     - 5.0
+     - 7.0
+     - N/A
+
    * - ``sphinx.ext.autodoc.AttributeDocumenter._datadescriptor``
      - 4.3
      - 6.0

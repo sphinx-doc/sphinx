@@ -12,6 +12,7 @@
 """
 
 import re
+import warnings
 from collections import defaultdict
 from os import path
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Set, Tuple, cast
@@ -20,6 +21,7 @@ from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
 
 from sphinx import addnodes, highlighting
+from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.domains import IndexEntry
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
@@ -267,9 +269,6 @@ class LaTeXTranslator(SphinxTranslator):
     secnumdepth = 2  # legacy sphinxhowto.cls uses this, whereas article.cls
     # default is originally 3. For book/report, 2 is already LaTeX default.
     ignore_missing_images = False
-
-    # sphinx specific document classes
-    docclasses = ('howto', 'manual')
 
     def __init__(self, document: nodes.document, builder: "LaTeXBuilder",
                  theme: "Theme") -> None:
@@ -2037,6 +2036,13 @@ class LaTeXTranslator(SphinxTranslator):
 
     def unknown_visit(self, node: Node) -> None:
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
+
+    @property
+    def docclasses(self) -> Tuple[str, str]:
+        """Prepends prefix to sphinx document classes"""
+        warnings.warn('LaTeXWriter.docclasses() is deprecated.',
+                      RemovedInSphinx70Warning, stacklevel=2)
+        return ('howto', 'manual')
 
 
 # FIXME: Workaround to avoid circular import
