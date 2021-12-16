@@ -239,13 +239,13 @@ PDF builds using LaTeX.  Please choose one for your purpose.
    commands.  For example, you can use following command to create a Sphinx
    project:
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ docker run -it --rm -v /path/to/document:/docs sphinxdoc/sphinx sphinx-quickstart
 
    And you can use the following command to build HTML document:
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx make html
 

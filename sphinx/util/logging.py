@@ -118,7 +118,7 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
     KEYWORDS = ['type', 'subtype', 'location', 'nonl', 'color', 'once']
 
-    def log(self, level: Union[int, str], msg: str, *args: Any, **kwargs: Any) -> None:
+    def log(self, level: Union[int, str], msg: str, *args: Any, **kwargs: Any) -> None:  # type: ignore # NOQA
         if isinstance(level, int):
             super().log(level, msg, *args, **kwargs)
         else:

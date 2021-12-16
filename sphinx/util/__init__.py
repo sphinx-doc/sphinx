@@ -151,7 +151,7 @@ def md5(data=b'', **kwargs):
     """
 
     try:
-        return hashlib.md5(data, **kwargs)  # type: ignore
+        return hashlib.md5(data, **kwargs)
     except ValueError:
         return hashlib.md5(data, **kwargs, usedforsecurity=False)  # type: ignore
 
@@ -165,7 +165,7 @@ def sha1(data=b'', **kwargs):
     """
 
     try:
-        return hashlib.sha1(data, **kwargs)  # type: ignore
+        return hashlib.sha1(data, **kwargs)
     except ValueError:
         return hashlib.sha1(data, **kwargs, usedforsecurity=False)  # type: ignore
 

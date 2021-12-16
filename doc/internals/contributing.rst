@@ -21,7 +21,7 @@ sphinx-users <sphinx-users@googlegroups.com>
 sphinx-dev <sphinx-dev@googlegroups.com>
     Mailing list for development related discussions.
 
-#sphinx-doc on irc.freenode.net
+#sphinx-doc on irc.libera.chat
     IRC channel for development questions and user support.
 
 .. _python-sphinx: https://stackoverflow.com/questions/tagged/python-sphinx
