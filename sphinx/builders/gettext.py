@@ -180,7 +180,7 @@ if source_date_epoch is not None:
 
 class LocalTimeZone(tzinfo):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)  # type: ignore
+        super().__init__(*args, **kwargs)
         self.tzdelta = tzdelta
 
     def utcoffset(self, dt: datetime) -> timedelta:

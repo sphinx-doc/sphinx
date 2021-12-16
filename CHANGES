@@ -76,6 +76,8 @@ Bugs fixed
 * #9925: LaTeX: prohibit also with ``'xelatex'`` line splitting at dashes of
   inline and parsed literals
 * #9944: LaTeX: extra vertical whitespace for some nested declarations
+* #9940: LaTeX: Multi-function declaration in Python domain has cramped
+  vertical spacing in latexpdf output
 * #9390: texinfo: Do not emit labels inside footnotes
 
 Testing
@@ -98,6 +100,9 @@ Features added
 
 Bugs fixed
 ----------
+
+* #9917: C and C++, parse fundamental types no matter the order of simple type
+  specifiers.
 
 Testing
 --------
