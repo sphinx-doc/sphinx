@@ -21,7 +21,7 @@ from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx50Warning, RemovedInSphinx60Warning
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
@@ -813,12 +813,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def unknown_visit(self, node: Node) -> None:
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
-
-    @property
-    def permalink_text(self) -> str:
-        warnings.warn('HTMLTranslator.permalink_text is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        return self.config.html_permalinks_icon
 
     def generate_targets_for_table(self, node: Element) -> None:
         """Generate hyperlink targets for tables.

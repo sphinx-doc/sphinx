@@ -12,7 +12,6 @@
 """
 
 import re
-import warnings
 from collections import defaultdict
 from os import path
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Set, Tuple, cast
@@ -21,7 +20,6 @@ from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
 
 from sphinx import addnodes, highlighting
-from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.domains import IndexEntry
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
@@ -89,13 +87,7 @@ class LaTeXWriter(writers.Writer):
         self.theme: Theme = None
 
     def translate(self) -> None:
-        try:
-            visitor = self.builder.create_translator(self.document, self.builder, self.theme)
-        except TypeError:
-            warnings.warn('LaTeXTranslator now takes 3rd argument; "theme".',
-                          RemovedInSphinx50Warning, stacklevel=2)
-            visitor = self.builder.create_translator(self.document, self.builder)
-
+        visitor = self.builder.create_translator(self.document, self.builder, self.theme)
         self.document.walkabout(visitor)
         self.output = cast(LaTeXTranslator, visitor).astext()
 
@@ -280,14 +272,10 @@ class LaTeXTranslator(SphinxTranslator):
     docclasses = ('howto', 'manual')
 
     def __init__(self, document: nodes.document, builder: "LaTeXBuilder",
-                 theme: "Theme" = None) -> None:
+                 theme: "Theme") -> None:
         super().__init__(document, builder)
         self.body: List[str] = []
         self.theme = theme
-
-        if theme is None:
-            warnings.warn('LaTeXTranslator now takes 3rd argument; "theme".',
-                          RemovedInSphinx50Warning, stacklevel=2)
 
         # flags
         self.in_title = 0
@@ -312,30 +300,8 @@ class LaTeXTranslator(SphinxTranslator):
 
         # initial section names
         self.sectionnames = LATEXSECTIONNAMES[:]
-
-        if self.theme:
-            # new style: control sectioning via theme's setting
-            #
-            # .. note:: template variables(elements) are already assigned in builder
-            docclass = self.theme.docclass
-            if self.theme.toplevel_sectioning == 'section':
-                self.sectionnames.remove('chapter')
-        else:
-            # old style: sectioning control is hard-coded
-            # but some have other interface in config file
-            self.elements['wrapperclass'] = self.format_docclass(self.settings.docclass)
-
-            # we assume LaTeX class provides \chapter command except in case
-            # of non-Japanese 'howto' case
-            if document.get('docclass') == 'howto':
-                docclass = self.config.latex_docclass.get('howto', 'article')
-                if docclass[0] == 'j':  # Japanese class...
-                    pass
-                else:
-                    self.sectionnames.remove('chapter')
-            else:
-                docclass = self.config.latex_docclass.get('manual', 'report')
-            self.elements['docclass'] = docclass
+        if self.theme.toplevel_sectioning == 'section':
+            self.sectionnames.remove('chapter')
 
         # determine top section level
         self.top_sectionlevel = 1
@@ -345,7 +311,7 @@ class LaTeXTranslator(SphinxTranslator):
                     self.sectionnames.index(self.config.latex_toplevel_sectioning)
             except ValueError:
                 logger.warning(__('unknown %r toplevel_sectioning for class %r') %
-                               (self.config.latex_toplevel_sectioning, docclass))
+                               (self.config.latex_toplevel_sectioning, self.theme.docclass))
 
         if self.config.numfig:
             self.numfig_secnum_depth = self.config.numfig_secnum_depth
@@ -443,14 +409,6 @@ class LaTeXTranslator(SphinxTranslator):
         body = self.body
         self.body = self.bodystack.pop()
         return body
-
-    def format_docclass(self, docclass: str) -> str:
-        """Prepends prefix to sphinx document classes"""
-        warnings.warn('LaTeXWriter.format_docclass() is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        if docclass in self.docclasses:
-            docclass = 'sphinx' + docclass
-        return docclass
 
     def astext(self) -> str:
         self.elements.update({

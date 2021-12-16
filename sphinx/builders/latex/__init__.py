@@ -9,7 +9,6 @@
 """
 
 import os
-import warnings
 from os import path
 from typing import Any, Dict, Iterable, List, Tuple, Union
 
@@ -24,7 +23,6 @@ from sphinx.builders.latex.constants import ADDITIONAL_SETTINGS, DEFAULT_SETTING
 from sphinx.builders.latex.theming import Theme, ThemeFactory
 from sphinx.builders.latex.util import ExtBabel
 from sphinx.config import ENUM, Config
-from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
@@ -448,18 +446,6 @@ class LaTeXBuilder(Builder):
 
         filename = path.join(package_dir, 'templates', 'latex', 'sphinxmessages.sty_t')
         copy_asset_file(filename, self.outdir, context=context, renderer=LaTeXRenderer())
-
-    @property
-    def usepackages(self) -> List[Tuple[str, str]]:
-        warnings.warn('LaTeXBuilder.usepackages is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        return self.app.registry.latex_packages
-
-    @property
-    def usepackages_after_hyperref(self) -> List[Tuple[str, str]]:
-        warnings.warn('LaTeXBuilder.usepackages_after_hyperref is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        return self.app.registry.latex_packages_after_hyperref
 
 
 def validate_config_values(app: Sphinx, config: Config) -> None:

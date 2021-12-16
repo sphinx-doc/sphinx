@@ -10,16 +10,14 @@
 
 import re
 import textwrap
-import warnings
 from os import path
-from typing import (TYPE_CHECKING, Any, Dict, Iterable, Iterator, List, Optional, Pattern, Set,
-                    Tuple, Union, cast)
+from typing import (TYPE_CHECKING, Any, Dict, Iterable, Iterator, List, Pattern, Set, Tuple,
+                    Union, cast)
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
 
 from sphinx import __display_version__, addnodes
-from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.domains import IndexEntry
 from sphinx.domains.index import IndexDomain
 from sphinx.errors import ExtensionError
@@ -1566,11 +1564,3 @@ class TexinfoTranslator(SphinxTranslator):
         self.body.append('\n\n@example\n%s\n@end example\n\n' %
                          self.escape_arg(node.astext()))
         raise nodes.SkipNode
-
-    @property
-    def desc(self) -> Optional[addnodes.desc]:
-        warnings.warn('TexinfoWriter.desc is deprecated.', RemovedInSphinx50Warning)
-        if len(self.descs):
-            return self.descs[-1]
-        else:
-            return None

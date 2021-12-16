@@ -10,7 +10,6 @@
 
 import re
 import unicodedata
-import warnings
 from copy import copy
 from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, List, Optional,
                     Tuple, Type, Union, cast)
@@ -22,7 +21,6 @@ from docutils.statemachine import StringList
 
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature, pending_xref
-from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.locale import _, __
@@ -674,11 +672,6 @@ class StandardDomain(Domain):
             logger.warning(__('duplicate %s description of %s, other instance in %s'),
                            objtype, name, docname, location=location)
         self.objects[objtype, name] = (self.env.docname, labelid)
-
-    def add_object(self, objtype: str, name: str, docname: str, labelid: str) -> None:
-        warnings.warn('StandardDomain.add_object() is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        self.objects[objtype, name] = (docname, labelid)
 
     @property
     def _terms(self) -> Dict[str, Tuple[str, str]]:
