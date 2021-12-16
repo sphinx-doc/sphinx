@@ -51,6 +51,7 @@ Bugs fixed
 * #9940: LaTeX: Multi-function declaration in Python domain has cramped
   vertical spacing in latexpdf output
 * #9390: texinfo: Do not emit labels inside footnotes
+* #9979: Error level messages were displayed as warning messages
 
 Testing
 --------
