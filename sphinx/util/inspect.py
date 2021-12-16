@@ -355,7 +355,7 @@ def is_singledispatch_function(obj: Any) -> bool:
     if (inspect.isfunction(obj) and
             hasattr(obj, 'dispatch') and
             hasattr(obj, 'register') and
-            obj.dispatch.__module__ == 'functools'):
+            obj.dispatch.__module__ == 'functools'):  # type: ignore
         return True
     else:
         return False

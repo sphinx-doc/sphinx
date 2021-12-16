@@ -92,31 +92,22 @@ _id_prefix = [None, 'c.', 'Cv2.']
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
 
+# bool, complex, and imaginary are macro "keywords", so they are handled seperately
 _simple_type_specifiers_re = re.compile(r"""(?x)
     \b(
-    void|_Bool|bool
-    # Integer
-    # -------
-    |((signed|unsigned)\s+)?(char|(
-        ((long\s+long|long|short)\s+)?int
-    ))
-    |__uint128|__int128
-    # extensions
-    |((signed|unsigned)\s+)?__int(8|16|32|64|128)
-    # Floating-point
-    # --------------
-    |(float|double|long\s+double)(\s+(_Complex|complex|_Imaginary|imaginary))?
-    |(_Complex|complex|_Imaginary|imaginary)\s+(float|double|long\s+double)
-    |_Decimal(32|64|128)
-    # extensions
-    |__float80|_Float64x|__float128|_Float128|__ibm128
-    |__fp16
-    # Fixed-point, extension
-    |(_Sat\s+)?((signed|unsigned)\s+)?((short|long|long\s+long)\s+)?(_Fract|fract|_Accum|accum)
-    # Integer types that could be prefixes of the previous ones
-    # ---------------------------------------------------------
-    |((signed|unsigned)\s+)?(long\s+long|long|short)
+    void|_Bool
     |signed|unsigned
+    |short|long
+    |char
+    |int
+    |__uint128|__int128
+    |__int(8|16|32|64|128)  # extension
+    |float|double
+    |_Decimal(32|64|128)
+    |_Complex|_Imaginary
+    |__float80|_Float64x|__float128|_Float128|__ibm128  # extension
+    |__fp16  # extension
+    |_Sat|_Fract|fract|_Accum|accum  # extension
     )\b
 """)
 
@@ -636,8 +627,9 @@ class ASTTrailingTypeSpec(ASTBase):
 
 
 class ASTTrailingTypeSpecFundamental(ASTTrailingTypeSpec):
-    def __init__(self, name: str) -> None:
-        self.names = name.split()
+    def __init__(self, names: List[str]) -> None:
+        assert len(names) != 0
+        self.names = names
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return ' '.join(self.names)
@@ -2580,12 +2572,36 @@ class DefinitionParser(BaseParser):
                 break
         return ASTNestedName(names, rooted)
 
+    def _parse_simple_type_specifier(self) -> Optional[str]:
+        if self.match(_simple_type_specifiers_re):
+            return self.matched_text
+        for t in ('bool', 'complex', 'imaginary'):
+            if t in self.config.c_extra_keywords:
+                if self.skip_word(t):
+                    return t
+        return None
+
+    def _parse_simple_type_specifiers(self) -> ASTTrailingTypeSpecFundamental:
+        names: List[str] = []
+
+        self.skip_ws()
+        while True:
+            t = self._parse_simple_type_specifier()
+            if t is None:
+                break
+            names.append(t)
+            self.skip_ws()
+        if len(names) == 0:
+            return None
+        return ASTTrailingTypeSpecFundamental(names)
+
     def _parse_trailing_type_spec(self) -> ASTTrailingTypeSpec:
         # fundamental types, https://en.cppreference.com/w/c/language/type
         # and extensions
         self.skip_ws()
-        if self.match(_simple_type_specifiers_re):
-            return ASTTrailingTypeSpecFundamental(self.matched_text)
+        res = self._parse_simple_type_specifiers()
+        if res is not None:
+            return res
 
         # prefixed
         prefix = None
