@@ -26,7 +26,7 @@ from sphinx import addnodes
 from sphinx.addnodes import desc_signature, pending_xref, pending_xref_condition
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx50Warning, RemovedInSphinx60Warning
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, Index, IndexEntry, ObjType
 from sphinx.environment import BuildEnvironment
@@ -122,7 +122,7 @@ def type_to_xref(target: str, env: BuildEnvironment = None, suppress_prefix: boo
                         refspecific=refspecific, **kwargs)
 
 
-def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Node]:
+def _parse_annotation(annotation: str, env: BuildEnvironment) -> List[Node]:
     """Parse type annotation."""
     def unparse(node: ast.AST) -> List[Node]:
         if isinstance(node, ast.Attribute):
@@ -209,10 +209,6 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
                     return [nodes.Text(node.value)]
 
             raise SyntaxError  # unsupported syntax
-
-    if env is None:
-        warnings.warn("The env parameter for _parse_annotation becomes required now.",
-                      RemovedInSphinx50Warning, stacklevel=2)
 
     try:
         tree = ast_parse(annotation)
@@ -977,29 +973,6 @@ class PyProperty(PyObject):
                 return name
 
         return _('%s (%s property)') % (attrname, clsname)
-
-
-class PyDecoratorMixin:
-    """
-    Mixin for decorator directives.
-    """
-    def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
-        for cls in self.__class__.__mro__:
-            if cls.__name__ != 'DirectiveAdapter':
-                warnings.warn('PyDecoratorMixin is deprecated. '
-                              'Please check the implementation of %s' % cls,
-                              RemovedInSphinx50Warning, stacklevel=2)
-                break
-        else:
-            warnings.warn('PyDecoratorMixin is deprecated',
-                          RemovedInSphinx50Warning, stacklevel=2)
-
-        ret = super().handle_signature(sig, signode)  # type: ignore
-        signode.insert(0, addnodes.desc_addname('@', '@'))
-        return ret
-
-    def needs_arglist(self) -> bool:
-        return False
 
 
 class PyModule(SphinxDirective):

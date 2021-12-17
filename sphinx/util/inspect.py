@@ -16,7 +16,6 @@ import re
 import sys
 import types
 import typing
-import warnings
 from functools import partial, partialmethod
 from importlib import import_module
 from inspect import Parameter, isclass, ismethod, ismethoddescriptor, ismodule  # NOQA
@@ -24,7 +23,6 @@ from io import StringIO
 from types import ModuleType
 from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, Type, cast
 
-from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.pycode.ast import ast  # for py36-37
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
@@ -45,69 +43,6 @@ if False:
 logger = logging.getLogger(__name__)
 
 memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>)', re.IGNORECASE)
-
-
-# Copied from the definition of inspect.getfullargspec from Python master,
-# and modified to remove the use of special flags that break decorated
-# callables and bound methods in the name of backwards compatibility. Used
-# under the terms of PSF license v2, which requires the above statement
-# and the following:
-#
-#   Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,
-#   2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Python Software
-#   Foundation; All Rights Reserved
-def getargspec(func: Callable) -> Any:
-    """Like inspect.getfullargspec but supports bound methods, and wrapped
-    methods."""
-    warnings.warn('sphinx.ext.inspect.getargspec() is deprecated',
-                  RemovedInSphinx50Warning, stacklevel=2)
-
-    sig = inspect.signature(func)
-
-    args = []
-    varargs = None
-    varkw = None
-    kwonlyargs = []
-    defaults = ()
-    annotations = {}
-    defaults = ()
-    kwdefaults = {}
-
-    if sig.return_annotation is not sig.empty:
-        annotations['return'] = sig.return_annotation
-
-    for param in sig.parameters.values():
-        kind = param.kind
-        name = param.name
-
-        if kind is Parameter.POSITIONAL_ONLY:
-            args.append(name)
-        elif kind is Parameter.POSITIONAL_OR_KEYWORD:
-            args.append(name)
-            if param.default is not param.empty:
-                defaults += (param.default,)  # type: ignore
-        elif kind is Parameter.VAR_POSITIONAL:
-            varargs = name
-        elif kind is Parameter.KEYWORD_ONLY:
-            kwonlyargs.append(name)
-            if param.default is not param.empty:
-                kwdefaults[name] = param.default
-        elif kind is Parameter.VAR_KEYWORD:
-            varkw = name
-
-        if param.annotation is not param.empty:
-            annotations[name] = param.annotation
-
-    if not kwdefaults:
-        # compatibility with 'func.__kwdefaults__'
-        kwdefaults = None
-
-    if not defaults:
-        # compatibility with 'func.__defaults__'
-        defaults = None
-
-    return inspect.FullArgSpec(args, varargs, varkw, defaults,
-                               kwonlyargs, kwdefaults, annotations)
 
 
 def unwrap(obj: Any) -> Any:
@@ -623,26 +558,19 @@ def _should_unwrap(subject: Callable) -> bool:
     return False
 
 
-def signature(subject: Callable, bound_method: bool = False, follow_wrapped: bool = None,
-              type_aliases: Dict = {}) -> inspect.Signature:
+def signature(subject: Callable, bound_method: bool = False, type_aliases: Dict = {}
+              ) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
     :param bound_method: Specify *subject* is a bound method or not
-    :param follow_wrapped: Same as ``inspect.signature()``.
     """
-
-    if follow_wrapped is None:
-        follow_wrapped = True
-    else:
-        warnings.warn('The follow_wrapped argument of sphinx.util.inspect.signature() is '
-                      'deprecated', RemovedInSphinx50Warning, stacklevel=2)
 
     try:
         try:
             if _should_unwrap(subject):
                 signature = inspect.signature(subject)
             else:
-                signature = inspect.signature(subject, follow_wrapped=follow_wrapped)
+                signature = inspect.signature(subject, follow_wrapped=True)
         except ValueError:
             # follow built-in wrappers up (ex. functools.lru_cache)
             signature = inspect.signature(subject)

@@ -17,7 +17,6 @@ from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature
-from sphinx.deprecation import RemovedInSphinx50Warning, deprecated_alias
 from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
@@ -264,16 +263,6 @@ class DefaultDomain(SphinxDirective):
         #             break
         self.env.temp_data['default_domain'] = self.env.domains.get(domain_name)
         return []
-
-
-deprecated_alias('sphinx.directives',
-                 {
-                     'DescDirective': ObjectDescription,
-                 },
-                 RemovedInSphinx50Warning,
-                 {
-                     'DescDirective': 'sphinx.directives.ObjectDescription',
-                 })
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
