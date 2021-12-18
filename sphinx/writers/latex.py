@@ -1136,6 +1136,9 @@ class LaTeXTranslator(SphinxTranslator):
             for node_id in node['ids']:
                 ctx += self.hypertarget(node_id, anchor=False)
         ctx += r'}] \leavevmode'
+        if not isinstance(node.next_node(descend=False, ascend=True), nodes.term):
+            # Put CR to separate terms and its description
+            ctx += r'\\'
         self.body.append(r'\item[{')
         self.context.append(ctx)
 

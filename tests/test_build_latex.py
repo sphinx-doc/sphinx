@@ -836,16 +836,16 @@ def test_latex_show_urls_is_inline(app, status, warning):
             '(http://sphinx\\sphinxhyphen{}doc.org/\\textasciitilde{}test/)') in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{URL in term} '
             '(http://sphinx\\sphinxhyphen{}doc.org/)}] '
-            '\\leavevmode\n\\sphinxAtStartPar\nDescription' in result)
+            '\\leavevmode\\\\\n\\sphinxAtStartPar\nDescription' in result)
     assert ('\\item[{Footnote in term \\sphinxfootnotemark[6]}] '
-            '\\leavevmode%\n\\begin{footnotetext}[6]'
+            '\\leavevmode\\\\%\n\\begin{footnotetext}[6]'
             '\\phantomsection\\label{\\thesphinxscope.6}%\n'
             '\\sphinxAtStartFootnote\n'
             'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces '
             '\n\\sphinxAtStartPar\nDescription') in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{Term in deflist} '
             '(http://sphinx\\sphinxhyphen{}doc.org/)}] '
-            '\\leavevmode\n\\sphinxAtStartPar\nDescription') in result
+            '\\leavevmode\\\\\n\\sphinxAtStartPar\nDescription') in result
     assert '\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result
     assert ('\\sphinxhref{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx\\sphinxhyphen{}dev@googlegroups.com}') in result
@@ -895,20 +895,20 @@ def test_latex_show_urls_is_footnote(app, status, warning):
             '\\sphinxnolinkurl{http://sphinx-doc.org/~test/}\n%\n\\end{footnote}') in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}'
             '{URL in term}\\sphinxfootnotemark[9]}] '
-            '\\leavevmode%\n\\begin{footnotetext}[9]'
+            '\\leavevmode\\\\%\n\\begin{footnotetext}[9]'
             '\\phantomsection\\label{\\thesphinxscope.9}%\n'
             '\\sphinxAtStartFootnote\n'
             '\\sphinxnolinkurl{http://sphinx-doc.org/}\n%\n'
             '\\end{footnotetext}\\ignorespaces \n\\sphinxAtStartPar\nDescription') in result
     assert ('\\item[{Footnote in term \\sphinxfootnotemark[11]}] '
-            '\\leavevmode%\n\\begin{footnotetext}[11]'
+            '\\leavevmode\\\\%\n\\begin{footnotetext}[11]'
             '\\phantomsection\\label{\\thesphinxscope.11}%\n'
             '\\sphinxAtStartFootnote\n'
             'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces '
             '\n\\sphinxAtStartPar\nDescription') in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{Term in deflist}'
             '\\sphinxfootnotemark[10]}] '
-            '\\leavevmode%\n\\begin{footnotetext}[10]'
+            '\\leavevmode\\\\%\n\\begin{footnotetext}[10]'
             '\\phantomsection\\label{\\thesphinxscope.10}%\n'
             '\\sphinxAtStartFootnote\n'
             '\\sphinxnolinkurl{http://sphinx-doc.org/}\n%\n'
@@ -956,15 +956,15 @@ def test_latex_show_urls_is_no(app, status, warning):
             'Footnote inside footnote\n%\n\\end{footnotetext}\\ignorespaces') in result
     assert '\\sphinxhref{http://sphinx-doc.org/~test/}{URL including tilde}' in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{URL in term}}] '
-            '\\leavevmode\n\\sphinxAtStartPar\nDescription') in result
+            '\\leavevmode\\\\\n\\sphinxAtStartPar\nDescription') in result
     assert ('\\item[{Footnote in term \\sphinxfootnotemark[6]}] '
-            '\\leavevmode%\n\\begin{footnotetext}[6]'
+            '\\leavevmode\\\\%\n\\begin{footnotetext}[6]'
             '\\phantomsection\\label{\\thesphinxscope.6}%\n'
             '\\sphinxAtStartFootnote\n'
             'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces '
             '\n\\sphinxAtStartPar\nDescription') in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{Term in deflist}}] '
-            '\\leavevmode\n\\sphinxAtStartPar\nDescription') in result
+            '\\leavevmode\\\\\n\\sphinxAtStartPar\nDescription') in result
     assert ('\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\sphinxhref{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx\\sphinxhyphen{}dev@googlegroups.com}\n') in result

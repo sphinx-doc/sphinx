@@ -24,6 +24,7 @@ Features added
   by an extlink, suggesting a replacement.
 * #9815: html theme: Wrap sidebar components in div to allow customizing their
   layout via CSS
+* #9985: LaTeX: Separate term and description of definition list by a new line
 * #9899: py domain: Allows to specify cross-reference specifier (``.`` and
   ``~``) as ``:type:`` option
 * #9894: linkcheck: add option ``linkcheck_exclude_documents`` to disable link
