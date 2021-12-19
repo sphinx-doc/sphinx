@@ -348,6 +348,15 @@ def test_parse_annotation(app):
     assert_node(doctree, ([pending_xref, "None"],))
     assert_node(doctree[0], pending_xref, refdomain="py", reftype="obj", reftarget="None")
 
+    doctree = _parse_annotation("typing.Literal['a', 'b']", app.env)
+    assert_node(doctree, ([pending_xref, "typing.Literal"],
+                          [desc_sig_punctuation, "["],
+                          [desc_sig_literal_string, "'a'"],
+                          [desc_sig_punctuation, ","],
+                          desc_sig_space,
+                          [desc_sig_literal_string, "'b'"],
+                          [desc_sig_punctuation, "]"]))
+
 
 def test_parse_annotation_suppress(app):
     doctree = _parse_annotation("~typing.Dict[str, str]", app.env)

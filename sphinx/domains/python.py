@@ -203,10 +203,16 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
             return result
         else:
             if sys.version_info < (3, 8):
-                if isinstance(node, ast.Ellipsis):
+                if isinstance(node, ast.Bytes):
+                    return [addnodes.desc_sig_literal_string('', repr(node.s))]
+                elif isinstance(node, ast.Ellipsis):
                     return [addnodes.desc_sig_punctuation('', "...")]
                 elif isinstance(node, ast.NameConstant):
                     return [nodes.Text(node.value)]
+                elif isinstance(node, ast.Num):
+                    return [addnodes.desc_sig_literal_string('', repr(node.n))]
+                elif isinstance(node, ast.Str):
+                    return [addnodes.desc_sig_literal_string('', repr(node.s))]
 
             raise SyntaxError  # unsupported syntax
 
