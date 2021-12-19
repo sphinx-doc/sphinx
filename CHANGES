@@ -22,6 +22,7 @@ Features added
   this behavior with the ``--respect-module-all`` switch.
 * #9800: extlinks: Emit warning if a hardcoded link is replaceable
   by an extlink, suggesting a replacement.
+* #9961: html: Support nested <kbd> HTML elements in other HTML builders
 * #9815: html theme: Wrap sidebar components in div to allow customizing their
   layout via CSS
 * #9899: py domain: Allows to specify cross-reference specifier (``.`` and
