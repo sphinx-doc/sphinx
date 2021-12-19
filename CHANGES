@@ -1,26 +1,11 @@
-Release 4.3.2 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 4.3.2 (released Dec 19, 2021)
+=====================================
 
 Bugs fixed
 ----------
 
 * #9917: C and C++, parse fundamental types no matter the order of simple type
   specifiers.
-
-Testing
---------
 
 Release 4.3.1 (released Nov 28, 2021)
 =====================================
