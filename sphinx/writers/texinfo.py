@@ -58,8 +58,6 @@ TEMPLATE = """\
 @exampleindent %(exampleindent)s
 @finalout
 %(direntry)s
-@definfoenclose strong,`,'
-@definfoenclose emph,`,'
 @c %%**end of header
 
 @copying
@@ -805,17 +803,21 @@ class TexinfoTranslator(SphinxTranslator):
     # -- Inline
 
     def visit_strong(self, node: Element) -> None:
-        self.body.append('@strong{')
+        self.body.append('`')
 
     def depart_strong(self, node: Element) -> None:
-        self.body.append('}')
+        self.body.append("'")
 
     def visit_emphasis(self, node: Element) -> None:
-        element = 'emph' if not self.in_samp else 'var'
-        self.body.append('@%s{' % element)
+        if self.in_samp:
+            self.body.append('@var{')
+            self.context.append('}')
+        else:
+            self.body.append('`')
+            self.context.append("'")
 
     def depart_emphasis(self, node: Element) -> None:
-        self.body.append('}')
+        self.body.append(self.context.pop())
 
     def is_samp(self, node: Element) -> bool:
         return 'samp' in node['classes']

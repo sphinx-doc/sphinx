@@ -7,6 +7,8 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #9962: texinfo: Customizing styles of emphasized text via ``@definfoenclose``
+  command was not supported because the command was deprecated since texinfo 6.8
 * #2068: :confval:`intersphinx_disabled_reftypes` has changed default value
   from an empty list to ``['std:doc']`` as avoid too surprising silent
   intersphinx resolutions.
@@ -22,6 +24,9 @@ Features added
 
 Bugs fixed
 ----------
+
+* #9962: texinfo: Deprecation message for ``@definfoenclose`` command on
+  bulding texinfo document
 
 Testing
 --------
