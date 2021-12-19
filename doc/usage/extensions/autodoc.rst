@@ -664,8 +664,8 @@ There are also config values that you can set:
 
 .. confval:: autodoc_unqualified_typehints
 
-   If True, the leading module names of typehints of function signatures (ex.
-   ``io.StringIO`` -> ``StringIO``).  Defaults to False.
+   If True, the leading module names of typehints of function signatures are
+   removed (ex.  ``io.StringIO`` -> ``StringIO``).  Defaults to False.
 
    .. versionadded:: 4.4
 
