@@ -83,7 +83,8 @@ class ModuleEntry(NamedTuple):
 def type_to_xref(target: str, env: BuildEnvironment = None, suppress_prefix: bool = False
                  ) -> addnodes.pending_xref:
     """Convert a type string to a cross reference node."""
-    if target == 'None':
+    if target == 'None' or target.startswith('typing.'):
+        # typing module provides non-class types.  Obj reference is good to refer them.
         reftype = 'obj'
     else:
         reftype = 'class'
