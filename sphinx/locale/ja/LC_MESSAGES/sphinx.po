@@ -2371,12 +2371,12 @@ msgstr "ドキュメントはどの toctree にも含まれていません"
 #: sphinx/environment/adapters/indexentries.py:78
 #, python-format
 msgid "see %s"
-msgstr "%sを参照"
+msgstr "「%s」を参照"
 
 #: sphinx/environment/adapters/indexentries.py:82
 #, python-format
 msgid "see also %s"
-msgstr "%sも参照"
+msgstr "「%s」も参照"
 
 #: sphinx/environment/adapters/indexentries.py:85
 #, python-format
