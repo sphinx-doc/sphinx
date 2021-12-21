@@ -706,6 +706,15 @@ General configuration
 
     .. versionadded:: 3.0
 
+.. confval:: option_detailed_parse
+
+   Default is ``False``.
+   Parse option in more detail to provide a better markup, similarly
+   to ``samp`` role, support parsing of "variable part" of a literal text.
+   For example, in ``.. option:: -foption={TYPE}``, the part ``TYPE``
+   would be emphasized.
+
+   .. versionadded:: 5.0
 
 .. _intl-options:
 

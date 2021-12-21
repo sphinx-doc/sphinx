@@ -1710,3 +1710,25 @@ def test_html_signaturereturn_icon(app):
     content = (app.outdir / 'index.html').read_text()
 
     assert ('<span class="sig-return-icon">&#x2192;</span>' in content)
+
+
+@pytest.mark.sphinx('html', testroot='root',
+                    confoverrides={'option_detailed_parse': True})
+def test_option_detailed_parse(app, status, warning):
+    app.build()
+    content = (app.outdir / 'objects.html').read_text()
+    assert '<em><span class="pre">TYPE</span></em>' in content
+    assert '{TYPE}' not in content
+    assert ('<em><span class="pre">WHERE</span></em>'
+            '<span class="pre">-</span>'
+            '<em><span class="pre">COUNT</span></em>' in content)
+    assert '<span class="pre">{{value}}</span>' in content
+
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_option_detailed_parse_default(app, status, warning):
+    app.build()
+    content = (app.outdir / 'objects.html').read_text()
+    assert '<span class="pre">={TYPE}</span>' in content
+    assert '<span class="pre">={WHERE}-{COUNT}</span></span>' in content
+    assert '<span class="pre">{client_name}</span>' in content

@@ -15,7 +15,7 @@ from sphinx.addnodes import desc_signature, pending_xref
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.locale import _, __
-from sphinx.roles import XRefRole
+from sphinx.roles import EmphasizedLiteral, XRefRole
 from sphinx.util import docname_join, logging, ws_re
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import clean_astext, make_id, make_refnode
@@ -33,6 +33,8 @@ logger = logging.getLogger(__name__)
 option_desc_re = re.compile(r'((?:/|--|-|\+)?[^\s=]+)(=?\s*.*)')
 # RE for grammar tokens
 token_re = re.compile(r'`((~?\w*:)?\w+)`', re.U)
+
+samp_role = EmphasizedLiteral()
 
 
 class GenericObject(ObjectDescription[str]):
@@ -170,15 +172,42 @@ class Cmdoption(ObjectDescription[str]):
                                location=signode)
                 continue
             optname, args = m.groups()
-            if optname.endswith('[') and args.endswith(']'):
+            if optname[-1] == '[' and args[-1] == ']':
                 # optional value surrounded by brackets (ex. foo[=bar])
                 optname = optname[:-1]
                 args = '[' + args
 
             if count:
-                signode += addnodes.desc_addname(', ', ', ')
+                if self.env.config.option_detailed_parse:
+                    signode += addnodes.desc_sig_punctuation(',', ',')
+                    signode += addnodes.desc_sig_space()
+                else:
+                    signode += addnodes.desc_addname(', ', ', ')
             signode += addnodes.desc_name(optname, optname)
-            signode += addnodes.desc_addname(args, args)
+            if self.env.config.option_detailed_parse:
+                add_end_bracket = False
+                if not args:
+                    continue
+                if args[0] == '[' and args[-1] == ']':
+                    add_end_bracket = True
+                    signode += addnodes.desc_sig_punctuation('[', '[')
+                    args = args[1:-1]
+                if args[0] == ' ':
+                    signode += addnodes.desc_sig_space()
+                    args = args.strip()
+                if args[0] == '=':
+                    signode += addnodes.desc_sig_punctuation('=', '=')
+                    args = args[1:]
+                for part in samp_role.parse(args):
+                    if isinstance(part, nodes.Text):
+                        text = part.astext()
+                        signode += nodes.Text(text, text)
+                    else:
+                        signode += part
+                if add_end_bracket:
+                    signode += addnodes.desc_sig_punctuation(']', ']')
+            else:
+                signode += addnodes.desc_addname(args, args)
             if not count:
                 firstname = optname
                 signode['allnames'] = [optname]
