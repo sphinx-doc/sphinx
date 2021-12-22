@@ -29,8 +29,8 @@ install_requires = [
     'alabaster>=0.7,<0.8',
     'imagesize',
     'requests>=2.5.0',
-    'setuptools',
     'packaging',
+    "importlib-metadata>=4.4; python_version < '3.10'",
 ]
 
 extras_require = {
@@ -47,7 +47,6 @@ extras_require = {
         'mypy>=0.920',
         'docutils-stubs',
         "types-typed-ast",
-        "types-pkg_resources",
         "types-requests",
     ],
     'test': [

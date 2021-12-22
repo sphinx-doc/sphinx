@@ -16,7 +16,10 @@ from os import path
 from typing import TYPE_CHECKING, Any, Dict, List
 from zipfile import ZipFile
 
-import pkg_resources
+try:  # Python < 3.10 (backport)
+    from importlib_metadata import entry_points
+except ImportError:
+    from importlib.metadata import entry_points
 
 from sphinx import package_dir
 from sphinx.errors import ThemeError
@@ -201,12 +204,12 @@ class HTMLThemeFactory:
         Sphinx refers to ``sphinx_themes`` entry_points.
         """
         # look up for new styled entry_points at first
-        entry_points = pkg_resources.iter_entry_points('sphinx.html_themes', name)
+        theme_eps = entry_points(group='sphinx.html_themes')
         try:
-            entry_point = next(entry_points)
-            self.app.registry.load_extension(self.app, entry_point.module_name)
+            entry_point = theme_eps[name]
+            self.app.registry.load_extension(self.app, entry_point.module)
             return
-        except StopIteration:
+        except KeyError:
             pass
 
     def find_themes(self, theme_path: str) -> Dict[str, str]:
