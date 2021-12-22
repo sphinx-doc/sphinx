@@ -1454,9 +1454,9 @@ def test_latex_glossary(app, status, warning):
     app.builder.build_all()
 
     result = (app.outdir / 'python.tex').read_text()
-    assert ('\\item[{änhlich\\index{änhlich@\\spxentry{änhlich}|spxpagem}'
+    assert ('\\item[{ähnlich\\index{ähnlich@\\spxentry{ähnlich}|spxpagem}'
             r'\phantomsection'
-            r'\label{\detokenize{index:term-anhlich}}}] \leavevmode' in result)
+            r'\label{\detokenize{index:term-ahnlich}}}] \leavevmode' in result)
     assert (r'\item[{boson\index{boson@\spxentry{boson}|spxpagem}\phantomsection'
             r'\label{\detokenize{index:term-boson}}}] \leavevmode' in result)
     assert (r'\item[{\sphinxstyleemphasis{fermion}'
