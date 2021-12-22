@@ -1739,6 +1739,8 @@ There is a set of directives allowing documenting command-line programs:
 
    then ``:option:`rm -r``` would refer to the first option, while
    ``:option:`svn -r``` would refer to the second one.
+   Note using ``:option:`-r <rm -r>``` would refer the first option, while
+   display text would be only ``-r``.
 
    If ``None`` is passed to the argument, the directive will reset the
    current program name.
