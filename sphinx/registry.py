@@ -21,6 +21,7 @@ from docutils.nodes import Element, Node, TextElement
 from docutils.parsers import Parser
 from docutils.parsers.rst import Directive
 from docutils.transforms import Transform
+
 try:  # Python < 3.10 (backport)
     from importlib_metadata import entry_points
 except ImportError:
