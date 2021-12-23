@@ -9,6 +9,7 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #9595: ``build_sphinx`` subcommand for distutils/setuptools has been removed.
 * #9962: texinfo: Customizing styles of emphasized text via ``@definfoenclose``
   command was not supported because the command was deprecated since texinfo 6.8
 * #2068: :confval:`intersphinx_disabled_reftypes` has changed default value
@@ -886,7 +887,7 @@ Bugs fixed
   inside function type signatures
 * #8780: LaTeX: long words in narrow columns may not be hyphenated
 * #8788: LaTeX: ``\titleformat`` last argument in sphinx.sty should be
-  bracketed, not braced (and is anyhow not needed) 
+  bracketed, not braced (and is anyhow not needed)
 * #8849: LaTex: code-block printed out of margin (see the opt-in LaTeX syntax
   boolean :ref:`verbatimforcewraps <latexsphinxsetupforcewraps>` for use via
   the :ref:`'sphinxsetup' <latexsphinxsetup>` key of ``latex_elements``)

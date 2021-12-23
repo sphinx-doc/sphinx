@@ -210,7 +210,6 @@ setup(
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
-        'Framework :: Setuptools Plugin',
         'Framework :: Sphinx',
         'Framework :: Sphinx :: Extension',
         'Framework :: Sphinx :: Theme',
@@ -240,9 +239,6 @@ setup(
             'sphinx-quickstart = sphinx.cmd.quickstart:main',
             'sphinx-apidoc = sphinx.ext.apidoc:main',
             'sphinx-autogen = sphinx.ext.autosummary.generate:main',
-        ],
-        'distutils.commands': [
-            'build_sphinx = sphinx.setup_command:BuildDoc',
         ],
     },
     python_requires=">=3.6",

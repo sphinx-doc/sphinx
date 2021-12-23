@@ -188,7 +188,7 @@ def test_clean_astext():
         ('term', '', 'term-0'),
         ('term', 'Sphinx', 'term-Sphinx'),
         ('', 'io.StringIO', 'io.StringIO'),   # contains a dot
-        ('', 'sphinx.setup_command', 'sphinx.setup_command'),  # contains a dot & underscore
+        ('', 'sphinx.pygments_styles', 'sphinx.pygments_styles'),  # contains a dot & underscore
         ('', '_io.StringIO', 'io.StringIO'),  # starts with underscore
         ('', 'ｓｐｈｉｎｘ', 'sphinx'),  # alphabets in unicode fullwidth characters
         ('', '悠好', 'id0'),  # multibytes text (in Chinese)
