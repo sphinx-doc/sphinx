@@ -876,9 +876,6 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         if depart:
             depart(self, node)
 
-    def unknown_visit(self, node: Node) -> None:
-        raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
-
     @property
     def permalink_text(self) -> str:
         warnings.warn('HTMLTranslator.permalink_text is deprecated.',
