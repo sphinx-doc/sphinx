@@ -1092,8 +1092,8 @@ class LaTeXTranslator(SphinxTranslator):
             ctx = r'\phantomsection'
             for node_id in node['ids']:
                 ctx += self.hypertarget(node_id, anchor=False)
-        ctx += r'}] \leavevmode'
-        self.body.append(r'\item[{')
+        ctx += r'}'
+        self.body.append(r'\sphinxlineitem{')
         self.context.append(ctx)
 
     def depart_term(self, node: Element) -> None:
