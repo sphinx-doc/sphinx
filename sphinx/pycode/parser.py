@@ -312,6 +312,10 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Returns the name of the first argument if in a function."""
         if self.current_function and self.current_function.args.args:
             return self.current_function.args.args[0]
+        elif (self.current_function and
+              getattr(self.current_function.args, 'posonlyargs', None)):
+            # for py38+
+            return self.current_function.args.posonlyargs[0]  # type: ignore
         else:
             return None
 

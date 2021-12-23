@@ -111,7 +111,14 @@ class SphinxInfoLogRecord(SphinxLogRecord):
 
 class SphinxWarningLogRecord(SphinxLogRecord):
     """Warning log record class supporting location"""
-    prefix = 'WARNING: '
+    @property
+    def prefix(self) -> str:  # type: ignore
+        if self.levelno >= logging.CRITICAL:
+            return 'CRITICAL: '
+        elif self.levelno >= logging.ERROR:
+            return 'ERROR: '
+        else:
+            return 'WARNING: '
 
 
 class SphinxLoggerAdapter(logging.LoggerAdapter):
