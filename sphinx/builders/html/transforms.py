@@ -36,7 +36,7 @@ class KeyboardTransform(SphinxPostTransform):
                 x
     """
     default_priority = 400
-    builders = ('html',)
+    formats = ('html',)
     pattern = re.compile(r'(?<=.)(-|\+|\^|\s+)(?=.)')
     multiwords_keys = (('caps', 'lock'),
                        ('page' 'down'),

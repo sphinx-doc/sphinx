@@ -208,7 +208,7 @@ class ApplySourceWorkaround(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.traverse():  # type: Node
-            if isinstance(node, (nodes.TextElement, nodes.image)):
+            if isinstance(node, (nodes.TextElement, nodes.image, nodes.topic)):
                 apply_source_workaround(node)
 
 

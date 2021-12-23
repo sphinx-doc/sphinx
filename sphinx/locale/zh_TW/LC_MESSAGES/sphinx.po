@@ -15,8 +15,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-12-05 00:11+0000\n"
-"PO-Revision-Date: 2021-11-28 00:11+0000\n"
+"POT-Creation-Date: 2021-12-12 00:11+0000\n"
+"PO-Revision-Date: 2021-12-12 00:11+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/sphinx-doc/sphinx-1/language/zh_TW/)\n"
 "MIME-Version: 1.0\n"
@@ -26,130 +26,123 @@ msgstr ""
 "Language: zh_TW\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: sphinx/application.py:157
+#: sphinx/application.py:156
 #, python-format
 msgid "Cannot find source directory (%s)"
 msgstr "找不到來源資料夾 (%s)"
 
-#: sphinx/application.py:161
+#: sphinx/application.py:160
 #, python-format
 msgid "Output directory (%s) is not a directory"
 msgstr "輸出資料夾 (%s) 不是一個資料夾"
 
-#: sphinx/application.py:165
+#: sphinx/application.py:164
 msgid "Source directory and destination directory cannot be identical"
 msgstr "來源資料夾與目的資料夾不能為相同"
 
-#: sphinx/application.py:196
+#: sphinx/application.py:195
 #, python-format
 msgid "Running Sphinx v%s"
 msgstr "正在執行 Sphinx v%s 版本"
 
-#: sphinx/application.py:200
-msgid ""
-"For security reasons, parallel mode is disabled on macOS and python3.8 and "
-"above. For more details, please read https://github.com/sphinx-"
-"doc/sphinx/issues/6803"
-msgstr "基於安全性理由，平行模式在 masOS 及 python3.8 以上版本已被停用。更多細節，請參閱 https://github.com/sphinx-doc/sphinx/issues/6803"
-
-#: sphinx/application.py:228
+#: sphinx/application.py:221
 #, python-format
 msgid ""
 "This project needs at least Sphinx v%s and therefore cannot be built with "
 "this version."
 msgstr "本專案需要 Sphinx v%s 版本或以上，故無法以現版本編譯。"
 
-#: sphinx/application.py:243
+#: sphinx/application.py:236
 msgid "making output directory"
 msgstr "正在建立輸出目錄"
 
-#: sphinx/application.py:248 sphinx/registry.py:426
+#: sphinx/application.py:241 sphinx/registry.py:426
 #, python-format
 msgid "while setting up extension %s:"
 msgstr "正在設置擴充套件 %s 時："
 
-#: sphinx/application.py:254
+#: sphinx/application.py:247
 msgid ""
 "'setup' as currently defined in conf.py isn't a Python callable. Please "
 "modify its definition to make it a callable function. This is needed for "
 "conf.py to behave as a Sphinx extension."
 msgstr "目前在 conf.py 裡定義的 'setup' 並非一個 Python 的可呼叫物件。請將其定義修改為一個可呼叫的函式。若要使 conf.py 以 Sphinx 擴充套件的方式運作，這個修改是必須的。"
 
-#: sphinx/application.py:279
+#: sphinx/application.py:272
 #, python-format
 msgid "loading translations [%s]... "
 msgstr "正在載入翻譯 [%s]..."
 
-#: sphinx/application.py:297 sphinx/util/__init__.py:539
+#: sphinx/application.py:290 sphinx/util/__init__.py:539
 msgid "done"
 msgstr "完成"
 
-#: sphinx/application.py:299
+#: sphinx/application.py:292
 msgid "not available for built-in messages"
 msgstr "不是有效的內建訊息"
 
-#: sphinx/application.py:308
+#: sphinx/application.py:301
 msgid "loading pickled environment"
 msgstr "正在載入已 pickle 的環境"
 
-#: sphinx/application.py:313
+#: sphinx/application.py:306
 #, python-format
 msgid "failed: %s"
 msgstr "失敗：%s"
 
-#: sphinx/application.py:321
+#: sphinx/application.py:314
 msgid "No builder selected, using default: html"
 msgstr "沒有指定 builder，使用預設：html"
 
-#: sphinx/application.py:349
+#: sphinx/application.py:342
 msgid "succeeded"
 msgstr "成功"
 
-#: sphinx/application.py:350
+#: sphinx/application.py:343
 msgid "finished with problems"
 msgstr "完成但有問題"
 
-#: sphinx/application.py:354
+#: sphinx/application.py:347
 #, python-format
 msgid "build %s, %s warning (with warnings treated as errors)."
 msgstr "建立 %s，%s 警告（警告被視為錯誤）。"
 
-#: sphinx/application.py:356
+#: sphinx/application.py:349
 #, python-format
 msgid "build %s, %s warnings (with warnings treated as errors)."
 msgstr "建立 %s，%s 警告（警告被視為錯誤）。"
 
-#: sphinx/application.py:359
+#: sphinx/application.py:352
 #, python-format
 msgid "build %s, %s warning."
 msgstr "建立 %s，%s 警告。"
 
-#: sphinx/application.py:361
+#: sphinx/application.py:354
 #, python-format
 msgid "build %s, %s warnings."
 msgstr "建立 %s，%s 警告。"
 
-#: sphinx/application.py:365
+#: sphinx/application.py:358
 #, python-format
 msgid "build %s."
 msgstr "建立 %s。"
 
-#: sphinx/application.py:595
+#: sphinx/application.py:588
 #, python-format
 msgid "node class %r is already registered, its visitors will be overridden"
 msgstr "node class %r 已經被註冊，它的訪客將會被覆寫"
 
-#: sphinx/application.py:673
+#: sphinx/application.py:666
 #, python-format
 msgid "directive %r is already registered, it will be overridden"
 msgstr "指令 %r 已經被註冊，它將會被覆寫"
 
-#: sphinx/application.py:694 sphinx/application.py:715
+#: sphinx/application.py:687 sphinx/application.py:708
 #, python-format
 msgid "role %r is already registered, it will be overridden"
 msgstr "role %r 已經被註冊，它將會被覆寫"
 
-#: sphinx/application.py:1246
+#: sphinx/application.py:1239
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel reading, "
@@ -157,12 +150,12 @@ msgid ""
 "explicit"
 msgstr "%s 擴充套件並未宣告平行讀取是否安全，假設為否 - 請尋求擴充套件作者以檢查並明確表示"
 
-#: sphinx/application.py:1250
+#: sphinx/application.py:1243
 #, python-format
 msgid "the %s extension is not safe for parallel reading"
 msgstr "%s 擴充套件對於平行讀取是不安全的"
 
-#: sphinx/application.py:1253
+#: sphinx/application.py:1246
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel writing, "
@@ -170,12 +163,12 @@ msgid ""
 "explicit"
 msgstr "%s 擴充套件並未宣告平行寫入是否安全，假設為否 - 請尋求擴充套件作者以檢查並明確表示"
 
-#: sphinx/application.py:1257
+#: sphinx/application.py:1250
 #, python-format
 msgid "the %s extension is not safe for parallel writing"
 msgstr "%s 擴充套件對於平行寫入是不安全的"
 
-#: sphinx/application.py:1265 sphinx/application.py:1269
+#: sphinx/application.py:1258 sphinx/application.py:1262
 #, python-format
 msgid "doing serial %s"
 msgstr "執行串列 %s"
@@ -801,12 +794,12 @@ msgstr ""
 msgid "broken link: %s (%s)"
 msgstr ""
 
-#: sphinx/builders/linkcheck.py:454
+#: sphinx/builders/linkcheck.py:456
 #, python-format
 msgid "Anchor '%s' not found"
 msgstr ""
 
-#: sphinx/builders/linkcheck.py:690
+#: sphinx/builders/linkcheck.py:701
 #, python-format
 msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
 msgstr ""
@@ -924,7 +917,7 @@ msgstr ""
 
 #: sphinx/builders/html/__init__.py:469 sphinx/builders/latex/__init__.py:187
 #: sphinx/transforms/__init__.py:116 sphinx/writers/manpage.py:102
-#: sphinx/writers/texinfo.py:233
+#: sphinx/writers/texinfo.py:234
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%Y 年 %m 月 %d 日"
@@ -1108,7 +1101,7 @@ msgstr ""
 #: sphinx/themes/basic/genindex-split.html:14
 #: sphinx/themes/basic/genindex.html:11 sphinx/themes/basic/genindex.html:34
 #: sphinx/themes/basic/genindex.html:67 sphinx/themes/basic/layout.html:147
-#: sphinx/writers/texinfo.py:498
+#: sphinx/writers/texinfo.py:499
 msgid "Index"
 msgstr "索引"
 
@@ -1885,7 +1878,7 @@ msgid "%s (C %s)"
 msgstr "%s (C %s)"
 
 #: sphinx/domains/c.py:3336 sphinx/domains/cpp.py:7177
-#: sphinx/domains/python.py:432 sphinx/ext/napoleon/docstring.py:736
+#: sphinx/domains/python.py:446 sphinx/ext/napoleon/docstring.py:736
 msgid "Parameters"
 msgstr "參數"
 
@@ -1894,12 +1887,12 @@ msgid "Return values"
 msgstr "回傳值"
 
 #: sphinx/domains/c.py:3342 sphinx/domains/cpp.py:7186
-#: sphinx/domains/javascript.py:231 sphinx/domains/python.py:444
+#: sphinx/domains/javascript.py:231 sphinx/domains/python.py:458
 msgid "Returns"
 msgstr "回傳"
 
 #: sphinx/domains/c.py:3344 sphinx/domains/javascript.py:233
-#: sphinx/domains/python.py:446
+#: sphinx/domains/python.py:460
 msgid "Return type"
 msgstr "回傳型別"
 
@@ -1912,7 +1905,7 @@ msgid "variable"
 msgstr "變數"
 
 #: sphinx/domains/c.py:3742 sphinx/domains/cpp.py:7590
-#: sphinx/domains/javascript.py:340 sphinx/domains/python.py:1190
+#: sphinx/domains/javascript.py:340 sphinx/domains/python.py:1204
 msgid "function"
 msgstr "函式"
 
@@ -1990,7 +1983,7 @@ msgid "Throws"
 msgstr "拋出"
 
 #: sphinx/domains/cpp.py:7588 sphinx/domains/javascript.py:342
-#: sphinx/domains/python.py:1192
+#: sphinx/domains/python.py:1206
 msgid "class"
 msgstr "類別"
 
@@ -2007,7 +2000,7 @@ msgstr "模板參數"
 msgid "%s() (built-in function)"
 msgstr "%s() (內建函式)"
 
-#: sphinx/domains/javascript.py:147 sphinx/domains/python.py:829
+#: sphinx/domains/javascript.py:147 sphinx/domains/python.py:843
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (%s 的方法)"
@@ -2022,7 +2015,7 @@ msgstr "%s() (類別)"
 msgid "%s (global variable or constant)"
 msgstr "%s (全域變數或常數)"
 
-#: sphinx/domains/javascript.py:153 sphinx/domains/python.py:914
+#: sphinx/domains/javascript.py:153 sphinx/domains/python.py:928
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (%s 的屬性)"
@@ -2036,20 +2029,20 @@ msgstr "引數"
 msgid "%s (module)"
 msgstr "%s (模組)"
 
-#: sphinx/domains/javascript.py:341 sphinx/domains/python.py:1194
+#: sphinx/domains/javascript.py:341 sphinx/domains/python.py:1208
 msgid "method"
 msgstr "方法"
 
-#: sphinx/domains/javascript.py:343 sphinx/domains/python.py:1191
+#: sphinx/domains/javascript.py:343 sphinx/domains/python.py:1205
 msgid "data"
 msgstr "資料"
 
-#: sphinx/domains/javascript.py:344 sphinx/domains/python.py:1197
+#: sphinx/domains/javascript.py:344 sphinx/domains/python.py:1211
 msgid "attribute"
 msgstr "屬性"
 
 #: sphinx/domains/javascript.py:345 sphinx/domains/python.py:58
-#: sphinx/domains/python.py:1199
+#: sphinx/domains/python.py:1213
 msgid "module"
 msgstr "模組"
 
@@ -2063,7 +2056,7 @@ msgstr "%s 的重複 %s 敘述，其他的 %s 在 %s"
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "重複公式標籤 %s，亦出現於 %s"
 
-#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2073
+#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2071
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "無效的 math_eqref_format: %r"
@@ -2080,7 +2073,7 @@ msgstr "運算子"
 msgid "object"
 msgstr "物件"
 
-#: sphinx/domains/python.py:62 sphinx/domains/python.py:1193
+#: sphinx/domains/python.py:62 sphinx/domains/python.py:1207
 msgid "exception"
 msgstr "例外"
 
@@ -2092,92 +2085,92 @@ msgstr "陳述式"
 msgid "built-in function"
 msgstr "內建函式"
 
-#: sphinx/domains/python.py:437
+#: sphinx/domains/python.py:451
 msgid "Variables"
 msgstr "變數"
 
-#: sphinx/domains/python.py:441
+#: sphinx/domains/python.py:455
 msgid "Raises"
 msgstr "引發"
 
-#: sphinx/domains/python.py:674 sphinx/domains/python.py:818
+#: sphinx/domains/python.py:688 sphinx/domains/python.py:832
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (於 %s 模組中)"
 
-#: sphinx/domains/python.py:734 sphinx/domains/python.py:910
-#: sphinx/domains/python.py:961
+#: sphinx/domains/python.py:748 sphinx/domains/python.py:924
+#: sphinx/domains/python.py:975
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (於 %s 模組中)"
 
-#: sphinx/domains/python.py:736
+#: sphinx/domains/python.py:750
 #, python-format
 msgid "%s (built-in variable)"
 msgstr "%s (內建變數)"
 
-#: sphinx/domains/python.py:761
+#: sphinx/domains/python.py:775
 #, python-format
 msgid "%s (built-in class)"
 msgstr "%s (內建類別)"
 
-#: sphinx/domains/python.py:762
+#: sphinx/domains/python.py:776
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s (%s 中的類別)"
 
-#: sphinx/domains/python.py:823
+#: sphinx/domains/python.py:837
 #, python-format
 msgid "%s() (%s class method)"
 msgstr "%s() (%s 的類別方法)"
 
-#: sphinx/domains/python.py:825 sphinx/domains/python.py:965
+#: sphinx/domains/python.py:839 sphinx/domains/python.py:979
 #, python-format
 msgid "%s (%s property)"
 msgstr "%s (%s 的特性)"
 
-#: sphinx/domains/python.py:827
+#: sphinx/domains/python.py:841
 #, python-format
 msgid "%s() (%s static method)"
 msgstr "%s() (%s 的靜態方法)"
 
-#: sphinx/domains/python.py:1119
+#: sphinx/domains/python.py:1133
 msgid "Python Module Index"
 msgstr "Python 模組索引"
 
-#: sphinx/domains/python.py:1120
+#: sphinx/domains/python.py:1134
 msgid "modules"
 msgstr "模組"
 
-#: sphinx/domains/python.py:1169
+#: sphinx/domains/python.py:1183
 msgid "Deprecated"
 msgstr "已棄用"
 
-#: sphinx/domains/python.py:1195
+#: sphinx/domains/python.py:1209
 msgid "class method"
 msgstr "類別方法"
 
-#: sphinx/domains/python.py:1196
+#: sphinx/domains/python.py:1210
 msgid "static method"
 msgstr "靜態方法"
 
-#: sphinx/domains/python.py:1198
+#: sphinx/domains/python.py:1212
 msgid "property"
 msgstr "特性"
 
-#: sphinx/domains/python.py:1256
+#: sphinx/domains/python.py:1270
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr "%s 的重複物件敘述，其他的實例在 %s ，使用 :noindex: 給它們其中之一"
 
-#: sphinx/domains/python.py:1376
+#: sphinx/domains/python.py:1390
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "為交互參照 %r 找到多於一個目標： %s"
 
-#: sphinx/domains/python.py:1430
+#: sphinx/domains/python.py:1444
 msgid " (deprecated)"
 msgstr "（已棄用）"
 
@@ -2845,7 +2838,7 @@ msgstr ""
 msgid "error while formatting arguments for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1683
+#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1693
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr ""
@@ -2897,44 +2890,44 @@ msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr "缺少 :members: 選項中所述的屬性：模組 %s ，屬性 %s"
 
-#: sphinx/ext/autodoc/__init__.py:1304 sphinx/ext/autodoc/__init__.py:1378
-#: sphinx/ext/autodoc/__init__.py:2753
+#: sphinx/ext/autodoc/__init__.py:1306 sphinx/ext/autodoc/__init__.py:1383
+#: sphinx/ext/autodoc/__init__.py:2768
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "無法取得一個函式簽名給 %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1569
+#: sphinx/ext/autodoc/__init__.py:1576
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr "無法取得一個 constructor 簽名給 %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1670
+#: sphinx/ext/autodoc/__init__.py:1680
 #, python-format
 msgid "Bases: %s"
 msgstr "基礎類別：%s"
 
-#: sphinx/ext/autodoc/__init__.py:1764 sphinx/ext/autodoc/__init__.py:1837
-#: sphinx/ext/autodoc/__init__.py:1856
+#: sphinx/ext/autodoc/__init__.py:1774 sphinx/ext/autodoc/__init__.py:1847
+#: sphinx/ext/autodoc/__init__.py:1866
 #, python-format
 msgid "alias of %s"
 msgstr "%s 的別名"
 
-#: sphinx/ext/autodoc/__init__.py:1898
+#: sphinx/ext/autodoc/__init__.py:1908
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr "TypeVar(%s) 的別名"
 
-#: sphinx/ext/autodoc/__init__.py:2132 sphinx/ext/autodoc/__init__.py:2226
+#: sphinx/ext/autodoc/__init__.py:2144 sphinx/ext/autodoc/__init__.py:2241
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr "無法取得一個 method 簽名給 %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:2357
+#: sphinx/ext/autodoc/__init__.py:2372
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "在 %s 找到無效的 __slots__。已略過。"
 
-#: sphinx/ext/autodoc/__init__.py:2796
+#: sphinx/ext/autodoc/__init__.py:2811
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
@@ -3550,12 +3543,12 @@ msgid ""
 "it directly: %s"
 msgstr "無效的日期格式。如果您要直接將它輸出，則以單引號引用該字串： %s"
 
-#: sphinx/util/nodes.py:424
+#: sphinx/util/nodes.py:429
 #, python-format
 msgid "toctree contains ref to nonexisting file %r"
 msgstr "toctree 包含了不存在的檔案 %r 的參照 "
 
-#: sphinx/util/nodes.py:610
+#: sphinx/util/nodes.py:615
 #, python-format
 msgid "exception while evaluating only directive expression: %s"
 msgstr "在評估只有指令的運算式時發生例外： %s"
@@ -3612,27 +3605,27 @@ msgstr ":maxdepth: 太大，已略過。"
 msgid "document title is not a single Text node"
 msgstr "文件標題不是單一的 Text 節點"
 
-#: sphinx/writers/latex.py:676 sphinx/writers/texinfo.py:622
+#: sphinx/writers/latex.py:676 sphinx/writers/texinfo.py:626
 msgid ""
 "encountered title node not in section, topic, table, admonition or sidebar"
 msgstr "遇到的標題節點不是在段落、主題、表格、警告或側邊欄"
 
-#: sphinx/writers/latex.py:848 sphinx/writers/manpage.py:247
-#: sphinx/writers/texinfo.py:637
+#: sphinx/writers/latex.py:846 sphinx/writers/manpage.py:247
+#: sphinx/writers/texinfo.py:641
 msgid "Footnotes"
 msgstr "註腳"
 
-#: sphinx/writers/latex.py:907
+#: sphinx/writers/latex.py:905
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "同時被給予 tabularcolumns 及 :widths: 選項。 :widths: 已略過。"
 
-#: sphinx/writers/latex.py:1238
+#: sphinx/writers/latex.py:1236
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
 msgstr "維度單位 %s 是無效的。已略過。"
 
-#: sphinx/writers/latex.py:1551
+#: sphinx/writers/latex.py:1549
 #, python-format
 msgid "unknown index entry type %s found"
 msgstr "找到了未知的索引條目型別 %s"
@@ -3646,16 +3639,16 @@ msgstr "[圖片：%s]"
 msgid "[image]"
 msgstr "[圖片]"
 
-#: sphinx/writers/texinfo.py:1181
+#: sphinx/writers/texinfo.py:1193
 msgid "caption not inside a figure."
 msgstr "標題不在圖之內。"
 
-#: sphinx/writers/texinfo.py:1265
+#: sphinx/writers/texinfo.py:1281
 #, python-format
 msgid "unimplemented node type: %r"
 msgstr "未實作的節點型別： %r"
 
-#: sphinx/writers/texinfo.py:1269
+#: sphinx/writers/texinfo.py:1285
 #, python-format
 msgid "unknown node type: %r"
 msgstr "未知的節點型別： %r"

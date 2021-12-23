@@ -621,7 +621,7 @@ class BuildEnvironment:
 
     def check_consistency(self) -> None:
         """Do consistency checks."""
-        included = set().union(*self.included.values())  # type: ignore
+        included = set().union(*self.included.values())
         for docname in sorted(self.all_docs):
             if docname not in self.files_to_rebuild:
                 if docname == self.config.root_doc:

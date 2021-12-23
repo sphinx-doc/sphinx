@@ -13,16 +13,29 @@ Deprecated
 Features added
 --------------
 
+* #9075: autodoc: Add a config variable :confval:`autodoc_unqualified_typehints`
+  to suppress the leading module names of typehints of function signatures (ex.
+  ``io.StringIO`` -> ``StringIO``)
 * #9831: Autosummary now documents only the members specified in a module's
   ``__all__`` attribute if :confval:`autosummary_ignore_module_all` is set to
   ``False``. The default behaviour is unchanged. Autogen also now supports
   this behavior with the ``--respect-module-all`` switch.
 * #9800: extlinks: Emit warning if a hardcoded link is replaceable
   by an extlink, suggesting a replacement.
+* #9961: html: Support nested <kbd> HTML elements in other HTML builders
 * #9815: html theme: Wrap sidebar components in div to allow customizing their
   layout via CSS
 * #9899: py domain: Allows to specify cross-reference specifier (``.`` and
   ``~``) as ``:type:`` option
+* #9894: linkcheck: add option ``linkcheck_exclude_documents`` to disable link
+  checking in matched documents.
+* #9793: sphinx-build: Allow to use the parallel build feature in macOS on macOS
+  and Python3.8+
+* #9993: std domain: Allow to refer an inline target (ex. ``_`target name```)
+  via :rst:role:`ref` role
+* #9391: texinfo: improve variable in ``samp`` role
+* #9578: texinfo: Add :confval:`texinfo_cross_references` to disable cross
+  references for readability with standalone readers
 
 Bugs fixed
 ----------
@@ -31,14 +44,24 @@ Bugs fixed
 * #9883: autodoc: doccomment for the alias to mocked object was ignored
 * #9908: autodoc: debug message is shown on building document using NewTypes
   with Python 3.10
+* #9968: autodoc: instance variables are not shown if __init__ method has
+  position-only-arguments
+* #9947: i18n: topic directive having a bullet list can't be translatable
 * #9878: mathjax: MathJax configuration is placed after loading MathJax itself
 * #9857: Generated RFC links use outdated base url
 * #9909: HTML, prevent line-wrapping in literal text.
+* #9925: LaTeX: prohibit also with ``'xelatex'`` line splitting at dashes of
+  inline and parsed literals
+* #9944: LaTeX: extra vertical whitespace for some nested declarations
+* #9940: LaTeX: Multi-function declaration in Python domain has cramped
+  vertical spacing in latexpdf output
+* #9390: texinfo: Do not emit labels inside footnotes
+* #9979: Error level messages were displayed as warning messages
 
 Testing
 --------
 
-Release 4.3.2 (in development)
+Release 4.3.3 (in development)
 ==============================
 
 Dependencies
@@ -58,6 +81,15 @@ Bugs fixed
 
 Testing
 --------
+
+Release 4.3.2 (released Dec 19, 2021)
+=====================================
+
+Bugs fixed
+----------
+
+* #9917: C and C++, parse fundamental types no matter the order of simple type
+  specifiers.
 
 Release 4.3.1 (released Nov 28, 2021)
 =====================================

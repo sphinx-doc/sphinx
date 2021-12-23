@@ -314,7 +314,6 @@ def test_parse_annotation(app):
                           [desc_sig_punctuation, "]"]))
 
     doctree = _parse_annotation("Callable[[int, int], int]", app.env)
-    print(doctree)
     assert_node(doctree, ([pending_xref, "Callable"],
                           [desc_sig_punctuation, "["],
                           [desc_sig_punctuation, "["],
@@ -348,6 +347,18 @@ def test_parse_annotation(app):
     doctree = _parse_annotation("None", app.env)
     assert_node(doctree, ([pending_xref, "None"],))
     assert_node(doctree[0], pending_xref, refdomain="py", reftype="obj", reftarget="None")
+
+
+def test_parse_annotation_suppress(app):
+    doctree = _parse_annotation("~typing.Dict[str, str]", app.env)
+    assert_node(doctree, ([pending_xref, "Dict"],
+                          [desc_sig_punctuation, "["],
+                          [pending_xref, "str"],
+                          [desc_sig_punctuation, ","],
+                          desc_sig_space,
+                          [pending_xref, "str"],
+                          [desc_sig_punctuation, "]"]))
+    assert_node(doctree[0], pending_xref, refdomain="py", reftype="class", reftarget="typing.Dict")
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')

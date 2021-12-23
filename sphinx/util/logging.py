@@ -111,14 +111,21 @@ class SphinxInfoLogRecord(SphinxLogRecord):
 
 class SphinxWarningLogRecord(SphinxLogRecord):
     """Warning log record class supporting location"""
-    prefix = 'WARNING: '
+    @property
+    def prefix(self) -> str:  # type: ignore
+        if self.levelno >= logging.CRITICAL:
+            return 'CRITICAL: '
+        elif self.levelno >= logging.ERROR:
+            return 'ERROR: '
+        else:
+            return 'WARNING: '
 
 
 class SphinxLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
     KEYWORDS = ['type', 'subtype', 'location', 'nonl', 'color', 'once']
 
-    def log(self, level: Union[int, str], msg: str, *args: Any, **kwargs: Any) -> None:
+    def log(self, level: Union[int, str], msg: str, *args: Any, **kwargs: Any) -> None:  # type: ignore # NOQA
         if isinstance(level, int):
             super().log(level, msg, *args, **kwargs)
         else:

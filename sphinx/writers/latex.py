@@ -757,9 +757,7 @@ class LaTeXTranslator(SphinxTranslator):
         self._depart_signature_line(node)
 
     def visit_desc_content(self, node: Element) -> None:
-        if node.children and not isinstance(node.children[0], nodes.paragraph):
-            # avoid empty desc environment which causes a formatting bug
-            self.body.append('~')
+        pass
 
     def depart_desc_content(self, node: Element) -> None:
         pass

@@ -8,6 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import itertools
 import zlib
 from xml.etree import ElementTree
 
@@ -329,6 +330,13 @@ def test_domain_c_ast_fundamental_types():
         input = "{key}%s foo" % t
         output = ' '.join(input.split())
         check('type', input, {1: 'foo'}, key='typedef', output=output)
+        if ' ' in t:
+            # try permutations of all components
+            tcs = t.split()
+            for p in itertools.permutations(tcs):
+                input = "{key}%s foo" % ' '.join(p)
+                output = ' '.join(input.split())
+                check("type", input, {1: 'foo'}, key='typedef', output=output)
 
 
 def test_domain_c_ast_type_definitions():
@@ -587,10 +595,7 @@ def test_domain_c_ast_attributes():
 
 def test_extra_keywords():
     with pytest.raises(DefinitionError,
-                       match='Expected identifier, got user-defined keyword: complex.'):
-        parse('function', 'void f(int complex)')
-    with pytest.raises(DefinitionError,
-                       match='Expected identifier, got user-defined keyword: complex.'):
+                       match='Expected identifier in nested name'):
         parse('function', 'void complex(void)')
 
 
