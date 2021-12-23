@@ -134,7 +134,7 @@ def unwrap_all(obj: Any, *, stop: Callable = None) -> Any:
         elif ispartial(obj):
             obj = obj.func
         elif inspect.isroutine(obj) and hasattr(obj, '__wrapped__'):
-            obj = obj.__wrapped__
+            obj = obj.__wrapped__  # type: ignore
         elif isclassmethod(obj):
             obj = obj.__func__
         elif isstaticmethod(obj):
@@ -692,7 +692,7 @@ def signature(subject: Callable, bound_method: bool = False, follow_wrapped: boo
     #
     # For example, this helps a function having a default value `inspect._empty`.
     # refs: https://github.com/sphinx-doc/sphinx/issues/7935
-    return inspect.Signature(parameters, return_annotation=return_annotation,  # type: ignore
+    return inspect.Signature(parameters, return_annotation=return_annotation,
                              __validate_parameters__=False)
 
 
@@ -820,14 +820,14 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
         positionals = len(args.args)
 
     for _ in range(len(defaults), positionals):
-        defaults.insert(0, Parameter.empty)
+        defaults.insert(0, Parameter.empty)  # type: ignore
 
     if hasattr(args, "posonlyargs"):
         for i, arg in enumerate(args.posonlyargs):  # type: ignore
             if defaults[i] is Parameter.empty:
                 default = Parameter.empty
             else:
-                default = DefaultValue(ast_unparse(defaults[i], code))
+                default = DefaultValue(ast_unparse(defaults[i], code))  # type: ignore
 
             annotation = ast_unparse(arg.annotation, code) or Parameter.empty
             params.append(Parameter(arg.arg, Parameter.POSITIONAL_ONLY,
@@ -837,7 +837,7 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
         if defaults[i + posonlyargs] is Parameter.empty:
             default = Parameter.empty
         else:
-            default = DefaultValue(ast_unparse(defaults[i + posonlyargs], code))
+            default = DefaultValue(ast_unparse(defaults[i + posonlyargs], code))  # type: ignore  # NOQA
 
         annotation = ast_unparse(arg.annotation, code) or Parameter.empty
         params.append(Parameter(arg.arg, Parameter.POSITIONAL_OR_KEYWORD,
@@ -849,7 +849,7 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
                                 annotation=annotation))
 
     for i, arg in enumerate(args.kwonlyargs):
-        default = ast_unparse(args.kw_defaults[i], code) or Parameter.empty
+        default = ast_unparse(args.kw_defaults[i], code) or Parameter.empty  # type: ignore
         annotation = ast_unparse(arg.annotation, code) or Parameter.empty
         params.append(Parameter(arg.arg, Parameter.KEYWORD_ONLY, default=default,
                                 annotation=annotation))
