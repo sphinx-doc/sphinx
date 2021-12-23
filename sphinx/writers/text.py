@@ -16,7 +16,7 @@ from typing import (TYPE_CHECKING, Any, Dict, Generator, Iterable, List, Optiona
                     Union, cast)
 
 from docutils import nodes, writers
-from docutils.nodes import Element, Node, Text
+from docutils.nodes import Element, Text
 from docutils.utils import column_width
 
 from sphinx import addnodes
