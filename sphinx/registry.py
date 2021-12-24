@@ -147,9 +147,9 @@ class SphinxComponentRegistry:
             return
 
         if name not in self.builders:
-            builder_eps = entry_points(group='sphinx.builders')
+            builder_entry_points = entry_points(group='sphinx.builders')
             try:
-                entry_point = builder_eps[name]
+                entry_point = builder_entry_points[name]
             except KeyError as exc:
                 raise SphinxError(__('Builder name %s not registered or available'
                                      ' through entry point') % name) from exc

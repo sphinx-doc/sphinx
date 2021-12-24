@@ -204,9 +204,9 @@ class HTMLThemeFactory:
         Sphinx refers to ``sphinx_themes`` entry_points.
         """
         # look up for new styled entry_points at first
-        theme_eps = entry_points(group='sphinx.html_themes')
+        theme_entry_points = entry_points(group='sphinx.html_themes')
         try:
-            entry_point = theme_eps[name]
+            entry_point = theme_entry_points[name]
             self.app.registry.load_extension(self.app, entry_point.module)
             return
         except KeyError:
