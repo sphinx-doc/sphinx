@@ -130,4 +130,4 @@ def test_subclass_of_mocked_object(app):
 
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.need_mocks', options)
-    assert '.. py:class:: Inherited(*args: Any, **kwargs: Any)' in actual
+    assert '.. py:class:: Inherited(*args: typing.Any, **kwargs: typing.Any)' in actual

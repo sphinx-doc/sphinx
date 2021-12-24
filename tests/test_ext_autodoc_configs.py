@@ -612,7 +612,7 @@ def test_autodoc_typehints_signature(app):
         '   :type: int',
         '',
         '',
-        '.. py:class:: Math(s: str, o: Optional[Any] = None)',
+        '.. py:class:: Math(s: str, o: typing.Optional[typing.Any] = None)',
         '   :module: target.typehints',
         '',
         '',
@@ -677,7 +677,8 @@ def test_autodoc_typehints_signature(app):
         '   :module: target.typehints',
         '',
         '',
-        '.. py:function:: tuple_args(x: Tuple[int, Union[int, str]]) -> Tuple[int, int]',
+        '.. py:function:: tuple_args(x: typing.Tuple[int, typing.Union[int, str]]) '
+        '-> typing.Tuple[int, int]',
         '   :module: target.typehints',
         '',
     ]

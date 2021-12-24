@@ -197,41 +197,53 @@ def test_stringify():
     assert stringify(TracebackType, True) == "~types.TracebackType"
 
     assert stringify(Any, False) == "Any"
+    assert stringify(Any, False, True) == "typing.Any"
     assert stringify(Any, True) == "~typing.Any"
 
 
 def test_stringify_type_hints_containers():
     assert stringify(List, False) == "List"
+    assert stringify(List, False, True) == "typing.List"
     assert stringify(List, True) == "~typing.List"
 
     assert stringify(Dict, False) == "Dict"
+    assert stringify(Dict, False, True) == "typing.Dict"
     assert stringify(Dict, True) == "~typing.Dict"
 
     assert stringify(List[int], False) == "List[int]"
+    assert stringify(List[int], False, True) == "typing.List[int]"
     assert stringify(List[int], True) == "~typing.List[int]"
 
     assert stringify(List[str], False) == "List[str]"
+    assert stringify(List[str], False, True) == "typing.List[str]"
     assert stringify(List[str], True) == "~typing.List[str]"
 
     assert stringify(Dict[str, float], False) == "Dict[str, float]"
+    assert stringify(Dict[str, float], False, True) == "typing.Dict[str, float]"
     assert stringify(Dict[str, float], True) == "~typing.Dict[str, float]"
 
     assert stringify(Tuple[str, str, str], False) == "Tuple[str, str, str]"
+    assert stringify(Tuple[str, str, str], False, True) == "typing.Tuple[str, str, str]"
     assert stringify(Tuple[str, str, str], True) == "~typing.Tuple[str, str, str]"
 
     assert stringify(Tuple[str, ...], False) == "Tuple[str, ...]"
+    assert stringify(Tuple[str, ...], False, True) == "typing.Tuple[str, ...]"
     assert stringify(Tuple[str, ...], True) == "~typing.Tuple[str, ...]"
 
     assert stringify(Tuple[()], False) == "Tuple[()]"
+    assert stringify(Tuple[()], False, True) == "typing.Tuple[()]"
     assert stringify(Tuple[()], True) == "~typing.Tuple[()]"
 
     assert stringify(List[Dict[str, Tuple]], False) == "List[Dict[str, Tuple]]"
+    assert stringify(List[Dict[str, Tuple]], False, True) == "typing.List[typing.Dict[str, typing.Tuple]]"
     assert stringify(List[Dict[str, Tuple]], True) == "~typing.List[~typing.Dict[str, ~typing.Tuple]]"
 
     assert stringify(MyList[Tuple[int, int]], False) == "tests.test_util_typing.MyList[Tuple[int, int]]"
+    assert stringify(MyList[Tuple[int, int]], False, True) == "tests.test_util_typing.MyList[typing.Tuple[int, int]]"
     assert stringify(MyList[Tuple[int, int]], True) == "~tests.test_util_typing.MyList[~typing.Tuple[int, int]]"
 
     assert stringify(Generator[None, None, None], False) == "Generator[None, None, None]"
+    assert stringify(Generator[None, None, None], False, True) == "typing.Generator[None, None, None]"
     assert stringify(Generator[None, None, None], True) == "~typing.Generator[None, None, None]"
 
 
@@ -288,45 +300,58 @@ def test_stringify_type_hints_string():
 
 def test_stringify_type_hints_Callable():
     assert stringify(Callable, False) == "Callable"
+    assert stringify(Callable, False, True) == "typing.Callable"
     assert stringify(Callable, True) == "~typing.Callable"
 
     if sys.version_info >= (3, 7):
         assert stringify(Callable[[str], int], False) == "Callable[[str], int]"
+        assert stringify(Callable[[str], int], False, True) == "typing.Callable[[str], int]"
         assert stringify(Callable[[str], int], True) == "~typing.Callable[[str], int]"
 
         assert stringify(Callable[..., int], False) == "Callable[[...], int]"
+        assert stringify(Callable[..., int], False, True) == "typing.Callable[[...], int]"
         assert stringify(Callable[..., int], True) == "~typing.Callable[[...], int]"
     else:
         assert stringify(Callable[[str], int], False) == "Callable[str, int]"
+        assert stringify(Callable[[str], int], False, True) == "typing.Callable[str, int]"
         assert stringify(Callable[[str], int], True) == "~typing.Callable[str, int]"
 
         assert stringify(Callable[..., int], False) == "Callable[..., int]"
+        assert stringify(Callable[..., int], False, True) == "typing.Callable[..., int]"
         assert stringify(Callable[..., int], True) == "~typing.Callable[..., int]"
 
 
 def test_stringify_type_hints_Union():
     assert stringify(Optional[int], False) == "Optional[int]"
+    assert stringify(Optional[int], False, True) == "typing.Optional[int]"
     assert stringify(Optional[int], True) == "~typing.Optional[int]"
 
     assert stringify(Union[str, None], False) == "Optional[str]"
+    assert stringify(Union[str, None], False, True) == "typing.Optional[str]"
     assert stringify(Union[str, None], True) == "~typing.Optional[str]"
 
     assert stringify(Union[int, str], False) == "Union[int, str]"
+    assert stringify(Union[int, str], False, True) == "typing.Union[int, str]"
     assert stringify(Union[int, str], True) == "~typing.Union[int, str]"
 
     if sys.version_info >= (3, 7):
         assert stringify(Union[int, Integral], False) == "Union[int, numbers.Integral]"
+        assert stringify(Union[int, Integral], False, True) == "typing.Union[int, numbers.Integral]"
         assert stringify(Union[int, Integral], True) == "~typing.Union[int, ~numbers.Integral]"
 
         assert (stringify(Union[MyClass1, MyClass2], False) ==
                 "Union[tests.test_util_typing.MyClass1, tests.test_util_typing.<MyClass2>]")
+        assert (stringify(Union[MyClass1, MyClass2], False, True) ==
+                "typing.Union[tests.test_util_typing.MyClass1, tests.test_util_typing.<MyClass2>]")
         assert (stringify(Union[MyClass1, MyClass2], True) ==
                 "~typing.Union[~tests.test_util_typing.MyClass1, ~tests.test_util_typing.<MyClass2>]")
     else:
         assert stringify(Union[int, Integral], False) == "numbers.Integral"
+        assert stringify(Union[int, Integral], False, True) == "numbers.Integral"
         assert stringify(Union[int, Integral], True) == "~numbers.Integral"
 
         assert stringify(Union[MyClass1, MyClass2], False) == "tests.test_util_typing.MyClass1"
+        assert stringify(Union[MyClass1, MyClass2], False, True) == "tests.test_util_typing.MyClass1"
         assert stringify(Union[MyClass1, MyClass2], True) == "~tests.test_util_typing.MyClass1"
 
 
@@ -391,6 +416,7 @@ def test_stringify_type_hints_alias():
 def test_stringify_type_Literal():
     from typing import Literal  # type: ignore
     assert stringify(Literal[1, "2", "\r"], False) == "Literal[1, '2', '\\r']"
+    assert stringify(Literal[1, "2", "\r"], False, True) == "typing.Literal[1, '2', '\\r']"
     assert stringify(Literal[1, "2", "\r"], True) == "~typing.Literal[1, '2', '\\r']"
 
 
