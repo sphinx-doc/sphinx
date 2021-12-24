@@ -13,7 +13,7 @@ Deprecated
 Features added
 --------------
 
-* #9075: autodoc: Add a config variable :confval:`autodoc_unqualified_typehints`
+* #9075: autodoc: Add a config variable :confval:`autodoc_typehints_format`
   to suppress the leading module names of typehints of function signatures (ex.
   ``io.StringIO`` -> ``StringIO``)
 * #9831: Autosummary now documents only the members specified in a module's
