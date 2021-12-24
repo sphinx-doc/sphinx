@@ -11,7 +11,7 @@
 from typing import Any, Dict, Iterable, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node, TextElement
+from docutils.nodes import Element, TextElement
 from docutils.writers.manpage import Translator as BaseTranslator
 from docutils.writers.manpage import Writer
 
@@ -107,7 +107,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
         # Overwrite admonition label translations with our own
         for label, translation in admonitionlabels.items():
-            self.language.labels[label] = self.deunicode(translation)  # type: ignore
+            self.language.labels[label] = self.deunicode(translation)
 
     # overwritten -- added quotes around all .TH arguments
     def header(self) -> str:
@@ -462,6 +462,3 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     def depart_math_block(self, node: Element) -> None:
         self.depart_centered(node)
-
-    def unknown_visit(self, node: Node) -> None:
-        raise NotImplementedError('Unknown node: ' + node.__class__.__name__)

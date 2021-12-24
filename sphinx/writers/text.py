@@ -16,7 +16,7 @@ from typing import (TYPE_CHECKING, Any, Dict, Generator, Iterable, List, Optiona
                     Union, cast)
 
 from docutils import nodes, writers
-from docutils.nodes import Element, Node, Text
+from docutils.nodes import Element, Text
 from docutils.utils import column_width
 
 from sphinx import addnodes
@@ -1189,6 +1189,3 @@ class TextTranslator(SphinxTranslator):
 
     def depart_math_block(self, node: Element) -> None:
         self.end_state()
-
-    def unknown_visit(self, node: Node) -> None:
-        raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
