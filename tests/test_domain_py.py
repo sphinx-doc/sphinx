@@ -350,7 +350,7 @@ def test_parse_annotation(app):
 
     # Literal type makes an object-reference (not a class reference)
     doctree = _parse_annotation("typing.Literal['a', 'b']", app.env)
-    assert_node(doctree, ([pending_xref, "typing.Literal"],
+    assert_node(doctree, ([pending_xref, "Literal"],
                           [desc_sig_punctuation, "["],
                           [desc_sig_literal_string, "'a'"],
                           [desc_sig_punctuation, ","],
@@ -384,7 +384,7 @@ def test_parse_annotation_Literal(app):
                           [desc_sig_punctuation, "]"]))
 
     doctree = _parse_annotation("typing.Literal[0, 1, 'abc']", app.env)
-    assert_node(doctree, ([pending_xref, "typing.Literal"],
+    assert_node(doctree, ([pending_xref, "Literal"],
                           [desc_sig_punctuation, "["],
                           [desc_sig_literal_number, "0"],
                           [desc_sig_punctuation, ","],

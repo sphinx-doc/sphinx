@@ -105,6 +105,8 @@ def type_to_xref(target: str, env: BuildEnvironment = None, suppress_prefix: boo
         text = target.split('.')[-1]
     elif suppress_prefix:
         text = target.split('.')[-1]
+    elif target.startswith('typing.'):
+        text = target[7:]
     else:
         text = target
 
@@ -1488,7 +1490,7 @@ def builtin_resolver(app: Sphinx, env: BuildEnvironment,
         return None
     elif node.get('reftype') in ('class', 'obj') and node.get('reftarget') == 'None':
         return contnode
-    elif node.get('reftype') in ('class', 'exc'):
+    elif node.get('reftype') in ('class', 'obj', 'exc'):
         reftarget = node.get('reftarget')
         if inspect.isclass(getattr(builtins, reftarget, None)):
             # built-in class
