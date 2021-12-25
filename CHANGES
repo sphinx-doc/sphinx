@@ -4,6 +4,9 @@ Release 4.4.0 (in development)
 Dependencies
 ------------
 
+* #10007: Use ``importlib_metadata`` for python-3.9 or older
+* #10007: Drop ``setuptools``
+
 Incompatible changes
 --------------------
 
