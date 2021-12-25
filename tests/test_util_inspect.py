@@ -162,8 +162,10 @@ def test_signature_annotations():
     # TypeVars and generic types with TypeVars
     sig = inspect.signature(f2)
     if sys.version_info < (3, 7):
-        assert stringify_signature(sig) == ('(x: typing.List[T], y: typing.List[T_co], z: T) '
-                                            '-> typing.List[T_contra]')
+        assert stringify_signature(sig) == ('(x: typing.List[typing.T],'
+                                            ' y: typing.List[typing.T_co],'
+                                            ' z: typing.T'
+                                            ') -> typing.List[typing.T_contra]')
     else:
         assert stringify_signature(sig) == ('(x: typing.List[tests.typing_test_data.T],'
                                             ' y: typing.List[tests.typing_test_data.T_co],'
