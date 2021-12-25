@@ -930,7 +930,8 @@ class Sphinx:
         """
         self.registry.add_post_transform(transform)
 
-    def add_js_file(self, filename: str, priority: int = 500, **kwargs: Any) -> None:
+    def add_js_file(self, filename: str, priority: int = 500,
+                    loading_method: Optional[str] = None, **kwargs: Any) -> None:
         """Register a JavaScript file to include in the HTML output.
 
         :param filename: The filename of the JavaScript file.  It must be relative to the HTML
@@ -942,6 +943,8 @@ class Sphinx:
                          files" below.  If the priority of the JavaScript files it the same
                          as others, the JavaScript files will be loaded in order of
                          registration.
+        :param loading_method: The loading method of the JavaScript file.  ``'async'`` or
+                               ``'defer'`` is allowed.
         :param kwargs: Extra keyword arguments are included as attributes of the ``<script>``
                        tag.  A special keyword argument ``body`` is given, its value will be
                        added between the ``<script>`` tag.
@@ -951,7 +954,7 @@ class Sphinx:
             app.add_js_file('example.js')
             # => <script src="_static/example.js"></script>
 
-            app.add_js_file('example.js', async="async")
+            app.add_js_file('example.js', loading_method="async")
             # => <script src="_static/example.js" async="async"></script>
 
             app.add_js_file(None, body="var myVariable = 'foo';")
@@ -980,7 +983,15 @@ class Sphinx:
 
         .. versionchanged:: 3.5
            Take priority argument.  Allow to add a JavaScript file to the specific page.
+        .. versionchanged:: 4.4
+           Take loading_method argument.  Allow to change the loading method of the
+           JavaScript file.
         """
+        if loading_method == 'async':
+            kwargs['async'] = 'async'
+        elif loading_method == 'defer':
+            kwargs['defer'] = 'defer'
+
         self.registry.add_js_file(filename, priority=priority, **kwargs)
         if hasattr(self.builder, 'add_js_file'):
             self.builder.add_js_file(filename, priority=priority, **kwargs)  # type: ignore
