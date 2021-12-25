@@ -933,14 +933,18 @@ class Sphinx:
     def add_js_file(self, filename: str, priority: int = 500, **kwargs: Any) -> None:
         """Register a JavaScript file to include in the HTML output.
 
-        Add *filename* to the list of JavaScript files that the default HTML
-        template will include in order of *priority* (ascending).  The filename
-        must be relative to the HTML static path , or a full URI with scheme.
-        If the priority of the JavaScript file is the same as others, the JavaScript
-        files will be included in order of registration.  If the keyword
-        argument ``body`` is given, its value will be added between the
-        ``<script>`` tags. Extra keyword arguments are included as attributes of
-        the ``<script>`` tag.
+        :param filename: The filename of the JavaScript file.  It must be relative to the HTML
+                         static path, a full URI with scheme, or ``None`` value.  The ``None``
+                         value is used to create inline ``<script>`` tag.  See the description
+                         of *kwargs* below.
+        :param priority: The priority to determine the order of ``<script>`` tag for
+                         JavaScript files.  See list of "prority range for JavaScript
+                         files" below.  If the priority of the JavaScript files it the same
+                         as others, the JavaScript files will be loaded in order of
+                         registration.
+        :param kwargs: Extra keyword arguments are included as attributes of the ``<script>``
+                       tag.  A special keyword argument ``body`` is given, its value will be
+                       added between the ``<script>`` tag.
 
         Example::
 
@@ -984,12 +988,14 @@ class Sphinx:
     def add_css_file(self, filename: str, priority: int = 500, **kwargs: Any) -> None:
         """Register a stylesheet to include in the HTML output.
 
-        Add *filename* to the list of CSS files that the default HTML template
-        will include in order of *priority* (ascending).  The filename must be
-        relative to the HTML static path, or a full URI with scheme.  If the
-        priority of the CSS file is the same as others, the CSS files will be
-        included in order of registration.  The keyword arguments are also
-        accepted for attributes of ``<link>`` tag.
+        :param filename: The filename of the CSS file.  It must be relative to the HTML
+                         static path, or a full URI with scheme.
+        :param priority: The priority to determine the order of ``<link>`` tag for the
+                         CSS files.  See list of "prority range for CSS files" below.
+                         If the priority of the CSS files it the same as others, the
+                         CSS files will be loaded in order of registration.
+        :param kwargs: Extra keyword arguments are included as attributes of the ``<link>``
+                       tag.
 
         Example::
 
