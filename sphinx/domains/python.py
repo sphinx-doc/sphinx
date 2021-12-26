@@ -362,27 +362,27 @@ class PyXrefMixin:
         result = super().make_xref(rolename, domain, target,  # type: ignore
                                    innernode, contnode,
                                    env, inliner=None, location=None)
-        result['refspecific'] = True
-        result['py:module'] = env.ref_context.get('py:module')
-        result['py:class'] = env.ref_context.get('py:class')
-        if target.startswith(('.', '~')):
-            prefix, result['reftarget'] = target[0], target[1:]
-            if prefix == '.':
-                text = target[1:]
-            elif prefix == '~':
-                text = target.split('.')[-1]
-            for node in list(result.traverse(nodes.Text)):
-                node.parent[node.parent.index(node)] = nodes.Text(text)
-                break
-        elif isinstance(result, pending_xref) and env.config.python_use_unqualified_type_names:
-            children = result.children
-            result.clear()
+        if isinstance(result, pending_xref):
+            result['refspecific'] = True
+            result['py:module'] = env.ref_context.get('py:module')
+            result['py:class'] = env.ref_context.get('py:class')
 
-            shortname = target.split('.')[-1]
-            textnode = innernode('', shortname)
-            contnodes = [pending_xref_condition('', '', textnode, condition='resolved'),
-                         pending_xref_condition('', '', *children, condition='*')]
-            result.extend(contnodes)
+            reftype, reftarget, reftitle, _ = parse_reftarget(target)
+            if reftarget != reftitle:
+                result['reftype'] = reftype
+                result['reftarget'] = reftarget
+
+                result.clear()
+                result += innernode(reftitle, reftitle)
+            elif env.config.python_use_unqualified_type_names:
+                children = result.children
+                result.clear()
+
+                shortname = target.split('.')[-1]
+                textnode = innernode('', shortname)
+                contnodes = [pending_xref_condition('', '', textnode, condition='resolved'),
+                             pending_xref_condition('', '', *children, condition='*')]
+                result.extend(contnodes)
 
         return result
 
@@ -415,16 +415,7 @@ class PyXrefMixin:
 
 
 class PyField(PyXrefMixin, Field):
-    def make_xref(self, rolename: str, domain: str, target: str,
-                  innernode: Type[TextlikeNode] = nodes.emphasis,
-                  contnode: Node = None, env: BuildEnvironment = None,
-                  inliner: Inliner = None, location: Node = None) -> Node:
-        if rolename == 'class' and target == 'None':
-            # None is not a type, so use obj role instead.
-            rolename = 'obj'
-
-        return super().make_xref(rolename, domain, target, innernode, contnode,
-                                 env, inliner, location)
+    pass
 
 
 class PyGroupedField(PyXrefMixin, GroupedField):
@@ -432,16 +423,7 @@ class PyGroupedField(PyXrefMixin, GroupedField):
 
 
 class PyTypedField(PyXrefMixin, TypedField):
-    def make_xref(self, rolename: str, domain: str, target: str,
-                  innernode: Type[TextlikeNode] = nodes.emphasis,
-                  contnode: Node = None, env: BuildEnvironment = None,
-                  inliner: Inliner = None, location: Node = None) -> Node:
-        if rolename == 'class' and target == 'None':
-            # None is not a type, so use obj role instead.
-            rolename = 'obj'
-
-        return super().make_xref(rolename, domain, target, innernode, contnode,
-                                 env, inliner, location)
+    pass
 
 
 class PyObject(ObjectDescription[Tuple[str, str]]):

@@ -59,6 +59,8 @@ Bugs fixed
 * #9944: LaTeX: extra vertical whitespace for some nested declarations
 * #9940: LaTeX: Multi-function declaration in Python domain has cramped
   vertical spacing in latexpdf output
+* #10015: py domain: types under the "typing" module are not hyperlinked defined
+  at info-field-list
 * #9390: texinfo: Do not emit labels inside footnotes
 * #9979: Error level messages were displayed as warning messages
 
