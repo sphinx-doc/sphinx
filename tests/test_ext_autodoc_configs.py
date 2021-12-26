@@ -835,7 +835,7 @@ def test_autodoc_typehints_description(app):
             '      **x** (*Tuple**[**int**, **Union**[**int**, **str**]**]*) --\n'
             '\n'
             '   Return type:\n'
-            '      Tuple[int, int]\n'
+            '      *Tuple*[int, int]\n'
             in context)
 
     # Overloads still get displayed in the signature
@@ -887,7 +887,7 @@ def test_autodoc_typehints_description_no_undoc(app):
             '      another tuple\n'
             '\n'
             '   Return type:\n'
-            '      Tuple[int, int]\n'
+            '      *Tuple*[int, int]\n'
             in context)
 
 
@@ -978,7 +978,7 @@ def test_autodoc_typehints_both(app):
             '      **x** (*Tuple**[**int**, **Union**[**int**, **str**]**]*) --\n'
             '\n'
             '   Return type:\n'
-            '      Tuple[int, int]\n'
+            '      *Tuple*[int, int]\n'
             in context)
 
     # Overloads still get displayed in the signature
