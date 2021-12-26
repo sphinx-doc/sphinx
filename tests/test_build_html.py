@@ -1195,6 +1195,20 @@ def test_assets_order(app):
     assert re.search(pattern, content, re.S)
 
 
+@pytest.mark.sphinx('html', testroot='html_assets')
+def test_javscript_loading_method(app):
+    app.add_js_file('normal.js')
+    app.add_js_file('early.js', loading_method='async')
+    app.add_js_file('late.js', loading_method='defer')
+
+    app.builder.build_all()
+    content = (app.outdir / 'index.html').read_text()
+
+    assert '<script src="_static/normal.js"></script>' in content
+    assert '<script async="async" src="_static/early.js"></script>' in content
+    assert '<script defer="defer" src="_static/late.js"></script>' in content
+
+
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_copy_source': False})
 def test_html_copy_source(app):
     app.builder.build_all()
