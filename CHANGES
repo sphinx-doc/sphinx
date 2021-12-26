@@ -49,6 +49,7 @@ Bugs fixed
   with Python 3.10
 * #9968: autodoc: instance variables are not shown if __init__ method has
   position-only-arguments
+* #9194: autodoc: types under the "typing" module are not hyperlinked
 * #9947: i18n: topic directive having a bullet list can't be translatable
 * #9878: mathjax: MathJax configuration is placed after loading MathJax itself
 * #9857: Generated RFC links use outdated base url

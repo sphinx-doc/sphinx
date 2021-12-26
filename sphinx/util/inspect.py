@@ -753,6 +753,11 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
     :param unqualified_typehints: If enabled, show annotations as unqualified
                                   (ex. io.StringIO -> StringIO)
     """
+    if unqualified_typehints:
+        mode = 'smart'
+    else:
+        mode = 'fully-qualified'
+
     args = []
     last_kind = None
     for param in sig.parameters.values():
@@ -775,7 +780,7 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
 
         if show_annotation and param.annotation is not param.empty:
             arg.write(': ')
-            arg.write(stringify_annotation(param.annotation, unqualified_typehints))
+            arg.write(stringify_annotation(param.annotation, mode))
         if param.default is not param.empty:
             if show_annotation and param.annotation is not param.empty:
                 arg.write(' = ')
@@ -795,7 +800,7 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
             show_return_annotation is False):
         return '(%s)' % ', '.join(args)
     else:
-        annotation = stringify_annotation(sig.return_annotation, unqualified_typehints)
+        annotation = stringify_annotation(sig.return_annotation, mode)
         return '(%s) -> %s' % (', '.join(args), annotation)
 
 

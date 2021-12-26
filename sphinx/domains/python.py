@@ -83,7 +83,8 @@ class ModuleEntry(NamedTuple):
 def type_to_xref(target: str, env: BuildEnvironment = None, suppress_prefix: bool = False
                  ) -> addnodes.pending_xref:
     """Convert a type string to a cross reference node."""
-    if target == 'None':
+    if target == 'None' or target.startswith('typing.'):
+        # typing module provides non-class types.  Obj reference is good to refer them.
         reftype = 'obj'
     else:
         reftype = 'class'
@@ -104,6 +105,8 @@ def type_to_xref(target: str, env: BuildEnvironment = None, suppress_prefix: boo
         text = target.split('.')[-1]
     elif suppress_prefix:
         text = target.split('.')[-1]
+    elif target.startswith('typing.'):
+        text = target[7:]
     else:
         text = target
 
@@ -203,10 +206,16 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
             return result
         else:
             if sys.version_info < (3, 8):
-                if isinstance(node, ast.Ellipsis):
+                if isinstance(node, ast.Bytes):
+                    return [addnodes.desc_sig_literal_string('', repr(node.s))]
+                elif isinstance(node, ast.Ellipsis):
                     return [addnodes.desc_sig_punctuation('', "...")]
                 elif isinstance(node, ast.NameConstant):
                     return [nodes.Text(node.value)]
+                elif isinstance(node, ast.Num):
+                    return [addnodes.desc_sig_literal_string('', repr(node.n))]
+                elif isinstance(node, ast.Str):
+                    return [addnodes.desc_sig_literal_string('', repr(node.s))]
 
             raise SyntaxError  # unsupported syntax
 
@@ -1481,7 +1490,7 @@ def builtin_resolver(app: Sphinx, env: BuildEnvironment,
         return None
     elif node.get('reftype') in ('class', 'obj') and node.get('reftarget') == 'None':
         return contnode
-    elif node.get('reftype') in ('class', 'exc'):
+    elif node.get('reftype') in ('class', 'obj', 'exc'):
         reftarget = node.get('reftarget')
         if inspect.isclass(getattr(builtins, reftarget, None)):
             # built-in class
