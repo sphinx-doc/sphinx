@@ -1295,7 +1295,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
     def format_args(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
-        if self.config.autodoc_unqualified_typehints:
+        if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
 
         try:
@@ -1325,7 +1325,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             self.add_line('   :async:', sourcename)
 
     def format_signature(self, **kwargs: Any) -> str:
-        if self.config.autodoc_unqualified_typehints:
+        if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
 
         sigs = []
@@ -1566,7 +1566,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     def format_args(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
-        if self.config.autodoc_unqualified_typehints:
+        if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
 
         try:
@@ -1589,7 +1589,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             # do not show signatures
             return ''
 
-        if self.config.autodoc_unqualified_typehints:
+        if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
 
         sig = super().format_signature()
@@ -2120,7 +2120,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
     def format_args(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
-        if self.config.autodoc_unqualified_typehints:
+        if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
 
         try:
@@ -2172,7 +2172,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         pass
 
     def format_signature(self, **kwargs: Any) -> str:
-        if self.config.autodoc_unqualified_typehints:
+        if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
 
         sigs = []
@@ -2848,7 +2848,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('autodoc_typehints_description_target', 'all', True,
                          ENUM('all', 'documented'))
     app.add_config_value('autodoc_type_aliases', {}, True)
-    app.add_config_value('autodoc_unqualified_typehints', False, 'env')
+    app.add_config_value('autodoc_typehints_format', "fully-qualified", 'env',
+                         ENUM("fully-qualified", "short"))
     app.add_config_value('autodoc_warningiserror', True, True)
     app.add_config_value('autodoc_inherit_docstrings', True, True)
     app.add_event('autodoc-before-process-signature')

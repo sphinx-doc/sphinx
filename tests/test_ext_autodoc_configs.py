@@ -1144,8 +1144,8 @@ def test_autodoc_typehints_description_and_type_aliases(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc',
-                    confoverrides={'autodoc_unqualified_typehints': True})
-def test_autodoc_unqualified_typehints(app):
+                    confoverrides={'autodoc_typehints_format': "short"})
+def test_autodoc_typehints_format_short(app):
     options = {"members": None,
                "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.typehints', options)

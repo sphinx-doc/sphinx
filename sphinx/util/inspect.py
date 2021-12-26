@@ -748,8 +748,9 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
                         unqualified_typehints: bool = False) -> str:
     """Stringify a Signature object.
 
-    :param show_annotation: Show annotation in result
-    :param unqualified_typehints: Show annotations as unqualified
+    :param show_annotation: If enabled, show annotations on the signature
+    :param show_return_annotation: If enabled, show annotation of the return value
+    :param unqualified_typehints: If enabled, show annotations as unqualified
                                   (ex. io.StringIO -> StringIO)
     """
     if unqualified_typehints:
