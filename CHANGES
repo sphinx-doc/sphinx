@@ -4,6 +4,9 @@ Release 4.4.0 (in development)
 Dependencies
 ------------
 
+* #10007: Use ``importlib_metadata`` for python-3.9 or older
+* #10007: Drop ``setuptools``
+
 Incompatible changes
 --------------------
 
@@ -13,7 +16,7 @@ Deprecated
 Features added
 --------------
 
-* #9075: autodoc: Add a config variable :confval:`autodoc_unqualified_typehints`
+* #9075: autodoc: Add a config variable :confval:`autodoc_typehints_format`
   to suppress the leading module names of typehints of function signatures (ex.
   ``io.StringIO`` -> ``StringIO``)
 * #9831: Autosummary now documents only the members specified in a module's
@@ -46,6 +49,7 @@ Bugs fixed
   with Python 3.10
 * #9968: autodoc: instance variables are not shown if __init__ method has
   position-only-arguments
+* #9194: autodoc: types under the "typing" module are not hyperlinked
 * #10009: autodoc: Crashes if target object raises an error on getting docstring
 * #9947: i18n: topic directive having a bullet list can't be translatable
 * #9878: mathjax: MathJax configuration is placed after loading MathJax itself
