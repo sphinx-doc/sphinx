@@ -1146,11 +1146,6 @@ def test_autodoc_typehints_description_and_type_aliases(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc',
                     confoverrides={'autodoc_unqualified_typehints': True})
 def test_autodoc_unqualified_typehints(app):
-    if sys.version_info < (3, 7):
-        Any = 'Any'
-    else:
-        Any = '~typing.Any'
-
     options = {"members": None,
                "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.typehints', options)
@@ -1164,7 +1159,7 @@ def test_autodoc_unqualified_typehints(app):
         '   :type: int',
         '',
         '',
-        '.. py:class:: Math(s: str, o: ~typing.Optional[%s] = None)' % Any,
+        '.. py:class:: Math(s: str, o: ~typing.Optional[~typing.Any] = None)',
         '   :module: target.typehints',
         '',
         '',
