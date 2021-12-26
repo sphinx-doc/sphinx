@@ -812,9 +812,9 @@ class Documenter:
                     if skip_user is not None:
                         keep = not skip_user
             except Exception as exc:
-                logger.warning(__('autodoc: failed to determine %r to be documented, '
+                logger.warning(__('autodoc: failed to determine %s.%s (%r) to be documented, '
                                   'the following exception was raised:\n%s'),
-                               member, exc, type='autodoc')
+                               self.name, membername, member, exc, type='autodoc')
                 keep = False
 
             if keep:
