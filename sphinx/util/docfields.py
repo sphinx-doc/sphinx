@@ -78,8 +78,8 @@ class Field:
         role = env.get_domain(domain).role(rolename)
         if role is None or inliner is None:
             if role is None and inliner is not None:
-                msg = "Problem in %s domain: field is supposed "
-                msg += "to use role '%s', but that role is not in the domain."
+                msg = __("Problem in %s domain: field is supposed "
+                         "to use role '%s', but that role is not in the domain.")
                 logger.warning(__(msg), domain, rolename, location=location)
             refnode = addnodes.pending_xref('', refdomain=domain, refexplicit=False,
                                             reftype=rolename, reftarget=target)
