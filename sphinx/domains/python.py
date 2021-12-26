@@ -80,45 +80,53 @@ class ModuleEntry(NamedTuple):
     deprecated: bool
 
 
-def type_to_xref(target: str, env: BuildEnvironment = None, suppress_prefix: bool = False
-                 ) -> addnodes.pending_xref:
-    """Convert a type string to a cross reference node."""
-    if target == 'None' or target.startswith('typing.'):
+def parse_reftarget(reftarget: str, suppress_prefix: bool = False
+                    ) -> Tuple[str, str, str, bool]:
+    """Parse a type string and return (reftype, reftarget, title, refspecific flag)"""
+    refspecific = False
+    if reftarget.startswith('.'):
+        reftarget = reftarget[1:]
+        title = reftarget
+        refspecific = True
+    elif reftarget.startswith('~'):
+        reftarget = reftarget[1:]
+        title = reftarget.split('.')[-1]
+    elif suppress_prefix:
+        title = reftarget.split('.')[-1]
+    elif reftarget.startswith('typing.'):
+        title = reftarget[7:]
+    else:
+        title = reftarget
+
+    if reftarget == 'None' or reftarget.startswith('typing.'):
         # typing module provides non-class types.  Obj reference is good to refer them.
         reftype = 'obj'
     else:
         reftype = 'class'
 
+    return reftype, reftarget, title, refspecific
+
+
+def type_to_xref(target: str, env: BuildEnvironment = None, suppress_prefix: bool = False
+                 ) -> addnodes.pending_xref:
+    """Convert a type string to a cross reference node."""
     if env:
         kwargs = {'py:module': env.ref_context.get('py:module'),
                   'py:class': env.ref_context.get('py:class')}
     else:
         kwargs = {}
 
-    refspecific = False
-    if target.startswith('.'):
-        target = target[1:]
-        text = target
-        refspecific = True
-    elif target.startswith('~'):
-        target = target[1:]
-        text = target.split('.')[-1]
-    elif suppress_prefix:
-        text = target.split('.')[-1]
-    elif target.startswith('typing.'):
-        text = target[7:]
-    else:
-        text = target
+    reftype, target, title, refspecific = parse_reftarget(target, suppress_prefix)
 
     if env.config.python_use_unqualified_type_names:
         # Note: It would be better to use qualname to describe the object to support support
         # nested classes.  But python domain can't access the real python object because this
         # module should work not-dynamically.
-        shortname = text.split('.')[-1]
+        shortname = title.split('.')[-1]
         contnodes: List[Node] = [pending_xref_condition('', shortname, condition='resolved'),
-                                 pending_xref_condition('', text, condition='*')]
+                                 pending_xref_condition('', title, condition='*')]
     else:
-        contnodes = [nodes.Text(text)]
+        contnodes = [nodes.Text(title)]
 
     return pending_xref('', *contnodes,
                         refdomain='py', reftype=reftype, reftarget=target,
