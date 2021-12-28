@@ -27,7 +27,7 @@ if (!window.console || !console.firebug) {
  * span elements with the given class name.
  */
 const _highlight = (node, addItems, text, className) => {
-  if (node.nodeType === 3) {  // Text node
+  if (node.nodeType === Node.TEXT_NODE) {
     const val = node.nodeValue;
     const parent = node.parentNode
     const pos = val.toLowerCase().indexOf(text);
