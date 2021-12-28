@@ -23,59 +23,55 @@ if (!window.console || !console.firebug) {
  */
 
 /**
- * highlight a given string on a jquery object by wrapping it in
+ * highlight a given string on a node by wrapping it in
  * span elements with the given class name.
  */
-jQuery.fn.highlightText = function(text, className) {
-  function highlight(node, addItems) {
-    if (node.nodeType === 3) {
-      var val = node.nodeValue;
-      var pos = val.toLowerCase().indexOf(text);
-      if (pos >= 0 &&
-          !jQuery(node.parentNode).hasClass(className) &&
-          !jQuery(node.parentNode).hasClass("nohighlight")) {
-        var span;
-        var isInSVG = jQuery(node).closest("body, svg, foreignObject").is("svg");
-        if (isInSVG) {
-          span = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
-        } else {
-          span = document.createElement("span");
-          span.className = className;
-        }
-        span.appendChild(document.createTextNode(val.substr(pos, text.length)));
-        node.parentNode.insertBefore(span, node.parentNode.insertBefore(
+const _highlight = (node, addItems, text, className) => {
+  if (node.nodeType === 3) {  // Text node
+    const val = node.nodeValue;
+    const parent = node.parentNode
+    const pos = val.toLowerCase().indexOf(text);
+    if (pos >= 0
+        && !parent.classList.contains(className)
+        && !parent.classList.contains("nohighlight")
+    ) {
+      let span;
+      const closestNode = parent.closest("body, svg, foreignObject");
+      const isInSVG = closestNode && closestNode.matches("svg")
+      if (isInSVG) {
+        span = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+      } else {
+        span = document.createElement("span");
+        span.classList.add(className);
+      }
+      span.appendChild(document.createTextNode(val.substr(pos, text.length)));
+      parent.insertBefore(span, parent.insertBefore(
           document.createTextNode(val.substr(pos + text.length)),
           node.nextSibling));
-        node.nodeValue = val.substr(0, pos);
-        if (isInSVG) {
-          var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-          var bbox = node.parentElement.getBBox();
-          rect.x.baseVal.value = bbox.x;
-          rect.y.baseVal.value = bbox.y;
-          rect.width.baseVal.value = bbox.width;
-          rect.height.baseVal.value = bbox.height;
-          rect.setAttribute('class', className);
-          addItems.push({
-              "parent": node.parentNode,
-              "target": rect});
-        }
+      node.nodeValue = val.substr(0, pos);
+      if (isInSVG) {
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        const bbox = parent.getBBox();
+        rect.x.baseVal.value = bbox.x;
+        rect.y.baseVal.value = bbox.y;
+        rect.width.baseVal.value = bbox.width;
+        rect.height.baseVal.value = bbox.height;
+        rect.setAttribute("class", className);
+        addItems.push({
+          "parent": parent,
+          "target": rect});
       }
     }
-    else if (!jQuery(node).is("button, select, textarea")) {
-      jQuery.each(node.childNodes, function() {
-        highlight(this, addItems);
-      });
-    }
   }
-  var addItems = [];
-  var result = this.each(function() {
-    highlight(this, addItems);
-  });
-  for (var i = 0; i < addItems.length; ++i) {
-    jQuery(addItems[i].parent).before(addItems[i].target);
+  else if (!node.matches("button, select, textarea")) {
+    node.childNodes.forEach(el => _highlight(el, addItems, text, className));
   }
-  return result;
 };
+const highlightText = (thisNode, text, className) => {
+  let addItems = [];
+  _highlight(thisNode, addItems, text, className)
+  for (let i = 0; i < addItems.length; ++i) addItems[i].parent.insertAdjacentHTML("beforebegin", addItems[i].target)
+}
 
 /**
  * Small JavaScript module for the documentation.
@@ -145,14 +141,10 @@ var Documentation = {
     var highlight = new URLSearchParams(document.location.search).get("highlight")
     var terms = (highlight) ? highlight.split(/\s+/) : [];
     if (terms.length) {
-      var body = $('div.body');
-      if (!body.length) {
-        body = $('body');
-      }
-      window.setTimeout(function() {
-        $.each(terms, function() {
-          body.highlightText(this.toLowerCase(), 'highlighted');
-        });
+      let body = document.querySelectorAll("div.body");
+      if (!body.length) body = document.querySelector("body")
+      window.setTimeout(() => {
+        terms.forEach(term => highlightText(body, term.toLowerCase(), 'highlighted'))
       }, 10);
       $('<p class="highlight-link"><a href="javascript:Documentation.' +
         'hideSearchWords()">' + _('Hide Search Matches') + '</a></p>')

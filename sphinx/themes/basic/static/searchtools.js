@@ -521,9 +521,9 @@ var Search = {
       $.trim(text.substr(start, 240)) +
       ((start + 240 - text.length) ? '...' : '');
     var rv = $('<p class="context"></p>').text(excerpt);
-    $.each(hlwords, function() {
-      rv = rv.highlightText(this, 'highlighted');
-    });
+    hlwords.forEach(highlightWord => {
+      rv = highlightText(rv, highlightWord, 'highlighted');
+    })
     return rv;
   }
 };
