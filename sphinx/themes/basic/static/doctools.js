@@ -191,11 +191,8 @@ var Documentation = {
   getCurrentURL : function() {
     var path = document.location.pathname;
     var parts = path.split(/\//);
-    $.each(DOCUMENTATION_OPTIONS.URL_ROOT.split(/\//), function() {
-      if (this === '..')
-        parts.pop();
-    });
-    var url = parts.join('/');
+    DOCUMENTATION_OPTIONS.URL_ROOT.split(/\//).forEach(part => {if (part === '..') parts.pop()});
+    var url = parts.join("/");
     return path.substring(url.lastIndexOf('/') + 1, path.length - 1);
   },
 
@@ -208,14 +205,14 @@ var Documentation = {
           && !event.shiftKey) {
         switch (event.keyCode) {
           case 37: // left
-            var prevHref = $('link[rel="prev"]').prop('href');
+            var prevHref = document.querySelector('link[rel="prev"]').href;
             if (prevHref) {
               window.location.href = prevHref;
               return false;
             }
             break;
           case 39: // right
-            var nextHref = $('link[rel="next"]').prop('href');
+            var nextHref = document.querySelector('link[rel="next"]').href
             if (nextHref) {
               window.location.href = nextHref;
               return false;
