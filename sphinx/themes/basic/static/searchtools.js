@@ -195,7 +195,7 @@ var Search = {
       if (!$u.contains(toAppend, word))
         toAppend.push(word);
     }
-    var highlightstring = '?highlight=' + $.urlencode(hlterms.join(" "));
+    var highlightstring = '?highlight=' + encodeURIComponent(hlterms.join(" "));
 
     // console.debug('SEARCH: searching for:');
     // console.info('required: ', searchterms);

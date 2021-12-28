@@ -27,17 +27,7 @@ if (!window.console || !console.firebug) {
  *
  * See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent#Decoding_query_parameters_from_a_URL
  */
-jQuery.urldecode = function(x) {
-  if (!x) {
-    return x
-  }
-  return decodeURIComponent(x.replace(/\+/g, ' '));
-};
-
-/**
- * small helper function to urlencode strings
- */
-jQuery.urlencode = encodeURIComponent;
+const urldecode = encoded => decodeURIComponent(encoded.replace(/\+/g, " "))
 
 /**
  * This function returns the parsed url parameters of the
@@ -51,8 +41,8 @@ jQuery.getQueryParameters = function(s) {
   var result = {};
   for (var i = 0; i < parts.length; i++) {
     var tmp = parts[i].split('=', 2);
-    var key = jQuery.urldecode(tmp[0]);
-    var value = jQuery.urldecode(tmp[1]);
+    var key = urldecode(tmp[0]);
+    var value = urldecode(tmp[1]);
     if (key in result)
       result[key].push(value);
     else
