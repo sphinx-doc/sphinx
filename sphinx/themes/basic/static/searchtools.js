@@ -9,6 +9,11 @@
  *
  */
 
+/**
+ * select a different prefix for underscore
+ */
+$u = _.noConflict();
+
 if (!Scorer) {
   /**
    * Simple result scoring code.

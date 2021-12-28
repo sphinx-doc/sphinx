@@ -10,11 +10,6 @@
  */
 
 /**
- * select a different prefix for underscore
- */
-$u = _.noConflict();
-
-/**
  * make the code below compatible with browsers without
  * an installed firebug like debugger
 if (!window.console || !console.firebug) {
