@@ -23,35 +23,6 @@ if (!window.console || !console.firebug) {
  */
 
 /**
- * small helper function to urldecode strings
- *
- * See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent#Decoding_query_parameters_from_a_URL
- */
-const urldecode = encoded => decodeURIComponent(encoded.replace(/\+/g, " "))
-
-/**
- * This function returns the parsed url parameters of the
- * current request. Multiple values per key are supported,
- * it will always return arrays of strings for the value parts.
- */
-jQuery.getQueryParameters = function(s) {
-  if (typeof s === 'undefined')
-    s = document.location.search;
-  var parts = s.substr(s.indexOf('?') + 1).split('&');
-  var result = {};
-  for (var i = 0; i < parts.length; i++) {
-    var tmp = parts[i].split('=', 2);
-    var key = urldecode(tmp[0]);
-    var value = urldecode(tmp[1]);
-    if (key in result)
-      result[key].push(value);
-    else
-      result[key] = [value];
-  }
-  return result;
-};
-
-/**
  * highlight a given string on a jquery object by wrapping it in
  * span elements with the given class name.
  */
@@ -207,8 +178,8 @@ var Documentation = {
    * highlight the search words provided in the url in the text
    */
   highlightSearchWords : function() {
-    var params = $.getQueryParameters();
-    var terms = (params.highlight) ? params.highlight[0].split(/\s+/) : [];
+    var highlight = new URLSearchParams(document.location.search).get("highlight")
+    var terms = (highlight) ? highlight.split(/\s+/) : [];
     if (terms.length) {
       var body = $('div.body');
       if (!body.length) {

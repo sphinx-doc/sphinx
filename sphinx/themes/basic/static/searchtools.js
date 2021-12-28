@@ -77,9 +77,8 @@ var Search = {
   },
 
   init : function() {
-      var params = $.getQueryParameters();
-      if (params.q) {
-          var query = params.q[0];
+      var query = new URLSearchParams(document.location.search).get("q")
+      if (query) {
           $('input[name="q"]')[0].value = query;
           this.performSearch(query);
       }
