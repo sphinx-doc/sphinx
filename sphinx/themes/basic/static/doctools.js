@@ -10,19 +10,6 @@
  */
 
 /**
- * make the code below compatible with browsers without
- * an installed firebug like debugger
-if (!window.console || !console.firebug) {
-  var names = ["log", "debug", "info", "warn", "error", "assert", "dir",
-    "dirxml", "group", "groupEnd", "time", "timeEnd", "count", "trace",
-    "profile", "profileEnd"];
-  window.console = {};
-  for (var i = 0; i < names.length; ++i)
-    window.console[names[i]] = function() {};
-}
- */
-
-/**
  * highlight a given string on a node by wrapping it in
  * span elements with the given class name.
  */
@@ -76,70 +63,50 @@ const _highlightText = (thisNode, text, className) => {
 /**
  * Small JavaScript module for the documentation.
  */
-var Documentation = {
+const Documentation = {
 
-  init : function() {
+  init : () => {
     this.highlightSearchWords();
     this.initDomainIndexTable();
-    if (DOCUMENTATION_OPTIONS.NAVIGATION_WITH_KEYS) {
-      this.initOnKeyListeners();
-    }
+    if (DOCUMENTATION_OPTIONS.NAVIGATION_WITH_KEYS) this.initOnKeyListeners()
   },
 
   /**
    * i18n support
    */
   TRANSLATIONS : {},
-  PLURAL_EXPR : function(n) { return n === 1 ? 0 : 1; },
+  PLURAL_EXPR : n => n === 1 ? 0 : 1,
   LOCALE : 'unknown',
 
   // gettext and ngettext don't access this so that the functions
   // can safely bound to a different name (_ = Documentation.gettext)
-  gettext : function(string) {
-    var translated = Documentation.TRANSLATIONS[string];
+  gettext : string => {
+    const translated = Documentation.TRANSLATIONS[string];
     if (typeof translated === 'undefined')
       return string;
     return (typeof translated === 'string') ? translated : translated[0];
   },
 
-  ngettext : function(singular, plural, n) {
-    var translated = Documentation.TRANSLATIONS[singular];
+  ngettext : (singular, plural, n) => {
+    const translated = Documentation.TRANSLATIONS[singular];
     if (typeof translated === 'undefined')
       return (n == 1) ? singular : plural;
     return translated[Documentation.PLURALEXPR(n)];
   },
 
-  addTranslations : function(catalog) {
-    for (var key in catalog.messages)
+  addTranslations : catalog => {
+    for (const key in catalog.messages)
       this.TRANSLATIONS[key] = catalog.messages[key];
     this.PLURAL_EXPR = new Function('n', 'return +(' + catalog.plural_expr + ')');
     this.LOCALE = catalog.locale;
   },
 
   /**
-   * add context elements like header anchor links
-   */
-  addContextElements : function() {
-    $('div[id] > :header:first').each(function() {
-      $('<a class="headerlink">\u00B6</a>').
-      attr('href', '#' + this.id).
-      attr('title', _('Permalink to this headline')).
-      appendTo(this);
-    });
-    $('dt[id]').each(function() {
-      $('<a class="headerlink">\u00B6</a>').
-      attr('href', '#' + this.id).
-      attr('title', _('Permalink to this definition')).
-      appendTo(this);
-    });
-  },
-
-  /**
    * highlight the search words provided in the url in the text
    */
-  highlightSearchWords : function() {
-    var highlight = new URLSearchParams(document.location.search).get("highlight")
-    var terms = (highlight) ? highlight.split(/\s+/) : [];
+  highlightSearchWords: () => {
+    const highlight = new URLSearchParams(document.location.search).get("highlight")
+    const terms = (highlight) ? highlight.split(/\s+/) : [];
     if (terms.length === 0) return  // nothing to do
 
     let body = document.querySelectorAll("div.body");
@@ -180,7 +147,7 @@ var Documentation = {
   /**
    * helper function to hide the search marks again
    */
-  hideSearchWords : function() {
+  hideSearchWords: () => {
     document.querySelectorAll("#searchbox .highlight-link").forEach(el => el.remove())
     document.querySelectorAll("span.highlighted").forEach(el => el.classList.remove("highlighted"))
   },
@@ -188,9 +155,7 @@ var Documentation = {
   /**
    * make the url absolute
    */
-  makeURL : function(relativeURL) {
-    return DOCUMENTATION_OPTIONS.URL_ROOT + '/' + relativeURL;
-  },
+  makeURL : relativeURL => `${DOCUMENTATION_OPTIONS.URL_ROOT}/${relativeURL}`,
 
   /**
    * get the current relative url
