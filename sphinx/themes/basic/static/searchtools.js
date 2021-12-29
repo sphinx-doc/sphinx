@@ -76,7 +76,7 @@ const _displayItem = (item, highlightTerms, searchTerms) => {
     linkUrl = docName + docLinkSuffix;
   }
   const params = new URLSearchParams()
-  params.set("highlight", highlightTerms.join(" "))
+  params.set("highlight", [...highlightTerms].join(" "))
   let linkEl = listItem.appendChild(document.createElement("a"))
   linkEl.href = linkUrl + "?" + params.toString() + anchor
   linkEl.innerHTML = title
@@ -190,10 +190,10 @@ const Search = {
   query: query => {
     // stem the search terms and add them to the correct list
     const stemmer = new Stemmer();
-    const searchTerms = [];
-    const excluded = [];
-    const highlightTerms = [];
-    const objectTerms = query.toLowerCase().trim().split(/\s+/)
+    const searchTerms = new Set()
+    const excludedTerms = new Set()
+    const highlightTerms = new Set()
+    const objectTerms = new Set(query.toLowerCase().trim().split(/\s+/))
     query.trim().split(/\s+/).forEach(queryTerm => {
       const queryTermLower = queryTerm.toLowerCase()
 
@@ -208,30 +208,27 @@ const Search = {
         word = queryTerm;
       }
       // select the correct list
-      if (word[0] === "-") {
-        if (!excluded.includes(word.substr(1))) excluded.push(word.substr(1));  // only add if not already in the list
-      } else {
-        if (!searchTerms.includes(word)) searchTerms.push(word);  // only add if not already in the list
-        highlightTerms.push(queryTermLower)
+      if (word[0] === "-")
+        excludedTerms.add(word.substr(1))
+      else {
+        searchTerms.add(word);
+        highlightTerms.add(queryTermLower)
       }
     })
 
     // console.debug("SEARCH: searching for:");
-    // console.info("required: ", searchTerms);
-    // console.info("excluded: ", excluded);
+    // console.info("required: ", [...searchTerms]);
+    // console.info("excluded: ", [...excludedTerms]);
 
     // array of [docname, title, anchor, descr, score, filename]
     let results = [];
     _removeChildren(document.getElementById("search-progress"))
 
     // lookup as object
-    objectTerms.forEach((term, i) => {
-      const otherTerms = [...objectTerms.slice(0, i), ...objectTerms.slice(i + 1)]
-      results.push(...this.performObjectSearch(term, otherTerms))
-    })
+    objectTerms.forEach(term => results.push(...this.performObjectSearch(term, objectTerms)))
 
     // lookup as search terms in fulltext
-    results.push(...this.performTermsSearch(searchTerms, excluded))
+    results.push(...this.performTermsSearch(searchTerms, excludedTerms))
 
     // let the scorer override scores with a custom scoring function
     if (Scorer.score) results.forEach(item => item[4] = Scorer.score(item))
@@ -263,7 +260,7 @@ const Search = {
   /**
    * search for object names
    */
-  performObjectSearch: (object, otherTerms) => {
+  performObjectSearch: (object, objectTerms) => {
     const filenames = this._index.filenames;
     const docNames = this._index.docnames;
     const objects = this._index.objects;
@@ -290,9 +287,11 @@ const Search = {
 
       // If more than one term searched for, we require other words to be
       // found in the name/title/description
-      if (otherTerms.length > 0) {
+      const otherTerms = new Set(objectTerms)
+      otherTerms.delete(object)
+      if (otherTerms.size > 0) {
         const haystack = `${prefix} ${name} ${objName} ${title}`.toLowerCase()
-        if (!otherTerms.every(otherTerm => haystack.indexOf(otherTerm) > -1)) return
+        if ([...otherTerms].some(otherTerm => haystack.indexOf(otherTerm) < 0)) return
       }
 
       let anchor = match[3];
@@ -314,7 +313,7 @@ const Search = {
   /**
    * search for full-text terms in the index
    */
-  performTermsSearch: (searchTerms, excluded) => {
+  performTermsSearch: (searchTerms, excludedTerms) => {
     // prepare search
     const terms = this._index.terms;
     const titleTerms = this._index.titleterms;
@@ -373,14 +372,14 @@ const Search = {
 
       // check if all requirements are matched
       const filteredTermCount = // as search terms with length < 3 are discarded: ignore
-          searchTerms.filter(term => term.length > 2).length;
+          [...searchTerms].filter(term => term.length > 2).length;
       if (
-          fileMap[file].length !== searchTerms.length
+          fileMap[file].length !== searchTerms.size
        && fileMap[file].length !== filteredTermCount
       ) continue;
 
       // ensure that none of the excluded terms is in the search result
-      if (excluded.some(term => (
+      if ([...excludedTerms].some(term => (
           terms[term] === file
           || titleTerms[term] === file
           || (terms[term] || []).includes(file)
@@ -405,7 +404,7 @@ const Search = {
     const text = Search.htmlToText(htmlText).toLowerCase()
     if (text === "") return null
 
-    const actualStartPosition = keywords.map(k => text.indexOf(k.toLowerCase())).filter(i => (i > -1)).slice(-1)[0]
+    const actualStartPosition = [...keywords].map(k => text.indexOf(k.toLowerCase())).filter(i => (i > -1)).slice(-1)[0]
     const startWithContext = Math.max(actualStartPosition - 120, 0)
     const top = (startWithContext === 0) ? "" : "..."
     const tail = (startWithContext + 240 < text.length) ? "..." : ""
