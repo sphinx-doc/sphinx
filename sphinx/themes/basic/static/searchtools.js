@@ -272,69 +272,52 @@ const Search = {
   /**
    * search for object names
    */
-  performObjectSearch : function(object, otherterms) {
-    var filenames = this._index.filenames;
-    var docnames = this._index.docnames;
-    var objects = this._index.objects;
-    var objnames = this._index.objnames;
-    var titles = this._index.titles;
+  performObjectSearch: (object, otherTerms) => {
+    const filenames = this._index.filenames;
+    const docNames = this._index.docnames;
+    const objects = this._index.objects;
+    const objNames = this._index.objnames;
+    const titles = this._index.titles;
 
-    var i;
-    var results = [];
+    let i;
+    const results = [];
 
-    for (var prefix in objects) {
-      for (var iMatch = 0; iMatch != objects[prefix].length; ++iMatch) {
-        var match = objects[prefix][iMatch];
-        var name = match[4];
-        var fullname = (prefix ? prefix + '.' : '') + name;
-        var fullnameLower = fullname.toLowerCase()
-        if (fullnameLower.indexOf(object) > -1) {
-          var score = 0;
-          var parts = fullnameLower.split('.');
-          // check for different match types: exact matches of full name or
-          // "last name" (i.e. last dotted part)
-          if (fullnameLower == object || parts[parts.length - 1] == object) {
-            score += Scorer.objNameMatch;
-          // matches in last name
-          } else if (parts[parts.length - 1].indexOf(object) > -1) {
-            score += Scorer.objPartialMatch;
-          }
-          var objname = objnames[match[1]][2];
-          var title = titles[match[0]];
-          // If more than one term searched for, we require other words to be
-          // found in the name/title/description
-          if (otherterms.length > 0) {
-            var haystack = (prefix + ' ' + name + ' ' +
-                            objname + ' ' + title).toLowerCase();
-            var allfound = true;
-            for (i = 0; i < otherterms.length; i++) {
-              if (haystack.indexOf(otherterms[i]) == -1) {
-                allfound = false;
-                break;
-              }
-            }
-            if (!allfound) {
-              continue;
-            }
-          }
-          var descr = objname + _(', in ') + title;
+    const objectSearchCallback = (prefix, name) => {
+      const fullname = (prefix ? prefix + "." : "") + name
+      const fullnameLower = fullname.toLowerCase()
+      if (fullnameLower.indexOf(object) < 0) return
 
-          var anchor = match[3];
-          if (anchor === '')
-            anchor = fullname;
-          else if (anchor == '-')
-            anchor = objnames[match[1]][1] + '-' + fullname;
-          // add custom score for some objects according to scorer
-          if (Scorer.objPrio.hasOwnProperty(match[2])) {
-            score += Scorer.objPrio[match[2]];
-          } else {
-            score += Scorer.objPrioDefault;
-          }
-          results.push([docnames[match[0]], fullname, '#'+anchor, descr, score, filenames[match[0]]]);
-        }
+      let score = 0;
+      const parts = fullnameLower.split(".");
+
+      // check for different match types: exact matches of full name or
+      // "last name" (i.e. last dotted part)
+      if (fullnameLower === object || parts.slice(-1)[0] === object) score += Scorer.objNameMatch
+      else if (parts.slice(-1)[0].indexOf(object) > -1) score += Scorer.objPartialMatch  // matches in last name
+      const match = objects[prefix][name];
+      const objName = objNames[match[1]][2];
+      const title = titles[match[0]];
+
+      // If more than one term searched for, we require other words to be
+      // found in the name/title/description
+      if (otherTerms.length > 0) {
+        const haystack = `${prefix} ${name} ${objName} ${title}`.toLowerCase()
+        if (!otherTerms.every(otherTerm => haystack.indexOf(otherTerm) > -1)) return
       }
-    }
 
+      let anchor = match[3];
+      if (anchor === "") anchor = fullname;
+      else if (anchor === "-") anchor = objNames[match[1]][1] + "-" + fullname;
+
+      const descr = objName + _(", in ") + title;
+
+      // add custom score for some objects according to scorer
+      if (Scorer.objPrio.hasOwnProperty(match[2])) score += Scorer.objPrio[match[2]];
+      else score += Scorer.objPrioDefault
+
+      results.push([docNames[match[0]], fullname, "#" + anchor, descr, score, filenames[match[0]]]);
+    }
+    objects.forEach(prefix => objects[prefix].forEach(name => objectSearchCallback(prefix, name)))
     return results;
   },
 
