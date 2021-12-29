@@ -484,31 +484,23 @@ const Search = {
   /**
    * helper function to return a node containing the
    * search summary for a given text. keywords is a list
-   * of stemmed words, hlwords is the list of normal, unstemmed
+   * of stemmed words, highlightWords is the list of normal, unstemmed
    * words. the first one is used to find the occurrence, the
    * latter for highlighting it.
    */
-  makeSearchSummary : function(htmlText, keywords, hlwords) {
-    var text = Search.htmlToText(htmlText);
-    if (text == "") {
-      return null;
-    }
-    var textLower = text.toLowerCase();
-    var start = 0;
-    $.each(keywords, function() {
-      var i = textLower.indexOf(this.toLowerCase());
-      if (i > -1)
-        start = i;
-    });
-    start = Math.max(start - 120, 0);
-    var excerpt = ((start > 0) ? '...' : '') +
-      $.trim(text.substr(start, 240)) +
-      ((start + 240 - text.length) ? '...' : '');
-    var rv = $('<p class="context"></p>').text(excerpt);
-    hlwords.forEach(highlightWord => {
-      rv = highlightText(rv, highlightWord, 'highlighted');
-    })
-    return rv;
+  makeSearchSummary: (htmlText, keywords, highlightWords) => {
+    const text = Search.htmlToText(htmlText).toLowerCase()
+    if (text === "") return null
+
+    const actualStartPosition = keywords.map(k => text.indexOf(k.toLowerCase())).filter(i => (i > -1)).slice(-1)[0]
+    const startWithContext = Math.max(actualStartPosition - 120, 0)
+    const top = (startWithContext === 0) ? "" : "..."
+    const tail = (startWithContext + 240 < text.length) ? "..." : ""
+    let summary = document.createElement("div")
+    summary.classList.add("context")
+    summary.innerText = top + text.substr(startWithContext, 240).trim() + tail
+    highlightWords.forEach(highlightWord => _highlightText(summary, highlightWord, "highlighted"))
+    return summary
   }
 };
 
