@@ -58,11 +58,11 @@ if (!splitQuery) {
 /**
  * Search Module
  */
-var Search = {
+const Search = {
 
-  _index : null,
-  _queued_query : null,
-  _pulse_status : -1,
+  _index: null,
+  _queued_query: null,
+  _pulse_status: -1,
 
   htmlToText : function(htmlString) {
       var virtualDocument = document.implementation.createHTMLDocument('virtual');
@@ -104,17 +104,11 @@ var Search = {
     }
   },
 
-  hasIndex : function() {
-      return this._index !== null;
-  },
+  hasIndex: () => this._index !== null,
 
-  deferQuery : function(query) {
-      this._queued_query = query;
-  },
+  deferQuery: query => this._queued_query = query,
 
-  stopPulse : function() {
-      this._pulse_status = 0;
-  },
+  stopPulse: () => this._pulse_status = 0,
 
   startPulse : function() {
     if (this._pulse_status >= 0)
