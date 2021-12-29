@@ -341,6 +341,17 @@ def test_cmdoption_for_None(app):
     assert domain.progoptions[(None, '-l')] == ('index', 'cmdoption-l')
 
 
+def test_option_with_equal_sign(app):
+    text = (".. option:: -foo=bar|baz\n"
+            "\n"
+            ".. option:: -l=TYPE\n")
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree[0], addnodes.index,
+                entries=[('pair', 'command line option; -foo', 'cmdoption-foo', '', None)])
+    assert_node(doctree[2], addnodes.index,
+                entries=[('pair', 'command line option; -l', 'cmdoption-l', '', None)])
+
+
 def test_multiple_cmdoptions(app):
     text = (".. program:: cmd\n"
             "\n"

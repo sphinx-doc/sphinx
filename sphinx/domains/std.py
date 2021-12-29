@@ -244,6 +244,8 @@ class Cmdoption(ObjectDescription[str]):
         else:
             descr = _('command line option')
         for option in sig.split(', '):
+            # remove trailing part followed by equal symbol
+            option = option.split('=')[0]
             entry = '; '.join([descr, option])
             self.indexnode['entries'].append(('pair', entry, signode['ids'][0], '', None))
 
