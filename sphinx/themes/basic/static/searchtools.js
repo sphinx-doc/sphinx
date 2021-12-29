@@ -85,12 +85,11 @@ const Search = {
 
   loadIndex : url => document.body.appendChild(document.createElement("script")).src = url,
 
-  setIndex : function(index) {
-    var q;
+  setIndex: index => {
     this._index = index;
-    if ((q = this._queued_query) !== null) {
+    if (this._queued_query !== null) {
       this._queued_query = null;
-      Search.query(q);
+      Search.query(this._queued_query);
     }
   },
 
