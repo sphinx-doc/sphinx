@@ -81,30 +81,30 @@ const Documentation = {
    * i18n support
    */
   TRANSLATIONS : {},
-  PLURAL_EXPR : n => n === 1 ? 0 : 1,
-  LOCALE : 'unknown',
+  PLURAL_EXPR : n => (n === 1) ? 0 : 1,
+  LOCALE : "unknown",
 
   // gettext and ngettext don't access this so that the functions
   // can safely bound to a different name (_ = Documentation.gettext)
   gettext : string => {
     const translated = Documentation.TRANSLATIONS[string];
-    if (typeof translated === 'undefined')
-      return string;
-    return (typeof translated === 'string') ? translated : translated[0];
+    switch (typeof translated) {
+      case "undefined": return string // no translation
+      case "string": return translated  // translation exists
+      default: return translated[0]  // (singular, plural) translation tuple exists
+    }
   },
 
   ngettext : (singular, plural, n) => {
     const translated = Documentation.TRANSLATIONS[singular];
-    if (typeof translated === 'undefined')
-      return (n == 1) ? singular : plural;
-    return translated[Documentation.PLURALEXPR(n)];
+    if (typeof translated !== "undefined") return translated[Documentation.PLURAL_EXPR(n)];
+    return (n === 1) ? singular : plural;
   },
 
   addTranslations : catalog => {
-    for (const key in catalog.messages)
-      this.TRANSLATIONS[key] = catalog.messages[key];
-    this.PLURAL_EXPR = new Function('n', 'return +(' + catalog.plural_expr + ')');
-    this.LOCALE = catalog.locale;
+    Object.assign(this.TRANSLATIONS, catalog.messages)
+    this.PLURAL_EXPR = new Function("n", `return (${catalog.plural_expr})`)
+    this.LOCALE = catalog.locale
   },
 
   /**
