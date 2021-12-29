@@ -9,6 +9,11 @@
  *
  */
 
+const _ready = callback => {
+  if (document.readyState !== "loading") return callback()
+  document.addEventListener("DOMContentLoaded", callback)
+}
+
 /**
  * highlight a given string on a node by wrapping it in
  * span elements with the given class name.
@@ -183,6 +188,4 @@ const Documentation = {
 // quick alias for translations
 _ = Documentation.gettext;
 
-$(document).ready(function() {
-  Documentation.init();
-});
+_ready(Documentation.init);
