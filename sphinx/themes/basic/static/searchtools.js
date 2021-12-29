@@ -62,6 +62,60 @@ const _removeChildren = element => {while (element.lastChild) element.removeChil
  */
 const _escapeRegExp = string => string.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 
+const _displayItem = (item, highlightTerms, searchTerms) => {
+  const docBuilder = DOCUMENTATION_OPTIONS.BUILDER
+  const docUrlRoot = DOCUMENTATION_OPTIONS.URL_ROOT
+  const docFileSuffix = DOCUMENTATION_OPTIONS.FILE_SUFFIX
+  const docLinkSuffix = DOCUMENTATION_OPTIONS.LINK_SUFFIX
+  const docHasSource = DOCUMENTATION_OPTIONS.HAS_SOURCE
+
+  const [docname, title, anchor, descr, score, filename] = item
+
+  let listItem = document.createElement("li")
+  let requestUrl;
+  let linkUrl;
+  if (docBuilder === "dirhtml") {
+    // dirhtml builder
+    let dirname = docname + "/";
+    if (dirname.match(/\/index\/$/)) dirname = dirname.substring(0, dirname.length - 6);
+    else if (dirname === "index/") dirname = "";
+    requestUrl = docUrlRoot + dirname;
+    linkUrl = requestUrl
+  } else {
+    // normal html builders
+    requestUrl = docUrlRoot + docname + docFileSuffix;
+    linkUrl = docname + docLinkSuffix;
+  }
+  const params = new URLSearchParams()
+  params.set("highlight", highlightTerms.join(" "))
+  let linkEl = listItem.appendChild(document.createElement("a"))
+  linkEl.href = linkUrl + "?" + params.toString() + anchor
+  linkEl.innerHTML = title
+  if (descr) listItem.appendChild(document.createElement("span")).innerText = " (" + descr + ")"
+  else if (docHasSource) fetch(requestUrl)
+      .then(responseData => responseData.text())
+      .then(data => {if (data) listItem.appendChild(Search.makeSearchSummary(data, searchTerms, highlightTerms));})
+  Search.output.appendChild(listItem);
+}
+const _finishSearch = (resultCount) => {
+  Search.stopPulse();
+  Search.title.innerText = _("Search Results");
+  if (!resultCount)
+    Search.status.innerText = _("Your search did not match any documents. Please make sure that all words are spelled correctly and that you've selected enough categories.");
+  else
+    Search.status.innerText = _(`Search finished, found ${resultCount} page(s) matching the search query.`)
+}
+const _displayNextItem = (results, resultCount, highlightTerms, searchTerms) => {
+  // results left, load the summary and display it
+  // this is intended to be dynamic (don't sub resultsCount)
+  if (results.length) {
+    _displayItem(results.pop(), highlightTerms, searchTerms)
+    setTimeout(() => _displayNextItem(results, resultCount, highlightTerms, searchTerms), 5)
+  }
+  // search finished, update title and status message
+  else _finishSearch(resultCount)
+};
+
 /**
  * Search Module
  */
@@ -236,75 +290,7 @@ const Search = {
     //console.info('search results:', Search.lastresults);
 
     // print the results
-    var resultCount = results.length;
-    function displayNextItem() {
-      // results left, load the summary and display it
-      if (results.length) {
-        var item = results.pop();
-        var listItem = $('<li></li>');
-        var requestUrl = "";
-        var linkUrl = "";
-        if (DOCUMENTATION_OPTIONS.BUILDER === 'dirhtml') {
-          // dirhtml builder
-          var dirname = item[0] + '/';
-          if (dirname.match(/\/index\/$/)) {
-            dirname = dirname.substring(0, dirname.length-6);
-          } else if (dirname == 'index/') {
-            dirname = '';
-          }
-          requestUrl = DOCUMENTATION_OPTIONS.URL_ROOT + dirname;
-          linkUrl = requestUrl;
-
-        } else {
-          // normal html builders
-          requestUrl = DOCUMENTATION_OPTIONS.URL_ROOT + item[0] + DOCUMENTATION_OPTIONS.FILE_SUFFIX;
-          linkUrl = item[0] + DOCUMENTATION_OPTIONS.LINK_SUFFIX;
-        }
-        listItem.append($('<a/>').attr('href',
-            linkUrl +
-            highlightstring + item[2]).html(item[1]));
-        if (item[3]) {
-          listItem.append($('<span> (' + item[3] + ')</span>'));
-          Search.output.append(listItem);
-          setTimeout(function() {
-            displayNextItem();
-          }, 5);
-        } else if (DOCUMENTATION_OPTIONS.HAS_SOURCE) {
-          $.ajax({url: requestUrl,
-                  dataType: "text",
-                  complete: function(jqxhr, textstatus) {
-                    var data = jqxhr.responseText;
-                    if (data !== '' && data !== undefined) {
-                      var summary = Search.makeSearchSummary(data, searchterms, hlterms);
-                      if (summary) {
-                        listItem.append(summary);
-                      }
-                    }
-                    Search.output.append(listItem);
-                    setTimeout(function() {
-                      displayNextItem();
-                    }, 5);
-                  }});
-        } else {
-          // no source available, just display title
-          Search.output.append(listItem);
-          setTimeout(function() {
-            displayNextItem();
-          }, 5);
-        }
-      }
-      // search finished, update title and status message
-      else {
-        Search.stopPulse();
-        Search.title.text(_('Search Results'));
-        if (!resultCount)
-          Search.status.text(_('Your search did not match any documents. Please make sure that all words are spelled correctly and that you\'ve selected enough categories.'));
-        else
-            Search.status.text(_('Search finished, found %s page(s) matching the search query.').replace('%s', resultCount));
-        Search.status.fadeIn(500);
-      }
-    }
-    displayNextItem();
+    _displayNextItem(results, results.length, highlightTerms, searchTerms);
   },
 
   /**
