@@ -49,12 +49,6 @@ const Scorer = {
   partialTerm: 2
 };
 
-if (!splitQuery) {
-  function splitQuery(query) {
-    return query.split(/\s+/);
-  }
-}
-
 const _removeChildren = element => {while (element.lastChild) element.removeChild(element.lastChild);}
 
 /**
@@ -198,96 +192,78 @@ const Search = {
   /**
    * execute search (requires search index to be loaded)
    */
-  query : function(query) {
-    var i;
+  query: query => {
+    // stem the search terms and add them to the correct list
+    const stemmer = new Stemmer();
+    const searchTerms = [];
+    const excluded = [];
+    const highlightTerms = [];
+    const objectTerms = query.toLowerCase().trim().split(/\s+/)
+    query.trim().split(/\s+/).forEach(queryTerm => {
+      const queryTermLower = queryTerm.toLowerCase()
 
-    // stem the searchterms and add them to the correct list
-    var stemmer = new Stemmer();
-    var searchterms = [];
-    var excluded = [];
-    var hlterms = [];
-    var tmp = splitQuery(query);
-    var objectterms = [];
-    for (i = 0; i < tmp.length; i++) {
-      if (tmp[i] !== "") {
-          objectterms.push(tmp[i].toLowerCase());
-      }
-
-      if ($u.indexOf(stopwords, tmp[i].toLowerCase()) != -1 || tmp[i] === "") {
-        // skip this "word"
-        continue;
-      }
+      // maybe skip this "word"
+      // stopwords array is from language_data.js
+      if (stopwords.indexOf(queryTermLower) !== -1 || queryTerm.match(/^\d+$/)) return
+      
       // stem the word
-      var word = stemmer.stemWord(tmp[i].toLowerCase());
+      let word = stemmer.stemWord(queryTermLower)
       // prevent stemmer from cutting word smaller than two chars
-      if(word.length < 3 && tmp[i].length >= 3) {
-        word = tmp[i];
+      if (word.length < 3 && queryTerm.length >= 3) {
+        word = queryTerm;
       }
-      var toAppend;
       // select the correct list
-      if (word[0] == '-') {
-        toAppend = excluded;
-        word = word.substr(1);
+      if (word[0] === "-") {
+        if (!excluded.includes(word.substr(1))) excluded.push(word.substr(1));  // only add if not already in the list
+      } else {
+        if (!searchTerms.includes(word)) searchTerms.push(word);  // only add if not already in the list
+        highlightTerms.push(queryTermLower)
       }
-      else {
-        toAppend = searchterms;
-        hlterms.push(tmp[i].toLowerCase());
-      }
-      // only add if not already in the list
-      if (!$u.contains(toAppend, word))
-        toAppend.push(word);
-    }
-    var highlightstring = '?highlight=' + encodeURIComponent(hlterms.join(" "));
+    })
 
-    // console.debug('SEARCH: searching for:');
-    // console.info('required: ', searchterms);
-    // console.info('excluded: ', excluded);
+    // console.debug("SEARCH: searching for:");
+    // console.info("required: ", searchTerms);
+    // console.info("excluded: ", excluded);
 
     // prepare search
-    var terms = this._index.terms;
-    var titleterms = this._index.titleterms;
+    const terms = this._index.terms;
+    const titleTerms = this._index.titleterms;
 
-    // array of [filename, title, anchor, descr, score]
-    var results = [];
-    $('#search-progress').empty();
+    // array of [docname, title, anchor, descr, score, filename]
+    let results = [];
+    _removeChildren(document.getElementById("search-progress"))
 
     // lookup as object
-    for (i = 0; i < objectterms.length; i++) {
-      var others = [].concat(objectterms.slice(0, i),
-                             objectterms.slice(i+1, objectterms.length));
-      results = results.concat(this.performObjectSearch(objectterms[i], others));
-    }
+    objectTerms.forEach((term, i) => {
+      const otherTerms = [...objectTerms.slice(0, i), ...objectTerms.slice(i + 1)]
+      results.push(...this.performObjectSearch(term, otherTerms))
+    })
 
     // lookup as search terms in fulltext
-    results = results.concat(this.performTermsSearch(searchterms, excluded, terms, titleterms));
+    results.push(...this.performTermsSearch(searchTerms, excluded, terms, titleTerms))
 
     // let the scorer override scores with a custom scoring function
-    if (Scorer.score) {
-      for (i = 0; i < results.length; i++)
-        results[i][4] = Scorer.score(results[i]);
-    }
+    if (Scorer.score) results.forEach(item => item[4] = Scorer.score(item))
 
     // now sort the results by score (in opposite order of appearance, since the
     // display function below uses pop() to retrieve items) and then
     // alphabetically
-    results.sort(function(a, b) {
-      var left = a[4];
-      var right = b[4];
-      if (left > right) {
-        return 1;
-      } else if (left < right) {
-        return -1;
-      } else {
+    results.sort((a, b) => {
+      const leftScore = a[4];
+      const rightScore = b[4];
+      if (leftScore === rightScore) {
         // same score: sort alphabetically
-        left = a[1].toLowerCase();
-        right = b[1].toLowerCase();
-        return (left > right) ? -1 : ((left < right) ? 1 : 0);
+        const leftTitle = a[1].toLowerCase();
+        const rightTitle = b[1].toLowerCase();
+        if (leftTitle === rightTitle) return 0
+        return (leftTitle > rightTitle) ? -1 : 1  // inverted is intentional
       }
-    });
+      return (leftScore > rightScore) ? 1 : -1
+    })
 
     // for debugging
     //Search.lastresults = results.slice();  // a copy
-    //console.info('search results:', Search.lastresults);
+    // console.info("search results:", Search.lastresults);
 
     // print the results
     _displayNextItem(results, results.length, highlightTerms, searchTerms);
