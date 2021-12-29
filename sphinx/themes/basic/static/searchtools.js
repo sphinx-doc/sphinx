@@ -127,27 +127,27 @@ const Search = {
   init: () => {
     const query = new URLSearchParams(window.location.search).get("q");
     document.querySelectorAll('input[name="q"]').forEach(el => el.value = query)
-    if (query) this.performSearch(query);
+    if (query) Search.performSearch(query);
   },
 
   loadIndex : url => document.body.appendChild(document.createElement("script")).src = url,
 
   setIndex: index => {
-    this._index = index;
-    if (this._queued_query !== null) {
-      this._queued_query = null;
-      Search.query(this._queued_query);
+    Search._index = index;
+    if (Search._queued_query !== null) {
+      Search._queued_query = null;
+      Search.query(Search._queued_query);
     }
   },
 
-  hasIndex: () => this._index !== null,
+  hasIndex: () => Search._index !== null,
 
-  deferQuery: query => this._queued_query = query,
+  deferQuery: query => Search._queued_query = query,
 
-  stopPulse: () => this._pulse_status = 0,
+  stopPulse: () => Search._pulse_status = 0,
 
   startPulse: () => {
-    if (this._pulse_status >= 0) return
+    if (Search._pulse_status >= 0) return
 
     const pulse = () => {
       Search._pulse_status = (Search._pulse_status + 1) % 4
@@ -171,17 +171,17 @@ const Search = {
     searchList.classList.add("search")
 
     const out = document.getElementById("search-results");
-    this.title = out.appendChild(searchText);
-    this.dots = this.title.appendChild(document.createElement("span"))
-    this.status = out.appendChild(searchSummary);
-    this.output = out.appendChild(searchList);
+    Search.title = out.appendChild(searchText);
+    Search.dots = Search.title.appendChild(document.createElement("span"))
+    Search.status = out.appendChild(searchSummary);
+    Search.output = out.appendChild(searchList);
 
     document.getElementById("search-progress").innerText = _("Preparing search...")
-    this.startPulse();
+    Search.startPulse();
 
     // index already loaded, the browser was quick!
-    if (this.hasIndex()) this.query(query)
-    else this.deferQuery(query)
+    if (Search.hasIndex()) Search.query(query)
+    else Search.deferQuery(query)
   },
 
   /**
@@ -225,10 +225,10 @@ const Search = {
     _removeChildren(document.getElementById("search-progress"))
 
     // lookup as object
-    objectTerms.forEach(term => results.push(...this.performObjectSearch(term, objectTerms)))
+    objectTerms.forEach(term => results.push(...Search.performObjectSearch(term, objectTerms)))
 
     // lookup as search terms in fulltext
-    results.push(...this.performTermsSearch(searchTerms, excludedTerms))
+    results.push(...Search.performTermsSearch(searchTerms, excludedTerms))
 
     // let the scorer override scores with a custom scoring function
     if (Scorer.score) results.forEach(item => item[4] = Scorer.score(item))
@@ -261,11 +261,11 @@ const Search = {
    * search for object names
    */
   performObjectSearch: (object, objectTerms) => {
-    const filenames = this._index.filenames;
-    const docNames = this._index.docnames;
-    const objects = this._index.objects;
-    const objNames = this._index.objnames;
-    const titles = this._index.titles;
+    const filenames = Search._index.filenames;
+    const docNames = Search._index.docnames;
+    const objects = Search._index.objects;
+    const objNames = Search._index.objnames;
+    const titles = Search._index.titles;
 
     const results = [];
 
@@ -306,7 +306,7 @@ const Search = {
 
       results.push([docNames[match[0]], fullname, "#" + anchor, descr, score, filenames[match[0]]]);
     }
-    objects.forEach(prefix => objects[prefix].forEach(name => objectSearchCallback(prefix, name)))
+    Object.keys(objects).forEach(prefix => Object.keys(objects[prefix]).forEach(name => objectSearchCallback(prefix, name)))
     return results;
   },
 
@@ -315,14 +315,14 @@ const Search = {
    */
   performTermsSearch: (searchTerms, excludedTerms) => {
     // prepare search
-    const terms = this._index.terms;
-    const titleTerms = this._index.titleterms;
-    const docNames = this._index.docnames;
-    const filenames = this._index.filenames;
-    const titles = this._index.titles;
+    const terms = Search._index.terms;
+    const titleTerms = Search._index.titleterms;
+    const docNames = Search._index.docnames;
+    const filenames = Search._index.filenames;
+    const titles = Search._index.titles;
 
-    const scoreMap = {};
-    const fileMap = {};
+    const scoreMap = new Map()
+    const fileMap = new Map()
 
     // perform the search on the required terms
     searchTerms.forEach(word => {
@@ -334,10 +334,10 @@ const Search = {
       // add support for partial matches
       if (word.length > 2) {
         const escapedWord = _escapeRegExp(word)
-        terms.forEach(term => {
+        Object.keys(terms).forEach(term => {
           if (term.match(escapedWord) && !terms[word]) arr.push({files: terms[term], score: Scorer.partialTerm})
         })
-        titleTerms.forEach(term => {
+        Object.keys(titleTerms).forEach(term => {
           if (term.match(escapedWord) && !titleTerms[word]) arr.push({files: titleTerms[word], score: Scorer.partialTitle})
         })
       }
@@ -349,33 +349,34 @@ const Search = {
       arr.forEach(record => {
         if (record.files === undefined) return
 
-        if (record.files.length === undefined) files.push(record.files)
-        else files.push(...record.files)
+        let recordFiles = record.files
+        if (recordFiles.length === undefined) recordFiles = [recordFiles]
+        files.push(...recordFiles)
 
         // set score for the word in each file
-        record.files.forEach(file => {
-          if (!(file in scoreMap)) scoreMap[file] = {};
-          scoreMap[file][word] = record.score;
+        recordFiles.forEach(file => {
+          if (!scoreMap.has(file)) scoreMap.set(file, {})
+          scoreMap.get(file)[word] = record.score;
         })
       });
 
       // create the mapping
       files.forEach(file => {
-        if (file in fileMap && fileMap[file].indexOf(word) === -1) fileMap[file].push(word)
-        else fileMap[file] = [word]
+        if (fileMap.has(file)  && fileMap.get(file).indexOf(word) === -1) fileMap.get(file).push(word)
+        else fileMap.set(file, [word])
       })
     })
 
     // now check if the files don't contain excluded terms
     const results = [];
-    for (const file in fileMap) {
+    for (const [file, wordList] of fileMap) {
 
       // check if all requirements are matched
       const filteredTermCount = // as search terms with length < 3 are discarded: ignore
           [...searchTerms].filter(term => term.length > 2).length;
       if (
-          fileMap[file].length !== searchTerms.size
-       && fileMap[file].length !== filteredTermCount
+          wordList.length !== searchTerms.size
+       && wordList.length !== filteredTermCount
       ) continue;
 
       // ensure that none of the excluded terms is in the search result
@@ -386,7 +387,7 @@ const Search = {
           || (titleTerms[term] || []).includes(file)))) break
 
        // select one (max) score for the file.
-      const score = Math.max(...fileMap[file].map(w => scoreMap[file][w]))
+      const score = Math.max(...wordList.map(w => scoreMap.get(file)[w]))
       // add result to the result list
       results.push([docNames[file], titles[file], "", null, score, filenames[file]]);
     }

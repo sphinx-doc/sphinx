@@ -50,20 +50,18 @@ const _highlight = (node, addItems, text, className) => {
         rect.width.baseVal.value = bbox.width;
         rect.height.baseVal.value = bbox.height;
         rect.setAttribute("class", className);
-        addItems.push({
-          "parent": parent,
-          "target": rect});
+        addItems.push({"parent": parent, "target": rect});
       }
     }
   }
-  else if (!node.matches("button, select, textarea")) {
+  else if (node.matches && !node.matches("button, select, textarea")) {
     node.childNodes.forEach(el => _highlight(el, addItems, text, className));
   }
 };
 const _highlightText = (thisNode, text, className) => {
   let addItems = [];
   _highlight(thisNode, addItems, text, className)
-  for (let i = 0; i < addItems.length; ++i) addItems[i].parent.insertAdjacentHTML("beforebegin", addItems[i].target)
+  addItems.forEach(obj => obj.parent.insertAdjacentElement("beforebegin", obj.target))
 }
 
 /**
@@ -72,9 +70,9 @@ const _highlightText = (thisNode, text, className) => {
 const Documentation = {
 
   init : () => {
-    this.highlightSearchWords();
-    this.initDomainIndexTable();
-    if (DOCUMENTATION_OPTIONS.NAVIGATION_WITH_KEYS) this.initOnKeyListeners()
+    Documentation.highlightSearchWords();
+    Documentation.initDomainIndexTable();
+    if (DOCUMENTATION_OPTIONS.NAVIGATION_WITH_KEYS) Documentation.initOnKeyListeners()
   },
 
   /**
@@ -102,9 +100,9 @@ const Documentation = {
   },
 
   addTranslations : catalog => {
-    Object.assign(this.TRANSLATIONS, catalog.messages)
-    this.PLURAL_EXPR = new Function("n", `return (${catalog.plural_expr})`)
-    this.LOCALE = catalog.locale
+    Object.assign(Documentation.TRANSLATIONS, catalog.messages)
+    Documentation.PLURAL_EXPR = new Function("n", `return (${catalog.plural_expr})`)
+    Documentation.LOCALE = catalog.locale
   },
 
   /**
@@ -121,11 +119,13 @@ const Documentation = {
       terms.forEach(term => _highlightText(body, term.toLowerCase(), "highlighted"))
     }, 10);
 
-    document.getElementById("searchbox").appendChild(
+    const searchBox = document.getElementById("searchbox")
+    if (searchBox === null) return
+    searchBox.appendChild(
       document.createRange().createContextualFragment(
           '<p class="highlight-link">'
           +'<a href="javascript:Documentation.hideSearchWords()">'
-          + this.gettext("Hide Search Matches")
+          + Documentation.gettext("Hide Search Matches")
           + "</a></p>"));
   },
 
