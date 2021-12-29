@@ -188,13 +188,9 @@ var Documentation = {
   /**
    * get the current relative url
    */
-  getCurrentURL : function() {
-    var path = document.location.pathname;
-    var parts = path.split(/\//);
-    DOCUMENTATION_OPTIONS.URL_ROOT.split(/\//).forEach(part => {if (part === '..') parts.pop()});
-    var url = parts.join("/");
-    return path.substring(url.lastIndexOf('/') + 1, path.length - 1);
-  },
+  getCurrentURL: () => document.location.pathname.split(/\//).slice(-1)[0],
+  // the original (jQuery) function was broken (the check would always return false). Fixing it would represent a breaking change.
+  // getCurrentURL: () => document.location.pathname.split(/\//).slice(DOCUMENTATION_OPTIONS.URL_ROOT.split(/\//).filter(item => item === "..").length + 1).join("/"),
 
   initOnKeyListeners: function() {
     $(document).keydown(function(event) {
