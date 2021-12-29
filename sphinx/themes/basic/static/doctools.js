@@ -111,7 +111,7 @@ const Documentation = {
    * highlight the search words provided in the url in the text
    */
   highlightSearchWords: () => {
-    const highlight = new URLSearchParams(document.location.search).get("highlight")
+    const highlight = new URLSearchParams(window.location.search).get("highlight")
     const terms = (highlight) ? highlight.split(/\s+/) : [];
     if (terms.length === 0) return  // nothing to do
 
@@ -166,9 +166,9 @@ const Documentation = {
   /**
    * get the current relative url
    */
-  getCurrentURL: () => document.location.pathname.split(/\//).slice(-1)[0],
+  getCurrentURL: () => window.location.pathname.split(/\//).slice(-1)[0],
   // the original (jQuery) function was broken (the check would always return false). Fixing it would represent a breaking change.
-  // getCurrentURL: () => document.location.pathname.split(/\//).slice(DOCUMENTATION_OPTIONS.URL_ROOT.split(/\//).filter(item => item === "..").length + 1).join("/"),
+  // getCurrentURL: () => window.location.pathname.split(/\//).slice(DOCUMENTATION_OPTIONS.URL_ROOT.split(/\//).filter(item => item === "..").length + 1).join("/"),
 
   initOnKeyListeners: () => {
     const blacklistedElements = new Set(["TEXTAREA", "INPUT", "SELECT", "BUTTON"])
