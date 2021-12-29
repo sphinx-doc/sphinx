@@ -80,7 +80,7 @@ var Documentation = {
 
   init : function() {
     this.highlightSearchWords();
-    this.initIndexTable();
+    this.initDomainIndexTable();
     if (DOCUMENTATION_OPTIONS.NAVIGATION_WITH_KEYS) {
       this.initOnKeyListeners();
     }
@@ -157,21 +157,24 @@ var Documentation = {
   },
 
   /**
-   * init the domain index toggle buttons
+   * Initialise the domain index toggle buttons
    */
-  initIndexTable : function() {
-    var togglers = $('img.toggler').click(function() {
-      var src = $(this).attr('src');
-      var idnum = $(this).attr('id').substr(7);
-      $('tr.cg-' + idnum).toggle();
-      if (src.substr(-9) === 'minus.png')
-        $(this).attr('src', src.substr(0, src.length-9) + 'plus.png');
-      else
-        $(this).attr('src', src.substr(0, src.length-8) + 'minus.png');
-    }).css('display', '');
-    if (DOCUMENTATION_OPTIONS.COLLAPSE_INDEX) {
-        togglers.click();
+  initDomainIndexTable: () => {
+    const toggler = el => {
+      const idNumber = el.id.substr(7)
+      const toggledRows = document.querySelectorAll(`tr.cg-${idNumber}`)
+      if (el.src.substr(-9) === "minus.png") {
+        el.src = `${el.src.substr(0, el.src.length - 9)}plus.png`
+        toggledRows.forEach(el => el.style.display = "none")
+      } else {
+        el.src = `${el.src.substr(0, el.src.length - 8)}minus.png`
+        toggledRows.forEach(el => el.style.display = "")
+      }
     }
+    const togglerElements = document.querySelectorAll("img.toggler")
+    togglerElements.forEach(el => el.addEventListener("click", event => toggler(event.currentTarget)))
+    togglerElements.forEach(el => el.style.display = "")
+    if (DOCUMENTATION_OPTIONS.COLLAPSE_INDEX) togglerElements.forEach(toggler)
   },
 
   /**
