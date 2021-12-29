@@ -174,8 +174,8 @@ var Documentation = {
    * helper function to hide the search marks again
    */
   hideSearchWords : function() {
-    $('#searchbox .highlight-link').fadeOut(300);
-    $('span.highlighted').removeClass('highlighted');
+    document.querySelectorAll("#searchbox .highlight-link").forEach(el => el.remove())
+    document.querySelectorAll("span.highlighted").forEach(el => el.classList.remove("highlighted"))
   },
 
   /**
