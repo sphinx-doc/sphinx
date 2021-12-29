@@ -130,6 +130,14 @@ const Documentation = {
   },
 
   /**
+   * helper function to hide the search marks again
+   */
+  hideSearchWords: () => {
+    document.querySelectorAll("#searchbox .highlight-link").forEach(el => el.remove())
+    document.querySelectorAll("span.highlighted").forEach(el => el.classList.remove("highlighted"))
+  },
+
+  /**
    * Initialise the domain index toggle buttons
    */
   initDomainIndexTable: () => {
@@ -148,14 +156,6 @@ const Documentation = {
     togglerElements.forEach(el => el.addEventListener("click", event => toggler(event.currentTarget)))
     togglerElements.forEach(el => el.style.display = "")
     if (DOCUMENTATION_OPTIONS.COLLAPSE_INDEX) togglerElements.forEach(toggler)
-  },
-
-  /**
-   * helper function to hide the search marks again
-   */
-  hideSearchWords: () => {
-    document.querySelectorAll("#searchbox .highlight-link").forEach(el => el.remove())
-    document.querySelectorAll("span.highlighted").forEach(el => el.classList.remove("highlighted"))
   },
 
   /**
