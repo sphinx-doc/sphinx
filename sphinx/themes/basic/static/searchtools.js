@@ -10,20 +10,15 @@
  */
 
 /**
- * select a different prefix for underscore
- */
-$u = _.noConflict();
-
-/**
  * Simple result scoring code.
  */
 const Scorer = {
   // Implement the following function to further tweak the score for each result
-  // The function takes a result array [filename, title, anchor, descr, score]
+  // The function takes a result array [docname, title, anchor, descr, score, filename]
   // and returns the new score.
   /*
   score: result => {
-    const [filename, title, anchor, descr, score] = result
+    const [docname, title, anchor, descr, score, filename] = result
     return score
   },
   */
@@ -63,22 +58,22 @@ const _displayItem = (item, highlightTerms, searchTerms) => {
   const docLinkSuffix = DOCUMENTATION_OPTIONS.LINK_SUFFIX
   const docHasSource = DOCUMENTATION_OPTIONS.HAS_SOURCE
 
-  const [docname, title, anchor, descr, score, filename] = item
+  const [docName, title, anchor, descr] = item
 
   let listItem = document.createElement("li")
   let requestUrl;
   let linkUrl;
   if (docBuilder === "dirhtml") {
     // dirhtml builder
-    let dirname = docname + "/";
+    let dirname = docName + "/";
     if (dirname.match(/\/index\/$/)) dirname = dirname.substring(0, dirname.length - 6);
     else if (dirname === "index/") dirname = "";
     requestUrl = docUrlRoot + dirname;
     linkUrl = requestUrl
   } else {
     // normal html builders
-    requestUrl = docUrlRoot + docname + docFileSuffix;
-    linkUrl = docname + docLinkSuffix;
+    requestUrl = docUrlRoot + docName + docFileSuffix;
+    linkUrl = docName + docLinkSuffix;
   }
   const params = new URLSearchParams()
   params.set("highlight", highlightTerms.join(" "))
@@ -275,7 +270,6 @@ const Search = {
     const objNames = this._index.objnames;
     const titles = this._index.titles;
 
-    let i;
     const results = [];
 
     const objectSearchCallback = (prefix, name) => {
