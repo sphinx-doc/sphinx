@@ -99,20 +99,15 @@ const Search = {
 
   stopPulse: () => this._pulse_status = 0,
 
-  startPulse : function() {
-    if (this._pulse_status >= 0)
-        return;
-    function pulse() {
-      var i;
-      Search._pulse_status = (Search._pulse_status + 1) % 4;
-      var dotString = '';
-      for (i = 0; i < Search._pulse_status; i++)
-        dotString += '.';
-      Search.dots.text(dotString);
-      if (Search._pulse_status > -1)
-        window.setTimeout(pulse, 500);
+  startPulse: () => {
+    if (this._pulse_status >= 0) return
+
+    const pulse = () => {
+      Search._pulse_status = (Search._pulse_status + 1) % 4
+      Search.dots.innerText = ".".repeat(Search._pulse_status)
+      if (Search._pulse_status >= 0) window.setTimeout(pulse, 500)
     }
-    pulse();
+    pulse()
   },
 
   /**
