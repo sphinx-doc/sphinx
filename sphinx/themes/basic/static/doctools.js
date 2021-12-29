@@ -192,31 +192,19 @@ var Documentation = {
   // the original (jQuery) function was broken (the check would always return false). Fixing it would represent a breaking change.
   // getCurrentURL: () => document.location.pathname.split(/\//).slice(DOCUMENTATION_OPTIONS.URL_ROOT.split(/\//).filter(item => item === "..").length + 1).join("/"),
 
-  initOnKeyListeners: function() {
-    $(document).keydown(function(event) {
-      var activeElementType = document.activeElement.tagName;
-      // don't navigate when in search box, textarea, dropdown or button
-      if (activeElementType !== 'TEXTAREA' && activeElementType !== 'INPUT' && activeElementType !== 'SELECT'
-          && activeElementType !== 'BUTTON' && !event.altKey && !event.ctrlKey && !event.metaKey
-          && !event.shiftKey) {
-        switch (event.keyCode) {
-          case 37: // left
-            var prevHref = document.querySelector('link[rel="prev"]').href;
-            if (prevHref) {
-              window.location.href = prevHref;
-              return false;
-            }
-            break;
-          case 39: // right
-            var nextHref = document.querySelector('link[rel="next"]').href
-            if (nextHref) {
-              window.location.href = nextHref;
-              return false;
-            }
-            break;
-        }
+  initOnKeyListeners: () => {
+    const blacklistedElements = new Set(["TEXTAREA", "INPUT", "SELECT", "BUTTON"])
+    document.addEventListener("keydown",event => {
+      if (blacklistedElements.has(document.activeElement.tagName)) return  // bail for input elements
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return  // bail with special keys
+      if (event.key === "ArrowLeft") {
+        const prevLink = document.querySelector('link[rel="prev"]');
+        if (prevLink && prevLink.href) window.location.href = prevLink.href;
+      } else if (event.key === "ArrowRight") {
+        const nextLink = document.querySelector('link[rel="next"]').href
+        if (nextLink && nextLink.href) window.location.href = nextLink.href;
       }
-    });
+    })
   }
 };
 
