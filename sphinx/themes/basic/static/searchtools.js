@@ -528,6 +528,4 @@ var Search = {
   }
 };
 
-$(document).ready(function() {
-  Search.init();
-});
+_ready(Search.init)
