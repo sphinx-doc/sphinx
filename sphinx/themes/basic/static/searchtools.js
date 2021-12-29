@@ -117,22 +117,28 @@ const Search = {
   /**
    * perform a search for something (or wait until index is loaded)
    */
-  performSearch : function(query) {
+  performSearch: query => {
     // create the required interface elements
-    this.out = $('#search-results');
-    this.title = $('<h2>' + _('Searching') + '</h2>').appendTo(this.out);
-    this.dots = $('<span></span>').appendTo(this.title);
-    this.status = $('<p class="search-summary">&nbsp;</p>').appendTo(this.out);
-    this.output = $('<ul class="search"/>').appendTo(this.out);
+    const searchText = document.createElement("h2");
+    searchText.textContent = _("Searching");
+    const searchSummary = document.createElement("p");
+    searchSummary.classList.add("search-summary")
+    searchSummary.innerText = ""
+    const searchList = document.createElement("ul");
+    searchList.classList.add("search")
 
-    $('#search-progress').text(_('Preparing search...'));
+    const out = document.getElementById("search-results");
+    this.title = out.appendChild(searchText);
+    this.dots = this.title.appendChild(document.createElement("span"))
+    this.status = out.appendChild(searchSummary);
+    this.output = out.appendChild(searchList);
+
+    document.getElementById("search-progress").innerText = _("Preparing search...")
     this.startPulse();
 
     // index already loaded, the browser was quick!
-    if (this.hasIndex())
-      this.query(query);
-    else
-      this.deferQuery(query);
+    if (this.hasIndex()) this.query(query)
+    else this.deferQuery(query)
   },
 
   /**
