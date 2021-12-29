@@ -8,6 +8,7 @@
  * :license: BSD, see LICENSE for details.
  *
  */
+"use strict";
 
 /**
  * Simple result scoring code.
