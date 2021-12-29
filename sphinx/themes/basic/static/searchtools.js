@@ -77,12 +77,10 @@ const Search = {
       return docContent.textContent || docContent.innerText;
   },
 
-  init : function() {
-      var query = new URLSearchParams(document.location.search).get("q")
-      if (query) {
-          $('input[name="q"]')[0].value = query;
-          this.performSearch(query);
-      }
+  init: () => {
+    const query = new URLSearchParams(window.location.search).get("q");
+    document.querySelectorAll('input[name="q"]').forEach(el => el.value = query)
+    if (query) this.performSearch(query);
   },
 
   loadIndex : function(url) {
