@@ -6,14 +6,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      node-version: 10.7
+      node-version: 16
 
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ env.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v2
       with:
         node-version: ${{ env.node-version }}
+        cache: "npm"
     - run: npm install
     - name: Run headless test
       uses: GabrielBB/xvfb-action@v1
