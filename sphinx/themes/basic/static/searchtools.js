@@ -56,6 +56,11 @@ if (!splitQuery) {
 }
 
 /**
+ * See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#escaping
+ */
+const _escapeRegExp = string => string.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+
+/**
  * Search Module
  */
 const Search = {
