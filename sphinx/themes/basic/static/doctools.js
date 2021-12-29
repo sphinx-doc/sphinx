@@ -67,7 +67,7 @@ const _highlight = (node, addItems, text, className) => {
     node.childNodes.forEach(el => _highlight(el, addItems, text, className));
   }
 };
-const highlightText = (thisNode, text, className) => {
+const _highlightText = (thisNode, text, className) => {
   let addItems = [];
   _highlight(thisNode, addItems, text, className)
   for (let i = 0; i < addItems.length; ++i) addItems[i].parent.insertAdjacentHTML("beforebegin", addItems[i].target)
@@ -140,16 +140,20 @@ var Documentation = {
   highlightSearchWords : function() {
     var highlight = new URLSearchParams(document.location.search).get("highlight")
     var terms = (highlight) ? highlight.split(/\s+/) : [];
-    if (terms.length) {
-      let body = document.querySelectorAll("div.body");
-      if (!body.length) body = document.querySelector("body")
-      window.setTimeout(() => {
-        terms.forEach(term => highlightText(body, term.toLowerCase(), 'highlighted'))
-      }, 10);
-      $('<p class="highlight-link"><a href="javascript:Documentation.' +
-        'hideSearchWords()">' + _('Hide Search Matches') + '</a></p>')
-          .appendTo($('#searchbox'));
-    }
+    if (terms.length === 0) return  // nothing to do
+
+    let body = document.querySelectorAll("div.body");
+    if (!body.length) body = document.querySelector("body")
+    window.setTimeout(() => {
+      terms.forEach(term => _highlightText(body, term.toLowerCase(), "highlighted"))
+    }, 10);
+
+    document.getElementById("searchbox").appendChild(
+      document.createRange().createContextualFragment(
+          '<p class="highlight-link">'
+          +'<a href="javascript:Documentation.hideSearchWords()">'
+          + this.gettext("Hide Search Matches")
+          + "</a></p>"));
   },
 
   /**
