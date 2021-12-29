@@ -83,15 +83,7 @@ const Search = {
     if (query) this.performSearch(query);
   },
 
-  loadIndex : function(url) {
-    $.ajax({type: "GET", url: url, data: null,
-            dataType: "script", cache: true,
-            complete: function(jqxhr, textstatus) {
-              if (textstatus != "success") {
-                document.getElementById("searchindexloader").src = url;
-              }
-            }});
-  },
+  loadIndex : url => document.body.appendChild(document.createElement("script")).src = url,
 
   setIndex : function(index) {
     var q;
