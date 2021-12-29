@@ -2,12 +2,13 @@
  * doctools.js
  * ~~~~~~~~~~~
  *
- * Sphinx JavaScript utilities for all documentation.
+ * Base JavaScript utilities for all Sphinx HTML documentation.
  *
  * :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
+"use strict";
 
 const _ready = callback => {
   if (document.readyState !== "loading") return callback()
@@ -186,6 +187,6 @@ const Documentation = {
 };
 
 // quick alias for translations
-_ = Documentation.gettext;
+const _ = Documentation.gettext;
 
 _ready(Documentation.init);
