@@ -158,18 +158,6 @@ const Documentation = {
     if (DOCUMENTATION_OPTIONS.COLLAPSE_INDEX) togglerElements.forEach(toggler)
   },
 
-  /**
-   * make the url absolute
-   */
-  makeURL : relativeURL => `${DOCUMENTATION_OPTIONS.URL_ROOT}/${relativeURL}`,
-
-  /**
-   * get the current relative url
-   */
-  getCurrentURL: () => window.location.pathname.split(/\//).slice(-1)[0],
-  // the original (jQuery) function was broken (the check would always return false). Fixing it would represent a breaking change.
-  // getCurrentURL: () => window.location.pathname.split(/\//).slice(DOCUMENTATION_OPTIONS.URL_ROOT.split(/\//).filter(item => item === "..").length + 1).join("/"),
-
   initOnKeyListeners: () => {
     const blacklistedElements = new Set(["TEXTAREA", "INPUT", "SELECT", "BUTTON"])
     document.addEventListener("keydown",event => {
