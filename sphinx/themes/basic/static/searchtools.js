@@ -225,10 +225,6 @@ const Search = {
     // console.info("required: ", searchTerms);
     // console.info("excluded: ", excluded);
 
-    // prepare search
-    const terms = this._index.terms;
-    const titleTerms = this._index.titleterms;
-
     // array of [docname, title, anchor, descr, score, filename]
     let results = [];
     _removeChildren(document.getElementById("search-progress"))
@@ -240,7 +236,7 @@ const Search = {
     })
 
     // lookup as search terms in fulltext
-    results.push(...this.performTermsSearch(searchTerms, excluded, terms, titleTerms))
+    results.push(...this.performTermsSearch(searchTerms, excluded))
 
     // let the scorer override scores with a custom scoring function
     if (Scorer.score) results.forEach(item => item[4] = Scorer.score(item))
@@ -322,111 +318,84 @@ const Search = {
   },
 
   /**
-   * See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
-   */
-  escapeRegExp : function(string) {
-    return string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
-  },
-
-  /**
    * search for full-text terms in the index
    */
-  performTermsSearch : function(searchterms, excluded, terms, titleterms) {
-    var docnames = this._index.docnames;
-    var filenames = this._index.filenames;
-    var titles = this._index.titles;
+  performTermsSearch: (searchTerms, excluded) => {
+    // prepare search
+    const terms = this._index.terms;
+    const titleTerms = this._index.titleterms;
+    const docNames = this._index.docnames;
+    const filenames = this._index.filenames;
+    const titles = this._index.titles;
 
-    var i, j, file;
-    var fileMap = {};
-    var scoreMap = {};
-    var results = [];
+    const scoreMap = {};
+    const fileMap = {};
 
     // perform the search on the required terms
-    for (i = 0; i < searchterms.length; i++) {
-      var word = searchterms[i];
-      var files = [];
-      var _o = [
+    searchTerms.forEach(word => {
+      const files = []
+      const arr = [
         {files: terms[word], score: Scorer.term},
-        {files: titleterms[word], score: Scorer.title}
+        {files: titleTerms[word], score: Scorer.title}
       ];
       // add support for partial matches
       if (word.length > 2) {
-        var word_regex = this.escapeRegExp(word);
-        for (var w in terms) {
-          if (w.match(word_regex) && !terms[word]) {
-            _o.push({files: terms[w], score: Scorer.partialTerm})
-          }
-        }
-        for (var w in titleterms) {
-          if (w.match(word_regex) && !titleterms[word]) {
-              _o.push({files: titleterms[w], score: Scorer.partialTitle})
-          }
-        }
+        const escapedWord = _escapeRegExp(word)
+        terms.forEach(term => {
+          if (term.match(escapedWord) && !terms[word]) arr.push({files: terms[term], score: Scorer.partialTerm})
+        })
+        titleTerms.forEach(term => {
+          if (term.match(escapedWord) && !titleTerms[word]) arr.push({files: titleTerms[word], score: Scorer.partialTitle})
+        })
       }
 
       // no match but word was a required one
-      if ($u.every(_o, function(o){return o.files === undefined;})) {
-        break;
-      }
+      if (arr.every(record => record.files === undefined)) return
+
       // found search word in contents
-      $u.each(_o, function(o) {
-        var _files = o.files;
-        if (_files === undefined)
-          return
+      arr.forEach(record => {
+        if (record.files === undefined) return
 
-        if (_files.length === undefined)
-          _files = [_files];
-        files = files.concat(_files);
+        if (record.files.length === undefined) files.push(record.files)
+        else files.push(...record.files)
 
-        // set score for the word in each file to Scorer.term
-        for (j = 0; j < _files.length; j++) {
-          file = _files[j];
-          if (!(file in scoreMap))
-            scoreMap[file] = {};
-          scoreMap[file][word] = o.score;
-        }
+        // set score for the word in each file
+        record.files.forEach(file => {
+          if (!(file in scoreMap)) scoreMap[file] = {};
+          scoreMap[file][word] = record.score;
+        })
       });
 
       // create the mapping
-      for (j = 0; j < files.length; j++) {
-        file = files[j];
-        if (file in fileMap && fileMap[file].indexOf(word) === -1)
-          fileMap[file].push(word);
-        else
-          fileMap[file] = [word];
-      }
-    }
+      files.forEach(file => {
+        if (file in fileMap && fileMap[file].indexOf(word) === -1) fileMap[file].push(word)
+        else fileMap[file] = [word]
+      })
+    })
 
     // now check if the files don't contain excluded terms
-    for (file in fileMap) {
-      var valid = true;
+    const results = [];
+    for (const file in fileMap) {
 
       // check if all requirements are matched
-      var filteredTermCount = // as search terms with length < 3 are discarded: ignore
-        searchterms.filter(function(term){return term.length > 2}).length
+      const filteredTermCount = // as search terms with length < 3 are discarded: ignore
+          searchTerms.filter(term => term.length > 2).length;
       if (
-        fileMap[file].length != searchterms.length &&
-        fileMap[file].length != filteredTermCount
+          fileMap[file].length !== searchTerms.length
+       && fileMap[file].length !== filteredTermCount
       ) continue;
 
       // ensure that none of the excluded terms is in the search result
-      for (i = 0; i < excluded.length; i++) {
-        if (terms[excluded[i]] == file ||
-            titleterms[excluded[i]] == file ||
-            $u.contains(terms[excluded[i]] || [], file) ||
-            $u.contains(titleterms[excluded[i]] || [], file)) {
-          valid = false;
-          break;
-        }
-      }
+      if (excluded.some(term => (
+          terms[term] === file
+          || titleTerms[term] === file
+          || (terms[term] || []).includes(file)
+          || (titleTerms[term] || []).includes(file)))) break
 
-      // if we have still a valid result we can add it to the result list
-      if (valid) {
-        // select one (max) score for the file.
-        // for better ranking, we should calculate ranking by using words statistics like basic tf-idf...
-        var score = $u.max($u.map(fileMap[file], function(w){return scoreMap[file][w]}));
-        results.push([docnames[file], titles[file], '', null, score, filenames[file]]);
-      }
+       // select one (max) score for the file.
+      const score = Math.max(...fileMap[file].map(w => scoreMap[file][w]))
+      // add result to the result list
+      results.push([docNames[file], titles[file], "", null, score, filenames[file]]);
     }
     return results;
   },
