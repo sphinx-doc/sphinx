@@ -23,6 +23,7 @@ Features added
   ``__all__`` attribute if :confval:`autosummary_ignore_module_all` is set to
   ``False``. The default behaviour is unchanged. Autogen also now supports
   this behavior with the ``--respect-module-all`` switch.
+* #9555: autosummary: Improve error messages on failure to load target object
 * #9800: extlinks: Emit warning if a hardcoded link is replaceable
   by an extlink, suggesting a replacement.
 * #9961: html: Support nested <kbd> HTML elements in other HTML builders
