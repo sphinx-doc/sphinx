@@ -27,28 +27,25 @@
     </style>
     <script>
       // intelligent scrolling of the sidebar content
-      $(window).scroll(function() {
-        var sb = $('.sphinxsidebarwrapper');
-        var win = $(window);
-        var sbh = sb.height();
-        var offset = $('.sphinxsidebar').position()['top'];
-        var wintop = win.scrollTop();
-        var winbot = wintop + win.innerHeight();
+      jQuery(window).scroll(function() {
+        var sb = document.getElementsByClassName('sphinxsidebarwrapper')[0]
+        var sbh = sb.offsetHeight
+        var offset = jQuery('.sphinxsidebar').position()['top'];
+        var wintop = jQuery(window).scrollTop();
+        var winbot = wintop + window.offsetHeight
         var curtop = sb.position()['top'];
         var curbot = curtop + sbh;
         // does sidebar fit in window?
-        if (sbh < win.innerHeight()) {
+        if (sbh < window.offsetHeight) {
           // yes: easy case -- always keep at the top
-          sb.css('top', $u.min([$u.max([0, wintop - offset - 10]),
-                                $(document).height() - sbh - 200]));
+          sb.style.top = Math.min(Math.max(0, wintop - offset - 10), window.innerHeight - sbh - 200)
         } else {
           // no: only scroll if top/bottom edge of sidebar is at
           // top/bottom edge of window
           if (curtop > wintop && curbot > winbot) {
-            sb.css('top', $u.max([wintop - offset - 10, 0]));
+              sb.style.top = Math.max(wintop - offset - 10, 0)
           } else if (curtop < wintop && curbot < winbot) {
-            sb.css('top', $u.min([winbot - sbh - offset - 20,
-                                  $(document).height() - sbh - 200]));
+              sb.style.top = Math.min(winbot - sbh - offset - 20, window.innerHeight - sbh - 200)
           }
         }
       });
