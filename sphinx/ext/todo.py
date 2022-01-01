@@ -93,7 +93,7 @@ class TodoDomain(Domain):
     def process_doc(self, env: BuildEnvironment, docname: str,
                     document: nodes.document) -> None:
         todos = self.todos.setdefault(docname, [])
-        for todo in document.traverse(todo_node):
+        for todo in document.findall(todo_node):
             env.app.emit('todo-defined', todo)
             todos.append(todo)
 
@@ -131,7 +131,7 @@ class TodoListProcessor:
 
     def process(self, doctree: nodes.document, docname: str) -> None:
         todos: List[todo_node] = sum(self.domain.todos.values(), [])
-        for node in list(doctree.traverse(todolist)):
+        for node in list(doctree.findall(todolist)):
             if not self.config.todo_include_todos:
                 node.parent.remove(node)
                 continue
@@ -184,7 +184,7 @@ class TodoListProcessor:
 
     def resolve_reference(self, todo: todo_node, docname: str) -> None:
         """Resolve references in the todo content."""
-        for node in todo.traverse(addnodes.pending_xref):
+        for node in todo.findall(addnodes.pending_xref):
             if 'refdoc' in node:
                 node['refdoc'] = docname
 

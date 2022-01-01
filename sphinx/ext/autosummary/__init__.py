@@ -587,7 +587,7 @@ def extract_summary(doc: List[str], document: Any) -> str:
                 node = parse(doc, document.settings)
                 if summary.endswith(WELL_KNOWN_ABBREVIATIONS):
                     pass
-                elif not list(node.traverse(nodes.system_message)):
+                elif not any(node.findall(nodes.system_message)):
                     # considered as that splitting by period does not break inline markups
                     break
 

@@ -535,7 +535,7 @@ class BuildEnvironment:
         self.apply_post_transforms(doctree, docname)
 
         # now, resolve all toctree nodes
-        for toctreenode in doctree.traverse(addnodes.toctree):
+        for toctreenode in doctree.findall(addnodes.toctree):
             result = TocTree(self).resolve(docname, builder, toctreenode,
                                            prune=prune_toctrees,
                                            includehidden=includehidden)

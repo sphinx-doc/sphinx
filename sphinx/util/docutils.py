@@ -500,6 +500,16 @@ class SphinxTranslator(nodes.NodeVisitor):
         logger.warning(__('unknown node type: %r'), node, location=node)
 
 
+# Node.findall() is a new interface to traverse a doctree since docutils-0.18.
+# This applies a patch docutils-0.17 or older to be available Node.findall()
+# method to use it from our codebase.
+if __version_info__ < (0, 18):
+    def findall(self, *args, **kwargs):
+        return iter(self.traverse(*args, **kwargs))
+
+    Node.findall = findall  # type: ignore
+
+
 # cache a vanilla instance of nodes.document
 # Used in new_document() function
 __document_cache__: Optional[nodes.document] = None

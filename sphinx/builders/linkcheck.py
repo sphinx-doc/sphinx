@@ -650,7 +650,7 @@ class HyperlinkCollector(SphinxPostTransform):
         hyperlinks = builder.hyperlinks
 
         # reference nodes
-        for refnode in self.document.traverse(nodes.reference):
+        for refnode in self.document.findall(nodes.reference):
             if 'refuri' not in refnode:
                 continue
             uri = refnode['refuri']
@@ -664,7 +664,7 @@ class HyperlinkCollector(SphinxPostTransform):
                 hyperlinks[uri] = uri_info
 
         # image nodes
-        for imgnode in self.document.traverse(nodes.image):
+        for imgnode in self.document.findall(nodes.image):
             uri = imgnode['candidates'].get('?')
             if uri and '://' in uri:
                 newuri = self.app.emit_firstresult('linkcheck-process-uri', uri)

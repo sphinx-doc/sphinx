@@ -146,7 +146,7 @@ class I18nBuilder(Builder):
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
         catalog = self.catalogs[docname_to_domain(docname, self.config.gettext_compact)]
 
-        for toctree in self.env.tocs[docname].traverse(addnodes.toctree):
+        for toctree in self.env.tocs[docname].findall(addnodes.toctree):
             for node, msg in extract_messages(toctree):
                 node.uid = ''  # type: ignore  # Hack UUID model
                 catalog.add(msg, node)

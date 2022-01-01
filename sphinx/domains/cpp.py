@@ -7459,7 +7459,7 @@ class AliasTransform(SphinxTransform):
         return nodes
 
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.traverse(AliasNode):
+        for node in self.document.findall(AliasNode):
             node = cast(AliasNode, node)
             sig = node.sig
             parentKey = node.parentKey
