@@ -233,9 +233,11 @@ def is_translatable(node: Node) -> bool:
             return False
         return True
 
-    if isinstance(node, addnodes.meta):
+    if is_pending_meta(node) or isinstance(node, addnodes.meta):
+        # docutils-0.17 or older
         return True
-    if is_pending_meta(node):
+    elif isinstance(node, addnodes.docutils_meta):
+        # docutils-0.18+
         return True
 
     return False
@@ -274,9 +276,14 @@ def extract_messages(doctree: Element) -> Iterable[Tuple[Element, str]]:
             else:
                 msg = ''
         elif isinstance(node, META_TYPE_NODES):
+            # docutils-0.17 or older
             msg = node.rawcontent
         elif isinstance(node, nodes.pending) and is_pending_meta(node):
+            # docutils-0.17 or older
             msg = node.details['nodes'][0].rawcontent
+        elif isinstance(node, addnodes.docutils_meta):
+            # docutils-0.18+
+            msg = node["content"]
         else:
             msg = node.rawsource.replace('\n', ' ').strip()
 

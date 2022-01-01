@@ -15,7 +15,7 @@ from os import path
 from typing import IO, Any, Dict, Iterable, List, Optional, Set, Tuple, Type
 
 from docutils import nodes
-from docutils.nodes import Node
+from docutils.nodes import Element, Node
 
 from sphinx import addnodes, package_dir
 from sphinx.environment import BuildEnvironment
@@ -193,8 +193,9 @@ class WordCollector(nodes.NodeVisitor):
         self.found_title_words: List[str] = []
         self.lang = lang
 
-    def is_meta_keywords(self, node: addnodes.meta) -> bool:
-        if isinstance(node, addnodes.meta) and node.get('name') == 'keywords':
+    def is_meta_keywords(self, node: Element) -> bool:
+        if (isinstance(node, (addnodes.meta, addnodes.docutils_meta)) and
+                node.get('name') == 'keywords'):
             meta_lang = node.get('lang')
             if meta_lang is None:  # lang not specified
                 return True
@@ -220,7 +221,7 @@ class WordCollector(nodes.NodeVisitor):
             self.found_words.extend(self.lang.split(node.astext()))
         elif isinstance(node, nodes.title):
             self.found_title_words.extend(self.lang.split(node.astext()))
-        elif isinstance(node, addnodes.meta) and self.is_meta_keywords(node):
+        elif isinstance(node, Element) and self.is_meta_keywords(node):
             keywords = node['content']
             keywords = [keyword.strip() for keyword in keywords.split(',')]
             self.found_words.extend(keywords)
