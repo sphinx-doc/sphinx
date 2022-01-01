@@ -4,8 +4,6 @@ Release 5.0.0 (in development)
 Dependencies
 ------------
 
-* ``sphinx.writers.latex.LaTeXWriter.docclasses``
-
 Incompatible changes
 --------------------
 
@@ -21,6 +19,8 @@ Incompatible changes
 
 Deprecated
 ----------
+
+* ``sphinx.writers.latex.LaTeXWriter.docclasses``
 
 Features added
 --------------
