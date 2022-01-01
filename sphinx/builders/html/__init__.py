@@ -315,6 +315,9 @@ class StandaloneHTMLBuilder(Builder):
         self.script_files = []
         self.add_js_file('documentation_options.js', id="documentation_options",
                          data_url_root='', priority=200)
+        self.add_js_file('jquery.js', priority=200)  # Remove in Sphinx 6.0
+        self.add_js_file('underscore.js', priority=200)  # Remove in Sphinx 6.0
+        self.add_js_file('_compat.js', priority=200)  # jQuery compatability shim.
         self.add_js_file('doctools.js', priority=200)
 
         for filename, attrs in self.app.registry.js_files:
