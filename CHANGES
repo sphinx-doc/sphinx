@@ -23,11 +23,15 @@ Deprecated
 ----------
 
 * #10028: jQuery and underscore.js will no longer be automatically injected into
-  themes from Sphinx 6.0. If your theme's JavaScript uses the ``jQuery``,
-  ``$``, or ``$u`` global objects, you need to update your theme. To add jQuery
-  and underscore.js back to your theme, add the following code to your
-  ``layout.html``.
+  themes from Sphinx 6.0. If you develop a theme or extension that uses the
+  ``jQuery``, ``$``, or ``$u`` global objects, you need to update your
+  JavaScript or use the mitigation below.
 
+  To re-add jQuery and underscore.js, you will need to copy ``jquery.js`` and
+  ``underscore.js`` from `the Sphinx repository`_ to your ``static`` directory,
+  and add the following to your ``layout.html``:
+
+  .. the Sphinx repository: https://github.com/sphinx-doc/sphinx/tree/v4.3.2/sphinx/themes/basic/static
   .. code-block:: html+jinja
 
      {%- block scripts %}
