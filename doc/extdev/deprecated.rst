@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - :doc:`Setuptools integration </usage/advanced/setuptools>`
+     - 5.0
+     - 7.0
+     - N/A
+
    * - ``sphinx.writers.latex.LaTeXWriter.docclasses``
      - 5.0
      - 7.0
