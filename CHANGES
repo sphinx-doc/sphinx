@@ -9,6 +9,11 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #10031: autosummary: ``sphinx.ext.autosummary.import_by_name()`` now raises
+  ``ImportExceptionGroup`` instead of ``ImportError`` when it failed to import
+  target object.  Please handle the exception if your extension uses the
+  function to import Python object.  As a workaround, you can disable the
+  behavior via ``grouped_exception=False`` keyword argument until v7.0.
 * #9962: texinfo: Customizing styles of emphasized text via ``@definfoenclose``
   command was not supported because the command was deprecated since texinfo 6.8
 * #2068: :confval:`intersphinx_disabled_reftypes` has changed default value

@@ -74,7 +74,7 @@ from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.config import Config
 from sphinx.deprecation import (RemovedInSphinx50Warning, RemovedInSphinx60Warning,
-                                deprecated_alias)
+                                RemovedInSphinx70Warning, deprecated_alias)
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.ext.autodoc import INSTANCEATTR, Documenter
@@ -306,7 +306,7 @@ class Autosummary(SphinxDirective):
     def import_by_name(self, name: str, prefixes: List[str]) -> Tuple[str, Any, Any, str]:
         with mock(self.config.autosummary_mock_imports):
             try:
-                return import_by_name(name, prefixes, grouped_exception=True)
+                return import_by_name(name, prefixes)
             except ImportExceptionGroup as exc:
                 # check existence of instance attribute
                 try:
@@ -657,11 +657,17 @@ def get_import_prefixes_from_env(env: BuildEnvironment) -> List[str]:
     return prefixes
 
 
-def import_by_name(name: str, prefixes: List[str] = [None], grouped_exception: bool = False
+def import_by_name(name: str, prefixes: List[str] = [None], grouped_exception: bool = True
                    ) -> Tuple[str, Any, Any, str]:
     """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
+    if grouped_exception is False:
+        warnings.warn('Using grouped_exception keyword for import_by_name() is not '
+                      'recommended. It will be removed at v7.0.  Therefore you should '
+                      'catch ImportExceptionGroup exception instead of ImportError.',
+                      RemovedInSphinx70Warning, stacklevel=2)
+
     tried = []
     errors: List[ImportExceptionGroup] = []
     for prefix in prefixes:
@@ -685,7 +691,7 @@ def import_by_name(name: str, prefixes: List[str] = [None], grouped_exception: b
         raise ImportError('no module named %s' % ' or '.join(tried))
 
 
-def _import_by_name(name: str, grouped_exception: bool = False) -> Tuple[Any, Any, str]:
+def _import_by_name(name: str, grouped_exception: bool = True) -> Tuple[Any, Any, str]:
     """Import a Python object given its full name."""
     errors: List[BaseException] = []
 
@@ -733,7 +739,7 @@ def _import_by_name(name: str, grouped_exception: bool = False) -> Tuple[Any, An
 
 
 def import_ivar_by_name(name: str, prefixes: List[str] = [None],
-                        grouped_exception: bool = False) -> Tuple[str, Any, Any, str]:
+                        grouped_exception: bool = True) -> Tuple[str, Any, Any, str]:
     """Import an instance variable that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
@@ -774,7 +780,7 @@ class AutoLink(SphinxRole):
         try:
             # try to import object by name
             prefixes = get_import_prefixes_from_env(self.env)
-            import_by_name(pending_xref['reftarget'], prefixes, grouped_exception=True)
+            import_by_name(pending_xref['reftarget'], prefixes)
         except ImportExceptionGroup:
             literal = cast(nodes.literal, pending_xref[0])
             objects[0] = nodes.emphasis(self.rawtext, literal.astext(),
