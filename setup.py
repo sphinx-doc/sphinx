@@ -1,6 +1,5 @@
 import os
 import sys
-from distutils import log
 from io import StringIO
 
 from setuptools import find_packages, setup
@@ -148,8 +147,8 @@ else:
                 if catalog.fuzzy and not self.use_fuzzy:
                     continue
 
-                log.info('writing JavaScript strings in catalog %r to %r',
-                         po_file, js_file)
+                self.log.info('writing JavaScript strings in catalog %r to %r',
+                              po_file, js_file)
 
                 jscatalog = {}
                 for message in catalog:
