@@ -1009,7 +1009,7 @@ def test_autodoc_inner_class(app):
         '',
         '.. py:class:: InnerChild()',
         '   :module: target', '',
-        '   Bases: :py:class:`target.Outer.Inner`',
+        '   Bases: :py:class:`~target.Outer.Inner`',
         '',
         '   InnerChild docstring',
         '',
@@ -1705,7 +1705,7 @@ def test_autodoc_typed_instance_variables(app):
         '.. py:attribute:: Alias',
         '   :module: target.typed_vars',
         '',
-        '   alias of :py:class:`target.typed_vars.Derived`',
+        '   alias of :py:class:`~target.typed_vars.Derived`',
         '',
         '.. py:class:: Class()',
         '   :module: target.typed_vars',
@@ -1910,7 +1910,7 @@ def test_autodoc_GenericAlias(app):
             '   A list of Class',
             '',
             '   alias of :py:class:`~typing.List`\\ '
-            '[:py:class:`target.genericalias.Class`]',
+            '[:py:class:`~target.genericalias.Class`]',
             '',
             '',
             '.. py:data:: T',
@@ -1950,7 +1950,7 @@ def test_autodoc_TypeVar(app):
         '',
         '      T6',
         '',
-        '      alias of :py:class:`datetime.date`',
+        '      alias of :py:class:`~datetime.date`',
         '',
         '',
         '.. py:data:: T1',
@@ -1990,7 +1990,7 @@ def test_autodoc_TypeVar(app):
         '',
         '   T6',
         '',
-        '   alias of :py:class:`datetime.date`',
+        '   alias of :py:class:`~datetime.date`',
         '',
         '',
         '.. py:data:: T7',
@@ -2322,7 +2322,7 @@ def test_autodoc(app, status, warning):
 
 my_name
 
-alias of bug2437.autodoc_dummy_foo.Foo"""
+alias of Foo"""
     assert warning.getvalue() == ''
 
 
