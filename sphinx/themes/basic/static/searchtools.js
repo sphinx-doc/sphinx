@@ -14,7 +14,7 @@
  * Simple result scoring code.
  */
 if (!Scorer) {
-  let Scorer = {
+  var Scorer = {
     // Implement the following function to further tweak the score for each result
     // The function takes a result array [docname, title, anchor, descr, score, filename]
     // and returns the new score.
