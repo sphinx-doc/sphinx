@@ -22,8 +22,27 @@ Incompatible changes
 Deprecated
 ----------
 
+* #10028: jQuery and underscore.js will no longer be automatically injected into
+  themes from Sphinx 6.0. If your theme's JavaScript uses the ``jQuery``,
+  ``$``, or ``$u`` global objects, you need to update your theme. To add jQuery
+  and underscore.js back to your theme, add the following code to your
+  ``layout.html``.
+
+  .. code-block:: html+jinja
+
+     {%- block scripts %}
+         <script src="{{ pathto('_static/jquery.js', resource=True) }}"></script>
+         <script src="{{ pathto('_static/underscore.js', resource=True) }}"></script>
+         {{ super() }}
+     {%- endblock %}
+
+
 Features added
 --------------
+
+* #10028: Removed internal usages of JavaScript frameworks (jQuery and
+  underscore.js) and modernised ``doctools.js`` and ``searchtools.js`` to
+  EMCAScript 2018.
 
 Bugs fixed
 ----------
