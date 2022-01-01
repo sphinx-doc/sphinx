@@ -61,7 +61,7 @@ import warnings
 from inspect import Parameter
 from os import path
 from types import ModuleType
-from typing import Any, Dict, List, Optional, Tuple, Type, cast
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Type, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -306,15 +306,18 @@ class Autosummary(SphinxDirective):
     def import_by_name(self, name: str, prefixes: List[str]) -> Tuple[str, Any, Any, str]:
         with mock(self.config.autosummary_mock_imports):
             try:
-                return import_by_name(name, prefixes)
-            except ImportError as exc:
+                return import_by_name(name, prefixes, grouped_exception=True)
+            except ImportExceptionGroup as exc:
                 # check existence of instance attribute
                 try:
                     return import_ivar_by_name(name, prefixes)
-                except ImportError:
-                    pass
+                except ImportError as exc2:
+                    if exc2.__cause__:
+                        errors: List[BaseException] = exc.exceptions + [exc2.__cause__]
+                    else:
+                        errors = exc.exceptions + [exc2]
 
-                raise exc  # re-raise ImportError if instance attribute not found
+                    raise ImportExceptionGroup(exc.args[0], errors)
 
     def create_documenter(self, app: Sphinx, obj: Any,
                           parent: Any, full_name: str) -> "Documenter":
@@ -344,9 +347,10 @@ class Autosummary(SphinxDirective):
 
             try:
                 real_name, obj, parent, modname = self.import_by_name(name, prefixes=prefixes)
-            except ImportError:
-                logger.warning(__('autosummary: failed to import %s'), name,
-                               location=self.get_location())
+            except ImportExceptionGroup as exc:
+                errors = list(set("* %s: %s" % (type(e).__name__, e) for e in exc.exceptions))
+                logger.warning(__('autosummary: failed to import %s.\nPossible hints:\n%s'),
+                               name, '\n'.join(errors), location=self.get_location())
                 continue
 
             self.bridge.result = StringList()  # initialize for each documenter
@@ -620,6 +624,18 @@ def limited_join(sep: str, items: List[str], max_chars: int = 30,
 
 # -- Importing items -----------------------------------------------------------
 
+
+class ImportExceptionGroup(Exception):
+    """Exceptions raised during importing the target objects.
+
+    It contains an error messages and a list of exceptions as its arguments.
+    """
+
+    def __init__(self, message: Optional[str], exceptions: Sequence[BaseException]):
+        super().__init__(message)
+        self.exceptions = list(exceptions)
+
+
 def get_import_prefixes_from_env(env: BuildEnvironment) -> List[str]:
     """
     Obtain current Python import prefixes (for `import_by_name`)
@@ -641,26 +657,38 @@ def get_import_prefixes_from_env(env: BuildEnvironment) -> List[str]:
     return prefixes
 
 
-def import_by_name(name: str, prefixes: List[str] = [None]) -> Tuple[str, Any, Any, str]:
+def import_by_name(name: str, prefixes: List[str] = [None], grouped_exception: bool = False
+                   ) -> Tuple[str, Any, Any, str]:
     """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
     tried = []
+    errors: List[ImportExceptionGroup] = []
     for prefix in prefixes:
         try:
             if prefix:
                 prefixed_name = '.'.join([prefix, name])
             else:
                 prefixed_name = name
-            obj, parent, modname = _import_by_name(prefixed_name)
+            obj, parent, modname = _import_by_name(prefixed_name, grouped_exception)
             return prefixed_name, obj, parent, modname
         except ImportError:
             tried.append(prefixed_name)
-    raise ImportError('no module named %s' % ' or '.join(tried))
+        except ImportExceptionGroup as exc:
+            tried.append(prefixed_name)
+            errors.append(exc)
+
+    if grouped_exception:
+        exceptions: List[BaseException] = sum((e.exceptions for e in errors), [])
+        raise ImportExceptionGroup('no module named %s' % ' or '.join(tried), exceptions)
+    else:
+        raise ImportError('no module named %s' % ' or '.join(tried))
 
 
-def _import_by_name(name: str) -> Tuple[Any, Any, str]:
+def _import_by_name(name: str, grouped_exception: bool = False) -> Tuple[Any, Any, str]:
     """Import a Python object given its full name."""
+    errors: List[BaseException] = []
+
     try:
         name_parts = name.split('.')
 
@@ -670,8 +698,8 @@ def _import_by_name(name: str) -> Tuple[Any, Any, str]:
             try:
                 mod = import_module(modname)
                 return getattr(mod, name_parts[-1]), mod, modname
-            except (ImportError, IndexError, AttributeError):
-                pass
+            except (ImportError, IndexError, AttributeError) as exc:
+                errors.append(exc.__cause__ or exc)
 
         # ... then as MODNAME, MODNAME.OBJ1, MODNAME.OBJ1.OBJ2, ...
         last_j = 0
@@ -681,8 +709,8 @@ def _import_by_name(name: str) -> Tuple[Any, Any, str]:
             modname = '.'.join(name_parts[:j])
             try:
                 import_module(modname)
-            except ImportError:
-                continue
+            except ImportError as exc:
+                errors.append(exc.__cause__ or exc)
 
             if modname in sys.modules:
                 break
@@ -696,25 +724,32 @@ def _import_by_name(name: str) -> Tuple[Any, Any, str]:
             return obj, parent, modname
         else:
             return sys.modules[modname], None, modname
-    except (ValueError, ImportError, AttributeError, KeyError) as e:
-        raise ImportError(*e.args) from e
+    except (ValueError, ImportError, AttributeError, KeyError) as exc:
+        errors.append(exc)
+        if grouped_exception:
+            raise ImportExceptionGroup('', errors)
+        else:
+            raise ImportError(*exc.args) from exc
 
 
-def import_ivar_by_name(name: str, prefixes: List[str] = [None]) -> Tuple[str, Any, Any, str]:
+def import_ivar_by_name(name: str, prefixes: List[str] = [None],
+                        grouped_exception: bool = False) -> Tuple[str, Any, Any, str]:
     """Import an instance variable that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
     try:
         name, attr = name.rsplit(".", 1)
-        real_name, obj, parent, modname = import_by_name(name, prefixes)
+        real_name, obj, parent, modname = import_by_name(name, prefixes, grouped_exception)
         qualname = real_name.replace(modname + ".", "")
         analyzer = ModuleAnalyzer.for_module(getattr(obj, '__module__', modname))
         analyzer.analyze()
         # check for presence in `annotations` to include dataclass attributes
         if (qualname, attr) in analyzer.attr_docs or (qualname, attr) in analyzer.annotations:
             return real_name + "." + attr, INSTANCEATTR, obj, modname
-    except (ImportError, ValueError, PycodeError):
-        pass
+    except (ImportError, ValueError, PycodeError) as exc:
+        raise ImportError from exc
+    except ImportExceptionGroup:
+        raise  # pass through it as is
 
     raise ImportError
 
@@ -739,8 +774,8 @@ class AutoLink(SphinxRole):
         try:
             # try to import object by name
             prefixes = get_import_prefixes_from_env(self.env)
-            import_by_name(pending_xref['reftarget'], prefixes)
-        except ImportError:
+            import_by_name(pending_xref['reftarget'], prefixes, grouped_exception=True)
+        except ImportExceptionGroup:
             literal = cast(nodes.literal, pending_xref[0])
             objects[0] = nodes.emphasis(self.rawtext, literal.astext(),
                                         classes=literal['classes'])

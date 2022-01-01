@@ -2034,9 +2034,6 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_math_reference(self, node: Element) -> None:
         pass
 
-    def unknown_visit(self, node: Node) -> None:
-        raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
-
     @property
     def docclasses(self) -> Tuple[str, str]:
         """Prepends prefix to sphinx document classes"""

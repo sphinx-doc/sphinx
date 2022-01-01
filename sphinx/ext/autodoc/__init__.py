@@ -711,109 +711,111 @@ class Documenter:
 
         # process members and determine which to skip
         for obj in members:
-            membername, member = obj
-            # if isattr is True, the member is documented as an attribute
-            if member is INSTANCEATTR:
-                isattr = True
-            elif (namespace, membername) in attr_docs:
-                isattr = True
-            else:
-                isattr = False
+            try:
+                membername, member = obj
+                # if isattr is True, the member is documented as an attribute
+                if member is INSTANCEATTR:
+                    isattr = True
+                elif (namespace, membername) in attr_docs:
+                    isattr = True
+                else:
+                    isattr = False
 
-            doc = getdoc(member, self.get_attr, self.config.autodoc_inherit_docstrings,
-                         self.object, membername)
-            if not isinstance(doc, str):
-                # Ignore non-string __doc__
-                doc = None
-
-            # if the member __doc__ is the same as self's __doc__, it's just
-            # inherited and therefore not the member's doc
-            cls = self.get_attr(member, '__class__', None)
-            if cls:
-                cls_doc = self.get_attr(cls, '__doc__', None)
-                if cls_doc == doc:
+                doc = getdoc(member, self.get_attr, self.config.autodoc_inherit_docstrings,
+                             self.object, membername)
+                if not isinstance(doc, str):
+                    # Ignore non-string __doc__
                     doc = None
 
-            if isinstance(obj, ObjectMember) and obj.docstring:
-                # hack for ClassDocumenter to inject docstring via ObjectMember
-                doc = obj.docstring
+                # if the member __doc__ is the same as self's __doc__, it's just
+                # inherited and therefore not the member's doc
+                cls = self.get_attr(member, '__class__', None)
+                if cls:
+                    cls_doc = self.get_attr(cls, '__doc__', None)
+                    if cls_doc == doc:
+                        doc = None
 
-            doc, metadata = separate_metadata(doc)
-            has_doc = bool(doc)
+                if isinstance(obj, ObjectMember) and obj.docstring:
+                    # hack for ClassDocumenter to inject docstring via ObjectMember
+                    doc = obj.docstring
 
-            if 'private' in metadata:
-                # consider a member private if docstring has "private" metadata
-                isprivate = True
-            elif 'public' in metadata:
-                # consider a member public if docstring has "public" metadata
-                isprivate = False
-            else:
-                isprivate = membername.startswith('_')
+                doc, metadata = separate_metadata(doc)
+                has_doc = bool(doc)
 
-            keep = False
-            if ismock(member) and (namespace, membername) not in attr_docs:
-                # mocked module or object
-                pass
-            elif self.options.exclude_members and membername in self.options.exclude_members:
-                # remove members given by exclude-members
+                if 'private' in metadata:
+                    # consider a member private if docstring has "private" metadata
+                    isprivate = True
+                elif 'public' in metadata:
+                    # consider a member public if docstring has "public" metadata
+                    isprivate = False
+                else:
+                    isprivate = membername.startswith('_')
+
                 keep = False
-            elif want_all and special_member_re.match(membername):
-                # special __methods__
-                if self.options.special_members and membername in self.options.special_members:
-                    if membername == '__doc__':
+                if ismock(member) and (namespace, membername) not in attr_docs:
+                    # mocked module or object
+                    pass
+                elif (self.options.exclude_members and
+                      membername in self.options.exclude_members):
+                    # remove members given by exclude-members
+                    keep = False
+                elif want_all and special_member_re.match(membername):
+                    # special __methods__
+                    if (self.options.special_members and
+                            membername in self.options.special_members):
+                        if membername == '__doc__':
+                            keep = False
+                        elif is_filtered_inherited_member(membername, obj):
+                            keep = False
+                        else:
+                            keep = has_doc or self.options.undoc_members
+                    else:
                         keep = False
-                    elif is_filtered_inherited_member(membername, obj):
+                elif (namespace, membername) in attr_docs:
+                    if want_all and isprivate:
+                        if self.options.private_members is None:
+                            keep = False
+                        else:
+                            keep = membername in self.options.private_members
+                    else:
+                        # keep documented attributes
+                        keep = True
+                elif want_all and isprivate:
+                    if has_doc or self.options.undoc_members:
+                        if self.options.private_members is None:
+                            keep = False
+                        elif is_filtered_inherited_member(membername, obj):
+                            keep = False
+                        else:
+                            keep = membername in self.options.private_members
+                    else:
+                        keep = False
+                else:
+                    if (self.options.members is ALL and
+                            is_filtered_inherited_member(membername, obj)):
                         keep = False
                     else:
+                        # ignore undocumented members if :undoc-members: is not given
                         keep = has_doc or self.options.undoc_members
-                else:
-                    keep = False
-            elif (namespace, membername) in attr_docs:
-                if want_all and isprivate:
-                    if self.options.private_members is None:
-                        keep = False
-                    else:
-                        keep = membername in self.options.private_members
-                else:
-                    # keep documented attributes
-                    keep = True
-            elif want_all and isprivate:
-                if has_doc or self.options.undoc_members:
-                    if self.options.private_members is None:
-                        keep = False
-                    elif is_filtered_inherited_member(membername, obj):
-                        keep = False
-                    else:
-                        keep = membername in self.options.private_members
-                else:
-                    keep = False
-            else:
-                if (self.options.members is ALL and
-                        is_filtered_inherited_member(membername, obj)):
-                    keep = False
-                else:
-                    # ignore undocumented members if :undoc-members: is not given
-                    keep = has_doc or self.options.undoc_members
 
-            if isinstance(obj, ObjectMember) and obj.skipped:
-                # forcedly skipped member (ex. a module attribute not defined in __all__)
-                keep = False
+                if isinstance(obj, ObjectMember) and obj.skipped:
+                    # forcedly skipped member (ex. a module attribute not defined in __all__)
+                    keep = False
 
-            # give the user a chance to decide whether this member
-            # should be skipped
-            if self.env.app:
-                # let extensions preprocess docstrings
-                try:
+                # give the user a chance to decide whether this member
+                # should be skipped
+                if self.env.app:
+                    # let extensions preprocess docstrings
                     skip_user = self.env.app.emit_firstresult(
                         'autodoc-skip-member', self.objtype, membername, member,
                         not keep, self.options)
                     if skip_user is not None:
                         keep = not skip_user
-                except Exception as exc:
-                    logger.warning(__('autodoc: failed to determine %r to be documented, '
-                                      'the following exception was raised:\n%s'),
-                                   member, exc, type='autodoc')
-                    keep = False
+            except Exception as exc:
+                logger.warning(__('autodoc: failed to determine %s.%s (%r) to be documented, '
+                                  'the following exception was raised:\n%s'),
+                               self.name, membername, member, exc, type='autodoc')
+                keep = False
 
             if keep:
                 ret.append((membername, member, isattr))
@@ -1295,7 +1297,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
     def format_args(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
-        if self.config.autodoc_unqualified_typehints:
+        if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
 
         try:
@@ -1325,7 +1327,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             self.add_line('   :async:', sourcename)
 
     def format_signature(self, **kwargs: Any) -> str:
-        if self.config.autodoc_unqualified_typehints:
+        if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
 
         sigs = []
@@ -1566,7 +1568,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     def format_args(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
-        if self.config.autodoc_unqualified_typehints:
+        if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
 
         try:
@@ -1589,7 +1591,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             # do not show signatures
             return ''
 
-        if self.config.autodoc_unqualified_typehints:
+        if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
 
         sig = super().format_signature()
@@ -2120,7 +2122,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
     def format_args(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
-        if self.config.autodoc_unqualified_typehints:
+        if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
 
         try:
@@ -2172,7 +2174,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         pass
 
     def format_signature(self, **kwargs: Any) -> str:
-        if self.config.autodoc_unqualified_typehints:
+        if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
 
         sigs = []
@@ -2848,7 +2850,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('autodoc_typehints_description_target', 'all', True,
                          ENUM('all', 'documented'))
     app.add_config_value('autodoc_type_aliases', {}, True)
-    app.add_config_value('autodoc_unqualified_typehints', False, 'env')
+    app.add_config_value('autodoc_typehints_format', "fully-qualified", 'env',
+                         ENUM("fully-qualified", "short"))
     app.add_config_value('autodoc_warningiserror', True, True)
     app.add_config_value('autodoc_inherit_docstrings', True, True)
     app.add_event('autodoc-before-process-signature')

@@ -348,6 +348,17 @@ def test_parse_annotation(app):
     assert_node(doctree, ([pending_xref, "None"],))
     assert_node(doctree[0], pending_xref, refdomain="py", reftype="obj", reftarget="None")
 
+    # Literal type makes an object-reference (not a class reference)
+    doctree = _parse_annotation("typing.Literal['a', 'b']", app.env)
+    assert_node(doctree, ([pending_xref, "Literal"],
+                          [desc_sig_punctuation, "["],
+                          [desc_sig_literal_string, "'a'"],
+                          [desc_sig_punctuation, ","],
+                          desc_sig_space,
+                          [desc_sig_literal_string, "'b'"],
+                          [desc_sig_punctuation, "]"]))
+    assert_node(doctree[0], pending_xref, refdomain="py", reftype="obj", reftarget="typing.Literal")
+
 
 def test_parse_annotation_suppress(app):
     doctree = _parse_annotation("~typing.Dict[str, str]", app.env)
@@ -358,7 +369,7 @@ def test_parse_annotation_suppress(app):
                           desc_sig_space,
                           [pending_xref, "str"],
                           [desc_sig_punctuation, "]"]))
-    assert_node(doctree[0], pending_xref, refdomain="py", reftype="class", reftarget="typing.Dict")
+    assert_node(doctree[0], pending_xref, refdomain="py", reftype="obj", reftarget="typing.Dict")
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
@@ -373,7 +384,7 @@ def test_parse_annotation_Literal(app):
                           [desc_sig_punctuation, "]"]))
 
     doctree = _parse_annotation("typing.Literal[0, 1, 'abc']", app.env)
-    assert_node(doctree, ([pending_xref, "typing.Literal"],
+    assert_node(doctree, ([pending_xref, "Literal"],
                           [desc_sig_punctuation, "["],
                           [desc_sig_literal_number, "0"],
                           [desc_sig_punctuation, ","],
@@ -1185,7 +1196,9 @@ def test_type_field(app):
     text = (".. py:data:: var1\n"
             "   :type: .int\n"
             ".. py:data:: var2\n"
-            "   :type: ~builtins.int\n")
+            "   :type: ~builtins.int\n"
+            ".. py:data:: var3\n"
+            "   :type: typing.Optional[typing.Tuple[int, typing.Any]]\n")
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
                           [desc, ([desc_signature, ([desc_name, "var1"],
@@ -1198,9 +1211,28 @@ def test_type_field(app):
                                                     [desc_annotation, ([desc_sig_punctuation, ':'],
                                                                        desc_sig_space,
                                                                        [pending_xref, "int"])])],
+                                  [desc_content, ()])],
+                          addnodes.index,
+                          [desc, ([desc_signature, ([desc_name, "var3"],
+                                                    [desc_annotation, ([desc_sig_punctuation, ":"],
+                                                                       desc_sig_space,
+                                                                       [pending_xref, "Optional"],
+                                                                       [desc_sig_punctuation, "["],
+                                                                       [pending_xref, "Tuple"],
+                                                                       [desc_sig_punctuation, "["],
+                                                                       [pending_xref, "int"],
+                                                                       [desc_sig_punctuation, ","],
+                                                                       desc_sig_space,
+                                                                       [pending_xref, "Any"],
+                                                                       [desc_sig_punctuation, "]"],
+                                                                       [desc_sig_punctuation, "]"])])],
                                   [desc_content, ()])]))
     assert_node(doctree[1][0][1][2], pending_xref, reftarget='int', refspecific=True)
     assert_node(doctree[3][0][1][2], pending_xref, reftarget='builtins.int', refspecific=False)
+    assert_node(doctree[5][0][1][2], pending_xref, reftarget='typing.Optional', refspecific=False)
+    assert_node(doctree[5][0][1][4], pending_xref, reftarget='typing.Tuple', refspecific=False)
+    assert_node(doctree[5][0][1][6], pending_xref, reftarget='int', refspecific=False)
+    assert_node(doctree[5][0][1][9], pending_xref, reftarget='typing.Any', refspecific=False)
 
 
 @pytest.mark.sphinx(freshenv=True)

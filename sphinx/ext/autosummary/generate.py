@@ -41,7 +41,8 @@ from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.ext.autodoc import Documenter
 from sphinx.ext.autodoc.importer import import_module
-from sphinx.ext.autosummary import get_documenter, import_by_name, import_ivar_by_name
+from sphinx.ext.autosummary import (ImportExceptionGroup, get_documenter, import_by_name,
+                                    import_ivar_by_name)
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.registry import SphinxComponentRegistry
@@ -430,15 +431,22 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
         ensuredir(path)
 
         try:
-            name, obj, parent, modname = import_by_name(entry.name)
+            name, obj, parent, modname = import_by_name(entry.name, grouped_exception=True)
             qualname = name.replace(modname + ".", "")
-        except ImportError as e:
+        except ImportExceptionGroup as exc:
             try:
-                # try to importl as an instance attribute
+                # try to import as an instance attribute
                 name, obj, parent, modname = import_ivar_by_name(entry.name)
                 qualname = name.replace(modname + ".", "")
-            except ImportError:
-                logger.warning(__('[autosummary] failed to import %r: %s') % (entry.name, e))
+            except ImportError as exc2:
+                if exc2.__cause__:
+                    exceptions: List[BaseException] = exc.exceptions + [exc2.__cause__]
+                else:
+                    exceptions = exc.exceptions + [exc2]
+
+                errors = list(set("* %s: %s" % (type(e).__name__, e) for e in exceptions))
+                logger.warning(__('[autosummary] failed to import %s.\nPossible hints:\n%s'),
+                               entry.name, '\n'.join(errors))
                 continue
 
         context: Dict[str, Any] = {}
@@ -500,13 +508,14 @@ def find_autosummary_in_docstring(name: str, module: str = None, filename: str =
                       RemovedInSphinx50Warning, stacklevel=2)
 
     try:
-        real_name, obj, parent, modname = import_by_name(name)
+        real_name, obj, parent, modname = import_by_name(name, grouped_exception=True)
         lines = pydoc.getdoc(obj).splitlines()
         return find_autosummary_in_lines(lines, module=name, filename=filename)
     except AttributeError:
         pass
-    except ImportError as e:
-        print("Failed to import '%s': %s" % (name, e))
+    except ImportExceptionGroup as exc:
+        errors = list(set("* %s: %s" % (type(e).__name__, e) for e in exc.exceptions))
+        print('Failed to import %s.\nPossible hints:\n%s' % (name, '\n'.join(errors)))
     except SystemExit:
         print("Failed to import '%s'; the module executes module level "
               "statement and it might call sys.exit()." % name)

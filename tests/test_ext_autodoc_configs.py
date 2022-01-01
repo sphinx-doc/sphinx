@@ -612,7 +612,7 @@ def test_autodoc_typehints_signature(app):
         '   :type: int',
         '',
         '',
-        '.. py:class:: Math(s: str, o: Optional[Any] = None)',
+        '.. py:class:: Math(s: str, o: typing.Optional[typing.Any] = None)',
         '   :module: target.typehints',
         '',
         '',
@@ -677,7 +677,8 @@ def test_autodoc_typehints_signature(app):
         '   :module: target.typehints',
         '',
         '',
-        '.. py:function:: tuple_args(x: Tuple[int, Union[int, str]]) -> Tuple[int, int]',
+        '.. py:function:: tuple_args(x: typing.Tuple[int, typing.Union[int, str]]) '
+        '-> typing.Tuple[int, int]',
         '   :module: target.typehints',
         '',
     ]
@@ -834,7 +835,7 @@ def test_autodoc_typehints_description(app):
             '      **x** (*Tuple**[**int**, **Union**[**int**, **str**]**]*) --\n'
             '\n'
             '   Return type:\n'
-            '      Tuple[int, int]\n'
+            '      *Tuple*[int, int]\n'
             in context)
 
     # Overloads still get displayed in the signature
@@ -886,7 +887,7 @@ def test_autodoc_typehints_description_no_undoc(app):
             '      another tuple\n'
             '\n'
             '   Return type:\n'
-            '      Tuple[int, int]\n'
+            '      *Tuple*[int, int]\n'
             in context)
 
 
@@ -977,7 +978,7 @@ def test_autodoc_typehints_both(app):
             '      **x** (*Tuple**[**int**, **Union**[**int**, **str**]**]*) --\n'
             '\n'
             '   Return type:\n'
-            '      Tuple[int, int]\n'
+            '      *Tuple*[int, int]\n'
             in context)
 
     # Overloads still get displayed in the signature
@@ -1143,13 +1144,8 @@ def test_autodoc_typehints_description_and_type_aliases(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc',
-                    confoverrides={'autodoc_unqualified_typehints': True})
-def test_autodoc_unqualified_typehints(app):
-    if sys.version_info < (3, 7):
-        Any = 'Any'
-    else:
-        Any = '~typing.Any'
-
+                    confoverrides={'autodoc_typehints_format': "short"})
+def test_autodoc_typehints_format_short(app):
     options = {"members": None,
                "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.typehints', options)
@@ -1163,7 +1159,7 @@ def test_autodoc_unqualified_typehints(app):
         '   :type: int',
         '',
         '',
-        '.. py:class:: Math(s: str, o: ~typing.Optional[%s] = None)' % Any,
+        '.. py:class:: Math(s: str, o: ~typing.Optional[~typing.Any] = None)',
         '   :module: target.typehints',
         '',
         '',

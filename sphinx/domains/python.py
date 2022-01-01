@@ -80,42 +80,53 @@ class ModuleEntry(NamedTuple):
     deprecated: bool
 
 
-def type_to_xref(target: str, env: BuildEnvironment = None, suppress_prefix: bool = False
-                 ) -> addnodes.pending_xref:
-    """Convert a type string to a cross reference node."""
-    if target == 'None':
+def parse_reftarget(reftarget: str, suppress_prefix: bool = False
+                    ) -> Tuple[str, str, str, bool]:
+    """Parse a type string and return (reftype, reftarget, title, refspecific flag)"""
+    refspecific = False
+    if reftarget.startswith('.'):
+        reftarget = reftarget[1:]
+        title = reftarget
+        refspecific = True
+    elif reftarget.startswith('~'):
+        reftarget = reftarget[1:]
+        title = reftarget.split('.')[-1]
+    elif suppress_prefix:
+        title = reftarget.split('.')[-1]
+    elif reftarget.startswith('typing.'):
+        title = reftarget[7:]
+    else:
+        title = reftarget
+
+    if reftarget == 'None' or reftarget.startswith('typing.'):
+        # typing module provides non-class types.  Obj reference is good to refer them.
         reftype = 'obj'
     else:
         reftype = 'class'
 
+    return reftype, reftarget, title, refspecific
+
+
+def type_to_xref(target: str, env: BuildEnvironment = None, suppress_prefix: bool = False
+                 ) -> addnodes.pending_xref:
+    """Convert a type string to a cross reference node."""
     if env:
         kwargs = {'py:module': env.ref_context.get('py:module'),
                   'py:class': env.ref_context.get('py:class')}
     else:
         kwargs = {}
 
-    refspecific = False
-    if target.startswith('.'):
-        target = target[1:]
-        text = target
-        refspecific = True
-    elif target.startswith('~'):
-        target = target[1:]
-        text = target.split('.')[-1]
-    elif suppress_prefix:
-        text = target.split('.')[-1]
-    else:
-        text = target
+    reftype, target, title, refspecific = parse_reftarget(target, suppress_prefix)
 
     if env.config.python_use_unqualified_type_names:
         # Note: It would be better to use qualname to describe the object to support support
         # nested classes.  But python domain can't access the real python object because this
         # module should work not-dynamically.
-        shortname = text.split('.')[-1]
+        shortname = title.split('.')[-1]
         contnodes: List[Node] = [pending_xref_condition('', shortname, condition='resolved'),
-                                 pending_xref_condition('', text, condition='*')]
+                                 pending_xref_condition('', title, condition='*')]
     else:
-        contnodes = [nodes.Text(text)]
+        contnodes = [nodes.Text(title)]
 
     return pending_xref('', *contnodes,
                         refdomain='py', reftype=reftype, reftarget=target,
@@ -203,10 +214,16 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> List[Node]:
             return result
         else:
             if sys.version_info < (3, 8):
-                if isinstance(node, ast.Ellipsis):
+                if isinstance(node, ast.Bytes):
+                    return [addnodes.desc_sig_literal_string('', repr(node.s))]
+                elif isinstance(node, ast.Ellipsis):
                     return [addnodes.desc_sig_punctuation('', "...")]
                 elif isinstance(node, ast.NameConstant):
                     return [nodes.Text(node.value)]
+                elif isinstance(node, ast.Num):
+                    return [addnodes.desc_sig_literal_string('', repr(node.n))]
+                elif isinstance(node, ast.Str):
+                    return [addnodes.desc_sig_literal_string('', repr(node.s))]
 
             raise SyntaxError  # unsupported syntax
 
@@ -341,27 +358,27 @@ class PyXrefMixin:
         result = super().make_xref(rolename, domain, target,  # type: ignore
                                    innernode, contnode,
                                    env, inliner=None, location=None)
-        result['refspecific'] = True
-        result['py:module'] = env.ref_context.get('py:module')
-        result['py:class'] = env.ref_context.get('py:class')
-        if target.startswith(('.', '~')):
-            prefix, result['reftarget'] = target[0], target[1:]
-            if prefix == '.':
-                text = target[1:]
-            elif prefix == '~':
-                text = target.split('.')[-1]
-            for node in list(result.traverse(nodes.Text)):
-                node.parent[node.parent.index(node)] = nodes.Text(text)
-                break
-        elif isinstance(result, pending_xref) and env.config.python_use_unqualified_type_names:
-            children = result.children
-            result.clear()
+        if isinstance(result, pending_xref):
+            result['refspecific'] = True
+            result['py:module'] = env.ref_context.get('py:module')
+            result['py:class'] = env.ref_context.get('py:class')
 
-            shortname = target.split('.')[-1]
-            textnode = innernode('', shortname)
-            contnodes = [pending_xref_condition('', '', textnode, condition='resolved'),
-                         pending_xref_condition('', '', *children, condition='*')]
-            result.extend(contnodes)
+            reftype, reftarget, reftitle, _ = parse_reftarget(target)
+            if reftarget != reftitle:
+                result['reftype'] = reftype
+                result['reftarget'] = reftarget
+
+                result.clear()
+                result += innernode(reftitle, reftitle)
+            elif env.config.python_use_unqualified_type_names:
+                children = result.children
+                result.clear()
+
+                shortname = target.split('.')[-1]
+                textnode = innernode('', shortname)
+                contnodes = [pending_xref_condition('', '', textnode, condition='resolved'),
+                             pending_xref_condition('', '', *children, condition='*')]
+                result.extend(contnodes)
 
         return result
 
@@ -394,16 +411,7 @@ class PyXrefMixin:
 
 
 class PyField(PyXrefMixin, Field):
-    def make_xref(self, rolename: str, domain: str, target: str,
-                  innernode: Type[TextlikeNode] = nodes.emphasis,
-                  contnode: Node = None, env: BuildEnvironment = None,
-                  inliner: Inliner = None, location: Node = None) -> Node:
-        if rolename == 'class' and target == 'None':
-            # None is not a type, so use obj role instead.
-            rolename = 'obj'
-
-        return super().make_xref(rolename, domain, target, innernode, contnode,
-                                 env, inliner, location)
+    pass
 
 
 class PyGroupedField(PyXrefMixin, GroupedField):
@@ -411,16 +419,7 @@ class PyGroupedField(PyXrefMixin, GroupedField):
 
 
 class PyTypedField(PyXrefMixin, TypedField):
-    def make_xref(self, rolename: str, domain: str, target: str,
-                  innernode: Type[TextlikeNode] = nodes.emphasis,
-                  contnode: Node = None, env: BuildEnvironment = None,
-                  inliner: Inliner = None, location: Node = None) -> Node:
-        if rolename == 'class' and target == 'None':
-            # None is not a type, so use obj role instead.
-            rolename = 'obj'
-
-        return super().make_xref(rolename, domain, target, innernode, contnode,
-                                 env, inliner, location)
+    pass
 
 
 class PyObject(ObjectDescription[Tuple[str, str]]):
@@ -1454,7 +1453,7 @@ def builtin_resolver(app: Sphinx, env: BuildEnvironment,
         return None
     elif node.get('reftype') in ('class', 'obj') and node.get('reftarget') == 'None':
         return contnode
-    elif node.get('reftype') in ('class', 'exc'):
+    elif node.get('reftype') in ('class', 'obj', 'exc'):
         reftarget = node.get('reftarget')
         if inspect.isclass(getattr(builtins, reftarget, None)):
             # built-in class

@@ -28,7 +28,7 @@ from docutils.utils import Reporter, unescape
 from packaging import version
 
 from sphinx.errors import SphinxError
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.typing import RoleFunction
 
@@ -495,6 +495,9 @@ class SphinxTranslator(nodes.NodeVisitor):
                 break
         else:
             super().dispatch_departure(node)
+
+    def unknown_visit(self, node: Node) -> None:
+        logger.warning(__('unknown node type: %r'), node, location=node)
 
 
 # cache a vanilla instance of nodes.document
