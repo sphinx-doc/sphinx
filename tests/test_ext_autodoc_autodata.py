@@ -111,7 +111,7 @@ def test_autodata_NewType(app):
         '',
         '   T6',
         '',
-        '   alias of :py:class:`int`',
+        '   alias of :py:class:`datetime.date`',
         '',
     ]
 

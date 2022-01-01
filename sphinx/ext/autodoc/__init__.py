@@ -1674,7 +1674,11 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             self.env.events.emit('autodoc-process-bases',
                                  self.fullname, self.object, self.options, bases)
 
-            base_classes = [restify(cls) for cls in bases]
+            if self.config.autodoc_typehints_format == "short":
+                base_classes = [restify(cls, "smart") for cls in bases]
+            else:
+                base_classes = [restify(cls) for cls in bases]
+
             sourcename = self.get_sourcename()
             self.add_line('', sourcename)
             self.add_line('   ' + _('Bases: %s') % ', '.join(base_classes), sourcename)
@@ -1771,7 +1775,11 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         if self.doc_as_attr and not self.get_variable_comment():
             try:
-                more_content = StringList([_('alias of %s') % restify(self.object)], source='')
+                if self.config.autodoc_typehints_format == "short":
+                    alias = restify(self.object, "smart")
+                else:
+                    alias = restify(self.object)
+                more_content = StringList([_('alias of %s') % alias], source='')
             except AttributeError:
                 pass  # Invalid class object is passed.
 
@@ -1844,7 +1852,12 @@ class GenericAliasMixin(DataDocumenterMixinBase):
 
     def update_content(self, more_content: StringList) -> None:
         if inspect.isgenericalias(self.object):
-            more_content.append(_('alias of %s') % restify(self.object), '')
+            if self.config.autodoc_typehints_format == "short":
+                alias = restify(self.object, "smart")
+            else:
+                alias = restify(self.object)
+
+            more_content.append(_('alias of %s') % alias, '')
             more_content.append('', '')
 
         super().update_content(more_content)
@@ -1862,7 +1875,11 @@ class NewTypeMixin(DataDocumenterMixinBase):
 
     def update_content(self, more_content: StringList) -> None:
         if inspect.isNewType(self.object):
-            supertype = restify(self.object.__supertype__)
+            if self.config.autodoc_typehints_format == "short":
+                supertype = restify(self.object.__supertype__, "smart")
+            else:
+                supertype = restify(self.object.__supertype__)
+
             more_content.append(_('alias of %s') % supertype, '')
             more_content.append('', '')
 
@@ -1899,7 +1916,11 @@ class TypeVarMixin(DataDocumenterMixinBase):
             for constraint in self.object.__constraints__:
                 attrs.append(stringify_typehint(constraint))
             if self.object.__bound__:
-                attrs.append(r"bound=\ " + restify(self.object.__bound__))
+                if self.config.autodoc_typehints_format == "short":
+                    bound = restify(self.object.__bound__, "smart")
+                else:
+                    bound = restify(self.object.__bound__)
+                attrs.append(r"bound=\ " + bound)
             if self.object.__covariant__:
                 attrs.append("covariant=True")
             if self.object.__contravariant__:

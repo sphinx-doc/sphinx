@@ -183,7 +183,7 @@ def test_autoattribute_NewType(app):
         '',
         '   T6',
         '',
-        '   alias of :py:class:`int`',
+        '   alias of :py:class:`datetime.date`',
         '',
     ]
 
