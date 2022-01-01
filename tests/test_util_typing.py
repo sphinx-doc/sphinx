@@ -43,13 +43,28 @@ class BrokenType:
 
 def test_restify():
     assert restify(int) == ":py:class:`int`"
+    assert restify(int, "smart") == ":py:class:`int`"
+
     assert restify(str) == ":py:class:`str`"
+    assert restify(str, "smart") == ":py:class:`str`"
+
     assert restify(None) == ":py:obj:`None`"
+    assert restify(None, "smart") == ":py:obj:`None`"
+
     assert restify(Integral) == ":py:class:`numbers.Integral`"
+    assert restify(Integral, "smart") == ":py:class:`~numbers.Integral`"
+
     assert restify(Struct) == ":py:class:`struct.Struct`"
+    assert restify(Struct, "smart") == ":py:class:`~struct.Struct`"
+
     assert restify(TracebackType) == ":py:class:`types.TracebackType`"
+    assert restify(TracebackType, "smart") == ":py:class:`~types.TracebackType`"
+
     assert restify(Any) == ":py:obj:`~typing.Any`"
+    assert restify(Any, "smart") == ":py:obj:`~typing.Any`"
+
     assert restify('str') == "str"
+    assert restify('str', "smart") == "str"
 
 
 def test_restify_type_hints_containers():
@@ -99,13 +114,24 @@ def test_restify_type_hints_Union():
     if sys.version_info >= (3, 7):
         assert restify(Union[int, Integral]) == (":py:obj:`~typing.Union`\\ "
                                                  "[:py:class:`int`, :py:class:`numbers.Integral`]")
+        assert restify(Union[int, Integral], "smart") == (":py:obj:`~typing.Union`\\ "
+                                                          "[:py:class:`int`,"
+                                                          " :py:class:`~numbers.Integral`]")
+
         assert (restify(Union[MyClass1, MyClass2]) ==
                 (":py:obj:`~typing.Union`\\ "
                  "[:py:class:`tests.test_util_typing.MyClass1`, "
                  ":py:class:`tests.test_util_typing.<MyClass2>`]"))
+        assert (restify(Union[MyClass1, MyClass2], "smart") ==
+                (":py:obj:`~typing.Union`\\ "
+                 "[:py:class:`~tests.test_util_typing.MyClass1`,"
+                 " :py:class:`~tests.test_util_typing.<MyClass2>`]"))
     else:
         assert restify(Union[int, Integral]) == ":py:class:`numbers.Integral`"
+        assert restify(Union[int, Integral], "smart") == ":py:class:`~numbers.Integral`"
+
         assert restify(Union[MyClass1, MyClass2]) == ":py:class:`tests.test_util_typing.MyClass1`"
+        assert restify(Union[MyClass1, MyClass2], "smart") == ":py:class:`~tests.test_util_typing.MyClass1`"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
@@ -115,19 +141,31 @@ def test_restify_type_hints_typevars():
     T_contra = TypeVar('T_contra', contravariant=True)
 
     assert restify(T) == ":py:obj:`tests.test_util_typing.T`"
+    assert restify(T, "smart") == ":py:obj:`~tests.test_util_typing.T`"
+
     assert restify(T_co) == ":py:obj:`tests.test_util_typing.T_co`"
+    assert restify(T_co, "smart") == ":py:obj:`~tests.test_util_typing.T_co`"
+
     assert restify(T_contra) == ":py:obj:`tests.test_util_typing.T_contra`"
+    assert restify(T_contra, "smart") == ":py:obj:`~tests.test_util_typing.T_contra`"
+
     assert restify(List[T]) == ":py:class:`~typing.List`\\ [:py:obj:`tests.test_util_typing.T`]"
+    assert restify(List[T], "smart") == ":py:class:`~typing.List`\\ [:py:obj:`~tests.test_util_typing.T`]"
 
     if sys.version_info >= (3, 10):
         assert restify(MyInt) == ":py:class:`tests.test_util_typing.MyInt`"
+        assert restify(MyInt, "smart") == ":py:class:`~tests.test_util_typing.MyInt`"
     else:
         assert restify(MyInt) == ":py:class:`MyInt`"
+        assert restify(MyInt, "smart") == ":py:class:`MyInt`"
 
 
 def test_restify_type_hints_custom_class():
     assert restify(MyClass1) == ":py:class:`tests.test_util_typing.MyClass1`"
+    assert restify(MyClass1, "smart") == ":py:class:`~tests.test_util_typing.MyClass1`"
+
     assert restify(MyClass2) == ":py:class:`tests.test_util_typing.<MyClass2>`"
+    assert restify(MyClass2, "smart") == ":py:class:`~tests.test_util_typing.<MyClass2>`"
 
 
 def test_restify_type_hints_alias():
@@ -169,12 +207,14 @@ def test_restify_type_union_operator():
 
 def test_restify_broken_type_hints():
     assert restify(BrokenType) == ':py:class:`tests.test_util_typing.BrokenType`'
+    assert restify(BrokenType, "smart") == ':py:class:`~tests.test_util_typing.BrokenType`'
 
 
 def test_restify_mock():
     with mock(['unknown']):
         import unknown
         assert restify(unknown.secret.Class) == ':py:class:`unknown.secret.Class`'
+        assert restify(unknown.secret.Class, "smart") == ':py:class:`~unknown.secret.Class`'
 
 
 def test_stringify():
