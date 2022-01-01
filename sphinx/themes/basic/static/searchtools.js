@@ -323,6 +323,7 @@ const Search = {
         score += Scorer.objNameMatch;
       else if (parts.slice(-1)[0].indexOf(object) > -1)
         score += Scorer.objPartialMatch; // matches in last name
+
       const match = objects[prefix][name];
       const objName = objNames[match[1]][2];
       const title = titles[match[0]];
@@ -485,14 +486,18 @@ const Search = {
       .filter((i) => i > -1)
       .slice(-1)[0];
     const startWithContext = Math.max(actualStartPosition - 120, 0);
+
     const top = startWithContext === 0 ? "" : "...";
     const tail = startWithContext + 240 < text.length ? "..." : "";
+
     let summary = document.createElement("div");
     summary.classList.add("context");
     summary.innerText = top + text.substr(startWithContext, 240).trim() + tail;
+
     highlightWords.forEach((highlightWord) =>
       _highlightText(summary, highlightWord, "highlighted")
     );
+
     return summary;
   },
 };

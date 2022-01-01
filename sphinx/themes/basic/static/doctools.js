@@ -11,8 +11,11 @@
 "use strict";
 
 const _ready = (callback) => {
-  if (document.readyState !== "loading") return callback();
-  document.addEventListener("DOMContentLoaded", callback);
+  if (document.readyState !== "loading") {
+    callback();
+  } else {
+    document.addEventListener("DOMContentLoaded", callback);
+  }
 };
 
 /**
@@ -30,6 +33,7 @@ const _highlight = (node, addItems, text, className) => {
       !parent.classList.contains("nohighlight")
     ) {
       let span;
+
       const closestNode = parent.closest("body, svg, foreignObject");
       const isInSVG = closestNode && closestNode.matches("svg");
       if (isInSVG) {
@@ -38,6 +42,7 @@ const _highlight = (node, addItems, text, className) => {
         span = document.createElement("span");
         span.classList.add(className);
       }
+
       span.appendChild(document.createTextNode(val.substr(pos, text.length)));
       parent.insertBefore(
         span,
@@ -47,6 +52,7 @@ const _highlight = (node, addItems, text, className) => {
         )
       );
       node.nodeValue = val.substr(0, pos);
+
       if (isInSVG) {
         const rect = document.createElementNS(
           "http://www.w3.org/2000/svg",
@@ -180,6 +186,7 @@ const Documentation = {
         toggledRows.forEach((el) => (el.style.display = ""));
       }
     };
+
     const togglerElements = document.querySelectorAll("img.toggler");
     togglerElements.forEach((el) =>
       el.addEventListener("click", (event) => toggler(event.currentTarget))
