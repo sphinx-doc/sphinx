@@ -176,7 +176,7 @@ class Builder:
     def post_process_images(self, doctree: Node) -> None:
         """Pick the best candidate for all image URIs."""
         images = ImageAdapter(self.env)
-        for node in doctree.traverse(nodes.image):
+        for node in doctree.findall(nodes.image):
             if '?' in node['candidates']:
                 # don't rewrite nonlocal image URIs
                 continue

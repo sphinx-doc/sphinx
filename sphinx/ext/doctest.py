@@ -422,7 +422,7 @@ Doctest summary
             def condition(node: Node) -> bool:
                 return isinstance(node, (nodes.literal_block, nodes.comment)) \
                     and 'testnodetype' in node
-        for node in doctree.traverse(condition):  # type: Element
+        for node in doctree.findall(condition):  # type: Element
             if self.skipped(node):
                 continue
 

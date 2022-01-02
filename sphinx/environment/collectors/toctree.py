@@ -196,7 +196,7 @@ class TocTreeCollector(EnvironmentCollector):
         for docname in env.numbered_toctrees:
             assigned.add(docname)
             doctree = env.get_doctree(docname)
-            for toctreenode in doctree.traverse(addnodes.toctree):
+            for toctreenode in doctree.findall(addnodes.toctree):
                 depth = toctreenode.get('numbered', 0)
                 if depth:
                     # every numbered toctree gets new numbering
