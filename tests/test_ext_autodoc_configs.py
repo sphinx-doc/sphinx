@@ -1231,6 +1231,62 @@ def test_autodoc_typehints_format_short(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc',
+                    confoverrides={'autodoc_typehints_format': "short"})
+def test_autodoc_typehints_format_short_for_class_alias(app):
+    actual = do_autodoc(app, 'class', 'target.classes.Alias')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: Alias',
+        '   :module: target.classes',
+        '',
+        '   alias of :py:class:`~target.classes.Foo`',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc',
+                    confoverrides={'autodoc_typehints_format': "short"})
+def test_autodoc_typehints_format_short_for_generic_alias(app):
+    actual = do_autodoc(app, 'data', 'target.genericalias.L')
+    if sys.version_info < (3, 7):
+        assert list(actual) == [
+            '',
+            '.. py:data:: L',
+            '   :module: target.genericalias',
+            '   :value: typing.List[target.genericalias.Class]',
+            '',
+            '   A list of Class',
+            '',
+        ]
+    else:
+        assert list(actual) == [
+            '',
+            '.. py:data:: L',
+            '   :module: target.genericalias',
+            '',
+            '   A list of Class',
+            '',
+            '   alias of :py:class:`~typing.List`\\ [:py:class:`~target.genericalias.Class`]',
+            '',
+        ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc',
+                    confoverrides={'autodoc_typehints_format': "short"})
+def test_autodoc_typehints_format_short_for_newtype_alias(app):
+    actual = do_autodoc(app, 'data', 'target.typevar.T6')
+    assert list(actual) == [
+        '',
+        '.. py:data:: T6',
+        '   :module: target.typevar',
+        '',
+        '   T6',
+        '',
+        '   alias of :py:class:`~datetime.date`',
+        '',
+    ]
+
+
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_default_options(app):
     # no settings

@@ -16,6 +16,13 @@ from docutils.nodes import Element
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
+try:
+    from docutils.nodes import meta as docutils_meta  # type: ignore
+except ImportError:
+    # docutils-0.17 or older
+    from docutils.parsers.rst.directives.html import MetaBody
+    docutils_meta = MetaBody.meta
+
 
 class document(nodes.document):
     """The document root element patched by Sphinx.
