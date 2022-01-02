@@ -107,7 +107,7 @@ class DefaultSubstitutions(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
         # only handle those not otherwise defined in the document
         to_handle = default_substitutions - set(self.document.substitution_defs)
-        for ref in self.document.traverse(nodes.substitution_reference):
+        for ref in self.document.findall(nodes.substitution_reference):
             refname = ref['refname']
             if refname in to_handle:
                 text = self.config[refname]
@@ -128,7 +128,7 @@ class MoveModuleTargets(SphinxTransform):
     default_priority = 210
 
     def apply(self, **kwargs: Any) -> None:
-        for node in list(self.document.traverse(nodes.target)):
+        for node in list(self.document.findall(nodes.target)):
             if not node['ids']:
                 continue
             if ('ismod' in node and
@@ -147,12 +147,12 @@ class HandleCodeBlocks(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         # move doctest blocks out of blockquotes
-        for node in self.document.traverse(nodes.block_quote):
+        for node in self.document.findall(nodes.block_quote):
             if all(isinstance(child, nodes.doctest_block) for child
                    in node.children):
                 node.replace_self(node.children)
         # combine successive doctest blocks
-        # for node in self.document.traverse(nodes.doctest_block):
+        # for node in self.document.findall(nodes.doctest_block):
         #    if node not in node.parent.children:
         #        continue
         #    parindex = node.parent.index(node)
@@ -172,7 +172,7 @@ class AutoNumbering(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
         domain: StandardDomain = self.env.get_domain('std')
 
-        for node in self.document.traverse(nodes.Element):
+        for node in self.document.findall(nodes.Element):
             if (domain.is_enumerable_node(node) and
                     domain.get_numfig_title(node) is not None and
                     node['ids'] == []):
@@ -186,7 +186,7 @@ class SortIds(SphinxTransform):
     default_priority = 261
 
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.traverse(nodes.section):
+        for node in self.document.findall(nodes.section):
             if len(node['ids']) > 1 and node['ids'][0].startswith('id'):
                 node['ids'] = node['ids'][1:] + [node['ids'][0]]
 
@@ -207,7 +207,7 @@ class ApplySourceWorkaround(SphinxTransform):
     default_priority = 10
 
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.traverse():  # type: Node
+        for node in self.document.findall():  # type: Node
             if isinstance(node, (nodes.TextElement, nodes.image, nodes.topic)):
                 apply_source_workaround(node)
 
@@ -219,7 +219,7 @@ class AutoIndexUpgrader(SphinxTransform):
     default_priority = 210
 
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.traverse(addnodes.index):
+        for node in self.document.findall(addnodes.index):
             if 'entries' in node and any(len(entry) == 4 for entry in node['entries']):
                 msg = __('4 column based index found. '
                          'It might be a bug of extensions you use: %r') % node['entries']
@@ -244,7 +244,7 @@ class ExtraTranslatableNodes(SphinxTransform):
         def is_translatable_node(node: Node) -> bool:
             return isinstance(node, tuple(target_nodes))
 
-        for node in self.document.traverse(is_translatable_node):  # type: Element
+        for node in self.document.findall(is_translatable_node):  # type: Element
             node['translatable'] = True
 
 
@@ -276,7 +276,7 @@ class DoctestTransform(SphinxTransform):
     default_priority = 500
 
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.traverse(nodes.doctest_block):
+        for node in self.document.findall(nodes.doctest_block):
             node['classes'].append('doctest')
 
 
@@ -293,7 +293,7 @@ class FigureAligner(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.table, nodes.figure)
-        for node in self.document.traverse(matcher):  # type: Element
+        for node in self.document.findall(matcher):  # type: Element
             node.setdefault('align', 'default')
 
 
@@ -303,7 +303,7 @@ class FilterSystemMessages(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         filterlevel = 2 if self.config.keep_warnings else 5
-        for node in list(self.document.traverse(nodes.system_message)):
+        for node in list(self.document.findall(nodes.system_message)):
             if node['level'] < filterlevel:
                 logger.debug('%s [filtered system message]', node.astext())
                 node.parent.remove(node)
@@ -392,7 +392,7 @@ class ManpageLink(SphinxTransform):
     default_priority = 999
 
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.traverse(addnodes.manpage):
+        for node in self.document.findall(addnodes.manpage):
             manpage = ' '.join([str(x) for x in node.children
                                 if isinstance(x, nodes.Text)])
             pattern = r'^(?P<path>(?P<page>.+)[\(\.](?P<section>[1-9]\w*)?\)?)$'  # noqa

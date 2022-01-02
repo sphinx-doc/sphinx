@@ -608,7 +608,7 @@ class LaTeXTranslator(SphinxTranslator):
                 raise nodes.SkipNode
             else:
                 short = ''
-                if list(node.traverse(nodes.image)):
+                if any(node.findall(nodes.image)):
                     short = ('[%s]' % self.escape(' '.join(clean_astext(node).split())))
 
                 try:
@@ -966,7 +966,7 @@ class LaTeXTranslator(SphinxTranslator):
             context = (r'\par' + CR + r'\vskip-\baselineskip'
                        r'\vbox{\hbox{\strut}}\end{varwidth}%' + CR + context)
             self.needs_linetrimming = 1
-        if len(list(node.traverse(nodes.paragraph))) >= 2:
+        if len(list(node.findall(nodes.paragraph))) >= 2:
             self.table.has_oldproblematic = True
         if isinstance(node.parent.parent, nodes.thead) or (cell.col in self.table.stubs):
             if len(node) == 1 and isinstance(node[0], nodes.paragraph) and node.astext() == '':

@@ -282,7 +282,7 @@ class TexinfoTranslator(SphinxTranslator):
         self.indices = [(add_node_name(name), content)
                         for name, content in self.indices]
         # each section is also a node
-        for section in self.document.traverse(nodes.section):
+        for section in self.document.findall(nodes.section):
             title = cast(nodes.TextElement, section.next_node(nodes.Titular))
             name = title.astext() if title else '<untitled>'
             section['node_name'] = add_node_name(name)
@@ -291,7 +291,7 @@ class TexinfoTranslator(SphinxTranslator):
         """Collect the menu entries for each "node" section."""
         node_menus = self.node_menus
         targets: List[Element] = [self.document]
-        targets.extend(self.document.traverse(nodes.section))
+        targets.extend(self.document.findall(nodes.section))
         for node in targets:
             assert 'node_name' in node and node['node_name']
             entries = [s['node_name'] for s in find_subsections(node)]

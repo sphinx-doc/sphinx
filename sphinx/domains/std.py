@@ -769,7 +769,7 @@ class StandardDomain(Domain):
             elif self.is_enumerable_node(node):
                 sectname = self.get_numfig_title(node)
             else:
-                toctree = next(iter(node.traverse(addnodes.toctree)), None)
+                toctree = next(node.findall(addnodes.toctree), None)
                 if toctree and toctree.get('caption'):
                     sectname = toctree.get('caption')
                 else:

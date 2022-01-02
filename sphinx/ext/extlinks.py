@@ -53,7 +53,7 @@ class ExternalLinksChecker(SphinxPostTransform):
     default_priority = 500
 
     def run(self, **kwargs: Any) -> None:
-        for refnode in self.document.traverse(nodes.reference):
+        for refnode in self.document.findall(nodes.reference):
             self.check_uri(refnode)
 
     def check_uri(self, refnode: nodes.reference) -> None:

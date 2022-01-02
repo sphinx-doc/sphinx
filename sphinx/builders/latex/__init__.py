@@ -278,7 +278,7 @@ class LaTeXBuilder(Builder):
                                            encoding='utf-8', overwrite_if_changed=True)
             with progress_message(__("processing %s") % targetname):
                 doctree = self.env.get_doctree(docname)
-                toctree = next(iter(doctree.traverse(addnodes.toctree)), None)
+                toctree = next(doctree.findall(addnodes.toctree), None)
                 if toctree and toctree.get('maxdepth') > 0:
                     tocdepth = toctree.get('maxdepth')
                 else:
@@ -308,7 +308,7 @@ class LaTeXBuilder(Builder):
     def get_contentsname(self, indexfile: str) -> str:
         tree = self.env.get_doctree(indexfile)
         contentsname = None
-        for toctree in tree.traverse(addnodes.toctree):
+        for toctree in tree.findall(addnodes.toctree):
             if 'caption' in toctree:
                 contentsname = toctree['caption']
                 break
@@ -336,7 +336,7 @@ class LaTeXBuilder(Builder):
             new_sect += nodes.title('<Set title in conf.py>',
                                     '<Set title in conf.py>')
             new_tree += new_sect
-            for node in tree.traverse(addnodes.toctree):
+            for node in tree.findall(addnodes.toctree):
                 new_sect += node
             tree = new_tree
         largetree = inline_all_toctrees(self, self.docnames, indexfile, tree,
@@ -351,7 +351,7 @@ class LaTeXBuilder(Builder):
         self.env.resolve_references(largetree, indexfile, self)
         # resolve :ref:s to distant tex files -- we can't add a cross-reference,
         # but append the document name
-        for pendingnode in largetree.traverse(addnodes.pending_xref):
+        for pendingnode in largetree.findall(addnodes.pending_xref):
             docname = pendingnode['refdocname']
             sectname = pendingnode['refsectname']
             newnodes: List[Node] = [nodes.emphasis(sectname, sectname)]

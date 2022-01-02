@@ -424,7 +424,7 @@ def test_productionlist2(app):
             "   A: `:A` `A`\n"
             "   B: `P1:B` `~P1:B`\n")
     doctree = restructuredtext.parse(app, text)
-    refnodes = list(doctree.traverse(pending_xref))
+    refnodes = list(doctree.findall(pending_xref))
     assert_node(refnodes[0], pending_xref, reftarget="A")
     assert_node(refnodes[1], pending_xref, reftarget="P2:A")
     assert_node(refnodes[2], pending_xref, reftarget="P1:B")

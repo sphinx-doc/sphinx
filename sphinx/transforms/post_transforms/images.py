@@ -30,7 +30,7 @@ CRITICAL_PATH_CHAR_RE = re.compile('[:;<>|*" ]')
 
 class BaseImageConverter(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.traverse(nodes.image):
+        for node in self.document.findall(nodes.image):
             if self.match(node):
                 self.handle(node)
 

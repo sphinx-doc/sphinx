@@ -54,7 +54,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
     def fix_refuris(self, tree: Node) -> None:
         # fix refuris with double anchor
         fname = self.config.root_doc + self.out_suffix
-        for refnode in tree.traverse(nodes.reference):
+        for refnode in tree.findall(nodes.reference):
             if 'refuri' not in refnode:
                 continue
             refuri = refnode['refuri']
