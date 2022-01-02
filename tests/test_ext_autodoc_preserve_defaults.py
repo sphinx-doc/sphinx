@@ -36,15 +36,15 @@ def test_preserve_defaults(app):
         '   docstring',
         '',
         '',
-        '   .. py:method:: Class.meth(name: str = CONSTANT, sentinel: typing.Any = '
-        'SENTINEL, now: datetime.datetime = datetime.now(), color: int = %s) -> None' % color,
+        '   .. py:method:: Class.meth(name: str = CONSTANT, sentinel: ~typing.Any = '
+        'SENTINEL, now: ~datetime.datetime = datetime.now(), color: int = %s) -> None' % color,
         '      :module: target.preserve_defaults',
         '',
         '      docstring',
         '',
         '',
-        '.. py:function:: foo(name: str = CONSTANT, sentinel: typing.Any = SENTINEL, '
-        'now: datetime.datetime = datetime.now(), color: int = %s) -> None' % color,
+        '.. py:function:: foo(name: str = CONSTANT, sentinel: ~typing.Any = SENTINEL, '
+        'now: ~datetime.datetime = datetime.now(), color: int = %s) -> None' % color,
         '   :module: target.preserve_defaults',
         '',
         '   docstring',

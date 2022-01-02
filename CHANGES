@@ -4,11 +4,14 @@ Release 5.0.0 (in development)
 Dependencies
 ------------
 
-* ``sphinx.writers.latex.LaTeXWriter.docclasses``
-
 Incompatible changes
 --------------------
 
+* #10031: autosummary: ``sphinx.ext.autosummary.import_by_name()`` now raises
+  ``ImportExceptionGroup`` instead of ``ImportError`` when it failed to import
+  target object.  Please handle the exception if your extension uses the
+  function to import Python object.  As a workaround, you can disable the
+  behavior via ``grouped_exception=False`` keyword argument until v7.0.
 * #9962: texinfo: Customizing styles of emphasized text via ``@definfoenclose``
   command was not supported because the command was deprecated since texinfo 6.8
 * #2068: :confval:`intersphinx_disabled_reftypes` has changed default value
@@ -24,9 +27,14 @@ Deprecated
 
 * setuptools integration.  The ``build_sphinx`` sub-command for setup.py is
   marked as deprecated to follow the policy of setuptools team.
+* ``sphinx.writers.latex.LaTeXWriter.docclasses``
 
 Features added
 --------------
+
+* #9075: autodoc: The default value of :confval:`autodoc_typehints_format` is
+  changed to ``'smart'``.  It will suppress the leading module names of
+  typehints (ex. ``io.StringIO`` -> ``StringIO``).
 
 Bugs fixed
 ----------

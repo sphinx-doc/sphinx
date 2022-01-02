@@ -284,7 +284,7 @@ def test_show_inheritance_for_decendants_of_generic_type(app):
         '.. py:class:: Corge(iterable=(), /)',
         '   :module: target.classes',
         '',
-        '   Bases: :py:class:`target.classes.Quux`',
+        '   Bases: :py:class:`~target.classes.Quux`',
         '',
     ]
 
@@ -391,7 +391,7 @@ def test_class_alias(app):
         '.. py:attribute:: Alias',
         '   :module: target.classes',
         '',
-        '   alias of :py:class:`target.classes.Foo`',
+        '   alias of :py:class:`~target.classes.Foo`',
     ]
 
 

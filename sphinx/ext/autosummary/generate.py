@@ -431,7 +431,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
         ensuredir(path)
 
         try:
-            name, obj, parent, modname = import_by_name(entry.name, grouped_exception=True)
+            name, obj, parent, modname = import_by_name(entry.name)
             qualname = name.replace(modname + ".", "")
         except ImportExceptionGroup as exc:
             try:
@@ -508,7 +508,7 @@ def find_autosummary_in_docstring(name: str, module: str = None, filename: str =
                       RemovedInSphinx50Warning, stacklevel=2)
 
     try:
-        real_name, obj, parent, modname = import_by_name(name, grouped_exception=True)
+        real_name, obj, parent, modname = import_by_name(name)
         lines = pydoc.getdoc(obj).splitlines()
         return find_autosummary_in_lines(lines, module=name, filename=filename)
     except AttributeError:
