@@ -79,7 +79,7 @@ def test_domain_py_xrefs(app, status, warning):
         assert_node(node, **attributes)
 
     doctree = app.env.get_doctree('roles')
-    refnodes = list(doctree.traverse(pending_xref))
+    refnodes = list(doctree.findall(pending_xref))
     assert_refnode(refnodes[0], None, None, 'TopLevel', 'class')
     assert_refnode(refnodes[1], None, None, 'top_level', 'meth')
     assert_refnode(refnodes[2], None, 'NestedParentA', 'child_1', 'meth')
@@ -97,7 +97,7 @@ def test_domain_py_xrefs(app, status, warning):
     assert len(refnodes) == 13
 
     doctree = app.env.get_doctree('module')
-    refnodes = list(doctree.traverse(pending_xref))
+    refnodes = list(doctree.findall(pending_xref))
     assert_refnode(refnodes[0], 'module_a.submodule', None,
                    'ModTopLevel', 'class')
     assert_refnode(refnodes[1], 'module_a.submodule', 'ModTopLevel',
@@ -126,7 +126,7 @@ def test_domain_py_xrefs(app, status, warning):
     assert len(refnodes) == 16
 
     doctree = app.env.get_doctree('module_option')
-    refnodes = list(doctree.traverse(pending_xref))
+    refnodes = list(doctree.findall(pending_xref))
     print(refnodes)
     print(refnodes[0])
     print(refnodes[1])

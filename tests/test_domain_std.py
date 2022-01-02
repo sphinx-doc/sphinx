@@ -36,7 +36,7 @@ def test_process_doc_handle_figure_caption():
         ids={'testid': figure_node},
         citation_refs={},
     )
-    document.traverse.return_value = []
+    document.findall.return_value = []
 
     domain = StandardDomain(env)
     if 'testname' in domain.data['labels']:
@@ -60,7 +60,7 @@ def test_process_doc_handle_table_title():
         ids={'testid': table_node},
         citation_refs={},
     )
-    document.traverse.return_value = []
+    document.findall.return_value = []
 
     domain = StandardDomain(env)
     if 'testname' in domain.data['labels']:
