@@ -196,7 +196,7 @@ var Documentation = {
     $('div[id] > :header:first').each(function() {
       $('<a class="headerlink">\u00B6</a>').
       attr('href', '#' + this.id).
-      attr('title', _('Permalink to this headline')).
+      attr('title', _('Permalink to this heading')).
       appendTo(this);
     });
     $('dt[id]').each(function() {
