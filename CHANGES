@@ -30,6 +30,10 @@ Deprecated
 Features added
 --------------
 
+* #9075: autodoc: The default value of :confval:`autodoc_typehints_format` is
+  changed to ``'smart'``.  It will suppress the leading module names of
+  typehints (ex. ``io.StringIO`` -> ``StringIO``).
+
 Bugs fixed
 ----------
 

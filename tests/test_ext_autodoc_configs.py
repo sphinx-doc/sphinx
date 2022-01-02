@@ -612,7 +612,7 @@ def test_autodoc_typehints_signature(app):
         '   :type: int',
         '',
         '',
-        '.. py:class:: Math(s: str, o: typing.Optional[typing.Any] = None)',
+        '.. py:class:: Math(s: str, o: ~typing.Optional[~typing.Any] = None)',
         '   :module: target.typehints',
         '',
         '',
@@ -677,8 +677,8 @@ def test_autodoc_typehints_signature(app):
         '   :module: target.typehints',
         '',
         '',
-        '.. py:function:: tuple_args(x: typing.Tuple[int, typing.Union[int, str]]) '
-        '-> typing.Tuple[int, int]',
+        '.. py:function:: tuple_args(x: ~typing.Tuple[int, ~typing.Union[int, str]]) '
+        '-> ~typing.Tuple[int, int]',
         '   :module: target.typehints',
         '',
     ]
@@ -1028,7 +1028,7 @@ def test_autodoc_type_aliases(app):
         '   docstring',
         '',
         '',
-        '.. py:function:: read(r: _io.BytesIO) -> _io.StringIO',
+        '.. py:function:: read(r: ~_io.BytesIO) -> ~_io.StringIO',
         '   :module: target.autodoc_type_aliases',
         '',
         '   docstring',
@@ -1092,7 +1092,7 @@ def test_autodoc_type_aliases(app):
         '   docstring',
         '',
         '',
-        '.. py:function:: read(r: _io.BytesIO) -> my.module.StringIO',
+        '.. py:function:: read(r: ~_io.BytesIO) -> my.module.StringIO',
         '   :module: target.autodoc_type_aliases',
         '',
         '   docstring',
@@ -1144,8 +1144,8 @@ def test_autodoc_typehints_description_and_type_aliases(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc',
-                    confoverrides={'autodoc_typehints_format': "short"})
-def test_autodoc_typehints_format_short(app):
+                    confoverrides={'autodoc_typehints_format': "fully-qualified"})
+def test_autodoc_typehints_format_fully_qualified(app):
     options = {"members": None,
                "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.typehints', options)
@@ -1159,7 +1159,7 @@ def test_autodoc_typehints_format_short(app):
         '   :type: int',
         '',
         '',
-        '.. py:class:: Math(s: str, o: ~typing.Optional[~typing.Any] = None)',
+        '.. py:class:: Math(s: str, o: typing.Optional[typing.Any] = None)',
         '   :module: target.typehints',
         '',
         '',
@@ -1224,29 +1224,29 @@ def test_autodoc_typehints_format_short(app):
         '   :module: target.typehints',
         '',
         '',
-        '.. py:function:: tuple_args(x: ~typing.Tuple[int, ~typing.Union[int, str]]) '
-        '-> ~typing.Tuple[int, int]',
+        '.. py:function:: tuple_args(x: typing.Tuple[int, typing.Union[int, str]]) '
+        '-> typing.Tuple[int, int]',
         '   :module: target.typehints',
         '',
     ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc',
-                    confoverrides={'autodoc_typehints_format': "short"})
-def test_autodoc_typehints_format_short_for_class_alias(app):
+                    confoverrides={'autodoc_typehints_format': "fully-qualified"})
+def test_autodoc_typehints_format_fully_qualified_for_class_alias(app):
     actual = do_autodoc(app, 'class', 'target.classes.Alias')
     assert list(actual) == [
         '',
         '.. py:attribute:: Alias',
         '   :module: target.classes',
         '',
-        '   alias of :py:class:`~target.classes.Foo`',
+        '   alias of :py:class:`target.classes.Foo`',
     ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc',
-                    confoverrides={'autodoc_typehints_format': "short"})
-def test_autodoc_typehints_format_short_for_generic_alias(app):
+                    confoverrides={'autodoc_typehints_format': "fully-qualified"})
+def test_autodoc_typehints_format_fully_qualified_for_generic_alias(app):
     actual = do_autodoc(app, 'data', 'target.genericalias.L')
     if sys.version_info < (3, 7):
         assert list(actual) == [
@@ -1266,14 +1266,14 @@ def test_autodoc_typehints_format_short_for_generic_alias(app):
             '',
             '   A list of Class',
             '',
-            '   alias of :py:class:`~typing.List`\\ [:py:class:`~target.genericalias.Class`]',
+            '   alias of :py:class:`~typing.List`\\ [:py:class:`target.genericalias.Class`]',
             '',
         ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc',
-                    confoverrides={'autodoc_typehints_format': "short"})
-def test_autodoc_typehints_format_short_for_newtype_alias(app):
+                    confoverrides={'autodoc_typehints_format': "fully-qualified"})
+def test_autodoc_typehints_format_fully_qualified_for_newtype_alias(app):
     actual = do_autodoc(app, 'data', 'target.typevar.T6')
     assert list(actual) == [
         '',
@@ -1282,7 +1282,7 @@ def test_autodoc_typehints_format_short_for_newtype_alias(app):
         '',
         '   T6',
         '',
-        '   alias of :py:class:`~datetime.date`',
+        '   alias of :py:class:`datetime.date`',
         '',
     ]
 

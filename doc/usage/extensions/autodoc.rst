@@ -668,11 +668,14 @@ There are also config values that you can set:
    following values:
 
    * ``'fully-qualified'`` -- Show the module name and its name of typehints
-     (default)
    * ``'short'`` -- Suppress the leading module names of the typehints
-     (ex. ``io.StringIO`` -> ``StringIO``)
+     (ex. ``io.StringIO`` -> ``StringIO``)  (default)
 
    .. versionadded:: 4.4
+
+   .. versionchanged:: 5.0
+
+      The default setting was changed to ``'short'``
 
 .. confval:: autodoc_preserve_defaults
 
