@@ -234,12 +234,17 @@ class Locale(SphinxTransform):
 
             # update translatable nodes
             if isinstance(node, addnodes.translatable):
-                node.apply_translated_message(msg, msgstr)
+                node.apply_translated_message(msg, msgstr)  # type: ignore
                 continue
 
             # update meta nodes
             if isinstance(node, nodes.pending) and is_pending_meta(node):
+                # docutils-0.17 or older
                 node.details['nodes'][0]['content'] = msgstr
+                continue
+            elif isinstance(node, addnodes.docutils_meta):
+                # docutils-0.18+
+                node['content'] = msgstr
                 continue
 
             if isinstance(node, nodes.image) and node.get('alt') == msg:
