@@ -25,6 +25,8 @@ Incompatible changes
 Deprecated
 ----------
 
+* setuptools integration.  The ``build_sphinx`` sub-command for setup.py is
+  marked as deprecated to follow the policy of setuptools team.
 * ``sphinx.writers.latex.LaTeXWriter.docclasses``
 
 Features added
