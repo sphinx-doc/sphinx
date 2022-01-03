@@ -67,7 +67,7 @@ def parse(new_document):
         parser = RstParser()
         parser.parse(rst, document)
         SphinxSmartQuotes(document, startnode=None).apply()
-        for msg in document.traverse(nodes.system_message):
+        for msg in list(document.findall(nodes.system_message)):
             if msg['level'] == 1:
                 msg.replace_self([])
         return document
