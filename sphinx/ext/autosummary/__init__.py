@@ -256,8 +256,9 @@ class Autosummary(SphinxDirective):
     }
 
     def run(self) -> List[Node]:
+        opts = Options({'imported-members': self.env.app.config.autosummary_imported_members})
         self.bridge = DocumenterBridge(self.env, self.state.document.reporter,
-                                       Options(), self.lineno, self.state)
+                                       opts, self.lineno, self.state)
 
         names = [x.strip().split()[0] for x in self.content
                  if x.strip() and re.search(r'^[~a-zA-Z_]', x.strip()[0])]
