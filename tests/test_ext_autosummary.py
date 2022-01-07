@@ -535,6 +535,50 @@ def test_autosummary_imported_members(app, status, warning):
     finally:
         sys.modules.pop('autosummary_dummy_package', None)
 
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-imported_members')
+def test_autosummary_imported_members_table_10058(app, status, warning):
+    try:
+        #app.env.config.autodoc_class_signature = 'separated'
+        app.build()
+
+        doctree = app.env.get_doctree('index')
+
+        assert_node(doctree, (nodes.section,))
+                            # nodes.paragraph,
+                            # addnodes.tabular_col_spec,
+                            # autosummary_table,
+                            # [autosummary_toc, addnodes.toctree]))
+        assert_node(doctree[0], (
+            nodes.title,
+            addnodes.tabular_col_spec,
+            autosummary_table,
+            autosummary_toc,
+            addnodes.tabular_col_spec,
+            autosummary_table
+        ))
+
+        table = list(doctree[0].traverse(autosummary_table))[1]
+
+        assert_node(table, [
+            autosummary_table,
+            nodes.table,
+            nodes.tgroup,
+            (nodes.colspec, nodes.colspec, nodes.tbody)
+        ])
+
+        tbody = table.next_node(nodes.tbody)
+
+        assert_node(tbody, (
+            [nodes.row, (nodes.entry, nodes.entry)],
+            [nodes.row, (nodes.entry, nodes.entry)]
+        ))
+
+        assert 'foo' in tbody[0][0].next_node(nodes.Text).astext()
+        assert 'Bar' in tbody[1][0].next_node(nodes.Text).astext()
+
+    finally:
+        sys.modules.pop('autosummary_dummy_package', None)
+
 
 @pytest.mark.sphinx(testroot='ext-autodoc',
                     confoverrides={'extensions': ['sphinx.ext.autosummary']})
