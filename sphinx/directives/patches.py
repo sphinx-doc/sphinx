@@ -9,7 +9,7 @@
 import os
 import warnings
 from os import path
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Sequence, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Node, make_id, system_message
@@ -71,7 +71,7 @@ class Figure(images.Figure):
 
 
 class Meta(MetaBase, SphinxDirective):
-    def run(self) -> List[Node]:
+    def run(self) -> Sequence[Node]:
         result = super().run()
         for node in result:
             if (isinstance(node, nodes.pending) and
