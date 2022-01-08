@@ -24,10 +24,10 @@ try:
 except ImportError:
     try:
         # for Debian-jessie
-        from urllib3.exceptions import InsecureRequestWarning  # type: ignore
+        from urllib3.exceptions import InsecureRequestWarning
     except ImportError:
         # for requests < 2.4.0
-        InsecureRequestWarning = None  # type: ignore
+        InsecureRequestWarning = None
 
 
 useragent_header = [('User-Agent',
