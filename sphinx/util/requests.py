@@ -25,17 +25,17 @@ try:
 except ImportError:
     # python-requests package in Debian jessie does not provide ``requests.packages.urllib3``.
     # So try to import the exceptions from urllib3 package.
-    from urllib3.exceptions import SSLError  # type: ignore
+    from urllib3.exceptions import SSLError
 
 try:
     from requests.packages.urllib3.exceptions import InsecureRequestWarning
 except ImportError:
     try:
         # for Debian-jessie
-        from urllib3.exceptions import InsecureRequestWarning  # type: ignore
+        from urllib3.exceptions import InsecureRequestWarning
     except ImportError:
         # for requests < 2.4.0
-        InsecureRequestWarning = None  # type: ignore
+        InsecureRequestWarning = None
 
 
 useragent_header = [('User-Agent',
