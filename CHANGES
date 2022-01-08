@@ -37,6 +37,7 @@ Features added
   checking in matched documents.
 * #9793: sphinx-build: Allow to use the parallel build feature in macOS on macOS
   and Python3.8+
+* #10055: sphinx-build: Create directories when ``-w`` option given
 * #9993: std domain: Allow to refer an inline target (ex. ``_`target name```)
   via :rst:role:`ref` role
 * #9391: texinfo: improve variable in ``samp`` role
