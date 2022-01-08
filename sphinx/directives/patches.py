@@ -83,7 +83,7 @@ class Meta(MetaBase, SphinxDirective):
                 # docutils' meta nodes aren't picklable because the class is nested
                 meta.__class__ = addnodes.meta
 
-        return result  # type: ignore
+        return result
 
 
 class RSTTable(tables.RSTTable):
