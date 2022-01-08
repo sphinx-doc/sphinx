@@ -27,6 +27,16 @@ The following is a list of deprecated interfaces.
      - 7.0
      - N/A
 
+   * - The ``locale`` argument of ``sphinx.util.i18n:babel_format_date()``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - The ``language`` argument of ``sphinx.util.i18n:format_date()``
+     - 5.0
+     - 7.0
+     - N/A
+
    * - ``sphinx.writers.latex.LaTeXWriter.docclasses``
      - 5.0
      - 7.0

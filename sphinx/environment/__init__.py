@@ -261,7 +261,7 @@ class BuildEnvironment:
         """Update settings by new config."""
         self.settings['input_encoding'] = config.source_encoding
         self.settings['trim_footnote_reference_space'] = config.trim_footnote_reference_space
-        self.settings['language_code'] = config.language or 'en'
+        self.settings['language_code'] = config.language
 
         # Allow to disable by 3rd party extension (workaround)
         self.settings.setdefault('smart_quotes', True)

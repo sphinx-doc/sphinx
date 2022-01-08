@@ -333,7 +333,7 @@ class LaTeXTranslator(SphinxTranslator):
         if self.config.numfig and self.config.math_numfig:
             sphinxpkgoptions.append('mathnumfig')
 
-        if (self.config.language not in {None, 'en', 'ja'} and
+        if (self.config.language not in {'en', 'ja'} and
                 'fncychap' not in self.config.latex_elements):
             # use Sonny style if any language specified (except English)
             self.elements['fncychap'] = (r'\usepackage[Sonny]{fncychap}' + CR +
@@ -341,7 +341,7 @@ class LaTeXTranslator(SphinxTranslator):
                                          r'\ChTitleVar{\Large\normalfont\sffamily}')
 
         self.babel = self.builder.babel
-        if self.config.language and not self.babel.is_supported_language():
+        if not self.babel.is_supported_language():
             # emit warning if specified language is invalid
             # (only emitting, nothing changed to processing)
             logger.warning(__('no Babel option known for language %r'),

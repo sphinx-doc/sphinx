@@ -170,9 +170,8 @@ class LaTeXBuilder(Builder):
         self.context.update(ADDITIONAL_SETTINGS.get(self.config.latex_engine, {}))
 
         # Add special settings for (latex_engine, language_code)
-        if self.config.language:
-            key = (self.config.latex_engine, self.config.language[:2])
-            self.context.update(ADDITIONAL_SETTINGS.get(key, {}))
+        key = (self.config.latex_engine, self.config.language[:2])
+        self.context.update(ADDITIONAL_SETTINGS.get(key, {}))
 
         # Apply user settings to context
         self.context.update(self.config.latex_elements)
@@ -203,7 +202,7 @@ class LaTeXBuilder(Builder):
 
     def init_babel(self) -> None:
         self.babel = ExtBabel(self.config.language, not self.context['babel'])
-        if self.config.language and not self.babel.is_supported_language():
+        if not self.babel.is_supported_language():
             # emit warning if specified language is invalid
             # (only emitting, nothing changed to processing)
             logger.warning(__('no Babel option known for language %r'),
@@ -232,12 +231,11 @@ class LaTeXBuilder(Builder):
             self.context['classoptions'] += ',' + self.babel.get_language()
             # this branch is not taken for xelatex/lualatex if default settings
             self.context['multilingual'] = self.context['babel']
-            if self.config.language:
-                self.context['shorthandoff'] = SHORTHANDOFF
+            self.context['shorthandoff'] = SHORTHANDOFF
 
-                # Times fonts don't work with Cyrillic languages
-                if self.babel.uses_cyrillic() and 'fontpkg' not in self.config.latex_elements:
-                    self.context['fontpkg'] = ''
+            # Times fonts don't work with Cyrillic languages
+            if self.babel.uses_cyrillic() and 'fontpkg' not in self.config.latex_elements:
+                self.context['fontpkg'] = ''
         elif self.context['polyglossia']:
             self.context['classoptions'] += ',' + self.babel.get_language()
             options = self.babel.get_mainlanguage_options()
@@ -380,14 +378,10 @@ class LaTeXBuilder(Builder):
         # configure usage of xindy (impacts Makefile and latexmkrc)
         # FIXME: convert this rather to a confval with suitable default
         #        according to language ? but would require extra documentation
-        if self.config.language:
-            xindy_lang_option = \
-                XINDY_LANG_OPTIONS.get(self.config.language[:2],
-                                       '-L general -C utf8 ')
-            xindy_cyrillic = self.config.language[:2] in XINDY_CYRILLIC_SCRIPTS
-        else:
-            xindy_lang_option = '-L english -C utf8 '
-            xindy_cyrillic = False
+        xindy_lang_option = XINDY_LANG_OPTIONS.get(self.config.language[:2],
+                                                   '-L general -C utf8 ')
+        xindy_cyrillic = self.config.language[:2] in XINDY_CYRILLIC_SCRIPTS
+
         context = {
             'latex_engine':      self.config.latex_engine,
             'xindy_use':         self.config.latex_use_xindy,
@@ -474,7 +468,7 @@ def default_latex_engine(config: Config) -> str:
     """ Better default latex_engine settings for specific languages. """
     if config.language == 'ja':
         return 'uplatex'
-    elif (config.language or '').startswith('zh'):
+    elif config.language.startswith('zh'):
         return 'xelatex'
     elif config.language == 'el':
         return 'xelatex'

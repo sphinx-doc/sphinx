@@ -326,7 +326,7 @@ class StandaloneHTMLBuilder(Builder):
             attrs.setdefault('priority', 800)  # User's JSs are loaded after extensions'
             self.add_js_file(filename, **attrs)
 
-        if self.config.language and self._get_translations_js():
+        if self._get_translations_js():
             self.add_js_file('translations.js')
 
     def add_js_file(self, filename: str, **kwargs: Any) -> None:
@@ -431,8 +431,6 @@ class StandaloneHTMLBuilder(Builder):
         if self.search:
             from sphinx.search import IndexBuilder
             lang = self.config.html_search_language or self.config.language
-            if not lang:
-                lang = 'en'
             self.indexer = IndexBuilder(self.env, lang,
                                         self.config.html_search_options,
                                         self.config.html_search_scorer)
@@ -767,10 +765,9 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_translation_js(self) -> None:
         """Copy a JavaScript file for translations."""
-        if self.config.language is not None:
-            jsfile = self._get_translations_js()
-            if jsfile:
-                copyfile(jsfile, path.join(self.outdir, '_static', 'translations.js'))
+        jsfile = self._get_translations_js()
+        if jsfile:
+            copyfile(jsfile, path.join(self.outdir, '_static', 'translations.js'))
 
     def copy_stemmer_js(self) -> None:
         """Copy a JavaScript file for stemmer."""

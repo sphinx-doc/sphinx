@@ -100,7 +100,7 @@ class Config:
         # the real default is locale-dependent
         'today_fmt': (None, 'env', [str]),
 
-        'language': (None, 'env', [str]),
+        'language': ('en', 'env', [str]),
         'locale_dirs': (['locales'], 'env', []),
         'figure_language_filename': ('{root}.{language}{ext}', 'env', [str]),
         'gettext_allow_fuzzy_translations': (False, 'gettext', []),
