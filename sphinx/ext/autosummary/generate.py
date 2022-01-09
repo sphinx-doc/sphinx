@@ -444,7 +444,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
                 else:
                     exceptions = exc.exceptions + [exc2]
 
-                errors = list(set("* %s: %s" % (type(e).__name__, e) for e in exceptions))
+                errors = list({"* %s: %s" % (type(e).__name__, e) for e in exceptions})
                 logger.warning(__('[autosummary] failed to import %s.\nPossible hints:\n%s'),
                                entry.name, '\n'.join(errors))
                 continue
@@ -514,7 +514,7 @@ def find_autosummary_in_docstring(name: str, module: str = None, filename: str =
     except AttributeError:
         pass
     except ImportExceptionGroup as exc:
-        errors = list(set("* %s: %s" % (type(e).__name__, e) for e in exc.exceptions))
+        errors = list({"* %s: %s" % (type(e).__name__, e) for e in exc.exceptions})
         print('Failed to import %s.\nPossible hints:\n%s' % (name, '\n'.join(errors)))
     except SystemExit:
         print("Failed to import '%s'; the module executes module level "
