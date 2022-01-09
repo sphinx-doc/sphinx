@@ -1,0 +1,6 @@
+[tool.black]
+line-length = 95
+extend-exclude = 'tests'
+
+[tool.isort]
+profile = "black"
