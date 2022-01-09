@@ -18,7 +18,7 @@ from sphinx.util.matching import compile_matchers
 from sphinx.util.osutil import SEP, relpath
 
 logger = logging.getLogger(__name__)
-EXCLUDE_PATHS = ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
+EXCLUDE_PATHS = ["**/_sources", ".#*", "**/.#*", "*.lproj/**"]
 
 
 class Project:
@@ -48,11 +48,18 @@ class Project:
             docname = self.path2doc(filename)
             if docname:
                 if docname in self.docnames:
-                    pattern = os.path.join(self.srcdir, docname) + '.*'
+                    pattern = os.path.join(self.srcdir, docname) + ".*"
                     files = [relpath(f, self.srcdir) for f in glob(pattern)]
-                    logger.warning(__('multiple files found for the document "%s": %r\n'
-                                      'Use %r for the build.'),
-                                   docname, files, self.doc2path(docname), once=True)
+                    logger.warning(
+                        __(
+                            'multiple files found for the document "%s": %r\n'
+                            "Use %r for the build."
+                        ),
+                        docname,
+                        files,
+                        self.doc2path(docname),
+                        once=True,
+                    )
                 elif os.access(os.path.join(self.srcdir, filename), os.R_OK):
                     self.docnames.add(docname)
                 else:
@@ -70,7 +77,7 @@ class Project:
         for suffix in self.source_suffix:
             if filename.endswith(suffix):
                 filename = path_stabilize(filename)
-                return filename[:-len(suffix)]
+                return filename[: -len(suffix)]
 
         # the file does not have docname
         return None

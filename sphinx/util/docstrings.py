@@ -17,7 +17,7 @@ from docutils.parsers.rst.states import Body
 
 from sphinx.deprecation import RemovedInSphinx50Warning, RemovedInSphinx60Warning
 
-field_list_item_re = re.compile(Body.patterns['field_marker'])
+field_list_item_re = re.compile(Body.patterns["field_marker"])
 
 
 def separate_metadata(s: str) -> Tuple[str, Dict[str, str]]:
@@ -30,28 +30,27 @@ def separate_metadata(s: str) -> Tuple[str, Dict[str, str]]:
         return s, metadata
 
     for line in prepare_docstring(s):
-        if line.strip() == '':
+        if line.strip() == "":
             in_other_element = False
             lines.append(line)
         else:
             matched = field_list_item_re.match(line)
             if matched and not in_other_element:
-                field_name = matched.group()[1:].split(':', 1)[0]
-                if field_name.startswith('meta '):
+                field_name = matched.group()[1:].split(":", 1)[0]
+                if field_name.startswith("meta "):
                     name = field_name[5:].strip()
-                    metadata[name] = line[matched.end():].strip()
+                    metadata[name] = line[matched.end() :].strip()
                 else:
                     lines.append(line)
             else:
                 in_other_element = True
                 lines.append(line)
 
-    return '\n'.join(lines), metadata
+    return "\n".join(lines), metadata
 
 
 def extract_metadata(s: str) -> Dict[str, str]:
-    warnings.warn("extract_metadata() is deprecated.",
-                  RemovedInSphinx60Warning, stacklevel=2)
+    warnings.warn("extract_metadata() is deprecated.", RemovedInSphinx60Warning, stacklevel=2)
 
     docstring, metadata = separate_metadata(s)
     return metadata
@@ -69,8 +68,11 @@ def prepare_docstring(s: str, ignore: int = None, tabsize: int = 8) -> List[str]
     if ignore is None:
         ignore = 1
     else:
-        warnings.warn("The 'ignore' argument to prepare_docstring() is deprecated.",
-                      RemovedInSphinx50Warning, stacklevel=2)
+        warnings.warn(
+            "The 'ignore' argument to prepare_docstring() is deprecated.",
+            RemovedInSphinx50Warning,
+            stacklevel=2,
+        )
 
     lines = s.expandtabs(tabsize).splitlines()
     # Find minimum indentation of any non-blank lines after ignored lines.
@@ -92,7 +94,7 @@ def prepare_docstring(s: str, ignore: int = None, tabsize: int = 8) -> List[str]
         lines.pop(0)
     # make sure there is an empty line at the end
     if lines and lines[-1]:
-        lines.append('')
+        lines.append("")
     return lines
 
 
@@ -103,12 +105,12 @@ def prepare_commentdoc(s: str) -> List[str]:
     result = []
     lines = [line.strip() for line in s.expandtabs().splitlines()]
     for line in lines:
-        if line.startswith('#:'):
+        if line.startswith("#:"):
             line = line[2:]
             # the first space after the comment is ignored
-            if line and line[0] == ' ':
+            if line and line[0] == " ":
                 line = line[1:]
             result.append(line)
     if result and result[-1]:
-        result.append('')
+        result.append("")
     return result

@@ -38,10 +38,10 @@ def get_function_def(obj: Any) -> ast.FunctionDef:
     """
     try:
         source = inspect.getsource(obj)
-        if source.startswith((' ', r'\t')):
+        if source.startswith((" ", r"\t")):
             # subject is placed inside class or block.  To read its docstring,
             # this adds if-block before the declaration.
-            module = ast_parse('if True:\n' + source)
+            module = ast_parse("if True:\n" + source)
             return module.body[0].body[0]  # type: ignore
         else:
             module = ast_parse(source)
@@ -56,7 +56,7 @@ def get_default_value(lines: List[str], position: ast.AST) -> Optional[str]:
             return None
         elif position.lineno == position.end_lineno:
             line = lines[position.lineno - 1]
-            return line[position.col_offset:position.end_col_offset]
+            return line[position.col_offset : position.end_col_offset]
         else:
             # multiline value is not supported now
             return None
@@ -71,8 +71,8 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
 
     try:
         lines = inspect.getsource(obj).splitlines()
-        if lines[0].startswith((' ', r'\t')):
-            lines.insert(0, '')  # insert a dummy line to follow what get_function_def() does.
+        if lines[0].startswith((" ", r"\t")):
+            lines.insert(0, "")  # insert a dummy line to follow what get_function_def() does.
     except (OSError, TypeError):
         lines = []
 
@@ -107,10 +107,7 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
-    app.add_config_value('autodoc_preserve_defaults', False, True)
-    app.connect('autodoc-before-process-signature', update_defvalue)
+    app.add_config_value("autodoc_preserve_defaults", False, True)
+    app.connect("autodoc-before-process-signature", update_defvalue)
 
-    return {
-        'version': '1.0',
-        'parallel_read_safe': True
-    }
+    return {"version": "1.0", "parallel_read_safe": True}

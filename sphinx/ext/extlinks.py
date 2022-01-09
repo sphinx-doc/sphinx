@@ -63,18 +63,20 @@ class ExternalLinksChecker(SphinxPostTransform):
         If the URI in ``refnode`` has a replacement in ``extlinks``,
         emit a warning with a replacement suggestion.
         """
-        if 'internal' in refnode or 'refuri' not in refnode:
+        if "internal" in refnode or "refuri" not in refnode:
             return
 
-        uri = refnode['refuri']
+        uri = refnode["refuri"]
 
         for alias, (base_uri, caption) in self.app.config.extlinks.items():
-            uri_pattern = re.compile(base_uri.replace('%s', '(?P<value>.+)'))
+            uri_pattern = re.compile(base_uri.replace("%s", "(?P<value>.+)"))
             match = uri_pattern.match(uri)
-            if match and match.groupdict().get('value'):
+            if match and match.groupdict().get("value"):
                 # build a replacement suggestion
-                msg = __('hardcoded link %r could be replaced by an extlink '
-                         '(try using %r instead)')
+                msg = __(
+                    "hardcoded link %r could be replaced by an extlink "
+                    "(try using %r instead)"
+                )
                 replacement = f":{alias}:`{match.groupdict().get('value')}`"
                 logger.warning(msg, uri, replacement, location=refnode)
 
@@ -86,24 +88,36 @@ def make_link_role(name: str, base_url: str, caption: str) -> RoleFunction:
     # Remark: It is an implementation detail that we use Pythons %-formatting.
     # So far we only expose ``%s`` and require quoting of ``%`` using ``%%``.
     try:
-        base_url % 'dummy'
+        base_url % "dummy"
     except (TypeError, ValueError):
-        warnings.warn('extlinks: Sphinx-6.0 will require base URL to '
-                      'contain exactly one \'%s\' and all other \'%\' need '
-                      'to be escaped as \'%%\'.', RemovedInSphinx60Warning)
-        base_url = base_url.replace('%', '%%') + '%s'
+        warnings.warn(
+            "extlinks: Sphinx-6.0 will require base URL to "
+            "contain exactly one '%s' and all other '%' need "
+            "to be escaped as '%%'.",
+            RemovedInSphinx60Warning,
+        )
+        base_url = base_url.replace("%", "%%") + "%s"
     if caption is not None:
         try:
-            caption % 'dummy'
+            caption % "dummy"
         except (TypeError, ValueError):
-            warnings.warn('extlinks: Sphinx-6.0 will require a caption string to '
-                          'contain exactly one \'%s\' and all other \'%\' need '
-                          'to be escaped as \'%%\'.', RemovedInSphinx60Warning)
-            caption = caption.replace('%', '%%') + '%s'
+            warnings.warn(
+                "extlinks: Sphinx-6.0 will require a caption string to "
+                "contain exactly one '%s' and all other '%' need "
+                "to be escaped as '%%'.",
+                RemovedInSphinx60Warning,
+            )
+            caption = caption.replace("%", "%%") + "%s"
 
-    def role(typ: str, rawtext: str, text: str, lineno: int,
-             inliner: Inliner, options: Dict = {}, content: List[str] = []
-             ) -> Tuple[List[Node], List[system_message]]:
+    def role(
+        typ: str,
+        rawtext: str,
+        text: str,
+        lineno: int,
+        inliner: Inliner,
+        options: Dict = {},
+        content: List[str] = [],
+    ) -> Tuple[List[Node], List[system_message]]:
         text = utils.unescape(text)
         has_explicit_title, title, part = split_explicit_title(text)
         full_url = base_url % part
@@ -114,6 +128,7 @@ def make_link_role(name: str, base_url: str, caption: str) -> RoleFunction:
                 title = caption % part
         pnode = nodes.reference(title, title, internal=False, refuri=full_url)
         return [pnode], []
+
     return role
 
 
@@ -123,7 +138,7 @@ def setup_link_roles(app: Sphinx) -> None:
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
-    app.add_config_value('extlinks', {}, 'env')
-    app.connect('builder-inited', setup_link_roles)
+    app.add_config_value("extlinks", {}, "env")
+    app.connect("builder-inited", setup_link_roles)
     app.add_post_transform(ExternalLinksChecker)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {"version": sphinx.__display_version__, "parallel_read_safe": True}

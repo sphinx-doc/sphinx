@@ -17,8 +17,14 @@ import pytest
 import sphinx.domains.cpp as cppDomain
 from sphinx import addnodes
 from sphinx.addnodes import desc
-from sphinx.domains.cpp import (DefinitionError, DefinitionParser, NoOldIdError, Symbol,
-                                _id_prefix, _max_id)
+from sphinx.domains.cpp import (
+    DefinitionError,
+    DefinitionParser,
+    NoOldIdError,
+    Symbol,
+    _id_prefix,
+    _max_id,
+)
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node

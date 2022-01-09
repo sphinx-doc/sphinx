@@ -28,10 +28,10 @@ if TYPE_CHECKING:
 
 
 # RE to strip backslash escapes
-nl_escape_re = re.compile(r'\\\n')
-strip_backslash_re = re.compile(r'\\(.)')
+nl_escape_re = re.compile(r"\\\n")
+strip_backslash_re = re.compile(r"\\(.)")
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def optional_int(argument: str) -> int:
@@ -43,7 +43,7 @@ def optional_int(argument: str) -> int:
     else:
         value = int(argument)
         if value < 0:
-            raise ValueError('negative value; must be positive or zero')
+            raise ValueError("negative value; must be positive or zero")
         return value
 
 
@@ -59,7 +59,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
     optional_arguments = 0
     final_argument_whitespace = True
     option_spec: OptionSpec = {
-        'noindex': directives.flag,
+        "noindex": directives.flag,
     }
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
@@ -90,10 +90,10 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         Retrieve the signatures to document from the directive arguments.  By
         default, signatures are given as arguments, one per line.
         """
-        lines = nl_escape_re.sub('', self.arguments[0]).split('\n')
+        lines = nl_escape_re.sub("", self.arguments[0]).split("\n")
         if self.config.strip_signature_backslash:
             # remove backslashes to support (dummy) escapes; helps Vim highlighting
-            return [strip_backslash_re.sub(r'\1', line.strip()) for line in lines]
+            return [strip_backslash_re.sub(r"\1", line.strip()) for line in lines]
         else:
             return [line.strip() for line in lines]
 
@@ -158,28 +158,28 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         * add index entries using self.add_target_and_index()
         * parse the content and handle doc fields in it
         """
-        if ':' in self.name:
-            self.domain, self.objtype = self.name.split(':', 1)
+        if ":" in self.name:
+            self.domain, self.objtype = self.name.split(":", 1)
         else:
-            self.domain, self.objtype = '', self.name
+            self.domain, self.objtype = "", self.name
         self.indexnode = addnodes.index(entries=[])
 
         node = addnodes.desc()
         node.document = self.state.document
-        node['domain'] = self.domain
+        node["domain"] = self.domain
         # 'desctype' is a backwards compatible attribute
-        node['objtype'] = node['desctype'] = self.objtype
-        node['noindex'] = noindex = ('noindex' in self.options)
+        node["objtype"] = node["desctype"] = self.objtype
+        node["noindex"] = noindex = "noindex" in self.options
         if self.domain:
-            node['classes'].append(self.domain)
-        node['classes'].append(node['objtype'])
+            node["classes"].append(self.domain)
+        node["classes"].append(node["objtype"])
 
         self.names: List[T] = []
         signatures = self.get_signatures()
         for i, sig in enumerate(signatures):
             # add a signature node for each signature in the current unit
             # and add a reference target for it
-            signode = addnodes.desc_signature(sig, '')
+            signode = addnodes.desc_signature(sig, "")
             self.set_source_info(signode)
             node.append(signode)
             try:
@@ -203,14 +203,15 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         node.append(contentnode)
         if self.names:
             # needed for association of version{added,changed} directives
-            self.env.temp_data['object'] = self.names[0]
+            self.env.temp_data["object"] = self.names[0]
         self.before_content()
         self.state.nested_parse(self.content, self.content_offset, contentnode)
         self.transform_content(contentnode)
-        self.env.app.emit('object-description-transform',
-                          self.domain, self.objtype, contentnode)
+        self.env.app.emit(
+            "object-description-transform", self.domain, self.objtype, contentnode
+        )
         DocFieldTransformer(self).transform_all(contentnode)
-        self.env.temp_data['object'] = None
+        self.env.temp_data["object"] = None
         self.after_content()
         return [self.indexnode, node]
 
@@ -225,19 +226,23 @@ class DefaultRole(SphinxDirective):
 
     def run(self) -> List[Node]:
         if not self.arguments:
-            docutils.unregister_role('')
+            docutils.unregister_role("")
             return []
         role_name = self.arguments[0]
-        role, messages = roles.role(role_name, self.state_machine.language,
-                                    self.lineno, self.state.reporter)
+        role, messages = roles.role(
+            role_name, self.state_machine.language, self.lineno, self.state.reporter
+        )
         if role:
-            docutils.register_role('', role)
-            self.env.temp_data['default_role'] = role_name
+            docutils.register_role("", role)
+            self.env.temp_data["default_role"] = role_name
         else:
             literal_block = nodes.literal_block(self.block_text, self.block_text)
             reporter = self.state.reporter
-            error = reporter.error('Unknown interpreted text role "%s".' % role_name,
-                                   literal_block, line=self.lineno)
+            error = reporter.error(
+                'Unknown interpreted text role "%s".' % role_name,
+                literal_block,
+                line=self.lineno,
+            )
             messages += [error]
 
         return cast(List[nodes.Node], messages)
@@ -262,32 +267,34 @@ class DefaultDomain(SphinxDirective):
         #         if domain.label.lower() == domain_name:
         #             domain_name = domain.name
         #             break
-        self.env.temp_data['default_domain'] = self.env.domains.get(domain_name)
+        self.env.temp_data["default_domain"] = self.env.domains.get(domain_name)
         return []
 
 
-deprecated_alias('sphinx.directives',
-                 {
-                     'DescDirective': ObjectDescription,
-                 },
-                 RemovedInSphinx50Warning,
-                 {
-                     'DescDirective': 'sphinx.directives.ObjectDescription',
-                 })
+deprecated_alias(
+    "sphinx.directives",
+    {
+        "DescDirective": ObjectDescription,
+    },
+    RemovedInSphinx50Warning,
+    {
+        "DescDirective": "sphinx.directives.ObjectDescription",
+    },
+)
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
-    app.add_config_value("strip_signature_backslash", False, 'env')
-    directives.register_directive('default-role', DefaultRole)
-    directives.register_directive('default-domain', DefaultDomain)
-    directives.register_directive('describe', ObjectDescription)
+    app.add_config_value("strip_signature_backslash", False, "env")
+    directives.register_directive("default-role", DefaultRole)
+    directives.register_directive("default-domain", DefaultDomain)
+    directives.register_directive("describe", ObjectDescription)
     # new, more consistent, name
-    directives.register_directive('object', ObjectDescription)
+    directives.register_directive("object", ObjectDescription)
 
-    app.add_event('object-description-transform')
+    app.add_event("object-description-transform")
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

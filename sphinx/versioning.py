@@ -24,6 +24,7 @@ if TYPE_CHECKING:
 
 try:
     import Levenshtein
+
     IS_SPEEDUP = True
 except ImportError:
     IS_SPEEDUP = False
@@ -68,7 +69,7 @@ def merge_doctrees(old: Node, new: Node, condition: Any) -> Iterator[Node]:
         if old_node is None:
             new_nodes.append(new_node)
             continue
-        if not getattr(old_node, 'uid', None):
+        if not getattr(old_node, "uid", None):
             # maybe config.gettext_uuid has been changed.
             old_node.uid = uuid4().hex
         if new_node is None:
@@ -149,6 +150,7 @@ def levenshtein_distance(a: str, b: str) -> int:
 
 class UIDTransform(SphinxTransform):
     """Add UIDs to doctree for versioning."""
+
     default_priority = 880
 
     def apply(self, **kwargs: Any) -> None:
@@ -160,8 +162,8 @@ class UIDTransform(SphinxTransform):
         if env.versioning_compare:
             # get old doctree
             try:
-                filename = path.join(env.doctreedir, env.docname + '.doctree')
-                with open(filename, 'rb') as f:
+                filename = path.join(env.doctreedir, env.docname + ".doctree")
+                with open(filename, "rb") as f:
                     old_doctree = pickle.load(f)
             except OSError:
                 pass
@@ -177,7 +179,7 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_transform(UIDTransform)
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

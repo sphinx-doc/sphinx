@@ -9,8 +9,19 @@
 """
 
 import re
-from typing import (Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple, TypeVar,
-                    Union, cast)
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+    cast,
+)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement, system_message
@@ -29,20 +40,34 @@ from sphinx.roles import SphinxRole, XRefRole
 from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging
-from sphinx.util.cfamily import (ASTAttribute, ASTBaseBase, ASTBaseParenExprList, BaseParser,
-                                 DefinitionError, NoOldIdError, StringifyTransform,
-                                 UnsupportedMultiCharacterCharLiteral, anon_identifier_re,
-                                 binary_literal_re, char_literal_re, float_literal_re,
-                                 float_literal_suffix_re, hex_literal_re, identifier_re,
-                                 integer_literal_re, integers_literal_suffix_re,
-                                 octal_literal_re, verify_description_mode)
+from sphinx.util.cfamily import (
+    ASTAttribute,
+    ASTBaseBase,
+    ASTBaseParenExprList,
+    BaseParser,
+    DefinitionError,
+    NoOldIdError,
+    StringifyTransform,
+    UnsupportedMultiCharacterCharLiteral,
+    anon_identifier_re,
+    binary_literal_re,
+    char_literal_re,
+    float_literal_re,
+    float_literal_suffix_re,
+    hex_literal_re,
+    identifier_re,
+    integer_literal_re,
+    integers_literal_suffix_re,
+    octal_literal_re,
+    verify_description_mode,
+)
 from sphinx.util.docfields import Field, GroupedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
 from sphinx.util.typing import OptionSpec
 
 logger = logging.getLogger(__name__)
-T = TypeVar('T')
+T = TypeVar("T")
 
 """
     Important note on ids
@@ -294,13 +319,17 @@ T = TypeVar('T')
             nested-name
 """
 
-udl_identifier_re = re.compile(r'''(?x)
+udl_identifier_re = re.compile(
+    r"""(?x)
     [a-zA-Z_][a-zA-Z0-9_]*\b   # note, no word boundary in the beginning
-''')
-_string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
-                        r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
-_visibility_re = re.compile(r'\b(public|private|protected)\b')
-_operator_re = re.compile(r'''(?x)
+"""
+)
+_string_re = re.compile(
+    r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'" r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S
+)
+_visibility_re = re.compile(r"\b(public|private|protected)\b")
+_operator_re = re.compile(
+    r"""(?x)
         \[\s*\]
     |   \(\s*\)
     |   \+\+ | --
@@ -309,33 +338,112 @@ _operator_re = re.compile(r'''(?x)
     |   <=>
     |   [!<>=/*%+|&^~-]=?
     |   (\b(and|and_eq|bitand|bitor|compl|not|not_eq|or|or_eq|xor|xor_eq)\b)
-''')
-_fold_operator_re = re.compile(r'''(?x)
+"""
+)
+_fold_operator_re = re.compile(
+    r"""(?x)
         ->\*    |    \.\*    |    \,
     |   (<<|>>)=?    |    &&    |    \|\|
     |   !=
     |   [<>=/*%+|&^~-]=?
-''')
+"""
+)
 # see https://en.cppreference.com/w/cpp/keyword
 _keywords = [
-    'alignas', 'alignof', 'and', 'and_eq', 'asm', 'auto', 'bitand', 'bitor',
-    'bool', 'break', 'case', 'catch', 'char', 'char8_t', 'char16_t', 'char32_t',
-    'class', 'compl', 'concept', 'const', 'consteval', 'constexpr', 'constinit',
-    'const_cast', 'continue',
-    'decltype', 'default', 'delete', 'do', 'double', 'dynamic_cast', 'else',
-    'enum', 'explicit', 'export', 'extern', 'false', 'float', 'for', 'friend',
-    'goto', 'if', 'inline', 'int', 'long', 'mutable', 'namespace', 'new',
-    'noexcept', 'not', 'not_eq', 'nullptr', 'operator', 'or', 'or_eq',
-    'private', 'protected', 'public', 'register', 'reinterpret_cast',
-    'requires', 'return', 'short', 'signed', 'sizeof', 'static',
-    'static_assert', 'static_cast', 'struct', 'switch', 'template', 'this',
-    'thread_local', 'throw', 'true', 'try', 'typedef', 'typeid', 'typename',
-    'union', 'unsigned', 'using', 'virtual', 'void', 'volatile', 'wchar_t',
-    'while', 'xor', 'xor_eq'
+    "alignas",
+    "alignof",
+    "and",
+    "and_eq",
+    "asm",
+    "auto",
+    "bitand",
+    "bitor",
+    "bool",
+    "break",
+    "case",
+    "catch",
+    "char",
+    "char8_t",
+    "char16_t",
+    "char32_t",
+    "class",
+    "compl",
+    "concept",
+    "const",
+    "consteval",
+    "constexpr",
+    "constinit",
+    "const_cast",
+    "continue",
+    "decltype",
+    "default",
+    "delete",
+    "do",
+    "double",
+    "dynamic_cast",
+    "else",
+    "enum",
+    "explicit",
+    "export",
+    "extern",
+    "false",
+    "float",
+    "for",
+    "friend",
+    "goto",
+    "if",
+    "inline",
+    "int",
+    "long",
+    "mutable",
+    "namespace",
+    "new",
+    "noexcept",
+    "not",
+    "not_eq",
+    "nullptr",
+    "operator",
+    "or",
+    "or_eq",
+    "private",
+    "protected",
+    "public",
+    "register",
+    "reinterpret_cast",
+    "requires",
+    "return",
+    "short",
+    "signed",
+    "sizeof",
+    "static",
+    "static_assert",
+    "static_cast",
+    "struct",
+    "switch",
+    "template",
+    "this",
+    "thread_local",
+    "throw",
+    "true",
+    "try",
+    "typedef",
+    "typeid",
+    "typename",
+    "union",
+    "unsigned",
+    "using",
+    "virtual",
+    "void",
+    "volatile",
+    "wchar_t",
+    "while",
+    "xor",
+    "xor_eq",
 ]
 
 
-_simple_type_specifiers_re = re.compile(r"""(?x)
+_simple_type_specifiers_re = re.compile(
+    r"""(?x)
     \b(
     auto|void|bool
     |signed|unsigned
@@ -347,10 +455,11 @@ _simple_type_specifiers_re = re.compile(r"""(?x)
     |__float80|_Float64x|__float128|_Float128  # extension
     |_Complex|_Imaginary  # extension
     )\b
-""")
+"""
+)
 
 _max_id = 4
-_id_prefix = [None, '', '_CPPv2', '_CPPv3', '_CPPv4']
+_id_prefix = [None, "", "_CPPv2", "_CPPv3", "_CPPv4"]
 # Ids are used in lookup keys which are used across pickled files,
 # so when _max_id changes, make sure to update the ENV_VERSION.
 
@@ -359,73 +468,73 @@ _id_prefix = [None, '', '_CPPv2', '_CPPv3', '_CPPv4']
 # ------------------------------------------------------------------------------
 
 _id_fundamental_v1 = {
-    'char': 'c',
-    'signed char': 'c',
-    'unsigned char': 'C',
-    'int': 'i',
-    'signed int': 'i',
-    'unsigned int': 'U',
-    'long': 'l',
-    'signed long': 'l',
-    'unsigned long': 'L',
-    'bool': 'b'
+    "char": "c",
+    "signed char": "c",
+    "unsigned char": "C",
+    "int": "i",
+    "signed int": "i",
+    "unsigned int": "U",
+    "long": "l",
+    "signed long": "l",
+    "unsigned long": "L",
+    "bool": "b",
 }
 _id_shorthands_v1 = {
-    'std::string': 'ss',
-    'std::ostream': 'os',
-    'std::istream': 'is',
-    'std::iostream': 'ios',
-    'std::vector': 'v',
-    'std::map': 'm'
+    "std::string": "ss",
+    "std::ostream": "os",
+    "std::istream": "is",
+    "std::iostream": "ios",
+    "std::vector": "v",
+    "std::map": "m",
 }
 _id_operator_v1 = {
-    'new': 'new-operator',
-    'new[]': 'new-array-operator',
-    'delete': 'delete-operator',
-    'delete[]': 'delete-array-operator',
+    "new": "new-operator",
+    "new[]": "new-array-operator",
+    "delete": "delete-operator",
+    "delete[]": "delete-array-operator",
     # the arguments will make the difference between unary and binary
     # '+(unary)' : 'ps',
     # '-(unary)' : 'ng',
     # '&(unary)' : 'ad',
     # '*(unary)' : 'de',
-    '~': 'inv-operator',
-    '+': 'add-operator',
-    '-': 'sub-operator',
-    '*': 'mul-operator',
-    '/': 'div-operator',
-    '%': 'mod-operator',
-    '&': 'and-operator',
-    '|': 'or-operator',
-    '^': 'xor-operator',
-    '=': 'assign-operator',
-    '+=': 'add-assign-operator',
-    '-=': 'sub-assign-operator',
-    '*=': 'mul-assign-operator',
-    '/=': 'div-assign-operator',
-    '%=': 'mod-assign-operator',
-    '&=': 'and-assign-operator',
-    '|=': 'or-assign-operator',
-    '^=': 'xor-assign-operator',
-    '<<': 'lshift-operator',
-    '>>': 'rshift-operator',
-    '<<=': 'lshift-assign-operator',
-    '>>=': 'rshift-assign-operator',
-    '==': 'eq-operator',
-    '!=': 'neq-operator',
-    '<': 'lt-operator',
-    '>': 'gt-operator',
-    '<=': 'lte-operator',
-    '>=': 'gte-operator',
-    '!': 'not-operator',
-    '&&': 'sand-operator',
-    '||': 'sor-operator',
-    '++': 'inc-operator',
-    '--': 'dec-operator',
-    ',': 'comma-operator',
-    '->*': 'pointer-by-pointer-operator',
-    '->': 'pointer-operator',
-    '()': 'call-operator',
-    '[]': 'subscript-operator'
+    "~": "inv-operator",
+    "+": "add-operator",
+    "-": "sub-operator",
+    "*": "mul-operator",
+    "/": "div-operator",
+    "%": "mod-operator",
+    "&": "and-operator",
+    "|": "or-operator",
+    "^": "xor-operator",
+    "=": "assign-operator",
+    "+=": "add-assign-operator",
+    "-=": "sub-assign-operator",
+    "*=": "mul-assign-operator",
+    "/=": "div-assign-operator",
+    "%=": "mod-assign-operator",
+    "&=": "and-assign-operator",
+    "|=": "or-assign-operator",
+    "^=": "xor-assign-operator",
+    "<<": "lshift-operator",
+    ">>": "rshift-operator",
+    "<<=": "lshift-assign-operator",
+    ">>=": "rshift-assign-operator",
+    "==": "eq-operator",
+    "!=": "neq-operator",
+    "<": "lt-operator",
+    ">": "gt-operator",
+    "<=": "lte-operator",
+    ">=": "gte-operator",
+    "!": "not-operator",
+    "&&": "sand-operator",
+    "||": "sor-operator",
+    "++": "inc-operator",
+    "--": "dec-operator",
+    ",": "comma-operator",
+    "->*": "pointer-by-pointer-operator",
+    "->": "pointer-operator",
+    "()": "call-operator",
+    "[]": "subscript-operator",
 }
 
 # ------------------------------------------------------------------------------
@@ -434,145 +543,177 @@ _id_operator_v1 = {
 
 _id_fundamental_v2 = {
     # not all of these are actually parsed as fundamental types, TODO: do that
-    'void': 'v',
-    'bool': 'b',
-    'char': 'c',
-    'signed char': 'a',
-    'unsigned char': 'h',
-    'wchar_t': 'w',
-    'char32_t': 'Di',
-    'char16_t': 'Ds',
-    'char8_t': 'Du',
-    'short': 's',
-    'short int': 's',
-    'signed short': 's',
-    'signed short int': 's',
-    'unsigned short': 't',
-    'unsigned short int': 't',
-    'int': 'i',
-    'signed': 'i',
-    'signed int': 'i',
-    'unsigned': 'j',
-    'unsigned int': 'j',
-    'long': 'l',
-    'long int': 'l',
-    'signed long': 'l',
-    'signed long int': 'l',
-    'unsigned long': 'm',
-    'unsigned long int': 'm',
-    'long long': 'x',
-    'long long int': 'x',
-    'signed long long': 'x',
-    'signed long long int': 'x',
-    '__int64': 'x',
-    'unsigned long long': 'y',
-    'unsigned long long int': 'y',
-    '__int128': 'n',
-    'signed __int128': 'n',
-    'unsigned __int128': 'o',
-    'float': 'f',
-    'double': 'd',
-    'long double': 'e',
-    '__float80': 'e', '_Float64x': 'e',
-    '__float128': 'g', '_Float128': 'g',
-    '_Complex float': 'Cf',
-    '_Complex double': 'Cd',
-    '_Complex long double': 'Ce',
-    '_Imaginary float': 'f',
-    '_Imaginary double': 'd',
-    '_Imaginary long double': 'e',
-    'auto': 'Da',
-    'decltype(auto)': 'Dc',
-    'std::nullptr_t': 'Dn'
+    "void": "v",
+    "bool": "b",
+    "char": "c",
+    "signed char": "a",
+    "unsigned char": "h",
+    "wchar_t": "w",
+    "char32_t": "Di",
+    "char16_t": "Ds",
+    "char8_t": "Du",
+    "short": "s",
+    "short int": "s",
+    "signed short": "s",
+    "signed short int": "s",
+    "unsigned short": "t",
+    "unsigned short int": "t",
+    "int": "i",
+    "signed": "i",
+    "signed int": "i",
+    "unsigned": "j",
+    "unsigned int": "j",
+    "long": "l",
+    "long int": "l",
+    "signed long": "l",
+    "signed long int": "l",
+    "unsigned long": "m",
+    "unsigned long int": "m",
+    "long long": "x",
+    "long long int": "x",
+    "signed long long": "x",
+    "signed long long int": "x",
+    "__int64": "x",
+    "unsigned long long": "y",
+    "unsigned long long int": "y",
+    "__int128": "n",
+    "signed __int128": "n",
+    "unsigned __int128": "o",
+    "float": "f",
+    "double": "d",
+    "long double": "e",
+    "__float80": "e",
+    "_Float64x": "e",
+    "__float128": "g",
+    "_Float128": "g",
+    "_Complex float": "Cf",
+    "_Complex double": "Cd",
+    "_Complex long double": "Ce",
+    "_Imaginary float": "f",
+    "_Imaginary double": "d",
+    "_Imaginary long double": "e",
+    "auto": "Da",
+    "decltype(auto)": "Dc",
+    "std::nullptr_t": "Dn",
 }
 _id_operator_v2 = {
-    'new': 'nw',
-    'new[]': 'na',
-    'delete': 'dl',
-    'delete[]': 'da',
+    "new": "nw",
+    "new[]": "na",
+    "delete": "dl",
+    "delete[]": "da",
     # the arguments will make the difference between unary and binary
     # in operator definitions
     # '+(unary)' : 'ps',
     # '-(unary)' : 'ng',
     # '&(unary)' : 'ad',
     # '*(unary)' : 'de',
-    '~': 'co', 'compl': 'co',
-    '+': 'pl',
-    '-': 'mi',
-    '*': 'ml',
-    '/': 'dv',
-    '%': 'rm',
-    '&': 'an', 'bitand': 'an',
-    '|': 'or', 'bitor': 'or',
-    '^': 'eo', 'xor': 'eo',
-    '=': 'aS',
-    '+=': 'pL',
-    '-=': 'mI',
-    '*=': 'mL',
-    '/=': 'dV',
-    '%=': 'rM',
-    '&=': 'aN', 'and_eq': 'aN',
-    '|=': 'oR', 'or_eq': 'oR',
-    '^=': 'eO', 'xor_eq': 'eO',
-    '<<': 'ls',
-    '>>': 'rs',
-    '<<=': 'lS',
-    '>>=': 'rS',
-    '==': 'eq',
-    '!=': 'ne', 'not_eq': 'ne',
-    '<': 'lt',
-    '>': 'gt',
-    '<=': 'le',
-    '>=': 'ge',
-    '<=>': 'ss',
-    '!': 'nt', 'not': 'nt',
-    '&&': 'aa', 'and': 'aa',
-    '||': 'oo', 'or': 'oo',
-    '++': 'pp',
-    '--': 'mm',
-    ',': 'cm',
-    '->*': 'pm',
-    '->': 'pt',
-    '()': 'cl',
-    '[]': 'ix',
-    '.*': 'ds'  # this one is not overloadable, but we need it for expressions
+    "~": "co",
+    "compl": "co",
+    "+": "pl",
+    "-": "mi",
+    "*": "ml",
+    "/": "dv",
+    "%": "rm",
+    "&": "an",
+    "bitand": "an",
+    "|": "or",
+    "bitor": "or",
+    "^": "eo",
+    "xor": "eo",
+    "=": "aS",
+    "+=": "pL",
+    "-=": "mI",
+    "*=": "mL",
+    "/=": "dV",
+    "%=": "rM",
+    "&=": "aN",
+    "and_eq": "aN",
+    "|=": "oR",
+    "or_eq": "oR",
+    "^=": "eO",
+    "xor_eq": "eO",
+    "<<": "ls",
+    ">>": "rs",
+    "<<=": "lS",
+    ">>=": "rS",
+    "==": "eq",
+    "!=": "ne",
+    "not_eq": "ne",
+    "<": "lt",
+    ">": "gt",
+    "<=": "le",
+    ">=": "ge",
+    "<=>": "ss",
+    "!": "nt",
+    "not": "nt",
+    "&&": "aa",
+    "and": "aa",
+    "||": "oo",
+    "or": "oo",
+    "++": "pp",
+    "--": "mm",
+    ",": "cm",
+    "->*": "pm",
+    "->": "pt",
+    "()": "cl",
+    "[]": "ix",
+    ".*": "ds",  # this one is not overloadable, but we need it for expressions
 }
 _id_operator_unary_v2 = {
-    '++': 'pp_',
-    '--': 'mm_',
-    '*': 'de',
-    '&': 'ad',
-    '+': 'ps',
-    '-': 'ng',
-    '!': 'nt', 'not': 'nt',
-    '~': 'co', 'compl': 'co'
+    "++": "pp_",
+    "--": "mm_",
+    "*": "de",
+    "&": "ad",
+    "+": "ps",
+    "-": "ng",
+    "!": "nt",
+    "not": "nt",
+    "~": "co",
+    "compl": "co",
 }
 _id_char_from_prefix: Dict[Optional[str], str] = {
-    None: 'c', 'u8': 'c',
-    'u': 'Ds', 'U': 'Di', 'L': 'w'
+    None: "c",
+    "u8": "c",
+    "u": "Ds",
+    "U": "Di",
+    "L": "w",
 }
 # these are ordered by preceedence
 _expression_bin_ops = [
-    ['||', 'or'],
-    ['&&', 'and'],
-    ['|', 'bitor'],
-    ['^', 'xor'],
-    ['&', 'bitand'],
-    ['==', '!=', 'not_eq'],
-    ['<=>', '<=', '>=', '<', '>'],
-    ['<<', '>>'],
-    ['+', '-'],
-    ['*', '/', '%'],
-    ['.*', '->*']
+    ["||", "or"],
+    ["&&", "and"],
+    ["|", "bitor"],
+    ["^", "xor"],
+    ["&", "bitand"],
+    ["==", "!=", "not_eq"],
+    ["<=>", "<=", ">=", "<", ">"],
+    ["<<", ">>"],
+    ["+", "-"],
+    ["*", "/", "%"],
+    [".*", "->*"],
 ]
 _expression_unary_ops = ["++", "--", "*", "&", "+", "-", "!", "not", "~", "compl"]
-_expression_assignment_ops = ["=", "*=", "/=", "%=", "+=", "-=",
-                              ">>=", "<<=", "&=", "and_eq", "^=", "|=", "xor_eq", "or_eq"]
+_expression_assignment_ops = [
+    "=",
+    "*=",
+    "/=",
+    "%=",
+    "+=",
+    "-=",
+    ">>=",
+    "<<=",
+    "&=",
+    "and_eq",
+    "^=",
+    "|=",
+    "xor_eq",
+    "or_eq",
+]
 _id_explicit_cast = {
-    'dynamic_cast': 'dc',
-    'static_cast': 'sc',
-    'const_cast': 'cc',
-    'reinterpret_cast': 'rc'
+    "dynamic_cast": "dc",
+    "static_cast": "sc",
+    "const_cast": "cc",
+    "reinterpret_cast": "rc",
 }
 
 
@@ -594,6 +735,7 @@ class ASTBase(ASTBaseBase):
 # Names
 ################################################################################
 
+
 class ASTIdentifier(ASTBase):
     def __init__(self, identifier: str) -> None:
         assert identifier is not None
@@ -601,24 +743,24 @@ class ASTIdentifier(ASTBase):
         self.identifier = identifier
 
     def is_anon(self) -> bool:
-        return self.identifier[0] == '@'
+        return self.identifier[0] == "@"
 
     def get_id(self, version: int) -> str:
         if self.is_anon() and version < 3:
             raise NoOldIdError()
         if version == 1:
-            if self.identifier == 'size_t':
-                return 's'
+            if self.identifier == "size_t":
+                return "s"
             else:
                 return self.identifier
         if self.identifier == "std":
-            return 'St'
+            return "St"
         elif self.identifier[0] == "~":
             # a destructor, just use an arbitrary version of dtors
-            return 'D0'
+            return "D0"
         else:
             if self.is_anon():
-                return 'Ut%d_%s' % (len(self.identifier) - 1, self.identifier[1:])
+                return "Ut%d_%s" % (len(self.identifier) - 1, self.identifier[1:])
             else:
                 return str(len(self.identifier)) + self.identifier
 
@@ -630,51 +772,67 @@ class ASTIdentifier(ASTBase):
     def get_display_string(self) -> str:
         return "[anonymous]" if self.is_anon() else self.identifier
 
-    def describe_signature(self, signode: TextElement, mode: str, env: "BuildEnvironment",
-                           prefix: str, templateArgs: str, symbol: "Symbol") -> None:
+    def describe_signature(
+        self,
+        signode: TextElement,
+        mode: str,
+        env: "BuildEnvironment",
+        prefix: str,
+        templateArgs: str,
+        symbol: "Symbol",
+    ) -> None:
         verify_description_mode(mode)
         if self.is_anon():
             node = addnodes.desc_sig_name(text="[anonymous]")
         else:
             node = addnodes.desc_sig_name(self.identifier, self.identifier)
-        if mode == 'markType':
+        if mode == "markType":
             targetText = prefix + self.identifier + templateArgs
-            pnode = addnodes.pending_xref('', refdomain='cpp',
-                                          reftype='identifier',
-                                          reftarget=targetText, modname=None,
-                                          classname=None)
-            pnode['cpp:parent_key'] = symbol.get_lookup_key()
+            pnode = addnodes.pending_xref(
+                "",
+                refdomain="cpp",
+                reftype="identifier",
+                reftarget=targetText,
+                modname=None,
+                classname=None,
+            )
+            pnode["cpp:parent_key"] = symbol.get_lookup_key()
             pnode += node
             signode += pnode
-        elif mode == 'lastIsName':
+        elif mode == "lastIsName":
             nameNode = addnodes.desc_name()
             nameNode += node
             signode += nameNode
-        elif mode == 'noneIsName':
+        elif mode == "noneIsName":
             signode += node
-        elif mode == 'param':
-            node['classes'].append('sig-param')
+        elif mode == "param":
+            node["classes"].append("sig-param")
             signode += node
-        elif mode == 'udl':
+        elif mode == "udl":
             # the target is 'operator""id' instead of just 'id'
             assert len(prefix) == 0
             assert len(templateArgs) == 0
             assert not self.is_anon()
             targetText = 'operator""' + self.identifier
-            pnode = addnodes.pending_xref('', refdomain='cpp',
-                                          reftype='identifier',
-                                          reftarget=targetText, modname=None,
-                                          classname=None)
-            pnode['cpp:parent_key'] = symbol.get_lookup_key()
+            pnode = addnodes.pending_xref(
+                "",
+                refdomain="cpp",
+                reftype="identifier",
+                reftarget=targetText,
+                modname=None,
+                classname=None,
+            )
+            pnode["cpp:parent_key"] = symbol.get_lookup_key()
             pnode += node
             signode += pnode
         else:
-            raise Exception('Unknown description mode: %s' % mode)
+            raise Exception("Unknown description mode: %s" % mode)
 
 
 class ASTNestedNameElement(ASTBase):
-    def __init__(self, identOrOp: Union[ASTIdentifier, "ASTOperator"],
-                 templateArgs: "ASTTemplateArgs") -> None:
+    def __init__(
+        self, identOrOp: Union[ASTIdentifier, "ASTOperator"], templateArgs: "ASTTemplateArgs"
+    ) -> None:
         self.identOrOp = identOrOp
         self.templateArgs = templateArgs
 
@@ -693,17 +851,24 @@ class ASTNestedNameElement(ASTBase):
             res += transform(self.templateArgs)
         return res
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", prefix: str, symbol: "Symbol") -> None:
-        tArgs = str(self.templateArgs) if self.templateArgs is not None else ''
+    def describe_signature(
+        self,
+        signode: TextElement,
+        mode: str,
+        env: "BuildEnvironment",
+        prefix: str,
+        symbol: "Symbol",
+    ) -> None:
+        tArgs = str(self.templateArgs) if self.templateArgs is not None else ""
         self.identOrOp.describe_signature(signode, mode, env, prefix, tArgs, symbol)
         if self.templateArgs is not None:
-            self.templateArgs.describe_signature(signode, 'markType', env, symbol)
+            self.templateArgs.describe_signature(signode, "markType", env, symbol)
 
 
 class ASTNestedName(ASTBase):
-    def __init__(self, names: List[ASTNestedNameElement],
-                 templates: List[bool], rooted: bool) -> None:
+    def __init__(
+        self, names: List[ASTNestedNameElement], templates: List[bool], rooted: bool
+    ) -> None:
         assert len(names) > 0
         self.names = names
         self.templates = templates
@@ -723,132 +888,137 @@ class ASTNestedName(ASTBase):
                 count += 1
         return count
 
-    def get_id(self, version: int, modifiers: str = '') -> str:
+    def get_id(self, version: int, modifiers: str = "") -> str:
         if version == 1:
             tt = str(self)
             if tt in _id_shorthands_v1:
                 return _id_shorthands_v1[tt]
             else:
-                return '::'.join(n.get_id(version) for n in self.names)
+                return "::".join(n.get_id(version) for n in self.names)
 
         res = []
         if len(self.names) > 1 or len(modifiers) > 0:
-            res.append('N')
+            res.append("N")
         res.append(modifiers)
         for n in self.names:
             res.append(n.get_id(version))
         if len(self.names) > 1 or len(modifiers) > 0:
-            res.append('E')
-        return ''.join(res)
+            res.append("E")
+        return "".join(res)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
         if self.rooted:
-            res.append('')
+            res.append("")
         for i in range(len(self.names)):
             n = self.names[i]
             if self.templates[i]:
                 res.append("template " + transform(n))
             else:
                 res.append(transform(n))
-        return '::'.join(res)
+        return "::".join(res)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
         # just print the name part, with template args, not template params
-        if mode == 'noneIsName':
+        if mode == "noneIsName":
             if self.rooted:
                 assert False, "Can this happen?"  # TODO
-                signode += nodes.Text('::')
+                signode += nodes.Text("::")
             for i in range(len(self.names)):
                 if i != 0:
                     assert False, "Can this happen?"  # TODO
-                    signode += nodes.Text('::blah')
+                    signode += nodes.Text("::blah")
                 n = self.names[i]
                 if self.templates[i]:
                     assert False, "Can this happen?"  # TODO
                     signode += nodes.Text("template")
                     signode += nodes.Text(" ")
-                n.describe_signature(signode, mode, env, '', symbol)
-        elif mode == 'param':
+                n.describe_signature(signode, mode, env, "", symbol)
+        elif mode == "param":
             assert not self.rooted, str(self)
             assert len(self.names) == 1
             assert not self.templates[0]
-            self.names[0].describe_signature(signode, 'param', env, '', symbol)
-        elif mode == 'markType' or mode == 'lastIsName' or mode == 'markName':
+            self.names[0].describe_signature(signode, "param", env, "", symbol)
+        elif mode == "markType" or mode == "lastIsName" or mode == "markName":
             # Each element should be a pending xref targeting the complete
             # prefix. however, only the identifier part should be a link, such
             # that template args can be a link as well.
             # For 'lastIsName' we should also prepend template parameter lists.
             templateParams: List[Any] = []
-            if mode == 'lastIsName':
+            if mode == "lastIsName":
                 assert symbol is not None
                 if symbol.declaration.templatePrefix is not None:
                     templateParams = symbol.declaration.templatePrefix.templates
             iTemplateParams = 0
-            templateParamsPrefix = ''
-            prefix = ''
+            templateParamsPrefix = ""
+            prefix = ""
             first = True
-            names = self.names[:-1] if mode == 'lastIsName' else self.names
+            names = self.names[:-1] if mode == "lastIsName" else self.names
             # If lastIsName, then wrap all of the prefix in a desc_addname,
             # else append directly to signode.
             # NOTE: Breathe previously relied on the prefix being in the desc_addname node,
             #       so it can remove it in inner declarations.
             dest = signode
-            if mode == 'lastIsName':
+            if mode == "lastIsName":
                 dest = addnodes.desc_addname()
             if self.rooted:
-                prefix += '::'
-                if mode == 'lastIsName' and len(names) == 0:
-                    signode += addnodes.desc_sig_punctuation('::', '::')
+                prefix += "::"
+                if mode == "lastIsName" and len(names) == 0:
+                    signode += addnodes.desc_sig_punctuation("::", "::")
                 else:
-                    dest += addnodes.desc_sig_punctuation('::', '::')
+                    dest += addnodes.desc_sig_punctuation("::", "::")
             for i in range(len(names)):
                 nne = names[i]
                 template = self.templates[i]
                 if not first:
-                    dest += addnodes.desc_sig_punctuation('::', '::')
-                    prefix += '::'
+                    dest += addnodes.desc_sig_punctuation("::", "::")
+                    prefix += "::"
                 if template:
-                    dest += addnodes.desc_sig_keyword('template', 'template')
+                    dest += addnodes.desc_sig_keyword("template", "template")
                     dest += addnodes.desc_sig_space()
                 first = False
                 txt_nne = str(nne)
-                if txt_nne != '':
+                if txt_nne != "":
                     if nne.templateArgs and iTemplateParams < len(templateParams):
                         templateParamsPrefix += str(templateParams[iTemplateParams])
                         iTemplateParams += 1
-                    nne.describe_signature(dest, 'markType',
-                                           env, templateParamsPrefix + prefix, symbol)
+                    nne.describe_signature(
+                        dest, "markType", env, templateParamsPrefix + prefix, symbol
+                    )
                 prefix += txt_nne
-            if mode == 'lastIsName':
+            if mode == "lastIsName":
                 if len(self.names) > 1:
-                    dest += addnodes.desc_sig_punctuation('::', '::')
+                    dest += addnodes.desc_sig_punctuation("::", "::")
                     signode += dest
                 if self.templates[-1]:
-                    signode += addnodes.desc_sig_keyword('template', 'template')
+                    signode += addnodes.desc_sig_keyword("template", "template")
                     signode += addnodes.desc_sig_space()
-                self.names[-1].describe_signature(signode, mode, env, '', symbol)
+                self.names[-1].describe_signature(signode, mode, env, "", symbol)
         else:
-            raise Exception('Unknown description mode: %s' % mode)
+            raise Exception("Unknown description mode: %s" % mode)
 
 
 ################################################################################
 # Expressions
 ################################################################################
 
+
 class ASTExpression(ASTBase):
     def get_id(self, version: int) -> str:
         raise NotImplementedError(repr(self))
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         raise NotImplementedError(repr(self))
 
 
 # Primary expressions
 ################################################################################
+
 
 class ASTLiteral(ASTExpression):
     pass
@@ -856,14 +1026,15 @@ class ASTLiteral(ASTExpression):
 
 class ASTPointerLiteral(ASTLiteral):
     def _stringify(self, transform: StringifyTransform) -> str:
-        return 'nullptr'
+        return "nullptr"
 
     def get_id(self, version: int) -> str:
-        return 'LDnE'
+        return "LDnE"
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_keyword('nullptr', 'nullptr')
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        signode += addnodes.desc_sig_keyword("nullptr", "nullptr")
 
 
 class ASTBooleanLiteral(ASTLiteral):
@@ -872,18 +1043,19 @@ class ASTBooleanLiteral(ASTLiteral):
 
     def _stringify(self, transform: StringifyTransform) -> str:
         if self.value:
-            return 'true'
+            return "true"
         else:
-            return 'false'
+            return "false"
 
     def get_id(self, version: int) -> str:
         if self.value:
-            return 'L1E'
+            return "L1E"
         else:
-            return 'L0E'
+            return "L0E"
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         signode += addnodes.desc_sig_keyword(str(self), str(self))
 
 
@@ -898,8 +1070,9 @@ class ASTNumberLiteral(ASTLiteral):
         # TODO: floats should be mangled by writing the hex of the binary representation
         return "L%sE" % self.data.replace("'", "")
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         signode += addnodes.desc_sig_literal_number(self.data, self.data)
 
 
@@ -914,8 +1087,9 @@ class ASTStringLiteral(ASTLiteral):
         # note: the length is not really correct with escaping
         return "LA%d_KcE" % (len(self.data) - 2)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         signode += addnodes.desc_sig_literal_string(self.data, self.data)
 
 
@@ -925,7 +1099,7 @@ class ASTCharLiteral(ASTLiteral):
         self.data = data
         assert prefix in _id_char_from_prefix
         self.type = _id_char_from_prefix[prefix]
-        decoded = data.encode().decode('unicode-escape')
+        decoded = data.encode().decode("unicode-escape")
         if len(decoded) == 1:
             self.value = ord(decoded)
         else:
@@ -941,8 +1115,9 @@ class ASTCharLiteral(ASTLiteral):
         # TODO: the ID should be have L E around it
         return self.type + str(self.value)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         if self.prefix is not None:
             signode += addnodes.desc_sig_keyword(self.prefix, self.prefix)
         txt = "'" + self.data + "'"
@@ -959,15 +1134,17 @@ class ASTUserDefinedLiteral(ASTLiteral):
 
     def get_id(self, version: int) -> str:
         # mangle as if it was a function call: ident(literal)
-        return 'clL_Zli{}E{}E'.format(self.ident.get_id(version), self.literal.get_id(version))
+        return "clL_Zli{}E{}E".format(self.ident.get_id(version), self.literal.get_id(version))
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         self.literal.describe_signature(signode, mode, env, symbol)
         self.ident.describe_signature(signode, "udl", env, "", "", symbol)
 
 
 ################################################################################
+
 
 class ASTThisLiteral(ASTExpression):
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -976,34 +1153,34 @@ class ASTThisLiteral(ASTExpression):
     def get_id(self, version: int) -> str:
         return "fpT"
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_keyword('this', 'this')
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        signode += addnodes.desc_sig_keyword("this", "this")
 
 
 class ASTFoldExpr(ASTExpression):
-    def __init__(self, leftExpr: ASTExpression,
-                 op: str, rightExpr: ASTExpression) -> None:
+    def __init__(self, leftExpr: ASTExpression, op: str, rightExpr: ASTExpression) -> None:
         assert leftExpr is not None or rightExpr is not None
         self.leftExpr = leftExpr
         self.op = op
         self.rightExpr = rightExpr
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = ['(']
+        res = ["("]
         if self.leftExpr:
             res.append(transform(self.leftExpr))
-            res.append(' ')
+            res.append(" ")
             res.append(self.op)
-            res.append(' ')
-        res.append('...')
+            res.append(" ")
+        res.append("...")
         if self.rightExpr:
-            res.append(' ')
+            res.append(" ")
             res.append(self.op)
-            res.append(' ')
+            res.append(" ")
             res.append(transform(self.rightExpr))
-        res.append(')')
-        return ''.join(res)
+        res.append(")")
+        return "".join(res)
 
     def get_id(self, version: int) -> str:
         assert version >= 3
@@ -1012,35 +1189,36 @@ class ASTFoldExpr(ASTExpression):
         # https://github.com/itanium-cxx-abi/cxx-abi/pull/67
         res = []
         if self.leftExpr is None:  # (... op expr)
-            res.append('fl')
+            res.append("fl")
         elif self.rightExpr is None:  # (expr op ...)
-            res.append('fr')
+            res.append("fr")
         else:  # (expr op ... op expr)
             # we don't check where the parameter pack is,
             # we just always call this a binary left fold
-            res.append('fL')
+            res.append("fL")
         res.append(_id_operator_v2[self.op])
         if self.leftExpr:
             res.append(self.leftExpr.get_id(version))
         if self.rightExpr:
             res.append(self.rightExpr.get_id(version))
-        return ''.join(res)
+        return "".join(res)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_punctuation('(', '(')
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        signode += addnodes.desc_sig_punctuation("(", "(")
         if self.leftExpr:
             self.leftExpr.describe_signature(signode, mode, env, symbol)
             signode += addnodes.desc_sig_space()
             signode += addnodes.desc_sig_operator(self.op, self.op)
             signode += addnodes.desc_sig_space()
-        signode += addnodes.desc_sig_punctuation('...', '...')
+        signode += addnodes.desc_sig_punctuation("...", "...")
         if self.rightExpr:
             signode += addnodes.desc_sig_space()
             signode += addnodes.desc_sig_operator(self.op, self.op)
             signode += addnodes.desc_sig_space()
             self.rightExpr.describe_signature(signode, mode, env, symbol)
-        signode += addnodes.desc_sig_punctuation(')', ')')
+        signode += addnodes.desc_sig_punctuation(")", ")")
 
 
 class ASTParenExpr(ASTExpression):
@@ -1048,16 +1226,17 @@ class ASTParenExpr(ASTExpression):
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return '(' + transform(self.expr) + ')'
+        return "(" + transform(self.expr) + ")"
 
     def get_id(self, version: int) -> str:
         return self.expr.get_id(version)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_punctuation('(', '(')
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        signode += addnodes.desc_sig_punctuation("(", "(")
         self.expr.describe_signature(signode, mode, env, symbol)
-        signode += addnodes.desc_sig_punctuation(')', ')')
+        signode += addnodes.desc_sig_punctuation(")", ")")
 
 
 class ASTIdExpression(ASTExpression):
@@ -1071,20 +1250,23 @@ class ASTIdExpression(ASTExpression):
     def get_id(self, version: int) -> str:
         return self.name.get_id(version)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         self.name.describe_signature(signode, mode, env, symbol)
 
 
 # Postfix expressions
 ################################################################################
 
+
 class ASTPostfixOp(ASTBase):
     def get_id(self, idPrefix: str, version: int) -> str:
         raise NotImplementedError(repr(self))
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         raise NotImplementedError(repr(self))
 
 
@@ -1093,16 +1275,17 @@ class ASTPostfixArray(ASTPostfixOp):
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return '[' + transform(self.expr) + ']'
+        return "[" + transform(self.expr) + "]"
 
     def get_id(self, idPrefix: str, version: int) -> str:
-        return 'ix' + idPrefix + self.expr.get_id(version)
+        return "ix" + idPrefix + self.expr.get_id(version)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_punctuation('[', '[')
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        signode += addnodes.desc_sig_punctuation("[", "[")
         self.expr.describe_signature(signode, mode, env, symbol)
-        signode += addnodes.desc_sig_punctuation(']', ']')
+        signode += addnodes.desc_sig_punctuation("]", "]")
 
 
 class ASTPostfixMember(ASTPostfixOp):
@@ -1110,15 +1293,16 @@ class ASTPostfixMember(ASTPostfixOp):
         self.name = name
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return '.' + transform(self.name)
+        return "." + transform(self.name)
 
     def get_id(self, idPrefix: str, version: int) -> str:
-        return 'dt' + idPrefix + self.name.get_id(version)
+        return "dt" + idPrefix + self.name.get_id(version)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_punctuation('.', '.')
-        self.name.describe_signature(signode, 'noneIsName', env, symbol)
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        signode += addnodes.desc_sig_punctuation(".", ".")
+        self.name.describe_signature(signode, "noneIsName", env, symbol)
 
 
 class ASTPostfixMemberOfPointer(ASTPostfixOp):
@@ -1126,39 +1310,42 @@ class ASTPostfixMemberOfPointer(ASTPostfixOp):
         self.name = name
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return '->' + transform(self.name)
+        return "->" + transform(self.name)
 
     def get_id(self, idPrefix: str, version: int) -> str:
-        return 'pt' + idPrefix + self.name.get_id(version)
+        return "pt" + idPrefix + self.name.get_id(version)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_operator('->', '->')
-        self.name.describe_signature(signode, 'noneIsName', env, symbol)
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        signode += addnodes.desc_sig_operator("->", "->")
+        self.name.describe_signature(signode, "noneIsName", env, symbol)
 
 
 class ASTPostfixInc(ASTPostfixOp):
     def _stringify(self, transform: StringifyTransform) -> str:
-        return '++'
+        return "++"
 
     def get_id(self, idPrefix: str, version: int) -> str:
-        return 'pp' + idPrefix
+        return "pp" + idPrefix
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_operator('++', '++')
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        signode += addnodes.desc_sig_operator("++", "++")
 
 
 class ASTPostfixDec(ASTPostfixOp):
     def _stringify(self, transform: StringifyTransform) -> str:
-        return '--'
+        return "--"
 
     def get_id(self, idPrefix: str, version: int) -> str:
-        return 'mm' + idPrefix
+        return "mm" + idPrefix
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_operator('--', '--')
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        signode += addnodes.desc_sig_operator("--", "--")
 
 
 class ASTPostfixCallExpr(ASTPostfixOp):
@@ -1169,14 +1356,15 @@ class ASTPostfixCallExpr(ASTPostfixOp):
         return transform(self.lst)
 
     def get_id(self, idPrefix: str, version: int) -> str:
-        res = ['cl', idPrefix]
+        res = ["cl", idPrefix]
         for e in self.lst.exprs:
             res.append(e.get_id(version))
-        res.append('E')
-        return ''.join(res)
+        res.append("E")
+        return "".join(res)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         self.lst.describe_signature(signode, mode, env, symbol)
 
 
@@ -1189,7 +1377,7 @@ class ASTPostfixExpr(ASTExpression):
         res = [transform(self.prefix)]
         for p in self.postFixes:
             res.append(transform(p))
-        return ''.join(res)
+        return "".join(res)
 
     def get_id(self, version: int) -> str:
         id = self.prefix.get_id(version)
@@ -1197,8 +1385,9 @@ class ASTPostfixExpr(ASTExpression):
             id = p.get_id(id, version)
         return id
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         self.prefix.describe_signature(signode, mode, env, symbol)
         for p in self.postFixes:
             p.describe_signature(signode, mode, env, symbol)
@@ -1213,27 +1402,28 @@ class ASTExplicitCast(ASTExpression):
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = [self.cast]
-        res.append('<')
+        res.append("<")
         res.append(transform(self.typ))
-        res.append('>(')
+        res.append(">(")
         res.append(transform(self.expr))
-        res.append(')')
-        return ''.join(res)
+        res.append(")")
+        return "".join(res)
 
     def get_id(self, version: int) -> str:
-        return (_id_explicit_cast[self.cast] +
-                self.typ.get_id(version) +
-                self.expr.get_id(version))
+        return (
+            _id_explicit_cast[self.cast] + self.typ.get_id(version) + self.expr.get_id(version)
+        )
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         signode += addnodes.desc_sig_keyword(self.cast, self.cast)
-        signode += addnodes.desc_sig_punctuation('<', '<')
+        signode += addnodes.desc_sig_punctuation("<", "<")
         self.typ.describe_signature(signode, mode, env, symbol)
-        signode += addnodes.desc_sig_punctuation('>', '>')
-        signode += addnodes.desc_sig_punctuation('(', '(')
+        signode += addnodes.desc_sig_punctuation(">", ">")
+        signode += addnodes.desc_sig_punctuation("(", "(")
         self.expr.describe_signature(signode, mode, env, symbol)
-        signode += addnodes.desc_sig_punctuation(')', ')')
+        signode += addnodes.desc_sig_punctuation(")", ")")
 
 
 class ASTTypeId(ASTExpression):
@@ -1242,22 +1432,24 @@ class ASTTypeId(ASTExpression):
         self.isType = isType
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return 'typeid(' + transform(self.typeOrExpr) + ')'
+        return "typeid(" + transform(self.typeOrExpr) + ")"
 
     def get_id(self, version: int) -> str:
-        prefix = 'ti' if self.isType else 'te'
+        prefix = "ti" if self.isType else "te"
         return prefix + self.typeOrExpr.get_id(version)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_keyword('typeid', 'typeid')
-        signode += addnodes.desc_sig_punctuation('(', '(')
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        signode += addnodes.desc_sig_keyword("typeid", "typeid")
+        signode += addnodes.desc_sig_punctuation("(", "(")
         self.typeOrExpr.describe_signature(signode, mode, env, symbol)
-        signode += addnodes.desc_sig_punctuation(')', ')')
+        signode += addnodes.desc_sig_punctuation(")", ")")
 
 
 # Unary expressions
 ################################################################################
+
 
 class ASTUnaryOpExpr(ASTExpression):
     def __init__(self, op: str, expr: ASTExpression):
@@ -1265,7 +1457,7 @@ class ASTUnaryOpExpr(ASTExpression):
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        if self.op[0] in 'cn':
+        if self.op[0] in "cn":
             return self.op + " " + transform(self.expr)
         else:
             return self.op + transform(self.expr)
@@ -1273,9 +1465,10 @@ class ASTUnaryOpExpr(ASTExpression):
     def get_id(self, version: int) -> str:
         return _id_operator_unary_v2[self.op] + self.expr.get_id(version)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        if self.op[0] in 'cn':
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        if self.op[0] in "cn":
             signode += addnodes.desc_sig_keyword(self.op, self.op)
             signode += addnodes.desc_sig_space()
         else:
@@ -1291,16 +1484,18 @@ class ASTSizeofParamPack(ASTExpression):
         return "sizeof...(" + transform(self.identifier) + ")"
 
     def get_id(self, version: int) -> str:
-        return 'sZ' + self.identifier.get_id(version)
+        return "sZ" + self.identifier.get_id(version)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_keyword('sizeof', 'sizeof')
-        signode += addnodes.desc_sig_punctuation('...', '...')
-        signode += addnodes.desc_sig_punctuation('(', '(')
-        self.identifier.describe_signature(signode, 'markType', env,
-                                           symbol=symbol, prefix="", templateArgs="")
-        signode += addnodes.desc_sig_punctuation(')', ')')
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        signode += addnodes.desc_sig_keyword("sizeof", "sizeof")
+        signode += addnodes.desc_sig_punctuation("...", "...")
+        signode += addnodes.desc_sig_punctuation("(", "(")
+        self.identifier.describe_signature(
+            signode, "markType", env, symbol=symbol, prefix="", templateArgs=""
+        )
+        signode += addnodes.desc_sig_punctuation(")", ")")
 
 
 class ASTSizeofType(ASTExpression):
@@ -1311,14 +1506,15 @@ class ASTSizeofType(ASTExpression):
         return "sizeof(" + transform(self.typ) + ")"
 
     def get_id(self, version: int) -> str:
-        return 'st' + self.typ.get_id(version)
+        return "st" + self.typ.get_id(version)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_keyword('sizeof', 'sizeof')
-        signode += addnodes.desc_sig_punctuation('(', '(')
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        signode += addnodes.desc_sig_keyword("sizeof", "sizeof")
+        signode += addnodes.desc_sig_punctuation("(", "(")
         self.typ.describe_signature(signode, mode, env, symbol)
-        signode += addnodes.desc_sig_punctuation(')', ')')
+        signode += addnodes.desc_sig_punctuation(")", ")")
 
 
 class ASTSizeofExpr(ASTExpression):
@@ -1329,11 +1525,12 @@ class ASTSizeofExpr(ASTExpression):
         return "sizeof " + transform(self.expr)
 
     def get_id(self, version: int) -> str:
-        return 'sz' + self.expr.get_id(version)
+        return "sz" + self.expr.get_id(version)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_keyword('sizeof', 'sizeof')
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        signode += addnodes.desc_sig_keyword("sizeof", "sizeof")
         signode += addnodes.desc_sig_space()
         self.expr.describe_signature(signode, mode, env, symbol)
 
@@ -1346,14 +1543,15 @@ class ASTAlignofExpr(ASTExpression):
         return "alignof(" + transform(self.typ) + ")"
 
     def get_id(self, version: int) -> str:
-        return 'at' + self.typ.get_id(version)
+        return "at" + self.typ.get_id(version)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_keyword('alignof', 'alignof')
-        signode += addnodes.desc_sig_punctuation('(', '(')
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        signode += addnodes.desc_sig_keyword("alignof", "alignof")
+        signode += addnodes.desc_sig_punctuation("(", "(")
         self.typ.describe_signature(signode, mode, env, symbol)
-        signode += addnodes.desc_sig_punctuation(')', ')')
+        signode += addnodes.desc_sig_punctuation(")", ")")
 
 
 class ASTNoexceptExpr(ASTExpression):
@@ -1361,22 +1559,28 @@ class ASTNoexceptExpr(ASTExpression):
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return 'noexcept(' + transform(self.expr) + ')'
+        return "noexcept(" + transform(self.expr) + ")"
 
     def get_id(self, version: int) -> str:
-        return 'nx' + self.expr.get_id(version)
+        return "nx" + self.expr.get_id(version)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_keyword('noexcept', 'noexcept')
-        signode += addnodes.desc_sig_punctuation('(', '(')
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        signode += addnodes.desc_sig_keyword("noexcept", "noexcept")
+        signode += addnodes.desc_sig_punctuation("(", "(")
         self.expr.describe_signature(signode, mode, env, symbol)
-        signode += addnodes.desc_sig_punctuation(')', ')')
+        signode += addnodes.desc_sig_punctuation(")", ")")
 
 
 class ASTNewExpr(ASTExpression):
-    def __init__(self, rooted: bool, isNewTypeId: bool, typ: "ASTType",
-                 initList: Union["ASTParenExprList", "ASTBracedInitList"]) -> None:
+    def __init__(
+        self,
+        rooted: bool,
+        isNewTypeId: bool,
+        typ: "ASTType",
+        initList: Union["ASTParenExprList", "ASTBracedInitList"],
+    ) -> None:
         self.rooted = rooted
         self.isNewTypeId = isNewTypeId
         self.typ = typ
@@ -1385,8 +1589,8 @@ class ASTNewExpr(ASTExpression):
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
         if self.rooted:
-            res.append('::')
-        res.append('new ')
+            res.append("::")
+        res.append("new ")
         # TODO: placement
         if self.isNewTypeId:
             res.append(transform(self.typ))
@@ -1394,25 +1598,26 @@ class ASTNewExpr(ASTExpression):
             assert False
         if self.initList is not None:
             res.append(transform(self.initList))
-        return ''.join(res)
+        return "".join(res)
 
     def get_id(self, version: int) -> str:
         # the array part will be in the type mangling, so na is not used
-        res = ['nw']
+        res = ["nw"]
         # TODO: placement
-        res.append('_')
+        res.append("_")
         res.append(self.typ.get_id(version))
         if self.initList is not None:
             res.append(self.initList.get_id(version))
         else:
-            res.append('E')
-        return ''.join(res)
+            res.append("E")
+        return "".join(res)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         if self.rooted:
-            signode += addnodes.desc_sig_punctuation('::', '::')
-        signode += addnodes.desc_sig_keyword('new', 'new')
+            signode += addnodes.desc_sig_punctuation("::", "::")
+        signode += addnodes.desc_sig_keyword("new", "new")
         signode += addnodes.desc_sig_space()
         # TODO: placement
         if self.isNewTypeId:
@@ -1432,12 +1637,12 @@ class ASTDeleteExpr(ASTExpression):
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
         if self.rooted:
-            res.append('::')
-        res.append('delete ')
+            res.append("::")
+        res.append("delete ")
         if self.array:
-            res.append('[] ')
+            res.append("[] ")
         res.append(transform(self.expr))
-        return ''.join(res)
+        return "".join(res)
 
     def get_id(self, version: int) -> str:
         if self.array:
@@ -1446,14 +1651,15 @@ class ASTDeleteExpr(ASTExpression):
             id = "dl"
         return id + self.expr.get_id(version)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         if self.rooted:
-            signode += addnodes.desc_sig_punctuation('::', '::')
-        signode += addnodes.desc_sig_keyword('delete', 'delete')
+            signode += addnodes.desc_sig_punctuation("::", "::")
+        signode += addnodes.desc_sig_keyword("delete", "delete")
         signode += addnodes.desc_sig_space()
         if self.array:
-            signode += addnodes.desc_sig_punctuation('[]', '[]')
+            signode += addnodes.desc_sig_punctuation("[]", "[]")
             signode += addnodes.desc_sig_space()
         self.expr.describe_signature(signode, mode, env, symbol)
 
@@ -1461,26 +1667,28 @@ class ASTDeleteExpr(ASTExpression):
 # Other expressions
 ################################################################################
 
+
 class ASTCastExpr(ASTExpression):
     def __init__(self, typ: "ASTType", expr: ASTExpression):
         self.typ = typ
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = ['(']
+        res = ["("]
         res.append(transform(self.typ))
-        res.append(')')
+        res.append(")")
         res.append(transform(self.expr))
-        return ''.join(res)
+        return "".join(res)
 
     def get_id(self, version: int) -> str:
-        return 'cv' + self.typ.get_id(version) + self.expr.get_id(version)
+        return "cv" + self.typ.get_id(version) + self.expr.get_id(version)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_punctuation('(', '(')
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        signode += addnodes.desc_sig_punctuation("(", "(")
         self.typ.describe_signature(signode, mode, env, symbol)
-        signode += addnodes.desc_sig_punctuation(')', ')')
+        signode += addnodes.desc_sig_punctuation(")", ")")
         self.expr.describe_signature(signode, mode, env, symbol)
 
 
@@ -1495,11 +1703,11 @@ class ASTBinOpExpr(ASTExpression):
         res = []
         res.append(transform(self.exprs[0]))
         for i in range(1, len(self.exprs)):
-            res.append(' ')
+            res.append(" ")
             res.append(self.ops[i - 1])
-            res.append(' ')
+            res.append(" ")
             res.append(transform(self.exprs[i]))
-        return ''.join(res)
+        return "".join(res)
 
     def get_id(self, version: int) -> str:
         assert version >= 2
@@ -1508,15 +1716,16 @@ class ASTBinOpExpr(ASTExpression):
             res.append(_id_operator_v2[self.ops[i]])
             res.append(self.exprs[i].get_id(version))
         res.append(self.exprs[-1].get_id(version))
-        return ''.join(res)
+        return "".join(res)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         self.exprs[0].describe_signature(signode, mode, env, symbol)
         for i in range(1, len(self.exprs)):
             signode += addnodes.desc_sig_space()
             op = self.ops[i - 1]
-            if ord(op[0]) >= ord('a') and ord(op[0]) <= ord('z'):
+            if ord(op[0]) >= ord("a") and ord(op[0]) <= ord("z"):
                 signode += addnodes.desc_sig_keyword(op, op)
             else:
                 signode += addnodes.desc_sig_operator(op, op)
@@ -1525,34 +1734,36 @@ class ASTBinOpExpr(ASTExpression):
 
 
 class ASTBracedInitList(ASTBase):
-    def __init__(self, exprs: List[Union[ASTExpression, "ASTBracedInitList"]],
-                 trailingComma: bool) -> None:
+    def __init__(
+        self, exprs: List[Union[ASTExpression, "ASTBracedInitList"]], trailingComma: bool
+    ) -> None:
         self.exprs = exprs
         self.trailingComma = trailingComma
 
     def get_id(self, version: int) -> str:
-        return "il%sE" % ''.join(e.get_id(version) for e in self.exprs)
+        return "il%sE" % "".join(e.get_id(version) for e in self.exprs)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         exprs = [transform(e) for e in self.exprs]
-        trailingComma = ',' if self.trailingComma else ''
-        return '{%s%s}' % (', '.join(exprs), trailingComma)
+        trailingComma = "," if self.trailingComma else ""
+        return "{%s%s}" % (", ".join(exprs), trailingComma)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
-        signode += addnodes.desc_sig_punctuation('{', '{')
+        signode += addnodes.desc_sig_punctuation("{", "{")
         first = True
         for e in self.exprs:
             if not first:
-                signode += addnodes.desc_sig_punctuation(',', ',')
+                signode += addnodes.desc_sig_punctuation(",", ",")
                 signode += addnodes.desc_sig_space()
             else:
                 first = False
             e.describe_signature(signode, mode, env, symbol)
         if self.trailingComma:
-            signode += addnodes.desc_sig_punctuation(',', ',')
-        signode += addnodes.desc_sig_punctuation('}', '}')
+            signode += addnodes.desc_sig_punctuation(",", ",")
+        signode += addnodes.desc_sig_punctuation("}", "}")
 
 
 class ASTAssignmentExpr(ASTExpression):
@@ -1566,11 +1777,11 @@ class ASTAssignmentExpr(ASTExpression):
         res = []
         res.append(transform(self.exprs[0]))
         for i in range(1, len(self.exprs)):
-            res.append(' ')
+            res.append(" ")
             res.append(self.ops[i - 1])
-            res.append(' ')
+            res.append(" ")
             res.append(transform(self.exprs[i]))
-        return ''.join(res)
+        return "".join(res)
 
     def get_id(self, version: int) -> str:
         res = []
@@ -1578,15 +1789,16 @@ class ASTAssignmentExpr(ASTExpression):
             res.append(_id_operator_v2[self.ops[i]])
             res.append(self.exprs[i].get_id(version))
         res.append(self.exprs[-1].get_id(version))
-        return ''.join(res)
+        return "".join(res)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         self.exprs[0].describe_signature(signode, mode, env, symbol)
         for i in range(1, len(self.exprs)):
             signode += addnodes.desc_sig_space()
             op = self.ops[i - 1]
-            if ord(op[0]) >= ord('a') and ord(op[0]) <= ord('z'):
+            if ord(op[0]) >= ord("a") and ord(op[0]) <= ord("z"):
                 signode += addnodes.desc_sig_keyword(op, op)
             else:
                 signode += addnodes.desc_sig_operator(op, op)
@@ -1600,22 +1812,23 @@ class ASTCommaExpr(ASTExpression):
         self.exprs = exprs
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return ', '.join(transform(e) for e in self.exprs)
+        return ", ".join(transform(e) for e in self.exprs)
 
     def get_id(self, version: int) -> str:
-        id_ = _id_operator_v2[',']
+        id_ = _id_operator_v2[","]
         res = []
         for i in range(len(self.exprs) - 1):
             res.append(id_)
             res.append(self.exprs[i].get_id(version))
         res.append(self.exprs[-1].get_id(version))
-        return ''.join(res)
+        return "".join(res)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         self.exprs[0].describe_signature(signode, mode, env, symbol)
         for i in range(1, len(self.exprs)):
-            signode += addnodes.desc_sig_punctuation(',', ',')
+            signode += addnodes.desc_sig_punctuation(",", ",")
             signode += addnodes.desc_sig_space()
             self.exprs[i].describe_signature(signode, mode, env, symbol)
 
@@ -1630,8 +1843,9 @@ class ASTFallbackExpr(ASTExpression):
     def get_id(self, version: int) -> str:
         return str(self.expr)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         signode += nodes.literal(self.expr, self.expr)
 
 
@@ -1641,6 +1855,7 @@ class ASTFallbackExpr(ASTExpression):
 
 # Things for ASTNestedName
 ################################################################################
+
 
 class ASTOperator(ASTBase):
     def is_anon(self) -> bool:
@@ -1652,26 +1867,41 @@ class ASTOperator(ASTBase):
     def get_id(self, version: int) -> str:
         raise NotImplementedError()
 
-    def _describe_identifier(self, signode: TextElement, identnode: TextElement,
-                             env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def _describe_identifier(
+        self,
+        signode: TextElement,
+        identnode: TextElement,
+        env: "BuildEnvironment",
+        symbol: "Symbol",
+    ) -> None:
         """Render the prefix into signode, and the last part into identnode."""
         raise NotImplementedError()
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", prefix: str, templateArgs: str,
-                           symbol: "Symbol") -> None:
+    def describe_signature(
+        self,
+        signode: TextElement,
+        mode: str,
+        env: "BuildEnvironment",
+        prefix: str,
+        templateArgs: str,
+        symbol: "Symbol",
+    ) -> None:
         verify_description_mode(mode)
-        if mode == 'lastIsName':
+        if mode == "lastIsName":
             mainName = addnodes.desc_name()
             self._describe_identifier(mainName, mainName, env, symbol)
             signode += mainName
-        elif mode == 'markType':
+        elif mode == "markType":
             targetText = prefix + str(self) + templateArgs
-            pnode = addnodes.pending_xref('', refdomain='cpp',
-                                          reftype='identifier',
-                                          reftarget=targetText, modname=None,
-                                          classname=None)
-            pnode['cpp:parent_key'] = symbol.get_lookup_key()
+            pnode = addnodes.pending_xref(
+                "",
+                refdomain="cpp",
+                reftype="identifier",
+                reftarget=targetText,
+                modname=None,
+                classname=None,
+            )
+            pnode["cpp:parent_key"] = symbol.get_lookup_key()
             # Render the identifier part, but collapse it into a string
             # and make that the a link to this operator.
             # E.g., if it is 'operator SomeType', then 'SomeType' becomes
@@ -1699,20 +1929,27 @@ class ASTOperatorBuildIn(ASTOperator):
         else:
             ids = _id_operator_v2
         if self.op not in ids:
-            raise Exception('Internal error: Built-in operator "%s" can not '
-                            'be mapped to an id.' % self.op)
+            raise Exception(
+                'Internal error: Built-in operator "%s" can not '
+                "be mapped to an id." % self.op
+            )
         return ids[self.op]
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        if self.op in ('new', 'new[]', 'delete', 'delete[]') or self.op[0] in "abcnox":
-            return 'operator ' + self.op
+        if self.op in ("new", "new[]", "delete", "delete[]") or self.op[0] in "abcnox":
+            return "operator " + self.op
         else:
-            return 'operator' + self.op
+            return "operator" + self.op
 
-    def _describe_identifier(self, signode: TextElement, identnode: TextElement,
-                             env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_keyword('operator', 'operator')
-        if self.op in ('new', 'new[]', 'delete', 'delete[]') or self.op[0] in "abcnox":
+    def _describe_identifier(
+        self,
+        signode: TextElement,
+        identnode: TextElement,
+        env: "BuildEnvironment",
+        symbol: "Symbol",
+    ) -> None:
+        signode += addnodes.desc_sig_keyword("operator", "operator")
+        if self.op in ("new", "new[]", "delete", "delete[]") or self.op[0] in "abcnox":
             signode += addnodes.desc_sig_space()
         identnode += addnodes.desc_sig_operator(self.op, self.op)
 
@@ -1725,16 +1962,21 @@ class ASTOperatorLiteral(ASTOperator):
         if version == 1:
             raise NoOldIdError()
         else:
-            return 'li' + self.identifier.get_id(version)
+            return "li" + self.identifier.get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return 'operator""' + transform(self.identifier)
 
-    def _describe_identifier(self, signode: TextElement, identnode: TextElement,
-                             env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_keyword('operator', 'operator')
+    def _describe_identifier(
+        self,
+        signode: TextElement,
+        identnode: TextElement,
+        env: "BuildEnvironment",
+        symbol: "Symbol",
+    ) -> None:
+        signode += addnodes.desc_sig_keyword("operator", "operator")
         signode += addnodes.desc_sig_literal_string('""', '""')
-        self.identifier.describe_signature(identnode, 'markType', env, '', '', symbol)
+        self.identifier.describe_signature(identnode, "markType", env, "", "", symbol)
 
 
 class ASTOperatorType(ASTOperator):
@@ -1743,21 +1985,26 @@ class ASTOperatorType(ASTOperator):
 
     def get_id(self, version: int) -> str:
         if version == 1:
-            return 'castto-%s-operator' % self.type.get_id(version)
+            return "castto-%s-operator" % self.type.get_id(version)
         else:
-            return 'cv' + self.type.get_id(version)
+            return "cv" + self.type.get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return ''.join(['operator ', transform(self.type)])
+        return "".join(["operator ", transform(self.type)])
 
     def get_name_no_template(self) -> str:
         return str(self)
 
-    def _describe_identifier(self, signode: TextElement, identnode: TextElement,
-                             env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_keyword('operator', 'operator')
+    def _describe_identifier(
+        self,
+        signode: TextElement,
+        identnode: TextElement,
+        env: "BuildEnvironment",
+        symbol: "Symbol",
+    ) -> None:
+        signode += addnodes.desc_sig_keyword("operator", "operator")
         signode += addnodes.desc_sig_space()
-        self.type.describe_signature(identnode, 'markType', env, symbol)
+        self.type.describe_signature(identnode, "markType", env, symbol)
 
 
 class ASTTemplateArgConstant(ASTBase):
@@ -1769,20 +2016,22 @@ class ASTTemplateArgConstant(ASTBase):
 
     def get_id(self, version: int) -> str:
         if version == 1:
-            return str(self).replace(' ', '-')
+            return str(self).replace(" ", "-")
         if version == 2:
-            return 'X' + str(self) + 'E'
-        return 'X' + self.value.get_id(version) + 'E'
+            return "X" + str(self) + "E"
+        return "X" + self.value.get_id(version) + "E"
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
         self.value.describe_signature(signode, mode, env, symbol)
 
 
 class ASTTemplateArgs(ASTBase):
-    def __init__(self, args: List[Union["ASTType", ASTTemplateArgConstant]],
-                 packExpansion: bool) -> None:
+    def __init__(
+        self, args: List[Union["ASTType", ASTTemplateArgConstant]], packExpansion: bool
+    ) -> None:
         assert args is not None
         self.args = args
         self.packExpansion = packExpansion
@@ -1790,55 +2039,58 @@ class ASTTemplateArgs(ASTBase):
     def get_id(self, version: int) -> str:
         if version == 1:
             res = []
-            res.append(':')
-            res.append('.'.join(a.get_id(version) for a in self.args))
-            res.append(':')
-            return ''.join(res)
+            res.append(":")
+            res.append(".".join(a.get_id(version) for a in self.args))
+            res.append(":")
+            return "".join(res)
 
         res = []
-        res.append('I')
+        res.append("I")
         if len(self.args) > 0:
             for a in self.args[:-1]:
                 res.append(a.get_id(version))
             if self.packExpansion:
-                res.append('J')
+                res.append("J")
             res.append(self.args[-1].get_id(version))
             if self.packExpansion:
-                res.append('E')
-        res.append('E')
-        return ''.join(res)
+                res.append("E")
+        res.append("E")
+        return "".join(res)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = ', '.join(transform(a) for a in self.args)
+        res = ", ".join(transform(a) for a in self.args)
         if self.packExpansion:
-            res += '...'
-        return '<' + res + '>'
+            res += "..."
+        return "<" + res + ">"
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
-        signode += addnodes.desc_sig_punctuation('<', '<')
+        signode += addnodes.desc_sig_punctuation("<", "<")
         first = True
         for a in self.args:
             if not first:
-                signode += addnodes.desc_sig_punctuation(',', ',')
+                signode += addnodes.desc_sig_punctuation(",", ",")
                 signode += addnodes.desc_sig_space()
             first = False
-            a.describe_signature(signode, 'markType', env, symbol=symbol)
+            a.describe_signature(signode, "markType", env, symbol=symbol)
         if self.packExpansion:
-            signode += addnodes.desc_sig_punctuation('...', '...')
-        signode += addnodes.desc_sig_punctuation('>', '>')
+            signode += addnodes.desc_sig_punctuation("...", "...")
+        signode += addnodes.desc_sig_punctuation(">", ">")
 
 
 # Main part of declarations
 ################################################################################
 
+
 class ASTTrailingTypeSpec(ASTBase):
     def get_id(self, version: int) -> str:
         raise NotImplementedError(repr(self))
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         raise NotImplementedError(repr(self))
 
 
@@ -1851,7 +2103,7 @@ class ASTTrailingTypeSpecFundamental(ASTTrailingTypeSpec):
         self.canonNames = canonNames
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return ' '.join(self.names)
+        return " ".join(self.names)
 
     def get_id(self, version: int) -> str:
         if version == 1:
@@ -1861,18 +2113,20 @@ class ASTTrailingTypeSpecFundamental(ASTTrailingTypeSpec):
                     res.append(_id_fundamental_v1[a])
                 else:
                     res.append(a)
-            return '-'.join(res)
+            return "-".join(res)
 
-        txt = ' '.join(self.canonNames)
+        txt = " ".join(self.canonNames)
         if txt not in _id_fundamental_v2:
             raise Exception(
                 'Semi-internal error: Fundamental type "%s" can not be mapped '
-                'to an ID. Is it a true fundamental type? If not so, the '
-                'parser should have rejected it.' % txt)
+                "to an ID. Is it a true fundamental type? If not so, the "
+                "parser should have rejected it." % txt
+            )
         return _id_fundamental_v2[txt]
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         first = True
         for n in self.names:
             if not first:
@@ -1884,19 +2138,20 @@ class ASTTrailingTypeSpecFundamental(ASTTrailingTypeSpec):
 
 class ASTTrailingTypeSpecDecltypeAuto(ASTTrailingTypeSpec):
     def _stringify(self, transform: StringifyTransform) -> str:
-        return 'decltype(auto)'
+        return "decltype(auto)"
 
     def get_id(self, version: int) -> str:
         if version == 1:
             raise NoOldIdError()
-        return 'Dc'
+        return "Dc"
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_keyword('decltype', 'decltype')
-        signode += addnodes.desc_sig_punctuation('(', '(')
-        signode += addnodes.desc_sig_keyword('auto', 'auto')
-        signode += addnodes.desc_sig_punctuation(')', ')')
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        signode += addnodes.desc_sig_keyword("decltype", "decltype")
+        signode += addnodes.desc_sig_punctuation("(", "(")
+        signode += addnodes.desc_sig_keyword("auto", "auto")
+        signode += addnodes.desc_sig_punctuation(")", ")")
 
 
 class ASTTrailingTypeSpecDecltype(ASTTrailingTypeSpec):
@@ -1904,24 +2159,26 @@ class ASTTrailingTypeSpecDecltype(ASTTrailingTypeSpec):
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return 'decltype(' + transform(self.expr) + ')'
+        return "decltype(" + transform(self.expr) + ")"
 
     def get_id(self, version: int) -> str:
         if version == 1:
             raise NoOldIdError()
-        return 'DT' + self.expr.get_id(version) + "E"
+        return "DT" + self.expr.get_id(version) + "E"
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_keyword('decltype', 'decltype')
-        signode += addnodes.desc_sig_punctuation('(', '(')
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        signode += addnodes.desc_sig_keyword("decltype", "decltype")
+        signode += addnodes.desc_sig_punctuation("(", "(")
         self.expr.describe_signature(signode, mode, env, symbol)
-        signode += addnodes.desc_sig_punctuation(')', ')')
+        signode += addnodes.desc_sig_punctuation(")", ")")
 
 
 class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
-    def __init__(self, prefix: str, nestedName: ASTNestedName,
-                 placeholderType: Optional[str]) -> None:
+    def __init__(
+        self, prefix: str, nestedName: ASTNestedName, placeholderType: Optional[str]
+    ) -> None:
         self.prefix = prefix
         self.nestedName = nestedName
         self.placeholderType = placeholderType
@@ -1937,36 +2194,39 @@ class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
         res = []
         if self.prefix:
             res.append(self.prefix)
-            res.append(' ')
+            res.append(" ")
         res.append(transform(self.nestedName))
         if self.placeholderType is not None:
-            res.append(' ')
+            res.append(" ")
             res.append(self.placeholderType)
-        return ''.join(res)
+        return "".join(res)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         if self.prefix:
             signode += addnodes.desc_sig_keyword(self.prefix, self.prefix)
             signode += addnodes.desc_sig_space()
         self.nestedName.describe_signature(signode, mode, env, symbol=symbol)
         if self.placeholderType is not None:
             signode += addnodes.desc_sig_space()
-            if self.placeholderType == 'auto':
-                signode += addnodes.desc_sig_keyword('auto', 'auto')
-            elif self.placeholderType == 'decltype(auto)':
-                signode += addnodes.desc_sig_keyword('decltype', 'decltype')
-                signode += addnodes.desc_sig_punctuation('(', '(')
-                signode += addnodes.desc_sig_keyword('auto', 'auto')
-                signode += addnodes.desc_sig_punctuation(')', ')')
+            if self.placeholderType == "auto":
+                signode += addnodes.desc_sig_keyword("auto", "auto")
+            elif self.placeholderType == "decltype(auto)":
+                signode += addnodes.desc_sig_keyword("decltype", "decltype")
+                signode += addnodes.desc_sig_punctuation("(", "(")
+                signode += addnodes.desc_sig_keyword("auto", "auto")
+                signode += addnodes.desc_sig_punctuation(")", ")")
             else:
                 assert False, self.placeholderType
 
 
 class ASTFunctionParameter(ASTBase):
-    def __init__(self, arg: Union["ASTTypeWithInit",
-                                  "ASTTemplateParamConstrainedTypeWithInit"],
-                 ellipsis: bool = False) -> None:
+    def __init__(
+        self,
+        arg: Union["ASTTypeWithInit", "ASTTemplateParamConstrainedTypeWithInit"],
+        ellipsis: bool = False,
+    ) -> None:
         self.arg = arg
         self.ellipsis = ellipsis
 
@@ -1977,21 +2237,22 @@ class ASTFunctionParameter(ASTBase):
             return symbol.parent.declaration.get_id(version, prefixed=False)
         # else, do the usual
         if self.ellipsis:
-            return 'z'
+            return "z"
         else:
             return self.arg.get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         if self.ellipsis:
-            return '...'
+            return "..."
         else:
             return transform(self.arg)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
         if self.ellipsis:
-            signode += addnodes.desc_sig_punctuation('...', '...')
+            signode += addnodes.desc_sig_punctuation("...", "...")
         else:
             self.arg.describe_signature(signode, mode, env, symbol=symbol)
 
@@ -2002,24 +2263,33 @@ class ASTNoexceptSpec(ASTBase):
 
     def _stringify(self, transform: StringifyTransform) -> str:
         if self.expr:
-            return 'noexcept(' + transform(self.expr) + ')'
-        return 'noexcept'
+            return "noexcept(" + transform(self.expr) + ")"
+        return "noexcept"
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_keyword('noexcept', 'noexcept')
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        signode += addnodes.desc_sig_keyword("noexcept", "noexcept")
         if self.expr:
-            signode += addnodes.desc_sig_punctuation('(', '(')
-            self.expr.describe_signature(signode, 'markType', env, symbol)
-            signode += addnodes.desc_sig_punctuation(')', ')')
+            signode += addnodes.desc_sig_punctuation("(", "(")
+            self.expr.describe_signature(signode, "markType", env, symbol)
+            signode += addnodes.desc_sig_punctuation(")", ")")
 
 
 class ASTParametersQualifiers(ASTBase):
-    def __init__(self, args: List[ASTFunctionParameter], volatile: bool, const: bool,
-                 refQual: Optional[str], exceptionSpec: ASTNoexceptSpec,
-                 trailingReturn: "ASTType",
-                 override: bool, final: bool, attrs: List[ASTAttribute],
-                 initializer: Optional[str]) -> None:
+    def __init__(
+        self,
+        args: List[ASTFunctionParameter],
+        volatile: bool,
+        const: bool,
+        refQual: Optional[str],
+        exceptionSpec: ASTNoexceptSpec,
+        trailingReturn: "ASTType",
+        override: bool,
+        final: bool,
+        attrs: List[ASTAttribute],
+        initializer: Optional[str],
+    ) -> None:
         self.args = args
         self.volatile = volatile
         self.const = const
@@ -2038,94 +2308,95 @@ class ASTParametersQualifiers(ASTBase):
     def get_modifiers_id(self, version: int) -> str:
         res = []
         if self.volatile:
-            res.append('V')
+            res.append("V")
         if self.const:
             if version == 1:
-                res.append('C')
+                res.append("C")
             else:
-                res.append('K')
-        if self.refQual == '&&':
-            res.append('O')
-        elif self.refQual == '&':
-            res.append('R')
-        return ''.join(res)
+                res.append("K")
+        if self.refQual == "&&":
+            res.append("O")
+        elif self.refQual == "&":
+            res.append("R")
+        return "".join(res)
 
     def get_param_id(self, version: int) -> str:
         if version == 1:
             if len(self.args) == 0:
-                return ''
+                return ""
             else:
-                return '__' + '.'.join(a.get_id(version) for a in self.args)
+                return "__" + ".".join(a.get_id(version) for a in self.args)
         if len(self.args) == 0:
-            return 'v'
+            return "v"
         else:
-            return ''.join(a.get_id(version) for a in self.args)
+            return "".join(a.get_id(version) for a in self.args)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
-        res.append('(')
+        res.append("(")
         first = True
         for a in self.args:
             if not first:
-                res.append(', ')
+                res.append(", ")
             first = False
             res.append(str(a))
-        res.append(')')
+        res.append(")")
         if self.volatile:
-            res.append(' volatile')
+            res.append(" volatile")
         if self.const:
-            res.append(' const')
+            res.append(" const")
         if self.refQual:
-            res.append(' ')
+            res.append(" ")
             res.append(self.refQual)
         if self.exceptionSpec:
-            res.append(' ')
+            res.append(" ")
             res.append(transform(self.exceptionSpec))
         if self.trailingReturn:
-            res.append(' -> ')
+            res.append(" -> ")
             res.append(transform(self.trailingReturn))
         if self.final:
-            res.append(' final')
+            res.append(" final")
         if self.override:
-            res.append(' override')
+            res.append(" override")
         for attr in self.attrs:
-            res.append(' ')
+            res.append(" ")
             res.append(transform(attr))
         if self.initializer:
-            res.append(' = ')
+            res.append(" = ")
             res.append(self.initializer)
-        return ''.join(res)
+        return "".join(res)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
         # only use the desc_parameterlist for the outer list, not for inner lists
-        if mode == 'lastIsName':
+        if mode == "lastIsName":
             paramlist = addnodes.desc_parameterlist()
             for arg in self.args:
-                param = addnodes.desc_parameter('', '', noemph=True)
-                arg.describe_signature(param, 'param', env, symbol=symbol)
+                param = addnodes.desc_parameter("", "", noemph=True)
+                arg.describe_signature(param, "param", env, symbol=symbol)
                 paramlist += param
             signode += paramlist
         else:
-            signode += addnodes.desc_sig_punctuation('(', '(')
+            signode += addnodes.desc_sig_punctuation("(", "(")
             first = True
             for arg in self.args:
                 if not first:
-                    signode += addnodes.desc_sig_punctuation(',', ',')
+                    signode += addnodes.desc_sig_punctuation(",", ",")
                     signode += addnodes.desc_sig_space()
                 first = False
-                arg.describe_signature(signode, 'markType', env, symbol=symbol)
-            signode += addnodes.desc_sig_punctuation(')', ')')
+                arg.describe_signature(signode, "markType", env, symbol=symbol)
+            signode += addnodes.desc_sig_punctuation(")", ")")
 
         def _add_anno(signode: TextElement, text: str) -> None:
             signode += addnodes.desc_sig_space()
             signode += addnodes.desc_sig_keyword(text, text)
 
         if self.volatile:
-            _add_anno(signode, 'volatile')
+            _add_anno(signode, "volatile")
         if self.const:
-            _add_anno(signode, 'const')
+            _add_anno(signode, "const")
         if self.refQual:
             signode += addnodes.desc_sig_space()
             signode += addnodes.desc_sig_punctuation(self.refQual, self.refQual)
@@ -2134,23 +2405,23 @@ class ASTParametersQualifiers(ASTBase):
             self.exceptionSpec.describe_signature(signode, mode, env, symbol)
         if self.trailingReturn:
             signode += addnodes.desc_sig_space()
-            signode += addnodes.desc_sig_operator('->', '->')
+            signode += addnodes.desc_sig_operator("->", "->")
             signode += addnodes.desc_sig_space()
             self.trailingReturn.describe_signature(signode, mode, env, symbol)
         if self.final:
-            _add_anno(signode, 'final')
+            _add_anno(signode, "final")
         if self.override:
-            _add_anno(signode, 'override')
+            _add_anno(signode, "override")
         for attr in self.attrs:
             signode += addnodes.desc_sig_space()
             attr.describe_signature(signode)
         if self.initializer:
             signode += addnodes.desc_sig_space()
-            signode += addnodes.desc_sig_punctuation('=', '=')
+            signode += addnodes.desc_sig_punctuation("=", "=")
             signode += addnodes.desc_sig_space()
-            assert self.initializer in ('0', 'delete', 'default')
-            if self.initializer == '0':
-                signode += addnodes.desc_sig_literal_number('0', '0')
+            assert self.initializer in ("0", "delete", "default")
+            if self.initializer == "0":
+                signode += addnodes.desc_sig_literal_number("0", "0")
             else:
                 signode += addnodes.desc_sig_keyword(self.initializer, self.initializer)
 
@@ -2160,28 +2431,39 @@ class ASTExplicitSpec(ASTBase):
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = ['explicit']
+        res = ["explicit"]
         if self.expr is not None:
-            res.append('(')
+            res.append("(")
             res.append(transform(self.expr))
-            res.append(')')
-        return ''.join(res)
+            res.append(")")
+        return "".join(res)
 
-    def describe_signature(self, signode: TextElement,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_keyword('explicit', 'explicit')
+    def describe_signature(
+        self, signode: TextElement, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        signode += addnodes.desc_sig_keyword("explicit", "explicit")
         if self.expr is not None:
-            signode += addnodes.desc_sig_punctuation('(', '(')
-            self.expr.describe_signature(signode, 'markType', env, symbol)
-            signode += addnodes.desc_sig_punctuation(')', ')')
+            signode += addnodes.desc_sig_punctuation("(", "(")
+            self.expr.describe_signature(signode, "markType", env, symbol)
+            signode += addnodes.desc_sig_punctuation(")", ")")
 
 
 class ASTDeclSpecsSimple(ASTBase):
-    def __init__(self, storage: str, threadLocal: bool, inline: bool, virtual: bool,
-                 explicitSpec: Optional[ASTExplicitSpec],
-                 consteval: bool, constexpr: bool, constinit: bool,
-                 volatile: bool, const: bool, friend: bool,
-                 attrs: List[ASTAttribute]) -> None:
+    def __init__(
+        self,
+        storage: str,
+        threadLocal: bool,
+        inline: bool,
+        virtual: bool,
+        explicitSpec: Optional[ASTExplicitSpec],
+        consteval: bool,
+        constexpr: bool,
+        constinit: bool,
+        volatile: bool,
+        const: bool,
+        friend: bool,
+        attrs: List[ASTAttribute],
+    ) -> None:
         self.storage = storage
         self.threadLocal = threadLocal
         self.inline = inline
@@ -2198,18 +2480,20 @@ class ASTDeclSpecsSimple(ASTBase):
     def mergeWith(self, other: "ASTDeclSpecsSimple") -> "ASTDeclSpecsSimple":
         if not other:
             return self
-        return ASTDeclSpecsSimple(self.storage or other.storage,
-                                  self.threadLocal or other.threadLocal,
-                                  self.inline or other.inline,
-                                  self.virtual or other.virtual,
-                                  self.explicitSpec or other.explicitSpec,
-                                  self.consteval or other.consteval,
-                                  self.constexpr or other.constexpr,
-                                  self.constinit or other.constinit,
-                                  self.volatile or other.volatile,
-                                  self.const or other.const,
-                                  self.friend or other.friend,
-                                  self.attrs + other.attrs)
+        return ASTDeclSpecsSimple(
+            self.storage or other.storage,
+            self.threadLocal or other.threadLocal,
+            self.inline or other.inline,
+            self.virtual or other.virtual,
+            self.explicitSpec or other.explicitSpec,
+            self.consteval or other.consteval,
+            self.constexpr or other.constexpr,
+            self.constinit or other.constinit,
+            self.volatile or other.volatile,
+            self.const or other.const,
+            self.friend or other.friend,
+            self.attrs + other.attrs,
+        )
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res: List[str] = []
@@ -2217,29 +2501,30 @@ class ASTDeclSpecsSimple(ASTBase):
         if self.storage:
             res.append(self.storage)
         if self.threadLocal:
-            res.append('thread_local')
+            res.append("thread_local")
         if self.inline:
-            res.append('inline')
+            res.append("inline")
         if self.friend:
-            res.append('friend')
+            res.append("friend")
         if self.virtual:
-            res.append('virtual')
+            res.append("virtual")
         if self.explicitSpec:
             res.append(transform(self.explicitSpec))
         if self.consteval:
-            res.append('consteval')
+            res.append("consteval")
         if self.constexpr:
-            res.append('constexpr')
+            res.append("constexpr")
         if self.constinit:
-            res.append('constinit')
+            res.append("constinit")
         if self.volatile:
-            res.append('volatile')
+            res.append("volatile")
         if self.const:
-            res.append('const')
-        return ' '.join(res)
+            res.append("const")
+        return " ".join(res)
 
-    def describe_signature(self, signode: TextElement,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         addSpace = False
         for attr in self.attrs:
             if addSpace:
@@ -2256,34 +2541,38 @@ class ASTDeclSpecsSimple(ASTBase):
         if self.storage:
             addSpace = _add(signode, self.storage)
         if self.threadLocal:
-            addSpace = _add(signode, 'thread_local')
+            addSpace = _add(signode, "thread_local")
         if self.inline:
-            addSpace = _add(signode, 'inline')
+            addSpace = _add(signode, "inline")
         if self.friend:
-            addSpace = _add(signode, 'friend')
+            addSpace = _add(signode, "friend")
         if self.virtual:
-            addSpace = _add(signode, 'virtual')
+            addSpace = _add(signode, "virtual")
         if self.explicitSpec:
             if addSpace:
                 signode += addnodes.desc_sig_space()
             self.explicitSpec.describe_signature(signode, env, symbol)
             addSpace = True
         if self.consteval:
-            addSpace = _add(signode, 'consteval')
+            addSpace = _add(signode, "consteval")
         if self.constexpr:
-            addSpace = _add(signode, 'constexpr')
+            addSpace = _add(signode, "constexpr")
         if self.constinit:
-            addSpace = _add(signode, 'constinit')
+            addSpace = _add(signode, "constinit")
         if self.volatile:
-            addSpace = _add(signode, 'volatile')
+            addSpace = _add(signode, "volatile")
         if self.const:
-            addSpace = _add(signode, 'const')
+            addSpace = _add(signode, "const")
 
 
 class ASTDeclSpecs(ASTBase):
-    def __init__(self, outer: str,
-                 leftSpecs: ASTDeclSpecsSimple, rightSpecs: ASTDeclSpecsSimple,
-                 trailing: ASTTrailingTypeSpec) -> None:
+    def __init__(
+        self,
+        outer: str,
+        leftSpecs: ASTDeclSpecsSimple,
+        rightSpecs: ASTDeclSpecsSimple,
+        trailing: ASTTrailingTypeSpec,
+    ) -> None:
         # leftSpecs and rightSpecs are used for output
         # allSpecs are used for id generation
         self.outer = outer
@@ -2297,18 +2586,18 @@ class ASTDeclSpecs(ASTBase):
             res = []
             res.append(self.trailingTypeSpec.get_id(version))
             if self.allSpecs.volatile:
-                res.append('V')
+                res.append("V")
             if self.allSpecs.const:
-                res.append('C')
-            return ''.join(res)
+                res.append("C")
+            return "".join(res)
         res = []
         if self.allSpecs.volatile:
-            res.append('V')
+            res.append("V")
         if self.allSpecs.const:
-            res.append('K')
+            res.append("K")
         if self.trailingTypeSpec is not None:
             res.append(self.trailingTypeSpec.get_id(version))
-        return ''.join(res)
+        return "".join(res)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res: List[str] = []
@@ -2326,8 +2615,9 @@ class ASTDeclSpecs(ASTBase):
                 res.append(r)
         return "".join(res)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
         numChildren = len(signode)
         self.leftSpecs.describe_signature(signode, env, symbol)
@@ -2337,8 +2627,7 @@ class ASTDeclSpecs(ASTBase):
             if addSpace:
                 signode += addnodes.desc_sig_space()
             numChildren = len(signode)
-            self.trailingTypeSpec.describe_signature(signode, mode, env,
-                                                     symbol=symbol)
+            self.trailingTypeSpec.describe_signature(signode, mode, env, symbol=symbol)
             addSpace = len(signode) != numChildren
 
             if len(str(self.rightSpecs)) > 0:
@@ -2350,36 +2639,38 @@ class ASTDeclSpecs(ASTBase):
 # Declarator
 ################################################################################
 
+
 class ASTArray(ASTBase):
     def __init__(self, size: ASTExpression):
         self.size = size
 
     def _stringify(self, transform: StringifyTransform) -> str:
         if self.size:
-            return '[' + transform(self.size) + ']'
+            return "[" + transform(self.size) + "]"
         else:
-            return '[]'
+            return "[]"
 
     def get_id(self, version: int) -> str:
         if version == 1:
-            return 'A'
+            return "A"
         if version == 2:
             if self.size:
-                return 'A' + str(self.size) + '_'
+                return "A" + str(self.size) + "_"
             else:
-                return 'A_'
+                return "A_"
         if self.size:
-            return 'A' + self.size.get_id(version) + '_'
+            return "A" + self.size.get_id(version) + "_"
         else:
-            return 'A_'
+            return "A_"
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
-        signode += addnodes.desc_sig_punctuation('[', '[')
+        signode += addnodes.desc_sig_punctuation("[", "[")
         if self.size:
-            self.size.describe_signature(signode, 'markType', env, symbol)
-        signode += addnodes.desc_sig_punctuation(']', ']')
+            self.size.describe_signature(signode, "markType", env, symbol)
+        signode += addnodes.desc_sig_punctuation("]", "]")
 
 
 class ASTDeclarator(ASTBase):
@@ -2421,15 +2712,19 @@ class ASTDeclarator(ASTBase):
     def is_function_type(self) -> bool:
         raise NotImplementedError(repr(self))
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         raise NotImplementedError(repr(self))
 
 
 class ASTDeclaratorNameParamQual(ASTDeclarator):
-    def __init__(self, declId: ASTNestedName,
-                 arrayOps: List[ASTArray],
-                 paramQual: ASTParametersQualifiers) -> None:
+    def __init__(
+        self,
+        declId: ASTNestedName,
+        arrayOps: List[ASTArray],
+        paramQual: ASTParametersQualifiers,
+    ) -> None:
         self.declId = declId
         self.arrayOps = arrayOps
         self.paramQual = paramQual
@@ -2465,10 +2760,10 @@ class ASTDeclaratorNameParamQual(ASTDeclarator):
         if self.paramQual:
             return self.paramQual.get_param_id(version)
         else:
-            return ''
+            return ""
 
     def get_ptr_suffix_id(self, version: int) -> str:  # only the array specifiers
-        return ''.join(a.get_id(version) for a in self.arrayOps)
+        return "".join(a.get_id(version) for a in self.arrayOps)
 
     def get_type_id(self, version: int, returnTypeId: str) -> str:
         assert version >= 2
@@ -2477,13 +2772,13 @@ class ASTDeclaratorNameParamQual(ASTDeclarator):
         res.append(self.get_ptr_suffix_id(version))
         if self.paramQual:
             res.append(self.get_modifiers_id(version))
-            res.append('F')
+            res.append("F")
             res.append(returnTypeId)
             res.append(self.get_param_id(version))
-            res.append('E')
+            res.append("E")
         else:
             res.append(returnTypeId)
-        return ''.join(res)
+        return "".join(res)
 
     # ------------------------------------------------------------------------
 
@@ -2501,10 +2796,11 @@ class ASTDeclaratorNameParamQual(ASTDeclarator):
             res.append(transform(op))
         if self.paramQual:
             res.append(transform(self.paramQual))
-        return ''.join(res)
+        return "".join(res)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
         if self.declId:
             self.declId.describe_signature(signode, mode, env, symbol)
@@ -2528,10 +2824,10 @@ class ASTDeclaratorNameBitField(ASTDeclarator):
         self.declId = name
 
     def get_param_id(self, version: int) -> str:  # only the parameters (if any)
-        return ''
+        return ""
 
     def get_ptr_suffix_id(self, version: int) -> str:  # only the array specifiers
-        return ''
+        return ""
 
     # ------------------------------------------------------------------------
 
@@ -2547,22 +2843,24 @@ class ASTDeclaratorNameBitField(ASTDeclarator):
             res.append(transform(self.declId))
         res.append(" : ")
         res.append(transform(self.size))
-        return ''.join(res)
+        return "".join(res)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
         if self.declId:
             self.declId.describe_signature(signode, mode, env, symbol)
         signode += addnodes.desc_sig_space()
-        signode += addnodes.desc_sig_punctuation(':', ':')
+        signode += addnodes.desc_sig_punctuation(":", ":")
         signode += addnodes.desc_sig_space()
         self.size.describe_signature(signode, mode, env, symbol)
 
 
 class ASTDeclaratorPtr(ASTDeclarator):
-    def __init__(self, next: ASTDeclarator, volatile: bool, const: bool,
-                 attrs: List[ASTAttribute]) -> None:
+    def __init__(
+        self, next: ASTDeclarator, volatile: bool, const: bool, attrs: List[ASTAttribute]
+    ) -> None:
         assert next
         self.next = next
         self.volatile = volatile
@@ -2589,22 +2887,22 @@ class ASTDeclaratorPtr(ASTDeclarator):
         return self.next.require_space_after_declSpecs()
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = ['*']
+        res = ["*"]
         for a in self.attrs:
             res.append(transform(a))
         if len(self.attrs) > 0 and (self.volatile or self.const):
-            res.append(' ')
+            res.append(" ")
         if self.volatile:
-            res.append('volatile')
+            res.append("volatile")
         if self.const:
             if self.volatile:
-                res.append(' ')
-            res.append('const')
+                res.append(" ")
+            res.append("const")
         if self.const or self.volatile or len(self.attrs) > 0:
             if self.next.require_space_after_declSpecs():
-                res.append(' ')
+                res.append(" ")
         res.append(transform(self.next))
-        return ''.join(res)
+        return "".join(res)
 
     def get_modifiers_id(self, version: int) -> str:
         return self.next.get_modifiers_id(version)
@@ -2614,39 +2912,40 @@ class ASTDeclaratorPtr(ASTDeclarator):
 
     def get_ptr_suffix_id(self, version: int) -> str:
         if version == 1:
-            res = ['P']
+            res = ["P"]
             if self.volatile:
-                res.append('V')
+                res.append("V")
             if self.const:
-                res.append('C')
+                res.append("C")
             res.append(self.next.get_ptr_suffix_id(version))
-            return ''.join(res)
+            return "".join(res)
 
         res = [self.next.get_ptr_suffix_id(version)]
-        res.append('P')
+        res.append("P")
         if self.volatile:
-            res.append('V')
+            res.append("V")
         if self.const:
-            res.append('C')
-        return ''.join(res)
+            res.append("C")
+        return "".join(res)
 
     def get_type_id(self, version: int, returnTypeId: str) -> str:
         # ReturnType *next, so we are part of the return type of 'next
-        res = ['P']
+        res = ["P"]
         if self.volatile:
-            res.append('V')
+            res.append("V")
         if self.const:
-            res.append('C')
+            res.append("C")
         res.append(returnTypeId)
-        return self.next.get_type_id(version, returnTypeId=''.join(res))
+        return self.next.get_type_id(version, returnTypeId="".join(res))
 
     def is_function_type(self) -> bool:
         return self.next.is_function_type()
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
-        signode += addnodes.desc_sig_punctuation('*', '*')
+        signode += addnodes.desc_sig_punctuation("*", "*")
         for a in self.attrs:
             a.describe_signature(signode)
         if len(self.attrs) > 0 and (self.volatile or self.const):
@@ -2654,12 +2953,13 @@ class ASTDeclaratorPtr(ASTDeclarator):
 
         def _add_anno(signode: TextElement, text: str) -> None:
             signode += addnodes.desc_sig_keyword(text, text)
+
         if self.volatile:
-            _add_anno(signode, 'volatile')
+            _add_anno(signode, "volatile")
         if self.const:
             if self.volatile:
                 signode += addnodes.desc_sig_space()
-            _add_anno(signode, 'const')
+            _add_anno(signode, "const")
         if self.const or self.volatile or len(self.attrs) > 0:
             if self.next.require_space_after_declSpecs():
                 signode += addnodes.desc_sig_space()
@@ -2696,13 +2996,13 @@ class ASTDeclaratorRef(ASTDeclarator):
         return self.next.require_space_after_declSpecs()
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = ['&']
+        res = ["&"]
         for a in self.attrs:
             res.append(transform(a))
         if len(self.attrs) > 0 and self.next.require_space_after_declSpecs():
-            res.append(' ')
+            res.append(" ")
         res.append(transform(self.next))
-        return ''.join(res)
+        return "".join(res)
 
     def get_modifiers_id(self, version: int) -> str:
         return self.next.get_modifiers_id(version)
@@ -2712,22 +3012,23 @@ class ASTDeclaratorRef(ASTDeclarator):
 
     def get_ptr_suffix_id(self, version: int) -> str:
         if version == 1:
-            return 'R' + self.next.get_ptr_suffix_id(version)
+            return "R" + self.next.get_ptr_suffix_id(version)
         else:
-            return self.next.get_ptr_suffix_id(version) + 'R'
+            return self.next.get_ptr_suffix_id(version) + "R"
 
     def get_type_id(self, version: int, returnTypeId: str) -> str:
         assert version >= 2
         # ReturnType &next, so we are part of the return type of 'next
-        return self.next.get_type_id(version, returnTypeId='R' + returnTypeId)
+        return self.next.get_type_id(version, returnTypeId="R" + returnTypeId)
 
     def is_function_type(self) -> bool:
         return self.next.is_function_type()
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
-        signode += addnodes.desc_sig_punctuation('&', '&')
+        signode += addnodes.desc_sig_punctuation("&", "&")
         for a in self.attrs:
             a.describe_signature(signode)
         if len(self.attrs) > 0 and self.next.require_space_after_declSpecs():
@@ -2762,8 +3063,8 @@ class ASTDeclaratorParamPack(ASTDeclarator):
     def _stringify(self, transform: StringifyTransform) -> str:
         res = transform(self.next)
         if self.next.name:
-            res = ' ' + res
-        return '...' + res
+            res = " " + res
+        return "..." + res
 
     def get_modifiers_id(self, version: int) -> str:
         return self.next.get_modifiers_id(version)
@@ -2773,30 +3074,32 @@ class ASTDeclaratorParamPack(ASTDeclarator):
 
     def get_ptr_suffix_id(self, version: int) -> str:
         if version == 1:
-            return 'Dp' + self.next.get_ptr_suffix_id(version)
+            return "Dp" + self.next.get_ptr_suffix_id(version)
         else:
-            return self.next.get_ptr_suffix_id(version) + 'Dp'
+            return self.next.get_ptr_suffix_id(version) + "Dp"
 
     def get_type_id(self, version: int, returnTypeId: str) -> str:
         assert version >= 2
         # ReturnType... next, so we are part of the return type of 'next
-        return self.next.get_type_id(version, returnTypeId='Dp' + returnTypeId)
+        return self.next.get_type_id(version, returnTypeId="Dp" + returnTypeId)
 
     def is_function_type(self) -> bool:
         return self.next.is_function_type()
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
-        signode += addnodes.desc_sig_punctuation('...', '...')
+        signode += addnodes.desc_sig_punctuation("...", "...")
         if self.next.name:
             signode += addnodes.desc_sig_space()
         self.next.describe_signature(signode, mode, env, symbol)
 
 
 class ASTDeclaratorMemPtr(ASTDeclarator):
-    def __init__(self, className: ASTNestedName,
-                 const: bool, volatile: bool, next: ASTDeclarator) -> None:
+    def __init__(
+        self, className: ASTNestedName, const: bool, volatile: bool, next: ASTDeclarator
+    ) -> None:
         assert className
         assert next
         self.className = className
@@ -2826,17 +3129,17 @@ class ASTDeclaratorMemPtr(ASTDeclarator):
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
         res.append(transform(self.className))
-        res.append('::*')
+        res.append("::*")
         if self.volatile:
-            res.append('volatile')
+            res.append("volatile")
         if self.const:
             if self.volatile:
-                res.append(' ')
-            res.append('const')
+                res.append(" ")
+            res.append("const")
         if self.next.require_space_after_declSpecs():
-            res.append(' ')
+            res.append(" ")
         res.append(transform(self.next))
-        return ''.join(res)
+        return "".join(res)
 
     def get_modifiers_id(self, version: int) -> str:
         if version == 1:
@@ -2855,17 +3158,17 @@ class ASTDeclaratorMemPtr(ASTDeclarator):
             raise NoOldIdError()
         else:
             raise NotImplementedError()
-            return self.next.get_ptr_suffix_id(version) + 'Dp'
+            return self.next.get_ptr_suffix_id(version) + "Dp"
 
     def get_type_id(self, version: int, returnTypeId: str) -> str:
         assert version >= 2
         # ReturnType name::* next, so we are part of the return type of next
-        nextReturnTypeId = ''
+        nextReturnTypeId = ""
         if self.volatile:
-            nextReturnTypeId += 'V'
+            nextReturnTypeId += "V"
         if self.const:
-            nextReturnTypeId += 'K'
-        nextReturnTypeId += 'M'
+            nextReturnTypeId += "K"
+        nextReturnTypeId += "M"
         nextReturnTypeId += self.className.get_id(version)
         nextReturnTypeId += returnTypeId
         return self.next.get_type_id(version, nextReturnTypeId)
@@ -2873,21 +3176,23 @@ class ASTDeclaratorMemPtr(ASTDeclarator):
     def is_function_type(self) -> bool:
         return self.next.is_function_type()
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
-        self.className.describe_signature(signode, 'markType', env, symbol)
-        signode += addnodes.desc_sig_punctuation('::', '::')
-        signode += addnodes.desc_sig_punctuation('*', '*')
+        self.className.describe_signature(signode, "markType", env, symbol)
+        signode += addnodes.desc_sig_punctuation("::", "::")
+        signode += addnodes.desc_sig_punctuation("*", "*")
 
         def _add_anno(signode: TextElement, text: str) -> None:
             signode += addnodes.desc_sig_keyword(text, text)
+
         if self.volatile:
-            _add_anno(signode, 'volatile')
+            _add_anno(signode, "volatile")
         if self.const:
             if self.volatile:
                 signode += addnodes.desc_sig_space()
-            _add_anno(signode, 'const')
+            _add_anno(signode, "const")
         if self.next.require_space_after_declSpecs():
             signode += addnodes.desc_sig_space()
         self.next.describe_signature(signode, mode, env, symbol)
@@ -2921,11 +3226,11 @@ class ASTDeclaratorParen(ASTDeclarator):
         return True
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = ['(']
+        res = ["("]
         res.append(transform(self.inner))
-        res.append(')')
+        res.append(")")
         res.append(transform(self.next))
-        return ''.join(res)
+        return "".join(res)
 
     def get_modifiers_id(self, version: int) -> str:
         return self.inner.get_modifiers_id(version)
@@ -2936,11 +3241,9 @@ class ASTDeclaratorParen(ASTDeclarator):
     def get_ptr_suffix_id(self, version: int) -> str:
         if version == 1:
             raise NoOldIdError()  # TODO: was this implemented before?
-            return self.next.get_ptr_suffix_id(version) + \
-                self.inner.get_ptr_suffix_id(version)
+            return self.next.get_ptr_suffix_id(version) + self.inner.get_ptr_suffix_id(version)
         else:
-            return self.inner.get_ptr_suffix_id(version) + \
-                self.next.get_ptr_suffix_id(version)
+            return self.inner.get_ptr_suffix_id(version) + self.next.get_ptr_suffix_id(version)
 
     def get_type_id(self, version: int, returnTypeId: str) -> str:
         assert version >= 2
@@ -2951,33 +3254,36 @@ class ASTDeclaratorParen(ASTDeclarator):
     def is_function_type(self) -> bool:
         return self.inner.is_function_type()
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
-        signode += addnodes.desc_sig_punctuation('(', '(')
+        signode += addnodes.desc_sig_punctuation("(", "(")
         self.inner.describe_signature(signode, mode, env, symbol)
-        signode += addnodes.desc_sig_punctuation(')', ')')
+        signode += addnodes.desc_sig_punctuation(")", ")")
         self.next.describe_signature(signode, "noneIsName", env, symbol)
 
 
 # Type and initializer stuff
 ##############################################################################################
 
+
 class ASTPackExpansionExpr(ASTExpression):
     def __init__(self, expr: Union[ASTExpression, ASTBracedInitList]):
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return transform(self.expr) + '...'
+        return transform(self.expr) + "..."
 
     def get_id(self, version: int) -> str:
         id = self.expr.get_id(version)
-        return 'sp' + id
+        return "sp" + id
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         self.expr.describe_signature(signode, mode, env, symbol)
-        signode += addnodes.desc_sig_punctuation('...', '...')
+        signode += addnodes.desc_sig_punctuation("...", "...")
 
 
 class ASTParenExprList(ASTBaseParenExprList):
@@ -2985,48 +3291,51 @@ class ASTParenExprList(ASTBaseParenExprList):
         self.exprs = exprs
 
     def get_id(self, version: int) -> str:
-        return "pi%sE" % ''.join(e.get_id(version) for e in self.exprs)
+        return "pi%sE" % "".join(e.get_id(version) for e in self.exprs)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         exprs = [transform(e) for e in self.exprs]
-        return '(%s)' % ', '.join(exprs)
+        return "(%s)" % ", ".join(exprs)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
-        signode += addnodes.desc_sig_punctuation('(', '(')
+        signode += addnodes.desc_sig_punctuation("(", "(")
         first = True
         for e in self.exprs:
             if not first:
-                signode += addnodes.desc_sig_punctuation(',', ',')
+                signode += addnodes.desc_sig_punctuation(",", ",")
                 signode += addnodes.desc_sig_space()
             else:
                 first = False
             e.describe_signature(signode, mode, env, symbol)
-        signode += addnodes.desc_sig_punctuation(')', ')')
+        signode += addnodes.desc_sig_punctuation(")", ")")
 
 
 class ASTInitializer(ASTBase):
-    def __init__(self, value: Union[ASTExpression, ASTBracedInitList],
-                 hasAssign: bool = True) -> None:
+    def __init__(
+        self, value: Union[ASTExpression, ASTBracedInitList], hasAssign: bool = True
+    ) -> None:
         self.value = value
         self.hasAssign = hasAssign
 
     def _stringify(self, transform: StringifyTransform) -> str:
         val = transform(self.value)
         if self.hasAssign:
-            return ' = ' + val
+            return " = " + val
         else:
             return val
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
         if self.hasAssign:
             signode += addnodes.desc_sig_space()
-            signode += addnodes.desc_sig_punctuation('=', '=')
+            signode += addnodes.desc_sig_punctuation("=", "=")
             signode += addnodes.desc_sig_space()
-        self.value.describe_signature(signode, 'markType', env, symbol)
+        self.value.describe_signature(signode, "markType", env, symbol)
 
 
 class ASTType(ASTBase):
@@ -3056,20 +3365,19 @@ class ASTType(ASTBase):
     def trailingReturn(self) -> "ASTType":
         return self.decl.trailingReturn
 
-    def get_id(self, version: int, objectType: str = None,
-               symbol: "Symbol" = None) -> str:
+    def get_id(self, version: int, objectType: str = None, symbol: "Symbol" = None) -> str:
         if version == 1:
             res = []
             if objectType:  # needs the name
-                if objectType == 'function':  # also modifiers
+                if objectType == "function":  # also modifiers
                     res.append(symbol.get_full_nested_name().get_id(version))
                     res.append(self.decl.get_param_id(version))
                     res.append(self.decl.get_modifiers_id(version))
-                    if (self.declSpecs.leftSpecs.constexpr or
-                            (self.declSpecs.rightSpecs and
-                             self.declSpecs.rightSpecs.constexpr)):
-                        res.append('CE')
-                elif objectType == 'type':  # just the name
+                    if self.declSpecs.leftSpecs.constexpr or (
+                        self.declSpecs.rightSpecs and self.declSpecs.rightSpecs.constexpr
+                    ):
+                        res.append("CE")
+                elif objectType == "type":  # just the name
                     res.append(symbol.get_full_nested_name().get_id(version))
                 else:
                     print(objectType)
@@ -3080,11 +3388,11 @@ class ASTType(ASTBase):
                 res.append(self.declSpecs.get_id(version))
                 res.append(self.decl.get_ptr_suffix_id(version))
                 res.append(self.decl.get_param_id(version))
-            return ''.join(res)
+            return "".join(res)
         # other versions
         res = []
         if objectType:  # needs the name
-            if objectType == 'function':  # also modifiers
+            if objectType == "function":  # also modifiers
                 modifiers = self.decl.get_modifiers_id(version)
                 res.append(symbol.get_full_nested_name().get_id(version, modifiers))
                 if version >= 4:
@@ -3099,7 +3407,7 @@ class ASTType(ASTBase):
                         res.append(typeId)
                         res.append(returnTypeId)
                 res.append(self.decl.get_param_id(version))
-            elif objectType == 'type':  # just the name
+            elif objectType == "type":  # just the name
                 res.append(symbol.get_full_nested_name().get_id(version))
             else:
                 print(objectType)
@@ -3110,34 +3418,34 @@ class ASTType(ASTBase):
             returnTypeId = self.declSpecs.get_id(version)
             typeId = self.decl.get_type_id(version, returnTypeId)
             res.append(typeId)
-        return ''.join(res)
+        return "".join(res)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
         declSpecs = transform(self.declSpecs)
         res.append(declSpecs)
         if self.decl.require_space_after_declSpecs() and len(declSpecs) > 0:
-            res.append(' ')
+            res.append(" ")
         res.append(transform(self.decl))
-        return ''.join(res)
+        return "".join(res)
 
     def get_type_declaration_prefix(self) -> str:
         if self.declSpecs.trailingTypeSpec:
-            return 'typedef'
+            return "typedef"
         else:
-            return 'type'
+            return "type"
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
-        self.declSpecs.describe_signature(signode, 'markType', env, symbol)
-        if (self.decl.require_space_after_declSpecs() and
-                len(str(self.declSpecs)) > 0):
+        self.declSpecs.describe_signature(signode, "markType", env, symbol)
+        if self.decl.require_space_after_declSpecs() and len(str(self.declSpecs)) > 0:
             signode += addnodes.desc_sig_space()
         # for parameters that don't really declare new names we get 'markType',
         # this should not be propagated, but be 'noneIsName'.
-        if mode == 'markType':
-            mode = 'noneIsName'
+        if mode == "markType":
+            mode = "noneIsName"
         self.decl.describe_signature(signode, mode, env, symbol)
 
 
@@ -3171,12 +3479,13 @@ class ASTTemplateParamConstrainedTypeWithInit(ASTBase):
             res += transform(self.init)
         return res
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         self.type.describe_signature(signode, mode, env, symbol)
         if self.init:
             signode += addnodes.desc_sig_space()
-            signode += addnodes.desc_sig_punctuation('=', '=')
+            signode += addnodes.desc_sig_punctuation("=", "=")
             signode += addnodes.desc_sig_space()
             self.init.describe_signature(signode, mode, env, symbol)
 
@@ -3194,13 +3503,15 @@ class ASTTypeWithInit(ASTBase):
     def isPack(self) -> bool:
         return self.type.isPack
 
-    def get_id(self, version: int, objectType: str = None,
-               symbol: "Symbol" = None) -> str:
-        if objectType != 'member':
+    def get_id(self, version: int, objectType: str = None, symbol: "Symbol" = None) -> str:
+        if objectType != "member":
             return self.type.get_id(version, objectType)
         if version == 1:
-            return (symbol.get_full_nested_name().get_id(version) + '__' +
-                    self.type.get_id(version))
+            return (
+                symbol.get_full_nested_name().get_id(version)
+                + "__"
+                + self.type.get_id(version)
+            )
         return symbol.get_full_nested_name().get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -3208,10 +3519,11 @@ class ASTTypeWithInit(ASTBase):
         res.append(transform(self.type))
         if self.init:
             res.append(transform(self.init))
-        return ''.join(res)
+        return "".join(res)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
         self.type.describe_signature(signode, mode, env, symbol)
         if self.init:
@@ -3223,8 +3535,7 @@ class ASTTypeUsing(ASTBase):
         self.name = name
         self.type = type
 
-    def get_id(self, version: int, objectType: str = None,
-               symbol: "Symbol" = None) -> str:
+    def get_id(self, version: int, objectType: str = None, symbol: "Symbol" = None) -> str:
         if version == 1:
             raise NoOldIdError()
         return symbol.get_full_nested_name().get_id(version)
@@ -3233,26 +3544,28 @@ class ASTTypeUsing(ASTBase):
         res = []
         res.append(transform(self.name))
         if self.type:
-            res.append(' = ')
+            res.append(" = ")
             res.append(transform(self.type))
-        return ''.join(res)
+        return "".join(res)
 
     def get_type_declaration_prefix(self) -> str:
-        return 'using'
+        return "using"
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
         self.name.describe_signature(signode, mode, env, symbol=symbol)
         if self.type:
             signode += addnodes.desc_sig_space()
-            signode += addnodes.desc_sig_punctuation('=', '=')
+            signode += addnodes.desc_sig_punctuation("=", "=")
             signode += addnodes.desc_sig_space()
-            self.type.describe_signature(signode, 'markType', env, symbol=symbol)
+            self.type.describe_signature(signode, "markType", env, symbol=symbol)
 
 
 # Other declarations
 ##############################################################################################
+
 
 class ASTConcept(ASTBase):
     def __init__(self, nestedName: ASTNestedName, initializer: ASTInitializer) -> None:
@@ -3263,8 +3576,7 @@ class ASTConcept(ASTBase):
     def name(self) -> ASTNestedName:
         return self.nestedName
 
-    def get_id(self, version: int, objectType: str = None,
-               symbol: "Symbol" = None) -> str:
+    def get_id(self, version: int, objectType: str = None, symbol: "Symbol" = None) -> str:
         if version == 1:
             raise NoOldIdError()
         return symbol.get_full_nested_name().get_id(version)
@@ -3275,16 +3587,18 @@ class ASTConcept(ASTBase):
             res += transform(self.initializer)
         return res
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         self.nestedName.describe_signature(signode, mode, env, symbol)
         if self.initializer:
             self.initializer.describe_signature(signode, mode, env, symbol)
 
 
 class ASTBaseClass(ASTBase):
-    def __init__(self, name: ASTNestedName, visibility: str,
-                 virtual: bool, pack: bool) -> None:
+    def __init__(
+        self, name: ASTNestedName, visibility: str, virtual: bool, pack: bool
+    ) -> None:
         self.name = name
         self.visibility = visibility
         self.virtual = virtual
@@ -3294,27 +3608,27 @@ class ASTBaseClass(ASTBase):
         res = []
         if self.visibility is not None:
             res.append(self.visibility)
-            res.append(' ')
+            res.append(" ")
         if self.virtual:
-            res.append('virtual ')
+            res.append("virtual ")
         res.append(transform(self.name))
         if self.pack:
-            res.append('...')
-        return ''.join(res)
+            res.append("...")
+        return "".join(res)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
         if self.visibility is not None:
-            signode += addnodes.desc_sig_keyword(self.visibility,
-                                                 self.visibility)
+            signode += addnodes.desc_sig_keyword(self.visibility, self.visibility)
             signode += addnodes.desc_sig_space()
         if self.virtual:
-            signode += addnodes.desc_sig_keyword('virtual', 'virtual')
+            signode += addnodes.desc_sig_keyword("virtual", "virtual")
             signode += addnodes.desc_sig_space()
-        self.name.describe_signature(signode, 'markType', env, symbol=symbol)
+        self.name.describe_signature(signode, "markType", env, symbol=symbol)
         if self.pack:
-            signode += addnodes.desc_sig_punctuation('...', '...')
+            signode += addnodes.desc_sig_punctuation("...", "...")
 
 
 class ASTClass(ASTBase):
@@ -3330,31 +3644,32 @@ class ASTClass(ASTBase):
         res = []
         res.append(transform(self.name))
         if self.final:
-            res.append(' final')
+            res.append(" final")
         if len(self.bases) > 0:
-            res.append(' : ')
+            res.append(" : ")
             first = True
             for b in self.bases:
                 if not first:
-                    res.append(', ')
+                    res.append(", ")
                 first = False
                 res.append(transform(b))
-        return ''.join(res)
+        return "".join(res)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
         self.name.describe_signature(signode, mode, env, symbol=symbol)
         if self.final:
             signode += addnodes.desc_sig_space()
-            signode += addnodes.desc_sig_keyword('final', 'final')
+            signode += addnodes.desc_sig_keyword("final", "final")
         if len(self.bases) > 0:
             signode += addnodes.desc_sig_space()
-            signode += addnodes.desc_sig_punctuation(':', ':')
+            signode += addnodes.desc_sig_punctuation(":", ":")
             signode += addnodes.desc_sig_space()
             for b in self.bases:
                 b.describe_signature(signode, mode, env, symbol=symbol)
-                signode += addnodes.desc_sig_punctuation(',', ',')
+                signode += addnodes.desc_sig_punctuation(",", ",")
                 signode += addnodes.desc_sig_space()
             signode.pop()
             signode.pop()
@@ -3372,15 +3687,15 @@ class ASTUnion(ASTBase):
     def _stringify(self, transform: StringifyTransform) -> str:
         return transform(self.name)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
         self.name.describe_signature(signode, mode, env, symbol=symbol)
 
 
 class ASTEnum(ASTBase):
-    def __init__(self, name: ASTNestedName, scoped: str,
-                 underlyingType: ASTType) -> None:
+    def __init__(self, name: ASTNestedName, scoped: str, underlyingType: ASTType) -> None:
         self.name = name
         self.scoped = scoped
         self.underlyingType = underlyingType
@@ -3394,24 +3709,24 @@ class ASTEnum(ASTBase):
         res = []
         if self.scoped:
             res.append(self.scoped)
-            res.append(' ')
+            res.append(" ")
         res.append(transform(self.name))
         if self.underlyingType:
-            res.append(' : ')
+            res.append(" : ")
             res.append(transform(self.underlyingType))
-        return ''.join(res)
+        return "".join(res)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
         # self.scoped has been done by the CPPEnumObject
         self.name.describe_signature(signode, mode, env, symbol=symbol)
         if self.underlyingType:
             signode += addnodes.desc_sig_space()
-            signode += addnodes.desc_sig_punctuation(':', ':')
+            signode += addnodes.desc_sig_punctuation(":", ":")
             signode += addnodes.desc_sig_space()
-            self.underlyingType.describe_signature(signode, 'noneIsName',
-                                                   env, symbol=symbol)
+            self.underlyingType.describe_signature(signode, "noneIsName", env, symbol=symbol)
 
 
 class ASTEnumerator(ASTBase):
@@ -3429,14 +3744,15 @@ class ASTEnumerator(ASTBase):
         res.append(transform(self.name))
         if self.init:
             res.append(transform(self.init))
-        return ''.join(res)
+        return "".join(res)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         verify_description_mode(mode)
         self.name.describe_signature(signode, mode, env, symbol)
         if self.init:
-            self.init.describe_signature(signode, 'markType', env, symbol)
+            self.init.describe_signature(signode, "markType", env, symbol)
 
 
 ################################################################################
@@ -3446,6 +3762,7 @@ class ASTEnumerator(ASTBase):
 # Parameters
 ################################################################################
 
+
 class ASTTemplateParam(ASTBase):
     def get_identifier(self) -> ASTIdentifier:
         raise NotImplementedError(repr(self))
@@ -3453,14 +3770,16 @@ class ASTTemplateParam(ASTBase):
     def get_id(self, version: int) -> str:
         raise NotImplementedError(repr(self))
 
-    def describe_signature(self, parentNode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, parentNode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         raise NotImplementedError(repr(self))
 
 
 class ASTTemplateKeyParamPackIdDefault(ASTTemplateParam):
-    def __init__(self, key: str, identifier: ASTIdentifier,
-                 parameterPack: bool, default: ASTType) -> None:
+    def __init__(
+        self, key: str, identifier: ASTIdentifier, parameterPack: bool, default: ASTType
+    ) -> None:
         assert key
         if parameterPack:
             assert default is None
@@ -3477,42 +3796,43 @@ class ASTTemplateKeyParamPackIdDefault(ASTTemplateParam):
         # this is not part of the normal name mangling in C++
         res = []
         if self.parameterPack:
-            res.append('Dp')
+            res.append("Dp")
         else:
-            res.append('0')  # we need to put something
-        return ''.join(res)
+            res.append("0")  # we need to put something
+        return "".join(res)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = [self.key]
         if self.parameterPack:
             if self.identifier:
-                res.append(' ')
-            res.append('...')
+                res.append(" ")
+            res.append("...")
         if self.identifier:
             if not self.parameterPack:
-                res.append(' ')
+                res.append(" ")
             res.append(transform(self.identifier))
         if self.default:
-            res.append(' = ')
+            res.append(" = ")
             res.append(transform(self.default))
-        return ''.join(res)
+        return "".join(res)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         signode += addnodes.desc_sig_keyword(self.key, self.key)
         if self.parameterPack:
             if self.identifier:
                 signode += addnodes.desc_sig_space()
-            signode += addnodes.desc_sig_punctuation('...', '...')
+            signode += addnodes.desc_sig_punctuation("...", "...")
         if self.identifier:
             if not self.parameterPack:
                 signode += addnodes.desc_sig_space()
-            self.identifier.describe_signature(signode, mode, env, '', '', symbol)
+            self.identifier.describe_signature(signode, mode, env, "", "", symbol)
         if self.default:
             signode += addnodes.desc_sig_space()
-            signode += addnodes.desc_sig_punctuation('=', '=')
+            signode += addnodes.desc_sig_punctuation("=", "=")
             signode += addnodes.desc_sig_space()
-            self.default.describe_signature(signode, 'markType', env, symbol)
+            self.default.describe_signature(signode, "markType", env, symbol)
 
 
 class ASTTemplateParamType(ASTTemplateParam):
@@ -3544,14 +3864,16 @@ class ASTTemplateParamType(ASTTemplateParam):
     def _stringify(self, transform: StringifyTransform) -> str:
         return transform(self.data)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         self.data.describe_signature(signode, mode, env, symbol)
 
 
 class ASTTemplateParamTemplateType(ASTTemplateParam):
-    def __init__(self, nestedParams: "ASTTemplateParams",
-                 data: ASTTemplateKeyParamPackIdDefault) -> None:
+    def __init__(
+        self, nestedParams: "ASTTemplateParams", data: ASTTemplateKeyParamPackIdDefault
+    ) -> None:
         assert nestedParams
         assert data
         self.nestedParams = nestedParams
@@ -3581,17 +3903,18 @@ class ASTTemplateParamTemplateType(ASTTemplateParam):
     def _stringify(self, transform: StringifyTransform) -> str:
         return transform(self.nestedParams) + transform(self.data)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        self.nestedParams.describe_signature(signode, 'noneIsName', env, symbol)
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        self.nestedParams.describe_signature(signode, "noneIsName", env, symbol)
         signode += addnodes.desc_sig_space()
         self.data.describe_signature(signode, mode, env, symbol)
 
 
 class ASTTemplateParamNonType(ASTTemplateParam):
-    def __init__(self,
-                 param: Union[ASTTypeWithInit,
-                              ASTTemplateParamConstrainedTypeWithInit]) -> None:
+    def __init__(
+        self, param: Union[ASTTypeWithInit, ASTTemplateParamConstrainedTypeWithInit]
+    ) -> None:
         assert param
         self.param = param
 
@@ -3623,13 +3946,14 @@ class ASTTemplateParamNonType(ASTTemplateParam):
             # the anchor will be our parent
             return symbol.parent.declaration.get_id(version, prefixed=None)
         else:
-            return '_' + self.param.get_id(version)
+            return "_" + self.param.get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return transform(self.param)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         self.param.describe_signature(signode, mode, env, symbol)
 
 
@@ -3645,43 +3969,50 @@ class ASTTemplateParams(ASTBase):
         for param in self.params:
             res.append(param.get_id(version))
         res.append("E")
-        return ''.join(res)
+        return "".join(res)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
         res.append("template<")
         res.append(", ".join(transform(a) for a in self.params))
         res.append("> ")
-        return ''.join(res)
+        return "".join(res)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_keyword('template', 'template')
-        signode += addnodes.desc_sig_punctuation('<', '<')
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
+        signode += addnodes.desc_sig_keyword("template", "template")
+        signode += addnodes.desc_sig_punctuation("<", "<")
         first = True
         for param in self.params:
             if not first:
-                signode += addnodes.desc_sig_punctuation(',', ',')
+                signode += addnodes.desc_sig_punctuation(",", ",")
                 signode += addnodes.desc_sig_space()
             first = False
             param.describe_signature(signode, mode, env, symbol)
-        signode += addnodes.desc_sig_punctuation('>', '>')
+        signode += addnodes.desc_sig_punctuation(">", ">")
 
     def describe_signature_as_introducer(
-            self, parentNode: desc_signature, mode: str, env: "BuildEnvironment",
-            symbol: "Symbol", lineSpec: bool) -> None:
+        self,
+        parentNode: desc_signature,
+        mode: str,
+        env: "BuildEnvironment",
+        symbol: "Symbol",
+        lineSpec: bool,
+    ) -> None:
         def makeLine(parentNode: desc_signature) -> addnodes.desc_signature_line:
             signode = addnodes.desc_signature_line()
             parentNode += signode
-            signode.sphinx_line_type = 'templateParams'
+            signode.sphinx_line_type = "templateParams"
             return signode
+
         lineNode = makeLine(parentNode)
-        lineNode += addnodes.desc_sig_keyword('template', 'template')
-        lineNode += addnodes.desc_sig_punctuation('<', '<')
+        lineNode += addnodes.desc_sig_keyword("template", "template")
+        lineNode += addnodes.desc_sig_punctuation("<", "<")
         first = True
         for param in self.params:
             if not first:
-                lineNode += addnodes.desc_sig_punctuation(',', ',')
+                lineNode += addnodes.desc_sig_punctuation(",", ",")
                 lineNode += addnodes.desc_sig_space()
             first = False
             if lineSpec:
@@ -3689,11 +4020,12 @@ class ASTTemplateParams(ASTBase):
             param.describe_signature(lineNode, mode, env, symbol)
         if lineSpec and not first:
             lineNode = makeLine(parentNode)
-        lineNode += addnodes.desc_sig_punctuation('>', '>')
+        lineNode += addnodes.desc_sig_punctuation(">", ">")
 
 
 # Template introducers
 ################################################################################
+
 
 class ASTTemplateIntroductionParameter(ASTBase):
     def __init__(self, identifier: ASTIdentifier, parameterPack: bool) -> None:
@@ -3720,36 +4052,38 @@ class ASTTemplateIntroductionParameter(ASTBase):
             return symbol.parent.declaration.get_id(version, prefixed=None)
         else:
             if self.parameterPack:
-                return 'Dp'
+                return "Dp"
             else:
-                return '0'  # we need to put something
+                return "0"  # we need to put something
 
     def get_id_as_arg(self, version: int) -> str:
         assert version >= 2
         # used for the implicit requires clause
         res = self.identifier.get_id(version)
         if self.parameterPack:
-            return 'sp' + res
+            return "sp" + res
         else:
             return res
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
         if self.parameterPack:
-            res.append('...')
+            res.append("...")
         res.append(transform(self.identifier))
-        return ''.join(res)
+        return "".join(res)
 
-    def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: "BuildEnvironment", symbol: "Symbol"
+    ) -> None:
         if self.parameterPack:
-            signode += addnodes.desc_sig_punctuation('...', '...')
-        self.identifier.describe_signature(signode, mode, env, '', '', symbol)
+            signode += addnodes.desc_sig_punctuation("...", "...")
+        self.identifier.describe_signature(signode, mode, env, "", "", symbol)
 
 
 class ASTTemplateIntroduction(ASTBase):
-    def __init__(self, concept: ASTNestedName,
-                 params: List[ASTTemplateIntroductionParameter]) -> None:
+    def __init__(
+        self, concept: ASTNestedName, params: List[ASTTemplateIntroductionParameter]
+    ) -> None:
         assert len(params) > 0
         self.concept = concept
         self.params = params
@@ -3770,41 +4104,47 @@ class ASTTemplateIntroduction(ASTBase):
             res.append(param.get_id_as_arg(version))
         res.append("E")
         res.append("E")
-        return ''.join(res)
+        return "".join(res)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
         res.append(transform(self.concept))
-        res.append('{')
-        res.append(', '.join(transform(param) for param in self.params))
-        res.append('} ')
-        return ''.join(res)
+        res.append("{")
+        res.append(", ".join(transform(param) for param in self.params))
+        res.append("} ")
+        return "".join(res)
 
     def describe_signature_as_introducer(
-            self, parentNode: desc_signature, mode: str,
-            env: "BuildEnvironment", symbol: "Symbol", lineSpec: bool) -> None:
+        self,
+        parentNode: desc_signature,
+        mode: str,
+        env: "BuildEnvironment",
+        symbol: "Symbol",
+        lineSpec: bool,
+    ) -> None:
         # Note: 'lineSpec' has no effect on template introductions.
         signode = addnodes.desc_signature_line()
         parentNode += signode
-        signode.sphinx_line_type = 'templateIntroduction'
-        self.concept.describe_signature(signode, 'markType', env, symbol)
-        signode += addnodes.desc_sig_punctuation('{', '{')
+        signode.sphinx_line_type = "templateIntroduction"
+        self.concept.describe_signature(signode, "markType", env, symbol)
+        signode += addnodes.desc_sig_punctuation("{", "{")
         first = True
         for param in self.params:
             if not first:
-                signode += addnodes.desc_sig_punctuation(',', ',')
+                signode += addnodes.desc_sig_punctuation(",", ",")
                 signode += addnodes.desc_sig_space()
             first = False
             param.describe_signature(signode, mode, env, symbol)
-        signode += addnodes.desc_sig_punctuation('}', '}')
+        signode += addnodes.desc_sig_punctuation("}", "}")
 
 
 ################################################################################
 
+
 class ASTTemplateDeclarationPrefix(ASTBase):
-    def __init__(self,
-                 templates: List[Union[ASTTemplateParams,
-                                       ASTTemplateIntroduction]]) -> None:
+    def __init__(
+        self, templates: List[Union[ASTTemplateParams, ASTTemplateIntroduction]]
+    ) -> None:
         # templates is None means it's an explicit instantiation of a variable
         self.templates = templates
 
@@ -3814,19 +4154,25 @@ class ASTTemplateDeclarationPrefix(ASTBase):
         res = []
         for t in self.templates:
             res.append(t.get_id(version))
-        return ''.join(res)
+        return "".join(res)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
         for t in self.templates:
             res.append(transform(t))
-        return ''.join(res)
+        return "".join(res)
 
-    def describe_signature(self, signode: desc_signature, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol", lineSpec: bool) -> None:
+    def describe_signature(
+        self,
+        signode: desc_signature,
+        mode: str,
+        env: "BuildEnvironment",
+        symbol: "Symbol",
+        lineSpec: bool,
+    ) -> None:
         verify_description_mode(mode)
         for t in self.templates:
-            t.describe_signature_as_introducer(signode, 'lastIsName', env, symbol, lineSpec)
+            t.describe_signature_as_introducer(signode, "lastIsName", env, symbol, lineSpec)
 
 
 class ASTRequiresClause(ASTBase):
@@ -3834,11 +4180,16 @@ class ASTRequiresClause(ASTBase):
         self.expr = expr
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return 'requires ' + transform(self.expr)
+        return "requires " + transform(self.expr)
 
-    def describe_signature(self, signode: addnodes.desc_signature_line, mode: str,
-                           env: "BuildEnvironment", symbol: "Symbol") -> None:
-        signode += addnodes.desc_sig_keyword('requires', 'requires')
+    def describe_signature(
+        self,
+        signode: addnodes.desc_signature_line,
+        mode: str,
+        env: "BuildEnvironment",
+        symbol: "Symbol",
+    ) -> None:
+        signode += addnodes.desc_sig_keyword("requires", "requires")
         signode += addnodes.desc_sig_space()
         self.expr.describe_signature(signode, mode, env, symbol)
 
@@ -3846,12 +4197,19 @@ class ASTRequiresClause(ASTBase):
 ################################################################################
 ################################################################################
 
+
 class ASTDeclaration(ASTBase):
-    def __init__(self, objectType: str, directiveType: str, visibility: str,
-                 templatePrefix: ASTTemplateDeclarationPrefix,
-                 requiresClause: ASTRequiresClause, declaration: Any,
-                 trailingRequiresClause: ASTRequiresClause,
-                 semicolon: bool = False) -> None:
+    def __init__(
+        self,
+        objectType: str,
+        directiveType: str,
+        visibility: str,
+        templatePrefix: ASTTemplateDeclarationPrefix,
+        requiresClause: ASTRequiresClause,
+        declaration: Any,
+        trailingRequiresClause: ASTRequiresClause,
+        semicolon: bool = False,
+    ) -> None:
         self.objectType = objectType
         self.directiveType = directiveType
         self.visibility = visibility
@@ -3868,12 +4226,19 @@ class ASTDeclaration(ASTBase):
     def clone(self) -> "ASTDeclaration":
         templatePrefixClone = self.templatePrefix.clone() if self.templatePrefix else None
         requiresClasueClone = self.requiresClause.clone() if self.requiresClause else None
-        trailingRequiresClasueClone = self.trailingRequiresClause.clone() \
-            if self.trailingRequiresClause else None
-        return ASTDeclaration(self.objectType, self.directiveType, self.visibility,
-                              templatePrefixClone, requiresClasueClone,
-                              self.declaration.clone(), trailingRequiresClasueClone,
-                              self.semicolon)
+        trailingRequiresClasueClone = (
+            self.trailingRequiresClause.clone() if self.trailingRequiresClause else None
+        )
+        return ASTDeclaration(
+            self.objectType,
+            self.directiveType,
+            self.visibility,
+            templatePrefixClone,
+            requiresClasueClone,
+            self.declaration.clone(),
+            trailingRequiresClasueClone,
+            self.semicolon,
+        )
 
     @property
     def name(self) -> ASTNestedName:
@@ -3881,7 +4246,7 @@ class ASTDeclaration(ASTBase):
 
     @property
     def function_params(self) -> List[ASTFunctionParameter]:
-        if self.objectType != 'function':
+        if self.objectType != "function":
             return None
         return self.declaration.function_params
 
@@ -3889,11 +4254,11 @@ class ASTDeclaration(ASTBase):
         if version == 1:
             if self.templatePrefix:
                 raise NoOldIdError()
-            if self.objectType == 'enumerator' and self.enumeratorScopedSymbol:
+            if self.objectType == "enumerator" and self.enumeratorScopedSymbol:
                 return self.enumeratorScopedSymbol.declaration.get_id(version)
             return self.declaration.get_id(version, self.objectType, self.symbol)
         # version >= 2
-        if self.objectType == 'enumerator' and self.enumeratorScopedSymbol:
+        if self.objectType == "enumerator" and self.enumeratorScopedSymbol:
             return self.enumeratorScopedSymbol.declaration.get_id(version, prefixed)
         if prefixed:
             res = [_id_prefix[version]]
@@ -3904,16 +4269,16 @@ class ASTDeclaration(ASTBase):
         if self.requiresClause or self.trailingRequiresClause:
             if version < 4:
                 raise NoOldIdError()
-            res.append('IQ')
+            res.append("IQ")
             if self.requiresClause and self.trailingRequiresClause:
-                res.append('aa')
+                res.append("aa")
             if self.requiresClause:
                 res.append(self.requiresClause.expr.get_id(version))
             if self.trailingRequiresClause:
                 res.append(self.trailingRequiresClause.expr.get_id(version))
-            res.append('E')
+            res.append("E")
         res.append(self.declaration.get_id(version, self.objectType, self.symbol))
-        return ''.join(res)
+        return "".join(res)
 
     def get_newest_id(self) -> str:
         return self.get_id(_max_id, True)
@@ -3922,76 +4287,81 @@ class ASTDeclaration(ASTBase):
         res = []
         if self.visibility and self.visibility != "public":
             res.append(self.visibility)
-            res.append(' ')
+            res.append(" ")
         if self.templatePrefix:
             res.append(transform(self.templatePrefix))
         if self.requiresClause:
             res.append(transform(self.requiresClause))
-            res.append(' ')
+            res.append(" ")
         res.append(transform(self.declaration))
         if self.trailingRequiresClause:
-            res.append(' ')
+            res.append(" ")
             res.append(transform(self.trailingRequiresClause))
         if self.semicolon:
-            res.append(';')
-        return ''.join(res)
+            res.append(";")
+        return "".join(res)
 
-    def describe_signature(self, signode: desc_signature, mode: str,
-                           env: "BuildEnvironment", options: Dict) -> None:
+    def describe_signature(
+        self, signode: desc_signature, mode: str, env: "BuildEnvironment", options: Dict
+    ) -> None:
         verify_description_mode(mode)
         assert self.symbol
         # The caller of the domain added a desc_signature node.
         # Always enable multiline:
-        signode['is_multiline'] = True
+        signode["is_multiline"] = True
         # Put each line in a desc_signature_line node.
         mainDeclNode = addnodes.desc_signature_line()
-        mainDeclNode.sphinx_line_type = 'declarator'
-        mainDeclNode['add_permalink'] = not self.symbol.isRedeclaration
+        mainDeclNode.sphinx_line_type = "declarator"
+        mainDeclNode["add_permalink"] = not self.symbol.isRedeclaration
 
         if self.templatePrefix:
-            self.templatePrefix.describe_signature(signode, mode, env,
-                                                   symbol=self.symbol,
-                                                   lineSpec=options.get('tparam-line-spec'))
+            self.templatePrefix.describe_signature(
+                signode,
+                mode,
+                env,
+                symbol=self.symbol,
+                lineSpec=options.get("tparam-line-spec"),
+            )
         if self.requiresClause:
             reqNode = addnodes.desc_signature_line()
-            reqNode.sphinx_line_type = 'requiresClause'
+            reqNode.sphinx_line_type = "requiresClause"
             signode.append(reqNode)
-            self.requiresClause.describe_signature(reqNode, 'markType', env, self.symbol)
+            self.requiresClause.describe_signature(reqNode, "markType", env, self.symbol)
         signode += mainDeclNode
         if self.visibility and self.visibility != "public":
             mainDeclNode += addnodes.desc_sig_keyword(self.visibility, self.visibility)
             mainDeclNode += addnodes.desc_sig_space()
-        if self.objectType == 'type':
+        if self.objectType == "type":
             prefix = self.declaration.get_type_declaration_prefix()
             mainDeclNode += addnodes.desc_sig_keyword(prefix, prefix)
             mainDeclNode += addnodes.desc_sig_space()
-        elif self.objectType == 'concept':
-            mainDeclNode += addnodes.desc_sig_keyword('concept', 'concept')
+        elif self.objectType == "concept":
+            mainDeclNode += addnodes.desc_sig_keyword("concept", "concept")
             mainDeclNode += addnodes.desc_sig_space()
-        elif self.objectType == 'member':
+        elif self.objectType == "member":
             pass
-        elif self.objectType == 'function':
+        elif self.objectType == "function":
             pass
-        elif self.objectType == 'class':
-            assert self.directiveType in ('class', 'struct')
+        elif self.objectType == "class":
+            assert self.directiveType in ("class", "struct")
             mainDeclNode += addnodes.desc_sig_keyword(self.directiveType, self.directiveType)
             mainDeclNode += addnodes.desc_sig_space()
-        elif self.objectType == 'union':
-            mainDeclNode += addnodes.desc_sig_keyword('union', 'union')
+        elif self.objectType == "union":
+            mainDeclNode += addnodes.desc_sig_keyword("union", "union")
             mainDeclNode += addnodes.desc_sig_space()
-        elif self.objectType == 'enum':
-            mainDeclNode += addnodes.desc_sig_keyword('enum', 'enum')
+        elif self.objectType == "enum":
+            mainDeclNode += addnodes.desc_sig_keyword("enum", "enum")
             mainDeclNode += addnodes.desc_sig_space()
-            if self.directiveType == 'enum-class':
-                mainDeclNode += addnodes.desc_sig_keyword('class', 'class')
+            if self.directiveType == "enum-class":
+                mainDeclNode += addnodes.desc_sig_keyword("class", "class")
                 mainDeclNode += addnodes.desc_sig_space()
-            elif self.directiveType == 'enum-struct':
-                mainDeclNode += addnodes.desc_sig_keyword('struct', 'struct')
+            elif self.directiveType == "enum-struct":
+                mainDeclNode += addnodes.desc_sig_keyword("struct", "struct")
                 mainDeclNode += addnodes.desc_sig_space()
             else:
-                assert self.directiveType == 'enum', self.directiveType
-        elif self.objectType == 'enumerator':
-            mainDeclNode += addnodes.desc_sig_keyword('enumerator', 'enumerator')
+                assert self.directiveType == "enum", self.directiveType
+        elif self.objectType == "enumerator":
+            mainDeclNode += addnodes.desc_sig_keyword("enumerator", "enumerator")
             mainDeclNode += addnodes.desc_sig_space()
         else:
             assert False, self.objectType
@@ -3999,18 +4369,20 @@ class ASTDeclaration(ASTBase):
         lastDeclNode = mainDeclNode
         if self.trailingRequiresClause:
             trailingReqNode = addnodes.desc_signature_line()
-            trailingReqNode.sphinx_line_type = 'trailingRequiresClause'
+            trailingReqNode.sphinx_line_type = "trailingRequiresClause"
             signode.append(trailingReqNode)
             lastDeclNode = trailingReqNode
             self.trailingRequiresClause.describe_signature(
-                trailingReqNode, 'markType', env, self.symbol)
+                trailingReqNode, "markType", env, self.symbol
+            )
         if self.semicolon:
-            lastDeclNode += addnodes.desc_sig_punctuation(';', ';')
+            lastDeclNode += addnodes.desc_sig_punctuation(";", ";")
 
 
 class ASTNamespace(ASTBase):
-    def __init__(self, nestedName: ASTNestedName,
-                 templatePrefix: ASTTemplateDeclarationPrefix) -> None:
+    def __init__(
+        self, nestedName: ASTNestedName, templatePrefix: ASTTemplateDeclarationPrefix
+    ) -> None:
         self.nestedName = nestedName
         self.templatePrefix = templatePrefix
 
@@ -4019,13 +4391,18 @@ class ASTNamespace(ASTBase):
         if self.templatePrefix:
             res.append(transform(self.templatePrefix))
         res.append(transform(self.nestedName))
-        return ''.join(res)
+        return "".join(res)
 
 
 class SymbolLookupResult:
-    def __init__(self, symbols: Iterator["Symbol"], parentSymbol: "Symbol",
-                 identOrOp: Union[ASTIdentifier, ASTOperator], templateParams: Any,
-                 templateArgs: ASTTemplateArgs) -> None:
+    def __init__(
+        self,
+        symbols: Iterator["Symbol"],
+        parentSymbol: "Symbol",
+        identOrOp: Union[ASTIdentifier, ASTOperator],
+        templateParams: Any,
+        templateArgs: ASTTemplateArgs,
+    ) -> None:
         self.symbols = symbols
         self.parentSymbol = parentSymbol
         self.identOrOp = identOrOp
@@ -4034,10 +4411,12 @@ class SymbolLookupResult:
 
 
 class LookupKey:
-    def __init__(self, data: List[Tuple[ASTNestedNameElement,
-                                        Union[ASTTemplateParams,
-                                              ASTTemplateIntroduction],
-                                        str]]) -> None:
+    def __init__(
+        self,
+        data: List[
+            Tuple[ASTNestedNameElement, Union[ASTTemplateParams, ASTTemplateIntroduction], str]
+        ],
+    ) -> None:
         self.data = data
 
 
@@ -4080,10 +4459,16 @@ class Symbol:
         else:
             return super().__setattr__(key, value)
 
-    def __init__(self, parent: "Symbol", identOrOp: Union[ASTIdentifier, ASTOperator],
-                 templateParams: Union[ASTTemplateParams, ASTTemplateIntroduction],
-                 templateArgs: Any, declaration: ASTDeclaration,
-                 docname: str, line: int) -> None:
+    def __init__(
+        self,
+        parent: "Symbol",
+        identOrOp: Union[ASTIdentifier, ASTOperator],
+        templateParams: Union[ASTTemplateParams, ASTTemplateIntroduction],
+        templateArgs: Any,
+        declaration: ASTDeclaration,
+        docname: str,
+        line: int,
+    ) -> None:
         self.parent = parent
         # declarations in a single directive are linked together
         self.siblingAbove: Symbol = None
@@ -4139,7 +4524,7 @@ class Symbol:
                     continue
                 # only add a declaration if we our self are from a declaration
                 if self.declaration:
-                    decl = ASTDeclaration('templateParam', None, None, None, None, tp, None)
+                    decl = ASTDeclaration("templateParam", None, None, None, None, tp, None)
                 else:
                     decl = None
                 nne = ASTNestedNameElement(tp.get_identifier(), None)
@@ -4154,7 +4539,7 @@ class Symbol:
                 if nn is None:
                     continue
                 # (comparing to the template params: we have checked that we are a declaration)
-                decl = ASTDeclaration('functionParam', None, None, None, None, fp, None)
+                decl = ASTDeclaration("functionParam", None, None, None, None, fp, None)
                 assert not nn.rooted
                 assert len(nn.names) == 1
                 self._add_symbols(nn, [], decl, self.docname, self.line)
@@ -4233,27 +4618,44 @@ class Symbol:
             templates.append(False)
         return ASTNestedName(names, templates, rooted=False)
 
-    def _find_first_named_symbol(self, identOrOp: Union[ASTIdentifier, ASTOperator],
-                                 templateParams: Any, templateArgs: ASTTemplateArgs,
-                                 templateShorthand: bool, matchSelf: bool,
-                                 recurseInAnon: bool, correctPrimaryTemplateArgs: bool
-                                 ) -> "Symbol":
+    def _find_first_named_symbol(
+        self,
+        identOrOp: Union[ASTIdentifier, ASTOperator],
+        templateParams: Any,
+        templateArgs: ASTTemplateArgs,
+        templateShorthand: bool,
+        matchSelf: bool,
+        recurseInAnon: bool,
+        correctPrimaryTemplateArgs: bool,
+    ) -> "Symbol":
         if Symbol.debug_lookup:
             Symbol.debug_print("_find_first_named_symbol ->")
-        res = self._find_named_symbols(identOrOp, templateParams, templateArgs,
-                                       templateShorthand, matchSelf, recurseInAnon,
-                                       correctPrimaryTemplateArgs,
-                                       searchInSiblings=False)
+        res = self._find_named_symbols(
+            identOrOp,
+            templateParams,
+            templateArgs,
+            templateShorthand,
+            matchSelf,
+            recurseInAnon,
+            correctPrimaryTemplateArgs,
+            searchInSiblings=False,
+        )
         try:
             return next(res)
         except StopIteration:
             return None
 
-    def _find_named_symbols(self, identOrOp: Union[ASTIdentifier, ASTOperator],
-                            templateParams: Any, templateArgs: ASTTemplateArgs,
-                            templateShorthand: bool, matchSelf: bool,
-                            recurseInAnon: bool, correctPrimaryTemplateArgs: bool,
-                            searchInSiblings: bool) -> Iterator["Symbol"]:
+    def _find_named_symbols(
+        self,
+        identOrOp: Union[ASTIdentifier, ASTOperator],
+        templateParams: Any,
+        templateArgs: ASTTemplateArgs,
+        templateShorthand: bool,
+        matchSelf: bool,
+        recurseInAnon: bool,
+        correctPrimaryTemplateArgs: bool,
+        searchInSiblings: bool,
+    ) -> Iterator["Symbol"]:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
             Symbol.debug_print("_find_named_symbols:")
@@ -4283,13 +4685,14 @@ class Symbol:
                 # TODO: doing this by string manipulation is probably not the most efficient
                 paramName = str(param.name)
                 argTxt = str(arg)
-                isArgPackExpansion = argTxt.endswith('...')
+                isArgPackExpansion = argTxt.endswith("...")
                 if param.isPack != isArgPackExpansion:
                     return True
                 argName = argTxt[:-3] if isArgPackExpansion else argTxt
                 if paramName != argName:
                     return True
             return False
+
         if correctPrimaryTemplateArgs:
             if templateParams is not None and templateArgs is not None:
                 # If both are given, but it's not a specialization, then do lookup as if
@@ -4355,12 +4758,21 @@ class Symbol:
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 2
 
-    def _symbol_lookup(self, nestedName: ASTNestedName, templateDecls: List[Any],
-                       onMissingQualifiedSymbol: Callable[["Symbol", Union[ASTIdentifier, ASTOperator], Any, ASTTemplateArgs], "Symbol"],  # NOQA
-                       strictTemplateParamArgLists: bool, ancestorLookupType: str,
-                       templateShorthand: bool, matchSelf: bool,
-                       recurseInAnon: bool, correctPrimaryTemplateArgs: bool,
-                       searchInSiblings: bool) -> SymbolLookupResult:
+    def _symbol_lookup(
+        self,
+        nestedName: ASTNestedName,
+        templateDecls: List[Any],
+        onMissingQualifiedSymbol: Callable[
+            ["Symbol", Union[ASTIdentifier, ASTOperator], Any, ASTTemplateArgs], "Symbol"
+        ],  # NOQA
+        strictTemplateParamArgLists: bool,
+        ancestorLookupType: str,
+        templateShorthand: bool,
+        matchSelf: bool,
+        recurseInAnon: bool,
+        correctPrimaryTemplateArgs: bool,
+        searchInSiblings: bool,
+    ) -> SymbolLookupResult:
         # ancestorLookupType: if not None, specifies the target type of the lookup
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
@@ -4381,8 +4793,9 @@ class Symbol:
         if strictTemplateParamArgLists:
             # Each template argument list must have a template parameter list.
             # But to declare a template there must be an additional template parameter list.
-            assert (nestedName.num_templates() == len(templateDecls) or
-                    nestedName.num_templates() + 1 == len(templateDecls))
+            assert nestedName.num_templates() == len(
+                templateDecls
+            ) or nestedName.num_templates() + 1 == len(templateDecls)
         else:
             assert len(templateDecls) <= nestedName.num_templates() + 1
 
@@ -4398,15 +4811,21 @@ class Symbol:
             firstName = names[0]
             if not firstName.is_operator():
                 while parentSymbol.parent:
-                    if parentSymbol.find_identifier(firstName.identOrOp,
-                                                    matchSelf=matchSelf,
-                                                    recurseInAnon=recurseInAnon,
-                                                    searchInSiblings=searchInSiblings):
+                    if parentSymbol.find_identifier(
+                        firstName.identOrOp,
+                        matchSelf=matchSelf,
+                        recurseInAnon=recurseInAnon,
+                        searchInSiblings=searchInSiblings,
+                    ):
                         # if we are in the scope of a constructor but wants to
                         # reference the class we need to walk one extra up
-                        if (len(names) == 1 and ancestorLookupType == 'class' and matchSelf and
-                                parentSymbol.parent and
-                                parentSymbol.parent.identOrOp == firstName.identOrOp):
+                        if (
+                            len(names) == 1
+                            and ancestorLookupType == "class"
+                            and matchSelf
+                            and parentSymbol.parent
+                            and parentSymbol.parent.identOrOp == firstName.identOrOp
+                        ):
                             pass
                         else:
                             break
@@ -4440,14 +4859,17 @@ class Symbol:
 
             symbol = parentSymbol._find_first_named_symbol(
                 identOrOp,
-                templateParams, templateArgs,
+                templateParams,
+                templateArgs,
                 templateShorthand=templateShorthand,
                 matchSelf=matchSelf,
                 recurseInAnon=recurseInAnon,
-                correctPrimaryTemplateArgs=correctPrimaryTemplateArgs)
+                correctPrimaryTemplateArgs=correctPrimaryTemplateArgs,
+            )
             if symbol is None:
-                symbol = onMissingQualifiedSymbol(parentSymbol, identOrOp,
-                                                  templateParams, templateArgs)
+                symbol = onMissingQualifiedSymbol(
+                    parentSymbol, identOrOp, templateParams, templateArgs
+                )
                 if symbol is None:
                     if Symbol.debug_lookup:
                         Symbol.debug_indent -= 2
@@ -4474,18 +4896,30 @@ class Symbol:
             templateParams = None
 
         symbols = parentSymbol._find_named_symbols(
-            identOrOp, templateParams, templateArgs,
-            templateShorthand=templateShorthand, matchSelf=matchSelf,
-            recurseInAnon=recurseInAnon, correctPrimaryTemplateArgs=False,
-            searchInSiblings=searchInSiblings)
+            identOrOp,
+            templateParams,
+            templateArgs,
+            templateShorthand=templateShorthand,
+            matchSelf=matchSelf,
+            recurseInAnon=recurseInAnon,
+            correctPrimaryTemplateArgs=False,
+            searchInSiblings=searchInSiblings,
+        )
         if Symbol.debug_lookup:
             symbols = list(symbols)  # type: ignore
             Symbol.debug_indent -= 2
-        return SymbolLookupResult(symbols, parentSymbol,
-                                  identOrOp, templateParams, templateArgs)
+        return SymbolLookupResult(
+            symbols, parentSymbol, identOrOp, templateParams, templateArgs
+        )
 
-    def _add_symbols(self, nestedName: ASTNestedName, templateDecls: List[Any],
-                     declaration: ASTDeclaration, docname: str, line: int) -> "Symbol":
+    def _add_symbols(
+        self,
+        nestedName: ASTNestedName,
+        templateDecls: List[Any],
+        declaration: ASTDeclaration,
+        docname: str,
+        line: int,
+    ) -> "Symbol":
         # Used for adding a whole path of symbols, where the last may or may not
         # be an actual declaration.
 
@@ -4498,10 +4932,12 @@ class Symbol:
             Symbol.debug_print("decl:     ", declaration)
             Symbol.debug_print("location: {}:{}".format(docname, line))
 
-        def onMissingQualifiedSymbol(parentSymbol: "Symbol",
-                                     identOrOp: Union[ASTIdentifier, ASTOperator],
-                                     templateParams: Any, templateArgs: ASTTemplateArgs
-                                     ) -> "Symbol":
+        def onMissingQualifiedSymbol(
+            parentSymbol: "Symbol",
+            identOrOp: Union[ASTIdentifier, ASTOperator],
+            templateParams: Any,
+            templateArgs: ASTTemplateArgs,
+        ) -> "Symbol":
             if Symbol.debug_lookup:
                 Symbol.debug_indent += 1
                 Symbol.debug_print("_add_symbols, onMissingQualifiedSymbol:")
@@ -4510,20 +4946,28 @@ class Symbol:
                 Symbol.debug_print("identOrOp:     ", identOrOp)
                 Symbol.debug_print("templateARgs:  ", templateArgs)
                 Symbol.debug_indent -= 2
-            return Symbol(parent=parentSymbol, identOrOp=identOrOp,
-                          templateParams=templateParams,
-                          templateArgs=templateArgs, declaration=None,
-                          docname=None, line=None)
+            return Symbol(
+                parent=parentSymbol,
+                identOrOp=identOrOp,
+                templateParams=templateParams,
+                templateArgs=templateArgs,
+                declaration=None,
+                docname=None,
+                line=None,
+            )
 
-        lookupResult = self._symbol_lookup(nestedName, templateDecls,
-                                           onMissingQualifiedSymbol,
-                                           strictTemplateParamArgLists=True,
-                                           ancestorLookupType=None,
-                                           templateShorthand=False,
-                                           matchSelf=False,
-                                           recurseInAnon=False,
-                                           correctPrimaryTemplateArgs=True,
-                                           searchInSiblings=False)
+        lookupResult = self._symbol_lookup(
+            nestedName,
+            templateDecls,
+            onMissingQualifiedSymbol,
+            strictTemplateParamArgLists=True,
+            ancestorLookupType=None,
+            templateShorthand=False,
+            matchSelf=False,
+            recurseInAnon=False,
+            correctPrimaryTemplateArgs=True,
+            searchInSiblings=False,
+        )
         assert lookupResult is not None  # we create symbols all the way, so that can't happen
         symbols = list(lookupResult.symbols)
         if len(symbols) == 0:
@@ -4536,12 +4980,15 @@ class Symbol:
                 Symbol.debug_print("declaration:   ", declaration)
                 Symbol.debug_print("location:      {}:{}".format(docname, line))
                 Symbol.debug_indent -= 1
-            symbol = Symbol(parent=lookupResult.parentSymbol,
-                            identOrOp=lookupResult.identOrOp,
-                            templateParams=lookupResult.templateParams,
-                            templateArgs=lookupResult.templateArgs,
-                            declaration=declaration,
-                            docname=docname, line=line)
+            symbol = Symbol(
+                parent=lookupResult.parentSymbol,
+                identOrOp=lookupResult.identOrOp,
+                templateParams=lookupResult.templateParams,
+                templateArgs=lookupResult.templateArgs,
+                declaration=declaration,
+                docname=docname,
+                line=line,
+            )
             if Symbol.debug_lookup:
                 Symbol.debug_indent -= 2
             return symbol
@@ -4585,15 +5032,19 @@ class Symbol:
         def makeCandSymbol() -> "Symbol":
             if Symbol.debug_lookup:
                 Symbol.debug_print("begin: creating candidate symbol")
-            symbol = Symbol(parent=lookupResult.parentSymbol,
-                            identOrOp=lookupResult.identOrOp,
-                            templateParams=lookupResult.templateParams,
-                            templateArgs=lookupResult.templateArgs,
-                            declaration=declaration,
-                            docname=docname, line=line)
+            symbol = Symbol(
+                parent=lookupResult.parentSymbol,
+                identOrOp=lookupResult.identOrOp,
+                templateParams=lookupResult.templateParams,
+                templateArgs=lookupResult.templateArgs,
+                declaration=declaration,
+                docname=docname,
+                line=line,
+            )
             if Symbol.debug_lookup:
                 Symbol.debug_print("end:   creating candidate symbol")
             return symbol
+
         if len(withDecl) == 0:
             candSymbol = None
         else:
@@ -4624,7 +5075,7 @@ class Symbol:
             for symbol in withDecl:
                 # but all existing must be functions as well,
                 # otherwise we declare it to be a duplicate
-                if symbol.declaration.objectType != 'function':
+                if symbol.declaration.objectType != "function":
                     handleDuplicateDeclaration(symbol, candSymbol)
                     # (not reachable)
                 oldId = symbol.declaration.get_newest_id()
@@ -4649,7 +5100,10 @@ class Symbol:
                 return makeCandSymbol()
         else:
             if Symbol.debug_lookup:
-                Symbol.debug_print("no match, but fill an empty declaration, candSybmol is not None?:", candSymbol is not None)  # NOQA
+                Symbol.debug_print(
+                    "no match, but fill an empty declaration, candSybmol is not None?:",
+                    candSymbol is not None,
+                )  # NOQA
                 Symbol.debug_indent -= 2
             if candSymbol is not None:
                 candSymbol.remove()
@@ -4665,8 +5119,9 @@ class Symbol:
             symbol._fill_empty(declaration, docname, line)
             return symbol
 
-    def merge_with(self, other: "Symbol", docnames: List[str],
-                   env: "BuildEnvironment") -> None:
+    def merge_with(
+        self, other: "Symbol", docnames: List[str], env: "BuildEnvironment"
+    ) -> None:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
             Symbol.debug_print("merge_with:")
@@ -4694,9 +5149,12 @@ class Symbol:
                 identOrOp=otherChild.identOrOp,
                 templateParams=otherChild.templateParams,
                 templateArgs=otherChild.templateArgs,
-                templateShorthand=False, matchSelf=False,
-                recurseInAnon=False, correctPrimaryTemplateArgs=False,
-                searchInSiblings=False)
+                templateShorthand=False,
+                matchSelf=False,
+                recurseInAnon=False,
+                correctPrimaryTemplateArgs=False,
+                searchInSiblings=False,
+            )
             candidates = list(candiateIter)
 
             if Symbol.debug_lookup:
@@ -4741,14 +5199,21 @@ class Symbol:
                 continue
             if otherChild.declaration and otherChild.docname in docnames:
                 if not ourChild.declaration:
-                    ourChild._fill_empty(otherChild.declaration,
-                                         otherChild.docname, otherChild.line)
+                    ourChild._fill_empty(
+                        otherChild.declaration, otherChild.docname, otherChild.line
+                    )
                 elif ourChild.docname != otherChild.docname:
                     name = str(ourChild.declaration)
-                    msg = __("Duplicate C++ declaration, also defined at %s:%s.\n"
-                             "Declaration is '.. cpp:%s:: %s'.")
-                    msg = msg % (ourChild.docname, ourChild.line,
-                                 ourChild.declaration.directiveType, name)
+                    msg = __(
+                        "Duplicate C++ declaration, also defined at %s:%s.\n"
+                        "Declaration is '.. cpp:%s:: %s'."
+                    )
+                    msg = msg % (
+                        ourChild.docname,
+                        ourChild.line,
+                        ourChild.declaration.directiveType,
+                        name,
+                    )
                     logger.warning(msg, location=(otherChild.docname, otherChild.line))
                 else:
                     # Both have declarations, and in the same docname.
@@ -4763,8 +5228,9 @@ class Symbol:
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 2
 
-    def add_name(self, nestedName: ASTNestedName,
-                 templatePrefix: ASTTemplateDeclarationPrefix = None) -> "Symbol":
+    def add_name(
+        self, nestedName: ASTNestedName, templatePrefix: ASTTemplateDeclarationPrefix = None
+    ) -> "Symbol":
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
             Symbol.debug_print("add_name:")
@@ -4772,14 +5238,16 @@ class Symbol:
             templateDecls = templatePrefix.templates
         else:
             templateDecls = []
-        res = self._add_symbols(nestedName, templateDecls,
-                                declaration=None, docname=None, line=None)
+        res = self._add_symbols(
+            nestedName, templateDecls, declaration=None, docname=None, line=None
+        )
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 1
         return res
 
-    def add_declaration(self, declaration: ASTDeclaration,
-                        docname: str, line: int) -> "Symbol":
+    def add_declaration(
+        self, declaration: ASTDeclaration, docname: str, line: int
+    ) -> "Symbol":
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
             Symbol.debug_print("add_declaration:")
@@ -4796,9 +5264,13 @@ class Symbol:
             Symbol.debug_indent -= 1
         return res
 
-    def find_identifier(self, identOrOp: Union[ASTIdentifier, ASTOperator],
-                        matchSelf: bool, recurseInAnon: bool, searchInSiblings: bool
-                        ) -> "Symbol":
+    def find_identifier(
+        self,
+        identOrOp: Union[ASTIdentifier, ASTOperator],
+        matchSelf: bool,
+        recurseInAnon: bool,
+        searchInSiblings: bool,
+    ) -> "Symbol":
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
             Symbol.debug_print("find_identifier:")
@@ -4846,12 +5318,15 @@ class Symbol:
             else:
                 identOrOp = name.identOrOp
                 templateArgs = name.templateArgs
-                s = s._find_first_named_symbol(identOrOp,
-                                               templateParams, templateArgs,
-                                               templateShorthand=False,
-                                               matchSelf=False,
-                                               recurseInAnon=False,
-                                               correctPrimaryTemplateArgs=False)
+                s = s._find_first_named_symbol(
+                    identOrOp,
+                    templateParams,
+                    templateArgs,
+                    templateShorthand=False,
+                    matchSelf=False,
+                    recurseInAnon=False,
+                    correctPrimaryTemplateArgs=False,
+                )
             if Symbol.debug_lookup:
                 Symbol.debug_print("name:          ", name)
                 Symbol.debug_print("templateParams:", templateParams)
@@ -4868,9 +5343,16 @@ class Symbol:
             Symbol.debug_indent -= 2
         return s
 
-    def find_name(self, nestedName: ASTNestedName, templateDecls: List[Any],
-                  typ: str, templateShorthand: bool, matchSelf: bool,
-                  recurseInAnon: bool, searchInSiblings: bool) -> Tuple[List["Symbol"], str]:
+    def find_name(
+        self,
+        nestedName: ASTNestedName,
+        templateDecls: List[Any],
+        typ: str,
+        templateShorthand: bool,
+        matchSelf: bool,
+        recurseInAnon: bool,
+        searchInSiblings: bool,
+    ) -> Tuple[List["Symbol"], str]:
         # templateShorthand: missing template parameter lists for templates is ok
         # If the first component is None,
         # then the second component _may_ be a string explaining why.
@@ -4891,29 +5373,34 @@ class Symbol:
         class QualifiedSymbolIsTemplateParam(Exception):
             pass
 
-        def onMissingQualifiedSymbol(parentSymbol: "Symbol",
-                                     identOrOp: Union[ASTIdentifier, ASTOperator],
-                                     templateParams: Any,
-                                     templateArgs: ASTTemplateArgs) -> "Symbol":
+        def onMissingQualifiedSymbol(
+            parentSymbol: "Symbol",
+            identOrOp: Union[ASTIdentifier, ASTOperator],
+            templateParams: Any,
+            templateArgs: ASTTemplateArgs,
+        ) -> "Symbol":
             # TODO: Maybe search without template args?
             #       Though, the correctPrimaryTemplateArgs does
             #       that for primary templates.
             #       Is there another case where it would be good?
             if parentSymbol.declaration is not None:
-                if parentSymbol.declaration.objectType == 'templateParam':
+                if parentSymbol.declaration.objectType == "templateParam":
                     raise QualifiedSymbolIsTemplateParam()
             return None
 
         try:
-            lookupResult = self._symbol_lookup(nestedName, templateDecls,
-                                               onMissingQualifiedSymbol,
-                                               strictTemplateParamArgLists=False,
-                                               ancestorLookupType=typ,
-                                               templateShorthand=templateShorthand,
-                                               matchSelf=matchSelf,
-                                               recurseInAnon=recurseInAnon,
-                                               correctPrimaryTemplateArgs=False,
-                                               searchInSiblings=searchInSiblings)
+            lookupResult = self._symbol_lookup(
+                nestedName,
+                templateDecls,
+                onMissingQualifiedSymbol,
+                strictTemplateParamArgLists=False,
+                ancestorLookupType=typ,
+                templateShorthand=templateShorthand,
+                matchSelf=matchSelf,
+                recurseInAnon=recurseInAnon,
+                correctPrimaryTemplateArgs=False,
+                searchInSiblings=searchInSiblings,
+            )
         except QualifiedSymbolIsTemplateParam:
             return None, "templateParamInQualified"
 
@@ -4930,14 +5417,19 @@ class Symbol:
             return res, None
 
         if lookupResult.parentSymbol.declaration is not None:
-            if lookupResult.parentSymbol.declaration.objectType == 'templateParam':
+            if lookupResult.parentSymbol.declaration.objectType == "templateParam":
                 return None, "templateParamInQualified"
 
         # try without template params and args
         symbol = lookupResult.parentSymbol._find_first_named_symbol(
-            lookupResult.identOrOp, None, None,
-            templateShorthand=templateShorthand, matchSelf=matchSelf,
-            recurseInAnon=recurseInAnon, correctPrimaryTemplateArgs=False)
+            lookupResult.identOrOp,
+            None,
+            None,
+            templateShorthand=templateShorthand,
+            matchSelf=matchSelf,
+            recurseInAnon=recurseInAnon,
+            correctPrimaryTemplateArgs=False,
+        )
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 2
         if symbol is not None:
@@ -4945,8 +5437,14 @@ class Symbol:
         else:
             return None, None
 
-    def find_declaration(self, declaration: ASTDeclaration, typ: str, templateShorthand: bool,
-                         matchSelf: bool, recurseInAnon: bool) -> "Symbol":
+    def find_declaration(
+        self,
+        declaration: ASTDeclaration,
+        typ: str,
+        templateShorthand: bool,
+        matchSelf: bool,
+        recurseInAnon: bool,
+    ) -> "Symbol":
         # templateShorthand: missing template parameter lists for templates is ok
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
@@ -4957,21 +5455,26 @@ class Symbol:
         else:
             templateDecls = []
 
-        def onMissingQualifiedSymbol(parentSymbol: "Symbol",
-                                     identOrOp: Union[ASTIdentifier, ASTOperator],
-                                     templateParams: Any,
-                                     templateArgs: ASTTemplateArgs) -> "Symbol":
+        def onMissingQualifiedSymbol(
+            parentSymbol: "Symbol",
+            identOrOp: Union[ASTIdentifier, ASTOperator],
+            templateParams: Any,
+            templateArgs: ASTTemplateArgs,
+        ) -> "Symbol":
             return None
 
-        lookupResult = self._symbol_lookup(nestedName, templateDecls,
-                                           onMissingQualifiedSymbol,
-                                           strictTemplateParamArgLists=False,
-                                           ancestorLookupType=typ,
-                                           templateShorthand=templateShorthand,
-                                           matchSelf=matchSelf,
-                                           recurseInAnon=recurseInAnon,
-                                           correctPrimaryTemplateArgs=False,
-                                           searchInSiblings=False)
+        lookupResult = self._symbol_lookup(
+            nestedName,
+            templateDecls,
+            onMissingQualifiedSymbol,
+            strictTemplateParamArgLists=False,
+            ancestorLookupType=typ,
+            templateShorthand=templateShorthand,
+            matchSelf=matchSelf,
+            recurseInAnon=recurseInAnon,
+            correctPrimaryTemplateArgs=False,
+            searchInSiblings=False,
+        )
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 1
         if lookupResult is None:
@@ -4981,13 +5484,15 @@ class Symbol:
         if len(symbols) == 0:
             return None
 
-        querySymbol = Symbol(parent=lookupResult.parentSymbol,
-                             identOrOp=lookupResult.identOrOp,
-                             templateParams=lookupResult.templateParams,
-                             templateArgs=lookupResult.templateArgs,
-                             declaration=declaration,
-                             docname='fakeDocnameForQuery',
-                             line=42)
+        querySymbol = Symbol(
+            parent=lookupResult.parentSymbol,
+            identOrOp=lookupResult.identOrOp,
+            templateParams=lookupResult.templateParams,
+            templateArgs=lookupResult.templateArgs,
+            declaration=declaration,
+            docname="fakeDocnameForQuery",
+            line=42,
+        )
         queryId = declaration.get_newest_id()
         for symbol in symbols:
             if symbol.declaration is None:
@@ -5002,11 +5507,11 @@ class Symbol:
     def to_string(self, indent: int) -> str:
         res = [Symbol.debug_indent_string * indent]
         if not self.parent:
-            res.append('::')
+            res.append("::")
         else:
             if self.templateParams:
                 res.append(str(self.templateParams))
-                res.append('\n')
+                res.append("\n")
                 res.append(Symbol.debug_indent_string * indent)
             if self.identOrOp:
                 res.append(str(self.identOrOp))
@@ -5017,26 +5522,26 @@ class Symbol:
             if self.declaration:
                 res.append(": ")
                 if self.isRedeclaration:
-                    res.append('!!duplicate!! ')
+                    res.append("!!duplicate!! ")
                 res.append(str(self.declaration))
         if self.docname:
-            res.append('\t(')
+            res.append("\t(")
             res.append(self.docname)
-            res.append(')')
-        res.append('\n')
-        return ''.join(res)
+            res.append(")")
+        res.append("\n")
+        return "".join(res)
 
     def dump(self, indent: int) -> str:
         res = [self.to_string(indent)]
         for c in self._children:
             res.append(c.dump(indent + 1))
-        return ''.join(res)
+        return "".join(res)
 
 
 class DefinitionParser(BaseParser):
     @property
     def language(self) -> str:
-        return 'C++'
+        return "C++"
 
     @property
     def id_attributes(self):
@@ -5058,12 +5563,12 @@ class DefinitionParser(BaseParser):
             elif self.current_char == '"' and not escape:
                 self.pos += 1
                 break
-            elif self.current_char == '\\':
+            elif self.current_char == "\\":
                 escape = True
             else:
                 escape = False
             self.pos += 1
-        return self.definition[startPos:self.pos]
+        return self.definition[startPos : self.pos]
 
     def _parse_literal(self) -> ASTLiteral:
         # -> integer-literal
@@ -5083,25 +5588,24 @@ class DefinitionParser(BaseParser):
             return ASTUserDefinedLiteral(literal, ident)
 
         self.skip_ws()
-        if self.skip_word('nullptr'):
+        if self.skip_word("nullptr"):
             return ASTPointerLiteral()
-        if self.skip_word('true'):
+        if self.skip_word("true"):
             return ASTBooleanLiteral(True)
-        if self.skip_word('false'):
+        if self.skip_word("false"):
             return ASTBooleanLiteral(False)
         pos = self.pos
         if self.match(float_literal_re):
             hasSuffix = self.match(float_literal_suffix_re)
-            floatLit = ASTNumberLiteral(self.definition[pos:self.pos])
+            floatLit = ASTNumberLiteral(self.definition[pos : self.pos])
             if hasSuffix:
                 return floatLit
             else:
                 return _udl(floatLit)
-        for regex in [binary_literal_re, hex_literal_re,
-                      integer_literal_re, octal_literal_re]:
+        for regex in [binary_literal_re, hex_literal_re, integer_literal_re, octal_literal_re]:
             if self.match(regex):
                 hasSuffix = self.match(integers_literal_suffix_re)
-                intLit = ASTNumberLiteral(self.definition[pos:self.pos])
+                intLit = ASTNumberLiteral(self.definition[pos : self.pos])
                 if hasSuffix:
                     return intLit
                 else:
@@ -5120,8 +5624,10 @@ class DefinitionParser(BaseParser):
             except UnicodeDecodeError as e:
                 self.fail("Can not handle character literal. Internal error was: %s" % e)
             except UnsupportedMultiCharacterCharLiteral:
-                self.fail("Can not handle character literal"
-                          " resulting in multiple decoded characters.")
+                self.fail(
+                    "Can not handle character literal"
+                    " resulting in multiple decoded characters."
+                )
             return _udl(charLit)
         return None
 
@@ -5131,7 +5637,7 @@ class DefinitionParser(BaseParser):
         # -> ( cast-expression fold-operator ... )
         #  | ( ... fold-operator cast-expression )
         #  | ( cast-expression fold-operator ... fold-operator cast-expression
-        if self.current_char != '(':
+        if self.current_char != "(":
             return None
         self.pos += 1
         self.skip_ws()
@@ -5141,7 +5647,7 @@ class DefinitionParser(BaseParser):
                 self.fail("Expected fold operator after '...' in fold expression.")
             op = self.matched_text
             rightExpr = self._parse_cast_expression()
-            if not self.skip_string(')'):
+            if not self.skip_string(")"):
                 self.fail("Expected ')' in end of fold expression.")
             return ASTFoldExpr(None, op, rightExpr)
         # try first parsing a unary right fold, or a binary fold
@@ -5154,7 +5660,7 @@ class DefinitionParser(BaseParser):
                 self.fail("Expected fold operator after left expression in fold expression.")
             op = self.matched_text
             self.skip_ws()
-            if not self.skip_string_and_ws('...'):
+            if not self.skip_string_and_ws("..."):
                 self.fail("Expected '...' after fold operator in fold expression.")
         except DefinitionError as eFold:
             self.pos = pos
@@ -5162,25 +5668,27 @@ class DefinitionParser(BaseParser):
             try:
                 res = self._parse_expression()
                 self.skip_ws()
-                if not self.skip_string(')'):
+                if not self.skip_string(")"):
                     self.fail("Expected ')' in end of parenthesized expression.")
             except DefinitionError as eExpr:
-                raise self._make_multi_error([
-                    (eFold, "If fold expression"),
-                    (eExpr, "If parenthesized expression")
-                ], "Error in fold expression or parenthesized expression.") from eExpr
+                raise self._make_multi_error(
+                    [(eFold, "If fold expression"), (eExpr, "If parenthesized expression")],
+                    "Error in fold expression or parenthesized expression.",
+                ) from eExpr
             return ASTParenExpr(res)
         # now it definitely is a fold expression
-        if self.skip_string(')'):
+        if self.skip_string(")"):
             return ASTFoldExpr(leftExpr, op, None)
         if not self.match(_fold_operator_re):
             self.fail("Expected fold operator or ')' after '...' in fold expression.")
         if op != self.matched_text:
-            self.fail("Operators are different in binary fold: '%s' and '%s'."
-                      % (op, self.matched_text))
+            self.fail(
+                "Operators are different in binary fold: '%s' and '%s'."
+                % (op, self.matched_text)
+            )
         rightExpr = self._parse_cast_expression()
         self.skip_ws()
-        if not self.skip_string(')'):
+        if not self.skip_string(")"):
             self.fail("Expected ')' to end binary fold expression.")
         return ASTFoldExpr(leftExpr, op, rightExpr)
 
@@ -5207,10 +5715,9 @@ class DefinitionParser(BaseParser):
             return ASTIdExpression(nn)
         return None
 
-    def _parse_initializer_list(self, name: str, open: str, close: str
-                                ) -> Tuple[List[Union[ASTExpression,
-                                                      ASTBracedInitList]],
-                                           bool]:
+    def _parse_initializer_list(
+        self, name: str, open: str, close: str
+    ) -> Tuple[List[Union[ASTExpression, ASTBracedInitList]], bool]:
         # Parse open and close with the actual initializer-list in between
         # -> initializer-clause '...'[opt]
         #  | initializer-list ',' initializer-clause '...'[opt]
@@ -5226,16 +5733,16 @@ class DefinitionParser(BaseParser):
             self.skip_ws()
             expr = self._parse_initializer_clause()
             self.skip_ws()
-            if self.skip_string('...'):
+            if self.skip_string("..."):
                 exprs.append(ASTPackExpansionExpr(expr))
             else:
                 exprs.append(expr)
             self.skip_ws()
             if self.skip_string(close):
                 break
-            if not self.skip_string_and_ws(','):
+            if not self.skip_string_and_ws(","):
                 self.fail("Error in %s, expected ',' or '%s'." % (name, close))
-            if self.current_char == close and close == '}':
+            if self.current_char == close and close == "}":
                 self.pos += 1
                 trailingComma = True
                 break
@@ -5248,8 +5755,9 @@ class DefinitionParser(BaseParser):
         #
         # expression-list
         # -> initializer-list
-        exprs, trailingComma = self._parse_initializer_list("parenthesized expression-list",
-                                                            '(', ')')
+        exprs, trailingComma = self._parse_initializer_list(
+            "parenthesized expression-list", "(", ")"
+        )
         if exprs is None:
             return None
         return ASTParenExprList(exprs)
@@ -5263,13 +5771,13 @@ class DefinitionParser(BaseParser):
     def _parse_braced_init_list(self) -> ASTBracedInitList:
         # -> '{' initializer-list ','[opt] '}'
         #  | '{' '}'
-        exprs, trailingComma = self._parse_initializer_list("braced-init-list", '{', '}')
+        exprs, trailingComma = self._parse_initializer_list("braced-init-list", "{", "}")
         if exprs is None:
             return None
         return ASTBracedInitList(exprs, trailingComma)
 
     def _parse_expression_list_or_braced_init_list(
-        self
+        self,
     ) -> Union[ASTParenExprList, ASTBracedInitList]:
         paren = self._parse_paren_expression_list()
         if paren is not None:
@@ -5320,20 +5828,21 @@ class DefinitionParser(BaseParser):
 
             def parser() -> ASTExpression:
                 return self._parse_expression()
-            expr = self._parse_expression_fallback([')'], parser)
+
+            expr = self._parse_expression_fallback([")"], parser)
             self.skip_ws()
             if not self.skip_string(")"):
                 self.fail("Expected ')' to end '%s'." % cast)
             prefix = ASTExplicitCast(cast, typ, expr)
         elif self.skip_word_and_ws("typeid"):
             prefixType = "typeid"
-            if not self.skip_string_and_ws('('):
+            if not self.skip_string_and_ws("("):
                 self.fail("Expected '(' after 'typeid'.")
             pos = self.pos
             try:
                 typ = self._parse_type(False)
                 prefix = ASTTypeId(typ, isType=True)
-                if not self.skip_string(')'):
+                if not self.skip_string(")"):
                     self.fail("Expected ')' to end 'typeid' of type.")
             except DefinitionError as eType:
                 self.pos = pos
@@ -5341,9 +5850,10 @@ class DefinitionParser(BaseParser):
 
                     def parser() -> ASTExpression:
                         return self._parse_expression()
-                    expr = self._parse_expression_fallback([')'], parser)
+
+                    expr = self._parse_expression_fallback([")"], parser)
                     prefix = ASTTypeId(expr, isType=False)
-                    if not self.skip_string(')'):
+                    if not self.skip_string(")"):
                         self.fail("Expected ')' to end 'typeid' of expression.")
                 except DefinitionError as eExpr:
                     self.pos = pos
@@ -5357,20 +5867,20 @@ class DefinitionParser(BaseParser):
             pos = self.pos
             try:
                 prefix = self._parse_primary_expression()
-                prefixType = 'expr'
+                prefixType = "expr"
             except DefinitionError as eOuter:
                 self.pos = pos
                 try:
                     # we are potentially casting, so save parens for us
                     # TODO: hmm, would we need to try both with operatorCast and with None?
-                    prefix = self._parse_type(False, 'operatorCast')
-                    prefixType = 'typeOperatorCast'
+                    prefix = self._parse_type(False, "operatorCast")
+                    prefixType = "typeOperatorCast"
                     #  | simple-type-specifier "(" expression-list [opt] ")"
                     #  | simple-type-specifier braced-init-list
                     #  | typename-specifier "(" expression-list [opt] ")"
                     #  | typename-specifier braced-init-list
                     self.skip_ws()
-                    if self.current_char != '(' and self.current_char != '{':
+                    if self.current_char != "(" and self.current_char != "{":
                         self.fail("Expecting '(' or '{' after type in cast expression.")
                 except DefinitionError as eInner:
                     self.pos = pos
@@ -5385,37 +5895,37 @@ class DefinitionParser(BaseParser):
         postFixes: List[ASTPostfixOp] = []
         while True:
             self.skip_ws()
-            if prefixType in ['expr', 'cast', 'typeid']:
-                if self.skip_string_and_ws('['):
+            if prefixType in ["expr", "cast", "typeid"]:
+                if self.skip_string_and_ws("["):
                     expr = self._parse_expression()
                     self.skip_ws()
-                    if not self.skip_string(']'):
+                    if not self.skip_string("]"):
                         self.fail("Expected ']' in end of postfix expression.")
                     postFixes.append(ASTPostfixArray(expr))
                     continue
-                if self.skip_string('.'):
-                    if self.skip_string('*'):
+                if self.skip_string("."):
+                    if self.skip_string("*"):
                         # don't steal the dot
                         self.pos -= 2
-                    elif self.skip_string('..'):
+                    elif self.skip_string(".."):
                         # don't steal the dot
                         self.pos -= 3
                     else:
                         name = self._parse_nested_name()
                         postFixes.append(ASTPostfixMember(name))
                         continue
-                if self.skip_string('->'):
-                    if self.skip_string('*'):
+                if self.skip_string("->"):
+                    if self.skip_string("*"):
                         # don't steal the arrow
                         self.pos -= 3
                     else:
                         name = self._parse_nested_name()
                         postFixes.append(ASTPostfixMemberOfPointer(name))
                         continue
-                if self.skip_string('++'):
+                if self.skip_string("++"):
                     postFixes.append(ASTPostfixInc())
                     continue
-                if self.skip_string('--'):
+                if self.skip_string("--"):
                     postFixes.append(ASTPostfixDec())
                     continue
             lst = self._parse_expression_list_or_braced_init_list()
@@ -5441,16 +5951,16 @@ class DefinitionParser(BaseParser):
         self.skip_ws()
         for op in _expression_unary_ops:
             # TODO: hmm, should we be able to backtrack here?
-            if op[0] in 'cn':
+            if op[0] in "cn":
                 res = self.skip_word(op)
             else:
                 res = self.skip_string(op)
             if res:
                 expr = self._parse_cast_expression()
                 return ASTUnaryOpExpr(op, expr)
-        if self.skip_word_and_ws('sizeof'):
-            if self.skip_string_and_ws('...'):
-                if not self.skip_string_and_ws('('):
+        if self.skip_word_and_ws("sizeof"):
+            if self.skip_string_and_ws("..."):
+                if not self.skip_string_and_ws("("):
                     self.fail("Expecting '(' after 'sizeof...'.")
                 if not self.match(identifier_re):
                     self.fail("Expecting identifier for 'sizeof...'.")
@@ -5459,45 +5969,47 @@ class DefinitionParser(BaseParser):
                 if not self.skip_string(")"):
                     self.fail("Expecting ')' to end 'sizeof...'.")
                 return ASTSizeofParamPack(ident)
-            if self.skip_string_and_ws('('):
+            if self.skip_string_and_ws("("):
                 typ = self._parse_type(named=False)
                 self.skip_ws()
-                if not self.skip_string(')'):
+                if not self.skip_string(")"):
                     self.fail("Expecting ')' to end 'sizeof'.")
                 return ASTSizeofType(typ)
             expr = self._parse_unary_expression()
             return ASTSizeofExpr(expr)
-        if self.skip_word_and_ws('alignof'):
-            if not self.skip_string_and_ws('('):
+        if self.skip_word_and_ws("alignof"):
+            if not self.skip_string_and_ws("("):
                 self.fail("Expecting '(' after 'alignof'.")
             typ = self._parse_type(named=False)
             self.skip_ws()
-            if not self.skip_string(')'):
+            if not self.skip_string(")"):
                 self.fail("Expecting ')' to end 'alignof'.")
             return ASTAlignofExpr(typ)
-        if self.skip_word_and_ws('noexcept'):
-            if not self.skip_string_and_ws('('):
+        if self.skip_word_and_ws("noexcept"):
+            if not self.skip_string_and_ws("("):
                 self.fail("Expecting '(' after 'noexcept'.")
             expr = self._parse_expression()
             self.skip_ws()
-            if not self.skip_string(')'):
+            if not self.skip_string(")"):
                 self.fail("Expecting ')' to end 'noexcept'.")
             return ASTNoexceptExpr(expr)
         # new-expression
         pos = self.pos
-        rooted = self.skip_string('::')
+        rooted = self.skip_string("::")
         self.skip_ws()
-        if not self.skip_word_and_ws('new'):
+        if not self.skip_word_and_ws("new"):
             self.pos = pos
         else:
             # new-placement[opt] new-type-id new-initializer[opt]
             # new-placement[opt] ( type-id ) new-initializer[opt]
             isNewTypeId = True
-            if self.skip_string_and_ws('('):
+            if self.skip_string_and_ws("("):
                 # either this is a new-placement or it's the second production
                 # without placement, and it's actually the ( type-id ) part
-                self.fail("Sorry, neither new-placement nor parenthesised type-id "
-                          "in new-epression is supported yet.")
+                self.fail(
+                    "Sorry, neither new-placement nor parenthesised type-id "
+                    "in new-epression is supported yet."
+                )
                 # set isNewTypeId = False if it's (type-id)
             if isNewTypeId:
                 declSpecs = self._parse_decl_specs(outer=None)
@@ -5508,13 +6020,13 @@ class DefinitionParser(BaseParser):
             return ASTNewExpr(rooted, isNewTypeId, ASTType(declSpecs, decl), lst)
         # delete-expression
         pos = self.pos
-        rooted = self.skip_string('::')
+        rooted = self.skip_string("::")
         self.skip_ws()
-        if not self.skip_word_and_ws('delete'):
+        if not self.skip_word_and_ws("delete"):
             self.pos = pos
         else:
-            array = self.skip_string_and_ws('[')
-            if array and not self.skip_string_and_ws(']'):
+            array = self.skip_string_and_ws("[")
+            if array and not self.skip_string_and_ws("]"):
                 self.fail("Expected ']' in array delete-expression.")
             expr = self._parse_cast_expression()
             return ASTDeleteExpr(rooted, array, expr)
@@ -5524,10 +6036,10 @@ class DefinitionParser(BaseParser):
         # -> unary  | "(" type-id ")" cast
         pos = self.pos
         self.skip_ws()
-        if self.skip_string('('):
+        if self.skip_string("("):
             try:
                 typ = self._parse_type(False)
-                if not self.skip_string(')'):
+                if not self.skip_string(")"):
                     self.fail("Expected ')' in cast expression.")
                 expr = self._parse_cast_expression()
                 return ASTCastExpr(typ, expr)
@@ -5539,8 +6051,9 @@ class DefinitionParser(BaseParser):
                     errs = []
                     errs.append((exCast, "If type cast expression"))
                     errs.append((exUnary, "If unary expression"))
-                    raise self._make_multi_error(errs,
-                                                 "Error in cast expression.") from exUnary
+                    raise self._make_multi_error(
+                        errs, "Error in cast expression."
+                    ) from exUnary
         else:
             return self._parse_unary_expression()
 
@@ -5556,31 +6069,36 @@ class DefinitionParser(BaseParser):
         # additive       = multiplicative   +, -
         # multiplicative = pm               *, /, %
         # pm             = cast             .*, ->*
-        def _parse_bin_op_expr(self: DefinitionParser,
-                               opId: int, inTemplate: bool) -> ASTExpression:
+        def _parse_bin_op_expr(
+            self: DefinitionParser, opId: int, inTemplate: bool
+        ) -> ASTExpression:
             if opId + 1 == len(_expression_bin_ops):
+
                 def parser(inTemplate: bool) -> ASTExpression:
                     return self._parse_cast_expression()
+
             else:
+
                 def parser(inTemplate: bool) -> ASTExpression:
                     return _parse_bin_op_expr(self, opId + 1, inTemplate=inTemplate)
+
             exprs = []
             ops = []
             exprs.append(parser(inTemplate=inTemplate))
             while True:
                 self.skip_ws()
-                if inTemplate and self.current_char == '>':
+                if inTemplate and self.current_char == ">":
                     break
                 pos = self.pos
                 oneMore = False
                 for op in _expression_bin_ops[opId]:
-                    if op[0] in 'abcnox':
+                    if op[0] in "abcnox":
                         if not self.skip_word(op):
                             continue
                     else:
                         if not self.skip_string(op):
                             continue
-                    if op == '&' and self.current_char == '&':
+                    if op == "&" and self.current_char == "&":
                         # don't split the && 'token'
                         self.pos -= 1
                         # and btw. && has lower precedence, so we are done
@@ -5596,6 +6114,7 @@ class DefinitionParser(BaseParser):
                 if not oneMore:
                     break
             return ASTBinOpExpr(exprs, ops)
+
         return _parse_bin_op_expr(self, 0, inTemplate=inTemplate)
 
     def _parse_conditional_expression_tail(self, orExprHead: Any) -> None:
@@ -5621,7 +6140,7 @@ class DefinitionParser(BaseParser):
             oneMore = False
             self.skip_ws()
             for op in _expression_assignment_ops:
-                if op[0] in 'anox':
+                if op[0] in "anox":
                     if not self.skip_word(op):
                         continue
                 else:
@@ -5650,7 +6169,7 @@ class DefinitionParser(BaseParser):
         exprs = [self._parse_assignment_expression(inTemplate=False)]
         while True:
             self.skip_ws()
-            if not self.skip_string(','):
+            if not self.skip_string(","):
                 break
             exprs.append(self._parse_assignment_expression(inTemplate=False))
         if len(exprs) == 1:
@@ -5658,9 +6177,9 @@ class DefinitionParser(BaseParser):
         else:
             return ASTCommaExpr(exprs)
 
-    def _parse_expression_fallback(self, end: List[str],
-                                   parser: Callable[[], ASTExpression],
-                                   allow: bool = True) -> ASTExpression:
+    def _parse_expression_fallback(
+        self, end: List[str], parser: Callable[[], ASTExpression], allow: bool = True
+    ) -> ASTExpression:
         # Stupidly "parse" an expression.
         # 'end' should be a list of characters which ends the expression.
 
@@ -5673,8 +6192,9 @@ class DefinitionParser(BaseParser):
             # and for testing we may want to globally disable it
             if not allow or not self.allowFallbackExpressionParsing:
                 raise
-            self.warn("Parsing of expression failed. Using fallback parser."
-                      " Error was:\n%s" % e)
+            self.warn(
+                "Parsing of expression failed. Using fallback parser." " Error was:\n%s" % e
+            )
             self.pos = prevPos
         # and then the fallback scanning
         assert end is not None
@@ -5684,10 +6204,10 @@ class DefinitionParser(BaseParser):
             value = self.matched_text
         else:
             # TODO: add handling of more bracket-like things, and quote handling
-            brackets = {'(': ')', '{': '}', '[': ']', '<': '>'}
+            brackets = {"(": ")", "{": "}", "[": "]", "<": ">"}
             symbols: List[str] = []
             while not self.eof:
-                if (len(symbols) == 0 and self.current_char in end):
+                if len(symbols) == 0 and self.current_char in end:
                     break
                 if self.current_char in brackets.keys():
                     symbols.append(brackets[self.current_char])
@@ -5695,9 +6215,8 @@ class DefinitionParser(BaseParser):
                     symbols.pop()
                 self.pos += 1
             if len(end) > 0 and self.eof:
-                self.fail("Could not find end of expression starting at %d."
-                          % startPos)
-            value = self.definition[startPos:self.pos].strip()
+                self.fail("Could not find end of expression starting at %d." % startPos)
+            value = self.definition[startPos : self.pos].strip()
         return ASTFallbackExpr(value.strip())
 
     # ==========================================================================
@@ -5710,15 +6229,15 @@ class DefinitionParser(BaseParser):
             return ASTOperatorBuildIn(self.matched_text)
 
         # new/delete operator?
-        for op in 'new', 'delete':
+        for op in "new", "delete":
             if not self.skip_word(op):
                 continue
             self.skip_ws()
-            if self.skip_string('['):
+            if self.skip_string("["):
                 self.skip_ws()
-                if not self.skip_string(']'):
+                if not self.skip_string("]"):
                     self.fail('Expected "]" after  "operator ' + op + '["')
-                op += '[]'
+                op += "[]"
             return ASTOperatorBuildIn(op)
 
         # user-defined literal?
@@ -5743,9 +6262,9 @@ class DefinitionParser(BaseParser):
         #    type-id
         #    id-expression
         self.skip_ws()
-        if not self.skip_string_and_ws('<'):
+        if not self.skip_string_and_ws("<"):
             return None
-        if self.skip_string('>'):
+        if self.skip_string(">"):
             return ASTTemplateArgs([], False)
         prevErrors = []
         templateArgs: List[Union[ASTType, ASTTemplateArgConstant]] = []
@@ -5757,14 +6276,14 @@ class DefinitionParser(BaseParser):
             try:
                 type = self._parse_type(named=False)
                 self.skip_ws()
-                if self.skip_string_and_ws('...'):
+                if self.skip_string_and_ws("..."):
                     packExpansion = True
                     parsedEnd = True
-                    if not self.skip_string('>'):
+                    if not self.skip_string(">"):
                         self.fail('Expected ">" after "..." in template argument list.')
-                elif self.skip_string('>'):
+                elif self.skip_string(">"):
                     parsedEnd = True
-                elif self.skip_string(','):
+                elif self.skip_string(","):
                     parsedComma = True
                 else:
                     self.fail('Expected "...>", ">" or "," in template argument list.')
@@ -5775,14 +6294,14 @@ class DefinitionParser(BaseParser):
                 try:
                     value = self._parse_constant_expression(inTemplate=True)
                     self.skip_ws()
-                    if self.skip_string_and_ws('...'):
+                    if self.skip_string_and_ws("..."):
                         packExpansion = True
                         parsedEnd = True
-                        if not self.skip_string('>'):
+                        if not self.skip_string(">"):
                             self.fail('Expected ">" after "..." in template argument list.')
-                    elif self.skip_string('>'):
+                    elif self.skip_string(">"):
                         parsedEnd = True
-                    elif self.skip_string(','):
+                    elif self.skip_string(","):
                         parsedComma = True
                     else:
                         self.fail('Expected "...>", ">" or "," in template argument list.')
@@ -5805,17 +6324,17 @@ class DefinitionParser(BaseParser):
 
         self.skip_ws()
         rooted = False
-        if self.skip_string('::'):
+        if self.skip_string("::"):
             rooted = True
         while 1:
             self.skip_ws()
             if len(names) > 0:
-                template = self.skip_word_and_ws('template')
+                template = self.skip_word_and_ws("template")
             else:
                 template = False
             templates.append(template)
             identOrOp: Union[ASTIdentifier, ASTOperator] = None
-            if self.skip_word_and_ws('operator'):
+            if self.skip_word_and_ws("operator"):
                 identOrOp = self._parse_operator()
             else:
                 if not self.match(identifier_re):
@@ -5826,8 +6345,9 @@ class DefinitionParser(BaseParser):
                 identifier = self.matched_text
                 # make sure there isn't a keyword
                 if identifier in _keywords:
-                    self.fail("Expected identifier in nested name, "
-                              "got keyword: %s" % identifier)
+                    self.fail(
+                        "Expected identifier in nested name, " "got keyword: %s" % identifier
+                    )
                 identOrOp = ASTIdentifier(identifier)
             # try greedily to get template arguments,
             # but otherwise a < might be because we are in an expression
@@ -5841,7 +6361,7 @@ class DefinitionParser(BaseParser):
             names.append(ASTNestedNameElement(identOrOp, templateArgs))
 
             self.skip_ws()
-            if not self.skip_string('::'):
+            if not self.skip_string("::"):
                 if memberPointer:
                     self.fail("Expected '::' in pointer to member (function).")
                 break
@@ -5860,27 +6380,41 @@ class DefinitionParser(BaseParser):
         while self.match(_simple_type_specifiers_re):
             t = self.matched_text
             names.append(t)
-            if t in ('auto', 'void', 'bool',
-                     'char', 'wchar_t', 'char8_t', 'char16_t', 'char32_t',
-                     'int', '__int64', '__int128',
-                     'float', 'double',
-                     '__float80', '_Float64x', '__float128', '_Float128'):
+            if t in (
+                "auto",
+                "void",
+                "bool",
+                "char",
+                "wchar_t",
+                "char8_t",
+                "char16_t",
+                "char32_t",
+                "int",
+                "__int64",
+                "__int128",
+                "float",
+                "double",
+                "__float80",
+                "_Float64x",
+                "__float128",
+                "_Float128",
+            ):
                 if typ is not None:
                     self.fail("Can not have both {} and {}.".format(t, typ))
                 typ = t
-            elif t in ('signed', 'unsigned'):
+            elif t in ("signed", "unsigned"):
                 if signedness is not None:
                     self.fail("Can not have both {} and {}.".format(t, signedness))
                 signedness = t
-            elif t == 'short':
+            elif t == "short":
                 if len(width) != 0:
                     self.fail("Can not have both {} and {}.".format(t, width[0]))
                 width.append(t)
-            elif t == 'long':
-                if len(width) != 0 and width[0] != 'long':
+            elif t == "long":
+                if len(width) != 0 and width[0] != "long":
                     self.fail("Can not have both {} and {}.".format(t, width[0]))
                 width.append(t)
-            elif t in ('_Imaginary', '_Complex'):
+            elif t in ("_Imaginary", "_Complex"):
                 if modifier is not None:
                     self.fail("Can not have both {} and {}.".format(t, modifier))
                 modifier = t
@@ -5888,40 +6422,50 @@ class DefinitionParser(BaseParser):
         if len(names) == 0:
             return None
 
-        if typ in ('auto', 'void', 'bool',
-                   'wchar_t', 'char8_t', 'char16_t', 'char32_t',
-                   '__float80', '_Float64x', '__float128', '_Float128'):
+        if typ in (
+            "auto",
+            "void",
+            "bool",
+            "wchar_t",
+            "char8_t",
+            "char16_t",
+            "char32_t",
+            "__float80",
+            "_Float64x",
+            "__float128",
+            "_Float128",
+        ):
             if modifier is not None:
                 self.fail("Can not have both {} and {}.".format(typ, modifier))
             if signedness is not None:
                 self.fail("Can not have both {} and {}.".format(typ, signedness))
             if len(width) != 0:
-                self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
-        elif typ == 'char':
+                self.fail("Can not have both {} and {}.".format(typ, " ".join(width)))
+        elif typ == "char":
             if modifier is not None:
                 self.fail("Can not have both {} and {}.".format(typ, modifier))
             if len(width) != 0:
-                self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
-        elif typ == 'int':
+                self.fail("Can not have both {} and {}.".format(typ, " ".join(width)))
+        elif typ == "int":
             if modifier is not None:
                 self.fail("Can not have both {} and {}.".format(typ, modifier))
-        elif typ in ('__int64', '__int128'):
+        elif typ in ("__int64", "__int128"):
             if modifier is not None:
                 self.fail("Can not have both {} and {}.".format(typ, modifier))
             if len(width) != 0:
-                self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
-        elif typ == 'float':
+                self.fail("Can not have both {} and {}.".format(typ, " ".join(width)))
+        elif typ == "float":
             if signedness is not None:
                 self.fail("Can not have both {} and {}.".format(typ, signedness))
             if len(width) != 0:
-                self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
-        elif typ == 'double':
+                self.fail("Can not have both {} and {}.".format(typ, " ".join(width)))
+        elif typ == "double":
             if signedness is not None:
                 self.fail("Can not have both {} and {}.".format(typ, signedness))
             if len(width) > 1:
-                self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
-            if len(width) == 1 and width[0] != 'long':
-                self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
+                self.fail("Can not have both {} and {}.".format(typ, " ".join(width)))
+            if len(width) == 1 and width[0] != "long":
+                self.fail("Can not have both {} and {}.".format(typ, " ".join(width)))
         elif typ is None:
             if modifier is not None:
                 self.fail("Can not have {} without a floating point type.".format(modifier))
@@ -5948,114 +6492,113 @@ class DefinitionParser(BaseParser):
 
         # decltype
         self.skip_ws()
-        if self.skip_word_and_ws('decltype'):
-            if not self.skip_string_and_ws('('):
+        if self.skip_word_and_ws("decltype"):
+            if not self.skip_string_and_ws("("):
                 self.fail("Expected '(' after 'decltype'.")
-            if self.skip_word_and_ws('auto'):
-                if not self.skip_string(')'):
+            if self.skip_word_and_ws("auto"):
+                if not self.skip_string(")"):
                     self.fail("Expected ')' after 'decltype(auto'.")
                 return ASTTrailingTypeSpecDecltypeAuto()
             expr = self._parse_expression()
             self.skip_ws()
-            if not self.skip_string(')'):
+            if not self.skip_string(")"):
                 self.fail("Expected ')' after 'decltype(<expr>'.")
             return ASTTrailingTypeSpecDecltype(expr)
 
         # prefixed
         prefix = None
         self.skip_ws()
-        for k in ('class', 'struct', 'enum', 'union', 'typename'):
+        for k in ("class", "struct", "enum", "union", "typename"):
             if self.skip_word_and_ws(k):
                 prefix = k
                 break
         nestedName = self._parse_nested_name()
         self.skip_ws()
         placeholderType = None
-        if self.skip_word('auto'):
-            placeholderType = 'auto'
-        elif self.skip_word_and_ws('decltype'):
-            if not self.skip_string_and_ws('('):
+        if self.skip_word("auto"):
+            placeholderType = "auto"
+        elif self.skip_word_and_ws("decltype"):
+            if not self.skip_string_and_ws("("):
                 self.fail("Expected '(' after 'decltype' in placeholder type specifier.")
-            if not self.skip_word_and_ws('auto'):
+            if not self.skip_word_and_ws("auto"):
                 self.fail("Expected 'auto' after 'decltype(' in placeholder type specifier.")
-            if not self.skip_string_and_ws(')'):
+            if not self.skip_string_and_ws(")"):
                 self.fail("Expected ')' after 'decltype(auto' in placeholder type specifier.")
-            placeholderType = 'decltype(auto)'
+            placeholderType = "decltype(auto)"
         return ASTTrailingTypeSpecName(prefix, nestedName, placeholderType)
 
     def _parse_parameters_and_qualifiers(self, paramMode: str) -> ASTParametersQualifiers:
-        if paramMode == 'new':
+        if paramMode == "new":
             return None
         self.skip_ws()
-        if not self.skip_string('('):
-            if paramMode == 'function':
+        if not self.skip_string("("):
+            if paramMode == "function":
                 self.fail('Expecting "(" in parameters-and-qualifiers.')
             else:
                 return None
         args = []
         self.skip_ws()
-        if not self.skip_string(')'):
+        if not self.skip_string(")"):
             while 1:
                 self.skip_ws()
-                if self.skip_string('...'):
+                if self.skip_string("..."):
                     args.append(ASTFunctionParameter(None, True))
                     self.skip_ws()
-                    if not self.skip_string(')'):
-                        self.fail('Expected ")" after "..." in '
-                                  'parameters-and-qualifiers.')
+                    if not self.skip_string(")"):
+                        self.fail('Expected ")" after "..." in ' "parameters-and-qualifiers.")
                     break
                 # note: it seems that function arguments can always be named,
                 # even in function pointers and similar.
-                arg = self._parse_type_with_init(outer=None, named='single')
+                arg = self._parse_type_with_init(outer=None, named="single")
                 # TODO: parse default parameters # TODO: didn't we just do that?
                 args.append(ASTFunctionParameter(arg))
 
                 self.skip_ws()
-                if self.skip_string(','):
+                if self.skip_string(","):
                     continue
-                elif self.skip_string(')'):
+                elif self.skip_string(")"):
                     break
                 else:
                     self.fail(
                         'Expecting "," or ")" in parameters-and-qualifiers, '
-                        'got "%s".' % self.current_char)
+                        'got "%s".' % self.current_char
+                    )
 
         self.skip_ws()
-        const = self.skip_word_and_ws('const')
-        volatile = self.skip_word_and_ws('volatile')
+        const = self.skip_word_and_ws("const")
+        volatile = self.skip_word_and_ws("volatile")
         if not const:  # the can be permuted
-            const = self.skip_word_and_ws('const')
+            const = self.skip_word_and_ws("const")
 
         refQual = None
-        if self.skip_string('&&'):
-            refQual = '&&'
-        if not refQual and self.skip_string('&'):
-            refQual = '&'
+        if self.skip_string("&&"):
+            refQual = "&&"
+        if not refQual and self.skip_string("&"):
+            refQual = "&"
 
         exceptionSpec = None
         self.skip_ws()
-        if self.skip_string('noexcept'):
-            if self.skip_string_and_ws('('):
+        if self.skip_string("noexcept"):
+            if self.skip_string_and_ws("("):
                 expr = self._parse_constant_expression(False)
                 self.skip_ws()
-                if not self.skip_string(')'):
+                if not self.skip_string(")"):
                     self.fail("Expecting ')' to end 'noexcept'.")
                 exceptionSpec = ASTNoexceptSpec(expr)
             else:
                 exceptionSpec = ASTNoexceptSpec(None)
 
         self.skip_ws()
-        if self.skip_string('->'):
+        if self.skip_string("->"):
             trailingReturn = self._parse_type(named=False)
         else:
             trailingReturn = None
 
         self.skip_ws()
-        override = self.skip_word_and_ws('override')
-        final = self.skip_word_and_ws('final')
+        override = self.skip_word_and_ws("override")
+        final = self.skip_word_and_ws("final")
         if not override:
-            override = self.skip_word_and_ws(
-                'override')  # they can be permuted
+            override = self.skip_word_and_ws("override")  # they can be permuted
 
         attrs = []
         while True:
@@ -6067,21 +6610,28 @@ class DefinitionParser(BaseParser):
         self.skip_ws()
         initializer = None
         # if this is a function pointer we should not swallow an initializer
-        if paramMode == 'function' and self.skip_string('='):
+        if paramMode == "function" and self.skip_string("="):
             self.skip_ws()
-            valid = ('0', 'delete', 'default')
+            valid = ("0", "delete", "default")
             for w in valid:
                 if self.skip_word_and_ws(w):
                     initializer = w
                     break
             if not initializer:
-                self.fail(
-                    'Expected "%s" in initializer-specifier.'
-                    % '" or "'.join(valid))
+                self.fail('Expected "%s" in initializer-specifier.' % '" or "'.join(valid))
 
         return ASTParametersQualifiers(
-            args, volatile, const, refQual, exceptionSpec, trailingReturn,
-            override, final, attrs, initializer)
+            args,
+            volatile,
+            const,
+            refQual,
+            exceptionSpec,
+            trailingReturn,
+            override,
+            final,
+            attrs,
+            initializer,
+        )
 
     def _parse_decl_specs_simple(self, outer: str, typed: bool) -> ASTDeclSpecsSimple:
         """Just parse the simple ones."""
@@ -6100,70 +6650,72 @@ class DefinitionParser(BaseParser):
         while 1:  # accept any permutation of a subset of some decl-specs
             self.skip_ws()
             if not const and typed:
-                const = self.skip_word('const')
+                const = self.skip_word("const")
                 if const:
                     continue
             if not volatile and typed:
-                volatile = self.skip_word('volatile')
+                volatile = self.skip_word("volatile")
                 if volatile:
                     continue
             if not storage:
-                if outer in ('member', 'function'):
-                    if self.skip_word('static'):
-                        storage = 'static'
+                if outer in ("member", "function"):
+                    if self.skip_word("static"):
+                        storage = "static"
                         continue
-                    if self.skip_word('extern'):
-                        storage = 'extern'
+                    if self.skip_word("extern"):
+                        storage = "extern"
                         continue
-                if outer == 'member':
-                    if self.skip_word('mutable'):
-                        storage = 'mutable'
+                if outer == "member":
+                    if self.skip_word("mutable"):
+                        storage = "mutable"
                         continue
-                if self.skip_word('register'):
-                    storage = 'register'
+                if self.skip_word("register"):
+                    storage = "register"
                     continue
-            if not inline and outer in ('function', 'member'):
-                inline = self.skip_word('inline')
+            if not inline and outer in ("function", "member"):
+                inline = self.skip_word("inline")
                 if inline:
                     continue
-            if not constexpr and outer in ('member', 'function'):
+            if not constexpr and outer in ("member", "function"):
                 constexpr = self.skip_word("constexpr")
                 if constexpr:
                     continue
 
-            if outer == 'member':
+            if outer == "member":
                 if not constinit:
-                    constinit = self.skip_word('constinit')
+                    constinit = self.skip_word("constinit")
                     if constinit:
                         continue
                 if not threadLocal:
-                    threadLocal = self.skip_word('thread_local')
+                    threadLocal = self.skip_word("thread_local")
                     if threadLocal:
                         continue
-            if outer == 'function':
+            if outer == "function":
                 if not consteval:
-                    consteval = self.skip_word('consteval')
+                    consteval = self.skip_word("consteval")
                     if consteval:
                         continue
                 if not friend:
-                    friend = self.skip_word('friend')
+                    friend = self.skip_word("friend")
                     if friend:
                         continue
                 if not virtual:
-                    virtual = self.skip_word('virtual')
+                    virtual = self.skip_word("virtual")
                     if virtual:
                         continue
                 if not explicitSpec:
-                    explicit = self.skip_word_and_ws('explicit')
+                    explicit = self.skip_word_and_ws("explicit")
                     if explicit:
                         expr: ASTExpression = None
-                        if self.skip_string('('):
+                        if self.skip_string("("):
                             expr = self._parse_constant_expression(inTemplate=False)
                             if not expr:
-                                self.fail("Expected constant expression after '('" +
-                                          " in explicit specifier.")
+                                self.fail(
+                                    "Expected constant expression after '('"
+                                    + " in explicit specifier."
+                                )
                             self.skip_ws()
-                            if not self.skip_string(')'):
+                            if not self.skip_string(")"):
                                 self.fail("Expected ')' to end explicit specifier.")
                         explicitSpec = ASTExplicitSpec(expr)
                         continue
@@ -6172,13 +6724,24 @@ class DefinitionParser(BaseParser):
                 attrs.append(attr)
                 continue
             break
-        return ASTDeclSpecsSimple(storage, threadLocal, inline, virtual,
-                                  explicitSpec, consteval, constexpr, constinit,
-                                  volatile, const, friend, attrs)
+        return ASTDeclSpecsSimple(
+            storage,
+            threadLocal,
+            inline,
+            virtual,
+            explicitSpec,
+            consteval,
+            constexpr,
+            constinit,
+            volatile,
+            const,
+            friend,
+            attrs,
+        )
 
     def _parse_decl_specs(self, outer: str, typed: bool = True) -> ASTDeclSpecs:
         if outer:
-            if outer not in ('type', 'member', 'function', 'templateParam'):
+            if outer not in ("type", "member", "function", "templateParam"):
                 raise Exception('Internal error, unknown outer "%s".' % outer)
         """
         storage-class-specifier function-specifier "constexpr"
@@ -6207,21 +6770,21 @@ class DefinitionParser(BaseParser):
         self, named: Union[bool, str], paramMode: str, typed: bool
     ) -> Union[ASTDeclaratorNameParamQual, ASTDeclaratorNameBitField]:
         # now we should parse the name, and then suffixes
-        if named == 'maybe':
+        if named == "maybe":
             pos = self.pos
             try:
                 declId = self._parse_nested_name()
             except DefinitionError:
                 self.pos = pos
                 declId = None
-        elif named == 'single':
+        elif named == "single":
             if self.match(identifier_re):
                 identifier = ASTIdentifier(self.matched_text)
                 nne = ASTNestedNameElement(identifier, None)
                 declId = ASTNestedName([nne], [False], rooted=False)
                 # if it's a member pointer, we may have '::', which should be an error
                 self.skip_ws()
-                if self.current_char == ':':
+                if self.current_char == ":":
                     self.fail("Unexpected ':' after identifier.")
             else:
                 declId = None
@@ -6232,16 +6795,17 @@ class DefinitionParser(BaseParser):
         arrayOps = []
         while 1:
             self.skip_ws()
-            if typed and self.skip_string('['):
+            if typed and self.skip_string("["):
                 self.skip_ws()
-                if self.skip_string(']'):
+                if self.skip_string("]"):
                     arrayOps.append(ASTArray(None))
                     continue
 
                 def parser() -> ASTExpression:
                     return self._parse_expression()
-                value = self._parse_expression_fallback([']'], parser)
-                if not self.skip_string(']'):
+
+                value = self._parse_expression_fallback(["]"], parser)
+                if not self.skip_string("]"):
                     self.fail("Expected ']' in end of array operator.")
                 arrayOps.append(ASTArray(value))
                 continue
@@ -6250,35 +6814,35 @@ class DefinitionParser(BaseParser):
         paramQual = self._parse_parameters_and_qualifiers(paramMode)
         if paramQual is None and len(arrayOps) == 0:
             # perhaps a bit-field
-            if named and paramMode == 'type' and typed:
+            if named and paramMode == "type" and typed:
                 self.skip_ws()
-                if self.skip_string(':'):
+                if self.skip_string(":"):
                     size = self._parse_constant_expression(inTemplate=False)
                     return ASTDeclaratorNameBitField(declId=declId, size=size)
-        return ASTDeclaratorNameParamQual(declId=declId, arrayOps=arrayOps,
-                                          paramQual=paramQual)
+        return ASTDeclaratorNameParamQual(
+            declId=declId, arrayOps=arrayOps, paramQual=paramQual
+        )
 
-    def _parse_declarator(self, named: Union[bool, str], paramMode: str,
-                          typed: bool = True
-                          ) -> ASTDeclarator:
+    def _parse_declarator(
+        self, named: Union[bool, str], paramMode: str, typed: bool = True
+    ) -> ASTDeclarator:
         # 'typed' here means 'parse return type stuff'
-        if paramMode not in ('type', 'function', 'operatorCast', 'new'):
-            raise Exception(
-                "Internal error, unknown paramMode '%s'." % paramMode)
+        if paramMode not in ("type", "function", "operatorCast", "new"):
+            raise Exception("Internal error, unknown paramMode '%s'." % paramMode)
         prevErrors = []
         self.skip_ws()
-        if typed and self.skip_string('*'):
+        if typed and self.skip_string("*"):
             self.skip_ws()
             volatile = False
             const = False
             attrs = []
             while 1:
                 if not volatile:
-                    volatile = self.skip_word_and_ws('volatile')
+                    volatile = self.skip_word_and_ws("volatile")
                     if volatile:
                         continue
                 if not const:
-                    const = self.skip_word_and_ws('const')
+                    const = self.skip_word_and_ws("const")
                     if const:
                         continue
                 attr = self._parse_attribute()
@@ -6301,36 +6865,33 @@ class DefinitionParser(BaseParser):
         if typed and self.skip_string("..."):
             next = self._parse_declarator(named, paramMode, False)
             return ASTDeclaratorParamPack(next=next)
-        if typed and self.current_char == '(':  # note: peeking, not skipping
+        if typed and self.current_char == "(":  # note: peeking, not skipping
             if paramMode == "operatorCast":
                 # TODO: we should be able to parse cast operators which return
                 # function pointers. For now, just hax it and ignore.
-                return ASTDeclaratorNameParamQual(declId=None, arrayOps=[],
-                                                  paramQual=None)
+                return ASTDeclaratorNameParamQual(declId=None, arrayOps=[], paramQual=None)
             # maybe this is the beginning of params and quals,try that first,
             # otherwise assume it's noptr->declarator > ( ptr-declarator )
             pos = self.pos
             try:
                 # assume this is params and quals
-                res = self._parse_declarator_name_suffix(named, paramMode,
-                                                         typed)
+                res = self._parse_declarator_name_suffix(named, paramMode, typed)
                 return res
             except DefinitionError as exParamQual:
-                prevErrors.append((exParamQual,
-                                   "If declarator-id with parameters-and-qualifiers"))
+                prevErrors.append(
+                    (exParamQual, "If declarator-id with parameters-and-qualifiers")
+                )
                 self.pos = pos
                 try:
-                    assert self.current_char == '('
-                    self.skip_string('(')
+                    assert self.current_char == "("
+                    self.skip_string("(")
                     # TODO: hmm, if there is a name, it must be in inner, right?
                     # TODO: hmm, if there must be parameters, they must be
                     #       inside, right?
                     inner = self._parse_declarator(named, paramMode, typed)
-                    if not self.skip_string(')'):
+                    if not self.skip_string(")"):
                         self.fail("Expected ')' in \"( ptr-declarator )\"")
-                    next = self._parse_declarator(named=False,
-                                                  paramMode="type",
-                                                  typed=typed)
+                    next = self._parse_declarator(named=False, paramMode="type", typed=typed)
                     return ASTDeclaratorParen(inner=inner, next=next)
                 except DefinitionError as exNoPtrParen:
                     self.pos = pos
@@ -6342,7 +6903,7 @@ class DefinitionParser(BaseParser):
             try:
                 name = self._parse_nested_name(memberPointer=True)
                 self.skip_ws()
-                if not self.skip_string('*'):
+                if not self.skip_string("*"):
                     self.fail("Expected '*' in pointer to member declarator.")
                 self.skip_ws()
             except DefinitionError as e:
@@ -6353,11 +6914,11 @@ class DefinitionParser(BaseParser):
                 const = False
                 while 1:
                     if not volatile:
-                        volatile = self.skip_word_and_ws('volatile')
+                        volatile = self.skip_word_and_ws("volatile")
                         if volatile:
                             continue
                     if not const:
-                        const = self.skip_word_and_ws('const')
+                        const = self.skip_word_and_ws("const")
                         if const:
                             continue
                     break
@@ -6368,7 +6929,7 @@ class DefinitionParser(BaseParser):
             res = self._parse_declarator_name_suffix(named, paramMode, typed)
             # this is a heuristic for error messages, for when there is a < after a
             # nested name, but it was not a successful template argument list
-            if self.current_char == '<':
+            if self.current_char == "<":
                 self.otherErrors.append(self._make_multi_error(prevErrors, ""))
             return res
         except DefinitionError as e:
@@ -6377,8 +6938,9 @@ class DefinitionParser(BaseParser):
             header = "Error in declarator or parameters-and-qualifiers"
             raise self._make_multi_error(prevErrors, header) from e
 
-    def _parse_initializer(self, outer: str = None, allowFallback: bool = True
-                           ) -> ASTInitializer:
+    def _parse_initializer(
+        self, outer: str = None, allowFallback: bool = True
+    ) -> ASTInitializer:
         # initializer                           # global vars
         # -> brace-or-equal-initializer
         #  | '(' expression-list ')'
@@ -6397,32 +6959,32 @@ class DefinitionParser(BaseParser):
         #  | '=' assignment-expression
         #  | '=' braced-init-list
         self.skip_ws()
-        if outer == 'member':
+        if outer == "member":
             bracedInit = self._parse_braced_init_list()
             if bracedInit is not None:
                 return ASTInitializer(bracedInit, hasAssign=False)
 
-        if not self.skip_string('='):
+        if not self.skip_string("="):
             return None
 
         bracedInit = self._parse_braced_init_list()
         if bracedInit is not None:
             return ASTInitializer(bracedInit)
 
-        if outer == 'member':
+        if outer == "member":
             fallbackEnd: List[str] = []
-        elif outer == 'templateParam':
-            fallbackEnd = [',', '>']
+        elif outer == "templateParam":
+            fallbackEnd = [",", ">"]
         elif outer is None:  # function parameter
-            fallbackEnd = [',', ')']
+            fallbackEnd = [",", ")"]
         else:
-            self.fail("Internal error, initializer for outer '%s' not "
-                      "implemented." % outer)
+            self.fail("Internal error, initializer for outer '%s' not " "implemented." % outer)
 
-        inTemplate = outer == 'templateParam'
+        inTemplate = outer == "templateParam"
 
         def parser() -> ASTExpression:
             return self._parse_assignment_expression(inTemplate=inTemplate)
+
         value = self._parse_expression_fallback(fallbackEnd, parser, allow=allowFallback)
         return ASTInitializer(value)
 
@@ -6434,12 +6996,11 @@ class DefinitionParser(BaseParser):
         outer == operatorCast: annoying case, we should not take the params
         """
         if outer:  # always named
-            if outer not in ('type', 'member', 'function',
-                             'operatorCast', 'templateParam'):
+            if outer not in ("type", "member", "function", "operatorCast", "templateParam"):
                 raise Exception('Internal error, unknown outer "%s".' % outer)
-            if outer != 'operatorCast':
+            if outer != "operatorCast":
                 assert named
-        if outer in ('type', 'function'):
+        if outer in ("type", "function"):
             # We allow type objects to just be a name.
             # Some functions don't have normal return types: constructors,
             # destructors, cast operators
@@ -6448,13 +7009,12 @@ class DefinitionParser(BaseParser):
             # first try without the type
             try:
                 declSpecs = self._parse_decl_specs(outer=outer, typed=False)
-                decl = self._parse_declarator(named=True, paramMode=outer,
-                                              typed=False)
+                decl = self._parse_declarator(named=True, paramMode=outer, typed=False)
                 self.assert_end(allowSemicolon=True)
             except DefinitionError as exUntyped:
-                if outer == 'type':
+                if outer == "type":
                     desc = "If just a name"
-                elif outer == 'function':
+                elif outer == "function":
                     desc = "If the function has no return type"
                 else:
                     assert False
@@ -6465,9 +7025,9 @@ class DefinitionParser(BaseParser):
                     decl = self._parse_declarator(named=True, paramMode=outer)
                 except DefinitionError as exTyped:
                     self.pos = startPos
-                    if outer == 'type':
+                    if outer == "type":
                         desc = "If typedef-like declaration"
-                    elif outer == 'function':
+                    elif outer == "function":
                         desc = "If the function has a return type"
                     else:
                         assert False
@@ -6476,10 +7036,10 @@ class DefinitionParser(BaseParser):
                     # TODO: it would be nice to save the previous stacktrace
                     #       and output it here.
                     if True:
-                        if outer == 'type':
+                        if outer == "type":
                             header = "Type must be either just a name or a "
                             header += "typedef-like declaration."
-                        elif outer == 'function':
+                        elif outer == "function":
                             header = "Error when parsing function declaration."
                         else:
                             assert False
@@ -6492,28 +7052,27 @@ class DefinitionParser(BaseParser):
                         self.pos = startPos
                         typed = True
                         declSpecs = self._parse_decl_specs(outer=outer, typed=typed)
-                        decl = self._parse_declarator(named=True, paramMode=outer,
-                                                      typed=typed)
+                        decl = self._parse_declarator(named=True, paramMode=outer, typed=typed)
         else:
-            paramMode = 'type'
-            if outer == 'member':
+            paramMode = "type"
+            if outer == "member":
                 named = True
-            elif outer == 'operatorCast':
-                paramMode = 'operatorCast'
+            elif outer == "operatorCast":
+                paramMode = "operatorCast"
                 outer = None
-            elif outer == 'templateParam':
-                named = 'single'
+            elif outer == "templateParam":
+                named = "single"
             declSpecs = self._parse_decl_specs(outer=outer)
             decl = self._parse_declarator(named=named, paramMode=paramMode)
         return ASTType(declSpecs, decl)
 
     def _parse_type_with_init(
-            self, named: Union[bool, str],
-            outer: str) -> Union[ASTTypeWithInit, ASTTemplateParamConstrainedTypeWithInit]:
+        self, named: Union[bool, str], outer: str
+    ) -> Union[ASTTypeWithInit, ASTTemplateParamConstrainedTypeWithInit]:
         if outer:
-            assert outer in ('type', 'member', 'function', 'templateParam')
+            assert outer in ("type", "member", "function", "templateParam")
         type = self._parse_type(outer=outer, named=named)
-        if outer != 'templateParam':
+        if outer != "templateParam":
             init = self._parse_initializer(outer=outer)
             return ASTTypeWithInit(type, init)
         # it could also be a constrained type parameter, e.g., C T = int&
@@ -6527,7 +7086,7 @@ class DefinitionParser(BaseParser):
             # we parsed an expression, so we must have a , or a >,
             # otherwise the expression didn't get everything
             self.skip_ws()
-            if self.current_char != ',' and self.current_char != '>':
+            if self.current_char != "," and self.current_char != ">":
                 # pretend it didn't happen
                 self.pos = pos
                 init = None
@@ -6555,7 +7114,7 @@ class DefinitionParser(BaseParser):
     def _parse_type_using(self) -> ASTTypeUsing:
         name = self._parse_nested_name()
         self.skip_ws()
-        if not self.skip_string('='):
+        if not self.skip_string("="):
             return ASTTypeUsing(name, None)
         type = self._parse_type(False, None)
         return ASTTypeUsing(name, type)
@@ -6563,34 +7122,34 @@ class DefinitionParser(BaseParser):
     def _parse_concept(self) -> ASTConcept:
         nestedName = self._parse_nested_name()
         self.skip_ws()
-        initializer = self._parse_initializer('member')
+        initializer = self._parse_initializer("member")
         return ASTConcept(nestedName, initializer)
 
     def _parse_class(self) -> ASTClass:
         name = self._parse_nested_name()
         self.skip_ws()
-        final = self.skip_word_and_ws('final')
+        final = self.skip_word_and_ws("final")
         bases = []
         self.skip_ws()
-        if self.skip_string(':'):
+        if self.skip_string(":"):
             while 1:
                 self.skip_ws()
                 visibility = None
                 virtual = False
                 pack = False
-                if self.skip_word_and_ws('virtual'):
+                if self.skip_word_and_ws("virtual"):
                     virtual = True
                 if self.match(_visibility_re):
                     visibility = self.matched_text
                     self.skip_ws()
-                if not virtual and self.skip_word_and_ws('virtual'):
+                if not virtual and self.skip_word_and_ws("virtual"):
                     virtual = True
                 baseName = self._parse_nested_name()
                 self.skip_ws()
-                pack = self.skip_string('...')
+                pack = self.skip_string("...")
                 bases.append(ASTBaseClass(baseName, visibility, virtual, pack))
                 self.skip_ws()
-                if self.skip_string(','):
+                if self.skip_string(","):
                     continue
                 else:
                     break
@@ -6606,7 +7165,7 @@ class DefinitionParser(BaseParser):
         name = self._parse_nested_name()
         self.skip_ws()
         underlyingType = None
-        if self.skip_string(':'):
+        if self.skip_string(":"):
             underlyingType = self._parse_type(named=False)
         return ASTEnum(name, scoped, underlyingType)
 
@@ -6614,11 +7173,12 @@ class DefinitionParser(BaseParser):
         name = self._parse_nested_name()
         self.skip_ws()
         init = None
-        if self.skip_string('='):
+        if self.skip_string("="):
             self.skip_ws()
 
             def parser() -> ASTExpression:
                 return self._parse_constant_expression(inTemplate=False)
+
             initVal = self._parse_expression_fallback([], parser)
             init = ASTInitializer(initVal)
         return ASTEnumerator(name, init)
@@ -6627,7 +7187,7 @@ class DefinitionParser(BaseParser):
 
     def _parse_template_parameter(self) -> ASTTemplateParam:
         self.skip_ws()
-        if self.skip_word('template'):
+        if self.skip_word("template"):
             # declare a tenplate template parameter
             nestedParams = self._parse_template_parameter_list()
         else:
@@ -6638,32 +7198,34 @@ class DefinitionParser(BaseParser):
             # Unconstrained type parameter or template type parameter
             key = None
             self.skip_ws()
-            if self.skip_word_and_ws('typename'):
-                key = 'typename'
-            elif self.skip_word_and_ws('class'):
-                key = 'class'
+            if self.skip_word_and_ws("typename"):
+                key = "typename"
+            elif self.skip_word_and_ws("class"):
+                key = "class"
             elif nestedParams:
-                self.fail("Expected 'typename' or 'class' after "
-                          "template template parameter list.")
+                self.fail(
+                    "Expected 'typename' or 'class' after " "template template parameter list."
+                )
             else:
-                self.fail("Expected 'typename' or 'class' in the "
-                          "beginning of template type parameter.")
+                self.fail(
+                    "Expected 'typename' or 'class' in the "
+                    "beginning of template type parameter."
+                )
             self.skip_ws()
-            parameterPack = self.skip_string('...')
+            parameterPack = self.skip_string("...")
             self.skip_ws()
             if self.match(identifier_re):
                 identifier = ASTIdentifier(self.matched_text)
             else:
                 identifier = None
             self.skip_ws()
-            if not parameterPack and self.skip_string('='):
+            if not parameterPack and self.skip_string("="):
                 default = self._parse_type(named=False, outer=None)
             else:
                 default = None
-                if self.current_char not in ',>':
+                if self.current_char not in ",>":
                     self.fail('Expected "," or ">" after (template) type parameter.')
-            data = ASTTemplateKeyParamPackIdDefault(key, identifier,
-                                                    parameterPack, default)
+            data = ASTTemplateKeyParamPackIdDefault(key, identifier, parameterPack, default)
             if nestedParams:
                 return ASTTemplateParamTemplateType(nestedParams, data)
             else:
@@ -6674,16 +7236,16 @@ class DefinitionParser(BaseParser):
             try:
                 # non-type parameter or constrained type parameter
                 self.pos = pos
-                param = self._parse_type_with_init('maybe', 'templateParam')
+                param = self._parse_type_with_init("maybe", "templateParam")
                 return ASTTemplateParamNonType(param)
             except DefinitionError as eNonType:
                 self.pos = pos
                 header = "Error when parsing template parameter."
                 errs = []
                 errs.append(
-                    (eType, "If unconstrained type parameter or template type parameter"))
-                errs.append(
-                    (eNonType, "If constrained type parameter or non-type parameter"))
+                    (eType, "If unconstrained type parameter or template type parameter")
+                )
+                errs.append((eNonType, "If constrained type parameter or non-type parameter"))
                 raise self._make_multi_error(errs, header)
 
     def _parse_template_parameter_list(self) -> ASTTemplateParams:
@@ -6703,9 +7265,9 @@ class DefinitionParser(BaseParser):
                 self.pos = pos
                 err = eParam
             self.skip_ws()
-            if self.skip_string('>'):
+            if self.skip_string(">"):
                 return ASTTemplateParams(templateParams)
-            elif self.skip_string(','):
+            elif self.skip_string(","):
                 continue
             else:
                 header = "Error in template parameter list."
@@ -6727,7 +7289,7 @@ class DefinitionParser(BaseParser):
             self.pos = pos
             return None
         self.skip_ws()
-        if not self.skip_string('{'):
+        if not self.skip_string("{"):
             self.pos = pos
             return None
 
@@ -6735,26 +7297,27 @@ class DefinitionParser(BaseParser):
         params = []
         while 1:
             self.skip_ws()
-            parameterPack = self.skip_string('...')
+            parameterPack = self.skip_string("...")
             self.skip_ws()
             if not self.match(identifier_re):
                 self.fail("Expected identifier in template introduction list.")
             txt_identifier = self.matched_text
             # make sure there isn't a keyword
             if txt_identifier in _keywords:
-                self.fail("Expected identifier in template introduction list, "
-                          "got keyword: %s" % txt_identifier)
+                self.fail(
+                    "Expected identifier in template introduction list, "
+                    "got keyword: %s" % txt_identifier
+                )
             identifier = ASTIdentifier(txt_identifier)
             params.append(ASTTemplateIntroductionParameter(identifier, parameterPack))
 
             self.skip_ws()
-            if self.skip_string('}'):
+            if self.skip_string("}"):
                 break
-            elif self.skip_string(','):
+            elif self.skip_string(","):
                 continue
             else:
-                self.fail("Error in template introduction list. "
-                          'Expected ",", or "}".')
+                self.fail("Error in template introduction list. " 'Expected ",", or "}".')
         return ASTTemplateIntroduction(concept, params)
 
     def _parse_requires_clause(self) -> Optional[ASTRequiresClause]:
@@ -6766,7 +7329,7 @@ class DefinitionParser(BaseParser):
         #   -> primary-expression
         #    | constraint-logical-and-expression '&&' primary-expression
         self.skip_ws()
-        if not self.skip_word('requires'):
+        if not self.skip_word("requires"):
             return None
 
         def parse_and_expr(self: DefinitionParser) -> ASTExpression:
@@ -6776,12 +7339,12 @@ class DefinitionParser(BaseParser):
             while True:
                 self.skip_ws()
                 oneMore = False
-                if self.skip_string('&&'):
+                if self.skip_string("&&"):
                     oneMore = True
-                    ops.append('&&')
-                elif self.skip_word('and'):
+                    ops.append("&&")
+                elif self.skip_word("and"):
                     oneMore = True
-                    ops.append('and')
+                    ops.append("and")
                 if not oneMore:
                     break
                 andExprs.append(self._parse_primary_expression())
@@ -6796,12 +7359,12 @@ class DefinitionParser(BaseParser):
         while True:
             self.skip_ws()
             oneMore = False
-            if self.skip_string('||'):
+            if self.skip_string("||"):
                 oneMore = True
-                ops.append('||')
-            elif self.skip_word('or'):
+                ops.append("||")
+            elif self.skip_word("or"):
                 oneMore = True
-                ops.append('or')
+                ops.append("or")
             if not oneMore:
                 break
             orExprs.append(parse_and_expr(self))
@@ -6810,8 +7373,9 @@ class DefinitionParser(BaseParser):
         else:
             return ASTRequiresClause(ASTBinOpExpr(orExprs, ops))
 
-    def _parse_template_declaration_prefix(self, objectType: str
-                                           ) -> Optional[ASTTemplateDeclarationPrefix]:
+    def _parse_template_declaration_prefix(
+        self, objectType: str
+    ) -> Optional[ASTTemplateDeclarationPrefix]:
         templates: List[Union[ASTTemplateParams, ASTTemplateIntroduction]] = []
         while 1:
             self.skip_ws()
@@ -6822,7 +7386,7 @@ class DefinitionParser(BaseParser):
                 try:
                     params = self._parse_template_parameter_list()
                 except DefinitionError as e:
-                    if objectType == 'member' and len(templates) == 0:
+                    if objectType == "member" and len(templates) == 0:
                         return ASTTemplateDeclarationPrefix(None)
                     else:
                         raise e
@@ -6830,21 +7394,24 @@ class DefinitionParser(BaseParser):
                 params = self._parse_template_introduction()
                 if not params:
                     break
-            if objectType == 'concept' and len(templates) > 0:
+            if objectType == "concept" and len(templates) > 0:
                 self.pos = pos
                 self.fail("More than 1 template parameter list for concept.")
             templates.append(params)
-        if len(templates) == 0 and objectType == 'concept':
-            self.fail('Missing template parameter list for concept.')
+        if len(templates) == 0 and objectType == "concept":
+            self.fail("Missing template parameter list for concept.")
         if len(templates) == 0:
             return None
         else:
             return ASTTemplateDeclarationPrefix(templates)
 
-    def _check_template_consistency(self, nestedName: ASTNestedName,
-                                    templatePrefix: ASTTemplateDeclarationPrefix,
-                                    fullSpecShorthand: bool, isMember: bool = False
-                                    ) -> ASTTemplateDeclarationPrefix:
+    def _check_template_consistency(
+        self,
+        nestedName: ASTNestedName,
+        templatePrefix: ASTTemplateDeclarationPrefix,
+        fullSpecShorthand: bool,
+        isMember: bool = False,
+    ) -> ASTTemplateDeclarationPrefix:
         numArgs = nestedName.num_templates()
         isMemberInstantiation = False
         if not templatePrefix:
@@ -6856,16 +7423,19 @@ class DefinitionParser(BaseParser):
             else:
                 numParams = len(templatePrefix.templates)
         if numArgs + 1 < numParams:
-            self.fail("Too few template argument lists comapred to parameter"
-                      " lists. Argument lists: %d, Parameter lists: %d."
-                      % (numArgs, numParams))
+            self.fail(
+                "Too few template argument lists comapred to parameter"
+                " lists. Argument lists: %d, Parameter lists: %d." % (numArgs, numParams)
+            )
         if numArgs > numParams:
             numExtra = numArgs - numParams
             if not fullSpecShorthand and not isMemberInstantiation:
-                msg = "Too many template argument lists compared to parameter" \
-                    " lists. Argument lists: %d, Parameter lists: %d," \
-                    " Extra empty parameters lists prepended: %d." \
+                msg = (
+                    "Too many template argument lists compared to parameter"
+                    " lists. Argument lists: %d, Parameter lists: %d,"
+                    " Extra empty parameters lists prepended: %d."
                     % (numArgs, numParams, numExtra)
+                )
                 msg += " Declaration:\n\t"
                 if templatePrefix:
                     msg += "%s\n\t" % templatePrefix
@@ -6881,12 +7451,31 @@ class DefinitionParser(BaseParser):
         return templatePrefix
 
     def parse_declaration(self, objectType: str, directiveType: str) -> ASTDeclaration:
-        if objectType not in ('class', 'union', 'function', 'member', 'type',
-                              'concept', 'enum', 'enumerator'):
+        if objectType not in (
+            "class",
+            "union",
+            "function",
+            "member",
+            "type",
+            "concept",
+            "enum",
+            "enumerator",
+        ):
             raise Exception('Internal error, unknown objectType "%s".' % objectType)
-        if directiveType not in ('class', 'struct', 'union', 'function', 'member', 'var',
-                                 'type', 'concept',
-                                 'enum', 'enum-struct', 'enum-class', 'enumerator'):
+        if directiveType not in (
+            "class",
+            "struct",
+            "union",
+            "function",
+            "member",
+            "var",
+            "type",
+            "concept",
+            "enum",
+            "enum-struct",
+            "enum-class",
+            "enumerator",
+        ):
             raise Exception('Internal error, unknown directiveType "%s".' % directiveType)
         visibility = None
         templatePrefix = None
@@ -6898,17 +7487,17 @@ class DefinitionParser(BaseParser):
         if self.match(_visibility_re):
             visibility = self.matched_text
 
-        if objectType in ('type', 'concept', 'member', 'function', 'class'):
+        if objectType in ("type", "concept", "member", "function", "class"):
             templatePrefix = self._parse_template_declaration_prefix(objectType)
-            if objectType == 'function' and templatePrefix is not None:
+            if objectType == "function" and templatePrefix is not None:
                 requiresClause = self._parse_requires_clause()
 
-        if objectType == 'type':
+        if objectType == "type":
             prevErrors = []
             pos = self.pos
             try:
                 if not templatePrefix:
-                    declaration = self._parse_type(named=True, outer='type')
+                    declaration = self._parse_type(named=True, outer="type")
             except DefinitionError as e:
                 prevErrors.append((e, "If typedef-like declaration"))
                 self.pos = pos
@@ -6921,41 +7510,51 @@ class DefinitionParser(BaseParser):
                 prevErrors.append((e, "If type alias or template alias"))
                 header = "Error in type declaration."
                 raise self._make_multi_error(prevErrors, header) from e
-        elif objectType == 'concept':
+        elif objectType == "concept":
             declaration = self._parse_concept()
-        elif objectType == 'member':
-            declaration = self._parse_type_with_init(named=True, outer='member')
-        elif objectType == 'function':
-            declaration = self._parse_type(named=True, outer='function')
+        elif objectType == "member":
+            declaration = self._parse_type_with_init(named=True, outer="member")
+        elif objectType == "function":
+            declaration = self._parse_type(named=True, outer="function")
             if templatePrefix is not None:
                 trailingRequiresClause = self._parse_requires_clause()
-        elif objectType == 'class':
+        elif objectType == "class":
             declaration = self._parse_class()
-        elif objectType == 'union':
+        elif objectType == "union":
             declaration = self._parse_union()
-        elif objectType == 'enum':
+        elif objectType == "enum":
             declaration = self._parse_enum()
-        elif objectType == 'enumerator':
+        elif objectType == "enumerator":
             declaration = self._parse_enumerator()
         else:
             assert False
-        templatePrefix = self._check_template_consistency(declaration.name,
-                                                          templatePrefix,
-                                                          fullSpecShorthand=False,
-                                                          isMember=objectType == 'member')
+        templatePrefix = self._check_template_consistency(
+            declaration.name,
+            templatePrefix,
+            fullSpecShorthand=False,
+            isMember=objectType == "member",
+        )
         self.skip_ws()
-        semicolon = self.skip_string(';')
-        return ASTDeclaration(objectType, directiveType, visibility,
-                              templatePrefix, requiresClause, declaration,
-                              trailingRequiresClause, semicolon)
+        semicolon = self.skip_string(";")
+        return ASTDeclaration(
+            objectType,
+            directiveType,
+            visibility,
+            templatePrefix,
+            requiresClause,
+            declaration,
+            trailingRequiresClause,
+            semicolon,
+        )
 
     def parse_namespace_object(self) -> ASTNamespace:
         templatePrefix = self._parse_template_declaration_prefix(objectType="namespace")
         name = self._parse_nested_name()
-        templatePrefix = self._check_template_consistency(name, templatePrefix,
-                                                          fullSpecShorthand=False)
+        templatePrefix = self._check_template_consistency(
+            name, templatePrefix, fullSpecShorthand=False
+        )
         res = ASTNamespace(name, templatePrefix)
-        res.objectType = 'namespace'  # type: ignore
+        res.objectType = "namespace"  # type: ignore
         return res
 
     def parse_xref_object(self) -> Tuple[Union[ASTNamespace, ASTDeclaration], bool]:
@@ -6965,20 +7564,21 @@ class DefinitionParser(BaseParser):
             name = self._parse_nested_name()
             # if there are '()' left, just skip them
             self.skip_ws()
-            self.skip_string('()')
+            self.skip_string("()")
             self.assert_end()
-            templatePrefix = self._check_template_consistency(name, templatePrefix,
-                                                              fullSpecShorthand=True)
+            templatePrefix = self._check_template_consistency(
+                name, templatePrefix, fullSpecShorthand=True
+            )
             res1 = ASTNamespace(name, templatePrefix)
-            res1.objectType = 'xref'  # type: ignore
+            res1.objectType = "xref"  # type: ignore
             return res1, True
         except DefinitionError as e1:
             try:
                 self.pos = pos
-                res2 = self.parse_declaration('function', 'function')
+                res2 = self.parse_declaration("function", "function")
                 # if there are '()' left, just skip them
                 self.skip_ws()
-                self.skip_string('()')
+                self.skip_string("()")
                 self.assert_end()
                 return res2, False
             except DefinitionError as e2:
@@ -7019,18 +7619,21 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
     """Description of a C++ language object."""
 
     doc_field_types: List[Field] = [
-        GroupedField('template parameter', label=_('Template Parameters'),
-                     names=('tparam', 'template parameter'),
-                     can_collapse=True),
+        GroupedField(
+            "template parameter",
+            label=_("Template Parameters"),
+            names=("tparam", "template parameter"),
+            can_collapse=True,
+        ),
     ]
 
     option_spec: OptionSpec = {
-        'noindexentry': directives.flag,
-        'tparam-line-spec': directives.flag,
+        "noindexentry": directives.flag,
+        "tparam-line-spec": directives.flag,
     }
 
     def _add_enumerator_to_parent(self, ast: ASTDeclaration) -> None:
-        assert ast.objectType == 'enumerator'
+        assert ast.objectType == "enumerator"
         # find the parent, if it exists && is an enum
         #                     && it's unscoped,
         #                  then add the name to the parent scope
@@ -7051,28 +7654,35 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             # TODO: we could warn, but it could be a style to just assume
             # enumerator parents to be scoped
             return
-        if parentDecl.objectType != 'enum':
+        if parentDecl.objectType != "enum":
             # TODO: maybe issue a warning, enumerators in non-enums is weird,
             # but it is somewhat equivalent to unscoped enums, without the enum
             return
-        if parentDecl.directiveType != 'enum':
+        if parentDecl.directiveType != "enum":
             return
 
         targetSymbol = parentSymbol.parent
-        s = targetSymbol.find_identifier(symbol.identOrOp, matchSelf=False, recurseInAnon=True,
-                                         searchInSiblings=False)
+        s = targetSymbol.find_identifier(
+            symbol.identOrOp, matchSelf=False, recurseInAnon=True, searchInSiblings=False
+        )
         if s is not None:
             # something is already declared with that name
             return
         declClone = symbol.declaration.clone()
         declClone.enumeratorScopedSymbol = symbol
-        Symbol(parent=targetSymbol, identOrOp=symbol.identOrOp,
-               templateParams=None, templateArgs=None,
-               declaration=declClone,
-               docname=self.env.docname, line=self.get_source_info()[1])
+        Symbol(
+            parent=targetSymbol,
+            identOrOp=symbol.identOrOp,
+            templateParams=None,
+            templateArgs=None,
+            declaration=declClone,
+            docname=self.env.docname,
+            line=self.get_source_info()[1],
+        )
 
-    def add_target_and_index(self, ast: ASTDeclaration, sig: str,
-                             signode: TextElement) -> None:
+    def add_target_and_index(
+        self, ast: ASTDeclaration, sig: str, signode: TextElement
+    ) -> None:
         # general note: name must be lstrip(':')'ed, to remove "::"
         ids = []
         for i in range(1, _max_id + 1):
@@ -7085,12 +7695,16 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         ids = list(reversed(ids))
         newestId = ids[0]
         assert newestId  # shouldn't be None
-        if not re.compile(r'^[a-zA-Z0-9_]*$').match(newestId):
-            logger.warning('Index id generation for C++ object "%s" failed, please '
-                           'report as bug (id=%s).', ast, newestId,
-                           location=self.get_location())
+        if not re.compile(r"^[a-zA-Z0-9_]*$").match(newestId):
+            logger.warning(
+                'Index id generation for C++ object "%s" failed, please '
+                "report as bug (id=%s).",
+                ast,
+                newestId,
+                location=self.get_location(),
+            )
 
-        name = ast.symbol.get_full_nested_name().get_display_string().lstrip(':')
+        name = ast.symbol.get_full_nested_name().get_display_string().lstrip(":")
         # Add index entry, but not if it's a declaration inside a concept
         isInConcept = False
         s = ast.symbol.parent
@@ -7099,32 +7713,32 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             s = s.parent
             if decl is None:
                 continue
-            if decl.objectType == 'concept':
+            if decl.objectType == "concept":
                 isInConcept = True
                 break
-        if not isInConcept and 'noindexentry' not in self.options:
+        if not isInConcept and "noindexentry" not in self.options:
             strippedName = name
             for prefix in self.env.config.cpp_index_common_prefix:
                 if name.startswith(prefix):
-                    strippedName = strippedName[len(prefix):]
+                    strippedName = strippedName[len(prefix) :]
                     break
             indexText = self.get_index_text(strippedName)
-            self.indexnode['entries'].append(('single', indexText, newestId, '', None))
+            self.indexnode["entries"].append(("single", indexText, newestId, "", None))
 
         if newestId not in self.state.document.ids:
             # if the name is not unique, the first one will win
-            names = self.env.domaindata['cpp']['names']
+            names = self.env.domaindata["cpp"]["names"]
             if name not in names:
                 names[name] = ast.symbol.docname
             # always add the newest id
             assert newestId
-            signode['ids'].append(newestId)
+            signode["ids"].append(newestId)
             # only add compatibility ids when there are no conflicts
             for id in ids[1:]:
                 if not id:  # is None when the element didn't exist in that version
                     continue
                 if id not in self.state.document.ids:
-                    signode['ids'].append(id)
+                    signode["ids"].append(id)
             self.state.document.note_explicit_target(signode)
 
     @property
@@ -7136,21 +7750,22 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         return self.object_type
 
     def get_index_text(self, name: str) -> str:
-        return _('%s (C++ %s)') % (name, self.display_object_type)
+        return _("%s (C++ %s)") % (name, self.display_object_type)
 
     def parse_definition(self, parser: DefinitionParser) -> ASTDeclaration:
         return parser.parse_declaration(self.object_type, self.objtype)
 
-    def describe_signature(self, signode: desc_signature,
-                           ast: ASTDeclaration, options: Dict) -> None:
-        ast.describe_signature(signode, 'lastIsName', self.env, options)
+    def describe_signature(
+        self, signode: desc_signature, ast: ASTDeclaration, options: Dict
+    ) -> None:
+        ast.describe_signature(signode, "lastIsName", self.env, options)
 
     def run(self) -> List[Node]:
         env = self.state.document.settings.env  # from ObjectDescription.run
-        if 'cpp:parent_symbol' not in env.temp_data:
-            root = env.domaindata['cpp']['root_symbol']
-            env.temp_data['cpp:parent_symbol'] = root
-            env.ref_context['cpp:parent_key'] = root.get_lookup_key()
+        if "cpp:parent_symbol" not in env.temp_data:
+            root = env.domaindata["cpp"]["root_symbol"]
+            env.temp_data["cpp:parent_symbol"] = root
+            env.ref_context["cpp:parent_key"] = root.get_lookup_key()
 
         # The lookup keys assume that no nested scopes exists inside overloaded functions.
         # (see also #5191)
@@ -7163,27 +7778,31 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         #       :cpp:any:`boom`
         #
         # So we disallow any signatures inside functions.
-        parentSymbol = env.temp_data['cpp:parent_symbol']
+        parentSymbol = env.temp_data["cpp:parent_symbol"]
         parentDecl = parentSymbol.declaration
-        if parentDecl is not None and parentDecl.objectType == 'function':
-            msg = "C++ declarations inside functions are not supported." \
-                  " Parent function: {}\nDirective name: {}\nDirective arg: {}"
-            logger.warning(msg.format(
-                str(parentSymbol.get_full_nested_name()),
-                self.name, self.arguments[0]
-            ), location=self.get_location())
+        if parentDecl is not None and parentDecl.objectType == "function":
+            msg = (
+                "C++ declarations inside functions are not supported."
+                " Parent function: {}\nDirective name: {}\nDirective arg: {}"
+            )
+            logger.warning(
+                msg.format(
+                    str(parentSymbol.get_full_nested_name()), self.name, self.arguments[0]
+                ),
+                location=self.get_location(),
+            )
             name = _make_phony_error_name()
             symbol = parentSymbol.add_name(name)
-            env.temp_data['cpp:last_symbol'] = symbol
+            env.temp_data["cpp:last_symbol"] = symbol
             return []
         # When multiple declarations are made in the same directive
         # they need to know about each other to provide symbol lookup for function parameters.
         # We use last_symbol to store the latest added declaration in a directive.
-        env.temp_data['cpp:last_symbol'] = None
+        env.temp_data["cpp:last_symbol"] = None
         return super().run()
 
     def handle_signature(self, sig: str, signode: desc_signature) -> ASTDeclaration:
-        parentSymbol: Symbol = self.env.temp_data['cpp:parent_symbol']
+        parentSymbol: Symbol = self.env.temp_data["cpp:parent_symbol"]
 
         parser = DefinitionParser(sig, location=signode, config=self.env.config)
         try:
@@ -7195,103 +7814,111 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             # the possibly inner declarations.
             name = _make_phony_error_name()
             symbol = parentSymbol.add_name(name)
-            self.env.temp_data['cpp:last_symbol'] = symbol
+            self.env.temp_data["cpp:last_symbol"] = symbol
             raise ValueError from e
 
         try:
             symbol = parentSymbol.add_declaration(
-                ast, docname=self.env.docname, line=self.get_source_info()[1])
+                ast, docname=self.env.docname, line=self.get_source_info()[1]
+            )
             # append the new declaration to the sibling list
             assert symbol.siblingAbove is None
             assert symbol.siblingBelow is None
-            symbol.siblingAbove = self.env.temp_data['cpp:last_symbol']
+            symbol.siblingAbove = self.env.temp_data["cpp:last_symbol"]
             if symbol.siblingAbove is not None:
                 assert symbol.siblingAbove.siblingBelow is None
                 symbol.siblingAbove.siblingBelow = symbol
-            self.env.temp_data['cpp:last_symbol'] = symbol
+            self.env.temp_data["cpp:last_symbol"] = symbol
         except _DuplicateSymbolError as e:
             # Assume we are actually in the old symbol,
             # instead of the newly created duplicate.
-            self.env.temp_data['cpp:last_symbol'] = e.symbol
-            msg = __("Duplicate C++ declaration, also defined at %s:%s.\n"
-                     "Declaration is '.. cpp:%s:: %s'.")
-            msg = msg % (e.symbol.docname, e.symbol.line,
-                         self.display_object_type, sig)
+            self.env.temp_data["cpp:last_symbol"] = e.symbol
+            msg = __(
+                "Duplicate C++ declaration, also defined at %s:%s.\n"
+                "Declaration is '.. cpp:%s:: %s'."
+            )
+            msg = msg % (e.symbol.docname, e.symbol.line, self.display_object_type, sig)
             logger.warning(msg, location=signode)
 
-        if ast.objectType == 'enumerator':
+        if ast.objectType == "enumerator":
             self._add_enumerator_to_parent(ast)
 
         # note: handle_signature may be called multiple time per directive,
         # if it has multiple signatures, so don't mess with the original options.
         options = dict(self.options)
-        options['tparam-line-spec'] = 'tparam-line-spec' in self.options
+        options["tparam-line-spec"] = "tparam-line-spec" in self.options
         self.describe_signature(signode, ast, options)
         return ast
 
     def before_content(self) -> None:
-        lastSymbol: Symbol = self.env.temp_data['cpp:last_symbol']
+        lastSymbol: Symbol = self.env.temp_data["cpp:last_symbol"]
         assert lastSymbol
-        self.oldParentSymbol = self.env.temp_data['cpp:parent_symbol']
-        self.oldParentKey: LookupKey = self.env.ref_context['cpp:parent_key']
-        self.env.temp_data['cpp:parent_symbol'] = lastSymbol
-        self.env.ref_context['cpp:parent_key'] = lastSymbol.get_lookup_key()
+        self.oldParentSymbol = self.env.temp_data["cpp:parent_symbol"]
+        self.oldParentKey: LookupKey = self.env.ref_context["cpp:parent_key"]
+        self.env.temp_data["cpp:parent_symbol"] = lastSymbol
+        self.env.ref_context["cpp:parent_key"] = lastSymbol.get_lookup_key()
 
     def after_content(self) -> None:
-        self.env.temp_data['cpp:parent_symbol'] = self.oldParentSymbol
-        self.env.ref_context['cpp:parent_key'] = self.oldParentKey
+        self.env.temp_data["cpp:parent_symbol"] = self.oldParentSymbol
+        self.env.ref_context["cpp:parent_key"] = self.oldParentKey
 
 
 class CPPTypeObject(CPPObject):
-    object_type = 'type'
+    object_type = "type"
 
 
 class CPPConceptObject(CPPObject):
-    object_type = 'concept'
+    object_type = "concept"
 
 
 class CPPMemberObject(CPPObject):
-    object_type = 'member'
+    object_type = "member"
 
 
 class CPPFunctionObject(CPPObject):
-    object_type = 'function'
+    object_type = "function"
 
     doc_field_types = CPPObject.doc_field_types + [
-        GroupedField('parameter', label=_('Parameters'),
-                     names=('param', 'parameter', 'arg', 'argument'),
-                     can_collapse=True),
-        GroupedField('exceptions', label=_('Throws'), rolename='expr',
-                     names=('throws', 'throw', 'exception'),
-                     can_collapse=True),
-        GroupedField('retval', label=_('Return values'),
-                     names=('retvals', 'retval'),
-                     can_collapse=True),
-        Field('returnvalue', label=_('Returns'), has_arg=False,
-              names=('returns', 'return')),
+        GroupedField(
+            "parameter",
+            label=_("Parameters"),
+            names=("param", "parameter", "arg", "argument"),
+            can_collapse=True,
+        ),
+        GroupedField(
+            "exceptions",
+            label=_("Throws"),
+            rolename="expr",
+            names=("throws", "throw", "exception"),
+            can_collapse=True,
+        ),
+        GroupedField(
+            "retval", label=_("Return values"), names=("retvals", "retval"), can_collapse=True
+        ),
+        Field("returnvalue", label=_("Returns"), has_arg=False, names=("returns", "return")),
     ]
 
 
 class CPPClassObject(CPPObject):
-    object_type = 'class'
+    object_type = "class"
 
     @property
     def display_object_type(self) -> str:
         # the distinction between class and struct is only cosmetic
-        assert self.objtype in ('class', 'struct')
+        assert self.objtype in ("class", "struct")
         return self.objtype
 
 
 class CPPUnionObject(CPPObject):
-    object_type = 'union'
+    object_type = "union"
 
 
 class CPPEnumObject(CPPObject):
-    object_type = 'enum'
+    object_type = "enum"
 
 
 class CPPEnumeratorObject(CPPObject):
-    object_type = 'enumerator'
+    object_type = "enumerator"
 
 
 class CPPNamespaceObject(SphinxDirective):
@@ -7307,14 +7934,14 @@ class CPPNamespaceObject(SphinxDirective):
     option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
-        rootSymbol = self.env.domaindata['cpp']['root_symbol']
-        if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
+        rootSymbol = self.env.domaindata["cpp"]["root_symbol"]
+        if self.arguments[0].strip() in ("NULL", "0", "nullptr"):
             symbol = rootSymbol
             stack: List[Symbol] = []
         else:
-            parser = DefinitionParser(self.arguments[0],
-                                      location=self.get_location(),
-                                      config=self.config)
+            parser = DefinitionParser(
+                self.arguments[0], location=self.get_location(), config=self.config
+            )
             try:
                 ast = parser.parse_namespace_object()
                 parser.assert_end()
@@ -7324,9 +7951,9 @@ class CPPNamespaceObject(SphinxDirective):
                 ast = ASTNamespace(name, None)
             symbol = rootSymbol.add_name(ast.nestedName, ast.templatePrefix)
             stack = [symbol]
-        self.env.temp_data['cpp:parent_symbol'] = symbol
-        self.env.temp_data['cpp:namespace_stack'] = stack
-        self.env.ref_context['cpp:parent_key'] = symbol.get_lookup_key()
+        self.env.temp_data["cpp:parent_symbol"] = symbol
+        self.env.temp_data["cpp:namespace_stack"] = stack
+        self.env.ref_context["cpp:parent_key"] = symbol.get_lookup_key()
         return []
 
 
@@ -7338,11 +7965,11 @@ class CPPNamespacePushObject(SphinxDirective):
     option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
-        if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
+        if self.arguments[0].strip() in ("NULL", "0", "nullptr"):
             return []
-        parser = DefinitionParser(self.arguments[0],
-                                  location=self.get_location(),
-                                  config=self.config)
+        parser = DefinitionParser(
+            self.arguments[0], location=self.get_location(), config=self.config
+        )
         try:
             ast = parser.parse_namespace_object()
             parser.assert_end()
@@ -7350,15 +7977,15 @@ class CPPNamespacePushObject(SphinxDirective):
             logger.warning(e, location=self.get_location())
             name = _make_phony_error_name()
             ast = ASTNamespace(name, None)
-        oldParent = self.env.temp_data.get('cpp:parent_symbol', None)
+        oldParent = self.env.temp_data.get("cpp:parent_symbol", None)
         if not oldParent:
-            oldParent = self.env.domaindata['cpp']['root_symbol']
+            oldParent = self.env.domaindata["cpp"]["root_symbol"]
         symbol = oldParent.add_name(ast.nestedName, ast.templatePrefix)
-        stack = self.env.temp_data.get('cpp:namespace_stack', [])
+        stack = self.env.temp_data.get("cpp:namespace_stack", [])
         stack.append(symbol)
-        self.env.temp_data['cpp:parent_symbol'] = symbol
-        self.env.temp_data['cpp:namespace_stack'] = stack
-        self.env.ref_context['cpp:parent_key'] = symbol.get_lookup_key()
+        self.env.temp_data["cpp:parent_symbol"] = symbol
+        self.env.temp_data["cpp:namespace_stack"] = stack
+        self.env.ref_context["cpp:parent_key"] = symbol.get_lookup_key()
         return []
 
 
@@ -7370,51 +7997,62 @@ class CPPNamespacePopObject(SphinxDirective):
     option_spec: OptionSpec = {}
 
     def run(self) -> List[Node]:
-        stack = self.env.temp_data.get('cpp:namespace_stack', None)
+        stack = self.env.temp_data.get("cpp:namespace_stack", None)
         if not stack or len(stack) == 0:
-            logger.warning("C++ namespace pop on empty stack. Defaulting to global scope.",
-                           location=self.get_location())
+            logger.warning(
+                "C++ namespace pop on empty stack. Defaulting to global scope.",
+                location=self.get_location(),
+            )
             stack = []
         else:
             stack.pop()
         if len(stack) > 0:
             symbol = stack[-1]
         else:
-            symbol = self.env.domaindata['cpp']['root_symbol']
-        self.env.temp_data['cpp:parent_symbol'] = symbol
-        self.env.temp_data['cpp:namespace_stack'] = stack
-        self.env.ref_context['cpp:parent_key'] = symbol.get_lookup_key()
+            symbol = self.env.domaindata["cpp"]["root_symbol"]
+        self.env.temp_data["cpp:parent_symbol"] = symbol
+        self.env.temp_data["cpp:namespace_stack"] = stack
+        self.env.ref_context["cpp:parent_key"] = symbol.get_lookup_key()
         return []
 
 
 class AliasNode(nodes.Element):
-    def __init__(self, sig: str, aliasOptions: dict,
-                 env: "BuildEnvironment" = None,
-                 parentKey: LookupKey = None) -> None:
+    def __init__(
+        self,
+        sig: str,
+        aliasOptions: dict,
+        env: "BuildEnvironment" = None,
+        parentKey: LookupKey = None,
+    ) -> None:
         super().__init__()
         self.sig = sig
         self.aliasOptions = aliasOptions
         if env is not None:
-            if 'cpp:parent_symbol' not in env.temp_data:
-                root = env.domaindata['cpp']['root_symbol']
-                env.temp_data['cpp:parent_symbol'] = root
-                env.ref_context['cpp:parent_key'] = root.get_lookup_key()
-            self.parentKey = env.ref_context['cpp:parent_key']
+            if "cpp:parent_symbol" not in env.temp_data:
+                root = env.domaindata["cpp"]["root_symbol"]
+                env.temp_data["cpp:parent_symbol"] = root
+                env.ref_context["cpp:parent_key"] = root.get_lookup_key()
+            self.parentKey = env.ref_context["cpp:parent_key"]
         else:
             assert parentKey is not None
             self.parentKey = parentKey
 
-    def copy(self) -> 'AliasNode':
-        return self.__class__(self.sig, self.aliasOptions,
-                              env=None, parentKey=self.parentKey)
+    def copy(self) -> "AliasNode":
+        return self.__class__(self.sig, self.aliasOptions, env=None, parentKey=self.parentKey)
 
 
 class AliasTransform(SphinxTransform):
     default_priority = ReferencesResolver.default_priority - 1
 
-    def _render_symbol(self, s: Symbol, maxdepth: int, skipThis: bool,
-                       aliasOptions: dict, renderOptions: dict,
-                       document: Any) -> List[Node]:
+    def _render_symbol(
+        self,
+        s: Symbol,
+        maxdepth: int,
+        skipThis: bool,
+        aliasOptions: dict,
+        renderOptions: dict,
+        document: Any,
+    ) -> List[Node]:
         if maxdepth == 0:
             recurse = True
         elif maxdepth == 1:
@@ -7425,9 +8063,9 @@ class AliasTransform(SphinxTransform):
 
         nodes: List[Node] = []
         if not skipThis:
-            signode = addnodes.desc_signature('', '')
+            signode = addnodes.desc_signature("", "")
             nodes.append(signode)
-            s.declaration.describe_signature(signode, 'markName', self.env, renderOptions)
+            s.declaration.describe_signature(signode, "markName", self.env, renderOptions)
 
         if recurse:
             if skipThis:
@@ -7437,10 +8075,10 @@ class AliasTransform(SphinxTransform):
                 desc = addnodes.desc()
                 content.append(desc)
                 desc.document = document
-                desc['domain'] = 'cpp'
+                desc["domain"] = "cpp"
                 # 'desctype' is a backwards compatible attribute
-                desc['objtype'] = desc['desctype'] = 'alias'
-                desc['noindex'] = True
+                desc["objtype"] = desc["desctype"] = "alias"
+                desc["noindex"] = True
                 childContainer = desc
 
             for sChild in s._children:
@@ -7449,9 +8087,13 @@ class AliasTransform(SphinxTransform):
                 if sChild.declaration.objectType in ("templateParam", "functionParam"):
                     continue
                 childNodes = self._render_symbol(
-                    sChild, maxdepth=maxdepth, skipThis=False,
-                    aliasOptions=aliasOptions, renderOptions=renderOptions,
-                    document=document)
+                    sChild,
+                    maxdepth=maxdepth,
+                    skipThis=False,
+                    aliasOptions=aliasOptions,
+                    renderOptions=renderOptions,
+                    document=document,
+                )
                 childContainer.extend(childNodes)
 
             if not skipThis and len(desc.children) != 0:
@@ -7464,8 +8106,7 @@ class AliasTransform(SphinxTransform):
             sig = node.sig
             parentKey = node.parentKey
             try:
-                parser = DefinitionParser(sig, location=node,
-                                          config=self.env.config)
+                parser = DefinitionParser(sig, location=node, config=self.env.config)
                 ast, isShorthand = parser.parse_xref_object()
                 parser.assert_end()
             except DefinitionError as e:
@@ -7474,13 +8115,13 @@ class AliasTransform(SphinxTransform):
 
             if ast is None:
                 # could not be parsed, so stop here
-                signode = addnodes.desc_signature(sig, '')
+                signode = addnodes.desc_signature(sig, "")
                 signode.clear()
                 signode += addnodes.desc_name(sig, sig)
                 node.replace_self(signode)
                 continue
 
-            rootSymbol: Symbol = self.env.domains['cpp'].data['root_symbol']
+            rootSymbol: Symbol = self.env.domains["cpp"].data["root_symbol"]
             parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
                 print("Target: ", sig)
@@ -7500,54 +8141,59 @@ class AliasTransform(SphinxTransform):
                 symbols, failReason = parentSymbol.find_name(
                     nestedName=name,
                     templateDecls=templateDecls,
-                    typ='any',
+                    typ="any",
                     templateShorthand=True,
-                    matchSelf=True, recurseInAnon=True,
-                    searchInSiblings=False)
+                    matchSelf=True,
+                    recurseInAnon=True,
+                    searchInSiblings=False,
+                )
                 if symbols is None:
                     symbols = []
             else:
                 assert isinstance(ast, ASTDeclaration)
                 decl = ast
                 name = decl.name
-                s = parentSymbol.find_declaration(decl, 'any',
-                                                  templateShorthand=True,
-                                                  matchSelf=True, recurseInAnon=True)
+                s = parentSymbol.find_declaration(
+                    decl, "any", templateShorthand=True, matchSelf=True, recurseInAnon=True
+                )
                 if s is not None:
                     symbols.append(s)
 
             symbols = [s for s in symbols if s.declaration is not None]
 
             if len(symbols) == 0:
-                signode = addnodes.desc_signature(sig, '')
+                signode = addnodes.desc_signature(sig, "")
                 node.append(signode)
                 signode.clear()
                 signode += addnodes.desc_name(sig, sig)
 
-                logger.warning("Can not find C++ declaration for alias '%s'." % ast,
-                               location=node)
+                logger.warning(
+                    "Can not find C++ declaration for alias '%s'." % ast, location=node
+                )
                 node.replace_self(signode)
             else:
                 nodes = []
                 renderOptions = {
-                    'tparam-line-spec': False,
+                    "tparam-line-spec": False,
                 }
                 for s in symbols:
                     assert s.declaration is not None
                     res = self._render_symbol(
-                        s, maxdepth=node.aliasOptions['maxdepth'],
-                        skipThis=node.aliasOptions['noroot'],
+                        s,
+                        maxdepth=node.aliasOptions["maxdepth"],
+                        skipThis=node.aliasOptions["noroot"],
                         aliasOptions=node.aliasOptions,
                         renderOptions=renderOptions,
-                        document=node.document)
+                        document=node.document,
+                    )
                     nodes.extend(res)
                 node.replace_self(nodes)
 
 
 class CPPAliasObject(ObjectDescription):
     option_spec: OptionSpec = {
-        'maxdepth': directives.nonnegative_int,
-        'noroot': directives.flag,
+        "maxdepth": directives.nonnegative_int,
+        "noroot": directives.flag,
     }
 
     def run(self) -> List[Node]:
@@ -7556,28 +8202,30 @@ class CPPAliasObject(ObjectDescription):
         Each alias signature may expand into multiple real signatures (an overload set).
         The code is therefore based on the ObjectDescription version.
         """
-        if ':' in self.name:
-            self.domain, self.objtype = self.name.split(':', 1)
+        if ":" in self.name:
+            self.domain, self.objtype = self.name.split(":", 1)
         else:
-            self.domain, self.objtype = '', self.name
+            self.domain, self.objtype = "", self.name
 
         node = addnodes.desc()
         node.document = self.state.document
-        node['domain'] = self.domain
+        node["domain"] = self.domain
         # 'desctype' is a backwards compatible attribute
-        node['objtype'] = node['desctype'] = self.objtype
+        node["objtype"] = node["desctype"] = self.objtype
 
         self.names: List[str] = []
         aliasOptions = {
-            'maxdepth': self.options.get('maxdepth', 1),
-            'noroot': 'noroot' in self.options,
+            "maxdepth": self.options.get("maxdepth", 1),
+            "noroot": "noroot" in self.options,
         }
-        if aliasOptions['noroot'] and aliasOptions['maxdepth'] == 1:
-            logger.warning("Error in C++ alias declaration."
-                           " Requested 'noroot' but 'maxdepth' 1."
-                           " When skipping the root declaration,"
-                           " need 'maxdepth' 0 for infinite or at least 2.",
-                           location=self.get_location())
+        if aliasOptions["noroot"] and aliasOptions["maxdepth"] == 1:
+            logger.warning(
+                "Error in C++ alias declaration."
+                " Requested 'noroot' but 'maxdepth' 1."
+                " When skipping the root declaration,"
+                " need 'maxdepth' 0 for infinite or at least 2.",
+                location=self.get_location(),
+            )
         signatures = self.get_signatures()
         for i, sig in enumerate(signatures):
             node.append(AliasNode(sig, aliasOptions, env=self.env))
@@ -7586,14 +8234,20 @@ class CPPAliasObject(ObjectDescription):
         node.append(contentnode)
         self.before_content()
         self.state.nested_parse(self.content, self.content_offset, contentnode)
-        self.env.temp_data['object'] = None
+        self.env.temp_data["object"] = None
         self.after_content()
         return [node]
 
 
 class CPPXRefRole(XRefRole):
-    def process_link(self, env: BuildEnvironment, refnode: Element, has_explicit_title: bool,
-                     title: str, target: str) -> Tuple[str, str]:
+    def process_link(
+        self,
+        env: BuildEnvironment,
+        refnode: Element,
+        has_explicit_title: bool,
+        title: str,
+        target: str,
+    ) -> Tuple[str, str]:
         refnode.attributes.update(env.ref_context)
 
         if not has_explicit_title:
@@ -7601,23 +8255,23 @@ class CPPXRefRole(XRefRole):
             # Can this actually fail?
             title = anon_identifier_re.sub("[anonymous]", str(title))
 
-        if refnode['reftype'] == 'any':
+        if refnode["reftype"] == "any":
             # Assume the removal part of fix_parens for :any: refs.
             # The addition part is done with the reference is resolved.
-            if not has_explicit_title and title.endswith('()'):
+            if not has_explicit_title and title.endswith("()"):
                 title = title[:-2]
-            if target.endswith('()'):
+            if target.endswith("()"):
                 target = target[:-2]
         # TODO: should this really be here?
         if not has_explicit_title:
-            target = target.lstrip('~')  # only has a meaning for the title
+            target = target.lstrip("~")  # only has a meaning for the title
             # if the first character is a tilde, don't display the module/class
             # parts of the contents
-            if title[:1] == '~':
+            if title[:1] == "~":
                 title = title[1:]
-                dcolon = title.rfind('::')
+                dcolon = title.rfind("::")
                 if dcolon != -1:
-                    title = title[dcolon + 2:]
+                    title = title[dcolon + 2 :]
         return title, target
 
 
@@ -7626,31 +8280,30 @@ class CPPExprRole(SphinxRole):
         super().__init__()
         if asCode:
             # render the expression as inline code
-            self.class_type = 'cpp-expr'
+            self.class_type = "cpp-expr"
         else:
             # render the expression as inline text
-            self.class_type = 'cpp-texpr'
+            self.class_type = "cpp-texpr"
 
     def run(self) -> Tuple[List[Node], List[system_message]]:
-        text = self.text.replace('\n', ' ')
-        parser = DefinitionParser(text,
-                                  location=self.get_location(),
-                                  config=self.config)
+        text = self.text.replace("\n", " ")
+        parser = DefinitionParser(text, location=self.get_location(), config=self.config)
         # attempt to mimic XRefRole classes, except that...
         try:
             ast = parser.parse_expression()
         except DefinitionError as ex:
-            logger.warning('Unparseable C++ expression: %r\n%s', text, ex,
-                           location=self.get_location())
+            logger.warning(
+                "Unparseable C++ expression: %r\n%s", text, ex, location=self.get_location()
+            )
             # see below
-            return [addnodes.desc_inline('cpp', text, text, classes=[self.class_type])], []
-        parentSymbol = self.env.temp_data.get('cpp:parent_symbol', None)
+            return [addnodes.desc_inline("cpp", text, text, classes=[self.class_type])], []
+        parentSymbol = self.env.temp_data.get("cpp:parent_symbol", None)
         if parentSymbol is None:
-            parentSymbol = self.env.domaindata['cpp']['root_symbol']
+            parentSymbol = self.env.domaindata["cpp"]["root_symbol"]
         # ...most if not all of these classes should really apply to the individual references,
         # not the container node
-        signode = addnodes.desc_inline('cpp', classes=[self.class_type])
-        ast.describe_signature(signode, 'markType', self.env, parentSymbol)
+        signode = addnodes.desc_inline("cpp", classes=[self.class_type])
+        ast.describe_signature(signode, "markType", self.env, parentSymbol)
         return [signode], []
 
 
@@ -7666,88 +8319,100 @@ class CPPDomain(Domain):
       object_types dict below. They are the core different types of declarations in C++ that
       one can document.
     """
-    name = 'cpp'
-    label = 'C++'
+
+    name = "cpp"
+    label = "C++"
     object_types = {
-        'class':      ObjType(_('class'),      'class', 'struct',   'identifier', 'type'),
-        'union':      ObjType(_('union'),      'union',             'identifier', 'type'),
-        'function':   ObjType(_('function'),   'func',              'identifier', 'type'),
-        'member':     ObjType(_('member'),     'member', 'var',     'identifier'),
-        'type':       ObjType(_('type'),                            'identifier', 'type'),
-        'concept':    ObjType(_('concept'),    'concept',           'identifier'),
-        'enum':       ObjType(_('enum'),       'enum',              'identifier', 'type'),
-        'enumerator': ObjType(_('enumerator'), 'enumerator',        'identifier'),
+        "class": ObjType(_("class"), "class", "struct", "identifier", "type"),
+        "union": ObjType(_("union"), "union", "identifier", "type"),
+        "function": ObjType(_("function"), "func", "identifier", "type"),
+        "member": ObjType(_("member"), "member", "var", "identifier"),
+        "type": ObjType(_("type"), "identifier", "type"),
+        "concept": ObjType(_("concept"), "concept", "identifier"),
+        "enum": ObjType(_("enum"), "enum", "identifier", "type"),
+        "enumerator": ObjType(_("enumerator"), "enumerator", "identifier"),
         # generated object types
-        'functionParam': ObjType(_('function parameter'),           'identifier', 'member', 'var'),  # noqa
-        'templateParam': ObjType(_('template parameter'),
-                                 'identifier', 'class', 'struct', 'union', 'member', 'var', 'type'),  # noqa
+        "functionParam": ObjType(
+            _("function parameter"), "identifier", "member", "var"
+        ),  # noqa
+        "templateParam": ObjType(
+            _("template parameter"),
+            "identifier",
+            "class",
+            "struct",
+            "union",
+            "member",
+            "var",
+            "type",
+        ),  # noqa
     }
 
     directives = {
         # declarations
-        'class': CPPClassObject,
-        'struct': CPPClassObject,
-        'union': CPPUnionObject,
-        'function': CPPFunctionObject,
-        'member': CPPMemberObject,
-        'var': CPPMemberObject,
-        'type': CPPTypeObject,
-        'concept': CPPConceptObject,
-        'enum': CPPEnumObject,
-        'enum-struct': CPPEnumObject,
-        'enum-class': CPPEnumObject,
-        'enumerator': CPPEnumeratorObject,
+        "class": CPPClassObject,
+        "struct": CPPClassObject,
+        "union": CPPUnionObject,
+        "function": CPPFunctionObject,
+        "member": CPPMemberObject,
+        "var": CPPMemberObject,
+        "type": CPPTypeObject,
+        "concept": CPPConceptObject,
+        "enum": CPPEnumObject,
+        "enum-struct": CPPEnumObject,
+        "enum-class": CPPEnumObject,
+        "enumerator": CPPEnumeratorObject,
         # scope control
-        'namespace': CPPNamespaceObject,
-        'namespace-push': CPPNamespacePushObject,
-        'namespace-pop': CPPNamespacePopObject,
+        "namespace": CPPNamespaceObject,
+        "namespace-push": CPPNamespacePushObject,
+        "namespace-pop": CPPNamespacePopObject,
         # other
-        'alias': CPPAliasObject
+        "alias": CPPAliasObject,
     }
     roles = {
-        'any': CPPXRefRole(),
-        'class': CPPXRefRole(),
-        'struct': CPPXRefRole(),
-        'union': CPPXRefRole(),
-        'func': CPPXRefRole(fix_parens=True),
-        'member': CPPXRefRole(),
-        'var': CPPXRefRole(),
-        'type': CPPXRefRole(),
-        'concept': CPPXRefRole(),
-        'enum': CPPXRefRole(),
-        'enumerator': CPPXRefRole(),
-        'expr': CPPExprRole(asCode=True),
-        'texpr': CPPExprRole(asCode=False)
+        "any": CPPXRefRole(),
+        "class": CPPXRefRole(),
+        "struct": CPPXRefRole(),
+        "union": CPPXRefRole(),
+        "func": CPPXRefRole(fix_parens=True),
+        "member": CPPXRefRole(),
+        "var": CPPXRefRole(),
+        "type": CPPXRefRole(),
+        "concept": CPPXRefRole(),
+        "enum": CPPXRefRole(),
+        "enumerator": CPPXRefRole(),
+        "expr": CPPExprRole(asCode=True),
+        "texpr": CPPExprRole(asCode=False),
     }
     initial_data = {
-        'root_symbol': Symbol(None, None, None, None, None, None, None),
-        'names': {}  # full name for indexing -> docname
+        "root_symbol": Symbol(None, None, None, None, None, None, None),
+        "names": {},  # full name for indexing -> docname
     }
 
     def clear_doc(self, docname: str) -> None:
         if Symbol.debug_show_tree:
             print("clear_doc:", docname)
             print("\tbefore:")
-            print(self.data['root_symbol'].dump(1))
+            print(self.data["root_symbol"].dump(1))
             print("\tbefore end")
 
-        rootSymbol = self.data['root_symbol']
+        rootSymbol = self.data["root_symbol"]
         rootSymbol.clear_doc(docname)
 
         if Symbol.debug_show_tree:
             print("\tafter:")
-            print(self.data['root_symbol'].dump(1))
+            print(self.data["root_symbol"].dump(1))
             print("\tafter end")
             print("clear_doc end:", docname)
-        for name, nDocname in list(self.data['names'].items()):
+        for name, nDocname in list(self.data["names"].items()):
             if nDocname == docname:
-                del self.data['names'][name]
+                del self.data["names"][name]
 
-    def process_doc(self, env: BuildEnvironment, docname: str,
-                    document: nodes.document) -> None:
+    def process_doc(
+        self, env: BuildEnvironment, docname: str, document: nodes.document
+    ) -> None:
         if Symbol.debug_show_tree:
             print("process_doc:", docname)
-            print(self.data['root_symbol'].dump(0))
+            print(self.data["root_symbol"].dump(0))
             print("process_doc end:", docname)
 
     def process_field_xref(self, pnode: pending_xref) -> None:
@@ -7757,56 +8422,60 @@ class CPPDomain(Domain):
         if Symbol.debug_show_tree:
             print("merge_domaindata:")
             print("\tself:")
-            print(self.data['root_symbol'].dump(1))
+            print(self.data["root_symbol"].dump(1))
             print("\tself end")
             print("\tother:")
-            print(otherdata['root_symbol'].dump(1))
+            print(otherdata["root_symbol"].dump(1))
             print("\tother end")
 
-        self.data['root_symbol'].merge_with(otherdata['root_symbol'],
-                                            docnames, self.env)
-        ourNames = self.data['names']
-        for name, docname in otherdata['names'].items():
+        self.data["root_symbol"].merge_with(otherdata["root_symbol"], docnames, self.env)
+        ourNames = self.data["names"]
+        for name, docname in otherdata["names"].items():
             if docname in docnames:
                 if name not in ourNames:
                     ourNames[name] = docname
                 # no need to warn on duplicates, the symbol merge already does that
         if Symbol.debug_show_tree:
             print("\tresult:")
-            print(self.data['root_symbol'].dump(1))
+            print(self.data["root_symbol"].dump(1))
             print("\tresult end")
             print("merge_domaindata end")
 
-    def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                            typ: str, target: str, node: pending_xref,
-                            contnode: Element) -> Tuple[Optional[Element], Optional[str]]:
+    def _resolve_xref_inner(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        typ: str,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> Tuple[Optional[Element], Optional[str]]:
         # add parens again for those that could be functions
-        if typ == 'any' or typ == 'func':
-            target += '()'
+        if typ == "any" or typ == "func":
+            target += "()"
         parser = DefinitionParser(target, location=node, config=env.config)
         try:
             ast, isShorthand = parser.parse_xref_object()
         except DefinitionError as e:
             # as arg to stop flake8 from complaining
             def findWarning(e: Exception) -> Tuple[str, Exception]:
-                if typ != 'any' and typ != 'func':
+                if typ != "any" and typ != "func":
                     return target, e
                 # hax on top of the paren hax to try to get correct errors
-                parser2 = DefinitionParser(target[:-2],
-                                           location=node,
-                                           config=env.config)
+                parser2 = DefinitionParser(target[:-2], location=node, config=env.config)
                 try:
                     parser2.parse_xref_object()
                 except DefinitionError as e2:
                     return target[:-2], e2
                 # strange, that we don't get the error now, use the original
                 return target, e
+
             t, ex = findWarning(e)
-            logger.warning('Unparseable C++ cross-reference: %r\n%s', t, ex,
-                           location=node)
+            logger.warning("Unparseable C++ cross-reference: %r\n%s", t, ex, location=node)
             return None, None
         parentKey: LookupKey = node.get("cpp:parent_key", None)
-        rootSymbol = self.data['root_symbol']
+        rootSymbol = self.data["root_symbol"]
         if parentKey:
             parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
@@ -7828,13 +8497,17 @@ class CPPDomain(Domain):
             # let's be conservative with the sibling lookup for now
             searchInSiblings = (not name.rooted) and len(name.names) == 1
             symbols, failReason = parentSymbol.find_name(
-                name, templateDecls, typ,
+                name,
+                templateDecls,
+                typ,
                 templateShorthand=True,
-                matchSelf=True, recurseInAnon=True,
-                searchInSiblings=searchInSiblings)
+                matchSelf=True,
+                recurseInAnon=True,
+                searchInSiblings=searchInSiblings,
+            )
             if symbols is None:
-                if typ == 'identifier':
-                    if failReason == 'templateParamInQualified':
+                if typ == "identifier":
+                    if failReason == "templateParamInQualified":
                         # this is an xref we created as part of a signature,
                         # so don't warn for names nested in template parameters
                         raise NoUri(str(name), typ)
@@ -7846,37 +8519,41 @@ class CPPDomain(Domain):
             assert isinstance(ast, ASTDeclaration)
             decl = ast
             name = decl.name
-            s = parentSymbol.find_declaration(decl, typ,
-                                              templateShorthand=True,
-                                              matchSelf=True, recurseInAnon=True)
+            s = parentSymbol.find_declaration(
+                decl, typ, templateShorthand=True, matchSelf=True, recurseInAnon=True
+            )
         if s is None or s.declaration is None:
             txtName = str(name)
-            if txtName.startswith('std::') or txtName == 'std':
+            if txtName.startswith("std::") or txtName == "std":
                 raise NoUri(txtName, typ)
             return None, None
 
-        if typ.startswith('cpp:'):
+        if typ.startswith("cpp:"):
             typ = typ[4:]
         declTyp = s.declaration.objectType
 
         def checkType() -> bool:
-            if typ == 'any':
+            if typ == "any":
                 return True
             objtypes = self.objtypes_for_role(typ)
             if objtypes:
                 return declTyp in objtypes
             print("Type is %s, declaration type is %s" % (typ, declTyp))
             assert False
+
         if not checkType():
-            logger.warning("cpp:%s targets a %s (%s).",
-                           typ, s.declaration.objectType,
-                           s.get_full_nested_name(),
-                           location=node)
+            logger.warning(
+                "cpp:%s targets a %s (%s).",
+                typ,
+                s.declaration.objectType,
+                s.get_full_nested_name(),
+                location=node,
+            )
 
         declaration = s.declaration
         if isShorthand:
             fullNestedName = s.get_full_nested_name()
-            displayName = fullNestedName.get_display_string().lstrip(':')
+            displayName = fullNestedName.get_display_string().lstrip(":")
         else:
             displayName = decl.get_display_string()
         docname = s.docname
@@ -7893,106 +8570,135 @@ class CPPDomain(Domain):
             # However, if it's a non-shorthand function ref, for a function that
             # takes no arguments, then we may need to add parens again as well.
             addParen = 0
-            if not node.get('refexplicit', False) and declaration.objectType == 'function':
+            if not node.get("refexplicit", False) and declaration.objectType == "function":
                 if isShorthand:
                     # this is just the normal haxing for 'any' roles
-                    if env.config.add_function_parentheses and typ == 'any':
+                    if env.config.add_function_parentheses and typ == "any":
                         addParen += 1
                     # and now this stuff for operator()
-                    if (env.config.add_function_parentheses and typ == 'func' and
-                            title.endswith('operator()')):
+                    if (
+                        env.config.add_function_parentheses
+                        and typ == "func"
+                        and title.endswith("operator()")
+                    ):
                         addParen += 1
-                    if ((typ == 'any' or typ == 'func') and
-                            title.endswith('operator') and
-                            displayName.endswith('operator()')):
+                    if (
+                        (typ == "any" or typ == "func")
+                        and title.endswith("operator")
+                        and displayName.endswith("operator()")
+                    ):
                         addParen += 1
                 else:
                     # our job here is to essentially nullify add_function_parentheses
                     if env.config.add_function_parentheses:
-                        if typ == 'any' and displayName.endswith('()'):
+                        if typ == "any" and displayName.endswith("()"):
                             addParen += 1
-                        elif typ == 'func':
-                            if title.endswith('()') and not displayName.endswith('()'):
+                        elif typ == "func":
+                            if title.endswith("()") and not displayName.endswith("()"):
                                 title = title[:-2]
                     else:
-                        if displayName.endswith('()'):
+                        if displayName.endswith("()"):
                             addParen += 1
             if addParen > 0:
-                title += '()' * addParen
+                title += "()" * addParen
             # and reconstruct the title again
             contnode += nodes.Text(title)
-        res = make_refnode(builder, fromdocname, docname,
-                           declaration.get_newest_id(), contnode, displayName
-                           ), declaration.objectType
+        res = (
+            make_refnode(
+                builder,
+                fromdocname,
+                docname,
+                declaration.get_newest_id(),
+                contnode,
+                displayName,
+            ),
+            declaration.objectType,
+        )
         return res
 
-    def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     typ: str, target: str, node: pending_xref, contnode: Element
-                     ) -> Optional[Element]:
-        return self._resolve_xref_inner(env, fromdocname, builder, typ,
-                                        target, node, contnode)[0]
+    def resolve_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        typ: str,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> Optional[Element]:
+        return self._resolve_xref_inner(
+            env, fromdocname, builder, typ, target, node, contnode
+        )[0]
 
-    def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                         target: str, node: pending_xref, contnode: Element
-                         ) -> List[Tuple[str, Element]]:
+    def resolve_any_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> List[Tuple[str, Element]]:
         with logging.suppress_logging():
-            retnode, objtype = self._resolve_xref_inner(env, fromdocname, builder,
-                                                        'any', target, node, contnode)
+            retnode, objtype = self._resolve_xref_inner(
+                env, fromdocname, builder, "any", target, node, contnode
+            )
         if retnode:
-            if objtype == 'templateParam':
-                return [('cpp:templateParam', retnode)]
+            if objtype == "templateParam":
+                return [("cpp:templateParam", retnode)]
             else:
-                return [('cpp:' + self.role_for_objtype(objtype), retnode)]
+                return [("cpp:" + self.role_for_objtype(objtype), retnode)]
         return []
 
     def get_objects(self) -> Iterator[Tuple[str, str, str, str, str, int]]:
-        rootSymbol = self.data['root_symbol']
+        rootSymbol = self.data["root_symbol"]
         for symbol in rootSymbol.get_all_symbols():
             if symbol.declaration is None:
                 continue
             assert symbol.docname
             fullNestedName = symbol.get_full_nested_name()
-            name = str(fullNestedName).lstrip(':')
-            dispname = fullNestedName.get_display_string().lstrip(':')
+            name = str(fullNestedName).lstrip(":")
+            dispname = fullNestedName.get_display_string().lstrip(":")
             objectType = symbol.declaration.objectType
             docname = symbol.docname
             newestId = symbol.declaration.get_newest_id()
             yield (name, dispname, objectType, docname, newestId, 1)
 
     def get_full_qualified_name(self, node: Element) -> str:
-        target = node.get('reftarget', None)
+        target = node.get("reftarget", None)
         if target is None:
             return None
         parentKey: LookupKey = node.get("cpp:parent_key", None)
         if parentKey is None or len(parentKey.data) <= 0:
             return None
 
-        rootSymbol = self.data['root_symbol']
+        rootSymbol = self.data["root_symbol"]
         parentSymbol = rootSymbol.direct_lookup(parentKey)
         parentName = parentSymbol.get_full_nested_name()
-        return '::'.join([str(parentName), target])
+        return "::".join([str(parentName), target])
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_domain(CPPDomain)
-    app.add_config_value("cpp_index_common_prefix", [], 'env')
-    app.add_config_value("cpp_id_attributes", [], 'env')
-    app.add_config_value("cpp_paren_attributes", [], 'env')
+    app.add_config_value("cpp_index_common_prefix", [], "env")
+    app.add_config_value("cpp_id_attributes", [], "env")
+    app.add_config_value("cpp_paren_attributes", [], "env")
     app.add_post_transform(AliasTransform)
 
     # debug stuff
-    app.add_config_value("cpp_debug_lookup", False, '')
-    app.add_config_value("cpp_debug_show_tree", False, '')
+    app.add_config_value("cpp_debug_lookup", False, "")
+    app.add_config_value("cpp_debug_show_tree", False, "")
 
     def initStuff(app):
         Symbol.debug_lookup = app.config.cpp_debug_lookup
         Symbol.debug_show_tree = app.config.cpp_debug_show_tree
         app.config.cpp_index_common_prefix.sort(reverse=True)
+
     app.connect("builder-inited", initStuff)
 
     return {
-        'version': 'builtin',
-        'env_version': 4,
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "env_version": 4,
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

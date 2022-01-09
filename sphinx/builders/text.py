@@ -25,11 +25,11 @@ logger = logging.getLogger(__name__)
 
 
 class TextBuilder(Builder):
-    name = 'text'
-    format = 'text'
-    epilog = __('The text files are in %(outdir)s.')
+    name = "text"
+    format = "text"
+    epilog = __("The text files are in %(outdir)s.")
 
-    out_suffix = '.txt'
+    out_suffix = ".txt"
     allow_parallel = True
     default_translator_class = TextTranslator
 
@@ -58,7 +58,7 @@ class TextBuilder(Builder):
                 pass
 
     def get_target_uri(self, docname: str, typ: str = None) -> str:
-        return ''
+        return ""
 
     def prepare_writing(self, docnames: Set[str]) -> None:
         self.writer = TextWriter(self)
@@ -66,12 +66,12 @@ class TextBuilder(Builder):
     def write_doc(self, docname: str, doctree: Node) -> None:
         self.current_docname = docname
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
-        destination = StringOutput(encoding='utf-8')
+        destination = StringOutput(encoding="utf-8")
         self.writer.write(doctree, destination)
         outfilename = path.join(self.outdir, os_path(docname) + self.out_suffix)
         ensuredir(path.dirname(outfilename))
         try:
-            with open(outfilename, 'w', encoding='utf-8') as f:
+            with open(outfilename, "w", encoding="utf-8") as f:
                 f.write(self.writer.output)
         except OSError as err:
             logger.warning(__("error writing file %s: %s"), outfilename, err)
@@ -83,13 +83,13 @@ class TextBuilder(Builder):
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(TextBuilder)
 
-    app.add_config_value('text_sectionchars', '*=-~"+`', 'env')
-    app.add_config_value('text_newlines', 'unix', 'env')
-    app.add_config_value('text_add_secnumbers', True, 'env')
-    app.add_config_value('text_secnumber_suffix', '. ', 'env')
+    app.add_config_value("text_sectionchars", '*=-~"+`', "env")
+    app.add_config_value("text_newlines", "unix", "env")
+    app.add_config_value("text_add_secnumbers", True, "env")
+    app.add_config_value("text_secnumber_suffix", ". ", "env")
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

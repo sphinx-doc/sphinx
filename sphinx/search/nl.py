@@ -14,7 +14,8 @@ import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-dutch_stopwords = parse_stop_word('''
+dutch_stopwords = parse_stop_word(
+    """
 | source: http://snowball.tartarus.org/algorithms/dutch/stop.txt
 de             |  the
 en             |  and
@@ -117,17 +118,18 @@ uw             |  your
 iemand         |  somebody
 geweest        |  been; past participle of 'be'
 andere         |  other
-''')
+"""
+)
 
 
 class SearchDutch(SearchLanguage):
-    lang = 'nl'
-    language_name = 'Dutch'
-    js_stemmer_rawcode = 'dutch-stemmer.js'
+    lang = "nl"
+    language_name = "Dutch"
+    js_stemmer_rawcode = "dutch-stemmer.js"
     stopwords = dutch_stopwords
 
     def init(self, options: Dict) -> None:
-        self.stemmer = snowballstemmer.stemmer('dutch')
+        self.stemmer = snowballstemmer.stemmer("dutch")
 
     def stem(self, word: str) -> str:
         return self.stemmer.stemWord(word.lower())

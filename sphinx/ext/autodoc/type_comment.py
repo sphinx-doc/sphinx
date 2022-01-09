@@ -35,8 +35,9 @@ def not_suppressed(argtypes: List[ast.AST] = []) -> bool:
         return True
 
 
-def signature_from_ast(node: ast.FunctionDef, bound_method: bool,
-                       type_comment: ast.FunctionDef) -> Signature:
+def signature_from_ast(
+    node: ast.FunctionDef, bound_method: bool, type_comment: ast.FunctionDef
+) -> Signature:
     """Return a Signature object for the given *node*.
 
     :param bound_method: Specify *node* is a bound method or not
@@ -48,23 +49,33 @@ def signature_from_ast(node: ast.FunctionDef, bound_method: bool,
             params.append(param)
 
     for arg in node.args.args:
-        param = Parameter(arg.arg, Parameter.POSITIONAL_OR_KEYWORD,
-                          annotation=arg.type_comment or Parameter.empty)
+        param = Parameter(
+            arg.arg,
+            Parameter.POSITIONAL_OR_KEYWORD,
+            annotation=arg.type_comment or Parameter.empty,
+        )
         params.append(param)
 
     if node.args.vararg:
-        param = Parameter(node.args.vararg.arg, Parameter.VAR_POSITIONAL,
-                          annotation=node.args.vararg.type_comment or Parameter.empty)
+        param = Parameter(
+            node.args.vararg.arg,
+            Parameter.VAR_POSITIONAL,
+            annotation=node.args.vararg.type_comment or Parameter.empty,
+        )
         params.append(param)
 
     for arg in node.args.kwonlyargs:
-        param = Parameter(arg.arg, Parameter.KEYWORD_ONLY,
-                          annotation=arg.type_comment or Parameter.empty)
+        param = Parameter(
+            arg.arg, Parameter.KEYWORD_ONLY, annotation=arg.type_comment or Parameter.empty
+        )
         params.append(param)
 
     if node.args.kwarg:
-        param = Parameter(node.args.kwarg.arg, Parameter.VAR_KEYWORD,
-                          annotation=node.args.kwarg.type_comment or Parameter.empty)
+        param = Parameter(
+            node.args.kwarg.arg,
+            Parameter.VAR_KEYWORD,
+            annotation=node.args.kwarg.type_comment or Parameter.empty,
+        )
         params.append(param)
 
     # Remove first parameter when *obj* is bound_method
@@ -92,17 +103,17 @@ def get_type_comment(obj: Any, bound_method: bool = False) -> Signature:
     """
     try:
         source = getsource(obj)
-        if source.startswith((' ', r'\t')):
+        if source.startswith((" ", r"\t")):
             # subject is placed inside class or block.  To read its docstring,
             # this adds if-block before the declaration.
-            module = ast_parse('if True:\n' + source)
+            module = ast_parse("if True:\n" + source)
             subject = cast(ast.FunctionDef, module.body[0].body[0])  # type: ignore
         else:
             module = ast_parse(source)
             subject = cast(ast.FunctionDef, module.body[0])  # type: ignore
 
         if getattr(subject, "type_comment", None):
-            function = ast_parse(subject.type_comment, mode='func_type')
+            function = ast_parse(subject.type_comment, mode="func_type")
             return signature_from_ast(subject, bound_method, function)  # type: ignore
         else:
             return None
@@ -124,16 +135,17 @@ def update_annotations_using_type_comments(app: Sphinx, obj: Any, bound_method: 
                     if annotation is not Parameter.empty:
                         obj.__annotations__[param.name] = ast_unparse(annotation)
 
-            if 'return' not in obj.__annotations__:
-                obj.__annotations__['return'] = type_sig.return_annotation
+            if "return" not in obj.__annotations__:
+                obj.__annotations__["return"] = type_sig.return_annotation
     except KeyError as exc:
-        logger.warning(__("Failed to update signature for %r: parameter not found: %s"),
-                       obj, exc)
+        logger.warning(
+            __("Failed to update signature for %r: parameter not found: %s"), obj, exc
+        )
     except NotImplementedError as exc:  # failed to ast.unparse()
         logger.warning(__("Failed to parse type_comment for %r: %s"), obj, exc)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
-    app.connect('autodoc-before-process-signature', update_annotations_using_type_comments)
+    app.connect("autodoc-before-process-signature", update_annotations_using_type_comments)
 
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {"version": sphinx.__display_version__, "parallel_read_safe": True}

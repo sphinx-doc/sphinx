@@ -25,18 +25,27 @@ class RemovedInSphinx60Warning(PendingDeprecationWarning):
 RemovedInNextVersionWarning = RemovedInSphinx50Warning
 
 
-def deprecated_alias(modname: str, objects: Dict[str, object],
-                     warning: Type[Warning], names: Dict[str, str] = {}) -> None:
+def deprecated_alias(
+    modname: str,
+    objects: Dict[str, object],
+    warning: Type[Warning],
+    names: Dict[str, str] = {},
+) -> None:
     module = import_module(modname)
     sys.modules[modname] = _ModuleWrapper(  # type: ignore
-        module, modname, objects, warning, names)
+        module, modname, objects, warning, names
+    )
 
 
 class _ModuleWrapper:
-    def __init__(self, module: Any, modname: str,
-                 objects: Dict[str, object],
-                 warning: Type[Warning],
-                 names: Dict[str, str]) -> None:
+    def __init__(
+        self,
+        module: Any,
+        modname: str,
+        objects: Dict[str, object],
+        warning: Type[Warning],
+        names: Dict[str, str],
+    ) -> None:
         self._module = module
         self._modname = modname
         self._objects = objects
@@ -52,11 +61,16 @@ class _ModuleWrapper:
             warnings.warn(
                 "The alias '{}.{}' is deprecated, use '{}' instead. Check CHANGES for "
                 "Sphinx API modifications.".format(self._modname, name, canonical_name),
-                self._warning, stacklevel=3)
+                self._warning,
+                stacklevel=3,
+            )
         else:
-            warnings.warn("{}.{} is deprecated. Check CHANGES for Sphinx "
-                          "API modifications.".format(self._modname, name),
-                          self._warning, stacklevel=3)
+            warnings.warn(
+                "{}.{} is deprecated. Check CHANGES for Sphinx "
+                "API modifications.".format(self._modname, name),
+                self._warning,
+                stacklevel=3,
+            )
         return self._objects[name]
 
 

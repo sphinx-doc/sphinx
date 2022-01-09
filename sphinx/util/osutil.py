@@ -49,8 +49,8 @@ def relative_uri(base: str, to: str) -> str:
     """Return a relative URL from ``base`` to ``to``."""
     if to.startswith(SEP):
         return to
-    b2 = base.split('#')[0].split(SEP)
-    t2 = to.split('#')[0].split(SEP)
+    b2 = base.split("#")[0].split(SEP)
+    t2 = to.split("#")[0].split(SEP)
     # remove common segments (except the last segment)
     for x, y in zip(b2[:-1], t2[:-1]):
         if x != y:
@@ -60,12 +60,12 @@ def relative_uri(base: str, to: str) -> str:
     if b2 == t2:
         # Special case: relative_uri('f/index.html','f/index.html')
         # returns '', not 'index.html'
-        return ''
-    if len(b2) == 1 and t2 == ['']:
+        return ""
+    if len(b2) == 1 and t2 == [""]:
         # Special case: relative_uri('f/index.html','f/') should
         # return './', not ''
-        return '.' + SEP
-    return ('..' + SEP) * (len(b2) - 1) + SEP.join(t2)
+        return "." + SEP
+    return (".." + SEP) * (len(b2) - 1) + SEP.join(t2)
 
 
 def ensuredir(path: str) -> None:
@@ -86,9 +86,12 @@ def mtimes_of_files(dirnames: List[str], suffix: str) -> Iterator[float]:
 
 def movefile(source: str, dest: str) -> None:
     """Move a file, removing the destination if it exists."""
-    warnings.warn('sphinx.util.osutil.movefile() is deprecated for removal. '
-                  'Please use os.replace() instead.',
-                  RemovedInSphinx50Warning, stacklevel=2)
+    warnings.warn(
+        "sphinx.util.osutil.movefile() is deprecated for removal. "
+        "Please use os.replace() instead.",
+        RemovedInSphinx50Warning,
+        stacklevel=2,
+    )
     if os.path.exists(dest):
         try:
             os.unlink(dest)
@@ -100,7 +103,7 @@ def movefile(source: str, dest: str) -> None:
 def copytimes(source: str, dest: str) -> None:
     """Copy a file's modification times."""
     st = os.stat(source)
-    if hasattr(os, 'utime'):
+    if hasattr(os, "utime"):
         os.utime(dest, (st.st_atime, st.st_mtime))
 
 
@@ -117,16 +120,16 @@ def copyfile(source: str, dest: str) -> None:
             pass
 
 
-no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
-project_suffix_re = re.compile(' Documentation$')
+no_fn_re = re.compile(r"[^a-zA-Z0-9_-]")
+project_suffix_re = re.compile(" Documentation$")
 
 
 def make_filename(string: str) -> str:
-    return no_fn_re.sub('', string) or 'sphinx'
+    return no_fn_re.sub("", string) or "sphinx"
 
 
 def make_filename_from_project(project: str) -> str:
-    return make_filename(project_suffix_re.sub('', project)).lower()
+    return make_filename(project_suffix_re.sub("", project)).lower()
 
 
 def relpath(path: str, start: str = os.curdir) -> str:
@@ -155,9 +158,11 @@ def abspath(pathdir: str) -> str:
             try:
                 pathdir = pathdir.decode(fs_encoding)
             except UnicodeDecodeError as exc:
-                raise UnicodeDecodeError('multibyte filename not supported on '
-                                         'this filesystem encoding '
-                                         '(%r)' % fs_encoding) from exc
+                raise UnicodeDecodeError(
+                    "multibyte filename not supported on "
+                    "this filesystem encoding "
+                    "(%r)" % fs_encoding
+                ) from exc
         return pathdir
 
 
@@ -183,6 +188,7 @@ class FileAvoidWrite:
 
     Objects can be used as context managers.
     """
+
     def __init__(self, path: str) -> None:
         self._path = path
         self._io: Optional[StringIO] = None
@@ -195,34 +201,35 @@ class FileAvoidWrite:
     def close(self) -> None:
         """Stop accepting writes and write file, if needed."""
         if not self._io:
-            raise Exception('FileAvoidWrite does not support empty files.')
+            raise Exception("FileAvoidWrite does not support empty files.")
 
         buf = self.getvalue()
         self._io.close()
 
         try:
-            with open(self._path, encoding='utf-8') as old_f:
+            with open(self._path, encoding="utf-8") as old_f:
                 old_content = old_f.read()
                 if old_content == buf:
                     return
         except OSError:
             pass
 
-        with open(self._path, 'w', encoding='utf-8') as f:
+        with open(self._path, "w", encoding="utf-8") as f:
             f.write(buf)
 
     def __enter__(self) -> "FileAvoidWrite":
         return self
 
-    def __exit__(self, exc_type: Type[Exception], exc_value: Exception, traceback: Any) -> bool:  # NOQA
+    def __exit__(
+        self, exc_type: Type[Exception], exc_value: Exception, traceback: Any
+    ) -> bool:  # NOQA
         self.close()
         return True
 
     def __getattr__(self, name: str) -> Any:
         # Proxy to _io instance.
         if not self._io:
-            raise Exception('Must write to FileAvoidWrite before other '
-                            'methods can be used')
+            raise Exception("Must write to FileAvoidWrite before other " "methods can be used")
 
         return getattr(self._io, name)
 

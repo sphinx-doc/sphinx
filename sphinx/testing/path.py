@@ -109,7 +109,7 @@ class path(str):
             pointed to by the symbolic links are copied.
         """
         shutil.copytree(self, destination, symlinks=symlinks)
-        if os.environ.get('SPHINX_READONLY_TESTDIR'):
+        if os.environ.get("SPHINX_READONLY_TESTDIR"):
             # If source tree is marked read-only (e.g. because it is on a read-only
             # filesystem), `shutil.copytree` will mark the destination as read-only
             # as well.  To avoid failures when adding additional files/directories
@@ -147,25 +147,28 @@ class path(str):
     def utime(self, arg: Any) -> None:
         os.utime(self, arg)
 
-    def open(self, mode: str = 'r', **kwargs: Any) -> IO:
+    def open(self, mode: str = "r", **kwargs: Any) -> IO:
         return open(self, mode, **kwargs)
 
-    def write_text(self, text: str, encoding: str = 'utf-8', **kwargs: Any) -> None:
+    def write_text(self, text: str, encoding: str = "utf-8", **kwargs: Any) -> None:
         """
         Writes the given `text` to the file.
         """
-        with open(self, 'w', encoding=encoding, **kwargs) as f:
+        with open(self, "w", encoding=encoding, **kwargs) as f:
             f.write(text)
 
-    def text(self, encoding: str = 'utf-8', **kwargs: Any) -> str:
+    def text(self, encoding: str = "utf-8", **kwargs: Any) -> str:
         """
         Returns the text in the file.
         """
-        warnings.warn('Path.text() is deprecated.  Please use read_text() instead.',
-                      RemovedInSphinx50Warning, stacklevel=2)
+        warnings.warn(
+            "Path.text() is deprecated.  Please use read_text() instead.",
+            RemovedInSphinx50Warning,
+            stacklevel=2,
+        )
         return self.read_text(encoding, **kwargs)
 
-    def read_text(self, encoding: str = 'utf-8', **kwargs: Any) -> str:
+    def read_text(self, encoding: str = "utf-8", **kwargs: Any) -> str:
         """
         Returns the text in the file.
         """
@@ -176,15 +179,18 @@ class path(str):
         """
         Returns the bytes in the file.
         """
-        warnings.warn('Path.bytes() is deprecated.  Please use read_bytes() instead.',
-                      RemovedInSphinx50Warning, stacklevel=2)
+        warnings.warn(
+            "Path.bytes() is deprecated.  Please use read_bytes() instead.",
+            RemovedInSphinx50Warning,
+            stacklevel=2,
+        )
         return self.read_bytes()
 
     def read_bytes(self) -> builtins.bytes:
         """
         Returns the bytes in the file.
         """
-        with open(self, mode='rb') as f:
+        with open(self, mode="rb") as f:
             return f.read()
 
     def write_bytes(self, bytes: str, append: bool = False) -> None:
@@ -195,9 +201,9 @@ class path(str):
             If ``True`` given `bytes` are added at the end of the file.
         """
         if append:
-            mode = 'ab'
+            mode = "ab"
         else:
-            mode = 'wb'
+            mode = "wb"
         with open(self, mode=mode) as f:
             f.write(bytes)
 
@@ -232,4 +238,4 @@ class path(str):
     __div__ = __truediv__ = joinpath
 
     def __repr__(self) -> str:
-        return '%s(%s)' % (self.__class__.__name__, super().__repr__())
+        return "%s(%s)" % (self.__class__.__name__, super().__repr__())

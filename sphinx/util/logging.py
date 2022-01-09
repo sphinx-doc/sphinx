@@ -12,7 +12,18 @@ import logging
 import logging.handlers
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import IO, TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple, Type, Union
+from typing import (
+    IO,
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Generator,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+)
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -25,33 +36,35 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
-NAMESPACE = 'sphinx'
+NAMESPACE = "sphinx"
 VERBOSE = 15
 
 LEVEL_NAMES: Dict[str, int] = defaultdict(lambda: logging.WARNING)
-LEVEL_NAMES.update({
-    'CRITICAL': logging.CRITICAL,
-    'SEVERE': logging.CRITICAL,
-    'ERROR': logging.ERROR,
-    'WARNING': logging.WARNING,
-    'INFO': logging.INFO,
-    'VERBOSE': VERBOSE,
-    'DEBUG': logging.DEBUG,
-})
+LEVEL_NAMES.update(
+    {
+        "CRITICAL": logging.CRITICAL,
+        "SEVERE": logging.CRITICAL,
+        "ERROR": logging.ERROR,
+        "WARNING": logging.WARNING,
+        "INFO": logging.INFO,
+        "VERBOSE": VERBOSE,
+        "DEBUG": logging.DEBUG,
+    }
+)
 
 VERBOSITY_MAP: Dict[int, int] = defaultdict(lambda: 0)
-VERBOSITY_MAP.update({
-    0: logging.INFO,
-    1: VERBOSE,
-    2: logging.DEBUG,
-})
+VERBOSITY_MAP.update(
+    {
+        0: logging.INFO,
+        1: VERBOSE,
+        2: logging.DEBUG,
+    }
+)
 
-COLOR_MAP = defaultdict(lambda: 'blue',
-                        {
-                            logging.ERROR: 'darkred',
-                            logging.WARNING: 'red',
-                            logging.DEBUG: 'darkgray'
-                        })
+COLOR_MAP = defaultdict(
+    lambda: "blue",
+    {logging.ERROR: "darkred", logging.WARNING: "red", logging.DEBUG: "darkgray"},
+)
 
 
 def getLogger(name: str) -> "SphinxLoggerAdapter":
@@ -69,7 +82,7 @@ def getLogger(name: str) -> "SphinxLoggerAdapter":
         Hello, this is an extension!
     """
     # add sphinx prefix to name forcely
-    logger = logging.getLogger(NAMESPACE + '.' + name)
+    logger = logging.getLogger(NAMESPACE + "." + name)
     # Forcely enable logger
     logger.disabled = False
     # wrap logger by SphinxLoggerAdapter
@@ -83,21 +96,22 @@ def convert_serializable(records: List[logging.LogRecord]) -> None:
         r.msg = r.getMessage()
         r.args = ()
 
-        location = getattr(r, 'location', None)
+        location = getattr(r, "location", None)
         if isinstance(location, nodes.Node):
             r.location = get_node_location(location)  # type: ignore
 
 
 class SphinxLogRecord(logging.LogRecord):
     """Log record class supporting location"""
-    prefix = ''
+
+    prefix = ""
     location: Any = None
 
     def getMessage(self) -> str:
         message = super().getMessage()
-        location = getattr(self, 'location', None)
+        location = getattr(self, "location", None)
         if location:
-            message = '%s: %s%s' % (location, self.prefix, message)
+            message = "%s: %s%s" % (location, self.prefix, message)
         elif self.prefix not in message:
             message = self.prefix + message
 
@@ -106,24 +120,27 @@ class SphinxLogRecord(logging.LogRecord):
 
 class SphinxInfoLogRecord(SphinxLogRecord):
     """Info log record class supporting location"""
-    prefix = ''  # do not show any prefix for INFO messages
+
+    prefix = ""  # do not show any prefix for INFO messages
 
 
 class SphinxWarningLogRecord(SphinxLogRecord):
     """Warning log record class supporting location"""
+
     @property
     def prefix(self) -> str:  # type: ignore
         if self.levelno >= logging.CRITICAL:
-            return 'CRITICAL: '
+            return "CRITICAL: "
         elif self.levelno >= logging.ERROR:
-            return 'ERROR: '
+            return "ERROR: "
         else:
-            return 'WARNING: '
+            return "WARNING: "
 
 
 class SphinxLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
-    KEYWORDS = ['type', 'subtype', 'location', 'nonl', 'color', 'once']
+
+    KEYWORDS = ["type", "subtype", "location", "nonl", "color", "once"]
 
     def log(self, level: Union[int, str], msg: str, *args: Any, **kwargs: Any) -> None:  # type: ignore # NOQA
         if isinstance(level, int):
@@ -136,7 +153,7 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
         self.log(VERBOSE, msg, *args, **kwargs)
 
     def process(self, msg: str, kwargs: Dict) -> Tuple[str, Dict]:  # type: ignore
-        extra = kwargs.setdefault('extra', {})
+        extra = kwargs.setdefault("extra", {})
         for keyword in self.KEYWORDS:
             if keyword in kwargs:
                 extra[keyword] = kwargs.pop(keyword)
@@ -149,6 +166,7 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
 
 class WarningStreamHandler(logging.StreamHandler):
     """StreamHandler for warnings."""
+
     pass
 
 
@@ -158,12 +176,12 @@ class NewLineStreamHandler(logging.StreamHandler):
     def emit(self, record: logging.LogRecord) -> None:
         try:
             self.acquire()
-            if getattr(record, 'nonl', False):
+            if getattr(record, "nonl", False):
                 # skip appending terminator when nonl=True
-                self.terminator = ''
+                self.terminator = ""
             super().emit(record)
         finally:
-            self.terminator = '\n'
+            self.terminator = "\n"
             self.release()
 
 
@@ -370,16 +388,18 @@ def is_suppressed_warning(type: str, subtype: str, suppress_warnings: List[str])
     subtarget: Optional[str]
 
     for warning_type in suppress_warnings:
-        if '.' in warning_type:
-            target, subtarget = warning_type.split('.', 1)
+        if "." in warning_type:
+            target, subtarget = warning_type.split(".", 1)
         else:
             target, subtarget = warning_type, None
 
         if target == type:
-            if ((subtype is None and subtarget is None) or
-                    subtarget is None or
-                    subtarget == subtype or
-                    subtarget == '*'):
+            if (
+                (subtype is None and subtarget is None)
+                or subtarget is None
+                or subtarget == subtype
+                or subtarget == "*"
+            ):
                 return True
 
     return False
@@ -393,8 +413,8 @@ class WarningSuppressor(logging.Filter):
         super().__init__()
 
     def filter(self, record: logging.LogRecord) -> bool:
-        type = getattr(record, 'type', None)
-        subtype = getattr(record, 'subtype', None)
+        type = getattr(record, "type", None)
+        subtype = getattr(record, "subtype", None)
 
         try:
             suppress_warnings = self.app.config.suppress_warnings
@@ -417,11 +437,11 @@ class WarningIsErrorFilter(logging.Filter):
         super().__init__()
 
     def filter(self, record: logging.LogRecord) -> bool:
-        if getattr(record, 'skip_warningsiserror', False):
+        if getattr(record, "skip_warningsiserror", False):
             # disabled by DisableWarningIsErrorFilter
             return True
         elif self.app.warningiserror:
-            location = getattr(record, 'location', '')
+            location = getattr(record, "location", "")
             try:
                 message = record.msg % record.args
             except (TypeError, ValueError):
@@ -456,19 +476,19 @@ class MessagePrefixFilter(logging.Filter):
 
     def filter(self, record: logging.LogRecord) -> bool:
         if self.prefix:
-            record.msg = self.prefix + ' ' + record.msg
+            record.msg = self.prefix + " " + record.msg
         return True
 
 
 class OnceFilter(logging.Filter):
     """Show the message only once."""
 
-    def __init__(self, name: str = '') -> None:
+    def __init__(self, name: str = "") -> None:
         super().__init__(name)
         self.messages: Dict[str, List] = {}
 
     def filter(self, record: logging.LogRecord) -> bool:
-        once = getattr(record, 'once', '')
+        once = getattr(record, "once", "")
         if not once:
             return True
         else:
@@ -486,6 +506,7 @@ class SphinxLogRecordTranslator(logging.Filter):
     * Make a instance of SphinxLogRecord
     * docname to path if location given
     """
+
     LogRecordClass: Type[logging.LogRecord]
 
     def __init__(self, app: "Sphinx") -> None:
@@ -497,30 +518,32 @@ class SphinxLogRecordTranslator(logging.Filter):
             # force subclassing to handle location
             record.__class__ = self.LogRecordClass  # type: ignore
 
-        location = getattr(record, 'location', None)
+        location = getattr(record, "location", None)
         if isinstance(location, tuple):
             docname, lineno = location
             if docname and lineno:
-                record.location = '%s:%s' % (self.app.env.doc2path(docname), lineno)
+                record.location = "%s:%s" % (self.app.env.doc2path(docname), lineno)
             elif docname:
-                record.location = '%s' % self.app.env.doc2path(docname)
+                record.location = "%s" % self.app.env.doc2path(docname)
             else:
                 record.location = None
         elif isinstance(location, nodes.Node):
             record.location = get_node_location(location)
-        elif location and ':' not in location:
-            record.location = '%s' % self.app.env.doc2path(location)
+        elif location and ":" not in location:
+            record.location = "%s" % self.app.env.doc2path(location)
 
         return True
 
 
 class InfoLogRecordTranslator(SphinxLogRecordTranslator):
     """LogRecordTranslator for INFO level log records."""
+
     LogRecordClass = SphinxInfoLogRecord
 
 
 class WarningLogRecordTranslator(SphinxLogRecordTranslator):
     """LogRecordTranslator for WARNING level log records."""
+
     LogRecordClass = SphinxWarningLogRecord
 
 
@@ -539,7 +562,7 @@ def get_node_location(node: Node) -> Optional[str]:
 class ColorizeFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         message = super().format(record)
-        color = getattr(record, 'color', None)
+        color = getattr(record, "color", None)
         if color is None:
             color = COLOR_MAP.get(record.levelno)
 
@@ -551,9 +574,10 @@ class ColorizeFormatter(logging.Formatter):
 
 class SafeEncodingWriter:
     """Stream writer which ignores UnicodeEncodeError silently"""
+
     def __init__(self, stream: IO) -> None:
         self.stream = stream
-        self.encoding = getattr(stream, 'encoding', 'ascii') or 'ascii'
+        self.encoding = getattr(stream, "encoding", "ascii") or "ascii"
 
     def write(self, data: str) -> None:
         try:
@@ -561,15 +585,16 @@ class SafeEncodingWriter:
         except UnicodeEncodeError:
             # stream accept only str, not bytes.  So, we encode and replace
             # non-encodable characters, then decode them.
-            self.stream.write(data.encode(self.encoding, 'replace').decode(self.encoding))
+            self.stream.write(data.encode(self.encoding, "replace").decode(self.encoding))
 
     def flush(self) -> None:
-        if hasattr(self.stream, 'flush'):
+        if hasattr(self.stream, "flush"):
             self.stream.flush()
 
 
 class LastMessagesWriter:
     """Stream writer storing last 10 messages in memory to save trackback"""
+
     def __init__(self, app: "Sphinx", stream: IO) -> None:
         self.app = app
 

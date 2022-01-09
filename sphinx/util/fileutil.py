@@ -21,8 +21,9 @@ if TYPE_CHECKING:
     from sphinx.util.template import BaseRenderer
 
 
-def copy_asset_file(source: str, destination: str,
-                    context: Dict = None, renderer: "BaseRenderer" = None) -> None:
+def copy_asset_file(
+    source: str, destination: str, context: Dict = None, renderer: "BaseRenderer" = None
+) -> None:
     """Copy an asset file to destination.
 
     On copying, it expands the template variables if context argument is given and
@@ -40,23 +41,29 @@ def copy_asset_file(source: str, destination: str,
         # Use source filename if destination points a directory
         destination = os.path.join(destination, os.path.basename(source))
 
-    if source.lower().endswith('_t') and context is not None:
+    if source.lower().endswith("_t") and context is not None:
         if renderer is None:
             from sphinx.util.template import SphinxRenderer
+
             renderer = SphinxRenderer()
 
-        with open(source, encoding='utf-8') as fsrc:
-            if destination.lower().endswith('_t'):
+        with open(source, encoding="utf-8") as fsrc:
+            if destination.lower().endswith("_t"):
                 destination = destination[:-2]
-            with open(destination, 'w', encoding='utf-8') as fdst:
+            with open(destination, "w", encoding="utf-8") as fdst:
                 fdst.write(renderer.render_string(fsrc.read(), context))
     else:
         copyfile(source, destination)
 
 
-def copy_asset(source: str, destination: str, excluded: PathMatcher = lambda path: False,
-               context: Dict = None, renderer: "BaseRenderer" = None,
-               onerror: Callable[[str, Exception], None] = None) -> None:
+def copy_asset(
+    source: str,
+    destination: str,
+    excluded: PathMatcher = lambda path: False,
+    context: Dict = None,
+    renderer: "BaseRenderer" = None,
+    onerror: Callable[[str, Exception], None] = None,
+) -> None:
     """Copy asset files to destination recursively.
 
     On copying, it expands the template variables if context argument is given and
@@ -74,6 +81,7 @@ def copy_asset(source: str, destination: str, excluded: PathMatcher = lambda pat
 
     if renderer is None:
         from sphinx.util.template import SphinxRenderer
+
         renderer = SphinxRenderer()
 
     ensuredir(destination)
@@ -92,9 +100,12 @@ def copy_asset(source: str, destination: str, excluded: PathMatcher = lambda pat
         for filename in files:
             if not excluded(posixpath.join(reldir, filename)):
                 try:
-                    copy_asset_file(posixpath.join(root, filename),
-                                    posixpath.join(destination, reldir),
-                                    context, renderer)
+                    copy_asset_file(
+                        posixpath.join(root, filename),
+                        posixpath.join(destination, reldir),
+                        context,
+                        renderer,
+                    )
                 except Exception as exc:
                     if onerror:
                         onerror(posixpath.join(root, filename), exc)

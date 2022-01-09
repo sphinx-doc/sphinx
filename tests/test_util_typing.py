@@ -12,8 +12,18 @@ import sys
 from numbers import Integral
 from struct import Struct
 from types import TracebackType
-from typing import (Any, Callable, Dict, Generator, List, NewType, Optional, Tuple, TypeVar,
-                    Union)
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    List,
+    NewType,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 import pytest
 

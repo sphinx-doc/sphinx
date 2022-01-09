@@ -20,9 +20,14 @@ from unittest import TestCase, mock
 import pytest
 
 from sphinx.ext.napoleon import Config
-from sphinx.ext.napoleon.docstring import (GoogleDocstring, NumpyDocstring,
-                                           _convert_numpy_type_spec, _recombine_set_tokens,
-                                           _token_type, _tokenize_type_spec)
+from sphinx.ext.napoleon.docstring import (
+    GoogleDocstring,
+    NumpyDocstring,
+    _convert_numpy_type_spec,
+    _recombine_set_tokens,
+    _token_type,
+    _tokenize_type_spec,
+)
 
 if sys.version_info >= (3, 6):
     from .ext_napoleon_pep526_data_google import PEP526GoogleClass

@@ -35,6 +35,7 @@ class SphinxDanglingReferences(DanglingReferences):
 
 class SphinxDomains(SphinxTransform):
     """Collect objects to Sphinx domains for cross references."""
+
     default_priority = 850
 
     def apply(self, **kwargs: Any) -> None:
@@ -47,7 +48,7 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_transform(SphinxDomains)
 
     return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
+        "version": "builtin",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
     }

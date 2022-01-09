@@ -16,9 +16,18 @@ import pytest
 
 from sphinx.errors import ExtensionError
 from sphinx.testing.util import strip_escseq
-from sphinx.util import (SkipProgressMessage, display_chunk, encode_uri, ensuredir,
-                         import_object, logging, parselinenos, progress_message,
-                         status_iterator, xmlname_checker)
+from sphinx.util import (
+    SkipProgressMessage,
+    display_chunk,
+    encode_uri,
+    ensuredir,
+    import_object,
+    logging,
+    parselinenos,
+    progress_message,
+    status_iterator,
+    xmlname_checker,
+)
 
 
 def test_encode_uri():

@@ -53,20 +53,20 @@ class Todo(BaseAdmonition, SphinxDirective):
     optional_arguments = 0
     final_argument_whitespace = False
     option_spec: OptionSpec = {
-        'class': directives.class_option,
-        'name': directives.unchanged,
+        "class": directives.class_option,
+        "name": directives.unchanged,
     }
 
     def run(self) -> List[Node]:
-        if not self.options.get('class'):
-            self.options['class'] = ['admonition-todo']
+        if not self.options.get("class"):
+            self.options["class"] = ["admonition-todo"]
 
         (todo,) = super().run()  # type: Tuple[Node]
         if isinstance(todo, nodes.system_message):
             return [todo]
         elif isinstance(todo, todo_node):
-            todo.insert(0, nodes.title(text=_('Todo')))
-            todo['docname'] = self.env.docname
+            todo.insert(0, nodes.title(text=_("Todo")))
+            todo["docname"] = self.env.docname
             self.add_name(todo)
             self.set_source_info(todo)
             self.state.document.note_explicit_target(todo)
@@ -76,30 +76,30 @@ class Todo(BaseAdmonition, SphinxDirective):
 
 
 class TodoDomain(Domain):
-    name = 'todo'
-    label = 'todo'
+    name = "todo"
+    label = "todo"
 
     @property
     def todos(self) -> Dict[str, List[todo_node]]:
-        return self.data.setdefault('todos', {})
+        return self.data.setdefault("todos", {})
 
     def clear_doc(self, docname: str) -> None:
         self.todos.pop(docname, None)
 
     def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
         for docname in docnames:
-            self.todos[docname] = otherdata['todos'][docname]
+            self.todos[docname] = otherdata["todos"][docname]
 
-    def process_doc(self, env: BuildEnvironment, docname: str,
-                    document: nodes.document) -> None:
+    def process_doc(
+        self, env: BuildEnvironment, docname: str, document: nodes.document
+    ) -> None:
         todos = self.todos.setdefault(docname, [])
         for todo in document.findall(todo_node):
-            env.app.emit('todo-defined', todo)
+            env.app.emit("todo-defined", todo)
             todos.append(todo)
 
             if env.config.todo_emit_warnings:
-                logger.warning(__("TODO entry found: %s"), todo[1].astext(),
-                               location=todo)
+                logger.warning(__("TODO entry found: %s"), todo[1].astext(), location=todo)
 
 
 class TodoList(SphinxDirective):
@@ -116,7 +116,7 @@ class TodoList(SphinxDirective):
     def run(self) -> List[Node]:
         # Simply insert an empty todolist node which will be replaced later
         # when process_todo_nodes is called
-        return [todolist('')]
+        return [todolist("")]
 
 
 class TodoListProcessor:
@@ -124,8 +124,8 @@ class TodoListProcessor:
         self.builder = app.builder
         self.config = app.config
         self.env = app.env
-        self.domain = cast(TodoDomain, app.env.get_domain('todo'))
-        self.document = new_document('')
+        self.domain = cast(TodoDomain, app.env.get_domain("todo"))
+        self.document = new_document("")
 
         self.process(doctree, docname)
 
@@ -136,7 +136,7 @@ class TodoListProcessor:
                 node.parent.remove(node)
                 continue
 
-            if node.get('ids'):
+            if node.get("ids"):
                 content: List[Element] = [nodes.target()]
             else:
                 content = []
@@ -144,7 +144,7 @@ class TodoListProcessor:
             for todo in todos:
                 # Create a copy of the todo node
                 new_todo = todo.deepcopy()
-                new_todo['ids'].clear()
+                new_todo["ids"].clear()
 
                 self.resolve_reference(new_todo, docname)
                 content.append(new_todo)
@@ -156,23 +156,25 @@ class TodoListProcessor:
 
     def create_todo_reference(self, todo: todo_node, docname: str) -> nodes.paragraph:
         if self.config.todo_link_only:
-            description = _('<<original entry>>')
+            description = _("<<original entry>>")
         else:
-            description = (_('(The <<original entry>> is located in %s, line %d.)') %
-                           (todo.source, todo.line))
+            description = _("(The <<original entry>> is located in %s, line %d.)") % (
+                todo.source,
+                todo.line,
+            )
 
-        prefix = description[:description.find('<<')]
-        suffix = description[description.find('>>') + 2:]
+        prefix = description[: description.find("<<")]
+        suffix = description[description.find(">>") + 2 :]
 
-        para = nodes.paragraph(classes=['todo-source'])
+        para = nodes.paragraph(classes=["todo-source"])
         para += nodes.Text(prefix, prefix)
 
         # Create a reference
-        linktext = nodes.emphasis(_('original entry'), _('original entry'))
-        reference = nodes.reference('', '', linktext, internal=True)
+        linktext = nodes.emphasis(_("original entry"), _("original entry"))
+        reference = nodes.reference("", "", linktext, internal=True)
         try:
-            reference['refuri'] = self.builder.get_relative_uri(docname, todo['docname'])
-            reference['refuri'] += '#' + todo['ids'][0]
+            reference["refuri"] = self.builder.get_relative_uri(docname, todo["docname"])
+            reference["refuri"] += "#" + todo["ids"][0]
         except NoUri:
             # ignore if no URI can be determined, e.g. for LaTeX output
             pass
@@ -185,8 +187,8 @@ class TodoListProcessor:
     def resolve_reference(self, todo: todo_node, docname: str) -> None:
         """Resolve references in the todo content."""
         for node in todo.findall(addnodes.pending_xref):
-            if 'refdoc' in node:
-                node['refdoc'] = docname
+            if "refdoc" in node:
+                node["refdoc"] = docname
 
         # Note: To resolve references, it is needed to wrap it with document node
         self.document += todo
@@ -207,41 +209,43 @@ def depart_todo_node(self: HTMLTranslator, node: todo_node) -> None:
 
 def latex_visit_todo_node(self: LaTeXTranslator, node: todo_node) -> None:
     if self.config.todo_include_todos:
-        self.body.append('\n\\begin{sphinxadmonition}{note}{')
+        self.body.append("\n\\begin{sphinxadmonition}{note}{")
         self.body.append(self.hypertarget_to(node))
 
         title_node = cast(nodes.title, node[0])
         title = texescape.escape(title_node.astext(), self.config.latex_engine)
-        self.body.append('%s:}' % title)
+        self.body.append("%s:}" % title)
         node.pop(0)
     else:
         raise nodes.SkipNode
 
 
 def latex_depart_todo_node(self: LaTeXTranslator, node: todo_node) -> None:
-    self.body.append('\\end{sphinxadmonition}\n')
+    self.body.append("\\end{sphinxadmonition}\n")
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
-    app.add_event('todo-defined')
-    app.add_config_value('todo_include_todos', False, 'html')
-    app.add_config_value('todo_link_only', False, 'html')
-    app.add_config_value('todo_emit_warnings', False, 'html')
+    app.add_event("todo-defined")
+    app.add_config_value("todo_include_todos", False, "html")
+    app.add_config_value("todo_link_only", False, "html")
+    app.add_config_value("todo_emit_warnings", False, "html")
 
     app.add_node(todolist)
-    app.add_node(todo_node,
-                 html=(visit_todo_node, depart_todo_node),
-                 latex=(latex_visit_todo_node, latex_depart_todo_node),
-                 text=(visit_todo_node, depart_todo_node),
-                 man=(visit_todo_node, depart_todo_node),
-                 texinfo=(visit_todo_node, depart_todo_node))
+    app.add_node(
+        todo_node,
+        html=(visit_todo_node, depart_todo_node),
+        latex=(latex_visit_todo_node, latex_depart_todo_node),
+        text=(visit_todo_node, depart_todo_node),
+        man=(visit_todo_node, depart_todo_node),
+        texinfo=(visit_todo_node, depart_todo_node),
+    )
 
-    app.add_directive('todo', Todo)
-    app.add_directive('todolist', TodoList)
+    app.add_directive("todo", Todo)
+    app.add_directive("todolist", TodoList)
     app.add_domain(TodoDomain)
-    app.connect('doctree-resolved', TodoListProcessor)
+    app.connect("doctree-resolved", TodoListProcessor)
     return {
-        'version': sphinx.__display_version__,
-        'env_version': 2,
-        'parallel_read_safe': True
+        "version": sphinx.__display_version__,
+        "env_version": 2,
+        "parallel_read_safe": True,
     }

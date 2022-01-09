@@ -17,8 +17,14 @@ from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.ext.autodoc.mock import ismock, undecorate
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import logging
-from sphinx.util.inspect import (getannotations, getmro, getslots, isclass, isenumclass,
-                                 safe_getattr)
+from sphinx.util.inspect import (
+    getannotations,
+    getmro,
+    getslots,
+    isclass,
+    isenumclass,
+    safe_getattr,
+)
 
 if False:
     # For type annotation
@@ -32,7 +38,7 @@ logger = logging.getLogger(__name__)
 def mangle(subject: Any, name: str) -> str:
     """Mangle the given name."""
     try:
-        if isclass(subject) and name.startswith('__') and not name.endswith('__'):
+        if isclass(subject) and name.startswith("__") and not name.endswith("__"):
             return "_%s%s" % (subject.__name__, name)
     except AttributeError:
         pass
@@ -43,7 +49,7 @@ def mangle(subject: Any, name: str) -> str:
 def unmangle(subject: Any, name: str) -> Optional[str]:
     """Unmangle the given name."""
     try:
-        if isclass(subject) and not name.endswith('__'):
+        if isclass(subject) and not name.endswith("__"):
             prefix = "_%s__" % subject.__name__
             if name.startswith(prefix):
                 return name.replace(prefix, "__", 1)
@@ -74,13 +80,17 @@ def import_module(modname: str, warningiserror: bool = False) -> Any:
         raise ImportError(exc, traceback.format_exc()) from exc
 
 
-def import_object(modname: str, objpath: List[str], objtype: str = '',
-                  attrgetter: Callable[[Any, str], Any] = safe_getattr,
-                  warningiserror: bool = False) -> Any:
+def import_object(
+    modname: str,
+    objpath: List[str],
+    objtype: str = "",
+    attrgetter: Callable[[Any, str], Any] = safe_getattr,
+    warningiserror: bool = False,
+) -> Any:
     if objpath:
-        logger.debug('[autodoc] from %s import %s', modname, '.'.join(objpath))
+        logger.debug("[autodoc] from %s import %s", modname, ".".join(objpath))
     else:
-        logger.debug('[autodoc] import %s', modname)
+        logger.debug("[autodoc] import %s", modname)
 
     try:
         module = None
@@ -89,13 +99,13 @@ def import_object(modname: str, objpath: List[str], objtype: str = '',
         while module is None:
             try:
                 module = import_module(modname, warningiserror=warningiserror)
-                logger.debug('[autodoc] import %s => %r', modname, module)
+                logger.debug("[autodoc] import %s => %r", modname, module)
             except ImportError as exc:
-                logger.debug('[autodoc] import %s => failed', modname)
+                logger.debug("[autodoc] import %s => failed", modname)
                 exc_on_importing = exc
-                if '.' in modname:
+                if "." in modname:
                     # retry with parent module
-                    modname, name = modname.rsplit('.', 1)
+                    modname, name = modname.rsplit(".", 1)
                     objpath.insert(0, name)
                 else:
                     raise
@@ -105,16 +115,16 @@ def import_object(modname: str, objpath: List[str], objtype: str = '',
         object_name = None
         for attrname in objpath:
             parent = obj
-            logger.debug('[autodoc] getattr(_, %r)', attrname)
+            logger.debug("[autodoc] getattr(_, %r)", attrname)
             mangled_name = mangle(obj, attrname)
             obj = attrgetter(obj, mangled_name)
 
             try:
-                logger.debug('[autodoc] => %r', obj)
+                logger.debug("[autodoc] => %r", obj)
             except TypeError:
                 # fallback of failure on logging for broken object
                 # refs: https://github.com/sphinx-doc/sphinx/issues/9095
-                logger.debug('[autodoc] => %r', (obj,))
+                logger.debug("[autodoc] => %r", (obj,))
 
             object_name = attrname
         return [module, parent, object_name, obj]
@@ -124,24 +134,29 @@ def import_object(modname: str, objpath: List[str], objtype: str = '',
             exc = exc_on_importing
 
         if objpath:
-            errmsg = ('autodoc: failed to import %s %r from module %r' %
-                      (objtype, '.'.join(objpath), modname))
+            errmsg = "autodoc: failed to import %s %r from module %r" % (
+                objtype,
+                ".".join(objpath),
+                modname,
+            )
         else:
-            errmsg = 'autodoc: failed to import %s %r' % (objtype, modname)
+            errmsg = "autodoc: failed to import %s %r" % (objtype, modname)
 
         if isinstance(exc, ImportError):
             # import_module() raises ImportError having real exception obj and
             # traceback
             real_exc, traceback_msg = exc.args
             if isinstance(real_exc, SystemExit):
-                errmsg += ('; the module executes module level statement '
-                           'and it might call sys.exit().')
+                errmsg += (
+                    "; the module executes module level statement "
+                    "and it might call sys.exit()."
+                )
             elif isinstance(real_exc, ImportError) and real_exc.args:
-                errmsg += '; the following exception was raised:\n%s' % real_exc.args[0]
+                errmsg += "; the following exception was raised:\n%s" % real_exc.args[0]
             else:
-                errmsg += '; the following exception was raised:\n%s' % traceback_msg
+                errmsg += "; the following exception was raised:\n%s" % traceback_msg
         else:
-            errmsg += '; the following exception was raised:\n%s' % traceback.format_exc()
+            errmsg += "; the following exception was raised:\n%s" % traceback.format_exc()
 
         logger.debug(errmsg)
         raise ImportError(errmsg) from exc
@@ -151,8 +166,10 @@ def get_module_members(module: Any) -> List[Tuple[str, Any]]:
     """Get members of target module."""
     from sphinx.ext.autodoc import INSTANCEATTR
 
-    warnings.warn('sphinx.ext.autodoc.importer.get_module_members() is deprecated.',
-                  RemovedInSphinx50Warning)
+    warnings.warn(
+        "sphinx.ext.autodoc.importer.get_module_members() is deprecated.",
+        RemovedInSphinx50Warning,
+    )
 
     members: Dict[str, Tuple[str, Any]] = {}
     for name in dir(module):
@@ -176,13 +193,14 @@ class Attribute(NamedTuple):
     value: Any
 
 
-def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
-                       analyzer: ModuleAnalyzer = None) -> Dict[str, Attribute]:
+def get_object_members(
+    subject: Any, objpath: List[str], attrgetter: Callable, analyzer: ModuleAnalyzer = None
+) -> Dict[str, Attribute]:
     """Get members and attributes of target object."""
     from sphinx.ext.autodoc import INSTANCEATTR
 
     # the members directly defined in the class
-    obj_dict = attrgetter(subject, '__dict__', {})
+    obj_dict = attrgetter(subject, "__dict__", {})
 
     members: Dict[str, Attribute] = {}
 
@@ -229,7 +247,7 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
 
     if analyzer:
         # append instance attributes (cf. self.attr1) if analyzer knows
-        namespace = '.'.join(objpath)
+        namespace = ".".join(objpath)
         for (ns, name) in analyzer.find_attr_docs():
             if namespace == ns and name not in members:
                 members[name] = Attribute(name, True, INSTANCEATTR)
@@ -237,13 +255,14 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
     return members
 
 
-def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable
-                      ) -> Dict[str, "ObjectMember"]:
+def get_class_members(
+    subject: Any, objpath: List[str], attrgetter: Callable
+) -> Dict[str, "ObjectMember"]:
     """Get members and attributes of target class."""
     from sphinx.ext.autodoc import INSTANCEATTR, ObjectMember
 
     # the members directly defined in the class
-    obj_dict = attrgetter(subject, '__dict__', {})
+    obj_dict = attrgetter(subject, "__dict__", {})
 
     members: Dict[str, ObjectMember] = {}
 
@@ -266,8 +285,9 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable
             from sphinx.ext.autodoc import SLOTSATTR
 
             for name, docstring in __slots__.items():
-                members[name] = ObjectMember(name, SLOTSATTR, class_=subject,
-                                             docstring=docstring)
+                members[name] = ObjectMember(
+                    name, SLOTSATTR, class_=subject, docstring=docstring
+                )
     except (TypeError, ValueError):
         pass
 
@@ -290,8 +310,8 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable
     try:
         for cls in getmro(subject):
             try:
-                modname = safe_getattr(cls, '__module__')
-                qualname = safe_getattr(cls, '__qualname__')
+                modname = safe_getattr(cls, "__module__")
+                qualname = safe_getattr(cls, "__qualname__")
                 analyzer = ModuleAnalyzer.for_module(modname)
                 analyzer.analyze()
             except AttributeError:
@@ -305,19 +325,21 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable
                 name = unmangle(cls, name)
                 if name and name not in members:
                     if analyzer and (qualname, name) in analyzer.attr_docs:
-                        docstring = '\n'.join(analyzer.attr_docs[qualname, name])
+                        docstring = "\n".join(analyzer.attr_docs[qualname, name])
                     else:
                         docstring = None
 
-                    members[name] = ObjectMember(name, INSTANCEATTR, class_=cls,
-                                                 docstring=docstring)
+                    members[name] = ObjectMember(
+                        name, INSTANCEATTR, class_=cls, docstring=docstring
+                    )
 
             # append instance attributes (cf. self.attr1) if analyzer knows
             if analyzer:
                 for (ns, name), docstring in analyzer.attr_docs.items():
                     if ns == qualname and name not in members:
-                        members[name] = ObjectMember(name, INSTANCEATTR, class_=cls,
-                                                     docstring='\n'.join(docstring))
+                        members[name] = ObjectMember(
+                            name, INSTANCEATTR, class_=cls, docstring="\n".join(docstring)
+                        )
     except AttributeError:
         pass
 

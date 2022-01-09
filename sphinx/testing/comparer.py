@@ -32,6 +32,7 @@ class PathComparer:
     >>> 'C:\\to\\index' == PathComparer('D:/to/index')
     False
     """
+
     def __init__(self, path: Union[str, pathlib.Path]):
         """
         :param str path: path string, it will be cast as pathlib.Path.
@@ -96,8 +97,8 @@ class PathComparer:
 
 def pytest_assertrepr_compare(op: str, left: Any, right: Any) -> List[str]:
     if isinstance(left, PathComparer) and op == "==":
-        return ['Comparing path:'] + left.ldiff(right)
+        return ["Comparing path:"] + left.ldiff(right)
     elif isinstance(right, PathComparer) and op == "==":
-        return ['Comparing path:'] + right.rdiff(left)
+        return ["Comparing path:"] + right.rdiff(left)
     else:
         return []
