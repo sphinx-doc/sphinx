@@ -1110,11 +1110,11 @@ def test_domain_cpp_build_misuse_of_roles(app, status, warning):
                 if targetType == 'templateParam':
                     warn.append("WARNING: cpp:{} targets a {} (".format(r, txtTargetType))
                     warn.append("WARNING: cpp:{} targets a {} (".format(r, txtTargetType))
-    warn = list(sorted(warn))
+    warn = sorted(warn)
     for w in ws:
         assert "targets a" in w
     ws = [w[w.index("WARNING:"):] for w in ws]
-    ws = list(sorted(ws))
+    ws = sorted(ws)
     print("Expected warnings:")
     for w in warn:
         print(w)

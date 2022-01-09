@@ -395,7 +395,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
         warnings.warn('template_dir argument for generate_autosummary_docs() is deprecated.',
                       RemovedInSphinx50Warning, stacklevel=2)
 
-    showed_sources = list(sorted(sources))
+    showed_sources = sorted(sources)
     if len(showed_sources) > 20:
         showed_sources = showed_sources[:10] + ['...'] + showed_sources[-10:]
     logger.info(__('[autosummary] generating autosummary for: %s') %
