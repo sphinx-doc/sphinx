@@ -228,6 +228,12 @@ class ImageConverter(BaseImageConverter):
 
     def guess_mimetypes(self, node: nodes.image) -> List[str]:
         if '?' in node['candidates']:
+            uri = node.get('uri', '')
+            if uri.startswith('data:'):
+                header = uri[len('data:'):].split(',', 1)[0]
+                mimetype = header.split(';', 1)[0]
+                if mimetype:
+                    return [mimetype]
             return []
         elif '*' in node['candidates']:
             return [guess_mimetype(node['uri'])]
