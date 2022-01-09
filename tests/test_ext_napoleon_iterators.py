@@ -64,19 +64,19 @@ class PeekIterTest(BaseIteratorsTest):
         self.assertTrue(it is it.__iter__())
 
         a = []
-        b = [i for i in peek_iter(a)]
+        b = list(peek_iter(a))
         self.assertEqual([], b)
 
         a = ['1']
-        b = [i for i in peek_iter(a)]
+        b = list(peek_iter(a))
         self.assertEqual(['1'], b)
 
         a = ['1', '2']
-        b = [i for i in peek_iter(a)]
+        b = list(peek_iter(a))
         self.assertEqual(['1', '2'], b)
 
         a = ['1', '2', '3']
-        b = [i for i in peek_iter(a)]
+        b = list(peek_iter(a))
         self.assertEqual(['1', '2', '3'], b)
 
     def test_next_with_multi(self):
@@ -312,7 +312,7 @@ class ModifyIterTest(BaseIteratorsTest):
             return next(a)
         it = modify_iter(get_next, sentinel, int)
         expected = [1, 2, 3]
-        self.assertEqual(expected, [i for i in it])
+        self.assertEqual(expected, list(it))
 
     def test_init_with_sentinel_kwargs(self):
         a = iter([1, 2, 3, 4])
@@ -322,13 +322,13 @@ class ModifyIterTest(BaseIteratorsTest):
             return next(a)
         it = modify_iter(get_next, sentinel, modifier=str)
         expected = ['1', '2', '3']
-        self.assertEqual(expected, [i for i in it])
+        self.assertEqual(expected, list(it))
 
     def test_modifier_default(self):
         a = ['', '  ', '  a  ', 'b  ', '  c', '  ', '']
         it = modify_iter(a)
         expected = ['', '  ', '  a  ', 'b  ', '  c', '  ', '']
-        self.assertEqual(expected, [i for i in it])
+        self.assertEqual(expected, list(it))
 
     def test_modifier_not_callable(self):
         self.assertRaises(TypeError, modify_iter, [1], modifier='not_callable')
@@ -337,10 +337,10 @@ class ModifyIterTest(BaseIteratorsTest):
         a = ['', '  ', '  a  ', 'b  ', '  c', '  ', '']
         it = modify_iter(a, modifier=lambda s: s.rstrip())
         expected = ['', '', '  a', 'b', '  c', '', '']
-        self.assertEqual(expected, [i for i in it])
+        self.assertEqual(expected, list(it))
 
     def test_modifier_rstrip_unicode(self):
         a = ['', '  ', '  a  ', 'b  ', '  c', '  ', '']
         it = modify_iter(a, modifier=lambda s: s.rstrip())
         expected = ['', '', '  a', 'b', '  c', '', '']
-        self.assertEqual(expected, [i for i in it])
+        self.assertEqual(expected, list(it))
