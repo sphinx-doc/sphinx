@@ -793,10 +793,7 @@ class PyMethod(PyObject):
     })
 
     def needs_arglist(self) -> bool:
-        if 'property' in self.options:
-            return False
-        else:
-            return True
+        return 'property' not in self.options
 
     def get_signature_prefix(self, sig: str) -> List[nodes.Node]:
         prefix: List[nodes.Node] = []

@@ -181,11 +181,7 @@ def is_skipped_package(dirname: str, opts: Any, excludes: List[str] = []) -> boo
         return True
 
     # Check there is some showable module inside package
-    if all(is_excluded(path.join(dirname, f), excludes) for f in files):
-        # all submodules are excluded
-        return True
-    else:
-        return False
+    return all(is_excluded(path.join(dirname, f), excludes) for f in files)
 
 
 def is_skipped_module(filename: str, opts: Any, excludes: List[str]) -> bool:
@@ -193,11 +189,8 @@ def is_skipped_module(filename: str, opts: Any, excludes: List[str]) -> bool:
     if not path.exists(filename):
         # skip if the file doesn't exist
         return True
-    elif path.basename(filename).startswith('_') and not opts.includeprivate:
-        # skip if the module has a "private" name
-        return True
-    else:
-        return False
+    # skip if the module has a "private" name
+    return path.basename(filename).startswith('_') and not opts.includeprivate
 
 
 def walk(rootpath: str, excludes: List[str], opts: Any

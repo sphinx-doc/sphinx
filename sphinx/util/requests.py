@@ -52,10 +52,7 @@ def is_ssl_error(exc: Exception) -> bool:
         return True
     else:
         args = getattr(exc, 'args', [])
-        if args and isinstance(args[0], SSLError):
-            return True
-        else:
-            return False
+        return bool(args) and isinstance(args[0], SSLError)
 
 
 @contextmanager

@@ -467,10 +467,7 @@ def encode_uri(uri: str) -> str:
 
 def isurl(url: str) -> bool:
     """Check *url* is URL or not."""
-    if url and '://' in url:
-        return True
-    else:
-        return False
+    return bool(url) and '://' in url
 
 
 def display_chunk(chunk: Any) -> str:

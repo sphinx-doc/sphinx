@@ -207,11 +207,7 @@ class ImageConverter(BaseImageConverter):
         if not self.available:
             return False
         else:
-            rule = self.get_conversion_rule(node)
-            if rule:
-                return True
-            else:
-                return False
+            return bool(self.get_conversion_rule(node))
 
     def get_conversion_rule(self, node: nodes.image) -> Tuple[str, str]:
         for candidate in self.guess_mimetypes(node):

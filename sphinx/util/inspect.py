@@ -231,10 +231,7 @@ def isNewType(obj: Any) -> bool:
     else:
         __module__ = safe_getattr(obj, '__module__', None)
         __qualname__ = safe_getattr(obj, '__qualname__', None)
-        if __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type':
-            return True
-        else:
-            return False
+        return __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type'
 
 
 def isenumclass(x: Any) -> bool:
@@ -290,10 +287,7 @@ def isstaticmethod(obj: Any, cls: Any = None, name: str = None) -> bool:
         for basecls in getattr(cls, '__mro__', [cls]):
             meth = basecls.__dict__.get(name)
             if meth:
-                if isinstance(meth, staticmethod):
-                    return True
-                else:
-                    return False
+                return isinstance(meth, staticmethod)
 
     return False
 
@@ -341,24 +335,18 @@ def isattributedescriptor(obj: Any) -> bool:
                                     WrapperDescriptorType)):
             # attribute must not be a method descriptor
             return False
-        elif type(unwrapped).__name__ == "instancemethod":
-            # attribute must not be an instancemethod (C-API)
-            return False
-        else:
-            return True
+        # attribute must not be an instancemethod (C-API)
+        return not type(unwrapped).__name__ == "instancemethod"
     else:
         return False
 
 
 def is_singledispatch_function(obj: Any) -> bool:
     """Check if the object is singledispatch function."""
-    if (inspect.isfunction(obj) and
+    return (inspect.isfunction(obj) and
             hasattr(obj, 'dispatch') and
             hasattr(obj, 'register') and
-            obj.dispatch.__module__ == 'functools'):  # type: ignore
-        return True
-    else:
-        return False
+            obj.dispatch.__module__ == 'functools')  # type: ignore
 
 
 def is_singledispatch_method(obj: Any) -> bool:
@@ -393,28 +381,19 @@ def iscoroutinefunction(obj: Any) -> bool:
             # staticmethod, classmethod and partial method are not a wrapped coroutine-function
             # Note: Since 3.10, staticmethod and classmethod becomes a kind of wrappers
             return False
-        elif hasattr(obj, '__wrapped__'):
-            return True
-        else:
-            return False
+        return hasattr(obj, '__wrapped__')
 
     obj = unwrap_all(obj, stop=iswrappedcoroutine)
-    if hasattr(obj, '__code__') and inspect.iscoroutinefunction(obj):
-        # check obj.__code__ because iscoroutinefunction() crashes for custom method-like
-        # objects (see https://github.com/sphinx-doc/sphinx/issues/6605)
-        return True
-    else:
-        return False
+    # check obj.__code__ because iscoroutinefunction() crashes for custom method-like
+    # objects (see https://github.com/sphinx-doc/sphinx/issues/6605)
+    return hasattr(obj, '__code__') and inspect.iscoroutinefunction(obj)
 
 
 def isasyncgenfunction(obj: Any) -> bool:
     """Check if the object is async-gen function."""
-    if hasattr(obj, '__code__') and inspect.isasyncgenfunction(obj):
-        # check obj.__code__ because isasyncgenfunction() crashes for custom method-like
-        # objects on python3.7 (see https://github.com/sphinx-doc/sphinx/issues/9838)
-        return True
-    else:
-        return False
+    # check obj.__code__ because isasyncgenfunction() crashes for custom method-like
+    # objects on python3.7 (see https://github.com/sphinx-doc/sphinx/issues/9838)
+    return hasattr(obj, '__code__') and inspect.isasyncgenfunction(obj)
 
 
 def isproperty(obj: Any) -> bool:
@@ -435,11 +414,8 @@ def isgenericalias(obj: Any) -> bool:
     elif (hasattr(types, 'GenericAlias') and  # only for py39+
           isinstance(obj, types.GenericAlias)):  # type: ignore
         return True
-    elif (hasattr(typing, '_SpecialGenericAlias') and  # for py39+
-            isinstance(obj, typing._SpecialGenericAlias)):  # type: ignore
-        return True
-    else:
-        return False
+    return (hasattr(typing, '_SpecialGenericAlias') and  # for py39+
+            isinstance(obj, typing._SpecialGenericAlias))  # type: ignore
 
 
 def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:

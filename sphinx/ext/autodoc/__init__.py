@@ -2362,10 +2362,7 @@ class SlotsMixin(DataDocumenterMixinBase):
         """Check the subject is an attribute in __slots__."""
         try:
             __slots__ = inspect.getslots(self.parent)
-            if __slots__ and self.objpath[-1] in __slots__:
-                return True
-            else:
-                return False
+            return bool(__slots__) and self.objpath[-1] in __slots__
         except (ValueError, TypeError):
             return False
 
@@ -2402,10 +2399,7 @@ class SlotsMixin(DataDocumenterMixinBase):
     def _datadescriptor(self) -> bool:
         warnings.warn('AttributeDocumenter._datadescriptor() is deprecated.',
                       RemovedInSphinx60Warning)
-        if self.object is SLOTSATTR:
-            return True
-        else:
-            return False
+        return self.object is SLOTSATTR
 
 
 class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
@@ -2427,10 +2421,7 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
         # An instance variable defined in __init__().
         if self.get_attribute_comment(parent, self.objpath[-1]):  # type: ignore
             return True
-        elif self.is_runtime_instance_attribute_not_commented(parent):
-            return True
-        else:
-            return False
+        return self.is_runtime_instance_attribute_not_commented(parent)
 
     def is_runtime_instance_attribute_not_commented(self, parent: Any) -> bool:
         """Check the subject is an attribute defined in __init__() without comment."""
@@ -2502,10 +2493,7 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
     def is_uninitialized_instance_attribute(self, parent: Any) -> bool:
         """Check the subject is an annotation only attribute."""
         annotations = get_type_hints(parent, None, self.config.autodoc_type_aliases)
-        if self.objpath[-1] in annotations:
-            return True
-        else:
-            return False
+        return self.objpath[-1] in annotations
 
     def import_object(self, raiseerror: bool = False) -> bool:
         """Check the exisitence of uninitialized instance attribute when failed to import
@@ -2571,10 +2559,7 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
             return False
         elif inspect.isattributedescriptor(member):
             return True
-        elif not inspect.isroutine(member) and not isinstance(member, type):
-            return True
-        else:
-            return False
+        return not inspect.isroutine(member) and not isinstance(member, type)
 
     def document_members(self, all_members: bool = False) -> None:
         pass
