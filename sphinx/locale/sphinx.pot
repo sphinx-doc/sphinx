@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 4.4.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-02 00:12+0000\n"
+"POT-Creation-Date: 2022-01-09 00:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1874,7 +1874,7 @@ msgstr ""
 msgid ".. hlist content is not a list"
 msgstr ""
 
-#: sphinx/directives/patches.py:118
+#: sphinx/directives/patches.py:117
 msgid ""
 "\":file:\" option for csv-table directive now recognizes an absolute path"
 " as a relative path from source directory. Please update your document."
@@ -2857,7 +2857,7 @@ msgstr ""
 msgid "error while formatting arguments for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1695
+#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1699
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr ""
@@ -2910,7 +2910,7 @@ msgid "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr ""
 
 #: sphinx/ext/autodoc/__init__.py:1308 sphinx/ext/autodoc/__init__.py:1385
-#: sphinx/ext/autodoc/__init__.py:2770
+#: sphinx/ext/autodoc/__init__.py:2791
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr ""
@@ -2920,33 +2920,33 @@ msgstr ""
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1682
+#: sphinx/ext/autodoc/__init__.py:1686
 #, python-format
 msgid "Bases: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1776 sphinx/ext/autodoc/__init__.py:1849
-#: sphinx/ext/autodoc/__init__.py:1868
+#: sphinx/ext/autodoc/__init__.py:1784 sphinx/ext/autodoc/__init__.py:1862
+#: sphinx/ext/autodoc/__init__.py:1885
 #, python-format
 msgid "alias of %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1910
+#: sphinx/ext/autodoc/__init__.py:1931
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2146 sphinx/ext/autodoc/__init__.py:2243
+#: sphinx/ext/autodoc/__init__.py:2167 sphinx/ext/autodoc/__init__.py:2264
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2374
+#: sphinx/ext/autodoc/__init__.py:2395
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2813
+#: sphinx/ext/autodoc/__init__.py:2834
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of "
 "\"alphabetic\". Please update your setting."
@@ -3470,25 +3470,25 @@ msgstr ""
 msgid "Footnote [#] is not referenced."
 msgstr ""
 
-#: sphinx/transforms/i18n.py:304 sphinx/transforms/i18n.py:375
+#: sphinx/transforms/i18n.py:309 sphinx/transforms/i18n.py:380
 msgid ""
 "inconsistent footnote references in translated message. original: {0}, "
 "translated: {1}"
 msgstr ""
 
-#: sphinx/transforms/i18n.py:347
+#: sphinx/transforms/i18n.py:352
 msgid ""
 "inconsistent references in translated message. original: {0}, translated:"
 " {1}"
 msgstr ""
 
-#: sphinx/transforms/i18n.py:394
+#: sphinx/transforms/i18n.py:399
 msgid ""
 "inconsistent citation references in translated message. original: {0}, "
 "translated: {1}"
 msgstr ""
 
-#: sphinx/transforms/i18n.py:414
+#: sphinx/transforms/i18n.py:419
 msgid ""
 "inconsistent term references in translated message. original: {0}, "
 "translated: {1}"
@@ -3582,12 +3582,12 @@ msgid ""
 "output it directly: %s"
 msgstr ""
 
-#: sphinx/util/nodes.py:429
+#: sphinx/util/nodes.py:437
 #, python-format
 msgid "toctree contains ref to nonexisting file %r"
 msgstr ""
 
-#: sphinx/util/nodes.py:615
+#: sphinx/util/nodes.py:623
 #, python-format
 msgid "exception while evaluating only directive expression: %s"
 msgstr ""
