@@ -167,7 +167,7 @@ def get_module_members(module: Any) -> List[Tuple[str, Any]]:
         if name not in members:
             members[name] = (name, INSTANCEATTR)
 
-    return sorted(list(members.values()))
+    return sorted(members.values())
 
 
 class Attribute(NamedTuple):
