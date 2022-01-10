@@ -703,7 +703,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         epub_filename = path.join(self.outdir, outname)
         with ZipFile(epub_filename, 'w', ZIP_DEFLATED) as epub:
             epub.write(path.join(self.outdir, 'mimetype'), 'mimetype', ZIP_STORED)
-            for filename in ['META-INF/container.xml', 'content.opf', 'toc.ncx']:
+            for filename in ('META-INF/container.xml', 'content.opf', 'toc.ncx'):
                 epub.write(path.join(self.outdir, filename), filename, ZIP_DEFLATED)
             for filename in self.files:
                 epub.write(path.join(self.outdir, filename), filename, ZIP_DEFLATED)

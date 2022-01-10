@@ -444,10 +444,10 @@ def _skip_member(app: Sphinx, what: str, name: str, obj: Any,
 
     """
     has_doc = getattr(obj, '__doc__', False)
-    is_member = (what == 'class' or what == 'exception' or what == 'module')
+    is_member = what in ('class', 'exception', 'module')
     if name != '__weakref__' and has_doc and is_member:
         cls_is_owner = False
-        if what == 'class' or what == 'exception':
+        if what in ('class', 'exception'):
             qualname = getattr(obj, '__qualname__', '')
             cls_path, _, _ = qualname.rpartition('.')
             if cls_path:
