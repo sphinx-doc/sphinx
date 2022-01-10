@@ -206,7 +206,7 @@ class Config:
                 except ValueError as exc:
                     raise ValueError(__('invalid number %r for config value %r, ignoring') %
                                      (value, name)) from exc
-            elif hasattr(defvalue, '__call__'):
+            elif callable(defvalue):
                 return value
             elif defvalue is not None and not isinstance(defvalue, str):
                 raise ValueError(__('cannot override config setting %r with unsupported '
@@ -257,7 +257,7 @@ class Config:
         if name not in self.values:
             raise AttributeError(__('No such config value: %s') % name)
         default = self.values[name][0]
-        if hasattr(default, '__call__'):
+        if callable(default):
             return default(self)
         return default
 
@@ -413,7 +413,7 @@ def check_confval_types(app: "Sphinx", config: Config) -> None:
     for confval in config:
         default, rebuild, annotations = config.values[confval.name]
 
-        if hasattr(default, '__call__'):
+        if callable(default):
             default = default(config)  # evaluate default value
         if default is None and not annotations:
             continue  # neither inferable nor expliclitly annotated types
