@@ -43,18 +43,31 @@ logger = logging.getLogger(__name__)
 
 uri_re = re.compile('([a-z]+:)?//')  # matches to foo:// and // (a protocol relative URL)
 
-Hyperlink = NamedTuple('Hyperlink', (('uri', str),
-                                     ('docname', str),
-                                     ('lineno', Optional[int])))
-CheckRequest = NamedTuple('CheckRequest', (('next_check', float),
-                                           ('hyperlink', Optional[Hyperlink])))
-CheckResult = NamedTuple('CheckResult', (('uri', str),
-                                         ('docname', str),
-                                         ('lineno', int),
-                                         ('status', str),
-                                         ('message', str),
-                                         ('code', int)))
-RateLimit = NamedTuple('RateLimit', (('delay', float), ('next_check', float)))
+
+class Hyperlink(NamedTuple):
+    uri: str
+    docname: str
+    lineno: Optional[int]
+
+
+class CheckRequest(NamedTuple):
+    next_check: float
+    hyperlink: Optional[Hyperlink]
+
+
+class CheckResult(NamedTuple):
+    uri: str
+    docname: str
+    lineno: int
+    status: str
+    message: str
+    code: int
+
+
+class RateLimit(NamedTuple):
+    delay: float
+    next_check: float
+
 
 # Tuple is old styled CheckRequest
 CheckRequestType = Union[CheckRequest, Tuple[float, str, str, int]]
