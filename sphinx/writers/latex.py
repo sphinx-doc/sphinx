@@ -1857,8 +1857,7 @@ class LaTeXTranslator(SphinxTranslator):
         done = 0
         if len(node.children) == 1:
             child = node.children[0]
-            if isinstance(child, nodes.bullet_list) or \
-                    isinstance(child, nodes.enumerated_list):
+            if isinstance(child, (nodes.bullet_list, nodes.enumerated_list)):
                 done = 1
         if not done:
             self.body.append(r'\begin{quote}' + CR)
@@ -1869,8 +1868,7 @@ class LaTeXTranslator(SphinxTranslator):
         done = 0
         if len(node.children) == 1:
             child = node.children[0]
-            if isinstance(child, nodes.bullet_list) or \
-                    isinstance(child, nodes.enumerated_list):
+            if isinstance(child, (nodes.bullet_list, nodes.enumerated_list)):
                 done = 1
         if not done:
             self.body.append(r'\end{quote}' + CR)
