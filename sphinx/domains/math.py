@@ -81,7 +81,7 @@ class MathDomain(Domain):
         self.data['has_equations'][docname] = any(document.findall(math_node))
 
     def clear_doc(self, docname: str) -> None:
-        for equation_id, (doc, eqno) in list(self.equations.items()):
+        for equation_id, (doc, _eqno) in list(self.equations.items()):
             if doc == docname:
                 del self.equations[equation_id]
 

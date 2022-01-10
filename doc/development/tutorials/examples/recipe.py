@@ -87,7 +87,7 @@ class RecipeIndex(Index):
         # first letter of the recipe as a key to group thing
         #
         # name, subtype, docname, anchor, extra, qualifier, description
-        for name, dispname, typ, docname, anchor, _ in recipes:
+        for _name, dispname, typ, docname, anchor, _ in recipes:
             content[dispname[0].lower()].append(
                 (dispname, 0, docname, anchor, docname, '', typ))
 

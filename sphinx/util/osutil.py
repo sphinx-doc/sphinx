@@ -75,7 +75,7 @@ def ensuredir(path: str) -> None:
 
 def mtimes_of_files(dirnames: List[str], suffix: str) -> Iterator[float]:
     for dirname in dirnames:
-        for root, dirs, files in os.walk(dirname):
+        for root, _dirs, files in os.walk(dirname):
             for sfile in files:
                 if sfile.endswith(suffix):
                     try:

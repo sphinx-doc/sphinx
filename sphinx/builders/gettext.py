@@ -157,7 +157,7 @@ class I18nBuilder(Builder):
         if 'index' in self.env.config.gettext_additional_targets:
             # Extract translatable messages from index entries.
             for node, entries in traverse_translatable_index(doctree):
-                for typ, msg, tid, main, key_ in entries:
+                for typ, msg, _tid, _main, _key in entries:
                     for m in split_index_msg(typ, msg):
                         if typ == 'pair' and m in pairindextypes.values():
                             # avoid built-in translated message was incorporated
@@ -227,7 +227,7 @@ class MessageCatalogBuilder(I18nBuilder):
         template_files = set()
         for template_path in self.config.templates_path:
             tmpl_abs_path = path.join(self.app.srcdir, template_path)
-            for dirpath, dirs, files in walk(tmpl_abs_path):
+            for dirpath, _dirs, files in walk(tmpl_abs_path):
                 for fn in files:
                     if fn.endswith('.html'):
                         filename = canon_path(path.join(dirpath, fn))
@@ -247,7 +247,7 @@ class MessageCatalogBuilder(I18nBuilder):
             try:
                 with open(template, encoding='utf-8') as f:
                     context = f.read()
-                for line, meth, msg in extract_translations(context):
+                for line, _meth, msg in extract_translations(context):
                     origin = MsgOrigin(template, line)
                     self.catalogs['sphinx'].add(msg, origin)
             except Exception as exc:
