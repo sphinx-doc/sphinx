@@ -372,8 +372,6 @@ class Autosummary(SphinxDirective):
                                location=self.get_location())
                 items.append((display_name, '', '', real_name))
                 continue
-            if documenter.options.members and not documenter.check_module():
-                continue
 
             # try to also get a source code analyzer for attribute docs
             try:
