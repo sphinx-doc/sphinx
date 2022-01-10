@@ -454,9 +454,8 @@ class StandaloneHTMLBuilder(Builder):
                 domain: Domain = self.env.domains[domain_name]
                 for indexcls in domain.indices:
                     indexname = '%s-%s' % (domain.name, indexcls.name)
-                    if isinstance(indices_config, list):
-                        if indexname not in indices_config:
-                            continue
+                    if isinstance(indices_config, list) and indexname not in indices_config:
+                        continue
                     content, collapse = indexcls(domain).generate()
                     if content:
                         self.domain_indices.append(
@@ -957,16 +956,15 @@ class StandaloneHTMLBuilder(Builder):
         html_sidebars = self.get_builder_config('sidebars', 'html')
         for pattern, patsidebars in html_sidebars.items():
             if patmatch(pagename, pattern):
-                if matched:
-                    if has_wildcard(pattern):
-                        # warn if both patterns contain wildcards
-                        if has_wildcard(matched):
-                            logger.warning(__('page %s matches two patterns in '
-                                              'html_sidebars: %r and %r'),
-                                           pagename, matched, pattern)
-                        # else the already matched pattern is more specific
-                        # than the present one, because it contains no wildcard
-                        continue
+                if matched and has_wildcard(pattern):
+                    # warn if both patterns contain wildcards
+                    if has_wildcard(matched):
+                        logger.warning(__('page %s matches two patterns in '
+                                          'html_sidebars: %r and %r'),
+                                       pagename, matched, pattern)
+                    # else the already matched pattern is more specific
+                    # than the present one, because it contains no wildcard
+                    continue
                 matched = pattern
                 sidebars = patsidebars
 

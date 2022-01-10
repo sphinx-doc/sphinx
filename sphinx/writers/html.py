@@ -615,20 +615,19 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
             node['uri'] = posixpath.join(self.builder.imgpath,
                                          self.builder.images[olduri])
 
-        if 'scale' in node:
+        if 'scale' in node and not ('width' in node and 'height' in node):
             # Try to figure out image height and width.  Docutils does that too,
             # but it tries the final file name, which does not necessarily exist
             # yet at the time the HTML file is written.
-            if not ('width' in node and 'height' in node):
-                size = get_image_size(os.path.join(self.builder.srcdir, olduri))
-                if size is None:
-                    logger.warning(__('Could not obtain image size. :scale: option is ignored.'),  # NOQA
-                                   location=node)
-                else:
-                    if 'width' not in node:
-                        node['width'] = str(size[0])
-                    if 'height' not in node:
-                        node['height'] = str(size[1])
+            size = get_image_size(os.path.join(self.builder.srcdir, olduri))
+            if size is None:
+                logger.warning(__('Could not obtain image size. :scale: option is ignored.'),  # NOQA
+                               location=node)
+            else:
+                if 'width' not in node:
+                    node['width'] = str(size[0])
+                if 'height' not in node:
+                    node['height'] = str(size[1])
 
         uri = node['uri']
         if uri.lower().endswith(('svg', 'svgz')):

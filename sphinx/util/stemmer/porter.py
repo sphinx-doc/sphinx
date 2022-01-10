@@ -258,9 +258,8 @@ class PorterStemmer:
                 self.r("ive")
             elif self.ends("biliti"):
                 self.r("ble")
-        elif self.b[self.k - 1] == 'g':  # --DEPARTURE--
-            if self.ends("logi"):
-                self.r("log")
+        elif self.b[self.k - 1] == 'g' and self.ends("logi"):  # --DEPARTURE--
+            self.r("log")
         # To match the published algorithm, delete this phrase
 
     def step3(self) -> None:

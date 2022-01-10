@@ -1075,9 +1075,11 @@ class ASTDeclaratorPtr(ASTDeclarator):
             if self.restrict or self.volatile:
                 signode += addnodes.desc_sig_space()
             _add_anno(signode, 'const')
-        if self.const or self.volatile or self.restrict or len(self.attrs) > 0:
-            if self.next.require_space_after_declSpecs():
-                signode += addnodes.desc_sig_space()
+        if (
+            (self.const or self.volatile or self.restrict or len(self.attrs) > 0) and
+            self.next.require_space_after_declSpecs()
+        ):
+            signode += addnodes.desc_sig_space()
         self.next.describe_signature(signode, mode, env, symbol)
 
 
@@ -2576,9 +2578,8 @@ class DefinitionParser(BaseParser):
         if self.match(_simple_type_specifiers_re):
             return self.matched_text
         for t in ('bool', 'complex', 'imaginary'):
-            if t in self.config.c_extra_keywords:
-                if self.skip_word(t):
-                    return t
+            if t in self.config.c_extra_keywords and self.skip_word(t):
+                return t
         return None
 
     def _parse_simple_type_specifiers(self) -> ASTTrailingTypeSpecFundamental:
@@ -2764,22 +2765,18 @@ class DefinitionParser(BaseParser):
                 volatile = False
                 restrict = False
                 while True:
-                    if not static:
-                        if self.skip_word_and_ws('static'):
-                            static = True
-                            continue
-                    if not const:
-                        if self.skip_word_and_ws('const'):
-                            const = True
-                            continue
-                    if not volatile:
-                        if self.skip_word_and_ws('volatile'):
-                            volatile = True
-                            continue
-                    if not restrict:
-                        if self.skip_word_and_ws('restrict'):
-                            restrict = True
-                            continue
+                    if not static and self.skip_word_and_ws('static'):
+                        static = True
+                        continue
+                    if not const and self.skip_word_and_ws('const'):
+                        const = True
+                        continue
+                    if not volatile and self.skip_word_and_ws('volatile'):
+                        volatile = True
+                        continue
+                    if not restrict and self.skip_word_and_ws('restrict'):
+                        restrict = True
+                        continue
                     break
                 vla = False if static else self.skip_string_and_ws('*')
                 if vla:
@@ -2801,13 +2798,16 @@ class DefinitionParser(BaseParser):
             else:
                 break
         param = self._parse_parameters(paramMode)
-        if param is None and len(arrayOps) == 0:
+        if (
+            param is None and
+            len(arrayOps) == 0 and
             # perhaps a bit-field
-            if named and paramMode == 'type' and typed:
-                self.skip_ws()
-                if self.skip_string(':'):
-                    size = self._parse_constant_expression()
-                    return ASTDeclaratorNameBitField(declId=declId, size=size)
+            named and paramMode == 'type' and typed
+        ):
+            self.skip_ws()
+            if self.skip_string(':'):
+                size = self._parse_constant_expression()
+                return ASTDeclaratorNameBitField(declId=declId, size=size)
         return ASTDeclaratorNameParam(declId=declId, arrayOps=arrayOps,
                                       param=param)
 

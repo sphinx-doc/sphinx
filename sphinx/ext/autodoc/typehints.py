@@ -170,12 +170,15 @@ def augment_descriptions_with_types(
             node += field
 
     # Add 'rtype' if 'return' is present and 'rtype' isn't.
-    if 'return' in annotations:
-        if 'return' in has_description and 'return' not in has_type:
-            field = nodes.field()
-            field += nodes.field_name('', 'rtype')
-            field += nodes.field_body('', nodes.paragraph('', annotations['return']))
-            node += field
+    if (
+        'return' in annotations and
+        'return' in has_description and
+        'return' not in has_type
+    ):
+        field = nodes.field()
+        field += nodes.field_name('', 'rtype')
+        field += nodes.field_body('', nodes.paragraph('', annotations['return']))
+        node += field
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

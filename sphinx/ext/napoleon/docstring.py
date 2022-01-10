@@ -542,11 +542,10 @@ class GoogleDocstring:
             header_indent = self._get_indent(section)
             section_indent = self._get_current_indent(peek_ahead=1)
             return section_indent > header_indent
-        elif self._directive_sections:
-            if _directive_regex.match(section):
-                for directive_section in self._directive_sections:
-                    if section.startswith(directive_section):
-                        return True
+        elif self._directive_sections and _directive_regex.match(section):
+            for directive_section in self._directive_sections:
+                if section.startswith(directive_section):
+                    return True
         return False
 
     def _is_section_break(self) -> bool:
@@ -857,17 +856,20 @@ class GoogleDocstring:
         return lines
 
     def _lookup_annotation(self, _name: str) -> str:
-        if self._config.napoleon_attr_annotations:
-            if self._what in ("module", "class", "exception") and self._obj:
-                # cache the class annotations
-                if not hasattr(self, "_annotations"):
-                    localns = getattr(self._config, "autodoc_type_aliases", {})
-                    localns.update(getattr(
-                                   self._config, "napoleon_type_aliases", {}
-                                   ) or {})
-                    self._annotations = get_type_hints(self._obj, None, localns)
-                if _name in self._annotations:
-                    return stringify_annotation(self._annotations[_name])
+        if (
+            self._config.napoleon_attr_annotations and
+            self._what in ("module", "class", "exception") and
+            self._obj
+        ):
+            # cache the class annotations
+            if not hasattr(self, "_annotations"):
+                localns = getattr(self._config, "autodoc_type_aliases", {})
+                localns.update(
+                    getattr(self._config, "napoleon_type_aliases", {}) or {}
+                )
+                self._annotations = get_type_hints(self._obj, None, localns)
+            if _name in self._annotations:
+                return stringify_annotation(self._annotations[_name])
         # No annotation found
         return ""
 
@@ -1218,11 +1220,10 @@ class NumpyDocstring(GoogleDocstring):
         section = section.lower()
         if section in self._sections and isinstance(underline, str):
             return bool(_numpy_section_regex.match(underline))
-        elif self._directive_sections:
-            if _directive_regex.match(section):
-                for directive_section in self._directive_sections:
-                    if section.startswith(directive_section):
-                        return True
+        elif self._directive_sections and _directive_regex.match(section):
+            for directive_section in self._directive_sections:
+                if section.startswith(directive_section):
+                    return True
         return False
 
     def _parse_see_also_section(self, section: str) -> List[str]:

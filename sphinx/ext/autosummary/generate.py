@@ -141,10 +141,9 @@ class AutosummaryRenderer:
             if app.translator:
                 self.env.add_extension("jinja2.ext.i18n")
                 self.env.install_gettext_translations(app.translator)
-        elif isinstance(app, Builder):
-            if app.app.translator:
-                self.env.add_extension("jinja2.ext.i18n")
-                self.env.install_gettext_translations(app.app.translator)
+        elif isinstance(app, Builder) and app.app.translator:
+            self.env.add_extension("jinja2.ext.i18n")
+            self.env.install_gettext_translations(app.app.translator)
 
     def exists(self, template_name: str) -> bool:
         """Check if template file exists."""

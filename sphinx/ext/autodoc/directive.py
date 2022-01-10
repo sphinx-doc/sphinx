@@ -91,10 +91,13 @@ def process_documenter_options(documenter: Type[Documenter], config: Config, opt
                 if name in options and isinstance(config.autodoc_default_options[name], str):
                     # take value from options if present or extend it
                     # with autodoc_default_options if necessary
-                    if name in AUTODOC_EXTENDABLE_OPTIONS:
-                        if options[name] is not None and options[name].startswith('+'):
-                            options[name] = ','.join([config.autodoc_default_options[name],
-                                                      options[name][1:]])
+                    if (
+                        name in AUTODOC_EXTENDABLE_OPTIONS and
+                        options[name] is not None and
+                        options[name].startswith('+')
+                    ):
+                        options[name] = ','.join([config.autodoc_default_options[name],
+                                                  options[name][1:]])
                 else:
                     options[name] = config.autodoc_default_options[name]
 

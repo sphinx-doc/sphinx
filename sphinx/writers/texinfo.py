@@ -483,9 +483,8 @@ class TexinfoTranslator(SphinxTranslator):
             for domain in self.builder.env.domains.values():
                 for indexcls in domain.indices:
                     indexname = '%s-%s' % (domain.name, indexcls.name)
-                    if isinstance(indices_config, list):
-                        if indexname not in indices_config:
-                            continue
+                    if isinstance(indices_config, list) and indexname not in indices_config:
+                        continue
                     content, collapsed = indexcls(domain).generate(
                         self.builder.docnames)
                     if not content:

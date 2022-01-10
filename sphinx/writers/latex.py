@@ -522,9 +522,8 @@ class LaTeXTranslator(SphinxTranslator):
             for domain in self.builder.env.domains.values():
                 for indexcls in domain.indices:
                     indexname = '%s-%s' % (domain.name, indexcls.name)
-                    if isinstance(indices_config, list):
-                        if indexname not in indices_config:
-                            continue
+                    if isinstance(indices_config, list) and indexname not in indices_config:
+                        continue
                     content, collapsed = indexcls(domain).generate(
                         self.builder.docnames)
                     if not content:
@@ -1263,12 +1262,11 @@ class LaTeXTranslator(SphinxTranslator):
                 h = self.latex_image_length(node['height'])
             if h:
                 include_graphics_options.append('height=%s' % h)
-        if 'scale' in node:
-            if not include_graphics_options:
-                # if no "width" nor "height", \sphinxincludegraphics will fit
-                # to the available text width if oversized after rescaling.
-                include_graphics_options.append('scale=%s'
-                                                % (float(node['scale']) / 100.0))
+        if 'scale' in node and not include_graphics_options:
+            # if no "width" nor "height", \sphinxincludegraphics will fit
+            # to the available text width if oversized after rescaling.
+            include_graphics_options.append('scale=%s'
+                                            % (float(node['scale']) / 100.0))
         if 'align' in node:
             align_prepost = {
                 # By default latex aligns the top of an image.

@@ -258,11 +258,10 @@ def recurse_tree(rootpath: str, excludes: List[str], opts: Any,
                 if is_initpy(f):
                     files.remove(f)
                     files.insert(0, f)
-        elif root != rootpath:
+        elif root != rootpath and not implicit_namespaces:
             # only accept non-package at toplevel unless using implicit namespaces
-            if not implicit_namespaces:
-                del subs[:]
-                continue
+            del subs[:]
+            continue
 
         if is_pkg or is_namespace:
             # we are in a package with something to document

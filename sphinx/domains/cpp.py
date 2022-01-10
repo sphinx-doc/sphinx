@@ -2600,9 +2600,11 @@ class ASTDeclaratorPtr(ASTDeclarator):
             if self.volatile:
                 res.append(' ')
             res.append('const')
-        if self.const or self.volatile or len(self.attrs) > 0:
-            if self.next.require_space_after_declSpecs():
-                res.append(' ')
+        if (
+            (self.const or self.volatile or len(self.attrs) > 0) and
+            self.next.require_space_after_declSpecs()
+        ):
+            res.append(' ')
         res.append(transform(self.next))
         return ''.join(res)
 
@@ -2660,9 +2662,11 @@ class ASTDeclaratorPtr(ASTDeclarator):
             if self.volatile:
                 signode += addnodes.desc_sig_space()
             _add_anno(signode, 'const')
-        if self.const or self.volatile or len(self.attrs) > 0:
-            if self.next.require_space_after_declSpecs():
-                signode += addnodes.desc_sig_space()
+        if (
+            (self.const or self.volatile or len(self.attrs) > 0) and
+            self.next.require_space_after_declSpecs()
+        ):
+            signode += addnodes.desc_sig_space()
         self.next.describe_signature(signode, mode, env, symbol)
 
 
@@ -7911,9 +7915,12 @@ class CPPDomain(Domain):
                     if env.config.add_function_parentheses:
                         if typ == 'any' and displayName.endswith('()'):
                             addParen += 1
-                        elif typ == 'func':
-                            if title.endswith('()') and not displayName.endswith('()'):
-                                title = title[:-2]
+                        elif (
+                            typ == 'func' and
+                            title.endswith('()') and
+                            not displayName.endswith('()')
+                        ):
+                            title = title[:-2]
                     else:
                         if displayName.endswith('()'):
                             addParen += 1

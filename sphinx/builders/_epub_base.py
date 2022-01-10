@@ -418,11 +418,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     logger.warning(__('cannot copy image file %r: %s'),
                                    path.join(self.srcdir, src), err)
                 continue
-            if self.config.epub_fix_images:
-                if img.mode in ('P',):
-                    # See the Pillow documentation for Image.convert()
-                    # https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.Image.convert
-                    img = img.convert()
+            if self.config.epub_fix_images and img.mode in ('P',):
+                # See the Pillow documentation for Image.convert()
+                # https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.Image.convert
+                img = img.convert()
             if self.config.epub_max_image_width > 0:
                 (width, height) = img.size
                 nw = self.config.epub_max_image_width

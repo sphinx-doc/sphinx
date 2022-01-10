@@ -95,24 +95,23 @@ class TocTree:
                 elif isinstance(subnode, nodes.bullet_list):
                     # for <ul>, just recurse
                     _toctree_add_classes(subnode, depth + 1)
-                elif isinstance(subnode, nodes.reference):
+                elif isinstance(subnode, nodes.reference) and subnode['refuri'] == docname:
                     # for <a>, identify which entries point to the current
                     # document and therefore may not be collapsed
-                    if subnode['refuri'] == docname:
-                        if not subnode['anchorname']:
-                            # give the whole branch a 'current' class
-                            # (useful for styling it differently)
-                            branchnode: Element = subnode
-                            while branchnode:
-                                branchnode['classes'].append('current')
-                                branchnode = branchnode.parent
-                        # mark the list_item as "on current page"
-                        if subnode.parent.parent.get('iscurrent'):
-                            # but only if it's not already done
-                            return
-                        while subnode:
-                            subnode['iscurrent'] = True
-                            subnode = subnode.parent
+                    if not subnode['anchorname']:
+                        # give the whole branch a 'current' class
+                        # (useful for styling it differently)
+                        branchnode: Element = subnode
+                        while branchnode:
+                            branchnode['classes'].append('current')
+                            branchnode = branchnode.parent
+                    # mark the list_item as "on current page"
+                    if subnode.parent.parent.get('iscurrent'):
+                        # but only if it's not already done
+                        return
+                    while subnode:
+                        subnode['iscurrent'] = True
+                        subnode = subnode.parent
 
         def _entries_from_toctree(toctreenode: addnodes.toctree, parents: List[str],
                                   separate: bool = False, subtree: bool = False

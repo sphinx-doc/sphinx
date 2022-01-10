@@ -953,9 +953,8 @@ class Documenter:
                            self.name, type='autodoc')
 
         # check __module__ of object (for members not given explicitly)
-        if check_module:
-            if not self.check_module():
-                return
+        if check_module and not self.check_module():
+            return
 
         sourcename = self.get_sourcename()
 
@@ -1509,9 +1508,11 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         # in its metaclass
         call = get_user_defined_function_or_method(type(self.object), '__call__')
 
-        if call is not None:
-            if "{0.__module__}.{0.__qualname__}".format(call) in _METACLASS_CALL_BLACKLIST:
-                call = None
+        if (
+            call is not None and
+            "{0.__module__}.{0.__qualname__}".format(call) in _METACLASS_CALL_BLACKLIST
+        ):
+            call = None
 
         if call is not None:
             self.env.app.emit('autodoc-before-process-signature', call, True)
@@ -1525,9 +1526,11 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         # Now we check if the 'obj' class has a '__new__' method
         new = get_user_defined_function_or_method(self.object, '__new__')
 
-        if new is not None:
-            if "{0.__module__}.{0.__qualname__}".format(new) in _CLASS_NEW_BLACKLIST:
-                new = None
+        if (
+            new is not None and
+            "{0.__module__}.{0.__qualname__}".format(new) in _CLASS_NEW_BLACKLIST
+        ):
+            new = None
 
         if new is not None:
             self.env.app.emit('autodoc-before-process-signature', new, True)
