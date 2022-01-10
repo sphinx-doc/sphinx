@@ -21,7 +21,7 @@ from sphinx.util import logging
 from sphinx.util.typing import TextlikeNode
 
 if TYPE_CHECKING:
-    from sphinx.directive import ObjectDescription
+    from sphinx.directives import ObjectDescription
 
 logger = logging.getLogger(__name__)
 
