@@ -251,6 +251,17 @@ class Config:
             if name in self.values:
                 self.__dict__[name] = config[name]
 
+    def post_init_values(self) -> None:
+        """
+        Initialize additional config variables that are added after init_values() called.
+        """
+        config = self._raw_config
+        for name in config:
+            if name not in self.__dict__ and name in self.values:
+                self.__dict__[name] = config[name]
+
+        check_confval_types(None, self)
+
     def __getattr__(self, name: str) -> Any:
         if name.startswith('_'):
             raise AttributeError(name)
@@ -427,7 +438,7 @@ def check_confval_types(app: "Sphinx", config: Config) -> None:
                          "but `{current}` is given.")
                 logger.warning(msg.format(name=confval.name,
                                           current=confval.value,
-                                          candidates=annotations.candidates))
+                                          candidates=annotations.candidates), once=True)
         else:
             if type(confval.value) is type(default):
                 continue
@@ -452,13 +463,13 @@ def check_confval_types(app: "Sphinx", config: Config) -> None:
                     permitted = " or ".join(wrapped_annotations)
                 logger.warning(msg.format(name=confval.name,
                                           current=type(confval.value),
-                                          permitted=permitted))
+                                          permitted=permitted), once=True)
             else:
                 msg = __("The config value `{name}' has type `{current.__name__}', "
                          "defaults to `{default.__name__}'.")
                 logger.warning(msg.format(name=confval.name,
                                           current=type(confval.value),
-                                          default=type(default)))
+                                          default=type(default)), once=True)
 
 
 def check_primary_domain(app: "Sphinx", config: Config) -> None:
