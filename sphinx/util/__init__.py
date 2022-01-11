@@ -72,10 +72,11 @@ def get_matching_files(dirname: str,
     """
     # dirname is a normalized absolute path.
     dirname = path.normpath(path.abspath(dirname))
-    dirlen = len(dirname) + 1    # exclude final os.path.sep
 
     for root, dirs, files in os.walk(dirname, followlinks=True):
-        relativeroot = root[dirlen:]
+        relativeroot = path.relpath(root, dirname)
+        if relativeroot == ".":
+            relativeroot = ""  # suppress dirname for files on the target dir
 
         qdirs = enumerate(path_stabilize(path.join(relativeroot, dn))
                           for dn in dirs)  # type: Iterable[Tuple[int, str]]
