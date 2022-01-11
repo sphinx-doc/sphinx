@@ -16,6 +16,7 @@ import os
 import pdb
 import sys
 import traceback
+from os import path
 from typing import IO, Any, List
 
 from docutils.utils import SystemMessage
@@ -28,6 +29,7 @@ from sphinx.locale import __
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
 from sphinx.util.console import color_terminal, nocolor, red, terminal_safe  # type: ignore
 from sphinx.util.docutils import docutils_namespace, patch_docutils
+from sphinx.util.osutil import abspath, ensuredir
 
 
 def handle_exception(app: Sphinx, args: Any, exception: BaseException, stderr: IO = sys.stderr) -> None:  # NOQA
@@ -240,6 +242,8 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
 
     if warning and args.warnfile:
         try:
+            warnfile = abspath(args.warnfile)
+            ensuredir(path.dirname(warnfile))
             warnfp = open(args.warnfile, 'w')
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
