@@ -32,6 +32,8 @@ Bugs fixed
 * #10520: HTML Theme: Fix use of sidebar classes in ``agogo.css_t``.
 * #6679: HTML Theme: Fix inclusion of hidden toctrees in the agogo theme.
 * #10566: HTML Theme: Fix enable_search_shortcuts does not work
+* #9577, #10088: Fix warning for duplicate Python references when using :any:
+  and autodoc
 
 Testing
 --------
