@@ -304,6 +304,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.in_parsed_literal = 0
         self.compact_list = 0
         self.first_param = 0
+        self.in_desc_signature = False
 
         sphinxpkgoptions = []
 
@@ -737,18 +738,17 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             hyper = ''
         self.body.append(hyper)
-        if not node.get('is_multiline'):
-            self._visit_signature_line(node)
-        else:
+        if not self.in_desc_signature:
+            self.in_desc_signature = True
             self.body.append('%' + CR)
             self.body.append(r'\pysigstartmultiline' + CR)
+
+        if not node.get('is_multiline'):
+            self._visit_signature_line(node)
 
     def depart_desc_signature(self, node: Element) -> None:
         if not node.get('is_multiline'):
             self._depart_signature_line(node)
-        else:
-            self.body.append('%' + CR)
-            self.body.append(r'\pysigstopmultiline')
 
     def visit_desc_signature_line(self, node: Element) -> None:
         self._visit_signature_line(node)
@@ -757,7 +757,10 @@ class LaTeXTranslator(SphinxTranslator):
         self._depart_signature_line(node)
 
     def visit_desc_content(self, node: Element) -> None:
-        pass
+        assert self.in_desc_signature
+        self.body.append('%' + CR)
+        self.body.append(r'\pysigstopmultiline')
+        self.in_desc_signature = False
 
     def depart_desc_content(self, node: Element) -> None:
         pass
