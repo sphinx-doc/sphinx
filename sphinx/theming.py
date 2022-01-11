@@ -208,6 +208,7 @@ class HTMLThemeFactory:
         try:
             entry_point = theme_entry_points[name]
             self.app.registry.load_extension(self.app, entry_point.module)
+            self.app.config.post_init_values()
             return
         except KeyError:
             pass
