@@ -8,9 +8,16 @@ jobs:
     working_directory: /sphinx
     steps:
       - checkout
+<<<<<<< ours
       - run: /python3.8/bin/pip install -U pip setuptools
       - run: /python3.8/bin/pip install -U .[test]
       - run: mkdir -p test-reports/pytest
       - run: make test PYTHON=/python3.8/bin/python TEST="--junitxml=test-reports/pytest/results.xml -vv"
+=======
+      - run: /python3.6/bin/pip install -U pip setuptools
+      - run: /python3.6/bin/pip install -U .[test]
+      - run: mkdir -p test-reports/pytest
+      - run: make test PYTHON=/python3.6/bin/python TEST=--junitxml=test-reports/pytest/results.xml
+>>>>>>> theirs
       - store_test_results:
           path: test-reports
