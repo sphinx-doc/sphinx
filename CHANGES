@@ -31,6 +31,7 @@ Features added
   parameter for :meth:`Sphinx.add_js_file()`
 * #9815: html theme: Wrap sidebar components in div to allow customizing their
   layout via CSS
+* #9827: i18n: Sort items in glossary by translated terms
 * #9899: py domain: Allows to specify cross-reference specifier (``.`` and
   ``~``) as ``:type:`` option
 * #9894: linkcheck: add option ``linkcheck_exclude_documents`` to disable link
