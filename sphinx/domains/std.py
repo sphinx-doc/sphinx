@@ -9,7 +9,6 @@
 """
 
 import re
-import unicodedata
 import warnings
 from copy import copy
 from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, List, Optional,
@@ -336,6 +335,7 @@ class Glossary(SphinxDirective):
     def run(self) -> List[Node]:
         node = addnodes.glossary()
         node.document = self.state.document
+        node['sorted'] = ('sorted' in self.options)
 
         # This directive implements a custom format of the reST definition list
         # that allows multiple lines of terms before the definition.  This is
@@ -400,9 +400,8 @@ class Glossary(SphinxDirective):
             was_empty = False
 
         # now, parse all the entries into a big definition list
-        items = []
+        items: List[nodes.definition_list_item] = []
         for terms, definition in entries:
-            termtexts: List[str] = []
             termnodes: List[Node] = []
             system_messages: List[Node] = []
             for line, source, lineno in terms:
@@ -416,7 +415,6 @@ class Glossary(SphinxDirective):
                                           node_id=None, document=self.state.document)
                 term.rawsource = line
                 system_messages.extend(sysmsg)
-                termtexts.append(term.astext())
                 termnodes.append(term)
 
             termnodes.extend(system_messages)
@@ -426,16 +424,10 @@ class Glossary(SphinxDirective):
                 self.state.nested_parse(definition, definition.items[0][1],
                                         defnode)
             termnodes.append(defnode)
-            items.append((termtexts,
-                          nodes.definition_list_item('', *termnodes)))
+            items.append(nodes.definition_list_item('', *termnodes))
 
-        if 'sorted' in self.options:
-            items.sort(key=lambda x:
-                       unicodedata.normalize('NFD', x[0][0].lower()))
-
-        dlist = nodes.definition_list()
+        dlist = nodes.definition_list('', *items)
         dlist['classes'].append('glossary')
-        dlist.extend(item[1] for item in items)
         node += dlist
         return messages + [node]
 
