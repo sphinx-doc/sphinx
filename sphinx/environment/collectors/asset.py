@@ -64,18 +64,16 @@ class ImageCollector(EnvironmentCollector):
                 rel_imgpath, full_imgpath = app.env.relfn2path(imguri, docname)
                 node['uri'] = rel_imgpath
 
-                if app.config.language:
-                    # Search language-specific figures at first
-                    i18n_imguri = get_image_filename_for_language(imguri, app.env)
-                    _, full_i18n_imgpath = app.env.relfn2path(i18n_imguri, docname)
-                    self.collect_candidates(app.env, full_i18n_imgpath, candidates, node)
+                # Search language-specific figures at first
+                i18n_imguri = get_image_filename_for_language(imguri, app.env)
+                _, full_i18n_imgpath = app.env.relfn2path(i18n_imguri, docname)
+                self.collect_candidates(app.env, full_i18n_imgpath, candidates, node)
 
                 self.collect_candidates(app.env, full_imgpath, candidates, node)
             else:
-                if app.config.language:
-                    # substitute imguri by figure_language_filename
-                    # (ex. foo.png -> foo.en.png)
-                    imguri = search_image_for_language(imguri, app.env)
+                # substitute imguri by figure_language_filename
+                # (ex. foo.png -> foo.en.png)
+                imguri = search_image_for_language(imguri, app.env)
 
                 # Update `node['uri']` to a relative path from srcdir
                 # from a relative path from current document.

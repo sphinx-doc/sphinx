@@ -528,7 +528,7 @@ def test_babel_with_no_language_settings(app, status, warning):
     assert '\\usepackage[Bjarne]{fncychap}' in result
     assert ('\\addto\\captionsenglish{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
-    assert '\\shorthandoff' not in result
+    assert '\\shorthandoff{"}' in result
 
     # sphinxmessages.sty
     result = (app.outdir / 'sphinxmessages.sty').read_text()

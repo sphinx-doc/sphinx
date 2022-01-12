@@ -21,12 +21,18 @@ Incompatible changes
   intersphinx should resolve, or explicitly set the value of this configuration
   variable to an empty list.
 * #9999: LaTeX: separate terms from their definitions by a CR (refs: #9985)
+* #10062: Change the default language to ``'en'`` if any language is not set in
+  ``conf.py``
 
 Deprecated
 ----------
 
 * setuptools integration.  The ``build_sphinx`` sub-command for setup.py is
   marked as deprecated to follow the policy of setuptools team.
+* The ``locale`` argument of ``sphinx.util.i18n:babel_format_date()`` becomes
+  required
+* The ``language`` argument of ``sphinx.util.i18n:format_date()`` becomes
+  required
 * ``sphinx.writers.latex.LaTeXWriter.docclasses``
 
 Features added
