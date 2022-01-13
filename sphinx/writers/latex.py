@@ -716,6 +716,9 @@ class LaTeXTranslator(SphinxTranslator):
             self.table.has_problematic = True
 
     def depart_desc(self, node: Element) -> None:
+        if self.in_desc_signature:
+            self.body.append(CR + r'\pysigstopsignatures')
+            self.in_desc_signature = False
         if self.config.latex_show_urls == 'footnote':
             self.body.append(CR + r'\end{fulllineitems}\end{savenotes}' + BLANKLINE)
         else:
@@ -724,10 +727,10 @@ class LaTeXTranslator(SphinxTranslator):
     def _visit_signature_line(self, node: Element) -> None:
         for child in node:
             if isinstance(child, addnodes.desc_parameterlist):
-                self.body.append(r'\pysiglinewithargsret{')
+                self.body.append(CR + r'\pysiglinewithargsret{')
                 break
         else:
-            self.body.append(r'\pysigline{')
+            self.body.append(CR + r'\pysigline{')
 
     def _depart_signature_line(self, node: Element) -> None:
         self.body.append('}')
@@ -740,15 +743,17 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append(hyper)
         if not self.in_desc_signature:
             self.in_desc_signature = True
-            self.body.append('%' + CR)
-            self.body.append(r'\pysigstartmultiline' + CR)
-
+            self.body.append(CR + r'\pysigstartsignatures')
         if not node.get('is_multiline'):
             self._visit_signature_line(node)
+        else:
+            self.body.append(CR + r'\pysigstartmultiline')
 
     def depart_desc_signature(self, node: Element) -> None:
         if not node.get('is_multiline'):
             self._depart_signature_line(node)
+        else:
+            self.body.append(CR + r'\pysigstopmultiline')
 
     def visit_desc_signature_line(self, node: Element) -> None:
         self._visit_signature_line(node)
@@ -758,8 +763,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_desc_content(self, node: Element) -> None:
         assert self.in_desc_signature
-        self.body.append('%' + CR)
-        self.body.append(r'\pysigstopmultiline')
+        self.body.append(CR + r'\pysigstopsignatures')
         self.in_desc_signature = False
 
     def depart_desc_content(self, node: Element) -> None:
