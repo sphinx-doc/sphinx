@@ -105,6 +105,13 @@
    \itemsep\sphinxsignaturesep
 }
 \newcommand{\pysigstopsignatures}{%
+% 1) encourage a pagebreak in an attempt to try to avoid last
+% signature ending up separated from description (due to voodoo next)
+\penalty-100
+% 2) some voodoo to separate last signature from description in a manner
+% robust with respect to the latter being itself a LaTeX list object
+\leavevmode\par\kern-\baselineskip\item[\strut]
+%
    \leavevmode
    % it is important \leavevmode was issued before the \parskip reset, and
    % it is also needed for the case of an object desc itself a LaTeX \list
