@@ -101,7 +101,7 @@ class SetupTest(TestCase):
     def test_add_config_values(self):
         app = mock.Mock(Sphinx)
         setup(app)
-        for name in Config._config_values.keys():
+        for name in Config._config_values:
             has_config = False
             for method_name, args, _kwargs in app.method_calls:
                 if(method_name == 'add_config_value' and
