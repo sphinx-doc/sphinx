@@ -320,7 +320,7 @@ class TexinfoTranslator(SphinxTranslator):
         """Collect the relative links (next, previous, up) for each "node"."""
         rellinks = self.rellinks
         node_menus = self.node_menus
-        for id in node_menus.keys():
+        for id in node_menus:
             rellinks[id] = ['', '', '']
         # up's
         for id, entries in node_menus.items():
