@@ -27,14 +27,14 @@
     </style>
     <script>
       // intelligent scrolling of the sidebar content
-      jQuery(window).scroll(function() {
-        var sb = document.getElementsByClassName('sphinxsidebarwrapper')[0]
-        var sbh = sb.offsetHeight
-        var offset = jQuery('.sphinxsidebar').position()['top'];
-        var wintop = jQuery(window).scrollTop();
-        var winbot = wintop + window.offsetHeight
-        var curtop = sb.position()['top'];
-        var curbot = curtop + sbh;
+      window.onscroll = () => {
+        const sb = document.getElementsByClassName('sphinxsidebarwrapper')[0]
+        const sbh = sb.offsetHeight
+        const offset = document.getElementsByClassName('sphinxsidebar')[0].offsetTop;
+        const wintop = window.scrollTop;
+        const winbot = wintop + window.offsetHeight
+        const curtop = sb.offsetTop;
+        const curbot = curtop + sbh;
         // does sidebar fit in window?
         if (sbh < window.offsetHeight) {
           // yes: easy case -- always keep at the top
@@ -48,7 +48,7 @@
               sb.style.top = Math.min(winbot - sbh - offset - 20, window.innerHeight - sbh - 200)
           }
         }
-      });
+      }
     </script>
 {%- endif %}
 {% endblock %}
