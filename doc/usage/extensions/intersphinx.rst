@@ -25,7 +25,7 @@ projects, and optionally to a specific external project.
 A link like ``:external:ref:`comparison manual <comparisons>``` will then link
 to the label "comparisons" in whichever configured external project, if it
 exists,
-and a link like ``:external:python+ref:`comparison manual <comparisons>``` will
+and a link like ``:external+python:ref:`comparison manual <comparisons>``` will
 link to the label "comparisons" only in the doc set "python", if it exists.
 
 Behind the scenes, this works as follows:
@@ -173,7 +173,7 @@ linking:
 
    For example, with ``intersphinx_disabled_reftypes = ['std:doc']``
    a cross-reference ``:doc:`installation``` will not be attempted to be
-   resolved by intersphinx, but ``:external:otherbook+doc:`installation``` will
+   resolved by intersphinx, but ``:external+otherbook:doc:`installation``` will
    be attempted to be resolved in the inventory named ``otherbook`` in
    :confval:`intersphinx_mapping`.
    At the same time, all cross-references generated in, e.g., Python,
@@ -207,10 +207,10 @@ The Intersphinx extension provides the following role.
    then the key of the project, as specified in :confval:`intersphinx_mapping`,
    is added as well to get the two forms 
 
-   - ``:external:invname+domain:reftype:`target```,
-     e.g., ``:external:python+py:class:`zipfile.ZipFile```, or
-   - ``:external:invname+reftype:`target```,
-     e.g., ``:external:python+doc:`installation```.
+   - ``:external+invname:domain:reftype:`target```,
+     e.g., ``:external+python:py:class:`zipfile.ZipFile```, or
+   - ``:external+invname:reftype:`target```,
+     e.g., ``:external+python:doc:`installation```.
 
 Showing all links of an Intersphinx mapping file
 ------------------------------------------------
