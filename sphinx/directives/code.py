@@ -58,7 +58,7 @@ class Highlight(SphinxDirective):
 
 def dedent_lines(lines: List[str], dedent: int, location: Tuple[str, int] = None) -> List[str]:
     if dedent is None:
-        return textwrap.dedent('\n'.join(lines)).split('\n')
+        return textwrap.dedent(''.join(lines)).splitlines(True)
 
     if any(s[:dedent].strip() for s in lines):
         logger.warning(__('non-whitespace stripped by dedent'), location=location)
@@ -138,9 +138,9 @@ class CodeBlock(SphinxDirective):
 
         if 'dedent' in self.options:
             location = self.state_machine.get_source_and_line(self.lineno)
-            lines = code.split('\n')
+            lines = code.splitlines(True)
             lines = dedent_lines(lines, self.options['dedent'], location=location)
-            code = '\n'.join(lines)
+            code = ''.join(lines)
 
         literal: Element = nodes.literal_block(code, code)
         if 'linenos' in self.options or 'lineno-start' in self.options:
