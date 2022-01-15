@@ -1130,7 +1130,7 @@ Methods:
 .. method:: func(i, j)
    :noindex:
 
-
+   
    description
 """  # NOQA
         config = Config()
