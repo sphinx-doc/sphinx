@@ -4,14 +4,12 @@
 
     Test logging util.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import codecs
 import os
-import platform
-import sys
 
 import pytest
 from docutils import nodes
@@ -43,9 +41,9 @@ def test_info_and_warning(app, status, warning):
 
     assert 'message1' not in warning.getvalue()
     assert 'message2' not in warning.getvalue()
-    assert 'message3' in warning.getvalue()
-    assert 'message4' in warning.getvalue()
-    assert 'message5' in warning.getvalue()
+    assert 'WARNING: message3' in warning.getvalue()
+    assert 'CRITICAL: message4' in warning.getvalue()
+    assert 'ERROR: message5' in warning.getvalue()
 
 
 def test_Exception(app, status, warning):
@@ -131,6 +129,7 @@ def test_is_suppressed_warning():
     assert is_suppressed_warning("ref", "option", suppress_warnings) is True
     assert is_suppressed_warning("files", "image", suppress_warnings) is True
     assert is_suppressed_warning("files", "stylesheet", suppress_warnings) is True
+    assert is_suppressed_warning("rest", None, suppress_warnings) is False
     assert is_suppressed_warning("rest", "syntax", suppress_warnings) is False
     assert is_suppressed_warning("rest", "duplicated_labels", suppress_warnings) is True
 
@@ -143,33 +142,39 @@ def test_suppress_warnings(app, status, warning):
 
     app.config.suppress_warnings = []
     warning.truncate(0)
+    logger.warning('message0', type='test')
     logger.warning('message1', type='test', subtype='logging')
     logger.warning('message2', type='test', subtype='crash')
     logger.warning('message3', type='actual', subtype='logging')
+    assert 'message0' in warning.getvalue()
     assert 'message1' in warning.getvalue()
     assert 'message2' in warning.getvalue()
     assert 'message3' in warning.getvalue()
-    assert app._warncount == 3
+    assert app._warncount == 4
 
     app.config.suppress_warnings = ['test']
     warning.truncate(0)
+    logger.warning('message0', type='test')
     logger.warning('message1', type='test', subtype='logging')
     logger.warning('message2', type='test', subtype='crash')
     logger.warning('message3', type='actual', subtype='logging')
+    assert 'message0' not in warning.getvalue()
     assert 'message1' not in warning.getvalue()
     assert 'message2' not in warning.getvalue()
     assert 'message3' in warning.getvalue()
-    assert app._warncount == 4
+    assert app._warncount == 5
 
     app.config.suppress_warnings = ['test.logging']
     warning.truncate(0)
+    logger.warning('message0', type='test')
     logger.warning('message1', type='test', subtype='logging')
     logger.warning('message2', type='test', subtype='crash')
     logger.warning('message3', type='actual', subtype='logging')
+    assert 'message0' in warning.getvalue()
     assert 'message1' not in warning.getvalue()
     assert 'message2' in warning.getvalue()
     assert 'message3' in warning.getvalue()
-    assert app._warncount == 6
+    assert app._warncount == 8
 
 
 def test_warningiserror(app, status, warning):
@@ -300,8 +305,8 @@ def test_colored_logs(app, status, warning):
     assert 'message2\n' in status.getvalue()  # not colored
     assert 'message3\n' in status.getvalue()  # not colored
     assert colorize('red', 'WARNING: message4') in warning.getvalue()
-    assert 'WARNING: message5\n' in warning.getvalue()  # not colored
-    assert colorize('darkred', 'WARNING: message6') in warning.getvalue()
+    assert 'CRITICAL: message5\n' in warning.getvalue()  # not colored
+    assert colorize('darkred', 'ERROR: message6') in warning.getvalue()
 
     # color specification
     logger.debug('message7', color='white')
@@ -311,8 +316,6 @@ def test_colored_logs(app, status, warning):
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
-@pytest.mark.xfail(platform.system() == 'Darwin' and sys.version_info > (3, 8),
-                   reason="Not working on macOS and py38")
 def test_logging_in_ParallelTasks(app, status, warning):
     logging.setup(app, status, warning)
     logger = logging.getLogger(__name__)

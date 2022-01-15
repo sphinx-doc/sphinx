@@ -4,7 +4,7 @@
 
     Handlers for additional ReST roles.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,7 +15,7 @@ from docutils import nodes, utils
 from docutils.nodes import Element, Node, TextElement, system_message
 
 from sphinx import addnodes
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.util import ws_re
 from sphinx.util.docutils import ReferenceRole, SphinxRole
 from sphinx.util.typing import RoleFunction
@@ -190,7 +190,7 @@ class PEP(ReferenceRole):
                 title = "PEP " + self.title
                 reference += nodes.strong(title, title)
         except ValueError:
-            msg = self.inliner.reporter.error('invalid PEP number %s' % self.target,
+            msg = self.inliner.reporter.error(__('invalid PEP number %s') % self.target,
                                               line=self.lineno)
             prb = self.inliner.problematic(self.rawtext, self.rawtext, msg)
             return [prb], [msg]
@@ -224,7 +224,7 @@ class RFC(ReferenceRole):
                 title = "RFC " + self.title
                 reference += nodes.strong(title, title)
         except ValueError:
-            msg = self.inliner.reporter.error('invalid RFC number %s' % self.target,
+            msg = self.inliner.reporter.error(__('invalid RFC number %s') % self.target,
                                               line=self.lineno)
             prb = self.inliner.problematic(self.rawtext, self.rawtext, msg)
             return [prb], [msg]

@@ -4,7 +4,7 @@
 
     Toctree collector for sphinx.environment.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -196,7 +196,7 @@ class TocTreeCollector(EnvironmentCollector):
         for docname in env.numbered_toctrees:
             assigned.add(docname)
             doctree = env.get_doctree(docname)
-            for toctreenode in doctree.traverse(addnodes.toctree):
+            for toctreenode in doctree.findall(addnodes.toctree):
                 depth = toctreenode.get('numbered', 0)
                 if depth:
                     # every numbered toctree gets new numbering

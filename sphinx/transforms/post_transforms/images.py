@@ -4,7 +4,7 @@
 
     Docutils transforms used by Sphinx.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -30,7 +30,7 @@ CRITICAL_PATH_CHAR_RE = re.compile('[:;<>|*" ]')
 
 class BaseImageConverter(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.traverse(nodes.image):
+        for node in self.document.findall(nodes.image):
             if self.match(node):
                 self.handle(node)
 
@@ -199,6 +199,9 @@ class ImageConverter(BaseImageConverter):
             return False
         elif set(self.guess_mimetypes(node)) & set(self.app.builder.supported_image_types):
             # builder supports the image; no need to convert
+            return False
+        elif node['uri'].startswith('data:'):
+            # all data URI MIME types are assumed to be supported
             return False
         elif self.available is None:
             # store the value to the class variable to share it during the build

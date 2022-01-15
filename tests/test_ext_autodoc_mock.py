@@ -4,7 +4,7 @@
 
     Test the autodoc extension.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -146,6 +146,7 @@ def test_ismock():
 
         assert ismock(mod1) is True
         assert ismock(mod1.Class) is True
+        assert ismock(mod1.submod.Class) is True
         assert ismock(Inherited) is False
 
         assert ismock(mod2) is False

@@ -70,7 +70,7 @@ directory containing :file:`conf.py` and use this configuration::
 The third form is a Python package.  If a theme you want to use is distributed
 as a Python package, you can use it after installing
 
-.. code-block:: bash
+.. code-block:: console
 
     # installing theme package
     $ pip install sphinxjp.themes.dotted
@@ -126,6 +126,10 @@ Builtin themes
 .. |bizstyle|         image:: /_static/themes/bizstyle.png
 
 Sphinx comes with a selection of themes to choose from.
+
+Note that from these themes only the Alabaster and Scrolls themes are
+mobile-optimated, the other themes resort to horizontal scrolling
+if the screen is too narrow.
 
 .. cssclass:: clear
 

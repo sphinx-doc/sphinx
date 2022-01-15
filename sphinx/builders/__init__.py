@@ -4,7 +4,7 @@
 
     Builder superclass for all builders.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -176,7 +176,7 @@ class Builder:
     def post_process_images(self, doctree: Node) -> None:
         """Pick the best candidate for all image URIs."""
         images = ImageAdapter(self.env)
-        for node in doctree.traverse(nodes.image):
+        for node in doctree.findall(nodes.image):
             if '?' in node['candidates']:
                 # don't rewrite nonlocal image URIs
                 continue
@@ -217,7 +217,8 @@ class Builder:
         for catalog in status_iterator(catalogs, __('writing output... '), "darkgreen",
                                        len(catalogs), self.app.verbosity,
                                        stringify_func=cat2relpath):
-            catalog.write_mo(self.config.language)
+            catalog.write_mo(self.config.language,
+                             self.config.gettext_allow_fuzzy_translations)
 
     def compile_all_catalogs(self) -> None:
         repo = CatalogRepository(self.srcdir, self.config.locale_dirs,

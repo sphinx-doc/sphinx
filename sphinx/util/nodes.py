@@ -4,7 +4,7 @@
 
     Docutils node-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -38,7 +38,7 @@ caption_ref_re = explicit_title_re  # b/w compat alias
 
 
 class NodeMatcher:
-    """A helper class for Node.traverse().
+    """A helper class for Node.findall().
 
     It checks that the given node is an instance of the specified node-classes and
     has the specified node-attributes.
@@ -47,7 +47,7 @@ class NodeMatcher:
     and ``reftype`` attributes::
 
         matcher = NodeMatcher(nodes.reference, refdomain='std', reftype='citation')
-        doctree.traverse(matcher)
+        doctree.findall(matcher)
         # => [<reference ...>, <reference ...>, ...]
 
     A special value ``typing.Any`` matches any kind of node-attributes.  For example,
@@ -55,7 +55,7 @@ class NodeMatcher:
 
         from typing import Any
         matcher = NodeMatcher(nodes.reference, refdomain=Any)
-        doctree.traverse(matcher)
+        doctree.findall(matcher)
         # => [<reference ...>, <reference ...>, ...]
     """
 
@@ -147,9 +147,14 @@ def apply_source_workaround(node: Element) -> None:
         logger.debug('[i18n] PATCH: %r to have rawsource: %s',
                      get_full_module_name(node), repr_domxml(node))
         # strip classifier from rawsource of term
-        for classifier in reversed(list(node.parent.traverse(nodes.classifier))):
+        for classifier in reversed(list(node.parent.findall(nodes.classifier))):
             node.rawsource = re.sub(r'\s*:\s*%s' % re.escape(classifier.astext()),
                                     '', node.rawsource)
+    if isinstance(node, nodes.topic) and node.source is None:
+        # docutils-0.18 does not fill the source attribute of topic
+        logger.debug('[i18n] PATCH: %r to have source, line: %s',
+                     get_full_module_name(node), repr_domxml(node))
+        node.source, node.line = node.parent.source, node.parent.line
 
     # workaround: literal_block under bullet list (#4913)
     if isinstance(node, nodes.literal_block) and node.source is None:
@@ -228,9 +233,11 @@ def is_translatable(node: Node) -> bool:
             return False
         return True
 
-    if isinstance(node, addnodes.meta):
+    if is_pending_meta(node) or isinstance(node, addnodes.meta):
+        # docutils-0.17 or older
         return True
-    if is_pending_meta(node):
+    elif isinstance(node, addnodes.docutils_meta):
+        # docutils-0.18+
         return True
 
     return False
@@ -252,7 +259,7 @@ META_TYPE_NODES = (
 
 def extract_messages(doctree: Element) -> Iterable[Tuple[Element, str]]:
     """Extract translatable messages from a document tree."""
-    for node in doctree.traverse(is_translatable):  # type: Element
+    for node in doctree.findall(is_translatable):  # type: Element
         if isinstance(node, addnodes.translatable):
             for msg in node.extract_original_messages():
                 yield node, msg
@@ -269,9 +276,14 @@ def extract_messages(doctree: Element) -> Iterable[Tuple[Element, str]]:
             else:
                 msg = ''
         elif isinstance(node, META_TYPE_NODES):
+            # docutils-0.17 or older
             msg = node.rawcontent
         elif isinstance(node, nodes.pending) and is_pending_meta(node):
+            # docutils-0.17 or older
             msg = node.details['nodes'][0].rawcontent
+        elif isinstance(node, addnodes.docutils_meta):
+            # docutils-0.18+
+            msg = node["content"]
         else:
             msg = node.rawsource.replace('\n', ' ').strip()
 
@@ -311,7 +323,8 @@ def get_prev_node(node: Node) -> Optional[Node]:
 
 def traverse_translatable_index(doctree: Element) -> Iterable[Tuple[Element, List["IndexEntry"]]]:  # NOQA
     """Traverse translatable index node from a document tree."""
-    for node in doctree.traverse(NodeMatcher(addnodes.index, inline=False)):  # type: addnodes.index  # NOQA
+    matcher = NodeMatcher(addnodes.index, inline=False)
+    for node in doctree.findall(matcher):  # type: addnodes.index
         if 'raw_entries' in node:
             entries = node['raw_entries']
         else:
@@ -341,9 +354,9 @@ def nested_parse_with_titles(state: Any, content: StringList, node: Node) -> str
 def clean_astext(node: Element) -> str:
     """Like node.astext(), but ignore images."""
     node = node.deepcopy()
-    for img in node.traverse(nodes.image):
+    for img in node.findall(nodes.image):
         img['alt'] = ''
-    for raw in node.traverse(nodes.raw):
+    for raw in list(node.findall(nodes.raw)):
         raw.parent.remove(raw)
     return node.astext()
 
@@ -408,7 +421,7 @@ def inline_all_toctrees(builder: "Builder", docnameset: Set[str], docname: str,
     Record all docnames in *docnameset*, and output docnames with *colorfunc*.
     """
     tree = cast(nodes.document, tree.deepcopy())
-    for toctreenode in tree.traverse(addnodes.toctree):
+    for toctreenode in list(tree.findall(addnodes.toctree)):
         newnodes = []
         includefiles = map(str, toctreenode['includefiles'])
         for includefile in includefiles:
@@ -426,7 +439,7 @@ def inline_all_toctrees(builder: "Builder", docnameset: Set[str], docname: str,
                 else:
                     sof = addnodes.start_of_file(docname=includefile)
                     sof.children = subtree.children
-                    for sectionnode in sof.traverse(nodes.section):
+                    for sectionnode in sof.findall(nodes.section):
                         if 'docname' not in sectionnode:
                             sectionnode['docname'] = includefile
                     newnodes.append(sof)
@@ -603,7 +616,7 @@ def is_smartquotable(node: Node) -> bool:
 
 def process_only_nodes(document: Node, tags: "Tags") -> None:
     """Filter ``only`` nodes which do not match *tags*."""
-    for node in document.traverse(addnodes.only):
+    for node in document.findall(addnodes.only):
         try:
             ret = tags.eval_condition(node['expr'])
         except Exception as err:

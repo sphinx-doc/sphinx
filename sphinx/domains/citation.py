@@ -4,7 +4,7 @@
 
     The citation domain.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -112,7 +112,7 @@ class CitationDefinitionTransform(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         domain = cast(CitationDomain, self.env.get_domain('citation'))
-        for node in self.document.traverse(nodes.citation):
+        for node in self.document.findall(nodes.citation):
             # register citation node to domain
             node['docname'] = self.env.docname
             domain.note_citation(node)
@@ -131,7 +131,7 @@ class CitationReferenceTransform(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         domain = cast(CitationDomain, self.env.get_domain('citation'))
-        for node in self.document.traverse(nodes.citation_reference):
+        for node in self.document.findall(nodes.citation_reference):
             target = node.astext()
             ref = pending_xref(target, refdomain='citation', reftype='ref',
                                reftarget=target, refwarn=True,

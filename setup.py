@@ -1,6 +1,5 @@
 import os
 import sys
-from distutils import log
 from io import StringIO
 
 from setuptools import find_packages, setup
@@ -29,8 +28,8 @@ install_requires = [
     'alabaster>=0.7,<0.8',
     'imagesize',
     'requests>=2.5.0',
-    'setuptools',
     'packaging',
+    "importlib-metadata>=4.4; python_version < '3.10'",
 ]
 
 extras_require = {
@@ -44,10 +43,9 @@ extras_require = {
     'lint': [
         'flake8>=3.5.0',
         'isort',
-        'mypy>=0.900',
+        'mypy>=0.931',
         'docutils-stubs',
         "types-typed-ast",
-        "types-pkg_resources",
         "types-requests",
     ],
     'test': [
@@ -149,8 +147,8 @@ else:
                 if catalog.fuzzy and not self.use_fuzzy:
                     continue
 
-                log.info('writing JavaScript strings in catalog %r to %r',
-                         po_file, js_file)
+                self.log.info('writing JavaScript strings in catalog %r to %r',
+                              po_file, js_file)
 
                 jscatalog = {}
                 for message in catalog:
@@ -207,6 +205,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Framework :: Setuptools Plugin',

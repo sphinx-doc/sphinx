@@ -5,7 +5,7 @@
     Test the autodoc extension.  This tests mainly the Documenters; the auto
     directives are tested in a test source file translated by test_build.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -243,6 +243,7 @@ def test_slots_attribute(app):
         '',
         '   .. py:attribute:: Bar.attr1',
         '      :module: target.slots',
+        '      :type: int',
         '',
         '      docstring of attr1',
         '',
@@ -269,6 +270,21 @@ def test_show_inheritance_for_subclass_of_generic_type(app):
         '[:py:obj:`~typing.Union`\\ [:py:class:`int`, :py:class:`float`]]',
         '',
         '   A subclass of List[Union[int, float]]',
+        '',
+    ]
+
+
+@pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_show_inheritance_for_decendants_of_generic_type(app):
+    options = {'show-inheritance': None}
+    actual = do_autodoc(app, 'class', 'target.classes.Corge', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Corge(iterable=(), /)',
+        '   :module: target.classes',
+        '',
+        '   Bases: :py:class:`target.classes.Quux`',
         '',
     ]
 
@@ -384,6 +400,18 @@ def test_class_alias_having_doccomment(app):
     assert list(actual) == [
         '',
         '.. py:attribute:: OtherAlias',
+        '   :module: target.classes',
+        '',
+        '   docstring',
+        '',
+    ]
+
+
+def test_class_alias_for_imported_object_having_doccomment(app):
+    actual = do_autodoc(app, 'class', 'target.classes.IntAlias')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: IntAlias',
         '   :module: target.classes',
         '',
         '   docstring',

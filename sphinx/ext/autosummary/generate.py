@@ -13,7 +13,7 @@
        generate:
                sphinx-autogen -o source/generated source/*.rst
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -28,7 +28,7 @@ import sys
 import warnings
 from gettext import NullTranslations
 from os import path
-from typing import Any, Dict, List, NamedTuple, Set, Tuple, Type, Union
+from typing import Any, Dict, List, NamedTuple, Sequence, Set, Tuple, Type, Union
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -41,12 +41,13 @@ from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.ext.autodoc import Documenter
 from sphinx.ext.autodoc.importer import import_module
-from sphinx.ext.autosummary import get_documenter, import_by_name, import_ivar_by_name
+from sphinx.ext.autosummary import (ImportExceptionGroup, get_documenter, import_by_name,
+                                    import_ivar_by_name)
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging, rst, split_full_qualified_name
-from sphinx.util.inspect import safe_getattr
+from sphinx.util.inspect import getall, safe_getattr
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
 
@@ -68,6 +69,7 @@ class DummyApplication:
 
         self.config.add('autosummary_context', {}, True, None)
         self.config.add('autosummary_filename_map', {}, True, None)
+        self.config.add('autosummary_ignore_module_all', True, 'env', bool)
         self.config.init_values()
 
     def emit_firstresult(self, *args: Any) -> None:
@@ -192,7 +194,7 @@ class ModuleScanner:
 
     def scan(self, imported_members: bool) -> List[str]:
         members = []
-        for name in dir(self.object):
+        for name in members_of(self.object, self.app.config):
             try:
                 value = safe_getattr(self.object, name)
             except AttributeError:
@@ -212,14 +214,29 @@ class ModuleScanner:
             except AttributeError:
                 imported = False
 
+            respect_module_all = not self.app.config.autosummary_ignore_module_all
             if imported_members:
                 # list all members up
                 members.append(name)
             elif imported is False:
-                # list not-imported members up
+                # list not-imported members
+                members.append(name)
+            elif '__all__' in dir(self.object) and respect_module_all:
+                # list members that have __all__ set
                 members.append(name)
 
         return members
+
+
+def members_of(obj: Any, conf: Config) -> Sequence[str]:
+    """Get the members of ``obj``, possibly ignoring the ``__all__`` module attribute
+
+    Follows the ``conf.autosummary_ignore_module_all`` setting."""
+
+    if conf.autosummary_ignore_module_all:
+        return dir(obj)
+    else:
+        return getall(obj) or dir(obj)
 
 
 def generate_autosummary_content(name: str, obj: Any, parent: Any,
@@ -245,7 +262,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
 
     def get_module_members(obj: Any) -> Dict[str, Any]:
         members = {}
-        for name in dir(obj):
+        for name in members_of(obj, app.config):
             try:
                 members[name] = safe_getattr(obj, name)
             except AttributeError:
@@ -414,15 +431,22 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
         ensuredir(path)
 
         try:
-            name, obj, parent, modname = import_by_name(entry.name)
+            name, obj, parent, modname = import_by_name(entry.name, grouped_exception=True)
             qualname = name.replace(modname + ".", "")
-        except ImportError as e:
+        except ImportExceptionGroup as exc:
             try:
-                # try to importl as an instance attribute
+                # try to import as an instance attribute
                 name, obj, parent, modname = import_ivar_by_name(entry.name)
                 qualname = name.replace(modname + ".", "")
-            except ImportError:
-                logger.warning(__('[autosummary] failed to import %r: %s') % (entry.name, e))
+            except ImportError as exc2:
+                if exc2.__cause__:
+                    exceptions: List[BaseException] = exc.exceptions + [exc2.__cause__]
+                else:
+                    exceptions = exc.exceptions + [exc2]
+
+                errors = list(set("* %s: %s" % (type(e).__name__, e) for e in exceptions))
+                logger.warning(__('[autosummary] failed to import %s.\nPossible hints:\n%s'),
+                               entry.name, '\n'.join(errors))
                 continue
 
         context: Dict[str, Any] = {}
@@ -484,13 +508,14 @@ def find_autosummary_in_docstring(name: str, module: str = None, filename: str =
                       RemovedInSphinx50Warning, stacklevel=2)
 
     try:
-        real_name, obj, parent, modname = import_by_name(name)
+        real_name, obj, parent, modname = import_by_name(name, grouped_exception=True)
         lines = pydoc.getdoc(obj).splitlines()
         return find_autosummary_in_lines(lines, module=name, filename=filename)
     except AttributeError:
         pass
-    except ImportError as e:
-        print("Failed to import '%s': %s" % (name, e))
+    except ImportExceptionGroup as exc:
+        errors = list(set("* %s: %s" % (type(e).__name__, e) for e in exc.exceptions))
+        print('Failed to import %s.\nPossible hints:\n%s' % (name, '\n'.join(errors)))
     except SystemExit:
         print("Failed to import '%s'; the module executes module level "
               "statement and it might call sys.exit()." % name)
@@ -630,6 +655,10 @@ The format of the autosummary directive is documented in the
                         dest='imported_members', default=False,
                         help=__('document imported members (default: '
                                 '%(default)s)'))
+    parser.add_argument('-a', '--respect-module-all', action='store_true',
+                        dest='respect_module_all', default=False,
+                        help=__('document exactly the members in module __all__ attribute. '
+                                '(default: %(default)s)'))
 
     return parser
 
@@ -646,6 +675,7 @@ def main(argv: List[str] = sys.argv[1:]) -> None:
 
     if args.templates:
         app.config.templates_path.append(path.abspath(args.templates))
+    app.config.autosummary_ignore_module_all = not args.respect_module_all  # type: ignore
 
     generate_autosummary_docs(args.source_file, args.output_dir,
                               '.' + args.suffix,

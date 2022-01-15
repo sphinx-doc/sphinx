@@ -4,7 +4,7 @@
 
     The C language domain.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -36,7 +36,7 @@ from sphinx.util.cfamily import (ASTAttribute, ASTBaseBase, ASTBaseParenExprList
                                  float_literal_suffix_re, hex_literal_re, identifier_re,
                                  integer_literal_re, integers_literal_suffix_re,
                                  octal_literal_re, verify_description_mode)
-from sphinx.util.docfields import Field, TypedField
+from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
 from sphinx.util.typing import OptionSpec
@@ -92,31 +92,22 @@ _id_prefix = [None, 'c.', 'Cv2.']
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
 
-_simple_type_sepcifiers_re = re.compile(r"""(?x)
+# bool, complex, and imaginary are macro "keywords", so they are handled seperately
+_simple_type_specifiers_re = re.compile(r"""(?x)
     \b(
-    void|_Bool|bool
-    # Integer
-    # -------
-    |((signed|unsigned)\s+)?(char|(
-        ((long\s+long|long|short)\s+)?int
-    ))
-    |__uint128|__int128
-    # extensions
-    |((signed|unsigned)\s+)?__int(8|16|32|64|128)
-    # Floating-point
-    # --------------
-    |(float|double|long\s+double)(\s+(_Complex|complex|_Imaginary|imaginary))?
-    |(_Complex|complex|_Imaginary|imaginary)\s+(float|double|long\s+double)
-    |_Decimal(32|64|128)
-    # extensions
-    |__float80|_Float64x|__float128|_Float128|__ibm128
-    |__fp16
-    # Fixed-point, extension
-    |(_Sat\s+)?((signed|unsigned)\s+)?((short|long|long\s+long)\s+)?(_Fract|fract|_Accum|accum)
-    # Integer types that could be prefixes of the previous ones
-    # ---------------------------------------------------------
-    |((signed|unsigned)\s+)?(long\s+long|long|short)
+    void|_Bool
     |signed|unsigned
+    |short|long
+    |char
+    |int
+    |__uint128|__int128
+    |__int(8|16|32|64|128)  # extension
+    |float|double
+    |_Decimal(32|64|128)
+    |_Complex|_Imaginary
+    |__float80|_Float64x|__float128|_Float128|__ibm128  # extension
+    |__fp16  # extension
+    |_Sat|_Fract|fract|_Accum|accum  # extension
     )\b
 """)
 
@@ -226,7 +217,7 @@ class ASTNestedName(ASTBase):
             assert not self.rooted, str(self)
             assert len(self.names) == 1
             self.names[0].describe_signature(signode, 'noneIsName', env, '', symbol)
-        elif mode == 'markType' or mode == 'lastIsName' or mode == 'markName':
+        elif mode in ('markType', 'lastIsName', 'markName'):
             # Each element should be a pending xref targeting the complete
             # prefix.
             prefix = ''
@@ -636,8 +627,9 @@ class ASTTrailingTypeSpec(ASTBase):
 
 
 class ASTTrailingTypeSpecFundamental(ASTTrailingTypeSpec):
-    def __init__(self, name: str) -> None:
-        self.names = name.split()
+    def __init__(self, names: List[str]) -> None:
+        assert len(names) != 0
+        self.names = names
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return ' '.join(self.names)
@@ -2580,12 +2572,36 @@ class DefinitionParser(BaseParser):
                 break
         return ASTNestedName(names, rooted)
 
+    def _parse_simple_type_specifier(self) -> Optional[str]:
+        if self.match(_simple_type_specifiers_re):
+            return self.matched_text
+        for t in ('bool', 'complex', 'imaginary'):
+            if t in self.config.c_extra_keywords:
+                if self.skip_word(t):
+                    return t
+        return None
+
+    def _parse_simple_type_specifiers(self) -> ASTTrailingTypeSpecFundamental:
+        names: List[str] = []
+
+        self.skip_ws()
+        while True:
+            t = self._parse_simple_type_specifier()
+            if t is None:
+                break
+            names.append(t)
+            self.skip_ws()
+        if len(names) == 0:
+            return None
+        return ASTTrailingTypeSpecFundamental(names)
+
     def _parse_trailing_type_spec(self) -> ASTTrailingTypeSpec:
         # fundamental types, https://en.cppreference.com/w/c/language/type
         # and extensions
         self.skip_ws()
-        if self.match(_simple_type_sepcifiers_re):
-            return ASTTrailingTypeSpecFundamental(self.matched_text)
+        res = self._parse_simple_type_specifiers()
+        if res is not None:
+            return res
 
         # prefixed
         prefix = None
@@ -3130,16 +3146,6 @@ class CObject(ObjectDescription[ASTDeclaration]):
     Description of a C language object.
     """
 
-    doc_field_types = [
-        TypedField('parameter', label=_('Parameters'),
-                   names=('param', 'parameter', 'arg', 'argument'),
-                   typerolename='expr', typenames=('type',)),
-        Field('returnvalue', label=_('Returns'), has_arg=False,
-              names=('returns', 'return')),
-        Field('returntype', label=_('Return type'), has_arg=False,
-              names=('rtype',)),
-    ]
-
     option_spec: OptionSpec = {
         'noindexentry': directives.flag,
     }
@@ -3342,12 +3348,30 @@ class CMemberObject(CObject):
         return self.objtype
 
 
+_function_doc_field_types = [
+    TypedField('parameter', label=_('Parameters'),
+               names=('param', 'parameter', 'arg', 'argument'),
+               typerolename='expr', typenames=('type',)),
+    GroupedField('retval', label=_('Return values'),
+                 names=('retvals', 'retval'),
+                 can_collapse=True),
+    Field('returnvalue', label=_('Returns'), has_arg=False,
+          names=('returns', 'return')),
+    Field('returntype', label=_('Return type'), has_arg=False,
+          names=('rtype',)),
+]
+
+
 class CFunctionObject(CObject):
     object_type = 'function'
+
+    doc_field_types = _function_doc_field_types.copy()
 
 
 class CMacroObject(CObject):
     object_type = 'macro'
+
+    doc_field_types = _function_doc_field_types.copy()
 
 
 class CStructObject(CObject):
@@ -3532,7 +3556,7 @@ class AliasTransform(SphinxTransform):
         return nodes
 
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.traverse(AliasNode):
+        for node in self.document.findall(AliasNode):
             node = cast(AliasNode, node)
             sig = node.sig
             parentKey = node.parentKey

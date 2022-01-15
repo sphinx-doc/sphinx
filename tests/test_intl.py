@@ -5,7 +5,7 @@
     Test message patching for internationalization purposes.  Runs the text
     builder in the test root.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -241,13 +241,29 @@ def test_text_glossary_term(app, warning):
     app.build()
     # --- glossary terms: regression test for #1090
     result = (app.outdir / 'glossary_terms.txt').read_text()
-    expect = ("18. I18N WITH GLOSSARY TERMS"
-              "\n****************************\n"
-              "\nSOME NEW TERM"
-              "\n   THE CORRESPONDING GLOSSARY\n"
-              "\nSOME OTHER NEW TERM"
-              "\n   THE CORRESPONDING GLOSSARY #2\n"
-              "\nLINK TO *SOME NEW TERM*.\n")
+    expect = (r"""18. I18N WITH GLOSSARY TERMS
+****************************
+
+SOME NEW TERM
+   THE CORRESPONDING GLOSSARY
+
+SOME OTHER NEW TERM
+   THE CORRESPONDING GLOSSARY #2
+
+LINK TO *SOME NEW TERM*.
+
+TRANSLATED GLOSSARY SHOULD BE SORTED BY TRANSLATED TERMS:
+
+TRANSLATED TERM XXX
+   DEFINE XXX
+
+TRANSLATED TERM YYY
+   DEFINE YYY
+
+TRANSLATED TERM ZZZ
+VVV
+   DEFINE ZZZ
+""")
     assert result == expect
     warnings = getwarning(warning)
     assert 'term not in glossary' not in warnings
@@ -1299,6 +1315,44 @@ def test_image_glob_intl_using_figure_language_filename(app):
 
 def getwarning(warnings):
     return strip_escseq(warnings.getvalue().replace(os.sep, '/'))
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    srcdir='gettext_allow_fuzzy_translations',
+                    confoverrides={
+                        'language': 'de',
+                        'gettext_allow_fuzzy_translations': True
+                    })
+def test_gettext_allow_fuzzy_translations(app):
+    locale_dir = app.srcdir / 'locales' / 'de' / 'LC_MESSAGES'
+    locale_dir.makedirs()
+    with (locale_dir / 'index.po').open('wb') as f:
+        catalog = Catalog()
+        catalog.add('features', 'FEATURES', flags=('fuzzy',))
+        pofile.write_po(f, catalog)
+
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+    assert 'FEATURES' in content
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    srcdir='gettext_disallow_fuzzy_translations',
+                    confoverrides={
+                        'language': 'de',
+                        'gettext_allow_fuzzy_translations': False
+                    })
+def test_gettext_disallow_fuzzy_translations(app):
+    locale_dir = app.srcdir / 'locales' / 'de' / 'LC_MESSAGES'
+    locale_dir.makedirs()
+    with (locale_dir / 'index.po').open('wb') as f:
+        catalog = Catalog()
+        catalog.add('features', 'FEATURES', flags=('fuzzy',))
+        pofile.write_po(f, catalog)
+
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+    assert 'FEATURES' not in content
 
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'language': 'de'})

@@ -4,7 +4,7 @@
 
     Utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -72,10 +72,11 @@ def get_matching_files(dirname: str,
     """
     # dirname is a normalized absolute path.
     dirname = path.normpath(path.abspath(dirname))
-    dirlen = len(dirname) + 1    # exclude final os.path.sep
 
     for root, dirs, files in os.walk(dirname, followlinks=True):
-        relativeroot = root[dirlen:]
+        relativeroot = path.relpath(root, dirname)
+        if relativeroot == ".":
+            relativeroot = ""  # suppress dirname for files on the target dir
 
         qdirs = enumerate(path_stabilize(path.join(relativeroot, dn))
                           for dn in dirs)  # type: Iterable[Tuple[int, str]]
@@ -153,7 +154,7 @@ def md5(data=b'', **kwargs):
     """
 
     try:
-        return hashlib.md5(data, **kwargs)  # type: ignore
+        return hashlib.md5(data, **kwargs)
     except ValueError:
         return hashlib.md5(data, **kwargs, usedforsecurity=False)  # type: ignore
 
@@ -167,7 +168,7 @@ def sha1(data=b'', **kwargs):
     """
 
     try:
-        return hashlib.sha1(data, **kwargs)  # type: ignore
+        return hashlib.sha1(data, **kwargs)
     except ValueError:
         return hashlib.sha1(data, **kwargs, usedforsecurity=False)  # type: ignore
 

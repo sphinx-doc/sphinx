@@ -4,7 +4,7 @@
 
     Global creation environment.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -45,15 +45,18 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 default_settings: Dict[str, Any] = {
+    'auto_id_prefix': 'id',
+    'embed_images': False,
     'embed_stylesheet': False,
     'cloak_email_addresses': True,
     'pep_base_url': 'https://www.python.org/dev/peps/',
     'pep_references': None,
-    'rfc_base_url': 'https://tools.ietf.org/html/',
+    'rfc_base_url': 'https://datatracker.ietf.org/doc/html/',
     'rfc_references': None,
     'input_encoding': 'utf-8-sig',
     'doctitle_xform': False,
     'sectsubtitle_xform': False,
+    'section_self_link': False,
     'halt_level': 5,
     'file_insertion_enabled': True,
     'smartquotes_locales': [],
@@ -532,7 +535,7 @@ class BuildEnvironment:
         self.apply_post_transforms(doctree, docname)
 
         # now, resolve all toctree nodes
-        for toctreenode in doctree.traverse(addnodes.toctree):
+        for toctreenode in doctree.findall(addnodes.toctree):
             result = TocTree(self).resolve(docname, builder, toctreenode,
                                            prune=prune_toctrees,
                                            includehidden=includehidden)
@@ -618,7 +621,7 @@ class BuildEnvironment:
 
     def check_consistency(self) -> None:
         """Do consistency checks."""
-        included = set().union(*self.included.values())  # type: ignore
+        included = set().union(*self.included.values())
         for docname in sorted(self.all_docs):
             if docname not in self.files_to_rebuild:
                 if docname == self.config.root_doc:

@@ -108,6 +108,7 @@ html_static_path = ['{{ dot }}static']
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
 }
+
 {%- endif %}
 {%- if 'sphinx.ext.todo' in extensions %}
 

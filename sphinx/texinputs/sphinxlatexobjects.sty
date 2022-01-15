@@ -1,7 +1,7 @@
 %% MODULE RELEASE DATA AND OBJECT DESCRIPTIONS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexobjects.sty}[2021/01/27 documentation environments]
+\ProvidesFile{sphinxlatexobjects.sty}[2021/12/05 documentation environments]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -91,21 +91,36 @@
 % \relax only ends its "dimen" part
   \py@argswidth=\dimexpr\linewidth+\labelwidth\relax\relax
   \item[{\parbox[t]{\py@argswidth}{\raggedright #1\strut}}]
-% contrarily to \pysiglinewithargsret, we do not do this:
-%  \leavevmode\par\nobreak\vskip-\parskip\prevdepth\dp\strutbox
-% which would give exact vertical spacing if item parbox is multi-line,
-% as it affects negatively more common situation of \pysigline
-% used twice or more in a row for labels sharing common description,
-% due to bad interaction with the \phantomsection in the mark-up
+  \futurelet\sphinx@token\pysigline@preparevspace@i
 }
 \newcommand{\pysiglinewithargsret}[3]{%
   \settowidth{\py@argswidth}{#1\sphinxcode{(}}%
   \py@argswidth=\dimexpr\linewidth+\labelwidth-\py@argswidth\relax\relax
-  \item[{#1\sphinxcode{(}\py@sigparams{#2}{#3}}]
+  \item[{#1\sphinxcode{(}\py@sigparams{#2}{#3}\strut}]
+  \futurelet\sphinx@token\pysigline@preparevspace@i
+}
+\def\pysigline@preparevspace@i{%
+  \ifx\sphinx@token\@sptoken
+   \expandafter\pysigline@preparevspace@again
+   \else\expandafter\pysigline@preparevspace@ii
+  \fi
+}
+\@firstofone{\def\pysigline@preparevspace@again} {\futurelet\sphinx@token\pysigline@preparevspace@i}
+\long\def\pysigline@preparevspace@ii#1{%
+  \ifx\sphinx@token\bgroup\expandafter\@firstoftwo
+  \else
+    \ifx\sphinx@token\phantomsection
+    \else
 % this strange incantation is because at its root LaTeX in fact did not
 % imagine a multi-line label, it is always wrapped in a horizontal box at core
 % LaTeX level and we have to find tricks to get correct interline distances.
-  \leavevmode\par\nobreak\vskip-\parskip\prevdepth\dp\strutbox}
+% It interacts badly with a follow-up \phantomsection hence the test above
+    \leavevmode\par\nobreak\vskip-\parskip\prevdepth\dp\strutbox
+    \fi
+    \expandafter\@secondoftwo
+  \fi
+  {{#1}}{#1}%
+}
 \newcommand{\pysigstartmultiline}{%
  \def\pysigstartmultiline{\vskip\smallskipamount\parskip\z@skip\itemsep\z@skip}%
  \edef\pysigstopmultiline

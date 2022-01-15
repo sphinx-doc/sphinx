@@ -662,6 +662,18 @@ There are also config values that you can set:
    .. __: https://mypy.readthedocs.io/en/latest/kinds_of_types.html#type-aliases
    .. versionadded:: 3.3
 
+.. confval:: autodoc_typehints_format
+
+   This value controls the format of typehints.  The setting takes the
+   following values:
+
+   * ``'fully-qualified'`` -- Show the module name and its name of typehints
+     (default)
+   * ``'short'`` -- Suppress the leading module names of the typehints
+     (ex. ``io.StringIO`` -> ``StringIO``)
+
+   .. versionadded:: 4.4
+
 .. confval:: autodoc_preserve_defaults
 
    If True, the default argument values of functions will be not evaluated on
@@ -768,8 +780,6 @@ needed docstring processing in event :event:`autodoc-process-docstring`:
 
 .. event:: autodoc-process-bases (app, name, obj, options, bases)
 
-   .. versionadded:: 4.1
-
    Emitted when autodoc has read and processed a class to determine the
    base-classes.  *bases* is a list of classes that the event handler can
    modify **in place** to change what Sphinx puts into the output.  It's
@@ -780,6 +790,12 @@ needed docstring processing in event :event:`autodoc-process-docstring`:
    :param obj: the object itself
    :param options: the options given to the class directive
    :param bases: the list of base classes signature. see above.
+
+   .. versionadded:: 4.1
+   .. versionchanged:: 4.3
+
+      ``bases`` can contain a string as a base class name.  It will be processed
+      as reST mark-up'ed text.
 
 
 Skipping members

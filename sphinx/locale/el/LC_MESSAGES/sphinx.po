@@ -1,18 +1,18 @@
 # Translations template for Sphinx.
-# Copyright (C) 2021 ORGANIZATION
+# Copyright (C) 2022 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
 # 
 # Translators:
 # Stelios Vitalis <liberostelios@gmail.com>, 2015
-# Takeshi KOMIYA <i.tkomiya@gmail.com>, 2021
+# Komiya Takeshi <i.tkomiya@gmail.com>, 2021
 # tzoumakers tzoumakers <tzoumakersx@gmail.com>, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-19 00:09+0000\n"
-"PO-Revision-Date: 2021-09-12 00:10+0000\n"
-"Last-Translator: Takeshi KOMIYA <i.tkomiya@gmail.com>\n"
+"POT-Creation-Date: 2022-01-02 00:12+0000\n"
+"PO-Revision-Date: 2022-01-02 00:12+0000\n"
+"Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Greek (http://www.transifex.com/sphinx-doc/sphinx-1/language/el/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -21,130 +21,123 @@ msgstr ""
 "Language: el\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: sphinx/application.py:157
+#: sphinx/application.py:156
 #, python-format
 msgid "Cannot find source directory (%s)"
 msgstr "Δεν είναι δυνατή η εύρεση του καταλόγου πηγής (%s)"
 
-#: sphinx/application.py:161
+#: sphinx/application.py:160
 #, python-format
 msgid "Output directory (%s) is not a directory"
 msgstr ""
 
-#: sphinx/application.py:165
+#: sphinx/application.py:164
 msgid "Source directory and destination directory cannot be identical"
 msgstr "Ο κατάλογος πηγής και ο κατάλογος προορισμού δεν είναι δυνατό να είναι ίδιοι"
 
-#: sphinx/application.py:196
+#: sphinx/application.py:195
 #, python-format
 msgid "Running Sphinx v%s"
 msgstr "Εκτέλεση Sphinx έκδοση %s"
 
-#: sphinx/application.py:200
-msgid ""
-"For security reasons, parallel mode is disabled on macOS and python3.8 and "
-"above. For more details, please read https://github.com/sphinx-"
-"doc/sphinx/issues/6803"
-msgstr ""
-
-#: sphinx/application.py:228
+#: sphinx/application.py:221
 #, python-format
 msgid ""
 "This project needs at least Sphinx v%s and therefore cannot be built with "
 "this version."
 msgstr "Αυτό το έργο απαιτεί Sphinx έκδοσης τουλάχιστον %s και επομένως δεν είναι δυνατή η μεταγλωτισση με αυτή την έκδοση."
 
-#: sphinx/application.py:243
+#: sphinx/application.py:236
 msgid "making output directory"
 msgstr "δημιουργία καταλόγου εξόδου"
 
-#: sphinx/application.py:248 sphinx/registry.py:426
+#: sphinx/application.py:241 sphinx/registry.py:430
 #, python-format
 msgid "while setting up extension %s:"
 msgstr "κατά τον καθορισμό της επέκτασης %s"
 
-#: sphinx/application.py:254
+#: sphinx/application.py:247
 msgid ""
 "'setup' as currently defined in conf.py isn't a Python callable. Please "
 "modify its definition to make it a callable function. This is needed for "
 "conf.py to behave as a Sphinx extension."
 msgstr "η 'παραμετροποίηση' σύμφωνα με τον τρέχοντα ορισμό στο conf.py δεν αποτελεί καλέσιμο. Παρακαλείσθε να τροποποιήσετε τον ορισμό ώστε να το κάνετε μία καλέσιμη συνάρτηση. Αυτό απαιτείται προκειμένου το conf.py να συμπεριφέρεται ως μία επέκταση Sphinx."
 
-#: sphinx/application.py:279
+#: sphinx/application.py:272
 #, python-format
 msgid "loading translations [%s]... "
 msgstr "φόρτωση μεταφράσεων [%s]..."
 
-#: sphinx/application.py:296 sphinx/util/__init__.py:539
+#: sphinx/application.py:290 sphinx/util/__init__.py:539
 msgid "done"
 msgstr "ολοκλήρωση"
 
-#: sphinx/application.py:298
+#: sphinx/application.py:292
 msgid "not available for built-in messages"
 msgstr "δεν είναι διαθέσιμο για εσωτερικά μηνύματα"
 
-#: sphinx/application.py:307
+#: sphinx/application.py:301
 msgid "loading pickled environment"
 msgstr "φόρτωση πακτωμένου περιβάλλοντος"
 
-#: sphinx/application.py:312
+#: sphinx/application.py:306
 #, python-format
 msgid "failed: %s"
 msgstr "αποτυχία: %s"
 
-#: sphinx/application.py:320
+#: sphinx/application.py:314
 msgid "No builder selected, using default: html"
 msgstr "Δεν επιλέχθηκε μεταγλωττιστής, θα χρησιμοποιηθεί ο προεπιλεγμένος: html"
 
-#: sphinx/application.py:348
+#: sphinx/application.py:342
 msgid "succeeded"
 msgstr "επιτυχία"
 
-#: sphinx/application.py:349
+#: sphinx/application.py:343
 msgid "finished with problems"
 msgstr "ολοκλήρωση με προβλήματα"
 
-#: sphinx/application.py:353
+#: sphinx/application.py:347
 #, python-format
 msgid "build %s, %s warning (with warnings treated as errors)."
 msgstr ""
 
-#: sphinx/application.py:355
+#: sphinx/application.py:349
 #, python-format
 msgid "build %s, %s warnings (with warnings treated as errors)."
 msgstr ""
 
-#: sphinx/application.py:358
+#: sphinx/application.py:352
 #, python-format
 msgid "build %s, %s warning."
 msgstr "μεταγλώττιση %s, %s προειδοποίηση"
 
-#: sphinx/application.py:360
+#: sphinx/application.py:354
 #, python-format
 msgid "build %s, %s warnings."
 msgstr ""
 
-#: sphinx/application.py:364
+#: sphinx/application.py:358
 #, python-format
 msgid "build %s."
 msgstr "μεταγλώττιση %s."
 
-#: sphinx/application.py:594
+#: sphinx/application.py:588
 #, python-format
 msgid "node class %r is already registered, its visitors will be overridden"
 msgstr "η κλάση κόμβου %r έχει ήδη καταχωρηθεί, οι επισκέπτες της θα υπερσκελιστούν"
 
-#: sphinx/application.py:672
+#: sphinx/application.py:666
 #, python-format
 msgid "directive %r is already registered, it will be overridden"
 msgstr "η οδηγία %r έει ήδη καταχωρηθεί, θα υπερσκελιστεί"
 
-#: sphinx/application.py:693 sphinx/application.py:714
+#: sphinx/application.py:687 sphinx/application.py:708
 #, python-format
 msgid "role %r is already registered, it will be overridden"
 msgstr "ο ρόλος %r έχει ήδη καταχωρηθεί, θα υπερσκελιστεί"
 
-#: sphinx/application.py:1225
+#: sphinx/application.py:1256
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel reading, "
@@ -152,12 +145,12 @@ msgid ""
 "explicit"
 msgstr "η επέκταση %s δεν καθορίζει αν είναι ασφαλής η παράλληλη ανάγνωση, υποθέτοντας ότι δεν είναι - παρακαλείσθε να ζητήσετε από  το δημιουργό της επέκτασης να το ελέγχει και να το κάνει σαφές"
 
-#: sphinx/application.py:1229
+#: sphinx/application.py:1260
 #, python-format
 msgid "the %s extension is not safe for parallel reading"
 msgstr ""
 
-#: sphinx/application.py:1232
+#: sphinx/application.py:1263
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel writing, "
@@ -165,64 +158,64 @@ msgid ""
 "explicit"
 msgstr "η επέκταση %s δεν καθορίζει αν είναι ασφαλής η παράλληλη ανάγνωση, υποθέτοντας ότι δεν είναι - παρακαλείσθε να ζητήσετε το δημιουργό της επέκτασης να το ελέγξει και να το κάνει σαφές"
 
-#: sphinx/application.py:1236
+#: sphinx/application.py:1267
 #, python-format
 msgid "the %s extension is not safe for parallel writing"
 msgstr ""
 
-#: sphinx/application.py:1244 sphinx/application.py:1248
+#: sphinx/application.py:1275 sphinx/application.py:1279
 #, python-format
 msgid "doing serial %s"
 msgstr "εκτέλεση σειριακής %s"
 
-#: sphinx/config.py:170
+#: sphinx/config.py:171
 #, python-format
 msgid "config directory doesn't contain a conf.py file (%s)"
 msgstr "ο κατάλογος παραμετροποίησης δεν περιλαμβάνει κανένα αρχείο conf.py (%s)"
 
-#: sphinx/config.py:197
+#: sphinx/config.py:198
 #, python-format
 msgid ""
 "cannot override dictionary config setting %r, ignoring (use %r to set "
 "individual elements)"
 msgstr "δεν είναι δυνατή η υπερσκέλιση της ρύθμισης παραμετροποίησης καταλόγου %r, θα αγνοηθεί (χρησιμοποιήστε το %r για να καθορίσετε τα επιμέρους στοιχεία)"
 
-#: sphinx/config.py:206
+#: sphinx/config.py:207
 #, python-format
 msgid "invalid number %r for config value %r, ignoring"
 msgstr "ανέγκυρος αριθμός %r για τιμή παραμετροποίησης %r, θα αγνοηθεί"
 
-#: sphinx/config.py:211
+#: sphinx/config.py:212
 #, python-format
 msgid "cannot override config setting %r with unsupported type, ignoring"
 msgstr "δεν είναι δυνατή η υπερσκέλιση της ρύθμισης παραμετροποίησης %r με τύπο ο οποίος δεν υποστηρίζεται, θα αγνοηθεί"
 
-#: sphinx/config.py:240
+#: sphinx/config.py:241
 #, python-format
 msgid "unknown config value %r in override, ignoring"
 msgstr "άγνωστη τιμή παραμετροποίσης %r στην υπερσκέλιση, θα αγνοηθεί"
 
-#: sphinx/config.py:257
+#: sphinx/config.py:258
 #, python-format
 msgid "No such config value: %s"
 msgstr "Δεν υπάρχει τέτοια τιμή παραμετροποίησης: %s"
 
-#: sphinx/config.py:281
+#: sphinx/config.py:282
 #, python-format
 msgid "Config value %r already present"
 msgstr "Η τιμή παραμετροποίησης %r υφίσταται ήδη."
 
-#: sphinx/config.py:330
+#: sphinx/config.py:331
 #, python-format
 msgid "There is a syntax error in your configuration file: %s\n"
 msgstr "Υπάρχει ένα συντακτικό λάθος στο αρχείο παραμετροποίησής σας: %s\n"
 
-#: sphinx/config.py:333
+#: sphinx/config.py:334
 msgid ""
 "The configuration file (or one of the modules it imports) called sys.exit()"
 msgstr "Το αρχείο παραμετροποίησης (ή ένα από τα στοιχεία που εισάγει) κάλεσε την sys.exit()"
 
-#: sphinx/config.py:340
+#: sphinx/config.py:341
 #, python-format
 msgid ""
 "There is a programmable error in your configuration file:\n"
@@ -230,57 +223,57 @@ msgid ""
 "%s"
 msgstr "Υπάρχει ένα προγραμματιστικό λάθος στο αρχείο παραμετροποίησής σας:\n\n%s"
 
-#: sphinx/config.py:366
+#: sphinx/config.py:367
 #, python-format
 msgid ""
 "The config value `source_suffix' expects a string, list of strings, or "
 "dictionary. But `%r' is given."
 msgstr "Η τιμή παραμτετροποίησης 'source_suffix' αναμένει στοιχειοσειρά, στοιχειοσειρά καταλόγου, ή λεξικό. Αλλά παραδόθηκε %r."
 
-#: sphinx/config.py:385
+#: sphinx/config.py:386
 #, python-format
 msgid "Section %s"
 msgstr "Τομέας %s"
 
-#: sphinx/config.py:386
+#: sphinx/config.py:387
 #, python-format
 msgid "Fig. %s"
 msgstr "Εικ. %s"
 
-#: sphinx/config.py:387
+#: sphinx/config.py:388
 #, python-format
 msgid "Table %s"
 msgstr "Πίνακας %s"
 
-#: sphinx/config.py:388
+#: sphinx/config.py:389
 #, python-format
 msgid "Listing %s"
 msgstr "Λίστα %s"
 
-#: sphinx/config.py:425
+#: sphinx/config.py:426
 msgid ""
 "The config value `{name}` has to be a one of {candidates}, but `{current}` "
 "is given."
 msgstr "Η τιμή παραμετροποίησης '{name}' πρέπει να λαμβάνει μία από τις {candidates} αλλά εκχωρήθηκε η '{current}'."
 
-#: sphinx/config.py:443
+#: sphinx/config.py:444
 msgid ""
 "The config value `{name}' has type `{current.__name__}'; expected "
 "{permitted}."
 msgstr "Η τιμή παραμετροποίησης '{name]' έχει τύπο '[current__name__}'; αναμενόμενη {permitted}."
 
-#: sphinx/config.py:456
+#: sphinx/config.py:457
 msgid ""
 "The config value `{name}' has type `{current.__name__}', defaults to "
 "`{default.__name__}'."
 msgstr "Η τιμή παραμετροποίησης '{name}' έχει τύπο '{current__name__}', αρχικοποίηση σε '{default__name__}'."
 
-#: sphinx/config.py:466
+#: sphinx/config.py:467
 #, python-format
 msgid "primary_domain %r not found, ignored."
 msgstr "το primary_domain %r δεν βρέθηκε, θα αγνοηθεί."
 
-#: sphinx/config.py:478
+#: sphinx/config.py:479
 msgid ""
 "Since v2.0, Sphinx uses \"index\" as root_doc by default. Please add "
 "\"root_doc = 'contents'\" to your conf.py."
@@ -301,14 +294,14 @@ msgstr "Άγνωστο όνομα συμβάντος: %s"
 msgid "Handler %r for event %r threw an exception"
 msgstr ""
 
-#: sphinx/extension.py:50
+#: sphinx/extension.py:52
 #, python-format
 msgid ""
 "The %s extension is required by needs_extensions settings, but it is not "
 "loaded."
 msgstr "Η επέκταση %s απαιτείται από τις ρυθμίσεις needs_extensions, αλλά δεν είναι φορτωμένη."
 
-#: sphinx/extension.py:55
+#: sphinx/extension.py:68
 #, python-format
 msgid ""
 "This project needs the extension %s at least in version %s and therefore "
@@ -336,127 +329,127 @@ msgstr ""
 msgid "document not readable. Ignored."
 msgstr "το έγγραφο δεν είναι αναγνωσιμό. Θα αγνοηθεί."
 
-#: sphinx/registry.py:135
+#: sphinx/registry.py:139
 #, python-format
 msgid "Builder class %s has no \"name\" attribute"
 msgstr "Η κλάση μεταγλώττισης %s δεν έχει χαρακτηριστικό \"name\" "
 
-#: sphinx/registry.py:137
+#: sphinx/registry.py:141
 #, python-format
 msgid "Builder %r already exists (in module %s)"
 msgstr "Ο μεταγλωττιστής %r υφίσταται ήδη (στο δομοστοιχείο %s)"
 
-#: sphinx/registry.py:150
+#: sphinx/registry.py:154
 #, python-format
 msgid "Builder name %s not registered or available through entry point"
 msgstr "Το όνομα μεταγλωττιστή %s δεν είναι καταχωρημένο ή διαθέσιμο δια μέσου του σημείου εισαγωγής"
 
-#: sphinx/registry.py:157
+#: sphinx/registry.py:161
 #, python-format
 msgid "Builder name %s not registered"
 msgstr "Το όνομα μεταγλωττιστή %sδεν είναι καταχορημένο"
 
-#: sphinx/registry.py:164
+#: sphinx/registry.py:168
 #, python-format
 msgid "domain %s already registered"
 msgstr "ο τομέας %s είναι ήδη καταχωρημένος"
 
-#: sphinx/registry.py:187 sphinx/registry.py:200 sphinx/registry.py:211
+#: sphinx/registry.py:191 sphinx/registry.py:204 sphinx/registry.py:215
 #, python-format
 msgid "domain %s not yet registered"
 msgstr "ο τομέας %s δεν έχει καταχωρηθεί ακόμη"
 
-#: sphinx/registry.py:191
+#: sphinx/registry.py:195
 #, python-format
 msgid "The %r directive is already registered to domain %s"
 msgstr "Η οδηγία %r είναι ήδη καταχωρημένη στον τομέα %s"
 
-#: sphinx/registry.py:203
+#: sphinx/registry.py:207
 #, python-format
 msgid "The %r role is already registered to domain %s"
 msgstr "Ο ρόλος %r είναι ήδη καταχωρημένος στον τομέα %s"
 
-#: sphinx/registry.py:214
+#: sphinx/registry.py:218
 #, python-format
 msgid "The %r index is already registered to domain %s"
 msgstr "Ο δείκτης %r είναι ήδη καταχωρημένος στον τομέα %s"
 
-#: sphinx/registry.py:238
+#: sphinx/registry.py:242
 #, python-format
 msgid "The %r object_type is already registered"
 msgstr "Το object_type %r είναι ήδη καταχωρημένο"
 
-#: sphinx/registry.py:258
+#: sphinx/registry.py:262
 #, python-format
 msgid "The %r crossref_type is already registered"
 msgstr "Το crossref_type %r είναι ήδη καταχωρημένο"
 
-#: sphinx/registry.py:265
+#: sphinx/registry.py:269
 #, python-format
 msgid "source_suffix %r is already registered"
 msgstr "το source_suffix %r είναι ήδη καταχωρημένο"
 
-#: sphinx/registry.py:275
+#: sphinx/registry.py:279
 #, python-format
 msgid "source_parser for %r is already registered"
 msgstr "το source_parser για το %r είναι ήδη καταχωρημένο"
 
-#: sphinx/registry.py:284
+#: sphinx/registry.py:288
 #, python-format
 msgid "Source parser for %s not registered"
 msgstr "Ο αναλυτής πηγής για το %s δεν είναι καταχωρημένος"
 
-#: sphinx/registry.py:313
+#: sphinx/registry.py:317
 #, python-format
 msgid "Translator for %r already exists"
 msgstr "Ο μεταφραστής για το %r υφίσταται ήδη"
 
-#: sphinx/registry.py:326
+#: sphinx/registry.py:330
 #, python-format
 msgid "kwargs for add_node() must be a (visit, depart) function tuple: %r=%r"
 msgstr "το kwargs για το add_node() πρέπει να είναι μία (visit, depart) συνάρτηση πλειάδας: %r=%r"
 
-#: sphinx/registry.py:398
+#: sphinx/registry.py:402
 #, python-format
 msgid "enumerable_node %r already registered"
 msgstr "το enumerable_node %r είναι ήδη καταχωρημένο"
 
-#: sphinx/registry.py:407
+#: sphinx/registry.py:411
 #, python-format
 msgid "math renderer %s is already registered"
 msgstr ""
 
-#: sphinx/registry.py:420
+#: sphinx/registry.py:424
 #, python-format
 msgid ""
 "the extension %r was already merged with Sphinx since version %s; this "
 "extension is ignored."
 msgstr "η επέκταση %r συγχωνεύθηκε ήδη με το Sphinx από την έκδοση %s; η επέκταση αυτή θα αγνοηθεί."
 
-#: sphinx/registry.py:431
+#: sphinx/registry.py:435
 msgid "Original exception:\n"
 msgstr "Αρχική εξαίρεση:\n"
 
-#: sphinx/registry.py:432
+#: sphinx/registry.py:436
 #, python-format
 msgid "Could not import extension %s"
 msgstr "Δεν ήταν δυνατή η εισαγωγή της επέκτασης %s"
 
-#: sphinx/registry.py:437
+#: sphinx/registry.py:441
 #, python-format
 msgid ""
 "extension %r has no setup() function; is it really a Sphinx extension "
 "module?"
 msgstr "η επέκταση %r δεν έχει συνάρτηση setup(); αποτελεί δομοστοιχείο επέκτασης του Sphinx;"
 
-#: sphinx/registry.py:446
+#: sphinx/registry.py:450
 #, python-format
 msgid ""
 "The %s extension used by this project needs at least Sphinx v%s; it "
 "therefore cannot be built with this version."
 msgstr "Η επέκταση %s η οποία χρησιμοποιείται από αυτό το έργο απαιτεί Sphinx έκδοσης τουλάχιστον %s: επομένως δεν είναι δυνατή η μεταγλώττιση με αυτή την έκδοση."
 
-#: sphinx/registry.py:454
+#: sphinx/registry.py:458
 #, python-format
 msgid ""
 "extension %r returned an unsupported object from its setup() function; it "
@@ -468,42 +461,52 @@ msgstr "η επέκταση %r επιστρέφει ένα μη υποστηρι
 msgid "Python Enhancement Proposals; PEP %s"
 msgstr "Python Enhancement Proposals; PEP %s"
 
-#: sphinx/theming.py:77
+#: sphinx/roles.py:193
+#, python-format
+msgid "invalid PEP number %s"
+msgstr ""
+
+#: sphinx/roles.py:227
+#, python-format
+msgid "invalid RFC number %s"
+msgstr ""
+
+#: sphinx/theming.py:80
 #, python-format
 msgid "theme %r doesn't have \"theme\" setting"
 msgstr "το θέμα %r δεν έχει ρύθμιση \"theme\""
 
-#: sphinx/theming.py:79
+#: sphinx/theming.py:82
 #, python-format
 msgid "theme %r doesn't have \"inherit\" setting"
 msgstr "το θέμα %r δεν έχει ρύθμιση \"inherit\""
 
-#: sphinx/theming.py:85
+#: sphinx/theming.py:88
 #, python-format
 msgid "no theme named %r found, inherited by %r"
 msgstr "δεν βρέθηκε θέμα με το όνομα %r, το οποίο κληρονομήθηκε από το %r"
 
-#: sphinx/theming.py:108
+#: sphinx/theming.py:111
 #, python-format
 msgid "setting %s.%s occurs in none of the searched theme configs"
 msgstr "η ρύθμιση %s.%s δεν εμφανίζεται από τις παραμετροποιήσεις θέματος που αναζητήθηκαν"
 
-#: sphinx/theming.py:127
+#: sphinx/theming.py:130
 #, python-format
 msgid "unsupported theme option %r given"
 msgstr "δόθηκε μη υποστηριζόμενη επιλογή θέματος %r"
 
-#: sphinx/theming.py:225
+#: sphinx/theming.py:228
 #, python-format
 msgid "file %r on theme path is not a valid zipfile or contains no theme"
 msgstr "το αρχείο %r στο μονοπάτι θέματος δεν αποτελεί ένα έγκυρο zipfile ή δεν περιλαμβάνει ένα θέμα"
 
-#: sphinx/theming.py:240
+#: sphinx/theming.py:243
 msgid ""
 "sphinx_rtd_theme (< 0.3.0) found. It will not be available since Sphinx-6.0"
 msgstr ""
 
-#: sphinx/theming.py:245
+#: sphinx/theming.py:248
 #, python-format
 msgid "no theme named %r found (missing theme.conf?)"
 msgstr "δεν βρέθηκε θέμα με όνομα %r (απουσιάζει το theme.conf;)"
@@ -522,104 +525,104 @@ msgstr "δεν βρέθηκε μία κατάλληλη εικόνα για το
 msgid "building [mo]: "
 msgstr "μεταγλώττιση [mo]:"
 
-#: sphinx/builders/__init__.py:217 sphinx/builders/__init__.py:535
-#: sphinx/builders/__init__.py:561
+#: sphinx/builders/__init__.py:217 sphinx/builders/__init__.py:536
+#: sphinx/builders/__init__.py:562
 msgid "writing output... "
 msgstr "εγγραφή εξόδου..."
 
-#: sphinx/builders/__init__.py:225
+#: sphinx/builders/__init__.py:226
 #, python-format
 msgid "all of %d po files"
 msgstr "όλα τα αρχεία po του %d"
 
-#: sphinx/builders/__init__.py:243
+#: sphinx/builders/__init__.py:244
 #, python-format
 msgid "targets for %d po files that are specified"
 msgstr "στόχοι για τα αρχεία po του %d οι οποίοι έχουν καθοριστεί"
 
-#: sphinx/builders/__init__.py:250
+#: sphinx/builders/__init__.py:251
 #, python-format
 msgid "targets for %d po files that are out of date"
 msgstr "στόχοι για τα αρχεία po του %d τα οποία είναι ξεπερασμένα"
 
-#: sphinx/builders/__init__.py:257
+#: sphinx/builders/__init__.py:258
 msgid "all source files"
 msgstr "όλα τα αρχεία πηγής"
 
-#: sphinx/builders/__init__.py:269
+#: sphinx/builders/__init__.py:270
 #, python-format
 msgid ""
 "file %r given on command line is not under the source directory, ignoring"
 msgstr "το αρχείο %r που δόθηκε στη γραμμή εντολής δεν βρίσκεται κάτω από τον κατάλογο πηγής, θα αγνοηθεί"
 
-#: sphinx/builders/__init__.py:273
+#: sphinx/builders/__init__.py:274
 #, python-format
 msgid "file %r given on command line does not exist, ignoring"
 msgstr "το αρχείο %r που δόθηκε στη γραμμή εντολής δεν υπάρχει, θα αγνοηθεί"
 
-#: sphinx/builders/__init__.py:284
+#: sphinx/builders/__init__.py:285
 #, python-format
 msgid "%d source files given on command line"
 msgstr "τα αρχεία πηγής %d που δόθηκαν στη γραμμή εντολής"
 
-#: sphinx/builders/__init__.py:294
+#: sphinx/builders/__init__.py:295
 #, python-format
 msgid "targets for %d source files that are out of date"
 msgstr "στόχοι για τα αρχεία πηγής %d τα οποία είναι ξεπερασμένα"
 
-#: sphinx/builders/__init__.py:303 sphinx/builders/gettext.py:240
+#: sphinx/builders/__init__.py:304 sphinx/builders/gettext.py:240
 #, python-format
 msgid "building [%s]: "
 msgstr "μεταγλώττιση [%s]:"
 
-#: sphinx/builders/__init__.py:310
+#: sphinx/builders/__init__.py:311
 msgid "looking for now-outdated files... "
 msgstr "αναζήτηση για νεοξεπερασμένα αρχεία..."
 
-#: sphinx/builders/__init__.py:315
+#: sphinx/builders/__init__.py:316
 #, python-format
 msgid "%d found"
 msgstr "βρέθηκε %d"
 
-#: sphinx/builders/__init__.py:317
+#: sphinx/builders/__init__.py:318
 msgid "none found"
 msgstr "δεν βρέθηκε κανένα"
 
-#: sphinx/builders/__init__.py:322
+#: sphinx/builders/__init__.py:323
 msgid "pickling environment"
 msgstr "Περιβάλλον μετατροπής αντικειμένων Python σε ροή bytes"
 
-#: sphinx/builders/__init__.py:328
+#: sphinx/builders/__init__.py:329
 msgid "checking consistency"
 msgstr "έλεγχος συνοχής"
 
-#: sphinx/builders/__init__.py:332
+#: sphinx/builders/__init__.py:333
 msgid "no targets are out of date."
 msgstr "κανένας στόχος δεν είναι ξεπερασμένος."
 
-#: sphinx/builders/__init__.py:371
+#: sphinx/builders/__init__.py:372
 msgid "updating environment: "
 msgstr "αναβάθμιση περιβάλλοντος:"
 
-#: sphinx/builders/__init__.py:392
+#: sphinx/builders/__init__.py:393
 #, python-format
 msgid "%s added, %s changed, %s removed"
 msgstr "%s προστέθηκε, %s άλλαξε, %s απομακρύνθηκε"
 
-#: sphinx/builders/__init__.py:430 sphinx/builders/__init__.py:457
+#: sphinx/builders/__init__.py:431 sphinx/builders/__init__.py:458
 msgid "reading sources... "
 msgstr "ανάγνωση πηγών..."
 
-#: sphinx/builders/__init__.py:462 sphinx/builders/__init__.py:571
+#: sphinx/builders/__init__.py:463 sphinx/builders/__init__.py:572
 msgid "waiting for workers..."
 msgstr "σε αναμονή για εργάτες..."
 
-#: sphinx/builders/__init__.py:513
+#: sphinx/builders/__init__.py:514
 #, python-format
 msgid "docnames to write: %s"
 msgstr "docname προς εγγραφή: %s"
 
-#: sphinx/builders/__init__.py:522 sphinx/builders/singlehtml.py:153
+#: sphinx/builders/__init__.py:523 sphinx/builders/singlehtml.py:153
 msgid "preparing documents"
 msgstr "προετοιμασία κειμένων"
 
@@ -796,12 +799,12 @@ msgstr "Αναζητήστε οποιαδήποτε λάθη στο παραπά
 msgid "broken link: %s (%s)"
 msgstr "λανθασμένος σύνδεσμος: %s (%s)"
 
-#: sphinx/builders/linkcheck.py:454
+#: sphinx/builders/linkcheck.py:456
 #, python-format
 msgid "Anchor '%s' not found"
 msgstr "Δεν βρέθηκε το anchor '%s'"
 
-#: sphinx/builders/linkcheck.py:690
+#: sphinx/builders/linkcheck.py:701
 #, python-format
 msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
 msgstr ""
@@ -919,7 +922,7 @@ msgstr "Αδυναμία ανάγνωσης αρχείου πληροφοριώ�
 
 #: sphinx/builders/html/__init__.py:469 sphinx/builders/latex/__init__.py:187
 #: sphinx/transforms/__init__.py:116 sphinx/writers/manpage.py:102
-#: sphinx/writers/texinfo.py:233
+#: sphinx/writers/texinfo.py:234
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%d %B %Y"
@@ -1103,7 +1106,7 @@ msgstr "η τιμή παραμετροποίησης \"latex_documents\" κάν�
 #: sphinx/themes/basic/genindex-split.html:14
 #: sphinx/themes/basic/genindex.html:11 sphinx/themes/basic/genindex.html:34
 #: sphinx/themes/basic/genindex.html:67 sphinx/themes/basic/layout.html:147
-#: sphinx/writers/texinfo.py:498
+#: sphinx/writers/texinfo.py:499
 msgid "Index"
 msgstr "Ευρετήριο"
 
@@ -1203,7 +1206,7 @@ msgid "job number should be a positive number"
 msgstr "ο αριθμός εργασίας θα πρέπει να είναι θετικός αριθμός"
 
 #: sphinx/cmd/build.py:104 sphinx/cmd/quickstart.py:470
-#: sphinx/ext/apidoc.py:307 sphinx/ext/autosummary/generate.py:598
+#: sphinx/ext/apidoc.py:307 sphinx/ext/autosummary/generate.py:623
 msgid "For more information, visit <https://www.sphinx-doc.org/>."
 msgstr ""
 
@@ -1812,23 +1815,51 @@ msgstr "Δεν είναι δυνατή η χρήση \"leneno-match\" με έν�
 msgid "Line spec %r: no lines pulled from include file %r"
 msgstr "Προσδιορισμός γραμμής %r: δεν ελήφθησαν γραμμές από το συμπεριληφθέν αρχείο %r"
 
-#: sphinx/directives/other.py:175
+#: sphinx/directives/other.py:110
+#, python-format
+msgid "toctree glob pattern %r didn't match any documents"
+msgstr ""
+
+#: sphinx/directives/other.py:131 sphinx/environment/adapters/toctree.py:176
+#, python-format
+msgid "toctree contains reference to excluded document %r"
+msgstr "Το toctree περιλαμβάνει αναφορά στο αποκλεισμένο κείμενο %r"
+
+#: sphinx/directives/other.py:134 sphinx/environment/adapters/toctree.py:178
+#, python-format
+msgid "toctree contains reference to nonexisting document %r"
+msgstr "το toctree περιλαμβάνει αναφορά στο μη υπαρκτό έγγραφο %r"
+
+#: sphinx/directives/other.py:144
+#, python-format
+msgid "duplicated entry found in toctree: %s"
+msgstr ""
+
+#: sphinx/directives/other.py:176
 msgid "Section author: "
 msgstr "Συντάκτης τμήματος: "
 
-#: sphinx/directives/other.py:177
+#: sphinx/directives/other.py:178
 msgid "Module author: "
 msgstr "Συντάκτης μονάδας: "
 
-#: sphinx/directives/other.py:179
+#: sphinx/directives/other.py:180
 msgid "Code author: "
 msgstr "Συντάκτης κώδικα: "
 
-#: sphinx/directives/other.py:181
+#: sphinx/directives/other.py:182
 msgid "Author: "
 msgstr "Συντάκτης: "
 
-#: sphinx/directives/patches.py:108
+#: sphinx/directives/other.py:254
+msgid ".. acks content is not a list"
+msgstr ""
+
+#: sphinx/directives/other.py:279
+msgid ".. hlist content is not a list"
+msgstr ""
+
+#: sphinx/directives/patches.py:118
 msgid ""
 "\":file:\" option for csv-table directive now recognizes an absolute path as"
 " a relative path from source directory. Please update your document."
@@ -1839,71 +1870,75 @@ msgstr ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: sphinx/domains/c.py:2008 sphinx/domains/c.py:3300
+#: sphinx/domains/c.py:2000 sphinx/domains/c.py:3306
 #, python-format
 msgid ""
 "Duplicate C declaration, also defined at %s:%s.\n"
 "Declaration is '.. c:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/c.py:3134 sphinx/domains/cpp.py:6938
-#: sphinx/domains/python.py:401 sphinx/ext/napoleon/docstring.py:736
-msgid "Parameters"
-msgstr "Παράμετροι"
-
-#: sphinx/domains/c.py:3137 sphinx/domains/cpp.py:6947
-#: sphinx/domains/javascript.py:221 sphinx/domains/python.py:413
-msgid "Returns"
-msgstr "Επιστρέφει"
-
-#: sphinx/domains/c.py:3139 sphinx/domains/javascript.py:223
-#: sphinx/domains/python.py:415
-msgid "Return type"
-msgstr "Επιστρεφόμενος τύπος"
-
-#: sphinx/domains/c.py:3225
+#: sphinx/domains/c.py:3231
 #, python-format
 msgid "%s (C %s)"
 msgstr ""
 
-#: sphinx/domains/c.py:3732 sphinx/domains/cpp.py:7585
+#: sphinx/domains/c.py:3352 sphinx/domains/cpp.py:7261
+#: sphinx/domains/python.py:445 sphinx/ext/napoleon/docstring.py:736
+msgid "Parameters"
+msgstr "Παράμετροι"
+
+#: sphinx/domains/c.py:3355 sphinx/domains/cpp.py:7267
+msgid "Return values"
+msgstr ""
+
+#: sphinx/domains/c.py:3358 sphinx/domains/cpp.py:7270
+#: sphinx/domains/javascript.py:231 sphinx/domains/python.py:457
+msgid "Returns"
+msgstr "Επιστρέφει"
+
+#: sphinx/domains/c.py:3360 sphinx/domains/javascript.py:233
+#: sphinx/domains/python.py:459
+msgid "Return type"
+msgstr "Επιστρεφόμενος τύπος"
+
+#: sphinx/domains/c.py:3756 sphinx/domains/cpp.py:7675
 msgid "member"
 msgstr "μέλος"
 
-#: sphinx/domains/c.py:3733
+#: sphinx/domains/c.py:3757
 msgid "variable"
 msgstr "μεταβλητή"
 
-#: sphinx/domains/c.py:3734 sphinx/domains/cpp.py:7584
-#: sphinx/domains/javascript.py:326 sphinx/domains/python.py:1124
+#: sphinx/domains/c.py:3758 sphinx/domains/cpp.py:7674
+#: sphinx/domains/javascript.py:340 sphinx/domains/python.py:1203
 msgid "function"
 msgstr "συνάρτηση"
 
-#: sphinx/domains/c.py:3735
+#: sphinx/domains/c.py:3759
 msgid "macro"
 msgstr "μακροεντολή"
 
-#: sphinx/domains/c.py:3736
+#: sphinx/domains/c.py:3760
 msgid "struct"
 msgstr ""
 
-#: sphinx/domains/c.py:3737 sphinx/domains/cpp.py:7583
+#: sphinx/domains/c.py:3761 sphinx/domains/cpp.py:7673
 msgid "union"
 msgstr "ένωση"
 
-#: sphinx/domains/c.py:3738 sphinx/domains/cpp.py:7588
+#: sphinx/domains/c.py:3762 sphinx/domains/cpp.py:7678
 msgid "enum"
 msgstr "enum"
 
-#: sphinx/domains/c.py:3739 sphinx/domains/cpp.py:7589
+#: sphinx/domains/c.py:3763 sphinx/domains/cpp.py:7679
 msgid "enumerator"
 msgstr "enumerator"
 
-#: sphinx/domains/c.py:3740 sphinx/domains/cpp.py:7586
+#: sphinx/domains/c.py:3764 sphinx/domains/cpp.py:7676
 msgid "type"
 msgstr "τύπος"
 
-#: sphinx/domains/c.py:3742 sphinx/domains/cpp.py:7591
+#: sphinx/domains/c.py:3766 sphinx/domains/cpp.py:7681
 msgid "function parameter"
 msgstr ""
 
@@ -1932,91 +1967,91 @@ msgstr "διπλότυπη ετικέτα %s, άλλη εμφάνιση στο %
 msgid "Citation [%s] is not referenced."
 msgstr "Η παραπομπή [%s] δεν αναφέρεται."
 
-#: sphinx/domains/cpp.py:4754 sphinx/domains/cpp.py:7140
+#: sphinx/domains/cpp.py:4748 sphinx/domains/cpp.py:7216
 #, python-format
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/cpp.py:6941
+#: sphinx/domains/cpp.py:7022
 msgid "Template Parameters"
 msgstr "Παράμετροι Προτύπου"
 
-#: sphinx/domains/cpp.py:6944 sphinx/domains/javascript.py:218
-msgid "Throws"
-msgstr "Προκαλεί"
-
-#: sphinx/domains/cpp.py:7063
+#: sphinx/domains/cpp.py:7139
 #, python-format
 msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
-#: sphinx/domains/cpp.py:7582 sphinx/domains/javascript.py:328
-#: sphinx/domains/python.py:1126
+#: sphinx/domains/cpp.py:7264 sphinx/domains/javascript.py:228
+msgid "Throws"
+msgstr "Προκαλεί"
+
+#: sphinx/domains/cpp.py:7672 sphinx/domains/javascript.py:342
+#: sphinx/domains/python.py:1205
 msgid "class"
 msgstr "κλάση"
 
-#: sphinx/domains/cpp.py:7587
+#: sphinx/domains/cpp.py:7677
 msgid "concept"
 msgstr "έννοια"
 
-#: sphinx/domains/cpp.py:7592
+#: sphinx/domains/cpp.py:7682
 msgid "template parameter"
 msgstr ""
 
-#: sphinx/domains/javascript.py:136
+#: sphinx/domains/javascript.py:146
 #, python-format
 msgid "%s() (built-in function)"
 msgstr "%s() (ενσωματωμένη συνάρτηση)"
 
-#: sphinx/domains/javascript.py:137 sphinx/domains/python.py:776
+#: sphinx/domains/javascript.py:147 sphinx/domains/python.py:842
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (μέθοδος της %s)"
 
-#: sphinx/domains/javascript.py:139
+#: sphinx/domains/javascript.py:149
 #, python-format
 msgid "%s() (class)"
 msgstr "%s() (κλάση)"
 
-#: sphinx/domains/javascript.py:141
+#: sphinx/domains/javascript.py:151
 #, python-format
 msgid "%s (global variable or constant)"
 msgstr "%s (καθολική μεταβλητή ή σταθερά)"
 
-#: sphinx/domains/javascript.py:143 sphinx/domains/python.py:854
+#: sphinx/domains/javascript.py:153 sphinx/domains/python.py:927
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (ιδιότητα της %s)"
 
-#: sphinx/domains/javascript.py:215
+#: sphinx/domains/javascript.py:225
 msgid "Arguments"
 msgstr "Παράμετροι"
 
-#: sphinx/domains/javascript.py:286
+#: sphinx/domains/javascript.py:300
 #, python-format
 msgid "%s (module)"
 msgstr "%s (μονάδα)"
 
-#: sphinx/domains/javascript.py:327 sphinx/domains/python.py:1128
+#: sphinx/domains/javascript.py:341 sphinx/domains/python.py:1207
 msgid "method"
 msgstr "μέθοδος"
 
-#: sphinx/domains/javascript.py:329 sphinx/domains/python.py:1125
+#: sphinx/domains/javascript.py:343 sphinx/domains/python.py:1204
 msgid "data"
 msgstr "δεδομένα"
 
-#: sphinx/domains/javascript.py:330 sphinx/domains/python.py:1131
+#: sphinx/domains/javascript.py:344 sphinx/domains/python.py:1210
 msgid "attribute"
 msgstr "ιδιότητα"
 
-#: sphinx/domains/javascript.py:331 sphinx/domains/python.py:58
-#: sphinx/domains/python.py:1133
+#: sphinx/domains/javascript.py:345 sphinx/domains/python.py:58
+#: sphinx/domains/python.py:1212
 msgid "module"
 msgstr "μονάδα"
 
-#: sphinx/domains/javascript.py:362
+#: sphinx/domains/javascript.py:376
 #, python-format
 msgid "duplicate %s description of %s, other %s in %s"
 msgstr ""
@@ -2026,7 +2061,7 @@ msgstr ""
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "διπλότυπη ετικέτα της εξίσωσης %s, άλλη εμφάνιση στο %s"
 
-#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2073
+#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2071
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "Ανέγκυρο math_eqref_format: %r"
@@ -2043,7 +2078,7 @@ msgstr "τελεστής"
 msgid "object"
 msgstr "αντικείμενο"
 
-#: sphinx/domains/python.py:62 sphinx/domains/python.py:1127
+#: sphinx/domains/python.py:62 sphinx/domains/python.py:1206
 msgid "exception"
 msgstr "εξαίρεση"
 
@@ -2055,97 +2090,92 @@ msgstr "δήλωση"
 msgid "built-in function"
 msgstr "ενσωματωμένη συνάρτηση"
 
-#: sphinx/domains/python.py:406
+#: sphinx/domains/python.py:450
 msgid "Variables"
 msgstr "Μεταβλητές"
 
-#: sphinx/domains/python.py:410
+#: sphinx/domains/python.py:454
 msgid "Raises"
 msgstr "Προκαλεί"
 
-#: sphinx/domains/python.py:630 sphinx/domains/python.py:765
+#: sphinx/domains/python.py:687 sphinx/domains/python.py:831
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (στη μονάδα %s)"
 
-#: sphinx/domains/python.py:684 sphinx/domains/python.py:850
-#: sphinx/domains/python.py:895
+#: sphinx/domains/python.py:747 sphinx/domains/python.py:923
+#: sphinx/domains/python.py:974
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (στη μονάδα %s)"
 
-#: sphinx/domains/python.py:686
+#: sphinx/domains/python.py:749
 #, python-format
 msgid "%s (built-in variable)"
 msgstr "%s (ενσωματωμένη μεταβλητή)"
 
-#: sphinx/domains/python.py:710
+#: sphinx/domains/python.py:774
 #, python-format
 msgid "%s (built-in class)"
 msgstr "%s (ενσωματωμένη κλάση)"
 
-#: sphinx/domains/python.py:711
+#: sphinx/domains/python.py:775
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s (κλάση σε %s)"
 
-#: sphinx/domains/python.py:770
+#: sphinx/domains/python.py:836
 #, python-format
 msgid "%s() (%s class method)"
 msgstr "%s() (μέθοδος κλάσης της %s)"
 
-#: sphinx/domains/python.py:772
-#, python-format
-msgid "%s() (%s property)"
-msgstr ""
-
-#: sphinx/domains/python.py:774
-#, python-format
-msgid "%s() (%s static method)"
-msgstr "%s() (στατική μέθοδος της %s)"
-
-#: sphinx/domains/python.py:899
+#: sphinx/domains/python.py:838 sphinx/domains/python.py:978
 #, python-format
 msgid "%s (%s property)"
 msgstr ""
 
-#: sphinx/domains/python.py:1053
+#: sphinx/domains/python.py:840
+#, python-format
+msgid "%s() (%s static method)"
+msgstr "%s() (στατική μέθοδος της %s)"
+
+#: sphinx/domains/python.py:1132
 msgid "Python Module Index"
 msgstr "Ευρετήριο Μονάδων της Python"
 
-#: sphinx/domains/python.py:1054
+#: sphinx/domains/python.py:1133
 msgid "modules"
 msgstr "μονάδες"
 
-#: sphinx/domains/python.py:1103
+#: sphinx/domains/python.py:1182
 msgid "Deprecated"
 msgstr "Αποσύρθηκε"
 
-#: sphinx/domains/python.py:1129
+#: sphinx/domains/python.py:1208
 msgid "class method"
 msgstr "μέθοδος της κλάσης"
 
-#: sphinx/domains/python.py:1130
+#: sphinx/domains/python.py:1209
 msgid "static method"
 msgstr "στατική μέθοδος"
 
-#: sphinx/domains/python.py:1132
+#: sphinx/domains/python.py:1211
 msgid "property"
 msgstr ""
 
-#: sphinx/domains/python.py:1190
+#: sphinx/domains/python.py:1269
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr ""
 
-#: sphinx/domains/python.py:1310
+#: sphinx/domains/python.py:1389
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "περισσότεροι από έναν στόχοι βρέθηκα για την παραπομπή %r: %s"
 
-#: sphinx/domains/python.py:1364
+#: sphinx/domains/python.py:1443
 msgid " (deprecated)"
 msgstr " (αποσύρθηκε)"
 
@@ -2257,81 +2287,81 @@ msgstr "διπλότυπη ετικέτα %s, άλλη εμφάνιση στο %
 msgid "duplicate %s description of %s, other instance in %s"
 msgstr ""
 
-#: sphinx/domains/std.py:870
+#: sphinx/domains/std.py:872
 msgid "numfig is disabled. :numref: is ignored."
 msgstr "το numfig έχει απενεργοποιηθεί. Το :numref: θα ανγοηθεί."
 
-#: sphinx/domains/std.py:878
+#: sphinx/domains/std.py:880
 #, python-format
 msgid "Failed to create a cross reference. Any number is not assigned: %s"
 msgstr ""
 
-#: sphinx/domains/std.py:890
+#: sphinx/domains/std.py:892
 #, python-format
 msgid "the link has no caption: %s"
 msgstr "ο σύνδεσμος δεν έχει λεζάντα: %s"
 
-#: sphinx/domains/std.py:904
+#: sphinx/domains/std.py:906
 #, python-format
 msgid "invalid numfig_format: %s (%r)"
 msgstr "ανέγκυρο numfig_format: %s (%r)"
 
-#: sphinx/domains/std.py:907
+#: sphinx/domains/std.py:909
 #, python-format
 msgid "invalid numfig_format: %s"
 msgstr "ανέγκυρο numfig_format: %s"
 
-#: sphinx/domains/std.py:1120
+#: sphinx/domains/std.py:1122
 #, python-format
 msgid "undefined label: %s"
 msgstr ""
 
-#: sphinx/domains/std.py:1122
+#: sphinx/domains/std.py:1124
 #, python-format
 msgid "Failed to create a cross reference. A title or caption not found: %s"
 msgstr ""
 
-#: sphinx/environment/__init__.py:73
+#: sphinx/environment/__init__.py:76
 msgid "new config"
 msgstr "νέα παραμετροποίηση"
 
-#: sphinx/environment/__init__.py:74
+#: sphinx/environment/__init__.py:77
 msgid "config changed"
 msgstr "η παραμετροποίηση άλλαξε"
 
-#: sphinx/environment/__init__.py:75
+#: sphinx/environment/__init__.py:78
 msgid "extensions changed"
 msgstr "αλλαγμένες επεκτάσεις"
 
-#: sphinx/environment/__init__.py:202
+#: sphinx/environment/__init__.py:205
 msgid "build environment version not current"
 msgstr "η έκδοση του περιβάλλοντος μεταλώττισης δεν είναι η τρέχουσα"
 
-#: sphinx/environment/__init__.py:204
+#: sphinx/environment/__init__.py:207
 msgid "source directory has changed"
 msgstr "ο πηγαίος κατάλογος έχει αλλάξει"
 
-#: sphinx/environment/__init__.py:283
+#: sphinx/environment/__init__.py:286
 msgid ""
 "This environment is incompatible with the selected builder, please choose "
 "another doctree directory."
 msgstr "Το περιβάλλον δεν είναι συμβατό με τον επιλεγμένο μεταγλωττιστή, παρακαλείστε να επιλέξετε ένα διαφορετικό κατάλογο toctree."
 
-#: sphinx/environment/__init__.py:382
+#: sphinx/environment/__init__.py:385
 #, python-format
 msgid "Failed to scan documents in %s: %r"
 msgstr "Αδυναμία σάρωσης εγγράφων σε %s: %r"
 
-#: sphinx/environment/__init__.py:509
+#: sphinx/environment/__init__.py:512
 #, python-format
 msgid "Domain %r is not registered"
 msgstr "Ο τομέας %r δεν είναι καταχωρημένος"
 
-#: sphinx/environment/__init__.py:590
+#: sphinx/environment/__init__.py:593
 msgid "self referenced toctree found. Ignored."
 msgstr "Βρέθηκε αυτοαναφερόμενο toctree. Θα αγνοηθεί."
 
-#: sphinx/environment/__init__.py:632
+#: sphinx/environment/__init__.py:635
 msgid "document isn't included in any toctree"
 msgstr "το έγγραφο δεν συμπεριλαμβάνεται σε κανένα toctree"
 
@@ -2366,16 +2396,6 @@ msgid ""
 "toctree contains reference to document %r that doesn't have a title: no link"
 " will be generated"
 msgstr "το toctree περιλαμβάνει αναφορά στο έγγραφο %r η οποία δεν έχει τίτλο: δεν θα δημιουργηθεί σύνδεσμος"
-
-#: sphinx/environment/adapters/toctree.py:176
-#, python-format
-msgid "toctree contains reference to excluded document %r"
-msgstr "Το toctree περιλαμβάνει αναφορά στο αποκλεισμένο κείμενο %r"
-
-#: sphinx/environment/adapters/toctree.py:178
-#, python-format
-msgid "toctree contains reference to nonexisting document %r"
-msgstr "το toctree περιλαμβάνει αναφορά στο μη υπαρκτό έγγραφο %r"
 
 #: sphinx/environment/collectors/asset.py:90
 #, python-format
@@ -2597,6 +2617,12 @@ msgid ""
 "====================== slowest reading durations ======================="
 msgstr ""
 
+#: sphinx/ext/extlinks.py:76
+#, python-format
+msgid ""
+"hardcoded link %r could be replaced by an extlink (try using %r instead)"
+msgstr ""
+
 #: sphinx/ext/graphviz.py:132
 msgid "Graphviz directive cannot have both content and a filename argument"
 msgstr "Η οδηγία Graphviz δεν είναι δυνατό να περιλαμβάνει και περιεχόμενο και ένα όρισμα ονόματος αρχείου"
@@ -2706,42 +2732,42 @@ msgstr "σε σειρά latex %r: %s"
 msgid "Permalink to this equation"
 msgstr "Μόνιμος σύνδεσμος σε αυτή την εξίσωση"
 
-#: sphinx/ext/intersphinx.py:173
+#: sphinx/ext/intersphinx.py:174
 #, python-format
 msgid "intersphinx inventory has moved: %s -> %s"
 msgstr "το απόθεμα intersphinx έχει μεταφερθεί: %s->%s"
 
-#: sphinx/ext/intersphinx.py:204
+#: sphinx/ext/intersphinx.py:205
 #, python-format
 msgid "loading intersphinx inventory from %s..."
 msgstr "φότωση του αποθέματος intersphinx από %s..."
 
-#: sphinx/ext/intersphinx.py:218
+#: sphinx/ext/intersphinx.py:219
 msgid ""
 "encountered some issues with some of the inventories, but they had working "
 "alternatives:"
 msgstr "παρουσιάστηκαν κάποια ζητήματα με μερικά απο τα αποθέματα, αλλά υπήρξαν λειτουργικές εναλλακτικές:"
 
-#: sphinx/ext/intersphinx.py:224
+#: sphinx/ext/intersphinx.py:225
 msgid "failed to reach any of the inventories with the following issues:"
 msgstr "αδυναμία προσέγγισης οποιασδήποτε αποθήκης με τα ακόλουθα ζητήματα:"
 
-#: sphinx/ext/intersphinx.py:334
+#: sphinx/ext/intersphinx.py:270
 #, python-format
 msgid "(in %s v%s)"
 msgstr "(στη %s έκδοση %s)"
 
-#: sphinx/ext/intersphinx.py:336
+#: sphinx/ext/intersphinx.py:272
 #, python-format
 msgid "(in %s)"
 msgstr "(στο %s)"
 
-#: sphinx/ext/intersphinx.py:369
+#: sphinx/ext/intersphinx.py:476
 #, python-format
 msgid "intersphinx identifier %r is not string. Ignored"
 msgstr "το αναγνωριστικό intersphinx %r δεν είναι στοιχειοσειρά. Θα αγνοηθεί"
 
-#: sphinx/ext/intersphinx.py:382
+#: sphinx/ext/intersphinx.py:489
 #, python-format
 msgid "Failed to read intersphinx_mapping[%s], ignored: %r"
 msgstr ""
@@ -2817,19 +2843,19 @@ msgstr "ανέγκυρη υπογραφή για αυτόματο %s (%r)"
 msgid "error while formatting arguments for %s: %s"
 msgstr "σφάλμα κατά τη μορφοποίηση των ορισμάτων για %s:%s"
 
-#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1682
+#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1695
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr "απουσιάζει το χαρακτηριστικό %s στο αντικείμενο %s"
 
-#: sphinx/ext/autodoc/__init__.py:813
+#: sphinx/ext/autodoc/__init__.py:815
 #, python-format
 msgid ""
-"autodoc: failed to determine %r to be documented, the following exception was raised:\n"
+"autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
 "%s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:906
+#: sphinx/ext/autodoc/__init__.py:908
 #, python-format
 msgid ""
 "don't know which module to import for autodocumenting %r (try placing a "
@@ -2837,82 +2863,82 @@ msgid ""
 "explicit module name)"
 msgstr "δεν γνωρίζω ποιο δομοστοιχείο να εισάγω για αυτόματη τεκμηρίωση %r (προσπαθήστε να τοποθετήσετε μία οδηγία \"module\" ή  \"currentmodule\" στο έγγραφο, ή να δώσετε ένα σαφές όνομα δομοστοιχείου)"
 
-#: sphinx/ext/autodoc/__init__.py:917
+#: sphinx/ext/autodoc/__init__.py:952
 #, python-format
 msgid "A mocked object is detected: %r"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:968
+#: sphinx/ext/autodoc/__init__.py:971
 #, python-format
 msgid "error while formatting signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1018
+#: sphinx/ext/autodoc/__init__.py:1021
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr "\"::\" στο όνομα automodule δεν βγάζει νόημα"
 
-#: sphinx/ext/autodoc/__init__.py:1025
+#: sphinx/ext/autodoc/__init__.py:1028
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr "ορίσματα υπογραφής ή επιστροφή σημείωσης η οποία δόθηκε για το automodule %s"
 
-#: sphinx/ext/autodoc/__init__.py:1038
+#: sphinx/ext/autodoc/__init__.py:1041
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr "__all__ πρέπει να είναι λίστα στοιχειοσειράς, όχι %r (στο δομοστοιχείο %s) -- θα αγνοηθεί το __all__"
 
-#: sphinx/ext/autodoc/__init__.py:1104
+#: sphinx/ext/autodoc/__init__.py:1107
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1303 sphinx/ext/autodoc/__init__.py:1377
-#: sphinx/ext/autodoc/__init__.py:2734
+#: sphinx/ext/autodoc/__init__.py:1308 sphinx/ext/autodoc/__init__.py:1385
+#: sphinx/ext/autodoc/__init__.py:2770
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1568
+#: sphinx/ext/autodoc/__init__.py:1578
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1669
+#: sphinx/ext/autodoc/__init__.py:1682
 #, python-format
 msgid "Bases: %s"
 msgstr "Βάσεις: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1755 sphinx/ext/autodoc/__init__.py:1828
-#: sphinx/ext/autodoc/__init__.py:1847
+#: sphinx/ext/autodoc/__init__.py:1776 sphinx/ext/autodoc/__init__.py:1849
+#: sphinx/ext/autodoc/__init__.py:1868
 #, python-format
 msgid "alias of %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1889
+#: sphinx/ext/autodoc/__init__.py:1910
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2122 sphinx/ext/autodoc/__init__.py:2216
+#: sphinx/ext/autodoc/__init__.py:2146 sphinx/ext/autodoc/__init__.py:2243
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2348
+#: sphinx/ext/autodoc/__init__.py:2374
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2777
+#: sphinx/ext/autodoc/__init__.py:2813
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
 msgstr ""
 
-#: sphinx/ext/autodoc/preserve_defaults.py:78
+#: sphinx/ext/autodoc/preserve_defaults.py:106
 #, python-format
 msgid "Failed to parse a default argument value for %r: %s"
 msgstr ""
@@ -2943,56 +2969,62 @@ msgstr ""
 msgid "A captioned autosummary requires :toctree: option. ignored."
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:348
+#: sphinx/ext/autosummary/__init__.py:352
 #, python-format
-msgid "autosummary: failed to import %s"
+msgid ""
+"autosummary: failed to import %s.\n"
+"Possible hints:\n"
+"%s"
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:362
+#: sphinx/ext/autosummary/__init__.py:366
 #, python-format
 msgid "failed to parse name %s"
 msgstr "αδυναμία ανάλυσης ονόματος %s"
 
-#: sphinx/ext/autosummary/__init__.py:367
+#: sphinx/ext/autosummary/__init__.py:371
 #, python-format
 msgid "failed to import object %s"
 msgstr "αδυναμία εισαγωγής αντικειμένου %s"
 
-#: sphinx/ext/autosummary/__init__.py:782
+#: sphinx/ext/autosummary/__init__.py:817
 #, python-format
 msgid "autosummary_generate: file not found: %s"
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:790
+#: sphinx/ext/autosummary/__init__.py:825
 msgid ""
 "autosummary generats .rst files internally. But your source_suffix does not "
 "contain .rst. Skipped."
 msgstr "Το autosummary δημιουργεί αρχεία .rst εσωτερικά. Αλλά το δικό σας source_suffix δεν περιλαμβάνει .rst. Θα παραλειφθεί."
 
-#: sphinx/ext/autosummary/generate.py:188
-#: sphinx/ext/autosummary/generate.py:237
+#: sphinx/ext/autosummary/generate.py:190
+#: sphinx/ext/autosummary/generate.py:254
 #, python-format
 msgid ""
 "autosummary: failed to determine %r to be documented, the following exception was raised:\n"
 "%s"
 msgstr ""
 
-#: sphinx/ext/autosummary/generate.py:384
+#: sphinx/ext/autosummary/generate.py:401
 #, python-format
 msgid "[autosummary] generating autosummary for: %s"
 msgstr "[autosummary] δημιουργία autosummary για: %s"
 
-#: sphinx/ext/autosummary/generate.py:388
+#: sphinx/ext/autosummary/generate.py:405
 #, python-format
 msgid "[autosummary] writing to %s"
 msgstr "[αυτόματη περίληψη] εγγραφή στο %s"
 
-#: sphinx/ext/autosummary/generate.py:425
+#: sphinx/ext/autosummary/generate.py:448
 #, python-format
-msgid "[autosummary] failed to import %r: %s"
+msgid ""
+"[autosummary] failed to import %s.\n"
+"Possible hints:\n"
+"%s"
 msgstr ""
 
-#: sphinx/ext/autosummary/generate.py:599
+#: sphinx/ext/autosummary/generate.py:624
 msgid ""
 "\n"
 "Generate ReStructuredText using autosummary directives.\n"
@@ -3007,28 +3039,35 @@ msgid ""
 "  pydoc sphinx.ext.autosummary\n"
 msgstr "\nΔημιουργία ReStrucuredText χρησιμοποιώντας τις οδηγίες autosummary.\n\nΤο sphinx-autogen αποτελεί ένα πρόσθιο εργαλείο για το sphinx.ext.autosummary.generate. Δημιουργεί \nτα αρχεία reStructuredText από τις οδηγίες autosummary οι οποίες περιλαμβάνονται στα \nπαραδοθέντα αρχεία εισόδου.\n\nΗ μορφή της οδηγίας autosummary τεκμηρειώνεται στο \nδομοστοιχείο ``sphinx.ext.autosummary``  της Python και μπορεί να αναγνωστεί χρησιμοποιώντας το :: \n\npydoc sphinx.ext.autosummary\n"
 
-#: sphinx/ext/autosummary/generate.py:616
+#: sphinx/ext/autosummary/generate.py:641
 msgid "source files to generate rST files for"
 msgstr "αρχεία πηγής για να δημιουργηθούν τα αρχεία reST"
 
-#: sphinx/ext/autosummary/generate.py:620
+#: sphinx/ext/autosummary/generate.py:645
 msgid "directory to place all output in"
 msgstr "ο κατάλογος που θα τοποθετεί όλο το αποτέλεσμα εξόδου"
 
-#: sphinx/ext/autosummary/generate.py:623
+#: sphinx/ext/autosummary/generate.py:648
 #, python-format
 msgid "default suffix for files (default: %(default)s)"
 msgstr "προεπιλεγμένη επέκταση για αρχεία (προεπιλογή: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:627
+#: sphinx/ext/autosummary/generate.py:652
 #, python-format
 msgid "custom template directory (default: %(default)s)"
 msgstr "προσαρμοσμένος κατάλογος προτύπου (προεπιλογή: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:631
+#: sphinx/ext/autosummary/generate.py:656
 #, python-format
 msgid "document imported members (default: %(default)s)"
 msgstr "μέλη εισαγμένα στο έγγραφο (προεπιλογή: %(default)s)"
+
+#: sphinx/ext/autosummary/generate.py:660
+#, python-format
+msgid ""
+"document exactly the members in module __all__ attribute. (default: "
+"%(default)s)"
+msgstr ""
 
 #: sphinx/ext/napoleon/__init__.py:347 sphinx/ext/napoleon/docstring.py:703
 msgid "Keyword Arguments"
@@ -3149,7 +3188,7 @@ msgid "page"
 msgstr "σελίδα"
 
 #: sphinx/themes/agogo/layout.html:38 sphinx/themes/basic/globaltoc.html:10
-#: sphinx/themes/basic/localtoc.html:11 sphinx/themes/scrolls/layout.html:41
+#: sphinx/themes/basic/localtoc.html:12 sphinx/themes/scrolls/layout.html:41
 msgid "Table of Contents"
 msgstr "Πίνακας περιεχομένων"
 
@@ -3274,19 +3313,19 @@ msgstr ""
 msgid "Search %(docstitle)s"
 msgstr "Αναζήτηση %(docstitle)s"
 
-#: sphinx/themes/basic/relations.html:11
+#: sphinx/themes/basic/relations.html:12
 msgid "Previous topic"
 msgstr "Προηγούμενο θέμα"
 
-#: sphinx/themes/basic/relations.html:13
+#: sphinx/themes/basic/relations.html:14
 msgid "previous chapter"
 msgstr "προηγούμενο κεφάλαιο"
 
-#: sphinx/themes/basic/relations.html:16
+#: sphinx/themes/basic/relations.html:19
 msgid "Next topic"
 msgstr "Επόμενο θέμα"
 
-#: sphinx/themes/basic/relations.html:18
+#: sphinx/themes/basic/relations.html:21
 msgid "next chapter"
 msgstr "επόμενο κεφάλαιο"
 
@@ -3354,15 +3393,15 @@ msgstr "Αλλαγές στο API της C"
 msgid "Other changes"
 msgstr "Άλλες αλλαγές"
 
-#: sphinx/themes/basic/static/doctools.js:199 sphinx/writers/html.py:436
-#: sphinx/writers/html.py:441 sphinx/writers/html5.py:387
-#: sphinx/writers/html5.py:392
+#: sphinx/themes/basic/static/doctools.js:199 sphinx/writers/html.py:437
+#: sphinx/writers/html.py:442 sphinx/writers/html5.py:392
+#: sphinx/writers/html5.py:397
 msgid "Permalink to this headline"
 msgstr "Μόνιμος σύνδεσμος σε αυτήν την κεφαλίδα"
 
-#: sphinx/themes/basic/static/doctools.js:205 sphinx/writers/html.py:131
-#: sphinx/writers/html.py:140 sphinx/writers/html5.py:102
-#: sphinx/writers/html5.py:111
+#: sphinx/themes/basic/static/doctools.js:205 sphinx/writers/html.py:132
+#: sphinx/writers/html.py:141 sphinx/writers/html5.py:107
+#: sphinx/writers/html5.py:116
 msgid "Permalink to this definition"
 msgstr "Μόνιμος σύνδεσμος σε αυτόν τον ορισμό"
 
@@ -3383,7 +3422,7 @@ msgstr "Προετοιμασία αναζήτησης..."
 msgid "Search finished, found %s page(s) matching the search query."
 msgstr "Η αναζήτηση ολοκληρώθηκε, βρέθηκε/αν %s σελίδα/ες με βάση τους όρους αναζήτησης."
 
-#: sphinx/themes/basic/static/searchtools.js:364
+#: sphinx/themes/basic/static/searchtools.js:365
 msgid ", in "
 msgstr ", στο "
 
@@ -3439,23 +3478,23 @@ msgid ""
 "translated: {1}"
 msgstr "ασυνεπείς αναφορές όρων στα μεταφρασμένα μηνύματα. αρχικό: {0}, μεταφρασμένο: {1}"
 
-#: sphinx/transforms/post_transforms/__init__.py:117
+#: sphinx/transforms/post_transforms/__init__.py:118
 msgid ""
 "Could not determine the fallback text for the cross-reference. Might be a "
 "bug."
 msgstr ""
 
-#: sphinx/transforms/post_transforms/__init__.py:157
+#: sphinx/transforms/post_transforms/__init__.py:158
 #, python-format
 msgid "more than one target found for 'any' cross-reference %r: could be %s"
 msgstr "περισσότεροι από ένας στόχοι βρέθηκαν για 'οποιαδήποτε' παραπομπή %r: θα μπορούσε να είναι %s"
 
-#: sphinx/transforms/post_transforms/__init__.py:205
+#: sphinx/transforms/post_transforms/__init__.py:206
 #, python-format
 msgid "%s:%s reference target not found: %s"
 msgstr ""
 
-#: sphinx/transforms/post_transforms/__init__.py:208
+#: sphinx/transforms/post_transforms/__init__.py:209
 #, python-format
 msgid "%r reference target not found: %s"
 msgstr ""
@@ -3488,10 +3527,22 @@ msgstr "παράβλεψη"
 msgid "failed"
 msgstr "αποτυχία"
 
+#: sphinx/util/docfields.py:81
+#, python-format
+msgid ""
+"Problem in %s domain: field is supposed to use role '%s', but that role is "
+"not in the domain."
+msgstr ""
+
 #: sphinx/util/docutils.py:213
 #, python-format
 msgid "unknown directive or role name: %s:%s"
 msgstr ""
+
+#: sphinx/util/docutils.py:500
+#, python-format
+msgid "unknown node type: %r"
+msgstr "άγνωστος τύπος κόμβου: %r"
 
 #: sphinx/util/i18n.py:67
 #, python-format
@@ -3515,12 +3566,12 @@ msgid ""
 "it directly: %s"
 msgstr "Ανέγκυρος τύπος ημερομηνίας. Τοποθετείστε στη στοιχειοσειρά μονά εισαγωγικά εάν θέλετε να το εξάγετε απευθείας: %s"
 
-#: sphinx/util/nodes.py:424
+#: sphinx/util/nodes.py:429
 #, python-format
 msgid "toctree contains ref to nonexisting file %r"
 msgstr "το toctree περιλαμβάνει αναφορά σε άγνωστο αρχείο %r"
 
-#: sphinx/util/nodes.py:610
+#: sphinx/util/nodes.py:615
 #, python-format
 msgid "exception while evaluating only directive expression: %s"
 msgstr "εξαίρεση κατά την αξιολόγηση μόνο της έκφρασης οδηγίας: %s"
@@ -3530,37 +3581,37 @@ msgstr "εξαίρεση κατά την αξιολόγηση μόνο της έ
 msgid "default role %s not found"
 msgstr "ο προεπιλεγμένος ρόλος %s δεν βρέθηκε"
 
-#: sphinx/writers/html.py:329 sphinx/writers/html5.py:300
+#: sphinx/writers/html.py:330 sphinx/writers/html5.py:305
 #, python-format
 msgid "numfig_format is not defined for %s"
 msgstr "δεν έχει καθοριστεί numfig_format για το %s"
 
-#: sphinx/writers/html.py:339 sphinx/writers/html5.py:310
+#: sphinx/writers/html.py:340 sphinx/writers/html5.py:315
 #, python-format
 msgid "Any IDs not assigned for %s node"
 msgstr "Κανένα ID δεν έχει ανατεθεί στο κόμβο %s"
 
-#: sphinx/writers/html.py:413 sphinx/writers/html5.py:364
+#: sphinx/writers/html.py:414 sphinx/writers/html5.py:369
 msgid "Permalink to this term"
 msgstr ""
 
-#: sphinx/writers/html.py:445 sphinx/writers/html5.py:396
+#: sphinx/writers/html.py:446 sphinx/writers/html5.py:401
 msgid "Permalink to this table"
 msgstr "Απευθείας σύνδεσμος σε αυτόν τον πίνακα"
 
-#: sphinx/writers/html.py:488 sphinx/writers/html5.py:439
+#: sphinx/writers/html.py:489 sphinx/writers/html5.py:444
 msgid "Permalink to this code"
 msgstr "Απευθείας σύνδεσμος σε αυτόν τον κώδικα"
 
-#: sphinx/writers/html.py:490 sphinx/writers/html5.py:441
+#: sphinx/writers/html.py:491 sphinx/writers/html5.py:446
 msgid "Permalink to this image"
 msgstr "Απευθείας σύνδεσμος σε αυτήν την εικόνα"
 
-#: sphinx/writers/html.py:492 sphinx/writers/html5.py:443
+#: sphinx/writers/html.py:493 sphinx/writers/html5.py:448
 msgid "Permalink to this toctree"
 msgstr "Απευθείας σύνδεσμος σε αυτόν τον πίνακα περιεχομένων"
 
-#: sphinx/writers/html.py:623 sphinx/writers/html5.py:563
+#: sphinx/writers/html.py:625 sphinx/writers/html5.py:569
 msgid "Could not obtain image size. :scale: option is ignored."
 msgstr "Δεν ήταν δυνατή η λήψη του μεγέθους της εικόνας. Η επιλογή :scale: θα αγνοηθεί."
 
@@ -3577,27 +3628,27 @@ msgstr "πολύ μεγάλο :maxdepth:, θα αγνοηθεί."
 msgid "document title is not a single Text node"
 msgstr "ο τίτλος του εγγράφου δεν είναι μονός κόμβος κειμένου"
 
-#: sphinx/writers/latex.py:676 sphinx/writers/texinfo.py:622
+#: sphinx/writers/latex.py:676 sphinx/writers/texinfo.py:626
 msgid ""
 "encountered title node not in section, topic, table, admonition or sidebar"
 msgstr "ο ανακαλυφθέν τίτλος κόμβος δεν βρίσκεται σε τομέα, θέμα, πίνακα, προειδοποίηση ή πλαϊνή μπάρα"
 
-#: sphinx/writers/latex.py:848 sphinx/writers/manpage.py:247
-#: sphinx/writers/texinfo.py:637
+#: sphinx/writers/latex.py:846 sphinx/writers/manpage.py:247
+#: sphinx/writers/texinfo.py:641
 msgid "Footnotes"
 msgstr "Σημειώσεις υποσέλιδου"
 
-#: sphinx/writers/latex.py:907
+#: sphinx/writers/latex.py:905
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "τόσο η επιλογή για tabularcolumns όσο και για :widths: δίνονται. Η επιλογή :widths: θα αγνοηθεί."
 
-#: sphinx/writers/latex.py:1238
+#: sphinx/writers/latex.py:1236
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
 msgstr "η μονάδα διάστασης %s δεν είναι έγκυρη. Θα αγνοηθεί."
 
-#: sphinx/writers/latex.py:1551
+#: sphinx/writers/latex.py:1549
 #, python-format
 msgid "unknown index entry type %s found"
 msgstr "βρέθηκε άγνωστος τύπος εγγραφής ευρετηρίου %s"
@@ -3611,16 +3662,11 @@ msgstr "[εικόνα: %s]"
 msgid "[image]"
 msgstr "[εικόνα]"
 
-#: sphinx/writers/texinfo.py:1181
+#: sphinx/writers/texinfo.py:1193
 msgid "caption not inside a figure."
 msgstr "η λεζάντα δεν βρίσκεται εντός μίας εικόνας."
 
-#: sphinx/writers/texinfo.py:1265
+#: sphinx/writers/texinfo.py:1281
 #, python-format
 msgid "unimplemented node type: %r"
 msgstr "μη υλοποιημένος τύπος κόμβου: %r"
-
-#: sphinx/writers/texinfo.py:1269
-#, python-format
-msgid "unknown node type: %r"
-msgstr "άγνωστος τύπος κόμβου: %r"

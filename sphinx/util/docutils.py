@@ -4,7 +4,7 @@
 
     Utility functions for docutils.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -12,7 +12,6 @@ import os
 import re
 from contextlib import contextmanager
 from copy import copy
-from distutils.version import LooseVersion
 from os import path
 from types import ModuleType
 from typing import (IO, TYPE_CHECKING, Any, Callable, Dict, Generator, List, Optional, Set,
@@ -26,9 +25,10 @@ from docutils.parsers.rst import Directive, directives, roles
 from docutils.parsers.rst.states import Inliner
 from docutils.statemachine import State, StateMachine, StringList
 from docutils.utils import Reporter, unescape
+from packaging import version
 
 from sphinx.errors import SphinxError
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.typing import RoleFunction
 
@@ -41,7 +41,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
 
 
-__version_info__ = tuple(LooseVersion(docutils.__version__).version)
+__version_info__ = version.parse(docutils.__version__).release
 additional_nodes: Set[Type[Element]] = set()
 
 
@@ -495,6 +495,19 @@ class SphinxTranslator(nodes.NodeVisitor):
                 break
         else:
             super().dispatch_departure(node)
+
+    def unknown_visit(self, node: Node) -> None:
+        logger.warning(__('unknown node type: %r'), node, location=node)
+
+
+# Node.findall() is a new interface to traverse a doctree since docutils-0.18.
+# This applies a patch docutils-0.17 or older to be available Node.findall()
+# method to use it from our codebase.
+if __version_info__ < (0, 18):
+    def findall(self, *args, **kwargs):
+        return iter(self.traverse(*args, **kwargs))
+
+    Node.findall = findall  # type: ignore
 
 
 # cache a vanilla instance of nodes.document

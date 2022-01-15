@@ -4,7 +4,7 @@
 
     Tests the std domain
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -36,7 +36,7 @@ def test_process_doc_handle_figure_caption():
         ids={'testid': figure_node},
         citation_refs={},
     )
-    document.traverse.return_value = []
+    document.findall.return_value = []
 
     domain = StandardDomain(env)
     if 'testname' in domain.data['labels']:
@@ -60,7 +60,7 @@ def test_process_doc_handle_table_title():
         ids={'testid': table_node},
         citation_refs={},
     )
-    document.traverse.return_value = []
+    document.findall.return_value = []
 
     domain = StandardDomain(env)
     if 'testname' in domain.data['labels']:
@@ -424,7 +424,7 @@ def test_productionlist2(app):
             "   A: `:A` `A`\n"
             "   B: `P1:B` `~P1:B`\n")
     doctree = restructuredtext.parse(app, text)
-    refnodes = list(doctree.traverse(pending_xref))
+    refnodes = list(doctree.findall(pending_xref))
     assert_node(refnodes[0], pending_xref, reftarget="A")
     assert_node(refnodes[1], pending_xref, reftarget="P2:A")
     assert_node(refnodes[2], pending_xref, reftarget="P1:B")
@@ -452,3 +452,12 @@ def test_labeled_rubric(app):
     domain = app.env.get_domain("std")
     assert 'label' in domain.labels
     assert domain.labels['label'] == ('index', 'label', 'blah blah blah')
+
+
+def test_inline_target(app):
+    text = "blah _`inline target` blah\n"
+    restructuredtext.parse(app, text)
+
+    domain = app.env.get_domain("std")
+    assert 'inline target' in domain.labels
+    assert domain.labels['inline target'] == ('index', 'inline-target', 'inline target')

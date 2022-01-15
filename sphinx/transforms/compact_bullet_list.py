@@ -4,7 +4,7 @@
 
     Docutils transforms used by Sphinx when reading documents.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -74,9 +74,9 @@ class RefOnlyBulletListTransform(SphinxTransform):
             else:
                 return True
 
-        for node in self.document.traverse(nodes.bullet_list):
+        for node in self.document.findall(nodes.bullet_list):
             if check_refonly_list(node):
-                for item in node.traverse(nodes.list_item):
+                for item in node.findall(nodes.list_item):
                     para = cast(nodes.paragraph, item[0])
                     ref = cast(nodes.reference, para[0])
                     compact_para = addnodes.compact_paragraph()

@@ -4,7 +4,7 @@
 
     Custom docutils writer for plain text.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import math
@@ -16,7 +16,7 @@ from typing import (TYPE_CHECKING, Any, Dict, Generator, Iterable, List, Optiona
                     Union, cast)
 
 from docutils import nodes, writers
-from docutils.nodes import Element, Node, Text
+from docutils.nodes import Element, Text
 from docutils.utils import column_width
 
 from sphinx import addnodes
@@ -850,7 +850,7 @@ class TextTranslator(SphinxTranslator):
             self.end_state(first='%s. ' % self.list_counter[-1])
 
     def visit_definition_list_item(self, node: Element) -> None:
-        self._classifier_count_in_li = len(node.traverse(nodes.classifier))
+        self._classifier_count_in_li = len(list(node.findall(nodes.classifier)))
 
     def depart_definition_list_item(self, node: Element) -> None:
         pass
@@ -1189,6 +1189,3 @@ class TextTranslator(SphinxTranslator):
 
     def depart_math_block(self, node: Element) -> None:
         self.end_state()
-
-    def unknown_visit(self, node: Node) -> None:
-        raise NotImplementedError('Unknown node: ' + node.__class__.__name__)

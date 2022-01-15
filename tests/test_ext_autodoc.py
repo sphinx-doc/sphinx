@@ -5,7 +5,7 @@
     Test the autodoc extension.  This tests mainly the Documenters; the auto
     directives are tested in a test source file translated by test_build.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -1359,6 +1359,7 @@ def test_slots(app):
         '',
         '   .. py:attribute:: Bar.attr1',
         '      :module: target.slots',
+        '      :type: int',
         '',
         '      docstring of attr1',
         '',
@@ -1399,9 +1400,16 @@ def test_slots(app):
 def test_enum_class(app):
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.enums.EnumCls', options)
+
+    if sys.version_info > (3, 11):
+        args = ('(value, names=None, *, module=None, qualname=None, '
+                'type=None, start=1, boundary=None)')
+    else:
+        args = '(value)'
+
     assert list(actual) == [
         '',
-        '.. py:class:: EnumCls(value)',
+        '.. py:class:: EnumCls' + args,
         '   :module: target.enums',
         '',
         '   this is enum class',
@@ -1862,12 +1870,21 @@ def test_autodoc_GenericAlias(app):
             '   .. py:attribute:: Class.T',
             '      :module: target.genericalias',
             '',
+            '      A list of int',
+            '',
             '      alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
+            '',
+            '.. py:attribute:: L',
+            '   :module: target.genericalias',
+            '',
+            '   A list of Class',
+            '',
             '',
             '.. py:attribute:: T',
             '   :module: target.genericalias',
             '',
-            '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
+            '   A list of int',
+            '',
         ]
     else:
         assert list(actual) == [
@@ -1885,6 +1902,15 @@ def test_autodoc_GenericAlias(app):
             '      A list of int',
             '',
             '      alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
+            '',
+            '',
+            '.. py:data:: L',
+            '   :module: target.genericalias',
+            '',
+            '   A list of Class',
+            '',
+            '   alias of :py:class:`~typing.List`\\ '
+            '[:py:class:`target.genericalias.Class`]',
             '',
             '',
             '.. py:data:: T',
@@ -1924,7 +1950,7 @@ def test_autodoc_TypeVar(app):
         '',
         '      T6',
         '',
-        '      alias of :py:class:`int`',
+        '      alias of :py:class:`datetime.date`',
         '',
         '',
         '.. py:data:: T1',
@@ -1964,7 +1990,7 @@ def test_autodoc_TypeVar(app):
         '',
         '   T6',
         '',
-        '   alias of :py:class:`int`',
+        '   alias of :py:class:`datetime.date`',
         '',
         '',
         '.. py:data:: T7',
@@ -2106,6 +2132,9 @@ def test_singledispatchmethod_automethod(app):
     ]
 
 
+@pytest.mark.skipif(sys.version_info > (3, 11),
+                    reason=('cython does not support python-3.11 yet. '
+                            'see https://github.com/cython/cython/issues/4365'))
 @pytest.mark.skipif(pyximport is None, reason='cython is not installed')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_cython(app):

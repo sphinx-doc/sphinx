@@ -123,7 +123,7 @@ class PorterStemmer:
            or not self.cons(i - 2):
             return 0
         ch = self.b[i]
-        if ch == 'w' or ch == 'x' or ch == 'y':
+        if ch in ('w', 'x', 'y'):
             return 0
         return 1
 
@@ -193,7 +193,7 @@ class PorterStemmer:
             elif self.doublec(self.k):
                 self.k = self.k - 1
                 ch = self.b[self.k]
-                if ch == 'l' or ch == 's' or ch == 'z':
+                if ch in ('l', 's', 'z'):
                     self.k = self.k + 1
             elif (self.m() == 1 and self.cvc(self.k)):
                 self.setto("e")

@@ -7,7 +7,7 @@
     Much of this code is adapted from Dave Kuhlman's "docpy" writer from his
     docutils sandbox.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -651,7 +651,7 @@ class LaTeXTranslator(SphinxTranslator):
                 raise nodes.SkipNode
             else:
                 short = ''
-                if node.traverse(nodes.image):
+                if any(node.findall(nodes.image)):
                     short = ('[%s]' % self.escape(' '.join(clean_astext(node).split())))
 
                 try:
@@ -757,9 +757,7 @@ class LaTeXTranslator(SphinxTranslator):
         self._depart_signature_line(node)
 
     def visit_desc_content(self, node: Element) -> None:
-        if node.children and not isinstance(node.children[0], nodes.paragraph):
-            # avoid empty desc environment which causes a formatting bug
-            self.body.append('~')
+        pass
 
     def depart_desc_content(self, node: Element) -> None:
         pass
@@ -1011,7 +1009,7 @@ class LaTeXTranslator(SphinxTranslator):
             context = (r'\par' + CR + r'\vskip-\baselineskip'
                        r'\vbox{\hbox{\strut}}\end{varwidth}%' + CR + context)
             self.needs_linetrimming = 1
-        if len(node.traverse(nodes.paragraph)) >= 2:
+        if len(list(node.findall(nodes.paragraph))) >= 2:
             self.table.has_oldproblematic = True
         if isinstance(node.parent.parent, nodes.thead) or (cell.col in self.table.stubs):
             if len(node) == 1 and isinstance(node[0], nodes.paragraph) and node.astext() == '':
@@ -1210,7 +1208,7 @@ class LaTeXTranslator(SphinxTranslator):
         ncolumns = node['ncolumns']
         if self.compact_list > 1:
             self.body.append(r'\setlength{\multicolsep}{0pt}' + CR)
-        self.body.append(r'\begin{multicols}{' + ncolumns + '}\raggedright' + CR)
+        self.body.append(r'\begin{multicols}{' + ncolumns + r'}\raggedright' + CR)
         self.body.append(r'\begin{itemize}\setlength{\itemsep}{0pt}'
                          r'\setlength{\parskip}{0pt}' + CR)
         if self.table:
@@ -1859,8 +1857,7 @@ class LaTeXTranslator(SphinxTranslator):
         done = 0
         if len(node.children) == 1:
             child = node.children[0]
-            if isinstance(child, nodes.bullet_list) or \
-                    isinstance(child, nodes.enumerated_list):
+            if isinstance(child, (nodes.bullet_list, nodes.enumerated_list)):
                 done = 1
         if not done:
             self.body.append(r'\begin{quote}' + CR)
@@ -1871,8 +1868,7 @@ class LaTeXTranslator(SphinxTranslator):
         done = 0
         if len(node.children) == 1:
             child = node.children[0]
-            if isinstance(child, nodes.bullet_list) or \
-                    isinstance(child, nodes.enumerated_list):
+            if isinstance(child, (nodes.bullet_list, nodes.enumerated_list)):
                 done = 1
         if not done:
             self.body.append(r'\end{quote}' + CR)
@@ -2078,9 +2074,6 @@ class LaTeXTranslator(SphinxTranslator):
 
     def depart_math_reference(self, node: Element) -> None:
         pass
-
-    def unknown_visit(self, node: Node) -> None:
-        raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
 
 
 # FIXME: Workaround to avoid circular import

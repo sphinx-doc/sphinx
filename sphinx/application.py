@@ -6,13 +6,12 @@
 
     Gracefully adapted from the TextPress system by Armin.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import pickle
-import platform
 import sys
 import warnings
 from collections import deque
@@ -195,12 +194,6 @@ class Sphinx:
         # say hello to the world
         logger.info(bold(__('Running Sphinx v%s') % sphinx.__display_version__))
 
-        # notice for parallel build on macOS and py38+
-        if sys.version_info > (3, 8) and platform.system() == 'Darwin' and parallel > 1:
-            logger.info(bold(__("For security reasons, parallel mode is disabled on macOS and "
-                                "python3.8 and above. For more details, please read "
-                                "https://github.com/sphinx-doc/sphinx/issues/6803")))
-
         # status code for command-line application
         self.statuscode = 0
 
@@ -284,7 +277,8 @@ class Sphinx:
                                      self.config.language, self.config.source_encoding)
             for catalog in repo.catalogs:
                 if catalog.domain == 'sphinx' and catalog.is_outdated():
-                    catalog.write_mo(self.config.language)
+                    catalog.write_mo(self.config.language,
+                                     self.config.gettext_allow_fuzzy_translations)
 
             locale_dirs: List[Optional[str]] = list(repo.locale_dirs)
             locale_dirs += [None]
@@ -936,24 +930,31 @@ class Sphinx:
         """
         self.registry.add_post_transform(transform)
 
-    def add_js_file(self, filename: str, priority: int = 500, **kwargs: Any) -> None:
+    def add_js_file(self, filename: str, priority: int = 500,
+                    loading_method: Optional[str] = None, **kwargs: Any) -> None:
         """Register a JavaScript file to include in the HTML output.
 
-        Add *filename* to the list of JavaScript files that the default HTML
-        template will include in order of *priority* (ascending).  The filename
-        must be relative to the HTML static path , or a full URI with scheme.
-        If the priority of the JavaScript file is the same as others, the JavaScript
-        files will be included in order of registration.  If the keyword
-        argument ``body`` is given, its value will be added between the
-        ``<script>`` tags. Extra keyword arguments are included as attributes of
-        the ``<script>`` tag.
+        :param filename: The filename of the JavaScript file.  It must be relative to the HTML
+                         static path, a full URI with scheme, or ``None`` value.  The ``None``
+                         value is used to create inline ``<script>`` tag.  See the description
+                         of *kwargs* below.
+        :param priority: The priority to determine the order of ``<script>`` tag for
+                         JavaScript files.  See list of "prority range for JavaScript
+                         files" below.  If the priority of the JavaScript files it the same
+                         as others, the JavaScript files will be loaded in order of
+                         registration.
+        :param loading_method: The loading method of the JavaScript file.  ``'async'`` or
+                               ``'defer'`` is allowed.
+        :param kwargs: Extra keyword arguments are included as attributes of the ``<script>``
+                       tag.  A special keyword argument ``body`` is given, its value will be
+                       added between the ``<script>`` tag.
 
         Example::
 
             app.add_js_file('example.js')
             # => <script src="_static/example.js"></script>
 
-            app.add_js_file('example.js', async="async")
+            app.add_js_file('example.js', loading_method="async")
             # => <script src="_static/example.js" async="async"></script>
 
             app.add_js_file(None, body="var myVariable = 'foo';")
@@ -982,7 +983,15 @@ class Sphinx:
 
         .. versionchanged:: 3.5
            Take priority argument.  Allow to add a JavaScript file to the specific page.
+        .. versionchanged:: 4.4
+           Take loading_method argument.  Allow to change the loading method of the
+           JavaScript file.
         """
+        if loading_method == 'async':
+            kwargs['async'] = 'async'
+        elif loading_method == 'defer':
+            kwargs['defer'] = 'defer'
+
         self.registry.add_js_file(filename, priority=priority, **kwargs)
         if hasattr(self.builder, 'add_js_file'):
             self.builder.add_js_file(filename, priority=priority, **kwargs)  # type: ignore
@@ -990,12 +999,14 @@ class Sphinx:
     def add_css_file(self, filename: str, priority: int = 500, **kwargs: Any) -> None:
         """Register a stylesheet to include in the HTML output.
 
-        Add *filename* to the list of CSS files that the default HTML template
-        will include in order of *priority* (ascending).  The filename must be
-        relative to the HTML static path, or a full URI with scheme.  If the
-        priority of the CSS file is the same as others, the CSS files will be
-        included in order of registration.  The keyword arguments are also
-        accepted for attributes of ``<link>`` tag.
+        :param filename: The filename of the CSS file.  It must be relative to the HTML
+                         static path, or a full URI with scheme.
+        :param priority: The priority to determine the order of ``<link>`` tag for the
+                         CSS files.  See list of "prority range for CSS files" below.
+                         If the priority of the CSS files it the same as others, the
+                         CSS files will be loaded in order of registration.
+        :param kwargs: Extra keyword arguments are included as attributes of the ``<link>``
+                       tag.
 
         Example::
 
@@ -1045,6 +1056,26 @@ class Sphinx:
         self.registry.add_css_files(filename, priority=priority, **kwargs)
         if hasattr(self.builder, 'add_css_file'):
             self.builder.add_css_file(filename, priority=priority, **kwargs)  # type: ignore
+
+    def add_stylesheet(self, filename: str, alternate: bool = False, title: str = None
+                       ) -> None:
+        """An alias of :meth:`add_css_file`.
+
+        .. deprecated:: 1.8
+        """
+        logger.warning('The app.add_stylesheet() is deprecated. '
+                       'Please use app.add_css_file() instead.')
+
+        attributes = {}  # type: Dict[str, Any]
+        if alternate:
+            attributes['rel'] = 'alternate stylesheet'
+        else:
+            attributes['rel'] = 'stylesheet'
+
+        if title:
+            attributes['title'] = title
+
+        self.add_css_file(filename, **attributes)
 
     def add_latex_package(self, packagename: str, options: str = None,
                           after_hyperref: bool = False) -> None:

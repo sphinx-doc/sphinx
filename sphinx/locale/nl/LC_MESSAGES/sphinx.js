@@ -39,7 +39,7 @@ Documentation.addTranslations({
         "Search": "Zoeken",
         "Search Page": "Zoekpagina",
         "Search Results": "Zoekresultaten",
-        "Search finished, found %s page(s) matching the search query.": "Zoekopdracht voltooid, %s pagaina(s) gevonden die overeenkomen met de zoekterm.",
+        "Search finished, found %s page(s) matching the search query.": "Zoekopdracht voltooid, %s pagina(s) gevonden die overeenkomen met de zoekterm.",
         "Search within %(docstitle)s": "Zoeken in %(docstitle)s",
         "Searching": "Bezig met zoeken",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

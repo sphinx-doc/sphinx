@@ -285,7 +285,7 @@ engine, allowing you to embed variables and control behavior.
 
 For example, the following JavaScript structure:
 
-.. code-block:: bash
+.. code-block:: none
 
    mymodule/
    ├── _static
@@ -294,7 +294,7 @@ For example, the following JavaScript structure:
 
 Will result in the following static file placed in your HTML's build output:
 
-.. code-block:: bash
+.. code-block:: none
 
    _build/
    └── html

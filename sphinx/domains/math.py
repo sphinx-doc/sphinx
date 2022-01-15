@@ -4,7 +4,7 @@
 
     The math domain.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -78,7 +78,7 @@ class MathDomain(Domain):
         def math_node(node: Node) -> bool:
             return isinstance(node, (nodes.math, nodes.math_block))
 
-        self.data['has_equations'][docname] = any(document.traverse(math_node))
+        self.data['has_equations'][docname] = any(document.findall(math_node))
 
     def clear_doc(self, docname: str) -> None:
         for equation_id, (doc, eqno) in list(self.equations.items()):

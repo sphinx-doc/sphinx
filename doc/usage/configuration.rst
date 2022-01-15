@@ -22,9 +22,9 @@ and output behavior.
   .. _`docutils.conf`: https://docutils.sourceforge.io/docs/user/config.html
 
 The configuration file is executed as Python code at build time (using
-:func:`execfile`, and with the current directory set to its containing
-directory), and therefore can execute arbitrarily complex code.  Sphinx then
-reads simple names from the file's namespace as its configuration.
+:func:`importlib.import_module`, and with the current directory set to its
+containing directory), and therefore can execute arbitrarily complex code.
+Sphinx then reads simple names from the file's namespace as its configuration.
 
 Important points to note:
 
@@ -329,6 +329,8 @@ General configuration
    * ``ref.python``
    * ``misc.highlighting_failure``
    * ``toc.circular``
+   * ``toc.excluded``
+   * ``toc.not_readable``
    * ``toc.secnum``
    * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``
@@ -359,6 +361,10 @@ General configuration
    .. versionchanged:: 3.3.0
 
       Added ``epub.duplicated_toc_entry``
+
+   .. versionchanged:: 4.3
+
+      Added ``toc.excluded`` and ``toc.not_readable``
 
 .. confval:: needs_sphinx
 
@@ -802,6 +808,13 @@ documentation on :ref:`intl` for details.
    .. versionchanged:: 1.5
       Use ``locales`` directory as a default value
 
+.. confval:: gettext_allow_fuzzy_translations
+
+   If true, "fuzzy" messages in the message catalogs are used for translation.
+   The default is ``False``.
+
+   .. versionadded:: 4.3
+
 .. confval:: gettext_compact
 
    .. versionadded:: 1.1
@@ -992,7 +1005,7 @@ that use Sphinx's HTMLWriter class.
    to indicate the location of document using `The Canonical Link Relation`_.
    Default: ``''``.
 
-   .. _The Canonical Link Relation: https://tools.ietf.org/html/rfc6596
+   .. _The Canonical Link Relation: https://datatracker.ietf.org/doc/html/rfc6596
 
    .. versionadded:: 1.8
 
@@ -2486,6 +2499,13 @@ These options influence Texinfo output.
 
    .. versionadded:: 1.1
 
+.. confval:: texinfo_cross_references
+
+  If false, do not generate inline references in a document.  That makes
+  an info file more readable with stand-alone reader (``info``).
+  Default is ``True``.
+
+  .. versionadded:: 4.4
 
 .. _qthelp-options:
 
@@ -2637,10 +2657,8 @@ Options for the linkcheck builder
      A regular expression that matches a URI.
    *auth_info*
      Authentication information to use for that URI. The value can be anything
-     that is understood by the ``requests`` library (see `requests
-     Authentication <requests-auth>`_ for details).
-
-     .. _requests-auth: https://requests.readthedocs.io/en/master/user/authentication/
+     that is understood by the ``requests`` library (see :ref:`requests
+     Authentication <requests:authentication>` for details).
 
    The ``linkcheck`` builder will use the first matching ``auth_info`` value
    it can find in the :confval:`linkcheck_auth` list, so values earlier in the
@@ -2668,9 +2686,22 @@ Options for the linkcheck builder
    doubling the wait time between attempts until it succeeds or exceeds the
    ``linkcheck_rate_limit_timeout``. By default, the timeout is 5 minutes.
 
-   .. _Retry-After: https://tools.ietf.org/html/rfc7231#section-7.1.3
+   .. _Retry-After: https://datatracker.ietf.org/doc/html/rfc7231#section-7.1.3
 
    .. versionadded:: 3.4
+
+.. confval:: linkcheck_exclude_documents
+
+   A list of regular expressions that match documents in which Sphinx should
+   not check the validity of links. This can be used for permitting link decay
+   in legacy or historical sections of the documentation.
+
+   Example::
+
+      # ignore all links in documents located in a subfolder named 'legacy'
+      linkcheck_exclude_documents = [r'.*/legacy/.*']
+
+   .. versionadded:: 4.4
 
 
 Options for the XML builder

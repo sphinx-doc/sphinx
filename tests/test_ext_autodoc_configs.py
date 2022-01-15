@@ -4,7 +4,7 @@
 
     Test the autodoc extension.  This tests mainly for config variables
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -536,7 +536,7 @@ def test_mocked_module_imports(app, warning):
     sys.modules.pop('target', None)  # unload target module to clear the module cache
 
     # no autodoc_mock_imports
-    options = {"members": 'TestAutodoc,decoratedFunction,func'}
+    options = {"members": 'TestAutodoc,decoratedFunction,func,Alias'}
     actual = do_autodoc(app, 'module', 'target.need_mocks', options)
     assert list(actual) == []
     assert "autodoc: failed to import module 'need_mocks'" in warning.getvalue()
@@ -557,10 +557,22 @@ def test_mocked_module_imports(app, warning):
         '.. py:module:: target.need_mocks',
         '',
         '',
+        '.. py:data:: Alias',
+        '   :module: target.need_mocks',
+        '',
+        '   docstring',
+        '',
+        '',
         '.. py:class:: TestAutodoc()',
         '   :module: target.need_mocks',
         '',
         '   TestAutodoc docstring.',
+        '',
+        '',
+        '   .. py:attribute:: TestAutodoc.Alias',
+        '      :module: target.need_mocks',
+        '',
+        '      docstring',
         '',
         '',
         '   .. py:method:: TestAutodoc.decoratedMethod()',
@@ -600,7 +612,7 @@ def test_autodoc_typehints_signature(app):
         '   :type: int',
         '',
         '',
-        '.. py:class:: Math(s: str, o: Optional[Any] = None)',
+        '.. py:class:: Math(s: str, o: typing.Optional[typing.Any] = None)',
         '   :module: target.typehints',
         '',
         '',
@@ -665,7 +677,8 @@ def test_autodoc_typehints_signature(app):
         '   :module: target.typehints',
         '',
         '',
-        '.. py:function:: tuple_args(x: Tuple[int, Union[int, str]]) -> Tuple[int, int]',
+        '.. py:function:: tuple_args(x: typing.Tuple[int, typing.Union[int, str]]) '
+        '-> typing.Tuple[int, int]',
         '   :module: target.typehints',
         '',
     ]
@@ -822,7 +835,7 @@ def test_autodoc_typehints_description(app):
             '      **x** (*Tuple**[**int**, **Union**[**int**, **str**]**]*) --\n'
             '\n'
             '   Return type:\n'
-            '      Tuple[int, int]\n'
+            '      *Tuple*[int, int]\n'
             in context)
 
     # Overloads still get displayed in the signature
@@ -844,6 +857,10 @@ def test_autodoc_typehints_description_no_undoc(app):
     (app.srcdir / 'index.rst').write_text(
         '.. autofunction:: target.typehints.incr\n'
         '\n'
+        '.. autofunction:: target.typehints.decr\n'
+        '\n'
+        '   :returns: decremented number\n'
+        '\n'
         '.. autofunction:: target.typehints.tuple_args\n'
         '\n'
         '   :param x: arg\n'
@@ -852,6 +869,14 @@ def test_autodoc_typehints_description_no_undoc(app):
     app.build()
     context = (app.outdir / 'index.txt').read_text()
     assert ('target.typehints.incr(a, b=1)\n'
+            '\n'
+            'target.typehints.decr(a, b=1)\n'
+            '\n'
+            '   Returns:\n'
+            '      decremented number\n'
+            '\n'
+            '   Return type:\n'
+            '      int\n'
             '\n'
             'target.typehints.tuple_args(x)\n'
             '\n'
@@ -862,7 +887,7 @@ def test_autodoc_typehints_description_no_undoc(app):
             '      another tuple\n'
             '\n'
             '   Return type:\n'
-            '      Tuple[int, int]\n'
+            '      *Tuple*[int, int]\n'
             in context)
 
 
@@ -953,7 +978,7 @@ def test_autodoc_typehints_both(app):
             '      **x** (*Tuple**[**int**, **Union**[**int**, **str**]**]*) --\n'
             '\n'
             '   Return type:\n'
-            '      Tuple[int, int]\n'
+            '      *Tuple*[int, int]\n'
             in context)
 
     # Overloads still get displayed in the signature
@@ -1116,6 +1141,150 @@ def test_autodoc_typehints_description_and_type_aliases(app):
             '\n'
             '   Return type:\n'
             '      myint\n' == context)
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc',
+                    confoverrides={'autodoc_typehints_format': "short"})
+def test_autodoc_typehints_format_short(app):
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'target.typehints', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.typehints',
+        '',
+        '',
+        '.. py:data:: CONST1',
+        '   :module: target.typehints',
+        '   :type: int',
+        '',
+        '',
+        '.. py:class:: Math(s: str, o: ~typing.Optional[~typing.Any] = None)',
+        '   :module: target.typehints',
+        '',
+        '',
+        '   .. py:attribute:: Math.CONST1',
+        '      :module: target.typehints',
+        '      :type: int',
+        '',
+        '',
+        '   .. py:attribute:: Math.CONST2',
+        '      :module: target.typehints',
+        '      :type: int',
+        '      :value: 1',
+        '',
+        '',
+        '   .. py:method:: Math.decr(a: int, b: int = 1) -> int',
+        '      :module: target.typehints',
+        '',
+        '',
+        '   .. py:method:: Math.horse(a: str, b: int) -> None',
+        '      :module: target.typehints',
+        '',
+        '',
+        '   .. py:method:: Math.incr(a: int, b: int = 1) -> int',
+        '      :module: target.typehints',
+        '',
+        '',
+        '   .. py:method:: Math.nothing() -> None',
+        '      :module: target.typehints',
+        '',
+        '',
+        '   .. py:property:: Math.prop',
+        '      :module: target.typehints',
+        '      :type: int',
+        '',
+        '',
+        '.. py:class:: NewAnnotation(i: int)',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:class:: NewComment(i: int)',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:class:: SignatureFromMetaclass(a: int)',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:function:: complex_func(arg1: str, arg2: List[int], arg3: Tuple[int, '
+        'Union[str, Unknown]] = None, *args: str, **kwargs: str) -> None',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:function:: decr(a: int, b: int = 1) -> int',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:function:: incr(a: int, b: int = 1) -> int',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:function:: missing_attr(c, a: str, b: Optional[str] = None) -> str',
+        '   :module: target.typehints',
+        '',
+        '',
+        '.. py:function:: tuple_args(x: ~typing.Tuple[int, ~typing.Union[int, str]]) '
+        '-> ~typing.Tuple[int, int]',
+        '   :module: target.typehints',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc',
+                    confoverrides={'autodoc_typehints_format': "short"})
+def test_autodoc_typehints_format_short_for_class_alias(app):
+    actual = do_autodoc(app, 'class', 'target.classes.Alias')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: Alias',
+        '   :module: target.classes',
+        '',
+        '   alias of :py:class:`~target.classes.Foo`',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc',
+                    confoverrides={'autodoc_typehints_format': "short"})
+def test_autodoc_typehints_format_short_for_generic_alias(app):
+    actual = do_autodoc(app, 'data', 'target.genericalias.L')
+    if sys.version_info < (3, 7):
+        assert list(actual) == [
+            '',
+            '.. py:data:: L',
+            '   :module: target.genericalias',
+            '   :value: typing.List[target.genericalias.Class]',
+            '',
+            '   A list of Class',
+            '',
+        ]
+    else:
+        assert list(actual) == [
+            '',
+            '.. py:data:: L',
+            '   :module: target.genericalias',
+            '',
+            '   A list of Class',
+            '',
+            '   alias of :py:class:`~typing.List`\\ [:py:class:`~target.genericalias.Class`]',
+            '',
+        ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc',
+                    confoverrides={'autodoc_typehints_format': "short"})
+def test_autodoc_typehints_format_short_for_newtype_alias(app):
+    actual = do_autodoc(app, 'data', 'target.typevar.T6')
+    assert list(actual) == [
+        '',
+        '.. py:data:: T6',
+        '   :module: target.typevar',
+        '',
+        '   T6',
+        '',
+        '   alias of :py:class:`~datetime.date`',
+        '',
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')

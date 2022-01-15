@@ -4,7 +4,7 @@
 
     The MessageCatalogBuilder class.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -146,7 +146,7 @@ class I18nBuilder(Builder):
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
         catalog = self.catalogs[docname_to_domain(docname, self.config.gettext_compact)]
 
-        for toctree in self.env.tocs[docname].traverse(addnodes.toctree):
+        for toctree in self.env.tocs[docname].findall(addnodes.toctree):
             for node, msg in extract_messages(toctree):
                 node.uid = ''  # type: ignore  # Hack UUID model
                 catalog.add(msg, node)
@@ -180,7 +180,7 @@ if source_date_epoch is not None:
 
 class LocalTimeZone(tzinfo):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)  # type: ignore
+        super().__init__(*args, **kwargs)
         self.tzdelta = tzdelta
 
     def utcoffset(self, dt: datetime) -> timedelta:

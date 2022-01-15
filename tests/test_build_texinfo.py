@@ -4,7 +4,7 @@
 
     Test the build process with Texinfo builder with the test root.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -112,3 +112,36 @@ def test_texinfo_escape_id(app, status, warning):
     assert translator.escape_id('Hello(world)') == 'Hello world'
     assert translator.escape_id('Hello world.') == 'Hello world'
     assert translator.escape_id('.') == '.'
+
+
+@pytest.mark.sphinx('texinfo', testroot='footnotes')
+def test_texinfo_footnote(app, status, warning):
+    app.builder.build_all()
+
+    output = (app.outdir / 'python.texi').read_text()
+    assert 'First footnote: @footnote{\nFirst\n}' in output
+
+
+@pytest.mark.sphinx('texinfo')
+def test_texinfo_xrefs(app, status, warning):
+    app.builder.build_all()
+    output = (app.outdir / 'sphinxtests.texi').read_text()
+    assert re.search(r'@ref{\w+,,--plugin\.option}', output)
+
+    # Now rebuild it without xrefs
+    app.config.texinfo_cross_references = False
+    app.builder.build_all()
+    output = (app.outdir / 'sphinxtests.texi').read_text()
+    assert not re.search(r'@ref{\w+,,--plugin\.option}', output)
+    assert 'Link to perl +p, --ObjC++, --plugin.option, create-auth-token, arg and -j' in output
+
+
+@pytest.mark.sphinx('texinfo', testroot='root')
+def test_texinfo_samp_with_variable(app, status, warning):
+    app.build()
+
+    output = (app.outdir / 'sphinxtests.texi').read_text()
+
+    assert '@code{@var{variable_only}}' in output
+    assert '@code{@var{variable} and text}' in output
+    assert '@code{Show @var{variable} in the middle}' in output

@@ -4,7 +4,7 @@
 
     Sphinx component registry.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -21,7 +21,11 @@ from docutils.nodes import Element, Node, TextElement
 from docutils.parsers import Parser
 from docutils.parsers.rst import Directive
 from docutils.transforms import Transform
-from pkg_resources import iter_entry_points
+
+try:  # Python < 3.10 (backport)
+    from importlib_metadata import entry_points
+except ImportError:
+    from importlib.metadata import entry_points
 
 from sphinx.builders import Builder
 from sphinx.config import Config
@@ -143,14 +147,14 @@ class SphinxComponentRegistry:
             return
 
         if name not in self.builders:
-            entry_points = iter_entry_points('sphinx.builders', name)
+            builder_entry_points = entry_points(group='sphinx.builders')
             try:
-                entry_point = next(entry_points)
-            except StopIteration as exc:
+                entry_point = builder_entry_points[name]
+            except KeyError as exc:
                 raise SphinxError(__('Builder name %s not registered or available'
                                      ' through entry point') % name) from exc
 
-            self.load_extension(app, entry_point.module_name)
+            self.load_extension(app, entry_point.module)
 
     def create_builder(self, app: "Sphinx", name: str) -> Builder:
         if name not in self.builders:

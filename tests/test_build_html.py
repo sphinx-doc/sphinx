@@ -4,19 +4,19 @@
 
     Test the HTML builder and check output against XPath.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import re
-from distutils.version import LooseVersion
 from itertools import chain, cycle
 from unittest.mock import ANY, call, patch
 
 import pygments
 import pytest
 from html5lib import HTMLParser
+from packaging import version
 
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.errors import ConfigError
@@ -28,6 +28,9 @@ if docutils.__version_info__ < (0, 17):
     FIGURE_CAPTION = ".//div[@class='figure align-default']/p[@class='caption']"
 else:
     FIGURE_CAPTION = ".//figure/figcaption/p"
+
+
+PYGMENTS_VERSION = version.parse(pygments.__version__).release
 
 
 ENV_WARNINGS = """\
@@ -96,7 +99,7 @@ def check_xpath(etree, fname, path, check, be_found=True):
     else:
         assert nodes != [], ('did not find any node matching xpath '
                              '%r in file %s' % (path, fname))
-    if hasattr(check, '__call__'):
+    if callable(check):
         check(nodes)
     elif not check:
         # only check for node presence
@@ -222,9 +225,9 @@ def test_html4_output(app, status, warning):
         (".//a[@href='https://www.python.org/dev/peps/pep-0008']"
          "[@class='pep reference external']/strong",
          'Python Enhancement Proposal #8'),
-        (".//a[@href='https://tools.ietf.org/html/rfc1.html']"
+        (".//a[@href='https://datatracker.ietf.org/doc/html/rfc1.html']"
          "[@class='rfc reference external']/strong", 'RFC 1'),
-        (".//a[@href='https://tools.ietf.org/html/rfc1.html']"
+        (".//a[@href='https://datatracker.ietf.org/doc/html/rfc1.html']"
          "[@class='rfc reference external']/strong", 'Request for Comments #1'),
         (".//a[@href='objects.html#envvar-HOME']"
          "[@class='reference internal']/code/span[@class='pre']", 'HOME'),
@@ -455,6 +458,12 @@ def test_html_download(app):
     assert matched
     assert (app.outdir / matched.group(1)).exists()
     assert matched.group(1) == filename
+
+    pattern = ('<a class="reference download internal" download="" '
+               'href="(_downloads/.*/)(file_with_special_%23_chars.xyz)">')
+    matched = re.search(pattern, result)
+    assert matched
+    assert (app.outdir / matched.group(1) / "file_with_special_#_chars.xyz").exists()
 
 
 @pytest.mark.sphinx('html', testroot='roles-download')
@@ -1186,6 +1195,20 @@ def test_assets_order(app):
     assert re.search(pattern, content, re.S)
 
 
+@pytest.mark.sphinx('html', testroot='html_assets')
+def test_javscript_loading_method(app):
+    app.add_js_file('normal.js')
+    app.add_js_file('early.js', loading_method='async')
+    app.add_js_file('late.js', loading_method='defer')
+
+    app.builder.build_all()
+    content = (app.outdir / 'index.html').read_text()
+
+    assert '<script src="_static/normal.js"></script>' in content
+    assert '<script async="async" src="_static/early.js"></script>' in content
+    assert '<script defer="defer" src="_static/late.js"></script>' in content
+
+
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_copy_source': False})
 def test_html_copy_source(app):
     app.builder.build_all()
@@ -1570,8 +1593,7 @@ def test_html_codeblock_linenos_style_table(app):
     app.build()
     content = (app.outdir / 'index.html').read_text()
 
-    pygments_version = tuple(LooseVersion(pygments.__version__).version)
-    if pygments_version >= (2, 8):
+    if PYGMENTS_VERSION >= (2, 8):
         assert ('<div class="linenodiv"><pre><span class="normal">1</span>\n'
                 '<span class="normal">2</span>\n'
                 '<span class="normal">3</span>\n'
@@ -1586,8 +1608,7 @@ def test_html_codeblock_linenos_style_inline(app):
     app.build()
     content = (app.outdir / 'index.html').read_text()
 
-    pygments_version = tuple(LooseVersion(pygments.__version__).version)
-    if pygments_version > (2, 7):
+    if PYGMENTS_VERSION > (2, 7):
         assert '<span class="linenos">1</span>' in content
     else:
         assert '<span class="lineno">1 </span>' in content

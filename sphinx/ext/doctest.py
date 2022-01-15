@@ -5,7 +5,7 @@
     Mimic doctest by automatically executing code snippets and checking
     their results.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -422,7 +422,7 @@ Doctest summary
             def condition(node: Node) -> bool:
                 return isinstance(node, (nodes.literal_block, nodes.comment)) \
                     and 'testnodetype' in node
-        for node in doctree.traverse(condition):  # type: Element
+        for node in doctree.findall(condition):  # type: Element
             if self.skipped(node):
                 continue
 

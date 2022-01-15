@@ -4,7 +4,7 @@
 
     The image collector for sphinx.environment.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -43,7 +43,7 @@ class ImageCollector(EnvironmentCollector):
         """Process and rewrite image URIs."""
         docname = app.env.docname
 
-        for node in doctree.traverse(nodes.image):
+        for node in doctree.findall(nodes.image):
             # Map the mimetype to the corresponding image.  The writer may
             # choose the best image from these candidates.  The special key * is
             # set if there is only single candidate to be used by a writer.
@@ -124,7 +124,7 @@ class DownloadFileCollector(EnvironmentCollector):
 
     def process_doc(self, app: Sphinx, doctree: nodes.document) -> None:
         """Process downloadable file paths. """
-        for node in doctree.traverse(addnodes.download_reference):
+        for node in doctree.findall(addnodes.download_reference):
             targetname = node['reftarget']
             if '://' in targetname:
                 node['refuri'] = targetname

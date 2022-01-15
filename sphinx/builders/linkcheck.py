@@ -4,7 +4,7 @@
 
     The CheckExternalLinksBuilder class.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -43,18 +43,31 @@ logger = logging.getLogger(__name__)
 
 uri_re = re.compile('([a-z]+:)?//')  # matches to foo:// and // (a protocol relative URL)
 
-Hyperlink = NamedTuple('Hyperlink', (('uri', str),
-                                     ('docname', str),
-                                     ('lineno', Optional[int])))
-CheckRequest = NamedTuple('CheckRequest', (('next_check', float),
-                                           ('hyperlink', Optional[Hyperlink])))
-CheckResult = NamedTuple('CheckResult', (('uri', str),
-                                         ('docname', str),
-                                         ('lineno', int),
-                                         ('status', str),
-                                         ('message', str),
-                                         ('code', int)))
-RateLimit = NamedTuple('RateLimit', (('delay', float), ('next_check', float)))
+
+class Hyperlink(NamedTuple):
+    uri: str
+    docname: str
+    lineno: Optional[int]
+
+
+class CheckRequest(NamedTuple):
+    next_check: float
+    hyperlink: Optional[Hyperlink]
+
+
+class CheckResult(NamedTuple):
+    uri: str
+    docname: str
+    lineno: int
+    status: str
+    message: str
+    code: int
+
+
+class RateLimit(NamedTuple):
+    delay: float
+    next_check: float
+
 
 # Tuple is old styled CheckRequest
 CheckRequestType = Union[CheckRequest, Tuple[float, str, str, int]]
@@ -255,7 +268,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         elif result.status == 'broken':
             if self.app.quiet or self.app.warningiserror:
                 logger.warning(__('broken link: %s (%s)'), result.uri, result.message,
-                               location=(filename, result.lineno))
+                               location=(result.docname, result.lineno))
             else:
                 logger.info(red('broken    ') + result.uri + red(' - ' + result.message))
             self.write_entry('broken', result.docname, filename, result.lineno,
@@ -274,7 +287,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
             linkstat['text'] = text
             if self.config.linkcheck_allowed_redirects:
                 logger.warning('redirect  ' + result.uri + ' - ' + text + ' to ' +
-                               result.message, location=(filename, result.lineno))
+                               result.message, location=(result.docname, result.lineno))
             else:
                 logger.info(color('redirect  ') + result.uri +
                             color(' - ' + text + ' to ' + result.message))
@@ -378,6 +391,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
         self.anchors_ignore = [re.compile(x)
                                for x in self.config.linkcheck_anchors_ignore]
+        self.documents_exclude = [re.compile(doc)
+                                  for doc in self.config.linkcheck_exclude_documents]
         self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
                      in self.config.linkcheck_auth]
 
@@ -519,6 +534,15 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
         def check(docname: str) -> Tuple[str, str, int]:
             # check for various conditions without bothering the network
+
+            for doc_matcher in self.documents_exclude:
+                if doc_matcher.match(docname):
+                    info = (
+                        f'{docname} matched {doc_matcher.pattern} from '
+                        'linkcheck_exclude_documents'
+                    )
+                    return 'ignored', info, 0
+
             if len(uri) == 0 or uri.startswith(('#', 'mailto:', 'tel:')):
                 return 'unchecked', '', 0
             elif not uri.startswith(('http:', 'https:')):
@@ -639,7 +663,7 @@ class HyperlinkCollector(SphinxPostTransform):
         hyperlinks = builder.hyperlinks
 
         # reference nodes
-        for refnode in self.document.traverse(nodes.reference):
+        for refnode in self.document.findall(nodes.reference):
             if 'refuri' not in refnode:
                 continue
             uri = refnode['refuri']
@@ -653,7 +677,7 @@ class HyperlinkCollector(SphinxPostTransform):
                 hyperlinks[uri] = uri_info
 
         # image nodes
-        for imgnode in self.document.traverse(nodes.image):
+        for imgnode in self.document.findall(nodes.image):
             uri = imgnode['candidates'].get('?')
             if uri and '://' in uri:
                 newuri = self.app.emit_firstresult('linkcheck-process-uri', uri)
@@ -699,6 +723,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_post_transform(HyperlinkCollector)
 
     app.add_config_value('linkcheck_ignore', [], None)
+    app.add_config_value('linkcheck_exclude_documents', [], None)
     app.add_config_value('linkcheck_allowed_redirects', {}, None)
     app.add_config_value('linkcheck_auth', [], None)
     app.add_config_value('linkcheck_request_headers', {}, None)

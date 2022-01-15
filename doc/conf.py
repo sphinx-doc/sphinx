@@ -14,7 +14,7 @@ templates_path = ['_templates']
 exclude_patterns = ['_build']
 
 project = 'Sphinx'
-copyright = '2007-2021, Georg Brandl and the Sphinx team'
+copyright = '2007-2022, Georg Brandl and the Sphinx team'
 version = sphinx.__display_version__
 release = version
 show_authors = True
@@ -109,6 +109,7 @@ texinfo_documents = [
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3/', None),
     'requests': ('https://requests.readthedocs.io/en/master', None),
+    'readthedocs': ('https://docs.readthedocs.io/en/stable', None),
 }
 
 # Sphinx document translation with sphinx gettext feature uses these settings:
