@@ -66,6 +66,7 @@ Bugs fixed
 * #9909: HTML, prevent line-wrapping in literal text.
 * #10061: html theme: Configuration values added by themes are not be able to
   override from conf.py
+* #10073: imgconverter: Unnecessary availablity check is called for "data" URIs
 * #9925: LaTeX: prohibit also with ``'xelatex'`` line splitting at dashes of
   inline and parsed literals
 * #9944: LaTeX: extra vertical whitespace for some nested declarations
@@ -77,6 +78,7 @@ Bugs fixed
 * #9979: Error level messages were displayed as warning messages
 * #10057: Failed to scan documents if the project is placed onto the root
   directory
+
 
 Testing
 --------
