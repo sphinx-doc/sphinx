@@ -267,6 +267,18 @@ class GoogleDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
+        Returns:
+          Extended
+        """,
+        """
+        Single line summary
+
+        :returns: Extended
+        """
+    ), (
+        """
+        Single line summary
+
         Args:
           arg1(str):Extended
             description of arg1
