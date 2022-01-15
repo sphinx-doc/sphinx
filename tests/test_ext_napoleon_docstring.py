@@ -263,6 +263,19 @@ class GoogleDocstringTest(BaseDocstringTest):
         :returns: Extended
                   description of return value
         """
+    ),
+     (
+        """
+        Single line summary
+
+        Returns:
+          Extended
+        """,
+        """
+        Single line summary
+
+        :returns: Extended
+        """
     ), (
         """
         Single line summary
@@ -1118,7 +1131,7 @@ Methods:
 .. method:: func(i, j)
    :noindex:
 
-   
+
    description
 """  # NOQA
         config = Config()
