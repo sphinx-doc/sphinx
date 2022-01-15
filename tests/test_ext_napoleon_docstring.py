@@ -263,8 +263,7 @@ class GoogleDocstringTest(BaseDocstringTest):
         :returns: Extended
                   description of return value
         """
-    ),
-     (
+    ), (
         """
         Single line summary
 
