@@ -236,7 +236,7 @@ def isstaticmethod(obj: Any, cls: Any = None, name: str = None) -> bool:
 def isdescriptor(x: Any) -> bool:
     """Check if the object is some kind of descriptor."""
     for item in '__get__', '__set__', '__delete__':
-        if hasattr(safe_getattr(x, item, None), '__call__'):
+        if callable(safe_getattr(x, item, None)):
             return True
     return False
 

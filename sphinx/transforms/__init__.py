@@ -9,8 +9,9 @@
 """
 
 import re
+import unicodedata
 import warnings
-from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
@@ -405,6 +406,24 @@ class ManpageLink(SphinxTransform):
             node.attributes.update(info)
 
 
+class GlossarySorter(SphinxTransform):
+    """Sort glossaries that have the ``sorted`` flag."""
+    # This must be done after i18n, therefore not right
+    # away in the glossary directive.
+    default_priority = 500
+
+    def apply(self, **kwargs: Any) -> None:
+        for glossary in self.document.findall(addnodes.glossary):
+            if glossary["sorted"]:
+                definition_list = cast(nodes.definition_list, glossary[0])
+                definition_list[:] = sorted(
+                    definition_list,
+                    key=lambda item: unicodedata.normalize(
+                        'NFD',
+                        cast(nodes.term, item)[0].astext().lower())
+                )
+
+
 def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_transform(ApplySourceWorkaround)
     app.add_transform(ExtraTranslatableNodes)
@@ -420,6 +439,7 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_transform(SphinxSmartQuotes)
     app.add_transform(DoctreeReadEvent)
     app.add_transform(ManpageLink)
+    app.add_transform(GlossarySorter)
 
     return {
         'version': 'builtin',

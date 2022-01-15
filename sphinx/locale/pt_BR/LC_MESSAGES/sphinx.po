@@ -7,15 +7,15 @@
 # FIRST AUTHOR <roger.demetrescu@gmail.com>, 2008
 # gilberto dos santos alves <gsavix@gmail.com>, 2015-2016
 # Rafael Fontenelle <rafaelff@gnome.org>, 2019
-# Rafael Fontenelle <rffontenelle@gmail.com>, 2019-2021
+# Rafael Fontenelle <rffontenelle@gmail.com>, 2019-2022
 # Komiya Takeshi <i.tkomiya@gmail.com>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2022-01-02 00:12+0000\n"
-"PO-Revision-Date: 2022-01-02 00:12+0000\n"
-"Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
+"PO-Revision-Date: 2022-01-02 02:45+0000\n"
+"Last-Translator: Rafael Fontenelle <rffontenelle@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/sphinx-doc/sphinx-1/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -467,12 +467,12 @@ msgstr "Propostas Estendidas Python; PEP %s"
 #: sphinx/roles.py:193
 #, python-format
 msgid "invalid PEP number %s"
-msgstr ""
+msgstr "Número de PEP inválido %s"
 
 #: sphinx/roles.py:227
 #, python-format
 msgid "invalid RFC number %s"
-msgstr ""
+msgstr "Número de RFC inválido %s"
 
 #: sphinx/theming.py:80
 #, python-format
@@ -2856,7 +2856,7 @@ msgstr "faltando atributo %s no objeto %s"
 msgid ""
 "autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
 "%s"
-msgstr ""
+msgstr "autodoc: falhou em determinar %s.%s (%r) a ser documentado, a seguinte exceção foi levantada:\n%s"
 
 #: sphinx/ext/autodoc/__init__.py:908
 #, python-format
@@ -2978,7 +2978,7 @@ msgid ""
 "autosummary: failed to import %s.\n"
 "Possible hints:\n"
 "%s"
-msgstr ""
+msgstr "autosummary: falha ao importar %s\nPossíveis dicas:\n%s"
 
 #: sphinx/ext/autosummary/__init__.py:366
 #, python-format
@@ -3025,7 +3025,7 @@ msgid ""
 "[autosummary] failed to import %s.\n"
 "Possible hints:\n"
 "%s"
-msgstr ""
+msgstr "[autosummary] falha ao importar %s\nPossíveis dicas:\n%s"
 
 #: sphinx/ext/autosummary/generate.py:624
 msgid ""
@@ -3535,7 +3535,7 @@ msgstr "falhou"
 msgid ""
 "Problem in %s domain: field is supposed to use role '%s', but that role is "
 "not in the domain."
-msgstr ""
+msgstr "Problema no domínio %s: o campo deveria usar o papel \"%s\", mas esse papel não está no domínio."
 
 #: sphinx/util/docutils.py:213
 #, python-format

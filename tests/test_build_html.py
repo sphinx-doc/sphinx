@@ -99,7 +99,7 @@ def check_xpath(etree, fname, path, check, be_found=True):
     else:
         assert nodes != [], ('did not find any node matching xpath '
                              '%r in file %s' % (path, fname))
-    if hasattr(check, '__call__'):
+    if callable(check):
         check(nodes)
     elif not check:
         # only check for node presence
