@@ -316,7 +316,11 @@ General configuration
    * ``app.add_role``
    * ``app.add_generic_role``
    * ``app.add_source_parser``
+   * ``autosectionlabel.*``
    * ``download.not_readable``
+   * ``epub.unknown_project_files``
+   * ``epub.duplicated_toc_entry``
+   * ``i18n.inconsistent_references``
    * ``image.not_readable``
    * ``ref.term``
    * ``ref.ref``
@@ -332,11 +336,9 @@ General configuration
    * ``toc.excluded``
    * ``toc.not_readable``
    * ``toc.secnum``
-   * ``epub.unknown_project_files``
-   * ``epub.duplicated_toc_entry``
-   * ``autosectionlabel.*``
 
-   You can choose from these types.
+   You can choose from these types.  You can also give only the first
+   component to exclude all warnings attached to it.
 
    Now, this option should be considered *experimental*.
 
@@ -365,6 +367,10 @@ General configuration
    .. versionchanged:: 4.3
 
       Added ``toc.excluded`` and ``toc.not_readable``
+
+   .. versionadded:: 4.4
+
+      Added ``i18n.inconsistent_references``
 
 .. confval:: needs_sphinx
 

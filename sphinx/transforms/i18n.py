@@ -309,7 +309,7 @@ class Locale(SphinxTransform):
                 logger.warning(__('inconsistent footnote references in translated message.' +
                                   ' original: {0}, translated: {1}')
                                .format(old_foot_ref_rawsources, new_foot_ref_rawsources),
-                               location=node)
+                               location=node, type='i18n', subtype='inconsistent_references')
             old_foot_namerefs: Dict[str, List[nodes.footnote_reference]] = {}
             for r in old_foot_refs:
                 old_foot_namerefs.setdefault(r.get('refname'), []).append(r)
@@ -352,7 +352,7 @@ class Locale(SphinxTransform):
                 logger.warning(__('inconsistent references in translated message.' +
                                   ' original: {0}, translated: {1}')
                                .format(old_ref_rawsources, new_ref_rawsources),
-                               location=node)
+                               location=node, type='i18n', subtype='inconsistent_references')
             old_ref_names = [r['refname'] for r in old_refs]
             new_ref_names = [r['refname'] for r in new_refs]
             orphans = list(set(old_ref_names) - set(new_ref_names))
@@ -380,7 +380,7 @@ class Locale(SphinxTransform):
                 logger.warning(__('inconsistent footnote references in translated message.' +
                                   ' original: {0}, translated: {1}')
                                .format(old_foot_ref_rawsources, new_foot_ref_rawsources),
-                               location=node)
+                               location=node, type='i18n', subtype='inconsistent_references')
             for oldf in old_foot_refs:
                 refname_ids_map.setdefault(oldf["refname"], []).append(oldf["ids"])
             for newf in new_foot_refs:
@@ -399,7 +399,7 @@ class Locale(SphinxTransform):
                 logger.warning(__('inconsistent citation references in translated message.' +
                                   ' original: {0}, translated: {1}')
                                .format(old_cite_ref_rawsources, new_cite_ref_rawsources),
-                               location=node)
+                               location=node, type='i18n', subtype='inconsistent_references')
             for oldc in old_cite_refs:
                 refname_ids_map.setdefault(oldc["refname"], []).append(oldc["ids"])
             for newc in new_cite_refs:
@@ -419,7 +419,7 @@ class Locale(SphinxTransform):
                 logger.warning(__('inconsistent term references in translated message.' +
                                   ' original: {0}, translated: {1}')
                                .format(old_xref_rawsources, new_xref_rawsources),
-                               location=node)
+                               location=node, type='i18n', subtype='inconsistent_references')
 
             def get_ref_key(node: addnodes.pending_xref) -> Optional[Tuple[str, str, str]]:
                 case = node["refdomain"], node["reftype"]
