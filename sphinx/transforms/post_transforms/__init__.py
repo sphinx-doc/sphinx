@@ -83,6 +83,8 @@ class ReferencesResolver(SphinxPostTransform):
             domain = None
 
             try:
+                if target.startswith(':'):
+                    target = refdoc.lower() + target
                 if 'refdomain' in node and node['refdomain']:
                     # let the domain try to resolve the reference
                     try:
