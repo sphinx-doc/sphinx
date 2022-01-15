@@ -35,9 +35,9 @@
 
 
 - a function with explicit inventory:
-  :external:inv+c:func:`CFunc`
+  :external+inv:c:func:`CFunc`
 - a class with explicit non-existing inventory, which also has upper-case in name:
-  :external:invNope+cpp:class:`foo::Bar`
+  :external+invNope:cpp:class:`foo::Bar`
 
 
 - explicit title:

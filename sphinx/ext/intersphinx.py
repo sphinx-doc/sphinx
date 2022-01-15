@@ -473,12 +473,12 @@ def missing_reference(app: Sphinx, env: BuildEnvironment, node: pending_xref,
 class IntersphinxDispatcher(CustomReSTDispatcher):
     """Custom dispatcher for external role.
 
-    This enables :external:***: roles on parsing reST document.
+    This enables :external:***:/:external+***: roles on parsing reST document.
     """
 
     def role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter
              ) -> Tuple[RoleFunction, List[system_message]]:
-        if role_name.split(':')[0] == 'external':
+        if len(role_name) > 9 and role_name.startswith('external') and role_name[8] in ':+':
             return IntersphinxRole(role_name), []
         else:
             return super().role(role_name, language_module, lineno, reporter)
@@ -510,17 +510,23 @@ class IntersphinxRole(SphinxRole):
 
         return result, messages
 
-    def get_inventory_and_name_suffix(self, name: str) -> Tuple[Optional[str], Optional[str]]:
-        assert name.startswith('external:'), name
+    def get_inventory_and_name_suffix(self, name: str) -> Tuple[Optional[str], str]:
+        assert name.startswith('external'), name
+        assert name[8] in ':+', name
+        typ = name[8]
         name = name[9:]
-        inv_names = name.split('+')
-        inventory = None
-        if len(inv_names) > 1:
-            # inv+role
-            # inv+domain:role
-            inventory = inv_names[0]
-            name = name[len(inventory) + 1:]
-        return inventory, name
+        if typ == '+':
+            # we have an explicit inventory name, i.e,
+            # :external+inv:role:        or
+            # :external+inv:domain:role:
+            inv, name = name.split(':', 1)
+            return inv, name
+        else:
+            assert typ == ':'
+            # we look in all inventories, i.e.,
+            # :external:role:        or
+            # :external:domain:role:
+            return None, name
 
     def get_role_name(self, name: str) -> Optional[Tuple[str, str]]:
         names = name.split(':')
