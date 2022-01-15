@@ -312,7 +312,7 @@ class TexinfoTranslator(SphinxTranslator):
             del node_menus[top['node_name']]
             top['node_name'] = 'Top'
         # handle the indices
-        for name, content in self.indices:
+        for name, _content in self.indices:
             node_menus[name] = []
             node_menus['Top'].append(name)
 
@@ -320,7 +320,7 @@ class TexinfoTranslator(SphinxTranslator):
         """Collect the relative links (next, previous, up) for each "node"."""
         rellinks = self.rellinks
         node_menus = self.node_menus
-        for id, entries in node_menus.items():
+        for id in node_menus:
             rellinks[id] = ['', '', '']
         # up's
         for id, entries in node_menus.items():
@@ -466,7 +466,7 @@ class TexinfoTranslator(SphinxTranslator):
     def collect_indices(self) -> None:
         def generate(content: List[Tuple[str, List[IndexEntry]]], collapsed: bool) -> str:
             ret = ['\n@menu\n']
-            for letter, entries in content:
+            for _letter, entries in content:
                 for entry in entries:
                     if not entry[3]:
                         continue
@@ -1018,7 +1018,7 @@ class TexinfoTranslator(SphinxTranslator):
         if len(self.colwidths) != self.n_cols:
             return
         self.body.append('\n\n@multitable ')
-        for i, n in enumerate(self.colwidths):
+        for n in self.colwidths:
             self.body.append('{%s} ' % ('x' * (n + 2)))
 
     def depart_colspec(self, node: Element) -> None:
@@ -1054,7 +1054,7 @@ class TexinfoTranslator(SphinxTranslator):
         self.entry_sep = '@tab'
 
     def depart_entry(self, node: Element) -> None:
-        for i in range(node.get('morecols', 0)):
+        for _i in range(node.get('morecols', 0)):
             self.body.append('\n@tab\n')
 
     # -- Field Lists

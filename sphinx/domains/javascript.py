@@ -385,10 +385,10 @@ class JavaScriptDomain(Domain):
         self.modules[modname] = (self.env.docname, node_id)
 
     def clear_doc(self, docname: str) -> None:
-        for fullname, (pkg_docname, node_id, _l) in list(self.objects.items()):
+        for fullname, (pkg_docname, _node_id, _l) in list(self.objects.items()):
             if pkg_docname == docname:
                 del self.objects[fullname]
-        for modname, (pkg_docname, node_id) in list(self.modules.items()):
+        for modname, (pkg_docname, _node_id) in list(self.modules.items()):
             if pkg_docname == docname:
                 del self.modules[modname]
 

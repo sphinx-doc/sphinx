@@ -1508,7 +1508,7 @@ class LaTeXTranslator(SphinxTranslator):
         if not node.get('inline', True):
             self.body.append(CR)
         entries = node['entries']
-        for type, string, tid, ismain, key_ in entries:
+        for type, string, _tid, ismain, _key in entries:
             m = ''
             if ismain:
                 m = '|spxpagem'
@@ -1976,7 +1976,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def depart_container(self, node: Element) -> None:
         classes = node.get('classes', [])
-        for c in classes:
+        for _c in classes:
             self.body.append('\n\\end{sphinxuseclass}')
 
     def visit_decoration(self, node: Element) -> None:

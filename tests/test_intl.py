@@ -47,7 +47,7 @@ def write_mo(pathname, po):
 @pytest.fixture(autouse=True)
 def setup_intl(app_params):
     srcdir = path(app_params.kwargs['srcdir'])
-    for dirpath, dirs, files in os.walk(srcdir):
+    for dirpath, _dirs, files in os.walk(srcdir):
         dirpath = path(dirpath)
         for f in [f for f in files if f.endswith('.po')]:
             po = dirpath / f

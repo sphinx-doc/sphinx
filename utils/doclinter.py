@@ -69,7 +69,7 @@ def main(args: List[str]) -> int:
         if os.path.isfile(path):
             errors += lint(path)
         elif os.path.isdir(path):
-            for root, dirs, files in os.walk(path):
+            for root, _dirs, files in os.walk(path):
                 for filename in files:
                     if filename.endswith('.rst'):
                         path = os.path.join(root, filename)

@@ -562,7 +562,7 @@ class Builder:
         for chunk in status_iterator(chunks, __('writing output... '), "darkgreen",
                                      len(chunks), self.app.verbosity):
             arg = []
-            for i, docname in enumerate(chunk):
+            for docname in chunk:
                 doctree = self.env.get_and_resolve_doctree(docname, self)
                 self.write_doc_serialized(docname, doctree)
                 arg.append((docname, doctree))

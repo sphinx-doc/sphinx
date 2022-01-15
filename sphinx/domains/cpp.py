@@ -6873,7 +6873,7 @@ class DefinitionParser(BaseParser):
                 self.warn(msg)
 
             newTemplates: List[Union[ASTTemplateParams, ASTTemplateIntroduction]] = []
-            for i in range(numExtra):
+            for _i in range(numExtra):
                 newTemplates.append(ASTTemplateParams([]))
             if templatePrefix and not isMemberInstantiation:
                 newTemplates.extend(templatePrefix.templates)
@@ -7579,7 +7579,7 @@ class CPPAliasObject(ObjectDescription):
                            " need 'maxdepth' 0 for infinite or at least 2.",
                            location=self.get_location())
         signatures = self.get_signatures()
-        for i, sig in enumerate(signatures):
+        for sig in signatures:
             node.append(AliasNode(sig, aliasOptions, env=self.env))
 
         contentnode = addnodes.desc_content()

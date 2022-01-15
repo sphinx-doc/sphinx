@@ -318,7 +318,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
 
     def get_modules(obj: Any) -> Tuple[List[str], List[str]]:
         items: List[str] = []
-        for _, modname, ispkg in pkgutil.iter_modules(obj.__path__):
+        for _, modname, _ispkg in pkgutil.iter_modules(obj.__path__):
             fullname = name + '.' + modname
             try:
                 module = import_module(fullname)

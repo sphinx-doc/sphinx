@@ -3654,8 +3654,7 @@ class CAliasObject(ObjectDescription):
                            " When skipping the root declaration,"
                            " need 'maxdepth' 0 for infinite or at least 2.",
                            location=self.get_location())
-        signatures = self.get_signatures()
-        for i, sig in enumerate(signatures):
+        for sig in self.get_signatures():
             node.append(AliasNode(sig, aliasOptions, self.state.document, env=self.env))
         return [node]
 

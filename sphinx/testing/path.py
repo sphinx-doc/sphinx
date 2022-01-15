@@ -115,7 +115,7 @@ class path(str):
             # as well.  To avoid failures when adding additional files/directories
             # to the destination tree, ensure destination directories are not marked
             # read-only.
-            for root, dirs, files in os.walk(destination):
+            for root, _dirs, files in os.walk(destination):
                 os.chmod(root, 0o755 & ~UMASK)
                 for name in files:
                     os.chmod(os.path.join(root, name), 0o644 & ~UMASK)
