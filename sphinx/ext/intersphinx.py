@@ -476,9 +476,6 @@ class IntersphinxDispatcher(CustomReSTDispatcher):
     This enables :external:***: roles on parsing reST document.
     """
 
-    def __init__(self) -> None:
-        super().__init__()
-
     def role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter
              ) -> Tuple[RoleFunction, List[system_message]]:
         if role_name.split(':')[0] == 'external':
