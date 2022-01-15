@@ -43,6 +43,7 @@ Features added
 * #10055: sphinx-build: Create directories when ``-w`` option given
 * #9993: std domain: Allow to refer an inline target (ex. ``_`target name```)
   via :rst:role:`ref` role
+* #9981: std domain: Strip value part of the option directive from general index
 * #9391: texinfo: improve variable in ``samp`` role
 * #9578: texinfo: Add :confval:`texinfo_cross_references` to disable cross
   references for readability with standalone readers
