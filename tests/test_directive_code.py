@@ -581,6 +581,7 @@ def test_linenothreshold(app, status, warning):
     assert ('<span></span><span class="c1"># Very small literal include '
             '(linenothreshold check)</span>' in html)
 
+
 @pytest.mark.sphinx('dummy', testroot='directive-code')
 def test_code_block_dedent(app, status, warning):
     app.builder.build(['dedent'])
