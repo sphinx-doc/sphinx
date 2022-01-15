@@ -78,7 +78,7 @@ Bugs fixed
 * #9979: Error level messages were displayed as warning messages
 * #10057: Failed to scan documents if the project is placed onto the root
   directory
-
+* #9636: code-block: ``:dedent:`` without argument did strip newlines
 
 Testing
 --------

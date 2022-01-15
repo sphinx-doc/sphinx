@@ -598,6 +598,7 @@ __ https://pygments.org/docs/lexers
       are removed via :func:`textwrap.dedent()`.  For example::
 
          .. code-block:: ruby
+            :linenos:
             :dedent: 4
 
                 some ruby code
