@@ -479,7 +479,7 @@ class IntersphinxDispatcher(CustomReSTDispatcher):
 
     def role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter
              ) -> Tuple[RoleFunction, List[system_message]]:
-        if len(role_name) > 9 and role_name.startswith('external') and role_name[8] in ':+':
+        if len(role_name) > 9 and role_name.startswith(('external:', 'external+')):
             return IntersphinxRole(role_name), []
         else:
             return super().role(role_name, language_module, lineno, reporter)
@@ -525,7 +525,8 @@ class IntersphinxRole(SphinxRole):
         # or we look in all inventories, i.e.,
         # :external:role:            or
         # :external:domain:role:
-        return IntersphinxRole._re_inv_ref.fullmatch(name, 8).group(2, 3)
+        inv, suffix = IntersphinxRole._re_inv_ref.fullmatch(name, 8).group(2, 3)
+        return inv, suffix
 
     def get_role_name(self, name: str) -> Optional[Tuple[str, str]]:
         names = name.split(':')
