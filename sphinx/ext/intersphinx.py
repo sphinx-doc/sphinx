@@ -26,6 +26,7 @@
 import concurrent.futures
 import functools
 import posixpath
+import re
 import sys
 import time
 from os import path
@@ -485,6 +486,11 @@ class IntersphinxDispatcher(CustomReSTDispatcher):
 
 
 class IntersphinxRole(SphinxRole):
+    # group 1: just for the optionality of the inventory name
+    # group 2: the inventory name (optional)
+    # group 3: the domain:role or role part
+    _re_inv_ref = re.compile(r"(\+([^:]+))?:(.*)")
+
     def __init__(self, orig_name: str) -> None:
         self.orig_name = orig_name
 
@@ -513,20 +519,13 @@ class IntersphinxRole(SphinxRole):
     def get_inventory_and_name_suffix(self, name: str) -> Tuple[Optional[str], str]:
         assert name.startswith('external'), name
         assert name[8] in ':+', name
-        typ = name[8]
-        name = name[9:]
-        if typ == '+':
-            # we have an explicit inventory name, i.e,
-            # :external+inv:role:        or
-            # :external+inv:domain:role:
-            inv, name = name.split(':', 1)
-            return inv, name
-        else:
-            assert typ == ':'
-            # we look in all inventories, i.e.,
-            # :external:role:        or
-            # :external:domain:role:
-            return None, name
+        # either we have an explicit inventory name, i.e,
+        # :external+inv:role:        or
+        # :external+inv:domain:role:
+        # or we look in all inventories, i.e.,
+        # :external:role:            or
+        # :external:domain:role:
+        return IntersphinxRole._re_inv_ref.fullmatch(name, 8).group(2, 3)
 
     def get_role_name(self, name: str) -> Optional[Tuple[str, str]]:
         names = name.split(':')
