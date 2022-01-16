@@ -342,7 +342,7 @@ class Only(SphinxDirective):
             # be placed in the doctree.
             n_sects_to_raise = current_depth - nested_depth + 1
             parent = cast(nodes.Element, self.state.parent)
-            for i in range(n_sects_to_raise):
+            for _i in range(n_sects_to_raise):
                 if parent.parent:
                     parent = parent.parent
             parent.append(node)

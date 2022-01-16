@@ -114,7 +114,7 @@ class BuildDoc(Command):
         for guess in ('doc', 'docs'):
             if not os.path.isdir(guess):
                 continue
-            for root, dirnames, filenames in os.walk(guess):
+            for root, _dirnames, filenames in os.walk(guess):
                 if 'conf.py' in filenames:
                     return root
         return os.curdir

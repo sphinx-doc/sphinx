@@ -213,7 +213,7 @@ class HyperlinkAvailabilityChecker:
         self.to_ignore = [re.compile(x) for x in self.config.linkcheck_ignore]
 
     def invoke_threads(self) -> None:
-        for i in range(self.config.linkcheck_workers):
+        for _i in range(self.config.linkcheck_workers):
             thread = HyperlinkAvailabilityCheckWorker(self.env, self.config,
                                                       self.rqueue, self.wqueue,
                                                       self.rate_limits)
@@ -222,7 +222,7 @@ class HyperlinkAvailabilityChecker:
 
     def shutdown_threads(self) -> None:
         self.wqueue.join()
-        for worker in self.workers:
+        for _worker in self.workers:
             self.wqueue.put(CheckRequest(CHECK_IMMEDIATELY, None), False)
 
     def check(self, hyperlinks: Dict[str, Hyperlink]) -> Generator[CheckResult, None, None]:

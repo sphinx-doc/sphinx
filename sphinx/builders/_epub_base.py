@@ -377,14 +377,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Fix href attributes for genindex pages."""
         # XXX: modifies tree inline
         # Logic modeled from themes/basic/genindex.html
-        for key, columns in tree:
-            for entryname, (links, subitems, key_) in columns:
+        for _key, columns in tree:
+            for _entryname, (links, subitems, _key) in columns:
                 for (i, (ismain, link)) in enumerate(links):
                     m = self.refuri_re.match(link)
                     if m:
                         links[i] = (ismain,
                                     self.fix_fragment(m.group(1), m.group(2)))
-                for subentryname, subentrylinks in subitems:
+                for _subentryname, subentrylinks in subitems:
                     for (i, (ismain, link)) in enumerate(subentrylinks):
                         m = self.refuri_re.match(link)
                         if m:

@@ -227,7 +227,7 @@ def walk(rootpath: str, excludes: List[str], opts: Any
 
 def has_child_module(rootpath: str, excludes: List[str], opts: Any) -> bool:
     """Check the given directory contains child module/s (at least one)."""
-    for root, subs, files in walk(rootpath, excludes, opts):
+    for _root, _subs, files in walk(rootpath, excludes, opts):
         if files:
             return True
 

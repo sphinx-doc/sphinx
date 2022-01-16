@@ -66,7 +66,7 @@ class ExternalLinksChecker(SphinxPostTransform):
 
         uri = refnode['refuri']
 
-        for alias, (base_uri, caption) in self.app.config.extlinks.items():
+        for alias, (base_uri, _caption) in self.app.config.extlinks.items():
             uri_pattern = re.compile(base_uri.replace('%s', '(?P<value>.+)'))
             match = uri_pattern.match(uri)
             if match and match.groupdict().get('value'):

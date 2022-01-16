@@ -177,7 +177,7 @@ class TocTreeCollector(EnvironmentCollector):
         def _walk_toctree(toctreenode: addnodes.toctree, depth: int) -> None:
             if depth == 0:
                 return
-            for (title, ref) in toctreenode['entries']:
+            for (_title, ref) in toctreenode['entries']:
                 if url_re.match(ref) or ref == 'self':
                     # don't mess with those
                     continue
@@ -261,7 +261,7 @@ class TocTreeCollector(EnvironmentCollector):
                     else:
                         _walk_doctree(docname, subnode, secnum)
                 elif isinstance(subnode, addnodes.toctree):
-                    for title, subdocname in subnode['entries']:
+                    for _title, subdocname in subnode['entries']:
                         if url_re.match(subdocname) or subdocname == 'self':
                             # don't mess with those
                             continue

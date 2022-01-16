@@ -167,8 +167,8 @@ class Table:
     @property
     def cells(self) -> Generator[Cell, None, None]:
         seen: Set[Cell] = set()
-        for lineno, line in enumerate(self.lines):
-            for colno, cell in enumerate(line):
+        for line in self.lines:
+            for cell in line:
                 if cell and cell not in seen:
                     yield cell
                     seen.add(cell)

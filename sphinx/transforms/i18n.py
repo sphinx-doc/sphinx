@@ -462,7 +462,7 @@ class Locale(SphinxTransform):
             # Extract and translate messages for index entries.
             for node, entries in traverse_translatable_index(self.document):
                 new_entries: List[Tuple[str, str, str, str, str]] = []
-                for type, msg, tid, main, key_ in entries:
+                for type, msg, tid, main, _key in entries:
                     msg_parts = split_index_msg(type, msg)
                     msgstr_parts = []
                     for part in msg_parts:

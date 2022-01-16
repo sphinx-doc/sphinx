@@ -48,7 +48,7 @@ class CitationDomain(Domain):
         return self.data.setdefault('citation_refs', {})
 
     def clear_doc(self, docname: str) -> None:
-        for key, (fn, _l, lineno) in list(self.citations.items()):
+        for key, (fn, _l, _lineno) in list(self.citations.items()):
             if fn == docname:
                 del self.citations[key]
         for key, docnames in list(self.citation_refs.items()):
@@ -81,7 +81,7 @@ class CitationDomain(Domain):
         docnames.add(self.env.docname)
 
     def check_consistency(self) -> None:
-        for name, (docname, labelid, lineno) in self.citations.items():
+        for name, (docname, _labelid, lineno) in self.citations.items():
             if name not in self.citation_refs:
                 logger.warning(__('Citation [%s] is not referenced.'), name,
                                type='ref', subtype='citation', location=(docname, lineno))

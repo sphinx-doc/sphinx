@@ -119,7 +119,7 @@ def process_autosummary_toc(app: Sphinx, doctree: nodes.document) -> None:
 
     def crawl_toc(node: Element, depth: int = 1) -> None:
         crawled[node] = True
-        for j, subnode in enumerate(node):
+        for subnode in node:
             try:
                 if (isinstance(subnode, autosummary_toc) and
                         isinstance(subnode[0], addnodes.toctree)):
@@ -271,7 +271,7 @@ class Autosummary(SphinxDirective):
             docnames = []
             excluded = Matcher(self.config.exclude_patterns)
             filename_map = self.config.autosummary_filename_map
-            for name, sig, summary, real_name in items:
+            for _name, _sig, _summary, real_name in items:
                 real_name = filename_map.get(real_name, real_name)
                 docname = posixpath.join(tree_prefix, real_name)
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
@@ -610,7 +610,7 @@ def limited_join(sep: str, items: List[str], max_chars: int = 30,
 
     n_chars = 0
     n_items = 0
-    for j, item in enumerate(items):
+    for item in items:
         n_chars += len(item) + len(sep)
         if n_chars < max_chars - len(overflow_marker):
             n_items += 1

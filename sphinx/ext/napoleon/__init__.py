@@ -288,7 +288,7 @@ class Config:
     }
 
     def __init__(self, **settings: Any) -> None:
-        for name, (default, rebuild) in self._config_values.items():
+        for name, (default, _rebuild) in self._config_values.items():
             setattr(self, name, default)
         for name, value in settings.items():
             setattr(self, name, value)

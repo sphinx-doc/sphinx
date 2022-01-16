@@ -178,7 +178,7 @@ _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
 
 
 def find_files(root: str, suffix: bool = None) -> Generator[str, None, None]:
-    for dirpath, dirs, files in os.walk(root, followlinks=True):
+    for dirpath, _dirs, files in os.walk(root, followlinks=True):
         dirpath = path(dirpath)
         for f in [f for f in files if not suffix or f.endswith(suffix)]:  # type: ignore
             fpath = dirpath / f
