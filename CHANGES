@@ -1,17 +1,11 @@
-Release 4.4.0 (in development)
-==============================
+Release 4.4.0 (released Jan 17, 2022)
+=====================================
 
 Dependencies
 ------------
 
 * #10007: Use ``importlib_metadata`` for python-3.9 or older
 * #10007: Drop ``setuptools``
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
 
 Features added
 --------------
@@ -84,30 +78,6 @@ Bugs fixed
 * #10057: Failed to scan documents if the project is placed onto the root
   directory
 * #9636: code-block: ``:dedent:`` without argument did strip newlines
-
-Testing
---------
-
-Release 4.3.3 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
 
 Release 4.3.2 (released Dec 19, 2021)
 =====================================
