@@ -47,6 +47,8 @@ Features added
 * #9391: texinfo: improve variable in ``samp`` role
 * #9578: texinfo: Add :confval:`texinfo_cross_references` to disable cross
   references for readability with standalone readers
+* #9822 (and #9062), add new Intersphinx role :rst:role:`external` for explict
+  lookup in the external projects, without resolving to the local project.
 
 Bugs fixed
 ----------
