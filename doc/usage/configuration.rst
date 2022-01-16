@@ -1351,6 +1351,13 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 1.0
 
+.. confval:: html_show_search_summary
+
+   If true, the text around the keyword is shown as summary of each search result.
+   Default is ``True``.
+
+   .. versionadded:: 4.5
+
 .. confval:: html_show_sphinx
 
    If true, "Created using Sphinx" is shown in the HTML footer.  Default is

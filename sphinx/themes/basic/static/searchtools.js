@@ -276,7 +276,7 @@ var Search = {
           setTimeout(function() {
             displayNextItem();
           }, 5);
-        } else if (DOCUMENTATION_OPTIONS.HAS_SOURCE) {
+        } else if (DOCUMENTATION_OPTIONS.SHOW_SEARCH_SUMMARY) {
           $.ajax({url: requestUrl,
                   dataType: "text",
                   complete: function(jqxhr, textstatus) {
@@ -293,7 +293,7 @@ var Search = {
                     }, 5);
                   }});
         } else {
-          // no source available, just display title
+          // just display title
           Search.output.append(listItem);
           setTimeout(function() {
             displayNextItem();
