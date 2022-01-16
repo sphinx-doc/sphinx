@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-02 00:12+0000\n"
+"POT-Creation-Date: 2022-01-09 00:12+0000\n"
 "PO-Revision-Date: 2022-01-05 10:17+0000\n"
 "Last-Translator: YT H <dev@theYT.net>\n"
 "Language-Team: Korean (http://www.transifex.com/sphinx-doc/sphinx-1/language/ko/)\n"
@@ -1858,7 +1858,7 @@ msgstr ".. acks 내용이 목록이 아닙니다"
 msgid ".. hlist content is not a list"
 msgstr ".. hlist 내용이 목록이 아닙니다"
 
-#: sphinx/directives/patches.py:118
+#: sphinx/directives/patches.py:117
 msgid ""
 "\":file:\" option for csv-table directive now recognizes an absolute path as"
 " a relative path from source directory. Please update your document."
@@ -2842,7 +2842,7 @@ msgstr "auto%s (%r)에 대한 잘못된 서명"
 msgid "error while formatting arguments for %s: %s"
 msgstr "%s에 대한 인수를 서식화하는 동안 오류 발생: %s"
 
-#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1695
+#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1699
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr "%s 속성이 %s 객체에 없음"
@@ -2895,7 +2895,7 @@ msgid ""
 msgstr ":members: 옵션에 언급된 속성이 없습니다: 모듈 %s, 속성 %s"
 
 #: sphinx/ext/autodoc/__init__.py:1308 sphinx/ext/autodoc/__init__.py:1385
-#: sphinx/ext/autodoc/__init__.py:2770
+#: sphinx/ext/autodoc/__init__.py:2791
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "%s에 대한 함수 서명을 가져오지 못했습니다: %s"
@@ -2905,33 +2905,33 @@ msgstr "%s에 대한 함수 서명을 가져오지 못했습니다: %s"
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr "%s에 대한 생성자 서명을 가져오지 못했습니다: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1682
+#: sphinx/ext/autodoc/__init__.py:1686
 #, python-format
 msgid "Bases: %s"
 msgstr "기반 클래스: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1776 sphinx/ext/autodoc/__init__.py:1849
-#: sphinx/ext/autodoc/__init__.py:1868
+#: sphinx/ext/autodoc/__init__.py:1784 sphinx/ext/autodoc/__init__.py:1862
+#: sphinx/ext/autodoc/__init__.py:1885
 #, python-format
 msgid "alias of %s"
 msgstr "%s의 별칭"
 
-#: sphinx/ext/autodoc/__init__.py:1910
+#: sphinx/ext/autodoc/__init__.py:1931
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr "TypeVar(%s)의 별칭"
 
-#: sphinx/ext/autodoc/__init__.py:2146 sphinx/ext/autodoc/__init__.py:2243
+#: sphinx/ext/autodoc/__init__.py:2167 sphinx/ext/autodoc/__init__.py:2264
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr "%s에 대한 메소드 서명을 가져오지 못했습니다: %s"
 
-#: sphinx/ext/autodoc/__init__.py:2374
+#: sphinx/ext/autodoc/__init__.py:2395
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "%s에서 잘못된 __slots__ 가 발견되었습니다. 무시합니다."
 
-#: sphinx/ext/autodoc/__init__.py:2813
+#: sphinx/ext/autodoc/__init__.py:2834
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
@@ -3453,25 +3453,25 @@ msgstr "각주 [%s]이(가) 참조되지 않았습니다."
 msgid "Footnote [#] is not referenced."
 msgstr "각주 [#]이 참조되지 않았습니다."
 
-#: sphinx/transforms/i18n.py:304 sphinx/transforms/i18n.py:375
+#: sphinx/transforms/i18n.py:309 sphinx/transforms/i18n.py:380
 msgid ""
 "inconsistent footnote references in translated message. original: {0}, "
 "translated: {1}"
 msgstr "번역된 메시지의 각주 참조가 일치하지 않습니다. 원본: {0}, 번역: {1}"
 
-#: sphinx/transforms/i18n.py:347
+#: sphinx/transforms/i18n.py:352
 msgid ""
 "inconsistent references in translated message. original: {0}, translated: "
 "{1}"
 msgstr "번역된 메시지의 참조가 일치하지 않습니다. 원본: {0}, 번역: {1}"
 
-#: sphinx/transforms/i18n.py:394
+#: sphinx/transforms/i18n.py:399
 msgid ""
 "inconsistent citation references in translated message. original: {0}, "
 "translated: {1}"
 msgstr "번역된 메시지의 인용 참조가 일치하지 않습니다. 원본: {0}, 번역: {1}"
 
-#: sphinx/transforms/i18n.py:414
+#: sphinx/transforms/i18n.py:419
 msgid ""
 "inconsistent term references in translated message. original: {0}, "
 "translated: {1}"
@@ -3565,12 +3565,12 @@ msgid ""
 "it directly: %s"
 msgstr "잘못된 날짜 형식입니다. 바로 출력하려면 작은 따옴표로 문자열을 인용하십시오: %s"
 
-#: sphinx/util/nodes.py:429
+#: sphinx/util/nodes.py:437
 #, python-format
 msgid "toctree contains ref to nonexisting file %r"
 msgstr "toctree에 존재하지 않는 파일 %r에 대한 참조가 있음"
 
-#: sphinx/util/nodes.py:615
+#: sphinx/util/nodes.py:623
 #, python-format
 msgid "exception while evaluating only directive expression: %s"
 msgstr "only 지시문 식을 평가하는 동안 예외 발생: %s"
