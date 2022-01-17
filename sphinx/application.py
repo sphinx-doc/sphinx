@@ -328,33 +328,7 @@ class Sphinx:
                 self.builder.compile_update_catalogs()
                 self.builder.build_update()
 
-            if self._warncount and self.keep_going:
-                self.statuscode = 1
-
-            status = (__('succeeded') if self.statuscode == 0
-                      else __('finished with problems'))
-            if self._warncount:
-                if self.warningiserror:
-                    if self._warncount == 1:
-                        msg = __('build %s, %s warning (with warnings treated as errors).')
-                    else:
-                        msg = __('build %s, %s warnings (with warnings treated as errors).')
-                else:
-                    if self._warncount == 1:
-                        msg = __('build %s, %s warning.')
-                    else:
-                        msg = __('build %s, %s warnings.')
-
-                logger.info(bold(msg % (status, self._warncount)))
-            else:
-                logger.info(bold(__('build %s.') % status))
-
-            if self.statuscode == 0 and self.builder.epilog:
-                logger.info('')
-                logger.info(self.builder.epilog % {
-                    'outdir': relpath(self.outdir),
-                    'project': self.config.project
-                })
+            self.events.emit('build-finished', None)
         except Exception as err:
             # delete the saved env to force a fresh build next time
             envfile = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
@@ -362,8 +336,35 @@ class Sphinx:
                 os.unlink(envfile)
             self.events.emit('build-finished', err)
             raise
+
+        if self._warncount and self.keep_going:
+            self.statuscode = 1
+
+        status = (__('succeeded') if self.statuscode == 0
+                  else __('finished with problems'))
+        if self._warncount:
+            if self.warningiserror:
+                if self._warncount == 1:
+                    msg = __('build %s, %s warning (with warnings treated as errors).')
+                else:
+                    msg = __('build %s, %s warnings (with warnings treated as errors).')
+            else:
+                if self._warncount == 1:
+                    msg = __('build %s, %s warning.')
+                else:
+                    msg = __('build %s, %s warnings.')
+
+            logger.info(bold(msg % (status, self._warncount)))
         else:
-            self.events.emit('build-finished', None)
+            logger.info(bold(__('build %s.') % status))
+
+        if self.statuscode == 0 and self.builder.epilog:
+            logger.info('')
+            logger.info(self.builder.epilog % {
+                'outdir': relpath(self.outdir),
+                'project': self.config.project
+            })
+
         self.builder.cleanup()
 
     # ---- general extensibility interface -------------------------------------

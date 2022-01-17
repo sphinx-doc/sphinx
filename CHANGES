@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #10110: sphinx-build: exit code is not changed when error is raised on
+  builder-finished event
+
 Testing
 --------
 
