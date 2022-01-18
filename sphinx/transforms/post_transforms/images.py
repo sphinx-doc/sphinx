@@ -197,11 +197,10 @@ class ImageConverter(BaseImageConverter):
     def match(self, node: nodes.image) -> bool:
         if not self.app.builder.supported_image_types:
             return False
+        elif '?' in node['candidates']:
+            return False
         elif set(self.guess_mimetypes(node)) & set(self.app.builder.supported_image_types):
             # builder supports the image; no need to convert
-            return False
-        elif node['uri'].startswith('data:'):
-            # all data URI MIME types are assumed to be supported
             return False
         elif self.available is None:
             # store the value to the class variable to share it during the build
