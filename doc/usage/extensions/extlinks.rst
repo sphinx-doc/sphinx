@@ -59,3 +59,10 @@ The extension adds a config value:
 
    Since links are generated from the role in the reading stage, they appear as
    ordinary links to e.g. the ``linkcheck`` builder.
+
+.. versionchanged:: 4.4.0
+
+   Added warning on hardcoded links that could be replaced with an extlink.
+   This can be disabled with::
+
+      suppress_warnings = ["extlink.hardcoded"]

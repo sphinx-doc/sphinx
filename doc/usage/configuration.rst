@@ -317,6 +317,7 @@ General configuration
    * ``app.add_generic_role``
    * ``app.add_source_parser``
    * ``download.not_readable``
+   * ``extlink.hardcoded``
    * ``image.not_readable``
    * ``ref.term``
    * ``ref.ref``
