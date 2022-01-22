@@ -160,11 +160,11 @@ Read the Docs
 ~~~~~~~~~~~~~
 
 `Read the Docs`_ offers integration with both GitHub and GitLab. The quickest
-way of getting started is to follow :doc:`the RTD
-tutorial <readthedocs:tutorial/index>`, which is loosely based on this one.
+way of getting started is to follow :external+readthedocs:doc:`the RTD
+tutorial <tutorial/index>`, which is loosely based on this one.
 You can publish your sources on GitHub as explained :ref:`in the previous
 section <publishing-sources>`, then skip directly to
-:ref:`readthedocs:tutorial/index:Sign up for Read the Docs`.
+:external+readthedocs:ref:`tutorial/index:Sign up for Read the Docs`.
 If you choose GitLab instead, the process is similar.
 
 GitHub Pages

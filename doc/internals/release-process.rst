@@ -76,12 +76,12 @@ Sphinx 2.x:
 
 * Sphinx 2.x will contain a backwards-compatible replica of the function
   which will raise a ``RemovedInSphinx40Warning``.
-  This is a subclass of :exc:`python:PendingDeprecationWarning`, i.e. it
-  will not get displayed by default.
+  This is a subclass of :external+python::exc:`PendingDeprecationWarning`,
+  i.e., it will not get displayed by default.
 
 * Sphinx 3.x will still contain the backwards-compatible replica, but
   ``RemovedInSphinx40Warning`` will be a subclass of
-  :exc:`python:DeprecationWarning` then, and gets displayed by default.
+  :external+python:exc:`DeprecationWarning` then, and gets displayed by default.
 
 * Sphinx 4.0 will remove the feature outright.
 
@@ -89,16 +89,17 @@ Deprecation warnings
 ~~~~~~~~~~~~~~~~~~~~
 
 Sphinx will enable its ``RemovedInNextVersionWarning`` warnings by default, if
-:envvar:`python:PYTHONWARNINGS` is not set.  Therefore you can disable them
-using:
+:external+python:envvar:`PYTHONWARNINGS` is not set.  Therefore you can disable
+them using:
 
 * ``PYTHONWARNINGS= make html`` (Linux/Mac)
 * ``export PYTHONWARNINGS=`` and do ``make html`` (Linux/Mac)
 * ``set PYTHONWARNINGS=`` and do ``make html`` (Windows)
 
 But you can also explicitly enable the pending ones using e.g.
-``PYTHONWARNINGS=default`` (see the :ref:`Python docs on configuring warnings
-<python:describing-warning-filters>`) for more details.
+``PYTHONWARNINGS=default``
+(see the :external+python:ref:`Python docs on configuring warnings
+<describing-warning-filters>`) for more details.
 
 Release procedures
 ------------------

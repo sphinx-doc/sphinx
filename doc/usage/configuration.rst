@@ -2664,8 +2664,9 @@ Options for the linkcheck builder
      A regular expression that matches a URI.
    *auth_info*
      Authentication information to use for that URI. The value can be anything
-     that is understood by the ``requests`` library (see :ref:`requests
-     Authentication <requests:authentication>` for details).
+     that is understood by the ``requests`` library
+     (see :external+requests:ref:`requests Authentication <authentication>` for
+     details).
 
    The ``linkcheck`` builder will use the first matching ``auth_info`` value
    it can find in the :confval:`linkcheck_auth` list, so values earlier in the
