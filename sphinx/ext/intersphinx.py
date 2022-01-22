@@ -497,10 +497,14 @@ class IntersphinxRole(SphinxRole):
     def run(self) -> Tuple[List[Node], List[system_message]]:
         assert self.name == self.orig_name.lower()
         inventory, name_suffix = self.get_inventory_and_name_suffix(self.orig_name)
-        if inventory and not inventory_exists(self.env, inventory):
-            logger.warning(__('inventory for external cross-reference not found: %s'),
-                           inventory, location=(self.env.docname, self.lineno))
-            return [], []
+        self_map = self.env.config.intersphinx_self_mapping
+        is_self_ref = self_map is not None and self_map == inventory
+
+        if not is_self_ref:
+            if inventory is not None and not inventory_exists(self.env, inventory):
+                logger.warning(__('inventory for external cross-reference not found: %s'),
+                               inventory, location=(self.env.docname, self.lineno))
+                return [], []
 
         role_name = self.get_role_name(name_suffix)
         if role_name is None:
@@ -509,10 +513,14 @@ class IntersphinxRole(SphinxRole):
             return [], []
 
         result, messages = self.invoke_role(role_name)
-        for node in result:
-            if isinstance(node, pending_xref):
-                node['intersphinx'] = True
-                node['inventory'] = inventory
+
+        if not is_self_ref:
+            # we do the intersphinx resolution by hijacking the nodes,
+            # so only do that when it's not a special self ref.
+            for node in result:
+                if isinstance(node, pending_xref):
+                    node['intersphinx'] = True
+                    node['inventory'] = inventory
 
         return result, messages
 
@@ -635,6 +643,7 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
 
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('intersphinx_mapping', {}, True)
+    app.add_config_value('intersphinx_self_mapping', None, True)
     app.add_config_value('intersphinx_cache_limit', 5, False)
     app.add_config_value('intersphinx_timeout', None, False)
     app.add_config_value('intersphinx_disabled_reftypes', [], True)
