@@ -46,6 +46,7 @@ def set_config(app, mapping):
     app.config.intersphinx_mapping = mapping
     app.config.intersphinx_cache_limit = 0
     app.config.intersphinx_disabled_reftypes = []
+    app.config.intersphinx_warn_on_deprecated_inv_spec = True
 
 
 @mock.patch('sphinx.ext.intersphinx.InventoryFile')

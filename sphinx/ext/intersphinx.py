@@ -195,7 +195,7 @@ def fetch_inventory(app: Sphinx, uri: str, inv: Any) -> Any:
 
 
 def fetch_inventory_group(
-    name: str, uri: str, invs: Any, cache: Any, app: Any, now: float
+        name: str, uri: str, invs: Any, cache: Any, app: Any, now: float
 ) -> bool:
     cache_time = now - app.config.intersphinx_cache_limit * 86400
     failures = []
@@ -461,6 +461,11 @@ def resolve_reference_detect_inventory(env: BuildEnvironment,
     node['reftarget'] = newtarget
     res_inv = resolve_reference_in_inventory(env, inv_name, node, contnode)
     node['reftarget'] = target
+    if res_inv is not None and env.config.intersphinx_warn_on_deprecated_inv_spec:
+        msg = __('intersphinx inventory specification format'
+                 ' ":role:`invName:target`" is deprecated.'
+                 ' Use the "external" role instead, e.g., ":external+invName:role:`target`".')
+        logger.warning(msg, location=node)
     return res_inv
 
 
@@ -638,6 +643,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('intersphinx_cache_limit', 5, False)
     app.add_config_value('intersphinx_timeout', None, False)
     app.add_config_value('intersphinx_disabled_reftypes', [], True)
+    app.add_config_value('intersphinx_warn_on_deprecated_inv_spec', True, False)
     app.connect('config-inited', normalize_intersphinx_mapping, priority=800)
     app.connect('builder-inited', load_mappings)
     app.connect('source-read', install_dispatcher)
@@ -687,6 +693,7 @@ def inspect_main(argv: List[str]) -> None:
 
 if __name__ == '__main__':
     import logging as _logging
+
     _logging.basicConfig()
 
     inspect_main(argv=sys.argv[1:])
