@@ -1933,7 +1933,10 @@ class TypeVarMixin(DataDocumenterMixinBase):
         if isinstance(self.object, TypeVar):
             attrs = [repr(self.object.__name__)]
             for constraint in self.object.__constraints__:
-                attrs.append(stringify_typehint(constraint))
+                if self.config.autodoc_typehints_format == "short":
+                    attrs.append(stringify_typehint(constraint, "smart"))
+                else:
+                    attrs.append(stringify_typehint(constraint))
             if self.object.__bound__:
                 if self.config.autodoc_typehints_format == "short":
                     bound = restify(self.object.__bound__, "smart")
@@ -2055,7 +2058,11 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
                 annotations = get_type_hints(self.parent, None,
                                              self.config.autodoc_type_aliases)
                 if self.objpath[-1] in annotations:
-                    objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
+                    if self.config.autodoc_typehints_format == "short":
+                        objrepr = stringify_typehint(annotations.get(self.objpath[-1]),
+                                                     "smart")
+                    else:
+                        objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
                     self.add_line('   :type: ' + objrepr, sourcename)
 
             try:
@@ -2677,7 +2684,11 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
                 annotations = get_type_hints(self.parent, None,
                                              self.config.autodoc_type_aliases)
                 if self.objpath[-1] in annotations:
-                    objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
+                    if self.config.autodoc_typehints_format == "short":
+                        objrepr = stringify_typehint(annotations.get(self.objpath[-1]),
+                                                     "smart")
+                    else:
+                        objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
                     self.add_line('   :type: ' + objrepr, sourcename)
 
             try:
@@ -2802,7 +2813,10 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
                 signature = inspect.signature(func,
                                               type_aliases=self.config.autodoc_type_aliases)
                 if signature.return_annotation is not Parameter.empty:
-                    objrepr = stringify_typehint(signature.return_annotation)
+                    if self.config.autodoc_typehints_format == "short":
+                        objrepr = stringify_typehint(signature.return_annotation, "smart")
+                    else:
+                        objrepr = stringify_typehint(signature.return_annotation)
                     self.add_line('   :type: ' + objrepr, sourcename)
             except TypeError as exc:
                 logger.warning(__("Failed to get a function signature for %s: %s"),
