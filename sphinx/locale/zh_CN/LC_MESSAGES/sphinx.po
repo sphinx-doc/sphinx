@@ -12,6 +12,7 @@
 # Nomaka <nomakacyx@gmail.com>, 2018
 # Lenville Leo <lenville@gmail.com>, 2013
 # Lenville Leo <lenville@gmail.com>, 2013
+# Lu <lu2github@gmail.com>, 2022
 # Nomaka <nomakacyx@gmail.com>, 2018
 # Ryekee Zhong <ryekee@gmail.com>, 2013
 # Komiya Takeshi <i.tkomiya@gmail.com>, 2019,2021
@@ -24,8 +25,8 @@ msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2022-01-16 00:12+0000\n"
-"PO-Revision-Date: 2022-01-10 05:20+0000\n"
-"Last-Translator: JY3\n"
+"PO-Revision-Date: 2022-01-20 05:42+0000\n"
+"Last-Translator: Lu <lu2github@gmail.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/sphinx-doc/sphinx-1/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -42,7 +43,7 @@ msgstr "无法找到源码目录 (%s)"
 #: sphinx/application.py:160
 #, python-format
 msgid "Output directory (%s) is not a directory"
-msgstr ""
+msgstr "输出目录（%s）不是一个目录"
 
 #: sphinx/application.py:164
 msgid "Source directory and destination directory cannot be identical"
@@ -290,7 +291,7 @@ msgstr "未找到 primary_domain %r，已忽略。"
 msgid ""
 "Since v2.0, Sphinx uses \"index\" as root_doc by default. Please add "
 "\"root_doc = 'contents'\" to your conf.py."
-msgstr ""
+msgstr "从 v2.0, Sphinx 默认使用 \"index\" 作为 root_doc。请在你的 conf.py 添加 \"root_doc = 'contents'\"。"
 
 #: sphinx/events.py:67
 #, python-format
@@ -305,7 +306,7 @@ msgstr "未知事件名称：%s"
 #: sphinx/events.py:109
 #, python-format
 msgid "Handler %r for event %r threw an exception"
-msgstr ""
+msgstr "%r Handler 对事件 %r 抛出了异常"
 
 #: sphinx/extension.py:52
 #, python-format
@@ -336,7 +337,7 @@ msgstr "无法按照“%s”语言的词法解析代码块，跳过语法高亮�
 msgid ""
 "multiple files found for the document \"%s\": %r\n"
 "Use %r for the build."
-msgstr ""
+msgstr "为 \"%s\" 找到了多个文件： %r\n使用 %r 进行构建。"
 
 #: sphinx/project.py:59
 msgid "document not readable. Ignored."
@@ -430,7 +431,7 @@ msgstr "可数节点 %r 已注册"
 #: sphinx/registry.py:411
 #, python-format
 msgid "math renderer %s is already registered"
-msgstr ""
+msgstr "公式渲染器 %s 已注册"
 
 #: sphinx/registry.py:424
 #, python-format
@@ -477,12 +478,12 @@ msgstr "Python 提高建议; PEP %s"
 #: sphinx/roles.py:193
 #, python-format
 msgid "invalid PEP number %s"
-msgstr ""
+msgstr "无效的 PEP 编号%s"
 
 #: sphinx/roles.py:227
 #, python-format
 msgid "invalid RFC number %s"
-msgstr ""
+msgstr "无效的 RFC 编号 %s"
 
 #: sphinx/theming.py:80
 #, python-format
@@ -517,7 +518,7 @@ msgstr "主题路径指定的文件 %r 是一个无效的或不包含主题的  
 #: sphinx/theming.py:244
 msgid ""
 "sphinx_rtd_theme (< 0.3.0) found. It will not be available since Sphinx-6.0"
-msgstr ""
+msgstr "检测到 sphinx_rtd_theme (< 0.3.0) 。它从 Sphinx-6.0 后不再可用"
 
 #: sphinx/theming.py:249
 #, python-format
