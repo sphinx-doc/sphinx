@@ -116,6 +116,7 @@ def restify(cls: Optional[Type], mode: str = 'fully-qualified-except-typing') ->
                  'smart'
                      Show the name of the annotation.
     """
+    from sphinx.ext.autodoc.mock import ismock, ismockmodule  # lazy loading
     from sphinx.util import inspect  # lazy loading
 
     if mode == 'smart':
@@ -130,6 +131,10 @@ def restify(cls: Optional[Type], mode: str = 'fully-qualified-except-typing') ->
             return '...'
         elif isinstance(cls, str):
             return cls
+        elif ismockmodule(cls):
+            return ':py:class:`%s%s`' % (modprefix, cls.__name__)
+        elif ismock(cls):
+            return ':py:class:`%s%s.%s`' % (modprefix, cls.__module__, cls.__name__)
         elif cls in INVALID_BUILTIN_CLASSES:
             return ':py:class:`%s%s`' % (modprefix, INVALID_BUILTIN_CLASSES[cls])
         elif inspect.isNewType(cls):
@@ -335,6 +340,7 @@ def stringify(annotation: Any, mode: str = 'fully-qualified-except-typing') -> s
                  'fully-qualified'
                      Show the module name and qualified name of the annotation.
     """
+    from sphinx.ext.autodoc.mock import ismock, ismockmodule  # lazy loading
     from sphinx.util import inspect  # lazy loading
 
     if mode == 'smart':
@@ -364,6 +370,10 @@ def stringify(annotation: Any, mode: str = 'fully-qualified-except-typing') -> s
         return repr(annotation)
     elif annotation is NoneType:
         return 'None'
+    elif ismockmodule(annotation):
+        return modprefix + annotation.__name__
+    elif ismock(annotation):
+        return modprefix + '%s.%s' % (annotation.__module__, annotation.__name__)
     elif annotation in INVALID_BUILTIN_CLASSES:
         return modprefix + INVALID_BUILTIN_CLASSES[annotation]
     elif str(annotation).startswith('typing.Annotated'):  # for py310+

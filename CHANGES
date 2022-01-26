@@ -19,6 +19,8 @@ Features added
 Bugs fixed
 ----------
 
+* #10133: autodoc: Crashed when mocked module is used for type annotation
+
 Testing
 --------
 
