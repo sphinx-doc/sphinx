@@ -6,7 +6,7 @@
     Classes for docstring parsing and formatting.
 
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -769,12 +769,9 @@ class GoogleDocstring:
     def _parse_returns_section(self, section: str) -> List[str]:
         fields = self._consume_returns_section()
         multi = len(fields) > 1
-        if multi:
-            use_rtype = False
-        else:
-            use_rtype = self._config.napoleon_use_rtype
-
+        use_rtype = False if multi else self._config.napoleon_use_rtype
         lines: List[str] = []
+
         for _name, _type, _desc in fields:
             if use_rtype:
                 field = self._format_field(_name, '', _desc)
@@ -787,7 +784,8 @@ class GoogleDocstring:
                 else:
                     lines.extend(self._format_block(':returns: * ', field))
             else:
-                lines.extend(self._format_block(':returns: ', field))
+                if any(field):  # only add :returns: if there's something to say
+                    lines.extend(self._format_block(':returns: ', field))
                 if _type and use_rtype:
                     lines.extend([':rtype: %s' % _type, ''])
         if lines and lines[-1]:

@@ -5,7 +5,7 @@
     Tests for :mod:`sphinx.ext.napoleon.docstring` module.
 
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -262,6 +262,18 @@ class GoogleDocstringTest(BaseDocstringTest):
 
         :returns: Extended
                   description of return value
+        """
+    ), (
+        """
+        Single line summary
+
+        Returns:
+          Extended
+        """,
+        """
+        Single line summary
+
+        :returns: Extended
         """
     ), (
         """

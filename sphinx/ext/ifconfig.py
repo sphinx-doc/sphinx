@@ -15,7 +15,7 @@
     namespace of the project configuration (that is, all variables from
     ``conf.py`` are available.)
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -56,7 +56,7 @@ def process_ifconfig_nodes(app: Sphinx, doctree: nodes.document, docname: str) -
     ns = {confval.name: confval.value for confval in app.config}
     ns.update(app.config.__dict__.copy())
     ns['builder'] = app.builder.name
-    for node in doctree.traverse(ifconfig):
+    for node in doctree.findall(ifconfig):
         try:
             res = eval(node['expr'], ns)
         except Exception as err:

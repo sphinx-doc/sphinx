@@ -4,7 +4,7 @@
 
     docutils writers handling Sphinx' custom nodes.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -434,12 +434,12 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
            node.parent.hasattr('ids') and node.parent['ids']):
             # add permalink anchor
             if close_tag.startswith('</h'):
-                self.add_permalink_ref(node.parent, _('Permalink to this headline'))
+                self.add_permalink_ref(node.parent, _('Permalink to this heading'))
             elif close_tag.startswith('</a></h'):
                 self.body.append('</a><a class="headerlink" href="#%s" ' %
                                  node.parent['ids'][0] +
                                  'title="%s">%s' % (
-                                     _('Permalink to this headline'),
+                                     _('Permalink to this heading'),
                                      self.config.html_permalinks_icon))
             elif isinstance(node.parent, nodes.table):
                 self.body.append('</span>')
@@ -875,9 +875,6 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         _, depart = self.builder.app.registry.html_block_math_renderers[name]
         if depart:
             depart(self, node)
-
-    def unknown_visit(self, node: Node) -> None:
-        raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
 
     @property
     def _fieldlist_row_index(self):

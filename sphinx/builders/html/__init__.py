@@ -4,7 +4,7 @@
 
     Several HTML builders.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -329,7 +329,7 @@ class StandaloneHTMLBuilder(Builder):
             attrs.setdefault('priority', 800)  # User's JSs are loaded after extensions'
             self.add_js_file(filename, **attrs)
 
-        if self.config.language and self._get_translations_js():
+        if self._get_translations_js():
             self.add_js_file('translations.js')
 
     def add_js_file(self, filename: str, **kwargs: Any) -> None:
@@ -434,8 +434,6 @@ class StandaloneHTMLBuilder(Builder):
         if self.search:
             from sphinx.search import IndexBuilder
             lang = self.config.html_search_language or self.config.language
-            if not lang:
-                lang = 'en'
             self.indexer = IndexBuilder(self.env, lang,
                                         self.config.html_search_options,
                                         self.config.html_search_scorer)
@@ -489,7 +487,7 @@ class StandaloneHTMLBuilder(Builder):
         rellinks: List[Tuple[str, str, str, str]] = []
         if self.use_index:
             rellinks.append(('genindex', _('General Index'), 'I', _('index')))
-        for indexname, indexcls, content, collapse in self.domain_indices:
+        for indexname, indexcls, _content, _collapse in self.domain_indices:
             # if it has a short name
             if indexcls.shortname:
                 rellinks.append((indexname, indexcls.localname,
@@ -770,10 +768,9 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_translation_js(self) -> None:
         """Copy a JavaScript file for translations."""
-        if self.config.language is not None:
-            jsfile = self._get_translations_js()
-            if jsfile:
-                copyfile(jsfile, path.join(self.outdir, '_static', 'translations.js'))
+        jsfile = self._get_translations_js()
+        if jsfile:
+            copyfile(jsfile, path.join(self.outdir, '_static', 'translations.js'))
 
     def copy_stemmer_js(self) -> None:
         """Copy a JavaScript file for stemmer."""
@@ -869,7 +866,7 @@ class StandaloneHTMLBuilder(Builder):
         Builder.post_process_images(self, doctree)
 
         if self.config.html_scaled_image_link and self.html_scaled_image_link:
-            for node in doctree.traverse(nodes.image):
+            for node in doctree.findall(nodes.image):
                 if not any((key in node) for key in ['scale', 'width', 'height']):
                     # resizing options are not given. scaled image link is available
                     # only for resized images.

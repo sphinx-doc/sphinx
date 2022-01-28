@@ -21,7 +21,7 @@
 
     Both, the url string and the caption string must escape ``%`` as ``%%``.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -53,7 +53,7 @@ class ExternalLinksChecker(SphinxPostTransform):
     default_priority = 500
 
     def run(self, **kwargs: Any) -> None:
-        for refnode in self.document.traverse(nodes.reference):
+        for refnode in self.document.findall(nodes.reference):
             self.check_uri(refnode)
 
     def check_uri(self, refnode: nodes.reference) -> None:
@@ -66,7 +66,7 @@ class ExternalLinksChecker(SphinxPostTransform):
 
         uri = refnode['refuri']
 
-        for alias, (base_uri, caption) in self.app.config.extlinks.items():
+        for alias, (base_uri, _caption) in self.app.config.extlinks.items():
             uri_pattern = re.compile(base_uri.replace('%s', '(?P<value>.+)'))
             match = uri_pattern.match(uri)
             if match and match.groupdict().get('value'):

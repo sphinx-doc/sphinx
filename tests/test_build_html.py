@@ -4,7 +4,7 @@
 
     Test the HTML builder and check output against XPath.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -99,7 +99,7 @@ def check_xpath(etree, fname, path, check, be_found=True):
     else:
         assert nodes != [], ('did not find any node matching xpath '
                              '%r in file %s' % (path, fname))
-    if hasattr(check, '__call__'):
+    if callable(check):
         check(nodes)
     elif not check:
         # only check for node presence
@@ -1195,6 +1195,20 @@ def test_assets_order(app):
     assert re.search(pattern, content, re.S)
 
 
+@pytest.mark.sphinx('html', testroot='html_assets')
+def test_javscript_loading_method(app):
+    app.add_js_file('normal.js')
+    app.add_js_file('early.js', loading_method='async')
+    app.add_js_file('late.js', loading_method='defer')
+
+    app.builder.build_all()
+    content = (app.outdir / 'index.html').read_text()
+
+    assert '<script src="_static/normal.js"></script>' in content
+    assert '<script async="async" src="_static/early.js"></script>' in content
+    assert '<script defer="defer" src="_static/late.js"></script>' in content
+
+
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_copy_source': False})
 def test_html_copy_source(app):
     app.builder.build_all()
@@ -1650,7 +1664,7 @@ def test_html_permalink_icon(app):
 
     assert ('<h1>The basic Sphinx documentation for testing<a class="headerlink" '
             'href="#the-basic-sphinx-documentation-for-testing" '
-            'title="Permalink to this headline"><span>[PERMALINK]</span></a></h1>' in content)
+            'title="Permalink to this heading"><span>[PERMALINK]</span></a></h1>' in content)
 
 
 @pytest.mark.sphinx('html', testroot='html_signaturereturn_icon')

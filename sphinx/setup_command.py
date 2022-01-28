@@ -7,12 +7,13 @@
 
     :author: Sebastian Wiesner
     :contact: basti.wiesner@gmx.net
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import sys
+import warnings
 from distutils.cmd import Command
 from distutils.errors import DistutilsExecError
 from io import StringIO
@@ -20,6 +21,7 @@ from typing import Any, Dict
 
 from sphinx.application import Sphinx
 from sphinx.cmd.build import handle_exception
+from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.util.console import color_terminal, nocolor
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath
@@ -112,7 +114,7 @@ class BuildDoc(Command):
         for guess in ('doc', 'docs'):
             if not os.path.isdir(guess):
                 continue
-            for root, dirnames, filenames in os.walk(guess):
+            for root, _dirnames, filenames in os.walk(guess):
                 if 'conf.py' in filenames:
                     return root
         return os.curdir
@@ -140,6 +142,9 @@ class BuildDoc(Command):
             for builder in self.builder]
 
     def run(self) -> None:
+        warnings.warn('setup.py build_sphinx is deprecated.',
+                      RemovedInSphinx70Warning, stacklevel=2)
+
         if not color_terminal():
             nocolor()
         if not self.verbose:  # type: ignore

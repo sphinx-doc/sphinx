@@ -4,7 +4,7 @@
 
     Index entries adapters for sphinx.environment.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -55,7 +55,7 @@ class IndexEntries:
         domain = cast(IndexDomain, self.env.get_domain('index'))
         for fn, entries in domain.entries.items():
             # new entry types must be listed in directives/other.py!
-            for type, value, tid, main, index_key in entries:
+            for type, value, tid, main, index_key in entries:  # noqa: B007
                 try:
                     if type == 'single':
                         try:

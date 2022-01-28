@@ -4,7 +4,7 @@
 
     Simple requests package loader
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -24,10 +24,10 @@ try:
 except ImportError:
     try:
         # for Debian-jessie
-        from urllib3.exceptions import InsecureRequestWarning  # type: ignore
+        from urllib3.exceptions import InsecureRequestWarning
     except ImportError:
         # for requests < 2.4.0
-        InsecureRequestWarning = None  # type: ignore
+        InsecureRequestWarning = None
 
 
 useragent_header = [('User-Agent',

@@ -4,7 +4,7 @@
 
     Logging utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -375,12 +375,8 @@ def is_suppressed_warning(type: str, subtype: str, suppress_warnings: List[str])
         else:
             target, subtarget = warning_type, None
 
-        if target == type:
-            if ((subtype is None and subtarget is None) or
-                    subtarget is None or
-                    subtarget == subtype or
-                    subtarget == '*'):
-                return True
+        if target == type and subtarget in (None, subtype, "*"):
+            return True
 
     return False
 

@@ -4,7 +4,7 @@
 
     The index domain.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -48,7 +48,7 @@ class IndexDomain(Domain):
     def process_doc(self, env: BuildEnvironment, docname: str, document: Node) -> None:
         """Process a document after it is read by the environment."""
         entries = self.entries.setdefault(env.docname, [])
-        for node in list(document.traverse(addnodes.index)):
+        for node in list(document.findall(addnodes.index)):
             try:
                 for entry in node['entries']:
                     split_index_msg(entry[0], entry[1])

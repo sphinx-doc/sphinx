@@ -2,7 +2,7 @@
     sphinx.testing.path
     ~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -115,7 +115,7 @@ class path(str):
             # as well.  To avoid failures when adding additional files/directories
             # to the destination tree, ensure destination directories are not marked
             # read-only.
-            for root, dirs, files in os.walk(destination):
+            for root, _dirs, files in os.walk(destination):
                 os.chmod(root, 0o755 & ~UMASK)
                 for name in files:
                     os.chmod(os.path.join(root, name), 0o644 & ~UMASK)

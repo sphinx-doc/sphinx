@@ -4,7 +4,7 @@
 
     The C++ language domain.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -776,7 +776,7 @@ class ASTNestedName(ASTBase):
             assert len(self.names) == 1
             assert not self.templates[0]
             self.names[0].describe_signature(signode, 'param', env, '', symbol)
-        elif mode == 'markType' or mode == 'lastIsName' or mode == 'markName':
+        elif mode in ('markType', 'lastIsName', 'markName'):
             # Each element should be a pending xref targeting the complete
             # prefix. however, only the identifier part should be a link, such
             # that template args can be a link as well.
@@ -5385,7 +5385,7 @@ class DefinitionParser(BaseParser):
         postFixes: List[ASTPostfixOp] = []
         while True:
             self.skip_ws()
-            if prefixType in ['expr', 'cast', 'typeid']:
+            if prefixType in ('expr', 'cast', 'typeid'):
                 if self.skip_string_and_ws('['):
                     expr = self._parse_expression()
                     self.skip_ws()
@@ -6873,7 +6873,7 @@ class DefinitionParser(BaseParser):
                 self.warn(msg)
 
             newTemplates: List[Union[ASTTemplateParams, ASTTemplateIntroduction]] = []
-            for i in range(numExtra):
+            for _i in range(numExtra):
                 newTemplates.append(ASTTemplateParams([]))
             if templatePrefix and not isMemberInstantiation:
                 newTemplates.extend(templatePrefix.templates)
@@ -7459,7 +7459,7 @@ class AliasTransform(SphinxTransform):
         return nodes
 
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.traverse(AliasNode):
+        for node in self.document.findall(AliasNode):
             node = cast(AliasNode, node)
             sig = node.sig
             parentKey = node.parentKey
@@ -7579,7 +7579,7 @@ class CPPAliasObject(ObjectDescription):
                            " need 'maxdepth' 0 for infinite or at least 2.",
                            location=self.get_location())
         signatures = self.get_signatures()
-        for i, sig in enumerate(signatures):
+        for sig in signatures:
             node.append(AliasNode(sig, aliasOptions, env=self.env))
 
         contentnode = addnodes.desc_content()
@@ -7781,7 +7781,7 @@ class CPPDomain(Domain):
                             typ: str, target: str, node: pending_xref,
                             contnode: Element) -> Tuple[Optional[Element], Optional[str]]:
         # add parens again for those that could be functions
-        if typ == 'any' or typ == 'func':
+        if typ in ('any', 'func'):
             target += '()'
         parser = DefinitionParser(target, location=node, config=env.config)
         try:
@@ -7902,7 +7902,7 @@ class CPPDomain(Domain):
                     if (env.config.add_function_parentheses and typ == 'func' and
                             title.endswith('operator()')):
                         addParen += 1
-                    if ((typ == 'any' or typ == 'func') and
+                    if (typ in ('any', 'func') and
                             title.endswith('operator') and
                             displayName.endswith('operator()')):
                         addParen += 1

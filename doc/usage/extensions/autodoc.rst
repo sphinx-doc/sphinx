@@ -662,12 +662,20 @@ There are also config values that you can set:
    .. __: https://mypy.readthedocs.io/en/latest/kinds_of_types.html#type-aliases
    .. versionadded:: 3.3
 
-.. confval:: autodoc_unqualified_typehints
+.. confval:: autodoc_typehints_format
 
-   If True, the leading module names of typehints of function signatures are
-   removed (ex.  ``io.StringIO`` -> ``StringIO``).  Defaults to False.
+   This value controls the format of typehints.  The setting takes the
+   following values:
+
+   * ``'fully-qualified'`` -- Show the module name and its name of typehints
+   * ``'short'`` -- Suppress the leading module names of the typehints
+     (ex. ``io.StringIO`` -> ``StringIO``)  (default)
 
    .. versionadded:: 4.4
+
+   .. versionchanged:: 5.0
+
+      The default setting was changed to ``'short'``
 
 .. confval:: autodoc_preserve_defaults
 

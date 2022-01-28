@@ -4,7 +4,7 @@
 
     Operating system-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -72,7 +72,7 @@ def ensuredir(path: str) -> None:
 
 def mtimes_of_files(dirnames: List[str], suffix: str) -> Iterator[float]:
     for dirname in dirnames:
-        for root, dirs, files in os.walk(dirname):
+        for root, _dirs, files in os.walk(dirname):
             for sfile in files:
                 if sfile.endswith(suffix):
                     try:

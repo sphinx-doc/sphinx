@@ -4,7 +4,7 @@
 
     The reStructuredText domain.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -235,7 +235,7 @@ class ReSTDomain(Domain):
         self.objects[objtype, name] = (self.env.docname, node_id)
 
     def clear_doc(self, docname: str) -> None:
-        for (typ, name), (doc, node_id) in list(self.objects.items()):
+        for (typ, name), (doc, _node_id) in list(self.objects.items()):
             if doc == docname:
                 del self.objects[typ, name]
 

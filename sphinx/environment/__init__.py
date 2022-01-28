@@ -4,7 +4,7 @@
 
     Global creation environment.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -261,7 +261,7 @@ class BuildEnvironment:
         """Update settings by new config."""
         self.settings['input_encoding'] = config.source_encoding
         self.settings['trim_footnote_reference_space'] = config.trim_footnote_reference_space
-        self.settings['language_code'] = config.language or 'en'
+        self.settings['language_code'] = config.language
 
         # Allow to disable by 3rd party extension (workaround)
         self.settings.setdefault('smart_quotes', True)
@@ -535,7 +535,7 @@ class BuildEnvironment:
         self.apply_post_transforms(doctree, docname)
 
         # now, resolve all toctree nodes
-        for toctreenode in doctree.traverse(addnodes.toctree):
+        for toctreenode in doctree.findall(addnodes.toctree):
             result = TocTree(self).resolve(docname, builder, toctreenode,
                                            prune=prune_toctrees,
                                            includehidden=includehidden)

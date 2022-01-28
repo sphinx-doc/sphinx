@@ -4,7 +4,7 @@
  *
  * Base JavaScript utilities for all Sphinx HTML documentation.
  *
- * :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -169,6 +169,8 @@ const Documentation = {
     document
       .querySelectorAll("span.highlighted")
       .forEach((el) => el.classList.remove("highlighted"));
+    new URLSearchParams(window.location.search).delete('highlight')
+    window.history.replaceState({}, '', url);
   },
 
   /**

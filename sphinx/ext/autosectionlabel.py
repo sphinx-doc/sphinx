@@ -4,7 +4,7 @@
 
     Allow reference sections by :ref: role using its title.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -33,7 +33,7 @@ def get_node_depth(node: Node) -> int:
 
 def register_sections_as_label(app: Sphinx, document: Node) -> None:
     domain = cast(StandardDomain, app.env.get_domain('std'))
-    for node in document.traverse(nodes.section):
+    for node in document.findall(nodes.section):
         if (app.config.autosectionlabel_maxdepth and
                 get_node_depth(node) >= app.config.autosectionlabel_maxdepth):
             continue

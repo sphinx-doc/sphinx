@@ -7,7 +7,7 @@
     Much of this code is adapted from Dave Kuhlman's "docpy" writer from his
     docutils sandbox.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -333,7 +333,7 @@ class LaTeXTranslator(SphinxTranslator):
         if self.config.numfig and self.config.math_numfig:
             sphinxpkgoptions.append('mathnumfig')
 
-        if (self.config.language not in {None, 'en', 'ja'} and
+        if (self.config.language not in {'en', 'ja'} and
                 'fncychap' not in self.config.latex_elements):
             # use Sonny style if any language specified (except English)
             self.elements['fncychap'] = (r'\usepackage[Sonny]{fncychap}' + CR +
@@ -341,7 +341,7 @@ class LaTeXTranslator(SphinxTranslator):
                                          r'\ChTitleVar{\Large\normalfont\sffamily}')
 
         self.babel = self.builder.babel
-        if self.config.language and not self.babel.is_supported_language():
+        if not self.babel.is_supported_language():
             # emit warning if specified language is invalid
             # (only emitting, nothing changed to processing)
             logger.warning(__('no Babel option known for language %r'),
@@ -608,7 +608,7 @@ class LaTeXTranslator(SphinxTranslator):
                 raise nodes.SkipNode
             else:
                 short = ''
-                if list(node.traverse(nodes.image)):
+                if any(node.findall(nodes.image)):
                     short = ('[%s]' % self.escape(' '.join(clean_astext(node).split())))
 
                 try:
@@ -966,7 +966,7 @@ class LaTeXTranslator(SphinxTranslator):
             context = (r'\par' + CR + r'\vskip-\baselineskip'
                        r'\vbox{\hbox{\strut}}\end{varwidth}%' + CR + context)
             self.needs_linetrimming = 1
-        if len(list(node.traverse(nodes.paragraph))) >= 2:
+        if len(list(node.findall(nodes.paragraph))) >= 2:
             self.table.has_oldproblematic = True
         if isinstance(node.parent.parent, nodes.thead) or (cell.col in self.table.stubs):
             if len(node) == 1 and isinstance(node[0], nodes.paragraph) and node.astext() == '':
@@ -1465,7 +1465,7 @@ class LaTeXTranslator(SphinxTranslator):
         if not node.get('inline', True):
             self.body.append(CR)
         entries = node['entries']
-        for type, string, tid, ismain, key_ in entries:
+        for type, string, _tid, ismain, _key in entries:
             m = ''
             if ismain:
                 m = '|spxpagem'
@@ -1814,8 +1814,7 @@ class LaTeXTranslator(SphinxTranslator):
         done = 0
         if len(node.children) == 1:
             child = node.children[0]
-            if isinstance(child, nodes.bullet_list) or \
-                    isinstance(child, nodes.enumerated_list):
+            if isinstance(child, (nodes.bullet_list, nodes.enumerated_list)):
                 done = 1
         if not done:
             self.body.append(r'\begin{quote}' + CR)
@@ -1826,8 +1825,7 @@ class LaTeXTranslator(SphinxTranslator):
         done = 0
         if len(node.children) == 1:
             child = node.children[0]
-            if isinstance(child, nodes.bullet_list) or \
-                    isinstance(child, nodes.enumerated_list):
+            if isinstance(child, (nodes.bullet_list, nodes.enumerated_list)):
                 done = 1
         if not done:
             self.body.append(r'\end{quote}' + CR)
@@ -1935,7 +1933,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def depart_container(self, node: Element) -> None:
         classes = node.get('classes', [])
-        for c in classes:
+        for _c in classes:
             self.body.append('\n\\end{sphinxuseclass}')
 
     def visit_decoration(self, node: Element) -> None:
@@ -2033,9 +2031,6 @@ class LaTeXTranslator(SphinxTranslator):
 
     def depart_math_reference(self, node: Element) -> None:
         pass
-
-    def unknown_visit(self, node: Node) -> None:
-        raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
 
     @property
     def docclasses(self) -> Tuple[str, str]:

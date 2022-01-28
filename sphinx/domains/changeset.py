@@ -4,7 +4,7 @@
 
     The changeset domain.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -130,7 +130,7 @@ class ChangeSetDomain(Domain):
         self.changesets.setdefault(version, []).append(changeset)
 
     def clear_doc(self, docname: str) -> None:
-        for version, changes in self.changesets.items():
+        for changes in self.changesets.values():
             for changeset in changes[:]:
                 if changeset.docname == docname:
                     changes.remove(changeset)

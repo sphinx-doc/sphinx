@@ -4,7 +4,7 @@
 
     Utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -70,10 +70,11 @@ def get_matching_files(dirname: str,
     """
     # dirname is a normalized absolute path.
     dirname = path.normpath(path.abspath(dirname))
-    dirlen = len(dirname) + 1    # exclude final os.path.sep
 
     for root, dirs, files in os.walk(dirname, followlinks=True):
-        relativeroot = root[dirlen:]
+        relativeroot = path.relpath(root, dirname)
+        if relativeroot == ".":
+            relativeroot = ""  # suppress dirname for files on the target dir
 
         qdirs = enumerate(path_stabilize(path.join(relativeroot, dn))
                           for dn in dirs)  # type: Iterable[Tuple[int, str]]
@@ -85,7 +86,7 @@ def get_matching_files(dirname: str,
 
         dirs[:] = sorted(dirs[i] for (i, _) in qdirs)
 
-        for i, filename in sorted(qfiles):
+        for _i, filename in sorted(qfiles):
             yield filename
 
 
@@ -129,7 +130,7 @@ class FilenameUniqDict(dict):
                 self._existing.discard(unique)
 
     def merge_other(self, docnames: Set[str], other: Dict[str, Tuple[Set[str], Any]]) -> None:
-        for filename, (docs, unique) in other.items():
+        for filename, (docs, _unique) in other.items():
             for doc in docs & set(docnames):
                 self.add_file(doc, filename)
 
@@ -187,13 +188,13 @@ class DownloadFiles(dict):
         return self[filename][1]
 
     def purge_doc(self, docname: str) -> None:
-        for filename, (docs, dest) in list(self.items()):
+        for filename, (docs, _dest) in list(self.items()):
             docs.discard(docname)
             if not docs:
                 del self[filename]
 
     def merge_other(self, docnames: Set[str], other: Dict[str, Tuple[Set[str], Any]]) -> None:
-        for filename, (docs, dest) in other.items():
+        for filename, (docs, _dest) in other.items():
             for docname in docs & set(docnames):
                 self.add_file(docname, filename)
 
@@ -412,7 +413,7 @@ def split_full_qualified_name(name: str) -> Tuple[Optional[str], str]:
               calling this function.
     """
     parts = name.split('.')
-    for i, part in enumerate(parts, 1):
+    for i, _part in enumerate(parts, 1):
         try:
             modname = ".".join(parts[:i])
             import_module(modname)

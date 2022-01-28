@@ -4,7 +4,7 @@
 
     Support for NumPy and Google style docstrings.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -288,7 +288,7 @@ class Config:
     }
 
     def __init__(self, **settings: Any) -> None:
-        for name, (default, rebuild) in self._config_values.items():
+        for name, (default, _rebuild) in self._config_values.items():
             setattr(self, name, default)
         for name, value in settings.items():
             setattr(self, name, value)
@@ -444,10 +444,10 @@ def _skip_member(app: Sphinx, what: str, name: str, obj: Any,
 
     """
     has_doc = getattr(obj, '__doc__', False)
-    is_member = (what == 'class' or what == 'exception' or what == 'module')
+    is_member = what in ('class', 'exception', 'module')
     if name != '__weakref__' and has_doc and is_member:
         cls_is_owner = False
-        if what == 'class' or what == 'exception':
+        if what in ('class', 'exception'):
             qualname = getattr(obj, '__qualname__', '')
             cls_path, _, _ = qualname.rpartition('.')
             if cls_path:

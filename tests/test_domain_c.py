@@ -4,7 +4,7 @@
 
     Tests the C Domain
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -716,7 +716,7 @@ def test_domain_c_build_field_role(app, status, warning):
 
 def _get_obj(app, queryName):
     domain = app.env.get_domain('c')
-    for name, dispname, objectType, docname, anchor, prio in domain.get_objects():
+    for name, _dispname, objectType, docname, anchor, _prio in domain.get_objects():
         if name == queryName:
             return (docname, anchor, objectType)
     return (queryName, "not", "found")

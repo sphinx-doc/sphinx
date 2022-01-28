@@ -10,7 +10,7 @@
     Copyright 2008 Société des arts technologiques (SAT),
     https://sat.qc.ca/
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -227,7 +227,7 @@ def walk(rootpath: str, excludes: List[str], opts: Any
 
 def has_child_module(rootpath: str, excludes: List[str], opts: Any) -> bool:
     """Check the given directory contains child module/s (at least one)."""
-    for root, subs, files in walk(rootpath, excludes, opts):
+    for _root, _subs, files in walk(rootpath, excludes, opts):
         if files:
             return True
 

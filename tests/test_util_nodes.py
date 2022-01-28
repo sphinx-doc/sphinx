@@ -4,7 +4,7 @@
 
     Tests uti.nodes functions.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from textwrap import dedent
@@ -60,31 +60,31 @@ def test_NodeMatcher():
 
     # search by node class
     matcher = NodeMatcher(nodes.paragraph)
-    assert len(list(doctree.traverse(matcher))) == 3
+    assert len(list(doctree.findall(matcher))) == 3
 
     # search by multiple node classes
     matcher = NodeMatcher(nodes.paragraph, nodes.literal_block)
-    assert len(list(doctree.traverse(matcher))) == 4
+    assert len(list(doctree.findall(matcher))) == 4
 
     # search by node attribute
     matcher = NodeMatcher(block=1)
-    assert len(list(doctree.traverse(matcher))) == 1
+    assert len(list(doctree.findall(matcher))) == 1
 
     # search by node attribute (Any)
     matcher = NodeMatcher(block=Any)
-    assert len(list(doctree.traverse(matcher))) == 3
+    assert len(list(doctree.findall(matcher))) == 3
 
     # search by both class and attribute
     matcher = NodeMatcher(nodes.paragraph, block=Any)
-    assert len(list(doctree.traverse(matcher))) == 2
+    assert len(list(doctree.findall(matcher))) == 2
 
     # mismatched
     matcher = NodeMatcher(nodes.title)
-    assert len(list(doctree.traverse(matcher))) == 0
+    assert len(list(doctree.findall(matcher))) == 0
 
     # search with Any does not match to Text node
     matcher = NodeMatcher(blah=Any)
-    assert len(list(doctree.traverse(matcher))) == 0
+    assert len(list(doctree.findall(matcher))) == 0
 
 
 @pytest.mark.parametrize(

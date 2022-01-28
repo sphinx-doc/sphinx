@@ -4,7 +4,7 @@
 
     Test the code-block directive.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -553,7 +553,7 @@ def test_literalinclude_pydecorators(app, status, warning):
 def test_code_block_highlighted(app, status, warning):
     app.builder.build(['highlight'])
     doctree = app.env.get_doctree('highlight')
-    codeblocks = list(doctree.traverse(nodes.literal_block))
+    codeblocks = list(doctree.findall(nodes.literal_block))
 
     assert codeblocks[0]['language'] == 'default'
     assert codeblocks[1]['language'] == 'python2'
@@ -580,3 +580,30 @@ def test_linenothreshold(app, status, warning):
     # literal include not using linenothreshold (no line numbers)
     assert ('<span></span><span class="c1"># Very small literal include '
             '(linenothreshold check)</span>' in html)
+
+
+@pytest.mark.sphinx('dummy', testroot='directive-code')
+def test_code_block_dedent(app, status, warning):
+    app.builder.build(['dedent'])
+    doctree = app.env.get_doctree('dedent')
+    codeblocks = list(doctree.traverse(nodes.literal_block))
+    # Note: comparison string should not have newlines at the beginning or end
+    text_0_indent = '''First line
+Second line
+    Third line
+Fourth line'''
+    text_2_indent = '''  First line
+  Second line
+      Third line
+  Fourth line'''
+    text_4_indent = '''    First line
+    Second line
+        Third line
+    Fourth line'''
+
+    assert codeblocks[0].astext() == text_0_indent
+    assert codeblocks[1].astext() == text_0_indent
+    assert codeblocks[2].astext() == text_4_indent
+    assert codeblocks[3].astext() == text_2_indent
+    assert codeblocks[4].astext() == text_4_indent
+    assert codeblocks[5].astext() == text_0_indent

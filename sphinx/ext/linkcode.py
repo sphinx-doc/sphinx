@@ -4,7 +4,7 @@
 
     Add external links to module code in Python object descriptions.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -39,7 +39,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
         'js': ['object', 'fullname'],
     }
 
-    for objnode in list(doctree.traverse(addnodes.desc)):
+    for objnode in list(doctree.findall(addnodes.desc)):
         domain = objnode.get('domain')
         uris: Set[str] = set()
         for signode in objnode:

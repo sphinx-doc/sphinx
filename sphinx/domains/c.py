@@ -4,7 +4,7 @@
 
     The C language domain.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -217,7 +217,7 @@ class ASTNestedName(ASTBase):
             assert not self.rooted, str(self)
             assert len(self.names) == 1
             self.names[0].describe_signature(signode, 'noneIsName', env, '', symbol)
-        elif mode == 'markType' or mode == 'lastIsName' or mode == 'markName':
+        elif mode in ('markType', 'lastIsName', 'markName'):
             # Each element should be a pending xref targeting the complete
             # prefix.
             prefix = ''
@@ -3556,7 +3556,7 @@ class AliasTransform(SphinxTransform):
         return nodes
 
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.traverse(AliasNode):
+        for node in self.document.findall(AliasNode):
             node = cast(AliasNode, node)
             sig = node.sig
             parentKey = node.parentKey
@@ -3654,8 +3654,7 @@ class CAliasObject(ObjectDescription):
                            " When skipping the root declaration,"
                            " need 'maxdepth' 0 for infinite or at least 2.",
                            location=self.get_location())
-        signatures = self.get_signatures()
-        for i, sig in enumerate(signatures):
+        for sig in self.get_signatures():
             node.append(AliasNode(sig, aliasOptions, self.state.document, env=self.env))
         return [node]
 

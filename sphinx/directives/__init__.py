@@ -4,7 +4,7 @@
 
     Handlers for additional ReST directives.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -175,7 +175,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
 
         self.names: List[T] = []
         signatures = self.get_signatures()
-        for i, sig in enumerate(signatures):
+        for sig in signatures:
             # add a signature node for each signature in the current unit
             # and add a reference target for it
             signode = addnodes.desc_signature(sig, '')

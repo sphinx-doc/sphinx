@@ -4,7 +4,7 @@
 
     Custom docutils writer for Texinfo.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -282,7 +282,7 @@ class TexinfoTranslator(SphinxTranslator):
         self.indices = [(add_node_name(name), content)
                         for name, content in self.indices]
         # each section is also a node
-        for section in self.document.traverse(nodes.section):
+        for section in self.document.findall(nodes.section):
             title = cast(nodes.TextElement, section.next_node(nodes.Titular))
             name = title.astext() if title else '<untitled>'
             section['node_name'] = add_node_name(name)
@@ -291,7 +291,7 @@ class TexinfoTranslator(SphinxTranslator):
         """Collect the menu entries for each "node" section."""
         node_menus = self.node_menus
         targets: List[Element] = [self.document]
-        targets.extend(self.document.traverse(nodes.section))
+        targets.extend(self.document.findall(nodes.section))
         for node in targets:
             assert 'node_name' in node and node['node_name']
             entries = [s['node_name'] for s in find_subsections(node)]
@@ -308,7 +308,7 @@ class TexinfoTranslator(SphinxTranslator):
             del node_menus[top['node_name']]
             top['node_name'] = 'Top'
         # handle the indices
-        for name, content in self.indices:
+        for name, _content in self.indices:
             node_menus[name] = []
             node_menus['Top'].append(name)
 
@@ -316,7 +316,7 @@ class TexinfoTranslator(SphinxTranslator):
         """Collect the relative links (next, previous, up) for each "node"."""
         rellinks = self.rellinks
         node_menus = self.node_menus
-        for id, entries in node_menus.items():
+        for id in node_menus:
             rellinks[id] = ['', '', '']
         # up's
         for id, entries in node_menus.items():
@@ -462,7 +462,7 @@ class TexinfoTranslator(SphinxTranslator):
     def collect_indices(self) -> None:
         def generate(content: List[Tuple[str, List[IndexEntry]]], collapsed: bool) -> str:
             ret = ['\n@menu\n']
-            for letter, entries in content:
+            for _letter, entries in content:
                 for entry in entries:
                     if not entry[3]:
                         continue
@@ -1018,7 +1018,7 @@ class TexinfoTranslator(SphinxTranslator):
         if len(self.colwidths) != self.n_cols:
             return
         self.body.append('\n\n@multitable ')
-        for i, n in enumerate(self.colwidths):
+        for n in self.colwidths:
             self.body.append('{%s} ' % ('x' * (n + 2)))
 
     def depart_colspec(self, node: Element) -> None:
@@ -1054,7 +1054,7 @@ class TexinfoTranslator(SphinxTranslator):
         self.entry_sep = '@tab'
 
     def depart_entry(self, node: Element) -> None:
-        for i in range(node.get('morecols', 0)):
+        for _i in range(node.get('morecols', 0)):
             self.body.append('\n@tab\n')
 
     # -- Field Lists
@@ -1279,10 +1279,6 @@ class TexinfoTranslator(SphinxTranslator):
 
     def unimplemented_visit(self, node: Element) -> None:
         logger.warning(__("unimplemented node type: %r"), node,
-                       location=node)
-
-    def unknown_visit(self, node: Node) -> None:
-        logger.warning(__("unknown node type: %r"), node,
                        location=node)
 
     def unknown_departure(self, node: Node) -> None:

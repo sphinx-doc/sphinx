@@ -4,7 +4,7 @@
 
     Manual pages builder.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -98,7 +98,7 @@ class ManualPageBuilder(Builder):
             logger.info('} ', nonl=True)
             self.env.resolve_references(largetree, docname, self)
             # remove pending_xref nodes
-            for pendingnode in largetree.traverse(addnodes.pending_xref):
+            for pendingnode in largetree.findall(addnodes.pending_xref):
                 pendingnode.replace_self(pendingnode.children)
 
             docwriter.write(largetree, destination)
