@@ -255,7 +255,7 @@ Autosummary uses the following Jinja template files:
 - :file:`autosummary/attribute.rst` -- template for class attributes
 - :file:`autosummary/method.rst` -- template for class methods
 
-The following variables available in the templates:
+The following variables are available in the templates:
 
 .. currentmodule:: None
 
@@ -300,7 +300,7 @@ The following variables available in the templates:
 .. data:: functions
 
    List containing names of "public" functions in the module.  Here, "public"
-   here means that the name does not start with an underscore. Only available
+   means that the name does not start with an underscore. Only available
    for modules.
 
 .. data:: classes
