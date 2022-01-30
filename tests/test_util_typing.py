@@ -213,6 +213,7 @@ def test_restify_broken_type_hints():
 def test_restify_mock():
     with mock(['unknown']):
         import unknown
+        assert restify(unknown) == ':py:class:`unknown`'
         assert restify(unknown.secret.Class) == ':py:class:`unknown.secret.Class`'
         assert restify(unknown.secret.Class, "smart") == ':py:class:`~unknown.secret.Class`'
 
@@ -480,5 +481,6 @@ def test_stringify_broken_type_hints():
 def test_stringify_mock():
     with mock(['unknown']):
         import unknown
+        assert stringify(unknown) == 'unknown'
         assert stringify(unknown.secret.Class) == 'unknown.secret.Class'
         assert stringify(unknown.secret.Class, "smart") == 'unknown.secret.Class'
