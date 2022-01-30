@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-16 00:12+0000\n"
-"PO-Revision-Date: 2022-01-02 02:45+0000\n"
+"POT-Creation-Date: 2022-01-30 00:11+0000\n"
+"PO-Revision-Date: 2022-01-23 14:45+0000\n"
 "Last-Translator: Rafael Fontenelle <rffontenelle@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/sphinx-doc/sphinx-1/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
@@ -634,7 +634,7 @@ msgstr "preparando documentos"
 msgid "duplicated ToC entry found: %s"
 msgstr "entrada de tabela de conteúdos duplicada encontrada: %s"
 
-#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:730
+#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:731
 #: sphinx/builders/latex/__init__.py:421 sphinx/builders/texinfo.py:176
 msgid "copying images... "
 msgstr "copiando imagens… "
@@ -644,7 +644,7 @@ msgstr "copiando imagens… "
 msgid "cannot read image file %r: copying it instead"
 msgstr "não foi possível ler o arquivo de imagem %r: copiando-o"
 
-#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:738
+#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:739
 #: sphinx/builders/latex/__init__.py:429 sphinx/builders/texinfo.py:186
 #, python-format
 msgid "cannot copy image file %r: %s"
@@ -769,7 +769,7 @@ msgstr "o valor da configuração “epub_identifier” não deve estar vazio pa
 msgid "conf value \"version\" should not be empty for EPUB3"
 msgstr "o valor da configuração “version” não deve estar vazio para EPUB3"
 
-#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1121
+#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1122
 #, python-format
 msgid "invalid css_file: %r, ignored"
 msgstr "css_file inválido: %r, ignorado"
@@ -892,7 +892,7 @@ msgstr "erro ao escrever o arquivo Makefile: %s"
 msgid "The text files are in %(outdir)s."
 msgstr "Os arquivos texto estão em %(outdir)s."
 
-#: sphinx/builders/html/__init__.py:1074 sphinx/builders/text.py:77
+#: sphinx/builders/html/__init__.py:1075 sphinx/builders/text.py:77
 #: sphinx/builders/xml.py:94
 #, python-format
 msgid "error writing file %s: %s"
@@ -938,144 +938,144 @@ msgstr "Índice Geral"
 msgid "index"
 msgstr "índice"
 
-#: sphinx/builders/html/__init__.py:551
+#: sphinx/builders/html/__init__.py:552
 msgid "next"
 msgstr "próximo"
 
-#: sphinx/builders/html/__init__.py:560
+#: sphinx/builders/html/__init__.py:561
 msgid "previous"
 msgstr "anterior"
 
-#: sphinx/builders/html/__init__.py:654
+#: sphinx/builders/html/__init__.py:655
 msgid "generating indices"
 msgstr "gerando índices"
 
-#: sphinx/builders/html/__init__.py:669
+#: sphinx/builders/html/__init__.py:670
 msgid "writing additional pages"
 msgstr "escrevendo páginas adicionais"
 
-#: sphinx/builders/html/__init__.py:748
+#: sphinx/builders/html/__init__.py:749
 msgid "copying downloadable files... "
 msgstr "copiando arquivos baixáveis… "
 
-#: sphinx/builders/html/__init__.py:756
+#: sphinx/builders/html/__init__.py:757
 #, python-format
 msgid "cannot copy downloadable file %r: %s"
 msgstr "não foi possível copiar o arquivo baixável %r: %s"
 
-#: sphinx/builders/html/__init__.py:788 sphinx/builders/html/__init__.py:800
+#: sphinx/builders/html/__init__.py:789 sphinx/builders/html/__init__.py:801
 #, python-format
 msgid "Failed to copy a file in html_static_file: %s: %r"
 msgstr "Falha ao copiar um arquivo em html_static_file: %s: %r"
 
-#: sphinx/builders/html/__init__.py:821
+#: sphinx/builders/html/__init__.py:822
 msgid "copying static files"
 msgstr "copiando arquivos estáticos"
 
-#: sphinx/builders/html/__init__.py:837
+#: sphinx/builders/html/__init__.py:838
 #, python-format
 msgid "cannot copy static file %r"
 msgstr "não foi possível copiar o arquivo estático %r"
 
-#: sphinx/builders/html/__init__.py:842
+#: sphinx/builders/html/__init__.py:843
 msgid "copying extra files"
 msgstr "copiando arquivos extras"
 
-#: sphinx/builders/html/__init__.py:848
+#: sphinx/builders/html/__init__.py:849
 #, python-format
 msgid "cannot copy extra file %r"
 msgstr "não foi possível copiar o arquivo extra %r"
 
-#: sphinx/builders/html/__init__.py:855
+#: sphinx/builders/html/__init__.py:856
 #, python-format
 msgid "Failed to write build info file: %r"
 msgstr "Falha ao escrever o arquivo de informações de compilação: %r"
 
-#: sphinx/builders/html/__init__.py:903
+#: sphinx/builders/html/__init__.py:904
 msgid ""
 "search index couldn't be loaded, but not all documents will be built: the "
 "index will be incomplete."
 msgstr "não foi possível carregar o índice de pesquisa, mas nem todos os documentos serão compilados: o índice ficará incompleto."
 
-#: sphinx/builders/html/__init__.py:964
+#: sphinx/builders/html/__init__.py:965
 #, python-format
 msgid "page %s matches two patterns in html_sidebars: %r and %r"
 msgstr "a página %s corresponde a dois padrões em html_sidebars: %r e %r"
 
-#: sphinx/builders/html/__init__.py:1057
+#: sphinx/builders/html/__init__.py:1058
 #, python-format
 msgid ""
 "a Unicode error occurred when rendering the page %s. Please make sure all "
 "config values that contain non-ASCII content are Unicode strings."
 msgstr "ocorreu um erro Unicode ao renderizar a página %s. Verifique se todos os valores de configuração que contêm conteúdo não ASCII são strings Unicode."
 
-#: sphinx/builders/html/__init__.py:1062
+#: sphinx/builders/html/__init__.py:1063
 #, python-format
 msgid ""
 "An error happened in rendering the page %s.\n"
 "Reason: %r"
 msgstr "Ocorreu um erro ao renderizar a página %s.\nMotivo: %r"
 
-#: sphinx/builders/html/__init__.py:1091
+#: sphinx/builders/html/__init__.py:1092
 msgid "dumping object inventory"
 msgstr "despejando inventário de objetos"
 
-#: sphinx/builders/html/__init__.py:1096
+#: sphinx/builders/html/__init__.py:1097
 #, python-format
 msgid "dumping search index in %s"
 msgstr "despejando índice de pesquisa em %s"
 
-#: sphinx/builders/html/__init__.py:1138
+#: sphinx/builders/html/__init__.py:1139
 #, python-format
 msgid "invalid js_file: %r, ignored"
 msgstr "js_file inválido: %r, ignorado"
 
-#: sphinx/builders/html/__init__.py:1225
+#: sphinx/builders/html/__init__.py:1226
 msgid "Many math_renderers are registered. But no math_renderer is selected."
 msgstr "Muitos math_renders estão registrados, mas nenhum math_renderer está selecionado."
 
-#: sphinx/builders/html/__init__.py:1228
+#: sphinx/builders/html/__init__.py:1229
 #, python-format
 msgid "Unknown math_renderer %r is given."
 msgstr "math_renderer desconhecido %r é fornecido."
 
-#: sphinx/builders/html/__init__.py:1236
+#: sphinx/builders/html/__init__.py:1237
 #, python-format
 msgid "html_extra_path entry %r does not exist"
 msgstr "a entrada de html_extra_path %r não existe"
 
-#: sphinx/builders/html/__init__.py:1240
+#: sphinx/builders/html/__init__.py:1241
 #, python-format
 msgid "html_extra_path entry %r is placed inside outdir"
 msgstr "entrada de html_extra_path %r está posicionada dentro de outdir"
 
-#: sphinx/builders/html/__init__.py:1249
+#: sphinx/builders/html/__init__.py:1250
 #, python-format
 msgid "html_static_path entry %r does not exist"
 msgstr "a entrada de html_static_path %r não existe"
 
-#: sphinx/builders/html/__init__.py:1253
+#: sphinx/builders/html/__init__.py:1254
 #, python-format
 msgid "html_static_path entry %r is placed inside outdir"
 msgstr "entrada de html_static_path %r está posicionada dento de outdir"
 
-#: sphinx/builders/html/__init__.py:1262 sphinx/builders/latex/__init__.py:433
+#: sphinx/builders/html/__init__.py:1263 sphinx/builders/latex/__init__.py:433
 #, python-format
 msgid "logo file %r does not exist"
 msgstr "o arquivo logo %r não existe"
 
-#: sphinx/builders/html/__init__.py:1271
+#: sphinx/builders/html/__init__.py:1272
 #, python-format
 msgid "favicon file %r does not exist"
 msgstr "o arquivo favicon %r não existe"
 
-#: sphinx/builders/html/__init__.py:1291
+#: sphinx/builders/html/__init__.py:1292
 msgid ""
 "html_add_permalinks has been deprecated since v3.5.0. Please use "
 "html_permalinks and html_permalinks_icon instead."
 msgstr "html_add_permalinks foi descontinuado desde v3.5.0. Use html_permalinks e html_permalinks_icon."
 
-#: sphinx/builders/html/__init__.py:1317
+#: sphinx/builders/html/__init__.py:1318
 #, python-format
 msgid "%s %s documentation"
 msgstr "documentação %s %s"
@@ -2735,42 +2735,57 @@ msgstr "latex em linha %r: %s"
 msgid "Permalink to this equation"
 msgstr "Link permanente para essa equação"
 
-#: sphinx/ext/intersphinx.py:174
+#: sphinx/ext/intersphinx.py:179
 #, python-format
 msgid "intersphinx inventory has moved: %s -> %s"
 msgstr "o inventário intersphinx foi movido: %s -> %s"
 
-#: sphinx/ext/intersphinx.py:205
+#: sphinx/ext/intersphinx.py:210
 #, python-format
 msgid "loading intersphinx inventory from %s..."
 msgstr "carregando inventário intersphinx de %s…"
 
-#: sphinx/ext/intersphinx.py:219
+#: sphinx/ext/intersphinx.py:224
 msgid ""
 "encountered some issues with some of the inventories, but they had working "
 "alternatives:"
 msgstr "encontrados alguns problemas com alguns dos inventários, mas eles tem alternativas em funcionamento:"
 
-#: sphinx/ext/intersphinx.py:225
+#: sphinx/ext/intersphinx.py:230
 msgid "failed to reach any of the inventories with the following issues:"
 msgstr "falha ao alcançar todos os inventários com os seguintes problemas:"
 
-#: sphinx/ext/intersphinx.py:270
+#: sphinx/ext/intersphinx.py:275
 #, python-format
 msgid "(in %s v%s)"
 msgstr "(em %s v%s)"
 
-#: sphinx/ext/intersphinx.py:272
+#: sphinx/ext/intersphinx.py:277
 #, python-format
 msgid "(in %s)"
 msgstr "(em %s)"
 
-#: sphinx/ext/intersphinx.py:476
+#: sphinx/ext/intersphinx.py:501
+#, python-format
+msgid "inventory for external cross-reference not found: %s"
+msgstr "inventário para referência cruzada externa não encontrado: %s"
+
+#: sphinx/ext/intersphinx.py:507
+#, python-format
+msgid "role for external cross-reference not found: %s"
+msgstr "papel para referência cruzada externa não encontrado: %s"
+
+#: sphinx/ext/intersphinx.py:594
+#, python-format
+msgid "external %s:%s reference target not found: %s"
+msgstr "alvo da referência externa %s:%s não encontrado: %s"
+
+#: sphinx/ext/intersphinx.py:619
 #, python-format
 msgid "intersphinx identifier %r is not string. Ignored"
 msgstr "identificador intersphinx %r não é uma string. Ignorado"
 
-#: sphinx/ext/intersphinx.py:489
+#: sphinx/ext/intersphinx.py:632
 #, python-format
 msgid "Failed to read intersphinx_mapping[%s], ignored: %r"
 msgstr "Falha ao ler intersphinx_mapping[%s], ignorado: %r"
@@ -3537,12 +3552,12 @@ msgid ""
 "not in the domain."
 msgstr "Problema no domínio %s: o campo deveria usar o papel \"%s\", mas esse papel não está no domínio."
 
-#: sphinx/util/docutils.py:213
+#: sphinx/util/docutils.py:233
 #, python-format
 msgid "unknown directive or role name: %s:%s"
 msgstr "diretiva ou nome de papel desconhecida(o): %s:%s"
 
-#: sphinx/util/docutils.py:500
+#: sphinx/util/docutils.py:523
 #, python-format
 msgid "unknown node type: %r"
 msgstr "tipo de nó desconhecido: %r"

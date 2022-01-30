@@ -24,8 +24,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-16 00:12+0000\n"
-"PO-Revision-Date: 2022-01-02 00:12+0000\n"
+"POT-Creation-Date: 2022-01-30 00:11+0000\n"
+"PO-Revision-Date: 2022-01-23 00:11+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Japanese (http://www.transifex.com/sphinx-doc/sphinx-1/language/ja/)\n"
 "MIME-Version: 1.0\n"
@@ -645,7 +645,7 @@ msgstr "ドキュメントの出力準備中"
 msgid "duplicated ToC entry found: %s"
 msgstr "Tocエントリーが重複しています: %s"
 
-#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:730
+#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:731
 #: sphinx/builders/latex/__init__.py:421 sphinx/builders/texinfo.py:176
 msgid "copying images... "
 msgstr "画像をコピー中... "
@@ -655,7 +655,7 @@ msgstr "画像をコピー中... "
 msgid "cannot read image file %r: copying it instead"
 msgstr "画像ファイル %r をPILで読み込めないため、そのままコピーします"
 
-#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:738
+#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:739
 #: sphinx/builders/latex/__init__.py:429 sphinx/builders/texinfo.py:186
 #, python-format
 msgid "cannot copy image file %r: %s"
@@ -780,7 +780,7 @@ msgstr "EPUB3出力では設定値 \"epub_identifier\" の指定が必要です"
 msgid "conf value \"version\" should not be empty for EPUB3"
 msgstr "EPUB3出力では設定値 \"version\" が必要です"
 
-#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1121
+#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1122
 #, python-format
 msgid "invalid css_file: %r, ignored"
 msgstr "無効な css_file %r は無視されました"
@@ -903,7 +903,7 @@ msgstr "Makefile の書き込みエラー: %s"
 msgid "The text files are in %(outdir)s."
 msgstr "テキストファイルは%(outdir)sにあります。"
 
-#: sphinx/builders/html/__init__.py:1074 sphinx/builders/text.py:77
+#: sphinx/builders/html/__init__.py:1075 sphinx/builders/text.py:77
 #: sphinx/builders/xml.py:94
 #, python-format
 msgid "error writing file %s: %s"
@@ -949,144 +949,144 @@ msgstr "総合索引"
 msgid "index"
 msgstr "索引"
 
-#: sphinx/builders/html/__init__.py:551
+#: sphinx/builders/html/__init__.py:552
 msgid "next"
 msgstr "次へ"
 
-#: sphinx/builders/html/__init__.py:560
+#: sphinx/builders/html/__init__.py:561
 msgid "previous"
 msgstr "前へ"
 
-#: sphinx/builders/html/__init__.py:654
+#: sphinx/builders/html/__init__.py:655
 msgid "generating indices"
 msgstr "索引を生成中"
 
-#: sphinx/builders/html/__init__.py:669
+#: sphinx/builders/html/__init__.py:670
 msgid "writing additional pages"
 msgstr "追加のページを出力中"
 
-#: sphinx/builders/html/__init__.py:748
+#: sphinx/builders/html/__init__.py:749
 msgid "copying downloadable files... "
 msgstr "ダウンロードファイルをコピー中..."
 
-#: sphinx/builders/html/__init__.py:756
+#: sphinx/builders/html/__init__.py:757
 #, python-format
 msgid "cannot copy downloadable file %r: %s"
 msgstr "ダウンロードファイル %r をコピーできません: %s"
 
-#: sphinx/builders/html/__init__.py:788 sphinx/builders/html/__init__.py:800
+#: sphinx/builders/html/__init__.py:789 sphinx/builders/html/__init__.py:801
 #, python-format
 msgid "Failed to copy a file in html_static_file: %s: %r"
 msgstr "html_static_file 内のファイルのコピーに失敗しました: %s: %r"
 
-#: sphinx/builders/html/__init__.py:821
+#: sphinx/builders/html/__init__.py:822
 msgid "copying static files"
 msgstr "静的ファイルをコピー中"
 
-#: sphinx/builders/html/__init__.py:837
+#: sphinx/builders/html/__init__.py:838
 #, python-format
 msgid "cannot copy static file %r"
 msgstr "静的ファイル %r をコピーできません"
 
-#: sphinx/builders/html/__init__.py:842
+#: sphinx/builders/html/__init__.py:843
 msgid "copying extra files"
 msgstr "extraファイルをコピー中"
 
-#: sphinx/builders/html/__init__.py:848
+#: sphinx/builders/html/__init__.py:849
 #, python-format
 msgid "cannot copy extra file %r"
 msgstr "extraファイル %r をコピーできませんでした"
 
-#: sphinx/builders/html/__init__.py:855
+#: sphinx/builders/html/__init__.py:856
 #, python-format
 msgid "Failed to write build info file: %r"
 msgstr "build info ファイル %r の出力に失敗しました"
 
-#: sphinx/builders/html/__init__.py:903
+#: sphinx/builders/html/__init__.py:904
 msgid ""
 "search index couldn't be loaded, but not all documents will be built: the "
 "index will be incomplete."
 msgstr "検索インデックスを読み込めず、ドキュメントビルドの一部が不完全です。"
 
-#: sphinx/builders/html/__init__.py:964
+#: sphinx/builders/html/__init__.py:965
 #, python-format
 msgid "page %s matches two patterns in html_sidebars: %r and %r"
 msgstr "ページ %s がhtml_sidebarsの複数のパターンに一致しました: %r と %r"
 
-#: sphinx/builders/html/__init__.py:1057
+#: sphinx/builders/html/__init__.py:1058
 #, python-format
 msgid ""
 "a Unicode error occurred when rendering the page %s. Please make sure all "
 "config values that contain non-ASCII content are Unicode strings."
 msgstr "ページ%sの読み込み中にUnicodeエラーが発生しました。非アスキー文字を含む設定値は全てUnicode文字列にしてください。"
 
-#: sphinx/builders/html/__init__.py:1062
+#: sphinx/builders/html/__init__.py:1063
 #, python-format
 msgid ""
 "An error happened in rendering the page %s.\n"
 "Reason: %r"
 msgstr "%sページのレンダリング中にエラーが発生しました。\n理由: %r "
 
-#: sphinx/builders/html/__init__.py:1091
+#: sphinx/builders/html/__init__.py:1092
 msgid "dumping object inventory"
 msgstr "オブジェクト インベントリを出力"
 
-#: sphinx/builders/html/__init__.py:1096
+#: sphinx/builders/html/__init__.py:1097
 #, python-format
 msgid "dumping search index in %s"
 msgstr "%s の検索インデックスを出力"
 
-#: sphinx/builders/html/__init__.py:1138
+#: sphinx/builders/html/__init__.py:1139
 #, python-format
 msgid "invalid js_file: %r, ignored"
 msgstr "無効な js_file %r は無視されました"
 
-#: sphinx/builders/html/__init__.py:1225
+#: sphinx/builders/html/__init__.py:1226
 msgid "Many math_renderers are registered. But no math_renderer is selected."
 msgstr "複数の math_renderer が登録されています。しかし math_renderer は選択されていません。"
 
-#: sphinx/builders/html/__init__.py:1228
+#: sphinx/builders/html/__init__.py:1229
 #, python-format
 msgid "Unknown math_renderer %r is given."
 msgstr "不明な math_renderer %r が指定されました。"
 
-#: sphinx/builders/html/__init__.py:1236
+#: sphinx/builders/html/__init__.py:1237
 #, python-format
 msgid "html_extra_path entry %r does not exist"
 msgstr "html_extra_path %r が見つかりません"
 
-#: sphinx/builders/html/__init__.py:1240
+#: sphinx/builders/html/__init__.py:1241
 #, python-format
 msgid "html_extra_path entry %r is placed inside outdir"
 msgstr "html_extra_path %r がoutdir内に配置されます"
 
-#: sphinx/builders/html/__init__.py:1249
+#: sphinx/builders/html/__init__.py:1250
 #, python-format
 msgid "html_static_path entry %r does not exist"
 msgstr "html_static_path %r が見つかりません"
 
-#: sphinx/builders/html/__init__.py:1253
+#: sphinx/builders/html/__init__.py:1254
 #, python-format
 msgid "html_static_path entry %r is placed inside outdir"
 msgstr "html_static_path %r がoutdir内に配置されます"
 
-#: sphinx/builders/html/__init__.py:1262 sphinx/builders/latex/__init__.py:433
+#: sphinx/builders/html/__init__.py:1263 sphinx/builders/latex/__init__.py:433
 #, python-format
 msgid "logo file %r does not exist"
 msgstr "ロゴファイル %r がありません"
 
-#: sphinx/builders/html/__init__.py:1271
+#: sphinx/builders/html/__init__.py:1272
 #, python-format
 msgid "favicon file %r does not exist"
 msgstr "favicon ファイル %r がありません"
 
-#: sphinx/builders/html/__init__.py:1291
+#: sphinx/builders/html/__init__.py:1292
 msgid ""
 "html_add_permalinks has been deprecated since v3.5.0. Please use "
 "html_permalinks and html_permalinks_icon instead."
 msgstr "html_add_permalinksはv3.5.0以降、非推奨となりました。代わりにhtml_permalinksとhtml_permalinks_iconを使用してください。"
 
-#: sphinx/builders/html/__init__.py:1317
+#: sphinx/builders/html/__init__.py:1318
 #, python-format
 msgid "%s %s documentation"
 msgstr "%s %s ドキュメント"
@@ -2746,42 +2746,57 @@ msgstr "latex のインライン表示 %r: %s"
 msgid "Permalink to this equation"
 msgstr "この数式へのパーマリンク"
 
-#: sphinx/ext/intersphinx.py:174
+#: sphinx/ext/intersphinx.py:179
 #, python-format
 msgid "intersphinx inventory has moved: %s -> %s"
 msgstr "intersphinx インベントリは移動しました: %s -> %s"
 
-#: sphinx/ext/intersphinx.py:205
+#: sphinx/ext/intersphinx.py:210
 #, python-format
 msgid "loading intersphinx inventory from %s..."
 msgstr "%s から intersphinx インベントリをロード中..."
 
-#: sphinx/ext/intersphinx.py:219
+#: sphinx/ext/intersphinx.py:224
 msgid ""
 "encountered some issues with some of the inventories, but they had working "
 "alternatives:"
 msgstr "いくつかのインベントリでいくつかの問題に遭遇しましたが、代替手段を持っていました:"
 
-#: sphinx/ext/intersphinx.py:225
+#: sphinx/ext/intersphinx.py:230
 msgid "failed to reach any of the inventories with the following issues:"
 msgstr "以下の問題があるため、いくつかのインベントリは到達できませんでした:"
 
-#: sphinx/ext/intersphinx.py:270
+#: sphinx/ext/intersphinx.py:275
 #, python-format
 msgid "(in %s v%s)"
 msgstr "(in %s v%s)"
 
-#: sphinx/ext/intersphinx.py:272
+#: sphinx/ext/intersphinx.py:277
 #, python-format
 msgid "(in %s)"
 msgstr "(in %s)"
 
-#: sphinx/ext/intersphinx.py:476
+#: sphinx/ext/intersphinx.py:501
+#, python-format
+msgid "inventory for external cross-reference not found: %s"
+msgstr ""
+
+#: sphinx/ext/intersphinx.py:507
+#, python-format
+msgid "role for external cross-reference not found: %s"
+msgstr ""
+
+#: sphinx/ext/intersphinx.py:594
+#, python-format
+msgid "external %s:%s reference target not found: %s"
+msgstr ""
+
+#: sphinx/ext/intersphinx.py:619
 #, python-format
 msgid "intersphinx identifier %r is not string. Ignored"
 msgstr "intersphinx 識別子 %r は文字列ではありません。無視します"
 
-#: sphinx/ext/intersphinx.py:489
+#: sphinx/ext/intersphinx.py:632
 #, python-format
 msgid "Failed to read intersphinx_mapping[%s], ignored: %r"
 msgstr "intersphinx_mapping [%s] の読み取りに失敗しました。無視します: %r"
@@ -3548,12 +3563,12 @@ msgid ""
 "not in the domain."
 msgstr ""
 
-#: sphinx/util/docutils.py:213
+#: sphinx/util/docutils.py:233
 #, python-format
 msgid "unknown directive or role name: %s:%s"
 msgstr "不明なディレクティブまたはロール名: %s:%s"
 
-#: sphinx/util/docutils.py:500
+#: sphinx/util/docutils.py:523
 #, python-format
 msgid "unknown node type: %r"
 msgstr "不明なノードタイプ: %r"
