@@ -27,6 +27,23 @@ Incompatible changes
 Deprecated
 ----------
 
+* #10028: jQuery and underscore.js will no longer be automatically injected into
+  themes from Sphinx 6.0. If you develop a theme or extension that uses the
+  ``jQuery``, ``$``, or ``$u`` global objects, you need to update your
+  JavaScript or use the mitigation below.
+
+  To re-add jQuery and underscore.js, you will need to copy ``jquery.js`` and
+  ``underscore.js`` from `the Sphinx repository`_ to your ``static`` directory,
+  and add the following to your ``layout.html``:
+
+  .. _the Sphinx repository: https://github.com/sphinx-doc/sphinx/tree/v4.3.2/sphinx/themes/basic/static
+  .. code-block:: html+jinja
+
+     {%- block scripts %}
+         <script src="{{ pathto('_static/jquery.js', resource=True) }}"></script>
+         <script src="{{ pathto('_static/underscore.js', resource=True) }}"></script>
+         {{ super() }}
+     {%- endblock %}
 * setuptools integration.  The ``build_sphinx`` sub-command for setup.py is
   marked as deprecated to follow the policy of setuptools team.
 * The ``locale`` argument of ``sphinx.util.i18n:babel_format_date()`` becomes
@@ -41,6 +58,9 @@ Features added
 * #9075: autodoc: The default value of :confval:`autodoc_typehints_format` is
   changed to ``'smart'``.  It will suppress the leading module names of
   typehints (ex. ``io.StringIO`` -> ``StringIO``).
+* #10028: Removed internal usages of JavaScript frameworks (jQuery and
+  underscore.js) and modernised ``doctools.js`` and ``searchtools.js`` to
+  EMCAScript 2018.
 
 Bugs fixed
 ----------
