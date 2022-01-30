@@ -32,7 +32,7 @@ def test_autoattribute(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_novalue(app):
-    options = {'no-value': True}
+    options = {'no-value': None}
     actual = do_autodoc(app, 'attribute', 'target.Class.attr', options)
     assert list(actual) == [
         '',

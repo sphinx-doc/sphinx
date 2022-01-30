@@ -1001,7 +1001,8 @@ class ModuleDocumenter(Documenter):
         'platform': identity, 'deprecated': bool_option,
         'member-order': member_order_option, 'exclude-members': exclude_members_option,
         'private-members': members_option, 'special-members': members_option,
-        'imported-members': bool_option, 'ignore-module-all': bool_option
+        'imported-members': bool_option, 'ignore-module-all': bool_option,
+        'no-value': bool_option,
     }
 
     def __init__(self, *args: Any) -> None:
