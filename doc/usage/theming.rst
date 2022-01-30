@@ -158,9 +158,18 @@ These themes are:
     dimension string such as '70em' or '50%'. Use 'none' if you don't
     want a width limit. Defaults may depend on the theme (often 800px).
 
-  - **navigation_with_keys** (true or false): Allow navigating to the
-    previous/next page using the keyboard's left and right arrows.  Defaults to
-    ``False``.
+  - **navigation_with_keys** (true or false): Allow navigating
+    with the following keyboard shortcuts:
+
+    - :kbd:`Left arrow`: previous page
+    - :kbd:`Right arrow`: next page
+
+    Defaults to ``False``.
+
+  - **enable_search_shortcuts** (true or false): Allow jumping to the search box
+    with :kbd:`/` and allow removal of search highlighting with :kbd:`Esc`.
+
+    Defaults to ``True``.
 
   - **globaltoc_collapse** (true or false): Only expand subsections
     of the current document in ``globaltoc.html``
