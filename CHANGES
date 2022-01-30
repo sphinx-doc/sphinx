@@ -13,9 +13,9 @@ Deprecated
 Features added
 --------------
 
+* #10125: extlinks: Improve suggestion message for a reference having title
 * #9494, #9456: html search: Add a config variable
   :confval:`html_show_search_summary` to enable/disable the search summaries
-* #10125: extlinks: Improve suggestion message for a reference having title
 
 Bugs fixed
 ----------
