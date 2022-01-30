@@ -24,8 +24,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-16 00:12+0000\n"
-"PO-Revision-Date: 2022-01-20 05:42+0000\n"
+"POT-Creation-Date: 2022-01-30 00:11+0000\n"
+"PO-Revision-Date: 2022-01-23 11:41+0000\n"
 "Last-Translator: Lu <lu2github@gmail.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/sphinx-doc/sphinx-1/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
@@ -645,7 +645,7 @@ msgstr "准备文件"
 msgid "duplicated ToC entry found: %s"
 msgstr "找到重复的ToC条目: %s"
 
-#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:730
+#: sphinx/builders/_epub_base.py:405 sphinx/builders/html/__init__.py:731
 #: sphinx/builders/latex/__init__.py:421 sphinx/builders/texinfo.py:176
 msgid "copying images... "
 msgstr "复制图像... "
@@ -655,7 +655,7 @@ msgstr "复制图像... "
 msgid "cannot read image file %r: copying it instead"
 msgstr "无法读取图像文件 %r：直接复制"
 
-#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:738
+#: sphinx/builders/_epub_base.py:418 sphinx/builders/html/__init__.py:739
 #: sphinx/builders/latex/__init__.py:429 sphinx/builders/texinfo.py:186
 #, python-format
 msgid "cannot copy image file %r: %s"
@@ -672,15 +672,15 @@ msgstr "未找到Pillow - 复制图像文件"
 
 #: sphinx/builders/_epub_base.py:471
 msgid "writing mimetype file..."
-msgstr ""
+msgstr "写入 mimetype 文件中……"
 
 #: sphinx/builders/_epub_base.py:476
 msgid "writing META-INF/container.xml file..."
-msgstr ""
+msgstr "写入 META-INF/container.xml 文件中……"
 
 #: sphinx/builders/_epub_base.py:504
 msgid "writing content.opf file..."
-msgstr ""
+msgstr "写入 content.opf 文件中……"
 
 #: sphinx/builders/_epub_base.py:530
 #, python-format
@@ -689,7 +689,7 @@ msgstr "%s 的 MIME 类型未知，将被忽略"
 
 #: sphinx/builders/_epub_base.py:677
 msgid "writing toc.ncx file..."
-msgstr ""
+msgstr "写入 toc.ncx 文件中……"
 
 #: sphinx/builders/_epub_base.py:702
 #, python-format
@@ -738,7 +738,7 @@ msgstr "ePub文件保存在 %(outdir)s。"
 
 #: sphinx/builders/epub3.py:165
 msgid "writing nav.xhtml file..."
-msgstr ""
+msgstr "写入 nav.xhtml 文件中……"
 
 #: sphinx/builders/epub3.py:191
 msgid "conf value \"epub_language\" (or \"language\") should not be empty for EPUB3"
@@ -780,7 +780,7 @@ msgstr "对于 EPUB3 格式，配置项“epub_identifier”不能为空"
 msgid "conf value \"version\" should not be empty for EPUB3"
 msgstr "对于 EPUB3 格式，配置项“version”不能为空"
 
-#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1121
+#: sphinx/builders/epub3.py:235 sphinx/builders/html/__init__.py:1122
 #, python-format
 msgid "invalid css_file: %r, ignored"
 msgstr "无效的 css_file：%r，已忽略"
@@ -903,7 +903,7 @@ msgstr "错误写入文件 Makefile： %s"
 msgid "The text files are in %(outdir)s."
 msgstr "文本文件保存在 %(outdir)s 目录。"
 
-#: sphinx/builders/html/__init__.py:1074 sphinx/builders/text.py:77
+#: sphinx/builders/html/__init__.py:1075 sphinx/builders/text.py:77
 #: sphinx/builders/xml.py:94
 #, python-format
 msgid "error writing file %s: %s"
@@ -949,144 +949,144 @@ msgstr "总目录"
 msgid "index"
 msgstr "索引"
 
-#: sphinx/builders/html/__init__.py:551
+#: sphinx/builders/html/__init__.py:552
 msgid "next"
 msgstr "下一页"
 
-#: sphinx/builders/html/__init__.py:560
+#: sphinx/builders/html/__init__.py:561
 msgid "previous"
 msgstr "上一页"
 
-#: sphinx/builders/html/__init__.py:654
+#: sphinx/builders/html/__init__.py:655
 msgid "generating indices"
 msgstr "正在生成索引"
 
-#: sphinx/builders/html/__init__.py:669
+#: sphinx/builders/html/__init__.py:670
 msgid "writing additional pages"
 msgstr "正在写入附加页面"
 
-#: sphinx/builders/html/__init__.py:748
+#: sphinx/builders/html/__init__.py:749
 msgid "copying downloadable files... "
 msgstr "复制可下载文件... "
 
-#: sphinx/builders/html/__init__.py:756
+#: sphinx/builders/html/__init__.py:757
 #, python-format
 msgid "cannot copy downloadable file %r: %s"
 msgstr "无法复制可下载文件 %r：%s"
 
-#: sphinx/builders/html/__init__.py:788 sphinx/builders/html/__init__.py:800
+#: sphinx/builders/html/__init__.py:789 sphinx/builders/html/__init__.py:801
 #, python-format
 msgid "Failed to copy a file in html_static_file: %s: %r"
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:821
+#: sphinx/builders/html/__init__.py:822
 msgid "copying static files"
-msgstr ""
+msgstr "正在复制静态文件"
 
-#: sphinx/builders/html/__init__.py:837
+#: sphinx/builders/html/__init__.py:838
 #, python-format
 msgid "cannot copy static file %r"
 msgstr "无法复制静态文件 %r"
 
-#: sphinx/builders/html/__init__.py:842
+#: sphinx/builders/html/__init__.py:843
 msgid "copying extra files"
 msgstr "正在复制额外文件"
 
-#: sphinx/builders/html/__init__.py:848
+#: sphinx/builders/html/__init__.py:849
 #, python-format
 msgid "cannot copy extra file %r"
 msgstr "无法复制额外文件 %r"
 
-#: sphinx/builders/html/__init__.py:855
+#: sphinx/builders/html/__init__.py:856
 #, python-format
 msgid "Failed to write build info file: %r"
 msgstr "写入构建信息文件失败：%r"
 
-#: sphinx/builders/html/__init__.py:903
+#: sphinx/builders/html/__init__.py:904
 msgid ""
 "search index couldn't be loaded, but not all documents will be built: the "
 "index will be incomplete."
 msgstr "无法加载搜索索引，不会构建所有文档：索引将不完整。"
 
-#: sphinx/builders/html/__init__.py:964
+#: sphinx/builders/html/__init__.py:965
 #, python-format
 msgid "page %s matches two patterns in html_sidebars: %r and %r"
 msgstr "页面 %s 匹配了 html_sidebars 中的两条规则：%r 和 %r"
 
-#: sphinx/builders/html/__init__.py:1057
+#: sphinx/builders/html/__init__.py:1058
 #, python-format
 msgid ""
 "a Unicode error occurred when rendering the page %s. Please make sure all "
 "config values that contain non-ASCII content are Unicode strings."
 msgstr "渲染页面 %s 时发生了 Unicode 错误。请确保所有包含非 ASCII 字符的配置项是 Unicode 字符串。"
 
-#: sphinx/builders/html/__init__.py:1062
+#: sphinx/builders/html/__init__.py:1063
 #, python-format
 msgid ""
 "An error happened in rendering the page %s.\n"
 "Reason: %r"
 msgstr "渲染页面 %s 时发生了错误。\n原因：%r"
 
-#: sphinx/builders/html/__init__.py:1091
+#: sphinx/builders/html/__init__.py:1092
 msgid "dumping object inventory"
 msgstr "正在导出对象清单"
 
-#: sphinx/builders/html/__init__.py:1096
+#: sphinx/builders/html/__init__.py:1097
 #, python-format
 msgid "dumping search index in %s"
 msgstr "正在导出 %s 的搜索索引"
 
-#: sphinx/builders/html/__init__.py:1138
+#: sphinx/builders/html/__init__.py:1139
 #, python-format
 msgid "invalid js_file: %r, ignored"
 msgstr "无效的 js_file：%r，已忽略"
 
-#: sphinx/builders/html/__init__.py:1225
+#: sphinx/builders/html/__init__.py:1226
 msgid "Many math_renderers are registered. But no math_renderer is selected."
 msgstr "注册了多个 math_renderers。但没有选择任何 math_renderer。"
 
-#: sphinx/builders/html/__init__.py:1228
+#: sphinx/builders/html/__init__.py:1229
 #, python-format
 msgid "Unknown math_renderer %r is given."
 msgstr "给定了未知的 math_renderer %r。"
 
-#: sphinx/builders/html/__init__.py:1236
+#: sphinx/builders/html/__init__.py:1237
 #, python-format
 msgid "html_extra_path entry %r does not exist"
 msgstr "html_extra_path 指向的 %r 不存在"
 
-#: sphinx/builders/html/__init__.py:1240
+#: sphinx/builders/html/__init__.py:1241
 #, python-format
 msgid "html_extra_path entry %r is placed inside outdir"
 msgstr "html_extra_path 入口 %r 置于输出目录内"
 
-#: sphinx/builders/html/__init__.py:1249
+#: sphinx/builders/html/__init__.py:1250
 #, python-format
 msgid "html_static_path entry %r does not exist"
 msgstr "html_static_path 指向的 %r 不存在"
 
-#: sphinx/builders/html/__init__.py:1253
+#: sphinx/builders/html/__init__.py:1254
 #, python-format
 msgid "html_static_path entry %r is placed inside outdir"
 msgstr "html_static_path 入口 %r 置于输出目录内"
 
-#: sphinx/builders/html/__init__.py:1262 sphinx/builders/latex/__init__.py:433
+#: sphinx/builders/html/__init__.py:1263 sphinx/builders/latex/__init__.py:433
 #, python-format
 msgid "logo file %r does not exist"
 msgstr "logo文件 %r 不存在"
 
-#: sphinx/builders/html/__init__.py:1271
+#: sphinx/builders/html/__init__.py:1272
 #, python-format
 msgid "favicon file %r does not exist"
 msgstr "网站图标 文件 %r 不存在"
 
-#: sphinx/builders/html/__init__.py:1291
+#: sphinx/builders/html/__init__.py:1292
 msgid ""
 "html_add_permalinks has been deprecated since v3.5.0. Please use "
 "html_permalinks and html_permalinks_icon instead."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1317
+#: sphinx/builders/html/__init__.py:1318
 #, python-format
 msgid "%s %s documentation"
 msgstr "%s %s 文档"
@@ -1222,7 +1222,7 @@ msgstr "工作编号应为正值"
 #: sphinx/cmd/build.py:106 sphinx/cmd/quickstart.py:470
 #: sphinx/ext/apidoc.py:307 sphinx/ext/autosummary/generate.py:623
 msgid "For more information, visit <https://www.sphinx-doc.org/>."
-msgstr ""
+msgstr "要了解更多，请访问 <https://www.sphinx-doc.org/>。"
 
 #: sphinx/cmd/build.py:107
 msgid ""
@@ -1903,7 +1903,7 @@ msgstr "参数"
 
 #: sphinx/domains/c.py:3355 sphinx/domains/cpp.py:7267
 msgid "Return values"
-msgstr ""
+msgstr "返回值"
 
 #: sphinx/domains/c.py:3358 sphinx/domains/cpp.py:7270
 #: sphinx/domains/javascript.py:231 sphinx/domains/python.py:457
@@ -2746,42 +2746,57 @@ msgstr "内联 LaTeX %r：%s"
 msgid "Permalink to this equation"
 msgstr "公式的永久链接"
 
-#: sphinx/ext/intersphinx.py:174
+#: sphinx/ext/intersphinx.py:179
 #, python-format
 msgid "intersphinx inventory has moved: %s -> %s"
 msgstr "intersphinx库存已被移动: %s -> %s"
 
-#: sphinx/ext/intersphinx.py:205
+#: sphinx/ext/intersphinx.py:210
 #, python-format
 msgid "loading intersphinx inventory from %s..."
 msgstr "从中加载intersphinx库存 %s..."
 
-#: sphinx/ext/intersphinx.py:219
+#: sphinx/ext/intersphinx.py:224
 msgid ""
 "encountered some issues with some of the inventories, but they had working "
 "alternatives:"
 msgstr "遇到了一些库存问题，但他们有其他工作方式："
 
-#: sphinx/ext/intersphinx.py:225
+#: sphinx/ext/intersphinx.py:230
 msgid "failed to reach any of the inventories with the following issues:"
 msgstr "访问对象清单时报错："
 
-#: sphinx/ext/intersphinx.py:270
+#: sphinx/ext/intersphinx.py:275
 #, python-format
 msgid "(in %s v%s)"
 msgstr "(在 %s v%s)"
 
-#: sphinx/ext/intersphinx.py:272
+#: sphinx/ext/intersphinx.py:277
 #, python-format
 msgid "(in %s)"
 msgstr "(在 %s)"
 
-#: sphinx/ext/intersphinx.py:476
+#: sphinx/ext/intersphinx.py:501
+#, python-format
+msgid "inventory for external cross-reference not found: %s"
+msgstr ""
+
+#: sphinx/ext/intersphinx.py:507
+#, python-format
+msgid "role for external cross-reference not found: %s"
+msgstr ""
+
+#: sphinx/ext/intersphinx.py:594
+#, python-format
+msgid "external %s:%s reference target not found: %s"
+msgstr ""
+
+#: sphinx/ext/intersphinx.py:619
 #, python-format
 msgid "intersphinx identifier %r is not string. Ignored"
 msgstr "跨 Sphinx 标识 %r 不是字符串，已忽略"
 
-#: sphinx/ext/intersphinx.py:489
+#: sphinx/ext/intersphinx.py:632
 #, python-format
 msgid "Failed to read intersphinx_mapping[%s], ignored: %r"
 msgstr "无法读取intersphinx_mapping[%s]，忽略：%r"
@@ -2929,12 +2944,12 @@ msgstr "基类：%s"
 #: sphinx/ext/autodoc/__init__.py:1885
 #, python-format
 msgid "alias of %s"
-msgstr ""
+msgstr "%s的别名"
 
 #: sphinx/ext/autodoc/__init__.py:1931
 #, python-format
 msgid "alias of TypeVar(%s)"
-msgstr ""
+msgstr "TypeVar(%s) 的别名"
 
 #: sphinx/ext/autodoc/__init__.py:2167 sphinx/ext/autodoc/__init__.py:2264
 #, python-format
@@ -3105,7 +3120,7 @@ msgstr "其他参数"
 
 #: sphinx/ext/napoleon/docstring.py:763
 msgid "Receives"
-msgstr ""
+msgstr "接收"
 
 #: sphinx/ext/napoleon/docstring.py:767
 msgid "References"
@@ -3320,7 +3335,7 @@ msgstr "最后更新于 %(last_updated)s."
 msgid ""
 "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
-msgstr ""
+msgstr "由 <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s创建。"
 
 #: sphinx/themes/basic/opensearch.xml:4
 #, python-format
@@ -3506,7 +3521,7 @@ msgstr "找到了多个目标 'any' 交叉引用的目标不唯一 %r: 可能是
 #: sphinx/transforms/post_transforms/__init__.py:206
 #, python-format
 msgid "%s:%s reference target not found: %s"
-msgstr ""
+msgstr "%s:%s 引用目标未找到: %s"
 
 #: sphinx/transforms/post_transforms/__init__.py:209
 #, python-format
@@ -3548,12 +3563,12 @@ msgid ""
 "not in the domain."
 msgstr ""
 
-#: sphinx/util/docutils.py:213
+#: sphinx/util/docutils.py:233
 #, python-format
 msgid "unknown directive or role name: %s:%s"
 msgstr ""
 
-#: sphinx/util/docutils.py:500
+#: sphinx/util/docutils.py:523
 #, python-format
 msgid "unknown node type: %r"
 msgstr "未知节点类型：%r"
@@ -3571,7 +3586,7 @@ msgstr "写入时发生错误：%s，%s"
 #: sphinx/util/i18n.py:98
 #, python-format
 msgid "locale_dir %s does not exists"
-msgstr ""
+msgstr "locale_dir %s不存在 "
 
 #: sphinx/util/i18n.py:192
 #, python-format
