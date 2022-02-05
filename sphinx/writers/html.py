@@ -54,11 +54,8 @@ def multiply_length(length: str, scale: int) -> str:
 
 class HTMLWriter(Writer):
 
-    # override embed-stylesheet default value to 0.
-    settings_spec = copy.deepcopy(Writer.settings_spec)
-    for _setting in settings_spec[2]:
-        if '--embed-stylesheet' in _setting[1]:
-            _setting[2]['default'] = 0
+    # override embed-stylesheet default value to False.
+    settings_default_overrides = {"embed_stylesheet": False}
 
     def __init__(self, builder: "StandaloneHTMLBuilder") -> None:
         super().__init__()
