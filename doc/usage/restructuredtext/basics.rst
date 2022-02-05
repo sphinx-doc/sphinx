@@ -245,10 +245,10 @@ follow:
 
 * ``#`` with overline, for parts
 * ``*`` with overline, for chapters
-* ``=``, for sections
-* ``-``, for subsections
-* ``^``, for subsubsections
-* ``"``, for paragraphs
+* ``=`` for sections
+* ``-`` for subsections
+* ``^`` for subsubsections
+* ``"`` for paragraphs
 
 Of course, you are free to use your own marker characters (see the reST
 documentation), and use a deeper nesting level, but keep in mind that most
