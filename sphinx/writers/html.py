@@ -8,7 +8,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import copy
 import os
 import posixpath
 import re
