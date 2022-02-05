@@ -47,8 +47,7 @@ extras_require = {
         "types-requests",
     ],
     'test': [
-        'pytest',
-        'pytest-cov',
+        'pytest>=4.6',
         'html5lib',
         "typed_ast; python_version < '3.8'",
         'cython',
