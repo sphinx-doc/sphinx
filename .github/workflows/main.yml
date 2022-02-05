@@ -60,7 +60,7 @@ jobs:
       if: matrix.coverage
 
   windows:
-    runs-on: windows-latest
+    runs-on: windows-2019
     strategy:
       matrix:
         architecture: [x86, x64]
