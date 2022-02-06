@@ -32,7 +32,7 @@ def test_autodata(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodata_novalue(app):
-    options = {'no-value': True}
+    options = {'no-value': None}
     actual = do_autodoc(app, 'data', 'target.integer', options)
     assert list(actual) == [
         '',
