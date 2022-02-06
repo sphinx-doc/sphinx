@@ -24,6 +24,8 @@ Bugs fixed
 ----------
 
 * #10133: autodoc: Crashed when mocked module is used for type annotation
+* #9529: LaTeX: named auto numbered footnote (ex. ``[#named]``) that is referred
+  multiple times was rendered to a question mark
 * #10122: sphinx-build: make.bat does not check the installation of sphinx-build
   command before showing help
 

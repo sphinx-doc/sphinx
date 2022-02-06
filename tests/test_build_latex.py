@@ -723,9 +723,8 @@ def test_footnote(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert ('\\sphinxstepexplicit %\n\\begin{footnote}[1]\\phantomsection'
-            '\\label{\\thesphinxscope.1}%\n\\sphinxAtStartFootnote\nnumbered\n%\n'
-            '\\end{footnote}') in result
+    assert ('\\sphinxAtStartPar\n%\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
+            'numbered\n%\n\\end{footnote}') in result
     assert ('\\begin{footnote}[2]\\sphinxAtStartFootnote\nauto numbered\n%\n'
             '\\end{footnote}') in result
     assert '\\begin{footnote}[3]\\sphinxAtStartFootnote\nnamed\n%\n\\end{footnote}' in result
@@ -769,13 +768,13 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
             '\\sphinxAtStartFootnote\n'
             'Footnote in section\n%\n\\end{footnotetext}') in result
     assert ('\\caption{This is the figure caption with a footnote to '
-            '\\sphinxfootnotemark[8].}\\label{\\detokenize{index:id30}}\\end{figure}\n'
+            '\\sphinxfootnotemark[8].}\\label{\\detokenize{index:id35}}\\end{figure}\n'
             '%\n\\begin{footnotetext}[8]'
             '\\phantomsection\\label{\\thesphinxscope.8}%\n'
             '\\sphinxAtStartFootnote\n'
             'Footnote in caption\n%\n\\end{footnotetext}') in result
     assert ('\\sphinxcaption{footnote \\sphinxfootnotemark[9] in '
-            'caption of normal table}\\label{\\detokenize{index:id31}}') in result
+            'caption of normal table}\\label{\\detokenize{index:id36}}') in result
     assert ('\\caption{footnote \\sphinxfootnotemark[10] '
             'in caption \\sphinxfootnotemark[11] of longtable\\strut}') in result
     assert ('\\endlastfoot\n%\n\\begin{footnotetext}[10]'
@@ -796,6 +795,26 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
     assert '\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]' in result
 
 
+@pytest.mark.sphinx('latex', testroot='footnotes')
+def test_footnote_referred_multiple_times(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'python.tex').read_text()
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+
+    assert ('Explicitly numbered footnote: \\sphinxstepexplicit %\n'
+            '\\begin{footnote}[100]\\phantomsection\\label{\\thesphinxscope.100}%\n'
+            '\\sphinxAtStartFootnote\nNumbered footnote\n%\n'
+            '\\end{footnote} \\sphinxfootnotemark[100]\n'
+            in result)
+    assert ('Named footnote: \\sphinxstepexplicit %\n'
+            '\\begin{footnote}[13]\\phantomsection\\label{\\thesphinxscope.13}%\n'
+            '\\sphinxAtStartFootnote\nNamed footnote\n%\n'
+            '\\end{footnote} \\sphinxfootnotemark[13]\n'
+            in result)
+
+
 @pytest.mark.sphinx(
     'latex', testroot='footnotes',
     confoverrides={'latex_show_urls': 'inline'})
@@ -805,25 +824,23 @@ def test_latex_show_urls_is_inline(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert ('Same footnote number \\sphinxstepexplicit %\n'
-            '\\begin{footnote}[1]\\phantomsection\\label{\\thesphinxscope.1}%\n'
-            '\\sphinxAtStartFootnote\n'
+    assert ('Same footnote number %\n'
+            '\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'footnote in bar\n%\n\\end{footnote} in bar.rst') in result
     assert ('Auto footnote number %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'footnote in baz\n%\n\\end{footnote} in baz.rst') in result
-    assert ('\\phantomsection\\label{\\detokenize{index:id33}}'
+    assert ('\\phantomsection\\label{\\detokenize{index:id38}}'
             '{\\hyperref[\\detokenize{index:the-section'
             '-with-a-reference-to-authoryear}]'
             '{\\sphinxcrossref{The section with a reference to '
             '\\sphinxcite{index:authoryear}}}}') in result
-    assert ('\\phantomsection\\label{\\detokenize{index:id34}}'
+    assert ('\\phantomsection\\label{\\detokenize{index:id39}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}' in result)
     assert ('First footnote: %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
             'First\n%\n\\end{footnote}') in result
-    assert ('Second footnote: \\sphinxstepexplicit %\n'
-            '\\begin{footnote}[1]\\phantomsection\\label{\\thesphinxscope.1}%\n'
-            '\\sphinxAtStartFootnote\n'
+    assert ('Second footnote: %\n'
+            '\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'Second\n%\n\\end{footnote}\n') in result
     assert '\\sphinxhref{http://sphinx-doc.org/}{Sphinx} (http://sphinx\\sphinxhyphen{}doc.org/)' in result
     assert ('Third footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
@@ -863,24 +880,22 @@ def test_latex_show_urls_is_footnote(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert ('Same footnote number \\sphinxstepexplicit %\n'
-            '\\begin{footnote}[1]\\phantomsection\\label{\\thesphinxscope.1}%\n'
-            '\\sphinxAtStartFootnote\n'
+    assert ('Same footnote number %\n'
+            '\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'footnote in bar\n%\n\\end{footnote} in bar.rst') in result
     assert ('Auto footnote number %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
             'footnote in baz\n%\n\\end{footnote} in baz.rst') in result
-    assert ('\\phantomsection\\label{\\detokenize{index:id33}}'
+    assert ('\\phantomsection\\label{\\detokenize{index:id38}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to-authoryear}]'
             '{\\sphinxcrossref{The section with a reference '
             'to \\sphinxcite{index:authoryear}}}}') in result
-    assert ('\\phantomsection\\label{\\detokenize{index:id34}}'
+    assert ('\\phantomsection\\label{\\detokenize{index:id39}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}') in result
     assert ('First footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
             'First\n%\n\\end{footnote}') in result
-    assert ('Second footnote: \\sphinxstepexplicit %\n'
-            '\\begin{footnote}[1]\\phantomsection\\label{\\thesphinxscope.1}%\n'
-            '\\sphinxAtStartFootnote\n'
+    assert ('Second footnote: %\n'
+            '\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'Second\n%\n\\end{footnote}') in result
     assert ('\\sphinxhref{http://sphinx-doc.org/}{Sphinx}'
             '%\n\\begin{footnote}[4]\\sphinxAtStartFootnote\n'
@@ -932,24 +947,22 @@ def test_latex_show_urls_is_no(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert ('Same footnote number \\sphinxstepexplicit %\n'
-            '\\begin{footnote}[1]\\phantomsection\\label{\\thesphinxscope.1}%\n'
-            '\\sphinxAtStartFootnote\n'
+    assert ('Same footnote number %\n'
+            '\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'footnote in bar\n%\n\\end{footnote} in bar.rst') in result
     assert ('Auto footnote number %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'footnote in baz\n%\n\\end{footnote} in baz.rst') in result
-    assert ('\\phantomsection\\label{\\detokenize{index:id33}}'
+    assert ('\\phantomsection\\label{\\detokenize{index:id38}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to-authoryear}]'
             '{\\sphinxcrossref{The section with a reference '
             'to \\sphinxcite{index:authoryear}}}}') in result
-    assert ('\\phantomsection\\label{\\detokenize{index:id34}}'
+    assert ('\\phantomsection\\label{\\detokenize{index:id39}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}' in result)
     assert ('First footnote: %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
             'First\n%\n\\end{footnote}') in result
-    assert ('Second footnote: \\sphinxstepexplicit %\n'
-            '\\begin{footnote}[1]\\phantomsection\\label{\\thesphinxscope.1}%\n'
-            '\\sphinxAtStartFootnote\n'
+    assert ('Second footnote: %\n'
+            '\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'Second\n%\n\\end{footnote}') in result
     assert '\\sphinxhref{http://sphinx-doc.org/}{Sphinx}' in result
     assert ('Third footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'

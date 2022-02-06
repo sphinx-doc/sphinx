@@ -177,3 +177,12 @@ The section with an object description
 
 .. py:function:: dummy(N)
    :noindex:
+
+Footnotes referred twice
+========================
+
+* Explicitly numbered footnote: [100]_ [100]_
+* Named footnote: [#twice]_ [#twice]_
+
+.. [100] Numbered footnote
+.. [#twice] Named footnote
