@@ -543,7 +543,7 @@ There are also config values that you can set:
       Added ``'class-doc-from'``.
 
    .. versionchanged:: 4.5
-      Added ``'class-doc-from'``.
+      Added ``'no-value'``.
 
 .. confval:: autodoc_docstring_signature
 
