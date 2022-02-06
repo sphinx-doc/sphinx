@@ -48,6 +48,9 @@ Features added
 Bugs fixed
 ----------
 
+* #9876: autodoc: Failed to document an imported class that is built from native
+  binary module
+
 Testing
 --------
 
