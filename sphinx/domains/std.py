@@ -762,11 +762,10 @@ class StandardDomain(Domain):
                 sectname = clean_astext(title)
             elif node.tagname == 'rubric':
                 sectname = clean_astext(node)
-            elif node.tagname == 'target' and len(node) > 0:
-                # inline target (ex: blah _`blah` blah)
-                sectname = clean_astext(node)
             elif self.is_enumerable_node(node):
                 sectname = self.get_numfig_title(node)
+                if not sectname:
+                    continue
             else:
                 toctree = next(node.findall(addnodes.toctree), None)
                 if toctree and toctree.get('caption'):
@@ -774,8 +773,7 @@ class StandardDomain(Domain):
                 else:
                     # anonymous-only labels
                     continue
-            if sectname:
-                self.labels[name] = docname, labelid, sectname
+            self.labels[name] = docname, labelid, sectname
 
     def add_program_option(self, program: str, name: str, docname: str, labelid: str) -> None:
         self.progoptions[program, name] = (docname, labelid)

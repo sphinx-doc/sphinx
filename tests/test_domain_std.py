@@ -453,12 +453,3 @@ def test_labeled_rubric(app):
     domain = app.env.get_domain("std")
     assert 'label' in domain.labels
     assert domain.labels['label'] == ('index', 'label', 'blah blah blah')
-
-
-def test_inline_target(app):
-    text = "blah _`inline target` blah\n"
-    restructuredtext.parse(app, text)
-
-    domain = app.env.get_domain("std")
-    assert 'inline target' in domain.labels
-    assert domain.labels['inline target'] == ('index', 'inline-target', 'inline target')
