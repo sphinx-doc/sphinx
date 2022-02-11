@@ -300,9 +300,9 @@
 % Support scopes for footnote numbering
 \newcounter{sphinxscope}
 \newcommand{\sphinxstepscope}{\stepcounter{sphinxscope}}
-% Explicitly numbered footnotes may be referred to, and for this to be
-% clickable we need to have only one target. So we will step this at each
-% explicit footnote and let \thesphinxscope take it into account
+% Some footnotes are multiply referred-to.  For unique hypertarget in pdf,
+% we need an additional counter.  It is called "sphinxexplicit" for legacy
+% reasons as "explicitly" numbered footnotes may be multiply referred-to.
 \newcounter{sphinxexplicit}
 \newcommand{\sphinxstepexplicit}{\stepcounter{sphinxexplicit}}
 % Some babel/polyglossia languages fiddle with \@arabic, so let's be extra
