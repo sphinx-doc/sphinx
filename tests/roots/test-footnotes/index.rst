@@ -33,6 +33,7 @@ The section with a reference to [AuthorYear]_
 * Second footnote: [1]_
 * `Sphinx <http://sphinx-doc.org/>`_
 * Third footnote: [#]_
+* Fourth footnote: [#named]_
 * `URL including tilde <http://sphinx-doc.org/~test/>`_
 * GitHub Page: `https://github.com/sphinx-doc/sphinx <https://github.com/sphinx-doc/sphinx>`_
 * Mailing list: `sphinx-dev@googlegroups.com <mailto:sphinx-dev@googlegroups.com>`_
@@ -41,6 +42,7 @@ The section with a reference to [AuthorYear]_
 .. [1] Second
 .. [#] Third [#]_
 .. [#] Footnote inside footnote
+.. [#named] Fourth
 
 The section with a reference to [#]_
 =====================================
