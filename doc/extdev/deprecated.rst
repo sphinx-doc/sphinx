@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.ext.napoleon.docstring.GoogleDocstring._qualify_name()``
+     - 4.5
+     - 6.0
+     - N/A
+
    * - ``sphinx.ext.autodoc.AttributeDocumenter._datadescriptor``
      - 4.3
      - 6.0

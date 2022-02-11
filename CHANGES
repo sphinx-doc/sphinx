@@ -10,6 +10,8 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.ext.napoleon.docstring.GoogleDocstring._qualify_name()``
+
 Features added
 --------------
 
@@ -28,6 +30,8 @@ Bugs fixed
   ``no-value`` option
 * #9529: LaTeX: named auto numbered footnote (ex. ``[#named]``) that is referred
   multiple times was rendered to a question mark
+* #10181: napoleon: attributes are displayed like class attributes for google
+  style docstrings when :confval:`napoleon_use_ivar` is enabled
 * #10122: sphinx-build: make.bat does not check the installation of sphinx-build
   command before showing help
 
