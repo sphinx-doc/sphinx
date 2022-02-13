@@ -571,6 +571,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_start_of_file(self, node: Element) -> None:
         self.curfilestack.append(node['docname'])
+        self.body.append(CR + r'\sphinxstepscope' + CR)
 
     def depart_start_of_file(self, node: Element) -> None:
         self.curfilestack.pop()
