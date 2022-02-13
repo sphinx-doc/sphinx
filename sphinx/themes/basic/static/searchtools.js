@@ -62,7 +62,7 @@ const _displayItem = (item, highlightTerms, searchTerms) => {
   const docUrlRoot = DOCUMENTATION_OPTIONS.URL_ROOT;
   const docFileSuffix = DOCUMENTATION_OPTIONS.FILE_SUFFIX;
   const docLinkSuffix = DOCUMENTATION_OPTIONS.LINK_SUFFIX;
-  const docHasSource = DOCUMENTATION_OPTIONS.HAS_SOURCE;
+  const showSearchSummary = DOCUMENTATION_OPTIONS.SHOW_SEARCH_SUMMARY;
 
   const [docName, title, anchor, descr] = item;
 
@@ -90,7 +90,7 @@ const _displayItem = (item, highlightTerms, searchTerms) => {
   if (descr)
     listItem.appendChild(document.createElement("span")).innerText =
       " (" + descr + ")";
-  else if (docHasSource)
+  else if (showSearchSummary)
     fetch(requestUrl)
       .then((responseData) => responseData.text())
       .then((data) => {

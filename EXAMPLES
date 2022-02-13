@@ -246,7 +246,7 @@ Documentation using sphinx_rtd_theme
 * `Nextflow <https://www.nextflow.io/docs/latest/index.html>`__
 * `nghttp2 <https://nghttp2.org/documentation/>`__
 * `NICOS <https://forge.frm2.tum.de/nicos/doc/nicos-master/>`__ (customized)
-* `OpenFAST <https://openfast.readthedocs.io/>`__ 
+* `OpenFAST <https://openfast.readthedocs.io/>`__
 * `Panda3D <https://docs.panda3d.org/>`__ (customized)
 * `Pelican <https://docs.getpelican.com/>`__
 * `picamera <https://picamera.readthedocs.io/>`__
@@ -454,7 +454,7 @@ Books produced using Sphinx
 * `"Theoretical Physics Reference" <https://www.theoretical-physics.net/>`__
 * `"The Varnish Book" <https://info.varnish-software.com/the-varnish-book>`__
 
-These produced using Sphinx
+Theses produced using Sphinx
 ----------------------------
 
 * `"A Web-Based System for Comparative Analysis of OpenStreetMap Data by the Use

@@ -510,6 +510,7 @@ class StandaloneHTMLBuilder(Builder):
             'docstitle': self.config.html_title,
             'shorttitle': self.config.html_short_title,
             'show_copyright': self.config.html_show_copyright,
+            'show_search_summary': self.config.html_show_search_summary,
             'show_sphinx': self.config.html_show_sphinx,
             'has_source': self.config.html_copy_source,
             'show_source': self.config.html_show_sourcelink,
@@ -1340,6 +1341,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_file_suffix', None, 'html', [str])
     app.add_config_value('html_link_suffix', None, 'html', [str])
     app.add_config_value('html_show_copyright', True, 'html')
+    app.add_config_value('html_show_search_summary', True, 'html')
     app.add_config_value('html_show_sphinx', True, 'html')
     app.add_config_value('html_context', {}, 'html')
     app.add_config_value('html_output_encoding', 'utf-8', 'html')
