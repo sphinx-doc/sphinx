@@ -14,7 +14,7 @@ import posixpath
 import re
 import urllib.parse
 import warnings
-from typing import TYPE_CHECKING, Iterable, Tuple, cast
+from typing import TYPE_CHECKING, Iterable, Optional, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
@@ -284,6 +284,9 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         if name:
             node.insert(0, nodes.title(name, admonitionlabels[name]))
         self.set_first_last(node)
+
+    def depart_admonition(self, node: Optional[Element] = None) -> None:
+        self.body.append('</div>\n')
 
     def visit_seealso(self, node: Element) -> None:
         self.visit_admonition(node, 'seealso')

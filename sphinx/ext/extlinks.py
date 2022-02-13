@@ -36,7 +36,7 @@ import sphinx
 from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
-from sphinx.util import logging
+from sphinx.util import logging, rst
 from sphinx.util.nodes import split_explicit_title
 from sphinx.util.typing import RoleFunction
 
@@ -65,6 +65,7 @@ class ExternalLinksChecker(SphinxPostTransform):
             return
 
         uri = refnode['refuri']
+        title = refnode.astext()
 
         for alias, (base_uri, _caption) in self.app.config.extlinks.items():
             uri_pattern = re.compile(base_uri.replace('%s', '(?P<value>.+)'))
@@ -73,7 +74,11 @@ class ExternalLinksChecker(SphinxPostTransform):
                 # build a replacement suggestion
                 msg = __('hardcoded link %r could be replaced by an extlink '
                          '(try using %r instead)')
-                replacement = f":{alias}:`{match.groupdict().get('value')}`"
+                value = match.groupdict().get('value')
+                if uri != title:
+                    replacement = f":{alias}:`{rst.escape(title)} <{value}>`"
+                else:
+                    replacement = f":{alias}:`{value}`"
                 logger.warning(msg, uri, replacement, location=refnode)
 
 

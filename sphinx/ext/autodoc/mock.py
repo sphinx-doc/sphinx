@@ -154,6 +154,11 @@ def mock(modnames: List[str]) -> Generator[None, None, None]:
         finder.invalidate_caches()
 
 
+def ismockmodule(subject: Any) -> bool:
+    """Check if the object is a mocked module."""
+    return isinstance(subject, _MockModule)
+
+
 def ismock(subject: Any) -> bool:
     """Check if the object is mocked."""
     # check the object has '__sphinx_mock__' attribute

@@ -88,11 +88,16 @@ Deprecated
 Features added
 --------------
 
+* #10125: extlinks: Improve suggestion message for a reference having title
 * #9494, #9456: html search: Add a config variable
   :confval:`html_show_search_summary` to enable/disable the search summaries
 
 Bugs fixed
 ----------
+
+* #10133: autodoc: Crashed when mocked module is used for type annotation
+* #10122: sphinx-build: make.bat does not check the installation of sphinx-build
+  command before showing help
 
 Testing
 --------
