@@ -194,6 +194,9 @@
 % -- Sphinx specific:
 % currently commented out due to 
 % https://github.com/sphinx-doc/sphinx/pull/10191#issuecomment-1038807448
+% Memo: memoir class detection of successive footnote marks (to separate them
+%       by commas) is broken by \refstepcounter and also by \label, and some
+%       mitigation such as in \sphinxfootref would be needed
       % \global\let\spx@saved@thefnmark\@thefnmark
       % % this is done to access robustly the page number where footnote mark is
       % \refstepcounter{sphinxfootnotemark}\label{footnotemark.\thesphinxfootnotemark}%
@@ -394,16 +397,20 @@
     \def\spx@footrefHref {#4}%
 }%
 \def\sphinx@footmark@getpage #1#2#3\relax{%
-    \def\spx@footmarkpage{#2}%
+    \edef\spx@footmarkpage{#2}%
 }%
 \protected\def\sphinxfootref#1{% #1 always is explicit number in Sphinx
   \spx@opt@BeforeFootnote
-  \refstepcounter{sphinxfootnotemark}\label{footnotemark.\thesphinxfootnotemark}%
+  % each of \refstepcounter and \label interferes with memoir class detection
+  % of successive footnote marks, so we move them to inside \@makefnmark
   \let\spx@saved@makefnmark\@makefnmark
   \ltx@ifundefined{r@\thesphinxscope.footnote.#1}%
-    {\gdef\@thefnmark{?}}% on first LaTeX run
+    {\gdef\@thefnmark{?}% on first LaTeX run
+     \refstepcounter{sphinxfootnotemark}\label{footnotemark.\thesphinxfootnotemark}%
+    }%
     {\sphinx@xdef@thefnmark{#1}% also defines \spx@footrefHref
      \def\@makefnmark{% will be used by \H@@footnotemark
+       \refstepcounter{sphinxfootnotemark}\label{footnotemark.\thesphinxfootnotemark}%
        \hyper@linkstart{link}{\spx@footrefHref}%
        \spx@saved@makefnmark
        \hyper@linkend
