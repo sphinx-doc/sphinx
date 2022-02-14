@@ -192,26 +192,30 @@
      \unrestored@protected@xdef\@thefnmark{\thempfn}%
     \endgroup
 % -- Sphinx specific:
-      \global\let\spx@saved@thefnmark\@thefnmark
-      % this is done to access robustly the page number where footnote mark is
-      \refstepcounter{sphinxfootnotemark}\label{footnotemark.\thesphinxfootnotemark}%
-      % if possible, compare page numbers of mark and footnote to define \@thefnmark 
-      \ltx@ifundefined{r@\thesphinxscope.footnote.#1}%
-      {}%                           one more latex run is needed
-      {\sphinx@xdef@thefnmark{#1}}% check of page numbers possible
+% currently commented out due to 
+% https://github.com/sphinx-doc/sphinx/pull/10191#issuecomment-1038807448
+      % \global\let\spx@saved@thefnmark\@thefnmark
+      % % this is done to access robustly the page number where footnote mark is
+      % \refstepcounter{sphinxfootnotemark}\label{footnotemark.\thesphinxfootnotemark}%
+      % % if possible, compare page numbers of mark and footnote to define \@thefnmark 
+      % \ltx@ifundefined{r@\thesphinxscope.footnote.#1}%
+      % {}%                           one more latex run is needed
+      % {\sphinx@xdef@thefnmark{#1}}% check of page numbers possible
 % --
     \@footnotemark
     \def\FNH@endfntext@fntext{\@footnotetext}%
 % -- Sphinx specific:
       % we need to reset \@thefnmark as it is used by \FNH@startfntext via
       % \FNH@startnote to set \@currentlabel which will be used by \label
-      \global\let\@thefnmark\spx@saved@thefnmark
+% currently commented out (see above)
+      % \global\let\@thefnmark\spx@saved@thefnmark
 % --
     \FNH@startfntext
 % -- again Sphinx specific
       % \@currentlabel as needed by \label got set by \FNH@startnote
       % insert this at start of footnote text then the label will allow
       % to robustly know on which page the footnote text ends up
+% currently only of use for extra footnote marks so in case footnote multiply referred
       \phantomsection\label{\thesphinxscope.footnote.#1}%
 }%
 \def\FNH@footnotetext{%
