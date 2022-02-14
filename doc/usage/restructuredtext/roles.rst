@@ -106,12 +106,17 @@ These roles are described with their respective domains:
 Cross-referencing arbitrary locations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. versionchanged:: 4.4.1
+
+   Added the :confval:`link_inline_targets` config option, allowing optional
+   cross-referencing of inline targets without an explicit title.
+
 .. rst:role:: ref
 
    To support cross-referencing to arbitrary locations in any document, the
    standard reST labels are used.  For this to work label names must be unique
-   throughout the entire documentation.  There are two ways in which you can
-   refer to labels:
+   throughout the entire documentation.  How you refer to a label depends on
+   where the label occurs:
 
    * If you place a label directly before a section title, you can reference to
      it with ``:ref:`label-name```.  For example::
@@ -143,9 +148,12 @@ Cross-referencing arbitrary locations
      The same works for tables that are given an explicit caption using the
      :dudir:`table` directive.
 
-   * Labels that aren't placed before a section title can still be referenced,
-     but you must give the link an explicit title, using this syntax:
-     ``:ref:`Link title <label-name>```.
+   * If a label is not placed before a section title then you have two options.
+     The usual way to do this is to give the link an explicit title, using this
+     syntax: ``:ref:`Link title <label-name>```. In this case, the label,
+     ``label-name``, must be globally unique. Alternatively, to avoid
+     duplication, you can configure :confval:`link_inline_targets` to `True`.
+     In this case, the link text becomes the label.
 
    .. note::
 

@@ -763,6 +763,8 @@ class StandardDomain(Domain):
             elif node.tagname == 'rubric':
                 sectname = clean_astext(node)
             elif node.tagname == 'target' and len(node) > 0:
+                if env.config.link_inline_targets is False:
+                    continue
                 # inline target (ex: blah _`blah` blah)
                 sectname = clean_astext(node)
             elif self.is_enumerable_node(node):

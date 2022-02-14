@@ -457,8 +457,18 @@ def test_labeled_rubric(app):
 
 def test_inline_target(app):
     text = "blah _`inline target` blah\n"
+    app.config.link_inline_targets = True
     restructuredtext.parse(app, text)
 
     domain = app.env.get_domain("std")
     assert 'inline target' in domain.labels
     assert domain.labels['inline target'] == ('index', 'inline-target', 'inline target')
+
+
+def test_inline_target_disabled(app):
+    text = "blah _`inline target` blah\n"
+    app.config.link_inline_targets = False
+    restructuredtext.parse(app, text)
+
+    domain = app.env.get_domain("std")
+    assert 'inline target' not in domain.labels

@@ -483,6 +483,14 @@ General configuration
       The LaTeX builder obeys this setting (if :confval:`numfig` is set to
       ``True``).
 
+.. confval:: link_inline_targets
+
+   If true, inline targets will be cross-referenceable, even if they don't have
+   an explicit title. For example, when this is set, ``_`this one``` can be
+   cross-referenced using ``:ref:`this one```. Default: ``False``.
+
+   .. versionadded:: 4.4.1
+
 .. confval:: smartquotes
 
    If true, the `Docutils Smart Quotes transform`__, originally based on
