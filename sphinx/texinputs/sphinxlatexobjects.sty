@@ -137,7 +137,11 @@
   \pysigadjustitemsep
 }
 \newcommand{\pysiglinewithargsret}[3]{%
+  % as #1 may contain a footnote using \label we need to make \label
+  % a no-op here to avoid LaTeX complaining about duplicates
+\let\spx@label\label\let\label\@gobble
   \settowidth{\py@argswidth}{#1\sphinxcode{(}}%
+\let\label\spx@label
   \py@argswidth=\dimexpr\linewidth+\labelwidth-\py@argswidth\relax\relax
   \item[{#1\sphinxcode{(}\py@sigparams{#2}{#3}\strut}]
   \pysigadjustitemsep
