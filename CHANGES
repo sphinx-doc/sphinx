@@ -30,8 +30,12 @@ Bugs fixed
   ``no-value`` option
 * #9971: autodoc: TypeError is raised when the target object is annotated by
   unhashable object
+* #9924: LaTeX: multi-line ``.. function::`` directive has big vertical spacing
+  in Latexpdf
 * #9529: LaTeX: named auto numbered footnote (ex. ``[#named]``) that is referred
   multiple times was rendered to a question mark
+* #10158: LaTeX: excessive whitespace since v4.4.0 for undocumented
+  variables/structure members 
 * #10175: LaTeX: named footnote reference is linked to an incorrect footnote if
   the name is also used in the different document
 * #10181: napoleon: attributes are displayed like class attributes for google
