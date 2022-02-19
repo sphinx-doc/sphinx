@@ -1,7 +1,4 @@
 """
-    sphinx.search.ru
-    ~~~~~~~~~~~~~~~~
-
     Russian search language: includes the JS Russian stemmer.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

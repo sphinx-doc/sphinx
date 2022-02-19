@@ -1,7 +1,4 @@
 """
-    test_config
-    ~~~~~~~~~~~
-
     Test the sphinx.config.Config class and its handling in the
     Application class.
 

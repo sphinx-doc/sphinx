@@ -1,7 +1,4 @@
 """
-    test_apidoc
-    ~~~~~~~~~~~
-
     Test the sphinx.apidoc module.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

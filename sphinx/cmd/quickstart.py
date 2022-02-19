@@ -1,7 +1,4 @@
 """
-    sphinx.cmd.quickstart
-    ~~~~~~~~~~~~~~~~~~~~~
-
     Quickly setup documentation source to work with Sphinx.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

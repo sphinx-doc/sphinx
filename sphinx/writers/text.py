@@ -1,7 +1,4 @@
 """
-    sphinx.writers.text
-    ~~~~~~~~~~~~~~~~~~~
-
     Custom docutils writer for plain text.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

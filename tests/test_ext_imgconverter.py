@@ -1,7 +1,4 @@
 """
-    test_ext_imgconverter
-    ~~~~~~~~~~~~~~~~~~~~~
-
     Test sphinx.ext.imgconverter extension.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

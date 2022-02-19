@@ -1,7 +1,4 @@
 """
-    sphinx.builders.epub3
-    ~~~~~~~~~~~~~~~~~~~~~
-
     Build epub3 files.
     Originally derived from epub.py.
 

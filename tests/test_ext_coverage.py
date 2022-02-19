@@ -1,7 +1,4 @@
 """
-    test_coverage
-    ~~~~~~~~~~~~~
-
     Test the coverage builder.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

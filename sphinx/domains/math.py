@@ -1,7 +1,4 @@
 """
-    sphinx.domains.math
-    ~~~~~~~~~~~~~~~~~~~
-
     The math domain.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

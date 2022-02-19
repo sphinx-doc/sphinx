@@ -1,7 +1,4 @@
 """
-    sphinx.builders._epub_base
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
-
     Base class of epub2/epub3 builders.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

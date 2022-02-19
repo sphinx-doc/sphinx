@@ -1,7 +1,4 @@
 """
-    test_metadata
-    ~~~~~~~~~~~~~
-
     Test our handling of metadata in files with bibliographic metadata.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

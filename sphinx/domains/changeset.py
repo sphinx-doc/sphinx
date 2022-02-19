@@ -1,7 +1,4 @@
 """
-    sphinx.domains.changeset
-    ~~~~~~~~~~~~~~~~~~~~~~~~
-
     The changeset domain.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

@@ -1,7 +1,4 @@
 """
-    test_napoleon_iterators
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
     Tests for :mod:`sphinx.ext.napoleon.iterators` module.
 
 

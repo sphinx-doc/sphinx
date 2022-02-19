@@ -1,7 +1,4 @@
 """
-    sphinx.ext.extlinks
-    ~~~~~~~~~~~~~~~~~~~
-
     Extension to save typing and prevent hard-coding of base URLs in the reST
     files.
 

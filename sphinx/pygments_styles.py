@@ -1,7 +1,4 @@
 """
-    sphinx.pygments_styles
-    ~~~~~~~~~~~~~~~~~~~~~~
-
     Sphinx theme specific highlighting styles.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

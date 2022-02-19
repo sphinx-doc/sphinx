@@ -1,7 +1,4 @@
 """
-    sphinx.util.inspect
-    ~~~~~~~~~~~~~~~~~~~
-
     Helpers for inspecting Python modules.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

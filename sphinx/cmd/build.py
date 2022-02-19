@@ -1,7 +1,4 @@
 """
-    sphinx.cmd.build
-    ~~~~~~~~~~~~~~~~
-
     Build documentation from a provided source.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

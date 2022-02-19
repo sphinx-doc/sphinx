@@ -1,7 +1,4 @@
 """
-    test_pycode_parser
-    ~~~~~~~~~~~~~~~~~~
-
     Test pycode.parser.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

@@ -1,7 +1,4 @@
 """
-    test_napoleon
-    ~~~~~~~~~~~~~
-
     Tests for :mod:`sphinx.ext.napoleon.__init__` module.
 
 

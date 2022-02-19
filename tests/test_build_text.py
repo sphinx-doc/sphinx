@@ -1,7 +1,4 @@
 """
-    test_build_text
-    ~~~~~~~~~~~~~~~
-
     Test the build process with Text builder with the test root.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

@@ -1,7 +1,4 @@
 """
-    sphinx.extension
-    ~~~~~~~~~~~~~~~~
-
     Utilities for Sphinx extensions.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

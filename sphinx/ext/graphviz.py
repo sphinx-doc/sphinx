@@ -1,7 +1,4 @@
 """
-    sphinx.ext.graphviz
-    ~~~~~~~~~~~~~~~~~~~
-
     Allow graphviz-formatted graphs to be included in Sphinx-generated
     documents inline.
 

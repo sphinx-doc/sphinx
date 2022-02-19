@@ -1,7 +1,4 @@
 """
-    sphinx.events
-    ~~~~~~~~~~~~~
-
     Sphinx core events.
 
     Gracefully adapted from the TextPress system by Armin.

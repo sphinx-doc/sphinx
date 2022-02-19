@@ -1,7 +1,4 @@
 """
-    sphinx.util.texescape
-    ~~~~~~~~~~~~~~~~~~~~~
-
     TeX escaping helper.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

@@ -1,7 +1,4 @@
 """
-    sphinx.search.ja
-    ~~~~~~~~~~~~~~~~
-
     Japanese search language: includes routine to split words.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

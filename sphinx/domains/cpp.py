@@ -1,7 +1,4 @@
 """
-    sphinx.domains.cpp
-    ~~~~~~~~~~~~~~~~~~
-
     The C++ language domain.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

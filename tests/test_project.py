@@ -1,7 +1,4 @@
 """
-    test_project
-    ~~~~~~~~~~~~
-
     Tests project module.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

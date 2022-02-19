@@ -1,7 +1,4 @@
 """
-    test_build_base
-    ~~~~~~~~~~~~~~~
-
     Test the base build process.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

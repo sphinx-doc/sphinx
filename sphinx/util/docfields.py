@@ -1,7 +1,4 @@
 """
-    sphinx.util.docfields
-    ~~~~~~~~~~~~~~~~~~~~~
-
     "Doc fields" are reST field lists in object descriptions that will
     be domain-specifically transformed to a more appealing presentation.
 

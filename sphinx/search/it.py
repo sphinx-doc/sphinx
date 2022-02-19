@@ -1,7 +1,4 @@
 """
-    sphinx.search.it
-    ~~~~~~~~~~~~~~~~
-
     Italian search language: includes the JS Italian stemmer.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

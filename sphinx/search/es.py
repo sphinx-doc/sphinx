@@ -1,7 +1,4 @@
 """
-    sphinx.search.es
-    ~~~~~~~~~~~~~~~~
-
     Spanish search language: includes the JS Spanish stemmer.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

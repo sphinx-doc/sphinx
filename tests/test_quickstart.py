@@ -1,7 +1,4 @@
 """
-    test_quickstart
-    ~~~~~~~~~~~~~~~
-
     Test the sphinx.quickstart module.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

@@ -1,7 +1,4 @@
 """
-    sphinx.builders.linkcheck
-    ~~~~~~~~~~~~~~~~~~~~~~~~~
-
     The CheckExternalLinksBuilder class.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

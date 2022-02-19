@@ -1,7 +1,4 @@
 """
-    sphinx.search.sv
-    ~~~~~~~~~~~~~~~~
-
     Swedish search language: includes the JS Swedish stemmer.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

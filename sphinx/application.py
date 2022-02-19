@@ -1,7 +1,4 @@
 """
-    sphinx.application
-    ~~~~~~~~~~~~~~~~~~
-
     Sphinx application class and extensibility interface.
 
     Gracefully adapted from the TextPress system by Armin.

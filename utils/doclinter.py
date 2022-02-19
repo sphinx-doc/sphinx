@@ -1,7 +1,4 @@
 """
-    utils.doclinter
-    ~~~~~~~~~~~~~~~
-
     A linter for Sphinx docs
 
     :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.

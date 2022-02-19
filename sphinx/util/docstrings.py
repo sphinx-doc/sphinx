@@ -1,7 +1,4 @@
 """
-    sphinx.util.docstrings
-    ~~~~~~~~~~~~~~~~~~~~~~
-
     Utilities for docstring processing.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

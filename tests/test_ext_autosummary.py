@@ -1,7 +1,4 @@
 """
-    test_autosummary
-    ~~~~~~~~~~~~~~~~
-
     Test the autosummary extension.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

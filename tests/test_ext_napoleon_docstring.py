@@ -1,7 +1,4 @@
 """
-    test_napoleon_docstring
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
     Tests for :mod:`sphinx.ext.napoleon.docstring` module.
 
 

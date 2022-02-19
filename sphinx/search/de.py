@@ -1,7 +1,4 @@
 """
-    sphinx.search.de
-    ~~~~~~~~~~~~~~~~
-
     German search language: includes the JS German stemmer.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

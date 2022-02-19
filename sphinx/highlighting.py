@@ -1,7 +1,4 @@
 """
-    sphinx.highlighting
-    ~~~~~~~~~~~~~~~~~~~
-
     Highlight code blocks using Pygments.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

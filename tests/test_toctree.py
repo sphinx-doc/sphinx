@@ -1,7 +1,4 @@
 """
-    test_toctree
-    ~~~~~~~~~~~~
-
     Test the HTML builder and check output against XPath.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

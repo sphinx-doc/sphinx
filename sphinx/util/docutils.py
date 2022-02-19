@@ -1,7 +1,4 @@
 """
-    sphinx.util.docutils
-    ~~~~~~~~~~~~~~~~~~~~
-
     Utility functions for docutils.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

@@ -1,7 +1,4 @@
 """
-    sphinx.search.no
-    ~~~~~~~~~~~~~~~~
-
     Norwegian search language: includes the JS Norwegian stemmer.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

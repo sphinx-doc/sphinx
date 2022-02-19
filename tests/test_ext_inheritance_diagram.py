@@ -1,7 +1,4 @@
 """
-    test_ext_inheritance_diagram
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
     Test sphinx.ext.inheritance_diagram extension.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

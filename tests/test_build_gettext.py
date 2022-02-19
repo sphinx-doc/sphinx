@@ -1,7 +1,4 @@
 """
-    test_build_gettext
-    ~~~~~~~~~~~~~~~~~~
-
     Test the build process with gettext builder with the test root.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

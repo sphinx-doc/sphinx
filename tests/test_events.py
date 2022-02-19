@@ -1,7 +1,4 @@
 """
-    test_events
-    ~~~~~~~~~~~
-
     Test the EventManager class.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

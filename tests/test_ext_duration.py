@@ -1,7 +1,4 @@
 """
-    test_ext_duration
-    ~~~~~~~~~~~~~~~~~
-
     Test sphinx.ext.duration extension.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

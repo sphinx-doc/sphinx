@@ -1,7 +1,4 @@
 """
-    sphinx.ext.napoleon.iterators
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 
     A collection of helpful iterators.
 

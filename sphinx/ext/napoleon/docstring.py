@@ -1,7 +1,4 @@
 """
-    sphinx.ext.napoleon.docstring
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 
     Classes for docstring parsing and formatting.
 

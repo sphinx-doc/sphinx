@@ -1,7 +1,4 @@
 """
-    sphinx.builders.xml
-    ~~~~~~~~~~~~~~~~~~~
-
     Docutils-native XML and pseudo-XML builders.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

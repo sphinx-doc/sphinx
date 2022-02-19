@@ -1,7 +1,4 @@
 """
-    test_correct_year
-    ~~~~~~~~~~~~~~~~~
-
     Test copyright year adjustment
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

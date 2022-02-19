@@ -1,7 +1,4 @@
 """
-    sphinx.parsers
-    ~~~~~~~~~~~~~~
-
     A Base class for additional parsers.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
