@@ -1,7 +1,4 @@
 """
-    sphinx.search.ro
-    ~~~~~~~~~~~~~~~~
-
     Romanian search language: includes the JS Romanian stemmer.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

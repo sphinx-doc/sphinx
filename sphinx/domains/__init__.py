@@ -1,7 +1,4 @@
 """
-    sphinx.domains
-    ~~~~~~~~~~~~~~
-
     Support for domains, which are groupings of description directives
     and roles describing e.g. constructs of one programming language.
 

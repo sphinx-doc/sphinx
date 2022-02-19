@@ -1,7 +1,4 @@
 """
-    test_util_logging
-    ~~~~~~~~~~~~~~~~~
-
     Test logging util.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

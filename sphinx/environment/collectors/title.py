@@ -1,7 +1,4 @@
 """
-    sphinx.environment.collectors.title
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
     The title collector components for sphinx.environment.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

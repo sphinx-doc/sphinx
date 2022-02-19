@@ -1,7 +1,4 @@
 """
-    test_sphinx_parsers
-    ~~~~~~~~~~~~~~~~~~~
-
     Tests parsers module.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

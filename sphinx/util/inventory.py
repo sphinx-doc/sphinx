@@ -1,7 +1,4 @@
 """
-    sphinx.util.inventory
-    ~~~~~~~~~~~~~~~~~~~~~
-
     Inventory utility functions for Sphinx.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

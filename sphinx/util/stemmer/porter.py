@@ -1,7 +1,4 @@
 """
-    sphinx.util.stemmer.porter
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
-
     Porter Stemming Algorithm
 
     This is the Porter stemming algorithm, ported to Python from the

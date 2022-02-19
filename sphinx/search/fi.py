@@ -1,7 +1,4 @@
 """
-    sphinx.search.fi
-    ~~~~~~~~~~~~~~~~
-
     Finnish search language: includes the JS Finnish stemmer.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

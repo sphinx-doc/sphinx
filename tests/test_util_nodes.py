@@ -1,8 +1,5 @@
 """
-    test_util_nodes
-    ~~~~~~~~~~~~~~~
-
-    Tests uti.nodes functions.
+    Tests util.nodes functions.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.

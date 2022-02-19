@@ -1,7 +1,4 @@
 """
-    sphinx.ext.autodoc.preserve_defaults
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
     Preserve the default argument values of function signatures in source code
     and keep them not evaluated for readability.
 

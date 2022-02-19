@@ -1,7 +1,4 @@
 """
-    sphinx.ext.apidoc
-    ~~~~~~~~~~~~~~~~~
-
     Parses a directory tree looking for Python modules and packages and creates
     ReST files appropriately to create code documentation with Sphinx.  It also
     creates a modules index (named modules.<suffix>).

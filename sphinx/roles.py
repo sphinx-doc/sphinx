@@ -1,7 +1,4 @@
 """
-    sphinx.roles
-    ~~~~~~~~~~~~
-
     Handlers for additional ReST roles.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

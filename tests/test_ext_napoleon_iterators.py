@@ -1,9 +1,5 @@
 """
-    test_napoleon_iterators
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
     Tests for :mod:`sphinx.ext.napoleon.iterators` module.
-
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.

@@ -1,7 +1,4 @@
 """
-    test_highlighting
-    ~~~~~~~~~~~~~~~~~
-
     Test the Pygments highlighting bridge.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

@@ -1,7 +1,4 @@
 """
-    sphinx.builders.manpage
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
     Manual pages builder.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

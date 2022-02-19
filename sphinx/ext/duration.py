@@ -1,7 +1,4 @@
 """
-    sphinx.ext.duration
-    ~~~~~~~~~~~~~~~~~~~
-
     Measure durations of Sphinx processing.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

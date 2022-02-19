@@ -1,7 +1,4 @@
 """
-    test_search
-    ~~~~~~~~~~~
-
     Test the search index builder.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

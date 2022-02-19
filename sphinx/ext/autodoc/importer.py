@@ -1,7 +1,4 @@
 """
-    sphinx.ext.autodoc.importer
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
     Importer utilities for autodoc
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

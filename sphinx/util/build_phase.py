@@ -1,7 +1,4 @@
 """
-    sphinx.util.build_phase
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
     Build phase of Sphinx application.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

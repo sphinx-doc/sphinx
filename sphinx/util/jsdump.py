@@ -1,7 +1,4 @@
 """
-    sphinx.util.jsdump
-    ~~~~~~~~~~~~~~~~~~
-
     This module implements a simple JavaScript serializer.
     Uses the basestring encode function from simplejson by Bob Ippolito.
 

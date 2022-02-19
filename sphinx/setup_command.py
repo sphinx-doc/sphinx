@@ -1,7 +1,4 @@
 """
-    sphinx.setup_command
-    ~~~~~~~~~~~~~~~~~~~~
-
     Setuptools/distutils commands to assist the building of sphinx
     documentation.
 

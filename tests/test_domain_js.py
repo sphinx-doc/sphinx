@@ -1,7 +1,4 @@
 """
-    test_domain_js
-    ~~~~~~~~~~~~~~
-
     Tests the JavaScript Domain
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

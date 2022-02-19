@@ -1,7 +1,4 @@
 """
-    test_writer_latex
-    ~~~~~~~~~~~~~~~~
-
     Test the LaTeX writer
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

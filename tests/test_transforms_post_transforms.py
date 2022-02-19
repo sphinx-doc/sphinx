@@ -1,7 +1,4 @@
 """
-    test_transforms_post_transforms
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
     Tests the post_transforms
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

@@ -1,7 +1,4 @@
 """
-    sphinx.ext.linkcode
-    ~~~~~~~~~~~~~~~~~~~
-
     Add external links to module code in Python object descriptions.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

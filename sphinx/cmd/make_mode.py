@@ -1,7 +1,4 @@
 """
-    sphinx.cmd.make_mode
-    ~~~~~~~~~~~~~~~~~~~~
-
     sphinx-build -M command-line handling.
 
     This replaces the old, platform-dependent and once-generated content

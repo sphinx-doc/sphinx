@@ -1,7 +1,4 @@
 """
-    sphinx.transforms.post_transforms.code
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
     transforms for code-blocks.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

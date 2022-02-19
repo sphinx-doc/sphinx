@@ -1,7 +1,4 @@
 """
-    sphinx.domains.std
-    ~~~~~~~~~~~~~~~~~~
-
     The standard domain.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

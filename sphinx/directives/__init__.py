@@ -1,7 +1,4 @@
 """
-    sphinx.directives
-    ~~~~~~~~~~~~~~~~~
-
     Handlers for additional ReST directives.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

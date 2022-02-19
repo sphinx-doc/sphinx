@@ -1,7 +1,4 @@
 """
-    sphinx.ext.napoleon
-    ~~~~~~~~~~~~~~~~~~~
-
     Support for NumPy and Google style docstrings.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

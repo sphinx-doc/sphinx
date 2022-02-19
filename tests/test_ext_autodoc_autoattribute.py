@@ -1,7 +1,4 @@
 """
-    test_ext_autodoc_autoattribute
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
     Test the autodoc extension.  This tests mainly the Documenters; the auto
     directives are tested in a test source file translated by test_build.
 

@@ -1,7 +1,4 @@
 """
-    sphinx.util.pycompat
-    ~~~~~~~~~~~~~~~~~~~~
-
     Stuff for Python version compatibility.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

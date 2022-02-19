@@ -1,7 +1,4 @@
 """
-    sphinx.versioning
-    ~~~~~~~~~~~~~~~~~
-
     Implements the low-level algorithms Sphinx uses for the versioning of
     doctrees.
 

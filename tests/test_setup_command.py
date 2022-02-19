@@ -1,7 +1,4 @@
 """
-    test_setup_command
-    ~~~~~~~~~~~~~~~~~~~
-
     Test setup_command for distutils.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

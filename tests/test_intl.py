@@ -1,7 +1,4 @@
 """
-    test_intl
-    ~~~~~~~~~
-
     Test message patching for internationalization purposes.  Runs the text
     builder in the test root.
 

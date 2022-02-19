@@ -1,7 +1,4 @@
 """
-    test_directive_other
-    ~~~~~~~~~~~~~~~~~~~~
-
     Test the other directives.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

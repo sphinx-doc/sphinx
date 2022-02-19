@@ -1,7 +1,4 @@
 """
-    sphinx.transforms.i18n
-    ~~~~~~~~~~~~~~~~~~~~~~
-
     Docutils transforms used by Sphinx when reading documents.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

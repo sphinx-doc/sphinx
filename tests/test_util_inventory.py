@@ -1,7 +1,4 @@
 """
-    test_util_inventory
-    ~~~~~~~~~~~~~~~~~~~
-
     Test inventory util functions.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

@@ -1,7 +1,4 @@
 """
-    test_ext_autodoc_private_members
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
     Test the autodoc extension.  This tests mainly for private-members option.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

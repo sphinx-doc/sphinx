@@ -1,7 +1,4 @@
 """
-    sphinx.pycode.ast
-    ~~~~~~~~~~~~~~~~~
-
     Helpers for AST (Abstract Syntax Tree).
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

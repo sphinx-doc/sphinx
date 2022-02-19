@@ -1,7 +1,4 @@
 """
-    sphinx.errors
-    ~~~~~~~~~~~~~
-
     Contains SphinxError and a few subclasses (in an extra module to avoid
     circular import problems).
 

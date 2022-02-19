@@ -1,7 +1,4 @@
 """
-    test_domain_std
-    ~~~~~~~~~~~~~~~
-
     Tests the std domain
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

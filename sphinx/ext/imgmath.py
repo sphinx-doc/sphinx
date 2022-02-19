@@ -1,7 +1,4 @@
 """
-    sphinx.ext.imgmath
-    ~~~~~~~~~~~~~~~~~~
-
     Render math in HTML via dvipng or dvisvgm.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

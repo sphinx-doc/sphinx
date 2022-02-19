@@ -1,7 +1,4 @@
 """
-    sphinx.ext.autosummary.generate
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
     Usable as a library or script to generate automatic RST source files for
     items referred to in autosummary:: directives.
 

@@ -1,7 +1,4 @@
 """
-    test_ext_autodoc_mock
-    ~~~~~~~~~~~~~~~~~~~~~
-
     Test the autodoc extension.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

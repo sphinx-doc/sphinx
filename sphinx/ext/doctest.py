@@ -1,7 +1,4 @@
 """
-    sphinx.ext.doctest
-    ~~~~~~~~~~~~~~~~~~
-
     Mimic doctest by automatically executing code snippets and checking
     their results.
 
