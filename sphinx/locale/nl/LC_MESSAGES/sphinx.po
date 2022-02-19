@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-30 00:11+0000\n"
+"POT-Creation-Date: 2022-02-13 00:13+0000\n"
 "PO-Revision-Date: 2022-01-23 00:11+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Dutch (http://www.transifex.com/sphinx-doc/sphinx-1/language/nl/)\n"
@@ -2621,7 +2621,7 @@ msgid ""
 "====================== slowest reading durations ======================="
 msgstr ""
 
-#: sphinx/ext/extlinks.py:76
+#: sphinx/ext/extlinks.py:77
 #, python-format
 msgid ""
 "hardcoded link %r could be replaced by an extlink (try using %r instead)"
@@ -2862,7 +2862,7 @@ msgstr ""
 msgid "error while formatting arguments for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1699
+#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1700
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr ""
@@ -2892,66 +2892,66 @@ msgstr ""
 msgid "error while formatting signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1021
+#: sphinx/ext/autodoc/__init__.py:1022
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1028
+#: sphinx/ext/autodoc/__init__.py:1029
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1041
+#: sphinx/ext/autodoc/__init__.py:1042
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1107
+#: sphinx/ext/autodoc/__init__.py:1108
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1308 sphinx/ext/autodoc/__init__.py:1385
-#: sphinx/ext/autodoc/__init__.py:2791
+#: sphinx/ext/autodoc/__init__.py:1309 sphinx/ext/autodoc/__init__.py:1386
+#: sphinx/ext/autodoc/__init__.py:2795
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1578
+#: sphinx/ext/autodoc/__init__.py:1579
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1686
+#: sphinx/ext/autodoc/__init__.py:1687
 #, python-format
 msgid "Bases: %s"
 msgstr "Basisklassen: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1784 sphinx/ext/autodoc/__init__.py:1862
-#: sphinx/ext/autodoc/__init__.py:1885
+#: sphinx/ext/autodoc/__init__.py:1788 sphinx/ext/autodoc/__init__.py:1866
+#: sphinx/ext/autodoc/__init__.py:1889
 #, python-format
 msgid "alias of %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1931
+#: sphinx/ext/autodoc/__init__.py:1935
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2167 sphinx/ext/autodoc/__init__.py:2264
+#: sphinx/ext/autodoc/__init__.py:2171 sphinx/ext/autodoc/__init__.py:2268
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2395
+#: sphinx/ext/autodoc/__init__.py:2399
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2834
+#: sphinx/ext/autodoc/__init__.py:2838
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
@@ -3412,19 +3412,19 @@ msgstr "Veranderingen in de C-API"
 msgid "Other changes"
 msgstr "Andere veranderingen"
 
-#: sphinx/themes/basic/static/doctools.js:199 sphinx/writers/html.py:437
-#: sphinx/writers/html.py:442 sphinx/writers/html5.py:392
-#: sphinx/writers/html5.py:397
+#: sphinx/themes/basic/static/doctools.js:197 sphinx/writers/html.py:436
+#: sphinx/writers/html.py:441 sphinx/writers/html5.py:395
+#: sphinx/writers/html5.py:400
 msgid "Permalink to this headline"
 msgstr "Permalink naar deze titel"
 
-#: sphinx/themes/basic/static/doctools.js:205 sphinx/writers/html.py:132
-#: sphinx/writers/html.py:141 sphinx/writers/html5.py:107
+#: sphinx/themes/basic/static/doctools.js:203 sphinx/writers/html.py:128
+#: sphinx/writers/html.py:137 sphinx/writers/html5.py:107
 #: sphinx/writers/html5.py:116
 msgid "Permalink to this definition"
 msgstr "Permalink naar deze definitie"
 
-#: sphinx/themes/basic/static/doctools.js:238
+#: sphinx/themes/basic/static/doctools.js:236
 msgid "Hide Search Matches"
 msgstr "Zoekresultaten verbergen"
 
@@ -3600,37 +3600,37 @@ msgstr ""
 msgid "default role %s not found"
 msgstr ""
 
-#: sphinx/writers/html.py:330 sphinx/writers/html5.py:305
+#: sphinx/writers/html.py:329 sphinx/writers/html5.py:308
 #, python-format
 msgid "numfig_format is not defined for %s"
 msgstr ""
 
-#: sphinx/writers/html.py:340 sphinx/writers/html5.py:315
+#: sphinx/writers/html.py:339 sphinx/writers/html5.py:318
 #, python-format
 msgid "Any IDs not assigned for %s node"
 msgstr ""
 
-#: sphinx/writers/html.py:414 sphinx/writers/html5.py:369
+#: sphinx/writers/html.py:413 sphinx/writers/html5.py:372
 msgid "Permalink to this term"
 msgstr ""
 
-#: sphinx/writers/html.py:446 sphinx/writers/html5.py:401
+#: sphinx/writers/html.py:445 sphinx/writers/html5.py:404
 msgid "Permalink to this table"
 msgstr "Permalink naar deze tabel"
 
-#: sphinx/writers/html.py:489 sphinx/writers/html5.py:444
+#: sphinx/writers/html.py:488 sphinx/writers/html5.py:447
 msgid "Permalink to this code"
 msgstr "Permalink naar deze broncode"
 
-#: sphinx/writers/html.py:491 sphinx/writers/html5.py:446
+#: sphinx/writers/html.py:490 sphinx/writers/html5.py:449
 msgid "Permalink to this image"
 msgstr "Permallink naar deze afbeelding"
 
-#: sphinx/writers/html.py:493 sphinx/writers/html5.py:448
+#: sphinx/writers/html.py:492 sphinx/writers/html5.py:451
 msgid "Permalink to this toctree"
 msgstr "Permalink naar deze toctree"
 
-#: sphinx/writers/html.py:625 sphinx/writers/html5.py:569
+#: sphinx/writers/html.py:624 sphinx/writers/html5.py:572
 msgid "Could not obtain image size. :scale: option is ignored."
 msgstr ""
 

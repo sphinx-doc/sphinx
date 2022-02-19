@@ -1001,7 +1001,8 @@ class ModuleDocumenter(Documenter):
         'platform': identity, 'deprecated': bool_option,
         'member-order': member_order_option, 'exclude-members': exclude_members_option,
         'private-members': members_option, 'special-members': members_option,
-        'imported-members': bool_option, 'ignore-module-all': bool_option
+        'imported-members': bool_option, 'ignore-module-all': bool_option,
+        'no-value': bool_option,
     }
 
     def __init__(self, *args: Any) -> None:
@@ -1771,9 +1772,12 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
         if self.doc_as_attr and self.modname != self.get_real_modname():
-            # override analyzer to obtain doccomment around its definition.
-            self.analyzer = ModuleAnalyzer.for_module(self.modname)
-            self.analyzer.analyze()
+            try:
+                # override analyzer to obtain doccomment around its definition.
+                self.analyzer = ModuleAnalyzer.for_module(self.modname)
+                self.analyzer.analyze()
+            except PycodeError:
+                pass
 
         if self.doc_as_attr and not self.get_variable_comment():
             try:

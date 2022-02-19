@@ -85,17 +85,30 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.ext.napoleon.docstring.GoogleDocstring._qualify_name()``
+
 Features added
 --------------
 
 * #10125: extlinks: Improve suggestion message for a reference having title
 * #9494, #9456: html search: Add a config variable
   :confval:`html_show_search_summary` to enable/disable the search summaries
+* #9337: HTML theme, add option ``enable_search_shortcuts`` that enables :kbd:'/' as
+         a Quick search shortcut and :kbd:`Esc` shortcut that
+         removes search highlighting.
 
 Bugs fixed
 ----------
 
 * #10133: autodoc: Crashed when mocked module is used for type annotation
+* #10146: autodoc: :confval:`autodoc_default_options` does not support
+  ``no-value`` option
+* #9971: autodoc: TypeError is raised when the target object is annotated by
+  unhashable object
+* #9529: LaTeX: named auto numbered footnote (ex. ``[#named]``) that is referred
+  multiple times was rendered to a question mark
+* #10181: napoleon: attributes are displayed like class attributes for google
+  style docstrings when :confval:`napoleon_use_ivar` is enabled
 * #10122: sphinx-build: make.bat does not check the installation of sphinx-build
   command before showing help
 
@@ -119,6 +132,9 @@ Features added
 
 Bugs fixed
 ----------
+
+* #9876: autodoc: Failed to document an imported class that is built from native
+  binary module
 
 Testing
 --------

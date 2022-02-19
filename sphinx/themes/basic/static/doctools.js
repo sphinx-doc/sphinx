@@ -86,8 +86,7 @@ const Documentation = {
   init: () => {
     Documentation.highlightSearchWords();
     Documentation.initDomainIndexTable();
-    if (DOCUMENTATION_OPTIONS.NAVIGATION_WITH_KEYS)
-      Documentation.initOnKeyListeners();
+    Documentation.initOnKeyListeners();
   },
 
   /**
@@ -174,6 +173,16 @@ const Documentation = {
   },
 
   /**
+   * helper function to focus on search bar
+   */
+  focusSearchBar : () => {
+    document
+      .querySelectorAll("input[name=q]")
+      .first()
+      .focus()
+  },
+
+  /**
    * Initialise the domain index toggle buttons
    */
   initDomainIndexTable: () => {
@@ -198,6 +207,11 @@ const Documentation = {
   },
 
   initOnKeyListeners: () => {
+    // only install a listener if it is really needed
+    if (!DOCUMENTATION_OPTIONS.NAVIGATION_WITH_KEYS &&
+        !DOCUMENTATION_OPTIONS.ENABLE_SEARCH_SHORTCUTS)
+        return;
+
     const blacklistedElements = new Set([
       "TEXTAREA",
       "INPUT",
@@ -206,14 +220,46 @@ const Documentation = {
     ]);
     document.addEventListener("keydown", (event) => {
       if (blacklistedElements.has(document.activeElement.tagName)) return; // bail for input elements
-      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)
+      if (event.altKey || event.ctrlKey || event.metaKey)
         return; // bail with special keys
-      if (event.key === "ArrowLeft") {
-        const prevLink = document.querySelector('link[rel="prev"]');
-        if (prevLink && prevLink.href) window.location.href = prevLink.href;
-      } else if (event.key === "ArrowRight") {
-        const nextLink = document.querySelector('link[rel="next"]').href;
-        if (nextLink && nextLink.href) window.location.href = nextLink.href;
+
+      if (!event.shiftKey) {
+        switch (event.key) {
+          case "ArrowLeft":
+            if (!DOCUMENTATION_OPTIONS.NAVIGATION_WITH_KEYS)
+              break;
+
+            const prevLink = document.querySelector('link[rel="prev"]');
+            if (prevLink && prevLink.href) {
+              window.location.href = prevLink.href;
+              return false;
+            }
+            break;
+          case "ArrowRight":
+            if (!DOCUMENTATION_OPTIONS.NAVIGATION_WITH_KEYS)
+              break;
+
+            const nextLink = document.querySelector('link[rel="next"]').href;
+            if (nextLink && nextLink.href) {
+              window.location.href = nextLink.href;
+              return false;
+            }
+            break;
+          case "Escape":
+            if (!DOCUMENTATION_OPTIONS.ENABLE_SEARCH_SHORTCUTS)
+              break;
+            Documentation.hideSearchWords();
+            return false;
+        }
+      }
+
+      // some keyboard layouts may need Shift to get /
+      switch (event.key) {
+        case '/':
+          if (!DOCUMENTATION_OPTIONS.ENABLE_SEARCH_SHORTCUTS)
+            break;
+          Documentation.focusSearchBar();
+          return false;
       }
     });
   },

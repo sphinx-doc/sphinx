@@ -154,27 +154,29 @@ def get_verifier(verify, verify_re):
 @pytest.mark.parametrize('type,rst,html_expected,latex_expected', [
     (
         # pep role
-        'verify',
+        'verify_re',
         ':pep:`8`',
+        # since docutils-0.19, :pep: role points to python.org via https schema
         ('<p><span class="target" id="index-0"></span><a class="pep reference external" '
-         'href="http://www.python.org/dev/peps/pep-0008"><strong>PEP 8</strong></a></p>'),
-        ('\\sphinxAtStartPar\n'
-         '\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
-         '!PEP 8@\\spxentry{PEP 8}}\\sphinxhref{http://www.python.org/dev/peps/pep-0008}'
-         '{\\sphinxstylestrong{PEP 8}}')
+         'href="https?://www.python.org/dev/peps/pep-0008"><strong>PEP 8</strong></a></p>'),
+        (r'\\sphinxAtStartPar\n'
+         r'\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
+         r'!PEP 8@\\spxentry{PEP 8}}\\sphinxhref{https?://www.python.org/dev/peps/pep-0008}'
+         r'{\\sphinxstylestrong{PEP 8}}')
     ),
     (
         # pep role with anchor
-        'verify',
+        'verify_re',
         ':pep:`8#id1`',
+        # since docutils-0.19, :pep: role points to python.org via https schema
         ('<p><span class="target" id="index-0"></span><a class="pep reference external" '
-         'href="http://www.python.org/dev/peps/pep-0008#id1">'
+         'href="https?://www.python.org/dev/peps/pep-0008#id1">'
          '<strong>PEP 8#id1</strong></a></p>'),
-        ('\\sphinxAtStartPar\n'
-         '\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
-         '!PEP 8\\#id1@\\spxentry{PEP 8\\#id1}}\\sphinxhref'
-         '{http://www.python.org/dev/peps/pep-0008\\#id1}'
-         '{\\sphinxstylestrong{PEP 8\\#id1}}')
+        (r'\\sphinxAtStartPar\n'
+         r'\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
+         r'!PEP 8\\#id1@\\spxentry{PEP 8\\#id1}}\\sphinxhref'
+         r'{https?://www.python.org/dev/peps/pep-0008\\#id1}'
+         r'{\\sphinxstylestrong{PEP 8\\#id1}}')
     ),
     (
         # rfc role

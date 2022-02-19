@@ -813,14 +813,14 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_footnote(self, node: Element) -> None:
         self.in_footnote += 1
         label = cast(nodes.label, node[0])
-        if 'auto' not in node:
+        if 'referred' in node:
             self.body.append(r'\sphinxstepexplicit ')
         if self.in_parsed_literal:
             self.body.append(r'\begin{footnote}[%s]' % label.astext())
         else:
             self.body.append('%' + CR)
             self.body.append(r'\begin{footnote}[%s]' % label.astext())
-        if 'auto' not in node:
+        if 'referred' in node:
             self.body.append(r'\phantomsection'
                              r'\label{\thesphinxscope.%s}%%' % label.astext() + CR)
         self.body.append(r'\sphinxAtStartFootnote' + CR)

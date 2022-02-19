@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Sphinx project.
 # 
 # Translators:
+# Adam Turner, 2022
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-30 00:11+0000\n"
-"PO-Revision-Date: 2022-01-23 00:11+0000\n"
-"Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
+"POT-Creation-Date: 2022-02-13 00:13+0000\n"
+"PO-Revision-Date: 2022-02-06 01:43+0000\n"
+"Last-Translator: Adam Turner\n"
 "Language-Team: English (United Kingdom) (http://www.transifex.com/sphinx-doc/sphinx-1/language/en_GB/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -21,118 +22,118 @@ msgstr ""
 #: sphinx/application.py:156
 #, python-format
 msgid "Cannot find source directory (%s)"
-msgstr ""
+msgstr "Cannot find source directory (%s)"
 
 #: sphinx/application.py:160
 #, python-format
 msgid "Output directory (%s) is not a directory"
-msgstr ""
+msgstr "Output directory (%s) is not a directory"
 
 #: sphinx/application.py:164
 msgid "Source directory and destination directory cannot be identical"
-msgstr ""
+msgstr "Source directory and destination directory cannot be identical"
 
 #: sphinx/application.py:195
 #, python-format
 msgid "Running Sphinx v%s"
-msgstr ""
+msgstr "Running Sphinx v%s"
 
 #: sphinx/application.py:221
 #, python-format
 msgid ""
 "This project needs at least Sphinx v%s and therefore cannot be built with "
 "this version."
-msgstr ""
+msgstr "This project needs at least Sphinx v%s and therefore cannot be built with this version."
 
 #: sphinx/application.py:236
 msgid "making output directory"
-msgstr ""
+msgstr "making output directory"
 
 #: sphinx/application.py:241 sphinx/registry.py:430
 #, python-format
 msgid "while setting up extension %s:"
-msgstr ""
+msgstr "while setting up extension %s:"
 
 #: sphinx/application.py:247
 msgid ""
 "'setup' as currently defined in conf.py isn't a Python callable. Please "
 "modify its definition to make it a callable function. This is needed for "
 "conf.py to behave as a Sphinx extension."
-msgstr ""
+msgstr "'setup' as currently defined in conf.py isn't a Python callable. Please modify its definition to make it a callable function. This is needed for conf.py to behave as a Sphinx extension."
 
 #: sphinx/application.py:272
 #, python-format
 msgid "loading translations [%s]... "
-msgstr ""
+msgstr "loading translations [%s]... "
 
 #: sphinx/application.py:290 sphinx/util/__init__.py:540
 msgid "done"
-msgstr ""
+msgstr "done"
 
 #: sphinx/application.py:292
 msgid "not available for built-in messages"
-msgstr ""
+msgstr "not available for built-in messages"
 
 #: sphinx/application.py:301
 msgid "loading pickled environment"
-msgstr ""
+msgstr "loading pickled environment"
 
 #: sphinx/application.py:306
 #, python-format
 msgid "failed: %s"
-msgstr ""
+msgstr "failed: %s"
 
 #: sphinx/application.py:314
 msgid "No builder selected, using default: html"
-msgstr ""
+msgstr "No builder selected, using default: html"
 
 #: sphinx/application.py:342
 msgid "succeeded"
-msgstr ""
+msgstr "succeeded"
 
 #: sphinx/application.py:343
 msgid "finished with problems"
-msgstr ""
+msgstr "finished with problems"
 
 #: sphinx/application.py:347
 #, python-format
 msgid "build %s, %s warning (with warnings treated as errors)."
-msgstr ""
+msgstr "build %s, %s warning (with warnings treated as errors)."
 
 #: sphinx/application.py:349
 #, python-format
 msgid "build %s, %s warnings (with warnings treated as errors)."
-msgstr ""
+msgstr "build %s, %s warnings (with warnings treated as errors)."
 
 #: sphinx/application.py:352
 #, python-format
 msgid "build %s, %s warning."
-msgstr ""
+msgstr "build %s, %s warning."
 
 #: sphinx/application.py:354
 #, python-format
 msgid "build %s, %s warnings."
-msgstr ""
+msgstr "build %s, %s warnings."
 
 #: sphinx/application.py:358
 #, python-format
 msgid "build %s."
-msgstr ""
+msgstr "build %s."
 
 #: sphinx/application.py:588
 #, python-format
 msgid "node class %r is already registered, its visitors will be overridden"
-msgstr ""
+msgstr "node class %r is already registered, its visitors will be overridden"
 
 #: sphinx/application.py:666
 #, python-format
 msgid "directive %r is already registered, it will be overridden"
-msgstr ""
+msgstr "directive %r is already registered, it will be overridden"
 
 #: sphinx/application.py:687 sphinx/application.py:708
 #, python-format
 msgid "role %r is already registered, it will be overridden"
-msgstr ""
+msgstr "role %r is already registered, it will be overridden"
 
 #: sphinx/application.py:1256
 #, python-format
@@ -140,12 +141,12 @@ msgid ""
 "the %s extension does not declare if it is safe for parallel reading, "
 "assuming it isn't - please ask the extension author to check and make it "
 "explicit"
-msgstr ""
+msgstr "the %s extension does not declare if it is safe for parallel reading, assuming it isn't - please ask the extension author to check and make it explicit"
 
 #: sphinx/application.py:1260
 #, python-format
 msgid "the %s extension is not safe for parallel reading"
-msgstr ""
+msgstr "the %s extension is not safe for parallel reading"
 
 #: sphinx/application.py:1263
 #, python-format
@@ -153,64 +154,64 @@ msgid ""
 "the %s extension does not declare if it is safe for parallel writing, "
 "assuming it isn't - please ask the extension author to check and make it "
 "explicit"
-msgstr ""
+msgstr "the %s extension does not declare if it is safe for parallel writing, assuming it isn't - please ask the extension author to check and make it explicit"
 
 #: sphinx/application.py:1267
 #, python-format
 msgid "the %s extension is not safe for parallel writing"
-msgstr ""
+msgstr "the %s extension is not safe for parallel writing"
 
 #: sphinx/application.py:1275 sphinx/application.py:1279
 #, python-format
 msgid "doing serial %s"
-msgstr ""
+msgstr "doing serial %s"
 
 #: sphinx/config.py:171
 #, python-format
 msgid "config directory doesn't contain a conf.py file (%s)"
-msgstr ""
+msgstr "config directory doesn't contain a conf.py file (%s)"
 
 #: sphinx/config.py:198
 #, python-format
 msgid ""
 "cannot override dictionary config setting %r, ignoring (use %r to set "
 "individual elements)"
-msgstr ""
+msgstr "cannot override dictionary config setting %r, ignoring (use %r to set individual elements)"
 
 #: sphinx/config.py:207
 #, python-format
 msgid "invalid number %r for config value %r, ignoring"
-msgstr ""
+msgstr "invalid number %r for config value %r, ignoring"
 
 #: sphinx/config.py:212
 #, python-format
 msgid "cannot override config setting %r with unsupported type, ignoring"
-msgstr ""
+msgstr "cannot override config setting %r with unsupported type, ignoring"
 
 #: sphinx/config.py:241
 #, python-format
 msgid "unknown config value %r in override, ignoring"
-msgstr ""
+msgstr "unknown config value %r in override, ignoring"
 
 #: sphinx/config.py:269
 #, python-format
 msgid "No such config value: %s"
-msgstr ""
+msgstr "No such config value: %s"
 
 #: sphinx/config.py:293
 #, python-format
 msgid "Config value %r already present"
-msgstr ""
+msgstr "Config value %r already present"
 
 #: sphinx/config.py:342
 #, python-format
 msgid "There is a syntax error in your configuration file: %s\n"
-msgstr ""
+msgstr "There is a syntax error in your configuration file: %s\n"
 
 #: sphinx/config.py:345
 msgid ""
 "The configuration file (or one of the modules it imports) called sys.exit()"
-msgstr ""
+msgstr "The configuration file (or one of the modules it imports) called sys.exit()"
 
 #: sphinx/config.py:352
 #, python-format
@@ -218,380 +219,380 @@ msgid ""
 "There is a programmable error in your configuration file:\n"
 "\n"
 "%s"
-msgstr ""
+msgstr "There is a programmable error in your configuration file:\n\n%s"
 
 #: sphinx/config.py:378
 #, python-format
 msgid ""
 "The config value `source_suffix' expects a string, list of strings, or "
 "dictionary. But `%r' is given."
-msgstr ""
+msgstr "The config value `source_suffix' expects a string, list of strings, or dictionary. But `%r' is given."
 
 #: sphinx/config.py:397
 #, python-format
 msgid "Section %s"
-msgstr ""
+msgstr "Section %s"
 
 #: sphinx/config.py:398
 #, python-format
 msgid "Fig. %s"
-msgstr ""
+msgstr "Fig. %s"
 
 #: sphinx/config.py:399
 #, python-format
 msgid "Table %s"
-msgstr ""
+msgstr "Table %s"
 
 #: sphinx/config.py:400
 #, python-format
 msgid "Listing %s"
-msgstr ""
+msgstr "Listing %s"
 
 #: sphinx/config.py:437
 msgid ""
 "The config value `{name}` has to be a one of {candidates}, but `{current}` "
 "is given."
-msgstr ""
+msgstr "The config value `{name}` has to be a one of {candidates}, but `{current}` is given."
 
 #: sphinx/config.py:455
 msgid ""
 "The config value `{name}' has type `{current.__name__}'; expected "
 "{permitted}."
-msgstr ""
+msgstr "The config value `{name}' has type `{current.__name__}'; expected {permitted}."
 
 #: sphinx/config.py:468
 msgid ""
 "The config value `{name}' has type `{current.__name__}', defaults to "
 "`{default.__name__}'."
-msgstr ""
+msgstr "The config value `{name}' has type `{current.__name__}', defaults to `{default.__name__}'."
 
 #: sphinx/config.py:478
 #, python-format
 msgid "primary_domain %r not found, ignored."
-msgstr ""
+msgstr "primary_domain %r not found, ignored."
 
 #: sphinx/config.py:490
 msgid ""
 "Since v2.0, Sphinx uses \"index\" as root_doc by default. Please add "
 "\"root_doc = 'contents'\" to your conf.py."
-msgstr ""
+msgstr "Since v2.0, Sphinx uses \"index\" as root_doc by default. Please add \"root_doc = 'contents'\" to your conf.py."
 
 #: sphinx/events.py:67
 #, python-format
 msgid "Event %r already present"
-msgstr ""
+msgstr "Event %r already present"
 
 #: sphinx/events.py:73
 #, python-format
 msgid "Unknown event name: %s"
-msgstr ""
+msgstr "Unknown event name: %s"
 
 #: sphinx/events.py:109
 #, python-format
 msgid "Handler %r for event %r threw an exception"
-msgstr ""
+msgstr "Handler %r for event %r threw an exception"
 
 #: sphinx/extension.py:52
 #, python-format
 msgid ""
 "The %s extension is required by needs_extensions settings, but it is not "
 "loaded."
-msgstr ""
+msgstr "The %s extension is required by needs_extensions settings, but it is not loaded."
 
 #: sphinx/extension.py:68
 #, python-format
 msgid ""
 "This project needs the extension %s at least in version %s and therefore "
 "cannot be built with the loaded version (%s)."
-msgstr ""
+msgstr "This project needs the extension %s at least in version %s and therefore cannot be built with the loaded version (%s)."
 
 #: sphinx/highlighting.py:135
 #, python-format
 msgid "Pygments lexer name %r is not known"
-msgstr ""
+msgstr "Pygments lexer name %r is not known"
 
 #: sphinx/highlighting.py:161
 #, python-format
 msgid "Could not lex literal_block as \"%s\". Highlighting skipped."
-msgstr ""
+msgstr "Could not lex literal_block as \"%s\". Highlighting skipped."
 
 #: sphinx/project.py:53
 #, python-format
 msgid ""
 "multiple files found for the document \"%s\": %r\n"
 "Use %r for the build."
-msgstr ""
+msgstr "multiple files found for the document \"%s\": %r\nUse %r for the build."
 
 #: sphinx/project.py:59
 msgid "document not readable. Ignored."
-msgstr ""
+msgstr "document not readable. Ignored."
 
 #: sphinx/registry.py:139
 #, python-format
 msgid "Builder class %s has no \"name\" attribute"
-msgstr ""
+msgstr "Builder class %s has no \"name\" attribute"
 
 #: sphinx/registry.py:141
 #, python-format
 msgid "Builder %r already exists (in module %s)"
-msgstr ""
+msgstr "Builder %r already exists (in module %s)"
 
 #: sphinx/registry.py:154
 #, python-format
 msgid "Builder name %s not registered or available through entry point"
-msgstr ""
+msgstr "Builder name %s not registered or available through entry point"
 
 #: sphinx/registry.py:161
 #, python-format
 msgid "Builder name %s not registered"
-msgstr ""
+msgstr "Builder name %s not registered"
 
 #: sphinx/registry.py:168
 #, python-format
 msgid "domain %s already registered"
-msgstr ""
+msgstr "domain %s already registered"
 
 #: sphinx/registry.py:191 sphinx/registry.py:204 sphinx/registry.py:215
 #, python-format
 msgid "domain %s not yet registered"
-msgstr ""
+msgstr "domain %s not yet registered"
 
 #: sphinx/registry.py:195
 #, python-format
 msgid "The %r directive is already registered to domain %s"
-msgstr ""
+msgstr "The %r directive is already registered to domain %s"
 
 #: sphinx/registry.py:207
 #, python-format
 msgid "The %r role is already registered to domain %s"
-msgstr ""
+msgstr "The %r role is already registered to domain %s"
 
 #: sphinx/registry.py:218
 #, python-format
 msgid "The %r index is already registered to domain %s"
-msgstr ""
+msgstr "The %r index is already registered to domain %s"
 
 #: sphinx/registry.py:242
 #, python-format
 msgid "The %r object_type is already registered"
-msgstr ""
+msgstr "The %r object_type is already registered"
 
 #: sphinx/registry.py:262
 #, python-format
 msgid "The %r crossref_type is already registered"
-msgstr ""
+msgstr "The %r crossref_type is already registered"
 
 #: sphinx/registry.py:269
 #, python-format
 msgid "source_suffix %r is already registered"
-msgstr ""
+msgstr "source_suffix %r is already registered"
 
 #: sphinx/registry.py:279
 #, python-format
 msgid "source_parser for %r is already registered"
-msgstr ""
+msgstr "source_parser for %r is already registered"
 
 #: sphinx/registry.py:288
 #, python-format
 msgid "Source parser for %s not registered"
-msgstr ""
+msgstr "Source parser for %s not registered"
 
 #: sphinx/registry.py:317
 #, python-format
 msgid "Translator for %r already exists"
-msgstr ""
+msgstr "Translator for %r already exists"
 
 #: sphinx/registry.py:330
 #, python-format
 msgid "kwargs for add_node() must be a (visit, depart) function tuple: %r=%r"
-msgstr ""
+msgstr "kwargs for add_node() must be a (visit, depart) function tuple: %r=%r"
 
 #: sphinx/registry.py:402
 #, python-format
 msgid "enumerable_node %r already registered"
-msgstr ""
+msgstr "enumerable_node %r already registered"
 
 #: sphinx/registry.py:411
 #, python-format
 msgid "math renderer %s is already registered"
-msgstr ""
+msgstr "math renderer %s is already registered"
 
 #: sphinx/registry.py:424
 #, python-format
 msgid ""
 "the extension %r was already merged with Sphinx since version %s; this "
 "extension is ignored."
-msgstr ""
+msgstr "the extension %r was already merged with Sphinx since version %s; this extension is ignored."
 
 #: sphinx/registry.py:435
 msgid "Original exception:\n"
-msgstr ""
+msgstr "Original exception:\n"
 
 #: sphinx/registry.py:436
 #, python-format
 msgid "Could not import extension %s"
-msgstr ""
+msgstr "Could not import extension %s"
 
 #: sphinx/registry.py:441
 #, python-format
 msgid ""
 "extension %r has no setup() function; is it really a Sphinx extension "
 "module?"
-msgstr ""
+msgstr "extension %r has no setup() function; is it really a Sphinx extension module?"
 
 #: sphinx/registry.py:450
 #, python-format
 msgid ""
 "The %s extension used by this project needs at least Sphinx v%s; it "
 "therefore cannot be built with this version."
-msgstr ""
+msgstr "The %s extension used by this project needs at least Sphinx v%s; it therefore cannot be built with this version."
 
 #: sphinx/registry.py:458
 #, python-format
 msgid ""
 "extension %r returned an unsupported object from its setup() function; it "
 "should return None or a metadata dictionary"
-msgstr ""
+msgstr "extension %r returned an unsupported object from its setup() function; it should return None or a metadata dictionary"
 
 #: sphinx/roles.py:177
 #, python-format
 msgid "Python Enhancement Proposals; PEP %s"
-msgstr ""
+msgstr "Python Enhancement Proposals; PEP %s"
 
 #: sphinx/roles.py:193
 #, python-format
 msgid "invalid PEP number %s"
-msgstr ""
+msgstr "invalid PEP number %s"
 
 #: sphinx/roles.py:227
 #, python-format
 msgid "invalid RFC number %s"
-msgstr ""
+msgstr "invalid RFC number %s"
 
 #: sphinx/theming.py:80
 #, python-format
 msgid "theme %r doesn't have \"theme\" setting"
-msgstr ""
+msgstr "theme %r doesn't have \"theme\" setting"
 
 #: sphinx/theming.py:82
 #, python-format
 msgid "theme %r doesn't have \"inherit\" setting"
-msgstr ""
+msgstr "theme %r doesn't have \"inherit\" setting"
 
 #: sphinx/theming.py:88
 #, python-format
 msgid "no theme named %r found, inherited by %r"
-msgstr ""
+msgstr "no theme named %r found, inherited by %r"
 
 #: sphinx/theming.py:111
 #, python-format
 msgid "setting %s.%s occurs in none of the searched theme configs"
-msgstr ""
+msgstr "setting %s.%s occurs in none of the searched theme configs"
 
 #: sphinx/theming.py:130
 #, python-format
 msgid "unsupported theme option %r given"
-msgstr ""
+msgstr "unsupported theme option %r given"
 
 #: sphinx/theming.py:229
 #, python-format
 msgid "file %r on theme path is not a valid zipfile or contains no theme"
-msgstr ""
+msgstr "file %r on theme path is not a valid zipfile or contains no theme"
 
 #: sphinx/theming.py:244
 msgid ""
 "sphinx_rtd_theme (< 0.3.0) found. It will not be available since Sphinx-6.0"
-msgstr ""
+msgstr "sphinx_rtd_theme (< 0.3.0) found. It will not be available since Sphinx-6.0"
 
 #: sphinx/theming.py:249
 #, python-format
 msgid "no theme named %r found (missing theme.conf?)"
-msgstr ""
+msgstr "no theme named %r found (missing theme.conf?)"
 
 #: sphinx/builders/__init__.py:192
 #, python-format
 msgid "a suitable image for %s builder not found: %s (%s)"
-msgstr ""
+msgstr "a suitable image for %s builder not found: %s (%s)"
 
 #: sphinx/builders/__init__.py:196
 #, python-format
 msgid "a suitable image for %s builder not found: %s"
-msgstr ""
+msgstr "a suitable image for %s builder not found: %s"
 
 #: sphinx/builders/__init__.py:216
 msgid "building [mo]: "
-msgstr ""
+msgstr "building [mo]: "
 
 #: sphinx/builders/__init__.py:217 sphinx/builders/__init__.py:536
 #: sphinx/builders/__init__.py:562
 msgid "writing output... "
-msgstr ""
+msgstr "writing output... "
 
 #: sphinx/builders/__init__.py:226
 #, python-format
 msgid "all of %d po files"
-msgstr ""
+msgstr "all of %d po files"
 
 #: sphinx/builders/__init__.py:244
 #, python-format
 msgid "targets for %d po files that are specified"
-msgstr ""
+msgstr "targets for %d po files that are specified"
 
 #: sphinx/builders/__init__.py:251
 #, python-format
 msgid "targets for %d po files that are out of date"
-msgstr ""
+msgstr "targets for %d po files that are out of date"
 
 #: sphinx/builders/__init__.py:258
 msgid "all source files"
-msgstr ""
+msgstr "all source files"
 
 #: sphinx/builders/__init__.py:270
 #, python-format
 msgid ""
 "file %r given on command line is not under the source directory, ignoring"
-msgstr ""
+msgstr "file %r given on command line is not under the source directory, ignoring"
 
 #: sphinx/builders/__init__.py:274
 #, python-format
 msgid "file %r given on command line does not exist, ignoring"
-msgstr ""
+msgstr "file %r given on command line does not exist, ignoring"
 
 #: sphinx/builders/__init__.py:285
 #, python-format
 msgid "%d source files given on command line"
-msgstr ""
+msgstr "%d source files given on command line"
 
 #: sphinx/builders/__init__.py:295
 #, python-format
 msgid "targets for %d source files that are out of date"
-msgstr ""
+msgstr "targets for %d source files that are out of date"
 
 #: sphinx/builders/__init__.py:304 sphinx/builders/gettext.py:240
 #, python-format
 msgid "building [%s]: "
-msgstr ""
+msgstr "building [%s]: "
 
 #: sphinx/builders/__init__.py:311
 msgid "looking for now-outdated files... "
-msgstr ""
+msgstr "looking for now-outdated files... "
 
 #: sphinx/builders/__init__.py:316
 #, python-format
 msgid "%d found"
-msgstr ""
+msgstr "%d found"
 
 #: sphinx/builders/__init__.py:318
 msgid "none found"
-msgstr ""
+msgstr "none found"
 
 #: sphinx/builders/__init__.py:323
 msgid "pickling environment"
-msgstr ""
+msgstr "pickling environment"
 
 #: sphinx/builders/__init__.py:329
 msgid "checking consistency"
-msgstr ""
+msgstr "checking consistency"
 
 #: sphinx/builders/__init__.py:333
 msgid "no targets are out of date."
@@ -1860,7 +1861,7 @@ msgstr ""
 msgid ""
 "\":file:\" option for csv-table directive now recognizes an absolute path as"
 " a relative path from source directory. Please update your document."
-msgstr ""
+msgstr "\":file:\" option for csv-table directive now recognises an absolute path as a relative path from source directory. Please update your document."
 
 #: sphinx/domains/__init__.py:394
 #, python-format
@@ -2614,7 +2615,7 @@ msgid ""
 "====================== slowest reading durations ======================="
 msgstr ""
 
-#: sphinx/ext/extlinks.py:76
+#: sphinx/ext/extlinks.py:77
 #, python-format
 msgid ""
 "hardcoded link %r could be replaced by an extlink (try using %r instead)"
@@ -2622,16 +2623,16 @@ msgstr ""
 
 #: sphinx/ext/graphviz.py:132
 msgid "Graphviz directive cannot have both content and a filename argument"
-msgstr ""
+msgstr "Graphviz directive cannot have both content and a filename argument"
 
 #: sphinx/ext/graphviz.py:142
 #, python-format
 msgid "External Graphviz file %r not found or reading it failed"
-msgstr ""
+msgstr "External Graphviz file %r not found or reading it failed"
 
 #: sphinx/ext/graphviz.py:149
 msgid "Ignoring \"graphviz\" directive without content."
-msgstr ""
+msgstr "Ignoring \"graphviz\" directive without content."
 
 #: sphinx/ext/graphviz.py:257
 #, python-format
@@ -2648,7 +2649,7 @@ msgstr ""
 msgid ""
 "dot command %r cannot be run (needed for graphviz output), check the "
 "graphviz_dot setting"
-msgstr ""
+msgstr "dot command %r cannot be run (needed for graphviz output), check the graphviz_dot setting"
 
 #: sphinx/ext/graphviz.py:268
 #, python-format
@@ -2663,7 +2664,7 @@ msgstr ""
 #: sphinx/ext/graphviz.py:278
 #, python-format
 msgid "graphviz_output_format must be one of 'png', 'svg', but is %r"
-msgstr ""
+msgstr "graphviz_output_format must be one of 'png', 'svg', but is %r"
 
 #: sphinx/ext/graphviz.py:282 sphinx/ext/graphviz.py:334
 #: sphinx/ext/graphviz.py:371
@@ -2727,7 +2728,7 @@ msgstr ""
 
 #: sphinx/ext/imgmath.py:333 sphinx/ext/mathjax.py:52
 msgid "Permalink to this equation"
-msgstr ""
+msgstr "Permalink to this equation"
 
 #: sphinx/ext/intersphinx.py:179
 #, python-format
@@ -2855,7 +2856,7 @@ msgstr ""
 msgid "error while formatting arguments for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1699
+#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1700
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr ""
@@ -2885,66 +2886,66 @@ msgstr ""
 msgid "error while formatting signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1021
+#: sphinx/ext/autodoc/__init__.py:1022
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1028
+#: sphinx/ext/autodoc/__init__.py:1029
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1041
+#: sphinx/ext/autodoc/__init__.py:1042
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1107
+#: sphinx/ext/autodoc/__init__.py:1108
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1308 sphinx/ext/autodoc/__init__.py:1385
-#: sphinx/ext/autodoc/__init__.py:2791
+#: sphinx/ext/autodoc/__init__.py:1309 sphinx/ext/autodoc/__init__.py:1386
+#: sphinx/ext/autodoc/__init__.py:2795
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1578
+#: sphinx/ext/autodoc/__init__.py:1579
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1686
+#: sphinx/ext/autodoc/__init__.py:1687
 #, python-format
 msgid "Bases: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1784 sphinx/ext/autodoc/__init__.py:1862
-#: sphinx/ext/autodoc/__init__.py:1885
+#: sphinx/ext/autodoc/__init__.py:1788 sphinx/ext/autodoc/__init__.py:1866
+#: sphinx/ext/autodoc/__init__.py:1889
 #, python-format
 msgid "alias of %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1931
+#: sphinx/ext/autodoc/__init__.py:1935
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2167 sphinx/ext/autodoc/__init__.py:2264
+#: sphinx/ext/autodoc/__init__.py:2171 sphinx/ext/autodoc/__init__.py:2268
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2395
+#: sphinx/ext/autodoc/__init__.py:2399
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2834
+#: sphinx/ext/autodoc/__init__.py:2838
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
@@ -3405,19 +3406,19 @@ msgstr ""
 msgid "Other changes"
 msgstr ""
 
-#: sphinx/themes/basic/static/doctools.js:199 sphinx/writers/html.py:437
-#: sphinx/writers/html.py:442 sphinx/writers/html5.py:392
-#: sphinx/writers/html5.py:397
+#: sphinx/themes/basic/static/doctools.js:197 sphinx/writers/html.py:436
+#: sphinx/writers/html.py:441 sphinx/writers/html5.py:395
+#: sphinx/writers/html5.py:400
 msgid "Permalink to this headline"
 msgstr ""
 
-#: sphinx/themes/basic/static/doctools.js:205 sphinx/writers/html.py:132
-#: sphinx/writers/html.py:141 sphinx/writers/html5.py:107
+#: sphinx/themes/basic/static/doctools.js:203 sphinx/writers/html.py:128
+#: sphinx/writers/html.py:137 sphinx/writers/html5.py:107
 #: sphinx/writers/html5.py:116
 msgid "Permalink to this definition"
 msgstr ""
 
-#: sphinx/themes/basic/static/doctools.js:238
+#: sphinx/themes/basic/static/doctools.js:236
 msgid "Hide Search Matches"
 msgstr ""
 
@@ -3593,39 +3594,39 @@ msgstr ""
 msgid "default role %s not found"
 msgstr ""
 
-#: sphinx/writers/html.py:330 sphinx/writers/html5.py:305
+#: sphinx/writers/html.py:329 sphinx/writers/html5.py:308
 #, python-format
 msgid "numfig_format is not defined for %s"
 msgstr ""
 
-#: sphinx/writers/html.py:340 sphinx/writers/html5.py:315
+#: sphinx/writers/html.py:339 sphinx/writers/html5.py:318
 #, python-format
 msgid "Any IDs not assigned for %s node"
 msgstr ""
 
-#: sphinx/writers/html.py:414 sphinx/writers/html5.py:369
+#: sphinx/writers/html.py:413 sphinx/writers/html5.py:372
 msgid "Permalink to this term"
 msgstr ""
 
-#: sphinx/writers/html.py:446 sphinx/writers/html5.py:401
+#: sphinx/writers/html.py:445 sphinx/writers/html5.py:404
 msgid "Permalink to this table"
 msgstr ""
 
-#: sphinx/writers/html.py:489 sphinx/writers/html5.py:444
+#: sphinx/writers/html.py:488 sphinx/writers/html5.py:447
 msgid "Permalink to this code"
 msgstr ""
 
-#: sphinx/writers/html.py:491 sphinx/writers/html5.py:446
+#: sphinx/writers/html.py:490 sphinx/writers/html5.py:449
 msgid "Permalink to this image"
 msgstr ""
 
-#: sphinx/writers/html.py:493 sphinx/writers/html5.py:448
+#: sphinx/writers/html.py:492 sphinx/writers/html5.py:451
 msgid "Permalink to this toctree"
 msgstr ""
 
-#: sphinx/writers/html.py:625 sphinx/writers/html5.py:569
+#: sphinx/writers/html.py:624 sphinx/writers/html5.py:572
 msgid "Could not obtain image size. :scale: option is ignored."
-msgstr ""
+msgstr "Could not obtain image size. :scale: option is ignored."
 
 #: sphinx/writers/latex.py:347
 #, python-format
