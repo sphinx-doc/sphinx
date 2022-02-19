@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-30 00:11+0000\n"
+"POT-Creation-Date: 2022-02-06 00:13+0000\n"
 "PO-Revision-Date: 2022-01-23 00:11+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/sphinx-doc/sphinx-1/language/zh_TW/)\n"
@@ -2622,7 +2622,7 @@ msgid ""
 "====================== slowest reading durations ======================="
 msgstr ""
 
-#: sphinx/ext/extlinks.py:76
+#: sphinx/ext/extlinks.py:77
 #, python-format
 msgid ""
 "hardcoded link %r could be replaced by an extlink (try using %r instead)"
@@ -3413,19 +3413,19 @@ msgstr "C API 的變更"
 msgid "Other changes"
 msgstr "其他變更"
 
-#: sphinx/themes/basic/static/doctools.js:199 sphinx/writers/html.py:437
-#: sphinx/writers/html.py:442 sphinx/writers/html5.py:392
-#: sphinx/writers/html5.py:397
+#: sphinx/themes/basic/static/doctools.js:197 sphinx/writers/html.py:436
+#: sphinx/writers/html.py:441 sphinx/writers/html5.py:395
+#: sphinx/writers/html5.py:400
 msgid "Permalink to this headline"
 msgstr "本標題的永久連結"
 
-#: sphinx/themes/basic/static/doctools.js:205 sphinx/writers/html.py:132
-#: sphinx/writers/html.py:141 sphinx/writers/html5.py:107
+#: sphinx/themes/basic/static/doctools.js:203 sphinx/writers/html.py:128
+#: sphinx/writers/html.py:137 sphinx/writers/html5.py:107
 #: sphinx/writers/html5.py:116
 msgid "Permalink to this definition"
 msgstr "本定義的永久連結"
 
-#: sphinx/themes/basic/static/doctools.js:238
+#: sphinx/themes/basic/static/doctools.js:236
 msgid "Hide Search Matches"
 msgstr "隱藏符合搜尋"
 
@@ -3601,37 +3601,37 @@ msgstr "在評估只有指令的運算式時發生例外： %s"
 msgid "default role %s not found"
 msgstr "預設角色 %s 未找到"
 
-#: sphinx/writers/html.py:330 sphinx/writers/html5.py:305
+#: sphinx/writers/html.py:329 sphinx/writers/html5.py:308
 #, python-format
 msgid "numfig_format is not defined for %s"
 msgstr "numfig_format 未被定義給 %s"
 
-#: sphinx/writers/html.py:340 sphinx/writers/html5.py:315
+#: sphinx/writers/html.py:339 sphinx/writers/html5.py:318
 #, python-format
 msgid "Any IDs not assigned for %s node"
 msgstr "任一個 ID 未被指定給 %s 節點"
 
-#: sphinx/writers/html.py:414 sphinx/writers/html5.py:369
+#: sphinx/writers/html.py:413 sphinx/writers/html5.py:372
 msgid "Permalink to this term"
 msgstr "本術語的永久連結"
 
-#: sphinx/writers/html.py:446 sphinx/writers/html5.py:401
+#: sphinx/writers/html.py:445 sphinx/writers/html5.py:404
 msgid "Permalink to this table"
 msgstr "本表格的永久連結"
 
-#: sphinx/writers/html.py:489 sphinx/writers/html5.py:444
+#: sphinx/writers/html.py:488 sphinx/writers/html5.py:447
 msgid "Permalink to this code"
 msgstr "本原始碼的永久連結"
 
-#: sphinx/writers/html.py:491 sphinx/writers/html5.py:446
+#: sphinx/writers/html.py:490 sphinx/writers/html5.py:449
 msgid "Permalink to this image"
 msgstr "本圖片的永久連結"
 
-#: sphinx/writers/html.py:493 sphinx/writers/html5.py:448
+#: sphinx/writers/html.py:492 sphinx/writers/html5.py:451
 msgid "Permalink to this toctree"
 msgstr "本目錄的永久連結"
 
-#: sphinx/writers/html.py:625 sphinx/writers/html5.py:569
+#: sphinx/writers/html.py:624 sphinx/writers/html5.py:572
 msgid "Could not obtain image size. :scale: option is ignored."
 msgstr "無法取得圖片大小。 :scale: 選項已略過。"
 

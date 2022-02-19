@@ -50,6 +50,14 @@ INVALID_BUILTIN_CLASSES = {
 }
 
 
+def is_invalid_builtin_class(obj: Any) -> bool:
+    """Check *obj* is an invalid built-in class."""
+    try:
+        return obj in INVALID_BUILTIN_CLASSES
+    except TypeError:  # unhashable type
+        return False
+
+
 # Text like nodes which are initialized with text and rawsource
 TextlikeNode = Union[nodes.Text, nodes.TextElement]
 
@@ -135,7 +143,7 @@ def restify(cls: Optional[Type], mode: str = 'fully-qualified-except-typing') ->
             return ':py:class:`%s%s`' % (modprefix, cls.__name__)
         elif ismock(cls):
             return ':py:class:`%s%s.%s`' % (modprefix, cls.__module__, cls.__name__)
-        elif cls in INVALID_BUILTIN_CLASSES:
+        elif is_invalid_builtin_class(cls):
             return ':py:class:`%s%s`' % (modprefix, INVALID_BUILTIN_CLASSES[cls])
         elif inspect.isNewType(cls):
             if sys.version_info > (3, 10):
@@ -374,7 +382,7 @@ def stringify(annotation: Any, mode: str = 'fully-qualified-except-typing') -> s
         return modprefix + annotation.__name__
     elif ismock(annotation):
         return modprefix + '%s.%s' % (annotation.__module__, annotation.__name__)
-    elif annotation in INVALID_BUILTIN_CLASSES:
+    elif is_invalid_builtin_class(annotation):
         return modprefix + INVALID_BUILTIN_CLASSES[annotation]
     elif str(annotation).startswith('typing.Annotated'):  # for py310+
         pass

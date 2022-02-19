@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-30 00:11+0000\n"
+"POT-Creation-Date: 2022-02-13 00:13+0000\n"
 "PO-Revision-Date: 2022-01-24 08:02+0000\n"
 "Last-Translator: YT H <dev@theYT.net>\n"
 "Language-Team: Korean (http://www.transifex.com/sphinx-doc/sphinx-1/language/ko/)\n"
@@ -2616,7 +2616,7 @@ msgid ""
 "====================== slowest reading durations ======================="
 msgstr "====================== 가장 느린 읽기 시간 ======================="
 
-#: sphinx/ext/extlinks.py:76
+#: sphinx/ext/extlinks.py:77
 #, python-format
 msgid ""
 "hardcoded link %r could be replaced by an extlink (try using %r instead)"
@@ -2857,7 +2857,7 @@ msgstr "auto%s (%r)에 대한 잘못된 서명"
 msgid "error while formatting arguments for %s: %s"
 msgstr "%s에 대한 인수를 서식화하는 동안 오류 발생: %s"
 
-#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1699
+#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1700
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr "%s 속성이 %s 객체에 없음"
@@ -2887,66 +2887,66 @@ msgstr "모의 객체가 감지되었습니다: %r"
 msgid "error while formatting signature for %s: %s"
 msgstr "%s에 대한 서명을 서식화하는 동안 오류 발생: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1021
+#: sphinx/ext/autodoc/__init__.py:1022
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr "automodule 이름의 \"::\"은 의미가 없음"
 
-#: sphinx/ext/autodoc/__init__.py:1028
+#: sphinx/ext/autodoc/__init__.py:1029
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr "automodule %s에 대해 서명 인수 또는 반환 값 주석이 지정됨"
 
-#: sphinx/ext/autodoc/__init__.py:1041
+#: sphinx/ext/autodoc/__init__.py:1042
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr "__all__은 %r이(가) 아닌 문자열의 목록이어야 합니다 (모듈 %s) -- __all__을 무시합니다"
 
-#: sphinx/ext/autodoc/__init__.py:1107
+#: sphinx/ext/autodoc/__init__.py:1108
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr ":members: 옵션에 언급된 속성이 없습니다: 모듈 %s, 속성 %s"
 
-#: sphinx/ext/autodoc/__init__.py:1308 sphinx/ext/autodoc/__init__.py:1385
-#: sphinx/ext/autodoc/__init__.py:2791
+#: sphinx/ext/autodoc/__init__.py:1309 sphinx/ext/autodoc/__init__.py:1386
+#: sphinx/ext/autodoc/__init__.py:2795
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "%s에 대한 함수 서명을 가져오지 못했습니다: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1578
+#: sphinx/ext/autodoc/__init__.py:1579
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr "%s에 대한 생성자 서명을 가져오지 못했습니다: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1686
+#: sphinx/ext/autodoc/__init__.py:1687
 #, python-format
 msgid "Bases: %s"
 msgstr "기반 클래스: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1784 sphinx/ext/autodoc/__init__.py:1862
-#: sphinx/ext/autodoc/__init__.py:1885
+#: sphinx/ext/autodoc/__init__.py:1788 sphinx/ext/autodoc/__init__.py:1866
+#: sphinx/ext/autodoc/__init__.py:1889
 #, python-format
 msgid "alias of %s"
 msgstr "%s의 별칭"
 
-#: sphinx/ext/autodoc/__init__.py:1931
+#: sphinx/ext/autodoc/__init__.py:1935
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr "TypeVar(%s)의 별칭"
 
-#: sphinx/ext/autodoc/__init__.py:2167 sphinx/ext/autodoc/__init__.py:2264
+#: sphinx/ext/autodoc/__init__.py:2171 sphinx/ext/autodoc/__init__.py:2268
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr "%s에 대한 메소드 서명을 가져오지 못했습니다: %s"
 
-#: sphinx/ext/autodoc/__init__.py:2395
+#: sphinx/ext/autodoc/__init__.py:2399
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "%s에서 잘못된 __slots__ 가 발견되었습니다. 무시합니다."
 
-#: sphinx/ext/autodoc/__init__.py:2834
+#: sphinx/ext/autodoc/__init__.py:2838
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
@@ -3407,19 +3407,19 @@ msgstr "C API 변경 사항"
 msgid "Other changes"
 msgstr "다른 변경 사항"
 
-#: sphinx/themes/basic/static/doctools.js:199 sphinx/writers/html.py:437
-#: sphinx/writers/html.py:442 sphinx/writers/html5.py:392
-#: sphinx/writers/html5.py:397
+#: sphinx/themes/basic/static/doctools.js:197 sphinx/writers/html.py:436
+#: sphinx/writers/html.py:441 sphinx/writers/html5.py:395
+#: sphinx/writers/html5.py:400
 msgid "Permalink to this headline"
 msgstr "이 표제에 대한 퍼머링크"
 
-#: sphinx/themes/basic/static/doctools.js:205 sphinx/writers/html.py:132
-#: sphinx/writers/html.py:141 sphinx/writers/html5.py:107
+#: sphinx/themes/basic/static/doctools.js:203 sphinx/writers/html.py:128
+#: sphinx/writers/html.py:137 sphinx/writers/html5.py:107
 #: sphinx/writers/html5.py:116
 msgid "Permalink to this definition"
 msgstr "이 정의에 대한 퍼머링크"
 
-#: sphinx/themes/basic/static/doctools.js:238
+#: sphinx/themes/basic/static/doctools.js:236
 msgid "Hide Search Matches"
 msgstr "검색 일치 숨기기"
 
@@ -3595,37 +3595,37 @@ msgstr "only 지시문 식을 평가하는 동안 예외 발생: %s"
 msgid "default role %s not found"
 msgstr "기본 역할 %s을(를) 찾을 수 없음"
 
-#: sphinx/writers/html.py:330 sphinx/writers/html5.py:305
+#: sphinx/writers/html.py:329 sphinx/writers/html5.py:308
 #, python-format
 msgid "numfig_format is not defined for %s"
 msgstr "numfig_format이 %s에 대해 정의되지 않음"
 
-#: sphinx/writers/html.py:340 sphinx/writers/html5.py:315
+#: sphinx/writers/html.py:339 sphinx/writers/html5.py:318
 #, python-format
 msgid "Any IDs not assigned for %s node"
 msgstr "%s 노드에 할당되지 않은 ID"
 
-#: sphinx/writers/html.py:414 sphinx/writers/html5.py:369
+#: sphinx/writers/html.py:413 sphinx/writers/html5.py:372
 msgid "Permalink to this term"
 msgstr "이 용어에 대한 퍼머링크"
 
-#: sphinx/writers/html.py:446 sphinx/writers/html5.py:401
+#: sphinx/writers/html.py:445 sphinx/writers/html5.py:404
 msgid "Permalink to this table"
 msgstr "이 표에 대한 퍼머링크"
 
-#: sphinx/writers/html.py:489 sphinx/writers/html5.py:444
+#: sphinx/writers/html.py:488 sphinx/writers/html5.py:447
 msgid "Permalink to this code"
 msgstr "이 코드에 대한 퍼머링크"
 
-#: sphinx/writers/html.py:491 sphinx/writers/html5.py:446
+#: sphinx/writers/html.py:490 sphinx/writers/html5.py:449
 msgid "Permalink to this image"
 msgstr "이 이미지에 대한 퍼머링크"
 
-#: sphinx/writers/html.py:493 sphinx/writers/html5.py:448
+#: sphinx/writers/html.py:492 sphinx/writers/html5.py:451
 msgid "Permalink to this toctree"
 msgstr "이 목차에 대한 퍼머링크"
 
-#: sphinx/writers/html.py:625 sphinx/writers/html5.py:569
+#: sphinx/writers/html.py:624 sphinx/writers/html5.py:572
 msgid "Could not obtain image size. :scale: option is ignored."
 msgstr "이미지 크기를 얻어올 수 없습니다. :scale: 옵션을 무시합니다."
 
