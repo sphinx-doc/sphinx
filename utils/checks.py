@@ -76,21 +76,10 @@ def sphinx_has_header(physical_line, filename, lines, line_number):
         elif doc_open:
             if line == '"""\n':
                 # end of docstring
-                if lno <= 3:
-                    return 0, 'X101 missing module name in docstring'
                 break
 
             if line != '\n' and line[:4] != '    ' and doc_open:
                 return 0, 'X101 missing correct docstring indentation'
-
-            if lno == 1:
-                mod_name_len = len(line.strip())
-                if line.strip() != mod_name:
-                    return 2, 'X101 wrong module name in docstring heading'
-            elif lno == 2:
-                if line.strip() != mod_name_len * '~':
-                    return (3, 'X101 wrong module name underline, should be '
-                            '~~~...~')
     else:
         return 0, 'X101 missing end and/or start of docstring...'
 
