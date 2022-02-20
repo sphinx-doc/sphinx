@@ -15,9 +15,6 @@ the *caption* value given:
 You can also give an explicit caption, e.g. :exmpl:`Foo <foo>`.
 
 Both, the url string and the caption string must escape ``%`` as ``%%``.
-
-:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-:license: BSD, see LICENSE for details.
 """
 
 import re

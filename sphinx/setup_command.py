@@ -1,9 +1,6 @@
 """Setuptools/distutils commands to assist the building of sphinx documentation.
 
-:author: Sebastian Wiesner
-:contact: basti.wiesner@gmx.net
-:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-:license: BSD, see LICENSE for details.
+:author: Sebastian Wiesner <basti.wiesner@gmx.net>
 """
 
 import os

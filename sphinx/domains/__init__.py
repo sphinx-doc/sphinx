@@ -2,9 +2,6 @@
 
 Domains are groupings of description directives
 and roles describing e.g. constructs of one programming language.
-
-:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-:license: BSD, see LICENSE for details.
 """
 
 import copy

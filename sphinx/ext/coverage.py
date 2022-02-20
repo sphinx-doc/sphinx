@@ -2,9 +2,6 @@
 
 Mostly written by Josip Dzolonga for the Google Highly Open Participation
 contest.
-
-:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-:license: BSD, see LICENSE for details.
 """
 
 import glob

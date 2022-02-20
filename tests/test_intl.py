@@ -1,9 +1,6 @@
 """Test message patching for internationalization purposes.
 
 Runs the text builder in the test root.
-
-:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-:license: BSD, see LICENSE for details.
 """
 
 import os

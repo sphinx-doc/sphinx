@@ -14,9 +14,6 @@ This works as follows:
   rest of the documentation; however, the location of the mapping file can
   also be specified individually, e.g. if the docs should be buildable
   without Internet access.
-
-:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-:license: BSD, see LICENSE for details.
 """
 
 import concurrent.futures

@@ -3,9 +3,6 @@
 This requires the MathJax JavaScript library on your webserver/computer.
 
 .. _MathJax: https://www.mathjax.org/
-
-:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-:license: BSD, see LICENSE for details.
 """
 
 import json

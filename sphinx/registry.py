@@ -1,7 +1,4 @@
 """Sphinx component registry.
-
-:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-:license: BSD, see LICENSE for details.
 """
 
 import traceback

@@ -44,9 +44,6 @@ autolink role
 The autolink role functions as ``:obj:`` when the name referred can be
 resolved to a Python object, and otherwise it becomes simple emphasis.
 This can be used as the default role to make links 'smart'.
-
-:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-:license: BSD, see LICENSE for details.
 """
 
 import inspect

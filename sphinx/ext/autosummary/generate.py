@@ -10,9 +10,6 @@ Example Makefile rule::
 
    generate:
            sphinx-autogen -o source/generated source/*.rst
-
-:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-:license: BSD, see LICENSE for details.
 """
 
 import argparse

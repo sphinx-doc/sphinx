@@ -1,7 +1,4 @@
 """Sphinx theme specific highlighting styles.
-
-:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-:license: BSD, see LICENSE for details.
 """
 
 from pygments.style import Style

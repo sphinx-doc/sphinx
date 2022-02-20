@@ -1,7 +1,4 @@
 """Update annotations info of living objects using type_comments.
-
-:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-:license: BSD, see LICENSE for details.
 """
 
 from inspect import Parameter, Signature, getsource

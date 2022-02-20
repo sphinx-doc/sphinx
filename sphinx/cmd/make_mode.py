@@ -5,9 +5,6 @@ of Makefile / make.bat.
 
 This is in its own module so that importing it is fast.  It should not
 import the main Sphinx modules (like sphinx.applications, sphinx.builders).
-
-:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-:license: BSD, see LICENSE for details.
 """
 
 import os

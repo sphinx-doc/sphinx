@@ -26,9 +26,6 @@ Example::
 
 The graph is inserted as a PNG+image map into HTML and a PDF in
 LaTeX.
-
-:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-:license: BSD, see LICENSE for details.
 """
 
 import builtins

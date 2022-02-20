@@ -1,8 +1,3 @@
-"""
-:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-:license: BSD, see LICENSE for details.
-"""
-
 import warnings
 from typing import Any, Callable, Dict, List, Set, Type
 

@@ -1,9 +1,6 @@
 """Sphinx application class and extensibility interface.
 
 Gracefully adapted from the TextPress system by Armin.
-
-:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-:license: BSD, see LICENSE for details.
 """
 
 import os
