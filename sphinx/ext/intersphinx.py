@@ -1,5 +1,4 @@
-"""
-    Insert links to objects documented in remote Sphinx documentation.
+"""Insert links to objects documented in remote Sphinx documentation.
 
     This works as follows:
 

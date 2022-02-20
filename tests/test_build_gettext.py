@@ -1,5 +1,4 @@
-"""
-    Test the build process with gettext builder with the test root.
+"""Test the build process with gettext builder with the test root.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.

@@ -1,5 +1,4 @@
-"""
-    Custom docutils writer for LaTeX.
+"""Custom docutils writer for LaTeX.
 
     Much of this code is adapted from Dave Kuhlman's "docpy" writer from his
     docutils sandbox.

@@ -1,5 +1,4 @@
-"""
-    Test the sphinx.config.Config class and its handling in the
+"""Test the sphinx.config.Config class and its handling in the
     Application class.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

@@ -1,5 +1,4 @@
-"""
-    French search language: includes the JS French stemmer.
+"""French search language: includes the JS French stemmer.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.

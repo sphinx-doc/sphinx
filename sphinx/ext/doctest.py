@@ -1,5 +1,4 @@
-"""
-    Mimic doctest by automatically executing code snippets and checking
+"""Mimic doctest by automatically executing code snippets and checking
     their results.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

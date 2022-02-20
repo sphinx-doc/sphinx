@@ -1,5 +1,4 @@
-"""
-    Do syntax checks, but no writing.
+"""Do syntax checks, but no writing.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.

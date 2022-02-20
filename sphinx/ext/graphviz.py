@@ -1,5 +1,4 @@
-"""
-    Allow graphviz-formatted graphs to be included in Sphinx-generated
+"""Allow graphviz-formatted graphs to be included in Sphinx-generated
     documents inline.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

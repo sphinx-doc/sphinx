@@ -1,5 +1,4 @@
-"""
-    "Doc fields" are reST field lists in object descriptions that will
+""""Doc fields" are reST field lists in object descriptions that will
     be domain-specifically transformed to a more appealing presentation.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

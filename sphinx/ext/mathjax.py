@@ -1,5 +1,4 @@
-"""
-    Allow `MathJax <https://www.mathjax.org/>`_ to be used to display math in
+"""Allow `MathJax <https://www.mathjax.org/>`_ to be used to display math in
     Sphinx's HTML writer -- requires the MathJax JavaScript library on your
     webserver/computer.
 

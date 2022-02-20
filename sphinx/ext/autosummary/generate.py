@@ -1,5 +1,4 @@
-"""
-    Usable as a library or script to generate automatic RST source files for
+"""Usable as a library or script to generate automatic RST source files for
     items referred to in autosummary:: directives.
 
     Each generated RST file contains a single auto*:: directive which

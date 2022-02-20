@@ -1,5 +1,4 @@
-"""
-    Setuptools/distutils commands to assist the building of sphinx
+"""Setuptools/distutils commands to assist the building of sphinx
     documentation.
 
     :author: Sebastian Wiesner

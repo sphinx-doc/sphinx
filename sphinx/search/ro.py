@@ -1,5 +1,4 @@
-"""
-    Romanian search language: includes the JS Romanian stemmer.
+"""Romanian search language: includes the JS Romanian stemmer.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.

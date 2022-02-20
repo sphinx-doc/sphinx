@@ -1,5 +1,4 @@
-"""
-    Sphinx extension that adds an autosummary:: directive, which can be
+"""Sphinx extension that adds an autosummary:: directive, which can be
     used to generate function/method/attribute/etc. summary lists, similar
     to those output eg. by Epydoc and other API doc generation tools.
 

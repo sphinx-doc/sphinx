@@ -1,5 +1,4 @@
-"""
-    Base class of epub2/epub3 builders.
+"""Base class of epub2/epub3 builders.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.

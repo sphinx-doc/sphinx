@@ -1,5 +1,4 @@
-"""
-    Allow todos to be inserted into your documentation.  Inclusion of todos can
+"""Allow todos to be inserted into your documentation.  Inclusion of todos can
     be switched of by a configuration variable.  The todolist directive collects
     all todos of your project and lists them along with a backlink to the
     original location.

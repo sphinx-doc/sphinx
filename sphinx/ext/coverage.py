@@ -1,5 +1,4 @@
-"""
-    Check Python modules and C API for coverage.  Mostly written by Josip
+"""Check Python modules and C API for coverage.  Mostly written by Josip
     Dzolonga for the Google Highly Open Participation contest.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

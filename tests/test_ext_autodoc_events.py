@@ -1,5 +1,4 @@
-"""
-    Test the autodoc extension.  This tests mainly for autodoc events
+"""Test the autodoc extension.  This tests mainly for autodoc events
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.

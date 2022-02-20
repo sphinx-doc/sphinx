@@ -1,5 +1,4 @@
-"""
-    sphinx-build -M command-line handling.
+"""sphinx-build -M command-line handling.
 
     This replaces the old, platform-dependent and once-generated content
     of Makefile / make.bat.

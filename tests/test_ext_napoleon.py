@@ -1,5 +1,4 @@
-"""
-    Tests for :mod:`sphinx.ext.napoleon.__init__` module.
+"""Tests for :mod:`sphinx.ext.napoleon.__init__` module.
 
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

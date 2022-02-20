@@ -1,5 +1,4 @@
-"""
-    Test the autodoc extension.  This tests mainly the Documenters; the auto
+"""Test the autodoc extension.  This tests mainly the Documenters; the auto
     directives are tested in a test source file translated by test_build.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

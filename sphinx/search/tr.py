@@ -1,5 +1,4 @@
-"""
-    Turkish search language: includes the JS Turkish stemmer.
+"""Turkish search language: includes the JS Turkish stemmer.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.

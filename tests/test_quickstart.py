@@ -1,5 +1,4 @@
-"""
-    Test the sphinx.quickstart module.
+"""Test the sphinx.quickstart module.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.

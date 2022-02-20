@@ -1,5 +1,4 @@
-"""
-    This module implements a simple JavaScript serializer.
+"""This module implements a simple JavaScript serializer.
     Uses the basestring encode function from simplejson by Bob Ippolito.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

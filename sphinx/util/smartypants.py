@@ -1,5 +1,4 @@
-"""
-    This is extracted (with minor adaptations for flake8 compliance) from
+"""This is extracted (with minor adaptations for flake8 compliance) from
     docutils’ docutils/utils/smartquotes.py as of revision 8097 (30 May 2017),
     in order to backport for Sphinx usage with Docutils < 0.14 extra language
     configurations and fixes. Replaces earlier smartypants version as used up

@@ -1,5 +1,4 @@
-r"""
-    Defines a docutils directive for inserting inheritance diagrams.
+r"""Defines a docutils directive for inserting inheritance diagrams.
 
     Provide the directive with one or more classes or modules (separated
     by whitespace).  For modules, all of the classes in that module will

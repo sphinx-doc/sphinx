@@ -1,5 +1,4 @@
-"""
-    Measure durations of Sphinx processing.
+"""Measure durations of Sphinx processing.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.

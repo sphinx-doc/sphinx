@@ -1,5 +1,4 @@
-"""
-    Test the Sphinx class.
+"""Test the Sphinx class.
 
     :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.

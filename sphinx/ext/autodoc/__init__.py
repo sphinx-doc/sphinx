@@ -1,5 +1,4 @@
-"""
-    Automatically insert docstrings for functions, classes or whole modules into
+"""Automatically insert docstrings for functions, classes or whole modules into
     the doctree, thus avoiding duplication between docstrings and documentation
     for those who like elaborate docstrings.
 
