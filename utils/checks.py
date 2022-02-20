@@ -1,7 +1,7 @@
 """Custom, Sphinx-only flake8 plugins.
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 import os

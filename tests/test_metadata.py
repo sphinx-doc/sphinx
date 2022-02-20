@@ -1,7 +1,7 @@
 """Test our handling of metadata in files with bibliographic metadata.
 
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 # adapted from an example of bibliographic metadata at

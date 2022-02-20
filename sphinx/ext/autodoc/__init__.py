@@ -1,9 +1,9 @@
 """Automatically insert docstrings for functions, classes or whole modules into
-    the doctree, thus avoiding duplication between docstrings and documentation
-    for those who like elaborate docstrings.
+the doctree, thus avoiding duplication between docstrings and documentation
+for those who like elaborate docstrings.
 
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 import re

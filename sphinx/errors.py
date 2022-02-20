@@ -1,8 +1,8 @@
 """Contains SphinxError and a few subclasses (in an extra module to avoid
-    circular import problems).
+circular import problems).
 
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 from typing import Any

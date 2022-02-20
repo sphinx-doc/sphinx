@@ -1,7 +1,7 @@
 """Test pycode.parser.
 
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 from sphinx.pycode.parser import Parser

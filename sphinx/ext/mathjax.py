@@ -1,9 +1,9 @@
 """Allow `MathJax <https://www.mathjax.org/>`_ to be used to display math in
-    Sphinx's HTML writer -- requires the MathJax JavaScript library on your
-    webserver/computer.
+Sphinx's HTML writer -- requires the MathJax JavaScript library on your
+webserver/computer.
 
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 import json

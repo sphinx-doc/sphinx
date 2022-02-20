@@ -1,10 +1,10 @@
 """Allow todos to be inserted into your documentation.  Inclusion of todos can
-    be switched of by a configuration variable.  The todolist directive collects
-    all todos of your project and lists them along with a backlink to the
-    original location.
+be switched of by a configuration variable.  The todolist directive collects
+all todos of your project and lists them along with a backlink to the
+original location.
 
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 from typing import Any, Dict, List, Tuple, cast

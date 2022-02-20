@@ -1,18 +1,18 @@
 """Provides the ``ifconfig`` directive that allows to write documentation
-    that is included depending on configuration variables.
+that is included depending on configuration variables.
 
-    Usage::
+Usage::
 
-        .. ifconfig:: releaselevel in ('alpha', 'beta', 'rc')
+    .. ifconfig:: releaselevel in ('alpha', 'beta', 'rc')
 
-           This stuff is only included in the built docs for unstable versions.
+       This stuff is only included in the built docs for unstable versions.
 
-    The argument for ``ifconfig`` is a plain Python expression, evaluated in the
-    namespace of the project configuration (that is, all variables from
-    ``conf.py`` are available.)
+The argument for ``ifconfig`` is a plain Python expression, evaluated in the
+namespace of the project configuration (that is, all variables from
+``conf.py`` are available.)
 
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 from typing import Any, Dict, List

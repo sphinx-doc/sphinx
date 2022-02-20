@@ -1,16 +1,16 @@
 """Usable as a library or script to generate automatic RST source files for
-    items referred to in autosummary:: directives.
+items referred to in autosummary:: directives.
 
-    Each generated RST file contains a single auto*:: directive which
-    extracts the docstring of the referred item.
+Each generated RST file contains a single auto*:: directive which
+extracts the docstring of the referred item.
 
-    Example Makefile rule::
+Example Makefile rule::
 
-       generate:
-               sphinx-autogen -o source/generated source/*.rst
+   generate:
+           sphinx-autogen -o source/generated source/*.rst
 
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 
 import argparse

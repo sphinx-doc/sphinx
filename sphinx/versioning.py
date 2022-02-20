@@ -1,8 +1,8 @@
 """Implements the low-level algorithms Sphinx uses for the versioning of
-    doctrees.
+doctrees.
 
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
+:license: BSD, see LICENSE for details.
 """
 import pickle
 from itertools import product, zip_longest
