@@ -1,6 +1,7 @@
-"""Sphinx extension that adds an autosummary:: directive, which can be
-used to generate function/method/attribute/etc. summary lists, similar
-to those output eg. by Epydoc and other API doc generation tools.
+"""Extension that adds an autosummary:: directive.
+
+The directive can be used to generate function/method/attribute/etc. summary
+lists, similar to those output eg. by Epydoc and other API doc generation tools.
 
 An :autolink: role is also provided.
 

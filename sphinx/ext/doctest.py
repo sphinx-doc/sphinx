@@ -1,5 +1,6 @@
-"""Mimic doctest by automatically executing code snippets and checking
-their results.
+"""Mimic doctest in Sphinx.
+
+The extension automatically execute code snippets and checks their results.
 
 :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
 :license: BSD, see LICENSE for details.

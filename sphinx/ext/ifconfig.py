@@ -1,4 +1,6 @@
-"""Provides the ``ifconfig`` directive that allows to write documentation
+"""Provides the ``ifconfig`` directive.
+
+The ``ifconfig`` directive enables writing documentation
 that is included depending on configuration variables.
 
 Usage::

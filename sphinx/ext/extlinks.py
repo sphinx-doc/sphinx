@@ -1,5 +1,4 @@
-"""Extension to save typing and prevent hard-coding of base URLs in the reST
-files.
+"""Extension to save typing and prevent hard-coding of base URLs in reST files.
 
 This adds a new config value called ``extlinks`` that is created like this::
 

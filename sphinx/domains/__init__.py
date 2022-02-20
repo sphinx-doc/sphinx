@@ -1,4 +1,6 @@
-"""Support for domains, which are groupings of description directives
+"""Support for domains.
+
+Domains are groupings of description directives
 and roles describing e.g. constructs of one programming language.
 
 :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.

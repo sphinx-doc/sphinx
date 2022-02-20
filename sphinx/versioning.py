@@ -1,5 +1,4 @@
-"""Implements the low-level algorithms Sphinx uses for the versioning of
-doctrees.
+"""Implements the low-level algorithms Sphinx uses for versioning doctrees.
 
 :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
 :license: BSD, see LICENSE for details.

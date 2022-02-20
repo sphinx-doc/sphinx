@@ -1,4 +1,6 @@
-"""Parses a directory tree looking for Python modules and packages and creates
+"""Creates reST files corresponding to Python modules for code documentation.
+
+Parses a directory tree looking for Python modules and packages and creates
 ReST files appropriately to create code documentation with Sphinx.  It also
 creates a modules index (named modules.<suffix>).
 
