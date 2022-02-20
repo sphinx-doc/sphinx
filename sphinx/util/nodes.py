@@ -1,5 +1,4 @@
-"""Docutils node-related utility functions for Sphinx.
-"""
+"""Docutils node-related utility functions for Sphinx."""
 
 import re
 import unicodedata

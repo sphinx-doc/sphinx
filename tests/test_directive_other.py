@@ -1,5 +1,4 @@
-"""Test the other directives.
-"""
+"""Test the other directives."""
 
 import pytest
 from docutils import nodes

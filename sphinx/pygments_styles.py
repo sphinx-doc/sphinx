@@ -1,5 +1,4 @@
-"""Sphinx theme specific highlighting styles.
-"""
+"""Sphinx theme specific highlighting styles."""
 
 from pygments.style import Style
 from pygments.styles.friendly import FriendlyStyle

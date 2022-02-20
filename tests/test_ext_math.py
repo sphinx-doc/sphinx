@@ -1,5 +1,4 @@
-"""Test math extensions.
-"""
+"""Test math extensions."""
 
 import re
 import subprocess

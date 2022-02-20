@@ -1,5 +1,4 @@
-"""Test various Sphinx-specific markup extensions.
-"""
+"""Test various Sphinx-specific markup extensions."""
 
 import re
 

@@ -1,5 +1,4 @@
-"""Inventory utility functions for Sphinx.
-"""
+"""Inventory utility functions for Sphinx."""
 import os
 import re
 import zlib

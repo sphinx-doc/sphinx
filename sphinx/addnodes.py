@@ -1,5 +1,4 @@
-"""Additional docutils nodes.
-"""
+"""Additional docutils nodes."""
 
 from typing import TYPE_CHECKING, Any, Dict, List, Sequence
 

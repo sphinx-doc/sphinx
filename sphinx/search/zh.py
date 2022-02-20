@@ -1,5 +1,4 @@
-"""Chinese search language: includes routine to split words.
-"""
+"""Chinese search language: includes routine to split words."""
 
 import os
 import re

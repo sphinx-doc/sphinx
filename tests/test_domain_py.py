@@ -1,5 +1,4 @@
-"""Tests the Python Domain
-"""
+"""Tests the Python Domain"""
 
 import re
 import sys

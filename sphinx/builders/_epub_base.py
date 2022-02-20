@@ -1,5 +1,4 @@
-"""Base class of epub2/epub3 builders.
-"""
+"""Base class of epub2/epub3 builders."""
 
 import html
 import os

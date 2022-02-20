@@ -1,5 +1,4 @@
-"""reST helper functions.
-"""
+"""reST helper functions."""
 
 import re
 from collections import defaultdict

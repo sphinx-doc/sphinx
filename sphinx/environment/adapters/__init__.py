@@ -1,2 +1,1 @@
-"""Sphinx environment adapters
-"""
+"""Sphinx environment adapters"""

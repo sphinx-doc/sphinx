@@ -1,5 +1,4 @@
-"""File utility functions for Sphinx.
-"""
+"""File utility functions for Sphinx."""
 
 import os
 import posixpath

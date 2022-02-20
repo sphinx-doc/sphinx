@@ -1,5 +1,4 @@
-"""Tests util.typing functions.
-"""
+"""Tests util.typing functions."""
 
 import sys
 from numbers import Integral

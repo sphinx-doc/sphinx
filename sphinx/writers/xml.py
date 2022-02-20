@@ -1,5 +1,4 @@
-"""Docutils-native XML and pseudo-XML writers.
-"""
+"""Docutils-native XML and pseudo-XML writers."""
 
 from typing import Any
 

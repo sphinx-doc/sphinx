@@ -1,5 +1,4 @@
-"""Index entries adapters for sphinx.environment.
-"""
+"""Index entries adapters for sphinx.environment."""
 
 import re
 import unicodedata

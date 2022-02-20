@@ -1,5 +1,4 @@
-"""Test the ChangesBuilder class.
-"""
+"""Test the ChangesBuilder class."""
 
 import pytest
 

@@ -1,5 +1,4 @@
-"""The changeset domain.
-"""
+"""The changeset domain."""
 
 from typing import TYPE_CHECKING, Any, Dict, List, NamedTuple, cast
 

@@ -1,5 +1,4 @@
-"""Utilities for docstring processing.
-"""
+"""Utilities for docstring processing."""
 
 import re
 import sys

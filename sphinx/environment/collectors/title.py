@@ -1,5 +1,4 @@
-"""The title collector components for sphinx.environment.
-"""
+"""The title collector components for sphinx.environment."""
 
 from typing import Any, Dict, Set
 

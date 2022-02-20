@@ -1,5 +1,4 @@
-"""Test the code-block directive.
-"""
+"""Test the code-block directive."""
 
 import os
 

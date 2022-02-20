@@ -1,5 +1,4 @@
-"""Test the build process with Texinfo builder with the test root.
-"""
+"""Test the build process with Texinfo builder with the test root."""
 
 import os
 import re

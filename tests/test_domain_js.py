@@ -1,5 +1,4 @@
-"""Tests the JavaScript Domain
-"""
+"""Tests the JavaScript Domain"""
 
 from unittest.mock import Mock
 

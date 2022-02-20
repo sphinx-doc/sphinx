@@ -1,5 +1,4 @@
-"""Add external links to module code in Python object descriptions.
-"""
+"""Add external links to module code in Python object descriptions."""
 
 from typing import Any, Dict, Set
 

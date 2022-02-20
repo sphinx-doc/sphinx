@@ -1,5 +1,4 @@
-"""Spanish search language: includes the JS Spanish stemmer.
-"""
+"""Spanish search language: includes the JS Spanish stemmer."""
 
 from typing import Dict
 

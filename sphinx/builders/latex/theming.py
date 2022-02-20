@@ -1,5 +1,4 @@
-"""Theming support for LaTeX builder.
-"""
+"""Theming support for LaTeX builder."""
 
 import configparser
 from os import path

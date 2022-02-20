@@ -1,5 +1,4 @@
-"""Build phase of Sphinx application.
-"""
+"""Build phase of Sphinx application."""
 
 from enum import IntEnum
 

@@ -1,5 +1,4 @@
-"""Custom docutils writer for Texinfo.
-"""
+"""Custom docutils writer for Texinfo."""
 
 import re
 import textwrap

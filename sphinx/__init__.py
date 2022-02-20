@@ -1,5 +1,4 @@
-"""The Sphinx documentation toolchain.
-"""
+"""The Sphinx documentation toolchain."""
 
 # Keep this file executable as-is in Python 3!
 # (Otherwise getting the version out of it from setup.py is impossible.)

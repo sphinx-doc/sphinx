@@ -1,5 +1,4 @@
-"""transforms for code-blocks.
-"""
+"""transforms for code-blocks."""
 
 import sys
 from typing import Any, Dict, List, NamedTuple

@@ -1,5 +1,4 @@
-"""The Python domain.
-"""
+"""The Python domain."""
 
 import builtins
 import inspect

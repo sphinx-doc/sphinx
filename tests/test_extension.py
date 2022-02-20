@@ -1,5 +1,4 @@
-"""Test sphinx.extension module.
-"""
+"""Test sphinx.extension module."""
 
 import pytest
 

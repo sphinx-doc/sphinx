@@ -1,5 +1,4 @@
-"""A Base class for additional parsers.
-"""
+"""A Base class for additional parsers."""
 
 import warnings
 from typing import TYPE_CHECKING, Any, Dict, List, Type, Union

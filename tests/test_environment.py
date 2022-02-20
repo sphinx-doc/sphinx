@@ -1,5 +1,4 @@
-"""Test the BuildEnvironment class.
-"""
+"""Test the BuildEnvironment class."""
 import os
 import shutil
 

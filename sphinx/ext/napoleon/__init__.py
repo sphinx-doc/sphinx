@@ -1,5 +1,4 @@
-"""Support for NumPy and Google style docstrings.
-"""
+"""Support for NumPy and Google style docstrings."""
 
 from typing import Any, Dict, List
 

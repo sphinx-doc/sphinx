@@ -1,5 +1,4 @@
-"""Update annotations info of living objects using type_comments.
-"""
+"""Update annotations info of living objects using type_comments."""
 
 from inspect import Parameter, Signature, getsource
 from typing import Any, Dict, List, cast

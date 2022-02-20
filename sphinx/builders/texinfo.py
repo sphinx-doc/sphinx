@@ -1,5 +1,4 @@
-"""Texinfo builder.
-"""
+"""Texinfo builder."""
 
 import os
 from os import path

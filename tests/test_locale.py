@@ -1,5 +1,4 @@
-"""Test locale.
-"""
+"""Test locale."""
 
 import pytest
 

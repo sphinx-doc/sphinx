@@ -1,5 +1,4 @@
-"""Turkish search language: includes the JS Turkish stemmer.
-"""
+"""Turkish search language: includes the JS Turkish stemmer."""
 
 from typing import Dict, Set
 

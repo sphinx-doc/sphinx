@@ -1,5 +1,4 @@
-"""Builder superclass for all builders.
-"""
+"""Builder superclass for all builders."""
 
 import os
 import re

@@ -1,5 +1,4 @@
-"""Transforms for LaTeX builder.
-"""
+"""Transforms for LaTeX builder."""
 
 from typing import Any, Dict, List, Set, Tuple, cast
 

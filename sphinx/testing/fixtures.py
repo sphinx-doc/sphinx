@@ -1,5 +1,4 @@
-"""Sphinx test fixtures for pytest
-"""
+"""Sphinx test fixtures for pytest"""
 
 import subprocess
 import sys

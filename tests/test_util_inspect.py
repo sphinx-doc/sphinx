@@ -1,5 +1,4 @@
-"""Tests util.inspect functions.
-"""
+"""Tests util.inspect functions."""
 
 import ast
 import datetime

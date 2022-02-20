@@ -1,5 +1,4 @@
-"""Tests parsers module.
-"""
+"""Tests parsers module."""
 
 from unittest.mock import Mock, patch
 

@@ -1,5 +1,4 @@
-"""Helpers for AST (Abstract Syntax Tree).
-"""
+"""Helpers for AST (Abstract Syntax Tree)."""
 
 import sys
 from typing import Dict, List, Optional, Type, overload

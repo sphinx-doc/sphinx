@@ -1,5 +1,4 @@
-"""TeX escaping helper.
-"""
+"""TeX escaping helper."""
 
 import re
 from typing import Dict

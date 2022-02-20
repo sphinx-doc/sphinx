@@ -1,5 +1,4 @@
-"""Docutils-native XML and pseudo-XML builders.
-"""
+"""Docutils-native XML and pseudo-XML builders."""
 
 from os import path
 from typing import Any, Dict, Iterator, Set, Type, Union

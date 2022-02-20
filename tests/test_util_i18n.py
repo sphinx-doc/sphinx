@@ -1,5 +1,4 @@
-"""Test i18n util.
-"""
+"""Test i18n util."""
 
 import datetime
 import os

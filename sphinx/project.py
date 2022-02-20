@@ -1,5 +1,4 @@
-"""Utility function and classes for Sphinx projects.
-"""
+"""Utility function and classes for Sphinx projects."""
 
 import os
 from glob import glob

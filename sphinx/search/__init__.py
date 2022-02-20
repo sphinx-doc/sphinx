@@ -1,5 +1,4 @@
-"""Create a full-text search index for offline search.
-"""
+"""Create a full-text search index for offline search."""
 import html
 import pickle
 import re

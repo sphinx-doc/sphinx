@@ -1,5 +1,4 @@
-"""Do syntax checks, but no writing.
-"""
+"""Do syntax checks, but no writing."""
 
 from typing import Any, Dict, Set
 

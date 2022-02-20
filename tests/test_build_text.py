@@ -1,5 +1,4 @@
-"""Test the build process with Text builder with the test root.
-"""
+"""Test the build process with Text builder with the test root."""
 
 import pytest
 from docutils.utils import column_width

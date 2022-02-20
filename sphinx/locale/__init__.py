@@ -1,5 +1,4 @@
-"""Locale utilities.
-"""
+"""Locale utilities."""
 
 import gettext
 import locale

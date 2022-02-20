@@ -1,5 +1,4 @@
-"""Test the search index builder.
-"""
+"""Test the search index builder."""
 
 from collections import namedtuple
 from io import BytesIO

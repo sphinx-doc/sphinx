@@ -1,5 +1,4 @@
-"""Test the LaTeX writer
-"""
+"""Test the LaTeX writer"""
 
 import pytest
 

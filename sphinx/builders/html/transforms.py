@@ -1,5 +1,4 @@
-"""Transforms for HTML builder.
-"""
+"""Transforms for HTML builder."""
 
 import re
 from typing import Any, Dict, List

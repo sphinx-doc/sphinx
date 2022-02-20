@@ -1,5 +1,4 @@
-"""Test the sphinx.quickstart module.
-"""
+"""Test the sphinx.quickstart module."""
 
 import time
 from io import StringIO

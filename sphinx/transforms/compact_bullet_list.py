@@ -1,5 +1,4 @@
-"""Docutils transforms used by Sphinx when reading documents.
-"""
+"""Docutils transforms used by Sphinx when reading documents."""
 
 from typing import Any, Dict, List, cast
 

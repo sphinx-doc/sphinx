@@ -1,5 +1,4 @@
-"""Test sphinx.ext.imgconverter extension.
-"""
+"""Test sphinx.ext.imgconverter extension."""
 
 import os
 

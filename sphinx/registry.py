@@ -1,5 +1,4 @@
-"""Sphinx component registry.
-"""
+"""Sphinx component registry."""
 
 import traceback
 import warnings

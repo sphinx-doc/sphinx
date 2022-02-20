@@ -1,5 +1,4 @@
-"""Test our handling of metadata in files with bibliographic metadata.
-"""
+"""Test our handling of metadata in files with bibliographic metadata."""
 
 # adapted from an example of bibliographic metadata at
 # https://docutils.sourceforge.io/docs/user/rst/demo.txt

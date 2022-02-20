@@ -1,5 +1,4 @@
-"""Portuguese search language: includes the JS Portuguese stemmer.
-"""
+"""Portuguese search language: includes the JS Portuguese stemmer."""
 
 from typing import Dict
 

@@ -1,5 +1,4 @@
-"""The dependencies collector components for sphinx.environment.
-"""
+"""The dependencies collector components for sphinx.environment."""
 
 import os
 from os import path

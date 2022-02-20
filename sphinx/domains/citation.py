@@ -1,5 +1,4 @@
-"""The citation domain.
-"""
+"""The citation domain."""
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, cast
 

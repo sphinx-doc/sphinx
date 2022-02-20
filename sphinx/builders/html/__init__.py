@@ -1,5 +1,4 @@
-"""Several HTML builders.
-"""
+"""Several HTML builders."""
 
 import html
 import os

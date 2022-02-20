@@ -1,5 +1,4 @@
-"""Manual page writer, extended for Sphinx custom nodes.
-"""
+"""Manual page writer, extended for Sphinx custom nodes."""
 
 from typing import Any, Dict, Iterable, cast
 

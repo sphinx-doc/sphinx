@@ -1,5 +1,4 @@
-"""Image converter extension for Sphinx
-"""
+"""Image converter extension for Sphinx"""
 
 import subprocess
 import sys

@@ -1,5 +1,4 @@
-"""Sphinx deprecation classes and utilities.
-"""
+"""Sphinx deprecation classes and utilities."""
 
 import sys
 import warnings

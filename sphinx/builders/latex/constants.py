@@ -1,5 +1,4 @@
-"""consntants for LaTeX builder.
-"""
+"""consntants for LaTeX builder."""
 
 from typing import Any, Dict
 

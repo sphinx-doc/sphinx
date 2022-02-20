@@ -1,5 +1,4 @@
-"""Tests sphinx.util.template functions.
-"""
+"""Tests sphinx.util.template functions."""
 
 from sphinx.util.template import ReSTRenderer
 

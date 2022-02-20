@@ -1,5 +1,4 @@
-"""Handlers for additional ReST roles.
-"""
+"""Handlers for additional ReST roles."""
 
 import re
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Type

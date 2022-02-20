@@ -1,5 +1,4 @@
-"""Allow reference sections by :ref: role using its title.
-"""
+"""Allow reference sections by :ref: role using its title."""
 
 from typing import Any, Dict, cast
 

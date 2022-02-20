@@ -1,5 +1,4 @@
-"""Handlers for additional ReST directives.
-"""
+"""Handlers for additional ReST directives."""
 
 import re
 from typing import TYPE_CHECKING, Any, Dict, Generic, List, Tuple, TypeVar, cast

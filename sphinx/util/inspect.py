@@ -1,5 +1,4 @@
-"""Helpers for inspecting Python modules.
-"""
+"""Helpers for inspecting Python modules."""
 
 import builtins
 import contextlib

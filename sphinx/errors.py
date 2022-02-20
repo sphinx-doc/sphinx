@@ -1,5 +1,4 @@
-"""Contains SphinxError and a few subclasses.
-"""
+"""Contains SphinxError and a few subclasses."""
 
 from typing import Any
 

@@ -1,5 +1,4 @@
-"""Test the Pygments highlighting bridge.
-"""
+"""Test the Pygments highlighting bridge."""
 
 from unittest import mock
 

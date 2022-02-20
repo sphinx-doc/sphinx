@@ -1,5 +1,4 @@
-"""Test sphinx.ext.duration extension.
-"""
+"""Test sphinx.ext.duration extension."""
 
 import re
 

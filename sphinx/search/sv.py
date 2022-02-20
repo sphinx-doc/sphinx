@@ -1,5 +1,4 @@
-"""Swedish search language: includes the JS Swedish stemmer.
-"""
+"""Swedish search language: includes the JS Swedish stemmer."""
 
 from typing import Dict
 

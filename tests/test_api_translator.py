@@ -1,5 +1,4 @@
-"""Test the Sphinx API for translator.
-"""
+"""Test the Sphinx API for translator."""
 
 import sys
 

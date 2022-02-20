@@ -1,5 +1,4 @@
-"""Custom docutils writer for plain text.
-"""
+"""Custom docutils writer for plain text."""
 import math
 import os
 import re

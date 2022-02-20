@@ -1,2 +1,1 @@
-"""Modules for command line executables.
-"""
+"""Modules for command line executables."""

@@ -1,5 +1,4 @@
-"""Quickly setup documentation source to work with Sphinx.
-"""
+"""Quickly setup documentation source to work with Sphinx."""
 
 import argparse
 import locale

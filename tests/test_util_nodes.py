@@ -1,5 +1,4 @@
-"""Tests uti.nodes functions.
-"""
+"""Tests uti.nodes functions."""
 from textwrap import dedent
 from typing import Any
 

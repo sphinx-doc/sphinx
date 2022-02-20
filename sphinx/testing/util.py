@@ -1,5 +1,4 @@
-"""Sphinx test suite utilities
-"""
+"""Sphinx test suite utilities"""
 import functools
 import os
 import re

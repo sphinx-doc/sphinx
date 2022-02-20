@@ -1,5 +1,4 @@
-"""The MessageCatalogBuilder class.
-"""
+"""The MessageCatalogBuilder class."""
 
 from codecs import open
 from collections import OrderedDict, defaultdict

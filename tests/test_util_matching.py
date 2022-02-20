@@ -1,5 +1,4 @@
-"""Tests sphinx.util.matching functions.
-"""
+"""Tests sphinx.util.matching functions."""
 from sphinx.util.matching import Matcher, compile_matchers
 
 

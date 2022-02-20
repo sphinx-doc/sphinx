@@ -1,5 +1,4 @@
-"""Japanese search language: includes routine to split words.
-"""
+"""Japanese search language: includes routine to split words."""
 
 # Python Version of TinySegmenter
 # (http://chasen.org/~taku/software/TinySegmenter/)

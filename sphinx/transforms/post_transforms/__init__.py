@@ -1,5 +1,4 @@
-"""Docutils transforms used by Sphinx.
-"""
+"""Docutils transforms used by Sphinx."""
 
 import re
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Type, cast

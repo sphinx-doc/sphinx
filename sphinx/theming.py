@@ -1,5 +1,4 @@
-"""Theming support for HTML builders.
-"""
+"""Theming support for HTML builders."""
 
 import configparser
 import os

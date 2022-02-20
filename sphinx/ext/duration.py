@@ -1,5 +1,4 @@
-"""Measure durations of Sphinx processing.
-"""
+"""Measure durations of Sphinx processing."""
 
 from datetime import datetime, timedelta
 from itertools import islice

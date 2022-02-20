@@ -1,5 +1,4 @@
-"""The image collector for sphinx.environment.
-"""
+"""The image collector for sphinx.environment."""
 
 import os
 from glob import glob

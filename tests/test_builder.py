@@ -1,5 +1,4 @@
-"""Test the Builder class.
-"""
+"""Test the Builder class."""
 import pytest
 
 

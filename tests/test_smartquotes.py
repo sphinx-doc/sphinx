@@ -1,5 +1,4 @@
-"""Test smart quotes.
-"""
+"""Test smart quotes."""
 
 import pytest
 from html5lib import HTMLParser

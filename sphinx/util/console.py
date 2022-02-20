@@ -1,5 +1,4 @@
-"""Format colored console output.
-"""
+"""Format colored console output."""
 
 import os
 import re

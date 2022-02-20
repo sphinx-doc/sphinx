@@ -1,5 +1,4 @@
-"""Test the doctest extension.
-"""
+"""Test the doctest extension."""
 import os
 from collections import Counter
 

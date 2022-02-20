@@ -1,5 +1,4 @@
-"""Test the HTML builder and check output against XPath.
-"""
+"""Test the HTML builder and check output against XPath."""
 
 import os
 import subprocess

@@ -1,5 +1,4 @@
-"""Single HTML builders.
-"""
+"""Single HTML builders."""
 
 from os import path
 from typing import Any, Dict, List, Tuple, Union

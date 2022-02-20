@@ -1,5 +1,4 @@
-"""Tests sphinx.util.fileutil functions.
-"""
+"""Tests sphinx.util.fileutil functions."""
 
 from unittest import mock
 

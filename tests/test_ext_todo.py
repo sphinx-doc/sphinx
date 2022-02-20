@@ -1,5 +1,4 @@
-"""Test sphinx.ext.todo extension.
-"""
+"""Test sphinx.ext.todo extension."""
 
 import re
 

@@ -1,5 +1,4 @@
-"""docutils writers handling Sphinx' custom nodes.
-"""
+"""docutils writers handling Sphinx' custom nodes."""
 
 import os
 import posixpath

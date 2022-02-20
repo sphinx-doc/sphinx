@@ -1,5 +1,4 @@
-"""Test the Sphinx class.
-"""
+"""Test the Sphinx class."""
 
 from unittest.mock import Mock
 

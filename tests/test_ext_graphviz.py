@@ -1,5 +1,4 @@
-"""Test sphinx.ext.graphviz extension.
-"""
+"""Test sphinx.ext.graphviz extension."""
 
 import re
 

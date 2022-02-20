@@ -1,5 +1,4 @@
-"""Test docutils.conf support for several writers.
-"""
+"""Test docutils.conf support for several writers."""
 
 import pytest
 from docutils import nodes

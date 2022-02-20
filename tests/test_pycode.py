@@ -1,5 +1,4 @@
-"""Test pycode.
-"""
+"""Test pycode."""
 
 import os
 import sys

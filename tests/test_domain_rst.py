@@ -1,5 +1,4 @@
-"""Tests the reStructuredText domain.
-"""
+"""Tests the reStructuredText domain."""
 
 from sphinx import addnodes
 from sphinx.addnodes import (desc, desc_addname, desc_annotation, desc_content, desc_name,

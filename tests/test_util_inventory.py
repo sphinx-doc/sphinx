@@ -1,5 +1,4 @@
-"""Test inventory util functions.
-"""
+"""Test inventory util functions."""
 
 import posixpath
 import zlib

@@ -1,5 +1,4 @@
-"""The CheckExternalLinksBuilder class.
-"""
+"""The CheckExternalLinksBuilder class."""
 
 import json
 import re

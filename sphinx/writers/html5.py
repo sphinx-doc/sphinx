@@ -1,5 +1,4 @@
-"""Experimental docutils writers for HTML5 handling Sphinx's custom nodes.
-"""
+"""Experimental docutils writers for HTML5 handling Sphinx's custom nodes."""
 
 import os
 import posixpath

@@ -1,5 +1,4 @@
-"""Tests util.utils functions.
-"""
+"""Tests util.utils functions."""
 
 import os
 

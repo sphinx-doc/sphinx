@@ -1,2 +1,1 @@
-"""Contains Sphinx features not activated by default.
-"""
+"""Contains Sphinx features not activated by default."""

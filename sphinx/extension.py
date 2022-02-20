@@ -1,5 +1,4 @@
-"""Utilities for Sphinx extensions.
-"""
+"""Utilities for Sphinx extensions."""
 
 from typing import TYPE_CHECKING, Any, Dict
 

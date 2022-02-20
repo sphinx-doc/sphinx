@@ -1,5 +1,4 @@
-"""Changelog builder.
-"""
+"""Changelog builder."""
 
 import html
 from os import path

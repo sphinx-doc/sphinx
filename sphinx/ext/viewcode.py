@@ -1,5 +1,4 @@
-"""Add links to module code in Python object descriptions.
-"""
+"""Add links to module code in Python object descriptions."""
 
 import posixpath
 import traceback

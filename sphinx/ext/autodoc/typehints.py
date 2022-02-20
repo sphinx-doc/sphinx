@@ -1,5 +1,4 @@
-"""Generating content for autodoc using typehints
-"""
+"""Generating content for autodoc using typehints"""
 
 import re
 from collections import OrderedDict

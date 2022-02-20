@@ -1,5 +1,4 @@
-"""Tests sphinx.util.rst functions.
-"""
+"""Tests sphinx.util.rst functions."""
 
 from docutils.statemachine import StringList
 from jinja2 import Environment

@@ -1,5 +1,4 @@
-"""Templates utility functions for Sphinx.
-"""
+"""Templates utility functions for Sphinx."""
 
 import os
 from functools import partial

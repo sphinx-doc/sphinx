@@ -1,5 +1,4 @@
-"""Test sphinx.util.docstrings.
-"""
+"""Test sphinx.util.docstrings."""
 
 from sphinx.util.docstrings import prepare_commentdoc, prepare_docstring, separate_metadata
 

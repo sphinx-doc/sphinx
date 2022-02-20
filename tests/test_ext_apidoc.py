@@ -1,5 +1,4 @@
-"""Test the sphinx.apidoc module.
-"""
+"""Test the sphinx.apidoc module."""
 
 from collections import namedtuple
 

@@ -1,5 +1,4 @@
-"""Assets adapter for sphinx.environment.
-"""
+"""Assets adapter for sphinx.environment."""
 
 from sphinx.environment import BuildEnvironment
 

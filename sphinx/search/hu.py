@@ -1,5 +1,4 @@
-"""Hungarian search language: includes the JS Hungarian stemmer.
-"""
+"""Hungarian search language: includes the JS Hungarian stemmer."""
 
 from typing import Dict
 

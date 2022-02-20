@@ -1,5 +1,4 @@
-"""Pattern-matching utility functions for Sphinx.
-"""
+"""Pattern-matching utility functions for Sphinx."""
 
 import re
 from typing import Callable, Dict, Iterable, List, Match, Optional, Pattern

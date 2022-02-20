@@ -1,5 +1,4 @@
-"""Tests util functions.
-"""
+"""Tests util functions."""
 
 import os
 import tempfile

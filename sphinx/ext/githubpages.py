@@ -1,5 +1,4 @@
-"""To publish HTML docs at GitHub Pages, create .nojekyll file.
-"""
+"""To publish HTML docs at GitHub Pages, create .nojekyll file."""
 
 import os
 import urllib

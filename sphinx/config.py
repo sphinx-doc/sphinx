@@ -1,5 +1,4 @@
-"""Build configuration file handling.
-"""
+"""Build configuration file handling."""
 
 import re
 import traceback

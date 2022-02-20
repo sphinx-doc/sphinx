@@ -1,5 +1,4 @@
-"""Test sphinx.ext.inheritance_diagram extension.
-"""
+"""Test sphinx.ext.inheritance_diagram extension."""
 
 import os
 import re

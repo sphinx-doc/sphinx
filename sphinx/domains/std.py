@@ -1,5 +1,4 @@
-"""The standard domain.
-"""
+"""The standard domain."""
 
 import re
 import warnings

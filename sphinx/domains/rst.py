@@ -1,5 +1,4 @@
-"""The reStructuredText domain.
-"""
+"""The reStructuredText domain."""
 
 import re
 from typing import Any, Dict, Iterator, List, Optional, Tuple, cast

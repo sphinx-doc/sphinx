@@ -1,5 +1,4 @@
-"""Romanian search language: includes the JS Romanian stemmer.
-"""
+"""Romanian search language: includes the JS Romanian stemmer."""
 
 from typing import Dict, Set
 

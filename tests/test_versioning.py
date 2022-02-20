@@ -1,5 +1,4 @@
-"""Test the versioning implementation.
-"""
+"""Test the versioning implementation."""
 
 import pickle
 

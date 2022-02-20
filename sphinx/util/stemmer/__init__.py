@@ -1,5 +1,4 @@
-"""Word stemming utilities for Sphinx.
-"""
+"""Word stemming utilities for Sphinx."""
 
 from sphinx.util.stemmer.porter import PorterStemmer
 

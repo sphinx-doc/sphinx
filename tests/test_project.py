@@ -1,5 +1,4 @@
-"""Tests project module.
-"""
+"""Tests project module."""
 
 from collections import OrderedDict
 

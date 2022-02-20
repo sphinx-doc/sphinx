@@ -1,5 +1,4 @@
-"""Sphinx test comparer for pytest
-"""
+"""Sphinx test comparer for pytest"""
 import difflib
 import pathlib
 from typing import Any, List, Union

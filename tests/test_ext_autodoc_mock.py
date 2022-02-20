@@ -1,5 +1,4 @@
-"""Test the autodoc extension.
-"""
+"""Test the autodoc extension."""
 
 import abc
 import sys

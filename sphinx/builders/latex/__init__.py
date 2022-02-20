@@ -1,5 +1,4 @@
-"""LaTeX builder.
-"""
+"""LaTeX builder."""
 
 import os
 import warnings

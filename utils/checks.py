@@ -1,5 +1,4 @@
-"""Custom, Sphinx-only flake8 plugins.
-"""
+"""Custom, Sphinx-only flake8 plugins."""
 
 import os
 import re

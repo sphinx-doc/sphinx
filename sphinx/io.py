@@ -1,5 +1,4 @@
-"""Input/Output files
-"""
+"""Input/Output files"""
 import codecs
 from typing import TYPE_CHECKING, Any, List, Type
 

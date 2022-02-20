@@ -1,5 +1,4 @@
-"""Test the build process with gettext builder with the test root.
-"""
+"""Test the build process with gettext builder with the test root."""
 
 import gettext
 import os

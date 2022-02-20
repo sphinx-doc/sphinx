@@ -1,5 +1,4 @@
-"""Operating system-related utility functions for Sphinx.
-"""
+"""Operating system-related utility functions for Sphinx."""
 
 import contextlib
 import filecmp

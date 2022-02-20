@@ -1,5 +1,4 @@
-"""Image utility functions for Sphinx.
-"""
+"""Image utility functions for Sphinx."""
 
 import base64
 import imghdr

@@ -1,5 +1,4 @@
-"""The data collector components for sphinx.environment.
-"""
+"""The data collector components for sphinx.environment."""
 
 from typing import TYPE_CHECKING, Dict, List, Optional, Set
 

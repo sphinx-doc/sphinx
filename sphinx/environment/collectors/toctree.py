@@ -1,5 +1,4 @@
-"""Toctree collector for sphinx.environment.
-"""
+"""Toctree collector for sphinx.environment."""
 
 from typing import Any, Dict, List, Set, Tuple, Type, TypeVar, cast
 

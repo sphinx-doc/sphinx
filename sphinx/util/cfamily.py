@@ -1,5 +1,4 @@
-"""Utility functions common to the C and C++ domains.
-"""
+"""Utility functions common to the C and C++ domains."""
 
 import re
 from copy import deepcopy

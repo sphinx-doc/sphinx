@@ -1,5 +1,4 @@
-"""Test setup_command for distutils.
-"""
+"""Test setup_command for distutils."""
 
 import os
 import subprocess

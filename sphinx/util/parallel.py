@@ -1,5 +1,4 @@
-"""Parallel building utilities.
-"""
+"""Parallel building utilities."""
 
 import os
 import time

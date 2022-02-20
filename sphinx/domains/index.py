@@ -1,5 +1,4 @@
-"""The index domain.
-"""
+"""The index domain."""
 
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Tuple
 

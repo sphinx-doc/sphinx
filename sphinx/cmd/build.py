@@ -1,5 +1,4 @@
-"""Build documentation from a provided source.
-"""
+"""Build documentation from a provided source."""
 
 import argparse
 import bdb

@@ -1,5 +1,4 @@
-"""Test images util.
-"""
+"""Test images util."""
 
 import pytest
 

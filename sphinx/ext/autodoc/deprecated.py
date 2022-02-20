@@ -1,5 +1,4 @@
-"""The deprecated Documenters for autodoc.
-"""
+"""The deprecated Documenters for autodoc."""
 
 import warnings
 from typing import Any

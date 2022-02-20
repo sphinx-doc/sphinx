@@ -1,5 +1,4 @@
-"""Test the only directive with the test root.
-"""
+"""Test the only directive with the test root."""
 
 import re
 

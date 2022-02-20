@@ -1,5 +1,4 @@
-"""The metadata collector components for sphinx.environment.
-"""
+"""The metadata collector components for sphinx.environment."""
 
 from typing import Any, Dict, List, Set, cast
 

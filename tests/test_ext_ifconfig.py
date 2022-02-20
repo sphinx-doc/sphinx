@@ -1,5 +1,4 @@
-"""Test sphinx.ext.ifconfig extension.
-"""
+"""Test sphinx.ext.ifconfig extension."""
 
 import pytest
 

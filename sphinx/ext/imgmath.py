@@ -1,5 +1,4 @@
-"""Render math in HTML via dvipng or dvisvgm.
-"""
+"""Render math in HTML via dvipng or dvisvgm."""
 
 import posixpath
 import re

@@ -1,5 +1,4 @@
-"""Toctree adapter for sphinx.environment.
-"""
+"""Toctree adapter for sphinx.environment."""
 
 from typing import TYPE_CHECKING, Any, Iterable, List, Optional, cast
 

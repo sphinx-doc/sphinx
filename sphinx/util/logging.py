@@ -1,5 +1,4 @@
-"""Logging utility functions for Sphinx.
-"""
+"""Logging utility functions for Sphinx."""
 
 import logging
 import logging.handlers

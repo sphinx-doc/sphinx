@@ -1,5 +1,4 @@
-"""Plain-text Sphinx builder.
-"""
+"""Plain-text Sphinx builder."""
 
 from os import path
 from typing import Any, Dict, Iterator, Set, Tuple

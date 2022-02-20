@@ -1,5 +1,4 @@
-"""Importer utilities for autodoc
-"""
+"""Importer utilities for autodoc"""
 
 import importlib
 import traceback

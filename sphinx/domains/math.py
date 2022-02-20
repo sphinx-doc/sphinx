@@ -1,5 +1,4 @@
-"""The math domain.
-"""
+"""The math domain."""
 
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple
 

@@ -1,5 +1,4 @@
-"""Test pycode.parser.
-"""
+"""Test pycode.parser."""
 
 from sphinx.pycode.parser import Parser
 from sphinx.util.inspect import signature_from_str

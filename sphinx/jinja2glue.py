@@ -1,5 +1,4 @@
-"""Glue code for the jinja2 templating engine.
-"""
+"""Glue code for the jinja2 templating engine."""
 
 from os import path
 from pprint import pformat

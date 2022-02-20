@@ -1,5 +1,4 @@
-"""Stuff for Python version compatibility.
-"""
+"""Stuff for Python version compatibility."""
 
 import warnings
 from typing import Any, Callable

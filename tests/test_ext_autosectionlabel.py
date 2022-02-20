@@ -1,5 +1,4 @@
-"""Test sphinx.ext.autosectionlabel extension.
-"""
+"""Test sphinx.ext.autosectionlabel extension."""
 
 import re
 

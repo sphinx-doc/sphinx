@@ -1,5 +1,4 @@
-"""Additional nodes for LaTeX writer.
-"""
+"""Additional nodes for LaTeX writer."""
 
 from docutils import nodes
 

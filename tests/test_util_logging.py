@@ -1,5 +1,4 @@
-"""Test logging util.
-"""
+"""Test logging util."""
 
 import codecs
 import os

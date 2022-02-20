@@ -1,5 +1,4 @@
-"""English search language: includes the JS porter stemmer.
-"""
+"""English search language: includes the JS porter stemmer."""
 
 from typing import Dict
 

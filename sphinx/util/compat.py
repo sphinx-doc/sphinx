@@ -1,5 +1,4 @@
-"""modules for backward compatibility
-"""
+"""modules for backward compatibility"""
 
 import sys
 from typing import TYPE_CHECKING, Any, Dict

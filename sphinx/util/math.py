@@ -1,5 +1,4 @@
-"""Utility functions for math.
-"""
+"""Utility functions for math."""
 
 from docutils import nodes
 

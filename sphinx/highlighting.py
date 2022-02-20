@@ -1,5 +1,4 @@
-"""Highlight code blocks using Pygments.
-"""
+"""Highlight code blocks using Pygments."""
 
 from functools import partial
 from importlib import import_module

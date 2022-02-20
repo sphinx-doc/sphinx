@@ -1,5 +1,4 @@
-"""Utility functions for docutils.
-"""
+"""Utility functions for docutils."""
 
 import os
 import re

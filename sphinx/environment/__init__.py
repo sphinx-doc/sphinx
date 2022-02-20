@@ -1,5 +1,4 @@
-"""Global creation environment.
-"""
+"""Global creation environment."""
 
 import os
 import pickle

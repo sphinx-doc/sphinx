@@ -1,5 +1,4 @@
-"""Test the autosummary extension.
-"""
+"""Test the autosummary extension."""
 
 import sys
 from io import StringIO

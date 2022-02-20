@@ -1,5 +1,4 @@
-"""Implements the low-level algorithms Sphinx uses for versioning doctrees.
-"""
+"""Implements the low-level algorithms Sphinx uses for versioning doctrees."""
 import pickle
 from itertools import product, zip_longest
 from operator import itemgetter

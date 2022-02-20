@@ -1,5 +1,4 @@
-"""Utility functions for Sphinx.
-"""
+"""Utility functions for Sphinx."""
 
 import functools
 import hashlib

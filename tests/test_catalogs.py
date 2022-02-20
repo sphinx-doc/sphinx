@@ -1,5 +1,4 @@
-"""Test the base build process.
-"""
+"""Test the base build process."""
 import shutil
 
 import pytest

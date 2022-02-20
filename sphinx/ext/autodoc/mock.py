@@ -1,5 +1,4 @@
-"""mock for autodoc
-"""
+"""mock for autodoc"""
 
 import contextlib
 import os

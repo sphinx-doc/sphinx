@@ -1,5 +1,4 @@
-"""PNG image manipulation helpers.
-"""
+"""PNG image manipulation helpers."""
 
 import binascii
 import struct

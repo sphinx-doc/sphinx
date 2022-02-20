@@ -1,5 +1,4 @@
-"""Test pycode.ast
-"""
+"""Test pycode.ast"""
 
 import sys
 

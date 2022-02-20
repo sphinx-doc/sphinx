@@ -1,5 +1,4 @@
-"""Test the sphinx.config.Config class.
-"""
+"""Test the sphinx.config.Config class."""
 
 from unittest import mock
 

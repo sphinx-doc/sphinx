@@ -1,5 +1,4 @@
-"""Manual pages builder.
-"""
+"""Manual pages builder."""
 
 from os import path
 from typing import Any, Dict, List, Set, Tuple, Union

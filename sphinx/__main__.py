@@ -1,5 +1,4 @@
-"""The Sphinx documentation toolchain.
-"""
+"""The Sphinx documentation toolchain."""
 
 import sys
 

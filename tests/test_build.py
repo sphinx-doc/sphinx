@@ -1,5 +1,4 @@
-"""Test all builders.
-"""
+"""Test all builders."""
 
 import sys
 from textwrap import dedent

@@ -1,5 +1,4 @@
-"""Test the sphinx.environment.managers.indexentries.
-"""
+"""Test the sphinx.environment.managers.indexentries."""
 
 import pytest
 

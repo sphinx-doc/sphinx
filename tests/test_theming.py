@@ -1,5 +1,4 @@
-"""Test the Theme class.
-"""
+"""Test the Theme class."""
 
 import os
 

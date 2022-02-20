@@ -1,5 +1,4 @@
-"""Simple requests package loader
-"""
+"""Simple requests package loader"""
 
 import sys
 import warnings

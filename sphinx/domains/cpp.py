@@ -1,5 +1,4 @@
-"""The C++ language domain.
-"""
+"""The C++ language domain."""
 
 import re
 from typing import (Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple, TypeVar,

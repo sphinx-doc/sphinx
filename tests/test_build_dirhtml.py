@@ -1,5 +1,4 @@
-"""Test dirhtml builder.
-"""
+"""Test dirhtml builder."""
 
 import posixpath
 

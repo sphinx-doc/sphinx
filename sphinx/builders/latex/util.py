@@ -1,5 +1,4 @@
-"""Utilities for LaTeX builder.
-"""
+"""Utilities for LaTeX builder."""
 
 from typing import Optional
 

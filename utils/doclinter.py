@@ -1,5 +1,4 @@
-"""A linter for Sphinx docs
-"""
+"""A linter for Sphinx docs"""
 
 import os
 import re

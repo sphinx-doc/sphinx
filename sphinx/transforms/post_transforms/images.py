@@ -1,5 +1,4 @@
-"""Docutils transforms used by Sphinx.
-"""
+"""Docutils transforms used by Sphinx."""
 
 import os
 import re

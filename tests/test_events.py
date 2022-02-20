@@ -1,5 +1,4 @@
-"""Test the EventManager class.
-"""
+"""Test the EventManager class."""
 
 import pytest
 

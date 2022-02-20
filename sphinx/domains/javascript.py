@@ -1,5 +1,4 @@
-"""The JavaScript domain.
-"""
+"""The JavaScript domain."""
 
 from typing import Any, Dict, Iterator, List, Optional, Tuple, cast
 

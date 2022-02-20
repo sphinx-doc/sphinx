@@ -1,5 +1,4 @@
-"""Tests the post_transforms
-"""
+"""Tests the post_transforms"""
 
 import pytest
 from docutils import nodes

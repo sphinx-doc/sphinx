@@ -1,5 +1,4 @@
-"""The composite types for Sphinx.
-"""
+"""The composite types for Sphinx."""
 
 import sys
 import typing

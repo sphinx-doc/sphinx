@@ -1,5 +1,4 @@
-"""Test the coverage builder.
-"""
+"""Test the coverage builder."""
 
 import pickle
 

@@ -1,5 +1,4 @@
-"""Russian search language: includes the JS Russian stemmer.
-"""
+"""Russian search language: includes the JS Russian stemmer."""
 
 from typing import Dict
 

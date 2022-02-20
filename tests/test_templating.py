@@ -1,5 +1,4 @@
-"""Test templating.
-"""
+"""Test templating."""
 
 import pytest
 

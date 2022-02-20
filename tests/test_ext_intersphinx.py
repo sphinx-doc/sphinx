@@ -1,5 +1,4 @@
-"""Test the intersphinx extension.
-"""
+"""Test the intersphinx extension."""
 
 import http.server
 import os

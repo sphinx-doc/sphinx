@@ -1,5 +1,4 @@
-"""Test the patched directives.
-"""
+"""Test the patched directives."""
 
 import pytest
 from docutils import nodes

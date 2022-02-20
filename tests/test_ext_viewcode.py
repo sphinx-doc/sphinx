@@ -1,5 +1,4 @@
-"""Test sphinx.ext.viewcode extension.
-"""
+"""Test sphinx.ext.viewcode extension."""
 
 import re
 

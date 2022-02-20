@@ -1,5 +1,4 @@
-"""Test sphinx.ext.githubpages extension.
-"""
+"""Test sphinx.ext.githubpages extension."""
 
 import pytest
 

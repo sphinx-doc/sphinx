@@ -1,5 +1,4 @@
-"""Utilities parsing and analyzing Python code.
-"""
+"""Utilities parsing and analyzing Python code."""
 
 import re
 import tokenize

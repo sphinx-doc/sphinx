@@ -1,2 +1,1 @@
-"""Custom docutils writers.
-"""
+"""Custom docutils writers."""
