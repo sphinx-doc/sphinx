@@ -1366,6 +1366,19 @@ def test_domain_cpp_build_field_role(app, status, warning):
     assert len(ws) == 0
 
 
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+def test_domain_cpp_build_operator_lookup(app, status, warning):
+    app.builder.build_all()
+    ws = filter_warnings(warning, "operator-lookup")
+    assert len(ws) == 5
+    # TODO: the first one should not happen
+    assert ":11: WARNING: cpp:identifier reference target not found: _lit" in ws[0]
+    assert ":18: WARNING: cpp:func reference target not found: int g" in ws[1]
+    assert ":19: WARNING: cpp:func reference target not found: int operator+(bool, bool)" in ws[2]
+    assert ":20: WARNING: cpp:func reference target not found: int operator\"\"_udl" in ws[3]
+    assert ":21: WARNING: cpp:func reference target not found: operator bool" in ws[4]
+
+
 @pytest.mark.sphinx(testroot='domain-cpp-intersphinx', confoverrides={'nitpicky': True})
 def test_domain_cpp_build_intersphinx(tmp_path, app, status, warning):
     origSource = """\

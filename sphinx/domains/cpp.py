@@ -1706,6 +1706,9 @@ class ASTFallbackExpr(ASTExpression):
 ################################################################################
 
 class ASTOperator(ASTBase):
+    def __eq__(self, other: object) -> bool:
+        raise NotImplementedError(repr(self))
+
     def is_anon(self) -> bool:
         return False
 
@@ -1754,6 +1757,11 @@ class ASTOperatorBuildIn(ASTOperator):
     def __init__(self, op: str) -> None:
         self.op = op
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTOperatorBuildIn):
+            return NotImplemented
+        return self.op == other.op
+
     def get_id(self, version: int) -> str:
         if version == 1:
             ids = _id_operator_v1
@@ -1784,6 +1792,11 @@ class ASTOperatorLiteral(ASTOperator):
     def __init__(self, identifier: ASTIdentifier) -> None:
         self.identifier = identifier
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTOperatorLiteral):
+            return NotImplemented
+        return self.identifier == other.identifier
+
     def get_id(self, version: int) -> str:
         if version == 1:
             raise NoOldIdError
@@ -1802,6 +1815,11 @@ class ASTOperatorLiteral(ASTOperator):
 class ASTOperatorType(ASTOperator):
     def __init__(self, type: ASTType) -> None:
         self.type = type
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTOperatorType):
+            return NotImplemented
+        return self.type == other.type
 
     def get_id(self, version: int) -> str:
         if version == 1:
