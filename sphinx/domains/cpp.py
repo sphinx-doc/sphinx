@@ -4455,7 +4455,8 @@ class Symbol:
         return ASTNestedName(names, templates, rooted=False)
 
     def _find_first_named_symbol(self, identOrOp: ASTIdentifier | ASTOperator,
-                                 templateParams: Any, templateArgs: ASTTemplateArgs | None,
+                                 templateParams: ASTTemplateParams | ASTTemplateIntroduction,
+                                 templateArgs: ASTTemplateArgs | None,
                                  templateShorthand: bool, matchSelf: bool,
                                  recurseInAnon: bool, correctPrimaryTemplateArgs: bool,
                                  ) -> Symbol | None:
@@ -4471,7 +4472,8 @@ class Symbol:
             return None
 
     def _find_named_symbols(self, identOrOp: ASTIdentifier | ASTOperator,
-                            templateParams: Any, templateArgs: ASTTemplateArgs,
+                            templateParams: ASTTemplateParams | ASTTemplateIntroduction,
+                            templateArgs: ASTTemplateArgs,
                             templateShorthand: bool, matchSelf: bool,
                             recurseInAnon: bool, correctPrimaryTemplateArgs: bool,
                             searchInSiblings: bool) -> Iterator[Symbol]:
