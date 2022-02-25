@@ -147,7 +147,7 @@ class TocTree:
                         # don't show subitems
                         toc = nodes.bullet_list('', item)
                     elif ref in ['genindex', 'modindex', 'search']:
-                        reflabel = self.domains['std'].data['labels'][ref]
+                        reflabel = self.env.domains['std'].data['labels'][ref]
                         if not title:
                             title = reflabel[2]
                         reference = nodes.reference('', '', internal=True,
