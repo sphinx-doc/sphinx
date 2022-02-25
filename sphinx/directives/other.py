@@ -124,7 +124,7 @@ class TocTree(SphinxDirective):
                         break
                 # absolutize filenames
                 docname = docname_join(self.env.docname, docname)
-                if url_re.match(ref) or ref in ['self', 'genindex', 'modindex', 'search']:
+                if url_re.match(ref) or ref in ('self', 'genindex', 'modindex', 'search'):
                     toctree['entries'].append((title, ref))
                 elif docname not in self.env.found_docs:
                     if excluded(self.env.doc2path(docname, None)):

@@ -132,26 +132,18 @@ class TocTree:
                         para = addnodes.compact_paragraph('', '', reference)
                         item = nodes.list_item('', para)
                         toc = nodes.bullet_list('', item)
-                    elif ref == 'self':
+                    elif ref in ('self', 'genindex', 'modindex', 'search'):
                         # 'self' refers to the document from which this
                         # toctree originates
-                        ref = toctreenode['parent']
-                        if not title:
-                            title = clean_astext(self.env.titles[ref])
+                        if ref == 'self':
+                            ref = toctreenode['parent']
+                            title = title or clean_astext(self.env.titles[ref])
+                        else:
+                            reflabel = self.env.domains['std'].data['labels'][ref]
+                            ref = reflabel[0]
+                            title = title or reflabel[2]
                         reference = nodes.reference('', '', internal=True,
                                                     refuri=ref,
-                                                    anchorname='',
-                                                    *[nodes.Text(title)])
-                        para = addnodes.compact_paragraph('', '', reference)
-                        item = nodes.list_item('', para)
-                        # don't show subitems
-                        toc = nodes.bullet_list('', item)
-                    elif ref in ['genindex', 'modindex', 'search']:
-                        reflabel = self.env.domains['std'].data['labels'][ref]
-                        if not title:
-                            title = reflabel[2]
-                        reference = nodes.reference('', '', internal=True,
-                                                    refuri=reflabel[0],
                                                     anchorname='',
                                                     *[nodes.Text(title)])
                         para = addnodes.compact_paragraph('', '', reference)

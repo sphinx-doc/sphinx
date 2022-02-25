@@ -178,7 +178,7 @@ class TocTreeCollector(EnvironmentCollector):
             if depth == 0:
                 return
             for (_title, ref) in toctreenode['entries']:
-                if url_re.match(ref) or ref in ['self', 'genindex', 'modindex', 'search']:
+                if url_re.match(ref) or ref in ('self', 'genindex', 'modindex', 'search'):
                     # don't mess with those
                     continue
                 elif ref in assigned:
@@ -263,7 +263,7 @@ class TocTreeCollector(EnvironmentCollector):
                 elif isinstance(subnode, addnodes.toctree):
                     for _title, subdocname in subnode['entries']:
                         if url_re.match(subdocname) or \
-                                subdocname in ['self', 'genindex', 'modindex', 'search']:
+                                subdocname in ('self', 'genindex', 'modindex', 'search'):
                             # don't mess with those
                             continue
 
