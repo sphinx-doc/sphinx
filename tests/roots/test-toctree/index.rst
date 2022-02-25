@@ -17,6 +17,9 @@ Contents:
    bar
    http://sphinx-doc.org/
    self
+   genindex
+   Modules <modindex>
+   search
 
 .. only:: html
 
