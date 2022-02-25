@@ -9,11 +9,10 @@
 #}
 {% extends "basic/layout.html" %}
 
-{% set script_files = script_files + ["_static/bizstyle.js"] %}
-
-{# put the sidebar before the body #}
-{% block sidebar1 %}{{ sidebar() }}{% endblock %}
-{% block sidebar2 %}{% endblock %}
+{%- block scripts %}
+    {{ super() }}
+    <script src="{{ pathto('_static/bizstyle.js', 1) }}"></script>
+{%- endblock %}
 
 {# doctype override #}
 {%- block doctype %}
@@ -21,8 +20,8 @@
 {%- endblock %}
 
 {%- block extrahead %}
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <!--[if lt IE 9]>
-    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <script src="_static/css3-mediaqueries.js"></script>
     <![endif]-->
 {%- endblock %}

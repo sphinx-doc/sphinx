@@ -1,36 +1,38 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.writers.xml
     ~~~~~~~~~~~~~~~~~~
 
     Docutils-native XML and pseudo-XML writers.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from docutils import writers
+from typing import Any
+
 from docutils.writers.docutils_xml import Writer as BaseXMLWriter
+
+from sphinx.builders import Builder
 
 
 class XMLWriter(BaseXMLWriter):
-
-    def __init__(self, builder):
-        BaseXMLWriter.__init__(self)
+    def __init__(self, builder: Builder) -> None:
+        super().__init__()
         self.builder = builder
-        if self.builder.translator_class:
-            self.translator_class = self.builder.translator_class
 
-    def translate(self, *args, **kwargs):
+        # A lambda function to generate translator lazily
+        self.translator_class = lambda document: self.builder.create_translator(document)
+
+    def translate(self, *args: Any, **kwargs: Any) -> None:
         self.document.settings.newlines = \
             self.document.settings.indents = \
             self.builder.env.config.xml_pretty
         self.document.settings.xml_declaration = True
         self.document.settings.doctype_declaration = True
-        return BaseXMLWriter.translate(self)
+        return super().translate()
 
 
-class PseudoXMLWriter(writers.Writer):
+class PseudoXMLWriter(BaseXMLWriter):
 
     supported = ('pprint', 'pformat', 'pseudoxml')
     """Formats this writer supports."""
@@ -41,13 +43,13 @@ class PseudoXMLWriter(writers.Writer):
     output = None
     """Final translated form of `document`."""
 
-    def __init__(self, builder):
-        writers.Writer.__init__(self)
+    def __init__(self, builder: Builder) -> None:
+        super().__init__()
         self.builder = builder
 
-    def translate(self):
+    def translate(self) -> None:
         self.output = self.document.pformat()
 
-    def supports(self, format):
+    def supports(self, format: str) -> bool:
         """This writer supports all format-specific elements."""
         return True

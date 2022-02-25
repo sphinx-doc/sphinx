@@ -1,87 +1,128 @@
-=================
-README for Sphinx
-=================
+========
+ Sphinx
+========
 
-This is the Sphinx documentation generator, see http://sphinx-doc.org/.
+.. image:: https://img.shields.io/pypi/v/sphinx.svg
+   :target: https://pypi.org/project/Sphinx/
+   :alt: Package on PyPI
 
+.. image:: https://readthedocs.org/projects/sphinx/badge/?version=master
+   :target: http://www.sphinx-doc.org/
+   :alt: Documentation Status
 
-Installing
-==========
+.. image:: https://ci.appveyor.com/api/projects/status/github/sphinx-doc/sphinx?branch=master&svg=true
+   :target: https://ci.appveyor.com/project/sphinxdoc/sphinx
+   :alt: Build Status (AppVeyor)
 
-Install from PyPI to use stable version::
+.. image:: https://circleci.com/gh/sphinx-doc/sphinx.svg?style=shield
+   :target: https://circleci.com/gh/sphinx-doc/sphinx
+   :alt: Build Status (CircleCI)
+
+.. image:: https://codecov.io/gh/sphinx-doc/sphinx/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/sphinx-doc/sphinx
+   :alt: Code Coverage Status (Codecov)
+
+.. image:: https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
+   :target: https://opensource.org/licenses/BSD-3-Clause
+   :alt: BSD 3 Clause
+
+.. image:: https://codetriage.com/sphinx-doc/sphinx/badges/users.svg
+   :target: https://codetriage.com/sphinx-doc/sphinx
+   :alt: Open Source Helpers badge
+
+Sphinx is a tool that makes it easy to create intelligent and beautiful
+documentation for Python projects (or other documents consisting of multiple
+reStructuredText sources), written by Georg Brandl.  It was originally created
+for the new Python documentation, and has excellent facilities for Python
+project documentation, but C/C++ is supported as well, and more languages are
+planned.
+
+Sphinx uses reStructuredText as its markup language, and many of its strengths
+come from the power and straightforwardness of reStructuredText and its parsing
+and translating suite, the Docutils.
+
+Among its features are the following:
+
+* Output formats: HTML (including derivative formats such as HTML Help, Epub
+  and Qt Help), plain text, manual pages and LaTeX or direct PDF output
+  using rst2pdf
+* Extensive cross-references: semantic markup and automatic links
+  for functions, classes, glossary terms and similar pieces of information
+* Hierarchical structure: easy definition of a document tree, with automatic
+  links to siblings, parents and children
+* Automatic indices: general index as well as a module index
+* Code handling: automatic highlighting using the Pygments highlighter
+* Flexible HTML output using the Jinja 2 templating engine
+* Various extensions are available, e.g. for automatic testing of snippets
+  and inclusion of appropriately formatted docstrings
+* Setuptools integration
+
+For more information, refer to the `the documentation`__.
+
+.. __: http://www.sphinx-doc.org/
+
+Installation
+============
+
+Sphinx is published on `PyPI`__ and can be installed from there::
 
    pip install -U sphinx
 
-Install from PyPI to use beta version::
+We also publish beta releases::
 
    pip install -U --pre sphinx
 
-Install from newest dev version in stable branch::
+If you wish to install `Sphinx` for development purposes, refer to `the
+contributors guide`__.
 
-   pip install git+https://github.com/sphinx-doc/sphinx@stable
+__ https://pypi.org/project/Sphinx/
+__ http://www.sphinx-doc.org/en/master/internals/contributing.html
 
-Install from newest dev version in master branch::
+Documentation
+=============
 
-   pip install git+https://github.com/sphinx-doc/sphinx
+Documentation is available from `sphinx-doc.org`__.
 
-Install from cloned source::
+__ http://www.sphinx-doc.org/
 
-   pip install .
+Get in touch
+============
 
-Install from cloned source as editable::
+- Report bugs, suggest features or view the source code `on GitHub`_.
+- For less well defined questions or ideas, use the `mailing list`_.
 
-   pip install -e .
+.. _on GitHub: https://github.com/sphinx-doc/sphinx
+.. _mailing list: https://groups.google.com/forum/#!forum/sphinx-users
 
+Please adhere to our `code of conduct`__.
 
-Release signatures
-==================
-
-Releases are signed with `498D6B9E <https://pgp.mit.edu/pks/lookup?op=vindex&search=0x102C2C17498D6B9E>`_
-
-
-Reading the docs
-================
-
-After installing::
-
-   cd doc
-   make html
-
-Then, direct your browser to ``_build/html/index.html``.
-
-Or read them online at <http://sphinx-doc.org/>.
-
+__ http://www.sphinx-doc.org/en/master/code_of_conduct.html
 
 Testing
 =======
 
-To run the tests with the interpreter available as ``python``, use::
+Continuous testing is provided by `Travis`__ (for unit tests and style checks
+on Linux), `AppVeyor`__ (for unit tests on Windows), and `CircleCI`__ (for
+large processes like TeX compilation).
 
-    make test
+For information on running tests locally, refer to `the contributors guide`__.
 
-If you want to use a different interpreter, e.g. ``python3``, use::
-
-    PYTHON=python3 make test
-
-Continuous testing runs on travis:
-
-.. image:: https://travis-ci.org/sphinx-doc/sphinx.svg?branch=master
-   :target: https://travis-ci.org/sphinx-doc/sphinx
-
+__ https://travis-ci.org/sphinx-doc/sphinx
+__ https://ci.appveyor.com/project/sphinxdoc/sphinx
+__ https://circleci.com/gh/sphinx-doc/sphinx
+__ http://www.sphinx-doc.org/en/master/internals/contributing.html
 
 Contributing
 ============
 
-#. Check for open issues or open a fresh issue to start a discussion around a
-   feature idea or a bug.
-#. If you feel uncomfortable or uncertain about an issue or your changes, feel
-   free to email sphinx-dev@googlegroups.com.
-#. Fork the repository on GitHub https://github.com/sphinx-doc/sphinx
-   to start making your changes to the **master** branch for next major
-   version, or **stable** branch for next minor version.
-#. Write a test which shows that the bug was fixed or that the feature works
-   as expected.  Use ``make test`` to run the test suite.
-#. Send a pull request and bug the maintainer until it gets merged and
-   published.  Make sure to add yourself to AUTHORS
-   <https://github.com/sphinx-doc/sphinx/blob/master/AUTHORS> and the change to
-   CHANGES <https://github.com/sphinx-doc/sphinx/blob/master/CHANGES>.
+Refer to `the contributors guide`__.
+
+__ http://www.sphinx-doc.org/en/master/internals/contributing.html
+
+Release signatures
+==================
+
+Releases are signed with following keys:
+
+* `498D6B9E <https://pgp.mit.edu/pks/lookup?op=vindex&search=0x102C2C17498D6B9E>`_
+* `5EBA0E07 <https://pgp.mit.edu/pks/lookup?op=vindex&search=0x1425F8CE5EBA0E07>`_

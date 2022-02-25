@@ -70,14 +70,6 @@ using :meth:`.Sphinx.add_directive` or :meth:`.Sphinx.add_directive_to_domain`.
       The absolute line number on which the directive appeared.  This is not
       always a useful value; use :attr:`srcline` instead.
 
-   .. attribute:: src
-
-      The source file of the directive.
-
-   .. attribute:: srcline
-
-      The line number in the source file on which the directive appeared.
-
    .. attribute:: content_offset
 
       Internal offset of the directive content.  Used when calling
@@ -129,11 +121,32 @@ Both APIs parse the content into a given node. They are used like this::
    # or
    self.state.nested_parse(self.result, 0, node)
 
+.. note::
+
+   ``sphinx.util.docutils.switch_source_input()`` allows to change a target file
+   during nested_parse.  It is useful to mixed contents.  For example, ``sphinx.
+   ext.autodoc`` uses it to parse docstrings::
+
+       from sphinx.util.docutils import switch_source_input
+
+       # Switch source_input between parsing content.
+       # Inside this context, all parsing errors and warnings are reported as
+       # happened in new source_input (in this case, ``self.result``).
+       with switch_source_input(self.state, self.result):
+           node = docutils.nodes.paragraph()
+           self.state.nested_parse(self.result, 0, node)
+
+   .. deprecated:: 1.7
+
+      Until Sphinx-1.6, ``sphinx.ext.autodoc.AutodocReporter`` is used for this
+      purpose.  For now, it is replaced by ``switch_source_input()``.
+
 If you don't need the wrapping node, you can use any concrete node type and
 return ``node.children`` from the Directive.
 
 
 .. seealso::
 
-   `Creating directives <http://docutils.sourceforge.net/docs/howto/rst-directives.html>`_
-      HOWTO of the Docutils documentation
+   `Creating directives`_ HOWTO of the Docutils documentation
+
+.. _Creating directives: https://docutils.sourceforge.io/docs/howto/rst-directives.html

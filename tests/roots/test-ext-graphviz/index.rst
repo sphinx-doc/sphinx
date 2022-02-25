@@ -14,14 +14,20 @@ Hello |graph| graphviz world
 
 .. digraph:: foo
    :graphviz_dot: neato
+   :class: neato_graph
 
-   bar -> baz
+   baz -> qux
 
 
 .. graphviz:: graph.dot
 
 .. digraph:: bar
    :align: right
-   :caption: on right
+   :caption: on *right*
 
    foo -> bar
+
+.. digraph:: foo
+   :align: center
+
+   centered

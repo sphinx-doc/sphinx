@@ -1,0 +1,20 @@
+:tocdepth: 2
+
+i18n with table
+===============
+
+.. table:: table caption
+
+   ======= =======
+   header1 header2
+   ------- -------
+   text1   text2
+   text3   text4
+   text5   text6
+   ======= =======
+
+.. table:: 1. table caption
+
+   +-----+
+   |text1|
+   +-----+

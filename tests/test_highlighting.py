@@ -1,22 +1,20 @@
-# -*- coding: utf-8 -*-
 """
     test_highlighting
     ~~~~~~~~~~~~~~~~~
 
     Test the Pygments highlighting bridge.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from pygments.lexer import RegexLexer
-from pygments.token import Text, Name
-from pygments.filters import ErrorToken
+from unittest import mock
+
 from pygments.formatters.html import HtmlFormatter
+from pygments.lexer import RegexLexer
+from pygments.token import Name, Text
 
 from sphinx.highlighting import PygmentsBridge
-
-from util import with_app
 
 
 class MyLexer(RegexLexer):
@@ -41,9 +39,8 @@ class ComplainOnUnhighlighted(PygmentsBridge):
         raise AssertionError("should highlight %r" % source)
 
 
-@with_app()
 def test_add_lexer(app, status, warning):
-    app.add_lexer('test', MyLexer())
+    app.add_lexer('test', MyLexer)
 
     bridge = PygmentsBridge('html')
     ret = bridge.highlight_block('ab', 'test')
@@ -79,17 +76,8 @@ def test_set_formatter():
         PygmentsBridge.html_formatter = HtmlFormatter
 
 
-def test_trim_doctest_flags():
-    PygmentsBridge.html_formatter = MyFormatter
-    try:
-        bridge = PygmentsBridge('html', trim_doctest_flags=True)
-        ret = bridge.highlight_block('>>> 1+2 # doctest: SKIP\n3\n', 'pycon')
-        assert ret == '>>> 1+2 \n3\n'
-    finally:
-        PygmentsBridge.html_formatter = HtmlFormatter
-
-
-def test_default_highlight():
+@mock.patch('sphinx.highlighting.logger')
+def test_default_highlight(logger):
     bridge = PygmentsBridge('html')
 
     # default: highlights as python3
@@ -107,8 +95,8 @@ def test_default_highlight():
                    '<span class="s2">&quot;Hello sphinx world&quot;</span>\n</pre></div>\n')
 
     # python3: raises error if highlighting failed
-    try:
-        ret = bridge.highlight_block('reST ``like`` text', 'python3')
-        assert False, "highlight_block() does not raise any exceptions"
-    except ErrorToken:
-        pass  # raise parsing error
+    ret = bridge.highlight_block('reST ``like`` text', 'python3')
+    logger.warning.assert_called_with('Could not lex literal_block as "%s". '
+                                      'Highlighting skipped.', 'python3',
+                                      type='misc', subtype='highlighting_failure',
+                                      location=None)

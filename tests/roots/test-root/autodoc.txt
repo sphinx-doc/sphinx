@@ -1,0 +1,39 @@
+Autodoc tests
+=============
+
+Just testing a few autodoc possibilities...
+
+.. automodule:: autodoc_target
+   :members:
+
+.. autofunction:: function
+
+.. autoclass:: Class
+   :inherited-members:
+
+   Additional content.
+
+.. autoclass:: Outer
+   :members: Inner
+
+.. autoattribute:: Class.docattr
+
+.. autoexception:: CustomEx
+   :members: f
+
+.. autoclass:: CustomDict
+   :show-inheritance:
+   :members:
+
+
+.. currentmodule:: autodoc_target
+
+.. autoclass:: InstAttCls
+   :members:
+
+   All members (5 total)
+
+.. autoclass:: InstAttCls
+   :members: ca1, ia1
+
+   Specific members (2 total)

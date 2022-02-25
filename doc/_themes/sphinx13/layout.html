@@ -4,7 +4,7 @@
 
     Sphinx layout template for the sphinxdoc theme.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
 {%- extends "basic/layout.html" %}
@@ -14,7 +14,7 @@
 {% block sidebar2 %}{% endblock %}
 
 {% block extrahead %}
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,700'
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,700'
           rel='stylesheet' type='text/css' />
 {{ super() }}
 {%- if not embedded %}
@@ -25,33 +25,30 @@
       .related { display: none; }
       {% endif %}
     </style>
-    <script type="text/javascript">
+    <script>
       // intelligent scrolling of the sidebar content
-      $(window).scroll(function() {
-        var sb = $('.sphinxsidebarwrapper');
-        var win = $(window);
-        var sbh = sb.height();
-        var offset = $('.sphinxsidebar').position()['top'];
-        var wintop = win.scrollTop();
-        var winbot = wintop + win.innerHeight();
-        var curtop = sb.position()['top'];
-        var curbot = curtop + sbh;
+      window.onscroll = () => {
+        const sb = document.getElementsByClassName('sphinxsidebarwrapper')[0]
+        const sbh = sb.offsetHeight
+        const offset = document.getElementsByClassName('sphinxsidebar')[0].offsetTop;
+        const wintop = window.scrollTop;
+        const winbot = wintop + window.offsetHeight
+        const curtop = sb.offsetTop;
+        const curbot = curtop + sbh;
         // does sidebar fit in window?
-        if (sbh < win.innerHeight()) {
+        if (sbh < window.offsetHeight) {
           // yes: easy case -- always keep at the top
-          sb.css('top', $u.min([$u.max([0, wintop - offset - 10]),
-                                $(document).height() - sbh - 200]));
+          sb.style.top = Math.min(Math.max(0, wintop - offset - 10), window.innerHeight - sbh - 200)
         } else {
           // no: only scroll if top/bottom edge of sidebar is at
           // top/bottom edge of window
           if (curtop > wintop && curbot > winbot) {
-            sb.css('top', $u.max([wintop - offset - 10, 0]));
+              sb.style.top = Math.max(wintop - offset - 10, 0)
           } else if (curtop < wintop && curbot < winbot) {
-            sb.css('top', $u.min([winbot - sbh - offset - 20,
-                                  $(document).height() - sbh - 200]));
+              sb.style.top = Math.min(winbot - sbh - offset - 20, window.innerHeight - sbh - 200)
           }
         }
-      });
+      }
     </script>
 {%- endif %}
 {% endblock %}
@@ -65,9 +62,9 @@
 <div class="pageheader">
   <ul>
     <li><a href="{{ pathto('index') }}">Home</a></li>
-    <li><a href="{{ pathto('install') }}">Get it</a></li>
+    <li><a href="{{ pathto('usage/installation') }}">Get it</a></li>
     <li><a href="{{ pathto('contents') }}">Docs</a></li>
-    <li><a href="{{ pathto('develop') }}">Extend/Develop</a></li>
+    <li><a href="{{ pathto('development/index') }}">Extend</a></li>
   </ul>
   <div>
     <a href="{{ pathto('index') }}">

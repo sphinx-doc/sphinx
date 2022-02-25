@@ -1,0 +1,102 @@
+Testing downloadable files
+==========================
+
+Download :download:`img.png` here.
+Download :download:`this <subdir/img.png>` there.
+Download :download:`file with special characters <file_with_special_#_chars.xyz>`.
+
+Test file and literal inclusion
+===============================
+
+.. include:: subdir/include.inc
+
+.. include:: /subdir/include.inc
+
+.. literalinclude:: literal.inc
+   :language: python
+
+.. should succeed
+.. literalinclude:: wrongenc.inc
+   :encoding: latin-1
+   :language: none
+.. include:: wrongenc.inc
+   :encoding: latin-1
+
+Literalinclude options
+======================
+
+.. highlight:: text
+
+.. cssclass:: inc-pyobj1
+.. literalinclude:: literal.inc
+   :pyobject: Foo
+
+.. cssclass:: inc-pyobj2
+.. literalinclude:: literal.inc
+   :pyobject: Bar.baz
+
+.. cssclass:: inc-lines
+.. literalinclude:: literal.inc
+   :lines: 6-7,9
+   :lineno-start: 6
+
+.. cssclass:: inc-startend
+.. literalinclude:: literal.inc
+   :start-after: coding: utf-8
+   :end-before: class Foo
+
+.. cssclass:: inc-preappend
+.. literalinclude:: literal.inc
+   :prepend: START CODE
+   :append: END CODE
+
+.. literalinclude:: literal.inc
+   :start-after: utf-8
+
+.. literalinclude:: literal.inc
+   :end-before: class Foo
+
+.. literalinclude:: literal.inc
+   :diff: literal_orig.inc
+
+.. cssclass:: inc-tab3
+.. literalinclude:: tabs.inc
+   :tab-width: 3
+   :language: text
+
+.. cssclass:: inc-tab8
+.. literalinclude:: tabs.inc
+   :tab-width: 8
+   :language: python
+
+.. cssclass:: inc-pyobj-lines-match
+.. literalinclude:: literal.inc
+   :pyobject: Foo
+   :lineno-match:
+
+.. cssclass:: inc-lines-match
+.. literalinclude:: literal.inc
+   :lines: 6-7,8
+   :lineno-match:
+
+.. cssclass:: inc-startend-match
+.. literalinclude:: literal.inc
+   :start-after: coding: utf-8
+   :end-before: class Foo
+   :lineno-match:
+
+Test if dedenting before parsing works.
+
+.. highlight:: python
+
+.. cssclass:: inc-pyobj-dedent
+.. literalinclude:: literal.inc
+   :pyobject: Bar.baz
+
+Docutils include with "literal"
+===============================
+
+While not recommended, it should work (and leave quotes alone).
+
+.. include:: quotes.inc
+   :literal:

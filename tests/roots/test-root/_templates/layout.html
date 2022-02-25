@@ -1,0 +1,15 @@
+{% extends "!layout.html" %}
+
+{% block extrahead %}
+{# html_context variable from conf.py #}
+<meta name="hc" content="{{ hckey }}" />
+{# html_context variable from confoverrides (as if given on cmdline) #}
+<meta name="hc_co" content="{{ hckey_co }}" />
+{{ super() }}
+{% endblock %}
+
+{% block sidebartoc %}
+{# display global TOC in addition to local TOC #}
+{{ super() }}
+{{ toctree(collapse=False, maxdepth=-1) }}
+{% endblock %}

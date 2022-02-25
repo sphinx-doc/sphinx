@@ -1,102 +1,59 @@
-# -*- coding: utf-8 -*-
 """
     Sphinx
     ~~~~~~
 
     The Sphinx documentation toolchain.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 # Keep this file executable as-is in Python 3!
 # (Otherwise getting the version out of it from setup.py is impossible.)
 
-import sys
+import os
+import subprocess
+import warnings
 from os import path
+from subprocess import PIPE
 
-__version__  = '1.5a0'
-__released__ = '1.5a0'  # used when Sphinx builds its own docs
+from .deprecation import RemovedInNextVersionWarning
 
-# version info for better programmatic use
-# possible values for 3rd element: 'alpha', 'beta', 'rc', 'final'
-# 'final' has 0 as the last element
-version_info = (1, 5, 0, 'alpha', 0)
+# by default, all DeprecationWarning under sphinx package will be emit.
+# Users can avoid this by using environment variable: PYTHONWARNINGS=
+if 'PYTHONWARNINGS' not in os.environ:
+    warnings.filterwarnings('default', category=RemovedInNextVersionWarning)
+# docutils.io using mode='rU' for open
+warnings.filterwarnings('ignore', "'U' mode is deprecated",
+                        DeprecationWarning, module='docutils.io')
+
+__version__ = '5.0.0+'
+__released__ = '5.0.0'  # used when Sphinx builds its own docs
+
+#: Version info for better programmatic use.
+#:
+#: A tuple of five elements; for Sphinx version 1.2.1 beta 3 this would be
+#: ``(1, 2, 1, 'beta', 3)``. The fourth element can be one of: ``alpha``,
+#: ``beta``, ``rc``, ``final``. ``final`` always has 0 as the last element.
+#:
+#: .. versionadded:: 1.2
+#:    Before version 1.2, check the string ``sphinx.__version__``.
+version_info = (5, 0, 0, 'final', 0)
 
 package_dir = path.abspath(path.dirname(__file__))
 
 __display_version__ = __version__  # used for command line version
 if __version__.endswith('+'):
-    # try to find out the changeset hash if checked out from hg, and append
+    # try to find out the commit hash if checked out from git, and append
     # it to __version__ (since we use this value from setup.py, it gets
     # automatically propagated to an installed copy as well)
     __display_version__ = __version__
     __version__ = __version__[:-1]  # remove '+' for PEP-440 version spec.
     try:
-        import subprocess
-        p = subprocess.Popen(['git', 'show', '-s', '--pretty=format:%h',
-                              path.join(package_dir, '..')],
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = p.communicate()
-        if out:
-            __display_version__ += '/' + out.decode().strip()
+        ret = subprocess.run(['git', 'show', '-s', '--pretty=format:%h'],
+                             cwd=package_dir,
+                             stdout=PIPE, stderr=PIPE, encoding='ascii')
+        if ret.stdout:
+            __display_version__ += '/' + ret.stdout.strip()
     except Exception:
         pass
-
-
-def main(argv=sys.argv):
-    if sys.argv[1:2] == ['-M']:
-        sys.exit(make_main(argv))
-    else:
-        sys.exit(build_main(argv))
-
-
-def build_main(argv=sys.argv):
-    """Sphinx build "main" command-line entry."""
-    if (sys.version_info[:3] < (2, 6, 0) or
-       (3, 0, 0) <= sys.version_info[:3] < (3, 3, 0)):
-        sys.stderr.write('Error: Sphinx requires at least Python 2.6 or 3.3 to run.\n')
-        return 1
-    try:
-        from sphinx import cmdline
-    except ImportError:
-        err = sys.exc_info()[1]
-        errstr = str(err)
-        if errstr.lower().startswith('no module named'):
-            whichmod = errstr[16:]
-            hint = ''
-            if whichmod.startswith('docutils'):
-                whichmod = 'Docutils library'
-            elif whichmod.startswith('jinja'):
-                whichmod = 'Jinja2 library'
-            elif whichmod == 'roman':
-                whichmod = 'roman module (which is distributed with Docutils)'
-                hint = ('This can happen if you upgraded docutils using\n'
-                        'easy_install without uninstalling the old version'
-                        'first.\n')
-            else:
-                whichmod += ' module'
-            sys.stderr.write('Error: The %s cannot be found. '
-                             'Did you install Sphinx and its dependencies '
-                             'correctly?\n' % whichmod)
-            if hint:
-                sys.stderr.write(hint)
-            return 1
-        raise
-
-    from sphinx.util.compat import docutils_version
-    if docutils_version < (0, 10):
-        sys.stderr.write('Error: Sphinx requires at least Docutils 0.10 to '
-                         'run.\n')
-        return 1
-    return cmdline.main(argv)
-
-
-def make_main(argv=sys.argv):
-    """Sphinx build "make mode" entry."""
-    from sphinx import make_mode
-    return make_mode.run_make_mode(argv[2:])
-
-
-if __name__ == '__main__':
-    sys.exit(main(sys.argv))

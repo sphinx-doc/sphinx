@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.versioning
     ~~~~~~~~~~~~~~~~~
@@ -6,15 +5,22 @@
     Implements the low-level algorithms Sphinx uses for the versioning of
     doctrees.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from uuid import uuid4
+import pickle
+from itertools import product, zip_longest
 from operator import itemgetter
-from itertools import product
+from os import path
+from typing import TYPE_CHECKING, Any, Dict, Iterator
+from uuid import uuid4
 
-from six import iteritems
-from six.moves import range, zip_longest
+from docutils.nodes import Node
+
+from sphinx.transforms import SphinxTransform
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
 
 try:
     import Levenshtein
@@ -26,7 +32,7 @@ except ImportError:
 VERSIONING_RATIO = 65
 
 
-def add_uids(doctree, condition):
+def add_uids(doctree: Node, condition: Any) -> Iterator[Node]:
     """Add a unique id to every node in the `doctree` which matches the
     condition and yield the nodes.
 
@@ -36,12 +42,12 @@ def add_uids(doctree, condition):
     :param condition:
         A callable which returns either ``True`` or ``False`` for a given node.
     """
-    for node in doctree.traverse(condition):
+    for node in doctree.findall(condition):
         node.uid = uuid4().hex
         yield node
 
 
-def merge_doctrees(old, new, condition):
+def merge_doctrees(old: Node, new: Node, condition: Any) -> Iterator[Node]:
     """Merge the `old` doctree with the `new` one while looking at nodes
     matching the `condition`.
 
@@ -51,8 +57,8 @@ def merge_doctrees(old, new, condition):
     :param condition:
         A callable which returns either ``True`` or ``False`` for a given node.
     """
-    old_iter = old.traverse(condition)
-    new_iter = new.traverse(condition)
+    old_iter = old.findall(condition)
+    new_iter = new.findall(condition)
     old_nodes = []
     new_nodes = []
     ratios = {}
@@ -90,7 +96,7 @@ def merge_doctrees(old, new, condition):
     # choose the old node with the best ratio for each new node and set the uid
     # as long as the ratio is under a certain value, in which case we consider
     # them not changed but different
-    ratios = sorted(iteritems(ratios), key=itemgetter(1))
+    ratios = sorted(ratios.items(), key=itemgetter(1))  # type: ignore
     for (old_node, new_node), ratio in ratios:
         if new_node in seen:
             continue
@@ -108,8 +114,8 @@ def merge_doctrees(old, new, condition):
         yield new_node
 
 
-def get_ratio(old, new):
-    """Return a "similiarity ratio" (in percent) representing the similarity
+def get_ratio(old: str, new: str) -> float:
+    """Return a "similarity ratio" (in percent) representing the similarity
     between the two strings where 0 is equal and anything above less than equal.
     """
     if not all([old, new]):
@@ -121,7 +127,7 @@ def get_ratio(old, new):
         return levenshtein_distance(old, new) / (len(old) / 100.0)
 
 
-def levenshtein_distance(a, b):
+def levenshtein_distance(a: str, b: str) -> int:
     """Return the Levenshtein edit distance between two strings *a* and *b*."""
     if a == b:
         return 0
@@ -129,7 +135,7 @@ def levenshtein_distance(a, b):
         a, b = b, a
     if not a:
         return len(b)
-    previous_row = range(len(b) + 1)
+    previous_row = list(range(len(b) + 1))
     for i, column1 in enumerate(a):
         current_row = [i + 1]
         for j, column2 in enumerate(b):
@@ -139,3 +145,39 @@ def levenshtein_distance(a, b):
             current_row.append(min(insertions, deletions, substitutions))
         previous_row = current_row
     return previous_row[-1]
+
+
+class UIDTransform(SphinxTransform):
+    """Add UIDs to doctree for versioning."""
+    default_priority = 880
+
+    def apply(self, **kwargs: Any) -> None:
+        env = self.env
+        old_doctree = None
+        if not env.versioning_condition:
+            return
+
+        if env.versioning_compare:
+            # get old doctree
+            try:
+                filename = path.join(env.doctreedir, env.docname + '.doctree')
+                with open(filename, 'rb') as f:
+                    old_doctree = pickle.load(f)
+            except OSError:
+                pass
+
+        # add uids for versioning
+        if not env.versioning_compare or old_doctree is None:
+            list(add_uids(self.document, env.versioning_condition))
+        else:
+            list(merge_doctrees(old_doctree, self.document, env.versioning_condition))
+
+
+def setup(app: "Sphinx") -> Dict[str, Any]:
+    app.add_transform(UIDTransform)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

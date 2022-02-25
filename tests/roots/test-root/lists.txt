@@ -1,0 +1,70 @@
+Various kinds of lists
+======================
+
+
+nested enumerated lists
+-----------------------
+
+#. one
+
+#. two
+
+   #. two.1
+   #. two.2
+
+#. three
+
+
+enumerated lists with non-default start values
+----------------------------------------------
+
+0. zero
+#. one
+
+----------------------------------------
+
+1. one
+#. two
+
+----------------------------------------
+
+2. two
+#. three
+
+
+enumerated lists using letters
+------------------------------
+
+a. a
+
+b. b
+
+#. c
+
+#. d
+
+----------------------------------------
+
+x. x
+
+y. y
+
+#. z
+
+#. {
+
+definition lists
+-----------------
+
+term1
+    description
+
+term2 (**stronged partially**)
+    description
+
+Samp tests
+----------
+
+:samp:`{variable_only}`
+:samp:`{variable} and text`
+:samp:`Show {variable} in the middle`

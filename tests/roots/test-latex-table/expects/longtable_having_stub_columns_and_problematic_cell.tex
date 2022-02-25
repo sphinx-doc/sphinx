@@ -1,0 +1,67 @@
+\label{\detokenize{longtable:longtable-having-both-stub-columns-and-problematic-cell}}
+
+\begin{savenotes}\sphinxatlongtablestart\begin{longtable}[c]{|*{3}{\X{1}{3}|}}
+\hline
+\sphinxstyletheadfamily 
+\sphinxAtStartPar
+header1
+&\sphinxstyletheadfamily 
+\sphinxAtStartPar
+header2
+&\sphinxstyletheadfamily 
+\sphinxAtStartPar
+header3
+\\
+\hline
+\endfirsthead
+
+\multicolumn{3}{c}%
+{\makebox[0pt]{\sphinxtablecontinued{\tablename\ \thetable{} \textendash{} continued from previous page}}}\\
+\hline
+\sphinxstyletheadfamily 
+\sphinxAtStartPar
+header1
+&\sphinxstyletheadfamily 
+\sphinxAtStartPar
+header2
+&\sphinxstyletheadfamily 
+\sphinxAtStartPar
+header3
+\\
+\hline
+\endhead
+
+\hline
+\multicolumn{3}{r}{\makebox[0pt][r]{\sphinxtablecontinued{continues on next page}}}\\
+\endfoot
+
+\endlastfoot
+\sphinxstyletheadfamily \begin{itemize}
+\item {} 
+\sphinxAtStartPar
+instub1\sphinxhyphen{}1a
+
+\item {} 
+\sphinxAtStartPar
+instub1\sphinxhyphen{}1b
+
+\end{itemize}
+&\sphinxstyletheadfamily 
+\sphinxAtStartPar
+instub1\sphinxhyphen{}2
+&
+\sphinxAtStartPar
+notinstub1\sphinxhyphen{}3
+\\
+\hline\sphinxstyletheadfamily 
+\sphinxAtStartPar
+cell2\sphinxhyphen{}1
+&\sphinxstyletheadfamily 
+\sphinxAtStartPar
+cell2\sphinxhyphen{}2
+&
+\sphinxAtStartPar
+cell2\sphinxhyphen{}3
+\\
+\hline
+\end{longtable}\sphinxatlongtableend\end{savenotes}

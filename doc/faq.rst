@@ -10,34 +10,32 @@ How do I...
 -----------
 
 ... create PDF files without LaTeX?
-   You can use `rst2pdf <https://github.com/rst2pdf/rst2pdf>`_ version 0.12 or
-   greater which comes with built-in Sphinx integration.  See the
-   :ref:`builders` section for details.
+   `rinohtype`_ provides a PDF builder that can be used as a drop-in
+   replacement for the LaTeX builder.
+
+   .. _rinohtype: https://github.com/brechtm/rinohtype
 
 ... get section numbers?
    They are automatic in LaTeX output; for HTML, give a ``:numbered:`` option to
    the :rst:dir:`toctree` directive where you want to start numbering.
 
 ... customize the look of the built HTML files?
-   Use themes, see :doc:`theming`.
+   Use themes, see :doc:`/usage/theming`.
 
 ... add global substitutions or includes?
-   Add them in the :confval:`rst_epilog` config value.
+   Add them in the :confval:`rst_prolog` or :confval:`rst_epilog` config value.
 
 ... display the whole TOC tree in the sidebar?
    Use the :data:`toctree` callable in a custom layout template, probably in the
    ``sidebartoc`` block.
 
 ... write my own extension?
-   See the :ref:`extension tutorial <exttut>`.
+   See the :doc:`/development/tutorials/index`.
 
 ... convert from my existing docs using MoinMoin markup?
    The easiest way is to convert to xhtml, then convert `xhtml to reST`_.
    You'll still need to mark up classes and such, but the headings and code
    examples come through cleanly.
-
-... create HTML slides from Sphinx documents?
-   See the "Hieroglyph" package at https://github.com/nyergler/hieroglyph.
 
 For many more extensions and other contributed stuff, see the sphinx-contrib_
 repository.
@@ -50,12 +48,10 @@ Using Sphinx with...
 --------------------
 
 Read the Docs
-    https://readthedocs.org is a documentation hosting service based around
-    Sphinx. They will host sphinx documentation, along with supporting a number
-    of other features including version support, PDF generation, and more. The
-    `Getting Started
-    <http://read-the-docs.readthedocs.org/en/latest/getting_started.html>`_
-    guide is a good place to start.
+    `Read the Docs <https://readthedocs.org>`_ is a documentation hosting
+    service based around Sphinx.  They will host sphinx documentation, along
+    with supporting a number of other features including version support, PDF
+    generation, and more. The `Getting Started`_ guide is a good place to start.
 
 Epydoc
    There's a third-party extension providing an `api role`_ which refers to
@@ -71,29 +67,29 @@ SCons
 
 PyPI
    Jannis Leidel wrote a `setuptools command
-   <https://pypi.python.org/pypi/Sphinx-PyPI-upload>`_ that automatically
+   <https://pypi.org/project/Sphinx-PyPI-upload/>`_ that automatically
    uploads Sphinx documentation to the PyPI package documentation area at
-   http://pythonhosted.org/.
+   https://pythonhosted.org/.
 
 GitHub Pages
-   Directories starting with underscores are ignored by default which breaks
-   static files in Sphinx.  GitHub's preprocessor can be `disabled
-   <https://github.com/blog/572-bypassing-jekyll-on-github-pages>`_ to support
-   Sphinx HTML output properly.
+   Please add :py:mod:`sphinx.ext.githubpages` to your project.  It allows you
+   to publish your document in GitHub Pages.  It generates helper files for
+   GitHub Pages on building HTML document automatically.
 
 MediaWiki
-   See https://bitbucket.org/kevindunn/sphinx-wiki/wiki/Home, a project by Kevin Dunn.
+   See https://bitbucket.org/kevindunn/sphinx-wiki/wiki/Home, a project by
+   Kevin Dunn.
 
 Google Analytics
    You can use a custom ``layout.html`` template, like this:
 
-   .. code-block:: html+django
+   .. code-block:: html+jinja
 
       {% extends "!layout.html" %}
 
       {%- block extrahead %}
       {{ super() }}
-      <script type="text/javascript">
+      <script>
         var _gaq = _gaq || [];
         _gaq.push(['_setAccount', 'XXX account number XXX']);
         _gaq.push(['_trackPageview']);
@@ -102,10 +98,10 @@ Google Analytics
 
       {% block footer %}
       {{ super() }}
-      <div class="footer">This page uses <a href="http://analytics.google.com/">
+      <div class="footer">This page uses <a href="https://analytics.google.com/">
       Google Analytics</a> to collect statistics. You can disable it by blocking
       the JavaScript coming from www.google-analytics.com.
-      <script type="text/javascript">
+      <script>
         (function() {
           var ga = document.createElement('script');
           ga.src = ('https:' == document.location.protocol ?
@@ -118,8 +114,75 @@ Google Analytics
       {% endblock %}
 
 
-.. _api role: http://git.savannah.gnu.org/cgit/kenozooid.git/tree/doc/extapi.py
-.. _xhtml to reST: http://docutils.sourceforge.net/sandbox/xhtml2rest/xhtml2rest.py
+Google Search
+   To replace Sphinx's built-in search function with Google Search, proceed as
+   follows:
+
+   1. Go to https://cse.google.com/cse/all to create the Google Search code
+      snippet.
+
+   2. Copy the code snippet and paste it into ``_templates/searchbox.html`` in
+      your Sphinx project:
+
+      .. code-block:: html+jinja
+
+         <div>
+            <h3>{{ _('Quick search') }}</h3>
+            <script>
+               (function() {
+                  var cx = '......';
+                  var gcse = document.createElement('script');
+                  gcse.async = true;
+                  gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+                  var s = document.getElementsByTagName('script')[0];
+                  s.parentNode.insertBefore(gcse, s);
+               })();
+            </script>
+           <gcse:search></gcse:search>
+         </div>
+
+   3. Add ``searchbox.html`` to the :confval:`html_sidebars` configuration value.
+
+.. _Getting Started: https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html
+.. _api role: https://git.savannah.gnu.org/cgit/kenozooid.git/tree/doc/extapi.py
+.. _xhtml to reST: https://docutils.sourceforge.io/sandbox/xhtml2rest/xhtml2rest.py
+
+
+Sphinx vs. Docutils
+-------------------
+
+tl;dr: *docutils* converts reStructuredText to multiple output formats. Sphinx
+builds upon docutils to allow construction of cross-referenced and indexed
+bodies of documentation.
+
+`docutils`__ is a text processing system for converting plain text
+documentation into other, richer formats. As noted in the `docutils
+documentation`__, docutils uses *readers* to read a document, *parsers* for
+parsing plain text formats into an internal tree representation made up of
+different types of *nodes*, and *writers* to output this tree in various
+document formats.  docutils provides parsers for one plain text format -
+`reStructuredText`__ - though other, *out-of-tree* parsers have been
+implemented including Sphinx's :doc:`Markdown parser </usage/markdown>`. On the
+other hand, it provides writers for many different formats including HTML,
+LaTeX, man pages, Open Document Format and XML.
+
+docutils exposes all of its functionality through a variety of `front-end
+tools`__, such as ``rst2html``, ``rst2odt`` and ``rst2xml``. Crucially though,
+all of these tools, and docutils itself, are concerned with individual
+documents.  They don't support concepts such as cross-referencing, indexing of
+documents, or the construction of a document hierarchy (typically manifesting
+in a table of contents).
+
+Sphinx builds upon docutils by harnessing docutils' readers and parsers and
+providing its own :doc:`/usage/builders/index`. As a result, Sphinx wraps some
+of the *writers* provided by docutils. This allows Sphinx to provide many
+features that would simply not be possible with docutils, such as those
+outlined above.
+
+__ https://docutils.sourceforge.io/
+__ https://docutils.sourceforge.io/docs/dev/hacking.html
+__ https://docutils.sourceforge.io/rst.html
+__ https://docutils.sourceforge.io/docs/user/tools.html
 
 
 .. _epub-faq:
@@ -140,7 +203,7 @@ The following list gives some hints for the creation of epub files:
   are often cut at the right margin.  The default Courier font (or variant) is
   quite wide and you can only display up to 60 characters on a line.  If you
   replace it with a narrower font, you can get more characters on a line.  You
-  may even use `FontForge <http://fontforge.github.io/>`_ and create
+  may even use `FontForge <https://fontforge.github.io/>`_ and create
   narrow variants of some free font.  In my case I get up to 70 characters on a
   line.
 
@@ -148,7 +211,7 @@ The following list gives some hints for the creation of epub files:
 
 * Test the created epubs. You can use several alternatives.  The ones I am aware
   of are Epubcheck_, Calibre_, FBreader_ (although it does not render the CSS),
-  and Bookworm_.  For bookworm you can download the source from
+  and Bookworm_.  For Bookworm, you can download the source from
   https://code.google.com/archive/p/threepress and run your own local server.
 
 * Large floating divs are not displayed properly.
@@ -167,11 +230,47 @@ The following list gives some hints for the creation of epub files:
   :confval:`html_static_path` directory and reference it with its full path in
   the :confval:`epub_cover` config option.
 
-.. _Epubcheck: https://code.google.com/archive/p/epubcheck
-.. _Calibre: http://calibre-ebook.com/
-.. _FBreader: https://fbreader.org/
-.. _Bookworm: http://www.oreilly.com/bookworm/index.html
+* kindlegen_ command can convert from epub3 resulting file to ``.mobi`` file
+  for Kindle. You can get ``yourdoc.mobi`` under ``_build/epub`` after the
+  following command:
 
+  .. code-block:: bash
+
+     $ make epub
+     $ kindlegen _build/epub/yourdoc.epub
+
+  The kindlegen command doesn't accept documents that have section
+  titles surrounding ``toctree`` directive:
+
+  .. code-block:: rst
+
+     Section Title
+     =============
+
+     .. toctree::
+
+        subdocument
+
+     Section After Toc Tree
+     ======================
+
+  kindlegen assumes all documents order in line, but the resulting document
+  has complicated order for kindlegen::
+
+     ``parent.xhtml`` -> ``child.xhtml`` -> ``parent.xhtml``
+
+  If you get the following error, fix your document structure:
+
+  .. code-block:: none
+
+     Error(prcgen):E24011: TOC section scope is not included in the parent chapter:(title)
+     Error(prcgen):E24001: The table of content could not be built.
+
+.. _Epubcheck: https://github.com/IDPF/epubcheck
+.. _Calibre: https://calibre-ebook.com/
+.. _FBreader: https://fbreader.org/
+.. _Bookworm: https://www.oreilly.com/bookworm/index.html
+.. _kindlegen: https://www.amazon.com/gp/feature.html?docId=1000765211
 
 .. _texinfo-faq:
 
@@ -200,12 +299,16 @@ appear in the source.  Emacs, on the other-hand, will by default replace
 
     :ref:`texinfo-links`
 
+One can disable generation of the inline references in a document
+with :confval:`texinfo_cross_references`.  That makes
+an info file more readable with stand-alone reader (``info``).
+
 The exact behavior of how Emacs displays references is dependent on the variable
 ``Info-hide-note-references``.  If set to the value of ``hide``, Emacs will hide
 both the ``*note:`` part and the ``target-id``.  This is generally the best way
 to view Sphinx-based documents since they often make frequent use of links and
 do not take this limitation into account.  However, changing this variable
-affects how all Info documents are displayed and most due take this behavior
+affects how all Info documents are displayed and most do take this behavior
 into account.
 
 If you want Emacs to display Info files produced by Sphinx using the value
@@ -247,23 +350,3 @@ The following notes may be helpful if you want to create Texinfo files:
   scheme ``info``.  For example::
 
      info:Texinfo#makeinfo_options
-
-  which produces:
-
-     info:Texinfo#makeinfo_options
-
-- Inline markup
-
-  The standard formatting for ``*strong*`` and ``_emphasis_`` can
-  result in ambiguous output when used to markup parameter names and
-  other values.  Since this is a fairly common practice, the default
-  formatting has been changed so that ``emphasis`` and ``strong`` are
-  now displayed like ```literal'``\s.
-
-  The standard formatting can be re-enabled by adding the following to
-  your :file:`conf.py`::
-
-     texinfo_elements = {'preamble': """
-     @definfoenclose strong,*,*
-     @definfoenclose emph,_,_
-     """}

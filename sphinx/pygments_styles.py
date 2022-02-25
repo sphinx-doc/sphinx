@@ -1,18 +1,17 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.pygments_styles
     ~~~~~~~~~~~~~~~~~~~~~~
 
     Sphinx theme specific highlighting styles.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from pygments.style import Style
 from pygments.styles.friendly import FriendlyStyle
-from pygments.token import Generic, Comment, Number, Whitespace, Keyword, \
-    Operator, Name, String, Error
+from pygments.token import (Comment, Error, Generic, Keyword, Name, Number, Operator, String,
+                            Whitespace)
 
 
 class NoneStyle(Style):

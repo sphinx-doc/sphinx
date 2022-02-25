@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- sphinx13 theme.
  *
- * :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -127,6 +127,7 @@ div.sphinxsidebar {
     float: right;
     font-size: 1em;
     text-align: left;
+    max-height: 0px;
 }
 
 div.sphinxsidebar .logo {
@@ -140,11 +141,41 @@ div.sphinxsidebar .logo img {
     vertical-align: middle;
 }
 
+div.sphinxsidebar .download a img {
+    vertical-align: middle;
+}
+
+div.subscribeformwrapper {
+    display: block;
+    overflow: auto;
+    margin-bottom: 1.2em;
+}
+
 div.sphinxsidebar input {
     border: 1px solid #aaa;
     font-family: 'Open Sans', 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva',
                  'Verdana', sans-serif;
-    font-size: 1em;
+}
+
+div.sphinxsidebar .subscribeform {
+    margin-top: 0;
+}
+
+div.sphinxsidebar .subscribeform input {
+    border: 1px solid #aaa;
+    font-size: 0.9em;
+    float: left;
+    padding: 0.25em 0.5em;
+    box-sizing: border-box;
+}
+
+div.sphinxsidebar .subscribeform input[type="text"] {
+    width: 60%;
+}
+
+div.sphinxsidebar .subscribeform input[type="submit"] {
+    width: 40%;
+    border-left: none;
 }
 
 div.sphinxsidebar h3 {
@@ -208,7 +239,7 @@ div.footer a {
 
 /* -- body styles ----------------------------------------------------------- */
 
-p {    
+p {
     margin: 0.8em 0 0.5em 0;
 }
 
@@ -269,6 +300,11 @@ a.headerlink:hover {
     color: white!important;
 }
 
+/* avoid font-size when :mod: role in headings */
+h1 code, h2 code, h3 code, h4 code {
+    font-size: inherit;
+}
+
 cite, code, tt {
     font-family: 'Consolas', 'DejaVu Sans Mono',
                  'Bitstream Vera Sans Mono', monospace;
@@ -276,12 +312,16 @@ cite, code, tt {
     letter-spacing: -0.02em;
 }
 
+table.deprecated code.literal {
+    word-break: break-all;
+}
+
 tt {
     background-color: #f2f2f2;
     border: 1px solid #ddd;
     border-radius: 2px;
     color: #333;
-    padding: 1px;
+    padding: 1px 0.2em;
 }
 
 tt.descname, tt.descclassname, tt.xref {
@@ -303,7 +343,7 @@ a tt:hover {
 }
 
 pre {
-    font-family: 'Consolas', 'DejaVu Sans Mono',
+    font-family: 'Consolas', 'Courier New', 'DejaVu Sans Mono',
                  'Bitstream Vera Sans Mono', monospace;
     font-size: 13px;
     letter-spacing: 0.015em;
@@ -354,34 +394,35 @@ div.admonition, div.warning {
     padding: 0;
 }
 
-div.admonition p, div.warning p {
+div.admonition > p, div.warning > p {
     margin: 0.5em 1em 0.5em 1em;
     padding: 0;
 }
 
-div.admonition pre, div.warning pre {
+div.admonition > pre, div.warning > pre {
     margin: 0.4em 1em 0.4em 1em;
 }
 
-div.admonition p.admonition-title,
-div.warning p.admonition-title {
-    margin-top: 1em;
-    padding-top: 0.5em;
+div.admonition > p.admonition-title,
+div.warning > p.admonition-title {
+    margin-top: 0.5em;
     font-weight: bold;
 }
 
 div.warning {
     border: 1px solid #940000;
-/*    background-color: #FFCCCF;*/
 }
 
-div.warning p.admonition-title {
-}
-
-div.admonition ul, div.admonition ol,
-div.warning ul, div.warning ol {
+div.admonition > ul,
+div.admonition > ol,
+div.warning > ul,
+div.warning > ol {
     margin: 0.1em 0.5em 0.5em 3em;
     padding: 0;
+}
+
+div.admonition div.highlight {
+    background: none;
 }
 
 .viewcode-back {
@@ -393,4 +434,10 @@ div.viewcode-block:target {
     background-color: #f4debf;
     border-top: 1px solid #ac9;
     border-bottom: 1px solid #ac9;
+}
+
+.contentstable {
+    margin-left: 30px;
+    margin: 0 auto;
+    table-layout: fixed;
 }

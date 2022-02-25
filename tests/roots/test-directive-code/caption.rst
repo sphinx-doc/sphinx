@@ -4,7 +4,7 @@ Caption
 References
 ----------
 
-See :numref:`caption *test* rb` and :numref:`caption **test** py`.
+See :numref:`name *test* rb` and :numref:`name **test** py`.
 
 See :ref:`Ruby <name *test* rb>` and :ref:`Python <name **test** py>`.
 

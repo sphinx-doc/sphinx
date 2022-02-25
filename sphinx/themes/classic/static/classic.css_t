@@ -1,10 +1,10 @@
 /*
- * default.css_t
+ * classic.css_t
  * ~~~~~~~~~~~~~
  *
- * Sphinx stylesheet -- default theme.
+ * Sphinx stylesheet -- classic theme.
  *
- * :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -12,6 +12,11 @@
 @import url("basic.css");
 
 /* -- page layout ----------------------------------------------------------- */
+
+html {
+    /* CSS hack for macOS's scrollbar (see #1125) */
+    background-color: #FFFFFF;
+}
 
 body {
     font-family: {{ theme_bodyfont }};
@@ -23,6 +28,7 @@ body {
 }
 
 div.document {
+    display: flex;
     background-color: {{ theme_sidebarbgcolor }};
 }
 
@@ -32,7 +38,7 @@ div.documentwrapper {
 }
 
 div.bodywrapper {
-    margin: 0 0 0 {{ theme_sidebarwidth|toint }}px;
+    margin: 0 0 0 {{ theme_sidebarwidth|todim }};
 }
 
 div.body {
@@ -43,7 +49,7 @@ div.body {
 
 {%- if theme_rightsidebar|tobool %}
 div.bodywrapper {
-    margin: 0 {{ theme_sidebarwidth|toint }}px 0 0;
+    margin: 0 {{ theme_sidebarwidth|todim }} 0 0;
 }
 {%- endif %}
 
@@ -148,9 +154,39 @@ div.sphinxsidebar input {
 }
 
 {% if theme_collapsiblesidebar|tobool %}
+{% if theme_rightsidebar|tobool %}
+    {% set side = 'right' %}
+    {% set opposite = 'left' %}
+{% else %}
+    {% set side = 'left' %}
+    {% set opposite = 'right' %}
+{% endif %}
 /* for collapsible sidebar */
-div#sidebarbutton {
+#sidebarbutton {
+    height: 100%;
     background-color: {{ theme_sidebarbtncolor }};
+    margin-{{side}}: 0;
+    color: #FFFFFF;
+    border-{{side}}: 1px solid {{ theme_relbarbgcolor }};
+    font-size: 1.2em;
+    cursor: pointer;
+    padding-top: 1px;
+    float: {{ 'left' if theme_rightsidebar|tobool else 'right' }};
+    display: table; /* for vertically centering the <span> */
+}
+
+#sidebarbutton:hover {
+    background-color: {{ theme_relbarbgcolor }};
+}
+
+#sidebarbutton span {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+div.sphinxsidebarwrapper {
+    float: {{side}};
+    margin-{{opposite}}: 0;
 }
 {% endif %}
 
@@ -287,7 +323,7 @@ code {
     font-size: 0.95em;
 }
 
-th {
+th, dl.field-list > dt {
     background-color: #ede;
 }
 

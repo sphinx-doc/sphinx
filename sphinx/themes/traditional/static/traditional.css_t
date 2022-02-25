@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- traditional docs.python.org theme.
  *
- * :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -23,10 +23,12 @@ div.documentwrapper {
 }
 
 div.bodywrapper {
-    margin: 0 {{ theme_sidebarwidth }}px 0 0;
+    margin: 0 {{ theme_sidebarwidth|todim }} 0 0;
 }
 
 div.body {
+    min-width: {{ theme_body_min_width|todim }};
+    max-width: {{ theme_body_max_width|todim }};
     background-color: white;
     padding: 0 20px 30px 20px;
 }
@@ -40,7 +42,7 @@ div.sphinxsidebarwrapper {
 div.sphinxsidebar {
     float: right;
     margin-left: -100%;
-    width: {{ theme_sidebarwidth }}px;
+    width: {{ theme_sidebarwidth|todim }};
 }
 
 div.clearer {
@@ -390,9 +392,14 @@ table.indextable td {
     vertical-align: top;
 }
 
-table.indextable dl, table.indextable dd {
+table.indextable ul {
     margin-top: 0;
     margin-bottom: 0;
+    list-style-type: none;
+}
+
+table.indextable > tbody > tr > td > ul {
+    padding-left: 0em;
 }
 
 table.indextable tr.pcap {
@@ -408,6 +415,13 @@ img.toggler {
     margin-right: 3px;
     margin-top: 3px;
     cursor: pointer;
+}
+
+/* :::: DOMAIN MODULE INDEX STYLES :::: */
+
+table.modindextable td {
+    padding: 2px;
+    border-collapse: collapse;
 }
 
 /* :::: GLOBAL STYLES :::: */
@@ -618,7 +632,6 @@ th {
 pre {
     font-family: monospace;
     padding: 5px;
-    color: #00008b;
     border-left: none;
     border-right: none;
 }
@@ -730,11 +743,13 @@ div.literal-block-wrapper pre {
     margin: 0;
 }
 
-div.figure p.caption span.caption-number {
+div.figure p.caption span.caption-number,
+figcaption span.caption-number {
     font-style: italic;
 }
 
-div.figure p.caption span.caption-text {
+div.figure p.caption span.caption-text,
+figcaption span.caption-text {
 }
 
 /* :::: MATH DISPLAY :::: */

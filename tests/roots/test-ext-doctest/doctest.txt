@@ -1,0 +1,163 @@
+Testing the doctest extension
+=============================
+
+Simple doctest blocks
+---------------------
+
+>>> 1+1
+2
+>>> 1/0
+Traceback (most recent call last):
+  ...
+ZeroDivisionError: integer division or modulo by zero
+
+
+Special directives
+------------------
+
+* doctest
+
+  .. doctest::
+
+     >>> 1+1
+     2
+     >>> 1/0
+     Traceback (most recent call last):
+       ...
+     ZeroDivisionError: integer division or modulo by zero
+
+* testcode/testoutput
+
+  .. testcode::
+
+     print(1+1)
+
+  .. testoutput::
+
+     2
+
+  .. testcode::
+
+     1/0
+
+  .. testoutput::
+
+     Traceback (most recent call last):
+       ...
+     ZeroDivisionError: integer division or modulo by zero
+
+* testsetup
+
+  .. testsetup:: *
+
+     def squared(x):
+     	return x * x
+
+  .. doctest::
+
+     >>> squared(2)
+     4
+
+  .. testcode::
+
+     print(squared(2))
+
+  .. testoutput::
+
+     4
+
+  >>> squared(2)
+  4
+
+* options for doctest/testcode/testoutput blocks
+
+  .. testcode::
+     :hide:
+
+     print('Output         text.')
+
+  .. testoutput::
+     :hide:
+     :options: +NORMALIZE_WHITESPACE
+
+     Output text.
+
+  .. doctest::
+     :pyversion: >= 2.0
+
+     >>> a = 3
+     >>> a
+     3
+
+  .. doctest::
+     :pyversion: < 2.0
+
+     >>> a = 3
+     >>> a
+     4
+
+* grouping
+
+  .. testsetup:: group1
+
+     def add(x, y):
+         return x + y
+
+
+  ``add`` is now known in "group1", but not in others.
+
+  .. doctest:: group1
+
+     >>> add(1, 1)
+     2
+
+  .. doctest:: group2
+
+     >>> add(1, 1)
+     Traceback (most recent call last):
+       ...
+     NameError: name 'add' is not defined
+
+  Interleaving testcode/testoutput:
+
+  .. testcode:: group1
+
+     print(squared(3))
+
+  .. testcode:: group2
+
+     print(squared(4))
+
+  .. testoutput:: group1
+
+     9
+
+  .. testoutput:: group2
+
+     16
+
+
+.. testcleanup:: *
+
+   from tests import test_ext_doctest
+   test_ext_doctest.cleanup_call()
+
+non-ASCII result
+----------------
+
+>>> print('umlauts: äöü.')
+umlauts: äöü.
+>>> print('Japanese: 日本語')
+Japanese: 日本語
+
+keep control char in raw string
+-------------------------------
+
+.. doctest::
+
+    >>> print('one\ntwo')
+    one
+    two
+    >>> print(r'one\ntwo')
+    one\ntwo
+

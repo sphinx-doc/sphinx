@@ -1,0 +1,16 @@
+@startuml
+file "SphinxProject"
+file ".rst"
+database ".pot"
+database ".po"
+database ".mo"
+actor translator
+file TranslatedBuild
+translator -l-> .po
+SphinxProject -r-> .rst
+.rst -r-> .pot : sphinx-build gettext
+.pot -r-> .po : Pootle
+.po -d-> .mo : msgfmt
+.mo -l-> TranslatedBuild
+.rst -d-> TranslatedBuild : "sphinx-build -Dlanguage="
+@enduml

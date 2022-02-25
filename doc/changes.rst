@@ -1,10 +1,15 @@
-:tocdepth: 2
+:tocdepth: 1
 
 .. default-role:: any
 
 .. _changes:
 
-Changes in Sphinx
-*****************
+=========
+Changelog
+=========
+
+.. raw:: latex
+
+   \addtocontents{toc}{\protect\setcounter{tocdepth}{1}}%
 
 .. include:: ../CHANGES

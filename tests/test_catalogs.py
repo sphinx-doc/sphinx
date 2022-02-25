@@ -1,82 +1,89 @@
-# -*- coding: utf-8 -*-
 """
     test_build_base
     ~~~~~~~~~~~~~~~
 
     Test the base build process.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import shutil
 
-from nose.tools import with_setup
+import pytest
 
-from util import with_app, find_files, rootdir, tempdir
-
-root = tempdir / 'test-intl'
-build_dir = root / '_build'
-locale_dir = build_dir / 'locale'
+from sphinx.testing.util import find_files
 
 
-def setup_test():
-    # delete remnants left over after failed build
-    root.rmtree(True)
-    (rootdir / 'roots' / 'test-intl').copytree(root)
+@pytest.fixture
+def setup_test(app_params):
+    srcdir = app_params.kwargs['srcdir']
+    src_locale_dir = srcdir / 'xx' / 'LC_MESSAGES'
+    dest_locale_dir = srcdir / 'locale'
     # copy all catalogs into locale layout directory
-    for po in find_files(root, '.po'):
-        copy_po = (locale_dir / 'en' / 'LC_MESSAGES' / po)
+    for po in find_files(src_locale_dir, '.po'):
+        copy_po = (dest_locale_dir / 'en' / 'LC_MESSAGES' / po)
         if not copy_po.parent.exists():
             copy_po.parent.makedirs()
-        shutil.copy(root / po, copy_po)
+        shutil.copy(src_locale_dir / po, copy_po)
+
+    yield
+
+    # delete remnants left over after failed build
+    dest_locale_dir.rmtree(True)
+    (srcdir / '_build').rmtree(True)
 
 
-def teardown_test():
-    build_dir.rmtree(True)
-
-
-@with_setup(setup_test, teardown_test)
-@with_app(buildername='html', testroot='intl',
-          confoverrides={'language': 'en', 'locale_dirs': [locale_dir]})
+@pytest.mark.usefixtures('setup_test')
+@pytest.mark.test_params(shared_result='test-catalogs')
+@pytest.mark.sphinx(
+    'html', testroot='intl',
+    confoverrides={'language': 'en', 'locale_dirs': ['./locale']})
 def test_compile_all_catalogs(app, status, warning):
     app.builder.compile_all_catalogs()
 
+    locale_dir = app.srcdir / 'locale'
     catalog_dir = locale_dir / app.config.language / 'LC_MESSAGES'
-    expect = set([
+    expect = {
         x.replace('.po', '.mo')
         for x in find_files(catalog_dir, '.po')
-    ])
+    }
     actual = set(find_files(catalog_dir, '.mo'))
     assert actual  # not empty
     assert actual == expect
 
 
-@with_setup(setup_test, teardown_test)
-@with_app(buildername='html',  testroot='intl',
-          confoverrides={'language': 'en', 'locale_dirs': [locale_dir]})
+@pytest.mark.usefixtures('setup_test')
+@pytest.mark.test_params(shared_result='test-catalogs')
+@pytest.mark.sphinx(
+    'html', testroot='intl',
+    confoverrides={'language': 'en', 'locale_dirs': ['./locale']})
 def test_compile_specific_catalogs(app, status, warning):
+    locale_dir = app.srcdir / 'locale'
     catalog_dir = locale_dir / app.config.language / 'LC_MESSAGES'
 
     def get_actual():
         return set(find_files(catalog_dir, '.mo'))
 
     actual_on_boot = get_actual()  # sphinx.mo might be included
-    app.builder.compile_specific_catalogs(['admonitions'])
+    app.builder.compile_specific_catalogs([app.srcdir / 'admonitions.txt'])
     actual = get_actual() - actual_on_boot
-    assert actual == set(['admonitions.mo'])
+    assert actual == {'admonitions.mo'}
 
 
-@with_setup(setup_test, teardown_test)
-@with_app(buildername='html',  testroot='intl',
-          confoverrides={'language': 'en', 'locale_dirs': [locale_dir]})
+@pytest.mark.usefixtures('setup_test')
+@pytest.mark.test_params(shared_result='test-catalogs')
+@pytest.mark.sphinx(
+    'html', testroot='intl',
+    confoverrides={'language': 'en', 'locale_dirs': ['./locale']})
 def test_compile_update_catalogs(app, status, warning):
     app.builder.compile_update_catalogs()
 
+    locale_dir = app.srcdir / 'locale'
     catalog_dir = locale_dir / app.config.language / 'LC_MESSAGES'
-    expect = set([
+    expect = {
         x.replace('.po', '.mo')
         for x in find_files(catalog_dir, '.po')
-    ])
+    }
     actual = set(find_files(catalog_dir, '.mo'))
     assert actual  # not empty
     assert actual == expect

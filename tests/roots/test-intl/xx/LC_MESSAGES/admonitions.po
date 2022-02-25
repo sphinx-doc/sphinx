@@ -1,0 +1,84 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2013, test_intl
+# This file is distributed under the same license as the foo package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: sphinx 1.2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-07-03 12:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Admonitions"
+msgstr "ADMONITIONS"
+
+msgid "attention title"
+msgstr "ATTENTION TITLE"
+
+msgid "attention body"
+msgstr "ATTENTION BODY"
+
+msgid "caution title"
+msgstr "CAUTION TITLE"
+
+msgid "caution body"
+msgstr "CAUTION BODY"
+
+msgid "danger title"
+msgstr "DANGER TITLE"
+
+msgid "danger body"
+msgstr "DANGER BODY"
+
+msgid "error title"
+msgstr "ERROR TITLE"
+
+msgid "error body"
+msgstr "ERROR BODY"
+
+msgid "hint title"
+msgstr "HINT TITLE"
+
+msgid "hint body"
+msgstr "HINT BODY"
+
+msgid "important title"
+msgstr "IMPORTANT TITLE"
+
+msgid "important body"
+msgstr "IMPORTANT BODY"
+
+msgid "note title"
+msgstr "NOTE TITLE"
+
+msgid "note body"
+msgstr "NOTE BODY"
+
+msgid "tip title"
+msgstr "TIP TITLE"
+
+msgid "tip body"
+msgstr "TIP BODY"
+
+msgid "warning title"
+msgstr "WARNING TITLE"
+
+msgid "warning body"
+msgstr "WARNING BODY"
+
+msgid "admonition title"
+msgstr "ADMONITION TITLE"
+
+msgid "admonition body"
+msgstr "ADMONITION BODY"
+
+msgid "1. admonition title"
+msgstr "1. ADMONITION TITLE"
+

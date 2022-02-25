@@ -2,13 +2,15 @@
 
 .. _templating:
 
+==========
 Templating
 ==========
 
-Sphinx uses the `Jinja <http://jinja.pocoo.org>`_ templating engine for its HTML
-templates.  Jinja is a text-based engine, and inspired by Django templates, so
-anyone having used Django will already be familiar with it.  It also has
-excellent documentation for those who need to make themselves familiar with it.
+Sphinx uses the `Jinja <https://jinja.palletsprojects.com/>`_ templating engine
+for its HTML templates.  Jinja is a text-based engine, inspired by Django
+templates, so anyone having used Django will already be familiar with it. It
+also has excellent documentation for those who need to make themselves familiar
+with it.
 
 
 Do I need to use Sphinx's templates to produce HTML?
@@ -62,16 +64,17 @@ following contents::
 
     {% extends "!layout.html" %}
     {% block rootrellink %}
-        <li><a href="http://project.invalid/">Project Homepage</a> &raquo;</li>
+        <li><a href="https://project.invalid/">Project Homepage</a> &raquo;</li>
         {{ super() }}
     {% endblock %}
 
 By prefixing the name of the overridden template with an exclamation mark,
 Sphinx will load the layout template from the underlying HTML theme.
 
-**Important**: If you override a block, call ``{{ super() }}`` somewhere to
-render the block's content in the extended template -- unless you don't want
-that content to show up.
+.. important::
+   If you override a block, call ``{{ super() }}`` somewhere to render the
+   block's original content in the extended template -- unless you don't want
+   that content to show up.
 
 
 Working with the builtin templates
@@ -85,61 +88,68 @@ Blocks
 
 The following blocks exist in the ``layout.html`` template:
 
-`doctype`
+``doctype``
     The doctype of the output format.  By default this is XHTML 1.0 Transitional
     as this is the closest to what Sphinx and Docutils generate and it's a good
     idea not to change it unless you want to switch to HTML 5 or a different but
     compatible XHTML doctype.
 
-`linktags`
+``linktags``
     This block adds a couple of ``<link>`` tags to the head section of the
     template.
 
-`extrahead`
+``extrahead``
     This block is empty by default and can be used to add extra contents into
     the ``<head>`` tag of the generated HTML file.  This is the right place to
     add references to JavaScript or extra CSS files.
 
-`relbar1` / `relbar2`
+``relbar1``, ``relbar2``
     This block contains the *relation bar*, the list of related links (the
     parent documents on the left, and the links to index, modules etc. on the
-    right).  `relbar1` appears before the document, `relbar2` after the
+    right).  ``relbar1`` appears before the document, ``relbar2`` after the
     document.  By default, both blocks are filled; to show the relbar only
     before the document, you would override `relbar2` like this::
 
        {% block relbar2 %}{% endblock %}
 
-`rootrellink` / `relbaritems`
-    Inside the relbar there are three sections: The `rootrellink`, the links
-    from the documentation and the custom `relbaritems`.  The `rootrellink` is a
-    block that by default contains a list item pointing to the master document
-    by default, the `relbaritems` is an empty block.  If you override them to
-    add extra links into the bar make sure that they are list items and end with
-    the :data:`reldelim1`.
+``rootrellink``, ``relbaritems``
+    Inside the relbar there are three sections: The ``rootrellink``, the links
+    from the documentation and the custom ``relbaritems``.  The ``rootrellink``
+    is a block that by default contains a list item pointing to the root
+    document by default, the ``relbaritems`` is an empty block.  If you
+    override them to add extra links into the bar make sure that they are list
+    items and end with the :data:`reldelim1`.
 
-`document`
-    The contents of the document itself.  It contains the block "body" where the
-    individual content is put by subtemplates like ``page.html``.
+``document``
+    The contents of the document itself.  It contains the block "body" where
+    the individual content is put by subtemplates like ``page.html``.
 
-`sidebar1` / `sidebar2`
-    A possible location for a sidebar.  `sidebar1` appears before the document
-    and is empty by default, `sidebar2` after the document and contains the
+    .. note::
+        In order for the built-in JavaScript search to show a page preview on
+        the results page, the document or body content should be wrapped in an
+        HTML element containing the ``role="main"`` attribute. For example::
+
+            <div role="main">
+              {% block document %}{% endblock %}
+            </div>
+
+``sidebar1``, ``sidebar2``
+    A possible location for a sidebar.  ``sidebar1`` appears before the document
+    and is empty by default, ``sidebar2`` after the document and contains the
     default sidebar.  If you want to swap the sidebar location override this and
-    call the `sidebar` helper:
-
-    .. sourcecode:: html+jinja
+    call the ``sidebar`` helper::
 
         {% block sidebar1 %}{{ sidebar() }}{% endblock %}
         {% block sidebar2 %}{% endblock %}
 
-    (The `sidebar2` location for the sidebar is needed by the ``sphinxdoc.css``
+    (The ``sidebar2`` location for the sidebar is needed by the ``sphinxdoc.css``
     stylesheet, for example.)
 
-`sidebarlogo`
+``sidebarlogo``
     The logo location within the sidebar.  Override this if you want to place
     some content at the top of the sidebar.
 
-`footer`
+``footer``
     The block for the footer div.  If you want a custom footer or markup before
     or after it, override this one.
 
@@ -148,23 +158,23 @@ list of custom sidebars in the :confval:`html_sidebars` config value.  Their use
 is deprecated in favor of separate sidebar templates, which can be included via
 :confval:`html_sidebars`.
 
-`sidebartoc`
+``sidebartoc``
     The table of contents within the sidebar.
 
     .. deprecated:: 1.0
 
-`sidebarrel`
+``sidebarrel``
     The relation links (previous, next document) within the sidebar.
 
     .. deprecated:: 1.0
 
-`sidebarsourcelink`
+``sidebarsourcelink``
     The "Show source" link within the sidebar (normally only shown if this is
     enabled by :confval:`html_show_sourcelink`).
 
     .. deprecated:: 1.0
 
-`sidebarsearch`
+``sidebarsearch``
     The search box within the sidebar.  Override this if you want to place some
     content at the bottom of the sidebar.
 
@@ -200,10 +210,9 @@ Overriding works like this::
 
       {% set script_files = script_files + ["_static/myscript.js"] %}
 
-.. data:: css_files
+   .. deprecated:: 1.8.0
 
-   Similar to :data:`script_files`, for CSS files.
-
+      Please use ``.Sphinx.add_js_file()`` instead.
 
 Helper Functions
 ~~~~~~~~~~~~~~~~
@@ -217,6 +226,7 @@ them to generate links or output multiply used elements.
    documents.
 
 .. function:: pathto(file, 1)
+   :noindex:
 
    Return the path to a *file* which is a filename relative to the root of the
    generated output.  Use this to refer to static files.
@@ -233,6 +243,9 @@ them to generate links or output multiply used elements.
 
    Return the rendered relation bar.
 
+.. function:: warning(message)
+
+   Emit a warning message.
 
 Global Variables
 ~~~~~~~~~~~~~~~~
@@ -262,7 +275,19 @@ in the future.
 
 .. data:: favicon
 
-   The path to the HTML favicon in the static path, or ``''``.
+   The path to the HTML favicon in the static path, or URL to the favicon, or
+   ``''``.
+
+   .. deprecated:: 4.0
+
+      Recommend to use ``favicon_url`` instead.
+
+.. data:: favicon_url
+
+   The relative path to the HTML favicon image from the current document, or
+   URL to the favicon, or ``''``.
+
+   .. versionadded:: 4.0
 
 .. data:: file_suffix
 
@@ -285,36 +310,42 @@ in the future.
 
 .. data:: logo
 
-   The path to the HTML logo image in the static path, or ``''``.
+   The path to the HTML logo image in the static path, or URL to the logo, or
+   ``''``.
+
+   .. deprecated:: 4.0
+
+      Recommend to use ``logo_url`` instead.
+
+.. data:: logo_url
+
+   The relative path to the HTML logo image from the current document, or URL
+   to the logo, or ``''``.
+
+   .. versionadded:: 4.0
 
 .. data:: master_doc
 
-   The value of :confval:`master_doc`, for usage with :func:`pathto`.
+   Same as :data:`root_doc`.
 
-.. data:: next
+   .. versionchanged:: 4.0
 
-   The next document for the navigation.  This variable is either false or has
-   two attributes `link` and `title`.  The title contains HTML markup.  For
-   example, to generate a link to the next page, you can use this snippet::
+      Renamed to ``root_doc``.
 
-      {% if next %}
-      <a href="{{ next.link|e }}">{{ next.title }}</a>
-      {% endif %}
+.. data:: root_doc
+
+   The value of :confval:`root_doc`, for usage with :func:`pathto`.
+
+   .. versionchanged:: 4.0
+
+      Renamed from ``master_doc``.
 
 .. data:: pagename
 
    The "page name" of the current file, i.e. either the document name if the
    file is generated from a reST source, or the equivalent hierarchical name
-   relative to the output directory (``[directory/]filename_without_extension``).
-
-.. data:: parents
-
-   A list of parent documents for navigation, structured like the :data:`next`
-   item.
-
-.. data:: prev
-
-   Like :data:`next`, but for the previous page.
+   relative to the output directory
+   (``[directory/]filename_without_extension``).
 
 .. data:: project
 
@@ -341,7 +372,16 @@ in the future.
 
 .. data:: sphinx_version
 
-   The version of Sphinx used to build.
+   The version of Sphinx used to build represented as a string for example "3.5.1".
+
+.. data:: sphinx_version_tuple
+
+   The version of Sphinx used to build represented as a tuple of five elements.
+   For Sphinx version 3.5.1 beta 3 this would be `(3, 5, 1, 'beta', 3)``.
+   The fourth element can be one of: ``alpha``, ``beta``, ``rc``, ``final``.
+   ``final`` always has 0 as the last element.
+
+   .. versionadded:: 4.2
 
 .. data:: style
 
@@ -369,14 +409,53 @@ In documents that are created from source files (as opposed to
 automatically-generated files like the module index, or documents that already
 are in HTML form), these variables are also available:
 
+.. data:: body
+
+   A string containing the content of the page in HTML form as produced by the
+   HTML builder, before the theme is applied.
+
+.. data:: display_toc
+
+   A boolean that is True if the toc contains more than one entry.
+
 .. data:: meta
 
    Document metadata (a dictionary), see :ref:`metadata`.
+
+.. data:: metatags
+
+   A string containing the page's HTML :dudir:`meta` tags.
+
+.. data:: next
+
+   The next document for the navigation.  This variable is either false or has
+   two attributes `link` and `title`.  The title contains HTML markup.  For
+   example, to generate a link to the next page, you can use this snippet::
+
+      {% if next %}
+      <a href="{{ next.link|e }}">{{ next.title }}</a>
+      {% endif %}
+
+.. data:: page_source_suffix
+
+   The suffix of the file that was rendered. Since we support a list of
+   :confval:`source_suffix`, this will allow you to properly link to the
+   original source file.
+
+.. data:: parents
+
+   A list of parent documents for navigation, structured like the :data:`next`
+   item.
+
+.. data:: prev
+
+   Like :data:`next`, but for the previous page.
 
 .. data:: sourcename
 
    The name of the copied source file for the current document.  This is only
    nonempty if the :confval:`html_copy_source` value is ``True``.
+   This has empty value on creating automatically-generated files.
 
 .. data:: toc
 
@@ -388,19 +467,19 @@ are in HTML form), these variables are also available:
    A callable yielding the global TOC tree containing the current page, rendered
    as HTML bullet lists.  Optional keyword arguments:
 
-   * ``collapse`` (``True`` by default): if true, all TOC entries that are not
-     ancestors of the current page are collapsed
+   ``collapse``
+     If true, all TOC entries that are not ancestors of the current page are
+     collapsed.
+     ``True`` by default.
 
-   * ``maxdepth`` (defaults to the max depth selected in the toctree directive):
-     the maximum depth of the tree; set it to ``-1`` to allow unlimited depth
+   ``maxdepth``
+     The maximum depth of the tree. Set it to ``-1`` to allow unlimited depth.
+     Defaults to the max depth selected in the toctree directive.
 
-   * ``titles_only`` (``False`` by default): if true, put only toplevel document
-     titles in the tree
+   ``titles_only``
+     If true, put only top-level document titles in the tree.
+     ``False`` by default.
 
-   * ``includehidden`` (``False`` by default): if true, the TOC tree will also
-     contain hidden entries.
-
-.. data:: page_source_suffix
-
-   The suffix of the file that was rendered. Since we support a list of :confval:`source_suffix`,
-   this will allow you to properly link to the original source file.
+   ``includehidden``
+     If true, the ToC tree will also contain hidden entries.
+     ``False`` by default.

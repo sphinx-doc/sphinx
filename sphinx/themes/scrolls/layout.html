@@ -5,12 +5,18 @@
     Sphinx layout template for the scrolls theme, originally written
     by Armin Ronacher.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
 {%- extends "basic/layout.html" %}
-{% set script_files = script_files + ['_static/theme_extras.js'] %}
-{% set css_files = css_files + ['_static/print.css'] %}
+{%- block css %}
+    {{ super() }}
+    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+{%- endblock %}
+{%- block scripts %}
+    {{ super() }}
+    <script src="{{ pathto('_static/theme_extras.js', 1) }}"></script>
+{%- endblock %}
 {# do not display relbars #}
 {% block relbar1 %}{% endblock %}
 {% block relbar2 %}{% endblock %}
@@ -24,7 +30,7 @@
         {%- if prev %}
         <a href="{{ prev.link|e }}">&laquo; {{ prev.title }}</a> |
         {%- endif %}
-        <a href="{{ pathto(current_page_name) if current_page_name else '#' }}">{{ title }}</a>
+        <a href="{{ pathto(current_page_name)|e if current_page_name else '#' }}">{{ title }}</a>
         {%- if next %}
         | <a href="{{ next.link|e }}">{{ next.title }} &raquo;</a>
         {%- endif %}
@@ -32,11 +38,13 @@
       <div id="contentwrapper">
         {%- if display_toc %}
         <div id="toc" role="navigation" aria-label="table of contents navigation">
-          <h3>{{ _('Table Of Contents') }}</h3>
+          <h3>{{ _('Table of Contents') }}</h3>
           {{ toc }}
         </div>
         {%- endif %}
+        <div role="main">
         {% block body %}{% endblock %}
+        </div>
       </div>
     </div>
 {% endblock %}

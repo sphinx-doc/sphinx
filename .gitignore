@@ -4,10 +4,19 @@
 *.swp
 
 .dir-locals.el
+.cache/
+.idea
+.mypy_cache/
+.pytest_cache/
 .ropeproject/
+.vscode/
 TAGS
 .tags
-.tox
+.tox/
+.tx/
+.venv/
+.coverage
+htmlcov
 .DS_Store
 sphinx/pycode/Grammar*pickle
 distribute-*
@@ -15,7 +24,12 @@ distribute-*
 env/
 build/
 dist/
+docker/
 Sphinx.egg-info/
 doc/_build/
+doc/locale/
 tests/.coverage
 tests/build/
+utils/regression_test.js
+
+node_modules/

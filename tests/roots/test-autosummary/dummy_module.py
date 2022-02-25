@@ -3,10 +3,12 @@
 
    module_attr
    C.class_attr
+   C.instance_attr
    C.prop_attr1
    C.prop_attr2
    C.C2
 """
+
 
 def withSentence():
     '''I have a sentence which
@@ -15,12 +17,14 @@ def withSentence():
     '''
     pass
 
+
 def noSentence():
     '''this doesn't start with a
     capital. so it's not considered
     a sentence
     '''
     pass
+
 
 def emptyLine():
     '''This is the real summary
@@ -48,6 +52,12 @@ class C:
     #: value is integer.
     class_attr = 42
 
+    def __init__(self):
+        #: This is an instance attribute
+        #:
+        #: value is a string
+        self.instance_attr = "42"
+
     def _prop_attr_get(self):
         """
         This is a function docstring
@@ -69,3 +79,7 @@ class C:
         '''
         This is a nested inner class docstring
         '''
+
+
+def func(arg_, *args, **kwargs):
+    """Test function take an argument ended with underscore."""

@@ -1,0 +1,19 @@
+This is from CPython documentation.
+
+* Also, if there is a `default namespace <https://www.w3.org/TR/2006/REC-xml-names-20060816/#defaulting>`__, that full URI gets prepended to all of the non-prefixed tags.
+
+* The URL having anchor: `https://www.sphinx-doc.org/en/master/usage/installation.html#overview`_
+
+Some additional anchors to exercise ignore code
+
+* `Example Bar invalid <https://www.google.com/#!bar>`_
+* `Example Bar invalid <https://www.google.com#!bar>`_ tests that default ignore anchor of #! does not need to be prefixed with /
+* `Example Bar invalid <https://www.google.com/#top>`_
+* `Example anchor invalid <http://www.sphinx-doc.org/en/master/index.html#does-not-exist>`_
+* `Complete nonsense <https://localhost:7777/doesnotexist>`_
+* `Example valid local file <conf.py>`_
+* `Example invalid local file <path/to/notfound>`_
+* https://github.com/sphinx-doc/sphinx/blob/4.x/sphinx/__init__.py#L2
+
+.. image:: https://www.google.com/image.png
+.. figure:: https://www.google.com/image2.png

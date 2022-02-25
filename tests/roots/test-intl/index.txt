@@ -1,0 +1,39 @@
+CONTENTS
+========
+
+.. meta::
+   :description: testdata for i18n
+   :keywords: i18n, sphinx, markup
+
+.. toctree::
+   :maxdepth: 2
+   :numbered:
+   :caption: Table of Contents
+
+   subdir/index
+   bom
+   warnings
+   footnote
+   external_links
+   refs_inconsistency
+   literalblock
+   seealso
+   definition_terms
+   figure
+   index_entries
+   role_xref
+   glossary_terms
+   glossary_terms_inconsistency
+   versionchange
+   docfields
+   raw
+   refs
+   section
+   topic
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Hidden Toc
+   :hidden:
+
+   only

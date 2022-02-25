@@ -1,0 +1,2 @@
+msgid "Hello sphinx"
+msgstr "HELLO SPHINX"

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.ext.napoleon.iterators
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -7,14 +6,15 @@
     A collection of helpful iterators.
 
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import collections
+from typing import Any, Iterable, Optional
 
 
-class peek_iter(object):
+class peek_iter:
     """An iterator object that supports peeking ahead.
 
     Parameters
@@ -37,7 +37,7 @@ class peek_iter(object):
     See Also
     --------
     `peek_iter` can operate as a drop in replacement for the built-in
-    `iter <https://docs.python.org/2/library/functions.html#iter>`_ function.
+    `iter <https://docs.python.org/3/library/functions.html#iter>`_ function.
 
     Attributes
     ----------
@@ -47,35 +47,33 @@ class peek_iter(object):
         be set to a new object instance: ``object()``.
 
     """
-    def __init__(self, *args):
+    def __init__(self, *args: Any) -> None:
         """__init__(o, sentinel=None)"""
-        self._iterable = iter(*args)
-        self._cache = collections.deque()
+        self._iterable: Iterable = iter(*args)
+        self._cache: collections.deque = collections.deque()
         if len(args) == 2:
             self.sentinel = args[1]
         else:
             self.sentinel = object()
 
-    def __iter__(self):
+    def __iter__(self) -> "peek_iter":
         return self
 
-    def __next__(self, n=None):
-        # note: prevent 2to3 to transform self.next() in next(self) which
-        # causes an infinite loop !
-        return getattr(self, 'next')(n)
+    def __next__(self, n: int = None) -> Any:
+        return self.next(n)
 
-    def _fillcache(self, n):
+    def _fillcache(self, n: Optional[int]) -> None:
         """Cache `n` items. If `n` is 0 or None, then 1 item is cached."""
         if not n:
             n = 1
         try:
             while len(self._cache) < n:
-                self._cache.append(next(self._iterable))
+                self._cache.append(next(self._iterable))  # type: ignore
         except StopIteration:
             while len(self._cache) < n:
                 self._cache.append(self.sentinel)
 
-    def has_next(self):
+    def has_next(self) -> bool:
         """Determine if iterator is exhausted.
 
         Returns
@@ -90,7 +88,7 @@ class peek_iter(object):
         """
         return self.peek() != self.sentinel
 
-    def next(self, n=None):
+    def next(self, n: int = None) -> Any:
         """Get the next item or `n` items of the iterator.
 
         Parameters
@@ -125,7 +123,7 @@ class peek_iter(object):
             result = [self._cache.popleft() for i in range(n)]
         return result
 
-    def peek(self, n=None):
+    def peek(self, n: Optional[int] = None) -> Any:
         """Preview the next item or `n` items of the iterator.
 
         The iterator is not advanced when peek is called.
@@ -208,7 +206,7 @@ class modify_iter(peek_iter):
     "whitespace."
 
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """__init__(o, sentinel=None, modifier=lambda x: x)"""
         if 'modifier' in kwargs:
             self.modifier = kwargs['modifier']
@@ -220,9 +218,9 @@ class modify_iter(peek_iter):
         if not callable(self.modifier):
             raise TypeError('modify_iter(o, modifier): '
                             'modifier must be callable')
-        super(modify_iter, self).__init__(*args)
+        super().__init__(*args)
 
-    def _fillcache(self, n):
+    def _fillcache(self, n: Optional[int]) -> None:
         """Cache `n` modified items. If `n` is 0 or None, 1 item is cached.
 
         Each item returned by the iterator is passed through the
@@ -233,7 +231,7 @@ class modify_iter(peek_iter):
             n = 1
         try:
             while len(self._cache) < n:
-                self._cache.append(self.modifier(next(self._iterable)))
+                self._cache.append(self.modifier(next(self._iterable)))  # type: ignore
         except StopIteration:
             while len(self._cache) < n:
                 self._cache.append(self.sentinel)

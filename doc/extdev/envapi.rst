@@ -15,17 +15,21 @@ Build environment API
 
       Reference to the :class:`.Config` object.
 
+   .. attribute:: project
+
+      Target project.  See :class:`.Project`.
+
    .. attribute:: srcdir
 
       Source directory.
 
-   .. attribute:: confdir
-
-      Directory containing ``conf.py``.
-
    .. attribute:: doctreedir
 
       Directory for storing pickled doctrees.
+
+   .. attribute:: events
+
+      An :class:`.EventManager` object.
 
    .. attribute:: found_docs
 
@@ -42,10 +46,6 @@ Build environment API
    .. autoattribute:: docname
 
    **Utility methods**
-
-   .. automethod:: warn
-
-   .. automethod:: warn_node
 
    .. automethod:: doc2path
 

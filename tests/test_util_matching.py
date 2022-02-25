@@ -1,14 +1,13 @@
-# -*- coding: utf-8 -*-
 """
     test_util_matching
     ~~~~~~~~~~~~~~~~~~
 
     Tests sphinx.util.matching functions.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from sphinx.util.matching import compile_matchers, Matcher
+from sphinx.util.matching import Matcher, compile_matchers
 
 
 def test_compile_matchers():

@@ -1,0 +1,4 @@
+foo.rst
+=======
+
+`OK` button

@@ -33,13 +33,16 @@ The section with a reference to [AuthorYear]_
 * Second footnote: [1]_
 * `Sphinx <http://sphinx-doc.org/>`_
 * Third footnote: [#]_
+* Fourth footnote: [#named]_
 * `URL including tilde <http://sphinx-doc.org/~test/>`_
 * GitHub Page: `https://github.com/sphinx-doc/sphinx <https://github.com/sphinx-doc/sphinx>`_
 * Mailing list: `sphinx-dev@googlegroups.com <mailto:sphinx-dev@googlegroups.com>`_
 
 .. [AuthorYear] Author, Title, Year
 .. [1] Second
-.. [#] Third
+.. [#] Third [#]_
+.. [#] Footnote inside footnote
+.. [#named] Fourth
 
 The section with a reference to [#]_
 =====================================
@@ -76,15 +79,17 @@ Footnote in term [#]_
 
 .. [#] Foot note in table
 
-.. list-table:: footnote [#]_ in caption of longtable
+.. list-table:: footnote [#]_ in caption [#]_ of longtable
     :widths: 1 1
     :header-rows: 1
 
     * - name
       - desc
-    * - a
-      - b
-    * - a
+    * - This is a reference to the code-block in the footnote:
+        :ref:`codeblockinfootnote`
+      - This is one more footnote with some code in it [#]_.
+    * - This is a reference to the other code block:
+        :ref:`codeblockinanotherfootnote`
       - b
     * - a
       - b
@@ -148,3 +153,36 @@ Footnote in term [#]_
       - b
 
 .. [#] Foot note in longtable
+
+.. [#] Second footnote in caption of longtable
+
+       .. code-block:: python
+          :caption: I am in a footnote
+          :name: codeblockinfootnote
+
+          def foo(x,y):
+              return x+y
+
+.. [#] Third footnote in longtable
+
+       .. code-block:: python
+          :caption: I am also in a footnote
+          :name: codeblockinanotherfootnote
+
+          def bar(x,y):
+              return x+y
+
+The section with an object description
+======================================
+
+.. py:function:: dummy(N)
+   :noindex:
+
+Footnotes referred twice
+========================
+
+* Explicitly numbered footnote: [100]_ [100]_
+* Named footnote: [#twice]_ [#twice]_
+
+.. [100] Numbered footnote
+.. [#twice] Named footnote

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
 html_theme = 'test-theme'
-master_doc = 'index'
+html_theme_path = ['.', 'test_theme']
 exclude_patterns = ['_build']
-

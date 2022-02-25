@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.jsdump
     ~~~~~~~~~~~~~~~~~~
@@ -6,19 +5,16 @@
     This module implements a simple JavaScript serializer.
     Uses the basestring encode function from simplejson by Bob Ippolito.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
+from typing import IO, Any, Dict, List, Match, Union
 
-from six import iteritems, integer_types, string_types
-
-from sphinx.util.pycompat import u
-
-_str_re  = re.compile(r'"(\\\\|\\"|[^"])*"')
-_int_re  = re.compile(r'\d+')
-_name_re = re.compile(r'[a-zA-Z]\w*')
+_str_re = re.compile(r'"(\\\\|\\"|[^"])*"')
+_int_re = re.compile(r'\d+')
+_name_re = re.compile(r'[a-zA-Z_]\w*')
 _nameonly_re = re.compile(r'[a-zA-Z_][a-zA-Z0-9_]*$')
 
 # escape \, ", control characters and everything outside ASCII
@@ -36,8 +32,8 @@ ESCAPE_DICT = {
 ESCAPED = re.compile(r'\\u.{4}|\\.')
 
 
-def encode_string(s):
-    def replace(match):
+def encode_string(s: str) -> str:
+    def replace(match: Match) -> str:
         s = match.group(0)
         try:
             return ESCAPE_DICT[s]
@@ -54,8 +50,8 @@ def encode_string(s):
     return '"' + str(ESCAPE_ASCII.sub(replace, s)) + '"'
 
 
-def decode_string(s):
-    return ESCAPED.sub(lambda m: eval(u + '"' + m.group() + '"'), s)
+def decode_string(s: str) -> str:
+    return ESCAPED.sub(lambda m: eval('"' + m.group() + '"'), s)
 
 
 reswords = set("""\
@@ -76,9 +72,9 @@ do   import   static   with
 double   in   super""".split())
 
 
-def dumps(obj, key=False):
+def dumps(obj: Any, key: bool = False) -> str:
     if key:
-        if not isinstance(obj, string_types):
+        if not isinstance(obj, str):
             obj = str(obj)
         if _nameonly_re.match(obj) and obj not in reswords:
             return obj  # return it as a bare word
@@ -87,34 +83,34 @@ def dumps(obj, key=False):
     if obj is None:
         return 'null'
     elif obj is True or obj is False:
-        return obj and 'true' or 'false'
-    elif isinstance(obj, integer_types + (float,)):
+        return 'true' if obj else 'false'
+    elif isinstance(obj, (int, float)):
         return str(obj)
     elif isinstance(obj, dict):
         return '{%s}' % ','.join(sorted('%s:%s' % (
             dumps(key, True),
             dumps(value)
-        ) for key, value in iteritems(obj)))
+        ) for key, value in obj.items()))
     elif isinstance(obj, set):
         return '[%s]' % ','.join(sorted(dumps(x) for x in obj))
     elif isinstance(obj, (tuple, list)):
         return '[%s]' % ','.join(dumps(x) for x in obj)
-    elif isinstance(obj, string_types):
+    elif isinstance(obj, str):
         return encode_string(obj)
     raise TypeError(type(obj))
 
 
-def dump(obj, f):
+def dump(obj: Any, f: IO) -> None:
     f.write(dumps(obj))
 
 
-def loads(x):
+def loads(x: str) -> Any:
     """Loader that can read the JS subset the indexer produces."""
     nothing = object()
     i = 0
     n = len(x)
-    stack = []
-    obj = nothing
+    stack: List[Union[List, Dict]] = []
+    obj: Any = nothing
     key = False
     keys = []
     while i < n:
@@ -164,6 +160,7 @@ def loads(x):
                 raise ValueError("multiple values")
             key = False
         else:
+            y: Any = None
             m = _str_re.match(x, i)
             if m:
                 y = decode_string(m.group()[1:-1])
@@ -199,5 +196,5 @@ def loads(x):
     return obj
 
 
-def load(f):
+def load(f: IO) -> Any:
     return loads(f.read())

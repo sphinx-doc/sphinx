@@ -1,6 +1,6 @@
-from typing import List, TypeVar, Union, Callable, Tuple
-
+from inspect import Signature
 from numbers import Integral
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
 
 
 def f0(x: int, y: Integral) -> None:
@@ -35,16 +35,24 @@ def f5(x: int, *, y: str, z: str) -> None:
     pass
 
 
-def f6(x: int = None, y: dict = {}) -> None:
+def f6(x: int, *args, y: str, z: str) -> None:
     pass
 
 
-def f7(x: Callable[[int, str], int]) -> None:
+def f7(x: int = None, y: dict = {}) -> None:
+    pass
+
+
+def f8(x: Callable[[int, str], int]) -> None:
     # See https://github.com/ambv/typehinting/issues/149 for Callable[..., int]
     pass
 
 
-def f8(x: Tuple[int, str], y: Tuple[int, ...]) -> None:
+def f9(x: Callable) -> None:
+    pass
+
+
+def f10(x: Tuple[int, str], y: Tuple[int, ...]) -> None:
     pass
 
 
@@ -52,5 +60,54 @@ class CustomAnnotation:
     def __repr__(self):
         return 'CustomAnnotation'
 
-def f9(x: CustomAnnotation(), y: 123) -> None:
+
+def f11(x: CustomAnnotation(), y: 123) -> None:
     pass
+
+
+def f12() -> Tuple[int, str, int]:
+    pass
+
+
+def f13() -> Optional[str]:
+    pass
+
+
+def f14() -> Any:
+    pass
+
+
+def f15(x: "Unknown", y: "int") -> Any:  # type: ignore # NOQA
+    pass
+
+
+def f16(arg1, arg2, *, arg3=None, arg4=None):
+    pass
+
+
+def f17(*, arg3, arg4):
+    pass
+
+
+def f18(self, arg1: Union[int, Tuple] = 10) -> List[Dict]:
+    pass
+
+
+def f19(*args: int, **kwargs: str):
+    pass
+
+
+def f20() -> Optional[Union[int, str]]:
+    pass
+
+
+def f21(arg1='whatever', arg2=Signature.empty):
+    pass
+
+
+class Node:
+    def __init__(self, parent: Optional['Node']) -> None:
+        pass
+
+    def children(self) -> List['Node']:
+        pass

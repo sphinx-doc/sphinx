@@ -1,33 +1,29 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.osutil
     ~~~~~~~~~~~~~~~~~~
 
     Operating system-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
+import contextlib
+import filecmp
 import os
 import re
-import sys
-import time
-import errno
-import locale
 import shutil
-import filecmp
+import sys
+from io import StringIO
 from os import path
-import contextlib
+from typing import Any, Generator, Iterator, List, Optional, Type
 
-from six import PY2, text_type
+try:
+    # for ALT Linux (#6712)
+    from sphinx.testing.path import path as Path
+except ImportError:
+    Path = None  # type: ignore
 
-# Errnos that we need.
-EEXIST = getattr(errno, 'EEXIST', 0)
-ENOENT = getattr(errno, 'ENOENT', 0)
-EPIPE  = getattr(errno, 'EPIPE', 0)
-EINVAL = getattr(errno, 'EINVAL', 0)
 
 # SEP separates path elements in the canonical file names
 #
@@ -37,21 +33,21 @@ EINVAL = getattr(errno, 'EINVAL', 0)
 SEP = "/"
 
 
-def os_path(canonicalpath):
+def os_path(canonicalpath: str) -> str:
     return canonicalpath.replace(SEP, path.sep)
 
 
-def canon_path(nativepath):
+def canon_path(nativepath: str) -> str:
     """Return path in OS-independent form"""
     return nativepath.replace(path.sep, SEP)
 
 
-def relative_uri(base, to):
+def relative_uri(base: str, to: str) -> str:
     """Return a relative URL from ``base`` to ``to``."""
     if to.startswith(SEP):
         return to
-    b2 = base.split(SEP)
-    t2 = to.split(SEP)
+    b2 = base.split('#')[0].split(SEP)
+    t2 = to.split('#')[0].split(SEP)
     # remove common segments (except the last segment)
     for x, y in zip(b2[:-1], t2[:-1]):
         if x != y:
@@ -66,82 +62,33 @@ def relative_uri(base, to):
         # Special case: relative_uri('f/index.html','f/') should
         # return './', not ''
         return '.' + SEP
-    return ('..' + SEP) * (len(b2)-1) + SEP.join(t2)
+    return ('..' + SEP) * (len(b2) - 1) + SEP.join(t2)
 
 
-def ensuredir(path):
+def ensuredir(path: str) -> None:
     """Ensure that a path exists."""
-    try:
-        os.makedirs(path)
-    except OSError as err:
-        # 0 for Jython/Win32
-        if err.errno not in [0, EEXIST]:
-            raise
+    os.makedirs(path, exist_ok=True)
 
 
-# This function is same as os.walk of Python2.6, 2.7, 3.2, 3.3 except a
-# customization that check UnicodeError.
-# The customization obstacle to replace the function with the os.walk.
-def walk(top, topdown=True, followlinks=False):
-    """Backport of os.walk from 2.6, where the *followlinks* argument was
-    added.
-    """
-    names = os.listdir(top)
-
-    dirs, nondirs = [], []
-    for name in names:
-        try:
-            fullpath = path.join(top, name)
-        except UnicodeError:
-            print('%s:: ERROR: non-ASCII filename not supported on this '
-                  'filesystem encoding %r, skipped.' % (name, fs_encoding),
-                  file=sys.stderr)
-            continue
-        if path.isdir(fullpath):
-            dirs.append(name)
-        else:
-            nondirs.append(name)
-
-    if topdown:
-        yield top, dirs, nondirs
-    for name in dirs:
-        fullpath = path.join(top, name)
-        if followlinks or not path.islink(fullpath):
-            for x in walk(fullpath, topdown, followlinks):
-                yield x
-    if not topdown:
-        yield top, dirs, nondirs
-
-
-def mtimes_of_files(dirnames, suffix):
+def mtimes_of_files(dirnames: List[str], suffix: str) -> Iterator[float]:
     for dirname in dirnames:
-        for root, dirs, files in os.walk(dirname):
+        for root, _dirs, files in os.walk(dirname):
             for sfile in files:
                 if sfile.endswith(suffix):
                     try:
                         yield path.getmtime(path.join(root, sfile))
-                    except EnvironmentError:
+                    except OSError:
                         pass
 
 
-def movefile(source, dest):
-    """Move a file, removing the destination if it exists."""
-    if os.path.exists(dest):
-        try:
-            os.unlink(dest)
-        except OSError:
-            pass
-    os.rename(source, dest)
-
-
-def copytimes(source, dest):
+def copytimes(source: str, dest: str) -> None:
     """Copy a file's modification times."""
     st = os.stat(source)
     if hasattr(os, 'utime'):
         os.utime(dest, (st.st_atime, st.st_mtime))
 
 
-def copyfile(source, dest):
+def copyfile(source: str, dest: str) -> None:
     """Copy a file and its modification times, if possible.
 
     Note: ``copyfile`` skips copying if the file has not been changed"""
@@ -155,63 +102,52 @@ def copyfile(source, dest):
 
 
 no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
+project_suffix_re = re.compile(' Documentation$')
 
 
-def make_filename(string):
+def make_filename(string: str) -> str:
     return no_fn_re.sub('', string) or 'sphinx'
 
 
-def ustrftime(format, *args):
-    # [DEPRECATED] strftime for unicode strings
-    # It will be removed at Sphinx-1.5
-    if not args:
-        # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
-        # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
-        source_date_epoch = os.getenv('SOURCE_DATE_EPOCH')
-        if source_date_epoch is not None:
-            time_struct = time.gmtime(float(source_date_epoch))
-            args = [time_struct]
-    if PY2:
-        # if a locale is set, the time strings are encoded in the encoding
-        # given by LC_TIME; if that is available, use it
-        enc = locale.getlocale(locale.LC_TIME)[1] or 'utf-8'
-        return time.strftime(text_type(format).encode(enc), *args).decode(enc)
-    else:  # Py3
-        # On Windows, time.strftime() and Unicode characters will raise UnicodeEncodeError.
-        # http://bugs.python.org/issue8304
-        try:
-            return time.strftime(format, *args)
-        except UnicodeEncodeError:
-            r = time.strftime(format.encode('unicode-escape').decode(), *args)
-            return r.encode().decode('unicode-escape')
+def make_filename_from_project(project: str) -> str:
+    return make_filename(project_suffix_re.sub('', project)).lower()
 
 
-def safe_relpath(path, start=None):
+def relpath(path: str, start: str = os.curdir) -> str:
+    """Return a relative filepath to *path* either from the current directory or
+    from an optional *start* directory.
+
+    This is an alternative of ``os.path.relpath()``.  This returns original path
+    if *path* and *start* are on different drives (for Windows platform).
+    """
     try:
         return os.path.relpath(path, start)
     except ValueError:
         return path
 
 
+safe_relpath = relpath  # for compatibility
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
-def abspath(pathdir):
-    pathdir = path.abspath(pathdir)
-    if isinstance(pathdir, bytes):
-        pathdir = pathdir.decode(fs_encoding)
-    return pathdir
-
-
-def getcwd():
-    if hasattr(os, 'getcwdu'):
-        return os.getcwdu()
-    return os.getcwd()
+def abspath(pathdir: str) -> str:
+    if Path is not None and isinstance(pathdir, Path):
+        return pathdir.abspath()
+    else:
+        pathdir = path.abspath(pathdir)
+        if isinstance(pathdir, bytes):
+            try:
+                pathdir = pathdir.decode(fs_encoding)
+            except UnicodeDecodeError as exc:
+                raise UnicodeDecodeError('multibyte filename not supported on '
+                                         'this filesystem encoding '
+                                         '(%r)' % fs_encoding) from exc
+        return pathdir
 
 
 @contextlib.contextmanager
-def cd(target_dir):
-    cwd = getcwd()
+def cd(target_dir: str) -> Generator[None, None, None]:
+    cwd = os.getcwd()
     try:
         os.chdir(target_dir)
         yield
@@ -219,7 +155,63 @@ def cd(target_dir):
         os.chdir(cwd)
 
 
-def rmtree(path):
+class FileAvoidWrite:
+    """File-like object that buffers output and only writes if content changed.
+
+    Use this class like when writing to a file to avoid touching the original
+    file if the content hasn't changed. This is useful in scenarios where file
+    mtime is used to invalidate caches or trigger new behavior.
+
+    When writing to this file handle, all writes are buffered until the object
+    is closed.
+
+    Objects can be used as context managers.
+    """
+    def __init__(self, path: str) -> None:
+        self._path = path
+        self._io: Optional[StringIO] = None
+
+    def write(self, data: str) -> None:
+        if not self._io:
+            self._io = StringIO()
+        self._io.write(data)
+
+    def close(self) -> None:
+        """Stop accepting writes and write file, if needed."""
+        if not self._io:
+            raise Exception('FileAvoidWrite does not support empty files.')
+
+        buf = self.getvalue()
+        self._io.close()
+
+        try:
+            with open(self._path, encoding='utf-8') as old_f:
+                old_content = old_f.read()
+                if old_content == buf:
+                    return
+        except OSError:
+            pass
+
+        with open(self._path, 'w', encoding='utf-8') as f:
+            f.write(buf)
+
+    def __enter__(self) -> "FileAvoidWrite":
+        return self
+
+    def __exit__(self, exc_type: Type[Exception], exc_value: Exception, traceback: Any) -> bool:  # NOQA
+        self.close()
+        return True
+
+    def __getattr__(self, name: str) -> Any:
+        # Proxy to _io instance.
+        if not self._io:
+            raise Exception('Must write to FileAvoidWrite before other '
+                            'methods can be used')
+
+        return getattr(self._io, name)
+
+
+def rmtree(path: str) -> None:
     if os.path.isdir(path):
         shutil.rmtree(path)
     else:

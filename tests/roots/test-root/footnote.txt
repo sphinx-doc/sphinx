@@ -1,0 +1,60 @@
+:tocdepth: 2
+
+Testing footnote and citation
+================================
+.. #1058 footnote-backlinks-do-not-work
+
+numbered footnote
+--------------------
+
+[1]_
+
+auto-numbered footnote
+------------------------------
+
+[#]_
+
+named footnote
+--------------------
+
+[#foo]_
+
+citation
+--------------------
+
+[bar]_
+[baz_qux]_
+
+footnotes in table
+--------------------
+
+.. list-table:: Table caption [#]_
+    :header-rows: 1
+
+    * - name [#]_
+      - description
+    * - VIDIOC_CROPCAP
+      - Information about VIDIOC_CROPCAP [#]_
+
+footenotes
+--------------------
+
+.. rubric:: Footnotes
+
+.. [1] numbered
+
+.. [#] auto numbered
+
+.. [#foo] named
+
+.. rubric:: Citations
+
+.. [bar] cite
+
+.. [baz_qux] citation including underscore
+
+.. [#] footnote in table caption
+
+.. [#] footnote in table header
+
+.. [#] footnote in table not in header

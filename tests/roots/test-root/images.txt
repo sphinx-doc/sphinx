@@ -1,0 +1,25 @@
+Sphinx image handling
+=====================
+
+.. first, a simple test with direct filename
+.. image:: img.png
+
+.. an image with path name (relative to this directory!)
+.. image:: subdir/img.png
+   :height: 100
+   :width: 200
+
+.. an image with unspecified extension
+.. image:: img.*
+
+.. a non-local image URI
+.. image:: https://www.python.org/static/img/python-logo.png
+
+.. an image with subdir and unspecified extension
+.. image:: subdir/simg.*
+
+.. an SVG image (for HTML at least)
+.. image:: svgimg.*
+
+.. an image with more than 1 dot in its file name
+.. image:: img.foo.png

@@ -4,41 +4,46 @@
 
     Template for the search page.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
 {%- extends "layout.html" %}
 {% set title = _('Search') %}
-{% set script_files = script_files + ['_static/searchtools.js'] %}
+{%- block scripts %}
+    {{ super() }}
+    <script src="{{ pathto('_static/searchtools.js', 1) }}"></script>
+    <script src="{{ pathto('_static/language_data.js', 1) }}"></script>
+{%- endblock %}
 {% block extrahead %}
-  <script type="text/javascript">
-    jQuery(function() { Search.loadIndex("{{ pathto('searchindex.js', 1) }}"); });
-  </script>
-  {# this is used when loading the search index using $.ajax fails,
-     such as on Chrome for documents on localhost #}
-  <script type="text/javascript" id="searchindexloader"></script>
+  <script src="{{ pathto('searchindex.js', 1) }}" defer></script>
   {{ super() }}
 {% endblock %}
 {% block body %}
   <h1 id="search-documentation">{{ _('Search') }}</h1>
-  <div id="fallback" class="admonition warning">
-  <script type="text/javascript">$('#fallback').hide();</script>
+  {% block scriptwarning %}
+  <noscript>
+  <div class="admonition warning">
   <p>
     {% trans %}Please activate JavaScript to enable the search
     functionality.{% endtrans %}
   </p>
   </div>
+  </noscript>
+  {% endblock %}
+  {% block searchtext %}
   <p>
-    {% trans %}From here you can search these documents. Enter your search
-    words into the box below and click "search". Note that the search
-    function will automatically search for all of the words. Pages
-    containing fewer words won't appear in the result list.{% endtrans %}
+    {% trans %}Searching for multiple words only shows matches that contain
+    all words.{% endtrans %}
   </p>
+  {% endblock %}
+  {% block searchbox %}
   <form action="" method="get">
-    <input type="text" name="q" value="" />
+    <input type="text" name="q" aria-labelledby="search-documentation" value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
     <input type="submit" value="{{ _('search') }}" />
     <span id="search-progress" style="padding-left: 10px"></span>
   </form>
+  {% endblock %}
+  {% block searchresults %}
   {% if search_performed %}
     <h2>{{ _('Search Results') }}</h2>
     {% if not search_results %}
@@ -56,4 +61,5 @@
     </ul>
   {% endif %}
   </div>
+  {% endblock %}
 {% endblock %}

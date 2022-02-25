@@ -1,58 +1,45 @@
-# -*- coding: utf-8 -*-
 """
     test_build
     ~~~~~~~~~~
 
     Test all builders.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from six import BytesIO
-
-import pickle
-from docutils import nodes
+import sys
 from textwrap import dedent
+from unittest import mock
+
+import pytest
+from docutils import nodes
+
 from sphinx.errors import SphinxError
-import sphinx.builders.linkcheck
-
-from util import with_app, with_tempdir, rootdir, tempdir, SkipTest, TestApp
-
-try:
-    from docutils.writers.manpage import Writer as ManWriter
-except ImportError:
-    ManWriter = None
 
 
-class MockOpener(object):
-    def open(self, req, **kwargs):
-        class result(BytesIO):
-            headers = None
-            url = req.url
-        return result()
-
-sphinx.builders.linkcheck.opener = MockOpener()
+def request_session_head(url, **kwargs):
+    response = mock.Mock()
+    response.status_code = 200
+    response.url = url
+    return response
 
 
-def verify_build(buildername, srcdir):
-    if buildername == 'man' and ManWriter is None:
-        raise SkipTest('man writer is not available')
-    app = TestApp(buildername=buildername, srcdir=srcdir)
-    try:
-        app.builder.build_all()
-    finally:
-        app.cleanup()
-
-
-def test_build_all():
+@pytest.fixture
+def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
     # If supported, build in a non-ASCII source dir
-    test_name = u'\u65e5\u672c\u8a9e'
+    test_name = '\u65e5\u672c\u8a9e'
+    basedir = sphinx_test_tempdir / request.node.originalname
     try:
-        srcdir = tempdir / test_name
-        (rootdir / 'root').copytree(tempdir / test_name)
+        srcdir = basedir / test_name
+        if not srcdir.exists():
+            (rootdir / 'test-root').copytree(srcdir)
     except UnicodeEncodeError:
-        srcdir = tempdir / 'all'
+        # Now Python 3.7+ follows PEP-540 and uses utf-8 encoding for filesystem by default.
+        # So this error handling will be no longer used (after dropping python 3.6 support).
+        srcdir = basedir / 'all'
+        if not srcdir.exists():
+            (rootdir / 'test-root').copytree(srcdir)
     else:
         # add a doc with a non-ASCII file name to the source dir
         (srcdir / (test_name + '.txt')).write_text(dedent("""
@@ -60,67 +47,68 @@ def test_build_all():
             =======================
             """))
 
-        master_doc = srcdir / 'contents.txt'
-        master_doc.write_text(master_doc.text() + dedent(u"""
-                .. toctree::
+        root_doc = srcdir / 'index.txt'
+        root_doc.write_text(root_doc.read_text() + dedent("""
+                            .. toctree::
 
-                   %(test_name)s/%(test_name)s
-                """ % {'test_name': test_name})
-        )
-
-    # note: no 'html' - if it's ok with dirhtml it's ok with html
-    for buildername in ['dirhtml', 'singlehtml', 'latex', 'texinfo', 'pickle',
-                        'json', 'text', 'htmlhelp', 'qthelp', 'epub', 'epub3',
-                        'applehelp', 'changes', 'xml', 'pseudoxml', 'man',
-                        'linkcheck']:
-        yield verify_build, buildername, srcdir
+                               %(test_name)s/%(test_name)s
+                            """ % {'test_name': test_name}))
+    return srcdir
 
 
-@with_tempdir
-def test_master_doc_not_found(tmpdir):
-    (tmpdir / 'conf.py').write_text('master_doc = "index"')
-    assert tmpdir.listdir() == ['conf.py']
+# note: this test skips building docs for some builders because they have independent testcase.
+#       (html, changes, epub, latex, texinfo and manpage)
+@pytest.mark.parametrize(
+    "buildername",
+    ['dirhtml', 'singlehtml', 'text', 'xml', 'pseudoxml', 'linkcheck'],
+)
+@mock.patch('sphinx.builders.linkcheck.requests.head',
+            side_effect=request_session_head)
+@pytest.mark.xfail(sys.platform == 'win32', reason="Not working on windows")
+def test_build_all(requests_head, make_app, nonascii_srcdir, buildername):
+    app = make_app(buildername, srcdir=nonascii_srcdir)
+    app.build()
 
-    try:
-        app = TestApp(buildername='dummy', srcdir=tmpdir)
-        app.builder.build_all()
-        assert False  # SphinxError not raised
-    except Exception as exc:
-        assert isinstance(exc, SphinxError)
-    finally:
-        app.cleanup()
+
+def test_root_doc_not_found(tempdir, make_app):
+    (tempdir / 'conf.py').write_text('')
+    assert tempdir.listdir() == ['conf.py']
+
+    app = make_app('dummy', srcdir=tempdir)
+    with pytest.raises(SphinxError):
+        app.builder.build_all()  # no index.rst
 
 
-@with_app(buildername='text', testroot='circular')
+@pytest.mark.sphinx(buildername='text', testroot='circular')
 def test_circular_toctree(app, status, warning):
     app.builder.build_all()
     warnings = warning.getvalue()
     assert (
         'circular toctree references detected, ignoring: '
-        'sub <- contents <- sub') in warnings
+        'sub <- index <- sub') in warnings
     assert (
         'circular toctree references detected, ignoring: '
-        'contents <- sub <- contents') in warnings
+        'index <- sub <- index') in warnings
 
 
-@with_app(buildername='text', testroot='numbered-circular')
+@pytest.mark.sphinx(buildername='text', testroot='numbered-circular')
 def test_numbered_circular_toctree(app, status, warning):
     app.builder.build_all()
     warnings = warning.getvalue()
     assert (
         'circular toctree references detected, ignoring: '
-        'sub <- contents <- sub') in warnings
+        'sub <- index <- sub') in warnings
     assert (
         'circular toctree references detected, ignoring: '
-        'contents <- sub <- contents') in warnings
+        'index <- sub <- index') in warnings
 
 
-@with_app(buildername='dummy', testroot='image-glob')
+@pytest.mark.sphinx(buildername='dummy', testroot='images')
 def test_image_glob(app, status, warning):
     app.builder.build_all()
 
     # index.rst
-    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    doctree = app.env.get_doctree('index')
 
     assert isinstance(doctree[0][1], nodes.image)
     assert doctree[0][1]['candidates'] == {'*': 'rimg.png'}
@@ -145,7 +133,7 @@ def test_image_glob(app, status, warning):
     assert doctree[0][4][0]['uri'] == 'img.*'
 
     # subdir/index.rst
-    doctree = pickle.loads((app.doctreedir / 'subdir/index.doctree').bytes())
+    doctree = app.env.get_doctree('subdir/index')
 
     assert isinstance(doctree[0][1], nodes.image)
     assert doctree[0][1]['candidates'] == {'*': 'subdir/rimg.png'}

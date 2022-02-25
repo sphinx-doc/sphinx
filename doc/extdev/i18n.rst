@@ -1,0 +1,97 @@
+.. _i18n-api:
+
+i18n API
+========
+
+.. currentmodule:: sphinx.locale
+
+.. autofunction:: init
+
+.. autofunction:: init_console
+
+.. autofunction:: get_translation
+
+.. autofunction:: _
+
+.. autofunction:: __
+
+
+.. _ext-i18n:
+
+Extension internationalization (`i18n`) and localization (`l10n`) using i18n API
+--------------------------------------------------------------------------------
+
+.. versionadded:: 1.8
+
+An extension may naturally come with message translations.  This is briefly
+summarized in :func:`sphinx.locale.get_translation` help.
+
+In practice, you have to:
+
+#. Choose a name for your message catalog, which must be unique.  Usually
+   the name of your extension is used for the name of message catalog.
+
+#. Mark in your extension sources all messages as translatable, via
+   :func:`sphinx.locale.get_translation` function, usually renamed ``_()``,
+   e.g.:
+
+   .. code-block:: python
+      :caption: src/__init__.py
+
+      from sphinx.locale import get_translation
+
+      MESSAGE_CATALOG_NAME = 'myextension'
+      _ = get_translation(MESSAGE_CATALOG_NAME)
+
+      translated_text = _('Hello Sphinx!')
+
+#. Set up your extension to be aware of its dedicated translations:
+
+   .. code-block:: python
+      :caption: src/__init__.py
+
+      def setup(app):
+          package_dir = path.abspath(path.dirname(__file__))
+          locale_dir = os.path.join(package_dir, 'locales')
+          app.add_message_catalog(MESSAGE_CATALOG_NAME, locale_dir)
+
+#. Generate message catalog template ``*.pot`` file, usually in ``locale/``
+   source directory, for example via `Babel`_:
+
+   .. code-block:: console
+
+      $ pybabel extract --output=src/locale/myextension.pot src/
+
+#. Create message catalogs (``*.po``) for each language which your extension
+   will provide localization, for example via `Babel`_:
+
+   .. code-block:: console
+
+      $ pybabel init --input-file=src/locale/myextension.pot --domain=myextension --output-dir=src/locale --locale=fr_FR
+
+#. Translate message catalogs for each language manually
+
+#. Compile message catalogs into ``*.mo`` files, for example via `Babel`_:
+
+   .. code-block:: console
+
+      $ pybabel compile --directory=src/locale --domain=myextension
+
+#. Ensure that message catalog files are distributed when your package will
+   be installed, by adding equivalent line in your extension ``MANIFEST.in``:
+
+   .. code-block:: ini
+      :caption: MANIFEST.in
+
+      recursive-include src *.pot *.po *.mo
+
+
+When the messages on your extension has been changed, you need to also update
+message catalog template and message catalogs, for example via `Babel`_:
+
+.. code-block:: console
+
+   $ pybabel extract --output=src/locale/myextension.pot src/
+   $ pybabel update --input-file=src/locale/myextension.pot --domain=myextension --output-dir=src/locale
+
+.. _Babel: https://babel.pocoo.org/
