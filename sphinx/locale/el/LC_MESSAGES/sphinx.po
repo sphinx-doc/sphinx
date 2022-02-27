@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-02-06 00:13+0000\n"
+"POT-Creation-Date: 2022-02-27 00:16+0000\n"
 "PO-Revision-Date: 2022-01-23 00:11+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Greek (http://www.transifex.com/sphinx-doc/sphinx-1/language/el/)\n"
@@ -1114,7 +1114,7 @@ msgstr "Ευρετήριο"
 msgid "Release"
 msgstr "Δημοσίευση"
 
-#: sphinx/builders/latex/__init__.py:211 sphinx/writers/latex.py:382
+#: sphinx/builders/latex/__init__.py:211 sphinx/writers/latex.py:383
 #, python-format
 msgid "no Babel option known for language %r"
 msgstr "καμία γνωστή επιλογή Babel για τη γλώσσα %r"
@@ -1883,7 +1883,7 @@ msgid "%s (C %s)"
 msgstr ""
 
 #: sphinx/domains/c.py:3352 sphinx/domains/cpp.py:7261
-#: sphinx/domains/python.py:445 sphinx/ext/napoleon/docstring.py:736
+#: sphinx/domains/python.py:445 sphinx/ext/napoleon/docstring.py:737
 msgid "Parameters"
 msgstr "Παράμετροι"
 
@@ -2061,7 +2061,7 @@ msgstr ""
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "διπλότυπη ετικέτα της εξίσωσης %s, άλλη εμφάνιση στο %s"
 
-#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2069
+#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2077
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "Ανέγκυρο math_eqref_format: %r"
@@ -2858,7 +2858,7 @@ msgstr "ανέγκυρη υπογραφή για αυτόματο %s (%r)"
 msgid "error while formatting arguments for %s: %s"
 msgstr "σφάλμα κατά τη μορφοποίηση των ορισμάτων για %s:%s"
 
-#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1699
+#: sphinx/ext/autodoc/__init__.py:663 sphinx/ext/autodoc/__init__.py:1700
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr "απουσιάζει το χαρακτηριστικό %s στο αντικείμενο %s"
@@ -2888,66 +2888,66 @@ msgstr ""
 msgid "error while formatting signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1021
+#: sphinx/ext/autodoc/__init__.py:1022
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr "\"::\" στο όνομα automodule δεν βγάζει νόημα"
 
-#: sphinx/ext/autodoc/__init__.py:1028
+#: sphinx/ext/autodoc/__init__.py:1029
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr "ορίσματα υπογραφής ή επιστροφή σημείωσης η οποία δόθηκε για το automodule %s"
 
-#: sphinx/ext/autodoc/__init__.py:1041
+#: sphinx/ext/autodoc/__init__.py:1042
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr "__all__ πρέπει να είναι λίστα στοιχειοσειράς, όχι %r (στο δομοστοιχείο %s) -- θα αγνοηθεί το __all__"
 
-#: sphinx/ext/autodoc/__init__.py:1107
+#: sphinx/ext/autodoc/__init__.py:1108
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1308 sphinx/ext/autodoc/__init__.py:1385
-#: sphinx/ext/autodoc/__init__.py:2791
+#: sphinx/ext/autodoc/__init__.py:1309 sphinx/ext/autodoc/__init__.py:1386
+#: sphinx/ext/autodoc/__init__.py:2795
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1578
+#: sphinx/ext/autodoc/__init__.py:1579
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1686
+#: sphinx/ext/autodoc/__init__.py:1687
 #, python-format
 msgid "Bases: %s"
 msgstr "Βάσεις: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1784 sphinx/ext/autodoc/__init__.py:1862
-#: sphinx/ext/autodoc/__init__.py:1885
+#: sphinx/ext/autodoc/__init__.py:1788 sphinx/ext/autodoc/__init__.py:1866
+#: sphinx/ext/autodoc/__init__.py:1889
 #, python-format
 msgid "alias of %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1931
+#: sphinx/ext/autodoc/__init__.py:1935
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2167 sphinx/ext/autodoc/__init__.py:2264
+#: sphinx/ext/autodoc/__init__.py:2171 sphinx/ext/autodoc/__init__.py:2268
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2395
+#: sphinx/ext/autodoc/__init__.py:2399
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2834
+#: sphinx/ext/autodoc/__init__.py:2838
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
@@ -3084,58 +3084,58 @@ msgid ""
 "%(default)s)"
 msgstr ""
 
-#: sphinx/ext/napoleon/__init__.py:347 sphinx/ext/napoleon/docstring.py:703
+#: sphinx/ext/napoleon/__init__.py:347 sphinx/ext/napoleon/docstring.py:704
 msgid "Keyword Arguments"
 msgstr "Ορίσματα λέξης-κλειδί"
 
-#: sphinx/ext/napoleon/docstring.py:657
+#: sphinx/ext/napoleon/docstring.py:658
 msgid "Example"
 msgstr "Παράδειγμα"
 
-#: sphinx/ext/napoleon/docstring.py:658
+#: sphinx/ext/napoleon/docstring.py:659
 msgid "Examples"
 msgstr "Παραδείγματα"
 
-#: sphinx/ext/napoleon/docstring.py:718
+#: sphinx/ext/napoleon/docstring.py:719
 msgid "Notes"
 msgstr "Σημειώσεις"
 
-#: sphinx/ext/napoleon/docstring.py:727
+#: sphinx/ext/napoleon/docstring.py:728
 msgid "Other Parameters"
 msgstr "Άλλες παράμετροι"
 
-#: sphinx/ext/napoleon/docstring.py:763
+#: sphinx/ext/napoleon/docstring.py:764
 msgid "Receives"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:767
+#: sphinx/ext/napoleon/docstring.py:768
 msgid "References"
 msgstr "Αναφορές"
 
-#: sphinx/ext/napoleon/docstring.py:799
+#: sphinx/ext/napoleon/docstring.py:800
 msgid "Warns"
 msgstr "Προειδοποιήσεις"
 
-#: sphinx/ext/napoleon/docstring.py:803
+#: sphinx/ext/napoleon/docstring.py:804
 msgid "Yields"
 msgstr "Αποδόσεις"
 
-#: sphinx/ext/napoleon/docstring.py:971
+#: sphinx/ext/napoleon/docstring.py:974
 #, python-format
 msgid "invalid value set (missing closing brace): %s"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:978
+#: sphinx/ext/napoleon/docstring.py:981
 #, python-format
 msgid "invalid value set (missing opening brace): %s"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:985
+#: sphinx/ext/napoleon/docstring.py:988
 #, python-format
 msgid "malformed string literal (missing closing quote): %s"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:992
+#: sphinx/ext/napoleon/docstring.py:995
 #, python-format
 msgid "malformed string literal (missing opening quote): %s"
 msgstr ""
@@ -3630,40 +3630,40 @@ msgstr "Απευθείας σύνδεσμος σε αυτόν τον πίνακ�
 msgid "Could not obtain image size. :scale: option is ignored."
 msgstr "Δεν ήταν δυνατή η λήψη του μεγέθους της εικόνας. Η επιλογή :scale: θα αγνοηθεί."
 
-#: sphinx/writers/latex.py:347
+#: sphinx/writers/latex.py:348
 #, python-format
 msgid "unknown %r toplevel_sectioning for class %r"
 msgstr "άγνωστο toplevel_sectioning %r για την κλάσση %r"
 
-#: sphinx/writers/latex.py:398
+#: sphinx/writers/latex.py:399
 msgid "too large :maxdepth:, ignored."
 msgstr "πολύ μεγάλο :maxdepth:, θα αγνοηθεί."
 
-#: sphinx/writers/latex.py:644
+#: sphinx/writers/latex.py:646
 msgid "document title is not a single Text node"
 msgstr "ο τίτλος του εγγράφου δεν είναι μονός κόμβος κειμένου"
 
-#: sphinx/writers/latex.py:676 sphinx/writers/texinfo.py:626
+#: sphinx/writers/latex.py:678 sphinx/writers/texinfo.py:626
 msgid ""
 "encountered title node not in section, topic, table, admonition or sidebar"
 msgstr "ο ανακαλυφθέν τίτλος κόμβος δεν βρίσκεται σε τομέα, θέμα, πίνακα, προειδοποίηση ή πλαϊνή μπάρα"
 
-#: sphinx/writers/latex.py:846 sphinx/writers/manpage.py:247
+#: sphinx/writers/latex.py:854 sphinx/writers/manpage.py:247
 #: sphinx/writers/texinfo.py:641
 msgid "Footnotes"
 msgstr "Σημειώσεις υποσέλιδου"
 
-#: sphinx/writers/latex.py:905
+#: sphinx/writers/latex.py:913
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "τόσο η επιλογή για tabularcolumns όσο και για :widths: δίνονται. Η επιλογή :widths: θα αγνοηθεί."
 
-#: sphinx/writers/latex.py:1236
+#: sphinx/writers/latex.py:1244
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
 msgstr "η μονάδα διάστασης %s δεν είναι έγκυρη. Θα αγνοηθεί."
 
-#: sphinx/writers/latex.py:1549
+#: sphinx/writers/latex.py:1557
 #, python-format
 msgid "unknown index entry type %s found"
 msgstr "βρέθηκε άγνωστος τύπος εγγραφής ευρετηρίου %s"

@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-02-13 00:13+0000\n"
+"POT-Creation-Date: 2022-02-27 00:16+0000\n"
 "PO-Revision-Date: 2022-01-23 00:11+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/sphinx-doc/sphinx-1/language/es/)\n"
@@ -1118,7 +1118,7 @@ msgstr "Índice"
 msgid "Release"
 msgstr "Versión"
 
-#: sphinx/builders/latex/__init__.py:211 sphinx/writers/latex.py:382
+#: sphinx/builders/latex/__init__.py:211 sphinx/writers/latex.py:383
 #, python-format
 msgid "no Babel option known for language %r"
 msgstr "No se conoce la opción de Babel para el idioma %r"
@@ -1887,7 +1887,7 @@ msgid "%s (C %s)"
 msgstr ""
 
 #: sphinx/domains/c.py:3352 sphinx/domains/cpp.py:7261
-#: sphinx/domains/python.py:445 sphinx/ext/napoleon/docstring.py:736
+#: sphinx/domains/python.py:445 sphinx/ext/napoleon/docstring.py:737
 msgid "Parameters"
 msgstr "Parámetros"
 
@@ -2065,7 +2065,7 @@ msgstr "duplicada %s descripción de %s, otra %s en %s"
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "etiqueta duplicada de la ecuación %s, otra instancia en %s"
 
-#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2069
+#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2077
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "No válido math_eqref_format: %r"
@@ -3088,58 +3088,58 @@ msgid ""
 "%(default)s)"
 msgstr ""
 
-#: sphinx/ext/napoleon/__init__.py:347 sphinx/ext/napoleon/docstring.py:703
+#: sphinx/ext/napoleon/__init__.py:347 sphinx/ext/napoleon/docstring.py:704
 msgid "Keyword Arguments"
 msgstr "Argumentos de palabras clave"
 
-#: sphinx/ext/napoleon/docstring.py:657
+#: sphinx/ext/napoleon/docstring.py:658
 msgid "Example"
 msgstr "Ejemplo"
 
-#: sphinx/ext/napoleon/docstring.py:658
+#: sphinx/ext/napoleon/docstring.py:659
 msgid "Examples"
 msgstr "Ejemplos"
 
-#: sphinx/ext/napoleon/docstring.py:718
+#: sphinx/ext/napoleon/docstring.py:719
 msgid "Notes"
 msgstr "Notas"
 
-#: sphinx/ext/napoleon/docstring.py:727
+#: sphinx/ext/napoleon/docstring.py:728
 msgid "Other Parameters"
 msgstr "Otros parámetros"
 
-#: sphinx/ext/napoleon/docstring.py:763
+#: sphinx/ext/napoleon/docstring.py:764
 msgid "Receives"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:767
+#: sphinx/ext/napoleon/docstring.py:768
 msgid "References"
 msgstr "Referencias"
 
-#: sphinx/ext/napoleon/docstring.py:799
+#: sphinx/ext/napoleon/docstring.py:800
 msgid "Warns"
 msgstr "Avisos"
 
-#: sphinx/ext/napoleon/docstring.py:803
+#: sphinx/ext/napoleon/docstring.py:804
 msgid "Yields"
 msgstr "Campos"
 
-#: sphinx/ext/napoleon/docstring.py:971
+#: sphinx/ext/napoleon/docstring.py:974
 #, python-format
 msgid "invalid value set (missing closing brace): %s"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:978
+#: sphinx/ext/napoleon/docstring.py:981
 #, python-format
 msgid "invalid value set (missing opening brace): %s"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:985
+#: sphinx/ext/napoleon/docstring.py:988
 #, python-format
 msgid "malformed string literal (missing closing quote): %s"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:992
+#: sphinx/ext/napoleon/docstring.py:995
 #, python-format
 msgid "malformed string literal (missing opening quote): %s"
 msgstr ""
@@ -3634,40 +3634,40 @@ msgstr "Enlace permanente a la tabla de contenidos"
 msgid "Could not obtain image size. :scale: option is ignored."
 msgstr "No se pudo obtener el tamaño de la imagen. La opción :scale: se ignora."
 
-#: sphinx/writers/latex.py:347
+#: sphinx/writers/latex.py:348
 #, python-format
 msgid "unknown %r toplevel_sectioning for class %r"
 msgstr "desconocida %r toplevel_sectioning para la clase %r"
 
-#: sphinx/writers/latex.py:398
+#: sphinx/writers/latex.py:399
 msgid "too large :maxdepth:, ignored."
 msgstr "demasiado grande :maxdepth:, ignorado."
 
-#: sphinx/writers/latex.py:644
+#: sphinx/writers/latex.py:646
 msgid "document title is not a single Text node"
 msgstr "El título del documento no es un nodo de texto único"
 
-#: sphinx/writers/latex.py:676 sphinx/writers/texinfo.py:626
+#: sphinx/writers/latex.py:678 sphinx/writers/texinfo.py:626
 msgid ""
 "encountered title node not in section, topic, table, admonition or sidebar"
 msgstr "no se encontró el nodo de título en la sección, tema, tabla, advertencia o barra lateral"
 
-#: sphinx/writers/latex.py:846 sphinx/writers/manpage.py:247
+#: sphinx/writers/latex.py:854 sphinx/writers/manpage.py:247
 #: sphinx/writers/texinfo.py:641
 msgid "Footnotes"
 msgstr "Notas a pie de página"
 
-#: sphinx/writers/latex.py:905
+#: sphinx/writers/latex.py:913
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "ambas columnas tabulares y la opción :widths: se dan. La opción :widths: se ignora."
 
-#: sphinx/writers/latex.py:1236
+#: sphinx/writers/latex.py:1244
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
 msgstr "la unidad de dimensión %s no es válida. Ignorado."
 
-#: sphinx/writers/latex.py:1549
+#: sphinx/writers/latex.py:1557
 #, python-format
 msgid "unknown index entry type %s found"
 msgstr "tipo de entrada de índice desconocido %s encontrado"

@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-02-13 00:13+0000\n"
+"POT-Creation-Date: 2022-02-27 00:16+0000\n"
 "PO-Revision-Date: 2022-01-23 00:11+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Hindi (http://www.transifex.com/sphinx-doc/sphinx-1/language/hi/)\n"
@@ -1115,7 +1115,7 @@ msgstr "अनुक्रमणिका"
 msgid "Release"
 msgstr "आवृत्ति"
 
-#: sphinx/builders/latex/__init__.py:211 sphinx/writers/latex.py:382
+#: sphinx/builders/latex/__init__.py:211 sphinx/writers/latex.py:383
 #, python-format
 msgid "no Babel option known for language %r"
 msgstr "%r भाषा के लिए कोई बाबेल विकल्प नहीं "
@@ -1884,7 +1884,7 @@ msgid "%s (C %s)"
 msgstr ""
 
 #: sphinx/domains/c.py:3352 sphinx/domains/cpp.py:7261
-#: sphinx/domains/python.py:445 sphinx/ext/napoleon/docstring.py:736
+#: sphinx/domains/python.py:445 sphinx/ext/napoleon/docstring.py:737
 msgid "Parameters"
 msgstr "मापदण्ड"
 
@@ -2062,7 +2062,7 @@ msgstr ""
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "समीकरण का प्रतिरूप शीर्षक %s, दूसरी प्रतिकृति %s में है "
 
-#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2069
+#: sphinx/domains/math.py:119 sphinx/writers/latex.py:2077
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "अमान्य math_eqref_format: %r"
@@ -3085,58 +3085,58 @@ msgid ""
 "%(default)s)"
 msgstr ""
 
-#: sphinx/ext/napoleon/__init__.py:347 sphinx/ext/napoleon/docstring.py:703
+#: sphinx/ext/napoleon/__init__.py:347 sphinx/ext/napoleon/docstring.py:704
 msgid "Keyword Arguments"
 msgstr "मुख्य शब्दों के चर-पद"
 
-#: sphinx/ext/napoleon/docstring.py:657
+#: sphinx/ext/napoleon/docstring.py:658
 msgid "Example"
 msgstr "उदाहरण"
 
-#: sphinx/ext/napoleon/docstring.py:658
+#: sphinx/ext/napoleon/docstring.py:659
 msgid "Examples"
 msgstr "कुछ उदाहरण"
 
-#: sphinx/ext/napoleon/docstring.py:718
+#: sphinx/ext/napoleon/docstring.py:719
 msgid "Notes"
 msgstr "टिप्पणियाँ"
 
-#: sphinx/ext/napoleon/docstring.py:727
+#: sphinx/ext/napoleon/docstring.py:728
 msgid "Other Parameters"
 msgstr "अन्य मापदण्ड"
 
-#: sphinx/ext/napoleon/docstring.py:763
+#: sphinx/ext/napoleon/docstring.py:764
 msgid "Receives"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:767
+#: sphinx/ext/napoleon/docstring.py:768
 msgid "References"
 msgstr "सन्दर्भ"
 
-#: sphinx/ext/napoleon/docstring.py:799
+#: sphinx/ext/napoleon/docstring.py:800
 msgid "Warns"
 msgstr "चेतावनी देता है"
 
-#: sphinx/ext/napoleon/docstring.py:803
+#: sphinx/ext/napoleon/docstring.py:804
 msgid "Yields"
 msgstr "मिलता है"
 
-#: sphinx/ext/napoleon/docstring.py:971
+#: sphinx/ext/napoleon/docstring.py:974
 #, python-format
 msgid "invalid value set (missing closing brace): %s"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:978
+#: sphinx/ext/napoleon/docstring.py:981
 #, python-format
 msgid "invalid value set (missing opening brace): %s"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:985
+#: sphinx/ext/napoleon/docstring.py:988
 #, python-format
 msgid "malformed string literal (missing closing quote): %s"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:992
+#: sphinx/ext/napoleon/docstring.py:995
 #, python-format
 msgid "malformed string literal (missing opening quote): %s"
 msgstr ""
@@ -3631,40 +3631,40 @@ msgstr "इस विषय-सूची-संरचना की स्था�
 msgid "Could not obtain image size. :scale: option is ignored."
 msgstr "चित्र का आकार नहीं मिल सका. :scale: विकल्प की उपेक्षा की जा रही है."
 
-#: sphinx/writers/latex.py:347
+#: sphinx/writers/latex.py:348
 #, python-format
 msgid "unknown %r toplevel_sectioning for class %r"
 msgstr "अज्ञात %r उच्चतमस्तर_विभाजन #toplevel_sectioning# %r वर्ग के लिए"
 
-#: sphinx/writers/latex.py:398
+#: sphinx/writers/latex.py:399
 msgid "too large :maxdepth:, ignored."
 msgstr "अत्याधिक अधिकतम गहराई # :maxdepth: #, उपेक्षित किया गया."
 
-#: sphinx/writers/latex.py:644
+#: sphinx/writers/latex.py:646
 msgid "document title is not a single Text node"
 msgstr "लेखपत्र का शीर्षक एकल पाठ बिंदु नहीं है"
 
-#: sphinx/writers/latex.py:676 sphinx/writers/texinfo.py:626
+#: sphinx/writers/latex.py:678 sphinx/writers/texinfo.py:626
 msgid ""
 "encountered title node not in section, topic, table, admonition or sidebar"
 msgstr "पाया गया शीर्ष बिंदु किसी भाग, प्रसंग, तालिका, विषय-प्रबोध अथवा पार्श्व-स्थान में नहीं है"
 
-#: sphinx/writers/latex.py:846 sphinx/writers/manpage.py:247
+#: sphinx/writers/latex.py:854 sphinx/writers/manpage.py:247
 #: sphinx/writers/texinfo.py:641
 msgid "Footnotes"
 msgstr "पाद टिप्पणियां"
 
-#: sphinx/writers/latex.py:905
+#: sphinx/writers/latex.py:913
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "दोनों तालिका-स्तंभ और :चौड़ाई: विकल्प दिए गए हैं. :चौड़ाई:  मान की उपेक्षा की जाएगी."
 
-#: sphinx/writers/latex.py:1236
+#: sphinx/writers/latex.py:1244
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
 msgstr "परिमाण मात्रक %s अमान्य है. उपेक्षा की जाएगी."
 
-#: sphinx/writers/latex.py:1549
+#: sphinx/writers/latex.py:1557
 #, python-format
 msgid "unknown index entry type %s found"
 msgstr "अनुक्रमणिका की प्रविष्टि का प्रकार %s मिला"
