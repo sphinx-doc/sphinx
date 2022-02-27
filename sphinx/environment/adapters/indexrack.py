@@ -19,7 +19,7 @@ from sphinx.locale import _, __
 from sphinx.util import logging
 
 # Update separately from the package version, since 2021-11-07
-__version__ = "3.1.20211116"
+__version__ = "3.2.20220227"
 # x.y.YYYYMMDD[.HHMI]
 # - x: changes that need to be addressed by the user.
 # - y: changes that do not require a response from the user.
@@ -65,16 +65,16 @@ class Convert(object):
 
     _type_to_link = {'see': 1, 'seealso': 2, 'uri': 3}
 
-    _main_to_code = {'conf.py': 1, 'rcfile': 2, 'main': 3, '': 4}
-    _code_to_main = {1: 'conf.py', 2: 'rcfile', 3: 'main', 4: ''}
+    _main_to_code = {'main': 1, '': 2}
+    _code_to_main = {1: 'main', 2: ''}
 
-    def type2link(self, link):
+    def _type2link(self, link):
         return self._type_to_link[link]
 
-    def main2code(self, main):
+    def _main2code(self, main):
         return self._main_to_code[main]
 
-    def code2main(self, code):
+    def _code2main(self, code):
         return self._code_to_main[code]
 
 
@@ -249,11 +249,11 @@ class IndexEntry(Convert, Represent, nodes.Element):
 
         def _index_unit(term, sub1, sub2):
             if etype in ('see', 'seealso'):
-                link = self.type2link(etype)
+                link = self._type2link(etype)
             else:
-                link = self.type2link('uri')
+                link = self._type2link('uri')
 
-            emphasis = self.main2code(main)
+            emphasis = self._main2code(main)
 
             if not sub1:
                 sub1 = self.textclass('')
@@ -509,7 +509,7 @@ class IndexRack(Convert, Character, nodes.Element):
             # if it's see/seealso, reset file_name for no uri. see Convert.
             if i_lnk == 3:
                 # Change the code to string.
-                r_main = self.code2main(i_em)
+                r_main = self._code2main(i_em)
 
                 # uri
                 try:
