@@ -238,6 +238,17 @@ var Search = {
       }
     });
 
+    // remove duplicate search results
+    var seen = new Set();
+    results = results.reduce((acc, result) => {
+      let resultStr = result.slice(0, 4).concat([result[5]]).map(v => String(v)).join(',');
+      if (!seen.has(resultStr)) {
+        acc.push(result);
+        seen.add(resultStr);
+      }
+      return acc;
+    }, []);
+
     // for debugging
     //Search.lastresults = results.slice();  // a copy
     //console.info('search results:', Search.lastresults);
