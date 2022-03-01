@@ -239,8 +239,9 @@ var Search = {
     });
 
     // remove duplicate search results
+    // note the reversing of results, so that in the case of duplicates, the highest-scoring entry is kept
     var seen = new Set();
-    results = results.reduce((acc, result) => {
+    results = results.reverse().reduce((acc, result) => {
       let resultStr = result.slice(0, 4).concat([result[5]]).map(v => String(v)).join(',');
       if (!seen.has(resultStr)) {
         acc.push(result);
@@ -248,6 +249,8 @@ var Search = {
       }
       return acc;
     }, []);
+
+    results = results.reverse();
 
     // for debugging
     //Search.lastresults = results.slice();  // a copy
