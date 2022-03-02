@@ -190,7 +190,10 @@ def test_signature_annotations():
 
     # Space around '=' for defaults
     sig = inspect.signature(f7)
-    assert stringify_signature(sig) == '(x: typing.Optional[int] = None, y: dict = {}) -> None'
+    if sys.version_info < (3, 11):
+        assert stringify_signature(sig) == '(x: typing.Optional[int] = None, y: dict = {}) -> None'
+    else:
+        assert stringify_signature(sig) == '(x: int = None, y: dict = {}) -> None'
 
     # Callable types
     sig = inspect.signature(f8)
@@ -261,11 +264,17 @@ def test_signature_annotations():
 
     # show_return_annotation is False
     sig = inspect.signature(f7)
-    assert stringify_signature(sig, show_return_annotation=False) == '(x: typing.Optional[int] = None, y: dict = {})'
+    if sys.version_info < (3, 11):
+        assert stringify_signature(sig, show_return_annotation=False) == '(x: typing.Optional[int] = None, y: dict = {})'
+    else:
+        assert stringify_signature(sig, show_return_annotation=False) == '(x: int = None, y: dict = {})'
 
     # unqualified_typehints is True
     sig = inspect.signature(f7)
-    assert stringify_signature(sig, unqualified_typehints=True) == '(x: ~typing.Optional[int] = None, y: dict = {}) -> None'
+    if sys.version_info < (3, 11):
+        assert stringify_signature(sig, unqualified_typehints=True) == '(x: ~typing.Optional[int] = None, y: dict = {}) -> None'
+    else:
+        assert stringify_signature(sig, unqualified_typehints=True) == '(x: int = None, y: dict = {}) -> None'
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')

@@ -1192,6 +1192,7 @@ def test_latex_table_tabulars(app, status, warning):
     tables = {}
     for chap in re.split(r'\\(?:section|chapter){', result)[1:]:
         sectname, content = chap.split('}', 1)
+        content = re.sub(r'\\sphinxstepscope', '', content)  # filter a separator
         tables[sectname] = content.strip()
 
     def get_expected(name):
@@ -1261,6 +1262,7 @@ def test_latex_table_longtable(app, status, warning):
     tables = {}
     for chap in re.split(r'\\(?:section|chapter){', result)[1:]:
         sectname, content = chap.split('}', 1)
+        content = re.sub(r'\\sphinxstepscope', '', content)  # filter a separator
         tables[sectname] = content.strip()
 
     def get_expected(name):
