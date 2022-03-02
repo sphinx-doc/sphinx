@@ -599,6 +599,11 @@ def test_mocked_module_imports(app, warning):
 @pytest.mark.sphinx('html', testroot='ext-autodoc',
                     confoverrides={'autodoc_typehints': "signature"})
 def test_autodoc_typehints_signature(app):
+    if sys.version_info < (3, 11):
+        type_o = "typing.Optional[typing.Any]"
+    else:
+        type_o = "typing.Any"
+
     options = {"members": None,
                "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.typehints', options)
@@ -612,7 +617,7 @@ def test_autodoc_typehints_signature(app):
         '   :type: int',
         '',
         '',
-        '.. py:class:: Math(s: str, o: typing.Optional[typing.Any] = None)',
+        '.. py:class:: Math(s: str, o: %s = None)' % type_o,
         '   :module: target.typehints',
         '',
         '',
@@ -1146,6 +1151,11 @@ def test_autodoc_typehints_description_and_type_aliases(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc',
                     confoverrides={'autodoc_typehints_format': "short"})
 def test_autodoc_typehints_format_short(app):
+    if sys.version_info < (3, 11):
+        type_o = "~typing.Optional[~typing.Any]"
+    else:
+        type_o = "~typing.Any"
+
     options = {"members": None,
                "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.typehints', options)
@@ -1159,7 +1169,7 @@ def test_autodoc_typehints_format_short(app):
         '   :type: int',
         '',
         '',
-        '.. py:class:: Math(s: str, o: ~typing.Optional[~typing.Any] = None)',
+        '.. py:class:: Math(s: str, o: %s = None)' % type_o,
         '   :module: target.typehints',
         '',
         '',
