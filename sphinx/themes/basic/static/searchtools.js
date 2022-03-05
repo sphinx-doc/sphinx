@@ -167,8 +167,9 @@ const Search = {
   setIndex: (index) => {
     Search._index = index;
     if (Search._queued_query !== null) {
+      const query = Search._queued_query;
       Search._queued_query = null;
-      Search.query(Search._queued_query);
+      Search.query(query);
     }
   },
 

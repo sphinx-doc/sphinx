@@ -57,7 +57,7 @@ Notice several things:
 - Sphinx parsed the argument of the ``.. py:function`` directive and
   highlighted the module, the function name, and the parameters appropriately.
 - The directive content includes a one-line description of the function,
-  as well as a :ref:`info field list <info-field-lists>` containing the function
+  as well as an :ref:`info field list <info-field-lists>` containing the function
   parameter, its expected type, the return value, and the return type.
 
 .. note::

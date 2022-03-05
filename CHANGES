@@ -107,6 +107,12 @@ Bugs fixed
   unhashable object
 * #9529: LaTeX: named auto numbered footnote (ex. ``[#named]``) that is referred
   multiple times was rendered to a question mark
+* #9924: LaTeX: multi-line :rst:dir:`cpp:function` directive has big vertical
+  spacing in Latexpdf
+* #10158: LaTeX: excessive whitespace since v4.4.0 for undocumented
+  variables/structure members 
+* #10175: LaTeX: named footnote reference is linked to an incorrect footnote if
+  the name is also used in the different document
 * #10181: napoleon: attributes are displayed like class attributes for google
   style docstrings when :confval:`napoleon_use_ivar` is enabled
 * #10122: sphinx-build: make.bat does not check the installation of sphinx-build
