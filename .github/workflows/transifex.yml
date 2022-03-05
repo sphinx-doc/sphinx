@@ -7,6 +7,7 @@ on:
 
 jobs:
   push:
+    if: github.repository_owner == 'sphinx-doc'
     runs-on: ubuntu-latest
 
     steps:
@@ -27,6 +28,7 @@ jobs:
         TX_TOKEN: ${{ secrets.TX_TOKEN }}
 
   pull:
+    if: github.repository_owner == 'sphinx-doc'
     runs-on: ubuntu-latest
 
     steps:
