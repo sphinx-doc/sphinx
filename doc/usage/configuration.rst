@@ -368,7 +368,7 @@ General configuration
 
       Added ``toc.excluded`` and ``toc.not_readable``
 
-   .. versionadded:: 4.4
+   .. versionadded:: 4.5
 
       Added ``i18n.inconsistent_references``
 
