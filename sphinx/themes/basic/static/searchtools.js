@@ -209,9 +209,8 @@ const Search = {
     Search.status = out.appendChild(searchSummary);
     Search.output = out.appendChild(searchList);
 
-    document.getElementById("search-progress").innerText = _(
-      "Preparing search..."
-    );
+    let searchProgress = document.getElementById("search-progress");
+    if (searchProgress !== null) searchProgress.innerText = _("Preparing search...");
     Search.startPulse();
 
     // index already loaded, the browser was quick!
@@ -263,7 +262,8 @@ const Search = {
 
     // array of [docname, title, anchor, descr, score, filename]
     let results = [];
-    _removeChildren(document.getElementById("search-progress"));
+    let searchProgress = document.getElementById("search-progress");
+    if (searchProgress !== null) _removeChildren(searchProgress);
 
     // lookup as object
     objectTerms.forEach((term) =>
