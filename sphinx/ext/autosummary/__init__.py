@@ -417,7 +417,7 @@ class Autosummary(SphinxDirective):
         table_spec['spec'] = r'\X{1}{2}\X{1}{2}'
 
         table = autosummary_table('')
-        real_table = nodes.table('', classes=['longtable'])
+        real_table = nodes.table('', classes=['autosummary longtable'])
         table.append(real_table)
         group = nodes.tgroup('', cols=2)
         real_table.append(group)
