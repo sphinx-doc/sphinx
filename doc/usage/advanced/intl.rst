@@ -82,7 +82,7 @@ this::
 text.  This does not apply to code blocks, where ``#noqa`` is ignored
 because code blocks do not contain references anyway.)
 
-.. versionadded:: 4.4
+.. versionadded:: 4.5
    The ``#noqa`` mechanism.
 
 
