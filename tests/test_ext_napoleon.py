@@ -1,6 +1,4 @@
-"""Tests for :mod:`sphinx.ext.napoleon.__init__` module.
-
-"""
+"""Tests for :mod:`sphinx.ext.napoleon.__init__` module."""
 
 import sys
 from collections import namedtuple

@@ -1,8 +1,4 @@
-"""
-
-Classes for docstring parsing and formatting.
-
-"""
+"""Classes for docstring parsing and formatting."""
 
 import collections
 import inspect

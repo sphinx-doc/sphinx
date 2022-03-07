@@ -1,6 +1,4 @@
-"""Tests for :mod:`sphinx.ext.napoleon.iterators` module.
-
-"""
+"""Tests for :mod:`sphinx.ext.napoleon.iterators` module."""
 
 from unittest import TestCase
 

@@ -1,6 +1,4 @@
-"""Tests for :mod:`sphinx.ext.napoleon.docstring` module.
-
-"""
+"""Tests for :mod:`sphinx.ext.napoleon.docstring` module."""
 
 import re
 import sys

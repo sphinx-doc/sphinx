@@ -1,8 +1,4 @@
-"""
-
-A collection of helpful iterators.
-
-"""
+"""A collection of helpful iterators."""
 
 import collections
 from typing import Any, Iterable, Optional
