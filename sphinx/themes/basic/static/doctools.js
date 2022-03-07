@@ -239,7 +239,7 @@ const Documentation = {
             if (!DOCUMENTATION_OPTIONS.NAVIGATION_WITH_KEYS)
               break;
 
-            const nextLink = document.querySelector('link[rel="next"]').href;
+            const nextLink = document.querySelector('link[rel="next"]');
             if (nextLink && nextLink.href) {
               window.location.href = nextLink.href;
               return false;
