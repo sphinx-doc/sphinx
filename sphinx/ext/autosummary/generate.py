@@ -29,6 +29,7 @@ import warnings
 from gettext import NullTranslations
 from os import path
 from typing import Any, Dict, List, NamedTuple, Sequence, Set, Tuple, Type, Union
+from collections.abc import Mapping
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -192,7 +193,7 @@ class ModuleScanner:
                            name, exc, type='autosummary')
             return False
 
-    def scan(self, imported_members: bool) -> List[str]:
+    def scan(self, imported_members: bool, attr_docs: Mapping[str,str] = {}) -> List[str]:
         members = []
         for name in members_of(self.object, self.app.config):
             try:
@@ -208,7 +209,7 @@ class ModuleScanner:
                 if inspect.ismodule(value):
                     imported = True
                 elif safe_getattr(value, '__module__') != self.object.__name__:
-                    imported = True
+                    imported = objtype != 'data' or ('', name) not in attr_docs
                 else:
                     imported = False
             except AttributeError:
@@ -305,8 +306,6 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         """Find module attributes with docstrings."""
         attrs, public = [], []
         try:
-            analyzer = ModuleAnalyzer.for_module(name)
-            attr_docs = analyzer.find_attr_docs()
             for namespace, attr_name in attr_docs:
                 if namespace == '' and attr_name in members:
                     attrs.append(attr_name)
@@ -335,8 +334,10 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
     ns.update(context)
 
     if doc.objtype == 'module':
+        analyzer = ModuleAnalyzer.for_module(name)
+        attr_docs = analyzer.find_attr_docs()
         scanner = ModuleScanner(app, obj)
-        ns['members'] = scanner.scan(imported_members)
+        ns['members'] = scanner.scan(imported_members, attr_docs)
         ns['functions'], ns['all_functions'] = \
             get_members(obj, {'function'}, imported=imported_members)
         ns['classes'], ns['all_classes'] = \
