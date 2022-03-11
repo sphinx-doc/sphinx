@@ -846,9 +846,9 @@ def test_domain_cpp_ast_templates():
     check('class', 'abc::ns::foo{{id_0, id_1, ...id_2}} {key}xyz::bar',
           {2: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barE'})
     check('class', 'abc::ns::foo{{id_0, id_1, id_2}} {key}xyz::bar<id_0, id_1, id_2>',
-          {2: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barI4id_04id_14id_2EE'})
+          {2: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barE'})
     check('class', 'abc::ns::foo{{id_0, id_1, ...id_2}} {key}xyz::bar<id_0, id_1, id_2...>',
-          {2: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barI4id_04id_1Dp4id_2EE'})
+          {2: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barE'})
 
     check('class', 'template<> Concept{{U}} {key}A<int>::B', {2: 'IEI0EX7ConceptI1UEEN1AIiE1BE'})
 
@@ -1367,3 +1367,89 @@ def test_domain_cpp_parse_mix_decl_duplicate(app, warning):
     assert "index.rst:3: WARNING: Duplicate C++ declaration, also defined at index:1." in ws[2]
     assert "Declaration is '.. cpp:struct:: A'." in ws[3]
     assert ws[4] == ""
+
+
+# For some reason, using the default testroot of "root" leads to the contents of
+# `test-root/objects.txt` polluting the symbol table depending on the test
+# execution order.  Using a testroot of "config" seems to avoid that problem.
+@pytest.mark.sphinx(testroot='config')
+def test_domain_cpp_normalize_unspecialized_template_args(make_app, app_params):
+    args, kwargs = app_params
+
+    text1 = (".. cpp:class:: template <typename T> A\n")
+    text2 = (".. cpp:class:: template <typename T> template <typename U> A<T>::B\n")
+
+    app1 = make_app(*args, **kwargs)
+    restructuredtext.parse(app=app1, text=text1, docname='text1')
+    root1 = app1.env.domaindata['cpp']['root_symbol']
+
+    assert root1.dump(1) == (
+        '  ::\n'
+        '    template<typename T> \n'
+        '    A: template<typename T> A\t(text1)\n'
+        '      T: typename T\t(text1)\n'
+    )
+
+    app2 = make_app(*args, **kwargs)
+    restructuredtext.parse(app=app2, text=text2, docname='text2')
+    root2 = app2.env.domaindata['cpp']['root_symbol']
+
+    assert root2.dump(1) == (
+        '  ::\n'
+        '    template<typename T> \n'
+        '    A\n'
+        '      T\n'
+        '      template<typename U> \n'
+        '      B: template<typename T> template<typename U> A<T>::B\t(text2)\n'
+        '        U: typename U\t(text2)\n'
+    )
+
+    root2.merge_with(root1, ['text1'], app2.env)
+
+    assert root2.dump(1) == (
+        '  ::\n'
+        '    template<typename T> \n'
+        '    A: template<typename T> A\t(text1)\n'
+        '      T: typename T\t(text1)\n'
+        '      template<typename U> \n'
+        '      B: template<typename T> template<typename U> A<T>::B\t(text2)\n'
+        '        U: typename U\t(text2)\n'
+    )
+    warning = app2._warning.getvalue()
+    assert 'Internal C++ domain error during symbol merging' not in warning
+
+
+def parse_template_parameter(param: str):
+    ast = parse('type', 'template<' + param + '> X')
+    return ast.templatePrefix.templates[0].params[0]
+
+
+@pytest.mark.parametrize(
+    'param,is_pack',
+    [('typename', False),
+     ('typename T', False),
+     ('typename...', True),
+     ('typename... T', True),
+     ('int', False),
+     ('int N', False),
+     ('int* N', False),
+     ('int& N', False),
+     ('int&... N', True),
+     ('int*... N', True),
+     ('int...', True),
+     ('int... N', True),
+     ('auto', False),
+     ('auto...', True),
+     ('int X::*', False),
+     ('int X::*...', True),
+     ('int (X::*)(bool)', False),
+     ('int (X::*x)(bool)', False),
+     # TODO: the following two declarations cannot currently be parsed
+     # ('int (X::*)(bool)...', True),
+     # ('int (X::*x...)(bool)', True),
+     ('template<typename> class', False),
+     ('template<typename> class...', True),
+     ])
+def test_domain_cpp_template_parameters_is_pack(param: str, is_pack: bool):
+    ast = parse_template_parameter(param)
+    assert ast.isPack == is_pack
