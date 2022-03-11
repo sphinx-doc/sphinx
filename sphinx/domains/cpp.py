@@ -3373,7 +3373,7 @@ class ASTUnion(ASTBase):
     def __init__(self, name: ASTNestedName,
                  attrs: List[ASTAttribute]) -> None:
         self.name = name
-        self.attrs = attrs or []
+        self.attrs = attrs
 
     def get_id(self, version: int, objectType: str, symbol: "Symbol") -> str:
         if version == 1:
