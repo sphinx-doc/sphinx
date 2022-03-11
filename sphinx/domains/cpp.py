@@ -3321,7 +3321,7 @@ class ASTBaseClass(ASTBase):
 
 class ASTClass(ASTBase):
     def __init__(self, name: ASTNestedName, final: bool, bases: List[ASTBaseClass],
-                 attrs: Optional[List[ASTAttribute]] = None) -> None:
+                 attrs: List[ASTAttribute]) -> None:
         self.name = name
         self.final = final
         self.bases = bases
