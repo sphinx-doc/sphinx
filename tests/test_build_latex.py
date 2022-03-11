@@ -1628,3 +1628,30 @@ def test_latex_container(app, status, warning):
     result = (app.outdir / 'python.tex').read_text()
     assert r'\begin{sphinxuseclass}{classname}' in result
     assert r'\end{sphinxuseclass}' in result
+
+
+@pytest.mark.sphinx('latex', testroot='reST-code-role')
+def test_latex_code_role(app):
+    app.build()
+    content = (app.outdir / 'python.tex').read_text()
+
+    common_content = (
+        r'\PYG{k}{def} '
+        r'\PYG{n+nf}{foo}'
+        r'\PYG{p}{(}'
+        r'\PYG{l+m+mi}{1} '
+        r'\PYG{o}{+} '
+        r'\PYG{l+m+mi}{2} '
+        r'\PYG{o}{+} '
+        r'\PYG{k+kc}{None} '
+        r'\PYG{o}{+} '
+        r'\PYG{l+s+s2}{\PYGZdq{}}'
+        r'\PYG{l+s+s2}{abc}'
+        r'\PYG{l+s+s2}{\PYGZdq{}}'
+        r'\PYG{p}{)}'
+        r'\PYG{p}{:} '
+        r'\PYG{k}{pass}')
+    assert (r'Inline \sphinxcode{\sphinxupquote{' + '\n' +
+            common_content + '\n}} code block') in content
+    assert (r'\begin{sphinxVerbatim}[commandchars=\\\{\}]' +
+            '\n' + common_content + '\n' + r'\end{sphinxVerbatim}') in content

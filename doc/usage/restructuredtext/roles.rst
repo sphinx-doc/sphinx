@@ -276,6 +276,34 @@ The following role creates a cross-reference to a term in a
    If you use a term that's not explained in a glossary, you'll get a warning
    during build.
 
+Inline code highlighting
+------------------------
+
+.. rst:role:: code
+
+   An *inline* code example.  When used directly, this role just displays the
+   text *without* syntax highlighting, as a literal.
+
+   .. code-block:: rst
+
+      By default, inline code such as :code:`1 + 2` just displays without
+      highlighting.
+
+   Unlike the :rst:dir:`code-block` directive, this role does not respect the
+   default language set by the :rst:dir:`highlight` directive.
+
+   To enable syntax highlighting, you must first use the ``role`` directive to
+   define a custom ``code`` role for a particular language:
+
+   .. code-block:: rst
+
+      .. role:: python(code)
+         :language: python
+
+      In Python, :python:`1 + 2` is equal to :python:`3`.
+
+   To display a multi-line code example, use the :rst:dir:`code-block` directive
+   instead.
 
 Math
 ----

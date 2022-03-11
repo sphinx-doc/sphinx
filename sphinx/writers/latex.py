@@ -1747,10 +1747,27 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_literal(self, node: Element) -> None:
         if self.in_title:
             self.body.append(r'\sphinxstyleliteralintitle{\sphinxupquote{')
+            return
         elif 'kbd' in node['classes']:
             self.body.append(r'\sphinxkeyboard{\sphinxupquote{')
-        else:
+            return
+        lang = node.get("language", None)
+        if 'code' not in node['classes'] or not lang:
             self.body.append(r'\sphinxcode{\sphinxupquote{')
+            return
+
+        opts = self.config.highlight_options.get(lang, {})
+        hlcode = self.highlighter.highlight_block(
+            node.astext(), lang, opts=opts, location=node)
+        # TODO: Use nowrap option once LaTeX formatter supports it
+        # https://github.com/pygments/pygments/pull/1343
+        hlcode = hlcode.replace(r'\begin{Verbatim}[commandchars=\\\{\}]',
+                                r'\sphinxcode{\sphinxupquote{')
+        # get consistent trailer
+        hlcode = hlcode.rstrip()[:-14]  # strip \end{Verbatim}
+        self.body.append(hlcode)
+        self.body.append('}}')
+        raise nodes.SkipNode
 
     def depart_literal(self, node: Element) -> None:
         self.body.append('}}')
