@@ -135,9 +135,9 @@ class ASTCPPAttribute(ASTAttribute):
         return "[[" + self.arg + "]]"
 
     def describe_signature(self, signode: TextElement) -> None:
-        signode.append(sphinx.addnodes.desc_sig_punctuation('[[', '[['))
-        signode.append(sphinx.addnodes.desc_sig_keyword(self.arg, self.arg))
-        signode.append(sphinx.addnodes.desc_sig_punctuation(']]', ']]'))
+        signode.append(addnodes.desc_sig_punctuation('[[', '[['))
+        signode.append(nodes.Text(self.arg, self.arg))
+        signode.append(addnodes.desc_sig_punctuation(']]', ']]'))
 
 
 class ASTGnuAttribute(ASTBaseBase):
