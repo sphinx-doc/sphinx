@@ -15,6 +15,7 @@ from typing import Any, Callable, List, Match, Optional, Pattern, Tuple, Union
 from docutils import nodes
 from docutils.nodes import TextElement
 
+import sphinx.addnodes
 from sphinx.config import Config
 from sphinx.util import logging
 
@@ -134,8 +135,9 @@ class ASTCPPAttribute(ASTAttribute):
         return "[[" + self.arg + "]]"
 
     def describe_signature(self, signode: TextElement) -> None:
-        txt = str(self)
-        signode.append(nodes.Text(txt, txt))
+        signode.append(sphinx.addnodes.desc_sig_punctuation('[[', '[['))
+        signode.append(sphinx.addnodes.desc_sig_keyword(self.arg, self.arg))
+        signode.append(sphinx.addnodes.desc_sig_punctuation(']]', ']]'))
 
 
 class ASTGnuAttribute(ASTBaseBase):
