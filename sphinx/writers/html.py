@@ -75,9 +75,15 @@ class HTMLWriter(Writer):
         self.clean_meta = ''.join(self.visitor.meta[2:])
 
 
-class HTMLTranslator(SphinxTranslator, BaseTranslator):
+if TYPE_CHECKING:
+    _MIXIN_BASE = BaseTranslator
+else:
+    _MIXIN_BASE = object
+
+
+class HTMLTranslatorCommonMixin(SphinxTranslator, _MIXIN_BASE):
     """
-    Our custom HTML translator.
+    Overrides that are common to both HTMLTranslator and HTML5Translator.
     """
 
     builder: "StandaloneHTMLBuilder" = None
@@ -204,7 +210,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         if self.optional_param_level == 0:
             self.required_params_left -= 1
         if not node.hasattr('noemph'):
-            self.body.append('<em>')
+            self.body.append('<em class="sig-param">')
 
     def depart_desc_parameter(self, node: Element) -> None:
         if not node.hasattr('noemph'):
@@ -347,32 +353,12 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
             self.body.append(format % (node['ids'][0], title,
                                        self.config.html_permalinks_icon))
 
-    def generate_targets_for_listing(self, node: Element) -> None:
-        """Generate hyperlink targets for listings.
-
-        Original visit_bullet_list(), visit_definition_list() and visit_enumerated_list()
-        generates hyperlink targets inside listing tags (<ul>, <ol> and <dl>) if multiple
-        IDs are assigned to listings.  That is invalid DOM structure.
-        (This is a bug of docutils <= 0.12)
-
-        This exports hyperlink targets before listings to make valid DOM structure.
-        """
-        for id in node['ids'][1:]:
-            self.body.append('<span id="%s"></span>' % id)
-            node['ids'].remove(id)
-
     # overwritten
     def visit_bullet_list(self, node: Element) -> None:
         if len(node) == 1 and isinstance(node[0], addnodes.toctree):
             # avoid emitting empty <ul></ul>
             raise nodes.SkipNode
-        self.generate_targets_for_listing(node)
         super().visit_bullet_list(node)
-
-    # overwritten
-    def visit_enumerated_list(self, node: Element) -> None:
-        self.generate_targets_for_listing(node)
-        super().visit_enumerated_list(node)
 
     # overwritten
     def visit_definition(self, node: Element) -> None:
@@ -559,17 +545,6 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
     def depart_centered(self, node: Element) -> None:
         self.body.append('</strong></p>')
 
-    # overwritten
-    def should_be_compact_paragraph(self, node: Node) -> bool:
-        """Determine if the <p> tags around paragraph can be omitted."""
-        if isinstance(node.parent, addnodes.desc_content):
-            # Never compact desc_content items.
-            return False
-        if isinstance(node.parent, addnodes.versionmodified):
-            # Never compact versionmodified nodes.
-            return False
-        return super().should_be_compact_paragraph(node)
-
     def visit_compact_paragraph(self, node: Element) -> None:
         pass
 
@@ -690,10 +665,6 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
 
     def depart_hlistcol(self, node: Element) -> None:
         self.body.append('</td>')
-
-    def visit_option_group(self, node: Element) -> None:
-        super().visit_option_group(node)
-        self.context[-2] = self.context[-2].replace('&nbsp;', '&#160;')
 
     # overwritten
     def visit_Text(self, node: Text) -> None:
@@ -826,11 +797,6 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         self.body.append(self.starttag(node, 'tr', ''))
         node.column = 0  # type: ignore
 
-    def visit_entry(self, node: Element) -> None:
-        super().visit_entry(node)
-        if self.body[-1] == '&nbsp;':
-            self.body[-1] = '&#160;'
-
     def visit_field_list(self, node: Element) -> None:
         self._fieldlist_row_indices.append(0)
         return super().visit_field_list(node)
@@ -838,20 +804,6 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
     def depart_field_list(self, node: Element) -> None:
         self._fieldlist_row_indices.pop()
         return super().depart_field_list(node)
-
-    def visit_field(self, node: Element) -> None:
-        self._fieldlist_row_indices[-1] += 1
-        if self._fieldlist_row_indices[-1] % 2 == 0:
-            node['classes'].append('field-even')
-        else:
-            node['classes'].append('field-odd')
-        self.body.append(self.starttag(node, 'tr', '', CLASS='field'))
-
-    def visit_field_name(self, node: Element) -> None:
-        context_count = len(self.context)
-        super().visit_field_name(node)
-        if context_count != len(self.context):
-            self.context[-1] = self.context[-1].replace('&nbsp;', '&#160;')
 
     def visit_math(self, node: Element, math_env: str = '') -> None:
         name = self.builder.math_renderer_name
@@ -892,3 +844,43 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         warnings.warn('_table_row_index is deprecated',
                       RemovedInSphinx60Warning, stacklevel=2)
         return self._table_row_indices[-1]
+
+
+class HTMLTranslator(HTMLTranslatorCommonMixin, BaseTranslator):
+    """
+    Our custom HTML translator.
+    """
+
+    # overwritten
+    def should_be_compact_paragraph(self, node: Node) -> bool:
+        """Determine if the <p> tags around paragraph can be omitted."""
+        if isinstance(node.parent, addnodes.desc_content):
+            # Never compact desc_content items.
+            return False
+        if isinstance(node.parent, addnodes.versionmodified):
+            # Never compact versionmodified nodes.
+            return False
+        return super().should_be_compact_paragraph(node)
+
+    def visit_option_group(self, node: Element) -> None:
+        super().visit_option_group(node)
+        self.context[-2] = self.context[-2].replace('&nbsp;', '&#160;')
+
+    def visit_entry(self, node: Element) -> None:
+        super().visit_entry(node)
+        if self.body[-1] == '&nbsp;':
+            self.body[-1] = '&#160;'
+
+    def visit_field(self, node: Element) -> None:
+        self._fieldlist_row_indices[-1] += 1
+        if self._fieldlist_row_indices[-1] % 2 == 0:
+            node['classes'].append('field-even')
+        else:
+            node['classes'].append('field-odd')
+        self.body.append(self.starttag(node, 'tr', '', CLASS='field'))
+
+    def visit_field_name(self, node: Element) -> None:
+        context_count = len(self.context)
+        super().visit_field_name(node)
+        if context_count != len(self.context):
+            self.context[-1] = self.context[-1].replace('&nbsp;', '&#160;')
