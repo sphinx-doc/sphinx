@@ -998,8 +998,7 @@ def test_domain_cpp_ast_attributes():
 
     # position: class
     check('class', '{key}[[nodiscard]] Foo', {1: 'Foo', 2: '3Foo'}, key='class')
-    check('union', '{key}[[nodiscard]] Foo', {1: None, 2: '3Foo', 3: '3Foo', 4: '3Foo'},
-          key='union')
+    check('union', '{key}[[nodiscard]] Foo', {1: None, 2: '3Foo'}, key='union')
     # position: enum
     check('enum', '{key}[[nodiscard]] Foo', {1: None, 2: '3Foo', 3: '3Foo', 4: '3Foo'},
           key='enum')
