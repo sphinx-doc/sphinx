@@ -3325,7 +3325,7 @@ class ASTClass(ASTBase):
         self.name = name
         self.final = final
         self.bases = bases
-        self.attrs = attrs or []
+        self.attrs = attrs
 
     def get_id(self, version: int, objectType: str, symbol: "Symbol") -> str:
         return symbol.get_full_nested_name().get_id(version)
