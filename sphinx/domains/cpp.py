@@ -2605,6 +2605,10 @@ class ASTDeclaratorPtr(ASTDeclarator):
         self.next.name = name
 
     @property
+    def isPack(self) -> bool:
+        return self.next.isPack
+
+    @property
     def function_params(self) -> List[ASTFunctionParameter]:
         return self.next.function_params
 
@@ -2707,7 +2711,7 @@ class ASTDeclaratorRef(ASTDeclarator):
 
     @property
     def isPack(self) -> bool:
-        return True
+        return self.next.isPack
 
     @property
     def function_params(self) -> List[ASTFunctionParameter]:
@@ -2779,6 +2783,10 @@ class ASTDeclaratorParamPack(ASTDeclarator):
     def trailingReturn(self) -> "ASTType":
         return self.next.trailingReturn
 
+    @property
+    def isPack(self) -> bool:
+        return True
+
     def require_space_after_declSpecs(self) -> bool:
         return False
 
@@ -2834,6 +2842,10 @@ class ASTDeclaratorMemPtr(ASTDeclarator):
     @name.setter
     def name(self, name: ASTNestedName) -> None:
         self.next.name = name
+
+    @property
+    def isPack(self):
+        return self.next.isPack
 
     @property
     def function_params(self) -> List[ASTFunctionParameter]:
@@ -2931,6 +2943,10 @@ class ASTDeclaratorParen(ASTDeclarator):
     @name.setter
     def name(self, name: ASTNestedName) -> None:
         self.inner.name = name
+
+    @property
+    def isPack(self):
+        return self.inner.isPack or self.next.isPack
 
     @property
     def function_params(self) -> List[ASTFunctionParameter]:
@@ -3508,6 +3524,14 @@ class ASTTemplateParam(ASTBase):
 
     def describe_signature(self, parentNode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
+        raise NotImplementedError(repr(self))
+
+    @property
+    def isPack(self) -> bool:
+        raise NotImplementedError(repr(self))
+
+    @property
+    def name(self) -> ASTNestedName:
         raise NotImplementedError(repr(self))
 
 
@@ -4129,6 +4153,31 @@ class LookupKey:
         self.data = data
 
 
+def _is_specialization(templateParams: Union[ASTTemplateParams, ASTTemplateIntroduction],
+                       templateArgs: ASTTemplateArgs) -> bool:
+    """Checks if `templateArgs` does not exactly match `templateParams`."""
+    # the names of the template parameters must be given exactly as args
+    # and params that are packs must in the args be the name expanded
+    if len(templateParams.params) != len(templateArgs.args):
+        return True
+    # having no template params and no arguments is also a specialization
+    if len(templateParams.params) == 0:
+        return True
+    for i in range(len(templateParams.params)):
+        param = templateParams.params[i]
+        arg = templateArgs.args[i]
+        # TODO: doing this by string manipulation is probably not the most efficient
+        paramName = str(param.name)
+        argTxt = str(arg)
+        isArgPackExpansion = argTxt.endswith('...')
+        if param.isPack != isArgPackExpansion:
+            return True
+        argName = argTxt[:-3] if isArgPackExpansion else argTxt
+        if paramName != argName:
+            return True
+    return False
+
+
 class Symbol:
     debug_indent = 0
     debug_indent_string = "  "
@@ -4177,6 +4226,16 @@ class Symbol:
         self.siblingAbove: Symbol = None
         self.siblingBelow: Symbol = None
         self.identOrOp = identOrOp
+        # Ensure the same symbol for `A` is created for:
+        #
+        #     .. cpp:class:: template <typename T> class A
+        #
+        # and
+        #
+        #     .. cpp:function:: template <typename T> int A<T>::foo()
+        if (templateArgs is not None and
+                not _is_specialization(templateParams, templateArgs)):
+            templateArgs = None
         self.templateParams = templateParams  # template<templateParams>
         self.templateArgs = templateArgs  # identifier<templateArgs>
         self.declaration = declaration
@@ -4357,33 +4416,12 @@ class Symbol:
             Symbol.debug_print("correctPrimaryTemplateAargs:", correctPrimaryTemplateArgs)
             Symbol.debug_print("searchInSiblings:           ", searchInSiblings)
 
-        def isSpecialization() -> bool:
-            # the names of the template parameters must be given exactly as args
-            # and params that are packs must in the args be the name expanded
-            if len(templateParams.params) != len(templateArgs.args):
-                return True
-            # having no template params and no arguments is also a specialization
-            if len(templateParams.params) == 0:
-                return True
-            for i in range(len(templateParams.params)):
-                param = templateParams.params[i]
-                arg = templateArgs.args[i]
-                # TODO: doing this by string manipulation is probably not the most efficient
-                paramName = str(param.name)
-                argTxt = str(arg)
-                isArgPackExpansion = argTxt.endswith('...')
-                if param.isPack != isArgPackExpansion:
-                    return True
-                argName = argTxt[:-3] if isArgPackExpansion else argTxt
-                if paramName != argName:
-                    return True
-            return False
         if correctPrimaryTemplateArgs:
             if templateParams is not None and templateArgs is not None:
                 # If both are given, but it's not a specialization, then do lookup as if
                 # there is no argument list.
                 # For example: template<typename T> int A<T>::var;
-                if not isSpecialization():
+                if not _is_specialization(templateParams, templateArgs):
                     templateArgs = None
 
         def matches(s: "Symbol") -> bool:
@@ -4839,14 +4877,23 @@ class Symbol:
                                  ourChild.declaration.directiveType, name)
                     logger.warning(msg, location=(otherChild.docname, otherChild.line))
                 else:
-                    # Both have declarations, and in the same docname.
-                    # This can apparently happen, it should be safe to
-                    # just ignore it, right?
-                    # Hmm, only on duplicate declarations, right?
-                    msg = "Internal C++ domain error during symbol merging.\n"
-                    msg += "ourChild:\n" + ourChild.to_string(1)
-                    msg += "\notherChild:\n" + otherChild.to_string(1)
-                    logger.warning(msg, location=otherChild.docname)
+                    if (otherChild.declaration.objectType ==
+                            ourChild.declaration.objectType and
+                            otherChild.declaration.objectType in
+                            ('templateParam', 'functionParam')):
+                        # `ourChild` was presumably just created during mergging
+                        # by the call to `_fill_empty` on the parent and can be
+                        # ignored.
+                        pass
+                    else:
+                        # Both have declarations, and in the same docname.
+                        # This can apparently happen, it should be safe to
+                        # just ignore it, right?
+                        # Hmm, only on duplicate declarations, right?
+                        msg = "Internal C++ domain error during symbol merging.\n"
+                        msg += "ourChild:\n" + ourChild.to_string(1)
+                        msg += "\notherChild:\n" + otherChild.to_string(1)
+                        logger.warning(msg, location=otherChild.docname)
             ourChild.merge_with(otherChild, docnames, env)
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 2
