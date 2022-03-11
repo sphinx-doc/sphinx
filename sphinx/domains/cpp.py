@@ -3403,7 +3403,7 @@ class ASTEnum(ASTBase):
         self.name = name
         self.scoped = scoped
         self.underlyingType = underlyingType
-        self.attrs = attrs or []
+        self.attrs = attrs
 
     def get_id(self, version: int, objectType: str, symbol: "Symbol") -> str:
         if version == 1:
