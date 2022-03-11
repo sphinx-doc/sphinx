@@ -3371,7 +3371,7 @@ class ASTClass(ASTBase):
 
 class ASTUnion(ASTBase):
     def __init__(self, name: ASTNestedName,
-                 attrs: Optional[List[ASTAttribute]] = None) -> None:
+                 attrs: List[ASTAttribute]) -> None:
         self.name = name
         self.attrs = attrs or []
 
