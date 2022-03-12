@@ -996,10 +996,9 @@ def test_domain_cpp_ast_attributes():
     # position: parameters and qualifiers
     check('function', 'void f() [[attr1]] [[attr2]]', {1: 'f', 2: '1fv'})
 
-    # position: class
+    # position: class, union, enum
     check('class', '{key}[[nodiscard]] Foo', {1: 'Foo', 2: '3Foo'}, key='class')
     check('union', '{key}[[nodiscard]] Foo', {1: None, 2: '3Foo'}, key='union')
-    # position: enum
     check('enum', '{key}[[nodiscard]] Foo', {1: None, 2: '3Foo'}, key='enum')
 
 

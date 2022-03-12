@@ -3370,8 +3370,7 @@ class ASTClass(ASTBase):
 
 
 class ASTUnion(ASTBase):
-    def __init__(self, name: ASTNestedName,
-                 attrs: List[ASTAttribute]) -> None:
+    def __init__(self, name: ASTNestedName, attrs: List[ASTAttribute]) -> None:
         self.name = name
         self.attrs = attrs
 
@@ -3397,8 +3396,7 @@ class ASTUnion(ASTBase):
 
 
 class ASTEnum(ASTBase):
-    def __init__(self, name: ASTNestedName, scoped: str,
-                 underlyingType: ASTType,
+    def __init__(self, name: ASTNestedName, scoped: str, underlyingType: ASTType,
                  attrs: List[ASTAttribute]) -> None:
         self.name = name
         self.scoped = scoped
