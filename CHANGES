@@ -22,6 +22,8 @@ Features added
 * #9337: HTML theme, add option ``enable_search_shortcuts`` that enables :kbd:'/' as
          a Quick search shortcut and :kbd:`Esc` shortcut that
          removes search highlighting.
+* #10252: C++, support attributes on classes, unions, and enums.
+
 
 Bugs fixed
 ----------
