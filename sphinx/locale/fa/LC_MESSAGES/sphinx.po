@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-02-27 00:16+0000\n"
+"POT-Creation-Date: 2022-03-13 00:15+0000\n"
 "PO-Revision-Date: 2022-01-23 00:11+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Persian (http://www.transifex.com/sphinx-doc/sphinx-1/language/fa/)\n"
@@ -1883,16 +1883,16 @@ msgstr "اعلان C تکراری، که در %s:%s هم تعریف شده.\nا�
 msgid "%s (C %s)"
 msgstr "%s (C %s)"
 
-#: sphinx/domains/c.py:3352 sphinx/domains/cpp.py:7261
+#: sphinx/domains/c.py:3352 sphinx/domains/cpp.py:7302
 #: sphinx/domains/python.py:445 sphinx/ext/napoleon/docstring.py:737
 msgid "Parameters"
 msgstr "پارامترها"
 
-#: sphinx/domains/c.py:3355 sphinx/domains/cpp.py:7267
+#: sphinx/domains/c.py:3355 sphinx/domains/cpp.py:7308
 msgid "Return values"
 msgstr ""
 
-#: sphinx/domains/c.py:3358 sphinx/domains/cpp.py:7270
+#: sphinx/domains/c.py:3358 sphinx/domains/cpp.py:7311
 #: sphinx/domains/javascript.py:231 sphinx/domains/python.py:457
 msgid "Returns"
 msgstr "بازگشت ها"
@@ -1902,7 +1902,7 @@ msgstr "بازگشت ها"
 msgid "Return type"
 msgstr "نوع برگشتی"
 
-#: sphinx/domains/c.py:3755 sphinx/domains/cpp.py:7675
+#: sphinx/domains/c.py:3755 sphinx/domains/cpp.py:7716
 msgid "member"
 msgstr "عضو"
 
@@ -1910,7 +1910,7 @@ msgstr "عضو"
 msgid "variable"
 msgstr "متغیّر"
 
-#: sphinx/domains/c.py:3757 sphinx/domains/cpp.py:7674
+#: sphinx/domains/c.py:3757 sphinx/domains/cpp.py:7715
 #: sphinx/domains/javascript.py:340 sphinx/domains/python.py:1203
 msgid "function"
 msgstr "تابع"
@@ -1923,23 +1923,23 @@ msgstr "ماکرو"
 msgid "struct"
 msgstr "ساختار"
 
-#: sphinx/domains/c.py:3760 sphinx/domains/cpp.py:7673
+#: sphinx/domains/c.py:3760 sphinx/domains/cpp.py:7714
 msgid "union"
 msgstr "اجتماع"
 
-#: sphinx/domains/c.py:3761 sphinx/domains/cpp.py:7678
+#: sphinx/domains/c.py:3761 sphinx/domains/cpp.py:7719
 msgid "enum"
 msgstr "شمارش"
 
-#: sphinx/domains/c.py:3762 sphinx/domains/cpp.py:7679
+#: sphinx/domains/c.py:3762 sphinx/domains/cpp.py:7720
 msgid "enumerator"
 msgstr "شمارنده"
 
-#: sphinx/domains/c.py:3763 sphinx/domains/cpp.py:7676
+#: sphinx/domains/c.py:3763 sphinx/domains/cpp.py:7717
 msgid "type"
 msgstr "گونه"
 
-#: sphinx/domains/c.py:3765 sphinx/domains/cpp.py:7681
+#: sphinx/domains/c.py:3765 sphinx/domains/cpp.py:7722
 msgid "function parameter"
 msgstr "مؤلّفه‌ی تابع"
 
@@ -1968,36 +1968,36 @@ msgstr "نقل‌قول %s تکراری، مورد دیگر در %s قرار د�
 msgid "Citation [%s] is not referenced."
 msgstr "نقل [%s] قول ارجاع داده نشده."
 
-#: sphinx/domains/cpp.py:4748 sphinx/domains/cpp.py:7216
+#: sphinx/domains/cpp.py:4771 sphinx/domains/cpp.py:7257
 #, python-format
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
 msgstr "اعلان ++C تکراری، که در %s:%s هم تعریف شده.\nاعلان '.. cpp:%s:: %s' است."
 
-#: sphinx/domains/cpp.py:7022
+#: sphinx/domains/cpp.py:7063
 msgid "Template Parameters"
 msgstr "پارامترهای قالب"
 
-#: sphinx/domains/cpp.py:7139
+#: sphinx/domains/cpp.py:7180
 #, python-format
 msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
-#: sphinx/domains/cpp.py:7264 sphinx/domains/javascript.py:228
+#: sphinx/domains/cpp.py:7305 sphinx/domains/javascript.py:228
 msgid "Throws"
 msgstr "ایجاد"
 
-#: sphinx/domains/cpp.py:7672 sphinx/domains/javascript.py:342
+#: sphinx/domains/cpp.py:7713 sphinx/domains/javascript.py:342
 #: sphinx/domains/python.py:1205
 msgid "class"
 msgstr "کلاس"
 
-#: sphinx/domains/cpp.py:7677
+#: sphinx/domains/cpp.py:7718
 msgid "concept"
 msgstr "کانسپت"
 
-#: sphinx/domains/cpp.py:7682
+#: sphinx/domains/cpp.py:7723
 msgid "template parameter"
 msgstr "مؤلّفه‌ی قالب"
 
