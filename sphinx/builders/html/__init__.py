@@ -1,12 +1,4 @@
-"""
-    sphinx.builders.html
-    ~~~~~~~~~~~~~~~~~~~~
-
-    Several HTML builders.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Several HTML builders."""
 
 import html
 import os

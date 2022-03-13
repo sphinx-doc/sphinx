@@ -1,12 +1,4 @@
-"""
-    test_markup
-    ~~~~~~~~~~~
-
-    Test various Sphinx-specific markup extensions.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test various Sphinx-specific markup extensions."""
 
 import re
 

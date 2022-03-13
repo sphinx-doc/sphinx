@@ -1,12 +1,4 @@
-"""
-    sphinx.directives
-    ~~~~~~~~~~~~~~~~~
-
-    Handlers for additional ReST directives.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Handlers for additional ReST directives."""
 
 import re
 from typing import TYPE_CHECKING, Any, Dict, Generic, List, Tuple, TypeVar, cast

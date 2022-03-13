@@ -1,12 +1,4 @@
-"""
-    Sphinx
-    ~~~~~~
-
-    The Sphinx documentation toolchain.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""The Sphinx documentation toolchain."""
 
 # Keep this file executable as-is in Python 3!
 # (Otherwise getting the version out of it from setup.py is impossible.)

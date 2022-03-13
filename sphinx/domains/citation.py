@@ -1,12 +1,4 @@
-"""
-    sphinx.domains.citation
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
-    The citation domain.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""The citation domain."""
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, cast
 

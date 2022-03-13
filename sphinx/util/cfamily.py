@@ -1,12 +1,4 @@
-"""
-    sphinx.util.cfamily
-    ~~~~~~~~~~~~~~~~~~~
-
-    Utility functions common to the C and C++ domains.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Utility functions common to the C and C++ domains."""
 
 import re
 from copy import deepcopy

@@ -1,12 +1,4 @@
-"""
-    sphinx.environment
-    ~~~~~~~~~~~~~~~~~~
-
-    Global creation environment.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Global creation environment."""
 
 import os
 import pickle

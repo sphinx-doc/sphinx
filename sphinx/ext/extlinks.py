@@ -1,28 +1,20 @@
-"""
-    sphinx.ext.extlinks
-    ~~~~~~~~~~~~~~~~~~~
+"""Extension to save typing and prevent hard-coding of base URLs in reST files.
 
-    Extension to save typing and prevent hard-coding of base URLs in the reST
-    files.
+This adds a new config value called ``extlinks`` that is created like this::
 
-    This adds a new config value called ``extlinks`` that is created like this::
+   extlinks = {'exmpl': ('https://example.invalid/%s.html', caption), ...}
 
-       extlinks = {'exmpl': ('https://example.invalid/%s.html', caption), ...}
+Now you can use e.g. :exmpl:`foo` in your documents.  This will create a
+link to ``https://example.invalid/foo.html``.  The link caption depends on
+the *caption* value given:
 
-    Now you can use e.g. :exmpl:`foo` in your documents.  This will create a
-    link to ``https://example.invalid/foo.html``.  The link caption depends on
-    the *caption* value given:
+- If it is ``None``, the caption will be the full URL.
+- If it is a string, it must contain ``%s`` exactly once.  In this case the
+  caption will be *caption* with the role content substituted for ``%s``.
 
-    - If it is ``None``, the caption will be the full URL.
-    - If it is a string, it must contain ``%s`` exactly once.  In this case the
-      caption will be *caption* with the role content substituted for ``%s``.
+You can also give an explicit caption, e.g. :exmpl:`Foo <foo>`.
 
-    You can also give an explicit caption, e.g. :exmpl:`Foo <foo>`.
-
-    Both, the url string and the caption string must escape ``%`` as ``%%``.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+Both, the url string and the caption string must escape ``%`` as ``%%``.
 """
 
 import re

@@ -1,5 +1,4 @@
-"""
-    Test with nested classes.
+"""Test with nested classes.
 """
 
 

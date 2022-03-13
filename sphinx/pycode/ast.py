@@ -1,12 +1,4 @@
-"""
-    sphinx.pycode.ast
-    ~~~~~~~~~~~~~~~~~
-
-    Helpers for AST (Abstract Syntax Tree).
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Helpers for AST (Abstract Syntax Tree)."""
 
 import sys
 from typing import Dict, List, Optional, Type, overload

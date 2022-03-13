@@ -1,12 +1,4 @@
-"""
-    sphinx.ext.autodoc.importer
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Importer utilities for autodoc
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Importer utilities for autodoc"""
 
 import importlib
 import traceback

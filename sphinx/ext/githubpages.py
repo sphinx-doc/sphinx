@@ -1,12 +1,4 @@
-"""
-    sphinx.ext.githubpages
-    ~~~~~~~~~~~~~~~~~~~~~~
-
-    To publish HTML docs at GitHub Pages, create .nojekyll file.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""To publish HTML docs at GitHub Pages, create .nojekyll file."""
 
 import os
 import urllib

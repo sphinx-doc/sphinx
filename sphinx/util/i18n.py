@@ -1,12 +1,4 @@
-"""
-    sphinx.util.i18n
-    ~~~~~~~~~~~~~~~~
-
-    Builder superclass for all builders.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Builder superclass for all builders."""
 
 import os
 import re

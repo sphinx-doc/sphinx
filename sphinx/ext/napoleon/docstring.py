@@ -1,14 +1,4 @@
-"""
-    sphinx.ext.napoleon.docstring
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-    Classes for docstring parsing and formatting.
-
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Classes for docstring parsing and formatting."""
 
 import collections
 import inspect

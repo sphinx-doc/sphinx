@@ -1,11 +1,3 @@
-"""
-    sphinx.directives.patches
-    ~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
 import os
 import warnings
 from os import path

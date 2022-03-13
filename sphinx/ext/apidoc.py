@@ -1,17 +1,12 @@
-"""
-    sphinx.ext.apidoc
-    ~~~~~~~~~~~~~~~~~
+"""Creates reST files corresponding to Python modules for code documentation.
 
-    Parses a directory tree looking for Python modules and packages and creates
-    ReST files appropriately to create code documentation with Sphinx.  It also
-    creates a modules index (named modules.<suffix>).
+Parses a directory tree looking for Python modules and packages and creates
+ReST files appropriately to create code documentation with Sphinx.  It also
+creates a modules index (named modules.<suffix>).
 
-    This is derived from the "sphinx-autopackage" script, which is:
-    Copyright 2008 Société des arts technologiques (SAT),
-    https://sat.qc.ca/
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+This is derived from the "sphinx-autopackage" script, which is:
+Copyright 2008 Société des arts technologiques (SAT),
+https://sat.qc.ca/
 """
 
 import argparse

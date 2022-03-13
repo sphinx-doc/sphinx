@@ -1,12 +1,4 @@
-"""
-    sphinx.environment.collectors.toctree
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Toctree collector for sphinx.environment.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Toctree collector for sphinx.environment."""
 
 from typing import Any, Dict, List, Set, Tuple, Type, TypeVar, cast
 

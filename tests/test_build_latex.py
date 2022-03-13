@@ -1,12 +1,4 @@
-"""
-    test_build_latex
-    ~~~~~~~~~~~~~~~~
-
-    Test the build process with LaTeX builder with the test root.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the build process with LaTeX builder with the test root."""
 
 import os
 import re

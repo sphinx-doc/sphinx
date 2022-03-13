@@ -1,22 +1,17 @@
-"""
-    sphinx.ext.ifconfig
-    ~~~~~~~~~~~~~~~~~~~
+"""Provides the ``ifconfig`` directive.
 
-    Provides the ``ifconfig`` directive that allows to write documentation
-    that is included depending on configuration variables.
+The ``ifconfig`` directive enables writing documentation
+that is included depending on configuration variables.
 
-    Usage::
+Usage::
 
-        .. ifconfig:: releaselevel in ('alpha', 'beta', 'rc')
+    .. ifconfig:: releaselevel in ('alpha', 'beta', 'rc')
 
-           This stuff is only included in the built docs for unstable versions.
+       This stuff is only included in the built docs for unstable versions.
 
-    The argument for ``ifconfig`` is a plain Python expression, evaluated in the
-    namespace of the project configuration (that is, all variables from
-    ``conf.py`` are available.)
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+The argument for ``ifconfig`` is a plain Python expression, evaluated in the
+namespace of the project configuration (that is, all variables from
+``conf.py`` are available.)
 """
 
 from typing import Any, Dict, List

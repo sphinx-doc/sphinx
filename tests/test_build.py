@@ -1,12 +1,4 @@
-"""
-    test_build
-    ~~~~~~~~~~
-
-    Test all builders.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test all builders."""
 
 import sys
 from textwrap import dedent

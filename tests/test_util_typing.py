@@ -1,12 +1,4 @@
-"""
-    test_util_typing
-    ~~~~~~~~~~~~~~~~
-
-    Tests util.typing functions.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests util.typing functions."""
 
 import sys
 from numbers import Integral

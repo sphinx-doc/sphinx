@@ -1,12 +1,7 @@
-"""
-    sphinx.ext.autodoc.preserve_defaults
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Preserve function defaults.
 
-    Preserve the default argument values of function signatures in source code
-    and keep them not evaluated for readability.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+Preserve the default argument values of function signatures in source code
+and keep them not evaluated for readability.
 """
 
 import ast

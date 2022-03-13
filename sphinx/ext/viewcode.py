@@ -1,12 +1,4 @@
-"""
-    sphinx.ext.viewcode
-    ~~~~~~~~~~~~~~~~~~~
-
-    Add links to module code in Python object descriptions.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Add links to module code in Python object descriptions."""
 
 import posixpath
 import traceback

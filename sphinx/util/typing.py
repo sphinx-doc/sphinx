@@ -1,12 +1,4 @@
-"""
-    sphinx.util.typing
-    ~~~~~~~~~~~~~~~~~~
-
-    The composite types for Sphinx.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""The composite types for Sphinx."""
 
 import sys
 import typing

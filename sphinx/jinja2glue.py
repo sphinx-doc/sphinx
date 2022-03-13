@@ -1,12 +1,4 @@
-"""
-    sphinx.jinja2glue
-    ~~~~~~~~~~~~~~~~~
-
-    Glue code for the jinja2 templating engine.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Glue code for the jinja2 templating engine."""
 
 from os import path
 from pprint import pformat

@@ -1,12 +1,4 @@
-"""
-    sphinx.pycode.parser
-    ~~~~~~~~~~~~~~~~~~~~
-
-    Utilities parsing and analyzing Python code.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Utilities parsing and analyzing Python code."""
 import inspect
 import itertools
 import re
