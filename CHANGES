@@ -15,6 +15,7 @@ Deprecated
 Features added
 --------------
 
+* #10260: Enable ``FORCE_COLOR`` and ``NO_COLOR`` for terminal colouring
 * #10234: autosummary: Add "autosummary" CSS class to summary tables
 * #10125: extlinks: Improve suggestion message for a reference having title
 * #9494, #9456: html search: Add a config variable
