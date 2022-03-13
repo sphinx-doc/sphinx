@@ -168,7 +168,8 @@ const Documentation = {
     document
       .querySelectorAll("span.highlighted")
       .forEach((el) => el.classList.remove("highlighted"));
-    new URLSearchParams(window.location.search).delete('highlight')
+    const url = new URL(window.location);
+    url.searchParams.delete('highlight');
     window.history.replaceState({}, '', url);
   },
 
