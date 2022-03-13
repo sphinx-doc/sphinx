@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-02-27 00:16+0000\n"
+"POT-Creation-Date: 2022-03-13 00:15+0000\n"
 "PO-Revision-Date: 2022-01-24 08:02+0000\n"
 "Last-Translator: YT H <dev@theYT.net>\n"
 "Language-Team: Korean (http://www.transifex.com/sphinx-doc/sphinx-1/language/ko/)\n"
@@ -1881,16 +1881,16 @@ msgstr "중복 C 선언이며, %s:%s에 정의되었습니다.\n선언은 '.. c:
 msgid "%s (C %s)"
 msgstr "%s (C %s)"
 
-#: sphinx/domains/c.py:3352 sphinx/domains/cpp.py:7261
+#: sphinx/domains/c.py:3352 sphinx/domains/cpp.py:7302
 #: sphinx/domains/python.py:445 sphinx/ext/napoleon/docstring.py:737
 msgid "Parameters"
 msgstr "매개변수"
 
-#: sphinx/domains/c.py:3355 sphinx/domains/cpp.py:7267
+#: sphinx/domains/c.py:3355 sphinx/domains/cpp.py:7308
 msgid "Return values"
 msgstr "반환값"
 
-#: sphinx/domains/c.py:3358 sphinx/domains/cpp.py:7270
+#: sphinx/domains/c.py:3358 sphinx/domains/cpp.py:7311
 #: sphinx/domains/javascript.py:231 sphinx/domains/python.py:457
 msgid "Returns"
 msgstr "반환"
@@ -1900,7 +1900,7 @@ msgstr "반환"
 msgid "Return type"
 msgstr "반환 형식"
 
-#: sphinx/domains/c.py:3755 sphinx/domains/cpp.py:7675
+#: sphinx/domains/c.py:3755 sphinx/domains/cpp.py:7716
 msgid "member"
 msgstr "멤버 변수"
 
@@ -1908,7 +1908,7 @@ msgstr "멤버 변수"
 msgid "variable"
 msgstr "변수"
 
-#: sphinx/domains/c.py:3757 sphinx/domains/cpp.py:7674
+#: sphinx/domains/c.py:3757 sphinx/domains/cpp.py:7715
 #: sphinx/domains/javascript.py:340 sphinx/domains/python.py:1203
 msgid "function"
 msgstr "함수"
@@ -1921,23 +1921,23 @@ msgstr "매크로"
 msgid "struct"
 msgstr "구조체"
 
-#: sphinx/domains/c.py:3760 sphinx/domains/cpp.py:7673
+#: sphinx/domains/c.py:3760 sphinx/domains/cpp.py:7714
 msgid "union"
 msgstr "공용체"
 
-#: sphinx/domains/c.py:3761 sphinx/domains/cpp.py:7678
+#: sphinx/domains/c.py:3761 sphinx/domains/cpp.py:7719
 msgid "enum"
 msgstr "열거형"
 
-#: sphinx/domains/c.py:3762 sphinx/domains/cpp.py:7679
+#: sphinx/domains/c.py:3762 sphinx/domains/cpp.py:7720
 msgid "enumerator"
 msgstr "열거자"
 
-#: sphinx/domains/c.py:3763 sphinx/domains/cpp.py:7676
+#: sphinx/domains/c.py:3763 sphinx/domains/cpp.py:7717
 msgid "type"
 msgstr "자료형"
 
-#: sphinx/domains/c.py:3765 sphinx/domains/cpp.py:7681
+#: sphinx/domains/c.py:3765 sphinx/domains/cpp.py:7722
 msgid "function parameter"
 msgstr "함수 매개변수"
 
@@ -1966,36 +1966,36 @@ msgstr "중복 인용 %s, 다른 인스턴스는 %s에 있음"
 msgid "Citation [%s] is not referenced."
 msgstr "인용 [%s]이(가) 참조되지 않았습니다."
 
-#: sphinx/domains/cpp.py:4748 sphinx/domains/cpp.py:7216
+#: sphinx/domains/cpp.py:4771 sphinx/domains/cpp.py:7257
 #, python-format
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
 msgstr "중복 C++ 선언이며, %s:%s에 정의되었습니다.\n선언은 '.. cpp:%s:: %s' 입니다."
 
-#: sphinx/domains/cpp.py:7022
+#: sphinx/domains/cpp.py:7063
 msgid "Template Parameters"
 msgstr "템플릿 매개변수"
 
-#: sphinx/domains/cpp.py:7139
+#: sphinx/domains/cpp.py:7180
 #, python-format
 msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
-#: sphinx/domains/cpp.py:7264 sphinx/domains/javascript.py:228
+#: sphinx/domains/cpp.py:7305 sphinx/domains/javascript.py:228
 msgid "Throws"
 msgstr "예외"
 
-#: sphinx/domains/cpp.py:7672 sphinx/domains/javascript.py:342
+#: sphinx/domains/cpp.py:7713 sphinx/domains/javascript.py:342
 #: sphinx/domains/python.py:1205
 msgid "class"
 msgstr "클래스"
 
-#: sphinx/domains/cpp.py:7677
+#: sphinx/domains/cpp.py:7718
 msgid "concept"
 msgstr "콘셉트"
 
-#: sphinx/domains/cpp.py:7682
+#: sphinx/domains/cpp.py:7723
 msgid "template parameter"
 msgstr "템플릿 매개변수"
 

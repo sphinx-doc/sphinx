@@ -13,8 +13,8 @@
 # sutefu7, 2019-2020
 # shirou - しろう <shirou.faw@gmail.com>, 2017
 # Taizo Ito <taizo.ito@hennge.com>, 2019
-# Takayuki Shimizukawa <shimizukawa@gmail.com>, 2013-2016
-# Takayuki Shimizukawa <shimizukawa@gmail.com>, 2016-2017,2019
+# Takayuki SHIMIZUKAWA <shimizukawa@gmail.com>, 2013-2016
+# Takayuki SHIMIZUKAWA <shimizukawa@gmail.com>, 2016-2017,2019
 # Komiya Takeshi <i.tkomiya@gmail.com>, 2016-2017,2019
 # Tetsuo Koyama <tkoyama010@gmail.com>, 2020-2021
 # tomo, 2019
@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-02-27 00:16+0000\n"
+"POT-Creation-Date: 2022-03-06 00:15+0000\n"
 "PO-Revision-Date: 2022-01-23 00:11+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>\n"
 "Language-Team: Japanese (http://www.transifex.com/sphinx-doc/sphinx-1/language/ja/)\n"
