@@ -24,7 +24,7 @@ Features added
          a Quick search shortcut and :kbd:`Esc` shortcut that
          removes search highlighting.
 * #10252: C++, support attributes on classes, unions, and enums.
-
+* #10253: :rst:dir:`pep` role now generates URLs based on peps.python.org
 
 Bugs fixed
 ----------
