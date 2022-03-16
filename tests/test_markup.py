@@ -150,10 +150,10 @@ def get_verifier(verify, verify_re):
         ':pep:`8`',
         # since docutils-0.19, :pep: role points to python.org via https schema
         ('<p><span class="target" id="index-0"></span><a class="pep reference external" '
-         'href="https?://www.python.org/dev/peps/pep-0008"><strong>PEP 8</strong></a></p>'),
+         'href="https?://(www.python.org/dev/peps|peps.python.org)/pep-0008"><strong>PEP 8</strong></a></p>'),
         (r'\\sphinxAtStartPar\n'
          r'\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
-         r'!PEP 8@\\spxentry{PEP 8}}\\sphinxhref{https?://www.python.org/dev/peps/pep-0008}'
+         r'!PEP 8@\\spxentry{PEP 8}}\\sphinxhref{https?://(www.python.org/dev/peps|peps.python.org)/pep-0008}'
          r'{\\sphinxstylestrong{PEP 8}}')
     ),
     (
@@ -162,12 +162,12 @@ def get_verifier(verify, verify_re):
         ':pep:`8#id1`',
         # since docutils-0.19, :pep: role points to python.org via https schema
         ('<p><span class="target" id="index-0"></span><a class="pep reference external" '
-         'href="https?://www.python.org/dev/peps/pep-0008#id1">'
+         'href="https?://(www.python.org/dev/peps|peps.python.org)/pep-0008#id1">'
          '<strong>PEP 8#id1</strong></a></p>'),
         (r'\\sphinxAtStartPar\n'
          r'\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
          r'!PEP 8\\#id1@\\spxentry{PEP 8\\#id1}}\\sphinxhref'
-         r'{https?://www.python.org/dev/peps/pep-0008\\#id1}'
+         r'{https?://(www.python.org/dev/peps|peps.python.org)/pep-0008\\#id1}'
          r'{\\sphinxstylestrong{PEP 8\\#id1}}')
     ),
     (
