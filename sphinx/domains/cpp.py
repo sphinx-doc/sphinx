@@ -535,7 +535,8 @@ _id_operator_v2 = {
     '->': 'pt',
     '()': 'cl',
     '[]': 'ix',
-    '.*': 'ds'  # this one is not overloadable, but we need it for expressions
+    '.*': 'ds',  # this one is not overloadable, but we need it for expressions
+    '?': 'cn',
 }
 _id_operator_unary_v2 = {
     '++': 'pp_',
@@ -1522,6 +1523,44 @@ class ASTBinOpExpr(ASTExpression):
                 signode += addnodes.desc_sig_operator(op, op)
             signode += addnodes.desc_sig_space()
             self.exprs[i].describe_signature(signode, mode, env, symbol)
+
+
+class ASTConditionalExpr(ASTExpression):
+    def __init__(self, if_expr: ASTExpression, then_expr: ASTExpression,
+                 else_expr: ASTExpression):
+        self.if_expr = if_expr
+        self.then_expr = then_expr
+        self.else_expr = else_expr
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        res = []
+        res.append(transform(self.if_expr))
+        res.append(' ? ')
+        res.append(transform(self.then_expr))
+        res.append(' : ')
+        res.append(transform(self.else_expr))
+        return ''.join(res)
+
+    def get_id(self, version: int) -> str:
+        assert version >= 2
+        res = []
+        res.append(_id_operator_v2['?'])
+        res.append(self.if_expr.get_id(version))
+        res.append(self.then_expr.get_id(version))
+        res.append(self.else_expr.get_id(version))
+        return ''.join(res)
+
+    def describe_signature(self, signode: TextElement, mode: str,
+                           env: "BuildEnvironment", symbol: "Symbol") -> None:
+        self.if_expr.describe_signature(signode, mode, env, symbol)
+        signode += addnodes.desc_sig_space()
+        signode += addnodes.desc_sig_operator('?', '?')
+        signode += addnodes.desc_sig_space()
+        self.then_expr.describe_signature(signode, mode, env, symbol)
+        signode += addnodes.desc_sig_space()
+        signode += addnodes.desc_sig_operator(':', ':')
+        signode += addnodes.desc_sig_space()
+        self.else_expr.describe_signature(signode, mode, env, symbol)
 
 
 class ASTBracedInitList(ASTBase):
@@ -5598,9 +5637,17 @@ class DefinitionParser(BaseParser):
             return ASTBinOpExpr(exprs, ops)
         return _parse_bin_op_expr(self, 0, inTemplate=inTemplate)
 
-    def _parse_conditional_expression_tail(self, orExprHead: Any) -> None:
+    def _parse_conditional_expression_tail(self, orExprHead: ASTExpression,
+                                           inTemplate: bool) -> Optional[ASTConditionalExpr]:
         # -> "?" expression ":" assignment-expression
-        return None
+        if not self.skip_string("?"):
+            return None
+        then_expr = self._parse_expression()
+        self.skip_ws()
+        if not self.skip_string(":"):
+            self.fail('Expected ":" after  "?"')
+        else_expr = self._parse_assignment_expression(inTemplate)
+        return ASTConditionalExpr(orExprHead, then_expr, else_expr)
 
     def _parse_assignment_expression(self, inTemplate: bool) -> ASTExpression:
         # -> conditional-expression
@@ -5616,10 +5663,15 @@ class DefinitionParser(BaseParser):
         ops = []
         orExpr = self._parse_logical_or_expression(inTemplate=inTemplate)
         exprs.append(orExpr)
-        # TODO: handle ternary with _parse_conditional_expression_tail
         while True:
             oneMore = False
             self.skip_ws()
+            prev_expr = exprs[-1]
+            if isinstance(prev_expr, ASTExpression):
+                cond_expr = self._parse_conditional_expression_tail(prev_expr, inTemplate)
+            if cond_expr is not None:
+                exprs[-1] = cond_expr
+                continue
             for op in _expression_assignment_ops:
                 if op[0] in 'anox':
                     if not self.skip_word(op):
@@ -5634,14 +5686,17 @@ class DefinitionParser(BaseParser):
             if not oneMore:
                 break
         if len(ops) == 0:
-            return orExpr
+            return cast(ASTExpression, exprs[-1])
         else:
             return ASTAssignmentExpr(exprs, ops)
 
     def _parse_constant_expression(self, inTemplate: bool) -> ASTExpression:
         # -> conditional-expression
         orExpr = self._parse_logical_or_expression(inTemplate=inTemplate)
-        # TODO: use _parse_conditional_expression_tail
+        self.skip_ws()
+        cond_expr = self._parse_conditional_expression_tail(orExpr, inTemplate)
+        if cond_expr is not None:
+            return cond_expr
         return orExpr
 
     def _parse_expression(self) -> ASTExpression:
