@@ -326,7 +326,8 @@ def test_domain_cpp_ast_expressions():
     exprCheck('5 .* 42', 'dsL5EL42E')
     exprCheck('5 ->* 42', 'pmL5EL42E')
     # conditional
-    # TODO
+    exprCheck('5 ? 7 : 3', 'cnL5EL7EL3E')
+    exprCheck('5 = 6 ? 7 = 8 : 3', 'aSL5EcnL6EaSL7EL8EL3E')
     # assignment
     exprCheck('a = 5', 'aS1aL5E')
     exprCheck('a *= 5', 'mL1aL5E')
