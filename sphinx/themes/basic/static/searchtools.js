@@ -228,34 +228,31 @@ const Search = {
     const searchTerms = new Set();
     const excludedTerms = new Set();
     const highlightTerms = new Set();
-    const objectTerms = new Set(query.toLowerCase().trim().split(/\s+/));
-    query
-      .trim()
-      .split(/\s+/)
-      .forEach((queryTerm) => {
-        const queryTermLower = queryTerm.toLowerCase();
+    const objectTerms = new Set(splitQuery(query.toLowerCase().trim()));
+    splitQuery(query.trim()).forEach((queryTerm) => {
+      const queryTermLower = queryTerm.toLowerCase();
 
-        // maybe skip this "word"
-        // stopwords array is from language_data.js
-        if (
-          stopwords.indexOf(queryTermLower) !== -1 ||
-          queryTerm.match(/^\d+$/)
-        )
-          return;
+      // maybe skip this "word"
+      // stopwords array is from language_data.js
+      if (
+        stopwords.indexOf(queryTermLower) !== -1 ||
+        queryTerm.match(/^\d+$/)
+      )
+        return;
 
-        // stem the word
-        let word = stemmer.stemWord(queryTermLower);
-        // prevent stemmer from cutting word smaller than two chars
-        if (word.length < 3 && queryTerm.length >= 3) {
-          word = queryTerm;
-        }
-        // select the correct list
-        if (word[0] === "-") excludedTerms.add(word.substr(1));
-        else {
-          searchTerms.add(word);
-          highlightTerms.add(queryTermLower);
-        }
-      });
+      // stem the word
+      let word = stemmer.stemWord(queryTermLower);
+      // prevent stemmer from cutting word smaller than two chars
+      if (word.length < 3 && queryTerm.length >= 3) {
+        word = queryTerm;
+      }
+      // select the correct list
+      if (word[0] === "-") excludedTerms.add(word.substr(1));
+      else {
+        searchTerms.add(word);
+        highlightTerms.add(queryTermLower);
+      }
+    });
 
     // console.debug("SEARCH: searching for:");
     // console.info("required: ", [...searchTerms]);
