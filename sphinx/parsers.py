@@ -1,12 +1,4 @@
-"""
-    sphinx.parsers
-    ~~~~~~~~~~~~~~
-
-    A Base class for additional parsers.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""A Base class for additional parsers."""
 
 import warnings
 from typing import TYPE_CHECKING, Any, Dict, List, Type, Union

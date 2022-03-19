@@ -1,12 +1,4 @@
-"""
-    sphinx.ext.autodoc.deprecated
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    The deprecated Documenters for autodoc.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""The deprecated Documenters for autodoc."""
 
 import warnings
 from typing import Any

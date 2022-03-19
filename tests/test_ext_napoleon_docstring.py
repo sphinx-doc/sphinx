@@ -1,13 +1,4 @@
-"""
-    test_napoleon_docstring
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
-    Tests for :mod:`sphinx.ext.napoleon.docstring` module.
-
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests for :mod:`sphinx.ext.napoleon.docstring` module."""
 
 import re
 import sys

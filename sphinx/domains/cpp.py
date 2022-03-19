@@ -1,12 +1,4 @@
-"""
-    sphinx.domains.cpp
-    ~~~~~~~~~~~~~~~~~~
-
-    The C++ language domain.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""The C++ language domain."""
 
 import re
 from typing import (Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple, TypeVar,
@@ -267,7 +259,8 @@ T = TypeVar('T')
     class_object:
         goal: a class declaration, but with specification of a base class
         grammar:
-              nested-name "final"[opt] (":" base-specifier-list)[opt]
+              attribute-specifier-seq[opt]
+                  nested-name "final"[opt] (":" base-specifier-list)[opt]
             base-specifier-list ->
               base-specifier "..."[opt]
             | base-specifier-list, base-specifier "..."[opt]
@@ -281,7 +274,8 @@ T = TypeVar('T')
         goal: an unscoped enum or a scoped enum, optionally with the underlying
               type specified
         grammar:
-            ("class" | "struct")[opt] visibility[opt] nested-name (":" type)[opt]
+            ("class" | "struct")[opt] visibility[opt]
+                attribute-specifier-seq[opt] nested-name (":" type)[opt]
     enumerator_object:
         goal: an element in a scoped or unscoped enum. The name should be
               injected according to the scopedness.
@@ -3318,16 +3312,20 @@ class ASTBaseClass(ASTBase):
 
 
 class ASTClass(ASTBase):
-    def __init__(self, name: ASTNestedName, final: bool, bases: List[ASTBaseClass]) -> None:
+    def __init__(self, name: ASTNestedName, final: bool, bases: List[ASTBaseClass],
+                 attrs: List[ASTAttribute]) -> None:
         self.name = name
         self.final = final
         self.bases = bases
+        self.attrs = attrs
 
     def get_id(self, version: int, objectType: str, symbol: "Symbol") -> str:
         return symbol.get_full_nested_name().get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
+        for attr in self.attrs:
+            res.append(transform(attr) + ' ')
         res.append(transform(self.name))
         if self.final:
             res.append(' final')
@@ -3344,6 +3342,9 @@ class ASTClass(ASTBase):
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
+        for attr in self.attrs:
+            attr.describe_signature(signode)
+            signode += addnodes.desc_sig_space()
         self.name.describe_signature(signode, mode, env, symbol=symbol)
         if self.final:
             signode += addnodes.desc_sig_space()
@@ -3361,8 +3362,9 @@ class ASTClass(ASTBase):
 
 
 class ASTUnion(ASTBase):
-    def __init__(self, name: ASTNestedName) -> None:
+    def __init__(self, name: ASTNestedName, attrs: List[ASTAttribute]) -> None:
         self.name = name
+        self.attrs = attrs
 
     def get_id(self, version: int, objectType: str, symbol: "Symbol") -> str:
         if version == 1:
@@ -3370,20 +3372,28 @@ class ASTUnion(ASTBase):
         return symbol.get_full_nested_name().get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return transform(self.name)
+        res = []
+        for attr in self.attrs:
+            res.append(transform(attr) + ' ')
+        res.append(transform(self.name))
+        return ''.join(res)
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
+        for attr in self.attrs:
+            attr.describe_signature(signode)
+            signode += addnodes.desc_sig_space()
         self.name.describe_signature(signode, mode, env, symbol=symbol)
 
 
 class ASTEnum(ASTBase):
-    def __init__(self, name: ASTNestedName, scoped: str,
-                 underlyingType: ASTType) -> None:
+    def __init__(self, name: ASTNestedName, scoped: str, underlyingType: ASTType,
+                 attrs: List[ASTAttribute]) -> None:
         self.name = name
         self.scoped = scoped
         self.underlyingType = underlyingType
+        self.attrs = attrs
 
     def get_id(self, version: int, objectType: str, symbol: "Symbol") -> str:
         if version == 1:
@@ -3395,6 +3405,8 @@ class ASTEnum(ASTBase):
         if self.scoped:
             res.append(self.scoped)
             res.append(' ')
+        for attr in self.attrs:
+            res.append(transform(attr) + ' ')
         res.append(transform(self.name))
         if self.underlyingType:
             res.append(' : ')
@@ -3405,6 +3417,9 @@ class ASTEnum(ASTBase):
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
         # self.scoped has been done by the CPPEnumObject
+        for attr in self.attrs:
+            attr.describe_signature(signode)
+            signode += addnodes.desc_sig_space()
         self.name.describe_signature(signode, mode, env, symbol=symbol)
         if self.underlyingType:
             signode += addnodes.desc_sig_space()
@@ -6567,6 +6582,12 @@ class DefinitionParser(BaseParser):
         return ASTConcept(nestedName, initializer)
 
     def _parse_class(self) -> ASTClass:
+        attrs = []
+        while 1:
+            attr = self._parse_attribute()
+            if attr is None:
+                break
+            attrs.append(attr)
         name = self._parse_nested_name()
         self.skip_ws()
         final = self.skip_word_and_ws('final')
@@ -6594,21 +6615,33 @@ class DefinitionParser(BaseParser):
                     continue
                 else:
                     break
-        return ASTClass(name, final, bases)
+        return ASTClass(name, final, bases, attrs)
 
     def _parse_union(self) -> ASTUnion:
+        attrs = []
+        while 1:
+            attr = self._parse_attribute()
+            if attr is None:
+                break
+            attrs.append(attr)
         name = self._parse_nested_name()
-        return ASTUnion(name)
+        return ASTUnion(name, attrs)
 
     def _parse_enum(self) -> ASTEnum:
         scoped = None  # is set by CPPEnumObject
+        attrs = []
+        while 1:
+            attr = self._parse_attribute()
+            if attr is None:
+                break
+            attrs.append(attr)
         self.skip_ws()
         name = self._parse_nested_name()
         self.skip_ws()
         underlyingType = None
         if self.skip_string(':'):
             underlyingType = self._parse_type(named=False)
-        return ASTEnum(name, scoped, underlyingType)
+        return ASTEnum(name, scoped, underlyingType, attrs)
 
     def _parse_enumerator(self) -> ASTEnumerator:
         name = self._parse_nested_name()
@@ -7992,7 +8025,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     return {
         'version': 'builtin',
-        'env_version': 4,
+        'env_version': 5,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

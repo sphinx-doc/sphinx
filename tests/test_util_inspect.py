@@ -1,12 +1,4 @@
-"""
-    test_util_inspect
-    ~~~~~~~~~~~~~~~
-
-    Tests util.inspect functions.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests util.inspect functions."""
 
 import ast
 import datetime

@@ -1,12 +1,4 @@
-"""
-    sphinx.transforms.post_transforms.images
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Docutils transforms used by Sphinx.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Docutils transforms used by Sphinx."""
 
 import os
 import re

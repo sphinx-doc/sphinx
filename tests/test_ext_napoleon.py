@@ -1,13 +1,4 @@
-"""
-    test_napoleon
-    ~~~~~~~~~~~~~
-
-    Tests for :mod:`sphinx.ext.napoleon.__init__` module.
-
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests for :mod:`sphinx.ext.napoleon.__init__` module."""
 
 import sys
 from collections import namedtuple

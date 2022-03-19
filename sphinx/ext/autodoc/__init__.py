@@ -1,13 +1,8 @@
-"""
-    sphinx.ext.autodoc
-    ~~~~~~~~~~~~~~~~~~
+"""Extension to create automatic documentation from code docstrings.
 
-    Automatically insert docstrings for functions, classes or whole modules into
-    the doctree, thus avoiding duplication between docstrings and documentation
-    for those who like elaborate docstrings.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+Automatically insert docstrings for functions, classes or whole modules into
+the doctree, thus avoiding duplication between docstrings and documentation
+for those who like elaborate docstrings.
 """
 
 import re

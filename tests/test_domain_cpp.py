@@ -1,12 +1,4 @@
-"""
-    test_domain_cpp
-    ~~~~~~~~~~~~~~~
-
-    Tests the C++ Domain
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests the C++ Domain"""
 
 import itertools
 import re
@@ -995,6 +987,11 @@ def test_domain_cpp_ast_attributes():
     check('member', 'int *[[attr]] *i', {1: 'i__iPP', 2: '1i'})
     # position: parameters and qualifiers
     check('function', 'void f() [[attr1]] [[attr2]]', {1: 'f', 2: '1fv'})
+
+    # position: class, union, enum
+    check('class', '{key}[[nodiscard]] Foo', {1: 'Foo', 2: '3Foo'}, key='class')
+    check('union', '{key}[[nodiscard]] Foo', {1: None, 2: '3Foo'}, key='union')
+    check('enum', '{key}[[nodiscard]] Foo', {1: None, 2: '3Foo'}, key='enum')
 
 
 def test_domain_cpp_ast_xref_parsing():

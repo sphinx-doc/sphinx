@@ -1,12 +1,4 @@
-"""
-    sphinx.environment.collectors.title
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    The title collector components for sphinx.environment.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""The title collector components for sphinx.environment."""
 
 from typing import Any, Dict, Set
 

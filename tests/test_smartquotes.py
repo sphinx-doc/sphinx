@@ -1,12 +1,4 @@
-"""
-    test_smartquotes
-    ~~~~~~~~~~~~~~~~
-
-    Test smart quotes.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test smart quotes."""
 
 import pytest
 from html5lib import HTMLParser

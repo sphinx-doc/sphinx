@@ -1,12 +1,4 @@
-"""
-    sphinx.ext.autodoc.mock
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
-    mock for autodoc
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""mock for autodoc"""
 
 import contextlib
 import os

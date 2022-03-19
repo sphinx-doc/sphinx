@@ -1,12 +1,4 @@
-"""
-    sphinx.builders.manpage
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
-    Manual pages builder.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Manual pages builder."""
 
 from os import path
 from typing import Any, Dict, List, Set, Tuple, Union

@@ -1,12 +1,4 @@
-"""
-    sphinx.environment.adapters.toctree
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Toctree adapter for sphinx.environment.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Toctree adapter for sphinx.environment."""
 
 from typing import TYPE_CHECKING, Any, Iterable, List, Optional, cast
 

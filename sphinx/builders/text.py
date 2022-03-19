@@ -1,12 +1,4 @@
-"""
-    sphinx.builders.text
-    ~~~~~~~~~~~~~~~~~~~~
-
-    Plain-text Sphinx builder.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Plain-text Sphinx builder."""
 
 from os import path
 from typing import Any, Dict, Iterator, Set, Tuple

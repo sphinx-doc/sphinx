@@ -1,12 +1,4 @@
-"""
-    test_build_html
-    ~~~~~~~~~~~~~~~
-
-    Test the HTML builder and check output against XPath.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the HTML builder and check output against XPath."""
 
 import os
 import re
@@ -220,9 +212,9 @@ def test_html4_output(app, status, warning):
         (".//li/p/code/span[@class='pre']", '^a/$'),
         (".//li/p/code/em/span[@class='pre']", '^varpart$'),
         (".//li/p/code/em/span[@class='pre']", '^i$'),
-        (".//a[@href='https://www.python.org/dev/peps/pep-0008']"
+        (".//a[@href='https://peps.python.org/pep-0008']"
          "[@class='pep reference external']/strong", 'PEP 8'),
-        (".//a[@href='https://www.python.org/dev/peps/pep-0008']"
+        (".//a[@href='https://peps.python.org/pep-0008']"
          "[@class='pep reference external']/strong",
          'Python Enhancement Proposal #8'),
         (".//a[@href='https://datatracker.ietf.org/doc/html/rfc1.html']"

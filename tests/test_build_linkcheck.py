@@ -1,12 +1,4 @@
-"""
-    test_build_linkcheck
-    ~~~~~~~~~~~~~~~~~~~~
-
-    Test the build process with manpage builder with the test root.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the build process with manpage builder with the test root."""
 
 import http.server
 import json

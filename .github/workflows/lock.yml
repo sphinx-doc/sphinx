@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   action:
+    if: github.repository_owner == 'sphinx-doc'
     runs-on: ubuntu-latest
     steps:
       - uses: dessant/lock-threads@v2

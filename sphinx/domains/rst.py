@@ -1,12 +1,4 @@
-"""
-    sphinx.domains.rst
-    ~~~~~~~~~~~~~~~~~~
-
-    The reStructuredText domain.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""The reStructuredText domain."""
 
 import re
 from typing import Any, Dict, Iterator, List, Optional, Tuple, cast

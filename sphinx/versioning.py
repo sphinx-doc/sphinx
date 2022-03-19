@@ -1,13 +1,4 @@
-"""
-    sphinx.versioning
-    ~~~~~~~~~~~~~~~~~
-
-    Implements the low-level algorithms Sphinx uses for the versioning of
-    doctrees.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Implements the low-level algorithms Sphinx uses for versioning doctrees."""
 import pickle
 from itertools import product, zip_longest
 from operator import itemgetter

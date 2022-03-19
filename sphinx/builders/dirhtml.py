@@ -1,12 +1,4 @@
-"""
-    sphinx.builders.dirhtml
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
-    Directory HTML builders.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Directory HTML builders."""
 
 from os import path
 from typing import Any, Dict

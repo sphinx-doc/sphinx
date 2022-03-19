@@ -1,55 +1,49 @@
-"""
-    sphinx.ext.autosummary
-    ~~~~~~~~~~~~~~~~~~~~~~
+"""Extension that adds an autosummary:: directive.
 
-    Sphinx extension that adds an autosummary:: directive, which can be
-    used to generate function/method/attribute/etc. summary lists, similar
-    to those output eg. by Epydoc and other API doc generation tools.
+The directive can be used to generate function/method/attribute/etc. summary
+lists, similar to those output eg. by Epydoc and other API doc generation tools.
 
-    An :autolink: role is also provided.
+An :autolink: role is also provided.
 
-    autosummary directive
-    ---------------------
+autosummary directive
+---------------------
 
-    The autosummary directive has the form::
+The autosummary directive has the form::
 
-        .. autosummary::
-           :nosignatures:
-           :toctree: generated/
+    .. autosummary::
+       :nosignatures:
+       :toctree: generated/
 
-           module.function_1
-           module.function_2
-           ...
+       module.function_1
+       module.function_2
+       ...
 
-    and it generates an output table (containing signatures, optionally)
+and it generates an output table (containing signatures, optionally)
 
-        ========================  =============================================
-        module.function_1(args)   Summary line from the docstring of function_1
-        module.function_2(args)   Summary line from the docstring
-        ...
-        ========================  =============================================
+    ========================  =============================================
+    module.function_1(args)   Summary line from the docstring of function_1
+    module.function_2(args)   Summary line from the docstring
+    ...
+    ========================  =============================================
 
-    If the :toctree: option is specified, files matching the function names
-    are inserted to the toctree with the given prefix:
+If the :toctree: option is specified, files matching the function names
+are inserted to the toctree with the given prefix:
 
-        generated/module.function_1
-        generated/module.function_2
-        ...
+    generated/module.function_1
+    generated/module.function_2
+    ...
 
-    Note: The file names contain the module:: or currentmodule:: prefixes.
+Note: The file names contain the module:: or currentmodule:: prefixes.
 
-    .. seealso:: autosummary_generate.py
+.. seealso:: autosummary_generate.py
 
 
-    autolink role
-    -------------
+autolink role
+-------------
 
-    The autolink role functions as ``:obj:`` when the name referred can be
-    resolved to a Python object, and otherwise it becomes simple emphasis.
-    This can be used as the default role to make links 'smart'.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+The autolink role functions as ``:obj:`` when the name referred can be
+resolved to a Python object, and otherwise it becomes simple emphasis.
+This can be used as the default role to make links 'smart'.
 """
 
 import inspect
@@ -417,7 +411,7 @@ class Autosummary(SphinxDirective):
         table_spec['spec'] = r'\X{1}{2}\X{1}{2}'
 
         table = autosummary_table('')
-        real_table = nodes.table('', classes=['longtable'])
+        real_table = nodes.table('', classes=['autosummary longtable'])
         table.append(real_table)
         group = nodes.tgroup('', cols=2)
         real_table.append(group)

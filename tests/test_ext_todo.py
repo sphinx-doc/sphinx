@@ -1,12 +1,4 @@
-"""
-    test_ext_todo
-    ~~~~~~~~~~~~~
-
-    Test sphinx.ext.todo extension.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test sphinx.ext.todo extension."""
 
 import re
 
