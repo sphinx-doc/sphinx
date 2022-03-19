@@ -1,12 +1,4 @@
-"""
-    sphinx.transforms
-    ~~~~~~~~~~~~~~~~~
-
-    Docutils transforms used by Sphinx when reading documents.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Docutils transforms used by Sphinx when reading documents."""
 
 import re
 import unicodedata

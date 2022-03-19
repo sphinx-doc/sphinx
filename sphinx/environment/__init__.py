@@ -1,12 +1,4 @@
-"""
-    sphinx.environment
-    ~~~~~~~~~~~~~~~~~~
-
-    Global creation environment.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Global creation environment."""
 
 import os
 import pickle
@@ -49,7 +41,7 @@ default_settings: Dict[str, Any] = {
     'embed_images': False,
     'embed_stylesheet': False,
     'cloak_email_addresses': True,
-    'pep_base_url': 'https://www.python.org/dev/peps/',
+    'pep_base_url': 'https://peps.python.org/',
     'pep_references': None,
     'rfc_base_url': 'https://datatracker.ietf.org/doc/html/',
     'rfc_references': None,

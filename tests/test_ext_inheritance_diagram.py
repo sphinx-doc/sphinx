@@ -1,12 +1,4 @@
-"""
-    test_ext_inheritance_diagram
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Test sphinx.ext.inheritance_diagram extension.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test sphinx.ext.inheritance_diagram extension."""
 
 import os
 import re

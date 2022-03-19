@@ -168,7 +168,8 @@ const Documentation = {
     document
       .querySelectorAll("span.highlighted")
       .forEach((el) => el.classList.remove("highlighted"));
-    new URLSearchParams(window.location.search).delete('highlight')
+    const url = new URL(window.location);
+    url.searchParams.delete('highlight');
     window.history.replaceState({}, '', url);
   },
 
@@ -176,10 +177,7 @@ const Documentation = {
    * helper function to focus on search bar
    */
   focusSearchBar : () => {
-    document
-      .querySelectorAll("input[name=q]")
-      .first()
-      .focus()
+    document.querySelectorAll("input[name=q]")[0]?.focus();
   },
 
   /**
@@ -232,24 +230,24 @@ const Documentation = {
             const prevLink = document.querySelector('link[rel="prev"]');
             if (prevLink && prevLink.href) {
               window.location.href = prevLink.href;
-              return false;
+              event.preventDefault();
             }
             break;
           case "ArrowRight":
             if (!DOCUMENTATION_OPTIONS.NAVIGATION_WITH_KEYS)
               break;
 
-            const nextLink = document.querySelector('link[rel="next"]').href;
+            const nextLink = document.querySelector('link[rel="next"]');
             if (nextLink && nextLink.href) {
               window.location.href = nextLink.href;
-              return false;
+              event.preventDefault();
             }
             break;
           case "Escape":
             if (!DOCUMENTATION_OPTIONS.ENABLE_SEARCH_SHORTCUTS)
               break;
             Documentation.hideSearchWords();
-            return false;
+            event.preventDefault();
         }
       }
 
@@ -259,7 +257,7 @@ const Documentation = {
           if (!DOCUMENTATION_OPTIONS.ENABLE_SEARCH_SHORTCUTS)
             break;
           Documentation.focusSearchBar();
-          return false;
+          event.preventDefault();
       }
     });
   },

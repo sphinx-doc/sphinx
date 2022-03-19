@@ -1,12 +1,6 @@
-"""
-    sphinx.builders.epub3
-    ~~~~~~~~~~~~~~~~~~~~~
+"""Build epub3 files.
 
-    Build epub3 files.
-    Originally derived from epub.py.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+Originally derived from epub.py.
 """
 
 import html

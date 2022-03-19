@@ -1,12 +1,4 @@
-"""
-    sphinx.deprecation
-    ~~~~~~~~~~~~~~~~~~
-
-    Sphinx deprecation classes and utilities.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Sphinx deprecation classes and utilities."""
 
 import sys
 import warnings

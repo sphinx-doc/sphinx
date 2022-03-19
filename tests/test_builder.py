@@ -1,12 +1,4 @@
-"""
-    test_builder
-    ~~~~~~~~
-
-    Test the Builder class.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the Builder class."""
 import pytest
 
 

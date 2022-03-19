@@ -1,12 +1,4 @@
-"""
-    sphinx.theming
-    ~~~~~~~~~~~~~~
-
-    Theming support for HTML builders.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Theming support for HTML builders."""
 
 import configparser
 import os

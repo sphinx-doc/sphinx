@@ -1,12 +1,4 @@
-"""
-    test_extension
-    ~~~~~~~~~~~~~~
-
-    Test sphinx.extension module.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test sphinx.extension module."""
 
 import pytest
 

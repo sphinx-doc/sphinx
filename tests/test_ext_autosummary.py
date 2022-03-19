@@ -1,12 +1,4 @@
-"""
-    test_autosummary
-    ~~~~~~~~~~~~~~~~
-
-    Test the autosummary extension.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the autosummary extension."""
 
 import sys
 from io import StringIO

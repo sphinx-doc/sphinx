@@ -1,13 +1,8 @@
-"""
-    sphinx.ext.mathjax
-    ~~~~~~~~~~~~~~~~~~
+"""Allow `MathJax`_ to be used to display math in Sphinx's HTML writer.
 
-    Allow `MathJax <https://www.mathjax.org/>`_ to be used to display math in
-    Sphinx's HTML writer -- requires the MathJax JavaScript library on your
-    webserver/computer.
+This requires the MathJax JavaScript library on your webserver/computer.
 
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+.. _MathJax: https://www.mathjax.org/
 """
 
 import json

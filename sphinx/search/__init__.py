@@ -1,12 +1,4 @@
-"""
-    sphinx.search
-    ~~~~~~~~~~~~~
-
-    Create a full-text search index for offline search.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Create a full-text search index for offline search."""
 import html
 import pickle
 import re

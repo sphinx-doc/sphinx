@@ -1,12 +1,4 @@
-"""
-    test_build_changes
-    ~~~~~~~~~~~~~~~~~~
-
-    Test the ChangesBuilder class.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the ChangesBuilder class."""
 
 import pytest
 

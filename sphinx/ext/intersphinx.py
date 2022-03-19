@@ -1,26 +1,19 @@
-"""
-    sphinx.ext.intersphinx
-    ~~~~~~~~~~~~~~~~~~~~~~
+"""Insert links to objects documented in remote Sphinx documentation.
 
-    Insert links to objects documented in remote Sphinx documentation.
+This works as follows:
 
-    This works as follows:
+* Each Sphinx HTML build creates a file named "objects.inv" that contains a
+  mapping from object names to URIs relative to the HTML set's root.
 
-    * Each Sphinx HTML build creates a file named "objects.inv" that contains a
-      mapping from object names to URIs relative to the HTML set's root.
+* Projects using the Intersphinx extension can specify links to such mapping
+  files in the `intersphinx_mapping` config value.  The mapping will then be
+  used to resolve otherwise missing references to objects into links to the
+  other documentation.
 
-    * Projects using the Intersphinx extension can specify links to such mapping
-      files in the `intersphinx_mapping` config value.  The mapping will then be
-      used to resolve otherwise missing references to objects into links to the
-      other documentation.
-
-    * By default, the mapping file is assumed to be at the same location as the
-      rest of the documentation; however, the location of the mapping file can
-      also be specified individually, e.g. if the docs should be buildable
-      without Internet access.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+* By default, the mapping file is assumed to be at the same location as the
+  rest of the documentation; however, the location of the mapping file can
+  also be specified individually, e.g. if the docs should be buildable
+  without Internet access.
 """
 
 import concurrent.futures

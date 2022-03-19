@@ -1,12 +1,4 @@
-"""
-    test_util_nodes
-    ~~~~~~~~~~~~~~~
-
-    Tests uti.nodes functions.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests uti.nodes functions."""
 from textwrap import dedent
 from typing import Any
 

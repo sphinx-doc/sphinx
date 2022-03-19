@@ -304,6 +304,22 @@ variables to customize behavior:
    Additional options for :program:`sphinx-build`. These options can
    also be set via the shortcut variable **O** (capital 'o').
 
+.. describe:: NO_COLOR
+
+   When set (regardless of value), :program:`sphinx-build`  will not use color
+   in terminal output. ``NO_COLOR`` takes precedence over ``FORCE_COLOR``. See
+   `no-color.org <https://no-color.org/>`__ for other libraries supporting this
+   community standard.
+
+   .. versionadded:: 4.5.0
+
+.. describe:: FORCE_COLOR
+
+   When set (regardless of value), :program:`sphinx-build` will use color in
+   terminal output. ``NO_COLOR`` takes precedence over ``FORCE_COLOR``.
+
+   .. versionadded:: 4.5.0
+
 .. _when-deprecation-warnings-are-displayed:
 
 Deprecation Warnings

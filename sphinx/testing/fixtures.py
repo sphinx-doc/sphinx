@@ -1,12 +1,4 @@
-"""
-    sphinx.testing.fixtures
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
-    Sphinx test fixtures for pytest
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Sphinx test fixtures for pytest"""
 
 import subprocess
 import sys

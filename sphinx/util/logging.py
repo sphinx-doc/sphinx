@@ -1,12 +1,4 @@
-"""
-    sphinx.util.logging
-    ~~~~~~~~~~~~~~~~~~~
-
-    Logging utility functions for Sphinx.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Logging utility functions for Sphinx."""
 
 import logging
 import logging.handlers
