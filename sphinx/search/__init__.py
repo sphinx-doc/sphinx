@@ -11,7 +11,6 @@ from docutils.nodes import Element, Node
 
 from sphinx import addnodes, package_dir
 from sphinx.environment import BuildEnvironment
-from sphinx.search.jssplitter import splitter_code
 from sphinx.util import jsdump
 
 
@@ -48,7 +47,7 @@ class SearchLanguage:
     lang: str = None
     language_name: str = None
     stopwords: Set[str] = set()
-    js_splitter_code: str = None
+    js_splitter_code: str = ""
     js_stemmer_rawcode: str = None
     js_stemmer_code = """
 /**
@@ -262,7 +261,7 @@ class IndexBuilder:
                 self.js_scorer_code = fp.read().decode()
         else:
             self.js_scorer_code = ''
-        self.js_splitter_code = splitter_code
+        self.js_splitter_code = ""
 
     def load(self, stream: IO, format: Any) -> None:
         """Reconstruct from frozen data."""

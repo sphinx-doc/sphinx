@@ -13,7 +13,7 @@
 /**
  * Simple result scoring code.
  */
-if (!Scorer) {
+if (typeof Scorer === "undefined") {
   var Scorer = {
     // Implement the following function to further tweak the score for each result
     // The function takes a result array [docname, title, anchor, descr, score, filename]
@@ -131,6 +131,20 @@ const _displayNextItem = (
   // search finished, update title and status message
   else _finishSearch(resultCount);
 };
+
+/**
+ * Default splitQuery function. Can be overridden in ``sphinx.search`` with a
+ * custom function per language.
+ *
+ * The regular expression works by splitting the string on consecutive characters
+ * that are not Unicode letters, numbers, underscores, or emoji characters.
+ * This is the same as ``\W+`` in Python, preserving the surrogate pair area.
+ */
+if (typeof splitQuery === "undefined") {
+  var splitQuery = (query) => query
+      .split(/[^\p{Letter}\p{Number}_\p{Emoji_Presentation}]+/gu)
+      .filter(term => term)  // remove remaining empty strings
+}
 
 /**
  * Search Module
