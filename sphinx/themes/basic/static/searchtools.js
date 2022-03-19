@@ -323,7 +323,8 @@ const Search = {
 
     const results = [];
 
-    const objectSearchCallback = (prefix, name) => {
+    const objectSearchCallback = (prefix, match) => {
+      const name = match[4]
       const fullname = (prefix ? prefix + "." : "") + name;
       const fullnameLower = fullname.toLowerCase();
       if (fullnameLower.indexOf(object) < 0) return;
@@ -338,7 +339,6 @@ const Search = {
       else if (parts.slice(-1)[0].indexOf(object) > -1)
         score += Scorer.objPartialMatch; // matches in last name
 
-      const match = objects[prefix][name];
       const objName = objNames[match[1]][2];
       const title = titles[match[0]];
 
@@ -375,8 +375,8 @@ const Search = {
       ]);
     };
     Object.keys(objects).forEach((prefix) =>
-      Object.keys(objects[prefix]).forEach((name) =>
-        objectSearchCallback(prefix, name)
+      objects[prefix].forEach((array) =>
+        objectSearchCallback(prefix, array)
       )
     );
     return results;
