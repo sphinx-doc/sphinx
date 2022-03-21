@@ -1399,7 +1399,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             except (AttributeError, TypeError):
                 # failed to update signature (ex. built-in or extension types)
                 return None
-        
+
         return func
 
 
