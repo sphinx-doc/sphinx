@@ -34,6 +34,7 @@ Bugs fixed
   ``no-value`` option
 * #9971: autodoc: TypeError is raised when the target object is annotated by
   unhashable object
+* #10277: html search: Could not search short words (ex. "use")
 * #9529: LaTeX: named auto numbered footnote (ex. ``[#named]``) that is referred
   multiple times was rendered to a question mark
 * #9924: LaTeX: multi-line :rst:dir:`cpp:function` directive has big vertical
