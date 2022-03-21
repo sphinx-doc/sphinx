@@ -42,6 +42,7 @@ Bugs fixed
   variables/structure members 
 * #10175: LaTeX: named footnote reference is linked to an incorrect footnote if
   the name is also used in the different document
+* #10269: manpage: Failed to resolve the title of :ref: cross references
 * #10179: i18n: suppress "rST localization" warning
 * #10118: imgconverter: Unnecessary availablity check is called for remote URIs
 * #10181: napoleon: attributes are displayed like class attributes for google
