@@ -150,10 +150,10 @@ def get_verifier(verify, verify_re):
         'verify',
         ':pep:`8`',
         ('<p><span class="target" id="index-0"></span><a class="pep reference external" '
-         'href="https://peps.python.org/pep-0008"><strong>PEP 8</strong></a></p>'),
+         'href="https://peps.python.org/pep-0008/"><strong>PEP 8</strong></a></p>'),
         ('\\sphinxAtStartPar\n'
          '\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
-         '!PEP 8@\\spxentry{PEP 8}}\\sphinxhref{https://peps.python.org/pep-0008}'
+         '!PEP 8@\\spxentry{PEP 8}}\\sphinxhref{https://peps.python.org/pep-0008/}'
          '{\\sphinxstylestrong{PEP 8}}')
     ),
     (
@@ -161,12 +161,12 @@ def get_verifier(verify, verify_re):
         'verify',
         ':pep:`8#id1`',
         ('<p><span class="target" id="index-0"></span><a class="pep reference external" '
-         'href="https://peps.python.org/pep-0008#id1">'
+         'href="https://peps.python.org/pep-0008/#id1">'
          '<strong>PEP 8#id1</strong></a></p>'),
         ('\\sphinxAtStartPar\n'
          '\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
          '!PEP 8\\#id1@\\spxentry{PEP 8\\#id1}}\\sphinxhref'
-         '{https://peps.python.org/pep-0008\\#id1}'
+         '{https://peps.python.org/pep-0008/\\#id1}'
          '{\\sphinxstylestrong{PEP 8\\#id1}}')
     ),
     (
