@@ -57,7 +57,7 @@ def function_with_types_in_docstring(param1, param2):
         bool: The return value. True for success, False otherwise.
 
     .. _PEP 484:
-        https://www.python.org/dev/peps/pep-0484/
+        https://peps.python.org/pep-0484/
 
     """
 

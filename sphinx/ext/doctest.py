@@ -41,7 +41,7 @@ def is_allowed_version(spec: str, version: str) -> bool:
     """Check `spec` satisfies `version` or not.
 
     This obeys PEP-440 specifiers:
-    https://www.python.org/dev/peps/pep-0440/#version-specifiers
+    https://peps.python.org/pep-0440/#version-specifiers
 
     Some examples:
 

@@ -50,7 +50,7 @@ the documentation, so it doesn't modify any of the docstrings in your actual
 source code files.
 
 .. _ReStructuredText: https://docutils.sourceforge.io/rst.html
-.. _docstrings: https://www.python.org/dev/peps/pep-0287/
+.. _docstrings: https://peps.python.org/pep-0287/
 .. _Google Python Style Guide:
    https://google.github.io/styleguide/pyguide.html
 .. _Google:
@@ -267,9 +267,9 @@ Google style with types in docstrings::
    `Python 2/3 compatible annotations`_ aren't currently
    supported by Sphinx and won't show up in the docs.
 
-.. _PEP 484: https://www.python.org/dev/peps/pep-0484/
-.. _PEP 526: https://www.python.org/dev/peps/pep-0526/
-.. _Python 2/3 compatible annotations: https://www.python.org/dev/peps/pep-0484/#suggested-syntax-for-python-2-7-and-straddling-code
+.. _PEP 484: https://peps.python.org/pep-0484/
+.. _PEP 526: https://peps.python.org/pep-0526/
+.. _Python 2/3 compatible annotations: https://peps.python.org/pep-0484/#suggested-syntax-for-python-2-7-and-straddling-code
 
 
 Configuration
