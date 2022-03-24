@@ -94,7 +94,7 @@ a comma-separated list of group names.
      * ``===``: Arbitrary equality clause.
 
      ``pyversion`` option is followed `PEP-440: Version Specifiers
-     <https://www.python.org/dev/peps/pep-0440/#version-specifiers>`__.
+     <https://peps.python.org/pep-0440/#version-specifiers>`__.
 
      .. versionadded:: 1.6
 

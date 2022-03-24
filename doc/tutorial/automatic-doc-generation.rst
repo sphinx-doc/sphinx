@@ -5,7 +5,7 @@ In the :ref:`previous section <tutorial-describing-objects>` of the tutorial
 you manually documented a Python function in Sphinx. However, the description
 was out of sync with the code itself, since the function signature was not
 the same. Besides, it would be nice to reuse `Python
-docstrings <https://www.python.org/dev/peps/pep-0257/#what-is-a-docstring>`_
+docstrings <https://peps.python.org/pep-0257/#what-is-a-docstring>`_
 in the documentation, rather than having to write the information in two
 places.
 
