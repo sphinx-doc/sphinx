@@ -10,7 +10,6 @@ from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import Config
-from sphinx.errors import NoUri
 from sphinx.locale import __
 from sphinx.util import logging, progress_message
 from sphinx.util.console import darkgreen  # type: ignore
@@ -41,9 +40,7 @@ class ManualPageBuilder(Builder):
         return 'all manpages'  # for now
 
     def get_target_uri(self, docname: str, typ: str = None) -> str:
-        if typ == 'token':
-            return ''
-        raise NoUri(docname, typ)
+        return ''
 
     @progress_message(__('writing'))
     def write(self, *ignored: Any) -> None:
