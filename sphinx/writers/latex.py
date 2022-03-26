@@ -1317,6 +1317,9 @@ class LaTeXTranslator(SphinxTranslator):
         if include_graphics_options:
             options = '[%s]' % ','.join(include_graphics_options)
         base, ext = path.splitext(uri)
+        # escape filepath for includegraphics, https://tex.stackexchange.com/q/202705/41112
+        base = base.replace('#', r'\string#')
+
         if self.in_title and base:
             # Lowercase tokens forcely because some fncychap themes capitalize
             # the options of \sphinxincludegraphics unexpectedly (ex. WIDTH=...).
