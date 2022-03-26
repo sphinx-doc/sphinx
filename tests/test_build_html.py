@@ -1398,13 +1398,13 @@ def test_html_remote_images(app, status, warning):
     assert not (app.outdir / 'python-logo.png').exists()
 
 
-@pytest.mark.sphinx('html', testroot='images')
+@pytest.mark.sphinx('html')
 def test_html_encoded_image(app, status, warning):
     app.builder.build_all()
 
-    result = (app.outdir / 'index.html').read_text()
+    result = (app.outdir / 'images.html').read_text()
     assert ('<img alt="_images/img_%231.png" src="_images/img_%231.png" />' in result)
-    assert (app.outdir / '_static/img_#1.png').exists()
+    assert (app.outdir / '_images/img_#1.png').exists()
 
 
 @pytest.mark.sphinx('html', testroot='remote-logo')

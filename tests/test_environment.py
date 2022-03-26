@@ -63,9 +63,9 @@ def test_images(app):
     htmlbuilder.imgpath = 'dummy'
     htmlbuilder.post_process_images(tree)
     assert set(htmlbuilder.images.keys()) == \
-        {'subdir/img.png', 'img.png', 'subdir/simg.png', 'svgimg.svg', 'img.foo.png'}
+        {'subdir/img.png', 'img.png', 'subdir/simg.png', 'svgimg.svg', 'img.foo.png', 'img_#1.png'}
     assert set(htmlbuilder.images.values()) == \
-        {'img.png', 'img1.png', 'simg.png', 'svgimg.svg', 'img.foo.png'}
+        {'img.png', 'img1.png', 'simg.png', 'svgimg.svg', 'img.foo.png', 'img_#1.png'}
 
     latexbuilder = LaTeXBuilder(app)
     latexbuilder.set_environment(app.env)
@@ -73,10 +73,10 @@ def test_images(app):
     latexbuilder.post_process_images(tree)
     assert set(latexbuilder.images.keys()) == \
         {'subdir/img.png', 'subdir/simg.png', 'img.png', 'img.pdf',
-         'svgimg.pdf', 'img.foo.png'}
+         'svgimg.pdf', 'img.foo.png', 'img_#1.png'}
     assert set(latexbuilder.images.values()) == \
         {'img.pdf', 'img.png', 'img1.png', 'simg.png',
-         'svgimg.pdf', 'img.foo.png'}
+         'svgimg.pdf', 'img.foo.png', 'img_#1.png'}
 
 
 @pytest.mark.sphinx('dummy')
