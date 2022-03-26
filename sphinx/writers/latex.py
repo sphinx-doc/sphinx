@@ -1326,7 +1326,7 @@ class LaTeXTranslator(SphinxTranslator):
             cmd = r'\sphinxincludegraphics%s{{%s}%s}' % (options, base, ext)
         # escape filepath for includegraphics, https://tex.stackexchange.com/a/202714/41112
         if '#' in base:
-            cmd = '{\catcode`\#=12' + cmd + '}'
+            cmd = r'{\catcode`\#=12' + cmd + '}'
         self.body.append(cmd)
         self.body.extend(post)
 
