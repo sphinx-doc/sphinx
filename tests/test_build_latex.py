@@ -66,8 +66,8 @@ def compile_latex_document(app, filename='python.tex'):
     except OSError as exc:  # most likely the latex executable was not found
         raise pytest.skip.Exception from exc
     except CalledProcessError as exc:
-        print(exc.stdout)
-        print(exc.stderr)
+        print(exc.stdout.decode('utf8'))
+        print(exc.stderr.decode('utf8'))
         assert False, '%s exited with return code %s' % (app.config.latex_engine,
                                                          exc.returncode)
 
