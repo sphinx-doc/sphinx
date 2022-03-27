@@ -44,6 +44,7 @@ Bugs fixed
   ``no-value`` option
 * #9971: autodoc: TypeError is raised when the target object is annotated by
   unhashable object
+* #10205: extlinks: Failed to compile regexp on checking hardcoded links
 * #10277: html search: Could not search short words (ex. "use")
 * #9529: LaTeX: named auto numbered footnote (ex. ``[#named]``) that is referred
   multiple times was rendered to a question mark
