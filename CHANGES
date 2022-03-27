@@ -1,8 +1,5 @@
-Release 4.5.0 (in development)
-==============================
-
-Dependencies
-------------
+Release 4.5.0 (released Mar 28, 2022)
+=====================================
 
 Incompatible changes
 --------------------
@@ -61,9 +58,6 @@ Bugs fixed
   style docstrings when :confval:`napoleon_use_ivar` is enabled
 * #10122: sphinx-build: make.bat does not check the installation of sphinx-build
   command before showing help
-
-Testing
---------
 
 Release 4.4.0 (released Jan 17, 2022)
 =====================================
