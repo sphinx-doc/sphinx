@@ -912,6 +912,9 @@ def test_domain_cpp_ast_requires_clauses():
     check('class',
           'template<typename T> requires IsValid<T> {key}T : Base',
           {4: 'I0EIQ7IsValidI1TEE1T'}, key='class')
+    check('union',
+          'template<typename T> requires IsValid<T> {key}T',
+          {4: 'I0EIQ7IsValidI1TEE1T'}, key='union')
     check('member',
           'template<typename T> requires IsValid<T> int Val = 7',
           {4: 'I0EIQ7IsValidI1TEE3Val'})
