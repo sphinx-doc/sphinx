@@ -74,7 +74,7 @@ Bugs fixed
 Testing
 --------
 
-Release 4.5.0 (in development)
+Release 4.5.1 (in development)
 ==============================
 
 Dependencies
@@ -83,7 +83,27 @@ Dependencies
 Incompatible changes
 --------------------
 
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 4.5.0 (released Mar 28, 2022)
+=====================================
+
+Incompatible changes
+--------------------
+
 * #10112: extlinks: Disable hardcoded links detector by default
+* #9993, #10177: std domain: Disallow to refer an inline target via
+  :rst:role:`ref` role
 
 Deprecated
 ----------
@@ -103,17 +123,22 @@ Features added
 * #9337: HTML theme, add option ``enable_search_shortcuts`` that enables :kbd:'/' as
          a Quick search shortcut and :kbd:`Esc` shortcut that
          removes search highlighting.
+* #10107: i18n: Allow to suppress translation warnings by adding ``#noqa``
+  comment to the tail of each translation message
 * #10252: C++, support attributes on classes, unions, and enums.
 * #10253: :rst:dir:`pep` role now generates URLs based on peps.python.org
 
 Bugs fixed
 ----------
 
+* #9876: autodoc: Failed to document an imported class that is built from native
+  binary module
 * #10133: autodoc: Crashed when mocked module is used for type annotation
 * #10146: autodoc: :confval:`autodoc_default_options` does not support
   ``no-value`` option
 * #9971: autodoc: TypeError is raised when the target object is annotated by
   unhashable object
+* #10205: extlinks: Failed to compile regexp on checking hardcoded links
 * #10277: html search: Could not search short words (ex. "use")
 * #9529: LaTeX: named auto numbered footnote (ex. ``[#named]``) that is referred
   multiple times was rendered to a question mark
@@ -130,33 +155,6 @@ Bugs fixed
   style docstrings when :confval:`napoleon_use_ivar` is enabled
 * #10122: sphinx-build: make.bat does not check the installation of sphinx-build
   command before showing help
-
-Testing
---------
-
-Release 4.4.1 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-* #9876: autodoc: Failed to document an imported class that is built from native
-  binary module
-
-Testing
---------
 
 Release 4.4.0 (released Jan 17, 2022)
 =====================================
