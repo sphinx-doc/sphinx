@@ -6508,7 +6508,14 @@ class DefinitionParser(BaseParser):
                 declSpecs = self._parse_decl_specs(outer=outer, typed=False)
                 decl = self._parse_declarator(named=True, paramMode=outer,
                                               typed=False)
-                self.assert_end(allowSemicolon=True)
+                must_end = True
+                if outer == 'function':
+                    # Allow trailing requires on constructors
+                    self.skip_ws()
+                    if re.compile(r'requires\b').match(self.definition, self.pos):
+                        must_end = False
+                if must_end:
+                    self.assert_end(allowSemicolon=True)
             except DefinitionError as exUntyped:
                 if outer == 'type':
                     desc = "If just a name"
