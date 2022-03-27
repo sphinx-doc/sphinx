@@ -8,6 +8,8 @@ Incompatible changes
 --------------------
 
 * #10112: extlinks: Disable hardcoded links detector by default
+* #9993, #10177: std domain: Disallow to refer an inline target via
+  :rst:role:`ref` role
 
 Deprecated
 ----------
