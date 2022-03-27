@@ -136,6 +136,30 @@ def patched_get_language() -> Generator[None, None, None]:
 
 
 @contextmanager
+def patched_rst_get_language() -> Generator[None, None, None]:
+    """Patch docutils.parsers.rst.languages.get_language().
+    Starting from docutils 0.17, get_language() in ``rst.languages``
+    also has a reporter, which needs to be disabled temporarily.
+
+    This should also work for old versions of docutils,
+    because reporter is none by default.
+
+    refs: https://github.com/sphinx-doc/sphinx/issues/10179
+    """
+    from docutils.parsers.rst.languages import get_language
+
+    def patched_get_language(language_code: str, reporter: Reporter = None) -> Any:
+        return get_language(language_code)
+
+    try:
+        docutils.parsers.rst.languages.get_language = patched_get_language
+        yield
+    finally:
+        # restore original implementations
+        docutils.parsers.rst.languages.get_language = get_language
+
+
+@contextmanager
 def using_user_docutils_conf(confdir: Optional[str]) -> Generator[None, None, None]:
     """Let docutils know the location of ``docutils.conf`` for Sphinx."""
     try:
@@ -154,7 +178,7 @@ def using_user_docutils_conf(confdir: Optional[str]) -> Generator[None, None, No
 @contextmanager
 def patch_docutils(confdir: Optional[str] = None) -> Generator[None, None, None]:
     """Patch to docutils temporarily."""
-    with patched_get_language(), using_user_docutils_conf(confdir):
+    with patched_get_language(), patched_rst_get_language(), using_user_docutils_conf(confdir):
         yield
 
 

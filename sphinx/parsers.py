@@ -11,7 +11,9 @@ from docutils.statemachine import StringList
 from docutils.transforms import Transform
 from docutils.transforms.universal import SmartQuotes
 
+from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx50Warning
+from sphinx.environment import BuildEnvironment
 from sphinx.util.rst import append_epilog, prepend_prolog
 
 if TYPE_CHECKING:
@@ -24,24 +26,14 @@ class Parser(docutils.parsers.Parser):
     of ``docutils.parsers.Parser``.  Compared with ``docutils.parsers.Parser``, this class
     improves accessibility to Sphinx APIs.
 
-    The subclasses can access the following objects and functions:
-
-    self.app
-        The application object (:class:`sphinx.application.Sphinx`)
-    self.config
-        The config object (:class:`sphinx.config.Config`)
-    self.env
-        The environment object (:class:`sphinx.environment.BuildEnvironment`)
-    self.warn()
-        Emit a warning. (Same as :meth:`sphinx.application.Sphinx.warn()`)
-    self.info()
-        Emit an info message. (Same as :meth:`sphinx.application.Sphinx.info()`)
-
-    .. deprecated:: 1.6
-       ``warn()`` and ``info()`` is deprecated.  Use :mod:`sphinx.util.logging` instead.
-    .. deprecated:: 3.0
-       parser.app is deprecated.
+    The subclasses can access sphinx core runtime objects (app, config and env).
     """
+
+    #: The config object
+    config: Config
+
+    #: The environment object
+    env: BuildEnvironment
 
     def set_application(self, app: "Sphinx") -> None:
         """set_application will be called from Sphinx to set app and other instance variables
@@ -54,6 +46,10 @@ class Parser(docutils.parsers.Parser):
 
     @property
     def app(self) -> "Sphinx":
+        """The application object
+
+        .. deprecated:: 3.0
+        """
         warnings.warn('parser.app is deprecated.', RemovedInSphinx50Warning, stacklevel=2)
         return self._app
 

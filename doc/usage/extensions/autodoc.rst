@@ -634,8 +634,8 @@ There are also config values that you can set:
    full-qualified object name.  It is used to keep type aliases not evaluated in
    the document.  Defaults to empty (``{}``).
 
-   The type aliases are only available if your program enables `Postponed
-   Evaluation of Annotations (PEP 563)`__ feature via ``from __future__ import
+   The type aliases are only available if your program enables :pep:`Postponed
+   Evaluation of Annotations (PEP 563) <563>` feature via ``from __future__ import
    annotations``.
 
    For example, there is code using a type alias::
@@ -662,7 +662,6 @@ There are also config values that you can set:
 
         ...
 
-   .. __: https://www.python.org/dev/peps/pep-0563/
    .. __: https://mypy.readthedocs.io/en/latest/kinds_of_types.html#type-aliases
    .. versionadded:: 3.3
 

@@ -394,7 +394,7 @@ def split_full_qualified_name(name: str) -> Tuple[Optional[str], str]:
     """Split full qualified name to a pair of modname and qualname.
 
     A qualname is an abbreviation for "Qualified name" introduced at PEP-3155
-    (https://www.python.org/dev/peps/pep-3155/).  It is a dotted path name
+    (https://peps.python.org/pep-3155/).  It is a dotted path name
     from the module top-level.
 
     A "full" qualified name means a string containing both module name and

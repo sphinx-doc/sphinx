@@ -193,9 +193,9 @@ class PEP(ReferenceRole):
         base_url = self.inliner.document.settings.pep_base_url
         ret = self.target.split('#', 1)
         if len(ret) == 2:
-            return base_url + 'pep-%04d#%s' % (int(ret[0]), ret[1])
+            return base_url + 'pep-%04d/#%s' % (int(ret[0]), ret[1])
         else:
-            return base_url + 'pep-%04d' % int(ret[0])
+            return base_url + 'pep-%04d/' % int(ret[0])
 
 
 class RFC(ReferenceRole):

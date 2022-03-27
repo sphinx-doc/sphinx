@@ -256,10 +256,6 @@ const Search = {
 
       // stem the word
       let word = stemmer.stemWord(queryTermLower);
-      // prevent stemmer from cutting word smaller than two chars
-      if (word.length < 3 && queryTerm.length >= 3) {
-        word = queryTerm;
-      }
       // select the correct list
       if (word[0] === "-") excludedTerms.add(word.substr(1));
       else {

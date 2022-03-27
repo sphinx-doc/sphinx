@@ -45,6 +45,9 @@ class ExternalLinksChecker(SphinxPostTransform):
     default_priority = 500
 
     def run(self, **kwargs: Any) -> None:
+        if not self.config.extlinks_detect_hardcoded_links:
+            return
+
         for refnode in self.document.findall(nodes.reference):
             self.check_uri(refnode)
 
@@ -119,6 +122,8 @@ def setup_link_roles(app: Sphinx) -> None:
 
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('extlinks', {}, 'env')
+    app.add_config_value('extlinks_detect_hardcoded_links', False, 'env')
+
     app.connect('builder-inited', setup_link_roles)
     app.add_post_transform(ExternalLinksChecker)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

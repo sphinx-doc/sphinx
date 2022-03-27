@@ -109,7 +109,7 @@ texinfo_documents = [
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3/', None),
-    'requests': ('https://requests.readthedocs.io/en/master', None),
+    'requests': ('https://docs.python-requests.org/en/latest/', None),
     'readthedocs': ('https://docs.readthedocs.io/en/stable', None),
 }
 
