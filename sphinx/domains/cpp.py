@@ -6983,7 +6983,7 @@ class DefinitionParser(BaseParser):
         if self.match(_visibility_re):
             visibility = self.matched_text
 
-        if objectType in ('type', 'concept', 'member', 'function', 'class'):
+        if objectType in ('type', 'concept', 'member', 'function', 'class', 'union'):
             templatePrefix = self._parse_template_declaration_prefix(objectType)
 
         if objectType == 'type':
