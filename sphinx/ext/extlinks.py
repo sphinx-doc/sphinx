@@ -26,6 +26,7 @@
 """
 
 import re
+import sys
 import warnings
 from typing import Any, Dict, List, Tuple
 
@@ -70,7 +71,12 @@ class ExternalLinksChecker(SphinxPostTransform):
         title = refnode.astext()
 
         for alias, (base_uri, _caption) in self.app.config.extlinks.items():
-            uri_pattern = re.compile(re.escape(base_uri).replace('%s', '(?P<value>.+)'))
+            if sys.version_info < (3, 7):
+                # Replace a leading backslash because re.escape() inserts a backslash before % on python 3.6
+                uri_pattern = re.compile(re.escape(base_uri).replace('\\%s', '(?P<value>.+)'))
+            else:
+                uri_pattern = re.compile(re.escape(base_uri).replace('%s', '(?P<value>.+)'))
+
             match = uri_pattern.match(uri)
             if match and match.groupdict().get('value'):
                 # build a replacement suggestion
