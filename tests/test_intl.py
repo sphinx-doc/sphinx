@@ -189,6 +189,32 @@ def test_text_inconsistency_warnings(app, warning):
 @sphinx_intl
 @pytest.mark.sphinx('text')
 @pytest.mark.test_params(shared_result='test_intl_basic')
+def test_noqa(app, warning):
+    app.build()
+    result = (app.outdir / 'noqa.txt').read_text()
+    expect = r"""FIRST SECTION
+*************
+
+TRANSLATED TEXT WITHOUT REFERENCE.
+
+TEST noqa WHITESPACE INSENSITIVITY.
+
+"#noqa" IS ESCAPED AT THE END OF THIS STRING. #noqa
+
+
+NEXT SECTION WITH PARAGRAPH TO TEST BARE noqa
+*********************************************
+
+Some text, again referring to the section: NEXT SECTION WITH PARAGRAPH
+TO TEST BARE noqa.
+"""
+    assert result == expect
+    assert "next-section" not in getwarning(warning)
+
+
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_literalblock_warnings(app, warning):
     app.build()
     # --- check warning for literal block
@@ -1179,6 +1205,9 @@ def test_additional_targets_should_be_translated(app):
         """<span class="kn">import</span> <span class="nn">sys</span>  """
         """<span class="c1"># SYS IMPORTING</span>""")
     assert_count(expected_expr, result, 1)
+
+    # '#noqa' should remain in literal blocks.
+    assert_count("#noqa", result, 1)
 
     # [raw.txt]
 
