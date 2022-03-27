@@ -530,7 +530,7 @@ _id_operator_v2 = {
     '()': 'cl',
     '[]': 'ix',
     '.*': 'ds',  # this one is not overloadable, but we need it for expressions
-    '?': 'cn',
+    '?': 'qu',
 }
 _id_operator_unary_v2 = {
     '++': 'pp_',
