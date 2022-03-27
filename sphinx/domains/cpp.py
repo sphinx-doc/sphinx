@@ -1520,41 +1520,41 @@ class ASTBinOpExpr(ASTExpression):
 
 
 class ASTConditionalExpr(ASTExpression):
-    def __init__(self, if_expr: ASTExpression, then_expr: ASTExpression,
-                 else_expr: ASTExpression):
-        self.if_expr = if_expr
-        self.then_expr = then_expr
-        self.else_expr = else_expr
+    def __init__(self, ifExpr: ASTExpression, thenExpr: ASTExpression,
+                 elseExpr: ASTExpression):
+        self.ifExpr = ifExpr
+        self.thenExpr = thenExpr
+        self.elseExpr = elseExpr
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
-        res.append(transform(self.if_expr))
+        res.append(transform(self.ifExpr))
         res.append(' ? ')
-        res.append(transform(self.then_expr))
+        res.append(transform(self.thenExpr))
         res.append(' : ')
-        res.append(transform(self.else_expr))
+        res.append(transform(self.elseExpr))
         return ''.join(res)
 
     def get_id(self, version: int) -> str:
         assert version >= 2
         res = []
         res.append(_id_operator_v2['?'])
-        res.append(self.if_expr.get_id(version))
-        res.append(self.then_expr.get_id(version))
-        res.append(self.else_expr.get_id(version))
+        res.append(self.ifExpr.get_id(version))
+        res.append(self.thenExpr.get_id(version))
+        res.append(self.elseExpr.get_id(version))
         return ''.join(res)
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
-        self.if_expr.describe_signature(signode, mode, env, symbol)
+        self.ifExpr.describe_signature(signode, mode, env, symbol)
         signode += addnodes.desc_sig_space()
         signode += addnodes.desc_sig_operator('?', '?')
         signode += addnodes.desc_sig_space()
-        self.then_expr.describe_signature(signode, mode, env, symbol)
+        self.thenExpr.describe_signature(signode, mode, env, symbol)
         signode += addnodes.desc_sig_space()
         signode += addnodes.desc_sig_operator(':', ':')
         signode += addnodes.desc_sig_space()
-        self.else_expr.describe_signature(signode, mode, env, symbol)
+        self.elseExpr.describe_signature(signode, mode, env, symbol)
 
 
 class ASTBracedInitList(ASTBase):
