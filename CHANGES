@@ -7,6 +7,8 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #10112: extlinks: Disable hardcoded links detector by default
+
 Deprecated
 ----------
 
@@ -18,6 +20,8 @@ Features added
 * #10260: Enable ``FORCE_COLOR`` and ``NO_COLOR`` for terminal colouring
 * #10234: autosummary: Add "autosummary" CSS class to summary tables
 * #10125: extlinks: Improve suggestion message for a reference having title
+* #10112: extlinks: Add :confval:`extlinks_detect_hardcoded_links` to enable
+  hardcoded links detector feature
 * #9494, #9456: html search: Add a config variable
   :confval:`html_show_search_summary` to enable/disable the search summaries
 * #9337: HTML theme, add option ``enable_search_shortcuts`` that enables :kbd:'/' as
