@@ -896,6 +896,8 @@ def test_domain_cpp_ast_requires_clauses():
           {4: 'I0EIQaa1A1BE1fvv'})
     check('function', 'template<typename T> requires A || B or C void f()',
           {4: 'I0EIQoo1Aoo1B1CE1fvv'})
+    check('function', 'void f() requires A || B || C',
+          {4: 'IQoo1Aoo1B1CE1fv'})
     check('function', 'template<typename T> requires A && B || C and D void f()',
           {4: 'I0EIQooaa1A1Baa1C1DE1fvv'})
     check('function',

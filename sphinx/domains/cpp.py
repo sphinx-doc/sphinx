@@ -7003,8 +7003,7 @@ class DefinitionParser(BaseParser):
             declaration = self._parse_type_with_init(named=True, outer='member')
         elif objectType == 'function':
             declaration = self._parse_type(named=True, outer='function')
-            if templatePrefix is not None:
-                trailingRequiresClause = self._parse_requires_clause()
+            trailingRequiresClause = self._parse_requires_clause()
         elif objectType == 'class':
             declaration = self._parse_class()
         elif objectType == 'union':
