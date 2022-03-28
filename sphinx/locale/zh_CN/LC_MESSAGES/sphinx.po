@@ -2944,7 +2944,7 @@ msgstr "基类：%s"
 #: sphinx/ext/autodoc/__init__.py:1884
 #, python-format
 msgid "alias of %s"
-msgstr "%s的别名"
+msgstr "%s 的别名"
 
 #: sphinx/ext/autodoc/__init__.py:1930
 #, python-format
