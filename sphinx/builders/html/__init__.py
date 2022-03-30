@@ -7,7 +7,7 @@ import re
 import sys
 from datetime import datetime
 from os import path
-from typing import IO, Any, Dict, Iterable, Iterator, List, Set, Tuple, Type
+from typing import IO, Any, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Type
 from urllib.parse import quote
 
 from docutils import nodes
@@ -66,6 +66,17 @@ def get_stable_hash(obj: Any) -> str:
     elif isinstance(obj, (list, tuple)):
         obj = sorted(get_stable_hash(o) for o in obj)
     return md5(str(obj).encode()).hexdigest()
+
+
+def convert_locale_to_language_tag(locale: Optional[str]) -> Optional[str]:
+    """Convert a locale string to a language tag (ex. en_US -> en-US).
+
+    refs: BCP 47 (:rfc:`5646`)
+    """
+    if locale:
+        return locale.replace('_', '-')
+    else:
+        return None
 
 
 class Stylesheet(str):
@@ -510,7 +521,7 @@ class StandaloneHTMLBuilder(Builder):
             'file_suffix': self.out_suffix,
             'link_suffix': self.link_suffix,
             'script_files': self.script_files,
-            'language': self.config.language,
+            'language': convert_locale_to_language_tag(self.config.language),
             'css_files': self.css_files,
             'sphinx_version': __display_version__,
             'sphinx_version_tuple': sphinx_version,
