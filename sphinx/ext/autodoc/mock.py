@@ -129,7 +129,8 @@ class MockFinder(MetaPathFinder):
             sys.modules.pop(modname, None)
 
 
-def _method_is_bound(method):
+def _method_is_bound(method: MethodType) -> bool:
+    """Check if the method is a bound method."""
     try:
         return method.__self__ is not None
     except AttributeError:
