@@ -186,6 +186,7 @@ def ismock(subject: Any) -> bool:
 
     return False
 
+
 def undecorate(subject: _MockObject) -> Any:
     """Unwrap mock if *subject* is decorated by mocked object.
 
