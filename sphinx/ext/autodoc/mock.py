@@ -173,13 +173,11 @@ def ismock(subject: Any) -> bool:
 
     # check the object is bound method
     if isinstance(subject, MethodType) and _method_is_bound(subject):
-        tmp_subject = subject.__func__
-    else:
-        tmp_subject = subject
+        return ismock(subject.__func__)
 
     try:
         # check the object is mocked object
-        __mro__ = safe_getattr(type(tmp_subject), '__mro__', [])
+        __mro__ = safe_getattr(type(subject), '__mro__', [])
         if len(__mro__) > 2 and __mro__[-2] is _MockObject:
             # A mocked object has a MRO that ends with (..., _MockObject, object).
             return True
