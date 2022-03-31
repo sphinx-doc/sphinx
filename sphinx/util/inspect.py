@@ -775,7 +775,10 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
                                 annotation=annotation))
 
     for i, arg in enumerate(args.kwonlyargs):
-        default = ast_unparse(args.kw_defaults[i], code) or Parameter.empty  # type: ignore
+        if args.kw_defaults[i] is None:
+            default = Parameter.empty
+        else:
+            default = DefaultValue(ast_unparse(args.kw_defaults[i], code))  # type: ignore  # NOQA
         annotation = ast_unparse(arg.annotation, code) or Parameter.empty
         params.append(Parameter(arg.arg, Parameter.KEYWORD_ONLY, default=default,
                                 annotation=annotation))
