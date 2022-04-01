@@ -129,7 +129,7 @@ class MockFinder(MetaPathFinder):
             sys.modules.pop(modname, None)
 
 
-def _method_is_bound(method: MethodType) -> bool:
+def isboundmethod(method: MethodType) -> bool:
     """Check if the method is a bound method."""
     try:
         return method.__self__ is not None
@@ -173,7 +173,7 @@ def ismock(subject: Any) -> bool:
         return True
 
     # check the object is bound method
-    if isinstance(subject, MethodType) and _method_is_bound(subject):
+    if isinstance(subject, MethodType) and isboundmethod(subject):
         return ismock(subject.__func__)
 
     try:
