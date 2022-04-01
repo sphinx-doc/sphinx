@@ -305,10 +305,7 @@ def isabstractmethod(obj: Any) -> bool:
 
 def isboundmethod(method: MethodType) -> bool:
     """Check if the method is a bound method."""
-    try:
-        return method.__self__ is not None
-    except AttributeError:
-        return False
+    return safe_getattr(method, '__self__', None) is not None
 
 
 def is_cython_function_or_method(obj: Any) -> bool:
