@@ -9,7 +9,7 @@ from types import MethodType, ModuleType
 from typing import Any, Generator, Iterator, List, Optional, Sequence, Tuple, Union
 
 from sphinx.util import logging
-from sphinx.util.inspect import safe_getattr
+from sphinx.util.inspect import isboundmethod, safe_getattr
 
 logger = logging.getLogger(__name__)
 
@@ -127,14 +127,6 @@ class MockFinder(MetaPathFinder):
         """Invalidate mocked modules on sys.modules."""
         for modname in self.mocked_modules:
             sys.modules.pop(modname, None)
-
-
-def isboundmethod(method: MethodType) -> bool:
-    """Check if the method is a bound method."""
-    try:
-        return method.__self__ is not None
-    except AttributeError:
-        return False
 
 
 @contextlib.contextmanager
