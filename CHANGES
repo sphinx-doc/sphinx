@@ -67,6 +67,8 @@ Bugs fixed
 
 * #10279: autodoc: Default values for keyword only arguments in overloaded
   functions are rendered as a string literal
+* #10266: autodoc: :confval:`autodoc_preserve_defaults` does not work for
+  mixture of keyword only arguments with/without defaults
 * #10236: html search: objects are duplicated in search result
 * #9962: texinfo: Deprecation message for ``@definfoenclose`` command on
   bulding texinfo document
