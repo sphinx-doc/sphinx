@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        ref: 4.x
+        ref: 5.x
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
@@ -34,7 +34,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        ref: 4.x
+        ref: 5.x
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
