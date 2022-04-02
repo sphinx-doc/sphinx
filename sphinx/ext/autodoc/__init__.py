@@ -109,12 +109,14 @@ def exclude_members_option(arg: Any) -> Union[object, Set[str]]:
     return {x.strip() for x in arg.split(',') if x.strip()}
 
 
-def inherited_members_option(arg: Any) -> Union[object, Set[str]]:
+def inherited_members_option(arg: Any) -> Set[str]:
     """Used to convert the :members: option to auto directives."""
     if arg in (None, True):
-        return 'object'
+        return {'object'}
+    elif arg:
+        return set(x.strip() for x in arg.split(','))
     else:
-        return arg
+        return set()
 
 
 def member_order_option(arg: Any) -> Optional[str]:
@@ -680,9 +682,11 @@ class Documenter:
         ``autodoc-skip-member`` event.
         """
         def is_filtered_inherited_member(name: str, obj: Any) -> bool:
+            inherited_members = self.options.inherited_members or set()
+
             if inspect.isclass(self.object):
                 for cls in self.object.__mro__:
-                    if cls.__name__ == self.options.inherited_members and cls != self.object:
+                    if cls.__name__ in inherited_members and cls != self.object:
                         # given member is a member of specified *super class*
                         return True
                     elif name in cls.__dict__:

@@ -58,6 +58,9 @@ Features added
 * #9075: autodoc: The default value of :confval:`autodoc_typehints_format` is
   changed to ``'smart'``.  It will suppress the leading module names of
   typehints (ex. ``io.StringIO`` -> ``StringIO``).
+* #8417: autodoc: ``:inherited-members:`` option now takes multiple classes.  It
+  allows to suppress inherited members of several classes on the module at once
+  by specifying the option to :rst:dir:`automodule` directive
 * #10028: Removed internal usages of JavaScript frameworks (jQuery and
   underscore.js) and modernised ``doctools.js`` and ``searchtools.js`` to
   EMCAScript 2018.
