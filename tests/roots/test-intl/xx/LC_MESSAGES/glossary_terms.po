@@ -33,3 +33,27 @@ msgstr "THE CORRESPONDING GLOSSARY #2"
 
 msgid "link to :term:`Some term`."
 msgstr "LINK TO :term:`SOME NEW TERM`."
+
+msgid "Translated glossary should be sorted by translated terms:"
+msgstr "TRANSLATED GLOSSARY SHOULD BE SORTED BY TRANSLATED TERMS:"
+
+msgid "BBB"
+msgstr "TRANSLATED TERM XXX"
+
+msgid "Define BBB"
+msgstr "DEFINE XXX"
+
+msgid "AAA"
+msgstr "TRANSLATED TERM YYY"
+
+msgid "Define AAA"
+msgstr "DEFINE YYY"
+
+msgid "CCC"
+msgstr "TRANSLATED TERM ZZZ"
+
+msgid "EEE"
+msgstr "VVV"
+
+msgid "Define CCC"
+msgstr "DEFINE ZZZ"

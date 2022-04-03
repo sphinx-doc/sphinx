@@ -598,6 +598,7 @@ __ https://pygments.org/docs/lexers
       are removed via :func:`textwrap.dedent()`.  For example::
 
          .. code-block:: ruby
+            :linenos:
             :dedent: 4
 
                 some ruby code
@@ -831,6 +832,9 @@ Glossary
    .. versionchanged:: 1.4
       Index key for glossary term should be considered *experimental*.
 
+   .. versionchanged:: 4.4
+      In internationalized documentation, the ``:sorted:`` flag sorts
+      according to translated terms.
 
 Meta-information markup
 -----------------------

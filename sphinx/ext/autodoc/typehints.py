@@ -1,12 +1,4 @@
-"""
-    sphinx.ext.autodoc.typehints
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Generating content for autodoc using typehints
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Generating content for autodoc using typehints"""
 
 import re
 from collections import OrderedDict
@@ -23,6 +15,11 @@ from sphinx.util import inspect, typing
 def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
                      options: Dict, args: str, retann: str) -> None:
     """Record type hints to env object."""
+    if app.config.autodoc_typehints_format == 'short':
+        mode = 'smart'
+    else:
+        mode = 'fully-qualified'
+
     try:
         if callable(obj):
             annotations = app.env.temp_data.setdefault('annotations', {})
@@ -30,9 +27,9 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
             sig = inspect.signature(obj, type_aliases=app.config.autodoc_type_aliases)
             for param in sig.parameters.values():
                 if param.annotation is not param.empty:
-                    annotation[param.name] = typing.stringify(param.annotation)
+                    annotation[param.name] = typing.stringify(param.annotation, mode)
             if sig.return_annotation is not sig.empty:
-                annotation['return'] = typing.stringify(sig.return_annotation)
+                annotation['return'] = typing.stringify(sig.return_annotation, mode)
     except (TypeError, ValueError):
         pass
 

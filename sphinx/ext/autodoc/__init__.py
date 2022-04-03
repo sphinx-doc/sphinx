@@ -1,13 +1,8 @@
-"""
-    sphinx.ext.autodoc
-    ~~~~~~~~~~~~~~~~~~
+"""Extension to create automatic documentation from code docstrings.
 
-    Automatically insert docstrings for functions, classes or whole modules into
-    the doctree, thus avoiding duplication between docstrings and documentation
-    for those who like elaborate docstrings.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+Automatically insert docstrings for functions, classes or whole modules into
+the doctree, thus avoiding duplication between docstrings and documentation
+for those who like elaborate docstrings.
 """
 
 import re
@@ -711,109 +706,111 @@ class Documenter:
 
         # process members and determine which to skip
         for obj in members:
-            membername, member = obj
-            # if isattr is True, the member is documented as an attribute
-            if member is INSTANCEATTR:
-                isattr = True
-            elif (namespace, membername) in attr_docs:
-                isattr = True
-            else:
-                isattr = False
+            try:
+                membername, member = obj
+                # if isattr is True, the member is documented as an attribute
+                if member is INSTANCEATTR:
+                    isattr = True
+                elif (namespace, membername) in attr_docs:
+                    isattr = True
+                else:
+                    isattr = False
 
-            doc = getdoc(member, self.get_attr, self.config.autodoc_inherit_docstrings,
-                         self.object, membername)
-            if not isinstance(doc, str):
-                # Ignore non-string __doc__
-                doc = None
-
-            # if the member __doc__ is the same as self's __doc__, it's just
-            # inherited and therefore not the member's doc
-            cls = self.get_attr(member, '__class__', None)
-            if cls:
-                cls_doc = self.get_attr(cls, '__doc__', None)
-                if cls_doc == doc:
+                doc = getdoc(member, self.get_attr, self.config.autodoc_inherit_docstrings,
+                             self.object, membername)
+                if not isinstance(doc, str):
+                    # Ignore non-string __doc__
                     doc = None
 
-            if isinstance(obj, ObjectMember) and obj.docstring:
-                # hack for ClassDocumenter to inject docstring via ObjectMember
-                doc = obj.docstring
+                # if the member __doc__ is the same as self's __doc__, it's just
+                # inherited and therefore not the member's doc
+                cls = self.get_attr(member, '__class__', None)
+                if cls:
+                    cls_doc = self.get_attr(cls, '__doc__', None)
+                    if cls_doc == doc:
+                        doc = None
 
-            doc, metadata = separate_metadata(doc)
-            has_doc = bool(doc)
+                if isinstance(obj, ObjectMember) and obj.docstring:
+                    # hack for ClassDocumenter to inject docstring via ObjectMember
+                    doc = obj.docstring
 
-            if 'private' in metadata:
-                # consider a member private if docstring has "private" metadata
-                isprivate = True
-            elif 'public' in metadata:
-                # consider a member public if docstring has "public" metadata
-                isprivate = False
-            else:
-                isprivate = membername.startswith('_')
+                doc, metadata = separate_metadata(doc)
+                has_doc = bool(doc)
 
-            keep = False
-            if ismock(member) and (namespace, membername) not in attr_docs:
-                # mocked module or object
-                pass
-            elif self.options.exclude_members and membername in self.options.exclude_members:
-                # remove members given by exclude-members
+                if 'private' in metadata:
+                    # consider a member private if docstring has "private" metadata
+                    isprivate = True
+                elif 'public' in metadata:
+                    # consider a member public if docstring has "public" metadata
+                    isprivate = False
+                else:
+                    isprivate = membername.startswith('_')
+
                 keep = False
-            elif want_all and special_member_re.match(membername):
-                # special __methods__
-                if self.options.special_members and membername in self.options.special_members:
-                    if membername == '__doc__':
+                if ismock(member) and (namespace, membername) not in attr_docs:
+                    # mocked module or object
+                    pass
+                elif (self.options.exclude_members and
+                      membername in self.options.exclude_members):
+                    # remove members given by exclude-members
+                    keep = False
+                elif want_all and special_member_re.match(membername):
+                    # special __methods__
+                    if (self.options.special_members and
+                            membername in self.options.special_members):
+                        if membername == '__doc__':
+                            keep = False
+                        elif is_filtered_inherited_member(membername, obj):
+                            keep = False
+                        else:
+                            keep = has_doc or self.options.undoc_members
+                    else:
                         keep = False
-                    elif is_filtered_inherited_member(membername, obj):
+                elif (namespace, membername) in attr_docs:
+                    if want_all and isprivate:
+                        if self.options.private_members is None:
+                            keep = False
+                        else:
+                            keep = membername in self.options.private_members
+                    else:
+                        # keep documented attributes
+                        keep = True
+                elif want_all and isprivate:
+                    if has_doc or self.options.undoc_members:
+                        if self.options.private_members is None:
+                            keep = False
+                        elif is_filtered_inherited_member(membername, obj):
+                            keep = False
+                        else:
+                            keep = membername in self.options.private_members
+                    else:
+                        keep = False
+                else:
+                    if (self.options.members is ALL and
+                            is_filtered_inherited_member(membername, obj)):
                         keep = False
                     else:
+                        # ignore undocumented members if :undoc-members: is not given
                         keep = has_doc or self.options.undoc_members
-                else:
-                    keep = False
-            elif (namespace, membername) in attr_docs:
-                if want_all and isprivate:
-                    if self.options.private_members is None:
-                        keep = False
-                    else:
-                        keep = membername in self.options.private_members
-                else:
-                    # keep documented attributes
-                    keep = True
-            elif want_all and isprivate:
-                if has_doc or self.options.undoc_members:
-                    if self.options.private_members is None:
-                        keep = False
-                    elif is_filtered_inherited_member(membername, obj):
-                        keep = False
-                    else:
-                        keep = membername in self.options.private_members
-                else:
-                    keep = False
-            else:
-                if (self.options.members is ALL and
-                        is_filtered_inherited_member(membername, obj)):
-                    keep = False
-                else:
-                    # ignore undocumented members if :undoc-members: is not given
-                    keep = has_doc or self.options.undoc_members
 
-            if isinstance(obj, ObjectMember) and obj.skipped:
-                # forcedly skipped member (ex. a module attribute not defined in __all__)
-                keep = False
+                if isinstance(obj, ObjectMember) and obj.skipped:
+                    # forcedly skipped member (ex. a module attribute not defined in __all__)
+                    keep = False
 
-            # give the user a chance to decide whether this member
-            # should be skipped
-            if self.env.app:
-                # let extensions preprocess docstrings
-                try:
+                # give the user a chance to decide whether this member
+                # should be skipped
+                if self.env.app:
+                    # let extensions preprocess docstrings
                     skip_user = self.env.app.emit_firstresult(
                         'autodoc-skip-member', self.objtype, membername, member,
                         not keep, self.options)
                     if skip_user is not None:
                         keep = not skip_user
-                except Exception as exc:
-                    logger.warning(__('autodoc: failed to determine %r to be documented, '
-                                      'the following exception was raised:\n%s'),
-                                   member, exc, type='autodoc')
-                    keep = False
+            except Exception as exc:
+                logger.warning(__('autodoc: failed to determine %s.%s (%r) to be documented, '
+                                  'the following exception was raised:\n%s'),
+                               self.name, membername, member, exc, type='autodoc')
+                keep = False
 
             if keep:
                 ret.append((membername, member, isattr))
@@ -999,7 +996,8 @@ class ModuleDocumenter(Documenter):
         'platform': identity, 'deprecated': bool_option,
         'member-order': member_order_option, 'exclude-members': exclude_members_option,
         'private-members': members_option, 'special-members': members_option,
-        'imported-members': bool_option, 'ignore-module-all': bool_option
+        'imported-members': bool_option, 'ignore-module-all': bool_option,
+        'no-value': bool_option,
     }
 
     def __init__(self, *args: Any) -> None:
@@ -1295,6 +1293,8 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
     def format_args(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
+        if self.config.autodoc_typehints_format == "short":
+            kwargs.setdefault('unqualified_typehints', True)
 
         try:
             self.env.app.emit('autodoc-before-process-signature', self.object, False)
@@ -1323,6 +1323,9 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             self.add_line('   :async:', sourcename)
 
     def format_signature(self, **kwargs: Any) -> str:
+        if self.config.autodoc_typehints_format == "short":
+            kwargs.setdefault('unqualified_typehints', True)
+
         sigs = []
         if (self.analyzer and
                 '.'.join(self.objpath) in self.analyzer.overloads and
@@ -1561,6 +1564,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     def format_args(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
+        if self.config.autodoc_typehints_format == "short":
+            kwargs.setdefault('unqualified_typehints', True)
 
         try:
             self._signature_class, self._signature_method_name, sig = self._get_signature()
@@ -1575,12 +1580,29 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         return stringify_signature(sig, show_return_annotation=False, **kwargs)
 
+    def _find_signature(self) -> Tuple[str, str]:
+        result = super()._find_signature()
+        if result is not None:
+            # Strip a return value from signature of constructor in docstring (first entry)
+            result = (result[0], None)
+
+        for i, sig in enumerate(self._signatures):
+            if sig.endswith(' -> None'):
+                # Strip a return value from signatures of constructor in docstring (subsequent
+                # entries)
+                self._signatures[i] = sig[:-8]
+
+        return result
+
     def format_signature(self, **kwargs: Any) -> str:
         if self.doc_as_attr:
             return ''
         if self.config.autodoc_class_signature == 'separated':
             # do not show signatures
             return ''
+
+        if self.config.autodoc_typehints_format == "short":
+            kwargs.setdefault('unqualified_typehints', True)
 
         sig = super().format_signature()
         sigs = []
@@ -1653,7 +1675,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if not self.doc_as_attr and self.options.show_inheritance:
             if inspect.getorigbases(self.object):
                 # A subclass of generic types
-                # refs: PEP-560 <https://www.python.org/dev/peps/pep-0560/>
+                # refs: PEP-560 <https://peps.python.org/pep-0560/>
                 bases = list(self.object.__orig_bases__)
             elif hasattr(self.object, '__bases__') and len(self.object.__bases__):
                 # A normal class
@@ -1664,7 +1686,11 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             self.env.events.emit('autodoc-process-bases',
                                  self.fullname, self.object, self.options, bases)
 
-            base_classes = [restify(cls) for cls in bases]
+            if self.config.autodoc_typehints_format == "short":
+                base_classes = [restify(cls, "smart") for cls in bases]
+            else:
+                base_classes = [restify(cls) for cls in bases]
+
             sourcename = self.get_sourcename()
             self.add_line('', sourcename)
             self.add_line('   ' + _('Bases: %s') % ', '.join(base_classes), sourcename)
@@ -1755,13 +1781,20 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     def add_content(self, more_content: Optional[StringList], no_docstring: bool = False
                     ) -> None:
         if self.doc_as_attr and self.modname != self.get_real_modname():
-            # override analyzer to obtain doccomment around its definition.
-            self.analyzer = ModuleAnalyzer.for_module(self.modname)
-            self.analyzer.analyze()
+            try:
+                # override analyzer to obtain doccomment around its definition.
+                self.analyzer = ModuleAnalyzer.for_module(self.modname)
+                self.analyzer.analyze()
+            except PycodeError:
+                pass
 
         if self.doc_as_attr and not self.get_variable_comment():
             try:
-                more_content = StringList([_('alias of %s') % restify(self.object)], source='')
+                if self.config.autodoc_typehints_format == "short":
+                    alias = restify(self.object, "smart")
+                else:
+                    alias = restify(self.object)
+                more_content = StringList([_('alias of %s') % alias], source='')
             except AttributeError:
                 pass  # Invalid class object is passed.
 
@@ -1834,7 +1867,12 @@ class GenericAliasMixin(DataDocumenterMixinBase):
 
     def update_content(self, more_content: StringList) -> None:
         if inspect.isgenericalias(self.object):
-            more_content.append(_('alias of %s') % restify(self.object), '')
+            if self.config.autodoc_typehints_format == "short":
+                alias = restify(self.object, "smart")
+            else:
+                alias = restify(self.object)
+
+            more_content.append(_('alias of %s') % alias, '')
             more_content.append('', '')
 
         super().update_content(more_content)
@@ -1852,7 +1890,11 @@ class NewTypeMixin(DataDocumenterMixinBase):
 
     def update_content(self, more_content: StringList) -> None:
         if inspect.isNewType(self.object):
-            supertype = restify(self.object.__supertype__)
+            if self.config.autodoc_typehints_format == "short":
+                supertype = restify(self.object.__supertype__, "smart")
+            else:
+                supertype = restify(self.object.__supertype__)
+
             more_content.append(_('alias of %s') % supertype, '')
             more_content.append('', '')
 
@@ -1889,7 +1931,11 @@ class TypeVarMixin(DataDocumenterMixinBase):
             for constraint in self.object.__constraints__:
                 attrs.append(stringify_typehint(constraint))
             if self.object.__bound__:
-                attrs.append(r"bound=\ " + restify(self.object.__bound__))
+                if self.config.autodoc_typehints_format == "short":
+                    bound = restify(self.object.__bound__, "smart")
+                else:
+                    bound = restify(self.object.__bound__)
+                attrs.append(r"bound=\ " + bound)
             if self.object.__covariant__:
                 attrs.append("covariant=True")
             if self.object.__contravariant__:
@@ -2110,6 +2156,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
     def format_args(self, **kwargs: Any) -> str:
         if self.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
+        if self.config.autodoc_typehints_format == "short":
+            kwargs.setdefault('unqualified_typehints', True)
 
         try:
             if self.object == object.__init__ and self.parent != object:
@@ -2160,6 +2208,9 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         pass
 
     def format_signature(self, **kwargs: Any) -> str:
+        if self.config.autodoc_typehints_format == "short":
+            kwargs.setdefault('unqualified_typehints', True)
+
         sigs = []
         if (self.analyzer and
                 '.'.join(self.objpath) in self.analyzer.overloads and
@@ -2833,6 +2884,8 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('autodoc_typehints_description_target', 'all', True,
                          ENUM('all', 'documented', 'returnvalue_and_documented_params'))
     app.add_config_value('autodoc_type_aliases', {}, True)
+    app.add_config_value('autodoc_typehints_format', "short", 'env',
+                         ENUM("fully-qualified", "short"))
     app.add_config_value('autodoc_warningiserror', True, True)
     app.add_config_value('autodoc_inherit_docstrings', True, True)
     app.add_event('autodoc-before-process-signature')

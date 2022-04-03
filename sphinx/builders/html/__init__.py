@@ -1,12 +1,4 @@
-"""
-    sphinx.builders.html
-    ~~~~~~~~~~~~~~~~~~~~
-
-    Several HTML builders.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Several HTML builders."""
 
 import html
 import os
@@ -15,7 +7,7 @@ import re
 import sys
 from datetime import datetime
 from os import path
-from typing import IO, Any, Dict, Iterable, Iterator, List, Set, Tuple, Type
+from typing import IO, Any, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Type
 from urllib.parse import quote
 
 from docutils import nodes
@@ -74,6 +66,17 @@ def get_stable_hash(obj: Any) -> str:
     elif isinstance(obj, (list, tuple)):
         obj = sorted(get_stable_hash(o) for o in obj)
     return md5(str(obj).encode()).hexdigest()
+
+
+def convert_locale_to_language_tag(locale: Optional[str]) -> Optional[str]:
+    """Convert a locale string to a language tag (ex. en_US -> en-US).
+
+    refs: BCP 47 (:rfc:`5646`)
+    """
+    if locale:
+        return locale.replace('_', '-')
+    else:
+        return None
 
 
 class Stylesheet(str):
@@ -315,8 +318,11 @@ class StandaloneHTMLBuilder(Builder):
         self.script_files = []
         self.add_js_file('documentation_options.js', id="documentation_options",
                          data_url_root='', priority=200)
+        # Remove frameworks and compatability module below in Sphinx 6.0
+        # xref RemovedInSphinx60Warning
         self.add_js_file('jquery.js', priority=200)
         self.add_js_file('underscore.js', priority=200)
+        self.add_js_file('_sphinx_javascript_frameworks_compat.js', priority=200)
         self.add_js_file('doctools.js', priority=200)
 
         for filename, attrs in self.app.registry.js_files:
@@ -326,7 +332,7 @@ class StandaloneHTMLBuilder(Builder):
             attrs.setdefault('priority', 800)  # User's JSs are loaded after extensions'
             self.add_js_file(filename, **attrs)
 
-        if self.config.language and self._get_translations_js():
+        if self._get_translations_js():
             self.add_js_file('translations.js')
 
     def add_js_file(self, filename: str, **kwargs: Any) -> None:
@@ -431,8 +437,6 @@ class StandaloneHTMLBuilder(Builder):
         if self.search:
             from sphinx.search import IndexBuilder
             lang = self.config.html_search_language or self.config.language
-            if not lang:
-                lang = 'en'
             self.indexer = IndexBuilder(self.env, lang,
                                         self.config.html_search_options,
                                         self.config.html_search_scorer)
@@ -486,7 +490,7 @@ class StandaloneHTMLBuilder(Builder):
         rellinks: List[Tuple[str, str, str, str]] = []
         if self.use_index:
             rellinks.append(('genindex', _('General Index'), 'I', _('index')))
-        for indexname, indexcls, content, collapse in self.domain_indices:
+        for indexname, indexcls, _content, _collapse in self.domain_indices:
             # if it has a short name
             if indexcls.shortname:
                 rellinks.append((indexname, indexcls.localname,
@@ -509,6 +513,7 @@ class StandaloneHTMLBuilder(Builder):
             'docstitle': self.config.html_title,
             'shorttitle': self.config.html_short_title,
             'show_copyright': self.config.html_show_copyright,
+            'show_search_summary': self.config.html_show_search_summary,
             'show_sphinx': self.config.html_show_sphinx,
             'has_source': self.config.html_copy_source,
             'show_source': self.config.html_show_sourcelink,
@@ -516,7 +521,7 @@ class StandaloneHTMLBuilder(Builder):
             'file_suffix': self.out_suffix,
             'link_suffix': self.link_suffix,
             'script_files': self.script_files,
-            'language': self.config.language,
+            'language': convert_locale_to_language_tag(self.config.language),
             'css_files': self.css_files,
             'sphinx_version': __display_version__,
             'sphinx_version_tuple': sphinx_version,
@@ -767,10 +772,9 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_translation_js(self) -> None:
         """Copy a JavaScript file for translations."""
-        if self.config.language is not None:
-            jsfile = self._get_translations_js()
-            if jsfile:
-                copyfile(jsfile, path.join(self.outdir, '_static', 'translations.js'))
+        jsfile = self._get_translations_js()
+        if jsfile:
+            copyfile(jsfile, path.join(self.outdir, '_static', 'translations.js'))
 
     def copy_stemmer_js(self) -> None:
         """Copy a JavaScript file for stemmer."""
@@ -866,7 +870,7 @@ class StandaloneHTMLBuilder(Builder):
         Builder.post_process_images(self, doctree)
 
         if self.config.html_scaled_image_link and self.html_scaled_image_link:
-            for node in doctree.traverse(nodes.image):
+            for node in doctree.findall(nodes.image):
                 if not any((key in node) for key in ['scale', 'width', 'height']):
                     # resizing options are not given. scaled image link is available
                     # only for resized images.
@@ -1340,6 +1344,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_file_suffix', None, 'html', [str])
     app.add_config_value('html_link_suffix', None, 'html', [str])
     app.add_config_value('html_show_copyright', True, 'html')
+    app.add_config_value('html_show_search_summary', True, 'html')
     app.add_config_value('html_show_sphinx', True, 'html')
     app.add_config_value('html_context', {}, 'html')
     app.add_config_value('html_output_encoding', 'utf-8', 'html')

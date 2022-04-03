@@ -1,12 +1,7 @@
-"""
-    test_ext_autodoc
-    ~~~~~~~~~~~~~~~~
+"""Test the autodoc extension.
 
-    Test the autodoc extension.  This tests mainly the Documenters; the auto
-    directives are tested in a test source file translated by test_build.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+This tests mainly the Documenters; the auto directives are tested in a test
+source file translated by test_build.
 """
 
 import sys
@@ -1009,7 +1004,7 @@ def test_autodoc_inner_class(app):
         '',
         '.. py:class:: InnerChild()',
         '   :module: target', '',
-        '   Bases: :py:class:`target.Outer.Inner`',
+        '   Bases: :py:class:`~target.Outer.Inner`',
         '',
         '   InnerChild docstring',
         '',
@@ -1705,7 +1700,7 @@ def test_autodoc_typed_instance_variables(app):
         '.. py:attribute:: Alias',
         '   :module: target.typed_vars',
         '',
-        '   alias of :py:class:`target.typed_vars.Derived`',
+        '   alias of :py:class:`~target.typed_vars.Derived`',
         '',
         '.. py:class:: Class()',
         '   :module: target.typed_vars',
@@ -1874,6 +1869,12 @@ def test_autodoc_GenericAlias(app):
             '',
             '      alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
             '',
+            '.. py:attribute:: L',
+            '   :module: target.genericalias',
+            '',
+            '   A list of Class',
+            '',
+            '',
             '.. py:attribute:: T',
             '   :module: target.genericalias',
             '',
@@ -1896,6 +1897,15 @@ def test_autodoc_GenericAlias(app):
             '      A list of int',
             '',
             '      alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
+            '',
+            '',
+            '.. py:data:: L',
+            '   :module: target.genericalias',
+            '',
+            '   A list of Class',
+            '',
+            '   alias of :py:class:`~typing.List`\\ '
+            '[:py:class:`~target.genericalias.Class`]',
             '',
             '',
             '.. py:data:: T',
@@ -1935,7 +1945,7 @@ def test_autodoc_TypeVar(app):
         '',
         '      T6',
         '',
-        '      alias of :py:class:`int`',
+        '      alias of :py:class:`~datetime.date`',
         '',
         '',
         '.. py:data:: T1',
@@ -1975,7 +1985,7 @@ def test_autodoc_TypeVar(app):
         '',
         '   T6',
         '',
-        '   alias of :py:class:`int`',
+        '   alias of :py:class:`~datetime.date`',
         '',
         '',
         '.. py:data:: T7',
@@ -2307,7 +2317,7 @@ def test_autodoc(app, status, warning):
 
 my_name
 
-alias of bug2437.autodoc_dummy_foo.Foo"""
+alias of Foo"""
     assert warning.getvalue() == ''
 
 

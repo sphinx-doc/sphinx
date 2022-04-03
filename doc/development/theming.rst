@@ -88,8 +88,8 @@ Python :mod:`ConfigParser` module) and has the following structure:
 Distribute your theme as a Python package
 -----------------------------------------
 
-As a way to distribute your theme, you can use Python package.  Python package
-brings to users easy setting up ways.
+As a way to distribute your theme, you can use a Python package.  This makes it
+easier for users to set up your theme.
 
 To distribute your theme as a Python package, please define an entry point
 called ``sphinx.html_themes`` in your ``setup.py`` file, and write a ``setup()``
@@ -285,7 +285,7 @@ engine, allowing you to embed variables and control behavior.
 
 For example, the following JavaScript structure:
 
-.. code-block:: bash
+.. code-block:: none
 
    mymodule/
    ├── _static
@@ -294,7 +294,7 @@ For example, the following JavaScript structure:
 
 Will result in the following static file placed in your HTML's build output:
 
-.. code-block:: bash
+.. code-block:: none
 
    _build/
    └── html

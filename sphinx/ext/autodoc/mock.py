@@ -1,23 +1,15 @@
-"""
-    sphinx.ext.autodoc.mock
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
-    mock for autodoc
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""mock for autodoc"""
 
 import contextlib
 import os
 import sys
 from importlib.abc import Loader, MetaPathFinder
 from importlib.machinery import ModuleSpec
-from types import ModuleType
+from types import MethodType, ModuleType
 from typing import Any, Generator, Iterator, List, Optional, Sequence, Tuple, Union
 
 from sphinx.util import logging
-from sphinx.util.inspect import safe_getattr
+from sphinx.util.inspect import isboundmethod, safe_getattr
 
 logger = logging.getLogger(__name__)
 
@@ -154,6 +146,11 @@ def mock(modnames: List[str]) -> Generator[None, None, None]:
         finder.invalidate_caches()
 
 
+def ismockmodule(subject: Any) -> bool:
+    """Check if the object is a mocked module."""
+    return isinstance(subject, _MockModule)
+
+
 def ismock(subject: Any) -> bool:
     """Check if the object is mocked."""
     # check the object has '__sphinx_mock__' attribute
@@ -167,9 +164,15 @@ def ismock(subject: Any) -> bool:
     if isinstance(subject, _MockModule):
         return True
 
+    # check the object is bound method
+    if isinstance(subject, MethodType) and isboundmethod(subject):
+        tmp_subject = subject.__func__
+    else:
+        tmp_subject = subject
+
     try:
         # check the object is mocked object
-        __mro__ = safe_getattr(type(subject), '__mro__', [])
+        __mro__ = safe_getattr(type(tmp_subject), '__mro__', [])
         if len(__mro__) > 2 and __mro__[-2] is _MockObject:
             # A mocked object has a MRO that ends with (..., _MockObject, object).
             return True

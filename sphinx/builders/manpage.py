@@ -1,12 +1,4 @@
-"""
-    sphinx.builders.manpage
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
-    Manual pages builder.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Manual pages builder."""
 
 from os import path
 from typing import Any, Dict, List, Set, Tuple, Union
@@ -18,7 +10,6 @@ from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import Config
-from sphinx.errors import NoUri
 from sphinx.locale import __
 from sphinx.util import logging, progress_message
 from sphinx.util.console import darkgreen  # type: ignore
@@ -49,9 +40,7 @@ class ManualPageBuilder(Builder):
         return 'all manpages'  # for now
 
     def get_target_uri(self, docname: str, typ: str = None) -> str:
-        if typ == 'token':
-            return ''
-        raise NoUri(docname, typ)
+        return ''
 
     @progress_message(__('writing'))
     def write(self, *ignored: Any) -> None:
@@ -98,7 +87,7 @@ class ManualPageBuilder(Builder):
             logger.info('} ', nonl=True)
             self.env.resolve_references(largetree, docname, self)
             # remove pending_xref nodes
-            for pendingnode in largetree.traverse(addnodes.pending_xref):
+            for pendingnode in largetree.findall(addnodes.pending_xref):
                 pendingnode.replace_self(pendingnode.children)
 
             docwriter.write(largetree, destination)

@@ -1,11 +1,3 @@
-"""
-    sphinx.ext.autodoc.directive
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
 import warnings
 from typing import Any, Callable, Dict, List, Set, Type
 
@@ -30,7 +22,7 @@ logger = logging.getLogger(__name__)
 AUTODOC_DEFAULT_OPTIONS = ['members', 'undoc-members', 'inherited-members',
                            'show-inheritance', 'private-members', 'special-members',
                            'ignore-module-all', 'exclude-members', 'member-order',
-                           'imported-members', 'class-doc-from']
+                           'imported-members', 'class-doc-from', 'no-value']
 
 AUTODOC_EXTENDABLE_OPTIONS = ['members', 'private-members', 'special-members',
                               'exclude-members']

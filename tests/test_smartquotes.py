@@ -1,15 +1,9 @@
-"""
-    test_smartquotes
-    ~~~~~~~~~~~~~~~~
-
-    Test smart quotes.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test smart quotes."""
 
 import pytest
 from html5lib import HTMLParser
+
+from sphinx.util import docutils
 
 
 @pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True)
@@ -51,7 +45,10 @@ def test_man_builder(app, status, warning):
     app.build()
 
     content = (app.outdir / 'python.1').read_text()
-    assert '\\-\\- "Sphinx" is a tool that makes it easy ...' in content
+    if docutils.__version_info__ > (0, 18):
+        assert r'\-\- \(dqSphinx\(dq is a tool that makes it easy ...' in content
+    else:
+        assert r'\-\- "Sphinx" is a tool that makes it easy ...' in content
 
 
 @pytest.mark.sphinx(buildername='latex', testroot='smartquotes', freshenv=True)

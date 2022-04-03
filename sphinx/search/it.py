@@ -1,12 +1,4 @@
-"""
-    sphinx.search.it
-    ~~~~~~~~~~~~~~~~
-
-    Italian search language: includes the JS Italian stemmer.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Italian search language: includes the JS Italian stemmer."""
 
 from typing import Dict
 

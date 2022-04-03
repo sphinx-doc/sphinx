@@ -1,12 +1,4 @@
-"""
-    sphinx.util.fileutil
-    ~~~~~~~~~~~~~~~~~~~~
-
-    File utility functions for Sphinx.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""File utility functions for Sphinx."""
 
 import os
 import posixpath

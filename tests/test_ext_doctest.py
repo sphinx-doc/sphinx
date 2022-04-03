@@ -1,12 +1,4 @@
-"""
-    test_doctest
-    ~~~~~~~~~~~~
-
-    Test the doctest extension.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the doctest extension."""
 import os
 from collections import Counter
 
@@ -36,7 +28,7 @@ def test_build(app, status, warning):
 def test_highlight_language_default(app, status, warning):
     app.build()
     doctree = app.env.get_doctree('doctest')
-    for node in doctree.traverse(nodes.literal_block):
+    for node in doctree.findall(nodes.literal_block):
         assert node['language'] in ('python3', 'pycon3', 'none')
 
 
@@ -45,7 +37,7 @@ def test_highlight_language_default(app, status, warning):
 def test_highlight_language_python2(app, status, warning):
     app.build()
     doctree = app.env.get_doctree('doctest')
-    for node in doctree.traverse(nodes.literal_block):
+    for node in doctree.findall(nodes.literal_block):
         assert node['language'] in ('python', 'pycon', 'none')
 
 

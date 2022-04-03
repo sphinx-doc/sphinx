@@ -1,12 +1,6 @@
-"""
-    sphinx.ext.doctest
-    ~~~~~~~~~~~~~~~~~~
+"""Mimic doctest in Sphinx.
 
-    Mimic doctest by automatically executing code snippets and checking
-    their results.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+The extension automatically execute code snippets and checks their results.
 """
 
 import doctest
@@ -47,7 +41,7 @@ def is_allowed_version(spec: str, version: str) -> bool:
     """Check `spec` satisfies `version` or not.
 
     This obeys PEP-440 specifiers:
-    https://www.python.org/dev/peps/pep-0440/#version-specifiers
+    https://peps.python.org/pep-0440/#version-specifiers
 
     Some examples:
 
@@ -422,7 +416,7 @@ Doctest summary
             def condition(node: Node) -> bool:
                 return isinstance(node, (nodes.literal_block, nodes.comment)) \
                     and 'testnodetype' in node
-        for node in doctree.traverse(condition):  # type: Element
+        for node in doctree.findall(condition):  # type: Element
             if self.skipped(node):
                 continue
 

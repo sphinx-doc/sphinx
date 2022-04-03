@@ -1,12 +1,4 @@
-"""
-    sphinx.directives
-    ~~~~~~~~~~~~~~~~~
-
-    Handlers for additional ReST directives.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Handlers for additional ReST directives."""
 
 import re
 from typing import TYPE_CHECKING, Any, Dict, Generic, List, Tuple, TypeVar, cast
@@ -17,7 +9,6 @@ from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature
-from sphinx.deprecation import RemovedInSphinx50Warning, deprecated_alias
 from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
@@ -176,7 +167,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
 
         self.names: List[T] = []
         signatures = self.get_signatures()
-        for i, sig in enumerate(signatures):
+        for sig in signatures:
             # add a signature node for each signature in the current unit
             # and add a reference target for it
             signode = addnodes.desc_signature(sig, '')
@@ -264,16 +255,6 @@ class DefaultDomain(SphinxDirective):
         #             break
         self.env.temp_data['default_domain'] = self.env.domains.get(domain_name)
         return []
-
-
-deprecated_alias('sphinx.directives',
-                 {
-                     'DescDirective': ObjectDescription,
-                 },
-                 RemovedInSphinx50Warning,
-                 {
-                     'DescDirective': 'sphinx.directives.ObjectDescription',
-                 })
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:

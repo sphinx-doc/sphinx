@@ -1,12 +1,4 @@
-"""
-    sphinx.util.docutils
-    ~~~~~~~~~~~~~~~~~~~~
-
-    Utility functions for docutils.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Utility functions for docutils."""
 
 import os
 import re
@@ -28,7 +20,7 @@ from docutils.utils import Reporter, unescape
 from packaging import version
 
 from sphinx.errors import SphinxError
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.typing import RoleFunction
 
@@ -144,6 +136,30 @@ def patched_get_language() -> Generator[None, None, None]:
 
 
 @contextmanager
+def patched_rst_get_language() -> Generator[None, None, None]:
+    """Patch docutils.parsers.rst.languages.get_language().
+    Starting from docutils 0.17, get_language() in ``rst.languages``
+    also has a reporter, which needs to be disabled temporarily.
+
+    This should also work for old versions of docutils,
+    because reporter is none by default.
+
+    refs: https://github.com/sphinx-doc/sphinx/issues/10179
+    """
+    from docutils.parsers.rst.languages import get_language
+
+    def patched_get_language(language_code: str, reporter: Reporter = None) -> Any:
+        return get_language(language_code)
+
+    try:
+        docutils.parsers.rst.languages.get_language = patched_get_language
+        yield
+    finally:
+        # restore original implementations
+        docutils.parsers.rst.languages.get_language = get_language
+
+
+@contextmanager
 def using_user_docutils_conf(confdir: Optional[str]) -> Generator[None, None, None]:
     """Let docutils know the location of ``docutils.conf`` for Sphinx."""
     try:
@@ -162,20 +178,18 @@ def using_user_docutils_conf(confdir: Optional[str]) -> Generator[None, None, No
 @contextmanager
 def patch_docutils(confdir: Optional[str] = None) -> Generator[None, None, None]:
     """Patch to docutils temporarily."""
-    with patched_get_language(), using_user_docutils_conf(confdir):
+    with patched_get_language(), patched_rst_get_language(), using_user_docutils_conf(confdir):
         yield
 
 
-class ElementLookupError(Exception):
-    pass
+class CustomReSTDispatcher:
+    """Custom reST's mark-up dispatcher.
 
-
-class sphinx_domains:
-    """Monkey-patch directive and role dispatch, so that domain-specific
-    markup takes precedence.
+    This replaces docutils's directives and roles dispatch mechanism for reST parser
+    by original one temporarily.
     """
-    def __init__(self, env: "BuildEnvironment") -> None:
-        self.env = env
+
+    def __init__(self) -> None:
         self.directive_func: Callable = lambda *args: (None, [])
         self.roles_func: Callable = lambda *args: (None, [])
 
@@ -189,12 +203,34 @@ class sphinx_domains:
         self.directive_func = directives.directive
         self.role_func = roles.role
 
-        directives.directive = self.lookup_directive
-        roles.role = self.lookup_role
+        directives.directive = self.directive
+        roles.role = self.role
 
     def disable(self) -> None:
         directives.directive = self.directive_func
         roles.role = self.role_func
+
+    def directive(self,
+                  directive_name: str, language_module: ModuleType, document: nodes.document
+                  ) -> Tuple[Optional[Type[Directive]], List[system_message]]:
+        return self.directive_func(directive_name, language_module, document)
+
+    def role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter
+             ) -> Tuple[RoleFunction, List[system_message]]:
+        return self.role_func(role_name, language_module, lineno, reporter)
+
+
+class ElementLookupError(Exception):
+    pass
+
+
+class sphinx_domains(CustomReSTDispatcher):
+    """Monkey-patch directive and role dispatch, so that domain-specific
+    markup takes precedence.
+    """
+    def __init__(self, env: "BuildEnvironment") -> None:
+        self.env = env
+        super().__init__()
 
     def lookup_domain_element(self, type: str, name: str) -> Any:
         """Lookup a markup element (directive or role), given its name which can
@@ -226,17 +262,20 @@ class sphinx_domains:
 
         raise ElementLookupError
 
-    def lookup_directive(self, directive_name: str, language_module: ModuleType, document: nodes.document) -> Tuple[Optional[Type[Directive]], List[system_message]]:  # NOQA
+    def directive(self,
+                  directive_name: str, language_module: ModuleType, document: nodes.document
+                  ) -> Tuple[Optional[Type[Directive]], List[system_message]]:
         try:
             return self.lookup_domain_element('directive', directive_name)
         except ElementLookupError:
-            return self.directive_func(directive_name, language_module, document)
+            return super().directive(directive_name, language_module, document)
 
-    def lookup_role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter) -> Tuple[RoleFunction, List[system_message]]:  # NOQA
+    def role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter
+             ) -> Tuple[RoleFunction, List[system_message]]:
         try:
             return self.lookup_domain_element('role', role_name)
         except ElementLookupError:
-            return self.role_func(role_name, language_module, lineno, reporter)
+            return super().role(role_name, language_module, lineno, reporter)
 
 
 class WarningStream:
@@ -495,6 +534,19 @@ class SphinxTranslator(nodes.NodeVisitor):
                 break
         else:
             super().dispatch_departure(node)
+
+    def unknown_visit(self, node: Node) -> None:
+        logger.warning(__('unknown node type: %r'), node, location=node)
+
+
+# Node.findall() is a new interface to traverse a doctree since docutils-0.18.
+# This applies a patch docutils-0.17 or older to be available Node.findall()
+# method to use it from our codebase.
+if __version_info__ < (0, 18):
+    def findall(self, *args, **kwargs):
+        return iter(self.traverse(*args, **kwargs))
+
+    Node.findall = findall  # type: ignore
 
 
 # cache a vanilla instance of nodes.document

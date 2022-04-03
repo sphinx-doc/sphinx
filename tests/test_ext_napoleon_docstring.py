@@ -1,13 +1,4 @@
-"""
-    test_napoleon_docstring
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
-    Tests for :mod:`sphinx.ext.napoleon.docstring` module.
-
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests for :mod:`sphinx.ext.napoleon.docstring` module."""
 
 import re
 import sys
@@ -267,6 +258,18 @@ class GoogleDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
+        Returns:
+          Extended
+        """,
+        """
+        Single line summary
+
+        :returns: Extended
+        """
+    ), (
+        """
+        Single line summary
+
         Args:
           arg1(str):Extended
             description of arg1
@@ -470,6 +473,22 @@ Attributes:
    super-dooper attribute
 
    :type: numpy.ndarray
+"""
+
+    def test_attributes_with_use_ivar(self):
+        docstring = """\
+Attributes:
+    foo (int): blah blah
+    bar (str): blah blah
+"""
+
+        config = Config(napoleon_use_ivar=True)
+        actual = str(GoogleDocstring(docstring, config, obj=self.__class__))
+        expected = """\
+:ivar foo: blah blah
+:vartype foo: int
+:ivar bar: blah blah
+:vartype bar: str
 """
         self.assertEqual(expected, actual)
 

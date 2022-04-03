@@ -1,12 +1,4 @@
-"""
-    sphinx.util.requests
-    ~~~~~~~~~~~~~~~~~~~~
-
-    Simple requests package loader
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Simple requests package loader"""
 
 import sys
 import warnings
@@ -18,44 +10,20 @@ import requests
 
 import sphinx
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx50Warning
-
-try:
-    from requests.packages.urllib3.exceptions import SSLError
-except ImportError:
-    # python-requests package in Debian jessie does not provide ``requests.packages.urllib3``.
-    # So try to import the exceptions from urllib3 package.
-    from urllib3.exceptions import SSLError  # type: ignore
 
 try:
     from requests.packages.urllib3.exceptions import InsecureRequestWarning
 except ImportError:
     try:
         # for Debian-jessie
-        from urllib3.exceptions import InsecureRequestWarning  # type: ignore
+        from urllib3.exceptions import InsecureRequestWarning
     except ImportError:
         # for requests < 2.4.0
-        InsecureRequestWarning = None  # type: ignore
+        InsecureRequestWarning = None
 
 
 useragent_header = [('User-Agent',
                      'Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0')]
-
-
-def is_ssl_error(exc: Exception) -> bool:
-    """Check an exception is SSLError."""
-    warnings.warn(
-        "is_ssl_error() is outdated and likely returns incorrect results "
-        "for modern versions of Requests.",
-        RemovedInSphinx50Warning)
-    if isinstance(exc, SSLError):
-        return True
-    else:
-        args = getattr(exc, 'args', [])
-        if args and isinstance(args[0], SSLError):
-            return True
-        else:
-            return False
 
 
 @contextmanager

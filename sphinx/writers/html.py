@@ -1,20 +1,11 @@
-"""
-    sphinx.writers.html
-    ~~~~~~~~~~~~~~~~~~~
+"""docutils writers handling Sphinx' custom nodes."""
 
-    docutils writers handling Sphinx' custom nodes.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-import copy
 import os
 import posixpath
 import re
 import urllib.parse
 import warnings
-from typing import TYPE_CHECKING, Iterable, Tuple, cast
+from typing import TYPE_CHECKING, Iterable, Optional, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
@@ -23,7 +14,7 @@ from docutils.writers.html4css1 import Writer
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx50Warning, RemovedInSphinx60Warning
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
@@ -54,11 +45,8 @@ def multiply_length(length: str, scale: int) -> str:
 
 class HTMLWriter(Writer):
 
-    # override embed-stylesheet default value to 0.
-    settings_spec = copy.deepcopy(Writer.settings_spec)
-    for _setting in settings_spec[2]:
-        if '--embed-stylesheet' in _setting[1]:
-            _setting[2]['default'] = 0
+    # override embed-stylesheet default value to False.
+    settings_default_overrides = {"embed_stylesheet": False}
 
     def __init__(self, builder: "StandaloneHTMLBuilder") -> None:
         super().__init__()
@@ -285,6 +273,9 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
             node.insert(0, nodes.title(name, admonitionlabels[name]))
         self.set_first_last(node)
 
+    def depart_admonition(self, node: Optional[Element] = None) -> None:
+        self.body.append('</div>\n')
+
     def visit_seealso(self, node: Element) -> None:
         self.visit_admonition(node, 'seealso')
 
@@ -434,12 +425,12 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
            node.parent.hasattr('ids') and node.parent['ids']):
             # add permalink anchor
             if close_tag.startswith('</h'):
-                self.add_permalink_ref(node.parent, _('Permalink to this headline'))
+                self.add_permalink_ref(node.parent, _('Permalink to this heading'))
             elif close_tag.startswith('</a></h'):
                 self.body.append('</a><a class="headerlink" href="#%s" ' %
                                  node.parent['ids'][0] +
                                  'title="%s">%s' % (
-                                     _('Permalink to this headline'),
+                                     _('Permalink to this heading'),
                                      self.config.html_permalinks_icon))
             elif isinstance(node.parent, nodes.table):
                 self.body.append('</span>')
@@ -875,15 +866,6 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         _, depart = self.builder.app.registry.html_block_math_renderers[name]
         if depart:
             depart(self, node)
-
-    def unknown_visit(self, node: Node) -> None:
-        raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
-
-    @property
-    def permalink_text(self) -> str:
-        warnings.warn('HTMLTranslator.permalink_text is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        return self.config.html_permalinks_icon
 
     @property
     def _fieldlist_row_index(self):

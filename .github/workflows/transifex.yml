@@ -7,12 +7,13 @@ on:
 
 jobs:
   push:
+    if: github.repository_owner == 'sphinx-doc'
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
       with:
-        ref: 4.x
+        ref: 5.x
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
@@ -27,12 +28,13 @@ jobs:
         TX_TOKEN: ${{ secrets.TX_TOKEN }}
 
   pull:
+    if: github.repository_owner == 'sphinx-doc'
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
       with:
-        ref: 4.x
+        ref: 5.x
     - name: Set up Python
       uses: actions/setup-python@v2
       with:

@@ -1,30 +1,26 @@
-"""
-    sphinx.util.stemmer.porter
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Porter Stemming Algorithm
 
-    Porter Stemming Algorithm
+This is the Porter stemming algorithm, ported to Python from the
+version coded up in ANSI C by the author. It may be be regarded
+as canonical, in that it follows the algorithm presented in
 
-    This is the Porter stemming algorithm, ported to Python from the
-    version coded up in ANSI C by the author. It may be be regarded
-    as canonical, in that it follows the algorithm presented in
+Porter, 1980, An algorithm for suffix stripping, Program, Vol. 14,
+no. 3, pp 130-137,
 
-    Porter, 1980, An algorithm for suffix stripping, Program, Vol. 14,
-    no. 3, pp 130-137,
+only differing from it at the points made --DEPARTURE-- below.
 
-    only differing from it at the points made --DEPARTURE-- below.
+See also https://tartarus.org/martin/PorterStemmer/
 
-    See also https://tartarus.org/martin/PorterStemmer/
+The algorithm as described in the paper could be exactly replicated
+by adjusting the points of DEPARTURE, but this is barely necessary,
+because (a) the points of DEPARTURE are definitely improvements, and
+(b) no encoding of the Porter stemmer I have seen is anything like
+as exact as this version, even with the points of DEPARTURE!
 
-    The algorithm as described in the paper could be exactly replicated
-    by adjusting the points of DEPARTURE, but this is barely necessary,
-    because (a) the points of DEPARTURE are definitely improvements, and
-    (b) no encoding of the Porter stemmer I have seen is anything like
-    as exact as this version, even with the points of DEPARTURE!
+Release 1: January 2001
 
-    Release 1: January 2001
-
-    :copyright: Copyright 2001 by Vivake Gupta <v@nano.com>.
-    :license: Public Domain ("can be used free of charge for any purpose").
+:author: Vivake Gupta <v@nano.com>.
+:license: Public Domain ("can be used free of charge for any purpose").
 """
 
 
@@ -123,7 +119,7 @@ class PorterStemmer:
            or not self.cons(i - 2):
             return 0
         ch = self.b[i]
-        if ch == 'w' or ch == 'x' or ch == 'y':
+        if ch in ('w', 'x', 'y'):
             return 0
         return 1
 
@@ -193,7 +189,7 @@ class PorterStemmer:
             elif self.doublec(self.k):
                 self.k = self.k - 1
                 ch = self.b[self.k]
-                if ch == 'l' or ch == 's' or ch == 'z':
+                if ch in ('l', 's', 'z'):
                     self.k = self.k + 1
             elif (self.m() == 1 and self.cvc(self.k)):
                 self.setto("e")

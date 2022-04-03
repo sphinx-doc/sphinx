@@ -1,12 +1,4 @@
-"""
-    sphinx.roles
-    ~~~~~~~~~~~~
-
-    Handlers for additional ReST roles.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Handlers for additional ReST roles."""
 
 import re
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Type
@@ -15,7 +7,7 @@ from docutils import nodes, utils
 from docutils.nodes import Element, Node, TextElement, system_message
 
 from sphinx import addnodes
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.util import ws_re
 from sphinx.util.docutils import ReferenceRole, SphinxRole
 from sphinx.util.typing import RoleFunction
@@ -190,7 +182,7 @@ class PEP(ReferenceRole):
                 title = "PEP " + self.title
                 reference += nodes.strong(title, title)
         except ValueError:
-            msg = self.inliner.reporter.error('invalid PEP number %s' % self.target,
+            msg = self.inliner.reporter.error(__('invalid PEP number %s') % self.target,
                                               line=self.lineno)
             prb = self.inliner.problematic(self.rawtext, self.rawtext, msg)
             return [prb], [msg]
@@ -201,9 +193,9 @@ class PEP(ReferenceRole):
         base_url = self.inliner.document.settings.pep_base_url
         ret = self.target.split('#', 1)
         if len(ret) == 2:
-            return base_url + 'pep-%04d#%s' % (int(ret[0]), ret[1])
+            return base_url + 'pep-%04d/#%s' % (int(ret[0]), ret[1])
         else:
-            return base_url + 'pep-%04d' % int(ret[0])
+            return base_url + 'pep-%04d/' % int(ret[0])
 
 
 class RFC(ReferenceRole):
@@ -224,7 +216,7 @@ class RFC(ReferenceRole):
                 title = "RFC " + self.title
                 reference += nodes.strong(title, title)
         except ValueError:
-            msg = self.inliner.reporter.error('invalid RFC number %s' % self.target,
+            msg = self.inliner.reporter.error(__('invalid RFC number %s') % self.target,
                                               line=self.lineno)
             prb = self.inliner.problematic(self.rawtext, self.rawtext, msg)
             return [prb], [msg]

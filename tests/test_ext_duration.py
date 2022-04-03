@@ -1,12 +1,4 @@
-"""
-    test_ext_duration
-    ~~~~~~~~~~~~~~~~~
-
-    Test sphinx.ext.duration extension.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test sphinx.ext.duration extension."""
 
 import re
 

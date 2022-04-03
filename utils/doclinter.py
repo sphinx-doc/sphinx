@@ -1,12 +1,4 @@
-"""
-    utils.doclinter
-    ~~~~~~~~~~~~~~~
-
-    A linter for Sphinx docs
-
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""A linter for Sphinx docs"""
 
 import os
 import re
@@ -69,7 +61,7 @@ def main(args: List[str]) -> int:
         if os.path.isfile(path):
             errors += lint(path)
         elif os.path.isdir(path):
-            for root, dirs, files in os.walk(path):
+            for root, _dirs, files in os.walk(path):
                 for filename in files:
                     if filename.endswith('.rst'):
                         path = os.path.join(root, filename)

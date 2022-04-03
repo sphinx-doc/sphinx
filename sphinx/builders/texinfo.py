@@ -1,12 +1,4 @@
-"""
-    sphinx.builders.texinfo
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
-    Texinfo builder.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Texinfo builder."""
 
 import os
 from os import path
@@ -138,7 +130,7 @@ class TexinfoBuilder(Builder):
             new_sect += nodes.title('<Set title in conf.py>',
                                     '<Set title in conf.py>')
             new_tree += new_sect
-            for node in tree.traverse(addnodes.toctree):
+            for node in tree.findall(addnodes.toctree):
                 new_sect += node
             tree = new_tree
         largetree = inline_all_toctrees(self, self.docnames, indexfile, tree,
@@ -152,7 +144,7 @@ class TexinfoBuilder(Builder):
         logger.info(__("resolving references..."))
         self.env.resolve_references(largetree, indexfile, self)
         # TODO: add support for external :ref:s
-        for pendingnode in largetree.traverse(addnodes.pending_xref):
+        for pendingnode in largetree.findall(addnodes.pending_xref):
             docname = pendingnode['refdocname']
             sectname = pendingnode['refsectname']
             newnodes: List[Node] = [nodes.emphasis(sectname, sectname)]
@@ -211,6 +203,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('texinfo_domain_indices', True, None, [list])
     app.add_config_value('texinfo_show_urls', 'footnote', None)
     app.add_config_value('texinfo_no_detailmenu', False, None)
+    app.add_config_value('texinfo_cross_references', True, None)
 
     return {
         'version': 'builtin',

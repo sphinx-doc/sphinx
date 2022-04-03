@@ -1,12 +1,7 @@
-"""
-    test_ext_autodoc_autoattribute
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Test the autodoc extension.
 
-    Test the autodoc extension.  This tests mainly the Documenters; the auto
-    directives are tested in a test source file translated by test_build.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+This tests mainly the Documenters; the auto directives are tested in a test
+source file translated by test_build.
 """
 
 import sys
@@ -32,7 +27,7 @@ def test_autoattribute(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_novalue(app):
-    options = {'no-value': True}
+    options = {'no-value': None}
     actual = do_autodoc(app, 'attribute', 'target.Class.attr', options)
     assert list(actual) == [
         '',
@@ -183,7 +178,7 @@ def test_autoattribute_NewType(app):
         '',
         '   T6',
         '',
-        '   alias of :py:class:`int`',
+        '   alias of :py:class:`~datetime.date`',
         '',
     ]
 

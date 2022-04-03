@@ -1,12 +1,4 @@
-"""
-    test_markup
-    ~~~~~~~~~~~
-
-    Test various Sphinx-specific markup extensions.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test various Sphinx-specific markup extensions."""
 
 import re
 
@@ -17,6 +9,7 @@ from docutils.parsers.rst import Parser as RstParser
 from sphinx import addnodes
 from sphinx.builders.html.transforms import KeyboardTransform
 from sphinx.builders.latex import LaTeXBuilder
+from sphinx.environment import default_settings
 from sphinx.roles import XRefRole
 from sphinx.testing.util import Struct, assert_node
 from sphinx.transforms import SphinxSmartQuotes
@@ -30,13 +23,13 @@ from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 def settings(app):
     texescape.init()  # otherwise done by the latex builder
     optparser = frontend.OptionParser(
-        components=(RstParser, HTMLWriter, LaTeXWriter))
+        components=(RstParser, HTMLWriter, LaTeXWriter),
+        defaults=default_settings)
     settings = optparser.get_default_values()
     settings.smart_quotes = True
     settings.env = app.builder.env
     settings.env.temp_data['docname'] = 'dummy'
     settings.contentsname = 'dummy'
-    settings.rfc_base_url = 'http://datatracker.ietf.org/doc/html/'
     domain_context = sphinx_domains(settings.env)
     domain_context.enable()
     yield settings
@@ -67,7 +60,7 @@ def parse(new_document):
         parser = RstParser()
         parser.parse(rst, document)
         SphinxSmartQuotes(document, startnode=None).apply()
-        for msg in document.traverse(nodes.system_message):
+        for msg in list(document.findall(nodes.system_message)):
             if msg['level'] == 1:
                 msg.replace_self([])
         return document
@@ -157,10 +150,10 @@ def get_verifier(verify, verify_re):
         'verify',
         ':pep:`8`',
         ('<p><span class="target" id="index-0"></span><a class="pep reference external" '
-         'href="http://www.python.org/dev/peps/pep-0008"><strong>PEP 8</strong></a></p>'),
+         'href="https://peps.python.org/pep-0008/"><strong>PEP 8</strong></a></p>'),
         ('\\sphinxAtStartPar\n'
          '\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
-         '!PEP 8@\\spxentry{PEP 8}}\\sphinxhref{http://www.python.org/dev/peps/pep-0008}'
+         '!PEP 8@\\spxentry{PEP 8}}\\sphinxhref{https://peps.python.org/pep-0008/}'
          '{\\sphinxstylestrong{PEP 8}}')
     ),
     (
@@ -168,12 +161,12 @@ def get_verifier(verify, verify_re):
         'verify',
         ':pep:`8#id1`',
         ('<p><span class="target" id="index-0"></span><a class="pep reference external" '
-         'href="http://www.python.org/dev/peps/pep-0008#id1">'
+         'href="https://peps.python.org/pep-0008/#id1">'
          '<strong>PEP 8#id1</strong></a></p>'),
         ('\\sphinxAtStartPar\n'
          '\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
          '!PEP 8\\#id1@\\spxentry{PEP 8\\#id1}}\\sphinxhref'
-         '{http://www.python.org/dev/peps/pep-0008\\#id1}'
+         '{https://peps.python.org/pep-0008/\\#id1}'
          '{\\sphinxstylestrong{PEP 8\\#id1}}')
     ),
     (
@@ -181,10 +174,10 @@ def get_verifier(verify, verify_re):
         'verify',
         ':rfc:`2324`',
         ('<p><span class="target" id="index-0"></span><a class="rfc reference external" '
-         'href="http://datatracker.ietf.org/doc/html/rfc2324.html"><strong>RFC 2324</strong></a></p>'),
+         'href="https://datatracker.ietf.org/doc/html/rfc2324.html"><strong>RFC 2324</strong></a></p>'),
         ('\\sphinxAtStartPar\n'
          '\\index{RFC@\\spxentry{RFC}!RFC 2324@\\spxentry{RFC 2324}}'
-         '\\sphinxhref{http://datatracker.ietf.org/doc/html/rfc2324.html}'
+         '\\sphinxhref{https://datatracker.ietf.org/doc/html/rfc2324.html}'
          '{\\sphinxstylestrong{RFC 2324}}')
     ),
     (
@@ -192,11 +185,11 @@ def get_verifier(verify, verify_re):
         'verify',
         ':rfc:`2324#id1`',
         ('<p><span class="target" id="index-0"></span><a class="rfc reference external" '
-         'href="http://datatracker.ietf.org/doc/html/rfc2324.html#id1">'
+         'href="https://datatracker.ietf.org/doc/html/rfc2324.html#id1">'
          '<strong>RFC 2324#id1</strong></a></p>'),
         ('\\sphinxAtStartPar\n'
          '\\index{RFC@\\spxentry{RFC}!RFC 2324\\#id1@\\spxentry{RFC 2324\\#id1}}'
-         '\\sphinxhref{http://datatracker.ietf.org/doc/html/rfc2324.html\\#id1}'
+         '\\sphinxhref{https://datatracker.ietf.org/doc/html/rfc2324.html\\#id1}'
          '{\\sphinxstylestrong{RFC 2324\\#id1}}')
     ),
     (

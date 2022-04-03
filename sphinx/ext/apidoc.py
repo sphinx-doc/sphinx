@@ -1,17 +1,12 @@
-"""
-    sphinx.ext.apidoc
-    ~~~~~~~~~~~~~~~~~
+"""Creates reST files corresponding to Python modules for code documentation.
 
-    Parses a directory tree looking for Python modules and packages and creates
-    ReST files appropriately to create code documentation with Sphinx.  It also
-    creates a modules index (named modules.<suffix>).
+Parses a directory tree looking for Python modules and packages and creates
+ReST files appropriately to create code documentation with Sphinx.  It also
+creates a modules index (named modules.<suffix>).
 
-    This is derived from the "sphinx-autopackage" script, which is:
-    Copyright 2008 Société des arts technologiques (SAT),
-    https://sat.qc.ca/
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+This is derived from the "sphinx-autopackage" script, which is:
+Copyright 2008 Société des arts technologiques (SAT),
+https://sat.qc.ca/
 """
 
 import argparse
@@ -227,7 +222,7 @@ def walk(rootpath: str, excludes: List[str], opts: Any
 
 def has_child_module(rootpath: str, excludes: List[str], opts: Any) -> bool:
     """Check the given directory contains child module/s (at least one)."""
-    for root, subs, files in walk(rootpath, excludes, opts):
+    for _root, _subs, files in walk(rootpath, excludes, opts):
         if files:
             return True
 

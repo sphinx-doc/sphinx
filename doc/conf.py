@@ -1,5 +1,6 @@
 # Sphinx documentation build configuration file
 
+import os
 import re
 
 import sphinx
@@ -14,7 +15,7 @@ templates_path = ['_templates']
 exclude_patterns = ['_build']
 
 project = 'Sphinx'
-copyright = '2007-2021, Georg Brandl and the Sphinx team'
+copyright = '2007-2022, Georg Brandl and the Sphinx team'
 version = sphinx.__display_version__
 release = version
 show_authors = True
@@ -81,11 +82,11 @@ autodoc_member_order = 'groupwise'
 autosummary_generate = False
 todo_include_todos = True
 extlinks = {'duref': ('https://docutils.sourceforge.io/docs/ref/rst/'
-                      'restructuredtext.html#%s', ''),
+                      'restructuredtext.html#%s', '%s'),
             'durole': ('https://docutils.sourceforge.io/docs/ref/rst/'
-                       'roles.html#%s', ''),
+                       'roles.html#%s', '%s'),
             'dudir': ('https://docutils.sourceforge.io/docs/ref/rst/'
-                      'directives.html#%s', '')}
+                      'directives.html#%s', '%s')}
 
 man_pages = [
     ('contents', 'sphinx-all', 'Sphinx documentation generator system manual',
@@ -108,7 +109,8 @@ texinfo_documents = [
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3/', None),
-    'requests': ('https://requests.readthedocs.io/en/master', None),
+    'requests': ('https://docs.python-requests.org/en/latest/', None),
+    'readthedocs': ('https://docs.readthedocs.io/en/stable', None),
 }
 
 # Sphinx document translation with sphinx gettext feature uses these settings:
@@ -138,10 +140,33 @@ def parse_event(env, sig, signode):
     return name
 
 
+def linkify_issues_in_changelog(app, docname, source):
+    """ Linkify issue references like #123 in changelog to GitHub. """
+
+    if docname == 'changes':
+        changelog_path = os.path.join(os.path.dirname(__file__), "../CHANGES")
+        # this path trickery is needed because this script can
+        # be invoked with different working directories:
+        # * running make in docs/
+        # * running python setup.py build_sphinx in the repo root dir
+
+        with open(changelog_path) as f:
+            changelog = f.read()
+
+        def linkify(match):
+            url = 'https://github.com/sphinx-doc/sphinx/issues/' + match[1]
+            return '`{} <{}>`_'.format(match[0], url)
+
+        linkified_changelog = re.sub(r'(?:PR)?#([0-9]+)\b', linkify, changelog)
+
+        source[0] = source[0].replace('.. include:: ../CHANGES', linkified_changelog)
+
+
 def setup(app):
     from sphinx.ext.autodoc import cut_lines
     from sphinx.util.docfields import GroupedField
     app.connect('autodoc-process-docstring', cut_lines(4, what=['module']))
+    app.connect('source-read', linkify_issues_in_changelog)
     app.add_object_type('confval', 'confval',
                         objname='configuration value',
                         indextemplate='pair: %s; configuration value')

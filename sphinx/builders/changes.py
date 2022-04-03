@@ -1,12 +1,4 @@
-"""
-    sphinx.builders.changes
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
-    Changelog builder.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Changelog builder."""
 
 import html
 from os import path
@@ -148,7 +140,7 @@ class ChangesBuilder(Builder):
 
     def hl(self, text: str, version: str) -> str:
         text = html.escape(text)
-        for directive in ['versionchanged', 'versionadded', 'deprecated']:
+        for directive in ('versionchanged', 'versionadded', 'deprecated'):
             text = text.replace('.. %s:: %s' % (directive, version),
                                 '<b>.. %s:: %s</b>' % (directive, version))
         return text

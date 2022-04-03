@@ -1,12 +1,4 @@
-"""
-    sphinx.builders
-    ~~~~~~~~~~~~~~~
-
-    Builder superclass for all builders.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Builder superclass for all builders."""
 
 import pickle
 import time
@@ -176,7 +168,7 @@ class Builder:
     def post_process_images(self, doctree: Node) -> None:
         """Pick the best candidate for all image URIs."""
         images = ImageAdapter(self.env)
-        for node in doctree.traverse(nodes.image):
+        for node in doctree.findall(nodes.image):
             if '?' in node['candidates']:
                 # don't rewrite nonlocal image URIs
                 continue
@@ -562,7 +554,7 @@ class Builder:
         for chunk in status_iterator(chunks, __('writing output... '), "darkgreen",
                                      len(chunks), self.app.verbosity):
             arg = []
-            for i, docname in enumerate(chunk):
+            for docname in chunk:
                 doctree = self.env.get_and_resolve_doctree(docname, self)
                 self.write_doc_serialized(docname, doctree)
                 arg.append((docname, doctree))

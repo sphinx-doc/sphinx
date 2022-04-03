@@ -1,12 +1,4 @@
-"""
-    sphinx.environment.adapters.toctree
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Toctree adapter for sphinx.environment.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Toctree adapter for sphinx.environment."""
 
 from typing import TYPE_CHECKING, Any, Iterable, List, Optional, cast
 
@@ -161,7 +153,7 @@ class TocTree:
                         process_only_nodes(toc, builder.tags)
                         if title and toc.children and len(toc.children) == 1:
                             child = toc.children[0]
-                            for refnode in child.traverse(nodes.reference):
+                            for refnode in child.findall(nodes.reference):
                                 if refnode['refuri'] == ref and \
                                    not refnode['anchorname']:
                                     refnode.children = [nodes.Text(title)]
@@ -193,13 +185,13 @@ class TocTree:
                         for toplevel in children:
                             # nodes with length 1 don't have any children anyway
                             if len(toplevel) > 1:
-                                subtrees = list(toplevel.traverse(addnodes.toctree))
+                                subtrees = list(toplevel.findall(addnodes.toctree))
                                 if subtrees:
                                     toplevel[1][:] = subtrees  # type: ignore
                                 else:
                                     toplevel.pop(1)
                     # resolve all sub-toctrees
-                    for subtocnode in list(toc.traverse(addnodes.toctree)):
+                    for subtocnode in list(toc.findall(addnodes.toctree)):
                         if not (subtocnode.get('hidden', False) and
                                 not includehidden):
                             i = subtocnode.parent.index(subtocnode) + 1
@@ -257,7 +249,7 @@ class TocTree:
 
         # set the target paths in the toctrees (they are not known at TOC
         # generation time)
-        for refnode in newnode.traverse(nodes.reference):
+        for refnode in newnode.findall(nodes.reference):
             if not url_re.match(refnode['refuri']):
                 refnode['refuri'] = builder.get_relative_uri(
                     docname, refnode['refuri']) + refnode['anchorname']
@@ -308,7 +300,7 @@ class TocTree:
             # renders to nothing
             return nodes.paragraph()
         process_only_nodes(toc, builder.tags)
-        for node in toc.traverse(nodes.reference):
+        for node in toc.findall(nodes.reference):
             node['refuri'] = node['anchorname'] or '#'
         return toc
 
@@ -324,7 +316,7 @@ class TocTree:
         else:
             kwargs['maxdepth'] = int(kwargs['maxdepth'])
         kwargs['collapse'] = collapse
-        for toctreenode in doctree.traverse(addnodes.toctree):
+        for toctreenode in doctree.findall(addnodes.toctree):
             toctree = self.resolve(docname, builder, toctreenode, prune=True, **kwargs)
             if toctree:
                 toctrees.append(toctree)

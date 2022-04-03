@@ -41,7 +41,7 @@ you can also enable the :mod:`napoleon <sphinx.ext.napoleon>` extension.
 docstrings to correct reStructuredText before :mod:`autodoc` processes them.
 
 .. _Google: https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings
-.. _NumPy: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+.. _NumPy: https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
 
 Directives
@@ -468,7 +468,7 @@ There are also config values that you can set:
 
 .. confval:: autodoc_class_signature
 
-   This value selects how the signautre will be displayed for the class defined
+   This value selects how the signature will be displayed for the class defined
    by :rst:dir:`autoclass` directive.  The possible values are:
 
    ``"mixed"``
@@ -528,7 +528,8 @@ There are also config values that you can set:
    The supported options are ``'members'``, ``'member-order'``,
    ``'undoc-members'``, ``'private-members'``, ``'special-members'``,
    ``'inherited-members'``, ``'show-inheritance'``, ``'ignore-module-all'``,
-   ``'imported-members'``, ``'exclude-members'`` and ``'class-doc-from'``.
+   ``'imported-members'``, ``'exclude-members'``, ``'class-doc-from'`` and
+   ``'no-value'``.
 
    .. versionadded:: 1.8
 
@@ -540,6 +541,9 @@ There are also config values that you can set:
 
    .. versionchanged:: 4.1
       Added ``'class-doc-from'``.
+
+   .. versionchanged:: 4.5
+      Added ``'no-value'``.
 
 .. confval:: autodoc_docstring_signature
 
@@ -638,8 +642,8 @@ There are also config values that you can set:
    full-qualified object name.  It is used to keep type aliases not evaluated in
    the document.  Defaults to empty (``{}``).
 
-   The type aliases are only available if your program enables `Postponed
-   Evaluation of Annotations (PEP 563)`__ feature via ``from __future__ import
+   The type aliases are only available if your program enables :pep:`Postponed
+   Evaluation of Annotations (PEP 563) <563>` feature via ``from __future__ import
    annotations``.
 
    For example, there is code using a type alias::
@@ -666,9 +670,23 @@ There are also config values that you can set:
 
         ...
 
-   .. __: https://www.python.org/dev/peps/pep-0563/
    .. __: https://mypy.readthedocs.io/en/latest/kinds_of_types.html#type-aliases
    .. versionadded:: 3.3
+
+.. confval:: autodoc_typehints_format
+
+   This value controls the format of typehints.  The setting takes the
+   following values:
+
+   * ``'fully-qualified'`` -- Show the module name and its name of typehints
+   * ``'short'`` -- Suppress the leading module names of the typehints
+     (ex. ``io.StringIO`` -> ``StringIO``)  (default)
+
+   .. versionadded:: 4.4
+
+   .. versionchanged:: 5.0
+
+      The default setting was changed to ``'short'``
 
 .. confval:: autodoc_preserve_defaults
 

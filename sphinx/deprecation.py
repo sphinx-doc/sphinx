@@ -1,12 +1,4 @@
-"""
-    sphinx.deprecation
-    ~~~~~~~~~~~~~~~~~~
-
-    Sphinx deprecation classes and utilities.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Sphinx deprecation classes and utilities."""
 
 import sys
 import warnings
@@ -19,6 +11,10 @@ class RemovedInSphinx50Warning(DeprecationWarning):
 
 
 class RemovedInSphinx60Warning(PendingDeprecationWarning):
+    pass
+
+
+class RemovedInSphinx70Warning(PendingDeprecationWarning):
     pass
 
 

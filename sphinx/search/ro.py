@@ -1,12 +1,4 @@
-"""
-    sphinx.search.ro
-    ~~~~~~~~~~~~~~~~
-
-    Romanian search language: includes the JS Romanian stemmer.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Romanian search language: includes the JS Romanian stemmer."""
 
 from typing import Dict, Set
 

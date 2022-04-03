@@ -1,16 +1,6 @@
-"""
-    sphinx.domains.std
-    ~~~~~~~~~~~~~~~~~~
-
-    The standard domain.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""The standard domain."""
 
 import re
-import unicodedata
-import warnings
 from copy import copy
 from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, List, Optional,
                     Tuple, Type, Union, cast)
@@ -22,7 +12,6 @@ from docutils.statemachine import StringList
 
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature, pending_xref
-from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.locale import _, __
@@ -243,7 +232,7 @@ class Cmdoption(ObjectDescription[str]):
             descr = _('%s command line option') % currprogram
         else:
             descr = _('command line option')
-        for option in sig.split(', '):
+        for option in signode.get('allnames', []):
             entry = '; '.join([descr, option])
             self.indexnode['entries'].append(('pair', entry, signode['ids'][0], '', None))
 
@@ -336,6 +325,7 @@ class Glossary(SphinxDirective):
     def run(self) -> List[Node]:
         node = addnodes.glossary()
         node.document = self.state.document
+        node['sorted'] = ('sorted' in self.options)
 
         # This directive implements a custom format of the reST definition list
         # that allows multiple lines of terms before the definition.  This is
@@ -400,9 +390,8 @@ class Glossary(SphinxDirective):
             was_empty = False
 
         # now, parse all the entries into a big definition list
-        items = []
+        items: List[nodes.definition_list_item] = []
         for terms, definition in entries:
-            termtexts: List[str] = []
             termnodes: List[Node] = []
             system_messages: List[Node] = []
             for line, source, lineno in terms:
@@ -416,7 +405,6 @@ class Glossary(SphinxDirective):
                                           node_id=None, document=self.state.document)
                 term.rawsource = line
                 system_messages.extend(sysmsg)
-                termtexts.append(term.astext())
                 termnodes.append(term)
 
             termnodes.extend(system_messages)
@@ -426,16 +414,10 @@ class Glossary(SphinxDirective):
                 self.state.nested_parse(definition, definition.items[0][1],
                                         defnode)
             termnodes.append(defnode)
-            items.append((termtexts,
-                          nodes.definition_list_item('', *termnodes)))
+            items.append(nodes.definition_list_item('', *termnodes))
 
-        if 'sorted' in self.options:
-            items.sort(key=lambda x:
-                       unicodedata.normalize('NFD', x[0][0].lower()))
-
-        dlist = nodes.definition_list()
+        dlist = nodes.definition_list('', *items)
         dlist['classes'].append('glossary')
-        dlist.extend(item[1] for item in items)
         node += dlist
         return messages + [node]
 
@@ -675,11 +657,6 @@ class StandardDomain(Domain):
                            objtype, name, docname, location=location)
         self.objects[objtype, name] = (self.env.docname, labelid)
 
-    def add_object(self, objtype: str, name: str, docname: str, labelid: str) -> None:
-        warnings.warn('StandardDomain.add_object() is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        self.objects[objtype, name] = (docname, labelid)
-
     @property
     def _terms(self) -> Dict[str, Tuple[str, str]]:
         """.. note:: Will be removed soon. internal use only."""
@@ -775,7 +752,7 @@ class StandardDomain(Domain):
                 if not sectname:
                     continue
             else:
-                toctree = next(iter(node.traverse(addnodes.toctree)), None)
+                toctree = next(node.findall(addnodes.toctree), None)
                 if toctree and toctree.get('caption'):
                     sectname = toctree.get('caption')
                 else:

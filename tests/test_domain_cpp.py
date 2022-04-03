@@ -1,13 +1,6 @@
-"""
-    test_domain_cpp
-    ~~~~~~~~~~~~~~~
+"""Tests the C++ Domain"""
 
-    Tests the C++ Domain
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
+import itertools
 import re
 import zlib
 
@@ -137,9 +130,17 @@ def test_domain_cpp_ast_fundamental_types():
             if t == "std::nullptr_t":
                 id = "NSt9nullptr_tE"
             return "1f%s" % id
+        id1 = makeIdV1()
+        id2 = makeIdV2()
         input = "void f(%s arg)" % t.replace(' ', '  ')
         output = "void f(%s arg)" % t
-        check("function", input, {1: makeIdV1(), 2: makeIdV2()}, output=output)
+        check("function", input, {1: id1, 2: id2}, output=output)
+        if ' ' in t:
+            # try permutations of all components
+            tcs = t.split()
+            for p in itertools.permutations(tcs):
+                input = "void f(%s arg)" % ' '.join(p)
+                check("function", input, {1: id1, 2: id2})
 
 
 def test_domain_cpp_ast_expressions():
@@ -986,6 +987,11 @@ def test_domain_cpp_ast_attributes():
     check('member', 'int *[[attr]] *i', {1: 'i__iPP', 2: '1i'})
     # position: parameters and qualifiers
     check('function', 'void f() [[attr1]] [[attr2]]', {1: 'f', 2: '1fv'})
+
+    # position: class, union, enum
+    check('class', '{key}[[nodiscard]] Foo', {1: 'Foo', 2: '3Foo'}, key='class')
+    check('union', '{key}[[nodiscard]] Foo', {1: None, 2: '3Foo'}, key='union')
+    check('enum', '{key}[[nodiscard]] Foo', {1: None, 2: '3Foo'}, key='enum')
 
 
 def test_domain_cpp_ast_xref_parsing():

@@ -1,12 +1,7 @@
-"""
-    sphinx.ext.autodoc.preserve_defaults
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Preserve function defaults.
 
-    Preserve the default argument values of function signatures in source code
-    and keep them not evaluated for readability.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+Preserve the default argument values of function signatures in source code
+and keep them not evaluated for readability.
 """
 
 import ast
@@ -84,7 +79,11 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
             kw_defaults = list(function.args.kw_defaults)
             parameters = list(sig.parameters.values())
             for i, param in enumerate(parameters):
-                if param.default is not param.empty:
+                if param.default is param.empty:
+                    if param.kind == param.KEYWORD_ONLY:
+                        # Consume kw_defaults for kwonly args
+                        kw_defaults.pop(0)
+                else:
                     if param.kind in (param.POSITIONAL_ONLY, param.POSITIONAL_OR_KEYWORD):
                         default = defaults.pop(0)
                         value = get_default_value(lines, default)

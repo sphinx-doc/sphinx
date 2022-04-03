@@ -1,12 +1,4 @@
-"""
-    test_build_base
-    ~~~~~~~~~~~~~~~
-
-    Test the base build process.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the base build process."""
 import shutil
 
 import pytest

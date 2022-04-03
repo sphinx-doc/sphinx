@@ -1,20 +1,15 @@
-"""
-    sphinx.ext.autosummary.generate
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Generates reST source files for autosummary.
 
-    Usable as a library or script to generate automatic RST source files for
-    items referred to in autosummary:: directives.
+Usable as a library or script to generate automatic RST source files for
+items referred to in autosummary:: directives.
 
-    Each generated RST file contains a single auto*:: directive which
-    extracts the docstring of the referred item.
+Each generated RST file contains a single auto*:: directive which
+extracts the docstring of the referred item.
 
-    Example Makefile rule::
+Example Makefile rule::
 
-       generate:
-               sphinx-autogen -o source/generated source/*.rst
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+   generate:
+           sphinx-autogen -o source/generated source/*.rst
 """
 
 import argparse
@@ -41,7 +36,8 @@ from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.ext.autodoc import Documenter
 from sphinx.ext.autodoc.importer import import_module
-from sphinx.ext.autosummary import get_documenter, import_by_name, import_ivar_by_name
+from sphinx.ext.autosummary import (ImportExceptionGroup, get_documenter, import_by_name,
+                                    import_ivar_by_name)
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.registry import SphinxComponentRegistry
@@ -317,7 +313,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
 
     def get_modules(obj: Any) -> Tuple[List[str], List[str]]:
         items: List[str] = []
-        for _, modname, ispkg in pkgutil.iter_modules(obj.__path__):
+        for _, modname, _ispkg in pkgutil.iter_modules(obj.__path__):
             fullname = name + '.' + modname
             try:
                 module = import_module(fullname)
@@ -432,13 +428,20 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
         try:
             name, obj, parent, modname = import_by_name(entry.name)
             qualname = name.replace(modname + ".", "")
-        except ImportError as e:
+        except ImportExceptionGroup as exc:
             try:
-                # try to importl as an instance attribute
+                # try to import as an instance attribute
                 name, obj, parent, modname = import_ivar_by_name(entry.name)
                 qualname = name.replace(modname + ".", "")
-            except ImportError:
-                logger.warning(__('[autosummary] failed to import %r: %s') % (entry.name, e))
+            except ImportError as exc2:
+                if exc2.__cause__:
+                    exceptions: List[BaseException] = exc.exceptions + [exc2.__cause__]
+                else:
+                    exceptions = exc.exceptions + [exc2]
+
+                errors = list(set("* %s: %s" % (type(e).__name__, e) for e in exceptions))
+                logger.warning(__('[autosummary] failed to import %s.\nPossible hints:\n%s'),
+                               entry.name, '\n'.join(errors))
                 continue
 
         context: Dict[str, Any] = {}
@@ -505,8 +508,9 @@ def find_autosummary_in_docstring(name: str, module: str = None, filename: str =
         return find_autosummary_in_lines(lines, module=name, filename=filename)
     except AttributeError:
         pass
-    except ImportError as e:
-        print("Failed to import '%s': %s" % (name, e))
+    except ImportExceptionGroup as exc:
+        errors = list(set("* %s: %s" % (type(e).__name__, e) for e in exc.exceptions))
+        print('Failed to import %s.\nPossible hints:\n%s' % (name, '\n'.join(errors)))
     except SystemExit:
         print("Failed to import '%s'; the module executes module level "
               "statement and it might call sys.exit()." % name)

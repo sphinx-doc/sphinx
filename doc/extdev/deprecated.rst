@@ -22,6 +22,31 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - :doc:`Setuptools integration </usage/advanced/setuptools>`
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - The ``locale`` argument of ``sphinx.util.i18n:babel_format_date()``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - The ``language`` argument of ``sphinx.util.i18n:format_date()``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXWriter.docclasses``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - ``sphinx.ext.napoleon.docstring.GoogleDocstring._qualify_name()``
+     - 4.5
+     - 6.0
+     - N/A
+
    * - ``sphinx.ext.autodoc.AttributeDocumenter._datadescriptor``
      - 4.3
      - 6.0

@@ -1,12 +1,4 @@
-"""
-    sphinx.environment
-    ~~~~~~~~~~~~~~~~~~
-
-    Global creation environment.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Global creation environment."""
 
 import os
 import pickle
@@ -49,7 +41,7 @@ default_settings: Dict[str, Any] = {
     'embed_images': False,
     'embed_stylesheet': False,
     'cloak_email_addresses': True,
-    'pep_base_url': 'https://www.python.org/dev/peps/',
+    'pep_base_url': 'https://peps.python.org/',
     'pep_references': None,
     'rfc_base_url': 'https://datatracker.ietf.org/doc/html/',
     'rfc_references': None,
@@ -261,7 +253,7 @@ class BuildEnvironment:
         """Update settings by new config."""
         self.settings['input_encoding'] = config.source_encoding
         self.settings['trim_footnote_reference_space'] = config.trim_footnote_reference_space
-        self.settings['language_code'] = config.language or 'en'
+        self.settings['language_code'] = config.language
 
         # Allow to disable by 3rd party extension (workaround)
         self.settings.setdefault('smart_quotes', True)
@@ -535,7 +527,7 @@ class BuildEnvironment:
         self.apply_post_transforms(doctree, docname)
 
         # now, resolve all toctree nodes
-        for toctreenode in doctree.traverse(addnodes.toctree):
+        for toctreenode in doctree.findall(addnodes.toctree):
             result = TocTree(self).resolve(docname, builder, toctreenode,
                                            prune=prune_toctrees,
                                            includehidden=includehidden)
@@ -621,7 +613,7 @@ class BuildEnvironment:
 
     def check_consistency(self) -> None:
         """Do consistency checks."""
-        included = set().union(*self.included.values())  # type: ignore
+        included = set().union(*self.included.values())
         for docname in sorted(self.all_docs):
             if docname not in self.files_to_rebuild:
                 if docname == self.config.root_doc:

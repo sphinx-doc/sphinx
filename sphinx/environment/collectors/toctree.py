@@ -1,12 +1,4 @@
-"""
-    sphinx.environment.collectors.toctree
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Toctree collector for sphinx.environment.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Toctree collector for sphinx.environment."""
 
 from typing import Any, Dict, List, Set, Tuple, Type, TypeVar, cast
 
@@ -177,7 +169,7 @@ class TocTreeCollector(EnvironmentCollector):
         def _walk_toctree(toctreenode: addnodes.toctree, depth: int) -> None:
             if depth == 0:
                 return
-            for (title, ref) in toctreenode['entries']:
+            for (_title, ref) in toctreenode['entries']:
                 if url_re.match(ref) or ref == 'self':
                     # don't mess with those
                     continue
@@ -196,7 +188,7 @@ class TocTreeCollector(EnvironmentCollector):
         for docname in env.numbered_toctrees:
             assigned.add(docname)
             doctree = env.get_doctree(docname)
-            for toctreenode in doctree.traverse(addnodes.toctree):
+            for toctreenode in doctree.findall(addnodes.toctree):
                 depth = toctreenode.get('numbered', 0)
                 if depth:
                     # every numbered toctree gets new numbering
@@ -261,7 +253,7 @@ class TocTreeCollector(EnvironmentCollector):
                     else:
                         _walk_doctree(docname, subnode, secnum)
                 elif isinstance(subnode, addnodes.toctree):
-                    for title, subdocname in subnode['entries']:
+                    for _title, subdocname in subnode['entries']:
                         if url_re.match(subdocname) or subdocname == 'self':
                             # don't mess with those
                             continue

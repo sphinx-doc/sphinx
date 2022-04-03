@@ -1,12 +1,4 @@
-"""
-    sphinx.builders._epub_base
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Base class of epub2/epub3 builders.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Base class of epub2/epub3 builders."""
 
 import html
 import os
@@ -277,7 +269,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     new_ids.append(new_id)
             node['ids'] = new_ids
 
-        for reference in tree.traverse(nodes.reference):
+        for reference in tree.findall(nodes.reference):
             if 'refuri' in reference:
                 m = self.refuri_re.match(reference['refuri'])
                 if m:
@@ -285,14 +277,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
             if 'refid' in reference:
                 reference['refid'] = self.fix_fragment('', reference['refid'])
 
-        for target in tree.traverse(nodes.target):
+        for target in tree.findall(nodes.target):
             update_node_id(target)
 
             next_node: Node = target.next_node(ascend=True)
             if isinstance(next_node, nodes.Element):
                 update_node_id(next_node)
 
-        for desc_signature in tree.traverse(addnodes.desc_signature):
+        for desc_signature in tree.findall(addnodes.desc_signature):
             update_node_id(desc_signature)
 
     def add_visible_links(self, tree: nodes.document, show_urls: str = 'inline') -> None:
@@ -323,14 +315,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
             # a) place them after the last existing footnote
             # b) place them after an (empty) Footnotes rubric
             # c) create an empty Footnotes rubric at the end of the document
-            fns = list(tree.traverse(nodes.footnote))
+            fns = list(tree.findall(nodes.footnote))
             if fns:
                 fn = fns[-1]
                 return fn.parent, fn.parent.index(fn) + 1
-            for node in tree.traverse(nodes.rubric):
+            for node in tree.findall(nodes.rubric):
                 if len(node) == 1 and node.astext() == FOOTNOTES_RUBRIC_NAME:
                     return node.parent, node.parent.index(node) + 1
-            doc = list(tree.traverse(nodes.document))[0]
+            doc = next(tree.findall(nodes.document))
             rub = nodes.rubric()
             rub.append(nodes.Text(FOOTNOTES_RUBRIC_NAME))
             doc.append(rub)
@@ -339,10 +331,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
         if show_urls == 'no':
             return
         if show_urls == 'footnote':
-            doc = list(tree.traverse(nodes.document))[0]
+            doc = next(tree.findall(nodes.document))
             fn_spot, fn_idx = footnote_spot(tree)
             nr = 1
-        for node in list(tree.traverse(nodes.reference)):
+        for node in list(tree.findall(nodes.reference)):
             uri = node.get('refuri', '')
             if (uri.startswith('http:') or uri.startswith('https:') or
                     uri.startswith('ftp:')) and uri not in node.astext():
@@ -377,14 +369,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Fix href attributes for genindex pages."""
         # XXX: modifies tree inline
         # Logic modeled from themes/basic/genindex.html
-        for key, columns in tree:
-            for entryname, (links, subitems, key_) in columns:
+        for _key, columns in tree:
+            for _entryname, (links, subitems, _key) in columns:
                 for (i, (ismain, link)) in enumerate(links):
                     m = self.refuri_re.match(link)
                     if m:
                         links[i] = (ismain,
                                     self.fix_fragment(m.group(1), m.group(2)))
-                for subentryname, subentrylinks in subitems:
+                for _subentryname, subentrylinks in subitems:
                     for (i, (ismain, link)) in enumerate(subentrylinks):
                         m = self.refuri_re.match(link)
                         if m:
@@ -703,7 +695,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         epub_filename = path.join(self.outdir, outname)
         with ZipFile(epub_filename, 'w', ZIP_DEFLATED) as epub:
             epub.write(path.join(self.outdir, 'mimetype'), 'mimetype', ZIP_STORED)
-            for filename in ['META-INF/container.xml', 'content.opf', 'toc.ncx']:
+            for filename in ('META-INF/container.xml', 'content.opf', 'toc.ncx'):
                 epub.write(path.join(self.outdir, filename), filename, ZIP_DEFLATED)
             for filename in self.files:
                 epub.write(path.join(self.outdir, filename), filename, ZIP_DEFLATED)

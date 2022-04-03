@@ -1,13 +1,6 @@
-"""
-    test_domain_c
-    ~~~~~~~~~~~~~
+"""Tests the C Domain"""
 
-    Tests the C Domain
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
+import itertools
 import zlib
 from xml.etree import ElementTree
 
@@ -329,6 +322,13 @@ def test_domain_c_ast_fundamental_types():
         input = "{key}%s foo" % t
         output = ' '.join(input.split())
         check('type', input, {1: 'foo'}, key='typedef', output=output)
+        if ' ' in t:
+            # try permutations of all components
+            tcs = t.split()
+            for p in itertools.permutations(tcs):
+                input = "{key}%s foo" % ' '.join(p)
+                output = ' '.join(input.split())
+                check("type", input, {1: 'foo'}, key='typedef', output=output)
 
 
 def test_domain_c_ast_type_definitions():
@@ -587,10 +587,7 @@ def test_domain_c_ast_attributes():
 
 def test_extra_keywords():
     with pytest.raises(DefinitionError,
-                       match='Expected identifier, got user-defined keyword: complex.'):
-        parse('function', 'void f(int complex)')
-    with pytest.raises(DefinitionError,
-                       match='Expected identifier, got user-defined keyword: complex.'):
+                       match='Expected identifier in nested name'):
         parse('function', 'void complex(void)')
 
 
@@ -711,7 +708,7 @@ def test_domain_c_build_field_role(app, status, warning):
 
 def _get_obj(app, queryName):
     domain = app.env.get_domain('c')
-    for name, dispname, objectType, docname, anchor, prio in domain.get_objects():
+    for name, _dispname, objectType, docname, anchor, _prio in domain.get_objects():
         if name == queryName:
             return (docname, anchor, objectType)
     return (queryName, "not", "found")

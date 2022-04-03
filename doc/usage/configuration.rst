@@ -316,7 +316,11 @@ General configuration
    * ``app.add_role``
    * ``app.add_generic_role``
    * ``app.add_source_parser``
+   * ``autosectionlabel.*``
    * ``download.not_readable``
+   * ``epub.unknown_project_files``
+   * ``epub.duplicated_toc_entry``
+   * ``i18n.inconsistent_references``
    * ``image.not_readable``
    * ``ref.term``
    * ``ref.ref``
@@ -332,11 +336,9 @@ General configuration
    * ``toc.excluded``
    * ``toc.not_readable``
    * ``toc.secnum``
-   * ``epub.unknown_project_files``
-   * ``epub.duplicated_toc_entry``
-   * ``autosectionlabel.*``
 
-   You can choose from these types.
+   You can choose from these types.  You can also give only the first
+   component to exclude all warnings attached to it.
 
    Now, this option should be considered *experimental*.
 
@@ -366,6 +368,10 @@ General configuration
 
       Added ``toc.excluded`` and ``toc.not_readable``
 
+   .. versionadded:: 4.5
+
+      Added ``i18n.inconsistent_references``
+
 .. confval:: needs_sphinx
 
    If set to a ``major.minor`` version string like ``'1.1'``, Sphinx will
@@ -392,7 +398,7 @@ General configuration
 
 .. confval:: manpages_url
 
-   A URL to cross-reference :rst:role:`manpage` directives. If this is
+   A URL to cross-reference :rst:role:`manpage` roles. If this is
    defined to ``https://manpages.debian.org/{path}``, the
    :literal:`:manpage:`man(1)`` role will link to
    <https://manpages.debian.org/man(1)>. The patterns available are:
@@ -1350,6 +1356,13 @@ that use Sphinx's HTMLWriter class.
    ``True``.
 
    .. versionadded:: 1.0
+
+.. confval:: html_show_search_summary
+
+   If true, the text around the keyword is shown as summary of each search result.
+   Default is ``True``.
+
+   .. versionadded:: 4.5
 
 .. confval:: html_show_sphinx
 
@@ -2499,6 +2512,13 @@ These options influence Texinfo output.
 
    .. versionadded:: 1.1
 
+.. confval:: texinfo_cross_references
+
+  If false, do not generate inline references in a document.  That makes
+  an info file more readable with stand-alone reader (``info``).
+  Default is ``True``.
+
+  .. versionadded:: 4.4
 
 .. _qthelp-options:
 
@@ -2682,6 +2702,19 @@ Options for the linkcheck builder
    .. _Retry-After: https://datatracker.ietf.org/doc/html/rfc7231#section-7.1.3
 
    .. versionadded:: 3.4
+
+.. confval:: linkcheck_exclude_documents
+
+   A list of regular expressions that match documents in which Sphinx should
+   not check the validity of links. This can be used for permitting link decay
+   in legacy or historical sections of the documentation.
+
+   Example::
+
+      # ignore all links in documents located in a subfolder named 'legacy'
+      linkcheck_exclude_documents = [r'.*/legacy/.*']
+
+   .. versionadded:: 4.4
 
 
 Options for the XML builder

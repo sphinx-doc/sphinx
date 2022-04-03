@@ -1,12 +1,4 @@
-"""
-    sphinx.domains.c
-    ~~~~~~~~~~~~~~~~
-
-    The C language domain.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""The C language domain."""
 
 import re
 from typing import (Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple, TypeVar,
@@ -20,7 +12,7 @@ from sphinx import addnodes
 from sphinx.addnodes import pending_xref
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx50Warning
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.environment import BuildEnvironment
@@ -92,31 +84,22 @@ _id_prefix = [None, 'c.', 'Cv2.']
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
 
+# bool, complex, and imaginary are macro "keywords", so they are handled seperately
 _simple_type_specifiers_re = re.compile(r"""(?x)
     \b(
-    void|_Bool|bool
-    # Integer
-    # -------
-    |((signed|unsigned)\s+)?(char|(
-        ((long\s+long|long|short)\s+)?int
-    ))
-    |__uint128|__int128
-    # extensions
-    |((signed|unsigned)\s+)?__int(8|16|32|64|128)
-    # Floating-point
-    # --------------
-    |(float|double|long\s+double)(\s+(_Complex|complex|_Imaginary|imaginary))?
-    |(_Complex|complex|_Imaginary|imaginary)\s+(float|double|long\s+double)
-    |_Decimal(32|64|128)
-    # extensions
-    |__float80|_Float64x|__float128|_Float128|__ibm128
-    |__fp16
-    # Fixed-point, extension
-    |(_Sat\s+)?((signed|unsigned)\s+)?((short|long|long\s+long)\s+)?(_Fract|fract|_Accum|accum)
-    # Integer types that could be prefixes of the previous ones
-    # ---------------------------------------------------------
-    |((signed|unsigned)\s+)?(long\s+long|long|short)
+    void|_Bool
     |signed|unsigned
+    |short|long
+    |char
+    |int
+    |__uint128|__int128
+    |__int(8|16|32|64|128)  # extension
+    |float|double
+    |_Decimal(32|64|128)
+    |_Complex|_Imaginary
+    |__float80|_Float64x|__float128|_Float128|__ibm128  # extension
+    |__fp16  # extension
+    |_Sat|_Fract|fract|_Accum|accum  # extension
     )\b
 """)
 
@@ -226,7 +209,7 @@ class ASTNestedName(ASTBase):
             assert not self.rooted, str(self)
             assert len(self.names) == 1
             self.names[0].describe_signature(signode, 'noneIsName', env, '', symbol)
-        elif mode == 'markType' or mode == 'lastIsName' or mode == 'markName':
+        elif mode in ('markType', 'lastIsName', 'markName'):
             # Each element should be a pending xref targeting the complete
             # prefix.
             prefix = ''
@@ -636,8 +619,9 @@ class ASTTrailingTypeSpec(ASTBase):
 
 
 class ASTTrailingTypeSpecFundamental(ASTTrailingTypeSpec):
-    def __init__(self, name: str) -> None:
-        self.names = name.split()
+    def __init__(self, names: List[str]) -> None:
+        assert len(names) != 0
+        self.names = names
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return ' '.join(self.names)
@@ -2580,12 +2564,36 @@ class DefinitionParser(BaseParser):
                 break
         return ASTNestedName(names, rooted)
 
+    def _parse_simple_type_specifier(self) -> Optional[str]:
+        if self.match(_simple_type_specifiers_re):
+            return self.matched_text
+        for t in ('bool', 'complex', 'imaginary'):
+            if t in self.config.c_extra_keywords:
+                if self.skip_word(t):
+                    return t
+        return None
+
+    def _parse_simple_type_specifiers(self) -> ASTTrailingTypeSpecFundamental:
+        names: List[str] = []
+
+        self.skip_ws()
+        while True:
+            t = self._parse_simple_type_specifier()
+            if t is None:
+                break
+            names.append(t)
+            self.skip_ws()
+        if len(names) == 0:
+            return None
+        return ASTTrailingTypeSpecFundamental(names)
+
     def _parse_trailing_type_spec(self) -> ASTTrailingTypeSpec:
         # fundamental types, https://en.cppreference.com/w/c/language/type
         # and extensions
         self.skip_ws()
-        if self.match(_simple_type_specifiers_re):
-            return ASTTrailingTypeSpecFundamental(self.matched_text)
+        res = self._parse_simple_type_specifiers()
+        if res is not None:
+            return res
 
         # prefixed
         prefix = None
@@ -3260,7 +3268,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
                     msg = "{}: Pre-v3 C type directive '.. c:type:: {}' converted to " \
                           "'.. c:{}:: {}'." \
                           "\nThe original parsing error was:\n{}"
-                    msg = msg.format(RemovedInSphinx50Warning.__name__,
+                    msg = msg.format(RemovedInSphinx60Warning.__name__,
                                      sig, ast.objectType, ast, eOrig)
                     logger.warning(msg, location=signode)
         except DefinitionError as e:
@@ -3540,7 +3548,7 @@ class AliasTransform(SphinxTransform):
         return nodes
 
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.traverse(AliasNode):
+        for node in self.document.findall(AliasNode):
             node = cast(AliasNode, node)
             sig = node.sig
             parentKey = node.parentKey
@@ -3638,8 +3646,7 @@ class CAliasObject(ObjectDescription):
                            " When skipping the root declaration,"
                            " need 'maxdepth' 0 for infinite or at least 2.",
                            location=self.get_location())
-        signatures = self.get_signatures()
-        for i, sig in enumerate(signatures):
+        for sig in self.get_signatures():
             node.append(AliasNode(sig, aliasOptions, self.state.document, env=self.env))
         return [node]
 
@@ -3694,7 +3701,7 @@ class CXRefRole(XRefRole):
             if self.env.config['c_warn_on_allowed_pre_v3']:
                 msg = "{}: Pre-v3 C type role ':c:type:`{}`' converted to ':c:expr:`{}`'."
                 msg += "\nThe original parsing error was:\n{}"
-                msg = msg.format(RemovedInSphinx50Warning.__name__, text, text, eOrig)
+                msg = msg.format(RemovedInSphinx60Warning.__name__, text, text, eOrig)
                 logger.warning(msg, location=self.get_location())
             return [signode], []
 

@@ -1,12 +1,4 @@
-"""
-    test_build_html
-    ~~~~~~~~~~~~~~~
-
-    Test the HTML builder and check output against XPath.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the HTML builder and check output against XPath."""
 
 import os
 import re
@@ -99,7 +91,7 @@ def check_xpath(etree, fname, path, check, be_found=True):
     else:
         assert nodes != [], ('did not find any node matching xpath '
                              '%r in file %s' % (path, fname))
-    if hasattr(check, '__call__'):
+    if callable(check):
         check(nodes)
     elif not check:
         # only check for node presence
@@ -220,9 +212,9 @@ def test_html4_output(app, status, warning):
         (".//li/p/code/span[@class='pre']", '^a/$'),
         (".//li/p/code/em/span[@class='pre']", '^varpart$'),
         (".//li/p/code/em/span[@class='pre']", '^i$'),
-        (".//a[@href='https://www.python.org/dev/peps/pep-0008']"
+        (".//a[@href='https://peps.python.org/pep-0008/']"
          "[@class='pep reference external']/strong", 'PEP 8'),
-        (".//a[@href='https://www.python.org/dev/peps/pep-0008']"
+        (".//a[@href='https://peps.python.org/pep-0008/']"
          "[@class='pep reference external']/strong",
          'Python Enhancement Proposal #8'),
         (".//a[@href='https://datatracker.ietf.org/doc/html/rfc1.html']"
@@ -361,8 +353,6 @@ def test_html4_output(app, status, warning):
     'index.html': [
         (".//meta[@name='hc'][@content='hcval']", ''),
         (".//meta[@name='hc_co'][@content='hcval_co']", ''),
-        (".//dt[@class='label']/span[@class='brackets']", r'Ref1'),
-        (".//dt[@class='label']", ''),
         (".//li[@class='toctree-l1']/a", 'Testing various markup'),
         (".//li[@class='toctree-l2']/a", 'Inline markup'),
         (".//title", 'Sphinx <Tests>'),
@@ -400,6 +390,26 @@ def test_html4_output(app, status, warning):
         (".//a", "entry"),
         (".//li/a", "double"),
     ],
+    'otherext.html': [
+        (".//h1", "Generated section"),
+        (".//a[@href='_sources/otherext.foo.txt']", ''),
+    ]
+}))
+@pytest.mark.sphinx('html', tags=['testtag'],
+                    confoverrides={'html_context.hckey_co': 'hcval_co'})
+@pytest.mark.test_params(shared_result='test_build_html_output')
+def test_html5_output(app, cached_etree_parse, fname, expect):
+    app.build()
+    print(app.outdir / fname)
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+
+
+@pytest.mark.skipif(docutils.__version_info__ >= (0, 18), reason='docutils-0.17 or below is required.')
+@pytest.mark.parametrize("fname,expect", flat_dict({
+    'index.html': [
+        (".//dt[@class='label']/span[@class='brackets']", r'Ref1'),
+        (".//dt[@class='label']", ''),
+    ],
     'footnote.html': [
         (".//a[@class='footnote-reference brackets'][@href='#id9'][@id='id1']", r"1"),
         (".//a[@class='footnote-reference brackets'][@href='#id10'][@id='id2']", r"2"),
@@ -417,15 +427,42 @@ def test_html4_output(app, status, warning):
         (".//a[@class='fn-backref'][@href='#id7']", r"5"),
         (".//a[@class='fn-backref'][@href='#id8']", r"6"),
     ],
-    'otherext.html': [
-        (".//h1", "Generated section"),
-        (".//a[@href='_sources/otherext.foo.txt']", ''),
-    ]
 }))
-@pytest.mark.sphinx('html', tags=['testtag'],
-                    confoverrides={'html_context.hckey_co': 'hcval_co'})
-@pytest.mark.test_params(shared_result='test_build_html_output')
-def test_html5_output(app, cached_etree_parse, fname, expect):
+@pytest.mark.sphinx('html')
+@pytest.mark.test_params(shared_result='test_build_html_output_docutils17')
+def test_docutils17_output(app, cached_etree_parse, fname, expect):
+    app.build()
+    print(app.outdir / fname)
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+
+
+@pytest.mark.skipif(docutils.__version_info__ < (0, 18), reason='docutils-0.18+ is required.')
+@pytest.mark.parametrize("fname,expect", flat_dict({
+    'index.html': [
+        (".//div[@class='citation']/span", r'Ref1'),
+        (".//div[@class='citation']/span", r'Ref_1'),
+    ],
+    'footnote.html': [
+        (".//a[@class='footnote-reference brackets'][@href='#id9'][@id='id1']", r"1"),
+        (".//a[@class='footnote-reference brackets'][@href='#id10'][@id='id2']", r"2"),
+        (".//a[@class='footnote-reference brackets'][@href='#foo'][@id='id3']", r"3"),
+        (".//a[@class='reference internal'][@href='#bar'][@id='id4']/span", r"\[bar\]"),
+        (".//a[@class='reference internal'][@href='#baz-qux'][@id='id5']/span", r"\[baz_qux\]"),
+        (".//a[@class='footnote-reference brackets'][@href='#id11'][@id='id6']", r"4"),
+        (".//a[@class='footnote-reference brackets'][@href='#id12'][@id='id7']", r"5"),
+        (".//aside[@class='footnote brackets']/span/a[@href='#id1']", r"1"),
+        (".//aside[@class='footnote brackets']/span/a[@href='#id2']", r"2"),
+        (".//aside[@class='footnote brackets']/span/a[@href='#id3']", r"3"),
+        (".//div[@class='citation']/span/a[@href='#id4']", r"bar"),
+        (".//div[@class='citation']/span/a[@href='#id5']", r"baz_qux"),
+        (".//aside[@class='footnote brackets']/span/a[@href='#id6']", r"4"),
+        (".//aside[@class='footnote brackets']/span/a[@href='#id7']", r"5"),
+        (".//aside[@class='footnote brackets']/span/a[@href='#id8']", r"6"),
+    ],
+}))
+@pytest.mark.sphinx('html')
+@pytest.mark.test_params(shared_result='test_build_html_output_docutils18')
+def test_docutils18_output(app, cached_etree_parse, fname, expect):
     app.build()
     print(app.outdir / fname)
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
@@ -1195,6 +1232,20 @@ def test_assets_order(app):
     assert re.search(pattern, content, re.S)
 
 
+@pytest.mark.sphinx('html', testroot='html_assets')
+def test_javscript_loading_method(app):
+    app.add_js_file('normal.js')
+    app.add_js_file('early.js', loading_method='async')
+    app.add_js_file('late.js', loading_method='defer')
+
+    app.builder.build_all()
+    content = (app.outdir / 'index.html').read_text()
+
+    assert '<script src="_static/normal.js"></script>' in content
+    assert '<script async="async" src="_static/early.js"></script>' in content
+    assert '<script defer="defer" src="_static/late.js"></script>' in content
+
+
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_copy_source': False})
 def test_html_copy_source(app):
     app.builder.build_all()
@@ -1650,7 +1701,7 @@ def test_html_permalink_icon(app):
 
     assert ('<h1>The basic Sphinx documentation for testing<a class="headerlink" '
             'href="#the-basic-sphinx-documentation-for-testing" '
-            'title="Permalink to this headline"><span>[PERMALINK]</span></a></h1>' in content)
+            'title="Permalink to this heading"><span>[PERMALINK]</span></a></h1>' in content)
 
 
 @pytest.mark.sphinx('html', testroot='html_signaturereturn_icon')

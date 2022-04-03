@@ -1,12 +1,7 @@
-"""
-    test_ext_autodoc_autoclass
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Test the autodoc extension.
 
-    Test the autodoc extension.  This tests mainly the Documenters; the auto
-    directives are tested in a test source file translated by test_build.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+This tests mainly the Documenters; the auto directives are tested in a test
+source file translated by test_build.
 """
 
 import sys
@@ -284,7 +279,7 @@ def test_show_inheritance_for_decendants_of_generic_type(app):
         '.. py:class:: Corge(iterable=(), /)',
         '   :module: target.classes',
         '',
-        '   Bases: :py:class:`target.classes.Quux`',
+        '   Bases: :py:class:`~target.classes.Quux`',
         '',
     ]
 
@@ -391,7 +386,7 @@ def test_class_alias(app):
         '.. py:attribute:: Alias',
         '   :module: target.classes',
         '',
-        '   alias of :py:class:`target.classes.Foo`',
+        '   alias of :py:class:`~target.classes.Foo`',
     ]
 
 

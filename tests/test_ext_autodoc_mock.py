@@ -1,12 +1,4 @@
-"""
-    test_ext_autodoc_mock
-    ~~~~~~~~~~~~~~~~~~~~~
-
-    Test the autodoc extension.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the autodoc extension."""
 
 import abc
 import sys
@@ -122,6 +114,11 @@ def test_mock_decorator():
         def meth(self):
             pass
 
+        @classmethod
+        @mock.method_deco
+        def class_meth(cls):
+            pass
+
     @mock.class_deco
     class Bar:
         pass
@@ -132,6 +129,7 @@ def test_mock_decorator():
 
     assert undecorate(func).__name__ == "func"
     assert undecorate(Foo.meth).__name__ == "meth"
+    assert undecorate(Foo.class_meth).__name__ == "class_meth"
     assert undecorate(Bar).__name__ == "Bar"
     assert undecorate(Baz).__name__ == "Baz"
 

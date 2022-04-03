@@ -1,12 +1,4 @@
-"""
-    test_theming
-    ~~~~~~~~~~~~
-
-    Test the Theme class.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the Theme class."""
 
 import os
 
@@ -30,10 +22,10 @@ def test_theme_api(app, status, warning):
         themes.append('alabaster')
 
     # test Theme class API
-    assert set(app.html_themes.keys()) == set(themes)
-    assert app.html_themes['test-theme'] == app.srcdir / 'test_theme' / 'test-theme'
-    assert app.html_themes['ziptheme'] == app.srcdir / 'ziptheme.zip'
-    assert app.html_themes['staticfiles'] == app.srcdir / 'test_theme' / 'staticfiles'
+    assert set(app.registry.html_themes.keys()) == set(themes)
+    assert app.registry.html_themes['test-theme'] == app.srcdir / 'test_theme' / 'test-theme'
+    assert app.registry.html_themes['ziptheme'] == app.srcdir / 'ziptheme.zip'
+    assert app.registry.html_themes['staticfiles'] == app.srcdir / 'test_theme' / 'staticfiles'
 
     # test Theme instance API
     theme = app.builder.theme

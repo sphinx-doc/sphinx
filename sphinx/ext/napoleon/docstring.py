@@ -1,23 +1,15 @@
-"""
-    sphinx.ext.napoleon.docstring
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-    Classes for docstring parsing and formatting.
-
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Classes for docstring parsing and formatting."""
 
 import collections
 import inspect
 import re
+import warnings
 from functools import partial
 from typing import Any, Callable, Dict, List, Tuple, Type, Union
 
 from sphinx.application import Sphinx
 from sphinx.config import Config as SphinxConfig
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -631,7 +623,6 @@ class GoogleDocstring:
             if not _type:
                 _type = self._lookup_annotation(_name)
             if self._config.napoleon_use_ivar:
-                _name = self._qualify_name(_name, self._obj)
                 field = ':ivar %s: ' % _name
                 lines.extend(self._format_block(field, _desc))
                 if _type:
@@ -769,12 +760,9 @@ class GoogleDocstring:
     def _parse_returns_section(self, section: str) -> List[str]:
         fields = self._consume_returns_section()
         multi = len(fields) > 1
-        if multi:
-            use_rtype = False
-        else:
-            use_rtype = self._config.napoleon_use_rtype
-
+        use_rtype = False if multi else self._config.napoleon_use_rtype
         lines: List[str] = []
+
         for _name, _type, _desc in fields:
             if use_rtype:
                 field = self._format_field(_name, '', _desc)
@@ -787,7 +775,8 @@ class GoogleDocstring:
                 else:
                     lines.extend(self._format_block(':returns: * ', field))
             else:
-                lines.extend(self._format_block(':returns: ', field))
+                if any(field):  # only add :returns: if there's something to say
+                    lines.extend(self._format_block(':returns: ', field))
                 if _type and use_rtype:
                     lines.extend([':rtype: %s' % _type, ''])
         if lines and lines[-1]:
@@ -827,6 +816,8 @@ class GoogleDocstring:
                 "".join(after_colon).strip())
 
     def _qualify_name(self, attr_name: str, klass: Type) -> str:
+        warnings.warn('%s._qualify_name() is deprecated.' %
+                      self.__class__.__name__, RemovedInSphinx60Warning)
         if klass and '.' not in attr_name:
             if attr_name.startswith('~'):
                 attr_name = attr_name[1:]

@@ -1,15 +1,6 @@
-"""
-    sphinx.builders.latex
-    ~~~~~~~~~~~~~~~~~~~~~
-
-    LaTeX builder.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""LaTeX builder."""
 
 import os
-import warnings
 from os import path
 from typing import Any, Dict, Iterable, List, Tuple, Union
 
@@ -24,7 +15,6 @@ from sphinx.builders.latex.constants import ADDITIONAL_SETTINGS, DEFAULT_SETTING
 from sphinx.builders.latex.theming import Theme, ThemeFactory
 from sphinx.builders.latex.util import ExtBabel
 from sphinx.config import ENUM, Config
-from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
@@ -172,9 +162,8 @@ class LaTeXBuilder(Builder):
         self.context.update(ADDITIONAL_SETTINGS.get(self.config.latex_engine, {}))
 
         # Add special settings for (latex_engine, language_code)
-        if self.config.language:
-            key = (self.config.latex_engine, self.config.language[:2])
-            self.context.update(ADDITIONAL_SETTINGS.get(key, {}))
+        key = (self.config.latex_engine, self.config.language[:2])
+        self.context.update(ADDITIONAL_SETTINGS.get(key, {}))
 
         # Apply user settings to context
         self.context.update(self.config.latex_elements)
@@ -205,7 +194,7 @@ class LaTeXBuilder(Builder):
 
     def init_babel(self) -> None:
         self.babel = ExtBabel(self.config.language, not self.context['babel'])
-        if self.config.language and not self.babel.is_supported_language():
+        if not self.babel.is_supported_language():
             # emit warning if specified language is invalid
             # (only emitting, nothing changed to processing)
             logger.warning(__('no Babel option known for language %r'),
@@ -234,12 +223,11 @@ class LaTeXBuilder(Builder):
             self.context['classoptions'] += ',' + self.babel.get_language()
             # this branch is not taken for xelatex/lualatex if default settings
             self.context['multilingual'] = self.context['babel']
-            if self.config.language:
-                self.context['shorthandoff'] = SHORTHANDOFF
+            self.context['shorthandoff'] = SHORTHANDOFF
 
-                # Times fonts don't work with Cyrillic languages
-                if self.babel.uses_cyrillic() and 'fontpkg' not in self.config.latex_elements:
-                    self.context['fontpkg'] = ''
+            # Times fonts don't work with Cyrillic languages
+            if self.babel.uses_cyrillic() and 'fontpkg' not in self.config.latex_elements:
+                self.context['fontpkg'] = ''
         elif self.context['polyglossia']:
             self.context['classoptions'] += ',' + self.babel.get_language()
             options = self.babel.get_mainlanguage_options()
@@ -280,7 +268,7 @@ class LaTeXBuilder(Builder):
                                            encoding='utf-8', overwrite_if_changed=True)
             with progress_message(__("processing %s") % targetname):
                 doctree = self.env.get_doctree(docname)
-                toctree = next(iter(doctree.traverse(addnodes.toctree)), None)
+                toctree = next(doctree.findall(addnodes.toctree), None)
                 if toctree and toctree.get('maxdepth') > 0:
                     tocdepth = toctree.get('maxdepth')
                 else:
@@ -310,7 +298,7 @@ class LaTeXBuilder(Builder):
     def get_contentsname(self, indexfile: str) -> str:
         tree = self.env.get_doctree(indexfile)
         contentsname = None
-        for toctree in tree.traverse(addnodes.toctree):
+        for toctree in tree.findall(addnodes.toctree):
             if 'caption' in toctree:
                 contentsname = toctree['caption']
                 break
@@ -338,7 +326,7 @@ class LaTeXBuilder(Builder):
             new_sect += nodes.title('<Set title in conf.py>',
                                     '<Set title in conf.py>')
             new_tree += new_sect
-            for node in tree.traverse(addnodes.toctree):
+            for node in tree.findall(addnodes.toctree):
                 new_sect += node
             tree = new_tree
         largetree = inline_all_toctrees(self, self.docnames, indexfile, tree,
@@ -353,7 +341,7 @@ class LaTeXBuilder(Builder):
         self.env.resolve_references(largetree, indexfile, self)
         # resolve :ref:s to distant tex files -- we can't add a cross-reference,
         # but append the document name
-        for pendingnode in largetree.traverse(addnodes.pending_xref):
+        for pendingnode in largetree.findall(addnodes.pending_xref):
             docname = pendingnode['refdocname']
             sectname = pendingnode['refsectname']
             newnodes: List[Node] = [nodes.emphasis(sectname, sectname)]
@@ -382,14 +370,10 @@ class LaTeXBuilder(Builder):
         # configure usage of xindy (impacts Makefile and latexmkrc)
         # FIXME: convert this rather to a confval with suitable default
         #        according to language ? but would require extra documentation
-        if self.config.language:
-            xindy_lang_option = \
-                XINDY_LANG_OPTIONS.get(self.config.language[:2],
-                                       '-L general -C utf8 ')
-            xindy_cyrillic = self.config.language[:2] in XINDY_CYRILLIC_SCRIPTS
-        else:
-            xindy_lang_option = '-L english -C utf8 '
-            xindy_cyrillic = False
+        xindy_lang_option = XINDY_LANG_OPTIONS.get(self.config.language[:2],
+                                                   '-L general -C utf8 ')
+        xindy_cyrillic = self.config.language[:2] in XINDY_CYRILLIC_SCRIPTS
+
         context = {
             'latex_engine':      self.config.latex_engine,
             'xindy_use':         self.config.latex_use_xindy,
@@ -449,18 +433,6 @@ class LaTeXBuilder(Builder):
         filename = path.join(package_dir, 'templates', 'latex', 'sphinxmessages.sty_t')
         copy_asset_file(filename, self.outdir, context=context, renderer=LaTeXRenderer())
 
-    @property
-    def usepackages(self) -> List[Tuple[str, str]]:
-        warnings.warn('LaTeXBuilder.usepackages is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        return self.app.registry.latex_packages
-
-    @property
-    def usepackages_after_hyperref(self) -> List[Tuple[str, str]]:
-        warnings.warn('LaTeXBuilder.usepackages_after_hyperref is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        return self.app.registry.latex_packages_after_hyperref
-
 
 def validate_config_values(app: Sphinx, config: Config) -> None:
     for key in list(config.latex_elements):
@@ -488,7 +460,7 @@ def default_latex_engine(config: Config) -> str:
     """ Better default latex_engine settings for specific languages. """
     if config.language == 'ja':
         return 'uplatex'
-    elif (config.language or '').startswith('zh'):
+    elif config.language.startswith('zh'):
         return 'xelatex'
     elif config.language == 'el':
         return 'xelatex'
