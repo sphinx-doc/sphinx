@@ -29,7 +29,7 @@
 # Olivier Bonaventure <bonaventure@acm.org>, 2019
 # Pierre Grépon <pgrepon@yahoo.fr>, 2016
 # Sebastien Douche <sdouche@gmail.com>, 2008
-# Komiya Takeshi <i.tkomiya@gmail.com>, 2016,2020
+# Takeshi KOMIYA <i.tkomiya@gmail.com>, 2016,2020
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"

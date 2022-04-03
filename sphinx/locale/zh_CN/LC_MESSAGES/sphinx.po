@@ -15,7 +15,7 @@
 # Lu <lu2github@gmail.com>, 2022
 # Nomaka <nomakacyx@gmail.com>, 2018
 # Ryekee Zhong <ryekee@gmail.com>, 2013
-# Komiya Takeshi <i.tkomiya@gmail.com>, 2019,2021
+# Takeshi KOMIYA <i.tkomiya@gmail.com>, 2019,2021-2022
 # Tower Joo<zhutao.iscas@gmail.com>, 2009
 # wendi cao <651645601@qq.com>, 2020
 # Yinian Chin <yinian1992@live.com>, 2013,2018,2020
@@ -26,7 +26,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2022-03-27 00:18+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
-"Last-Translator: Lu <lu2github@gmail.com>, 2022\n"
+"Last-Translator: Takeshi KOMIYA <i.tkomiya@gmail.com>, 2019,2021-2022\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/sphinx-doc/sphinx-1/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -2944,7 +2944,7 @@ msgstr "基类：%s"
 #: sphinx/ext/autodoc/__init__.py:1884
 #, python-format
 msgid "alias of %s"
-msgstr "%s的别名"
+msgstr "%s 的别名"
 
 #: sphinx/ext/autodoc/__init__.py:1930
 #, python-format
