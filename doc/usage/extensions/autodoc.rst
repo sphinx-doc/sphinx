@@ -266,6 +266,10 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      ``__str__`` will be documented as in the past, but other special method
      that are not implemented in your class ``Foo``.
 
+     Since v5.0, it can take a comma separated list of ancestor classes.  It
+     allows to suppress inherited members of several classes on the module at
+     once by specifying the option to :rst:dir:`automodule` directive.
+
      Note: this will lead to markup errors if the inherited members come from a
      module whose docstrings are not reST formatted.
 
@@ -274,6 +278,10 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      .. versionchanged:: 3.0
 
         It takes an ancestor class name as an argument.
+
+     .. versionchanged:: 5.0
+
+        It takes a comma separated list of ancestor class names.
 
    * It's possible to override the signature for explicitly documented callable
      objects (functions, methods, classes) with the regular syntax that will
