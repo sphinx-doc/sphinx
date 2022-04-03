@@ -894,7 +894,7 @@ def test_autodoc_typehints_description_no_undoc(app):
 
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
                     confoverrides={'autodoc_typehints': "description",
-                                   'autodoc_typehints_description_target': 'returnvalue_and_documented_params'})
+                                   'autodoc_typehints_description_target': 'documented_params'})
 def test_autodoc_typehints_description_no_undoc_doc_rtype(app):
     # No :type: will be injected for `incr`, which does not have a description
     # for its parameters or its return, just :rtype: will be injected due to
@@ -1010,7 +1010,7 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc(app):
 
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
                     confoverrides={'autodoc_typehints': "description",
-                                   'autodoc_typehints_description_target': 'returnvalue_and_documented_params'})
+                                   'autodoc_typehints_description_target': 'documented_params'})
 def test_autodoc_typehints_description_with_documented_init_no_undoc_doc_rtype(app):
     # see test_autodoc_typehints_description_with_documented_init_no_undoc
     # returnvalue_and_documented_params should not change class or method

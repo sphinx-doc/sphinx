@@ -60,8 +60,7 @@ def merge_typehints(app: Sphinx, domain: str, objtype: str, contentnode: Element
         for field_list in field_lists:
             if app.config.autodoc_typehints_description_target == "all":
                 modify_field_list(field_list, annotations[fullname])
-            elif (app.config.autodoc_typehints_description_target ==
-                    "returnvalue_and_documented_params"):
+            elif app.config.autodoc_typehints_description_target == "documented_params":
                 augment_descriptions_with_types(
                     field_list, annotations[fullname], force_rtype=True
                 )
