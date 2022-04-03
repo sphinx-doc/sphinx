@@ -634,7 +634,15 @@ There are also config values that you can set:
    When set to ``"documented"``, types will only be documented for a parameter
    or a return value that is already documented by the docstring.
 
+   With ``"documented_params"``, parameter types will only be annotated if the
+   parameter is documented in the docstring. The return type is always
+   annotated (except if it is ``None``).
+
    .. versionadded:: 4.0
+
+   .. versionadded:: 5.0
+
+      New option ``'documented_params'`` is added.
 
 .. confval:: autodoc_type_aliases
 

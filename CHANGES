@@ -61,6 +61,8 @@ Features added
 * #8417: autodoc: ``:inherited-members:`` option now takes multiple classes.  It
   allows to suppress inherited members of several classes on the module at once
   by specifying the option to :rst:dir:`automodule` directive
+* #9792: autodoc: Add new option for ``autodoc_typehints_description_target`` to
+  include undocumented return values but not undocumented parameters.
 * #10028: Removed internal usages of JavaScript frameworks (jQuery and
   underscore.js) and modernised ``doctools.js`` and ``searchtools.js`` to
   EMCAScript 2018.
