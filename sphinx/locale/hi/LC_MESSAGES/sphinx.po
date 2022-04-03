@@ -6,12 +6,12 @@
 # Ajay Singh <ajaysajay@gmail.com>, 2019
 # Purnank H. Ghumalia <me@purnank.in>, 2015-2016
 # Sumanjali Damarla <damarlasumanjali@gmail.com>, 2020
-# Komiya Takeshi <i.tkomiya@gmail.com>, 2019
+# Takeshi KOMIYA <i.tkomiya@gmail.com>, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-03-20 00:16+0000\n"
+"POT-Creation-Date: 2022-03-27 00:18+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Sumanjali Damarla <damarlasumanjali@gmail.com>, 2020\n"
 "Language-Team: Hindi (http://www.transifex.com/sphinx-doc/sphinx-1/language/hi/)\n"
@@ -810,21 +810,21 @@ msgstr "लक्ष्य '%s' नहीं मिला"
 msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
 msgstr ""
 
-#: sphinx/builders/manpage.py:30
+#: sphinx/builders/manpage.py:29
 #, python-format
 msgid "The manual pages are in %(outdir)s."
 msgstr "पुस्तिका पृष्ठ %(outdir)sमें हैं."
 
-#: sphinx/builders/manpage.py:37
+#: sphinx/builders/manpage.py:36
 msgid "no \"man_pages\" config value found; no manual pages will be written"
 msgstr "कोई \"man_pages\" विन्यास मान नहीं मिला; कोई नियमावली पृष्ठ नहीं लिखे जाएंगे"
 
-#: sphinx/builders/latex/__init__.py:291 sphinx/builders/manpage.py:48
+#: sphinx/builders/latex/__init__.py:291 sphinx/builders/manpage.py:45
 #: sphinx/builders/singlehtml.py:153 sphinx/builders/texinfo.py:101
 msgid "writing"
 msgstr "लिखा जा रहा है"
 
-#: sphinx/builders/manpage.py:59
+#: sphinx/builders/manpage.py:56
 #, python-format
 msgid "\"man_pages\" config value references unknown document %s"
 msgstr "\"man_pages\" विन्यास मान अज्ञात लेखपत्र %s का सन्दर्भ है"
@@ -3362,12 +3362,12 @@ msgid "search"
 msgstr "खोज"
 
 #: sphinx/themes/basic/search.html:48
-#: sphinx/themes/basic/static/searchtools.js:306
+#: sphinx/themes/basic/static/searchtools.js:302
 msgid "Search Results"
 msgstr "खोज परीणाम "
 
 #: sphinx/themes/basic/search.html:50
-#: sphinx/themes/basic/static/searchtools.js:308
+#: sphinx/themes/basic/static/searchtools.js:304
 msgid ""
 "Your search did not match any documents. Please make sure that all words are"
 " spelled correctly and that you've selected enough categories."
@@ -3433,12 +3433,12 @@ msgstr "खोज जारी"
 msgid "Preparing search..."
 msgstr "खोज की तैयारी"
 
-#: sphinx/themes/basic/static/searchtools.js:310
+#: sphinx/themes/basic/static/searchtools.js:306
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
 msgstr "खोज पूर्ण, खोज विषय के अनुकूल %s पृष्ठ मिला (मिले)."
 
-#: sphinx/themes/basic/static/searchtools.js:365
+#: sphinx/themes/basic/static/searchtools.js:361
 msgid ", in "
 msgstr ", में "
 
@@ -3550,12 +3550,12 @@ msgid ""
 "not in the domain."
 msgstr ""
 
-#: sphinx/util/docutils.py:225
+#: sphinx/util/docutils.py:249
 #, python-format
 msgid "unknown directive or role name: %s:%s"
 msgstr ""
 
-#: sphinx/util/docutils.py:515
+#: sphinx/util/docutils.py:539
 #, python-format
 msgid "unknown node type: %r"
 msgstr "अज्ञात बिंदु प्रकार: %r"

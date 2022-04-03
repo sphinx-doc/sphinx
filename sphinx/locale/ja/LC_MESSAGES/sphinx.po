@@ -8,14 +8,14 @@
 # tomo, 2018
 # Hisahiro Ohmura, 2017
 # KaKkouo, 2021
-# Komiya Takeshi <i.tkomiya@gmail.com>, 2021
+# Takeshi KOMIYA <i.tkomiya@gmail.com>, 2021
 # Kouhei Sutou <kou@clear-code.com>, 2011
 # sutefu7, 2019-2020
 # shirou - しろう <shirou.faw@gmail.com>, 2017
 # Taizo Ito <taizo.ito@hennge.com>, 2019
 # Takayuki SHIMIZUKAWA <shimizukawa@gmail.com>, 2013-2016
 # Takayuki SHIMIZUKAWA <shimizukawa@gmail.com>, 2016-2017,2019
-# Komiya Takeshi <i.tkomiya@gmail.com>, 2016-2017,2019
+# Takeshi KOMIYA <i.tkomiya@gmail.com>, 2016-2017,2019
 # Tetsuo Koyama <tkoyama010@gmail.com>, 2020-2021
 # tomo, 2019
 # shirou - しろう <shirou.faw@gmail.com>, 2014

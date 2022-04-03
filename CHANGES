@@ -67,8 +67,12 @@ Bugs fixed
 
 * #10279: autodoc: Default values for keyword only arguments in overloaded
   functions are rendered as a string literal
+* #10280: autodoc: :confval:`autodoc_docstring_signature` unexpectedly generates
+  return value typehint for constructors if docstring has multiple signatures
 * #10266: autodoc: :confval:`autodoc_preserve_defaults` does not work for
   mixture of keyword only arguments with/without defaults
+* #10214: html: invalid language tag was generated if :confval:`language`
+  contains a country code (ex. zh_CN)
 * #10236: html search: objects are duplicated in search result
 * #9962: texinfo: Deprecation message for ``@definfoenclose`` command on
   bulding texinfo document

@@ -1580,6 +1580,20 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         return stringify_signature(sig, show_return_annotation=False, **kwargs)
 
+    def _find_signature(self) -> Tuple[str, str]:
+        result = super()._find_signature()
+        if result is not None:
+            # Strip a return value from signature of constructor in docstring (first entry)
+            result = (result[0], None)
+
+        for i, sig in enumerate(self._signatures):
+            if sig.endswith(' -> None'):
+                # Strip a return value from signatures of constructor in docstring (subsequent
+                # entries)
+                self._signatures[i] = sig[:-8]
+
+        return result
+
     def format_signature(self, **kwargs: Any) -> str:
         if self.doc_as_attr:
             return ''

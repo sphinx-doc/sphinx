@@ -4,7 +4,7 @@
 # 
 # Translators:
 # Razvan Stefanescu <razvan.stefanescu@gmail.com>, 2015-2017
-# Komiya Takeshi <i.tkomiya@gmail.com>, 2016
+# Takeshi KOMIYA <i.tkomiya@gmail.com>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
