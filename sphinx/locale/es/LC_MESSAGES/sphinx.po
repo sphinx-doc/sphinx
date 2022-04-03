@@ -9,14 +9,14 @@
 # Guillem Borrell <guillem@torroja.dmt.upm.es>, 2011
 # Ivan García <ivan.garcia@studio-point.com>, 2019
 # Leonardo J. Caballero G. <leonardocaballero@gmail.com>, 2013-2018,2020
-# Komiya Takeshi <i.tkomiya@gmail.com>, 2016,2021
+# Takeshi KOMIYA <i.tkomiya@gmail.com>, 2016,2021
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2022-03-27 00:18+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
-"Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>, 2016,2021\n"
+"Last-Translator: Takeshi KOMIYA <i.tkomiya@gmail.com>, 2016,2021\n"
 "Language-Team: Spanish (http://www.transifex.com/sphinx-doc/sphinx-1/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"

@@ -5,7 +5,7 @@
 # Translators:
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2008
 # Slavko <linux@slavino.sk>, 2013-2019,2021
-# Komiya Takeshi <i.tkomiya@gmail.com>, 2016
+# Takeshi KOMIYA <i.tkomiya@gmail.com>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
