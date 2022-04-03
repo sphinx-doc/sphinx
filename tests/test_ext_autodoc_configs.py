@@ -943,7 +943,7 @@ def test_autodoc_typehints_description_no_undoc_doc_rtype(app):
             '      another tuple\n'
             '\n'
             '   Return type:\n'
-            '      Tuple[int, int]\n'
+            '      *Tuple*[int, int]\n'
             '\n'
             'target.typehints.Math.nothing(self)\n'
             '\n'
