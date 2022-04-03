@@ -5,11 +5,11 @@ import os
 import sys
 from importlib.abc import Loader, MetaPathFinder
 from importlib.machinery import ModuleSpec
-from types import ModuleType
+from types import MethodType, ModuleType
 from typing import Any, Generator, Iterator, List, Optional, Sequence, Tuple, Union
 
 from sphinx.util import logging
-from sphinx.util.inspect import safe_getattr
+from sphinx.util.inspect import isboundmethod, safe_getattr
 
 logger = logging.getLogger(__name__)
 
@@ -164,9 +164,15 @@ def ismock(subject: Any) -> bool:
     if isinstance(subject, _MockModule):
         return True
 
+    # check the object is bound method
+    if isinstance(subject, MethodType) and isboundmethod(subject):
+        tmp_subject = subject.__func__
+    else:
+        tmp_subject = subject
+
     try:
         # check the object is mocked object
-        __mro__ = safe_getattr(type(subject), '__mro__', [])
+        __mro__ = safe_getattr(type(tmp_subject), '__mro__', [])
         if len(__mro__) > 2 and __mro__[-2] is _MockObject:
             # A mocked object has a MRO that ends with (..., _MockObject, object).
             return True
