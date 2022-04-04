@@ -1403,8 +1403,8 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             except (AttributeError, TypeError):
                 # failed to update signature (ex. built-in or extension types)
                 return None
-        else:
-            return None
+
+        return func
 
 
 class DecoratorDocumenter(FunctionDocumenter):
@@ -2299,8 +2299,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             except (AttributeError, TypeError):
                 # failed to update signature (ex. built-in or extension types)
                 return None
-        else:
-            return None
+
+        return func
 
     def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         if self._new_docstrings is not None:
