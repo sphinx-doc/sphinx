@@ -48,7 +48,7 @@ if (typeof Scorer === "undefined") {
 }
 
 const _removeChildren = (element) => {
-  while (element.lastChild) element.removeChild(element.lastChild);
+  while (element && element.lastChild) element.removeChild(element.lastChild);
 };
 
 /**
@@ -223,9 +223,11 @@ const Search = {
     Search.status = out.appendChild(searchSummary);
     Search.output = out.appendChild(searchList);
 
-    document.getElementById("search-progress").innerText = _(
-      "Preparing search..."
-    );
+    const searchProgress = document.getElementById("search-progress");
+    // Some themes don't use the search progress node
+    if (searchProgress) {
+      searchProgress.innerText = _("Preparing search...");
+    }
     Search.startPulse();
 
     // index already loaded, the browser was quick!
