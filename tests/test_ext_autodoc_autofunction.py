@@ -117,6 +117,7 @@ def test_singledispatch(app):
         '                 func(arg: float, kwarg=None)',
         '                 func(arg: int, kwarg=None)',
         '                 func(arg: str, kwarg=None)',
+        '                 func(arg: dict, kwarg=None)',
         '   :module: target.singledispatch',
         '',
         '   A function for general use.',
