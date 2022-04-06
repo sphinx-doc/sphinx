@@ -200,7 +200,7 @@ class StandaloneHTMLBuilder(Builder):
     download_support = True  # enable download role
 
     imgpath: str = None
-    domain_indices: List[Tuple[str, Type[Index], List[Tuple[str, List[IndexEntry]]], bool]] = []  # NOQA
+    domain_indices: List[Tuple[str, Index]] = []  # NOQA
 
     def __init__(self, app: Sphinx) -> None:
         super().__init__(app)
@@ -461,10 +461,7 @@ class StandaloneHTMLBuilder(Builder):
                     if isinstance(indices_config, list):
                         if indexname not in indices_config:
                             continue
-                    content, collapse = indexcls(domain).generate()
-                    if content:
-                        self.domain_indices.append(
-                            (indexname, indexcls, content, collapse))
+                    self.domain_indices.append((indexname, indexcls(domain)))
 
         # format the "last updated on" string, only once is enough since it
         # typically doesn't include the time of day
@@ -490,11 +487,11 @@ class StandaloneHTMLBuilder(Builder):
         rellinks: List[Tuple[str, str, str, str]] = []
         if self.use_index:
             rellinks.append(('genindex', _('General Index'), 'I', _('index')))
-        for indexname, indexcls, _content, _collapse in self.domain_indices:
+        for indexname, index in self.domain_indices:
             # if it has a short name
-            if indexcls.shortname:
-                rellinks.append((indexname, indexcls.localname,
-                                 '', indexcls.shortname))
+            if index.shortname:
+                rellinks.append((indexname, index.localname,
+                                 '', index.shortname))
 
         # back up script_files and css_files to allow adding JS/CSS files to a specific page.
         self._script_files = list(self.script_files)
@@ -719,14 +716,25 @@ class StandaloneHTMLBuilder(Builder):
             self.handle_page('genindex', genindexcontext, 'genindex.html')
 
     def write_domain_indices(self) -> None:
-        for indexname, indexcls, content, collapse in self.domain_indices:
-            indexcontext = {
-                'indextitle': indexcls.localname,
-                'content': content,
-                'collapse_index': collapse,
-            }
-            logger.info(indexname + ' ', nonl=True)
-            self.handle_page(indexname, indexcontext, 'domainindex.html')
+        indices_with_content = []
+        for indexname, index in self.domain_indices:
+            content, collapse = index.generate()
+            if content:
+                indexcontext = {
+                    'indextitle': index.localname,
+                    'content': content,
+                    'collapse_index': collapse,
+                }
+                logger.info(indexname + ' ', nonl=True)
+                self.handle_page(indexname, indexcontext, 'domainindex.html')
+                indices_with_content.append((indexname, index))
+            else:
+                # Do not include empty domain indices in rellinks
+                self.globalcontext["rellinks"].remove((indexname,
+                                                       index.localname,
+                                                       '', index.shortname))
+        # Indices without content are excluded.
+        self.domain_indices = indices_with_content
 
     def copy_image_files(self) -> None:
         if self.images:
