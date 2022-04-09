@@ -10,8 +10,9 @@ from os import path
 from typing import IO, Any, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Type
 from urllib.parse import quote
 
+import docutils.readers.doctree
 from docutils import nodes
-from docutils.core import publish_parts
+from docutils.core import Publisher
 from docutils.frontend import OptionParser
 from docutils.io import DocTreeInput, StringOutput
 from docutils.nodes import Node
@@ -210,6 +211,19 @@ class StandaloneHTMLBuilder(Builder):
 
         # JS files
         self.script_files: List[JavaScript] = []
+
+        # Cached Publisher for writing doctrees to HTML
+        reader = docutils.readers.doctree.Reader(parser_name='restructuredtext')
+        pub = Publisher(
+            reader=reader,
+            parser=reader.parser,
+            writer=HTMLWriter(self),
+            source_class=DocTreeInput,
+            destination=StringOutput(encoding='unicode'),
+        )
+        op = pub.setup_option_parser(output_encoding='unicode', traceback=True)
+        pub.settings = op.get_default_values()
+        self._publisher = pub
 
     def init(self) -> None:
         self.build_info = self.create_build_info()
@@ -421,15 +435,12 @@ class StandaloneHTMLBuilder(Builder):
         """Utility: Render a lone doctree node."""
         if node is None:
             return {'fragment': ''}
+
         doc = new_document('<partial node>')
         doc.append(node)
-
-        writer = HTMLWriter(self)
-        return publish_parts(reader_name='doctree',
-                             writer=writer,
-                             source_class=DocTreeInput,
-                             settings_overrides={'output_encoding': 'unicode'},
-                             source=doc)
+        self._publisher.set_source(doc)
+        self._publisher.publish()
+        return self._publisher.writer.parts
 
     def prepare_writing(self, docnames: Set[str]) -> None:
         # create the search indexer
