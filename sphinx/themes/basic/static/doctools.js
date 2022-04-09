@@ -130,18 +130,15 @@ const Documentation = {
    * highlight the search words provided in the url in the text
    */
   highlightSearchWords: () => {
-    const highlight = new URLSearchParams(window.location.search).get(
-      "highlight"
-    );
-    const terms = highlight ? highlight.split(/\s+/) : [];
+    const highlight = new URLSearchParams(window.location.search).get("highlight") || "";
+    const terms = highlight.toLowerCase().split(/\s+/);
     if (terms.length === 0) return; // nothing to do
 
-    let body = document.querySelectorAll("div.body");
-    if (!body.length) body = document.querySelector("body");
+    // There should never be more than one element matching "div.body"
+    const divBody = document.querySelectorAll("div.body");
+    const body = divBody.length ? divBody[0] : document.querySelector("body");
     window.setTimeout(() => {
-      terms.forEach((term) =>
-        _highlightText(body, term.toLowerCase(), "highlighted")
-      );
+      terms.forEach((term) => _highlightText(body, term, "highlighted"));
     }, 10);
 
     const searchBox = document.getElementById("searchbox");
