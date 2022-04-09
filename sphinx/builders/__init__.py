@@ -464,8 +464,10 @@ class Builder:
         if path.isfile(docutilsconf):
             self.env.note_dependency(docutilsconf)
 
+        filename = self.env.doc2path(docname)
+        publisher = self.app.registry.create_publisher(self.app, filename)
         with sphinx_domains(self.env), rst.default_role(docname, self.config.default_role):
-            doctree = read_doc(self.app, self.env, self.env.doc2path(docname))
+            doctree = read_doc(publisher, docname, filename)
 
         # store time of reading, for outdated files detection
         # (Some filesystems have coarse timestamp resolution;

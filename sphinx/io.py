@@ -5,9 +5,8 @@ from typing import TYPE_CHECKING, Any, List, Type
 from docutils import nodes
 from docutils.core import Publisher
 from docutils.frontend import Values
-from docutils.io import FileInput, Input, NullOutput
+from docutils.io import FileInput, Input
 from docutils.parsers import Parser
-from docutils.parsers.rst import Parser as RSTParser
 from docutils.readers import standalone
 from docutils.transforms import Transform
 from docutils.transforms.references import DanglingReferences
@@ -20,7 +19,7 @@ from sphinx.transforms import (AutoIndexUpgrader, DoctreeReadEvent, FigureAligne
 from sphinx.transforms.i18n import (Locale, PreserveTranslatableMessages,
                                     RemoveTranslatableInline)
 from sphinx.transforms.references import SphinxDomains
-from sphinx.util import UnicodeDecodeErrorHandler, get_filetype, logging
+from sphinx.util import UnicodeDecodeErrorHandler, logging
 from sphinx.util.docutils import LoggingReporter
 from sphinx.versioning import UIDTransform
 
@@ -153,30 +152,16 @@ class SphinxFileInput(FileInput):
         super().__init__(*args, **kwargs)
 
 
-def read_doc(app: "Sphinx", env: BuildEnvironment, filename: str) -> nodes.document:
+def read_doc(publisher: Publisher, docname: str, filename: str) -> nodes.document:
     """Parse a document and convert to doctree."""
     # set up error_handler for the target document
-    error_handler = UnicodeDecodeErrorHandler(env.docname)
+    error_handler = UnicodeDecodeErrorHandler(docname)
     codecs.register_error('sphinx', error_handler)  # type: ignore
 
-    reader = SphinxStandaloneReader()
-    reader.setup(app)
-    filetype = get_filetype(app.config.source_suffix, filename)
-    parser = app.registry.create_source_parser(app, filetype)
-    if parser.__class__.__name__ == 'CommonMarkParser' and parser.settings_spec == ():
-        # a workaround for recommonmark
-        #   If recommonmark.AutoStrictify is enabled, the parser invokes reST parser
-        #   internally.  But recommonmark-0.4.0 does not provide settings_spec for reST
-        #   parser.  As a workaround, this copies settings_spec for RSTParser to the
-        #   CommonMarkParser.
-        parser.settings_spec = RSTParser.settings_spec
+    publisher.set_source(source_path=filename)
+    publisher.publish()
 
-    pub = Publisher(reader=reader,
-                    parser=parser,
-                    writer=SphinxDummyWriter(),
-                    source_class=SphinxFileInput,
-                    destination=NullOutput())
-    pub.process_programmatic_settings(None, env.settings, None)
-    pub.set_source(source_path=filename)
-    pub.publish()
-    return pub.document
+    doctree = publisher.document
+    # settings get modified in ``write_doctree``; get a local copy
+    doctree.settings = doctree.settings.copy()
+    return doctree
