@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-03 00:17+0000\n"
+"POT-Creation-Date: 2022-04-10 00:16+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Rafael Fontenelle <rffontenelle@gmail.com>, 2019-2022\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/sphinx-doc/sphinx-1/language/pt_BR/)\n"
@@ -2631,14 +2631,14 @@ msgstr "O link codificado %r pode ser substituído por um extlink (tente usar %r
 msgid ""
 "extlinks: Sphinx-6.0 will require base URL to contain exactly one '%s' and "
 "all other '%' need to be escaped as '%%'."
-msgstr ""
+msgstr "extlinks: Sphinx-6.0 vai exigir que a URL base contenha exatamente um '%s' e todos os outros '%' precisam ser escapados como '%%'."
 
 #: sphinx/ext/extlinks.py:104
 #, python-format
 msgid ""
 "extlinks: Sphinx-6.0 will require a caption string to contain exactly one "
 "'%s' and all other '%' need to be escaped as '%%'."
-msgstr ""
+msgstr "extlinks: Sphinx-6.0 vai exigir que uma string de legenda contenha exatamente um '%s' e todos os outros '%' precisam ser escapados como '%%'."
 
 #: sphinx/ext/graphviz.py:124
 msgid "Graphviz directive cannot have both content and a filename argument"
@@ -2855,39 +2855,39 @@ msgstr "Visão geral: código do módulo"
 msgid "<h1>All modules for which code is available</h1>"
 msgstr "<h1>Todos os módulos onde este código está disponível</h1>"
 
-#: sphinx/ext/autodoc/__init__.py:127
+#: sphinx/ext/autodoc/__init__.py:129
 #, python-format
 msgid "invalid value for member-order option: %s"
 msgstr "valor inválido para a opção member-order: %s"
 
-#: sphinx/ext/autodoc/__init__.py:135
+#: sphinx/ext/autodoc/__init__.py:137
 #, python-format
 msgid "invalid value for class-doc-from option: %s"
 msgstr "valor inválido para a opção class-doc-from: %s"
 
-#: sphinx/ext/autodoc/__init__.py:396
+#: sphinx/ext/autodoc/__init__.py:398
 #, python-format
 msgid "invalid signature for auto%s (%r)"
 msgstr "assinatura inválida para auto%s (%r)"
 
-#: sphinx/ext/autodoc/__init__.py:513
+#: sphinx/ext/autodoc/__init__.py:515
 #, python-format
 msgid "error while formatting arguments for %s: %s"
 msgstr "erro ao formatar argumentos para %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:658 sphinx/ext/autodoc/__init__.py:1695
+#: sphinx/ext/autodoc/__init__.py:660 sphinx/ext/autodoc/__init__.py:1713
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr "faltando atributo %s no objeto %s"
 
-#: sphinx/ext/autodoc/__init__.py:810
+#: sphinx/ext/autodoc/__init__.py:814
 #, python-format
 msgid ""
 "autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
 "%s"
 msgstr "autodoc: falhou em determinar %s.%s (%r) a ser documentado, a seguinte exceção foi levantada:\n%s"
 
-#: sphinx/ext/autodoc/__init__.py:903
+#: sphinx/ext/autodoc/__init__.py:907
 #, python-format
 msgid ""
 "don't know which module to import for autodocumenting %r (try placing a "
@@ -2895,82 +2895,82 @@ msgid ""
 "explicit module name)"
 msgstr "não sei qual módulo importar para documentação automática %r (tente colocar uma diretiva “module” ou “currentmodule” no documento ou forneça um nome explícito para o módulo)"
 
-#: sphinx/ext/autodoc/__init__.py:947
+#: sphinx/ext/autodoc/__init__.py:951
 #, python-format
 msgid "A mocked object is detected: %r"
 msgstr "Um objeto simulado foi detectado: %r"
 
-#: sphinx/ext/autodoc/__init__.py:966
+#: sphinx/ext/autodoc/__init__.py:970
 #, python-format
 msgid "error while formatting signature for %s: %s"
 msgstr "erro ao formatar assinatura para %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1017
+#: sphinx/ext/autodoc/__init__.py:1021
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr "“::” no nome de automodule não faz sentido"
 
-#: sphinx/ext/autodoc/__init__.py:1024
+#: sphinx/ext/autodoc/__init__.py:1028
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr "argumentos de assinatura ou anotação de retorno fornecidos para automodule %s"
 
-#: sphinx/ext/autodoc/__init__.py:1037
+#: sphinx/ext/autodoc/__init__.py:1041
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr "__all__ deve ser uma lista de strings, não %r (no módulo %s) -- ignorando __all__"
 
-#: sphinx/ext/autodoc/__init__.py:1103
+#: sphinx/ext/autodoc/__init__.py:1107
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr "faltando atributo mencionado na opção :members: : módulo %s, atributo %s"
 
-#: sphinx/ext/autodoc/__init__.py:1304 sphinx/ext/autodoc/__init__.py:1381
-#: sphinx/ext/autodoc/__init__.py:2790
+#: sphinx/ext/autodoc/__init__.py:1308 sphinx/ext/autodoc/__init__.py:1385
+#: sphinx/ext/autodoc/__init__.py:2808
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "Falha ao obter uma assinatura de função para %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1574
+#: sphinx/ext/autodoc/__init__.py:1578
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr "Falha ao obter uma assinatura de construtor para %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1682
+#: sphinx/ext/autodoc/__init__.py:1700
 #, python-format
 msgid "Bases: %s"
 msgstr "Base: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1783 sphinx/ext/autodoc/__init__.py:1861
-#: sphinx/ext/autodoc/__init__.py:1884
+#: sphinx/ext/autodoc/__init__.py:1801 sphinx/ext/autodoc/__init__.py:1879
+#: sphinx/ext/autodoc/__init__.py:1902
 #, python-format
 msgid "alias of %s"
 msgstr "apelido de %s"
 
-#: sphinx/ext/autodoc/__init__.py:1930
+#: sphinx/ext/autodoc/__init__.py:1948
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr "apelido de TypeVar(%s)"
 
-#: sphinx/ext/autodoc/__init__.py:2166 sphinx/ext/autodoc/__init__.py:2263
+#: sphinx/ext/autodoc/__init__.py:2184 sphinx/ext/autodoc/__init__.py:2281
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr "Falha ao obter uma assinatura de método para %s: %s"
 
-#: sphinx/ext/autodoc/__init__.py:2394
+#: sphinx/ext/autodoc/__init__.py:2412
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "__slots__ inválido encontrado em %s. Ignorado."
 
-#: sphinx/ext/autodoc/__init__.py:2833
+#: sphinx/ext/autodoc/__init__.py:2851
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
 msgstr "autodoc_member_order agora aceita \"alphabetical\" em vez de \"alphabetic\". Por favor, atualize sua configuração."
 
-#: sphinx/ext/autodoc/preserve_defaults.py:101
+#: sphinx/ext/autodoc/preserve_defaults.py:105
 #, python-format
 msgid "Failed to parse a default argument value for %r: %s"
 msgstr "Falha ao analisar um valor de argumento padrão para %r: %s"
@@ -3432,17 +3432,17 @@ msgstr "Esconder Resultados da Busca"
 #: sphinx/themes/basic/static/searchtools.js:112
 msgid ""
 "Search finished, found ${resultCount} page(s) matching the search query."
-msgstr ""
+msgstr "Pesquisa finalizada, encontrada(s) ${resultCount} página(s) correspondendo à consulta da pesquisa."
 
 #: sphinx/themes/basic/static/searchtools.js:213
 msgid "Searching"
 msgstr "Buscando"
 
-#: sphinx/themes/basic/static/searchtools.js:226
+#: sphinx/themes/basic/static/searchtools.js:229
 msgid "Preparing search..."
 msgstr "Preparando a busca..."
 
-#: sphinx/themes/basic/static/searchtools.js:371
+#: sphinx/themes/basic/static/searchtools.js:373
 msgid ", in "
 msgstr ", em "
 
@@ -3623,7 +3623,7 @@ msgstr "Link permanente para este termo"
 #: sphinx/writers/html.py:428 sphinx/writers/html.py:433
 #: sphinx/writers/html5.py:387 sphinx/writers/html5.py:392
 msgid "Permalink to this heading"
-msgstr ""
+msgstr "Link permanente para este cabeçalho"
 
 #: sphinx/writers/html.py:437 sphinx/writers/html5.py:396
 msgid "Permalink to this table"
