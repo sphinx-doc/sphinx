@@ -212,6 +212,7 @@ setup(
         'Framework :: Sphinx',
         'Framework :: Sphinx :: Extension',
         'Framework :: Sphinx :: Theme',
+        'Framework :: Pytest',
         'Topic :: Documentation',
         'Topic :: Documentation :: Sphinx',
         'Topic :: Internet :: WWW/HTTP :: Site Management',
@@ -241,6 +242,9 @@ setup(
         ],
         'distutils.commands': [
             'build_sphinx = sphinx.setup_command:BuildDoc',
+        ],
+        'pytest11': [
+            'sphinx = sphinx.testing.fixtures',
         ],
     },
     python_requires=">=3.6",
