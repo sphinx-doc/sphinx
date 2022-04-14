@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-03 00:17+0000\n"
+"POT-Creation-Date: 2022-04-10 00:16+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: YT H <dev@theYT.net>, 2019-2022\n"
 "Language-Team: Korean (http://www.transifex.com/sphinx-doc/sphinx-1/language/ko/)\n"
@@ -2627,14 +2627,14 @@ msgstr "하드코딩 된 링크 %r은(는) extlink로 대체할 수 있습니다
 msgid ""
 "extlinks: Sphinx-6.0 will require base URL to contain exactly one '%s' and "
 "all other '%' need to be escaped as '%%'."
-msgstr ""
+msgstr "extlinks: Sphinx-6.0에서 기반 URL은 단 하나의 '%s'를 포함하며 다른 '%'는 모두 '%%'로 이스케이프 처리되어야 합니다."
 
 #: sphinx/ext/extlinks.py:104
 #, python-format
 msgid ""
 "extlinks: Sphinx-6.0 will require a caption string to contain exactly one "
 "'%s' and all other '%' need to be escaped as '%%'."
-msgstr ""
+msgstr "extlinks: Sphinx-6.0에서 캡션 문자열은 단 하나의 '%s'를 포함하며 다른 '%'는 모두 '%%'로 이스케이프 처리되어야 합니다."
 
 #: sphinx/ext/graphviz.py:124
 msgid "Graphviz directive cannot have both content and a filename argument"
@@ -2851,39 +2851,39 @@ msgstr "개요: 모듈 코드"
 msgid "<h1>All modules for which code is available</h1>"
 msgstr "<h1>코드를 확인할 수 있는 모든 모듈</h1>"
 
-#: sphinx/ext/autodoc/__init__.py:127
+#: sphinx/ext/autodoc/__init__.py:129
 #, python-format
 msgid "invalid value for member-order option: %s"
 msgstr "member-order 옵션에 대해 잘못된 값: %s"
 
-#: sphinx/ext/autodoc/__init__.py:135
+#: sphinx/ext/autodoc/__init__.py:137
 #, python-format
 msgid "invalid value for class-doc-from option: %s"
 msgstr "class-doc-from 옵션에 대해 잘못된 값: %s"
 
-#: sphinx/ext/autodoc/__init__.py:396
+#: sphinx/ext/autodoc/__init__.py:398
 #, python-format
 msgid "invalid signature for auto%s (%r)"
 msgstr "auto%s (%r)에 대한 잘못된 서명"
 
-#: sphinx/ext/autodoc/__init__.py:513
+#: sphinx/ext/autodoc/__init__.py:515
 #, python-format
 msgid "error while formatting arguments for %s: %s"
 msgstr "%s에 대한 인수를 서식화하는 동안 오류 발생: %s"
 
-#: sphinx/ext/autodoc/__init__.py:658 sphinx/ext/autodoc/__init__.py:1695
+#: sphinx/ext/autodoc/__init__.py:660 sphinx/ext/autodoc/__init__.py:1713
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr "%s 속성이 %s 객체에 없음"
 
-#: sphinx/ext/autodoc/__init__.py:810
+#: sphinx/ext/autodoc/__init__.py:814
 #, python-format
 msgid ""
 "autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
 "%s"
 msgstr "autodoc: 문서화 할 %s.%s (%r) 을(를) 결정하지 못했으며, 다음 예외가 발생했습니다:\n%s"
 
-#: sphinx/ext/autodoc/__init__.py:903
+#: sphinx/ext/autodoc/__init__.py:907
 #, python-format
 msgid ""
 "don't know which module to import for autodocumenting %r (try placing a "
@@ -2891,82 +2891,82 @@ msgid ""
 "explicit module name)"
 msgstr "%r의 자동 문서화를 위해 가져올 모듈을 알 수 없습니다 (문서에 \"module\" 또는 \"currentmodule\" 지시문을 배치하거나, 명시적으로 모듈 이름을 지정해 보십시오)"
 
-#: sphinx/ext/autodoc/__init__.py:947
+#: sphinx/ext/autodoc/__init__.py:951
 #, python-format
 msgid "A mocked object is detected: %r"
 msgstr "모의 객체가 감지되었습니다: %r"
 
-#: sphinx/ext/autodoc/__init__.py:966
+#: sphinx/ext/autodoc/__init__.py:970
 #, python-format
 msgid "error while formatting signature for %s: %s"
 msgstr "%s에 대한 서명을 서식화하는 동안 오류 발생: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1017
+#: sphinx/ext/autodoc/__init__.py:1021
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr "automodule 이름의 \"::\"은 의미가 없음"
 
-#: sphinx/ext/autodoc/__init__.py:1024
+#: sphinx/ext/autodoc/__init__.py:1028
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr "automodule %s에 대해 서명 인수 또는 반환 값 주석이 지정됨"
 
-#: sphinx/ext/autodoc/__init__.py:1037
+#: sphinx/ext/autodoc/__init__.py:1041
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr "__all__은 %r이(가) 아닌 문자열의 목록이어야 합니다 (모듈 %s) -- __all__을 무시합니다"
 
-#: sphinx/ext/autodoc/__init__.py:1103
+#: sphinx/ext/autodoc/__init__.py:1107
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr ":members: 옵션에 언급된 속성이 없습니다: 모듈 %s, 속성 %s"
 
-#: sphinx/ext/autodoc/__init__.py:1304 sphinx/ext/autodoc/__init__.py:1381
-#: sphinx/ext/autodoc/__init__.py:2790
+#: sphinx/ext/autodoc/__init__.py:1308 sphinx/ext/autodoc/__init__.py:1385
+#: sphinx/ext/autodoc/__init__.py:2808
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "%s에 대한 함수 서명을 가져오지 못했습니다: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1574
+#: sphinx/ext/autodoc/__init__.py:1578
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr "%s에 대한 생성자 서명을 가져오지 못했습니다: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1682
+#: sphinx/ext/autodoc/__init__.py:1700
 #, python-format
 msgid "Bases: %s"
 msgstr "기반 클래스: %s"
 
-#: sphinx/ext/autodoc/__init__.py:1783 sphinx/ext/autodoc/__init__.py:1861
-#: sphinx/ext/autodoc/__init__.py:1884
+#: sphinx/ext/autodoc/__init__.py:1801 sphinx/ext/autodoc/__init__.py:1879
+#: sphinx/ext/autodoc/__init__.py:1902
 #, python-format
 msgid "alias of %s"
 msgstr "%s의 별칭"
 
-#: sphinx/ext/autodoc/__init__.py:1930
+#: sphinx/ext/autodoc/__init__.py:1948
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr "TypeVar(%s)의 별칭"
 
-#: sphinx/ext/autodoc/__init__.py:2166 sphinx/ext/autodoc/__init__.py:2263
+#: sphinx/ext/autodoc/__init__.py:2184 sphinx/ext/autodoc/__init__.py:2281
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr "%s에 대한 메소드 서명을 가져오지 못했습니다: %s"
 
-#: sphinx/ext/autodoc/__init__.py:2394
+#: sphinx/ext/autodoc/__init__.py:2412
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "%s에서 잘못된 __slots__ 가 발견되었습니다. 무시합니다."
 
-#: sphinx/ext/autodoc/__init__.py:2833
+#: sphinx/ext/autodoc/__init__.py:2851
 msgid ""
 "autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
 " Please update your setting."
 msgstr "autodoc_member_order는 이제 \"alphabetical\" 대신 \"alphabetic\"을 허용합니다. 설정을 업데이트하십시오."
 
-#: sphinx/ext/autodoc/preserve_defaults.py:101
+#: sphinx/ext/autodoc/preserve_defaults.py:105
 #, python-format
 msgid "Failed to parse a default argument value for %r: %s"
 msgstr "%r에 대한 기본 인수 값을 해석하지 못했습니다: %s"
@@ -3428,17 +3428,17 @@ msgstr "검색 일치 숨기기"
 #: sphinx/themes/basic/static/searchtools.js:112
 msgid ""
 "Search finished, found ${resultCount} page(s) matching the search query."
-msgstr ""
+msgstr "검색이 완료되었으며, 검색어와 일치하는 ${resultCount} 개 페이지를 찾았습니다."
 
 #: sphinx/themes/basic/static/searchtools.js:213
 msgid "Searching"
 msgstr "검색 중"
 
-#: sphinx/themes/basic/static/searchtools.js:226
+#: sphinx/themes/basic/static/searchtools.js:229
 msgid "Preparing search..."
 msgstr "검색 준비 중…"
 
-#: sphinx/themes/basic/static/searchtools.js:371
+#: sphinx/themes/basic/static/searchtools.js:373
 msgid ", in "
 msgstr ", 문서 - "
 
@@ -3619,7 +3619,7 @@ msgstr "이 용어에 대한 퍼머링크"
 #: sphinx/writers/html.py:428 sphinx/writers/html.py:433
 #: sphinx/writers/html5.py:387 sphinx/writers/html5.py:392
 msgid "Permalink to this heading"
-msgstr ""
+msgstr "이 제목에 대한 퍼머링크"
 
 #: sphinx/writers/html.py:437 sphinx/writers/html5.py:396
 msgid "Permalink to this table"
