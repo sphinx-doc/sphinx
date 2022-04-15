@@ -16,7 +16,7 @@ package in the style of other automatic API documentation tools.
 
 *MODULE_PATH* is the path to a Python package to document, and *OUTPUT_PATH* is
 the directory where the generated sources are placed. Any *EXCLUDE_PATTERN*\s
-given are :std:doc:`library/fnmatch`\-style file and/or directory patterns
+given are :std:doc:`python:library/fnmatch`\-style file and/or directory patterns
 that will be excluded from generation.
 
 .. warning::

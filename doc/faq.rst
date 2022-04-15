@@ -51,8 +51,8 @@ Read the Docs
     :std:doc:`readthedocs:index` is a documentation hosting
     service based around Sphinx.  They will host sphinx documentation, along
     with supporting a number of other features including version support, PDF
-    generation, and more. The :std:doc:`Getting Started
-    <intro/getting-started-with-sphinx>` guide is a good place to start.
+    generation, and more. The :std:ref:`Getting Started
+    <readthedocs:tutorial/index:getting started>` guide is a good place to start.
 
 Epydoc
    There's a third-party extension providing an `api role`_ which refers to
