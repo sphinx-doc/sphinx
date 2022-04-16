@@ -58,7 +58,7 @@ from types import ModuleType
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Type, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node, system_message
+from docutils.nodes import Node, system_message
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.states import RSTStateMachine, Struct, state_classes
 from docutils.statemachine import StringList
@@ -67,10 +67,9 @@ import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.config import Config
-from sphinx.deprecation import (RemovedInSphinx50Warning, RemovedInSphinx60Warning,
-                                RemovedInSphinx70Warning, deprecated_alias)
+from sphinx.deprecation import (RemovedInSphinx60Warning, RemovedInSphinx70Warning,
+                                deprecated_alias)
 from sphinx.environment import BuildEnvironment
-from sphinx.environment.adapters.toctree import TocTree
 from sphinx.ext.autodoc import INSTANCEATTR, Documenter
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
 from sphinx.ext.autodoc.importer import import_module
@@ -100,32 +99,6 @@ WELL_KNOWN_ABBREVIATIONS = ('et al.', ' i.e.',)
 
 class autosummary_toc(nodes.comment):
     pass
-
-
-def process_autosummary_toc(app: Sphinx, doctree: nodes.document) -> None:
-    """Insert items described in autosummary:: to the TOC tree, but do
-    not generate the toctree:: list.
-    """
-    warnings.warn('process_autosummary_toc() is deprecated',
-                  RemovedInSphinx50Warning, stacklevel=2)
-    env = app.builder.env
-    crawled = {}
-
-    def crawl_toc(node: Element, depth: int = 1) -> None:
-        crawled[node] = True
-        for subnode in node:
-            try:
-                if (isinstance(subnode, autosummary_toc) and
-                        isinstance(subnode[0], addnodes.toctree)):
-                    TocTree(env).note(env.docname, subnode[0])
-                    continue
-            except IndexError:
-                continue
-            if not isinstance(subnode, nodes.section):
-                continue
-            if subnode not in crawled:
-                crawl_toc(subnode, depth + 1)
-    crawl_toc(doctree)
 
 
 def autosummary_toc_visit_html(self: nodes.NodeVisitor, node: autosummary_toc) -> None:

@@ -1,6 +1,5 @@
 """A Base class for additional parsers."""
 
-import warnings
 from typing import TYPE_CHECKING, Any, Dict, List, Type, Union
 
 import docutils.parsers
@@ -12,7 +11,6 @@ from docutils.transforms import Transform
 from docutils.transforms.universal import SmartQuotes
 
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.util.rst import append_epilog, prepend_prolog
 
@@ -43,15 +41,6 @@ class Parser(docutils.parsers.Parser):
         self._app = app
         self.config = app.config
         self.env = app.env
-
-    @property
-    def app(self) -> "Sphinx":
-        """The application object
-
-        .. deprecated:: 3.0
-        """
-        warnings.warn('parser.app is deprecated.', RemovedInSphinx50Warning, stacklevel=2)
-        return self._app
 
 
 class RSTParser(docutils.parsers.rst.Parser, Parser):

@@ -2,7 +2,6 @@
 
 import re
 import tokenize
-import warnings
 from collections import OrderedDict
 from importlib import import_module
 from inspect import Signature
@@ -11,7 +10,6 @@ from os import path
 from typing import IO, Any, Dict, List, Optional, Tuple
 from zipfile import ZipFile
 
-from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.errors import PycodeError
 from sphinx.pycode.parser import Parser
 
@@ -134,12 +132,6 @@ class ModuleAnalyzer:
         self.code = source.read()
 
         self._analyzed = False
-
-    def parse(self) -> None:
-        """Parse the source code."""
-        warnings.warn('ModuleAnalyzer.parse() is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        self.analyze()
 
     def analyze(self) -> None:
         """Analyze the source code."""
