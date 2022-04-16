@@ -74,7 +74,7 @@ covertest:
 
 .PHONY: build
 build:
-	@$(PYTHON) setup.py build
+	@$(PYTHON) -m build .
 
 .PHONY: docs
 docs:
