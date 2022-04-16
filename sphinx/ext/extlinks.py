@@ -84,22 +84,6 @@ def make_link_role(name: str, base_url: str, caption: str) -> RoleFunction:
     # a prefix.
     # Remark: It is an implementation detail that we use Pythons %-formatting.
     # So far we only expose ``%s`` and require quoting of ``%`` using ``%%``.
-    try:
-        base_url % 'dummy'
-    except (TypeError, ValueError):
-        logger.warn(__('extlinks: Sphinx-6.0 will require base URL to '
-                       'contain exactly one \'%s\' and all other \'%\' need '
-                       'to be escaped as \'%%\'.'))  # RemovedInSphinx60Warning
-        base_url = base_url.replace('%', '%%') + '%s'
-    if caption is not None:
-        try:
-            caption % 'dummy'
-        except (TypeError, ValueError):
-            logger.warning(__('extlinks: Sphinx-6.0 will require a caption string to '
-                              'contain exactly one \'%s\' and all other \'%\' need '
-                              'to be escaped as \'%%\'.'))  # RemovedInSphinx60Warning
-            caption = caption.replace('%', '%%') + '%s'
-
     def role(typ: str, rawtext: str, text: str, lineno: int,
              inliner: Inliner, options: Dict = {}, content: List[str] = []
              ) -> Tuple[List[Node], List[system_message]]:

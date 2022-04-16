@@ -12,7 +12,7 @@ from sphinx import addnodes
 from sphinx.addnodes import pending_xref
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx60Warning
+from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.environment import BuildEnvironment
@@ -3271,7 +3271,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
                     msg = "{}: Pre-v3 C type directive '.. c:type:: {}' converted to " \
                           "'.. c:{}:: {}'." \
                           "\nThe original parsing error was:\n{}"
-                    msg = msg.format(RemovedInSphinx60Warning.__name__,
+                    msg = msg.format(RemovedInSphinx70Warning.__name__,
                                      sig, ast.objectType, ast, eOrig)
                     logger.warning(msg, location=signode)
         except DefinitionError as e:
@@ -3704,7 +3704,7 @@ class CXRefRole(XRefRole):
             if self.env.config['c_warn_on_allowed_pre_v3']:
                 msg = "{}: Pre-v3 C type role ':c:type:`{}`' converted to ':c:expr:`{}`'."
                 msg += "\nThe original parsing error was:\n{}"
-                msg = msg.format(RemovedInSphinx60Warning.__name__, text, text, eOrig)
+                msg = msg.format(RemovedInSphinx70Warning.__name__, text, text, eOrig)
                 logger.warning(msg, location=self.get_location())
             return [signode], []
 

@@ -4,7 +4,6 @@ import os
 import posixpath
 import re
 import urllib.parse
-import warnings
 from typing import TYPE_CHECKING, Iterable, Optional, Tuple, cast
 
 from docutils import nodes
@@ -14,7 +13,6 @@ from docutils.writers.html4css1 import Writer
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
@@ -447,13 +445,10 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
             return super().visit_literal_block(node)
 
         lang = node.get('language', 'default')
-        linenos = node.get('linenos', False)
+        linenos = node.get('linenos', False) and "inline"
         highlight_args = node.get('highlight_args', {})
         highlight_args['force'] = node.get('force', False)
         opts = self.config.highlight_options.get(lang, {})
-
-        if linenos and self.config.html_codeblock_linenos_style:
-            linenos = self.config.html_codeblock_linenos_style
 
         highlighted = self.highlighter.highlight_block(
             node.rawsource, lang, opts=opts, linenos=linenos,
@@ -881,15 +876,3 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         _, depart = self.builder.app.registry.html_block_math_renderers[name]
         if depart:
             depart(self, node)
-
-    @property
-    def _fieldlist_row_index(self):
-        warnings.warn('_fieldlist_row_index is deprecated',
-                      RemovedInSphinx60Warning, stacklevel=2)
-        return self._fieldlist_row_indices[-1]
-
-    @property
-    def _table_row_index(self):
-        warnings.warn('_table_row_index is deprecated',
-                      RemovedInSphinx60Warning, stacklevel=2)
-        return self._table_row_indices[-1]

@@ -23,7 +23,7 @@ from sphinx import __display_version__, package_dir
 from sphinx import version_info as sphinx_version
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.config import ENUM, Config
+from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
 from sphinx.domains import Domain, Index, IndexEntry
 from sphinx.environment.adapters.asset import ImageAdapter
@@ -1290,32 +1290,6 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
         config.html_favicon = None  # type: ignore
 
 
-class _stable_repr_object():
-
-    def __repr__(self):
-        return '<object>'
-
-
-UNSET = _stable_repr_object()
-
-
-def migrate_html_add_permalinks(app: Sphinx, config: Config) -> None:
-    """Migrate html_add_permalinks to html_permalinks*."""
-    html_add_permalinks = config.html_add_permalinks
-    if html_add_permalinks is UNSET:
-        return
-
-    # RemovedInSphinx60Warning
-    logger.warning(__('html_add_permalinks has been deprecated since v3.5.0. '
-                      'Please use html_permalinks and html_permalinks_icon instead.'))
-    if not html_add_permalinks:
-        config.html_permalinks = False  # type: ignore[attr-defined]
-        return
-
-    config.html_permalinks_icon = html.escape(  # type: ignore[attr-defined]
-        html_add_permalinks
-    )
-
 # for compatibility
 import sphinxcontrib.serializinghtml  # NOQA
 
@@ -1352,7 +1326,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
     app.add_config_value('html_domain_indices', True, 'html', [list])
-    app.add_config_value('html_add_permalinks', UNSET, 'html')
     app.add_config_value('html_permalinks', True, 'html')
     app.add_config_value('html_permalinks_icon', '¶', 'html')
     app.add_config_value('html_use_index', True, 'html')
@@ -1375,8 +1348,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_search_scorer', '', None)
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_baseurl', '', 'html')
-    app.add_config_value('html_codeblock_linenos_style', 'inline', 'html',  # RemovedInSphinx60Warning  # NOQA
-                         ENUM('table', 'inline'))
     app.add_config_value('html_math_renderer', None, 'env')
     app.add_config_value('html4_writer', False, 'html')
 
@@ -1387,7 +1358,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     # event handlers
     app.connect('config-inited', convert_html_css_files, priority=800)
     app.connect('config-inited', convert_html_js_files, priority=800)
-    app.connect('config-inited', migrate_html_add_permalinks, priority=800)
     app.connect('config-inited', validate_html_extra_path, priority=800)
     app.connect('config-inited', validate_html_static_path, priority=800)
     app.connect('config-inited', validate_html_logo, priority=800)

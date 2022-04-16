@@ -6,15 +6,11 @@ from importlib import import_module
 from typing import Any, Dict, Type
 
 
-class RemovedInSphinx60Warning(DeprecationWarning):
+class RemovedInSphinx70Warning(DeprecationWarning):
     pass
 
 
-class RemovedInSphinx70Warning(PendingDeprecationWarning):
-    pass
-
-
-RemovedInNextVersionWarning = RemovedInSphinx60Warning
+RemovedInNextVersionWarning = RemovedInSphinx70Warning
 
 
 def deprecated_alias(modname: str, objects: Dict[str, object],
