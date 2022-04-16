@@ -1144,6 +1144,13 @@ def test_autodoc_type_aliases(app):
         '',
         '   docstring',
         '',
+        '',
+        '.. py:data:: variable3',
+        '   :module: target.autodoc_type_aliases',
+        '   :type: Optional[int]',
+        '',
+        '   docstring',
+        '',
     ]
 
     # define aliases
@@ -1205,6 +1212,13 @@ def test_autodoc_type_aliases(app):
         '   :module: target.autodoc_type_aliases',
         '   :type: myint',
         '   :value: None',
+        '',
+        '   docstring',
+        '',
+        '',
+        '.. py:data:: variable3',
+        '   :module: target.autodoc_type_aliases',
+        '   :type: Optional[myint]',
         '',
         '   docstring',
         '',
