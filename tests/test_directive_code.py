@@ -252,6 +252,19 @@ def test_LiteralIncludeReader_dedent(literal_inc_path):
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
+def test_LiteralIncludeReader_dedent_and_append_and_prepend(literal_inc_path):
+    # dedent: 2
+    options = {'lines': '9-11', 'dedent': 2, 'prepend': 'class Foo:', 'append': '# comment'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("class Foo:\n"
+                       "  def baz():\n"
+                       "      pass\n"
+                       "\n"
+                       "# comment\n")
+
+
+@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_tabwidth(testroot):
     # tab-width: 4
     options = {'tab-width': 4, 'pyobject': 'Qux'}

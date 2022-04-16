@@ -467,13 +467,15 @@ def test_autoclass_content_and_docstring_signature_init(app):
         '   :module: target.docstring_signature',
         '',
         '',
-        '.. py:class:: E(foo: int, bar: int, baz: int) -> None',
-        '              E(foo: str, bar: str, baz: str) -> None',
+        '.. py:class:: E(foo: int, bar: int, baz: int)',
+        '              E(foo: str, bar: str, baz: str)',
+        '              E(foo: float, bar: float, baz: float)',
         '   :module: target.docstring_signature',
         '',
         '',
-        '.. py:class:: F(foo: int, bar: int, baz: int) -> None',
-        '              F(foo: str, bar: str, baz: str) -> None',
+        '.. py:class:: F(foo: int, bar: int, baz: int)',
+        '              F(foo: str, bar: str, baz: str)',
+        '              F(foo: float, bar: float, baz: float)',
         '   :module: target.docstring_signature',
         '',
     ]
@@ -510,13 +512,15 @@ def test_autoclass_content_and_docstring_signature_both(app):
         '   :module: target.docstring_signature',
         '',
         '',
-        '.. py:class:: E(foo: int, bar: int, baz: int) -> None',
-        '              E(foo: str, bar: str, baz: str) -> None',
+        '.. py:class:: E(foo: int, bar: int, baz: int)',
+        '              E(foo: str, bar: str, baz: str)',
+        '              E(foo: float, bar: float, baz: float)',
         '   :module: target.docstring_signature',
         '',
         '',
-        '.. py:class:: F(foo: int, bar: int, baz: int) -> None',
-        '              F(foo: str, bar: str, baz: str) -> None',
+        '.. py:class:: F(foo: int, bar: int, baz: int)',
+        '              F(foo: str, bar: str, baz: str)',
+        '              F(foo: float, bar: float, baz: float)',
         '   :module: target.docstring_signature',
         '',
     ]
@@ -889,6 +893,70 @@ def test_autodoc_typehints_description_no_undoc(app):
 
 
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
+                    confoverrides={'autodoc_typehints': "description",
+                                   'autodoc_typehints_description_target': 'documented_params'})
+def test_autodoc_typehints_description_no_undoc_doc_rtype(app):
+    # No :type: will be injected for `incr`, which does not have a description
+    # for its parameters or its return, just :rtype: will be injected due to
+    # autodoc_typehints_description_target. `tuple_args` does describe both, so
+    # :type: and :rtype: will be added. `nothing` has no parameters but a return
+    # type of None, which will be added.
+    (app.srcdir / 'index.rst').write_text(
+        '.. autofunction:: target.typehints.incr\n'
+        '\n'
+        '.. autofunction:: target.typehints.decr\n'
+        '\n'
+        '   :returns: decremented number\n'
+        '\n'
+        '.. autofunction:: target.typehints.tuple_args\n'
+        '\n'
+        '   :param x: arg\n'
+        '   :return: another tuple\n'
+        '\n'
+        '.. autofunction:: target.typehints.Math.nothing\n'
+        '\n'
+        '.. autofunction:: target.typehints.Math.horse\n'
+        '\n'
+        '   :return: nothing\n'
+    )
+    app.build()
+    context = (app.outdir / 'index.txt').read_text()
+    assert ('target.typehints.incr(a, b=1)\n'
+            '\n'
+            '   Return type:\n'
+            '      int\n'
+            '\n'
+            'target.typehints.decr(a, b=1)\n'
+            '\n'
+            '   Returns:\n'
+            '      decremented number\n'
+            '\n'
+            '   Return type:\n'
+            '      int\n'
+            '\n'
+            'target.typehints.tuple_args(x)\n'
+            '\n'
+            '   Parameters:\n'
+            '      **x** (*Tuple**[**int**, **Union**[**int**, **str**]**]*) -- arg\n'
+            '\n'
+            '   Returns:\n'
+            '      another tuple\n'
+            '\n'
+            '   Return type:\n'
+            '      *Tuple*[int, int]\n'
+            '\n'
+            'target.typehints.Math.nothing(self)\n'
+            '\n'
+            'target.typehints.Math.horse(self, a, b)\n'
+            '\n'
+            '   Returns:\n'
+            '      nothing\n'
+            '\n'
+            '   Return type:\n'
+            '      None\n' == context)
+
+
+@pytest.mark.sphinx('text', testroot='ext-autodoc',
                     confoverrides={'autodoc_typehints': "description"})
 def test_autodoc_typehints_description_with_documented_init(app):
     (app.srcdir / 'index.rst').write_text(
@@ -922,6 +990,31 @@ def test_autodoc_typehints_description_with_documented_init(app):
                     confoverrides={'autodoc_typehints': "description",
                                    'autodoc_typehints_description_target': 'documented'})
 def test_autodoc_typehints_description_with_documented_init_no_undoc(app):
+    (app.srcdir / 'index.rst').write_text(
+        '.. autoclass:: target.typehints._ClassWithDocumentedInit\n'
+        '   :special-members: __init__\n'
+    )
+    app.build()
+    context = (app.outdir / 'index.txt').read_text()
+    assert ('class target.typehints._ClassWithDocumentedInit(x)\n'
+            '\n'
+            '   Class docstring.\n'
+            '\n'
+            '   __init__(x)\n'
+            '\n'
+            '      Init docstring.\n'
+            '\n'
+            '      Parameters:\n'
+            '         **x** (*int*) -- Some integer\n' == context)
+
+
+@pytest.mark.sphinx('text', testroot='ext-autodoc',
+                    confoverrides={'autodoc_typehints': "description",
+                                   'autodoc_typehints_description_target': 'documented_params'})
+def test_autodoc_typehints_description_with_documented_init_no_undoc_doc_rtype(app):
+    # see test_autodoc_typehints_description_with_documented_init_no_undoc
+    # returnvalue_and_documented_params should not change class or method
+    # docstring.
     (app.srcdir / 'index.rst').write_text(
         '.. autoclass:: target.typehints._ClassWithDocumentedInit\n'
         '   :special-members: __init__\n'

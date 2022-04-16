@@ -60,8 +60,14 @@ def merge_typehints(app: Sphinx, domain: str, objtype: str, contentnode: Element
         for field_list in field_lists:
             if app.config.autodoc_typehints_description_target == "all":
                 modify_field_list(field_list, annotations[fullname])
+            elif app.config.autodoc_typehints_description_target == "documented_params":
+                augment_descriptions_with_types(
+                    field_list, annotations[fullname], force_rtype=True
+                )
             else:
-                augment_descriptions_with_types(field_list, annotations[fullname])
+                augment_descriptions_with_types(
+                    field_list, annotations[fullname], force_rtype=False
+                )
 
 
 def insert_field_list(node: Element) -> nodes.field_list:
@@ -127,6 +133,7 @@ def modify_field_list(node: nodes.field_list, annotations: Dict[str, str]) -> No
 def augment_descriptions_with_types(
     node: nodes.field_list,
     annotations: Dict[str, str],
+    force_rtype: bool
 ) -> None:
     fields = cast(Iterable[nodes.field], node)
     has_description = set()  # type: Set[str]
@@ -163,10 +170,12 @@ def augment_descriptions_with_types(
 
     # Add 'rtype' if 'return' is present and 'rtype' isn't.
     if 'return' in annotations:
-        if 'return' in has_description and 'return' not in has_type:
+        rtype = annotations['return']
+        if 'return' not in has_type and ('return' in has_description or
+                                         (force_rtype and rtype != "None")):
             field = nodes.field()
             field += nodes.field_name('', 'rtype')
-            field += nodes.field_body('', nodes.paragraph('', annotations['return']))
+            field += nodes.field_body('', nodes.paragraph('', rtype))
             node += field
 
 

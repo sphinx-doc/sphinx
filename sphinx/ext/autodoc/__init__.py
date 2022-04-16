@@ -109,12 +109,14 @@ def exclude_members_option(arg: Any) -> Union[object, Set[str]]:
     return {x.strip() for x in arg.split(',') if x.strip()}
 
 
-def inherited_members_option(arg: Any) -> Union[object, Set[str]]:
+def inherited_members_option(arg: Any) -> Set[str]:
     """Used to convert the :members: option to auto directives."""
     if arg in (None, True):
-        return 'object'
+        return {'object'}
+    elif arg:
+        return set(x.strip() for x in arg.split(','))
     else:
-        return arg
+        return set()
 
 
 def member_order_option(arg: Any) -> Optional[str]:
@@ -680,9 +682,11 @@ class Documenter:
         ``autodoc-skip-member`` event.
         """
         def is_filtered_inherited_member(name: str, obj: Any) -> bool:
+            inherited_members = self.options.inherited_members or set()
+
             if inspect.isclass(self.object):
                 for cls in self.object.__mro__:
-                    if cls.__name__ == self.options.inherited_members and cls != self.object:
+                    if cls.__name__ in inherited_members and cls != self.object:
                         # given member is a member of specified *super class*
                         return True
                     elif name in cls.__dict__:
@@ -1399,8 +1403,8 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             except (AttributeError, TypeError):
                 # failed to update signature (ex. built-in or extension types)
                 return None
-        else:
-            return None
+
+        return func
 
 
 class DecoratorDocumenter(FunctionDocumenter):
@@ -1579,6 +1583,20 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             return None
 
         return stringify_signature(sig, show_return_annotation=False, **kwargs)
+
+    def _find_signature(self) -> Tuple[str, str]:
+        result = super()._find_signature()
+        if result is not None:
+            # Strip a return value from signature of constructor in docstring (first entry)
+            result = (result[0], None)
+
+        for i, sig in enumerate(self._signatures):
+            if sig.endswith(' -> None'):
+                # Strip a return value from signatures of constructor in docstring (subsequent
+                # entries)
+                self._signatures[i] = sig[:-8]
+
+        return result
 
     def format_signature(self, **kwargs: Any) -> str:
         if self.doc_as_attr:
@@ -2281,8 +2299,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             except (AttributeError, TypeError):
                 # failed to update signature (ex. built-in or extension types)
                 return None
-        else:
-            return None
+
+        return func
 
     def get_doc(self, ignore: int = None) -> Optional[List[List[str]]]:
         if self._new_docstrings is not None:
@@ -2868,7 +2886,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('autodoc_typehints', "signature", True,
                          ENUM("signature", "description", "none", "both"))
     app.add_config_value('autodoc_typehints_description_target', 'all', True,
-                         ENUM('all', 'documented'))
+                         ENUM('all', 'documented', 'documented_params'))
     app.add_config_value('autodoc_type_aliases', {}, True)
     app.add_config_value('autodoc_typehints_format', "short", 'env',
                          ENUM("fully-qualified", "short"))

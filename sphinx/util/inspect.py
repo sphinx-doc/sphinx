@@ -12,7 +12,7 @@ from functools import partial, partialmethod
 from importlib import import_module
 from inspect import Parameter, isclass, ismethod, ismethoddescriptor, ismodule  # NOQA
 from io import StringIO
-from types import ModuleType
+from types import MethodType, ModuleType
 from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, Type, cast
 
 from sphinx.pycode.ast import ast  # for py36-37
@@ -236,6 +236,11 @@ def isdescriptor(x: Any) -> bool:
 def isabstractmethod(obj: Any) -> bool:
     """Check if the object is an abstractmethod."""
     return safe_getattr(obj, '__isabstractmethod__', False) is True
+
+
+def isboundmethod(method: MethodType) -> bool:
+    """Check if the method is a bound method."""
+    return safe_getattr(method, '__self__', None) is not None
 
 
 def is_cython_function_or_method(obj: Any) -> bool:
