@@ -1,29 +1,32 @@
-from io import StringIO
-from json import dump
+"""Run babel for translations.
+
+Usage:
+
+babel_runner.py extract
+    Extract messages from the source code and update the ".pot" template file.
+
+babel_runner.py update
+    Update all language catalogues in "sphinx/locale/<language>/LC_MESSAGES"
+    with the current messages in the template file.
+
+babel_runner.py compile
+    Compile the ".po" catalogue files to ".mo" and ".js" files.
+"""
+
+import json
+import logging
 import os
 import sys
 
-from babel.messages.frontend import compile_catalog
+from babel.messages.frontend import compile_catalog, extract_messages, update_catalog
 from babel.messages.pofile import read_po
 
-# Provide a "compile_catalog" command that also creates the translated
-# JavaScript files if Babel is available.
+import sphinx
+
+ROOT = os.path.realpath(os.path.join(os.path.abspath(__file__), "..", ".."))
 
 
-class Tee:
-    def __init__(self, stream):
-        self.stream = stream
-        self.buffer = StringIO()
-
-    def write(self, s):
-        self.stream.write(s)
-        self.buffer.write(s)
-
-    def flush(self):
-        self.stream.flush()
-
-
-class compile_catalog_plusjs(compile_catalog):
+class compile_catalog_plusjs(compile_catalog):  # NoQA
     """
     An extended command that writes all message strings that occur in
     JavaScript files to a JavaScript file along with the .mo file.
@@ -33,19 +36,12 @@ class compile_catalog_plusjs(compile_catalog):
     """
 
     def run(self):
-        try:
-            sys.stderr = Tee(sys.stderr)
-            compile_catalog.run(self)
-        finally:
-            if sys.stderr.buffer.getvalue():
-                print("Compiling failed.")
-                sys.exit(1)
+        if super().run():
+            print("Compiling failed.", file=sys.stderr)
+            raise SystemExit(2)
 
-        if isinstance(self.domain, list):
-            for domain in self.domain:
-                self._run_domain_js(domain)
-        else:
-            self._run_domain_js(self.domain)
+        for domain in self.domain:
+            self._run_domain_js(domain)
 
     def _run_domain_js(self, domain):
         po_files = []
@@ -86,7 +82,7 @@ class compile_catalog_plusjs(compile_catalog):
             if catalog.fuzzy and not self.use_fuzzy:
                 continue
 
-            self.log.info('writing JavaScript strings in catalog %r to %r',
+            self.log.info('writing JavaScript strings in catalog %s to %s',
                           po_file, js_file)
 
             jscatalog = {}
@@ -98,12 +94,78 @@ class compile_catalog_plusjs(compile_catalog):
                         msgid = msgid[0]
                     jscatalog[msgid] = message.string
 
-            with open(js_file, 'wt', encoding='utf8') as outfile:
-                outfile.write('Documentation.addTranslations(')
-                dump({
-                    'messages': jscatalog,
-                    'plural_expr': catalog.plural_expr,
-                    'locale': str(catalog.locale)
-                }, outfile, sort_keys=True, indent=4)
-                outfile.write(');')
+            obj = json.dumps({
+                'messages': jscatalog,
+                'plural_expr': catalog.plural_expr,
+                'locale': f'{catalog.locale!s}'
+            }, sort_keys=True, indent=4)
+            with open(js_file, 'w', encoding='utf8') as outfile:
+                outfile.write(f'Documentation.addTranslations({obj});')
 
+
+def _get_logger():
+    log = logging.getLogger('babel')
+    log.setLevel(logging.INFO)
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter('%(message)s'))
+    log.addHandler(handler)
+    return log
+
+
+def run_extract():
+    os.chdir(ROOT)
+    command = extract_messages()
+    command.log = _get_logger()
+    command.initialize_options()
+
+    command.keywords = "_ __ l_ lazy_gettext"
+    command.mapping_file = "babel.cfg"
+    command.output_file = os.path.join("sphinx", "locale", "sphinx.pot")
+    command.project = "Sphinx"
+    command.version = sphinx.__version__
+    command.input_paths = "sphinx"
+
+    command.finalize_options()
+    return command.run()
+
+
+def run_update():
+    os.chdir(ROOT)
+    command = update_catalog()
+    command.log = _get_logger()
+    command.initialize_options()
+
+    command.domain = "sphinx"
+    command.input_file = os.path.join("sphinx", "locale", "sphinx.pot")
+    command.output_dir = os.path.join("sphinx", "locale")
+
+    command.finalize_options()
+    return command.run()
+
+
+def run_compile():
+    os.chdir(ROOT)
+    command = compile_catalog_plusjs()
+    command.log = _get_logger()
+    command.initialize_options()
+
+    command.domain = "sphinx"
+    command.directory = os.path.join("sphinx", "locale")
+
+    command.finalize_options()
+    return command.run()
+
+
+if __name__ == '__main__':
+    try:
+        action = sys.argv[1].lower()
+    except IndexError:
+        print(__doc__, file=sys.stderr)
+        raise SystemExit(2)
+
+    if action == "extract":
+        raise SystemExit(run_extract())
+    if action == "update":
+        raise SystemExit(run_update())
+    if action == "compile":
+        raise SystemExit(run_compile())
