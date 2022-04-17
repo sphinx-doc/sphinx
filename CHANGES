@@ -67,6 +67,7 @@ Features added
 * #10028: Removed internal usages of JavaScript frameworks (jQuery and
   underscore.js) and modernised ``doctools.js`` and ``searchtools.js`` to
   EMCAScript 2018.
+* #10302: C++, add support for conditional expressions (``?:``).
 
 Bugs fixed
 ----------

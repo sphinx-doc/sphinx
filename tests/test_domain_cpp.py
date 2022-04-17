@@ -326,7 +326,7 @@ def test_domain_cpp_ast_expressions():
     exprCheck('5 .* 42', 'dsL5EL42E')
     exprCheck('5 ->* 42', 'pmL5EL42E')
     # conditional
-    # TODO
+    exprCheck('5 ? 7 : 3', 'quL5EL7EL3E')
     # assignment
     exprCheck('a = 5', 'aS1aL5E')
     exprCheck('a *= 5', 'mL1aL5E')
@@ -343,6 +343,9 @@ def test_domain_cpp_ast_expressions():
     exprCheck('a |= 5', 'oR1aL5E')
     exprCheck('a or_eq 5', 'oR1aL5E')
     exprCheck('a = {{1, 2, 3}}', 'aS1ailL1EL2EL3EE')
+    # complex assignment and conditional
+    exprCheck('5 = 6 = 7', 'aSL5EaSL6EL7E')
+    exprCheck('5 = 6 ? 7 = 8 : 3', 'aSL5EquL6EaSL7EL8EL3E')
     # comma operator
     exprCheck('a, 5', 'cm1aL5E')
 
