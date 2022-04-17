@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-10 00:16+0000\n"
+"POT-Creation-Date: 2022-04-17 00:18+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: JY3, 2022\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/sphinx-doc/sphinx-1/language/zh_CN/)\n"
@@ -2075,7 +2075,7 @@ msgstr "对%s重复的描述 %s，其它的%s出现在 %s"
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "重复的公式标签 %s，另一实例出现在 %s"
 
-#: sphinx/domains/math.py:111 sphinx/writers/latex.py:2027
+#: sphinx/domains/math.py:111 sphinx/writers/latex.py:2023
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "无效的 math_eqref_format：%r"
@@ -3436,7 +3436,7 @@ msgstr "C API 更改"
 msgid "Other changes"
 msgstr "其他更改"
 
-#: sphinx/themes/basic/static/doctools.js:155
+#: sphinx/themes/basic/static/doctools.js:153
 msgid "Hide Search Matches"
 msgstr "隐藏搜索结果"
 
@@ -3679,17 +3679,17 @@ msgstr "在节、话题、表格、警示或边栏以外的位置发现标题节
 msgid "Footnotes"
 msgstr "脚注"
 
-#: sphinx/writers/latex.py:863
+#: sphinx/writers/latex.py:861
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "给出了表格列和 ：width：选项。：宽度：被忽略。"
 
-#: sphinx/writers/latex.py:1194
+#: sphinx/writers/latex.py:1192
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
 msgstr "无效的量纲单位 %s，已忽略。"
 
-#: sphinx/writers/latex.py:1507
+#: sphinx/writers/latex.py:1505
 #, python-format
 msgid "unknown index entry type %s found"
 msgstr "发现未知的索引条目类型 %s"

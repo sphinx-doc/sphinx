@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-10 00:16+0000\n"
+"POT-Creation-Date: 2022-04-17 00:18+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: YT H <dev@theYT.net>, 2019-2022\n"
 "Language-Team: Korean (http://www.transifex.com/sphinx-doc/sphinx-1/language/ko/)\n"
@@ -2060,7 +2060,7 @@ msgstr "중복된 %s 설명 (%s에 대한), 다른 항목은 %s (%s)에 있음"
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "중복 레이블의 수식 %s, 다른 인스턴스는 %s에 있음"
 
-#: sphinx/domains/math.py:111 sphinx/writers/latex.py:2027
+#: sphinx/domains/math.py:111 sphinx/writers/latex.py:2023
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "잘못된 math_eqref_format: %r"
@@ -3421,7 +3421,7 @@ msgstr "C API 변경 사항"
 msgid "Other changes"
 msgstr "다른 변경 사항"
 
-#: sphinx/themes/basic/static/doctools.js:155
+#: sphinx/themes/basic/static/doctools.js:153
 msgid "Hide Search Matches"
 msgstr "검색 일치 숨기기"
 
@@ -3664,17 +3664,17 @@ msgstr "구역, 주제, 표, 조언, 사이드바 안에 있지 않은 제목 �
 msgid "Footnotes"
 msgstr "각주"
 
-#: sphinx/writers/latex.py:863
+#: sphinx/writers/latex.py:861
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "tabularcolumns와 :widths: 옵션이 모두 설정되었습니다. :widths:는 무시됩니다."
 
-#: sphinx/writers/latex.py:1194
+#: sphinx/writers/latex.py:1192
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
 msgstr "치수 단위 %s이(가) 잘못되었습니다. 무시합니다."
 
-#: sphinx/writers/latex.py:1507
+#: sphinx/writers/latex.py:1505
 #, python-format
 msgid "unknown index entry type %s found"
 msgstr "알 수 없는 색인 항목 유형 %s이(가) 발견됨"
