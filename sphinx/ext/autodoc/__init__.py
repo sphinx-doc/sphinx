@@ -2793,7 +2793,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     app.add_config_value('autoclass_content', 'class', True, ENUM('both', 'class', 'init'))
     app.add_config_value('autodoc_member_order', 'alphabetical', True,
-                         ENUM('alphabetic', 'alphabetical', 'bysource', 'groupwise'))
+                         ENUM('alphabetical', 'bysource', 'groupwise'))
     app.add_config_value('autodoc_class_signature', 'mixed', True, ENUM('mixed', 'separated'))
     app.add_config_value('autodoc_default_options', {}, True)
     app.add_config_value('autodoc_docstring_signature', True, True)
