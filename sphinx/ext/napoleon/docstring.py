@@ -597,8 +597,6 @@ class GoogleDocstring:
         self._parsed_lines = self._consume_empty()
 
         if self._name and self._what in ('attribute', 'data', 'property'):
-            # Implicit stop using StopIteration no longer allowed in
-            # Python 3.7; see PEP 479
             res: List[str] = []
             try:
                 res = self._parse_attribute_docstring()

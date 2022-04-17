@@ -186,7 +186,7 @@ def test_signature_annotations():
 
     # Space around '=' for defaults
     sig = inspect.signature(f7)
-    if sys.version_info < (3, 11):
+    if sys.version_info[:2] <= (3, 10):
         assert stringify_signature(sig) == '(x: typing.Optional[int] = None, y: dict = {}) -> None'
     else:
         assert stringify_signature(sig) == '(x: int = None, y: dict = {}) -> None'
@@ -260,20 +260,20 @@ def test_signature_annotations():
 
     # show_return_annotation is False
     sig = inspect.signature(f7)
-    if sys.version_info < (3, 11):
+    if sys.version_info[:2] <= (3, 10):
         assert stringify_signature(sig, show_return_annotation=False) == '(x: typing.Optional[int] = None, y: dict = {})'
     else:
         assert stringify_signature(sig, show_return_annotation=False) == '(x: int = None, y: dict = {})'
 
     # unqualified_typehints is True
     sig = inspect.signature(f7)
-    if sys.version_info < (3, 11):
+    if sys.version_info[:2] <= (3, 10):
         assert stringify_signature(sig, unqualified_typehints=True) == '(x: ~typing.Optional[int] = None, y: dict = {}) -> None'
     else:
         assert stringify_signature(sig, unqualified_typehints=True) == '(x: int = None, y: dict = {}) -> None'
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
+@pytest.mark.skipif(sys.version_info[:2] <= (3, 7), reason='python 3.8+ is required.')
 @pytest.mark.sphinx(testroot='ext-autodoc')
 def test_signature_annotations_py38(app):
     from target.pep570 import bar, baz, foo, qux
@@ -373,7 +373,7 @@ def test_signature_from_str_kwonly_args():
     assert sig.parameters['b'].default == Parameter.empty
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8),
+@pytest.mark.skipif(sys.version_info[:2] <= (3, 7),
                     reason='python-3.8 or above is required')
 def test_signature_from_str_positionaly_only_args():
     sig = inspect.signature_from_str('(a, b=0, /, c=1)')

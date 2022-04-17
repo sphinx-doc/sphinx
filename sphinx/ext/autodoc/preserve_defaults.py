@@ -48,9 +48,9 @@ def get_function_def(obj: Any) -> Optional[ast.FunctionDef]:
 
 def get_default_value(lines: List[str], position: ast.AST) -> Optional[str]:
     try:
-        if sys.version_info < (3, 8):  # only for py38+
+        if sys.version_info[:2] <= (3, 7):  # only for py38+
             return None
-        elif position.lineno == position.end_lineno:
+        if position.lineno == position.end_lineno:
             line = lines[position.lineno - 1]
             return line[position.col_offset:position.end_col_offset]
         else:

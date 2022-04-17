@@ -5,26 +5,13 @@ import typing
 import warnings
 from struct import Struct
 from types import TracebackType
-from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Type, TypeVar, Union
+from typing import (Any, Callable, Dict, ForwardRef, Generator, List, Optional, Tuple, Type,
+                    TypeVar, Union)
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
 
 from sphinx.deprecation import RemovedInSphinx70Warning
-
-if sys.version_info > (3, 7):
-    from typing import ForwardRef
-else:
-    from typing import _ForwardRef  # type: ignore
-
-    class ForwardRef:
-        """A pseudo ForwardRef class for py36."""
-        def __init__(self, arg: Any, is_argument: bool = True) -> None:
-            self.arg = arg
-
-        def _evaluate(self, globalns: Dict, localns: Dict) -> Any:
-            ref = _ForwardRef(self.arg)
-            return ref._eval_type(globalns, localns)
 
 try:
     from types import UnionType  # type: ignore  # python 3.10 or above
@@ -137,7 +124,7 @@ def restify(cls: Optional[Type], mode: str = 'fully-qualified-except-typing') ->
         elif is_invalid_builtin_class(cls):
             return ':py:class:`%s%s`' % (modprefix, INVALID_BUILTIN_CLASSES[cls])
         elif inspect.isNewType(cls):
-            if sys.version_info > (3, 10):
+            if sys.version_info[:2] >= (3, 10):
                 # newtypes have correct module info since Python 3.10+
                 return ':py:class:`%s%s.%s`' % (modprefix, cls.__module__, cls.__name__)
             else:
@@ -211,7 +198,7 @@ def _restify_py37(cls: Optional[Type], mode: str = 'fully-qualified-except-typin
         return text
     elif isinstance(cls, typing._SpecialForm):
         return ':py:obj:`~%s.%s`' % (cls.__module__, cls._name)
-    elif sys.version_info >= (3, 11) and cls is typing.Any:
+    elif sys.version_info[:2] >= (3, 11) and cls is typing.Any:
         # handle bpo-46998
         return f':py:obj:`~{cls.__module__}.{cls.__name__}`'
     elif hasattr(cls, '__qualname__'):
@@ -362,7 +349,7 @@ def stringify(annotation: Any, mode: str = 'fully-qualified-except-typing') -> s
         else:
             return modprefix + '.'.join([annotation.__module__, annotation.__name__])
     elif inspect.isNewType(annotation):
-        if sys.version_info > (3, 10):
+        if sys.version_info[:2] >= (3, 10):
             # newtypes have correct module info since Python 3.10+
             return modprefix + '%s.%s' % (annotation.__module__, annotation.__name__)
         else:

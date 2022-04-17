@@ -661,7 +661,7 @@ def test_mocked_module_imports(app, warning):
 @pytest.mark.sphinx('html', testroot='ext-autodoc',
                     confoverrides={'autodoc_typehints': "signature"})
 def test_autodoc_typehints_signature(app):
-    if sys.version_info < (3, 11):
+    if sys.version_info[:2] <= (3, 10):
         type_o = "~typing.Optional[~typing.Any]"
     else:
         type_o = "~typing.Any"
@@ -1399,7 +1399,7 @@ def test_autodoc_typehints_description_and_type_aliases(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc',
                     confoverrides={'autodoc_typehints_format': "fully-qualified"})
 def test_autodoc_typehints_format_fully_qualified(app):
-    if sys.version_info < (3, 11):
+    if sys.version_info[:2] <= (3, 10):
         type_o = "typing.Optional[typing.Any]"
     else:
         type_o = "typing.Any"

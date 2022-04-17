@@ -40,7 +40,7 @@ def test_class_properties(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
+@pytest.mark.skipif(sys.version_info[:2] <= (3, 7), reason='python 3.8+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_cached_properties(app):
     actual = do_autodoc(app, 'property', 'target.cached_property.Foo.prop')

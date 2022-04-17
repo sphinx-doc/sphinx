@@ -3,7 +3,7 @@
 import sys
 from typing import Dict, List, Optional, Type, overload
 
-if sys.version_info > (3, 8):
+if sys.version_info[:2] >= (3, 8):
     import ast
 else:
     try:
@@ -159,7 +159,7 @@ class _UnparseVisitor(ast.NodeVisitor):
         if node.value is Ellipsis:
             return "..."
         elif isinstance(node.value, (int, float, complex)):
-            if self.code and sys.version_info > (3, 8):
+            if self.code and sys.version_info[:2] >= (3, 8):
                 return ast.get_source_segment(self.code, node)  # type: ignore
             else:
                 return repr(node.value)
@@ -219,7 +219,7 @@ class _UnparseVisitor(ast.NodeVisitor):
         else:
             return "(" + ", ".join(self.visit(e) for e in node.elts) + ")"
 
-    if sys.version_info < (3, 8):
+    if sys.version_info[:2] <= (3, 7):
         # these ast nodes were deprecated in python 3.8
         def visit_Bytes(self, node: ast.Bytes) -> str:
             return repr(node.s)
