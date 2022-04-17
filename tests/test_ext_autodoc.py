@@ -1072,7 +1072,7 @@ def test_autodoc_descriptor(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8),
+@pytest.mark.skipif(sys.version_info[:2] <= (3, 7),
                     reason='cached_property is available since python3.8.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_cached_property(app):
@@ -1404,7 +1404,7 @@ def test_enum_class(app):
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.enums.EnumCls', options)
 
-    if sys.version_info > (3, 11):
+    if sys.version_info[:2] >= (3, 11):
         args = ('(value, names=None, *, module=None, qualname=None, '
                 'type=None, start=1, boundary=None)')
     else:
@@ -1976,7 +1976,7 @@ def test_autodoc_TypeVar(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason='py39+ is required.')
+@pytest.mark.skipif(sys.version_info[:2] <= (3, 8), reason='py39+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_Annotated(app):
     options = {"members": None}
@@ -2059,7 +2059,7 @@ def test_singledispatch(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8),
+@pytest.mark.skipif(sys.version_info[:2] <= (3, 7),
                     reason='singledispatchmethod is available since python3.8')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_singledispatchmethod(app):
@@ -2088,7 +2088,7 @@ def test_singledispatchmethod(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8),
+@pytest.mark.skipif(sys.version_info[:2] <= (3, 7),
                     reason='singledispatchmethod is available since python3.8')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_singledispatchmethod_automethod(app):
@@ -2108,7 +2108,7 @@ def test_singledispatchmethod_automethod(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info > (3, 11),
+@pytest.mark.skipif(sys.version_info[:2] >= (3, 11),
                     reason=('cython does not support python-3.11 yet. '
                             'see https://github.com/cython/cython/issues/4365'))
 @pytest.mark.skipif(pyximport is None, reason='cython is not installed')
@@ -2142,7 +2142,7 @@ def test_cython(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8),
+@pytest.mark.skipif(sys.version_info[:2] <= (3, 7),
                     reason='typing.final is available since python3.8')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_final(app):

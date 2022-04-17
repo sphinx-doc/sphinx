@@ -71,7 +71,7 @@ def test_restify_type_hints_containers():
                                              ":py:class:`str`]")
     assert restify(Tuple[str, ...]) == ":py:class:`~typing.Tuple`\\ [:py:class:`str`, ...]"
 
-    if sys.version_info < (3, 11):
+    if sys.version_info[:2] <= (3, 10):
         assert restify(Tuple[()]) == ":py:class:`~typing.Tuple`\\ [()]"
     else:
         assert restify(Tuple[()]) == ":py:class:`~typing.Tuple`"
@@ -89,6 +89,7 @@ def test_restify_type_hints_containers():
 
 def test_restify_type_hints_Callable():
     assert restify(Callable) == ":py:class:`~typing.Callable`"
+
     assert restify(Callable[[str], int]) == (":py:class:`~typing.Callable`\\ "
                                              "[[:py:class:`str`], :py:class:`int`]")
     assert restify(Callable[..., int]) == (":py:class:`~typing.Callable`\\ "
@@ -100,19 +101,20 @@ def test_restify_type_hints_Union():
     assert restify(Union[str, None]) == ":py:obj:`~typing.Optional`\\ [:py:class:`str`]"
     assert restify(Union[int, str]) == (":py:obj:`~typing.Union`\\ "
                                         "[:py:class:`int`, :py:class:`str`]")
-
     assert restify(Union[int, Integral]) == (":py:obj:`~typing.Union`\\ "
                                              "[:py:class:`int`, :py:class:`numbers.Integral`]")
     assert restify(Union[int, Integral], "smart") == (":py:obj:`~typing.Union`\\ "
                                                       "[:py:class:`int`,"
                                                       " :py:class:`~numbers.Integral`]")
 
-    assert (restify(Union[MyClass1, MyClass2]) == (":py:obj:`~typing.Union`\\ "
-                                                   "[:py:class:`tests.test_util_typing.MyClass1`, "
-                                                   ":py:class:`tests.test_util_typing.<MyClass2>`]"))
-    assert (restify(Union[MyClass1, MyClass2], "smart") == (":py:obj:`~typing.Union`\\ "
-                                                            "[:py:class:`~tests.test_util_typing.MyClass1`,"
-                                                            " :py:class:`~tests.test_util_typing.<MyClass2>`]"))
+    assert (restify(Union[MyClass1, MyClass2]) ==
+            (":py:obj:`~typing.Union`\\ "
+             "[:py:class:`tests.test_util_typing.MyClass1`, "
+             ":py:class:`tests.test_util_typing.<MyClass2>`]"))
+    assert (restify(Union[MyClass1, MyClass2], "smart") ==
+            (":py:obj:`~typing.Union`\\ "
+             "[:py:class:`~tests.test_util_typing.MyClass1`,"
+             " :py:class:`~tests.test_util_typing.<MyClass2>`]"))
 
 
 def test_restify_type_hints_typevars():
@@ -132,7 +134,7 @@ def test_restify_type_hints_typevars():
     assert restify(List[T]) == ":py:class:`~typing.List`\\ [:py:obj:`tests.test_util_typing.T`]"
     assert restify(List[T], "smart") == ":py:class:`~typing.List`\\ [:py:obj:`~tests.test_util_typing.T`]"
 
-    if sys.version_info >= (3, 10):
+    if sys.version_info[:2] >= (3, 10):
         assert restify(MyInt) == ":py:class:`tests.test_util_typing.MyInt`"
         assert restify(MyInt, "smart") == ":py:class:`~tests.test_util_typing.MyInt`"
     else:
@@ -160,13 +162,13 @@ def test_restify_type_ForwardRef():
     assert restify(ForwardRef("myint")) == ":py:class:`myint`"
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
+@pytest.mark.skipif(sys.version_info[:2] <= (3, 7), reason='python 3.8+ is required.')
 def test_restify_type_Literal():
     from typing import Literal  # type: ignore
     assert restify(Literal[1, "2", "\r"]) == ":py:obj:`~typing.Literal`\\ [1, '2', '\\r']"
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason='python 3.9+ is required.')
+@pytest.mark.skipif(sys.version_info[:2] <= (3, 8), reason='python 3.9+ is required.')
 def test_restify_pep_585():
     assert restify(list[str]) == ":py:class:`list`\\ [:py:class:`str`]"  # type: ignore
     assert restify(dict[str, str]) == (":py:class:`dict`\\ "  # type: ignore
@@ -176,7 +178,7 @@ def test_restify_pep_585():
                                                    "[:py:class:`int`, ...]]")
 
 
-@pytest.mark.skipif(sys.version_info < (3, 10), reason='python 3.10+ is required.')
+@pytest.mark.skipif(sys.version_info[:2] <= (3, 9), reason='python 3.10+ is required.')
 def test_restify_type_union_operator():
     assert restify(int | None) == ":py:class:`int` | :py:obj:`None`"  # type: ignore
     assert restify(int | str) == ":py:class:`int` | :py:class:`str`"  # type: ignore
@@ -250,7 +252,7 @@ def test_stringify_type_hints_containers():
     assert stringify(Tuple[str, ...], "fully-qualified") == "typing.Tuple[str, ...]"
     assert stringify(Tuple[str, ...], "smart") == "~typing.Tuple[str, ...]"
 
-    if sys.version_info < (3, 11):
+    if sys.version_info[:2] <= (3, 10):
         assert stringify(Tuple[()]) == "Tuple[()]"
         assert stringify(Tuple[()], "fully-qualified") == "typing.Tuple[()]"
         assert stringify(Tuple[()], "smart") == "~typing.Tuple[()]"
@@ -272,7 +274,7 @@ def test_stringify_type_hints_containers():
     assert stringify(Generator[None, None, None], "smart") == "~typing.Generator[None, None, None]"
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason='python 3.9+ is required.')
+@pytest.mark.skipif(sys.version_info[:2] <= (3, 8), reason='python 3.9+ is required.')
 def test_stringify_type_hints_pep_585():
     assert stringify(list[int]) == "list[int]"
     assert stringify(list[int], "smart") == "list[int]"
@@ -299,7 +301,7 @@ def test_stringify_type_hints_pep_585():
     assert stringify(type[int], "smart") == "type[int]"
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason='python 3.9+ is required.')
+@pytest.mark.skipif(sys.version_info[:2] <= (3, 8), reason='python 3.9+ is required.')
 def test_stringify_Annotated():
     from typing import Annotated  # type: ignore
     assert stringify(Annotated[str, "foo", "bar"]) == "str"
@@ -379,7 +381,7 @@ def test_stringify_type_hints_typevars():
     assert stringify(List[T]) == "List[tests.test_util_typing.T]"
     assert stringify(List[T], "smart") == "~typing.List[~tests.test_util_typing.T]"
 
-    if sys.version_info >= (3, 10):
+    if sys.version_info[:2] >= (3, 10):
         assert stringify(MyInt) == "tests.test_util_typing.MyInt"
         assert stringify(MyInt, "smart") == "~tests.test_util_typing.MyInt"
     else:
@@ -406,7 +408,7 @@ def test_stringify_type_hints_alias():
     assert stringify(MyTuple, "smart") == "~typing.Tuple[str, str]"  # type: ignore
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
+@pytest.mark.skipif(sys.version_info[:2] <= (3, 7), reason='python 3.8+ is required.')
 def test_stringify_type_Literal():
     from typing import Literal  # type: ignore
     assert stringify(Literal[1, "2", "\r"]) == "Literal[1, '2', '\\r']"
@@ -414,7 +416,7 @@ def test_stringify_type_Literal():
     assert stringify(Literal[1, "2", "\r"], "smart") == "~typing.Literal[1, '2', '\\r']"
 
 
-@pytest.mark.skipif(sys.version_info < (3, 10), reason='python 3.10+ is required.')
+@pytest.mark.skipif(sys.version_info[:2] <= (3, 9), reason='python 3.10+ is required.')
 def test_stringify_type_union_operator():
     assert stringify(int | None) == "int | None"  # type: ignore
     assert stringify(int | None, "smart") == "int | None"  # type: ignore

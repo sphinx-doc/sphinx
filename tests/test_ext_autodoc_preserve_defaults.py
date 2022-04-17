@@ -10,7 +10,7 @@ from .test_ext_autodoc import do_autodoc
 @pytest.mark.sphinx('html', testroot='ext-autodoc',
                     confoverrides={'autodoc_preserve_defaults': True})
 def test_preserve_defaults(app):
-    if sys.version_info < (3, 8):
+    if sys.version_info[:2] <= (3, 7):
         color = "16777215"
     else:
         color = "0xFFFFFF"

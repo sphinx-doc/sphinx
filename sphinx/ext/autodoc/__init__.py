@@ -820,6 +820,8 @@ class Documenter:
             # sort by group; alphabetically within groups
             documenters.sort(key=lambda e: (e[0].member_order, e[0].name))
         elif order == 'bysource':
+            # By default, member discovery order matches source order,
+            # as dicts are insertion-ordered from Python 3.7.
             if self.analyzer:
                 # sort by source order, by virtue of the module analyzer
                 tagorder = self.analyzer.tagorder
@@ -828,11 +830,6 @@ class Documenter:
                     fullname = entry[0].name.split('::')[1]
                     return tagorder.get(fullname, len(tagorder))
                 documenters.sort(key=keyfunc)
-            else:
-                # Assume that member discovery order matches source order.
-                # This is a reasonable assumption in Python 3.6 and up, where
-                # module.__dict__ is insertion-ordered.
-                pass
         else:  # alphabetical
             documenters.sort(key=lambda e: e[0].name)
 

@@ -12,7 +12,8 @@ from functools import partial, partialmethod
 from importlib import import_module
 from inspect import Parameter, isclass, ismethod, ismethoddescriptor, ismodule  # NOQA
 from io import StringIO
-from types import MethodType, ModuleType
+from types import (ClassMethodDescriptorType, MethodDescriptorType, MethodType, ModuleType,
+                   WrapperDescriptorType)
 from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, Type, cast
 
 from sphinx.pycode.ast import ast  # for py37
@@ -20,13 +21,6 @@ from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
 from sphinx.util.typing import ForwardRef
 from sphinx.util.typing import stringify as stringify_annotation
-
-if sys.version_info > (3, 7):
-    from types import ClassMethodDescriptorType, MethodDescriptorType, WrapperDescriptorType
-else:
-    ClassMethodDescriptorType = type(object.__init__)
-    MethodDescriptorType = type(str.join)
-    WrapperDescriptorType = type(dict.__dict__['fromkeys'])
 
 logger = logging.getLogger(__name__)
 
@@ -149,7 +143,7 @@ def getslots(obj: Any) -> Optional[Dict]:
 
 def isNewType(obj: Any) -> bool:
     """Check the if object is a kind of NewType."""
-    if sys.version_info >= (3, 10):
+    if sys.version_info[:2] >= (3, 10):
         return isinstance(obj, typing.NewType)
     else:
         __module__ = safe_getattr(obj, '__module__', None)
@@ -335,19 +329,22 @@ def iscoroutinefunction(obj: Any) -> bool:
         return False
 
 
-def isasyncgenfunction(obj: Any) -> bool:
-    """Check if the object is async-gen function."""
-    if hasattr(obj, '__code__') and inspect.isasyncgenfunction(obj):
-        # check obj.__code__ because isasyncgenfunction() crashes for custom method-like
-        # objects on python3.7 (see https://github.com/sphinx-doc/sphinx/issues/9838)
-        return True
-    else:
-        return False
+if sys.version_info[:2] <= (3, 7):
+    def isasyncgenfunction(obj: Any) -> bool:
+        """Check if the object is async-gen function."""
+        if hasattr(obj, '__code__') and inspect.isasyncgenfunction(obj):
+            # check obj.__code__ because isasyncgenfunction() crashes for custom method-like
+            # objects on python3.7 (see https://github.com/sphinx-doc/sphinx/issues/9838)
+            return True
+        else:
+            return False
+else:
+    isasyncgenfunction = inspect.isasyncgenfunction
 
 
 def isproperty(obj: Any) -> bool:
     """Check if the object is property."""
-    if sys.version_info >= (3, 8):
+    if sys.version_info[:2] >= (3, 8):
         from functools import cached_property  # cached_property is available since py3.8
         if isinstance(obj, cached_property):
             return True
@@ -619,7 +616,7 @@ def evaluate_signature(sig: inspect.Signature, globalns: Optional[Dict] = None,
     """Evaluate unresolved type annotations in a signature object."""
     def evaluate_forwardref(ref: ForwardRef, globalns: Dict, localns: Dict) -> Any:
         """Evaluate a forward reference."""
-        if sys.version_info > (3, 9):
+        if sys.version_info[:2] >= (3, 9):
             return ref._evaluate(globalns, localns, frozenset())
         else:
             return ref._evaluate(globalns, localns)

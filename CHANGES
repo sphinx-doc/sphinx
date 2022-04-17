@@ -4,7 +4,7 @@ Release 6.0.0 (in development)
 Dependencies
 ------------
 
-* Drop python 3.6 support
+* #10468: Drop Python 3.6 support
 
 Incompatible changes
 --------------------

@@ -204,7 +204,7 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> List[Node]:
 
             return result
         else:
-            if sys.version_info < (3, 8):
+            if sys.version_info[:2] <= (3, 7):
                 if isinstance(node, ast.Bytes):
                     return [addnodes.desc_sig_literal_string('', repr(node.s))]
                 elif isinstance(node, ast.Ellipsis):

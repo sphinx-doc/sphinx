@@ -1,7 +1,6 @@
 """Test all builders."""
 
 import sys
-from textwrap import dedent
 from unittest import mock
 
 import pytest
@@ -19,7 +18,7 @@ def request_session_head(url, **kwargs):
 
 @pytest.fixture
 def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
-    # If supported, build in a non-ASCII source dir
+    # Build in a non-ASCII source dir
     test_name = '\u65e5\u672c\u8a9e'
     basedir = sphinx_test_tempdir / request.node.originalname
     srcdir = basedir / test_name
@@ -27,18 +26,17 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
         (rootdir / 'test-root').copytree(srcdir)
 
     # add a doc with a non-ASCII file name to the source dir
-    (srcdir / (test_name + '.txt')).write_text(dedent("""
-        nonascii file name page
-        =======================
-        """), encoding='utf8')
+    (srcdir / (test_name + '.txt')).write_text("""
+nonascii file name page
+=======================
+""", encoding='utf8')
 
     root_doc = srcdir / 'index.txt'
-    root_doc.write_text(root_doc.read_text(encoding='utf8') + dedent("""
-                        .. toctree::
+    root_doc.write_text(root_doc.read_text(encoding='utf8') + f"""
+.. toctree::
 
-                           %(test_name)s/%(test_name)s
-                        """ % {'test_name': test_name}), encoding='utf8')
-
+{test_name}/{test_name}
+""", encoding='utf8')
     return srcdir
 
 

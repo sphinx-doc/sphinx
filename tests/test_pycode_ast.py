@@ -58,7 +58,7 @@ def test_unparse_None():
     assert ast.unparse(None) is None
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
+@pytest.mark.skipif(sys.version_info[:2] <= (3, 7), reason='python 3.8+ is required.')
 @pytest.mark.parametrize('source,expected', [
     ("lambda x=0, /, y=1, *args, z, **kwargs: x + y + z",
      "lambda x=0, /, y=1, *args, z, **kwargs: ..."),    # posonlyargs
