@@ -228,7 +228,7 @@ def ask_user(d: Dict[str, Any]) -> None:
         d['path'] = do_prompt(__('Please enter a new root path (or just Enter to exit)'),
                               '', is_path_or_empty)
         if not d['path']:
-            sys.exit(1)
+            raise SystemExit(1)
 
     if 'sep' not in d:
         print()
@@ -605,4 +605,4 @@ def main(argv: List[str] = sys.argv[1:]) -> int:
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))
+    raise SystemExit(main())

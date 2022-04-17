@@ -649,7 +649,7 @@ def inspect_main(argv: List[str]) -> None:
         print("Print out an inventory file.\n"
               "Error: must specify local path or URL to an inventory file.",
               file=sys.stderr)
-        sys.exit(1)
+        raise SystemExit(1)
 
     class MockConfig:
         intersphinx_timeout: Optional[int] = None
