@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-10 00:16+0000\n"
+"POT-Creation-Date: 2022-04-17 00:18+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Sumanjali Damarla <damarlasumanjali@gmail.com>, 2020\n"
 "Language-Team: Hindi (http://www.transifex.com/sphinx-doc/sphinx-1/language/hi/)\n"
@@ -2062,7 +2062,7 @@ msgstr ""
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "समीकरण का प्रतिरूप शीर्षक %s, दूसरी प्रतिकृति %s में है "
 
-#: sphinx/domains/math.py:111 sphinx/writers/latex.py:2027
+#: sphinx/domains/math.py:111 sphinx/writers/latex.py:2023
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "अमान्य math_eqref_format: %r"
@@ -3423,7 +3423,7 @@ msgstr "सी ऐ.पी.आई. परिवर्तन"
 msgid "Other changes"
 msgstr "अन्य परिवर्तन"
 
-#: sphinx/themes/basic/static/doctools.js:155
+#: sphinx/themes/basic/static/doctools.js:153
 msgid "Hide Search Matches"
 msgstr "खोजे गए जोड़े छिपाएं"
 
@@ -3666,17 +3666,17 @@ msgstr "पाया गया शीर्ष बिंदु किसी भ�
 msgid "Footnotes"
 msgstr "पाद टिप्पणियां"
 
-#: sphinx/writers/latex.py:863
+#: sphinx/writers/latex.py:861
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "दोनों तालिका-स्तंभ और :चौड़ाई: विकल्प दिए गए हैं. :चौड़ाई:  मान की उपेक्षा की जाएगी."
 
-#: sphinx/writers/latex.py:1194
+#: sphinx/writers/latex.py:1192
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
 msgstr "परिमाण मात्रक %s अमान्य है. उपेक्षा की जाएगी."
 
-#: sphinx/writers/latex.py:1507
+#: sphinx/writers/latex.py:1505
 #, python-format
 msgid "unknown index entry type %s found"
 msgstr "अनुक्रमणिका की प्रविष्टि का प्रकार %s मिला"

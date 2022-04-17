@@ -86,6 +86,8 @@ Bugs fixed
   bulding texinfo document
 * #10000: LaTeX: glossary terms with common definition are rendered with
   too much vertical whitespace
+* #10188: LaTeX: alternating multiply referred footnotes produce a ``?`` in
+  pdf output
 * #10318: ``:prepend:`` option of :rst:dir:`literalinclude` directive does not
   work with ``:dedent:`` option
 

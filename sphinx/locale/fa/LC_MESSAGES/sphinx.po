@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-10 00:16+0000\n"
+"POT-Creation-Date: 2022-04-17 00:18+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Hadi F <h_adi_f@yahoo.com>, 2020-2021\n"
 "Language-Team: Persian (http://www.transifex.com/sphinx-doc/sphinx-1/language/fa/)\n"
@@ -2062,7 +2062,7 @@ msgstr "توضیح %s تکراری از %s، مورد دیگر%s در %s قرا�
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "بر چسب معادله ی %s تکرار است، مورد دیگر در %s قرار دارد"
 
-#: sphinx/domains/math.py:111 sphinx/writers/latex.py:2027
+#: sphinx/domains/math.py:111 sphinx/writers/latex.py:2023
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "قالب مرجع معادله‌‌ی ریاضی (math_eqref_format) نامعتبر: %r"
@@ -3423,7 +3423,7 @@ msgstr "C API تغییرات"
 msgid "Other changes"
 msgstr "دگر تغییرات"
 
-#: sphinx/themes/basic/static/doctools.js:155
+#: sphinx/themes/basic/static/doctools.js:153
 msgid "Hide Search Matches"
 msgstr "عدم نمایش نتایج یافت شده"
 
@@ -3666,17 +3666,17 @@ msgstr "به بست عنوانی برخورد که در قسمت، موضوع، 
 msgid "Footnotes"
 msgstr "پانویس ها"
 
-#: sphinx/writers/latex.py:863
+#: sphinx/writers/latex.py:861
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "هر دو مقدار tabularcolumns و :widths: داده شده، بنابراین :widths: حذف می شود."
 
-#: sphinx/writers/latex.py:1194
+#: sphinx/writers/latex.py:1192
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
 msgstr "ابعاد واحد %sنامعتبر است و نادیده گرفته شد."
 
-#: sphinx/writers/latex.py:1507
+#: sphinx/writers/latex.py:1505
 #, python-format
 msgid "unknown index entry type %s found"
 msgstr "نوع ناشناخته مدخل نمایه%s پیدا شد"
