@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-10 00:16+0000\n"
+"POT-Creation-Date: 2022-04-17 00:18+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Besnik Bleta <besnik@programeshqip.org>, 2021-2022\n"
 "Language-Team: Albanian (http://www.transifex.com/sphinx-doc/sphinx-1/language/sq/)\n"
@@ -2059,7 +2059,7 @@ msgstr "përshkrim %s i përsëdytur i %s, tjetër %s në %s"
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "etiketë e përsëdytur ekuacioni %s, instancë tjetër te %s"
 
-#: sphinx/domains/math.py:111 sphinx/writers/latex.py:2027
+#: sphinx/domains/math.py:111 sphinx/writers/latex.py:2023
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "math_eqref_format i pavlefshëm: %r"
@@ -3420,7 +3420,7 @@ msgstr "Ndryshime API C"
 msgid "Other changes"
 msgstr "Ndryshime të tjera"
 
-#: sphinx/themes/basic/static/doctools.js:155
+#: sphinx/themes/basic/static/doctools.js:153
 msgid "Hide Search Matches"
 msgstr "Fshih Përputhje Kërkimi"
 
@@ -3663,17 +3663,17 @@ msgstr "u has nyje titulli jo në ndarje, temë, tabelë, paralajmërim ose anë
 msgid "Footnotes"
 msgstr "Poshtëshënime"
 
-#: sphinx/writers/latex.py:863
+#: sphinx/writers/latex.py:861
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "janë dhënë që të dyja mundësitë, “tabularcolumns” dhe “:widths:”. shpërfillet :widths:."
 
-#: sphinx/writers/latex.py:1194
+#: sphinx/writers/latex.py:1192
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
 msgstr "njësia e përmasave %s është e pavlefshme. U shpërfill."
 
-#: sphinx/writers/latex.py:1507
+#: sphinx/writers/latex.py:1505
 #, python-format
 msgid "unknown index entry type %s found"
 msgstr "u gjet lloj i panjohur %s zërash treguesi"

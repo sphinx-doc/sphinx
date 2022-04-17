@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-10 00:16+0000\n"
+"POT-Creation-Date: 2022-04-17 00:18+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Rafael Fontenelle <rffontenelle@gmail.com>, 2019-2022\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/sphinx-doc/sphinx-1/language/pt_BR/)\n"
@@ -2064,7 +2064,7 @@ msgstr "descrição duplicada de %s de %s, outro %s em %s"
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "rótulo duplicado da equação %s, outra instância em %s"
 
-#: sphinx/domains/math.py:111 sphinx/writers/latex.py:2027
+#: sphinx/domains/math.py:111 sphinx/writers/latex.py:2023
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "math_eqref_format inválido: %r"
@@ -3425,7 +3425,7 @@ msgstr "Alterações na API C"
 msgid "Other changes"
 msgstr "Outras alterações"
 
-#: sphinx/themes/basic/static/doctools.js:155
+#: sphinx/themes/basic/static/doctools.js:153
 msgid "Hide Search Matches"
 msgstr "Esconder Resultados da Busca"
 
@@ -3668,17 +3668,17 @@ msgstr "nó de título encontrado não na section, topic, table, admonition ou s
 msgid "Footnotes"
 msgstr "Notas de rodapé"
 
-#: sphinx/writers/latex.py:863
+#: sphinx/writers/latex.py:861
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "tabularcolumns e opção :widths: foram fornecidas. :widths: foi ignorada."
 
-#: sphinx/writers/latex.py:1194
+#: sphinx/writers/latex.py:1192
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
 msgstr "a unidade de dimensão %s é inválida. Ignorada."
 
-#: sphinx/writers/latex.py:1507
+#: sphinx/writers/latex.py:1505
 #, python-format
 msgid "unknown index entry type %s found"
 msgstr "tipo desconhecido de entrada de índice %s encontrado"

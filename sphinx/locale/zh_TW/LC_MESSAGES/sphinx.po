@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-10 00:16+0000\n"
+"POT-Creation-Date: 2022-04-17 00:18+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Steven Hsu <hsuhaochun@gmail.com>, 2021\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/sphinx-doc/sphinx-1/language/zh_TW/)\n"
@@ -2066,7 +2066,7 @@ msgstr "%s 的重複 %s 敘述，其他的 %s 在 %s"
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "重複公式標籤 %s，亦出現於 %s"
 
-#: sphinx/domains/math.py:111 sphinx/writers/latex.py:2027
+#: sphinx/domains/math.py:111 sphinx/writers/latex.py:2023
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "無效的 math_eqref_format: %r"
@@ -3427,7 +3427,7 @@ msgstr "C API 的變更"
 msgid "Other changes"
 msgstr "其他變更"
 
-#: sphinx/themes/basic/static/doctools.js:155
+#: sphinx/themes/basic/static/doctools.js:153
 msgid "Hide Search Matches"
 msgstr "隱藏符合搜尋"
 
@@ -3670,17 +3670,17 @@ msgstr "遇到的標題節點不是在段落、主題、表格、警告或側邊
 msgid "Footnotes"
 msgstr "註腳"
 
-#: sphinx/writers/latex.py:863
+#: sphinx/writers/latex.py:861
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "同時被給予 tabularcolumns 及 :widths: 選項。 :widths: 已略過。"
 
-#: sphinx/writers/latex.py:1194
+#: sphinx/writers/latex.py:1192
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
 msgstr "維度單位 %s 是無效的。已略過。"
 
-#: sphinx/writers/latex.py:1507
+#: sphinx/writers/latex.py:1505
 #, python-format
 msgid "unknown index entry type %s found"
 msgstr "找到了未知的索引條目型別 %s"
