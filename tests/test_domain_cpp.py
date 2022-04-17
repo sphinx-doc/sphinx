@@ -983,18 +983,18 @@ def test_domain_cpp_ast_attributes():
           output='__attribute__(()) static inline void f()')
     check('function', '[[attr1]] [[attr2]] void f()', {1: 'f', 2: '1fv'})
     # position: declarator
-    check('member', 'int *[[attr]] i', {1: 'i__iP', 2: '1i'})
-    check('member', 'int *const [[attr]] volatile i', {1: 'i__iPVC', 2: '1i'},
-          output='int *[[attr]] volatile const i')
-    check('member', 'int &[[attr]] i', {1: 'i__iR', 2: '1i'})
-    check('member', 'int *[[attr]] *i', {1: 'i__iPP', 2: '1i'})
+    check('member', 'int *[[attr1]] [[attr2]] i', {1: 'i__iP', 2: '1i'})
+    check('member', 'int *const [[attr1]] [[attr2]] volatile i', {1: 'i__iPVC', 2: '1i'},
+          output='int *[[attr1]] [[attr2]] volatile const i')
+    check('member', 'int &[[attr1]] [[attr2]] i', {1: 'i__iR', 2: '1i'})
+    check('member', 'int *[[attr1]] [[attr2]] *i', {1: 'i__iPP', 2: '1i'})
     # position: parameters and qualifiers
     check('function', 'void f() [[attr1]] [[attr2]]', {1: 'f', 2: '1fv'})
 
     # position: class, union, enum
-    check('class', '{key}[[nodiscard]] Foo', {1: 'Foo', 2: '3Foo'}, key='class')
-    check('union', '{key}[[nodiscard]] Foo', {1: None, 2: '3Foo'}, key='union')
-    check('enum', '{key}[[nodiscard]] Foo', {1: None, 2: '3Foo'}, key='enum')
+    check('class', '{key}[[attr1]] [[attr2]] Foo', {1: 'Foo', 2: '3Foo'}, key='class')
+    check('union', '{key}[[attr1]] [[attr2]] Foo', {1: None, 2: '3Foo'}, key='union')
+    check('enum', '{key}[[attr1]] [[attr2]] Foo', {1: None, 2: '3Foo'}, key='enum')
 
 
 def test_domain_cpp_ast_xref_parsing():

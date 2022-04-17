@@ -573,10 +573,10 @@ def test_domain_c_ast_attributes():
           output='__attribute__(()) static inline void f()')
     check('function', '[[attr1]] [[attr2]] void f()', {1: 'f'})
     # position: declarator
-    check('member', 'int *[[attr]] i', {1: 'i'})
-    check('member', 'int *const [[attr]] volatile i', {1: 'i'},
-          output='int *[[attr]] volatile const i')
-    check('member', 'int *[[attr]] *i', {1: 'i'})
+    check('member', 'int *[[attr1]] [[attr2]] i', {1: 'i'})
+    check('member', 'int *const [[attr1]] [[attr2]] volatile i', {1: 'i'},
+          output='int *[[attr1]] [[attr2]] volatile const i')
+    check('member', 'int *[[attr1]] [[attr2]] *i', {1: 'i'})
     # position: parameters
     check('function', 'void f() [[attr1]] [[attr2]]', {1: 'f'})
 
