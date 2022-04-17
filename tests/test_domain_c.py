@@ -580,6 +580,10 @@ def test_domain_c_ast_attributes():
     # position: parameters
     check('function', 'void f() [[attr1]] [[attr2]]', {1: 'f'})
 
+    # position: enumerator
+    check('enumerator', '{key}Foo [[attr1]] [[attr2]]', {1: 'Foo'})
+    check('enumerator', '{key}Foo [[attr1]] [[attr2]] = 42', {1: 'Foo'})
+
     # issue michaeljones/breathe#500
     check('function', 'LIGHTGBM_C_EXPORT int LGBM_BoosterFree(int handle)',
           {1: 'LGBM_BoosterFree'})

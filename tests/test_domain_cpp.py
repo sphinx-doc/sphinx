@@ -623,7 +623,7 @@ def test_domain_cpp_ast_function_definitions():
 
     # exceptions from return type mangling
     check('function', 'template<typename T> C()', {2: 'I0E1Cv'})
-    check('function', 'template<typename T> operator int()', {1: None, 2: 'I0Ecviv'})
+    check('function', 'template<typename T> operator int()', {2: 'I0Ecviv'})
 
     # trailing return types
     ids = {1: 'f', 2: '1fv'}
@@ -691,7 +691,7 @@ def test_domain_cpp_ast_operators():
     check('function', 'void operator>()', {1: "gt-operator", 2: "gtv"})
     check('function', 'void operator<=()', {1: "lte-operator", 2: "lev"})
     check('function', 'void operator>=()', {1: "gte-operator", 2: "gev"})
-    check('function', 'void operator<=>()', {1: None, 2: "ssv"})
+    check('function', 'void operator<=>()', {2: "ssv"})
     check('function', 'void operator!()', {1: "not-operator", 2: "ntv"})
     check('function', 'void operator not()', {2: "ntv"})
     check('function', 'void operator&&()', {1: "sand-operator", 2: "aav"})
@@ -993,8 +993,11 @@ def test_domain_cpp_ast_attributes():
 
     # position: class, union, enum
     check('class', '{key}[[attr1]] [[attr2]] Foo', {1: 'Foo', 2: '3Foo'}, key='class')
-    check('union', '{key}[[attr1]] [[attr2]] Foo', {1: None, 2: '3Foo'}, key='union')
-    check('enum', '{key}[[attr1]] [[attr2]] Foo', {1: None, 2: '3Foo'}, key='enum')
+    check('union', '{key}[[attr1]] [[attr2]] Foo', {2: '3Foo'}, key='union')
+    check('enum', '{key}[[attr1]] [[attr2]] Foo', {2: '3Foo'}, key='enum')
+    # position: enumerator
+    check('enumerator', '{key}Foo [[attr1]] [[attr2]]', {2: '3Foo'})
+    check('enumerator', '{key}Foo [[attr1]] [[attr2]] = 42', {2: '3Foo'})
 
 
 def test_domain_cpp_ast_xref_parsing():

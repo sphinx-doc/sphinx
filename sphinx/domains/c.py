@@ -1374,9 +1374,11 @@ class ASTEnum(ASTBase):
 
 
 class ASTEnumerator(ASTBase):
-    def __init__(self, name: ASTNestedName, init: ASTInitializer) -> None:
+    def __init__(self, name: ASTNestedName, init: Optional[ASTInitializer],
+                 attrs: ASTAttributeList) -> None:
         self.name = name
         self.init = init
+        self.attrs = attrs
 
     def get_id(self, version: int, objectType: str, symbol: "Symbol") -> str:
         return symbol.get_full_nested_name().get_id(version)
@@ -1384,6 +1386,9 @@ class ASTEnumerator(ASTBase):
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
         res.append(transform(self.name))
+        if len(self.attrs) != 0:
+            res.append(' ')
+            res.append(transform(self.attrs))
         if self.init:
             res.append(transform(self.init))
         return ''.join(res)
@@ -1392,6 +1397,9 @@ class ASTEnumerator(ASTBase):
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
         self.name.describe_signature(signode, mode, env, symbol)
+        if len(self.attrs) != 0:
+            signode += addnodes.desc_sig_space()
+            self.attrs.describe_signature(signode)
         if self.init:
             self.init.describe_signature(signode, 'markType', env, symbol)
 
@@ -3027,6 +3035,7 @@ class DefinitionParser(BaseParser):
 
     def _parse_enumerator(self) -> ASTEnumerator:
         name = self._parse_nested_name()
+        attrs = self._parse_attribute_list()
         self.skip_ws()
         init = None
         if self.skip_string('='):
@@ -3037,7 +3046,7 @@ class DefinitionParser(BaseParser):
 
             initVal = self._parse_expression_fallback([], parser)
             init = ASTInitializer(initVal)
-        return ASTEnumerator(name, init)
+        return ASTEnumerator(name, init, attrs)
 
     def parse_pre_v3_type_definition(self) -> ASTDeclaration:
         self.skip_ws()
