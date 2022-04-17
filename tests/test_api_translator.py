@@ -2,7 +2,6 @@
 
 import sys
 
-import docutils
 import pytest
 
 
@@ -19,10 +18,7 @@ def test_html_translator(app, status, warning):
     # no set_translator()
     translator_class = app.builder.get_translator_class()
     assert translator_class
-    if docutils.__version_info__ < (0, 13):
-        assert translator_class.__name__ == 'HTMLTranslator'
-    else:
-        assert translator_class.__name__ == 'HTML5Translator'
+    assert translator_class.__name__ == 'HTML5Translator'
 
 
 @pytest.mark.sphinx('html', testroot='api-set-translator')

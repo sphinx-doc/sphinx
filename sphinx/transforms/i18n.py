@@ -255,7 +255,7 @@ class Locale(SphinxTransform):
 
             # update meta nodes
             if isinstance(node, nodes.pending) and is_pending_meta(node):
-                # docutils-0.17 or older
+                # docutils-0.17
                 node.details['nodes'][0]['content'] = msgstr
                 continue
             elif isinstance(node, addnodes.docutils_meta):

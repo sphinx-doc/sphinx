@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 try:
     from docutils.nodes import meta as docutils_meta  # type: ignore
 except ImportError:
-    # docutils-0.17 or older
+    # docutils-0.17
     from docutils.parsers.rst.directives.html import MetaBody
     docutils_meta = MetaBody.meta
 
@@ -29,18 +29,7 @@ class document(nodes.document):
 
     def set_id(self, node: Element, msgnode: Optional[Element] = None,
                suggested_prefix: str = '') -> str:
-        if docutils.__version_info__ >= (0, 16):
-            ret = super().set_id(node, msgnode, suggested_prefix)  # type: ignore
-        else:
-            ret = super().set_id(node, msgnode)
-
-        if docutils.__version_info__ < (0, 17):
-            # register other node IDs forcedly
-            for node_id in node['ids']:
-                if node_id not in self.ids:
-                    self.ids[node_id] = node
-
-        return ret
+        return super().set_id(node, msgnode, suggested_prefix)  # type: ignore
 
 
 class translatable(nodes.Node):
@@ -198,7 +187,7 @@ class desc_inline(_desc_classes_injector, nodes.Inline, nodes.TextElement):
     classes = ['sig', 'sig-inline']
 
     def __init__(self, domain: str, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs, domain=domain)
         self['classes'].append(domain)
 
 
