@@ -2,6 +2,7 @@
 
 import datetime
 import os
+import warnings
 
 import pytest
 from babel.messages.mofile import read_mo
@@ -53,7 +54,11 @@ def test_format_date():
 
     # strftime format
     format = '%B %d, %Y'
-    assert i18n.format_date(format, date=date) == 'February 07, 2016'
+    with warnings.catch_warnings():
+        # Test format_date() with no language argument -- this form will be
+        # removed in Sphinx 7 (xref RemovedInSphinx70Warning)
+        warnings.simplefilter("ignore")
+        assert i18n.format_date(format, date=date) == 'February 07, 2016'
     assert i18n.format_date(format, date=date, language='') == 'February 07, 2016'
     assert i18n.format_date(format, date=date, language='unknown') == 'February 07, 2016'
     assert i18n.format_date(format, date=date, language='en') == 'February 07, 2016'
@@ -62,28 +67,28 @@ def test_format_date():
 
     # raw string
     format = 'Mon Mar 28 12:37:08 2016, commit 4367aef'
-    assert i18n.format_date(format, date=date) == format
+    assert i18n.format_date(format, date=date, language='en') == format
 
     format = '%B %d, %Y, %H:%M:%S %I %p'
     datet = datetime.datetime(2016, 2, 7, 5, 11, 17, 0)
-    assert i18n.format_date(format, date=datet) == 'February 07, 2016, 05:11:17 05 AM'
+    assert i18n.format_date(format, date=datet, language='en') == 'February 07, 2016, 05:11:17 05 AM'
 
     format = '%B %-d, %Y, %-H:%-M:%-S %-I %p'
-    assert i18n.format_date(format, date=datet) == 'February 7, 2016, 5:11:17 5 AM'
+    assert i18n.format_date(format, date=datet, language='en') == 'February 7, 2016, 5:11:17 5 AM'
     format = '%x'
-    assert i18n.format_date(format, date=datet) == 'Feb 7, 2016'
+    assert i18n.format_date(format, date=datet, language='en') == 'Feb 7, 2016'
     format = '%X'
-    assert i18n.format_date(format, date=datet) == '5:11:17 AM'
-    assert i18n.format_date(format, date=date) == 'Feb 7, 2016'
+    assert i18n.format_date(format, date=datet, language='en') == '5:11:17 AM'
+    assert i18n.format_date(format, date=date, language='en') == 'Feb 7, 2016'
     format = '%c'
-    assert i18n.format_date(format, date=datet) == 'Feb 7, 2016, 5:11:17 AM'
-    assert i18n.format_date(format, date=date) == 'Feb 7, 2016'
+    assert i18n.format_date(format, date=datet, language='en') == 'Feb 7, 2016, 5:11:17 AM'
+    assert i18n.format_date(format, date=date, language='en') == 'Feb 7, 2016'
 
     # timezone
     format = '%Z'
-    assert i18n.format_date(format, date=datet) == 'UTC'
+    assert i18n.format_date(format, date=datet, language='en') == 'UTC'
     format = '%z'
-    assert i18n.format_date(format, date=datet) == '+0000'
+    assert i18n.format_date(format, date=datet, language='en') == '+0000'
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Path separators don't match on windows")
