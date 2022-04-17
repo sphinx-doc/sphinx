@@ -18,10 +18,7 @@ def setup_command(request, tempdir, rootdir):
     Run `setup.py build_sphinx` with args and kwargs,
     pass it to the test and clean up properly.
     """
-    if hasattr(request.node, 'get_closest_marker'):  # pytest-3.6.0 or newer
-        marker = request.node.get_closest_marker('setup_command')
-    else:
-        marker = request.node.get_marker('setup_command')
+    marker = request.node.get_closest_marker('setup_command')
     args = marker.args if marker else []
 
     pkgrootdir = tempdir / 'test-setup'

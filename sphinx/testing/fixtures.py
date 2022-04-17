@@ -64,10 +64,7 @@ def app_params(request: Any, test_params: Dict, shared_result: SharedResult,
 
     # ##### process pytest.mark.sphinx
 
-    if hasattr(request.node, 'iter_markers'):  # pytest-3.6.0 or newer
-        markers = request.node.iter_markers("sphinx")
-    else:
-        markers = request.node.get_marker("sphinx")
+    markers = request.node.iter_markers("sphinx")
     pargs = {}
     kwargs: Dict[str, Any] = {}
 
@@ -113,10 +110,7 @@ def test_params(request: Any) -> Dict:
        have same 'shared_result' value.
        **NOTE**: You can not specify both shared_result and srcdir.
     """
-    if hasattr(request.node, 'get_closest_marker'):  # pytest-3.6.0 or newer
-        env = request.node.get_closest_marker('test_params')
-    else:
-        env = request.node.get_marker('test_params')
+    env = request.node.get_closest_marker('test_params')
     kwargs = env.kwargs if env else {}
     result = {
         'shared_result': None,
