@@ -4,7 +4,6 @@ import re
 import unicodedata
 from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple, cast
 
-import docutils
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
 from docutils.transforms import Transform, Transformer
@@ -342,16 +341,12 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
         for txtnode in txtnodes:
             if is_smartquotable(txtnode):
-                if docutils.__version_info__ >= (0, 16):
-                    # SmartQuotes uses backslash escapes instead of null-escapes
-                    text = re.sub(r'(?<=\x00)([-\\\'".`])', r'\\\1', str(txtnode))
-                else:
-                    text = txtnode.astext()
-
-                yield ('plain', text)
+                # SmartQuotes uses backslash escapes instead of null-escapes
+                text = re.sub(r'(?<=\x00)([-\\\'".`])', r'\\\1', str(txtnode))
+                yield 'plain', text
             else:
                 # skip smart quotes
-                yield ('literal', txtnode.astext())
+                yield 'literal', txtnode.astext()
 
 
 class DoctreeReadEvent(SphinxTransform):

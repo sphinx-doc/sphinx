@@ -15,10 +15,7 @@ from sphinx.testing.util import strip_escseq
 from sphinx.util import md5
 from sphinx.util.inventory import InventoryFile
 
-if docutils.__version_info__ < (0, 17):
-    FIGURE_CAPTION = ".//div[@class='figure align-default']/p[@class='caption']"
-else:
-    FIGURE_CAPTION = ".//figure/figcaption/p"
+FIGURE_CAPTION = ".//figure/figcaption/p"
 
 
 ENV_WARNINGS = """\
@@ -442,7 +439,7 @@ def test_docutils17_output(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
-@pytest.mark.skipif(docutils.__version_info__ < (0, 18), reason='docutils-0.18+ is required.')
+@pytest.mark.skipif(docutils.__version_info__[:2] <= (0, 17), reason='docutils-0.18+ is required.')
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
         (".//div[@class='citation']/span", r'Ref1'),
@@ -1324,14 +1321,9 @@ def test_html_inventory(app):
 def test_html_anchor_for_figure(app):
     app.builder.build_all()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    if docutils.__version_info__ < (0, 17):
-        assert ('<p class="caption"><span class="caption-text">The caption of pic</span>'
-                '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>'
-                in content)
-    else:
-        assert ('<figcaption>\n<p><span class="caption-text">The caption of pic</span>'
-                '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>\n</figcaption>'
-                in content)
+    assert ('<figcaption>\n<p><span class="caption-text">The caption of pic</span>'
+            '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>\n</figcaption>'
+            in content)
 
 
 @pytest.mark.sphinx('html', testroot='directives-raw')

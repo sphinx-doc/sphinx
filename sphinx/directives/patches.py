@@ -19,10 +19,28 @@ from sphinx.util.osutil import SEP, os_path, relpath
 from sphinx.util.typing import OptionSpec
 
 try:
-    from docutils.parsers.rst.directives.misc import Meta as MetaBase  # type: ignore
+    from docutils.parsers.rst.directives.misc import Meta as Meta  # type: ignore
 except ImportError:
-    # docutils-0.17 or older
+    # docutils-0.17
     from docutils.parsers.rst.directives.html import Meta as MetaBase
+
+    class Meta(MetaBase, SphinxDirective):  # type: ignore
+        def run(self) -> Sequence[Node]:  # type: ignore
+            result = super().run()
+            for node in result:
+                # for docutils-0.17.  Since docutils-0.18, patching is no longer needed
+                # because it uses picklable node; ``docutils.nodes.meta``.
+                if (isinstance(node, nodes.pending) and
+                        isinstance(node.details['nodes'][0], addnodes.docutils_meta)):
+                    meta = node.details['nodes'][0]
+                    meta.source = self.env.doc2path(self.env.docname)
+                    meta.line = self.lineno
+                    meta.rawcontent = meta['content']
+
+                    # docutils' meta nodes aren't picklable because the class is nested
+                    meta.__class__ = addnodes.meta
+
+            return result
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -55,25 +73,6 @@ class Figure(images.Figure):
             figure_node.line = caption.line
 
         return [figure_node]
-
-
-class Meta(MetaBase, SphinxDirective):
-    def run(self) -> Sequence[Node]:
-        result = super().run()
-        for node in result:
-            # for docutils-0.17 or older.  Since docutils-0.18, patching is no longer needed
-            # because it uses picklable node; ``docutils.nodes.meta``.
-            if (isinstance(node, nodes.pending) and
-               isinstance(node.details['nodes'][0], addnodes.docutils_meta)):
-                meta = node.details['nodes'][0]
-                meta.source = self.env.doc2path(self.env.docname)
-                meta.line = self.lineno
-                meta.rawcontent = meta['content']
-
-                # docutils' meta nodes aren't picklable because the class is nested
-                meta.__class__ = addnodes.meta
-
-        return result
 
 
 class CSVTable(tables.CSVTable):
