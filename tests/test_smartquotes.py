@@ -18,7 +18,7 @@ def test_basic(app, status, warning):
 def test_literals(app, status, warning):
     app.build()
 
-    with (app.outdir / 'literals.html').open() as html_file:
+    with (app.outdir / 'literals.html').open(encoding='utf-8') as html_file:
         etree = HTMLParser(namespaceHTMLElements=False).parse(html_file)
 
     for code_element in etree.iter('code'):

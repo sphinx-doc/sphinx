@@ -64,7 +64,7 @@ class Theme:
             extract_zip(theme_path, self.themedir)
 
         self.config = configparser.RawConfigParser()
-        self.config.read(path.join(self.themedir, THEMECONF))
+        self.config.read(path.join(self.themedir, THEMECONF), encoding='utf-8')
 
         try:
             inherit = self.config.get('theme', 'inherit')

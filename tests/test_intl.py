@@ -29,7 +29,7 @@ pygments_version = tuple(int(v) for v in pygments.__version__.split('.'))
 
 
 def read_po(pathname):
-    with pathname.open() as f:
+    with pathname.open(encoding='utf-8') as f:
         return pofile.read_po(f)
 
 

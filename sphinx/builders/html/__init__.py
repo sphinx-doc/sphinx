@@ -370,7 +370,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def get_outdated_docs(self) -> Iterator[str]:
         try:
-            with open(path.join(self.outdir, '.buildinfo')) as fp:
+            with open(path.join(self.outdir, '.buildinfo'), encoding="utf-8") as fp:
                 buildinfo = BuildInfo.load(fp)
 
             if self.build_info != buildinfo:
@@ -763,11 +763,13 @@ class StandaloneHTMLBuilder(Builder):
 
     def create_pygments_style_file(self) -> None:
         """create a style file for pygments."""
-        with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
+        with open(path.join(self.outdir, '_static', 'pygments.css'), 'w',
+                  encoding="utf-8") as f:
             f.write(self.highlighter.get_stylesheet())
 
         if self.dark_highlighter:
-            with open(path.join(self.outdir, '_static', 'pygments_dark.css'), 'w') as f:
+            with open(path.join(self.outdir, '_static', 'pygments_dark.css'), 'w',
+                      encoding="utf-8") as f:
                 f.write(self.dark_highlighter.get_stylesheet())
 
     def copy_translation_js(self) -> None:
@@ -853,7 +855,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def write_buildinfo(self) -> None:
         try:
-            with open(path.join(self.outdir, '.buildinfo'), 'w') as fp:
+            with open(path.join(self.outdir, '.buildinfo'), 'w', encoding="utf-8") as fp:
                 self.build_info.dump(fp)
         except OSError as exc:
             logger.warning(__('Failed to write build info file: %r'), exc)

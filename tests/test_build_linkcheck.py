@@ -289,7 +289,7 @@ def test_linkcheck_allowed_redirects(app, warning):
     with http_server(make_redirect_handler(support_head=False)):
         app.build()
 
-    with open(app.outdir / 'output.json') as fp:
+    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         records = [json.loads(l) for l in fp.readlines()]
 
     assert len(records) == 2
@@ -318,7 +318,7 @@ def test_invalid_ssl(app):
     with http_server(OKHandler):
         app.build()
 
-    with open(app.outdir / 'output.json') as fp:
+    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = json.load(fp)
     assert content["status"] == "broken"
     assert content["filename"] == "index.rst"
@@ -332,7 +332,7 @@ def test_connect_to_selfsigned_fails(app):
     with https_server(OKHandler):
         app.build()
 
-    with open(app.outdir / 'output.json') as fp:
+    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = json.load(fp)
     assert content["status"] == "broken"
     assert content["filename"] == "index.rst"
@@ -347,7 +347,7 @@ def test_connect_to_selfsigned_with_tls_verify_false(app):
     with https_server(OKHandler):
         app.build()
 
-    with open(app.outdir / 'output.json') as fp:
+    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = json.load(fp)
     assert content == {
         "code": 0,
@@ -365,7 +365,7 @@ def test_connect_to_selfsigned_with_tls_cacerts(app):
     with https_server(OKHandler):
         app.build()
 
-    with open(app.outdir / 'output.json') as fp:
+    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = json.load(fp)
     assert content == {
         "code": 0,
@@ -383,7 +383,7 @@ def test_connect_to_selfsigned_with_requests_env_var(monkeypatch, app):
     with https_server(OKHandler):
         app.build()
 
-    with open(app.outdir / 'output.json') as fp:
+    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = json.load(fp)
     assert content == {
         "code": 0,
@@ -401,7 +401,7 @@ def test_connect_to_selfsigned_nonexistent_cert_file(app):
     with https_server(OKHandler):
         app.build()
 
-    with open(app.outdir / 'output.json') as fp:
+    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = json.load(fp)
     assert content == {
         "code": 0,
@@ -429,7 +429,7 @@ def test_TooManyRedirects_on_HEAD(app):
     with http_server(InfiniteRedirectOnHeadHandler):
         app.build()
 
-    with open(app.outdir / 'output.json') as fp:
+    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = json.load(fp)
     assert content == {
         "code": 0,
@@ -623,7 +623,7 @@ def test_get_after_head_raises_connection_error(app):
 def test_linkcheck_exclude_documents(app):
     app.build()
 
-    with open(app.outdir / 'output.json') as fp:
+    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
         content = [json.loads(record) for record in fp]
 
     assert content == [

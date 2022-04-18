@@ -61,16 +61,16 @@ def test_pep_0420_enabled(make_app, apidoc):
     assert (outdir / 'a.b.e.rst').isfile()
     assert (outdir / 'a.b.x.rst').isfile()
 
-    with open(outdir / 'a.b.c.rst') as f:
+    with open(outdir / 'a.b.c.rst', encoding='utf-8') as f:
         rst = f.read()
         assert "automodule:: a.b.c.d\n" in rst
         assert "automodule:: a.b.c\n" in rst
 
-    with open(outdir / 'a.b.e.rst') as f:
+    with open(outdir / 'a.b.e.rst', encoding='utf-8') as f:
         rst = f.read()
         assert "automodule:: a.b.e.f\n" in rst
 
-    with open(outdir / 'a.b.x.rst') as f:
+    with open(outdir / 'a.b.x.rst', encoding='utf-8') as f:
         rst = f.read()
         assert "automodule:: a.b.x.y\n" in rst
         assert "automodule:: a.b.x\n" not in rst
@@ -85,15 +85,15 @@ def test_pep_0420_enabled(make_app, apidoc):
     assert (builddir / 'a.b.e.txt').isfile()
     assert (builddir / 'a.b.x.txt').isfile()
 
-    with open(builddir / 'a.b.c.txt') as f:
+    with open(builddir / 'a.b.c.txt', encoding='utf-8') as f:
         txt = f.read()
         assert "a.b.c package\n" in txt
 
-    with open(builddir / 'a.b.e.txt') as f:
+    with open(builddir / 'a.b.e.txt', encoding='utf-8') as f:
         txt = f.read()
         assert "a.b.e.f module\n" in txt
 
-    with open(builddir / 'a.b.x.txt') as f:
+    with open(builddir / 'a.b.x.txt', encoding='utf-8') as f:
         txt = f.read()
         assert "a.b.x namespace\n" in txt
 
@@ -111,15 +111,15 @@ def test_pep_0420_enabled_separate(make_app, apidoc):
     assert (outdir / 'a.b.x.rst').isfile()
     assert (outdir / 'a.b.x.y.rst').isfile()
 
-    with open(outdir / 'a.b.c.rst') as f:
+    with open(outdir / 'a.b.c.rst', encoding='utf-8') as f:
         rst = f.read()
         assert ".. toctree::\n   :maxdepth: 4\n\n   a.b.c.d\n" in rst
 
-    with open(outdir / 'a.b.e.rst') as f:
+    with open(outdir / 'a.b.e.rst', encoding='utf-8') as f:
         rst = f.read()
         assert ".. toctree::\n   :maxdepth: 4\n\n   a.b.e.f\n" in rst
 
-    with open(outdir / 'a.b.x.rst') as f:
+    with open(outdir / 'a.b.x.rst', encoding='utf-8') as f:
         rst = f.read()
         assert ".. toctree::\n   :maxdepth: 4\n\n   a.b.x.y\n" in rst
 
@@ -135,15 +135,15 @@ def test_pep_0420_enabled_separate(make_app, apidoc):
     assert (builddir / 'a.b.x.txt').isfile()
     assert (builddir / 'a.b.x.y.txt').isfile()
 
-    with open(builddir / 'a.b.c.txt') as f:
+    with open(builddir / 'a.b.c.txt', encoding='utf-8') as f:
         txt = f.read()
         assert "a.b.c package\n" in txt
 
-    with open(builddir / 'a.b.e.f.txt') as f:
+    with open(builddir / 'a.b.e.f.txt', encoding='utf-8') as f:
         txt = f.read()
         assert "a.b.e.f module\n" in txt
 
-    with open(builddir / 'a.b.x.txt') as f:
+    with open(builddir / 'a.b.x.txt', encoding='utf-8') as f:
         txt = f.read()
         assert "a.b.x namespace\n" in txt
 
@@ -169,7 +169,7 @@ def test_pep_0420_disabled_top_level_verify(make_app, apidoc):
     assert (outdir / 'c.rst').isfile()
     assert not (outdir / 'x.rst').exists()
 
-    with open(outdir / 'c.rst') as f:
+    with open(outdir / 'c.rst', encoding='utf-8') as f:
         rst = f.read()
         assert "c package\n" in rst
         assert "automodule:: c.d\n" in rst
@@ -194,7 +194,7 @@ def test_trailing_underscore(make_app, apidoc):
     print(app._warning.getvalue())
 
     builddir = outdir / '_build' / 'text'
-    with open(builddir / 'package_.txt') as f:
+    with open(builddir / 'package_.txt', encoding='utf-8') as f:
         rst = f.read()
         assert "package_ package\n" in rst
         assert "package_.module_ module\n" in rst
@@ -295,7 +295,7 @@ def test_extension_parsed(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
 
-    with open(outdir / 'conf.py') as f:
+    with open(outdir / 'conf.py', encoding='utf-8') as f:
         rst = f.read()
         assert "sphinx.ext.mathjax" in rst
 
@@ -363,7 +363,7 @@ def test_toc_all_references_should_exist_pep420_disabled(make_app, apidoc):
 
 def extract_toc(path):
     """Helper: Extract toc section from package rst file"""
-    with open(path) as f:
+    with open(path, encoding='utf-8') as f:
         rst = f.read()
 
     # Read out the part containing the toctree
@@ -389,12 +389,12 @@ def test_subpackage_in_toc(make_app, apidoc):
     assert (outdir / 'conf.py').isfile()
 
     assert (outdir / 'parent.rst').isfile()
-    with open(outdir / 'parent.rst') as f:
+    with open(outdir / 'parent.rst', encoding='utf-8') as f:
         parent = f.read()
     assert 'parent.child' in parent
 
     assert (outdir / 'parent.child.rst').isfile()
-    with open(outdir / 'parent.child.rst') as f:
+    with open(outdir / 'parent.child.rst', encoding='utf-8') as f:
         parent_child = f.read()
     assert 'parent.child.foo' in parent_child
 

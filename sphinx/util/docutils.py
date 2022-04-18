@@ -338,6 +338,7 @@ class SphinxFileOutput(FileOutput):
 
     def __init__(self, **kwargs: Any) -> None:
         self.overwrite_if_changed = kwargs.pop('overwrite_if_changed', False)
+        kwargs.setdefault('encoding', 'utf-8')
         super().__init__(**kwargs)
 
     def write(self, data: str) -> str:

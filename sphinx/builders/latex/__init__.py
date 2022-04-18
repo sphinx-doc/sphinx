@@ -241,7 +241,7 @@ class LaTeXBuilder(Builder):
     def write_stylesheet(self) -> None:
         highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style)
         stylesheet = path.join(self.outdir, 'sphinxhighlight.sty')
-        with open(stylesheet, 'w') as f:
+        with open(stylesheet, 'w', encoding="utf-8") as f:
             f.write('\\NeedsTeXFormat{LaTeX2e}[1995/12/01]\n')
             f.write('\\ProvidesPackage{sphinxhighlight}'
                     '[2016/05/29 stylesheet for highlighting with pygments]\n')
