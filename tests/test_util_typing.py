@@ -162,7 +162,6 @@ def test_restify_type_ForwardRef():
     assert restify(ForwardRef("myint")) == ":py:class:`myint`"
 
 
-@pytest.mark.skipif(sys.version_info[:2] <= (3, 7), reason='python 3.8+ is required.')
 def test_restify_type_Literal():
     from typing import Literal  # type: ignore
     assert restify(Literal[1, "2", "\r"]) == ":py:obj:`~typing.Literal`\\ [1, '2', '\\r']"
@@ -408,7 +407,6 @@ def test_stringify_type_hints_alias():
     assert stringify(MyTuple, "smart") == "~typing.Tuple[str, str]"  # type: ignore
 
 
-@pytest.mark.skipif(sys.version_info[:2] <= (3, 7), reason='python 3.8+ is required.')
 def test_stringify_type_Literal():
     from typing import Literal  # type: ignore
     assert stringify(Literal[1, "2", "\r"]) == "Literal[1, '2', '\\r']"

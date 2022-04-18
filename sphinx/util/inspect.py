@@ -1,5 +1,6 @@
 """Helpers for inspecting Python modules."""
 
+import ast
 import builtins
 import contextlib
 import enum
@@ -8,15 +9,15 @@ import re
 import sys
 import types
 import typing
-from functools import partial, partialmethod
+from functools import cached_property, partial, partialmethod, singledispatchmethod
 from importlib import import_module
-from inspect import Parameter, isclass, ismethod, ismethoddescriptor, ismodule  # NOQA
+from inspect import (Parameter, isasyncgenfunction, isclass, ismethod,  # NOQA
+                     ismethoddescriptor, ismodule)
 from io import StringIO
 from types import (ClassMethodDescriptorType, MethodDescriptorType, MethodType, ModuleType,
                    WrapperDescriptorType)
 from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, Type, cast
 
-from sphinx.pycode.ast import ast  # for py37
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
 from sphinx.util.typing import ForwardRef
@@ -285,11 +286,7 @@ def is_singledispatch_function(obj: Any) -> bool:
 
 def is_singledispatch_method(obj: Any) -> bool:
     """Check if the object is singledispatch method."""
-    try:
-        from functools import singledispatchmethod  # type: ignore
-        return isinstance(obj, singledispatchmethod)
-    except ImportError:  # py37
-        return False
+    return isinstance(obj, singledispatchmethod)
 
 
 def isfunction(obj: Any) -> bool:
@@ -329,27 +326,9 @@ def iscoroutinefunction(obj: Any) -> bool:
         return False
 
 
-if sys.version_info[:2] <= (3, 7):
-    def isasyncgenfunction(obj: Any) -> bool:
-        """Check if the object is async-gen function."""
-        if hasattr(obj, '__code__') and inspect.isasyncgenfunction(obj):
-            # check obj.__code__ because isasyncgenfunction() crashes for custom method-like
-            # objects on python3.7 (see https://github.com/sphinx-doc/sphinx/issues/9838)
-            return True
-        else:
-            return False
-else:
-    isasyncgenfunction = inspect.isasyncgenfunction
-
-
 def isproperty(obj: Any) -> bool:
     """Check if the object is property."""
-    if sys.version_info[:2] >= (3, 8):
-        from functools import cached_property  # cached_property is available since py3.8
-        if isinstance(obj, cached_property):
-            return True
-
-    return isinstance(obj, property)
+    return isinstance(obj, (property, cached_property))
 
 
 def isgenericalias(obj: Any) -> bool:
@@ -723,7 +702,7 @@ def signature_from_str(signature: str) -> inspect.Signature:
     """Create a Signature object from string."""
     code = 'def func' + signature + ': pass'
     module = ast.parse(code)
-    function = cast(ast.FunctionDef, module.body[0])  # type: ignore
+    function = cast(ast.FunctionDef, module.body[0])
 
     return signature_from_ast(function, code)
 
@@ -734,7 +713,7 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
     defaults = list(args.defaults)
     params = []
     if hasattr(args, "posonlyargs"):
-        posonlyargs = len(args.posonlyargs)  # type: ignore
+        posonlyargs = len(args.posonlyargs)
         positionals = posonlyargs + len(args.args)
     else:
         posonlyargs = 0
@@ -744,7 +723,7 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
         defaults.insert(0, Parameter.empty)  # type: ignore
 
     if hasattr(args, "posonlyargs"):
-        for i, arg in enumerate(args.posonlyargs):  # type: ignore
+        for i, arg in enumerate(args.posonlyargs):
             if defaults[i] is Parameter.empty:
                 default = Parameter.empty
             else:

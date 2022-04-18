@@ -54,7 +54,7 @@ class TocTree:
         """
         if toctree.get('hidden', False) and not includehidden:
             return None
-        generated_docnames: Dict[str, Tuple[str, str, str]] = self.env.domains['std'].initial_data['labels'].copy()  # NoQA: E501
+        generated_docnames: Dict[str, Tuple[str, str]] = self.env.domains['std']._virtual_doc_names.copy()  # NoQA: E501
 
         # For reading the following two helper function, it is useful to keep
         # in mind the node structure of a toctree (using HTML-like node names
@@ -141,7 +141,7 @@ class TocTree:
                         # don't show subitems
                         toc = nodes.bullet_list('', item)
                     elif ref in generated_docnames:
-                        docname, _, sectionname = generated_docnames[ref]
+                        docname, sectionname = generated_docnames[ref]
                         if not title:
                             title = sectionname
                         reference = nodes.reference('', title, internal=True,

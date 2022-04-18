@@ -151,7 +151,8 @@ def test_signature_partialmethod():
 
 def test_signature_annotations():
     from .typing_test_data import (Node, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12,
-                                   f13, f14, f15, f16, f17, f18, f19, f20, f21)
+                                   f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24,
+                                   f25)
 
     # Class annotations
     sig = inspect.signature(f0)
@@ -272,25 +273,19 @@ def test_signature_annotations():
     else:
         assert stringify_signature(sig, unqualified_typehints=True) == '(x: int = None, y: dict = {}) -> None'
 
-
-@pytest.mark.skipif(sys.version_info[:2] <= (3, 7), reason='python 3.8+ is required.')
-@pytest.mark.sphinx(testroot='ext-autodoc')
-def test_signature_annotations_py38(app):
-    from target.pep570 import bar, baz, foo, qux
-
     # case: separator at head
-    sig = inspect.signature(foo)
+    sig = inspect.signature(f22)
     assert stringify_signature(sig) == '(*, a, b)'
 
     # case: separator in the middle
-    sig = inspect.signature(bar)
+    sig = inspect.signature(f23)
     assert stringify_signature(sig) == '(a, b, /, c, d)'
 
-    sig = inspect.signature(baz)
+    sig = inspect.signature(f24)
     assert stringify_signature(sig) == '(a, /, *, b)'
 
     # case: separator at tail
-    sig = inspect.signature(qux)
+    sig = inspect.signature(f25)
     assert stringify_signature(sig) == '(a, b, /)'
 
 
@@ -373,8 +368,6 @@ def test_signature_from_str_kwonly_args():
     assert sig.parameters['b'].default == Parameter.empty
 
 
-@pytest.mark.skipif(sys.version_info[:2] <= (3, 7),
-                    reason='python-3.8 or above is required')
 def test_signature_from_str_positionaly_only_args():
     sig = inspect.signature_from_str('(a, b=0, /, c=1)')
     assert list(sig.parameters.keys()) == ['a', 'b', 'c']

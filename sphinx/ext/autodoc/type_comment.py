@@ -1,12 +1,12 @@
 """Update annotations info of living objects using type_comments."""
 
+import ast
 from inspect import Parameter, Signature, getsource
 from typing import Any, Dict, List, cast
 
 import sphinx
 from sphinx.application import Sphinx
 from sphinx.locale import __
-from sphinx.pycode.ast import ast
 from sphinx.pycode.ast import parse as ast_parse
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import inspect, logging
@@ -34,10 +34,9 @@ def signature_from_ast(node: ast.FunctionDef, bound_method: bool,
     :param bound_method: Specify *node* is a bound method or not
     """
     params = []
-    if hasattr(node.args, "posonlyargs"):  # for py38+
-        for arg in node.args.posonlyargs:  # type: ignore
-            param = Parameter(arg.arg, Parameter.POSITIONAL_ONLY, annotation=arg.type_comment)
-            params.append(param)
+    for arg in node.args.posonlyargs:
+        param = Parameter(arg.arg, Parameter.POSITIONAL_ONLY, annotation=arg.type_comment)
+        params.append(param)
 
     for arg in node.args.args:
         param = Parameter(arg.arg, Parameter.POSITIONAL_OR_KEYWORD,
@@ -80,7 +79,7 @@ def get_type_comment(obj: Any, bound_method: bool = False) -> Signature:
     """Get type_comment'ed FunctionDef object from living object.
 
     This tries to parse original code for living object and returns
-    Signature for given *obj*.  It requires py38+ or typed_ast module.
+    Signature for given *obj*.
     """
     try:
         source = getsource(obj)

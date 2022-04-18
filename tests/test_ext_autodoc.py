@@ -1072,8 +1072,6 @@ def test_autodoc_descriptor(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info[:2] <= (3, 7),
-                    reason='cached_property is available since python3.8.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_cached_property(app):
     options = {"members": None,
@@ -2059,8 +2057,6 @@ def test_singledispatch(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info[:2] <= (3, 7),
-                    reason='singledispatchmethod is available since python3.8')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_singledispatchmethod(app):
     options = {"members": None}
@@ -2088,8 +2084,6 @@ def test_singledispatchmethod(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info[:2] <= (3, 7),
-                    reason='singledispatchmethod is available since python3.8')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_singledispatchmethod_automethod(app):
     options = {}
@@ -2142,8 +2136,6 @@ def test_cython(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info[:2] <= (3, 7),
-                    reason='typing.final is available since python3.8')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_final(app):
     options = {"members": None}

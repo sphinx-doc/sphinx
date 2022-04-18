@@ -12,7 +12,7 @@ Installing Sphinx
 Overview
 --------
 
-Sphinx is written in `Python`__ and supports Python 3.7+. It builds upon the
+Sphinx is written in `Python`__ and supports Python 3.8+. It builds upon the
 shoulders of many third-party libraries such as `Docutils`__ and `Jinja`__,
 which are installed when Sphinx is installed.
 

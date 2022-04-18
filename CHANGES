@@ -5,6 +5,7 @@ Dependencies
 ------------
 
 * #10468: Drop Python 3.6 support
+* #10470: Drop Python 3.7 support. Patch by Adam Turner
 
 Incompatible changes
 --------------------
