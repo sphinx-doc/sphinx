@@ -1,7 +1,10 @@
 """Helpers for AST (Abstract Syntax Tree)."""
 
 import ast
+import warnings
 from typing import Dict, List, Optional, Type, overload
+
+from sphinx.deprecation import RemovedInSphinx70Warning
 
 OPERATORS: Dict[Type[ast.AST], str] = {
     ast.Add: "+",
@@ -28,6 +31,10 @@ OPERATORS: Dict[Type[ast.AST], str] = {
 
 def parse(code: str, mode: str = 'exec') -> "ast.AST":
     """Parse the *code* using the built-in ast module."""
+    warnings.warn(
+        "'sphinx.pycode.ast.parse' is deprecated, use 'ast.parse' instead.",
+        RemovedInSphinx70Warning, stacklevel=2
+    )
     try:
         return ast.parse(code, mode=mode, type_comments=True)
     except SyntaxError:

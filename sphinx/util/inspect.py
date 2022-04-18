@@ -333,8 +333,7 @@ def isproperty(obj: Any) -> bool:
 
 def isgenericalias(obj: Any) -> bool:
     """Check if the object is GenericAlias."""
-    if (hasattr(typing, '_GenericAlias') and  # only for py37+
-            isinstance(obj, typing._GenericAlias)):  # type: ignore
+    if isinstance(obj, typing._GenericAlias):  # type: ignore
         return True
     elif (hasattr(types, 'GenericAlias') and  # only for py39+
           isinstance(obj, types.GenericAlias)):  # type: ignore

@@ -11,7 +11,6 @@ from typing import Any, Dict, List, Optional
 import sphinx
 from sphinx.application import Sphinx
 from sphinx.locale import __
-from sphinx.pycode.ast import parse as ast_parse
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
 
@@ -36,10 +35,10 @@ def get_function_def(obj: Any) -> Optional[ast.FunctionDef]:
         if source.startswith((' ', r'\t')):
             # subject is placed inside class or block.  To read its docstring,
             # this adds if-block before the declaration.
-            module = ast_parse('if True:\n' + source)
+            module = ast.parse('if True:\n' + source)
             return module.body[0].body[0]  # type: ignore
         else:
-            module = ast_parse(source)
+            module = ast.parse(source)
             return module.body[0]  # type: ignore
     except (OSError, TypeError):  # failed to load source code
         return None

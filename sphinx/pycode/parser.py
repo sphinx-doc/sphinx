@@ -11,7 +11,6 @@ from token import DEDENT, INDENT, NAME, NEWLINE, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
 from typing import Any, Dict, List, Optional, Tuple
 
-from sphinx.pycode.ast import parse as ast_parse
 from sphinx.pycode.ast import unparse as ast_unparse
 
 comment_re = re.compile('^\\s*#: ?(.*)\r?\n?$')
@@ -552,7 +551,7 @@ class Parser:
 
     def parse_comments(self) -> None:
         """Parse the code and pick up comments."""
-        tree = ast_parse(self.code)
+        tree = ast.parse(self.code, type_comments=True)
         picker = VariableCommentPicker(self.code.splitlines(True), self.encoding)
         picker.visit(tree)
         self.annotations = picker.annotations

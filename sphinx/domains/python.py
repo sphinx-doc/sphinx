@@ -21,7 +21,6 @@ from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, Index, IndexEntry, ObjType
 from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
-from sphinx.pycode.ast import parse as ast_parse
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
@@ -206,7 +205,7 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> List[Node]:
             raise SyntaxError  # unsupported syntax
 
     try:
-        tree = ast_parse(annotation)
+        tree = ast.parse(annotation, type_comments=True)
         result: List[Node] = []
         for node in unparse(tree):
             if isinstance(node, nodes.literal):
