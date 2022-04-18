@@ -108,6 +108,8 @@ Bugs fixed
   too much vertical whitespace
 * #10188: LaTeX: alternating multiply referred footnotes produce a ``?`` in
   pdf output
+* #10363: LaTeX: make ``'howto'`` title page rule use ``\linewidth`` for
+  compatibility with usage of a ``twocolumn`` class option
 * #10318: ``:prepend:`` option of :rst:dir:`literalinclude` directive does not
   work with ``:dedent:`` option
 
