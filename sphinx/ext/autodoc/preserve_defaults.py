@@ -6,8 +6,6 @@ and keep them not evaluated for readability.
 
 import ast
 import inspect
-import sys
-from inspect import Parameter
 from typing import Any, Dict, List, Optional
 
 from sphinx.application import Sphinx
@@ -48,8 +46,6 @@ def get_function_def(obj: Any) -> Optional[ast.FunctionDef]:
 
 def get_default_value(lines: List[str], position: ast.AST) -> Optional[str]:
     try:
-        if sys.version_info[:2] <= (3, 7):  # only for py38+
-            return None
         if position.lineno == position.end_lineno:
             line = lines[position.lineno - 1]
             return line[position.col_offset:position.end_col_offset]
@@ -89,18 +85,18 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
                         default = defaults.pop(0)
                         value = get_default_value(lines, default)
                         if value is None:
-                            value = ast_unparse(default)  # type: ignore
+                            value = ast_unparse(default)
                         parameters[i] = param.replace(default=DefaultValue(value))
                     else:
                         default = kw_defaults.pop(0)
                         value = get_default_value(lines, default)
                         if value is None:
-                            value = ast_unparse(default)  # type: ignore
+                            value = ast_unparse(default)
                         parameters[i] = param.replace(default=DefaultValue(value))
 
             if bound_method and inspect.ismethod(obj):
                 # classmethods
-                cls = inspect.Parameter('cls', Parameter.POSITIONAL_OR_KEYWORD)
+                cls = inspect.Parameter('cls', inspect.Parameter.POSITIONAL_OR_KEYWORD)
                 parameters.insert(0, cls)
 
             sig = sig.replace(parameters=parameters)

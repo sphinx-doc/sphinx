@@ -13,8 +13,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - python: "3.7"
-          docutils: du15
         - python: "3.8"
           docutils: du16
         - python: "3.9"

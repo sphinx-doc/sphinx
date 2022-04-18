@@ -1,9 +1,9 @@
 """The Python domain."""
 
+import ast
 import builtins
 import inspect
 import re
-import sys
 import typing
 from inspect import Parameter
 from typing import Any, Dict, Iterable, Iterator, List, NamedTuple, Optional, Tuple, Type, cast
@@ -21,7 +21,6 @@ from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, Index, IndexEntry, ObjType
 from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
-from sphinx.pycode.ast import ast
 from sphinx.pycode.ast import parse as ast_parse
 from sphinx.roles import XRefRole
 from sphinx.util import logging
@@ -138,7 +137,7 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> List[Node]:
             return [addnodes.desc_sig_space(),
                     addnodes.desc_sig_punctuation('', '|'),
                     addnodes.desc_sig_space()]
-        elif isinstance(node, ast.Constant):  # type: ignore
+        elif isinstance(node, ast.Constant):
             if node.value is Ellipsis:
                 return [addnodes.desc_sig_punctuation('', "...")]
             elif isinstance(node.value, bool):
@@ -204,18 +203,6 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> List[Node]:
 
             return result
         else:
-            if sys.version_info[:2] <= (3, 7):
-                if isinstance(node, ast.Bytes):
-                    return [addnodes.desc_sig_literal_string('', repr(node.s))]
-                elif isinstance(node, ast.Ellipsis):
-                    return [addnodes.desc_sig_punctuation('', "...")]
-                elif isinstance(node, ast.NameConstant):
-                    return [nodes.Text(node.value)]
-                elif isinstance(node, ast.Num):
-                    return [addnodes.desc_sig_literal_string('', repr(node.n))]
-                elif isinstance(node, ast.Str):
-                    return [addnodes.desc_sig_literal_string('', repr(node.s))]
-
             raise SyntaxError  # unsupported syntax
 
     try:

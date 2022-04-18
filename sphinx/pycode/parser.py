@@ -1,4 +1,6 @@
 """Utilities parsing and analyzing Python code."""
+
+import ast
 import inspect
 import itertools
 import re
@@ -9,8 +11,8 @@ from token import DEDENT, INDENT, NAME, NEWLINE, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
 from typing import Any, Dict, List, Optional, Tuple
 
-from sphinx.pycode.ast import ast  # for py37 or older
-from sphinx.pycode.ast import parse, unparse
+from sphinx.pycode.ast import parse as ast_parse
+from sphinx.pycode.ast import unparse as ast_unparse
 
 comment_re = re.compile('^\\s*#: ?(.*)\r?\n?$')
 indent_re = re.compile('^\\s*$')
@@ -266,7 +268,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         qualname = self.get_qualname_for(name)
         if qualname:
             basename = ".".join(qualname[:-1])
-            self.annotations[(basename, name)] = unparse(annotation)
+            self.annotations[(basename, name)] = ast_unparse(annotation)
 
     def is_final(self, decorators: List[ast.expr]) -> bool:
         final = []
@@ -277,7 +279,7 @@ class VariableCommentPicker(ast.NodeVisitor):
 
         for decorator in decorators:
             try:
-                if unparse(decorator) in final:
+                if ast_unparse(decorator) in final:
                     return True
             except NotImplementedError:
                 pass
@@ -293,7 +295,7 @@ class VariableCommentPicker(ast.NodeVisitor):
 
         for decorator in decorators:
             try:
-                if unparse(decorator) in overload:
+                if ast_unparse(decorator) in overload:
                     return True
             except NotImplementedError:
                 pass
@@ -304,12 +306,9 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Returns the name of the first argument if in a function."""
         if self.current_function and self.current_function.args.args:
             return self.current_function.args.args[0]
-        elif (self.current_function and
-              getattr(self.current_function.args, 'posonlyargs', None)):
-            # for py38+
-            return self.current_function.args.posonlyargs[0]  # type: ignore
-        else:
-            return None
+        if self.current_function and self.current_function.args.posonlyargs:
+            return self.current_function.args.posonlyargs[0]
+        return None
 
     def get_line(self, lineno: int) -> str:
         """Returns specified line."""
@@ -553,7 +552,7 @@ class Parser:
 
     def parse_comments(self) -> None:
         """Parse the code and pick up comments."""
-        tree = parse(self.code)
+        tree = ast_parse(self.code)
         picker = VariableCommentPicker(self.code.splitlines(True), self.encoding)
         picker.visit(tree)
         self.annotations = picker.annotations

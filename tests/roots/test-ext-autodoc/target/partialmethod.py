@@ -1,4 +1,3 @@
-# for py34 or above
 from functools import partialmethod
 
 
