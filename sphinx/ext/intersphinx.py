@@ -572,7 +572,7 @@ class IntersphinxRoleResolver(ReferencesResolver):
     default_priority = ReferencesResolver.default_priority - 1
 
     def run(self, **kwargs: Any) -> None:
-        for node in self.document.traverse(pending_xref):
+        for node in self.document.findall(pending_xref):
             if 'intersphinx' not in node:
                 continue
             contnode = cast(nodes.TextElement, node[0].deepcopy())
