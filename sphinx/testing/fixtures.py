@@ -64,16 +64,14 @@ def app_params(request: Any, test_params: Dict, shared_result: SharedResult,
 
     # ##### process pytest.mark.sphinx
 
-    markers = request.node.iter_markers("sphinx")
     pargs = {}
     kwargs: Dict[str, Any] = {}
 
-    if markers is not None:
-        # to avoid stacking positional args
-        for info in reversed(list(markers)):
-            for i, a in enumerate(info.args):
-                pargs[i] = a
-            kwargs.update(info.kwargs)
+    # to avoid stacking positional args
+    for info in reversed(list(request.node.iter_markers("sphinx"))):
+        for i, a in enumerate(info.args):
+            pargs[i] = a
+        kwargs.update(info.kwargs)
 
     args = [pargs[i] for i in sorted(pargs.keys())]
 

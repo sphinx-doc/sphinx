@@ -22,15 +22,13 @@ def apidoc(rootdir, tempdir, apidoc_params):
 
 @pytest.fixture
 def apidoc_params(request):
-    markers = request.node.iter_markers("apidoc")
     pargs = {}
     kwargs = {}
 
-    if markers is not None:
-        for info in reversed(list(markers)):
-            for i, a in enumerate(info.args):
-                pargs[i] = a
-            kwargs.update(info.kwargs)
+    for info in reversed(list(request.node.iter_markers("apidoc"))):
+        for i, a in enumerate(info.args):
+            pargs[i] = a
+        kwargs.update(info.kwargs)
 
     args = [pargs[i] for i in sorted(pargs.keys())]
     return args, kwargs
