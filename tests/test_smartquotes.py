@@ -1,9 +1,8 @@
 """Test smart quotes."""
 
+import docutils
 import pytest
 from html5lib import HTMLParser
-
-from sphinx.util import docutils
 
 
 @pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True)

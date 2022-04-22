@@ -2,10 +2,10 @@
 
 import re
 
+import docutils
 import pytest
 
 from sphinx.ext.graphviz import ClickableMapDefinition
-from sphinx.util import docutils
 
 
 @pytest.mark.sphinx('html', testroot='ext-graphviz')

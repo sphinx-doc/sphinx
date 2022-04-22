@@ -3,6 +3,7 @@
 import re
 import warnings
 
+import docutils
 import pytest
 from docutils import frontend, nodes, utils
 from docutils.parsers.rst import Parser as RstParser
@@ -14,7 +15,7 @@ from sphinx.environment import default_settings
 from sphinx.roles import XRefRole
 from sphinx.testing.util import Struct, assert_node
 from sphinx.transforms import SphinxSmartQuotes
-from sphinx.util import docutils, texescape
+from sphinx.util import texescape
 from sphinx.util.docutils import sphinx_domains
 from sphinx.writers.html import HTMLTranslator, HTMLWriter
 from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter

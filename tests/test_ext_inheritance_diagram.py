@@ -4,11 +4,11 @@ import os
 import re
 import sys
 
+import docutils
 import pytest
 
 from sphinx.ext.inheritance_diagram import (InheritanceDiagram, InheritanceException,
                                             import_classes)
-from sphinx.util import docutils
 
 
 @pytest.mark.sphinx(buildername="html", testroot="inheritance")

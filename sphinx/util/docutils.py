@@ -17,7 +17,6 @@ from docutils.parsers.rst import Directive, directives, roles
 from docutils.parsers.rst.states import Inliner
 from docutils.statemachine import State, StateMachine, StringList
 from docutils.utils import Reporter, unescape
-from packaging import version
 
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
@@ -32,8 +31,6 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
 
-
-__version_info__ = version.parse(docutils.__version__).release
 additional_nodes: Set[Type[Element]] = set()
 
 
@@ -312,7 +309,7 @@ class NullReporter(Reporter):
 
 
 def is_html5_writer_available() -> bool:
-    return __version_info__ > (0, 13, 0)
+    return docutils.__version_info__ > (0, 13, 0)
 
 
 @contextmanager
@@ -543,7 +540,7 @@ class SphinxTranslator(nodes.NodeVisitor):
 # Node.findall() is a new interface to traverse a doctree since docutils-0.18.
 # This applies a patch docutils-0.17 or older to be available Node.findall()
 # method to use it from our codebase.
-if __version_info__ < (0, 18):
+if docutils.__version_info__ < (0, 18):
     def findall(self, *args, **kwargs):
         return iter(self.traverse(*args, **kwargs))
 
