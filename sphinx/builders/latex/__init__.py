@@ -1,6 +1,7 @@
 """LaTeX builder."""
 
 import os
+import warnings
 from os import path
 from typing import Any, Dict, Iterable, List, Tuple, Union
 
@@ -250,10 +251,14 @@ class LaTeXBuilder(Builder):
 
     def write(self, *ignored: Any) -> None:
         docwriter = LaTeXWriter(self)
-        docsettings: Any = OptionParser(
-            defaults=self.env.settings,
-            components=(docwriter,),
-            read_config_files=True).get_default_values()
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', category=DeprecationWarning)
+            # DeprecationWarning: The frontend.OptionParser class will be replaced
+            # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
+            docsettings: Any = OptionParser(
+                defaults=self.env.settings,
+                components=(docwriter,),
+                read_config_files=True).get_default_values()
 
         self.init_document_data()
         self.write_stylesheet()

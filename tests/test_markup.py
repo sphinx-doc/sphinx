@@ -1,6 +1,7 @@
 """Test various Sphinx-specific markup extensions."""
 
 import re
+import warnings
 
 import pytest
 from docutils import frontend, nodes, utils
@@ -22,9 +23,13 @@ from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 @pytest.fixture
 def settings(app):
     texescape.init()  # otherwise done by the latex builder
-    optparser = frontend.OptionParser(
-        components=(RstParser, HTMLWriter, LaTeXWriter),
-        defaults=default_settings)
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore', category=DeprecationWarning)
+        # DeprecationWarning: The frontend.OptionParser class will be replaced
+        # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
+        optparser = frontend.OptionParser(
+            components=(RstParser, HTMLWriter, LaTeXWriter),
+            defaults=default_settings)
     settings = optparser.get_default_values()
     settings.smart_quotes = True
     settings.env = app.builder.env

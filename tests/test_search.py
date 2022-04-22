@@ -1,5 +1,6 @@
 """Test the search index builder."""
 
+import warnings
 from collections import namedtuple
 from io import BytesIO
 
@@ -27,7 +28,11 @@ settings = parser = None
 
 def setup_module():
     global settings, parser
-    optparser = frontend.OptionParser(components=(rst.Parser,))
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore', category=DeprecationWarning)
+        # DeprecationWarning: The frontend.OptionParser class will be replaced
+        # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
+        optparser = frontend.OptionParser(components=(rst.Parser,))
     settings = optparser.get_default_values()
     parser = rst.Parser()
 

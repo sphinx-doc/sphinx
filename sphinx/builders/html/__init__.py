@@ -5,6 +5,7 @@ import os
 import posixpath
 import re
 import sys
+import warnings
 from datetime import datetime
 from os import path
 from typing import IO, Any, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Type
@@ -443,10 +444,14 @@ class StandaloneHTMLBuilder(Builder):
             self.load_indexer(docnames)
 
         self.docwriter = HTMLWriter(self)
-        self.docsettings: Any = OptionParser(
-            defaults=self.env.settings,
-            components=(self.docwriter,),
-            read_config_files=True).get_default_values()
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', category=DeprecationWarning)
+            # DeprecationWarning: The frontend.OptionParser class will be replaced
+            # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
+            self.docsettings: Any = OptionParser(
+                defaults=self.env.settings,
+                components=(self.docwriter,),
+                read_config_files=True).get_default_values()
         self.docsettings.compact_lists = bool(self.config.html_compact_lists)
 
         # determine the additional indices to include
