@@ -352,9 +352,9 @@ class LaTeXBuilder(Builder):
             newnodes: List[Node] = [nodes.emphasis(sectname, sectname)]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
-                    newnodes.append(nodes.Text(_(' (in '), _(' (in ')))
+                    newnodes.append(nodes.Text(_(' (in ')))
                     newnodes.append(nodes.emphasis(title, title))
-                    newnodes.append(nodes.Text(')', ')'))
+                    newnodes.append(nodes.Text(')'))
                     break
             else:
                 pass

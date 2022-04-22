@@ -159,7 +159,7 @@ class TodoListProcessor:
         suffix = description[description.find('>>') + 2:]
 
         para = nodes.paragraph(classes=['todo-source'])
-        para += nodes.Text(prefix, prefix)
+        para += nodes.Text(prefix)
 
         # Create a reference
         linktext = nodes.emphasis(_('original entry'), _('original entry'))
@@ -172,7 +172,7 @@ class TodoListProcessor:
             pass
 
         para += reference
-        para += nodes.Text(suffix, suffix)
+        para += nodes.Text(suffix)
 
         return para
 

@@ -93,7 +93,7 @@ def process_todo_nodes(app, doctree, fromdocname):
             description = (
                 _('(The original entry is located in %s, line %d and can be found ') %
                 (filename, todo_info['lineno']))
-            para += nodes.Text(description, description)
+            para += nodes.Text(description)
 
             # Create a reference
             newnode = nodes.reference('', '')
@@ -104,7 +104,7 @@ def process_todo_nodes(app, doctree, fromdocname):
             newnode['refuri'] += '#' + todo_info['target']['refid']
             newnode.append(innernode)
             para += newnode
-            para += nodes.Text('.)', '.)')
+            para += nodes.Text('.)')
 
             # Insert into the todolist
             content.append(todo_info['todo'])
