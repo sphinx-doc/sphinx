@@ -1,5 +1,5 @@
 """The MessageCatalogBuilder class."""
-
+import os
 from codecs import open
 from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta, tzinfo
@@ -32,7 +32,7 @@ class Message:
     """An entry of translatable message."""
     def __init__(self, text: str, locations: List[Tuple[str, int]], uuids: List[str]):
         self.text = text
-        self.locations = locations
+        self.locations = list(set(locations))
         self.uuids = uuids
 
 
@@ -57,7 +57,7 @@ class Catalog:
 
     def __iter__(self) -> Generator[Message, None, None]:
         for message in self.messages:
-            positions = [(source, line) for source, line, uuid in self.metadata[message]]
+            positions = [(os.path.relpath(source, start=os.getcwd()), line) for source, line, uuid in self.metadata[message]]
             uuids = [uuid for source, line, uuid in self.metadata[message]]
             yield Message(message, positions, uuids)
 
