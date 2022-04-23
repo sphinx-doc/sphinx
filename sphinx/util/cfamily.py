@@ -192,6 +192,30 @@ class ASTParenAttribute(ASTAttribute):
         signode.append(nodes.Text(txt, txt))
 
 
+class ASTAttributeList(ASTBaseBase):
+    def __init__(self, attrs: List[ASTAttribute]) -> None:
+        self.attrs = attrs
+
+    def __len__(self) -> int:
+        return len(self.attrs)
+
+    def __add__(self, other: "ASTAttributeList") -> "ASTAttributeList":
+        return ASTAttributeList(self.attrs + other.attrs)
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return ' '.join(transform(attr) for attr in self.attrs)
+
+    def describe_signature(self, signode: TextElement) -> None:
+        if len(self.attrs) == 0:
+            return
+        self.attrs[0].describe_signature(signode)
+        if len(self.attrs) == 1:
+            return
+        for attr in self.attrs[1:]:
+            signode.append(addnodes.desc_sig_space())
+            attr.describe_signature(signode)
+
+
 ################################################################################
 
 class ASTBaseParenExprList(ASTBaseBase):
@@ -422,6 +446,15 @@ class BaseParser:
             return ASTParenAttribute(id, arg)
 
         return None
+
+    def _parse_attribute_list(self) -> ASTAttributeList:
+        res = []
+        while True:
+            attr = self._parse_attribute()
+            if attr is None:
+                break
+            res.append(attr)
+        return ASTAttributeList(res)
 
     def _parse_paren_expression_list(self) -> ASTBaseParenExprList:
         raise NotImplementedError
