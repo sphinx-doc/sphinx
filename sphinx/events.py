@@ -31,6 +31,7 @@ core_events = {
     'config-inited': 'config',
     'env-get-outdated': 'env, added, changed, removed',
     'env-get-updated': 'env',
+    'env-prepare': 'env, docname',
     'env-purge-doc': 'env, docname',
     'env-before-read-docs': 'env, docnames',
     'env-check-consistency': 'env',
