@@ -1,4 +1,6 @@
-"""Test sphinx.ext.imgconverter extension."""
+"""Test sphinx.ext.imgconverter extension.
+Requires ImageMagick to be installed, otherwise the conversion will be skipped and this test will fail.
+"""
 
 import os
 
