@@ -20,6 +20,8 @@ jobs:
         python-version: 3.9  # https://github.com/transifex/transifex-client/pull/330
     - name: Install dependencies
       run:  pip install -U babel jinja2 transifex-client
+    - name: Install Sphinx
+      run:  pip install .
     - name: Extract translations from source code
       run:  python utils/babel_runner.py extract
     - name: Push translations to transifex.com
@@ -41,6 +43,8 @@ jobs:
         python-version: 3.9  # https://github.com/transifex/transifex-client/pull/330
     - name: Install dependencies
       run:  pip install -U babel jinja2 transifex-client
+    - name: Install Sphinx
+      run:  pip install .
     - name: Extract translations from source code
       run:  python utils/babel_runner.py extract
     - name: Pull translations to transifex.com
