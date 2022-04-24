@@ -147,7 +147,7 @@ def bool_option(arg: Any) -> bool:
 
 
 def merge_members_option(options: Dict) -> None:
-    """Merge :private-members: and :special-members: options to the 
+    """Merge :private-members: and :special-members: options to the
     :members: option.
     """
     if options.get('members') is ALL:
