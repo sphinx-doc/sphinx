@@ -32,13 +32,14 @@ class Message:
     """An entry of translatable message."""
     def __init__(self, text: str, locations: List[Tuple[str, int]], uuids: List[str]):
         self.text = text
-        self.locations = list(set(locations))
+        self.locations = list(sorted(list(set(locations))))     #make list unique and sorted alphabetically
         self.uuids = uuids
 
 
 class Catalog:
     """Catalog of translatable messages."""
-
+    # make a class var so any instance can share this parent class, where all building info can be found, such as srcdir etc..
+    builder = None
     def __init__(self) -> None:
         self.messages: List[str] = []  # retain insertion order, a la OrderedDict
 
@@ -56,8 +57,9 @@ class Catalog:
         self.metadata[msg].append((origin.source, origin.line, origin.uid))  # type: ignore
 
     def __iter__(self) -> Generator[Message, None, None]:
+        src_dir = Catalog.builder.srcdir
         for message in self.messages:
-            positions = [(os.path.relpath(source, start=os.getcwd()), line) for source, line, uuid in self.metadata[message]]
+            positions = [(relpath(source, start=src_dir), line) for source, line, uuid in self.metadata[message]]
             uuids = [uuid for source, line, uuid in self.metadata[message]]
             yield Message(message, positions, uuids)
 
@@ -213,7 +215,8 @@ class MessageCatalogBuilder(I18nBuilder):
     def init(self) -> None:
         super().init()
         self.create_template_bridge()
-        self.templates.init(self)
+        self.templates.init(self)        
+        Catalog.builder = self  # make the builder visible to instances of catalog
 
     def _collect_templates(self) -> Set[str]:
         template_files = set()
