@@ -18,6 +18,7 @@ from docutils.parsers.rst.states import Inliner
 from docutils.statemachine import State, StateMachine, StringList
 from docutils.utils import Reporter, unescape
 
+from sphinx.deprecation import RemovedInSphinx60Warning, deprecated_alias
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -31,6 +32,14 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
 
+deprecated_alias('sphinx.util.docutils',
+                 {
+                     '__version_info__': docutils.__version_info__,
+                 },
+                 RemovedInSphinx60Warning,
+                 {
+                     '__version_info__': 'docutils.__version_info__',
+                 })
 additional_nodes: Set[Type[Element]] = set()
 
 
