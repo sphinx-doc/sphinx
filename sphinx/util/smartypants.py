@@ -27,7 +27,6 @@ import re
 import warnings
 from typing import Generator, Iterable, Tuple
 
-from docutils import __version_info__ as docutils_version
 from docutils.utils import smartquotes
 
 from sphinx.deprecation import RemovedInSphinx60Warning
@@ -373,17 +372,3 @@ def educate_tokens(text_tokens: Iterable[Tuple[str, str]],
         text = smartquotes.processEscapes(text, restore=True)
 
         yield text
-
-
-if docutils_version < (0, 13, 2):
-    # Monkey patch the old docutils versions to fix the issues mentioned
-    # at https://sourceforge.net/p/docutils/bugs/313/
-    # at https://sourceforge.net/p/docutils/bugs/317/
-    # and more
-    smartquotes.educateQuotes = educateQuotes
-    smartquotes.educate_tokens = educate_tokens
-
-    # Fix the issue with French quotes mentioned at
-    # https://sourceforge.net/p/docutils/mailman/message/35760696/
-    # Add/fix other languages as well
-    smartquotes.smartchars.quotes = langquotes
