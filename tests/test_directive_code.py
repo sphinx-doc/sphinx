@@ -591,7 +591,7 @@ def test_linenothreshold(app, status, warning):
 def test_code_block_dedent(app, status, warning):
     app.builder.build(['dedent'])
     doctree = app.env.get_doctree('dedent')
-    codeblocks = [*doctree.findall(nodes.literal_block)]
+    codeblocks = list(doctree.findall(nodes.literal_block))
     # Note: comparison string should not have newlines at the beginning or end
     text_0_indent = '''First line
 Second line
