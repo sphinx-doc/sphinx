@@ -2,6 +2,7 @@
 
 import os
 import re
+import warnings
 from contextlib import contextmanager
 from copy import copy
 from os import path
@@ -18,7 +19,8 @@ from docutils.parsers.rst.states import Inliner
 from docutils.statemachine import State, StateMachine, StringList
 from docutils.utils import Reporter, unescape
 
-from sphinx.deprecation import RemovedInSphinx60Warning, deprecated_alias
+from sphinx.deprecation import (RemovedInSphinx60Warning, RemovedInSphinx70Warning,
+                                deprecated_alias)
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -318,7 +320,9 @@ class NullReporter(Reporter):
 
 
 def is_html5_writer_available() -> bool:
-    return docutils.__version_info__ > (0, 13, 0)
+    warnings.warn('is_html5_writer_available() is deprecated.',
+                  RemovedInSphinx70Warning)
+    return True
 
 
 @contextmanager
