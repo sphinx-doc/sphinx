@@ -62,7 +62,7 @@ type-check:
 
 .PHONY: doclinter
 doclinter:
-	python utils/doclinter.py CHANGES *.rst doc/
+	sphinx-lint CHANGES *.rst doc/
 
 .PHONY: test
 test:

@@ -42,6 +42,7 @@ extras_require = {
         'flake8>=3.5.0',
         'isort',
         'mypy>=0.950',
+        'sphinx-lint',
         'docutils-stubs',
         "types-typed-ast",
         "types-requests",
