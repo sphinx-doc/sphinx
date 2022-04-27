@@ -383,7 +383,7 @@ def test_autosummary_generate_overwrite1(app_params, make_app):
     srcdir = kwargs.get('srcdir')
 
     (srcdir / 'generated').makedirs(exist_ok=True)
-    (srcdir / 'generated' / 'autosummary_dummy_module.rst').write_text('')
+    (srcdir / 'generated' / 'autosummary_dummy_module.rst').write_text('', encoding='utf8')
 
     app = make_app(*args, **kwargs)
     content = (srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text(encoding='utf8')
@@ -398,7 +398,7 @@ def test_autosummary_generate_overwrite2(app_params, make_app):
     srcdir = kwargs.get('srcdir')
 
     (srcdir / 'generated').makedirs(exist_ok=True)
-    (srcdir / 'generated' / 'autosummary_dummy_module.rst').write_text('')
+    (srcdir / 'generated' / 'autosummary_dummy_module.rst').write_text('', encoding='utf8')
 
     app = make_app(*args, **kwargs)
     content = (srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text(encoding='utf8')

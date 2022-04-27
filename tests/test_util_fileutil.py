@@ -64,13 +64,13 @@ def test_copy_asset(tempdir):
     # prepare source files
     source = (tempdir / 'source')
     source.makedirs()
-    (source / 'index.rst').write_text('index.rst')
-    (source / 'foo.rst_t').write_text('{{var1}}.rst')
+    (source / 'index.rst').write_text('index.rst', encoding='utf8')
+    (source / 'foo.rst_t').write_text('{{var1}}.rst', encoding='utf8')
     (source / '_static').makedirs()
-    (source / '_static' / 'basic.css').write_text('basic.css')
+    (source / '_static' / 'basic.css').write_text('basic.css', encoding='utf8')
     (source / '_templates').makedirs()
-    (source / '_templates' / 'layout.html').write_text('layout.html')
-    (source / '_templates' / 'sidebar.html_t').write_text('sidebar: {{var2}}')
+    (source / '_templates' / 'layout.html').write_text('layout.html', encoding='utf8')
+    (source / '_templates' / 'sidebar.html_t').write_text('sidebar: {{var2}}', encoding='utf8')
 
     # copy a single file
     assert not (tempdir / 'test1').exists()

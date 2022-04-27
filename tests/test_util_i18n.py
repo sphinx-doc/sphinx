@@ -28,12 +28,12 @@ def test_catalog_info_for_sub_domain_file_and_path():
 
 
 def test_catalog_outdated(tempdir):
-    (tempdir / 'test.po').write_text('#')
+    (tempdir / 'test.po').write_text('#', encoding='utf8')
     cat = i18n.CatalogInfo(tempdir, 'test', 'utf-8')
     assert cat.is_outdated()  # if mo is not exist
 
     mo_file = (tempdir / 'test.mo')
-    mo_file.write_text('#')
+    mo_file.write_text('#', encoding='utf8')
     assert not cat.is_outdated()  # if mo is exist and newer than po
 
     os.utime(mo_file, (os.stat(mo_file).st_mtime - 10,) * 2)  # to be outdate
@@ -41,7 +41,7 @@ def test_catalog_outdated(tempdir):
 
 
 def test_catalog_write_mo(tempdir):
-    (tempdir / 'test.po').write_text('#')
+    (tempdir / 'test.po').write_text('#', encoding='utf8')
     cat = i18n.CatalogInfo(tempdir, 'test', 'utf-8')
     cat.write_mo('en')
     assert os.path.exists(cat.mo_path)
@@ -146,18 +146,18 @@ def test_get_filename_for_language(app):
 
 def test_CatalogRepository(tempdir):
     (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test2.po').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#', encoding='utf8')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test2.po').write_text('#', encoding='utf8')
     (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub').makedirs()
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test3.po').write_text('#')
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test4.po').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test3.po').write_text('#', encoding='utf8')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test4.po').write_text('#', encoding='utf8')
     (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / '.dotdir').makedirs()
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / '.dotdir' / 'test5.po').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / '.dotdir' / 'test5.po').write_text('#', encoding='utf8')
     (tempdir / 'loc1' / 'yy' / 'LC_MESSAGES').makedirs()
-    (tempdir / 'loc1' / 'yy' / 'LC_MESSAGES' / 'test6.po').write_text('#')
+    (tempdir / 'loc1' / 'yy' / 'LC_MESSAGES' / 'test6.po').write_text('#', encoding='utf8')
     (tempdir / 'loc2' / 'xx' / 'LC_MESSAGES').makedirs()
-    (tempdir / 'loc2' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
-    (tempdir / 'loc2' / 'xx' / 'LC_MESSAGES' / 'test7.po').write_text('#')
+    (tempdir / 'loc2' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#', encoding='utf8')
+    (tempdir / 'loc2' / 'xx' / 'LC_MESSAGES' / 'test7.po').write_text('#', encoding='utf8')
 
     # for language xx
     repo = i18n.CatalogRepository(tempdir, ['loc1', 'loc2'], 'xx', 'utf-8')

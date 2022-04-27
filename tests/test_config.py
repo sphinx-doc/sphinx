@@ -138,7 +138,7 @@ def test_errors_warnings(logger, tempdir):
     assert 'conf.py' in str(excinfo.value)
 
     # test the automatic conversion of 2.x only code in configs
-    (tempdir / 'conf.py').write_text('project = u"Jägermeister"\n')
+    (tempdir / 'conf.py').write_text('project = u"Jägermeister"\n', encoding='utf8')
     cfg = Config.read(tempdir, {}, None)
     cfg.init_values()
     assert cfg.project == 'Jägermeister'
@@ -147,7 +147,7 @@ def test_errors_warnings(logger, tempdir):
 
 def test_errors_if_setup_is_not_callable(tempdir, make_app):
     # test the error to call setup() in the config file
-    (tempdir / 'conf.py').write_text('setup = 1')
+    (tempdir / 'conf.py').write_text('setup = 1', encoding='utf8')
     with pytest.raises(ConfigError) as excinfo:
         make_app(srcdir=tempdir)
     assert 'callable' in str(excinfo.value)
@@ -155,7 +155,7 @@ def test_errors_if_setup_is_not_callable(tempdir, make_app):
 
 @pytest.fixture
 def make_app_with_empty_project(make_app, tempdir):
-    (tempdir / 'conf.py').write_text('')
+    (tempdir / 'conf.py').write_text('', encoding='utf8')
 
     def _make_app(*args, **kw):
         kw.setdefault('srcdir', path(tempdir))

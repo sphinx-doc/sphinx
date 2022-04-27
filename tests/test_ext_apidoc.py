@@ -402,8 +402,8 @@ def test_subpackage_in_toc(make_app, apidoc):
 
 
 def test_private(tempdir):
-    (tempdir / 'hello.py').write_text('')
-    (tempdir / '_world.py').write_text('')
+    (tempdir / 'hello.py').write_text('', encoding='utf8')
+    (tempdir / '_world.py').write_text('', encoding='utf8')
 
     # without --private option
     apidoc_main(['-o', tempdir, tempdir])
@@ -421,8 +421,8 @@ def test_private(tempdir):
 def test_toc_file(tempdir):
     outdir = path(tempdir)
     (outdir / 'module').makedirs()
-    (outdir / 'example.py').write_text('')
-    (outdir / 'module' / 'example.py').write_text('')
+    (outdir / 'example.py').write_text('', encoding='utf8')
+    (outdir / 'module' / 'example.py').write_text('', encoding='utf8')
     apidoc_main(['-o', tempdir, tempdir])
     assert (outdir / 'modules.rst').exists()
 
@@ -438,7 +438,7 @@ def test_toc_file(tempdir):
 
 def test_module_file(tempdir):
     outdir = path(tempdir)
-    (outdir / 'example.py').write_text('')
+    (outdir / 'example.py').write_text('', encoding='utf8')
     apidoc_main(['-o', tempdir, tempdir])
     assert (outdir / 'example.rst').exists()
 
@@ -454,7 +454,7 @@ def test_module_file(tempdir):
 
 def test_module_file_noheadings(tempdir):
     outdir = path(tempdir)
-    (outdir / 'example.py').write_text('')
+    (outdir / 'example.py').write_text('', encoding='utf8')
     apidoc_main(['--no-headings', '-o', tempdir, tempdir])
     assert (outdir / 'example.rst').exists()
 
@@ -468,11 +468,11 @@ def test_module_file_noheadings(tempdir):
 def test_package_file(tempdir):
     outdir = path(tempdir)
     (outdir / 'testpkg').makedirs()
-    (outdir / 'testpkg' / '__init__.py').write_text('')
-    (outdir / 'testpkg' / 'hello.py').write_text('')
-    (outdir / 'testpkg' / 'world.py').write_text('')
+    (outdir / 'testpkg' / '__init__.py').write_text('', encoding='utf8')
+    (outdir / 'testpkg' / 'hello.py').write_text('', encoding='utf8')
+    (outdir / 'testpkg' / 'world.py').write_text('', encoding='utf8')
     (outdir / 'testpkg' / 'subpkg').makedirs()
-    (outdir / 'testpkg' / 'subpkg' / '__init__.py').write_text('')
+    (outdir / 'testpkg' / 'subpkg' / '__init__.py').write_text('', encoding='utf8')
     apidoc_main(['-o', tempdir, tempdir / 'testpkg'])
     assert (outdir / 'testpkg.rst').exists()
     assert (outdir / 'testpkg.subpkg.rst').exists()
@@ -532,8 +532,8 @@ def test_package_file(tempdir):
 def test_package_file_separate(tempdir):
     outdir = path(tempdir)
     (outdir / 'testpkg').makedirs()
-    (outdir / 'testpkg' / '__init__.py').write_text('')
-    (outdir / 'testpkg' / 'example.py').write_text('')
+    (outdir / 'testpkg' / '__init__.py').write_text('', encoding='utf8')
+    (outdir / 'testpkg' / 'example.py').write_text('', encoding='utf8')
     apidoc_main(['--separate', '-o', tempdir, tempdir / 'testpkg'])
     assert (outdir / 'testpkg.rst').exists()
     assert (outdir / 'testpkg.example.rst').exists()
@@ -571,8 +571,8 @@ def test_package_file_separate(tempdir):
 def test_package_file_module_first(tempdir):
     outdir = path(tempdir)
     (outdir / 'testpkg').makedirs()
-    (outdir / 'testpkg' / '__init__.py').write_text('')
-    (outdir / 'testpkg' / 'example.py').write_text('')
+    (outdir / 'testpkg' / '__init__.py').write_text('', encoding='utf8')
+    (outdir / 'testpkg' / 'example.py').write_text('', encoding='utf8')
     apidoc_main(['--module-first', '-o', tempdir, tempdir])
 
     content = (outdir / 'testpkg.rst').read_text(encoding='utf8')
@@ -599,7 +599,7 @@ def test_package_file_module_first(tempdir):
 def test_package_file_without_submodules(tempdir):
     outdir = path(tempdir)
     (outdir / 'testpkg').makedirs()
-    (outdir / 'testpkg' / '__init__.py').write_text('')
+    (outdir / 'testpkg' / '__init__.py').write_text('', encoding='utf8')
     apidoc_main(['-o', tempdir, tempdir / 'testpkg'])
     assert (outdir / 'testpkg.rst').exists()
 
@@ -619,7 +619,7 @@ def test_package_file_without_submodules(tempdir):
 def test_namespace_package_file(tempdir):
     outdir = path(tempdir)
     (outdir / 'testpkg').makedirs()
-    (outdir / 'testpkg' / 'example.py').write_text('')
+    (outdir / 'testpkg' / 'example.py').write_text('', encoding='utf8')
     apidoc_main(['--implicit-namespace', '-o', tempdir, tempdir / 'testpkg'])
     assert (outdir / 'testpkg.rst').exists()
 
