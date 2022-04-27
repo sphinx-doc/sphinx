@@ -110,17 +110,12 @@ class PorterStemmer:
             and word[end] not in {'w', 'x', 'y'}
         )
 
-    def ends(self, s: str) -> int:
-        """ends(s) is TRUE <=> 0,...k ends with the string s."""
-        length = len(s)
-        if s[length - 1] != self.b[self.k]:  # tiny speed-up
-            return 0
-        if length > (self.k + 1):
-            return 0
-        if self.b[self.k - length + 1:self.k + 1] != s:
-            return 0
-        self.j = self.k - length
-        return 1
+    def ends(self, s: str) -> bool:
+        """True <=> b[:k+1] ends with the string s."""
+        if not self.b[:self.k+1].endswith(s):
+            return False
+        self.j = self.k - len(s)
+        return True
 
     def setto(self, s: str) -> None:
         """setto(s) sets (j+1),...k to the characters in the string s,
