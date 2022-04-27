@@ -1,7 +1,9 @@
 """Create a full-text search index for offline search."""
 import html
+import json
 import pickle
 import re
+import warnings
 from importlib import import_module
 from os import path
 from typing import IO, Any, Dict, Iterable, List, Optional, Set, Tuple, Type
@@ -10,8 +12,8 @@ from docutils import nodes
 from docutils.nodes import Element, Node
 
 from sphinx import addnodes, package_dir
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.environment import BuildEnvironment
-from sphinx.util import jsdump
 
 
 class SearchLanguage:
@@ -154,14 +156,14 @@ class _JavaScriptIndex:
     SUFFIX = ')'
 
     def dumps(self, data: Any) -> str:
-        return self.PREFIX + jsdump.dumps(data) + self.SUFFIX
+        return self.PREFIX + json.dumps(data) + self.SUFFIX
 
     def loads(self, s: str) -> Any:
         data = s[len(self.PREFIX):-len(self.SUFFIX)]
         if not data or not s.startswith(self.PREFIX) or not \
            s.endswith(self.SUFFIX):
             raise ValueError('invalid data')
-        return jsdump.loads(data)
+        return json.loads(data)
 
     def dump(self, data: Any, f: IO) -> None:
         f.write(self.dumps(data))
@@ -224,7 +226,7 @@ class IndexBuilder:
     passed to the `feed` method.
     """
     formats = {
-        'jsdump':   jsdump,
+        'json':     json,
         'pickle':   pickle
     }
 
@@ -265,7 +267,11 @@ class IndexBuilder:
 
     def load(self, stream: IO, format: Any) -> None:
         """Reconstruct from frozen data."""
-        if isinstance(format, str):
+        if format == "jsdump":
+            warnings.warn("format=jsdump is deprecated, use json instead",
+                          RemovedInSphinx60Warning, stacklevel=2)
+            format = self.formats["json"]
+        elif isinstance(format, str):
             format = self.formats[format]
         frozen = format.load(stream)
         # if an old index is present, we treat it as not existing.
@@ -291,7 +297,11 @@ class IndexBuilder:
 
     def dump(self, stream: IO, format: Any) -> None:
         """Dump the frozen index to a stream."""
-        if isinstance(format, str):
+        if format == "jsdump":
+            warnings.warn("format=jsdump is deprecated, use json instead",
+                          RemovedInSphinx60Warning, stacklevel=2)
+            format = self.formats["json"]
+        elif isinstance(format, str):
             format = self.formats[format]
         format.dump(self.freeze(), stream)
 
@@ -417,7 +427,7 @@ class IndexBuilder:
 
         return {
             'search_language_stemming_code': self.get_js_stemmer_code(),
-            'search_language_stop_words': jsdump.dumps(sorted(self.lang.stopwords)),
+            'search_language_stop_words': json.dumps(sorted(self.lang.stopwords)),
             'search_scorer_tool': self.js_scorer_code,
             'search_word_splitter_code': js_splitter_code,
         }
