@@ -37,17 +37,16 @@ class PorterStemmer:
         self.k: int = 0
         self.j: int = 0      # j is a general offset into the string
 
-    def cons(self, i: int) -> int:
-        """cons(i) is TRUE <=> b[i] is a consonant."""
-        if self.b[i] == 'a' or self.b[i] == 'e' or self.b[i] == 'i' \
-           or self.b[i] == 'o' or self.b[i] == 'u':
-            return 0
-        if self.b[i] == 'y':
+    @staticmethod
+    def is_consonant(char: str, i: int, word: str) -> bool:
+        """is_consonant(char, i, word) is True <=> char is a consonant."""
+        if char in {'a', 'e', 'i', 'o', 'u'}:
+            return False
+        if char == 'y':
             if i == 0:
-                return 1
-            else:
-                return not self.cons(i - 1)
-        return 1
+                return True
+            return not PorterStemmer.is_consonant(word[i - 1], i - 1, word)
+        return True
 
     def m(self) -> int:
         """m() measures the number of consonant sequences between 0 and j.
@@ -65,7 +64,7 @@ class PorterStemmer:
         while 1:
             if i > self.j:
                 return n
-            if not self.cons(i):
+            if not self.is_consonant(i):
                 break
             i = i + 1
         i = i + 1
@@ -73,7 +72,7 @@ class PorterStemmer:
             while 1:
                 if i > self.j:
                     return n
-                if self.cons(i):
+                if self.is_consonant(self.b[i], i, self.b):
                     break
                 i = i + 1
             i = i + 1
@@ -81,7 +80,7 @@ class PorterStemmer:
             while 1:
                 if i > self.j:
                     return n
-                if not self.cons(i):
+                if not self.is_consonant(self.b[i], i, self.b):
                     break
                 i = i + 1
             i = i + 1
@@ -89,7 +88,7 @@ class PorterStemmer:
     def vowelinstem(self) -> int:
         """vowelinstem() is TRUE <=> 0,...j contains a vowel"""
         for i in range(self.j + 1):
-            if not self.cons(i):
+            if not self.is_consonant(self.b[i], i, self.b):
                 return 1
         return 0
 
@@ -99,7 +98,7 @@ class PorterStemmer:
             return 0
         if self.b[j] != self.b[j - 1]:
             return 0
-        return self.cons(j)
+        return self.is_consonant(self.b[j], j, self.b)
 
     def cvc(self, i: int) -> int:
         """cvc(i) is TRUE <=> i-2,i-1,i has the form
@@ -110,8 +109,11 @@ class PorterStemmer:
            cav(e), lov(e), hop(e), crim(e), but
            snow, box, tray.
         """
-        if i < 2 or not self.cons(i) or self.cons(i - 1) \
-           or not self.cons(i - 2):
+        if (i < 2
+            or not self.is_consonant(self.b[i], i, self.b)
+            or self.is_consonant(self.b[i-1], i-1, self.b)
+            or not self.is_consonant(self.b[i-2], i-2, self.b)
+        ):
             return 0
         ch = self.b[i]
         if ch in ('w', 'x', 'y'):
