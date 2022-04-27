@@ -92,13 +92,14 @@ class PorterStemmer:
                 return 1
         return 0
 
-    def doublec(self, j: int) -> int:
-        """doublec(j) is TRUE <=> j,(j-1) contain a double consonant."""
-        if j < 1:
-            return 0
-        if self.b[j] != self.b[j - 1]:
-            return 0
-        return self.is_consonant(self.b[j], j, self.b)
+    @staticmethod
+    def double_consonant(word: str, end: int) -> bool:
+        """True <=> word[end-1:end+1] contains a double consonant."""
+        if end < 1:
+            return False
+        if word[end] != word[end - 1]:
+            return False
+        return PorterStemmer.is_consonant(word[end], end, word)
 
     def cvc(self, i: int) -> int:
         """cvc(i) is TRUE <=> i-2,i-1,i has the form
@@ -183,7 +184,7 @@ class PorterStemmer:
                 self.setto("ble")
             elif self.ends("iz"):
                 self.setto("ize")
-            elif self.doublec(self.k):
+            elif self.double_consonant(self.b, self.k):
                 self.k = self.k - 1
                 ch = self.b[self.k]
                 if ch in ('l', 's', 'z'):
@@ -370,7 +371,7 @@ class PorterStemmer:
             a = self.m()
             if a > 1 or (a == 1 and not self.cvc(self.k - 1)):
                 self.k = self.k - 1
-        if self.b[self.k] == 'l' and self.doublec(self.k) and self.m() > 1:
+        if self.b[self.k] == 'l' and self.double_consonant(self.b, self.k) and self.m() > 1:
             self.k = self.k - 1
 
     def stem(self, word: str) -> str:
