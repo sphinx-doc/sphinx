@@ -28,10 +28,6 @@ class PorterStemmer:
 
     def __init__(self) -> None:
         """The main part of the stemming algorithm starts here.
-        b is a buffer holding a word to be stemmed. The letters are in b[k0],
-        b[k0+1] ... ending at b[k]. In fact k0 = 0 in this demo program. k is
-        readjusted downwards as the stemming progresses. Zero termination is
-        not in fact used in the algorithm.
 
         Note that only lower case sequences are stemmed. Forcing to lower case
         should be done before stem(...) is called.
@@ -39,7 +35,6 @@ class PorterStemmer:
 
         self.b: str = ""     # buffer for word to be stemmed
         self.k: int = 0
-        self.k0: int = 0
         self.j: int = 0      # j is a general offset into the string
 
     def cons(self, i: int) -> int:
@@ -48,14 +43,14 @@ class PorterStemmer:
            or self.b[i] == 'o' or self.b[i] == 'u':
             return 0
         if self.b[i] == 'y':
-            if i == self.k0:
+            if i == 0:
                 return 1
             else:
                 return not self.cons(i - 1)
         return 1
 
     def m(self) -> int:
-        """m() measures the number of consonant sequences between k0 and j.
+        """m() measures the number of consonant sequences between 0 and j.
         if c is a consonant sequence and v a vowel sequence, and <..>
         indicates arbitrary presence,
 
@@ -66,7 +61,7 @@ class PorterStemmer:
            ....
         """
         n = 0
-        i = self.k0
+        i = 0
         while 1:
             if i > self.j:
                 return n
@@ -92,15 +87,15 @@ class PorterStemmer:
             i = i + 1
 
     def vowelinstem(self) -> int:
-        """vowelinstem() is TRUE <=> k0,...j contains a vowel"""
-        for i in range(self.k0, self.j + 1):
+        """vowelinstem() is TRUE <=> 0,...j contains a vowel"""
+        for i in range(self.j + 1):
             if not self.cons(i):
                 return 1
         return 0
 
     def doublec(self, j: int) -> int:
         """doublec(j) is TRUE <=> j,(j-1) contain a double consonant."""
-        if j < (self.k0 + 1):
+        if j < 1:
             return 0
         if self.b[j] != self.b[j - 1]:
             return 0
@@ -115,7 +110,7 @@ class PorterStemmer:
            cav(e), lov(e), hop(e), crim(e), but
            snow, box, tray.
         """
-        if i < (self.k0 + 2) or not self.cons(i) or self.cons(i - 1) \
+        if i < 2 or not self.cons(i) or self.cons(i - 1) \
            or not self.cons(i - 2):
             return 0
         ch = self.b[i]
@@ -124,11 +119,11 @@ class PorterStemmer:
         return 1
 
     def ends(self, s: str) -> int:
-        """ends(s) is TRUE <=> k0,...k ends with the string s."""
+        """ends(s) is TRUE <=> 0,...k ends with the string s."""
         length = len(s)
         if s[length - 1] != self.b[self.k]:  # tiny speed-up
             return 0
-        if length > (self.k - self.k0 + 1):
+        if length > (self.k + 1):
             return 0
         if self.b[self.k - length + 1:self.k + 1] != s:
             return 0
@@ -391,7 +386,6 @@ class PorterStemmer:
         # copy the parameters into statics
         self.b = word
         self.k = len(word) - 1
-        self.k0 = 0
 
         self.step1ab()
         self.step1c()
@@ -399,4 +393,4 @@ class PorterStemmer:
         self.step3()
         self.step4()
         self.step5()
-        return self.b[self.k0:self.k + 1]
+        return self.b[:self.k + 1]
