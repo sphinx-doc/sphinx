@@ -75,12 +75,13 @@ class PorterStemmer:
             while (i <= end) and PorterStemmer.is_consonant(word[i], i, word):
                 i += 1
 
-    def vowelinstem(self) -> int:
-        """vowelinstem() is TRUE <=> 0,...j contains a vowel"""
-        for i in range(self.j + 1):
-            if not self.is_consonant(self.b[i], i, self.b):
-                return 1
-        return 0
+    @staticmethod
+    def vowel_in_stem(word: str, end: int) -> bool:
+        """vowel_in_stem() is True <=> word[:end] contains a vowel"""
+        for i in range(end + 1):
+            if not PorterStemmer.is_consonant(word[i], i, word):
+                return True
+        return False
 
     @staticmethod
     def double_consonant(word: str, end: int) -> bool:
@@ -166,7 +167,7 @@ class PorterStemmer:
         if self.ends("eed"):
             if self.measure_consonant_sequences(self.b, self.j) > 0:
                 self.k -= 1
-        elif (self.ends("ed") or self.ends("ing")) and self.vowelinstem():
+        elif (self.ends("ed") or self.ends("ing")) and self.vowel_in_stem(self.b, self.j):
             self.k = self.j
             if self.ends("at"):
                 self.setto("ate")
@@ -185,7 +186,7 @@ class PorterStemmer:
     def step1c(self) -> None:
         """step1c() turns terminal y to i when there is another vowel in
         the stem."""
-        if self.ends("y") and self.vowelinstem():
+        if self.ends("y") and self.vowel_in_stem(self.b, self.j):
             self.b = self.b[:self.k] + 'i' + self.b[self.k + 1:]
 
     def step2(self) -> None:
@@ -312,8 +313,7 @@ class PorterStemmer:
             else:
                 return
         elif self.b[self.k - 1] == 'o':
-            if self.ends("ion") and (self.b[self.j] == 's' or
-                                     self.b[self.j] == 't'):
+            if self.ends("ion") and (self.b[self.j] in 'st'):
                 pass
             elif self.ends("ou"):
                 pass
