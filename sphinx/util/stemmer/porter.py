@@ -51,7 +51,7 @@ class PorterStemmer:
             if i == self.k0:
                 return 1
             else:
-                return (not self.cons(i - 1))
+                return not self.cons(i - 1)
         return 1
 
     def m(self) -> int:
@@ -102,7 +102,7 @@ class PorterStemmer:
         """doublec(j) is TRUE <=> j,(j-1) contain a double consonant."""
         if j < (self.k0 + 1):
             return 0
-        if (self.b[j] != self.b[j - 1]):
+        if self.b[j] != self.b[j - 1]:
             return 0
         return self.cons(j)
 
@@ -191,13 +191,13 @@ class PorterStemmer:
                 ch = self.b[self.k]
                 if ch in ('l', 's', 'z'):
                     self.k = self.k + 1
-            elif (self.m() == 1 and self.cvc(self.k)):
+            elif self.m() == 1 and self.cvc(self.k):
                 self.setto("e")
 
     def step1c(self) -> None:
         """step1c() turns terminal y to i when there is another vowel in
         the stem."""
-        if (self.ends("y") and self.vowelinstem()):
+        if self.ends("y") and self.vowelinstem():
             self.b = self.b[:self.k] + 'i' + self.b[self.k + 1:]
 
     def step2(self) -> None:
@@ -376,7 +376,7 @@ class PorterStemmer:
         if self.b[self.k] == 'l' and self.doublec(self.k) and self.m() > 1:
             self.k = self.k - 1
 
-    def stem(self, p: str, i: int, j: int) -> str:
+    def stem(self, word: str) -> str:
         """In stem(p,i,j), p is a char pointer, and the string to be stemmed
         is from p[i] to p[j] inclusive. Typically i is zero and j is the
         offset to the last character of a string, (p[j+1] == '\0'). The
@@ -386,9 +386,9 @@ class PorterStemmer:
         extern, and delete the remainder of this file.
         """
         # copy the parameters into statics
-        self.b = p
-        self.k = j
-        self.k0 = i
+        self.b = word
+        self.k = len(word) - 1
+        self.k0 = 0
         if self.k <= self.k0 + 1:
             return self.b  # --DEPARTURE--
 
