@@ -92,8 +92,9 @@ class PorterStemmer:
             return False
         return PorterStemmer.is_consonant(word[end], end, word)
 
-    def cvc(self, i: int) -> int:
-        """cvc(i) is TRUE <=> i-2,i-1,i has the form
+    @staticmethod
+    def consonant_vowel_consonant(word: str, end: int) -> bool:
+        """consonant_vowel_consonant(word, end) is TRUE <=> i-2,i-1,i has the form
              consonant - vowel - consonant
         and also if the second c is not w,x or y. this is used when trying to
         restore an e at the end of a short  e.g.
@@ -101,16 +102,13 @@ class PorterStemmer:
            cav(e), lov(e), hop(e), crim(e), but
            snow, box, tray.
         """
-        if (i < 2
-            or not self.is_consonant(self.b[i], i, self.b)
-            or self.is_consonant(self.b[i-1], i-1, self.b)
-            or not self.is_consonant(self.b[i-2], i-2, self.b)
-        ):
-            return 0
-        ch = self.b[i]
-        if ch in ('w', 'x', 'y'):
-            return 0
-        return 1
+        return (
+            end >= 2
+            and PorterStemmer.is_consonant(word[end], end, word)
+            and not PorterStemmer.is_consonant(word[end-1], end-1, word)
+            and PorterStemmer.is_consonant(word[end-2], end-2, word)
+            and word[end] not in {'w', 'x', 'y'}
+        )
 
     def ends(self, s: str) -> int:
         """ends(s) is TRUE <=> 0,...k ends with the string s."""
@@ -180,7 +178,7 @@ class PorterStemmer:
                 ch = self.b[self.k]
                 if ch in ('l', 's', 'z'):
                     self.k += 1
-            elif self.measure_consonant_sequences(self.b, self.j) == 1 and self.cvc(self.k):
+            elif self.measure_consonant_sequences(self.b, self.j) == 1 and self.consonant_vowel_consonant(self.b, self.k):
                 self.setto("e")
 
     def step1c(self) -> None:
@@ -359,7 +357,7 @@ class PorterStemmer:
         self.j = self.k
         if self.b[self.k] == 'e':
             a = self.measure_consonant_sequences(self.b, self.j)
-            if a > 1 or (a == 1 and not self.cvc(self.k - 1)):
+            if a > 1 or (a == 1 and not self.consonant_vowel_consonant(self.b, self.k - 1)):
                 self.k -= 1
         if self.b[self.k] == 'l' and self.double_consonant(self.b, self.k) and self.measure_consonant_sequences(self.b, self.j) > 1:
             self.k -= 1
