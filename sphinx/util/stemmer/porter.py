@@ -168,14 +168,14 @@ class PorterStemmer:
         """
         if self.b[self.k] == 's':
             if self.ends("sses"):
-                self.k = self.k - 2
+                self.k -= 2
             elif self.ends("ies"):
                 self.setto("i")
             elif self.b[self.k - 1] != 's':
-                self.k = self.k - 1
+                self.k -= 1
         if self.ends("eed"):
             if self.m() > 0:
-                self.k = self.k - 1
+                self.k -= 1
         elif (self.ends("ed") or self.ends("ing")) and self.vowelinstem():
             self.k = self.j
             if self.ends("at"):
@@ -185,10 +185,10 @@ class PorterStemmer:
             elif self.ends("iz"):
                 self.setto("ize")
             elif self.double_consonant(self.b, self.k):
-                self.k = self.k - 1
+                self.k -= 1
                 ch = self.b[self.k]
                 if ch in ('l', 's', 'z'):
-                    self.k = self.k + 1
+                    self.k += 1
             elif self.m() == 1 and self.cvc(self.k):
                 self.setto("e")
 
@@ -370,9 +370,9 @@ class PorterStemmer:
         if self.b[self.k] == 'e':
             a = self.m()
             if a > 1 or (a == 1 and not self.cvc(self.k - 1)):
-                self.k = self.k - 1
+                self.k -= 1
         if self.b[self.k] == 'l' and self.double_consonant(self.b, self.k) and self.m() > 1:
-            self.k = self.k - 1
+            self.k -= 1
 
     def stem(self, word: str) -> str:
         """The string to be stemmed is ``word``.
