@@ -48,8 +48,9 @@ class PorterStemmer:
             return not PorterStemmer.is_consonant(word[i - 1], i - 1, word)
         return True
 
-    def m(self) -> int:
-        """m() measures the number of consonant sequences between 0 and j.
+    @staticmethod
+    def measure_consonant_sequences(word: str, end: int) -> int:
+        """Measures the number of consonant sequences in word[:end].
         if c is a consonant sequence and v a vowel sequence, and <..>
         indicates arbitrary presence,
 
@@ -59,31 +60,20 @@ class PorterStemmer:
            <c>vcvcvc<v> gives 3
            ....
         """
-        n = 0
         i = 0
-        while 1:
-            if i > self.j:
+        while (i <= end) and PorterStemmer.is_consonant(word[i], i, word):
+            i += 1
+        n = 0
+        while True:
+            while (i <= end) and not PorterStemmer.is_consonant(word[i], i, word):
+                i += 1
+
+            if i > end:
                 return n
-            if not self.is_consonant(i):
-                break
-            i = i + 1
-        i = i + 1
-        while 1:
-            while 1:
-                if i > self.j:
-                    return n
-                if self.is_consonant(self.b[i], i, self.b):
-                    break
-                i = i + 1
-            i = i + 1
-            n = n + 1
-            while 1:
-                if i > self.j:
-                    return n
-                if not self.is_consonant(self.b[i], i, self.b):
-                    break
-                i = i + 1
-            i = i + 1
+            n += 1
+
+            while (i <= end) and PorterStemmer.is_consonant(word[i], i, word):
+                i += 1
 
     def vowelinstem(self) -> int:
         """vowelinstem() is TRUE <=> 0,...j contains a vowel"""
@@ -142,7 +132,7 @@ class PorterStemmer:
 
     def r(self, s: str) -> None:
         """r(s) is used further down."""
-        if self.m() > 0:
+        if self.measure_consonant_sequences(self.b, self.j) > 0:
             self.setto(s)
 
     def step1ab(self) -> None:
@@ -174,7 +164,7 @@ class PorterStemmer:
             elif self.b[self.k - 1] != 's':
                 self.k -= 1
         if self.ends("eed"):
-            if self.m() > 0:
+            if self.measure_consonant_sequences(self.b, self.j) > 0:
                 self.k -= 1
         elif (self.ends("ed") or self.ends("ing")) and self.vowelinstem():
             self.k = self.j
@@ -189,7 +179,7 @@ class PorterStemmer:
                 ch = self.b[self.k]
                 if ch in ('l', 's', 'z'):
                     self.k += 1
-            elif self.m() == 1 and self.cvc(self.k):
+            elif self.measure_consonant_sequences(self.b, self.j) == 1 and self.cvc(self.k):
                 self.setto("e")
 
     def step1c(self) -> None:
@@ -201,7 +191,7 @@ class PorterStemmer:
     def step2(self) -> None:
         """step2() maps double suffices to single ones.
         so -ization ( = -ize plus -ation) maps to -ize etc. note that the
-        string before the suffix must give m() > 0.
+        string before the suffix must give measure_consonant_sequences(self.b, self.j) > 0.
         """
         if self.b[self.k - 1] == 'a':
             if self.ends("ational"):
@@ -359,19 +349,19 @@ class PorterStemmer:
                 return
         else:
             return
-        if self.m() > 1:
+        if self.measure_consonant_sequences(self.b, self.j) > 1:
             self.k = self.j
 
     def step5(self) -> None:
-        """step5() removes a final -e if m() > 1, and changes -ll to -l if
-        m() > 1.
+        """step5() removes a final -e if measure_consonant_sequences(self.b, self.j) > 1, and changes -ll to -l if
+        measure_consonant_sequences(self.b, self.j) > 1.
         """
         self.j = self.k
         if self.b[self.k] == 'e':
-            a = self.m()
+            a = self.measure_consonant_sequences(self.b, self.j)
             if a > 1 or (a == 1 and not self.cvc(self.k - 1)):
                 self.k -= 1
-        if self.b[self.k] == 'l' and self.double_consonant(self.b, self.k) and self.m() > 1:
+        if self.b[self.k] == 'l' and self.double_consonant(self.b, self.k) and self.measure_consonant_sequences(self.b, self.j) > 1:
             self.k -= 1
 
     def stem(self, word: str) -> str:
@@ -397,3 +387,8 @@ class PorterStemmer:
         self.step4()
         self.step5()
         return self.b[:self.k + 1]
+
+
+if __name__ == '__main__':
+    stemmer = PorterStemmer()
+    stemmer.stem("agreed")
