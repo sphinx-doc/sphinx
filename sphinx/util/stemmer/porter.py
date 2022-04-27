@@ -380,17 +380,18 @@ class PorterStemmer:
         """The string to be stemmed is ``word``.
         The stemmer returns the stemmed string.
         """
-        # copy the parameters into statics
-        self.b = word
-        self.k = len(word) - 1
-        self.k0 = 0
-        if self.k <= self.k0 + 1:
-            return self.b  # --DEPARTURE--
 
         # With this line, strings of length 1 or 2 don't go through the
         # stemming process, although no mention is made of this in the
         # published algorithm. Remove the line to match the published
         # algorithm.
+        if len(word) <= 2:
+            return word  # --DEPARTURE--
+
+        # copy the parameters into statics
+        self.b = word
+        self.k = len(word) - 1
+        self.k0 = 0
 
         self.step1ab()
         self.step1c()
