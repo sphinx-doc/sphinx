@@ -819,7 +819,7 @@ def test_autodoc_typehints_none_for_overload(app):
                     confoverrides={'autodoc_typehints': "description"})
 def test_autodoc_typehints_description(app):
     app.build()
-    context = (app.outdir / 'index.txt').read_text()
+    context = (app.outdir / 'index.txt').read_text(encoding='utf8')
     assert ('target.typehints.incr(a, b=1)\n'
             '\n'
             '   Parameters:\n'
@@ -868,7 +868,7 @@ def test_autodoc_typehints_description_no_undoc(app):
         '   :return: another tuple\n'
     )
     app.build()
-    context = (app.outdir / 'index.txt').read_text()
+    context = (app.outdir / 'index.txt').read_text(encoding='utf8')
     assert ('target.typehints.incr(a, b=1)\n'
             '\n'
             'target.typehints.decr(a, b=1)\n'
@@ -920,7 +920,7 @@ def test_autodoc_typehints_description_no_undoc_doc_rtype(app):
         '   :return: nothing\n'
     )
     app.build()
-    context = (app.outdir / 'index.txt').read_text()
+    context = (app.outdir / 'index.txt').read_text(encoding='utf8')
     assert ('target.typehints.incr(a, b=1)\n'
             '\n'
             '   Return type:\n'
@@ -964,7 +964,7 @@ def test_autodoc_typehints_description_with_documented_init(app):
         '   :special-members: __init__\n'
     )
     app.build()
-    context = (app.outdir / 'index.txt').read_text()
+    context = (app.outdir / 'index.txt').read_text(encoding='utf8')
     assert ('class target.typehints._ClassWithDocumentedInit(x)\n'
             '\n'
             '   Class docstring.\n'
@@ -995,7 +995,7 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc(app):
         '   :special-members: __init__\n'
     )
     app.build()
-    context = (app.outdir / 'index.txt').read_text()
+    context = (app.outdir / 'index.txt').read_text(encoding='utf8')
     assert ('class target.typehints._ClassWithDocumentedInit(x)\n'
             '\n'
             '   Class docstring.\n'
@@ -1020,7 +1020,7 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc_doc_rtype(a
         '   :special-members: __init__\n'
     )
     app.build()
-    context = (app.outdir / 'index.txt').read_text()
+    context = (app.outdir / 'index.txt').read_text(encoding='utf8')
     assert ('class target.typehints._ClassWithDocumentedInit(x)\n'
             '\n'
             '   Class docstring.\n'
@@ -1051,7 +1051,7 @@ def test_autodoc_typehints_both(app):
         '.. autofunction:: target.overload.sum\n'
     )
     app.build()
-    context = (app.outdir / 'index.txt').read_text()
+    context = (app.outdir / 'index.txt').read_text(encoding='utf8')
     assert ('target.typehints.incr(a: int, b: int = 1) -> int\n'
             '\n'
             '   Parameters:\n'
@@ -1219,7 +1219,7 @@ def test_autodoc_type_aliases(app):
 def test_autodoc_typehints_description_and_type_aliases(app):
     (app.srcdir / 'autodoc_type_aliases.rst').write_text('.. autofunction:: target.autodoc_type_aliases.sum')
     app.build()
-    context = (app.outdir / 'autodoc_type_aliases.txt').read_text()
+    context = (app.outdir / 'autodoc_type_aliases.txt').read_text(encoding='utf8')
     assert ('target.autodoc_type_aliases.sum(x, y)\n'
             '\n'
             '   docstring\n'

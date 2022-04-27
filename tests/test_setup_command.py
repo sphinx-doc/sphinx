@@ -86,7 +86,7 @@ def nonascii_srcdir(request, setup_command):
         """))
 
     root_doc = srcdir / 'index.txt'
-    root_doc.write_bytes((root_doc.read_text() + dedent("""
+    root_doc.write_bytes((root_doc.read_text(encoding='utf8') + dedent("""
                           .. toctree::
 
                              %(mb_name)s/%(mb_name)s

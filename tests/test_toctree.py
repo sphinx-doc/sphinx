@@ -33,7 +33,7 @@ def test_singlehtml_toctree(app, status, warning):
 @pytest.mark.sphinx(testroot='toctree', srcdir="numbered-toctree")
 def test_numbered_toctree(app, status, warning):
     # give argument to :numbered: option
-    index = (app.srcdir / 'index.rst').read_text()
+    index = (app.srcdir / 'index.rst').read_text(encoding='utf8')
     index = re.sub(':numbered:.*', ':numbered: 1', index)
     (app.srcdir / 'index.rst').write_text(index)
     app.builder.build_all()

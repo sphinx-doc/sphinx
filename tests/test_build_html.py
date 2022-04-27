@@ -480,7 +480,7 @@ def test_html_download(app):
     app.build()
 
     # subdir/includes.html
-    result = (app.outdir / 'subdir' / 'includes.html').read_text()
+    result = (app.outdir / 'subdir' / 'includes.html').read_text(encoding='utf8')
     pattern = ('<a class="reference download internal" download="" '
                'href="../(_downloads/.*/img.png)">')
     matched = re.search(pattern, result)
@@ -489,7 +489,7 @@ def test_html_download(app):
     filename = matched.group(1)
 
     # includes.html
-    result = (app.outdir / 'includes.html').read_text()
+    result = (app.outdir / 'includes.html').read_text(encoding='utf8')
     pattern = ('<a class="reference download internal" download="" '
                'href="(_downloads/.*/img.png)">')
     matched = re.search(pattern, result)
@@ -512,7 +512,7 @@ def test_html_download_role(app, status, warning):
     digest_another = md5(b'another/dummy.dat').hexdigest()
     assert (app.outdir / '_downloads' / digest_another / 'dummy.dat').exists()
 
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert (('<li><p><a class="reference download internal" download="" '
              'href="_downloads/%s/dummy.dat">'
              '<code class="xref download docutils literal notranslate">'
@@ -694,7 +694,7 @@ def test_numfig_disabled(app, cached_etree_parse, fname, expect):
 def test_numfig_without_numbered_toctree_warn(app, warning):
     app.build()
     # remove :numbered: option
-    index = (app.srcdir / 'index.rst').read_text()
+    index = (app.srcdir / 'index.rst').read_text(encoding='utf8')
     index = re.sub(':numbered:.*', '', index)
     (app.srcdir / 'index.rst').write_text(index)
     app.builder.build_all()
@@ -782,7 +782,7 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
     confoverrides={'numfig': True})
 def test_numfig_without_numbered_toctree(app, cached_etree_parse, fname, expect):
     # remove :numbered: option
-    index = (app.srcdir / 'index.rst').read_text()
+    index = (app.srcdir / 'index.rst').read_text(encoding='utf8')
     index = re.sub(':numbered:.*', '', index)
     (app.srcdir / 'index.rst').write_text(index)
 
@@ -1172,7 +1172,7 @@ def test_html_assets(app):
     assert not (app.outdir / '_static' / '.htaccess').exists()
     assert not (app.outdir / '_static' / '.htpasswd').exists()
     assert (app.outdir / '_static' / 'API.html').exists()
-    assert (app.outdir / '_static' / 'API.html').read_text() == 'Sphinx-1.4.4'
+    assert (app.outdir / '_static' / 'API.html').read_text(encoding='utf8') == 'Sphinx-1.4.4'
     assert (app.outdir / '_static' / 'css' / 'style.css').exists()
     assert (app.outdir / '_static' / 'js' / 'custom.js').exists()
     assert (app.outdir / '_static' / 'rimg.png').exists()
@@ -1193,7 +1193,7 @@ def test_html_assets(app):
     assert not (app.outdir / 'subdir' / '.htpasswd').exists()
 
     # html_css_files
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert '<link rel="stylesheet" type="text/css" href="_static/css/style.css" />' in content
     assert ('<link media="print" rel="stylesheet" title="title" type="text/css" '
             'href="https://example.com/custom.css" />' in content)
@@ -1216,7 +1216,7 @@ def test_assets_order(app):
     app.add_js_file('lazy.js', priority=900)
 
     app.builder.build_all()
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     # css_files
     expected = ['_static/early.css', '_static/pygments.css', '_static/alabaster.css',
@@ -1240,7 +1240,7 @@ def test_javscript_loading_method(app):
     app.add_js_file('late.js', loading_method='defer')
 
     app.builder.build_all()
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     assert '<script src="_static/normal.js"></script>' in content
     assert '<script async="async" src="_static/early.js"></script>' in content
@@ -1275,7 +1275,7 @@ def test_html_sourcelink_suffix_empty(app):
 def test_html_entity(app):
     app.builder.build_all()
     valid_entities = {'amp', 'lt', 'gt', 'quot', 'apos'}
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
     for entity in re.findall(r'&([a-z]+);', content, re.M):
         assert entity not in valid_entities
 
@@ -1317,7 +1317,7 @@ def test_html_inventory(app):
 @pytest.mark.sphinx('html', testroot='images', confoverrides={'html_sourcelink_suffix': ''})
 def test_html_anchor_for_figure(app):
     app.builder.build_all()
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
     if docutils.__version_info__ < (0, 17):
         assert ('<p class="caption"><span class="caption-text">The caption of pic</span>'
                 '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>'
@@ -1331,7 +1331,7 @@ def test_html_anchor_for_figure(app):
 @pytest.mark.sphinx('html', testroot='directives-raw')
 def test_html_raw_directive(app, status, warning):
     app.builder.build_all()
-    result = (app.outdir / 'index.html').read_text()
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     # standard case
     assert 'standalone raw directive (HTML)' in result
@@ -1375,7 +1375,7 @@ def test_alternate_stylesheets(app, cached_etree_parse, fname, expect):
 @pytest.mark.sphinx('html', testroot='html_style')
 def test_html_style(app, status, warning):
     app.build()
-    result = (app.outdir / 'index.html').read_text()
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert '<link rel="stylesheet" type="text/css" href="_static/default.css" />' in result
     assert ('<link rel="stylesheet" type="text/css" href="_static/alabaster.css" />'
             not in result)
@@ -1385,7 +1385,7 @@ def test_html_style(app, status, warning):
 def test_html_remote_images(app, status, warning):
     app.builder.build_all()
 
-    result = (app.outdir / 'index.html').read_text()
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<img alt="https://www.python.org/static/img/python-logo.png" '
             'src="https://www.python.org/static/img/python-logo.png" />' in result)
     assert not (app.outdir / 'python-logo.png').exists()
@@ -1395,7 +1395,7 @@ def test_html_remote_images(app, status, warning):
 def test_html_remote_logo(app, status, warning):
     app.builder.build_all()
 
-    result = (app.outdir / 'index.html').read_text()
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<img class="logo" src="https://www.python.org/static/img/python-logo.png" alt="Logo"/>' in result)
     assert ('<link rel="shortcut icon" href="https://www.python.org/static/favicon.ico"/>' in result)
     assert not (app.outdir / 'python-logo.png').exists()
@@ -1405,7 +1405,7 @@ def test_html_remote_logo(app, status, warning):
 def test_html_local_logo(app, status, warning):
     app.builder.build_all()
 
-    result = (app.outdir / 'index.html').read_text()
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<img class="logo" src="_static/img.png" alt="Logo"/>' in result)
     assert (app.outdir / '_static/img.png').exists()
 
@@ -1416,7 +1416,7 @@ def test_html_sidebar(app, status, warning):
 
     # default for alabaster
     app.builder.build_all()
-    result = (app.outdir / 'index.html').read_text()
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<div class="sphinxsidebar" role="navigation" '
             'aria-label="main navigation">' in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' in result
@@ -1431,7 +1431,7 @@ def test_html_sidebar(app, status, warning):
     # only relations.html
     app.config.html_sidebars = {'**': ['relations.html']}
     app.builder.build_all()
-    result = (app.outdir / 'index.html').read_text()
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<div class="sphinxsidebar" role="navigation" '
             'aria-label="main navigation">' in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
@@ -1445,7 +1445,7 @@ def test_html_sidebar(app, status, warning):
     # no sidebars
     app.config.html_sidebars = {'**': []}
     app.builder.build_all()
-    result = (app.outdir / 'index.html').read_text()
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<div class="sphinxsidebar" role="navigation" '
             'aria-label="main navigation">' not in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
@@ -1476,10 +1476,10 @@ def test_html_manpage(app, cached_etree_parse, fname, expect):
 def test_html_baseurl(app, status, warning):
     app.build()
 
-    result = (app.outdir / 'index.html').read_text()
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert '<link rel="canonical" href="https://example.com/index.html" />' in result
 
-    result = (app.outdir / 'qux' / 'index.html').read_text()
+    result = (app.outdir / 'qux' / 'index.html').read_text(encoding='utf8')
     assert '<link rel="canonical" href="https://example.com/qux/index.html" />' in result
 
 
@@ -1489,10 +1489,10 @@ def test_html_baseurl(app, status, warning):
 def test_html_baseurl_and_html_file_suffix(app, status, warning):
     app.build()
 
-    result = (app.outdir / 'index.htm').read_text()
+    result = (app.outdir / 'index.htm').read_text(encoding='utf8')
     assert '<link rel="canonical" href="https://example.com/subdir/index.htm" />' in result
 
-    result = (app.outdir / 'qux' / 'index.htm').read_text()
+    result = (app.outdir / 'qux' / 'index.htm').read_text(encoding='utf8')
     assert '<link rel="canonical" href="https://example.com/subdir/qux/index.htm" />' in result
 
 
@@ -1609,7 +1609,7 @@ def test_validate_html_static_path(app):
 @pytest.mark.sphinx(testroot='html_scaled_image_link')
 def test_html_scaled_image_link(app):
     app.build()
-    context = (app.outdir / 'index.html').read_text()
+    context = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     # no scaled parameters
     assert re.search('\n<img alt="_images/img.png" src="_images/img.png" />', context)
@@ -1629,7 +1629,7 @@ def test_html_scaled_image_link(app):
                     confoverrides={'html_codeblock_linenos_style': 'table'})
 def test_html_codeblock_linenos_style_table(app):
     app.build()
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     if PYGMENTS_VERSION >= (2, 8):
         assert ('<div class="linenodiv"><pre><span class="normal">1</span>\n'
@@ -1644,7 +1644,7 @@ def test_html_codeblock_linenos_style_table(app):
                     confoverrides={'html_codeblock_linenos_style': 'inline'})
 def test_html_codeblock_linenos_style_inline(app):
     app.build()
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     if PYGMENTS_VERSION > (2, 7):
         assert '<span class="linenos">1</span>' in content
@@ -1689,7 +1689,7 @@ def test_highlight_options_old(app):
                     confoverrides={'html_permalinks': False})
 def test_html_permalink_disable(app):
     app.build()
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     assert '<h1>The basic Sphinx documentation for testing</h1>' in content
 
@@ -1698,7 +1698,7 @@ def test_html_permalink_disable(app):
                     confoverrides={'html_permalinks_icon': '<span>[PERMALINK]</span>'})
 def test_html_permalink_icon(app):
     app.build()
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     assert ('<h1>The basic Sphinx documentation for testing<a class="headerlink" '
             'href="#the-basic-sphinx-documentation-for-testing" '
@@ -1708,6 +1708,6 @@ def test_html_permalink_icon(app):
 @pytest.mark.sphinx('html', testroot='html_signaturereturn_icon')
 def test_html_signaturereturn_icon(app):
     app.build()
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     assert ('<span class="sig-return-icon">&#x2192;</span>' in content)

@@ -28,7 +28,7 @@ def test_defaults(app):
     app.build()
 
     assert (app.outdir / 'output.txt').exists()
-    content = (app.outdir / 'output.txt').read_text()
+    content = (app.outdir / 'output.txt').read_text(encoding='utf8')
 
     print(content)
     # looking for '#top' and '#does-not-exist' not found should fail
@@ -49,7 +49,7 @@ def test_defaults_json(app):
     app.build()
 
     assert (app.outdir / 'output.json').exists()
-    content = (app.outdir / 'output.json').read_text()
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
     print(content)
 
     rows = [json.loads(x) for x in content.splitlines()]
@@ -110,7 +110,7 @@ def test_anchors_ignored(app):
     app.build()
 
     assert (app.outdir / 'output.txt').exists()
-    content = (app.outdir / 'output.txt').read_text()
+    content = (app.outdir / 'output.txt').read_text(encoding='utf8')
 
     # expect all ok when excluding #top
     assert not content
@@ -124,7 +124,7 @@ def test_raises_for_invalid_status(app):
 
     with http_server(InternalServerErrorHandler):
         app.build()
-    content = (app.outdir / 'output.txt').read_text()
+    content = (app.outdir / 'output.txt').read_text(encoding='utf8')
     assert content == (
         "index.rst:1: [broken] http://localhost:7777/#anchor: "
         "500 Server Error: Internal Server Error "
@@ -247,7 +247,7 @@ def test_follows_redirects_on_HEAD(app, capsys, warning):
     with http_server(make_redirect_handler(support_head=True)):
         app.build()
     stdout, stderr = capsys.readouterr()
-    content = (app.outdir / 'output.txt').read_text()
+    content = (app.outdir / 'output.txt').read_text(encoding='utf8')
     assert content == (
         "index.rst:1: [redirected with Found] "
         "http://localhost:7777/ to http://localhost:7777/?redirected=1\n"
@@ -266,7 +266,7 @@ def test_follows_redirects_on_GET(app, capsys, warning):
     with http_server(make_redirect_handler(support_head=False)):
         app.build()
     stdout, stderr = capsys.readouterr()
-    content = (app.outdir / 'output.txt').read_text()
+    content = (app.outdir / 'output.txt').read_text(encoding='utf8')
     assert content == (
         "index.rst:1: [redirected with Found] "
         "http://localhost:7777/ to http://localhost:7777/?redirected=1\n"
@@ -463,7 +463,7 @@ def test_too_many_requests_retry_after_int_delay(app, capsys, status):
          mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0), \
          mock.patch("sphinx.builders.linkcheck.QUEUE_POLL_SECS", 0.01):
         app.build()
-    content = (app.outdir / 'output.json').read_text()
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
     assert json.loads(content) == {
         "filename": "index.rst",
         "lineno": 1,
@@ -489,7 +489,7 @@ def test_too_many_requests_retry_after_HTTP_date(app, capsys):
     retry_after = wsgiref.handlers.format_date_time(time.mktime(now))
     with http_server(make_retry_after_handler([(429, retry_after), (200, None)])):
         app.build()
-    content = (app.outdir / 'output.json').read_text()
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
     assert json.loads(content) == {
         "filename": "index.rst",
         "lineno": 1,
@@ -512,7 +512,7 @@ def test_too_many_requests_retry_after_without_header(app, capsys):
     with http_server(make_retry_after_handler([(429, None), (200, None)])),\
          mock.patch("sphinx.builders.linkcheck.DEFAULT_DELAY", 0):
         app.build()
-    content = (app.outdir / 'output.json').read_text()
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
     assert json.loads(content) == {
         "filename": "index.rst",
         "lineno": 1,
@@ -535,7 +535,7 @@ def test_too_many_requests_user_timeout(app, capsys):
     app.config.linkcheck_rate_limit_timeout = 0.0
     with http_server(make_retry_after_handler([(429, None)])):
         app.build()
-    content = (app.outdir / 'output.json').read_text()
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
     assert json.loads(content) == {
         "filename": "index.rst",
         "lineno": 1,
@@ -606,9 +606,9 @@ class ConnectionResetHandler(http.server.BaseHTTPRequestHandler):
 def test_get_after_head_raises_connection_error(app):
     with http_server(ConnectionResetHandler):
         app.build()
-    content = (app.outdir / 'output.txt').read_text()
+    content = (app.outdir / 'output.txt').read_text(encoding='utf8')
     assert not content
-    content = (app.outdir / 'output.json').read_text()
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
     assert json.loads(content) == {
         "filename": "index.rst",
         "lineno": 1,

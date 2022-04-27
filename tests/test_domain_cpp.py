@@ -1157,14 +1157,14 @@ def test_domain_cpp_build_with_add_function_parentheses_is_True(app, status, war
     ]
 
     f = 'roles.html'
-    t = (app.outdir / f).read_text()
+    t = (app.outdir / f).read_text(encoding='utf8')
     for s in rolePatterns:
         check(s, t, f)
     for s in parenPatterns:
         check(s, t, f)
 
     f = 'any-role.html'
-    t = (app.outdir / f).read_text()
+    t = (app.outdir / f).read_text(encoding='utf8')
     for s in parenPatterns:
         check(s, t, f)
 
@@ -1198,14 +1198,14 @@ def test_domain_cpp_build_with_add_function_parentheses_is_False(app, status, wa
     ]
 
     f = 'roles.html'
-    t = (app.outdir / f).read_text()
+    t = (app.outdir / f).read_text(encoding='utf8')
     for s in rolePatterns:
         check(s, t, f)
     for s in parenPatterns:
         check(s, t, f)
 
     f = 'any-role.html'
-    t = (app.outdir / f).read_text()
+    t = (app.outdir / f).read_text(encoding='utf8')
     for s in parenPatterns:
         check(s, t, f)
 
@@ -1215,7 +1215,7 @@ def test_domain_cpp_build_xref_consistency(app, status, warning):
     app.builder.build_all()
 
     test = 'xref_consistency.html'
-    output = (app.outdir / test).read_text()
+    output = (app.outdir / test).read_text(encoding='utf8')
 
     def classes(role, tag):
         pattern = (r'{role}-role:.*?'
