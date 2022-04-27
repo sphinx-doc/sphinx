@@ -37,10 +37,10 @@ class PorterStemmer:
         should be done before stem(...) is called.
         """
 
-        self.b = ""     # buffer for word to be stemmed
-        self.k = 0
-        self.k0 = 0
-        self.j = 0      # j is a general offset into the string
+        self.b: str = ""     # buffer for word to be stemmed
+        self.k: int = 0
+        self.k0: int = 0
+        self.j: int = 0      # j is a general offset into the string
 
     def cons(self, i: int) -> int:
         """cons(i) is TRUE <=> b[i] is a consonant."""
