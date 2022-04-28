@@ -117,11 +117,13 @@ class PorterStemmer:
         self.j = len(self.b) - 1 - len(s)
         return True
 
-    def r(self, s: str) -> None:
-        """r(s) is used further down."""
-        start = self.j
-        if PorterStemmer.measure_consonant_sequences(self.b, start) > 0:
-            self.b = self.b[:start + 1] + s
+    def replace(self, ends_with: str, replace: str) -> bool:
+        if self.ends(ends_with):
+            start = self.j
+            if PorterStemmer.measure_consonant_sequences(self.b, start) > 0:
+                self.b = self.b[:start + 1] + replace
+            return True
+        return False
 
     def step1ab(self) -> None:
         """step1ab() gets rid of plurals and -ed or -ing. e.g.
@@ -181,81 +183,82 @@ class PorterStemmer:
         """
         char = self.b[-2]
         if char == 'a':
-            if self.ends("ational"):
-                self.r("ate")
-            elif self.ends("tional"):
-                self.r("tion")
+            if self.replace("ational", "ate"):
+                pass
+            elif self.replace("tional", "tion"):
+                pass
         elif char == 'c':
-            if self.ends("enci"):
-                self.r("ence")
-            elif self.ends("anci"):
-                self.r("ance")
+            if self.replace("enci", "ence"):
+                pass
+            elif self.replace("anci", "ance"):
+                pass
         elif char == 'e':
-            if self.ends("izer"):
-                self.r("ize")
+            if self.replace("izer", "ize"):
+                pass
         elif char == 'l':
-            if self.ends("bli"):
-                self.r("ble")  # --DEPARTURE--
+            if self.replace("bli", "ble"):  # --DEPARTURE--
+                pass
             # To match the published algorithm, replace this phrase with
-            #   if self.ends("abli"):      self.r("able")
-            elif self.ends("alli"):
-                self.r("al")
-            elif self.ends("entli"):
-                self.r("ent")
-            elif self.ends("eli"):
-                self.r("e")
-            elif self.ends("ousli"):
-                self.r("ous")
+            #  if self.replace("abli", "able"):
+            #      pass
+            elif self.replace("alli", "al"):
+                pass
+            elif self.replace("entli", "ent"):
+                pass
+            elif self.replace("eli", "e"):
+                pass
+            elif self.replace("ousli", "ous"):
+                pass
         elif char == 'o':
-            if self.ends("ization"):
-                self.r("ize")
-            elif self.ends("ation"):
-                self.r("ate")
-            elif self.ends("ator"):
-                self.r("ate")
+            if self.replace("ization", "ize"):
+                pass
+            elif self.replace("ation", "ate"):
+                pass
+            elif self.replace("ator", "ate"):
+                pass
         elif char == 's':
-            if self.ends("alism"):
-                self.r("al")
-            elif self.ends("iveness"):
-                self.r("ive")
-            elif self.ends("fulness"):
-                self.r("ful")
-            elif self.ends("ousness"):
-                self.r("ous")
+            if self.replace("alism", "al"):
+                pass
+            elif self.replace("iveness", "ive"):
+                pass
+            elif self.replace("fulness", "ful"):
+                pass
+            elif self.replace("ousness", "ous"):
+                pass
         elif char == 't':
-            if self.ends("aliti"):
-                self.r("al")
-            elif self.ends("iviti"):
-                self.r("ive")
-            elif self.ends("biliti"):
-                self.r("ble")
-        elif char == 'g':  # --DEPARTURE--
-            if self.ends("logi"):
-                self.r("log")
+            if self.replace("aliti", "al"):
+                pass
+            elif self.replace("iviti", "ive"):
+                pass
+            elif self.replace("biliti", "ble"):
+                pass
         # To match the published algorithm, delete this phrase
+        elif char == 'g':  # --DEPARTURE--
+            if self.replace("logi", "log"):
+                pass
 
     def step3(self) -> None:
         """step3() dels with -ic-, -full, -ness etc. similar strategy
         to step2."""
         char = self.b[-1]
         if char == 'e':
-            if self.ends("icate"):
-                self.r("ic")
-            elif self.ends("ative"):
-                self.r("")
-            elif self.ends("alize"):
-                self.r("al")
+            if self.replace("icate", "ic"):
+                pass
+            elif self.replace("ative", ""):
+                pass
+            elif self.replace("alize", "al"):
+                pass
         elif char == 'i':
-            if self.ends("iciti"):
-                self.r("ic")
+            if self.replace("iciti", "ic"):
+                pass
         elif char == 'l':
-            if self.ends("ical"):
-                self.r("ic")
-            elif self.ends("ful"):
-                self.r("")
+            if self.replace("ical", "ic"):
+                pass
+            elif self.replace("ful", ""):
+                pass
         elif char == 's':
-            if self.ends("ness"):
-                self.r("")
+            if self.replace("ness", ""):
+                pass
 
     def step4(self) -> None:
         """step4() takes off -ant, -ence etc., in context <c>vcvc<v>."""
