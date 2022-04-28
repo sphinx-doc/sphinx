@@ -159,7 +159,7 @@ Features added
   hardcoded links detector feature
 * #9494, #9456: html search: Add a config variable
   :confval:`html_show_search_summary` to enable/disable the search summaries
-* #9337: HTML theme, add option ``enable_search_shortcuts`` that enables :kbd:'/' as
+* #9337: HTML theme, add option ``enable_search_shortcuts`` that enables :kbd:`/` as
          a Quick search shortcut and :kbd:`Esc` shortcut that
          removes search highlighting.
 * #10107: i18n: Allow to suppress translation warnings by adding ``#noqa``
