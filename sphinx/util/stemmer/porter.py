@@ -120,8 +120,8 @@ class PorterStemmer:
     def r(self, s: str) -> None:
         """r(s) is used further down."""
         start = self.j
-        if self.measure_consonant_sequences(self.b, start) > 0:
-            self.b = self.b[:self.j + 1] + s
+        if PorterStemmer.measure_consonant_sequences(self.b, start) > 0:
+            self.b = self.b[:start + 1] + s
 
     def step1ab(self) -> None:
         """step1ab() gets rid of plurals and -ed or -ing. e.g.
@@ -152,9 +152,9 @@ class PorterStemmer:
             elif self.b[-2] != 's':
                 self.b = self.b[:-1]
         if self.ends("eed"):
-            if self.measure_consonant_sequences(self.b, self.j) > 0:
+            if PorterStemmer.measure_consonant_sequences(self.b, self.j) > 0:
                 self.b = self.b[:-1]
-        elif (self.ends("ed") or self.ends("ing")) and self.vowel_in_stem(self.b, self.j):
+        elif (self.ends("ed") or self.ends("ing")) and PorterStemmer.vowel_in_stem(self.b, self.j):
             self.b = self.b[:self.j + 1]
             if self.ends("at"):
                 self.b = self.b[:-2] + 'ate'
@@ -162,16 +162,16 @@ class PorterStemmer:
                 self.b = self.b[:-2] + 'ble'
             elif self.ends("iz"):
                 self.b = self.b[:-2] + 'ize'
-            elif self.double_consonant(self.b):
+            elif PorterStemmer.double_consonant(self.b):
                 if self.b[-2] not in {'l', 's', 'z'}:
                     self.b = self.b[:-1]
-            elif self.measure_consonant_sequences(self.b, self.j) == 1 and self.consonant_vowel_consonant(self.b):
+            elif PorterStemmer.measure_consonant_sequences(self.b, self.j) == 1 and PorterStemmer.consonant_vowel_consonant(self.b):
                 self.b = self.b[:self.j + 1] + "e"
 
     def step1c(self) -> None:
         """step1c() turns terminal y to i when there is another vowel in
         the stem."""
-        if self.ends("y") and self.vowel_in_stem(self.b, self.j):
+        if self.ends("y") and PorterStemmer.vowel_in_stem(self.b, self.j):
             self.b = self.b[:-1] + 'i'
 
     def step2(self) -> None:
@@ -337,7 +337,7 @@ class PorterStemmer:
                 return
         else:
             return
-        if self.measure_consonant_sequences(self.b, self.j) > 1:
+        if PorterStemmer.measure_consonant_sequences(self.b, self.j) > 1:
             self.b = self.b[:self.j + 1]
 
     def step5(self) -> None:
@@ -345,10 +345,10 @@ class PorterStemmer:
         measure_consonant_sequences(self.b, self.j) > 1.
         """
         if self.b[-1] == 'e':
-            a = self.measure_consonant_sequences(self.b, len(self.b) - 1)
-            if a > 1 or (a == 1 and not self.consonant_vowel_consonant(self.b[:-1])):
+            a = PorterStemmer.measure_consonant_sequences(self.b, len(self.b) - 1)
+            if a > 1 or (a == 1 and not PorterStemmer.consonant_vowel_consonant(self.b[:-1])):
                 self.b = self.b[:-1]
-        if self.b[-1] == 'l' and self.double_consonant(self.b) and self.measure_consonant_sequences(self.b, len(self.b) - 1) > 1:
+        if self.b[-1] == 'l' and PorterStemmer.double_consonant(self.b) and PorterStemmer.measure_consonant_sequences(self.b, len(self.b) - 1) > 1:
             self.b = self.b[:-1]
 
     def stem(self, word: str) -> str:
