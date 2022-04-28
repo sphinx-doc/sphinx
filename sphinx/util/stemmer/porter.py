@@ -117,18 +117,11 @@ class PorterStemmer:
         self.j = len(self.b) - 1 - len(s)
         return True
 
-    def set_to(self, s: str, start: int) -> None:
-        """set_to(s) sets (j+1),...k to the characters in the string s,
-        readjusting k."""
-        b = [*self.b]
-        b[start + 1:start + 1 + len(s)] = s
-        self.b = ''.join(b[:start + 1 + len(s)])
-
     def r(self, s: str) -> None:
         """r(s) is used further down."""
-        _j = self.j
-        if self.measure_consonant_sequences(self.b, _j) > 0:
-            self.set_to(s, _j)
+        start = self.j
+        if self.measure_consonant_sequences(self.b, start) > 0:
+            self.b = self.b[:self.j + 1] + s
 
     def step1ab(self) -> None:
         """step1ab() gets rid of plurals and -ed or -ing. e.g.
@@ -155,7 +148,7 @@ class PorterStemmer:
             if self.ends("sses"):
                 self.b = self.b[:-2]
             elif self.ends("ies"):
-                self.set_to("i", self.j)
+                self.b = self.b[:-3] + 'i'
             elif self.b[-2] != 's':
                 self.b = self.b[:-1]
         if self.ends("eed"):
@@ -164,16 +157,16 @@ class PorterStemmer:
         elif (self.ends("ed") or self.ends("ing")) and self.vowel_in_stem(self.b, self.j):
             self.b = self.b[:self.j + 1]
             if self.ends("at"):
-                self.set_to("ate", self.j)
+                self.b = self.b[:-2] + 'ate'
             elif self.ends("bl"):
-                self.set_to("ble", self.j)
+                self.b = self.b[:-2] + 'ble'
             elif self.ends("iz"):
-                self.set_to("ize", self.j)
+                self.b = self.b[:-2] + 'ize'
             elif self.double_consonant(self.b):
                 if self.b[-2] not in {'l', 's', 'z'}:
                     self.b = self.b[:-1]
             elif self.measure_consonant_sequences(self.b, self.j) == 1 and self.consonant_vowel_consonant(self.b):
-                self.set_to("e", self.j)
+                self.b = self.b[:self.j + 1] + "e"
 
     def step1c(self) -> None:
         """step1c() turns terminal y to i when there is another vowel in
