@@ -117,17 +117,18 @@ class PorterStemmer:
         self.j = self.k - len(s)
         return True
 
-    def setto(self, s: str) -> None:
-        """setto(s) sets (j+1),...k to the characters in the string s,
+    def set_to(self, s: str, start: int) -> None:
+        """set_to(s) sets (j+1),...k to the characters in the string s,
         readjusting k."""
-        length = len(s)
-        self.b = self.b[:self.j + 1] + s + self.b[self.j + length + 1:]
-        self.k = self.j + length
+        b = [*self.b]
+        b[start + 1:start + 1 + len(s)] = s
+        self.b = ''.join(b)
+        self.k = start + len(s)
 
     def r(self, s: str) -> None:
         """r(s) is used further down."""
         if self.measure_consonant_sequences(self.b, self.j) > 0:
-            self.setto(s)
+            self.set_to(s, self.j)
 
     def step1ab(self) -> None:
         """step1ab() gets rid of plurals and -ed or -ing. e.g.
@@ -154,7 +155,7 @@ class PorterStemmer:
             if self.ends("sses"):
                 self.k -= 2
             elif self.ends("ies"):
-                self.setto("i")
+                self.set_to("i", self.j)
             elif self.b[self.k - 1] != 's':
                 self.k -= 1
         if self.ends("eed"):
@@ -163,18 +164,18 @@ class PorterStemmer:
         elif (self.ends("ed") or self.ends("ing")) and self.vowel_in_stem(self.b, self.j):
             self.k = self.j
             if self.ends("at"):
-                self.setto("ate")
+                self.set_to("ate", self.j)
             elif self.ends("bl"):
-                self.setto("ble")
+                self.set_to("ble", self.j)
             elif self.ends("iz"):
-                self.setto("ize")
+                self.set_to("ize", self.j)
             elif self.double_consonant(self.b, self.k):
                 self.k -= 1
                 ch = self.b[self.k]
                 if ch in ('l', 's', 'z'):
                     self.k += 1
             elif self.measure_consonant_sequences(self.b, self.j) == 1 and self.consonant_vowel_consonant(self.b, self.k):
-                self.setto("e")
+                self.set_to("e", self.j)
 
     def step1c(self) -> None:
         """step1c() turns terminal y to i when there is another vowel in
@@ -349,12 +350,12 @@ class PorterStemmer:
         """step5() removes a final -e if measure_consonant_sequences(self.b, self.j) > 1, and changes -ll to -l if
         measure_consonant_sequences(self.b, self.j) > 1.
         """
-        self.j = self.k
+        _j = self.k
         if self.b[self.k] == 'e':
-            a = self.measure_consonant_sequences(self.b, self.j)
+            a = self.measure_consonant_sequences(self.b, _j)
             if a > 1 or (a == 1 and not self.consonant_vowel_consonant(self.b, self.k - 1)):
                 self.k -= 1
-        if self.b[self.k] == 'l' and self.double_consonant(self.b, self.k) and self.measure_consonant_sequences(self.b, self.j) > 1:
+        if self.b[self.k] == 'l' and self.double_consonant(self.b, self.k) and self.measure_consonant_sequences(self.b, _j) > 1:
             self.k -= 1
 
     def stem(self, word: str) -> str:
