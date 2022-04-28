@@ -37,8 +37,9 @@ class PorterStemmer:
         self.j: int = 0      # j is a general offset into the string
 
     @staticmethod
-    def is_consonant(char: str, i: int, word: str) -> bool:
+    def is_consonant(_: str, i: int, word: str) -> bool:
         """is_consonant(char, i, word) is True <=> char is a consonant."""
+        char = word[i]
         if char in {'a', 'e', 'i', 'o', 'u'}:
             return False
         if char == 'y':
@@ -83,17 +84,17 @@ class PorterStemmer:
         return False
 
     @staticmethod
-    def double_consonant(word: str, end: int) -> bool:
-        """True <=> word[end-1:end+1] contains a double consonant."""
-        if end < 1:
-            return False
-        if word[end] != word[end - 1]:
-            return False
-        return PorterStemmer.is_consonant(word[end], end, word)
+    def double_consonant(word: str) -> bool:
+        """True <=> word[-2:] contains a double consonant."""
+        return (
+            len(word) >= 2
+            and word[-1] == word[-2]
+            and PorterStemmer.is_consonant(word[-1], len(word) - 1, word)
+        )
 
     @staticmethod
-    def consonant_vowel_consonant(word: str, end: int) -> bool:
-        """consonant_vowel_consonant(word, end) is TRUE <=> i-2,i-1,i has the form
+    def consonant_vowel_consonant(word: str) -> bool:
+        """consonant_vowel_consonant(word) is TRUE <=> word[-3:] has the form
              consonant - vowel - consonant
         and also if the second c is not w,x or y. this is used when trying to
         restore an e at the end of a short  e.g.
@@ -102,11 +103,11 @@ class PorterStemmer:
            snow, box, tray.
         """
         return (
-            end >= 2
-            and PorterStemmer.is_consonant(word[end], end, word)
-            and not PorterStemmer.is_consonant(word[end-1], end-1, word)
-            and PorterStemmer.is_consonant(word[end-2], end-2, word)
-            and word[end] not in {'w', 'x', 'y'}
+            len(word) >= 3
+            and PorterStemmer.is_consonant(word[-1], len(word) - 1, word)
+            and not PorterStemmer.is_consonant(word[-2], len(word) - 2, word)
+            and PorterStemmer.is_consonant(word[-3], len(word) - 3, word)
+            and word[-1] not in {'w', 'x', 'y'}
         )
 
     def ends(self, s: str) -> bool:
@@ -168,10 +169,10 @@ class PorterStemmer:
                 self.set_to("ble", self.j)
             elif self.ends("iz"):
                 self.set_to("ize", self.j)
-            elif self.double_consonant(self.b, len(self.b) - 1):
+            elif self.double_consonant(self.b):
                 if self.b[-2] not in {'l', 's', 'z'}:
                     self.b = self.b[:-1]
-            elif self.measure_consonant_sequences(self.b, self.j) == 1 and self.consonant_vowel_consonant(self.b, len(self.b) - 1):
+            elif self.measure_consonant_sequences(self.b, self.j) == 1 and self.consonant_vowel_consonant(self.b):
                 self.set_to("e", self.j)
 
     def step1c(self) -> None:
@@ -352,9 +353,9 @@ class PorterStemmer:
         """
         if self.b[-1] == 'e':
             a = self.measure_consonant_sequences(self.b, len(self.b) - 1)
-            if a > 1 or (a == 1 and not self.consonant_vowel_consonant(self.b, len(self.b) - 1 - 1)):
+            if a > 1 or (a == 1 and not self.consonant_vowel_consonant(self.b[:-1])):
                 self.b = self.b[:-1]
-        if self.b[-1] == 'l' and self.double_consonant(self.b, len(self.b) - 1) and self.measure_consonant_sequences(self.b, len(self.b) - 1) > 1:
+        if self.b[-1] == 'l' and self.double_consonant(self.b) and self.measure_consonant_sequences(self.b, len(self.b) - 1) > 1:
             self.b = self.b[:-1]
 
     def stem(self, word: str) -> str:
