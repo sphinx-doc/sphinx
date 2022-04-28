@@ -1,7 +1,7 @@
 """Glue code for the jinja2 templating engine."""
 
+import pathlib
 from os import path
-import os
 from pprint import pformat
 from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Tuple, Union
 
@@ -117,10 +117,7 @@ class SphinxFileSystemLoader(FileSystemLoader):
 
     def get_source(self, environment: Environment, template: str) -> Tuple[str, str, Callable]:
         for searchpath in self.searchpath:
-            filename = path.join(searchpath, template)
-            # Repalce '/' by os.sep if The searchpath is an extended-length path.
-            if filename.startswith("\\\\?\\"):
-                filename = filename.replace('/', os.sep)
+            filename = str(pathlib.Path(searchpath, template))
             f = open_if_exists(filename)
             if f is None:
                 continue
