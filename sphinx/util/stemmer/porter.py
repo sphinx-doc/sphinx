@@ -111,7 +111,7 @@ class PorterStemmer:
 
     def ends(self, s: str) -> bool:
         """True <=> b[:k+1] ends with the string s."""
-        if not self.b[:len(self.b) - 1+1].endswith(s):
+        if not self.b.endswith(s):
             return False
         self.j = len(self.b) - 1 - len(s)
         return True
@@ -150,12 +150,12 @@ class PorterStemmer:
 
            meetings  ->  meet
         """
-        if self.b[len(self.b) - 1] == 's':
+        if self.b[-1] == 's':
             if self.ends("sses"):
                 self.b = self.b[:-2]
             elif self.ends("ies"):
                 self.set_to("i", self.j)
-            elif self.b[len(self.b) - 1 - 1] != 's':
+            elif self.b[-2] != 's':
                 self.b = self.b[:-1]
         if self.ends("eed"):
             if self.measure_consonant_sequences(self.b, self.j) > 0:
@@ -169,7 +169,7 @@ class PorterStemmer:
             elif self.ends("iz"):
                 self.set_to("ize", self.j)
             elif self.double_consonant(self.b, len(self.b) - 1):
-                if self.b[len(self.b) - 1 - 1] not in {'l', 's', 'z'}:
+                if self.b[-2] not in {'l', 's', 'z'}:
                     self.b = self.b[:-1]
             elif self.measure_consonant_sequences(self.b, self.j) == 1 and self.consonant_vowel_consonant(self.b, len(self.b) - 1):
                 self.set_to("e", self.j)
@@ -178,14 +178,14 @@ class PorterStemmer:
         """step1c() turns terminal y to i when there is another vowel in
         the stem."""
         if self.ends("y") and self.vowel_in_stem(self.b, self.j):
-            self.b = self.b[:len(self.b) - 1] + 'i' + self.b[len(self.b) - 1 + 1:]
+            self.b = self.b[:-1] + 'i'
 
     def step2(self) -> None:
         """step2() maps double suffices to single ones.
         so -ization ( = -ize plus -ation) maps to -ize etc. note that the
         string before the suffix must give measure_consonant_sequences(self.b, self.j) > 0.
         """
-        char = self.b[len(self.b) - 1 - 1]
+        char = self.b[-2]
         if char == 'a':
             if self.ends("ational"):
                 self.r("ate")
@@ -243,7 +243,7 @@ class PorterStemmer:
     def step3(self) -> None:
         """step3() dels with -ic-, -full, -ness etc. similar strategy
         to step2."""
-        char = self.b[len(self.b) - 1]
+        char = self.b[-1]
         if char == 'e':
             if self.ends("icate"):
                 self.r("ic")
@@ -265,7 +265,7 @@ class PorterStemmer:
 
     def step4(self) -> None:
         """step4() takes off -ant, -ence etc., in context <c>vcvc<v>."""
-        char = self.b[len(self.b) - 1 - 1]
+        char = self.b[-2]
         if char == 'a':
             if self.ends("al"):
                 pass
@@ -350,11 +350,11 @@ class PorterStemmer:
         """step5() removes a final -e if measure_consonant_sequences(self.b, self.j) > 1, and changes -ll to -l if
         measure_consonant_sequences(self.b, self.j) > 1.
         """
-        if self.b[len(self.b) - 1] == 'e':
+        if self.b[-1] == 'e':
             a = self.measure_consonant_sequences(self.b, len(self.b) - 1)
             if a > 1 or (a == 1 and not self.consonant_vowel_consonant(self.b, len(self.b) - 1 - 1)):
                 self.b = self.b[:-1]
-        if self.b[len(self.b) - 1] == 'l' and self.double_consonant(self.b, len(self.b) - 1) and self.measure_consonant_sequences(self.b, len(self.b) - 1) > 1:
+        if self.b[-1] == 'l' and self.double_consonant(self.b, len(self.b) - 1) and self.measure_consonant_sequences(self.b, len(self.b) - 1) > 1:
             self.b = self.b[:-1]
 
     def stem(self, word: str) -> str:
@@ -378,7 +378,7 @@ class PorterStemmer:
         self.step3()
         self.step4()
         self.step5()
-        return self.b[:len(self.b) - 1 + 1]
+        return self.b
 
 
 if __name__ == '__main__':
