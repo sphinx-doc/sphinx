@@ -34,7 +34,6 @@ class PorterStemmer:
         """
 
         self.b: str = ""     # buffer for word to be stemmed
-        self.k: int = 0
         self.j: int = 0      # j is a general offset into the string
 
     @staticmethod
@@ -112,9 +111,9 @@ class PorterStemmer:
 
     def ends(self, s: str) -> bool:
         """True <=> b[:k+1] ends with the string s."""
-        if not self.b[:self.k+1].endswith(s):
+        if not self.b[:len(self.b) - 1+1].endswith(s):
             return False
-        self.j = self.k - len(s)
+        self.j = len(self.b) - 1 - len(s)
         return True
 
     def set_to(self, s: str, start: int) -> None:
@@ -123,12 +122,12 @@ class PorterStemmer:
         b = [*self.b]
         b[start + 1:start + 1 + len(s)] = s
         self.b = ''.join(b[:start + 1 + len(s)])
-        self.k = len(self.b) - 1
 
     def r(self, s: str) -> None:
         """r(s) is used further down."""
-        if self.measure_consonant_sequences(self.b, self.j) > 0:
-            self.set_to(s, self.j)
+        _j = self.j
+        if self.measure_consonant_sequences(self.b, _j) > 0:
+            self.set_to(s, _j)
 
     def step1ab(self) -> None:
         """step1ab() gets rid of plurals and -ed or -ing. e.g.
@@ -151,44 +150,42 @@ class PorterStemmer:
 
            meetings  ->  meet
         """
-        if self.b[self.k] == 's':
+        if self.b[len(self.b) - 1] == 's':
             if self.ends("sses"):
-                self.k -= 2
+                self.b = self.b[:-2]
             elif self.ends("ies"):
                 self.set_to("i", self.j)
-            elif self.b[self.k - 1] != 's':
-                self.k -= 1
+            elif self.b[len(self.b) - 1 - 1] != 's':
+                self.b = self.b[:-1]
         if self.ends("eed"):
             if self.measure_consonant_sequences(self.b, self.j) > 0:
-                self.k -= 1
+                self.b = self.b[:-1]
         elif (self.ends("ed") or self.ends("ing")) and self.vowel_in_stem(self.b, self.j):
-            self.k = self.j
+            self.b = self.b[:self.j + 1]
             if self.ends("at"):
                 self.set_to("ate", self.j)
             elif self.ends("bl"):
                 self.set_to("ble", self.j)
             elif self.ends("iz"):
                 self.set_to("ize", self.j)
-            elif self.double_consonant(self.b, self.k):
-                self.k -= 1
-                ch = self.b[self.k]
-                if ch in ('l', 's', 'z'):
-                    self.k += 1
-            elif self.measure_consonant_sequences(self.b, self.j) == 1 and self.consonant_vowel_consonant(self.b, self.k):
+            elif self.double_consonant(self.b, len(self.b) - 1):
+                if self.b[len(self.b) - 1 - 1] not in {'l', 's', 'z'}:
+                    self.b = self.b[:-1]
+            elif self.measure_consonant_sequences(self.b, self.j) == 1 and self.consonant_vowel_consonant(self.b, len(self.b) - 1):
                 self.set_to("e", self.j)
 
     def step1c(self) -> None:
         """step1c() turns terminal y to i when there is another vowel in
         the stem."""
         if self.ends("y") and self.vowel_in_stem(self.b, self.j):
-            self.b = self.b[:self.k] + 'i' + self.b[self.k + 1:]
+            self.b = self.b[:len(self.b) - 1] + 'i' + self.b[len(self.b) - 1 + 1:]
 
     def step2(self) -> None:
         """step2() maps double suffices to single ones.
         so -ization ( = -ize plus -ation) maps to -ize etc. note that the
         string before the suffix must give measure_consonant_sequences(self.b, self.j) > 0.
         """
-        char = self.b[self.k - 1]
+        char = self.b[len(self.b) - 1 - 1]
         if char == 'a':
             if self.ends("ational"):
                 self.r("ate")
@@ -246,7 +243,7 @@ class PorterStemmer:
     def step3(self) -> None:
         """step3() dels with -ic-, -full, -ness etc. similar strategy
         to step2."""
-        char = self.b[self.k]
+        char = self.b[len(self.b) - 1]
         if char == 'e':
             if self.ends("icate"):
                 self.r("ic")
@@ -268,7 +265,7 @@ class PorterStemmer:
 
     def step4(self) -> None:
         """step4() takes off -ant, -ence etc., in context <c>vcvc<v>."""
-        char = self.b[self.k - 1]
+        char = self.b[len(self.b) - 1 - 1]
         if char == 'a':
             if self.ends("al"):
                 pass
@@ -347,19 +344,18 @@ class PorterStemmer:
         else:
             return
         if self.measure_consonant_sequences(self.b, self.j) > 1:
-            self.k = self.j
+            self.b = self.b[:self.j + 1]
 
     def step5(self) -> None:
         """step5() removes a final -e if measure_consonant_sequences(self.b, self.j) > 1, and changes -ll to -l if
         measure_consonant_sequences(self.b, self.j) > 1.
         """
-        _j = self.k
-        if self.b[self.k] == 'e':
-            a = self.measure_consonant_sequences(self.b, _j)
-            if a > 1 or (a == 1 and not self.consonant_vowel_consonant(self.b, self.k - 1)):
-                self.k -= 1
-        if self.b[self.k] == 'l' and self.double_consonant(self.b, self.k) and self.measure_consonant_sequences(self.b, _j) > 1:
-            self.k -= 1
+        if self.b[len(self.b) - 1] == 'e':
+            a = self.measure_consonant_sequences(self.b, len(self.b) - 1)
+            if a > 1 or (a == 1 and not self.consonant_vowel_consonant(self.b, len(self.b) - 1 - 1)):
+                self.b = self.b[:-1]
+        if self.b[len(self.b) - 1] == 'l' and self.double_consonant(self.b, len(self.b) - 1) and self.measure_consonant_sequences(self.b, len(self.b) - 1) > 1:
+            self.b = self.b[:-1]
 
     def stem(self, word: str) -> str:
         """The string to be stemmed is ``word``.
@@ -375,7 +371,6 @@ class PorterStemmer:
 
         # copy the parameters into statics
         self.b = word
-        self.k = len(word) - 1
 
         self.step1ab()
         self.step1c()
@@ -383,7 +378,7 @@ class PorterStemmer:
         self.step3()
         self.step4()
         self.step5()
-        return self.b[:self.k + 1]
+        return self.b[:len(self.b) - 1 + 1]
 
 
 if __name__ == '__main__':
