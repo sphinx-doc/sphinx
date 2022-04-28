@@ -122,8 +122,8 @@ class PorterStemmer:
         readjusting k."""
         b = [*self.b]
         b[start + 1:start + 1 + len(s)] = s
-        self.b = ''.join(b)
-        self.k = start + len(s)
+        self.b = ''.join(b[:start + 1 + len(s)])
+        self.k = len(self.b) - 1
 
     def r(self, s: str) -> None:
         """r(s) is used further down."""
