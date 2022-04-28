@@ -119,7 +119,7 @@ class PorterStemmer:
 
     def replace(self, ends_with: str, replace: str) -> bool:
         if self.ends(ends_with):
-            start = self.j
+            start = len(self.b) - 1 - len(ends_with)
             if PorterStemmer.measure_consonant_sequences(self.b, start) > 0:
                 self.b = self.b[:start + 1] + replace
             return True
