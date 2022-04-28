@@ -154,7 +154,8 @@ class PorterStemmer:
             elif self.b[-2] != 's':
                 self.b = self.b[:-1]
         if self.ends("eed"):
-            if PorterStemmer.measure_consonant_sequences(self.b, self.j) > 0:
+            end = len(self.b) - 1 - 3
+            if PorterStemmer.measure_consonant_sequences(self.b, end) > 0:
                 self.b = self.b[:-1]
         elif (self.ends("ed") or self.ends("ing")) and PorterStemmer.vowel_in_stem(self.b, self.j):
             self.b = self.b[:self.j + 1]
@@ -173,7 +174,7 @@ class PorterStemmer:
     def step1c(self) -> None:
         """step1c() turns terminal y to i when there is another vowel in
         the stem."""
-        if self.ends("y") and PorterStemmer.vowel_in_stem(self.b, self.j):
+        if self.ends("y") and PorterStemmer.vowel_in_stem(self.b, len(self.b) - 2):
             self.b = self.b[:-1] + 'i'
 
     def step2(self) -> None:
