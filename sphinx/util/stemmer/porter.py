@@ -37,15 +37,15 @@ class PorterStemmer:
         self.j: int = 0      # j is a general offset into the string
 
     @staticmethod
-    def is_consonant(_: str, i: int, word: str) -> bool:
-        """is_consonant(char, i, word) is True <=> char is a consonant."""
+    def is_consonant(word: str, i: int) -> bool:
+        """is_consonant(word, i) is True <=> word[i] is a consonant."""
         char = word[i]
         if char in {'a', 'e', 'i', 'o', 'u'}:
             return False
         if char == 'y':
-            if i == 0:
+            if word[i] == word[0]:
                 return True
-            return not PorterStemmer.is_consonant(word[i - 1], i - 1, word)
+            return not PorterStemmer.is_consonant(word, i - 1)
         return True
 
     @staticmethod
@@ -61,25 +61,25 @@ class PorterStemmer:
            ....
         """
         i = 0
-        while (i <= end) and PorterStemmer.is_consonant(word[i], i, word):
+        while (i <= end) and PorterStemmer.is_consonant(word, i):
             i += 1
         n = 0
         while True:
-            while (i <= end) and not PorterStemmer.is_consonant(word[i], i, word):
+            while (i <= end) and not PorterStemmer.is_consonant(word, i):
                 i += 1
 
             if i > end:
                 return n
             n += 1
 
-            while (i <= end) and PorterStemmer.is_consonant(word[i], i, word):
+            while (i <= end) and PorterStemmer.is_consonant(word, i):
                 i += 1
 
     @staticmethod
     def vowel_in_stem(word: str, end: int) -> bool:
         """vowel_in_stem() is True <=> word[:end] contains a vowel"""
         for i in range(end + 1):
-            if not PorterStemmer.is_consonant(word[i], i, word):
+            if not PorterStemmer.is_consonant(word, i):
                 return True
         return False
 
@@ -89,7 +89,7 @@ class PorterStemmer:
         return (
             len(word) >= 2
             and word[-1] == word[-2]
-            and PorterStemmer.is_consonant(word[-1], len(word) - 1, word)
+            and PorterStemmer.is_consonant(word, -1)
         )
 
     @staticmethod
@@ -104,9 +104,9 @@ class PorterStemmer:
         """
         return (
             len(word) >= 3
-            and PorterStemmer.is_consonant(word[-1], len(word) - 1, word)
-            and not PorterStemmer.is_consonant(word[-2], len(word) - 2, word)
-            and PorterStemmer.is_consonant(word[-3], len(word) - 3, word)
+            and PorterStemmer.is_consonant(word, -1)
+            and not PorterStemmer.is_consonant(word, -2)
+            and PorterStemmer.is_consonant(word, -3)
             and word[-1] not in {'w', 'x', 'y'}
         )
 
