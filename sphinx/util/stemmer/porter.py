@@ -23,6 +23,82 @@ Release 1: January 2001
 :license: Public Domain ("can be used free of charge for any purpose").
 """
 
+__all__ = ("PorterStemmer",)
+
+
+def is_consonant(word: str, i: int) -> bool:
+    """is_consonant(word, i) is True <=> word[i] is a consonant."""
+    char = word[i]
+    if char in {'a', 'e', 'i', 'o', 'u'}:
+        return False
+    if char == 'y':
+        if word[i] == word[0]:
+            return True
+        return not is_consonant(word, i - 1)
+    return True
+
+
+def measure_consonant_sequences(word: str, end: int) -> int:
+    """Measures the number of consonant sequences in word[:end].
+    if c is a consonant sequence and v a vowel sequence, and <..>
+    indicates arbitrary presence,
+
+       <c><v>       gives 0
+       <c>vc<v>     gives 1
+       <c>vcvc<v>   gives 2
+       <c>vcvcvc<v> gives 3
+       ....
+    """
+    i = 0
+    while (i <= end) and is_consonant(word, i):
+        i += 1
+    n = 0
+    while True:
+        while (i <= end) and not is_consonant(word, i):
+            i += 1
+
+        if i > end:
+            return n
+        n += 1
+
+        while (i <= end) and is_consonant(word, i):
+            i += 1
+
+
+def vowel_in_stem(word: str, end: int) -> bool:
+    """vowel_in_stem() is True <=> word[:end] contains a vowel"""
+    for i in range(end + 1):
+        if not is_consonant(word, i):
+            return True
+    return False
+
+
+def double_consonant(word: str) -> bool:
+    """True <=> word[-2:] contains a double consonant."""
+    return (
+            len(word) >= 2
+            and word[-1] == word[-2]
+            and is_consonant(word, -1)
+    )
+
+
+def consonant_vowel_consonant(word: str) -> bool:
+    """consonant_vowel_consonant(word) is TRUE <=> word[-3:] has the form
+         consonant - vowel - consonant
+    and also if the second c is not w,x or y. this is used when trying to
+    restore an e at the end of a short  e.g.
+
+       cav(e), lov(e), hop(e), crim(e), but
+       snow, box, tray.
+    """
+    return (
+            len(word) >= 3
+            and is_consonant(word, -1)
+            and not is_consonant(word, -2)
+            and is_consonant(word, -3)
+            and word[-1] not in {'w', 'x', 'y'}
+    )
+
 
 class PorterStemmer:
 
@@ -36,80 +112,6 @@ class PorterStemmer:
         self.b: str = ""     # buffer for word to be stemmed
         self.j: int = 0      # j is a general offset into the string
 
-    @staticmethod
-    def is_consonant(word: str, i: int) -> bool:
-        """is_consonant(word, i) is True <=> word[i] is a consonant."""
-        char = word[i]
-        if char in {'a', 'e', 'i', 'o', 'u'}:
-            return False
-        if char == 'y':
-            if word[i] == word[0]:
-                return True
-            return not PorterStemmer.is_consonant(word, i - 1)
-        return True
-
-    @staticmethod
-    def measure_consonant_sequences(word: str, end: int) -> int:
-        """Measures the number of consonant sequences in word[:end].
-        if c is a consonant sequence and v a vowel sequence, and <..>
-        indicates arbitrary presence,
-
-           <c><v>       gives 0
-           <c>vc<v>     gives 1
-           <c>vcvc<v>   gives 2
-           <c>vcvcvc<v> gives 3
-           ....
-        """
-        i = 0
-        while (i <= end) and PorterStemmer.is_consonant(word, i):
-            i += 1
-        n = 0
-        while True:
-            while (i <= end) and not PorterStemmer.is_consonant(word, i):
-                i += 1
-
-            if i > end:
-                return n
-            n += 1
-
-            while (i <= end) and PorterStemmer.is_consonant(word, i):
-                i += 1
-
-    @staticmethod
-    def vowel_in_stem(word: str, end: int) -> bool:
-        """vowel_in_stem() is True <=> word[:end] contains a vowel"""
-        for i in range(end + 1):
-            if not PorterStemmer.is_consonant(word, i):
-                return True
-        return False
-
-    @staticmethod
-    def double_consonant(word: str) -> bool:
-        """True <=> word[-2:] contains a double consonant."""
-        return (
-            len(word) >= 2
-            and word[-1] == word[-2]
-            and PorterStemmer.is_consonant(word, -1)
-        )
-
-    @staticmethod
-    def consonant_vowel_consonant(word: str) -> bool:
-        """consonant_vowel_consonant(word) is TRUE <=> word[-3:] has the form
-             consonant - vowel - consonant
-        and also if the second c is not w,x or y. this is used when trying to
-        restore an e at the end of a short  e.g.
-
-           cav(e), lov(e), hop(e), crim(e), but
-           snow, box, tray.
-        """
-        return (
-            len(word) >= 3
-            and PorterStemmer.is_consonant(word, -1)
-            and not PorterStemmer.is_consonant(word, -2)
-            and PorterStemmer.is_consonant(word, -3)
-            and word[-1] not in {'w', 'x', 'y'}
-        )
-
     def ends(self, s: str) -> bool:
         """True <=> b[:k+1] ends with the string s."""
         if not self.b.endswith(s):
@@ -120,7 +122,7 @@ class PorterStemmer:
     def replace(self, ends_with: str, replace: str) -> bool:
         if self.ends(ends_with):
             start = len(self.b) - 1 - len(ends_with)
-            if PorterStemmer.measure_consonant_sequences(self.b, start) > 0:
+            if measure_consonant_sequences(self.b, start) > 0:
                 self.b = self.b[:start + 1] + replace
             return True
         return False
@@ -155,9 +157,9 @@ class PorterStemmer:
                 self.b = self.b[:-1]
         if self.ends("eed"):
             end = len(self.b) - 1 - 3
-            if PorterStemmer.measure_consonant_sequences(self.b, end) > 0:
+            if measure_consonant_sequences(self.b, end) > 0:
                 self.b = self.b[:-1]
-        elif (self.ends("ed") or self.ends("ing")) and PorterStemmer.vowel_in_stem(self.b, self.j):
+        elif (self.ends("ed") or self.ends("ing")) and vowel_in_stem(self.b, self.j):
             self.b = self.b[:self.j + 1]
             if self.ends("at"):
                 self.b = self.b[:-2] + 'ate'
@@ -165,16 +167,16 @@ class PorterStemmer:
                 self.b = self.b[:-2] + 'ble'
             elif self.ends("iz"):
                 self.b = self.b[:-2] + 'ize'
-            elif PorterStemmer.double_consonant(self.b):
+            elif double_consonant(self.b):
                 if self.b[-2] not in {'l', 's', 'z'}:
                     self.b = self.b[:-1]
-            elif PorterStemmer.measure_consonant_sequences(self.b, self.j) == 1 and PorterStemmer.consonant_vowel_consonant(self.b):
+            elif measure_consonant_sequences(self.b, self.j) == 1 and consonant_vowel_consonant(self.b):
                 self.b = self.b[:self.j + 1] + "e"
 
     def step1c(self) -> None:
         """step1c() turns terminal y to i when there is another vowel in
         the stem."""
-        if self.ends("y") and PorterStemmer.vowel_in_stem(self.b, len(self.b) - 2):
+        if self.ends("y") and vowel_in_stem(self.b, len(self.b) - 2):
             self.b = self.b[:-1] + 'i'
 
     def step2(self) -> None:
@@ -341,7 +343,7 @@ class PorterStemmer:
                 return
         else:
             return
-        if PorterStemmer.measure_consonant_sequences(self.b, self.j) > 1:
+        if measure_consonant_sequences(self.b, self.j) > 1:
             self.b = self.b[:self.j + 1]
 
     def step5(self) -> None:
@@ -349,10 +351,10 @@ class PorterStemmer:
         measure_consonant_sequences(self.b, self.j) > 1.
         """
         if self.b[-1] == 'e':
-            a = PorterStemmer.measure_consonant_sequences(self.b, len(self.b) - 1)
-            if a > 1 or (a == 1 and not PorterStemmer.consonant_vowel_consonant(self.b[:-1])):
+            a = measure_consonant_sequences(self.b, len(self.b) - 1)
+            if a > 1 or (a == 1 and not consonant_vowel_consonant(self.b[:-1])):
                 self.b = self.b[:-1]
-        if self.b[-1] == 'l' and PorterStemmer.double_consonant(self.b) and PorterStemmer.measure_consonant_sequences(self.b, len(self.b) - 1) > 1:
+        if self.b[-1] == 'l' and double_consonant(self.b) and measure_consonant_sequences(self.b, len(self.b) - 1) > 1:
             self.b = self.b[:-1]
 
     def stem(self, word: str) -> str:
