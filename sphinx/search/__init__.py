@@ -12,7 +12,7 @@ from docutils import nodes
 from docutils.nodes import Element, Node
 
 from sphinx import addnodes, package_dir
-from sphinx.deprecation import RemovedInSphinx60Warning
+from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.environment import BuildEnvironment
 
 
@@ -269,7 +269,7 @@ class IndexBuilder:
         """Reconstruct from frozen data."""
         if format == "jsdump":
             warnings.warn("format=jsdump is deprecated, use json instead",
-                          RemovedInSphinx60Warning, stacklevel=2)
+                          RemovedInSphinx70Warning, stacklevel=2)
             format = self.formats["json"]
         elif isinstance(format, str):
             format = self.formats[format]
@@ -299,7 +299,7 @@ class IndexBuilder:
         """Dump the frozen index to a stream."""
         if format == "jsdump":
             warnings.warn("format=jsdump is deprecated, use json instead",
-                          RemovedInSphinx60Warning, stacklevel=2)
+                          RemovedInSphinx70Warning, stacklevel=2)
             format = self.formats["json"]
         elif isinstance(format, str):
             format = self.formats[format]

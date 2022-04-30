@@ -24,7 +24,7 @@ The following is a list of deprecated interfaces.
 
    * - ``sphinx.util.jsdump``
      - 5.0
-     - 6.0
+     - 7.0
      - The standard library ``json`` module.
 
    * - :doc:`Setuptools integration </usage/advanced/setuptools>`

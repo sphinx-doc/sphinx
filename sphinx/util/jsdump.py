@@ -6,7 +6,7 @@ Uses the basestring encode function from simplejson by Bob Ippolito.
 import re
 from typing import IO, Any, Dict, List, Match, Union
 
-from sphinx.deprecation import RemovedInSphinx60Warning, deprecated_alias
+from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
 
 _str_re = re.compile(r'"(\\\\|\\"|[^"])*"')
 _int_re = re.compile(r'\d+')
@@ -204,7 +204,7 @@ deprecated_alias(
         'loads': loads,
         'load': load,
     },
-    RemovedInSphinx60Warning,
+    RemovedInSphinx70Warning,
     {
         'dumps': 'json.dumps',
         'dump': 'json.dump',
