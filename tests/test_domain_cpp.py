@@ -326,7 +326,7 @@ def test_domain_cpp_ast_expressions():
     exprCheck('5 .* 42', 'dsL5EL42E')
     exprCheck('5 ->* 42', 'pmL5EL42E')
     # conditional
-    # TODO
+    exprCheck('5 ? 7 : 3', 'quL5EL7EL3E')
     # assignment
     exprCheck('a = 5', 'aS1aL5E')
     exprCheck('a *= 5', 'mL1aL5E')
@@ -343,6 +343,9 @@ def test_domain_cpp_ast_expressions():
     exprCheck('a |= 5', 'oR1aL5E')
     exprCheck('a or_eq 5', 'oR1aL5E')
     exprCheck('a = {{1, 2, 3}}', 'aS1ailL1EL2EL3EE')
+    # complex assignment and conditional
+    exprCheck('5 = 6 = 7', 'aSL5EaSL6EL7E')
+    exprCheck('5 = 6 ? 7 = 8 : 3', 'aSL5EquL6EaSL7EL8EL3E')
     # comma operator
     exprCheck('a, 5', 'cm1aL5E')
 
@@ -620,7 +623,7 @@ def test_domain_cpp_ast_function_definitions():
 
     # exceptions from return type mangling
     check('function', 'template<typename T> C()', {2: 'I0E1Cv'})
-    check('function', 'template<typename T> operator int()', {1: None, 2: 'I0Ecviv'})
+    check('function', 'template<typename T> operator int()', {2: 'I0Ecviv'})
 
     # trailing return types
     ids = {1: 'f', 2: '1fv'}
@@ -688,7 +691,7 @@ def test_domain_cpp_ast_operators():
     check('function', 'void operator>()', {1: "gt-operator", 2: "gtv"})
     check('function', 'void operator<=()', {1: "lte-operator", 2: "lev"})
     check('function', 'void operator>=()', {1: "gte-operator", 2: "gev"})
-    check('function', 'void operator<=>()', {1: None, 2: "ssv"})
+    check('function', 'void operator<=>()', {2: "ssv"})
     check('function', 'void operator!()', {1: "not-operator", 2: "ntv"})
     check('function', 'void operator not()', {2: "ntv"})
     check('function', 'void operator&&()', {1: "sand-operator", 2: "aav"})
@@ -980,18 +983,21 @@ def test_domain_cpp_ast_attributes():
           output='__attribute__(()) static inline void f()')
     check('function', '[[attr1]] [[attr2]] void f()', {1: 'f', 2: '1fv'})
     # position: declarator
-    check('member', 'int *[[attr]] i', {1: 'i__iP', 2: '1i'})
-    check('member', 'int *const [[attr]] volatile i', {1: 'i__iPVC', 2: '1i'},
-          output='int *[[attr]] volatile const i')
-    check('member', 'int &[[attr]] i', {1: 'i__iR', 2: '1i'})
-    check('member', 'int *[[attr]] *i', {1: 'i__iPP', 2: '1i'})
+    check('member', 'int *[[attr1]] [[attr2]] i', {1: 'i__iP', 2: '1i'})
+    check('member', 'int *const [[attr1]] [[attr2]] volatile i', {1: 'i__iPVC', 2: '1i'},
+          output='int *[[attr1]] [[attr2]] volatile const i')
+    check('member', 'int &[[attr1]] [[attr2]] i', {1: 'i__iR', 2: '1i'})
+    check('member', 'int *[[attr1]] [[attr2]] *i', {1: 'i__iPP', 2: '1i'})
     # position: parameters and qualifiers
     check('function', 'void f() [[attr1]] [[attr2]]', {1: 'f', 2: '1fv'})
 
     # position: class, union, enum
-    check('class', '{key}[[nodiscard]] Foo', {1: 'Foo', 2: '3Foo'}, key='class')
-    check('union', '{key}[[nodiscard]] Foo', {1: None, 2: '3Foo'}, key='union')
-    check('enum', '{key}[[nodiscard]] Foo', {1: None, 2: '3Foo'}, key='enum')
+    check('class', '{key}[[attr1]] [[attr2]] Foo', {1: 'Foo', 2: '3Foo'}, key='class')
+    check('union', '{key}[[attr1]] [[attr2]] Foo', {2: '3Foo'}, key='union')
+    check('enum', '{key}[[attr1]] [[attr2]] Foo', {2: '3Foo'}, key='enum')
+    # position: enumerator
+    check('enumerator', '{key}Foo [[attr1]] [[attr2]]', {2: '3Foo'})
+    check('enumerator', '{key}Foo [[attr1]] [[attr2]] = 42', {2: '3Foo'})
 
 
 def test_domain_cpp_ast_xref_parsing():

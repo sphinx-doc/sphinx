@@ -8,7 +8,7 @@ from docutils.statemachine import StringList
 from docutils.utils import Reporter, assemble_option_dict
 
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx50Warning, RemovedInSphinx60Warning
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc import Documenter, Options
 from sphinx.util import logging
@@ -63,12 +63,6 @@ class DocumenterBridge:
         warnings.warn('DocumenterBridge.filename_set is deprecated.',
                       RemovedInSphinx60Warning, stacklevel=2)
         return self.record_dependencies
-
-    @property
-    def reporter(self) -> Reporter:
-        warnings.warn('DocumenterBridge.reporter is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        return self._reporter
 
 
 def process_documenter_options(documenter: Type[Documenter], config: Config, options: Dict

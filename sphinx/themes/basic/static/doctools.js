@@ -132,7 +132,7 @@ const Documentation = {
   highlightSearchWords: () => {
     const highlight =
       new URLSearchParams(window.location.search).get("highlight") || "";
-    const terms = highlight.toLowerCase().split(/\s+/);
+    const terms = highlight.toLowerCase().split(/\s+/).filter(x => x);
     if (terms.length === 0) return; // nothing to do
 
     // There should never be more than one element matching "div.body"
