@@ -72,6 +72,8 @@ Features added
 Bugs fixed
 ----------
 
+* #10200: apidoc: Duplicated submodules are shown for modules having both .pyx
+  and .so files
 * #10279: autodoc: Default values for keyword only arguments in overloaded
   functions are rendered as a string literal
 * #10280: autodoc: :confval:`autodoc_docstring_signature` unexpectedly generates
