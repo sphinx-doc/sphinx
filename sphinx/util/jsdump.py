@@ -4,9 +4,13 @@ Uses the basestring encode function from simplejson by Bob Ippolito.
 """
 
 import re
+import warnings
 from typing import IO, Any, Dict, List, Match, Union
 
-from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
+from sphinx.deprecation import RemovedInSphinx70Warning
+
+warnings.warn('"sphinx.util.jsdump" has been deprecated. Please use "json" instead.',
+              RemovedInSphinx70Warning)
 
 _str_re = re.compile(r'"(\\\\|\\"|[^"])*"')
 _int_re = re.compile(r'\d+')
@@ -194,21 +198,3 @@ def loads(x: str) -> Any:
 
 def load(f: IO) -> Any:
     return loads(f.read())
-
-
-deprecated_alias(
-    'sphinx.util.jsdump',
-    {
-        'dumps': dumps,
-        'dump': dump,
-        'loads': loads,
-        'load': load,
-    },
-    RemovedInSphinx70Warning,
-    {
-        'dumps': 'json.dumps',
-        'dump': 'json.dump',
-        'loads': 'json.loads',
-        'load': 'json.load',
-    }
-)
