@@ -18,13 +18,10 @@ jobs:
           docutils: du16
         - python: "3.9"
           docutils: du17
-          coverage: "--cov ./ --cov-append --cov-config setup.cfg"
         - python: "3.10"
           docutils: du18
         - python: "3.11-dev"
           docutils: py311
-    env:
-      PYTEST_ADDOPTS: ${{ matrix.coverage }}
 
     steps:
     - uses: actions/checkout@v3
@@ -43,12 +40,9 @@ jobs:
     - name: Install graphviz
       run: sudo apt-get install graphviz
     - name: Install dependencies
-      run: python -m pip install -U pip tox codecov
+      run: python -m pip install -U pip tox
     - name: Run Tox
       run: tox -e ${{ matrix.docutils }} -- -vv
-    - name: codecov
-      uses: codecov/codecov-action@v1
-      if: matrix.coverage
 
   windows:
     runs-on: windows-2019
@@ -62,3 +56,32 @@ jobs:
       run:  python -m pip install -U pip tox
     - name: Run Tox
       run:  tox -e py -- -vv
+
+  coverage:
+    # only run on pushes to branches in the sphinx-doc/sphinx repo
+    if: github.repository_owner == 'sphinx-doc' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    env:
+      PYTEST_ADDOPTS: "--cov ./ --cov-append --cov-config setup.cfg"
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3
+
+    - name: Check Python version
+      run: python --version
+
+    - name: Install graphviz
+      run: sudo apt-get install graphviz
+
+    - name: Install dependencies
+      run: python -m pip install -U tox pip codecov pytest-cov
+
+    - name: Run Tox
+      run: tox -e py -- -vv
+
+    - name: codecov
+      uses: codecov/codecov-action@v3
