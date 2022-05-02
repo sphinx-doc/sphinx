@@ -53,7 +53,7 @@ source code files.
 .. _Google Python Style Guide:
    https://google.github.io/styleguide/pyguide.html
 .. _Google:
-   https://google.github.io/styleguide/pyguide.html#Comments
+   https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
 .. _NumPy:
    https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 .. _Khan Academy:
@@ -298,7 +298,7 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
     napoleon_attr_annotations = True
 
 .. _Google style:
-   https://google.github.io/styleguide/pyguide.html
+   https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
 .. _NumPy style:
    https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
