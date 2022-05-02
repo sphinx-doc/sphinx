@@ -35,9 +35,9 @@ Configuration
    A path to a conversion command.  By default, the imgconverter finds
    the command from search paths.
 
-   On Unix platform, :command:`convert` command is used by default.
+   On Unix platforms, the command :command:`convert` is used by default.
 
-   On Windows platform, :command:`magick` command is used by default.
+   On Windows, the command :command:`magick` is used by default.
 
    .. versionchanged:: 3.1
 
@@ -48,7 +48,7 @@ Configuration
    Additional command-line arguments to give to :command:`convert`, as a list.
    The default is an empty list ``[]``.
 
-   On Windows platform, it defaults to ``["convert"]``.
+   On Windows, it defaults to ``["convert"]``.
 
    .. versionchanged:: 3.1
 
