@@ -2452,7 +2452,6 @@ def test_type_union_operator(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_hide_value(app):
     options = {'members': None}

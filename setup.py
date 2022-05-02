@@ -20,7 +20,7 @@ install_requires = [
     'sphinxcontrib-qthelp',
     'Jinja2>=2.3',
     'Pygments>=2.0',
-    'docutils>=0.14,<0.18',
+    'docutils>=0.14,<0.19',
     'snowballstemmer>=1.1',
     'babel>=1.3',
     'alabaster>=0.7,<0.8',
@@ -41,7 +41,7 @@ extras_require = {
     'lint': [
         'flake8>=3.5.0',
         'isort',
-        'mypy>=0.931',
+        'mypy>=0.950',
         'docutils-stubs',
         "types-typed-ast",
         "types-requests",

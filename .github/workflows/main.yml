@@ -5,43 +5,37 @@ on: [push, pull_request]
 jobs:
   ubuntu:
     runs-on: ubuntu-18.04
+    name: Python ${{ matrix.python }}
     strategy:
       fail-fast: false
       matrix:
-        name: [py36, py37, py38, py39, py310]
         include:
-        - name: py36
-          python: 3.6
+        - python: "3.6"
           docutils: du14
-        - name: py37
-          python: 3.7
+        - python: "3.7"
           docutils: du15
-        - name: py38
-          python: 3.8
+        - python: "3.8"
           docutils: du16
-        - name: py39
-          python: 3.9
+        - python: "3.9"
           docutils: du17
           coverage: "--cov ./ --cov-append --cov-config setup.cfg"
-        - name: py310
-          python: "3.10"
-          docutils: du17
-        - name: py311-dev
-          python: 3.11-dev
+        - python: "3.10"
+          docutils: du18
+        - python: "3.11-dev"
           docutils: py311
     env:
       PYTEST_ADDOPTS: ${{ matrix.coverage }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       if: "!endsWith(matrix.python, '-dev')"
       with:
         python-version: ${{ matrix.python }}
     - name: Set up Python ${{ matrix.python }} (deadsnakes)
       uses: deadsnakes/action@v2.0.1
-      if: endsWith(matrix.python, '-dev')
+      if: "endsWith(matrix.python, '-dev')"
       with:
         python-version: ${{ matrix.python }}
     - name: Check Python version
@@ -49,10 +43,7 @@ jobs:
     - name: Install graphviz
       run: sudo apt-get install graphviz
     - name: Install dependencies
-      run: pip install -U tox codecov
-    - name: Install the latest py package (for py3.11-dev)
-      run: pip install -U git+https://github.com/pytest-dev/py
-      if: ${{ matrix.python == '3.11-dev' }}
+      run: python -m pip install -U pip tox codecov
     - name: Run Tox
       run: tox -e ${{ matrix.docutils }} -- -vv
     - name: codecov
@@ -61,17 +52,13 @@ jobs:
 
   windows:
     runs-on: windows-2019
-    strategy:
-      matrix:
-        architecture: [x86, x64]
-
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v3
       with:
-        architecture: ${{ matrix.architecture }}
+        python-version: 3
     - name: Install dependencies
-      run:  pip install -U tox
+      run:  python -m pip install -U pip tox
     - name: Run Tox
       run:  tox -e py -- -vv

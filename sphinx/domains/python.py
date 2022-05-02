@@ -1426,7 +1426,7 @@ def builtin_resolver(app: Sphinx, env: BuildEnvironment,
         if s.startswith('typing.'):
             s = s.split('.', 1)[1]
 
-        return s in typing.__all__  # type: ignore
+        return s in typing.__all__
 
     if node.get('refdomain') != 'py':
         return None

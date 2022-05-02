@@ -4,6 +4,7 @@ from collections import namedtuple
 
 import pytest
 
+import sphinx.ext.apidoc
 from sphinx.ext.apidoc import main as apidoc_main
 from sphinx.testing.path import path
 
@@ -639,3 +640,31 @@ def test_namespace_package_file(tempdir):
                        "   :members:\n"
                        "   :undoc-members:\n"
                        "   :show-inheritance:\n")
+
+
+def test_no_duplicates(rootdir, tempdir):
+    """Make sure that a ".pyx" and ".so" don't cause duplicate listings.
+
+    We can't use pytest.mark.apidoc here as we use a different set of arguments
+    to apidoc_main
+    """
+
+    original_suffixes = sphinx.ext.apidoc.PY_SUFFIXES
+    try:
+        # Ensure test works on Windows
+        sphinx.ext.apidoc.PY_SUFFIXES += ('.so',)
+
+        package = rootdir / 'test-apidoc-duplicates' / 'fish_licence'
+        outdir = tempdir / 'out'
+        apidoc_main(['-o', outdir, "-T", package, "--implicit-namespaces"])
+
+        # Ensure the module has been documented
+        assert (outdir / 'fish_licence.rst').isfile()
+
+        # Ensure the submodule only appears once
+        text = (outdir / 'fish_licence.rst').read_text(encoding="utf-8")
+        count_submodules = text.count(r'fish\_licence.halibut module')
+        assert count_submodules == 1
+
+    finally:
+        sphinx.ext.apidoc.PY_SUFFIXES = original_suffixes

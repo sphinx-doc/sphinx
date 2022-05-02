@@ -101,7 +101,7 @@ def exclude_members_option(arg: Any) -> Union[object, Set[str]]:
 
 
 def inherited_members_option(arg: Any) -> Set[str]:
-    """Used to convert the :members: option to auto directives."""
+    """Used to convert the :inherited-members: option to auto directives."""
     if arg in (None, True):
         return {'object'}
     elif arg:
@@ -111,7 +111,7 @@ def inherited_members_option(arg: Any) -> Set[str]:
 
 
 def member_order_option(arg: Any) -> Optional[str]:
-    """Used to convert the :members: option to auto directives."""
+    """Used to convert the :member-order: option to auto directives."""
     if arg in (None, True):
         return None
     elif arg in ('alphabetical', 'bysource', 'groupwise'):
@@ -147,7 +147,9 @@ def bool_option(arg: Any) -> bool:
 
 
 def merge_members_option(options: Dict) -> None:
-    """Merge :*-members: option to the :members: option."""
+    """Merge :private-members: and :special-members: options to the
+    :members: option.
+    """
     if options.get('members') is ALL:
         # merging is not needed when members: ALL
         return

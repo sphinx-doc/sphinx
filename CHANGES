@@ -3,6 +3,9 @@ Release 5.0.0 (in development)
 
 Dependencies
 ------------
+* #10164: Support `Docutils 0.18`_. Patch by Adam Turner.
+
+.. _Docutils 0.18:  https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-18-2021-10-26
 
 Incompatible changes
 --------------------
@@ -72,6 +75,8 @@ Features added
 Bugs fixed
 ----------
 
+* #10200: apidoc: Duplicated submodules are shown for modules having both .pyx
+  and .so files
 * #10279: autodoc: Default values for keyword only arguments in overloaded
   functions are rendered as a string literal
 * #10280: autodoc: :confval:`autodoc_docstring_signature` unexpectedly generates
@@ -141,7 +146,7 @@ Features added
   hardcoded links detector feature
 * #9494, #9456: html search: Add a config variable
   :confval:`html_show_search_summary` to enable/disable the search summaries
-* #9337: HTML theme, add option ``enable_search_shortcuts`` that enables :kbd:'/' as
+* #9337: HTML theme, add option ``enable_search_shortcuts`` that enables :kbd:`/` as
          a Quick search shortcut and :kbd:`Esc` shortcut that
          removes search highlighting.
 * #10107: i18n: Allow to suppress translation warnings by adding ``#noqa``
