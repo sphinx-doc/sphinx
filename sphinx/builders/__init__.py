@@ -16,7 +16,8 @@ from sphinx.errors import SphinxError
 from sphinx.events import EventManager
 from sphinx.io import read_doc
 from sphinx.locale import __
-from sphinx.util import import_object, logging, progress_message, rst, status_iterator
+from sphinx.util import (get_filetype, import_object, logging, progress_message, rst,
+                         status_iterator)
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import sphinx_domains
@@ -465,7 +466,8 @@ class Builder:
             self.env.note_dependency(docutilsconf)
 
         filename = self.env.doc2path(docname)
-        publisher = self.app.registry.create_publisher(self.app, filename)
+        filetype = get_filetype(self.app.config.source_suffix, filename)
+        publisher = self.app.registry.get_publisher(self.app, filetype)
         with sphinx_domains(self.env), rst.default_role(docname, self.config.default_role):
             doctree = read_doc(publisher, docname, filename)
 

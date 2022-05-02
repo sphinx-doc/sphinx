@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, List, Type
 from docutils import nodes
 from docutils.core import Publisher
 from docutils.frontend import Values
-from docutils.io import FileInput, Input
+from docutils.io import FileInput, Input, NullOutput
 from docutils.parsers import Parser
 from docutils.readers import standalone
 from docutils.transforms import Transform
@@ -165,3 +165,32 @@ def read_doc(publisher: Publisher, docname: str, filename: str) -> nodes.documen
     # settings get modified in ``write_doctree``; get a local copy
     doctree.settings = doctree.settings.copy()
     return doctree
+
+
+def create_publisher(app: "Sphinx", filetype: str) -> Publisher:
+    reader = SphinxStandaloneReader()
+    reader.setup(app)
+
+    parser = app.registry.create_source_parser(app, filetype)
+    if parser.__class__.__name__ == 'CommonMarkParser' and parser.settings_spec == ():
+        # a workaround for recommonmark
+        #   If recommonmark.AutoStrictify is enabled, the parser invokes reST parser
+        #   internally.  But recommonmark-0.4.0 does not provide settings_spec for reST
+        #   parser.  As a workaround, this copies settings_spec for RSTParser to the
+        #   CommonMarkParser.
+        from docutils.parsers.rst import Parser as RSTParser
+
+        parser.settings_spec = RSTParser.settings_spec
+
+    pub = Publisher(
+        reader=reader,
+        parser=parser,
+        writer=SphinxDummyWriter(),
+        source_class=SphinxFileInput,
+        destination=NullOutput()
+    )
+    # Propagate exceptions by default when used programmatically:
+    defaults = {"traceback": True, **app.env.settings}
+    # Set default settings
+    pub.settings = pub.setup_option_parser(**defaults).get_default_values()  # type: ignore
+    return pub

@@ -9,7 +9,7 @@ from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Optional
 
 from docutils import nodes
 from docutils.core import Publisher
-from docutils.io import Input, NullOutput
+from docutils.io import Input
 from docutils.nodes import Element, Node, TextElement
 from docutils.parsers import Parser
 from docutils.parsers.rst import Directive
@@ -28,11 +28,11 @@ from sphinx.domains.std import GenericObject, Target
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
 from sphinx.extension import Extension
-from sphinx.io import SphinxDummyWriter, SphinxFileInput, SphinxStandaloneReader
+from sphinx.io import create_publisher
 from sphinx.locale import __
 from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole
-from sphinx.util import get_filetype, logging
+from sphinx.util import logging
 from sphinx.util.logging import prefixed_warnings
 from sphinx.util.typing import RoleFunction, TitleGetter
 
@@ -128,7 +128,7 @@ class SphinxComponentRegistry:
         self.transforms: List[Type[Transform]] = []
 
         # private cache of Docutils Publishers (file type -> publisher object)
-        self._publishers: Dict[str, Publisher] = {}
+        self.publishers: Dict[str, Publisher] = {}
 
     def add_builder(self, builder: Type[Builder], override: bool = False) -> None:
         logger.debug('[app] adding builder: %r', builder)
@@ -466,40 +466,14 @@ class SphinxComponentRegistry:
         envversion['sphinx'] = ENV_VERSION
         return envversion
 
-    def create_publisher(self, app: "Sphinx", filename: str) -> Publisher:
-        filetype = get_filetype(app.config.source_suffix, filename)
+    def get_publisher(self, app: "Sphinx", filetype: str) -> Publisher:
         try:
-            return self._publishers[filetype]
+            return self.publishers[filetype]
         except KeyError:
             pass
-
-        reader = SphinxStandaloneReader()
-        reader.setup(app)
-
-        parser = app.registry.create_source_parser(app, filetype)
-        if parser.__class__.__name__ == 'CommonMarkParser' and parser.settings_spec == ():
-            # a workaround for recommonmark
-            #   If recommonmark.AutoStrictify is enabled, the parser invokes reST parser
-            #   internally.  But recommonmark-0.4.0 does not provide settings_spec for reST
-            #   parser.  As a workaround, this copies settings_spec for RSTParser to the
-            #   CommonMarkParser.
-            from docutils.parsers.rst import Parser as RSTParser
-
-            parser.settings_spec = RSTParser.settings_spec
-
-        pub = Publisher(
-            reader=reader,
-            parser=parser,
-            writer=SphinxDummyWriter(),
-            source_class=SphinxFileInput,
-            destination=NullOutput()
-        )
-        # Propagate exceptions by default when used programmatically:
-        defaults = {"traceback": True, **app.env.settings}
-        # Set default settings
-        pub.settings = pub.setup_option_parser(**defaults).get_default_values()  # type: ignore
-        self._publishers[filetype] = pub
-        return pub
+        publisher = create_publisher(app, filetype)
+        self.publishers[filetype] = publisher
+        return publisher
 
 
 def merge_source_suffix(app: "Sphinx", config: Config) -> None:
