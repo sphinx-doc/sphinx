@@ -265,7 +265,7 @@ Here is some sample code to accomplish this:
            copy_asset_file('path/to/myextension/_static/myjsfile.js', staticdir)
 
    def setup(app):
-       app.connect('builder-inited', copy_custom_files)
+       app.connect('build-finished', copy_custom_files)
 
 
 Inject JavaScript based on user configuration
