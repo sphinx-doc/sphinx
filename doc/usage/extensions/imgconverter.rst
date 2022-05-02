@@ -12,14 +12,14 @@ This extension converts images in your document to appropriate format for
 builders.  For example, it allows you to use SVG images with LaTeX builder.
 As a result, you don't mind what image format the builder supports.
 
-The extension uses ImageMagick_ to perform conversions,
-and will fail if ImageMagick is not installed.
+By default the extension uses ImageMagick_ to perform conversions,
+and will not work if ImageMagick is not installed.
 
 .. _ImageMagick: https://www.imagemagick.org
 
 .. note::
 
-   Imagemagick rasterizes a SVG image on conversion.  As a result, the image
+   ImageMagick rasterizes a SVG image on conversion.  As a result, the image
    becomes not scalable.  To avoid that, please use other image converters like
    `sphinxcontrib-svg2pdfconverter`__ (which uses Inkscape or
    ``rsvg-convert``).
@@ -32,10 +32,12 @@ Configuration
 
 .. confval:: image_converter
 
-   A path to :command:`convert` command.  By default, the imgconverter uses
+   A path a conversion command.  By default, the imgconverter finds
    the command from search paths.
 
-   On windows platform, :command:`magick` command is used by default.
+   On Unix platform, :command:`convert` command is used by default.
+
+   On Windows platform, :command:`magick` command is used by default.
 
    .. versionchanged:: 3.1
 
@@ -46,8 +48,8 @@ Configuration
    Additional command-line arguments to give to :command:`convert`, as a list.
    The default is an empty list ``[]``.
 
-   On windows platform, it defaults to ``["convert"]``.
+   On Windows platform, it defaults to ``["convert"]``.
 
    .. versionchanged:: 3.1
 
-      Use ``["convert"]`` by default on windows
+      Use ``["convert"]`` by default on Windows
