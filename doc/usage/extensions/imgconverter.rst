@@ -32,7 +32,7 @@ Configuration
 
 .. confval:: image_converter
 
-   A path a conversion command.  By default, the imgconverter finds
+   A path to a conversion command.  By default, the imgconverter finds
    the command from search paths.
 
    On Unix platform, :command:`convert` command is used by default.
