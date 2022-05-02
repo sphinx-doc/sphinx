@@ -5,6 +5,7 @@ import unicodedata
 import warnings
 from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple, cast
 
+import docutils
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
 from docutils.transforms import Transform, Transformer
@@ -17,7 +18,7 @@ from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.locale import _, __
-from sphinx.util import docutils, logging
+from sphinx.util import logging
 from sphinx.util.docutils import new_document
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import NodeMatcher, apply_source_workaround, is_smartquotable
@@ -108,7 +109,7 @@ class DefaultSubstitutions(SphinxTransform):
                     # special handling: can also specify a strftime format
                     text = format_date(self.config.today_fmt or _('%b %d, %Y'),
                                        language=self.config.language)
-                ref.replace_self(nodes.Text(text, text))
+                ref.replace_self(nodes.Text(text))
 
 
 class MoveModuleTargets(SphinxTransform):

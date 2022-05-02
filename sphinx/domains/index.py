@@ -102,7 +102,7 @@ class IndexRole(ReferenceRole):
 
         index = addnodes.index(entries=entries)
         target = nodes.target('', '', ids=[target_id])
-        text = nodes.Text(title, title)
+        text = nodes.Text(title)
         self.set_source_info(index)
         return [index, target, text], []
 

@@ -236,7 +236,7 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
         try:
             warnfile = abspath(args.warnfile)
             ensuredir(path.dirname(warnfile))
-            warnfp = open(args.warnfile, 'w')
+            warnfp = open(args.warnfile, 'w', encoding="utf-8")
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
                 args.warnfile, exc))

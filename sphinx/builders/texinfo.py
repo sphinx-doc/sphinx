@@ -1,6 +1,7 @@
 """Texinfo builder."""
 
 import os
+import warnings
 from os import path
 from typing import Any, Dict, Iterable, List, Tuple, Union
 
@@ -101,10 +102,14 @@ class TexinfoBuilder(Builder):
             with progress_message(__("writing")):
                 self.post_process_images(doctree)
                 docwriter = TexinfoWriter(self)
-                settings: Any = OptionParser(
-                    defaults=self.env.settings,
-                    components=(docwriter,),
-                    read_config_files=True).get_default_values()
+                with warnings.catch_warnings():
+                    warnings.filterwarnings('ignore', category=DeprecationWarning)
+                    # DeprecationWarning: The frontend.OptionParser class will be replaced
+                    # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
+                    settings: Any = OptionParser(
+                        defaults=self.env.settings,
+                        components=(docwriter,),
+                        read_config_files=True).get_default_values()
                 settings.author = author
                 settings.title = title
                 settings.texinfo_filename = targetname[:-5] + '.info'
@@ -150,9 +155,9 @@ class TexinfoBuilder(Builder):
             newnodes: List[Node] = [nodes.emphasis(sectname, sectname)]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
-                    newnodes.append(nodes.Text(_(' (in '), _(' (in ')))
+                    newnodes.append(nodes.Text(_(' (in ')))
                     newnodes.append(nodes.emphasis(title, title))
-                    newnodes.append(nodes.Text(')', ')'))
+                    newnodes.append(nodes.Text(')'))
                     break
             else:
                 pass

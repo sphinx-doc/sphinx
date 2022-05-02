@@ -332,7 +332,7 @@ def test_autosummary_generate(app, status, warning):
     assert doctree[3][0][0][2][4].astext() == 'autosummary_dummy_module.bar(x[, y])\n\n'
     assert doctree[3][0][0][2][5].astext() == 'autosummary_dummy_module.qux\n\na module-level attribute'
 
-    module = (app.srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text()
+    module = (app.srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text(encoding='utf8')
 
     assert ('   .. autosummary::\n'
             '   \n'
@@ -345,7 +345,7 @@ def test_autosummary_generate(app, status, warning):
             '      quuz\n'
             '   \n' in module)
 
-    Foo = (app.srcdir / 'generated' / 'autosummary_dummy_module.Foo.rst').read_text()
+    Foo = (app.srcdir / 'generated' / 'autosummary_dummy_module.Foo.rst').read_text(encoding='utf8')
     assert '.. automethod:: __init__' in Foo
     assert ('   .. autosummary::\n'
             '   \n'
@@ -360,17 +360,17 @@ def test_autosummary_generate(app, status, warning):
             '      ~Foo.value\n'
             '   \n' in Foo)
 
-    FooBar = (app.srcdir / 'generated' / 'autosummary_dummy_module.Foo.Bar.rst').read_text()
+    FooBar = (app.srcdir / 'generated' / 'autosummary_dummy_module.Foo.Bar.rst').read_text(encoding='utf8')
     assert ('.. currentmodule:: autosummary_dummy_module\n'
             '\n'
             '.. autoclass:: Foo.Bar\n' in FooBar)
 
-    Foo_value = (app.srcdir / 'generated' / 'autosummary_dummy_module.Foo.value.rst').read_text()
+    Foo_value = (app.srcdir / 'generated' / 'autosummary_dummy_module.Foo.value.rst').read_text(encoding='utf8')
     assert ('.. currentmodule:: autosummary_dummy_module\n'
             '\n'
             '.. autoattribute:: Foo.value' in Foo_value)
 
-    qux = (app.srcdir / 'generated' / 'autosummary_dummy_module.qux.rst').read_text()
+    qux = (app.srcdir / 'generated' / 'autosummary_dummy_module.qux.rst').read_text(encoding='utf8')
     assert ('.. currentmodule:: autosummary_dummy_module\n'
             '\n'
             '.. autodata:: qux' in qux)
@@ -383,10 +383,10 @@ def test_autosummary_generate_overwrite1(app_params, make_app):
     srcdir = kwargs.get('srcdir')
 
     (srcdir / 'generated').makedirs(exist_ok=True)
-    (srcdir / 'generated' / 'autosummary_dummy_module.rst').write_text('')
+    (srcdir / 'generated' / 'autosummary_dummy_module.rst').write_text('', encoding='utf8')
 
     app = make_app(*args, **kwargs)
-    content = (srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text()
+    content = (srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text(encoding='utf8')
     assert content == ''
     assert 'autosummary_dummy_module.rst' not in app._warning.getvalue()
 
@@ -398,10 +398,10 @@ def test_autosummary_generate_overwrite2(app_params, make_app):
     srcdir = kwargs.get('srcdir')
 
     (srcdir / 'generated').makedirs(exist_ok=True)
-    (srcdir / 'generated' / 'autosummary_dummy_module.rst').write_text('')
+    (srcdir / 'generated' / 'autosummary_dummy_module.rst').write_text('', encoding='utf8')
 
     app = make_app(*args, **kwargs)
-    content = (srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text()
+    content = (srcdir / 'generated' / 'autosummary_dummy_module.rst').read_text(encoding='utf8')
     assert content != ''
     assert 'autosummary_dummy_module.rst' not in app._warning.getvalue()
 
@@ -425,12 +425,12 @@ def test_autosummary_recursive(app, status, warning):
     assert (app.srcdir / 'generated' / 'package2.module.rst').exists() is False
 
     # Check content of recursively generated stub-files
-    content = (app.srcdir / 'generated' / 'package.rst').read_text()
+    content = (app.srcdir / 'generated' / 'package.rst').read_text(encoding='utf8')
     assert 'package.module' in content
     assert 'package.package' in content
     assert 'package.module_importfail' in content
 
-    content = (app.srcdir / 'generated' / 'package.package.rst').read_text()
+    content = (app.srcdir / 'generated' / 'package.package.rst').read_text(encoding='utf8')
     assert 'package.package.module' in content
 
 
@@ -465,7 +465,7 @@ def test_autosummary_filename_map(app, status, warning):
 @pytest.mark.sphinx('latex', **default_kw)
 def test_autosummary_latex_table_colspec(app, status, warning):
     app.builder.build_all()
-    result = (app.outdir / 'python.tex').read_text()
+    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
     print(status.getvalue())
     print(warning.getvalue())
     assert r'\begin{longtable}[c]{\X{1}{2}\X{1}{2}}' in result
@@ -515,7 +515,7 @@ def test_autosummary_imported_members(app, status, warning):
         # generated/foo is generated successfully
         assert app.env.get_doctree('generated/autosummary_dummy_package')
 
-        module = (app.srcdir / 'generated' / 'autosummary_dummy_package.rst').read_text()
+        module = (app.srcdir / 'generated' / 'autosummary_dummy_package.rst').read_text(encoding='utf8')
         assert ('   .. autosummary::\n'
                 '   \n'
                 '      Bar\n'
@@ -535,7 +535,7 @@ def test_generate_autosummary_docs_property(app):
         mock.return_value = [AutosummaryEntry('target.methods.Base.prop', 'prop', None, False)]
         generate_autosummary_docs([], output_dir=app.srcdir, app=app)
 
-    content = (app.srcdir / 'target.methods.Base.prop.rst').read_text()
+    content = (app.srcdir / 'target.methods.Base.prop.rst').read_text(encoding='utf8')
     assert content == ("target.methods.Base.prop\n"
                        "========================\n"
                        "\n"
@@ -548,7 +548,7 @@ def test_generate_autosummary_docs_property(app):
 def test_autosummary_skip_member(app):
     app.build()
 
-    content = (app.srcdir / 'generate' / 'target.Foo.rst').read_text()
+    content = (app.srcdir / 'generate' / 'target.Foo.rst').read_text(encoding='utf8')
     assert 'Foo.skipmeth' not in content
     assert 'Foo._privatemeth' in content
 
@@ -557,7 +557,7 @@ def test_autosummary_skip_member(app):
 def test_autosummary_template(app):
     app.build()
 
-    content = (app.srcdir / 'generate' / 'target.Foo.rst').read_text()
+    content = (app.srcdir / 'generate' / 'target.Foo.rst').read_text(encoding='utf8')
     assert 'EMPTY' in content
 
 

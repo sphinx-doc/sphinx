@@ -10,7 +10,7 @@ import pytest
 def test_ext_imgconverter(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'python.tex').read_text()
+    content = (app.outdir / 'python.tex').read_text(encoding='utf8')
 
     # supported image (not converted)
     assert '\\sphinxincludegraphics{{img}.pdf}' in content

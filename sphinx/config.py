@@ -405,7 +405,7 @@ def correct_copyright_year(app: "Sphinx", config: Config) -> None:
     if getenv('SOURCE_DATE_EPOCH') is not None:
         for k in ('copyright', 'epub_copyright'):
             if k in config:
-                replace = r'\g<1>%s' % format_date('%Y')
+                replace = r'\g<1>%s' % format_date('%Y', language='en')
                 config[k] = copyright_year_re.sub(replace, config[k])
 
 

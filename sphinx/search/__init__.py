@@ -449,9 +449,9 @@ class IndexBuilder:
         """Returns JS code that will be inserted into language_data.js."""
         if self.lang.js_stemmer_rawcode:
             js_dir = path.join(package_dir, 'search', 'minified-js')
-            with open(path.join(js_dir, 'base-stemmer.js')) as js_file:
+            with open(path.join(js_dir, 'base-stemmer.js'), encoding='utf-8') as js_file:
                 base_js = js_file.read()
-            with open(path.join(js_dir, self.lang.js_stemmer_rawcode)) as js_file:
+            with open(path.join(js_dir, self.lang.js_stemmer_rawcode), encoding='utf-8') as js_file:
                 language_js = js_file.read()
             return ('%s\n%s\nStemmer = %sStemmer;' %
                     (base_js, language_js, self.lang.language_name))

@@ -1,6 +1,7 @@
 """Test the search index builder."""
 
 import json
+import warnings
 from collections import namedtuple
 from io import BytesIO
 
@@ -27,13 +28,17 @@ settings = parser = None
 
 def setup_module():
     global settings, parser
-    optparser = frontend.OptionParser(components=(rst.Parser,))
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore', category=DeprecationWarning)
+        # DeprecationWarning: The frontend.OptionParser class will be replaced
+        # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
+        optparser = frontend.OptionParser(components=(rst.Parser,))
     settings = optparser.get_default_values()
     parser = rst.Parser()
 
 
 def load_searchindex(path):
-    searchindex = path.read_text()
+    searchindex = path.read_text(encoding='utf8')
     assert searchindex.startswith('Search.setIndex(')
     assert searchindex.endswith(')')
 
@@ -94,7 +99,7 @@ def test_meta_keys_are_handled_for_language_de(app, status, warning):
 @pytest.mark.sphinx(testroot='search')
 def test_stemmer_does_not_remove_short_words(app, status, warning):
     app.builder.build_all()
-    searchindex = (app.outdir / 'searchindex.js').read_text()
+    searchindex = (app.outdir / 'searchindex.js').read_text(encoding='utf8')
     assert 'zfs' in searchindex
 
 
@@ -108,7 +113,7 @@ def test_stemmer(app, status, warning):
 
 @pytest.mark.sphinx(testroot='search')
 def test_term_in_heading_and_section(app, status, warning):
-    searchindex = (app.outdir / 'searchindex.js').read_text()
+    searchindex = (app.outdir / 'searchindex.js').read_text(encoding='utf8')
     # if search term is in the title of one doc and in the text of another
     # both documents should be a hit in the search index as a title,
     # respectively text hit

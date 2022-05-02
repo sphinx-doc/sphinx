@@ -293,7 +293,7 @@ class EmphasizedLiteral(SphinxRole):
                 if len(stack) == 3 and stack[1] == "{" and len(stack[2]) > 0:
                     # emphasized word found
                     if stack[0]:
-                        result.append(nodes.Text(stack[0], stack[0]))
+                        result.append(nodes.Text(stack[0]))
                     result.append(nodes.emphasis(stack[2], stack[2]))
                     stack = ['']
                 else:
@@ -310,7 +310,7 @@ class EmphasizedLiteral(SphinxRole):
         if ''.join(stack):
             # remaining is treated as Text
             text = ''.join(stack)
-            result.append(nodes.Text(text, text))
+            result.append(nodes.Text(text))
 
         return result
 

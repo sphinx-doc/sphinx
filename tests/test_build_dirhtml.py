@@ -17,7 +17,7 @@ def test_dirhtml(app, status, warning):
     assert (app.outdir / 'foo/foo_2/index.html').exists()
     assert (app.outdir / 'bar/index.html').exists()
 
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert 'href="foo/"' in content
     assert 'href="foo/foo_1/"' in content
     assert 'href="foo/foo_2/"' in content

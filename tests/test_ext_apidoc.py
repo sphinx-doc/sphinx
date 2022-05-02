@@ -62,16 +62,16 @@ def test_pep_0420_enabled(make_app, apidoc):
     assert (outdir / 'a.b.e.rst').isfile()
     assert (outdir / 'a.b.x.rst').isfile()
 
-    with open(outdir / 'a.b.c.rst') as f:
+    with open(outdir / 'a.b.c.rst', encoding='utf-8') as f:
         rst = f.read()
         assert "automodule:: a.b.c.d\n" in rst
         assert "automodule:: a.b.c\n" in rst
 
-    with open(outdir / 'a.b.e.rst') as f:
+    with open(outdir / 'a.b.e.rst', encoding='utf-8') as f:
         rst = f.read()
         assert "automodule:: a.b.e.f\n" in rst
 
-    with open(outdir / 'a.b.x.rst') as f:
+    with open(outdir / 'a.b.x.rst', encoding='utf-8') as f:
         rst = f.read()
         assert "automodule:: a.b.x.y\n" in rst
         assert "automodule:: a.b.x\n" not in rst
@@ -86,15 +86,15 @@ def test_pep_0420_enabled(make_app, apidoc):
     assert (builddir / 'a.b.e.txt').isfile()
     assert (builddir / 'a.b.x.txt').isfile()
 
-    with open(builddir / 'a.b.c.txt') as f:
+    with open(builddir / 'a.b.c.txt', encoding='utf-8') as f:
         txt = f.read()
         assert "a.b.c package\n" in txt
 
-    with open(builddir / 'a.b.e.txt') as f:
+    with open(builddir / 'a.b.e.txt', encoding='utf-8') as f:
         txt = f.read()
         assert "a.b.e.f module\n" in txt
 
-    with open(builddir / 'a.b.x.txt') as f:
+    with open(builddir / 'a.b.x.txt', encoding='utf-8') as f:
         txt = f.read()
         assert "a.b.x namespace\n" in txt
 
@@ -112,15 +112,15 @@ def test_pep_0420_enabled_separate(make_app, apidoc):
     assert (outdir / 'a.b.x.rst').isfile()
     assert (outdir / 'a.b.x.y.rst').isfile()
 
-    with open(outdir / 'a.b.c.rst') as f:
+    with open(outdir / 'a.b.c.rst', encoding='utf-8') as f:
         rst = f.read()
         assert ".. toctree::\n   :maxdepth: 4\n\n   a.b.c.d\n" in rst
 
-    with open(outdir / 'a.b.e.rst') as f:
+    with open(outdir / 'a.b.e.rst', encoding='utf-8') as f:
         rst = f.read()
         assert ".. toctree::\n   :maxdepth: 4\n\n   a.b.e.f\n" in rst
 
-    with open(outdir / 'a.b.x.rst') as f:
+    with open(outdir / 'a.b.x.rst', encoding='utf-8') as f:
         rst = f.read()
         assert ".. toctree::\n   :maxdepth: 4\n\n   a.b.x.y\n" in rst
 
@@ -136,15 +136,15 @@ def test_pep_0420_enabled_separate(make_app, apidoc):
     assert (builddir / 'a.b.x.txt').isfile()
     assert (builddir / 'a.b.x.y.txt').isfile()
 
-    with open(builddir / 'a.b.c.txt') as f:
+    with open(builddir / 'a.b.c.txt', encoding='utf-8') as f:
         txt = f.read()
         assert "a.b.c package\n" in txt
 
-    with open(builddir / 'a.b.e.f.txt') as f:
+    with open(builddir / 'a.b.e.f.txt', encoding='utf-8') as f:
         txt = f.read()
         assert "a.b.e.f module\n" in txt
 
-    with open(builddir / 'a.b.x.txt') as f:
+    with open(builddir / 'a.b.x.txt', encoding='utf-8') as f:
         txt = f.read()
         assert "a.b.x namespace\n" in txt
 
@@ -170,7 +170,7 @@ def test_pep_0420_disabled_top_level_verify(make_app, apidoc):
     assert (outdir / 'c.rst').isfile()
     assert not (outdir / 'x.rst').exists()
 
-    with open(outdir / 'c.rst') as f:
+    with open(outdir / 'c.rst', encoding='utf-8') as f:
         rst = f.read()
         assert "c package\n" in rst
         assert "automodule:: c.d\n" in rst
@@ -195,7 +195,7 @@ def test_trailing_underscore(make_app, apidoc):
     print(app._warning.getvalue())
 
     builddir = outdir / '_build' / 'text'
-    with open(builddir / 'package_.txt') as f:
+    with open(builddir / 'package_.txt', encoding='utf-8') as f:
         rst = f.read()
         assert "package_ package\n" in rst
         assert "package_.module_ module\n" in rst
@@ -276,7 +276,7 @@ def test_multibyte_parameters(make_app, apidoc):
     assert (outdir / 'conf.py').isfile()
     assert (outdir / 'index.rst').isfile()
 
-    conf_py = (outdir / 'conf.py').read_text()
+    conf_py = (outdir / 'conf.py').read_text(encoding='utf8')
     assert "project = 'プロジェクト名'" in conf_py
     assert "author = '著者名'" in conf_py
     assert "version = 'バージョン'" in conf_py
@@ -296,7 +296,7 @@ def test_extension_parsed(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
 
-    with open(outdir / 'conf.py') as f:
+    with open(outdir / 'conf.py', encoding='utf-8') as f:
         rst = f.read()
         assert "sphinx.ext.mathjax" in rst
 
@@ -364,7 +364,7 @@ def test_toc_all_references_should_exist_pep420_disabled(make_app, apidoc):
 
 def extract_toc(path):
     """Helper: Extract toc section from package rst file"""
-    with open(path) as f:
+    with open(path, encoding='utf-8') as f:
         rst = f.read()
 
     # Read out the part containing the toctree
@@ -390,12 +390,12 @@ def test_subpackage_in_toc(make_app, apidoc):
     assert (outdir / 'conf.py').isfile()
 
     assert (outdir / 'parent.rst').isfile()
-    with open(outdir / 'parent.rst') as f:
+    with open(outdir / 'parent.rst', encoding='utf-8') as f:
         parent = f.read()
     assert 'parent.child' in parent
 
     assert (outdir / 'parent.child.rst').isfile()
-    with open(outdir / 'parent.child.rst') as f:
+    with open(outdir / 'parent.child.rst', encoding='utf-8') as f:
         parent_child = f.read()
     assert 'parent.child.foo' in parent_child
 
@@ -403,31 +403,31 @@ def test_subpackage_in_toc(make_app, apidoc):
 
 
 def test_private(tempdir):
-    (tempdir / 'hello.py').write_text('')
-    (tempdir / '_world.py').write_text('')
+    (tempdir / 'hello.py').write_text('', encoding='utf8')
+    (tempdir / '_world.py').write_text('', encoding='utf8')
 
     # without --private option
     apidoc_main(['-o', tempdir, tempdir])
     assert (tempdir / 'hello.rst').exists()
-    assert ':private-members:' not in (tempdir / 'hello.rst').read_text()
+    assert ':private-members:' not in (tempdir / 'hello.rst').read_text(encoding='utf8')
     assert not (tempdir / '_world.rst').exists()
 
     # with --private option
     apidoc_main(['--private', '-f', '-o', tempdir, tempdir])
     assert (tempdir / 'hello.rst').exists()
-    assert ':private-members:' in (tempdir / 'hello.rst').read_text()
+    assert ':private-members:' in (tempdir / 'hello.rst').read_text(encoding='utf8')
     assert (tempdir / '_world.rst').exists()
 
 
 def test_toc_file(tempdir):
     outdir = path(tempdir)
     (outdir / 'module').makedirs()
-    (outdir / 'example.py').write_text('')
-    (outdir / 'module' / 'example.py').write_text('')
+    (outdir / 'example.py').write_text('', encoding='utf8')
+    (outdir / 'module' / 'example.py').write_text('', encoding='utf8')
     apidoc_main(['-o', tempdir, tempdir])
     assert (outdir / 'modules.rst').exists()
 
-    content = (outdir / 'modules.rst').read_text()
+    content = (outdir / 'modules.rst').read_text(encoding='utf8')
     assert content == ("test_toc_file0\n"
                        "==============\n"
                        "\n"
@@ -439,11 +439,11 @@ def test_toc_file(tempdir):
 
 def test_module_file(tempdir):
     outdir = path(tempdir)
-    (outdir / 'example.py').write_text('')
+    (outdir / 'example.py').write_text('', encoding='utf8')
     apidoc_main(['-o', tempdir, tempdir])
     assert (outdir / 'example.rst').exists()
 
-    content = (outdir / 'example.rst').read_text()
+    content = (outdir / 'example.rst').read_text(encoding='utf8')
     assert content == ("example module\n"
                        "==============\n"
                        "\n"
@@ -455,11 +455,11 @@ def test_module_file(tempdir):
 
 def test_module_file_noheadings(tempdir):
     outdir = path(tempdir)
-    (outdir / 'example.py').write_text('')
+    (outdir / 'example.py').write_text('', encoding='utf8')
     apidoc_main(['--no-headings', '-o', tempdir, tempdir])
     assert (outdir / 'example.rst').exists()
 
-    content = (outdir / 'example.rst').read_text()
+    content = (outdir / 'example.rst').read_text(encoding='utf8')
     assert content == (".. automodule:: example\n"
                        "   :members:\n"
                        "   :undoc-members:\n"
@@ -469,16 +469,16 @@ def test_module_file_noheadings(tempdir):
 def test_package_file(tempdir):
     outdir = path(tempdir)
     (outdir / 'testpkg').makedirs()
-    (outdir / 'testpkg' / '__init__.py').write_text('')
-    (outdir / 'testpkg' / 'hello.py').write_text('')
-    (outdir / 'testpkg' / 'world.py').write_text('')
+    (outdir / 'testpkg' / '__init__.py').write_text('', encoding='utf8')
+    (outdir / 'testpkg' / 'hello.py').write_text('', encoding='utf8')
+    (outdir / 'testpkg' / 'world.py').write_text('', encoding='utf8')
     (outdir / 'testpkg' / 'subpkg').makedirs()
-    (outdir / 'testpkg' / 'subpkg' / '__init__.py').write_text('')
+    (outdir / 'testpkg' / 'subpkg' / '__init__.py').write_text('', encoding='utf8')
     apidoc_main(['-o', tempdir, tempdir / 'testpkg'])
     assert (outdir / 'testpkg.rst').exists()
     assert (outdir / 'testpkg.subpkg.rst').exists()
 
-    content = (outdir / 'testpkg.rst').read_text()
+    content = (outdir / 'testpkg.rst').read_text(encoding='utf8')
     assert content == ("testpkg package\n"
                        "===============\n"
                        "\n"
@@ -517,7 +517,7 @@ def test_package_file(tempdir):
                        "   :undoc-members:\n"
                        "   :show-inheritance:\n")
 
-    content = (outdir / 'testpkg.subpkg.rst').read_text()
+    content = (outdir / 'testpkg.subpkg.rst').read_text(encoding='utf8')
     assert content == ("testpkg.subpkg package\n"
                        "======================\n"
                        "\n"
@@ -533,13 +533,13 @@ def test_package_file(tempdir):
 def test_package_file_separate(tempdir):
     outdir = path(tempdir)
     (outdir / 'testpkg').makedirs()
-    (outdir / 'testpkg' / '__init__.py').write_text('')
-    (outdir / 'testpkg' / 'example.py').write_text('')
+    (outdir / 'testpkg' / '__init__.py').write_text('', encoding='utf8')
+    (outdir / 'testpkg' / 'example.py').write_text('', encoding='utf8')
     apidoc_main(['--separate', '-o', tempdir, tempdir / 'testpkg'])
     assert (outdir / 'testpkg.rst').exists()
     assert (outdir / 'testpkg.example.rst').exists()
 
-    content = (outdir / 'testpkg.rst').read_text()
+    content = (outdir / 'testpkg.rst').read_text(encoding='utf8')
     assert content == ("testpkg package\n"
                        "===============\n"
                        "\n"
@@ -559,7 +559,7 @@ def test_package_file_separate(tempdir):
                        "   :undoc-members:\n"
                        "   :show-inheritance:\n")
 
-    content = (outdir / 'testpkg.example.rst').read_text()
+    content = (outdir / 'testpkg.example.rst').read_text(encoding='utf8')
     assert content == ("testpkg.example module\n"
                        "======================\n"
                        "\n"
@@ -572,11 +572,11 @@ def test_package_file_separate(tempdir):
 def test_package_file_module_first(tempdir):
     outdir = path(tempdir)
     (outdir / 'testpkg').makedirs()
-    (outdir / 'testpkg' / '__init__.py').write_text('')
-    (outdir / 'testpkg' / 'example.py').write_text('')
+    (outdir / 'testpkg' / '__init__.py').write_text('', encoding='utf8')
+    (outdir / 'testpkg' / 'example.py').write_text('', encoding='utf8')
     apidoc_main(['--module-first', '-o', tempdir, tempdir])
 
-    content = (outdir / 'testpkg.rst').read_text()
+    content = (outdir / 'testpkg.rst').read_text(encoding='utf8')
     assert content == ("testpkg package\n"
                        "===============\n"
                        "\n"
@@ -600,11 +600,11 @@ def test_package_file_module_first(tempdir):
 def test_package_file_without_submodules(tempdir):
     outdir = path(tempdir)
     (outdir / 'testpkg').makedirs()
-    (outdir / 'testpkg' / '__init__.py').write_text('')
+    (outdir / 'testpkg' / '__init__.py').write_text('', encoding='utf8')
     apidoc_main(['-o', tempdir, tempdir / 'testpkg'])
     assert (outdir / 'testpkg.rst').exists()
 
-    content = (outdir / 'testpkg.rst').read_text()
+    content = (outdir / 'testpkg.rst').read_text(encoding='utf8')
     assert content == ("testpkg package\n"
                        "===============\n"
                        "\n"
@@ -620,11 +620,11 @@ def test_package_file_without_submodules(tempdir):
 def test_namespace_package_file(tempdir):
     outdir = path(tempdir)
     (outdir / 'testpkg').makedirs()
-    (outdir / 'testpkg' / 'example.py').write_text('')
+    (outdir / 'testpkg' / 'example.py').write_text('', encoding='utf8')
     apidoc_main(['--implicit-namespace', '-o', tempdir, tempdir / 'testpkg'])
     assert (outdir / 'testpkg.rst').exists()
 
-    content = (outdir / 'testpkg.rst').read_text()
+    content = (outdir / 'testpkg.rst').read_text(encoding='utf8')
     assert content == ("testpkg namespace\n"
                        "=================\n"
                        "\n"

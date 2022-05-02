@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 import sphinx
 
-with open('README.rst') as f:
+with open('README.rst', encoding='utf-8') as f:
     long_desc = f.read()
 
 if sys.version_info < (3, 6):

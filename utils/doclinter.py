@@ -12,7 +12,7 @@ LEADING_SPACES = re.compile(r'^(\s*)')
 
 
 def lint(path: str) -> int:
-    with open(path) as f:
+    with open(path, encoding='utf-8') as f:
         document = f.readlines()
 
     errors = 0

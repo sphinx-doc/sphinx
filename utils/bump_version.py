@@ -27,7 +27,7 @@ def bump_version(path, version_info, in_develop=True):
     if in_develop:
         version += '+'
 
-    with open(path, 'r+') as f:
+    with open(path, 'r+', encoding='utf-8') as f:
         body = f.read()
         body = re.sub(r"(?<=__version__ = ')[^']+", version, body)
         body = re.sub(r"(?<=__released__ = ')[^']+", release, body)
@@ -88,7 +88,7 @@ class Changes:
         self.fetch_version()
 
     def fetch_version(self):
-        with open(self.path) as f:
+        with open(self.path, encoding='utf-8') as f:
             version = f.readline().strip()
             matched = re.search(r'^Release (.*) \((.*)\)$', version)
             if matched is None:
@@ -105,7 +105,7 @@ class Changes:
         release_date = datetime.now().strftime('%b %d, %Y')
         heading = 'Release %s (released %s)' % (self.version, release_date)
 
-        with open(self.path, 'r+') as f:
+        with open(self.path, 'r+', encoding='utf-8') as f:
             f.readline()  # skip first two lines
             f.readline()
             body = f.read()
@@ -126,12 +126,12 @@ class Changes:
                                    version_info[4] or '')
         heading = 'Release %s (in development)' % version
 
-        with open(os.path.join(script_dir, 'CHANGES_template')) as f:
+        with open(os.path.join(script_dir, 'CHANGES_template'), encoding='utf-8') as f:
             f.readline()  # skip first two lines
             f.readline()
             tmpl = f.read()
 
-        with open(self.path, 'r+') as f:
+        with open(self.path, 'r+', encoding='utf-8') as f:
             body = f.read()
 
             f.seek(0)
