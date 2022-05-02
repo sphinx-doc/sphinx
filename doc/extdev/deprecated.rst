@@ -47,6 +47,11 @@ The following is a list of deprecated interfaces.
      - 7.0
      - N/A
 
+   * - ``sphinx.util.docutils.__version_info__``
+     - 5.0
+     - 7.0
+     - ``docutils.__version_info__``
+
    * - ``sphinx.util.docutils.is_html5_writer_available()``
      - 5.0
      - 7.0
