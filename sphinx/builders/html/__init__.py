@@ -23,6 +23,7 @@ from sphinx import version_info as sphinx_version
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import ENUM, Config
+from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
 from sphinx.domains import Domain, Index, IndexEntry
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
@@ -33,7 +34,7 @@ from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import isurl, logging, md5, progress_message, status_iterator
-from sphinx.util.docutils import is_html5_writer_available, new_document
+from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
 from sphinx.util.inventory import InventoryFile
@@ -41,13 +42,7 @@ from sphinx.util.matching import DOTFILES, Matcher, patmatch
 from sphinx.util.osutil import copyfile, ensuredir, os_path, relative_uri
 from sphinx.util.tags import Tags
 from sphinx.writers.html import HTMLTranslator, HTMLWriter
-
-# HTML5 Writer is available or not
-if is_html5_writer_available():
-    from sphinx.writers.html5 import HTML5Translator
-    html5_ready = True
-else:
-    html5_ready = False
+from sphinx.writers.html5 import HTML5Translator
 
 #: the filename for the inventory of objects
 INVENTORY_FILENAME = 'objects.inv'
@@ -344,7 +339,7 @@ class StandaloneHTMLBuilder(Builder):
 
     @property
     def default_translator_class(self) -> Type[nodes.NodeVisitor]:  # type: ignore
-        if not html5_ready or self.config.html4_writer:
+        if self.config.html4_writer:
             return HTMLTranslator
         else:
             return HTML5Translator
@@ -536,7 +531,7 @@ class StandaloneHTMLBuilder(Builder):
             'parents': [],
             'logo': logo,
             'favicon': favicon,
-            'html5_doctype': html5_ready and not self.config.html4_writer,
+            'html5_doctype': not self.config.html4_writer,
         }
         if self.theme:
             self.globalcontext.update(
@@ -1314,6 +1309,12 @@ import sphinxcontrib.serializinghtml  # NOQA
 
 import sphinx.builders.dirhtml  # NOQA
 import sphinx.builders.singlehtml  # NOQA
+
+deprecated_alias('sphinx.builders.html',
+                 {
+                     'html5_ready': True,
+                 },
+                 RemovedInSphinx70Warning)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

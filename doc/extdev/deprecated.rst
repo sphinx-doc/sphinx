@@ -42,6 +42,16 @@ The following is a list of deprecated interfaces.
      - 7.0
      - N/A
 
+   * - ``sphinx.builders.html.html5_ready``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - ``sphinx.util.docutils.is_html5_writer_available()``
+     - 5.0
+     - 7.0
+     - N/A
+
    * - ``sphinx.writers.latex.LaTeXWriter.docclasses``
      - 5.0
      - 7.0
