@@ -1,5 +1,8 @@
 """Test sphinx.ext.imgconverter extension.
-Requires ImageMagick to be installed, otherwise the conversion will be skipped and this test will fail.
+
+Unix only. Fails if ImageMagick_ is not installed.
+
+.. _ImageMagick: https://imagemagick.org
 """
 
 import os

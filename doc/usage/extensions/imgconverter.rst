@@ -12,10 +12,10 @@ This extension converts images in your document to appropriate format for
 builders.  For example, it allows you to use SVG images with LaTeX builder.
 As a result, you don't mind what image format the builder supports.
 
-Internally, this extension uses Imagemagick_ to convert images,
-you'll have to install it on your machine.
+The extension uses ImageMagick_ to perform conversions,
+and will fail if ImageMagick is not installed.
 
-.. _Imagemagick: https://www.imagemagick.org/script/index.php
+.. _ImageMagick: https://www.imagemagick.org
 
 .. note::
 
