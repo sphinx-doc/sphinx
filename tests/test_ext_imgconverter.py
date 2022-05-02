@@ -1,9 +1,4 @@
-"""Test sphinx.ext.imgconverter extension.
-
-Unix only. Fails if ImageMagick_ is not installed.
-
-.. _ImageMagick: https://imagemagick.org
-"""
+"""Test sphinx.ext.imgconverter extension."""
 
 import os
 

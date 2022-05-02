@@ -31,8 +31,8 @@ class ImagemagickConverter(ImageConverter):
             return True
         except OSError as exc:
             logger.warning(__(
-                f"Unable to run the image conversion command {self.config.image_converter!r}!"
-                "\n'sphinx.ext.imgconverter' requires ImageMagick by default. "
+                f"Unable to run the image conversion command {self.config.image_converter!r}. "
+                "'sphinx.ext.imgconverter' requires ImageMagick by default. "
                 "Ensure it is installed, or set the 'image_converter' option "
                 "to a custom conversion command.\n\n"
                 f'Traceback: {exc}'
