@@ -3,7 +3,7 @@
 import importlib
 import traceback
 import warnings
-from typing import Any, Callable, Dict, List, NamedTuple, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, NamedTuple, Optional
 
 from sphinx.ext.autodoc.mock import ismock, undecorate
 from sphinx.pycode import ModuleAnalyzer, PycodeError
@@ -11,10 +11,7 @@ from sphinx.util import logging
 from sphinx.util.inspect import (getannotations, getmro, getslots, isclass, isenumclass,
                                  safe_getattr)
 
-if False:
-    # For type annotation
-    from typing import Type  # NOQA
-
+if TYPE_CHECKING:
     from sphinx.ext.autodoc import ObjectMember
 
 logger = logging.getLogger(__name__)

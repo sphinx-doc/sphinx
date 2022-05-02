@@ -28,10 +28,6 @@ else:
     MethodDescriptorType = type(str.join)
     WrapperDescriptorType = type(dict.__dict__['fromkeys'])
 
-if False:
-    # For type annotation
-    from typing import Type  # NOQA
-
 logger = logging.getLogger(__name__)
 
 memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>)', re.IGNORECASE)
