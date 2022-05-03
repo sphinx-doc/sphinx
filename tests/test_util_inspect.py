@@ -600,13 +600,15 @@ def test_iscoroutinefunction(app):
 
 @pytest.mark.sphinx(testroot='ext-autodoc')
 def test_isfunction(app):
-    from target.functions import builtin_func, func, partial_builtin_func, partial_func
+    from target.functions import (builtin_func, func, partial_builtin_func, partial_func,
+                                  wrapped_callable)
     from target.methods import Base
 
     assert inspect.isfunction(func) is True                     # function
     assert inspect.isfunction(partial_func) is True             # partial-ed function
     assert inspect.isfunction(Base.meth) is True                # method of class
     assert inspect.isfunction(Base.partialmeth) is True         # partial-ed method of class
+    assert inspect.isfunction(wrapped_callable) is True         # function wrapping a callable obj
     assert inspect.isfunction(Base().meth) is False             # method of instance
     assert inspect.isfunction(builtin_func) is False            # builtin function
     assert inspect.isfunction(partial_builtin_func) is False    # partial-ed builtin function

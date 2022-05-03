@@ -61,6 +61,8 @@ def unwrap_all(obj: Any, *, stop: Callable = None) -> Any:
         elif ispartial(obj):
             obj = obj.func
         elif inspect.isroutine(obj) and hasattr(obj, '__wrapped__'):
+            if hasattr(obj.__wrapped__, '__call__'):
+                return obj  # Don't unwrap wrapped callable types
             obj = obj.__wrapped__  # type: ignore
         elif isclassmethod(obj):
             obj = obj.__func__
