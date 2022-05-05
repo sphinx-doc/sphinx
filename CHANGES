@@ -54,6 +54,7 @@ Deprecated
 * The ``language`` argument of ``sphinx.util.i18n:format_date()`` becomes
   required
 * ``sphinx.builders.html.html5_ready``
+* ``sphinx.util.docutils.__version_info__``
 * ``sphinx.util.docutils.is_html5_writer_available()``
 * ``sphinx.writers.latex.LaTeXWriter.docclasses``
 
