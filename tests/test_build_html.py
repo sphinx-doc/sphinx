@@ -1711,3 +1711,27 @@ def test_html_signaturereturn_icon(app):
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     assert ('<span class="sig-return-icon">&#x2192;</span>' in content)
+
+
+@pytest.mark.sphinx('html', testroot='reST-code-role')
+def test_html_code_role(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text()
+
+    common_content = (
+        '<span class="k">def</span> <span class="nf">foo</span>'
+        '<span class="p">(</span>'
+        '<span class="mi">1</span> '
+        '<span class="o">+</span> '
+        '<span class="mi">2</span> '
+        '<span class="o">+</span> '
+        '<span class="kc">None</span> '
+        '<span class="o">+</span> '
+        '<span class="s2">&quot;abc&quot;</span>'
+        '<span class="p">):</span> '
+        '<span class="k">pass</span>')
+    assert ('<p>Inline <code class="code highlight python docutils literal highlight-python">' +
+            common_content + '</code> code block</p>') in content
+    assert ('<div class="highlight-python notranslate">' +
+            '<div class="highlight"><pre><span></span>' +
+            common_content) in content

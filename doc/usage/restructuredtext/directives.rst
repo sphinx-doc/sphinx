@@ -499,8 +499,10 @@ __ https://pygments.org/docs/lexers
    The directive's alias name :rst:dir:`sourcecode` works as well.  This
    directive takes a language name as an argument.  It can be `any lexer alias
    supported by Pygments <https://pygments.org/docs/lexers/>`_.  If it is not
-   given, the setting of :rst:dir:`highlight` directive will be used.
-   If not set, :confval:`highlight_language` will be used.
+   given, the setting of :rst:dir:`highlight` directive will be used.  If not
+   set, :confval:`highlight_language` will be used.  To display a code example
+   *inline* within other text, rather than as a separate block, you can use the
+   :rst:role:`code` role instead.
 
    .. versionchanged:: 2.0
       The ``language`` argument becomes optional.

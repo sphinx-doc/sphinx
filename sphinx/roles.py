@@ -3,6 +3,9 @@
 import re
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Type
 
+import docutils.parsers.rst.directives
+import docutils.parsers.rst.roles
+import docutils.parsers.rst.states
 from docutils import nodes, utils
 from docutils.nodes import Element, Node, TextElement, system_message
 
@@ -333,6 +336,57 @@ class Abbreviation(SphinxRole):
         return [nodes.abbreviation(self.rawtext, text, **options)], []
 
 
+# Sphinx provides the `code-block` directive for highlighting code blocks.
+# Docutils provides the `code` role which in theory can be used similarly by
+# defining a custom role for a given programming language:
+#
+#     .. .. role:: python(code)
+#          :language: python
+#          :class: highlight
+#
+# In practice this does not produce correct highlighting because it uses a
+# separate highlighting mechanism that results in the "long" pygments class
+# names rather than "short" pygments class names produced by the Sphinx
+# `code-block` directive and for which this extension contains CSS rules.
+#
+# In addition, even if that issue is fixed, because the highlighting
+# implementation in docutils, despite being based on pygments, differs from that
+# used by Sphinx, the output does not exactly match that produced by the Sphinx
+# `code-block` directive.
+#
+# This issue is noted here: //github.com/sphinx-doc/sphinx/issues/5157
+#
+# This overrides the docutils `code` role to perform highlighting in the same
+# way as the Sphinx `code-block` directive.
+#
+# TODO: Change to use `SphinxRole` once SphinxRole is fixed to support options.
+def code_role(name: str, rawtext: str, text: str, lineno: int,
+              inliner: docutils.parsers.rst.states.Inliner,
+              options: Dict = {}, content: List[str] = []
+              ) -> Tuple[List[Node], List[system_message]]:
+    options = options.copy()
+    docutils.parsers.rst.roles.set_classes(options)
+    language = options.get('language', '')
+    classes = ['code']
+    if language:
+        classes.append('highlight')
+    if 'classes' in options:
+        classes.extend(options['classes'])
+
+    if language and language not in classes:
+        classes.append(language)
+
+    node = nodes.literal(rawtext, text, classes=classes, language=language)
+
+    return [node], []
+
+
+code_role.options = {  # type: ignore
+    'class': docutils.parsers.rst.directives.class_option,
+    'language': docutils.parsers.rst.directives.unchanged,
+}
+
+
 specific_docroles: Dict[str, RoleFunction] = {
     # links to download references
     'download': XRefRole(nodeclass=addnodes.download_reference),
@@ -359,6 +413,10 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
 
     for rolename, func in specific_docroles.items():
         roles.register_local_role(rolename, func)
+
+    # Since docutils registers it as a canonical role, override it as a
+    # canonical role as well.
+    roles.register_canonical_role('code', code_role)
 
     return {
         'version': 'builtin',
