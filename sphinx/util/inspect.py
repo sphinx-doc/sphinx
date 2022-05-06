@@ -43,12 +43,11 @@ memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>)', re.IGNORECASE)
 
 def unwrap(obj: Any) -> Any:
     """Get an original object from wrapped object (wrapped functions)."""
+    if hasattr(obj, '__sphinx_mock__'):
+        # Skip unwrapping mock object to avoid RecursionError
+        return obj
     try:
-        if hasattr(obj, '__sphinx_mock__'):
-            # Skip unwrapping mock object to avoid RecursionError
-            return obj
-        else:
-            return inspect.unwrap(obj)
+        return inspect.unwrap(obj)
     except ValueError:
         # might be a mock object
         return obj
@@ -81,11 +80,9 @@ def getall(obj: Any) -> Sequence[str] | None:
     __all__ = safe_getattr(obj, '__all__', None)
     if __all__ is None:
         return None
-    else:
-        if (isinstance(__all__, (list, tuple)) and all(isinstance(e, str) for e in __all__)):
-            return __all__
-        else:
-            raise ValueError(__all__)
+    if isinstance(__all__, (list, tuple)) and all(isinstance(e, str) for e in __all__):
+        return __all__
+    raise ValueError(__all__)
 
 
 def getannotations(obj: Any) -> Mapping[str, Any]:
@@ -157,10 +154,9 @@ def isNewType(obj: Any) -> bool:
     """Check the if object is a kind of NewType."""
     if sys.version_info[:2] >= (3, 10):
         return isinstance(obj, typing.NewType)
-    else:
-        __module__ = safe_getattr(obj, '__module__', None)
-        __qualname__ = safe_getattr(obj, '__qualname__', None)
-        return __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type'
+    __module__ = safe_getattr(obj, '__module__', None)
+    __qualname__ = safe_getattr(obj, '__qualname__', None)
+    return __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type'
 
 
 def isenumclass(x: Any) -> bool:
@@ -209,7 +205,7 @@ def isstaticmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
     """Check if the object is staticmethod."""
     if isinstance(obj, staticmethod):
         return True
-    elif cls and name:
+    if cls and name:
         # trace __mro__ if the method is defined in parent class
         #
         # .. note:: This only works well with new style classes.
@@ -217,7 +213,6 @@ def isstaticmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
             meth = basecls.__dict__.get(name)
             if meth:
                 return isinstance(meth, staticmethod)
-
     return False
 
 
