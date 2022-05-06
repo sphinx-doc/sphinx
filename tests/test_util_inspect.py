@@ -18,6 +18,57 @@ from sphinx.util.inspect import TypeAliasForwardRef, TypeAliasNamespace, stringi
 from sphinx.util.typing import stringify_annotation
 
 
+class Base:
+    def meth(self):
+        pass
+
+    @staticmethod
+    def staticmeth():
+        pass
+
+    @classmethod
+    def classmeth(cls):
+        pass
+
+    @property
+    def prop(self):
+        pass
+
+    partialmeth = functools.partialmethod(meth)
+
+    async def coroutinemeth(self):
+        pass
+
+    partial_coroutinemeth = functools.partialmethod(coroutinemeth)
+
+
+class Inherited(Base):
+    pass
+
+
+def func():
+    pass
+
+
+async def coroutinefunc():
+    pass
+
+
+async def asyncgenerator():
+    yield
+
+partial_func = functools.partial(func)
+partial_coroutinefunc = functools.partial(coroutinefunc)
+
+builtin_func = print
+partial_builtin_func = functools.partial(print)
+
+
+class Descriptor:
+    def __get__(self, obj, typ=None):
+        pass
+
+
 def test_TypeAliasForwardRef():
     alias = TypeAliasForwardRef('example')
     assert stringify_annotation(alias, 'fully-qualified-except-typing') == 'example'
@@ -619,31 +670,21 @@ def test_getslots():
         inspect.getslots(Bar())
 
 
-@pytest.mark.sphinx(testroot='ext-autodoc')
-def test_isclassmethod(app):
-    from target.methods import Base, Inherited
-
+def test_isclassmethod():
     assert inspect.isclassmethod(Base.classmeth) is True
     assert inspect.isclassmethod(Base.meth) is False
     assert inspect.isclassmethod(Inherited.classmeth) is True
     assert inspect.isclassmethod(Inherited.meth) is False
 
 
-@pytest.mark.sphinx(testroot='ext-autodoc')
-def test_isstaticmethod(app):
-    from target.methods import Base, Inherited
-
+def test_isstaticmethod():
     assert inspect.isstaticmethod(Base.staticmeth, Base, 'staticmeth') is True
     assert inspect.isstaticmethod(Base.meth, Base, 'meth') is False
     assert inspect.isstaticmethod(Inherited.staticmeth, Inherited, 'staticmeth') is True
     assert inspect.isstaticmethod(Inherited.meth, Inherited, 'meth') is False
 
 
-@pytest.mark.sphinx(testroot='ext-autodoc')
-def test_iscoroutinefunction(app):
-    from target.functions import coroutinefunc, func, partial_coroutinefunc
-    from target.methods import Base
-
+def test_iscoroutinefunction():
     assert inspect.iscoroutinefunction(func) is False                   # function
     assert inspect.iscoroutinefunction(coroutinefunc) is True           # coroutine
     assert inspect.iscoroutinefunction(partial_coroutinefunc) is True   # partial-ed coroutine
@@ -655,11 +696,7 @@ def test_iscoroutinefunction(app):
     assert inspect.iscoroutinefunction(partial_coroutinemeth) is True
 
 
-@pytest.mark.sphinx(testroot='ext-autodoc')
-def test_isfunction(app):
-    from target.functions import builtin_func, func, partial_builtin_func, partial_func
-    from target.methods import Base
-
+def test_isfunction():
     assert inspect.isfunction(func) is True                     # function
     assert inspect.isfunction(partial_func) is True             # partial-ed function
     assert inspect.isfunction(Base.meth) is True                # method of class
@@ -669,11 +706,7 @@ def test_isfunction(app):
     assert inspect.isfunction(partial_builtin_func) is False    # partial-ed builtin function
 
 
-@pytest.mark.sphinx(testroot='ext-autodoc')
-def test_isbuiltin(app):
-    from target.functions import builtin_func, func, partial_builtin_func, partial_func
-    from target.methods import Base
-
+def test_isbuiltin():
     assert inspect.isbuiltin(builtin_func) is True          # builtin function
     assert inspect.isbuiltin(partial_builtin_func) is True  # partial-ed builtin function
     assert inspect.isbuiltin(func) is False                 # function
@@ -682,11 +715,7 @@ def test_isbuiltin(app):
     assert inspect.isbuiltin(Base().meth) is False          # method of instance
 
 
-@pytest.mark.sphinx(testroot='ext-autodoc')
-def test_isdescriptor(app):
-    from target.functions import func
-    from target.methods import Base
-
+def test_isdescriptor():
     assert inspect.isdescriptor(Base.prop) is True      # property of class
     assert inspect.isdescriptor(Base().prop) is False   # property of instance
     assert inspect.isdescriptor(Base.meth) is True      # method of class
@@ -694,14 +723,7 @@ def test_isdescriptor(app):
     assert inspect.isdescriptor(func) is True           # function
 
 
-@pytest.mark.sphinx(testroot='ext-autodoc')
-def test_isattributedescriptor(app):
-    from target.methods import Base
-
-    class Descriptor:
-        def __get__(self, obj, typ=None):
-            pass
-
+def test_isattributedescriptor():
     assert inspect.isattributedescriptor(Base.prop) is True                    # property
     assert inspect.isattributedescriptor(Base.meth) is False                   # method
     assert inspect.isattributedescriptor(Base.staticmeth) is False             # staticmethod
@@ -725,10 +747,7 @@ def test_isattributedescriptor(app):
 
 
 @pytest.mark.sphinx(testroot='ext-autodoc')
-def test_isproperty(app):
-    from target.functions import func
-    from target.methods import Base
-
+def test_isproperty():
     assert inspect.isproperty(Base.prop) is True        # property of class
     assert inspect.isproperty(Base().prop) is False     # property of instance
     assert inspect.isproperty(Base.meth) is False       # method of class
@@ -739,7 +758,6 @@ def test_isproperty(app):
 @pytest.mark.sphinx(testroot='ext-autodoc')
 def test_isgenericalias(app):
     from target.genericalias import C, T
-    from target.methods import Base
 
     assert inspect.isgenericalias(C) is True
     assert inspect.isgenericalias(T) is True
