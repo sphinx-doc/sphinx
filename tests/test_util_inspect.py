@@ -41,6 +41,10 @@ class Base:
 
     partial_coroutinemeth = functools.partialmethod(coroutinemeth)
 
+    @classmethod
+    async def coroutineclassmeth(cls):
+        """A documented coroutine classmethod"""
+        pass
 
 class Inherited(Base):
     pass
@@ -67,6 +71,17 @@ partial_builtin_func = functools.partial(print)
 class Descriptor:
     def __get__(self, obj, typ=None):
         pass
+
+
+class _Callable:
+    def __call__(self): ...
+
+
+def _decorator(f):
+    @functools.wraps(f)
+    def wrapper():
+        return f()
+    return wrapper
 
 
 def test_TypeAliasForwardRef():
@@ -690,10 +705,16 @@ def test_iscoroutinefunction():
     assert inspect.iscoroutinefunction(partial_coroutinefunc) is True   # partial-ed coroutine
     assert inspect.iscoroutinefunction(Base.meth) is False              # method
     assert inspect.iscoroutinefunction(Base.coroutinemeth) is True      # coroutine-method
+    assert inspect.iscoroutinefunction(Base.__dict__["coroutineclassmeth"]) is True      # coroutine classmethod
 
     # partial-ed coroutine-method
     partial_coroutinemeth = Base.__dict__['partial_coroutinemeth']
     assert inspect.iscoroutinefunction(partial_coroutinemeth) is True
+
+
+def test_iscoroutinefunction_wrapped():
+    # function wrapping a callable obj
+    assert inspect.isfunction(_decorator(coroutinefunc)) is True
 
 
 def test_isfunction():
@@ -704,6 +725,11 @@ def test_isfunction():
     assert inspect.isfunction(Base().meth) is False             # method of instance
     assert inspect.isfunction(builtin_func) is False            # builtin function
     assert inspect.isfunction(partial_builtin_func) is False    # partial-ed builtin function
+
+
+def test_isfunction_wrapped():
+    # function wrapping a callable obj
+    assert inspect.isfunction(_decorator(_Callable())) is True
 
 
 def test_isbuiltin():
