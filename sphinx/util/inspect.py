@@ -286,17 +286,12 @@ def is_singledispatch_method(obj: Any) -> bool:
 
 def isfunction(obj: Any) -> bool:
     """Check if the object is function."""
-    return inspect.isfunction(unwrap_all(obj))
+    return inspect.isfunction(unpartial(obj))
 
 
 def isbuiltin(obj: Any) -> bool:
-    """Check if the object is builtin."""
-    return inspect.isbuiltin(unwrap_all(obj))
-
-
-def isroutine(obj: Any) -> bool:
-    """Check is any kind of function or method."""
-    return inspect.isroutine(unwrap_all(obj))
+    """Check if the object is function."""
+    return inspect.isbuiltin(unpartial(obj))
 
 
 def iscoroutinefunction(obj: Any) -> bool:
