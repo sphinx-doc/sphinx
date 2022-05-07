@@ -1,26 +1,19 @@
-"""
-    sphinx.ext.intersphinx
-    ~~~~~~~~~~~~~~~~~~~~~~
+"""Insert links to objects documented in remote Sphinx documentation.
 
-    Insert links to objects documented in remote Sphinx documentation.
+This works as follows:
 
-    This works as follows:
+* Each Sphinx HTML build creates a file named "objects.inv" that contains a
+  mapping from object names to URIs relative to the HTML set's root.
 
-    * Each Sphinx HTML build creates a file named "objects.inv" that contains a
-      mapping from object names to URIs relative to the HTML set's root.
+* Projects using the Intersphinx extension can specify links to such mapping
+  files in the `intersphinx_mapping` config value.  The mapping will then be
+  used to resolve otherwise missing references to objects into links to the
+  other documentation.
 
-    * Projects using the Intersphinx extension can specify links to such mapping
-      files in the `intersphinx_mapping` config value.  The mapping will then be
-      used to resolve otherwise missing references to objects into links to the
-      other documentation.
-
-    * By default, the mapping file is assumed to be at the same location as the
-      rest of the documentation; however, the location of the mapping file can
-      also be specified individually, e.g. if the docs should be buildable
-      without Internet access.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+* By default, the mapping file is assumed to be at the same location as the
+  rest of the documentation; however, the location of the mapping file can
+  also be specified individually, e.g. if the docs should be buildable
+  without Internet access.
 """
 
 import concurrent.futures
@@ -579,7 +572,7 @@ class IntersphinxRoleResolver(ReferencesResolver):
     default_priority = ReferencesResolver.default_priority - 1
 
     def run(self, **kwargs: Any) -> None:
-        for node in self.document.traverse(pending_xref):
+        for node in self.document.findall(pending_xref):
             if 'intersphinx' not in node:
                 continue
             contnode = cast(nodes.TextElement, node[0].deepcopy())
@@ -602,7 +595,7 @@ class IntersphinxRoleResolver(ReferencesResolver):
 def install_dispatcher(app: Sphinx, docname: str, source: List[str]) -> None:
     """Enable IntersphinxDispatcher.
 
-    .. note:: The installed dispatcher will uninstalled on disabling sphinx_domain
+    .. note:: The installed dispatcher will be uninstalled on disabling sphinx_domain
               automatically.
     """
     dispatcher = IntersphinxDispatcher()
@@ -637,7 +630,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('intersphinx_mapping', {}, True)
     app.add_config_value('intersphinx_cache_limit', 5, False)
     app.add_config_value('intersphinx_timeout', None, False)
-    app.add_config_value('intersphinx_disabled_reftypes', [], True)
+    app.add_config_value('intersphinx_disabled_reftypes', ['std:doc'], True)
     app.connect('config-inited', normalize_intersphinx_mapping, priority=800)
     app.connect('builder-inited', load_mappings)
     app.connect('source-read', install_dispatcher)

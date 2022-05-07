@@ -1,12 +1,4 @@
-"""
-    utils.doclinter
-    ~~~~~~~~~~~~~~~
-
-    A linter for Sphinx docs
-
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""A linter for Sphinx docs"""
 
 import os
 import re
@@ -20,7 +12,7 @@ LEADING_SPACES = re.compile(r'^(\s*)')
 
 
 def lint(path: str) -> int:
-    with open(path) as f:
+    with open(path, encoding='utf-8') as f:
         document = f.readlines()
 
     errors = 0

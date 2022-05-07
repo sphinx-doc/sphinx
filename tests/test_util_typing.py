@@ -1,12 +1,4 @@
-"""
-    test_util_typing
-    ~~~~~~~~~~~~~~~~
-
-    Tests util.typing functions.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests util.typing functions."""
 
 import sys
 from numbers import Integral
@@ -78,7 +70,12 @@ def test_restify_type_hints_containers():
                                              "[:py:class:`str`, :py:class:`str`, "
                                              ":py:class:`str`]")
     assert restify(Tuple[str, ...]) == ":py:class:`~typing.Tuple`\\ [:py:class:`str`, ...]"
-    assert restify(Tuple[()]) == ":py:class:`~typing.Tuple`\\ [()]"
+
+    if sys.version_info < (3, 11):
+        assert restify(Tuple[()]) == ":py:class:`~typing.Tuple`\\ [()]"
+    else:
+        assert restify(Tuple[()]) == ":py:class:`~typing.Tuple`"
+
     assert restify(List[Dict[str, Tuple]]) == (":py:class:`~typing.List`\\ "
                                                "[:py:class:`~typing.Dict`\\ "
                                                "[:py:class:`str`, :py:class:`~typing.Tuple`]]")
@@ -271,9 +268,14 @@ def test_stringify_type_hints_containers():
     assert stringify(Tuple[str, ...], "fully-qualified") == "typing.Tuple[str, ...]"
     assert stringify(Tuple[str, ...], "smart") == "~typing.Tuple[str, ...]"
 
-    assert stringify(Tuple[()]) == "Tuple[()]"
-    assert stringify(Tuple[()], "fully-qualified") == "typing.Tuple[()]"
-    assert stringify(Tuple[()], "smart") == "~typing.Tuple[()]"
+    if sys.version_info < (3, 11):
+        assert stringify(Tuple[()]) == "Tuple[()]"
+        assert stringify(Tuple[()], "fully-qualified") == "typing.Tuple[()]"
+        assert stringify(Tuple[()], "smart") == "~typing.Tuple[()]"
+    else:
+        assert stringify(Tuple[()]) == "Tuple"
+        assert stringify(Tuple[()], "fully-qualified") == "typing.Tuple"
+        assert stringify(Tuple[()], "smart") == "~typing.Tuple"
 
     assert stringify(List[Dict[str, Tuple]]) == "List[Dict[str, Tuple]]"
     assert stringify(List[Dict[str, Tuple]], "fully-qualified") == "typing.List[typing.Dict[str, typing.Tuple]]"

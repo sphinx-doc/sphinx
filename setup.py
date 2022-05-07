@@ -1,12 +1,10 @@
-import os
 import sys
-from io import StringIO
 
 from setuptools import find_packages, setup
 
 import sphinx
 
-with open('README.rst') as f:
+with open('README.rst', encoding='utf-8') as f:
     long_desc = f.read()
 
 if sys.version_info < (3, 6):
@@ -22,7 +20,7 @@ install_requires = [
     'sphinxcontrib-qthelp',
     'Jinja2>=2.3',
     'Pygments>=2.0',
-    'docutils>=0.14,<0.18',
+    'docutils>=0.14,<0.19',
     'snowballstemmer>=1.1',
     'babel>=1.3',
     'alabaster>=0.7,<0.8',
@@ -43,133 +41,18 @@ extras_require = {
     'lint': [
         'flake8>=3.5.0',
         'isort',
-        'mypy>=0.931',
+        'mypy>=0.950',
         'docutils-stubs',
         "types-typed-ast",
         "types-requests",
     ],
     'test': [
-        'pytest',
-        'pytest-cov',
+        'pytest>=4.6',
         'html5lib',
         "typed_ast; python_version < '3.8'",
         'cython',
     ],
 }
-
-# Provide a "compile_catalog" command that also creates the translated
-# JavaScript files if Babel is available.
-
-cmdclass = {}
-
-
-class Tee:
-    def __init__(self, stream):
-        self.stream = stream
-        self.buffer = StringIO()
-
-    def write(self, s):
-        self.stream.write(s)
-        self.buffer.write(s)
-
-    def flush(self):
-        self.stream.flush()
-
-
-try:
-    from json import dump
-
-    from babel.messages.frontend import compile_catalog
-    from babel.messages.pofile import read_po
-except ImportError:
-    pass
-else:
-    class compile_catalog_plusjs(compile_catalog):
-        """
-        An extended command that writes all message strings that occur in
-        JavaScript files to a JavaScript file along with the .mo file.
-
-        Unfortunately, babel's setup command isn't built very extensible, so
-        most of the run() code is duplicated here.
-        """
-
-        def run(self):
-            try:
-                sys.stderr = Tee(sys.stderr)
-                compile_catalog.run(self)
-            finally:
-                if sys.stderr.buffer.getvalue():
-                    print("Compiling failed.")
-                    sys.exit(1)
-
-            if isinstance(self.domain, list):
-                for domain in self.domain:
-                    self._run_domain_js(domain)
-            else:
-                self._run_domain_js(self.domain)
-
-        def _run_domain_js(self, domain):
-            po_files = []
-            js_files = []
-
-            if not self.input_file:
-                if self.locale:
-                    po_files.append((self.locale,
-                                     os.path.join(self.directory, self.locale,
-                                                  'LC_MESSAGES',
-                                                  domain + '.po')))
-                    js_files.append(os.path.join(self.directory, self.locale,
-                                                 'LC_MESSAGES',
-                                                 domain + '.js'))
-                else:
-                    for locale in os.listdir(self.directory):
-                        po_file = os.path.join(self.directory, locale,
-                                               'LC_MESSAGES',
-                                               domain + '.po')
-                        if os.path.exists(po_file):
-                            po_files.append((locale, po_file))
-                            js_files.append(os.path.join(self.directory, locale,
-                                                         'LC_MESSAGES',
-                                                         domain + '.js'))
-            else:
-                po_files.append((self.locale, self.input_file))
-                if self.output_file:
-                    js_files.append(self.output_file)
-                else:
-                    js_files.append(os.path.join(self.directory, self.locale,
-                                                 'LC_MESSAGES',
-                                                 domain + '.js'))
-
-            for js_file, (locale, po_file) in zip(js_files, po_files):
-                with open(po_file, encoding='utf8') as infile:
-                    catalog = read_po(infile, locale)
-
-                if catalog.fuzzy and not self.use_fuzzy:
-                    continue
-
-                self.log.info('writing JavaScript strings in catalog %r to %r',
-                              po_file, js_file)
-
-                jscatalog = {}
-                for message in catalog:
-                    if any(x[0].endswith(('.js', '.js_t', '.html'))
-                           for x in message.locations):
-                        msgid = message.id
-                        if isinstance(msgid, (list, tuple)):
-                            msgid = msgid[0]
-                        jscatalog[msgid] = message.string
-
-                with open(js_file, 'wt', encoding='utf8') as outfile:
-                    outfile.write('Documentation.addTranslations(')
-                    dump({
-                        'messages': jscatalog,
-                        'plural_expr': catalog.plural_expr,
-                        'locale': str(catalog.locale)
-                    }, outfile, sort_keys=True, indent=4)
-                    outfile.write(');')
-
-    cmdclass['compile_catalog'] = compile_catalog_plusjs
-
 
 setup(
     name='Sphinx',
@@ -246,5 +129,4 @@ setup(
     python_requires=">=3.6",
     install_requires=install_requires,
     extras_require=extras_require,
-    cmdclass=cmdclass,
 )

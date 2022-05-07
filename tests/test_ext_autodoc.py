@@ -1,12 +1,7 @@
-"""
-    test_ext_autodoc
-    ~~~~~~~~~~~~~~~~
+"""Test the autodoc extension.
 
-    Test the autodoc extension.  This tests mainly the Documenters; the auto
-    directives are tested in a test source file translated by test_build.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+This tests mainly the Documenters; the auto directives are tested in a test
+source file translated by test_build.
 """
 
 import sys
@@ -1009,7 +1004,7 @@ def test_autodoc_inner_class(app):
         '',
         '.. py:class:: InnerChild()',
         '   :module: target', '',
-        '   Bases: :py:class:`target.Outer.Inner`',
+        '   Bases: :py:class:`~target.Outer.Inner`',
         '',
         '   InnerChild docstring',
         '',
@@ -1705,7 +1700,7 @@ def test_autodoc_typed_instance_variables(app):
         '.. py:attribute:: Alias',
         '   :module: target.typed_vars',
         '',
-        '   alias of :py:class:`target.typed_vars.Derived`',
+        '   alias of :py:class:`~target.typed_vars.Derived`',
         '',
         '.. py:class:: Class()',
         '   :module: target.typed_vars',
@@ -1910,7 +1905,7 @@ def test_autodoc_GenericAlias(app):
             '   A list of Class',
             '',
             '   alias of :py:class:`~typing.List`\\ '
-            '[:py:class:`target.genericalias.Class`]',
+            '[:py:class:`~target.genericalias.Class`]',
             '',
             '',
             '.. py:data:: T',
@@ -1950,7 +1945,7 @@ def test_autodoc_TypeVar(app):
         '',
         '      T6',
         '',
-        '      alias of :py:class:`datetime.date`',
+        '      alias of :py:class:`~datetime.date`',
         '',
         '',
         '.. py:data:: T1',
@@ -1990,7 +1985,7 @@ def test_autodoc_TypeVar(app):
         '',
         '   T6',
         '',
-        '   alias of :py:class:`datetime.date`',
+        '   alias of :py:class:`~datetime.date`',
         '',
         '',
         '.. py:data:: T7',
@@ -2069,20 +2064,37 @@ def test_autodoc_for_egged_code(app):
 def test_singledispatch(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.singledispatch', options)
-    assert list(actual) == [
-        '',
-        '.. py:module:: target.singledispatch',
-        '',
-        '',
-        '.. py:function:: func(arg, kwarg=None)',
-        '                 func(arg: float, kwarg=None)',
-        '                 func(arg: int, kwarg=None)',
-        '                 func(arg: str, kwarg=None)',
-        '   :module: target.singledispatch',
-        '',
-        '   A function for general use.',
-        '',
-    ]
+    if sys.version_info < (3, 7):
+        assert list(actual) == [
+            '',
+            '.. py:module:: target.singledispatch',
+            '',
+            '',
+            '.. py:function:: func(arg, kwarg=None)',
+            '                 func(arg: float, kwarg=None)',
+            '                 func(arg: int, kwarg=None)',
+            '                 func(arg: str, kwarg=None)',
+            '   :module: target.singledispatch',
+            '',
+            '   A function for general use.',
+            '',
+        ]
+    else:
+        assert list(actual) == [
+            '',
+            '.. py:module:: target.singledispatch',
+            '',
+            '',
+            '.. py:function:: func(arg, kwarg=None)',
+            '                 func(arg: float, kwarg=None)',
+            '                 func(arg: int, kwarg=None)',
+            '                 func(arg: str, kwarg=None)',
+            '                 func(arg: dict, kwarg=None)',
+            '   :module: target.singledispatch',
+            '',
+            '   A function for general use.',
+            '',
+        ]
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8),
@@ -2106,6 +2118,7 @@ def test_singledispatchmethod(app):
         '                  Foo.meth(arg: float, kwarg=None)',
         '                  Foo.meth(arg: int, kwarg=None)',
         '                  Foo.meth(arg: str, kwarg=None)',
+        '                  Foo.meth(arg: dict, kwarg=None)',
         '      :module: target.singledispatchmethod',
         '',
         '      A method for general use.',
@@ -2125,6 +2138,7 @@ def test_singledispatchmethod_automethod(app):
         '               Foo.meth(arg: float, kwarg=None)',
         '               Foo.meth(arg: int, kwarg=None)',
         '               Foo.meth(arg: str, kwarg=None)',
+        '               Foo.meth(arg: dict, kwarg=None)',
         '   :module: target.singledispatchmethod',
         '',
         '   A method for general use.',
@@ -2322,7 +2336,7 @@ def test_autodoc(app, status, warning):
 
 my_name
 
-alias of bug2437.autodoc_dummy_foo.Foo"""
+alias of Foo"""
     assert warning.getvalue() == ''
 
 
@@ -2438,7 +2452,6 @@ def test_type_union_operator(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_hide_value(app):
     options = {'members': None}

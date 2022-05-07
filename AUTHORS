@@ -18,6 +18,7 @@ Other co-maintainers:
 
 Other contributors, listed alphabetically, are:
 
+* Adam Turner -- JavaScript improvements
 * Alastair Houghton -- Apple Help builder
 * Alexander Todorov -- inheritance_diagram tests and improvements
 * Andi Albrecht -- agogo theme
@@ -73,6 +74,7 @@ Other contributors, listed alphabetically, are:
 * Pauli Virtanen -- autodoc improvements, autosummary extension
 * Eric N. Vander Weele -- autodoc improvements
 * Stefan van der Walt -- autosummary extension
+* Hugo van Kemenade -- support FORCE_COLOR and NO_COLOR
 * Thomas Waldmann -- apidoc module fixes
 * John Waltman -- Texinfo builder
 * Barry Warsaw -- setup command improvements

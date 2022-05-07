@@ -1,25 +1,15 @@
-"""
-    sphinx.writers.texinfo
-    ~~~~~~~~~~~~~~~~~~~~~~
-
-    Custom docutils writer for Texinfo.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Custom docutils writer for Texinfo."""
 
 import re
 import textwrap
-import warnings
 from os import path
-from typing import (TYPE_CHECKING, Any, Dict, Iterable, Iterator, List, Optional, Pattern, Set,
-                    Tuple, Union, cast)
+from typing import (TYPE_CHECKING, Any, Dict, Iterable, Iterator, List, Pattern, Set, Tuple,
+                    Union, cast)
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
 
 from sphinx import __display_version__, addnodes
-from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.domains import IndexEntry
 from sphinx.domains.index import IndexDomain
 from sphinx.errors import ExtensionError
@@ -60,8 +50,6 @@ TEMPLATE = """\
 @exampleindent %(exampleindent)s
 @finalout
 %(direntry)s
-@definfoenclose strong,`,'
-@definfoenclose emph,`,'
 @c %%**end of header
 
 @copying
@@ -807,17 +795,21 @@ class TexinfoTranslator(SphinxTranslator):
     # -- Inline
 
     def visit_strong(self, node: Element) -> None:
-        self.body.append('@strong{')
+        self.body.append('`')
 
     def depart_strong(self, node: Element) -> None:
-        self.body.append('}')
+        self.body.append("'")
 
     def visit_emphasis(self, node: Element) -> None:
-        element = 'emph' if not self.in_samp else 'var'
-        self.body.append('@%s{' % element)
+        if self.in_samp:
+            self.body.append('@var{')
+            self.context.append('}')
+        else:
+            self.body.append('`')
+            self.context.append("'")
 
     def depart_emphasis(self, node: Element) -> None:
-        self.body.append('}')
+        self.body.append(self.context.pop())
 
     def is_samp(self, node: Element) -> bool:
         return 'samp' in node['classes']
@@ -1562,11 +1554,3 @@ class TexinfoTranslator(SphinxTranslator):
         self.body.append('\n\n@example\n%s\n@end example\n\n' %
                          self.escape_arg(node.astext()))
         raise nodes.SkipNode
-
-    @property
-    def desc(self) -> Optional[addnodes.desc]:
-        warnings.warn('TexinfoWriter.desc is deprecated.', RemovedInSphinx50Warning)
-        if len(self.descs):
-            return self.descs[-1]
-        else:
-            return None

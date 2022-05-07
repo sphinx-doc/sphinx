@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import io
-from typing import overload
+from typing import Optional, overload
 
 myint = int
 
@@ -10,6 +10,9 @@ variable: myint
 
 #: docstring
 variable2 = None  # type: myint
+
+#: docstring
+variable3: Optional[myint]
 
 
 def read(r: io.BytesIO) -> io.StringIO:

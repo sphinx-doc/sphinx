@@ -1,11 +1,3 @@
-"""
-    sphinx.directives.code
-    ~~~~~~~~~~~~~~~~~~~~~~
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
 import sys
 import textwrap
 from difflib import unified_diff
@@ -232,9 +224,9 @@ class LiteralIncludeReader:
                        self.start_filter,
                        self.end_filter,
                        self.lines_filter,
+                       self.dedent_filter,
                        self.prepend_filter,
-                       self.append_filter,
-                       self.dedent_filter]
+                       self.append_filter]
             lines = self.read_file(self.filename, location=location)
             for func in filters:
                 lines = func(lines, location=location)

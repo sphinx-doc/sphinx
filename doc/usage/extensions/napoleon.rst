@@ -26,7 +26,7 @@ Are you tired of writing docstrings that look like this::
     :rtype: BufferedFileStorage
 
 `reStructuredText`_ is great, but it creates visually dense, hard to read
-`docstrings`_. Compare the jumble above to the same thing rewritten
+:pep:`docstrings <287>`. Compare the jumble above to the same thing rewritten
 according to the `Google Python Style Guide`_::
 
     Args:
@@ -50,11 +50,10 @@ the documentation, so it doesn't modify any of the docstrings in your actual
 source code files.
 
 .. _ReStructuredText: https://docutils.sourceforge.io/rst.html
-.. _docstrings: https://www.python.org/dev/peps/pep-0287/
 .. _Google Python Style Guide:
    https://google.github.io/styleguide/pyguide.html
 .. _Google:
-   https://google.github.io/styleguide/pyguide.html#Comments
+   https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
 .. _NumPy:
    https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 .. _Khan Academy:
@@ -199,11 +198,11 @@ not be mixed. Choose one style for your project and be consistent with it.
 Type Annotations
 ~~~~~~~~~~~~~~~~
 
-`PEP 484`_ introduced a standard way to express types in Python code.
+:pep:`484` introduced a standard way to express types in Python code.
 This is an alternative to expressing types directly in docstrings.
-One benefit of expressing types according to `PEP 484`_ is that
+One benefit of expressing types according to :pep:`484` is that
 type checkers and IDEs can take advantage of them for static code
-analysis. `PEP 484`_ was then extended by `PEP 526`_ which introduced
+analysis. :pep:`484` was then extended by :pep:`526` which introduced
 a similar way to annotate variables (and attributes).
 
 Google style with Python 3 type annotations::
@@ -267,9 +266,7 @@ Google style with types in docstrings::
    `Python 2/3 compatible annotations`_ aren't currently
    supported by Sphinx and won't show up in the docs.
 
-.. _PEP 484: https://www.python.org/dev/peps/pep-0484/
-.. _PEP 526: https://www.python.org/dev/peps/pep-0526/
-.. _Python 2/3 compatible annotations: https://www.python.org/dev/peps/pep-0484/#suggested-syntax-for-python-2-7-and-straddling-code
+.. _Python 2/3 compatible annotations: https://peps.python.org/pep-0484/#suggested-syntax-for-python-2-7-and-straddling-code
 
 
 Configuration
@@ -301,7 +298,7 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
     napoleon_attr_annotations = True
 
 .. _Google style:
-   https://google.github.io/styleguide/pyguide.html
+   https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
 .. _NumPy style:
    https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
@@ -548,7 +545,7 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
 
 .. confval:: napoleon_attr_annotations
 
-   True to allow using `PEP 526`_ attributes annotations in classes.
+   True to allow using :pep:`526` attributes annotations in classes.
    If an attribute is documented in the docstring without a type and
    has an annotation in the class body, that type is used.
 

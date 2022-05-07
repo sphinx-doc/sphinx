@@ -1,14 +1,8 @@
-"""
-    sphinx.ext.todo
-    ~~~~~~~~~~~~~~~
+"""Allow todos to be inserted into your documentation.
 
-    Allow todos to be inserted into your documentation.  Inclusion of todos can
-    be switched of by a configuration variable.  The todolist directive collects
-    all todos of your project and lists them along with a backlink to the
-    original location.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+Inclusion of todos can be switched of by a configuration variable.
+The todolist directive collects all todos of your project and lists them along
+with a backlink to the original location.
 """
 
 from typing import Any, Dict, List, Tuple, cast
@@ -165,7 +159,7 @@ class TodoListProcessor:
         suffix = description[description.find('>>') + 2:]
 
         para = nodes.paragraph(classes=['todo-source'])
-        para += nodes.Text(prefix, prefix)
+        para += nodes.Text(prefix)
 
         # Create a reference
         linktext = nodes.emphasis(_('original entry'), _('original entry'))
@@ -178,7 +172,7 @@ class TodoListProcessor:
             pass
 
         para += reference
-        para += nodes.Text(suffix, suffix)
+        para += nodes.Text(suffix)
 
         return para
 

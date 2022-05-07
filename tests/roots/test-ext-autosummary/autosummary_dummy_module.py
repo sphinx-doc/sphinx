@@ -1,6 +1,8 @@
 from os import path  # NOQA
 from typing import Union
 
+from autosummary_class_module import Class
+
 __all__ = [
     "CONSTANT1",
     "Exc",
@@ -60,3 +62,7 @@ class _Exc(Exception):
 qux = 2
 #: a module-level attribute that has been excluded from __all__
 quuz = 2
+
+considered_as_imported = Class()
+non_imported_member = Class()
+""" This attribute has a docstring, so it is recognized as a not-imported member """

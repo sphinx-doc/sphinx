@@ -1,12 +1,4 @@
-"""
-    sphinx.domains.math
-    ~~~~~~~~~~~~~~~~~~~
-
-    The math domain.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""The math domain."""
 
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple
 

@@ -1,13 +1,6 @@
-"""
-    sphinx.builders.manpage
-    ~~~~~~~~~~~~~~~~~~~~~~~
+"""Manual pages builder."""
 
-    Manual pages builder.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
+import warnings
 from os import path
 from typing import Any, Dict, List, Set, Tuple, Union
 
@@ -18,7 +11,6 @@ from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import Config
-from sphinx.errors import NoUri
 from sphinx.locale import __
 from sphinx.util import logging, progress_message
 from sphinx.util.console import darkgreen  # type: ignore
@@ -49,17 +41,19 @@ class ManualPageBuilder(Builder):
         return 'all manpages'  # for now
 
     def get_target_uri(self, docname: str, typ: str = None) -> str:
-        if typ == 'token':
-            return ''
-        raise NoUri(docname, typ)
+        return ''
 
     @progress_message(__('writing'))
     def write(self, *ignored: Any) -> None:
         docwriter = ManualPageWriter(self)
-        docsettings: Any = OptionParser(
-            defaults=self.env.settings,
-            components=(docwriter,),
-            read_config_files=True).get_default_values()
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', category=DeprecationWarning)
+            # DeprecationWarning: The frontend.OptionParser class will be replaced
+            # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
+            docsettings: Any = OptionParser(
+                defaults=self.env.settings,
+                components=(docwriter,),
+                read_config_files=True).get_default_values()
 
         for info in self.config.man_pages:
             docname, name, description, authors, section = info

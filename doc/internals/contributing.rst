@@ -252,17 +252,19 @@ locales.  The translations are kept as gettext ``.po`` files translated from the
 master template :file:`sphinx/locale/sphinx.pot`.
 
 Sphinx uses `Babel <https://babel.pocoo.org/en/latest/>`_ to extract messages
-and maintain the catalog files.  It is integrated in ``setup.py``:
+and maintain the catalog files.  The ``utils`` directory contains a helper
+script, ``babel_runner.py``.
 
-* Use ``python setup.py extract_messages`` to update the ``.pot`` template.
-* Use ``python setup.py update_catalog`` to update all existing language
+* Use ``python babel_runner.py extract`` to update the ``.pot`` template.
+* Use ``python babel_runner.py update`` to update all existing language
   catalogs in ``sphinx/locale/*/LC_MESSAGES`` with the current messages in the
   template file.
-* Use ``python setup.py compile_catalog`` to compile the ``.po`` files to binary
+* Use ``python babel_runner.py compile`` to compile the ``.po`` files to binary
   ``.mo`` files and ``.js`` files.
 
-When an updated ``.po`` file is submitted, run compile_catalog to commit both
-the source and the compiled catalogs.
+When an updated ``.po`` file is submitted, run
+``python babel_runner.py compile`` to commit both the source and the compiled
+catalogs.
 
 When a new locale is submitted, add a new directory with the ISO 639-1 language
 identifier and put ``sphinx.po`` in there.  Don't forget to update the possible
@@ -273,9 +275,9 @@ The Sphinx core messages can also be translated on `Transifex
 which is provided by the ``transifex_client`` Python package, can be used to
 pull translations in ``.po`` format from Transifex.  To do this, go to
 ``sphinx/locale`` and then run ``tx pull -f -l LANG`` where ``LANG`` is an
-existing language identifier.  It is good practice to run ``python setup.py
-update_catalog`` afterwards to make sure the ``.po`` file has the canonical
-Babel formatting.
+existing language identifier.  It is good practice to run
+``python babel_runner.py update`` afterwards to make sure the ``.po`` file has the
+canonical Babel formatting.
 
 
 Debugging tips

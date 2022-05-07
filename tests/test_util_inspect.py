@@ -1,12 +1,4 @@
-"""
-    test_util_inspect
-    ~~~~~~~~~~~~~~~
-
-    Tests util.inspect functions.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests util.inspect functions."""
 
 import ast
 import datetime
@@ -15,11 +7,21 @@ import functools
 import sys
 import types
 from inspect import Parameter
+from typing import Optional
 
 import pytest
 
 from sphinx.util import inspect
-from sphinx.util.inspect import TypeAliasNamespace, stringify_signature
+from sphinx.util.inspect import TypeAliasForwardRef, TypeAliasNamespace, stringify_signature
+from sphinx.util.typing import stringify
+
+
+def test_TypeAliasForwardRef():
+    alias = TypeAliasForwardRef('example')
+    assert stringify(alias) == 'example'
+
+    alias = Optional[alias]
+    assert stringify(alias) == 'Optional[example]'
 
 
 def test_TypeAliasNamespace():
@@ -190,7 +192,10 @@ def test_signature_annotations():
 
     # Space around '=' for defaults
     sig = inspect.signature(f7)
-    assert stringify_signature(sig) == '(x: typing.Optional[int] = None, y: dict = {}) -> None'
+    if sys.version_info < (3, 11):
+        assert stringify_signature(sig) == '(x: typing.Optional[int] = None, y: dict = {}) -> None'
+    else:
+        assert stringify_signature(sig) == '(x: int = None, y: dict = {}) -> None'
 
     # Callable types
     sig = inspect.signature(f8)
@@ -261,11 +266,17 @@ def test_signature_annotations():
 
     # show_return_annotation is False
     sig = inspect.signature(f7)
-    assert stringify_signature(sig, show_return_annotation=False) == '(x: typing.Optional[int] = None, y: dict = {})'
+    if sys.version_info < (3, 11):
+        assert stringify_signature(sig, show_return_annotation=False) == '(x: typing.Optional[int] = None, y: dict = {})'
+    else:
+        assert stringify_signature(sig, show_return_annotation=False) == '(x: int = None, y: dict = {})'
 
     # unqualified_typehints is True
     sig = inspect.signature(f7)
-    assert stringify_signature(sig, unqualified_typehints=True) == '(x: ~typing.Optional[int] = None, y: dict = {}) -> None'
+    if sys.version_info < (3, 11):
+        assert stringify_signature(sig, unqualified_typehints=True) == '(x: ~typing.Optional[int] = None, y: dict = {}) -> None'
+    else:
+        assert stringify_signature(sig, unqualified_typehints=True) == '(x: int = None, y: dict = {}) -> None'
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')

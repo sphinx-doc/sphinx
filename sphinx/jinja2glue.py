@@ -1,13 +1,6 @@
-"""
-    sphinx.jinja2glue
-    ~~~~~~~~~~~~~~~~~
+"""Glue code for the jinja2 templating engine."""
 
-    Glue code for the jinja2 templating engine.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
+import pathlib
 from os import path
 from pprint import pformat
 from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Tuple, Union
@@ -124,7 +117,7 @@ class SphinxFileSystemLoader(FileSystemLoader):
 
     def get_source(self, environment: Environment, template: str) -> Tuple[str, str, Callable]:
         for searchpath in self.searchpath:
-            filename = path.join(searchpath, template)
+            filename = str(pathlib.Path(searchpath, template))
             f = open_if_exists(filename)
             if f is None:
                 continue

@@ -1,12 +1,4 @@
-"""
-    sphinx.util
-    ~~~~~~~~~~~
-
-    Utility functions for Sphinx.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Utility functions for Sphinx."""
 
 import functools
 import hashlib
@@ -17,7 +9,6 @@ import sys
 import tempfile
 import traceback
 import unicodedata
-import warnings
 from datetime import datetime
 from importlib import import_module
 from os import path
@@ -26,7 +17,6 @@ from typing import (IO, TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, 
                     Pattern, Set, Tuple, Type)
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
-from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.errors import ExtensionError, FiletypeNotFoundError, SphinxParallelError
 from sphinx.locale import __
 from sphinx.util import logging
@@ -37,7 +27,7 @@ from sphinx.util.nodes import (caption_ref_re, explicit_title_re,  # noqa
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
 from sphinx.util.osutil import (SEP, copyfile, copytimes, ensuredir, make_filename,  # noqa
-                                movefile, mtimes_of_files, os_path, relative_uri)
+                                mtimes_of_files, os_path, relative_uri)
 from sphinx.util.typing import PathMatcher
 
 if TYPE_CHECKING:
@@ -338,32 +328,6 @@ def parselinenos(spec: str, total: int) -> List[int]:
     return items
 
 
-def force_decode(string: str, encoding: str) -> str:
-    """Forcibly get a unicode string out of a bytestring."""
-    warnings.warn('force_decode() is deprecated.',
-                  RemovedInSphinx50Warning, stacklevel=2)
-    if isinstance(string, bytes):
-        try:
-            if encoding:
-                string = string.decode(encoding)
-            else:
-                # try decoding with utf-8, should only work for real UTF-8
-                string = string.decode()
-        except UnicodeError:
-            # last resort -- can't fail
-            string = string.decode('latin1')
-    return string
-
-
-def rpartition(s: str, t: str) -> Tuple[str, str]:
-    """Similar to str.rpartition from 2.5, but doesn't return the separator."""
-    warnings.warn('rpartition() is now deprecated.', RemovedInSphinx50Warning, stacklevel=2)
-    i = s.rfind(t)
-    if i != -1:
-        return s[:i], s[i + len(t):]
-    return '', s
-
-
 def split_into(n: int, type: str, value: str) -> List[str]:
     """Split an index entry into a given number of parts at semicolons."""
     parts = [x.strip() for x in value.split(';', n - 1)]
@@ -430,7 +394,7 @@ def split_full_qualified_name(name: str) -> Tuple[Optional[str], str]:
     """Split full qualified name to a pair of modname and qualname.
 
     A qualname is an abbreviation for "Qualified name" introduced at PEP-3155
-    (https://www.python.org/dev/peps/pep-3155/).  It is a dotted path name
+    (https://peps.python.org/pep-3155/).  It is a dotted path name
     from the module top-level.
 
     A "full" qualified name means a string containing both module name and

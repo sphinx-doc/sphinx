@@ -1,19 +1,10 @@
-"""
-    sphinx.ext.autodoc.importer
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Importer utilities for autodoc
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Importer utilities for autodoc"""
 
 import importlib
 import traceback
 import warnings
-from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
+from typing import Any, Callable, Dict, List, NamedTuple, Optional
 
-from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.ext.autodoc.mock import ismock, undecorate
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import logging
@@ -145,29 +136,6 @@ def import_object(modname: str, objpath: List[str], objtype: str = '',
 
         logger.debug(errmsg)
         raise ImportError(errmsg) from exc
-
-
-def get_module_members(module: Any) -> List[Tuple[str, Any]]:
-    """Get members of target module."""
-    from sphinx.ext.autodoc import INSTANCEATTR
-
-    warnings.warn('sphinx.ext.autodoc.importer.get_module_members() is deprecated.',
-                  RemovedInSphinx50Warning)
-
-    members: Dict[str, Tuple[str, Any]] = {}
-    for name in dir(module):
-        try:
-            value = safe_getattr(module, name, None)
-            members[name] = (name, value)
-        except AttributeError:
-            continue
-
-    # annotation only member (ex. attr: int)
-    for name in getannotations(module):
-        if name not in members:
-            members[name] = (name, INSTANCEATTR)
-
-    return sorted(list(members.values()))
 
 
 class Attribute(NamedTuple):

@@ -157,6 +157,10 @@ linking:
 
    .. versionadded:: 4.3
 
+   .. versionchanged:: 5.0
+
+      Changed default value from an empty list to ``['std:doc']``.
+
    A list of strings being either:
 
    - the name of a specific reference type in a domain,
@@ -165,7 +169,7 @@ linking:
      ``std:*``, ``py:*``, or ``cpp:*``, or
    - simply a wildcard ``*``.
 
-   The default value is an empty list.
+   The default value is ``['std:doc']``.
 
    When a non-:rst:role:`external` cross-reference is being resolved by
    intersphinx, skip resolution if it matches one of the specifications in this

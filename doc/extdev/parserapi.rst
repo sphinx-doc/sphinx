@@ -35,3 +35,4 @@ to configure their settings appropriately.
 .. module:: sphinx.parsers
 
 .. autoclass:: Parser
+   :members:

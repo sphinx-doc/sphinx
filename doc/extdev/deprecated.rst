@@ -22,6 +22,51 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.util.jsdump``
+     - 5.0
+     - 7.0
+     - The standard library ``json`` module.
+
+   * - :doc:`Setuptools integration </usage/advanced/setuptools>`
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - The ``locale`` argument of ``sphinx.util.i18n:babel_format_date()``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - The ``language`` argument of ``sphinx.util.i18n:format_date()``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - ``sphinx.builders.html.html5_ready``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - ``sphinx.io.read_doc()``
+     - 5.0
+     - 7.0
+     - ``sphinx.builders.Builder.read_doc()``
+
+   * - ``sphinx.util.docutils.__version_info__``
+     - 5.0
+     - 7.0
+     - ``docutils.__version_info__``
+
+   * - ``sphinx.util.docutils.is_html5_writer_available()``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXWriter.docclasses``
+     - 5.0
+     - 7.0
+     - N/A
+
    * - ``sphinx.ext.napoleon.docstring.GoogleDocstring._qualify_name()``
      - 4.5
      - 6.0

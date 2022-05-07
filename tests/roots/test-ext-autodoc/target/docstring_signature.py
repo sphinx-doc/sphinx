@@ -22,10 +22,12 @@ class D:
 class E:
     def __init__(self):
         """E(foo: int, bar: int, baz: int) -> None \\
-        E(foo: str, bar: str, baz: str) -> None"""
+        E(foo: str, bar: str, baz: str) -> None \\
+        E(foo: float, bar: float, baz: float)"""
 
 
 class F:
     def __init__(self):
         """F(foo: int, bar: int, baz: int) -> None
-        F(foo: str, bar: str, baz: str) -> None"""
+        F(foo: str, bar: str, baz: str) -> None
+        F(foo: float, bar: float, baz: float)"""

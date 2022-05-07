@@ -1,12 +1,4 @@
-"""
-    sphinx.writers.manpage
-    ~~~~~~~~~~~~~~~~~~~~~~
-
-    Manual page writer, extended for Sphinx custom nodes.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Manual page writer, extended for Sphinx custom nodes."""
 
 from typing import Any, Dict, Iterable, cast
 

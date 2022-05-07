@@ -1,12 +1,4 @@
-"""
-    sphinx.transforms.post_transforms
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Docutils transforms used by Sphinx.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Docutils transforms used by Sphinx."""
 
 import re
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Type, cast

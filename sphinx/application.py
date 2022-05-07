@@ -1,13 +1,6 @@
-"""
-    sphinx.application
-    ~~~~~~~~~~~~~~~~~~
+"""Sphinx application class and extensibility interface.
 
-    Sphinx application class and extensibility interface.
-
-    Gracefully adapted from the TextPress system by Armin.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+Gracefully adapted from the TextPress system by Armin.
 """
 
 import os
@@ -266,7 +259,7 @@ class Sphinx:
         """Load translated strings from the configured localedirs if enabled in
         the configuration.
         """
-        if self.config.language is None:
+        if self.config.language == 'en':
             self.translator, has_translation = locale.init([], None)
         else:
             logger.info(bold(__('loading translations [%s]... ') % self.config.language),
@@ -285,8 +278,7 @@ class Sphinx:
             locale_dirs += [path.join(package_dir, 'locale')]
 
             self.translator, has_translation = locale.init(locale_dirs, self.config.language)
-            if has_translation or self.config.language == 'en':
-                # "en" never needs to be translated
+            if has_translation:
                 logger.info(__('done'))
             else:
                 logger.info(__('not available for built-in messages'))

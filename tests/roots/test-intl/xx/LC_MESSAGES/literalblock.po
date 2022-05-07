@@ -77,6 +77,12 @@ msgid "literal-block\n"
 msgstr "LITERAL-BLOCK\n"
 "IN LIST"
 
+msgid "test_code_for_noqa()\n"
+"continued()"
+msgstr ""
+"# TRAILING noqa SHOULD NOT GET STRIPPED\n"
+"# FROM THIS BLOCK. #noqa"
+
 msgid "doctest blocks"
 msgstr "DOCTEST-BLOCKS"
 

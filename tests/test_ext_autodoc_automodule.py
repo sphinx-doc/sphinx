@@ -1,12 +1,7 @@
-"""
-    test_ext_autodoc_autocmodule
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Test the autodoc extension.
 
-    Test the autodoc extension.  This tests mainly the Documenters; the auto
-    directives are tested in a test source file translated by test_build.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+This tests mainly the Documenters; the auto directives are tested in a test
+source file translated by test_build.
 """
 
 import sys
@@ -118,6 +113,68 @@ def test_automodule_special_members(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_automodule_inherited_members(app):
+    if sys.version_info < (3, 7):
+        args = ''
+    else:
+        args = '(iterable=(), /)'
+
+    options = {'members': None,
+               'undoc-members': None,
+               'inherited-members': 'Base, list'}
+    actual = do_autodoc(app, 'module', 'target.inheritance', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.inheritance',
+        '',
+        '',
+        '.. py:class:: Base()',
+        '   :module: target.inheritance',
+        '',
+        '',
+        '   .. py:method:: Base.inheritedclassmeth()',
+        '      :module: target.inheritance',
+        '      :classmethod:',
+        '',
+        '      Inherited class method.',
+        '',
+        '',
+        '   .. py:method:: Base.inheritedmeth()',
+        '      :module: target.inheritance',
+        '',
+        '      Inherited function.',
+        '',
+        '',
+        '   .. py:method:: Base.inheritedstaticmeth(cls)',
+        '      :module: target.inheritance',
+        '      :staticmethod:',
+        '',
+        '      Inherited static method.',
+        '',
+        '',
+        '.. py:class:: Derived()',
+        '   :module: target.inheritance',
+        '',
+        '',
+        '   .. py:method:: Derived.inheritedmeth()',
+        '      :module: target.inheritance',
+        '',
+        '      Inherited function.',
+        '',
+        '',
+        '.. py:class:: MyList%s' % args,
+        '   :module: target.inheritance',
+        '',
+        '',
+        '   .. py:method:: MyList.meth()',
+        '      :module: target.inheritance',
+        '',
+        '      docstring',
+        '',
+    ]
+
+
 @pytest.mark.sphinx('html', testroot='ext-autodoc',
                     confoverrides={'autodoc_mock_imports': ['missing_module',
                                                             'missing_package1',
@@ -130,4 +187,4 @@ def test_subclass_of_mocked_object(app):
 
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.need_mocks', options)
-    assert '.. py:class:: Inherited(*args: typing.Any, **kwargs: typing.Any)' in actual
+    assert '.. py:class:: Inherited(*args: ~typing.Any, **kwargs: ~typing.Any)' in actual

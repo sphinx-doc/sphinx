@@ -1,13 +1,6 @@
-"""
-    sphinx.builders
-    ~~~~~~~~~~~~~~~
+"""Builder superclass for all builders."""
 
-    Builder superclass for all builders.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
+import codecs
 import pickle
 import time
 from os import path
@@ -22,9 +15,9 @@ from sphinx.environment import CONFIG_CHANGED_REASON, CONFIG_OK, BuildEnvironmen
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
 from sphinx.events import EventManager
-from sphinx.io import read_doc
 from sphinx.locale import __
-from sphinx.util import import_object, logging, progress_message, rst, status_iterator
+from sphinx.util import (UnicodeDecodeErrorHandler, get_filetype, import_object, logging,
+                         progress_message, rst, status_iterator)
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import sphinx_domains
@@ -472,8 +465,21 @@ class Builder:
         if path.isfile(docutilsconf):
             self.env.note_dependency(docutilsconf)
 
+        filename = self.env.doc2path(docname)
+        filetype = get_filetype(self.app.config.source_suffix, filename)
+        publisher = self.app.registry.get_publisher(self.app, filetype)
         with sphinx_domains(self.env), rst.default_role(docname, self.config.default_role):
-            doctree = read_doc(self.app, self.env, self.env.doc2path(docname))
+            # set up error_handler for the target document
+            codecs.register_error('sphinx', UnicodeDecodeErrorHandler(docname))  # type: ignore
+
+            publisher.set_source(source_path=filename)
+            publisher.publish()
+            doctree = publisher.document
+
+            # The settings object is reused by the Publisher for each document.
+            # Becuase we modify the settings object in ``write_doctree``, we
+            # need to ensure that each doctree has an independent copy.
+            doctree.settings = doctree.settings.copy()
 
         # store time of reading, for outdated files detection
         # (Some filesystems have coarse timestamp resolution;

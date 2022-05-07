@@ -1,12 +1,4 @@
-"""
-    test_domain_py
-    ~~~~~~~~~~~~~~
-
-    Tests the Python Domain
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests the Python Domain"""
 
 import re
 import sys
@@ -139,7 +131,7 @@ def test_domain_py_xrefs(app, status, warning):
 def test_domain_py_xrefs_abbreviations(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'abbr.html').read_text()
+    content = (app.outdir / 'abbr.html').read_text(encoding='utf8')
     assert re.search(r'normal: <a .* href="module.html#module_a.submodule.ModTopLevel.'
                      r'mod_child_1" .*><.*>module_a.submodule.ModTopLevel.mod_child_1\(\)'
                      r'<.*></a>',
@@ -194,7 +186,7 @@ def test_domain_py_objects(app, status, warning):
 def test_resolve_xref_for_properties(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'module.html').read_text()
+    content = (app.outdir / 'module.html').read_text(encoding='utf8')
     assert ('Link to <a class="reference internal" href="#module_a.submodule.ModTopLevel.prop"'
             ' title="module_a.submodule.ModTopLevel.prop">'
             '<code class="xref py py-attr docutils literal notranslate"><span class="pre">'
@@ -242,7 +234,7 @@ def test_domain_py_find_obj(app, status, warning):
 def test_domain_py_canonical(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'canonical.html').read_text()
+    content = (app.outdir / 'canonical.html').read_text(encoding='utf8')
     assert ('<a class="reference internal" href="#canonical.Foo" title="canonical.Foo">'
             '<code class="xref py py-class docutils literal notranslate">'
             '<span class="pre">Foo</span></code></a>' in content)
@@ -1323,7 +1315,7 @@ def test_noindexentry(app):
 @pytest.mark.sphinx('html', testroot='domain-py-python_use_unqualified_type_names')
 def test_python_python_use_unqualified_type_names(app, status, warning):
     app.build()
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<span class="n"><a class="reference internal" href="#foo.Name" title="foo.Name">'
             '<span class="pre">Name</span></a></span>' in content)
     assert '<span class="n"><span class="pre">foo.Age</span></span>' in content
@@ -1336,7 +1328,7 @@ def test_python_python_use_unqualified_type_names(app, status, warning):
                     confoverrides={'python_use_unqualified_type_names': False})
 def test_python_python_use_unqualified_type_names_disabled(app, status, warning):
     app.build()
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<span class="n"><a class="reference internal" href="#foo.Name" title="foo.Name">'
             '<span class="pre">foo.Name</span></a></span>' in content)
     assert '<span class="n"><span class="pre">foo.Age</span></span>' in content

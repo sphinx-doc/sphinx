@@ -1,12 +1,4 @@
-"""
-    test_environment_toctree
-    ~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Test the sphinx.environment.managers.toctree.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the sphinx.environment.managers.toctree."""
 
 import pytest
 from docutils import nodes
