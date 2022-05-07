@@ -47,6 +47,11 @@ The following is a list of deprecated interfaces.
      - 7.0
      - N/A
 
+   * - ``sphinx.io.read_doc()``
+     - 5.0
+     - 7.0
+     - ``sphinx.builders.Builder.read_doc()``
+
    * - ``sphinx.util.docutils.__version_info__``
      - 5.0
      - 7.0
