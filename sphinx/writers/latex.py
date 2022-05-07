@@ -1,14 +1,7 @@
-"""
-    sphinx.writers.latex
-    ~~~~~~~~~~~~~~~~~~~~
+"""Custom docutils writer for LaTeX.
 
-    Custom docutils writer for LaTeX.
-
-    Much of this code is adapted from Dave Kuhlman's "docpy" writer from his
-    docutils sandbox.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+Much of this code is adapted from Dave Kuhlman's "docpy" writer from his
+docutils sandbox.
 """
 
 import re
@@ -821,16 +814,14 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_footnote(self, node: Element) -> None:
         self.in_footnote += 1
         label = cast(nodes.label, node[0])
-        if 'referred' in node:
-            self.body.append(r'\sphinxstepexplicit ')
         if self.in_parsed_literal:
             self.body.append(r'\begin{footnote}[%s]' % label.astext())
         else:
             self.body.append('%' + CR)
             self.body.append(r'\begin{footnote}[%s]' % label.astext())
         if 'referred' in node:
-            self.body.append(r'\phantomsection'
-                             r'\label{\thesphinxscope.%s}%%' % label.astext() + CR)
+            # TODO: in future maybe output a latex macro with backrefs here
+            pass
         self.body.append(r'\sphinxAtStartFootnote' + CR)
 
     def depart_footnote(self, node: Element) -> None:
@@ -1704,10 +1695,27 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_literal(self, node: Element) -> None:
         if self.in_title:
             self.body.append(r'\sphinxstyleliteralintitle{\sphinxupquote{')
+            return
         elif 'kbd' in node['classes']:
             self.body.append(r'\sphinxkeyboard{\sphinxupquote{')
-        else:
+            return
+        lang = node.get("language", None)
+        if 'code' not in node['classes'] or not lang:
             self.body.append(r'\sphinxcode{\sphinxupquote{')
+            return
+
+        opts = self.config.highlight_options.get(lang, {})
+        hlcode = self.highlighter.highlight_block(
+            node.astext(), lang, opts=opts, location=node)
+        # TODO: Use nowrap option once LaTeX formatter supports it
+        # https://github.com/pygments/pygments/pull/1343
+        hlcode = hlcode.replace(r'\begin{Verbatim}[commandchars=\\\{\}]',
+                                r'\sphinxcode{\sphinxupquote{')
+        # get consistent trailer
+        hlcode = hlcode.rstrip()[:-14]  # strip \end{Verbatim}
+        self.body.append(hlcode)
+        self.body.append('}}')
+        raise nodes.SkipNode
 
     def depart_literal(self, node: Element) -> None:
         self.body.append('}}')
@@ -1724,9 +1732,7 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_footnotetext(self, node: Element) -> None:
         label = cast(nodes.label, node[0])
         self.body.append('%' + CR)
-        self.body.append(r'\begin{footnotetext}[%s]'
-                         r'\phantomsection\label{\thesphinxscope.%s}%%'
-                         % (label.astext(), label.astext()) + CR)
+        self.body.append(r'\begin{footnotetext}[%s]' % label.astext())
         self.body.append(r'\sphinxAtStartFootnote' + CR)
 
     def depart_footnotetext(self, node: Element) -> None:

@@ -1,12 +1,4 @@
-"""
-    sphinx.builders.latex.theming
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Theming support for LaTeX builder.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Theming support for LaTeX builder."""
 
 import configparser
 from os import path
@@ -81,7 +73,7 @@ class UserTheme(Theme):
     def __init__(self, name: str, filename: str) -> None:
         super().__init__(name)
         self.config = configparser.RawConfigParser()
-        self.config.read(path.join(filename))
+        self.config.read(path.join(filename), encoding='utf-8')
 
         for key in self.REQUIRED_CONFIG_KEYS:
             try:

@@ -1,12 +1,4 @@
-"""
-    sphinx.testing.util
-    ~~~~~~~~~~~~~~~~~~~
-
-    Sphinx test suite utilities
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Sphinx test suite utilities"""
 import functools
 import os
 import re

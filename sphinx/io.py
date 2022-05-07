@@ -1,12 +1,4 @@
-"""
-    sphinx.io
-    ~~~~~~~~~
-
-    Input/Output files
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Input/Output files"""
 import codecs
 from typing import TYPE_CHECKING, Any, List, Type
 

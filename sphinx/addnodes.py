@@ -1,15 +1,8 @@
-"""
-    sphinx.addnodes
-    ~~~~~~~~~~~~~~~
-
-    Additional docutils nodes.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Additional docutils nodes."""
 
 from typing import TYPE_CHECKING, Any, Dict, List, Sequence
 
+import docutils
 from docutils import nodes
 from docutils.nodes import Element
 
@@ -36,7 +29,6 @@ class document(nodes.document):
 
     def set_id(self, node: Element, msgnode: Element = None,
                suggested_prefix: str = '') -> str:
-        from sphinx.util import docutils
         if docutils.__version_info__ >= (0, 16):
             ret = super().set_id(node, msgnode, suggested_prefix)  # type: ignore
         else:
@@ -535,8 +527,6 @@ class manpage(nodes.Inline, nodes.FixedTextElement):
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
-    from sphinx.util import docutils  # lazy import
-
     app.add_node(toctree)
 
     app.add_node(desc)

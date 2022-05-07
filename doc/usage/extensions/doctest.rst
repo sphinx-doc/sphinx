@@ -93,8 +93,8 @@ a comma-separated list of group names.
      * ``<``, ``>``: Exclusive ordered comparison clause
      * ``===``: Arbitrary equality clause.
 
-     ``pyversion`` option is followed `PEP-440: Version Specifiers
-     <https://www.python.org/dev/peps/pep-0440/#version-specifiers>`__.
+     ``pyversion`` option is followed :pep:`PEP-440: Version Specifiers
+     <440#version-specifiers>`.
 
      .. versionadded:: 1.6
 

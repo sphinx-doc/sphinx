@@ -1,12 +1,4 @@
-"""
-    sphinx.cmd.build
-    ~~~~~~~~~~~~~~~~
-
-    Build documentation from a provided source.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Build documentation from a provided source."""
 
 import argparse
 import bdb
@@ -244,7 +236,7 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
         try:
             warnfile = abspath(args.warnfile)
             ensuredir(path.dirname(warnfile))
-            warnfp = open(args.warnfile, 'w')
+            warnfp = open(args.warnfile, 'w', encoding="utf-8")
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
                 args.warnfile, exc))

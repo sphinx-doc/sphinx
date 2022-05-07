@@ -1,6 +1,13 @@
 import pytest
 
 
+@pytest.mark.sphinx('html', testroot='ext-extlinks-hardcoded-urls',
+                    confoverrides={'extlinks_detect_hardcoded_links': False})
+def test_extlinks_detect_candidates(app, warning):
+    app.build()
+    assert warning.getvalue() == ''
+
+
 @pytest.mark.sphinx('html', testroot='ext-extlinks-hardcoded-urls')
 def test_replaceable_uris_emit_extlinks_warnings(app, warning):
     app.build()

@@ -13,7 +13,7 @@
 /**
  * Simple result scoring code.
  */
-if (!Scorer) {
+if (typeof Scorer === "undefined") {
   var Scorer = {
     // Implement the following function to further tweak the score for each result
     // The function takes a result array [docname, title, anchor, descr, score, filename]
@@ -48,7 +48,7 @@ if (!Scorer) {
 }
 
 const _removeChildren = (element) => {
-  while (element.lastChild) element.removeChild(element.lastChild);
+  while (element && element.lastChild) element.removeChild(element.lastChild);
 };
 
 /**
@@ -133,6 +133,20 @@ const _displayNextItem = (
 };
 
 /**
+ * Default splitQuery function. Can be overridden in ``sphinx.search`` with a
+ * custom function per language.
+ *
+ * The regular expression works by splitting the string on consecutive characters
+ * that are not Unicode letters, numbers, underscores, or emoji characters.
+ * This is the same as ``\W+`` in Python, preserving the surrogate pair area.
+ */
+if (typeof splitQuery === "undefined") {
+  var splitQuery = (query) => query
+      .split(/[^\p{Letter}\p{Number}_\p{Emoji_Presentation}]+/gu)
+      .filter(term => term)  // remove remaining empty strings
+}
+
+/**
  * Search Module
  */
 const Search = {
@@ -209,9 +223,11 @@ const Search = {
     Search.status = out.appendChild(searchSummary);
     Search.output = out.appendChild(searchList);
 
-    document.getElementById("search-progress").innerText = _(
-      "Preparing search..."
-    );
+    const searchProgress = document.getElementById("search-progress");
+    // Some themes don't use the search progress node
+    if (searchProgress) {
+      searchProgress.innerText = _("Preparing search...");
+    }
     Search.startPulse();
 
     // index already loaded, the browser was quick!
@@ -228,34 +244,27 @@ const Search = {
     const searchTerms = new Set();
     const excludedTerms = new Set();
     const highlightTerms = new Set();
-    const objectTerms = new Set(query.toLowerCase().trim().split(/\s+/));
-    query
-      .trim()
-      .split(/\s+/)
-      .forEach((queryTerm) => {
-        const queryTermLower = queryTerm.toLowerCase();
+    const objectTerms = new Set(splitQuery(query.toLowerCase().trim()));
+    splitQuery(query.trim()).forEach((queryTerm) => {
+      const queryTermLower = queryTerm.toLowerCase();
 
-        // maybe skip this "word"
-        // stopwords array is from language_data.js
-        if (
-          stopwords.indexOf(queryTermLower) !== -1 ||
-          queryTerm.match(/^\d+$/)
-        )
-          return;
+      // maybe skip this "word"
+      // stopwords array is from language_data.js
+      if (
+        stopwords.indexOf(queryTermLower) !== -1 ||
+        queryTerm.match(/^\d+$/)
+      )
+        return;
 
-        // stem the word
-        let word = stemmer.stemWord(queryTermLower);
-        // prevent stemmer from cutting word smaller than two chars
-        if (word.length < 3 && queryTerm.length >= 3) {
-          word = queryTerm;
-        }
-        // select the correct list
-        if (word[0] === "-") excludedTerms.add(word.substr(1));
-        else {
-          searchTerms.add(word);
-          highlightTerms.add(queryTermLower);
-        }
-      });
+      // stem the word
+      let word = stemmer.stemWord(queryTermLower);
+      // select the correct list
+      if (word[0] === "-") excludedTerms.add(word.substr(1));
+      else {
+        searchTerms.add(word);
+        highlightTerms.add(queryTermLower);
+      }
+    });
 
     // console.debug("SEARCH: searching for:");
     // console.info("required: ", [...searchTerms]);
@@ -326,7 +335,8 @@ const Search = {
 
     const results = [];
 
-    const objectSearchCallback = (prefix, name) => {
+    const objectSearchCallback = (prefix, match) => {
+      const name = match[4]
       const fullname = (prefix ? prefix + "." : "") + name;
       const fullnameLower = fullname.toLowerCase();
       if (fullnameLower.indexOf(object) < 0) return;
@@ -341,7 +351,6 @@ const Search = {
       else if (parts.slice(-1)[0].indexOf(object) > -1)
         score += Scorer.objPartialMatch; // matches in last name
 
-      const match = objects[prefix][name];
       const objName = objNames[match[1]][2];
       const title = titles[match[0]];
 
@@ -378,8 +387,8 @@ const Search = {
       ]);
     };
     Object.keys(objects).forEach((prefix) =>
-      Object.keys(objects[prefix]).forEach((name) =>
-        objectSearchCallback(prefix, name)
+      objects[prefix].forEach((array) =>
+        objectSearchCallback(prefix, array)
       )
     );
     return results;

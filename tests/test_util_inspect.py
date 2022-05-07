@@ -1,12 +1,4 @@
-"""
-    test_util_inspect
-    ~~~~~~~~~~~~~~~
-
-    Tests util.inspect functions.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests util.inspect functions."""
 
 import ast
 import datetime
@@ -15,11 +7,21 @@ import functools
 import sys
 import types
 from inspect import Parameter
+from typing import Optional
 
 import pytest
 
 from sphinx.util import inspect
-from sphinx.util.inspect import TypeAliasNamespace, stringify_signature
+from sphinx.util.inspect import TypeAliasForwardRef, TypeAliasNamespace, stringify_signature
+from sphinx.util.typing import stringify
+
+
+def test_TypeAliasForwardRef():
+    alias = TypeAliasForwardRef('example')
+    assert stringify(alias) == 'example'
+
+    alias = Optional[alias]
+    assert stringify(alias) == 'Optional[example]'
 
 
 def test_TypeAliasNamespace():

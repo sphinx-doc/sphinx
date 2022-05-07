@@ -68,6 +68,24 @@ be translated you need to follow these instructions:
 * Run your desired build.
 
 
+In order to protect against mistakes, a warning is emitted if
+cross-references in the translated paragraph do not match those from the
+original.  This can be turned off globally using the
+:confval:`suppress_warnings` configuration variable.  Alternatively, to
+turn it off for one message only, end the message with ``#noqa`` like
+this::
+
+   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
+   risus tortor, luctus id ultrices at. #noqa
+
+(Write ``\#noqa`` in case you want to have "#noqa" literally in the
+text.  This does not apply to code blocks, where ``#noqa`` is ignored
+because code blocks do not contain references anyway.)
+
+.. versionadded:: 4.5
+   The ``#noqa`` mechanism.
+
+
 Translating with sphinx-intl
 ----------------------------
 

@@ -1,12 +1,4 @@
-"""
-    test_util_matching
-    ~~~~~~~~~~~~~~~~~~
-
-    Tests sphinx.util.matching functions.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests sphinx.util.matching functions."""
 from sphinx.util.matching import Matcher, compile_matchers
 
 

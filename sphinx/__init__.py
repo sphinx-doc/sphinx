@@ -1,12 +1,4 @@
-"""
-    Sphinx
-    ~~~~~~
-
-    The Sphinx documentation toolchain.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""The Sphinx documentation toolchain."""
 
 # Keep this file executable as-is in Python 3!
 # (Otherwise getting the version out of it from setup.py is impossible.)
@@ -26,6 +18,8 @@ if 'PYTHONWARNINGS' not in os.environ:
 # docutils.io using mode='rU' for open
 warnings.filterwarnings('ignore', "'U' mode is deprecated",
                         DeprecationWarning, module='docutils.io')
+warnings.filterwarnings('ignore', 'The frontend.Option class .*',
+                        DeprecationWarning, module='docutils.frontend')
 
 __version__ = '5.0.0+'
 __released__ = '5.0.0'  # used when Sphinx builds its own docs

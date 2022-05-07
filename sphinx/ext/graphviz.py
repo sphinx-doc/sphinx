@@ -1,12 +1,4 @@
-"""
-    sphinx.ext.graphviz
-    ~~~~~~~~~~~~~~~~~~~
-
-    Allow graphviz-formatted graphs to be included in Sphinx-generated
-    documents inline.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+"""Allow graphviz-formatted graphs to be included inline in generated documents.
 """
 
 import posixpath

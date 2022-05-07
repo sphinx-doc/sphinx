@@ -1,12 +1,4 @@
-"""
-    sphinx.util.inspect
-    ~~~~~~~~~~~~~~~~~~~
-
-    Helpers for inspecting Python modules.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Helpers for inspecting Python modules."""
 
 import builtins
 import contextlib
@@ -20,7 +12,7 @@ from functools import partial, partialmethod
 from importlib import import_module
 from inspect import Parameter, isclass, ismethod, ismethoddescriptor, ismodule  # NOQA
 from io import StringIO
-from types import ModuleType
+from types import MethodType, ModuleType
 from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, Type, cast
 
 from sphinx.pycode.ast import ast  # for py36-37
@@ -244,6 +236,11 @@ def isdescriptor(x: Any) -> bool:
 def isabstractmethod(obj: Any) -> bool:
     """Check if the object is an abstractmethod."""
     return safe_getattr(obj, '__isabstractmethod__', False) is True
+
+
+def isboundmethod(method: MethodType) -> bool:
+    """Check if the method is a bound method."""
+    return safe_getattr(method, '__self__', None) is not None
 
 
 def is_cython_function_or_method(obj: Any) -> bool:
@@ -489,6 +486,12 @@ class TypeAliasForwardRef:
 
     def __eq__(self, other: Any) -> bool:
         return self.name == other
+
+    def __hash__(self) -> int:
+        return hash(self.name)
+
+    def __repr__(self) -> str:
+        return self.name
 
 
 class TypeAliasModule:
@@ -783,7 +786,10 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
                                 annotation=annotation))
 
     for i, arg in enumerate(args.kwonlyargs):
-        default = ast_unparse(args.kw_defaults[i], code) or Parameter.empty  # type: ignore
+        if args.kw_defaults[i] is None:
+            default = Parameter.empty
+        else:
+            default = DefaultValue(ast_unparse(args.kw_defaults[i], code))  # type: ignore  # NOQA
         annotation = ast_unparse(arg.annotation, code) or Parameter.empty
         params.append(Parameter(arg.arg, Parameter.KEYWORD_ONLY, default=default,
                                 annotation=annotation))

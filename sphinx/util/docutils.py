@@ -1,15 +1,8 @@
-"""
-    sphinx.util.docutils
-    ~~~~~~~~~~~~~~~~~~~~
-
-    Utility functions for docutils.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Utility functions for docutils."""
 
 import os
 import re
+import warnings
 from contextlib import contextmanager
 from copy import copy
 from os import path
@@ -25,8 +18,8 @@ from docutils.parsers.rst import Directive, directives, roles
 from docutils.parsers.rst.states import Inliner
 from docutils.statemachine import State, StateMachine, StringList
 from docutils.utils import Reporter, unescape
-from packaging import version
 
+from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -40,8 +33,14 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
 
-
-__version_info__ = version.parse(docutils.__version__).release
+deprecated_alias('sphinx.util.docutils',
+                 {
+                     '__version_info__': docutils.__version_info__,
+                 },
+                 RemovedInSphinx70Warning,
+                 {
+                     '__version_info__': 'docutils.__version_info__',
+                 })
 additional_nodes: Set[Type[Element]] = set()
 
 
@@ -144,6 +143,30 @@ def patched_get_language() -> Generator[None, None, None]:
 
 
 @contextmanager
+def patched_rst_get_language() -> Generator[None, None, None]:
+    """Patch docutils.parsers.rst.languages.get_language().
+    Starting from docutils 0.17, get_language() in ``rst.languages``
+    also has a reporter, which needs to be disabled temporarily.
+
+    This should also work for old versions of docutils,
+    because reporter is none by default.
+
+    refs: https://github.com/sphinx-doc/sphinx/issues/10179
+    """
+    from docutils.parsers.rst.languages import get_language
+
+    def patched_get_language(language_code: str, reporter: Reporter = None) -> Any:
+        return get_language(language_code)
+
+    try:
+        docutils.parsers.rst.languages.get_language = patched_get_language
+        yield
+    finally:
+        # restore original implementations
+        docutils.parsers.rst.languages.get_language = get_language
+
+
+@contextmanager
 def using_user_docutils_conf(confdir: Optional[str]) -> Generator[None, None, None]:
     """Let docutils know the location of ``docutils.conf`` for Sphinx."""
     try:
@@ -162,7 +185,7 @@ def using_user_docutils_conf(confdir: Optional[str]) -> Generator[None, None, No
 @contextmanager
 def patch_docutils(confdir: Optional[str] = None) -> Generator[None, None, None]:
     """Patch to docutils temporarily."""
-    with patched_get_language(), using_user_docutils_conf(confdir):
+    with patched_get_language(), patched_rst_get_language(), using_user_docutils_conf(confdir):
         yield
 
 
@@ -296,7 +319,9 @@ class NullReporter(Reporter):
 
 
 def is_html5_writer_available() -> bool:
-    return __version_info__ > (0, 13, 0)
+    warnings.warn('is_html5_writer_available() is deprecated.',
+                  RemovedInSphinx70Warning)
+    return True
 
 
 @contextmanager
@@ -322,6 +347,7 @@ class SphinxFileOutput(FileOutput):
 
     def __init__(self, **kwargs: Any) -> None:
         self.overwrite_if_changed = kwargs.pop('overwrite_if_changed', False)
+        kwargs.setdefault('encoding', 'utf-8')
         super().__init__(**kwargs)
 
     def write(self, data: str) -> str:
@@ -526,7 +552,7 @@ class SphinxTranslator(nodes.NodeVisitor):
 # Node.findall() is a new interface to traverse a doctree since docutils-0.18.
 # This applies a patch docutils-0.17 or older to be available Node.findall()
 # method to use it from our codebase.
-if __version_info__ < (0, 18):
+if docutils.__version_info__ < (0, 18):
     def findall(self, *args, **kwargs):
         return iter(self.traverse(*args, **kwargs))
 

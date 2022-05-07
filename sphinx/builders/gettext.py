@@ -1,12 +1,4 @@
-"""
-    sphinx.builders.gettext
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
-    The MessageCatalogBuilder class.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""The MessageCatalogBuilder class."""
 
 from codecs import open
 from collections import OrderedDict, defaultdict

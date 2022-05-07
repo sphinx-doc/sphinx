@@ -109,7 +109,7 @@ texinfo_documents = [
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3/', None),
-    'requests': ('https://requests.readthedocs.io/en/master', None),
+    'requests': ('https://docs.python-requests.org/en/latest/', None),
     'readthedocs': ('https://docs.readthedocs.io/en/stable', None),
 }
 
@@ -148,9 +148,9 @@ def linkify_issues_in_changelog(app, docname, source):
         # this path trickery is needed because this script can
         # be invoked with different working directories:
         # * running make in docs/
-        # * running python setup.py build_sphinx in the repo root dir
+        # * running tox -e docs in the repo root dir
 
-        with open(changelog_path) as f:
+        with open(changelog_path, encoding="utf-8") as f:
             changelog = f.read()
 
         def linkify(match):

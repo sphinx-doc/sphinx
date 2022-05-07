@@ -1,12 +1,4 @@
-"""
-    test_build_texinfo
-    ~~~~~~~~~~~~~~~~~~
-
-    Test the build process with Texinfo builder with the test root.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the build process with Texinfo builder with the test root."""
 
 import os
 import re
@@ -49,7 +41,7 @@ def test_texinfo_warnings(app, status, warning):
 def test_texinfo(app, status, warning):
     TexinfoTranslator.ignore_missing_images = True
     app.builder.build_all()
-    result = (app.outdir / 'sphinxtests.texi').read_text()
+    result = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
     assert ('@anchor{markup doc}@anchor{11}'
             '@anchor{markup id1}@anchor{12}'
             '@anchor{markup testing-various-markup}@anchor{13}' in result)
@@ -70,7 +62,7 @@ def test_texinfo(app, status, warning):
 def test_texinfo_rubric(app, status, warning):
     app.build()
 
-    output = (app.outdir / 'python.texi').read_text()
+    output = (app.outdir / 'python.texi').read_text(encoding='utf8')
     assert '@heading This is a rubric' in output
     assert '@heading This is a multiline rubric' in output
 
@@ -79,7 +71,7 @@ def test_texinfo_rubric(app, status, warning):
 def test_texinfo_citation(app, status, warning):
     app.builder.build_all()
 
-    output = (app.outdir / 'python.texi').read_text()
+    output = (app.outdir / 'python.texi').read_text(encoding='utf8')
     assert 'This is a citation ref; @ref{1,,[CITE1]} and @ref{2,,[CITE2]}.' in output
     assert ('@anchor{index cite1}@anchor{1}@w{(CITE1)} \n'
             'This is a citation\n') in output
@@ -118,20 +110,20 @@ def test_texinfo_escape_id(app, status, warning):
 def test_texinfo_footnote(app, status, warning):
     app.builder.build_all()
 
-    output = (app.outdir / 'python.texi').read_text()
+    output = (app.outdir / 'python.texi').read_text(encoding='utf8')
     assert 'First footnote: @footnote{\nFirst\n}' in output
 
 
 @pytest.mark.sphinx('texinfo')
 def test_texinfo_xrefs(app, status, warning):
     app.builder.build_all()
-    output = (app.outdir / 'sphinxtests.texi').read_text()
+    output = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
     assert re.search(r'@ref{\w+,,--plugin\.option}', output)
 
     # Now rebuild it without xrefs
     app.config.texinfo_cross_references = False
     app.builder.build_all()
-    output = (app.outdir / 'sphinxtests.texi').read_text()
+    output = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
     assert not re.search(r'@ref{\w+,,--plugin\.option}', output)
     assert 'Link to perl +p, --ObjC++, --plugin.option, create-auth-token, arg and -j' in output
 
@@ -140,7 +132,7 @@ def test_texinfo_xrefs(app, status, warning):
 def test_texinfo_samp_with_variable(app, status, warning):
     app.build()
 
-    output = (app.outdir / 'sphinxtests.texi').read_text()
+    output = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
 
     assert '@code{@var{variable_only}}' in output
     assert '@code{@var{variable} and text}' in output

@@ -1,12 +1,4 @@
-"""
-    sphinx.ext.autosectionlabel
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Allow reference sections by :ref: role using its title.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Allow reference sections by :ref: role using its title."""
 
 from typing import Any, Dict, cast
 

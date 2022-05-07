@@ -70,7 +70,7 @@ def merge_todos(app, env, docnames, other):
 
 def process_todo_nodes(app, doctree, fromdocname):
     if not app.config.todo_include_todos:
-        for node in doctree.traverse(todo):
+        for node in doctree.findall(todo):
             node.parent.remove(node)
 
     # Replace all todolist nodes with a list of the collected todos.
@@ -80,7 +80,7 @@ def process_todo_nodes(app, doctree, fromdocname):
     if not hasattr(env, 'todo_all_todos'):
         env.todo_all_todos = []
 
-    for node in doctree.traverse(todolist):
+    for node in doctree.findall(todolist):
         if not app.config.todo_include_todos:
             node.replace_self([])
             continue
@@ -93,7 +93,7 @@ def process_todo_nodes(app, doctree, fromdocname):
             description = (
                 _('(The original entry is located in %s, line %d and can be found ') %
                 (filename, todo_info['lineno']))
-            para += nodes.Text(description, description)
+            para += nodes.Text(description)
 
             # Create a reference
             newnode = nodes.reference('', '')
@@ -104,7 +104,7 @@ def process_todo_nodes(app, doctree, fromdocname):
             newnode['refuri'] += '#' + todo_info['target']['refid']
             newnode.append(innernode)
             para += newnode
-            para += nodes.Text('.)', '.)')
+            para += nodes.Text('.)')
 
             # Insert into the todolist
             content.append(todo_info['todo'])

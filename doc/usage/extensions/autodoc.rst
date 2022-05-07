@@ -266,6 +266,10 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      ``__str__`` will be documented as in the past, but other special method
      that are not implemented in your class ``Foo``.
 
+     Since v5.0, it can take a comma separated list of ancestor classes.  It
+     allows to suppress inherited members of several classes on the module at
+     once by specifying the option to :rst:dir:`automodule` directive.
+
      Note: this will lead to markup errors if the inherited members come from a
      module whose docstrings are not reST formatted.
 
@@ -274,6 +278,10 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      .. versionchanged:: 3.0
 
         It takes an ancestor class name as an argument.
+
+     .. versionchanged:: 5.0
+
+        It takes a comma separated list of ancestor class names.
 
    * It's possible to override the signature for explicitly documented callable
      objects (functions, methods, classes) with the regular syntax that will
@@ -626,7 +634,15 @@ There are also config values that you can set:
    When set to ``"documented"``, types will only be documented for a parameter
    or a return value that is already documented by the docstring.
 
+   With ``"documented_params"``, parameter types will only be annotated if the
+   parameter is documented in the docstring. The return type is always
+   annotated (except if it is ``None``).
+
    .. versionadded:: 4.0
+
+   .. versionadded:: 5.0
+
+      New option ``'documented_params'`` is added.
 
 .. confval:: autodoc_type_aliases
 
@@ -634,8 +650,8 @@ There are also config values that you can set:
    full-qualified object name.  It is used to keep type aliases not evaluated in
    the document.  Defaults to empty (``{}``).
 
-   The type aliases are only available if your program enables `Postponed
-   Evaluation of Annotations (PEP 563)`__ feature via ``from __future__ import
+   The type aliases are only available if your program enables :pep:`Postponed
+   Evaluation of Annotations (PEP 563) <563>` feature via ``from __future__ import
    annotations``.
 
    For example, there is code using a type alias::
@@ -662,7 +678,6 @@ There are also config values that you can set:
 
         ...
 
-   .. __: https://www.python.org/dev/peps/pep-0563/
    .. __: https://mypy.readthedocs.io/en/latest/kinds_of_types.html#type-aliases
    .. versionadded:: 3.3
 
