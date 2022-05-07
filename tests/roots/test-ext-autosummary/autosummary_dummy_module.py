@@ -1,5 +1,6 @@
 from os import path  # NOQA
 from typing import Union
+
 from autosummary_class_module import Class
 
 __all__ = [
