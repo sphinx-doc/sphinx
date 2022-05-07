@@ -552,7 +552,7 @@ General configuration
          make latex O="-D smartquotes_action="
 
       This can follow some ``make html`` with no problem, in contrast to the
-      situation from the prior note.  It requires Docutils 0.14 or later.
+      situation from the prior note.
 
    .. versionadded:: 1.6.6
 

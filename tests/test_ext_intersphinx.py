@@ -246,7 +246,7 @@ def test_missing_reference_cppdomain(tempdir, app, status, warning):
     load_mappings(app)
 
     app.build()
-    html = (app.outdir / 'index.html').read_text()
+    html = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<a class="reference external"'
             ' href="https://docs.python.org/index.html#cpp_foo_bar"'
             ' title="(in foo v2.0)">'
@@ -533,7 +533,7 @@ def test_intersphinx_role(app, warning):
     load_mappings(app)
 
     app.build()
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
     wStr = warning.getvalue()
 
     html = '<a class="reference external" href="http://example.org/{}" title="(in foo v2.0)">'

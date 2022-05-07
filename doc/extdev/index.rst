@@ -178,7 +178,7 @@ as metadata of the extension.  Metadata keys currently recognized are:
             * The core logic of the extension is parallelly executable during
               the reading phase.
             * It has event handlers for :event:`env-merge-info` and
-              :event:`env-purge-doc` events if it stores dataa to the build
+              :event:`env-purge-doc` events if it stores data to the build
               environment object (env) during the reading phase.
 
 * ``'parallel_write_safe'``: a boolean that specifies if parallel writing of

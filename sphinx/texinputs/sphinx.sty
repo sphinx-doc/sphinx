@@ -298,18 +298,11 @@
 %% FOOTNOTES
 %
 % Support scopes for footnote numbering
+% This is currently stepped at each input file
 \newcounter{sphinxscope}
 \newcommand{\sphinxstepscope}{\stepcounter{sphinxscope}}
-% Some footnotes are multiply referred-to.  For unique hypertarget in pdf,
-% we need an additional counter.  It is called "sphinxexplicit" for legacy
-% reasons as "explicitly" numbered footnotes may be multiply referred-to.
-\newcounter{sphinxexplicit}
-\newcommand{\sphinxstepexplicit}{\stepcounter{sphinxexplicit}}
-% Some babel/polyglossia languages fiddle with \@arabic, so let's be extra
-% cautious and redefine \thesphinxscope with \number not \@arabic.
-% Memo: we expect some subtle redefinition of \thesphinxscope to be a part of page
-% scoping for footnotes, when we shall implement it.
-\renewcommand{\thesphinxscope}{\number\value{sphinxscope}.\number\value{sphinxexplicit}}
+% We ensure \thesphinxscope expands to digits tokens, independently of language
+\renewcommand{\thesphinxscope}{\number\value{sphinxscope}}
 \newcommand\sphinxthefootnotemark[2]{%
    % this is used to make reference to an explicitly numbered footnote not on same page
    % #1=label of footnote text, #2=page number where footnote text was printed

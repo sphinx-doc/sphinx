@@ -215,6 +215,9 @@ def _restify_py37(cls: Optional[Type], mode: str = 'fully-qualified-except-typin
         return text
     elif isinstance(cls, typing._SpecialForm):
         return ':py:obj:`~%s.%s`' % (cls.__module__, cls._name)
+    elif sys.version_info >= (3, 11) and cls is typing.Any:
+        # handle bpo-46998
+        return f':py:obj:`~{cls.__module__}.{cls.__name__}`'
     elif hasattr(cls, '__qualname__'):
         if cls.__module__ == 'typing':
             return ':py:class:`~%s.%s`' % (cls.__module__, cls.__qualname__)

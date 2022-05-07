@@ -1,5 +1,6 @@
 """Manual pages builder."""
 
+import warnings
 from os import path
 from typing import Any, Dict, List, Set, Tuple, Union
 
@@ -45,10 +46,14 @@ class ManualPageBuilder(Builder):
     @progress_message(__('writing'))
     def write(self, *ignored: Any) -> None:
         docwriter = ManualPageWriter(self)
-        docsettings: Any = OptionParser(
-            defaults=self.env.settings,
-            components=(docwriter,),
-            read_config_files=True).get_default_values()
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', category=DeprecationWarning)
+            # DeprecationWarning: The frontend.OptionParser class will be replaced
+            # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
+            docsettings: Any = OptionParser(
+                defaults=self.env.settings,
+                components=(docwriter,),
+                read_config_files=True).get_default_values()
 
         for info in self.config.man_pages:
             docname, name, description, authors, section = info

@@ -487,6 +487,12 @@ class TypeAliasForwardRef:
     def __eq__(self, other: Any) -> bool:
         return self.name == other
 
+    def __hash__(self) -> int:
+        return hash(self.name)
+
+    def __repr__(self) -> str:
+        return self.name
+
 
 class TypeAliasModule:
     """Pseudo module class for autodoc_type_aliases."""

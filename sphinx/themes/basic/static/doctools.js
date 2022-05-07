@@ -130,18 +130,16 @@ const Documentation = {
    * highlight the search words provided in the url in the text
    */
   highlightSearchWords: () => {
-    const highlight = new URLSearchParams(window.location.search).get(
-      "highlight"
-    );
-    const terms = highlight ? highlight.split(/\s+/) : [];
+    const highlight =
+      new URLSearchParams(window.location.search).get("highlight") || "";
+    const terms = highlight.toLowerCase().split(/\s+/).filter(x => x);
     if (terms.length === 0) return; // nothing to do
 
-    let body = document.querySelectorAll("div.body");
-    if (!body.length) body = document.querySelector("body");
+    // There should never be more than one element matching "div.body"
+    const divBody = document.querySelectorAll("div.body");
+    const body = divBody.length ? divBody[0] : document.querySelector("body");
     window.setTimeout(() => {
-      terms.forEach((term) =>
-        _highlightText(body, term.toLowerCase(), "highlighted")
-      );
+      terms.forEach((term) => _highlightText(body, term, "highlighted"));
     }, 10);
 
     const searchBox = document.getElementById("searchbox");
@@ -169,14 +167,14 @@ const Documentation = {
       .querySelectorAll("span.highlighted")
       .forEach((el) => el.classList.remove("highlighted"));
     const url = new URL(window.location);
-    url.searchParams.delete('highlight');
-    window.history.replaceState({}, '', url);
+    url.searchParams.delete("highlight");
+    window.history.replaceState({}, "", url);
   },
 
   /**
    * helper function to focus on search bar
    */
-  focusSearchBar : () => {
+  focusSearchBar: () => {
     document.querySelectorAll("input[name=q]")[0]?.focus();
   },
 
@@ -206,9 +204,11 @@ const Documentation = {
 
   initOnKeyListeners: () => {
     // only install a listener if it is really needed
-    if (!DOCUMENTATION_OPTIONS.NAVIGATION_WITH_KEYS &&
-        !DOCUMENTATION_OPTIONS.ENABLE_SEARCH_SHORTCUTS)
-        return;
+    if (
+      !DOCUMENTATION_OPTIONS.NAVIGATION_WITH_KEYS &&
+      !DOCUMENTATION_OPTIONS.ENABLE_SEARCH_SHORTCUTS
+    )
+      return;
 
     const blacklistedElements = new Set([
       "TEXTAREA",
@@ -218,14 +218,12 @@ const Documentation = {
     ]);
     document.addEventListener("keydown", (event) => {
       if (blacklistedElements.has(document.activeElement.tagName)) return; // bail for input elements
-      if (event.altKey || event.ctrlKey || event.metaKey)
-        return; // bail with special keys
+      if (event.altKey || event.ctrlKey || event.metaKey) return; // bail with special keys
 
       if (!event.shiftKey) {
         switch (event.key) {
           case "ArrowLeft":
-            if (!DOCUMENTATION_OPTIONS.NAVIGATION_WITH_KEYS)
-              break;
+            if (!DOCUMENTATION_OPTIONS.NAVIGATION_WITH_KEYS) break;
 
             const prevLink = document.querySelector('link[rel="prev"]');
             if (prevLink && prevLink.href) {
@@ -234,8 +232,7 @@ const Documentation = {
             }
             break;
           case "ArrowRight":
-            if (!DOCUMENTATION_OPTIONS.NAVIGATION_WITH_KEYS)
-              break;
+            if (!DOCUMENTATION_OPTIONS.NAVIGATION_WITH_KEYS) break;
 
             const nextLink = document.querySelector('link[rel="next"]');
             if (nextLink && nextLink.href) {
@@ -244,8 +241,7 @@ const Documentation = {
             }
             break;
           case "Escape":
-            if (!DOCUMENTATION_OPTIONS.ENABLE_SEARCH_SHORTCUTS)
-              break;
+            if (!DOCUMENTATION_OPTIONS.ENABLE_SEARCH_SHORTCUTS) break;
             Documentation.hideSearchWords();
             event.preventDefault();
         }
@@ -253,9 +249,8 @@ const Documentation = {
 
       // some keyboard layouts may need Shift to get /
       switch (event.key) {
-        case '/':
-          if (!DOCUMENTATION_OPTIONS.ENABLE_SEARCH_SHORTCUTS)
-            break;
+        case "/":
+          if (!DOCUMENTATION_OPTIONS.ENABLE_SEARCH_SHORTCUTS) break;
           Documentation.focusSearchBar();
           event.preventDefault();
       }

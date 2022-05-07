@@ -21,8 +21,8 @@ from sphinx.roles import SphinxRole, XRefRole
 from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging
-from sphinx.util.cfamily import (ASTAttribute, ASTBaseBase, ASTBaseParenExprList, BaseParser,
-                                 DefinitionError, NoOldIdError, StringifyTransform,
+from sphinx.util.cfamily import (ASTAttributeList, ASTBaseBase, ASTBaseParenExprList,
+                                 BaseParser, DefinitionError, NoOldIdError, StringifyTransform,
                                  UnsupportedMultiCharacterCharLiteral, anon_identifier_re,
                                  binary_literal_re, char_literal_re, float_literal_re,
                                  float_literal_suffix_re, hex_literal_re, identifier_re,
@@ -687,7 +687,7 @@ class ASTFunctionParameter(ASTBase):
 
 
 class ASTParameters(ASTBase):
-    def __init__(self, args: List[ASTFunctionParameter], attrs: List[ASTAttribute]) -> None:
+    def __init__(self, args: List[ASTFunctionParameter], attrs: ASTAttributeList) -> None:
         self.args = args
         self.attrs = attrs
 
@@ -705,9 +705,9 @@ class ASTParameters(ASTBase):
             first = False
             res.append(str(a))
         res.append(')')
-        for attr in self.attrs:
+        if len(self.attrs) != 0:
             res.append(' ')
-            res.append(transform(attr))
+            res.append(transform(self.attrs))
         return ''.join(res)
 
     def describe_signature(self, signode: TextElement, mode: str,
@@ -732,14 +732,14 @@ class ASTParameters(ASTBase):
                 arg.describe_signature(signode, 'markType', env, symbol=symbol)
             signode += addnodes.desc_sig_punctuation(')', ')')
 
-        for attr in self.attrs:
+        if len(self.attrs) != 0:
             signode += addnodes.desc_sig_space()
-            attr.describe_signature(signode)
+            self.attrs.describe_signature(signode)
 
 
 class ASTDeclSpecsSimple(ASTBaseBase):
     def __init__(self, storage: str, threadLocal: str, inline: bool,
-                 restrict: bool, volatile: bool, const: bool, attrs: List[Any]) -> None:
+                 restrict: bool, volatile: bool, const: bool, attrs: ASTAttributeList) -> None:
         self.storage = storage
         self.threadLocal = threadLocal
         self.inline = inline
@@ -761,7 +761,8 @@ class ASTDeclSpecsSimple(ASTBaseBase):
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res: List[str] = []
-        res.extend(transform(attr) for attr in self.attrs)
+        if len(self.attrs) != 0:
+            res.append(transform(self.attrs))
         if self.storage:
             res.append(self.storage)
         if self.threadLocal:
@@ -778,14 +779,15 @@ class ASTDeclSpecsSimple(ASTBaseBase):
 
     def describe_signature(self, modifiers: List[Node]) -> None:
         def _add(modifiers: List[Node], text: str) -> None:
-            if len(modifiers) > 0:
+            if len(modifiers) != 0:
                 modifiers.append(addnodes.desc_sig_space())
             modifiers.append(addnodes.desc_sig_keyword(text, text))
 
-        for attr in self.attrs:
-            if len(modifiers) > 0:
-                modifiers.append(addnodes.desc_sig_space())
-            modifiers.append(attr.describe_signature(modifiers))
+        if len(modifiers) != 0 and len(self.attrs) != 0:
+            modifiers.append(addnodes.desc_sig_space())
+        tempNode = nodes.TextElement()
+        self.attrs.describe_signature(tempNode)
+        modifiers.extend(tempNode.children)
         if self.storage:
             _add(modifiers, self.storage)
         if self.threadLocal:
@@ -1002,7 +1004,7 @@ class ASTDeclaratorNameBitField(ASTDeclarator):
 
 class ASTDeclaratorPtr(ASTDeclarator):
     def __init__(self, next: ASTDeclarator, restrict: bool, volatile: bool, const: bool,
-                 attrs: Any) -> None:
+                 attrs: ASTAttributeList) -> None:
         assert next
         self.next = next
         self.restrict = restrict
@@ -1025,9 +1027,8 @@ class ASTDeclaratorPtr(ASTDeclarator):
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = ['*']
-        for a in self.attrs:
-            res.append(transform(a))
-        if len(self.attrs) > 0 and (self.restrict or self.volatile or self.const):
+        res.append(transform(self.attrs))
+        if len(self.attrs) != 0 and (self.restrict or self.volatile or self.const):
             res.append(' ')
         if self.restrict:
             res.append('restrict')
@@ -1049,9 +1050,8 @@ class ASTDeclaratorPtr(ASTDeclarator):
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
         signode += addnodes.desc_sig_punctuation('*', '*')
-        for a in self.attrs:
-            a.describe_signature(signode)
-        if len(self.attrs) > 0 and (self.restrict or self.volatile or self.const):
+        self.attrs.describe_signature(signode)
+        if len(self.attrs) != 0 and (self.restrict or self.volatile or self.const):
             signode += addnodes.desc_sig_space()
 
         def _add_anno(signode: TextElement, text: str) -> None:
@@ -1374,9 +1374,11 @@ class ASTEnum(ASTBase):
 
 
 class ASTEnumerator(ASTBase):
-    def __init__(self, name: ASTNestedName, init: ASTInitializer) -> None:
+    def __init__(self, name: ASTNestedName, init: Optional[ASTInitializer],
+                 attrs: ASTAttributeList) -> None:
         self.name = name
         self.init = init
+        self.attrs = attrs
 
     def get_id(self, version: int, objectType: str, symbol: "Symbol") -> str:
         return symbol.get_full_nested_name().get_id(version)
@@ -1384,6 +1386,9 @@ class ASTEnumerator(ASTBase):
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
         res.append(transform(self.name))
+        if len(self.attrs) != 0:
+            res.append(' ')
+            res.append(transform(self.attrs))
         if self.init:
             res.append(transform(self.init))
         return ''.join(res)
@@ -1392,6 +1397,9 @@ class ASTEnumerator(ASTBase):
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
         self.name.describe_signature(signode, mode, env, symbol)
+        if len(self.attrs) != 0:
+            signode += addnodes.desc_sig_space()
+            self.attrs.describe_signature(signode)
         if self.init:
             self.init.describe_signature(signode, 'markType', env, symbol)
 
@@ -2641,13 +2649,7 @@ class DefinitionParser(BaseParser):
                         'Expecting "," or ")" in parameters, '
                         'got "%s".' % self.current_char)
 
-        attrs = []
-        while True:
-            attr = self._parse_attribute()
-            if attr is None:
-                break
-            attrs.append(attr)
-
+        attrs = self._parse_attribute_list()
         return ASTParameters(args, attrs)
 
     def _parse_decl_specs_simple(self, outer: str, typed: bool) -> ASTDeclSpecsSimple:
@@ -2706,7 +2708,7 @@ class DefinitionParser(BaseParser):
                 continue
             break
         return ASTDeclSpecsSimple(storage, threadLocal, inline,
-                                  restrict, volatile, const, attrs)
+                                  restrict, volatile, const, ASTAttributeList(attrs))
 
     def _parse_decl_specs(self, outer: str, typed: bool = True) -> ASTDeclSpecs:
         if outer:
@@ -2838,7 +2840,7 @@ class DefinitionParser(BaseParser):
             next = self._parse_declarator(named, paramMode, typed)
             return ASTDeclaratorPtr(next=next,
                                     restrict=restrict, volatile=volatile, const=const,
-                                    attrs=attrs)
+                                    attrs=ASTAttributeList(attrs))
         if typed and self.current_char == '(':  # note: peeking, not skipping
             # maybe this is the beginning of params, try that first,
             # otherwise assume it's noptr->declarator > ( ptr-declarator )
@@ -3033,6 +3035,7 @@ class DefinitionParser(BaseParser):
 
     def _parse_enumerator(self) -> ASTEnumerator:
         name = self._parse_nested_name()
+        attrs = self._parse_attribute_list()
         self.skip_ws()
         init = None
         if self.skip_string('='):
@@ -3043,7 +3046,7 @@ class DefinitionParser(BaseParser):
 
             initVal = self._parse_expression_fallback([], parser)
             init = ASTInitializer(initVal)
-        return ASTEnumerator(name, init)
+        return ASTEnumerator(name, init, attrs)
 
     def parse_pre_v3_type_definition(self) -> ASTDeclaration:
         self.skip_ws()

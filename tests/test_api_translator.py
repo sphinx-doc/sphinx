@@ -2,9 +2,8 @@
 
 import sys
 
+import docutils
 import pytest
-
-from sphinx.util import docutils
 
 
 @pytest.fixture(scope='module', autouse=True)

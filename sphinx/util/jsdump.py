@@ -4,7 +4,13 @@ Uses the basestring encode function from simplejson by Bob Ippolito.
 """
 
 import re
+import warnings
 from typing import IO, Any, Dict, List, Match, Union
+
+from sphinx.deprecation import RemovedInSphinx70Warning
+
+warnings.warn('"sphinx.util.jsdump" has been deprecated. Please use "json" instead.',
+              RemovedInSphinx70Warning)
 
 _str_re = re.compile(r'"(\\\\|\\"|[^"])*"')
 _int_re = re.compile(r'\d+')

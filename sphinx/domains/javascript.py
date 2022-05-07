@@ -114,13 +114,6 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         fullname = (mod_name + '.' if mod_name else '') + name_obj[0]
         node_id = make_id(self.env, self.state.document, '', fullname)
         signode['ids'].append(node_id)
-
-        # Assign old styled node_id not to break old hyperlinks (if possible)
-        # Note: Will be removed in Sphinx-5.0 (RemovedInSphinx50Warning)
-        old_node_id = self.make_old_id(fullname)
-        if old_node_id not in self.state.document.ids and old_node_id not in signode['ids']:
-            signode['ids'].append(old_node_id)
-
         self.state.document.note_explicit_target(signode)
 
         domain = cast(JavaScriptDomain, self.env.get_domain('js'))
@@ -280,13 +273,6 @@ class JSModule(SphinxDirective):
                                location=(self.env.docname, self.lineno))
 
             target = nodes.target('', '', ids=[node_id], ismod=True)
-
-            # Assign old styled node_id not to break old hyperlinks (if possible)
-            # Note: Will be removed in Sphinx-5.0 (RemovedInSphinx50Warning)
-            old_node_id = self.make_old_id(mod_name)
-            if old_node_id not in self.state.document.ids and old_node_id not in target['ids']:
-                target['ids'].append(old_node_id)
-
             self.state.document.note_explicit_target(target)
             ret.append(target)
             indextext = _('%s (module)') % mod_name

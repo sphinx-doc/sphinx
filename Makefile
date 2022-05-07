@@ -66,11 +66,11 @@ doclinter:
 
 .PHONY: test
 test:
-	@$(PYTHON) -X dev -m pytest -v $(TEST)
+	@$(PYTHON) -X dev -X warn_default_encoding -m pytest -v $(TEST)
 
 .PHONY: covertest
 covertest:
-	@$(PYTHON) -X dev -m pytest -v --cov=sphinx --junitxml=.junit.xml $(TEST)
+	@$(PYTHON) -X dev -X warn_default_encoding -m pytest -v --cov=sphinx --junitxml=.junit.xml $(TEST)
 
 .PHONY: build
 build:

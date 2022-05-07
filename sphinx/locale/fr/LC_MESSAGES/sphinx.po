@@ -34,14 +34,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-03-27 00:18+0000\n"
+"POT-Creation-Date: 2022-04-24 09:25+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: David Georges, 2021\n"
 "Language-Team: French (http://www.transifex.com/sphinx-doc/sphinx-1/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.10.1\n"
 "Language: fr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
@@ -92,76 +92,76 @@ msgstr "'setup' tel que défini dans conf.py n'est pas un objet Python appelable
 msgid "loading translations [%s]... "
 msgstr "chargement des traductions [%s]... "
 
-#: sphinx/application.py:283 sphinx/util/__init__.py:532
+#: sphinx/application.py:282 sphinx/util/__init__.py:504
 msgid "done"
 msgstr "fait"
 
-#: sphinx/application.py:285
+#: sphinx/application.py:284
 msgid "not available for built-in messages"
 msgstr "traductions indisponibles"
 
-#: sphinx/application.py:294
+#: sphinx/application.py:293
 msgid "loading pickled environment"
 msgstr "Chargement de l'environnement pickled"
 
-#: sphinx/application.py:299
+#: sphinx/application.py:298
 #, python-format
 msgid "failed: %s"
 msgstr "échec : %s"
 
-#: sphinx/application.py:307
+#: sphinx/application.py:306
 msgid "No builder selected, using default: html"
 msgstr "Aucun constructeur sélectionné, utilisation du défaut : html"
 
-#: sphinx/application.py:335
+#: sphinx/application.py:334
 msgid "succeeded"
 msgstr "a réussi"
 
-#: sphinx/application.py:336
+#: sphinx/application.py:335
 msgid "finished with problems"
 msgstr "s'est terminée avec des problèmes"
 
-#: sphinx/application.py:340
+#: sphinx/application.py:339
 #, python-format
 msgid "build %s, %s warning (with warnings treated as errors)."
 msgstr "La compilation %s, %s avertissement (avec les avertissements considérés comme des erreurs)."
 
-#: sphinx/application.py:342
+#: sphinx/application.py:341
 #, python-format
 msgid "build %s, %s warnings (with warnings treated as errors)."
 msgstr "La compilation %s, %s avertissements (avec les avertissements considérés comme des erreurs)."
 
-#: sphinx/application.py:345
+#: sphinx/application.py:344
 #, python-format
 msgid "build %s, %s warning."
 msgstr "La compilation %s, %s avertissement."
 
-#: sphinx/application.py:347
+#: sphinx/application.py:346
 #, python-format
 msgid "build %s, %s warnings."
 msgstr "La compilation %s, %s avertissements."
 
-#: sphinx/application.py:351
+#: sphinx/application.py:350
 #, python-format
 msgid "build %s."
 msgstr "La compilation %s."
 
-#: sphinx/application.py:581
+#: sphinx/application.py:580
 #, python-format
 msgid "node class %r is already registered, its visitors will be overridden"
 msgstr "la classe de nœud %r est déjà enregistrée, ses visiteurs seront écrasés"
 
-#: sphinx/application.py:659
+#: sphinx/application.py:658
 #, python-format
 msgid "directive %r is already registered, it will be overridden"
 msgstr "la directive %r est déjà enregistrée, elle sera écrasée"
 
-#: sphinx/application.py:680 sphinx/application.py:701
+#: sphinx/application.py:679 sphinx/application.py:700
 #, python-format
 msgid "role %r is already registered, it will be overridden"
 msgstr "le rôle %r est déjà enregistré, il sera écrasé"
 
-#: sphinx/application.py:1249
+#: sphinx/application.py:1248
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel reading, "
@@ -169,12 +169,12 @@ msgid ""
 "explicit"
 msgstr "l’extension %s ne se déclare pas compatible à la lecture en parallèle, on supposera qu’elle ne l'est pas - merci de demander à l'auteur de l’extension de vérifier ce qu’il en est et de le préciser explicitement"
 
-#: sphinx/application.py:1253
+#: sphinx/application.py:1252
 #, python-format
 msgid "the %s extension is not safe for parallel reading"
 msgstr "l'extension %s n'est pas compatible avec les lectures parallèles"
 
-#: sphinx/application.py:1256
+#: sphinx/application.py:1255
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel writing, "
@@ -182,12 +182,12 @@ msgid ""
 "explicit"
 msgstr "l’extension %s ne se déclare pas compatible à l’écriture en parallèle, on supposera qu’elle ne l’est pas - merci de demander à l'auteur de l’extension de vérifier ce qu’il en est et de le préciser explicitement"
 
-#: sphinx/application.py:1260
+#: sphinx/application.py:1259
 #, python-format
 msgid "the %s extension is not safe for parallel writing"
 msgstr "l'extension %s n'est pas compatible avec les écritures parallèles"
 
-#: sphinx/application.py:1268 sphinx/application.py:1272
+#: sphinx/application.py:1267 sphinx/application.py:1271
 #, python-format
 msgid "doing serial %s"
 msgstr "sérialisation en cours %s"
@@ -655,8 +655,8 @@ msgstr "Document en préparation"
 msgid "duplicated ToC entry found: %s"
 msgstr "Entrées dupliquées de la table des matières trouvées : %s"
 
-#: sphinx/builders/_epub_base.py:397 sphinx/builders/html/__init__.py:723
-#: sphinx/builders/latex/__init__.py:413 sphinx/builders/texinfo.py:168
+#: sphinx/builders/_epub_base.py:397 sphinx/builders/html/__init__.py:735
+#: sphinx/builders/latex/__init__.py:405 sphinx/builders/texinfo.py:168
 msgid "copying images... "
 msgstr "Copie des images... "
 
@@ -665,8 +665,8 @@ msgstr "Copie des images... "
 msgid "cannot read image file %r: copying it instead"
 msgstr "impossible de lire le fichier image %r: il sera copié à la place"
 
-#: sphinx/builders/_epub_base.py:410 sphinx/builders/html/__init__.py:731
-#: sphinx/builders/latex/__init__.py:421 sphinx/builders/texinfo.py:178
+#: sphinx/builders/_epub_base.py:410 sphinx/builders/html/__init__.py:743
+#: sphinx/builders/latex/__init__.py:413 sphinx/builders/texinfo.py:178
 #, python-format
 msgid "cannot copy image file %r: %s"
 msgstr "impossible de copier le fichier image %r: %s"
@@ -790,7 +790,7 @@ msgstr "le paramètre de configuration \"epub_identifier\" ne peut pas être vid
 msgid "conf value \"version\" should not be empty for EPUB3"
 msgstr "le paramètre de configuration \"version\" ne peut pas être vide pour EPUB3"
 
-#: sphinx/builders/epub3.py:229 sphinx/builders/html/__init__.py:1114
+#: sphinx/builders/epub3.py:229 sphinx/builders/html/__init__.py:1125
 #, python-format
 msgid "invalid css_file: %r, ignored"
 msgstr "fichier CSS invalide : %r, le fichier sera ignoré"
@@ -813,22 +813,22 @@ msgstr "lecture des gabarits... "
 msgid "writing message catalogs... "
 msgstr "écriture des catalogues de messages... "
 
-#: sphinx/builders/linkcheck.py:124
+#: sphinx/builders/linkcheck.py:110
 #, python-format
 msgid "Look for any errors in the above output or in %(outdir)s/output.txt"
 msgstr "Recherchez les éventuelles erreurs dans la sortie ci-dessus ou dans %(outdir)s/output.txt"
 
-#: sphinx/builders/linkcheck.py:262
+#: sphinx/builders/linkcheck.py:145
 #, python-format
 msgid "broken link: %s (%s)"
 msgstr "lien mort: %s (%s)"
 
-#: sphinx/builders/linkcheck.py:461
+#: sphinx/builders/linkcheck.py:320
 #, python-format
 msgid "Anchor '%s' not found"
 msgstr "Ancre '%s' non trouvée"
 
-#: sphinx/builders/linkcheck.py:706
+#: sphinx/builders/linkcheck.py:551
 #, python-format
 msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
 msgstr ""
@@ -842,7 +842,7 @@ msgstr "Le manuel se trouve dans %(outdir)s."
 msgid "no \"man_pages\" config value found; no manual pages will be written"
 msgstr "aucun valeur de configuration \"man_pages\" trouvée; aucun page du manuel ne sera enregistrée"
 
-#: sphinx/builders/latex/__init__.py:291 sphinx/builders/manpage.py:45
+#: sphinx/builders/latex/__init__.py:287 sphinx/builders/manpage.py:45
 #: sphinx/builders/singlehtml.py:153 sphinx/builders/texinfo.py:101
 msgid "writing"
 msgstr "enregistrement"
@@ -886,16 +886,16 @@ msgstr "aucun paramètre de configuration \"texinfo_documents\" trouvé: aucun d
 msgid "\"texinfo_documents\" config value references unknown document %s"
 msgstr "La valeur du paramètre \"texinfo_documents\" référence un document inconnu %s"
 
-#: sphinx/builders/latex/__init__.py:273 sphinx/builders/texinfo.py:97
+#: sphinx/builders/latex/__init__.py:269 sphinx/builders/texinfo.py:97
 #, python-format
 msgid "processing %s"
 msgstr "traitement en cours %s"
 
-#: sphinx/builders/latex/__init__.py:344 sphinx/builders/texinfo.py:144
+#: sphinx/builders/latex/__init__.py:340 sphinx/builders/texinfo.py:144
 msgid "resolving references..."
 msgstr "résolution des références..."
 
-#: sphinx/builders/latex/__init__.py:354 sphinx/builders/texinfo.py:153
+#: sphinx/builders/latex/__init__.py:350 sphinx/builders/texinfo.py:153
 msgid " (in "
 msgstr "(dans"
 
@@ -913,7 +913,7 @@ msgstr "erreur lors l'écriture du fichier Makefile : %s"
 msgid "The text files are in %(outdir)s."
 msgstr "Les fichiers texte se trouvent dans %(outdir)s."
 
-#: sphinx/builders/html/__init__.py:1067 sphinx/builders/text.py:69
+#: sphinx/builders/html/__init__.py:1078 sphinx/builders/text.py:69
 #: sphinx/builders/xml.py:86
 #, python-format
 msgid "error writing file %s: %s"
@@ -929,238 +929,238 @@ msgstr "Les fichiers XML se trouvent dans %(outdir)s."
 msgid "The pseudo-XML files are in %(outdir)s."
 msgstr "Le fichier pseudo-XML se trouve dans %(outdir)s."
 
-#: sphinx/builders/html/__init__.py:137
+#: sphinx/builders/html/__init__.py:148
 #, python-format
 msgid "build info file is broken: %r"
 msgstr "le fichier de configuration de construction est corrompu : %r"
 
-#: sphinx/builders/html/__init__.py:169
+#: sphinx/builders/html/__init__.py:180
 #, python-format
 msgid "The HTML pages are in %(outdir)s."
 msgstr "Les pages HTML sont dans %(outdir)s."
 
-#: sphinx/builders/html/__init__.py:367
+#: sphinx/builders/html/__init__.py:381
 #, python-format
 msgid "Failed to read build info file: %r"
 msgstr "Échec de lecture du fichier de configuration de construction : %r"
 
-#: sphinx/builders/html/__init__.py:461 sphinx/builders/latex/__init__.py:179
+#: sphinx/builders/html/__init__.py:473 sphinx/builders/latex/__init__.py:176
 #: sphinx/transforms/__init__.py:109 sphinx/writers/manpage.py:94
-#: sphinx/writers/texinfo.py:226
+#: sphinx/writers/texinfo.py:222
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%b %d, %Y"
 
-#: sphinx/builders/html/__init__.py:480 sphinx/themes/basic/defindex.html:30
+#: sphinx/builders/html/__init__.py:492 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
 msgstr "Index général"
 
-#: sphinx/builders/html/__init__.py:480
+#: sphinx/builders/html/__init__.py:492
 msgid "index"
 msgstr "index"
 
-#: sphinx/builders/html/__init__.py:544
+#: sphinx/builders/html/__init__.py:556
 msgid "next"
 msgstr "suivant"
 
-#: sphinx/builders/html/__init__.py:553
+#: sphinx/builders/html/__init__.py:565
 msgid "previous"
 msgstr "précédent"
 
-#: sphinx/builders/html/__init__.py:647
+#: sphinx/builders/html/__init__.py:659
 msgid "generating indices"
 msgstr "Génération des index"
 
-#: sphinx/builders/html/__init__.py:662
+#: sphinx/builders/html/__init__.py:674
 msgid "writing additional pages"
 msgstr "écriture des pages additionnelles"
 
-#: sphinx/builders/html/__init__.py:741
+#: sphinx/builders/html/__init__.py:753
 msgid "copying downloadable files... "
 msgstr "Copie des fichiers téléchargeables... "
 
-#: sphinx/builders/html/__init__.py:749
+#: sphinx/builders/html/__init__.py:761
 #, python-format
 msgid "cannot copy downloadable file %r: %s"
 msgstr "impossible de copier le fichier téléchargeable %r: %s"
 
-#: sphinx/builders/html/__init__.py:781 sphinx/builders/html/__init__.py:793
+#: sphinx/builders/html/__init__.py:792 sphinx/builders/html/__init__.py:804
 #, python-format
 msgid "Failed to copy a file in html_static_file: %s: %r"
 msgstr "Échec de la copie du fichier dans html_static_file : %s : %r"
 
-#: sphinx/builders/html/__init__.py:814
+#: sphinx/builders/html/__init__.py:825
 msgid "copying static files"
 msgstr "copie des fichiers statiques"
 
-#: sphinx/builders/html/__init__.py:830
+#: sphinx/builders/html/__init__.py:841
 #, python-format
 msgid "cannot copy static file %r"
 msgstr "impossible de copier le fichier static %r"
 
-#: sphinx/builders/html/__init__.py:835
+#: sphinx/builders/html/__init__.py:846
 msgid "copying extra files"
 msgstr "Copie des fichiers complémentaires"
 
-#: sphinx/builders/html/__init__.py:841
+#: sphinx/builders/html/__init__.py:852
 #, python-format
 msgid "cannot copy extra file %r"
 msgstr "copie des fichiers supplémentaires impossible %r"
 
-#: sphinx/builders/html/__init__.py:848
+#: sphinx/builders/html/__init__.py:859
 #, python-format
 msgid "Failed to write build info file: %r"
 msgstr "Échec d'écriture du fichier de configuration de construction : %r"
 
-#: sphinx/builders/html/__init__.py:896
+#: sphinx/builders/html/__init__.py:907
 msgid ""
 "search index couldn't be loaded, but not all documents will be built: the "
 "index will be incomplete."
 msgstr "L'index de recherche n'a pas pu être chargé, mais tous les documents ne seront pas construits: l'index sera incomplet."
 
-#: sphinx/builders/html/__init__.py:957
+#: sphinx/builders/html/__init__.py:968
 #, python-format
 msgid "page %s matches two patterns in html_sidebars: %r and %r"
 msgstr "la page %s correspond à deux modèles dans html_sidebars: %r et %r"
 
-#: sphinx/builders/html/__init__.py:1050
+#: sphinx/builders/html/__init__.py:1061
 #, python-format
 msgid ""
 "a Unicode error occurred when rendering the page %s. Please make sure all "
 "config values that contain non-ASCII content are Unicode strings."
 msgstr "une erreur Unicode est survenue lors du rendu de la page %s. Veuillez vous assurer que toutes les valeurs de configuration comportant des caractères non-ASCII sont des chaînes Unicode."
 
-#: sphinx/builders/html/__init__.py:1055
+#: sphinx/builders/html/__init__.py:1066
 #, python-format
 msgid ""
 "An error happened in rendering the page %s.\n"
 "Reason: %r"
 msgstr "Un erreur est survenue lors de la génération de la page: %s.\nLa raison est: %r"
 
-#: sphinx/builders/html/__init__.py:1084
+#: sphinx/builders/html/__init__.py:1095
 msgid "dumping object inventory"
 msgstr "Export de l'inventaire des objets"
 
-#: sphinx/builders/html/__init__.py:1089
+#: sphinx/builders/html/__init__.py:1100
 #, python-format
 msgid "dumping search index in %s"
 msgstr "Export de l'index de recherche dans %s"
 
-#: sphinx/builders/html/__init__.py:1131
+#: sphinx/builders/html/__init__.py:1142
 #, python-format
 msgid "invalid js_file: %r, ignored"
 msgstr "le fichier js_file : %r est invalide, il sera ignoré"
 
-#: sphinx/builders/html/__init__.py:1218
+#: sphinx/builders/html/__init__.py:1229
 msgid "Many math_renderers are registered. But no math_renderer is selected."
 msgstr "Plusieurs math_renderers sont enregistrés. Mais aucun n'est sélectionné."
 
-#: sphinx/builders/html/__init__.py:1221
+#: sphinx/builders/html/__init__.py:1232
 #, python-format
 msgid "Unknown math_renderer %r is given."
 msgstr "math_renderer saisi %r inconnu."
 
-#: sphinx/builders/html/__init__.py:1229
+#: sphinx/builders/html/__init__.py:1240
 #, python-format
 msgid "html_extra_path entry %r does not exist"
 msgstr "l'entrée html_extra_path %r n'existe pas"
 
-#: sphinx/builders/html/__init__.py:1233
+#: sphinx/builders/html/__init__.py:1244
 #, python-format
 msgid "html_extra_path entry %r is placed inside outdir"
 msgstr "l'entrée html_extra_path %r se trouve à l'intérieur de outdir"
 
-#: sphinx/builders/html/__init__.py:1242
+#: sphinx/builders/html/__init__.py:1253
 #, python-format
 msgid "html_static_path entry %r does not exist"
 msgstr "l'entrée html_static_path %r n'existe pas"
 
-#: sphinx/builders/html/__init__.py:1246
+#: sphinx/builders/html/__init__.py:1257
 #, python-format
 msgid "html_static_path entry %r is placed inside outdir"
 msgstr "l'entrée html_static_path %r se trouve à l'intérieur de outdir"
 
-#: sphinx/builders/html/__init__.py:1255 sphinx/builders/latex/__init__.py:425
+#: sphinx/builders/html/__init__.py:1266 sphinx/builders/latex/__init__.py:417
 #, python-format
 msgid "logo file %r does not exist"
 msgstr "le fichier de logo %r n'existe pas"
 
-#: sphinx/builders/html/__init__.py:1264
+#: sphinx/builders/html/__init__.py:1275
 #, python-format
 msgid "favicon file %r does not exist"
 msgstr "le fichier de favicon %r n'existe pas "
 
-#: sphinx/builders/html/__init__.py:1284
+#: sphinx/builders/html/__init__.py:1295
 msgid ""
 "html_add_permalinks has been deprecated since v3.5.0. Please use "
 "html_permalinks and html_permalinks_icon instead."
 msgstr ""
 
-#: sphinx/builders/html/__init__.py:1310
+#: sphinx/builders/html/__init__.py:1321
 #, python-format
 msgid "%s %s documentation"
 msgstr "Documentation %s %s"
 
-#: sphinx/builders/latex/__init__.py:106
+#: sphinx/builders/latex/__init__.py:104
 #, python-format
 msgid "The LaTeX files are in %(outdir)s."
 msgstr "Les fichiers LaTex se trouvent dans %(outdir)s."
 
-#: sphinx/builders/latex/__init__.py:108
+#: sphinx/builders/latex/__init__.py:106
 msgid ""
 "\n"
 "Run 'make' in that directory to run these through (pdf)latex\n"
 "(use `make latexpdf' here to do that automatically)."
 msgstr "\nExécuter 'make' dans ce répertoire pour les soumettre à (pdf)latex\n(ou 'make latexpdf' directement ici pour l’automatiser)."
 
-#: sphinx/builders/latex/__init__.py:144
+#: sphinx/builders/latex/__init__.py:142
 msgid "no \"latex_documents\" config value found; no documents will be written"
 msgstr "aucune valeur de configuration \"latex_documents\" trouvée; aucun document de sera généré"
 
-#: sphinx/builders/latex/__init__.py:152
+#: sphinx/builders/latex/__init__.py:150
 #, python-format
 msgid "\"latex_documents\" config value references unknown document %s"
 msgstr "La valeur du paramètre \"latex_documents\" référence un document inconnu %s"
 
-#: sphinx/builders/latex/__init__.py:186 sphinx/domains/std.py:588
+#: sphinx/builders/latex/__init__.py:183 sphinx/domains/std.py:564
 #: sphinx/templates/latex/latex.tex_t:97
 #: sphinx/themes/basic/genindex-single.html:30
 #: sphinx/themes/basic/genindex-single.html:55
 #: sphinx/themes/basic/genindex-split.html:11
 #: sphinx/themes/basic/genindex-split.html:14
 #: sphinx/themes/basic/genindex.html:11 sphinx/themes/basic/genindex.html:34
-#: sphinx/themes/basic/genindex.html:67 sphinx/themes/basic/layout.html:147
-#: sphinx/writers/texinfo.py:491
+#: sphinx/themes/basic/genindex.html:67 sphinx/themes/basic/layout.html:148
+#: sphinx/writers/texinfo.py:487
 msgid "Index"
 msgstr "Index"
 
-#: sphinx/builders/latex/__init__.py:189 sphinx/templates/latex/latex.tex_t:82
+#: sphinx/builders/latex/__init__.py:186 sphinx/templates/latex/latex.tex_t:82
 msgid "Release"
 msgstr "Version"
 
-#: sphinx/builders/latex/__init__.py:203 sphinx/writers/latex.py:376
+#: sphinx/builders/latex/__init__.py:200 sphinx/writers/latex.py:341
 #, python-format
 msgid "no Babel option known for language %r"
 msgstr "Aucune option Babel disponible pour la langue %r"
 
-#: sphinx/builders/latex/__init__.py:371
+#: sphinx/builders/latex/__init__.py:367
 msgid "copying TeX support files"
 msgstr "Copie des fichiers de support TeX"
 
-#: sphinx/builders/latex/__init__.py:391
+#: sphinx/builders/latex/__init__.py:383
 msgid "copying TeX support files..."
 msgstr "Copie des fichiers de support TeX..."
 
-#: sphinx/builders/latex/__init__.py:404
+#: sphinx/builders/latex/__init__.py:396
 msgid "copying additional files"
 msgstr "Copie de fichiers supplémentaires"
 
-#: sphinx/builders/latex/__init__.py:460
+#: sphinx/builders/latex/__init__.py:440
 #, python-format
 msgid "Unknown configure key: latex_elements[%r], ignored."
 msgstr "Clé de configuration inconnue : latex_elements[%r]; ignorée."
 
-#: sphinx/builders/latex/__init__.py:468
+#: sphinx/builders/latex/__init__.py:448
 #, python-format
 msgid "Unknown theme option: latex_theme_options[%r], ignored."
 msgstr ""
@@ -1230,7 +1230,7 @@ msgid "job number should be a positive number"
 msgstr "Le numéro du job doit être strictement positif"
 
 #: sphinx/cmd/build.py:98 sphinx/cmd/quickstart.py:462
-#: sphinx/ext/apidoc.py:302 sphinx/ext/autosummary/generate.py:618
+#: sphinx/ext/apidoc.py:302 sphinx/ext/autosummary/generate.py:569
 msgid "For more information, visit <https://www.sphinx-doc.org/>."
 msgstr "Pour plus d'informations, visitez le site <https://www.sphinx-doc.org/>."
 
@@ -1894,75 +1894,75 @@ msgstr ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: sphinx/domains/c.py:1992 sphinx/domains/c.py:3298
+#: sphinx/domains/c.py:2000 sphinx/domains/c.py:3301
 #, python-format
 msgid ""
 "Duplicate C declaration, also defined at %s:%s.\n"
 "Declaration is '.. c:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/c.py:3223
+#: sphinx/domains/c.py:3226
 #, python-format
 msgid "%s (C %s)"
 msgstr ""
 
-#: sphinx/domains/c.py:3344 sphinx/domains/cpp.py:7294
-#: sphinx/domains/python.py:437 sphinx/ext/napoleon/docstring.py:727
+#: sphinx/domains/c.py:3347 sphinx/domains/cpp.py:7320
+#: sphinx/domains/python.py:433 sphinx/ext/napoleon/docstring.py:727
 msgid "Parameters"
 msgstr "Paramètres"
 
-#: sphinx/domains/c.py:3347 sphinx/domains/cpp.py:7300
+#: sphinx/domains/c.py:3350 sphinx/domains/cpp.py:7326
 msgid "Return values"
 msgstr ""
 
-#: sphinx/domains/c.py:3350 sphinx/domains/cpp.py:7303
-#: sphinx/domains/javascript.py:223 sphinx/domains/python.py:449
+#: sphinx/domains/c.py:3353 sphinx/domains/cpp.py:7329
+#: sphinx/domains/javascript.py:216 sphinx/domains/python.py:445
 msgid "Returns"
 msgstr "Renvoie"
 
-#: sphinx/domains/c.py:3352 sphinx/domains/javascript.py:225
-#: sphinx/domains/python.py:451
+#: sphinx/domains/c.py:3355 sphinx/domains/javascript.py:218
+#: sphinx/domains/python.py:447
 msgid "Return type"
 msgstr "Type renvoyé"
 
-#: sphinx/domains/c.py:3747 sphinx/domains/cpp.py:7708
+#: sphinx/domains/c.py:3750 sphinx/domains/cpp.py:7734
 msgid "member"
 msgstr "membre"
 
-#: sphinx/domains/c.py:3748
+#: sphinx/domains/c.py:3751
 msgid "variable"
 msgstr "variable"
 
-#: sphinx/domains/c.py:3749 sphinx/domains/cpp.py:7707
-#: sphinx/domains/javascript.py:332 sphinx/domains/python.py:1195
+#: sphinx/domains/c.py:3752 sphinx/domains/cpp.py:7733
+#: sphinx/domains/javascript.py:318 sphinx/domains/python.py:1155
 msgid "function"
 msgstr "fonction"
 
-#: sphinx/domains/c.py:3750
+#: sphinx/domains/c.py:3753
 msgid "macro"
 msgstr "macro"
 
-#: sphinx/domains/c.py:3751
+#: sphinx/domains/c.py:3754
 msgid "struct"
 msgstr ""
 
-#: sphinx/domains/c.py:3752 sphinx/domains/cpp.py:7706
+#: sphinx/domains/c.py:3755 sphinx/domains/cpp.py:7732
 msgid "union"
 msgstr "union"
 
-#: sphinx/domains/c.py:3753 sphinx/domains/cpp.py:7711
+#: sphinx/domains/c.py:3756 sphinx/domains/cpp.py:7737
 msgid "enum"
 msgstr "énumération"
 
-#: sphinx/domains/c.py:3754 sphinx/domains/cpp.py:7712
+#: sphinx/domains/c.py:3757 sphinx/domains/cpp.py:7738
 msgid "enumerator"
 msgstr "énumérateur"
 
-#: sphinx/domains/c.py:3755 sphinx/domains/cpp.py:7709
+#: sphinx/domains/c.py:3758 sphinx/domains/cpp.py:7735
 msgid "type"
 msgstr "type"
 
-#: sphinx/domains/c.py:3757 sphinx/domains/cpp.py:7714
+#: sphinx/domains/c.py:3760 sphinx/domains/cpp.py:7740
 msgid "function parameter"
 msgstr ""
 
@@ -1991,91 +1991,91 @@ msgstr "citation dupliquée %s, une autre instance dans %s"
 msgid "Citation [%s] is not referenced."
 msgstr "La citation [%s] n'est pas référencée"
 
-#: sphinx/domains/cpp.py:4763 sphinx/domains/cpp.py:7249
+#: sphinx/domains/cpp.py:4803 sphinx/domains/cpp.py:7275
 #, python-format
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/cpp.py:7055
+#: sphinx/domains/cpp.py:7081
 msgid "Template Parameters"
 msgstr "Paramètres du modèle"
 
-#: sphinx/domains/cpp.py:7172
+#: sphinx/domains/cpp.py:7198
 #, python-format
 msgid "%s (C++ %s)"
 msgstr "%s (C++ %s)"
 
-#: sphinx/domains/cpp.py:7297 sphinx/domains/javascript.py:220
+#: sphinx/domains/cpp.py:7323 sphinx/domains/javascript.py:213
 msgid "Throws"
 msgstr "Déclenche"
 
-#: sphinx/domains/cpp.py:7705 sphinx/domains/javascript.py:334
-#: sphinx/domains/python.py:1197
+#: sphinx/domains/cpp.py:7731 sphinx/domains/javascript.py:320
+#: sphinx/domains/python.py:1157
 msgid "class"
 msgstr "classe"
 
-#: sphinx/domains/cpp.py:7710
+#: sphinx/domains/cpp.py:7736
 msgid "concept"
 msgstr "concept"
 
-#: sphinx/domains/cpp.py:7715
+#: sphinx/domains/cpp.py:7741
 msgid "template parameter"
 msgstr "paramètre du modèle"
 
-#: sphinx/domains/javascript.py:138
+#: sphinx/domains/javascript.py:131
 #, python-format
 msgid "%s() (built-in function)"
 msgstr "%s() (fonction de base)"
 
-#: sphinx/domains/javascript.py:139 sphinx/domains/python.py:834
+#: sphinx/domains/javascript.py:132 sphinx/domains/python.py:824
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (méthode %s)"
 
-#: sphinx/domains/javascript.py:141
+#: sphinx/domains/javascript.py:134
 #, python-format
 msgid "%s() (class)"
 msgstr "%s() (classe)"
 
-#: sphinx/domains/javascript.py:143
+#: sphinx/domains/javascript.py:136
 #, python-format
 msgid "%s (global variable or constant)"
 msgstr "%s (variable globale ou constante)"
 
-#: sphinx/domains/javascript.py:145 sphinx/domains/python.py:919
+#: sphinx/domains/javascript.py:138 sphinx/domains/python.py:909
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (attribut %s)"
 
-#: sphinx/domains/javascript.py:217
+#: sphinx/domains/javascript.py:210
 msgid "Arguments"
 msgstr "Arguments"
 
-#: sphinx/domains/javascript.py:292
+#: sphinx/domains/javascript.py:278
 #, python-format
 msgid "%s (module)"
 msgstr "%s (module)"
 
-#: sphinx/domains/javascript.py:333 sphinx/domains/python.py:1199
+#: sphinx/domains/javascript.py:319 sphinx/domains/python.py:1159
 msgid "method"
 msgstr "méthode"
 
-#: sphinx/domains/javascript.py:335 sphinx/domains/python.py:1196
+#: sphinx/domains/javascript.py:321 sphinx/domains/python.py:1156
 msgid "data"
 msgstr "données"
 
-#: sphinx/domains/javascript.py:336 sphinx/domains/python.py:1202
+#: sphinx/domains/javascript.py:322 sphinx/domains/python.py:1162
 msgid "attribute"
 msgstr "attribut"
 
-#: sphinx/domains/javascript.py:337 sphinx/domains/python.py:50
-#: sphinx/domains/python.py:1204
+#: sphinx/domains/javascript.py:323 sphinx/domains/python.py:50
+#: sphinx/domains/python.py:1164
 msgid "module"
 msgstr "module"
 
-#: sphinx/domains/javascript.py:368
+#: sphinx/domains/javascript.py:354
 #, python-format
 msgid "duplicate %s description of %s, other %s in %s"
 msgstr "description de %s dupliquée pour%s; l'autre %s se trouve dans %s"
@@ -2085,7 +2085,7 @@ msgstr "description de %s dupliquée pour%s; l'autre %s se trouve dans %s"
 msgid "duplicate label of equation %s, other instance in %s"
 msgstr "Libellé dupliqué pour l'équation %s, autre instance dans %s"
 
-#: sphinx/domains/math.py:111 sphinx/writers/latex.py:2070
+#: sphinx/domains/math.py:111 sphinx/writers/latex.py:2023
 #, python-format
 msgid "Invalid math_eqref_format: %r"
 msgstr "math_eqref_format invalide : %r"
@@ -2102,7 +2102,7 @@ msgstr "opérateur"
 msgid "object"
 msgstr "objet"
 
-#: sphinx/domains/python.py:54 sphinx/domains/python.py:1198
+#: sphinx/domains/python.py:54 sphinx/domains/python.py:1158
 msgid "exception"
 msgstr "exception"
 
@@ -2114,233 +2114,233 @@ msgstr "état"
 msgid "built-in function"
 msgstr "fonction de base"
 
-#: sphinx/domains/python.py:442
+#: sphinx/domains/python.py:438
 msgid "Variables"
 msgstr "Variables"
 
-#: sphinx/domains/python.py:446
+#: sphinx/domains/python.py:442
 msgid "Raises"
 msgstr "Lève"
 
-#: sphinx/domains/python.py:679 sphinx/domains/python.py:823
+#: sphinx/domains/python.py:669 sphinx/domains/python.py:813
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (dans le module %s)"
 
-#: sphinx/domains/python.py:739 sphinx/domains/python.py:915
-#: sphinx/domains/python.py:966
+#: sphinx/domains/python.py:729 sphinx/domains/python.py:905
+#: sphinx/domains/python.py:956
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (dans le module %s)"
 
-#: sphinx/domains/python.py:741
+#: sphinx/domains/python.py:731
 #, python-format
 msgid "%s (built-in variable)"
 msgstr "%s (variable de base)"
 
-#: sphinx/domains/python.py:766
+#: sphinx/domains/python.py:756
 #, python-format
 msgid "%s (built-in class)"
 msgstr "%s (classe de base)"
 
-#: sphinx/domains/python.py:767
+#: sphinx/domains/python.py:757
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s (classe dans %s)"
 
-#: sphinx/domains/python.py:828
+#: sphinx/domains/python.py:818
 #, python-format
 msgid "%s() (%s class method)"
 msgstr "%s() (méthode de la classe %s)"
 
-#: sphinx/domains/python.py:830 sphinx/domains/python.py:970
+#: sphinx/domains/python.py:820 sphinx/domains/python.py:960
 #, python-format
 msgid "%s (%s property)"
 msgstr ""
 
-#: sphinx/domains/python.py:832
+#: sphinx/domains/python.py:822
 #, python-format
 msgid "%s() (%s static method)"
 msgstr "%s() (méthode statique %s)"
 
-#: sphinx/domains/python.py:1124
+#: sphinx/domains/python.py:1084
 msgid "Python Module Index"
 msgstr "Index des modules Python"
 
-#: sphinx/domains/python.py:1125
+#: sphinx/domains/python.py:1085
 msgid "modules"
 msgstr "modules"
 
-#: sphinx/domains/python.py:1174
+#: sphinx/domains/python.py:1134
 msgid "Deprecated"
 msgstr "Obsolète"
 
-#: sphinx/domains/python.py:1200
+#: sphinx/domains/python.py:1160
 msgid "class method"
 msgstr "méthode de classe"
 
-#: sphinx/domains/python.py:1201
+#: sphinx/domains/python.py:1161
 msgid "static method"
 msgstr "méthode statique"
 
-#: sphinx/domains/python.py:1203
+#: sphinx/domains/python.py:1163
 msgid "property"
 msgstr "propriété"
 
-#: sphinx/domains/python.py:1261
+#: sphinx/domains/python.py:1221
 #, python-format
 msgid ""
 "duplicate object description of %s, other instance in %s, use :noindex: for "
 "one of them"
 msgstr "description dupliquée pour l'objet %s; l'autre instance se trouve dans %s, utilisez :noindex: sur l'une d'elles"
 
-#: sphinx/domains/python.py:1381
+#: sphinx/domains/python.py:1341
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "plusieurs cibles trouvées pour le renvoi %r : %s"
 
-#: sphinx/domains/python.py:1435
+#: sphinx/domains/python.py:1395
 msgid " (deprecated)"
 msgstr " (obsolète)"
 
-#: sphinx/domains/rst.py:96 sphinx/domains/rst.py:157
+#: sphinx/domains/rst.py:89 sphinx/domains/rst.py:143
 #, python-format
 msgid "%s (directive)"
 msgstr "%s (directive)"
 
-#: sphinx/domains/rst.py:158 sphinx/domains/rst.py:162
+#: sphinx/domains/rst.py:144 sphinx/domains/rst.py:148
 #, python-format
 msgid ":%s: (directive option)"
 msgstr ":%s: (option de directive)"
 
-#: sphinx/domains/rst.py:191
+#: sphinx/domains/rst.py:177
 #, python-format
 msgid "%s (role)"
 msgstr "%s (role)"
 
-#: sphinx/domains/rst.py:200
+#: sphinx/domains/rst.py:186
 msgid "directive"
 msgstr "directive"
 
-#: sphinx/domains/rst.py:201
+#: sphinx/domains/rst.py:187
 msgid "directive-option"
 msgstr "option de directive"
 
-#: sphinx/domains/rst.py:202
+#: sphinx/domains/rst.py:188
 msgid "role"
 msgstr "role"
 
-#: sphinx/domains/rst.py:224
+#: sphinx/domains/rst.py:210
 #, python-format
 msgid "duplicate description of %s %s, other instance in %s"
 msgstr "description dupliquée pour %s %s; l'autre instance se trouve dans %s"
 
-#: sphinx/domains/std.py:92 sphinx/domains/std.py:109
+#: sphinx/domains/std.py:83 sphinx/domains/std.py:100
 #, python-format
 msgid "environment variable; %s"
 msgstr "variable d'environnement; %s"
 
-#: sphinx/domains/std.py:183
+#: sphinx/domains/std.py:167
 #, python-format
 msgid ""
 "Malformed option description %r, should look like \"opt\", \"-opt args\", \""
 "--opt args\", \"/opt args\" or \"+opt args\""
 msgstr "description de l'option malformée, elle doit ressembler à \nMalformed option description %r, should look like \"opt\", \"-opt args\", \"--opt args\", \"/opt args\" or \"+opt args\""
 
-#: sphinx/domains/std.py:234
+#: sphinx/domains/std.py:218
 #, python-format
 msgid "%s command line option"
 msgstr "option de ligne de commande %s"
 
-#: sphinx/domains/std.py:236
+#: sphinx/domains/std.py:220
 msgid "command line option"
 msgstr "option de ligne de commande"
 
-#: sphinx/domains/std.py:363
+#: sphinx/domains/std.py:347
 msgid "glossary term must be preceded by empty line"
 msgstr "le terme du glossaire doit être précédé d'une ligne vide"
 
-#: sphinx/domains/std.py:371
+#: sphinx/domains/std.py:355
 msgid "glossary terms must not be separated by empty lines"
 msgstr "les termes du glossaire ne doivent pas être séparés par des lignes vides"
 
-#: sphinx/domains/std.py:377 sphinx/domains/std.py:390
+#: sphinx/domains/std.py:361 sphinx/domains/std.py:374
 msgid "glossary seems to be misformatted, check indentation"
 msgstr "le glossaire semble être mal formaté; vérifiez l'indentation"
 
-#: sphinx/domains/std.py:547
+#: sphinx/domains/std.py:523
 msgid "glossary term"
 msgstr "terme du glossaire"
 
-#: sphinx/domains/std.py:548
+#: sphinx/domains/std.py:524
 msgid "grammar token"
 msgstr "élément de grammaire"
 
-#: sphinx/domains/std.py:549
+#: sphinx/domains/std.py:525
 msgid "reference label"
 msgstr "étiquette de référence"
 
-#: sphinx/domains/std.py:551
+#: sphinx/domains/std.py:527
 msgid "environment variable"
 msgstr "variable d'environnement"
 
-#: sphinx/domains/std.py:552
+#: sphinx/domains/std.py:528
 msgid "program option"
 msgstr "option du programme"
 
-#: sphinx/domains/std.py:553
+#: sphinx/domains/std.py:529
 msgid "document"
 msgstr "document"
 
-#: sphinx/domains/std.py:589
+#: sphinx/domains/std.py:565
 msgid "Module Index"
 msgstr "Index du module"
 
-#: sphinx/domains/std.py:590 sphinx/themes/basic/defindex.html:25
+#: sphinx/domains/std.py:566 sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
 msgstr "Page de recherche"
 
-#: sphinx/domains/std.py:639 sphinx/domains/std.py:748
+#: sphinx/domains/std.py:615 sphinx/domains/std.py:719
 #: sphinx/ext/autosectionlabel.py:43
 #, python-format
 msgid "duplicate label %s, other instance in %s"
 msgstr "libellé dupliqué %s, l'autre instance se trouve dans %s"
 
-#: sphinx/domains/std.py:658
+#: sphinx/domains/std.py:634
 #, python-format
 msgid "duplicate %s description of %s, other instance in %s"
 msgstr "description %s dupliquée pour %s; l'autre instance se trouve dans %s"
 
-#: sphinx/domains/std.py:856
+#: sphinx/domains/std.py:825
 msgid "numfig is disabled. :numref: is ignored."
 msgstr "le paramètre numfig est désactivé : le paramètre :numref: est ignoré"
 
-#: sphinx/domains/std.py:864
+#: sphinx/domains/std.py:833
 #, python-format
 msgid "Failed to create a cross reference. Any number is not assigned: %s"
 msgstr "Impossible de créer une référence croisée. Aucun nombre n'est attribué: %s"
 
-#: sphinx/domains/std.py:876
+#: sphinx/domains/std.py:845
 #, python-format
 msgid "the link has no caption: %s"
 msgstr "le lien n'a pas de légende : %s"
 
-#: sphinx/domains/std.py:890
+#: sphinx/domains/std.py:859
 #, python-format
 msgid "invalid numfig_format: %s (%r)"
 msgstr "format de numfig_format invalide : %s (%r)"
 
-#: sphinx/domains/std.py:893
+#: sphinx/domains/std.py:862
 #, python-format
 msgid "invalid numfig_format: %s"
 msgstr "format de numfig_format invalide : %s"
 
-#: sphinx/domains/std.py:1106
+#: sphinx/domains/std.py:1075
 #, python-format
 msgid "undefined label: %s"
 msgstr "lablel non défini: 1%s"
 
-#: sphinx/domains/std.py:1108
+#: sphinx/domains/std.py:1077
 #, python-format
 msgid "Failed to create a cross reference. A title or caption not found: %s"
 msgstr "Impossible de créer une référence croisée. Titre ou légende introuvable: %s"
@@ -2421,17 +2421,17 @@ msgid ""
 " will be generated"
 msgstr "la table des matières contient une référence à un document %r qui n'a pas de titre : aucun lien ne sera généré"
 
-#: sphinx/environment/collectors/asset.py:82
+#: sphinx/environment/collectors/asset.py:80
 #, python-format
 msgid "image file not readable: %s"
 msgstr "fichier image %s illisible "
 
-#: sphinx/environment/collectors/asset.py:101
+#: sphinx/environment/collectors/asset.py:99
 #, python-format
 msgid "image file %s not readable: %s"
 msgstr "fichier image %s illisible : %s"
 
-#: sphinx/environment/collectors/asset.py:127
+#: sphinx/environment/collectors/asset.py:125
 #, python-format
 msgid "download file not readable: %s"
 msgstr "le fichier téléchargé n’est pas lisible: %s"
@@ -2641,10 +2641,24 @@ msgid ""
 "====================== slowest reading durations ======================="
 msgstr "====================== durées de lecture les plus lentes ======================="
 
-#: sphinx/ext/extlinks.py:69
+#: sphinx/ext/extlinks.py:77
 #, python-format
 msgid ""
 "hardcoded link %r could be replaced by an extlink (try using %r instead)"
+msgstr ""
+
+#: sphinx/ext/extlinks.py:96
+#, python-format
+msgid ""
+"extlinks: Sphinx-6.0 will require base URL to contain exactly one '%s' and "
+"all other '%' need to be escaped as '%%'."
+msgstr ""
+
+#: sphinx/ext/extlinks.py:104
+#, python-format
+msgid ""
+"extlinks: Sphinx-6.0 will require a caption string to contain exactly one "
+"'%s' and all other '%' need to be escaped as '%%'."
 msgstr ""
 
 #: sphinx/ext/graphviz.py:124
@@ -2811,7 +2825,7 @@ msgstr "l’identifiant intersphinx %r n'est pas une chaîne. Il sera ignoré"
 msgid "Failed to read intersphinx_mapping[%s], ignored: %r"
 msgstr "Échec de la lecture de intersphinx_mapping[%s]; ignoré : %r"
 
-#: sphinx/ext/linkcode.py:62 sphinx/ext/viewcode.py:180
+#: sphinx/ext/linkcode.py:62 sphinx/ext/viewcode.py:178
 msgid "[source]"
 msgstr "[source]"
 
@@ -2837,64 +2851,64 @@ msgstr "(l'<<entrée originale>> se trouve dans %s, à la ligne %d)"
 msgid "original entry"
 msgstr "entrée originale"
 
-#: sphinx/ext/viewcode.py:249
+#: sphinx/ext/viewcode.py:235
 msgid "highlighting module code... "
 msgstr "coloration syntaxique du code du module..."
 
-#: sphinx/ext/viewcode.py:281
+#: sphinx/ext/viewcode.py:267
 msgid "[docs]"
 msgstr "[docs]"
 
-#: sphinx/ext/viewcode.py:295
+#: sphinx/ext/viewcode.py:281
 msgid "Module code"
 msgstr "Code du module"
 
-#: sphinx/ext/viewcode.py:301
+#: sphinx/ext/viewcode.py:287
 #, python-format
 msgid "<h1>Source code for %s</h1>"
 msgstr "<h1>Code source de %s</h1>"
 
-#: sphinx/ext/viewcode.py:328
+#: sphinx/ext/viewcode.py:314
 msgid "Overview: module code"
 msgstr "Vue d'ensemble : code du module"
 
-#: sphinx/ext/viewcode.py:329
+#: sphinx/ext/viewcode.py:315
 msgid "<h1>All modules for which code is available</h1>"
 msgstr "<h1>Modules pour lesquels le code est disponible</h1>"
 
-#: sphinx/ext/autodoc/__init__.py:127
+#: sphinx/ext/autodoc/__init__.py:120
 #, python-format
 msgid "invalid value for member-order option: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:135
+#: sphinx/ext/autodoc/__init__.py:128
 #, python-format
 msgid "invalid value for class-doc-from option: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:396
+#: sphinx/ext/autodoc/__init__.py:376
 #, python-format
 msgid "invalid signature for auto%s (%r)"
 msgstr "signature invalide pour auto%s (%r)"
 
-#: sphinx/ext/autodoc/__init__.py:513
+#: sphinx/ext/autodoc/__init__.py:493
 #, python-format
 msgid "error while formatting arguments for %s: %s"
 msgstr "erreur pendant la mise en forme de l'argument %s:%s"
 
-#: sphinx/ext/autodoc/__init__.py:658 sphinx/ext/autodoc/__init__.py:1695
+#: sphinx/ext/autodoc/__init__.py:630 sphinx/ext/autodoc/__init__.py:1683
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr "attribut manquant %s dans l'objet %s"
 
-#: sphinx/ext/autodoc/__init__.py:810
+#: sphinx/ext/autodoc/__init__.py:784
 #, python-format
 msgid ""
 "autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
 "%s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:903
+#: sphinx/ext/autodoc/__init__.py:877
 #, python-format
 msgid ""
 "don't know which module to import for autodocumenting %r (try placing a "
@@ -2902,82 +2916,76 @@ msgid ""
 "explicit module name)"
 msgstr "module à importer pour auto-documenter %r est inconnu (essayer de placer une directive \"module\" ou \"currentmodule\" dans le document, ou de donner un nom de module explicite)"
 
-#: sphinx/ext/autodoc/__init__.py:947
+#: sphinx/ext/autodoc/__init__.py:921
 #, python-format
 msgid "A mocked object is detected: %r"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:966
+#: sphinx/ext/autodoc/__init__.py:940
 #, python-format
 msgid "error while formatting signature for %s: %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1017
+#: sphinx/ext/autodoc/__init__.py:991
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr "\"::\" dans le nom d'automodule n'a pas de sens"
 
-#: sphinx/ext/autodoc/__init__.py:1024
+#: sphinx/ext/autodoc/__init__.py:998
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr "arguments de signature ou annotation de return donnés pour l’automodule %s"
 
-#: sphinx/ext/autodoc/__init__.py:1037
+#: sphinx/ext/autodoc/__init__.py:1011
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr "__all__ devrait être une liste de chaînes, pas %r (dans module %s) -- __all__ sera ignoré"
 
-#: sphinx/ext/autodoc/__init__.py:1103
+#: sphinx/ext/autodoc/__init__.py:1077
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:1304 sphinx/ext/autodoc/__init__.py:1381
-#: sphinx/ext/autodoc/__init__.py:2790
+#: sphinx/ext/autodoc/__init__.py:1278 sphinx/ext/autodoc/__init__.py:1355
+#: sphinx/ext/autodoc/__init__.py:2749
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "Échec pour obtenir la signature de la fonction pour %s : %s"
 
-#: sphinx/ext/autodoc/__init__.py:1574
+#: sphinx/ext/autodoc/__init__.py:1548
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr "Échec pour obtenir la signature du constructeur pour %s : %s"
 
-#: sphinx/ext/autodoc/__init__.py:1682
+#: sphinx/ext/autodoc/__init__.py:1670
 #, python-format
 msgid "Bases: %s"
 msgstr "Bases : %s"
 
-#: sphinx/ext/autodoc/__init__.py:1783 sphinx/ext/autodoc/__init__.py:1861
-#: sphinx/ext/autodoc/__init__.py:1884
+#: sphinx/ext/autodoc/__init__.py:1770 sphinx/ext/autodoc/__init__.py:1848
+#: sphinx/ext/autodoc/__init__.py:1871
 #, python-format
 msgid "alias of %s"
 msgstr "alias de %s"
 
-#: sphinx/ext/autodoc/__init__.py:1930
+#: sphinx/ext/autodoc/__init__.py:1912
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr "alias de TypeVar(%s)"
 
-#: sphinx/ext/autodoc/__init__.py:2166 sphinx/ext/autodoc/__init__.py:2263
+#: sphinx/ext/autodoc/__init__.py:2147 sphinx/ext/autodoc/__init__.py:2244
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr "Échec pour obtenir la signature de la méthode pour %s : %s"
 
-#: sphinx/ext/autodoc/__init__.py:2394
+#: sphinx/ext/autodoc/__init__.py:2375
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr ""
 
-#: sphinx/ext/autodoc/__init__.py:2833
-msgid ""
-"autodoc_member_order now accepts \"alphabetical\" instead of \"alphabetic\"."
-" Please update your setting."
-msgstr ""
-
-#: sphinx/ext/autodoc/preserve_defaults.py:101
+#: sphinx/ext/autodoc/preserve_defaults.py:105
 #, python-format
 msgid "Failed to parse a default argument value for %r: %s"
 msgstr ""
@@ -2992,23 +3000,23 @@ msgstr ""
 msgid "Failed to parse type_comment for %r: %s"
 msgstr "Échec de l'analyse de type_comment pour %r : %s"
 
-#: sphinx/ext/autosummary/__init__.py:274
+#: sphinx/ext/autosummary/__init__.py:247
 #, python-format
 msgid "autosummary references excluded document %r. Ignored."
 msgstr "autosummary fait référence au document exclu %r. Ignoré"
 
-#: sphinx/ext/autosummary/__init__.py:276
+#: sphinx/ext/autosummary/__init__.py:249
 #, python-format
 msgid ""
 "autosummary: stub file not found %r. Check your autosummary_generate "
 "setting."
 msgstr "autosummary : fichier stub non trouvé %r. Vérifiez votre paramètre autosummary_generate."
 
-#: sphinx/ext/autosummary/__init__.py:295
+#: sphinx/ext/autosummary/__init__.py:268
 msgid "A captioned autosummary requires :toctree: option. ignored."
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:346
+#: sphinx/ext/autosummary/__init__.py:319
 #, python-format
 msgid ""
 "autosummary: failed to import %s.\n"
@@ -3016,46 +3024,46 @@ msgid ""
 "%s"
 msgstr ""
 
-#: sphinx/ext/autosummary/__init__.py:360
+#: sphinx/ext/autosummary/__init__.py:333
 #, python-format
 msgid "failed to parse name %s"
 msgstr "échec de l’analyse du nom %s"
 
-#: sphinx/ext/autosummary/__init__.py:365
+#: sphinx/ext/autosummary/__init__.py:338
 #, python-format
 msgid "failed to import object %s"
 msgstr "échec d’importation de l'object %s"
 
-#: sphinx/ext/autosummary/__init__.py:809
+#: sphinx/ext/autosummary/__init__.py:788
 #, python-format
 msgid "autosummary_generate: file not found: %s"
 msgstr "autosummary_generate : fichier nontrouvé : %s"
 
-#: sphinx/ext/autosummary/__init__.py:817
+#: sphinx/ext/autosummary/__init__.py:796
 msgid ""
 "autosummary generats .rst files internally. But your source_suffix does not "
 "contain .rst. Skipped."
 msgstr "autosummary engendre les fichiers .rst de manière interne. Mais votre source_suffix ne contient pas .rst. Ignoré."
 
-#: sphinx/ext/autosummary/generate.py:185
-#: sphinx/ext/autosummary/generate.py:249
+#: sphinx/ext/autosummary/generate.py:151
+#: sphinx/ext/autosummary/generate.py:215
 #, python-format
 msgid ""
 "autosummary: failed to determine %r to be documented, the following exception was raised:\n"
 "%s"
 msgstr "autosummary : impossible de déterminer si %r est documenté; l'exception suivante a été levée :\n%s"
 
-#: sphinx/ext/autosummary/generate.py:396
+#: sphinx/ext/autosummary/generate.py:353
 #, python-format
 msgid "[autosummary] generating autosummary for: %s"
 msgstr "[autosummary] engendrement d’un auto-sommaire pour : %s"
 
-#: sphinx/ext/autosummary/generate.py:400
+#: sphinx/ext/autosummary/generate.py:357
 #, python-format
 msgid "[autosummary] writing to %s"
 msgstr "[autosummary] écriture dans %s"
 
-#: sphinx/ext/autosummary/generate.py:443
+#: sphinx/ext/autosummary/generate.py:400
 #, python-format
 msgid ""
 "[autosummary] failed to import %s.\n"
@@ -3063,7 +3071,7 @@ msgid ""
 "%s"
 msgstr ""
 
-#: sphinx/ext/autosummary/generate.py:619
+#: sphinx/ext/autosummary/generate.py:570
 msgid ""
 "\n"
 "Generate ReStructuredText using autosummary directives.\n"
@@ -3078,30 +3086,30 @@ msgid ""
 "  pydoc sphinx.ext.autosummary\n"
 msgstr "\nEngendre du ReStructuredText par les directives autosummary.\n\nsphinx-autogen est une interface à sphinx.ext.autosummary.generate. Il\nengendre les fichiers reStructuredText à partir des directives autosummary\ncontenues dans les fichiers donnés en entrée.\n\nLe format de la directive autosummary est documentée dans le module\nPython \"sphinx.ext.autosummary\" et peut être lu via : ::\n\npydoc sphinx.ext.autosummary\n"
 
-#: sphinx/ext/autosummary/generate.py:636
+#: sphinx/ext/autosummary/generate.py:587
 msgid "source files to generate rST files for"
 msgstr "fichiers sources pour lesquels il faut produire des fichiers rST"
 
-#: sphinx/ext/autosummary/generate.py:640
+#: sphinx/ext/autosummary/generate.py:591
 msgid "directory to place all output in"
 msgstr "répertoire où placer toutes les sorties"
 
-#: sphinx/ext/autosummary/generate.py:643
+#: sphinx/ext/autosummary/generate.py:594
 #, python-format
 msgid "default suffix for files (default: %(default)s)"
 msgstr "extension par défaut pour les fichiers (par défaut : %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:647
+#: sphinx/ext/autosummary/generate.py:598
 #, python-format
 msgid "custom template directory (default: %(default)s)"
 msgstr "répertoire des templates spécifiques (par défaut : %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:651
+#: sphinx/ext/autosummary/generate.py:602
 #, python-format
 msgid "document imported members (default: %(default)s)"
 msgstr "membres importés du document (défaut : %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:655
+#: sphinx/ext/autosummary/generate.py:606
 #, python-format
 msgid ""
 "document exactly the members in module __all__ attribute. (default: "
@@ -3231,7 +3239,7 @@ msgstr "page"
 msgid "Table of Contents"
 msgstr "Table des matières"
 
-#: sphinx/themes/agogo/layout.html:43 sphinx/themes/basic/layout.html:150
+#: sphinx/themes/agogo/layout.html:43 sphinx/themes/basic/layout.html:151
 #: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:22
 msgid "Search"
 msgstr "Recherche"
@@ -3312,35 +3320,35 @@ msgstr "peut être énorme"
 msgid "Navigation"
 msgstr "Navigation"
 
-#: sphinx/themes/basic/layout.html:135
+#: sphinx/themes/basic/layout.html:136
 #, python-format
 msgid "Search within %(docstitle)s"
 msgstr "Recherchez dans %(docstitle)s"
 
-#: sphinx/themes/basic/layout.html:144
+#: sphinx/themes/basic/layout.html:145
 msgid "About these documents"
 msgstr "À propos de ces documents"
 
-#: sphinx/themes/basic/layout.html:153
+#: sphinx/themes/basic/layout.html:154
 msgid "Copyright"
 msgstr "Copyright"
 
-#: sphinx/themes/basic/layout.html:199
+#: sphinx/themes/basic/layout.html:200
 #, python-format
 msgid "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
 msgstr "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
 
-#: sphinx/themes/basic/layout.html:201
+#: sphinx/themes/basic/layout.html:202
 #, python-format
 msgid "&#169; Copyright %(copyright)s."
 msgstr "&#169; Copyright %(copyright)s."
 
-#: sphinx/themes/basic/layout.html:205
+#: sphinx/themes/basic/layout.html:206
 #, python-format
 msgid "Last updated on %(last_updated)s."
 msgstr "Mis à jour le %(last_updated)s."
 
-#: sphinx/themes/basic/layout.html:208
+#: sphinx/themes/basic/layout.html:209
 #, python-format
 msgid ""
 "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> "
@@ -3385,12 +3393,12 @@ msgid "search"
 msgstr "rechercher"
 
 #: sphinx/themes/basic/search.html:48
-#: sphinx/themes/basic/static/searchtools.js:302
+#: sphinx/themes/basic/static/searchtools.js:106
 msgid "Search Results"
 msgstr "Résultats de la recherche"
 
 #: sphinx/themes/basic/search.html:50
-#: sphinx/themes/basic/static/searchtools.js:304
+#: sphinx/themes/basic/static/searchtools.js:108
 msgid ""
 "Your search did not match any documents. Please make sure that all words are"
 " spelled correctly and that you've selected enough categories."
@@ -3432,47 +3440,35 @@ msgstr "Modifications de l'API C"
 msgid "Other changes"
 msgstr "Autres modifications"
 
-#: sphinx/themes/basic/static/doctools.js:197 sphinx/writers/html.py:428
-#: sphinx/writers/html.py:433 sphinx/writers/html5.py:387
-#: sphinx/writers/html5.py:392
-msgid "Permalink to this headline"
-msgstr "Lien permanent vers ce titre"
-
-#: sphinx/themes/basic/static/doctools.js:203 sphinx/writers/html.py:120
-#: sphinx/writers/html.py:129 sphinx/writers/html5.py:99
-#: sphinx/writers/html5.py:108
-msgid "Permalink to this definition"
-msgstr "Lien permanent vers cette définition"
-
-#: sphinx/themes/basic/static/doctools.js:236
+#: sphinx/themes/basic/static/doctools.js:153
 msgid "Hide Search Matches"
 msgstr "Cacher les résultats de la recherche"
 
-#: sphinx/themes/basic/static/searchtools.js:136
+#: sphinx/themes/basic/static/searchtools.js:112
+msgid ""
+"Search finished, found ${resultCount} page(s) matching the search query."
+msgstr ""
+
+#: sphinx/themes/basic/static/searchtools.js:213
 msgid "Searching"
 msgstr "Recherche en cours"
 
-#: sphinx/themes/basic/static/searchtools.js:141
+#: sphinx/themes/basic/static/searchtools.js:229
 msgid "Preparing search..."
 msgstr "Préparation de la recherche..."
 
-#: sphinx/themes/basic/static/searchtools.js:306
-#, python-format
-msgid "Search finished, found %s page(s) matching the search query."
-msgstr "La recherche est finie, %s page(s) trouvée(s) qui corresponde(nt) à la recherche."
-
-#: sphinx/themes/basic/static/searchtools.js:361
+#: sphinx/themes/basic/static/searchtools.js:373
 msgid ", in "
 msgstr ", dans"
 
-#: sphinx/themes/classic/static/sidebar.js_t:83
-msgid "Expand sidebar"
-msgstr "Agrandir la barre latérale"
-
-#: sphinx/themes/classic/static/sidebar.js_t:96
-#: sphinx/themes/classic/static/sidebar.js_t:124
+#: sphinx/themes/classic/layout.html:20
+#: sphinx/themes/classic/static/sidebar.js_t:57
 msgid "Collapse sidebar"
 msgstr "Réduire la barre latérale"
+
+#: sphinx/themes/classic/static/sidebar.js_t:48
+msgid "Expand sidebar"
+msgstr "Agrandir la barre latérale"
 
 #: sphinx/themes/haiku/layout.html:24
 msgid "Contents"
@@ -3493,25 +3489,25 @@ msgstr "La note de bas de page [%s] n'est pas référencée."
 msgid "Footnote [#] is not referenced."
 msgstr "La note de bas de page [#] n'est pas référencée."
 
-#: sphinx/transforms/i18n.py:301 sphinx/transforms/i18n.py:372
+#: sphinx/transforms/i18n.py:323 sphinx/transforms/i18n.py:394
 msgid ""
 "inconsistent footnote references in translated message. original: {0}, "
 "translated: {1}"
 msgstr "incohérences de références de notes de bas de page dans le message traduit. Original : {0}, traduit : {1} "
 
-#: sphinx/transforms/i18n.py:344
+#: sphinx/transforms/i18n.py:366
 msgid ""
 "inconsistent references in translated message. original: {0}, translated: "
 "{1}"
 msgstr "incohérences de références dans le message traduit. Original : {0}, traduit : {1}"
 
-#: sphinx/transforms/i18n.py:391
+#: sphinx/transforms/i18n.py:413
 msgid ""
 "inconsistent citation references in translated message. original: {0}, "
 "translated: {1}"
 msgstr "incohérences de références de citation dans le message traduit. Original : {0}, traduit : {1}"
 
-#: sphinx/transforms/i18n.py:411
+#: sphinx/transforms/i18n.py:433
 msgid ""
 "inconsistent term references in translated message. original: {0}, "
 "translated: {1}"
@@ -3553,16 +3549,16 @@ msgstr "impossible d'atteindre l'image distante %s[%s]"
 msgid "Unknown image format: %s..."
 msgstr "Format d'image inconnu : %s..."
 
-#: sphinx/util/__init__.py:277
+#: sphinx/util/__init__.py:275
 #, python-format
 msgid "undecodable source characters, replacing with \"?\": %r"
 msgstr "le caractère source est indécodable, il sera remplacé par \"?\" : %r"
 
-#: sphinx/util/__init__.py:525
+#: sphinx/util/__init__.py:497
 msgid "skipped"
 msgstr "ignoré"
 
-#: sphinx/util/__init__.py:530
+#: sphinx/util/__init__.py:502
 msgid "failed"
 msgstr "échoué"
 
@@ -3583,22 +3579,22 @@ msgstr "nom de rôle ou de directive inconnu: %s:%s"
 msgid "unknown node type: %r"
 msgstr "type de node inconnu : %r"
 
-#: sphinx/util/i18n.py:59
+#: sphinx/util/i18n.py:61
 #, python-format
 msgid "reading error: %s, %s"
 msgstr "erreur de lecture : %s,%s"
 
-#: sphinx/util/i18n.py:66
+#: sphinx/util/i18n.py:68
 #, python-format
 msgid "writing error: %s, %s"
 msgstr "erreur d'écriture : %s,%s"
 
-#: sphinx/util/i18n.py:90
+#: sphinx/util/i18n.py:92
 #, python-format
 msgid "locale_dir %s does not exists"
 msgstr "le répertoire locale_dir %s n'existe pas"
 
-#: sphinx/util/i18n.py:184
+#: sphinx/util/i18n.py:188
 #, python-format
 msgid ""
 "Invalid date format. Quote the string by single quote if you want to output "
@@ -3620,6 +3616,11 @@ msgstr "exception pendant l’évaluation de l'expression de la directive only :
 msgid "default role %s not found"
 msgstr "rôle par défaut %s introuvable"
 
+#: sphinx/writers/html.py:120 sphinx/writers/html.py:129
+#: sphinx/writers/html5.py:99 sphinx/writers/html5.py:108
+msgid "Permalink to this definition"
+msgstr "Lien permanent vers cette définition"
+
 #: sphinx/writers/html.py:321 sphinx/writers/html5.py:300
 #, python-format
 msgid "numfig_format is not defined for %s"
@@ -3633,6 +3634,11 @@ msgstr "Aucun ID assigné au node %s"
 #: sphinx/writers/html.py:405 sphinx/writers/html5.py:364
 msgid "Permalink to this term"
 msgstr "Lien permanent vers ce terme"
+
+#: sphinx/writers/html.py:428 sphinx/writers/html.py:433
+#: sphinx/writers/html5.py:387 sphinx/writers/html5.py:392
+msgid "Permalink to this heading"
+msgstr ""
 
 #: sphinx/writers/html.py:437 sphinx/writers/html5.py:396
 msgid "Permalink to this table"
@@ -3654,40 +3660,40 @@ msgstr "Lien permanent vers cette table des matières"
 msgid "Could not obtain image size. :scale: option is ignored."
 msgstr "impossible d'obtenir la taille de l'image. L'option :scale: est ignorée."
 
-#: sphinx/writers/latex.py:341
+#: sphinx/writers/latex.py:306
 #, python-format
 msgid "unknown %r toplevel_sectioning for class %r"
 msgstr "toplevel_sectioning %r inconnu pour la classe %r"
 
-#: sphinx/writers/latex.py:392
+#: sphinx/writers/latex.py:357
 msgid "too large :maxdepth:, ignored."
 msgstr ":maxdepth: trop grand, ignoré."
 
-#: sphinx/writers/latex.py:639
+#: sphinx/writers/latex.py:596
 msgid "document title is not a single Text node"
 msgstr "le titre du document n'est pas un unique node de type Text"
 
-#: sphinx/writers/latex.py:671 sphinx/writers/texinfo.py:618
+#: sphinx/writers/latex.py:628 sphinx/writers/texinfo.py:614
 msgid ""
 "encountered title node not in section, topic, table, admonition or sidebar"
 msgstr "le titre de node rencontré n'est apparenté à aucun parmi section, topic, table, admonition ou sidebar"
 
-#: sphinx/writers/latex.py:847 sphinx/writers/manpage.py:239
-#: sphinx/writers/texinfo.py:633
+#: sphinx/writers/latex.py:804 sphinx/writers/manpage.py:239
+#: sphinx/writers/texinfo.py:629
 msgid "Footnotes"
 msgstr "Notes de bas de page"
 
-#: sphinx/writers/latex.py:906
+#: sphinx/writers/latex.py:861
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "options tabularcolumns et :widths: simultanément présentes. :widths: sera ignoré."
 
-#: sphinx/writers/latex.py:1237
+#: sphinx/writers/latex.py:1192
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
 msgstr "%s est invalide comme unité de dimension. Ignoré."
 
-#: sphinx/writers/latex.py:1550
+#: sphinx/writers/latex.py:1505
 #, python-format
 msgid "unknown index entry type %s found"
 msgstr "le type inconnu d’entrée d’index %s a été trouvé"

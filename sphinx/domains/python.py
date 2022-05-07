@@ -565,12 +565,6 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         fullname = (modname + '.' if modname else '') + name_cls[0]
         node_id = make_id(self.env, self.state.document, '', fullname)
         signode['ids'].append(node_id)
-
-        # Assign old styled node_id(fullname) not to break old hyperlinks (if possible)
-        # Note: Will removed in Sphinx-5.0  (RemovedInSphinx50Warning)
-        if node_id != fullname and fullname not in self.state.document.ids:
-            signode['ids'].append(fullname)
-
         self.state.document.note_explicit_target(signode)
 
         domain = cast(PythonDomain, self.env.get_domain('py'))
@@ -994,13 +988,6 @@ class PyModule(SphinxDirective):
             node_id = make_id(self.env, self.state.document, 'module', modname)
             target = nodes.target('', '', ids=[node_id], ismod=True)
             self.set_source_info(target)
-
-            # Assign old styled node_id not to break old hyperlinks (if possible)
-            # Note: Will removed in Sphinx-5.0  (RemovedInSphinx50Warning)
-            old_node_id = self.make_old_id(modname)
-            if node_id != old_node_id and old_node_id not in self.state.document.ids:
-                target['ids'].append(old_node_id)
-
             self.state.document.note_explicit_target(target)
 
             domain.note_module(modname,
@@ -1439,7 +1426,7 @@ def builtin_resolver(app: Sphinx, env: BuildEnvironment,
         if s.startswith('typing.'):
             s = s.split('.', 1)[1]
 
-        return s in typing.__all__  # type: ignore
+        return s in typing.__all__
 
     if node.get('refdomain') != 'py':
         return None
