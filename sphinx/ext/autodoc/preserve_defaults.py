@@ -7,6 +7,7 @@ and keep them not evaluated for readability.
 import ast
 import inspect
 import sys
+from inspect import Parameter
 from typing import Any, Dict, List, Optional
 
 from sphinx.application import Sphinx
@@ -96,8 +97,18 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
                         if value is None:
                             value = ast_unparse(default)  # type: ignore
                         parameters[i] = param.replace(default=DefaultValue(value))
+
+            if bound_method and inspect.ismethod(obj):
+                # classmethods
+                cls = inspect.Parameter('cls', Parameter.POSITIONAL_OR_KEYWORD)
+                parameters.insert(0, cls)
+
             sig = sig.replace(parameters=parameters)
-            obj.__signature__ = sig
+            if bound_method and inspect.ismethod(obj):
+                # classmethods can't be assigned __signature__ attribute.
+                obj.__dict__['__signature__'] = sig
+            else:
+                obj.__signature__ = sig
     except (AttributeError, TypeError):
         # failed to update signature (ex. built-in or extension types)
         pass
