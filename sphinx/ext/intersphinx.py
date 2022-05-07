@@ -595,7 +595,7 @@ class IntersphinxRoleResolver(ReferencesResolver):
 def install_dispatcher(app: Sphinx, docname: str, source: List[str]) -> None:
     """Enable IntersphinxDispatcher.
 
-    .. note:: The installed dispatcher will uninstalled on disabling sphinx_domain
+    .. note:: The installed dispatcher will be uninstalled on disabling sphinx_domain
               automatically.
     """
     dispatcher = IntersphinxDispatcher()
