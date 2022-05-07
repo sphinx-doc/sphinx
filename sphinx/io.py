@@ -1,5 +1,5 @@
 """Input/Output files"""
-import codecs
+
 from typing import TYPE_CHECKING, Any, List, Type
 
 from docutils import nodes
@@ -19,7 +19,7 @@ from sphinx.transforms import (AutoIndexUpgrader, DoctreeReadEvent, FigureAligne
 from sphinx.transforms.i18n import (Locale, PreserveTranslatableMessages,
                                     RemoveTranslatableInline)
 from sphinx.transforms.references import SphinxDomains
-from sphinx.util import UnicodeDecodeErrorHandler, logging
+from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
 from sphinx.versioning import UIDTransform
 
@@ -150,21 +150,6 @@ class SphinxFileInput(FileInput):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs['error_handler'] = 'sphinx'
         super().__init__(*args, **kwargs)
-
-
-def read_doc(publisher: Publisher, docname: str, filename: str) -> nodes.document:
-    """Parse a document and convert to doctree."""
-    # set up error_handler for the target document
-    error_handler = UnicodeDecodeErrorHandler(docname)
-    codecs.register_error('sphinx', error_handler)  # type: ignore
-
-    publisher.set_source(source_path=filename)
-    publisher.publish()
-
-    doctree = publisher.document
-    # settings get modified in ``write_doctree``; get a local copy
-    doctree.settings = doctree.settings.copy()
-    return doctree
 
 
 def create_publisher(app: "Sphinx", filetype: str) -> Publisher:
