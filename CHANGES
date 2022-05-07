@@ -70,6 +70,8 @@ Features added
 * #9792: autodoc: Add new option for ``autodoc_typehints_description_target`` to
   include undocumented return values but not undocumented parameters.
 * #10285: autodoc: singledispatch functions having typehints are not documented
+* #10258: autosummary: Recognize a documented attribute of a module as
+  non-imported
 * #10028: Removed internal usages of JavaScript frameworks (jQuery and
   underscore.js) and modernised ``doctools.js`` and ``searchtools.js`` to
   EMCAScript 2018.

@@ -210,15 +210,15 @@ def test_autosummary_generate_content_for_module(app):
     assert context['members'] == ['CONSTANT1', 'CONSTANT2', 'Exc', 'Foo', '_Baz', '_Exc',
                                   '__all__', '__builtins__', '__cached__', '__doc__',
                                   '__file__', '__name__', '__package__', '_quux', 'bar',
-                                  'quuz', 'qux']
+                                  'non_imported_member', 'quuz', 'qux']
     assert context['functions'] == ['bar']
     assert context['all_functions'] == ['_quux', 'bar']
     assert context['classes'] == ['Foo']
     assert context['all_classes'] == ['Foo', '_Baz']
     assert context['exceptions'] == ['Exc']
     assert context['all_exceptions'] == ['Exc', '_Exc']
-    assert context['attributes'] == ['CONSTANT1', 'qux', 'quuz']
-    assert context['all_attributes'] == ['CONSTANT1', 'qux', 'quuz']
+    assert context['attributes'] == ['CONSTANT1', 'qux', 'quuz', 'non_imported_member']
+    assert context['all_attributes'] == ['CONSTANT1', 'qux', 'quuz', 'non_imported_member']
     assert context['fullname'] == 'autosummary_dummy_module'
     assert context['module'] == 'autosummary_dummy_module'
     assert context['objname'] == ''
@@ -268,7 +268,8 @@ def test_autosummary_generate_content_for_module_skipped(app):
     context = template.render.call_args[0][1]
     assert context['members'] == ['CONSTANT1', 'CONSTANT2', '_Baz', '_Exc', '__all__',
                                   '__builtins__', '__cached__', '__doc__', '__file__',
-                                  '__name__', '__package__', '_quux', 'quuz', 'qux']
+                                  '__name__', '__package__', '_quux', 'non_imported_member',
+                                  'quuz', 'qux']
     assert context['functions'] == []
     assert context['classes'] == []
     assert context['exceptions'] == []
@@ -284,18 +285,20 @@ def test_autosummary_generate_content_for_module_imported_members(app):
     assert template.render.call_args[0][0] == 'module'
 
     context = template.render.call_args[0][1]
-    assert context['members'] == ['CONSTANT1', 'CONSTANT2', 'Exc', 'Foo', 'Union', '_Baz',
-                                  '_Exc', '__all__', '__builtins__', '__cached__', '__doc__',
-                                  '__file__', '__loader__', '__name__', '__package__',
-                                  '__spec__', '_quux', 'bar', 'path', 'quuz', 'qux']
+    assert context['members'] == ['CONSTANT1', 'CONSTANT2', 'Class', 'Exc', 'Foo', 'Union',
+                                  '_Baz', '_Exc', '__all__', '__builtins__', '__cached__',
+                                  '__doc__', '__file__', '__loader__', '__name__',
+                                  '__package__', '__spec__', '_quux', 'bar',
+                                  'considered_as_imported', 'non_imported_member', 'path',
+                                  'quuz', 'qux']
     assert context['functions'] == ['bar']
     assert context['all_functions'] == ['_quux', 'bar']
-    assert context['classes'] == ['Foo']
-    assert context['all_classes'] == ['Foo', '_Baz']
+    assert context['classes'] == ['Class', 'Foo']
+    assert context['all_classes'] == ['Class', 'Foo', '_Baz']
     assert context['exceptions'] == ['Exc']
     assert context['all_exceptions'] == ['Exc', '_Exc']
-    assert context['attributes'] == ['CONSTANT1', 'qux', 'quuz']
-    assert context['all_attributes'] == ['CONSTANT1', 'qux', 'quuz']
+    assert context['attributes'] == ['CONSTANT1', 'qux', 'quuz', 'non_imported_member']
+    assert context['all_attributes'] == ['CONSTANT1', 'qux', 'quuz', 'non_imported_member']
     assert context['fullname'] == 'autosummary_dummy_module'
     assert context['module'] == 'autosummary_dummy_module'
     assert context['objname'] == ''
@@ -343,6 +346,7 @@ def test_autosummary_generate(app, status, warning):
             '      CONSTANT1\n'
             '      qux\n'
             '      quuz\n'
+            '      non_imported_member\n'
             '   \n' in module)
 
     Foo = (app.srcdir / 'generated' / 'autosummary_dummy_module.Foo.rst').read_text(encoding='utf8')
