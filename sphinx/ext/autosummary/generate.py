@@ -168,10 +168,12 @@ class ModuleScanner:
                 continue
 
             try:
-                if inspect.ismodule(value):
+                if ('', name) in attr_docs:
+                    imported = False
+                elif inspect.ismodule(value):
                     imported = True
                 elif safe_getattr(value, '__module__') != self.object.__name__:
-                    imported = objtype != 'data' or ('', name) not in attr_docs
+                    imported = True
                 else:
                     imported = False
             except AttributeError:
