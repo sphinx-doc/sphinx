@@ -23,6 +23,7 @@ Incompatible changes
   To migrate: either add an explicit inventory name to the references
   intersphinx should resolve, or explicitly set the value of this configuration
   variable to an empty list.
+* #10197: html theme: Reduce ``body_min_width`` setting in basic theme to 360px
 * #9999: LaTeX: separate terms from their definitions by a CR (refs: #9985)
 * #10062: Change the default language to ``'en'`` if any language is not set in
   ``conf.py``
