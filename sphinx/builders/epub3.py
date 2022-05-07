@@ -88,7 +88,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         metadata['contributor'] = html.escape(self.config.epub_contributor)
         metadata['page_progression_direction'] = PAGE_PROGRESSION_DIRECTIONS.get(writing_mode)
         metadata['ibook_scroll_axis'] = IBOOK_SCROLL_AXIS.get(writing_mode)
-        metadata['date'] = html.escape(format_date("%Y-%m-%dT%H:%M:%SZ"))
+        metadata['date'] = html.escape(format_date("%Y-%m-%dT%H:%M:%SZ", language='en'))
         metadata['version'] = html.escape(self.config.version)
         metadata['epub_version'] = self.config.epub_version
         return metadata

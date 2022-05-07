@@ -117,6 +117,7 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files: 
     submodules = [sub.split('.')[0] for sub in py_files
                   if not is_skipped_module(path.join(root, sub), opts, excludes) and
                   not is_initpy(sub)]
+    submodules = sorted(set(submodules))
     submodules = [module_join(master_package, subroot, modname)
                   for modname in submodules]
     options = copy(OPTIONS)

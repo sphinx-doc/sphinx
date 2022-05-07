@@ -39,7 +39,6 @@ def test_autoattribute_novalue(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_typed_variable(app):
     actual = do_autodoc(app, 'attribute', 'target.typed_vars.Class.attr2')
@@ -52,7 +51,6 @@ def test_autoattribute_typed_variable(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_typed_variable_in_alias(app):
     actual = do_autodoc(app, 'attribute', 'target.typed_vars.Alias.attr2')
@@ -65,7 +63,6 @@ def test_autoattribute_typed_variable_in_alias(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_instance_variable(app):
     actual = do_autodoc(app, 'attribute', 'target.typed_vars.Class.attr4')
@@ -80,7 +77,6 @@ def test_autoattribute_instance_variable(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_instance_variable_in_alias(app):
     actual = do_autodoc(app, 'attribute', 'target.typed_vars.Alias.attr4')
@@ -198,7 +194,6 @@ def test_autoattribute_TypeVar(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_hide_value(app):
     actual = do_autodoc(app, 'attribute', 'target.hide_value.Foo.SENTINEL1')

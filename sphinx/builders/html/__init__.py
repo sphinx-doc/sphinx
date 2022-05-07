@@ -5,6 +5,7 @@ import os
 import posixpath
 import re
 import sys
+import warnings
 from datetime import datetime
 from os import path
 from typing import IO, Any, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Type
@@ -23,6 +24,7 @@ from sphinx import version_info as sphinx_version
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import ENUM, Config
+from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
 from sphinx.domains import Domain, Index, IndexEntry
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
@@ -33,7 +35,7 @@ from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import isurl, logging, md5, progress_message, status_iterator
-from sphinx.util.docutils import is_html5_writer_available, new_document
+from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
 from sphinx.util.inventory import InventoryFile
@@ -41,13 +43,7 @@ from sphinx.util.matching import DOTFILES, Matcher, patmatch
 from sphinx.util.osutil import copyfile, ensuredir, os_path, relative_uri
 from sphinx.util.tags import Tags
 from sphinx.writers.html import HTMLTranslator, HTMLWriter
-
-# HTML5 Writer is available or not
-if is_html5_writer_available():
-    from sphinx.writers.html5 import HTML5Translator
-    html5_ready = True
-else:
-    html5_ready = False
+from sphinx.writers.html5 import HTML5Translator
 
 #: the filename for the inventory of objects
 INVENTORY_FILENAME = 'objects.inv'
@@ -357,7 +353,7 @@ class StandaloneHTMLBuilder(Builder):
 
     @property
     def default_translator_class(self) -> Type[nodes.NodeVisitor]:  # type: ignore
-        if not html5_ready or self.config.html4_writer:
+        if self.config.html4_writer:
             return HTMLTranslator
         else:
             return HTML5Translator
@@ -384,7 +380,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def get_outdated_docs(self) -> Iterator[str]:
         try:
-            with open(path.join(self.outdir, '.buildinfo')) as fp:
+            with open(path.join(self.outdir, '.buildinfo'), encoding="utf-8") as fp:
                 buildinfo = BuildInfo.load(fp)
 
             if self.build_info != buildinfo:
@@ -454,10 +450,14 @@ class StandaloneHTMLBuilder(Builder):
             self.load_indexer(docnames)
 
         self.docwriter = HTMLWriter(self)
-        self.docsettings: Any = OptionParser(
-            defaults=self.env.settings,
-            components=(self.docwriter,),
-            read_config_files=True).get_default_values()
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', category=DeprecationWarning)
+            # DeprecationWarning: The frontend.OptionParser class will be replaced
+            # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
+            self.docsettings: Any = OptionParser(
+                defaults=self.env.settings,
+                components=(self.docwriter,),
+                read_config_files=True).get_default_values()
         self.docsettings.compact_lists = bool(self.config.html_compact_lists)
 
         # determine the additional indices to include
@@ -542,7 +542,7 @@ class StandaloneHTMLBuilder(Builder):
             'parents': [],
             'logo': logo,
             'favicon': favicon,
-            'html5_doctype': html5_ready and not self.config.html4_writer,
+            'html5_doctype': not self.config.html4_writer,
         }
         if self.theme:
             self.globalcontext.update(
@@ -774,11 +774,13 @@ class StandaloneHTMLBuilder(Builder):
 
     def create_pygments_style_file(self) -> None:
         """create a style file for pygments."""
-        with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
+        with open(path.join(self.outdir, '_static', 'pygments.css'), 'w',
+                  encoding="utf-8") as f:
             f.write(self.highlighter.get_stylesheet())
 
         if self.dark_highlighter:
-            with open(path.join(self.outdir, '_static', 'pygments_dark.css'), 'w') as f:
+            with open(path.join(self.outdir, '_static', 'pygments_dark.css'), 'w',
+                      encoding="utf-8") as f:
                 f.write(self.dark_highlighter.get_stylesheet())
 
     def copy_translation_js(self) -> None:
@@ -864,7 +866,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def write_buildinfo(self) -> None:
         try:
-            with open(path.join(self.outdir, '.buildinfo'), 'w') as fp:
+            with open(path.join(self.outdir, '.buildinfo'), 'w', encoding="utf-8") as fp:
                 self.build_info.dump(fp)
         except OSError as exc:
             logger.warning(__('Failed to write build info file: %r'), exc)
@@ -1318,6 +1320,12 @@ import sphinxcontrib.serializinghtml  # NOQA
 
 import sphinx.builders.dirhtml  # NOQA
 import sphinx.builders.singlehtml  # NOQA
+
+deprecated_alias('sphinx.builders.html',
+                 {
+                     'html5_ready': True,
+                 },
+                 RemovedInSphinx70Warning)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

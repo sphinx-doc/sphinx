@@ -65,7 +65,7 @@ def test_project_doc2path(app):
     assert project.doc2path('foo') == (app.srcdir / 'foo.rst')
 
     # matched source_suffix is used if exists
-    (app.srcdir / 'foo.txt').write_text('')
+    (app.srcdir / 'foo.txt').write_text('', encoding='utf8')
     assert project.doc2path('foo') == (app.srcdir / 'foo.txt')
 
     # absolute path

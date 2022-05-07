@@ -13,7 +13,7 @@ def test_incremental_reading(app):
     assert 'subdir/excluded' not in app.env.found_docs
 
     # before second reading, add, modify and remove source files
-    (app.srcdir / 'new.txt').write_text('New file\n========\n')
+    (app.srcdir / 'new.txt').write_text('New file\n========\n', encoding='utf8')
     app.env.all_docs['index'] = 0  # mark as modified
     (app.srcdir / 'autodoc.txt').unlink()
 

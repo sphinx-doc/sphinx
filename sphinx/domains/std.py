@@ -416,7 +416,7 @@ def token_xrefs(text: str, productionGroup: str = '') -> List[Node]:
     for m in token_re.finditer(text):
         if m.start() > pos:
             txt = text[pos:m.start()]
-            retnodes.append(nodes.Text(txt, txt))
+            retnodes.append(nodes.Text(txt))
         token = m.group(1)
         if ':' in token:
             if token[0] == '~':
@@ -437,7 +437,7 @@ def token_xrefs(text: str, productionGroup: str = '') -> List[Node]:
         retnodes.append(refnode)
         pos = m.end()
     if pos < len(text):
-        retnodes.append(nodes.Text(text[pos:], text[pos:]))
+        retnodes.append(nodes.Text(text[pos:]))
     return retnodes
 
 

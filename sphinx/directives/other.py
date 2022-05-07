@@ -172,7 +172,7 @@ class Author(SphinxDirective):
             text = _('Code author: ')
         else:
             text = _('Author: ')
-        emph += nodes.Text(text, text)
+        emph += nodes.Text(text)
         inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
         emph.extend(inodes)
 
