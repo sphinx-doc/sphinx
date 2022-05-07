@@ -23,7 +23,6 @@ import sys
 from gettext import NullTranslations
 from os import path
 from typing import Any, Dict, List, NamedTuple, Sequence, Set, Tuple, Type
-from collections.abc import Mapping
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
