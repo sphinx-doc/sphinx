@@ -476,11 +476,6 @@ class Builder:
             publisher.publish()
             doctree = publisher.document
 
-            # The settings object is reused by the Publisher for each document.
-            # Becuase we modify the settings object in ``write_doctree``, we
-            # need to ensure that each doctree has an independent copy.
-            doctree.settings = doctree.settings.copy()
-
         # store time of reading, for outdated files detection
         # (Some filesystems have coarse timestamp resolution;
         # therefore time.time() can be older than filesystem's timestamp.
@@ -499,6 +494,10 @@ class Builder:
         # make it picklable
         doctree.reporter = None
         doctree.transformer = None
+
+        # Create a copy of settings object before modification because it is
+        # shared with other documents.
+        doctree.settings = doctree.settings.copy()
         doctree.settings.warning_stream = None
         doctree.settings.env = None
         doctree.settings.record_dependencies = None
