@@ -99,6 +99,8 @@ Bugs fixed
   function
 * #10305: autodoc: Failed to extract optional forward-ref'ed typehints correctly
   via :confval:`autodoc_type_aliases`
+* #10421: autodoc: :confval:`autodoc_preserve_defaults` doesn't work on class
+  methods
 * #10214: html: invalid language tag was generated if :confval:`language`
   contains a country code (ex. zh_CN)
 * #9974: html: Updated jQuery version from 3.5.1 to 3.6.0

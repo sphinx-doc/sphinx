@@ -28,6 +28,15 @@ def test_preserve_defaults(app):
         '   docstring',
         '',
         '',
+        '   .. py:method:: Class.clsmeth(name: str = CONSTANT, sentinel: ~typing.Any = '
+        'SENTINEL, now: ~datetime.datetime = datetime.now(), color: int = %s, *, '
+        'kwarg1, kwarg2=%s) -> None' % (color, color),
+        '      :module: target.preserve_defaults',
+        '      :classmethod:',
+        '',
+        '      docstring',
+        '',
+        '',
         '   .. py:method:: Class.meth(name: str = CONSTANT, sentinel: ~typing.Any = '
         'SENTINEL, now: ~datetime.datetime = datetime.now(), color: int = %s, *, '
         'kwarg1, kwarg2=%s) -> None' % (color, color),
