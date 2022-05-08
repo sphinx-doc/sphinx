@@ -8,6 +8,7 @@ from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Optional
                     Union)
 
 from docutils import nodes
+from docutils.core import Publisher
 from docutils.io import Input
 from docutils.nodes import Element, Node, TextElement
 from docutils.parsers import Parser
@@ -27,6 +28,7 @@ from sphinx.domains.std import GenericObject, Target
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
 from sphinx.extension import Extension
+from sphinx.io import create_publisher
 from sphinx.locale import __
 from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole
@@ -124,6 +126,9 @@ class SphinxComponentRegistry:
 
         #: additional transforms; list of transforms
         self.transforms: List[Type[Transform]] = []
+
+        # private cache of Docutils Publishers (file type -> publisher object)
+        self.publishers: Dict[str, Publisher] = {}
 
     def add_builder(self, builder: Type[Builder], override: bool = False) -> None:
         logger.debug('[app] adding builder: %r', builder)
@@ -460,6 +465,15 @@ class SphinxComponentRegistry:
                       if ext.metadata.get('env_version')}
         envversion['sphinx'] = ENV_VERSION
         return envversion
+
+    def get_publisher(self, app: "Sphinx", filetype: str) -> Publisher:
+        try:
+            return self.publishers[filetype]
+        except KeyError:
+            pass
+        publisher = create_publisher(app, filetype)
+        self.publishers[filetype] = publisher
+        return publisher
 
 
 def merge_source_suffix(app: "Sphinx", config: Config) -> None:

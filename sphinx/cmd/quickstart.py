@@ -367,7 +367,7 @@ def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir:
     conf_path = os.path.join(templatedir, 'conf.py_t') if templatedir else None
     if not conf_path or not path.isfile(conf_path):
         conf_path = os.path.join(package_dir, 'templates', 'quickstart', 'conf.py_t')
-    with open(conf_path) as f:
+    with open(conf_path, encoding="utf-8") as f:
         conf_text = f.read()
 
     write_file(path.join(srcdir, 'conf.py'), template.render_string(conf_text, d))

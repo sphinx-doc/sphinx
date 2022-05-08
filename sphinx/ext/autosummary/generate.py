@@ -155,6 +155,8 @@ class ModuleScanner:
 
     def scan(self, imported_members: bool) -> List[str]:
         members = []
+        analyzer = ModuleAnalyzer.for_module(self.object.__name__)
+        attr_docs = analyzer.find_attr_docs()
         for name in members_of(self.object, self.app.config):
             try:
                 value = safe_getattr(self.object, name)
@@ -166,7 +168,9 @@ class ModuleScanner:
                 continue
 
             try:
-                if inspect.ismodule(value):
+                if ('', name) in attr_docs:
+                    imported = False
+                elif inspect.ismodule(value):
                     imported = True
                 elif safe_getattr(value, '__module__') != self.object.__name__:
                     imported = True

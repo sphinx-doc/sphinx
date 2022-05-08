@@ -19,11 +19,56 @@ Bugs fixed
 Testing
 --------
 
-Release 5.0.0 (in development)
+Release 5.1.0 (in development)
 ==============================
 
 Dependencies
 ------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 5.0.0 beta2 (in development)
+====================================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 5.0.0 beta1 (released May 09, 2022)
+===========================================
+
+Dependencies
+------------
+* #10164: Support `Docutils 0.18`_. Patch by Adam Turner.
+
+.. _Docutils 0.18:  https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-18-2021-10-26
 
 Incompatible changes
 --------------------
@@ -41,6 +86,7 @@ Incompatible changes
   To migrate: either add an explicit inventory name to the references
   intersphinx should resolve, or explicitly set the value of this configuration
   variable to an empty list.
+* #10197: html theme: Reduce ``body_min_width`` setting in basic theme to 360px
 * #9999: LaTeX: separate terms from their definitions by a CR (refs: #9985)
 * #10062: Change the default language to ``'en'`` if any language is not set in
   ``conf.py``
@@ -71,6 +117,10 @@ Deprecated
   required
 * The ``language`` argument of ``sphinx.util.i18n:format_date()`` becomes
   required
+* ``sphinx.builders.html.html5_ready``
+* ``sphinx.io.read_doc()``
+* ``sphinx.util.docutils.__version_info__``
+* ``sphinx.util.docutils.is_html5_writer_available()``
 * ``sphinx.writers.latex.LaTeXWriter.docclasses``
 
 Features added
@@ -85,14 +135,23 @@ Features added
 * #9792: autodoc: Add new option for ``autodoc_typehints_description_target`` to
   include undocumented return values but not undocumented parameters.
 * #10285: autodoc: singledispatch functions having typehints are not documented
+* autodoc: :confval:`autodoc_typehints_format` now also applies to attributes,
+  data, properties, and type variable bounds.
+* #10258: autosummary: Recognize a documented attribute of a module as
+  non-imported
 * #10028: Removed internal usages of JavaScript frameworks (jQuery and
   underscore.js) and modernised ``doctools.js`` and ``searchtools.js`` to
   EMCAScript 2018.
 * #10302: C++, add support for conditional expressions (``?:``).
+* #5157, #10251: Inline code is able to be highlighted via :rst:dir:`role`
+  directive
+* #10337: Make sphinx-build faster by caching Publisher object during build
 
 Bugs fixed
 ----------
 
+* #10200: apidoc: Duplicated submodules are shown for modules having both .pyx
+  and .so files
 * #10279: autodoc: Default values for keyword only arguments in overloaded
   functions are rendered as a string literal
 * #10280: autodoc: :confval:`autodoc_docstring_signature` unexpectedly generates
@@ -101,8 +160,13 @@ Bugs fixed
   mixture of keyword only arguments with/without defaults
 * #10310: autodoc: class methods are not documented when decorated with mocked
   function
+* #10305: autodoc: Failed to extract optional forward-ref'ed typehints correctly
+  via :confval:`autodoc_type_aliases`
+* #10421: autodoc: :confval:`autodoc_preserve_defaults` doesn't work on class
+  methods
 * #10214: html: invalid language tag was generated if :confval:`language`
   contains a country code (ex. zh_CN)
+* #9974: html: Updated jQuery version from 3.5.1 to 3.6.0
 * #10236: html search: objects are duplicated in search result
 * #9962: texinfo: Deprecation message for ``@definfoenclose`` command on
   bulding texinfo document
@@ -110,32 +174,13 @@ Bugs fixed
   too much vertical whitespace
 * #10188: LaTeX: alternating multiply referred footnotes produce a ``?`` in
   pdf output
+* #10363: LaTeX: make ``'howto'`` title page rule use ``\linewidth`` for
+  compatibility with usage of a ``twocolumn`` class option
 * #10318: ``:prepend:`` option of :rst:dir:`literalinclude` directive does not
   work with ``:dedent:`` option
 
-Testing
---------
-
 Release 4.5.1 (in development)
 ==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
 
 Release 4.5.0 (released Mar 28, 2022)
 =====================================

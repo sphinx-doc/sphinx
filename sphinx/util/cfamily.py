@@ -128,7 +128,7 @@ class ASTCPPAttribute(ASTAttribute):
 
     def describe_signature(self, signode: TextElement) -> None:
         signode.append(addnodes.desc_sig_punctuation('[[', '[['))
-        signode.append(nodes.Text(self.arg, self.arg))
+        signode.append(nodes.Text(self.arg))
         signode.append(addnodes.desc_sig_punctuation(']]', ']]'))
 
 
@@ -161,7 +161,7 @@ class ASTGnuAttributeList(ASTAttribute):
 
     def describe_signature(self, signode: TextElement) -> None:
         txt = str(self)
-        signode.append(nodes.Text(txt, txt))
+        signode.append(nodes.Text(txt))
 
 
 class ASTIdAttribute(ASTAttribute):
@@ -174,7 +174,7 @@ class ASTIdAttribute(ASTAttribute):
         return self.id
 
     def describe_signature(self, signode: TextElement) -> None:
-        signode.append(nodes.Text(self.id, self.id))
+        signode.append(nodes.Text(self.id))
 
 
 class ASTParenAttribute(ASTAttribute):
@@ -189,7 +189,7 @@ class ASTParenAttribute(ASTAttribute):
 
     def describe_signature(self, signode: TextElement) -> None:
         txt = str(self)
-        signode.append(nodes.Text(txt, txt))
+        signode.append(nodes.Text(txt))
 
 
 class ASTAttributeList(ASTBaseBase):

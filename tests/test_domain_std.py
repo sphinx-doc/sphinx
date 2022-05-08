@@ -408,7 +408,7 @@ def test_productionlist(app, status, warning):
         ('SecondLine', 'firstLineRule.html#grammar-token-SecondLine', 'SecondLine'),
     ]
 
-    text = (app.outdir / 'LineContinuation.html').read_text()
+    text = (app.outdir / 'LineContinuation.html').read_text(encoding='utf8')
     assert "A</strong> ::=  B C D    E F G" in text
 
 

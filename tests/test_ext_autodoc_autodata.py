@@ -39,7 +39,6 @@ def test_autodata_novalue(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodata_typed_variable(app):
     actual = do_autodoc(app, 'data', 'target.typed_vars.attr2')
@@ -54,7 +53,6 @@ def test_autodata_typed_variable(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodata_type_comment(app):
     actual = do_autodoc(app, 'data', 'target.typed_vars.attr3')
@@ -126,7 +124,6 @@ def test_autodata_TypeVar(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodata_hide_value(app):
     actual = do_autodoc(app, 'data', 'target.hide_value.SENTINEL1')

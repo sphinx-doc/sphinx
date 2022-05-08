@@ -184,8 +184,10 @@ class CheckExternalLinksBuilder(DummyBuilder):
         checker = HyperlinkAvailabilityChecker(self.env, self.config)
         logger.info('')
 
-        with open(path.join(self.outdir, 'output.txt'), 'w') as self.txt_outfile,\
-             open(path.join(self.outdir, 'output.json'), 'w') as self.json_outfile:
+        output_text = path.join(self.outdir, 'output.txt')
+        output_json = path.join(self.outdir, 'output.json')
+        with open(output_text, 'w', encoding="utf-8") as self.txt_outfile,\
+             open(output_json, 'w', encoding="utf-8") as self.json_outfile:
             for result in checker.check(self.hyperlinks):
                 self.process_result(result)
 

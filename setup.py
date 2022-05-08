@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 import sphinx
 
-with open('README.rst') as f:
+with open('README.rst', encoding='utf-8') as f:
     long_desc = f.read()
 
 if sys.version_info < (3, 6):
@@ -20,7 +20,7 @@ install_requires = [
     'sphinxcontrib-qthelp',
     'Jinja2>=2.3',
     'Pygments>=2.0',
-    'docutils>=0.14,<0.18',
+    'docutils>=0.14,<0.19',
     'snowballstemmer>=1.1',
     'babel>=1.3',
     'alabaster>=0.7,<0.8',
@@ -47,8 +47,7 @@ extras_require = {
         "types-requests",
     ],
     'test': [
-        'pytest',
-        'pytest-cov',
+        'pytest>=4.6',
         'html5lib',
         "typed_ast; python_version < '3.8'",
         'cython',

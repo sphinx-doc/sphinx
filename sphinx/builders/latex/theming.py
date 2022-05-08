@@ -73,7 +73,7 @@ class UserTheme(Theme):
     def __init__(self, name: str, filename: str) -> None:
         super().__init__(name)
         self.config = configparser.RawConfigParser()
-        self.config.read(path.join(filename))
+        self.config.read(path.join(filename), encoding='utf-8')
 
         for key in self.REQUIRED_CONFIG_KEYS:
             try:

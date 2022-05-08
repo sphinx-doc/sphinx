@@ -1,6 +1,7 @@
 """LaTeX builder."""
 
 import os
+import warnings
 from os import path
 from typing import Any, Dict, Iterable, List, Tuple, Union
 
@@ -241,7 +242,7 @@ class LaTeXBuilder(Builder):
     def write_stylesheet(self) -> None:
         highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style)
         stylesheet = path.join(self.outdir, 'sphinxhighlight.sty')
-        with open(stylesheet, 'w') as f:
+        with open(stylesheet, 'w', encoding="utf-8") as f:
             f.write('\\NeedsTeXFormat{LaTeX2e}[1995/12/01]\n')
             f.write('\\ProvidesPackage{sphinxhighlight}'
                     '[2016/05/29 stylesheet for highlighting with pygments]\n')
@@ -250,10 +251,14 @@ class LaTeXBuilder(Builder):
 
     def write(self, *ignored: Any) -> None:
         docwriter = LaTeXWriter(self)
-        docsettings: Any = OptionParser(
-            defaults=self.env.settings,
-            components=(docwriter,),
-            read_config_files=True).get_default_values()
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', category=DeprecationWarning)
+            # DeprecationWarning: The frontend.OptionParser class will be replaced
+            # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
+            docsettings: Any = OptionParser(
+                defaults=self.env.settings,
+                components=(docwriter,),
+                read_config_files=True).get_default_values()
 
         self.init_document_data()
         self.write_stylesheet()
@@ -347,9 +352,9 @@ class LaTeXBuilder(Builder):
             newnodes: List[Node] = [nodes.emphasis(sectname, sectname)]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
-                    newnodes.append(nodes.Text(_(' (in '), _(' (in ')))
+                    newnodes.append(nodes.Text(_(' (in ')))
                     newnodes.append(nodes.emphasis(title, title))
-                    newnodes.append(nodes.Text(')', ')'))
+                    newnodes.append(nodes.Text(')'))
                     break
             else:
                 pass

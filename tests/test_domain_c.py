@@ -620,7 +620,7 @@ def filter_warnings(warning, file):
 
 
 def extract_role_links(app, filename):
-    t = (app.outdir / filename).read_text()
+    t = (app.outdir / filename).read_text(encoding='utf8')
     lis = [l for l in t.split('\n') if l.startswith("<li")]
     entries = []
     for l in lis:
@@ -650,7 +650,7 @@ def test_domain_c_build_namespace(app, status, warning):
     app.builder.build_all()
     ws = filter_warnings(warning, "namespace")
     assert len(ws) == 0
-    t = (app.outdir / "namespace.html").read_text()
+    t = (app.outdir / "namespace.html").read_text(encoding='utf8')
     for id_ in ('NS.NSVar', 'NULLVar', 'ZeroVar', 'NS2.NS3.NS2NS3Var', 'PopVar'):
         assert 'id="c.{}"'.format(id_) in t
 
