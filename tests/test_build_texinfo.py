@@ -17,7 +17,7 @@ from sphinx.writers.texinfo import TexinfoTranslator
 from .test_build_html import ENV_WARNINGS
 
 TEXINFO_WARNINGS = ENV_WARNINGS + """\
-%(root)s/index.rst:\\d+: WARNING: unknown option: &option
+%(root)s/index.rst:\\d+: WARNING: unknown option: '&option'
 %(root)s/index.rst:\\d+: WARNING: citation not found: missing
 %(root)s/index.rst:\\d+: WARNING: a suitable image for texinfo builder not found: foo.\\*
 %(root)s/index.rst:\\d+: WARNING: a suitable image for texinfo builder not found: \
