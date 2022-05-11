@@ -102,3 +102,57 @@ def test_private_members(app):
         '   :meta public:',
         '',
     ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_private_attributes(app):
+    app.config.autoclass_content = 'class'
+    options = {"members": None}
+    actual = do_autodoc(app, 'class', 'target.private.Foo', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.private',
+        '',
+        '',
+        '   .. py:attribute:: Foo._public_attribute',
+        '      :module: target.private',
+        '      :value: 47',
+        '',
+        '      A public class attribute whose name starts with an underscore.',
+        '',
+        '      :meta public:',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_private_attributes_and_private_members(app):
+    app.config.autoclass_content = 'class'
+    options = {"members": None,
+               "private-members": None}
+    actual = do_autodoc(app, 'class', 'target.private.Foo', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Foo()',
+        '   :module: target.private',
+        '',
+        '',
+        '   .. py:attribute:: Foo._public_attribute',
+        '      :module: target.private',
+        '      :value: 47',
+        '',
+        '      A public class attribute whose name starts with an underscore.',
+        '',
+        '      :meta public:',
+        '',
+        '',
+        '   .. py:attribute:: Foo.private_attribute',
+        '      :module: target.private',
+        '      :value: 11',
+        '',
+        '      A private class attribute whose name does not start with an underscore.',
+        '',
+        '      :meta private:',
+        '',
+    ]
