@@ -280,12 +280,19 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable
                     members[name] = ObjectMember(name, INSTANCEATTR, class_=cls,
                                                  docstring=docstring)
 
-            # append instance attributes (cf. self.attr1) if analyzer knows
+            # append or complete instance attributes (cf. self.attr1) if analyzer knows
             if analyzer:
                 for (ns, name), docstring in analyzer.attr_docs.items():
                     if ns == qualname and name not in members:
+                        # otherwise unknown instance attribute
                         members[name] = ObjectMember(name, INSTANCEATTR, class_=cls,
                                                      docstring='\n'.join(docstring))
+                    elif (ns == qualname and docstring and
+                          isinstance(members[name], ObjectMember) and
+                          not members[name].docstring):
+                        # attribute is already known, because dir(subject) enumerates it.
+                        # But it has no docstring yet
+                        members[name].docstring = '\n'.join(docstring)
     except AttributeError:
         pass
 
