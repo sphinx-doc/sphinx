@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #8180: autodoc: Docstring metadata ignored for attributes
+
 Testing
 --------
 
