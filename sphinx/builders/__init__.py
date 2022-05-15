@@ -25,6 +25,7 @@ from sphinx.util.i18n import CatalogInfo, CatalogRepository, docname_to_domain
 from sphinx.util.osutil import SEP, ensuredir, relative_uri, relpath
 from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, parallel_available
 from sphinx.util.tags import Tags
+from sphinx.util.typing import NoneType
 
 # side effect: registers roles and directives
 from sphinx import directives  # NOQA isort:skip
@@ -429,6 +430,13 @@ class Builder:
             self.read_doc(docname)
 
     def _read_parallel(self, docnames: List[str], nproc: int) -> None:
+        chunks = make_chunks(docnames, nproc)
+
+        # create a statas_iterator to step progressbar after reading a document
+        # (see: ``merge()`` function)
+        progress = status_iterator(chunks, __('reading sources... '), "purple",
+                                   len(chunks), self.app.verbosity)
+
         # clear all outdated docs at once
         for docname in docnames:
             self.events.emit('env-purge-doc', self.env, docname)
@@ -445,16 +453,15 @@ class Builder:
             env = pickle.loads(otherenv)
             self.env.merge_info_from(docs, env, self.app)
 
-        tasks = ParallelTasks(nproc)
-        chunks = make_chunks(docnames, nproc)
+            next(progress)
 
-        for chunk in status_iterator(chunks, __('reading sources... '), "purple",
-                                     len(chunks), self.app.verbosity):
+        tasks = ParallelTasks(nproc)
+        for chunk in chunks:
             tasks.add_task(read_process, chunk, merge)
 
         # make sure all threads have finished
-        logger.info(bold(__('waiting for workers...')))
         tasks.join()
+        logger.info('')
 
     def read_doc(self, docname: str) -> None:
         """Parse a file and add/update inventory entries for the doctree."""
@@ -563,19 +570,26 @@ class Builder:
         tasks = ParallelTasks(nproc)
         chunks = make_chunks(docnames, nproc)
 
+        # create a statas_iterator to step progressbar after reading a document
+        # (see: ``on_chunk_done()`` function)
+        progress = status_iterator(chunks, __('reading sources... '), "purple",
+                                   len(chunks), self.app.verbosity)
+
+        def on_chunk_done(args: List[Tuple[str, NoneType]], result: NoneType) -> None:
+            next(progress)
+
         self.app.phase = BuildPhase.RESOLVING
-        for chunk in status_iterator(chunks, __('writing output... '), "darkgreen",
-                                     len(chunks), self.app.verbosity):
+        for chunk in chunks:
             arg = []
             for docname in chunk:
                 doctree = self.env.get_and_resolve_doctree(docname, self)
                 self.write_doc_serialized(docname, doctree)
                 arg.append((docname, doctree))
-            tasks.add_task(write_process, arg)
+            tasks.add_task(write_process, arg, on_chunk_done)
 
         # make sure all threads have finished
-        logger.info(bold(__('waiting for workers...')))
         tasks.join()
+        logger.info('')
 
     def prepare_writing(self, docnames: Set[str]) -> None:
         """A place where you can add logic before :meth:`write_doc` is run"""

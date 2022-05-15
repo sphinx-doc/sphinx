@@ -39,6 +39,7 @@ Bugs fixed
 
 * #9575: autodoc: The annotation of return value should not be shown when
   ``autodoc_typehints="description"``
+* #9096: sphinx-build: the value of progress bar for paralle build is wrong
 
 Testing
 --------
