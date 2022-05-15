@@ -37,6 +37,9 @@ Features added
 Bugs fixed
 ----------
 
+* #9575: autodoc: The annotation of return value should not be shown when
+  ``autodoc_typehints="description"``
+
 Testing
 --------
 
