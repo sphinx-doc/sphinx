@@ -2593,3 +2593,48 @@ Sample class with PEP 526 annotations and numpy docstring
 """
         print(actual)
         assert expected == actual
+
+
+@pytest.mark.sphinx('text', testroot='ext-napoleon',
+                    confoverrides={'autodoc_typehints': 'description',
+                                   'autodoc_typehints_description_target': 'all'})
+def test_napoleon_and_autodoc_typehints_description_all(app, status, warning):
+    app.build()
+    content = (app.outdir / 'typehints.txt').read_text(encoding='utf-8')
+    assert content == (
+        'typehints\n'
+        '*********\n'
+        '\n'
+        'mypackage.typehints.hello(x, *args, **kwargs)\n'
+        '\n'
+        '   Parameters:\n'
+        '      * **x** (*int*) -- X\n'
+        '\n'
+        '      * ***args** (*int*) -- Additional arguments.\n'
+        '\n'
+        '      * ****kwargs** (*int*) -- Extra arguments.\n'
+        '\n'
+        '   Return type:\n'
+        '      None\n'
+    )
+
+
+@pytest.mark.sphinx('text', testroot='ext-napoleon',
+                    confoverrides={'autodoc_typehints': 'description',
+                                   'autodoc_typehints_description_target': 'documented_params'})
+def test_napoleon_and_autodoc_typehints_description_documented_params(app, status, warning):
+    app.build()
+    content = (app.outdir / 'typehints.txt').read_text(encoding='utf-8')
+    assert content == (
+        'typehints\n'
+        '*********\n'
+        '\n'
+        'mypackage.typehints.hello(x, *args, **kwargs)\n'
+        '\n'
+        '   Parameters:\n'
+        '      * **x** (*int*) -- X\n'
+        '\n'
+        '      * ***args** (*int*) -- Additional arguments.\n'
+        '\n'
+        '      * ****kwargs** (*int*) -- Extra arguments.\n'
+    )

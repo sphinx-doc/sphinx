@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #9648: autodoc: ``*args`` and ``**kwargs`` entries are duplicated when
+  ``autodoc_typehints="description"``
+
 Testing
 --------
 

@@ -111,7 +111,15 @@ def modify_field_list(node: nodes.field_list, annotations: Dict[str, str]) -> No
         if name == 'return':
             continue
 
-        arg = arguments.get(name, {})
+        if '*' + name in arguments:
+            name = '*' + name
+            arguments.get(name)
+        elif '**' + name in arguments:
+            name = '**' + name
+            arguments.get(name)
+        else:
+            arg = arguments.get(name, {})
+
         if not arg.get('type'):
             field = nodes.field()
             field += nodes.field_name('', 'type ' + name)
@@ -159,13 +167,19 @@ def augment_descriptions_with_types(
             has_type.add('return')
 
     # Add 'type' for parameters with a description but no declared type.
-    for name in annotations:
+    for name, annotation in annotations.items():
         if name in ('return', 'returns'):
             continue
+
+        if '*' + name in has_description:
+            name = '*' + name
+        elif '**' + name in has_description:
+            name = '**' + name
+
         if name in has_description and name not in has_type:
             field = nodes.field()
             field += nodes.field_name('', 'type ' + name)
-            field += nodes.field_body('', nodes.paragraph('', annotations[name]))
+            field += nodes.field_body('', nodes.paragraph('', annotation))
             node += field
 
     # Add 'rtype' if 'return' is present and 'rtype' isn't.
