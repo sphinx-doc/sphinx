@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #10456: filter_meta_fields fails to remove more than one meta-field from a field_list
+
 Testing
 --------
 
