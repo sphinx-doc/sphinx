@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-05-08 00:17+0000\n"
+"POT-Creation-Date: 2022-05-22 00:18+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Slavko <linux@slavino.sk>, 2013-2019,2021\n"
 "Language-Team: Slovak (http://www.transifex.com/sphinx-doc/sphinx-1/language/sk/)\n"
@@ -525,8 +525,8 @@ msgstr "vhodný obrázok pre zostavovač %s nenájdený: %s"
 msgid "building [mo]: "
 msgstr "zostavenie [mo]: "
 
-#: sphinx/builders/__init__.py:210 sphinx/builders/__init__.py:542
-#: sphinx/builders/__init__.py:568
+#: sphinx/builders/__init__.py:210 sphinx/builders/__init__.py:541
+#: sphinx/builders/__init__.py:567
 msgid "writing output... "
 msgstr "zápis výstupu…"
 
@@ -613,16 +613,16 @@ msgstr "%s pridané, %s zmenené, %s odstránené"
 msgid "reading sources... "
 msgstr "čítanie zdrojov…"
 
-#: sphinx/builders/__init__.py:456 sphinx/builders/__init__.py:578
+#: sphinx/builders/__init__.py:456 sphinx/builders/__init__.py:577
 msgid "waiting for workers..."
 msgstr "čakanie na procesy…"
 
-#: sphinx/builders/__init__.py:520
+#: sphinx/builders/__init__.py:519
 #, python-format
 msgid "docnames to write: %s"
 msgstr "mená dokumentov na zapísanie: %s"
 
-#: sphinx/builders/__init__.py:529 sphinx/builders/singlehtml.py:145
+#: sphinx/builders/__init__.py:528 sphinx/builders/singlehtml.py:145
 msgid "preparing documents"
 msgstr "príprava dokumentov"
 
@@ -2961,7 +2961,7 @@ msgstr ""
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "Neplatné __slots__ nájdené v %s. Ignorované."
 
-#: sphinx/ext/autodoc/preserve_defaults.py:105
+#: sphinx/ext/autodoc/preserve_defaults.py:116
 #, python-format
 msgid "Failed to parse a default argument value for %r: %s"
 msgstr "Zlyhalo spracovanie predvolenej hodnoty argumentu %r: %s"

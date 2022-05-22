@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-05-08 00:17+0000\n"
+"POT-Creation-Date: 2022-05-22 00:18+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: KaKkouo, 2021\n"
 "Language-Team: Japanese (http://www.transifex.com/sphinx-doc/sphinx-1/language/ja/)\n"
@@ -539,8 +539,8 @@ msgstr "%sビルダー向けの画像形式が見つかりません: %s"
 msgid "building [mo]: "
 msgstr "ビルド中 [mo]: "
 
-#: sphinx/builders/__init__.py:210 sphinx/builders/__init__.py:542
-#: sphinx/builders/__init__.py:568
+#: sphinx/builders/__init__.py:210 sphinx/builders/__init__.py:541
+#: sphinx/builders/__init__.py:567
 msgid "writing output... "
 msgstr "出力中..."
 
@@ -627,16 +627,16 @@ msgstr "%s 件追加, %s 件更新, %s 件削除"
 msgid "reading sources... "
 msgstr "ソースを読み込み中..."
 
-#: sphinx/builders/__init__.py:456 sphinx/builders/__init__.py:578
+#: sphinx/builders/__init__.py:456 sphinx/builders/__init__.py:577
 msgid "waiting for workers..."
 msgstr "ワーカーの終了を待っています..."
 
-#: sphinx/builders/__init__.py:520
+#: sphinx/builders/__init__.py:519
 #, python-format
 msgid "docnames to write: %s"
 msgstr "書き込むdocname: %s"
 
-#: sphinx/builders/__init__.py:529 sphinx/builders/singlehtml.py:145
+#: sphinx/builders/__init__.py:528 sphinx/builders/singlehtml.py:145
 msgid "preparing documents"
 msgstr "ドキュメントの出力準備中"
 
@@ -2975,7 +2975,7 @@ msgstr "%s のメソッド・シグネチャの取得に失敗しました: %s"
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "無効な __slots__ が %s で見つかりました。無視されました。"
 
-#: sphinx/ext/autodoc/preserve_defaults.py:105
+#: sphinx/ext/autodoc/preserve_defaults.py:116
 #, python-format
 msgid "Failed to parse a default argument value for %r: %s"
 msgstr "%r の既定の引数値の解析に失敗しました: %s。"

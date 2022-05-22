@@ -13,8 +13,8 @@ from datetime import datetime
 from importlib import import_module
 from os import path
 from time import mktime, strptime
-from typing import (IO, TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, List, Optional,
-                    Pattern, Set, Tuple, Type)
+from typing import (IO, TYPE_CHECKING, Any, Callable, Dict, Generator, Iterable, List,
+                    Optional, Pattern, Set, Tuple, Type, TypeVar)
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
 from sphinx.errors import ExtensionError, FiletypeNotFoundError, SphinxParallelError
@@ -445,8 +445,12 @@ def display_chunk(chunk: Any) -> str:
     return str(chunk)
 
 
-def old_status_iterator(iterable: Iterable, summary: str, color: str = "darkgreen",
-                        stringify_func: Callable[[Any], str] = display_chunk) -> Iterator:
+T = TypeVar('T')
+
+
+def old_status_iterator(iterable: Iterable[T], summary: str, color: str = "darkgreen",
+                        stringify_func: Callable[[Any], str] = display_chunk
+                        ) -> Generator[T, None, None]:
     l = 0
     for item in iterable:
         if l == 0:
@@ -460,9 +464,10 @@ def old_status_iterator(iterable: Iterable, summary: str, color: str = "darkgree
 
 
 # new version with progress info
-def status_iterator(iterable: Iterable, summary: str, color: str = "darkgreen",
+def status_iterator(iterable: Iterable[T], summary: str, color: str = "darkgreen",
                     length: int = 0, verbosity: int = 0,
-                    stringify_func: Callable[[Any], str] = display_chunk) -> Iterable:
+                    stringify_func: Callable[[Any], str] = display_chunk
+                    ) -> Generator[T, None, None]:
     if length == 0:
         yield from old_status_iterator(iterable, summary, color, stringify_func)
         return
