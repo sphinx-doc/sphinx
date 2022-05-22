@@ -570,9 +570,9 @@ class Builder:
         tasks = ParallelTasks(nproc)
         chunks = make_chunks(docnames, nproc)
 
-        # create a statas_iterator to step progressbar after reading a document
+        # create a statas_iterator to step progressbar after writing a document
         # (see: ``on_chunk_done()`` function)
-        progress = status_iterator(chunks, __('reading sources... '), "purple",
+        progress = status_iterator(chunks, __('writing output... '), "darkgreen",
                                    len(chunks), self.app.verbosity)
 
         def on_chunk_done(args: List[Tuple[str, NoneType]], result: NoneType) -> None:
