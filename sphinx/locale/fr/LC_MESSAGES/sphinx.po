@@ -34,7 +34,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-05-08 00:17+0000\n"
+"POT-Creation-Date: 2022-05-22 00:18+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Jean-François B. <jfbu@free.fr>, 2017-2019,2022\n"
 "Language-Team: French (http://www.transifex.com/sphinx-doc/sphinx-1/language/fr/)\n"
@@ -549,8 +549,8 @@ msgstr "l'image appropriée pour le constructeur %s n'a pas été trouvée : %s"
 msgid "building [mo]: "
 msgstr "Construction en cours [mo] : "
 
-#: sphinx/builders/__init__.py:210 sphinx/builders/__init__.py:542
-#: sphinx/builders/__init__.py:568
+#: sphinx/builders/__init__.py:210 sphinx/builders/__init__.py:541
+#: sphinx/builders/__init__.py:567
 msgid "writing output... "
 msgstr "Écriture... "
 
@@ -637,16 +637,16 @@ msgstr "%s ajouté(s), %s modifié(s), %s supprimé(s)"
 msgid "reading sources... "
 msgstr "Lecture des sources... "
 
-#: sphinx/builders/__init__.py:456 sphinx/builders/__init__.py:578
+#: sphinx/builders/__init__.py:456 sphinx/builders/__init__.py:577
 msgid "waiting for workers..."
 msgstr "En attente des processus parallélisés..."
 
-#: sphinx/builders/__init__.py:520
+#: sphinx/builders/__init__.py:519
 #, python-format
 msgid "docnames to write: %s"
 msgstr "documents à écrire : %s"
 
-#: sphinx/builders/__init__.py:529 sphinx/builders/singlehtml.py:145
+#: sphinx/builders/__init__.py:528 sphinx/builders/singlehtml.py:145
 msgid "preparing documents"
 msgstr "Document en préparation"
 
@@ -2985,7 +2985,7 @@ msgstr "Échec pour obtenir la signature de la méthode pour %s : %s"
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "Invalide __slots__ trouvé sur %s. Ignoré."
 
-#: sphinx/ext/autodoc/preserve_defaults.py:105
+#: sphinx/ext/autodoc/preserve_defaults.py:116
 #, python-format
 msgid "Failed to parse a default argument value for %r: %s"
 msgstr "Impossible d'analyser une valeur d'argument par défaut pour %r : %s"
