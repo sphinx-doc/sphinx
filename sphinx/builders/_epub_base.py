@@ -56,6 +56,7 @@ MEDIA_TYPES = {
     '.xhtml': 'application/xhtml+xml',
     '.css': 'text/css',
     '.png': 'image/png',
+    '.webp': 'image/webp',
     '.gif': 'image/gif',
     '.svg': 'image/svg+xml',
     '.jpg': 'image/jpeg',

@@ -1068,11 +1068,11 @@ def filter_meta_fields(app: Sphinx, domain: str, objtype: str, content: Element)
     for node in content:
         if isinstance(node, nodes.field_list):
             fields = cast(List[nodes.field], node)
-            for field in fields:
+            # removing list items while iterating the list needs reversed()
+            for field in reversed(fields):
                 field_name = cast(nodes.field_body, field[0]).astext().strip()
                 if field_name == 'meta' or field_name.startswith('meta '):
                     node.remove(field)
-                    break
 
 
 class PythonModuleIndex(Index):
