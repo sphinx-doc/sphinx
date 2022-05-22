@@ -1,24 +1,3 @@
-Release 5.1.0 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
-
 Release 5.0.0 beta2 (in development)
 ====================================
 
@@ -39,6 +18,11 @@ Bugs fixed
 
 * #9575: autodoc: The annotation of return value should not be shown when
   ``autodoc_typehints="description"``
+* #9648: autodoc: ``*args`` and ``**kwargs`` entries are duplicated when
+  ``autodoc_typehints="description"``
+* #10443: epub: EPUB builder can't detect the mimetype of .webp file
+* #10456: py domain: ``:meta:`` fields are displayed if docstring contains two
+  or more meta-field
 * #9096: sphinx-build: the value of progress bar for paralle build is wrong
 
 Testing
