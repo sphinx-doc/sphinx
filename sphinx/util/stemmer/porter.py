@@ -114,16 +114,16 @@ class PorterStemmer:
 
     def ends(self, string: str) -> bool:
         """True <=> b[:k+1] ends with the given string."""
-        if not self.word.endswith(string):
-            return False
-        self.j = len(self.word) - 1 - len(string)
-        return True
+        if self.word.endswith(string) and string:
+            self.j = len(self.word.removesuffix(string)) - 1
+            return True
+        return False
 
     def replace(self, ends_with: str, replace: str) -> bool:
-        if self.ends(ends_with):
-            start = len(self.word) - 1 - len(ends_with)
-            if measure_consonant_sequences(self.word, start) > 0:
-                self.word = self.word[:start + 1] + replace
+        if self.word.endswith(ends_with) and ends_with:
+            self.j = len(self.word.removesuffix(ends_with)) - 1
+            if measure_consonant_sequences(self.word, self.j) > 0:
+                self.word = self.word[:self.j + 1] + replace
             return True
         return False
 
