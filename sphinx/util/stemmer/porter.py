@@ -307,7 +307,7 @@ class PorterStemmer:
             else:
                 return
         elif char == 'o':
-            if self.ends("ion") and (self.b[self.j] in 'st'):
+            if self.ends("ion") and (self.b[self.j] in {'s', 't'}):
                 pass
             elif self.ends("ou"):
                 pass
