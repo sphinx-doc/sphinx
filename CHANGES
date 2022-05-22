@@ -20,6 +20,7 @@ Bugs fixed
   ``autodoc_typehints="description"``
 * #9648: autodoc: ``*args`` and ``**kwargs`` entries are duplicated when
   ``autodoc_typehints="description"``
+* #10443: epub: EPUB builder can't detect the mimetype of .webp file
 * #10456: py domain: ``:meta:`` fields are displayed if docstring contains two
   or more meta-field
 
