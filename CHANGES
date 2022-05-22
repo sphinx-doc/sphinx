@@ -5,8 +5,8 @@ Dependencies
 ------------
 
 * #10468: Drop Python 3.6 support
-* #10470: Drop Python 3.7, Docutils 0.14, Docutils 0.15, and Docutils 0.16
-  support. Patch by Adam Turner
+* #10470: Drop Python 3.7, Docutils 0.14, Docutils 0.15, Docutils 0.16, and
+  Docutils 0.17 support. Patch by Adam Turner
 
 Incompatible changes
 --------------------

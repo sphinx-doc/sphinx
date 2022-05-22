@@ -14,11 +14,11 @@ jobs:
       matrix:
         include:
         - python: "3.8"
-          docutils: du17
+          docutils: du18
         - python: "3.9"
-          docutils: du18
+          docutils: du19
         - python: "3.10"
-          docutils: du18
+          docutils: du19
         - python: "3.10"
           docutils: du19
         - python: "3.11-dev"

@@ -189,8 +189,8 @@ class WordCollector(nodes.NodeVisitor):
         self.lang = lang
 
     def is_meta_keywords(self, node: Element) -> bool:
-        if (isinstance(node, (addnodes.meta, addnodes.docutils_meta)) and
-                node.get('name') == 'keywords'):
+        if (isinstance(node, nodes.meta)  # type: ignore
+                and node.get('name') == 'keywords'):
             meta_lang = node.get('lang')
             if meta_lang is None:  # lang not specified
                 return True
