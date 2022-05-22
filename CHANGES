@@ -13,6 +13,9 @@ Deprecated
 Features added
 --------------
 
+* #10444: html theme: Allow to specify multiple CSS files via ``stylesheet``
+  setting on ``theme.conf``
+
 Bugs fixed
 ----------
 

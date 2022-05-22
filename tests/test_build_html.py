@@ -1735,3 +1735,12 @@ def test_html_code_role(app):
     assert ('<div class="highlight-python notranslate">' +
             '<div class="highlight"><pre><span></span>' +
             common_content) in content
+
+
+@pytest.mark.sphinx('html', testroot='build-html-theme-having-multiple-stylesheets')
+def test_theme_having_multiple_stylesheets(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text(encoding='utf-8')
+
+    assert '<link rel="stylesheet" type="text/css" href="_static/mytheme.css" />' in content
+    assert '<link rel="stylesheet" type="text/css" href="_static/extra.css" />' in content

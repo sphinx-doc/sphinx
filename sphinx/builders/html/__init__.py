@@ -272,6 +272,15 @@ class StandaloneHTMLBuilder(Builder):
         else:
             return 'default.css'
 
+    def get_style_filenames(self) -> str:
+        if self.config.html_style is not None:
+            return [self.config.html_style]
+        elif self.theme:
+            stylesheet = self.theme.get_config('theme', 'stylesheet')
+            return [s.strip() for s in stylesheet.split(',')]
+        else:
+            return ['default.css']
+
     def get_theme_config(self) -> Tuple[str, Dict]:
         return self.config.html_theme, self.config.html_theme_options
 
@@ -309,7 +318,9 @@ class StandaloneHTMLBuilder(Builder):
     def init_css_files(self) -> None:
         self.css_files = []
         self.add_css_file('pygments.css', priority=200)
-        self.add_css_file(self._get_style_filename(), priority=200)
+
+        for filename in self.get_style_filenames():
+            self.add_css_file(filename, priority=200)
 
         for filename, attrs in self.app.registry.css_files:
             self.add_css_file(filename, **attrs)
