@@ -1165,7 +1165,6 @@ def test_autodoc_typehints_both(app):
             in context)
 
 
-@pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
 @pytest.mark.sphinx('text', testroot='ext-autodoc')
 def test_autodoc_type_aliases(app):
     # default
@@ -1310,7 +1309,6 @@ def test_autodoc_type_aliases(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
                     srcdir='autodoc_typehints_description_and_type_aliases',
                     confoverrides={'autodoc_typehints': "description",
@@ -1477,27 +1475,16 @@ def test_autodoc_typehints_format_fully_qualified_for_class_alias(app):
                     confoverrides={'autodoc_typehints_format': "fully-qualified"})
 def test_autodoc_typehints_format_fully_qualified_for_generic_alias(app):
     actual = do_autodoc(app, 'data', 'target.genericalias.L')
-    if sys.version_info < (3, 7):
-        assert list(actual) == [
-            '',
-            '.. py:data:: L',
-            '   :module: target.genericalias',
-            '   :value: typing.List[target.genericalias.Class]',
-            '',
-            '   A list of Class',
-            '',
-        ]
-    else:
-        assert list(actual) == [
-            '',
-            '.. py:data:: L',
-            '   :module: target.genericalias',
-            '',
-            '   A list of Class',
-            '',
-            '   alias of :py:class:`~typing.List`\\ [:py:class:`target.genericalias.Class`]',
-            '',
-        ]
+    assert list(actual) == [
+        '',
+        '.. py:data:: L',
+        '   :module: target.genericalias',
+        '',
+        '   A list of Class',
+        '',
+        '   alias of :py:class:`~typing.List`\\ [:py:class:`target.genericalias.Class`]',
+        '',
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc',

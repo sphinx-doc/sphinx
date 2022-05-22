@@ -89,17 +89,10 @@ def test_restify_type_hints_containers():
 
 def test_restify_type_hints_Callable():
     assert restify(Callable) == ":py:class:`~typing.Callable`"
-
-    if sys.version_info >= (3, 7):
-        assert restify(Callable[[str], int]) == (":py:class:`~typing.Callable`\\ "
-                                                 "[[:py:class:`str`], :py:class:`int`]")
-        assert restify(Callable[..., int]) == (":py:class:`~typing.Callable`\\ "
-                                               "[[...], :py:class:`int`]")
-    else:
-        assert restify(Callable[[str], int]) == (":py:class:`~typing.Callable`\\ "
-                                                 "[:py:class:`str`, :py:class:`int`]")
-        assert restify(Callable[..., int]) == (":py:class:`~typing.Callable`\\ "
-                                               "[..., :py:class:`int`]")
+    assert restify(Callable[[str], int]) == (":py:class:`~typing.Callable`\\ "
+                                             "[[:py:class:`str`], :py:class:`int`]")
+    assert restify(Callable[..., int]) == (":py:class:`~typing.Callable`\\ "
+                                           "[[...], :py:class:`int`]")
 
 
 def test_restify_type_hints_Union():
@@ -108,30 +101,20 @@ def test_restify_type_hints_Union():
     assert restify(Union[int, str]) == (":py:obj:`~typing.Union`\\ "
                                         "[:py:class:`int`, :py:class:`str`]")
 
-    if sys.version_info >= (3, 7):
-        assert restify(Union[int, Integral]) == (":py:obj:`~typing.Union`\\ "
-                                                 "[:py:class:`int`, :py:class:`numbers.Integral`]")
-        assert restify(Union[int, Integral], "smart") == (":py:obj:`~typing.Union`\\ "
-                                                          "[:py:class:`int`,"
-                                                          " :py:class:`~numbers.Integral`]")
+    assert restify(Union[int, Integral]) == (":py:obj:`~typing.Union`\\ "
+                                             "[:py:class:`int`, :py:class:`numbers.Integral`]")
+    assert restify(Union[int, Integral], "smart") == (":py:obj:`~typing.Union`\\ "
+                                                      "[:py:class:`int`,"
+                                                      " :py:class:`~numbers.Integral`]")
 
-        assert (restify(Union[MyClass1, MyClass2]) ==
-                (":py:obj:`~typing.Union`\\ "
-                 "[:py:class:`tests.test_util_typing.MyClass1`, "
-                 ":py:class:`tests.test_util_typing.<MyClass2>`]"))
-        assert (restify(Union[MyClass1, MyClass2], "smart") ==
-                (":py:obj:`~typing.Union`\\ "
-                 "[:py:class:`~tests.test_util_typing.MyClass1`,"
-                 " :py:class:`~tests.test_util_typing.<MyClass2>`]"))
-    else:
-        assert restify(Union[int, Integral]) == ":py:class:`numbers.Integral`"
-        assert restify(Union[int, Integral], "smart") == ":py:class:`~numbers.Integral`"
-
-        assert restify(Union[MyClass1, MyClass2]) == ":py:class:`tests.test_util_typing.MyClass1`"
-        assert restify(Union[MyClass1, MyClass2], "smart") == ":py:class:`~tests.test_util_typing.MyClass1`"
+    assert (restify(Union[MyClass1, MyClass2]) == (":py:obj:`~typing.Union`\\ "
+                                                   "[:py:class:`tests.test_util_typing.MyClass1`, "
+                                                   ":py:class:`tests.test_util_typing.<MyClass2>`]"))
+    assert (restify(Union[MyClass1, MyClass2], "smart") == (":py:obj:`~typing.Union`\\ "
+                                                            "[:py:class:`~tests.test_util_typing.MyClass1`,"
+                                                            " :py:class:`~tests.test_util_typing.<MyClass2>`]"))
 
 
-@pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
 def test_restify_type_hints_typevars():
     T = TypeVar('T')
     T_co = TypeVar('T_co', covariant=True)
@@ -172,7 +155,6 @@ def test_restify_type_hints_alias():
     assert restify(MyTuple) == ":py:class:`~typing.Tuple`\\ [:py:class:`str`, :py:class:`str`]"
 
 
-@pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
 def test_restify_type_ForwardRef():
     from typing import ForwardRef  # type: ignore
     assert restify(ForwardRef("myint")) == ":py:class:`myint`"
@@ -346,22 +328,13 @@ def test_stringify_type_hints_Callable():
     assert stringify(Callable, "fully-qualified") == "typing.Callable"
     assert stringify(Callable, "smart") == "~typing.Callable"
 
-    if sys.version_info >= (3, 7):
-        assert stringify(Callable[[str], int]) == "Callable[[str], int]"
-        assert stringify(Callable[[str], int], "fully-qualified") == "typing.Callable[[str], int]"
-        assert stringify(Callable[[str], int], "smart") == "~typing.Callable[[str], int]"
+    assert stringify(Callable[[str], int]) == "Callable[[str], int]"
+    assert stringify(Callable[[str], int], "fully-qualified") == "typing.Callable[[str], int]"
+    assert stringify(Callable[[str], int], "smart") == "~typing.Callable[[str], int]"
 
-        assert stringify(Callable[..., int]) == "Callable[[...], int]"
-        assert stringify(Callable[..., int], "fully-qualified") == "typing.Callable[[...], int]"
-        assert stringify(Callable[..., int], "smart") == "~typing.Callable[[...], int]"
-    else:
-        assert stringify(Callable[[str], int]) == "Callable[str, int]"
-        assert stringify(Callable[[str], int], "fully-qualified") == "typing.Callable[str, int]"
-        assert stringify(Callable[[str], int], "smart") == "~typing.Callable[str, int]"
-
-        assert stringify(Callable[..., int]) == "Callable[..., int]"
-        assert stringify(Callable[..., int], "fully-qualified") == "typing.Callable[..., int]"
-        assert stringify(Callable[..., int], "smart") == "~typing.Callable[..., int]"
+    assert stringify(Callable[..., int]) == "Callable[[...], int]"
+    assert stringify(Callable[..., int], "fully-qualified") == "typing.Callable[[...], int]"
+    assert stringify(Callable[..., int], "smart") == "~typing.Callable[[...], int]"
 
 
 def test_stringify_type_hints_Union():
@@ -377,25 +350,16 @@ def test_stringify_type_hints_Union():
     assert stringify(Union[int, str], "fully-qualified") == "typing.Union[int, str]"
     assert stringify(Union[int, str], "smart") == "~typing.Union[int, str]"
 
-    if sys.version_info >= (3, 7):
-        assert stringify(Union[int, Integral]) == "Union[int, numbers.Integral]"
-        assert stringify(Union[int, Integral], "fully-qualified") == "typing.Union[int, numbers.Integral]"
-        assert stringify(Union[int, Integral], "smart") == "~typing.Union[int, ~numbers.Integral]"
+    assert stringify(Union[int, Integral]) == "Union[int, numbers.Integral]"
+    assert stringify(Union[int, Integral], "fully-qualified") == "typing.Union[int, numbers.Integral]"
+    assert stringify(Union[int, Integral], "smart") == "~typing.Union[int, ~numbers.Integral]"
 
-        assert (stringify(Union[MyClass1, MyClass2]) ==
-                "Union[tests.test_util_typing.MyClass1, tests.test_util_typing.<MyClass2>]")
-        assert (stringify(Union[MyClass1, MyClass2], "fully-qualified") ==
-                "typing.Union[tests.test_util_typing.MyClass1, tests.test_util_typing.<MyClass2>]")
-        assert (stringify(Union[MyClass1, MyClass2], "smart") ==
-                "~typing.Union[~tests.test_util_typing.MyClass1, ~tests.test_util_typing.<MyClass2>]")
-    else:
-        assert stringify(Union[int, Integral]) == "numbers.Integral"
-        assert stringify(Union[int, Integral], "fully-qualified") == "numbers.Integral"
-        assert stringify(Union[int, Integral], "smart") == "~numbers.Integral"
-
-        assert stringify(Union[MyClass1, MyClass2]) == "tests.test_util_typing.MyClass1"
-        assert stringify(Union[MyClass1, MyClass2], "fully-qualified") == "tests.test_util_typing.MyClass1"
-        assert stringify(Union[MyClass1, MyClass2], "smart") == "~tests.test_util_typing.MyClass1"
+    assert (stringify(Union[MyClass1, MyClass2]) ==
+            "Union[tests.test_util_typing.MyClass1, tests.test_util_typing.<MyClass2>]")
+    assert (stringify(Union[MyClass1, MyClass2], "fully-qualified") ==
+            "typing.Union[tests.test_util_typing.MyClass1, tests.test_util_typing.<MyClass2>]")
+    assert (stringify(Union[MyClass1, MyClass2], "smart") ==
+            "~typing.Union[~tests.test_util_typing.MyClass1, ~tests.test_util_typing.<MyClass2>]")
 
 
 def test_stringify_type_hints_typevars():
@@ -403,30 +367,17 @@ def test_stringify_type_hints_typevars():
     T_co = TypeVar('T_co', covariant=True)
     T_contra = TypeVar('T_contra', contravariant=True)
 
-    if sys.version_info < (3, 7):
-        assert stringify(T) == "T"
-        assert stringify(T, "smart") == "T"
+    assert stringify(T) == "tests.test_util_typing.T"
+    assert stringify(T, "smart") == "~tests.test_util_typing.T"
 
-        assert stringify(T_co) == "T_co"
-        assert stringify(T_co, "smart") == "T_co"
+    assert stringify(T_co) == "tests.test_util_typing.T_co"
+    assert stringify(T_co, "smart") == "~tests.test_util_typing.T_co"
 
-        assert stringify(T_contra) == "T_contra"
-        assert stringify(T_contra, "smart") == "T_contra"
+    assert stringify(T_contra) == "tests.test_util_typing.T_contra"
+    assert stringify(T_contra, "smart") == "~tests.test_util_typing.T_contra"
 
-        assert stringify(List[T]) == "List[T]"
-        assert stringify(List[T], "smart") == "~typing.List[T]"
-    else:
-        assert stringify(T) == "tests.test_util_typing.T"
-        assert stringify(T, "smart") == "~tests.test_util_typing.T"
-
-        assert stringify(T_co) == "tests.test_util_typing.T_co"
-        assert stringify(T_co, "smart") == "~tests.test_util_typing.T_co"
-
-        assert stringify(T_contra) == "tests.test_util_typing.T_contra"
-        assert stringify(T_contra, "smart") == "~tests.test_util_typing.T_contra"
-
-        assert stringify(List[T]) == "List[tests.test_util_typing.T]"
-        assert stringify(List[T], "smart") == "~typing.List[~tests.test_util_typing.T]"
+    assert stringify(List[T]) == "List[tests.test_util_typing.T]"
+    assert stringify(List[T], "smart") == "~typing.List[~tests.test_util_typing.T]"
 
     if sys.version_info >= (3, 10):
         assert stringify(MyInt) == "tests.test_util_typing.MyInt"
