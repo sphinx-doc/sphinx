@@ -96,5 +96,3 @@ authors and projects:
 
 * sphinx.util.jsdump uses the basestring encoding from simplejson,
   written by Bob Ippolito, released under the MIT license
-* sphinx.util.stemmer was written by Vivake Gupta, placed in the
-  Public Domain
