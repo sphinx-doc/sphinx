@@ -24,6 +24,8 @@ Bugs fixed
 * #10456: py domain: ``:meta:`` fields are displayed if docstring contains two
   or more meta-field
 * #9096: sphinx-build: the value of progress bar for paralle build is wrong
+* #10110: sphinx-build: exit code is not changed when error is raised on
+  builder-finished event
 
 Testing
 --------
