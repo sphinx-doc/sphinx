@@ -112,11 +112,11 @@ class PorterStemmer:
         self.word: str = ""  # buffer for word to be stemmed
         self.j: int = 0      # j is a general offset into the string
 
-    def ends(self, s: str) -> bool:
-        """True <=> b[:k+1] ends with the string s."""
-        if not self.word.endswith(s):
+    def ends(self, string: str) -> bool:
+        """True <=> b[:k+1] ends with the given string."""
+        if not self.word.endswith(string):
             return False
-        self.j = len(self.word) - 1 - len(s)
+        self.j = len(self.word) - 1 - len(string)
         return True
 
     def replace(self, ends_with: str, replace: str) -> bool:
