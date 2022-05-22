@@ -251,8 +251,8 @@ Add your own static files to the build assets
 By default, Sphinx copies static files on the ``static/`` directory of the template
 directory.  However, if your package needs to place static files outside of the
 ``static/`` directory for some reasons, you need to copy them to the ``_static/``
-directory of HTML outputs manually at the build via an event hook.  Here is a sample
-code to accomplish this:
+directory of HTML outputs manually at the build via an event hook.  Here is an
+example of code to accomplish this:
 
 .. code-block:: python
 
