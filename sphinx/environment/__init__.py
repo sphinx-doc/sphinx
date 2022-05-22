@@ -9,7 +9,6 @@ from os import path
 from typing import (TYPE_CHECKING, Any, Callable, Dict, Generator, Iterator, List, Optional,
                     Set, Tuple, Union)
 
-import docutils
 from docutils import nodes
 from docutils.nodes import Node
 
@@ -52,8 +51,6 @@ default_settings: Dict[str, Any] = {
     'file_insertion_enabled': True,
     'smartquotes_locales': [],
 }
-if docutils.__version_info__[:2] <= (0, 17):
-    default_settings['embed_images'] = False
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.

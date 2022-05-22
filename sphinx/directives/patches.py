@@ -1,14 +1,14 @@
 import os
 from os import path
-from typing import TYPE_CHECKING, Any, Dict, List, Sequence, cast
+from typing import TYPE_CHECKING, Any, Dict, List, cast
 
 from docutils import nodes
 from docutils.nodes import Node, make_id
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import images, tables
+from docutils.parsers.rst.directives.misc import Meta  # type: ignore[attr-defined]
 from docutils.parsers.rst.roles import set_classes
 
-from sphinx import addnodes
 from sphinx.directives import optional_int
 from sphinx.domains.math import MathDomain
 from sphinx.locale import __
@@ -17,30 +17,6 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import SEP, os_path, relpath
 from sphinx.util.typing import OptionSpec
-
-try:
-    from docutils.parsers.rst.directives.misc import Meta as Meta  # type: ignore
-except ImportError:
-    # docutils-0.17
-    from docutils.parsers.rst.directives.html import Meta as MetaBase
-
-    class Meta(MetaBase, SphinxDirective):  # type: ignore
-        def run(self) -> Sequence[Node]:  # type: ignore
-            result = super().run()
-            for node in result:
-                # for docutils-0.17.  Since docutils-0.18, patching is no longer needed
-                # because it uses picklable node; ``docutils.nodes.meta``.
-                if (isinstance(node, nodes.pending) and
-                        isinstance(node.details['nodes'][0], addnodes.docutils_meta)):
-                    meta = node.details['nodes'][0]
-                    meta.source = self.env.doc2path(self.env.docname)
-                    meta.line = self.lineno
-                    meta.rawcontent = meta['content']
-
-                    # docutils' meta nodes aren't picklable because the class is nested
-                    meta.__class__ = addnodes.meta
-
-            return result
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx

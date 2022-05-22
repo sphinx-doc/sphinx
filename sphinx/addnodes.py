@@ -2,19 +2,24 @@
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence
 
-import docutils
 from docutils import nodes
 from docutils.nodes import Element
+
+from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
-try:
-    from docutils.nodes import meta as docutils_meta  # type: ignore
-except ImportError:
-    # docutils-0.17
-    from docutils.parsers.rst.directives.html import MetaBody
-    docutils_meta = MetaBody.meta
+deprecated_alias('sphinx.addnodes',
+                 {
+                     'meta': nodes.meta,  # type: ignore
+                     'docutils_meta': nodes.meta,  # type: ignore
+                 },
+                 RemovedInSphinx70Warning,
+                 {
+                     'meta': 'docutils.nodes.meta',
+                     'docutils_meta': 'docutils.nodes.meta',
+                 })
 
 
 class document(nodes.document):
@@ -424,13 +429,6 @@ class tabular_col_spec(nodes.Element):
     """Node for specifying tabular columns, used for LaTeX output."""
 
 
-class meta(nodes.Special, nodes.PreBibliographic, nodes.Element):
-    """Node for meta directive -- same as docutils' standard meta node,
-    but pickleable.
-    """
-    rawcontent = None
-
-
 # inline nodes
 
 class pending_xref(nodes.Inline, nodes.Element):
@@ -556,9 +554,6 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_node(literal_emphasis)
     app.add_node(literal_strong)
     app.add_node(manpage)
-
-    if docutils.__version_info__ < (0, 18):
-        app.add_node(meta)
 
     return {
         'version': 'builtin',

@@ -194,10 +194,8 @@ div.seealso {
     border: 1px solid #ff6;
 }
 
-{%- if docutils_version_info[:2] >= (0, 18) %}
 nav.contents,
 aside.topic,
-{% endif %}
 div.topic {
     background-color: #eee;
 }

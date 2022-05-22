@@ -19,7 +19,7 @@ from sphinx.transforms import SphinxTransform
 from sphinx.util import get_filetype, logging, split_index_msg
 from sphinx.util.i18n import docname_to_domain
 from sphinx.util.nodes import (IMAGE_TYPE_NODES, LITERAL_TYPE_NODES, NodeMatcher,
-                               extract_messages, is_pending_meta, traverse_translatable_index)
+                               extract_messages, traverse_translatable_index)
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -254,12 +254,7 @@ class Locale(SphinxTransform):
                 continue
 
             # update meta nodes
-            if isinstance(node, nodes.pending) and is_pending_meta(node):
-                # docutils-0.17
-                node.details['nodes'][0]['content'] = msgstr
-                continue
-            elif isinstance(node, addnodes.docutils_meta):
-                # docutils-0.18+
+            if isinstance(node, nodes.meta):  # type: ignore
                 node['content'] = msgstr
                 continue
 

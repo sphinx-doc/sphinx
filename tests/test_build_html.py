@@ -5,7 +5,6 @@ import re
 from itertools import chain, cycle
 from unittest.mock import ANY, call, patch
 
-import docutils
 import pytest
 from html5lib import HTMLParser
 
@@ -407,39 +406,6 @@ def test_html5_output(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
-@pytest.mark.skipif(docutils.__version_info__ >= (0, 18), reason='docutils-0.17 or below is required.')
-@pytest.mark.parametrize("fname,expect", flat_dict({
-    'index.html': [
-        (".//dt[@class='label']/span[@class='brackets']", r'Ref1'),
-        (".//dt[@class='label']", ''),
-    ],
-    'footnote.html': [
-        (".//a[@class='footnote-reference brackets'][@href='#id9'][@id='id1']", r"1"),
-        (".//a[@class='footnote-reference brackets'][@href='#id10'][@id='id2']", r"2"),
-        (".//a[@class='footnote-reference brackets'][@href='#foo'][@id='id3']", r"3"),
-        (".//a[@class='reference internal'][@href='#bar'][@id='id4']/span", r"\[bar\]"),
-        (".//a[@class='reference internal'][@href='#baz-qux'][@id='id5']/span", r"\[baz_qux\]"),
-        (".//a[@class='footnote-reference brackets'][@href='#id11'][@id='id6']", r"4"),
-        (".//a[@class='footnote-reference brackets'][@href='#id12'][@id='id7']", r"5"),
-        (".//a[@class='fn-backref'][@href='#id1']", r"1"),
-        (".//a[@class='fn-backref'][@href='#id2']", r"2"),
-        (".//a[@class='fn-backref'][@href='#id3']", r"3"),
-        (".//a[@class='fn-backref'][@href='#id4']", r"bar"),
-        (".//a[@class='fn-backref'][@href='#id5']", r"baz_qux"),
-        (".//a[@class='fn-backref'][@href='#id6']", r"4"),
-        (".//a[@class='fn-backref'][@href='#id7']", r"5"),
-        (".//a[@class='fn-backref'][@href='#id8']", r"6"),
-    ],
-}))
-@pytest.mark.sphinx('html')
-@pytest.mark.test_params(shared_result='test_build_html_output_docutils17')
-def test_docutils17_output(app, cached_etree_parse, fname, expect):
-    app.build()
-    print(app.outdir / fname)
-    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
-
-
-@pytest.mark.skipif(docutils.__version_info__[:2] <= (0, 17), reason='docutils-0.18+ is required.')
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
         (".//div[@class='citation']/span", r'Ref1'),
@@ -465,7 +431,7 @@ def test_docutils17_output(app, cached_etree_parse, fname, expect):
 }))
 @pytest.mark.sphinx('html')
 @pytest.mark.test_params(shared_result='test_build_html_output_docutils18')
-def test_docutils18_output(app, cached_etree_parse, fname, expect):
+def test_docutils_output(app, cached_etree_parse, fname, expect):
     app.build()
     print(app.outdir / fname)
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
