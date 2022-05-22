@@ -39,6 +39,8 @@ Bugs fixed
 
 * #9575: autodoc: The annotation of return value should not be shown when
   ``autodoc_typehints="description"``
+* #9648: autodoc: ``*args`` and ``**kwargs`` entries are duplicated when
+  ``autodoc_typehints="description"``
 * #10456: py domain: ``:meta:`` fields are displayed if docstring contains two
   or more meta-field
 

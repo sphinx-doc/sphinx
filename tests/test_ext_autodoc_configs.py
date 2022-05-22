@@ -1034,19 +1034,27 @@ def test_autodoc_typehints_description_with_documented_init(app):
     )
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
-    assert ('class target.typehints._ClassWithDocumentedInit(x)\n'
+    assert ('class target.typehints._ClassWithDocumentedInit(x, *args, **kwargs)\n'
             '\n'
             '   Class docstring.\n'
             '\n'
             '   Parameters:\n'
-            '      **x** (*int*) --\n'
+            '      * **x** (*int*) --\n'
             '\n'
-            '   __init__(x)\n'
+            '      * **args** (*int*) --\n'
+            '\n'
+            '      * **kwargs** (*int*) --\n'
+            '\n'
+            '   __init__(x, *args, **kwargs)\n'
             '\n'
             '      Init docstring.\n'
             '\n'
             '      Parameters:\n'
-            '         **x** (*int*) -- Some integer\n'
+            '         * **x** (*int*) -- Some integer\n'
+            '\n'
+            '         * **args** (*int*) -- Some integer\n'
+            '\n'
+            '         * **kwargs** (*int*) -- Some integer\n'
             '\n'
             '      Return type:\n'
             '         None\n' == context)
@@ -1063,16 +1071,20 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc(app):
     )
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
-    assert ('class target.typehints._ClassWithDocumentedInit(x)\n'
+    assert ('class target.typehints._ClassWithDocumentedInit(x, *args, **kwargs)\n'
             '\n'
             '   Class docstring.\n'
             '\n'
-            '   __init__(x)\n'
+            '   __init__(x, *args, **kwargs)\n'
             '\n'
             '      Init docstring.\n'
             '\n'
             '      Parameters:\n'
-            '         **x** (*int*) -- Some integer\n' == context)
+            '         * **x** (*int*) -- Some integer\n'
+            '\n'
+            '         * **args** (*int*) -- Some integer\n'
+            '\n'
+            '         * **kwargs** (*int*) -- Some integer\n' == context)
 
 
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
@@ -1089,16 +1101,20 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc_doc_rtype(a
     )
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
-    assert ('class target.typehints._ClassWithDocumentedInit(x)\n'
+    assert ('class target.typehints._ClassWithDocumentedInit(x, *args, **kwargs)\n'
             '\n'
             '   Class docstring.\n'
             '\n'
-            '   __init__(x)\n'
+            '   __init__(x, *args, **kwargs)\n'
             '\n'
             '      Init docstring.\n'
             '\n'
             '      Parameters:\n'
-            '         **x** (*int*) -- Some integer\n' == context)
+            '         * **x** (*int*) -- Some integer\n'
+            '\n'
+            '         * **args** (*int*) -- Some integer\n'
+            '\n'
+            '         * **kwargs** (*int*) -- Some integer\n' == context)
 
 
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
