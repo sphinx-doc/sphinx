@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-05-08 00:17+0000\n"
+"POT-Creation-Date: 2022-05-22 00:18+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Latvian (http://www.transifex.com/sphinx-doc/sphinx-1/language/lv/)\n"
@@ -522,8 +522,8 @@ msgstr ""
 msgid "building [mo]: "
 msgstr ""
 
-#: sphinx/builders/__init__.py:210 sphinx/builders/__init__.py:542
-#: sphinx/builders/__init__.py:568
+#: sphinx/builders/__init__.py:210 sphinx/builders/__init__.py:541
+#: sphinx/builders/__init__.py:567
 msgid "writing output... "
 msgstr ""
 
@@ -610,16 +610,16 @@ msgstr ""
 msgid "reading sources... "
 msgstr ""
 
-#: sphinx/builders/__init__.py:456 sphinx/builders/__init__.py:578
+#: sphinx/builders/__init__.py:456 sphinx/builders/__init__.py:577
 msgid "waiting for workers..."
 msgstr ""
 
-#: sphinx/builders/__init__.py:520
+#: sphinx/builders/__init__.py:519
 #, python-format
 msgid "docnames to write: %s"
 msgstr ""
 
-#: sphinx/builders/__init__.py:529 sphinx/builders/singlehtml.py:145
+#: sphinx/builders/__init__.py:528 sphinx/builders/singlehtml.py:145
 msgid "preparing documents"
 msgstr ""
 
@@ -2958,7 +2958,7 @@ msgstr ""
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr ""
 
-#: sphinx/ext/autodoc/preserve_defaults.py:105
+#: sphinx/ext/autodoc/preserve_defaults.py:116
 #, python-format
 msgid "Failed to parse a default argument value for %r: %s"
 msgstr ""
