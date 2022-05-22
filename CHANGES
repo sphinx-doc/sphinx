@@ -23,6 +23,7 @@ Bugs fixed
 * #10443: epub: EPUB builder can't detect the mimetype of .webp file
 * #10456: py domain: ``:meta:`` fields are displayed if docstring contains two
   or more meta-field
+* #9096: sphinx-build: the value of progress bar for paralle build is wrong
 
 Testing
 --------
