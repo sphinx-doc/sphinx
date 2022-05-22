@@ -432,7 +432,7 @@ class Builder:
     def _read_parallel(self, docnames: List[str], nproc: int) -> None:
         chunks = make_chunks(docnames, nproc)
 
-        # create a statas_iterator to step progressbar after reading a document
+        # create a status_iterator to step progressbar after reading a document
         # (see: ``merge()`` function)
         progress = status_iterator(chunks, __('reading sources... '), "purple",
                                    len(chunks), self.app.verbosity)
@@ -570,7 +570,7 @@ class Builder:
         tasks = ParallelTasks(nproc)
         chunks = make_chunks(docnames, nproc)
 
-        # create a statas_iterator to step progressbar after writing a document
+        # create a status_iterator to step progressbar after writing a document
         # (see: ``on_chunk_done()`` function)
         progress = status_iterator(chunks, __('writing output... '), "darkgreen",
                                    len(chunks), self.app.verbosity)
