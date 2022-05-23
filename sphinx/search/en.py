@@ -2,9 +2,8 @@
 
 from typing import Dict
 
-import snowballstemmer
-
 from sphinx.search import SearchLanguage
+from sphinx.util.stemmer import get_stemmer
 
 english_stopwords = set("""
 a  and  are  as  at
@@ -212,7 +211,7 @@ class SearchEnglish(SearchLanguage):
     stopwords = english_stopwords
 
     def init(self, options: Dict) -> None:
-        self.stemmer = snowballstemmer.stemmer('english')
+        self.stemmer = get_stemmer()
 
     def stem(self, word: str) -> str:
-        return self.stemmer.stemWord(word.lower())
+        return self.stemmer.stem(word.lower())
