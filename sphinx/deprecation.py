@@ -10,6 +10,10 @@ class RemovedInSphinx70Warning(DeprecationWarning):
     pass
 
 
+class RemovedInSphinx80Warning(PendingDeprecationWarning):
+    pass
+
+
 RemovedInNextVersionWarning = RemovedInSphinx70Warning
 
 
