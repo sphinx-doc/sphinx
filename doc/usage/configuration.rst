@@ -2670,8 +2670,10 @@ Options for the linkcheck builder
      A regular expression that matches a URI.
    *auth_info*
      Authentication information to use for that URI. The value can be anything
-     that is understood by the ``requests`` library (see `requests Authentication
-     <https://requests.readthedocs.io/en/master/user/authentication>`__ for details).
+     that is understood by the ``requests`` library (see `requests Authentication`__
+     for details).
+
+   __ https://requests.readthedocs.io/en/master/user/authentication
 
    The ``linkcheck`` builder will use the first matching ``auth_info`` value
    it can find in the :confval:`linkcheck_auth` list, so values earlier in the
