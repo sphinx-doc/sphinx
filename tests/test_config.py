@@ -395,3 +395,17 @@ def test_conf_py_language_none(tempdir):
 
     # Then the language is coerced to English
     assert cfg.language == "en"
+
+
+def test_conf_py_no_language(tempdir):
+    """Regression test for #10474."""
+
+    # Given a conf.py file with no language attribute
+    (tempdir / 'conf.py').write_text("", encoding='utf-8')
+
+    # When we load conf.py into a Config object
+    cfg = Config.read(tempdir, {}, None)
+    cfg.init_values()
+
+    # Then the language is coerced to English
+    assert cfg.language == "en"
