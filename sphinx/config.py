@@ -163,6 +163,12 @@ class Config:
             raise ConfigError(__("config directory doesn't contain a conf.py file (%s)") %
                               confdir)
         namespace = eval_config_file(filename, tags)
+
+        # Resolve https://github.com/sphinx-doc/sphinx/issues/10474 where conf.py
+        # explicitly sets language to None, by coercing it to English.
+        if namespace["language"] is None:
+            namespace["language"] = "en"
+
         return cls(namespace, overrides or {})
 
     def convert_overrides(self, name: str, value: Any) -> Any:
