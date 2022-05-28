@@ -25,6 +25,8 @@ Bugs fixed
   ``autodoc_typehints="description"``
 * #8180: autodoc: Docstring metadata ignored for attributes
 * #10443: epub: EPUB builder can't detect the mimetype of .webp file
+* #10104: gettext: Duplicated locations are shown if 3rd party extension does
+  not provide correct information
 * #10456: py domain: ``:meta:`` fields are displayed if docstring contains two
   or more meta-field
 * #9096: sphinx-build: the value of progress bar for paralle build is wrong
