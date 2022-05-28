@@ -165,18 +165,15 @@ class Config:
                               confdir)
         namespace = eval_config_file(filename, tags)
 
-        # Note: Old sphinx projects has been configured as "langugae = None" because
-        #       sphinx-quickstart had generated the configuration by default formerly.
+        # Note: Old sphinx projects have been configured as "langugae = None" because
+        #       sphinx-quickstart previously generated this by default.
         #       To keep compatibility, they should be fallback to 'en' for a while
-        #       (At least 2 years or more since v5.0 release).
+        #       (This conversion should not be removed before 2025-01-01).
         if namespace.get("language", ...) is None:
-            logging.warning(__("Invalid configuration found: 'language = None'. "
-                               "Now it takes only a string. Please update your configuration. "
-                               "Fallback to 'en' (English)."))
+            logger.warning(__("Invalid configuration value found: 'language = None'. "
+                              "Update your configuration to a valid langauge code. "
+                              "Falling back to 'en' (English)."))
             namespace["language"] = "en"
-            warnings.warn("'None' is not a valid value for 'language', coercing to 'en'. "
-                          "Update 'conf.py' to a valid language code to silence this "
-                          "warning.", RuntimeWarning, stacklevel=4)
 
         return cls(namespace, overrides or {})
 
