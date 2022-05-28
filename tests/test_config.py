@@ -397,7 +397,8 @@ def test_conf_py_language_none(tempdir):
     assert cfg.language == "en"
 
 
-def test_conf_py_language_none_warning(tempdir, caplog):
+@mock.patch("sphinx.config.logger")
+def test_conf_py_language_none_warning(logger, tempdir):
     """Regression test for #10474."""
 
     # Given a conf.py file with language = None
@@ -407,12 +408,11 @@ def test_conf_py_language_none_warning(tempdir, caplog):
     Config.read(tempdir, {}, None)
 
     # Then a warning is raised
-    assert len(caplog.messages) == 1
-    assert caplog.messages[0] == (
+    assert logger.warning.called
+    assert logger.warning.call_args[0][0] == (
         "Invalid configuration value found: 'language = None'. "
         "Update your configuration to a valid langauge code. "
         "Falling back to 'en' (English).")
-    assert caplog.records[0].levelname == "WARNING"
 
 
 def test_conf_py_no_language(tempdir):
