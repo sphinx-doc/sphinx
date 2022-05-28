@@ -3,6 +3,7 @@
 import re
 import traceback
 import types
+import warnings
 from collections import OrderedDict
 from os import getenv, path
 from typing import (TYPE_CHECKING, Any, Callable, Dict, Generator, Iterator, List, NamedTuple,
@@ -168,6 +169,9 @@ class Config:
         # explicitly sets language to None, by coercing it to English.
         if namespace.get("language", ...) is None:
             namespace["language"] = "en"
+            warnings.warn("'None' is not a valid value for 'language', coercing to 'en'. "
+                          "Update 'conf.py' to a valid language code to silence this "
+                          "warning.", RuntimeWarning, stacklevel=4)
 
         return cls(namespace, overrides or {})
 

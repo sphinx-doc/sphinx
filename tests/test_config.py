@@ -397,6 +397,22 @@ def test_conf_py_language_none(tempdir):
     assert cfg.language == "en"
 
 
+def test_conf_py_language_none_warning(tempdir):
+    """Regression test for #10474."""
+
+    # Given a conf.py file with language = None
+    (tempdir / 'conf.py').write_text("language = None", encoding='utf-8')
+
+    # Then a warning is raised
+    with pytest.warns(
+            RuntimeWarning,
+            match="'None' is not a valid value for 'language', coercing to 'en'. "
+                  "Update 'conf.py' to a valid language code to silence this "
+                  "warning."):
+        # When we load conf.py into a Config object
+        Config.read(tempdir, {}, None)
+
+
 def test_conf_py_no_language(tempdir):
     """Regression test for #10474."""
 
