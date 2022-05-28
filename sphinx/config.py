@@ -168,6 +168,9 @@ class Config:
         # Resolve https://github.com/sphinx-doc/sphinx/issues/10474 where conf.py
         # explicitly sets language to None, by coercing it to English.
         if namespace.get("language", ...) is None:
+            logging.warning(__("Invalid configuration found: 'language = None'. "
+                               "Now it takes only a string. Please update your configuration. "
+                               "Fallback to 'en' (English)."))
             namespace["language"] = "en"
             warnings.warn("'None' is not a valid value for 'language', coercing to 'en'. "
                           "Update 'conf.py' to a valid language code to silence this "
