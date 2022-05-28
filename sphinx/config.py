@@ -165,8 +165,10 @@ class Config:
                               confdir)
         namespace = eval_config_file(filename, tags)
 
-        # Resolve https://github.com/sphinx-doc/sphinx/issues/10474 where conf.py
-        # explicitly sets language to None, by coercing it to English.
+        # Note: Old sphinx projects has been configured as "langugae = None" because
+        #       sphinx-quickstart had generated the configuration by default formerly.
+        #       To keep compatibility, they should be fallback to 'en' for a while
+        #       (At least 2 years or more since v5.0 release).
         if namespace.get("language", ...) is None:
             logging.warning(__("Invalid configuration found: 'language = None'. "
                                "Now it takes only a string. Please update your configuration. "
