@@ -36,7 +36,7 @@ Documentation using the alabaster theme
 * `pytest <https://docs.pytest.org/>`__ (customized)
 * `python-apt <https://apt.alioth.debian.org/python-apt-doc/>`__
 * `PyVisfile <https://documen.tician.de/pyvisfile/>`__
-* `Requests <http://www.python-requests.org/>`__
+* `Requests <https://requests.readthedocs.io/>`__
 * `searx <https://asciimoo.github.io/searx/>`__
 * `Spyder <https://docs.spyder-ide.org/>`__ (customized)
 * `Tablib <http://docs.python-tablib.org/>`__
