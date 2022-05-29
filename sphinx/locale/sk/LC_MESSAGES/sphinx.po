@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-05-22 00:18+0000\n"
+"POT-Creation-Date: 2022-05-29 07:39+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Slavko <linux@slavino.sk>, 2013-2019,2021\n"
 "Language-Team: Slovak (http://www.transifex.com/sphinx-doc/sphinx-1/language/sk/)\n"
@@ -68,7 +68,7 @@ msgstr "'setup' definovaný v conf.py nie je funkciou. Prosím, upravte jeho def
 msgid "loading translations [%s]... "
 msgstr "načítanie prekladov [%s]…"
 
-#: sphinx/application.py:282 sphinx/util/__init__.py:504
+#: sphinx/application.py:282 sphinx/util/__init__.py:509
 msgid "done"
 msgstr "hotovo"
 
@@ -89,55 +89,55 @@ msgstr "zlyhalo: %s"
 msgid "No builder selected, using default: html"
 msgstr "Nebol zvolený builder, bude použitý predvolený: html"
 
-#: sphinx/application.py:334
+#: sphinx/application.py:343
 msgid "succeeded"
 msgstr "úspešné"
 
-#: sphinx/application.py:335
+#: sphinx/application.py:344
 msgid "finished with problems"
 msgstr "dokončené sproblémami"
 
-#: sphinx/application.py:339
+#: sphinx/application.py:348
 #, python-format
 msgid "build %s, %s warning (with warnings treated as errors)."
 msgstr "zostavenie %s, %s upozornenia/a (upozornenia považované za chyby)."
 
-#: sphinx/application.py:341
+#: sphinx/application.py:350
 #, python-format
 msgid "build %s, %s warnings (with warnings treated as errors)."
 msgstr "zostavenie %s, %s upozornenia/a (upozornenia považované za chyby)."
 
-#: sphinx/application.py:344
+#: sphinx/application.py:353
 #, python-format
 msgid "build %s, %s warning."
 msgstr "zostavenie %s, %s upozornenie."
 
-#: sphinx/application.py:346
+#: sphinx/application.py:355
 #, python-format
 msgid "build %s, %s warnings."
 msgstr "zostavenie %s, %s upozornenie/a."
 
-#: sphinx/application.py:350
+#: sphinx/application.py:359
 #, python-format
 msgid "build %s."
 msgstr "zostavenie %s."
 
-#: sphinx/application.py:580
+#: sphinx/application.py:581
 #, python-format
 msgid "node class %r is already registered, its visitors will be overridden"
 msgstr "trieda uzla %r už je registrovaná, jej metódy (visitors) budú prepísané"
 
-#: sphinx/application.py:658
+#: sphinx/application.py:659
 #, python-format
 msgid "directive %r is already registered, it will be overridden"
 msgstr "direktíva %r už je registrovaná, bude prepísaná"
 
-#: sphinx/application.py:679 sphinx/application.py:700
+#: sphinx/application.py:680 sphinx/application.py:701
 #, python-format
 msgid "role %r is already registered, it will be overridden"
 msgstr "rola %r už je registrovaná, bude prepísaná"
 
-#: sphinx/application.py:1248
+#: sphinx/application.py:1249
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel reading, "
@@ -145,12 +145,12 @@ msgid ""
 "explicit"
 msgstr "rozšírenie %s nedeklaruje, či je bezpečné pri paralelnom čítaní, predpokladá sa, že nie - prosím, požiadajte autora aby to skontroloval a explicitne to nastavil"
 
-#: sphinx/application.py:1252
+#: sphinx/application.py:1253
 #, python-format
 msgid "the %s extension is not safe for parallel reading"
 msgstr "rozšírenie %s nie je bezpečné pre paralelné zostavenie"
 
-#: sphinx/application.py:1255
+#: sphinx/application.py:1256
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel writing, "
@@ -158,12 +158,12 @@ msgid ""
 "explicit"
 msgstr "rozšírenie %s nedeklaruje, či je bezpečné pri paralelnom čítaní, predpokladáme, že nie je – prosím, požiadajte autora aby to skontroloval a explicitne to nastavil"
 
-#: sphinx/application.py:1259
+#: sphinx/application.py:1260
 #, python-format
 msgid "the %s extension is not safe for parallel writing"
 msgstr "rozšírenie %s nie je bezpečné pre paralelné zostavenie"
 
-#: sphinx/application.py:1267 sphinx/application.py:1271
+#: sphinx/application.py:1268 sphinx/application.py:1272
 #, python-format
 msgid "doing serial %s"
 msgstr "sériové spracovanie %s"
@@ -173,49 +173,55 @@ msgstr "sériové spracovanie %s"
 msgid "config directory doesn't contain a conf.py file (%s)"
 msgstr "konfiguračný priečinok neobsahuje súbor conf.py (%s)"
 
-#: sphinx/config.py:190
+#: sphinx/config.py:172
+msgid ""
+"Invalid configuration value found: 'language = None'. Update your "
+"configuration to a valid langauge code. Falling back to 'en' (English)."
+msgstr ""
+
+#: sphinx/config.py:201
 #, python-format
 msgid ""
 "cannot override dictionary config setting %r, ignoring (use %r to set "
 "individual elements)"
 msgstr "nemožno prepísať slovník nastavenia %r, ignorované (použite %r na nastavenie jednotlivých prvkov)"
 
-#: sphinx/config.py:199
+#: sphinx/config.py:210
 #, python-format
 msgid "invalid number %r for config value %r, ignoring"
 msgstr "neplatný počet %r pre konfiguračnú hodnotu %r, ignorované"
 
-#: sphinx/config.py:204
+#: sphinx/config.py:215
 #, python-format
 msgid "cannot override config setting %r with unsupported type, ignoring"
 msgstr "nemožno prepísať konfiguračné nastavenie %r s nepodporovaným typom, ignorované"
 
-#: sphinx/config.py:233
+#: sphinx/config.py:244
 #, python-format
 msgid "unknown config value %r in override, ignoring"
 msgstr "neznáma konfiguračná hodnota %r v prepísaní, ignorované"
 
-#: sphinx/config.py:261
+#: sphinx/config.py:272
 #, python-format
 msgid "No such config value: %s"
 msgstr "Neznáma konfiguračná hodnota: %s"
 
-#: sphinx/config.py:285
+#: sphinx/config.py:296
 #, python-format
 msgid "Config value %r already present"
 msgstr "Konfiguračná hodnota %r už existuje"
 
-#: sphinx/config.py:334
+#: sphinx/config.py:345
 #, python-format
 msgid "There is a syntax error in your configuration file: %s\n"
 msgstr "Vo svojom konfiguračnom súbore máte chybu: %s\n"
 
-#: sphinx/config.py:337
+#: sphinx/config.py:348
 msgid ""
 "The configuration file (or one of the modules it imports) called sys.exit()"
 msgstr "Konfiguračný súbor (alebo jeden z modulov, ktoré importuje) volal sys.exit()"
 
-#: sphinx/config.py:344
+#: sphinx/config.py:355
 #, python-format
 msgid ""
 "There is a programmable error in your configuration file:\n"
@@ -223,57 +229,57 @@ msgid ""
 "%s"
 msgstr "V konfiguračnom súbore je programová chyba:\n\n%s"
 
-#: sphinx/config.py:370
+#: sphinx/config.py:381
 #, python-format
 msgid ""
 "The config value `source_suffix' expects a string, list of strings, or "
 "dictionary. But `%r' is given."
 msgstr "Konfiguračná hodnota „source_suffix” očakáva reťazec, zoznam reťazcov alebo slovník, ale zadali ste „%r”."
 
-#: sphinx/config.py:389
+#: sphinx/config.py:400
 #, python-format
 msgid "Section %s"
 msgstr "Sekcia %s"
 
-#: sphinx/config.py:390
+#: sphinx/config.py:401
 #, python-format
 msgid "Fig. %s"
 msgstr "Obr. %s"
 
-#: sphinx/config.py:391
+#: sphinx/config.py:402
 #, python-format
 msgid "Table %s"
 msgstr "Tabuľka %s"
 
-#: sphinx/config.py:392
+#: sphinx/config.py:403
 #, python-format
 msgid "Listing %s"
 msgstr "Výpis %s"
 
-#: sphinx/config.py:429
+#: sphinx/config.py:440
 msgid ""
 "The config value `{name}` has to be a one of {candidates}, but `{current}` "
 "is given."
 msgstr "Konfiguračná hodnota `{name}` má byť jedno z {candidates}, ale je zadané `{current}`."
 
-#: sphinx/config.py:447
+#: sphinx/config.py:458
 msgid ""
 "The config value `{name}' has type `{current.__name__}'; expected "
 "{permitted}."
 msgstr "Konfiguračná hodnota `{name}' má typ `{current.__name__}'; očakávané {permitted}."
 
-#: sphinx/config.py:460
+#: sphinx/config.py:471
 msgid ""
 "The config value `{name}' has type `{current.__name__}', defaults to "
 "`{default.__name__}'."
 msgstr "Konfiguračná hodnota `{name}' má typ `{current.__name__}', predvolene `{default.__name__}'."
 
-#: sphinx/config.py:470
+#: sphinx/config.py:481
 #, python-format
 msgid "primary_domain %r not found, ignored."
 msgstr "primary_domain %r nenájdená, ignorované."
 
-#: sphinx/config.py:482
+#: sphinx/config.py:493
 msgid ""
 "Since v2.0, Sphinx uses \"index\" as root_doc by default. Please add "
 "\"root_doc = 'contents'\" to your conf.py."
@@ -511,173 +517,169 @@ msgstr "nájdená sphinx_rtd_theme (< 0.3.0). Táto nebude dostupná od Sphinx-6
 msgid "no theme named %r found (missing theme.conf?)"
 msgstr "nebola nájdená téma  smenom %r (chýbajúci theme.conf?)"
 
-#: sphinx/builders/__init__.py:185
+#: sphinx/builders/__init__.py:186
 #, python-format
 msgid "a suitable image for %s builder not found: %s (%s)"
 msgstr "vhodný obrázok pre zostavovač %s nenájdený: %s (%s)"
 
-#: sphinx/builders/__init__.py:189
+#: sphinx/builders/__init__.py:190
 #, python-format
 msgid "a suitable image for %s builder not found: %s"
 msgstr "vhodný obrázok pre zostavovač %s nenájdený: %s"
 
-#: sphinx/builders/__init__.py:209
+#: sphinx/builders/__init__.py:210
 msgid "building [mo]: "
 msgstr "zostavenie [mo]: "
 
-#: sphinx/builders/__init__.py:210 sphinx/builders/__init__.py:541
-#: sphinx/builders/__init__.py:567
+#: sphinx/builders/__init__.py:211 sphinx/builders/__init__.py:548
+#: sphinx/builders/__init__.py:575
 msgid "writing output... "
 msgstr "zápis výstupu…"
 
-#: sphinx/builders/__init__.py:219
+#: sphinx/builders/__init__.py:220
 #, python-format
 msgid "all of %d po files"
 msgstr "všetky z %d súborov po"
 
-#: sphinx/builders/__init__.py:237
+#: sphinx/builders/__init__.py:238
 #, python-format
 msgid "targets for %d po files that are specified"
 msgstr "ciele pre %d po súborov, ktoré boli zadané"
 
-#: sphinx/builders/__init__.py:244
+#: sphinx/builders/__init__.py:245
 #, python-format
 msgid "targets for %d po files that are out of date"
 msgstr "ciele pre %d po súborov, ktoré sú zastarané"
 
-#: sphinx/builders/__init__.py:251
+#: sphinx/builders/__init__.py:252
 msgid "all source files"
 msgstr "všetky zdrojové súbory"
 
-#: sphinx/builders/__init__.py:263
+#: sphinx/builders/__init__.py:264
 #, python-format
 msgid ""
 "file %r given on command line is not under the source directory, ignoring"
 msgstr "súbor %r zadaný v príkazovom riadku nie je v zdrojovom adresári, ignorujem"
 
-#: sphinx/builders/__init__.py:267
+#: sphinx/builders/__init__.py:268
 #, python-format
 msgid "file %r given on command line does not exist, ignoring"
 msgstr "súbor %r zadaný v príkazovom riadku neexistuje, ignorujem"
 
-#: sphinx/builders/__init__.py:278
+#: sphinx/builders/__init__.py:279
 #, python-format
 msgid "%d source files given on command line"
 msgstr "%d zdrojové súbory zadané v príkazovom riadku"
 
-#: sphinx/builders/__init__.py:288
+#: sphinx/builders/__init__.py:289
 #, python-format
 msgid "targets for %d source files that are out of date"
 msgstr "ciele pre %d zdrojových súborov, ktoré sú zastarané"
 
-#: sphinx/builders/__init__.py:297 sphinx/builders/gettext.py:232
+#: sphinx/builders/__init__.py:298 sphinx/builders/gettext.py:233
 #, python-format
 msgid "building [%s]: "
 msgstr "zostavovanie [%s]: "
 
-#: sphinx/builders/__init__.py:304
+#: sphinx/builders/__init__.py:305
 msgid "looking for now-outdated files... "
 msgstr "hľadanie zastaraných súborov…"
 
-#: sphinx/builders/__init__.py:309
+#: sphinx/builders/__init__.py:310
 #, python-format
 msgid "%d found"
 msgstr "%d nájdené"
 
-#: sphinx/builders/__init__.py:311
+#: sphinx/builders/__init__.py:312
 msgid "none found"
 msgstr "nenájdené"
 
-#: sphinx/builders/__init__.py:316
+#: sphinx/builders/__init__.py:317
 msgid "pickling environment"
 msgstr "ukladanie prostredia"
 
-#: sphinx/builders/__init__.py:322
+#: sphinx/builders/__init__.py:323
 msgid "checking consistency"
 msgstr "kontrolovanie konzistencie"
 
-#: sphinx/builders/__init__.py:326
+#: sphinx/builders/__init__.py:327
 msgid "no targets are out of date."
 msgstr "žiadne ciele nie sú zastarané."
 
-#: sphinx/builders/__init__.py:365
+#: sphinx/builders/__init__.py:366
 msgid "updating environment: "
 msgstr "aktualizácia prostredia:"
 
-#: sphinx/builders/__init__.py:386
+#: sphinx/builders/__init__.py:387
 #, python-format
 msgid "%s added, %s changed, %s removed"
 msgstr "%s pridané, %s zmenené, %s odstránené"
 
-#: sphinx/builders/__init__.py:424 sphinx/builders/__init__.py:451
+#: sphinx/builders/__init__.py:425 sphinx/builders/__init__.py:437
 msgid "reading sources... "
 msgstr "čítanie zdrojov…"
 
-#: sphinx/builders/__init__.py:456 sphinx/builders/__init__.py:577
-msgid "waiting for workers..."
-msgstr "čakanie na procesy…"
-
-#: sphinx/builders/__init__.py:519
+#: sphinx/builders/__init__.py:526
 #, python-format
 msgid "docnames to write: %s"
 msgstr "mená dokumentov na zapísanie: %s"
 
-#: sphinx/builders/__init__.py:528 sphinx/builders/singlehtml.py:145
+#: sphinx/builders/__init__.py:535 sphinx/builders/singlehtml.py:145
 msgid "preparing documents"
 msgstr "príprava dokumentov"
 
-#: sphinx/builders/_epub_base.py:208
+#: sphinx/builders/_epub_base.py:209
 #, python-format
 msgid "duplicated ToC entry found: %s"
 msgstr "nájdená duplicitná položka Obsahu: %s"
 
-#: sphinx/builders/_epub_base.py:397 sphinx/builders/html/__init__.py:746
+#: sphinx/builders/_epub_base.py:398 sphinx/builders/html/__init__.py:746
 #: sphinx/builders/latex/__init__.py:410 sphinx/builders/texinfo.py:173
 msgid "copying images... "
 msgstr "kopírovanie obrázkov…"
 
-#: sphinx/builders/_epub_base.py:404
+#: sphinx/builders/_epub_base.py:405
 #, python-format
 msgid "cannot read image file %r: copying it instead"
 msgstr "nemožno čítať súbor obrázku %r: jeho kopírovanie namiesto toho"
 
-#: sphinx/builders/_epub_base.py:410 sphinx/builders/html/__init__.py:754
+#: sphinx/builders/_epub_base.py:411 sphinx/builders/html/__init__.py:754
 #: sphinx/builders/latex/__init__.py:418 sphinx/builders/texinfo.py:183
 #, python-format
 msgid "cannot copy image file %r: %s"
 msgstr "nemožno kopírovať súbor obrázka %r: %s"
 
-#: sphinx/builders/_epub_base.py:427
+#: sphinx/builders/_epub_base.py:428
 #, python-format
 msgid "cannot write image file %r: %s"
 msgstr "nemožno zapísať súbor obrázka %r: %s"
 
-#: sphinx/builders/_epub_base.py:437
+#: sphinx/builders/_epub_base.py:438
 msgid "Pillow not found - copying image files"
 msgstr "Pillow nenájdené – kopírovanie súborov obrázkov"
 
-#: sphinx/builders/_epub_base.py:463
+#: sphinx/builders/_epub_base.py:464
 msgid "writing mimetype file..."
 msgstr "zapisovanie súboru mimetype…"
 
-#: sphinx/builders/_epub_base.py:468
+#: sphinx/builders/_epub_base.py:469
 msgid "writing META-INF/container.xml file..."
 msgstr "zapisovanie súboru META-INF/container.xml…"
 
-#: sphinx/builders/_epub_base.py:496
+#: sphinx/builders/_epub_base.py:497
 msgid "writing content.opf file..."
 msgstr "zapisovanie súboru content.opf..."
 
-#: sphinx/builders/_epub_base.py:522
+#: sphinx/builders/_epub_base.py:523
 #, python-format
 msgid "unknown mimetype for %s, ignoring"
 msgstr "neznámy typ MIME pre %s, ignorovaný"
 
-#: sphinx/builders/_epub_base.py:669
+#: sphinx/builders/_epub_base.py:670
 msgid "writing toc.ncx file..."
 msgstr "zapisovanie súboru toc.ncx..."
 
-#: sphinx/builders/_epub_base.py:694
+#: sphinx/builders/_epub_base.py:695
 #, python-format
 msgid "writing %s file..."
 msgstr "zapisovanie súboru %s…"
@@ -771,21 +773,21 @@ msgstr "konfiguračná hodnota „version” nesmie byť prázdna pri EPUB3"
 msgid "invalid css_file: %r, ignored"
 msgstr "neplatný css_file: %r, ignorovaný"
 
-#: sphinx/builders/gettext.py:211
+#: sphinx/builders/gettext.py:212
 #, python-format
 msgid "The message catalogs are in %(outdir)s."
 msgstr "Katalógy správ sú v %(outdir)s."
 
-#: sphinx/builders/gettext.py:233
+#: sphinx/builders/gettext.py:234
 #, python-format
 msgid "targets for %d template files"
 msgstr ""
 
-#: sphinx/builders/gettext.py:237
+#: sphinx/builders/gettext.py:238
 msgid "reading templates... "
 msgstr "čítanie šablón… "
 
-#: sphinx/builders/gettext.py:265
+#: sphinx/builders/gettext.py:266
 msgid "writing message catalogs... "
 msgstr "zapisovanie katalógov správ…"
 
@@ -2700,10 +2702,12 @@ msgstr "[graf]"
 #: sphinx/ext/imgconverter.py:33
 #, python-format
 msgid ""
-"convert command %r cannot be run, check the image_converter setting: %s"
-msgstr "príkaz convert %r nemožno spustiť, skontrolujte nastavenia image_converter: 1%s"
+"Unable to run the image conversion command %r. 'sphinx.ext.imgconverter' requires ImageMagick by default. Ensure it is installed, or set the 'image_converter' option to a custom conversion command.\n"
+"\n"
+"Traceback: %s"
+msgstr ""
 
-#: sphinx/ext/imgconverter.py:38 sphinx/ext/imgconverter.py:62
+#: sphinx/ext/imgconverter.py:42 sphinx/ext/imgconverter.py:66
 #, python-format
 msgid ""
 "convert exited with error:\n"
@@ -2713,7 +2717,7 @@ msgid ""
 "%r"
 msgstr "convert skončil chybou:\n[stderr]\n%r\n[stdout]\n%r"
 
-#: sphinx/ext/imgconverter.py:57
+#: sphinx/ext/imgconverter.py:61
 #, python-format
 msgid "convert command %r cannot be run, check the image_converter setting"
 msgstr "príkaz convert %r nemožno spustiť, skontrolujte nastavenie image_converter"
@@ -3530,11 +3534,11 @@ msgstr "Neznámy formát obrázku: %s..."
 msgid "undecodable source characters, replacing with \"?\": %r"
 msgstr "nedekódovateľné zdrojové znaky, nahradené „?”: %r"
 
-#: sphinx/util/__init__.py:497
+#: sphinx/util/__init__.py:502
 msgid "skipped"
 msgstr "preskočené"
 
-#: sphinx/util/__init__.py:502
+#: sphinx/util/__init__.py:507
 msgid "failed"
 msgstr "zlyhalo"
 

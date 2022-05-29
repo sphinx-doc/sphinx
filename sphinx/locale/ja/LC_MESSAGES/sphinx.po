@@ -15,7 +15,7 @@
 # Taizo Ito <taizo.ito@hennge.com>, 2019
 # Takayuki SHIMIZUKAWA <shimizukawa@gmail.com>, 2013-2016
 # Takayuki SHIMIZUKAWA <shimizukawa@gmail.com>, 2016-2017,2019
-# Takeshi KOMIYA <i.tkomiya@gmail.com>, 2016-2017,2019
+# Takeshi KOMIYA <i.tkomiya@gmail.com>, 2016-2017,2019,2022
 # Tetsuo Koyama <tkoyama010@gmail.com>, 2020-2021
 # tomo, 2019
 # shirou - しろう <shirou.faw@gmail.com>, 2014
@@ -24,9 +24,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-05-22 00:18+0000\n"
+"POT-Creation-Date: 2022-05-29 07:39+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
-"Last-Translator: KaKkouo, 2021\n"
+"Last-Translator: Takeshi KOMIYA <i.tkomiya@gmail.com>, 2016-2017,2019,2022\n"
 "Language-Team: Japanese (http://www.transifex.com/sphinx-doc/sphinx-1/language/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -82,7 +82,7 @@ msgstr "conf.pyにある'setup'はPythonのcallableではありません。定�
 msgid "loading translations [%s]... "
 msgstr "翻訳カタログをロードしています [%s]... "
 
-#: sphinx/application.py:282 sphinx/util/__init__.py:504
+#: sphinx/application.py:282 sphinx/util/__init__.py:509
 msgid "done"
 msgstr "完了"
 
@@ -103,55 +103,55 @@ msgstr "失敗: %s"
 msgid "No builder selected, using default: html"
 msgstr "ビルダーが選択されていないので、デフォルトの html を使用します"
 
-#: sphinx/application.py:334
+#: sphinx/application.py:343
 msgid "succeeded"
 msgstr "成功"
 
-#: sphinx/application.py:335
+#: sphinx/application.py:344
 msgid "finished with problems"
 msgstr "完了（問題あり）"
 
-#: sphinx/application.py:339
+#: sphinx/application.py:348
 #, python-format
 msgid "build %s, %s warning (with warnings treated as errors)."
 msgstr "警告%s、%sをビルドします（警告はエラーとして扱われます）。"
 
-#: sphinx/application.py:341
+#: sphinx/application.py:350
 #, python-format
 msgid "build %s, %s warnings (with warnings treated as errors)."
 msgstr "警告%s、%sをビルドします（警告はエラーとして扱われます）。"
 
-#: sphinx/application.py:344
+#: sphinx/application.py:353
 #, python-format
 msgid "build %s, %s warning."
 msgstr "ビルド %s, %s warning."
 
-#: sphinx/application.py:346
+#: sphinx/application.py:355
 #, python-format
 msgid "build %s, %s warnings."
 msgstr "ビルド %s, %s 警告."
 
-#: sphinx/application.py:350
+#: sphinx/application.py:359
 #, python-format
 msgid "build %s."
 msgstr "ビルド %s."
 
-#: sphinx/application.py:580
+#: sphinx/application.py:581
 #, python-format
 msgid "node class %r is already registered, its visitors will be overridden"
 msgstr "nodeクラス %r は既に登録されています。visitor関数は上書きされます"
 
-#: sphinx/application.py:658
+#: sphinx/application.py:659
 #, python-format
 msgid "directive %r is already registered, it will be overridden"
 msgstr "ディレクティブ %r は既に登録されています。ディレクティブは上書きされます"
 
-#: sphinx/application.py:679 sphinx/application.py:700
+#: sphinx/application.py:680 sphinx/application.py:701
 #, python-format
 msgid "role %r is already registered, it will be overridden"
 msgstr "ロール %r は既に登録されています。ロールは上書きされます"
 
-#: sphinx/application.py:1248
+#: sphinx/application.py:1249
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel reading, "
@@ -159,12 +159,12 @@ msgid ""
 "explicit"
 msgstr "拡張 %s は並列読み込みが可能かどうかを宣言していないため、おそらく並列読み込みに対応していないでしょう。拡張の実装者に連絡して、明示してもらってください。"
 
-#: sphinx/application.py:1252
+#: sphinx/application.py:1253
 #, python-format
 msgid "the %s extension is not safe for parallel reading"
 msgstr "%s拡張は並列読み込みに対して安全ではありません"
 
-#: sphinx/application.py:1255
+#: sphinx/application.py:1256
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel writing, "
@@ -172,12 +172,12 @@ msgid ""
 "explicit"
 msgstr "拡張 %s は並列書き込みが可能かどうかを宣言していないため、おそらく並列書き込みに対応していないでしょう。拡張の実装者に連絡して、明示してもらってください。"
 
-#: sphinx/application.py:1259
+#: sphinx/application.py:1260
 #, python-format
 msgid "the %s extension is not safe for parallel writing"
 msgstr "%s拡張は並列書き込みに対して安全ではありません"
 
-#: sphinx/application.py:1267 sphinx/application.py:1271
+#: sphinx/application.py:1268 sphinx/application.py:1272
 #, python-format
 msgid "doing serial %s"
 msgstr "直列で %sします"
@@ -187,49 +187,55 @@ msgstr "直列で %sします"
 msgid "config directory doesn't contain a conf.py file (%s)"
 msgstr "conf.py が設定ディレクトリに存在しません (%s)"
 
-#: sphinx/config.py:190
+#: sphinx/config.py:172
+msgid ""
+"Invalid configuration value found: 'language = None'. Update your "
+"configuration to a valid langauge code. Falling back to 'en' (English)."
+msgstr ""
+
+#: sphinx/config.py:201
 #, python-format
 msgid ""
 "cannot override dictionary config setting %r, ignoring (use %r to set "
 "individual elements)"
 msgstr "設定値の辞書 %r は上書きないため無視されました (%r を使って個別に設定してください)"
 
-#: sphinx/config.py:199
+#: sphinx/config.py:210
 #, python-format
 msgid "invalid number %r for config value %r, ignoring"
 msgstr "%r は設定値 %r の正しい値ではないため無視されました"
 
-#: sphinx/config.py:204
+#: sphinx/config.py:215
 #, python-format
 msgid "cannot override config setting %r with unsupported type, ignoring"
 msgstr "%r は正しい型ではないため無視されました"
 
-#: sphinx/config.py:233
+#: sphinx/config.py:244
 #, python-format
 msgid "unknown config value %r in override, ignoring"
 msgstr "不明な設定値 %r による上書きは無視されました"
 
-#: sphinx/config.py:261
+#: sphinx/config.py:272
 #, python-format
 msgid "No such config value: %s"
 msgstr "%s という設定値はありません"
 
-#: sphinx/config.py:285
+#: sphinx/config.py:296
 #, python-format
 msgid "Config value %r already present"
 msgstr "設定値 %r は既に登録済みです"
 
-#: sphinx/config.py:334
+#: sphinx/config.py:345
 #, python-format
 msgid "There is a syntax error in your configuration file: %s\n"
 msgstr "設定ファイルに文法エラーが見つかりました: %s\n"
 
-#: sphinx/config.py:337
+#: sphinx/config.py:348
 msgid ""
 "The configuration file (or one of the modules it imports) called sys.exit()"
 msgstr "設定ファイル（あるいはインポートしたどれかのモジュール）がsys.exit()を呼びました"
 
-#: sphinx/config.py:344
+#: sphinx/config.py:355
 #, python-format
 msgid ""
 "There is a programmable error in your configuration file:\n"
@@ -237,57 +243,57 @@ msgid ""
 "%s"
 msgstr "設定ファイルにプログラム上のエラーがあります:\n\n%s"
 
-#: sphinx/config.py:370
+#: sphinx/config.py:381
 #, python-format
 msgid ""
 "The config value `source_suffix' expects a string, list of strings, or "
 "dictionary. But `%r' is given."
 msgstr "設定値 `source_suffix' に `%r' が指定されましたが、文字列、文字列のリスト、辞書、のいずれかを指定してください。"
 
-#: sphinx/config.py:389
+#: sphinx/config.py:400
 #, python-format
 msgid "Section %s"
 msgstr "%s 章"
 
-#: sphinx/config.py:390
+#: sphinx/config.py:401
 #, python-format
 msgid "Fig. %s"
 msgstr "図 %s"
 
-#: sphinx/config.py:391
+#: sphinx/config.py:402
 #, python-format
 msgid "Table %s"
 msgstr "表 %s"
 
-#: sphinx/config.py:392
+#: sphinx/config.py:403
 #, python-format
 msgid "Listing %s"
 msgstr "リスト %s"
 
-#: sphinx/config.py:429
+#: sphinx/config.py:440
 msgid ""
 "The config value `{name}` has to be a one of {candidates}, but `{current}` "
 "is given."
 msgstr " 設定値 `{name}` に `{current}` が指定されましたが、  {candidates} のいずれかを指定してください。"
 
-#: sphinx/config.py:447
+#: sphinx/config.py:458
 msgid ""
 "The config value `{name}' has type `{current.__name__}'; expected "
 "{permitted}."
 msgstr "設定値 `{name}' に `{current.__name__}' 型が指定されていますが、 {permitted} 型を指定してください。"
 
-#: sphinx/config.py:460
+#: sphinx/config.py:471
 msgid ""
 "The config value `{name}' has type `{current.__name__}', defaults to "
 "`{default.__name__}'."
 msgstr "設定値 `{name}' に `{current.__name__}' 型が指定されています。デフォルト値は `{default.__name__}' です。"
 
-#: sphinx/config.py:470
+#: sphinx/config.py:481
 #, python-format
 msgid "primary_domain %r not found, ignored."
 msgstr "primary_domain %r が見つかりません。無視します。"
 
-#: sphinx/config.py:482
+#: sphinx/config.py:493
 msgid ""
 "Since v2.0, Sphinx uses \"index\" as root_doc by default. Please add "
 "\"root_doc = 'contents'\" to your conf.py."
@@ -525,173 +531,169 @@ msgstr "sphinx_rtd_theme (< 0.3.0) が検出されました。Sphinx-6.0 以降�
 msgid "no theme named %r found (missing theme.conf?)"
 msgstr "テーマ %r がありません(theme.confが見つからない?)"
 
-#: sphinx/builders/__init__.py:185
+#: sphinx/builders/__init__.py:186
 #, python-format
 msgid "a suitable image for %s builder not found: %s (%s)"
 msgstr "%sビルダー向けの画像形式が見つかりません: %s (%s)"
 
-#: sphinx/builders/__init__.py:189
+#: sphinx/builders/__init__.py:190
 #, python-format
 msgid "a suitable image for %s builder not found: %s"
 msgstr "%sビルダー向けの画像形式が見つかりません: %s"
 
-#: sphinx/builders/__init__.py:209
+#: sphinx/builders/__init__.py:210
 msgid "building [mo]: "
 msgstr "ビルド中 [mo]: "
 
-#: sphinx/builders/__init__.py:210 sphinx/builders/__init__.py:541
-#: sphinx/builders/__init__.py:567
+#: sphinx/builders/__init__.py:211 sphinx/builders/__init__.py:548
+#: sphinx/builders/__init__.py:575
 msgid "writing output... "
 msgstr "出力中..."
 
-#: sphinx/builders/__init__.py:219
+#: sphinx/builders/__init__.py:220
 #, python-format
 msgid "all of %d po files"
 msgstr "全%d件のpoファイル"
 
-#: sphinx/builders/__init__.py:237
+#: sphinx/builders/__init__.py:238
 #, python-format
 msgid "targets for %d po files that are specified"
 msgstr "指定された %d 件のpoファイル"
 
-#: sphinx/builders/__init__.py:244
+#: sphinx/builders/__init__.py:245
 #, python-format
 msgid "targets for %d po files that are out of date"
 msgstr "更新された %d 件のpoファイル"
 
-#: sphinx/builders/__init__.py:251
+#: sphinx/builders/__init__.py:252
 msgid "all source files"
 msgstr "全てのソースファイル"
 
-#: sphinx/builders/__init__.py:263
+#: sphinx/builders/__init__.py:264
 #, python-format
 msgid ""
 "file %r given on command line is not under the source directory, ignoring"
 msgstr "コマンドラインに指定されたファイル %r はソースディレクトリ以下にないため無視されます"
 
-#: sphinx/builders/__init__.py:267
+#: sphinx/builders/__init__.py:268
 #, python-format
 msgid "file %r given on command line does not exist, ignoring"
 msgstr "コマンドラインに指定されたファイル %r がないため無視されます"
 
-#: sphinx/builders/__init__.py:278
+#: sphinx/builders/__init__.py:279
 #, python-format
 msgid "%d source files given on command line"
 msgstr "コマンドラインで指定された%d件のソースファイル"
 
-#: sphinx/builders/__init__.py:288
+#: sphinx/builders/__init__.py:289
 #, python-format
 msgid "targets for %d source files that are out of date"
 msgstr "更新された %d 件のソースファイル"
 
-#: sphinx/builders/__init__.py:297 sphinx/builders/gettext.py:232
+#: sphinx/builders/__init__.py:298 sphinx/builders/gettext.py:233
 #, python-format
 msgid "building [%s]: "
 msgstr "ビルド中 [%s]: "
 
-#: sphinx/builders/__init__.py:304
+#: sphinx/builders/__init__.py:305
 msgid "looking for now-outdated files... "
 msgstr "更新されたファイルを探しています... "
 
-#: sphinx/builders/__init__.py:309
+#: sphinx/builders/__init__.py:310
 #, python-format
 msgid "%d found"
 msgstr "%d 件見つかりました"
 
-#: sphinx/builders/__init__.py:311
+#: sphinx/builders/__init__.py:312
 msgid "none found"
 msgstr "見つかりませんでした"
 
-#: sphinx/builders/__init__.py:316
+#: sphinx/builders/__init__.py:317
 msgid "pickling environment"
 msgstr "環境データを保存中"
 
-#: sphinx/builders/__init__.py:322
+#: sphinx/builders/__init__.py:323
 msgid "checking consistency"
 msgstr "整合性をチェック中"
 
-#: sphinx/builders/__init__.py:326
+#: sphinx/builders/__init__.py:327
 msgid "no targets are out of date."
 msgstr "更新が必要な対象はありませんでした"
 
-#: sphinx/builders/__init__.py:365
+#: sphinx/builders/__init__.py:366
 msgid "updating environment: "
 msgstr "環境データを更新中"
 
-#: sphinx/builders/__init__.py:386
+#: sphinx/builders/__init__.py:387
 #, python-format
 msgid "%s added, %s changed, %s removed"
 msgstr "%s 件追加, %s 件更新, %s 件削除"
 
-#: sphinx/builders/__init__.py:424 sphinx/builders/__init__.py:451
+#: sphinx/builders/__init__.py:425 sphinx/builders/__init__.py:437
 msgid "reading sources... "
 msgstr "ソースを読み込み中..."
 
-#: sphinx/builders/__init__.py:456 sphinx/builders/__init__.py:577
-msgid "waiting for workers..."
-msgstr "ワーカーの終了を待っています..."
-
-#: sphinx/builders/__init__.py:519
+#: sphinx/builders/__init__.py:526
 #, python-format
 msgid "docnames to write: %s"
 msgstr "書き込むdocname: %s"
 
-#: sphinx/builders/__init__.py:528 sphinx/builders/singlehtml.py:145
+#: sphinx/builders/__init__.py:535 sphinx/builders/singlehtml.py:145
 msgid "preparing documents"
 msgstr "ドキュメントの出力準備中"
 
-#: sphinx/builders/_epub_base.py:208
+#: sphinx/builders/_epub_base.py:209
 #, python-format
 msgid "duplicated ToC entry found: %s"
 msgstr "Tocエントリーが重複しています: %s"
 
-#: sphinx/builders/_epub_base.py:397 sphinx/builders/html/__init__.py:746
+#: sphinx/builders/_epub_base.py:398 sphinx/builders/html/__init__.py:746
 #: sphinx/builders/latex/__init__.py:410 sphinx/builders/texinfo.py:173
 msgid "copying images... "
 msgstr "画像をコピー中... "
 
-#: sphinx/builders/_epub_base.py:404
+#: sphinx/builders/_epub_base.py:405
 #, python-format
 msgid "cannot read image file %r: copying it instead"
 msgstr "画像ファイル %r をPILで読み込めないため、そのままコピーします"
 
-#: sphinx/builders/_epub_base.py:410 sphinx/builders/html/__init__.py:754
+#: sphinx/builders/_epub_base.py:411 sphinx/builders/html/__init__.py:754
 #: sphinx/builders/latex/__init__.py:418 sphinx/builders/texinfo.py:183
 #, python-format
 msgid "cannot copy image file %r: %s"
 msgstr "画像ファイル %r をコピーできません: %s"
 
-#: sphinx/builders/_epub_base.py:427
+#: sphinx/builders/_epub_base.py:428
 #, python-format
 msgid "cannot write image file %r: %s"
 msgstr "画像ファイル %r を書き込めません: %s"
 
-#: sphinx/builders/_epub_base.py:437
+#: sphinx/builders/_epub_base.py:438
 msgid "Pillow not found - copying image files"
 msgstr "Pillowがインストールされていません。代わりに画像をコピーします"
 
-#: sphinx/builders/_epub_base.py:463
+#: sphinx/builders/_epub_base.py:464
 msgid "writing mimetype file..."
 msgstr "mimetype を書き込み中..."
 
-#: sphinx/builders/_epub_base.py:468
+#: sphinx/builders/_epub_base.py:469
 msgid "writing META-INF/container.xml file..."
 msgstr "META-INF/container.xml を書き込み中..."
 
-#: sphinx/builders/_epub_base.py:496
+#: sphinx/builders/_epub_base.py:497
 msgid "writing content.opf file..."
 msgstr "content.opf を書き込み中..."
 
-#: sphinx/builders/_epub_base.py:522
+#: sphinx/builders/_epub_base.py:523
 #, python-format
 msgid "unknown mimetype for %s, ignoring"
 msgstr "不明なmimetype %sのため無視します"
 
-#: sphinx/builders/_epub_base.py:669
+#: sphinx/builders/_epub_base.py:670
 msgid "writing toc.ncx file..."
 msgstr "tox.ncx を書き込み中..."
 
-#: sphinx/builders/_epub_base.py:694
+#: sphinx/builders/_epub_base.py:695
 #, python-format
 msgid "writing %s file..."
 msgstr "ファイル %s を書き込み中..."
@@ -785,21 +787,21 @@ msgstr "EPUB3出力では設定値 \"version\" が必要です"
 msgid "invalid css_file: %r, ignored"
 msgstr "無効な css_file %r は無視されました"
 
-#: sphinx/builders/gettext.py:211
+#: sphinx/builders/gettext.py:212
 #, python-format
 msgid "The message catalogs are in %(outdir)s."
 msgstr "メッセージカタログは%(outdir)sにあります。"
 
-#: sphinx/builders/gettext.py:233
+#: sphinx/builders/gettext.py:234
 #, python-format
 msgid "targets for %d template files"
 msgstr "指定された %d 件のテンプレートファイル"
 
-#: sphinx/builders/gettext.py:237
+#: sphinx/builders/gettext.py:238
 msgid "reading templates... "
 msgstr "テンプレートの読み込み中..."
 
-#: sphinx/builders/gettext.py:265
+#: sphinx/builders/gettext.py:266
 msgid "writing message catalogs... "
 msgstr "メッセージカタログを出力中... "
 
@@ -2714,10 +2716,12 @@ msgstr "[グラフ]"
 #: sphinx/ext/imgconverter.py:33
 #, python-format
 msgid ""
-"convert command %r cannot be run, check the image_converter setting: %s"
-msgstr "convert コマンド %r を実行できません。image_converter の設定を確認してください: %s"
+"Unable to run the image conversion command %r. 'sphinx.ext.imgconverter' requires ImageMagick by default. Ensure it is installed, or set the 'image_converter' option to a custom conversion command.\n"
+"\n"
+"Traceback: %s"
+msgstr ""
 
-#: sphinx/ext/imgconverter.py:38 sphinx/ext/imgconverter.py:62
+#: sphinx/ext/imgconverter.py:42 sphinx/ext/imgconverter.py:66
 #, python-format
 msgid ""
 "convert exited with error:\n"
@@ -2727,7 +2731,7 @@ msgid ""
 "%r"
 msgstr "変換処理はエラー終了しました:\n[stderr]\n%r\n[stdout]\n%r"
 
-#: sphinx/ext/imgconverter.py:57
+#: sphinx/ext/imgconverter.py:61
 #, python-format
 msgid "convert command %r cannot be run, check the image_converter setting"
 msgstr "convert コマンド %r は実行できません。image_converter の設定を確認してください"
@@ -3196,7 +3200,7 @@ msgstr "参考"
 
 #: sphinx/locale/__init__.py:252
 msgid "Tip"
-msgstr "ちなみに"
+msgstr "Tip"
 
 #: sphinx/locale/__init__.py:253
 msgid "Warning"
@@ -3544,11 +3548,11 @@ msgstr "不明な画像フォーマット: %s..."
 msgid "undecodable source characters, replacing with \"?\": %r"
 msgstr "デコードできないソース文字です。\"?\" に置き換えます: %r"
 
-#: sphinx/util/__init__.py:497
+#: sphinx/util/__init__.py:502
 msgid "skipped"
 msgstr "スキップしました"
 
-#: sphinx/util/__init__.py:502
+#: sphinx/util/__init__.py:507
 msgid "failed"
 msgstr "失敗しました"
 
