@@ -40,17 +40,14 @@ Bugs fixed
 Testing
 --------
 
-Release 5.0.0 beta2 (in development)
-====================================
+Release 5.0.1 (in development)
+==============================
 
 Dependencies
 ------------
 
 Incompatible changes
 --------------------
-
-* #10474: :confval:`language` does not accept ``None`` as it value.  The default
-  value of ``language`` becomes to ``'en'`` now.
 
 Deprecated
 ----------
@@ -61,34 +58,25 @@ Features added
 Bugs fixed
 ----------
 
-* #9575: autodoc: The annotation of return value should not be shown when
-  ``autodoc_typehints="description"``
-* #9648: autodoc: ``*args`` and ``**kwargs`` entries are duplicated when
-  ``autodoc_typehints="description"``
-* #8180: autodoc: Docstring metadata ignored for attributes
-* #10443: epub: EPUB builder can't detect the mimetype of .webp file
-* #10104: gettext: Duplicated locations are shown if 3rd party extension does
-  not provide correct information
-* #10456: py domain: ``:meta:`` fields are displayed if docstring contains two
-  or more meta-field
-* #9096: sphinx-build: the value of progress bar for paralle build is wrong
-* #10110: sphinx-build: exit code is not changed when error is raised on
-  builder-finished event
-
 Testing
 --------
 
-Release 5.0.0 beta1 (released May 09, 2022)
-===========================================
+Release 5.0.0 (released May 30, 2022)
+=====================================
 
 Dependencies
 ------------
+
+5.0.0 b1
+
 * #10164: Support `Docutils 0.18`_. Patch by Adam Turner.
 
 .. _Docutils 0.18:  https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-18-2021-10-26
 
 Incompatible changes
 --------------------
+
+5.0.0 b1
 
 * #10031: autosummary: ``sphinx.ext.autosummary.import_by_name()`` now raises
   ``ImportExceptionGroup`` instead of ``ImportError`` when it failed to import
@@ -108,8 +96,15 @@ Incompatible changes
 * #10062: Change the default language to ``'en'`` if any language is not set in
   ``conf.py``
 
+5.0.0 final
+
+* #10474: :confval:`language` does not accept ``None`` as it value.  The default
+  value of ``language`` becomes to ``'en'`` now.
+
 Deprecated
 ----------
+
+5.0.0 b1
 
 * #10028: jQuery and underscore.js will no longer be automatically injected into
   themes from Sphinx 6.0. If you develop a theme or extension that uses the
@@ -143,6 +138,8 @@ Deprecated
 Features added
 --------------
 
+5.0.0 b1
+
 * #9075: autodoc: The default value of :confval:`autodoc_typehints_format` is
   changed to ``'smart'``.  It will suppress the leading module names of
   typehints (ex. ``io.StringIO`` -> ``StringIO``).
@@ -166,6 +163,8 @@ Features added
 
 Bugs fixed
 ----------
+
+5.0.0 b1
 
 * #10200: apidoc: Duplicated submodules are shown for modules having both .pyx
   and .so files
@@ -196,8 +195,21 @@ Bugs fixed
 * #10318: ``:prepend:`` option of :rst:dir:`literalinclude` directive does not
   work with ``:dedent:`` option
 
-Release 4.5.1 (in development)
-==============================
+5.0.0 final
+
+* #9575: autodoc: The annotation of return value should not be shown when
+  ``autodoc_typehints="description"``
+* #9648: autodoc: ``*args`` and ``**kwargs`` entries are duplicated when
+  ``autodoc_typehints="description"``
+* #8180: autodoc: Docstring metadata ignored for attributes
+* #10443: epub: EPUB builder can't detect the mimetype of .webp file
+* #10104: gettext: Duplicated locations are shown if 3rd party extension does
+  not provide correct information
+* #10456: py domain: ``:meta:`` fields are displayed if docstring contains two
+  or more meta-field
+* #9096: sphinx-build: the value of progress bar for paralle build is wrong
+* #10110: sphinx-build: exit code is not changed when error is raised on
+  builder-finished event
 
 Release 4.5.0 (released Mar 28, 2022)
 =====================================
