@@ -163,6 +163,17 @@ class Config:
             raise ConfigError(__("config directory doesn't contain a conf.py file (%s)") %
                               confdir)
         namespace = eval_config_file(filename, tags)
+
+        # Note: Old sphinx projects have been configured as "langugae = None" because
+        #       sphinx-quickstart previously generated this by default.
+        #       To keep compatibility, they should be fallback to 'en' for a while
+        #       (This conversion should not be removed before 2025-01-01).
+        if namespace.get("language", ...) is None:
+            logger.warning(__("Invalid configuration value found: 'language = None'. "
+                              "Update your configuration to a valid langauge code. "
+                              "Falling back to 'en' (English)."))
+            namespace["language"] = "en"
+
         return cls(namespace, overrides or {})
 
     def convert_overrides(self, name: str, value: Any) -> Any:

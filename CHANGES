@@ -28,6 +28,9 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #10474: :confval:`language` does not accept ``None`` as it value.  The default
+  value of ``language`` becomes to ``'en'`` now.
+
 Deprecated
 ----------
 
