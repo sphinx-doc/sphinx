@@ -155,7 +155,7 @@ div.sphinxsidebar .searchformwrapper {
 
 /* -- sidebars -------------------------------------------------------------- */
 
-div.sidebar {
+div.sidebar, aside.sidebar {
     margin: 0 0 0.5em 1em;
     border: 2px solid #c6d880;
     background-color: #e6efc2;
