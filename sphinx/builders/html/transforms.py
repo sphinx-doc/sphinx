@@ -64,7 +64,6 @@ class KeyboardTransform(SphinxPostTransform):
                     node += nodes.Text(sep)
                 except IndexError:
                     pass
-                _a = 1
 
     def is_multiwords_key(self, parts: List[str]) -> bool:
         if len(parts) >= 3 and parts[1].strip() == '':
