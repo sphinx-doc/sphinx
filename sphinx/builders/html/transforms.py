@@ -42,7 +42,7 @@ class KeyboardTransform(SphinxPostTransform):
         matcher = NodeMatcher(nodes.literal, classes=["kbd"])
         # this list must be pre-created as during iteration new nodes
         # are added which match the condition in the NodeMatcher.
-        nodes_to_expand = list(self.document.findall(matcher))
+        nodes_to_expand: List[nodes.literal] = list(self.document.findall(matcher))
         for node in nodes_to_expand:  # type: nodes.literal
             parts = self.pattern.split(node[-1].astext())
             if len(parts) == 1 or self.is_multiwords_key(parts):
