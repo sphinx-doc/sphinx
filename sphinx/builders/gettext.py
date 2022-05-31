@@ -53,11 +53,15 @@ class Catalog:
         if msg not in self.metadata:  # faster lookup in hash
             self.messages.append(msg)
             self.metadata[msg] = []
-        self.metadata[msg].append((origin.source, origin.line, origin.uid))  # type: ignore
+        line = origin.line
+        if line is None:
+            logger.warning(f"Node {origin!r} has no line number, using '-1'.")
+            line = -1
+        self.metadata[msg].append((origin.source, line, origin.uid))  # type: ignore
 
     def __iter__(self) -> Generator[Message, None, None]:
         for message in self.messages:
-            positions = sorted(set((source, line or -1) for source, line, uuid
+            positions = sorted(set((source, line) for source, line, uuid
                                    in self.metadata[message]))
             uuids = [uuid for source, line, uuid in self.metadata[message]]
             yield Message(message, positions, uuids)
