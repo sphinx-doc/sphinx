@@ -18,4 +18,4 @@ Issue 10496 regression test
 
 .. ifconfig:: false_config
 
-   `Link 2 <https://link2example>`__
+   `Link 2 <https://link2.example>`__
