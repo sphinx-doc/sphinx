@@ -55,4 +55,5 @@ def test_missing_reference_conditional_pending_xref(app, status, warning):
 def test_keyboard_issue_10495(app):
     """Regression test for issue 10495, we want no crash."""
     app.build()
-    assert "blah" in (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert "spanish" in (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert "inquisition" in (app.outdir / 'index.html').read_text(encoding='utf8')
