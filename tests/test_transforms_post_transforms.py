@@ -48,3 +48,11 @@ def test_missing_reference_conditional_pending_xref(app, status, warning):
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert '<span class="n"><span class="pre">Age</span></span>' in content
+
+
+@pytest.mark.sphinx('html', testroot='transforms-post_transforms-keyboard',
+                    freshenv=True)
+def test_keyboard_issue_10495(app):
+    """Regression test for issue 10495, we want no crash."""
+    app.build()
+    assert "blah" in (app.outdir / 'index.html').read_text(encoding='utf8')
