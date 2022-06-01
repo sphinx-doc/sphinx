@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #10498: gettext: TypeError is raised when sorting warning messages if a node
+  has no line number
+
 Testing
 --------
 
