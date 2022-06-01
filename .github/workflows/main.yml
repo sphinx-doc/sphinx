@@ -20,8 +20,8 @@ jobs:
           docutils: du17
         - python: "3.10"
           docutils: du18
-        - python: "3.11-dev"
-          docutils: py311
+        #- python: "3.11-dev"
+        #  docutils: py311
 
     steps:
     - uses: actions/checkout@v3
