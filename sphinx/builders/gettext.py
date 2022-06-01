@@ -55,7 +55,6 @@ class Catalog:
             self.metadata[msg] = []
         line = origin.line
         if line is None:
-            logger.warning(f"Node {origin!r} has no line number, using '-1'.")
             line = -1
         self.metadata[msg].append((origin.source, line, origin.uid))  # type: ignore
 
