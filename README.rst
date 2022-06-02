@@ -10,6 +10,10 @@
    :target: http://www.sphinx-doc.org/
    :alt: Documentation Status
 
+.. image:: https://github.com/sphinx-doc/sphinx/actions/workflows/main.yml/badge.svg
+   :target: https://github.com/sphinx-doc/sphinx/actions/workflows/main.yml
+   :alt: Build Status
+
 .. image:: https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
    :target: https://opensource.org/licenses/BSD-3-Clause
    :alt: BSD 3 Clause
