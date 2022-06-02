@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #10509: autosummary: autosummary fails with a shared library
+
 Testing
 --------
 

@@ -155,8 +155,12 @@ class ModuleScanner:
 
     def scan(self, imported_members: bool) -> List[str]:
         members = []
-        analyzer = ModuleAnalyzer.for_module(self.object.__name__)
-        attr_docs = analyzer.find_attr_docs()
+        try:
+            analyzer = ModuleAnalyzer.for_module(self.object.__name__)
+            attr_docs = analyzer.find_attr_docs()
+        except PycodeError:
+            attr_docs = {}
+
         for name in members_of(self.object, self.app.config):
             try:
                 value = safe_getattr(self.object, name)
