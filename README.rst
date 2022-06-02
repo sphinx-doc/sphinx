@@ -65,29 +65,11 @@ We also publish beta releases::
 If you wish to install Sphinx for development purposes, refer to
 `the contributors guide`_.
 
-Documentation
-=============
-
-Documentation is available from `sphinx-doc.org`_.
-
-Get in touch
-============
-
-- Report bugs, suggest features or view the source code `on GitHub`_.
-- For less well defined questions or ideas, use the `mailing list`_.
-
-Please adhere to our `code of conduct`_.
-
-Testing
-=======
-
-Continuous testing is provided by `GitHub Actions`_.
-For information on running tests locally, refer to `the contributors guide`_.
-
 Contributing
 ============
 
-Refer to `the contributors guide`_.
+We appreciate all contributions! Refer to `the contributors guide`_ for
+information.
 
 Release signatures
 ==================
@@ -99,9 +81,5 @@ Releases are signed with following keys:
 
 .. _the documentation:
 .. _sphinx-doc.org: https://www.sphinx-doc.org/
-.. _code of conduct: https://www.sphinx-doc.org/en/master/code_of_conduct.html
 .. _the contributors guide: https://www.sphinx-doc.org/en/master/internals/contributing.html
-.. _on GitHub: https://github.com/sphinx-doc/sphinx
-.. _GitHub Actions: https://github.com/sphinx-doc/sphinx/actions/workflows/main.yml
-.. _mailing list: https://groups.google.com/forum/#!forum/sphinx-users
 .. _PyPI: https://pypi.org/project/Sphinx/
