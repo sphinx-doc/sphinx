@@ -20,6 +20,7 @@ Bugs fixed
   has no line number
 * #10493: html theme: :rst:dir:`topic` directive is rendered incorrectly with
   docutils-0.18
+* #10495: IndexError is raised for a :rst:role:`kbd` role having a separator
 
 Testing
 --------
