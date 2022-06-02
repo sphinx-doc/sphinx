@@ -506,7 +506,7 @@ p.rubric {
 
 /* "Topics" */
 
-div.topic {
+div.topic, aside.topic {
     background-color: #eee;
     border: 1px solid #ccc;
     padding: 0 7px 0 7px;
