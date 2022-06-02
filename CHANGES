@@ -16,6 +16,7 @@ Features added
 Bugs fixed
 ----------
 
+* #10509: autosummary: autosummary fails with a shared library
 * #10498: gettext: TypeError is raised when sorting warning messages if a node
   has no line number
 * #10493: html theme: :rst:dir:`topic` directive is rendered incorrectly with
