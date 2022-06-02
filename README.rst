@@ -2,13 +2,13 @@
  Sphinx
 ========
 
-.. image:: https://github.com/sphinx-doc/sphinx/actions/workflows/main.yml/badge.svg
-   :target: https://github.com/sphinx-doc/sphinx/actions/workflows/main.yml
-   :alt: Build Status
-
 .. image:: https://img.shields.io/pypi/v/sphinx.svg
    :target: https://pypi.org/project/Sphinx/
    :alt: Package on PyPI
+
+.. image:: https://github.com/sphinx-doc/sphinx/actions/workflows/main.yml/badge.svg
+   :target: https://github.com/sphinx-doc/sphinx/actions/workflows/main.yml
+   :alt: Build Status
 
 .. image:: https://readthedocs.org/projects/sphinx/badge/?version=master
    :target: https://www.sphinx-doc.org/
@@ -17,10 +17,6 @@
 .. image:: https://img.shields.io/badge/License-BSD%202--Clause-blue.svg
    :target: https://opensource.org/licenses/BSD-2-Clause
    :alt: BSD 2 Clause
-
-.. image:: https://img.shields.io/pypi/dm/Sphinx?label=PyPI%20Installs
-   :target: https://pypistats.org/packages/sphinx
-   :alt: Monthly PyPI installs
 
 **Sphinx makes it easy to create intelligent and beautiful documentation.**
 
