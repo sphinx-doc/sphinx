@@ -19,7 +19,7 @@ Bugs fixed
 Testing
 --------
 
-Release 5.0.1 (in development)
+Release 5.0.2 (in development)
 ==============================
 
 Dependencies
@@ -38,14 +38,21 @@ Bugs fixed
 ----------
 
 * #10509: autosummary: autosummary fails with a shared library
+
+Testing
+--------
+
+Release 5.0.1 (released Jun 03, 2022)
+=====================================
+
+Bugs fixed
+----------
+
 * #10498: gettext: TypeError is raised when sorting warning messages if a node
   has no line number
 * #10493: html theme: :rst:dir:`topic` directive is rendered incorrectly with
   docutils-0.18
 * #10495: IndexError is raised for a :rst:role:`kbd` role having a separator
-
-Testing
---------
 
 Release 5.0.0 (released May 30, 2022)
 =====================================
