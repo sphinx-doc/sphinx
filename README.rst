@@ -10,25 +10,9 @@
    :target: http://www.sphinx-doc.org/
    :alt: Documentation Status
 
-.. image:: https://ci.appveyor.com/api/projects/status/github/sphinx-doc/sphinx?branch=master&svg=true
-   :target: https://ci.appveyor.com/project/sphinxdoc/sphinx
-   :alt: Build Status (AppVeyor)
-
-.. image:: https://circleci.com/gh/sphinx-doc/sphinx.svg?style=shield
-   :target: https://circleci.com/gh/sphinx-doc/sphinx
-   :alt: Build Status (CircleCI)
-
-.. image:: https://codecov.io/gh/sphinx-doc/sphinx/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/sphinx-doc/sphinx
-   :alt: Code Coverage Status (Codecov)
-
 .. image:: https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
    :target: https://opensource.org/licenses/BSD-3-Clause
    :alt: BSD 3 Clause
-
-.. image:: https://codetriage.com/sphinx-doc/sphinx/badges/users.svg
-   :target: https://codetriage.com/sphinx-doc/sphinx
-   :alt: Open Source Helpers badge
 
 Sphinx is a tool that makes it easy to create intelligent and beautiful
 documentation for Python projects (or other documents consisting of multiple
