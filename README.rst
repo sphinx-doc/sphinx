@@ -7,7 +7,7 @@
    :alt: Package on PyPI
 
 .. image:: https://readthedocs.org/projects/sphinx/badge/?version=master
-   :target: http://www.sphinx-doc.org/
+   :target: https://www.sphinx-doc.org/
    :alt: Documentation Status
 
 .. image:: https://github.com/sphinx-doc/sphinx/actions/workflows/main.yml/badge.svg
@@ -45,14 +45,12 @@ Among its features are the following:
   and inclusion of appropriately formatted docstrings
 * Setuptools integration
 
-For more information, refer to the `the documentation`__.
-
-.. __: http://www.sphinx-doc.org/
+For more information, refer to the `the documentation`_.
 
 Installation
 ============
 
-Sphinx is published on `PyPI`__ and can be installed from there::
+Sphinx is published on `PyPI`_ and can be installed from there::
 
    pip install -U sphinx
 
@@ -60,18 +58,13 @@ We also publish beta releases::
 
    pip install -U --pre sphinx
 
-If you wish to install `Sphinx` for development purposes, refer to `the
-contributors guide`__.
-
-__ https://pypi.org/project/Sphinx/
-__ http://www.sphinx-doc.org/en/master/internals/contributing.html
+If you wish to install Sphinx for development purposes, refer to
+`the contributors guide`_.
 
 Documentation
 =============
 
-Documentation is available from `sphinx-doc.org`__.
-
-__ http://www.sphinx-doc.org/
+Documentation is available from `sphinx-doc.org`_.
 
 Get in touch
 ============
@@ -79,33 +72,18 @@ Get in touch
 - Report bugs, suggest features or view the source code `on GitHub`_.
 - For less well defined questions or ideas, use the `mailing list`_.
 
-.. _on GitHub: https://github.com/sphinx-doc/sphinx
-.. _mailing list: https://groups.google.com/forum/#!forum/sphinx-users
-
-Please adhere to our `code of conduct`__.
-
-__ http://www.sphinx-doc.org/en/master/code_of_conduct.html
+Please adhere to our `code of conduct`_.
 
 Testing
 =======
 
-Continuous testing is provided by `Travis`__ (for unit tests and style checks
-on Linux), `AppVeyor`__ (for unit tests on Windows), and `CircleCI`__ (for
-large processes like TeX compilation).
-
-For information on running tests locally, refer to `the contributors guide`__.
-
-__ https://travis-ci.org/sphinx-doc/sphinx
-__ https://ci.appveyor.com/project/sphinxdoc/sphinx
-__ https://circleci.com/gh/sphinx-doc/sphinx
-__ http://www.sphinx-doc.org/en/master/internals/contributing.html
+Continuous testing is provided by `GitHub Actions`_.
+For information on running tests locally, refer to `the contributors guide`_.
 
 Contributing
 ============
 
-Refer to `the contributors guide`__.
-
-__ http://www.sphinx-doc.org/en/master/internals/contributing.html
+Refer to `the contributors guide`_.
 
 Release signatures
 ==================
@@ -114,3 +92,12 @@ Releases are signed with following keys:
 
 * `498D6B9E <https://pgp.mit.edu/pks/lookup?op=vindex&search=0x102C2C17498D6B9E>`_
 * `5EBA0E07 <https://pgp.mit.edu/pks/lookup?op=vindex&search=0x1425F8CE5EBA0E07>`_
+
+.. _the documentation:
+.. _sphinx-doc.org: https://www.sphinx-doc.org/
+.. _code of conduct: https://www.sphinx-doc.org/en/master/code_of_conduct.html
+.. _the contributors guide: https://www.sphinx-doc.org/en/master/internals/contributing.html
+.. _on GitHub: https://github.com/sphinx-doc/sphinx
+.. _GitHub Actions: https://github.com/sphinx-doc/sphinx/actions/workflows/main.yml
+.. _mailing list: https://groups.google.com/forum/#!forum/sphinx-users
+.. _PyPI: https://pypi.org/project/Sphinx/
