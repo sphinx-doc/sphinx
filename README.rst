@@ -54,16 +54,12 @@ For more information, refer to the `the documentation`_.
 Installation
 ============
 
-Sphinx is published on `PyPI`_ and can be installed from there::
+The following command installs Sphinx from the `Python Package Index`_. You will
+need a working installation of Python and pip.
+
+.. code-block:: sh
 
    pip install -U sphinx
-
-We also publish beta releases::
-
-   pip install -U --pre sphinx
-
-If you wish to install Sphinx for development purposes, refer to
-`the contributors guide`_.
 
 Contributing
 ============
@@ -79,7 +75,6 @@ Releases are signed with following keys:
 * `498D6B9E <https://pgp.mit.edu/pks/lookup?op=vindex&search=0x102C2C17498D6B9E>`_
 * `5EBA0E07 <https://pgp.mit.edu/pks/lookup?op=vindex&search=0x1425F8CE5EBA0E07>`_
 
-.. _the documentation:
-.. _sphinx-doc.org: https://www.sphinx-doc.org/
+.. _the documentation: https://www.sphinx-doc.org/
 .. _the contributors guide: https://www.sphinx-doc.org/en/master/internals/contributing.html
-.. _PyPI: https://pypi.org/project/Sphinx/
+.. _Python Package Index: https://pypi.org/project/Sphinx/
