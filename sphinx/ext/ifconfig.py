@@ -20,7 +20,6 @@ from docutils import nodes
 from docutils.nodes import Node
 
 import sphinx
-from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import nested_parse_with_titles
@@ -52,7 +51,7 @@ def process_ifconfig_nodes(app: Sphinx, doctree: nodes.document, docname: str) -
     ns = {confval.name: confval.value for confval in app.config}
     ns.update(app.config.__dict__.copy())
     ns['builder'] = app.builder.name
-    for node in doctree.findall(ifconfig):
+    for node in list(doctree.findall(ifconfig)):
         try:
             res = eval(node['expr'], ns)
         except Exception as err:
@@ -65,7 +64,7 @@ def process_ifconfig_nodes(app: Sphinx, doctree: nodes.document, docname: str) -
             node.replace_self(newnode)
         else:
             if not res:
-                node.replace_self(addnodes.meta())
+                node.replace_self([])
             else:
                 node.replace_self(node.children)
 
