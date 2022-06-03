@@ -55,7 +55,8 @@ def path_stabilize(filepath: str) -> str:
 
 
 def get_matching_files(dirname: str,
-                       exclude_matchers: Tuple[PathMatcher, ...] = ()) -> Iterable[str]:  # NOQA
+                       exclude_matchers: Tuple[PathMatcher, ...] = (),
+                       include_matchers: Tuple[PathMatcher, ...] = ()) -> Iterable[str]:  # NOQA
     """Get all file names in a directory, recursively.
 
     Exclude files and dirs matching some matcher in *exclude_matchers*.

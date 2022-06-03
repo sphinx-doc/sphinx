@@ -84,7 +84,7 @@ class TocTree(SphinxDirective):
         all_docnames.remove(self.env.docname)  # remove current document
 
         ret: List[Node] = []
-        excluded = Matcher(self.config.exclude_patterns)
+        excluded = Matcher(self.config.exclude_patterns, self.config.include_patterns)
         for entry in self.content:
             if not entry:
                 continue

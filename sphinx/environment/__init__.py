@@ -359,7 +359,7 @@ class BuildEnvironment:
             exclude_paths = (self.config.exclude_patterns +
                              self.config.templates_path +
                              builder.get_asset_paths())
-            self.project.discover(exclude_paths)
+            self.project.discover(exclude_paths, self.config.include_patterns)
 
             # Current implementation is applying translated messages in the reading
             # phase.Therefore, in order to apply the updated message catalog, it is

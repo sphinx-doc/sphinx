@@ -78,9 +78,17 @@ root_doc = {{ root_doc | repr }}
 language = {{ language | repr }}
 
 {% endif -%}
+# List of glob-style patterns used to find source files. These are interpreted
+# relative to the source directory, and are used as shell-style glob patterns to
+# find source files. The default '**' matches the current directory and all
+# subdirectories recursively. Exclude patterns take priority over include
+# patterns. These patterns also affect html_static_path and html_extra_path.
+include_patterns = ['**']
+
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
+# Exclude patterns take priority over include patterns.
 exclude_patterns = [{{ exclude_patterns }}]
 
 
