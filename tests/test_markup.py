@@ -382,6 +382,18 @@ def get_verifier(verify, verify_re):
          '<dd>description</dd>\n</dl>'),
         None,
     ),
+        (
+        # glossary (description list): multiple terms with identifier
+        'verify',
+        '.. glossary:: ID\n\n   term1\n   term2\n       description',
+        ('<dl class="glossary docutils">\n'
+         '<dt id="term-ID-term1">term1<a class="headerlink" href="#term-ID-term1"'
+         ' title="Permalink to this term">¶</a></dt>'
+         '<dt id="term-ID-term2">term2<a class="headerlink" href="#term-ID-term2"'
+         ' title="Permalink to this term">¶</a></dt>'
+         '<dd>description</dd>\n</dl>'),
+        None,
+    ),
 ])
 def test_inline(get_verifier, type, rst, html_expected, latex_expected):
     verifier = get_verifier(type)

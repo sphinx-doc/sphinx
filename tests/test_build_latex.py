@@ -1450,20 +1450,48 @@ def test_latex_glossary(app, status, warning):
     assert (r'\sphinxlineitem{ähnlich\index{ähnlich@\spxentry{ähnlich}|spxpagem}'
             r'\phantomsection'
             r'\label{\detokenize{index:term-ahnlich}}}' in result)
-    assert (r'\sphinxlineitem{boson\index{boson@\spxentry{boson}|spxpagem}\phantomsection'
+    assert (r'\sphinxlineitem{boson\index{boson@\spxentry{boson}|spxpagem}'
+            r'\phantomsection'
             r'\label{\detokenize{index:term-boson}}}' in result)
     assert (r'\sphinxlineitem{\sphinxstyleemphasis{fermion}'
             r'\index{fermion@\spxentry{fermion}|spxpagem}'
             r'\phantomsection'
             r'\label{\detokenize{index:term-fermion}}}' in result)
-    assert (r'\sphinxlineitem{tauon\index{tauon@\spxentry{tauon}|spxpagem}\phantomsection'
+    assert (r'\sphinxlineitem{tauon\index{tauon@\spxentry{tauon}|spxpagem}'
+            r'\phantomsection'
             r'\label{\detokenize{index:term-tauon}}}'
-            r'\sphinxlineitem{myon\index{myon@\spxentry{myon}|spxpagem}\phantomsection'
+            r'\sphinxlineitem{myon\index{myon@\spxentry{myon}|spxpagem}'
+            r'\phantomsection'
             r'\label{\detokenize{index:term-myon}}}'
-            r'\sphinxlineitem{electron\index{electron@\spxentry{electron}|spxpagem}\phantomsection'
+            r'\sphinxlineitem{electron\index{electron@\spxentry{electron}|spxpagem}'
+            r'\phantomsection'
             r'\label{\detokenize{index:term-electron}}}' in result)
-    assert (r'\sphinxlineitem{über\index{über@\spxentry{über}|spxpagem}\phantomsection'
+    assert (r'\sphinxlineitem{über\index{über@\spxentry{über}|spxpagem}'
+            r'\phantomsection'
             r'\label{\detokenize{index:term-uber}}}' in result)
+
+    assert (r'\sphinxlineitem{ähnlich\index{ID:ähnlich@\spxentry{ID:ähnlich}|spxpagem}'
+            r'\phantomsection'
+            r'\label{\detokenize{index:term-ID-ahnlich}}}' in result)
+    assert (r'\sphinxlineitem{boson\index{ID:boson@\spxentry{ID:boson}|spxpagem}'
+            r'\phantomsection'
+            r'\label{\detokenize{index:term-ID-boson}}}' in result)
+    assert (r'\sphinxlineitem{\sphinxstyleemphasis{fermion}'
+            r'\index{ID:fermion@\spxentry{ID:fermion}|spxpagem}'
+            r'\phantomsection'
+            r'\label{\detokenize{index:term-ID-fermion}}}' in result)
+    assert (r'\sphinxlineitem{tauon\index{ID:tauon@\spxentry{ID:tauon}|spxpagem}'
+            r'\phantomsection'
+            r'\label{\detokenize{index:term-ID-tauon}}}'
+            r'\sphinxlineitem{myon\index{ID:myon@\spxentry{ID:myon}|spxpagem}'
+            r'\phantomsection'
+            r'\label{\detokenize{index:term-ID-myon}}}'
+            r'\sphinxlineitem{electron\index{ID:electron@\spxentry{ID:electron}|spxpagem}'
+            r'\phantomsection'
+            r'\label{\detokenize{index:term-ID-electron}}}' in result)
+    assert (r'\sphinxlineitem{über\index{ID:über@\spxentry{ID:über}|spxpagem}'
+            r'\phantomsection'
+            r'\label{\detokenize{index:term-ID-uber}}}' in result)
 
 
 @pytest.mark.sphinx('latex', testroot='latex-labels')

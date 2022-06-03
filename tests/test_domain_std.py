@@ -170,6 +170,68 @@ def test_glossary(app):
                                   pending_xref(), nodes.paragraph())
     assert_node(refnode, nodes.reference, refid="term-TERM2")
 
+def test_glossary_with_glossary_identifier(app):
+    text = (".. glossary:: ID\n"
+            "\n"
+            "   term1\n"
+            "   TERM2\n"
+            "       description\n"
+            "\n"
+            "   term3 : classifier\n"
+            "       description\n"
+            "       description\n"
+            "\n"
+            "   term4 : class1 : class2\n"
+            "       description\n")
+
+    # doctree
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        [glossary, definition_list, ([definition_list_item, ([term, ("term1",
+                                                                     index)],
+                                                             [term, ("TERM2",
+                                                                     index)],
+                                                             definition)],
+                                     [definition_list_item, ([term, ("term3",
+                                                                     index)],
+                                                             definition)],
+                                     [definition_list_item, ([term, ("term4",
+                                                                     index)],
+                                                             definition)])],
+    ))
+    assert_node(doctree[0][0][0][0][1],
+                entries=[("single", "ID:term1", "term-ID-term1", "main", None)])
+    assert_node(doctree[0][0][0][1][1],
+                entries=[("single", "ID:TERM2", "term-ID-TERM2", "main", None)])
+    assert_node(doctree[0][0][0][2],
+                [definition, nodes.paragraph, "description"])
+    assert_node(doctree[0][0][1][0][1],
+                entries=[("single", "ID:term3", "term-ID-term3", "main", "classifier")])
+    assert_node(doctree[0][0][1][1],
+                [definition, nodes.paragraph, ("description\n"
+                                               "description")])
+    assert_node(doctree[0][0][2][0][1],
+                entries=[("single", "ID:term4", "term-ID-term4", "main", "class1")])
+    assert_node(doctree[0][0][2][1],
+                [nodes.definition, nodes.paragraph, "description"])
+
+    # index
+    domain = app.env.get_domain("std")
+    objects = list(domain.get_objects())
+    assert ("ID:term1", "ID:term1", "term", "index", "term-ID-term1", -1) in objects
+    assert ("ID:TERM2", "ID:TERM2", "term", "index", "term-ID-TERM2", -1) in objects
+    assert ("ID:term3", "ID:term3", "term", "index", "term-ID-term3", -1) in objects
+    assert ("ID:term4", "ID:term4", "term", "index", "term-ID-term4", -1) in objects
+
+    # term reference (case sensitive)
+    refnode = domain.resolve_xref(app.env, 'index', app.builder, 'term', 'ID:term1',
+                                  pending_xref(), nodes.paragraph())
+    assert_node(refnode, nodes.reference, refid="term-ID-term1")
+
+    # term reference (case insensitive)
+    refnode = domain.resolve_xref(app.env, 'index', app.builder, 'term', 'ID:term2',
+                                  pending_xref(), nodes.paragraph())
+    assert_node(refnode, nodes.reference, refid="term-ID-TERM2")
 
 def test_glossary_warning(app, status, warning):
     # empty line between terms
