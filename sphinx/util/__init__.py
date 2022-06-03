@@ -28,7 +28,7 @@ from sphinx.util.nodes import (caption_ref_re, explicit_title_re,  # noqa
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
 from sphinx.util.osutil import (SEP, copyfile, copytimes, ensuredir, make_filename,  # noqa
-                                mtimes_of_files, os_path, path_stabilize, relative_uri)
+                                mtimes_of_files, os_path, relative_uri)
 from sphinx.util.typing import PathMatcher
 
 if TYPE_CHECKING:
@@ -47,6 +47,16 @@ url_re: Pattern = re.compile(r'(?P<schema>.+)://.*')
 def docname_join(basedocname: str, docname: str) -> str:
     return posixpath.normpath(
         posixpath.join('/' + basedocname, '..', docname))[1:]
+
+
+def path_stabilize(filepath: str) -> str:
+    "Normalize path separator and unicode string"
+    warnings.warn("'sphinx.util.path_stabilize' is deprecated, use "
+                  "'sphinx.util.osutil.path_stabilize' instead.",
+                  RemovedInSphinx70Warning, stacklevel=2)
+    from sphinx.util import osutil
+
+    return osutil.path_stabilize(filepath)
 
 
 def get_matching_files(dirname: str,
