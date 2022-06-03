@@ -5,8 +5,8 @@ from glob import glob
 from typing import Dict, Iterable, Optional, Set
 
 from sphinx.locale import __
-from sphinx.util import get_matching_files, logging
-from sphinx.util.matching import compile_matchers
+from sphinx.util import logging
+from sphinx.util.matching import get_matching_files
 from sphinx.util.osutil import SEP, path_stabilize, relpath
 
 logger = logging.getLogger(__name__)
@@ -36,9 +36,11 @@ class Project:
         :attr:`docnames`.
         """
         self.docnames = set()
-        excludes = compile_matchers(exclude_paths + EXCLUDE_PATHS)
-        includes = compile_matchers(include_paths)
-        for filename in get_matching_files(self.srcdir, excludes, includes):  # type: ignore
+        for filename in get_matching_files(
+            self.srcdir,
+            [*exclude_paths] + EXCLUDE_PATHS,
+            include_paths,
+        ):
             docname = self.path2doc(filename)
             if docname:
                 if docname in self.docnames:
