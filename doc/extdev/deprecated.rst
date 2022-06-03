@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.util.get_matching_files``
+     - 5.1
+     - 7.0
+     - ``sphinx.util.matching.get_matching_files``
+
    * - ``sphinx.util.jsdump``
      - 5.0
      - 7.0

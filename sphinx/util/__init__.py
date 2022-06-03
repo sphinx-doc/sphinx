@@ -8,6 +8,7 @@ import re
 import sys
 import tempfile
 import traceback
+import warnings
 from datetime import datetime
 from importlib import import_module
 from os import path
@@ -16,6 +17,7 @@ from typing import (IO, TYPE_CHECKING, Any, Callable, Dict, Generator, Iterable,
                     Optional, Pattern, Set, Tuple, Type, TypeVar)
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
+from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.errors import ExtensionError, FiletypeNotFoundError, SphinxParallelError
 from sphinx.locale import __
 from sphinx.util import logging
@@ -54,6 +56,10 @@ def get_matching_files(dirname: str,
 
     Exclude files and dirs matching some matcher in *exclude_matchers*.
     """
+    warnings.warn("'sphinx.util.get_matching_files' is deprecated, use "
+                  "'sphinx.util.matching.get_matching_files' instead. Note that"
+                  "the types of the arguments have changed from callables to "
+                  "plain string glob patterns.", RemovedInSphinx70Warning, stacklevel=2)
     # dirname is a normalized absolute path.
     dirname = path.normpath(path.abspath(dirname))
 
