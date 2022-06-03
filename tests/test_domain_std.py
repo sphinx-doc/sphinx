@@ -170,6 +170,7 @@ def test_glossary(app):
                                   pending_xref(), nodes.paragraph())
     assert_node(refnode, nodes.reference, refid="term-TERM2")
 
+
 def test_glossary_with_glossary_identifier(app):
     text = (".. glossary:: ID\n"
             "\n"
@@ -232,6 +233,7 @@ def test_glossary_with_glossary_identifier(app):
     refnode = domain.resolve_xref(app.env, 'index', app.builder, 'term', 'ID:term2',
                                   pending_xref(), nodes.paragraph())
     assert_node(refnode, nodes.reference, refid="term-ID-TERM2")
+
 
 def test_glossary_warning(app, status, warning):
     # empty line between terms

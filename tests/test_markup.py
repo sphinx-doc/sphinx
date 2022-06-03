@@ -382,7 +382,7 @@ def get_verifier(verify, verify_re):
          '<dd>description</dd>\n</dl>'),
         None,
     ),
-        (
+    (
         # glossary (description list): multiple terms with identifier
         'verify',
         '.. glossary:: ID\n\n   term1\n   term2\n       description',

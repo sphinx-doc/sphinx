@@ -264,8 +264,9 @@ def split_term_classifiers(line: str) -> List[Optional[str]]:
     return parts
 
 
-def make_glossary_term(env: "BuildEnvironment", textnodes: Iterable[Node], key: str, index_key: str,
-                       source: str, lineno: int, node_id: str, document: nodes.document
+def make_glossary_term(env: "BuildEnvironment", textnodes: Iterable[Node], key: str,
+                       index_key: str, source: str, lineno: int, node_id: str,
+                       document: nodes.document
                        ) -> nodes.term:
     # get a text-only representation of the term and register it
     # as a cross-reference target with the proper key.
@@ -313,7 +314,7 @@ class Glossary(SphinxDirective):
             key = self.arguments[0].strip() + ":"
         else:
             key = ''
-        
+
         node = addnodes.glossary()
         node.document = self.state.document
         node['sorted'] = ('sorted' in self.options)
