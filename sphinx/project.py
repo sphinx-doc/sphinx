@@ -5,9 +5,9 @@ from glob import glob
 from typing import Dict, Iterable, Optional, Set
 
 from sphinx.locale import __
-from sphinx.util import get_matching_files, logging, path_stabilize
+from sphinx.util import get_matching_files, logging
 from sphinx.util.matching import compile_matchers
-from sphinx.util.osutil import SEP, relpath
+from sphinx.util.osutil import SEP, path_stabilize, relpath
 
 logger = logging.getLogger(__name__)
 EXCLUDE_PATHS = ['**/_sources', '.#*', '**/.#*', '*.lproj/**']

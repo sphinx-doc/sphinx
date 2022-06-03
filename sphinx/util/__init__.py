@@ -8,7 +8,6 @@ import re
 import sys
 import tempfile
 import traceback
-import unicodedata
 from datetime import datetime
 from importlib import import_module
 from os import path
@@ -27,7 +26,7 @@ from sphinx.util.nodes import (caption_ref_re, explicit_title_re,  # noqa
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
 from sphinx.util.osutil import (SEP, copyfile, copytimes, ensuredir, make_filename,  # noqa
-                                mtimes_of_files, os_path, relative_uri)
+                                mtimes_of_files, os_path, path_stabilize, relative_uri)
 from sphinx.util.typing import PathMatcher
 
 if TYPE_CHECKING:
@@ -46,12 +45,6 @@ url_re: Pattern = re.compile(r'(?P<schema>.+)://.*')
 def docname_join(basedocname: str, docname: str) -> str:
     return posixpath.normpath(
         posixpath.join('/' + basedocname, '..', docname))[1:]
-
-
-def path_stabilize(filepath: str) -> str:
-    "Normalize path separator and unicode string"
-    newpath = filepath.replace(os.path.sep, SEP)
-    return unicodedata.normalize('NFC', newpath)
 
 
 def get_matching_files(dirname: str,
