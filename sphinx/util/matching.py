@@ -67,7 +67,7 @@ class Matcher:
     def __init__(self, exclude_patterns: Iterable[str],
                  include_patterns: Iterable[str] = ()) -> None:
         expanded = [pat[3:] for pat in exclude_patterns if pat.startswith('**/')]
-        self.patterns = compile_matchers(exclude_patterns + expanded)
+        self.patterns = compile_matchers(list(exclude_patterns) + expanded)
 
     def __call__(self, string: str) -> bool:
         return self.match(string)
