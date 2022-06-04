@@ -13,6 +13,9 @@ Deprecated
 Features added
 --------------
 
+* #10523: html theme: Expose the Docutils's version info tuple as a template variable,
+  ``docutils_version_info``. Patch by Adam Turner.
+
 Bugs fixed
 ----------
 
