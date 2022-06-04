@@ -67,6 +67,7 @@ setup(
     long_description_content_type='text/x-rst',
     project_urls={
         "Code": "https://github.com/sphinx-doc/sphinx",
+        "Changelog": "https://www.sphinx-doc.org/en/master/changes.html",
         "Issue tracker": "https://github.com/sphinx-doc/sphinx/issues",
     },
     zip_safe=False,
