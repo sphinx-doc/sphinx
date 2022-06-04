@@ -214,20 +214,20 @@ class ObjectDescription(SphinxDirective, Generic[T]):
 
     @staticmethod
     def replace_node_with_target(node: nodes.Node) -> nodes.target:
-
-        def collect_ids(node: nodes.Node) -> List[str]:
-            if isinstance(node, nodes.Element):
-                ids: List[str] = node.get('ids', [])
-                for c in node.children:
-                    ids.extend(collect_ids(c))
-                return ids
-            else:
-                return []
-
         ids: List[str] = ObjectDescription.collect_ids(node)
         target_node = nodes.target()
         target_node['ids'] = ids
         return target_node
+
+    @staticmethod
+    def collect_ids(node: nodes.Node) -> List[str]:
+        if isinstance(node, nodes.Element):
+            ids: List[str] = node.get('ids', [])
+            for c in node.children:
+                ids.extend(ObjectDescription.collect_ids(c))
+            return ids
+        else:
+            return []
 
 
 class DefaultRole(SphinxDirective):
