@@ -207,13 +207,13 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         self.after_content()
 
         if node['hidden']:
-            node = self.replace_node_with_target(node)
+            node = self.__class__.replace_node_with_target(node)
             self.set_source_info(node)
 
         return [self.indexnode, node]
 
-    # TODO: This method does not need access to self, make a (non-class) function out of it?
-    def replace_node_with_target(self, node: nodes.Node) -> nodes.target:
+    @staticmethod
+    def replace_node_with_target(node: nodes.Node) -> nodes.target:
 
         def collect_ids(node: nodes.Node) -> List[str]:
             if isinstance(node, nodes.Element):
@@ -224,7 +224,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
             else:
                 return []
 
-        ids: List[str] = collect_ids(node)
+        ids: List[str] = ObjectDescription.collect_ids(node)
         target_node = nodes.target()
         target_node['ids'] = ids
         return target_node
