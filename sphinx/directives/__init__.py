@@ -51,7 +51,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
     final_argument_whitespace = True
     option_spec: OptionSpec = {
         'noindex': directives.flag,
-        'hidden': directives.flag,
+        'notypesetting': directives.flag,
     }
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
@@ -162,7 +162,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
         node['noindex'] = noindex = ('noindex' in self.options)
-        node['hidden'] = 'hidden' in self.options
+        node['notypesetting'] = 'notypesetting' in self.options
         if self.domain:
             node['classes'].append(self.domain)
         node['classes'].append(node['objtype'])
@@ -206,7 +206,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         self.env.temp_data['object'] = None
         self.after_content()
 
-        if node['hidden']:
+        if node['notypesetting']:
             # replace the node with a target node containing all the ids of
             # this node and its children.
             node = nodes.target(ids=self.__class__.collect_ids(node))
