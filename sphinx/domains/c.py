@@ -3141,9 +3141,11 @@ class CObject(ObjectDescription[ASTDeclaration]):
     Description of a C language object.
     """
 
-    option_spec: OptionSpec = {
+    option_spec: OptionSpec = ObjectDescription.option_spec.copy()
+    option_spec.update({
         'noindexentry': directives.flag,
-    }
+    })
+    del option_spec['noindex']  # is in ObjectDescription but doesn't make sense here
 
     def _add_enumerator_to_parent(self, ast: ASTDeclaration) -> None:
         assert ast.objectType == 'enumerator'
@@ -3615,10 +3617,12 @@ class AliasTransform(SphinxTransform):
 
 
 class CAliasObject(ObjectDescription):
-    option_spec: OptionSpec = {
+    option_spec: OptionSpec = ObjectDescription.option_spec.copy()
+    option_spec.update({
         'maxdepth': directives.nonnegative_int,
         'noroot': directives.flag,
-    }
+    })
+    del option_spec['noindex']  # is in ObjectDescription but doesn't make sense here
 
     def run(self) -> List[Node]:
         """

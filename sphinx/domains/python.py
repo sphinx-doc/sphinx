@@ -421,13 +421,13 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
     :cvar allow_nesting: Class is an object that allows for nested namespaces
     :vartype allow_nesting: bool
     """
-    option_spec: OptionSpec = {
-        'noindex': directives.flag,
+    option_spec: OptionSpec = ObjectDescription.option_spec.copy()
+    option_spec.update({
         'noindexentry': directives.flag,
         'module': directives.unchanged,
         'canonical': directives.unchanged,
         'annotation': directives.unchanged,
-    }
+    })
 
     doc_field_types = [
         PyTypedField('parameter', label=_('Parameters'),
