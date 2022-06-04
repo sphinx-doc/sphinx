@@ -372,7 +372,8 @@ div.quotebar {
     margin-left: 1em;
 }
 
-div.topic {
+div.topic,
+aside.topic {
     background-color: #f8f8f8;
 }
 
