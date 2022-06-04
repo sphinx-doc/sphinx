@@ -214,10 +214,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
 
     @staticmethod
     def replace_node_with_target(node: nodes.Node) -> nodes.target:
-        ids: List[str] = ObjectDescription.collect_ids(node)
-        target_node = nodes.target()
-        target_node['ids'] = ids
-        return target_node
+        return nodes.target(ids=ObjectDescription.collect_ids(node))
 
     @staticmethod
     def collect_ids(node: nodes.Node) -> List[str]:
