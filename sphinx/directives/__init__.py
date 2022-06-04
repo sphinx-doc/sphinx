@@ -207,14 +207,12 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         self.after_content()
 
         if node['hidden']:
-            node = self.__class__.replace_node_with_target(node)
+            # replace the node with a target node containing all the ids of
+            # this node and its children.
+            node = nodes.target(ids=self.__class__.collect_ids(node))
             self.set_source_info(node)
 
         return [self.indexnode, node]
-
-    @staticmethod
-    def replace_node_with_target(node: nodes.Node) -> nodes.target:
-        return nodes.target(ids=ObjectDescription.collect_ids(node))
 
     @staticmethod
     def collect_ids(node: nodes.Node) -> List[str]:
