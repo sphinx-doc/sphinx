@@ -7612,6 +7612,7 @@ class CPPAliasObject(ObjectDescription):
         'noroot': directives.flag,
     })
     del option_spec['noindex']  # is in ObjectDescription but doesn't make sense here
+    del option_spec['notypesetting']  # is in ObjectDescription but doesn't make sense here
 
     def run(self) -> List[Node]:
         """
