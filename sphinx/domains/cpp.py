@@ -7606,10 +7606,12 @@ class AliasTransform(SphinxTransform):
 
 
 class CPPAliasObject(ObjectDescription):
-    option_spec: OptionSpec = {
+    option_spec: OptionSpec = ObjectDescription.option_spec.copy()
+    option_spec.update({
         'maxdepth': directives.nonnegative_int,
         'noroot': directives.flag,
-    }
+    })
+    del option_spec['noindex']  # is in ObjectDescription but doesn't make sense here
 
     def run(self) -> List[Node]:
         """
