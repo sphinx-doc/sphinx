@@ -999,10 +999,11 @@ class PyModule(SphinxDirective):
 
             # the platform and synopsis aren't printed; in fact, they are only
             # used in the modindex currently
-            ret.append(target)
             indextext = '%s; %s' % (pairindextypes['module'], modname)
             inode = addnodes.index(entries=[('pair', indextext, node_id, '', None)])
+            # The node order is: index node first, then target node.
             ret.append(inode)
+            ret.append(target)
         return ret
 
     def make_old_id(self, name: str) -> str:
