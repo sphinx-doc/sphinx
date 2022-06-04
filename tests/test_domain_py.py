@@ -616,8 +616,8 @@ def test_pydata(app):
     domain = app.env.get_domain('py')
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index,
-                          nodes.target,
                           addnodes.index,
+                          nodes.target,
                           [desc, ([desc_signature, ([desc_addname, "example."],
                                                     [desc_name, "var"],
                                                     [desc_annotation, ([desc_sig_punctuation, ':'],
@@ -641,8 +641,8 @@ def test_pyfunction(app):
                                                     [desc_parameterlist, ()])],
                                   [desc_content, ()])],
                           addnodes.index,
-                          nodes.target,
                           addnodes.index,
+                          nodes.target,
                           [desc, ([desc_signature, ([desc_annotation, ([desc_sig_keyword, 'async'],
                                                                        desc_sig_space)],
                                                     [desc_addname, "example."],
@@ -653,7 +653,7 @@ def test_pyfunction(app):
                 entries=[('pair', 'built-in function; func1()', 'func1', '', None)])
     assert_node(doctree[2], addnodes.index,
                 entries=[('pair', 'module; example', 'module-example', '', None)])
-    assert_node(doctree[4], addnodes.index,
+    assert_node(doctree[3], addnodes.index,
                 entries=[('single', 'func2() (in module example)', 'example.func2', '', None)])
 
     assert 'func1' in domain.objects
@@ -1011,8 +1011,8 @@ def test_info_field_list(app):
     print(doctree)
 
     assert_node(doctree, (addnodes.index,
-                          nodes.target,
                           addnodes.index,
+                          nodes.target,
                           [desc, ([desc_signature, ([desc_annotation, ("class", desc_sig_space)],
                                                     [desc_addname, "example."],
                                                     [desc_name, "Class"])],
@@ -1102,8 +1102,8 @@ def test_info_field_list_piped_type(app):
 
     assert_node(doctree,
                 (addnodes.index,
-                 nodes.target,
                  addnodes.index,
+                 nodes.target,
                  [desc, ([desc_signature, ([desc_annotation, ("class", desc_sig_space)],
                                            [desc_addname, "example."],
                                            [desc_name, "Class"])],
@@ -1136,8 +1136,8 @@ def test_info_field_list_Literal(app):
 
     assert_node(doctree,
                 (addnodes.index,
-                 nodes.target,
                  addnodes.index,
+                 nodes.target,
                  [desc, ([desc_signature, ([desc_annotation, ("class", desc_sig_space)],
                                            [desc_addname, "example."],
                                            [desc_name, "Class"])],
