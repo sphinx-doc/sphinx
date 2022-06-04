@@ -205,7 +205,28 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         DocFieldTransformer(self).transform_all(contentnode)
         self.env.temp_data['object'] = None
         self.after_content()
+
+        if node['hidden']:
+            node = self.replace_node_with_target(node)
+
         return [self.indexnode, node]
+
+    # TODO: This method does not need access to self, make a (non-class) function out of it?
+    def replace_node_with_target(self, node: nodes.Node) -> nodes.target:
+        def collect_ids(node: nodes.Node, ids: List[str]) -> List[str]:
+            if not isinstance(node, nodes.Element):
+                return
+            theseIds = node.get('ids')
+            if theseIds:
+                ids.extend(theseIds)
+            for c in node.children:
+                collect_ids(c, ids)
+
+        ids: List[str] = []
+        collect_ids(node, ids)
+        target_node = nodes.target()
+        target_node['ids'] = ids
+        return target_node
 
 
 class DefaultRole(SphinxDirective):
