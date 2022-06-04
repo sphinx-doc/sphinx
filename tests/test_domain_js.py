@@ -166,11 +166,11 @@ def test_get_full_qualified_name():
 def test_js_module(app):
     text = ".. js:module:: sphinx"
     doctree = restructuredtext.parse(app, text)
-    assert_node(doctree, (nodes.target,
-                          addnodes.index))
-    assert_node(doctree[0], nodes.target, ids=["module-sphinx"])
-    assert_node(doctree[1], addnodes.index,
+    assert_node(doctree, (addnodes.index,
+                          nodes.target))
+    assert_node(doctree[0], addnodes.index,
                 entries=[("single", "sphinx (module)", "module-sphinx", "", None)])
+    assert_node(doctree[1], nodes.target, ids=["module-sphinx"])
 
 
 def test_js_function(app):

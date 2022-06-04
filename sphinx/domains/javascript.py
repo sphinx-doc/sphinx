@@ -272,12 +272,13 @@ class JSModule(SphinxDirective):
             domain.note_object(mod_name, 'module', node_id,
                                location=(self.env.docname, self.lineno))
 
-            target = nodes.target('', '', ids=[node_id], ismod=True)
-            self.state.document.note_explicit_target(target)
-            ret.append(target)
+            # The node order is: index node first, then target node
             indextext = _('%s (module)') % mod_name
             inode = addnodes.index(entries=[('single', indextext, node_id, '', None)])
             ret.append(inode)
+            target = nodes.target('', '', ids=[node_id], ismod=True)
+            self.state.document.note_explicit_target(target)
+            ret.append(target)
         return ret
 
     def make_old_id(self, modname: str) -> str:
