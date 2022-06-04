@@ -50,12 +50,18 @@ give the directive option flag ``:noindexentry:``.
 If you want to typeset an object description, without even making it available
 for cross-referencing, you can give the directive option flag ``:noindex:``
 (which implies ``:noindexentry:``).
+If you do not want to typeset anything, you can give the directive option flag
+``:notypesetting:``.  This can for example be used to create only a target and
+index entry for later reference.
 Though, note that not every directive in every domain may support these
 options.
 
 .. versionadded:: 3.2
    The directive option ``noindexentry`` in the Python, C, C++, and Javascript
    domains.
+
+.. versionadded:: 5.1
+   The directive option ``notypesetting``.
 
 An example using a Python domain directive::
 
@@ -82,6 +88,19 @@ you could say ::
 
 As you can see, both directive and role names contain the domain name and the
 directive name.
+
+The directive option ``:notypesetting:`` can be used to create a target (and
+index entry) which can later be referenced by the roles provided by the domain.
+This is particularly useful for literate programming::
+
+   .. py:function:: spam(eggs)
+      :notypesetting:
+   .. code::
+
+      def spam(eggs):
+          pass
+
+   The function :py:func:`spam` does nothing.
 
 .. rubric:: Default Domain
 
