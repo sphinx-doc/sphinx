@@ -206,13 +206,22 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         self.env.temp_data['object'] = None
         self.after_content()
 
-        if node['notypesetting']:
+        ret: List[nodes.Node] = []
+        ret.append(self.indexnode)
+        if not node['notypesetting']:
+            ret.append(node)
+        else:
             # replace the node with a target node containing all the ids of
             # this node and its children.
-            node = nodes.target(ids=self.__class__.collect_ids(node))
-            self.set_source_info(node)
-
-        return [self.indexnode, node]
+            # It might happen that there are no ids (e.g. with noindex).
+            # In this case creating a target without an id breaks docutils
+            # assumption about targets.  Thus, we skip that in this case.
+            ids = self.__class__.collect_ids(node)
+            if ids:
+                targetnode = nodes.target(ids=ids)
+                self.set_source_info(targetnode)
+                ret.append(targetnode)
+        return ret
 
     @staticmethod
     def collect_ids(node: nodes.Node) -> List[str]:
