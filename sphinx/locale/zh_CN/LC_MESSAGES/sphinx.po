@@ -2019,7 +2019,7 @@ msgstr ""
 #: sphinx/domains/javascript.py:131
 #, python-format
 msgid "%s() (built-in function)"
-msgstr "%s() (內置函数)"
+msgstr "%s() (内置函数)"
 
 #: sphinx/domains/javascript.py:132 sphinx/domains/python.py:824
 #, python-format
@@ -2104,7 +2104,7 @@ msgstr "语句"
 
 #: sphinx/domains/python.py:56
 msgid "built-in function"
-msgstr "內置函数"
+msgstr "内置函数"
 
 #: sphinx/domains/python.py:438
 msgid "Variables"
@@ -2128,12 +2128,12 @@ msgstr "%s() (在 %s 模块中)"
 #: sphinx/domains/python.py:731
 #, python-format
 msgid "%s (built-in variable)"
-msgstr "%s (內置变量)"
+msgstr "%s (内置变量)"
 
 #: sphinx/domains/python.py:756
 #, python-format
 msgid "%s (built-in class)"
-msgstr "%s (內置类)"
+msgstr "%s (内置类)"
 
 #: sphinx/domains/python.py:757
 #, python-format

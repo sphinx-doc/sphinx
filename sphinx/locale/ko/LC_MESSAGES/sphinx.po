@@ -176,7 +176,7 @@ msgstr "설정 디렉토리에 conf.py 파일이 없습니다 (%s)"
 msgid ""
 "Invalid configuration value found: 'language = None'. Update your "
 "configuration to a valid langauge code. Falling back to 'en' (English)."
-msgstr ""
+msgstr "잘못된 구성 값을 찾았습니다: 'language = None'. 유효한 언어 코드로 구성을 업데이트하십시오. 대신 'en'(영어)을 사용합니다."
 
 #: sphinx/config.py:201
 #, python-format
@@ -2704,7 +2704,7 @@ msgid ""
 "Unable to run the image conversion command %r. 'sphinx.ext.imgconverter' requires ImageMagick by default. Ensure it is installed, or set the 'image_converter' option to a custom conversion command.\n"
 "\n"
 "Traceback: %s"
-msgstr ""
+msgstr "이미지 변환 명령 %r을(를) 실행할 수 없습니다. 'sphinx.ext.imgconverter'에는 기본적으로 ImageMagick이 필요합니다. 해당 프로그램이 설치되어 있는지 확인하거나, 'image_converter' 옵션을 사용자 정의 변환 명령으로 설정하십시오.\n\n역추적: %s"
 
 #: sphinx/ext/imgconverter.py:42 sphinx/ext/imgconverter.py:66
 #, python-format
