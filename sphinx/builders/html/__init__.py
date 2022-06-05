@@ -26,6 +26,7 @@ from sphinx.builders import Builder
 from sphinx.config import ENUM, Config
 from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
 from sphinx.domains import Domain, Index, IndexEntry
+from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
@@ -199,8 +200,8 @@ class StandaloneHTMLBuilder(Builder):
     imgpath: str = None
     domain_indices: List[Tuple[str, Type[Index], List[Tuple[str, List[IndexEntry]]], bool]] = []  # NOQA
 
-    def __init__(self, app: Sphinx) -> None:
-        super().__init__(app)
+    def __init__(self, app: Sphinx, env: BuildEnvironment = None) -> None:
+        super().__init__(app, env)
 
         # CSS files
         self.css_files: List[Stylesheet] = []

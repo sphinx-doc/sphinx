@@ -245,10 +245,16 @@ class Sphinx:
 
         # create the project
         self.project = Project(self.srcdir, self.config.source_suffix)
-        # create the builder
-        self.builder = self.create_builder(buildername)
+
         # set up the build environment
         self.env = self._init_env(freshenv)
+
+        # create the builder
+        self.builder = self.create_builder(buildername)
+
+        # build environment post-initialisation, after creating the builder
+        self._post_init_env()
+
         # set up the builder
         self._init_builder()
 
@@ -289,19 +295,25 @@ class Sphinx:
 
     def _create_fresh_env(self) -> BuildEnvironment:
         env = BuildEnvironment(self)
-        env.find_files(self.config, self.builder)
+        env._fresh_env_used = True  # type: ignore
         return env
 
-    def _load_existing_env(self, filename) -> BuildEnvironment:
+    def _load_existing_env(self, filename: str) -> BuildEnvironment:
         try:
             with progress_message(__('loading pickled environment')):
                 with open(filename, 'rb') as f:
                     env = pickle.load(f)
                     env.setup(self)
+                    env._fresh_env_used = False
         except Exception as err:
             logger.info(__('failed: %s'), err)
             env = self._create_fresh_env()
         return env
+
+    def _post_init_env(self) -> None:
+        if self.env._fresh_env_used:  # type: ignore  # NoQA
+            self.env.find_files(self.config, self.builder)
+        del self.env._fresh_env_used  # type: ignore  # NoQA
 
     def preload_builder(self, name: str) -> None:
         self.registry.preload_builder(self, name)
@@ -311,10 +323,9 @@ class Sphinx:
             logger.info(__('No builder selected, using default: html'))
             name = 'html'
 
-        return self.registry.create_builder(self, name)
+        return self.registry.create_builder(self, name, self.env)
 
     def _init_builder(self) -> None:
-        self.builder.set_environment(self.env)
         self.builder.init()
         self.events.emit('builder-inited')
 

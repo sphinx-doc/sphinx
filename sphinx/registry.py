@@ -153,11 +153,11 @@ class SphinxComponentRegistry:
 
             self.load_extension(app, entry_point.module)
 
-    def create_builder(self, app: "Sphinx", name: str) -> Builder:
+    def create_builder(self, app: "Sphinx", name: str, env: BuildEnvironment) -> Builder:
         if name not in self.builders:
             raise SphinxError(__('Builder name %s not registered') % name)
 
-        return self.builders[name](app)
+        return self.builders[name](app, env)
 
     def add_domain(self, domain: Type[Domain], override: bool = False) -> None:
         logger.debug('[app] adding domain: %r', domain)
