@@ -639,9 +639,9 @@ def process_collapsible_nodes(document: Node, builder_name: str) -> None:
             # result in a "Losing ids" exception if there is a target node before
             # the only node, so we make sure docutils can transfer the id to
             # something, even if it's just a comment and will lose the id anyway...
-            # Slicing node.children removes the first element, which will always
-            # be a collapsible_summary node.
-            node.replace_self(node.children[1:] or nodes.comment())
+            children = node.children
+            children[0] = nodes.paragraph("", "", *children[0].children)  # type: ignore
+            node.replace_self(children or nodes.comment())
 
 
 def _only_node_keep_children(node: addnodes.only, tags: Tags) -> bool:

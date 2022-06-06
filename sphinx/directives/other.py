@@ -465,7 +465,7 @@ class Collapsible(SphinxDirective):
         if len(self.arguments) > 0:
             summary = self.arguments[0].strip()
         else:
-            summary = "Collapsed Content"
+            summary = "Collapsed Content:"
 
         # parse the argument as reST
         summary_trimmed = self._prepare_argument_string(summary)
