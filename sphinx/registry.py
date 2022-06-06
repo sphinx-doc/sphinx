@@ -153,7 +153,7 @@ class SphinxComponentRegistry:
 
             self.load_extension(app, entry_point.module)
 
-    def create_builder(self, app: "Sphinx", name: str, env: BuildEnvironment) -> Builder:
+    def create_builder(self, app: "Sphinx", name: str, env: BuildEnvironment = None) -> Builder:
         if name not in self.builders:
             raise SphinxError(__('Builder name %s not registered') % name)
 
