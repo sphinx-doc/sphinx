@@ -326,6 +326,8 @@ class Sphinx:
         return self.registry.create_builder(self, name, self.env)
 
     def _init_builder(self) -> None:
+        if not hasattr(self.builder, "env"):
+            self.builder.set_environment(self.env)
         self.builder.init()
         self.events.emit('builder-inited')
 

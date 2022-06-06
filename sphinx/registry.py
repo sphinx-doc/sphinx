@@ -166,7 +166,10 @@ class SphinxComponentRegistry:
                 f"'env'argument. Report this bug to the developers of your custom builder, "
                 f"this is likely not a issue with Sphinx. The 'env' argument will be required "
                 f"from Sphinx 7.", RemovedInSphinx70Warning, stacklevel=2)
-            return self.builders[name](app)
+            builder = self.builders[name](app, env=...)
+            if env is not None:
+                builder.set_environment(env)
+            return builder
 
     def add_domain(self, domain: Type[Domain], override: bool = False) -> None:
         logger.debug('[app] adding domain: %r', domain)
