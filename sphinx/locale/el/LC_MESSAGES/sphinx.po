@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-05-29 07:39+0000\n"
+"POT-Creation-Date: 2022-06-05 00:21+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Takeshi KOMIYA <i.tkomiya@gmail.com>, 2021\n"
 "Language-Team: Greek (http://www.transifex.com/sphinx-doc/sphinx-1/language/el/)\n"
@@ -176,7 +176,7 @@ msgstr "ο κατάλογος παραμετροποίησης δεν περιλ
 #: sphinx/config.py:172
 msgid ""
 "Invalid configuration value found: 'language = None'. Update your "
-"configuration to a valid langauge code. Falling back to 'en' (English)."
+"configuration to a valid language code. Falling back to 'en' (English)."
 msgstr ""
 
 #: sphinx/config.py:201
@@ -576,7 +576,7 @@ msgstr "τα αρχεία πηγής %d που δόθηκαν στη γραμμ�
 msgid "targets for %d source files that are out of date"
 msgstr "στόχοι για τα αρχεία πηγής %d τα οποία είναι ξεπερασμένα"
 
-#: sphinx/builders/__init__.py:298 sphinx/builders/gettext.py:233
+#: sphinx/builders/__init__.py:298 sphinx/builders/gettext.py:236
 #, python-format
 msgid "building [%s]: "
 msgstr "μεταγλώττιση [%s]:"
@@ -773,21 +773,21 @@ msgstr "η τιμή παραμετροποίησης \"version\" δεν πρέπ
 msgid "invalid css_file: %r, ignored"
 msgstr "ανέγκυρο css_file: %r, θα αγνοηθεί"
 
-#: sphinx/builders/gettext.py:212
+#: sphinx/builders/gettext.py:215
 #, python-format
 msgid "The message catalogs are in %(outdir)s."
 msgstr "Οι κατάλογοι των μηνυμάτων είναι στο %(outdir)s."
 
-#: sphinx/builders/gettext.py:234
+#: sphinx/builders/gettext.py:237
 #, python-format
 msgid "targets for %d template files"
 msgstr "στόχοι για %d πρότυπα αρχεία"
 
-#: sphinx/builders/gettext.py:238
+#: sphinx/builders/gettext.py:241
 msgid "reading templates... "
 msgstr "ανάγνωση προτύπων..."
 
-#: sphinx/builders/gettext.py:266
+#: sphinx/builders/gettext.py:269
 msgid "writing message catalogs... "
 msgstr "εγγραφή καταλόγων μηνύματος..."
 
@@ -1208,7 +1208,7 @@ msgid "job number should be a positive number"
 msgstr "ο αριθμός εργασίας θα πρέπει να είναι θετικός αριθμός"
 
 #: sphinx/cmd/build.py:98 sphinx/cmd/quickstart.py:462
-#: sphinx/ext/apidoc.py:303 sphinx/ext/autosummary/generate.py:573
+#: sphinx/ext/apidoc.py:303 sphinx/ext/autosummary/generate.py:577
 msgid "For more information, visit <https://www.sphinx-doc.org/>."
 msgstr ""
 
@@ -3026,24 +3026,24 @@ msgid ""
 msgstr "Το autosummary δημιουργεί αρχεία .rst εσωτερικά. Αλλά το δικό σας source_suffix δεν περιλαμβάνει .rst. Θα παραλειφθεί."
 
 #: sphinx/ext/autosummary/generate.py:151
-#: sphinx/ext/autosummary/generate.py:219
+#: sphinx/ext/autosummary/generate.py:223
 #, python-format
 msgid ""
 "autosummary: failed to determine %r to be documented, the following exception was raised:\n"
 "%s"
 msgstr ""
 
-#: sphinx/ext/autosummary/generate.py:357
+#: sphinx/ext/autosummary/generate.py:361
 #, python-format
 msgid "[autosummary] generating autosummary for: %s"
 msgstr "[autosummary] δημιουργία autosummary για: %s"
 
-#: sphinx/ext/autosummary/generate.py:361
+#: sphinx/ext/autosummary/generate.py:365
 #, python-format
 msgid "[autosummary] writing to %s"
 msgstr "[αυτόματη περίληψη] εγγραφή στο %s"
 
-#: sphinx/ext/autosummary/generate.py:404
+#: sphinx/ext/autosummary/generate.py:408
 #, python-format
 msgid ""
 "[autosummary] failed to import %s.\n"
@@ -3051,7 +3051,7 @@ msgid ""
 "%s"
 msgstr ""
 
-#: sphinx/ext/autosummary/generate.py:574
+#: sphinx/ext/autosummary/generate.py:578
 msgid ""
 "\n"
 "Generate ReStructuredText using autosummary directives.\n"
@@ -3066,30 +3066,30 @@ msgid ""
 "  pydoc sphinx.ext.autosummary\n"
 msgstr "\nΔημιουργία ReStrucuredText χρησιμοποιώντας τις οδηγίες autosummary.\n\nΤο sphinx-autogen αποτελεί ένα πρόσθιο εργαλείο για το sphinx.ext.autosummary.generate. Δημιουργεί \nτα αρχεία reStructuredText από τις οδηγίες autosummary οι οποίες περιλαμβάνονται στα \nπαραδοθέντα αρχεία εισόδου.\n\nΗ μορφή της οδηγίας autosummary τεκμηρειώνεται στο \nδομοστοιχείο ``sphinx.ext.autosummary``  της Python και μπορεί να αναγνωστεί χρησιμοποιώντας το :: \n\npydoc sphinx.ext.autosummary\n"
 
-#: sphinx/ext/autosummary/generate.py:591
+#: sphinx/ext/autosummary/generate.py:595
 msgid "source files to generate rST files for"
 msgstr "αρχεία πηγής για να δημιουργηθούν τα αρχεία reST"
 
-#: sphinx/ext/autosummary/generate.py:595
+#: sphinx/ext/autosummary/generate.py:599
 msgid "directory to place all output in"
 msgstr "ο κατάλογος που θα τοποθετεί όλο το αποτέλεσμα εξόδου"
 
-#: sphinx/ext/autosummary/generate.py:598
+#: sphinx/ext/autosummary/generate.py:602
 #, python-format
 msgid "default suffix for files (default: %(default)s)"
 msgstr "προεπιλεγμένη επέκταση για αρχεία (προεπιλογή: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:602
+#: sphinx/ext/autosummary/generate.py:606
 #, python-format
 msgid "custom template directory (default: %(default)s)"
 msgstr "προσαρμοσμένος κατάλογος προτύπου (προεπιλογή: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:606
+#: sphinx/ext/autosummary/generate.py:610
 #, python-format
 msgid "document imported members (default: %(default)s)"
 msgstr "μέλη εισαγμένα στο έγγραφο (προεπιλογή: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:610
+#: sphinx/ext/autosummary/generate.py:614
 #, python-format
 msgid ""
 "document exactly the members in module __all__ attribute. (default: "
