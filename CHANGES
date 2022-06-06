@@ -17,6 +17,7 @@ Bugs fixed
 ----------
 
 * #10509: autosummary: autosummary fails with a shared library
+* #10497: py domain: Failed to resolve strings in Literal
 
 Testing
 --------
