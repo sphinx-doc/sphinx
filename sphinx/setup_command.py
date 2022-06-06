@@ -6,8 +6,6 @@
 import os
 import sys
 import warnings
-from distutils.cmd import Command
-from distutils.errors import DistutilsExecError
 from io import StringIO
 from typing import Any, Dict
 
@@ -17,6 +15,13 @@ from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.util.console import color_terminal, nocolor
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath
+
+try:
+    from setuptools import Command
+    from setuptools.errors import ExecError
+except ImportError:
+    from distutils.cmd import Command
+    from distutils.errors import DistutilsExecError as ExecError
 
 
 class BuildDoc(Command):
@@ -97,7 +102,7 @@ class BuildDoc(Command):
         self.link_index = False
         self.copyright = ''
         # Link verbosity to distutils' (which uses 1 by default).
-        self.verbosity = self.distribution.verbose - 1  # type: ignore
+        self.verbosity = self.distribution.verbose - 1
         self.traceback = False
         self.nitpicky = False
         self.keep_going = False
@@ -125,7 +130,7 @@ class BuildDoc(Command):
 
         if self.build_dir is None:
             build = self.get_finalized_command('build')
-            self.build_dir = os.path.join(abspath(build.build_base), 'sphinx')  # type: ignore
+            self.build_dir = os.path.join(abspath(build.build_base), 'sphinx')
 
         self.doctree_dir = os.path.join(self.build_dir, 'doctrees')
 
@@ -139,7 +144,7 @@ class BuildDoc(Command):
 
         if not color_terminal():
             nocolor()
-        if not self.verbose:  # type: ignore
+        if not self.verbose:
             status_stream = StringIO()
         else:
             status_stream = sys.stdout  # type: ignore
@@ -171,8 +176,7 @@ class BuildDoc(Command):
                                  verbosity=self.verbosity, keep_going=self.keep_going)
                     app.build(force_all=self.all_files)
                     if app.statuscode:
-                        raise DistutilsExecError(
-                            'caused by %s builder.' % app.builder.name)
+                        raise ExecError('caused by %s builder.' % app.builder.name)
             except Exception as exc:
                 handle_exception(app, self, exc, sys.stderr)
                 if not self.pdb:
