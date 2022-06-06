@@ -931,12 +931,12 @@ def _tokenize_type_spec(spec: str) -> List[str]:
         else:
             return [item]
 
-    tokens = list(
+    tokens = [
         item
         for raw_token in _token_regex.split(spec)
         for item in postprocess(raw_token)
         if item
-    )
+    ]
     return tokens
 
 

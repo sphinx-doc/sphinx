@@ -1055,7 +1055,7 @@ class StandaloneHTMLBuilder(Builder):
         # sort JS/CSS before rendering HTML
         try:
             # Convert script_files to list to support non-list script_files (refs: #8889)
-            ctx['script_files'] = sorted(list(ctx['script_files']), key=lambda js: js.priority)
+            ctx['script_files'] = sorted(ctx['script_files'], key=lambda js: js.priority)
         except AttributeError:
             # Skip sorting if users modifies script_files directly (maybe via `html_context`).
             # refs: #8885
@@ -1064,7 +1064,7 @@ class StandaloneHTMLBuilder(Builder):
             pass
 
         try:
-            ctx['css_files'] = sorted(list(ctx['css_files']), key=lambda css: css.priority)
+            ctx['css_files'] = sorted(ctx['css_files'], key=lambda css: css.priority)
         except AttributeError:
             pass
 
