@@ -94,6 +94,7 @@ Special nodes
 .. autoclass:: only
 .. autoclass:: highlightlang
 .. autoclass:: collapsible
+.. autoclass:: collapsible_summary
 
 You should not need to generate the nodes below in extensions.
 
