@@ -20,6 +20,7 @@ Bugs fixed
 ----------
 
 * #10509: autosummary: autosummary fails with a shared library
+* #10497: py domain: Failed to resolve strings in Literal. Patch by Adam Turner.
 * #10523: HTML Theme: Fix double brackets on citation references in Docutils 0.18+.
   Patch by Adam Turner.
 
