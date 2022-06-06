@@ -295,7 +295,7 @@ class Sphinx:
 
     def _create_fresh_env(self) -> BuildEnvironment:
         env = BuildEnvironment(self)
-        env._fresh_env_used = True  # type: ignore
+        self._fresh_env_used = True
         return env
 
     def _load_existing_env(self, filename: str) -> BuildEnvironment:
@@ -304,16 +304,16 @@ class Sphinx:
                 with open(filename, 'rb') as f:
                     env = pickle.load(f)
                     env.setup(self)
-                    env._fresh_env_used = False
+                    self._fresh_env_used = False
         except Exception as err:
             logger.info(__('failed: %s'), err)
             env = self._create_fresh_env()
         return env
 
     def _post_init_env(self) -> None:
-        if self.env._fresh_env_used:  # type: ignore  # NoQA
+        if self._fresh_env_used:
             self.env.find_files(self.config, self.builder)
-        del self.env._fresh_env_used  # type: ignore  # NoQA
+        del self._fresh_env_used
 
     def preload_builder(self, name: str) -> None:
         self.registry.preload_builder(self, name)
