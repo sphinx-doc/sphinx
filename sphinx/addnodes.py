@@ -102,6 +102,20 @@ class toctree(nodes.General, nodes.Element, translatable):
         return messages
 
 
+class collapsible(nodes.General, nodes.Element):
+    """Node for collapsible content.
+
+    This is used by the :rst:dir:`collapsible` directive.
+    """
+
+
+class collapsible_summary(nodes.General, nodes.TextElement):
+    """Node for the description for collapsible content.
+
+    This is used by the :rst:dir:`collapsible` directive.
+    """
+
+
 #############################################################
 # Domain-specific object descriptions (class, function etc.)
 #############################################################
