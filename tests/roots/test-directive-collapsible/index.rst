@@ -5,7 +5,7 @@ Collapsible directive tests
 
    Default section summary line
 
-.. collapsible:: Custom summary line for the collapsible content
+.. collapsible:: Custom summary line for the collapsible content:
 
    Collapsible sections can also have custom summary lines
 
