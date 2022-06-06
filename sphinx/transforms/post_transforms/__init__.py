@@ -15,7 +15,8 @@ from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
-from sphinx.util.nodes import find_pending_xref_condition, process_only_nodes
+from sphinx.util.nodes import (find_pending_xref_condition, process_collapsible_nodes,
+                               process_only_nodes)
 
 logger = logging.getLogger(__name__)
 
@@ -222,6 +223,17 @@ class OnlyNodeTransform(SphinxPostTransform):
         process_only_nodes(self.document, self.app.builder.tags)
 
 
+class CollapsibleNodeTransform(SphinxPostTransform):
+    default_priority = 55
+
+    def run(self, **kwargs: Any) -> None:
+        # A comment on the comment() nodes being inserted: replacing by [] would
+        # result in a "Losing ids" exception if there is a target node before
+        # the only node, so we make sure docutils can transfer the id to
+        # something, even if it's just a comment and will lose the id anyway...
+        process_collapsible_nodes(self.document, self.app.builder.name)
+
+
 class SigElementFallbackTransform(SphinxPostTransform):
     """Fallback various desc_* nodes to inline if translator does not support them."""
     default_priority = 200
@@ -263,6 +275,7 @@ class PropagateDescDomain(SphinxPostTransform):
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_post_transform(ReferencesResolver)
     app.add_post_transform(OnlyNodeTransform)
+    app.add_post_transform(CollapsibleNodeTransform)
     app.add_post_transform(SigElementFallbackTransform)
     app.add_post_transform(PropagateDescDomain)
 
