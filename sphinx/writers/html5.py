@@ -756,6 +756,18 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_hlistcol(self, node: Element) -> None:
         self.body.append('</td>')
 
+    def visit_collapsible(self, node: Element) -> None:
+        self.body.append('<details>')
+
+    def depart_collapsible(self, node: Element) -> None:
+        self.body.append('</details>')
+
+    def visit_collapsible_summary(self, node: Element) -> None:
+        self.body.append('<summary>')
+
+    def depart_collapsible_summary(self, node: Element) -> None:
+        self.body.append('</summary>')
+
     # overwritten
     def visit_Text(self, node: Text) -> None:
         text = node.astext()

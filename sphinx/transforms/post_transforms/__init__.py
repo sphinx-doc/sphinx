@@ -241,7 +241,10 @@ class CollapsibleNodeTransform(SphinxPostTransform):
         # result in a "Losing ids" exception if there is a target node before
         # the only node, so we make sure docutils can transfer the id to
         # something, even if it's just a comment and will lose the id anyway...
-        process_collapsible_nodes(self.document, self.app.builder.name)
+        builder_name = self.app.builder.name
+        if getattr(self.app.builder.config, "html4_writer", False):
+            builder_name = "html4"
+        process_collapsible_nodes(self.document, builder_name)
 
 
 class SigElementFallbackTransform(SphinxPostTransform):
