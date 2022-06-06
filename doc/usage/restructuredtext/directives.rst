@@ -1107,8 +1107,8 @@ Using collapsible content
       This is the body of the directive.
 
    Only the HTML 5 output format supports collapsible content. For other builders,
-   the body of the directive is rendered in the document and the *summary
-   description* text is ignored.
+   the *summary description* text and the body of the directive are rendered in
+   the document.
 
    .. versionadded:: 5.1
 

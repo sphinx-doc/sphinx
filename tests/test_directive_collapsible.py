@@ -15,12 +15,20 @@ def test_non_html(app, status, warning):
 Collapsible directive tests
 ***************************
 
+Collapsed Content:
+
 Default section summary line
+
+Custom summary line for the collapsible content:
 
 Collapsible sections can also have custom summary lines
 
+Collapsed Content:
+
 Collapsible sections can have normal reST content such as **bold** and
 *emphasised* text, and also links!
+
+Collapsed Content:
 
 Collapsible sections can have sections:
 
@@ -29,6 +37,10 @@ A Section
 =========
 
 Some words within a section, as opposed to outwith the section.
+
+Summary text here with **bold** and *em* and a **RFC 2324** reference!
+That was a newline in the reST source! We can also have links and more
+links.
 
 This is some text!
 """
@@ -47,9 +59,9 @@ def test_html(app, status, warning):
     assert isinstance(collapsible_nodes[3][0], addnodes.collapsible_summary)
     assert isinstance(collapsible_nodes[4][0], addnodes.collapsible_summary)
 
-    assert collapsible_nodes[0][0].astext() == 'Collapsed Content'
-    assert collapsible_nodes[2][0].astext() == 'Collapsed Content'
-    assert collapsible_nodes[3][0].astext() == 'Collapsed Content'
+    assert collapsible_nodes[0][0].astext() == 'Collapsed Content:'
+    assert collapsible_nodes[2][0].astext() == 'Collapsed Content:'
+    assert collapsible_nodes[3][0].astext() == 'Collapsed Content:'
 
     assert isinstance(collapsible_nodes[3][2], nodes.section)
 
