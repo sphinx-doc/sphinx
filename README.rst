@@ -27,7 +27,7 @@ and translating suite, the Docutils.
 Features
 ========
 
-* **Output formats**: HTML, PDF, plain text, EPub, TeX, manual pages, and more
+* **Output formats**: HTML, PDF, plain text, EPUB, TeX, manual pages, and more
 * **Extensive cross-references**: semantic markup and automatic links
   for functions, classes, glossary terms and similar pieces of information
 * **Hierarchical structure**: easy definition of a document tree, with automatic
