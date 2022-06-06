@@ -21,6 +21,8 @@ Features added
 * Flatten ``Union[Literal[T], Literal[U], ...]`` to ``Literal[T, U, ...]``
   when turning annotations into strings.
   Patch by Adam Turner.
+* #10532: Added the :rst:dir:`collapsible` directive and support for collapsible
+  content in HTML. Patch by Adam Turner.
 
 Bugs fixed
 ----------
