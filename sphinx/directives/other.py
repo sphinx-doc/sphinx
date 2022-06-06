@@ -10,7 +10,7 @@ from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
-from docutils.statemachine import StateMachine, StringList
+from docutils.statemachine import StateMachine
 
 from sphinx import addnodes
 from sphinx.domains.changeset import VersionChange  # NoQA: F401  # for compatibility
@@ -428,10 +428,13 @@ class Collapsible(SphinxDirective):
     has_content = True
     optional_arguments = 1
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: OptionSpec = {
+        'class': directives.class_option,
+        'open': directives.flag,
+    }
 
     @staticmethod
-    def _prepare_argument_string(s: str) -> List[str]:
+    def _prepare_argument_string(s: str) -> str:
         """Prepare a directive argument string.
 
         Remove common leading indentation, where the indentation of the first
@@ -451,13 +454,12 @@ class Collapsible(SphinxDirective):
                 margin = min(margin, indent)
 
         if margin == 10**30:
-            return lines
+            return s
 
-        trimmed_lines = (line[margin:] for line in lines[1:])
-        return [lines[0], *trimmed_lines]
+        return "\n".join((lines[0], *(line[margin:] for line in lines[1:])))
 
     def run(self) -> List[Node]:
-        node = addnodes.collapsible()
+        node = addnodes.collapsible(collapsible_open="open" in self.options)
         node.document = self.state.document
         self.set_source_info(node)
         if len(self.arguments) > 0:
@@ -466,11 +468,9 @@ class Collapsible(SphinxDirective):
             summary = "Collapsed Content"
 
         # parse the argument as reST
-        summary_list = StringList(self._prepare_argument_string(summary), "<string>")
-        summary_node = addnodes.collapsible_summary(summary)
-        self.state.nested_parse(summary_list, 0, summary_node)
-        summary_node[:] = summary_node[0].children  # type: ignore  # remove <p> tag
-        node.append(summary_node)
+        summary_trimmed = self._prepare_argument_string(summary)
+        textnodes, _messages = self.state.inline_text(summary_trimmed, self.lineno)
+        node.append(addnodes.collapsible_summary(summary, "", *textnodes))
 
         # Same as util.nested_parse_with_titles but try to handle nested
         # sections which should be raised higher up the doctree.
