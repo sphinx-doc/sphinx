@@ -237,6 +237,7 @@ a.headerlink {
     visibility: hidden;
 }
 
+{%- if docutils_version_info[:2] < (0, 18) %}
 a.brackets:before,
 span.brackets > a:before{
     content: "[";
@@ -246,6 +247,7 @@ a.brackets:after,
 span.brackets > a:after {
     content: "]";
 }
+{% endif %}
 
 h1:hover > a.headerlink,
 h2:hover > a.headerlink,
