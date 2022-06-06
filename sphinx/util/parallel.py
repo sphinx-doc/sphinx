@@ -55,7 +55,7 @@ class ParallelTasks:
         # task arguments
         self._args: Dict[int, Optional[List[Any]]] = {}
         # list of subprocesses (both started and waiting)
-        self._procs: Dict[int, "ForkProcess"] = {}
+        self._procs: Dict[int, ForkProcess] = {}
         # list of receiving pipe connections of running subprocesses
         self._precvs: Dict[int, Any] = {}
         # list of receiving pipe connections of waiting subprocesses
