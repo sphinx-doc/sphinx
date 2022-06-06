@@ -625,6 +625,25 @@ def process_only_nodes(document: Node, tags: Tags) -> None:
             node.replace_self(nodes.comment())
 
 
+# This constant can be modified by programmers that create their own HTML 5
+# builder outwith the Sphinx core.
+HTML_5_BUILDERS = frozenset({"html", "dirhtml"})
+
+
+def process_collapsible_nodes(document: Node, builder_name: str) -> None:
+    """Filter collapsible and collapsible_summary nodes based on HTML 5 support."""
+
+    for node in document.findall(addnodes.collapsible):
+        if builder_name not in HTML_5_BUILDERS:
+            # A comment on the comment() nodes being inserted: replacing by [] would
+            # result in a "Losing ids" exception if there is a target node before
+            # the only node, so we make sure docutils can transfer the id to
+            # something, even if it's just a comment and will lose the id anyway...
+            # Slicing node.children removes the first element, which will always
+            # be a collapsible_summary node.
+            node.replace_self(node.children[1:] or nodes.comment())
+
+
 def _only_node_keep_children(node: addnodes.only, tags: Tags) -> bool:
     """Keep children if tags match or error."""
     try:
@@ -635,7 +654,6 @@ def _only_node_keep_children(node: addnodes.only, tags: Tags) -> bool:
             err,
             location=node)
         return True
-
 
 def _copy_except__document(el: Element) -> Element:
     """Monkey-patch ```nodes.Element.copy``` to not copy the ``_document``
