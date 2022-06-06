@@ -52,6 +52,17 @@ INVENTORY_FILENAME = 'objects.inv'
 logger = logging.getLogger(__name__)
 return_codes_re = re.compile('[\r\n]+')
 
+DOMAIN_INDEX_TYPE = Tuple[
+    # Index name (e.g. py-modindex)
+    str,
+    # Index class
+    Type[Index],
+    # list of (heading string, list of index entries) pairs.
+    List[Tuple[str, List[IndexEntry]]],
+    # whether sub-entries should start collapsed
+    bool
+]
+
 
 def get_stable_hash(obj: Any) -> str:
     """
@@ -198,7 +209,7 @@ class StandaloneHTMLBuilder(Builder):
     download_support = True  # enable download role
 
     imgpath: str = None
-    domain_indices: List[Tuple[str, Type[Index], List[Tuple[str, List[IndexEntry]]], bool]] = []  # NOQA
+    domain_indices: List[DOMAIN_INDEX_TYPE] = []
 
     def __init__(self, app: Sphinx, env: BuildEnvironment = None) -> None:
         super().__init__(app, env)
