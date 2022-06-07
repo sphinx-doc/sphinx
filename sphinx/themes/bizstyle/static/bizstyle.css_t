@@ -306,6 +306,9 @@ div.quotebar {
     border: 1px solid #ccc;
 }
 
+{%- if docutils_version_info[:2] >= (0, 18) %}
+nav.contents,
+{% endif %}
 div.topic, aside.topic {
     background-color: #f8f8f8;
 }

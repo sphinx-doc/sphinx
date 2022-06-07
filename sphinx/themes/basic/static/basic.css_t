@@ -337,12 +337,18 @@ p.sidebar-title {
     font-weight: bold;
 }
 
+{%- if docutils_version_info[:2] >= (0, 18) %}
+nav.contents,
+{% endif %}
 div.admonition, div.topic, aside.topic, blockquote {
     clear: left;
 }
 
 /* -- topics ---------------------------------------------------------------- */
 
+{%- if docutils_version_info[:2] >= (0, 18) %}
+nav.contents,
+{% endif %}
 div.topic, aside.topic {
     border: 1px solid #ccc;
     padding: 7px;
@@ -381,6 +387,9 @@ div.body p.centered {
 
 div.sidebar > :last-child,
 aside.sidebar > :last-child,
+{%- if docutils_version_info[:2] >= (0, 18) %}
+nav.contents > :last-child,
+{% endif %}
 div.topic > :last-child,
 aside.topic > :last-child,
 div.admonition > :last-child {
@@ -389,6 +398,9 @@ div.admonition > :last-child {
 
 div.sidebar::after,
 aside.sidebar::after,
+{%- if docutils_version_info[:2] >= (0, 18) %}
+nav.contents::after,
+{% endif %}
 div.topic::after,
 aside.topic::after,
 div.admonition::after,
