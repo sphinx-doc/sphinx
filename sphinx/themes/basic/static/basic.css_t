@@ -339,8 +339,9 @@ p.sidebar-title {
 
 {%- if docutils_version_info[:2] >= (0, 18) %}
 nav.contents,
+aside.topic,
 {% endif %}
-div.admonition, div.topic, aside.topic, blockquote {
+div.admonition, div.topic, blockquote {
     clear: left;
 }
 
@@ -348,8 +349,9 @@ div.admonition, div.topic, aside.topic, blockquote {
 
 {%- if docutils_version_info[:2] >= (0, 18) %}
 nav.contents,
+aside.topic,
 {% endif %}
-div.topic, aside.topic {
+div.topic {
     border: 1px solid #ccc;
     padding: 7px;
     margin: 10px 0 10px 0;
@@ -389,9 +391,9 @@ div.sidebar > :last-child,
 aside.sidebar > :last-child,
 {%- if docutils_version_info[:2] >= (0, 18) %}
 nav.contents > :last-child,
+aside.topic > :last-child,
 {% endif %}
 div.topic > :last-child,
-aside.topic > :last-child,
 div.admonition > :last-child {
     margin-bottom: 0;
 }
@@ -400,9 +402,9 @@ div.sidebar::after,
 aside.sidebar::after,
 {%- if docutils_version_info[:2] >= (0, 18) %}
 nav.contents::after,
+aside.topic::after,
 {% endif %}
 div.topic::after,
-aside.topic::after,
 div.admonition::after,
 blockquote::after {
     display: block;

@@ -247,8 +247,9 @@ div.seealso {
 
 {%- if docutils_version_info[:2] >= (0, 18) %}
 nav.contents,
+aside.topic,
 {% endif %}
-div.topic, aside.topic {
+div.topic {
     background: #eeeeee;
     border: 2px solid #C6C9CB;
     padding: 10px 20px;

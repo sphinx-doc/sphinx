@@ -508,8 +508,9 @@ p.rubric {
 
 {%- if docutils_version_info[:2] >= (0, 18) %}
 nav.contents,
+aside.topic,
 {% endif %}
-div.topic, aside.topic {
+div.topic {
     background-color: #eee;
     border: 1px solid #ccc;
     padding: 0 7px 0 7px;

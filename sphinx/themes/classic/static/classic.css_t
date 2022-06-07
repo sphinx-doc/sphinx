@@ -292,8 +292,9 @@ div.seealso {
 
 {%- if docutils_version_info[:2] >= (0, 18) %}
 nav.contents,
+aside.topic,
 {% endif %}
-div.topic, aside.topic {
+div.topic {
     background-color: #eee;
 }
 
