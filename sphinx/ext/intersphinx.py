@@ -19,6 +19,7 @@ This works as follows:
 from __future__ import annotations
 
 import concurrent.futures
+import copy
 import functools
 import posixpath
 import re
@@ -109,7 +110,8 @@ class EnvAdapter:
     def _clear_by_domain_inventory(self) -> None:
         # reinitialize the domain-specific inventory stores
         for domain in self.env.domains.values():
-            self.env.intersphinx_by_domain_inventory[domain.name] = {}  # type: ignore[attr-defined]
+            inv = copy.deepcopy(domain.initial_intersphinx_inventory)
+            self.env.intersphinx_by_domain_inventory[domain.name] = inv  # type: ignore[attr-defined]
 
     @property
     def cache(self) -> dict[str, InventoryCacheEntry]:
@@ -351,50 +353,9 @@ def load_mappings(app: Sphinx) -> None:
             if debug:
                 print("intersphinx debug(load_mappings): domain={}".format(domain_name))
                 print("intersphinx debug(load_mappings): entries={}".format(domain_entries))
+            domain = app.env.domains[domain_name]
             domain_store = inventories.by_domain_inventory[domain_name]
-            domain_store.update(domain_entries)
-
-
-def _resolve_reference_in_domain_by_target(
-        inventory:  dict[str, dict[str, InventoryItemSet]],
-        inv_name: str | None,
-        domain: Domain, objtypes: list[str],
-        target: str,
-        node: pending_xref) -> InventoryItemSet | None:
-    if debug:
-        print("intersphinx debug(_resolve_reference_in_domain_by_target):")
-        print("  domain={}\n  inv_name={}\n  target={}".format(domain.name, inv_name, target))
-        print("  node={}".format(node))
-    for objtype in objtypes:
-        if debug:
-            print("intersphinx debug(_resolve_reference_in_domain_by_target):"
-                  " objtype={}, inInventory={}".format(objtype, objtype in inventory))
-        if objtype not in inventory:
-            # Continue if there's nothing of this kind in the inventory
-            continue
-
-        if target in inventory[objtype]:
-            # Case-sensitive match, use it
-            return inventory[objtype][target]
-        elif domain.name == 'std' and objtype in ('label', 'term'):
-            # Some types require case insensitive matches:
-            # * 'term': https://github.com/sphinx-doc/sphinx/issues/9291
-            # * 'label': https://github.com/sphinx-doc/sphinx/issues/12008
-            target_lower = target.lower()
-            insensitive_matches = list(filter(lambda k: k.lower() == target_lower,
-                                              inventory[objtype].keys()))
-            if insensitive_matches:
-                return inventory[objtype][insensitive_matches[0]]
-            else:
-                # No case-insensitive match either, continue to the next candidate
-                continue
-        else:
-            # Could reach here if we're not a term but have a case-insensitive match.
-            # This is a fix for terms specifically, but potentially should apply to
-            # other types.
-            continue
-        raise AssertionError
-    return None
+            domain.intersphinx_add_entries_v2(domain_store, domain_entries)
 
 
 def _resolve_reference_in_domain(env: BuildEnvironment,
@@ -403,54 +364,17 @@ def _resolve_reference_in_domain(env: BuildEnvironment,
                                  domain: Domain,
                                  node: pending_xref, contnode: TextElement,
                                  ) -> Element | None:
-    typ = node['reftype']
-    if typ == 'any':
-        objtypes = list(domain.object_types)
-    else:
-        for_role = domain.objtypes_for_role(typ)
-        if not for_role:
-            return None
-        objtypes = for_role
-
-    # we adjust the object types for backwards compatibility
-    if domain.name == 'std' and 'cmdoption' in objtypes:
-        # cmdoptions were stored as std:option until Sphinx 1.6
-        objtypes.append('option')
-    if domain.name == 'py' and 'attribute' in objtypes:
-        # properties are stored as py:method since Sphinx 2.1
-        objtypes.append('method')
-
-    # now that the objtypes list is complete we can remove the disabled ones
     if honor_disabled_refs:
         conf = EnvAdapter(env)  # make sure the disabled has been processed
         assert not conf.all_objtypes_disabled
         assert not conf.all_domain_objtypes_disabled(domain.name)
-        objtypes = [o for o in objtypes
-                    if o not in conf.disabled_objtypes_in_domain(domain.name)]
+        disabled_refs = conf.disabled_objtypes_in_domain(domain.name)
+    else:
+        disabled_refs = []
 
-    def resolve() -> InventoryItemSet | None:
-        inventory = EnvAdapter(env).by_domain_inventory[domain.name]
-        # without qualification
-        res = _resolve_reference_in_domain_by_target(inventory, inv_name, domain, objtypes,
-                                                     node['reftarget'], node)
-        if debug:
-            print("intersphinx debug(_resolve_reference_in_domain): unqualified")
-            print("  res={}".format(res))
-        if res is not None:
-            return res
-
-        # try with qualification of the current scope instead
-        full_qualified_name = domain.get_full_qualified_name(node)
-        if full_qualified_name is None:
-            return None
-        res = _resolve_reference_in_domain_by_target(inventory, inv_name, domain, objtypes,
-                                                     full_qualified_name, node)
-        if debug:
-            print("intersphinx debug(_resolve_reference_in_domain): qualified")
-            print("  res={}".format(res))
-        return res
-
-    inv_set = resolve()
+    domain_store = EnvAdapter(env).by_domain_inventory[domain.name]
+    inv_set = domain.intersphinx_resolve_xref(
+        env, domain_store, node['reftype'], node['reftarget'], disabled_refs, node, contnode)
     if debug:
         print("intersphinx debug(_resolve_reference_in_domain): inv_set={}".format(inv_set))
     if inv_set is None:
@@ -474,8 +398,7 @@ def _resolve_reference(env: BuildEnvironment, inv_name: str | None,
     if honor_disabled_refs and EnvAdapter(env).all_objtypes_disabled:
         return None
 
-    typ = node['reftype']
-    if typ == 'any':
+    if node['reftype'] == 'any':
         for domain_name, domain in env.domains.items():
             if (honor_disabled_refs
                     and EnvAdapter(env).all_domain_objtypes_disabled(domain_name)):
