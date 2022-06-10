@@ -198,14 +198,18 @@ class InventoryFile:
 
 
 class InventoryItemSet:
-    """Wrapper for inventory items.
+    """Container with intersphinx resolution data.
 
-    Primary data store is a list of tuples.
+    Instances of this class is stored by domains and later returned
+    during intersphinx reference resolution.
+    The implementation details of this class is thus private for intersphinx.
+
+    The data stored is a list of tuples:
 
     - Element one is a unique reference given in the intersphinx_mapping
-      configuration variable
+      configuration variable.
     - Element two is data about an inventory item in the form of an
-      InventoryItem tuple
+      InventoryItem tuple.
     """
 
     def __init__(self, __items: dict[str | None, list[InventoryItem]] | None = None) -> None:
