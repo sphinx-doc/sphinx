@@ -37,7 +37,7 @@ Documentation.addTranslations({
         "Search": "\u641c\u5c0b",
         "Search Page": "\u641c\u5c0b\u9801\u9762",
         "Search Results": "\u641c\u5c0b\u7d50\u679c",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found ${resultCount} page(s) matching the search query.": "\u641c\u5c0b\u7d50\u675f\uff0c\u5171\u627e\u5230 ${resultCount} \u500b\u9801\u9762\u7b26\u5408\u641c\u5c0b\u689d\u4ef6\u3002",
         "Search within %(docstitle)s": "\u5728 %(docstitle)s \u4e2d\u641c\u5c0b",
         "Searching": "\u641c\u5c0b\u4e2d",
         "Searching for multiple words only shows matches that contain\n    all words.": "\u641c\u5c0b\u591a\u500b\u95dc\u9375\u5b57\u6642\uff0c\u53ea\u6703\u986f\u793a\u5305\u542b\u6240\u6709\u95dc\u9375\u5b57\u7684\u7d50\u679c\u3002",
