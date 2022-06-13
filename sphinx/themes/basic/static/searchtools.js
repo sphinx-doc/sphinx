@@ -158,7 +158,7 @@ const Search = {
     const htmlElement = document
       .createRange()
       .createContextualFragment(htmlString);
-    _removeChildren(htmlElement.querySelectorAll(".headerlink"));
+    htmlElement.querySelectorAll(".headerlink").forEach((el) => el.parentNode.removeChild(el));
     const docContent = htmlElement.querySelector('[role="main"]');
     if (docContent !== undefined) return docContent.textContent;
     console.warn(
