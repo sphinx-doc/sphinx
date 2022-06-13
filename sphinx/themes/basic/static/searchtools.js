@@ -516,7 +516,7 @@ const Search = {
     const top = startWithContext === 0 ? "" : "...";
     const tail = startWithContext + 240 < text.length ? "..." : "";
 
-    let summary = document.createElement("div");
+    let summary = document.createElement("p");
     summary.classList.add("context");
     summary.innerText = top + text.substr(startWithContext, 240).trim() + tail;
 
