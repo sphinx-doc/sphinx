@@ -19,6 +19,8 @@ Features added
 Bugs fixed
 ----------
 
+* #10538: autodoc: Inherited class attribute having docstring is documented even
+  if :confval:`autodoc_inherit_docstring` is disabled
 * #10509: autosummary: autosummary fails with a shared library
 * #10497: py domain: Failed to resolve strings in Literal. Patch by Adam Turner.
 * #10523: HTML Theme: Fix double brackets on citation references in Docutils 0.18+.
