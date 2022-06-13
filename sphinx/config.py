@@ -82,11 +82,11 @@ class Config:
 
     config_values: Dict[str, Tuple] = {
         # general options
-        'project': ('Python', 'env', []),
+        'project': ('Python', 'env', [str]),
         'author': ('unknown', 'env', []),
         'project_copyright': ('', 'html', [str]),
         'copyright': (lambda c: c.project_copyright, 'html', [str]),
-        'version': ('', 'env', []),
+        'version': ('', 'env', [str]),
         'release': ('', 'env', []),
         'today': ('', 'env', []),
         # the real default is locale-dependent
