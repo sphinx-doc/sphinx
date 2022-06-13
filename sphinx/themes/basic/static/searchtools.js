@@ -504,11 +504,12 @@ const Search = {
    * latter for highlighting it.
    */
   makeSearchSummary: (htmlText, keywords, highlightWords) => {
-    const text = Search.htmlToText(htmlText).toLowerCase();
+    const text = Search.htmlToText(htmlText);
     if (text === "") return null;
 
+    const textLower = text.toLowerCase();
     const actualStartPosition = [...keywords]
-      .map((k) => text.indexOf(k.toLowerCase()))
+      .map((k) => textLower.indexOf(k.toLowerCase()))
       .filter((i) => i > -1)
       .slice(-1)[0];
     const startWithContext = Math.max(actualStartPosition - 120, 0);
