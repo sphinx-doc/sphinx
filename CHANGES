@@ -25,6 +25,7 @@ Bugs fixed
 * #10497: py domain: Failed to resolve strings in Literal. Patch by Adam Turner.
 * #10523: HTML Theme: Fix double brackets on citation references in Docutils 0.18+.
   Patch by Adam Turner.
+* #10534: Missing CSS for nav.contents in Docutils 0.18+. Patch by Adam Turner.
 
 Testing
 --------
