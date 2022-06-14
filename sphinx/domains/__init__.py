@@ -469,9 +469,6 @@ class Domain:
         """
         # for std and py to overwrite for their backwards compatibility
         # we adjust the object types for backwards compatibility
-        if self.name == 'std' and 'cmdoption' in objtypes:
-            # until Sphinx-1.6, cmdoptions are stored as std:option
-            objtypes.append('option')
         if self.name == 'py' and 'attribute' in objtypes:
             # Since Sphinx-2.1, properties are stored as py:method
             objtypes.append('method')
@@ -487,29 +484,9 @@ class Domain:
         """
         for objtype in objtypes:
             if objtype not in store:
-                # Continue if there's nothing of this kind in the inventory
                 continue
-
             if target in store[objtype]:
-                # Case-sensitive match, use it
                 return store[objtype][target]
-            elif self.name == 'std' and objtype in ('label', 'term'):
-                # Some types require case-insensitive matches:
-                # * 'term': https://github.com/sphinx-doc/sphinx/issues/9291
-                # * 'label': https://github.com/sphinx-doc/sphinx/issues/12008
-                target_lower = target.lower()
-                insensitive_matches = list(filter(lambda k: k.lower() == target_lower,
-                                                  store[objtype].keys()))
-                if insensitive_matches:
-                    return store[objtype][insensitive_matches[0]]
-                else:
-                    # No case-insensitive match either, continue to the next candidate
-                    continue
-            else:
-                # Could reach here if we're not a term but have a case insensitive match.
-                # This is a fix for terms specifically, but potentially should apply to
-                # other types.
-                continue
         return None
 
     def intersphinx_resolve_xref(self, env: BuildEnvironment,

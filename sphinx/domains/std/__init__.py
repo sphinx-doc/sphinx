@@ -996,6 +996,35 @@ class StandardDomain(Domain):
                                                    labelid, contnode)))
         return results
 
+    def _intersphinx_adjust_object_types(self, objtypes: list[str]) -> None:
+        # we adjust the object types for backwards compatibility
+        if 'cmdoption' in objtypes:
+            # until Sphinx-1.6, cmdoptions are stored as std:option
+            objtypes.append('option')
+
+    def _intersphinx_resolve_xref_lookup(self, store: dict[str, dict[str, Any]],
+                                         target: str, objtypes: list[str]
+                                         ) -> Any | None:
+        # Semi-haxy overwriting of the private method in Domain, as we only need to do
+        # case-insensitive lookup for label term
+        for objtype in objtypes:
+            if objtype not in store:
+                continue
+
+            if target in store[objtype]:
+                # Case-sensitive match, use it
+                return store[objtype][target]
+            elif objtype in ('label', 'term'):
+                # Some types require case-insensitive matches:
+                # * 'term': https://github.com/sphinx-doc/sphinx/issues/9291
+                # * 'label': https://github.com/sphinx-doc/sphinx/issues/12008
+                target_lower = target.lower()
+                insensitive_matches = list(filter(lambda k: k.lower() == target_lower,
+                                                  store[objtype].keys()))
+                if insensitive_matches:
+                    return store[objtype][insensitive_matches[0]]
+        return None
+
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:
         # handle the special 'doc' reference here
         for doc in self.env.all_docs:

@@ -1,6 +1,7 @@
 """Test the intersphinx extension."""
 
 import http.server
+import zlib
 from unittest import mock
 
 import pytest
@@ -248,6 +249,30 @@ def test_missing_reference_stddomain(tmp_path, app, status, warning):
     node, contnode = fake_node('std', 'ref', 'the-julia-domain', 'the-julia-domain')
     rn = missing_reference(app, app.env, node, contnode)
     assert rn.astext() == 'The Julia Domain'
+
+
+def test_std_old_option(tmp_path, app, status, warning):
+    inv_file = tmp_path / 'inventory'
+    inv_file.write_bytes(b'''\
+# Sphinx inventory version 2
+# Project: foo
+# Version: 2.0
+# The remainder of this file is compressed with zlib.
+''' + zlib.compress(b'''\
+ls.-l std:option 1 index.html#cmdoption-ls-l -
+'''))
+    set_config(app, {
+        'cmd': ('https://docs.python.org/', str(inv_file)),
+    })
+
+    # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    kwargs = {'std:program': 'ls'}
+    node, contnode = fake_node('std', 'option', '-l', 'ls -l', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == 'ls -l'
 
 
 @pytest.mark.sphinx('html', testroot='ext-intersphinx-cppdomain')
