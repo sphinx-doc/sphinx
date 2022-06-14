@@ -467,11 +467,7 @@ class Domain:
         After this method returns, the types in *disabled_object_types* are removed
         from *objtypes*. This final list is given to the lookup method.
         """
-        # for std and py to overwrite for their backwards compatibility
-        # we adjust the object types for backwards compatibility
-        if self.name == 'py' and 'attribute' in objtypes:
-            # Since Sphinx-2.1, properties are stored as py:method
-            objtypes.append('method')
+        pass
 
     def _intersphinx_resolve_xref_lookup(self, store: dict[str, dict[str, Any]],
                                          target: str, objtypes: list[str]
