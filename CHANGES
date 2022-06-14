@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #10031: pycode: Fix spurious whitespace in unparsing unary operators (``+``,
+  ``-``, ``~``). Patch by Adam Turner.
+
 Testing
 --------
 
