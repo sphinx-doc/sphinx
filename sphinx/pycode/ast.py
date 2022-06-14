@@ -202,6 +202,8 @@ class _UnparseVisitor(ast.NodeVisitor):
             return "%s[%s]" % (self.visit(node.value), self.visit(node.slice))
 
     def visit_UnaryOp(self, node: ast.UnaryOp) -> str:
+        if not isinstance(node.op, ast.Not):
+            return "%s%s" % (self.visit(node.op), self.visit(node.operand))
         return "%s %s" % (self.visit(node.op), self.visit(node.operand))
 
     def visit_Tuple(self, node: ast.Tuple) -> str:

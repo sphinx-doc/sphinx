@@ -25,7 +25,7 @@ from sphinx.pycode import ast
     ("...", "..."),                             # Ellipsis
     ("a // b", "a // b"),                       # FloorDiv
     ("Tuple[int, int]", "Tuple[int, int]"),     # Index, Subscript
-    ("~ 1", "~ 1"),                             # Invert
+    ("~1", "~1"),                               # Invert
     ("lambda x, y: x + y",
      "lambda x, y: ..."),                       # Lambda
     ("[1, 2, 3]", "[1, 2, 3]"),                 # List
@@ -42,9 +42,9 @@ from sphinx.pycode import ast
     ("{1, 2, 3}", "{1, 2, 3}"),                 # Set
     ("a - b", "a - b"),                         # Sub
     ("'str'", "'str'"),                         # Str
-    ("+ a", "+ a"),                             # UAdd
-    ("- 1", "- 1"),                             # UnaryOp
-    ("- a", "- a"),                             # USub
+    ("+a", "+a"),                               # UAdd
+    ("-1", "-1"),                               # UnaryOp
+    ("-a", "-a"),                               # USub
     ("(1, 2, 3)", "(1, 2, 3)"),                 # Tuple
     ("()", "()"),                               # Tuple (empty)
     ("(1,)", "(1,)"),                           # Tuple (single item)
