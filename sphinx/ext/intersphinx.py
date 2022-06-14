@@ -930,7 +930,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_post_transform(IntersphinxRoleResolver)
     return {
         'version': sphinx.__display_version__,
-        'env_version': 1,
+        'env_version': 2,
         'parallel_read_safe': True,
     }
 
