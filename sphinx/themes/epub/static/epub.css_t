@@ -245,7 +245,11 @@ p.sidebar-title {
 
 /* -- topics ---------------------------------------------------------------- */
 
-div.topic, aside.topic {
+{%- if docutils_version_info[:2] >= (0, 18) %}
+nav.contents,
+aside.topic,
+{% endif %}
+div.topic {
     border: 1px solid #ccc;
     padding: 7px 7px 0 7px;
     margin: 10px 0 10px 0;
