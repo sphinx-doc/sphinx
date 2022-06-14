@@ -203,9 +203,9 @@ class _UnparseVisitor(ast.NodeVisitor):
 
     def visit_UnaryOp(self, node: ast.UnaryOp) -> str:
         # UnaryOp is one of {UAdd, USub, Invert, Not}. Only Not needs a space.
-        if not isinstance(node.op, ast.Not):
-            return "%s%s" % (self.visit(node.op), self.visit(node.operand))
-        return "%s %s" % (self.visit(node.op), self.visit(node.operand))
+        if isinstance(node.op, ast.Not):
+            return "%s %s" % (self.visit(node.op), self.visit(node.operand))
+        return "%s%s" % (self.visit(node.op), self.visit(node.operand))
 
     def visit_Tuple(self, node: ast.Tuple) -> str:
         if len(node.elts) == 0:
