@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: Brandl
+  given-names: Georg
+  alias: birkenfeld
+  email: georg@python.org
+  affiliation: FZ Jülich
+  city: München
+  country: DE
+- family-names: Shimizukawa
+  given-names: Takayuki
+  alias: shimizukawa
+  email: shimizukawa@gmail.com
+  website: "http://about.me/shimizukawa"
+  city: Tokyo
+  country: JP
+- family-names: Komiya
+  given-names: Takeshi
+  alias: tk0miya
+  email: i.tkomiya@gmail.com
+  city: Saitama
+  country: JP
+- family-names: Kampik
+  given-names: Timotheus
+  alias: TimKam
+  orcid: "https://orcid.org/0000-0002-6458-2252"
+  website: "people.cs.umu.se/tkampik"
+title: "Sphinx: Python Documentation Generator"
+version: 5.0.1
+date-released: 2022-06-02
+url: "https://github.com/sphinx-doc/sphinx"
