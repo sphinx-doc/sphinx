@@ -452,6 +452,24 @@ def test_pyfunction_signature_full(app):
                                                         [desc_sig_name, pending_xref, "str"])])])
 
 
+def test_pyfunction_with_unary_operators(app):
+    text = ".. py:function:: menu(egg=+1, bacon=-1, sausage=~1, spam=not spam)"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree[1][0][1],
+                [desc_parameterlist, ([desc_parameter, ([desc_sig_name, "egg"],
+                                                        [desc_sig_operator, "="],
+                                                        [nodes.inline, "+1"])],
+                                      [desc_parameter, ([desc_sig_name, "bacon"],
+                                                        [desc_sig_operator, "="],
+                                                        [nodes.inline, "-1"])],
+                                      [desc_parameter, ([desc_sig_name, "sausage"],
+                                                        [desc_sig_operator, "="],
+                                                        [nodes.inline, "~1"])],
+                                      [desc_parameter, ([desc_sig_name, "spam"],
+                                                        [desc_sig_operator, "="],
+                                                        [nodes.inline, "not spam"])])])
+
+
 @pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
 def test_pyfunction_signature_full_py38(app):
     # case: separator at head
