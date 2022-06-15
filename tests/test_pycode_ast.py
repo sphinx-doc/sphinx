@@ -37,7 +37,7 @@ from sphinx.pycode import ast
     ("1234", "1234"),                           # Num
     ("not a", "not a"),                         # Not
     ("a or b", "a or b"),                       # Or
-    ("a ** b", "a ** b"),                       # Pow
+    ("a**b", "a**b"),                           # Pow
     ("a >> b", "a >> b"),                       # RShift
     ("{1, 2, 3}", "{1, 2, 3}"),                 # Set
     ("a - b", "a - b"),                         # Sub
