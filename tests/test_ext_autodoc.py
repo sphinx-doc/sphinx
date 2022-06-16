@@ -549,6 +549,7 @@ def test_autodoc_members(app):
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base()',
+        '   .. py:attribute:: Base.inheritedattr',
         '   .. py:method:: Base.inheritedclassmeth()',
         '   .. py:method:: Base.inheritedmeth()',
         '   .. py:method:: Base.inheritedstaticmeth(cls)'
@@ -569,6 +570,7 @@ def test_autodoc_members(app):
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base()',
+        '   .. py:attribute:: Base.inheritedattr',
         '   .. py:method:: Base.inheritedclassmeth()',
         '   .. py:method:: Base.inheritedmeth()',
         '   .. py:method:: Base.inheritedstaticmeth(cls)'
@@ -601,6 +603,7 @@ def test_autodoc_exclude_members(app):
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base()',
+        '   .. py:attribute:: Base.inheritedattr',
         '   .. py:method:: Base.inheritedclassmeth()'
     ]
 
@@ -618,6 +621,7 @@ def test_autodoc_exclude_members(app):
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base()',
+        '   .. py:attribute:: Base.inheritedattr',
         '   .. py:method:: Base.inheritedclassmeth()'
     ]
 
@@ -628,6 +632,7 @@ def test_autodoc_exclude_members(app):
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base()',
+        '   .. py:attribute:: Base.inheritedattr',
         '   .. py:method:: Base.inheritedclassmeth()',
         '   .. py:method:: Base.inheritedstaticmeth(cls)'
     ]
@@ -639,6 +644,7 @@ def test_autodoc_exclude_members(app):
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base()',
+        '   .. py:attribute:: Base.inheritedattr',
         '   .. py:method:: Base.inheritedclassmeth()',
     ]
 
@@ -648,6 +654,7 @@ def test_autodoc_exclude_members(app):
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base()',
+        '   .. py:attribute:: Base.inheritedattr',
         '   .. py:method:: Base.inheritedclassmeth()',
     ]
 
@@ -658,6 +665,7 @@ def test_autodoc_exclude_members(app):
     actual = do_autodoc(app, 'class', 'target.inheritance.Base', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Base()',
+        '   .. py:attribute:: Base.inheritedattr',
         '   .. py:method:: Base.inheritedclassmeth()',
         '   .. py:method:: Base.inheritedmeth()',
         '   .. py:method:: Base.inheritedstaticmeth(cls)'

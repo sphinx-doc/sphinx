@@ -377,11 +377,20 @@ in the future.
 .. data:: sphinx_version_tuple
 
    The version of Sphinx used to build represented as a tuple of five elements.
-   For Sphinx version 3.5.1 beta 3 this would be `(3, 5, 1, 'beta', 3)``.
+   For Sphinx version 3.5.1 beta 3 this would be ``(3, 5, 1, 'beta', 3)``.
    The fourth element can be one of: ``alpha``, ``beta``, ``rc``, ``final``.
    ``final`` always has 0 as the last element.
 
    .. versionadded:: 4.2
+
+.. data:: docutils_version_info
+
+   The version of Docutils used to build represented as a tuple of five elements.
+   For Docutils version 0.16.1 beta 2 this would be `(0, 16, 1, 'beta', 2)``.
+   The fourth element can be one of: ``alpha``, ``beta``, ``candidate``, ``final``.
+   ``final`` always has 0 as the last element.
+
+   .. versionadded:: 5.0.2
 
 .. data:: style
 

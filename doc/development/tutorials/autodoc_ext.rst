@@ -123,7 +123,7 @@ For example, you have the following ``IntEnum``:
 
 .. code-block:: python
    :caption: my_enums.py
-   
+
    class Colors(IntEnum):
        """Colors enumerator"""
        NONE = 0
@@ -138,5 +138,3 @@ This will be the documentation file with auto-documentation directive:
    :caption: index.rst
 
    .. autointenum:: my_enums.Colors
-
-

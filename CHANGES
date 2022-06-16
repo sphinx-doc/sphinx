@@ -10,16 +10,23 @@ Incompatible changes
 Deprecated
 ----------
 
+* #10467: Deprecated ``sphinx.util.stemmer`` in favour of ``snowballstemmer``.
+  Patch by Adam Turner.
+
 Features added
 --------------
 
 Bugs fixed
 ----------
 
+* #10031: py domain: Fix spurious whitespace in unparsing various operators (``+``,
+  ``-``, ``~``, and ``**``). Patch by Adam Turner.
+* #10460: logging: Always show node source locations as absolute paths.
+
 Testing
 --------
 
-Release 5.0.2 (in development)
+Release 5.0.3 (in development)
 ==============================
 
 Dependencies
@@ -37,10 +44,28 @@ Features added
 Bugs fixed
 ----------
 
-* #10509: autosummary: autosummary fails with a shared library
-
 Testing
 --------
+
+Release 5.0.2 (released Jun 17, 2022)
+=====================================
+
+Features added
+--------------
+
+* #10523: HTML Theme: Expose the Docutils's version info tuple as a template
+  variable, ``docutils_version_info``. Patch by Adam Turner.
+
+Bugs fixed
+----------
+
+* #10538: autodoc: Inherited class attribute having docstring is documented even
+  if :confval:`autodoc_inherit_docstring` is disabled
+* #10509: autosummary: autosummary fails with a shared library
+* #10497: py domain: Failed to resolve strings in Literal. Patch by Adam Turner.
+* #10523: HTML Theme: Fix double brackets on citation references in Docutils 0.18+.
+  Patch by Adam Turner.
+* #10534: Missing CSS for nav.contents in Docutils 0.18+. Patch by Adam Turner.
 
 Release 5.0.1 (released Jun 03, 2022)
 =====================================
@@ -49,10 +74,11 @@ Bugs fixed
 ----------
 
 * #10498: gettext: TypeError is raised when sorting warning messages if a node
-  has no line number
-* #10493: html theme: :rst:dir:`topic` directive is rendered incorrectly with
-  docutils-0.18
-* #10495: IndexError is raised for a :rst:role:`kbd` role having a separator
+  has no line number. Patch by Adam Turner.
+* #10493: HTML Theme: :rst:dir:`topic` directive is rendered incorrectly with
+  Docutils 0.18. Patch by Adam Turner.
+* #10495: IndexError is raised for a :rst:role:`kbd` role having a separator.
+  Patch by Adam Turner.
 
 Release 5.0.0 (released May 30, 2022)
 =====================================
@@ -93,6 +119,7 @@ Incompatible changes
 
 * #10474: :confval:`language` does not accept ``None`` as it value.  The default
   value of ``language`` becomes to ``'en'`` now.
+  Patch by Adam Turner and Takeshi KOMIYA.
 
 Deprecated
 ----------
@@ -116,6 +143,8 @@ Deprecated
          <script src="{{ pathto('_static/underscore.js', resource=True) }}"></script>
          {{ super() }}
      {%- endblock %}
+
+   Patch by Adam Turner.
 * setuptools integration.  The ``build_sphinx`` sub-command for setup.py is
   marked as deprecated to follow the policy of setuptools team.
 * The ``locale`` argument of ``sphinx.util.i18n:babel_format_date()`` becomes
@@ -148,11 +177,12 @@ Features added
   non-imported
 * #10028: Removed internal usages of JavaScript frameworks (jQuery and
   underscore.js) and modernised ``doctools.js`` and ``searchtools.js`` to
-  EMCAScript 2018.
+  EMCAScript 2018. Patch by Adam Turner.
 * #10302: C++, add support for conditional expressions (``?:``).
 * #5157, #10251: Inline code is able to be highlighted via :rst:dir:`role`
   directive
-* #10337: Make sphinx-build faster by caching Publisher object during build
+* #10337: Make sphinx-build faster by caching Publisher object during build.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------
@@ -160,7 +190,7 @@ Bugs fixed
 5.0.0 b1
 
 * #10200: apidoc: Duplicated submodules are shown for modules having both .pyx
-  and .so files
+  and .so files. Patch by Adam Turner and Takeshi KOMIYA.
 * #10279: autodoc: Default values for keyword only arguments in overloaded
   functions are rendered as a string literal
 * #10280: autodoc: :confval:`autodoc_docstring_signature` unexpectedly generates

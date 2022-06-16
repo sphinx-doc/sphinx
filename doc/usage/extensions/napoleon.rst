@@ -221,7 +221,7 @@ Google style with Python 3 type annotations::
 
         """
         return True
-    
+
     class Class:
         """Summary line.
 
@@ -251,7 +251,7 @@ Google style with types in docstrings::
 
         """
         return True
-    
+
     class Class:
         """Summary line.
 
