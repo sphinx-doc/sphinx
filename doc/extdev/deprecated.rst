@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.util.stemmer``
+     - 5.1
+     - 7.0
+     - ``snowballstemmer``
+
    * - ``sphinx.util.jsdump``
      - 5.0
      - 7.0
