@@ -17,8 +17,7 @@ from docutils.writers import UnfilteredWriter
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.environment import BuildEnvironment
-from sphinx.transforms import (AutoIndexUpgrader, DoctreeReadEvent, FigureAligner,
-                               SphinxTransformer)
+from sphinx.transforms import AutoIndexUpgrader, DoctreeReadEvent, SphinxTransformer
 from sphinx.transforms.i18n import (Locale, PreserveTranslatableMessages,
                                     RemoveTranslatableInline)
 from sphinx.transforms.references import SphinxDomains
@@ -127,7 +126,7 @@ class SphinxI18nReader(SphinxBaseReader):
 
         self.transforms = self.transforms + app.registry.get_transforms()
         unused = [PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
-                  AutoIndexUpgrader, FigureAligner, SphinxDomains, DoctreeReadEvent,
+                  AutoIndexUpgrader, SphinxDomains, DoctreeReadEvent,
                   UIDTransform]
         for transform in unused:
             if transform in self.transforms:

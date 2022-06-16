@@ -2,12 +2,9 @@
 
 import re
 import sys
-import warnings
 from typing import Dict, List, Tuple
 
 from docutils.parsers.rst.states import Body
-
-from sphinx.deprecation import RemovedInSphinx60Warning
 
 field_list_item_re = re.compile(Body.patterns['field_marker'])
 
@@ -39,14 +36,6 @@ def separate_metadata(s: str) -> Tuple[str, Dict[str, str]]:
                 lines.append(line)
 
     return '\n'.join(lines), metadata
-
-
-def extract_metadata(s: str) -> Dict[str, str]:
-    warnings.warn("extract_metadata() is deprecated.",
-                  RemovedInSphinx60Warning, stacklevel=2)
-
-    docstring, metadata = separate_metadata(s)
-    return metadata
 
 
 def prepare_docstring(s: str, tabsize: int = 8) -> List[str]:

@@ -1226,7 +1226,7 @@ def test_assets_order(app):
     assert re.search(pattern, content, re.S)
 
     # js_files
-    expected = ['_static/early.js', '_static/jquery.js', '_static/underscore.js',
+    expected = ['_static/early.js',
                 '_static/doctools.js', 'https://example.com/script.js', '_static/normal.js',
                 '_static/late.js', '_static/js/custom.js', '_static/lazy.js']
     pattern = '.*'.join('src="%s"' % f for f in expected)
@@ -1625,24 +1625,8 @@ def test_html_scaled_image_link(app):
                      context)
 
 
-@pytest.mark.sphinx('html', testroot='reST-code-block',
-                    confoverrides={'html_codeblock_linenos_style': 'table'})
-def test_html_codeblock_linenos_style_table(app):
-    app.build()
-    content = (app.outdir / 'index.html').read_text(encoding='utf8')
-
-    if PYGMENTS_VERSION >= (2, 8):
-        assert ('<div class="linenodiv"><pre><span class="normal">1</span>\n'
-                '<span class="normal">2</span>\n'
-                '<span class="normal">3</span>\n'
-                '<span class="normal">4</span></pre></div>') in content
-    else:
-        assert '<div class="linenodiv"><pre>1\n2\n3\n4</pre></div>' in content
-
-
-@pytest.mark.sphinx('html', testroot='reST-code-block',
-                    confoverrides={'html_codeblock_linenos_style': 'inline'})
-def test_html_codeblock_linenos_style_inline(app):
+@pytest.mark.sphinx('html', testroot='reST-code-block')
+def test_html_codeblock_linenos_style(app):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 

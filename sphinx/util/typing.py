@@ -10,8 +10,7 @@ from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Type, 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
 
-from sphinx.deprecation import (RemovedInSphinx60Warning, RemovedInSphinx70Warning,
-                                deprecated_alias)
+from sphinx.deprecation import RemovedInSphinx70Warning
 
 if sys.version_info > (3, 7):
     from typing import ForwardRef
@@ -536,10 +535,3 @@ def _stringify_py36(annotation: Any, mode: str = 'fully-qualified-except-typing'
                 return '%sUnion[%s]' % (modprefix, param_str)
 
     return modprefix + qualname
-
-
-deprecated_alias('sphinx.util.typing',
-                 {
-                     'DirectiveOption': Callable[[str], Any],
-                 },
-                 RemovedInSphinx60Warning)
