@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.util.stemmer``
+     - 5.1
+     - 7.0
+     - ``snowballstemmer``
+
    * - ``sphinx.util.jsdump``
      - 5.0
      - 7.0
@@ -824,7 +829,7 @@ The following is a list of deprecated interfaces.
      - ``sphinx.domains.std.StandardDomain.process_doc()``
 
    * - ``sphinx.domains.js.JSObject.display_prefix``
-     - 
+     -
      - 4.3
      - ``sphinx.domains.js.JSObject.get_display_prefix()``
 

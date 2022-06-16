@@ -396,7 +396,7 @@ class PyXrefMixin:
                 results.append(self.make_xref(rolename, domain, sub_target,
                                               innernode, contnode, env, inliner, location))
 
-            if sub_target in ('Literal', 'typing.Literal'):
+            if sub_target in ('Literal', 'typing.Literal', '~typing.Literal'):
                 in_literal = True
 
         return results

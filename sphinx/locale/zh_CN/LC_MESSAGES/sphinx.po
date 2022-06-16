@@ -18,15 +18,15 @@
 # Takeshi KOMIYA <i.tkomiya@gmail.com>, 2019,2021-2022
 # Tower Joo<zhutao.iscas@gmail.com>, 2009
 # wendi cao <651645601@qq.com>, 2020
-# Yinian Chin <yinian1992@live.com>, 2013,2018,2020
+# Yinian Chin <yinian1992@live.com>, 2013,2018,2020,2022
 # Yinian Chin <yinian1992@live.com>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-05-29 07:39+0000\n"
+"POT-Creation-Date: 2022-06-12 00:20+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
-"Last-Translator: JY3, 2022\n"
+"Last-Translator: Yinian Chin <yinian1992@live.com>, 2013,2018,2020,2022\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/sphinx-doc/sphinx-1/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -190,8 +190,8 @@ msgstr "配置目录中缺少 conf.py 文件 (%s)"
 #: sphinx/config.py:172
 msgid ""
 "Invalid configuration value found: 'language = None'. Update your "
-"configuration to a valid langauge code. Falling back to 'en' (English)."
-msgstr ""
+"configuration to a valid language code. Falling back to 'en' (English)."
+msgstr "发现无效的配置值：'language = None'。请修改为有效的语言代码。回退至 'en' （英语）。"
 
 #: sphinx/config.py:201
 #, python-format
@@ -590,7 +590,7 @@ msgstr "命令行给出了 %d 个源文件"
 msgid "targets for %d source files that are out of date"
 msgstr "%d 个源文件的目标文件已过期"
 
-#: sphinx/builders/__init__.py:298 sphinx/builders/gettext.py:233
+#: sphinx/builders/__init__.py:298 sphinx/builders/gettext.py:236
 #, python-format
 msgid "building [%s]: "
 msgstr "构建 [%s]： "
@@ -787,21 +787,21 @@ msgstr "对于 EPUB3 格式，配置项“version”不能为空"
 msgid "invalid css_file: %r, ignored"
 msgstr "无效的 css_file：%r，已忽略"
 
-#: sphinx/builders/gettext.py:212
+#: sphinx/builders/gettext.py:215
 #, python-format
 msgid "The message catalogs are in %(outdir)s."
 msgstr "消息目录保存在 %(outdir)s 目录。"
 
-#: sphinx/builders/gettext.py:234
+#: sphinx/builders/gettext.py:237
 #, python-format
 msgid "targets for %d template files"
 msgstr "%d 个模板文件的目标文件"
 
-#: sphinx/builders/gettext.py:238
+#: sphinx/builders/gettext.py:241
 msgid "reading templates... "
 msgstr "读取模板... "
 
-#: sphinx/builders/gettext.py:266
+#: sphinx/builders/gettext.py:269
 msgid "writing message catalogs... "
 msgstr "写入消息目录... "
 
@@ -823,7 +823,7 @@ msgstr "锚点“%s”未找到"
 #: sphinx/builders/linkcheck.py:553
 #, python-format
 msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
-msgstr ""
+msgstr "无法编译 linkcheck_allowed_redirects 中的正则表达式：%r %s"
 
 #: sphinx/builders/manpage.py:30
 #, python-format
@@ -979,7 +979,7 @@ msgstr "无法复制可下载文件 %r：%s"
 #: sphinx/builders/html/__init__.py:805 sphinx/builders/html/__init__.py:817
 #, python-format
 msgid "Failed to copy a file in html_static_file: %s: %r"
-msgstr ""
+msgstr "无法复制 html_static_file 中的文件：%s: %r"
 
 #: sphinx/builders/html/__init__.py:838
 msgid "copying static files"
@@ -1086,7 +1086,7 @@ msgstr "网站图标 文件 %r 不存在"
 msgid ""
 "html_add_permalinks has been deprecated since v3.5.0. Please use "
 "html_permalinks and html_permalinks_icon instead."
-msgstr ""
+msgstr "html_add_permalinks 自 v3.5.0 后废止。请改用 html_permalinks 和 html_permalinks_icon。"
 
 #: sphinx/builders/html/__init__.py:1340
 #, python-format
@@ -1155,7 +1155,7 @@ msgstr "未知配置项：latex_elements[%r]，已忽略。"
 #: sphinx/builders/latex/__init__.py:453
 #, python-format
 msgid "Unknown theme option: latex_theme_options[%r], ignored."
-msgstr ""
+msgstr "未知主题选项：latex_theme_options[%r]，已忽略。"
 
 #: sphinx/builders/latex/theming.py:83
 #, python-format
@@ -1199,7 +1199,7 @@ msgid ""
 "This can happen with very large or deeply nested source files. You can "
 "carefully increase the default Python recursion limit of 1000 in conf.py "
 "with e.g.:"
-msgstr ""
+msgstr "在源文件过大或嵌套层数过深时会出现此错误。你可以在 conf.py 中增大默认的Python 递归 1000 层限制，像这样："
 
 #: sphinx/cmd/build.py:65
 msgid "Exception occurred:"
@@ -1222,7 +1222,7 @@ msgid "job number should be a positive number"
 msgstr "工作编号应为正值"
 
 #: sphinx/cmd/build.py:98 sphinx/cmd/quickstart.py:462
-#: sphinx/ext/apidoc.py:303 sphinx/ext/autosummary/generate.py:573
+#: sphinx/ext/apidoc.py:303 sphinx/ext/autosummary/generate.py:577
 msgid "For more information, visit <https://www.sphinx-doc.org/>."
 msgstr "要了解更多，请访问 <https://www.sphinx-doc.org/>。"
 
@@ -1243,7 +1243,7 @@ msgid ""
 "\n"
 "By default, everything that is outdated is built. Output only for selected\n"
 "files can be built by specifying individual filenames.\n"
-msgstr ""
+msgstr "\n从源文件生成文档。\n\nsphinx-build 从 SOURCEDIR 中的文件生成文档，并保存在 OUTPUTDIR。\n它从 SOURCEDIR 的“conf.py” 中读取配置。“sphinx-quickstart”工具可以生\n成包括“conf.py”在内的模板文件。\n\nsphinx-build 可以生成多种格式的文档。在命令行中指定构建器名称即可\n选择文档格式，默认是 HTML。构建器也可以执行文档处理相关的其他\n任务。\n\n默认只会重新构建过期内容。如果指定了文件名，那么只会产生这些文件\n的输出。\n"
 
 #: sphinx/cmd/build.py:120
 msgid "path to documentation source files"
@@ -1516,7 +1516,7 @@ msgid ""
 "Python the version is something like 2.5 or 3.0, while the release is\n"
 "something like 2.5.1 or 3.0a1. If you don't need this dual structure,\n"
 "just set both to the same value."
-msgstr ""
+msgstr "在 Sphinx 中，会区分“版本”和“发行版本”两个概念。同一版本可以\n有多个发行版本。例如，Python 版本可以是 2.5 或 3.0，而发行版\n本则是 2.5.1 或 3.0a1。如果你不需要这样的双重版本结构，请把这\n两个选项设置为相同值。"
 
 #: sphinx/cmd/quickstart.py:256
 msgid "Project version"
@@ -1544,7 +1544,7 @@ msgstr "项目语种"
 msgid ""
 "The file name suffix for source files. Commonly, this is either \".txt\"\n"
 "or \".rst\". Only files with this suffix are considered documents."
-msgstr ""
+msgstr "源文件的文件名后缀。一般是“.txt”或“.rst”。只有此后缀的文件才会\n被视为文档的源文件。"
 
 #: sphinx/cmd/quickstart.py:276
 msgid "Source file suffix"
@@ -1670,7 +1670,7 @@ msgstr "如果指定了此选项，将使用独立的源文件目录和构建目
 
 #: sphinx/cmd/quickstart.py:478
 msgid "if specified, create build dir under source dir"
-msgstr ""
+msgstr "如已指定，在源文件目录下创建构建目录"
 
 #: sphinx/cmd/quickstart.py:480
 msgid "replacement for dot in _templates etc."
@@ -1834,7 +1834,7 @@ msgstr "行规范 %r：未能从包含文件 %r 中拉取行"
 #: sphinx/directives/other.py:102
 #, python-format
 msgid "toctree glob pattern %r didn't match any documents"
-msgstr ""
+msgstr "目录树 glob 规则 %r 未匹配到文档"
 
 #: sphinx/directives/other.py:123 sphinx/environment/adapters/toctree.py:168
 #, python-format
@@ -1849,7 +1849,7 @@ msgstr "目录树引用的文档 %r 不存在"
 #: sphinx/directives/other.py:136
 #, python-format
 msgid "duplicated entry found in toctree: %s"
-msgstr ""
+msgstr "在目录树中发现重复条目：%s"
 
 #: sphinx/directives/other.py:168
 msgid "Section author: "
@@ -1896,7 +1896,7 @@ msgstr ""
 #: sphinx/domains/c.py:3226
 #, python-format
 msgid "%s (C %s)"
-msgstr ""
+msgstr "%s (C %s)"
 
 #: sphinx/domains/c.py:3347 sphinx/domains/cpp.py:7320
 #: sphinx/domains/python.py:433 sphinx/ext/napoleon/docstring.py:727
@@ -1936,7 +1936,7 @@ msgstr "宏"
 
 #: sphinx/domains/c.py:3754
 msgid "struct"
-msgstr ""
+msgstr "结构体"
 
 #: sphinx/domains/c.py:3755 sphinx/domains/cpp.py:7732
 msgid "union"
@@ -1956,7 +1956,7 @@ msgstr "类型"
 
 #: sphinx/domains/c.py:3760 sphinx/domains/cpp.py:7740
 msgid "function parameter"
-msgstr ""
+msgstr "函数参数"
 
 #: sphinx/domains/changeset.py:20
 #, python-format
@@ -1988,7 +1988,7 @@ msgstr "引文 [%s] 没有被引用过。"
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
-msgstr ""
+msgstr "重复的 C++ 声明，已经在 %s:%s 处声明。\n声明为 '.. cpp:%s:: %s '."
 
 #: sphinx/domains/cpp.py:7081
 msgid "Template Parameters"
@@ -2014,12 +2014,12 @@ msgstr "概念"
 
 #: sphinx/domains/cpp.py:7741
 msgid "template parameter"
-msgstr ""
+msgstr "模板参数"
 
 #: sphinx/domains/javascript.py:131
 #, python-format
 msgid "%s() (built-in function)"
-msgstr "%s() (內置函数)"
+msgstr "%s() (内置函数)"
 
 #: sphinx/domains/javascript.py:132 sphinx/domains/python.py:824
 #, python-format
@@ -2104,7 +2104,7 @@ msgstr "语句"
 
 #: sphinx/domains/python.py:56
 msgid "built-in function"
-msgstr "內置函数"
+msgstr "内置函数"
 
 #: sphinx/domains/python.py:438
 msgid "Variables"
@@ -2128,12 +2128,12 @@ msgstr "%s() (在 %s 模块中)"
 #: sphinx/domains/python.py:731
 #, python-format
 msgid "%s (built-in variable)"
-msgstr "%s (內置变量)"
+msgstr "%s (内置变量)"
 
 #: sphinx/domains/python.py:756
 #, python-format
 msgid "%s (built-in class)"
-msgstr "%s (內置类)"
+msgstr "%s (内置类)"
 
 #: sphinx/domains/python.py:757
 #, python-format
@@ -2148,7 +2148,7 @@ msgstr "%s() (%s 类方法)"
 #: sphinx/domains/python.py:820 sphinx/domains/python.py:960
 #, python-format
 msgid "%s (%s property)"
-msgstr ""
+msgstr "%s (%s 属性)"
 
 #: sphinx/domains/python.py:822
 #, python-format
@@ -2177,7 +2177,7 @@ msgstr "静态方法"
 
 #: sphinx/domains/python.py:1163
 msgid "property"
-msgstr ""
+msgstr "属性"
 
 #: sphinx/domains/python.py:1221
 #, python-format
@@ -2330,12 +2330,12 @@ msgstr "无效的 numfig_format：%s"
 #: sphinx/domains/std.py:1075
 #, python-format
 msgid "undefined label: %s"
-msgstr ""
+msgstr "未定义的标签：%s"
 
 #: sphinx/domains/std.py:1077
 #, python-format
 msgid "Failed to create a cross reference. A title or caption not found: %s"
-msgstr ""
+msgstr "无法创建交叉引用。未找到标题或图题：%s"
 
 #: sphinx/environment/__init__.py:71
 msgid "new config"
@@ -3040,24 +3040,24 @@ msgid ""
 msgstr "autosummary 内部生成 .rst 文件，但是 source_suffix 中不包含 .rst，已跳过。"
 
 #: sphinx/ext/autosummary/generate.py:151
-#: sphinx/ext/autosummary/generate.py:219
+#: sphinx/ext/autosummary/generate.py:223
 #, python-format
 msgid ""
 "autosummary: failed to determine %r to be documented, the following exception was raised:\n"
 "%s"
 msgstr "autosummary：无法判断是否生成 %r 的文档。出现了下列异常：\n%s"
 
-#: sphinx/ext/autosummary/generate.py:357
+#: sphinx/ext/autosummary/generate.py:361
 #, python-format
 msgid "[autosummary] generating autosummary for: %s"
 msgstr "[autosummary] 生成 autosummary：%s"
 
-#: sphinx/ext/autosummary/generate.py:361
+#: sphinx/ext/autosummary/generate.py:365
 #, python-format
 msgid "[autosummary] writing to %s"
 msgstr "[autosummary] 写入 %s"
 
-#: sphinx/ext/autosummary/generate.py:404
+#: sphinx/ext/autosummary/generate.py:408
 #, python-format
 msgid ""
 "[autosummary] failed to import %s.\n"
@@ -3065,7 +3065,7 @@ msgid ""
 "%s"
 msgstr ""
 
-#: sphinx/ext/autosummary/generate.py:574
+#: sphinx/ext/autosummary/generate.py:578
 msgid ""
 "\n"
 "Generate ReStructuredText using autosummary directives.\n"
@@ -3080,30 +3080,30 @@ msgid ""
 "  pydoc sphinx.ext.autosummary\n"
 msgstr "\n用 autosummary 指令生成 ReStructuredText\n\nsphinx-autogen 是 sphinx.ext.autosummary.generate 的前端，它根据给定\n的输入文件中的 autosummary 指令生成 reStructuredText  文件\n\nautosummary 指令的格式见 Python 模块 ``sphinx.ext.autosummary`` 的文\n档，并且可以这样调出文档阅读::\n\n  pydoc sphinx.ext.autosummary\n"
 
-#: sphinx/ext/autosummary/generate.py:591
+#: sphinx/ext/autosummary/generate.py:595
 msgid "source files to generate rST files for"
 msgstr "用于生成 rST 文件的源文件"
 
-#: sphinx/ext/autosummary/generate.py:595
+#: sphinx/ext/autosummary/generate.py:599
 msgid "directory to place all output in"
 msgstr "输出目录"
 
-#: sphinx/ext/autosummary/generate.py:598
+#: sphinx/ext/autosummary/generate.py:602
 #, python-format
 msgid "default suffix for files (default: %(default)s)"
 msgstr "默认的文件名后缀（默认：%(default)s）"
 
-#: sphinx/ext/autosummary/generate.py:602
+#: sphinx/ext/autosummary/generate.py:606
 #, python-format
 msgid "custom template directory (default: %(default)s)"
 msgstr "自定义模板目录（默认：%(default)s）"
 
-#: sphinx/ext/autosummary/generate.py:606
+#: sphinx/ext/autosummary/generate.py:610
 #, python-format
 msgid "document imported members (default: %(default)s)"
 msgstr "文档导入的成员（默认：%(default)s）"
 
-#: sphinx/ext/autosummary/generate.py:610
+#: sphinx/ext/autosummary/generate.py:614
 #, python-format
 msgid ""
 "document exactly the members in module __all__ attribute. (default: "

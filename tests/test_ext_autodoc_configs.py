@@ -278,6 +278,72 @@ def test_autodoc_inherit_docstrings(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_inherit_docstrings_for_inherited_members(app):
+    options = {"members": None,
+               "inherited-members": None}
+
+    assert app.config.autodoc_inherit_docstrings is True  # default
+    actual = do_autodoc(app, 'class', 'target.inheritance.Derived', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Derived()',
+        '   :module: target.inheritance',
+        '',
+        '',
+        '   .. py:attribute:: Derived.inheritedattr',
+        '      :module: target.inheritance',
+        '      :value: None',
+        '',
+        '      docstring',
+        '',
+        '',
+        '   .. py:method:: Derived.inheritedclassmeth()',
+        '      :module: target.inheritance',
+        '      :classmethod:',
+        '',
+        '      Inherited class method.',
+        '',
+        '',
+        '   .. py:method:: Derived.inheritedmeth()',
+        '      :module: target.inheritance',
+        '',
+        '      Inherited function.',
+        '',
+        '',
+        '   .. py:method:: Derived.inheritedstaticmeth(cls)',
+        '      :module: target.inheritance',
+        '      :staticmethod:',
+        '',
+        '      Inherited static method.',
+        '',
+    ]
+
+    # disable autodoc_inherit_docstrings
+    app.config.autodoc_inherit_docstrings = False
+    actual = do_autodoc(app, 'class', 'target.inheritance.Derived', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Derived()',
+        '   :module: target.inheritance',
+        '',
+        '',
+        '   .. py:method:: Derived.inheritedclassmeth()',
+        '      :module: target.inheritance',
+        '      :classmethod:',
+        '',
+        '      Inherited class method.',
+        '',
+        '',
+        '   .. py:method:: Derived.inheritedstaticmeth(cls)',
+        '      :module: target.inheritance',
+        '      :staticmethod:',
+        '',
+        '      Inherited static method.',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_docstring_signature(app):
     options = {"members": None, "special-members": "__init__, __new__"}
     actual = do_autodoc(app, 'class', 'target.DocstringSig', options)

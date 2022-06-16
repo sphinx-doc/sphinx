@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-05-29 07:39+0000\n"
+"POT-Creation-Date: 2022-06-05 00:21+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: YT H <dev@theYT.net>, 2019-2022\n"
 "Language-Team: Korean (http://www.transifex.com/sphinx-doc/sphinx-1/language/ko/)\n"
@@ -175,8 +175,8 @@ msgstr "설정 디렉토리에 conf.py 파일이 없습니다 (%s)"
 #: sphinx/config.py:172
 msgid ""
 "Invalid configuration value found: 'language = None'. Update your "
-"configuration to a valid langauge code. Falling back to 'en' (English)."
-msgstr ""
+"configuration to a valid language code. Falling back to 'en' (English)."
+msgstr "잘못된 구성 값을 찾았습니다: 'language = None'. 유효한 언어 코드로 구성을 업데이트하십시오. 대신 'en'(영어)을 사용합니다."
 
 #: sphinx/config.py:201
 #, python-format
@@ -575,7 +575,7 @@ msgstr "명령줄에 지정된 %d 개의 원본 파일"
 msgid "targets for %d source files that are out of date"
 msgstr "오래된 %d 개의 원본 파일 대상"
 
-#: sphinx/builders/__init__.py:298 sphinx/builders/gettext.py:233
+#: sphinx/builders/__init__.py:298 sphinx/builders/gettext.py:236
 #, python-format
 msgid "building [%s]: "
 msgstr "빌드 중 [%s]: "
@@ -772,21 +772,21 @@ msgstr "설정값 \"version\"은 EPUB3의 경우 비워 둘 수 없습니다"
 msgid "invalid css_file: %r, ignored"
 msgstr "잘못된 css_file: %r, 무시합니다"
 
-#: sphinx/builders/gettext.py:212
+#: sphinx/builders/gettext.py:215
 #, python-format
 msgid "The message catalogs are in %(outdir)s."
 msgstr "메시지 카탈로그는 %(outdir)s에 있습니다."
 
-#: sphinx/builders/gettext.py:234
+#: sphinx/builders/gettext.py:237
 #, python-format
 msgid "targets for %d template files"
 msgstr "%d 개의 템플릿 파일 대상"
 
-#: sphinx/builders/gettext.py:238
+#: sphinx/builders/gettext.py:241
 msgid "reading templates... "
 msgstr "템플릿을 읽는 중… "
 
-#: sphinx/builders/gettext.py:266
+#: sphinx/builders/gettext.py:269
 msgid "writing message catalogs... "
 msgstr "메시지 카탈로그 작성 중… "
 
@@ -1207,7 +1207,7 @@ msgid "job number should be a positive number"
 msgstr "작업 숫자는 양수여야 합니다"
 
 #: sphinx/cmd/build.py:98 sphinx/cmd/quickstart.py:462
-#: sphinx/ext/apidoc.py:303 sphinx/ext/autosummary/generate.py:573
+#: sphinx/ext/apidoc.py:303 sphinx/ext/autosummary/generate.py:577
 msgid "For more information, visit <https://www.sphinx-doc.org/>."
 msgstr "자세한 내용은 <https://www.sphinx-doc.org/>를 참조하십시오."
 
@@ -2704,7 +2704,7 @@ msgid ""
 "Unable to run the image conversion command %r. 'sphinx.ext.imgconverter' requires ImageMagick by default. Ensure it is installed, or set the 'image_converter' option to a custom conversion command.\n"
 "\n"
 "Traceback: %s"
-msgstr ""
+msgstr "이미지 변환 명령 %r을(를) 실행할 수 없습니다. 'sphinx.ext.imgconverter'에는 기본적으로 ImageMagick이 필요합니다. 해당 프로그램이 설치되어 있는지 확인하거나, 'image_converter' 옵션을 사용자 정의 변환 명령으로 설정하십시오.\n\n역추적: %s"
 
 #: sphinx/ext/imgconverter.py:42 sphinx/ext/imgconverter.py:66
 #, python-format
@@ -3025,24 +3025,24 @@ msgid ""
 msgstr "autosummary는 내부적으로 .rst 파일을 생성합니다. 하지만 source_suffix에 .rst가 포함되어 있지 않습니다. 건너뜁니다."
 
 #: sphinx/ext/autosummary/generate.py:151
-#: sphinx/ext/autosummary/generate.py:219
+#: sphinx/ext/autosummary/generate.py:223
 #, python-format
 msgid ""
 "autosummary: failed to determine %r to be documented, the following exception was raised:\n"
 "%s"
 msgstr "autosummary: 문서화 할 %r을(를) 결정하지 못했으며, 다음 예외가 발생했습니다:\n%s"
 
-#: sphinx/ext/autosummary/generate.py:357
+#: sphinx/ext/autosummary/generate.py:361
 #, python-format
 msgid "[autosummary] generating autosummary for: %s"
 msgstr "[autosummary] 자동 요약 생성: %s"
 
-#: sphinx/ext/autosummary/generate.py:361
+#: sphinx/ext/autosummary/generate.py:365
 #, python-format
 msgid "[autosummary] writing to %s"
 msgstr "[autosummary] %s에 기록"
 
-#: sphinx/ext/autosummary/generate.py:404
+#: sphinx/ext/autosummary/generate.py:408
 #, python-format
 msgid ""
 "[autosummary] failed to import %s.\n"
@@ -3050,7 +3050,7 @@ msgid ""
 "%s"
 msgstr "[autosummary] %s을(를) import 하지 못했습니다.\n가능한 힌트:\n%s"
 
-#: sphinx/ext/autosummary/generate.py:574
+#: sphinx/ext/autosummary/generate.py:578
 msgid ""
 "\n"
 "Generate ReStructuredText using autosummary directives.\n"
@@ -3065,30 +3065,30 @@ msgid ""
 "  pydoc sphinx.ext.autosummary\n"
 msgstr "\nautosummary 지시문을 사용하여 ReStructuredText를 생성합니다.\n\nsphinx-autogen은 sphinx.ext.autosummary.generate의 프런트엔드입니다.\n주어진 입력 파일에 포함된 autosummary 지시문에서 reStructuredText 파일을 생성합니다.\n\nautosummary 지시문의 형식은 ``sphinx.ext.autosummary`` Python 모듈에 문서화되어 있으며 다음 명령을 사용하여 읽을 수 있습니다.\n\n  pydoc sphinx.ext.autosummary\n"
 
-#: sphinx/ext/autosummary/generate.py:591
+#: sphinx/ext/autosummary/generate.py:595
 msgid "source files to generate rST files for"
 msgstr "rST 파일을 생성할 원본 파일"
 
-#: sphinx/ext/autosummary/generate.py:595
+#: sphinx/ext/autosummary/generate.py:599
 msgid "directory to place all output in"
 msgstr "모든 출력을 저장할 디렉토리"
 
-#: sphinx/ext/autosummary/generate.py:598
+#: sphinx/ext/autosummary/generate.py:602
 #, python-format
 msgid "default suffix for files (default: %(default)s)"
 msgstr "파일의 기본 확장자 (기본값: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:602
+#: sphinx/ext/autosummary/generate.py:606
 #, python-format
 msgid "custom template directory (default: %(default)s)"
 msgstr "사용자 정의 템플릿 디렉토리 (기본값: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:606
+#: sphinx/ext/autosummary/generate.py:610
 #, python-format
 msgid "document imported members (default: %(default)s)"
 msgstr "가져온 멤버 문서화 (기본값: %(default)s)"
 
-#: sphinx/ext/autosummary/generate.py:610
+#: sphinx/ext/autosummary/generate.py:614
 #, python-format
 msgid ""
 "document exactly the members in module __all__ attribute. (default: "

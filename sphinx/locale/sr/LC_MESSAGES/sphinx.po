@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-05-29 07:39+0000\n"
+"POT-Creation-Date: 2022-06-12 00:20+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Vladimir Milovanović <vmilovanovic@gmail.com>, 2020\n"
 "Language-Team: Serbian (http://www.transifex.com/sphinx-doc/sphinx-1/language/sr/)\n"
@@ -175,7 +175,7 @@ msgstr "Конфигурациони директоријум не садржи 
 #: sphinx/config.py:172
 msgid ""
 "Invalid configuration value found: 'language = None'. Update your "
-"configuration to a valid langauge code. Falling back to 'en' (English)."
+"configuration to a valid language code. Falling back to 'en' (English)."
 msgstr ""
 
 #: sphinx/config.py:201
@@ -575,7 +575,7 @@ msgstr ""
 msgid "targets for %d source files that are out of date"
 msgstr ""
 
-#: sphinx/builders/__init__.py:298 sphinx/builders/gettext.py:233
+#: sphinx/builders/__init__.py:298 sphinx/builders/gettext.py:236
 #, python-format
 msgid "building [%s]: "
 msgstr ""
@@ -772,21 +772,21 @@ msgstr ""
 msgid "invalid css_file: %r, ignored"
 msgstr ""
 
-#: sphinx/builders/gettext.py:212
+#: sphinx/builders/gettext.py:215
 #, python-format
 msgid "The message catalogs are in %(outdir)s."
 msgstr ""
 
-#: sphinx/builders/gettext.py:234
+#: sphinx/builders/gettext.py:237
 #, python-format
 msgid "targets for %d template files"
 msgstr ""
 
-#: sphinx/builders/gettext.py:238
+#: sphinx/builders/gettext.py:241
 msgid "reading templates... "
 msgstr ""
 
-#: sphinx/builders/gettext.py:266
+#: sphinx/builders/gettext.py:269
 msgid "writing message catalogs... "
 msgstr ""
 
@@ -1207,7 +1207,7 @@ msgid "job number should be a positive number"
 msgstr ""
 
 #: sphinx/cmd/build.py:98 sphinx/cmd/quickstart.py:462
-#: sphinx/ext/apidoc.py:303 sphinx/ext/autosummary/generate.py:573
+#: sphinx/ext/apidoc.py:303 sphinx/ext/autosummary/generate.py:577
 msgid "For more information, visit <https://www.sphinx-doc.org/>."
 msgstr ""
 
@@ -3025,24 +3025,24 @@ msgid ""
 msgstr ""
 
 #: sphinx/ext/autosummary/generate.py:151
-#: sphinx/ext/autosummary/generate.py:219
+#: sphinx/ext/autosummary/generate.py:223
 #, python-format
 msgid ""
 "autosummary: failed to determine %r to be documented, the following exception was raised:\n"
 "%s"
 msgstr ""
 
-#: sphinx/ext/autosummary/generate.py:357
+#: sphinx/ext/autosummary/generate.py:361
 #, python-format
 msgid "[autosummary] generating autosummary for: %s"
 msgstr ""
 
-#: sphinx/ext/autosummary/generate.py:361
+#: sphinx/ext/autosummary/generate.py:365
 #, python-format
 msgid "[autosummary] writing to %s"
 msgstr ""
 
-#: sphinx/ext/autosummary/generate.py:404
+#: sphinx/ext/autosummary/generate.py:408
 #, python-format
 msgid ""
 "[autosummary] failed to import %s.\n"
@@ -3050,7 +3050,7 @@ msgid ""
 "%s"
 msgstr ""
 
-#: sphinx/ext/autosummary/generate.py:574
+#: sphinx/ext/autosummary/generate.py:578
 msgid ""
 "\n"
 "Generate ReStructuredText using autosummary directives.\n"
@@ -3065,30 +3065,30 @@ msgid ""
 "  pydoc sphinx.ext.autosummary\n"
 msgstr ""
 
-#: sphinx/ext/autosummary/generate.py:591
+#: sphinx/ext/autosummary/generate.py:595
 msgid "source files to generate rST files for"
 msgstr ""
 
-#: sphinx/ext/autosummary/generate.py:595
+#: sphinx/ext/autosummary/generate.py:599
 msgid "directory to place all output in"
-msgstr ""
-
-#: sphinx/ext/autosummary/generate.py:598
-#, python-format
-msgid "default suffix for files (default: %(default)s)"
 msgstr ""
 
 #: sphinx/ext/autosummary/generate.py:602
 #, python-format
-msgid "custom template directory (default: %(default)s)"
+msgid "default suffix for files (default: %(default)s)"
 msgstr ""
 
 #: sphinx/ext/autosummary/generate.py:606
 #, python-format
-msgid "document imported members (default: %(default)s)"
+msgid "custom template directory (default: %(default)s)"
 msgstr ""
 
 #: sphinx/ext/autosummary/generate.py:610
+#, python-format
+msgid "document imported members (default: %(default)s)"
+msgstr ""
+
+#: sphinx/ext/autosummary/generate.py:614
 #, python-format
 msgid ""
 "document exactly the members in module __all__ attribute. (default: "

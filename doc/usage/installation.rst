@@ -118,7 +118,7 @@ Chocolatey
 ::
 
    $ choco install sphinx
-   
+
 You would need to `install Chocolatey
 <https://chocolatey.org/install>`_
 before running this.

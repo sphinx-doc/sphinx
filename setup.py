@@ -42,6 +42,7 @@ extras_require = {
         'flake8>=3.5.0',
         'isort',
         'mypy>=0.950',
+        'sphinx-lint',
         'docutils-stubs',
         "types-typed-ast",
         "types-requests",
@@ -67,6 +68,7 @@ setup(
     long_description_content_type='text/x-rst',
     project_urls={
         "Code": "https://github.com/sphinx-doc/sphinx",
+        "Changelog": "https://www.sphinx-doc.org/en/master/changes.html",
         "Issue tracker": "https://github.com/sphinx-doc/sphinx/issues",
     },
     zip_safe=False,
