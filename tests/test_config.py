@@ -411,7 +411,7 @@ def test_conf_py_language_none_warning(logger, tempdir):
     assert logger.warning.called
     assert logger.warning.call_args[0][0] == (
         "Invalid configuration value found: 'language = None'. "
-        "Update your configuration to a valid langauge code. "
+        "Update your configuration to a valid language code. "
         "Falling back to 'en' (English).")
 
 

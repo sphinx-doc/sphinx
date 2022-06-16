@@ -40,7 +40,9 @@ class KeyboardTransform(SphinxPostTransform):
 
     def run(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.literal, classes=["kbd"])
-        for node in self.document.findall(matcher):  # type: nodes.literal
+        # this list must be pre-created as during iteration new nodes
+        # are added which match the condition in the NodeMatcher.
+        for node in list(self.document.findall(matcher)):  # type: nodes.literal
             parts = self.pattern.split(node[-1].astext())
             if len(parts) == 1 or self.is_multiwords_key(parts):
                 continue

@@ -155,8 +155,12 @@ class ModuleScanner:
 
     def scan(self, imported_members: bool) -> List[str]:
         members = []
-        analyzer = ModuleAnalyzer.for_module(self.object.__name__)
-        attr_docs = analyzer.find_attr_docs()
+        try:
+            analyzer = ModuleAnalyzer.for_module(self.object.__name__)
+            attr_docs = analyzer.find_attr_docs()
+        except PycodeError:
+            attr_docs = {}
+
         for name in members_of(self.object, self.app.config):
             try:
                 value = safe_getattr(self.object, name)
@@ -351,7 +355,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
                               suffix: str = '.rst', base_path: str = None,
                               imported_members: bool = False, app: Any = None,
                               overwrite: bool = True, encoding: str = 'utf-8') -> None:
-    showed_sources = list(sorted(sources))
+    showed_sources = sorted(sources)
     if len(showed_sources) > 20:
         showed_sources = showed_sources[:10] + ['...'] + showed_sources[-10:]
     logger.info(__('[autosummary] generating autosummary for: %s') %
@@ -400,7 +404,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
                 else:
                     exceptions = exc.exceptions + [exc2]
 
-                errors = list(set("* %s: %s" % (type(e).__name__, e) for e in exceptions))
+                errors = list({"* %s: %s" % (type(e).__name__, e) for e in exceptions})
                 logger.warning(__('[autosummary] failed to import %s.\nPossible hints:\n%s'),
                                entry.name, '\n'.join(errors))
                 continue
@@ -464,7 +468,7 @@ def find_autosummary_in_docstring(name: str, filename: str = None) -> List[Autos
     except AttributeError:
         pass
     except ImportExceptionGroup as exc:
-        errors = list(set("* %s: %s" % (type(e).__name__, e) for e in exc.exceptions))
+        errors = list({"* %s: %s" % (type(e).__name__, e) for e in exc.exceptions})
         print('Failed to import %s.\nPossible hints:\n%s' % (name, '\n'.join(errors)))
     except SystemExit:
         print("Failed to import '%s'; the module executes module level "

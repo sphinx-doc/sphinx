@@ -129,7 +129,7 @@ class Sphinx:
 
     def __init__(self, srcdir: str, confdir: Optional[str], outdir: str, doctreedir: str,
                  buildername: str, confoverrides: Dict = None,
-                 status: IO = sys.stdout, warning: IO = sys.stderr,
+                 status: Optional[IO] = sys.stdout, warning: Optional[IO] = sys.stderr,
                  freshenv: bool = False, warningiserror: bool = False, tags: List[str] = None,
                  verbosity: int = 0, parallel: int = 0, keep_going: bool = False) -> None:
         self.phase = BuildPhase.INITIALIZATION
