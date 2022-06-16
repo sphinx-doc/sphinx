@@ -13,7 +13,7 @@ Some additional anchors to exercise ignore code
 * `Complete nonsense <https://localhost:7777/doesnotexist>`_
 * `Example valid local file <conf.py>`_
 * `Example invalid local file <path/to/notfound>`_
-* https://github.com/sphinx-doc/sphinx/blob/4.x/sphinx/__init__.py#L2
+* https://github.com/sphinx-doc/sphinx/blob/master/sphinx/__init__.py#L2
 
 .. image:: https://www.google.com/image.png
 .. figure:: https://www.google.com/image2.png

@@ -278,6 +278,72 @@ def test_autodoc_inherit_docstrings(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_inherit_docstrings_for_inherited_members(app):
+    options = {"members": None,
+               "inherited-members": None}
+
+    assert app.config.autodoc_inherit_docstrings is True  # default
+    actual = do_autodoc(app, 'class', 'target.inheritance.Derived', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Derived()',
+        '   :module: target.inheritance',
+        '',
+        '',
+        '   .. py:attribute:: Derived.inheritedattr',
+        '      :module: target.inheritance',
+        '      :value: None',
+        '',
+        '      docstring',
+        '',
+        '',
+        '   .. py:method:: Derived.inheritedclassmeth()',
+        '      :module: target.inheritance',
+        '      :classmethod:',
+        '',
+        '      Inherited class method.',
+        '',
+        '',
+        '   .. py:method:: Derived.inheritedmeth()',
+        '      :module: target.inheritance',
+        '',
+        '      Inherited function.',
+        '',
+        '',
+        '   .. py:method:: Derived.inheritedstaticmeth(cls)',
+        '      :module: target.inheritance',
+        '      :staticmethod:',
+        '',
+        '      Inherited static method.',
+        '',
+    ]
+
+    # disable autodoc_inherit_docstrings
+    app.config.autodoc_inherit_docstrings = False
+    actual = do_autodoc(app, 'class', 'target.inheritance.Derived', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Derived()',
+        '   :module: target.inheritance',
+        '',
+        '',
+        '   .. py:method:: Derived.inheritedclassmeth()',
+        '      :module: target.inheritance',
+        '      :classmethod:',
+        '',
+        '      Inherited class method.',
+        '',
+        '',
+        '   .. py:method:: Derived.inheritedstaticmeth(cls)',
+        '      :module: target.inheritance',
+        '      :staticmethod:',
+        '',
+        '      Inherited static method.',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_docstring_signature(app):
     options = {"members": None, "special-members": "__init__, __new__"}
     actual = do_autodoc(app, 'class', 'target.DocstringSig', options)
@@ -1034,22 +1100,27 @@ def test_autodoc_typehints_description_with_documented_init(app):
     )
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
-    assert ('class target.typehints._ClassWithDocumentedInit(x)\n'
+    assert ('class target.typehints._ClassWithDocumentedInit(x, *args, **kwargs)\n'
             '\n'
             '   Class docstring.\n'
             '\n'
             '   Parameters:\n'
-            '      **x** (*int*) --\n'
+            '      * **x** (*int*) --\n'
             '\n'
-            '   Return type:\n'
-            '      None\n'
+            '      * **args** (*int*) --\n'
             '\n'
-            '   __init__(x)\n'
+            '      * **kwargs** (*int*) --\n'
+            '\n'
+            '   __init__(x, *args, **kwargs)\n'
             '\n'
             '      Init docstring.\n'
             '\n'
             '      Parameters:\n'
-            '         **x** (*int*) -- Some integer\n'
+            '         * **x** (*int*) -- Some integer\n'
+            '\n'
+            '         * **args** (*int*) -- Some integer\n'
+            '\n'
+            '         * **kwargs** (*int*) -- Some integer\n'
             '\n'
             '      Return type:\n'
             '         None\n' == context)
@@ -1066,16 +1137,20 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc(app):
     )
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
-    assert ('class target.typehints._ClassWithDocumentedInit(x)\n'
+    assert ('class target.typehints._ClassWithDocumentedInit(x, *args, **kwargs)\n'
             '\n'
             '   Class docstring.\n'
             '\n'
-            '   __init__(x)\n'
+            '   __init__(x, *args, **kwargs)\n'
             '\n'
             '      Init docstring.\n'
             '\n'
             '      Parameters:\n'
-            '         **x** (*int*) -- Some integer\n' == context)
+            '         * **x** (*int*) -- Some integer\n'
+            '\n'
+            '         * **args** (*int*) -- Some integer\n'
+            '\n'
+            '         * **kwargs** (*int*) -- Some integer\n' == context)
 
 
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
@@ -1092,16 +1167,20 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc_doc_rtype(a
     )
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
-    assert ('class target.typehints._ClassWithDocumentedInit(x)\n'
+    assert ('class target.typehints._ClassWithDocumentedInit(x, *args, **kwargs)\n'
             '\n'
             '   Class docstring.\n'
             '\n'
-            '   __init__(x)\n'
+            '   __init__(x, *args, **kwargs)\n'
             '\n'
             '      Init docstring.\n'
             '\n'
             '      Parameters:\n'
-            '         **x** (*int*) -- Some integer\n' == context)
+            '         * **x** (*int*) -- Some integer\n'
+            '\n'
+            '         * **args** (*int*) -- Some integer\n'
+            '\n'
+            '         * **kwargs** (*int*) -- Some integer\n' == context)
 
 
 @pytest.mark.sphinx('text', testroot='ext-autodoc',

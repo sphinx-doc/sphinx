@@ -4,8 +4,9 @@ import os
 import re
 from typing import Dict, List
 
+import snowballstemmer
+
 from sphinx.search import SearchLanguage
-from sphinx.util.stemmer import get_stemmer
 
 try:
     import jieba
@@ -230,7 +231,7 @@ class SearchChinese(SearchLanguage):
             if dict_path and os.path.isfile(dict_path):
                 jieba.load_userdict(dict_path)
 
-        self.stemmer = get_stemmer()
+        self.stemmer = snowballstemmer.stemmer('english')
 
     def split(self, input: str) -> List[str]:
         chinese: List[str] = []
@@ -252,8 +253,8 @@ class SearchChinese(SearchLanguage):
         should_not_be_stemmed = (
             word in self.latin_terms and
             len(word) >= 3 and
-            len(self.stemmer.stem(word.lower())) < 3
+            len(self.stemmer.stemWord(word.lower())) < 3
         )
         if should_not_be_stemmed:
             return word.lower()
-        return self.stemmer.stem(word.lower())
+        return self.stemmer.stemWord(word.lower())

@@ -30,9 +30,13 @@ class ImagemagickConverter(ImageConverter):
             subprocess.run(args, stdout=PIPE, stderr=PIPE, check=True)
             return True
         except OSError as exc:
-            logger.warning(__('convert command %r cannot be run, '
-                              'check the image_converter setting: %s'),
-                           self.config.image_converter, exc)
+            logger.warning(__(
+                "Unable to run the image conversion command %r. "
+                "'sphinx.ext.imgconverter' requires ImageMagick by default. "
+                "Ensure it is installed, or set the 'image_converter' option "
+                "to a custom conversion command.\n\n"
+                "Traceback: %s"
+            ), self.config.image_converter, exc)
             return False
         except CalledProcessError as exc:
             logger.warning(__('convert exited with error:\n'

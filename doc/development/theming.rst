@@ -248,11 +248,11 @@ Now, you will have access to this function in jinja like so:
 Add your own static files to the build assets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you are packaging your own build assets with an extension
-(e.g., a CSS or JavaScript file), you need to ensure that they are placed
-in the ``_static/`` folder of HTML outputs. To do so, you may copy them directly
-into a build's ``_static/`` folder at build time, generally via an event hook.
-Here is some sample code to accomplish this:
+By default, Sphinx copies static files on the ``static/`` directory of the template
+directory.  However, if your package needs to place static files outside of the
+``static/`` directory for some reasons, you need to copy them to the ``_static/``
+directory of HTML outputs manually at the build via an event hook.  Here is an
+example of code to accomplish this:
 
 .. code-block:: python
 

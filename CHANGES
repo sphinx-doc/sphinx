@@ -10,17 +10,28 @@ Incompatible changes
 Deprecated
 ----------
 
+* #10467: Deprecated ``sphinx.util.stemmer`` in favour of ``snowballstemmer``.
+  Patch by Adam Turner.
+
 Features added
 --------------
+
+* #10366: std domain: Add support for emphasising placeholders in :rst:dir`option`
+  directives through a new ``option_emphasise_placeholders`` configuration option.
 
 Bugs fixed
 ----------
 
+* #10031: py domain: Fix spurious whitespace in unparsing various operators (``+``,
+  ``-``, ``~``, and ``**``). Patch by Adam Turner.
+* #10460: logging: Always show node source locations as absolute paths.
+* #10520: HTML Theme: Fix use of sidebar classes in ``agogo.css_t``.
+
 Testing
 --------
 
-Release 5.0.0 beta2 (in development)
-====================================
+Release 5.0.3 (in development)
+==============================
 
 Dependencies
 ------------
@@ -40,17 +51,55 @@ Bugs fixed
 Testing
 --------
 
-Release 5.0.0 beta1 (released May 09, 2022)
-===========================================
+Release 5.0.2 (released Jun 17, 2022)
+=====================================
+
+Features added
+--------------
+
+* #10523: HTML Theme: Expose the Docutils's version info tuple as a template
+  variable, ``docutils_version_info``. Patch by Adam Turner.
+
+Bugs fixed
+----------
+
+* #10538: autodoc: Inherited class attribute having docstring is documented even
+  if :confval:`autodoc_inherit_docstring` is disabled
+* #10509: autosummary: autosummary fails with a shared library
+* #10497: py domain: Failed to resolve strings in Literal. Patch by Adam Turner.
+* #10523: HTML Theme: Fix double brackets on citation references in Docutils 0.18+.
+  Patch by Adam Turner.
+* #10534: Missing CSS for nav.contents in Docutils 0.18+. Patch by Adam Turner.
+
+Release 5.0.1 (released Jun 03, 2022)
+=====================================
+
+Bugs fixed
+----------
+
+* #10498: gettext: TypeError is raised when sorting warning messages if a node
+  has no line number. Patch by Adam Turner.
+* #10493: HTML Theme: :rst:dir:`topic` directive is rendered incorrectly with
+  Docutils 0.18. Patch by Adam Turner.
+* #10495: IndexError is raised for a :rst:role:`kbd` role having a separator.
+  Patch by Adam Turner.
+
+Release 5.0.0 (released May 30, 2022)
+=====================================
 
 Dependencies
 ------------
+
+5.0.0 b1
+
 * #10164: Support `Docutils 0.18`_. Patch by Adam Turner.
 
 .. _Docutils 0.18:  https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-18-2021-10-26
 
 Incompatible changes
 --------------------
+
+5.0.0 b1
 
 * #10031: autosummary: ``sphinx.ext.autosummary.import_by_name()`` now raises
   ``ImportExceptionGroup`` instead of ``ImportError`` when it failed to import
@@ -70,8 +119,16 @@ Incompatible changes
 * #10062: Change the default language to ``'en'`` if any language is not set in
   ``conf.py``
 
+5.0.0 final
+
+* #10474: :confval:`language` does not accept ``None`` as it value.  The default
+  value of ``language`` becomes to ``'en'`` now.
+  Patch by Adam Turner and Takeshi KOMIYA.
+
 Deprecated
 ----------
+
+5.0.0 b1
 
 * #10028: jQuery and underscore.js will no longer be automatically injected into
   themes from Sphinx 6.0. If you develop a theme or extension that uses the
@@ -90,6 +147,8 @@ Deprecated
          <script src="{{ pathto('_static/underscore.js', resource=True) }}"></script>
          {{ super() }}
      {%- endblock %}
+
+   Patch by Adam Turner.
 * setuptools integration.  The ``build_sphinx`` sub-command for setup.py is
   marked as deprecated to follow the policy of setuptools team.
 * The ``locale`` argument of ``sphinx.util.i18n:babel_format_date()`` becomes
@@ -104,6 +163,8 @@ Deprecated
 
 Features added
 --------------
+
+5.0.0 b1
 
 * #9075: autodoc: The default value of :confval:`autodoc_typehints_format` is
   changed to ``'smart'``.  It will suppress the leading module names of
@@ -120,17 +181,20 @@ Features added
   non-imported
 * #10028: Removed internal usages of JavaScript frameworks (jQuery and
   underscore.js) and modernised ``doctools.js`` and ``searchtools.js`` to
-  EMCAScript 2018.
+  EMCAScript 2018. Patch by Adam Turner.
 * #10302: C++, add support for conditional expressions (``?:``).
 * #5157, #10251: Inline code is able to be highlighted via :rst:dir:`role`
   directive
-* #10337: Make sphinx-build faster by caching Publisher object during build
+* #10337: Make sphinx-build faster by caching Publisher object during build.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------
 
+5.0.0 b1
+
 * #10200: apidoc: Duplicated submodules are shown for modules having both .pyx
-  and .so files
+  and .so files. Patch by Adam Turner and Takeshi KOMIYA.
 * #10279: autodoc: Default values for keyword only arguments in overloaded
   functions are rendered as a string literal
 * #10280: autodoc: :confval:`autodoc_docstring_signature` unexpectedly generates
@@ -158,8 +222,21 @@ Bugs fixed
 * #10318: ``:prepend:`` option of :rst:dir:`literalinclude` directive does not
   work with ``:dedent:`` option
 
-Release 4.5.1 (in development)
-==============================
+5.0.0 final
+
+* #9575: autodoc: The annotation of return value should not be shown when
+  ``autodoc_typehints="description"``
+* #9648: autodoc: ``*args`` and ``**kwargs`` entries are duplicated when
+  ``autodoc_typehints="description"``
+* #8180: autodoc: Docstring metadata ignored for attributes
+* #10443: epub: EPUB builder can't detect the mimetype of .webp file
+* #10104: gettext: Duplicated locations are shown if 3rd party extension does
+  not provide correct information
+* #10456: py domain: ``:meta:`` fields are displayed if docstring contains two
+  or more meta-field
+* #9096: sphinx-build: the value of progress bar for paralle build is wrong
+* #10110: sphinx-build: exit code is not changed when error is raised on
+  builder-finished event
 
 Release 4.5.0 (released Mar 28, 2022)
 =====================================

@@ -26,6 +26,7 @@ from sphinx.builders import Builder
 from sphinx.config import ENUM, Config
 from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
 from sphinx.domains import Domain, Index, IndexEntry
+from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
@@ -50,6 +51,17 @@ INVENTORY_FILENAME = 'objects.inv'
 
 logger = logging.getLogger(__name__)
 return_codes_re = re.compile('[\r\n]+')
+
+DOMAIN_INDEX_TYPE = Tuple[
+    # Index name (e.g. py-modindex)
+    str,
+    # Index class
+    Type[Index],
+    # list of (heading string, list of index entries) pairs.
+    List[Tuple[str, List[IndexEntry]]],
+    # whether sub-entries should start collapsed
+    bool
+]
 
 
 def get_stable_hash(obj: Any) -> str:
@@ -197,10 +209,10 @@ class StandaloneHTMLBuilder(Builder):
     download_support = True  # enable download role
 
     imgpath: str = None
-    domain_indices: List[Tuple[str, Type[Index], List[Tuple[str, List[IndexEntry]]], bool]] = []  # NOQA
+    domain_indices: List[DOMAIN_INDEX_TYPE] = []
 
-    def __init__(self, app: Sphinx) -> None:
-        super().__init__(app)
+    def __init__(self, app: Sphinx, env: BuildEnvironment = None) -> None:
+        super().__init__(app, env)
 
         # CSS files
         self.css_files: List[Stylesheet] = []
@@ -536,6 +548,7 @@ class StandaloneHTMLBuilder(Builder):
             'css_files': self.css_files,
             'sphinx_version': __display_version__,
             'sphinx_version_tuple': sphinx_version,
+            'docutils_version_info': docutils.__version_info__[:5],
             'style': self._get_style_filename(),
             'rellinks': rellinks,
             'builder': self.name,
@@ -1055,7 +1068,7 @@ class StandaloneHTMLBuilder(Builder):
         # sort JS/CSS before rendering HTML
         try:
             # Convert script_files to list to support non-list script_files (refs: #8889)
-            ctx['script_files'] = sorted(list(ctx['script_files']), key=lambda js: js.priority)
+            ctx['script_files'] = sorted(ctx['script_files'], key=lambda js: js.priority)
         except AttributeError:
             # Skip sorting if users modifies script_files directly (maybe via `html_context`).
             # refs: #8885
@@ -1064,7 +1077,7 @@ class StandaloneHTMLBuilder(Builder):
             pass
 
         try:
-            ctx['css_files'] = sorted(list(ctx['css_files']), key=lambda css: css.priority)
+            ctx['css_files'] = sorted(ctx['css_files'], key=lambda css: css.priority)
         except AttributeError:
             pass
 

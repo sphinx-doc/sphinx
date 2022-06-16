@@ -1735,3 +1735,25 @@ def test_html_code_role(app):
     assert ('<div class="highlight-python notranslate">' +
             '<div class="highlight"><pre><span></span>' +
             common_content) in content
+
+
+@pytest.mark.sphinx('html', testroot='root',
+                    confoverrides={'option_emphasise_placeholders': True})
+def test_option_emphasise_placeholders(app, status, warning):
+    app.build()
+    content = (app.outdir / 'objects.html').read_text()
+    assert '<em><span class="pre">TYPE</span></em>' in content
+    assert '{TYPE}' not in content
+    assert ('<em><span class="pre">WHERE</span></em>'
+            '<span class="pre">-</span>'
+            '<em><span class="pre">COUNT</span></em>' in content)
+    assert '<span class="pre">{{value}}</span>' in content
+
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_option_emphasise_placeholders_default(app, status, warning):
+    app.build()
+    content = (app.outdir / 'objects.html').read_text()
+    assert '<span class="pre">={TYPE}</span>' in content
+    assert '<span class="pre">={WHERE}-{COUNT}</span></span>' in content
+    assert '<span class="pre">{client_name}</span>' in content

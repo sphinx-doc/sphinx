@@ -156,7 +156,7 @@ def test_get_toc_for(app):
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_get_toc_for_only(app):
     app.build()
-    builder = StandaloneHTMLBuilder(app)
+    builder = StandaloneHTMLBuilder(app, app.env)
     toctree = TocTree(app.env).get_toc_for('index', builder)
 
     assert_node(toctree,

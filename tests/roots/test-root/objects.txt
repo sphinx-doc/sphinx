@@ -194,6 +194,15 @@ Link to :option:`perl +p`, :option:`--ObjC++`, :option:`--plugin.option`, :optio
 
 Link to :option:`hg commit` and :option:`git commit -p`.
 
+.. option:: --abi={TYPE}
+
+.. option:: --test={WHERE}-{COUNT}
+
+.. option:: --wrap=\{\{value\}\}
+
+.. option:: -allowable_client {client_name}
+
+Foo bar.
 
 User markup
 ===========

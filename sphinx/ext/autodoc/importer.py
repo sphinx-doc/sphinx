@@ -205,8 +205,8 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
     return members
 
 
-def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable
-                      ) -> Dict[str, "ObjectMember"]:
+def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable,
+                      inherit_docstrings: bool = True) -> Dict[str, "ObjectMember"]:
     """Get members and attributes of target class."""
     from sphinx.ext.autodoc import INSTANCEATTR, ObjectMember
 
@@ -280,12 +280,24 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable
                     members[name] = ObjectMember(name, INSTANCEATTR, class_=cls,
                                                  docstring=docstring)
 
-            # append instance attributes (cf. self.attr1) if analyzer knows
+            # append or complete instance attributes (cf. self.attr1) if analyzer knows
             if analyzer:
                 for (ns, name), docstring in analyzer.attr_docs.items():
                     if ns == qualname and name not in members:
+                        # otherwise unknown instance attribute
                         members[name] = ObjectMember(name, INSTANCEATTR, class_=cls,
                                                      docstring='\n'.join(docstring))
+                    elif (ns == qualname and docstring and
+                          isinstance(members[name], ObjectMember) and
+                          not members[name].docstring):
+                        if cls != subject and not inherit_docstrings:
+                            # If we are in the MRO of the class and not the class itself,
+                            # and we do not want to inherit docstrings, then skip setting
+                            # the docstring below
+                            continue
+                        # attribute is already known, because dir(subject) enumerates it.
+                        # But it has no docstring yet
+                        members[name].docstring = '\n'.join(docstring)
     except AttributeError:
         pass
 

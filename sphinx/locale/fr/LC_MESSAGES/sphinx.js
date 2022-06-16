@@ -37,7 +37,7 @@ Documentation.addTranslations({
         "Search": "Recherche",
         "Search Page": "Page de recherche",
         "Search Results": "R\u00e9sultats de la recherche",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found ${resultCount} page(s) matching the search query.": "Recherche termin\u00e9e, ${resultCount} page(s) correspondant \u00e0 la requ\u00eate de recherche ont \u00e9t\u00e9 trouv\u00e9es.",
         "Search within %(docstitle)s": "Recherchez dans %(docstitle)s",
         "Searching": "Recherche en cours",
         "Searching for multiple words only shows matches that contain\n    all words.": "Une recherche sur plusieurs mots ne retourne que les r\u00e9sultats contenant tous les mots.",
@@ -57,5 +57,5 @@ Documentation.addTranslations({
         "search this documentation": "rechercher dans cette documentation",
         "the documentation for": "la documentation pour"
     },
-    "plural_expr": "(n > 1)"
+    "plural_expr": "(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2"
 });
