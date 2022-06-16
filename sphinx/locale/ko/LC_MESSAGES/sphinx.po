@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-05-22 00:18+0000\n"
+"POT-Creation-Date: 2022-05-29 07:39+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: YT H <dev@theYT.net>, 2019-2022\n"
 "Language-Team: Korean (http://www.transifex.com/sphinx-doc/sphinx-1/language/ko/)\n"
@@ -67,7 +67,7 @@ msgstr "현재 conf.py 파일에 정의된 'setup'은 호출 가능한 Python �
 msgid "loading translations [%s]... "
 msgstr "번역을 불러오는 중 [%s]… "
 
-#: sphinx/application.py:282 sphinx/util/__init__.py:504
+#: sphinx/application.py:282 sphinx/util/__init__.py:509
 msgid "done"
 msgstr "완료"
 
@@ -88,55 +88,55 @@ msgstr "실패: %s"
 msgid "No builder selected, using default: html"
 msgstr "선택한 빌더가 없으므로, 기본값인 html을 사용합니다"
 
-#: sphinx/application.py:334
+#: sphinx/application.py:343
 msgid "succeeded"
 msgstr "성공"
 
-#: sphinx/application.py:335
+#: sphinx/application.py:344
 msgid "finished with problems"
 msgstr "완료했으나 문제점 발견"
 
-#: sphinx/application.py:339
+#: sphinx/application.py:348
 #, python-format
 msgid "build %s, %s warning (with warnings treated as errors)."
 msgstr "빌드 %s, 경고가 %s 개 발생했습니다 (경고를 오류로 처리)."
 
-#: sphinx/application.py:341
+#: sphinx/application.py:350
 #, python-format
 msgid "build %s, %s warnings (with warnings treated as errors)."
 msgstr "빌드 %s, 경고가 %s 개 발생했습니다 (경고를 오류로 처리)."
 
-#: sphinx/application.py:344
+#: sphinx/application.py:353
 #, python-format
 msgid "build %s, %s warning."
 msgstr "빌드 %s, 경고가 %s 개 발생했습니다."
 
-#: sphinx/application.py:346
+#: sphinx/application.py:355
 #, python-format
 msgid "build %s, %s warnings."
 msgstr "빌드 %s, 경고가 %s 개 발생했습니다."
 
-#: sphinx/application.py:350
+#: sphinx/application.py:359
 #, python-format
 msgid "build %s."
 msgstr "빌드 %s."
 
-#: sphinx/application.py:580
+#: sphinx/application.py:581
 #, python-format
 msgid "node class %r is already registered, its visitors will be overridden"
 msgstr "%r 노드 클래스가 이미 등록되어 있으며, 방문자를 무시합니다"
 
-#: sphinx/application.py:658
+#: sphinx/application.py:659
 #, python-format
 msgid "directive %r is already registered, it will be overridden"
 msgstr "%r 지시문이 이미 등록되어 있으며, 재정의됩니다"
 
-#: sphinx/application.py:679 sphinx/application.py:700
+#: sphinx/application.py:680 sphinx/application.py:701
 #, python-format
 msgid "role %r is already registered, it will be overridden"
 msgstr "%r 역할이 이미 등록되어 있으며, 재정의됩니다"
 
-#: sphinx/application.py:1248
+#: sphinx/application.py:1249
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel reading, "
@@ -144,12 +144,12 @@ msgid ""
 "explicit"
 msgstr "%s 확장 기능은 병렬 읽기에 안전한지 선언하지 않았으므로, 그렇지 않다고 가정합니다. 확장 기능 작성자에게 확인하고 명시하도록 요청하십시오"
 
-#: sphinx/application.py:1252
+#: sphinx/application.py:1253
 #, python-format
 msgid "the %s extension is not safe for parallel reading"
 msgstr "%s 확장 기능은 병렬 읽기에 안전하지 않습니다"
 
-#: sphinx/application.py:1255
+#: sphinx/application.py:1256
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel writing, "
@@ -157,12 +157,12 @@ msgid ""
 "explicit"
 msgstr "%s 확장 기능은 병렬 쓰기에 안전한지 선언하지 않았으므로, 그렇지 않다고 가정합니다. 확장 기능 작성자에게 확인하고 명시하도록 요청하십시오"
 
-#: sphinx/application.py:1259
+#: sphinx/application.py:1260
 #, python-format
 msgid "the %s extension is not safe for parallel writing"
 msgstr "%s 확장 기능은 병렬 쓰기에 안전하지 않습니다"
 
-#: sphinx/application.py:1267 sphinx/application.py:1271
+#: sphinx/application.py:1268 sphinx/application.py:1272
 #, python-format
 msgid "doing serial %s"
 msgstr "병렬 %s 처리"
@@ -172,49 +172,55 @@ msgstr "병렬 %s 처리"
 msgid "config directory doesn't contain a conf.py file (%s)"
 msgstr "설정 디렉토리에 conf.py 파일이 없습니다 (%s)"
 
-#: sphinx/config.py:190
+#: sphinx/config.py:172
+msgid ""
+"Invalid configuration value found: 'language = None'. Update your "
+"configuration to a valid langauge code. Falling back to 'en' (English)."
+msgstr ""
+
+#: sphinx/config.py:201
 #, python-format
 msgid ""
 "cannot override dictionary config setting %r, ignoring (use %r to set "
 "individual elements)"
 msgstr "Dictionary 구성 설정 %r을(를) 재정의할 수 없으며, 무시합니다 (개별 요소를 설정하기 위해 %r 사용)"
 
-#: sphinx/config.py:199
+#: sphinx/config.py:210
 #, python-format
 msgid "invalid number %r for config value %r, ignoring"
 msgstr "숫자 %r이(가) 설정값 %r에 대해 유효하지 않으며, 무시합니다"
 
-#: sphinx/config.py:204
+#: sphinx/config.py:215
 #, python-format
 msgid "cannot override config setting %r with unsupported type, ignoring"
 msgstr "지원되지 않는 유형의 구성 설정 %r을(를) 재정의 할 수 없으며, 무시합니다"
 
-#: sphinx/config.py:233
+#: sphinx/config.py:244
 #, python-format
 msgid "unknown config value %r in override, ignoring"
 msgstr "재정의 중 알 수 없는 설정값 %r, 무시합니다"
 
-#: sphinx/config.py:261
+#: sphinx/config.py:272
 #, python-format
 msgid "No such config value: %s"
 msgstr "해당 설정값이 없습니다: %s"
 
-#: sphinx/config.py:285
+#: sphinx/config.py:296
 #, python-format
 msgid "Config value %r already present"
 msgstr "설정값 %r이(가) 이미 존재합니다"
 
-#: sphinx/config.py:334
+#: sphinx/config.py:345
 #, python-format
 msgid "There is a syntax error in your configuration file: %s\n"
 msgstr "구성 파일에 구문 오류가 있습니다: %s\n"
 
-#: sphinx/config.py:337
+#: sphinx/config.py:348
 msgid ""
 "The configuration file (or one of the modules it imports) called sys.exit()"
 msgstr "구성 파일(또는 가져온 모듈 중 하나)에서 sys.exit()을 호출했습니다"
 
-#: sphinx/config.py:344
+#: sphinx/config.py:355
 #, python-format
 msgid ""
 "There is a programmable error in your configuration file:\n"
@@ -222,57 +228,57 @@ msgid ""
 "%s"
 msgstr "구성 파일에 프로그램 오류가 있습니다:\n\n%s"
 
-#: sphinx/config.py:370
+#: sphinx/config.py:381
 #, python-format
 msgid ""
 "The config value `source_suffix' expects a string, list of strings, or "
 "dictionary. But `%r' is given."
 msgstr "설정값 'source_suffix'는 문자열, 문자열의 목록 또는 dictionary를 예상합니다. 그러나 `%r'이(가) 지정되었습니다."
 
-#: sphinx/config.py:389
+#: sphinx/config.py:400
 #, python-format
 msgid "Section %s"
 msgstr "제 %s 절"
 
-#: sphinx/config.py:390
+#: sphinx/config.py:401
 #, python-format
 msgid "Fig. %s"
 msgstr "그림 %s"
 
-#: sphinx/config.py:391
+#: sphinx/config.py:402
 #, python-format
 msgid "Table %s"
 msgstr "표 %s"
 
-#: sphinx/config.py:392
+#: sphinx/config.py:403
 #, python-format
 msgid "Listing %s"
 msgstr "예시 %s"
 
-#: sphinx/config.py:429
+#: sphinx/config.py:440
 msgid ""
 "The config value `{name}` has to be a one of {candidates}, but `{current}` "
 "is given."
 msgstr "설정값 `{name}`은(는) {candidates} 중 하나여야 하지만, `{current}`이(가) 지정되었습니다."
 
-#: sphinx/config.py:447
+#: sphinx/config.py:458
 msgid ""
 "The config value `{name}' has type `{current.__name__}'; expected "
 "{permitted}."
 msgstr "설정값 `{name}'은(는) `{current.__name__}' 유형이지만, {permitted} 유형을 기대했습니다."
 
-#: sphinx/config.py:460
+#: sphinx/config.py:471
 msgid ""
 "The config value `{name}' has type `{current.__name__}', defaults to "
 "`{default.__name__}'."
 msgstr "설정값 `{name}'은(는) `{current.__name__}' 유형이지만, 기본값은 `{default.__name__}'입니다."
 
-#: sphinx/config.py:470
+#: sphinx/config.py:481
 #, python-format
 msgid "primary_domain %r not found, ignored."
 msgstr "primary_domain %r(이)가 없으므로, 무시합니다."
 
-#: sphinx/config.py:482
+#: sphinx/config.py:493
 msgid ""
 "Since v2.0, Sphinx uses \"index\" as root_doc by default. Please add "
 "\"root_doc = 'contents'\" to your conf.py."
@@ -510,173 +516,169 @@ msgstr "sphinx_rtd_theme (< 0.3.0) 가 발견되었습니다. 이 테마는 Sphi
 msgid "no theme named %r found (missing theme.conf?)"
 msgstr "이름이 %r인 테마를 찾을 수 없습니다 (theme.conf 파일 누락?)"
 
-#: sphinx/builders/__init__.py:185
+#: sphinx/builders/__init__.py:186
 #, python-format
 msgid "a suitable image for %s builder not found: %s (%s)"
 msgstr "%s 빌더에 적합한 이미지를 찾을 수 없음: %s (%s)"
 
-#: sphinx/builders/__init__.py:189
+#: sphinx/builders/__init__.py:190
 #, python-format
 msgid "a suitable image for %s builder not found: %s"
 msgstr "%s 빌더에 적합한 이미지를 찾을 수 없음: %s"
 
-#: sphinx/builders/__init__.py:209
+#: sphinx/builders/__init__.py:210
 msgid "building [mo]: "
 msgstr "빌드 중 [mo]: "
 
-#: sphinx/builders/__init__.py:210 sphinx/builders/__init__.py:541
-#: sphinx/builders/__init__.py:567
+#: sphinx/builders/__init__.py:211 sphinx/builders/__init__.py:548
+#: sphinx/builders/__init__.py:575
 msgid "writing output... "
 msgstr "출력을 쓰는 중… "
 
-#: sphinx/builders/__init__.py:219
+#: sphinx/builders/__init__.py:220
 #, python-format
 msgid "all of %d po files"
 msgstr "모든 %d 개의 po 파일"
 
-#: sphinx/builders/__init__.py:237
+#: sphinx/builders/__init__.py:238
 #, python-format
 msgid "targets for %d po files that are specified"
 msgstr "지정된 %d 개의 po 파일 대상"
 
-#: sphinx/builders/__init__.py:244
+#: sphinx/builders/__init__.py:245
 #, python-format
 msgid "targets for %d po files that are out of date"
 msgstr "오래된 %d 개의 po 파일 대상"
 
-#: sphinx/builders/__init__.py:251
+#: sphinx/builders/__init__.py:252
 msgid "all source files"
 msgstr "모든 원본 파일"
 
-#: sphinx/builders/__init__.py:263
+#: sphinx/builders/__init__.py:264
 #, python-format
 msgid ""
 "file %r given on command line is not under the source directory, ignoring"
 msgstr "명령줄에 지정된 파일 %r이(가) 원본 디렉토리에 있지 않으므로, 무시합니다"
 
-#: sphinx/builders/__init__.py:267
+#: sphinx/builders/__init__.py:268
 #, python-format
 msgid "file %r given on command line does not exist, ignoring"
 msgstr "명령줄에 지정된 파일 %r이(가) 존재하지 않으므로, 무시합니다"
 
-#: sphinx/builders/__init__.py:278
+#: sphinx/builders/__init__.py:279
 #, python-format
 msgid "%d source files given on command line"
 msgstr "명령줄에 지정된 %d 개의 원본 파일"
 
-#: sphinx/builders/__init__.py:288
+#: sphinx/builders/__init__.py:289
 #, python-format
 msgid "targets for %d source files that are out of date"
 msgstr "오래된 %d 개의 원본 파일 대상"
 
-#: sphinx/builders/__init__.py:297 sphinx/builders/gettext.py:232
+#: sphinx/builders/__init__.py:298 sphinx/builders/gettext.py:233
 #, python-format
 msgid "building [%s]: "
 msgstr "빌드 중 [%s]: "
 
-#: sphinx/builders/__init__.py:304
+#: sphinx/builders/__init__.py:305
 msgid "looking for now-outdated files... "
 msgstr "오래된 파일을 찾는 중… "
 
-#: sphinx/builders/__init__.py:309
+#: sphinx/builders/__init__.py:310
 #, python-format
 msgid "%d found"
 msgstr "%d 개 찾음"
 
-#: sphinx/builders/__init__.py:311
+#: sphinx/builders/__init__.py:312
 msgid "none found"
 msgstr "찾은 것이 없음"
 
-#: sphinx/builders/__init__.py:316
+#: sphinx/builders/__init__.py:317
 msgid "pickling environment"
 msgstr "pickle로 환경을 저장하는 중"
 
-#: sphinx/builders/__init__.py:322
+#: sphinx/builders/__init__.py:323
 msgid "checking consistency"
 msgstr "일관성 확인 중"
 
-#: sphinx/builders/__init__.py:326
+#: sphinx/builders/__init__.py:327
 msgid "no targets are out of date."
 msgstr "오래된 대상이 없습니다."
 
-#: sphinx/builders/__init__.py:365
+#: sphinx/builders/__init__.py:366
 msgid "updating environment: "
 msgstr "환경을 갱신하는 중: "
 
-#: sphinx/builders/__init__.py:386
+#: sphinx/builders/__init__.py:387
 #, python-format
 msgid "%s added, %s changed, %s removed"
 msgstr "%s 개 추가됨, %s 개 변경됨, %s 개 제거됨"
 
-#: sphinx/builders/__init__.py:424 sphinx/builders/__init__.py:451
+#: sphinx/builders/__init__.py:425 sphinx/builders/__init__.py:437
 msgid "reading sources... "
 msgstr "원본을 읽는 중… "
 
-#: sphinx/builders/__init__.py:456 sphinx/builders/__init__.py:577
-msgid "waiting for workers..."
-msgstr "작업자를 기다리는 중…"
-
-#: sphinx/builders/__init__.py:519
+#: sphinx/builders/__init__.py:526
 #, python-format
 msgid "docnames to write: %s"
 msgstr "기록할 문서 이름: %s"
 
-#: sphinx/builders/__init__.py:528 sphinx/builders/singlehtml.py:145
+#: sphinx/builders/__init__.py:535 sphinx/builders/singlehtml.py:145
 msgid "preparing documents"
 msgstr "문서 준비 중"
 
-#: sphinx/builders/_epub_base.py:208
+#: sphinx/builders/_epub_base.py:209
 #, python-format
 msgid "duplicated ToC entry found: %s"
 msgstr "중복된 목차 항목 발견: %s"
 
-#: sphinx/builders/_epub_base.py:397 sphinx/builders/html/__init__.py:746
+#: sphinx/builders/_epub_base.py:398 sphinx/builders/html/__init__.py:746
 #: sphinx/builders/latex/__init__.py:410 sphinx/builders/texinfo.py:173
 msgid "copying images... "
 msgstr "이미지를 복사하는 중… "
 
-#: sphinx/builders/_epub_base.py:404
+#: sphinx/builders/_epub_base.py:405
 #, python-format
 msgid "cannot read image file %r: copying it instead"
 msgstr "이미지 파일 %r을(를) 읽을 수 없으며, 대신 복사합니다"
 
-#: sphinx/builders/_epub_base.py:410 sphinx/builders/html/__init__.py:754
+#: sphinx/builders/_epub_base.py:411 sphinx/builders/html/__init__.py:754
 #: sphinx/builders/latex/__init__.py:418 sphinx/builders/texinfo.py:183
 #, python-format
 msgid "cannot copy image file %r: %s"
 msgstr "이미지 파일 %r을(를) 복사할 수 없습니다: %s"
 
-#: sphinx/builders/_epub_base.py:427
+#: sphinx/builders/_epub_base.py:428
 #, python-format
 msgid "cannot write image file %r: %s"
 msgstr "이미지 파일 %r을(를) 기록할 수 없습니다: %s"
 
-#: sphinx/builders/_epub_base.py:437
+#: sphinx/builders/_epub_base.py:438
 msgid "Pillow not found - copying image files"
 msgstr "Pillow를 찾을 수 없습니다 - 이미지 파일을 복사합니다"
 
-#: sphinx/builders/_epub_base.py:463
+#: sphinx/builders/_epub_base.py:464
 msgid "writing mimetype file..."
 msgstr "mimetype 파일 쓰는 중…"
 
-#: sphinx/builders/_epub_base.py:468
+#: sphinx/builders/_epub_base.py:469
 msgid "writing META-INF/container.xml file..."
 msgstr "META-INF/container.xml 파일 쓰는 중…"
 
-#: sphinx/builders/_epub_base.py:496
+#: sphinx/builders/_epub_base.py:497
 msgid "writing content.opf file..."
 msgstr "content.opf 파일 쓰는 중…"
 
-#: sphinx/builders/_epub_base.py:522
+#: sphinx/builders/_epub_base.py:523
 #, python-format
 msgid "unknown mimetype for %s, ignoring"
 msgstr "%s은(는) 알 수 없는 MIME 유형이며, 무시합니다"
 
-#: sphinx/builders/_epub_base.py:669
+#: sphinx/builders/_epub_base.py:670
 msgid "writing toc.ncx file..."
 msgstr "toc.ncx 파일 쓰는 중…"
 
-#: sphinx/builders/_epub_base.py:694
+#: sphinx/builders/_epub_base.py:695
 #, python-format
 msgid "writing %s file..."
 msgstr "%s 파일을 기록하는 중…"
@@ -770,21 +772,21 @@ msgstr "설정값 \"version\"은 EPUB3의 경우 비워 둘 수 없습니다"
 msgid "invalid css_file: %r, ignored"
 msgstr "잘못된 css_file: %r, 무시합니다"
 
-#: sphinx/builders/gettext.py:211
+#: sphinx/builders/gettext.py:212
 #, python-format
 msgid "The message catalogs are in %(outdir)s."
 msgstr "메시지 카탈로그는 %(outdir)s에 있습니다."
 
-#: sphinx/builders/gettext.py:233
+#: sphinx/builders/gettext.py:234
 #, python-format
 msgid "targets for %d template files"
 msgstr "%d 개의 템플릿 파일 대상"
 
-#: sphinx/builders/gettext.py:237
+#: sphinx/builders/gettext.py:238
 msgid "reading templates... "
 msgstr "템플릿을 읽는 중… "
 
-#: sphinx/builders/gettext.py:265
+#: sphinx/builders/gettext.py:266
 msgid "writing message catalogs... "
 msgstr "메시지 카탈로그 작성 중… "
 
@@ -2699,10 +2701,12 @@ msgstr "[그래프]"
 #: sphinx/ext/imgconverter.py:33
 #, python-format
 msgid ""
-"convert command %r cannot be run, check the image_converter setting: %s"
-msgstr "변환 명령 %r을(를) 실행할 수 없습니다. image_converter 설정을 확인하십시오: %s"
+"Unable to run the image conversion command %r. 'sphinx.ext.imgconverter' requires ImageMagick by default. Ensure it is installed, or set the 'image_converter' option to a custom conversion command.\n"
+"\n"
+"Traceback: %s"
+msgstr ""
 
-#: sphinx/ext/imgconverter.py:38 sphinx/ext/imgconverter.py:62
+#: sphinx/ext/imgconverter.py:42 sphinx/ext/imgconverter.py:66
 #, python-format
 msgid ""
 "convert exited with error:\n"
@@ -2712,7 +2716,7 @@ msgid ""
 "%r"
 msgstr "convert가 오류와 함께 종료되었습니다:\n[stderr]\n%r\n[stdout]\n%r"
 
-#: sphinx/ext/imgconverter.py:57
+#: sphinx/ext/imgconverter.py:61
 #, python-format
 msgid "convert command %r cannot be run, check the image_converter setting"
 msgstr "변환 명령 %r을(를) 실행할 수 없습니다. image_converter 설정을 확인하십시오."
@@ -3529,11 +3533,11 @@ msgstr "알 수 없는 이미지 형식: %s…"
 msgid "undecodable source characters, replacing with \"?\": %r"
 msgstr "디코드 할 수 없는 원본 문자이며, \"?\"로 대체합니다: %r"
 
-#: sphinx/util/__init__.py:497
+#: sphinx/util/__init__.py:502
 msgid "skipped"
 msgstr "건너뜀"
 
-#: sphinx/util/__init__.py:502
+#: sphinx/util/__init__.py:507
 msgid "failed"
 msgstr "실패"
 

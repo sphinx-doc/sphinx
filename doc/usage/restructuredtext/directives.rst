@@ -592,6 +592,13 @@ __ https://pygments.org/docs/lexers
 
       .. versionadded:: 1.3
 
+   .. rst:directive:option:: class: class names
+      :type: a list of class names separated by spaces
+
+      The class name of the graph.
+
+      .. versionadded:: 1.4
+
    .. rst:directive:option:: dedent: number
       :type: number or no value
 
@@ -757,6 +764,9 @@ __ https://pygments.org/docs/lexers
    .. versionchanged:: 1.3
       Added the ``diff``, ``lineno-match``, ``caption``, ``name``, and
       ``dedent`` options.
+
+   .. versionchanged:: 1.4
+      Added the ``class`` option.
 
    .. versionchanged:: 1.5
       Added the ``start-at``, and ``end-at`` options.
