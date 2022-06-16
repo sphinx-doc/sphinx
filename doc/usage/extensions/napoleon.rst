@@ -136,7 +136,7 @@ separate sections, whereas NumPy uses underlines.
 
 Google style:
 
-.. code-block:: python3
+.. code-block:: python
 
     def func(arg1, arg2):
         """Summary line.
@@ -155,7 +155,7 @@ Google style:
 
 NumPy style:
 
-.. code-block:: python3
+.. code-block:: python
 
     def func(arg1, arg2):
         """Summary line.
