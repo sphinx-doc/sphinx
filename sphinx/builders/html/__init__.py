@@ -536,8 +536,8 @@ class StandaloneHTMLBuilder(Builder):
             'rellinks': rellinks,
             'builder': self.name,
             'parents': [],
-            'logo': logo,
-            'favicon': favicon,
+            'logo_url': logo,
+            'favicon_url': favicon,
             'html5_doctype': not self.config.html4_writer,
         }
         if self.theme:
@@ -1215,18 +1215,14 @@ def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,
     pathto = context.get('pathto')
 
     # favicon_url
-    favicon = context.get('favicon')
+    favicon = context.get('favicon_url')
     if favicon and not isurl(favicon):
         context['favicon_url'] = pathto('_static/' + favicon, resource=True)
-    else:
-        context['favicon_url'] = favicon
 
     # logo_url
-    logo = context.get('logo')
+    logo = context.get('logo_url')
     if logo and not isurl(logo):
         context['logo_url'] = pathto('_static/' + logo, resource=True)
-    else:
-        context['logo_url'] = logo
 
 
 def validate_math_renderer(app: Sphinx) -> None:
