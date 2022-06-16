@@ -704,10 +704,8 @@ def test_pymethod_options(app):
             "   .. py:method:: meth4\n"
             "      :async:\n"
             "   .. py:method:: meth5\n"
-            "      :property:\n"
-            "   .. py:method:: meth6\n"
             "      :abstractmethod:\n"
-            "   .. py:method:: meth7\n"
+            "   .. py:method:: meth6\n"
             "      :final:\n")
     domain = app.env.get_domain('py')
     doctree = restructuredtext.parse(app, text)
@@ -715,8 +713,6 @@ def test_pymethod_options(app):
                           [desc, ([desc_signature, ([desc_annotation, ("class", desc_sig_space)],
                                                     [desc_name, "Class"])],
                                   [desc_content, (addnodes.index,
-                                                  desc,
-                                                  addnodes.index,
                                                   desc,
                                                   addnodes.index,
                                                   desc,
@@ -768,34 +764,25 @@ def test_pymethod_options(app):
     assert 'Class.meth4' in domain.objects
     assert domain.objects['Class.meth4'] == ('index', 'Class.meth4', 'method', False)
 
-    # :property:
+    # :abstractmethod:
     assert_node(doctree[1][1][8], addnodes.index,
-                entries=[('single', 'meth5 (Class property)', 'Class.meth5', '', None)])
-    assert_node(doctree[1][1][9], ([desc_signature, ([desc_annotation, ("property", desc_sig_space)],
-                                                     [desc_name, "meth5"])],
-                                   [desc_content, ()]))
+                entries=[('single', 'meth5() (Class method)', 'Class.meth5', '', None)])
+    assert_node(doctree[1][1][9], ([desc_signature, ([desc_annotation, ("abstract", desc_sig_space)],
+                                                      [desc_name, "meth5"],
+                                                      [desc_parameterlist, ()])],
+                                    [desc_content, ()]))
     assert 'Class.meth5' in domain.objects
     assert domain.objects['Class.meth5'] == ('index', 'Class.meth5', 'method', False)
 
-    # :abstractmethod:
+    # :final:
     assert_node(doctree[1][1][10], addnodes.index,
                 entries=[('single', 'meth6() (Class method)', 'Class.meth6', '', None)])
-    assert_node(doctree[1][1][11], ([desc_signature, ([desc_annotation, ("abstract", desc_sig_space)],
+    assert_node(doctree[1][1][11], ([desc_signature, ([desc_annotation, ("final", desc_sig_space)],
                                                       [desc_name, "meth6"],
                                                       [desc_parameterlist, ()])],
                                     [desc_content, ()]))
     assert 'Class.meth6' in domain.objects
     assert domain.objects['Class.meth6'] == ('index', 'Class.meth6', 'method', False)
-
-    # :final:
-    assert_node(doctree[1][1][12], addnodes.index,
-                entries=[('single', 'meth7() (Class method)', 'Class.meth7', '', None)])
-    assert_node(doctree[1][1][13], ([desc_signature, ([desc_annotation, ("final", desc_sig_space)],
-                                                      [desc_name, "meth7"],
-                                                      [desc_parameterlist, ()])],
-                                    [desc_content, ()]))
-    assert 'Class.meth7' in domain.objects
-    assert domain.objects['Class.meth7'] == ('index', 'Class.meth7', 'method', False)
 
 
 def test_pyclassmethod(app):

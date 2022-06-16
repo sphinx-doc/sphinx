@@ -764,15 +764,11 @@ class PyMethod(PyObject):
         'async': directives.flag,
         'classmethod': directives.flag,
         'final': directives.flag,
-        'property': directives.flag,
         'staticmethod': directives.flag,
     })
 
     def needs_arglist(self) -> bool:
-        if 'property' in self.options:
-            return False
-        else:
-            return True
+        return True
 
     def get_signature_prefix(self, sig: str) -> List[nodes.Node]:
         prefix: List[nodes.Node] = []
@@ -787,9 +783,6 @@ class PyMethod(PyObject):
             prefix.append(addnodes.desc_sig_space())
         if 'classmethod' in self.options:
             prefix.append(nodes.Text('classmethod'))
-            prefix.append(addnodes.desc_sig_space())
-        if 'property' in self.options:
-            prefix.append(nodes.Text('property'))
             prefix.append(addnodes.desc_sig_space())
         if 'staticmethod' in self.options:
             prefix.append(nodes.Text('static'))
@@ -810,8 +803,6 @@ class PyMethod(PyObject):
 
         if 'classmethod' in self.options:
             return _('%s() (%s class method)') % (methname, clsname)
-        elif 'property' in self.options:
-            return _('%s (%s property)') % (methname, clsname)
         elif 'staticmethod' in self.options:
             return _('%s() (%s static method)') % (methname, clsname)
         else:
