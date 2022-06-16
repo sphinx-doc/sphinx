@@ -21,7 +21,7 @@ warnings.filterwarnings('ignore', "'U' mode is deprecated",
 warnings.filterwarnings('ignore', 'The frontend.Option class .*',
                         DeprecationWarning, module='docutils.frontend')
 
-__version__ = '5.0.2+'
+__version__ = '5.0.2'
 __released__ = '5.0.2'  # used when Sphinx builds its own docs
 
 #: Version info for better programmatic use.
@@ -32,7 +32,7 @@ __released__ = '5.0.2'  # used when Sphinx builds its own docs
 #:
 #: .. versionadded:: 1.2
 #:    Before version 1.2, check the string ``sphinx.__version__``.
-version_info = (5, 0, 2, 'beta', 0)
+version_info = (5, 0, 2, 'final', 0)
 
 package_dir = path.abspath(path.dirname(__file__))
 

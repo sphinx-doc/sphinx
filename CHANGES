@@ -1,14 +1,5 @@
-Release 5.0.2 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
+Release 5.0.2 (released Jun 17, 2022)
+=====================================
 
 Features added
 --------------
@@ -26,9 +17,6 @@ Bugs fixed
 * #10523: HTML Theme: Fix double brackets on citation references in Docutils 0.18+.
   Patch by Adam Turner.
 * #10534: Missing CSS for nav.contents in Docutils 0.18+. Patch by Adam Turner.
-
-Testing
---------
 
 Release 5.0.1 (released Jun 03, 2022)
 =====================================
