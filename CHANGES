@@ -28,6 +28,7 @@ Bugs fixed
   ``-``, ``~``, and ``**``). Patch by Adam Turner.
 * #10460: logging: Always show node source locations as absolute paths.
 * #10520: HTML Theme: Fix use of sidebar classes in ``agogo.css_t``.
+* #6679: HTML Theme: Fix inclusion of hidden toctrees in the agogo theme.
 
 Testing
 --------
