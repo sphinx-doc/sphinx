@@ -381,8 +381,8 @@ class WarningSuppressor(logging.Filter):
         super().__init__()
 
     def filter(self, record: logging.LogRecord) -> bool:
-        type = getattr(record, 'type', None)
-        subtype = getattr(record, 'subtype', None)
+        type = getattr(record, 'type', '')
+        subtype = getattr(record, 'subtype', '')
 
         try:
             suppress_warnings = self.app.config.suppress_warnings
