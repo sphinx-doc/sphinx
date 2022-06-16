@@ -536,6 +536,7 @@ class StandaloneHTMLBuilder(Builder):
             'css_files': self.css_files,
             'sphinx_version': __display_version__,
             'sphinx_version_tuple': sphinx_version,
+            'docutils_version_info': docutils.__version_info__[:5],
             'style': self._get_style_filename(),
             'rellinks': rellinks,
             'builder': self.name,
