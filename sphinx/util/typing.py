@@ -2,6 +2,7 @@
 
 import sys
 import typing
+import warnings
 from struct import Struct
 from types import TracebackType
 from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Type, TypeVar, Union
@@ -9,7 +10,8 @@ from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Type, 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
 
-from sphinx.deprecation import RemovedInSphinx60Warning, deprecated_alias
+from sphinx.deprecation import (RemovedInSphinx60Warning, RemovedInSphinx70Warning,
+                                deprecated_alias)
 
 if sys.version_info > (3, 7):
     from typing import ForwardRef
@@ -158,10 +160,7 @@ def restify(cls: Optional[Type], mode: str = 'fully-qualified-except-typing') ->
             else:
                 return ':py:class:`%s`' % cls.__name__
         else:
-            if sys.version_info >= (3, 7):  # py37+
-                return _restify_py37(cls, mode)
-            else:
-                return _restify_py36(cls, mode)
+            return _restify_py37(cls, mode)
     except (AttributeError, TypeError):
         return inspect.object_description(cls)
 
@@ -234,6 +233,8 @@ def _restify_py37(cls: Optional[Type], mode: str = 'fully-qualified-except-typin
 
 
 def _restify_py36(cls: Optional[Type], mode: str = 'fully-qualified-except-typing') -> str:
+    warnings.warn('_restify_py36() is deprecated', RemovedInSphinx70Warning)
+
     if mode == 'smart':
         modprefix = '~'
     else:
@@ -390,10 +391,7 @@ def stringify(annotation: Any, mode: str = 'fully-qualified-except-typing') -> s
     elif annotation is Ellipsis:
         return '...'
 
-    if sys.version_info >= (3, 7):  # py37+
-        return _stringify_py37(annotation, mode)
-    else:
-        return _stringify_py36(annotation, mode)
+    return _stringify_py37(annotation, mode)
 
 
 def _stringify_py37(annotation: Any, mode: str = 'fully-qualified-except-typing') -> str:
@@ -472,6 +470,8 @@ def _stringify_py37(annotation: Any, mode: str = 'fully-qualified-except-typing'
 
 def _stringify_py36(annotation: Any, mode: str = 'fully-qualified-except-typing') -> str:
     """stringify() for py36."""
+    warnings.warn('_stringify_py36() is deprecated', RemovedInSphinx70Warning)
+
     module = getattr(annotation, '__module__', None)
     modprefix = ''
     if module == 'typing' and getattr(annotation, '__forward_arg__', None):

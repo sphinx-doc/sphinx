@@ -109,16 +109,16 @@ Ubuntu <https://ubuntu.com/about/release-cycle>`_ that has standard support.
 For example, as of July 2021, Ubuntu 16.04 has just entered extended
 security maintenance (therefore, it doesn't count as standard support) and
 the oldest LTS release to consider is Ubuntu 18.04 LTS, supported until
-April 2023 and shipping Python 3.6.
+April 2023 and shipping Python 3.8.
 
 This is a summary table with the current policy:
 
 ========== ========= ======
 Date       Ubuntu    Python
 ========== ========= ======
-April 2021 18.04 LTS 3.6+
----------- --------- ------
 April 2023 20.04 LTS 3.8+
+---------- --------- ------
+April 2025 22.04 LTS 3.10+
 ========== ========= ======
 
 Release procedures

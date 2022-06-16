@@ -15,7 +15,7 @@ from io import StringIO
 from types import MethodType, ModuleType
 from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, Type, cast
 
-from sphinx.pycode.ast import ast  # for py36-37
+from sphinx.pycode.ast import ast  # for py37
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
 from sphinx.util.typing import ForwardRef
@@ -298,7 +298,7 @@ def is_singledispatch_method(obj: Any) -> bool:
     try:
         from functools import singledispatchmethod  # type: ignore
         return isinstance(obj, singledispatchmethod)
-    except ImportError:  # py36-37
+    except ImportError:  # py37
         return False
 
 
@@ -569,25 +569,15 @@ def signature(subject: Callable, bound_method: bool = False, type_aliases: Dict 
     """
 
     try:
-        try:
-            if _should_unwrap(subject):
-                signature = inspect.signature(subject)
-            else:
-                signature = inspect.signature(subject, follow_wrapped=True)
-        except ValueError:
-            # follow built-in wrappers up (ex. functools.lru_cache)
+        if _should_unwrap(subject):
             signature = inspect.signature(subject)
-        parameters = list(signature.parameters.values())
-        return_annotation = signature.return_annotation
-    except IndexError:
-        # Until python 3.6.4, cpython has been crashed on inspection for
-        # partialmethods not having any arguments.
-        # https://bugs.python.org/issue33009
-        if hasattr(subject, '_partialmethod'):
-            parameters = []
-            return_annotation = Parameter.empty
         else:
-            raise
+            signature = inspect.signature(subject, follow_wrapped=True)
+    except ValueError:
+        # follow built-in wrappers up (ex. functools.lru_cache)
+        signature = inspect.signature(subject)
+    parameters = list(signature.parameters.values())
+    return_annotation = signature.return_annotation
 
     try:
         # Resolve annotations using ``get_type_hints()`` and type_aliases.

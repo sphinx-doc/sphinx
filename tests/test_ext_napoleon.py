@@ -1,6 +1,5 @@
 """Tests for :mod:`sphinx.ext.napoleon.__init__` module."""
 
-import sys
 from collections import namedtuple
 from unittest import TestCase, mock
 
@@ -134,18 +133,13 @@ class SkipMemberTest(TestCase):
                                             mock.Mock()))
 
     def test_namedtuple(self):
-        if sys.version_info < (3, 7):
-            self.assertSkip('class', '_asdict',
-                            SampleNamedTuple._asdict, False,
-                            'napoleon_include_private_with_doc')
-        else:
-            # Since python 3.7, namedtuple._asdict() has not been documented
-            # because there is no way to check the method is a member of the
-            # namedtuple class.  This testcase confirms only it does not
-            # raise an error on building document (refs: #1455)
-            self.assertSkip('class', '_asdict',
-                            SampleNamedTuple._asdict, True,
-                            'napoleon_include_private_with_doc')
+        # Since python 3.7, namedtuple._asdict() has not been documented
+        # because there is no way to check the method is a member of the
+        # namedtuple class.  This testcase confirms only it does not
+        # raise an error on building document (refs: #1455)
+        self.assertSkip('class', '_asdict',
+                        SampleNamedTuple._asdict, True,
+                        'napoleon_include_private_with_doc')
 
     def test_class_private_doc(self):
         self.assertSkip('class', '_private_doc',

@@ -4,8 +4,6 @@ This tests mainly the Documenters; the auto directives are tested in a test
 source file translated by test_build.
 """
 
-import sys
-
 import pytest
 
 from .test_ext_autodoc import do_autodoc
@@ -71,27 +69,16 @@ def test_autodata_type_comment(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodata_GenericAlias(app):
     actual = do_autodoc(app, 'data', 'target.genericalias.T')
-    if sys.version_info < (3, 7):
-        assert list(actual) == [
-            '',
-            '.. py:data:: T',
-            '   :module: target.genericalias',
-            '   :value: typing.List[int]',
-            '',
-            '   A list of int',
-            '',
-        ]
-    else:
-        assert list(actual) == [
-            '',
-            '.. py:data:: T',
-            '   :module: target.genericalias',
-            '',
-            '   A list of int',
-            '',
-            '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
-            '',
-        ]
+    assert list(actual) == [
+        '',
+        '.. py:data:: T',
+        '   :module: target.genericalias',
+        '',
+        '   A list of int',
+        '',
+        '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
+        '',
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')

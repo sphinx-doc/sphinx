@@ -1860,70 +1860,40 @@ def test_autodoc_GenericAlias(app):
     options = {"members": None,
                "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.genericalias', options)
-    if sys.version_info < (3, 7):
-        assert list(actual) == [
-            '',
-            '.. py:module:: target.genericalias',
-            '',
-            '',
-            '.. py:class:: Class()',
-            '   :module: target.genericalias',
-            '',
-            '',
-            '   .. py:attribute:: Class.T',
-            '      :module: target.genericalias',
-            '',
-            '      A list of int',
-            '',
-            '      alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
-            '',
-            '.. py:attribute:: L',
-            '   :module: target.genericalias',
-            '',
-            '   A list of Class',
-            '',
-            '',
-            '.. py:attribute:: T',
-            '   :module: target.genericalias',
-            '',
-            '   A list of int',
-            '',
-        ]
-    else:
-        assert list(actual) == [
-            '',
-            '.. py:module:: target.genericalias',
-            '',
-            '',
-            '.. py:class:: Class()',
-            '   :module: target.genericalias',
-            '',
-            '',
-            '   .. py:attribute:: Class.T',
-            '      :module: target.genericalias',
-            '',
-            '      A list of int',
-            '',
-            '      alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
-            '',
-            '',
-            '.. py:data:: L',
-            '   :module: target.genericalias',
-            '',
-            '   A list of Class',
-            '',
-            '   alias of :py:class:`~typing.List`\\ '
-            '[:py:class:`~target.genericalias.Class`]',
-            '',
-            '',
-            '.. py:data:: T',
-            '   :module: target.genericalias',
-            '',
-            '   A list of int',
-            '',
-            '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
-            '',
-        ]
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.genericalias',
+        '',
+        '',
+        '.. py:class:: Class()',
+        '   :module: target.genericalias',
+        '',
+        '',
+        '   .. py:attribute:: Class.T',
+        '      :module: target.genericalias',
+        '',
+        '      A list of int',
+        '',
+        '      alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
+        '',
+        '',
+        '.. py:data:: L',
+        '   :module: target.genericalias',
+        '',
+        '   A list of Class',
+        '',
+        '   alias of :py:class:`~typing.List`\\ '
+        '[:py:class:`~target.genericalias.Class`]',
+        '',
+        '',
+        '.. py:data:: T',
+        '   :module: target.genericalias',
+        '',
+        '   A list of int',
+        '',
+        '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
+        '',
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -2072,37 +2042,21 @@ def test_autodoc_for_egged_code(app):
 def test_singledispatch(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.singledispatch', options)
-    if sys.version_info < (3, 7):
-        assert list(actual) == [
-            '',
-            '.. py:module:: target.singledispatch',
-            '',
-            '',
-            '.. py:function:: func(arg, kwarg=None)',
-            '                 func(arg: float, kwarg=None)',
-            '                 func(arg: int, kwarg=None)',
-            '                 func(arg: str, kwarg=None)',
-            '   :module: target.singledispatch',
-            '',
-            '   A function for general use.',
-            '',
-        ]
-    else:
-        assert list(actual) == [
-            '',
-            '.. py:module:: target.singledispatch',
-            '',
-            '',
-            '.. py:function:: func(arg, kwarg=None)',
-            '                 func(arg: float, kwarg=None)',
-            '                 func(arg: int, kwarg=None)',
-            '                 func(arg: str, kwarg=None)',
-            '                 func(arg: dict, kwarg=None)',
-            '   :module: target.singledispatch',
-            '',
-            '   A function for general use.',
-            '',
-        ]
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.singledispatch',
+        '',
+        '',
+        '.. py:function:: func(arg, kwarg=None)',
+        '                 func(arg: float, kwarg=None)',
+        '                 func(arg: int, kwarg=None)',
+        '                 func(arg: str, kwarg=None)',
+        '                 func(arg: dict, kwarg=None)',
+        '   :module: target.singledispatch',
+        '',
+        '   A function for general use.',
+        '',
+    ]
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8),
@@ -2416,7 +2370,6 @@ def test_name_mangling(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_type_union_operator(app):
     options = {'members': None}
