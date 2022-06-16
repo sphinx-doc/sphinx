@@ -330,7 +330,7 @@ Keys that don't need to be overridden unless in special cases are:
 
    .. attention::
 
-      - Do not use this key for a :confval:`latex_engine` other than 
+      - Do not use this key for a :confval:`latex_engine` other than
         ``'pdflatex'``.
 
       - If Greek is main language, do not use this key.  Since Sphinx 2.2.1,
@@ -528,7 +528,7 @@ Keys that don't need to be overridden unless in special cases are:
       is adapted to the relative widths of the FreeFont family.
 
    .. versionchanged:: 4.0.0
-      Changed default for ``'pdflatex'``. Previously it was using 
+      Changed default for ``'pdflatex'``. Previously it was using
       ``'\\fvset{fontsize=\\small}'``.
 
    .. versionchanged:: 4.1.0
@@ -915,7 +915,7 @@ Do not use quotes to enclose values, whether numerical or strings.
                                ``attentionBorderColor``, ``dangerBorderColor``,
                                ``errorBorderColor``
 
-.. |wgbdcolorslatex| replace:: ``warningBorderColor``, and 
+.. |wgbdcolorslatex| replace:: ``warningBorderColor``, and
                                ``(caution|attention|danger|error)BorderColor``
 
 .. else latex goes into right margin, as it does not hyphenate the names

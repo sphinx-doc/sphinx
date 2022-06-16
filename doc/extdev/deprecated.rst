@@ -824,7 +824,7 @@ The following is a list of deprecated interfaces.
      - ``sphinx.domains.std.StandardDomain.process_doc()``
 
    * - ``sphinx.domains.js.JSObject.display_prefix``
-     - 
+     -
      - 4.3
      - ``sphinx.domains.js.JSObject.get_display_prefix()``
 
