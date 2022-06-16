@@ -39,7 +39,7 @@ with "\\?": b?'here: >>>(\\\\|/)xbb<<<((\\\\|/)r)?'
 """
 
 HTML_WARNINGS = ENV_WARNINGS + """\
-%(root)s/index.rst:\\d+: WARNING: unknown option: &option
+%(root)s/index.rst:\\d+: WARNING: unknown option: '&option'
 %(root)s/index.rst:\\d+: WARNING: citation not found: missing
 %(root)s/index.rst:\\d+: WARNING: a suitable image for html builder not found: foo.\\*
 %(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.

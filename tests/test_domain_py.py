@@ -1369,6 +1369,6 @@ def test_python_python_use_unqualified_type_names_disabled(app, status, warning)
 @pytest.mark.sphinx('dummy', testroot='domain-py-xref-warning')
 def test_warn_missing_reference(app, status, warning):
     app.build()
-    assert 'index.rst:6: WARNING: undefined label: no-label' in warning.getvalue()
-    assert ('index.rst:6: WARNING: Failed to create a cross reference. A title or caption not found: existing-label'
-            in warning.getvalue())
+    assert "index.rst:6: WARNING: undefined label: 'no-label'" in warning.getvalue()
+    assert ("index.rst:6: WARNING: Failed to create a cross reference. "
+            "A title or caption not found: 'existing-label'") in warning.getvalue()

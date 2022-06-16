@@ -601,11 +601,11 @@ class StandardDomain(Domain):
     }
 
     dangling_warnings = {
-        'term': 'term not in glossary: %(target)s',
-        'numref':  'undefined label: %(target)s',
-        'keyword': 'unknown keyword: %(target)s',
-        'doc': 'unknown document: %(target)s',
-        'option': 'unknown option: %(target)s',
+        'term': 'term not in glossary: %(target)r',
+        'numref':  'undefined label: %(target)r',
+        'keyword': 'unknown keyword: %(target)r',
+        'doc': 'unknown document: %(target)r',
+        'option': 'unknown option: %(target)r',
     }
 
     # node_class -> (figtype, title_getter)
@@ -1100,9 +1100,9 @@ def warn_missing_reference(app: "Sphinx", domain: Domain, node: pending_xref
     else:
         target = node['reftarget']
         if target not in domain.anonlabels:  # type: ignore
-            msg = __('undefined label: %s')
+            msg = __('undefined label: %r')
         else:
-            msg = __('Failed to create a cross reference. A title or caption not found: %s')
+            msg = __('Failed to create a cross reference. A title or caption not found: %r')
 
         logger.warning(msg % target, location=node, type='ref', subtype=node['reftype'])
         return True

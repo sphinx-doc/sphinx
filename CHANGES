@@ -18,6 +18,8 @@ Features added
 
 * #10366: std domain: Add support for emphasising placeholders in :rst:dir`option`
   directives through a new ``option_emphasise_placeholders`` configuration option.
+* #10439: std domain: Use the repr of some variables when displaying warnings,
+  making whitespace issues easier to identify.
 
 Bugs fixed
 ----------
