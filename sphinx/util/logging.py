@@ -12,6 +12,7 @@ from docutils.utils import get_source_line
 
 from sphinx.errors import SphinxWarning
 from sphinx.util.console import colorize
+from sphinx.util.osutil import abspath
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -514,6 +515,8 @@ class WarningLogRecordTranslator(SphinxLogRecordTranslator):
 
 def get_node_location(node: Node) -> Optional[str]:
     (source, line) = get_source_line(node)
+    if source:
+        source = abspath(source)
     if source and line:
         return "%s:%s" % (source, line)
     elif source:
