@@ -10,6 +10,9 @@ Incompatible changes
 Deprecated
 ----------
 
+* #10467: Deprecated ``sphinx.util.stemmer`` in favour of ``snowballstemmer``.
+  Patch by Adam Turner.
+
 Features added
 --------------
 
