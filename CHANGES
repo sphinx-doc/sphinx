@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #10031: py domain: Fix spurious whitespace in unparsing various operators (``+``,
+  ``-``, ``~``, and ``**``). Patch by Adam Turner.
+
 Testing
 --------
 
