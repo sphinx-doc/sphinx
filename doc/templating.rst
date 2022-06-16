@@ -386,7 +386,7 @@ in the future.
 .. data:: docutils_version_info
 
    The version of Docutils used to build represented as a tuple of five elements.
-   For Docutils version 0.16.1 beta 2 this would be `(0, 16, 1, 'beta', 2)``.
+   For Docutils version 0.16.1 beta 2 this would be ``(0, 16, 1, 'beta', 2)``.
    The fourth element can be one of: ``alpha``, ``beta``, ``candidate``, ``final``.
    ``final`` always has 0 as the last element.
 
