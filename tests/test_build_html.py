@@ -39,7 +39,7 @@ with "\\?": b?'here: >>>(\\\\|/)xbb<<<((\\\\|/)r)?'
 """
 
 HTML_WARNINGS = ENV_WARNINGS + """\
-%(root)s/index.rst:\\d+: WARNING: unknown option: &option
+%(root)s/index.rst:\\d+: WARNING: unknown option: '&option'
 %(root)s/index.rst:\\d+: WARNING: citation not found: missing
 %(root)s/index.rst:\\d+: WARNING: a suitable image for html builder not found: foo.\\*
 %(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
@@ -1719,3 +1719,25 @@ def test_html_code_role(app):
     assert ('<div class="highlight-python notranslate">' +
             '<div class="highlight"><pre><span></span>' +
             common_content) in content
+
+
+@pytest.mark.sphinx('html', testroot='root',
+                    confoverrides={'option_emphasise_placeholders': True})
+def test_option_emphasise_placeholders(app, status, warning):
+    app.build()
+    content = (app.outdir / 'objects.html').read_text()
+    assert '<em><span class="pre">TYPE</span></em>' in content
+    assert '{TYPE}' not in content
+    assert ('<em><span class="pre">WHERE</span></em>'
+            '<span class="pre">-</span>'
+            '<em><span class="pre">COUNT</span></em>' in content)
+    assert '<span class="pre">{{value}}</span>' in content
+
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_option_emphasise_placeholders_default(app, status, warning):
+    app.build()
+    content = (app.outdir / 'objects.html').read_text()
+    assert '<span class="pre">={TYPE}</span>' in content
+    assert '<span class="pre">={WHERE}-{COUNT}</span></span>' in content
+    assert '<span class="pre">{client_name}</span>' in content

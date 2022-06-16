@@ -1,6 +1,7 @@
 """Sphinx component registry."""
 
 import traceback
+import warnings
 from importlib import import_module
 from types import MethodType
 from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Tuple, Type, Union
@@ -19,6 +20,7 @@ except ImportError:
 
 from sphinx.builders import Builder
 from sphinx.config import Config
+from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.domains import Domain, Index, ObjType
 from sphinx.domains.std import GenericObject, Target
 from sphinx.environment import BuildEnvironment
@@ -146,11 +148,23 @@ class SphinxComponentRegistry:
 
             self.load_extension(app, entry_point.module)
 
-    def create_builder(self, app: "Sphinx", name: str) -> Builder:
+    def create_builder(self, app: "Sphinx", name: str,
+                       env: BuildEnvironment = None) -> Builder:
         if name not in self.builders:
             raise SphinxError(__('Builder name %s not registered') % name)
 
-        return self.builders[name](app)
+        try:
+            return self.builders[name](app, env)
+        except TypeError:
+            warnings.warn(
+                f"The custom builder {name} defines a custom __init__ method without the "
+                f"'env'argument. Report this bug to the developers of your custom builder, "
+                f"this is likely not a issue with Sphinx. The 'env' argument will be required "
+                f"from Sphinx 7.", RemovedInSphinx70Warning, stacklevel=2)
+            builder = self.builders[name](app, env=...)  # type: ignore[arg-type]
+            if env is not None:
+                builder.set_environment(env)
+            return builder
 
     def add_domain(self, domain: Type[Domain], override: bool = False) -> None:
         logger.debug('[app] adding domain: %r', domain)

@@ -2,13 +2,14 @@
 
 import codecs
 import os
+import os.path
 
 import pytest
 from docutils import nodes
 
 from sphinx.errors import SphinxWarning
 from sphinx.testing.util import strip_escseq
-from sphinx.util import logging
+from sphinx.util import logging, osutil
 from sphinx.util.console import colorize
 from sphinx.util.logging import is_suppressed_warning, prefixed_warnings
 from sphinx.util.parallel import ParallelTasks
@@ -379,3 +380,18 @@ def test_prefixed_warnings(app, status, warning):
     assert 'WARNING: Another PREFIX: message3' in warning.getvalue()
     assert 'WARNING: PREFIX: message4' in warning.getvalue()
     assert 'WARNING: message5' in warning.getvalue()
+
+
+def test_get_node_location_abspath():
+    # Ensure that node locations are reported as an absolute path,
+    # even if the source attribute is a relative path.
+
+    relative_filename = os.path.join('relative', 'path.txt')
+    absolute_filename = osutil.abspath(relative_filename)
+
+    n = nodes.Node()
+    n.source = relative_filename
+
+    location = logging.get_node_location(n)
+
+    assert location == absolute_filename + ':'

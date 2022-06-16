@@ -452,6 +452,33 @@ def test_pyfunction_signature_full(app):
                                                         [desc_sig_name, pending_xref, "str"])])])
 
 
+def test_pyfunction_with_unary_operators(app):
+    text = ".. py:function:: menu(egg=+1, bacon=-1, sausage=~1, spam=not spam)"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree[1][0][1],
+                [desc_parameterlist, ([desc_parameter, ([desc_sig_name, "egg"],
+                                                        [desc_sig_operator, "="],
+                                                        [nodes.inline, "+1"])],
+                                      [desc_parameter, ([desc_sig_name, "bacon"],
+                                                        [desc_sig_operator, "="],
+                                                        [nodes.inline, "-1"])],
+                                      [desc_parameter, ([desc_sig_name, "sausage"],
+                                                        [desc_sig_operator, "="],
+                                                        [nodes.inline, "~1"])],
+                                      [desc_parameter, ([desc_sig_name, "spam"],
+                                                        [desc_sig_operator, "="],
+                                                        [nodes.inline, "not spam"])])])
+
+
+def test_pyfunction_with_binary_operators(app):
+    text = ".. py:function:: menu(spam=2**64)"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree[1][0][1],
+                [desc_parameterlist, ([desc_parameter, ([desc_sig_name, "spam"],
+                                                        [desc_sig_operator, "="],
+                                                        [nodes.inline, "2**64"])])])
+
+
 @pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
 def test_pyfunction_signature_full_py38(app):
     # case: separator at head
@@ -1342,6 +1369,6 @@ def test_python_python_use_unqualified_type_names_disabled(app, status, warning)
 @pytest.mark.sphinx('dummy', testroot='domain-py-xref-warning')
 def test_warn_missing_reference(app, status, warning):
     app.build()
-    assert 'index.rst:6: WARNING: undefined label: no-label' in warning.getvalue()
-    assert ('index.rst:6: WARNING: Failed to create a cross reference. A title or caption not found: existing-label'
-            in warning.getvalue())
+    assert "index.rst:6: WARNING: undefined label: 'no-label'" in warning.getvalue()
+    assert ("index.rst:6: WARNING: Failed to create a cross reference. "
+            "A title or caption not found: 'existing-label'") in warning.getvalue()

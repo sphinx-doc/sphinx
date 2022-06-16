@@ -209,7 +209,7 @@ The Intersphinx extension provides the following role.
 
    If you would like to constrain the lookup to a specific external project,
    then the key of the project, as specified in :confval:`intersphinx_mapping`,
-   is added as well to get the two forms 
+   is added as well to get the two forms
 
    - ``:external+invname:domain:reftype:`target```,
      e.g., ``:external+python:py:class:`zipfile.ZipFile```, or

@@ -349,7 +349,7 @@ different style:
    The name of a file or directory.  Within the contents, you can use curly
    braces to indicate a "variable" part, for example::
 
-      ... is installed in :file:`/usr/lib/python2.{x}/site-packages` ...
+      ... is installed in :file:`/usr/lib/python3.{x}/site-packages` ...
 
    In the built documentation, the ``x`` will be displayed differently to
    indicate that it is to be replaced by the Python minor version.

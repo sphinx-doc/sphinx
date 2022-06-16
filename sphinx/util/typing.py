@@ -31,11 +31,6 @@ try:
 except ImportError:
     UnionType = None
 
-if False:
-    # For type annotation
-    from typing import Type  # NOQA # for python3.5.1
-
-
 # builtin classes that have incorrect __module__
 INVALID_BUILTIN_CLASSES = {
     Struct: 'struct.Struct',  # Before Python 3.9

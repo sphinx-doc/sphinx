@@ -133,9 +133,6 @@ class Sphinx:
         self.phase = BuildPhase.INITIALIZATION
         self.verbosity = verbosity
         self.extensions: Dict[str, Extension] = {}
-        self.builder: Optional[Builder] = None
-        self.env: Optional[BuildEnvironment] = None
-        self.project: Optional[Project] = None
         self.registry = SphinxComponentRegistry()
 
         # validate provided directories
@@ -246,10 +243,16 @@ class Sphinx:
 
         # create the project
         self.project = Project(self.srcdir, self.config.source_suffix)
+
+        # set up the build environment
+        self.env = self._init_env(freshenv)
+
         # create the builder
         self.builder = self.create_builder(buildername)
-        # set up the build environment
-        self._init_env(freshenv)
+
+        # build environment post-initialisation, after creating the builder
+        self._post_init_env()
+
         # set up the builder
         self._init_builder()
 
@@ -281,20 +284,34 @@ class Sphinx:
             else:
                 logger.info(__('not available for built-in messages'))
 
-    def _init_env(self, freshenv: bool) -> None:
+    def _init_env(self, freshenv: bool) -> BuildEnvironment:
         filename = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
         if freshenv or not os.path.exists(filename):
-            self.env = BuildEnvironment(self)
-            self.env.find_files(self.config, self.builder)
+            return self._create_fresh_env()
         else:
-            try:
-                with progress_message(__('loading pickled environment')):
-                    with open(filename, 'rb') as f:
-                        self.env = pickle.load(f)
-                        self.env.setup(self)
-            except Exception as err:
-                logger.info(__('failed: %s'), err)
-                self._init_env(freshenv=True)
+            return self._load_existing_env(filename)
+
+    def _create_fresh_env(self) -> BuildEnvironment:
+        env = BuildEnvironment(self)
+        self._fresh_env_used = True
+        return env
+
+    def _load_existing_env(self, filename: str) -> BuildEnvironment:
+        try:
+            with progress_message(__('loading pickled environment')):
+                with open(filename, 'rb') as f:
+                    env = pickle.load(f)
+                    env.setup(self)
+                    self._fresh_env_used = False
+        except Exception as err:
+            logger.info(__('failed: %s'), err)
+            env = self._create_fresh_env()
+        return env
+
+    def _post_init_env(self) -> None:
+        if self._fresh_env_used:
+            self.env.find_files(self.config, self.builder)
+        del self._fresh_env_used
 
     def preload_builder(self, name: str) -> None:
         self.registry.preload_builder(self, name)
@@ -304,10 +321,11 @@ class Sphinx:
             logger.info(__('No builder selected, using default: html'))
             name = 'html'
 
-        return self.registry.create_builder(self, name)
+        return self.registry.create_builder(self, name, self.env)
 
     def _init_builder(self) -> None:
-        self.builder.set_environment(self.env)
+        if not hasattr(self.builder, "env"):
+            self.builder.set_environment(self.env)
         self.builder.init()
         self.events.emit('builder-inited')
 
@@ -984,8 +1002,9 @@ class Sphinx:
             kwargs['defer'] = 'defer'
 
         self.registry.add_js_file(filename, priority=priority, **kwargs)
-        if hasattr(self.builder, 'add_js_file'):
-            self.builder.add_js_file(filename, priority=priority, **kwargs)  # type: ignore
+        if hasattr(self, 'builder') and hasattr(self.builder, 'add_js_file'):
+            self.builder.add_js_file(filename,  # type: ignore[attr-defined]
+                                     priority=priority, **kwargs)
 
     def add_css_file(self, filename: str, priority: int = 500, **kwargs: Any) -> None:
         """Register a stylesheet to include in the HTML output.
@@ -1045,8 +1064,9 @@ class Sphinx:
         """
         logger.debug('[app] adding stylesheet: %r', filename)
         self.registry.add_css_files(filename, priority=priority, **kwargs)
-        if hasattr(self.builder, 'add_css_file'):
-            self.builder.add_css_file(filename, priority=priority, **kwargs)  # type: ignore
+        if hasattr(self, 'builder') and hasattr(self.builder, 'add_css_file'):
+            self.builder.add_css_file(filename,  # type: ignore[attr-defined]
+                                      priority=priority, **kwargs)
 
     def add_latex_package(self, packagename: str, options: str = None,
                           after_hyperref: bool = False) -> None:

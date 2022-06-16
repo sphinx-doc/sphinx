@@ -706,6 +706,15 @@ General configuration
 
     .. versionadded:: 3.0
 
+.. confval:: option_emphasise_placeholders
+
+   Default is ``False``.
+   When enabled, emphasise placeholders in ``.. option:`` directives.
+   To display literal braces, escape with a backslash (``\{``). For example,
+   ``option_emphasise_placeholders=True`` and ``.. option:: -foption={TYPE}`` would
+   render with ``TYPE`` emphasised.
+
+   .. versionadded:: 5.1
 
 .. _intl-options:
 
