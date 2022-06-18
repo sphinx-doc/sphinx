@@ -1520,7 +1520,7 @@ def test_html_math_renderer_is_duplicated(make_app, app_params):
     try:
         args, kwargs = app_params
         make_app(*args, **kwargs)
-        assert False
+        raise AssertionError()
     except ConfigError as exc:
         assert str(exc) == ('Many math_renderers are registered. '
                             'But no math_renderer is selected.')
@@ -1550,7 +1550,7 @@ def test_html_math_renderer_is_mismatched(make_app, app_params):
     try:
         args, kwargs = app_params
         make_app(*args, **kwargs)
-        assert False
+        raise AssertionError()
     except ConfigError as exc:
         assert str(exc) == "Unknown math_renderer 'imgmath' is given."
 

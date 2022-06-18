@@ -224,7 +224,7 @@ def render_dot(self: SphinxTranslator, code: str, options: Dict, format: str,
         return relfn, outfn
 
     if (hasattr(self.builder, '_graphviz_warned_dot') and
-       self.builder._graphviz_warned_dot.get(graphviz_dot)):  # type: ignore  # NOQA
+       self.builder._graphviz_warned_dot.get(graphviz_dot)):  # type: ignore
         return None, None
 
     ensuredir(path.dirname(outfn))

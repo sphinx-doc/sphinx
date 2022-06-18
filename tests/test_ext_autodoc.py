@@ -363,7 +363,7 @@ def test_get_doc(app):
 
     # verify that method docstrings get extracted in both normal case
     # and in case of bound method posing as a function
-    class J:  # NOQA
+    class J:
         def foo(self):
             """Method docstring"""
     assert getdocl('method', J.foo) == ['Method docstring']

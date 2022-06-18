@@ -1,4 +1,4 @@
-from os import path  # NOQA
+from os import path
 from typing import Union
 
 from autosummary_class_module import Class

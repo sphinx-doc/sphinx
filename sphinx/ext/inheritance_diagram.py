@@ -31,6 +31,7 @@ LaTeX.
 import builtins
 import inspect
 import re
+from contextlib import suppress
 from importlib import import_module
 from typing import Any, Dict, Iterable, List, Tuple, cast
 
@@ -184,13 +185,11 @@ class InheritanceGraph:
 
             # Use first line of docstring as tooltip, if available
             tooltip = None
-            try:
+            with suppress(AttributeError):  # might raise AttributeError for strange classes
                 if cls.__doc__:
                     doc = cls.__doc__.strip().split("\n")[0]
                     if doc:
                         tooltip = '"%s"' % doc.replace('"', '\\"')
-            except Exception:  # might raise AttributeError for strange classes
-                pass
 
             baselist: List[str] = []
             all_classes[cls] = (nodename, fullname, baselist, tooltip)

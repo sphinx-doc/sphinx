@@ -74,6 +74,7 @@ from sphinx.ext.autodoc import INSTANCEATTR, Documenter
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
+from sphinx.extension import Extension
 from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.pycode import ModuleAnalyzer, PycodeError

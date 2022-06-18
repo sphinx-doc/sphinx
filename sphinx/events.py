@@ -4,6 +4,7 @@ Gracefully adapted from the TextPress system by Armin.
 """
 
 from collections import defaultdict
+from contextlib import suppress
 from operator import attrgetter
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, NamedTuple, Tuple, Type
 
@@ -80,12 +81,10 @@ class EventManager:
     def emit(self, name: str, *args: Any,
              allowed_exceptions: Tuple[Type[Exception], ...] = ()) -> List:
         """Emit a Sphinx event."""
-        try:
-            logger.debug('[app] emitting event: %r%s', name, repr(args)[:100])
-        except Exception:
+        with suppress(Exception):
             # not every object likes to be repr()'d (think
             # random stuff coming via autodoc)
-            pass
+            logger.debug('[app] emitting event: %r%s', name, repr(args)[:100])
 
         results = []
         listeners = sorted(self.listeners[name], key=attrgetter("priority"))
