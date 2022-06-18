@@ -65,7 +65,7 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
     raise nodes.SkipNode
 
 
-def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: Dict,
+def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: Dict[str, Any],
                     event_arg: Any) -> None:
     if app.builder.format != 'html' or app.builder.math_renderer_name != 'mathjax':  # type: ignore  # NOQA
         return

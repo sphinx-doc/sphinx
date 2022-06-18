@@ -1,7 +1,7 @@
 """TeX escaping helper."""
 
 import re
-from typing import Dict
+from typing import Dict, Optional
 
 tex_replacements = [
     # map TeX special chars
@@ -100,7 +100,7 @@ _tex_hlescape_map: Dict[int, str] = {}
 _tex_hlescape_map_without_unicode: Dict[int, str] = {}
 
 
-def escape(s: str, latex_engine: str = None) -> str:
+def escape(s: str, latex_engine: Optional[str] = None) -> str:
     """Escape text for LaTeX output."""
     if latex_engine in ('lualatex', 'xelatex'):
         # unicode based LaTeX engine
@@ -109,7 +109,7 @@ def escape(s: str, latex_engine: str = None) -> str:
         return s.translate(_tex_escape_map)
 
 
-def hlescape(s: str, latex_engine: str = None) -> str:
+def hlescape(s: str, latex_engine: Optional[str] = None) -> str:
     """Escape text for LaTeX highlighter."""
     if latex_engine in ('lualatex', 'xelatex'):
         # unicode based LaTeX engine

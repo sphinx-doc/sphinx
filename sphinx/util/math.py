@@ -1,5 +1,7 @@
 """Utility functions for math."""
 
+from typing import Optional
+
 from docutils import nodes
 
 from sphinx.builders.html import HTMLTranslator
@@ -20,7 +22,7 @@ def get_node_equation_number(writer: HTMLTranslator, node: nodes.math_block) -> 
         return node['number']
 
 
-def wrap_displaymath(text: str, label: str, numbering: bool) -> str:
+def wrap_displaymath(text: str, label: Optional[str], numbering: bool) -> str:
     def is_equation(part: str) -> str:
         return part.strip()
 

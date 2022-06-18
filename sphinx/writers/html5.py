@@ -837,13 +837,13 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             node['ids'].remove(id)
 
     @property
-    def _fieldlist_row_index(self):
+    def _fieldlist_row_index(self) -> int:
         warnings.warn('_fieldlist_row_index is deprecated',
                       RemovedInSphinx60Warning, stacklevel=2)
         return self._fieldlist_row_indices[-1]
 
     @property
-    def _table_row_index(self):
+    def _table_row_index(self) -> int:
         warnings.warn('_table_row_index is deprecated',
                       RemovedInSphinx60Warning, stacklevel=2)
         return self._table_row_indices[-1]

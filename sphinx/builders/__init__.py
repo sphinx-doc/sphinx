@@ -301,7 +301,9 @@ class Builder:
                        summary=__('targets for %d source files that are out of date') %
                        len(to_build))
 
-    def build(self, docnames: Iterable[str], summary: str = None, method: str = 'update') -> None:  # NOQA
+    def build(
+        self, docnames: Iterable[str], summary: Optional[str] = None, method: str = 'update'
+    ) -> None:
         """Main build method.
 
         First updates the environment, and then calls :meth:`write`.

@@ -1,7 +1,7 @@
 """Docutils-native XML and pseudo-XML builders."""
 
 from os import path
-from typing import Any, Dict, Iterator, Set, Type, Union
+from typing import Any, Dict, Iterator, Optional, Set, Type, Union
 
 from docutils import nodes
 from docutils.io import StringOutput
@@ -53,7 +53,7 @@ class XMLBuilder(Builder):
                 # source doesn't exist anymore
                 pass
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
         return docname
 
     def prepare_writing(self, docnames: Set[str]) -> None:

@@ -1,7 +1,7 @@
 """Plain-text Sphinx builder."""
 
 from os import path
-from typing import Any, Dict, Iterator, Set, Tuple
+from typing import Any, Dict, Iterator, Optional, Set, Tuple
 
 from docutils.io import StringOutput
 from docutils.nodes import Node
@@ -25,7 +25,7 @@ class TextBuilder(Builder):
     allow_parallel = True
     default_translator_class = TextTranslator
 
-    current_docname: str = None
+    current_docname: Optional[str] = None
 
     def init(self) -> None:
         # section numbers for headings in the currently visited document
@@ -49,7 +49,7 @@ class TextBuilder(Builder):
                 # source doesn't exist anymore
                 pass
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
         return ''
 
     def prepare_writing(self, docnames: Set[str]) -> None:

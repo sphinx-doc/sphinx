@@ -105,7 +105,7 @@ def make_filename_from_project(project: str) -> str:
     return make_filename(project_suffix_re.sub('', project)).lower()
 
 
-def relpath(path: str, start: str = os.curdir) -> str:
+def relpath(path: str, start: Optional[str] = os.curdir) -> str:
     """Return a relative filepath to *path* either from the current directory or
     from an optional *start* directory.
 

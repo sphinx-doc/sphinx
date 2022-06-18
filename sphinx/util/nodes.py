@@ -513,7 +513,7 @@ _non_id_translate_digraphs = {
 
 
 def make_id(env: "BuildEnvironment", document: nodes.document,
-            prefix: str = '', term: str = None) -> str:
+            prefix: str = '', term: Optional[str] = None) -> str:
     """Generate an appropriate node_id for given *prefix* and *term*."""
     node_id = None
     if prefix:
@@ -550,7 +550,8 @@ def find_pending_xref_condition(node: addnodes.pending_xref, condition: str
 
 
 def make_refnode(builder: "Builder", fromdocname: str, todocname: str, targetid: str,
-                 child: Union[Node, List[Node]], title: str = None) -> nodes.reference:
+                 child: Union[Node, List[Node]], title: Optional[str] = None
+                 ) -> nodes.reference:
     """Shortcut to create a reference node."""
     node = nodes.reference('', '', internal=True)
     if fromdocname == todocname and targetid:

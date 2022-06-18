@@ -3,8 +3,8 @@
 import re
 import textwrap
 from os import path
-from typing import (TYPE_CHECKING, Any, Dict, Iterable, Iterator, List, Pattern, Set, Tuple,
-                    Union, cast)
+from typing import (TYPE_CHECKING, Any, Dict, Iterable, Iterator, List, Optional, Pattern, Set,
+                    Tuple, Union, cast)
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
@@ -91,7 +91,7 @@ def find_subsections(section: Element) -> List[nodes.section]:
     return result
 
 
-def smart_capwords(s: str, sep: str = None) -> str:
+def smart_capwords(s: str, sep: Optional[str] = None) -> str:
     """Like string.capwords() but does not capitalize words that already
     contain a capital letter."""
     words = s.split(sep)
@@ -173,7 +173,7 @@ class TexinfoTranslator(SphinxTranslator):
         self.body: List[str] = []
         self.context: List[str] = []
         self.descs: List[addnodes.desc] = []
-        self.previous_section: nodes.section = None
+        self.previous_section: Optional[nodes.section] = None
         self.section_level = 0
         self.seen_title = False
         self.next_section_ids: Set[str] = set()
@@ -184,7 +184,7 @@ class TexinfoTranslator(SphinxTranslator):
         self.in_footnote = 0
         self.in_samp = 0
         self.handled_abbrs: Set[str] = set()
-        self.colwidths: List[int] = None
+        self.colwidths: Optional[List[int]] = None
 
     def finish(self) -> None:
         if self.previous_section is None:

@@ -3,7 +3,7 @@
 import re
 import unicodedata
 from itertools import groupby
-from typing import Any, Dict, List, Pattern, Tuple, cast
+from typing import Any, Dict, List, Optional, Pattern, Tuple, cast
 
 from sphinx.builders import Builder
 from sphinx.domains.index import IndexDomain
@@ -26,7 +26,7 @@ class IndexEntries:
         new: Dict[str, List] = {}
 
         def add_entry(word: str, subword: str, main: str, link: bool = True,
-                      dic: Dict = new, key: str = None) -> None:
+                      dic: Dict[str, List] = new, key: Optional[str] = None) -> None:
             # Force the word to be unicode if it's a ASCII bytestring.
             # This will solve problems with unicode normalization later.
             # For instance the RFC role will add bytestrings at the moment
@@ -118,7 +118,7 @@ class IndexEntries:
             #     (in module foo)
             #     (in module bar)
             oldkey = ''
-            oldsubitems: Dict[str, List] = None
+            oldsubitems: Optional[Dict[str, List]] = None
             i = 0
             while i < len(newlist):
                 key, (targets, subitems, _key) = newlist[i]

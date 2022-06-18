@@ -114,8 +114,6 @@ class ThemeFactory:
             theme = self.themes[name]
         else:
             theme = self.find_user_theme(name)
-            if not theme:
-                theme = Theme(name)
 
         theme.update(self.config)
         return theme
@@ -130,4 +128,4 @@ class ThemeFactory:
                 except ThemeError as exc:
                     logger.warning(exc)
 
-        return None
+        return Theme(name)

@@ -81,7 +81,9 @@ class ParallelTasks:
         logging.convert_serializable(collector.logs)
         pipe.send((failed, collector.logs, ret))
 
-    def add_task(self, task_func: Callable, arg: Any = None, result_func: Callable = None) -> None:  # NOQA
+    def add_task(
+        self, task_func: Callable, arg: Any = None, result_func: Optional[Callable] = None
+    ) -> None:
         tid = self._taskid
         self._taskid += 1
         self._result_funcs[tid] = result_func or (lambda arg, result: None)

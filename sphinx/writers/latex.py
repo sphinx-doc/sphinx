@@ -8,7 +8,7 @@ import re
 import warnings
 from collections import defaultdict
 from os import path
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Set, Tuple, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Set, Tuple, cast
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
@@ -172,7 +172,9 @@ class Table:
                 assert self.cells[(self.row + row, self.col + col)] == 0
                 self.cells[(self.row + row, self.col + col)] = self.cell_id
 
-    def cell(self, row: int = None, col: int = None) -> "TableCell":
+    def cell(
+        self, row: Optional[int] = None, col: Optional[int] = None
+    ) -> Optional["TableCell"]:
         """Returns a cell object (i.e. rectangular area) containing given position.
 
         If no option arguments: ``row`` or ``col`` are given, the current position;
@@ -496,7 +498,7 @@ class LaTeXTranslator(SphinxTranslator):
         return renderer.render(template_name, variables)
 
     @property
-    def table(self) -> Table:
+    def table(self) -> Optional[Table]:
         """Get current table."""
         if self.tables:
             return self.tables[-1]

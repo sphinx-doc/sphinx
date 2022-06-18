@@ -2,7 +2,7 @@
 
 import warnings
 from os import path
-from typing import Any, Dict, List, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 from docutils.frontend import OptionParser
 from docutils.io import FileOutput
@@ -40,7 +40,7 @@ class ManualPageBuilder(Builder):
     def get_outdated_docs(self) -> Union[str, List[str]]:
         return 'all manpages'  # for now
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
         return ''
 
     @progress_message(__('writing'))
@@ -111,9 +111,9 @@ def default_man_pages(config: Config) -> List[Tuple[str, str, str, List[str], in
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(ManualPageBuilder)
 
-    app.add_config_value('man_pages', default_man_pages, None)
-    app.add_config_value('man_show_urls', False, None)
-    app.add_config_value('man_make_section_directory', False, None)
+    app.add_config_value('man_pages', default_man_pages, False)
+    app.add_config_value('man_show_urls', False, False)
+    app.add_config_value('man_make_section_directory', False, False)
 
     return {
         'version': 'builtin',

@@ -1,7 +1,7 @@
 """Directory HTML builders."""
 
 from os import path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from sphinx.application import Sphinx
 from sphinx.builders.html import StandaloneHTMLBuilder
@@ -19,7 +19,7 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
     """
     name = 'dirhtml'
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
         if docname == 'index':
             return ''
         if docname.endswith(SEP + 'index'):

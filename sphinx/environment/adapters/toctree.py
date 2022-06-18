@@ -164,7 +164,7 @@ class TocTree:
                                        ref, location=toctreenode)
                 except KeyError:
                     # this is raised if the included file does not exist
-                    if excluded(self.env.doc2path(ref, None)):
+                    if excluded(self.env.doc2path(ref, False)):
                         message = __('toctree contains reference to excluded document %r')
                     else:
                         message = __('toctree contains reference to nonexisting document %r')
