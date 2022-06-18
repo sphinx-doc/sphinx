@@ -4,7 +4,6 @@ import importlib
 import traceback
 import warnings
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, NamedTuple, Optional
-from contextlib import suppress
 
 from sphinx.ext.autodoc.mock import ismock, undecorate
 from sphinx.pycode import ModuleAnalyzer, PycodeError
@@ -20,16 +19,18 @@ logger = logging.getLogger(__name__)
 
 def mangle(subject: Any, name: str) -> str:
     """Mangle the given name."""
-    with suppress(AttributeError):
+    try:
         if isclass(subject) and name.startswith('__') and not name.endswith('__'):
             return "_%s%s" % (subject.__name__, name)
+    except AttributeError:
+        pass
 
     return name
 
 
 def unmangle(subject: Any, name: str) -> Optional[str]:
     """Unmangle the given name."""
-    with suppress(AttributeError):
+    try:
         if isclass(subject) and not name.endswith('__'):
             prefix = "_%s__" % subject.__name__
             if name.startswith(prefix):
@@ -40,6 +41,8 @@ def unmangle(subject: Any, name: str) -> Optional[str]:
                     if name.startswith(prefix):
                         # mangled attribute defined in parent class
                         return None
+    except AttributeError:
+        pass
 
     return name
 
@@ -249,7 +252,7 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable,
         except AttributeError:
             continue
 
-    with suppress(AttributeError):
+    try:
         for cls in getmro(subject):
             try:
                 modname = safe_getattr(cls, '__module__')
@@ -292,5 +295,7 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable,
                         # attribute is already known, because dir(subject) enumerates it.
                         # But it has no docstring yet
                         members[name].docstring = '\n'.join(docstring)
+    except AttributeError:
+        pass
 
     return members
