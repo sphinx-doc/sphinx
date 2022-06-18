@@ -33,6 +33,7 @@ from __future__ import annotations
 import builtins
 import hashlib
 import inspect
+import pathlib
 import re
 from collections.abc import Iterable
 from importlib import import_module
@@ -54,6 +55,7 @@ from sphinx.ext.graphviz import (
     render_dot_texinfo,
 )
 from sphinx.util.docutils import SphinxDirective
+from sphinx.util.osutil import canon_path, relpath
 from sphinx.util.typing import OptionSpec
 from sphinx.writers.html import HTML5Translator
 from sphinx.writers.latex import LaTeXTranslator
@@ -408,17 +410,25 @@ def html_visit_inheritance_diagram(self: HTML5Translator, node: inheritance_diag
     # Create a mapping from fully-qualified class names to URLs.
     graphviz_output_format = self.builder.env.config.graphviz_output_format.upper()
     current_filename = self.builder.current_docname + self.builder.out_suffix
+    current_dir = pathlib.PurePath(current_filename).parent
     urls = {}
     pending_xrefs = cast(Iterable[addnodes.pending_xref], node)
     for child in pending_xrefs:
         if child.get('refuri') is not None:
             if graphviz_output_format == 'SVG':
-                urls[child['reftitle']] = "../" + child.get('refuri')
+                # URI relative to src dir (typically equivalent to stripping all leading ../)
+                uri_rel_to_srcdir = (current_dir / child.get('refuri')).as_posix()
+                # URI relative to image dir (typically equivalent to prepending ../)
+                uri_rel_to_imagedir = relpath(uri_rel_to_srcdir, self.builder.imagedir)
+                urls[child['reftitle']] = canon_path(uri_rel_to_imagedir)
             else:
                 urls[child['reftitle']] = child.get('refuri')
         elif child.get('refid') is not None:
             if graphviz_output_format == 'SVG':
-                urls[child['reftitle']] = '../' + current_filename + '#' + child.get('refid')
+                # URI relative to image dir (typically equivalent to prepending ../)
+                uri_rel_to_imagedir = relpath(current_filename, self.builder.imagedir)
+                urls[child['reftitle']] = canon_path(uri_rel_to_imagedir) +\
+                                          '#' + child.get('refid')
             else:
                 urls[child['reftitle']] = '#' + child.get('refid')
 
