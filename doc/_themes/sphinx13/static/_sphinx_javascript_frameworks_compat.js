@@ -9,11 +9,6 @@
  *
  */
 
-/**
- * select a different prefix for underscore
- */
-$u = _.noConflict();
-
 
 /**
  * small helper function to urldecode strings
