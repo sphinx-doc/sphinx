@@ -183,7 +183,7 @@ def setup(app):
                     priority=100)
     app.add_js_file('https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.1/underscore-min.js',  # NoQA
                     priority=100)
-    app.add_js_file('_sphinx_javascript_frameworks_compat.js', priority=200)
+    app.add_js_file('_sphinx_javascript_frameworks_compat.js', priority=105)
 
     # workaround for RTD
     from sphinx.util import logging
