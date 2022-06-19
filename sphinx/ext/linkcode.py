@@ -24,6 +24,8 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
         raise LinkcodeError(
             "Function `linkcode_resolve` is not given in conf.py")
 
+    node_only_expr = getattr(app.builder, 'supported_linkcode', 'html')
+
     domain_keys = {
         'py': ['module', 'fullname'],
         'c': ['names'],
@@ -60,7 +62,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
             uris.add(uri)
 
             inline = nodes.inline('', _('[source]'), classes=['viewcode-link'])
-            onlynode = addnodes.only(expr='html')
+            onlynode = addnodes.only(expr=node_only_expr)
             onlynode += nodes.reference('', '', inline, internal=False, refuri=uri)
             signode += onlynode
 
