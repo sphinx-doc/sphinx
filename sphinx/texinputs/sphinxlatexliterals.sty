@@ -254,7 +254,7 @@
   \def\spx@abovecaptionskip{\sphinxverbatimsmallskipamount}%
 }
 \newcommand*{\sphinxverbatimsmallskipamount}{\smallskipamount}
-% serves to implement line highlighting and line wrapping
+% serves to implement line highlighting
 \newcommand\sphinxFancyVerbFormatLine[1]{%
   \expandafter\sphinx@verbatim@checkifhl\expandafter{\the\FV@CodeLineNo}%
   \ifin@
@@ -275,11 +275,21 @@
 % But, if this was not the case, the support would be implemented here via
 % \newcommand\sphinxVerbatimFormatLine[1]{\hb@xt@\linewidth{\FV@ObeyTabs{\strut #1}\hss}}%
 \newcommand\sphinxVerbatimFormatLine[1]{\hb@xt@\linewidth{\strut #1\hss}}%
-% The next two macros are a deep hack of fancyvrb.sty core line processing
-% in order to wrap too long lines, either at spaces and natural break-points,
-% (soft wrap) or optionally at any character (hard wrap).  This requires
-% deep hack to work around the \hbox'es wrappers of fancyverb.sty which
-% prevents pagebreaks.
+% The next two macros are a deep hack of fancyvrb.sty core line processing in
+% order to wrap too long lines, either at spaces and natural break-points,
+% (soft wrap) or optionally at any character (hard wrap).  This requires deep
+% hack to work around the \hbox'es wrappers of fancyvrb.sty as they would
+% prevent page breaks.  Formerly Sphinx obtained wrapping by inserting the
+% material into a vertical box (which was later again boxed -- twice -- by
+% fancyvrb thinking it was a single line...) but this was incompatible with
+% allowing page breaks (refs: #8686).
+% We use core TeX techniques to pre-process a paragraph then recover its
+% constituents lines (as boxes, not as tokens) and hand them over to original
+% fancyvrb line process.  It is mandatory to update \FV@ProcessLine and
+% \@tempboxa globally to get fancyvrb internals into working to our
+% satisfaction.
+% This will get disrupted if anything adding vertical penalties or glues
+% is activated via some \vadjust from inside the Pygmentized code lines.
 \def\spx@verb@@ProcessLines{%
    \unskip
    \unpenalty
@@ -291,7 +301,18 @@
    \global\setbox\@tempboxa=\box\@tempboxa
 \fi
 }%
-% This will replace \FV@@PreProcessLine
+% This will replace fancyvrb's \FV@@PreProcessLine
+% Instead of boxing \FV@Line (which contains the Pygmentized line tokens), we
+% first typeset it in a vertical box of the suitable width (taking into
+% account nested lists) to activate the TeX built-in paragraph builder, then
+% we recover individual lines as horizontal boxes and feed them to fancyvrb
+% native line processing (which may add line numbers).  The interline
+% penalties and vertical glue to maintain baseline distance will be added
+% again by this process so in recursive \spx@verb@@ProcessLines which starts
+% from bottom and makes its way up to first part of the wrapped line we do not
+% need to worry about them.  An additional initial measuring step is needed if
+% user issued verbatimforcewraps=true, which elaborates on the same technique.
+% If hard wraps get activated, they get implemented via hacked \PYG macros.
 \def\spx@verb@@PreProcessLine{%
   \FV@StepLineNo
   \FV@Gobble
@@ -390,6 +411,8 @@
           \spx@verb@getwidths}%
     \ifdim\spx@verb@maxwidth>
           \dimexpr\linewidth+\spx@opt@verbatimmaxoverfull\fontcharwd\font`X \relax
+% The \expandafter is due to \spx@verb@wrapPYG requiring to "see" the TeX tokens
+% from the pygmentize output.
       \def\spx@verb@FV@Line{\expandafter\spx@verb@wrapPYG\FV@Line\spx@verb@wrapPYG}%
     \else
       \ifdim\spx@verb@minwidth<
@@ -579,11 +602,13 @@
       \let\sphinxVerbatim@Continues\@empty
   \fi
   \ifspx@opt@verbatimwrapslines
+    % deep hack into fancyvrb's internal processing of input lines
     \let\FV@@PreProcessLine\spx@verb@@PreProcessLine
+    % space character will allow line breaks
     \let\FV@Space\spx@verbatim@space
-  % Allow breaks at special characters using \PYG... macros.
+    % allow breaks at special characters using \PYG... macros.
     \sphinxbreaksatspecials
-  % Breaks at punctuation characters . , ; ? ! and / (needs catcode activation)
+    % breaks at punctuation characters . , ; ? ! and / (needs catcode activation)
     \fvset{codes*=\sphinxbreaksviaactive}%
   \fi
   \let\FancyVerbFormatLine\sphinxFancyVerbFormatLine
