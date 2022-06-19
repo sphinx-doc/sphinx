@@ -186,23 +186,22 @@ class Cmdoption(ObjectDescription[str]):
             signode += addnodes.desc_name(optname, optname)
             if self.env.config.option_emphasise_placeholders:
                 add_end_bracket = False
-                if not args:
-                    continue
-                if args[0] == '[' and args[-1] == ']':
-                    add_end_bracket = True
-                    signode += addnodes.desc_sig_punctuation('[', '[')
-                    args = args[1:-1]
-                if args[0] == ' ':
-                    signode += addnodes.desc_sig_space()
-                    args = args.strip()
-                if args[0] == '=':
-                    signode += addnodes.desc_sig_punctuation('=', '=')
-                    args = args[1:]
-                for part in samp_role.parse(args):
-                    if isinstance(part, nodes.Text):
-                        signode += nodes.Text(part.astext())
-                    else:
-                        signode += part
+                if args:
+                    if args[0] == '[' and args[-1] == ']':
+                        add_end_bracket = True
+                        signode += addnodes.desc_sig_punctuation('[', '[')
+                        args = args[1:-1]
+                    elif args[0] == ' ':
+                        signode += addnodes.desc_sig_space()
+                        args = args.strip()
+                    elif args[0] == '=':
+                        signode += addnodes.desc_sig_punctuation('=', '=')
+                        args = args[1:]
+                    for part in samp_role.parse(args):
+                        if isinstance(part, nodes.Text):
+                            signode += nodes.Text(part.astext())
+                        else:
+                            signode += part
                 if add_end_bracket:
                     signode += addnodes.desc_sig_punctuation(']', ']')
             else:

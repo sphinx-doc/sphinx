@@ -1748,6 +1748,8 @@ def test_option_emphasise_placeholders(app, status, warning):
             '<span class="pre">-</span>'
             '<em><span class="pre">COUNT</span></em>' in content)
     assert '<span class="pre">{{value}}</span>' in content
+    assert ('<span class="pre">--plugin.option</span></span>'
+            '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Permalink to this definition">¶</a></dt>') in content
 
 
 @pytest.mark.sphinx('html', testroot='root')
@@ -1757,6 +1759,9 @@ def test_option_emphasise_placeholders_default(app, status, warning):
     assert '<span class="pre">={TYPE}</span>' in content
     assert '<span class="pre">={WHERE}-{COUNT}</span></span>' in content
     assert '<span class="pre">{client_name}</span>' in content
+    assert ('<span class="pre">--plugin.option</span></span>'
+            '<span class="sig-prename descclassname"></span>'
+            '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Permalink to this definition">¶</a></dt>') in content
 
 
 @pytest.mark.sphinx('html', testroot='theming')
