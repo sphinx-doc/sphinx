@@ -299,7 +299,12 @@
    \FV@ProcessLine{\box\spx@verb@tempboxb\strut}%
    \global\let\FV@ProcessLine\FV@ProcessLine
    \global\setbox\@tempboxa=\box\@tempboxa
+   \aftergroup\spx@verb@@InhibitLineNumber
 \fi
+}%
+\def\spx@verb@@InhibitLineNumber{%
+    \let\FV@LeftListNumber\relax
+    \let\FV@RightListNumber\relax
 }%
 % This will replace fancyvrb's \FV@@PreProcessLine
 % Instead of boxing \FV@Line (which contains the Pygmentized line tokens), we
