@@ -178,9 +178,10 @@ def setup(app):
     app.add_object_type('event', 'event', 'pair: %s; event', parse_event,
                         doc_field_types=[fdesc])
 
-    # Load jQuery to make readthedocs-doc-embed.js available (refs: #10574)
+    # Load jQuery and patches to make readthedocs-doc-embed.js available (refs: #10574)
     app.add_js_file('https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js',
                     priority=100)
+    app.add_js_file('_sphinx_javascript_frameworks_compat.js', priority=200)
 
     # workaround for RTD
     from sphinx.util import logging
