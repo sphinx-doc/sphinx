@@ -270,6 +270,10 @@
            {\sphinxrestorefboxsep\sphinxVerbatimFormatLine{#1}}%
   % no need to restore \fboxsep here, as this ends up in a \hbox from fancyvrb
 }%
+% MEMO: fancyvrb has options obeytabs and tabsize.  Anyhow tab characters
+% do not make it to the tex file, they have been converted to spaces earlier.
+% But, if this was not the case, the support would be implemented here via
+% \newcommand\sphinxVerbatimFormatLine[1]{\hb@xt@\linewidth{\FV@ObeyTabs{\strut #1}\hss}}%
 \newcommand\sphinxVerbatimFormatLine[1]{\hb@xt@\linewidth{\strut #1\hss}}%
 % The next two macros are a deep hack of fancyvrb.sty core line processing
 % in order to wrap too long lines, either at spaces and natural break-points,
@@ -293,18 +297,26 @@
   \FV@Gobble
      \def\spx@verb@FV@Line{\FV@Line}%
      \ifspx@opt@verbatimforcewraps
-       \spx@verb@DecideIfWillForceWrap
+       \spx@verb@DecideIfWillDoForceWrap
      \fi
      \setbox\spx@verb@tempboxa=\vtop{\hsize\linewidth
           \raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
           \doublehyphendemerits\z@\finalhyphendemerits\z@
-          \strut\spx@verb@FV@Line\strut}%
+% MEMO: fancyvrb has options obeytabs and tabsize.  Anyhow tab characters
+% do not make it to the tex file, they have been converted to spaces earlier.
+% But, if this was not the case, the support would be implemented here via
+%     \FV@ObeyTabs{\strut\spx@verb@FV@Line\strut}%
+% And one would need a similar change in the measuring phase done by
+% \spx@verb@DecideIfWillDoForceWrap
+                   \strut\spx@verb@FV@Line\strut
+          }%
      \setbox\spx@verb@tempboxa=\vtop{\unvbox\spx@verb@tempboxa
           \setbox\spx@verb@tempboxb\lastbox
           {\spx@verb@@ProcessLines}%
           \FV@ProcessLine{\box\spx@verb@tempboxb\strut}%
           \global\let\FV@ProcessLine\FV@ProcessLine
-          \global\setbox\@tempboxa=\box\@tempboxa}%
+          \global\setbox\@tempboxa=\box\@tempboxa
+          }%
   \unvbox\spx@verb@tempboxa
 }%
 %
@@ -368,7 +380,7 @@
 % character widths, or if the min width plus verbatimmaxunderfull character
 % widths is inferior to linewidth, then we apply the "force wrapping" with
 % potential line break at each character, else we don't.
-\long\def\spx@verb@DecideIfWillForceWrap{%
+\long\def\spx@verb@DecideIfWillDoForceWrap{%
     \global\let\spx@verb@maxwidth\z@
     \global\let\spx@verb@minwidth\linewidth
     \setbox\spx@verb@tempboxa
