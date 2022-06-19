@@ -29,6 +29,7 @@ Bugs fixed
 * #10460: logging: Always show node source locations as absolute paths.
 * #10520: HTML Theme: Fix use of sidebar classes in ``agogo.css_t``.
 * #6679: HTML Theme: Fix inclusion of hidden toctrees in the agogo theme.
+* #10566: HTML Theme: Fix enable_search_shortcuts does not work
 * #8686: LaTeX: Text can fall out of code-block at end of page and leave artifact
   on next page
 
