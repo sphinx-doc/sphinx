@@ -152,7 +152,7 @@ Deprecated
          {{ super() }}
      {%- endblock %}
 
-   Patch by Adam Turner.
+  Patch by Adam Turner.
 * setuptools integration.  The ``build_sphinx`` sub-command for setup.py is
   marked as deprecated to follow the policy of setuptools team.
 * The ``locale`` argument of ``sphinx.util.i18n:babel_format_date()`` becomes
