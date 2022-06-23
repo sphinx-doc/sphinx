@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
+message: "If you use Sphinx, please cite it as below."
 authors:
 - family-names: Brandl
   given-names: Georg
@@ -26,7 +26,7 @@ authors:
   alias: TimKam
   orcid: "https://orcid.org/0000-0002-6458-2252"
   website: "people.cs.umu.se/tkampik"
-title: "Sphinx: Python Documentation Generator"
+title: "The Sphinx documentation builder"
 version: 5.0.1
 date-released: 2022-06-02
-url: "https://github.com/sphinx-doc/sphinx"
+url: "https://www.sphinx-doc.org/en/master/"
