@@ -4,6 +4,7 @@ import re
 import sys
 from unittest.mock import Mock
 
+import docutils.utils
 import pytest
 from docutils import nodes
 
@@ -1372,3 +1373,16 @@ def test_warn_missing_reference(app, status, warning):
     assert "index.rst:6: WARNING: undefined label: 'no-label'" in warning.getvalue()
     assert ("index.rst:6: WARNING: Failed to create a cross reference. "
             "A title or caption not found: 'existing-label'") in warning.getvalue()
+
+
+@pytest.mark.sphinx(confoverrides={'nitpicky': True})
+@pytest.mark.parametrize('include_options', (True, False))
+def test_signature_line_number(app, include_options):
+    text = (".. py:function:: foo(bar : string)\n" +
+            ("   :noindexentry:\n" if include_options else ""))
+    doc = restructuredtext.parse(app, text)
+    xrefs = list(doc.findall(condition=addnodes.pending_xref))
+    assert len(xrefs) == 1
+    source, line = docutils.utils.get_source_line(xrefs[0])
+    assert 'index.rst' in source
+    assert line == 1
