@@ -415,14 +415,21 @@ def html_visit_inheritance_diagram(self: HTML5Translator, node: inheritance_diag
     pending_xrefs = cast(Iterable[addnodes.pending_xref], node)
     for child in pending_xrefs:
         if child.get('refuri') is not None:
-            if graphviz_output_format == 'SVG':
+            # Construct the name from the URI if the reference is external via intersphinx
+            if not child.get('internal', True):
+                refname = child['refuri'].rsplit('#', 1)[-1]
+            else:
+                refname = child['reftitle']
+
+            # For SVG output, relative URIs need to be re-pathed to where the SVG file will be
+            if graphviz_output_format == 'SVG' and '://' not in child['refuri']:
                 # URI relative to src dir (typically equivalent to stripping all leading ../)
-                uri_rel_to_srcdir = (current_dir / child.get('refuri')).as_posix()
+                uri_rel_to_srcdir = (current_dir / child['refuri']).as_posix()
                 # URI relative to image dir (typically equivalent to prepending ../)
                 uri_rel_to_imagedir = relpath(uri_rel_to_srcdir, self.builder.imagedir)
-                urls[child['reftitle']] = canon_path(uri_rel_to_imagedir)
+                urls[refname] = canon_path(uri_rel_to_imagedir)
             else:
-                urls[child['reftitle']] = child.get('refuri')
+                urls[refname] = child['refuri']
         elif child.get('refid') is not None:
             if graphviz_output_format == 'SVG':
                 # URI relative to image dir (typically equivalent to prepending ../)
