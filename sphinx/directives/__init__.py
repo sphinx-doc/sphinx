@@ -165,7 +165,9 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         #
         # Note that we need to subtract one from the line number since
         # `note_source` uses 0-based line numbers.
-        self.state.document.note_source(source, line - 1 if line is not None else None)
+        if line is not None:
+            line -= 1
+        self.state.document.note_source(source, line)
         node['domain'] = self.domain
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
