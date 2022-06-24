@@ -12,3 +12,7 @@ class Baz(Bar):
 
 class Qux(Foo):
     pass
+
+
+class Alice(object):
+    pass
