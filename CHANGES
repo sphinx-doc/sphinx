@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #10594: HTML Theme: field term colons are doubled if using Docutils 0.18+
+
 Testing
 --------
 

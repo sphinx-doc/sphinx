@@ -686,9 +686,11 @@ dl.field-list > dt {
     padding-right: 5px;
 }
 
+{%- if docutils_version_info[:2] < (0, 18) %}
 dl.field-list > dt:after {
     content: ":";
 }
+{% endif %}
 
 dl.field-list > dd {
     padding-left: 0.5em;
