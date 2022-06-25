@@ -20,7 +20,6 @@ Features added
   directives through a new ``option_emphasise_placeholders`` configuration option.
 * #10439: std domain: Use the repr of some variables when displaying warnings,
   making whitespace issues easier to identify.
-```suggestion
 * #10571: quickstart: Reduce content in the generated ``conf.py`` file. Patch by
   Pradyun Gedam.
 
