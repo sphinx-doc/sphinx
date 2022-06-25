@@ -550,9 +550,9 @@ class SphinxTranslator(nodes.NodeVisitor):
 
 
 # Node.findall() is a new interface to traverse a doctree since docutils-0.18.
-# This applies a patch docutils-0.17 or older to be available Node.findall()
+# This applies a patch to docutils up to 0.18 inclusive to provide Node.findall()
 # method to use it from our codebase.
-if docutils.__version_info__ < (0, 18):
+if docutils.__version_info__ <= (0, 18):
     def findall(self, *args, **kwargs):
         return iter(self.traverse(*args, **kwargs))
 
