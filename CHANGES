@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #10596: Build failure if Docutils version is 0.18 (not 0.18.1) due
+  to missing ``Node.findall()``
+
 Testing
 --------
 
