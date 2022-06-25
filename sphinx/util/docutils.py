@@ -18,6 +18,7 @@ from docutils.parsers.rst import Directive, directives, roles
 from docutils.parsers.rst.states import Inliner
 from docutils.statemachine import State, StateMachine, StringList
 from docutils.utils import Reporter, unescape
+from docutils.writers._html_base import HTMLTranslator  # NoQA
 
 from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
 from sphinx.errors import SphinxError
@@ -182,10 +183,40 @@ def using_user_docutils_conf(confdir: Optional[str]) -> Generator[None, None, No
             os.environ['DOCUTILSCONFIG'] = docutilsconfig
 
 
+def du19_footnotes() -> Generator[None, None, None]:
+    def visit_footnote(self, node):
+        label_style = self.settings.footnote_references
+        if not isinstance(node.previous_sibling(), type(node)):
+            self.body.append(f'<aside class="footnote-list {label_style}">\n')
+        self.body.append(self.starttag(node, 'aside',
+                                       classes=[node.tagname, label_style],
+                                       role="note"))
+
+    def depart_footnote(self, node):
+        self.body.append('</aside>\n')
+        if not isinstance(node.next_node(descend=False, siblings=True),
+                          type(node)):
+            self.body.append('</aside>\n')
+
+    old_visit_footnote = HTMLTranslator.visit_footnote
+    old_depart_footnote = HTMLTranslator.depart_footnote
+
+    if docutils.__version_info__[:2] < (0, 19):
+        HTMLTranslator.visit_footnote = visit_footnote
+        HTMLTranslator.depart_footnote = depart_footnote
+
+    try:
+        yield
+    finally:
+        if docutils.__version_info__[:2] < (0, 19):
+            HTMLTranslator.visit_footnote = old_visit_footnote
+            HTMLTranslator.depart_footnote = old_depart_footnote
+
+
 @contextmanager
 def patch_docutils(confdir: Optional[str] = None) -> Generator[None, None, None]:
     """Patch to docutils temporarily."""
-    with patched_get_language(), patched_rst_get_language(), using_user_docutils_conf(confdir):
+    with patched_get_language(), patched_rst_get_language(), using_user_docutils_conf(confdir), du19_footnotes():
         yield
 
 
