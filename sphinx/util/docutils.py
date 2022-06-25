@@ -183,6 +183,7 @@ def using_user_docutils_conf(confdir: Optional[str]) -> Generator[None, None, No
             os.environ['DOCUTILSCONFIG'] = docutilsconfig
 
 
+@contextmanager
 def du19_footnotes() -> Generator[None, None, None]:
     def visit_footnote(self, node):
         label_style = self.settings.footnote_references
