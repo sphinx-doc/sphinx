@@ -686,15 +686,11 @@ dl.field-list > dt {
     padding-right: 5px;
 }
 
-/* Compatibility patch for Docutils 0.18+ */
-dl.field-list > dt .colon {
-    display: none;
-}
-
-/* Docutils 0.17 and older */
+{%- if docutils_version_info[:2] < (0, 18) %}
 dl.field-list > dt:after {
     content: ":";
 }
+{% endif %}
 
 dl.field-list > dd {
     padding-left: 0.5em;
