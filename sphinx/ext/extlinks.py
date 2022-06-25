@@ -93,9 +93,9 @@ def make_link_role(name: str, base_url: str, caption: str) -> RoleFunction:
     try:
         base_url % 'dummy'
     except (TypeError, ValueError):
-        logger.warn(__('extlinks: Sphinx-6.0 will require base URL to '
-                       'contain exactly one \'%s\' and all other \'%\' need '
-                       'to be escaped as \'%%\'.'))  # RemovedInSphinx60Warning
+        logger.warning(__('extlinks: Sphinx-6.0 will require base URL to '
+                          'contain exactly one \'%s\' and all other \'%\' need '
+                          'to be escaped as \'%%\'.'))  # RemovedInSphinx60Warning
         base_url = base_url.replace('%', '%%') + '%s'
     if caption is not None:
         try:
