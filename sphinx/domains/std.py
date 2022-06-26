@@ -1058,7 +1058,7 @@ class StandardDomain(Domain):
                       figtype: str, docname: str, target_node: Element) -> Tuple[int, ...]:
         if figtype == 'section':
             if builder.name == 'latex':
-                return tuple()
+                return ()
             elif docname not in env.toc_secnumbers:
                 raise ValueError  # no number assigned
             else:

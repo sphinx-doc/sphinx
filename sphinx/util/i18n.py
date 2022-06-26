@@ -231,7 +231,7 @@ def format_date(format: str, date: datetime = None, language: str = None) -> str
 
 def get_image_filename_for_language(filename: str, env: "BuildEnvironment") -> str:
     filename_format = env.config.figure_language_filename
-    d = dict()
+    d = {}
     d['root'], d['ext'] = path.splitext(filename)
     dirname = path.dirname(d['root'])
     if dirname and not dirname.endswith(path.sep):
