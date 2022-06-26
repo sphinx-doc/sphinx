@@ -1215,14 +1215,14 @@ def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,
     pathto = context.get('pathto')
 
     # favicon_url
-    favicon = context.get('favicon_url')
-    if favicon and not isurl(favicon):
-        context['favicon_url'] = pathto('_static/' + favicon, resource=True)
+    favicon_url = context.get('favicon_url')
+    if favicon_url and not isurl(favicon_url):
+        context['favicon_url'] = pathto('_static/' + favicon_url, resource=True)
 
     # logo_url
-    logo = context.get('logo_url')
-    if logo and not isurl(logo):
-        context['logo_url'] = pathto('_static/' + logo, resource=True)
+    logo_url = context.get('logo_url')
+    if logo_url and not isurl(logo_url):
+        context['logo_url'] = pathto('_static/' + logo_url, resource=True)
 
 
 def validate_math_renderer(app: Sphinx) -> None:
