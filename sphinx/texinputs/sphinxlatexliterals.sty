@@ -1,7 +1,7 @@
 %% LITERAL BLOCKS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexliterals.sty}[2021/12/06 code-blocks and parsed literals]
+\ProvidesFile{sphinxlatexliterals.sty}[2022/06/18 code-blocks and parsed literals]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -50,8 +50,8 @@
 % 4- while still allowing expansion of Pygments latex mark-up
 % Other aspects such as framing, caption handling, codeline wrapping are
 % added on top of it. We should stop using fancyvrb and implement
-% 1, 2, 3, 4 by own Sphinx fully native Verbatim. This would allow to solve
-% limitations with wrapped long code line not allowing page break.
+% 1, 2, 3, 4 by own Sphinx fully native Verbatim. This would greatly simplify
+% in particular wrapping long code lines in a way allowing page breaks.
 \RequirePackage{fancyvrb}
 % For parsed-literal blocks.
 \RequirePackage{alltt}
@@ -59,6 +59,9 @@
 \RequirePackage{upquote}
 % Skip to next page if not enough space at bottom
 \RequirePackage{needspace}
+
+\newbox\spx@verb@tempboxa
+\newbox\spx@verb@tempboxb
 
 % Based on use of "fancyvrb.sty"'s Verbatim.
 % - with framing allowing page breaks ("framed.sty")
@@ -251,7 +254,7 @@
   \def\spx@abovecaptionskip{\sphinxverbatimsmallskipamount}%
 }
 \newcommand*{\sphinxverbatimsmallskipamount}{\smallskipamount}
-% serves to implement line highlighting and line wrapping
+% serves to implement line highlighting
 \newcommand\sphinxFancyVerbFormatLine[1]{%
   \expandafter\sphinx@verbatim@checkifhl\expandafter{\the\FV@CodeLineNo}%
   \ifin@
@@ -267,19 +270,80 @@
            {\sphinxrestorefboxsep\sphinxVerbatimFormatLine{#1}}%
   % no need to restore \fboxsep here, as this ends up in a \hbox from fancyvrb
 }%
-% \sphinxVerbatimFormatLine will be set locally to one of those two:
-\newcommand\sphinxVerbatimFormatLineWrap{%
-  \hsize\linewidth
-  \ifspx@opt@verbatimforcewraps
-       \expandafter\spx@verb@FormatLineForceWrap
-  \else\expandafter\spx@verb@FormatLineWrap
-  \fi
+% MEMO: fancyvrb has options obeytabs and tabsize.  Anyhow tab characters
+% do not make it to the tex file, they have been converted to spaces earlier.
+% But, if this was not the case, the support would be implemented here via
+% \newcommand\sphinxVerbatimFormatLine[1]{\hb@xt@\linewidth{\FV@ObeyTabs{\strut #1}\hss}}%
+\newcommand\sphinxVerbatimFormatLine[1]{\hb@xt@\linewidth{\strut #1\hss}}%
+% The next two macros are a deep hack of fancyvrb.sty core line processing in
+% order to wrap too long lines, either at spaces and natural break-points,
+% (soft wrap) or optionally at any character (hard wrap).  This requires deep
+% hack to work around the \hbox'es wrappers of fancyvrb.sty as they would
+% prevent page breaks.  Formerly Sphinx obtained wrapping by inserting the
+% material into a vertical box (which was later again boxed -- twice -- by
+% fancyvrb thinking it was a single line...) but this was incompatible with
+% allowing page breaks (refs: #8686).
+% We use core TeX techniques to pre-process a paragraph then recover its
+% constituents lines (as boxes, not as tokens) and hand them over to original
+% fancyvrb line process.  It is mandatory to update \FV@ProcessLine and
+% \@tempboxa globally to get fancyvrb internals into working to our
+% satisfaction.
+% This will get disrupted if anything adding vertical penalties or glues
+% is activated via some \vadjust from inside the Pygmentized code lines.
+\def\spx@verb@@ProcessLines{%
+   \unskip
+   \unpenalty
+   \setbox\spx@verb@tempboxb\lastbox
+\ifvoid\spx@verb@tempboxb\else
+   {\spx@verb@@ProcessLines}%
+   \FV@ProcessLine{\box\spx@verb@tempboxb\strut}%
+   \global\let\FV@ProcessLine\FV@ProcessLine
+   \global\setbox\@tempboxa=\box\@tempboxa
+   \aftergroup\spx@verb@@InhibitLineNumber
+\fi
 }%
-\newcommand\sphinxVerbatimFormatLineNoWrap[1]{\hb@xt@\linewidth{\strut #1\hss}}%
-\long\def\spx@verb@FormatLineWrap#1{%
-    \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
+\def\spx@verb@@InhibitLineNumber{%
+    \let\FV@LeftListNumber\relax
+    \let\FV@RightListNumber\relax
+}%
+% This will replace fancyvrb's \FV@@PreProcessLine
+% Instead of boxing \FV@Line (which contains the Pygmentized line tokens), we
+% first typeset it in a vertical box of the suitable width (taking into
+% account nested lists) to activate the TeX built-in paragraph builder, then
+% we recover individual lines as horizontal boxes and feed them to fancyvrb
+% native line processing (which may add line numbers).  The interline
+% penalties and vertical glue to maintain baseline distance will be added
+% again by this process so in recursive \spx@verb@@ProcessLines which starts
+% from bottom and makes its way up to first part of the wrapped line we do not
+% need to worry about them.  An additional initial measuring step is needed if
+% user issued verbatimforcewraps=true, which elaborates on the same technique.
+% If hard wraps get activated, they get implemented via hacked \PYG macros.
+\def\spx@verb@@PreProcessLine{%
+  \FV@StepLineNo
+  \FV@Gobble
+     \def\spx@verb@FV@Line{\FV@Line}%
+     \ifspx@opt@verbatimforcewraps
+       \spx@verb@DecideIfWillDoForceWrap
+     \fi
+     \setbox\spx@verb@tempboxa=\vtop{\hsize\linewidth
+          \raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
           \doublehyphendemerits\z@\finalhyphendemerits\z@
-          \strut #1\strut}%
+% MEMO: fancyvrb has options obeytabs and tabsize.  Anyhow tab characters
+% do not make it to the tex file, they have been converted to spaces earlier.
+% But, if this was not the case, the support would be implemented here via
+%     \FV@ObeyTabs{\strut\spx@verb@FV@Line\strut}%
+% And one would need a similar change in the measuring phase done by
+% \spx@verb@DecideIfWillDoForceWrap
+                   \strut\spx@verb@FV@Line\strut
+          }%
+     \setbox\spx@verb@tempboxa=\vtop{\unvbox\spx@verb@tempboxa
+          \setbox\spx@verb@tempboxb\lastbox
+          {\spx@verb@@ProcessLines}%
+          \FV@ProcessLine{\box\spx@verb@tempboxb\strut}%
+          \global\let\FV@ProcessLine\FV@ProcessLine
+          \global\setbox\@tempboxa=\box\@tempboxa
+          }%
+  \unvbox\spx@verb@tempboxa
 }%
 %
 % The normal line wrapping allows breaks at spaces and ascii non
@@ -342,52 +406,51 @@
 % character widths, or if the min width plus verbatimmaxunderfull character
 % widths is inferior to linewidth, then we apply the "force wrapping" with
 % potential line break at each character, else we don't.
-\long\def\spx@verb@FormatLineForceWrap#1{%
-    % \spx@image@box is a scratch box register that we can use here
+\long\def\spx@verb@DecideIfWillDoForceWrap{%
     \global\let\spx@verb@maxwidth\z@
     \global\let\spx@verb@minwidth\linewidth
-    \setbox\spx@image@box
+    \setbox\spx@verb@tempboxa
     \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
           \doublehyphendemerits\z@\finalhyphendemerits\z@
-          \spx@everypar{}\noindent\strut #1\strut\spx@par
+          \spx@everypar{}\noindent\strut\FV@Line\strut\spx@par
           \spx@verb@getwidths}%
     \ifdim\spx@verb@maxwidth>
           \dimexpr\linewidth+\spx@opt@verbatimmaxoverfull\fontcharwd\font`X \relax
-      \spx@verb@FormatLineWrap{\spx@verb@wrapPYG #1\spx@verb@wrapPYG}%
+% The \expandafter is due to \spx@verb@wrapPYG requiring to "see" the TeX tokens
+% from the pygmentize output.
+      \def\spx@verb@FV@Line{\expandafter\spx@verb@wrapPYG\FV@Line\spx@verb@wrapPYG}%
     \else
       \ifdim\spx@verb@minwidth<
             \dimexpr\linewidth-\spx@opt@verbatimmaxunderfull\fontcharwd\font`X \relax
-        \spx@verb@FormatLineWrap{\spx@verb@wrapPYG #1\spx@verb@wrapPYG}%
-      \else
-        \spx@verb@FormatLineWrap{#1}%
-    \fi\fi
+        \def\spx@verb@FV@Line{\expandafter\spx@verb@wrapPYG\FV@Line\spx@verb@wrapPYG}%
+      \fi
+    \fi
 }%
 % auxiliary paragraph dissector to get max and min widths
 % but minwidth must not take into account the last line
-\newbox\spx@scratchbox
 \def\spx@verb@getwidths {%
     \unskip\unpenalty
-    \setbox\spx@scratchbox\lastbox
-    \ifvoid\spx@scratchbox
+    \setbox\spx@verb@tempboxb\lastbox
+    \ifvoid\spx@verb@tempboxb
     \else
-       \setbox\spx@scratchbox\hbox{\unhbox\spx@scratchbox}%
-       \ifdim\spx@verb@maxwidth<\wd\spx@scratchbox
-          \xdef\spx@verb@maxwidth{\number\wd\spx@scratchbox sp}%
+       \setbox\spx@verb@tempboxb\hbox{\unhbox\spx@verb@tempboxb}%
+       \ifdim\spx@verb@maxwidth<\wd\spx@verb@tempboxb
+          \xdef\spx@verb@maxwidth{\number\wd\spx@verb@tempboxb sp}%
        \fi
        \expandafter\spx@verb@getwidths@loop
     \fi
 }%
 \def\spx@verb@getwidths@loop {%
     \unskip\unpenalty
-    \setbox\spx@scratchbox\lastbox
-    \ifvoid\spx@scratchbox
+    \setbox\spx@verb@tempboxb\lastbox
+    \ifvoid\spx@verb@tempboxb
     \else
-       \setbox\spx@scratchbox\hbox{\unhbox\spx@scratchbox}%
-       \ifdim\spx@verb@maxwidth<\wd\spx@scratchbox
-          \xdef\spx@verb@maxwidth{\number\wd\spx@scratchbox sp}%
+       \setbox\spx@verb@tempboxb\hbox{\unhbox\spx@verb@tempboxb}%
+       \ifdim\spx@verb@maxwidth<\wd\spx@verb@tempboxb
+          \xdef\spx@verb@maxwidth{\number\wd\spx@verb@tempboxb sp}%
        \fi
-       \ifdim\spx@verb@minwidth>\wd\spx@scratchbox
-          \xdef\spx@verb@minwidth{\number\wd\spx@scratchbox sp}%
+       \ifdim\spx@verb@minwidth>\wd\spx@verb@tempboxb
+          \xdef\spx@verb@minwidth{\number\wd\spx@verb@tempboxb sp}%
        \fi
        \expandafter\spx@verb@getwidths@loop
     \fi
@@ -544,22 +607,14 @@
       \let\sphinxVerbatim@Continues\@empty
   \fi
   \ifspx@opt@verbatimwrapslines
-  % fancyvrb's Verbatim puts each input line in (unbreakable) horizontal boxes.
-  % This customization wraps each line from the input in a \vtop, thus
-  % allowing it to wrap and display on two or more lines in the latex output.
-  %     - The codeline counter will be increased only once.
-  %     - The wrapped material will not break across pages, it is impossible
-  %       to achieve this without extensive rewrite of fancyvrb.
-  %     - The (not used in sphinx) obeytabs option to Verbatim is
-  %       broken by this change (showtabs and tabspace work).
-    \let\sphinxVerbatimFormatLine\sphinxVerbatimFormatLineWrap
+    % deep hack into fancyvrb's internal processing of input lines
+    \let\FV@@PreProcessLine\spx@verb@@PreProcessLine
+    % space character will allow line breaks
     \let\FV@Space\spx@verbatim@space
-  % Allow breaks at special characters using \PYG... macros.
+    % allow breaks at special characters using \PYG... macros.
     \sphinxbreaksatspecials
-  % Breaks at punctuation characters . , ; ? ! and / (needs catcode activation)
+    % breaks at punctuation characters . , ; ? ! and / (needs catcode activation)
     \fvset{codes*=\sphinxbreaksviaactive}%
-  \else % end of conditional code for wrapping long code lines
-    \let\sphinxVerbatimFormatLine\sphinxVerbatimFormatLineNoWrap
   \fi
   \let\FancyVerbFormatLine\sphinxFancyVerbFormatLine
   \VerbatimEnvironment

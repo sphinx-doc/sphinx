@@ -866,7 +866,7 @@ class LaTeXTranslator(SphinxTranslator):
         labels = self.hypertarget_to(node)
         table_type = self.table.get_table_type()
         table = self.render(table_type + '.tex_t',
-                            dict(table=self.table, labels=labels))
+                            {'table': self.table, 'labels': labels})
         self.body.append(BLANKLINE)
         self.body.append(table)
         self.body.append(CR)

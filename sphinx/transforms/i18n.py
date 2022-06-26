@@ -238,6 +238,7 @@ class Locale(SphinxTransform):
                 continue  # skip if the node is already translated by phase1
 
             msgstr = catalog.gettext(msg)
+            noqa = False
 
             # See above.
             if not isinstance(node, LITERAL_TYPE_NODES):

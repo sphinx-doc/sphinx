@@ -3610,7 +3610,7 @@ class AliasTransform(SphinxTransform):
             nodes = self._render_symbol(s, maxdepth=node.aliasOptions['maxdepth'],
                                         skipThis=node.aliasOptions['noroot'],
                                         aliasOptions=node.aliasOptions,
-                                        renderOptions=dict(), document=node.document)
+                                        renderOptions={}, document=node.document)
             node.replace_self(nodes)
 
 

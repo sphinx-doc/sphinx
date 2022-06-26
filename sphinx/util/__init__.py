@@ -305,7 +305,7 @@ def parselinenos(spec: str, total: int) -> List[int]:
     """Parse a line number spec (such as "1,2,4-6") and return a list of
     wanted line numbers.
     """
-    items = list()
+    items = []
     parts = spec.split(',')
     for part in parts:
         try:
