@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-06-19 06:31+0000\n"
+"POT-Creation-Date: 2022-06-26 00:23+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: YT H <dev@theYT.net>, 2019-2022\n"
 "Language-Team: Korean (http://www.transifex.com/sphinx-doc/sphinx-1/language/ko/)\n"
@@ -1099,7 +1099,7 @@ msgstr "\"latex_documents\" 설정값이 없으므로, 문서를 작성하지 �
 msgid "\"latex_documents\" config value references unknown document %s"
 msgstr "\"latex_documents\" 설정값이 알 수 없는 문서 %s을(를) 참조합니다"
 
-#: sphinx/builders/latex/__init__.py:184 sphinx/domains/std.py:592
+#: sphinx/builders/latex/__init__.py:184 sphinx/domains/std.py:591
 #: sphinx/templates/latex/latex.tex_t:97
 #: sphinx/themes/basic/genindex-single.html:30
 #: sphinx/themes/basic/genindex-single.html:55
@@ -2224,103 +2224,103 @@ msgid ""
 "--opt args\", \"/opt args\" or \"+opt args\""
 msgstr "잘못된 옵션 설명 %r, \"opt\", \"-opt args\", \"--opt args\", \"/opt args\", \"+opt args\"와 같은 형식이어야 합니다"
 
-#: sphinx/domains/std.py:246
+#: sphinx/domains/std.py:245
 #, python-format
 msgid "%s command line option"
 msgstr "%s 명령줄 옵션"
 
-#: sphinx/domains/std.py:248
+#: sphinx/domains/std.py:247
 msgid "command line option"
 msgstr "명령줄 옵션"
 
-#: sphinx/domains/std.py:375
+#: sphinx/domains/std.py:374
 msgid "glossary term must be preceded by empty line"
 msgstr "용어 앞에는 빈 줄이 와야 합니다"
 
-#: sphinx/domains/std.py:383
+#: sphinx/domains/std.py:382
 msgid "glossary terms must not be separated by empty lines"
 msgstr "용어 정의는 빈 줄로 구분하면 안됩니다."
 
-#: sphinx/domains/std.py:389 sphinx/domains/std.py:402
+#: sphinx/domains/std.py:388 sphinx/domains/std.py:401
 msgid "glossary seems to be misformatted, check indentation"
 msgstr "용어 정의 형식이 잘못된 것 같습니다. 들여쓰기를 확인하십시오"
 
-#: sphinx/domains/std.py:551
+#: sphinx/domains/std.py:550
 msgid "glossary term"
 msgstr "용어 항목"
 
-#: sphinx/domains/std.py:552
+#: sphinx/domains/std.py:551
 msgid "grammar token"
 msgstr "문법 토큰"
 
-#: sphinx/domains/std.py:553
+#: sphinx/domains/std.py:552
 msgid "reference label"
 msgstr "참조 레이블"
 
-#: sphinx/domains/std.py:555
+#: sphinx/domains/std.py:554
 msgid "environment variable"
 msgstr "환경 변수"
 
-#: sphinx/domains/std.py:556
+#: sphinx/domains/std.py:555
 msgid "program option"
 msgstr "프로그램 옵션"
 
-#: sphinx/domains/std.py:557
+#: sphinx/domains/std.py:556
 msgid "document"
 msgstr "문서"
 
-#: sphinx/domains/std.py:593
+#: sphinx/domains/std.py:592
 msgid "Module Index"
 msgstr "모듈 목록"
 
-#: sphinx/domains/std.py:594 sphinx/themes/basic/defindex.html:25
+#: sphinx/domains/std.py:593 sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
 msgstr "검색 페이지"
 
-#: sphinx/domains/std.py:643 sphinx/domains/std.py:747
+#: sphinx/domains/std.py:642 sphinx/domains/std.py:746
 #: sphinx/ext/autosectionlabel.py:43
 #, python-format
 msgid "duplicate label %s, other instance in %s"
 msgstr "중복 레이블 %s, 다른 인스턴스는 %s에 있음"
 
-#: sphinx/domains/std.py:662
+#: sphinx/domains/std.py:661
 #, python-format
 msgid "duplicate %s description of %s, other instance in %s"
 msgstr "중복된 %s 설명 (%s에 대한), 다른 인스턴스는 %s에 있음"
 
-#: sphinx/domains/std.py:853
+#: sphinx/domains/std.py:852
 msgid "numfig is disabled. :numref: is ignored."
 msgstr "numfig가 비활성화되었습니다. :numref:는 무시됩니다."
 
-#: sphinx/domains/std.py:861
+#: sphinx/domains/std.py:860
 #, python-format
 msgid "Failed to create a cross reference. Any number is not assigned: %s"
 msgstr "상호 참조를 생성하지 못했습니다. 어떤 번호도 할당되지 않았습니다: %s"
 
-#: sphinx/domains/std.py:873
+#: sphinx/domains/std.py:872
 #, python-format
 msgid "the link has no caption: %s"
 msgstr "링크에 캡션이 없습니다: %s"
 
-#: sphinx/domains/std.py:887
+#: sphinx/domains/std.py:886
 #, python-format
 msgid "invalid numfig_format: %s (%r)"
 msgstr "잘못된 numfig_format: %s (%r)"
 
-#: sphinx/domains/std.py:890
+#: sphinx/domains/std.py:889
 #, python-format
 msgid "invalid numfig_format: %s"
 msgstr "잘못된 numfig_format: %s"
 
-#: sphinx/domains/std.py:1103
+#: sphinx/domains/std.py:1102
 #, python-format
 msgid "undefined label: %r"
-msgstr ""
+msgstr "정의되지 않은 레이블: %r"
 
-#: sphinx/domains/std.py:1105
+#: sphinx/domains/std.py:1104
 #, python-format
 msgid "Failed to create a cross reference. A title or caption not found: %r"
-msgstr ""
+msgstr "상호 참조를 생성하지 못했습니다. 제목 또는 캡션을 찾을 수 없습니다: %r"
 
 #: sphinx/environment/__init__.py:71
 msgid "new config"
