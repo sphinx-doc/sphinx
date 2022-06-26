@@ -88,7 +88,7 @@ const _displayItem = (item, highlightTerms, searchTerms) => {
   linkEl.href = linkUrl + "?" + params.toString() + anchor;
   linkEl.innerHTML = title;
   if (descr)
-    listItem.appendChild(document.createElement("span")).innerText =
+    listItem.appendChild(document.createElement("span")).innerHTML =
       " (" + descr + ")";
   else if (showSearchSummary)
     fetch(requestUrl)
