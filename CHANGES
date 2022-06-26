@@ -12,6 +12,7 @@ Deprecated
 
 * #10467: Deprecated ``sphinx.util.stemmer`` in favour of ``snowballstemmer``.
   Patch by Adam Turner.
+* #9856: Deprecated ``sphinx.ext.napoleon.iterators``.
 
 Features added
 --------------

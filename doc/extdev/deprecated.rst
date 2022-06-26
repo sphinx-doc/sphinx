@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.ext.napoleon.iterators``
+     - 5.1
+     - 7.0
+     - ``pockets.iterators``
+
    * - ``sphinx.util.stemmer``
      - 5.1
      - 7.0
