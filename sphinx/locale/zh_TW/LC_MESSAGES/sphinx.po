@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-06-19 06:31+0000\n"
+"POT-Creation-Date: 2022-06-26 00:23+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Steven Hsu <hsuhaochun@gmail.com>, 2021-2022\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/sphinx-doc/sphinx-1/language/zh_TW/)\n"
@@ -1105,7 +1105,7 @@ msgstr "未找到 \"latex_documents\" 組態值；不會編寫任何文件"
 msgid "\"latex_documents\" config value references unknown document %s"
 msgstr "\"latex_documents\" 組態值引用未知的文件 %s"
 
-#: sphinx/builders/latex/__init__.py:184 sphinx/domains/std.py:592
+#: sphinx/builders/latex/__init__.py:184 sphinx/domains/std.py:591
 #: sphinx/templates/latex/latex.tex_t:97
 #: sphinx/themes/basic/genindex-single.html:30
 #: sphinx/themes/basic/genindex-single.html:55
@@ -1124,83 +1124,83 @@ msgstr "發佈"
 #: sphinx/builders/latex/__init__.py:201 sphinx/writers/latex.py:341
 #, python-format
 msgid "no Babel option known for language %r"
-msgstr ""
+msgstr "沒有語言 %r 已知的 Babel 選項"
 
 #: sphinx/builders/latex/__init__.py:372
 msgid "copying TeX support files"
-msgstr ""
+msgstr "正在複製 TeX 支援檔案"
 
 #: sphinx/builders/latex/__init__.py:388
 msgid "copying TeX support files..."
-msgstr ""
+msgstr "正在複製 TeX 支援檔案..."
 
 #: sphinx/builders/latex/__init__.py:401
 msgid "copying additional files"
-msgstr ""
+msgstr "正在複製附加檔案"
 
 #: sphinx/builders/latex/__init__.py:445
 #, python-format
 msgid "Unknown configure key: latex_elements[%r], ignored."
-msgstr ""
+msgstr "未知的配置鍵： latex_elements[%r]，已略過。"
 
 #: sphinx/builders/latex/__init__.py:453
 #, python-format
 msgid "Unknown theme option: latex_theme_options[%r], ignored."
-msgstr ""
+msgstr "未知的主題選項： latex_theme_options[%r],，已略過。"
 
 #: sphinx/builders/latex/theming.py:83
 #, python-format
 msgid "%r doesn't have \"theme\" setting"
-msgstr ""
+msgstr "%r 沒有「主題」設定"
 
 #: sphinx/builders/latex/theming.py:86
 #, python-format
 msgid "%r doesn't have \"%s\" setting"
-msgstr ""
+msgstr "%r 沒有 \"%s\" 設定"
 
 #: sphinx/cmd/build.py:32
 msgid "Exception occurred while building, starting debugger:"
-msgstr ""
+msgstr "在建立時發生例外，正在啟動除錯器："
 
 #: sphinx/cmd/build.py:42
 msgid "Interrupted!"
-msgstr ""
+msgstr "已中斷！"
 
 #: sphinx/cmd/build.py:44
 msgid "reST markup error:"
-msgstr ""
+msgstr "reST 標示錯誤："
 
 #: sphinx/cmd/build.py:50
 msgid "Encoding error:"
-msgstr ""
+msgstr "編碼錯誤："
 
 #: sphinx/cmd/build.py:53 sphinx/cmd/build.py:68
 #, python-format
 msgid ""
 "The full traceback has been saved in %s, if you want to report the issue to "
 "the developers."
-msgstr ""
+msgstr "若您想要回報問題給開發者，完整的回溯已被儲存在 %s 中。"
 
 #: sphinx/cmd/build.py:57
 msgid "Recursion error:"
-msgstr ""
+msgstr "遞迴錯誤："
 
 #: sphinx/cmd/build.py:60
 msgid ""
 "This can happen with very large or deeply nested source files. You can "
 "carefully increase the default Python recursion limit of 1000 in conf.py "
 "with e.g.:"
-msgstr ""
+msgstr "這會發生在非常大或是巢套較深的原始檔案。您可以在 conf.py 中謹慎地增加 Python 的預設 1000 次遞迴上限，例如："
 
 #: sphinx/cmd/build.py:65
 msgid "Exception occurred:"
-msgstr ""
+msgstr "發生例外："
 
 #: sphinx/cmd/build.py:71
 msgid ""
 "Please also report this if it was a user error, so that a better error "
 "message can be provided next time."
-msgstr ""
+msgstr "如果這是一個使用者錯誤，請一併回報，如此下次才能提供較佳的錯誤訊息。"
 
 #: sphinx/cmd/build.py:74
 msgid ""
@@ -2230,100 +2230,100 @@ msgid ""
 "--opt args\", \"/opt args\" or \"+opt args\""
 msgstr "異常的選項敘述 %r ，應該要看起來像 \"opt\", \"-opt args\", \"--opt args\", \"/opt args\" 或 \"+opt args\""
 
-#: sphinx/domains/std.py:246
+#: sphinx/domains/std.py:245
 #, python-format
 msgid "%s command line option"
 msgstr "%s 命令列選項"
 
-#: sphinx/domains/std.py:248
+#: sphinx/domains/std.py:247
 msgid "command line option"
 msgstr "命令列選項"
 
-#: sphinx/domains/std.py:375
+#: sphinx/domains/std.py:374
 msgid "glossary term must be preceded by empty line"
 msgstr "術語表項目必須有空白行在前"
 
-#: sphinx/domains/std.py:383
+#: sphinx/domains/std.py:382
 msgid "glossary terms must not be separated by empty lines"
 msgstr "術語表項目不可以被空白行分隔"
 
-#: sphinx/domains/std.py:389 sphinx/domains/std.py:402
+#: sphinx/domains/std.py:388 sphinx/domains/std.py:401
 msgid "glossary seems to be misformatted, check indentation"
 msgstr "術語表似乎有格式錯誤，請檢查縮排"
 
-#: sphinx/domains/std.py:551
+#: sphinx/domains/std.py:550
 msgid "glossary term"
 msgstr "雜項術語"
 
-#: sphinx/domains/std.py:552
+#: sphinx/domains/std.py:551
 msgid "grammar token"
 msgstr "語法單詞"
 
-#: sphinx/domains/std.py:553
+#: sphinx/domains/std.py:552
 msgid "reference label"
 msgstr "參照標籤"
 
-#: sphinx/domains/std.py:555
+#: sphinx/domains/std.py:554
 msgid "environment variable"
 msgstr "環境變數"
 
-#: sphinx/domains/std.py:556
+#: sphinx/domains/std.py:555
 msgid "program option"
 msgstr "程式選項"
 
-#: sphinx/domains/std.py:557
+#: sphinx/domains/std.py:556
 msgid "document"
 msgstr "文件"
 
-#: sphinx/domains/std.py:593
+#: sphinx/domains/std.py:592
 msgid "Module Index"
 msgstr "模組索引"
 
-#: sphinx/domains/std.py:594 sphinx/themes/basic/defindex.html:25
+#: sphinx/domains/std.py:593 sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
 msgstr "搜尋頁面"
 
-#: sphinx/domains/std.py:643 sphinx/domains/std.py:747
+#: sphinx/domains/std.py:642 sphinx/domains/std.py:746
 #: sphinx/ext/autosectionlabel.py:43
 #, python-format
 msgid "duplicate label %s, other instance in %s"
 msgstr "重複的標籤 %s，亦出現於 %s"
 
-#: sphinx/domains/std.py:662
+#: sphinx/domains/std.py:661
 #, python-format
 msgid "duplicate %s description of %s, other instance in %s"
 msgstr "重複 %s 的描述 %s，亦出現於 %s"
 
-#: sphinx/domains/std.py:853
+#: sphinx/domains/std.py:852
 msgid "numfig is disabled. :numref: is ignored."
 msgstr "numfig 已停用。 :numref: 已略過。"
 
-#: sphinx/domains/std.py:861
+#: sphinx/domains/std.py:860
 #, python-format
 msgid "Failed to create a cross reference. Any number is not assigned: %s"
 msgstr "無法建立一個交互參照。任一數字未被指定： %s"
 
-#: sphinx/domains/std.py:873
+#: sphinx/domains/std.py:872
 #, python-format
 msgid "the link has no caption: %s"
 msgstr "這個連結沒有標題： %s"
 
-#: sphinx/domains/std.py:887
+#: sphinx/domains/std.py:886
 #, python-format
 msgid "invalid numfig_format: %s (%r)"
 msgstr "無效的 numfig_format: %s (%r)"
 
-#: sphinx/domains/std.py:890
+#: sphinx/domains/std.py:889
 #, python-format
 msgid "invalid numfig_format: %s"
 msgstr "無效的 numfig_format: %s"
 
-#: sphinx/domains/std.py:1103
+#: sphinx/domains/std.py:1102
 #, python-format
 msgid "undefined label: %r"
 msgstr ""
 
-#: sphinx/domains/std.py:1105
+#: sphinx/domains/std.py:1104
 #, python-format
 msgid "Failed to create a cross reference. A title or caption not found: %r"
 msgstr ""

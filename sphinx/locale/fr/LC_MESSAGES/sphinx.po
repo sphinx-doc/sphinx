@@ -34,7 +34,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-06-19 06:31+0000\n"
+"POT-Creation-Date: 2022-06-26 00:23+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Jean-François B. <jfbu@free.fr>, 2017-2019,2022\n"
 "Language-Team: French (http://www.transifex.com/sphinx-doc/sphinx-1/language/fr/)\n"
@@ -1124,7 +1124,7 @@ msgstr "aucune valeur de configuration \"latex_documents\" trouvée; aucun docum
 msgid "\"latex_documents\" config value references unknown document %s"
 msgstr "La valeur du paramètre \"latex_documents\" référence un document inconnu %s"
 
-#: sphinx/builders/latex/__init__.py:184 sphinx/domains/std.py:592
+#: sphinx/builders/latex/__init__.py:184 sphinx/domains/std.py:591
 #: sphinx/templates/latex/latex.tex_t:97
 #: sphinx/themes/basic/genindex-single.html:30
 #: sphinx/themes/basic/genindex-single.html:55
@@ -2249,100 +2249,100 @@ msgid ""
 "--opt args\", \"/opt args\" or \"+opt args\""
 msgstr "description de l'option malformée, elle doit ressembler à \nMalformed option description %r, should look like \"opt\", \"-opt args\", \"--opt args\", \"/opt args\" or \"+opt args\""
 
-#: sphinx/domains/std.py:246
+#: sphinx/domains/std.py:245
 #, python-format
 msgid "%s command line option"
 msgstr "option de ligne de commande %s"
 
-#: sphinx/domains/std.py:248
+#: sphinx/domains/std.py:247
 msgid "command line option"
 msgstr "option de ligne de commande"
 
-#: sphinx/domains/std.py:375
+#: sphinx/domains/std.py:374
 msgid "glossary term must be preceded by empty line"
 msgstr "le terme du glossaire doit être précédé d'une ligne vide"
 
-#: sphinx/domains/std.py:383
+#: sphinx/domains/std.py:382
 msgid "glossary terms must not be separated by empty lines"
 msgstr "les termes du glossaire ne doivent pas être séparés par des lignes vides"
 
-#: sphinx/domains/std.py:389 sphinx/domains/std.py:402
+#: sphinx/domains/std.py:388 sphinx/domains/std.py:401
 msgid "glossary seems to be misformatted, check indentation"
 msgstr "le glossaire semble être mal formaté; vérifiez l'indentation"
 
-#: sphinx/domains/std.py:551
+#: sphinx/domains/std.py:550
 msgid "glossary term"
 msgstr "terme du glossaire"
 
-#: sphinx/domains/std.py:552
+#: sphinx/domains/std.py:551
 msgid "grammar token"
 msgstr "élément de grammaire"
 
-#: sphinx/domains/std.py:553
+#: sphinx/domains/std.py:552
 msgid "reference label"
 msgstr "étiquette de référence"
 
-#: sphinx/domains/std.py:555
+#: sphinx/domains/std.py:554
 msgid "environment variable"
 msgstr "variable d'environnement"
 
-#: sphinx/domains/std.py:556
+#: sphinx/domains/std.py:555
 msgid "program option"
 msgstr "option du programme"
 
-#: sphinx/domains/std.py:557
+#: sphinx/domains/std.py:556
 msgid "document"
 msgstr "document"
 
-#: sphinx/domains/std.py:593
+#: sphinx/domains/std.py:592
 msgid "Module Index"
 msgstr "Index du module"
 
-#: sphinx/domains/std.py:594 sphinx/themes/basic/defindex.html:25
+#: sphinx/domains/std.py:593 sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
 msgstr "Page de recherche"
 
-#: sphinx/domains/std.py:643 sphinx/domains/std.py:747
+#: sphinx/domains/std.py:642 sphinx/domains/std.py:746
 #: sphinx/ext/autosectionlabel.py:43
 #, python-format
 msgid "duplicate label %s, other instance in %s"
 msgstr "libellé dupliqué %s, l'autre instance se trouve dans %s"
 
-#: sphinx/domains/std.py:662
+#: sphinx/domains/std.py:661
 #, python-format
 msgid "duplicate %s description of %s, other instance in %s"
 msgstr "description %s dupliquée pour %s; l'autre instance se trouve dans %s"
 
-#: sphinx/domains/std.py:853
+#: sphinx/domains/std.py:852
 msgid "numfig is disabled. :numref: is ignored."
 msgstr "le paramètre numfig est désactivé : le paramètre :numref: est ignoré"
 
-#: sphinx/domains/std.py:861
+#: sphinx/domains/std.py:860
 #, python-format
 msgid "Failed to create a cross reference. Any number is not assigned: %s"
 msgstr "Impossible de créer une référence croisée. Aucun nombre n'est attribué: %s"
 
-#: sphinx/domains/std.py:873
+#: sphinx/domains/std.py:872
 #, python-format
 msgid "the link has no caption: %s"
 msgstr "le lien n'a pas de légende : %s"
 
-#: sphinx/domains/std.py:887
+#: sphinx/domains/std.py:886
 #, python-format
 msgid "invalid numfig_format: %s (%r)"
 msgstr "format de numfig_format invalide : %s (%r)"
 
-#: sphinx/domains/std.py:890
+#: sphinx/domains/std.py:889
 #, python-format
 msgid "invalid numfig_format: %s"
 msgstr "format de numfig_format invalide : %s"
 
-#: sphinx/domains/std.py:1103
+#: sphinx/domains/std.py:1102
 #, python-format
 msgid "undefined label: %r"
 msgstr ""
 
-#: sphinx/domains/std.py:1105
+#: sphinx/domains/std.py:1104
 #, python-format
 msgid "Failed to create a cross reference. A title or caption not found: %r"
 msgstr ""

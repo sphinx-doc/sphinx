@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-06-19 06:31+0000\n"
+"POT-Creation-Date: 2022-06-26 00:23+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Slavko <linux@slavino.sk>, 2013-2019,2021\n"
 "Language-Team: Slovak (http://www.transifex.com/sphinx-doc/sphinx-1/language/sk/)\n"
@@ -1100,7 +1100,7 @@ msgstr "nebola nájdená konfiguračná voľba „latex_documents”; dokmenty n
 msgid "\"latex_documents\" config value references unknown document %s"
 msgstr "konfiguračná voľba „latex_documents” odkazuje na neznámy dokument %s"
 
-#: sphinx/builders/latex/__init__.py:184 sphinx/domains/std.py:592
+#: sphinx/builders/latex/__init__.py:184 sphinx/domains/std.py:591
 #: sphinx/templates/latex/latex.tex_t:97
 #: sphinx/themes/basic/genindex-single.html:30
 #: sphinx/themes/basic/genindex-single.html:55
@@ -2225,100 +2225,100 @@ msgid ""
 "--opt args\", \"/opt args\" or \"+opt args\""
 msgstr "Nesprávny popis voľby %r, má vyzerať ako „opt”, „-opt argumenty”, „--opt argumenty”, „/opt argumenty” alebo „+opt argumenty”"
 
-#: sphinx/domains/std.py:246
+#: sphinx/domains/std.py:245
 #, python-format
 msgid "%s command line option"
 msgstr "%s voľba príkazového riadka"
 
-#: sphinx/domains/std.py:248
+#: sphinx/domains/std.py:247
 msgid "command line option"
 msgstr "voľba príkazového riadka"
 
-#: sphinx/domains/std.py:375
+#: sphinx/domains/std.py:374
 msgid "glossary term must be preceded by empty line"
 msgstr "položke glosára musí predchádzať prázdny riadok"
 
-#: sphinx/domains/std.py:383
+#: sphinx/domains/std.py:382
 msgid "glossary terms must not be separated by empty lines"
 msgstr "položky glosára nesmú byť oddelené prázdnymi riadkami"
 
-#: sphinx/domains/std.py:389 sphinx/domains/std.py:402
+#: sphinx/domains/std.py:388 sphinx/domains/std.py:401
 msgid "glossary seems to be misformatted, check indentation"
 msgstr "glosár vyzerá byť zle naformátovaný, skontrolujte odsadenie"
 
-#: sphinx/domains/std.py:551
+#: sphinx/domains/std.py:550
 msgid "glossary term"
 msgstr "termín glosára"
 
-#: sphinx/domains/std.py:552
+#: sphinx/domains/std.py:551
 msgid "grammar token"
 msgstr "jazykový token"
 
-#: sphinx/domains/std.py:553
+#: sphinx/domains/std.py:552
 msgid "reference label"
 msgstr "menovka odkazu"
 
-#: sphinx/domains/std.py:555
+#: sphinx/domains/std.py:554
 msgid "environment variable"
 msgstr "premenná prostredia"
 
-#: sphinx/domains/std.py:556
+#: sphinx/domains/std.py:555
 msgid "program option"
 msgstr "voľba programu"
 
-#: sphinx/domains/std.py:557
+#: sphinx/domains/std.py:556
 msgid "document"
 msgstr "dokument"
 
-#: sphinx/domains/std.py:593
+#: sphinx/domains/std.py:592
 msgid "Module Index"
 msgstr "Index modulov"
 
-#: sphinx/domains/std.py:594 sphinx/themes/basic/defindex.html:25
+#: sphinx/domains/std.py:593 sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
 msgstr "Stránka hľadania"
 
-#: sphinx/domains/std.py:643 sphinx/domains/std.py:747
+#: sphinx/domains/std.py:642 sphinx/domains/std.py:746
 #: sphinx/ext/autosectionlabel.py:43
 #, python-format
 msgid "duplicate label %s, other instance in %s"
 msgstr "duplicitná menovka  %s, ďalší výskyt v %s"
 
-#: sphinx/domains/std.py:662
+#: sphinx/domains/std.py:661
 #, python-format
 msgid "duplicate %s description of %s, other instance in %s"
 msgstr "duplicitný %s popis %s, ďalší výskyt v %s"
 
-#: sphinx/domains/std.py:853
+#: sphinx/domains/std.py:852
 msgid "numfig is disabled. :numref: is ignored."
 msgstr "numfig je vypnutý, :numref: je ignorované."
 
-#: sphinx/domains/std.py:861
+#: sphinx/domains/std.py:860
 #, python-format
 msgid "Failed to create a cross reference. Any number is not assigned: %s"
 msgstr "Zlyhalo vytvorenie krížového odkazu. Nie je priradené žiadne číslo: %s"
 
-#: sphinx/domains/std.py:873
+#: sphinx/domains/std.py:872
 #, python-format
 msgid "the link has no caption: %s"
 msgstr "odkaz nemá popisok: %s"
 
-#: sphinx/domains/std.py:887
+#: sphinx/domains/std.py:886
 #, python-format
 msgid "invalid numfig_format: %s (%r)"
 msgstr "neplatný numfig_format: %s (%r)"
 
-#: sphinx/domains/std.py:890
+#: sphinx/domains/std.py:889
 #, python-format
 msgid "invalid numfig_format: %s"
 msgstr "neplatný numfig_format: %s"
 
-#: sphinx/domains/std.py:1103
+#: sphinx/domains/std.py:1102
 #, python-format
 msgid "undefined label: %r"
 msgstr ""
 
-#: sphinx/domains/std.py:1105
+#: sphinx/domains/std.py:1104
 #, python-format
 msgid "Failed to create a cross reference. A title or caption not found: %r"
 msgstr ""

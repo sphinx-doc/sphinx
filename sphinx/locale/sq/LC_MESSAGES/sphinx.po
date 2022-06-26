@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-06-19 06:31+0000\n"
+"POT-Creation-Date: 2022-06-26 00:23+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Besnik Bleta <besnik@programeshqip.org>, 2021-2022\n"
 "Language-Team: Albanian (http://www.transifex.com/sphinx-doc/sphinx-1/language/sq/)\n"
@@ -175,7 +175,7 @@ msgstr "drejtoria e formësimeve nuk përmban një kartelë conf.py (%s)"
 msgid ""
 "Invalid configuration value found: 'language = None'. Update your "
 "configuration to a valid language code. Falling back to 'en' (English)."
-msgstr ""
+msgstr "U gjet vlerë e pavlefshme formësimi: 'language = Asnjë'. Përditësojeni formësimin tuaj me një kod të vlefshëm gjuhe. Përkohësisht po përdoret 'en' (anglisht)."
 
 #: sphinx/config.py:202
 #, python-format
@@ -1098,7 +1098,7 @@ msgstr "s’u gjet vlerë formësimi \"texinfo_documents\"; s’do të shkruhet 
 msgid "\"latex_documents\" config value references unknown document %s"
 msgstr "vlera e formësimit \"texinfo_documents\" i referohet një dokumenti të panjohur %s"
 
-#: sphinx/builders/latex/__init__.py:184 sphinx/domains/std.py:592
+#: sphinx/builders/latex/__init__.py:184 sphinx/domains/std.py:591
 #: sphinx/templates/latex/latex.tex_t:97
 #: sphinx/themes/basic/genindex-single.html:30
 #: sphinx/themes/basic/genindex-single.html:55
@@ -2223,103 +2223,103 @@ msgid ""
 "--opt args\", \"/opt args\" or \"+opt args\""
 msgstr "Përshkrim i keqformuar mundësie %r, duhet të duket si \"opt\", \"-opt args\", \"--opt args\", \"/opt args\" ose \"+opt args\""
 
-#: sphinx/domains/std.py:246
+#: sphinx/domains/std.py:245
 #, python-format
 msgid "%s command line option"
 msgstr "Mundësi për rresht urdhrash %s"
 
-#: sphinx/domains/std.py:248
+#: sphinx/domains/std.py:247
 msgid "command line option"
 msgstr "mundësi për rresht urdhrash"
 
-#: sphinx/domains/std.py:375
+#: sphinx/domains/std.py:374
 msgid "glossary term must be preceded by empty line"
 msgstr "termi i fjalorthit duhet të paraprihet nga një rresht i zbrazët"
 
-#: sphinx/domains/std.py:383
+#: sphinx/domains/std.py:382
 msgid "glossary terms must not be separated by empty lines"
 msgstr "termat e fjalorthit s’duhet të paraprihet nga rreshta të zbrazët"
 
-#: sphinx/domains/std.py:389 sphinx/domains/std.py:402
+#: sphinx/domains/std.py:388 sphinx/domains/std.py:401
 msgid "glossary seems to be misformatted, check indentation"
 msgstr "fjalorthi duket të jetë i keformatuar, kontrolloni shmangie kryeradhe"
 
-#: sphinx/domains/std.py:551
+#: sphinx/domains/std.py:550
 msgid "glossary term"
 msgstr "term fjalorthi"
 
-#: sphinx/domains/std.py:552
+#: sphinx/domains/std.py:551
 msgid "grammar token"
 msgstr ""
 
-#: sphinx/domains/std.py:553
+#: sphinx/domains/std.py:552
 msgid "reference label"
 msgstr "etiketë reference"
 
-#: sphinx/domains/std.py:555
+#: sphinx/domains/std.py:554
 msgid "environment variable"
 msgstr "ndryshore mjedisi"
 
-#: sphinx/domains/std.py:556
+#: sphinx/domains/std.py:555
 msgid "program option"
 msgstr "mundësi programi"
 
-#: sphinx/domains/std.py:557
+#: sphinx/domains/std.py:556
 msgid "document"
 msgstr "dokument"
 
-#: sphinx/domains/std.py:593
+#: sphinx/domains/std.py:592
 msgid "Module Index"
 msgstr "Tregues Modulesh"
 
-#: sphinx/domains/std.py:594 sphinx/themes/basic/defindex.html:25
+#: sphinx/domains/std.py:593 sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
 msgstr "Faqe Kërkimesh"
 
-#: sphinx/domains/std.py:643 sphinx/domains/std.py:747
+#: sphinx/domains/std.py:642 sphinx/domains/std.py:746
 #: sphinx/ext/autosectionlabel.py:43
 #, python-format
 msgid "duplicate label %s, other instance in %s"
 msgstr "etiketë %s e përsëdytur, tjetër instancë te %s"
 
-#: sphinx/domains/std.py:662
+#: sphinx/domains/std.py:661
 #, python-format
 msgid "duplicate %s description of %s, other instance in %s"
 msgstr "përshkrim %s i përsëdytur për %s, tjetër instancë te %s"
 
-#: sphinx/domains/std.py:853
+#: sphinx/domains/std.py:852
 msgid "numfig is disabled. :numref: is ignored."
 msgstr "numfig është i çaktivizuar. :numref: është shpërfillur."
 
-#: sphinx/domains/std.py:861
+#: sphinx/domains/std.py:860
 #, python-format
 msgid "Failed to create a cross reference. Any number is not assigned: %s"
 msgstr "S’u arrit të krijohej një ndërreferencë. S’u caktua ndonjë numër: %s"
 
-#: sphinx/domains/std.py:873
+#: sphinx/domains/std.py:872
 #, python-format
 msgid "the link has no caption: %s"
 msgstr "lidhja s’ka titull: %s"
 
-#: sphinx/domains/std.py:887
+#: sphinx/domains/std.py:886
 #, python-format
 msgid "invalid numfig_format: %s (%r)"
 msgstr "numfig_format i pavlefshëm: %s (%r)"
 
-#: sphinx/domains/std.py:890
+#: sphinx/domains/std.py:889
 #, python-format
 msgid "invalid numfig_format: %s"
 msgstr "numfig_format i pavlefshëm: %s"
 
-#: sphinx/domains/std.py:1103
+#: sphinx/domains/std.py:1102
 #, python-format
 msgid "undefined label: %r"
-msgstr ""
+msgstr "etiketë e papërkufizuar: %r"
 
-#: sphinx/domains/std.py:1105
+#: sphinx/domains/std.py:1104
 #, python-format
 msgid "Failed to create a cross reference. A title or caption not found: %r"
-msgstr ""
+msgstr "S’u arrit të krijohet ndërreferencë. S’u gjet një titull, ose një përshkrim: %r"
 
 #: sphinx/environment/__init__.py:71
 msgid "new config"
@@ -2628,14 +2628,14 @@ msgstr ""
 msgid ""
 "extlinks: Sphinx-6.0 will require base URL to contain exactly one '%s' and "
 "all other '%' need to be escaped as '%%'."
-msgstr ""
+msgstr "lidhje të jashtme: Sphinx-6.0 do të kërkojë që URL-ja bazë të përmbajë doemos saktësisht një '%s' dhe krejt '%' e tjera lypset të paraprihen në formën '%%'."
 
 #: sphinx/ext/extlinks.py:104
 #, python-format
 msgid ""
 "extlinks: Sphinx-6.0 will require a caption string to contain exactly one "
 "'%s' and all other '%' need to be escaped as '%%'."
-msgstr ""
+msgstr "lidhje të jashtme: Sphinx-6.0 do të kërkojë që një varg përshkrimi të përmbajë doemos saktësisht një '%s' dhe krejt '%' e tjera lypset të paraprihen në formën '%%'."
 
 #: sphinx/ext/graphviz.py:124
 msgid "Graphviz directive cannot have both content and a filename argument"
@@ -2703,7 +2703,7 @@ msgid ""
 "Unable to run the image conversion command %r. 'sphinx.ext.imgconverter' requires ImageMagick by default. Ensure it is installed, or set the 'image_converter' option to a custom conversion command.\n"
 "\n"
 "Traceback: %s"
-msgstr ""
+msgstr "S’arrihet të xhirohet urdhri %r. për shndërrim figure. Si parazgjedhje, 'sphinx.ext.imgconverter' lyp ImageMagick. Sigurohuni se është i instaluar, ose për mundësinë 'image_converter' caktoni një urdhër vetjak shndërrimi .\n\nTraceback: %s"
 
 #: sphinx/ext/imgconverter.py:42 sphinx/ext/imgconverter.py:66
 #, python-format
@@ -2791,7 +2791,7 @@ msgstr ""
 #: sphinx/ext/intersphinx.py:587
 #, python-format
 msgid "external %s:%s reference target not found: %s"
-msgstr ""
+msgstr "s’u gjet objektiv reference të jashtme %s:%s: %s"
 
 #: sphinx/ext/intersphinx.py:612
 #, python-format
@@ -3425,7 +3425,7 @@ msgstr "Fshih Përputhje Kërkimi"
 #: sphinx/themes/basic/static/searchtools.js:112
 msgid ""
 "Search finished, found ${resultCount} page(s) matching the search query."
-msgstr ""
+msgstr "Kërkimi përfundoi, u gjetën ${resultCount} faqe me përputhje me vargun e kërkimit."
 
 #: sphinx/themes/basic/static/searchtools.js:213
 msgid "Searching"
@@ -3616,7 +3616,7 @@ msgstr "Permalidhje për te ky term"
 #: sphinx/writers/html.py:428 sphinx/writers/html.py:433
 #: sphinx/writers/html5.py:387 sphinx/writers/html5.py:392
 msgid "Permalink to this heading"
-msgstr ""
+msgstr "Permalidhje për te kjo krye"
 
 #: sphinx/writers/html.py:437 sphinx/writers/html5.py:396
 msgid "Permalink to this table"
