@@ -202,14 +202,16 @@ def du19_footnotes() -> Generator[None, None, None]:
     old_visit_footnote = HTMLTranslator.visit_footnote
     old_depart_footnote = HTMLTranslator.depart_footnote
 
-    if docutils.__version_info__[:2] < (0, 19):
+    # Only apply on Docutils 0.18 or 0.18.1, as 0.17 and earlier used a <dl> based
+    # approach, and 0.19 and later use the fixed approach by default.
+    if docutils.__version_info__[:2] == (0, 18):
         HTMLTranslator.visit_footnote = visit_footnote
         HTMLTranslator.depart_footnote = depart_footnote
 
     try:
         yield
     finally:
-        if docutils.__version_info__[:2] < (0, 19):
+        if docutils.__version_info__[:2] == (0, 18):
             HTMLTranslator.visit_footnote = old_visit_footnote
             HTMLTranslator.depart_footnote = old_depart_footnote
 
