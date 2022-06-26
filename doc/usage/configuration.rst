@@ -709,7 +709,7 @@ General configuration
 .. confval:: option_emphasise_placeholders
 
    Default is ``False``.
-   When enabled, emphasise placeholders in ``.. option:`` directives.
+   When enabled, emphasise placeholders in :rst:dir:`option` directives.
    To display literal braces, escape with a backslash (``\{``). For example,
    ``option_emphasise_placeholders=True`` and ``.. option:: -foption={TYPE}`` would
    render with ``TYPE`` emphasised.
