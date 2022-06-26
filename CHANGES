@@ -16,10 +16,13 @@ Deprecated
 Features added
 --------------
 
-* #10366: std domain: Add support for emphasising placeholders in :rst:dir`option`
-  directives through a new ``option_emphasise_placeholders`` configuration option.
+* #10366: std domain: Add support for emphasising placeholders in :rst:dir:`option`
+  directives through a new :confval:`option_emphasise_placeholders` configuration
+  option.
 * #10439: std domain: Use the repr of some variables when displaying warnings,
   making whitespace issues easier to identify.
+* #10571: quickstart: Reduce content in the generated ``conf.py`` file. Patch by
+  Pradyun Gedam.
 
 Bugs fixed
 ----------
@@ -32,6 +35,7 @@ Bugs fixed
 * #10566: HTML Theme: Fix enable_search_shortcuts does not work
 * #8686: LaTeX: Text can fall out of code-block at end of page and leave artifact
   on next page
+* #10579: i18n: UnboundLocalError is raised on translating raw directive
 
 Testing
 --------
@@ -154,7 +158,7 @@ Deprecated
          {{ super() }}
      {%- endblock %}
 
-   Patch by Adam Turner.
+  Patch by Adam Turner.
 * setuptools integration.  The ``build_sphinx`` sub-command for setup.py is
   marked as deprecated to follow the policy of setuptools team.
 * The ``locale`` argument of ``sphinx.util.i18n:babel_format_date()`` becomes
@@ -270,8 +274,8 @@ Features added
 * #9494, #9456: html search: Add a config variable
   :confval:`html_show_search_summary` to enable/disable the search summaries
 * #9337: HTML theme, add option ``enable_search_shortcuts`` that enables :kbd:`/` as
-         a Quick search shortcut and :kbd:`Esc` shortcut that
-         removes search highlighting.
+  a Quick search shortcut and :kbd:`Esc` shortcut that
+  removes search highlighting.
 * #10107: i18n: Allow to suppress translation warnings by adding ``#noqa``
   comment to the tail of each translation message
 * #10252: C++, support attributes on classes, unions, and enums.
