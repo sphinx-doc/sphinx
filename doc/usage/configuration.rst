@@ -2838,7 +2838,7 @@ Options for the Python domain
    .. note:: This configuration is still in experimental
 
 Example of configuration file
-=============================
+-----------------------------
 
 .. literalinclude:: /_static/conf.py.txt
    :language: python
