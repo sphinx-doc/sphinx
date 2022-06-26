@@ -219,7 +219,10 @@ def du19_footnotes() -> Generator[None, None, None]:
 @contextmanager
 def patch_docutils(confdir: Optional[str] = None) -> Generator[None, None, None]:
     """Patch to docutils temporarily."""
-    with patched_get_language(), patched_rst_get_language(), using_user_docutils_conf(confdir), du19_footnotes():
+    with patched_get_language(), \
+         patched_rst_get_language(), \
+         using_user_docutils_conf(confdir), \
+         du19_footnotes():
         yield
 
 
