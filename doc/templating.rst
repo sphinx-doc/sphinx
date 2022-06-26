@@ -273,15 +273,6 @@ in the future.
    that handles navigation, not the web browser, such as for HTML help or Qt
    help formats.  In this case, the sidebar is not included.
 
-.. data:: favicon
-
-   The path to the HTML favicon in the static path, or URL to the favicon, or
-   ``''``.
-
-   .. deprecated:: 4.0
-
-      Recommend to use ``favicon_url`` instead.
-
 .. data:: favicon_url
 
    The relative path to the HTML favicon image from the current document, or
@@ -307,15 +298,6 @@ in the future.
 .. data:: last_updated
 
    The build date.
-
-.. data:: logo
-
-   The path to the HTML logo image in the static path, or URL to the logo, or
-   ``''``.
-
-   .. deprecated:: 4.0
-
-      Recommend to use ``logo_url`` instead.
 
 .. data:: logo_url
 
