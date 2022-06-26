@@ -55,7 +55,7 @@ def test_texinfo(app, status, warning):
     except CalledProcessError as exc:
         print(exc.stdout)
         print(exc.stderr)
-        assert False, 'makeinfo exited with return code %s' % exc.retcode
+        raise AssertionError('makeinfo exited with return code %s' % exc.retcode)
 
 
 @pytest.mark.sphinx('texinfo', testroot='markup-rubric')

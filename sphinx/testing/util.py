@@ -24,17 +24,17 @@ __all__ = [
 
 def assert_re_search(regex: Pattern, text: str, flags: int = 0) -> None:
     if not re.search(regex, text, flags):
-        assert False, '%r did not match %r' % (regex, text)
+        raise AssertionError('%r did not match %r' % (regex, text))
 
 
 def assert_not_re_search(regex: Pattern, text: str, flags: int = 0) -> None:
     if re.search(regex, text, flags):
-        assert False, '%r did match %r' % (regex, text)
+        raise AssertionError('%r did match %r' % (regex, text))
 
 
 def assert_startswith(thing: str, prefix: str) -> None:
     if not thing.startswith(prefix):
-        assert False, '%r does not start with %r' % (thing, prefix)
+        raise AssertionError('%r does not start with %r' % (thing, prefix))
 
 
 def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:

@@ -197,11 +197,11 @@ class ASTNestedName(ASTBase):
         # just print the name part, with template args, not template params
         if mode == 'noneIsName':
             if self.rooted:
-                assert False, "Can this happen?"  # TODO
+                raise AssertionError("Can this happen?")  # TODO
                 signode += nodes.Text('.')
             for i in range(len(self.names)):
                 if i != 0:
-                    assert False, "Can this happen?"  # TODO
+                    raise AssertionError("Can this happen?")  # TODO
                     signode += nodes.Text('.')
                 n = self.names[i]
                 n.describe_signature(signode, mode, env, '', symbol)
@@ -1488,7 +1488,7 @@ class ASTDeclaration(ASTBaseBase):
             mainDeclNode += addnodes.desc_sig_keyword(prefix, prefix)
             mainDeclNode += addnodes.desc_sig_space()
         else:
-            assert False
+            raise AssertionError()
         self.declaration.describe_signature(mainDeclNode, mode, env, self.symbol)
         if self.semicolon:
             mainDeclNode += addnodes.desc_sig_punctuation(';', ';')
@@ -1518,11 +1518,11 @@ class Symbol:
     debug_show_tree = False
 
     def __copy__(self):
-        assert False  # shouldn't happen
+        raise AssertionError()  # shouldn't happen
 
     def __deepcopy__(self, memo):
         if self.parent:
-            assert False  # shouldn't happen
+            raise AssertionError()  # shouldn't happen
         else:
             # the domain base class makes a copy of the initial data, which is fine
             return Symbol(None, None, None, None, None)
@@ -1543,7 +1543,7 @@ class Symbol:
 
     def __setattr__(self, key: str, value: Any) -> None:
         if key == "children":
-            assert False
+            raise AssertionError()
         else:
             return super().__setattr__(key, value)
 
@@ -3091,7 +3091,7 @@ class DefinitionParser(BaseParser):
         elif objectType == 'type':
             declaration = self._parse_type(named=True, outer='type')
         else:
-            assert False
+            raise AssertionError()
         if objectType != 'macro':
             self.skip_ws()
             semicolon = self.skip_string(';')

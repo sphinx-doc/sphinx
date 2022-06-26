@@ -60,7 +60,7 @@ def test_msgfmt(app):
         except CalledProcessError as exc:
             print(exc.stdout)
             print(exc.stderr)
-            assert False, 'msginit exited with return code %s' % exc.returncode
+            raise AssertionError('msginit exited with return code %s' % exc.returncode)
 
         assert (app.outdir / 'en_US.po').isfile(), 'msginit failed'
         try:
@@ -72,7 +72,7 @@ def test_msgfmt(app):
         except CalledProcessError as exc:
             print(exc.stdout)
             print(exc.stderr)
-            assert False, 'msgfmt exited with return code %s' % exc.returncode
+            raise AssertionError('msgfmt exited with return code %s' % exc.returncode)
 
         mo = app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo'
         assert mo.isfile(), 'msgfmt failed'

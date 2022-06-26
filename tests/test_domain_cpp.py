@@ -1140,7 +1140,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_True(app, status, war
         res = re.search(pattern, text)
         if not res:
             print("Pattern\n\t%s\nnot found in %s" % (pattern, file))
-            assert False
+            raise AssertionError()
     rolePatterns = [
         ('', 'Sphinx'),
         ('', 'Sphinx::version'),
@@ -1181,7 +1181,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_False(app, status, wa
         res = re.search(pattern, text)
         if not res:
             print("Pattern\n\t%s\nnot found in %s" % (pattern, file))
-            assert False
+            raise AssertionError()
     rolePatterns = [
         ('', 'Sphinx'),
         ('', 'Sphinx::version'),
