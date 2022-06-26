@@ -768,9 +768,9 @@ def test_pymethod_options(app):
     assert_node(doctree[1][1][8], addnodes.index,
                 entries=[('single', 'meth5() (Class method)', 'Class.meth5', '', None)])
     assert_node(doctree[1][1][9], ([desc_signature, ([desc_annotation, ("abstract", desc_sig_space)],
-                                                      [desc_name, "meth5"],
-                                                      [desc_parameterlist, ()])],
-                                    [desc_content, ()]))
+                                                     [desc_name, "meth5"],
+                                                     [desc_parameterlist, ()])],
+                                   [desc_content, ()]))
     assert 'Class.meth5' in domain.objects
     assert domain.objects['Class.meth5'] == ('index', 'Class.meth5', 'method', False)
 
