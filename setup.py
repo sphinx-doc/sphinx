@@ -40,6 +40,7 @@ extras_require = {
     ],
     'lint': [
         'flake8>=3.5.0',
+        'flake8-comprehensions',
         'isort',
         'mypy>=0.950',
         'sphinx-lint',

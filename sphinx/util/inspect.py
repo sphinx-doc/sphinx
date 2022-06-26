@@ -106,7 +106,7 @@ def getmro(obj: Any) -> Tuple[Type, ...]:
     if isinstance(__mro__, tuple):
         return __mro__
     else:
-        return tuple()
+        return ()
 
 
 def getorigbases(obj: Any) -> Optional[Tuple[Any, ...]]:
