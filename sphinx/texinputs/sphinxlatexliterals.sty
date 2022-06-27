@@ -325,6 +325,8 @@
      \ifspx@opt@verbatimforcewraps
        \spx@verb@DecideIfWillDoForceWrap
      \fi
+% MEMO: \everypar{} was issued earlier (and due to \@setminipage
+% would have been only \@minipagefalse\everypar{} otherwise).
      \setbox\spx@verb@tempboxa=\vtop{\hsize\linewidth
           \raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
           \doublehyphendemerits\z@\finalhyphendemerits\z@
@@ -335,6 +337,11 @@
 % And one would need a similar change in the measuring phase done by
 % \spx@verb@DecideIfWillDoForceWrap
                    \strut\spx@verb@FV@Line\strut
+% MEMO: since LaTeX 2021-06-01, there might be some hooks executed at
+% start and end of paragraphs (in future: PDF tagging), but we need an
+% explicit \par here for that.  Else the kernel hooks at start of paragraph
+% are executed but not the ones at its end.
+          \par
           }%
      \setbox\spx@verb@tempboxa=\vtop{\unvbox\spx@verb@tempboxa
           \setbox\spx@verb@tempboxb\lastbox
@@ -381,6 +388,9 @@
 % dissecting technique: TeX unfortunately when building a vertical
 % box does not store in an accessible way what was the maximal
 % line-width during paragraph building.
+%
+% MEMO: in future use perhaps rather \RawNoindent/\RawParEnd, but
+% ltpara (LaTeX 2021-06-01) is not yet in final form (June 2022).
 %
 % Avoid LaTeX 2021 alteration of \@@par which potentially could break our
 % measurement step (typically if the para/after hook is configured to use
@@ -659,6 +669,10 @@
      \ifspx@opt@verbatimwrapslines
        \let\verbatim@nolig@list \sphinx@verbatim@nolig@list
      \fi
+     % optimization: as codelines will be handled inside boxes, \everypar is
+     % never reset, and it issues \@minipagefalse repeatedly (from \@setminipage).
+     % As fancyvrb Verbatim will do \@minipagefalse itself, let's simplify things.
+     \everypar{}%
      % will fetch its optional arguments if any
      \OriginalVerbatim
 }
@@ -699,7 +713,7 @@
       \advance\hsize-\width\@totalleftmargin\z@\linewidth\hsize\@setminipage
       }%
      \unvbox\sphinxVerbatim@ContentsBox
-     % some of this may be superfluous:
+     % the \@minipagefalse is superfluous, actually.
      \par\unskip\@minipagefalse\endMakeFramed
     \end{minipage}%
    \fi
