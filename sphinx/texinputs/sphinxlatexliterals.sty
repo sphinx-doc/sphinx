@@ -274,12 +274,27 @@
      \sphinxVerbatimFormatLine{#1}%
   \fi
 }%
+\let\spx@original@set@color\set@color
 \newcommand\sphinxVerbatimHighlightLine[1]{%
-  \edef\sphinxrestorefboxsep{\fboxsep\the\fboxsep\relax}%
-  \fboxsep0pt\relax % cf LaTeX bug graphics/4524
-  \colorbox{sphinxVerbatimHighlightColor}%
-           {\sphinxrestorefboxsep\sphinxVerbatimFormatLine{#1}}%
-  % no need to restore \fboxsep here, as this ends up in a \hbox from fancyvrb
+  \leavevmode
+  % MEMO: usage of original \colorbox would insert a \set@color here
+  %       and this then places a "color pop" at the end of the \box\z@.
+  %       But this could pair erroneously with an unmatched "color push"
+  %       as #1 is maybe only a part (already hboxed) of a codeline.
+  %       (cf \spx@verb@@PreProcessLine; refs: #8686)
+  % MEMO: formerly we did something with \fboxsep in relation to the LaTeX
+  %       bug graphics/4524 for \colorbox, but as we don't use \colorbox...
+  \setbox\z@\hbox{\sphinxVerbatimFormatLine{#1}}%
+  % MEMO: \colorbox would lead to \color{sphinxVerbatimHighlightColor}
+  % plus \color@block, which results in doubled (a color.sty feature)
+  % color command send to device driver and more importantly has
+  % a "color pop" which will be after \box\z@.  We avoid that for reasons
+  % mentioned above.
+  \def\set@color{\let\set@color\spx@original@set@color}%
+  % will only set \current@color
+  \color{sphinxVerbatimHighlightColor}%
+  % will use \current@color and pop it **before** \box\z@
+  \color@block{\wd\z@}{\ht\z@}{\dp\z@}\box\z@
 }%
 % MEMO: fancyvrb has options obeytabs and tabsize.  Anyhow tab characters
 % do not make it to the tex file, they have been converted to spaces earlier.
