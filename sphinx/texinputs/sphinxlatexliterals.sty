@@ -105,7 +105,7 @@
 \long\def\spx@fcolorbox #1#2#3#4#5{%
   \hskip\@totalleftmargin
   \hskip-\fboxsep\hskip-\fboxrule
-  % use of \color@b@x here is compatible with both xcolor.sty and color.sty
+  % MEMO: \color@b@x from xcolor.sty is identical with the one from color.sty
   \color@b@x {\color{#1}\spx@CustomFBox{#3}{#4}}{\color{#2}}{#5}%
   \hskip-\fboxsep\hskip-\fboxrule
   \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth
