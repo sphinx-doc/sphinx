@@ -111,7 +111,11 @@
   \hskip\@totalleftmargin
   \hskip-\fboxsep\hskip-\fboxrule
   % MEMO: \color@b@x from xcolor.sty is identical with the one from color.sty
-  \color@b@x {\spx@CustomFBox{#1}{#3}{#4}}{\color{#2}}{{\normalcolor#5}}%
+  % MEMO: the thing with \set@color is to avoid a \color@b@x feature of
+  %       inserting twice the background color in the pdf color stack
+  \color@b@x {\spx@CustomFBox{#1}{#3}{#4}}%
+             {\def\set@color{\let\set@color\spx@original@set@color}\color{#2}}%
+             {{\normalcolor#5}}%
   \hskip-\fboxsep\hskip-\fboxrule
   \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth
 }%
@@ -284,23 +288,29 @@
   %       (cf \spx@verb@@PreProcessLine; refs: #8686)
   % MEMO: formerly we did something with \fboxsep in relation to the LaTeX
   %       bug graphics/4524 for \colorbox, but as we don't use \colorbox...
-  \setbox\z@\hbox{\sphinxVerbatimFormatLine{#1}}%
+  % MEMO: the #1 has a \strut so the colored background will have correct
+  %       dimensions
+  \setbox\z@\hbox{#1}%
   % MEMO: \colorbox would lead to \color{sphinxVerbatimHighlightColor}
   % plus \color@block, which results in doubled (a color.sty feature)
   % color command send to device driver and more importantly has
   % a "color pop" which will be after \box\z@.  We avoid that for reasons
   % mentioned above.
+  {%
   \def\set@color{\let\set@color\spx@original@set@color}%
-  % will only set \current@color
+  % will only set \current@color and delay the \set@color to \color@block
+  % as this all happens inside fancyvrb nested \hbox'es.
   \color{sphinxVerbatimHighlightColor}%
   % will use \current@color and pop it **before** \box\z@
   \color@block{\wd\z@}{\ht\z@}{\dp\z@}\box\z@
+  }%
+  % we added a group only for \FV@RightListNumber not be influenced by the
+  % \current@color, if \fvset has been used to set numbers to the right.
 }%
-% MEMO: fancyvrb has options obeytabs and tabsize.  Anyhow tab characters
-% do not make it to the tex file, they have been converted to spaces earlier.
-% But, if this was not the case, the support would be implemented here via
-% \newcommand\sphinxVerbatimFormatLine[1]{\hb@xt@\linewidth{\FV@ObeyTabs{\strut #1}\hss}}%
-\newcommand\sphinxVerbatimFormatLine[1]{\hb@xt@\linewidth{\strut #1\hss}}%
+% MEMO: formerly we did \hb@xt@\linewidth{\strut #1\hss}, but there is now
+% not much to do as since \spx@verb@@PreProcessLine this #1 is simply
+% \box\spx@verb@tempboxb\strut
+\newcommand\sphinxVerbatimFormatLine[1]{#1}%
 % The next two macros are a deep hack of fancyvrb.sty core line processing in
 % order to wrap too long lines, either at spaces and natural break-points,
 % (soft wrap) or optionally at any character (hard wrap).  This requires deep
