@@ -846,7 +846,7 @@ Do not use quotes to enclose values, whether numerical or strings.
     Default: ``5pt``
 
 ``shadowsize``
-    The width of the lateral "shadow" to the right.
+    The width of the lateral "shadow" to the right and bottom.
 
     Default: ``4pt``
 
@@ -854,6 +854,20 @@ Do not use quotes to enclose values, whether numerical or strings.
     The width of the frame around :dudir:`topic` boxes.
 
     Default: ``\fboxrule``
+
+``shadowBorderColor``
+    The color of the frame around :dudir:`topic` boxes.
+
+    Default: ``{rgb}{0,0,0}`` (black)
+
+    .. versionadded:: 5.1.0
+
+``shadowShadowColor``
+    The color of the lateral "shadow" to the right and bottom.
+
+    Default: ``{rgb}{0,0,0}`` (black)
+
+    .. versionadded:: 5.1.0
 
 |notebdcolors|
     The colour for the two horizontal rules used by Sphinx in LaTeX for styling
