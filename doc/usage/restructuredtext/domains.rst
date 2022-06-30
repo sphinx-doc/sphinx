@@ -1740,7 +1740,7 @@ There is a set of directives allowing documenting command-line programs:
    like ``:option:`dest_dir```, ``:option:`-m```, or ``:option:`--module```).
 
    Use :confval:`option_emphasise_placeholders` for parsing of
-   "variable part" of a literal text (similarly to the ``samp`` role).
+   "variable part" of a literal text (similarly to the :rst:role:`samp` role).
 
    ``cmdoption`` directive is a deprecated alias for the ``option`` directive.
 

@@ -1,7 +1,7 @@
 %% LITERAL BLOCKS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexliterals.sty}[2021/12/06 code-blocks and parsed literals]
+\ProvidesFile{sphinxlatexliterals.sty}[2022/06/30 code-blocks and parsed literals]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -50,8 +50,8 @@
 % 4- while still allowing expansion of Pygments latex mark-up
 % Other aspects such as framing, caption handling, codeline wrapping are
 % added on top of it. We should stop using fancyvrb and implement
-% 1, 2, 3, 4 by own Sphinx fully native Verbatim. This would allow to solve
-% limitations with wrapped long code line not allowing page break.
+% 1, 2, 3, 4 by own Sphinx fully native Verbatim. This would greatly simplify
+% in particular wrapping long code lines in a way allowing page breaks.
 \RequirePackage{fancyvrb}
 % For parsed-literal blocks.
 \RequirePackage{alltt}
@@ -59,6 +59,9 @@
 \RequirePackage{upquote}
 % Skip to next page if not enough space at bottom
 \RequirePackage{needspace}
+
+\newbox\spx@verb@tempboxa
+\newbox\spx@verb@tempboxb
 
 % Based on use of "fancyvrb.sty"'s Verbatim.
 % - with framing allowing page breaks ("framed.sty")
@@ -92,49 +95,96 @@
 \newif\ifsphinxverbatimwithminipage   \sphinxverbatimwithminipagefalse
 
 % Framing macro for use with framed.sty's \FrameCommand
+% MEMO: the sophisticated code in \spx@fcolorbox/\spx@CustomFBox
+%       is here for good reasons
+%       - be responsive to indented list environments in the manner of
+%         the "framed" (\fbox) and "shaded" (\colorbox) environments of
+%         framed.sty; indeed code here is an evolution related to \fcolorbox
+%       - attach non-detachable continuation hints above/below frame
+%       - draw the frame and fill the background color in a manner avoiding
+%         problems in some pdf viewers
+%       - (most recent change, very TeXnical; relates: #8686) work around
+%         some potential color issues when a very long code line is wrapped
+%         and then encounters a page break while in the middle of colored text
+%         (cf \spx@verb@@PreProcessLine).  Turns out this was related to hard
+%         coded behaviour of internal color.sty/xcolor.sty macros.
+\let\spx@original@set@color\set@color
+% About the produced output:
 %  - it obeys current indentation,
-%  - frame is \fboxsep separated from the contents,
+%  - frame of width \fboxrule is \fboxsep-separated from the contents,
 %  - the contents use the full available text width,
 %  - #1 = color of frame, #2 = color of background,
-%  - #3 = above frame, #4 = below frame, #5 = within frame,
-%  - #3 and #4 must be already typeset boxes; they must issue \normalcolor
-%    or similar, else, they are under scope of color #1
+%  - #3 = will be typeset above frame, in a non detachable way,
+%  - #4 = will be typeset below frame, in a non detachable way,
+%  - #5 = will be typeset within frame,
+% #3 and #4 are expected to be already typeset \hbox'es.
+% #5 are the contents, and in the context of usage of fancyvrb+framed by
+% Sphinx, it will arrive here already transformed into horizontal boxes,
+% as well as some interline penalties and glues.
 \long\def\spx@fcolorbox #1#2#3#4#5{%
   \hskip\@totalleftmargin
   \hskip-\fboxsep\hskip-\fboxrule
-  % use of \color@b@x here is compatible with both xcolor.sty and color.sty
-  \color@b@x {\color{#1}\spx@CustomFBox{#3}{#4}}{\color{#2}}{#5}%
+  % MEMO: this code is modified from color.sty's \color@b@x which has some
+  % features making it problematic when #5, as will be here the case in the
+  % context of usage of fancyvrb+framed+\spx@verb@@PreProcessLine may contain
+  % an unbalanced "color push".  We must avoid an extra "color pop" located at
+  % a page break location.  For this reason we do not add a \set@color or
+  % \normalcolor at start of #5.
+  \setbox\z@\hbox{\kern\fboxsep{#5}\kern\fboxsep}%
+    \dimen@\ht\z@ \advance\dimen@\fboxsep \ht\z@\dimen@
+    \dimen@\dp\z@ \advance\dimen@\fboxsep \dp\z@\dimen@
+  % \spx@CustomFbox uses already scope-limiting group, no need for one more
+  \spx@CustomFBox{#1}% frame color
+                 {#3}% above frame, already a box
+                 {#4}% below frame, already a box
+                 {\def\set@color{\let\set@color\spx@original@set@color}%
+                  \color{#2}% above trick avoids a color pop *after* \box\z@
+                  % MEMO: it is very very improbable that \color/\color@block
+                  %       will ever change (even if we raised some ticket at
+                  %       their issue tracker), but if they do, perhaps a
+                  %       change here could be needed in some distant future.
+                  % MEMO: the \color@block "push + pop" happens *before* \box\z@
+                  \color@block{\wd\z@}{\ht\z@}{\dp\z@}%
+                  \box\z@}%
   \hskip-\fboxsep\hskip-\fboxrule
   \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth
 }%
-% #1 = for material above frame, such as a caption or a "continued" hint
-% #2 = for material below frame, such as a caption or "continues on next page"
-% #3 = actual contents, which will be typeset with a background color
-\long\def\spx@CustomFBox#1#2#3{%
+% #1 = color of frame
+% #2 = for material above frame, such as a caption or a "continued" hint
+% #3 = for material below frame, such as a caption or "continues on next page"
+% #4 = contents; or rather if called from \spx@fcolorbox (only supported use
+%      case here), the contents are in \box\z@ and #4 are the instructions to
+%      "fill background color then draw contents \box\z@"
+\long\def\spx@CustomFBox#1#2#3#4{%
   \begingroup
-  \setbox\@tempboxa\hbox{{#3}}% inner braces to avoid color leaks
-  \vbox{#1% above frame
+  % formerly, we used \@tempboxa, but let's use private box for maximal safety
+  \setbox\spx@verb@tempboxa\hbox{#4}% no (more) need for extra grouping (now)
+  \vbox{#2% above frame
             % draw frame border _latest_ to avoid pdf viewer issue
+            % be careful not to cause "color push + contents + color pop"
             \kern\fboxrule
             \hbox{\kern\fboxrule
-                  \copy\@tempboxa
-                  \kern-\wd\@tempboxa\kern-\fboxrule
+                  \copy\spx@verb@tempboxa% \copy to keep \wd, \dp, \ht for later
+                  {\color{#1}% frame color
+                  \kern-\wd\spx@verb@tempboxa\kern-\fboxrule
                   \vrule\@width\fboxrule
-                  \kern\wd\@tempboxa
+                  \kern\wd\spx@verb@tempboxa
                   \vrule\@width\fboxrule}%
-            \kern-\dimexpr\ht\@tempboxa+\dp\@tempboxa+\fboxrule\relax
+                 }%
+            {\color{#1}% frame color
+            \kern-\dimexpr\ht\spx@verb@tempboxa+\dp\spx@verb@tempboxa+\fboxrule\relax
             \hrule\@height\fboxrule
-            \kern\dimexpr\ht\@tempboxa+\dp\@tempboxa\relax
-            \hrule\@height\fboxrule
-        #2% below frame
+            \kern\dimexpr\ht\spx@verb@tempboxa+\dp\spx@verb@tempboxa\relax
+            \hrule\@height\fboxrule}%
+        #3% below frame
        }%
   \endgroup
 }%
 \def\spx@fcolorbox@put@c#1{% hide width from framed.sty measuring
-    \moveright\dimexpr\fboxrule+.5\wd\@tempboxa\hb@xt@\z@{\hss#1\hss}%
+    \moveright\dimexpr\fboxrule+.5\wd\spx@verb@tempboxa\hb@xt@\z@{\hss#1\hss}%
 }%
 \def\spx@fcolorbox@put@r#1{% right align with contents, width hidden
-    \moveright\dimexpr\fboxrule+\wd\@tempboxa-\fboxsep\hb@xt@\z@{\hss#1}%
+    \moveright\dimexpr\fboxrule+\wd\spx@verb@tempboxa-\fboxsep\hb@xt@\z@{\hss#1}%
 }%
 \def\spx@fcolorbox@put@l#1{% left align with contents, width hidden
     \moveright\dimexpr\fboxrule+\fboxsep\hb@xt@\z@{#1\hss}%
@@ -142,10 +192,10 @@
 %
 \def\sphinxVerbatim@Continued
    {\csname spx@fcolorbox@put@\spx@opt@verbatimcontinuedalign\endcsname
-    {\normalcolor\sphinxstylecodecontinued\literalblockcontinuedname}}%
+    {{\normalcolor\sphinxstylecodecontinued\literalblockcontinuedname}}}%
 \def\sphinxVerbatim@Continues
    {\csname spx@fcolorbox@put@\spx@opt@verbatimcontinuesalign\endcsname
-    {\normalcolor\sphinxstylecodecontinues\literalblockcontinuesname}}%
+    {{\normalcolor\sphinxstylecodecontinues\literalblockcontinuesname}}}%
 \def\sphinxVerbatim@Title
    {\spx@fcolorbox@put@c{\unhcopy\sphinxVerbatim@TitleBox}}%
 \let\sphinxVerbatim@Before\@empty
@@ -251,7 +301,7 @@
   \def\spx@abovecaptionskip{\sphinxverbatimsmallskipamount}%
 }
 \newcommand*{\sphinxverbatimsmallskipamount}{\smallskipamount}
-% serves to implement line highlighting and line wrapping
+% serves to implement line highlighting
 \newcommand\sphinxFancyVerbFormatLine[1]{%
   \expandafter\sphinx@verbatim@checkifhl\expandafter{\the\FV@CodeLineNo}%
   \ifin@
@@ -261,25 +311,115 @@
   \fi
 }%
 \newcommand\sphinxVerbatimHighlightLine[1]{%
-  \edef\sphinxrestorefboxsep{\fboxsep\the\fboxsep\relax}%
-  \fboxsep0pt\relax % cf LaTeX bug graphics/4524
-  \colorbox{sphinxVerbatimHighlightColor}%
-           {\sphinxrestorefboxsep\sphinxVerbatimFormatLine{#1}}%
-  % no need to restore \fboxsep here, as this ends up in a \hbox from fancyvrb
+  \leavevmode
+  % MEMO: usage of original \colorbox would insert a \set@color here
+  %       and this then places a "color pop" at the end of the \box\z@.
+  %       But this could pair erroneously with an unmatched "color push"
+  %       as #1 is maybe only a part (already hboxed) of a codeline
+  %       if (default) verbatimwrapslines=true
+  %       (cf \spx@verb@@PreProcessLine; refs: #8686)
+  % MEMO: formerly we did something with \fboxsep in relation to the LaTeX
+  %       bug graphics/4524 for \colorbox, but as we don't use \colorbox...
+  \setbox\z@\hb@xt@\linewidth{\strut#1\hss}%
+  % MEMO: \colorbox would lead to \color{sphinxVerbatimHighlightColor}
+  % plus \color@block, which results in doubled (a color.sty feature)
+  % color command send to device driver and more importantly has
+  % a "color pop" which will be after \box\z@.  We avoid that for reasons
+  % mentioned above.
+  {%
+  \def\set@color{\let\set@color\spx@original@set@color}%
+  % will only set \current@color and delay the \set@color to \color@block
+  % as this all happens inside fancyvrb nested \hbox'es.
+  \color{sphinxVerbatimHighlightColor}%
+  % will use \current@color and pop it **before** \box\z@
+  \color@block{\wd\z@}{\ht\z@}{\dp\z@}\box\z@
+  }%
+  % we added a group only for \FV@RightListNumber not be influenced by the
+  % \current@color, if \fvset has been used to set numbers to the right.
 }%
-% \sphinxVerbatimFormatLine will be set locally to one of those two:
-\newcommand\sphinxVerbatimFormatLineWrap{%
-  \hsize\linewidth
-  \ifspx@opt@verbatimforcewraps
-       \expandafter\spx@verb@FormatLineForceWrap
-  \else\expandafter\spx@verb@FormatLineWrap
-  \fi
+% MEMO: fancyvrb has options obeytabs and tabsize.  Anyhow tab characters
+% do not make it to the tex file, they have been converted to spaces earlier.
+% But, if this was not the case, the support would be implemented here via
+% \newcommand\sphinxVerbatimFormatLine[1]{\FV@ObeyTabs{\strut #1}}%
+\newcommand\sphinxVerbatimFormatLine[1]{\strut#1}%
+% MEMO: if verbatimwrapslines is set to true (default) the #1 above is
+% simply \box\spx@verb@tempboxb, from the next two macros.
+% The next two macros are a deep hack of fancyvrb.sty core line processing in
+% order to wrap too long lines, either at spaces and natural break-points,
+% (soft wrap) or optionally at any character (hard wrap).  This requires deep
+% hack to work around the \hbox'es wrappers of fancyvrb.sty as they would
+% prevent page breaks.  Formerly Sphinx obtained wrapping by inserting the
+% material into a vertical box (which was later again boxed -- twice -- by
+% fancyvrb thinking it was a single line...) but this was incompatible with
+% allowing page breaks (refs: #8686).
+% We use core TeX techniques to pre-process a paragraph then recover its
+% constituents lines (as boxes, not as tokens) and hand them over to original
+% fancyvrb line process.  It is mandatory to update \FV@ProcessLine and
+% \@tempboxa globally to get fancyvrb internals into working to our
+% satisfaction.
+% This will get disrupted if anything adding vertical penalties or glues
+% is activated via some \vadjust from inside the Pygmentized code lines.
+\def\spx@verb@@ProcessLines{%
+   \unskip
+   \unpenalty
+   \setbox\spx@verb@tempboxb\lastbox
+\ifvoid\spx@verb@tempboxb\else
+   {\spx@verb@@ProcessLines}%
+   \FV@ProcessLine{\box\spx@verb@tempboxb}%
+   \global\let\FV@ProcessLine\FV@ProcessLine
+   \global\setbox\@tempboxa=\box\@tempboxa
+   \aftergroup\spx@verb@@InhibitLineNumber
+\fi
 }%
-\newcommand\sphinxVerbatimFormatLineNoWrap[1]{\hb@xt@\linewidth{\strut #1\hss}}%
-\long\def\spx@verb@FormatLineWrap#1{%
-    \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
+\def\spx@verb@@InhibitLineNumber{%
+    \let\FV@LeftListNumber\relax
+    \let\FV@RightListNumber\relax
+}%
+% This will replace fancyvrb's \FV@@PreProcessLine
+% Instead of boxing \FV@Line (which contains the Pygmentized line tokens), we
+% first typeset it in a vertical box of the suitable width (taking into
+% account nested lists) to activate the TeX built-in paragraph builder, then
+% we recover individual lines as horizontal boxes and feed them to fancyvrb
+% native line processing (which may add line numbers).  The interline
+% penalties and vertical glue to maintain baseline distance will be added
+% again by this process so in recursive \spx@verb@@ProcessLines which starts
+% from bottom and makes its way up to first part of the wrapped line we do not
+% need to worry about them.  An additional initial measuring step is needed if
+% user issued verbatimforcewraps=true, which elaborates on the same technique.
+% If hard wraps get activated, they get implemented via hacked \PYG macros.
+\def\spx@verb@@PreProcessLine{%
+  \FV@StepLineNo
+  \FV@Gobble
+     \def\spx@verb@FV@Line{\FV@Line}%
+     \ifspx@opt@verbatimforcewraps
+       \spx@verb@DecideIfWillDoForceWrap
+     \fi
+% MEMO: \everypar{} was issued earlier (and due to \@setminipage
+% would have been only \@minipagefalse\everypar{} otherwise).
+     \setbox\spx@verb@tempboxa=\vtop{\hsize\linewidth
+          \raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
           \doublehyphendemerits\z@\finalhyphendemerits\z@
-          \strut #1\strut}%
+% MEMO: fancyvrb has options obeytabs and tabsize.  Anyhow tab characters
+% do not make it to the tex file, they have been converted to spaces earlier.
+% But, if this was not the case, the support would be implemented here via
+%     \FV@ObeyTabs{\strut\spx@verb@FV@Line\strut}%
+% And one would need a similar change in the measuring phase done by
+% \spx@verb@DecideIfWillDoForceWrap
+                   \strut\spx@verb@FV@Line\strut
+% MEMO: since LaTeX 2021-06-01, there might be some hooks executed at
+% start and end of paragraphs (in future: PDF tagging), but we need an
+% explicit \par here for that.  Else the kernel hooks at start of paragraph
+% are executed but not the ones at its end.
+          \par
+          }%
+     \setbox\spx@verb@tempboxa=\vtop{\unvbox\spx@verb@tempboxa
+          \setbox\spx@verb@tempboxb\lastbox
+          {\spx@verb@@ProcessLines}%
+          \FV@ProcessLine{\box\spx@verb@tempboxb}%
+          \global\let\FV@ProcessLine\FV@ProcessLine
+          \global\setbox\@tempboxa=\box\@tempboxa
+          }%
+  \unvbox\spx@verb@tempboxa
 }%
 %
 % The normal line wrapping allows breaks at spaces and ascii non
@@ -318,6 +458,9 @@
 % box does not store in an accessible way what was the maximal
 % line-width during paragraph building.
 %
+% MEMO: in future use perhaps rather \RawNoindent/\RawParEnd, but
+% ltpara (LaTeX 2021-06-01) is not yet in final form (June 2022).
+%
 % Avoid LaTeX 2021 alteration of \@@par which potentially could break our
 % measurement step (typically if the para/after hook is configured to use
 % \vspace).  Of course, breakage could happen only from user or package
@@ -342,52 +485,51 @@
 % character widths, or if the min width plus verbatimmaxunderfull character
 % widths is inferior to linewidth, then we apply the "force wrapping" with
 % potential line break at each character, else we don't.
-\long\def\spx@verb@FormatLineForceWrap#1{%
-    % \spx@image@box is a scratch box register that we can use here
+\long\def\spx@verb@DecideIfWillDoForceWrap{%
     \global\let\spx@verb@maxwidth\z@
     \global\let\spx@verb@minwidth\linewidth
-    \setbox\spx@image@box
+    \setbox\spx@verb@tempboxa
     \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
           \doublehyphendemerits\z@\finalhyphendemerits\z@
-          \spx@everypar{}\noindent\strut #1\strut\spx@par
+          \spx@everypar{}\noindent\strut\FV@Line\strut\spx@par
           \spx@verb@getwidths}%
     \ifdim\spx@verb@maxwidth>
           \dimexpr\linewidth+\spx@opt@verbatimmaxoverfull\fontcharwd\font`X \relax
-      \spx@verb@FormatLineWrap{\spx@verb@wrapPYG #1\spx@verb@wrapPYG}%
+% The \expandafter is due to \spx@verb@wrapPYG requiring to "see" the TeX tokens
+% from the pygmentize output.
+      \def\spx@verb@FV@Line{\expandafter\spx@verb@wrapPYG\FV@Line\spx@verb@wrapPYG}%
     \else
       \ifdim\spx@verb@minwidth<
             \dimexpr\linewidth-\spx@opt@verbatimmaxunderfull\fontcharwd\font`X \relax
-        \spx@verb@FormatLineWrap{\spx@verb@wrapPYG #1\spx@verb@wrapPYG}%
-      \else
-        \spx@verb@FormatLineWrap{#1}%
-    \fi\fi
+        \def\spx@verb@FV@Line{\expandafter\spx@verb@wrapPYG\FV@Line\spx@verb@wrapPYG}%
+      \fi
+    \fi
 }%
 % auxiliary paragraph dissector to get max and min widths
 % but minwidth must not take into account the last line
-\newbox\spx@scratchbox
 \def\spx@verb@getwidths {%
     \unskip\unpenalty
-    \setbox\spx@scratchbox\lastbox
-    \ifvoid\spx@scratchbox
+    \setbox\spx@verb@tempboxb\lastbox
+    \ifvoid\spx@verb@tempboxb
     \else
-       \setbox\spx@scratchbox\hbox{\unhbox\spx@scratchbox}%
-       \ifdim\spx@verb@maxwidth<\wd\spx@scratchbox
-          \xdef\spx@verb@maxwidth{\number\wd\spx@scratchbox sp}%
+       \setbox\spx@verb@tempboxb\hbox{\unhbox\spx@verb@tempboxb}%
+       \ifdim\spx@verb@maxwidth<\wd\spx@verb@tempboxb
+          \xdef\spx@verb@maxwidth{\number\wd\spx@verb@tempboxb sp}%
        \fi
        \expandafter\spx@verb@getwidths@loop
     \fi
 }%
 \def\spx@verb@getwidths@loop {%
     \unskip\unpenalty
-    \setbox\spx@scratchbox\lastbox
-    \ifvoid\spx@scratchbox
+    \setbox\spx@verb@tempboxb\lastbox
+    \ifvoid\spx@verb@tempboxb
     \else
-       \setbox\spx@scratchbox\hbox{\unhbox\spx@scratchbox}%
-       \ifdim\spx@verb@maxwidth<\wd\spx@scratchbox
-          \xdef\spx@verb@maxwidth{\number\wd\spx@scratchbox sp}%
+       \setbox\spx@verb@tempboxb\hbox{\unhbox\spx@verb@tempboxb}%
+       \ifdim\spx@verb@maxwidth<\wd\spx@verb@tempboxb
+          \xdef\spx@verb@maxwidth{\number\wd\spx@verb@tempboxb sp}%
        \fi
-       \ifdim\spx@verb@minwidth>\wd\spx@scratchbox
-          \xdef\spx@verb@minwidth{\number\wd\spx@scratchbox sp}%
+       \ifdim\spx@verb@minwidth>\wd\spx@verb@tempboxb
+          \xdef\spx@verb@minwidth{\number\wd\spx@verb@tempboxb sp}%
        \fi
        \expandafter\spx@verb@getwidths@loop
     \fi
@@ -544,22 +686,14 @@
       \let\sphinxVerbatim@Continues\@empty
   \fi
   \ifspx@opt@verbatimwrapslines
-  % fancyvrb's Verbatim puts each input line in (unbreakable) horizontal boxes.
-  % This customization wraps each line from the input in a \vtop, thus
-  % allowing it to wrap and display on two or more lines in the latex output.
-  %     - The codeline counter will be increased only once.
-  %     - The wrapped material will not break across pages, it is impossible
-  %       to achieve this without extensive rewrite of fancyvrb.
-  %     - The (not used in sphinx) obeytabs option to Verbatim is
-  %       broken by this change (showtabs and tabspace work).
-    \let\sphinxVerbatimFormatLine\sphinxVerbatimFormatLineWrap
+    % deep hack into fancyvrb's internal processing of input lines
+    \let\FV@@PreProcessLine\spx@verb@@PreProcessLine
+    % space character will allow line breaks
     \let\FV@Space\spx@verbatim@space
-  % Allow breaks at special characters using \PYG... macros.
+    % allow breaks at special characters using \PYG... macros.
     \sphinxbreaksatspecials
-  % Breaks at punctuation characters . , ; ? ! and / (needs catcode activation)
+    % breaks at punctuation characters . , ; ? ! and / (needs catcode activation)
     \fvset{codes*=\sphinxbreaksviaactive}%
-  \else % end of conditional code for wrapping long code lines
-    \let\sphinxVerbatimFormatLine\sphinxVerbatimFormatLineNoWrap
   \fi
   \let\FancyVerbFormatLine\sphinxFancyVerbFormatLine
   \VerbatimEnvironment
@@ -604,6 +738,10 @@
      \ifspx@opt@verbatimwrapslines
        \let\verbatim@nolig@list \sphinx@verbatim@nolig@list
      \fi
+     % optimization: as codelines will be handled inside boxes, \everypar is
+     % never reset, and it issues \@minipagefalse repeatedly (from \@setminipage).
+     % As fancyvrb Verbatim will do \@minipagefalse itself, let's simplify things.
+     \everypar{}%
      % will fetch its optional arguments if any
      \OriginalVerbatim
 }
@@ -644,7 +782,7 @@
       \advance\hsize-\width\@totalleftmargin\z@\linewidth\hsize\@setminipage
       }%
      \unvbox\sphinxVerbatim@ContentsBox
-     % some of this may be superfluous:
+     % the \@minipagefalse is superfluous, actually.
      \par\unskip\@minipagefalse\endMakeFramed
     \end{minipage}%
    \fi

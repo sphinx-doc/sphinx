@@ -1,8 +1,17 @@
 """Tests for :mod:`sphinx.ext.napoleon.iterators` module."""
 
+import sys
 from unittest import TestCase
 
+from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.ext.napoleon.iterators import modify_iter, peek_iter
+
+
+class ModuleIsDeprecatedTest(TestCase):
+    def test_module_is_deprecated(self):
+        sys.modules.pop("sphinx.ext.napoleon.iterators")
+        with self.assertWarns(RemovedInSphinx70Warning):
+            import sphinx.ext.napoleon.iterators  # noqa
 
 
 class BaseIteratorsTest(TestCase):

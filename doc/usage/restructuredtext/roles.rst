@@ -292,8 +292,8 @@ Inline code highlighting
    Unlike the :rst:dir:`code-block` directive, this role does not respect the
    default language set by the :rst:dir:`highlight` directive.
 
-   To enable syntax highlighting, you must first use the ``role`` directive to
-   define a custom ``code`` role for a particular language:
+   To enable syntax highlighting, you must first use the Docutils :dudir:`role`
+   directive to define a custom role associated with a specific language:
 
    .. code-block:: rst
 
@@ -446,7 +446,7 @@ different style:
    emphasized.
 
    If you don't need the "variable part" indication, use the standard
-   ````code```` instead.
+   :rst:role:`code` role instead.
 
    .. versionchanged:: 1.8
       Allowed to escape curly braces with backslash

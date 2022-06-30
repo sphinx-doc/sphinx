@@ -227,7 +227,7 @@ class TocTreeCollector(EnvironmentCollector):
             else:
                 secnum = secnumbers.get('')
 
-            return secnum or tuple()
+            return secnum or ()
 
         def get_next_fignumber(figtype: str, secnum: Tuple[int, ...]) -> Tuple[int, ...]:
             counter = fignum_counter.setdefault(figtype, {})
@@ -273,7 +273,7 @@ class TocTreeCollector(EnvironmentCollector):
                 _walk_doctree(docname, doctree, secnum)
 
         if env.config.numfig:
-            _walk_doc(env.config.root_doc, tuple())
+            _walk_doc(env.config.root_doc, ())
             for docname, fignums in env.toc_fignumbers.items():
                 if fignums != old_fignumbers.get(docname):
                     rewrite_needed.append(docname)

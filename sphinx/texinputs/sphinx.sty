@@ -34,11 +34,14 @@
 %% OPTION HANDLING
 %
 
-% We first handle options then load packages, but we need \definecolor from
-% xcolor/color.
+% We generally first handle options then load packages, but we need
+% \definecolor from xcolor/color to handle the options.
 
-% FIXME: we should \RequirePackage{xcolor} always now
-% The xcolor package draws better fcolorboxes around verbatim code
+% MEMO: xcolor \fcolorbox coloured boxes render better in some PDF viewers
+% than with color package \fcolorbox.  Since 1.6.3, Sphinx uses only its own
+% custom variant of \fcolorbox when handling verbatim code.  Currently (last
+% checked at 5.0.0) \fcolorbox is used for admonitions (sphinxheavybox)
+% and appears also in Pygmentize output mark-up.
 \IfFileExists{xcolor.sty}{
     \RequirePackage{xcolor}
 }{

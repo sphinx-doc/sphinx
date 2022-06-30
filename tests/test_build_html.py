@@ -1732,6 +1732,8 @@ def test_option_emphasise_placeholders(app, status, warning):
             '<span class="pre">-</span>'
             '<em><span class="pre">COUNT</span></em>' in content)
     assert '<span class="pre">{{value}}</span>' in content
+    assert ('<span class="pre">--plugin.option</span></span>'
+            '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Permalink to this definition">¶</a></dt>') in content
 
 
 @pytest.mark.sphinx('html', testroot='root')
@@ -1741,3 +1743,26 @@ def test_option_emphasise_placeholders_default(app, status, warning):
     assert '<span class="pre">={TYPE}</span>' in content
     assert '<span class="pre">={WHERE}-{COUNT}</span></span>' in content
     assert '<span class="pre">{client_name}</span>' in content
+    assert ('<span class="pre">--plugin.option</span></span>'
+            '<span class="sig-prename descclassname"></span>'
+            '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Permalink to this definition">¶</a></dt>') in content
+
+
+@pytest.mark.sphinx('html', testroot='theming')
+def test_theme_options(app, status, warning):
+    app.build()
+
+    result = (app.outdir / '_static' / 'documentation_options.js').read_text(encoding='utf8')
+    assert 'NAVIGATION_WITH_KEYS: false' in result
+    assert 'ENABLE_SEARCH_SHORTCUTS: true' in result
+
+
+@pytest.mark.sphinx('html', testroot='theming',
+                    confoverrides={'html_theme_options.navigation_with_keys': True,
+                                   'html_theme_options.enable_search_shortcuts': False})
+def test_theme_options_with_override(app, status, warning):
+    app.build()
+
+    result = (app.outdir / '_static' / 'documentation_options.js').read_text(encoding='utf8')
+    assert 'NAVIGATION_WITH_KEYS: true' in result
+    assert 'ENABLE_SEARCH_SHORTCUTS: false' in result

@@ -102,7 +102,7 @@ def inherited_members_option(arg: Any) -> Set[str]:
     if arg in (None, True):
         return {'object'}
     elif arg:
-        return set(x.strip() for x in arg.split(','))
+        return {x.strip() for x in arg.split(',')}
     else:
         return set()
 

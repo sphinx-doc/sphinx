@@ -40,9 +40,14 @@ escape_hl_chars = {ord('\\'): '\\PYGZbs{}',
                    ord('}'): '\\PYGZcb{}'}
 
 # used if Pygments is available
-# use textcomp quote to get a true single quote
 _LATEX_ADD_STYLES = r'''
+% Sphinx additions
+% use textcomp quote to get a true single quote
 \renewcommand\PYGZsq{\textquotesingle}
+\makeatletter
+% use \protected to allow \PYG in \caption
+\protected\def\PYG#1#2{\PYG@reset\PYG@toks#1+\relax+{\PYG@do{#2}}}
+\makeatother
 '''
 # fix extra space between lines when Pygments highlighting uses \fcolorbox
 # add a {..} to limit \fboxsep scope, and force \fcolorbox use correct value
@@ -52,7 +57,7 @@ _LATEX_ADD_STYLES_FIXPYG = r'''
 % fix for Pygments <= 2.7.4
 \let\spx@original@fcolorbox\fcolorbox
 \def\spx@fixpyg@fcolorbox{\fboxsep-\fboxrule\spx@original@fcolorbox}
-\def\PYG#1#2{\PYG@reset\PYG@toks#1+\relax+%
+\protected\def\PYG#1#2{\PYG@reset\PYG@toks#1+\relax+%
              {\let\fcolorbox\spx@fixpyg@fcolorbox\PYG@do{#2}}}
 \makeatother
 '''
