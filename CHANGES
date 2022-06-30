@@ -19,6 +19,8 @@ Bugs fixed
 * #10594: HTML Theme: field term colons are doubled if using Docutils 0.18+
 * #10596: Build failure if Docutils version is 0.18 (not 0.18.1) due
   to missing ``Node.findall()``
+* #10506: LaTeX: build error when using ``:cpp:stuff`` syntax highlighting in
+  figure caption
 
 Testing
 --------
