@@ -1,7 +1,7 @@
 %% LITERAL BLOCKS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexliterals.sty}[2022/06/29 code-blocks and parsed literals]
+\ProvidesFile{sphinxlatexliterals.sty}[2022/06/30 code-blocks and parsed literals]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -95,64 +95,96 @@
 \newif\ifsphinxverbatimwithminipage   \sphinxverbatimwithminipagefalse
 
 % Framing macro for use with framed.sty's \FrameCommand
+% MEMO: the sophisticated code in \spx@fcolorbox/\spx@CustomFBox
+%       is here for good reasons
+%       - be responsive to indented list environments in the manner of
+%         the "framed" (\fbox) and "shaded" (\colorbox) environments of
+%         framed.sty; indeed code here is an evolution related to \fcolorbox
+%       - attach non-detachable continuation hints above/below frame
+%       - draw the frame and fill the background color in a manner avoiding
+%         problems in some pdf viewers
+%       - (most recent change, very TeXnical; relates: #8686) work around
+%         some potential color issues when a very long code line is wrapped
+%         and then encounters a page break while in the middle of colored text
+%         (cf \spx@verb@@PreProcessLine).  Turns out this was related to hard
+%         coded behaviour of internal color.sty/xcolor.sty macros.
+\let\spx@original@set@color\set@color
+% About the produced output:
 %  - it obeys current indentation,
-%  - frame is \fboxsep separated from the contents,
+%  - frame of width \fboxrule is \fboxsep-separated from the contents,
 %  - the contents use the full available text width,
 %  - #1 = color of frame, #2 = color of background,
-%  - #3 = will be typeset above frame,
-%  - #4 = will be typeset below frame,
+%  - #3 = will be typeset above frame, in a non detachable way,
+%  - #4 = will be typeset below frame, in a non detachable way,
 %  - #5 = will be typeset within frame,
-% #3 and #4 must be already typeset boxes.
+% #3 and #4 are expected to be already typeset \hbox'es.
 % #5 are the contents, and in the context of usage of fancyvrb+framed by
-% Sphinx, it will arrive here already transformed into horizontal
-% boxes.  The \normalcolor is a preventive measure to some color issues
-% when a pagebreak occurs in the middle of a wrapped long code line.
+% Sphinx, it will arrive here already transformed into horizontal boxes,
+% as well as some interline penalties and glues.
 \long\def\spx@fcolorbox #1#2#3#4#5{%
   \hskip\@totalleftmargin
   \hskip-\fboxsep\hskip-\fboxrule
-  % MEMO: \color@b@x from xcolor.sty is identical with the one from color.sty
-  % MEMO: the thing with \set@color is to avoid a \color@b@x feature of
-  %       inserting twice the background color in the pdf color stack
-  \color@b@x {\spx@CustomFBox{#1}{#3}{#4}}%
-             {\def\set@color{\let\set@color\spx@original@set@color}\color{#2}}%
-             {{\normalcolor#5}}%
+  % MEMO: this code is modified from color.sty's \color@b@x which has some
+  % features making it problematic when #5, as will be here the case in the
+  % context of usage of fancyvrb+framed+\spx@verb@@PreProcessLine may contain
+  % an unbalanced "color push".  We must avoid an extra "color pop" located at
+  % a page break location.  For this reason we do not add a \set@color or
+  % \normalcolor at start of #5.
+  \setbox\z@\hbox{\kern\fboxsep{#5}\kern\fboxsep}%
+    \dimen@\ht\z@ \advance\dimen@\fboxsep \ht\z@\dimen@
+    \dimen@\dp\z@ \advance\dimen@\fboxsep \dp\z@\dimen@
+  % \spx@CustomFbox uses already scope-limiting group, no need for one more
+  \spx@CustomFBox{#1}% frame color
+                 {#3}% above frame, already a box
+                 {#4}% below frame, already a box
+                 {\def\set@color{\let\set@color\spx@original@set@color}%
+                  \color{#2}% above trick avoids a color pop *after* \box\z@
+                  % MEMO: it is very very improbable that \color/\color@block
+                  %       will ever change (even if we raised some ticket at
+                  %       their issue tracker), but if they do, perhaps a
+                  %       change here could be needed in some distant future.
+                  % MEMO: the \color@block "push + pop" happens *before* \box\z@
+                  \color@block{\wd\z@}{\ht\z@}{\dp\z@}%
+                  \box\z@}%
   \hskip-\fboxsep\hskip-\fboxrule
   \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth
 }%
 % #1 = color of frame
 % #2 = for material above frame, such as a caption or a "continued" hint
 % #3 = for material below frame, such as a caption or "continues on next page"
-% #4 = contents; or rather if called from \spx@fcolorbox (only use case here),
-%      the contents are in \box\z@ and #4 is
-%      \color{<bgcolor>}\color@block {\wd \z@ }{\ht \z@ }{\dp \z@ }\box \z@
+% #4 = contents; or rather if called from \spx@fcolorbox (only supported use
+%      case here), the contents are in \box\z@ and #4 are the instructions to
+%      "fill background color then draw contents \box\z@"
 \long\def\spx@CustomFBox#1#2#3#4{%
   \begingroup
-  \setbox\@tempboxa\hbox{{#4}}% inner braces to avoid background color leak
+  % formerly, we used \@tempboxa, but let's use private box for maximal safety
+  \setbox\spx@verb@tempboxa\hbox{#4}% no (more) need for extra grouping (now)
   \vbox{#2% above frame
             % draw frame border _latest_ to avoid pdf viewer issue
+            % be careful not to cause "color push + contents + color pop"
             \kern\fboxrule
             \hbox{\kern\fboxrule
-                  \copy\@tempboxa
+                  \copy\spx@verb@tempboxa% \copy to keep \wd, \dp, \ht for later
                   {\color{#1}% frame color
-                  \kern-\wd\@tempboxa\kern-\fboxrule
+                  \kern-\wd\spx@verb@tempboxa\kern-\fboxrule
                   \vrule\@width\fboxrule
-                  \kern\wd\@tempboxa
+                  \kern\wd\spx@verb@tempboxa
                   \vrule\@width\fboxrule}%
                  }%
             {\color{#1}% frame color
-            \kern-\dimexpr\ht\@tempboxa+\dp\@tempboxa+\fboxrule\relax
+            \kern-\dimexpr\ht\spx@verb@tempboxa+\dp\spx@verb@tempboxa+\fboxrule\relax
             \hrule\@height\fboxrule
-            \kern\dimexpr\ht\@tempboxa+\dp\@tempboxa\relax
+            \kern\dimexpr\ht\spx@verb@tempboxa+\dp\spx@verb@tempboxa\relax
             \hrule\@height\fboxrule}%
         #3% below frame
        }%
   \endgroup
 }%
 \def\spx@fcolorbox@put@c#1{% hide width from framed.sty measuring
-    \moveright\dimexpr\fboxrule+.5\wd\@tempboxa\hb@xt@\z@{\hss#1\hss}%
+    \moveright\dimexpr\fboxrule+.5\wd\spx@verb@tempboxa\hb@xt@\z@{\hss#1\hss}%
 }%
 \def\spx@fcolorbox@put@r#1{% right align with contents, width hidden
-    \moveright\dimexpr\fboxrule+\wd\@tempboxa-\fboxsep\hb@xt@\z@{\hss#1}%
+    \moveright\dimexpr\fboxrule+\wd\spx@verb@tempboxa-\fboxsep\hb@xt@\z@{\hss#1}%
 }%
 \def\spx@fcolorbox@put@l#1{% left align with contents, width hidden
     \moveright\dimexpr\fboxrule+\fboxsep\hb@xt@\z@{#1\hss}%
@@ -278,7 +310,6 @@
      \sphinxVerbatimFormatLine{#1}%
   \fi
 }%
-\let\spx@original@set@color\set@color
 \newcommand\sphinxVerbatimHighlightLine[1]{%
   \leavevmode
   % MEMO: usage of original \colorbox would insert a \set@color here
