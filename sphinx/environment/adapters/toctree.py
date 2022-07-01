@@ -197,12 +197,11 @@ class TocTree:
                     for subtocnode in list(toc.findall(addnodes.toctree)):
                         if not (subtocnode.get('hidden', False) and
                                 not includehidden):
-                            i = subtocnode.parent.index(subtocnode) + 1
-                            for entry in _entries_from_toctree(
+                            start = subtocnode.parent.index(subtocnode) + 1
+                            for i, entry in enumerate(_entries_from_toctree(
                                     subtocnode, [refdoc] + parents,
-                                    subtree=True):
+                                    subtree=True), start):
                                 subtocnode.parent.insert(i, entry)
-                                i += 1
                             subtocnode.parent.remove(subtocnode)
                     if separate:
                         entries.append(toc)

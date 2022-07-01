@@ -43,10 +43,7 @@ class ImageCollector(EnvironmentCollector):
             candidates: Dict[str, str] = {}
             node['candidates'] = candidates
             imguri = node['uri']
-            if imguri.startswith('data:'):
-                candidates['?'] = imguri
-                continue
-            elif imguri.find('://') != -1:
+            if imguri.startswith('data:') or imguri.find('://') != -1:
                 candidates['?'] = imguri
                 continue
 

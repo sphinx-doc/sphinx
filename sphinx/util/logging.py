@@ -349,10 +349,7 @@ class InfoFilter(logging.Filter):
     """Filter error and warning messages."""
 
     def filter(self, record: logging.LogRecord) -> bool:
-        if record.levelno < logging.WARNING:
-            return True
-        else:
-            return False
+        return record.levelno < logging.WARNING
 
 
 def is_suppressed_warning(type: str, subtype: str, suppress_warnings: List[str]) -> bool:

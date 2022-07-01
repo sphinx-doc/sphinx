@@ -8,6 +8,7 @@ import os
 import pdb
 import sys
 import traceback
+from contextlib import suppress
 from os import path
 from typing import IO, Any, List
 
@@ -256,10 +257,8 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
             key, val = val.split('=')
         except ValueError:
             parser.error(__('-A option argument must be in the form name=value'))
-        try:
+        with suppress(ValueError):
             val = int(val)
-        except ValueError:
-            pass
         confoverrides['html_context.%s' % key] = val
 
     if args.nitpicky:

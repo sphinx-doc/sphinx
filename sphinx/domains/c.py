@@ -2576,9 +2576,8 @@ class DefinitionParser(BaseParser):
         if self.match(_simple_type_specifiers_re):
             return self.matched_text
         for t in ('bool', 'complex', 'imaginary'):
-            if t in self.config.c_extra_keywords:
-                if self.skip_word(t):
-                    return t
+            if t in self.config.c_extra_keywords and self.skip_word(t):
+                return t
         return None
 
     def _parse_simple_type_specifiers(self) -> ASTTrailingTypeSpecFundamental:

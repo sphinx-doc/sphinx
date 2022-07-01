@@ -465,9 +465,7 @@ def default_latex_engine(config: Config) -> str:
     """ Better default latex_engine settings for specific languages. """
     if config.language == 'ja':
         return 'uplatex'
-    elif config.language.startswith('zh'):
-        return 'xelatex'
-    elif config.language == 'el':
+    elif config.language.startswith('zh') or config.language == 'el':
         return 'xelatex'
     else:
         return 'pdflatex'

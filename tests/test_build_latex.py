@@ -1591,7 +1591,7 @@ def test_latex_elements_extrapackages(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='nested-tables')
 def test_latex_nested_tables(app, status, warning):
     app.builder.build_all()
-    assert '' == warning.getvalue()
+    assert warning.getvalue() == ''
 
 
 @pytest.mark.sphinx('latex', testroot='latex-container')

@@ -183,11 +183,8 @@ IGNORED_NODES = (
 
 
 def is_pending_meta(node: Node) -> bool:
-    if (isinstance(node, nodes.pending) and
-       isinstance(node.details.get('nodes', [None])[0], addnodes.meta)):
-        return True
-    else:
-        return False
+    return (isinstance(node, nodes.pending) and
+            isinstance(node.details.get('nodes', [None])[0], addnodes.meta))
 
 
 def is_translatable(node: Node) -> bool:
@@ -317,10 +314,7 @@ def traverse_translatable_index(doctree: Element) -> Iterable[Tuple[Element, Lis
     """Traverse translatable index node from a document tree."""
     matcher = NodeMatcher(addnodes.index, inline=False)
     for node in doctree.findall(matcher):  # type: addnodes.index
-        if 'raw_entries' in node:
-            entries = node['raw_entries']
-        else:
-            entries = node['entries']
+        entries = node.get("raw_entries", node['entries'])
         yield node, entries
 
 

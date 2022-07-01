@@ -4,6 +4,7 @@ import collections
 import inspect
 import re
 import warnings
+from contextlib import suppress
 from functools import partial
 from typing import Any, Callable, Dict, List, Tuple, Type, Union
 
@@ -602,10 +603,8 @@ class GoogleDocstring:
             # Implicit stop using StopIteration no longer allowed in
             # Python 3.7; see PEP 479
             res: List[str] = []
-            try:
+            with suppress(StopIteration):
                 res = self._parse_attribute_docstring()
-            except StopIteration:
-                pass
             self._parsed_lines.extend(res)
             return
 

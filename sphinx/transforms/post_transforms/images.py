@@ -202,10 +202,7 @@ class ImageConverter(BaseImageConverter):
             return False
         else:
             rule = self.get_conversion_rule(node)
-            if rule:
-                return True
-            else:
-                return False
+            return bool(rule)
 
     def get_conversion_rule(self, node: nodes.image) -> Tuple[str, str]:
         for candidate in self.guess_mimetypes(node):
@@ -231,10 +228,7 @@ class ImageConverter(BaseImageConverter):
     def handle(self, node: nodes.image) -> None:
         _from, _to = self.get_conversion_rule(node)
 
-        if _from in node['candidates']:
-            srcpath = node['candidates'][_from]
-        else:
-            srcpath = node['candidates']['*']
+        srcpath = node['candidates'].get(_from, node['candidates']['*'])
 
         filename = get_filename_for(srcpath, _to)
         ensuredir(self.imagedir)
