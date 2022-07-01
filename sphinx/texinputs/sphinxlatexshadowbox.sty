@@ -21,7 +21,9 @@
 % to avoid problems with some pdf viewers.
 \long\def\spx@ShadowFBox#1{%
   \leavevmode\begingroup
-  % first we prepare a box with the contents in an invisible frame
+  % First we prepare a box with the contents and some reserved space for the
+  % frame and inner separation; with more parameters we could allow various
+  % border widths for top, bottom, left, right, but here all are equal.
   \setbox\@tempboxa
    \hbox{\kern\sphinxshadowrule
          \vbox{\kern\sphinxshadowrule
@@ -30,25 +32,41 @@
                \kern\sphinxshadowsep
                \kern\sphinxshadowrule}%
          \kern\sphinxshadowrule}%
-  % now we unbox the previous one, drawing contents first, then
-  % we frame it with a color
+  % Now we rebox, adding the colored frame for which space was reserved.
   \setbox\@tempboxa
-   \hbox{\unhcopy\@tempboxa
+   \hbox{\unhcopy\@tempboxa % not \unhbox to be able to refer to \ht, \wd later
          \kern-\wd\@tempboxa
-         {\color{sphinxshadowBorderColor}%
-         \vrule\@width\sphinxshadowrule
-         \vbox{\hrule\@height\sphinxshadowrule
-               \kern\dimexpr\ht\@tempboxa-\sphinxshadowrule\relax
-               \hbox{\kern\dimexpr\wd\@tempboxa-2\sphinxshadowrule\relax}%
-               \kern\dimexpr\dp\@tempboxa-\sphinxshadowrule\relax
-               \hrule\@height\sphinxshadowrule}%
-         \vrule\@width\sphinxshadowrule}%
-         }%
-  % Now we add the shadow, like \shadowbox from fancybox.sty would do
-  % Formerly, shadow was drawn partly on top of frame, but this was
-  % before both frame and shadow acquired colors.
+         {\color{sphinxshadowBorderColor}% color push here
+          \vrule\@width\sphinxshadowrule% TeX auto-computes the height
+          \vbox{\hrule\@height\sphinxshadowrule% TeX auto-computes the width
+                \kern\dimexpr\ht\@tempboxa-\sphinxshadowrule\relax
+                % This empty \hbox is here to give width used by \hrule
+                % As \dp\@tempboxa is zero, the \hbox location is at the
+                % bottom of frame.
+                \hbox{\kern\dimexpr\wd\@tempboxa-2\sphinxshadowrule\relax}%
+                \kern\dimexpr\dp\@tempboxa-\sphinxshadowrule\relax
+                \hrule\@height\sphinxshadowrule% TeX auto-computes the width
+                }%
+          \vrule\@width\sphinxshadowrule% TeX auto-computes the height
+         }% color pop will happen here
+        }%
+  % Now we add the shadow.
+  %
+  % Formerly, shadow was drawn partly on top of frame, but this was before
+  % both frame and shadow acquired colors.  The width of the part of the
+  % shadow on the right is hidden, so it will stick into the right page
+  % margin.
+  %
+  % The frame borders are included into this final \hbox, which is sent back
+  % to \MakeFramed/\endMakeFramed measurements and then finally to page
+  % shipout.  As \advance\hsize-\width appears in \MakeFramed, where \width is
+  % the computed extra width added by the framing plus inner separation (so
+  % actually 2\sphinxshadowrule+2\sphinxshadowsep), this all means that
+  % horizontally the frame will be perfectly adjusted to the *total* text
+  % width limits (i.e. independent of current list nesting; but anyhow
+  % Docutils does not allow nesting of topic within topics or body elements).
   \hbox{\vbox{\offinterlineskip
-              \hbox{\copy\@tempboxa
+              \hbox{\copy\@tempboxa % not \box as we need \wd and \ht next
                     % add shadow on right side
                     \lower\sphinxshadowsize
                           \hbox{{\color{sphinxshadowShadowColor}%
@@ -60,17 +78,32 @@
                     \vbox{{\color{sphinxshadowShadowColor}%
                            \hrule\@width\wd\@tempboxa \@height\sphinxshadowsize}}%
               }%
-        % move left by the size of right shadow so shadow adds no width
+        % move left by the size of right shadow so shadow adds no width, and
+        % will stick into right margin
+        % (we did not conceal of course from TeX the depth)
         \kern-\sphinxshadowsize
        }%
   \endgroup
 }
 
-% Again based on use of "framed.sty", this allows breakable framed boxes.
-% use framed.sty to allow page breaks in frame+shadow
-% works well inside Lists and Quote-like environments
-% produced by ``topic'' directive (or local contents)
-% could nest if LaTeX writer authorized it
+% Use framed.sty \MakeFramed/\endMakeFramed to allow page breaks for topic
+% boxes.  Originally Sphinx used \shadowbox from fancybox.sty but it did not
+% allow pagebreaks (which was problematic for "contents" directive if there
+% are many subsections).
+%
+% Docutils does not allow topic to be nested within topics or other body
+% elements.  But the LaTeX code here does allow it:
+%
+% - a topic inside another topic would be rendered in a minipage (thus not
+%   allowing pagebreaks).  Its external frame would adapt perfectly to
+%   the *current (smaller) width for text*.
+%
+% - a topic inside (nested) lists or quote environments would have its frame
+%   take the *full width* of the page, but its text contents on the other hand
+%   would obey exactly the current indentation plus inner separation.  This is
+%   in contrast with the framing used for literal blocks, also based, but in a
+%   more sophisticated way on usage of \MakeFramed/\endMakeFramed, and
+%   adjusting to current text indentation.
 \newenvironment{sphinxShadowBox}
   {\def\FrameCommand {\spx@ShadowFBox }%
    \advance\spx@image@maxheight
