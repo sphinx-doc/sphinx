@@ -1,5 +1,6 @@
 """Several HTML builders."""
 
+from contextlib import suppress
 import html
 import os
 import posixpath
@@ -592,12 +593,10 @@ class StandaloneHTMLBuilder(Builder):
                 # that gracefully
                 prev = None
         while related and related[0]:
-            try:
+            with suppress(KeyError):
                 parents.append(
                     {'link': self.get_relative_uri(docname, related[0]),
                      'title': self.render_partial(titles[related[0]])['title']})
-            except KeyError:
-                pass
             related = self.relations.get(related[0])
         if parents:
             # remove link to the master file; we have a generic
@@ -987,16 +986,15 @@ class StandaloneHTMLBuilder(Builder):
         html_sidebars = self.get_builder_config('sidebars', 'html')
         for pattern, patsidebars in html_sidebars.items():
             if patmatch(pagename, pattern):
-                if matched:
-                    if has_wildcard(pattern):
-                        # warn if both patterns contain wildcards
-                        if has_wildcard(matched):
-                            logger.warning(__('page %s matches two patterns in '
-                                              'html_sidebars: %r and %r'),
-                                           pagename, matched, pattern)
-                        # else the already matched pattern is more specific
-                        # than the present one, because it contains no wildcard
-                        continue
+                if matched and has_wildcard(pattern):
+                    # warn if both patterns contain wildcards
+                    if has_wildcard(matched):
+                        logger.warning(__('page %s matches two patterns in '
+                                          'html_sidebars: %r and %r'),
+                                       pagename, matched, pattern)
+                    # else the already matched pattern is more specific
+                    # than the present one, because it contains no wildcard
+                    continue
                 matched = pattern
                 sidebars = patsidebars
 
@@ -1076,10 +1074,8 @@ class StandaloneHTMLBuilder(Builder):
             # Note: priority sorting feature will not work in this case.
             pass
 
-        try:
+        with suppress(AttributeError):
             ctx['css_files'] = sorted(ctx['css_files'], key=lambda css: css.priority)
-        except AttributeError:
-            pass
 
         try:
             output = self.templates.render(templatename, ctx)

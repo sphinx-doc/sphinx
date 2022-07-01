@@ -6175,10 +6175,9 @@ class DefinitionParser(BaseParser):
                     if self.skip_word('extern'):
                         storage = 'extern'
                         continue
-                if outer == 'member':
-                    if self.skip_word('mutable'):
-                        storage = 'mutable'
-                        continue
+                if outer == 'member' and self.skip_word('mutable'):
+                    storage = 'mutable'
+                    continue
                 if self.skip_word('register'):
                     storage = 'register'
                     continue
@@ -7892,11 +7891,10 @@ class CPPDomain(Domain):
                 matchSelf=True, recurseInAnon=True,
                 searchInSiblings=searchInSiblings)
             if symbols is None:
-                if typ == 'identifier':
-                    if failReason == 'templateParamInQualified':
-                        # this is an xref we created as part of a signature,
-                        # so don't warn for names nested in template parameters
-                        raise NoUri(str(name), typ)
+                if typ == 'identifier' and failReason == 'templateParamInQualified':
+                    # this is an xref we created as part of a signature,
+                    # so don't warn for names nested in template parameters
+                    raise NoUri(str(name), typ)
                 s = None
             else:
                 # just refer to the arbitrarily first symbol

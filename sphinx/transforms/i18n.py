@@ -1,5 +1,6 @@
 """Docutils transforms used by Sphinx when reading documents."""
 
+from contextlib import suppress
 from os import path
 from re import DOTALL, match
 from textwrap import indent
@@ -66,10 +67,8 @@ def publish_msgstr(app: "Sphinx", source: str, source_path: str, source_line: in
             parser=parser,
             settings=settings,
         )
-        try:
+        with suppress(IndexError):  # empty node
             doc = doc[0]  # type: ignore
-        except IndexError:  # empty node
-            pass
         return doc
     finally:
         config.rst_prolog = rst_prolog  # type: ignore

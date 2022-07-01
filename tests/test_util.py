@@ -1,5 +1,6 @@
 """Tests util functions."""
 
+from contextlib import suppress
 import os
 import tempfile
 from unittest.mock import patch
@@ -37,9 +38,8 @@ def test_ensuredir():
         ensuredir(path)
         assert os.path.isdir(path)
 
-    with tempfile.NamedTemporaryFile() as tmp:
-        with pytest.raises(OSError):
-            ensuredir(tmp.name)
+    with tempfile.NamedTemporaryFile() as tmp, pytest.raises(OSError):
+        ensuredir(tmp.name)
 
 
 def test_display_chunk():
@@ -141,11 +141,8 @@ def test_progress_message(app, status, warning):
     assert 'testing... skipped\nReason: error\n' in output
 
     # error case
-    try:
-        with progress_message('testing'):
-            raise
-    except Exception:
-        pass
+    with suppress(Exception), progress_message('testing'):
+        raise
 
     output = strip_escseq(status.getvalue())
     assert 'testing... failed\n' in output

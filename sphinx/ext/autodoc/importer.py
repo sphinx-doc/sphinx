@@ -1,5 +1,6 @@
 """Importer utilities for autodoc"""
 
+from contextlib import suppress
 import importlib
 import traceback
 import warnings
@@ -30,7 +31,7 @@ def mangle(subject: Any, name: str) -> str:
 
 def unmangle(subject: Any, name: str) -> Optional[str]:
     """Unmangle the given name."""
-    try:
+    with suppress(AttributeError):
         if isclass(subject) and not name.endswith('__'):
             prefix = "_%s__" % subject.__name__
             if name.startswith(prefix):
@@ -41,8 +42,6 @@ def unmangle(subject: Any, name: str) -> Optional[str]:
                     if name.startswith(prefix):
                         # mangled attribute defined in parent class
                         return None
-    except AttributeError:
-        pass
 
     return name
 

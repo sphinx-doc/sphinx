@@ -347,9 +347,7 @@ def split_index_msg(type: str, value: str) -> List[str]:
         result = split_into(2, 'pair', value)
     elif type == 'triple':
         result = split_into(3, 'triple', value)
-    elif type == 'see':
-        result = split_into(2, 'see', value)
-    elif type == 'seealso':
+    elif type in ['see', 'seealso']:
         result = split_into(2, 'see', value)
     else:
         raise ValueError('invalid %s index entry %r' % (type, value))
@@ -431,10 +429,7 @@ def encode_uri(uri: str) -> str:
 
 def isurl(url: str) -> bool:
     """Check *url* is URL or not."""
-    if url and '://' in url:
-        return True
-    else:
-        return False
+    return bool(url) and '://' in url
 
 
 def display_chunk(chunk: Any) -> str:
@@ -471,10 +466,8 @@ def status_iterator(iterable: Iterable[T], summary: str, color: str = "darkgreen
     if length == 0:
         yield from old_status_iterator(iterable, summary, color, stringify_func)
         return
-    l = 0
     summary = bold(summary)
-    for item in iterable:
-        l += 1
+    for l, item in enumerate(iterable, 1):
         s = '%s[%3d%%] %s' % (summary, 100 * l / length, colorize(color, stringify_func(item)))
         if verbosity:
             s += '\n'

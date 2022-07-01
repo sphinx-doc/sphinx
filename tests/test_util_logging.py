@@ -348,19 +348,15 @@ def test_skip_warningiserror(app, status, warning):
         logger.warning('message')
 
     # if False, warning raises SphinxWarning exception
-    with pytest.raises(SphinxWarning):
-        with logging.skip_warningiserror(False):
-            logger.warning('message')
+    with pytest.raises(SphinxWarning), logging.skip_warningiserror(False):
+        logger.warning('message')
 
     # It also works during pending_warnings.
-    with logging.pending_warnings():
-        with logging.skip_warningiserror():
-            logger.warning('message')
+    with logging.pending_warnings(), logging.skip_warningiserror():
+        logger.warning('message')
 
-    with pytest.raises(SphinxWarning):
-        with logging.pending_warnings():
-            with logging.skip_warningiserror(False):
-                logger.warning('message')
+    with pytest.raises(SphinxWarning), logging.pending_warnings(), logging.skip_warningiserror(False):
+        logger.warning('message')
 
 
 def test_prefixed_warnings(app, status, warning):

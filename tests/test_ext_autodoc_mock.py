@@ -79,9 +79,8 @@ def test_mock():
 
 
 def test_mock_does_not_follow_upper_modules():
-    with mock(['sphinx.unknown.module']):
-        with pytest.raises(ImportError):
-            import_module('sphinx.unknown')
+    with mock(['sphinx.unknown.module']), pytest.raises(ImportError):
+        import_module('sphinx.unknown')
 
 
 @pytest.mark.skipif(sys.version_info < (3, 7), reason='Only for py37 or above')

@@ -2350,10 +2350,7 @@ class SlotsMixin(DataDocumenterMixinBase):
         """Check the subject is an attribute in __slots__."""
         try:
             __slots__ = inspect.getslots(self.parent)
-            if __slots__ and self.objpath[-1] in __slots__:
-                return True
-            else:
-                return False
+            return __slots__ and self.objpath[-1] in __slots__
         except (ValueError, TypeError):
             return False
 
@@ -2390,10 +2387,7 @@ class SlotsMixin(DataDocumenterMixinBase):
     def _datadescriptor(self) -> bool:
         warnings.warn('AttributeDocumenter._datadescriptor() is deprecated.',
                       RemovedInSphinx60Warning)
-        if self.object is SLOTSATTR:
-            return True
-        else:
-            return False
+        return self.object is SLOTSATTR
 
 
 class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
@@ -2559,10 +2553,7 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
             return False
         elif inspect.isattributedescriptor(member):
             return True
-        elif not inspect.isroutine(member) and not isinstance(member, type):
-            return True
-        else:
-            return False
+        return inspect.isroutine(member) and not isinstance(member, type)
 
     def document_members(self, all_members: bool = False) -> None:
         pass

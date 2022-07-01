@@ -1,4 +1,5 @@
 """Utilities parsing and analyzing Python code."""
+from contextlib import suppress
 import inspect
 import itertools
 import re
@@ -52,10 +53,8 @@ def get_lvar_names(node: ast.AST, self: ast.arg = None) -> List[str]:
     elif node_name in ('Tuple', 'List'):
         members = []
         for elt in node.elts:  # type: ignore
-            try:
+            with suppress(TypeError):
                 members.extend(get_lvar_names(elt, self))
-            except TypeError:
-                pass
         return members
     elif node_name == 'Attribute':
         if node.value.__class__.__name__ == 'Name' and self and node.value.id == self_id:  # type: ignore  # NOQA
@@ -276,11 +275,9 @@ class VariableCommentPicker(ast.NodeVisitor):
             final.append(self.typing_final)
 
         for decorator in decorators:
-            try:
+            with suppress(NotImplementedError):
                 if unparse(decorator) in final:
                     return True
-            except NotImplementedError:
-                pass
 
         return False
 
@@ -292,11 +289,9 @@ class VariableCommentPicker(ast.NodeVisitor):
             overload.append(self.typing_overload)
 
         for decorator in decorators:
-            try:
+            with suppress(NotImplementedError):
                 if unparse(decorator) in overload:
                     return True
-            except NotImplementedError:
-                pass
 
         return False
 

@@ -1,5 +1,6 @@
 """Templates utility functions for Sphinx."""
 
+from contextlib import suppress
 import os
 from functools import partial
 from os import path
@@ -119,8 +120,6 @@ class SphinxTemplateLoader(BaseLoader):
             loaders = self.loaders
 
         for loader in loaders:
-            try:
+            with suppress(TemplateNotFound):
                 return loader.get_source(environment, template)
-            except TemplateNotFound:
-                pass
         raise TemplateNotFound(template)
