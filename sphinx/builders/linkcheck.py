@@ -1,10 +1,10 @@
 """The CheckExternalLinksBuilder class."""
 
-from contextlib import suppress
 import json
 import re
 import socket
 import time
+from contextlib import suppress
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from html.parser import HTMLParser

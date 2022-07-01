@@ -1,10 +1,10 @@
 """Utilities parsing and analyzing Python code."""
-from contextlib import suppress
 import inspect
 import itertools
 import re
 import tokenize
 from collections import OrderedDict
+from contextlib import suppress
 from inspect import Signature
 from token import DEDENT, INDENT, NAME, NEWLINE, NUMBER, OP, STRING
 from tokenize import COMMENT, NL

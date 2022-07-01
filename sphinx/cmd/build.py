@@ -2,13 +2,13 @@
 
 import argparse
 import bdb
-from contextlib import suppress
 import locale
 import multiprocessing
 import os
 import pdb
 import sys
 import traceback
+from contextlib import suppress
 from os import path
 from typing import IO, Any, List
 

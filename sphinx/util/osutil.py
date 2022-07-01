@@ -1,12 +1,12 @@
 """Operating system-related utility functions for Sphinx."""
 
 import contextlib
-from contextlib import suppress
 import filecmp
 import os
 import re
 import shutil
 import sys
+from contextlib import suppress
 from io import StringIO
 from os import path
 from typing import Any, Generator, Iterator, List, Optional, Type

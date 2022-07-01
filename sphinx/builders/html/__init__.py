@@ -1,12 +1,12 @@
 """Several HTML builders."""
 
-from contextlib import suppress
 import html
 import os
 import posixpath
 import re
 import sys
 import warnings
+from contextlib import suppress
 from datetime import datetime
 from os import path
 from typing import IO, Any, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Type

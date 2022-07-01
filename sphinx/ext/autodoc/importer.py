@@ -1,9 +1,9 @@
 """Importer utilities for autodoc"""
 
-from contextlib import suppress
 import importlib
 import traceback
 import warnings
+from contextlib import suppress
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, NamedTuple, Optional
 
 from sphinx.ext.autodoc.mock import ismock, undecorate

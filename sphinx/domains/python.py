@@ -1,12 +1,12 @@
 """The Python domain."""
 
 import builtins
-from contextlib import suppress
 import inspect
 import re
 import sys
 import typing
 import warnings
+from contextlib import suppress
 from inspect import Parameter
 from typing import Any, Dict, Iterable, Iterator, List, NamedTuple, Optional, Tuple, Type, cast
 

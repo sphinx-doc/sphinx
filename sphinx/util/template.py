@@ -1,7 +1,7 @@
 """Templates utility functions for Sphinx."""
 
-from contextlib import suppress
 import os
+from contextlib import suppress
 from functools import partial
 from os import path
 from typing import Callable, Dict, List, Tuple, Union
