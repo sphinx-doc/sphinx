@@ -2350,7 +2350,7 @@ class SlotsMixin(DataDocumenterMixinBase):
         """Check the subject is an attribute in __slots__."""
         try:
             __slots__ = inspect.getslots(self.parent)
-            return __slots__ and self.objpath[-1] in __slots__
+            return bool(__slots__) and self.objpath[-1] in __slots__
         except (ValueError, TypeError):
             return False
 

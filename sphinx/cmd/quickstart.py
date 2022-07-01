@@ -170,7 +170,7 @@ class QuickstartRenderer(SphinxRenderer):
               It will be removed in the future without deprecation period.
         """
         template = path.join(self.templatedir, path.basename(template_name))
-        return self.templatedir and path.exists(template)
+        return bool(self.templatedir) and path.exists(template)
 
     def render(self, template_name: str, context: Dict) -> str:
         if self._has_custom_template(template_name):
