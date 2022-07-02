@@ -113,12 +113,12 @@ class ThemeFactory:
         if name in self.themes:
             theme = self.themes[name]
         else:
-            theme = self.find_user_theme(name)
+            theme = self.find_theme(name)
 
         theme.update(self.config)
         return theme
 
-    def find_user_theme(self, name: str) -> Theme:
+    def find_theme(self, name: str) -> Theme:
         """Find a theme named as *name* from latex_theme_path."""
         for theme_path in self.theme_paths:
             config_path = path.join(theme_path, name, 'theme.conf')
