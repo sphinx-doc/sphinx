@@ -1,5 +1,6 @@
 """The CheckExternalLinksBuilder class."""
 
+from copy import deepcopy
 import json
 import re
 import socket
@@ -276,7 +277,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
             for u in candidates:
                 if u in self.config.linkcheck_request_headers:
-                    headers = DEFAULT_REQUEST_HEADERS
+                    headers = deepcopy(DEFAULT_REQUEST_HEADERS)
                     headers.update(self.config.linkcheck_request_headers[u])
                     return headers
 

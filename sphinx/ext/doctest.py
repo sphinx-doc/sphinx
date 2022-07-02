@@ -362,7 +362,7 @@ Doctest summary
             filename = relpath(node.source, self.env.srcdir)\
                 .rsplit(':docstring of ', maxsplit=1)[0]
         except Exception:
-            filename = self.env.doc2path(docname, base=False)
+            filename = self.env.doc2path(docname, False)
         return filename
 
     @staticmethod
