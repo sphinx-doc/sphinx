@@ -3552,7 +3552,6 @@ class AliasTransform(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.findall(AliasNode):
-            node = cast(AliasNode, node)
             sig = node.sig
             parentKey = node.parentKey
             try:

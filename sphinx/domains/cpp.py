@@ -2,7 +2,7 @@
 
 import re
 from typing import (Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple, TypeVar,
-                    Union, cast)
+                    Union)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement, system_message
@@ -7519,7 +7519,6 @@ class AliasTransform(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.findall(AliasNode):
-            node = cast(AliasNode, node)
             sig = node.sig
             parentKey = node.parentKey
             try:
