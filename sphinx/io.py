@@ -214,7 +214,7 @@ def create_publisher(app: "Sphinx", filetype: str) -> Publisher:
     defaults = {"traceback": True, **app.env.settings}
     # Set default settings
     if docutils.__version_info__[:2] >= (0, 19):
-        pub.get_settings(**defaults)
+        pub.get_settings(**defaults)  # type: ignore[arg-type]
     else:
         pub.settings = pub.setup_option_parser(**defaults).get_default_values()  # type: ignore
     return pub

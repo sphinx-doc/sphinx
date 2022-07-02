@@ -230,7 +230,7 @@ class StandaloneHTMLBuilder(Builder):
             destination=StringOutput(encoding='unicode'),
         )
         if docutils.__version_info__[:2] >= (0, 19):
-            pub.get_settings(output_encoding='unicode', traceback=True)
+            pub.get_settings(output_encoding='unicode', traceback=True)  # type: ignore
         else:
             op = pub.setup_option_parser(output_encoding='unicode', traceback=True)
             pub.settings = op.get_default_values()
