@@ -3095,8 +3095,7 @@ class ASTType(ASTBase):
                 elif objectType == 'type':  # just the name
                     res.append(symbol.get_full_nested_name().get_id(version))
                 else:
-                    print(objectType)
-                    raise AssertionError()
+                    raise AssertionError(objectType)
             else:  # only type encoding
                 if self.decl.is_function_type():
                     raise NoOldIdError()
@@ -3125,8 +3124,7 @@ class ASTType(ASTBase):
             elif objectType == 'type':  # just the name
                 res.append(symbol.get_full_nested_name().get_id(version))
             else:
-                print(objectType)
-                raise AssertionError()
+                raise AssertionError(objectType)
         else:  # only type encoding
             # the 'returnType' of a non-function type is simply just the last
             # type, i.e., for 'int*' it is 'int'
