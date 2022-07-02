@@ -3,6 +3,7 @@ import codecs
 import warnings
 from typing import TYPE_CHECKING, Any, List, Type
 
+import docutils
 from docutils import nodes
 from docutils.core import Publisher
 from docutils.frontend import Values
@@ -212,5 +213,8 @@ def create_publisher(app: "Sphinx", filetype: str) -> Publisher:
     # Propagate exceptions by default when used programmatically:
     defaults = {"traceback": True, **app.env.settings}
     # Set default settings
-    pub.settings = pub.setup_option_parser(**defaults).get_default_values()  # type: ignore
+    if docutils.__version_info__[:2] >= (0, 19):
+        pub.get_settings(**defaults)  # type: ignore[arg-type]
+    else:
+        pub.settings = pub.setup_option_parser(**defaults).get_default_values()  # type: ignore
     return pub
