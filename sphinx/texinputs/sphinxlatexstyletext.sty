@@ -1,7 +1,7 @@
 %% TEXT STYLING
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexstyletext.sty}[2021/12/06 text styling]
+\ProvidesFile{sphinxlatexstyletext.sty}[2022/07/02 text styling]
 
 % Basically everything here consists of macros which are part of the latex
 % markup produced by the Sphinx latex writer
@@ -68,6 +68,7 @@
     \let\sphinxcrossref \@firstofone
     \let\sphinxtermref  \@firstofone
     \let\sphinxhyphen\sphinxhyphenforbookmarks
+    \def\PYG#1#2{#2}% (can not yet appear in section titles, but perhaps in future)
 }}
 
 % Special characters
