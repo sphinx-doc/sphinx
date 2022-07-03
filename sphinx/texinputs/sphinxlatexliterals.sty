@@ -1,7 +1,7 @@
 %% LITERAL BLOCKS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexliterals.sty}[2022/06/30 code-blocks and parsed literals]
+\ProvidesFile{sphinxlatexliterals.sty}[2022/07/03 code-blocks and parsed literals]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -742,11 +742,13 @@
      % never reset, and it issues \@minipagefalse repeatedly (from \@setminipage).
      % As fancyvrb Verbatim will do \@minipagefalse itself, let's simplify things.
      \everypar{}%
+     \color@begingroup % protect against color leaks (upstream framed.sty bug)
      % will fetch its optional arguments if any
      \OriginalVerbatim
 }
 {%
   \endOriginalVerbatim
+  \color@endgroup % matches the \color@begingroup
   \ifspx@inframed
    \egroup % finish \sphinxVerbatim@ContentsBox vbox
    \nobreak % update page totals

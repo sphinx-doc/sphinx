@@ -47,6 +47,8 @@ Features added
   making whitespace issues easier to identify.
 * #10571: quickstart: Reduce content in the generated ``conf.py`` file. Patch by
   Pradyun Gedam.
+* #10619: LaTeX: new ``shadowShadowColor`` and ``shadowBorderColor`` configurations
+  for :ref:`'sphinxsetup' <latexsphinxsetup>` key of :confval:`latex_elements`
 
 Bugs fixed
 ----------
@@ -59,6 +61,9 @@ Bugs fixed
 * #10566: HTML Theme: Fix enable_search_shortcuts does not work
 * #8686: LaTeX: Text can fall out of code-block at end of page and leave artifact
   on next page
+* #10633: LaTeX: user injected ``\color`` commands in topic or admonition boxes may
+  cause color leaks in PDF due to upstream `framed.sty <https://ctan.org/pkg/framed>`_
+  bug
 * #10579: i18n: UnboundLocalError is raised on translating raw directive
 * #9577, #10088: py domain: Fix warning for duplicate Python references when
   using ``:any:`` and autodoc.
@@ -87,8 +92,8 @@ Bugs fixed
 * #10594: HTML Theme: field term colons are doubled if using Docutils 0.18+
 * #10596: Build failure if Docutils version is 0.18 (not 0.18.1) due
   to missing ``Node.findall()``
-* #10506: LaTeX: build error when using ``:cpp:stuff`` syntax highlighting in
-  figure caption
+* #10506: LaTeX: build error if highlighting inline code role in figure caption
+  (refs: #10251)
 
 Testing
 --------

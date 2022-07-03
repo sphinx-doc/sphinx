@@ -76,7 +76,7 @@ class VersionChange(SphinxDirective):
                 content += node[0].children
                 node[0].replace_self(nodes.paragraph('', '', content, translatable=False))
 
-            para = cast(nodes.paragraph, node[0])
+            para = node[0]
             para.insert(0, nodes.inline('', '%s: ' % text, classes=classes))
         elif len(node) > 0:
             # the contents do not starts with a paragraph

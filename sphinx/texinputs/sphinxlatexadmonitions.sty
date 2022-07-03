@@ -1,7 +1,7 @@
 %% NOTICES AND ADMONITIONS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexadmonitions.sty}[2021/01/27 admonitions]
+\ProvidesFile{sphinxlatexadmonitions.sty}[2022/07/03 admonitions]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -103,9 +103,11 @@
      \let\@listdepth\@mplistdepth \@mplistdepth\z@
      \@minipagerestore
      \@setminipage }%
+   \color@begingroup % workaround to an upstream framed.sty bug
    }
    {%
    \par\unskip
+   \color@endgroup   % matches the \color@begingroup
    \@minipagefalse
    \endMakeFramed
    \ifspx@inframed\end{minipage}\fi

@@ -5,8 +5,13 @@ on:
     tags:
     - "v*.*.*"
 
+permissions:
+  contents: read
+
 jobs:
   create-release:
+    permissions:
+      contents: write  # for softprops/action-gh-release to create GitHub release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
