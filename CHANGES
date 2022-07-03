@@ -24,6 +24,8 @@ Features added
   making whitespace issues easier to identify.
 * #10571: quickstart: Reduce content in the generated ``conf.py`` file. Patch by
   Pradyun Gedam.
+* #10619: LaTeX: new ``shadowShadowColor`` and ``shadowBorderColor`` configurations
+  for :ref:`'sphinxsetup' <latexsphinxsetup>` key of :confval:`latex_elements`
 
 Bugs fixed
 ----------
