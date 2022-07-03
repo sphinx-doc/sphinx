@@ -1,7 +1,7 @@
 %% TOPIC AND CONTENTS BOXES
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexshadowbox.sty}[2022/06/30 sphinxShadowBox]
+\ProvidesFile{sphinxlatexshadowbox.sty}[2022/07/03 sphinxShadowBox]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -138,9 +138,11 @@
     \@minipagerestore
     \@setminipage
     }%
+    \color@begingroup % workaround upstream framed.sty bug
   }%
   {% insert the "endminipage" code
     \par\unskip
+    \color@endgroup   % matches the \color@begingroup
     \@minipagefalse
    \endMakeFramed
      \ifspx@inframed\end{minipage}\fi
