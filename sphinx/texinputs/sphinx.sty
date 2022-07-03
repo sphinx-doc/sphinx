@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2021/01/27 v4.0.0 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2022/06/30 v5.1.0 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -154,6 +154,9 @@
 }%
 % Default color chosen to be as in minted.sty LaTeX package!
 \sphinxDeclareSphinxColorOption{VerbatimHighlightColor}{{rgb}{0.878,1,1}}
+% topic and contents boxes
+\sphinxDeclareSphinxColorOption{shadowBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{shadowShadowColor}{{rgb}{0,0,0}}
 % admonition boxes, "light" style
 \sphinxDeclareSphinxColorOption{noteBorderColor}{{rgb}{0,0,0}}
 \sphinxDeclareSphinxColorOption{hintBorderColor}{{rgb}{0,0,0}}
