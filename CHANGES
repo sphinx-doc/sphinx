@@ -24,6 +24,9 @@ Features added
   making whitespace issues easier to identify.
 * #10571: quickstart: Reduce content in the generated ``conf.py`` file. Patch by
   Pradyun Gedam.
+* #10599: HTML Theme: Wrap consecutive footnotes in an ``<aside>`` element when
+  using Docutils 0.18 or later, to allow for easier styling. This matches the
+  behaviour introduced in Docutils 0.19. Patch by Adam Turner.
 
 Bugs fixed
 ----------
