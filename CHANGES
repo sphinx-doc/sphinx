@@ -26,6 +26,9 @@ Features added
   Pradyun Gedam.
 * #10619: LaTeX: new ``shadowShadowColor`` and ``shadowBorderColor`` configurations
   for :ref:`'sphinxsetup' <latexsphinxsetup>` key of :confval:`latex_elements`
+* #10599: HTML Theme: Wrap consecutive footnotes in an ``<aside>`` element when
+  using Docutils 0.18 or later, to allow for easier styling. This matches the
+  behaviour introduced in Docutils 0.19. Patch by Adam Turner.
 
 Bugs fixed
 ----------

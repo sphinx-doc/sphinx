@@ -629,7 +629,7 @@ ul.simple p {
     margin-bottom: 0;
 }
 
-/* Docutils 0.17 and older (footnotes & citations) */
+{%- if docutils_version_info[:2] < (0, 18) %}
 dl.footnote > dt,
 dl.citation > dt {
     float: left;
@@ -646,8 +646,7 @@ dl.citation > dd:after {
     content: "";
     clear: both;
 }
-
-/* Docutils 0.18+ (footnotes & citations) */
+{%- elif docutils_version_info[:2] >= (0, 18) %}
 aside.footnote > span,
 div.citation > span {
     float: left;
@@ -671,8 +670,7 @@ div.citation > p:last-of-type:after {
     content: "";
     clear: both;
 }
-
-/* Footnotes & citations ends */
+{%- endif %}
 
 dl.field-list {
     display: grid;
