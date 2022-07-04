@@ -30,6 +30,7 @@ Features added
 Bugs fixed
 ----------
 
+* #10634: Make -P (pdb) option work better with exceptions triggered from events
 * #10031: py domain: Fix spurious whitespace in unparsing various operators (``+``,
   ``-``, ``~``, and ``**``). Patch by Adam Turner.
 * #10460: logging: Always show node source locations as absolute paths.
