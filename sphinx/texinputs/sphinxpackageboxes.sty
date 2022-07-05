@@ -43,13 +43,13 @@
 % First we define some wrapper to be able to use arguments being (only)
 % dimensions or dimensional expressions.  The \unitlength will always be 1pt.
 \def\spx@moveto(#1,#2)%
-   {\expanded{\noexpand\moveto(\strip@pt\dimexpr#1,\strip@pt\dimexpr#2)}}
+   {\moveto(\strip@pt\dimexpr#1,\strip@pt\dimexpr#2)}
 \def\spx@lineto(#1,#2)%
-   {\expanded{\noexpand\lineto(\strip@pt\dimexpr#1,\strip@pt\dimexpr#2)}}
+   {\lineto(\strip@pt\dimexpr#1,\strip@pt\dimexpr#2)}
 % attention we use here [2] always; and there are two more mandatory
 % arguments, angles, we don't need to worry about them here.
-\def\spx@circlearc#1#2#3{\expanded{\noexpand\circlearc[2]%
-    {\strip@pt\dimexpr#1}{\strip@pt\dimexpr#2}{\strip@pt\dimexpr#3}}%
+\def\spx@circlearc#1#2#3{\circlearc[2]%
+    {\strip@pt\dimexpr#1}{\strip@pt\dimexpr#2}{\strip@pt\dimexpr#3}%
 }
 
 % TODO: add top right bottom left padding possibilities.
@@ -89,12 +89,11 @@
 % width, i.e. the line extends by half its width to the exterior of the filled
 % path.  This explains some 0.5 things below.
         \hbox{\setlength{\unitlength}{1pt}% attention to space token here
-% work around for "old" LaTeX (2019 or earlier more or less, or we could use
-% the "picture" package)
-\expanded{\noexpand\begin{picture}%
+% work around for "old" LaTeX (we could use the "picture" package, this
+% would add another dependency)
+              \begin{picture}%
       (\strip@pt\wd\tw@,\strip@pt\dimexpr\ht\tw@+\dp\tw@)%
       (\strip@pt\dimexpr-.5\sphinxverbatimborder,\strip@pt\dimexpr-.5\sphinxverbatimborder)%
-}%
               \color{VerbatimColor}% color for background
               \spx@dopath\fillpath
               \color{VerbatimBorderColor}% color for border
