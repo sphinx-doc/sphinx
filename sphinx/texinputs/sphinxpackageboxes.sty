@@ -89,8 +89,12 @@
 % width, i.e. the line extends by half its width to the exterior of the filled
 % path.  This explains some 0.5 things below.
         \hbox{\setlength{\unitlength}{1pt}% attention to space token here
-              \begin{picture}(\wd\tw@,\ht\tw@+\dp\tw@)%
-                             (-.5\sphinxverbatimborder,-.5\sphinxverbatimborder)%
+% work around for "old" LaTeX (2019 or earlier more or less, or we could use
+% the "picture" package)
+\expanded{\noexpand\begin{picture}%
+      (\strip@pt\wd\tw@,\strip@pt\dimexpr\ht\tw@+\dp\tw@)%
+      (\strip@pt\dimexpr-.5\sphinxverbatimborder,\strip@pt\dimexpr-.5\sphinxverbatimborder)%
+}%
               \color{VerbatimColor}% color for background
               \spx@dopath\fillpath
               \color{VerbatimBorderColor}% color for border
