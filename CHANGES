@@ -44,6 +44,8 @@ Bugs fixed
 * #10633: LaTeX: user injected ``\color`` commands in topic or admonition boxes may
   cause color leaks in PDF due to upstream `framed.sty <https://ctan.org/pkg/framed>`_
   bug
+* #10638: LaTeX: framed coloured boxes in highlighted code (e.g. highlighted
+  diffs using Pygments style ``'manni'``) inherit thickness of code-block frame
 * #10579: i18n: UnboundLocalError is raised on translating raw directive
 * #9577, #10088: py domain: Fix warning for duplicate Python references when
   using ``:any:`` and autodoc.
