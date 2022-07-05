@@ -103,12 +103,10 @@
 %       - attach non-detachable continuation hints above/below frame
 %       - draw the frame and fill the background color in a manner avoiding
 %         problems in some pdf viewers
-%       - (most recent change, very TeXnical; relates: #8686) work around
-%         some potential color issues when a very long code line is wrapped
-%         and then encounters a page break while in the middle of colored text
-%         (cf \spx@verb@@PreProcessLine).  Turns out this was related to hard
-%         coded behaviour of internal color.sty/xcolor.sty macros.
-\let\spx@original@set@color\set@color
+%       - do background coloring differently from color.sty/xcolor.sty macros
+%         (even core internal ones) to work around issues at page breaks
+%         as the framed contents are split into chunks with possibly unpaired
+%         "color push" or "color pop"
 % About the produced output:
 %  - it obeys current indentation,
 %  - frame of width \sphinxverbatimborder is \sphinxverbatimsep -arated
@@ -313,7 +311,11 @@
      \sphinxVerbatimFormatLine{#1}%
   \fi
 }%
+\let\spx@original@set@color\set@color
 \newcommand\sphinxVerbatimHighlightLine[1]{%
+% This is morally a \colorbox (with a \fboxsep which would be 0pt)
+% but some issues of potential colour disappearance at pagebreaks
+% require workaround such as the one done here.
   \leavevmode
   % MEMO: usage of original \colorbox would insert a \set@color here
   %       and this then places a "color pop" at the end of the \box\z@.
