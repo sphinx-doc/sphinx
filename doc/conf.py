@@ -2,6 +2,7 @@
 
 import os
 import re
+import time
 
 import sphinx
 
@@ -10,23 +11,23 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
               'sphinx.ext.intersphinx',
               'sphinx.ext.viewcode', 'sphinx.ext.inheritance_diagram']
 
-root_doc = 'contents'
-templates_path = ['_templates']
 exclude_patterns = ['_build']
 
 project = 'Sphinx'
-copyright = '2007-2022, Georg Brandl and the Sphinx team'
+copyright = f'2007-{time.strftime("%Y")}, the Sphinx developers'
 version = sphinx.__display_version__
 release = version
 show_authors = True
 
 html_theme = 'sphinx13'
 html_theme_path = ['_themes']
+html_css_files = [
+    # 'basic.css',  # included through inheritance from the basic theme
+    'sphinx13.css',
+]
 modindex_common_prefix = ['sphinx.']
 html_static_path = ['_static']
-html_sidebars = {'index': ['indexsidebar.html', 'searchbox.html']}
 html_title = 'Sphinx documentation'
-html_additional_pages = {'index': 'index.html'}
 html_use_opensearch = 'https://www.sphinx-doc.org/en/master'
 html_baseurl = 'https://www.sphinx-doc.org/en/master/'
 html_favicon = '_static/favicon.svg'
