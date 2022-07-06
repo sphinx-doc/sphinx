@@ -21,7 +21,7 @@ jobs:
         - python: "3.10"
           docutils: du18
         - python: "3.10"
-          docutils: du19pre
+          docutils: du19
         - python: "3.11-dev"
           docutils: py311
 
