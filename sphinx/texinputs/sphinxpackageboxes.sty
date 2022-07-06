@@ -1,0 +1,116 @@
+%% COLORED BOXES
+%
+% change this info string if making any custom modification
+\ProvidesPackage{sphinxpackageboxes}[2022/07/04 v5.1.0 advanced colored boxes]
+
+% Currently, this file only provides a replacement to the \spx@verb@fcolorbox
+% of sphinxlatexliterals.sty which will draw boxes with a frame having
+% rounded corners, and a background color.
+%
+% It needs \sphinxverbatimsep, \sphinxverbatimborder and a new parameter
+% \sphinxverbatimradius
+%
+% Executes \RequirePackage for:
+%
+% - pict2e.  Ideally we would need a recent version of this package which
+%   allows dimensional arguments to its \moveto, \lineto, etc...
+%   but we add ourselves some wrapper to facilitate the usage.
+
+
+% MEMO: we have also successfully tested usage of tcolorbox's \tcbox but
+% decided to use pict2e.sty for the following reasons:
+% 1- an order of magnitude faster for what we want to do,
+% 2- orders of magnitude smaller dependency (tcolorbox uses the pgf TeX
+%    framework)
+% 3- possibility to accomplish already quite fancy boxes with pict2e
+%    (and the additional coding as contributed here).
+
+% In this first installment, the caption and continuation hints of code-blocks
+% are done exactly as formerly; only difference is in the rounded corrners.
+% The space occupied is same, if nothing else is changed.
+
+\IfFileExists{pict2e.sty}
+   {\RequirePackage{pict2e}}
+   {\PackageWarningNoLine{sphinx}{%
+       The package pict2e is required for rounded boxes.\MessageBreak
+       It does not seem to be available on your system.\MessageBreak
+       The verbatimradius setting will thus be ignored}%
+    \AtEndDocument{\PackageWarningNoLine{sphinx}{%
+       I issued a warning which may have gotten lost in the\MessageBreak
+       gigantic console output: pict2e.sty was not found,\MessageBreak
+       and verbatimradius has been ignored}}\endinput}
+
+% First we define some wrapper to be able to use arguments being (only)
+% dimensions or dimensional expressions.  The \unitlength will always be 1pt.
+\def\spx@moveto(#1,#2)%
+   {\moveto(\strip@pt\dimexpr#1,\strip@pt\dimexpr#2)}
+\def\spx@lineto(#1,#2)%
+   {\lineto(\strip@pt\dimexpr#1,\strip@pt\dimexpr#2)}
+% attention we use here [2] always; and there are two more mandatory
+% arguments, angles, we don't need to worry about them here.
+\def\spx@circlearc#1#2#3{\circlearc[2]%
+    {\strip@pt\dimexpr#1}{\strip@pt\dimexpr#2}{\strip@pt\dimexpr#3}%
+}
+
+% TODO: add top right bottom left padding possibilities.
+\long\def\spx@verb@fcolorbox #1#2#3{%
+  % Prepare a box with the contents and reserved space for framing.
+  \setbox\tw@\hbox{\kern\dimexpr\sphinxverbatimborder+\sphinxverbatimsep\relax
+                  {#3}\kern\dimexpr\sphinxverbatimborder+\sphinxverbatimsep\relax}%
+    \ht\tw@ \dimexpr\ht\tw@+\sphinxverbatimsep+\sphinxverbatimborder\relax
+    \dp\tw@ \dimexpr\dp\tw@+\sphinxverbatimsep+\sphinxverbatimborder\relax
+  \vbox{%
+% Prepare a macro for path to be inserted in a picture environment for stroke
+% and fill; the path will be redefined for each of fill or stroke.  This macro
+% does nothing yet.
+\def\spx@dopath{%
+  \spx@moveto(\sphinxverbatimradius,\z@)% \z@ not 0 as our \spx@moveto is quite dumb
+  \spx@lineto(\wd\tw@-\sphinxverbatimborder-\sphinxverbatimradius,\z@)%
+  \spx@circlearc{\wd\tw@-\sphinxverbatimborder-\sphinxverbatimradius}%
+                {\sphinxverbatimradius}%
+                {\sphinxverbatimradius}{-90}{0}%
+  \spx@lineto(\wd\tw@-\sphinxverbatimborder,\ht\tw@+\dp\tw@-\sphinxverbatimborder-\sphinxverbatimradius)%
+  \spx@circlearc{\wd\tw@-\sphinxverbatimborder-\sphinxverbatimradius}
+                {\ht\tw@+\dp\tw@-\sphinxverbatimborder-\sphinxverbatimradius}%
+                {\sphinxverbatimradius}{0}{90}%
+  \spx@lineto(\sphinxverbatimradius,\ht\tw@+\dp\tw@-\sphinxverbatimborder)%
+  \spx@circlearc{\sphinxverbatimradius}%
+                {\ht\tw@+\dp\tw@-\sphinxverbatimborder-\sphinxverbatimradius}%
+                {\sphinxverbatimradius}{90}{180}%
+  \spx@lineto(\z@,\sphinxverbatimradius)%
+  \spx@circlearc{\sphinxverbatimradius}{\sphinxverbatimradius}{\sphinxverbatimradius}{180}{270}%
+}% end of definition of \spx@dopath
+%
+        #1% continuation hint attached above frame
+        % there will be a small "\lineskip" space here from TeX
+        % draw frame border _latest_ to avoid pdf viewer issue
+        % be careful not to cause "color push + contents + color pop"
+% MEMO: when pict2e doth a path stroke, the path is in the middle of the line
+% width, i.e. the line extends by half its width to the exterior of the filled
+% path.  This explains some 0.5 things below.
+        \hbox{\setlength{\unitlength}{1pt}% attention to space token here
+% work around for "old" LaTeX (we could use the "picture" package, this
+% would add another dependency)
+              \begin{picture}%
+      (\strip@pt\wd\tw@,\strip@pt\dimexpr\ht\tw@+\dp\tw@)%
+      (\strip@pt\dimexpr-.5\sphinxverbatimborder,\strip@pt\dimexpr-.5\sphinxverbatimborder)%
+              \color{VerbatimColor}% color for background
+              \spx@dopath\fillpath
+              \color{VerbatimBorderColor}% color for border
+\ifspx@opt@verbatimwithframe % even with \sphinxverbatimborder set to 0pt, the
+                             % stroke will produce a visible contour, so we
+                             % must explicitly exclude doing it.
+              \linethickness{\sphinxverbatimborder}%
+              \spx@dopath\strokepath
+\fi
+              \end{picture}}%
+        % now the contents
+        \kern-\dimexpr\ht\tw@+\dp\tw@\relax
+        \copy\tw@ % attention that #2 will need \wd\tw@
+        \nointerlineskip
+        % TODO: add some \lineskip glue here, this is all in a \vbox so can't split
+        #2% continuation hint attached below frame
+       }% end of \vbox
+}%
+
+\endinput

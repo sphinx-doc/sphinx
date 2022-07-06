@@ -74,6 +74,7 @@
 % dimensions, we declare the \dimen registers here.
 \newdimen\sphinxverbatimsep
 \newdimen\sphinxverbatimborder
+\newdimen\sphinxverbatimradius
 \newdimen\sphinxshadowsep
 \newdimen\sphinxshadowsize
 \newdimen\sphinxshadowrule
@@ -87,6 +88,12 @@
   \define@key{sphinx}{verbatimsep}{\sphinxverbatimsep\dimexpr #1\relax}
 \sphinxverbatimborder=\fboxrule
   \define@key{sphinx}{verbatimborder}{\sphinxverbatimborder\dimexpr #1\relax}
+\sphinxverbatimradius=0pt
+  \define@key{sphinx}{verbatimradius}{%
+     \sphinxverbatimradius\dimexpr #1\relax
+     \ifdim\sphinxverbatimradius=\z@\else\RequirePackage{sphinxpackageboxes}\fi
+     }
+\AtBeginDocument{\define@key{sphinx}{verbatimradius}{\sphinxverbatimradius\dimexpr #1\relax}}
 % topic boxes
 \sphinxshadowsep =5pt
   \define@key{sphinx}{shadowsep}{\sphinxshadowsep\dimexpr #1\relax}
@@ -274,6 +281,9 @@
 \input{sphinxlatexadmonitions.sty}
 \input{sphinxlatexliterals.sty}
 \input{sphinxlatexshadowbox.sty}
+\ifdim\sphinxverbatimradius=\z@\else
+  \RequirePackage{sphinxpackageboxes}
+\fi
 
 
 %% CONTAINERS

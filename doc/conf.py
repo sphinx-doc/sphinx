@@ -74,6 +74,11 @@ latex_elements = {
              {\footnotesize\raggedright\printindex}
              {\begin{sphinxtheindex}\end{sphinxtheindex}}
 ''',
+    'sphinxsetup': """%
+VerbatimColor={RGB}{242,242,242},%
+VerbatimBorderColor={RGB}{32,32,32},%
+verbatimradius=3pt%
+""",
 }
 latex_show_urls = 'footnote'
 latex_use_xindy = True

@@ -8,8 +8,11 @@ LaTeX customization
 
    \begingroup
    \sphinxsetup{%
-         verbatimwithframe=false,
+         verbatimborder=2pt,
+         verbatimsep=5pt,
+         verbatimradius=5pt,
          VerbatimColor={named}{OldLace},
+         VerbatimBorderColor={named}{Gold},
          TitleColor={named}{DarkGoldenrod},
          hintBorderColor={named}{LightCoral},
          attentionborder=3pt,
@@ -580,8 +583,17 @@ start of the chapter::
 
      \begingroup
      \sphinxsetup{%
-           verbatimwithframe=false,
+           % These were used as defaults for the whole sphinx.pdf
+           % VerbatimColor={RGB}{242,242,242},%
+           % VerbatimBorderColor={RGB}{32,32,32},%
+           % verbatimradius=3pt,%
+           % New definitions for this chapter code-blocks only:
            VerbatimColor={named}{OldLace},
+           VerbatimBorderColor={named}{Gold},
+           verbatimradius=5pt,
+           verbatimsep=5pt,
+           verbatimborder=2pt,
+           % Other configuration for this chapter only:
            TitleColor={named}{DarkGoldenrod},
            hintBorderColor={named}{LightCoral},
            attentionborder=3pt,
@@ -593,7 +605,8 @@ start of the chapter::
            cautionBorderColor={named}{Cyan},
            cautionBgColor={named}{LightCyan}}
 
-The below is included at the end of the chapter::
+And this is placed at the end of the chapter source to end the scope of
+the configuration::
 
   .. raw:: latex
 
@@ -838,6 +851,32 @@ Do not use quotes to enclose values, whether numerical or strings.
     The width of the frame around :rst:dir:`code-block`\ s.
 
     Default: ``\fboxrule``
+
+``verbatimradius``
+    The radius of the rounded corners of the frame around :rst:dir:`code-block`\ s.
+
+    Default: ``0pt``
+
+    .. versionadded:: 5.1.0
+
+       If non-zero, it will trigger the loading of LaTeX package pict2e_.
+
+       .. caution::
+
+          The interface will remain experimental during the 5.x cycle: the
+          feature itself will remain, but the interface may evolve to include
+          other display elements such as admonitions.  For the latter it is
+          actually already possible for LaTeX-expert Sphinx users to use
+          functionalities of LaTeX packages such as tcolorbox_, via
+          redefinitions of the ``sphinxheavybox`` and ``sphinxlightbox``
+          `Environments`_.  This would be more difficult for code-blocks, and
+          this key achieves it.  The pict2e_ interface to some basic PDF
+          graphics operations is much more light-weight than the pgf_
+          framework used by tcolorbox_.
+
+    .. _pict2e: https://ctan.org/pkg/pict2e
+    .. _tcolorbox: https://ctan.org/pkg/tcolorbox
+    .. _pgf: https://ctan.org/pkg/pgf
 
 ``shadowsep``
     The separation between contents and frame for :dudir:`contents` and
