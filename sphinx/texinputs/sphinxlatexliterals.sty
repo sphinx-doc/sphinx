@@ -32,6 +32,8 @@
 % - alltt
 % - upquote
 % - needspace
+% - sphinxpackageboxes
+\RequirePackage{sphinxpackageboxes}
 
 % also in sphinxlatexadmonitions.sty:
 % This is a workaround to a "feature" of French lists, when literal block
@@ -59,9 +61,6 @@
 \RequirePackage{upquote}
 % Skip to next page if not enough space at bottom
 \RequirePackage{needspace}
-
-\newbox\spx@verb@tempboxa
-\newbox\spx@verb@tempboxb
 
 % Based on use of "fancyvrb.sty"'s Verbatim.
 % - with framing allowing page breaks ("framed.sty")
@@ -109,8 +108,7 @@
 %         "color push" or "color pop"
 % About the produced output:
 %  - it obeys current indentation,
-%  - frame of width \sphinxverbatimborder is \sphinxverbatimsep -arated
-%    from the contents,
+%  - frame with 4 padding parameters and 4 border-width parameters
 %  - the contents use the full available text width, limited by indentation,
 %  - #1 = will be typeset above frame, in a non detachable way,
 %  - #2 = will be typeset below frame, in a non detachable way,
@@ -119,14 +117,27 @@
 % #3 are the contents, and in the context of usage of fancyvrb+framed,
 % it will arrive here already transformed into horizontal boxes,
 % interline penalties and glues.
+%
 \long\def\spx@verb@FrameCommand #1#2#3{%
   % These \hskips are for fancyvrb.sty measuring and will make the
   % framing "adapt" to an indented context.
-  \ifspx@opt@verbatimwithframe\else\sphinxverbatimborder\z@\fi
+  \ifspx@opt@verbatimwithframe\else\spxdimen@pre@border\z@\fi
   \hskip\@totalleftmargin
-  \hskip-\sphinxverbatimsep\hskip-\sphinxverbatimborder
+  \hskip-\spx@pre@border@left\hskip-\spx@pre@padding@left\relax
+  \ifspx@pre@withshadow
+   \ifspx@pre@insetshadow\else
+    \ifdim\spx@pre@shadow@xoffset<\z@\hskip\spx@pre@shadow@xoffset\relax
+    \fi
+   \fi
+  \fi
   \spx@verb@fcolorbox {#1}{#2}{#3}%
-  \hskip-\sphinxverbatimsep\hskip-\sphinxverbatimborder
+  \hskip-\spx@pre@padding@right\hskip-\spx@pre@border@right\relax
+  \ifspx@pre@withshadow
+   \ifspx@pre@insetshadow\else
+    \ifdim\spx@pre@shadow@xoffset>\z@\hskip-\spx@pre@shadow@xoffset\relax
+    \fi
+   \fi
+  \fi
   \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth
 }%
 \long\def\spx@verb@fcolorbox #1#2#3{%
@@ -138,82 +149,148 @@
   % problematic features regarding color in a context like here where #3
   % may contain an unbalanced "color push".
 %
-  % MEMO: Some PDF viewers have (or had) issues when the external frame is
-  % drawn first, then the background color is added.  So we will draw first
-  % the background color (and let it extend to the frame area) then, hence
-  % on top of it the frame.  And we draw the contents latest.
-%
-  % TODO: add top right bottom left padding possibilities.
-  % Prepare a box with the contents and reserved space for framing.
-  \setbox\z@\hbox{\kern\dimexpr\sphinxverbatimborder+\sphinxverbatimsep\relax
-                  {#3}\kern\dimexpr\sphinxverbatimborder+\sphinxverbatimsep\relax}%
-    \ht\z@ \dimexpr\ht\z@+\sphinxverbatimsep+\sphinxverbatimborder\relax
-    \dp\z@ \dimexpr\dp\z@+\sphinxverbatimsep+\sphinxverbatimborder\relax
-  % Prepare colored background
-  \setbox\tw@\hbox{{\color{VerbatimColor}\vrule\@width\wd\z@\@height\ht\z@\@depth\dp\z@}}%
-  \vbox{#1% continuation hint attached above frame
-            % draw frame border _latest_ to avoid pdf viewer issue
-            % be careful not to cause "color push + contents + color pop"
-        % there will be a small "\lineskip" space here from TeX
-        % the colored background
-        \copy\tw@
-        % stroke the frame
-        \kern-\dimexpr\ht\tw@+\dp\tw@\relax
-        {\color{VerbatimBorderColor}% frame color
-         \hrule\@height\sphinxverbatimborder % width computed by TeX
-         \setbox\tw@\hb@xt@\wd\z@
-              {% the vrule height will be auto computed later by TeX
-               \vrule\@width\sphinxverbatimborder
-               \hss
-               \vrule\@width\sphinxverbatimborder
-              }%
-         \ht\tw@\dimexpr\ht\z@-\sphinxverbatimborder\relax
-         \dp\tw@\dimexpr\dp\z@-\sphinxverbatimborder\relax
-         \box\tw@
-         \hrule\@height\sphinxverbatimborder
-        }% color pop here
-        % now the contents
-        \kern-\dimexpr\ht\tw@+\dp\tw@\relax
-        \box\z@
-        % Former code had a \hrule here so we need to suppress interline glue
-        % to keep exact same output now that it is a \hbox above
+  \setbox\z@\hbox{#3}%
+  \edef\spx@verb@fcolorbox@width@sp
+      {\number\dimexpr\wd\z@+\spx@pre@border@left
+                            +\spx@pre@padding@left
+                            +\spx@pre@padding@right
+                            +\spx@pre@border@right\relax sp}%
+  \vbox{#1% continuation hint attached above frame, uses \spx@verb@fcolorbox@width@sp
+        % the boxes@fcolorbox constructs an \hbox with bbox containing the border
+        \if1% use rounded boxes only if needed and possible
+          \ifdim\spx@pre@radius@topleft    >\z@0\fi
+          \ifdim\spx@pre@radius@topright   >\z@0\fi
+          \ifdim\spx@pre@radius@bottomright>\z@0\fi
+          \ifdim\spx@pre@radius@bottomleft >\z@0\fi
+          1\spx@boxes@fcolorbox{\box\z@}%
+        \else
+          \@ifpackageloaded{pict2e}%
+             {\ifspx@pre@insetshadow
+                \spx@boxes@fcolorbox{\box\z@}%
+              \else
+                \spx@boxes@fcolorbox@rounded{\box\z@}%
+              \fi}%
+             {\spx@boxes@fcolorbox{\box\z@}}%
+        \fi
+        % This \nointerlineskip to maintain legacy spacing when a \hrule was
+        % formerly last prior item in vertical list.  TODO: remove this at 6.0.0 ?
         \nointerlineskip
-        % TODO: add some \lineskip glue here, this is all in a \vbox so can't split
-        #2% continuation hint attached below frame
+        #2% continuation hint attached below frame, uses \spx@verb@fcolorbox@width@sp
        }% end of \vbox
 }%
-\def\spx@fcolorbox@put@c#1{% hide width from framed.sty measuring
-    \moveright.5\wd\tw@\hb@xt@\z@{\hss#1\hss}%
+\def\spx@verb@fcolorbox@put@c#1{% hide width from framed.sty measuring
+    \moveright.5\dimexpr\spx@verb@fcolorbox@width@sp\hb@xt@\z@{\hss#1\hss}%
 }%
-\def\spx@fcolorbox@put@r#1{% right align with contents, width hidden
-    \moveright\dimexpr\wd\tw@-\sphinxverbatimsep-\sphinxverbatimborder\hb@xt@\z@{\hss#1}%
+\def\spx@verb@fcolorbox@put@r#1{% right align with contents, width hidden
+    \moveright\dimexpr\spx@verb@fcolorbox@width@sp-%
+                      \spx@pre@padding@right-%
+                      \spx@pre@border@right\hb@xt@\z@{\hss#1}%
 }%
-\def\spx@fcolorbox@put@l#1{% left align with contents, width hidden
-    \moveright\dimexpr\sphinxverbatimborder+\sphinxverbatimsep\hb@xt@\z@{#1\hss}%
+\def\spx@verb@fcolorbox@put@l#1{% left align with contents, width hidden
+    \moveright\dimexpr\spx@pre@border@left+%
+                      \spx@pre@padding@left\hb@xt@\z@{#1\hss}%
 }%
 %
-\def\sphinxVerbatim@Continued
-   {\csname spx@fcolorbox@put@\spx@opt@verbatimcontinuedalign\endcsname
-    {{\normalcolor\sphinxstylecodecontinued\literalblockcontinuedname}}}%
-\def\sphinxVerbatim@Continues
-   {\csname spx@fcolorbox@put@\spx@opt@verbatimcontinuesalign\endcsname
-    {{\normalcolor\sphinxstylecodecontinues\literalblockcontinuesname}}}%
-\def\sphinxVerbatim@Title
-   {\spx@fcolorbox@put@c{\unhcopy\sphinxVerbatim@TitleBox}}%
+\def\sphinxVerbatim@Continued{%
+    \csname spx@verb@fcolorbox@put@\spx@opt@verbatimcontinuedalign\endcsname
+    {{\normalcolor\sphinxstylecodecontinued\literalblockcontinuedname}}%
+}%
+\def\sphinxVerbatim@Continues{%
+    \csname spx@verb@fcolorbox@put@\spx@opt@verbatimcontinuesalign\endcsname
+    {{\normalcolor\sphinxstylecodecontinues\literalblockcontinuesname}}%
+}%
+\def\sphinxVerbatim@Title{%
+    \spx@verb@fcolorbox@put@c{\unhcopy\sphinxVerbatim@TitleBox}%
+}%
 \let\sphinxVerbatim@Before\@empty
 \let\sphinxVerbatim@After\@empty
 % Defaults are redefined in document preamble according to language
 \newcommand*\literalblockcontinuedname{continued from previous page}%
 \newcommand*\literalblockcontinuesname{continues on next page}%
 %
-\def\sphinxVerbatim@FrameCommand
-   {\spx@verb@FrameCommand\sphinxVerbatim@Before\sphinxVerbatim@After}%
-\def\sphinxVerbatim@FirstFrameCommand
-   {\spx@verb@FrameCommand\sphinxVerbatim@Before\sphinxVerbatim@Continues}%
-\def\sphinxVerbatim@MidFrameCommand
-   {\spx@verb@FrameCommand\sphinxVerbatim@Continued\sphinxVerbatim@Continues}%
-\def\sphinxVerbatim@LastFrameCommand
-   {\spx@verb@FrameCommand\sphinxVerbatim@Continued\sphinxVerbatim@After}%
+\def\sphinxVerbatim@FrameCommand{%
+    \spx@verb@FrameCommand\sphinxVerbatim@Before\sphinxVerbatim@After
+}%
+\def\sphinxVerbatim@FirstFrameCommand{%
+    \ifspx@pre@border@open
+      \let\spx@boxes@fcolorbox@setuphook\spx@verb@boxes@fcolorbox@setuphook@openbottom
+    \fi
+    \spx@verb@FrameCommand\sphinxVerbatim@Before\sphinxVerbatim@Continues
+}%
+\def\sphinxVerbatim@MidFrameCommand{%
+    \ifspx@pre@border@open
+      \let\spx@boxes@fcolorbox@setuphook\spx@verb@boxes@fcolorbox@setuphook@openboth
+    \fi
+    \spx@verb@FrameCommand\sphinxVerbatim@Continued\sphinxVerbatim@Continues
+}%
+\def\sphinxVerbatim@LastFrameCommand{%
+    \ifspx@pre@border@open
+      \let\spx@boxes@fcolorbox@setuphook\spx@verb@boxes@fcolorbox@setuphook@opentop
+    \fi
+    \spx@verb@FrameCommand\sphinxVerbatim@Continued\sphinxVerbatim@After
+}%
+%
+\def\spx@verb@boxes@fcolorbox@setup{%
+%
+  \spx@boxes@border@top   \spx@pre@border@top
+  \spx@boxes@border@right \spx@pre@border@right
+  \spx@boxes@border@bottom\spx@pre@border@bottom
+  \spx@boxes@border@left  \spx@pre@border@left
+  \spx@boxes@border       \spxdimen@pre@border
+%
+  \spx@boxes@padding@top   \spx@pre@padding@top
+  \spx@boxes@padding@right \spx@pre@padding@right
+  \spx@boxes@padding@bottom\spx@pre@padding@bottom
+  \spx@boxes@padding@left  \spx@pre@padding@left
+%
+  \spx@boxes@radius@topleft     \spx@pre@radius@topleft
+  \spx@boxes@radius@topright    \spx@pre@radius@topright
+  \spx@boxes@radius@bottomright \spx@pre@radius@bottomright
+  \spx@boxes@radius@bottomleft  \spx@pre@radius@bottomleft
+%
+%
+  \ifspx@pre@withshadow
+     \spx@boxes@withshadowtrue
+     \spx@boxes@shadow@xoffset \spx@pre@shadow@xoffset
+     \spx@boxes@shadow@yoffset \spx@pre@shadow@yoffset\relax
+  \else
+     \spx@boxes@withshadowfalse
+  \fi
+  \ifspx@pre@insetshadow\spx@boxes@insetshadowtrue\else
+                        \spx@boxes@insetshadowfalse\fi
+  \ifspx@pre@withshadowcolor\spx@boxes@withshadowcolortrue\else
+                            \spx@boxes@withshadowcolorfalse\fi
+  %
+  \ifspx@pre@withbackgroundcolor\spx@boxes@withbackgroundcolortrue\else
+                                \spx@boxes@withbackgroundcolorfalse\fi
+  \sphinxcolorlet{spx@boxes@backgroundcolor}{VerbatimColor}%
+  %
+  \ifspx@pre@withbordercolor\spx@boxes@withbordercolortrue\else
+                            \spx@boxes@withbordercolorfalse\fi
+  \sphinxcolorlet{spx@boxes@bordercolor}{VerbatimBorderColor}%
+  %
+  \ifspx@pre@withshadowcolor\spx@boxes@withshadowcolortrue\else
+                            \spx@boxes@withshadowcolorfalse\fi
+  \sphinxcolorlet{spx@boxes@shadowcolor}{sphinxVerbatimShadowColor}%
+}%
+\def\spx@verb@boxes@fcolorbox@setuphook@openbottom{%
+    \spx@boxes@border@bottom     \z@
+    \spx@boxes@radius@bottomright\z@
+    \spx@boxes@radius@bottomleft \z@
+}%
+\def\spx@verb@boxes@fcolorbox@setuphook@opentop{%
+    \spx@boxes@border@top     \z@
+    \spx@boxes@radius@topright\z@
+    \spx@boxes@radius@topleft \z@
+}%
+\def\spx@verb@boxes@fcolorbox@setuphook@openboth{%
+    \spx@boxes@border@top     \z@
+    \spx@boxes@border@bottom  \z@
+    \spx@boxes@radius@topright\z@
+    \spx@boxes@radius@topleft \z@
+    \spx@boxes@radius@bottomright\z@
+    \spx@boxes@radius@bottomleft \z@
+}%
 
 % For linebreaks inside Verbatim environment from package fancyvrb.
 \newbox\sphinxcontinuationbox
@@ -348,7 +425,7 @@
 % \newcommand\sphinxVerbatimFormatLine[1]{\FV@ObeyTabs{\strut #1}}%
 \newcommand\sphinxVerbatimFormatLine[1]{\strut#1}%
 % MEMO: if verbatimwrapslines is set to true (default) the #1 above is
-% simply \box\spx@verb@tempboxb, from the next two macros.
+% simply \box\spx@tempboxb, from the next two macros.
 % The next two macros are a deep hack of fancyvrb.sty core line processing in
 % order to wrap too long lines, either at spaces and natural break-points,
 % (soft wrap) or optionally at any character (hard wrap).  This requires deep
@@ -367,10 +444,10 @@
 \def\spx@verb@@ProcessLines{%
    \unskip
    \unpenalty
-   \setbox\spx@verb@tempboxb\lastbox
-\ifvoid\spx@verb@tempboxb\else
+   \setbox\spx@tempboxb\lastbox
+\ifvoid\spx@tempboxb\else
    {\spx@verb@@ProcessLines}%
-   \FV@ProcessLine{\box\spx@verb@tempboxb}%
+   \FV@ProcessLine{\box\spx@tempboxb}%
    \global\let\FV@ProcessLine\FV@ProcessLine
    \global\setbox\@tempboxa=\box\@tempboxa
    \aftergroup\spx@verb@@InhibitLineNumber
@@ -401,7 +478,7 @@
      \fi
 % MEMO: \everypar{} was issued earlier (and due to \@setminipage
 % would have been only \@minipagefalse\everypar{} otherwise).
-     \setbox\spx@verb@tempboxa=\vtop{\hsize\linewidth
+     \setbox\spx@tempboxa=\vtop{\hsize\linewidth
           \raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
           \doublehyphendemerits\z@\finalhyphendemerits\z@
 % MEMO: fancyvrb has options obeytabs and tabsize.  Anyhow tab characters
@@ -417,14 +494,14 @@
 % are executed but not the ones at its end.
           \par
           }%
-     \setbox\spx@verb@tempboxa=\vtop{\unvbox\spx@verb@tempboxa
-          \setbox\spx@verb@tempboxb\lastbox
+     \setbox\spx@tempboxa=\vtop{\unvbox\spx@tempboxa
+          \setbox\spx@tempboxb\lastbox
           {\spx@verb@@ProcessLines}%
-          \FV@ProcessLine{\box\spx@verb@tempboxb}%
+          \FV@ProcessLine{\box\spx@tempboxb}%
           \global\let\FV@ProcessLine\FV@ProcessLine
           \global\setbox\@tempboxa=\box\@tempboxa
           }%
-  \unvbox\spx@verb@tempboxa
+  \unvbox\spx@tempboxa
 }%
 %
 % The normal line wrapping allows breaks at spaces and ascii non
@@ -493,7 +570,7 @@
 \long\def\spx@verb@DecideIfWillDoForceWrap{%
     \global\let\spx@verb@maxwidth\z@
     \global\let\spx@verb@minwidth\linewidth
-    \setbox\spx@verb@tempboxa
+    \setbox\spx@tempboxa
     \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
           \doublehyphendemerits\z@\finalhyphendemerits\z@
           \spx@everypar{}\noindent\strut\FV@Line\strut\spx@par
@@ -514,27 +591,27 @@
 % but minwidth must not take into account the last line
 \def\spx@verb@getwidths {%
     \unskip\unpenalty
-    \setbox\spx@verb@tempboxb\lastbox
-    \ifvoid\spx@verb@tempboxb
+    \setbox\spx@tempboxb\lastbox
+    \ifvoid\spx@tempboxb
     \else
-       \setbox\spx@verb@tempboxb\hbox{\unhbox\spx@verb@tempboxb}%
-       \ifdim\spx@verb@maxwidth<\wd\spx@verb@tempboxb
-          \xdef\spx@verb@maxwidth{\number\wd\spx@verb@tempboxb sp}%
+       \setbox\spx@tempboxb\hbox{\unhbox\spx@tempboxb}%
+       \ifdim\spx@verb@maxwidth<\wd\spx@tempboxb
+          \xdef\spx@verb@maxwidth{\number\wd\spx@tempboxb sp}%
        \fi
        \expandafter\spx@verb@getwidths@loop
     \fi
 }%
 \def\spx@verb@getwidths@loop {%
     \unskip\unpenalty
-    \setbox\spx@verb@tempboxb\lastbox
-    \ifvoid\spx@verb@tempboxb
+    \setbox\spx@tempboxb\lastbox
+    \ifvoid\spx@tempboxb
     \else
-       \setbox\spx@verb@tempboxb\hbox{\unhbox\spx@verb@tempboxb}%
-       \ifdim\spx@verb@maxwidth<\wd\spx@verb@tempboxb
-          \xdef\spx@verb@maxwidth{\number\wd\spx@verb@tempboxb sp}%
+       \setbox\spx@tempboxb\hbox{\unhbox\spx@tempboxb}%
+       \ifdim\spx@verb@maxwidth<\wd\spx@tempboxb
+          \xdef\spx@verb@maxwidth{\number\wd\spx@tempboxb sp}%
        \fi
-       \ifdim\spx@verb@minwidth>\wd\spx@verb@tempboxb
-          \xdef\spx@verb@minwidth{\number\wd\spx@verb@tempboxb sp}%
+       \ifdim\spx@verb@minwidth>\wd\spx@tempboxb
+          \xdef\spx@verb@minwidth{\number\wd\spx@tempboxb sp}%
        \fi
        \expandafter\spx@verb@getwidths@loop
     \fi
@@ -656,14 +733,20 @@
             \kern\dimexpr-\dp\strutbox+\sphinxbelowcaptionspace
                  % if no frame (code-blocks inside table cells), remove
                  % the "verbatimsep" whitespace from the top (better visually)
-                 \ifspx@opt@verbatimwithframe\else-\sphinxverbatimsep\fi
+                 \ifspx@opt@verbatimwithframe\else
+                    % but we must now check if there is a background color
+                    \ifspx@pre@withbackgroundcolor\else-\spx@pre@padding@top\fi
+                \fi
                  % caption package adds \abovecaptionskip vspace, remove it
                  \spx@ifcaptionpackage{-\abovecaptionskip}{}\relax}%
      \else
        \vskip\sphinxverbatimsmallskipamount
        \def\sphinxVerbatim@After
           {\nointerlineskip\kern\dimexpr\dp\strutbox
-            \ifspx@opt@verbatimwithframe\else-\sphinxverbatimsep\fi
+            \ifspx@opt@verbatimwithframe\else
+                    % but we must now check if there is a background color
+                    \ifspx@pre@withbackgroundcolor\else-\spx@pre@padding@bottom\fi
+            \fi
             \spx@ifcaptionpackage{-\abovecaptionskip}{}\relax
            \sphinxVerbatim@Title}%
      \fi
@@ -680,14 +763,21 @@
   \fi
   \global\let\sphinxLiteralBlockLabel\empty
   \global\let\sphinxVerbatimTitle\empty
+  % the "FrameCommand"'s will check status of verbatimwithframe option
+  % to decide if to stroke the borders ; ultimately they are also
+  % responsible to attach the "Title".
   \let\FrameCommand     \sphinxVerbatim@FrameCommand
+  % those will also check status of the pre_box-decoration-break option
   \let\FirstFrameCommand\sphinxVerbatim@FirstFrameCommand
   \let\MidFrameCommand  \sphinxVerbatim@MidFrameCommand
   \let\LastFrameCommand \sphinxVerbatim@LastFrameCommand
+  %
   \ifspx@opt@verbatimhintsturnover\else
       \let\sphinxVerbatim@Continued\@empty
       \let\sphinxVerbatim@Continues\@empty
   \fi
+  % initialization for \spx@boxes@fcolorbox from sphinxpackageboxes.sty
+  \spx@verb@boxes@fcolorbox@setup
   \ifspx@opt@verbatimwrapslines
     % deep hack into fancyvrb's internal processing of input lines
     \let\FV@@PreProcessLine\spx@verb@@PreProcessLine
@@ -748,18 +838,31 @@
      \color@begingroup % protect against color leaks (upstream framed.sty bug)
      % will fetch its optional arguments if any
      \OriginalVerbatim
-}
+}%
 {%
   \endOriginalVerbatim
   \color@endgroup % matches the \color@begingroup
   \ifspx@inframed
    \egroup % finish \sphinxVerbatim@ContentsBox vbox
    \nobreak % update page totals
-   \ifdim\dimexpr\ht\sphinxVerbatim@ContentsBox+
+%%%%
+% MEMO (2022/07/09, while preparing 5.1.0 LaTeX CSS-style sphinxsetup options)
+% This test will systematically cause to abandon framing if the code-block
+% is near bottom of a warning-type notice which TeX has not yet decided whether
+% it fits on current page and which is near bottom of page.  Indeed the
+% \pagetotal will already be very near \pagegoal. This is probably a not
+% intended behaviour, and perhaps the whole thing should be removed?  Indeed
+% the result is surprising then because the notice will be split, code-block
+% will be on page 2 and will have no background-color, no border.
+   \ifdim\dimexpr
+         \ht\sphinxVerbatim@ContentsBox+
          \dp\sphinxVerbatim@ContentsBox+
          \ht\sphinxVerbatim@TitleBox+
          \dp\sphinxVerbatim@TitleBox+
-         2\sphinxverbatimsep+\ifspx@opt@verbatimwithframe 2\sphinxverbatimborder+\fi
+         \spx@pre@padding@top+
+         \spx@pre@padding@bottom+
+         \ifspx@opt@verbatimwithframe \spx@pre@border@top+
+                                      \spx@pre@border@bottom+\fi
          % try to account for external frame parameters
          % MEMO: this is because the sphinxheavybox (for warning admonitions)
          %       environment sets \FrameSep and \FrameRule
