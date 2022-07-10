@@ -8,15 +8,15 @@
 # tomo, 2018
 # Hisahiro Ohmura, 2017
 # KaKkouo, 2021
-# Takeshi KOMIYA <i.tkomiya@gmail.com>, 2021
+# Komiya Takeshi <i.tkomiya@gmail.com>, 2021
 # Kouhei Sutou <kou@clear-code.com>, 2011
 # sutefu7, 2019-2020
 # shirou - しろう <shirou.faw@gmail.com>, 2017
 # Taizo Ito <taizo.ito@hennge.com>, 2019
 # Takayuki SHIMIZUKAWA <shimizukawa@gmail.com>, 2013-2016
 # Takayuki SHIMIZUKAWA <shimizukawa@gmail.com>, 2016-2017,2019
-# Takeshi KOMIYA <i.tkomiya@gmail.com>, 2016-2017,2019,2022
-# Tetsuo Koyama <tkoyama010@gmail.com>, 2020-2021
+# Komiya Takeshi <i.tkomiya@gmail.com>, 2016-2017,2019,2022
+# Tetsuo Koyama <tkoyama010@gmail.com>, 2020-2022
 # tomo, 2019
 # shirou - しろう <shirou.faw@gmail.com>, 2014
 # Yasushi Masuda <whosaysni@gmail.com>, 2008
@@ -24,9 +24,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-07-03 00:22+0000\n"
+"POT-Creation-Date: 2022-07-10 00:23+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
-"Last-Translator: Takeshi KOMIYA <i.tkomiya@gmail.com>, 2016-2017,2019,2022\n"
+"Last-Translator: Tetsuo Koyama <tkoyama010@gmail.com>, 2020-2022\n"
 "Language-Team: Japanese (http://www.transifex.com/sphinx-doc/sphinx-1/language/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -191,7 +191,7 @@ msgstr "conf.py が設定ディレクトリに存在しません (%s)"
 msgid ""
 "Invalid configuration value found: 'language = None'. Update your "
 "configuration to a valid language code. Falling back to 'en' (English)."
-msgstr ""
+msgstr "無効な設定値が見つかりました: 'language = None' 。設定を有効な言語コードに更新してください。 'en' （英語）にフォールバックしています。"
 
 #: sphinx/config.py:202
 #, python-format
@@ -484,12 +484,12 @@ msgstr "Python Enhancement Proposals; PEP %s"
 #: sphinx/roles.py:188
 #, python-format
 msgid "invalid PEP number %s"
-msgstr ""
+msgstr "無効なPEP番号 %s"
 
 #: sphinx/roles.py:222
 #, python-format
 msgid "invalid RFC number %s"
-msgstr ""
+msgstr "無効なRFC番号 %s"
 
 #: sphinx/theming.py:72
 #, python-format
@@ -1243,7 +1243,7 @@ msgid ""
 "\n"
 "By default, everything that is outdated is built. Output only for selected\n"
 "files can be built by specifying individual filenames.\n"
-msgstr ""
+msgstr "\nソースファイルからドキュメントを生成します。\n\nsphinx-build は、SOURCEDIR 内のファイルをもとにドキュメントを生成し、\nOUTPUTDIR 内に配置します。またコンフィグ\n設定用に SOURCEDIR 内から\n 'conf.py' を探します。'sphinx-quickstart' ツールを使うと\n 'conf.py' を含むテンプレートファイルを生成することができます。\n\nsphinx-build は、さまざまな形式のドキュメントを作成することができます。フォーマットは、\nコマンドラインでビルダー名を指定して選択します。デフォルトは\nHTML です。ビルダーはドキュメント化処理に関連した他のタスクも実行できます。\n\nデフォルトでは、古いものはすべてビルドされています。個別にファイル名を指定することで、\n選択したファイルのみ出力することもできます。\n"
 
 #: sphinx/cmd/build.py:120
 msgid "path to documentation source files"
@@ -1516,7 +1516,7 @@ msgid ""
 "Python the version is something like 2.5 or 3.0, while the release is\n"
 "something like 2.5.1 or 3.0a1. If you don't need this dual structure,\n"
 "just set both to the same value."
-msgstr ""
+msgstr "Sphinx には、ソフトウェアに対して \"バージョン\" と \"リリース\" という概念が\nあります。各バージョンは複数のリリースを持つことができます。\n例えば、Python だとバージョンが 2.5 や 3.0 のように分かれているように、\nリリースも 2.5.1 や 3.0a1 のように分けて持つことができます。もしこのような多重構成が必要ない場合は、\n両方を同じ値に設定するだけです。"
 
 #: sphinx/cmd/quickstart.py:259
 msgid "Project version"
@@ -3563,12 +3563,12 @@ msgid ""
 "not in the domain."
 msgstr ""
 
-#: sphinx/util/docutils.py:256
+#: sphinx/util/docutils.py:293
 #, python-format
 msgid "unknown directive or role name: %s:%s"
 msgstr "不明なディレクティブまたはロール名: %s:%s"
 
-#: sphinx/util/docutils.py:549
+#: sphinx/util/docutils.py:586
 #, python-format
 msgid "unknown node type: %r"
 msgstr "不明なノードタイプ: %r"
@@ -3632,7 +3632,7 @@ msgstr "この用語の解説へ"
 #: sphinx/writers/html.py:428 sphinx/writers/html.py:433
 #: sphinx/writers/html5.py:387 sphinx/writers/html5.py:392
 msgid "Permalink to this heading"
-msgstr ""
+msgstr "この見出しへのパーマリンク"
 
 #: sphinx/writers/html.py:437 sphinx/writers/html5.py:396
 msgid "Permalink to this table"
