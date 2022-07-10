@@ -49,10 +49,17 @@ Features added
   Pradyun Gedam.
 * #10619: LaTeX: new ``shadowShadowColor`` and ``shadowBorderColor`` configurations
   for :ref:`'sphinxsetup' <latexsphinxsetup>` key of :confval:`latex_elements`
+* #10639: LaTeX: ``verbatimradius`` configuration added to the LaTeX keys of
+  :ref:`'sphinxsetup' <latexsphinxsetup>`. If positive, code-blocks are rendered
+  with rounded corners.
+* #10599: HTML Theme: Wrap consecutive footnotes in an ``<aside>`` element when
+  using Docutils 0.18 or later, to allow for easier styling. This matches the
+  behaviour introduced in Docutils 0.19. Patch by Adam Turner.
 
 Bugs fixed
 ----------
 
+* #10634: Make -P (pdb) option work better with exceptions triggered from events
 * #10031: py domain: Fix spurious whitespace in unparsing various operators (``+``,
   ``-``, ``~``, and ``**``). Patch by Adam Turner.
 * #10460: logging: Always show node source locations as absolute paths.
@@ -64,6 +71,10 @@ Bugs fixed
 * #10633: LaTeX: user injected ``\color`` commands in topic or admonition boxes may
   cause color leaks in PDF due to upstream `framed.sty <https://ctan.org/pkg/framed>`_
   bug
+* #10638: LaTeX: framed coloured boxes in highlighted code (e.g. highlighted
+  diffs using Pygments style ``'manni'``) inherit thickness of code-block frame
+* #10647: LaTeX: Only one ``\label`` is generated for ``desc_signature`` node
+  even if it has multiple node IDs
 * #10579: i18n: UnboundLocalError is raised on translating raw directive
 * #9577, #10088: py domain: Fix warning for duplicate Python references when
   using ``:any:`` and autodoc.
@@ -316,7 +327,8 @@ Features added
 * #10107: i18n: Allow to suppress translation warnings by adding ``#noqa``
   comment to the tail of each translation message
 * #10252: C++, support attributes on classes, unions, and enums.
-* #10253: :rst:dir:`pep` role now generates URLs based on peps.python.org
+* #10253: :rst:role:`pep` role now generates URLs based on `peps.python.org
+  <https://peps.python.org>`_
 
 Bugs fixed
 ----------
@@ -338,7 +350,7 @@ Bugs fixed
   variables/structure members 
 * #10175: LaTeX: named footnote reference is linked to an incorrect footnote if
   the name is also used in the different document
-* #10269: manpage: Failed to resolve the title of :ref: cross references
+* #10269: manpage: Failed to resolve the title of :rst:role:`ref` cross references
 * #10179: i18n: suppress "rST localization" warning
 * #10118: imgconverter: Unnecessary availablity check is called for remote URIs
 * #10181: napoleon: attributes are displayed like class attributes for google
@@ -370,7 +382,7 @@ Features added
   by an extlink, suggesting a replacement.
 * #9961: html: Support nested <kbd> HTML elements in other HTML builders
 * #10013: html: Allow to change the loading method of JS via ``loading_method``
-  parameter for :meth:`Sphinx.add_js_file()`
+  parameter for :meth:`.Sphinx.add_js_file()`
 * #9551: html search: "Hide Search Matches" link removes "highlight" parameter
   from URL
 * #9815: html theme: Wrap sidebar components in div to allow customizing their
@@ -477,7 +489,7 @@ Incompatible changes
   with more docutils nodes to allow better CSS styling.
   It may break existing styling.
 * #9672: the signature of
-  :py:meth:`domains.py.PyObject.get_signature_prefix` has changed to
+  ``domains.python.PyObject.get_signature_prefix`` has changed to
   return a list of nodes instead of a plain string.
 * #9695: ``domains.js.JSObject.display_prefix`` has been changed into a method
   ``get_display_prefix`` which now returns a list of nodes
@@ -554,7 +566,7 @@ Bugs fixed
 * #9775: py domain: Literal typehint was converted to a cross reference when
   :confval:`autodoc_typehints='description'`
 * #9708: needs_extension failed to check double-digit version correctly
-* #9688: Fix :rst:dir:`code`` does not recognize ``:class:`` option
+* #9688: Fix Sphinx patched :dudir:`code` does not recognize ``:class:`` option
 * #9733: Fix for logging handler flushing warnings in the middle of the docs
   build
 * #9656: Fix warnings without subtype being incorrectly suppressed
@@ -574,7 +586,7 @@ Features added
 * #9447: html theme: Expose the version of Sphinx in the form of tuple as a
   template variable ``sphinx_version_tuple``
 * #9594: manpage: Suppress the title of man page if description is empty
-* #9445: py domain: ``:py:property:`` directive supports ``:classmethod:``
+* #9445: py domain: :rst:dir:`py:property` directive supports ``:classmethod:``
   option to describe the class property
 * #9524: test: SphinxTestApp can take ``builddir`` as an argument
 * #9535: C and C++, support more fundamental types, including GNU extensions.
@@ -6433,7 +6445,7 @@ Release 1.1.3 (Mar 10, 2012)
 * #860: Do not crash when encountering invalid doctest examples, just
   emit a warning.
 
-* #864: Fix crash with some settings of `modindex_common_prefix`.
+* #864: Fix crash with some settings of :confval:`modindex_common_prefix`.
 
 * #862: Fix handling of ``-D`` and ``-A`` options on Python 3.
 

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-07-03 00:22+0000\n"
+"POT-Creation-Date: 2022-07-10 00:23+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: YT H <dev@theYT.net>, 2019-2022\n"
 "Language-Team: Korean (http://www.transifex.com/sphinx-doc/sphinx-1/language/ko/)\n"
@@ -3548,12 +3548,12 @@ msgid ""
 "not in the domain."
 msgstr "%s 영역에서 문제 발생: 필드가 '%s' 역할을 사용해야 하지만, 해당 역할이 도메인에 없습니다."
 
-#: sphinx/util/docutils.py:256
+#: sphinx/util/docutils.py:293
 #, python-format
 msgid "unknown directive or role name: %s:%s"
 msgstr "알 수 없는 지시문 또는 역할 이름: %s:%s"
 
-#: sphinx/util/docutils.py:549
+#: sphinx/util/docutils.py:586
 #, python-format
 msgid "unknown node type: %r"
 msgstr "알 수 없는 노드 유형: %r"
