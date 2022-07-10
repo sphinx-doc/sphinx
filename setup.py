@@ -20,7 +20,7 @@ install_requires = [
     'sphinxcontrib-qthelp',
     'Jinja2>=2.3',
     'Pygments>=2.0',
-    'docutils>=0.14,<0.19',
+    'docutils>=0.14,<0.20',
     'snowballstemmer>=1.1',
     'babel>=1.3',
     'alabaster>=0.7,<0.8',
