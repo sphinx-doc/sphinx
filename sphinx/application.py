@@ -131,7 +131,8 @@ class Sphinx:
                  buildername: str, confoverrides: Dict = None,
                  status: Optional[IO] = sys.stdout, warning: Optional[IO] = sys.stderr,
                  freshenv: bool = False, warningiserror: bool = False, tags: List[str] = None,
-                 verbosity: int = 0, parallel: int = 0, keep_going: bool = False) -> None:
+                 verbosity: int = 0, parallel: int = 0, keep_going: bool = False,
+                 pdb: bool = False) -> None:
         self.phase = BuildPhase.INITIALIZATION
         self.verbosity = verbosity
         self.extensions: Dict[str, Extension] = {}
@@ -173,6 +174,7 @@ class Sphinx:
             self.warningiserror = False
         else:
             self.warningiserror = warningiserror
+        self.pdb = pdb
         logging.setup(self, self._status, self._warning)
 
         self.events = EventManager(self)
