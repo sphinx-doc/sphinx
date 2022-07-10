@@ -340,7 +340,7 @@ p.sidebar-title {
 {%- if docutils_version_info[:2] >= (0, 18) %}
 nav.contents,
 aside.topic,
-{% endif %}
+{%- endif %}
 div.admonition, div.topic, blockquote {
     clear: left;
 }
@@ -350,7 +350,7 @@ div.admonition, div.topic, blockquote {
 {%- if docutils_version_info[:2] >= (0, 18) %}
 nav.contents,
 aside.topic,
-{% endif %}
+{%- endif %}
 div.topic {
     border: 1px solid #ccc;
     padding: 7px;
@@ -392,7 +392,7 @@ aside.sidebar > :last-child,
 {%- if docutils_version_info[:2] >= (0, 18) %}
 nav.contents > :last-child,
 aside.topic > :last-child,
-{% endif %}
+{%- endif %}
 div.topic > :last-child,
 div.admonition > :last-child {
     margin-bottom: 0;
@@ -403,7 +403,7 @@ aside.sidebar::after,
 {%- if docutils_version_info[:2] >= (0, 18) %}
 nav.contents::after,
 aside.topic::after,
-{% endif %}
+{%- endif %}
 div.topic::after,
 div.admonition::after,
 blockquote::after {
