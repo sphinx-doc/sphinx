@@ -11,6 +11,7 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
               'sphinx.ext.intersphinx',
               'sphinx.ext.viewcode', 'sphinx.ext.inheritance_diagram']
 
+templates_path = ['_templates']
 exclude_patterns = ['_build']
 
 project = 'Sphinx'
@@ -28,6 +29,7 @@ html_css_files = [
 modindex_common_prefix = ['sphinx.']
 html_static_path = ['_static']
 html_title = 'Sphinx documentation'
+html_additional_pages = {'contents': 'contents.html'}
 html_use_opensearch = 'https://www.sphinx-doc.org/en/master'
 html_baseurl = 'https://www.sphinx-doc.org/en/master/'
 html_favicon = '_static/favicon.svg'
@@ -36,7 +38,7 @@ htmlhelp_basename = 'Sphinxdoc'
 
 epub_theme = 'epub'
 epub_basename = 'sphinx'
-epub_author = 'Georg Brandl'
+epub_author = 'the Sphinx developers'
 epub_publisher = 'https://www.sphinx-doc.org/'
 epub_uid = 'web-site'
 epub_scheme = 'url'
@@ -57,7 +59,7 @@ epub_guide = (('toc', 'contents.xhtml', 'Table of Contents'),)
 epub_description = 'Sphinx documentation generator system manual'
 
 latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
-                    'Georg Brandl', 'manual', 1)]
+                    'the Sphinx developers', 'manual', 1)]
 latex_logo = '_static/sphinx.png'
 latex_elements = {
     'fontenc': r'\usepackage[LGR,X2,T1]{fontenc}',
@@ -96,7 +98,7 @@ extlinks = {'duref': ('https://docutils.sourceforge.io/docs/ref/rst/'
 
 man_pages = [
     ('contents', 'sphinx-all', 'Sphinx documentation generator system manual',
-     'Georg Brandl', 1),
+     'the Sphinx developers', 1),
     ('man/sphinx-build', 'sphinx-build', 'Sphinx documentation generator tool',
      '', 1),
     ('man/sphinx-quickstart', 'sphinx-quickstart', 'Sphinx documentation '
@@ -108,7 +110,7 @@ man_pages = [
 ]
 
 texinfo_documents = [
-    ('contents', 'sphinx', 'Sphinx Documentation', 'Georg Brandl',
+    ('contents', 'sphinx', 'Sphinx Documentation', 'the Sphinx developers',
      'Sphinx', 'The Sphinx documentation builder.', 'Documentation tools',
      1),
 ]

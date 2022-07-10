@@ -49,6 +49,7 @@ Documentation
 * :ref:`Python Module Index <modindex>`: the index of Python modules
 * :doc:`Glossary <glossary>`: definitions of various terms
 * :doc:`Sphinx's Authors <internals/authors>`: the Sphinx developers
+* `Contents <contents.html>`__: full table of contents
 
 Support
 =======
@@ -80,7 +81,7 @@ like to contribute to the project.
 .. master toctree:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 5
    :hidden:
 
    usage/index
