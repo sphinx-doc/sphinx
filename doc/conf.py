@@ -55,10 +55,9 @@ epub_fix_images = False
 epub_max_image_width = 0
 epub_show_urls = 'inline'
 epub_use_index = False
-epub_guide = (('toc', 'contents.xhtml', 'Table of Contents'),)
 epub_description = 'Sphinx documentation generator system manual'
 
-latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
+latex_documents = [('index', 'sphinx.tex', 'Sphinx Documentation',
                     'the Sphinx developers', 'manual', 1)]
 latex_logo = '_static/sphinx.png'
 latex_elements = {
@@ -97,7 +96,7 @@ extlinks = {'duref': ('https://docutils.sourceforge.io/docs/ref/rst/'
                       'directives.html#%s', '%s')}
 
 man_pages = [
-    ('contents', 'sphinx-all', 'Sphinx documentation generator system manual',
+    ('index', 'sphinx-all', 'Sphinx documentation generator system manual',
      'the Sphinx developers', 1),
     ('man/sphinx-build', 'sphinx-build', 'Sphinx documentation generator tool',
      '', 1),
@@ -110,7 +109,7 @@ man_pages = [
 ]
 
 texinfo_documents = [
-    ('contents', 'sphinx', 'Sphinx Documentation', 'the Sphinx developers',
+    ('index', 'sphinx', 'Sphinx Documentation', 'the Sphinx developers',
      'Sphinx', 'The Sphinx documentation builder.', 'Documentation tools',
      1),
 ]
