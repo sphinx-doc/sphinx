@@ -4,6 +4,10 @@ Release 5.1.0 (in development)
 Dependencies
 ------------
 
+* #10656: Support `Docutils 0.19`_. Patch by Adam Turner.
+
+.. _Docutils 0.19: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-19-2022-07-05
+
 Incompatible changes
 --------------------
 
