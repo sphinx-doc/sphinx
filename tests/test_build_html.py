@@ -79,7 +79,7 @@ def tail_check(check):
         for node in nodes:
             if node.tail and rex.search(node.tail):
                 return True
-        assert False, '%r not found in tail of any nodes %s' % (check, nodes)
+        raise AssertionError('%r not found in tail of any nodes %s' % (check, nodes))
     return checker
 
 
@@ -114,9 +114,9 @@ def check_xpath(etree, fname, path, check, be_found=True):
             if all(not rex.search(get_text(node)) for node in nodes):
                 return
 
-        assert False, ('%r not found in any node matching '
-                       'path %s in %s: %r' % (check, path, fname,
-                                              [node.text for node in nodes]))
+        raise AssertionError(('%r not found in any node matching '
+                              'path %s in %s: %r' % (check, path, fname,
+                                                     [node.text for node in nodes])))
 
 
 @pytest.mark.sphinx('html', testroot='warnings')
@@ -1520,7 +1520,7 @@ def test_html_math_renderer_is_duplicated(make_app, app_params):
     try:
         args, kwargs = app_params
         make_app(*args, **kwargs)
-        assert False
+        raise AssertionError()
     except ConfigError as exc:
         assert str(exc) == ('Many math_renderers are registered. '
                             'But no math_renderer is selected.')
@@ -1550,7 +1550,7 @@ def test_html_math_renderer_is_mismatched(make_app, app_params):
     try:
         args, kwargs = app_params
         make_app(*args, **kwargs)
-        assert False
+        raise AssertionError()
     except ConfigError as exc:
         assert str(exc) == "Unknown math_renderer 'imgmath' is given."
 

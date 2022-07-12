@@ -301,7 +301,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 req_url = encode_uri(req_url)
 
             # Get auth info, if any
-            for pattern, auth_info in self.auth:
+            for pattern, auth_info in self.auth:  # noqa: B007 (false positive)
                 if pattern.match(uri):
                     break
             else:

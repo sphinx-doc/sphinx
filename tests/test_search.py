@@ -67,7 +67,7 @@ def test_objects_are_escaped(app, status, warning):
         if item[-1] == 'n::Array&lt;T, d&gt;':  # n::Array<T,d> is escaped
             break
     else:
-        assert False, index.get('objects').get('')
+        raise AssertionError(index.get('objects').get(''))
 
 
 @pytest.mark.sphinx(testroot='search')
