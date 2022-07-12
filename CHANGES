@@ -59,6 +59,7 @@ Bugs fixed
 * #10579: i18n: UnboundLocalError is raised on translating raw directive
 * #9577, #10088: py domain: Fix warning for duplicate Python references when
   using ``:any:`` and autodoc.
+* #10548: HTML Search: fix minor summary issues.
 
 Testing
 --------
