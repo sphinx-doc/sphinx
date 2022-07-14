@@ -28,11 +28,11 @@ Features added
   making whitespace issues easier to identify.
 * #10571: quickstart: Reduce content in the generated ``conf.py`` file. Patch by
   Pradyun Gedam.
-* #10619: LaTeX: new ``shadowShadowColor`` and ``shadowBorderColor`` configurations
-  for :ref:`'sphinxsetup' <latexsphinxsetup>` key of :confval:`latex_elements`
-* #10639: LaTeX: ``verbatimradius`` configuration added to the LaTeX keys of
-  :ref:`'sphinxsetup' <latexsphinxsetup>`. If positive, code-blocks are rendered
-  with rounded corners.
+* #10648: LaTeX: CSS-named-alike additional :ref:`'sphinxsetup' <latexsphinxsetup>`
+  keys allow to configure four separate border-widths, four paddings, four
+  corner radii, a shadow (possibly inset), colours for border, background, shadow
+  for each of the code-block, topic, attention, caution, danger, error and warning
+  directives.
 * #10599: HTML Theme: Wrap consecutive footnotes in an ``<aside>`` element when
   using Docutils 0.18 or later, to allow for easier styling. This matches the
   behaviour introduced in Docutils 0.19. Patch by Adam Turner.
