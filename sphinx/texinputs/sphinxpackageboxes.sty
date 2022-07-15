@@ -1,19 +1,20 @@
-%% COLORED BOXES
+%% COLOURED BOXES
 %
 % change this info string if making any custom modification
 \ProvidesPackage{sphinxpackageboxes}[2022/07/04 v5.1.0 advanced colored boxes]
 % Optionally executes \RequirePackage for:
 %
-% - pict2e.  Ideally we would need a recent version of this package which
-%   allows dimensional arguments to its \moveto, \lineto, etc...  but we add
-%   ourselves some wrappers equivalent to its v0.4a 2020/08/16 version.
+% - pict2e.  Ideally we would like to use the v0.4a 2020/08/16 release of this
+%   package as it allows dimensional arguments to its \moveto, \lineto, etc...
+%   Or we could use extra package "picture".  We opt for custom wrappers
+%   \spx@moveto, \spx@lineto, ..., working with old versions.
 
 % Provides box registers \spx@tempboxa, \spx@tempboxb usable in other places
 \newbox\spx@tempboxa
 \newbox\spx@tempboxb
 
-% Internal dimens, conditionals, and color parameters involved
-% in \spx@boxes@fcolorbox@setup which is to be set by callers
+% Internal dimens, conditionals, and colour parameters to be configured
+% by callers in "setup" macros
 \newif\ifspx@boxes@withshadow         
 \newif\ifspx@boxes@insetshadow         
 \newif\ifspx@boxes@withbackgroundcolor
@@ -39,7 +40,7 @@
 \newdimen\spx@boxes@radius@bottomright
 \newdimen\spx@boxes@radius@bottomleft
 %
-% These colours have to be defined in the "init" codes
+% These colours have to be defined appropriately by the callers:
 % spx@boxes@bordercolor
 % spx@boxes@backgroundcolor
 % spx@boxes@shadowcolor
@@ -48,26 +49,28 @@
 % MACROS
 %
 % - \spx@boxes@fcolorbox (4 padding parameters, 4 border widths, 2 shadow widths,
-%   and three colors: background, border and shadow; same as in CSS styling)
+%   and three colours: background, border and shadow; same as in CSS styling)
 %
 % - \spx@boxes@fcolorbox@insetshadow (same as in CSS styling)
 %
-% - \spx@boxes@fcolorbox@rounded (used for code-blocks): rounded corners using
-%   the picture mode and pict2e package for access to PDF graphics
+% - \spx@boxes@fcolorbox@rounded: rounded corners using the picture environment
+%   and pict2e package for its low-weight interface to PDF graphics operations
 
-% This interface is WIP
-% MEMO: we have also successfully tested usage of tcolorbox's \tcbox but
+% MEMO: we have also successfully tested usage of tcolorbox.sty (its \tcbox) but
 % decided to use pict2e.sty for the following reasons:
-% 1- an order of magnitude faster for what we want to do,
+% 1- PDF build was observed to be an order of magnitude faster,
+% 2- the boxes we can do with pict2e appear to be fancy enough,
+%    almost matching what one can see in HTML renderings,
 % 2- orders of magnitude smaller dependency (tcolorbox uses the pgf TeX
-%    framework)
-% 3- possibility to accomplish already quite fancy boxes with pict2e
-%    (and the additional coding as contributed here).
+%    framework), although on Ubuntu it seems texlive-pictures is
+%    needed which also contains the whole of pgf/TikZ... so this point
+%    is a bit moot...
 
-% In this first installment, the caption and continuation hints of code-blocks
-% when using \spx@boxes@fcolorbox@rounded
-% are done exactly as formerly; only difference is in the rounded corners.
-% The space occupied is same, if nothing else is changed.
+% For code-blocks, attachements of caption and continuation hints are done
+% exactly as prior to extension of Sphinx via this package, whether the box
+% has straight or rounded corners.  The vertical space occupied is the same,
+% if nothing else is changed (perhaps in future the title itself could be also
+% rendered in a rounded box?)
 
 \def\spx@RequirePackage@PictIIe{%
 \IfFileExists{pict2e.sty}
@@ -90,19 +93,19 @@
 % horizontal mode).  It takes into account four border widths parameters, four
 % padding parameters, two shadow widths (each possibly negative), and three
 % colors: background, border and shadow.  Its boundary box takes into account
-% all of shadow, border and padding.
+% all of shadow, border and padding.  It is up to the color to take steps for
+% the shadow (and perhaps also border, and padding) to go into margin or stay
+% inside the text area, in collaboration with framed.sty.  In usage as a
+% "FrameCommand" with framed.sty, the argument will already be a collection
+% of TeX boxes (and interline glues).
 %
 % The customization of the various parameters are under responsability of
-% caller.  At some point of code development the parameters were set
-% by expansion of an \spx@boxes@fcolorbox@setup macro inside
-% \spx@boxes@fcolorbox.  Now this is only a hook, because the initialization
-% will be done by caller rather.
+% the caller, before exapnsion of \spx@boxes@fcolorbox.
+% An extra hook is provided:
 \let\spx@boxes@fcolorbox@setuphook\@empty
-% The same applies to \spx@boxes@fcolorbox@rounded, also with (same name)
-% \spx@boxes@fcolorbox@setup left to caller configuration.
 %
 % The parameters are interpreted as they would as CSS properties.
-% For the shadow inset variant see separate \spx@boxes@fcolorbox@insetshadow
+% For inset shadows see separate \spx@boxes@fcolorbox@insetshadow.
 \long\def\spx@boxes@fcolorbox#1{%
   \hbox\bgroup
   \spx@boxes@fcolorbox@setuphook
@@ -221,8 +224,8 @@
 % NOTA BENE
 % We deliberately draw shadow partially under an area later covered by frame
 % with the idea to avoid anti-aliasing problems but in fact this may be a bad
-% idea with border is thin
-% Would need some testing and possibly refactoring
+% idea with border is thin.
+% This may need some extra testing with PDF viewers... reports welcome!
                 \ifdim\spx@boxes@shadow@yoffset>\z@
                   \hrule\@height\dimexpr\spx@boxes@border@top+\spx@boxes@shadow@yoffset\relax
                   \kern-\spx@boxes@shadow@yoffset
@@ -282,7 +285,6 @@
 % Better not to copy over 2020 pict2e definitions in case
 % something internal changes
 % However our wrappers will work ONLY with dimensional inputs
-% (and not 0, only \z@...)
 % No need to pre-expand the arguments
 % Braces in case the expression uses parentheses
 \def\spx@moveto(#1,#2){\moveto({\strip@pt\dimexpr#1\relax},{\strip@pt\dimexpr#2\relax})}
