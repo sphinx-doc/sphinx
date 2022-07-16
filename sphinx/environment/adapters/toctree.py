@@ -139,6 +139,16 @@ class TocTree:
                         item = nodes.list_item('', para)
                         # don't show subitems
                         toc = nodes.bullet_list('', item)
+                    elif ref in {'genindex', 'modindex', 'search'}:
+                        docname, _, sectionname = self.env.domains['std'].labels[ref]   # type: ignore[attr-defined]
+                        if not title:
+                            title = sectionname
+                        reference = nodes.reference('', title, internal=True,
+                                                    refuri=docname, anchorname='')
+                        para = addnodes.compact_paragraph('', '', reference)
+                        item = nodes.list_item('', para)
+                        # don't show subitems
+                        toc = nodes.bullet_list('', item)
                     else:
                         if ref in parents:
                             logger.warning(__('circular toctree references '

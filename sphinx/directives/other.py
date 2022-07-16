@@ -77,6 +77,8 @@ class TocTree(SphinxDirective):
         return ret
 
     def parse_content(self, toctree: addnodes.toctree) -> List[Node]:
+        generated_documents = {'genindex', 'modindex', 'search'}
+        referencable_docs = self.env.found_docs | generated_documents
         suffixes = self.config.source_suffix
 
         # glob target documents
@@ -118,7 +120,7 @@ class TocTree(SphinxDirective):
                 docname = docname_join(self.env.docname, docname)
                 if url_re.match(ref) or ref == 'self':
                     toctree['entries'].append((title, ref))
-                elif docname not in self.env.found_docs:
+                elif docname not in referencable_docs:
                     if excluded(self.env.doc2path(docname, False)):
                         message = __('toctree contains reference to excluded document %r')
                         subtype = 'excluded'
@@ -132,6 +134,8 @@ class TocTree(SphinxDirective):
                 else:
                     if docname in all_docnames:
                         all_docnames.remove(docname)
+                    elif docname in generated_documents:
+                        pass
                     else:
                         logger.warning(__('duplicated entry found in toctree: %s'), docname,
                                        location=toctree)
