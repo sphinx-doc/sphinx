@@ -1,5 +1,5 @@
-Man Pages
-=========
+API Documentation
+=================
 
 These are the applications provided as part of Sphinx.
 

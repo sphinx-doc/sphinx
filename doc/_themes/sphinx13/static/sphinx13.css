@@ -27,7 +27,7 @@ div.document {
 div.body {
     border-left: 1px solid var(--colour-sphinx-blue);
     margin: 0;
-    padding: 0.5em 1.25em;
+    padding: 0.5em 1.75em;
     min-width: 0;
     max-width: 800px;
 }
@@ -59,10 +59,15 @@ div.sphinxsidebarwrapper {
 }
 
 div.sphinxsidebar {
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    height: 100vh;
+    width: 250px;
+    overflow-y: auto;
     overflow-wrap: break-word;
     margin: 0;
     padding-right: 15px;
-    width: 210px;
     font-size: 1em;
 }
 
@@ -99,8 +104,27 @@ div.sphinxsidebar ul {
 }
 
 div.sphinxsidebar ul ul {
-    margin-left: 20px;
+    margin-left: 1rem;
     list-style-type: none;
+    font-size: .9em;
+}
+
+/* De-dent the first list because we hide the top-level item */
+.sphinxsidebar .sphinxsidebar-navigation__contents > ul > li > ul {
+    margin-left: 0;
+}
+
+div.sphinxsidebar p.caption {
+    font-weight: 300;
+    font-size: 1.2rem;
+}
+
+div.sphinxsidebar li.current > a {
+    font-weight: 600;
+}
+
+.sphinxsidebar-navigation__contents > ul > li > a {
+    display: none;
 }
 
 div.footer {
@@ -170,11 +194,10 @@ div.body h1 a tt, div.body h2 a tt, div.body h3 a tt, div.body h4 a tt, div.body
 
 a.headerlink {
     color: var(--colour-sphinx-blue) !important;
-    font-size: 12px;
+    font-size: .8em;
     margin-left: 6px;
     padding: 0 4px 0 4px;
     text-decoration: none !important;
-    float: right;
 }
 
 a.headerlink:hover {
@@ -250,6 +273,12 @@ div.quotebar {
     margin-left: 1em;
 }
 
+blockquote {
+    font-size: 1.5em;
+    padding-left: 1rem;
+    margin-left: 0;
+}
+
 nav.contents,
 div.topic,
 aside.topic {
@@ -271,11 +300,11 @@ div.admonition, div.warning {
     border: 1px solid #86989B;
     border-radius: 2px;
     background-color: #f7f7f7;
-    padding: 0;
+    padding: 1rem;
 }
 
 div.admonition > p, div.warning > p {
-    margin: 0.5em 1em 0.5em 1em;
+    margin: 0;
     padding: 0;
 }
 
@@ -285,7 +314,6 @@ div.admonition > pre, div.warning > pre {
 
 div.admonition > p.admonition-title,
 div.warning > p.admonition-title {
-    margin-top: 0.5em;
     font-weight: bold;
 }
 
