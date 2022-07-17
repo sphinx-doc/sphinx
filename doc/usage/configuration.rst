@@ -225,9 +225,9 @@ General configuration
    using slashes as directory separators on all platforms. The default is ``**``,
    meaning that all files are recursively included from the source directory.
 
-   Example patterns: TODO UPDATE THIS BIT
+   Example patterns:
 
-   - ``'**'`` -- all files in the source directory and all subdirectories, recursivley
+   - ``'**'`` -- all files in the source directory and subdirectories, recursively
    - ``'library/xml'`` -- just the ``library/xml`` directory
    - ``'library/xml*'`` -- all files and directories starting with ``library/xml``
    - ``'**/doc'`` -- all ``doc`` directories (this might be useful if
