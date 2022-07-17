@@ -40,9 +40,41 @@ escape_hl_chars = {ord('\\'): '\\PYGZbs{}',
                    ord('}'): '\\PYGZcb{}'}
 
 # used if Pygments is available
-# use textcomp quote to get a true single quote
+# MEMO: no use of \protected here to avoid having to do hyperref extras,
+# (if in future code highlighting in sectioning titles is activated):
+# the definitions here use only robust, protected or chardef tokens,
+# which are all known to the hyperref re-encoding for bookmarks.
+# The " is troublesome because we would like to use \text\textquotedbl
+# but \textquotedbl is *defined to raise an error* (!) if the font
+# encoding is OT1.  This however could happen from 'fontenc' key.
+# MEMO: the Pygments escapes with \char`\<char> syntax, if the document
+# uses old OT1 font encoding, work correctly only in monospace font.
+# MEMO: the Pygmentize output mark-up is always with a {} after.
 _LATEX_ADD_STYLES = r'''
-\renewcommand\PYGZsq{\textquotesingle}
+% Sphinx redefinitions
+% Originally to obtain a straight single quote via package textcomp, then
+% to fix problems for the 5.0.0 inline code highlighting (captions!).
+% The \text is from amstext, a dependency of sphinx.sty.  It is here only
+% to avoid build errors if for some reason expansion is in math mode.
+\def\PYGZbs{\text\textbackslash}
+\def\PYGZus{\_}
+\def\PYGZob{\{}
+\def\PYGZcb{\}}
+\def\PYGZca{\text\textasciicircum}
+\def\PYGZam{\&}
+\def\PYGZlt{\text\textless}
+\def\PYGZgt{\text\textgreater}
+\def\PYGZsh{\#}
+\def\PYGZpc{\%}
+\def\PYGZdl{\$}
+\def\PYGZhy{\sphinxhyphen}% defined in sphinxlatexstyletext.sty
+\def\PYGZsq{\text\textquotesingle}
+\def\PYGZdq{"}
+\def\PYGZti{\text\textasciitilde}
+\makeatletter
+% use \protected to allow syntax highlighting in captions
+\protected\def\PYG#1#2{\PYG@reset\PYG@toks#1+\relax+{\PYG@do{#2}}}
+\makeatother
 '''
 # fix extra space between lines when Pygments highlighting uses \fcolorbox
 # add a {..} to limit \fboxsep scope, and force \fcolorbox use correct value
@@ -52,7 +84,7 @@ _LATEX_ADD_STYLES_FIXPYG = r'''
 % fix for Pygments <= 2.7.4
 \let\spx@original@fcolorbox\fcolorbox
 \def\spx@fixpyg@fcolorbox{\fboxsep-\fboxrule\spx@original@fcolorbox}
-\def\PYG#1#2{\PYG@reset\PYG@toks#1+\relax+%
+\protected\def\PYG#1#2{\PYG@reset\PYG@toks#1+\relax+%
              {\let\fcolorbox\spx@fixpyg@fcolorbox\PYG@do{#2}}}
 \makeatother
 '''

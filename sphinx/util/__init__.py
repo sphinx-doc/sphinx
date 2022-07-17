@@ -305,7 +305,7 @@ def parselinenos(spec: str, total: int) -> List[int]:
     """Parse a line number spec (such as "1,2,4-6") and return a list of
     wanted line numbers.
     """
-    items = list()
+    items = []
     parts = spec.split(',')
     for part in parts:
         try:
@@ -424,7 +424,7 @@ def encode_uri(uri: str) -> str:
     split = list(urlsplit(uri))
     split[1] = split[1].encode('idna').decode('ascii')
     split[2] = quote_plus(split[2].encode(), '/')
-    query = list((q, v.encode()) for (q, v) in parse_qsl(split[3]))
+    query = [(q, v.encode()) for (q, v) in parse_qsl(split[3])]
     split[3] = urlencode(query)
     return urlunsplit(split)
 

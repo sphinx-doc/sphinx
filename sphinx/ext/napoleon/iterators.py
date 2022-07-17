@@ -1,7 +1,13 @@
 """A collection of helpful iterators."""
 
 import collections
+import warnings
 from typing import Any, Iterable, Optional
+
+from sphinx.deprecation import RemovedInSphinx70Warning
+
+warnings.warn('sphinx.ext.napoleon.iterators is deprecated.',
+              RemovedInSphinx70Warning)
 
 
 class peek_iter:

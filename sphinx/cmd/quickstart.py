@@ -7,11 +7,14 @@ import sys
 import time
 from collections import OrderedDict
 from os import path
-from typing import Any, Callable, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
 
 # try to import readline, unix specific enhancement
 try:
     import readline
+    if TYPE_CHECKING and sys.platform == "win32":  # always false, for type checking
+        raise ImportError
+
     if readline.__doc__ and 'libedit' in readline.__doc__:
         readline.parse_and_bind("bind ^I rl_complete")
         USE_LIBEDIT = True

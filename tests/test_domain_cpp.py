@@ -1113,11 +1113,11 @@ def test_domain_cpp_build_misuse_of_roles(app, status, warning):
                 if targetType == 'templateParam':
                     warn.append("WARNING: cpp:{} targets a {} (".format(r, txtTargetType))
                     warn.append("WARNING: cpp:{} targets a {} (".format(r, txtTargetType))
-    warn = list(sorted(warn))
+    warn = sorted(warn)
     for w in ws:
         assert "targets a" in w
     ws = [w[w.index("WARNING:"):] for w in ws]
-    ws = list(sorted(ws))
+    ws = sorted(ws)
     print("Expected warnings:")
     for w in warn:
         print(w)
@@ -1140,7 +1140,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_True(app, status, war
         res = re.search(pattern, text)
         if not res:
             print("Pattern\n\t%s\nnot found in %s" % (pattern, file))
-            assert False
+            raise AssertionError()
     rolePatterns = [
         ('', 'Sphinx'),
         ('', 'Sphinx::version'),
@@ -1181,7 +1181,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_False(app, status, wa
         res = re.search(pattern, text)
         if not res:
             print("Pattern\n\t%s\nnot found in %s" % (pattern, file))
-            assert False
+            raise AssertionError()
     rolePatterns = [
         ('', 'Sphinx'),
         ('', 'Sphinx::version'),
@@ -1240,7 +1240,7 @@ not found in `{test}`
         def __init__(self, role, root, contents):
             self.name = role
             self.classes = classes(role, root)
-            self.content_classes = dict()
+            self.content_classes = {}
             for tag in contents:
                 self.content_classes[tag] = classes(role, tag)
 

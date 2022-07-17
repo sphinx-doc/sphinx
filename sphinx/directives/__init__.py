@@ -157,6 +157,17 @@ class ObjectDescription(SphinxDirective, Generic[T]):
 
         node = addnodes.desc()
         node.document = self.state.document
+        source, line = self.get_source_info()
+        # If any options were specified to the directive,
+        # self.state.document.current_line will at this point be set to
+        # None.  To ensure nodes created as part of the signature have a line
+        # number set, set the document's line number correctly.
+        #
+        # Note that we need to subtract one from the line number since
+        # note_source uses 0-based line numbers.
+        if line is not None:
+            line -= 1
+        self.state.document.note_source(source, line)
         node['domain'] = self.domain
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype

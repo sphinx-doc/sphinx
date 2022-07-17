@@ -51,7 +51,7 @@ def process_ifconfig_nodes(app: Sphinx, doctree: nodes.document, docname: str) -
     ns = {confval.name: confval.value for confval in app.config}
     ns.update(app.config.__dict__.copy())
     ns['builder'] = app.builder.name
-    for node in doctree.findall(ifconfig):
+    for node in list(doctree.findall(ifconfig)):
         try:
             res = eval(node['expr'], ns)
         except Exception as err:

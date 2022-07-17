@@ -1,7 +1,7 @@
 %% TEXT STYLING
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexstyletext.sty}[2021/12/06 text styling]
+\ProvidesFile{sphinxlatexstyletext.sty}[2022/07/02 text styling]
 
 % Basically everything here consists of macros which are part of the latex
 % markup produced by the Sphinx latex writer
@@ -39,6 +39,7 @@
 \protected\def\sphinxstyleothertitle   #1{\textbf{#1}}
 \protected\def\sphinxstylesidebarsubtitle #1{~\\\textbf{#1} \smallskip}
 % \text.. commands do not allow multiple paragraphs
+% attention, this one is not self-delimiting
 \protected\def\sphinxstyletheadfamily    {\sffamily}
 \protected\def\sphinxstyleemphasis     #1{\emph{#1}}
 \protected\def\sphinxstyleliteralemphasis#1{\emph{\sphinxcode{#1}}}
@@ -46,8 +47,8 @@
 \protected\def\sphinxstyleliteralstrong#1{\sphinxbfcode{#1}}
 \protected\def\sphinxstyleabbreviation #1{\textsc{#1}}
 \protected\def\sphinxstyleliteralintitle#1{\sphinxcode{#1}}
-\newcommand*\sphinxstylecodecontinued[1]{\footnotesize(#1)}%
-\newcommand*\sphinxstylecodecontinues[1]{\footnotesize(#1)}%
+\newcommand*\sphinxstylecodecontinued[1]{{\footnotesize(#1)}}%
+\newcommand*\sphinxstylecodecontinues[1]{{\footnotesize(#1)}}%
 % figure legend comes after caption and may contain arbitrary body elements
 \newenvironment{sphinxlegend}{\par\small}{\par}
 % reduce hyperref "Token not allowed in a PDF string" warnings on PDF builds
@@ -68,6 +69,7 @@
     \let\sphinxcrossref \@firstofone
     \let\sphinxtermref  \@firstofone
     \let\sphinxhyphen\sphinxhyphenforbookmarks
+    \def\PYG#1#2{#2}% (can not yet appear in section titles, but perhaps in future)
 }}
 
 % Special characters

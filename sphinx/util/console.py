@@ -23,6 +23,9 @@ def terminal_safe(s: str) -> str:
 
 def get_terminal_width() -> int:
     """Borrowed from the py lib."""
+    if sys.platform == "win32":
+        # For static typing, as fcntl & termios never exist on Windows.
+        return int(os.environ.get('COLUMNS', 80)) - 1
     try:
         import fcntl
         import struct
@@ -32,7 +35,7 @@ def get_terminal_width() -> int:
         terminal_width = width
     except Exception:
         # FALLBACK
-        terminal_width = int(os.environ.get('COLUMNS', "80")) - 1
+        terminal_width = int(os.environ.get('COLUMNS', 80)) - 1
     return terminal_width
 
 

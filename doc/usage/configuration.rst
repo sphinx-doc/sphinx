@@ -706,6 +706,15 @@ General configuration
 
     .. versionadded:: 3.0
 
+.. confval:: option_emphasise_placeholders
+
+   Default is ``False``.
+   When enabled, emphasise placeholders in :rst:dir:`option` directives.
+   To display literal braces, escape with a backslash (``\{``). For example,
+   ``option_emphasise_placeholders=True`` and ``.. option:: -foption={TYPE}`` would
+   render with ``TYPE`` emphasised.
+
+   .. versionadded:: 5.1
 
 .. _intl-options:
 
@@ -725,13 +734,15 @@ documentation on :ref:`intl` for details.
    (e.g. the German version of ``myfigure.png`` will be ``myfigure.de.png``
    by default setting) and substitute them for original figures.  In the LaTeX
    builder, a suitable language will be selected as an option for the *Babel*
-   package.  Default is ``None``, which means that no translation will be done.
+   package.  Default is ``'en'``.
 
    .. versionadded:: 0.5
 
    .. versionchanged:: 1.4
 
       Support figure substitution
+
+   .. versionchanged:: 5.0
 
    Currently supported languages by Sphinx are:
 
@@ -745,7 +756,7 @@ documentation on :ref:`intl` for details.
    * ``da`` -- Danish
    * ``de`` -- German
    * ``el`` -- Greek
-   * ``en`` -- English
+   * ``en`` -- English (default)
    * ``eo`` -- Esperanto
    * ``es`` -- Spanish
    * ``et`` -- Estonian
@@ -2827,7 +2838,7 @@ Options for the Python domain
    .. note:: This configuration is still in experimental
 
 Example of configuration file
-=============================
+-----------------------------
 
 .. literalinclude:: /_static/conf.py.txt
    :language: python

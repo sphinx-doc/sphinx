@@ -39,7 +39,7 @@ with "\\?": b?'here: >>>(\\\\|/)xbb<<<((\\\\|/)r)?'
 """
 
 HTML_WARNINGS = ENV_WARNINGS + """\
-%(root)s/index.rst:\\d+: WARNING: unknown option: &option
+%(root)s/index.rst:\\d+: WARNING: unknown option: '&option'
 %(root)s/index.rst:\\d+: WARNING: citation not found: missing
 %(root)s/index.rst:\\d+: WARNING: a suitable image for html builder not found: foo.\\*
 %(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
@@ -79,7 +79,7 @@ def tail_check(check):
         for node in nodes:
             if node.tail and rex.search(node.tail):
                 return True
-        assert False, '%r not found in tail of any nodes %s' % (check, nodes)
+        raise AssertionError('%r not found in tail of any nodes %s' % (check, nodes))
     return checker
 
 
@@ -114,9 +114,9 @@ def check_xpath(etree, fname, path, check, be_found=True):
             if all(not rex.search(get_text(node)) for node in nodes):
                 return
 
-        assert False, ('%r not found in any node matching '
-                       'path %s in %s: %r' % (check, path, fname,
-                                              [node.text for node in nodes]))
+        raise AssertionError(('%r not found in any node matching '
+                              'path %s in %s: %r' % (check, path, fname,
+                                                     [node.text for node in nodes])))
 
 
 @pytest.mark.sphinx('html', testroot='warnings')
@@ -1520,7 +1520,7 @@ def test_html_math_renderer_is_duplicated(make_app, app_params):
     try:
         args, kwargs = app_params
         make_app(*args, **kwargs)
-        assert False
+        raise AssertionError()
     except ConfigError as exc:
         assert str(exc) == ('Many math_renderers are registered. '
                             'But no math_renderer is selected.')
@@ -1550,7 +1550,7 @@ def test_html_math_renderer_is_mismatched(make_app, app_params):
     try:
         args, kwargs = app_params
         make_app(*args, **kwargs)
-        assert False
+        raise AssertionError()
     except ConfigError as exc:
         assert str(exc) == "Unknown math_renderer 'imgmath' is given."
 
@@ -1735,6 +1735,53 @@ def test_html_code_role(app):
     assert ('<div class="highlight-python notranslate">' +
             '<div class="highlight"><pre><span></span>' +
             common_content) in content
+
+
+@pytest.mark.sphinx('html', testroot='root',
+                    confoverrides={'option_emphasise_placeholders': True})
+def test_option_emphasise_placeholders(app, status, warning):
+    app.build()
+    content = (app.outdir / 'objects.html').read_text()
+    assert '<em><span class="pre">TYPE</span></em>' in content
+    assert '{TYPE}' not in content
+    assert ('<em><span class="pre">WHERE</span></em>'
+            '<span class="pre">-</span>'
+            '<em><span class="pre">COUNT</span></em>' in content)
+    assert '<span class="pre">{{value}}</span>' in content
+    assert ('<span class="pre">--plugin.option</span></span>'
+            '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Permalink to this definition">¶</a></dt>') in content
+
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_option_emphasise_placeholders_default(app, status, warning):
+    app.build()
+    content = (app.outdir / 'objects.html').read_text()
+    assert '<span class="pre">={TYPE}</span>' in content
+    assert '<span class="pre">={WHERE}-{COUNT}</span></span>' in content
+    assert '<span class="pre">{client_name}</span>' in content
+    assert ('<span class="pre">--plugin.option</span></span>'
+            '<span class="sig-prename descclassname"></span>'
+            '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Permalink to this definition">¶</a></dt>') in content
+
+
+@pytest.mark.sphinx('html', testroot='theming')
+def test_theme_options(app, status, warning):
+    app.build()
+
+    result = (app.outdir / '_static' / 'documentation_options.js').read_text(encoding='utf8')
+    assert 'NAVIGATION_WITH_KEYS: false' in result
+    assert 'ENABLE_SEARCH_SHORTCUTS: true' in result
+
+
+@pytest.mark.sphinx('html', testroot='theming',
+                    confoverrides={'html_theme_options.navigation_with_keys': True,
+                                   'html_theme_options.enable_search_shortcuts': False})
+def test_theme_options_with_override(app, status, warning):
+    app.build()
+
+    result = (app.outdir / '_static' / 'documentation_options.js').read_text(encoding='utf8')
+    assert 'NAVIGATION_WITH_KEYS: true' in result
+    assert 'ENABLE_SEARCH_SHORTCUTS: false' in result
 
 
 @pytest.mark.sphinx('html', testroot='build-html-theme-having-multiple-stylesheets')

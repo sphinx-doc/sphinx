@@ -119,9 +119,9 @@ class CheckExternalLinksBuilder(DummyBuilder):
     def process_result(self, result: CheckResult) -> None:
         filename = self.env.doc2path(result.docname, None)
 
-        linkstat = dict(filename=filename, lineno=result.lineno,
-                        status=result.status, code=result.code, uri=result.uri,
-                        info=result.message)
+        linkstat = {"filename": filename, "lineno": result.lineno,
+                    "status": result.status, "code": result.code, "uri": result.uri,
+                    "info": result.message}
         self.write_linkstat(linkstat)
 
         if result.status == 'unchecked':
@@ -301,7 +301,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 req_url = encode_uri(req_url)
 
             # Get auth info, if any
-            for pattern, auth_info in self.auth:
+            for pattern, auth_info in self.auth:  # noqa: B007 (false positive)
                 if pattern.match(uri):
                     break
             else:

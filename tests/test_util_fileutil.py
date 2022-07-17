@@ -80,7 +80,7 @@ def test_copy_asset(tempdir):
 
     # copy directories
     destdir = tempdir / 'test2'
-    copy_asset(source, destdir, context=dict(var1='bar', var2='baz'), renderer=renderer)
+    copy_asset(source, destdir, context={'var1': 'bar', 'var2': 'baz'}, renderer=renderer)
     assert (destdir / 'index.rst').exists()
     assert (destdir / 'foo.rst').exists()
     assert (destdir / 'foo.rst').read_text(encoding='utf8') == 'bar.rst'
@@ -95,7 +95,7 @@ def test_copy_asset(tempdir):
 
     destdir = tempdir / 'test3'
     copy_asset(source, destdir, excluded,
-               context=dict(var1='bar', var2='baz'), renderer=renderer)
+               context={'var1': 'bar', 'var2': 'baz'}, renderer=renderer)
     assert (destdir / 'index.rst').exists()
     assert (destdir / 'foo.rst').exists()
     assert not (destdir / '_static' / 'basic.css').exists()

@@ -8,7 +8,27 @@ from subprocess import PIPE, CalledProcessError
 
 import pytest
 
+from sphinx.builders.gettext import Catalog, MsgOrigin
 from sphinx.util.osutil import cd
+
+
+def test_Catalog_duplicated_message():
+    catalog = Catalog()
+    catalog.add('hello', MsgOrigin('/path/to/filename', 1))
+    catalog.add('hello', MsgOrigin('/path/to/filename', 1))
+    catalog.add('hello', MsgOrigin('/path/to/filename', 2))
+    catalog.add('hello', MsgOrigin('/path/to/yetanother', 1))
+    catalog.add('world', MsgOrigin('/path/to/filename', 1))
+
+    assert len(list(catalog)) == 2
+
+    msg1, msg2 = list(catalog)
+    assert msg1.text == 'hello'
+    assert msg1.locations == [('/path/to/filename', 1),
+                              ('/path/to/filename', 2),
+                              ('/path/to/yetanother', 1)]
+    assert msg2.text == 'world'
+    assert msg2.locations == [('/path/to/filename', 1)]
 
 
 @pytest.mark.sphinx('gettext', srcdir='root-gettext')
@@ -40,7 +60,7 @@ def test_msgfmt(app):
         except CalledProcessError as exc:
             print(exc.stdout)
             print(exc.stderr)
-            assert False, 'msginit exited with return code %s' % exc.returncode
+            raise AssertionError('msginit exited with return code %s' % exc.returncode)
 
         assert (app.outdir / 'en_US.po').isfile(), 'msginit failed'
         try:
@@ -52,7 +72,7 @@ def test_msgfmt(app):
         except CalledProcessError as exc:
             print(exc.stdout)
             print(exc.stderr)
-            assert False, 'msgfmt exited with return code %s' % exc.returncode
+            raise AssertionError('msgfmt exited with return code %s' % exc.returncode)
 
         mo = app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo'
         assert mo.isfile(), 'msgfmt failed'

@@ -48,13 +48,13 @@ def test_core_config(app, status, warning):
 
     # invalid values
     with pytest.raises(AttributeError):
-        getattr(cfg, '_value')
+        cfg._value
     with pytest.raises(AttributeError):
-        getattr(cfg, 'nonexisting_value')
+        cfg.nonexisting_value
 
     # non-value attributes are deleted from the namespace
     with pytest.raises(AttributeError):
-        getattr(cfg, 'sys')
+        cfg.sys
 
     # setting attributes
     cfg.project = 'Foo'
@@ -381,3 +381,49 @@ def test_nitpick_ignore_regex_fullmatch(app, status, warning):
     assert len(warning) == len(nitpick_warnings)
     for actual, expected in zip(warning, nitpick_warnings):
         assert expected in actual
+
+
+def test_conf_py_language_none(tempdir):
+    """Regression test for #10474."""
+
+    # Given a conf.py file with language = None
+    (tempdir / 'conf.py').write_text("language = None", encoding='utf-8')
+
+    # When we load conf.py into a Config object
+    cfg = Config.read(tempdir, {}, None)
+    cfg.init_values()
+
+    # Then the language is coerced to English
+    assert cfg.language == "en"
+
+
+@mock.patch("sphinx.config.logger")
+def test_conf_py_language_none_warning(logger, tempdir):
+    """Regression test for #10474."""
+
+    # Given a conf.py file with language = None
+    (tempdir / 'conf.py').write_text("language = None", encoding='utf-8')
+
+    # When we load conf.py into a Config object
+    Config.read(tempdir, {}, None)
+
+    # Then a warning is raised
+    assert logger.warning.called
+    assert logger.warning.call_args[0][0] == (
+        "Invalid configuration value found: 'language = None'. "
+        "Update your configuration to a valid language code. "
+        "Falling back to 'en' (English).")
+
+
+def test_conf_py_no_language(tempdir):
+    """Regression test for #10474."""
+
+    # Given a conf.py file with no language attribute
+    (tempdir / 'conf.py').write_text("", encoding='utf-8')
+
+    # When we load conf.py into a Config object
+    cfg = Config.read(tempdir, {}, None)
+    cfg.init_values()
+
+    # Then the language is coerced to English
+    assert cfg.language == "en"

@@ -2,6 +2,9 @@ name: Lint source code
 
 on: [push, pull_request]
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -11,11 +14,11 @@ jobs:
         tool: [docslint, flake8, isort, mypy, twine]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v4
       with:
-        python-version: 3.6
+        python-version: 3
     - name: Install dependencies
       run:  pip install -U tox
     - name: Run Tox

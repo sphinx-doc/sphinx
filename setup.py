@@ -20,7 +20,7 @@ install_requires = [
     'sphinxcontrib-qthelp',
     'Jinja2>=2.3',
     'Pygments>=2.0',
-    'docutils>=0.14,<0.19',
+    'docutils>=0.14,<0.20',
     'snowballstemmer>=1.1',
     'babel>=1.3',
     'alabaster>=0.7,<0.8',
@@ -40,8 +40,11 @@ extras_require = {
     ],
     'lint': [
         'flake8>=3.5.0',
+        'flake8-comprehensions',
+        'flake8-bugbear',
         'isort',
         'mypy>=0.950',
+        'sphinx-lint',
         'docutils-stubs',
         "types-typed-ast",
         "types-requests",
@@ -67,6 +70,7 @@ setup(
     long_description_content_type='text/x-rst',
     project_urls={
         "Code": "https://github.com/sphinx-doc/sphinx",
+        "Changelog": "https://www.sphinx-doc.org/en/master/changes.html",
         "Issue tracker": "https://github.com/sphinx-doc/sphinx/issues",
     },
     zip_safe=False,

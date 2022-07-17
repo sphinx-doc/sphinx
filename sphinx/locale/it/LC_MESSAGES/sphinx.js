@@ -57,5 +57,5 @@ Documentation.addTranslations({
         "search this documentation": "cerca in questa documentazione",
         "the documentation for": "la documentazione per"
     },
-    "plural_expr": "(n != 1)"
+    "plural_expr": "n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2"
 });

@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   ubuntu:
     runs-on: ubuntu-18.04
-    name: Python ${{ matrix.python }}
+    name: Python ${{ matrix.python }} (${{ matrix.docutils }})
     strategy:
       fail-fast: false
       matrix:
@@ -20,18 +20,20 @@ jobs:
           docutils: du17
         - python: "3.10"
           docutils: du18
+        - python: "3.10"
+          docutils: du19
         - python: "3.11-dev"
           docutils: py311
 
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python }}
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       if: "!endsWith(matrix.python, '-dev')"
       with:
         python-version: ${{ matrix.python }}
     - name: Set up Python ${{ matrix.python }} (deadsnakes)
-      uses: deadsnakes/action@v2.0.1
+      uses: deadsnakes/action@v2.1.1
       if: "endsWith(matrix.python, '-dev')"
       with:
         python-version: ${{ matrix.python }}
@@ -49,7 +51,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: 3
     - name: Install dependencies

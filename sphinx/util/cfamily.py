@@ -379,7 +379,7 @@ class BaseParser:
         while not self.eof:
             if len(symbols) == 0 and self.current_char in end:
                 break
-            if self.current_char in brackets.keys():
+            if self.current_char in brackets:
                 symbols.append(brackets[self.current_char])
             elif len(symbols) > 0 and self.current_char == symbols[-1]:
                 symbols.pop()

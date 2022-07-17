@@ -3,6 +3,7 @@
 import codecs
 import pickle
 import time
+import warnings
 from os import path
 from typing import (TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Sequence, Set, Tuple,
                     Type, Union)
@@ -11,6 +12,7 @@ from docutils import nodes
 from docutils.nodes import Node
 
 from sphinx.config import Config
+from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.environment import CONFIG_CHANGED_REASON, CONFIG_OK, BuildEnvironment
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
@@ -75,7 +77,7 @@ class Builder:
     #: The builder supports data URIs or not.
     supported_data_uri_images = False
 
-    def __init__(self, app: "Sphinx") -> None:
+    def __init__(self, app: "Sphinx", env: BuildEnvironment = None) -> None:
         self.srcdir = app.srcdir
         self.confdir = app.confdir
         self.outdir = app.outdir
@@ -83,7 +85,14 @@ class Builder:
         ensuredir(self.doctreedir)
 
         self.app: Sphinx = app
-        self.env: Optional[BuildEnvironment] = None
+        if env is not None:
+            self.env: BuildEnvironment = env
+            self.env.set_versioning_method(self.versioning_method,
+                                           self.versioning_compare)
+        elif env is not Ellipsis:
+            # ... is passed by SphinxComponentRegistry.create_builder to not show two warnings.
+            warnings.warn("The 'env' argument to Builder will be required from Sphinx 7.",
+                          RemovedInSphinx70Warning, stacklevel=2)
         self.events: EventManager = app.events
         self.config: Config = app.config
         self.tags: Tags = app.tags
@@ -105,6 +114,9 @@ class Builder:
 
     def set_environment(self, env: BuildEnvironment) -> None:
         """Store BuildEnvironment object."""
+        warnings.warn("Builder.set_environment is deprecated, pass env to "
+                      "'Builder.__init__()' instead.",
+                      RemovedInSphinx70Warning, stacklevel=2)
         self.env = env
         self.env.set_versioning_method(self.versioning_method,
                                        self.versioning_compare)

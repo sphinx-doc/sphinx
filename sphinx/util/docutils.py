@@ -18,6 +18,7 @@ from docutils.parsers.rst import Directive, directives, roles
 from docutils.parsers.rst.states import Inliner
 from docutils.statemachine import State, StateMachine, StringList
 from docutils.utils import Reporter, unescape
+from docutils.writers._html_base import HTMLTranslator  # NoQA
 
 from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
 from sphinx.errors import SphinxError
@@ -183,9 +184,45 @@ def using_user_docutils_conf(confdir: Optional[str]) -> Generator[None, None, No
 
 
 @contextmanager
+def du19_footnotes() -> Generator[None, None, None]:
+    def visit_footnote(self, node):
+        label_style = self.settings.footnote_references
+        if not isinstance(node.previous_sibling(), type(node)):
+            self.body.append(f'<aside class="footnote-list {label_style}">\n')
+        self.body.append(self.starttag(node, 'aside',
+                                       classes=[node.tagname, label_style],
+                                       role="note"))
+
+    def depart_footnote(self, node):
+        self.body.append('</aside>\n')
+        if not isinstance(node.next_node(descend=False, siblings=True),
+                          type(node)):
+            self.body.append('</aside>\n')
+
+    old_visit_footnote = HTMLTranslator.visit_footnote
+    old_depart_footnote = HTMLTranslator.depart_footnote
+
+    # Only apply on Docutils 0.18 or 0.18.1, as 0.17 and earlier used a <dl> based
+    # approach, and 0.19 and later use the fixed approach by default.
+    if docutils.__version_info__[:2] == (0, 18):
+        HTMLTranslator.visit_footnote = visit_footnote  # type: ignore[assignment]
+        HTMLTranslator.depart_footnote = depart_footnote  # type: ignore[assignment]
+
+    try:
+        yield
+    finally:
+        if docutils.__version_info__[:2] == (0, 18):
+            HTMLTranslator.visit_footnote = old_visit_footnote  # type: ignore[assignment]
+            HTMLTranslator.depart_footnote = old_depart_footnote  # type: ignore[assignment]
+
+
+@contextmanager
 def patch_docutils(confdir: Optional[str] = None) -> Generator[None, None, None]:
     """Patch to docutils temporarily."""
-    with patched_get_language(), patched_rst_get_language(), using_user_docutils_conf(confdir):
+    with patched_get_language(), \
+         patched_rst_get_language(), \
+         using_user_docutils_conf(confdir), \
+         du19_footnotes():
         yield
 
 
@@ -550,9 +587,9 @@ class SphinxTranslator(nodes.NodeVisitor):
 
 
 # Node.findall() is a new interface to traverse a doctree since docutils-0.18.
-# This applies a patch docutils-0.17 or older to be available Node.findall()
+# This applies a patch to docutils up to 0.18 inclusive to provide Node.findall()
 # method to use it from our codebase.
-if docutils.__version_info__ < (0, 18):
+if docutils.__version_info__ <= (0, 18):
     def findall(self, *args, **kwargs):
         return iter(self.traverse(*args, **kwargs))
 

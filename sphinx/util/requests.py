@@ -7,20 +7,10 @@ from typing import Any, Generator, Union
 from urllib.parse import urlsplit
 
 import requests
+from urllib3.exceptions import InsecureRequestWarning
 
 import sphinx
 from sphinx.config import Config
-
-try:
-    from requests.packages.urllib3.exceptions import InsecureRequestWarning
-except ImportError:
-    try:
-        # for Debian-jessie
-        from urllib3.exceptions import InsecureRequestWarning
-    except ImportError:
-        # for requests < 2.4.0
-        InsecureRequestWarning = None
-
 
 useragent_header = [('User-Agent',
                      'Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0')]

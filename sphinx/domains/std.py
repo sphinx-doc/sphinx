@@ -15,7 +15,7 @@ from sphinx.addnodes import desc_signature, pending_xref
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.locale import _, __
-from sphinx.roles import XRefRole
+from sphinx.roles import EmphasizedLiteral, XRefRole
 from sphinx.util import docname_join, logging, ws_re
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import clean_astext, make_id, make_refnode
@@ -33,6 +33,8 @@ logger = logging.getLogger(__name__)
 option_desc_re = re.compile(r'((?:/|--|-|\+)?[^\s=]+)(=?\s*.*)')
 # RE for grammar tokens
 token_re = re.compile(r'`((~?\w*:)?\w+)`', re.U)
+
+samp_role = EmphasizedLiteral()
 
 
 class GenericObject(ObjectDescription[str]):
@@ -170,15 +172,40 @@ class Cmdoption(ObjectDescription[str]):
                                location=signode)
                 continue
             optname, args = m.groups()
-            if optname.endswith('[') and args.endswith(']'):
+            if optname[-1] == '[' and args[-1] == ']':
                 # optional value surrounded by brackets (ex. foo[=bar])
                 optname = optname[:-1]
                 args = '[' + args
 
             if count:
-                signode += addnodes.desc_addname(', ', ', ')
+                if self.env.config.option_emphasise_placeholders:
+                    signode += addnodes.desc_sig_punctuation(',', ',')
+                    signode += addnodes.desc_sig_space()
+                else:
+                    signode += addnodes.desc_addname(', ', ', ')
             signode += addnodes.desc_name(optname, optname)
-            signode += addnodes.desc_addname(args, args)
+            if self.env.config.option_emphasise_placeholders:
+                add_end_bracket = False
+                if args:
+                    if args[0] == '[' and args[-1] == ']':
+                        add_end_bracket = True
+                        signode += addnodes.desc_sig_punctuation('[', '[')
+                        args = args[1:-1]
+                    elif args[0] == ' ':
+                        signode += addnodes.desc_sig_space()
+                        args = args.strip()
+                    elif args[0] == '=':
+                        signode += addnodes.desc_sig_punctuation('=', '=')
+                        args = args[1:]
+                    for part in samp_role.parse(args):
+                        if isinstance(part, nodes.Text):
+                            signode += nodes.Text(part.astext())
+                        else:
+                            signode += part
+                if add_end_bracket:
+                    signode += addnodes.desc_sig_punctuation(']', ']')
+            else:
+                signode += addnodes.desc_addname(args, args)
             if not count:
                 firstname = optname
                 signode['allnames'] = [optname]
@@ -573,11 +600,11 @@ class StandardDomain(Domain):
     }
 
     dangling_warnings = {
-        'term': 'term not in glossary: %(target)s',
-        'numref':  'undefined label: %(target)s',
-        'keyword': 'unknown keyword: %(target)s',
-        'doc': 'unknown document: %(target)s',
-        'option': 'unknown option: %(target)s',
+        'term': 'term not in glossary: %(target)r',
+        'numref':  'undefined label: %(target)r',
+        'keyword': 'unknown keyword: %(target)r',
+        'doc': 'unknown document: %(target)r',
+        'option': 'unknown option: %(target)r',
     }
 
     # node_class -> (figtype, title_getter)
@@ -1031,7 +1058,7 @@ class StandardDomain(Domain):
                       figtype: str, docname: str, target_node: Element) -> Tuple[int, ...]:
         if figtype == 'section':
             if builder.name == 'latex':
-                return tuple()
+                return ()
             elif docname not in env.toc_secnumbers:
                 raise ValueError  # no number assigned
             else:
@@ -1072,9 +1099,9 @@ def warn_missing_reference(app: "Sphinx", domain: Domain, node: pending_xref
     else:
         target = node['reftarget']
         if target not in domain.anonlabels:  # type: ignore
-            msg = __('undefined label: %s')
+            msg = __('undefined label: %r')
         else:
-            msg = __('Failed to create a cross reference. A title or caption not found: %s')
+            msg = __('Failed to create a cross reference. A title or caption not found: %r')
 
         logger.warning(msg % target, location=node, type='ref', subtype=node['reftype'])
         return True

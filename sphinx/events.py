@@ -98,6 +98,9 @@ class EventManager:
             except SphinxError:
                 raise
             except Exception as exc:
+                if self.app.pdb:
+                    # Just pass through the error, so that it can be debugged.
+                    raise
                 modname = safe_getattr(listener.handler, '__module__', None)
                 raise ExtensionError(__("Handler %r for event %r threw an exception") %
                                      (listener.handler, name), exc, modname=modname) from exc

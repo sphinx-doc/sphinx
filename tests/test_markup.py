@@ -106,8 +106,7 @@ def verify_re_html(app, parse):
 def verify_re_latex(app, parse):
     def verify(rst, latex_expected):
         document = parse(rst)
-        app.builder = LaTeXBuilder(app)
-        app.builder.set_environment(app.env)
+        app.builder = LaTeXBuilder(app, app.env)
         app.builder.init()
         theme = app.builder.themes.get('manual')
         latex_translator = ForgivingLaTeXTranslator(document, app.builder, theme)
