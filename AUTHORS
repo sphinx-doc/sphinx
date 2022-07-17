@@ -1,21 +1,19 @@
-Sphinx is written and maintained by Georg Brandl <georg@python.org>.
+Sphinx's maintainers, listed alphabetically by forename, are:
 
-Substantial parts of the templates were written by Armin Ronacher
-<armin.ronacher@active-4.com>.
-
-Other co-maintainers:
-
-* Takayuki Shimizukawa <shimizukawa@gmail.com>
+* Adam Turner <@AA-Turner>
+* Armin Ronacher <armin.ronacher@active-4.com>
 * Daniel Neuhäuser <@DasIch>
-* Jon Waltman <@jonwaltman>
+* François Freitag <@francoisfreitag>
+* Georg Brandl <georg@python.org>
+* Jakob Lykke Andersen <@jakobandersen>
+* Jean-François Burnol <@jfbu>
 * Rob Ruana <@RobRuana>
 * Robert Lehmann <@lehmannro>
-* Roland Meister <@rolmei>
+* Stephen Finucane <@stephenfin>
+* Takayuki Shimizukawa <shimizukawa@gmail.com>
 * Takeshi Komiya <@tk0miya>
-* Jean-François Burnol <@jfbu>
-* Yoshiki Shibukawa <@shibu_jp>
-* Timotheus Kampik - <@TimKam>
-* Adam Turner - <@AA-Turner>
+* Timotheus Kampik <@TimKam>
+* Yoshiki Shibukawa <@shibukawa>
 
 Other contributors, listed alphabetically by forename, are:
 
@@ -52,7 +50,6 @@ Other contributors, listed alphabetically by forename, are:
 * Hugo van Kemenade -- support FORCE_COLOR and NO_COLOR
 * Ian Lee -- quickstart improvements
 * Jacob Mason -- websupport library (GSOC project)
-* Jakob Lykke Andersen -- Rewritten C++ domain
 * Jeppe Pihl -- literalinclude improvements
 * Joel Wurtz -- cellspanning support in LaTeX
 * John Waltman -- Texinfo builder
@@ -79,7 +76,6 @@ Other contributors, listed alphabetically by forename, are:
 * Sebastian Wiesner -- image handling, distutils support
 * Stefan Seefeld -- toctree improvements
 * Stefan van der Walt -- autosummary extension
-* Stephen Finucane -- setup command improvements and documentation
 * T. Powers -- HTML output improvements
 * Taku Shimizu -- epub3 builder
 * Thomas Lamb -- linkcheck builder
