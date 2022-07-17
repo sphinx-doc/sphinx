@@ -315,7 +315,7 @@ class Autosummary(SphinxDirective):
             try:
                 real_name, obj, parent, modname = self.import_by_name(name, prefixes=prefixes)
             except ImportExceptionGroup as exc:
-                errors = list(set("* %s: %s" % (type(e).__name__, e) for e in exc.exceptions))
+                errors = list({"* %s: %s" % (type(e).__name__, e) for e in exc.exceptions})
                 logger.warning(__('autosummary: failed to import %s.\nPossible hints:\n%s'),
                                name, '\n'.join(errors), location=self.get_location())
                 continue

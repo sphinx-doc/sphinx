@@ -237,6 +237,7 @@ a.headerlink {
     visibility: hidden;
 }
 
+{%- if docutils_version_info[:2] < (0, 18) %}
 a.brackets:before,
 span.brackets > a:before{
     content: "[";
@@ -246,6 +247,7 @@ a.brackets:after,
 span.brackets > a:after {
     content: "]";
 }
+{% endif %}
 
 h1:hover > a.headerlink,
 h2:hover > a.headerlink,
@@ -335,13 +337,21 @@ p.sidebar-title {
     font-weight: bold;
 }
 
-div.admonition, div.topic, aside.topic, blockquote {
+{%- if docutils_version_info[:2] >= (0, 18) %}
+nav.contents,
+aside.topic,
+{%- endif %}
+div.admonition, div.topic, blockquote {
     clear: left;
 }
 
 /* -- topics ---------------------------------------------------------------- */
 
-div.topic, aside.topic {
+{%- if docutils_version_info[:2] >= (0, 18) %}
+nav.contents,
+aside.topic,
+{%- endif %}
+div.topic {
     border: 1px solid #ccc;
     padding: 7px;
     margin: 10px 0 10px 0;
@@ -379,16 +389,22 @@ div.body p.centered {
 
 div.sidebar > :last-child,
 aside.sidebar > :last-child,
-div.topic > :last-child,
+{%- if docutils_version_info[:2] >= (0, 18) %}
+nav.contents > :last-child,
 aside.topic > :last-child,
+{%- endif %}
+div.topic > :last-child,
 div.admonition > :last-child {
     margin-bottom: 0;
 }
 
 div.sidebar::after,
 aside.sidebar::after,
-div.topic::after,
+{%- if docutils_version_info[:2] >= (0, 18) %}
+nav.contents::after,
 aside.topic::after,
+{%- endif %}
+div.topic::after,
 div.admonition::after,
 blockquote::after {
     display: block;
@@ -613,7 +629,7 @@ ul.simple p {
     margin-bottom: 0;
 }
 
-/* Docutils 0.17 and older (footnotes & citations) */
+{%- if docutils_version_info[:2] < (0, 18) %}
 dl.footnote > dt,
 dl.citation > dt {
     float: left;
@@ -630,8 +646,7 @@ dl.citation > dd:after {
     content: "";
     clear: both;
 }
-
-/* Docutils 0.18+ (footnotes & citations) */
+{%- elif docutils_version_info[:2] >= (0, 18) %}
 aside.footnote > span,
 div.citation > span {
     float: left;
@@ -655,8 +670,7 @@ div.citation > p:last-of-type:after {
     content: "";
     clear: both;
 }
-
-/* Footnotes & citations ends */
+{%- endif %}
 
 dl.field-list {
     display: grid;
@@ -670,9 +684,11 @@ dl.field-list > dt {
     padding-right: 5px;
 }
 
+{%- if docutils_version_info[:2] < (0, 18) %}
 dl.field-list > dt:after {
     content: ":";
 }
+{% endif %}
 
 dl.field-list > dd {
     padding-left: 0.5em;

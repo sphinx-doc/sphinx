@@ -36,7 +36,7 @@
 {%- macro agogo_sidebar() %}
           {%- block sidebartoc %}
           <h3>{{ _('Table of Contents') }}</h3>
-          {{ toctree() }}
+          {{ toctree(includehidden=True) }}
           {%- endblock %}
           {%- block sidebarsearch %}
           <div role="search">

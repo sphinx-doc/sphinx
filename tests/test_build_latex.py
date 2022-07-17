@@ -25,7 +25,7 @@ STYLEFILES = ['article.cls', 'fancyhdr.sty', 'titlesec.sty', 'amsmath.sty',
               'fncychap.sty', 'geometry.sty', 'kvoptions.sty', 'hyperref.sty']
 
 LATEX_WARNINGS = ENV_WARNINGS + """\
-%(root)s/index.rst:\\d+: WARNING: unknown option: &option
+%(root)s/index.rst:\\d+: WARNING: unknown option: '&option'
 %(root)s/index.rst:\\d+: WARNING: citation not found: missing
 %(root)s/index.rst:\\d+: WARNING: a suitable image for latex builder not found: foo.\\*
 %(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
@@ -60,8 +60,8 @@ def compile_latex_document(app, filename='python.tex'):
     except CalledProcessError as exc:
         print(exc.stdout)
         print(exc.stderr)
-        assert False, '%s exited with return code %s' % (app.config.latex_engine,
-                                                         exc.returncode)
+        raise AssertionError('%s exited with return code %s' % (app.config.latex_engine,
+                                                                exc.returncode))
 
 
 def skip_if_requested(testfunc):
@@ -992,7 +992,7 @@ def test_image_in_section(app, status, warning):
 def test_latex_logo_if_not_found(app, status, warning):
     try:
         app.builder.build_all()
-        assert False  # SphinxError not raised
+        raise AssertionError()  # SphinxError not raised
     except Exception as exc:
         assert isinstance(exc, SphinxError)
 

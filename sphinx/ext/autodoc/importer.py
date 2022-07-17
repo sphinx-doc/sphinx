@@ -3,7 +3,7 @@
 import importlib
 import traceback
 import warnings
-from typing import Any, Callable, Dict, List, NamedTuple, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, NamedTuple, Optional
 
 from sphinx.ext.autodoc.mock import ismock, undecorate
 from sphinx.pycode import ModuleAnalyzer, PycodeError
@@ -11,10 +11,7 @@ from sphinx.util import logging
 from sphinx.util.inspect import (getannotations, getmro, getslots, isclass, isenumclass,
                                  safe_getattr)
 
-if False:
-    # For type annotation
-    from typing import Type  # NOQA
-
+if TYPE_CHECKING:
     from sphinx.ext.autodoc import ObjectMember
 
 logger = logging.getLogger(__name__)
@@ -205,8 +202,8 @@ def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
     return members
 
 
-def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable
-                      ) -> Dict[str, "ObjectMember"]:
+def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable,
+                      inherit_docstrings: bool = True) -> Dict[str, "ObjectMember"]:
     """Get members and attributes of target class."""
     from sphinx.ext.autodoc import INSTANCEATTR, ObjectMember
 
@@ -290,6 +287,11 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable
                     elif (ns == qualname and docstring and
                           isinstance(members[name], ObjectMember) and
                           not members[name].docstring):
+                        if cls != subject and not inherit_docstrings:
+                            # If we are in the MRO of the class and not the class itself,
+                            # and we do not want to inherit docstrings, then skip setting
+                            # the docstring below
+                            continue
                         # attribute is already known, because dir(subject) enumerates it.
                         # But it has no docstring yet
                         members[name].docstring = '\n'.join(docstring)

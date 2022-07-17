@@ -10,7 +10,6 @@ from typing import Any, Callable, Dict, List, Tuple, Type, Union
 from sphinx.application import Sphinx
 from sphinx.config import Config as SphinxConfig
 from sphinx.deprecation import RemovedInSphinx60Warning
-from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.inspect import stringify_annotation
@@ -44,6 +43,19 @@ _default_regex = re.compile(
     r"^default[^_0-9A-Za-z].*$",
 )
 _SINGLETONS = ("None", "True", "False", "Ellipsis")
+
+
+class Deque(collections.deque):
+    """A subclass of deque with an additional `.Deque.get` method."""
+
+    sentinel = object()
+
+    def get(self, n: int) -> Any:
+        """
+        Return the nth element of the stack, or ``self.sentinel`` if n is
+        greater than the stack size.
+        """
+        return self[n] if n < len(self) else self.sentinel
 
 
 def _convert_type_spec(_type: str, translations: Dict[str, str] = {}) -> str:
@@ -153,7 +165,7 @@ class GoogleDocstring:
             lines = docstring.splitlines()
         else:
             lines = docstring
-        self._line_iter = modify_iter(lines, modifier=lambda s: s.rstrip())
+        self._lines = Deque(map(str.rstrip, lines))
         self._parsed_lines: List[str] = []
         self._is_in_section = False
         self._section_indent = 0
@@ -225,32 +237,32 @@ class GoogleDocstring:
 
     def _consume_indented_block(self, indent: int = 1) -> List[str]:
         lines = []
-        line = self._line_iter.peek()
+        line = self._lines.get(0)
         while(not self._is_section_break() and
               (not line or self._is_indented(line, indent))):
-            lines.append(next(self._line_iter))
-            line = self._line_iter.peek()
+            lines.append(self._lines.popleft())
+            line = self._lines.get(0)
         return lines
 
     def _consume_contiguous(self) -> List[str]:
         lines = []
-        while (self._line_iter.has_next() and
-               self._line_iter.peek() and
+        while (self._lines and
+               self._lines.get(0) and
                not self._is_section_header()):
-            lines.append(next(self._line_iter))
+            lines.append(self._lines.popleft())
         return lines
 
     def _consume_empty(self) -> List[str]:
         lines = []
-        line = self._line_iter.peek()
-        while self._line_iter.has_next() and not line:
-            lines.append(next(self._line_iter))
-            line = self._line_iter.peek()
+        line = self._lines.get(0)
+        while self._lines and not line:
+            lines.append(self._lines.popleft())
+            line = self._lines.get(0)
         return lines
 
     def _consume_field(self, parse_type: bool = True, prefer_type: bool = False
                        ) -> Tuple[str, str, List[str]]:
-        line = next(self._line_iter)
+        line = self._lines.popleft()
 
         before, colon, after = self._partition_field_on_colon(line)
         _name, _type, _desc = before, '', after
@@ -288,7 +300,7 @@ class GoogleDocstring:
         return fields
 
     def _consume_inline_attribute(self) -> Tuple[str, List[str]]:
-        line = next(self._line_iter)
+        line = self._lines.popleft()
         _type, colon, _desc = self._partition_field_on_colon(line)
         if not colon or not _desc:
             _type, _desc = _desc, _type
@@ -326,7 +338,7 @@ class GoogleDocstring:
         return lines
 
     def _consume_section_header(self) -> str:
-        section = next(self._line_iter)
+        section = self._lines.popleft()
         stripped_section = section.strip(':')
         if stripped_section.lower() in self._sections:
             section = stripped_section
@@ -334,15 +346,15 @@ class GoogleDocstring:
 
     def _consume_to_end(self) -> List[str]:
         lines = []
-        while self._line_iter.has_next():
-            lines.append(next(self._line_iter))
+        while self._lines:
+            lines.append(self._lines.popleft())
         return lines
 
     def _consume_to_next_section(self) -> List[str]:
         self._consume_empty()
         lines = []
         while not self._is_section_break():
-            lines.append(next(self._line_iter))
+            lines.append(self._lines.popleft())
         return lines + self._consume_empty()
 
     def _dedent(self, lines: List[str], full: bool = False) -> List[str]:
@@ -468,12 +480,12 @@ class GoogleDocstring:
         return lines
 
     def _get_current_indent(self, peek_ahead: int = 0) -> int:
-        line = self._line_iter.peek(peek_ahead + 1)[peek_ahead]
-        while line != self._line_iter.sentinel:
+        line = self._lines.get(peek_ahead)
+        while line is not self._lines.sentinel:
             if line:
                 return self._get_indent(line)
             peek_ahead += 1
-            line = self._line_iter.peek(peek_ahead + 1)[peek_ahead]
+            line = self._lines.get(peek_ahead)
         return 0
 
     def _get_indent(self, line: str) -> int:
@@ -528,7 +540,7 @@ class GoogleDocstring:
         return next_indent > indent
 
     def _is_section_header(self) -> bool:
-        section = self._line_iter.peek().lower()
+        section = self._lines.get(0).lower()
         match = _google_section_regex.match(section)
         if match and section.strip(':') in self._sections:
             header_indent = self._get_indent(section)
@@ -542,8 +554,8 @@ class GoogleDocstring:
         return False
 
     def _is_section_break(self) -> bool:
-        line = self._line_iter.peek()
-        return (not self._line_iter.has_next() or
+        line = self._lines.get(0)
+        return (not self._lines or
                 self._is_section_header() or
                 (self._is_in_section and
                     line and
@@ -585,7 +597,7 @@ class GoogleDocstring:
             self._parsed_lines.extend(res)
             return
 
-        while self._line_iter.has_next():
+        while self._lines:
             if self._is_section_header():
                 try:
                     section = self._consume_section_header()
@@ -931,12 +943,12 @@ def _tokenize_type_spec(spec: str) -> List[str]:
         else:
             return [item]
 
-    tokens = list(
+    tokens = [
         item
         for raw_token in _token_regex.split(spec)
         for item in postprocess(raw_token)
         if item
-    )
+    ]
     return tokens
 
 
@@ -1158,7 +1170,7 @@ class NumpyDocstring(GoogleDocstring):
 
     def _consume_field(self, parse_type: bool = True, prefer_type: bool = False
                        ) -> Tuple[str, str, List[str]]:
-        line = next(self._line_iter)
+        line = self._lines.popleft()
         if parse_type:
             _name, _, _type = self._partition_field_on_colon(line)
         else:
@@ -1189,15 +1201,15 @@ class NumpyDocstring(GoogleDocstring):
         return self._consume_fields(prefer_type=True)
 
     def _consume_section_header(self) -> str:
-        section = next(self._line_iter)
+        section = self._lines.popleft()
         if not _directive_regex.match(section):
             # Consume the header underline
-            next(self._line_iter)
+            self._lines.popleft()
         return section
 
     def _is_section_break(self) -> bool:
-        line1, line2 = self._line_iter.peek(2)
-        return (not self._line_iter.has_next() or
+        line1, line2 = self._lines.get(0), self._lines.get(1)
+        return (not self._lines or
                 self._is_section_header() or
                 ['', ''] == [line1, line2] or
                 (self._is_in_section and
@@ -1205,7 +1217,7 @@ class NumpyDocstring(GoogleDocstring):
                     not self._is_indented(line1, self._section_indent)))
 
     def _is_section_header(self) -> bool:
-        section, underline = self._line_iter.peek(2)
+        section, underline = self._lines.get(0), self._lines.get(1)
         section = section.lower()
         if section in self._sections and isinstance(underline, str):
             return bool(_numpy_section_regex.match(underline))

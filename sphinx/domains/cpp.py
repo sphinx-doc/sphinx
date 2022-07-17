@@ -2,7 +2,7 @@
 
 import re
 from typing import (Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple, TypeVar,
-                    Union, cast)
+                    Union)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement, system_message
@@ -754,15 +754,15 @@ class ASTNestedName(ASTBase):
         # just print the name part, with template args, not template params
         if mode == 'noneIsName':
             if self.rooted:
-                assert False, "Can this happen?"  # TODO
+                raise AssertionError("Can this happen?")  # TODO
                 signode += nodes.Text('::')
             for i in range(len(self.names)):
                 if i != 0:
-                    assert False, "Can this happen?"  # TODO
+                    raise AssertionError("Can this happen?")  # TODO
                     signode += nodes.Text('::blah')
                 n = self.names[i]
                 if self.templates[i]:
-                    assert False, "Can this happen?"  # TODO
+                    raise AssertionError("Can this happen?")  # TODO
                     signode += nodes.Text("template")
                     signode += nodes.Text(" ")
                 n.describe_signature(signode, mode, env, '', symbol)
@@ -1386,7 +1386,7 @@ class ASTNewExpr(ASTExpression):
         if self.isNewTypeId:
             res.append(transform(self.typ))
         else:
-            assert False
+            raise AssertionError()
         if self.initList is not None:
             res.append(transform(self.initList))
         return ''.join(res)
@@ -1413,7 +1413,7 @@ class ASTNewExpr(ASTExpression):
         if self.isNewTypeId:
             self.typ.describe_signature(signode, mode, env, symbol)
         else:
-            assert False
+            raise AssertionError()
         if self.initList is not None:
             self.initList.describe_signature(signode, mode, env, symbol)
 
@@ -1990,7 +1990,7 @@ class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
                 signode += addnodes.desc_sig_keyword('auto', 'auto')
                 signode += addnodes.desc_sig_punctuation(')', ')')
             else:
-                assert False, self.placeholderType
+                raise AssertionError(self.placeholderType)
 
 
 class ASTFunctionParameter(ASTBase):
@@ -3095,8 +3095,7 @@ class ASTType(ASTBase):
                 elif objectType == 'type':  # just the name
                     res.append(symbol.get_full_nested_name().get_id(version))
                 else:
-                    print(objectType)
-                    assert False
+                    raise AssertionError(objectType)
             else:  # only type encoding
                 if self.decl.is_function_type():
                     raise NoOldIdError()
@@ -3125,8 +3124,7 @@ class ASTType(ASTBase):
             elif objectType == 'type':  # just the name
                 res.append(symbol.get_full_nested_name().get_id(version))
             else:
-                print(objectType)
-                assert False
+                raise AssertionError(objectType)
         else:  # only type encoding
             # the 'returnType' of a non-function type is simply just the last
             # type, i.e., for 'int*' it is 'int'
@@ -4049,7 +4047,7 @@ class ASTDeclaration(ASTBase):
             mainDeclNode += addnodes.desc_sig_keyword('enumerator', 'enumerator')
             mainDeclNode += addnodes.desc_sig_space()
         else:
-            assert False, self.objectType
+            raise AssertionError(self.objectType)
         self.declaration.describe_signature(mainDeclNode, mode, env, self.symbol)
         lastDeclNode = mainDeclNode
         if self.trailingRequiresClause:
@@ -4103,11 +4101,11 @@ class Symbol:
     debug_show_tree = False  # overridden by the corresponding config value
 
     def __copy__(self):
-        assert False  # shouldn't happen
+        raise AssertionError()  # shouldn't happen
 
     def __deepcopy__(self, memo):
         if self.parent:
-            assert False  # shouldn't happen
+            raise AssertionError()  # shouldn't happen
         else:
             # the domain base class makes a copy of the initial data, which is fine
             return Symbol(None, None, None, None, None, None, None)
@@ -4131,7 +4129,7 @@ class Symbol:
 
     def __setattr__(self, key: str, value: Any) -> None:
         if key == "children":
-            assert False
+            raise AssertionError()
         else:
             return super().__setattr__(key, value)
 
@@ -5754,7 +5752,7 @@ class DefinitionParser(BaseParser):
             while not self.eof:
                 if (len(symbols) == 0 and self.current_char in end):
                     break
-                if self.current_char in brackets.keys():
+                if self.current_char in brackets:
                     symbols.append(brackets[self.current_char])
                 elif len(symbols) > 0 and self.current_char == symbols[-1]:
                     symbols.pop()
@@ -5991,7 +5989,7 @@ class DefinitionParser(BaseParser):
             if modifier is not None:
                 self.fail("Can not have {} without a floating point type.".format(modifier))
         else:
-            assert False, "Unhandled type {}".format(typ)
+            raise AssertionError("Unhandled type {}".format(typ))
 
         canonNames: List[str] = []
         if modifier is not None:
@@ -6513,7 +6511,7 @@ class DefinitionParser(BaseParser):
                 elif outer == 'function':
                     desc = "If the function has no return type"
                 else:
-                    assert False
+                    raise AssertionError()
                 prevErrors.append((exUntyped, desc))
                 self.pos = startPos
                 try:
@@ -6526,7 +6524,7 @@ class DefinitionParser(BaseParser):
                     elif outer == 'function':
                         desc = "If the function has a return type"
                     else:
-                        assert False
+                        raise AssertionError()
                     prevErrors.append((exTyped, desc))
                     # Retain the else branch for easier debugging.
                     # TODO: it would be nice to save the previous stacktrace
@@ -6538,7 +6536,7 @@ class DefinitionParser(BaseParser):
                         elif outer == 'function':
                             header = "Error when parsing function declaration."
                         else:
-                            assert False
+                            raise AssertionError()
                         raise self._make_multi_error(prevErrors, header) from exTyped
                     else:
                         # For testing purposes.
@@ -6997,7 +6995,7 @@ class DefinitionParser(BaseParser):
         elif objectType == 'enumerator':
             declaration = self._parse_enumerator()
         else:
-            assert False
+            raise AssertionError()
         templatePrefix = self._check_template_consistency(declaration.name,
                                                           templatePrefix,
                                                           fullSpecShorthand=False,
@@ -7519,7 +7517,6 @@ class AliasTransform(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.findall(AliasNode):
-            node = cast(AliasNode, node)
             sig = node.sig
             parentKey = node.parentKey
             try:
@@ -7925,7 +7922,7 @@ class CPPDomain(Domain):
             if objtypes:
                 return declTyp in objtypes
             print("Type is %s, declaration type is %s" % (typ, declTyp))
-            assert False
+            raise AssertionError()
         if not checkType():
             logger.warning("cpp:%s targets a %s (%s).",
                            typ, s.declaration.objectType,

@@ -396,7 +396,7 @@ class PyXrefMixin:
                 results.append(self.make_xref(rolename, domain, sub_target,
                                               innernode, contnode, env, inliner, location))
 
-            if sub_target in ('Literal', 'typing.Literal'):
+            if sub_target in ('Literal', 'typing.Literal', '~typing.Literal'):
                 in_literal = True
 
         return results
@@ -1365,7 +1365,14 @@ class PythonDomain(Domain):
 
         # always search in "refspecific" mode with the :any: role
         matches = self.find_obj(env, modname, clsname, target, None, 1)
+        multiple_matches = len(matches) > 1
+
         for name, obj in matches:
+
+            if multiple_matches and obj.aliased:
+                # Skip duplicated matches
+                continue
+
             if obj[2] == 'module':
                 results.append(('py:mod',
                                 self._make_module_refnode(builder, fromdocname,

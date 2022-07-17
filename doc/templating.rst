@@ -377,16 +377,43 @@ in the future.
 .. data:: sphinx_version_tuple
 
    The version of Sphinx used to build represented as a tuple of five elements.
-   For Sphinx version 3.5.1 beta 3 this would be `(3, 5, 1, 'beta', 3)``.
+   For Sphinx version 3.5.1 beta 3 this would be ``(3, 5, 1, 'beta', 3)``.
    The fourth element can be one of: ``alpha``, ``beta``, ``rc``, ``final``.
    ``final`` always has 0 as the last element.
 
    .. versionadded:: 4.2
 
+.. data:: docutils_version_info
+
+   The version of Docutils used to build represented as a tuple of five elements.
+   For Docutils version 0.16.1 beta 2 this would be ``(0, 16, 1, 'beta', 2)``.
+   The fourth element can be one of: ``alpha``, ``beta``, ``candidate``, ``final``.
+   ``final`` always has 0 as the last element.
+
+   .. versionadded:: 5.0.2
+
+.. data:: styles
+
+   A list of the names of the main stylesheets as given by the theme or
+   :confval:`html_style`.
+
+   .. versionadded:: 5.1
+
 .. data:: style
 
    The name of the main stylesheet, as given by the theme or
    :confval:`html_style`.
+
+   .. versionchanged:: 5.1
+
+      The theme or :confval:`html_style` are now able to specify multiple
+      stylesheets, the ``style`` key returns the last stylesheet when more than
+      one is specified.
+
+   .. deprecated:: 5.1
+
+      Use the :data:`styles` key instead, as there is no longer a single main
+      stylesheet. The ``style`` key will be removed in Sphinx 7.0.
 
 .. data:: title
 

@@ -26,6 +26,7 @@ from sphinx.builders import Builder
 from sphinx.config import ENUM, Config
 from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
 from sphinx.domains import Domain, Index, IndexEntry
+from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
@@ -50,6 +51,17 @@ INVENTORY_FILENAME = 'objects.inv'
 
 logger = logging.getLogger(__name__)
 return_codes_re = re.compile('[\r\n]+')
+
+DOMAIN_INDEX_TYPE = Tuple[
+    # Index name (e.g. py-modindex)
+    str,
+    # Index class
+    Type[Index],
+    # list of (heading string, list of index entries) pairs.
+    List[Tuple[str, List[IndexEntry]]],
+    # whether sub-entries should start collapsed
+    bool
+]
 
 
 def get_stable_hash(obj: Any) -> str:
@@ -197,10 +209,10 @@ class StandaloneHTMLBuilder(Builder):
     download_support = True  # enable download role
 
     imgpath: str = None
-    domain_indices: List[Tuple[str, Type[Index], List[Tuple[str, List[IndexEntry]]], bool]] = []  # NOQA
+    domain_indices: List[DOMAIN_INDEX_TYPE] = []
 
-    def __init__(self, app: Sphinx) -> None:
-        super().__init__(app)
+    def __init__(self, app: Sphinx, env: BuildEnvironment = None) -> None:
+        super().__init__(app, env)
 
         # CSS files
         self.css_files: List[Stylesheet] = []
@@ -217,8 +229,11 @@ class StandaloneHTMLBuilder(Builder):
             source_class=DocTreeInput,
             destination=StringOutput(encoding='unicode'),
         )
-        op = pub.setup_option_parser(output_encoding='unicode', traceback=True)
-        pub.settings = op.get_default_values()
+        if docutils.__version_info__[:2] >= (0, 19):
+            pub.get_settings(output_encoding='unicode', traceback=True)
+        else:
+            op = pub.setup_option_parser(output_encoding='unicode', traceback=True)
+            pub.settings = op.get_default_values()
         self._publisher = pub
 
     def init(self) -> None:
@@ -264,13 +279,16 @@ class StandaloneHTMLBuilder(Builder):
                 return jsfile
         return None
 
-    def _get_style_filename(self) -> str:
-        if self.config.html_style is not None:
-            return self.config.html_style
+    def _get_style_filenames(self) -> Iterator[str]:
+        if isinstance(self.config.html_style, str):
+            yield self.config.html_style
+        elif self.config.html_style is not None:
+            yield from self.config.html_style
         elif self.theme:
-            return self.theme.get_config('theme', 'stylesheet')
+            stylesheet = self.theme.get_config('theme', 'stylesheet')
+            yield from map(str.strip, stylesheet.split(','))
         else:
-            return 'default.css'
+            yield 'default.css'
 
     def get_theme_config(self) -> Tuple[str, Dict]:
         return self.config.html_theme, self.config.html_theme_options
@@ -309,7 +327,9 @@ class StandaloneHTMLBuilder(Builder):
     def init_css_files(self) -> None:
         self.css_files = []
         self.add_css_file('pygments.css', priority=200)
-        self.add_css_file(self._get_style_filename(), priority=200)
+
+        for filename in self._get_style_filenames():
+            self.add_css_file(filename, priority=200)
 
         for filename, attrs in self.app.registry.css_files:
             self.add_css_file(filename, **attrs)
@@ -510,6 +530,7 @@ class StandaloneHTMLBuilder(Builder):
         # back up script_files and css_files to allow adding JS/CSS files to a specific page.
         self._script_files = list(self.script_files)
         self._css_files = list(self.css_files)
+        styles = list(self._get_style_filenames())
 
         self.globalcontext = {
             'embedded': self.embedded,
@@ -536,7 +557,9 @@ class StandaloneHTMLBuilder(Builder):
             'css_files': self.css_files,
             'sphinx_version': __display_version__,
             'sphinx_version_tuple': sphinx_version,
-            'style': self._get_style_filename(),
+            'docutils_version_info': docutils.__version_info__[:5],
+            'styles': styles,
+            'style': styles[-1],  # xref RemovedInSphinx70Warning
             'rellinks': rellinks,
             'builder': self.name,
             'parents': [],
@@ -1056,7 +1079,7 @@ class StandaloneHTMLBuilder(Builder):
         # sort JS/CSS before rendering HTML
         try:
             # Convert script_files to list to support non-list script_files (refs: #8889)
-            ctx['script_files'] = sorted(list(ctx['script_files']), key=lambda js: js.priority)
+            ctx['script_files'] = sorted(ctx['script_files'], key=lambda js: js.priority)
         except AttributeError:
             # Skip sorting if users modifies script_files directly (maybe via `html_context`).
             # refs: #8885
@@ -1065,7 +1088,7 @@ class StandaloneHTMLBuilder(Builder):
             pass
 
         try:
-            ctx['css_files'] = sorted(list(ctx['css_files']), key=lambda css: css.priority)
+            ctx['css_files'] = sorted(ctx['css_files'], key=lambda css: css.priority)
         except AttributeError:
             pass
 
@@ -1341,7 +1364,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
                          lambda self: _('%s %s documentation') % (self.project, self.release),
                          'html', [str])
     app.add_config_value('html_short_title', lambda self: self.html_title, 'html')
-    app.add_config_value('html_style', None, 'html', [str])
+    app.add_config_value('html_style', None, 'html', [list, str])
     app.add_config_value('html_logo', None, 'html', [str])
     app.add_config_value('html_favicon', None, 'html', [str])
     app.add_config_value('html_css_files', [], 'html')

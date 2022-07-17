@@ -272,7 +272,8 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
             app = Sphinx(args.sourcedir, args.confdir, args.outputdir,
                          args.doctreedir, args.builder, confoverrides, status,
                          warning, args.freshenv, args.warningiserror,
-                         args.tags, args.verbosity, args.jobs, args.keep_going)
+                         args.tags, args.verbosity, args.jobs, args.keep_going,
+                         args.pdb)
             app.build(args.force_all, filenames)
             return app.statuscode
     except (Exception, KeyboardInterrupt) as exc:

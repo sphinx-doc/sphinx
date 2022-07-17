@@ -3,7 +3,7 @@
 import re
 import unicodedata
 from typing import (TYPE_CHECKING, Any, Callable, Iterable, List, Optional, Set, Tuple, Type,
-                    Union, cast)
+                    Union)
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -412,7 +412,7 @@ def inline_all_toctrees(builder: "Builder", docnameset: Set[str], docname: str,
 
     Record all docnames in *docnameset*, and output docnames with *colorfunc*.
     """
-    tree = cast(nodes.document, tree.deepcopy())
+    tree = tree.deepcopy()
     for toctreenode in list(tree.findall(addnodes.toctree)):
         newnodes = []
         includefiles = map(str, toctreenode['includefiles'])

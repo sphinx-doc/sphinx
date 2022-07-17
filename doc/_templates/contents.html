@@ -1,0 +1,6 @@
+{% extends "layout.html" %}
+{% set title = _('Sphinx documentation contents') %}
+{% block body %}
+<h1>{{ _('Sphinx documentation contents') }}</h1>
+{{ toctree(includehidden=True, collapse=False, maxdepth=3) }}
+{% endblock %}

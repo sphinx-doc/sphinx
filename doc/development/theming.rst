@@ -56,10 +56,10 @@ Python :mod:`ConfigParser` module) and has the following structure:
   want to also inherit the stylesheet, include it via CSS' ``@import`` in your
   own.
 
-* The **stylesheet** setting gives the name of a CSS file which will be
-  referenced in the HTML header.  If you need more than one CSS file, either
-  include one from the other via CSS' ``@import``, or use a custom HTML template
-  that adds ``<link rel="stylesheet">`` tags as necessary.  Setting the
+* The **stylesheet** setting gives a list of CSS filenames separated commas which
+  will be referenced in the HTML header.  You can also use CSS' ``@import``
+  technique to include one from the other, or use a custom HTML template that
+  adds ``<link rel="stylesheet">`` tags as necessary.  Setting the
   :confval:`html_style` config value will override this setting.
 
 * The **pygments_style** setting gives the name of a Pygments style to use for
@@ -82,6 +82,9 @@ Python :mod:`ConfigParser` module) and has the following structure:
 .. versionadded:: 1.7
    sidebar settings
 
+.. versionchanged:: 5.1
+
+   The stylesheet setting accepts multiple CSS filenames
 
 .. _distribute-your-theme:
 
