@@ -392,10 +392,28 @@ in the future.
 
    .. versionadded:: 5.0.2
 
+.. data:: styles
+
+   A list of the names of the main stylesheets as given by the theme or
+   :confval:`html_style`.
+
+   .. versionadded:: 5.1
+
 .. data:: style
 
    The name of the main stylesheet, as given by the theme or
    :confval:`html_style`.
+
+   .. versionchanged:: 5.1
+
+      The theme or :confval:`html_style` are now able to specify multiple
+      stylesheets, the ``style`` key returns the last stylesheet when more than
+      one is specified.
+
+   .. deprecated:: 5.1
+
+      Use the :data:`styles` key instead, as there is no longer a single main
+      stylesheet. The ``style`` key will be removed in Sphinx 7.0.
 
 .. data:: title
 
