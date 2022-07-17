@@ -36,6 +36,8 @@ Features added
 * #10599: HTML Theme: Wrap consecutive footnotes in an ``<aside>`` element when
   using Docutils 0.18 or later, to allow for easier styling. This matches the
   behaviour introduced in Docutils 0.19. Patch by Adam Turner.
+* #10518: config: Add ``include_patterns`` as the opposite of ``exclude_patterns``.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------
