@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-07-10 00:23+0000\n"
+"POT-Creation-Date: 2022-07-17 00:21+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Komiya Takeshi <i.tkomiya@gmail.com>, 2021\n"
 "Language-Team: Danish (http://www.transifex.com/sphinx-doc/sphinx-1/language/da/)\n"
@@ -22,123 +22,123 @@ msgstr ""
 "Language: da\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: sphinx/application.py:146
+#: sphinx/application.py:147
 #, python-format
 msgid "Cannot find source directory (%s)"
 msgstr "Kan ikke finde kildemappen (%s)"
 
-#: sphinx/application.py:150
+#: sphinx/application.py:151
 #, python-format
 msgid "Output directory (%s) is not a directory"
 msgstr ""
 
-#: sphinx/application.py:154
+#: sphinx/application.py:155
 msgid "Source directory and destination directory cannot be identical"
 msgstr "Kildemappe og destinationsmappe kan ikke være identiske"
 
-#: sphinx/application.py:185
+#: sphinx/application.py:187
 #, python-format
 msgid "Running Sphinx v%s"
 msgstr "Kører Sphinx v%s"
 
-#: sphinx/application.py:211
+#: sphinx/application.py:213
 #, python-format
 msgid ""
 "This project needs at least Sphinx v%s and therefore cannot be built with "
 "this version."
 msgstr "Dette projekt kræver mindst Sphinx v%s og kan derfor ikke bygges med denne version."
 
-#: sphinx/application.py:226
+#: sphinx/application.py:228
 msgid "making output directory"
 msgstr ""
 
-#: sphinx/application.py:231 sphinx/registry.py:439
+#: sphinx/application.py:233 sphinx/registry.py:439
 #, python-format
 msgid "while setting up extension %s:"
 msgstr ""
 
-#: sphinx/application.py:237
+#: sphinx/application.py:239
 msgid ""
 "'setup' as currently defined in conf.py isn't a Python callable. Please "
 "modify its definition to make it a callable function. This is needed for "
 "conf.py to behave as a Sphinx extension."
 msgstr ""
 
-#: sphinx/application.py:268
+#: sphinx/application.py:270
 #, python-format
 msgid "loading translations [%s]... "
 msgstr "indlæser oversættelser [%s] ..."
 
-#: sphinx/application.py:285 sphinx/util/__init__.py:509
+#: sphinx/application.py:287 sphinx/util/__init__.py:509
 msgid "done"
 msgstr "færdig"
 
-#: sphinx/application.py:287
+#: sphinx/application.py:289
 msgid "not available for built-in messages"
 msgstr "ikke tilgængelig for indbyggede beskeder"
 
-#: sphinx/application.py:303
+#: sphinx/application.py:305
 msgid "loading pickled environment"
 msgstr ""
 
-#: sphinx/application.py:309
+#: sphinx/application.py:311
 #, python-format
 msgid "failed: %s"
 msgstr "fejlede: %s"
 
-#: sphinx/application.py:323
+#: sphinx/application.py:325
 msgid "No builder selected, using default: html"
 msgstr ""
 
-#: sphinx/application.py:361
+#: sphinx/application.py:363
 msgid "succeeded"
 msgstr "lykkedes"
 
-#: sphinx/application.py:362
+#: sphinx/application.py:364
 msgid "finished with problems"
 msgstr "færdig med problemer"
 
-#: sphinx/application.py:366
+#: sphinx/application.py:368
 #, python-format
 msgid "build %s, %s warning (with warnings treated as errors)."
 msgstr ""
 
-#: sphinx/application.py:368
+#: sphinx/application.py:370
 #, python-format
 msgid "build %s, %s warnings (with warnings treated as errors)."
 msgstr ""
 
-#: sphinx/application.py:371
+#: sphinx/application.py:373
 #, python-format
 msgid "build %s, %s warning."
 msgstr "kompilering %s, %s advarsel."
 
-#: sphinx/application.py:373
+#: sphinx/application.py:375
 #, python-format
 msgid "build %s, %s warnings."
 msgstr ""
 
-#: sphinx/application.py:377
+#: sphinx/application.py:379
 #, python-format
 msgid "build %s."
 msgstr "kompilering %s."
 
-#: sphinx/application.py:599
+#: sphinx/application.py:601
 #, python-format
 msgid "node class %r is already registered, its visitors will be overridden"
 msgstr ""
 
-#: sphinx/application.py:677
+#: sphinx/application.py:679
 #, python-format
 msgid "directive %r is already registered, it will be overridden"
 msgstr ""
 
-#: sphinx/application.py:698 sphinx/application.py:719
+#: sphinx/application.py:700 sphinx/application.py:721
 #, python-format
 msgid "role %r is already registered, it will be overridden"
 msgstr ""
 
-#: sphinx/application.py:1269
+#: sphinx/application.py:1271
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel reading, "
@@ -146,12 +146,12 @@ msgid ""
 "explicit"
 msgstr ""
 
-#: sphinx/application.py:1273
+#: sphinx/application.py:1275
 #, python-format
 msgid "the %s extension is not safe for parallel reading"
 msgstr ""
 
-#: sphinx/application.py:1276
+#: sphinx/application.py:1278
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel writing, "
@@ -159,12 +159,12 @@ msgid ""
 "explicit"
 msgstr ""
 
-#: sphinx/application.py:1280
+#: sphinx/application.py:1282
 #, python-format
 msgid "the %s extension is not safe for parallel writing"
 msgstr ""
 
-#: sphinx/application.py:1288 sphinx/application.py:1292
+#: sphinx/application.py:1290 sphinx/application.py:1294
 #, python-format
 msgid "doing serial %s"
 msgstr ""
@@ -296,7 +296,7 @@ msgstr ""
 msgid "Unknown event name: %s"
 msgstr "Ukendt hændelsesnavn: %s"
 
-#: sphinx/events.py:102
+#: sphinx/events.py:105
 #, python-format
 msgid "Handler %r for event %r threw an exception"
 msgstr ""
@@ -1885,16 +1885,16 @@ msgstr ""
 msgid "%s (C %s)"
 msgstr ""
 
-#: sphinx/domains/c.py:3347 sphinx/domains/cpp.py:7320
+#: sphinx/domains/c.py:3347 sphinx/domains/cpp.py:7318
 #: sphinx/domains/python.py:433 sphinx/ext/napoleon/docstring.py:739
 msgid "Parameters"
 msgstr "Parametre"
 
-#: sphinx/domains/c.py:3350 sphinx/domains/cpp.py:7326
+#: sphinx/domains/c.py:3350 sphinx/domains/cpp.py:7324
 msgid "Return values"
 msgstr ""
 
-#: sphinx/domains/c.py:3353 sphinx/domains/cpp.py:7329
+#: sphinx/domains/c.py:3353 sphinx/domains/cpp.py:7327
 #: sphinx/domains/javascript.py:216 sphinx/domains/python.py:445
 msgid "Returns"
 msgstr "Returnerer"
@@ -1904,7 +1904,7 @@ msgstr "Returnerer"
 msgid "Return type"
 msgstr "Returtype"
 
-#: sphinx/domains/c.py:3749 sphinx/domains/cpp.py:7733
+#: sphinx/domains/c.py:3749 sphinx/domains/cpp.py:7731
 msgid "member"
 msgstr "medlem"
 
@@ -1912,7 +1912,7 @@ msgstr "medlem"
 msgid "variable"
 msgstr "variabel"
 
-#: sphinx/domains/c.py:3751 sphinx/domains/cpp.py:7732
+#: sphinx/domains/c.py:3751 sphinx/domains/cpp.py:7730
 #: sphinx/domains/javascript.py:318 sphinx/domains/python.py:1155
 msgid "function"
 msgstr "funktion"
@@ -1925,23 +1925,23 @@ msgstr "makro"
 msgid "struct"
 msgstr ""
 
-#: sphinx/domains/c.py:3754 sphinx/domains/cpp.py:7731
+#: sphinx/domains/c.py:3754 sphinx/domains/cpp.py:7729
 msgid "union"
 msgstr ""
 
-#: sphinx/domains/c.py:3755 sphinx/domains/cpp.py:7736
+#: sphinx/domains/c.py:3755 sphinx/domains/cpp.py:7734
 msgid "enum"
 msgstr "optæl"
 
-#: sphinx/domains/c.py:3756 sphinx/domains/cpp.py:7737
+#: sphinx/domains/c.py:3756 sphinx/domains/cpp.py:7735
 msgid "enumerator"
 msgstr "optælling"
 
-#: sphinx/domains/c.py:3757 sphinx/domains/cpp.py:7734
+#: sphinx/domains/c.py:3757 sphinx/domains/cpp.py:7732
 msgid "type"
 msgstr "type"
 
-#: sphinx/domains/c.py:3759 sphinx/domains/cpp.py:7739
+#: sphinx/domains/c.py:3759 sphinx/domains/cpp.py:7737
 msgid "function parameter"
 msgstr ""
 
@@ -1970,36 +1970,36 @@ msgstr ""
 msgid "Citation [%s] is not referenced."
 msgstr ""
 
-#: sphinx/domains/cpp.py:4803 sphinx/domains/cpp.py:7275
+#: sphinx/domains/cpp.py:4801 sphinx/domains/cpp.py:7273
 #, python-format
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/cpp.py:7081
+#: sphinx/domains/cpp.py:7079
 msgid "Template Parameters"
 msgstr "Template-parametre"
 
-#: sphinx/domains/cpp.py:7198
+#: sphinx/domains/cpp.py:7196
 #, python-format
 msgid "%s (C++ %s)"
 msgstr ""
 
-#: sphinx/domains/cpp.py:7323 sphinx/domains/javascript.py:213
+#: sphinx/domains/cpp.py:7321 sphinx/domains/javascript.py:213
 msgid "Throws"
 msgstr "Kaster"
 
-#: sphinx/domains/cpp.py:7730 sphinx/domains/javascript.py:320
+#: sphinx/domains/cpp.py:7728 sphinx/domains/javascript.py:320
 #: sphinx/domains/python.py:1157
 msgid "class"
 msgstr "klasse"
 
-#: sphinx/domains/cpp.py:7735
+#: sphinx/domains/cpp.py:7733
 msgid "concept"
 msgstr "koncept"
 
-#: sphinx/domains/cpp.py:7740
+#: sphinx/domains/cpp.py:7738
 msgid "template parameter"
 msgstr ""
 
