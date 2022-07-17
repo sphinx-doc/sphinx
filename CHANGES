@@ -27,6 +27,10 @@ Release 5.1.0 (in development)
 Dependencies
 ------------
 
+* #10656: Support `Docutils 0.19`_. Patch by Adam Turner.
+
+.. _Docutils 0.19: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-19-2022-07-05
+
 Incompatible changes
 --------------------
 
@@ -47,14 +51,16 @@ Features added
   making whitespace issues easier to identify.
 * #10571: quickstart: Reduce content in the generated ``conf.py`` file. Patch by
   Pradyun Gedam.
-* #10619: LaTeX: new ``shadowShadowColor`` and ``shadowBorderColor`` configurations
-  for :ref:`'sphinxsetup' <latexsphinxsetup>` key of :confval:`latex_elements`
-* #10639: LaTeX: ``verbatimradius`` configuration added to the LaTeX keys of
-  :ref:`'sphinxsetup' <latexsphinxsetup>`. If positive, code-blocks are rendered
-  with rounded corners.
+* #10648: LaTeX: CSS-named-alike additional :ref:`'sphinxsetup' <latexsphinxsetup>`
+  keys allow to configure four separate border-widths, four paddings, four
+  corner radii, a shadow (possibly inset), colours for border, background, shadow
+  for each of the code-block, topic, attention, caution, danger, error and warning
+  directives.
 * #10599: HTML Theme: Wrap consecutive footnotes in an ``<aside>`` element when
   using Docutils 0.18 or later, to allow for easier styling. This matches the
   behaviour introduced in Docutils 0.19. Patch by Adam Turner.
+* #10518: config: Add ``include_patterns`` as the opposite of ``exclude_patterns``.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------
@@ -78,6 +84,7 @@ Bugs fixed
 * #10579: i18n: UnboundLocalError is raised on translating raw directive
 * #9577, #10088: py domain: Fix warning for duplicate Python references when
   using ``:any:`` and autodoc.
+* #10548: HTML Search: fix minor summary issues.
 
 Testing
 --------
@@ -96,6 +103,9 @@ Deprecated
 
 Features added
 --------------
+
+* #10444: html theme: Allow specifying multiple CSS files through the ``stylesheet``
+  setting in ``theme.conf`` or by setting ``html_style`` to an iterable of strings.
 
 Bugs fixed
 ----------

@@ -22,6 +22,16 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.util.path_stabilize``
+     - 5.1
+     - 7.0
+     - ``sphinx.util.osutil.path_stabilize``
+
+   * - ``sphinx.util.get_matching_files``
+     - 5.1
+     - 7.0
+     - ``sphinx.util.matching.get_matching_files``
+
    * - ``sphinx.ext.napoleon.iterators``
      - 5.1
      - 7.0

@@ -79,7 +79,8 @@ latex_elements = {
     'sphinxsetup': """%
 VerbatimColor={RGB}{242,242,242},%
 VerbatimBorderColor={RGB}{32,32,32},%
-verbatimradius=3pt%
+pre_border-radius=3pt,%
+pre_box-decoration-break=slice,%
 """,
 }
 latex_show_urls = 'footnote'

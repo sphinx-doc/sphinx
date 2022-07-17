@@ -723,7 +723,7 @@ def test_getdoc_inherited_decorated_method():
             """
 
     class Bar(Foo):
-        @functools.lru_cache()
+        @functools.lru_cache()  # noqa: B019
         def meth(self):
             # inherited and decorated method
             pass

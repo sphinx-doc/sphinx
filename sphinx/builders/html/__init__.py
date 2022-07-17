@@ -279,13 +279,16 @@ class StandaloneHTMLBuilder(Builder):
                 return jsfile
         return None
 
-    def _get_style_filename(self) -> str:
-        if self.config.html_style is not None:
-            return self.config.html_style
+    def _get_style_filenames(self) -> Iterator[str]:
+        if isinstance(self.config.html_style, str):
+            yield self.config.html_style
+        elif self.config.html_style is not None:
+            yield from self.config.html_style
         elif self.theme:
-            return self.theme.get_config('theme', 'stylesheet')
+            stylesheet = self.theme.get_config('theme', 'stylesheet')
+            yield from map(str.strip, stylesheet.split(','))
         else:
-            return 'default.css'
+            yield 'default.css'
 
     def get_theme_config(self) -> Tuple[str, Dict]:
         return self.config.html_theme, self.config.html_theme_options
@@ -324,7 +327,9 @@ class StandaloneHTMLBuilder(Builder):
     def init_css_files(self) -> None:
         self.css_files = []
         self.add_css_file('pygments.css', priority=200)
-        self.add_css_file(self._get_style_filename(), priority=200)
+
+        for filename in self._get_style_filenames():
+            self.add_css_file(filename, priority=200)
 
         for filename, attrs in self.app.registry.css_files:
             self.add_css_file(filename, **attrs)
@@ -520,6 +525,7 @@ class StandaloneHTMLBuilder(Builder):
         # back up script_files and css_files to allow adding JS/CSS files to a specific page.
         self._script_files = list(self.script_files)
         self._css_files = list(self.css_files)
+        styles = list(self._get_style_filenames())
 
         self.globalcontext = {
             'embedded': self.embedded,
@@ -547,7 +553,8 @@ class StandaloneHTMLBuilder(Builder):
             'sphinx_version': __display_version__,
             'sphinx_version_tuple': sphinx_version,
             'docutils_version_info': docutils.__version_info__[:5],
-            'style': self._get_style_filename(),
+            'styles': styles,
+            'style': styles[-1],  # xref RemovedInSphinx70Warning
             'rellinks': rellinks,
             'builder': self.name,
             'parents': [],
@@ -828,7 +835,8 @@ class StandaloneHTMLBuilder(Builder):
             logger.warning(__('Failed to copy a file in html_static_file: %s: %r'),
                            filename, error)
 
-        excluded = Matcher(self.config.exclude_patterns + ["**/.*"])
+        excluded = Matcher(self.config.exclude_patterns + ["**/.*"],
+                           self.config.include_patterns)
         for entry in self.config.html_static_path:
             copy_asset(path.join(self.confdir, entry),
                        path.join(self.outdir, '_static'),
@@ -868,7 +876,7 @@ class StandaloneHTMLBuilder(Builder):
         """copy html_extra_path files."""
         try:
             with progress_message(__('copying extra files')):
-                excluded = Matcher(self.config.exclude_patterns)
+                excluded = Matcher(self.config.exclude_patterns, self.config.include_patterns)
                 for extra_path in self.config.html_extra_path:
                     entry = path.join(self.confdir, extra_path)
                     copy_asset(entry, self.outdir, excluded)
@@ -1321,7 +1329,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
                          lambda self: _('%s %s documentation') % (self.project, self.release),
                          'html', [str])
     app.add_config_value('html_short_title', lambda self: self.html_title, 'html')
-    app.add_config_value('html_style', None, 'html', [str])
+    app.add_config_value('html_style', None, 'html', [list, str])
     app.add_config_value('html_logo', None, 'html', [str])
     app.add_config_value('html_favicon', None, 'html', [str])
     app.add_config_value('html_css_files', [], 'html')

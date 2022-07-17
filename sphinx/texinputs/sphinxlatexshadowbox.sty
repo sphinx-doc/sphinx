@@ -16,74 +16,83 @@
 %
 % Requires:
 \RequirePackage{framed}
+\RequirePackage{sphinxpackageboxes}
 
-% Let's draw the contents first, then the frame and the shadow last,
-% to avoid problems with some pdf viewers.
+\def\spx@shadowbox@boxes@fcolorbox@setup{%
+%
+  \spx@boxes@border@top   \spx@topic@border@top
+  \spx@boxes@border@right \spx@topic@border@right
+  \spx@boxes@border@bottom\spx@topic@border@bottom
+  \spx@boxes@border@left  \spx@topic@border@left
+  \spx@boxes@border       \spxdimen@topic@border
+%
+  \spx@boxes@padding@top   \spx@topic@padding@top
+  \spx@boxes@padding@right \spx@topic@padding@right
+  \spx@boxes@padding@bottom\spx@topic@padding@bottom
+  \spx@boxes@padding@left  \spx@topic@padding@left
+%
+  \spx@boxes@radius@topleft     \spx@topic@radius@topleft
+  \spx@boxes@radius@topright    \spx@topic@radius@topright
+  \spx@boxes@radius@bottomright \spx@topic@radius@bottomright
+  \spx@boxes@radius@bottomleft  \spx@topic@radius@bottomleft\relax
+%
+  \ifspx@topic@withshadow
+     \spx@boxes@withshadowtrue
+     \spx@boxes@shadow@xoffset \spx@topic@shadow@xoffset
+     \spx@boxes@shadow@yoffset \spx@topic@shadow@yoffset\relax
+  \else
+     \spx@boxes@withshadowfalse
+  \fi
+  \ifspx@topic@insetshadow\spx@boxes@insetshadowtrue\else
+                          \spx@boxes@insetshadowfalse\fi
+  \ifspx@topic@withshadowcolor\spx@boxes@withshadowcolortrue\else
+                              \spx@boxes@withshadowcolorfalse\fi
+  %
+  \ifspx@topic@withbackgroundcolor\spx@boxes@withbackgroundcolortrue\else
+                                  \spx@boxes@withbackgroundcolorfalse\fi
+  \sphinxcolorlet{spx@boxes@backgroundcolor}{sphinxTopicBackgroundColor}%
+  %
+  \ifspx@topic@withbordercolor\spx@boxes@withbordercolortrue\else
+                                  \spx@boxes@withbordercolorfalse\fi
+  \sphinxcolorlet{spx@boxes@bordercolor}{sphinxTopicBorderColor}%
+  %
+  \ifspx@topic@withshadowcolor\spx@boxes@withshadowcolortrue\else
+                                  \spx@boxes@withshadowcolorfalse\fi
+  \sphinxcolorlet{spx@boxes@shadowcolor}{sphinxTopicShadowColor}%
+}%
+
+% At 5.1.0 the code formerly here has been refactored and incorporated
+% into more powerful \spx@boxes@fcolorbox from sphinxpackageboxes.sty
 \long\def\spx@ShadowFBox#1{%
-  \leavevmode\begingroup
-  % First we prepare a box with the contents and some reserved space for the
-  % frame and inner separation; with more parameters we could allow various
-  % border widths for top, bottom, left, right, but here all are equal.
-  \setbox\@tempboxa
-   \hbox{\kern\sphinxshadowrule
-         \vbox{\kern\sphinxshadowrule
-               \kern\sphinxshadowsep
-               \hbox{\kern\sphinxshadowsep #1\kern\sphinxshadowsep}%
-               \kern\sphinxshadowsep
-               \kern\sphinxshadowrule}%
-         \kern\sphinxshadowrule}%
-  % Now we rebox, adding the colored frame for which space was reserved.
-  \setbox\@tempboxa
-   \hbox{\unhcopy\@tempboxa % not \unhbox to be able to refer to \ht, \wd later
-         \kern-\wd\@tempboxa
-         {\color{sphinxshadowBorderColor}% color push here
-          \vrule\@width\sphinxshadowrule% TeX auto-computes the height
-          \vbox{\hrule\@height\sphinxshadowrule% TeX auto-computes the width
-                \kern\dimexpr\ht\@tempboxa-\sphinxshadowrule\relax
-                % This empty \hbox is here to give width used by \hrule
-                % As \dp\@tempboxa is zero, the \hbox location is at the
-                % bottom of frame.
-                \hbox{\kern\dimexpr\wd\@tempboxa-2\sphinxshadowrule\relax}%
-                \kern\dimexpr\dp\@tempboxa-\sphinxshadowrule\relax
-                \hrule\@height\sphinxshadowrule% TeX auto-computes the width
-                }%
-          \vrule\@width\sphinxshadowrule% TeX auto-computes the height
-         }% color pop will happen here
-        }%
-  % Now we add the shadow.
-  %
-  % Formerly, shadow was drawn partly on top of frame, but this was before
-  % both frame and shadow acquired colors.  The width of the part of the
-  % shadow on the right is hidden, so it will stick into the right page
-  % margin.
-  %
-  % The frame borders are included into this final \hbox, which is sent back
-  % to \MakeFramed/\endMakeFramed measurements and then finally to page
-  % shipout.  As \advance\hsize-\width appears in \MakeFramed, where \width is
-  % the computed extra width added by the framing plus inner separation (so
-  % actually 2\sphinxshadowrule+2\sphinxshadowsep), this all means that
-  % horizontally the frame will be perfectly adjusted to the *total* text
-  % width limits (i.e. independent of current list nesting; but anyhow
-  % Docutils does not allow nesting of topic within topics or body elements).
-  \hbox{\vbox{\offinterlineskip
-              \hbox{\copy\@tempboxa % not \box as we need \wd and \ht next
-                    % add shadow on right side
-                    \lower\sphinxshadowsize
-                          \hbox{{\color{sphinxshadowShadowColor}%
-                                 \vrule\@height\ht\@tempboxa \@width\sphinxshadowsize}}%
-                    }%
-              \kern-\sphinxshadowsize % shift back vertically to bottom of frame
-              % and add shadow at bottom
-              \moveright\sphinxshadowsize
-                    \vbox{{\color{sphinxshadowShadowColor}%
-                           \hrule\@width\wd\@tempboxa \@height\sphinxshadowsize}}%
-              }%
-        % move left by the size of right shadow so shadow adds no width, and
-        % will stick into right margin
-        % (we did not conceal of course from TeX the depth)
-        \kern-\sphinxshadowsize
-       }%
-  \endgroup
+  \leavevmode
+  \setbox\z@\hbox{#1}%
+  \ifspx@topic@withshadow
+   \ifspx@topic@insetshadow\else
+    \ifdim\spx@topic@shadow@xoffset<\z@\hskip\spx@topic@shadow@xoffset\relax
+    \fi
+   \fi
+  \fi
+        \if1% use rounded boxes only if needed and possible
+          \ifdim\spx@topic@radius@topleft    >\z@0\fi
+          \ifdim\spx@topic@radius@topright   >\z@0\fi
+          \ifdim\spx@topic@radius@bottomright>\z@0\fi
+          \ifdim\spx@topic@radius@bottomleft >\z@0\fi
+          1\spx@boxes@fcolorbox{\box\z@}%
+        \else
+          \@ifpackageloaded{pict2e}%
+             {\ifspx@topic@insetshadow
+                \spx@boxes@fcolorbox{\box\z@}%
+              \else
+                \spx@boxes@fcolorbox@rounded{\box\z@}%
+              \fi}%
+             {\spx@boxes@fcolorbox{\box\z@}}%
+        \fi
+  \ifspx@topic@withshadow
+   \ifspx@topic@insetshadow\else
+    \ifdim\spx@topic@shadow@xoffset>\z@\hskip\spx@topic@shadow@xoffset\relax
+    \fi
+   \fi
+  \fi
 }
 
 % Use framed.sty \MakeFramed/\endMakeFramed to allow page breaks for topic
@@ -105,11 +114,13 @@
 %   more sophisticated way on usage of \MakeFramed/\endMakeFramed, and
 %   adjusting to current text indentation.
 \newenvironment{sphinxShadowBox}
-  {\def\FrameCommand {\spx@ShadowFBox }%
+  {%
+   \spx@shadowbox@boxes@fcolorbox@setup
+   \def\FrameCommand {\spx@ShadowFBox }%
    \advance\spx@image@maxheight
-   -\dimexpr2\sphinxshadowrule
-           +2\sphinxshadowsep
-           +\sphinxshadowsize
+   -\dimexpr\spx@topic@border@top+\spx@topic@border@bottom
+           +\spx@topic@padding@top+\spx@topic@padding@bottom
+           +\ifdim\spx@topic@shadow@yoffset<\z@-\fi\spx@topic@shadow@yoffset
            +\baselineskip\relax
    % configure framed.sty not to add extra vertical spacing
    \ltx@ifundefined{OuterFrameSep}{}{\OuterFrameSep\z@skip}%

@@ -227,7 +227,7 @@ class Autosummary(SphinxDirective):
 
             tree_prefix = self.options['toctree'].strip()
             docnames = []
-            excluded = Matcher(self.config.exclude_patterns)
+            excluded = Matcher(self.config.exclude_patterns, self.config.include_patterns)
             filename_map = self.config.autosummary_filename_map
             for _name, _sig, _summary, real_name in items:
                 real_name = filename_map.get(real_name, real_name)
