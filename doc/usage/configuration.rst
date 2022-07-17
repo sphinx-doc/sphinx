@@ -200,15 +200,14 @@ General configuration
 
 .. confval:: exclude_patterns
 
-   A list of glob-style patterns that should be excluded when looking for
-   source files. [1]_ They are matched against the source file names relative
+   A list of glob-style patterns [1]_ that should be excluded when looking for
+   source files. They are matched against the source file names relative
    to the source directory, using slashes as directory separators on all
    platforms.
 
    Example patterns:
 
-   - ``'library/xml.rst'`` -- ignores the ``library/xml.rst`` file (replaces
-     entry in :confval:`unused_docs`)
+   - ``'library/xml.rst'`` -- ignores the ``library/xml.rst`` file
    - ``'library/xml'`` -- ignores the ``library/xml`` directory
    - ``'library/xml*'`` -- ignores all files and directories starting with
      ``library/xml``
@@ -218,6 +217,26 @@ General configuration
    in :confval:`html_static_path` and :confval:`html_extra_path`.
 
    .. versionadded:: 1.0
+
+.. confval:: include_patterns
+
+   A list of glob-style patterns [1]_ that are used to find source files. They
+   are matched against the source file names relative to the source directory,
+   using slashes as directory separators on all platforms. The default is ``**``,
+   meaning that all files are recursively included from the source directory.
+
+   Example patterns:
+
+   - ``'**'`` -- all files in the source directory and subdirectories, recursively
+   - ``'library/xml'`` -- just the ``library/xml`` directory
+   - ``'library/xml*'`` -- all files and directories starting with ``library/xml``
+   - ``'**/doc'`` -- all ``doc`` directories (this might be useful if
+     documentation is co-located with source files)
+
+   :confval:`include_patterns` is also consulted when looking for static files
+   in :confval:`html_static_path` and :confval:`html_extra_path`.
+
+   .. versionadded:: 5.1
 
 .. confval:: templates_path
 

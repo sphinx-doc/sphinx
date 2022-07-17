@@ -2,12 +2,12 @@
 
 import os
 from glob import glob
-from typing import Dict, List, Optional, Set
+from typing import Dict, Iterable, Optional, Set
 
 from sphinx.locale import __
-from sphinx.util import get_matching_files, logging, path_stabilize
-from sphinx.util.matching import compile_matchers
-from sphinx.util.osutil import SEP, relpath
+from sphinx.util import logging
+from sphinx.util.matching import get_matching_files
+from sphinx.util.osutil import SEP, path_stabilize, relpath
 
 logger = logging.getLogger(__name__)
 EXCLUDE_PATHS = ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
@@ -30,13 +30,17 @@ class Project:
         """Take over a result of last build."""
         self.docnames = other.docnames
 
-    def discover(self, exclude_paths: List[str] = []) -> Set[str]:
+    def discover(self, exclude_paths: Iterable[str] = (),
+                 include_paths: Iterable[str] = ("**",)) -> Set[str]:
         """Find all document files in the source directory and put them in
         :attr:`docnames`.
         """
         self.docnames = set()
-        excludes = compile_matchers(exclude_paths + EXCLUDE_PATHS)
-        for filename in get_matching_files(self.srcdir, excludes):  # type: ignore
+        for filename in get_matching_files(
+            self.srcdir,
+            [*exclude_paths] + EXCLUDE_PATHS,
+            include_paths,
+        ):
             docname = self.path2doc(filename)
             if docname:
                 if docname in self.docnames:

@@ -74,7 +74,7 @@ class TocTree:
         # interactions between marking and pruning the tree (see bug #1046).
 
         toctree_ancestors = self.get_toctree_ancestors(docname)
-        excluded = Matcher(self.env.config.exclude_patterns)
+        excluded = Matcher(self.env.config.exclude_patterns, self.env.config.include_patterns)
 
         def _toctree_add_classes(node: Element, depth: int) -> None:
             """Add 'toctree-l%d' and 'current' classes to the toctree."""
