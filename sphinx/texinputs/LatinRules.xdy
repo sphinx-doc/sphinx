@@ -1,5 +1,9 @@
-;; style file for xindy
+;; Common Lisp style file for xindy
 ;; filename: LatinRules.xdy
+;;
+;; Please note that this data file deliberately uses strings
+;; with single non-ascii bytes. This is intentional and
+;; follows the usage observed in similar xindy support files.
 ;;
 ;; It is based upon xindy's files lang/general/utf8.xdy and
 ;; lang/general/utf8-lang.xdy which implement
