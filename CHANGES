@@ -13,8 +13,8 @@ Deprecated
 Features added
 --------------
 
-* #10444: html theme: Allow to specify multiple CSS files via ``stylesheet``
-  setting on ``theme.conf``
+* #10444: html theme: Allow specifying multiple CSS files through the ``stylesheet``
+  setting in ``theme.conf`` or by setting ``html_style`` to an iterable of strings.
 
 Bugs fixed
 ----------
