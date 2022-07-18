@@ -7,8 +7,8 @@ feature requests, writing new documentation or submitting patches for new or
 fixed behavior. This guide serves to illustrate how you can get started with
 this.
 
-Getting help
-------------
+Get help
+--------
 
 The Sphinx community maintains a number of mailing lists and IRC channels.
 
@@ -46,8 +46,8 @@ and post that instead.
 .. _`sphinx-dev`: mailto:sphinx-dev@googlegroups.com
 
 
-Writing code
-------------
+Contribute code
+---------------
 
 The Sphinx source code is managed using Git and is hosted on `GitHub`__.  The
 recommended way for new contributors to submit code to Sphinx is to fork this
@@ -56,6 +56,8 @@ The pull request will then need to be approved by one of the core developers
 before it is merged into the main repository.
 
 .. __: https://github.com/sphinx-doc/sphinx
+
+.. _contribute-get-started:
 
 Getting started
 ~~~~~~~~~~~~~~~
@@ -235,14 +237,37 @@ If you want to know more detailed usage, please refer to ``tests/conftest.py``
 and other ``test_*.py`` files under ``tests`` directory.
 
 
-Writing documentation
----------------------
+Contribute documentation
+------------------------
+
+Contributing to documentation involves modifying the source files found in the
+``doc/`` folder. To get started, you should first follow :ref:`contribute-get-started`,
+and then take the steps below to work with the documentation.
+
+The following sections describe how to get started with contributing
+documentation, as well as key aspects of a few different tools that we use.
 
 .. todo:: Add a more extensive documentation contribution guide.
 
-You can build documentation using ``tox``::
+Build the documentation
+~~~~~~~~~~~~~~~~~~~~~~~
+
+We use `the tox tool <https://tox.wiki/en/latest/>`__ to quickly build the
+documentation. Tox is kind-of like a Makefile, but includes the ability to
+intsall an isolated environment used to run each task.
+
+To build the documentation with ``tox``, run the following command::
 
     tox -e docs
+
+This will parse the Sphinx documentation's source files and generate HTML for
+you to preview in ``build/sphinx/html``.
+
+You can also build a **live version of the documentation** that you can preview
+in the browser. It will detect changes and reload the page any time you make
+edits. To do so, run the following command::
+
+    tox -e docs-live
 
 Translations
 ~~~~~~~~~~~~
