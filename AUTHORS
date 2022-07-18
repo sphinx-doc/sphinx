@@ -1,4 +1,7 @@
-Sphinx's maintainers, listed alphabetically by forename, are:
+Maintainers
+===========
+
+*Listed alphabetically in forename, surname order*
 
 * Adam Turner <@AA-Turner>
 * Armin Ronacher <armin.ronacher@active-4.com>
@@ -15,7 +18,10 @@ Sphinx's maintainers, listed alphabetically by forename, are:
 * Timotheus Kampik <@TimKam>
 * Yoshiki Shibukawa <@shibukawa>
 
-Other contributors, listed alphabetically by forename, are:
+Contributors
+============
+
+*Listed alphabetically in forename, surname order*
 
 * Adrián Chaves (Gallaecio) -- coverage builder improvements
 * Alastair Houghton -- Apple Help builder
@@ -86,6 +92,9 @@ Other contributors, listed alphabetically by forename, are:
 * Zac Hatfield-Dodds -- doctest reporting improvements, intersphinx performance
 
 Many thanks for all contributions!
+
+Included software
+=================
 
 There are also a few modules or functions incorporated from other
 authors and projects:
