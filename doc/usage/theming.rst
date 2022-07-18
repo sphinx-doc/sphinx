@@ -345,6 +345,8 @@ These themes are:
    available, however it will emit a notice that it is an alias for the new
    'alabaster' theme.
 
+.. _third-party-themes:
+
 Third Party Themes
 ~~~~~~~~~~~~~~~~~~
 
