@@ -74,7 +74,8 @@ class TocTree:
         # interactions between marking and pruning the tree (see bug #1046).
 
         toctree_ancestors = self.get_toctree_ancestors(docname)
-        excluded = Matcher(self.env.config.exclude_patterns, self.env.config.include_patterns)
+        included = Matcher(self.env.config.include_patterns)
+        excluded = Matcher(self.env.config.exclude_patterns)
 
         def _toctree_add_classes(node: Element, depth: int) -> None:
             """Add 'toctree-l%d' and 'current' classes to the toctree."""
@@ -161,6 +162,10 @@ class TocTree:
                         # empty toc means: no titles will show up in the toctree
                         logger.warning(__('toctree contains reference to document %r that '
                                           'doesn\'t have a title: no link will be generated'),
+                                       ref, location=toctreenode)
+                    if not included(self.env.doc2path(ref, False)):
+                        logger.warning(__('toctree contains reference to non-included '
+                                          'document %r'),
                                        ref, location=toctreenode)
                 except KeyError:
                     # this is raised if the included file does not exist

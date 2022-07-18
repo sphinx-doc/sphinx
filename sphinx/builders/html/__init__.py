@@ -840,8 +840,7 @@ class StandaloneHTMLBuilder(Builder):
             logger.warning(__('Failed to copy a file in html_static_file: %s: %r'),
                            filename, error)
 
-        excluded = Matcher(self.config.exclude_patterns + ["**/.*"],
-                           self.config.include_patterns)
+        excluded = Matcher(self.config.exclude_patterns + ["**/.*"])
         for entry in self.config.html_static_path:
             copy_asset(path.join(self.confdir, entry),
                        path.join(self.outdir, '_static'),
@@ -881,7 +880,7 @@ class StandaloneHTMLBuilder(Builder):
         """copy html_extra_path files."""
         try:
             with progress_message(__('copying extra files')):
-                excluded = Matcher(self.config.exclude_patterns, self.config.include_patterns)
+                excluded = Matcher(self.config.exclude_patterns)
                 for extra_path in self.config.html_extra_path:
                     entry = path.join(self.confdir, extra_path)
                     copy_asset(entry, self.outdir, excluded)
