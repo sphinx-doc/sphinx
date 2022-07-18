@@ -88,7 +88,7 @@ const _displayItem = (item, highlightTerms, searchTerms) => {
   linkEl.href = linkUrl + "?" + params.toString() + anchor;
   linkEl.innerHTML = title;
   if (descr)
-    listItem.appendChild(document.createElement("span")).innerText =
+    listItem.appendChild(document.createElement("span")).innerHTML =
       " (" + descr + ")";
   else if (showSearchSummary)
     fetch(requestUrl)
@@ -155,10 +155,8 @@ const Search = {
   _pulse_status: -1,
 
   htmlToText: (htmlString) => {
-    const htmlElement = document
-      .createRange()
-      .createContextualFragment(htmlString);
-    htmlElement.querySelectorAll(".headerlink").forEach((el) => el.parentNode.removeChild(el));
+    const htmlElement = new DOMParser().parseFromString(htmlString, 'text/html');
+    htmlElement.querySelectorAll(".headerlink").forEach((el) => { el.remove() });
     const docContent = htmlElement.querySelector('[role="main"]');
     if (docContent !== undefined) return docContent.textContent;
     console.warn(
@@ -519,7 +517,7 @@ const Search = {
 
     let summary = document.createElement("p");
     summary.classList.add("context");
-    summary.innerText = top + text.substr(startWithContext, 240).trim() + tail;
+    summary.textContent = top + text.substr(startWithContext, 240).trim() + tail;
 
     highlightWords.forEach((highlightWord) =>
       _highlightText(summary, highlightWord, "highlighted")

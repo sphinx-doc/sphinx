@@ -70,7 +70,9 @@ InventoryItem = Tuple[str, str, str, str]
 Inventory = Dict[str, Dict[str, InventoryItem]]
 
 
-def get_type_hints(obj: Any, globalns: Dict = None, localns: Dict = None) -> Dict[str, Any]:
+def get_type_hints(
+    obj: Any, globalns: Optional[Dict[str, Any]] = None, localns: Optional[Dict] = None
+) -> Dict[str, Any]:
     """Return a dictionary containing type hints for a function, method, module or class object.
 
     This is a simple wrapper of `typing.get_type_hints()` that does not raise an error on

@@ -127,7 +127,7 @@ class ChangesBuilder(Builder):
             with open(targetfn, 'w', encoding='utf-8') as f:
                 text = ''.join(hl(i + 1, line) for (i, line) in enumerate(lines))
                 ctx = {
-                    'filename': self.env.doc2path(docname, None),
+                    'filename': self.env.doc2path(docname, False),
                     'text': text
                 }
                 f.write(self.templates.render('changes/rstsource.html', ctx))

@@ -2,16 +2,9 @@
 Welcome
 =======
 
-**Sphinx makes it easy to create intelligent and beautiful documentation.**
+.. epigraph:: Sphinx makes it easy to create intelligent and beautiful documentation.
 
-Install
-=======
-
-Install Sphinx with ``pip install -U Sphinx``. See :doc:`usage/installation` for
-further details.
-
-Features
-========
+Here are some of Sphinx's major features:
 
 * **Output formats:** HTML (including Windows HTML Help), LaTeX (for printable
   PDF versions), ePub, Texinfo, manual pages, plain text
@@ -24,78 +17,98 @@ Features
   indices
 * **Code handling:** automatic highlighting using the Pygments_ highlighter
 * **Extensions:** automatic testing of code snippets, inclusion of docstrings
-  from Python modules (API docs), and :ref:`more <builtin-extensions>`
-* **Contributed extensions:** dozens of extensions
-  :ref:`contributed by users <third-party-extensions>`; most of them installable
-  from PyPI
-
-.. _Pygments: https://pygments.org/
-
-Sphinx uses reStructuredText_ as its markup language, and many of its strengths
-come from the power and straightforwardness of reStructuredText and its parsing
-and translating suite, the Docutils_.
+  from Python modules (API docs) via :ref:`built-in extensions
+  <builtin-extensions>`, and much more functionality via :ref:`third-party
+  extensions <third-party-extensions>`.
+* **Themes:** modify the look and feel of outputs via :doc:`creating themes
+  <development/theming>`, and re-use many :ref:`third-party themes
+  <third-party-themes>`.
+* **Contributed extensions:** dozens of extensions :ref:`contributed by users
+  <third-party-extensions>`; most of them installable from PyPI.
 
 .. _reStructuredText: https://docutils.sourceforge.io/rst.html
 .. _Docutils: https://docutils.sourceforge.io/
+.. _Pygments: https://pygments.org/
 
-Documentation
-=============
+Sphinx uses the reStructuredText_ markup language by default, and can read
+:ref:`MyST markdown <markdown>` via third-party extensions. Both of these
+are powerful and straightforward to use, and have functionality
+for complex documentation and publishing workflows. They both build upon
+Docutils_ to parse and write documents.
 
-* :doc:`First steps with Sphinx <usage/quickstart>`: overview of basic tasks
-* :doc:`Tutorial <tutorial/index>`: beginners tutorial
-* :ref:`Search page <search>`: search the documentation
-* :doc:`Changes <changes>`: release history
-* :ref:`General Index <genindex>`: all functions, classes, terms
-* :ref:`Python Module Index <modindex>`: the index of Python modules
-* :doc:`Glossary <glossary>`: definitions of various terms
-* :doc:`Sphinx's Authors <internals/authors>`: the Sphinx developers
-* `Contents <contents.html>`__: full table of contents
+See below for how to navigate Sphinx's documentation.
 
-Support
-=======
+.. seealso::
 
-For questions or to report problems with Sphinx, join the `sphinx-users`_
-mailing list on Google Groups, come to the ``#sphinx-doc`` channel on
-`libera.chat`_, or open an issue at the tracker_.
+   The `Sphinx documentation Table of Contents <contents.html>`_ has
+   a full list of this site's pages.
 
-.. _sphinx-users: https://groups.google.com/group/sphinx-users
-.. _libera.chat: https://web.libera.chat/?channel=#sphinx-doc
-.. _tracker: https://github.com/sphinx-doc/sphinx/issues
+.. _get-started:
 
-Examples of other projects using Sphinx can be found in the :doc:`examples page
-<examples>`. A useful tutorial_ has been written by the matplotlib developers.
+Get started
+===========
 
-.. _tutorial: http://matplotlib.sourceforge.net/sampledoc/
-
-There is a translation team in Transifex_ of this documentation, thanks to the
-Sphinx document translators.
-
-.. _Transifex: https://www.transifex.com/sphinx-doc/sphinx-doc/dashboard/
-
-Contributor guide
-=================
-
-See the :doc:`Sphinx contributors' guide <internals/contributing>` if you would
-like to contribute to the project.
-
-.. master toctree:
+These sections cover the basics of getting started with Sphinx, including
+creating and building your own documentation from scratch.
 
 .. toctree::
-   :maxdepth: 5
-   :hidden:
+   :maxdepth: 2
+   :caption: Get started
+
+   usage/quickstart
+   usage/installation
+   tutorial/index
+
+.. _user-guides:
+
+User Guides
+===========
+
+These sections cover various topics in using and extending Sphinx for various
+use-cases. They are a comprehensive guide to using Sphinx in many contexts and
+assume more knowledge of Sphinx. If you are new to Sphinx, we recommend
+starting with :ref:`get-started`.
+
+.. toctree::
+   :maxdepth: 2
+   :caption: User Guides
 
    usage/index
-   tutorial/index
    development/index
-   man/index
-
    templating
    latex
    extdev/index
 
-   internals/index
+Community guide
+===============
 
+Sphinx is community supported and welcomes contributions from anybody.
+The sections below should help you get started joining the Sphinx community
+as well as contributing.
+
+See the :doc:`Sphinx contributors' guide <internals/contributing>` if you would
+like to contribute to the project.
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Community
+
+   support
+   internals/index
    faq
+
+Reference guide
+===============
+
+Reference documentation is more complete and programmatic in nature, it is a
+collection of information that can be quickly referenced. If you would like
+usecase-driven documentation, see :ref:`get-started` or :ref:`user-guides`.
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Reference
+
+   man/index
    glossary
    changes
    examples

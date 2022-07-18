@@ -1,4 +1,4 @@
-from typing import Iterator, List
+from typing import Iterator, List, Optional
 
 from jinja2 import nodes
 from jinja2.environment import Environment
@@ -35,7 +35,7 @@ class BooleanParser(Parser):
 
 
 class Tags:
-    def __init__(self, tags: List[str] = None) -> None:
+    def __init__(self, tags: Optional[List[str]] = None) -> None:
         self.tags = dict.fromkeys(tags or [], True)
 
     def has(self, tag: str) -> bool:

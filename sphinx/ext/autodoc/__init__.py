@@ -31,7 +31,6 @@ from sphinx.util.typing import stringify as stringify_typehint
 if TYPE_CHECKING:
     from sphinx.ext.autodoc.directive import DocumenterBridge
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -1655,7 +1654,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 return False, []  # type: ignore
             # specific members given
             selected = []
-            for name in self.options.members:  # type: str
+            for name in self.options.members:
                 if name in members:
                     selected.append(members[name])
                 else:

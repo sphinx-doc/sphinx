@@ -4,6 +4,7 @@ import json
 import re
 import socket
 import time
+from copy import deepcopy
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from html.parser import HTMLParser
@@ -117,7 +118,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         socket.setdefaulttimeout(5.0)
 
     def process_result(self, result: CheckResult) -> None:
-        filename = self.env.doc2path(result.docname, None)
+        filename = self.env.doc2path(result.docname, False)
 
         linkstat = {"filename": filename, "lineno": result.lineno,
                     "status": result.status, "code": result.code, "uri": result.uri,
@@ -202,7 +203,7 @@ class HyperlinkAvailabilityChecker:
         self.rate_limits: Dict[str, RateLimit] = {}
         self.rqueue: Queue = Queue()
         self.workers: List[Thread] = []
-        self.wqueue: PriorityQueue = PriorityQueue()
+        self.wqueue: PriorityQueue[CheckRequest] = PriorityQueue()
 
         self.to_ignore = [re.compile(x) for x in self.config.linkcheck_ignore]
 
@@ -267,7 +268,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         if self.config.linkcheck_timeout:
             kwargs['timeout'] = self.config.linkcheck_timeout
 
-        def get_request_headers() -> Dict:
+        def get_request_headers() -> Dict[str, str]:
             url = urlparse(uri)
             candidates = ["%s://%s" % (url.scheme, url.netloc),
                           "%s://%s/" % (url.scheme, url.netloc),
@@ -276,7 +277,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
             for u in candidates:
                 if u in self.config.linkcheck_request_headers:
-                    headers = dict(DEFAULT_REQUEST_HEADERS)
+                    headers = deepcopy(DEFAULT_REQUEST_HEADERS)
                     headers.update(self.config.linkcheck_request_headers[u])
                     return headers
 
@@ -561,19 +562,19 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(CheckExternalLinksBuilder)
     app.add_post_transform(HyperlinkCollector)
 
-    app.add_config_value('linkcheck_ignore', [], None)
-    app.add_config_value('linkcheck_exclude_documents', [], None)
-    app.add_config_value('linkcheck_allowed_redirects', {}, None)
-    app.add_config_value('linkcheck_auth', [], None)
-    app.add_config_value('linkcheck_request_headers', {}, None)
-    app.add_config_value('linkcheck_retries', 1, None)
-    app.add_config_value('linkcheck_timeout', None, None, [int])
-    app.add_config_value('linkcheck_workers', 5, None)
-    app.add_config_value('linkcheck_anchors', True, None)
+    app.add_config_value('linkcheck_ignore', [], False)
+    app.add_config_value('linkcheck_exclude_documents', [], False)
+    app.add_config_value('linkcheck_allowed_redirects', {}, False)
+    app.add_config_value('linkcheck_auth', [], False)
+    app.add_config_value('linkcheck_request_headers', {}, False)
+    app.add_config_value('linkcheck_retries', 1, False)
+    app.add_config_value('linkcheck_timeout', None, False, [int])
+    app.add_config_value('linkcheck_workers', 5, False)
+    app.add_config_value('linkcheck_anchors', True, False)
     # Anchors starting with ! are ignored since they are
     # commonly used for dynamic pages
-    app.add_config_value('linkcheck_anchors_ignore', ["^!"], None)
-    app.add_config_value('linkcheck_rate_limit_timeout', 300.0, None)
+    app.add_config_value('linkcheck_anchors_ignore', ["^!"], False)
+    app.add_config_value('linkcheck_rate_limit_timeout', 300.0, False)
 
     app.add_event('linkcheck-process-uri')
 

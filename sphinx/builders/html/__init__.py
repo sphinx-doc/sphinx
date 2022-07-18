@@ -818,7 +818,7 @@ class StandaloneHTMLBuilder(Builder):
                 if jsfile:
                     copyfile(jsfile, path.join(self.outdir, '_static', '_stemmer.js'))
 
-    def copy_theme_static_files(self, context: Dict) -> None:
+    def copy_theme_static_files(self, context: Dict[str, Any]) -> None:
         def onerror(filename: str, error: Exception) -> None:
             logger.warning(__('Failed to copy a file in html_static_file: %s: %r'),
                            filename, error)

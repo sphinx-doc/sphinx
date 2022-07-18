@@ -56,6 +56,7 @@ Features added
   corner radii, a shadow (possibly inset), colours for border, background, shadow
   for each of the code-block, topic, attention, caution, danger, error and warning
   directives.
+* #10655: LaTeX: Explain non-standard encoding in LatinRules.xdy
 * #10599: HTML Theme: Wrap consecutive footnotes in an ``<aside>`` element when
   using Docutils 0.18 or later, to allow for easier styling. This matches the
   behaviour introduced in Docutils 0.19. Patch by Adam Turner.
@@ -69,6 +70,10 @@ Bugs fixed
 * #10031: py domain: Fix spurious whitespace in unparsing various operators (``+``,
   ``-``, ``~``, and ``**``). Patch by Adam Turner.
 * #10460: logging: Always show node source locations as absolute paths.
+* HTML Search: HTML tags are displayed as a part of object name
+* HTML Search: search snipets should not be folded
+* HTML Search: Minor errors are emitted on fetching search snipets
+* HTML Search: The markers for header links are shown in the search result
 * #10520: HTML Theme: Fix use of sidebar classes in ``agogo.css_t``.
 * #6679: HTML Theme: Fix inclusion of hidden toctrees in the agogo theme.
 * #10566: HTML Theme: Fix enable_search_shortcuts does not work

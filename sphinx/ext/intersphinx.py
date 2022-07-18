@@ -98,7 +98,7 @@ def _strip_basic_auth(url: str) -> str:
     return urlunsplit(frags)
 
 
-def _read_from_url(url: str, config: Config = None) -> IO:
+def _read_from_url(url: str, config: Optional[Config] = None) -> IO:
     """Reads data from *url* with an HTTP *GET*.
 
     This function supports fetching from resources which use basic HTTP auth as
@@ -652,7 +652,7 @@ def inspect_main(argv: List[str]) -> None:
         sys.exit(1)
 
     class MockConfig:
-        intersphinx_timeout: int = None
+        intersphinx_timeout: Optional[int] = None
         tls_verify = False
         user_agent = None
 

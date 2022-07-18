@@ -6,7 +6,7 @@ import re
 import subprocess
 from os import path
 from subprocess import PIPE, CalledProcessError
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -210,7 +210,7 @@ class GraphvizSimple(SphinxDirective):
 
 
 def render_dot(self: SphinxTranslator, code: str, options: Dict, format: str,
-               prefix: str = 'graphviz', filename: str = None) -> Tuple[str, str]:
+               prefix: str = 'graphviz', filename: Optional[str] = None) -> Tuple[str, str]:
     """Render graphviz code into a PNG or PDF output file."""
     graphviz_dot = options.get('graphviz_dot', self.builder.config.graphviz_dot)
     hashkey = (code + str(options) + str(graphviz_dot) +

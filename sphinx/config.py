@@ -158,7 +158,9 @@ class Config:
         self.extensions: List[str] = config.get('extensions', [])
 
     @classmethod
-    def read(cls, confdir: str, overrides: Dict = None, tags: Tags = None) -> "Config":
+    def read(
+        cls, confdir: str, overrides: Optional[Dict] = None, tags: Optional[Tags] = None
+    ) -> "Config":
         """Create a Config object from configuration file."""
         filename = path.join(confdir, CONFIG_FILENAME)
         if not path.isfile(filename):

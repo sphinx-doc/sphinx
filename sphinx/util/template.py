@@ -3,7 +3,7 @@
 import os
 from functools import partial
 from os import path
-from typing import Callable, Dict, List, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 from jinja2 import TemplateNotFound
 from jinja2.environment import Environment
@@ -17,15 +17,15 @@ from sphinx.util import rst, texescape
 
 
 class BaseRenderer:
-    def __init__(self, loader: BaseLoader = None) -> None:
+    def __init__(self, loader: Optional[BaseLoader] = None) -> None:
         self.env = SandboxedEnvironment(loader=loader, extensions=['jinja2.ext.i18n'])
         self.env.filters['repr'] = repr
         self.env.install_gettext_translations(get_translator())
 
-    def render(self, template_name: str, context: Dict) -> str:
+    def render(self, template_name: str, context: Dict[str, Any]) -> str:
         return self.env.get_template(template_name).render(context)
 
-    def render_string(self, source: str, context: Dict) -> str:
+    def render_string(self, source: str, context: Dict[str, Any]) -> str:
         return self.env.from_string(source).render(context)
 
 
@@ -41,25 +41,27 @@ class FileRenderer(BaseRenderer):
         super().__init__(loader)
 
     @classmethod
-    def render_from_file(cls, filename: str, context: Dict) -> str:
+    def render_from_file(cls, filename: str, context: Dict[str, Any]) -> str:
         dirname = os.path.dirname(filename)
         basename = os.path.basename(filename)
         return cls(dirname).render(basename, context)
 
 
 class SphinxRenderer(FileRenderer):
-    def __init__(self, template_path: Union[str, List[str]] = None) -> None:
+    def __init__(self, template_path: Union[None, str, List[str]] = None) -> None:
         if template_path is None:
             template_path = os.path.join(package_dir, 'templates')
         super().__init__(template_path)
 
     @classmethod
-    def render_from_file(cls, filename: str, context: Dict) -> str:
+    def render_from_file(cls, filename: str, context: Dict[str, Any]) -> str:
         return FileRenderer.render_from_file(filename, context)
 
 
 class LaTeXRenderer(SphinxRenderer):
-    def __init__(self, template_path: str = None, latex_engine: str = None) -> None:
+    def __init__(
+        self, template_path: Optional[str] = None, latex_engine: Optional[str] = None
+    ) -> None:
         if template_path is None:
             template_path = os.path.join(package_dir, 'templates', 'latex')
         super().__init__(template_path)
@@ -81,7 +83,9 @@ class LaTeXRenderer(SphinxRenderer):
 
 
 class ReSTRenderer(SphinxRenderer):
-    def __init__(self, template_path: Union[str, List[str]] = None, language: str = None) -> None:  # NOQA
+    def __init__(
+        self, template_path: Union[None, str, List[str]] = None, language: Optional[str] = None
+    ) -> None:
         super().__init__(template_path)
 
         # add language to environment
