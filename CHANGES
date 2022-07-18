@@ -33,6 +33,7 @@ Features added
   corner radii, a shadow (possibly inset), colours for border, background, shadow
   for each of the code-block, topic, attention, caution, danger, error and warning
   directives.
+* #10655: LaTeX: Explain non-standard encoding in LatinRules.xdy
 * #10599: HTML Theme: Wrap consecutive footnotes in an ``<aside>`` element when
   using Docutils 0.18 or later, to allow for easier styling. This matches the
   behaviour introduced in Docutils 0.19. Patch by Adam Turner.
