@@ -8,7 +8,7 @@ from sphinx.deprecation import RemovedInSphinx70Warning
 
 
 class PorterStemmer:
-    def __init__(self):
+    def __init__(self) -> None:
         warnings.warn(f"{self.__class__.__name__} is deprecated, use "
                       "snowballstemmer.stemmer('porter') instead.",
                       RemovedInSphinx70Warning, stacklevel=2)
@@ -22,7 +22,7 @@ class PorterStemmer:
 
 
 class BaseStemmer:
-    def __init__(self):
+    def __init__(self) -> None:
         warnings.warn(f"{self.__class__.__name__} is deprecated, use "
                       "snowballstemmer.stemmer('porter') instead.",
                       RemovedInSphinx70Warning, stacklevel=3)
@@ -32,7 +32,7 @@ class BaseStemmer:
 
 
 class PyStemmer(BaseStemmer):
-    def __init__(self):  # NoQA
+    def __init__(self) -> None:
         super().__init__()
         self.stemmer = snowballstemmer.stemmer('porter')
 
@@ -44,7 +44,7 @@ class PyStemmer(BaseStemmer):
 
 
 class StandardStemmer(BaseStemmer):
-    def __init__(self):  # NoQA
+    def __init__(self) -> None:
         super().__init__()
         self.stemmer = snowballstemmer.stemmer('porter')
 

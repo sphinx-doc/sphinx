@@ -1,7 +1,7 @@
 """Handlers for additional ReST roles."""
 
 import re
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Type
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type
 
 import docutils.parsers.rst.directives
 import docutils.parsers.rst.roles
@@ -64,7 +64,8 @@ class XRefRole(ReferenceRole):
     innernodeclass: Type[TextElement] = nodes.literal
 
     def __init__(self, fix_parens: bool = False, lowercase: bool = False,
-                 nodeclass: Type[Element] = None, innernodeclass: Type[TextElement] = None,
+                 nodeclass: Optional[Type[Element]] = None,
+                 innernodeclass: Optional[Type[TextElement]] = None,
                  warn_dangling: bool = False) -> None:
         self.fix_parens = fix_parens
         self.lowercase = lowercase

@@ -183,7 +183,7 @@ class QuickstartRenderer(SphinxRenderer):
             return super().render(template_name, context)
 
 
-def ask_user(d: Dict) -> None:
+def ask_user(d: Dict[str, Any]) -> None:
     """Ask the user for quickstart values missing from *d*.
 
     Values are:

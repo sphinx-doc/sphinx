@@ -74,6 +74,7 @@ from sphinx.ext.autodoc import INSTANCEATTR, Documenter
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
+from sphinx.extension import Extension
 from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.pycode import ModuleAnalyzer, PycodeError
@@ -145,10 +146,10 @@ deprecated_alias('sphinx.ext.autosummary',
 
 
 class FakeApplication:
-    def __init__(self):
+    def __init__(self) -> None:
         self.doctreedir = None
         self.events = None
-        self.extensions = {}
+        self.extensions: Dict[str, Extension] = {}
         self.srcdir = None
         self.config = Config()
         self.project = Project(None, None)
@@ -243,7 +244,7 @@ class Autosummary(SphinxDirective):
                 docname = posixpath.join(tree_prefix, real_name)
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
                 if docname not in self.env.found_docs:
-                    if excluded(self.env.doc2path(docname, None)):
+                    if excluded(self.env.doc2path(docname, False)):
                         msg = __('autosummary references excluded document %r. Ignored.')
                     else:
                         msg = __('autosummary: stub file not found %r. '

@@ -943,7 +943,7 @@ class Sphinx:
         """
         self.registry.add_post_transform(transform)
 
-    def add_js_file(self, filename: str, priority: int = 500,
+    def add_js_file(self, filename: Optional[str], priority: int = 500,
                     loading_method: Optional[str] = None, **kwargs: Any) -> None:
         """Register a JavaScript file to include in the HTML output.
 

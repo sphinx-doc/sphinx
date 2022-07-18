@@ -1,7 +1,7 @@
 """Single HTML builders."""
 
 from os import path
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -27,10 +27,10 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 
     copysource = False
 
-    def get_outdated_docs(self) -> Union[str, List[str]]:  # type: ignore
+    def get_outdated_docs(self) -> Union[str, List[str]]:  # type: ignore[override]
         return 'all documents'
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
         if docname in self.env.all_docs:
             # all references are on the same page...
             return self.config.root_doc + self.out_suffix + \
@@ -39,7 +39,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             # chances are this is a html_additional_page
             return docname + self.out_suffix
 
-    def get_relative_uri(self, from_: str, to: str, typ: str = None) -> str:
+    def get_relative_uri(self, from_: str, to: str, typ: Optional[str] = None) -> str:
         # ignore source
         return self.get_target_uri(to, typ)
 
@@ -113,7 +113,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 
         return {self.config.root_doc: new_fignumbers}
 
-    def get_doc_context(self, docname: str, body: str, metatags: str) -> Dict:
+    def get_doc_context(self, docname: str, body: str, metatags: str) -> Dict[str, Any]:
         # no relation links...
         toctree = TocTree(self.env).get_toctree_for(self.config.root_doc, self, False)
         # if there is no toctree, toc is None

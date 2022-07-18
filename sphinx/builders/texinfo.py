@@ -3,7 +3,7 @@
 import os
 import warnings
 from os import path
-from typing import Any, Dict, Iterable, List, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 from docutils import nodes
 from docutils.frontend import OptionParser
@@ -52,13 +52,13 @@ class TexinfoBuilder(Builder):
     def get_outdated_docs(self) -> Union[str, List[str]]:
         return 'all documents'  # for now
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
         if docname not in self.docnames:
             raise NoUri(docname, typ)
         else:
             return '%' + docname
 
-    def get_relative_uri(self, from_: str, to: str, typ: str = None) -> str:
+    def get_relative_uri(self, from_: str, to: str, typ: Optional[str] = None) -> str:
         # ignore source path
         return self.get_target_uri(to, typ)
 
@@ -202,13 +202,13 @@ def default_texinfo_documents(config: Config) -> List[Tuple[str, str, str, str, 
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(TexinfoBuilder)
 
-    app.add_config_value('texinfo_documents', default_texinfo_documents, None)
-    app.add_config_value('texinfo_appendices', [], None)
-    app.add_config_value('texinfo_elements', {}, None)
-    app.add_config_value('texinfo_domain_indices', True, None, [list])
-    app.add_config_value('texinfo_show_urls', 'footnote', None)
-    app.add_config_value('texinfo_no_detailmenu', False, None)
-    app.add_config_value('texinfo_cross_references', True, None)
+    app.add_config_value('texinfo_documents', default_texinfo_documents, False)
+    app.add_config_value('texinfo_appendices', [], False)
+    app.add_config_value('texinfo_elements', {}, False)
+    app.add_config_value('texinfo_domain_indices', True, False, [list])
+    app.add_config_value('texinfo_show_urls', 'footnote', False)
+    app.add_config_value('texinfo_no_detailmenu', False, False)
+    app.add_config_value('texinfo_cross_references', True, False)
 
     return {
         'version': 'builtin',

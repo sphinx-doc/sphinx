@@ -7,7 +7,7 @@ import os
 import sys
 import warnings
 from io import StringIO
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from sphinx.application import Sphinx
 from sphinx.cmd.build import handle_exception
@@ -90,15 +90,15 @@ class BuildDoc(Command):
     def initialize_options(self) -> None:
         self.fresh_env = self.all_files = False
         self.pdb = False
-        self.source_dir: str = None
-        self.build_dir: str = None
+        self.source_dir: Optional[str] = None
+        self.build_dir: Optional[str] = None
         self.builder = 'html'
         self.warning_is_error = False
         self.project = ''
         self.version = ''
         self.release = ''
         self.today = ''
-        self.config_dir: str = None
+        self.config_dir: Optional[str] = None
         self.link_index = False
         self.copyright = ''
         # Link verbosity to distutils' (which uses 1 by default).

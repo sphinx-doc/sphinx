@@ -167,7 +167,7 @@ def init_console(locale_dir: str, catalog: str) -> Tuple[NullTranslations, bool]
     """
     try:
         # encoding is ignored
-        language, _ = locale.getlocale(locale.LC_MESSAGES)  # type: Tuple[Optional[str], Any]
+        language, _ = locale.getlocale(locale.LC_MESSAGES)
     except AttributeError:
         # LC_MESSAGES is not always defined. Fallback to the default language
         # in case it is not.
@@ -191,7 +191,7 @@ def _lazy_translate(catalog: str, namespace: str, message: str) -> str:
     return translator.gettext(message)
 
 
-def get_translation(catalog: str, namespace: str = 'general') -> Callable:
+def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str], str]:
     """Get a translation function based on the *catalog* and *namespace*.
 
     The extension can use this API to translate the messages on the

@@ -99,8 +99,8 @@ def parse_reftarget(reftarget: str, suppress_prefix: bool = False
     return reftype, reftarget, title, refspecific
 
 
-def type_to_xref(target: str, env: BuildEnvironment = None, suppress_prefix: bool = False
-                 ) -> addnodes.pending_xref:
+def type_to_xref(target: str, env: Optional[BuildEnvironment] = None,
+                 suppress_prefix: bool = False) -> addnodes.pending_xref:
     """Convert a type string to a cross reference node."""
     if env:
         kwargs = {'py:module': env.ref_context.get('py:module'),
@@ -239,7 +239,9 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> List[Node]:
         return [type_to_xref(annotation, env)]
 
 
-def _parse_arglist(arglist: str, env: BuildEnvironment = None) -> addnodes.desc_parameterlist:
+def _parse_arglist(
+    arglist: str, env: Optional[BuildEnvironment] = None
+) -> addnodes.desc_parameterlist:
     """Parse a list of arguments using AST parser"""
     params = addnodes.desc_parameterlist(arglist)
     sig = signature_from_str('(%s)' % arglist)

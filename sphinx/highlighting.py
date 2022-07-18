@@ -2,7 +2,7 @@
 
 from functools import partial
 from importlib import import_module
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from packaging import version
 from pygments import __version__ as pygmentsversion
@@ -99,7 +99,7 @@ class PygmentsBridge:
     latex_formatter = LatexFormatter
 
     def __init__(self, dest: str = 'html', stylename: str = 'sphinx',
-                 latex_engine: str = None) -> None:
+                 latex_engine: Optional[str] = None) -> None:
         self.dest = dest
         self.latex_engine = latex_engine
 
@@ -126,7 +126,7 @@ class PygmentsBridge:
         kwargs.update(self.formatter_args)
         return self.formatter(**kwargs)
 
-    def get_lexer(self, source: str, lang: str, opts: Dict = None,
+    def get_lexer(self, source: str, lang: str, opts: Optional[Dict] = None,
                   force: bool = False, location: Any = None) -> Lexer:
         if not opts:
             opts = {}
@@ -165,7 +165,7 @@ class PygmentsBridge:
 
         return lexer
 
-    def highlight_block(self, source: str, lang: str, opts: Dict = None,
+    def highlight_block(self, source: str, lang: str, opts: Optional[Dict] = None,
                         force: bool = False, location: Any = None, **kwargs: Any) -> str:
         if not isinstance(source, str):
             source = source.decode()

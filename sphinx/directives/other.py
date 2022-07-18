@@ -119,7 +119,7 @@ class TocTree(SphinxDirective):
                 if url_re.match(ref) or ref == 'self':
                     toctree['entries'].append((title, ref))
                 elif docname not in self.env.found_docs:
-                    if excluded(self.env.doc2path(docname, None)):
+                    if excluded(self.env.doc2path(docname, False)):
                         message = __('toctree contains reference to excluded document %r')
                         subtype = 'excluded'
                     else:

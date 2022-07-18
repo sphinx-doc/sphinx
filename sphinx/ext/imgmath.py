@@ -7,7 +7,7 @@ import subprocess
 import tempfile
 from os import path
 from subprocess import PIPE, CalledProcessError
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from docutils import nodes
 from docutils.nodes import Element
@@ -34,7 +34,9 @@ templates_path = path.join(package_dir, 'templates', 'imgmath')
 class MathExtError(SphinxError):
     category = 'Math extension error'
 
-    def __init__(self, msg: str, stderr: str = None, stdout: str = None) -> None:
+    def __init__(
+        self, msg: str, stderr: Optional[str] = None, stdout: Optional[str] = None
+    ) -> None:
         if stderr:
             msg += '\n[stderr]\n' + stderr
         if stdout:
@@ -53,7 +55,7 @@ depthsvg_re = re.compile(r'.*, depth=(.*)pt')
 depthsvgcomment_re = re.compile(r'<!-- DEPTH=(-?\d+) -->')
 
 
-def read_svg_depth(filename: str) -> int:
+def read_svg_depth(filename: str) -> Optional[int]:
     """Read the depth from comment at last line of SVG file
     """
     with open(filename, encoding="utf-8") as f:
