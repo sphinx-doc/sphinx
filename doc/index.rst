@@ -4,7 +4,7 @@ Welcome
 
 .. epigraph:: Sphinx makes it easy to create intelligent and beautiful documentation.
 
-Here are a few major features of Sphinx.
+Here are some of Sphinx's major features:
 
 * **Output formats:** HTML (including Windows HTML Help), LaTeX (for printable
   PDF versions), ePub, Texinfo, manual pages, plain text
@@ -17,24 +17,24 @@ Here are a few major features of Sphinx.
   indices
 * **Code handling:** automatic highlighting using the Pygments_ highlighter
 * **Extensions:** automatic testing of code snippets, inclusion of docstrings
-  from Python modules (API docs) via :ref:`builtin-extensions`, and much more
-  functionality via :ref:`community extensions <third-party-extensions>`.
-* **Themes:** modify the look and feel of outputs via
-  :doc:`creating themes <development/theming>`, and re-use many
-  :ref:`Community Themes <third-party-themes>`.
-* **Contributed extensions:** dozens of extensions
-  :ref:`contributed by users <third-party-extensions>`; most of them installable
-  from PyPI
+  from Python modules (API docs) via :ref:`built-in extensions
+  <builtin-extensions>`, and much more functionality via :ref:`third-party
+  extensions <third-party-extensions>`.
+* **Themes:** modify the look and feel of outputs via :doc:`creating themes
+  <development/theming>`, and re-use many :ref:`third-party themes
+  <third-party-themes>`.
+* **Contributed extensions:** dozens of extensions :ref:`contributed by users
+  <third-party-extensions>`; most of them installable from PyPI.
 
 .. _reStructuredText: https://docutils.sourceforge.io/rst.html
 .. _Docutils: https://docutils.sourceforge.io/
 .. _Pygments: https://pygments.org/
 
-Sphinx has built-in functionality to read reStructuredText_, and can read
-:ref:`MyST Markdown <markdown>` via community extensions. Both of these
+Sphinx uses the reStructuredText_ markup language by default, and can read
+:ref:`MyST markdown <markdown>` via third-party extensions. Both of these
 are powerful and straightforward to use, and have functionality
-for complex documentation and publishing workflows. They both built upon
-the Docutils_ tool for parsing and creating documents.
+for complex documentation and publishing workflows. They both build upon
+Docutils_ to parse and write documents.
 
 See below for how to navigate Sphinx's documentation.
 

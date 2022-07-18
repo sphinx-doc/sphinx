@@ -1,5 +1,5 @@
-API Documentation
-=================
+Command-Line Tools
+==================
 
 These are the applications provided as part of Sphinx.
 

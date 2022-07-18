@@ -345,12 +345,10 @@ These themes are:
    available, however it will emit a notice that it is an alias for the new
    'alabaster' theme.
 
-.. _third-party-themes:
-
 Third Party Themes
 ~~~~~~~~~~~~~~~~~~
 
-There are many community-supported themes. Some of these are for
+There are many third-party themes created for Sphinx. Some of these are for
 general use, while others are specific to an individual project.
 
 sphinx-themes.org__ is a gallery that showcases various themes for Sphinx,
