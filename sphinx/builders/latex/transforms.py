@@ -1,6 +1,6 @@
 """Transforms for LaTeX builder."""
 
-from typing import Any, Dict, List, Set, Tuple, cast
+from typing import Any, Dict, List, Optional, Set, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -355,7 +355,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         self.footnotes: List[nodes.footnote] = footnotes
         self.pendings: List[nodes.footnote] = []
         self.table_footnotes: List[nodes.footnote] = []
-        self.restricted: Element = None
+        self.restricted: Optional[Element] = None
         super().__init__(document)
 
     def unknown_visit(self, node: Node) -> None:

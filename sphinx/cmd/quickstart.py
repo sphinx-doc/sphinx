@@ -7,7 +7,7 @@ import sys
 import time
 from collections import OrderedDict
 from os import path
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
 # try to import readline, unix specific enhancement
 try:
@@ -130,7 +130,9 @@ def ok(x: str) -> str:
     return x
 
 
-def do_prompt(text: str, default: str = None, validator: Callable[[str], Any] = nonempty) -> Union[str, bool]:  # NOQA
+def do_prompt(
+    text: str, default: Optional[str] = None, validator: Callable[[str], Any] = nonempty
+) -> Union[str, bool]:
     while True:
         if default is not None:
             prompt = PROMPT_PREFIX + '%s [%s]: ' % (text, default)
@@ -159,8 +161,8 @@ def do_prompt(text: str, default: str = None, validator: Callable[[str], Any] = 
 
 
 class QuickstartRenderer(SphinxRenderer):
-    def __init__(self, templatedir: str) -> None:
-        self.templatedir = templatedir or ''
+    def __init__(self, templatedir: str = '') -> None:
+        self.templatedir = templatedir
         super().__init__()
 
     def _has_custom_template(self, template_name: str) -> bool:
@@ -321,10 +323,11 @@ def ask_user(d: Dict[str, Any]) -> None:
     print()
 
 
-def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir: str = None
-             ) -> None:
+def generate(
+    d: Dict, overwrite: bool = True, silent: bool = False, templatedir: Optional[str] = None
+) -> None:
     """Generate project based on values in *d*."""
-    template = QuickstartRenderer(templatedir=templatedir)
+    template = QuickstartRenderer(templatedir or '')
 
     if 'mastertoctree' not in d:
         d['mastertoctree'] = ''
@@ -357,7 +360,7 @@ def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir:
     ensuredir(path.join(srcdir, d['dot'] + 'templates'))
     ensuredir(path.join(srcdir, d['dot'] + 'static'))
 
-    def write_file(fpath: str, content: str, newline: str = None) -> None:
+    def write_file(fpath: str, content: str, newline: Optional[str] = None) -> None:
         if overwrite or not path.isfile(fpath):
             if 'quiet' not in d:
                 print(__('Creating file %s.') % fpath)

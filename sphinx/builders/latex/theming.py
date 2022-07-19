@@ -2,7 +2,7 @@
 
 import configparser
 from os import path
-from typing import Dict
+from typing import Dict, Optional
 
 from sphinx.application import Sphinx
 from sphinx.config import Config
@@ -120,7 +120,7 @@ class ThemeFactory:
         theme.update(self.config)
         return theme
 
-    def find_user_theme(self, name: str) -> Theme:
+    def find_user_theme(self, name: str) -> Optional[Theme]:
         """Find a theme named as *name* from latex_theme_path."""
         for theme_path in self.theme_paths:
             config_path = path.join(theme_path, name, 'theme.conf')

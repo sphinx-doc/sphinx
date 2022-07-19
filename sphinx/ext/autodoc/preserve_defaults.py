@@ -27,7 +27,7 @@ class DefaultValue:
         return self.name
 
 
-def get_function_def(obj: Any) -> ast.FunctionDef:
+def get_function_def(obj: Any) -> Optional[ast.FunctionDef]:
     """Get FunctionDef object from living object.
     This tries to parse original code for living object and returns
     AST node for given *obj*.

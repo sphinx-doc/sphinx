@@ -765,10 +765,10 @@ class TexinfoTranslator(SphinxTranslator):
         self.ensure_eol()
         self.body.append('@end quotation\n')
 
-    def visit_literal_block(self, node: Element) -> None:
+    def visit_literal_block(self, node: Optional[Element]) -> None:
         self.body.append('\n@example\n')
 
-    def depart_literal_block(self, node: Element) -> None:
+    def depart_literal_block(self, node: Optional[Element]) -> None:
         self.ensure_eol()
         self.body.append('@end example\n')
 

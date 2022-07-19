@@ -389,9 +389,9 @@ class LaTeXTranslator(SphinxTranslator):
         self.context: List[Any] = []
         self.descstack: List[str] = []
         self.tables: List[Table] = []
-        self.next_table_colspec: str = None
+        self.next_table_colspec: Optional[str] = None
         self.bodystack: List[List[str]] = []
-        self.footnote_restricted: Element = None
+        self.footnote_restricted: Optional[Element] = None
         self.pending_footnotes: List[nodes.footnote_reference] = []
         self.curfilestack: List[str] = []
         self.handled_abbrs: Set[str] = set()
@@ -1187,7 +1187,7 @@ class LaTeXTranslator(SphinxTranslator):
         # self.body.append(r'\columnbreak\n')
         pass
 
-    def latex_image_length(self, width_str: str, scale: int = 100) -> str:
+    def latex_image_length(self, width_str: str, scale: int = 100) -> Optional[str]:
         try:
             return rstdim_to_latexdim(width_str, scale)
         except ValueError:
