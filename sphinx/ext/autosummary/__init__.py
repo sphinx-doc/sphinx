@@ -720,7 +720,10 @@ def import_ivar_by_name(name: str, prefixes: list[str | None] = [None],
         analyzer = ModuleAnalyzer.for_module(getattr(obj, '__module__', modname))
         analyzer.analyze()
         # check for presence in `annotations` to include dataclass attributes
-        if (qualname, attr) in analyzer.attr_docs or (qualname, attr) in analyzer.annotations:
+        attrs_found = {name_attr[1] for name_attr in analyzer.attr_docs} | {
+            name_attr[1] for name_attr in analyzer.annotations
+        }
+        if attr in attrs_found:
             return real_name + "." + attr, INSTANCEATTR, obj, modname
     except (ImportError, ValueError, PycodeError) as exc:
         raise ImportError from exc
