@@ -43,7 +43,7 @@ extras_require = {
         'flake8-comprehensions',
         'flake8-bugbear',
         'isort',
-        'mypy>=0.950',
+        'mypy>=0.971',
         'sphinx-lint',
         'docutils-stubs',
         "types-typed-ast",
