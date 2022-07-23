@@ -72,22 +72,6 @@
 % if nothing else is changed (perhaps in future the title itself could be also
 % rendered in a rounded box?)
 
-\def\spx@RequirePackage@PictIIe{%
-\IfFileExists{pict2e.sty}
-   {\RequirePackage{pict2e}}
-   {\PackageWarningNoLine{sphinx}{%
-       The package pict2e is required for rounded boxes.\MessageBreak
-       It does not seem to be available on your system.\MessageBreak
-       Options for setting radii will thus be ignored}%
-    \AtEndDocument{\PackageWarningNoLine{sphinx}{%
-       I issued a warning which may have gotten lost in the\MessageBreak
-       gigantic console output: pict2e.sty was not found,\MessageBreak
-       and radii setting options have been ignored}}%
-   \def\spx@boxes@fcolorbox@rounded{\spx@boxes@fcolorbox}%
-   }%
-}%
-
-
 %//// \spx@boxes@fcolorbox
 % This box will have the same baseline as its argument (which is typeset in
 % horizontal mode).  It takes into account four border widths parameters, four
