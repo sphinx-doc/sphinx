@@ -72,22 +72,6 @@
 % if nothing else is changed (perhaps in future the title itself could be also
 % rendered in a rounded box?)
 
-\def\spx@RequirePackage@PictIIe{%
-\IfFileExists{pict2e.sty}
-   {\RequirePackage{pict2e}}
-   {\PackageWarningNoLine{sphinx}{%
-       The package pict2e is required for rounded boxes.\MessageBreak
-       It does not seem to be available on your system.\MessageBreak
-       Options for setting radii will thus be ignored}%
-    \AtEndDocument{\PackageWarningNoLine{sphinx}{%
-       I issued a warning which may have gotten lost in the\MessageBreak
-       gigantic console output: pict2e.sty was not found,\MessageBreak
-       and radii setting options have been ignored}}%
-   \def\spx@boxes@fcolorbox@rounded{\spx@boxes@fcolorbox}%
-   }%
-}%
-
-
 %//// \spx@boxes@fcolorbox
 % This box will have the same baseline as its argument (which is typeset in
 % horizontal mode).  It takes into account four border widths parameters, four
@@ -378,16 +362,16 @@
      \dimexpr\dp\spx@tempboxa+\spx@boxes@padding@bottom+\spx@boxes@border\relax
      \hbox{%
    \begin{picture}%
-      % \strip@pt\dimexpr fot work around "old" LaTeX picture limitation
+      % \strip@pt\dimexpr to work around "old" LaTeX picture limitation
       % (we could use the "picture" package, this would add another dependency)
-      (\strip@pt\wd\spx@tempboxa,\strip@pt\dimexpr\ht\spx@tempboxa+\dp\spx@tempboxa)%
-      (\strip@pt\dimexpr-.5\spx@boxes@border,\strip@pt\dimexpr-.5\spx@boxes@border)%
+      (\strip@pt\wd\spx@tempboxa,\strip@pt\dimexpr\ht\spx@tempboxa+\dp\spx@tempboxa\relax)%
+      (\strip@pt\dimexpr-.5\spx@boxes@border\relax,\strip@pt\dimexpr-.5\spx@boxes@border\relax)%
 \ifspx@boxes@withshadow
               \color{spx@boxes@shadowcolor}%
-              \put(\dimexpr\ifdim\spx@boxes@shadow@xoffset<\z@-\fi
-                           0.5\spx@boxes@border+\spx@boxes@shadow@xoffset,%
-                   \dimexpr\ifdim\spx@boxes@shadow@yoffset<\z@\else-\fi
-                           0.5\spx@boxes@border-\spx@boxes@shadow@yoffset)
+              \put(\strip@pt\dimexpr\ifdim\spx@boxes@shadow@xoffset<\z@-\fi
+                           0.5\spx@boxes@border+\spx@boxes@shadow@xoffset\relax,%
+                   \strip@pt\dimexpr\ifdim\spx@boxes@shadow@yoffset<\z@\else-\fi
+                           0.5\spx@boxes@border-\spx@boxes@shadow@yoffset\relax)
                    {\spx@boxes@borderpath\fillpath}%
               {\ifspx@boxes@withbackgroundcolor\else
                    \color{white}% or rather try to use page color?
