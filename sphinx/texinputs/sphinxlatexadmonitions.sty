@@ -162,7 +162,7 @@
           \ifdim\spx@boxes@radius@bottomleft >\z@0\fi
           1\spx@boxes@fcolorbox{##1}%
         \else
-          \@ifpackageloaded{pict2e}%
+          \spx@ifpackageloaded@pictiie
              {\ifspx@boxes@insetshadow
                 \spx@boxes@fcolorbox{##1}%
               \else

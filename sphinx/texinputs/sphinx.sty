@@ -685,6 +685,27 @@
 %% FRAMED ENVIRONMENTS
 %
 \RequirePackage{sphinxpackageboxes}
+% This macro is possibly executed at begin document if the check
+% whether radii setting options have been used turns out positive
+\def\spx@RequirePackage@PictIIe{%
+\IfFileExists{pict2e.sty}
+   {\RequirePackage{pict2e}}
+   {\PackageWarningNoLine{sphinx}{%
+       The package pict2e is required for rounded boxes.\MessageBreak
+       It does not seem to be available on your system.\MessageBreak
+       Options for setting radii will thus be ignored}%
+    \AtEndDocument{\PackageWarningNoLine{sphinx}{%
+       I issued a warning which may have gotten lost in the\MessageBreak
+       gigantic console output: pict2e.sty was not found,\MessageBreak
+       and radii setting options have been ignored}}%
+    \def\spx@boxes@fcolorbox@rounded{\spx@boxes@fcolorbox}%
+   }%
+}%
+% This at begin document will be executed after \spx@RequirePackage@PictIIe
+\AtBeginDocument{%
+    \@ifpackageloaded{pict2e}{\let\spx@ifpackageloaded@pictiie\@firstoftwo}%
+                             {\let\spx@ifpackageloaded@pictiie\@secondoftwo}%
+}%
 \input{sphinxlatexadmonitions.sty}
 \input{sphinxlatexliterals.sty}
 \input{sphinxlatexshadowbox.sty}

@@ -720,7 +720,7 @@ General configuration
    This was the behaviour before version 3.0, and setting this variable to
    ``True`` will reinstate that behaviour.
 
-    .. versionadded:: 3.0
+   .. versionadded:: 3.0
 
 .. confval:: option_emphasise_placeholders
 
