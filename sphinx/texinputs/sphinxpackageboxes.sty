@@ -362,16 +362,16 @@
      \dimexpr\dp\spx@tempboxa+\spx@boxes@padding@bottom+\spx@boxes@border\relax
      \hbox{%
    \begin{picture}%
-      % \strip@pt\dimexpr fot work around "old" LaTeX picture limitation
+      % \strip@pt\dimexpr to work around "old" LaTeX picture limitation
       % (we could use the "picture" package, this would add another dependency)
-      (\strip@pt\wd\spx@tempboxa,\strip@pt\dimexpr\ht\spx@tempboxa+\dp\spx@tempboxa)%
-      (\strip@pt\dimexpr-.5\spx@boxes@border,\strip@pt\dimexpr-.5\spx@boxes@border)%
+      (\strip@pt\wd\spx@tempboxa,\strip@pt\dimexpr\ht\spx@tempboxa+\dp\spx@tempboxa\relax)%
+      (\strip@pt\dimexpr-.5\spx@boxes@border\relax,\strip@pt\dimexpr-.5\spx@boxes@border\relax)%
 \ifspx@boxes@withshadow
               \color{spx@boxes@shadowcolor}%
-              \put(\dimexpr\ifdim\spx@boxes@shadow@xoffset<\z@-\fi
-                           0.5\spx@boxes@border+\spx@boxes@shadow@xoffset,%
-                   \dimexpr\ifdim\spx@boxes@shadow@yoffset<\z@\else-\fi
-                           0.5\spx@boxes@border-\spx@boxes@shadow@yoffset)
+              \put(\strip@pt\dimexpr\ifdim\spx@boxes@shadow@xoffset<\z@-\fi
+                           0.5\spx@boxes@border+\spx@boxes@shadow@xoffset\relax,%
+                   \strip@pt\dimexpr\ifdim\spx@boxes@shadow@yoffset<\z@\else-\fi
+                           0.5\spx@boxes@border-\spx@boxes@shadow@yoffset\relax)
                    {\spx@boxes@borderpath\fillpath}%
               {\ifspx@boxes@withbackgroundcolor\else
                    \color{white}% or rather try to use page color?
