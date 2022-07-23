@@ -98,7 +98,7 @@ def test_get_matching_files_all(rootdir):
 
 
 def test_get_matching_files_all_exclude_single(rootdir):
-    files = get_matching_files(rootdir / "test-root", [], ["**.html"])
+    files = get_matching_files(rootdir / "test-root", exclude_patterns=["**.html"])
     assert sorted(files) == [
         'Makefile', 'autodoc.txt', 'autodoc_target.py', 'bom.txt', 'conf.py',
         'extapi.txt', 'extensions.txt', 'file_with_special_#_chars.xyz', 'footnote.txt',
@@ -112,7 +112,7 @@ def test_get_matching_files_all_exclude_single(rootdir):
 
 
 def test_get_matching_files_all_exclude_multiple(rootdir):
-    files = get_matching_files(rootdir / "test-root", [], ["**.html", "**.inc"])
+    files = get_matching_files(rootdir / "test-root", exclude_patterns=["**.html", "**.inc"])
     assert sorted(files) == [
         'Makefile', 'autodoc.txt', 'autodoc_target.py', 'bom.txt', 'conf.py',
         'extapi.txt', 'extensions.txt', 'file_with_special_#_chars.xyz', 'footnote.txt',
@@ -125,7 +125,7 @@ def test_get_matching_files_all_exclude_multiple(rootdir):
 
 
 def test_get_matching_files_all_exclude_nonexistent(rootdir):
-    files = get_matching_files(rootdir / "test-root", [], ["halibut/**"])
+    files = get_matching_files(rootdir / "test-root", exclude_patterns=["halibut/**"])
     assert sorted(files) == [
         'Makefile', '_templates/contentssb.html', '_templates/customsb.html',
         '_templates/layout.html', 'autodoc.txt', 'autodoc_target.py', 'bom.txt', 'conf.py',
@@ -140,7 +140,7 @@ def test_get_matching_files_all_exclude_nonexistent(rootdir):
 
 
 def test_get_matching_files_all_include_single(rootdir):
-    files = get_matching_files(rootdir / "test-root", ["subdir/**"], [])
+    files = get_matching_files(rootdir / "test-root", include_patterns=["subdir/**"])
     assert sorted(files) == [
         'subdir/excluded.txt', 'subdir/images.txt', 'subdir/img.png', 'subdir/include.inc',
         'subdir/includes.txt', 'subdir/simg.png',
@@ -148,7 +148,7 @@ def test_get_matching_files_all_include_single(rootdir):
 
 
 def test_get_matching_files_all_include_multiple(rootdir):
-    files = get_matching_files(rootdir / "test-root", ["special/**", "subdir/**"], [])
+    files = get_matching_files(rootdir / "test-root", include_patterns=["special/**", "subdir/**"])
     assert sorted(files) == [
         'special/api.h', 'special/code.py', 'subdir/excluded.txt', 'subdir/images.txt',
         'subdir/img.png', 'subdir/include.inc', 'subdir/includes.txt', 'subdir/simg.png',
@@ -156,19 +156,19 @@ def test_get_matching_files_all_include_multiple(rootdir):
 
 
 def test_get_matching_files_all_include_nonexistent(rootdir):
-    files = get_matching_files(rootdir / "test-root", ["halibut/**"], [])
+    files = get_matching_files(rootdir / "test-root", include_patterns=["halibut/**"])
     assert sorted(files) == []
 
 
 def test_get_matching_files_all_include_prefix(rootdir):
-    files = get_matching_files(rootdir / "test-root", ["autodoc*"], [])
+    files = get_matching_files(rootdir / "test-root", include_patterns=["autodoc*"])
     assert sorted(files) == [
         'autodoc.txt', 'autodoc_target.py',
     ]
 
 
 def test_get_matching_files_all_include_question_mark(rootdir):
-    files = get_matching_files(rootdir / "test-root", ["img.???"], [])
+    files = get_matching_files(rootdir / "test-root", include_patterns=["img.???"])
     assert sorted(files) == [
         'img.gif', 'img.pdf', 'img.png',
     ]
