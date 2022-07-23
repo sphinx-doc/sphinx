@@ -163,14 +163,12 @@ class TocTree:
                         logger.warning(__('toctree contains reference to document %r that '
                                           'doesn\'t have a title: no link will be generated'),
                                        ref, location=toctreenode)
-                    if not included(self.env.doc2path(ref, False)):
-                        logger.warning(__('toctree contains reference to non-included '
-                                          'document %r'),
-                                       ref, location=toctreenode)
                 except KeyError:
                     # this is raised if the included file does not exist
                     if excluded(self.env.doc2path(ref, False)):
                         message = __('toctree contains reference to excluded document %r')
+                    elif not included(self.env.doc2path(ref, False)):
+                        message = __('toctree contains reference to non-included document %r')
                     else:
                         message = __('toctree contains reference to nonexisting document %r')
 
