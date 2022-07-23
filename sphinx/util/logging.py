@@ -78,7 +78,7 @@ def convert_serializable(records: List[logging.LogRecord]) -> None:
 
         location = getattr(r, 'location', None)
         if isinstance(location, nodes.Node):
-            r.location = get_node_location(location)  # type: ignore
+            r.location = get_node_location(location)
 
 
 class SphinxLogRecord(logging.LogRecord):
@@ -432,7 +432,7 @@ class DisableWarningIsErrorFilter(logging.Filter):
     """Disable WarningIsErrorFilter if this filter installed."""
 
     def filter(self, record: logging.LogRecord) -> bool:
-        record.skip_warningsiserror = True  # type: ignore
+        record.skip_warningsiserror = True
         return True
 
 
