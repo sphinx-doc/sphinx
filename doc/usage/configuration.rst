@@ -233,9 +233,6 @@ General configuration
    - ``'**/doc'`` -- all ``doc`` directories (this might be useful if
      documentation is co-located with source files)
 
-   :confval:`include_patterns` is also consulted when looking for static files
-   in :confval:`html_static_path` and :confval:`html_extra_path`.
-
    .. versionadded:: 5.1
 
 .. confval:: templates_path

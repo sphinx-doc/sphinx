@@ -38,8 +38,8 @@ class Project:
         self.docnames = set()
         for filename in get_matching_files(
             self.srcdir,
-            [*exclude_paths] + EXCLUDE_PATHS,
             include_paths,
+            [*exclude_paths] + EXCLUDE_PATHS,
         ):
             docname = self.path2doc(filename)
             if docname:

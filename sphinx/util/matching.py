@@ -64,8 +64,7 @@ class Matcher:
           For example, "**/index.rst" matches with "index.rst"
     """
 
-    def __init__(self, exclude_patterns: Iterable[str],
-                 include_patterns: Iterable[str] = ()) -> None:
+    def __init__(self, exclude_patterns: Iterable[str]) -> None:
         expanded = [pat[3:] for pat in exclude_patterns if pat.startswith('**/')]
         self.patterns = compile_matchers(list(exclude_patterns) + expanded)
 
@@ -105,8 +104,8 @@ def patfilter(names: Iterable[str], pat: str) -> List[str]:
 
 def get_matching_files(
     dirname: str,
+    include_patterns: Iterable[str] = ("**",),
     exclude_patterns: Iterable[str] = (),
-    include_patterns: Iterable[str] = ("**",)
 ) -> Iterator[str]:
     """Get all file names in a directory, recursively.
 
