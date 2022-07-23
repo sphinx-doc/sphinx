@@ -3693,20 +3693,14 @@ class ASTTemplateParams(ASTBase):
         self.params = params
         self.requiresClause = requiresClause
 
-    def get_id(self, version: int, exclude_requires: bool = False) -> str:
-        # Note: For `version==4`, `exclude_requires` is set to `True` when
-        # encoding the id of the last template parameter list of a declaration,
-        # as that requires-clause, if any, is instead encoded by
-        # `ASTDeclaration.get_id` after encoding the template prefix, for
-        # consistency with the existing v4 format used when only a single
-        # requires-clause was supported.
+    def get_id(self, version: int, excludeRequires: bool = False) -> str:
         assert version >= 2
         res = []
         res.append("I")
         for param in self.params:
             res.append(param.get_id(version))
         res.append("E")
-        if not exclude_requires and self.requiresClause:
+        if not excludeRequires and self.requiresClause:
             res.append('IQ')
             res.append(self.requiresClause.expr.get_id(version))
             res.append('E')
@@ -3734,7 +3728,7 @@ class ASTTemplateParams(ASTBase):
             first = False
             param.describe_signature(signode, mode, env, symbol)
         signode += addnodes.desc_sig_punctuation('>', '>')
-        if self.requiresClause:
+        if self.requiresClause is not None:
             signode += addnodes.desc_sig_space()
             self.requiresClause.describe_signature(signode, mode, env, symbol)
 
@@ -3884,14 +3878,14 @@ class ASTTemplateDeclarationPrefix(ASTBase):
         # templates is None means it's an explicit instantiation of a variable
         self.templates = templates
 
-    def get_id(self, version: int) -> str:
+    def get_id_except_requires_clause_in_last(self, version: int) -> str:
         assert version >= 2
-        # this is not part of a normal name mangling system
+        # This is not part of the Itanium ABI mangling system.
         res = []
-        last_index = len(self.templates) - 1
+        lastIndex = len(self.templates) - 1
         for i, t in enumerate(self.templates):
             if isinstance(t, ASTTemplateParams):
-                res.append(t.get_id(version, exclude_requires=(i == last_index)))
+                res.append(t.get_id(version, excludeRequires=(i == lastIndex)))
             else:
                 res.append(t.get_id(version))
         return ''.join(res)
@@ -3960,15 +3954,14 @@ class ASTDeclaration(ASTBase):
 
     @property
     def requiresClause(self) -> Optional[ASTRequiresClause]:
-        templatePrefix = self.templatePrefix
-        if templatePrefix is None:
+        if self.templatePrefix is None:
             return None
-        if not templatePrefix.templates:
+        if not self.templatePrefix.templates:
             return None
-        last_template = templatePrefix.templates[-1]
-        if not isinstance(last_template, ASTTemplateParams):
+        lastTemplate = self.templatePrefix.templates[-1]
+        if not isinstance(lastTemplate, ASTTemplateParams):
             return None
-        return last_template.requiresClause
+        return lastTemplate.requiresClause
 
     @property
     def function_params(self) -> List[ASTFunctionParameter]:
@@ -3991,9 +3984,9 @@ class ASTDeclaration(ASTBase):
         else:
             res = []
         if self.templatePrefix:
-            res.append(self.templatePrefix.get_id(version))
+            res.append(self.templatePrefix.get_id_except_requires_clause_in_last(version))
         # Encode the last requires clause specially to avoid introducing a new
-        # id version number.
+        # ID version number.
         requiresClause = self.requiresClause
         if requiresClause or self.trailingRequiresClause:
             if version < 4:
@@ -6537,13 +6530,13 @@ class DefinitionParser(BaseParser):
                 declSpecs = self._parse_decl_specs(outer=outer, typed=False)
                 decl = self._parse_declarator(named=True, paramMode=outer,
                                               typed=False)
-                must_end = True
+                mustEnd = True
                 if outer == 'function':
-                    # Allow trailing requires on constructors
+                    # Allow trailing requires on functions.
                     self.skip_ws()
                     if re.compile(r'requires\b').match(self.definition, self.pos):
-                        must_end = False
-                if must_end:
+                        mustEnd = False
+                if mustEnd:
                     self.assert_end(allowSemicolon=True)
             except DefinitionError as exUntyped:
                 if outer == 'type':
