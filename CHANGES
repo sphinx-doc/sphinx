@@ -1,5 +1,5 @@
-Release 5.1.0 (in development)
-==============================
+Release 5.1.0 (released Jul 24, 2022)
+=====================================
 
 Dependencies
 ------------
@@ -7,9 +7,6 @@ Dependencies
 * #10656: Support `Docutils 0.19`_. Patch by Adam Turner.
 
 .. _Docutils 0.19: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-19-2022-07-05
-
-Incompatible changes
---------------------
 
 Deprecated
 ----------
@@ -21,6 +18,8 @@ Deprecated
 Features added
 --------------
 
+* #10444: html theme: Allow specifying multiple CSS files through the ``stylesheet``
+  setting in ``theme.conf`` or by setting ``html_style`` to an iterable of strings.
 * #10366: std domain: Add support for emphasising placeholders in :rst:dir:`option`
   directives through a new :confval:`option_emphasise_placeholders` configuration
   option.
@@ -43,6 +42,11 @@ Features added
 Bugs fixed
 ----------
 
+* #10594: HTML Theme: field term colons are doubled if using Docutils 0.18+
+* #10596: Build failure if Docutils version is 0.18 (not 0.18.1) due
+  to missing ``Node.findall()``
+* #10506: LaTeX: build error if highlighting inline code role in figure caption
+  (refs: #10251)
 * #10634: Make -P (pdb) option work better with exceptions triggered from events
 * #10031: py domain: Fix spurious whitespace in unparsing various operators (``+``,
   ``-``, ``~``, and ``**``). Patch by Adam Turner.
@@ -67,39 +71,6 @@ Bugs fixed
 * #9577, #10088: py domain: Fix warning for duplicate Python references when
   using ``:any:`` and autodoc.
 * #10548: HTML Search: fix minor summary issues.
-
-Testing
---------
-
-Release 5.0.3 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-* #10444: html theme: Allow specifying multiple CSS files through the ``stylesheet``
-  setting in ``theme.conf`` or by setting ``html_style`` to an iterable of strings.
-
-Bugs fixed
-----------
-
-* #10594: HTML Theme: field term colons are doubled if using Docutils 0.18+
-* #10596: Build failure if Docutils version is 0.18 (not 0.18.1) due
-  to missing ``Node.findall()``
-* #10506: LaTeX: build error if highlighting inline code role in figure caption
-  (refs: #10251)
-
-Testing
---------
 
 Release 5.0.2 (released Jun 17, 2022)
 =====================================
