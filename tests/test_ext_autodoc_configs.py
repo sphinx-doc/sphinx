@@ -1569,10 +1569,10 @@ def test_autodoc_typehints_format_fully_qualified_for_generic_alias(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc',
                     confoverrides={'autodoc_typehints_format': "fully-qualified"})
 def test_autodoc_typehints_format_fully_qualified_for_newtype_alias(app):
-    actual = do_autodoc(app, 'data', 'target.typevar.T6')
+    actual = do_autodoc(app, 'class', 'target.typevar.T6')
     assert list(actual) == [
         '',
-        '.. py:data:: T6',
+        '.. py:class:: T6',
         '   :module: target.typevar',
         '',
         '   T6',

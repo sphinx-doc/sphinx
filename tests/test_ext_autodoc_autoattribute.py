@@ -165,21 +165,6 @@ def test_autoattribute_GenericAlias(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoattribute_NewType(app):
-    actual = do_autodoc(app, 'attribute', 'target.typevar.Class.T6')
-    assert list(actual) == [
-        '',
-        '.. py:attribute:: Class.T6',
-        '   :module: target.typevar',
-        '',
-        '   T6',
-        '',
-        '   alias of :py:class:`~datetime.date`',
-        '',
-    ]
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_TypeVar(app):
     actual = do_autodoc(app, 'attribute', 'target.typevar.Class.T1')
     assert list(actual) == [

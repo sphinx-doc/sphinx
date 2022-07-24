@@ -1431,6 +1431,11 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         'class-doc-from': class_doc_from_option,
     }
 
+    # Must be higher than FunctionDocumenter, ClassDocumenter, and
+    # AttributeDocumenter as NewType can be an attribute and is a class
+    # after Python 3.10. Before 3.10 it is a kind of function object
+    priority = 15
+
     _signature_class: Any = None
     _signature_method_name: str = None
 
@@ -1452,7 +1457,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
                             ) -> bool:
-        return isinstance(member, type)
+        return isinstance(member, type) or inspect.isNewType(member)
 
     def import_object(self, raiseerror: bool = False) -> bool:
         ret = super().import_object(raiseerror)
@@ -1463,9 +1468,19 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 self.doc_as_attr = (self.objpath[-1] != self.object.__name__)
             else:
                 self.doc_as_attr = True
+            if inspect.isNewType(self.object):
+                modname = getattr(self.object, '__module__', self.modname)
+                if modname != self.modname and self.modname.startswith(modname):
+                    bases = self.modname[len(modname):].strip('.').split('.')
+                    self.objpath = bases + self.objpath
+                    self.modname = modname
         return ret
 
     def _get_signature(self) -> Tuple[Optional[Any], Optional[str], Optional[Signature]]:
+        if inspect.isNewType(self.object):
+            # Supress signature
+            return None, None, None
+
         def get_user_defined_function_or_method(obj: Any, attr: str) -> Any:
             """ Get the `attr` function or method from `obj`, if it is user-defined. """
             if inspect.is_builtin_class_method(obj, attr):
@@ -1650,7 +1665,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             self.add_line('   :final:', sourcename)
 
         canonical_fullname = self.get_canonical_fullname()
-        if not self.doc_as_attr and canonical_fullname and self.fullname != canonical_fullname:
+        if (not self.doc_as_attr and not inspect.isNewType(self.object)
+                and canonical_fullname and self.fullname != canonical_fullname):
             self.add_line('   :canonical: %s' % canonical_fullname, sourcename)
 
         # add inheritance info, if wanted
@@ -1762,6 +1778,14 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             return None
 
     def add_content(self, more_content: Optional[StringList]) -> None:
+        if inspect.isNewType(self.object):
+            if self.config.autodoc_typehints_format == "short":
+                supertype = restify(self.object.__supertype__, "smart")
+            else:
+                supertype = restify(self.object.__supertype__)
+
+            more_content = StringList([_('alias of %s') % supertype, ''], source='')
+
         if self.doc_as_attr and self.modname != self.get_real_modname():
             try:
                 # override analyzer to obtain doccomment around its definition.
@@ -1807,7 +1831,7 @@ class ExceptionDocumenter(ClassDocumenter):
     member_order = 10
 
     # needs a higher priority than ClassDocumenter
-    priority = 10
+    priority = ClassDocumenter.priority + 5
 
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
@@ -1833,7 +1857,7 @@ class DataDocumenterMixinBase:
         return False
 
     def update_content(self, more_content: StringList) -> None:
-        """Update docstring for the NewType object."""
+        """Update docstring, for example with TypeVar variance."""
         pass
 
 
@@ -1855,29 +1879,6 @@ class GenericAliasMixin(DataDocumenterMixinBase):
                 alias = restify(self.object)
 
             more_content.append(_('alias of %s') % alias, '')
-            more_content.append('', '')
-
-        super().update_content(more_content)
-
-
-class NewTypeMixin(DataDocumenterMixinBase):
-    """
-    Mixin for DataDocumenter and AttributeDocumenter to provide the feature for
-    supporting NewTypes.
-    """
-
-    def should_suppress_directive_header(self) -> bool:
-        return (inspect.isNewType(self.object) or
-                super().should_suppress_directive_header())
-
-    def update_content(self, more_content: StringList) -> None:
-        if inspect.isNewType(self.object):
-            if self.config.autodoc_typehints_format == "short":
-                supertype = restify(self.object.__supertype__, "smart")
-            else:
-                supertype = restify(self.object.__supertype__)
-
-            more_content.append(_('alias of %s') % supertype, '')
             more_content.append('', '')
 
         super().update_content(more_content)
@@ -1968,7 +1969,7 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
             return super().get_doc()  # type: ignore
 
 
-class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
+class DataDocumenter(GenericAliasMixin, TypeVarMixin,
                      UninitializedGlobalVariableMixin, ModuleLevelDocumenter):
     """
     Specialized Documenter subclass for data items.
@@ -2085,24 +2086,6 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
 
         self.update_content(more_content)
         super().add_content(more_content)
-
-
-class NewTypeDataDocumenter(DataDocumenter):
-    """
-    Specialized Documenter subclass for NewTypes.
-
-    Note: This must be invoked before FunctionDocumenter because NewType is a kind of
-    function object.
-    """
-
-    objtype = 'newtypedata'
-    directivetype = 'data'
-    priority = FunctionDocumenter.priority + 1
-
-    @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
-        return inspect.isNewType(member) and isattr
 
 
 class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: ignore
@@ -2539,7 +2522,7 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
             return super().get_doc()  # type: ignore
 
 
-class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: ignore
+class AttributeDocumenter(GenericAliasMixin, SlotsMixin,  # type: ignore
                           TypeVarMixin, RuntimeInstanceAttributeMixin,
                           UninitializedInstanceAttributeMixin, NonDataDescriptorMixin,
                           DocstringStripSignatureMixin, ClassLevelDocumenter):
@@ -2776,24 +2759,6 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
                 return None
 
 
-class NewTypeAttributeDocumenter(AttributeDocumenter):
-    """
-    Specialized Documenter subclass for NewTypes.
-
-    Note: This must be invoked before MethodDocumenter because NewType is a kind of
-    function object.
-    """
-
-    objtype = 'newvarattribute'
-    directivetype = 'attribute'
-    priority = MethodDocumenter.priority + 1
-
-    @classmethod
-    def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
-                            ) -> bool:
-        return not isinstance(parent, ModuleDocumenter) and inspect.isNewType(member)
-
-
 def autodoc_attrgetter(app: Sphinx, obj: Any, name: str, *defargs: Any) -> Any:
     """Alternative getattr() for types"""
     for typ, func in app.registry.autodoc_attrgettrs.items():
@@ -2808,13 +2773,11 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_autodocumenter(ClassDocumenter)
     app.add_autodocumenter(ExceptionDocumenter)
     app.add_autodocumenter(DataDocumenter)
-    app.add_autodocumenter(NewTypeDataDocumenter)
     app.add_autodocumenter(FunctionDocumenter)
     app.add_autodocumenter(DecoratorDocumenter)
     app.add_autodocumenter(MethodDocumenter)
     app.add_autodocumenter(AttributeDocumenter)
     app.add_autodocumenter(PropertyDocumenter)
-    app.add_autodocumenter(NewTypeAttributeDocumenter)
 
     app.add_config_value('autoclass_content', 'class', True, ENUM('both', 'class', 'init'))
     app.add_config_value('autodoc_member_order', 'alphabetical', True,
