@@ -13,6 +13,9 @@ Deprecated
 Features added
 --------------
 
+- #10286: C++, support requires clauses not just between the template
+  parameter lists and the declaration.
+
 Bugs fixed
 ----------
 
