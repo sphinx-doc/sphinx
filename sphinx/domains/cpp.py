@@ -3878,6 +3878,14 @@ class ASTTemplateDeclarationPrefix(ASTBase):
         # templates is None means it's an explicit instantiation of a variable
         self.templates = templates
 
+    def get_requires_clause_in_last(self) -> Optional["ASTRequiresClause"]:
+        if self.templates is None:
+            return None
+        lastList = self.templates[-1]
+        if not isinstance(lastList, ASTTemplateParams):
+            return None
+        return lastList.requiresClause  # which may be None
+
     def get_id_except_requires_clause_in_last(self, version: int) -> str:
         assert version >= 2
         # This is not part of the Itanium ABI mangling system.
@@ -3953,17 +3961,6 @@ class ASTDeclaration(ASTBase):
         return self.declaration.name
 
     @property
-    def requiresClause(self) -> Optional[ASTRequiresClause]:
-        if self.templatePrefix is None:
-            return None
-        if not self.templatePrefix.templates:
-            return None
-        lastTemplate = self.templatePrefix.templates[-1]
-        if not isinstance(lastTemplate, ASTTemplateParams):
-            return None
-        return lastTemplate.requiresClause
-
-    @property
     def function_params(self) -> List[ASTFunctionParameter]:
         if self.objectType != 'function':
             return None
@@ -3983,19 +3980,31 @@ class ASTDeclaration(ASTBase):
             res = [_id_prefix[version]]
         else:
             res = []
-        if self.templatePrefix:
+        # (See also https://github.com/sphinx-doc/sphinx/pull/10286#issuecomment-1168102147)
+        # The first implementation of requires clauses only supported a single clause after the
+        # template prefix, and no trailing clause. It put the ID after the template parameter
+        # list, i.e.,
+        #    "I" + template_parameter_list_id + "E" + "IQ" + requires_clause_id + "E"
+        # but the second implementation associates the requires clause with each list, i.e.,
+        #    "I" + template_parameter_list_id + "IQ" + requires_clause_id + "E" + "E"
+        # To avoid making a new ID version, we make an exception for the last requires clause
+        # in the template prefix, and still put it in the end.
+        # As we now support trailing requires clauses we add that as if it was a conjunction.
+        if self.templatePrefix is not None:
             res.append(self.templatePrefix.get_id_except_requires_clause_in_last(version))
-        # Encode the last requires clause specially to avoid introducing a new
-        # ID version number.
-        requiresClause = self.requiresClause
-        if requiresClause or self.trailingRequiresClause:
+            requiresClauseInLast = self.templatePrefix.get_requires_clause_in_last()
+        else:
+            requiresClauseInLast = None
+
+        if requiresClauseInLast or self.trailingRequiresClause:
             if version < 4:
                 raise NoOldIdError()
             res.append('IQ')
-            if requiresClause and self.trailingRequiresClause:
+            if requiresClauseInLast and self.trailingRequiresClause:
+                # make a conjunction of them
                 res.append('aa')
-            if requiresClause:
-                res.append(requiresClause.expr.get_id(version))
+            if requiresClauseInLast:
+                res.append(requiresClauseInLast.expr.get_id(version))
             if self.trailingRequiresClause:
                 res.append(self.trailingRequiresClause.expr.get_id(version))
             res.append('E')
