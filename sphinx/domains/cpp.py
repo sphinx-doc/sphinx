@@ -8089,7 +8089,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     return {
         'version': 'builtin',
-        'env_version': 6,
+        'env_version': 7,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
