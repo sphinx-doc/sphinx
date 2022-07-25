@@ -93,7 +93,7 @@ class Builder:
             # ... is passed by SphinxComponentRegistry.create_builder to not show two warnings.
             warnings.warn("The 'env' argument to Builder will be required from Sphinx 7.",
                           RemovedInSphinx70Warning, stacklevel=2)
-            self.env = Optional[BuildEnvironment]  # type: ignore[assignment]
+            self.env: Optional[BuildEnvironment] = None  # type: ignore[assignment]
         self.events: EventManager = app.events
         self.config: Config = app.config
         self.tags: Tags = app.tags
