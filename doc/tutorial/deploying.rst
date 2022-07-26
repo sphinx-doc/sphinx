@@ -192,7 +192,7 @@ contents:
        steps:
        - uses: actions/checkout@v3
        - name: Build HTML
-         uses: ammaraskar/sphinx-action@0.4
+         uses: ammaraskar/sphinx-action@master
        - name: Upload artifacts
          uses: actions/upload-artifact@v3
          with:
