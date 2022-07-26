@@ -44,7 +44,11 @@ _SINGLETONS = ("None", "True", "False", "Ellipsis")
 
 
 class Deque(collections.deque):
-    """A subclass of deque with an additional `.Deque.get` method."""
+    """
+    A subclass of deque that mimics ``pockets.iterators.modify_iter``.
+
+    The `.Deque.get` and `.Deque.next` methods are added.
+    """
 
     sentinel = object()
 
@@ -54,6 +58,12 @@ class Deque(collections.deque):
         greater than the stack size.
         """
         return self[n] if n < len(self) else self.sentinel
+
+    def next(self) -> Any:
+        if self:
+            return super().popleft()
+        else:
+            raise StopIteration
 
 
 def _convert_type_spec(_type: str, translations: Dict[str, str] = {}) -> str:
@@ -238,7 +248,7 @@ class GoogleDocstring:
         line = self._lines.get(0)
         while(not self._is_section_break() and
               (not line or self._is_indented(line, indent))):
-            lines.append(self._lines.popleft())
+            lines.append(self._lines.next())
             line = self._lines.get(0)
         return lines
 
@@ -247,20 +257,20 @@ class GoogleDocstring:
         while (self._lines and
                self._lines.get(0) and
                not self._is_section_header()):
-            lines.append(self._lines.popleft())
+            lines.append(self._lines.next())
         return lines
 
     def _consume_empty(self) -> List[str]:
         lines = []
         line = self._lines.get(0)
         while self._lines and not line:
-            lines.append(self._lines.popleft())
+            lines.append(self._lines.next())
             line = self._lines.get(0)
         return lines
 
     def _consume_field(self, parse_type: bool = True, prefer_type: bool = False
                        ) -> Tuple[str, str, List[str]]:
-        line = self._lines.popleft()
+        line = self._lines.next()
 
         before, colon, after = self._partition_field_on_colon(line)
         _name, _type, _desc = before, '', after
@@ -298,7 +308,7 @@ class GoogleDocstring:
         return fields
 
     def _consume_inline_attribute(self) -> Tuple[str, List[str]]:
-        line = self._lines.popleft()
+        line = self._lines.next()
         _type, colon, _desc = self._partition_field_on_colon(line)
         if not colon or not _desc:
             _type, _desc = _desc, _type
@@ -336,7 +346,7 @@ class GoogleDocstring:
         return lines
 
     def _consume_section_header(self) -> str:
-        section = self._lines.popleft()
+        section = self._lines.next()
         stripped_section = section.strip(':')
         if stripped_section.lower() in self._sections:
             section = stripped_section
@@ -345,14 +355,14 @@ class GoogleDocstring:
     def _consume_to_end(self) -> List[str]:
         lines = []
         while self._lines:
-            lines.append(self._lines.popleft())
+            lines.append(self._lines.next())
         return lines
 
     def _consume_to_next_section(self) -> List[str]:
         self._consume_empty()
         lines = []
         while not self._is_section_break():
-            lines.append(self._lines.popleft())
+            lines.append(self._lines.next())
         return lines + self._consume_empty()
 
     def _dedent(self, lines: List[str], full: bool = False) -> List[str]:
@@ -1155,7 +1165,7 @@ class NumpyDocstring(GoogleDocstring):
 
     def _consume_field(self, parse_type: bool = True, prefer_type: bool = False
                        ) -> Tuple[str, str, List[str]]:
-        line = self._lines.popleft()
+        line = self._lines.next()
         if parse_type:
             _name, _, _type = self._partition_field_on_colon(line)
         else:
@@ -1186,10 +1196,10 @@ class NumpyDocstring(GoogleDocstring):
         return self._consume_fields(prefer_type=True)
 
     def _consume_section_header(self) -> str:
-        section = self._lines.popleft()
+        section = self._lines.next()
         if not _directive_regex.match(section):
             # Consume the header underline
-            self._lines.popleft()
+            self._lines.next()
         return section
 
     def _is_section_break(self) -> bool:

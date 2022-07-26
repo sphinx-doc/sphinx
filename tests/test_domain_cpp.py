@@ -891,8 +891,33 @@ def test_domain_cpp_ast_requires_clauses():
           {4: 'I0EIQaa1A1BE1fvv'})
     check('function', 'template<typename T> requires A || B or C void f()',
           {4: 'I0EIQoo1Aoo1B1CE1fvv'})
+    check('function', 'void f() requires A || B || C',
+          {4: 'IQoo1Aoo1B1CE1fv'})
+    check('function', 'Foo() requires A || B || C',
+          {4: 'IQoo1Aoo1B1CE3Foov'})
     check('function', 'template<typename T> requires A && B || C and D void f()',
           {4: 'I0EIQooaa1A1Baa1C1DE1fvv'})
+    check('function',
+          'template<typename T> requires R<T> ' +
+          'template<typename U> requires S<T> ' +
+          'void A<T>::f() requires B',
+          {4: 'I0EIQ1RI1TEEI0EIQaa1SI1TE1BEN1AI1TE1fEvv'})
+    check('function',
+          'template<template<typename T> requires R<T> typename X> ' +
+          'void f()',
+          {2: 'II0EIQ1RI1TEE0E1fv', 4: 'II0EIQ1RI1TEE0E1fvv'})
+    check('type',
+          'template<typename T> requires IsValid<T> {key}T = true_type',
+          {4: 'I0EIQ7IsValidI1TEE1T'}, key='using')
+    check('class',
+          'template<typename T> requires IsValid<T> {key}T : Base',
+          {4: 'I0EIQ7IsValidI1TEE1T'}, key='class')
+    check('union',
+          'template<typename T> requires IsValid<T> {key}T',
+          {4: 'I0EIQ7IsValidI1TEE1T'}, key='union')
+    check('member',
+          'template<typename T> requires IsValid<T> int Val = 7',
+          {4: 'I0EIQ7IsValidI1TEE3Val'})
 
 
 def test_domain_cpp_ast_template_args():

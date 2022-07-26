@@ -36,11 +36,45 @@ Deprecated
 Features added
 --------------
 
+- #10286: C++, support requires clauses not just between the template
+  parameter lists and the declaration.
+
 Bugs fixed
 ----------
 
 Testing
 --------
+
+Release 5.1.2 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 5.1.1 (released Jul 26, 2022)
+=====================================
+
+Bugs fixed
+----------
+
+* #10701: Fix ValueError in the new ``deque`` based ``sphinx.ext.napolean``
+  iterator implementation.
+* #10702: Restore compatability with third-party builders.
 
 Release 5.1.0 (released Jul 24, 2022)
 =====================================
