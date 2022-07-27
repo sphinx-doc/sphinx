@@ -274,6 +274,8 @@ div.document ol {
 div.sidebar,
 aside.sidebar {
   font-size: .9em;
+  width: {{ theme_sidebarwidth }};
+  float: right;
 }
 
 div.sidebar a, aside.sidebar a, div.header a {
