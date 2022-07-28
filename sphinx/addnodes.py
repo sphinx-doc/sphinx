@@ -1,6 +1,6 @@
 """Additional docutils nodes."""
 
-from typing import TYPE_CHECKING, Any, Dict, List, Sequence
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence
 
 import docutils
 from docutils import nodes
@@ -27,7 +27,7 @@ class document(nodes.document):
                    in your extensions.  It will be removed without deprecation period.
     """
 
-    def set_id(self, node: Element, msgnode: Element = None,
+    def set_id(self, node: Element, msgnode: Optional[Element] = None,
                suggested_prefix: str = '') -> str:
         if docutils.__version_info__ >= (0, 16):
             ret = super().set_id(node, msgnode, suggested_prefix)  # type: ignore

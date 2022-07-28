@@ -5,7 +5,7 @@ import sys
 from collections import namedtuple
 from io import StringIO
 from subprocess import PIPE
-from typing import Any, Callable, Dict, Generator, Tuple
+from typing import Any, Callable, Dict, Generator, Optional, Tuple
 
 import pytest
 
@@ -28,7 +28,7 @@ def pytest_configure(config):
 
 
 @pytest.fixture(scope='session')
-def rootdir() -> str:
+def rootdir() -> Optional[str]:
     return None
 
 

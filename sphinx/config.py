@@ -424,7 +424,7 @@ def correct_copyright_year(app: "Sphinx", config: Config) -> None:
                 config[k] = copyright_year_re.sub(replace, config[k])
 
 
-def check_confval_types(app: "Sphinx", config: Config) -> None:
+def check_confval_types(app: Optional["Sphinx"], config: Config) -> None:
     """Check all values for deviation from the default value's type, since
     that can result in TypeErrors all over the place NB.
     """
