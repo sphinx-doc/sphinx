@@ -18,6 +18,7 @@ Features added
 * #10755: linkcheck: Check the source URL of raw directives that use the ``url``
   option.
 * #10781: Allow :rst:role:`ref` role to be used with definitions and fields.
+* #10717: HTML Search: support searching for (sub)title.s
 
 Bugs fixed
 ----------

@@ -237,6 +237,11 @@ const Search = {
    * execute search (requires search index to be loaded)
    */
   query: (query) => {
+    const docNames = Search._index.docnames;
+    const filenames = Search._index.filenames;
+    const titles = Search._index.titles;
+    const allTitles = Search._index.alltitles;
+
     // stem the search terms and add them to the correct list
     const stemmer = new Stemmer();
     const searchTerms = new Set();
@@ -271,6 +276,21 @@ const Search = {
     // array of [docname, title, anchor, descr, score, filename]
     let results = [];
     _removeChildren(document.getElementById("search-progress"));
+
+    const queryLower = query.toLowerCase();
+    Object.keys(allTitles).forEach((title) => {
+      if (title.includes(queryLower) && (queryLower.length >= title.length * 0.75))
+        allTitles[title].forEach((titlematch) => {
+          results.push([
+            docNames[titlematch[0]],
+            titles[titlematch[0]],
+            titlematch[1] !== null ? "#" + titlematch[1] : "",
+            null,
+            Math.round(100 * (queryLower.length / title.length)),
+            filenames[titlematch[0]],
+          ]);
+        })
+    });
 
     // lookup as object
     objectTerms.forEach((term) =>
