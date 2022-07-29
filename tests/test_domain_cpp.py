@@ -876,6 +876,9 @@ def test_domain_cpp_ast_templates():
     # defaulted constrained type parameters
     check('type', 'template<C T = int&> {key}A', {2: 'I_1CE1A'}, key='using')
 
+    # pack expansion after non-type template parameter
+    check('type', 'template<int (X::*)(bool)...> {key}A', {2: 'I_DpM1XFibEE1A'}, key='using')
+
 
 def test_domain_cpp_ast_placeholder_types():
     check('function', 'void f(Sortable auto &v)', {1: 'f__SortableR', 2: '1fR8Sortable'})
@@ -1472,9 +1475,7 @@ def parse_template_parameter(param: str):
      ('int X::*...', True),
      ('int (X::*)(bool)', False),
      ('int (X::*x)(bool)', False),
-     # TODO: the following two declarations cannot currently be parsed
-     # ('int (X::*)(bool)...', True),
-     # ('int (X::*x...)(bool)', True),
+     ('int (X::*)(bool)...', True),
      ('template<typename> class', False),
      ('template<typename> class...', True),
      ])

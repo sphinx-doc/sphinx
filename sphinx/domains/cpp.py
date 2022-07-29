@@ -3668,9 +3668,11 @@ class ASTTemplateParamTemplateType(ASTTemplateParam):
 class ASTTemplateParamNonType(ASTTemplateParam):
     def __init__(self,
                  param: Union[ASTTypeWithInit,
-                              ASTTemplateParamConstrainedTypeWithInit]) -> None:
+                              ASTTemplateParamConstrainedTypeWithInit],
+                 parameterPack: bool = False) -> None:
         assert param
         self.param = param
+        self.parameterPack = parameterPack
 
     @property
     def name(self) -> ASTNestedName:
@@ -3679,7 +3681,7 @@ class ASTTemplateParamNonType(ASTTemplateParam):
 
     @property
     def isPack(self) -> bool:
-        return self.param.isPack
+        return self.param.isPack or self.parameterPack
 
     def get_identifier(self) -> ASTIdentifier:
         name = self.param.name
@@ -3700,14 +3702,22 @@ class ASTTemplateParamNonType(ASTTemplateParam):
             # the anchor will be our parent
             return symbol.parent.declaration.get_id(version, prefixed=None)
         else:
-            return '_' + self.param.get_id(version)
+            res = '_'
+            if self.parameterPack:
+                res += 'Dp'
+            return res + self.param.get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return transform(self.param)
+        res = transform(self.param)
+        if self.parameterPack:
+            res += '...'
+        return res
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         self.param.describe_signature(signode, mode, env, symbol)
+        if self.parameterPack:
+            signode += addnodes.desc_sig_punctuation('...', '...')
 
 
 class ASTTemplateParams(ASTBase):
@@ -4155,7 +4165,7 @@ class LookupKey:
 
 def _is_specialization(templateParams: Union[ASTTemplateParams, ASTTemplateIntroduction],
                        templateArgs: ASTTemplateArgs) -> bool:
-    """Checks if `templateArgs` does not exactly match `templateParams`."""
+    # Checks if `templateArgs` does not exactly match `templateParams`.
     # the names of the template parameters must be given exactly as args
     # and params that are packs must in the args be the name expanded
     if len(templateParams.params) != len(templateArgs.args):
@@ -6775,7 +6785,7 @@ class DefinitionParser(BaseParser):
     def _parse_template_parameter(self) -> ASTTemplateParam:
         self.skip_ws()
         if self.skip_word('template'):
-            # declare a tenplate template parameter
+            # declare a template template parameter
             nestedParams = self._parse_template_parameter_list()
         else:
             nestedParams = None
@@ -6822,7 +6832,9 @@ class DefinitionParser(BaseParser):
                 # non-type parameter or constrained type parameter
                 self.pos = pos
                 param = self._parse_type_with_init('maybe', 'templateParam')
-                return ASTTemplateParamNonType(param)
+                self.skip_ws()
+                parameterPack = self.skip_string('...')
+                return ASTTemplateParamNonType(param, parameterPack)
             except DefinitionError as eNonType:
                 self.pos = pos
                 header = "Error when parsing template parameter."
