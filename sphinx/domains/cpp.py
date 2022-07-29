@@ -4850,7 +4850,7 @@ class Symbol:
                     if symbol.declaration is None:
                         if Symbol.debug_lookup:
                             Symbol.debug_print("empty candidate")
-                        # if in the end we have non matching, but have an empty one,
+                        # if in the end we have non-matching, but have an empty one,
                         # then just continue with that
                         ourChild = symbol
                         continue
@@ -4880,10 +4880,10 @@ class Symbol:
                     if (otherChild.declaration.objectType ==
                             ourChild.declaration.objectType and
                             otherChild.declaration.objectType in
-                            ('templateParam', 'functionParam')):
-                        # `ourChild` was presumably just created during mergging
-                        # by the call to `_fill_empty` on the parent and can be
-                        # ignored.
+                            ('templateParam', 'functionParam') and
+                            ourChild.parent.declaration == otherChild.parent.declaration):
+                        # `ourChild` was just created during merging by the call
+                        # to `_fill_empty` on the parent and can be ignored.
                         pass
                     else:
                         # Both have declarations, and in the same docname.
@@ -5153,6 +5153,7 @@ class Symbol:
                 res.append(": ")
                 if self.isRedeclaration:
                     res.append('!!duplicate!! ')
+                res.append("{" + self.declaration.objectType + "} ")
                 res.append(str(self.declaration))
         if self.docname:
             res.append('\t(')

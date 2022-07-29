@@ -1414,8 +1414,8 @@ def test_domain_cpp_normalize_unspecialized_template_args(make_app, app_params):
     assert root1.dump(1) == (
         '  ::\n'
         '    template<typename T> \n'
-        '    A: template<typename T> A\t(text1)\n'
-        '      T: typename T\t(text1)\n'
+        '    A: {class} template<typename T> A\t(text1)\n'
+        '      T: {templateParam} typename T\t(text1)\n'
     )
 
     app2 = make_app(*args, **kwargs)
@@ -1428,8 +1428,8 @@ def test_domain_cpp_normalize_unspecialized_template_args(make_app, app_params):
         '    A\n'
         '      T\n'
         '      template<typename U> \n'
-        '      B: template<typename T> template<typename U> A<T>::B\t(text2)\n'
-        '        U: typename U\t(text2)\n'
+        '      B: {class} template<typename T> template<typename U> A<T>::B\t(text2)\n'
+        '        U: {templateParam} typename U\t(text2)\n'
     )
 
     root2.merge_with(root1, ['text1'], app2.env)
@@ -1437,11 +1437,11 @@ def test_domain_cpp_normalize_unspecialized_template_args(make_app, app_params):
     assert root2.dump(1) == (
         '  ::\n'
         '    template<typename T> \n'
-        '    A: template<typename T> A\t(text1)\n'
-        '      T: typename T\t(text1)\n'
+        '    A: {class} template<typename T> A\t(text1)\n'
+        '      T: {templateParam} typename T\t(text1)\n'
         '      template<typename U> \n'
-        '      B: template<typename T> template<typename U> A<T>::B\t(text2)\n'
-        '        U: typename U\t(text2)\n'
+        '      B: {class} template<typename T> template<typename U> A<T>::B\t(text2)\n'
+        '        U: {templateParam} typename U\t(text2)\n'
     )
     warning = app2._warning.getvalue()
     assert 'Internal C++ domain error during symbol merging' not in warning
