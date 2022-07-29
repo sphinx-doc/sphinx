@@ -1043,6 +1043,38 @@ def test_domain_cpp_ast_xref_parsing():
     check('T f()')
 
 
+@pytest.mark.parametrize(
+    'param,is_pack',
+    [('typename', False),
+     ('typename T', False),
+     ('typename...', True),
+     ('typename... T', True),
+     ('int', False),
+     ('int N', False),
+     ('int* N', False),
+     ('int& N', False),
+     ('int&... N', True),
+     ('int*... N', True),
+     ('int...', True),
+     ('int... N', True),
+     ('auto', False),
+     ('auto...', True),
+     ('int X::*', False),
+     ('int X::*...', True),
+     ('int (X::*)(bool)', False),
+     ('int (X::*x)(bool)', False),
+     ('int (X::*)(bool)...', True),
+     ('template<typename> class', False),
+     ('template<typename> class...', True),
+     ])
+def test_domain_cpp_template_parameters_is_pack(param: str, is_pack: bool):
+    def parse_template_parameter(param: str):
+        ast = parse('type', 'template<' + param + '> X')
+        return ast.templatePrefix.templates[0].params[0]
+    ast = parse_template_parameter(param)
+    assert ast.isPack == is_pack
+
+
 # def test_print():
 #     # used for getting all the ids out for checking
 #     for a in ids:
@@ -1448,37 +1480,3 @@ def test_domain_cpp_normalize_unspecialized_template_args(make_app, app_params):
     )
     warning = app2._warning.getvalue()
     assert 'Internal C++ domain error during symbol merging' not in warning
-
-
-def parse_template_parameter(param: str):
-    ast = parse('type', 'template<' + param + '> X')
-    return ast.templatePrefix.templates[0].params[0]
-
-
-@pytest.mark.parametrize(
-    'param,is_pack',
-    [('typename', False),
-     ('typename T', False),
-     ('typename...', True),
-     ('typename... T', True),
-     ('int', False),
-     ('int N', False),
-     ('int* N', False),
-     ('int& N', False),
-     ('int&... N', True),
-     ('int*... N', True),
-     ('int...', True),
-     ('int... N', True),
-     ('auto', False),
-     ('auto...', True),
-     ('int X::*', False),
-     ('int X::*...', True),
-     ('int (X::*)(bool)', False),
-     ('int (X::*x)(bool)', False),
-     ('int (X::*)(bool)...', True),
-     ('template<typename> class', False),
-     ('template<typename> class...', True),
-     ])
-def test_domain_cpp_template_parameters_is_pack(param: str, is_pack: bool):
-    ast = parse_template_parameter(param)
-    assert ast.isPack == is_pack
