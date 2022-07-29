@@ -33,6 +33,12 @@ class Corge(Quux):
     pass
 
 
+class CommentTypeHints:
+    def __init__(self, x):
+        # type: (Maybe[int]) -> None
+        ...
+
+
 Alias = Foo
 
 #: docstring

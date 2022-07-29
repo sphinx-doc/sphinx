@@ -970,6 +970,21 @@ def test_autodoc_typehints_description(app):
             '   Return type:\n'
             '      *Tuple*[int, int]\n'
             in context)
+    assert ('class target.typehints_lazy.LazyInit(x)\n'
+            '\n'
+            '   I am lazy!\n'
+            '\n'
+            '   Parameters:\n'
+            '      **x** (*Optional**[**int**]*) -- this is x\n'
+            in context)
+
+    assert ('class target.typehints_lazy.LazyGeneric(x)\n'
+            '\n'
+            '   Generic docstring ;)\n'
+            '\n'
+            '   Parameters:\n'
+            '      **x** (*Optional**[**_T**]*) -- maybe also generic\n'
+            in context)
 
     # Overloads still get displayed in the signature
     assert ('target.overload.sum(x: int, y: int = 0) -> int\n'
