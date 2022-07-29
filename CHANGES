@@ -19,6 +19,9 @@ Features added
 Bugs fixed
 ----------
 
+- #10257: C++, ensure consistent non-specialization template argument
+  representation.
+
 Testing
 --------
 
