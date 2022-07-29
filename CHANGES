@@ -18,6 +18,8 @@ Bugs fixed
 
 * #10723: LaTeX: 5.1.0 has made the 'sphinxsetup' ``verbatimwithframe=false``
   become without effect.
+* #10605: Python autodoc: fix constructor argument types when
+  `autodoc_typehints` is `'description'` or `'both'`.
 
 Testing
 --------
@@ -344,7 +346,7 @@ Bugs fixed
 * #9924: LaTeX: multi-line :rst:dir:`cpp:function` directive has big vertical
   spacing in Latexpdf
 * #10158: LaTeX: excessive whitespace since v4.4.0 for undocumented
-  variables/structure members 
+  variables/structure members
 * #10175: LaTeX: named footnote reference is linked to an incorrect footnote if
   the name is also used in the different document
 * #10269: manpage: Failed to resolve the title of :rst:role:`ref` cross references
@@ -1217,7 +1219,7 @@ Bugs fixed
   inside function type signatures
 * #8780: LaTeX: long words in narrow columns may not be hyphenated
 * #8788: LaTeX: ``\titleformat`` last argument in sphinx.sty should be
-  bracketed, not braced (and is anyhow not needed) 
+  bracketed, not braced (and is anyhow not needed)
 * #8849: LaTex: code-block printed out of margin (see the opt-in LaTeX syntax
   boolean :ref:`verbatimforcewraps <latexsphinxsetupforcewraps>` for use via
   the :ref:`'sphinxsetup' <latexsphinxsetup>` key of ``latex_elements``)
