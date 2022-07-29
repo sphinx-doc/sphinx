@@ -437,8 +437,10 @@ def _stringify_py37(annotation: Any, mode: str = 'fully-qualified-except-typing'
                     args = ', '.join(stringify(a, mode) for a in annotation.__args__[:-1])
                     return f'{modprefix}Optional[{modprefix}Union[{args}]]'
                 else:
-                    return '{}Optional[{}]'.format(modprefix,
-                                               stringify(annotation.__args__[0], mode))
+                    return '{}Optional[{}]'.format(
+                        modprefix,
+                        stringify(annotation.__args__[0], mode)
+                    )
             else:
                 args = ', '.join(stringify(a, mode) for a in annotation.__args__)
                 return f'{modprefix}Union[{args}]'

@@ -61,8 +61,7 @@ class ChangesBuilder(Builder):
             context = changeset.content.replace('\n', ' ')
             if descname and changeset.docname.startswith('c-api'):
                 if context:
-                    entry = '<b>{}</b>: <i>{}:</i> {}'.format(descname, ttext,
-                                                          context)
+                    entry = f'<b>{descname}</b>: <i>{ttext}:</i> {context}'
                 else:
                     entry = f'<b>{descname}</b>: <i>{ttext}</i>.'
                 apichanges.append((entry, changeset.docname, changeset.lineno))
@@ -71,8 +70,11 @@ class ChangesBuilder(Builder):
                 if not descname:
                     descname = _('Module level')
                 if context:
-                    entry = '<b>{}</b>: <i>{}:</i> {}'.format(descname, ttext,
-                                                          context)
+                    entry = '<b>{}</b>: <i>{}:</i> {}'.format(
+                        descname,
+                        ttext,
+                        context
+                    )
                 else:
                     entry = f'<b>{descname}</b>: <i>{ttext}</i>.'
                 libchanges.setdefault(module, []).append((entry, changeset.docname,

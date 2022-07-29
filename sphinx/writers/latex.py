@@ -1678,8 +1678,10 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_citation(self, node: Element) -> None:
         label = cast(nodes.label, node[0])
-        self.body.append(r'\bibitem[{}]{{{}:{}}}'.format(self.encode(label.astext()),
-                                                   node['docname'], node['ids'][0]))
+        self.body.append(r'\bibitem[{}]{{{}:{}}}'.format(
+            self.encode(label.astext()),
+            node['docname'], node['ids'][0]),
+        )
 
     def depart_citation(self, node: Element) -> None:
         pass
