@@ -1,7 +1,7 @@
 %% LITERAL BLOCKS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexliterals.sty}[2022/07/03 code-blocks and parsed literals]
+\ProvidesFile{sphinxlatexliterals.sty}[2022/07/29 code-blocks and parsed literals]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -119,28 +119,30 @@
 % interline penalties and glues.
 %
 \long\def\spx@verb@FrameCommand #1#2#3{%
+  % The \spx@verb@boxes@fcolorbox@setup must have been executed beforehand.
   % These \hskips are for fancyvrb.sty measuring and will make the
   % framing "adapt" to an indented context.
-  \ifspx@opt@verbatimwithframe\else\spxdimen@pre@border\z@\fi
   \hskip\@totalleftmargin
-  \hskip-\spx@pre@border@left\hskip-\spx@pre@padding@left\relax
-  \ifspx@pre@withshadow
-   \ifspx@pre@insetshadow\else
-    \ifdim\spx@pre@shadow@xoffset<\z@\hskip\spx@pre@shadow@xoffset\relax
+  \hskip-\spx@boxes@border@left\hskip-\spx@boxes@padding@left
+  \ifspx@boxes@withshadow
+   \ifspx@boxes@insetshadow\else
+    \ifdim\spx@boxes@shadow@xoffset<\z@\hskip\spx@boxes@shadow@xoffset
     \fi
    \fi
   \fi
   \spx@verb@fcolorbox {#1}{#2}{#3}%
-  \hskip-\spx@pre@padding@right\hskip-\spx@pre@border@right\relax
-  \ifspx@pre@withshadow
-   \ifspx@pre@insetshadow\else
-    \ifdim\spx@pre@shadow@xoffset>\z@\hskip-\spx@pre@shadow@xoffset\relax
+  \hskip-\spx@boxes@padding@right\hskip-\spx@boxes@border@right
+  \ifspx@boxes@withshadow
+   \ifspx@boxes@insetshadow\else
+    \ifdim\spx@boxes@shadow@xoffset>\z@\hskip-\spx@boxes@shadow@xoffset
     \fi
    \fi
   \fi
   \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth
 }%
 \long\def\spx@verb@fcolorbox #1#2#3{%
+  % The \spx@verb@boxes@fcolorbox@setup must have been executed beforehand.
+%
   % MEMO: in the context of framed.sty this will always expand inside some
   % \hbox isolated from other code, so we can use \box\z@, \box\tw@,...
   % with no need of extra group.
@@ -151,26 +153,26 @@
 %
   \setbox\z@\hbox{#3}%
   \edef\spx@verb@fcolorbox@width@sp
-      {\number\dimexpr\wd\z@+\spx@pre@border@left
-                            +\spx@pre@padding@left
-                            +\spx@pre@padding@right
-                            +\spx@pre@border@right\relax sp}%
+      {\number\dimexpr\wd\z@+\spx@boxes@border@left
+                            +\spx@boxes@padding@left
+                            +\spx@boxes@padding@right
+                            +\spx@boxes@border@right\relax sp}%
   \vbox{#1% continuation hint attached above frame, uses \spx@verb@fcolorbox@width@sp
         % the boxes@fcolorbox constructs an \hbox with bbox containing the border
         \if1% use rounded boxes only if needed and possible
-          \ifdim\spx@pre@radius@topleft    >\z@0\fi
-          \ifdim\spx@pre@radius@topright   >\z@0\fi
-          \ifdim\spx@pre@radius@bottomright>\z@0\fi
-          \ifdim\spx@pre@radius@bottomleft >\z@0\fi
-          1\spx@boxes@fcolorbox{\box\z@}%
+          \ifdim\spx@boxes@radius@topleft    >\z@0\fi
+          \ifdim\spx@boxes@radius@topright   >\z@0\fi
+          \ifdim\spx@boxes@radius@bottomright>\z@0\fi
+          \ifdim\spx@boxes@radius@bottomleft >\z@0\fi
+          1\spx@boxes@fcolorbox{\box\z@}% all radii vanish, do not use pict2e
         \else
           \spx@ifpackageloaded@pictiie
-             {\ifspx@pre@insetshadow
-                \spx@boxes@fcolorbox{\box\z@}%
+             {\ifspx@boxes@insetshadow
+                \spx@boxes@fcolorbox{\box\z@}% inset shadow forces straight corners
               \else
-                \spx@boxes@fcolorbox@rounded{\box\z@}%
+                \spx@boxes@fcolorbox@rounded{\box\z@}% yes, rounded corners!
               \fi}%
-             {\spx@boxes@fcolorbox{\box\z@}}%
+             {\spx@boxes@fcolorbox{\box\z@}}% pict2e package not loaded, force straight
         \fi
         % This \nointerlineskip to maintain legacy spacing when a \hrule was
         % formerly last prior item in vertical list.  TODO: remove this at 6.0.0 ?
@@ -183,12 +185,12 @@
 }%
 \def\spx@verb@fcolorbox@put@r#1{% right align with contents, width hidden
     \moveright\dimexpr\spx@verb@fcolorbox@width@sp-%
-                      \spx@pre@padding@right-%
-                      \spx@pre@border@right\hb@xt@\z@{\hss#1}%
+                      \spx@boxes@padding@right-%
+                      \spx@boxes@border@right\hb@xt@\z@{\hss#1}%
 }%
 \def\spx@verb@fcolorbox@put@l#1{% left align with contents, width hidden
-    \moveright\dimexpr\spx@pre@border@left+%
-                      \spx@pre@padding@left\hb@xt@\z@{#1\hss}%
+    \moveright\dimexpr\spx@boxes@border@left+%
+                      \spx@boxes@padding@left\hb@xt@\z@{#1\hss}%
 }%
 %
 \def\sphinxVerbatim@Continued{%
@@ -237,6 +239,15 @@
   \spx@boxes@border@bottom\spx@pre@border@bottom
   \spx@boxes@border@left  \spx@pre@border@left
   \spx@boxes@border       \spxdimen@pre@border
+%
+  \ifspx@opt@verbatimwithframe
+  \else
+     \spx@boxes@border@top\z@
+     \spx@boxes@border@right\z@
+     \spx@boxes@border@bottom\z@
+     \spx@boxes@border@left\z@
+     \spx@boxes@border\z@
+  \fi
 %
   \spx@boxes@padding@top   \spx@pre@padding@top
   \spx@boxes@padding@right \spx@pre@padding@right
@@ -763,9 +774,7 @@
   \fi
   \global\let\sphinxLiteralBlockLabel\empty
   \global\let\sphinxVerbatimTitle\empty
-  % the "FrameCommand"'s will check status of verbatimwithframe option
-  % to decide if to stroke the borders ; ultimately they are also
-  % responsible to attach the "Title".
+  % the "FrameCommand"'s are also responsible to attach the "Title".
   \let\FrameCommand     \sphinxVerbatim@FrameCommand
   % those will also check status of the pre_box-decoration-break option
   \let\FirstFrameCommand\sphinxVerbatim@FirstFrameCommand
@@ -777,6 +786,7 @@
       \let\sphinxVerbatim@Continues\@empty
   \fi
   % initialization for \spx@boxes@fcolorbox from sphinxpackageboxes.sty
+  % it will take into account status of verbatimwithframe Boolean
   \spx@verb@boxes@fcolorbox@setup
   \ifspx@opt@verbatimwrapslines
     % deep hack into fancyvrb's internal processing of input lines
