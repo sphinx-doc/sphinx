@@ -146,8 +146,8 @@ def educateQuotes(text: str, language: str = 'en') -> str:
     # Special case if the very first character is a quote
     # followed by punctuation at a non-word-break.
     # Close the quotes by brute force:
-    text = re.sub(r"""^'(?={}\\B)""".format(punct_class), smart.csquote, text)
-    text = re.sub(r"""^"(?={}\\B)""".format(punct_class), smart.cpquote, text)
+    text = re.sub(fr"""^'(?={punct_class}\\B)""", smart.csquote, text)
+    text = re.sub(fr"""^"(?={punct_class}\\B)""", smart.cpquote, text)
 
     # Special case for double sets of quotes, e.g.:
     #   <p>He said, "'Quoted' words in a larger quote."</p>

@@ -103,7 +103,7 @@ class Changes:
 
     def finalize_release_date(self):
         release_date = datetime.now().strftime('%b %d, %Y')
-        heading = 'Release {} (released {})'.format(self.version, release_date)
+        heading = f'Release {self.version} (released {release_date})'
 
         with open(self.path, 'r+', encoding='utf-8') as f:
             f.readline()  # skip first two lines

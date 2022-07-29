@@ -39,7 +39,7 @@ def multiply_length(length: str, scale: int) -> str:
     else:
         amount, unit = matched.groups()
         result = float(amount) * scale / 100
-        return "{}{}".format(int(result), unit)
+        return f"{int(result)}{unit}"
 
 
 class HTML5Translator(SphinxTranslator, BaseTranslator):
@@ -289,7 +289,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def add_fignumber(self, node: Element) -> None:
         def append_fignumber(figtype: str, figure_id: str) -> None:
             if self.builder.name == 'singlehtml':
-                key = "{}/{}".format(self.docnames[-1], figtype)
+                key = f"{self.docnames[-1]}/{figtype}"
             else:
                 key = figtype
 

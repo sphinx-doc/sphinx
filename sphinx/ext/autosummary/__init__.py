@@ -316,7 +316,7 @@ class Autosummary(SphinxDirective):
             try:
                 real_name, obj, parent, modname = self.import_by_name(name, prefixes=prefixes)
             except ImportExceptionGroup as exc:
-                errors = list({"* {}: {}".format(type(e).__name__, e) for e in exc.exceptions})
+                errors = list({f"* {type(e).__name__}: {e}" for e in exc.exceptions})
                 logger.warning(__('autosummary: failed to import %s.\nPossible hints:\n%s'),
                                name, '\n'.join(errors), location=self.get_location())
                 continue
@@ -414,9 +414,9 @@ class Autosummary(SphinxDirective):
         for name, sig, summary, real_name in items:
             qualifier = 'obj'
             if 'nosignatures' not in self.options:
-                col1 = ':py:{}:`{} <{}>`\\ {}'.format(qualifier, name, real_name, rst.escape(sig))
+                col1 = f':py:{qualifier}:`{name} <{real_name}>`\\ {rst.escape(sig)}'
             else:
-                col1 = ':py:{}:`{} <{}>`'.format(qualifier, name, real_name)
+                col1 = f':py:{qualifier}:`{name} <{real_name}>`'
             col2 = summary
             append_row(col1, col2)
 

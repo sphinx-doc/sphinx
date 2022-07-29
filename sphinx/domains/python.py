@@ -129,7 +129,7 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> List[Node]:
     """Parse type annotation."""
     def unparse(node: ast.AST) -> List[Node]:
         if isinstance(node, ast.Attribute):
-            return [nodes.Text("{}.{}".format(unparse(node.value)[0], node.attr))]
+            return [nodes.Text(f"{unparse(node.value)[0]}.{node.attr}")]
         elif isinstance(node, ast.BinOp):
             result: List[Node] = unparse(node.left)
             result.extend(unparse(node.op))

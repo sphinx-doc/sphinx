@@ -175,7 +175,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
     def write_entry(self, what: str, docname: str, filename: str, line: int,
                     uri: str) -> None:
-        self.txt_outfile.write("{}:{}: [{}] {}\n".format(filename, line, what, uri))
+        self.txt_outfile.write(f"{filename}:{line}: [{what}] {uri}\n")
 
     def write_linkstat(self, data: dict) -> None:
         self.json_outfile.write(json.dumps(data))
@@ -270,8 +270,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
         def get_request_headers() -> Dict[str, str]:
             url = urlparse(uri)
-            candidates = ["{}://{}".format(url.scheme, url.netloc),
-                          "{}://{}/".format(url.scheme, url.netloc),
+            candidates = [f"{url.scheme}://{url.netloc}",
+                          f"{url.scheme}://{url.netloc}/",
                           uri,
                           "*"]
 

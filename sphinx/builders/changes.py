@@ -64,7 +64,7 @@ class ChangesBuilder(Builder):
                     entry = '<b>{}</b>: <i>{}:</i> {}'.format(descname, ttext,
                                                           context)
                 else:
-                    entry = '<b>{}</b>: <i>{}</i>.'.format(descname, ttext)
+                    entry = f'<b>{descname}</b>: <i>{ttext}</i>.'
                 apichanges.append((entry, changeset.docname, changeset.lineno))
             elif descname or changeset.module:
                 module = changeset.module or _('Builtins')
@@ -74,13 +74,13 @@ class ChangesBuilder(Builder):
                     entry = '<b>{}</b>: <i>{}:</i> {}'.format(descname, ttext,
                                                           context)
                 else:
-                    entry = '<b>{}</b>: <i>{}</i>.'.format(descname, ttext)
+                    entry = f'<b>{descname}</b>: <i>{ttext}</i>.'
                 libchanges.setdefault(module, []).append((entry, changeset.docname,
                                                           changeset.lineno))
             else:
                 if not context:
                     continue
-                entry = '<i>{}:</i> {}'.format(ttext.capitalize(), context)
+                entry = f'<i>{ttext.capitalize()}:</i> {context}'
                 title = self.env.titles[changeset.docname].astext()
                 otherchanges.setdefault((changeset.docname, title), []).append(
                     (entry, changeset.docname, changeset.lineno))
@@ -141,8 +141,8 @@ class ChangesBuilder(Builder):
     def hl(self, text: str, version: str) -> str:
         text = html.escape(text)
         for directive in ('versionchanged', 'versionadded', 'deprecated'):
-            text = text.replace('.. {}:: {}'.format(directive, version),
-                                '<b>.. {}:: {}</b>'.format(directive, version))
+            text = text.replace(f'.. {directive}:: {version}',
+                                f'<b>.. {directive}:: {version}</b>')
         return text
 
     def finish(self) -> None:

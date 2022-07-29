@@ -401,7 +401,7 @@ class GoogleDocstring:
     def _format_admonition(self, admonition: str, lines: List[str]) -> List[str]:
         lines = self._strip_empty(lines)
         if len(lines) == 1:
-            return ['.. {}:: {}'.format(admonition, lines[0].strip()), '']
+            return [f'.. {admonition}:: {lines[0].strip()}', '']
         elif lines:
             lines = self._indent(self._dedent(lines), 3)
             return ['.. %s::' % admonition, ''] + lines + ['']
@@ -432,13 +432,13 @@ class GoogleDocstring:
             _desc = self._strip_empty(_desc)
             if any(_desc):
                 _desc = self._fix_field_desc(_desc)
-                field = ':{} {}: '.format(field_role, _name)
+                field = f':{field_role} {_name}: '
                 lines.extend(self._format_block(field, _desc))
             else:
-                lines.append(':{} {}:'.format(field_role, _name))
+                lines.append(f':{field_role} {_name}:')
 
             if _type:
-                lines.append(':{} {}: {}'.format(type_role, _name, _type))
+                lines.append(f':{type_role} {_name}: {_type}')
         return lines + ['']
 
     def _format_field(self, _name: str, _type: str, _desc: List[str]) -> List[str]:
@@ -448,16 +448,16 @@ class GoogleDocstring:
         if _name:
             if _type:
                 if '`' in _type:
-                    field = '**{}** ({}){}'.format(_name, _type, separator)
+                    field = f'**{_name}** ({_type}){separator}'
                 else:
-                    field = '**{}** (*{}*){}'.format(_name, _type, separator)
+                    field = f'**{_name}** (*{_type}*){separator}'
             else:
-                field = '**{}**{}'.format(_name, separator)
+                field = f'**{_name}**{separator}'
         elif _type:
             if '`' in _type:
-                field = '{}{}'.format(_type, separator)
+                field = f'{_type}{separator}'
             else:
-                field = '*{}*{}'.format(_type, separator)
+                field = f'*{_type}*{separator}'
         else:
             field = ''
 
@@ -648,7 +648,7 @@ class GoogleDocstring:
                 field = ':ivar %s: ' % _name
                 lines.extend(self._format_block(field, _desc))
                 if _type:
-                    lines.append(':vartype {}: {}'.format(_name, _type))
+                    lines.append(f':vartype {_name}: {_type}')
             else:
                 lines.append('.. attribute:: ' + _name)
                 if self._opt and 'noindex' in self._opt:
@@ -761,7 +761,7 @@ class GoogleDocstring:
             _type = ' ' + _type if _type else ''
             _desc = self._strip_empty(_desc)
             _descs = ' ' + '\n    '.join(_desc) if any(_desc) else ''
-            lines.append(':raises{}:{}'.format(_type, _descs))
+            lines.append(f':raises{_type}:{_descs}')
         if lines:
             lines.append('')
         return lines
@@ -847,7 +847,7 @@ class GoogleDocstring:
                 q = klass.__qualname__
             except AttributeError:
                 q = klass.__name__
-            return '~{}.{}'.format(q, attr_name)
+            return f'~{q}.{attr_name}'
         return attr_name
 
     def _strip_empty(self, lines: List[str]) -> List[str]:
@@ -1333,7 +1333,7 @@ class NumpyDocstring(GoogleDocstring):
         last_had_desc = True
         for name, desc, role in items:
             if role:
-                link = ':{}:`{}`'.format(role, name)
+                link = f':{role}:`{name}`'
             else:
                 link = ':obj:`%s`' % name
             if desc or last_had_desc:

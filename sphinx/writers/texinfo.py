@@ -193,7 +193,7 @@ class TexinfoTranslator(SphinxTranslator):
             name, content = index
             pointers = tuple([name] + self.rellinks[name])
             self.body.append('\n@node %s,%s,%s,%s\n' % pointers)
-            self.body.append('@unnumbered {}\n\n{}\n'.format(name, content))
+            self.body.append(f'@unnumbered {name}\n\n{content}\n')
 
         while self.referenced_ids:
             # handle xrefs with missing anchors
@@ -382,9 +382,9 @@ class TexinfoTranslator(SphinxTranslator):
 
     def format_menu_entry(self, name: str, node_name: str, desc: str) -> str:
         if name == node_name:
-            s = '* {}:: '.format(name)
+            s = f'* {name}:: '
         else:
-            s = '* {}: {}. '.format(name, node_name)
+            s = f'* {name}: {node_name}. '
         offset = max((24, (len(name) + 4) % 78))
         wdesc = '\n'.join(' ' * offset + l for l in
                           textwrap.wrap(desc, width=78 - offset))
@@ -459,7 +459,7 @@ class TexinfoTranslator(SphinxTranslator):
                     if not entry[3]:
                         continue
                     name = self.escape_menu(entry[0])
-                    sid = self.get_short_id('{}:{}'.format(entry[2], entry[3]))
+                    sid = self.get_short_id(f'{entry[2]}:{entry[3]}')
                     desc = self.escape_arg(entry[6])
                     me = self.format_menu_entry(name, sid, desc)
                     ret.append(me)
@@ -470,7 +470,7 @@ class TexinfoTranslator(SphinxTranslator):
         if indices_config:
             for domain in self.builder.env.domains.values():
                 for indexcls in domain.indices:
-                    indexname = '{}-{}'.format(domain.name, indexcls.name)
+                    indexname = f'{domain.name}-{indexcls.name}'
                     if isinstance(indices_config, list):
                         if indexname not in indices_config:
                             continue
@@ -535,7 +535,7 @@ class TexinfoTranslator(SphinxTranslator):
         name = self.escape_menu(name)
         sid = self.get_short_id(id)
         if self.config.texinfo_cross_references:
-            self.body.append('@ref{{{},,{}}}'.format(sid, name))
+            self.body.append(f'@ref{{{sid},,{name}}}')
             self.referenced_ids.add(sid)
             self.referenced_ids.add(self.escape_id(id))
         else:
@@ -693,7 +693,7 @@ class TexinfoTranslator(SphinxTranslator):
             if not name or name == uri:
                 self.body.append('@email{%s}' % uri)
             else:
-                self.body.append('@email{{{},{}}}'.format(uri, name))
+                self.body.append(f'@email{{{uri},{name}}}')
         elif uri.startswith('#'):
             # references to labels in the same document
             id = self.curfilestack[-1] + ':' + uri[1:]
@@ -718,9 +718,9 @@ class TexinfoTranslator(SphinxTranslator):
             id = self.escape_id(id)
             name = self.escape_menu(name)
             if name == id:
-                self.body.append('@ref{{{},,,{}}}'.format(id, uri))
+                self.body.append(f'@ref{{{id},,,{uri}}}')
             else:
-                self.body.append('@ref{{{},,{},{}}}'.format(id, name, uri))
+                self.body.append(f'@ref{{{id},,{name},{uri}}}')
         else:
             uri = self.escape_arg(uri)
             name = self.escape_arg(name)
@@ -730,11 +730,11 @@ class TexinfoTranslator(SphinxTranslator):
             if not name or uri == name:
                 self.body.append('@indicateurl{%s}' % uri)
             elif show_urls == 'inline':
-                self.body.append('@uref{{{},{}}}'.format(uri, name))
+                self.body.append(f'@uref{{{uri},{name}}}')
             elif show_urls == 'no':
-                self.body.append('@uref{{{},,{}}}'.format(uri, name))
+                self.body.append(f'@uref{{{uri},,{name}}}')
             else:
-                self.body.append('{}@footnote{{{}}}'.format(name, uri))
+                self.body.append(f'{name}@footnote{{{uri}}}')
         raise nodes.SkipNode
 
     def depart_reference(self, node: Element) -> None:
@@ -1402,7 +1402,7 @@ class TexinfoTranslator(SphinxTranslator):
             name = objtype
         # by convention, the deffn category should be capitalized like a title
         category = self.escape_arg(smart_capwords(name))
-        self.body.append('\n{} {{{}}} '.format(self.at_deffnx, category))
+        self.body.append(f'\n{self.at_deffnx} {{{category}}} ')
         self.at_deffnx = '@deffnx'
         self.desc_type_name = name
 

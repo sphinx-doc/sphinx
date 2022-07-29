@@ -75,9 +75,9 @@ class ManualPageBuilder(Builder):
             if self.config.man_make_section_directory:
                 dirname = 'man%s' % section
                 ensuredir(path.join(self.outdir, dirname))
-                targetname = '{}/{}.{}'.format(dirname, name, section)
+                targetname = f'{dirname}/{name}.{section}'
             else:
-                targetname = '{}.{}'.format(name, section)
+                targetname = f'{name}.{section}'
 
             logger.info(darkgreen(targetname) + ' { ', nonl=True)
             destination = FileOutput(
@@ -104,7 +104,7 @@ class ManualPageBuilder(Builder):
 def default_man_pages(config: Config) -> List[Tuple[str, str, str, List[str], int]]:
     """ Better default man_pages settings. """
     filename = make_filename_from_project(config.project)
-    return [(config.root_doc, filename, '{} {}'.format(config.project, config.release),
+    return [(config.root_doc, filename, f'{config.project} {config.release}',
              [config.author], 1)]
 
 

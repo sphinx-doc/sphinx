@@ -72,7 +72,7 @@ def write_file(name: str, text: str, opts: Any) -> None:
     """Write the output file for module/package <name>."""
     quiet = getattr(opts, 'quiet', None)
 
-    fname = path.join(opts.destdir, '{}.{}'.format(name, opts.suffix))
+    fname = path.join(opts.destdir, f'{name}.{opts.suffix}')
     if opts.dryrun:
         if not quiet:
             print(__('Would create file %s.') % fname)

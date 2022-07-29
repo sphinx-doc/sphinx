@@ -170,7 +170,7 @@ class CoverageBuilder(Builder):
                     # is not defined in this module
                     continue
 
-                full_name = '{}.{}'.format(mod_name, name)
+                full_name = f'{mod_name}.{name}'
                 if self.ignore_pyobj(full_name):
                     continue
 
@@ -213,7 +213,7 @@ class CoverageBuilder(Builder):
                             if skip_undoc and not attr.__doc__:
                                 # skip methods without docstring if wished
                                 continue
-                            full_attr_name = '{}.{}'.format(full_name, attr_name)
+                            full_attr_name = f'{full_name}.{attr_name}'
                             if self.ignore_pyobj(full_attr_name):
                                 continue
                             if full_attr_name not in objects:

@@ -232,7 +232,7 @@ class Domain:
         std = cast(StandardDomain, self.env.get_domain('std'))
         for index in self.indices:
             if index.name and index.localname:
-                docname = "{}-{}".format(self.name, index.name)
+                docname = f"{self.name}-{index.name}"
                 std.note_hyperlink_target(docname, docname, '', index.localname)
 
     def add_object_type(self, name: str, objtype: ObjType) -> None:
@@ -254,7 +254,7 @@ class Domain:
             return self._role_cache[name]
         if name not in self.roles:
             return None
-        fullname = '{}:{}'.format(self.name, name)
+        fullname = f'{self.name}:{name}'
 
         def role_adapter(typ: str, rawtext: str, text: str, lineno: int,
                          inliner: Inliner, options: Dict = {}, content: List[str] = []
@@ -272,7 +272,7 @@ class Domain:
             return self._directive_cache[name]
         if name not in self.directives:
             return None
-        fullname = '{}:{}'.format(self.name, name)
+        fullname = f'{self.name}:{name}'
         BaseDirective = self.directives[name]
 
         class DirectiveAdapter(BaseDirective):  # type: ignore

@@ -420,7 +420,7 @@ def object_description(object: Any) -> str:
             return "frozenset({%s})" % ", ".join(object_description(x)
                                                  for x in sorted_values)
     elif isinstance(object, enum.Enum):
-        return "{}.{}".format(object.__class__.__name__, object.name)
+        return f"{object.__class__.__name__}.{object.name}"
 
     try:
         s = repr(object)
