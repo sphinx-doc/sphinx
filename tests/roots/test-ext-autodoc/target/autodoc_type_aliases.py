@@ -12,7 +12,7 @@ variable: myint
 variable2 = None  # type: myint
 
 #: docstring
-variable3: Optional[myint]
+variable3: myint | None
 
 
 def read(r: io.BytesIO) -> io.StringIO:

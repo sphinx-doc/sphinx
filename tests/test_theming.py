@@ -67,18 +67,18 @@ def test_js_source(app, status, warning):
     app.builder.build(['contents'])
 
     v = '3.6.0'
-    msg = 'jquery.js version does not match to {v}'.format(v=v)
+    msg = f'jquery.js version does not match to {v}'
     jquery_min = (app.outdir / '_static' / 'jquery.js').read_text(encoding='utf8')
-    assert 'jQuery v{v}'.format(v=v) in jquery_min, msg
-    jquery_src = (app.outdir / '_static' / 'jquery-{v}.js'.format(v=v)).read_text(encoding='utf8')
-    assert 'jQuery JavaScript Library v{v}'.format(v=v) in jquery_src, msg
+    assert f'jQuery v{v}' in jquery_min, msg
+    jquery_src = (app.outdir / '_static' / f'jquery-{v}.js').read_text(encoding='utf8')
+    assert f'jQuery JavaScript Library v{v}' in jquery_src, msg
 
     v = '1.13.1'
-    msg = 'underscore.js version does not match to {v}'.format(v=v)
+    msg = f'underscore.js version does not match to {v}'
     underscore_min = (app.outdir / '_static' / 'underscore.js').read_text(encoding='utf8')
-    assert 'Underscore.js {v}'.format(v=v) in underscore_min, msg
-    underscore_src = (app.outdir / '_static' / 'underscore-{v}.js'.format(v=v)).read_text(encoding='utf8')
-    assert 'Underscore.js {v}'.format(v=v) in underscore_src, msg
+    assert f'Underscore.js {v}' in underscore_min, msg
+    underscore_src = (app.outdir / '_static' / f'underscore-{v}.js').read_text(encoding='utf8')
+    assert f'Underscore.js {v}' in underscore_src, msg
 
 
 @pytest.mark.sphinx(testroot='double-inheriting-theme')

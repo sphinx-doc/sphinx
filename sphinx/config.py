@@ -461,7 +461,7 @@ def check_confval_types(app: Optional["Sphinx"], config: Config) -> None:
             if annotations:
                 msg = __("The config value `{name}' has type `{current.__name__}'; "
                          "expected {permitted}.")
-                wrapped_annotations = ["`{}'".format(c.__name__) for c in annotations]
+                wrapped_annotations = [f"`{c.__name__}'" for c in annotations]
                 if len(wrapped_annotations) > 2:
                     permitted = "{}, or {}".format(
                         ", ".join(wrapped_annotations[:-1]),

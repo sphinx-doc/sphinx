@@ -56,14 +56,14 @@ class ExtensionError(SphinxError):
 
     def __repr__(self) -> str:
         if self.orig_exc:
-            return '%s(%r, %r)' % (self.__class__.__name__,
+            return '{}({!r}, {!r})'.format(self.__class__.__name__,
                                    self.message, self.orig_exc)
-        return '%s(%r)' % (self.__class__.__name__, self.message)
+        return '{}({!r})'.format(self.__class__.__name__, self.message)
 
     def __str__(self) -> str:
         parent_str = super().__str__()
         if self.orig_exc:
-            return '%s (exception: %s)' % (parent_str, self.orig_exc)
+            return '{} (exception: {})'.format(parent_str, self.orig_exc)
         return parent_str
 
 

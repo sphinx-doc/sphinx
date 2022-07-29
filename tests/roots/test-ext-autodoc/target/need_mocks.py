@@ -1,4 +1,3 @@
-
 import missing_module  # NOQA
 import missing_package1.missing_module1  # NOQA
 from missing_module import missing_name  # NOQA
@@ -20,7 +19,7 @@ def func(arg: missing_module.Class):
     pass
 
 
-class TestAutodoc(object):
+class TestAutodoc:
     """TestAutodoc docstring."""
 
     #: docstring

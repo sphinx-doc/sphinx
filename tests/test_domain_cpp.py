@@ -218,7 +218,7 @@ def test_domain_cpp_ast_expressions():
              ('\\U0001f34c', '127820'), ('\\U0001F34C', '127820')]
     for p, t in charPrefixAndIds:
         for c, val in chars:
-            exprCheck("{}'{}'".format(p, c), t + val)
+            exprCheck(f"{p}'{c}'", t + val)
     # user-defined literals
     for i in ints:
         exprCheck(i + '_udl', 'clL_Zli4_udlEL' + i.replace("'", "") + 'EE')
@@ -230,7 +230,7 @@ def test_domain_cpp_ast_expressions():
         exprCheck('0x' + f + '_udl', 'clL_Zli4_udlEL0x' + f.replace("'", "") + 'EE')
     for p, t in charPrefixAndIds:
         for c, val in chars:
-            exprCheck("{}'{}'_udl".format(p, c), 'clL_Zli4_udlE' + t + val + 'E')
+            exprCheck(f"{p}'{c}'_udl", 'clL_Zli4_udlE' + t + val + 'E')
     exprCheck('"abc"_udl', 'clL_Zli4_udlELA3_KcEE')
     # from issue #7294
     exprCheck('6.62607015e-34q_J', 'clL_Zli3q_JEL6.62607015e-34EE')
@@ -1049,9 +1049,9 @@ def test_domain_cpp_ast_xref_parsing():
 
 def filter_warnings(warning, file):
     lines = warning.getvalue().split("\n")
-    res = [l for l in lines if "domain-cpp" in l and "{}.rst".format(file) in l and
+    res = [l for l in lines if "domain-cpp" in l and f"{file}.rst" in l and
            "WARNING: document isn't included in any toctree" not in l]
-    print("Filtered warnings for file '{}':".format(file))
+    print(f"Filtered warnings for file '{file}':")
     for w in res:
         print(w)
     return res
@@ -1134,10 +1134,10 @@ def test_domain_cpp_build_misuse_of_roles(app, status, warning):
         txtTargetType = "function" if targetType == "func" else targetType
         for r in allRoles:
             if r not in roles:
-                warn.append("WARNING: cpp:{} targets a {} (".format(r, txtTargetType))
+                warn.append(f"WARNING: cpp:{r} targets a {txtTargetType} (")
                 if targetType == 'templateParam':
-                    warn.append("WARNING: cpp:{} targets a {} (".format(r, txtTargetType))
-                    warn.append("WARNING: cpp:{} targets a {} (".format(r, txtTargetType))
+                    warn.append(f"WARNING: cpp:{r} targets a {txtTargetType} (")
+                    warn.append(f"WARNING: cpp:{r} targets a {txtTargetType} (")
     warn = sorted(warn)
     for w in ws:
         assert "targets a" in w
@@ -1164,7 +1164,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_True(app, status, war
         pattern = '<li><p>%s<a .*?><code .*?><span .*?>%s</span></code></a></p></li>' % spec
         res = re.search(pattern, text)
         if not res:
-            print("Pattern\n\t%s\nnot found in %s" % (pattern, file))
+            print("Pattern\n\t{}\nnot found in {}".format(pattern, file))
             raise AssertionError()
     rolePatterns = [
         ('', 'Sphinx'),
@@ -1205,7 +1205,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_False(app, status, wa
         pattern = '<li><p>%s<a .*?><code .*?><span .*?>%s</span></code></a></p></li>' % spec
         res = re.search(pattern, text)
         if not res:
-            print("Pattern\n\t%s\nnot found in %s" % (pattern, file))
+            print("Pattern\n\t{}\nnot found in {}".format(pattern, file))
             raise AssertionError()
     rolePatterns = [
         ('', 'Sphinx'),
@@ -1291,7 +1291,7 @@ not found in `{test}`
 
     for role in (expr_role, texpr_role):
         name = role.name
-        expect = '`{name}` puts the domain and role classes at its root'.format(name=name)
+        expect = f'`{name}` puts the domain and role classes at its root'
         assert {'sig', 'sig-inline', 'cpp', name} <= role.classes, expect
 
     # reference classes

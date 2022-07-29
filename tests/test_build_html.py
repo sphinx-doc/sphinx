@@ -79,7 +79,7 @@ def tail_check(check):
         for node in nodes:
             if node.tail and rex.search(node.tail):
                 return True
-        raise AssertionError('%r not found in tail of any nodes %s' % (check, nodes))
+        raise AssertionError('{!r} not found in tail of any nodes {}'.format(check, nodes))
     return checker
 
 
@@ -114,9 +114,9 @@ def check_xpath(etree, fname, path, check, be_found=True):
             if all(not rex.search(get_text(node)) for node in nodes):
                 return
 
-        raise AssertionError(('%r not found in any node matching '
+        raise AssertionError('%r not found in any node matching '
                               'path %s in %s: %r' % (check, path, fname,
-                                                     [node.text for node in nodes])))
+                                                     [node.text for node in nodes]))
 
 
 @pytest.mark.sphinx('html', testroot='warnings')

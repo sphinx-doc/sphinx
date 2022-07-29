@@ -141,9 +141,9 @@ def _get_safe_url(url: str) -> str:
     else:
         frags = list(parts)
         if parts.port:
-            frags[1] = '{}@{}:{}'.format(parts.username, parts.hostname, parts.port)
+            frags[1] = f'{parts.username}@{parts.hostname}:{parts.port}'
         else:
-            frags[1] = '{}@{}'.format(parts.username, parts.hostname)
+            frags[1] = f'{parts.username}@{parts.hostname}'
 
         return urlunsplit(frags)
 
@@ -334,7 +334,7 @@ def _resolve_reference_in_domain(env: BuildEnvironment,
         objtypes.append('method')
 
     # the inventory contains domain:type as objtype
-    objtypes = ["{}:{}".format(domain.name, t) for t in objtypes]
+    objtypes = [f"{domain.name}:{t}" for t in objtypes]
 
     # now that the objtypes list is complete we can remove the disabled ones
     if honor_disabled_refs:

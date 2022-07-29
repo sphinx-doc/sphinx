@@ -84,7 +84,7 @@ class Make:
         print("Please use `make %s' where %s is one of" % ((blue('target'),) * 2))
         for osname, bname, description in BUILDERS:
             if not osname or os.name == osname:
-                print('  %s  %s' % (blue(bname.ljust(10)), description))
+                print('  {}  {}'.format(blue(bname.ljust(10)), description))
 
     def build_latexpdf(self) -> int:
         if self.run_generic_build('latex') > 0:

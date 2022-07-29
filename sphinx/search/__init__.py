@@ -351,7 +351,7 @@ class IndexBuilder:
                     if fn in fn2index:
                         rv[k] = fn2index[fn]
                 else:
-                    rv[k] = sorted([fn2index[fn] for fn in v if fn in fn2index])
+                    rv[k] = sorted(fn2index[fn] for fn in v if fn in fn2index)
         return rvs
 
     def freeze(self) -> Dict[str, Any]:
@@ -369,7 +369,7 @@ class IndexBuilder:
                     titleterms=title_terms, envversion=self.env.version)
 
     def label(self) -> str:
-        return "%s (code: %s)" % (self.lang.language_name, self.lang.lang)
+        return "{} (code: {})".format(self.lang.language_name, self.lang.lang)
 
     def prune(self, docnames: Iterable[str]) -> None:
         """Remove data for all docnames not in the list."""

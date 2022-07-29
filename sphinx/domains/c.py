@@ -1142,7 +1142,7 @@ class ASTBracedInitList(ASTBase):
     def _stringify(self, transform: StringifyTransform) -> str:
         exprs = [transform(e) for e in self.exprs]
         trailingComma = ',' if self.trailingComma else ''
-        return '{%s%s}' % (', '.join(exprs), trailingComma)
+        return '{{{}{}}}'.format(', '.join(exprs), trailingComma)
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
@@ -1827,7 +1827,7 @@ class Symbol:
             Symbol.debug_indent += 1
             Symbol.debug_print("nn:       ", nestedName)
             Symbol.debug_print("decl:     ", declaration)
-            Symbol.debug_print("location: {}:{}".format(docname, line))
+            Symbol.debug_print(f"location: {docname}:{line}")
 
         def onMissingQualifiedSymbol(parentSymbol: "Symbol", ident: ASTIdentifier) -> "Symbol":
             if Symbol.debug_lookup:
@@ -1853,7 +1853,7 @@ class Symbol:
                 Symbol.debug_indent += 1
                 Symbol.debug_print("ident:       ", lookupResult.ident)
                 Symbol.debug_print("declaration: ", declaration)
-                Symbol.debug_print("location:    {}:{}".format(docname, line))
+                Symbol.debug_print(f"location:    {docname}:{line}")
                 Symbol.debug_indent -= 1
             symbol = Symbol(parent=lookupResult.parentSymbol,
                             ident=lookupResult.ident,
@@ -2268,7 +2268,7 @@ class DefinitionParser(BaseParser):
             if self.skip_string(close):
                 break
             if not self.skip_string_and_ws(','):
-                self.fail("Error in %s, expected ',' or '%s'." % (name, close))
+                self.fail("Error in {}, expected ',' or '{}'.".format(name, close))
             if self.current_char == close and close == '}':
                 self.pos += 1
                 trailingComma = True

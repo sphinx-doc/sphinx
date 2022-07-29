@@ -129,7 +129,7 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> List[Node]:
     """Parse type annotation."""
     def unparse(node: ast.AST) -> List[Node]:
         if isinstance(node, ast.Attribute):
-            return [nodes.Text("%s.%s" % (unparse(node.value)[0], node.attr))]
+            return [nodes.Text("{}.{}".format(unparse(node.value)[0], node.attr))]
         elif isinstance(node, ast.BinOp):
             result: List[Node] = unparse(node.left)
             result.extend(unparse(node.op))
@@ -671,7 +671,7 @@ class PyFunction(PyObject):
                 text = _('%s() (in module %s)') % (name, modname)
                 self.indexnode['entries'].append(('single', text, node_id, '', None))
             else:
-                text = '%s; %s()' % (pairindextypes['builtin'], name)
+                text = '{}; {}()'.format(pairindextypes['builtin'], name)
                 self.indexnode['entries'].append(('pair', text, node_id, '', None))
 
     def get_index_text(self, modname: str, name_cls: Tuple[str, str]) -> str:
@@ -1002,7 +1002,7 @@ class PyModule(SphinxDirective):
             # the platform and synopsis aren't printed; in fact, they are only
             # used in the modindex currently
             ret.append(target)
-            indextext = '%s; %s' % (pairindextypes['module'], modname)
+            indextext = '{}; {}'.format(pairindextypes['module'], modname)
             inode = addnodes.index(entries=[('pair', indextext, node_id, '', None)])
             ret.append(inode)
         return ret

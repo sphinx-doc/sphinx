@@ -250,7 +250,7 @@ class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     child_text_separator = ', '
 
     def astext(self):
-        return '({})'.format(super().astext())
+        return f'({super().astext()})'
 
 
 class desc_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):

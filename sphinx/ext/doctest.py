@@ -219,7 +219,7 @@ class TestGroup:
             raise RuntimeError(__('invalid TestCode type'))
 
     def __repr__(self) -> str:
-        return 'TestGroup(name=%r, setup=%r, cleanup=%r, tests=%r)' % (
+        return 'TestGroup(name={!r}, setup={!r}, cleanup={!r}, tests={!r})'.format(
             self.name, self.setup, self.cleanup, self.tests)
 
 
@@ -233,7 +233,7 @@ class TestCode:
         self.options = options or {}
 
     def __repr__(self) -> str:
-        return 'TestCode(%r, %r, filename=%r, lineno=%r, options=%r)' % (
+        return 'TestCode({!r}, {!r}, filename={!r}, lineno={!r}, options={!r})'.format(
             self.code, self.type, self.filename, self.lineno, self.options)
 
 
@@ -487,7 +487,7 @@ Doctest summary
                 return True
             # simulate a doctest with the code
             sim_doctest = doctest.DocTest(examples, {},
-                                          '%s (%s code)' % (group.name, what),
+                                          '{} ({} code)'.format(group.name, what),
                                           testcodes[0].filename, 0, None)
             sim_doctest.globs = ns
             old_f = runner.failures

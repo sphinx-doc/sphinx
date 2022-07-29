@@ -163,7 +163,7 @@ def linkify_issues_in_changelog(app, docname, source):
 
         def linkify(match):
             url = 'https://github.com/sphinx-doc/sphinx/issues/' + match[1]
-            return '`{} <{}>`_'.format(match[0], url)
+            return f'`{match[0]} <{url}>`_'
 
         linkified_changelog = re.sub(r'(?:PR)?#([0-9]+)\b', linkify, changelog)
 

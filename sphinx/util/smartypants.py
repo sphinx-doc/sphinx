@@ -146,8 +146,8 @@ def educateQuotes(text: str, language: str = 'en') -> str:
     # Special case if the very first character is a quote
     # followed by punctuation at a non-word-break.
     # Close the quotes by brute force:
-    text = re.sub(r"""^'(?=%s\\B)""" % (punct_class,), smart.csquote, text)
-    text = re.sub(r"""^"(?=%s\\B)""" % (punct_class,), smart.cpquote, text)
+    text = re.sub(r"""^'(?={}\\B)""".format(punct_class), smart.csquote, text)
+    text = re.sub(r"""^"(?={}\\B)""".format(punct_class), smart.cpquote, text)
 
     # Special case for double sets of quotes, e.g.:
     #   <p>He said, "'Quoted' words in a larger quote."</p>
@@ -168,12 +168,12 @@ def educateQuotes(text: str, language: str = 'en') -> str:
                             &nbsp;      |   # a non-breaking space entity, or
                             --          |   # dashes, or
                             &[mn]dash;  |   # named dash entities
-                            %s          |   # or decimal entities
+                            {}          |   # or decimal entities
                             &\#x201[34];    # or hex
                     )
                     '                 # the quote
                     (?=\w)            # followed by a word character
-                    """ % (dec_dashes,), re.VERBOSE | re.UNICODE)
+                    """.format(dec_dashes), re.VERBOSE | re.UNICODE)
     text = opening_single_quotes_regex.sub(r'\1' + smart.osquote, text)
 
     # In many locales, single closing quotes are different from apostrophe:
@@ -184,20 +184,20 @@ def educateQuotes(text: str, language: str = 'en') -> str:
     # "Ich fass' es nicht."
 
     closing_single_quotes_regex = re.compile(r"""
-                    (%s)
+                    ({})
                     '
                     (?!\s  |       # whitespace
                        s\b |
                         \d         # digits   ('80s)
                     )
-                    """ % (close_class,), re.VERBOSE | re.UNICODE)
+                    """.format(close_class), re.VERBOSE | re.UNICODE)
     text = closing_single_quotes_regex.sub(r'\1' + smart.csquote, text)
 
     closing_single_quotes_regex = re.compile(r"""
-                    (%s)
+                    ({})
                     '
                     (\s | s\b)
-                    """ % (close_class,), re.VERBOSE | re.UNICODE)
+                    """.format(close_class), re.VERBOSE | re.UNICODE)
     text = closing_single_quotes_regex.sub(r'\1%s\2' % smart.csquote, text)
 
     # Any remaining single quotes should be opening ones:
@@ -210,26 +210,26 @@ def educateQuotes(text: str, language: str = 'en') -> str:
                             &nbsp;      |   # a non-breaking space entity, or
                             --          |   # dashes, or
                             &[mn]dash;  |   # named dash entities
-                            %s          |   # or decimal entities
+                            {}          |   # or decimal entities
                             &\#x201[34];    # or hex
                     )
                     "                 # the quote
                     (?=\w)            # followed by a word character
-                    """ % (dec_dashes,), re.VERBOSE)
+                    """.format(dec_dashes), re.VERBOSE)
     text = opening_double_quotes_regex.sub(r'\1' + smart.opquote, text)
 
     # Double closing quotes:
     closing_double_quotes_regex = re.compile(r"""
-                    #(%s)?   # character that indicates the quote should be closing
+                    #({})?   # character that indicates the quote should be closing
                     "
                     (?=\s)
-                    """ % (close_class,), re.VERBOSE)
+                    """.format(close_class), re.VERBOSE)
     text = closing_double_quotes_regex.sub(smart.cpquote, text)
 
     closing_double_quotes_regex = re.compile(r"""
-                    (%s)   # character that indicates the quote should be closing
+                    ({})   # character that indicates the quote should be closing
                     "
-                    """ % (close_class,), re.VERBOSE)
+                    """.format(close_class), re.VERBOSE)
     text = closing_double_quotes_regex.sub(r'\1' + smart.cpquote, text)
 
     # Any remaining quotes should be opening ones.

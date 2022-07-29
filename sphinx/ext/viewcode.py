@@ -213,7 +213,7 @@ def should_generate_module_page(app: Sphinx, modname: str) -> bool:
         if path.getmtime(module_filename) <= path.getmtime(page_filename):
             # generation is not needed if the HTML page is newer than module file.
             return False
-    except IOError:
+    except OSError:
         pass
 
     return True
@@ -305,7 +305,7 @@ def collect_pages(app: Sphinx) -> Generator[Tuple[str, Dict[str, Any], str], Non
                 stack.pop()
                 html.append('</ul>')
             stack.append(modname + '.')
-        html.append('<li><a href="%s">%s</a></li>\n' % (
+        html.append('<li><a href="{}">{}</a></li>\n'.format(
             urito(posixpath.join(OUTPUT_DIRNAME, 'index'),
                   posixpath.join(OUTPUT_DIRNAME, modname.replace('.', '/'))),
             modname))

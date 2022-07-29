@@ -120,8 +120,7 @@ class RecipeDomain(Domain):
         return '{}.{}'.format('recipe', node.arguments[0])
 
     def get_objects(self):
-        for obj in self.data['recipes']:
-            yield(obj)
+        yield from self.data['recipes']
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node,
                      contnode):
@@ -142,7 +141,7 @@ class RecipeDomain(Domain):
     def add_recipe(self, signature, ingredients):
         """Add a new recipe to the domain."""
         name = '{}.{}'.format('recipe', signature)
-        anchor = 'recipe-{}'.format(signature)
+        anchor = f'recipe-{signature}'
 
         self.data['recipe_ingredients'][name] = ingredients
         # name, dispname, type, docname, anchor, priority

@@ -47,7 +47,7 @@ def _translate_pattern(pat: str) -> str:
                     stuff = '^/' + stuff[1:]
                 elif stuff[0] == '^':
                     stuff = '\\' + stuff
-                res = '%s[%s]' % (res, stuff)
+                res = '{}[{}]'.format(res, stuff)
         else:
             res += re.escape(c)
     return res + '$'

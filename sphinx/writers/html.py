@@ -40,7 +40,7 @@ def multiply_length(length: str, scale: int) -> str:
     else:
         amount, unit = matched.groups()
         result = float(amount) * scale / 100
-        return "%s%s" % (int(result), unit)
+        return "{}{}".format(int(result), unit)
 
 
 class HTMLWriter(Writer):
@@ -175,8 +175,8 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         self.first_param = 1
         self.optional_param_level = 0
         # How many required parameters are left.
-        self.required_params_left = sum([isinstance(c, addnodes.desc_parameter)
-                                         for c in node.children])
+        self.required_params_left = sum(isinstance(c, addnodes.desc_parameter)
+                                         for c in node.children)
         self.param_separator = node.child_text_separator
 
     def depart_desc_parameterlist(self, node: Element) -> None:
@@ -288,7 +288,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         elif isinstance(node.parent, nodes.section):
             if self.builder.name == 'singlehtml':
                 docname = self.docnames[-1]
-                anchorname = "%s/#%s" % (docname, node.parent['ids'][0])
+                anchorname = "{}/#{}".format(docname, node.parent['ids'][0])
                 if anchorname not in self.builder.secnumbers:
                     anchorname = "%s/" % docname  # try first heading which has no anchor
             else:
@@ -310,7 +310,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
     def add_fignumber(self, node: Element) -> None:
         def append_fignumber(figtype: str, figure_id: str) -> None:
             if self.builder.name == 'singlehtml':
-                key = "%s/%s" % (self.docnames[-1], figtype)
+                key = "{}/{}".format(self.docnames[-1], figtype)
             else:
                 key = figtype
 
@@ -429,7 +429,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
             elif close_tag.startswith('</a></h'):
                 self.body.append('</a><a class="headerlink" href="#%s" ' %
                                  node.parent['ids'][0] +
-                                 'title="%s">%s' % (
+                                 'title="{}">{}'.format(
                                      _('Permalink to this heading'),
                                      self.config.html_permalinks_icon))
             elif isinstance(node.parent, nodes.table):
