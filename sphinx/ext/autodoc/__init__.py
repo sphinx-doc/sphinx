@@ -2158,6 +2158,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                     self.env.app.emit('autodoc-before-process-signature', self.object, True)
                     sig = inspect.signature(self.object, bound_method=True,
                                             type_aliases=self.config.autodoc_type_aliases)
+                self.env.app.emit('autodoc-after-inspection', self.object, self.fullname, sig)
                 args = stringify_signature(sig, **kwargs)
         except TypeError as exc:
             logger.warning(__("Failed to get a method signature for %s: %s"),

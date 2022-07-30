@@ -14,10 +14,7 @@
 
 .. autofunction:: target.typehints.tuple_args
 
-.. autoclass:: target.typehints_lazy.LazyGeneric
+.. automodule:: target.typehints_lazy
+   :members:
 
-.. autoclass:: target.typehints_lazy.LazyInit
-
-.. autoclass:: target.typehints_lazy.LazyInitOldStyle
-
-.. autoclass:: target.classes.CommentTypeHints
+.. autoclass:: target.typehints.NewComment
