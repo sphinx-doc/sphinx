@@ -746,7 +746,7 @@ def test_autodoc_typehints_signature(app):
         '   :module: target.typehints',
         '',
         '',
-        '.. py:class:: NewComment(i: int)',
+        '.. py:class:: NewComment(i: ~typing.Optional[int])',
         '   :module: target.typehints',
         '',
         '',
@@ -982,7 +982,12 @@ def test_autodoc_typehints_description(app):
             '   Generic docstring ;)\n'
             '\n'
             '   Parameters:\n'
-            '      **x** (*Optional**[**_T**]*) -- maybe also generic\n'
+            '      **x** (*Optional**[**T**]*) -- maybe also generic\n'
+            in context)
+    assert ('class target.typehints.NewComment(i)\n'
+            '\n'
+            '   Parameters:\n'
+            '      **i** (*Optional**[**int**]*) --\n'
             in context)
 
     # Overloads still get displayed in the signature
@@ -1500,7 +1505,7 @@ def test_autodoc_typehints_format_fully_qualified(app):
         '   :module: target.typehints',
         '',
         '',
-        '.. py:class:: NewComment(i: int)',
+        '.. py:class:: NewComment(i: typing.Optional[int])',
         '   :module: target.typehints',
         '',
         '',

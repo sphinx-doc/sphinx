@@ -1,5 +1,11 @@
 import pathlib
-from typing import Any, Tuple, TypeVar, Union
+from typing import (
+    Any,
+    Optional as Opt,  # rename to test resolution
+    Tuple,
+    TypeVar,
+    Union
+)
 
 CONST1: int
 #: docstring
@@ -65,7 +71,7 @@ class NewAnnotation:
 
 class NewComment:
     def __new__(cls, i):
-        # type: (int) -> NewComment
+        # type: (Opt[int]) -> NewComment
         pass
 
 

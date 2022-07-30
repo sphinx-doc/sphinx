@@ -7,16 +7,16 @@ from typing import (
 )
 
 
-_T = TypeVar("_T")
+T = TypeVar("T")
 
 
-class LazyGeneric(Generic[_T]):
+class LazyGeneric(Generic[T]):
     """Generic docstring ;)
 
     :param x: maybe also generic
     """
 
-    def __init__(self, x: Opt[_T]) -> None:
+    def __init__(self, x: Opt[T]) -> None:
         ...
 
 

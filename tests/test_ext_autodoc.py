@@ -2345,7 +2345,11 @@ def test_autodoc(app, status, warning):
 my_name
 
 alias of Foo"""
-    assert warning.getvalue() == ''
+    warning_lines = [line for line in warning.getvalue().split('\n') if line]
+    # This might be a bug. We're not picking up the TypeVar T.
+    assert len(warning_lines) == 1
+    assert ('WARNING: py:class reference target not found: '
+            'target.typehints_lazy.T' in warning_lines[0])
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
