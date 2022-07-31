@@ -380,7 +380,7 @@ class PyXrefMixin:
                    innernode: Type[TextlikeNode] = nodes.emphasis,
                    contnode: Node = None, env: BuildEnvironment = None,
                    inliner: Inliner = None, location: Node = None) -> List[Node]:
-        delims = r'(\s*[\[\]\(\),](?:\s*or|of\s)?\s*|\s+or|of\s+|\s*\|\s*|\.\.\.)'
+        delims = r'(\s*[\[\]\(\),](?:\s*o[rf]\s)?\s*|\s+o[rf]\s+|\s*\|\s*|\.\.\.)'
         delims_re = re.compile(delims)
         sub_targets = re.split(delims, target)
 
