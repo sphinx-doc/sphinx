@@ -372,6 +372,8 @@ class GoogleDocstringTest(BaseDocstringTest):
               description of arg4.
           arg5 (list of int, float, or bool): Extended
               description of arg5.
+          arg6 (list of int or float): Extended
+              description of arg6.
         """,
         """
         Single line summary
@@ -386,6 +388,8 @@ class GoogleDocstringTest(BaseDocstringTest):
                        description of arg4.
                      * **arg5** (*list of int, float, or bool*) -- Extended
                        description of arg5.
+                     * **arg6** (*list of int or float*) -- Extended
+                       description of arg6.
         """
     )]
 
