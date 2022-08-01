@@ -2478,6 +2478,7 @@ definition_after_normal_text : int
             "optional",
             "str, optional",
             "int or float or None, default: None",
+            "list of tuple of str, optional",
             "int, default None",
             '{"F", "C", "N"}',
             "{'F', 'C', 'N'}, default: 'N'",
@@ -2490,6 +2491,7 @@ definition_after_normal_text : int
             "*optional*",
             ":class:`str`, *optional*",
             ":class:`int` or :class:`float` or :obj:`None`, *default*: :obj:`None`",
+            ":class:`list` of :class:`tuple` of :class:`str`, *optional*",
             ":class:`int`, *default* :obj:`None`",
             '``{"F", "C", "N"}``',
             "``{'F', 'C', 'N'}``, *default*: ``'N'``",
@@ -2521,6 +2523,8 @@ definition_after_normal_text : int
                 a optional mapping
             param8 : ... or Ellipsis
                 ellipsis
+            param9 : tuple of list of int
+                a parameter with tuple of list of int
         """)
         expected = dedent("""\
             :param param1: the data to work on
@@ -2539,6 +2543,8 @@ definition_after_normal_text : int
             :type param7: :term:`mapping` of :term:`hashable` to :class:`str`, *optional*
             :param param8: ellipsis
             :type param8: :obj:`... <Ellipsis>` or :obj:`Ellipsis`
+            :param param9: a parameter with tuple of list of int
+            :type param9: :class:`tuple` of :class:`list` of :class:`int`
         """)
         translations = {
             "dict-like": ":term:`dict-like <mapping>`",
