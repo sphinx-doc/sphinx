@@ -1,13 +1,14 @@
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Iterator, List, TypedDict
+
 from docutils import nodes
 from docutils.parsers.rst import Directive
 
-from sphinx.locale import _
-from sphinx.util.docutils import SphinxDirective
 from sphinx.application import Sphinx
 from sphinx.environment import BuildEnvironment
+from sphinx.locale import _
+from sphinx.util.docutils import SphinxDirective
 
 
 class todo(nodes.Admonition, nodes.Element):  # type: ignore[misc]
