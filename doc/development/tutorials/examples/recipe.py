@@ -121,7 +121,7 @@ class RecipeDomain(Domain):
 
     def get_objects(self):
         for obj in self.data['recipes']:
-            yield(obj)
+            yield obj
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node,
                      contnode):
