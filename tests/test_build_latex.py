@@ -1519,7 +1519,7 @@ def test_latex_labels(app, status, warning):
 def test_latex_figure_in_admonition(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
-    assert(r'\begin{figure}[H]' in result)
+    assert r'\begin{figure}[H]' in result
 
 
 def test_default_latex_documents():
