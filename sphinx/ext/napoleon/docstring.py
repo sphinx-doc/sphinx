@@ -248,8 +248,10 @@ class GoogleDocstring:
     def _consume_indented_block(self, indent: int = 1) -> List[str]:
         lines = []
         line = self._lines.get(0)
-        while(not self._is_section_break() and
-              (not line or self._is_indented(line, indent))):
+        while (
+            not self._is_section_break() and
+            (not line or self._is_indented(line, indent))
+        ):
             lines.append(self._lines.next())
             line = self._lines.get(0)
         return lines
