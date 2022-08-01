@@ -356,6 +356,37 @@ class GoogleDocstringTest(BaseDocstringTest):
         :Yields: Extended
                  description of yielded value
         """
+    ), (
+        """
+        Single line summary
+
+        Args:
+
+          arg1 (list of str): Extended
+              description of arg1.
+          arg2 (tuple of int): Extended
+              description of arg2.
+          arg3 (tuple of list of float): Extended
+              description of arg3.
+          arg4 (int, float, or list of bool): Extended
+              description of arg4.
+          arg5 (list of int, float, or bool): Extended
+              description of arg5.
+        """,
+        """
+        Single line summary
+
+        :Parameters: * **arg1** (*list of str*) -- Extended
+                       description of arg1.
+                     * **arg2** (*tuple of int*) -- Extended
+                       description of arg2.
+                     * **arg3** (*tuple of list of float*) -- Extended
+                       description of arg3.
+                     * **arg4** (*int, float, or list of bool*) -- Extended
+                       description of arg4.
+                     * **arg5** (*list of int, float, or bool*) -- Extended
+                       description of arg5.
+        """
     )]
 
     def test_sphinx_admonitions(self):
