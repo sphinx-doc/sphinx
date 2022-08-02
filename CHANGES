@@ -21,9 +21,6 @@ Bugs fixed
 
 * #10723: LaTeX: 5.1.0 has made the 'sphinxsetup' ``verbatimwithframe=false``
   become without effect.
-* #10738: py domain: Added testing for docstring types using 'or' in the
-   python domain, like ``type or type``. Previously this functionality wasn't
-   being tested.
 
 Testing
 --------

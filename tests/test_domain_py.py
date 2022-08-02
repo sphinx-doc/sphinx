@@ -1222,7 +1222,7 @@ def test_info_field_list_napoleon_deliminator_of(app):
             "   :type list_str_var: list of str\n"
             "   :param tuple_int_var: example description.\n"
             "   :type tuple_int_var: tuple of tuple of int\n"
-    )
+            )
     doctree = restructuredtext.parse(app, text)
 
     # :param list of str list_str_var:
@@ -1258,7 +1258,7 @@ def test_info_field_list_napoleon_deliminator_or(app):
             "   :type bool_str_var: bool or str\n"
             "   :param str_float_int_var: example description.\n"
             "   :type str_float_int_var: str or float or int\n"
-    )
+            )
     doctree = restructuredtext.parse(app, text)
 
     # :param bool or str bool_str_var:
