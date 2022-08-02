@@ -13,8 +13,8 @@ Deprecated
 Features added
 --------------
 
-* #10738: napoleon: Add support for docstring types using ``type of type``.
-  Example: ``tuple of int``.
+* #10738: napoleon: Add support for docstring types using 'of', like
+  ``type of type``. Example: ``tuple of int``.
 
 Bugs fixed
 ----------
