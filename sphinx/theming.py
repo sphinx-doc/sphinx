@@ -4,6 +4,7 @@ import configparser
 import os
 import shutil
 import tempfile
+from contextlib import suppress
 from os import path
 from typing import TYPE_CHECKING, Any, Dict, List
 from zipfile import ZipFile
@@ -112,10 +113,8 @@ class Theme:
         else:
             options = {}
 
-        try:
+        with suppress(configparser.NoSectionError):
             options.update(self.config.items('options'))
-        except configparser.NoSectionError:
-            pass
 
         for option, value in overrides.items():
             if option not in options:

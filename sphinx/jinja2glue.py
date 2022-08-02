@@ -1,6 +1,7 @@
 """Glue code for the jinja2 templating engine."""
 
 import pathlib
+from contextlib import suppress
 from os import path
 from pprint import pformat
 from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
@@ -208,8 +209,6 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
             loaders = loaders[self.templatepathlen:]
             template = template[1:]
         for loader in loaders:
-            try:
+            with suppress(TemplateNotFound):
                 return loader.get_source(environment, template)
-            except TemplateNotFound:
-                pass
         raise TemplateNotFound(template)

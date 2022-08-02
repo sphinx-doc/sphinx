@@ -251,7 +251,7 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable,
         except AttributeError:
             continue
 
-    try:
+    with suppress(AttributeError):
         for cls in getmro(subject):
             try:
                 modname = safe_getattr(cls, '__module__')
@@ -294,7 +294,5 @@ def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable,
                         # attribute is already known, because dir(subject) enumerates it.
                         # But it has no docstring yet
                         members[name].docstring = '\n'.join(docstring)
-    except AttributeError:
-        pass
 
     return members

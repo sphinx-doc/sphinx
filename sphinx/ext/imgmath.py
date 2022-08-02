@@ -5,6 +5,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+from contextlib import suppress
 from os import path
 from subprocess import PIPE, CalledProcessError
 from typing import Any, Dict, List, Optional, Tuple
@@ -271,10 +272,8 @@ def cleanup_tempdir(app: Sphinx, exc: Exception) -> None:
         return
     if not hasattr(app.builder, '_imgmath_tempdir'):
         return
-    try:
+    with suppress(Exception):
         shutil.rmtree(app.builder._mathpng_tempdir)  # type: ignore
-    except Exception:
-        pass
 
 
 def get_tooltip(self: HTMLTranslator, node: Element) -> str:

@@ -1930,7 +1930,7 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
             return super().import_object(raiseerror=True)  # type: ignore
         except ImportError as exc:
             # annotation only instance variable (PEP-526)
-            try:
+            with suppress(ImportError):
                 with mock(self.config.autodoc_mock_imports):
                     parent = import_module(self.modname, self.config.autodoc_warningiserror)
                     annotations = get_type_hints(parent, None,
@@ -1939,8 +1939,6 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
                         self.object = UNINITIALIZED_ATTR
                         self.parent = parent
                         return True
-            except ImportError:
-                pass
 
             if raiseerror:
                 raise
