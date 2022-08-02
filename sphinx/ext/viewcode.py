@@ -2,6 +2,7 @@
 
 import posixpath
 import traceback
+from contextlib import suppress
 from os import path
 from typing import Any, Dict, Generator, Iterable, Optional, Set, Tuple, cast
 
@@ -209,12 +210,10 @@ def should_generate_module_page(app: Sphinx, modname: str) -> bool:
     basename = modname.replace('.', '/') + builder.out_suffix
     page_filename = path.join(app.outdir, '_modules/', basename)
 
-    try:
+    with suppress(IOError):
         if path.getmtime(module_filename) <= path.getmtime(page_filename):
             # generation is not needed if the HTML page is newer than module file.
             return False
-    except IOError:
-        pass
 
     return True
 

@@ -7,6 +7,7 @@ for those who like elaborate docstrings.
 
 import re
 import warnings
+from contextlib import suppress
 from inspect import Parameter, Signature
 from types import ModuleType
 from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Optional, Sequence,
@@ -2437,7 +2438,7 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
         try:
             return super().import_object(raiseerror=True)  # type: ignore
         except ImportError as exc:
-            try:
+            with suppress(ImportError):
                 with mock(self.config.autodoc_mock_imports):
                     ret = import_object(self.modname, self.objpath[:-1], 'class',
                                         attrgetter=self.get_attr,  # type: ignore
@@ -2447,8 +2448,6 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
                         self.object = self.RUNTIME_INSTANCE_ATTRIBUTE
                         self.parent = parent
                         return True
-            except ImportError:
-                pass
 
             if raiseerror:
                 raise

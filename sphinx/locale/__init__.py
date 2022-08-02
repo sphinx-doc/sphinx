@@ -3,6 +3,7 @@
 import gettext
 import locale
 from collections import UserString, defaultdict
+from contextlib import suppress
 from gettext import NullTranslations
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 
@@ -154,10 +155,8 @@ def setlocale(category: int, value: Union[str, Iterable[str]] = None) -> None:
     .. note:: Only for internal use.  Please don't call this method from extensions.
               This will be removed in future.
     """
-    try:
+    with suppress(locale.Error):
         locale.setlocale(category, value)
-    except locale.Error:
-        pass
 
 
 def init_console(locale_dir: str, catalog: str) -> Tuple[NullTranslations, bool]:

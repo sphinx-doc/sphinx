@@ -2,6 +2,7 @@
 
 import os
 import tempfile
+from contextlib import suppress
 from unittest.mock import patch
 
 import pytest
@@ -141,11 +142,9 @@ def test_progress_message(app, status, warning):
     assert 'testing... skipped\nReason: error\n' in output
 
     # error case
-    try:
+    with suppress(Exception):
         with progress_message('testing'):
             raise
-    except Exception:
-        pass
 
     output = strip_escseq(status.getvalue())
     assert 'testing... failed\n' in output

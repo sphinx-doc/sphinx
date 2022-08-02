@@ -104,7 +104,7 @@ def test_restify_type_hints_Callable():
 
 def test_restify_type_hints_Union():
     assert restify(Optional[int]) == ":py:obj:`~typing.Optional`\\ [:py:class:`int`]"
-    assert restify(Union[str, None]) == ":py:obj:`~typing.Optional`\\ [:py:class:`str`]"
+    assert restify(Union[str, None]) == ":py:obj:`~typing.Optional`\\ [:py:class:`str`]"  # noqa: SIM907
     assert restify(Union[int, str]) == (":py:obj:`~typing.Union`\\ "
                                         "[:py:class:`int`, :py:class:`str`]")
 
@@ -369,9 +369,9 @@ def test_stringify_type_hints_Union():
     assert stringify(Optional[int], "fully-qualified") == "typing.Optional[int]"
     assert stringify(Optional[int], "smart") == "~typing.Optional[int]"
 
-    assert stringify(Union[str, None]) == "Optional[str]"
-    assert stringify(Union[str, None], "fully-qualified") == "typing.Optional[str]"
-    assert stringify(Union[str, None], "smart") == "~typing.Optional[str]"
+    assert stringify(Union[str, None]) == "Optional[str]"  # noqa: SIM907
+    assert stringify(Union[str, None], "fully-qualified") == "typing.Optional[str]"  # noqa: SIM907
+    assert stringify(Union[str, None], "smart") == "~typing.Optional[str]"  # noqa: SIM907
 
     assert stringify(Union[int, str]) == "Union[int, str]"
     assert stringify(Union[int, str], "fully-qualified") == "typing.Union[int, str]"
