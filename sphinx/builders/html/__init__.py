@@ -447,7 +447,7 @@ class StandaloneHTMLBuilder(Builder):
     def get_asset_paths(self) -> List[str]:
         return self.config.html_extra_path + self.config.html_static_path
 
-    def render_partial(self, node: Node) -> Dict[str, str]:
+    def render_partial(self, node: Optional[Node]) -> Dict[str, str]:
         """Utility: Render a lone doctree node."""
         if node is None:
             return {'fragment': ''}

@@ -6,7 +6,7 @@ import re
 import warnings
 from importlib import import_module
 from os import path
-from typing import IO, Any, Dict, Iterable, List, Optional, Set, Tuple, Type
+from typing import IO, Any, Dict, Iterable, List, Optional, Set, Tuple, Type, Union
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -46,11 +46,11 @@ class SearchLanguage:
        This class is used to preprocess search word which Sphinx HTML readers
        type, before searching index. Default implementation does nothing.
     """
-    lang: str = None
-    language_name: str = None
+    lang: Optional[str] = None
+    language_name: Optional[str] = None
     stopwords: Set[str] = set()
     js_splitter_code: str = ""
-    js_stemmer_rawcode: str = None
+    js_stemmer_rawcode: Optional[str] = None
     js_stemmer_code = """
 /**
  * Dummy stemmer for languages without stemming rules.
@@ -125,7 +125,7 @@ def parse_stop_word(source: str) -> Set[str]:
 
 
 # maps language name to module.class or directly a class
-languages: Dict[str, Any] = {
+languages: Dict[str, Union[str, Type[SearchLanguage]]] = {
     'da': 'sphinx.search.da.SearchDanish',
     'de': 'sphinx.search.de.SearchGerman',
     'en': SearchEnglish,
@@ -242,7 +242,7 @@ class IndexBuilder:
         # objtype index -> (domain, type, objname (localized))
         self._objnames: Dict[int, Tuple[str, str, str]] = {}
         # add language-specific SearchLanguage instance
-        lang_class: Type[SearchLanguage] = languages.get(lang)
+        lang_class = languages.get(lang)
 
         # fallback; try again with language-code
         if lang_class is None and '_' in lang:
@@ -252,8 +252,8 @@ class IndexBuilder:
             self.lang: SearchLanguage = SearchEnglish(options)
         elif isinstance(lang_class, str):
             module, classname = lang_class.rsplit('.', 1)
-            lang_class = getattr(import_module(module), classname)
-            self.lang = lang_class(options)
+            lang_class: Type[SearchLanguage] = getattr(import_module(module), classname)  # type: ignore[no-redef]
+            self.lang = lang_class(options)  # type: ignore[operator]
         else:
             # it's directly a class (e.g. added by app.add_search_language)
             self.lang = lang_class(options)

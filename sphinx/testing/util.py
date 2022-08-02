@@ -5,7 +5,7 @@ import re
 import sys
 import warnings
 from io import StringIO
-from typing import IO, Any, Dict, Generator, List, Pattern
+from typing import IO, Any, Dict, Generator, List, Optional, Pattern
 from xml.etree import ElementTree
 
 from docutils import nodes
@@ -94,10 +94,19 @@ class SphinxTestApp(application.Sphinx):
     _status: StringIO = None
     _warning: StringIO = None
 
-    def __init__(self, buildername: str = 'html', srcdir: path = None, builddir: path = None,
-                 freshenv: bool = False, confoverrides: Dict = None, status: IO = None,
-                 warning: IO = None, tags: List[str] = None, docutilsconf: str = None,
-                 parallel: int = 0) -> None:
+    def __init__(
+        self,
+        buildername: str = 'html',
+        srcdir: Optional[path] = None,
+        builddir: Optional[path] = None,
+        freshenv: bool = False,
+        confoverrides: Optional[Dict] = None,
+        status: Optional[IO] = None,
+        warning: Optional[IO] = None,
+        tags: Optional[List[str]] = None,
+        docutilsconf: Optional[str] = None,
+        parallel: int = 0
+    ) -> None:
 
         if docutilsconf is not None:
             (srcdir / 'docutils.conf').write_text(docutilsconf)
@@ -169,10 +178,10 @@ class SphinxTestAppWrapperForSkipBuilding:
 _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
 
 
-def find_files(root: str, suffix: bool = None) -> Generator[str, None, None]:
+def find_files(root: str, suffix: Optional[str] = None) -> Generator[str, None, None]:
     for dirpath, _dirs, files in os.walk(root, followlinks=True):
         dirpath = path(dirpath)
-        for f in [f for f in files if not suffix or f.endswith(suffix)]:  # type: ignore
+        for f in [f for f in files if not suffix or f.endswith(suffix)]:
             fpath = dirpath / f
             yield relpath(fpath, root)
 
