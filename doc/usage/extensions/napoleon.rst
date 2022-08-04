@@ -182,8 +182,6 @@ tends to use more horizontal space. Google style tends to be easier to
 read for short and simple docstrings, whereas NumPy style tends be easier
 to read for long and in-depth docstrings.
 
-The `Khan Academy`_ recommends using Google style.
-
 The choice between styles is largely aesthetic, but the two styles should
 not be mixed. Choose one style for your project and be consistent with it.
 
