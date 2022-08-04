@@ -159,7 +159,7 @@ Sphinx packages are published on the `Python Package Index
 packages from *PyPI* is :command:`pip`.  This tool is provided with all modern
 versions of Python.
 
-On Linux or MacOS, you should open your terminal and run the following command.
+On Linux or macOS, you should open your terminal and run the following command.
 
 ::
 
@@ -192,12 +192,15 @@ When installing Sphinx using pip,
 it is highly recommended to use *virtual environments*,
 which isolate the installed packages from the system packages,
 thus removing the need to use administrator privileges.
-To create a virtual environment in the ``.venv`` directory,
-use the following command.
+To create a virtual environment in the ``~/.venv`` directory
+and install Sphinx, use the following commands.
 
 ::
 
-   $ python -m venv .venv
+   $ cd ~
+   $ python3 -m venv .venv
+   $ ~/.venv/bin/python3 -m pip install --upgrade pip
+   $ ~/.venv/bin/python3 -m pip install sphinx
 
 You can read more about them in the `Python Packaging User Guide`_.
 
