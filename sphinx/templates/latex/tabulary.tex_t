@@ -19,19 +19,13 @@
 \phantomsection<%= labels %>\nobreak
 <% endif -%>
 \begin{tabulary}{\linewidth}[t]<%= table.get_colspec() -%>
-<%- if table.booktabs -%>
-\toprule
-<%- else -%>
-\hline
+\sphinxtoprule
+<%= ''.join(table.header) -%>
+<%- if table.header -%>
+\sphinxmidrule
 <%- endif -%>
-<%= ''.join(table.header) %>
-<%- if table.header and table.booktabs -%>
-\midrule
-<%- endif -%>
-<%=- ''.join(table.body) %>
-<%- if table.booktabs -%>
-\bottomrule
-<%- endif -%>
+<%=- ''.join(table.body) -%>
+\sphinxbottomrule
 \end{tabulary}
 \par
 \sphinxattableend\end{savenotes}

@@ -57,6 +57,8 @@
 \RequirePackage{kvoptions}
 \SetupKeyvalOptions{prefix=spx@opt@} % use \spx@opt@ prefix
 
+% Optional usage of booktabs package for tables
+\DeclareBoolOption[false]{booktabs}
 % Sphinx legacy text layout: 1in margins on all four sides
 \ifx\@jsc@uplatextrue\@undefined
 \DeclareStringOption[1in]{hmargin}
@@ -594,6 +596,7 @@
 \DisableKeyvalOption{sphinx}{numfigreset}
 \DisableKeyvalOption{sphinx}{nonumfigreset}
 \DisableKeyvalOption{sphinx}{mathnumfig}
+\DisableKeyvalOption{sphinx}{booktabs}
 % FIXME: this is unrelated to an option, move this elsewhere
 % To allow hyphenation of first word in narrow contexts; no option,
 % customization to be done via 'preamble' key
@@ -724,6 +727,36 @@
 %% TABLES
 %
 \input{sphinxlatextables.sty}
+% Those two are produced by the latex writer
+\def\sphinxhline{\hline}
+\def\sphinxcline{\cline}
+% Those three are inserted by the table templates
+\def\sphinxtoprule{\hline}
+\def\sphinxmidrule{\hline}
+\def\sphinxbottomrule{\hline}
+% \def\sphinxarrayrulewidth{\arrayrulewidth}% already done
+\ifspx@opt@booktabs
+    \RequirePackage{booktabs}
+    \def\sphinxarrayrulewidth{\z@}% (attention! Do NOT assign to \sphinxarrayrulewidth
+                                  %  this would modify \z@ and break all of LaTeX...)
+    \let\sphinxhline\@empty
+    \def\sphinxcline{\cmidrule(lr)}%
+    \def\sphinxtoprule{\toprule}%
+    \def\sphinxmidrule{\midrule}%
+    \def\sphinxbottomrule{\bottomrule}%
+\fi
+\AtBeginDocument
+{\@ifpackageloaded{booktabs}%
+    {\ifspx@opt@booktabs\else
+       \AtEndDocument{%
+\PackageWarningNoLine{sphinx}{%
+    Package booktabs is detected but configuration option\MessageBreak
+    latex_use_booktabs is False.  Tables will not use booktabs styling}%
+}%
+     \fi}%
+    {}%
+}%
+
 
 
 %% NUMBERING OF FIGURES, TABLES, AND LITERAL BLOCKS

@@ -2241,13 +2241,15 @@ These options influence LaTeX output.
 
    .. versionadded:: 1.8
 
-.. confval:: latex_booktabs
+.. confval:: latex_use_booktabs_package
 
    If ``True``, render tables without vertical rules and horizontal rules of
    varying thickness (with additional space above and below) using the
-   ``booktabs`` package.
+   booktabs_ package.
 
-   .. versionadded:: 2.1
+   .. _booktabs: https://ctan.org/pkg/booktabs
+
+   .. versionadded:: 5.2.0
 
 .. confval:: latex_elements
 

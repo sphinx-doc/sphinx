@@ -1,7 +1,7 @@
 %% TABLES (WITH SUPPORT FOR MERGED CELLS OF GENERAL CONTENTS)
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatextables.sty}[2021/01/27 tables]%
+\ProvidesFile{sphinxlatextables.sty}[2022/08/07 tables]%
 
 % Provides support for this output mark-up from Sphinx latex writer
 % and table templates:
@@ -42,10 +42,11 @@
 % sphinxpackagemulticell.sty
 % X or S (Sphinx) may have meanings if some table package is loaded hence
 % \X was chosen to avoid possibility of conflict
+\def\sphinxarrayrulewidth{\arrayrulewidth}% will be set to \z@ if booktabs option
 \newcolumntype{\X}[2]{p{\dimexpr
-      (\linewidth-\arrayrulewidth)*#1/#2-\tw@\tabcolsep-\arrayrulewidth\relax}}
+      (\linewidth-\sphinxarrayrulewidth)*#1/#2-\tw@\tabcolsep-\sphinxarrayrulewidth\relax}}
 \newcolumntype{\Y}[1]{p{\dimexpr
-      #1\dimexpr\linewidth-\arrayrulewidth\relax-\tw@\tabcolsep-\arrayrulewidth\relax}}
+      #1\dimexpr\linewidth-\sphinxarrayrulewidth\relax-\tw@\tabcolsep-\sphinxarrayrulewidth\relax}}
 % using here T (for Tabulary) feels less of a problem than the X could be
 \newcolumntype{T}{J}%
 % For tables allowing pagebreaks
@@ -208,6 +209,10 @@
 % \arrayrulewidth space for each column separation in its estimate of available
 % width).
 %
+%   EDIT: Sphinx 5.2.0 uses \sphinxarrayrulewidth which is \z@ if booktabs
+%   option has been used.  Do not mix booktabs option with usage of | in
+%   tabularcolumns directive.
+%
 % TN. 1b: as Sphinx multicolumn uses neither \omit nor \span, it can not
 % (easily) get rid of extra macros from >{...} or <{...} between columns. At
 % least, it has been made compatible with colortbl's \columncolor.
@@ -285,12 +290,12 @@
     \else
     % if in an l, r, c type column, try and hope for the best
        \xdef\sphinx@tempb{\the\dimexpr(\ifx\TY@final\@undefined\linewidth\else
-            \sphinx@TY@tablewidth\fi-\arrayrulewidth)/\sphinx@tempa
-            -\tw@\tabcolsep-\arrayrulewidth\relax}%
+            \sphinx@TY@tablewidth\fi-\sphinxarrayrulewidth)/\sphinx@tempa
+            -\tw@\tabcolsep-\sphinxarrayrulewidth\relax}%
     \fi
     \noindent\kern\sphinx@tempb\relax
     \xdef\sphinx@multiwidth
-           {\the\dimexpr\sphinx@multiwidth+\sphinx@tempb+\tw@\tabcolsep+\arrayrulewidth}%
+           {\the\dimexpr\sphinx@multiwidth+\sphinx@tempb+\tw@\tabcolsep+\sphinxarrayrulewidth}%
     % hack the \vline and the colortbl macros
     \sphinx@hack@vline\sphinx@hack@CT&\relax
     % repeat
@@ -299,8 +304,10 @@
 % packages like colortbl add group levels, we need to "climb back up" to be
 % able to hack the \vline and also the colortbl inserted tokens. This creates
 % empty space whether or not the columns were | separated:
+% (5.2.0 sets \sphinxarrayrulewidth to expand to \z@ if booktabs option has been
+%  made use of, the \arrayrulewidth\z@ serves then nothing but shoud not hurt).
 \def\sphinx@hack@vline{\ifnum\currentgrouptype=6\relax
-    \kern\arrayrulewidth\arrayrulewidth\z@\else\aftergroup\sphinx@hack@vline\fi}%
+    \kern\sphinxarrayrulewidth\arrayrulewidth\z@\else\aftergroup\sphinx@hack@vline\fi}%
 \def\sphinx@hack@CT{\ifnum\currentgrouptype=6\relax
     \let\CT@setup\sphinx@CT@setup\else\aftergroup\sphinx@hack@CT\fi}%
 % It turns out \CT@row@color is not expanded contrarily to \CT@column@color
@@ -320,8 +327,8 @@
     \else
        \xdef\sphinx@multiwidth{\the\dimexpr\sphinx@multiwidth+
          (\ifx\TY@final\@undefined\linewidth\else
-          \sphinx@TY@tablewidth\fi-\arrayrulewidth)/\sphinx@tempa
-          -\tw@\tabcolsep-\arrayrulewidth\relax}%
+          \sphinx@TY@tablewidth\fi-\sphinxarrayrulewidth)/\sphinx@tempa
+          -\tw@\tabcolsep-\sphinxarrayrulewidth\relax}%
     \fi
     % we need to remove colour set-up also for last cell of the multi-column
     \aftergroup\sphinx@hack@CT
@@ -345,8 +352,8 @@
         \linewidth
     \else
         % l, c, r columns. Do our best.
-        \dimexpr(\linewidth-\arrayrulewidth)/#2-
-                \tw@\tabcolsep-\arrayrulewidth\relax
+        \dimexpr(\linewidth-\sphinxarrayrulewidth)/#2-
+                \tw@\tabcolsep-\sphinxarrayrulewidth\relax
     \fi
    \else % in tabulary
     \ifx\equation$%$% first pass
@@ -357,8 +364,8 @@
          \linewidth % in a L, R, C, J column or a p, \X, \Y ...
      \else
          % we have hacked \TY@final to put in \sphinx@TY@tablewidth the table width
-         \dimexpr(\sphinx@TY@tablewidth-\arrayrulewidth)/#2-
-                 \tw@\tabcolsep-\arrayrulewidth\relax
+         \dimexpr(\sphinx@TY@tablewidth-\sphinxarrayrulewidth)/#2-
+                 \tw@\tabcolsep-\sphinxarrayrulewidth\relax
      \fi
     \fi
    \fi
@@ -368,7 +375,7 @@
 % \sphinxcolwidth will use this only inside LaTeX's standard \multicolumn
 \def\sphinx@multiwidth #1#2{\dimexpr % #1 to gobble the \@gobble (!)
     (\ifx\TY@final\@undefined\linewidth\else\sphinx@TY@tablewidth\fi
-     -\arrayrulewidth)*#2-\tw@\tabcolsep-\arrayrulewidth\relax}%
+     -\sphinxarrayrulewidth)*#2-\tw@\tabcolsep-\sphinxarrayrulewidth\relax}%
 
 %%%%%%%%%%%%%%%%%%
 % --- MULTIROW ---

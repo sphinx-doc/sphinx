@@ -170,6 +170,7 @@ class LaTeXBuilder(Builder):
         self.context.update(self.config.latex_elements)
         self.context['release'] = self.config.release
         self.context['use_xindy'] = self.config.latex_use_xindy
+        self.context['use_booktabs'] = self.config.latex_use_booktabs
 
         if self.config.today:
             self.context['date'] = self.config.today
@@ -517,7 +518,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('latex_appendices', [], None)
     app.add_config_value('latex_use_latex_multicolumn', False, None)
     app.add_config_value('latex_use_xindy', default_latex_use_xindy, None, [bool])
-    app.add_config_value('latex_booktabs', False, None)
+    app.add_config_value('latex_use_booktabs', False, None)
     app.add_config_value('latex_toplevel_sectioning', None, None,
                          ENUM(None, 'part', 'chapter', 'section'))
     app.add_config_value('latex_domain_indices', True, None, [list])

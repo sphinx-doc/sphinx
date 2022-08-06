@@ -25,6 +25,9 @@
 %% memoir class requires extra handling
 \makeatletter\@ifclassloaded{memoir}
 {\ifdefined\memhyperindexfalse\memhyperindexfalse\fi}{}\makeatother
+<% endif %>
+<% if use_booktabs -%>
+\PassOptionsToPackage{booktabs}{sphinx}
 <% endif -%>
 <%= passoptionstopackages %>
 \PassOptionsToPackage{warn}{textcomp}

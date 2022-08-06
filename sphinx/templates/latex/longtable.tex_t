@@ -10,51 +10,32 @@
 <%- if table.caption -%>
 \sphinxthelongtablecaptionisattop
 \caption{<%= ''.join(table.caption) %>\strut}<%= labels %>\\*[\sphinxlongtablecapskipadjust]
-<%- if table.booktabs -%>
-\toprule
-<% else -%>
-\hline
-<% endif -%>
+\sphinxtoprule
 <% elif labels -%>
-<%- if table.booktabs -%>
-\toprule\noalign{\phantomsection<%= labels %>}%
+\sphinxtoprule\noalign{\phantomsection<%= labels %>}%
 <% else -%>
-\hline\noalign{\phantomsection<%= labels %>}%
+\sphinxtoprule
 <% endif -%>
-<% else -%>
-<%- if table.booktabs -%>
-\toprule
-<% else -%>
-\hline
+<%= ''.join(table.header) -%>
+<%- if table.header -%>
+\sphinxmidrule
 <% endif -%>
-<% endif -%>
-<%= ''.join(table.header) %>
 \endfirsthead
 
 \multicolumn{<%= table.colcount %>}{c}%
 {\makebox[0pt]{\sphinxtablecontinued{\tablename\ \thetable{} \textendash{} <%= _('continued from previous page') %>}}}\\
-<%- if table.booktabs -%>
-\toprule
-<% else -%>
-\hline
-<% endif -%>
-<%= ''.join(table.header) %>
-<%- if table.header and table.booktabs -%>
-\midrule
+\sphinxtoprule
+<%= ''.join(table.header) -%>
+<%- if table.header -%>
+\sphinxmidrule
 <% endif -%>
 \endhead
 
-<%- if table.booktabs -%>
-\bottomrule
-<% else -%>
-\hline
-<% endif -%>
+\sphinxbottomrule
 \multicolumn{<%= table.colcount %>}{r}{\makebox[0pt][r]{\sphinxtablecontinued{<%= _('continues on next page') %>}}}\\
 \endfoot
 
 \endlastfoot
-<%= ''.join(table.body) %>
-<%- if table.booktabs -%>
-\bottomrule
-<% endif -%>
+<%= ''.join(table.body) -%>
+\sphinxbottomrule
 \end{longtable}\sphinxatlongtableend\end{savenotes}

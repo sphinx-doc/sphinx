@@ -723,7 +723,7 @@ def test_footnote(app, status, warning):
     assert '\\sphinxcite{footnote:bar}' in result
     assert ('\\bibitem[bar]{footnote:bar}\n\\sphinxAtStartPar\ncite\n') in result
     assert '\\sphinxcaption{Table caption \\sphinxfootnotemark[4]' in result
-    assert ('\\hline%\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
+    assert ('\\sphinxmidrule%\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
             'footnote in table caption\n%\n\\end{footnotetext}\\ignorespaces %\n'
             '\\begin{footnotetext}[5]\\sphinxAtStartFootnote\n'
             'footnote in table header\n%\n\\end{footnotetext}\\ignorespaces '
@@ -731,8 +731,8 @@ def test_footnote(app, status, warning):
             'VIDIOC\\_CROPCAP\n&\n\\sphinxAtStartPar\n') in result
     assert ('Information about VIDIOC\\_CROPCAP %\n'
             '\\begin{footnote}[6]\\sphinxAtStartFootnote\n'
-            'footnote in table not in header\n%\n\\end{footnote}\n\\\\\n\\hline\n'
-            '\\end{tabulary}\n'
+            'footnote in table not in header\n%\n\\end{footnote}\n\\\\\n'
+            '\\sphinxbottomrule\n\\end{tabulary}\n'
             '\\par\n\\sphinxattableend\\end{savenotes}\n') in result
 
 
