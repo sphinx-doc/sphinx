@@ -3,7 +3,7 @@
 import pathlib
 from os import path
 from pprint import pformat
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
 
 from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
 from jinja2.environment import Environment
@@ -142,7 +142,12 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
     # TemplateBridge interface
 
-    def init(self, builder: "Builder", theme: Theme = None, dirs: List[str] = None) -> None:
+    def init(
+        self,
+        builder: "Builder",
+        theme: Optional[Theme] = None,
+        dirs: Optional[List[str]] = None
+    ) -> None:
         # create a chain of paths to search
         if theme:
             # the theme's own dir and its bases' dirs

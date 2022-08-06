@@ -181,7 +181,7 @@ def read_doc(app: "Sphinx", env: BuildEnvironment, filename: str) -> nodes.docum
                     writer=SphinxDummyWriter(),
                     source_class=SphinxFileInput,
                     destination=NullOutput())
-    pub.process_programmatic_settings(None, env.settings, None)
+    pub.process_programmatic_settings(None, env.settings, None)  # type: ignore[arg-type]
     pub.set_source(source_path=filename)
     pub.publish()
     return pub.document

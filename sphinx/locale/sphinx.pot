@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Sphinx 5.1.0\n"
+"Project-Id-Version: Sphinx 5.2.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-07-24 00:23+0000\n"
+"POT-Creation-Date: 2022-07-31 00:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -515,113 +515,113 @@ msgstr ""
 msgid "no theme named %r found (missing theme.conf?)"
 msgstr ""
 
-#: sphinx/builders/__init__.py:198
+#: sphinx/builders/__init__.py:199
 #, python-format
 msgid "a suitable image for %s builder not found: %s (%s)"
 msgstr ""
 
-#: sphinx/builders/__init__.py:202
+#: sphinx/builders/__init__.py:203
 #, python-format
 msgid "a suitable image for %s builder not found: %s"
 msgstr ""
 
-#: sphinx/builders/__init__.py:222
+#: sphinx/builders/__init__.py:223
 msgid "building [mo]: "
 msgstr ""
 
-#: sphinx/builders/__init__.py:223 sphinx/builders/__init__.py:562
-#: sphinx/builders/__init__.py:589
+#: sphinx/builders/__init__.py:224 sphinx/builders/__init__.py:563
+#: sphinx/builders/__init__.py:590
 msgid "writing output... "
 msgstr ""
 
-#: sphinx/builders/__init__.py:232
+#: sphinx/builders/__init__.py:233
 #, python-format
 msgid "all of %d po files"
 msgstr ""
 
-#: sphinx/builders/__init__.py:250
+#: sphinx/builders/__init__.py:251
 #, python-format
 msgid "targets for %d po files that are specified"
 msgstr ""
 
-#: sphinx/builders/__init__.py:257
+#: sphinx/builders/__init__.py:258
 #, python-format
 msgid "targets for %d po files that are out of date"
 msgstr ""
 
-#: sphinx/builders/__init__.py:264
+#: sphinx/builders/__init__.py:265
 msgid "all source files"
 msgstr ""
 
-#: sphinx/builders/__init__.py:276
+#: sphinx/builders/__init__.py:277
 #, python-format
 msgid "file %r given on command line is not under the source directory, ignoring"
 msgstr ""
 
-#: sphinx/builders/__init__.py:280
+#: sphinx/builders/__init__.py:281
 #, python-format
 msgid "file %r given on command line does not exist, ignoring"
 msgstr ""
 
-#: sphinx/builders/__init__.py:291
+#: sphinx/builders/__init__.py:292
 #, python-format
 msgid "%d source files given on command line"
 msgstr ""
 
-#: sphinx/builders/__init__.py:301
+#: sphinx/builders/__init__.py:302
 #, python-format
 msgid "targets for %d source files that are out of date"
 msgstr ""
 
-#: sphinx/builders/__init__.py:312 sphinx/builders/gettext.py:239
+#: sphinx/builders/__init__.py:313 sphinx/builders/gettext.py:239
 #, python-format
 msgid "building [%s]: "
 msgstr ""
 
-#: sphinx/builders/__init__.py:319
+#: sphinx/builders/__init__.py:320
 msgid "looking for now-outdated files... "
 msgstr ""
 
-#: sphinx/builders/__init__.py:324
+#: sphinx/builders/__init__.py:325
 #, python-format
 msgid "%d found"
 msgstr ""
 
-#: sphinx/builders/__init__.py:326
+#: sphinx/builders/__init__.py:327
 msgid "none found"
 msgstr ""
 
-#: sphinx/builders/__init__.py:331
+#: sphinx/builders/__init__.py:332
 msgid "pickling environment"
 msgstr ""
 
-#: sphinx/builders/__init__.py:337
+#: sphinx/builders/__init__.py:338
 msgid "checking consistency"
 msgstr ""
 
-#: sphinx/builders/__init__.py:341
+#: sphinx/builders/__init__.py:342
 msgid "no targets are out of date."
 msgstr ""
 
-#: sphinx/builders/__init__.py:380
+#: sphinx/builders/__init__.py:381
 msgid "updating environment: "
 msgstr ""
 
-#: sphinx/builders/__init__.py:401
+#: sphinx/builders/__init__.py:402
 #, python-format
 msgid "%s added, %s changed, %s removed"
 msgstr ""
 
-#: sphinx/builders/__init__.py:439 sphinx/builders/__init__.py:451
+#: sphinx/builders/__init__.py:440 sphinx/builders/__init__.py:452
 msgid "reading sources... "
 msgstr ""
 
-#: sphinx/builders/__init__.py:540
+#: sphinx/builders/__init__.py:541
 #, python-format
 msgid "docnames to write: %s"
 msgstr ""
 
-#: sphinx/builders/__init__.py:549 sphinx/builders/singlehtml.py:145
+#: sphinx/builders/__init__.py:550 sphinx/builders/singlehtml.py:145
 msgid "preparing documents"
 msgstr ""
 
@@ -1899,16 +1899,16 @@ msgstr ""
 msgid "%s (C %s)"
 msgstr ""
 
-#: sphinx/domains/c.py:3347 sphinx/domains/cpp.py:7318
-#: sphinx/domains/python.py:435 sphinx/ext/napoleon/docstring.py:739
+#: sphinx/domains/c.py:3347 sphinx/domains/cpp.py:7419
+#: sphinx/domains/python.py:435 sphinx/ext/napoleon/docstring.py:749
 msgid "Parameters"
 msgstr ""
 
-#: sphinx/domains/c.py:3350 sphinx/domains/cpp.py:7324
+#: sphinx/domains/c.py:3350 sphinx/domains/cpp.py:7425
 msgid "Return values"
 msgstr ""
 
-#: sphinx/domains/c.py:3353 sphinx/domains/cpp.py:7327
+#: sphinx/domains/c.py:3353 sphinx/domains/cpp.py:7428
 #: sphinx/domains/javascript.py:216 sphinx/domains/python.py:447
 msgid "Returns"
 msgstr ""
@@ -1918,7 +1918,7 @@ msgstr ""
 msgid "Return type"
 msgstr ""
 
-#: sphinx/domains/c.py:3749 sphinx/domains/cpp.py:7731
+#: sphinx/domains/c.py:3749 sphinx/domains/cpp.py:7832
 msgid "member"
 msgstr ""
 
@@ -1926,7 +1926,7 @@ msgstr ""
 msgid "variable"
 msgstr ""
 
-#: sphinx/domains/c.py:3751 sphinx/domains/cpp.py:7730
+#: sphinx/domains/c.py:3751 sphinx/domains/cpp.py:7831
 #: sphinx/domains/javascript.py:318 sphinx/domains/python.py:1157
 msgid "function"
 msgstr ""
@@ -1939,23 +1939,23 @@ msgstr ""
 msgid "struct"
 msgstr ""
 
-#: sphinx/domains/c.py:3754 sphinx/domains/cpp.py:7729
+#: sphinx/domains/c.py:3754 sphinx/domains/cpp.py:7830
 msgid "union"
 msgstr ""
 
-#: sphinx/domains/c.py:3755 sphinx/domains/cpp.py:7734
+#: sphinx/domains/c.py:3755 sphinx/domains/cpp.py:7835
 msgid "enum"
 msgstr ""
 
-#: sphinx/domains/c.py:3756 sphinx/domains/cpp.py:7735
+#: sphinx/domains/c.py:3756 sphinx/domains/cpp.py:7836
 msgid "enumerator"
 msgstr ""
 
-#: sphinx/domains/c.py:3757 sphinx/domains/cpp.py:7732
+#: sphinx/domains/c.py:3757 sphinx/domains/cpp.py:7833
 msgid "type"
 msgstr ""
 
-#: sphinx/domains/c.py:3759 sphinx/domains/cpp.py:7737
+#: sphinx/domains/c.py:3759 sphinx/domains/cpp.py:7838
 msgid "function parameter"
 msgstr ""
 
@@ -1984,36 +1984,36 @@ msgstr ""
 msgid "Citation [%s] is not referenced."
 msgstr ""
 
-#: sphinx/domains/cpp.py:4801 sphinx/domains/cpp.py:7273
+#: sphinx/domains/cpp.py:4884 sphinx/domains/cpp.py:7374
 #, python-format
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
 msgstr ""
 
-#: sphinx/domains/cpp.py:7079
+#: sphinx/domains/cpp.py:7180
 msgid "Template Parameters"
 msgstr ""
 
-#: sphinx/domains/cpp.py:7196
+#: sphinx/domains/cpp.py:7297
 #, python-format
 msgid "%s (C++ %s)"
 msgstr ""
 
-#: sphinx/domains/cpp.py:7321 sphinx/domains/javascript.py:213
+#: sphinx/domains/cpp.py:7422 sphinx/domains/javascript.py:213
 msgid "Throws"
 msgstr ""
 
-#: sphinx/domains/cpp.py:7728 sphinx/domains/javascript.py:320
+#: sphinx/domains/cpp.py:7829 sphinx/domains/javascript.py:320
 #: sphinx/domains/python.py:1159
 msgid "class"
 msgstr ""
 
-#: sphinx/domains/cpp.py:7733
+#: sphinx/domains/cpp.py:7834
 msgid "concept"
 msgstr ""
 
-#: sphinx/domains/cpp.py:7738
+#: sphinx/domains/cpp.py:7839
 msgid "template parameter"
 msgstr ""
 
@@ -3121,58 +3121,58 @@ msgid ""
 "%(default)s)"
 msgstr ""
 
-#: sphinx/ext/napoleon/__init__.py:339 sphinx/ext/napoleon/docstring.py:706
+#: sphinx/ext/napoleon/__init__.py:339 sphinx/ext/napoleon/docstring.py:716
 msgid "Keyword Arguments"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:660
+#: sphinx/ext/napoleon/docstring.py:670
 msgid "Example"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:661
+#: sphinx/ext/napoleon/docstring.py:671
 msgid "Examples"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:721
+#: sphinx/ext/napoleon/docstring.py:731
 msgid "Notes"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:730
+#: sphinx/ext/napoleon/docstring.py:740
 msgid "Other Parameters"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:766
+#: sphinx/ext/napoleon/docstring.py:776
 msgid "Receives"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:770
+#: sphinx/ext/napoleon/docstring.py:780
 msgid "References"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:802
+#: sphinx/ext/napoleon/docstring.py:812
 msgid "Warns"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:806
+#: sphinx/ext/napoleon/docstring.py:816
 msgid "Yields"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:976
+#: sphinx/ext/napoleon/docstring.py:986
 #, python-format
 msgid "invalid value set (missing closing brace): %s"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:983
+#: sphinx/ext/napoleon/docstring.py:993
 #, python-format
 msgid "invalid value set (missing opening brace): %s"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:990
+#: sphinx/ext/napoleon/docstring.py:1000
 #, python-format
 msgid "malformed string literal (missing closing quote): %s"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:997
+#: sphinx/ext/napoleon/docstring.py:1007
 #, python-format
 msgid "malformed string literal (missing opening quote): %s"
 msgstr ""
