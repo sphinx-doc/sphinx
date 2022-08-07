@@ -22,7 +22,8 @@ LATEX_ENGINES = ['pdflatex', 'lualatex', 'xelatex']
 DOCCLASSES = ['howto', 'manual']
 STYLEFILES = ['article.cls', 'fancyhdr.sty', 'titlesec.sty', 'amsmath.sty',
               'framed.sty', 'color.sty', 'fancyvrb.sty',
-              'fncychap.sty', 'geometry.sty', 'kvoptions.sty', 'hyperref.sty']
+              'fncychap.sty', 'geometry.sty', 'kvoptions.sty', 'hyperref.sty',
+              'booktabs.sty']
 
 LATEX_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: unknown option: '&option'
@@ -90,6 +91,8 @@ def skip_if_stylefiles_notfound(testfunc):
 def test_build_latex_doc(app, status, warning, engine, docclass):
     app.config.latex_engine = engine
     app.config.latex_documents = [app.config.latex_documents[0][:4] + (docclass,)]
+    if engine == 'xelatex':
+        app.config.latex_use_booktabs = True
     app.builder.init()
 
     LaTeXTranslator.ignore_missing_images = True
@@ -1313,6 +1316,18 @@ def test_latex_table_complex_tables(app, status, warning):
     actual = tables['complex spanning cell']
     expected = get_expected('complex_spanning_cell')
     assert actual == expected
+
+
+@pytest.mark.sphinx('latex', testroot='latex-table',
+                    confoverrides={'latex_use_booktabs': True})
+def test_latex_table_with_booktabs(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    assert r'\PassOptionsToPackage{booktabs}{sphinx}' in result
+    assert r'\begin{tabulary}{\linewidth}[t]{TTTTT}' in result
+    assert r'\begin{longtable}[c]{ll}' in result
+    assert r'\begin{tabular}[t]{*{2}{\X{1}{2}}}' in result
+    assert r'\begin{tabular}[t]{\X{30}{100}\X{70}{100}}' in result
 
 
 @pytest.mark.sphinx('latex', testroot='latex-table',

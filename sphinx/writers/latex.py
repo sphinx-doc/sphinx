@@ -872,9 +872,9 @@ class LaTeXTranslator(SphinxTranslator):
                 logger.info(__('both tabularcolumns and :widths: option are given. '
                                ':widths: is ignored.'), location=node)
             if '|' in self.table.colspec and self.table.booktabs:
-                logger.info(__('tabularcolumns argument contains | which conflicts with'
-                               'latex_use_booktabs = True. This may cause layout problems'
-                               'in PDF output.'), location=node)
+                logger.info(__('tabularcolumns argument contains | and '
+                               'latex_use_booktabs is True.  Expect gaps between vertical '
+                               'and horizontal rules in this table.'), location=node)
         self.next_table_colspec = None
 
     def depart_table(self, node: Element) -> None:
