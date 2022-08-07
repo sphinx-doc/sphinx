@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-07-31 00:21+0000\n"
+"POT-Creation-Date: 2022-08-07 00:24+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Yinian Chin <yinian1992@live.com>, 2013,2018,2020,2022\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/sphinx-doc/sphinx-1/language/zh_CN/)\n"
@@ -1899,7 +1899,7 @@ msgid "%s (C %s)"
 msgstr "%s（C %s）"
 
 #: sphinx/domains/c.py:3347 sphinx/domains/cpp.py:7419
-#: sphinx/domains/python.py:435 sphinx/ext/napoleon/docstring.py:749
+#: sphinx/domains/python.py:435 sphinx/ext/napoleon/docstring.py:751
 msgid "Parameters"
 msgstr "参数"
 
@@ -3115,58 +3115,58 @@ msgid ""
 "%(default)s)"
 msgstr "仅生成模块中 __all__ 属性成员的文档。（默认值：%(default)s）"
 
-#: sphinx/ext/napoleon/__init__.py:339 sphinx/ext/napoleon/docstring.py:716
+#: sphinx/ext/napoleon/__init__.py:339 sphinx/ext/napoleon/docstring.py:718
 msgid "Keyword Arguments"
 msgstr "关键字参数"
 
-#: sphinx/ext/napoleon/docstring.py:670
+#: sphinx/ext/napoleon/docstring.py:672
 msgid "Example"
 msgstr "示例"
 
-#: sphinx/ext/napoleon/docstring.py:671
+#: sphinx/ext/napoleon/docstring.py:673
 msgid "Examples"
 msgstr "示例"
 
-#: sphinx/ext/napoleon/docstring.py:731
+#: sphinx/ext/napoleon/docstring.py:733
 msgid "Notes"
 msgstr "备注"
 
-#: sphinx/ext/napoleon/docstring.py:740
+#: sphinx/ext/napoleon/docstring.py:742
 msgid "Other Parameters"
 msgstr "其他参数"
 
-#: sphinx/ext/napoleon/docstring.py:776
+#: sphinx/ext/napoleon/docstring.py:778
 msgid "Receives"
 msgstr "接受"
 
-#: sphinx/ext/napoleon/docstring.py:780
+#: sphinx/ext/napoleon/docstring.py:782
 msgid "References"
 msgstr "引用"
 
-#: sphinx/ext/napoleon/docstring.py:812
+#: sphinx/ext/napoleon/docstring.py:814
 msgid "Warns"
 msgstr "警告"
 
-#: sphinx/ext/napoleon/docstring.py:816
+#: sphinx/ext/napoleon/docstring.py:818
 msgid "Yields"
 msgstr "生成器"
 
-#: sphinx/ext/napoleon/docstring.py:986
+#: sphinx/ext/napoleon/docstring.py:988
 #, python-format
 msgid "invalid value set (missing closing brace): %s"
 msgstr "无效的值集合（缺少右括号）：%s"
 
-#: sphinx/ext/napoleon/docstring.py:993
+#: sphinx/ext/napoleon/docstring.py:995
 #, python-format
 msgid "invalid value set (missing opening brace): %s"
 msgstr "无效的值集合（缺少左括号）：%s"
 
-#: sphinx/ext/napoleon/docstring.py:1000
+#: sphinx/ext/napoleon/docstring.py:1002
 #, python-format
 msgid "malformed string literal (missing closing quote): %s"
 msgstr "异常的字符串字面量（缺少右引号）：%s"
 
-#: sphinx/ext/napoleon/docstring.py:1007
+#: sphinx/ext/napoleon/docstring.py:1009
 #, python-format
 msgid "malformed string literal (missing opening quote): %s"
 msgstr "异常的字符串字面量（缺少左引号）：%s"
