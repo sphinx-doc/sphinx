@@ -1,6 +1,7 @@
 \label{\detokenize{tabular:table-having-align-option-tabulary}}
 
 \begin{savenotes}\sphinxattablestart
+\sphinxthistablewithglobalstyle
 \raggedleft
 \begin{tabulary}{\linewidth}[t]{|T|T|}
 \sphinxtoprule
@@ -12,6 +13,7 @@ header1
 header2
 \\
 \sphinxmidrule
+\sphinxtableatstartofbodyhook
 \sphinxAtStartPar
 cell1\sphinxhyphen{}1
 &
@@ -34,5 +36,5 @@ cell3\sphinxhyphen{}2
 \\
 \sphinxbottomrule
 \end{tabulary}
-\par
+\sphinxtableafterendhook\par
 \sphinxattableend\end{savenotes}

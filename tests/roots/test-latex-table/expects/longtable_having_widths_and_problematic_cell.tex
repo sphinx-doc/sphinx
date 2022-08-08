@@ -1,6 +1,9 @@
 \label{\detokenize{longtable:longtable-having-both-widths-and-problematic-cell}}
 
-\begin{savenotes}\sphinxatlongtablestart\begin{longtable}[c]{|\X{30}{100}|\X{70}{100}|}
+\begin{savenotes}
+\sphinxatlongtablestart
+\sphinxthistablewithglobalstyle
+\begin{longtable}[c]{|\X{30}{100}|\X{70}{100}|}
 \sphinxtoprule
 \sphinxstyletheadfamily 
 \sphinxAtStartPar
@@ -30,6 +33,7 @@ header2
 \endfoot
 
 \endlastfoot
+\sphinxtableatstartofbodyhook
 \begin{itemize}
 \item {} 
 \sphinxAtStartPar
@@ -59,4 +63,7 @@ cell3\sphinxhyphen{}1
 cell3\sphinxhyphen{}2
 \\
 \sphinxbottomrule
-\end{longtable}\sphinxatlongtableend\end{savenotes}
+\end{longtable}
+\sphinxtableafterendhook
+\sphinxatlongtableend
+\end{savenotes}

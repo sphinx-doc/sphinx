@@ -819,15 +819,30 @@ Do not use quotes to enclose values, whether numerical or strings.
        definition of the continuation symbol was changed at 1.5 to accommodate
        various font sizes (e.g. code-blocks can be in footnotes).
 
+.. note::
+
+   Values for colour keys must either:
+
+   - obey the syntax of the ``\definecolor`` LaTeX command, e.g. something
+     such as ``VerbatimColor={rgb}{0.2,0.3,0.5}`` or ``{RGB}{37,23,255}`` or
+     ``{gray}{0.75}`` or (only with package ``xcolor``) ``{HTML}{808080}`` or
+     ...
+
+   - or obey the syntax of the ``\colorlet`` command from package ``xcolor``
+     (which then must exist in the LaTeX installation),
+     e.g. ``VerbatimColor=red!10`` or ``red!50!green`` or ``-red!75`` or
+     ``MyPreviouslyDefinedColour`` or... Refer to xcolor_ documentation for
+     this syntax.
+
+   .. _xcolor: https://ctan.org/pkg/xcolor
+
+   .. versionchanged:: 5.2.0
+      Formerly only the ``\definecolor`` syntax was accepted.
+
 ``TitleColor``
     The colour for titles (as configured via use of package "titlesec".)
 
     Default: ``{rgb}{0.126,0.263,0.361}``
-
-    .. warning::
-
-       Colours set via ``'sphinxsetup'``  must obey the syntax of the
-       argument of the ``color/xcolor`` packages ``\definecolor`` command.
 
 ``InnerLinkColor``
     A colour passed to ``hyperref`` as value of ``linkcolor``  and
@@ -840,18 +855,6 @@ Do not use quotes to enclose values, whether numerical or strings.
     and ``urlcolor``.
 
     Default: ``{rgb}{0.216,0.439,0.388}``
-
-``RowEvenColor``
-    default ``{rgb}{0.85,0.85,0.85}``. Background color for even rows in
-    tables, if option :confval:`latex_zebra_stripes` is set to ``True``.
-
-    .. versionadded:: 2.1
-
-``RowOddColor``
-    default ``{rgb}{1,1,1}``. Background color for odd rows in tables, if
-    option :confval:`latex_zebra_stripes` is set to ``True``.
-
-    .. versionadded:: 2.1
 
 ``VerbatimColor``
     The background colour for :rst:dir:`code-block`\ s.
@@ -874,6 +877,40 @@ Do not use quotes to enclose values, whether numerical or strings.
 
        Starting with this colour, and for all others following, the
        names declared to "color" or "xcolor" are prefixed with "sphinx".
+
+``TableRowColorHeader``
+    Background colour for (all) the header rows.  This (as the next
+    ``Table...`` colours) applies conditionnally
+    on either ``'colorrows'`` being contained in :confval:`latex_table_style`
+    or on the table receiving ``colorrows`` as class.
+
+    Default: ``{gray}{0.86}``
+
+    There is also ``TableMergeColorHeader`` which as long as it is not
+    defined (either globally via ``'sphinxsetup'`` interface or locally
+    via :dudir:`raw` directive and ``\sphinxsetup`` LaTeX macro) will keep
+    in sync with ``TableRowColorHeader``.
+
+    .. versionadded:: 5.2.0
+
+``TableRowColorOdd``
+    Background colour for odd rows in tables (the row count starts at ``1``
+    at the first non-header row).
+
+    Default: ``{gray}{0.92}``
+
+    There is also ``TableMergeColorOdd``.
+
+    .. versionadded:: 5.2.0
+
+``TableRowColorEven``
+    Background colour for even rows in tables.
+
+    Default ``{gray}{0.98}``
+
+    There is also ``TableMergeColorEven``.
+
+    .. versionadded:: 5.2.0
 
 ``verbatimsep``
     The separation between code lines and the frame.

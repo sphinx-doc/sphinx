@@ -1,9 +1,12 @@
 \label{\detokenize{tabular:table-having-widths-option}}
 
 \begin{savenotes}\sphinxattablestart
+\sphinxthistablewithglobalstyle
+\sphinxthistablewithbooktabsstyle
+\sphinxthistablewithcolorrowsstyle
 \centering
 \phantomsection\label{\detokenize{tabular:namedtabular}}\label{\detokenize{tabular:mytabular}}\nobreak
-\begin{tabular}[t]{|\X{30}{100}|\X{70}{100}|}
+\begin{tabular}[t]{\X{30}{100}\X{70}{100}}
 \sphinxtoprule
 \sphinxstyletheadfamily 
 \sphinxAtStartPar
@@ -13,6 +16,7 @@ header1
 header2
 \\
 \sphinxmidrule
+\sphinxtableatstartofbodyhook
 \sphinxAtStartPar
 cell1\sphinxhyphen{}1
 &
@@ -35,7 +39,7 @@ cell3\sphinxhyphen{}2
 \\
 \sphinxbottomrule
 \end{tabular}
-\par
+\sphinxtableafterendhook\par
 \sphinxattableend\end{savenotes}
 
 \sphinxAtStartPar

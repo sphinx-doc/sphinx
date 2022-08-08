@@ -1,6 +1,7 @@
 \label{\detokenize{tabular:table-having-verbatim}}
 
 \begin{savenotes}\sphinxattablestart
+\sphinxthistablewithglobalstyle
 \centering
 \begin{tabular}[t]{|*{2}{\X{1}{2}|}}
 \sphinxtoprule
@@ -12,6 +13,7 @@ header1
 header2
 \\
 \sphinxmidrule
+\sphinxtableatstartofbodyhook
 \begin{sphinxVerbatimintable}[commandchars=\\\{\}]
 \PYG{n}{hello} \PYG{n}{world}
 \end{sphinxVerbatimintable}
@@ -35,5 +37,5 @@ cell3\sphinxhyphen{}2
 \\
 \sphinxbottomrule
 \end{tabular}
-\par
+\sphinxtableafterendhook\par
 \sphinxattableend\end{savenotes}

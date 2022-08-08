@@ -1,6 +1,7 @@
 \label{\detokenize{tabular:table-having-caption}}
 
 \begin{savenotes}\sphinxattablestart
+\sphinxthistablewithglobalstyle
 \centering
 \sphinxcapstartof{table}
 \sphinxthecaptionisattop
@@ -16,6 +17,7 @@ header1
 header2
 \\
 \sphinxmidrule
+\sphinxtableatstartofbodyhook
 \sphinxAtStartPar
 cell1\sphinxhyphen{}1
 &
@@ -38,5 +40,5 @@ cell3\sphinxhyphen{}2
 \\
 \sphinxbottomrule
 \end{tabulary}
-\par
+\sphinxtableafterendhook\par
 \sphinxattableend\end{savenotes}

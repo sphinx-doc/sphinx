@@ -1,6 +1,9 @@
 \label{\detokenize{longtable:longtable-having-verbatim}}
 
-\begin{savenotes}\sphinxatlongtablestart\begin{longtable}[c]{|*{2}{\X{1}{2}|}}
+\begin{savenotes}
+\sphinxatlongtablestart
+\sphinxthistablewithglobalstyle
+\begin{longtable}[c]{|*{2}{\X{1}{2}|}}
 \sphinxtoprule
 \sphinxstyletheadfamily 
 \sphinxAtStartPar
@@ -30,6 +33,7 @@ header2
 \endfoot
 
 \endlastfoot
+\sphinxtableatstartofbodyhook
 
 \begin{sphinxVerbatimintable}[commandchars=\\\{\}]
 \PYG{n}{hello} \PYG{n}{world}
@@ -53,4 +57,7 @@ cell3\sphinxhyphen{}1
 cell3\sphinxhyphen{}2
 \\
 \sphinxbottomrule
-\end{longtable}\sphinxatlongtableend\end{savenotes}
+\end{longtable}
+\sphinxtableafterendhook
+\sphinxatlongtableend
+\end{savenotes}

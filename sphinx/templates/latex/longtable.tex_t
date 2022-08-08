@@ -1,4 +1,28 @@
-\begin{savenotes}\sphinxatlongtablestart\begin{longtable}
+\begin{savenotes}
+\sphinxatlongtablestart
+\sphinxthistablewithglobalstyle
+<% if 'booktabs' in table.styles -%>
+\sphinxthistablewithbooktabsstyle
+<% endif -%>
+<% if 'borderless' in table.styles -%>
+\sphinxthistablewithborderlessstyle
+<% endif -%>
+<% if 'standard' in table.styles -%>
+\sphinxthistablewithstandardstyle
+<% endif -%>
+<% if 'vlines' in table.styles -%>
+\sphinxthistablewithvlinesstyle
+<% endif -%>
+<% if 'novlines' in table.styles -%>
+\sphinxthistablewithnovlinesstyle
+<% endif -%>
+<% if 'colorrows' in table.styles -%>
+\sphinxthistablewithcolorrowsstyle
+<% endif -%>
+<% if 'nocolorrows' in table.styles -%>
+\sphinxthistablewithnocolorrowsstyle
+<% endif -%>
+\begin{longtable}
 <%- if table.align in ('center', 'default') -%>
   [c]
 <%- elif table.align == 'left' -%>
@@ -10,12 +34,10 @@
 <%- if table.caption -%>
 \sphinxthelongtablecaptionisattop
 \caption{<%= ''.join(table.caption) %>\strut}<%= labels %>\\*[\sphinxlongtablecapskipadjust]
-\sphinxtoprule
 <% elif labels -%>
-\sphinxtoprule\noalign{\phantomsection<%= labels %>}%
-<% else -%>
-\sphinxtoprule
+\noalign{\phantomsection<%= labels %>}%
 <% endif -%>
+\sphinxtoprule
 <%= ''.join(table.header) -%>
 <%- if table.header -%>
 \sphinxmidrule
@@ -36,6 +58,10 @@
 \endfoot
 
 \endlastfoot
+\sphinxtableatstartofbodyhook
 <%= ''.join(table.body) -%>
 \sphinxbottomrule
-\end{longtable}\sphinxatlongtableend\end{savenotes}
+\end{longtable}
+\sphinxtableafterendhook
+\sphinxatlongtableend
+\end{savenotes}

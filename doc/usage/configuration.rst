@@ -2210,6 +2210,101 @@ These options influence LaTeX output.
 
    .. versionadded:: 1.6
 
+.. confval:: latex_table_style
+
+   A list of styling classes (strings).  Currently supported:
+
+   - ``'booktabs'``: no vertical lines, and only 2 or 3 horizontal lines (the
+     latter if there is a header), using the booktabs_ package.
+
+   - ``'borderless'``: no lines whatsoever.
+
+   - ``'colorrows'``: the body rows are rendered with alternating background
+     colours, see the :ref:`latexsphinxsetup` keys ``TableRowColorOdd`` and
+     ``TableRowColorEven`` for configuration.  And ``TableRowColorHeader``
+     for the header rows.
+
+   Default: ``[]``
+
+   .. versionadded:: 5.2.0
+
+   If using ``'booktabs'`` or ``'borderless'`` it seems recommended to also
+   opt for ``'colorrows'``...
+
+   Each table can override the global style via ``:class:`` option, or
+   ``.. rst-class::`` for no-directive tables (cf.  :ref:`table-directives`).
+   Currently recognized classes are ``booktabs``, ``borderless``,
+   ``standard``, ``colorrows``, ``nocolorrows``.  The latter two can be
+   combined with any of the first three.  The ``standard`` class produces
+   tables with both horizontal and vertical lines (as has been the default so
+   far with Sphinx).
+
+   A single-row multi-column merged cell will obey the row colour, if it is
+   set.  See also ``TableMergeColor{Header,Odd,Even}`` in the
+   :ref:`latexsphinxsetup` section.
+
+   .. note::
+
+      - It is hard-coded in LaTeX that a single cell will obey the row colour
+        even if there is a column colour set via ``\columncolor`` from a
+        column specification (see :rst:dir:`tabularcolumns`).  Sphinx provides
+        ``\sphinxnorowcolor`` which can be used like this:
+
+        .. code-block:: latex
+
+           >{\columncolor{blue}\sphinxnorowcolor}
+
+        in a table column specification.
+
+      - Sphinx also provides ``\sphinxcolorblend`` which however requires the
+        xcolor_ package.  Here is an example:
+
+        .. code-block:: latex
+
+           >{\sphinxcolorblend{!95!red}}
+
+        It means that in this column, the row colours will be slightly tinted
+        by red; refer to xcolor_ documentation for more on the syntax of its
+        ``\blendcolors`` command (a ``\blendcolors`` in place of
+        ``\sphinxcolorblend`` would modify colours of the cell *contents*, not
+        of the cell *background colour panel*...).  You can find an example of
+        usage in the :ref:`dev-deprecated-apis` section of this document in
+        PDF format.
+
+        .. hint::
+
+           If you want to use a special colour for the *contents* of the
+           cells of a given column use ``>{\noindent\color{<color>}}``,
+           possibly in addition to the above.
+
+      - Multi-row merged cells, whether single column or multi-column
+        currently ignore any set column, row, or cell colour.
+
+      - It is possible for a simple cell to set a custom colour via the
+        :dudir:`raw` directive and the ``\cellcolor`` LaTeX command used
+        anywhere in the cell contents.  This currently is without effect
+        in a merged cell, whatever its kind.
+
+   .. hint::
+
+      In a document not using ``'booktabs'`` globally, it is possible to style
+      an individual table via the ``booktabs`` class, but it will be necessary
+      to add ``r'\usepackage{booktabs}'`` to the LaTeX preamble.
+
+      On the other hand one can use ``colorrows`` class for individual tables
+      with no extra package (as Sphinx since 5.2.0 always loads colortbl_).
+
+      When using both ``'booktabs'`` and ``'colorrows'`` there is a small
+      white gap between the bottom row and the bottom rule, and between the
+      first body row and the (mid or top) rule above it.  It is possible to
+      extend the background colouring to touch the rules, via some extra LaTeX
+      coding.  This may be added to Sphinx in case of feature request, but
+      this whitespace is considered currently a quality rather than a defect.
+
+   .. _booktabs: https://ctan.org/pkg/booktabs
+   .. _colortbl: https://ctan.org/pkg/colortbl
+   .. _xcolor: https://ctan.org/pkg/xcolor
+
 .. confval:: latex_use_xindy
 
    If ``True``, the PDF build from the LaTeX files created by Sphinx
@@ -2240,25 +2335,6 @@ These options influence LaTeX output.
    indexing of Latin names, even with diacritics.
 
    .. versionadded:: 1.8
-
-.. confval:: latex_use_booktabs
-
-   If ``True``, render tables without vertical rules and horizontal rules of
-   varying thickness (with additional space above and below) using the
-   booktabs_ package.
-
-   .. _booktabs: https://ctan.org/pkg/booktabs
-
-   .. versionadded:: 5.2.0
-
-.. confval:: latex_zebra_stripes
-
-   If ``True``, render tables with alternating background colors for even and
-   odd rows (so called "zebra striping"). See :ref:`latexsphinxsetup`
-   ``RowEvenColor`` and ``RowOddColor`` for changing the default white-grey
-   color scheme.
-
-   .. versionadded:: 2.1
 
 .. confval:: latex_elements
 

@@ -1,8 +1,10 @@
 \label{\detokenize{tabular:table-with-tabularcolumn}}
 
 \begin{savenotes}\sphinxattablestart
+\sphinxthistablewithglobalstyle
+\sphinxthistablewithnovlinesstyle
 \centering
-\begin{tabulary}{\linewidth}[t]{|c|c|}
+\begin{tabulary}{\linewidth}[t]{cc}
 \sphinxtoprule
 \sphinxstyletheadfamily 
 \sphinxAtStartPar
@@ -12,6 +14,7 @@ header1
 header2
 \\
 \sphinxmidrule
+\sphinxtableatstartofbodyhook
 \sphinxAtStartPar
 cell1\sphinxhyphen{}1
 &
@@ -34,5 +37,5 @@ cell3\sphinxhyphen{}2
 \\
 \sphinxbottomrule
 \end{tabulary}
-\par
+\sphinxtableafterendhook\par
 \sphinxattableend\end{savenotes}

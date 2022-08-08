@@ -97,9 +97,24 @@ class Table:
         self.body: List[str] = []
         self.align = node.get('align', 'default')
         self.classes: List[str] = node.get('classes', [])
+        self.styles: List[str] = []
+        if 'standard' in self.classes:
+            self.styles.append('standard')
+        elif 'borderless' in self.classes:
+            self.styles.append('borderless')
+        elif 'booktabs' in self.classes:
+            self.styles.append('booktabs')
+        if 'nocolorrows' in self.classes:
+            self.styles.append('nocolorrows')
+        elif 'colorrows' in self.classes:
+            self.styles.append('colorrows')
         self.colcount = 0
         self.colspec: str = None
-        self.booktabs = False
+        self.colsep: str = None
+        if 'booktabs' in self.styles or 'borderless' in self.styles:
+            self.colsep = ''
+        elif 'standard' in self.styles:
+            self.colsep = '|'
         self.colwidths: List[int] = []
         self.has_problematic = False
         self.has_oldproblematic = False
@@ -152,7 +167,7 @@ class Table:
         if self.colspec:
             return self.colspec
 
-        _colsep = '' if self.booktabs else '|'
+        _colsep = self.colsep
         if self.colwidths and 'colwidths-given' in self.classes:
             total = sum(self.colwidths)
             colspecs = [r'\X{%d}{%d}' % (width, total) for width in self.colwidths]
@@ -865,16 +880,22 @@ class LaTeXTranslator(SphinxTranslator):
                 (self.curfilestack[-1], node.line or ''))
 
         self.tables.append(Table(node))
-        self.table.booktabs = self.builder.config.latex_use_booktabs
+        if self.table.colsep is None:
+            self.table.colsep = '' if (
+                'booktabs' in self.builder.config.latex_table_style or
+                'borderless' in self.builder.config.latex_table_style
+            ) else '|'
         if self.next_table_colspec:
             self.table.colspec = '{%s}' % self.next_table_colspec + CR
+            if '|' in self.table.colspec:
+                self.table.styles.append('vlines')
+                self.table.colsep = '|'
+            else:
+                self.table.styles.append('novlines')
+                self.table.colsep = ''
             if 'colwidths-given' in node.get('classes', []):
                 logger.info(__('both tabularcolumns and :widths: option are given. '
                                ':widths: is ignored.'), location=node)
-            if '|' in self.table.colspec and self.table.booktabs:
-                logger.info(__('tabularcolumns argument contains | and '
-                               'latex_use_booktabs is True.  Expect gaps between vertical '
-                               'and horizontal rules in this table.'), location=node)
         self.next_table_colspec = None
 
     def depart_table(self, node: Element) -> None:
@@ -924,21 +945,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_row(self, node: Element) -> None:
         self.table.col = 0
-        _colsep = '' if self.table.booktabs else '|'
-
-        if (
-            self.builder.config.latex_zebra_stripes and
-            not isinstance(node.parent, nodes.thead)
-        ):
-            if self.table.row % 2 == 0:
-                self.body.append(
-                    '\\rowcolor{RowEvenColor}[\\dimexpr\\tabcolsep+0.1pt\\relax]'
-                )
-            else:
-                self.body.append(
-                    '\\rowcolor{RowOddColor}[\\dimexpr\\tabcolsep+0.1pt\\relax]'
-                )
-
+        _colsep = self.table.colsep
         # fill columns if the row starts with the bottom of multirow cell
         while True:
             cell = self.table.cell(self.table.row, self.table.col)
@@ -978,7 +985,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.table.add_cell(node.get('morerows', 0) + 1, node.get('morecols', 0) + 1)
         cell = self.table.cell()
         context = ''
-        _colsep = '' if self.table.booktabs else '|'
+        _colsep = self.table.colsep
         if cell.width > 1:
             if self.config.latex_use_latex_multicolumn:
                 if self.table.col == 0:
@@ -1025,7 +1032,7 @@ class LaTeXTranslator(SphinxTranslator):
 
         cell = self.table.cell()
         self.table.col += cell.width
-        _colsep = '' if self.table.booktabs else '|'
+        _colsep = self.table.colsep
 
         # fill columns if next ones are a bottom of wide-multirow cell
         while True:

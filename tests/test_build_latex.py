@@ -92,7 +92,9 @@ def test_build_latex_doc(app, status, warning, engine, docclass):
     app.config.latex_engine = engine
     app.config.latex_documents = [app.config.latex_documents[0][:4] + (docclass,)]
     if engine == 'xelatex':
-        app.config.latex_use_booktabs = True
+        app.config.latex_table_style = ['booktabs']
+    elif engine == 'lualatex':
+        app.config.latex_table_style = ['colorrows']
     app.builder.init()
 
     LaTeXTranslator.ignore_missing_images = True
@@ -726,7 +728,8 @@ def test_footnote(app, status, warning):
     assert '\\sphinxcite{footnote:bar}' in result
     assert ('\\bibitem[bar]{footnote:bar}\n\\sphinxAtStartPar\ncite\n') in result
     assert '\\sphinxcaption{Table caption \\sphinxfootnotemark[4]' in result
-    assert ('\\sphinxmidrule%\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
+    assert ('\\sphinxmidrule\n\\sphinxtableatstartofbodyhook%\n'
+            '\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
             'footnote in table caption\n%\n\\end{footnotetext}\\ignorespaces %\n'
             '\\begin{footnotetext}[5]\\sphinxAtStartFootnote\n'
             'footnote in table header\n%\n\\end{footnotetext}\\ignorespaces '
@@ -736,7 +739,7 @@ def test_footnote(app, status, warning):
             '\\begin{footnote}[6]\\sphinxAtStartFootnote\n'
             'footnote in table not in header\n%\n\\end{footnote}\n\\\\\n'
             '\\sphinxbottomrule\n\\end{tabulary}\n'
-            '\\par\n\\sphinxattableend\\end{savenotes}\n') in result
+            '\\sphinxtableafterendhook\\par\n\\sphinxattableend\\end{savenotes}\n') in result
 
 
 @pytest.mark.sphinx('latex', testroot='footnotes')
@@ -764,7 +767,8 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
             'caption of normal table}\\label{\\detokenize{index:id36}}') in result
     assert ('\\caption{footnote \\sphinxfootnotemark[10] '
             'in caption \\sphinxfootnotemark[11] of longtable\\strut}') in result
-    assert ('\\endlastfoot\n%\n\\begin{footnotetext}[10]\\sphinxAtStartFootnote\n'
+    assert ('\\endlastfoot\n\\sphinxtableatstartofbodyhook\n%\n'
+            '\\begin{footnotetext}[10]\\sphinxAtStartFootnote\n'
             'Foot note in longtable\n%\n\\end{footnotetext}\\ignorespaces %\n'
             '\\begin{footnotetext}[11]\\sphinxAtStartFootnote\n'
             'Second footnote in caption of longtable\n') in result
@@ -1312,6 +1316,13 @@ def test_latex_table_complex_tables(app, status, warning):
     expected = get_expected('gridtable')
     assert actual == expected
 
+    # grid table with tabularcolumns
+    # MEMO: filename should end with tabularcolumns but tabularcolumn has been
+    #       used in existing other cases
+    actual = tables['grid table with tabularcolumns having no vline']
+    expected = get_expected('gridtable_with_tabularcolumn')
+    assert actual == expected
+
     # complex spanning cell
     actual = tables['complex spanning cell']
     expected = get_expected('complex_spanning_cell')
@@ -1319,12 +1330,16 @@ def test_latex_table_complex_tables(app, status, warning):
 
 
 @pytest.mark.sphinx('latex', testroot='latex-table',
-                    confoverrides={'latex_use_booktabs': True})
-def test_latex_table_with_booktabs(app, status, warning):
+                    confoverrides={'latex_table_style': ['booktabs', 'colorrows']})
+def test_latex_table_with_booktabs_and_colorrows(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
     assert r'\PassOptionsToPackage{booktabs}{sphinx}' in result
-    assert r'\begin{tabulary}{\linewidth}[t]{TTTTT}' in result
+    assert r'\PassOptionsToPackage{colorrows}{sphinx}' in result
+    # tabularcolumns
+    assert r'\begin{longtable}[c]{|c|c|}' in result
+    # class: standard
+    assert r'\begin{tabulary}{\linewidth}[t]{|T|T|T|T|T|}' in result
     assert r'\begin{longtable}[c]{ll}' in result
     assert r'\begin{tabular}[t]{*{2}{\X{1}{2}}}' in result
     assert r'\begin{tabular}[t]{\X{30}{100}\X{70}{100}}' in result

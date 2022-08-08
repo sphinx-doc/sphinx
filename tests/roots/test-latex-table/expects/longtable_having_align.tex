@@ -1,6 +1,9 @@
 \label{\detokenize{longtable:longtable-having-align-option}}
 
-\begin{savenotes}\sphinxatlongtablestart\begin{longtable}[r]{|l|l|}
+\begin{savenotes}
+\sphinxatlongtablestart
+\sphinxthistablewithglobalstyle
+\begin{longtable}[r]{|l|l|}
 \sphinxtoprule
 \sphinxstyletheadfamily 
 \sphinxAtStartPar
@@ -30,6 +33,7 @@ header2
 \endfoot
 
 \endlastfoot
+\sphinxtableatstartofbodyhook
 
 \sphinxAtStartPar
 cell1\sphinxhyphen{}1
@@ -52,4 +56,7 @@ cell3\sphinxhyphen{}1
 cell3\sphinxhyphen{}2
 \\
 \sphinxbottomrule
-\end{longtable}\sphinxatlongtableend\end{savenotes}
+\end{longtable}
+\sphinxtableafterendhook
+\sphinxatlongtableend
+\end{savenotes}

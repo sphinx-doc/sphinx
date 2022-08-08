@@ -14,10 +14,12 @@ consecutive multirow at end of row (1\sphinxhyphen{}4 and 1\sphinxhyphen{}5)
 
 
 \begin{savenotes}\sphinxattablestart
+\sphinxthistablewithglobalstyle
+\sphinxthistablewithstandardstyle
 \centering
 \begin{tabulary}{\linewidth}[t]{|T|T|T|T|T|}
 \sphinxtoprule
-\sphinxmultirow{3}{1}{%
+\sphinxtableatstartofbodyhook\sphinxmultirow{3}{1}{%
 \begin{varwidth}[t]{\sphinxcolwidth{1}{5}}
 \sphinxAtStartPar
 cell1\sphinxhyphen{}1
@@ -63,5 +65,5 @@ cell3\sphinxhyphen{}5
 \\
 \sphinxbottomrule
 \end{tabulary}
-\par
+\sphinxtableafterendhook\par
 \sphinxattableend\end{savenotes}

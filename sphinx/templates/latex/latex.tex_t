@@ -26,8 +26,14 @@
 \makeatletter\@ifclassloaded{memoir}
 {\ifdefined\memhyperindexfalse\memhyperindexfalse\fi}{}\makeatother
 <% endif %>
-<% if use_booktabs -%>
+<% if booktabs -%>
 \PassOptionsToPackage{booktabs}{sphinx}
+<% endif -%>
+<% if borderless -%>
+\PassOptionsToPackage{borderless}{sphinx}
+<% endif -%>
+<% if colorrows -%>
+\PassOptionsToPackage{colorrows}{sphinx}
 <% endif -%>
 <%= passoptionstopackages %>
 \PassOptionsToPackage{warn}{textcomp}

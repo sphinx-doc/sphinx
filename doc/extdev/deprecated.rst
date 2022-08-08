@@ -10,7 +10,7 @@ major versions (for more details, please see :ref:`deprecation-policy`).
 
 The following is a list of deprecated interfaces.
 
-.. tabularcolumns:: |>{\raggedright}\Y{.4}|>{\centering}\Y{.1}|>{\centering}\Y{.12}|>{\raggedright\arraybackslash}\Y{.38}|
+.. tabularcolumns:: >{\raggedright}\Y{.4}>{\centering}\Y{.1}>{\sphinxcolorblend{!95!red}\centering\noindent\bfseries\color{red}}\Y{.12}>{\raggedright\arraybackslash}\Y{.38}
 
 .. list-table:: deprecated APIs
    :header-rows: 1
@@ -19,7 +19,7 @@ The following is a list of deprecated interfaces.
 
    * - Target
      - Deprecated
-     - (will be) Removed
+     - Removed
      - Alternatives
 
    * - ``sphinx.util.path_stabilize``

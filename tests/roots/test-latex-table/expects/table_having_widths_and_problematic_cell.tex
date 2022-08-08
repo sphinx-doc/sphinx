@@ -1,6 +1,7 @@
 \label{\detokenize{tabular:table-having-both-widths-and-problematic-cell}}
 
 \begin{savenotes}\sphinxattablestart
+\sphinxthistablewithglobalstyle
 \centering
 \begin{tabular}[t]{|\X{30}{100}|\X{70}{100}|}
 \sphinxtoprule
@@ -11,7 +12,8 @@ header1
 \sphinxAtStartPar
 header2
 \\
-\sphinxmidrule\begin{itemize}
+\sphinxmidrule
+\sphinxtableatstartofbodyhook\begin{itemize}
 \item {} 
 \sphinxAtStartPar
 item1
@@ -41,5 +43,5 @@ cell3\sphinxhyphen{}2
 \\
 \sphinxbottomrule
 \end{tabular}
-\par
+\sphinxtableafterendhook\par
 \sphinxattableend\end{savenotes}
