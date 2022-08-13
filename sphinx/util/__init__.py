@@ -259,7 +259,7 @@ def get_full_modname(modname: str, attribute: str) -> str:
         module = import_module(modname)
     except ModuleNotFoundError:
         # Attempt to find absolute path of simplified path
-        module_path = modname.split(".")
+        module_path = modname.split('.')
         actual_path = __import__(module_path[0], globals(), locals(), [], 0)
         for item in module_path[1:]:
             actual_path = getattr(actual_path, item)
@@ -271,11 +271,11 @@ def get_full_modname(modname: str, attribute: str) -> str:
     # Allow an attribute to have multiple parts and incidentally allow
     # repeated .s in the attribute.
     value = module
-    for attr in attribute.split("."):
+    for attr in attribute.split('.'):
         if attr:
             value = getattr(value, attr)
 
-    return getattr(value, "__module__", None)
+    return getattr(value, '__module__', None)
 
 
 # a regex to recognize coding cookies
