@@ -254,7 +254,17 @@ def get_full_modname(modname: str, attribute: str) -> str:
         # Prevents a TypeError: if the last getattr() call will return None
         # then it's better to return it directly
         return None
-    module = import_module(modname)
+
+    try:
+        module = import_module(modname)
+    except ModuleNotFoundError:
+        # Attempt to find absolute path of simplified path
+        module_path = module_path.split(".")
+        actual_path = __import__(module_path[0], globals(), locals(), [], 0)
+        for item in module_path[1:]:
+            actual_path = getattr(actual_path, item)
+        actual_path = str(actual_path).split("'")[1] #  Extract path from module name
+        module = import_module(actual_path)
 
     # Allow an attribute to have multiple parts and incidentally allow
     # repeated .s in the attribute.
