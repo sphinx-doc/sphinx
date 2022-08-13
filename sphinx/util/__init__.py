@@ -259,7 +259,7 @@ def get_full_modname(modname: str, attribute: str) -> str:
         module = import_module(modname)
     except ModuleNotFoundError:
         # Attempt to find absolute path of simplified path
-        module_path = module_path.split(".")
+        module_path = modname.split(".")
         actual_path = __import__(module_path[0], globals(), locals(), [], 0)
         for item in module_path[1:]:
             actual_path = getattr(actual_path, item)
