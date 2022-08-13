@@ -30,7 +30,7 @@ Contributors
 * Antonio Valentino -- qthelp builder, docstring inheritance
 * Antti Kaihola -- doctest extension (skipif option)
 * Barry Warsaw -- setup command improvements
-* Ben Egan -- Napoleon improvements
+* Ben Egan -- Napoleon & Viewcode improvements
 * Benjamin Peterson -- unittests
 * Blaise Laflamme -- pyramid theme
 * Bruce Mitchener -- Minor epub improvement
