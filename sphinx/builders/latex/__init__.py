@@ -463,6 +463,8 @@ def install_packages_for_ja(app: Sphinx) -> None:
 
 def default_latex_engine(config: Config) -> str:
     """ Better default latex_engine settings for specific languages. """
+    if config.language is None:
+        return 'pdflatex'
     if config.language == 'ja':
         return 'uplatex'
     elif config.language.startswith('zh'):
