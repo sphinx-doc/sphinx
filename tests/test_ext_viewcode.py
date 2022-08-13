@@ -118,7 +118,7 @@ def test_local_source_files(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='ext-viewcode-find-package')
-def test_local_source_files(app, status, warning):
+def test_viewcode_shortened_path(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert result.count('href="_modules/main_package/subpackage/_subpackage2/submodule.html#func1"') == 1
