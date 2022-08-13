@@ -263,17 +263,19 @@ def get_full_modname(modname: str, attribute: str) -> str:
         actual_path = __import__(module_path[0], globals(), locals(), [], 0)
         for item in module_path[1:]:
             actual_path = getattr(actual_path, item)
-        actual_path = str(actual_path).split("'")[1] #  Extract path from module name
+
+        # Extract path from module name
+        actual_path = str(actual_path).split("'")[1]
         module = import_module(actual_path)
 
     # Allow an attribute to have multiple parts and incidentally allow
     # repeated .s in the attribute.
     value = module
-    for attr in attribute.split('.'):
+    for attr in attribute.split("."):
         if attr:
             value = getattr(value, attr)
 
-    return getattr(value, '__module__', None)
+    return getattr(value, "__module__", None)
 
 
 # a regex to recognize coding cookies
