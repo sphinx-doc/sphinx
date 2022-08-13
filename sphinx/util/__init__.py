@@ -265,8 +265,8 @@ def get_full_modname(modname: str, attribute: str) -> str:
             actual_path = getattr(actual_path, item)
 
         # Extract path from module name
-        actual_path = str(actual_path).split("'")[1]
-        module = import_module(actual_path)
+        actual_path_str = str(actual_path).split("'")[1]  # type: ignore
+        module = import_module(actual_path_str)
 
     # Allow an attribute to have multiple parts and incidentally allow
     # repeated .s in the attribute.
