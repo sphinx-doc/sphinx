@@ -115,3 +115,12 @@ def test_local_source_files(app, status, warning):
 
     assert result.count('href="_modules/not_a_package/submodule.html#not_a_package.submodule.Class3.class_attr"') == 1
     assert result.count('This is the class attribute class_attr') == 1
+
+
+@pytest.mark.sphinx(testroot='ext-viewcode-find-package')
+def test_local_source_files(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert result.count('href="_modules/main_package/subpackage/_subpackage2/submodule.html#func1"') == 1
+    assert result.count('href="_modules/main_package/subpackage/_subpackage2/submodule.html#Class1"') == 1
+    assert result.count('href="_modules/main_package/subpackage/_subpackage2/submodule.html#Class3"') == 1
