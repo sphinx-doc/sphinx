@@ -9,7 +9,7 @@ import pdb
 import sys
 import traceback
 from os import path
-from typing import IO, Any, List
+from typing import IO, Any, List, Optional, TextIO
 
 from docutils.utils import SystemMessage
 
@@ -24,7 +24,9 @@ from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath, ensuredir
 
 
-def handle_exception(app: Sphinx, args: Any, exception: BaseException, stderr: IO = sys.stderr) -> None:  # NOQA
+def handle_exception(
+    app: Optional[Sphinx], args: Any, exception: BaseException, stderr: IO = sys.stderr
+) -> None:
     if isinstance(exception, bdb.BdbQuit):
         return
 
@@ -222,8 +224,8 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
     if args.color == 'no' or (args.color == 'auto' and not color_terminal()):
         nocolor()
 
-    status = sys.stdout
-    warning = sys.stderr
+    status: Optional[TextIO] = sys.stdout
+    warning: Optional[TextIO] = sys.stderr
     error = sys.stderr
 
     if args.quiet:

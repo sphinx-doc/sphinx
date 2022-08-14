@@ -91,7 +91,7 @@ class BuildEnvironment:
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
-    def __init__(self, app: "Sphinx" = None):
+    def __init__(self, app: Optional["Sphinx"] = None):
         self.app: Sphinx = None
         self.doctreedir: str = None
         self.srcdir: str = None
@@ -327,7 +327,7 @@ class BuildEnvironment:
         """
         return self.project.doc2path(docname, base)
 
-    def relfn2path(self, filename: str, docname: str = None) -> Tuple[str, str]:
+    def relfn2path(self, filename: str, docname: Optional[str] = None) -> Tuple[str, str]:
         """Return paths to a file referenced from a document, relative to
         documentation root and absolute.
 
@@ -340,7 +340,7 @@ class BuildEnvironment:
             rel_fn = filename[1:]
         else:
             docdir = path.dirname(self.doc2path(docname or self.docname,
-                                                base=None))
+                                                base=False))
             rel_fn = path.join(docdir, filename)
 
         return (canon_path(path.normpath(rel_fn)),
@@ -488,7 +488,9 @@ class BuildEnvironment:
 
         *filename* should be absolute or relative to the source directory.
         """
-        self.included[self.docname].add(self.path2doc(filename))
+        doc = self.path2doc(filename)
+        if doc:
+            self.included[self.docname].add(doc)
 
     def note_reread(self) -> None:
         """Add the current document to the list of documents that will
@@ -517,9 +519,14 @@ class BuildEnvironment:
         doctree.reporter = LoggingReporter(self.doc2path(docname))
         return doctree
 
-    def get_and_resolve_doctree(self, docname: str, builder: "Builder",
-                                doctree: nodes.document = None, prune_toctrees: bool = True,
-                                includehidden: bool = False) -> nodes.document:
+    def get_and_resolve_doctree(
+        self,
+        docname: str,
+        builder: "Builder",
+        doctree: Optional[nodes.document] = None,
+        prune_toctrees: bool = True,
+        includehidden: bool = False
+    ) -> nodes.document:
         """Read the doctree from the pickle, resolve cross-references and
         toctrees and return it.
         """
@@ -543,7 +550,7 @@ class BuildEnvironment:
 
     def resolve_toctree(self, docname: str, builder: "Builder", toctree: addnodes.toctree,
                         prune: bool = True, maxdepth: int = 0, titles_only: bool = False,
-                        collapse: bool = False, includehidden: bool = False) -> Node:
+                        collapse: bool = False, includehidden: bool = False) -> Optional[Node]:
         """Resolve a *toctree* node into individual bullet lists with titles
         as items, returning None (if no containing titles are found) or
         a new node.
@@ -583,7 +590,9 @@ class BuildEnvironment:
     def collect_relations(self) -> Dict[str, List[Optional[str]]]:
         traversed = set()
 
-        def traverse_toctree(parent: str, docname: str) -> Iterator[Tuple[str, str]]:
+        def traverse_toctree(
+            parent: Optional[str], docname: str
+        ) -> Iterator[Tuple[Optional[str], str]]:
             if parent == docname:
                 logger.warning(__('self referenced toctree found. Ignored.'),
                                location=docname, type='toc',

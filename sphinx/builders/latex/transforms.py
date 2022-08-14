@@ -1,6 +1,6 @@
 """Transforms for LaTeX builder."""
 
-from typing import Any, Dict, List, Set, Tuple, cast
+from typing import Any, Dict, List, Optional, Set, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -94,13 +94,16 @@ class ShowUrlsTransform(SphinxPostTransform):
     def get_docname_for_node(self, node: Node) -> str:
         while node:
             if isinstance(node, nodes.document):
-                return self.env.path2doc(node['source'])
+                doc = self.env.path2doc(node['source'])
+                if doc is None:
+                    raise ValueError("unreachable code")
+                return doc
             elif isinstance(node, addnodes.start_of_file):
                 return node['docname']
             else:
                 node = node.parent
 
-        return None  # never reached here. only for type hinting
+        raise ValueError("unreachable code")
 
     def create_footnote(self, uri: str, docname: str) -> Tuple[nodes.footnote, nodes.footnote_reference]:  # NOQA
         reference = nodes.reference('', nodes.Text(uri), refuri=uri, nolinkurl=True)
@@ -355,7 +358,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         self.footnotes: List[nodes.footnote] = footnotes
         self.pendings: List[nodes.footnote] = []
         self.table_footnotes: List[nodes.footnote] = []
-        self.restricted: Element = None
+        self.restricted: Optional[Element] = None
         super().__init__(document)
 
     def unknown_visit(self, node: Node) -> None:
@@ -433,7 +436,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         number = node.astext().strip()
         docname = node['docname']
         if (docname, number) in self.appeared:
-            footnote = self.appeared.get((docname, number))
+            footnote = self.appeared[(docname, number)]
             footnote["referred"] = True
 
             mark = footnotemark('', number, refid=node['refid'])
@@ -458,7 +461,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
             if docname == footnote['docname'] and footnote['ids'][0] == node['refid']:
                 return footnote
 
-        return None
+        raise ValueError("footnote not found for reference: %s, refid=%s" % (node))
 
 
 class BibliographyTransform(SphinxPostTransform):
