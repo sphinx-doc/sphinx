@@ -26,7 +26,7 @@ import sphinx
 ROOT = os.path.realpath(os.path.join(os.path.abspath(__file__), "..", ".."))
 
 
-class compile_catalog_plusjs(compile_catalog):  # NoQA
+class compile_catalog_plusjs(compile_catalog):
     """
     An extended command that writes all message strings that occur in
     JavaScript files to a JavaScript file along with the .mo file.

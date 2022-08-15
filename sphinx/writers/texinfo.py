@@ -180,7 +180,7 @@ class TexinfoTranslator(SphinxTranslator):
         self.escape_newlines = 0
         self.escape_hyphens = 0
         self.curfilestack: List[str] = []
-        self.footnotestack: List[Dict[str, List[Union[collected_footnote, bool]]]] = []  # NOQA
+        self.footnotestack: List[Dict[str, List[Union[collected_footnote, bool]]]] = []
         self.in_footnote = 0
         self.in_samp = 0
         self.handled_abbrs: Set[str] = set()

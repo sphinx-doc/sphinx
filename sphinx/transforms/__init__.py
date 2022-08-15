@@ -389,7 +389,7 @@ class ManpageLink(SphinxTransform):
         for node in self.document.findall(addnodes.manpage):
             manpage = ' '.join([str(x) for x in node.children
                                 if isinstance(x, nodes.Text)])
-            pattern = r'^(?P<path>(?P<page>.+)[\(\.](?P<section>[1-9]\w*)?\)?)$'  # noqa
+            pattern = r'^(?P<path>(?P<page>.+)[\(\.](?P<section>[1-9]\w*)?\)?)$'
             info = {'path': manpage,
                     'page': manpage,
                     'section': ''}
