@@ -113,8 +113,8 @@ Bugs fixed
 * #10506: LaTeX: build error if highlighting inline code role in figure caption
   (refs: #10251)
 * #10634: Make -P (pdb) option work better with exceptions triggered from events
-* #10031: py domain: Fix spurious whitespace in unparsing various operators (``+``,
-  ``-``, ``~``, and ``**``). Patch by Adam Turner.
+* #10550: py domain: Fix spurious whitespace in unparsing various operators (``+``,
+  ``-``, ``~``, and ``**``). Patch by Adam Turner (refs: #10551).
 * #10460: logging: Always show node source locations as absolute paths.
 * HTML Search: HTML tags are displayed as a part of object name
 * HTML Search: search snipets should not be folded
