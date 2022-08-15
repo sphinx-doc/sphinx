@@ -971,12 +971,23 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             i = 0
             underlined.extend([False])  # sentinel
-            while i < len(underlined):
-                if underlined[i] is True:
-                    j = underlined[i:].index(False)
-                    self.body.append(r'\sphinxcline{%d-%d}' % (i + 1, i + j))
-                    i += j
+            if underlined[0] is False:
+                i = 1
+                while i < self.table.colcount and underlined[i] is False:
+                    if cells[i - 1].cell_id != cells[i].cell_id:
+                        self.body.append(r'\sphinxvlinecrossing{%d}' % i)
+                    i += 1
+            while i < self.table.colcount:
+                # each time here underlined[i] is True
+                j = underlined[i:].index(False)
+                self.body.append(r'\sphinxcline{%d-%d}' % (i + 1, i + j))
+                i += j
                 i += 1
+                while i < self.table.colcount and underlined[i] is False:
+                    if cells[i - 1].cell_id != cells[i].cell_id:
+                        self.body.append(r'\sphinxvlinecrossing{%d}' % i)
+                    i += 1
+            self.body.append(r'\sphinxfixclines{%d}' % self.table.colcount)
         self.table.row += 1
 
     def visit_entry(self, node: Element) -> None:
@@ -1040,16 +1051,16 @@ class LaTeXTranslator(SphinxTranslator):
             if nextcell is None:  # not a bottom of multirow cell
                 break
             else:  # a bottom part of multirow cell
-                self.table.col += nextcell.width
                 self.body.append('&')
                 if nextcell.width == 1:
                     # insert suitable strut for equalizing row heights in multirow
                     # they also serve to clear colour panels which would hide the text
                     self.body.append(r'\sphinxtablestrut{%d}' % nextcell.cell_id)
                 else:
-                    # use \multicolumn for wide multirow cell
+                    # use \multicolumn for not first row of wide multirow cell
                     self.body.append(r'\multicolumn{%d}{l%s}{\sphinxtablestrut{%d}}' %
                                      (nextcell.width, _colsep, nextcell.cell_id))
+                self.table.col += nextcell.width
 
     def visit_acks(self, node: Element) -> None:
         # this is a list in the source, but should be rendered as a

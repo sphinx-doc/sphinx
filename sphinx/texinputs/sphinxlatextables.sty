@@ -1,7 +1,7 @@
 %% TABLES (WITH SUPPORT FOR MERGED CELLS OF GENERAL CONTENTS)
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatextables.sty}[2022/08/10 tables]%
+\ProvidesFile{sphinxlatextables.sty}[2022/08/15 tables]%
 
 % Provides support for this output mark-up from Sphinx latex writer
 % and table templates:
@@ -27,6 +27,8 @@
 % - \sphinxthelongtablecaptionisattop
 % - \sphinxhline
 % - \sphinxcline
+% - \sphinxvlinecrossing
+% - \sphinxfixclines
 % - \sphinxtoprule
 % - \sphinxmidrule
 % - \sphinxbottomrule
@@ -47,6 +49,7 @@
 % - longtable
 % - varwidth
 % - colortbl
+% - booktabs if 'booktabs' in latex_table_style
 %
 % Extends tabulary and longtable via patches and custom macros to support
 % merged cells possibly containing code-blocks in complex tables
@@ -266,9 +269,13 @@
 %
 % 5.2.0 adds a check for multirow as single-row multi-column will allow a row
 % colour but multi-row multi-column should not.
+% Attention that this assumes \sphinxstartmulticolumn is always followed
+% in latex mark-up either by \sphinxmultirow or \begin (from \begin{varwidth}).
 \def\sphinxstartmulticolumn#1#2{%
-    \ifx\sphinxmultirow#2% #2 is either \sphinxmultirow or \begin
-    \def\spx@table@hackCT@inmergedcell{\spx@table@hackCT@nocolor}%
+    \ifx\sphinxmultirow#2%
+        \gdef\spx@table@hackCT@inmergedcell{\spx@table@hackCT@nocolor}%
+    \else
+        \global\let\spx@table@hackCT@inmergedcell\spx@@table@hackCT@inmergedcell
     \fi
     \sphinx@startmulticolumn{#1}#2%
 }%
@@ -334,13 +341,11 @@
     \noindent\kern\sphinx@tempb\relax
     \xdef\sphinx@multiwidth
            {\the\dimexpr\sphinx@multiwidth+\sphinx@tempb+\tw@\tabcolsep+\spx@arrayrulewidth}%
-    % simulate the \vline added width
-    \spx@table@fakevline
+    \spx@table@hackCT@fixcolorpanel
+    % silence a | column separator in our merged cell
+    \spx@table@hackCT@inhibitvline
     % prevent column colours to interfere with our multi-column but allow row
-    % colour; sadly we can't infere a \cellcolor and propagate it to the
-    % merged cell as it has not be seen yet at this stage which is preparatory
-    % to the varwidth environment execution... and the background colour panels
-    % are injected by colortbl now when the & is met...
+    % colour (we can't obey a \cellcolor as it has not be seen yet at this stage)
     \spx@table@hackCT@inmergedcell&\relax
     % repeat
     \expandafter\sphinx@multispan\expandafter{\the\numexpr#1-\@ne}%
@@ -357,7 +362,8 @@
           \sphinx@TY@tablewidth\fi-\spx@arrayrulewidth)/\sphinx@tempa
           -\tw@\tabcolsep-\spx@arrayrulewidth\relax}%
     \fi
-    % we need to remove colour set-up also for last cell of the multi-column
+    % last cell of the multi-column
+    \aftergroup\spx@table@hackCT@fixcolorpanel
     \aftergroup\spx@table@hackCT@inmergedcell
 }%
 \newcommand*\sphinxcolwidth[2]{%
@@ -404,15 +410,17 @@
     (\ifx\TY@final\@undefined\linewidth\else\sphinx@TY@tablewidth\fi
      -\spx@arrayrulewidth)*#2-\tw@\tabcolsep-\spx@arrayrulewidth\relax}%
 
-% \spx@table@fakevline
+% \spx@table@hackCT@inhibitvline
 % packages like colortbl add group levels, we need to "climb back up" to be
 % able to hack the \vline and also the colortbl inserted tokens.  The hack
-% induces an empty space of the width corresponding to a \vline.  Then it
 % sets the \arrayrulewidth to \z@ to inhibit a | separator at right end
 % of the cell, if present (our code does not use \omit so can not avoid the
-% \vline insertion, but setting its width to zero makes it do nothing)
-\def\spx@table@fakevline{\ifnum\currentgrouptype=6\relax
-    \kern\spx@arrayrulewidth\arrayrulewidth\z@\else\aftergroup\spx@table@fakevline\fi}%
+% \vline insertion, but setting its width to zero makes it do nothing).
+% Some subtlety with colour panels must be taken care of.
+\def\spx@table@hackCT@inhibitvline{\ifnum\currentgrouptype=6\relax
+    \kern\spx@arrayrulewidth % will be compensated by extra colour panel left overhang
+    \arrayrulewidth\z@% trick to inhibit the {\vrule width \arrayrulewidth}
+    \else\aftergroup\spx@table@hackCT@inhibitvline\fi}%
 
 % hacking around colour matters
 % Sphinx 1.6 comment:
@@ -432,17 +440,21 @@
 %   covered by colour panels at various places.  At 5.2.0 this mechanism
 %   is relaxed a bit to allow row colour for a single-row merged cell.
 %
-% \spx@table@hackCT@inmergedcell
-% \spx@table@hackCT@nocolor
-% \spx@table@hackCT@norowcolor
-%
-% \let\spx@original@CT@setup\CT@setup is done after the loading of colortbl
-% package
+% fixcolorpanel
+\def\spx@table@hackCT@fixcolorpanel{\ifnum\currentgrouptype=6\relax
+    \edef\spx@table@leftcolorpanelextra
+    % \edef as \arrayrulewidth will be set to \z@ next,
+    % hence also \spx@arrayrulewidth...
+         {\sphinxcolorpanelextraoverhang+\the\spx@arrayrulewidth}%
+    \else\aftergroup\spx@table@hackCT@fixcolorpanel\fi}%
 %
 % inmergedcell
-\def\spx@table@hackCT@inmergedcell{\ifnum\currentgrouptype=6\relax
+% \spx@table@hackCT@inmergedcell will be locally set to either this
+% \spx@@table@hackCT@inmergedcell or to \spx@table@hackCT@nocolor
+% "\let\spx@original@CT@setup\CT@setup" is done after loading colortbl
+\def\spx@@table@hackCT@inmergedcell{\ifnum\currentgrouptype=6\relax
     \let\CT@setup\spx@CT@setup@inmergedcell
-    \else\aftergroup\spx@table@hackCT@inmergedcell\fi
+    \else\aftergroup\spx@@table@hackCT@inmergedcell\fi
 }%
 \newif\ifspx@table@inmergedcell
 \def\spx@CT@setup@inmergedcell #1\endgroup{%
@@ -468,9 +480,10 @@
 }
 \def\spx@CT@setup@nocolor#1\endgroup{%
         \global\let\CT@cell@color\relax
-    % the above added at 5.2.0
+    % the above fix was added at 5.2.0
     % formerly a \cellcolor added by a raw latex directive in the merged cell
-    % would have caused colour to apply to the *next* cell after the merged one
+    % would have caused colour to apply to the *next* cell after the merged
+    % one; we don't support \cellcolor from merged cells contents anyhow.
     \endgroup}
 %
 % norowcolor
@@ -488,36 +501,6 @@
     \else\aftergroup\spx@table@hackCT@norowcolor\fi
 }
 %
-% sphinxcolormix (commented-out)
-% this works but then I found out about \blendcolors in xcolor doc, so I provided
-% rather \sphinxcolorblend, the code is kept in case it can be reused in future
-% \@ifpackageloaded{xcolor}{%
-% \def\spx@table@hackCT@colormix{%
-%     \ifnum\currentgrouptype=6\relax
-%      \ifx\CT@column@color\relax
-%      \else
-%        \ifx\CT@row@color\relax
-%        \else
-%            \let\spx@saved@CT@row@color\CT@row@color
-%            \def\CT@row@color{%
-%              \ifspx@table@inmergedcell
-%                \expandafter\spx@saved@CT@row@color
-%              \else
-%                \colorlet{spxcolumncolor}{.}%
-%                \spx@saved@CT@row@color
-%                \colorlet{spxrowcolor}{.}%
-%                \color{spxcolumncolor!\spx@colormixparam!spxrowcolor}%
-%              \fi
-%            }% patched \CT@row@color
-%        \fi
-%      \fi
-%     \else
-%       \aftergroup\spx@table@hackCT@colormix
-%     \fi
-% }%
-% }{\let\spx@table@hackCT@colormix\@empty}% no-op if no xcolor as \colorlet needed
-% \def\sphinxcolormix#1{\gdef\spx@colormixparam{#1}\spx@table@hackCT@colormix}
-%
 % \sphinxcolorblend
 \def\spx@table@hackCT@colorblend{%
     \ifnum\currentgrouptype=6\relax
@@ -529,12 +512,20 @@
       \aftergroup\spx@table@hackCT@colorblend
     \fi
 }
+\def\sphinxcolorblend#1{\gdef\spx@colorblendparam{{#1}}\spx@table@hackCT@colorblend}
 % Either xcolor.sty exists on user system and has been loaded by sphinx.sty,
 % or it does not exist, so we can use \@ifpackageloaded without delaying.
 \@ifpackageloaded{xcolor}%
   {}%
-  {\let\spx@table@hackCT@colorblend\@empty}% no-op if no xcolor
-\def\sphinxcolorblend#1{\gdef\spx@colorblendparam{{#1}}\spx@table@hackCT@colorblend}
+  {\def\sphinxcolorblend#1{%
+\PackageWarning{sphinx}{This table uses \string\sphinxcolorblend\space
+  but xcolor is not in\MessageBreak
+  the TeX/LaTeX installation, the command will be\MessageBreak
+  ignored in this and the next tables}%
+   \global\let\sphinxcolorblend\@gobble
+   \sphinxbuildwarning{colorblend}%
+   }%
+  }
 
 
 %%%%%%%%%%%%%%%%%%
@@ -597,7 +588,7 @@
 %
 % Only solution if we want to obey a raw \cellcolor, or a \columncolor, seems
 % to delay unboxing the gathered contents as part of the bottom row with
-% a suitable verticale adjustement...
+% a suitable vertical adjustment...
 %
   % The contents, which is a varwidth environment, has been captured in
   % \box0 (a \hbox).
@@ -664,8 +655,6 @@
         \@width\z@
   \endgroup
   % we need this to avoid colour panels hiding bottom parts of multirow text
-  % whether they originate in \columncolor or \rowcolor (or even \cellcolor
-  % even though it can be only in top cell, but we could hijack it).
   \spx@table@hackCT@nocolor
 }%
 
@@ -673,41 +662,6 @@
 % --- STYLING ---
 %
 
-% the initialization macros executed before the table environments
-% their scope is limited by a wrapper "savenotes" environment
-%
-% 0) color support is enacted via adding code to three hooks:
-%    - \sphinxtabletoprulehook       (implicit from \sphinxtoprule expansion)
-%    - \sphinxtableatstartofbodyhook (explicit from table templates)
-%    - \sphinxtableafterendhook      (explicit from table templates)
-%    additionally special adjustment must be made in \sphinxcline
-%
-% 1) we manage these three hooks in a way allowing a custom user extra wrapper
-% environment from a container class to use them as entry point for some
-% custom code.  The container code is done first, prior to table templates.
-% So, the style macros will *prepend* the needed color-code to the existing
-% custom user code, so the custom user code can override them.  The custom
-% user code should not redefine any of the 3 \sphinxtable...hook macros via a
-% \global\def, but their contents can use \gdef.  In fact they probably need
-% to for the first two hooks which are executed from inside the table and
-% a priori need their code to be in a \noalign which limits scope.
-%
-% 2) the table templates and LaTeX writer code make it so that only
-% one of either
-%      \sphinxthistablewithcolorrowsstyle,
-% or   \sphinxthistablewithnocolorrowsstyle
-% will be inserted explicitly depending on local :class: for table.
-% The global 'colorrows' style in latex_table_style translates at bottom
-% of this file into code for inserting \sphinxthistablewithcolorrowsstyle
-% at end of \sphinxthistablewithglobalstyle.  So it is impossible
-% to have first \sphinxthistablewithnocolorrowsstyle, then
-% \sphinxthistablewithcolorrowsstyle.  Nevertheless we have written
-% the code so that in this case colorrows would indeed activate (except
-% if it was already executed before as it self-annihilates).
-%
-\let\sphinxtabletoprulehook      \@empty
-\let\sphinxtableatstartofbodyhook\@empty
-\let\sphinxtableafterendhook     \@empty
 %
 % Support for colour in table
 %
@@ -715,6 +669,95 @@
 % providing \columncolor, \rowcolor, \cellcolor and \arrayrulecolor.
 \RequirePackage{colortbl}
 \let\spx@original@CT@setup\CT@setup
+
+% LaTeX's \cline has **strong** deficiencies
+% ******************************************
+% We work around them via an added \sphinxfixclines{number of columns} in the
+% table mark-up, and also extra mark-up \sphinxvlinecrossing{col no} for
+% crossings not contiguous to any cline.  To fix the gap at left extremity of a
+% \cline, we redefine the core LaTeX \c@line because this avoids adjoining a
+% small square with potential PDF viewer anti-aliasing issues.  We waited
+% after loading colortbl because it also redefines \c@line for it to obey the
+% colour set by \arrayrulecolor.
+% MEMO: booktabs package does *not* redefine \@cline so we are safe here.
+\def\@cline#1-#2\@nil{%
+  \omit
+  \@multicnt#1%
+  \advance\@multispan\m@ne
+  \ifnum\@multicnt=\@ne\@firstofone{&\omit}\fi
+  \@multicnt#2%
+  \advance\@multicnt-#1%
+  \advance\@multispan\@ne
+  {\CT@arc@
+% start of Sphinx modification
+  \ifnum#1>\@ne\kern-\spx@arrayrulewidth\fi% fix gap at join with vertical lines
+% end of Sphinx modification
+%    Comments:
+%
+%    If we had the information whether the previous column ended with a | or
+%    not, we could decide what to do here.  Alternatively the mark-up could
+%    use either original \cline or the one modified as here depending on case.
+%    One wonders why LaTeX does not provide itself the alternative as a
+%    complement to \cline, to use on case by case basis.
+%    Here we handle both at same time via using the \spx@arrayrulewidth which
+%    will be \z@ if no | at all so will induce here nothing.
+%
+%    As a result Sphinx basically supports well only tables having either all
+%    columns |-separated, or no | at all, as it uses \spx@arrayrrulewidth in
+%    all columns (here and in multicolumn code).
+%
+%    We also considered a method not modifying \c@line but it requires too
+%    much extra mark-up from Python LaTeX writer and/or extra LaTeX coding.
+% back to LaTeX+colortbl code
+  \leaders\hrule\@height\arrayrulewidth\hfill}%
+  \cr
+% the last one will need to be compensated, this is job of \sphinxclines
+  \noalign{\vskip-\arrayrulewidth}%
+}
+\def\spx@table@fixvlinejoin{%
+  {\CT@arc@ % this is the color command set up by \arrayrulecolor
+   \vrule\@height\arrayrulewidth
+% side remark: LaTeX has only a single \arrayrulewidth for all kinds
+% for cell borders in table, horizontal or vertical...
+         \@depth\z@
+         \@width\spx@arrayrulewidth
+  }%
+}
+% Sphinx LaTeX writer issues one such for each vertical line separating two
+% contiguous multirow cells; i.e. those crossings which can are not already
+% taken care of by our modified at left extremity \cline.
+% One could imagine a more \...crossingS (plural) receiving a comma delimited
+% list, which would simplify the mark-up but this would complexify both the
+% Python and the LaTeX coding.
+\def\sphinxtablevlinecrossing#1{%
+  \sphinxtabledecrementrownum
+  \omit
+  \@multispan{#1}%
+  \hfill
+  \spx@table@fixvlinejoin
+  \cr
+  \noalign{\vskip-\arrayrulewidth}%
+}
+% This "fixclines" is also needed if no \sphinxcline emitted and is useful
+% even in extreme case with no \sphinxvlinecrossing either, to give correct
+% height to multirow extending across all table width assuming other rows are
+% separated generally by an \hline, so as to keep coherent line spacing.
+%
+% It is designed to work ok even if no | separators are in the table (because
+% \spx@table@fixvlinejoin uses \spx@arrayrulewidth which is \z@ in that case).
+\def\sphinxtablefixclines#1{% #1 is the number of columns of the table
+  \sphinxtabledecrementrownum
+  \omit
+  \spx@table@fixvlinejoin% unneeded if first \cline started at column 1 but does
+                         % not hurt; fills small gap at left-bordered table
+  \@multispan{#1}%
+  \hfill
+  \spx@table@fixvlinejoin% fill small gap at right-bordered table
+  \cr
+  % this final one does NO \vskip-\arrayrulewidth... that's the whole point
+}
+%%%% end of \cline workarounds
+
 %
 % - passing option "table" to xcolor also loads colortbl but we needed to
 %   load color or xcolor prior to the handling of the options
@@ -765,21 +808,46 @@
 % extra overhang for color panels to avoid visual artifacts in pdf viewers
 % (particularly if borderless)
 \def\sphinxcolorpanelextraoverhang{0.1pt}
+\def\spx@table@leftcolorpanelextra {\sphinxcolorpanelextraoverhang}
+\def\spx@table@rightcolorpanelextra{\sphinxcolorpanelextraoverhang}
+% the macro to which \CT@row@color will be set for coloured rows, serves both
+% in header and body, the colours must have been defined at time of use
+\def\spx@table@CT@row@color{\ifspx@table@inmergedcell
+                              \CT@color{sphinxTableMergeColor}%
+                            \else
+                              \CT@color{sphinxTableRowColor}%
+                            \fi
+                            \@tempdimb\dimexpr\col@sep+\spx@table@leftcolorpanelextra\relax
+                            \@tempdimc\dimexpr\col@sep+\spx@table@rightcolorpanelextra\relax
+                           }%
+% used by itself this will influence a single row if \CT@everycr is the
+% colortbl one, to influences all rows the \CT@everycr must be modified (see
+% below)
+\def\sphinxrowcolorON {\global\let\CT@row@color\spx@table@CT@row@color}%
+% this one turns off row colours until the next \sphinxrowcolorON
+\def\sphinxrowcolorOFF{\global\let\CT@row@color\relax}%
+% this one inhibits the row colour in one cell only (can be used as
+% >{\sphinxnorowcolor} for turning off row colours in a given column)
+\def\sphinxnorowcolor{\spx@table@hackCT@norowcolor}%
 
-% set the colours according to row parity; a priori #1 is \rownum, but
-% the macro can be used in user added code
-\def\sphinxSwitchCaseRowColor#1{%
-  \ifodd#1\relax
-    \global\sphinxcolorlet{sphinxTableRowColor}{sphinxTableRowColorOdd}%
-    \global\sphinxcolorlet{sphinxTableMergeColor}{\sphinxTableMergeColorOdd}%
-  \else
-    \global\sphinxcolorlet{sphinxTableRowColor}{sphinxTableRowColorEven}%
-    \global\sphinxcolorlet{sphinxTableMergeColor}{\sphinxTableMergeColorEven}%
-  \fi
-}
+% \sphinxtoprule (or rather \sphinxtabletoprulehook) will be modified by
+% the colorrows class to execute this one: 
+\def\spx@table@@toprule@rowcolorON{%
+        \noalign{%
+          % Because of tabulary 2-pass system, the colour set-up at end of table
+          % would contaminate the header colours at start of table, so must reset
+          % them here.  We want all header rows to obey same colours, so we don't
+          % use original \CT@everycr which sets \CT@row@color to \relax.
+          \global\CT@everycr{\the\everycr}%
+          \global\sphinxcolorlet{sphinxTableRowColor}{sphinxTableRowColorHeader}%
+          \global\sphinxcolorlet{sphinxTableMergeColor}{\sphinxTableMergeColorHeader}%
+          \sphinxrowcolorON
+         }%
+}%
 
-% this will start the alternating colours, by letting \everycr increment the
-% \rownum counter and reset the colours according to \sphinxSwitchCaseRowColor\rownum
+% \sphinxtableatstartofbodyhook will be modified by colorrows class to
+% execute this one; it starts the alternating colours and triggers increment
+% or \rownum count at each new row (the xcolor base method for \rowcolors)
 \def\spx@table@@startbodycolorrows{%
     \noalign{%
        \global\CT@everycr{% Nota Bene: in a longtable with \hline the \everycr is
@@ -798,52 +866,82 @@
        \sphinxSwitchCaseRowColor\rownum % set up color for the first body row
        \sphinxrowcolorON  % has been done from \sphinxtoprule location but let's do
                           % it again in case  \sphinxtabletoprulehook has been used
-                          % to inihibit colours in the header rows
+                          % to inhibit colours in the header rows
     }% end of noalign contents
 }
-
-\def\sphinxrowcolorON{% the colours here must have been defined, and this is done
-                      % via \sphinxtabletoprulehook default action
-       \gdef\CT@row@color{\ifspx@table@inmergedcell
-                            \CT@color{sphinxTableMergeColor}%
-                          \else
-                            \CT@color{sphinxTableRowColor}%
-                          \fi
-                          \@tempdimb\dimexpr\col@sep+\sphinxcolorpanelextraoverhang\relax
-                          \@tempdimc\@tempdimb
-                         }%
-}%
-\def\sphinxrowcolorOFF{\global\let\CT@row@color\relax}%
-\def\sphinxnorowcolor{\spx@table@hackCT@norowcolor}% inhibits row colour in one cell only
-\def\spx@table@resetcolortbl{% can be executed from inside or outside a table
-    \global\let\CT@row@color\relax
-% we should probably be more cautious and not hard-code here the colortbl set-up
-    \global\CT@everycr{\noalign{\global\let\CT@row@color\relax}\the\everycr}%
+% set the colours according to row parity; a priori #1 is \rownum, but
+% the macro has been designed to be usable in user level added code
+\def\sphinxSwitchCaseRowColor#1{%
+  \ifodd#1\relax
+    \global\sphinxcolorlet{sphinxTableRowColor}{sphinxTableRowColorOdd}%
+    \global\sphinxcolorlet{sphinxTableMergeColor}{\sphinxTableMergeColorOdd}%
+  \else
+    \global\sphinxcolorlet{sphinxTableRowColor}{sphinxTableRowColorEven}%
+    \global\sphinxcolorlet{sphinxTableMergeColor}{\sphinxTableMergeColorEven}%
+  \fi
 }
 
-\def\spx@table@@toprulehook{%
-        \noalign{%
-          % Because of tabulary 2-pass system, the colour set-up at end of table
-          % would contaminate the header colours at start of table, so must reset
-          % them here.  We want all header rows to obey same colours, so we don't
-          % use original \CT@everycr which sets \CT@row@color to \relax.
-          \global\CT@everycr{\the\everycr}%
-          \global\sphinxcolorlet{sphinxTableRowColor}{sphinxTableRowColorHeader}%
-          \global\sphinxcolorlet{sphinxTableMergeColor}{\sphinxTableMergeColorHeader}%
-          \sphinxrowcolorON
-         }%
-}%
-
-% this macro is needed in color tables as each \cline or \cmidrule (booktabs)
-% consumes one \cr, offsetting the rownum parity.
+% each \cline or \cmidrule (booktabs) consumes one \cr, offsetting the \rownum
+% parity; so this macro serves to compensate and must be added to each such
+% \cline or \cmidrule (see below)
 \def\spx@table@@decrementrownum{\noalign{\global\advance\rownum\m@ne}}
 \let\sphinxtabledecrementrownum\@empty
 
-% At last the style macros
+% \sphinxtableafterendhook will be modified by colorrows class to execute
+% this after the table
+\def\spx@table@resetcolortbl{%
+    \sphinxrowcolorOFF
+    \spx@table@reset@CTeverycr
+}
+\def\spx@table@reset@CTeverycr{%
+% we should probably be more cautious and not hard-code here the colortbl
+% set-up; so the macro is defined without @ to fac
+    \global\CT@everycr{\noalign{\global\let\CT@row@color\relax}\the\everycr}%
+}
 
-% \spx@toprule is what the styles define; the colorrows class will prepend
-% some code in \sphinxtabletoprulehook
+% At last the style macros \sphinxthistablewithstandardstyle etc...
+
+% They are executed before the table environments in a scope limiting
+% wrapper "savenotes" environment.
+%
+% 0) colour support is enacted via adding code to three hooks:
+%    - \sphinxtabletoprulehook       (implicit from \sphinxtoprule expansion)
+%    - \sphinxtableatstartofbodyhook (explicit from table templates)
+%    - \sphinxtableafterendhook      (explicit from table templates)
+%    additionally special adjustment must be made in \sphinxcline
+%
 \def\sphinxtoprule{\spx@toprule\sphinxtabletoprulehook}
+% \spx@toprule is what is defined by the standard, booktabs and borderless
+% styles.
+% The colorrows class will prepend \spx@table@toprule@rowcolorON into
+% \sphinxtabletoprulehook which a priori is \@empty but can contain user added
+% extra code, and is executed after \spx@toprule.
+\let\sphinxtabletoprulehook      \@empty
+\let\sphinxtableatstartofbodyhook\@empty
+\let\sphinxtableafterendhook     \@empty
+%
+% 1) we manage these three hooks in a way allowing a custom user extra wrapper
+% environment from a container class to use them as entry point for some
+% custom code.  The container code is done first, prior to table templates.
+% So, the style macros will *prepend* the needed color-code to the existing
+% custom user code, so the custom user code can override them.  The custom
+% user code should not redefine any of the 3 \sphinxtable...hook macros via a
+% \global\def, but their contents can use \gdef.  In fact they probably need
+% to for the first two hooks which are executed from inside the table and
+% a priori need their code to be in a \noalign which limits scope.
+%
+% 2) the table templates and LaTeX writer code make it so that only
+% one of either
+%      \sphinxthistablewithcolorrowsstyle,
+% or   \sphinxthistablewithnocolorrowsstyle
+% will be inserted explicitly depending on local :class: for table.
+% The global 'colorrows' style in latex_table_style translates at bottom
+% of this file into code for inserting \sphinxthistablewithcolorrowsstyle
+% at end of \sphinxthistablewithglobalstyle.  So it is impossible
+% to have first \sphinxthistablewithnocolorrowsstyle, then
+% \sphinxthistablewithcolorrowsstyle.  Nevertheless we have written
+% the code so that in this case colorrows would indeed activate (except
+% if it was already executed before as it self-annihilates).
 
 % standard style
 \def\sphinxthistablewithstandardstyle{%
@@ -852,6 +950,9 @@
     % \sphinxtabledecrementrownum is a no-op which is redefined by colorrows
     % to correct the \rownum increment induced by \cline in colorrows regime
     \def\sphinxcline      {\sphinxtabledecrementrownum\cline}%
+    % LaTeX's \cline needs fixing
+    \let\sphinxvlinecrossing\sphinxtablevlinecrossing
+    \let\sphinxfixclines    \sphinxtablefixclines
     % Those three are inserted by the table templates
     \def\spx@toprule      {\hline}%
     \def\sphinxmidrule    {\hline}%
@@ -888,16 +989,18 @@
 \let\sphinxbooktabscmidrule  \@gobble % i.e. draw no short rules at all!
 % You can redefine this to use \cmidrule with various options, such
 % as \cmidrule(lr), but:
-% Attention, if you want this to use \cmidrule (or \cline) you must
+% Attention, if you want this to use \cmidrule (or \cline) you must,
+% if the table uses row colours,
 % also include the \sphinxtabledecrementrownum token like e.g. this
-%     \def\sphinxbooktabscmidrule{\sphinxtabledecrementrownum\cmidrule}
-% and it must be first due to internals of the \cmidrule usage of \futurelet,
-% if the table uses row colours.
+%     \def\sphinxbooktabscmidrule{\sphinxtabledecrementrownum\cmidrule(lr)}
+% and it must be first due to internals of the \cmidrule usage of \futurelet.
 
 \def\sphinxthistablewithbooktabsstyle{%
     \let\sphinxhline\@empty % there is no wrapper macro here so if you want to change that
                             % you will have to redefine \sphinxthistablewithbooktabsstyle
-    \def\sphinxcline     {\sphinxbooktabscmidrule}% defaults to \@gobble
+    \def\sphinxcline     {\sphinxbooktabscmidrule}% defaults to give \@gobble
+    \let\sphinxvlinecrossing\@gobble % no | in a booktabs-style table !
+    \let\sphinxfixclines    \@gobble % should not be used with booktabs + \cmidrule
     \def\spx@toprule     {\sphinxbooktabstoprule}%
     \def\sphinxmidrule   {\sphinxbooktabsmidrule}%
     \def\sphinxbottomrule{\sphinxbooktabsbottomrule}%
@@ -907,10 +1010,9 @@
     {}%
     {\def\sphinxthistablewithbooktabsstyle{%
     \PackageWarning{sphinx}{%
-Please add \string\usepackage{booktabs} to the preamble\MessageBreak
-to allow local use of booktabs table style}%
-    \textcolor{red}{\bfseries ADD LOADING OF booktabs TO THE 'preamble' KEY OF
-                    latex\textunderscore elements}\par
+Add \string\usepackage{booktabs} to the preamble to allow\MessageBreak
+local use of booktabs table style}%
+    \sphinxbuildwarning{booktabs}%
     \sphinxthistablewithstandardstyle
     }}%
 }%
@@ -919,6 +1021,8 @@ to allow local use of booktabs table style}%
 \def\sphinxthistablewithborderlessstyle{%
     \let\sphinxhline      \@empty
     \let\sphinxcline      \@gobble
+    \let\sphinxvlinecrossing\@gobble
+    \let\sphinxfixclines    \@gobble
     \let\spx@toprule      \@empty
     \let\sphinxmidrule    \@empty
     \let\sphinxbottomrule \@empty
@@ -927,15 +1031,16 @@ to allow local use of booktabs table style}%
 
 % colorrows style
 %
+\def\sphinxthistablewithcolorrowsstyle{%
 % this is defined to auto-silence itself (in the surrounding scope-limiting
 % environment) after one execution
-\def\sphinxthistablewithcolorrowsstyle{%
     \let\sphinxthistablewithcolorrowsstyle\@empty
 %
-    \let\spx@table@toprulehook         \spx@table@@toprulehook
+    \let\spx@table@toprule@rowcolorON  \spx@table@@toprule@rowcolorON
     \let\spx@table@startbodycolorrows  \spx@table@@startbodycolorrows
     \let\sphinxtabledecrementrownum    \spx@table@@decrementrownum
-    \spx@prepend\spx@table@toprulehook       \to\sphinxtabletoprulehook
+% Is it the best choice to "prepend" to existing code there?
+    \spx@prepend\spx@table@toprule@rowcolorON\to\sphinxtabletoprulehook
     \spx@prepend\spx@table@startbodycolorrows\to\sphinxtableatstartofbodyhook
 %
 % this one is not set to \@empty by nocolorrows, because it looks harmless
@@ -948,28 +1053,39 @@ to allow local use of booktabs table style}%
     \toks@\expandafter\expandafter\expandafter{\expandafter\the\expandafter\toks@#2}%
     \edef#2{\the\toks@}%
 }%
+% give it a global definition so we can test from inside user hooks if
+% colorrows is not activated simply by \ifx\spx@table@toprule@rowcolorON\@empty
+\let\spx@table@toprule@rowcolorON\@empty
 
 \def\sphinxthistablewithnocolorrowsstyle{%
 % rather than trying to remove the code added by 'colorrows' style, we 
 % simply make it no-op, without even checking if really it was activated.
-    \let\spx@table@toprulehook       \@empty
+    \let\spx@table@toprule@rowcolorON\@empty
     \let\spx@table@startbodycolorrows\@empty
     \let\sphinxtabledecrementrownum  \@empty
 % we don't worry about \sphinxtableafterendhook as the \spx@table@resetcolortbl
-% done at end can not do harm; and also we could also have not bothered with the
+% done at end can not do harm; and we could also have not bothered with the
 % \sphinxtabledecrementrownum as its \rownum decrement, if active, is harmless
 % in non-colorrows context
 }
 
 % The \spx@arrayrulewidth is used for some complex matters of merged
-% cells size computations
+% cells size computations.
 % tabularcolumns argument will override any global or local style and
-% trigger the appropriate adjustement of \spx@arrayrulewidth
+% trigger the appropriate adjustment of \spx@arrayrulewidth.
+% Notice that this will be bad if the table uses booktabs style
+% but anyhow table with booktabs should not use any | separator.
 \def\sphinxthistablewithvlinesstyle{%
     \def\spx@arrayrulewidth{\arrayrulewidth}%
+    \let\sphinxvlinecrossing\sphinxtablevlinecrossing
+    \let\sphinxfixclines    \sphinxtablefixclines
 }%
 \def\sphinxthistablewithnovlinesstyle{%
     \def\spx@arrayrulewidth{\z@}%
+    \let\sphinxvlinecrossing\@gobble
+    % let's not bother to modify \sphinxfixclines, it works fine and is
+    % useful in standard style + no vline (only hlines and clines);
+    % besides, only one of vline or novline style macro is executed
 }%
 
 % default is the standard style

@@ -879,23 +879,29 @@ Do not use quotes to enclose values, whether numerical or strings.
        names declared to "color" or "xcolor" are prefixed with "sphinx".
 
 ``TableRowColorHeader``
-    Background colour for (all) the header rows.  This (as the next
-    ``Table...`` colours) applies conditionnally
-    on either ``'colorrows'`` being contained in :confval:`latex_table_style`
-    or on the table receiving ``colorrows`` as class.
+    Sets the background colour for (all) the header rows.
+
+    This (as the other ``Table...`` colour keys) applies to all tables if
+    ``'colorrows'`` is contained in :confval:`latex_table_style`, except to
+    those with ``nocolorrows`` class; in absence of ``'colorrows'`` in
+    :confval:`latex_table_style` it will apply to tables with ``colorrows``
+    class.
+
+    As for the other ``'sphinxsetup'`` keys, it can be set or modified inside
+    the document from a ``\sphinxsetup{...}`` LaTeX command inserted via the
+    :dudir:`raw` directive, or from a LaTeX environment associated to a
+    `container class <latexcontainer_>`_.
 
     Default: ``{gray}{0.86}``
 
-    There is also ``TableMergeColorHeader`` which as long as it is not
-    defined (either globally via ``'sphinxsetup'`` interface or locally
-    via :dudir:`raw` directive and ``\sphinxsetup`` LaTeX macro) will keep
-    in sync with ``TableRowColorHeader``.
+    There is also ``TableMergeColorHeader``.  If used, sets a specific colour
+    for merged single-row cells in the header.
 
     .. versionadded:: 5.2.0
 
 ``TableRowColorOdd``
-    Background colour for odd rows in tables (the row count starts at ``1``
-    at the first non-header row).
+    Sets the background colour for odd rows in tables (the row count starts
+    at ``1`` at the first non-header row).
 
     Default: ``{gray}{0.92}``
 
@@ -904,7 +910,7 @@ Do not use quotes to enclose values, whether numerical or strings.
     .. versionadded:: 5.2.0
 
 ``TableRowColorEven``
-    Background colour for even rows in tables.
+    Sets the background colour for even rows in tables.
 
     Default ``{gray}{0.98}``
 
@@ -1463,6 +1469,8 @@ Miscellany
   .. versionchanged:: 1.5
      Formerly, use of *fncychap* with other styles than ``Bjarne`` was
      dysfunctional.
+
+.. _latexcontainer:
 
 - Docutils :dudir:`container` directives are supported in LaTeX output: to
   let a container class with name ``foo`` influence the final PDF via LaTeX,
