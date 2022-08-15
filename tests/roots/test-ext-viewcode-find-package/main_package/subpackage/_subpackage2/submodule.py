@@ -1,7 +1,6 @@
 """
 submodule
 """
-# raise RuntimeError('This module should not get imported')
 
 
 def decorator(f):
