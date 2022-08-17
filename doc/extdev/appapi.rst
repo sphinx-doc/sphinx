@@ -260,6 +260,9 @@ Here is a more detailed list of these events.
 
    .. versionadded:: 0.5
 
+   .. note:: Content of files included with the :dudir:`include` directive will
+             be accessible but cannot be modified from within this event.
+
 .. event:: object-description-transform (app, domain, objtype, contentnode)
 
    Emitted when an object description directive has run.  The *domain* and
