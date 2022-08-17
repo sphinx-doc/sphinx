@@ -1069,6 +1069,86 @@ local use of booktabs table style}%
 % in non-colorrows context
 }
 
+% (not so easy) implementation of the booktabscolorizegaps option
+% As it is used via \sphinxsetup its status is not known here and may
+% change locally.  So it must be implemented via delayed or conditional
+% code.
+%
+% We do not know the order of execution of \sphinxthistablewithbooktabsstyle
+% versus \sphinxthistablewithcolorrows: if booktabs is global option it
+% will be executed first; but if colorrows is global option and not booktabs
+% then colorrows will be executed first via \sphinxthistablewithglobalstyle
+%
+% Modifying things from locations such as \sphinxtabletoprulehook which are
+% executed within the table is not convenient as it must use \global
+% but then we would have to undo this after the table.
+%
+% So what we do is to prepare booktabs specific macros to incorporate
+% a conditional to check the colorrows status.  We must each time check
+% both if colorrows is activated and if colorizegaps is.
+%
+% We will use macros such as \sphinxbooktabstoprule which are supposedly
+% customizable by user, but here we pre-empt them.  Any modification will
+% break our code...
+%
+% We need a helper conditional
+\def\spx@ifbooktabscoloredgaps@TF{%
+    \if1\ifspx@opt@booktabscolorizegaps
+        \ifx\spx@table@toprule@rowcolorON\@empty0\fi
+        1\else0\fi
+         \expandafter\@firstoftwo
+    \else\expandafter\@secondoftwo
+    \fi
+}
+\def\sphinxbooktabstoprule{%
+    \spx@ifbooktabscoloredgaps@TF
+    {\spx@booktabs@specialtoprule}%
+    {\toprule}%
+}%
+\def\spx@booktabs@specialtoprule\sphinxtabletoprulehook{%
+    \specialrule{\heavyrulewidth}{\abovetopsep}{\z@}%
+    \sphinxtabletoprulehook% contains color init code
+    % unfortunately colortbl provides no way to save/restore the
+    % \arrayrulecolor status, we have to code it ourselves
+    \noalign{\global\let\spx@@@@saved@CT@arc@\CT@arc@
+             \gdef\CT@arc@{\color{sphinxTableRowColor}}%
+            }%
+    \specialrule{\belowrulesep}{\z@}{\z@}% already in a \noalign...
+    \noalign{\global\let\CT@arc@\spx@@@@saved@CT@arc@}%
+}%
+\def\sphinxbooktabsmidrule{%
+   \spx@ifbooktabscoloredgaps@TF
+   {\spx@booktabs@specialmidrule}%
+   {\midrule}%
+}%
+\def\spx@booktabs@specialmidrule{%
+   \noalign{\global\let\spx@@@@saved@CT@arc@\CT@arc@
+            \gdef\CT@arc@{\color{sphinxTableRowColor}}% this is RowColorHeader
+   }%
+   \specialrule{\aboverulesep}{\z@}{\z@}%
+   \noalign{\global\let\CT@arc@\spx@@@@saved@CT@arc@}%
+   \specialrule{\lightrulewidth}{\z@}{\z@}%
+   \noalign{\gdef\CT@arc@{\color{sphinxTableRowColorOdd}}}%
+   \specialrule{\belowrulesep}{\z@}{\z@}%
+   \noalign{\global\let\CT@arc@\spx@@@@saved@CT@arc@}%
+}%
+\def\sphinxbooktabsbottomrule{%
+   \spx@ifbooktabscoloredgaps@TF
+   {\spx@booktabs@specialbottomrule}%
+   {\bottomrule}%
+}%
+% the colour here is already updated because of the \\ before so we must
+% execute again the colour selection code, but this is not too complicated
+\def\spx@booktabs@specialbottomrule{%
+   \noalign{\global\let\spx@@@@saved@CT@arc@\CT@arc@
+            \sphinxSwitchCaseRowColor{\numexpr\rownum-\@ne\relax}%
+            \gdef\CT@arc@{\color{sphinxTableRowColor}}% holds current row colour
+   }%
+   \specialrule{\aboverulesep}{\z@}{\z@}%
+   \noalign{\global\let\CT@arc@\spx@@@@saved@CT@arc@}%
+   \specialrule{\heavyrulewidth}{\z@}{\belowbottomsep}%
+}%
+
 % The \spx@arrayrulewidth is used for some complex matters of merged
 % cells size computations.
 % tabularcolumns argument will override any global or local style and
