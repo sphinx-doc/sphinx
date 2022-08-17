@@ -1105,16 +1105,36 @@ local use of booktabs table style}%
     {\spx@booktabs@specialtoprule}%
     {\toprule}%
 }%
-\def\spx@booktabs@specialtoprule\sphinxtabletoprulehook{%
+\long\def\spx@table@crazyfork
+     #1\endfirsthead\endhead\sphinxtableatstartofbodyhook#2#3\@nil{#2}
+% we fetch the next token to check if there is a header or not
+% this is a bit fragile as it relies on the table templates
+% and it assumes this token #1 is never braced...
+% let's make this \long in case #1 is \par (should not be)
+\long\def\spx@booktabs@specialtoprule\sphinxtabletoprulehook#1{%
     \specialrule{\heavyrulewidth}{\abovetopsep}{\z@}%
     \sphinxtabletoprulehook% contains color init code
     % unfortunately colortbl provides no way to save/restore the
     % \arrayrulecolor status, we have to code it ourselves
     \noalign{\global\let\spx@@@@saved@CT@arc@\CT@arc@
-             \gdef\CT@arc@{\color{sphinxTableRowColor}}%
-            }%
+             \gdef\CT@arc@{\color{sphinxTableRowColor% this is in fact Header color
+% this crazy code relies on \color using here expansion only and it expands
+% to "Odd" if #1 is one of \endfirsthead, \endhead or
+% \sphinxtableatstartofbodyhook else it expands to nothing.
+                  \spx@table@crazyfork
+             #1\endhead\sphinxtableatstartofbodyhook{Odd}%
+             \endfirsthead#1\sphinxtableatstartofbodyhook{Odd}%
+             \endfirsthead\endhead#1{Odd}%
+             \endfirsthead\endhead\sphinxtableatstartofbodyhook{}%
+                  \@nil
+                                 }% end of crazy color name build
+                           }% end of \CT@arc@ def
+            }% end of \noalign
     \specialrule{\belowrulesep}{\z@}{\z@}% already in a \noalign...
     \noalign{\global\let\CT@arc@\spx@@@@saved@CT@arc@}%
+    #1% let's not forget to re-insert this #1 in token stream
+      % fortunately longtable's \endfirsthead/\endhead are not delimiters but
+      % are really tokens awaiting expansion...
 }%
 \def\sphinxbooktabsmidrule{%
    \spx@ifbooktabscoloredgaps@TF
