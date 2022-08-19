@@ -17,6 +17,7 @@ Features added
   parameter lists and the declaration.
 - #10755: linkcheck: Check the source URL of raw directives that use the ``url``
   option.
+- #10781: Allow :rst:role:`ref` role to be used with definitions and fields.
 
 Bugs fixed
 ----------
