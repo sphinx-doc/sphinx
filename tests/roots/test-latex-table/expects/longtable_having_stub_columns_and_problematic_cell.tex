@@ -18,8 +18,9 @@ header3
 \sphinxmidrule
 \endfirsthead
 
-\multicolumn{3}{c}%
-{\makebox[0pt]{\sphinxtablecontinued{\tablename\ \thetable{} \textendash{} continued from previous page}}}\\
+\multicolumn{3}{c}{\sphinxnorowcolor
+    \makebox[0pt]{\sphinxtablecontinued{\tablename\ \thetable{} \textendash{} continued from previous page}}%
+}\\
 \sphinxtoprule
 \sphinxstyletheadfamily 
 \sphinxAtStartPar
@@ -35,7 +36,9 @@ header3
 \endhead
 
 \sphinxbottomrule
-\multicolumn{3}{r}{\makebox[0pt][r]{\sphinxtablecontinued{continues on next page}}}\\
+\multicolumn{3}{r}{\sphinxnorowcolor
+    \makebox[0pt][r]{\sphinxtablecontinued{continues on next page}}%
+}\\
 \endfoot
 
 \endlastfoot

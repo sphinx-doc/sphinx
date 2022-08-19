@@ -44,8 +44,9 @@
 <% endif -%>
 \endfirsthead
 
-\multicolumn{<%= table.colcount %>}{c}%
-{\makebox[0pt]{\sphinxtablecontinued{\tablename\ \thetable{} \textendash{} <%= _('continued from previous page') %>}}}\\
+\multicolumn{<%= table.colcount %>}{c}{\sphinxnorowcolor
+    \makebox[0pt]{\sphinxtablecontinued{\tablename\ \thetable{} \textendash{} <%= _('continued from previous page') %>}}%
+}\\
 \sphinxtoprule
 <%= ''.join(table.header) -%>
 <%- if table.header -%>
@@ -54,7 +55,9 @@
 \endhead
 
 \sphinxbottomrule
-\multicolumn{<%= table.colcount %>}{r}{\makebox[0pt][r]{\sphinxtablecontinued{<%= _('continues on next page') %>}}}\\
+\multicolumn{<%= table.colcount %>}{r}{\sphinxnorowcolor
+    \makebox[0pt][r]{\sphinxtablecontinued{<%= _('continues on next page') %>}}%
+}\\
 \endfoot
 
 \endlastfoot
