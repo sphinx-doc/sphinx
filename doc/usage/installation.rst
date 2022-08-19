@@ -192,15 +192,14 @@ When installing Sphinx using pip,
 it is highly recommended to use *virtual environments*,
 which isolate the installed packages from the system packages,
 thus removing the need to use administrator privileges.
-To create a virtual environment in the ``~/.venv`` directory
+To create a virtual environment in the ``.venv`` directory
 and install Sphinx, use the following commands.
 
 ::
 
-   $ cd ~
    $ python3 -m venv .venv
-   $ ~/.venv/bin/python3 -m pip install --upgrade pip
-   $ ~/.venv/bin/python3 -m pip install sphinx
+   $ .venv/bin/python -m pip install --upgrade pip
+   $ .venv/bin/python -m pip install sphinx
 
 You can read more about them in the `Python Packaging User Guide`_.
 
