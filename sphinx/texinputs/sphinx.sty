@@ -124,7 +124,20 @@ will be set to white}%
 % Optional usage of booktabs package for tables
 \DeclareBoolOption[false]{booktabs}
 \DeclareBoolOption[false]{borderless}
-\DeclareBoolOption[false]{booktabscolorizegaps}
+\DeclareBoolOption[true]{booktabscolorgaps}
+\DeclareVoidOption{booktabsnogaps}{%
+  \ifx\@nodocument\relax
+  % in body
+    \expandafter\@firstofone
+  \else
+  % in preamble, wait for at begin document
+    \expandafter\AtBeginDocument
+  \fi
+  {\ifdefined\abovetopsep % silently do nothing if booktabs not loaded
+      \abovetopsep\z@\belowrulesep\z@\aboverulesep\z@\belowbottomsep\z@
+   \fi
+  }%
+}
 % Coloured table rows
 \DeclareBoolOption[false]{colorrows}
 % Sphinx legacy text layout: 1in margins on all four sides

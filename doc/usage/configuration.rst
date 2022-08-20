@@ -2294,13 +2294,6 @@ These options influence LaTeX output.
       On the other hand one can use ``colorrows`` class for individual tables
       with no extra package (as Sphinx since 5.2.0 always loads colortbl_).
 
-      When using both ``'booktabs'`` and ``'colorrows'`` there is a small
-      white gap between the bottom row and the bottom rule, and between the
-      first body row and the (mid or top) rule above it.  It is possible to
-      extend the background colouring to touch the rules, via some extra LaTeX
-      coding.  This may be added to Sphinx in case of feature request, but
-      this whitespace is considered currently a quality rather than a defect.
-
    .. _booktabs: https://ctan.org/pkg/booktabs
    .. _colortbl: https://ctan.org/pkg/colortbl
    .. _xcolor: https://ctan.org/pkg/xcolor

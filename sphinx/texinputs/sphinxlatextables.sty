@@ -980,12 +980,13 @@
                     \spx@original@@xcmidrule}%
   \fi
 }
-% wrappers to allow ultimate customization, e.g. via a container class, of the
-% widths (aka thickness) associated with the booktabs rule (advanced users may
-% even employ \specialrule here to control vertical spacing).
+% wrappers to allow customization, e.g. via a container class
+% the top, mid, bottom definitions are in fact overwritten (later, below)
+% byt more complex ones needed to handle booktabs+colorrows context
 \def\sphinxbooktabstoprule   {\toprule}
 \def\sphinxbooktabsmidrule   {\midrule}
 \def\sphinxbooktabsbottomrule{\bottomrule}
+%
 \let\sphinxbooktabscmidrule  \@gobble % i.e. draw no short rules at all!
 % You can redefine this to use \cmidrule with various options, such
 % as \cmidrule(lr), but:
@@ -1069,10 +1070,16 @@ local use of booktabs table style}%
 % in non-colorrows context
 }
 
-% (not so easy) implementation of the booktabscolorizegaps option
-% As it is used via \sphinxsetup its status is not known here and may
-% change locally.  So it must be implemented via delayed or conditional
-% code.
+% (not so easy) implementation of the booktabscolorgaps option.  This option
+% defaults to true and is not officially documented, as already colorrows is
+% only opt-in, so it is there only as a "turn-off" switch, but if nobody
+% complains in next few months, it will probably be removed altogether at
+% 6.0.0.  The reason it exists is because of longtable aspeces described
+% below.
+%
+% As it is used via \sphinxsetup booktabscolorgaps status is not known here
+% and may change locally.  So it must be implemented via delayed or
+% conditional code.
 %
 % We do not know the order of execution of \sphinxthistablewithbooktabsstyle
 % versus \sphinxthistablewithcolorrows: if booktabs is global option it
@@ -1085,45 +1092,40 @@ local use of booktabs table style}%
 %
 % So what we do is to prepare booktabs specific macros to incorporate
 % a conditional to check the colorrows status.  We must each time check
-% both if colorrows is activated and if colorizegaps is.
-%
-% We will use macros such as \sphinxbooktabstoprule which are supposedly
-% customizable by user, but here we pre-empt them.  Any modification will
-% break our code...
-%
-% MEMO: if this is merged and default behaviour I should then use names such
-% as \sphinxbooktabsspecialtoprule (or perhaps a better one) which would
-% receive the meaning attributed below to \sphinxbooktabstoprule, and the code
-% would do here once \def\sphinxbooktabstoprule{\sphinxbooktabsspecialtoprule}
-% rather so a user custom one (or an option) could simply do for example
-% \def\sphinxbooktabstoprule {\toprule or whatever} to undo this behaviour.
-% Same for midrule and bottomrule.
-\def\spx@ifbooktabscoloredgaps@TF{%
-    \if1\ifspx@opt@booktabscolorizegaps
+% both if colorrows is activated and if colorgaps is.  We do this via
+% macros without @ so they can be used easily in customization code.
+% When and if booktabscolorgaps option is removed, we can then replace
+% \sphinxifbooktabswithcolorgapsTF by \sphinxifthistablewithcolorrowsTF
+\def\sphinxifbooktabswithcolorgapsTF{%
+    \if1\ifspx@opt@booktabscolorgaps
         \sphinxifthistablewithcolorrowsTF{1}{0}%
         \else0\fi
          \expandafter\@firstoftwo
     \else\expandafter\@secondoftwo
     \fi
 }
+% as this is done without "@" it can be relatively easily be overwritten
+% by user in customization code
 \def\sphinxbooktabstoprule{%
-    \spx@ifbooktabscoloredgaps@TF
-    {\spx@booktabs@specialtoprule}%
+    \sphinxifbooktabswithcolorgapsTF
+    {\sphinxbooktabsspecialtoprule}%
     {\toprule}%
 }%
-\def\sphinxbooktabsspecialruleoverhang{0.1pt}% avoid pixel/rounding effects
+\def\sphinxbooktabscolorgapsoverhang{0.1pt}% avoid pixel/rounding effects
+% auxiliary fork
 \long\def\spx@table@crazyfork
      #1\endfirsthead\endhead\sphinxtableatstartofbodyhook#2#3\@nil{#2}
 % we fetch the next token to check if there is a header or not
 % this is a bit fragile as it relies on the table templates
 % and it assumes this token #1 is never braced...
 % let's make this \long in case #1 is \par (should not be)
-\long\def\spx@booktabs@specialtoprule\sphinxtabletoprulehook#1{%
+\long\def\sphinxbooktabsspecialtoprule\sphinxtabletoprulehook#1{%
     \specialrule{\heavyrulewidth}{\abovetopsep}{\z@}%
-    \sphinxtabletoprulehook% contains color init code
+    % this macro contains colour init code (and defines sphinxTableRowColor)
+    \sphinxtabletoprulehook
     % unfortunately colortbl provides no way to save/restore the
     % \arrayrulecolor status, we have to code it ourselves
-    \noalign{\global\let\spx@@@@saved@CT@arc@\CT@arc@
+    \noalign{\global\let\spx@@saved@CT@arc@\CT@arc@
 % \@declaredcolor is not \long.  Although #1 can probably never be \par with
 % our templates, let's be cautious and not use the creazyfork inside the \color
                   \spx@table@crazyfork
@@ -1134,52 +1136,71 @@ local use of booktabs table style}%
              \endfirsthead\endhead#1\@secondoftwo
              \endfirsthead\endhead\sphinxtableatstartofbodyhook\@firstoftwo
                   \@nil
-             {\gdef\CT@arc@{\color{sphinxTableRowColor}}}% Header color
+             {\gdef\CT@arc@{\color{sphinxTableRowColor}}}%
              {\gdef\CT@arc@{\color{sphinxTableRowColorOdd}}}%
             }% end of \noalign
     % \specialrule uses \noalign itself
-    \specialrule{\dimexpr\belowrulesep+\sphinxbooktabsspecialruleoverhang\relax}%
-                {\z@}{-\sphinxbooktabsspecialruleoverhang}%
-    \noalign{\global\let\CT@arc@\spx@@@@saved@CT@arc@}%
+    \specialrule{\dimexpr\belowrulesep+\sphinxbooktabscolorgapsoverhang\relax}%
+                {\z@}{-\sphinxbooktabscolorgapsoverhang}%
+    \noalign{\global\let\CT@arc@\spx@@saved@CT@arc@}%
     #1% let's not forget to re-insert this #1 in token stream
       % fortunately longtable's \endfirsthead/\endhead are not delimiters but
       % are really tokens awaiting expansion...
 }%
 \def\sphinxbooktabsmidrule{%
-   \spx@ifbooktabscoloredgaps@TF
-   {\spx@booktabs@specialmidrule}%
+   \sphinxifbooktabswithcolorgapsTF
+   {\sphinxbooktabsspecialmidrule}%
    {\midrule}%
 }%
-\def\spx@booktabs@specialmidrule{%
-   \noalign{\global\let\spx@@@@saved@CT@arc@\CT@arc@
+\def\sphinxbooktabsspecialmidrule{%
+   \noalign{\global\let\spx@@saved@CT@arc@\CT@arc@
             \gdef\CT@arc@{\color{sphinxTableRowColor}}% this is RowColorHeader
    }%
-   \specialrule{\dimexpr\aboverulesep+\sphinxbooktabsspecialruleoverhang\relax\relax}%
-               {-\sphinxbooktabsspecialruleoverhang}{\z@}%
-   \noalign{\global\let\CT@arc@\spx@@@@saved@CT@arc@}%
+   \specialrule{\dimexpr\aboverulesep+\sphinxbooktabscolorgapsoverhang\relax\relax}%
+               {-\sphinxbooktabscolorgapsoverhang}{\z@}%
+   \noalign{\global\let\CT@arc@\spx@@saved@CT@arc@}%
    \specialrule{\lightrulewidth}{\z@}{\z@}%
    \noalign{\gdef\CT@arc@{\color{sphinxTableRowColorOdd}}}%
-   \specialrule{\dimexpr\belowrulesep+\sphinxbooktabsspecialruleoverhang\relax\relax}%
-               {\z@}{-\sphinxbooktabsspecialruleoverhang}%
-   \noalign{\global\let\CT@arc@\spx@@@@saved@CT@arc@}%
+   \specialrule{\dimexpr\belowrulesep+\sphinxbooktabscolorgapsoverhang\relax\relax}%
+               {\z@}{-\sphinxbooktabscolorgapsoverhang}%
+   \noalign{\global\let\CT@arc@\spx@@saved@CT@arc@}%
 }%
 \def\sphinxbooktabsbottomrule{%
-   \spx@ifbooktabscoloredgaps@TF
-   {\spx@booktabs@specialbottomrule}%
+   \sphinxifbooktabswithcolorgapsTF
+   {\sphinxbooktabsspecialbottomrule}%
    {\bottomrule}%
 }%
-% the colour here is already updated because of the \\ before so we must
-% execute again the colour selection code, but this is not too complicated
-\def\spx@booktabs@specialbottomrule{%
-   \noalign{\global\let\spx@@@@saved@CT@arc@\CT@arc@
+% The colour here is already updated because of the \\ before so we must
+% execute again the colour selection code, but this is not too complicated.
+% What is annoying though is that \sphinxbottomrule in the longtable context
+% appears both in the "foot" part and after the last body row.  For the first
+% occurrence the \rownum has not been reset and could be arbitrary.  So we had
+% to set it to "2" in the longtable templates :-(.  Not "0" in order to avoid
+% \sphinxSwitchCaseRowColor having to know how to handle negative inputs,
+% although the Sphinx definition has no issue with that.  (there is no easy
+% official way from longtable to know the macro is expanded in a "foot" box).
+% So 2-1=1 and in longtable the colour will always be the "Odd" one, except at
+% very end of longtable, where it will match colour of the last row.
+\def\sphinxbooktabsspecialbottomrule{%
+   \noalign{\global\let\spx@@saved@CT@arc@\CT@arc@
             \sphinxSwitchCaseRowColor{\numexpr\rownum-\@ne\relax}%
-            \gdef\CT@arc@{\color{sphinxTableRowColor}}% holds current row colour
+            \gdef\CT@arc@{\color{sphinxTableRowColor}}%
    }%
-   \specialrule{\dimexpr\aboverulesep+\sphinxbooktabsspecialruleoverhang\relax}%
-               {-\sphinxbooktabsspecialruleoverhang}{\z@}%
-   \noalign{\global\let\CT@arc@\spx@@@@saved@CT@arc@}%
+   \specialrule{\dimexpr\aboverulesep+\sphinxbooktabscolorgapsoverhang\relax}%
+               {-\sphinxbooktabscolorgapsoverhang}{\z@}%
+   \noalign{\global\let\CT@arc@\spx@@saved@CT@arc@}%
    \specialrule{\heavyrulewidth}{\z@}{\belowbottomsep}%
 }%
+%
+% MEMO: with longtable \sphinxtoprule, \sphinxmidrule and \sphinxbottomrule
+% are evaluated at time of constructing the headers and footers as boxes
+% (already typeset material and expanded macros; \sphinxbottomrule is also
+% evaluated at very end of table body, i.e. "normally").  So the used colour
+% to fill the booktabs gaps is decided during the headers and footers
+% construction by longtable.  Actually they are expanded twice: in firsthead
+% then in head, respectively in foot and lastfoot.  But in current design the
+% header row colours are fixed, not alternating, so there is at least no
+% coherence issue there.
 
 % The \spx@arrayrulewidth is used for some complex matters of merged
 % cells size computations.
