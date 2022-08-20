@@ -53,7 +53,7 @@
 \sphinxmidrule
 <% endif -%>
 \endhead
-\noalign{\global\rownum2 }%
+
 \sphinxbottomrule
 \multicolumn{<%= table.colcount %>}{r}{\sphinxnorowcolor
     \makebox[0pt][r]{\sphinxtablecontinued{<%= _('continues on next page') %>}}%

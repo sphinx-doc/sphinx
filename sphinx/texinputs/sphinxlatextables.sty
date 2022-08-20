@@ -892,6 +892,10 @@
 \def\spx@table@resetcolortbl{%
     \sphinxrowcolorOFF
     \spx@table@reset@CTeverycr
+% this last bit is done in order for the \sphinxbottomrule from the "foot"
+% longtable template to be able to use same code as the \sphinxbottomrule
+% at end of table body; see \sphinxbooktabsspecialbottomrule code
+    \global\rownum\z@
 }
 \def\spx@table@reset@CTeverycr{%
 % we should probably be more cautious and not hard-code here the colortbl
@@ -1174,13 +1178,12 @@ local use of booktabs table style}%
 % execute again the colour selection code, but this is not too complicated.
 % What is annoying though is that \sphinxbottomrule in the longtable context
 % appears both in the "foot" part and after the last body row.  For the first
-% occurrence the \rownum has not been reset and could be arbitrary.  So we had
-% to set it to "2" in the longtable templates :-(.  Not "0" in order to avoid
-% \sphinxSwitchCaseRowColor having to know how to handle negative inputs,
-% although the Sphinx definition has no issue with that.  (there is no easy
-% official way from longtable to know the macro is expanded in a "foot" box).
-% So 2-1=1 and in longtable the colour will always be the "Odd" one, except at
-% very end of longtable, where it will match colour of the last row.
+% occurrence the \rownum could be arbitrary if it had not been reset by each
+% table using it via the \sphinxtableafterendhook (see above).  This avoids
+% having to modify the longtable template.  But as \rownum is thus 0 in the
+% "foot", the \sphinxSwitchCaseRowColor has to know how to handle negative
+% inputs (in fact the -1 value), the Sphinx definition has no issue with that
+% but any redefinition must be aware of this constraint.
 \def\sphinxbooktabsspecialbottomrule{%
    \noalign{\global\let\spx@@saved@CT@arc@\CT@arc@
             \sphinxSwitchCaseRowColor{\numexpr\rownum-\@ne\relax}%
