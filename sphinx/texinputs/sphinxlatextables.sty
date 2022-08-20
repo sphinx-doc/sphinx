@@ -1031,9 +1031,11 @@ local use of booktabs table style}%
 
 % colorrows style
 %
+\let\sphinxifthistablewithcolorrowsTF\@secondoftwo
 \def\sphinxthistablewithcolorrowsstyle{%
+    \let\sphinxifthistablewithcolorrowsTF\@firstoftwo
 % this is defined to auto-silence itself (in the surrounding scope-limiting
-% environment) after one execution
+% environment) after one execution ("colorrows" can never follow "nocolorrows")
     \let\sphinxthistablewithcolorrowsstyle\@empty
 %
     \let\spx@table@toprule@rowcolorON  \spx@table@@toprule@rowcolorON
@@ -1053,11 +1055,9 @@ local use of booktabs table style}%
     \toks@\expandafter\expandafter\expandafter{\expandafter\the\expandafter\toks@#2}%
     \edef#2{\the\toks@}%
 }%
-% give it a global definition so we can test from inside user hooks if
-% colorrows is not activated simply by \ifx\spx@table@toprule@rowcolorON\@empty
-\let\spx@table@toprule@rowcolorON\@empty
 
 \def\sphinxthistablewithnocolorrowsstyle{%
+    \let\sphinxifthistablewithcolorrowsTF\@secondoftwo
 % rather than trying to remove the code added by 'colorrows' style, we 
 % simply make it no-op, without even checking if really it was activated.
     \let\spx@table@toprule@rowcolorON\@empty
@@ -1068,6 +1068,118 @@ local use of booktabs table style}%
 % \sphinxtabledecrementrownum as its \rownum decrement, if active, is harmless
 % in non-colorrows context
 }
+
+% (not so easy) implementation of the booktabscolorizegaps option
+% As it is used via \sphinxsetup its status is not known here and may
+% change locally.  So it must be implemented via delayed or conditional
+% code.
+%
+% We do not know the order of execution of \sphinxthistablewithbooktabsstyle
+% versus \sphinxthistablewithcolorrows: if booktabs is global option it
+% will be executed first; but if colorrows is global option and not booktabs
+% then colorrows will be executed first via \sphinxthistablewithglobalstyle
+%
+% Modifying things from locations such as \sphinxtabletoprulehook which are
+% executed within the table is not convenient as it must use \global
+% but then we would have to undo this after the table.
+%
+% So what we do is to prepare booktabs specific macros to incorporate
+% a conditional to check the colorrows status.  We must each time check
+% both if colorrows is activated and if colorizegaps is.
+%
+% We will use macros such as \sphinxbooktabstoprule which are supposedly
+% customizable by user, but here we pre-empt them.  Any modification will
+% break our code...
+%
+% MEMO: if this is merged and default behaviour I should then use names such
+% as \sphinxbooktabsspecialtoprule (or perhaps a better one) which would
+% receive the meaning attributed below to \sphinxbooktabstoprule, and the code
+% would do here once \def\sphinxbooktabstoprule{\sphinxbooktabsspecialtoprule}
+% rather so a user custom one (or an option) could simply do for example
+% \def\sphinxbooktabstoprule {\toprule or whatever} to undo this behaviour.
+% Same for midrule and bottomrule.
+\def\spx@ifbooktabscoloredgaps@TF{%
+    \if1\ifspx@opt@booktabscolorizegaps
+        \sphinxifthistablewithcolorrowsTF{1}{0}%
+        \else0\fi
+         \expandafter\@firstoftwo
+    \else\expandafter\@secondoftwo
+    \fi
+}
+\def\sphinxbooktabstoprule{%
+    \spx@ifbooktabscoloredgaps@TF
+    {\spx@booktabs@specialtoprule}%
+    {\toprule}%
+}%
+\def\sphinxbooktabsspecialruleoverhang{0.1pt}% avoid pixel/rounding effects
+\long\def\spx@table@crazyfork
+     #1\endfirsthead\endhead\sphinxtableatstartofbodyhook#2#3\@nil{#2}
+% we fetch the next token to check if there is a header or not
+% this is a bit fragile as it relies on the table templates
+% and it assumes this token #1 is never braced...
+% let's make this \long in case #1 is \par (should not be)
+\long\def\spx@booktabs@specialtoprule\sphinxtabletoprulehook#1{%
+    \specialrule{\heavyrulewidth}{\abovetopsep}{\z@}%
+    \sphinxtabletoprulehook% contains color init code
+    % unfortunately colortbl provides no way to save/restore the
+    % \arrayrulecolor status, we have to code it ourselves
+    \noalign{\global\let\spx@@@@saved@CT@arc@\CT@arc@
+% \@declaredcolor is not \long.  Although #1 can probably never be \par with
+% our templates, let's be cautious and not use the creazyfork inside the \color
+                  \spx@table@crazyfork
+% this crazy code checks if #1 is one of \endfirsthead, \endhead or
+% \sphinxtableatstartofbodyhook, as criterion for table with no header
+             #1\endhead\sphinxtableatstartofbodyhook\@secondoftwo
+             \endfirsthead#1\sphinxtableatstartofbodyhook\@secondoftwo
+             \endfirsthead\endhead#1\@secondoftwo
+             \endfirsthead\endhead\sphinxtableatstartofbodyhook\@firstoftwo
+                  \@nil
+             {\gdef\CT@arc@{\color{sphinxTableRowColor}}}% Header color
+             {\gdef\CT@arc@{\color{sphinxTableRowColorOdd}}}%
+            }% end of \noalign
+    % \specialrule uses \noalign itself
+    \specialrule{\dimexpr\belowrulesep+\sphinxbooktabsspecialruleoverhang\relax}%
+                {\z@}{-\sphinxbooktabsspecialruleoverhang}%
+    \noalign{\global\let\CT@arc@\spx@@@@saved@CT@arc@}%
+    #1% let's not forget to re-insert this #1 in token stream
+      % fortunately longtable's \endfirsthead/\endhead are not delimiters but
+      % are really tokens awaiting expansion...
+}%
+\def\sphinxbooktabsmidrule{%
+   \spx@ifbooktabscoloredgaps@TF
+   {\spx@booktabs@specialmidrule}%
+   {\midrule}%
+}%
+\def\spx@booktabs@specialmidrule{%
+   \noalign{\global\let\spx@@@@saved@CT@arc@\CT@arc@
+            \gdef\CT@arc@{\color{sphinxTableRowColor}}% this is RowColorHeader
+   }%
+   \specialrule{\dimexpr\aboverulesep+\sphinxbooktabsspecialruleoverhang\relax\relax}%
+               {-\sphinxbooktabsspecialruleoverhang}{\z@}%
+   \noalign{\global\let\CT@arc@\spx@@@@saved@CT@arc@}%
+   \specialrule{\lightrulewidth}{\z@}{\z@}%
+   \noalign{\gdef\CT@arc@{\color{sphinxTableRowColorOdd}}}%
+   \specialrule{\dimexpr\belowrulesep+\sphinxbooktabsspecialruleoverhang\relax\relax}%
+               {\z@}{-\sphinxbooktabsspecialruleoverhang}%
+   \noalign{\global\let\CT@arc@\spx@@@@saved@CT@arc@}%
+}%
+\def\sphinxbooktabsbottomrule{%
+   \spx@ifbooktabscoloredgaps@TF
+   {\spx@booktabs@specialbottomrule}%
+   {\bottomrule}%
+}%
+% the colour here is already updated because of the \\ before so we must
+% execute again the colour selection code, but this is not too complicated
+\def\spx@booktabs@specialbottomrule{%
+   \noalign{\global\let\spx@@@@saved@CT@arc@\CT@arc@
+            \sphinxSwitchCaseRowColor{\numexpr\rownum-\@ne\relax}%
+            \gdef\CT@arc@{\color{sphinxTableRowColor}}% holds current row colour
+   }%
+   \specialrule{\dimexpr\aboverulesep+\sphinxbooktabsspecialruleoverhang\relax}%
+               {-\sphinxbooktabsspecialruleoverhang}{\z@}%
+   \noalign{\global\let\CT@arc@\spx@@@@saved@CT@arc@}%
+   \specialrule{\heavyrulewidth}{\z@}{\belowbottomsep}%
+}%
 
 % The \spx@arrayrulewidth is used for some complex matters of merged
 % cells size computations.
