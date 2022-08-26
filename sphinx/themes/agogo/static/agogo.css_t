@@ -273,6 +273,11 @@ div.document ol {
 
 div.sidebar,
 aside.sidebar {
+  {%- if theme_rightsidebar|tobool %}
+  float: right;
+  {%- else %}
+  float: left;
+  {%- endif %}
   font-size: .9em;
 }
 
