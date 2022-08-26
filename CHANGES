@@ -24,6 +24,7 @@ Bugs fixed
 - #10257: C++, ensure consistent non-specialization template argument
   representation.
 - #10729: C++, fix parsing of certain non-type template parameter packs.
+- #10715: Revert #10520: "Fix" use of sidebar classes in ``agogo.css_t``
 
 Testing
 --------
