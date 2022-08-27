@@ -2,8 +2,12 @@ name: CI (node.js)
 
 on: [push, pull_request]
 
+permissions: {} # none
+
 jobs:
   build:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     env:
       node-version: 16
