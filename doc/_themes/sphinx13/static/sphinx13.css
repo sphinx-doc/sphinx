@@ -226,7 +226,7 @@ div.footer {
     background-image: url(footerbg.png);
     color: #ccc;
     text-shadow: 0 0 .2px rgba(255, 255, 255, 0.8);
-    padding: 3px 8px 3px 0;
+    padding: 3px 8px 3px 8px;
     clear: both;
     font-size: 0.8em;
     text-align: right;
