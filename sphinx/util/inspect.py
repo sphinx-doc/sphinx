@@ -61,8 +61,17 @@ def unwrap_all(obj: Any, *, stop: Callable = None) -> Any:
         elif ispartial(obj):
             obj = obj.func
         elif inspect.isroutine(obj) and hasattr(obj, '__wrapped__'):
+            # Don't unwrap wrapped callable types:
             if hasattr(obj.__wrapped__, '__call__'):
-                return obj  # Don't unwrap wrapped callable types
+                # From Python 3.10, staticmethod and classmethod have
+                # "__wrapped__" and "__wrapped__.__call__" attributes.
+                # Check that we are in Python 3.9 or earlier, or that the object
+                # isn't a staticmethod or classmethod before returning.
+                # xref: https://docs.python.org/3.10/whatsnew/3.10.html#other-language-changes
+                if sys.version_info[:2] < (3, 10):
+                    return obj
+                if not (isstaticmethod(obj) or isclassmethod(obj)):
+                    return obj
             obj = obj.__wrapped__  # type: ignore
         elif isclassmethod(obj):
             obj = obj.__func__
