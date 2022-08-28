@@ -212,7 +212,7 @@ _DEBUG_HEADER = '''\
 '''
 
 
-def save_traceback(app: "Sphinx") -> str:
+def save_traceback(app: Optional["Sphinx"]) -> str:
     """Save the current exception's traceback in a temporary file."""
     import platform
 

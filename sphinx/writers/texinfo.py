@@ -115,7 +115,7 @@ class TexinfoWriter(writers.Writer):
 
     settings_defaults: Dict = {}
 
-    output: str = None
+    output: Optional[str] = None  # type: ignore[assignment]
 
     visitor_attributes = ('output', 'fragment')
 
@@ -134,8 +134,8 @@ class TexinfoWriter(writers.Writer):
 
 class TexinfoTranslator(SphinxTranslator):
 
-    builder: "TexinfoBuilder" = None
     ignore_missing_images = False
+    builder: "TexinfoBuilder"
 
     default_elements = {
         'author': '',
@@ -184,7 +184,7 @@ class TexinfoTranslator(SphinxTranslator):
         self.in_footnote = 0
         self.in_samp = 0
         self.handled_abbrs: Set[str] = set()
-        self.colwidths: Optional[List[int]] = None
+        self.colwidths: List[int] = []
 
     def finish(self) -> None:
         if self.previous_section is None:
@@ -765,10 +765,10 @@ class TexinfoTranslator(SphinxTranslator):
         self.ensure_eol()
         self.body.append('@end quotation\n')
 
-    def visit_literal_block(self, node: Element) -> None:
+    def visit_literal_block(self, node: Optional[Element]) -> None:
         self.body.append('\n@example\n')
 
-    def depart_literal_block(self, node: Element) -> None:
+    def depart_literal_block(self, node: Optional[Element]) -> None:
         self.ensure_eol()
         self.body.append('@end example\n')
 
@@ -1404,7 +1404,7 @@ class TexinfoTranslator(SphinxTranslator):
         category = self.escape_arg(smart_capwords(name))
         self.body.append('\n%s {%s} ' % (self.at_deffnx, category))
         self.at_deffnx = '@deffnx'
-        self.desc_type_name = name
+        self.desc_type_name: Optional[str] = name
 
     def depart_desc_signature(self, node: Element) -> None:
         self.body.append("\n")
