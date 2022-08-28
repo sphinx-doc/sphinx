@@ -2,12 +2,11 @@ name: CI
 
 on: [push, pull_request]
 
-permissions: {} # none
+permissions:
+  contents: read
 
 jobs:
   ubuntu:
-    permissions:
-      contents: read
     runs-on: ubuntu-18.04
     name: Python ${{ matrix.python }} (${{ matrix.docutils }})
     strategy:
@@ -51,8 +50,6 @@ jobs:
       run: tox -e ${{ matrix.docutils }} -- -vv
 
   windows:
-    permissions:
-      contents: read
     runs-on: windows-2019
     steps:
     - uses: actions/checkout@v3
