@@ -94,16 +94,17 @@ class ShowUrlsTransform(SphinxPostTransform):
     def get_docname_for_node(self, node: Node) -> str:
         while node:
             if isinstance(node, nodes.document):
-                doc = self.env.path2doc(node['source'])
-                if doc is None:
-                    raise ValueError("unreachable code")
-                return doc
+                return self.env.path2doc(node['source']) or ''
             elif isinstance(node, addnodes.start_of_file):
                 return node['docname']
             else:
                 node = node.parent
 
-        raise ValueError("unreachable code")
+        try:
+            source = node['source']  # type: ignore[index]
+        except TypeError:
+            raise ValueError(f'Failed to get a docname!') from None
+        raise ValueError(f'Failed to get a docname for source {source!r}!')
 
     def create_footnote(self, uri: str, docname: str) -> Tuple[nodes.footnote, nodes.footnote_reference]:  # NOQA
         reference = nodes.reference('', nodes.Text(uri), refuri=uri, nolinkurl=True)
@@ -461,7 +462,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
             if docname == footnote['docname'] and footnote['ids'][0] == node['refid']:
                 return footnote
 
-        raise ValueError("footnote not found for reference: %s, refid=%s" % (node))
+        raise ValueError('No footnote not found for given reference node %r' % node)
 
 
 class BibliographyTransform(SphinxPostTransform):
