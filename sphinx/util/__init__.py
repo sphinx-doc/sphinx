@@ -249,7 +249,7 @@ def save_traceback(app: Optional["Sphinx"]) -> str:
     return path
 
 
-def get_full_modname(modname: str, attribute: str) -> str:
+def get_full_modname(modname: str, attribute: str) -> Optional[str]:
     if modname is None:
         # Prevents a TypeError: if the last getattr() call will return None
         # then it's better to return it directly
@@ -378,7 +378,7 @@ def format_exception_cut_frames(x: int = 1) -> str:
     return ''.join(res)
 
 
-def import_object(objname: str, source: str = None) -> Any:
+def import_object(objname: str, source: Optional[str] = None) -> Any:
     """Import python object by qualname."""
     try:
         objpath = objname.split('.')

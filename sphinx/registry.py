@@ -421,8 +421,7 @@ class SphinxComponentRegistry:
         self,
         node: Type[Node],
         figtype: str,
-        title_getter: Optional[TitleGetter] = None,
-        override: bool = False
+        title_getter: Optional[TitleGetter] = None, override: bool = False
     ) -> None:
         logger.debug('[app] adding enumerable node: (%r, %r, %r)', node, figtype, title_getter)
         if node in self.enumerable_nodes and not override:

@@ -161,8 +161,8 @@ def do_prompt(
 
 
 class QuickstartRenderer(SphinxRenderer):
-    def __init__(self, templatedir: Optional[str]) -> None:
-        self.templatedir = templatedir or ''
+    def __init__(self, templatedir: str = '') -> None:
+        self.templatedir = templatedir
         super().__init__()
 
     def _has_custom_template(self, template_name: str) -> bool:
@@ -327,7 +327,7 @@ def generate(
     d: Dict, overwrite: bool = True, silent: bool = False, templatedir: Optional[str] = None
 ) -> None:
     """Generate project based on values in *d*."""
-    template = QuickstartRenderer(templatedir=templatedir)
+    template = QuickstartRenderer(templatedir or '')
 
     if 'mastertoctree' not in d:
         d['mastertoctree'] = ''

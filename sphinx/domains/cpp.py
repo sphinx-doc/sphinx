@@ -3646,7 +3646,9 @@ class ASTTemplateParamTemplateType(ASTTemplateParam):
     def get_identifier(self) -> ASTIdentifier:
         return self.data.get_identifier()
 
-    def get_id(self, version: int, objectType: str = None, symbol: "Symbol" = None) -> str:
+    def get_id(
+        self, version: int, objectType: Optional[str] = None, symbol: Optional["Symbol"] = None
+    ) -> str:
         assert version >= 2
         # this is not part of the normal name mangling in C++
         if symbol:
@@ -4227,14 +4229,15 @@ class Symbol:
         else:
             return super().__setattr__(key, value)
 
-    def __init__(self, parent: "Symbol", identOrOp: Union[ASTIdentifier, ASTOperator],
-                 templateParams: Union[ASTTemplateParams, ASTTemplateIntroduction],
-                 templateArgs: Any, declaration: ASTDeclaration,
-                 docname: str, line: int) -> None:
+    def __init__(self, parent: Optional["Symbol"],
+                 identOrOp: Union[ASTIdentifier, ASTOperator, None],
+                 templateParams: Union[ASTTemplateParams, ASTTemplateIntroduction, None],
+                 templateArgs: Any, declaration: Optional[ASTDeclaration],
+                 docname: Optional[str], line: Optional[int]) -> None:
         self.parent = parent
         # declarations in a single directive are linked together
-        self.siblingAbove: Symbol = None
-        self.siblingBelow: Symbol = None
+        self.siblingAbove: Optional[Symbol] = None
+        self.siblingBelow: Optional[Symbol] = None
         self.identOrOp = identOrOp
         # Ensure the same symbol for `A` is created for:
         #
