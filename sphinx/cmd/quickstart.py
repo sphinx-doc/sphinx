@@ -14,7 +14,7 @@ try:
     import readline
     if TYPE_CHECKING and sys.platform == "win32":  # always false, for type checking
         raise ImportError
-
+    READLINE_AVAILABLE = True
     if readline.__doc__ and 'libedit' in readline.__doc__:
         readline.parse_and_bind("bind ^I rl_complete")
         USE_LIBEDIT = True
@@ -22,7 +22,7 @@ try:
         readline.parse_and_bind("tab: complete")
         USE_LIBEDIT = False
 except ImportError:
-    readline = None
+    READLINE_AVAILABLE = False
     USE_LIBEDIT = False
 
 from docutils.utils import column_width
@@ -143,7 +143,7 @@ def do_prompt(
             # sequence (see #5335).  To avoid the problem, all prompts are not colored
             # on libedit.
             pass
-        elif readline:
+        elif READLINE_AVAILABLE:
             # pass input_mode=True if readline available
             prompt = colorize(COLOR_QUESTION, prompt, input_mode=True)
         else:

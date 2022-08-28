@@ -25,7 +25,7 @@ class IndexEntries:
         """Create the real index from the collected index entries."""
         new: Dict[str, List] = {}
 
-        def add_entry(word: str, subword: str, main: str, link: bool = True,
+        def add_entry(word: str, subword: str, main: Optional[str], link: bool = True,
                       dic: Dict[str, List] = new, key: Optional[str] = None) -> None:
             # Force the word to be unicode if it's a ASCII bytestring.
             # This will solve problems with unicode normalization later.

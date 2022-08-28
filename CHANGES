@@ -15,6 +15,8 @@ Features added
 
 - #10286: C++, support requires clauses not just between the template
   parameter lists and the declaration.
+- #10755: linkcheck: Check the source URL of raw directives that use the ``url``
+  option.
 
 Bugs fixed
 ----------
@@ -22,6 +24,7 @@ Bugs fixed
 - #10257: C++, ensure consistent non-specialization template argument
   representation.
 - #10729: C++, fix parsing of certain non-type template parameter packs.
+- #10715: Revert #10520: "Fix" use of sidebar classes in ``agogo.css_t``
 
 Testing
 --------
@@ -40,6 +43,9 @@ Deprecated
 
 Features added
 --------------
+
+* #10738: napoleon: Add support for docstring types using 'of', like
+  ``type of type``. Example: ``tuple of int``.
 
 Bugs fixed
 ----------
@@ -110,8 +116,8 @@ Bugs fixed
 * #10506: LaTeX: build error if highlighting inline code role in figure caption
   (refs: #10251)
 * #10634: Make -P (pdb) option work better with exceptions triggered from events
-* #10031: py domain: Fix spurious whitespace in unparsing various operators (``+``,
-  ``-``, ``~``, and ``**``). Patch by Adam Turner.
+* #10550: py domain: Fix spurious whitespace in unparsing various operators (``+``,
+  ``-``, ``~``, and ``**``). Patch by Adam Turner (refs: #10551).
 * #10460: logging: Always show node source locations as absolute paths.
 * HTML Search: HTML tags are displayed as a part of object name
 * HTML Search: search snipets should not be folded

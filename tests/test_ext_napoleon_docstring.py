@@ -356,6 +356,41 @@ class GoogleDocstringTest(BaseDocstringTest):
         :Yields: Extended
                  description of yielded value
         """
+    ), (
+        """
+        Single line summary
+
+        Args:
+
+          arg1 (list of str): Extended
+              description of arg1.
+          arg2 (tuple of int): Extended
+              description of arg2.
+          arg3 (tuple of list of float): Extended
+              description of arg3.
+          arg4 (int, float, or list of bool): Extended
+              description of arg4.
+          arg5 (list of int, float, or bool): Extended
+              description of arg5.
+          arg6 (list of int or float): Extended
+              description of arg6.
+        """,
+        """
+        Single line summary
+
+        :Parameters: * **arg1** (*list of str*) -- Extended
+                       description of arg1.
+                     * **arg2** (*tuple of int*) -- Extended
+                       description of arg2.
+                     * **arg3** (*tuple of list of float*) -- Extended
+                       description of arg3.
+                     * **arg4** (*int, float, or list of bool*) -- Extended
+                       description of arg4.
+                     * **arg5** (*list of int, float, or bool*) -- Extended
+                       description of arg5.
+                     * **arg6** (*list of int or float*) -- Extended
+                       description of arg6.
+        """
     )]
 
     def test_sphinx_admonitions(self):
@@ -2367,6 +2402,8 @@ definition_after_normal_text : int
             "defaultdict",
             "int, float, or complex",
             "int or float or None, optional",
+            "list of list of int or float, optional",
+            "tuple of list of str, float, or int",
             '{"F", "C", "N"}',
             "{'F', 'C', 'N'}, default: 'F'",
             "{'F', 'C', 'N or C'}, default 'F'",
@@ -2383,6 +2420,8 @@ definition_after_normal_text : int
             ["defaultdict"],
             ["int", ", ", "float", ", or ", "complex"],
             ["int", " or ", "float", " or ", "None", ", ", "optional"],
+            ["list", " of ", "list", " of ", "int", " or ", "float", ", ", "optional"],
+            ["tuple", " of ", "list", " of ", "str", ", ", "float", ", or ", "int"],
             ["{", '"F"', ", ", '"C"', ", ", '"N"', "}"],
             ["{", "'F'", ", ", "'C'", ", ", "'N'", "}", ", ", "default", ": ", "'F'"],
             ["{", "'F'", ", ", "'C'", ", ", "'N or C'", "}", ", ", "default", " ", "'F'"],
@@ -2443,6 +2482,7 @@ definition_after_normal_text : int
             "optional",
             "str, optional",
             "int or float or None, default: None",
+            "list of tuple of str, optional",
             "int, default None",
             '{"F", "C", "N"}',
             "{'F', 'C', 'N'}, default: 'N'",
@@ -2455,6 +2495,7 @@ definition_after_normal_text : int
             "*optional*",
             ":class:`str`, *optional*",
             ":class:`int` or :class:`float` or :obj:`None`, *default*: :obj:`None`",
+            ":class:`list` of :class:`tuple` of :class:`str`, *optional*",
             ":class:`int`, *default* :obj:`None`",
             '``{"F", "C", "N"}``',
             "``{'F', 'C', 'N'}``, *default*: ``'N'``",
@@ -2486,6 +2527,8 @@ definition_after_normal_text : int
                 a optional mapping
             param8 : ... or Ellipsis
                 ellipsis
+            param9 : tuple of list of int
+                a parameter with tuple of list of int
         """)
         expected = dedent("""\
             :param param1: the data to work on
@@ -2504,6 +2547,8 @@ definition_after_normal_text : int
             :type param7: :term:`mapping` of :term:`hashable` to :class:`str`, *optional*
             :param param8: ellipsis
             :type param8: :obj:`... <Ellipsis>` or :obj:`Ellipsis`
+            :param param9: a parameter with tuple of list of int
+            :type param9: :class:`tuple` of :class:`list` of :class:`int`
         """)
         translations = {
             "dict-like": ":term:`dict-like <mapping>`",

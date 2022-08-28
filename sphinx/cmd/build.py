@@ -24,7 +24,9 @@ from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath, ensuredir
 
 
-def handle_exception(app: Sphinx, args: Any, exception: BaseException, stderr: IO = sys.stderr) -> None:  # NOQA
+def handle_exception(
+    app: Optional[Sphinx], args: Any, exception: BaseException, stderr: IO = sys.stderr
+) -> None:
     if isinstance(exception, bdb.BdbQuit):
         return
 

@@ -1959,7 +1959,7 @@ class Symbol:
             if Symbol.debug_lookup:
                 Symbol.debug_print(
                     "no match, but fill an empty declaration, candSybmol is not None?:",
-                    candSymbol is not None)  # NOQA
+                    candSymbol is not None)
                 Symbol.debug_indent -= 2
             if candSymbol is not None:
                 candSymbol.remove()

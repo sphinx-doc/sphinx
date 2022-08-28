@@ -1214,6 +1214,78 @@ def test_info_field_list_var(app):
                 refdomain="py", reftype="class", reftarget="int", **{"py:class": "Class"})
 
 
+def test_info_field_list_napoleon_deliminator_of(app):
+    text = (".. py:module:: example\n"
+            ".. py:class:: Class\n"
+            "\n"
+            "   :param list_str_var: example description.\n"
+            "   :type list_str_var: list of str\n"
+            "   :param tuple_int_var: example description.\n"
+            "   :type tuple_int_var: tuple of tuple of int\n"
+            )
+    doctree = restructuredtext.parse(app, text)
+
+    # :param list of str list_str_var:
+    assert_node(doctree[3][1][0][0][1][0][0][0],
+                ([addnodes.literal_strong, "list_str_var"],
+                 " (",
+                 [pending_xref, addnodes.literal_emphasis, "list"],
+                 [addnodes.literal_emphasis, " of "],
+                 [pending_xref, addnodes.literal_emphasis, "str"],
+                 ")",
+                 " -- ",
+                 "example description."))
+
+    # :param tuple of tuple of int tuple_int_var:
+    assert_node(doctree[3][1][0][0][1][0][1][0],
+                ([addnodes.literal_strong, "tuple_int_var"],
+                 " (",
+                 [pending_xref, addnodes.literal_emphasis, "tuple"],
+                 [addnodes.literal_emphasis, " of "],
+                 [pending_xref, addnodes.literal_emphasis, "tuple"],
+                 [addnodes.literal_emphasis, " of "],
+                 [pending_xref, addnodes.literal_emphasis, "int"],
+                 ")",
+                 " -- ",
+                 "example description."))
+
+
+def test_info_field_list_napoleon_deliminator_or(app):
+    text = (".. py:module:: example\n"
+            ".. py:class:: Class\n"
+            "\n"
+            "   :param bool_str_var: example description.\n"
+            "   :type bool_str_var: bool or str\n"
+            "   :param str_float_int_var: example description.\n"
+            "   :type str_float_int_var: str or float or int\n"
+            )
+    doctree = restructuredtext.parse(app, text)
+
+    # :param bool or str bool_str_var:
+    assert_node(doctree[3][1][0][0][1][0][0][0],
+                ([addnodes.literal_strong, "bool_str_var"],
+                 " (",
+                 [pending_xref, addnodes.literal_emphasis, "bool"],
+                 [addnodes.literal_emphasis, " or "],
+                 [pending_xref, addnodes.literal_emphasis, "str"],
+                 ")",
+                 " -- ",
+                 "example description."))
+
+    # :param str or float or int str_float_int_var:
+    assert_node(doctree[3][1][0][0][1][0][1][0],
+                ([addnodes.literal_strong, "str_float_int_var"],
+                 " (",
+                 [pending_xref, addnodes.literal_emphasis, "str"],
+                 [addnodes.literal_emphasis, " or "],
+                 [pending_xref, addnodes.literal_emphasis, "float"],
+                 [addnodes.literal_emphasis, " or "],
+                 [pending_xref, addnodes.literal_emphasis, "int"],
+                 ")",
+                 " -- ",
+                 "example description."))
+
+
 def test_type_field(app):
     text = (".. py:data:: var1\n"
             "   :type: .int\n"
@@ -1270,8 +1342,8 @@ def test_module_index(app):
     assert index.generate() == (
         [('d', [IndexEntry('docutils', 0, 'index', 'module-docutils', '', '', '')]),
          ('s', [IndexEntry('sphinx', 1, 'index', 'module-sphinx', '', '', ''),
-                IndexEntry('sphinx.builders', 2, 'index', 'module-sphinx.builders', '', '', ''),  # NOQA
-                IndexEntry('sphinx.builders.html', 2, 'index', 'module-sphinx.builders.html', '', '', ''),  # NOQA
+                IndexEntry('sphinx.builders', 2, 'index', 'module-sphinx.builders', '', '', ''),
+                IndexEntry('sphinx.builders.html', 2, 'index', 'module-sphinx.builders.html', '', '', ''),
                 IndexEntry('sphinx.config', 2, 'index', 'module-sphinx.config', '', '', ''),
                 IndexEntry('sphinx_intl', 0, 'index', 'module-sphinx_intl', '', '', '')])],
         False
@@ -1314,8 +1386,8 @@ def test_modindex_common_prefix(app):
     restructuredtext.parse(app, text)
     index = PythonModuleIndex(app.env.get_domain('py'))
     assert index.generate() == (
-        [('b', [IndexEntry('sphinx.builders', 1, 'index', 'module-sphinx.builders', '', '', ''),  # NOQA
-                IndexEntry('sphinx.builders.html', 2, 'index', 'module-sphinx.builders.html', '', '', '')]),  # NOQA
+        [('b', [IndexEntry('sphinx.builders', 1, 'index', 'module-sphinx.builders', '', '', ''),
+                IndexEntry('sphinx.builders.html', 2, 'index', 'module-sphinx.builders.html', '', '', '')]),
          ('c', [IndexEntry('sphinx.config', 0, 'index', 'module-sphinx.config', '', '', '')]),
          ('d', [IndexEntry('docutils', 0, 'index', 'module-docutils', '', '', '')]),
          ('s', [IndexEntry('sphinx', 0, 'index', 'module-sphinx', '', '', ''),

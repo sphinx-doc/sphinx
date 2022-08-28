@@ -113,9 +113,7 @@ class ThemeFactory:
         if name in self.themes:
             theme = self.themes[name]
         else:
-            theme = self.find_user_theme(name)
-            if not theme:
-                theme = Theme(name)
+            theme = self.find_user_theme(name) or Theme(name)
 
         theme.update(self.config)
         return theme
