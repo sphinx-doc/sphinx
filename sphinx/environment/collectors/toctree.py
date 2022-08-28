@@ -1,6 +1,6 @@
 """Toctree collector for sphinx.environment."""
 
-from typing import Any, Dict, List, Set, Tuple, Type, TypeVar, cast
+from typing import Any, Dict, List, Optional, Set, Tuple, Type, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -66,7 +66,7 @@ class TocTreeCollector(EnvironmentCollector):
                     result.extend(traverse_in_section(child, cls))
             return result
 
-        def build_toc(node: Element, depth: int = 1) -> nodes.bullet_list:
+        def build_toc(node: Element, depth: int = 1) -> Optional[nodes.bullet_list]:
             entries: List[Element] = []
             for sectionnode in node:
                 # find all toctree nodes in this section and add them
@@ -132,7 +132,9 @@ class TocTreeCollector(EnvironmentCollector):
         old_secnumbers = env.toc_secnumbers
         env.toc_secnumbers = {}
 
-        def _walk_toc(node: Element, secnums: Dict, depth: int, titlenode: nodes.title = None) -> None:  # NOQA
+        def _walk_toc(
+            node: Element, secnums: Dict, depth: int, titlenode: Optional[nodes.title] = None
+        ) -> None:
             # titlenode is the title of the document, it will get assigned a
             # secnumber too, so that it shows up in next/prev/parent rellinks
             for subnode in node.children:
@@ -207,7 +209,7 @@ class TocTreeCollector(EnvironmentCollector):
         env.toc_fignumbers = {}
         fignum_counter: Dict[str, Dict[Tuple[int, ...], int]] = {}
 
-        def get_figtype(node: Node) -> str:
+        def get_figtype(node: Node) -> Optional[str]:
             for domain in env.domains.values():
                 figtype = domain.get_enumerable_node_type(node)
                 if domain.name == 'std' and not domain.get_numfig_title(node):  # type: ignore
