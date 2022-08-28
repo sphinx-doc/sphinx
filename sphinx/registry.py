@@ -234,7 +234,7 @@ class SphinxComponentRegistry:
         rolename: str,
         indextemplate: str = '',
         parse_node: Optional[Callable] = None,
-                        ref_nodeclass: Optional[Type[TextElement]] = None,
+        ref_nodeclass: Optional[Type[TextElement]] = None,
         objname: str = '',
         doc_field_types: List = [],
         override: bool = False
@@ -422,7 +422,7 @@ class SphinxComponentRegistry:
         node: Type[Node],
         figtype: str,
         title_getter: Optional[TitleGetter] = None, override: bool = False
-                            ) -> None:
+    ) -> None:
         logger.debug('[app] adding enumerable node: (%r, %r, %r)', node, figtype, title_getter)
         if node in self.enumerable_nodes and not override:
             raise ExtensionError(__('enumerable_node %r already registered') % node)
