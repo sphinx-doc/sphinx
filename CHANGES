@@ -49,6 +49,7 @@ Bugs fixed
 
 * #10723: LaTeX: 5.1.0 has made the 'sphinxsetup' ``verbatimwithframe=false``
   become without effect.
+* #10768: Avoid failure when config.language is None.
 
 Testing
 --------
