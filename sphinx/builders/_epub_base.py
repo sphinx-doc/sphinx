@@ -464,7 +464,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         logger.info(__('writing mimetype file...'))
         copy_asset_file(path.join(self.template_dir, 'mimetype'), self.outdir)
 
-    def build_container(self, outname: str = 'META-INF/container.xml') -> None:  # NOQA
+    def build_container(self, outname: str = 'META-INF/container.xml') -> None:
         """Write the metainfo file META-INF/container.xml."""
         logger.info(__('writing META-INF/container.xml file...'))
         outdir = path.join(self.outdir, 'META-INF')

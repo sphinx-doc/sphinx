@@ -154,7 +154,7 @@ def convert_dvi_to_image(command: List[str], name: str) -> Tuple[str, str]:
         raise MathExtError('%s exited with error' % name, exc.stderr, exc.stdout) from exc
 
 
-def convert_dvi_to_png(dvipath: str, builder: Builder) -> Tuple[str, int]:
+def convert_dvi_to_png(dvipath: str, builder: Builder) -> Tuple[str, Optional[int]]:
     """Convert DVI file to PNG image."""
     tempdir = ensure_tempdir(builder)
     filename = path.join(tempdir, 'math.png')
@@ -180,7 +180,7 @@ def convert_dvi_to_png(dvipath: str, builder: Builder) -> Tuple[str, int]:
     return filename, depth
 
 
-def convert_dvi_to_svg(dvipath: str, builder: Builder) -> Tuple[str, int]:
+def convert_dvi_to_svg(dvipath: str, builder: Builder) -> Tuple[str, Optional[int]]:
     """Convert DVI file to SVG image."""
     tempdir = ensure_tempdir(builder)
     filename = path.join(tempdir, 'math.svg')
@@ -204,7 +204,7 @@ def convert_dvi_to_svg(dvipath: str, builder: Builder) -> Tuple[str, int]:
     return filename, depth
 
 
-def render_math(self: HTMLTranslator, math: str) -> Tuple[str, int]:
+def render_math(self: HTMLTranslator, math: str) -> Tuple[Optional[str], Optional[int]]:
     """Render the LaTeX math expression *math* using latex and dvipng or
     dvisvgm.
 

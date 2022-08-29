@@ -46,7 +46,7 @@ def unwrap(obj: Any) -> Any:
         return obj
 
 
-def unwrap_all(obj: Any, *, stop: Callable = None) -> Any:
+def unwrap_all(obj: Any, *, stop: Optional[Callable] = None) -> Any:
     """
     Get an original object from wrapped object (unwrapping partials, wrapped
     functions, and other decorators).
@@ -186,7 +186,7 @@ def ispartial(obj: Any) -> bool:
     return isinstance(obj, (partial, partialmethod))
 
 
-def isclassmethod(obj: Any, cls: Any = None, name: str = None) -> bool:
+def isclassmethod(obj: Any, cls: Any = None, name: Optional[str] = None) -> bool:
     """Check if the object is classmethod."""
     if isinstance(obj, classmethod):
         return True
@@ -202,7 +202,7 @@ def isclassmethod(obj: Any, cls: Any = None, name: str = None) -> bool:
     return False
 
 
-def isstaticmethod(obj: Any, cls: Any = None, name: str = None) -> bool:
+def isstaticmethod(obj: Any, cls: Any = None, name: Optional[str] = None) -> bool:
     """Check if the object is staticmethod."""
     if isinstance(obj, staticmethod):
         return True
@@ -623,7 +623,8 @@ def signature(subject: Callable, bound_method: bool = False, type_aliases: Dict 
                              __validate_parameters__=False)
 
 
-def evaluate_signature(sig: inspect.Signature, globalns: Dict = None, localns: Dict = None
+def evaluate_signature(sig: inspect.Signature, globalns: Optional[Dict] = None,
+                       localns: Optional[Dict] = None
                        ) -> inspect.Signature:
     """Evaluate unresolved type annotations in a signature object."""
     def evaluate_forwardref(ref: ForwardRef, globalns: Dict, localns: Dict) -> Any:
@@ -800,8 +801,13 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
     return inspect.Signature(params, return_annotation=return_annotation)
 
 
-def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
-           allow_inherited: bool = False, cls: Any = None, name: str = None) -> str:
+def getdoc(
+    obj: Any,
+    attrgetter: Callable = safe_getattr,
+    allow_inherited: bool = False,
+    cls: Any = None,
+    name: Optional[str] = None
+) -> Optional[str]:
     """Get the docstring for the object.
 
     This tries to obtain the docstring for some kind of objects additionally:
@@ -821,7 +827,7 @@ def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
         for basecls in getmro(cls):
             meth = basecls.__dict__.get(name)
             if meth and hasattr(meth, '__func__'):
-                doc = getdoc(meth.__func__)
+                doc: Optional[str] = getdoc(meth.__func__)
                 if doc is not None or not allow_inherited:
                     return doc
 

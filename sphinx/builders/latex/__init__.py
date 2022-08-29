@@ -3,7 +3,7 @@
 import os
 import warnings
 from os import path
-from typing import Any, Dict, Iterable, List, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 from docutils.frontend import OptionParser
 from docutils.nodes import Node
@@ -127,13 +127,13 @@ class LaTeXBuilder(Builder):
     def get_outdated_docs(self) -> Union[str, List[str]]:
         return 'all documents'  # for now
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
         if docname not in self.docnames:
             raise NoUri(docname, typ)
         else:
             return '%' + docname
 
-    def get_relative_uri(self, from_: str, to: str, typ: str = None) -> str:
+    def get_relative_uri(self, from_: str, to: str, typ: Optional[str] = None) -> str:
         # ignore source path
         return self.get_target_uri(to, typ)
 
@@ -510,25 +510,25 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('config-inited', validate_latex_theme_options, priority=800)
     app.connect('builder-inited', install_packages_for_ja)
 
-    app.add_config_value('latex_engine', default_latex_engine, None,
+    app.add_config_value('latex_engine', default_latex_engine, False,
                          ENUM('pdflatex', 'xelatex', 'lualatex', 'platex', 'uplatex'))
-    app.add_config_value('latex_documents', default_latex_documents, None)
-    app.add_config_value('latex_logo', None, None, [str])
-    app.add_config_value('latex_appendices', [], None)
-    app.add_config_value('latex_use_latex_multicolumn', False, None)
-    app.add_config_value('latex_use_xindy', default_latex_use_xindy, None, [bool])
-    app.add_config_value('latex_toplevel_sectioning', None, None,
+    app.add_config_value('latex_documents', default_latex_documents, False)
+    app.add_config_value('latex_logo', None, False, [str])
+    app.add_config_value('latex_appendices', [], False)
+    app.add_config_value('latex_use_latex_multicolumn', False, False)
+    app.add_config_value('latex_use_xindy', default_latex_use_xindy, False, [bool])
+    app.add_config_value('latex_toplevel_sectioning', None, False,
                          ENUM(None, 'part', 'chapter', 'section'))
-    app.add_config_value('latex_domain_indices', True, None, [list])
-    app.add_config_value('latex_show_urls', 'no', None)
-    app.add_config_value('latex_show_pagerefs', False, None)
-    app.add_config_value('latex_elements', {}, None)
-    app.add_config_value('latex_additional_files', [], None)
-    app.add_config_value('latex_theme', 'manual', None, [str])
-    app.add_config_value('latex_theme_options', {}, None)
-    app.add_config_value('latex_theme_path', [], None, [list])
+    app.add_config_value('latex_domain_indices', True, False, [list])
+    app.add_config_value('latex_show_urls', 'no', False)
+    app.add_config_value('latex_show_pagerefs', False, False)
+    app.add_config_value('latex_elements', {}, False)
+    app.add_config_value('latex_additional_files', [], False)
+    app.add_config_value('latex_theme', 'manual', False, [str])
+    app.add_config_value('latex_theme_options', {}, False)
+    app.add_config_value('latex_theme_path', [], False, [list])
 
-    app.add_config_value('latex_docclass', default_latex_docclass, None)
+    app.add_config_value('latex_docclass', default_latex_docclass, False)
 
     return {
         'version': 'builtin',

@@ -22,7 +22,7 @@ import re
 import sys
 from gettext import NullTranslations
 from os import path
-from typing import Any, Dict, List, NamedTuple, Sequence, Set, Tuple, Type
+from typing import Any, Dict, List, NamedTuple, Optional, Sequence, Set, Tuple, Type
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -212,7 +212,8 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                                  template: AutosummaryRenderer, template_name: str,
                                  imported_members: bool, app: Any,
                                  recursive: bool, context: Dict,
-                                 modname: str = None, qualname: str = None) -> str:
+                                 modname: Optional[str] = None,
+                                 qualname: Optional[str] = None) -> str:
     doc = get_documenter(app, obj, parent)
 
     def skip_member(obj: Any, name: str, objtype: str) -> bool:
@@ -351,8 +352,8 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         return template.render(doc.objtype, ns)
 
 
-def generate_autosummary_docs(sources: List[str], output_dir: str = None,
-                              suffix: str = '.rst', base_path: str = None,
+def generate_autosummary_docs(sources: List[str], output_dir: Optional[str] = None,
+                              suffix: str = '.rst', base_path: Optional[str] = None,
                               imported_members: bool = False, app: Any = None,
                               overwrite: bool = True, encoding: str = 'utf-8') -> None:
     showed_sources = sorted(sources)
@@ -456,7 +457,9 @@ def find_autosummary_in_files(filenames: List[str]) -> List[AutosummaryEntry]:
     return documented
 
 
-def find_autosummary_in_docstring(name: str, filename: str = None) -> List[AutosummaryEntry]:
+def find_autosummary_in_docstring(
+    name: str, filename: Optional[str] = None
+) -> List[AutosummaryEntry]:
     """Find out what items are documented in the given object's docstring.
 
     See `find_autosummary_in_lines`.
@@ -476,8 +479,9 @@ def find_autosummary_in_docstring(name: str, filename: str = None) -> List[Autos
     return []
 
 
-def find_autosummary_in_lines(lines: List[str], module: str = None, filename: str = None
-                              ) -> List[AutosummaryEntry]:
+def find_autosummary_in_lines(
+    lines: List[str], module: Optional[str] = None, filename: Optional[str] = None
+) -> List[AutosummaryEntry]:
     """Find out what items appear in autosummary:: directives in the
     given lines.
 
@@ -501,7 +505,7 @@ def find_autosummary_in_lines(lines: List[str], module: str = None, filename: st
     documented: List[AutosummaryEntry] = []
 
     recursive = False
-    toctree: str = None
+    toctree: Optional[str] = None
     template = None
     current_module = module
     in_autosummary = False

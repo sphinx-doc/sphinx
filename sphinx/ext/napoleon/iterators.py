@@ -55,7 +55,7 @@ class peek_iter:
     def __iter__(self) -> "peek_iter":
         return self
 
-    def __next__(self, n: int = None) -> Any:
+    def __next__(self, n: Optional[int] = None) -> Any:
         return self.next(n)
 
     def _fillcache(self, n: Optional[int]) -> None:
@@ -84,7 +84,7 @@ class peek_iter:
         """
         return self.peek() != self.sentinel
 
-    def next(self, n: int = None) -> Any:
+    def next(self, n: Optional[int] = None) -> Any:
         """Get the next item or `n` items of the iterator.
 
         Parameters
