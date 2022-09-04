@@ -4,6 +4,7 @@ import gettext
 import locale
 from collections import UserString, defaultdict
 from gettext import NullTranslations
+from os import path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 
 
@@ -160,7 +161,10 @@ def setlocale(category: int, value: Union[str, Iterable[str], None] = None) -> N
         pass
 
 
-def init_console(locale_dir: str, catalog: str) -> Tuple[NullTranslations, bool]:
+def init_console(
+    locale_dir: str = path.abspath(path.dirname(__file__)),
+    catalog: str = 'sphinx',
+) -> Tuple[NullTranslations, bool]:
     """Initialize locale for console.
 
     .. versionadded:: 1.8
