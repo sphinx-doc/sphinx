@@ -95,9 +95,9 @@ class Stylesheet(str):
     its filename (str).
     """
 
-    attributes: Dict[str, str] = None
-    filename: str = None
-    priority: int = None
+    attributes: Dict[str, str]
+    filename: str
+    priority: int
 
     def __new__(cls, filename: str, *args: str, priority: int = 500, **attributes: Any
                 ) -> "Stylesheet":
@@ -121,9 +121,9 @@ class JavaScript(str):
     its filename (str).
     """
 
-    attributes: Dict[str, str] = None
-    filename: str = None
-    priority: int = None
+    attributes: Dict[str, str]
+    filename: str
+    priority: int
 
     def __new__(cls, filename: str, priority: int = 500, **attributes: str) -> "JavaScript":
         self = str.__new__(cls, filename)
@@ -156,7 +156,12 @@ class BuildInfo:
         except Exception as exc:
             raise ValueError(__('build info file is broken: %r') % exc) from exc
 
-    def __init__(self, config: Config = None, tags: Tags = None, config_categories: List[str] = []) -> None:  # NOQA
+    def __init__(
+        self,
+        config: Optional[Config] = None,
+        tags: Optional[Tags] = None,
+        config_categories: List[str] = []
+    ) -> None:
         self.config_hash = ''
         self.tags_hash = ''
 
@@ -208,10 +213,10 @@ class StandaloneHTMLBuilder(Builder):
     use_index = False
     download_support = True  # enable download role
 
-    imgpath: str = None
+    imgpath: str = ""
     domain_indices: List[DOMAIN_INDEX_TYPE] = []
 
-    def __init__(self, app: Sphinx, env: BuildEnvironment = None) -> None:
+    def __init__(self, app: Sphinx, env: Optional[BuildEnvironment] = None) -> None:
         super().__init__(app, env)
 
         # CSS files
@@ -243,7 +248,7 @@ class StandaloneHTMLBuilder(Builder):
         # section numbers for headings in the currently visited document
         self.secnumbers: Dict[str, Tuple[int, ...]] = {}
         # currently written docname
-        self.current_docname: str = None
+        self.current_docname: Optional[str] = None
 
         self.init_templates()
         self.init_highlighter()
@@ -265,7 +270,7 @@ class StandaloneHTMLBuilder(Builder):
     def create_build_info(self) -> BuildInfo:
         return BuildInfo(self.config, self.tags, ['html'])
 
-    def _get_translations_js(self) -> str:
+    def _get_translations_js(self) -> Optional[str]:
         candidates = [path.join(dir, self.config.language,
                                 'LC_MESSAGES', 'sphinx.js')
                       for dir in self.config.locale_dirs] + \
@@ -379,7 +384,7 @@ class StandaloneHTMLBuilder(Builder):
             return HTML5Translator
 
     @property
-    def math_renderer_name(self) -> str:
+    def math_renderer_name(self) -> Optional[str]:
         name = self.get_builder_config('math_renderer', 'html')
         if name is not None:
             # use given name
@@ -949,7 +954,7 @@ class StandaloneHTMLBuilder(Builder):
     def index_page(self, pagename: str, doctree: nodes.document, title: str) -> None:
         # only index pages with title
         if self.indexer is not None and title:
-            filename = self.env.doc2path(pagename, base=None)
+            filename = self.env.doc2path(pagename, base=False)
             metadata = self.env.metadata.get(pagename, {})
             if 'nosearch' in metadata:
                 self.indexer.feed(pagename, filename, '', new_document(''))
@@ -1019,7 +1024,7 @@ class StandaloneHTMLBuilder(Builder):
 
     # --------- these are overwritten by the serialization builder
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
         return quote(docname) + self.link_suffix
 
     def handle_page(self, pagename: str, addctx: Dict, templatename: str = 'page.html',
@@ -1394,7 +1399,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_secnumber_suffix', '. ', 'html')
     app.add_config_value('html_search_language', None, 'html', [str])
     app.add_config_value('html_search_options', {}, 'html')
-    app.add_config_value('html_search_scorer', '', None)
+    app.add_config_value('html_search_scorer', '', False)
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_baseurl', '', 'html')
     app.add_config_value('html_codeblock_linenos_style', 'inline', 'html',  # RemovedInSphinx60Warning  # NOQA

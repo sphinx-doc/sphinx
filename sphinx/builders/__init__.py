@@ -77,7 +77,7 @@ class Builder:
     #: The builder supports data URIs or not.
     supported_data_uri_images = False
 
-    def __init__(self, app: "Sphinx", env: BuildEnvironment = None) -> None:
+    def __init__(self, app: "Sphinx", env: Optional[BuildEnvironment] = None) -> None:
         self.srcdir = app.srcdir
         self.confdir = app.confdir
         self.outdir = app.outdir
