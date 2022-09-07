@@ -28,9 +28,10 @@ from sphinx.pycode.ast import parse as ast_parse
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
-from sphinx.util.docutils import SphinxDirective
+from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.inspect import signature_from_str
-from sphinx.util.nodes import find_pending_xref_condition, make_id, make_refnode
+from sphinx.util.nodes import (find_pending_xref_condition, make_id, make_refnode,
+                               nested_parse_with_titles)
 from sphinx.util.typing import OptionSpec, TextlikeNode
 
 logger = logging.getLogger(__name__)
@@ -967,7 +968,7 @@ class PyModule(SphinxDirective):
     Directive to mark description of a new module.
     """
 
-    has_content = False
+    has_content = True
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
@@ -984,7 +985,14 @@ class PyModule(SphinxDirective):
         modname = self.arguments[0].strip()
         noindex = 'noindex' in self.options
         self.env.ref_context['py:module'] = modname
-        ret: List[Node] = []
+
+        content_node: Element = nodes.section()
+        with switch_source_input(self.state, self.content):
+            # necessary so that the child nodes get the right source/line set
+            content_node.document = self.state.document
+            nested_parse_with_titles(self.state, self.content, content_node)
+
+        ret: List[Node] = [*content_node.children]
         if not noindex:
             # note module to the domain
             node_id = make_id(self.env, self.state.document, 'module', modname)

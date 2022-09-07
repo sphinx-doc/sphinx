@@ -18,8 +18,8 @@ from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
-from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import make_id, make_refnode
+from sphinx.util.docutils import SphinxDirective, switch_source_input
+from sphinx.util.nodes import make_id, make_refnode, nested_parse_with_titles
 from sphinx.util.typing import OptionSpec
 
 logger = logging.getLogger(__name__)
@@ -249,7 +249,7 @@ class JSModule(SphinxDirective):
     :param mod_name: Module name
     """
 
-    has_content = False
+    has_content = True
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
@@ -261,7 +261,14 @@ class JSModule(SphinxDirective):
         mod_name = self.arguments[0].strip()
         self.env.ref_context['js:module'] = mod_name
         noindex = 'noindex' in self.options
-        ret: List[Node] = []
+
+        content_node: Element = nodes.section()
+        with switch_source_input(self.state, self.content):
+            # necessary so that the child nodes get the right source/line set
+            content_node.document = self.state.document
+            nested_parse_with_titles(self.state, self.content, content_node)
+
+        ret: List[Node] = [*content_node.children]
         if not noindex:
             domain = cast(JavaScriptDomain, self.env.get_domain('js'))
 
