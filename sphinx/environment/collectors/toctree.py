@@ -59,6 +59,7 @@ class TocTreeCollector(EnvironmentCollector):
             depth: int = 1
         ) -> Optional[nodes.bullet_list]:
             entries: List[Element] = []
+            memo_class = '\4\2'  # sentinel, value unimportant
             for sectionnode in node:
                 # find all toctree nodes in this section and add them
                 # to the toc (just copying the toctree node which is then
@@ -82,12 +83,15 @@ class TocTreeCollector(EnvironmentCollector):
                     if sub_item:
                         item += sub_item
                     entries.append(item)
+                # Wrap items under an ``.. only::`` directive in a node for
+                # post-processing
                 elif isinstance(sectionnode, addnodes.only):
                     onlynode = addnodes.only(expr=sectionnode['expr'])
                     blist = build_toc(sectionnode, depth)
                     if blist:
                         onlynode += blist.children
                         entries.append(onlynode)
+                # check within the section for other node types
                 elif isinstance(sectionnode, nodes.Element):
                     toctreenode: nodes.Node
                     for toctreenode in sectionnode.findall():
@@ -98,9 +102,47 @@ class TocTreeCollector(EnvironmentCollector):
                             entries.append(item)
                             # important: do the inventory stuff
                             TocTree(app.env).note(docname, toctreenode)
+                        # add object signatures within a section to the ToC
+                        elif isinstance(toctreenode, addnodes.desc):
+                            title = toctreenode.children[0]
+
+                            # Skip entries with no ID (e.g. with ``:noindex:``)
+                            if not title['ids']:
+                                continue
+                            # Skip if no name set. Known not to set 'fullname'
+                            # correctly: C/C++/RST domain, option/cmdoption, envvar
+                            full_name = title.get('fullname', '')
+                            if not full_name:
+                                continue
+
+                            # Nest within Python classes
+                            if 'class' in title and title['class'] == memo_class:
+                                nested_toc = build_toc([toctreenode], depth + 1)
+                                if nested_toc:
+                                    last_entry: nodes.Element = entries[-1]
+                                    if not isinstance(last_entry[-1], nodes.bullet_list):
+                                        last_entry.append(nested_toc)
+                                    else:
+                                        last_entry[-1].extend(nested_toc)
+                                continue
+                            else:
+                                memo_class = full_name
+
+                            if title.get('module', ''):
+                                full_name = title['module'] + '.' + full_name
+                            if toctreenode['objtype'] in {'function', 'method'}:
+                                full_name += '()'
+                            anchorname = _make_anchor_name(title['ids'], numentries)
+                            reference = nodes.reference(
+                                '', '', nodes.literal('', full_name),
+                                internal=True, refuri=docname, anchorname=anchorname)
+                            para = addnodes.compact_paragraph('', '', reference)
+                            entries.append(nodes.list_item('', para))
+
             if entries:
                 return nodes.bullet_list('', *entries)
             return None
+
         toc = build_toc(doctree)
         if toc:
             app.env.tocs[docname] = toc
