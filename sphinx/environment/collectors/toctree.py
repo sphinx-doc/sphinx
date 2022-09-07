@@ -1,6 +1,6 @@
 """Toctree collector for sphinx.environment."""
 
-from typing import Any, Dict, List, Optional, Set, Tuple, TypeVar, cast
+from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, TypeVar, Union, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -54,7 +54,10 @@ class TocTreeCollector(EnvironmentCollector):
         docname = app.env.docname
         numentries = [0]  # nonlocal again...
 
-        def build_toc(node: Element, depth: int = 1) -> Optional[nodes.bullet_list]:
+        def build_toc(
+            node: Union[Element, Sequence[Element]],
+            depth: int = 1
+        ) -> Optional[nodes.bullet_list]:
             entries: List[Element] = []
             for sectionnode in node:
                 # find all toctree nodes in this section and add them
