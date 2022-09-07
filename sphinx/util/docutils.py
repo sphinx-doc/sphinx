@@ -30,6 +30,8 @@ logger = logging.getLogger(__name__)
 report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) ')
 
 if TYPE_CHECKING:
+    from docutils.frontend import Values
+
     from sphinx.builders import Builder
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
@@ -598,7 +600,7 @@ if docutils.__version_info__ <= (0, 18):
 
 # cache a vanilla instance of nodes.document
 # Used in new_document() function
-__document_cache__: Optional[nodes.document] = None
+__document_cache__: Tuple["Values", Reporter]
 
 
 def new_document(source_path: str, settings: Any = None) -> nodes.document:
@@ -609,15 +611,18 @@ def new_document(source_path: str, settings: Any = None) -> nodes.document:
     This makes an instantiation of document nodes much faster.
     """
     global __document_cache__
-    if __document_cache__ is None:
-        __document_cache__ = docutils.utils.new_document(source_path)
+    try:
+        cached_settings, reporter = __document_cache__
+    except NameError:
+        doc = docutils.utils.new_document(source_path)
+        __document_cache__ = cached_settings, reporter = doc.settings, doc.reporter
 
     if settings is None:
-        # Make a copy of ``settings`` from cache to accelerate instantiation
-        settings = copy(__document_cache__.settings)
+        # Make a copy of the cached settings to accelerate instantiation
+        settings = copy(cached_settings)
 
     # Create a new instance of nodes.document using cached reporter
     from sphinx import addnodes
-    document = addnodes.document(settings, __document_cache__.reporter, source=source_path)
+    document = addnodes.document(settings, reporter, source=source_path)
     document.note_source(source_path, -1)
     return document
