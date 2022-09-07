@@ -70,13 +70,7 @@ class TocTreeCollector(EnvironmentCollector):
                     visitor = SphinxContentsFilter(doctree)
                     title.walkabout(visitor)
                     nodetext = visitor.get_entry_text()
-                    if not numentries[0]:
-                        # for the very first toc entry, don't add an anchor
-                        # as it is the file's title anyway
-                        anchorname = ''
-                    else:
-                        anchorname = '#' + sectionnode['ids'][0]
-                    numentries[0] += 1
+                    anchorname = _make_anchor_name(sectionnode['ids'], numentries)
                     # make these nodes:
                     # list_item -> compact_paragraph -> reference
                     reference = nodes.reference(
@@ -275,6 +269,17 @@ class TocTreeCollector(EnvironmentCollector):
                     rewrite_needed.append(docname)
 
         return rewrite_needed
+
+
+def _make_anchor_name(ids: List[str], num_entries: List[int]) -> str:
+    if not num_entries[0]:
+        # for the very first toc entry, don't add an anchor
+        # as it is the file's title anyway
+        anchorname = ''
+    else:
+        anchorname = '#' + ids[0]
+    num_entries[0] += 1
+    return anchorname
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:
