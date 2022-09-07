@@ -1,6 +1,6 @@
 """Toctree collector for sphinx.environment."""
 
-from typing import Any, Dict, List, Optional, Set, Tuple, Type, TypeVar, cast
+from typing import Any, Dict, List, Optional, Set, Tuple, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -54,18 +54,6 @@ class TocTreeCollector(EnvironmentCollector):
         docname = app.env.docname
         numentries = [0]  # nonlocal again...
 
-        def traverse_in_section(node: Element, cls: Type[N]) -> List[N]:
-            """Like traverse(), but stay within the same section."""
-            result: List[N] = []
-            if isinstance(node, cls):
-                result.append(node)
-            for child in node.children:
-                if isinstance(child, nodes.section):
-                    continue
-                elif isinstance(child, nodes.Element):
-                    result.extend(traverse_in_section(child, cls))
-            return result
-
         def build_toc(node: Element, depth: int = 1) -> Optional[nodes.bullet_list]:
             entries: List[Element] = []
             for sectionnode in node:
@@ -104,12 +92,15 @@ class TocTreeCollector(EnvironmentCollector):
                         onlynode += blist.children
                         entries.append(onlynode)
                 elif isinstance(sectionnode, nodes.Element):
-                    for toctreenode in traverse_in_section(sectionnode,
-                                                           addnodes.toctree):
-                        item = toctreenode.copy()
-                        entries.append(item)
-                        # important: do the inventory stuff
-                        TocTree(app.env).note(docname, toctreenode)
+                    toctreenode: nodes.Node
+                    for toctreenode in sectionnode.findall():
+                        if isinstance(toctreenode, nodes.section):
+                            continue
+                        if isinstance(toctreenode, addnodes.toctree):
+                            item = toctreenode.copy()
+                            entries.append(item)
+                            # important: do the inventory stuff
+                            TocTree(app.env).note(docname, toctreenode)
             if entries:
                 return nodes.bullet_list('', *entries)
             return None
