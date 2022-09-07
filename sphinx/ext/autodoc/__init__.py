@@ -719,6 +719,21 @@ class Documenter:
                     doc = obj.docstring
 
                 doc, metadata = separate_metadata(doc)
+
+                # workaround for `TypedDict` subclassing; does not work with
+                # `typing_extensions.TypedDict` and requires explicitly passing
+                # `TypedDict` to subclasses
+                if not doc and inspect.isclass(self.object):
+                    __annotations__ = self.get_attr(self.object, '__annotations__', {})
+                    if membername in __annotations__:
+                        original_bases = safe_getattr(self.object, '__orig_bases__', ())
+                        for base in original_bases:
+                            if (base.__qualname__, membername) in attr_docs:
+                                super_doc = attr_docs[(base.__qualname__, membername)]
+                                if super_doc:
+                                    attr_docs[(namespace, membername)] = super_doc
+                                    doc = '\n'.join(super_doc)
+
                 has_doc = bool(doc)
 
                 if 'private' in metadata:
