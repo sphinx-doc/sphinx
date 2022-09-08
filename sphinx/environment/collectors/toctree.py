@@ -59,7 +59,7 @@ class TocTreeCollector(EnvironmentCollector):
             depth: int = 1
         ) -> Optional[nodes.bullet_list]:
             entries: List[Element] = []
-            memo_class = '\4\2'  # sentinel, value unimportant
+            memo_parents = ()  # sentinel, value unimportant
             for sectionnode in node:
                 # find all toctree nodes in this section and add them
                 # to the toc (just copying the toctree node which is then
@@ -104,19 +104,17 @@ class TocTreeCollector(EnvironmentCollector):
                             TocTree(app.env).note(docname, toctreenode)
                         # add object signatures within a section to the ToC
                         elif isinstance(toctreenode, addnodes.desc):
-                            title = toctreenode[0]
-
-                            # Skip entries with no ID (e.g. with ``:noindex:``)
-                            if not title['ids']:
+                            # Skip if no name set
+                            if not toctreenode['_toc_name']:
                                 continue
-                            # Skip if no name set. Known not to set 'fullname'
-                            # correctly: C/C++/RST domain, option/cmdoption, envvar
-                            full_name = title.get('fullname', '')
-                            if not full_name:
+                            # Skip entries with no ID (e.g. with :noindex: set)
+                            ids = toctreenode[0]['ids']
+                            if not ids:
                                 continue
 
-                            # Nest within Python classes
-                            if 'class' in title and title['class'] == memo_class:
+                            # Nest children within parents
+                            *parents, _ = toctreenode['_toc_parents']
+                            if parents and tuple(parents) == memo_parents:
                                 nested_toc = build_toc([toctreenode], depth + 1)
                                 if nested_toc:
                                     last_entry: nodes.Element = entries[-1]
@@ -126,17 +124,11 @@ class TocTreeCollector(EnvironmentCollector):
                                         last_entry[-1].extend(nested_toc)
                                 continue
                             else:
-                                memo_class = full_name
+                                memo_parents = toctreenode['_toc_parents']
 
-                            # Cut class name from Python methods
-                            if toctreenode.get('domain', '') == 'py' and title.get('class'):
-                                if full_name.startswith(title['class'] + '.'):
-                                    full_name = full_name[len(title['class'] + '.'):]
-                            if toctreenode['objtype'] in {'function', 'method'}:
-                                full_name += '()'
-                            anchorname = _make_anchor_name(title['ids'], numentries)
+                            anchorname = _make_anchor_name(ids, numentries)
                             reference = nodes.reference(
-                                '', full_name, internal=True,
+                                '', toctreenode['_toc_name'], internal=True,
                                 refuri=docname, anchorname=anchorname)
                             para = addnodes.compact_paragraph('', '', reference)
                             entries.append(nodes.list_item('', para))

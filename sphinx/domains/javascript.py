@@ -85,6 +85,11 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         signode['object'] = prefix
         signode['fullname'] = fullname
 
+        if mod_name:
+            self._toc_parents = (mod_name, *fullname.split('.'))
+        else:
+            self._toc_parents = tuple(fullname.split('.'))
+
         display_prefix = self.get_display_prefix()
         if display_prefix:
             signode += addnodes.desc_annotation('', '', *display_prefix)
@@ -200,6 +205,22 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
                   This will be removed in Sphinx-5.0.
         """
         return fullname.replace('$', '_S_')
+
+    def _table_of_contents_name(self, node: addnodes.desc) -> str:
+        if not self._toc_parents:
+            return ''
+
+        config = self.env.app.config
+        *parents, name = self._toc_parents
+        if (config.add_function_parentheses
+                and node['objtype'] in {'function', 'method'}):
+            name += '()'
+
+        if config.toc_object_entries_parents == 'all':
+            return '.'.join(parents + [name])
+        if config.toc_object_entries_parents == 'immediate' and len(parents):
+            return f'{parents[-1]}.{name}'
+        return name
 
 
 class JSCallable(JSObject):

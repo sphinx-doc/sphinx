@@ -61,6 +61,8 @@ class ObjectDescription(SphinxDirective, Generic[T]):
 
     # Warning: this might be removed in future version. Don't touch this from extensions.
     _doc_field_type_map: Dict[str, Tuple[Field, bool]] = {}
+    # Don't touch this from extensions, will be removed without notice
+    _toc_parents: Tuple[str, ...] = ()
 
     def get_field_type_map(self) -> Dict[str, Tuple[Field, bool]]:
         if self._doc_field_type_map == {}:
@@ -130,6 +132,9 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         current directive context on the build environment.
         """
         pass
+
+    def _table_of_contents_name(self, node: addnodes.desc) -> str:
+        return ''
 
     def run(self) -> List[Node]:
         """
@@ -203,6 +208,12 @@ class ObjectDescription(SphinxDirective, Generic[T]):
 
         contentnode = addnodes.desc_content()
         node.append(contentnode)
+
+        # Private attributes for ToC generation. Will be modified or removed
+        # without notice.
+        node['_toc_parents'] = self._toc_parents
+        node['_toc_name'] = self._table_of_contents_name(node)
+
         if self.names:
             # needed for association of version{added,changed} directives
             self.env.temp_data['object'] = self.names[0]

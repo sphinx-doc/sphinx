@@ -509,6 +509,11 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         signode['class'] = classname
         signode['fullname'] = fullname
 
+        if modname:
+            self._toc_parents = (modname, *fullname.split('.'))
+        else:
+            self._toc_parents = tuple(fullname.split('.'))
+
         sig_prefix = self.get_signature_prefix(sig)
         if sig_prefix:
             if type(sig_prefix) is str:
@@ -640,6 +645,22 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
                 self.env.ref_context['py:module'] = modules.pop()
             else:
                 self.env.ref_context.pop('py:module')
+
+    def _table_of_contents_name(self, node: addnodes.desc) -> str:
+        if not self._toc_parents:
+            return ''
+
+        config = self.env.app.config
+        *parents, name = self._toc_parents
+        if (config.add_function_parentheses
+                and node['objtype'] in {'function', 'method'}):
+            name += '()'
+
+        if config.toc_object_entries_parents == 'all':
+            return '.'.join(parents + [name])
+        if config.toc_object_entries_parents == 'immediate' and len(parents):
+            return f'{parents[-1]}.{name}'
+        return name
 
 
 class PyFunction(PyObject):
