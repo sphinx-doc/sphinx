@@ -128,8 +128,10 @@ class TocTreeCollector(EnvironmentCollector):
                             else:
                                 memo_class = full_name
 
-                            if title.get('module', ''):
-                                full_name = title['module'] + '.' + full_name
+                            # Cut class name from Python methods
+                            if toctreenode.get('domain', '') == 'py' and title.get('class'):
+                                if full_name.startswith(title['class'] + '.'):
+                                    full_name = full_name[len(title['class'] + '.'):]
                             if toctreenode['objtype'] in {'function', 'method'}:
                                 full_name += '()'
                             anchorname = _make_anchor_name(title['ids'], numentries)
