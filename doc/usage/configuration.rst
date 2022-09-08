@@ -677,8 +677,7 @@ General configuration
    A boolean that decides whether module names are prepended to all
    :term:`object` names (for object types where a "module" of some kind is
    defined), e.g. for :rst:dir:`py:function` directives.  Default is ``True``.
-        'toc_object_entries_parents': ('hide', 'env',
-                                       ENUM('all', 'immediate', 'hide')),
+
 .. confval:: toc_object_entries_parents
 
    A string that determines how domain objects (e.g. functions, classes,
