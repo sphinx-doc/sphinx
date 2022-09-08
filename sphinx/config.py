@@ -106,6 +106,8 @@ class Config:
         'default_role': (None, 'env', [str]),
         'add_function_parentheses': (True, 'env', []),
         'add_module_names': (True, 'env', []),
+        'toc_object_entries_parents': ('hide', 'env',
+                                       ENUM('all', 'immediate', 'hide')),
         'trim_footnote_reference_space': (False, 'env', []),
         'show_authors': (False, 'env', []),
         'pygments_style': (None, 'html', [str]),
