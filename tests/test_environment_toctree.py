@@ -2,7 +2,7 @@
 
 import pytest
 from docutils import nodes
-from docutils.nodes import bullet_list, comment, list_item, literal, reference, title
+from docutils.nodes import bullet_list, comment, list_item, reference, title
 
 from sphinx import addnodes
 from sphinx.addnodes import compact_paragraph, only
