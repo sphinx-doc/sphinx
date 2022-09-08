@@ -137,10 +137,14 @@ declarations:
 
    This directive marks the beginning of the description of a module (or package
    submodule, in which case the name should be fully qualified, including the
-   package name).  It does not create content (like e.g. :rst:dir:`py:class`
-   does).
+   package name).  A description of the module such as the docstring can be
+   placed in the body of the directive.
 
    This directive will also cause an entry in the global module index.
+
+   .. versionchanged:: 5.2
+
+      Module directives support body content.
 
    .. rubric:: options
 
@@ -164,6 +168,8 @@ declarations:
 
       Mark a module as deprecated; it will be designated as such in various
       locations then.
+
+
 
 .. rst:directive:: .. py:currentmodule:: name
 
@@ -1826,6 +1832,9 @@ The JavaScript domain (name **js**) provides the following directives:
    current module name.
 
    .. versionadded:: 1.6
+   .. versionchanged:: 5.2
+
+      Module directives support body content.
 
 .. rst:directive:: .. js:function:: name(signature)
 
