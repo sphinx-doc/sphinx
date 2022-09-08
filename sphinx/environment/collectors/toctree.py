@@ -104,7 +104,7 @@ class TocTreeCollector(EnvironmentCollector):
                             TocTree(app.env).note(docname, toctreenode)
                         # add object signatures within a section to the ToC
                         elif isinstance(toctreenode, addnodes.desc):
-                            title = toctreenode.children[0]
+                            title = toctreenode[0]
 
                             # Skip entries with no ID (e.g. with ``:noindex:``)
                             if not title['ids']:
@@ -136,8 +136,8 @@ class TocTreeCollector(EnvironmentCollector):
                                 full_name += '()'
                             anchorname = _make_anchor_name(title['ids'], numentries)
                             reference = nodes.reference(
-                                '', '', nodes.literal('', full_name),
-                                internal=True, refuri=docname, anchorname=anchorname)
+                                '', full_name, internal=True,
+                                refuri=docname, anchorname=anchorname)
                             para = addnodes.compact_paragraph('', '', reference)
                             entries.append(nodes.list_item('', para))
 
