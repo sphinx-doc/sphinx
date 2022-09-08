@@ -321,17 +321,26 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
     if doc.objtype == 'module':
         scanner = ModuleScanner(app, obj)
         ns['members'] = scanner.scan(imported_members)
+
+        respect_module_all = not app.config.autosummary_ignore_module_all
+        imported_members = imported_members or '__all__' in dir(obj) and respect_module_all
+
         ns['functions'], ns['all_functions'] = \
             get_members(obj, {'function'}, imported=imported_members)
         ns['classes'], ns['all_classes'] = \
             get_members(obj, {'class'}, imported=imported_members)
         ns['exceptions'], ns['all_exceptions'] = \
             get_members(obj, {'exception'}, imported=imported_members)
+        if respect_module_all:
+            ns['modules'], ns['all_modules'] = \
+                get_members(obj, {'module'}, imported=imported_members)
         ns['attributes'], ns['all_attributes'] = \
             get_module_attrs(ns['members'])
         ispackage = hasattr(obj, '__path__')
         if ispackage and recursive:
-            ns['modules'], ns['all_modules'] = get_modules(obj)
+            modules, all_modules = get_modules(obj)
+            ns['modules'] = list(set(modules + ns["modules"]))
+            ns['all_modules'] = list(set(all_modules + ns["all_modules"]))
     elif doc.objtype == 'class':
         ns['members'] = dir(obj)
         ns['inherited_members'] = \
