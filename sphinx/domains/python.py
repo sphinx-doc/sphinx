@@ -653,7 +653,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         config = self.env.app.config
         *parents, name = self._toc_parents
         if (config.add_function_parentheses
-                and node['objtype'] in {'function', 'method'}):
+                and node['objtype'] in {'function', 'method'}):  # NoQA: W503
             name += '()'
 
         if config.toc_object_entries_parents == 'all':
