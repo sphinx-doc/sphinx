@@ -334,6 +334,8 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         if respect_module_all:
             ns['modules'], ns['all_modules'] = \
                 get_members(obj, {'module'}, imported=imported_members)
+        else:
+            ns['modules'], ns['all_modules'] = [], []
         ns['attributes'], ns['all_attributes'] = \
             get_module_attrs(ns['members'])
         ispackage = hasattr(obj, '__path__')
