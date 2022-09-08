@@ -105,7 +105,7 @@ class TocTreeCollector(EnvironmentCollector):
                         # add object signatures within a section to the ToC
                         elif isinstance(toctreenode, addnodes.desc):
                             # Skip if no name set
-                            if not toctreenode['_toc_name']:
+                            if not toctreenode.get('_toc_name', ''):
                                 continue
                             # Skip entries with no ID (e.g. with :noindex: set)
                             ids = toctreenode[0]['ids']
