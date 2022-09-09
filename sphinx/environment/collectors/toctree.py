@@ -212,7 +212,8 @@ class TocTreeCollector(EnvironmentCollector):
         def get_figtype(node: Node) -> Optional[str]:
             for domain in env.domains.values():
                 figtype = domain.get_enumerable_node_type(node)
-                if domain.name == 'std' and not domain.get_numfig_title(node):  # type: ignore
+                if (domain.name == 'std'
+                        and not domain.get_numfig_title(node)):  # type: ignore[attr-defined]  # NoQA: E501,W503
                     # Skip if uncaptioned node
                     continue
 
