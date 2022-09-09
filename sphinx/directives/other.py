@@ -96,6 +96,9 @@ class TocTree(SphinxDirective):
                 patname = docname_join(self.env.docname, entry)
                 docnames = sorted(patfilter(all_docnames, patname))
                 for docname in docnames:
+                    if docname in generated_docnames:
+                        # don't include generated documents in globs
+                        continue
                     all_docnames.remove(docname)  # don't include it again
                     toctree['entries'].append((None, docname))
                     toctree['includefiles'].append(docname)
