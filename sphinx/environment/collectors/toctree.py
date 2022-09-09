@@ -201,6 +201,7 @@ class TocTreeCollector(EnvironmentCollector):
 
     def assign_figure_numbers(self, env: BuildEnvironment) -> List[str]:
         """Assign a figure number to each figure under a numbered toctree."""
+        generated_docnames = frozenset(env.domains['std'].labels.keys())  # type: ignore[attr-defined]  # NoQA: E501
 
         rewrite_needed = []
 
@@ -256,9 +257,11 @@ class TocTreeCollector(EnvironmentCollector):
                         _walk_doctree(docname, subnode, secnum)
                 elif isinstance(subnode, addnodes.toctree):
                     for _title, subdocname in subnode['entries']:
-                        if (url_re.match(subdocname)
-                                or subdocname in {'self', 'genindex', 'modindex', 'search'}):
+                        if url_re.match(subdocname) or subdocname == 'self':
                             # don't mess with those
+                            continue
+                        if subdocname in generated_docnames:
+                            # or these
                             continue
 
                         _walk_doc(subdocname, secnum)
