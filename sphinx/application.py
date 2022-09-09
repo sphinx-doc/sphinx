@@ -125,9 +125,10 @@ class Sphinx:
     _warncount: int
 
     def __init__(self, srcdir: str, confdir: Optional[str], outdir: str, doctreedir: str,
-                 buildername: str, confoverrides: Dict = None,
+                 buildername: str, confoverrides: Optional[Dict] = None,
                  status: Optional[IO] = sys.stdout, warning: Optional[IO] = sys.stderr,
-                 freshenv: bool = False, warningiserror: bool = False, tags: List[str] = None,
+                 freshenv: bool = False, warningiserror: bool = False,
+                 tags: Optional[List[str]] = None,
                  verbosity: int = 0, parallel: int = 0, keep_going: bool = False,
                  pdb: bool = False) -> None:
         self.phase = BuildPhase.INITIALIZATION
@@ -332,7 +333,7 @@ class Sphinx:
 
     # ---- main "build" method -------------------------------------------------
 
-    def build(self, force_all: bool = False, filenames: List[str] = None) -> None:
+    def build(self, force_all: bool = False, filenames: Optional[List[str]] = None) -> None:
         self.phase = BuildPhase.READING
         try:
             if force_all:
@@ -602,7 +603,7 @@ class Sphinx:
         self.registry.add_translation_handlers(node, **kwargs)
 
     def add_enumerable_node(self, node: Type[Element], figtype: str,
-                            title_getter: TitleGetter = None, override: bool = False,
+                            title_getter: Optional[TitleGetter] = None, override: bool = False,
                             **kwargs: Tuple[Callable, Callable]) -> None:
         """Register a Docutils node class as a numfig target.
 
@@ -789,7 +790,8 @@ class Sphinx:
         self.registry.add_index_to_domain(domain, index)
 
     def add_object_type(self, directivename: str, rolename: str, indextemplate: str = '',
-                        parse_node: Callable = None, ref_nodeclass: Type[TextElement] = None,
+                        parse_node: Optional[Callable] = None,
+                        ref_nodeclass: Optional[Type[TextElement]] = None,
                         objname: str = '', doc_field_types: List = [], override: bool = False
                         ) -> None:
         """Register a new object type.
@@ -856,7 +858,7 @@ class Sphinx:
                                       override=override)
 
     def add_crossref_type(self, directivename: str, rolename: str, indextemplate: str = '',
-                          ref_nodeclass: Type[TextElement] = None, objname: str = '',
+                          ref_nodeclass: Optional[Type[TextElement]] = None, objname: str = '',
                           override: bool = False) -> None:
         """Register a new crossref object type.
 
@@ -1069,7 +1071,7 @@ class Sphinx:
             self.builder.add_css_file(filename,  # type: ignore[attr-defined]
                                       priority=priority, **kwargs)
 
-    def add_latex_package(self, packagename: str, options: str = None,
+    def add_latex_package(self, packagename: str, options: Optional[str] = None,
                           after_hyperref: bool = False) -> None:
         r"""Register a package to include in the LaTeX source code.
 
@@ -1292,7 +1294,12 @@ class TemplateBridge:
     that renders templates given a template name and a context.
     """
 
-    def init(self, builder: "Builder", theme: Theme = None, dirs: List[str] = None) -> None:
+    def init(
+        self,
+        builder: "Builder",
+        theme: Optional[Theme] = None,
+        dirs: Optional[List[str]] = None
+    ) -> None:
         """Called by the builder to initialize the template system.
 
         *builder* is the builder object; you'll probably want to look at the

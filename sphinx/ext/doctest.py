@@ -45,11 +45,11 @@ def is_allowed_version(spec: str, version: str) -> bool:
 
     Some examples:
 
-        >>> is_allowed_version('3.3', '<=3.5')
+        >>> is_allowed_version('<=3.5', '3.3')
         True
-        >>> is_allowed_version('3.3', '<=3.2')
+        >>> is_allowed_version('<=3.2', '3.3')
         False
-        >>> is_allowed_version('3.3', '>3.2, <4.0')
+        >>> is_allowed_version('>3.2, <4.0', '3.3')
         True
     """
     return Version(version) in SpecifierSet(spec)

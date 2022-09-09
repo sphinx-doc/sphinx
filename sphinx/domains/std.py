@@ -757,12 +757,21 @@ class StandardDomain(Domain):
                 if not sectname:
                     continue
             else:
-                toctree = next(node.findall(addnodes.toctree), None)
-                if toctree and toctree.get('caption'):
-                    sectname = toctree.get('caption')
+                if (isinstance(node, (nodes.definition_list,
+                                      nodes.field_list)) and
+                        node.children):
+                    node = cast(nodes.Element, node.children[0])
+                if isinstance(node, (nodes.field, nodes.definition_list_item)):
+                    node = cast(nodes.Element, node.children[0])
+                if isinstance(node, (nodes.term, nodes.field_name)):
+                    sectname = clean_astext(node)
                 else:
-                    # anonymous-only labels
-                    continue
+                    toctree = next(node.findall(addnodes.toctree), None)
+                    if toctree and toctree.get('caption'):
+                        sectname = toctree.get('caption')
+                    else:
+                        # anonymous-only labels
+                        continue
             self.labels[name] = docname, labelid, sectname
 
     def add_program_option(self, program: str, name: str, docname: str, labelid: str) -> None:

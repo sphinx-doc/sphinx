@@ -1,61 +1,9 @@
-import sys
-
 from setuptools import find_packages, setup
 
 import sphinx
 
 with open('README.rst', encoding='utf-8') as f:
     long_desc = f.read()
-
-if sys.version_info < (3, 7):
-    print('ERROR: Sphinx requires at least Python 3.7 to run.')
-    sys.exit(1)
-
-install_requires = [
-    'sphinxcontrib-applehelp',
-    'sphinxcontrib-devhelp',
-    'sphinxcontrib-jsmath',
-    'sphinxcontrib-htmlhelp>=2.0.0',
-    'sphinxcontrib-serializinghtml>=1.1.5',
-    'sphinxcontrib-qthelp',
-    'Jinja2>=2.3',
-    'Pygments>=2.0',
-    'docutils>=0.14,<0.20',
-    'snowballstemmer>=1.1',
-    'babel>=1.3',
-    'alabaster>=0.7,<0.8',
-    'imagesize',
-    'requests>=2.5.0',
-    'packaging',
-    "importlib-metadata>=4.4; python_version < '3.10'",
-]
-
-extras_require = {
-    # Environment Marker works for wheel 0.24 or later
-    ':sys_platform=="win32"': [
-        'colorama>=0.3.5',
-    ],
-    'docs': [
-        'sphinxcontrib-websupport',
-    ],
-    'lint': [
-        'flake8>=3.5.0',
-        'flake8-comprehensions',
-        'flake8-bugbear',
-        'isort',
-        'mypy>=0.971',
-        'sphinx-lint',
-        'docutils-stubs',
-        "types-typed-ast",
-        "types-requests",
-    ],
-    'test': [
-        'pytest>=4.6',
-        'html5lib',
-        "typed_ast; python_version < '3.8'",
-        'cython',
-    ],
-}
 
 setup(
     name='Sphinx',
@@ -130,6 +78,45 @@ setup(
         ],
     },
     python_requires=">=3.7",
-    install_requires=install_requires,
-    extras_require=extras_require,
+    install_requires=[
+        'sphinxcontrib-applehelp',
+        'sphinxcontrib-devhelp',
+        'sphinxcontrib-jsmath',
+        'sphinxcontrib-htmlhelp>=2.0.0',
+        'sphinxcontrib-serializinghtml>=1.1.5',
+        'sphinxcontrib-qthelp',
+        'Jinja2>=3.0',
+        'Pygments>=2.12',
+        'docutils>=0.14,<0.20',
+        'snowballstemmer>=2.0',
+        'babel>=2.9',
+        'alabaster>=0.7,<0.8',
+        'imagesize>=1.3',
+        'requests>=2.5.0',
+        'packaging>=21.0',
+        "importlib-metadata>=4.8; python_version < '3.10'",
+        "colorama>=0.4.5; sys_platform == 'win32'",
+    ],
+    extras_require={
+        'docs': [
+            'sphinxcontrib-websupport',
+        ],
+        'lint': [
+            'flake8>=3.5.0',
+            'flake8-comprehensions',
+            'flake8-bugbear',
+            'isort',
+            'mypy>=0.971',
+            'sphinx-lint',
+            'docutils-stubs',
+            "types-typed-ast",
+            "types-requests",
+        ],
+        'test': [
+            'pytest>=4.6',
+            'html5lib',
+            "typed_ast; python_version < '3.8'",
+            'cython',
+        ],
+    },
 )

@@ -1,7 +1,7 @@
 """Handlers for additional ReST directives."""
 
 import re
-from typing import TYPE_CHECKING, Any, Dict, Generic, List, Tuple, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Dict, Generic, List, Optional, Tuple, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -55,9 +55,9 @@ class ObjectDescription(SphinxDirective, Generic[T]):
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
     doc_field_types: List[Field] = []
-    domain: str = None
-    objtype: str = None
-    indexnode: addnodes.index = None
+    domain: Optional[str] = None
+    objtype: Optional[str] = None
+    indexnode: Optional[addnodes.index] = None
 
     # Warning: this might be removed in future version. Don't touch this from extensions.
     _doc_field_type_map: Dict[str, Tuple[Field, bool]] = {}

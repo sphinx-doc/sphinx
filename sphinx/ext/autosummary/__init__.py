@@ -262,7 +262,9 @@ class Autosummary(SphinxDirective):
 
         return nodes
 
-    def import_by_name(self, name: str, prefixes: List[str]) -> Tuple[str, Any, Any, str]:
+    def import_by_name(
+        self, name: str, prefixes: List[Optional[str]]
+    ) -> Tuple[str, Any, Any, str]:
         with mock(self.config.autosummary_mock_imports):
             try:
                 return import_by_name(name, prefixes)
@@ -593,7 +595,7 @@ class ImportExceptionGroup(Exception):
         self.exceptions = list(exceptions)
 
 
-def get_import_prefixes_from_env(env: BuildEnvironment) -> List[str]:
+def get_import_prefixes_from_env(env: BuildEnvironment) -> List[Optional[str]]:
     """
     Obtain current Python import prefixes (for `import_by_name`)
     from ``document.env``
@@ -614,8 +616,9 @@ def get_import_prefixes_from_env(env: BuildEnvironment) -> List[str]:
     return prefixes
 
 
-def import_by_name(name: str, prefixes: List[str] = [None], grouped_exception: bool = True
-                   ) -> Tuple[str, Any, Any, str]:
+def import_by_name(
+    name: str, prefixes: List[Optional[str]] = [None], grouped_exception: bool = True
+) -> Tuple[str, Any, Any, str]:
     """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
@@ -695,7 +698,7 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> Tuple[Any, Any
             raise ImportError(*exc.args) from exc
 
 
-def import_ivar_by_name(name: str, prefixes: List[str] = [None],
+def import_ivar_by_name(name: str, prefixes: List[Optional[str]] = [None],
                         grouped_exception: bool = True) -> Tuple[str, Any, Any, str]:
     """Import an instance variable that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
@@ -746,14 +749,14 @@ class AutoLink(SphinxRole):
         return objects, errors
 
 
-def get_rst_suffix(app: Sphinx) -> str:
+def get_rst_suffix(app: Sphinx) -> Optional[str]:
     def get_supported_format(suffix: str) -> Tuple[str, ...]:
         parser_class = app.registry.get_source_parsers().get(suffix)
         if parser_class is None:
             return ('restructuredtext',)
         return parser_class.supported
 
-    suffix: str = None
+    suffix = None
     for suffix in app.config.source_suffix:
         if 'restructuredtext' in get_supported_format(suffix):
             return suffix
@@ -766,7 +769,7 @@ def process_generate_options(app: Sphinx) -> None:
 
     if genfiles is True:
         env = app.builder.env
-        genfiles = [env.doc2path(x, base=None) for x in env.found_docs
+        genfiles = [env.doc2path(x, base=False) for x in env.found_docs
                     if os.path.isfile(env.doc2path(x))]
     elif genfiles is False:
         pass

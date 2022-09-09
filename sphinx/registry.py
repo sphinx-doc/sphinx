@@ -149,7 +149,7 @@ class SphinxComponentRegistry:
             self.load_extension(app, entry_point.module)
 
     def create_builder(self, app: "Sphinx", name: str,
-                       env: BuildEnvironment = None) -> Builder:
+                       env: Optional[BuildEnvironment] = None) -> Builder:
         if name not in self.builders:
             raise SphinxError(__('Builder name %s not registered') % name)
 
@@ -223,10 +223,17 @@ class SphinxComponentRegistry:
                                  (index.name, domain))
         indices.append(index)
 
-    def add_object_type(self, directivename: str, rolename: str, indextemplate: str = '',
-                        parse_node: Callable = None, ref_nodeclass: Type[TextElement] = None,
-                        objname: str = '', doc_field_types: List = [], override: bool = False
-                        ) -> None:
+    def add_object_type(
+        self,
+        directivename: str,
+        rolename: str,
+        indextemplate: str = '',
+        parse_node: Optional[Callable] = None,
+        ref_nodeclass: Optional[Type[TextElement]] = None,
+        objname: str = '',
+        doc_field_types: List = [],
+        override: bool = False
+    ) -> None:
         logger.debug('[app] adding object type: %r',
                      (directivename, rolename, indextemplate, parse_node,
                       ref_nodeclass, objname, doc_field_types))
@@ -247,9 +254,15 @@ class SphinxComponentRegistry:
                                  directivename)
         object_types[directivename] = ObjType(objname or directivename, rolename)
 
-    def add_crossref_type(self, directivename: str, rolename: str, indextemplate: str = '',
-                          ref_nodeclass: Type[TextElement] = None, objname: str = '',
-                          override: bool = False) -> None:
+    def add_crossref_type(
+        self,
+        directivename: str,
+        rolename: str,
+        indextemplate: str = '',
+        ref_nodeclass: Optional[Type[TextElement]] = None,
+        objname: str = '',
+        override: bool = False
+    ) -> None:
         logger.debug('[app] adding crossref type: %r',
                      (directivename, rolename, indextemplate, ref_nodeclass, objname))
 
@@ -386,8 +399,12 @@ class SphinxComponentRegistry:
         else:
             self.latex_packages.append((name, options))
 
-    def add_enumerable_node(self, node: Type[Node], figtype: str,
-                            title_getter: TitleGetter = None, override: bool = False) -> None:
+    def add_enumerable_node(
+        self,
+        node: Type[Node],
+        figtype: str,
+        title_getter: Optional[TitleGetter] = None, override: bool = False
+    ) -> None:
         logger.debug('[app] adding enumerable node: (%r, %r, %r)', node, figtype, title_getter)
         if node in self.enumerable_nodes and not override:
             raise ExtensionError(__('enumerable_node %r already registered') % node)

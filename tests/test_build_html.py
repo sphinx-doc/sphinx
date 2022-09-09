@@ -6,10 +6,8 @@ from itertools import chain, cycle
 from unittest.mock import ANY, call, patch
 
 import docutils
-import pygments
 import pytest
 from html5lib import HTMLParser
-from packaging import version
 
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.errors import ConfigError
@@ -21,9 +19,6 @@ if docutils.__version_info__ < (0, 17):
     FIGURE_CAPTION = ".//div[@class='figure align-default']/p[@class='caption']"
 else:
     FIGURE_CAPTION = ".//figure/figcaption/p"
-
-
-PYGMENTS_VERSION = version.parse(pygments.__version__).release
 
 
 ENV_WARNINGS = """\
@@ -1630,10 +1625,7 @@ def test_html_codeblock_linenos_style(app):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
-    if PYGMENTS_VERSION > (2, 7):
-        assert '<span class="linenos">1</span>' in content
-    else:
-        assert '<span class="lineno">1 </span>' in content
+    assert '<span class="linenos">1</span>' in content
 
 
 @pytest.mark.sphinx('html', testroot='highlight_options')

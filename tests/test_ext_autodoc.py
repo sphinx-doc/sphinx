@@ -363,7 +363,7 @@ def test_get_doc(app):
 
     # verify that method docstrings get extracted in both normal case
     # and in case of bound method posing as a function
-    class J:  # NOQA
+    class J:
         def foo(self):
             """Method docstring"""
     assert getdocl('method', J.foo) == ['Method docstring']
@@ -808,7 +808,7 @@ def test_autodoc_imported_members(app):
                "imported-members": None,
                "ignore-module-all": None}
     actual = do_autodoc(app, 'module', 'target', options)
-    assert '.. py:function:: save_traceback(app: Sphinx) -> str' in actual
+    assert '.. py:function:: save_traceback(app: ~typing.Optional[Sphinx]) -> str' in actual
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')

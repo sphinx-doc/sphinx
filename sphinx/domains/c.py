@@ -663,7 +663,7 @@ class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
 
 
 class ASTFunctionParameter(ASTBase):
-    def __init__(self, arg: "ASTTypeWithInit", ellipsis: bool = False) -> None:
+    def __init__(self, arg: Optional["ASTTypeWithInit"], ellipsis: bool = False) -> None:
         self.arg = arg
         self.ellipsis = ellipsis
 
@@ -1959,7 +1959,7 @@ class Symbol:
             if Symbol.debug_lookup:
                 Symbol.debug_print(
                     "no match, but fill an empty declaration, candSybmol is not None?:",
-                    candSymbol is not None)  # NOQA
+                    candSymbol is not None)
                 Symbol.debug_indent -= 2
             if candSymbol is not None:
                 candSymbol.remove()
@@ -2614,7 +2614,7 @@ class DefinitionParser(BaseParser):
         nestedName = self._parse_nested_name()
         return ASTTrailingTypeSpecName(prefix, nestedName)
 
-    def _parse_parameters(self, paramMode: str) -> ASTParameters:
+    def _parse_parameters(self, paramMode: str) -> Optional[ASTParameters]:
         self.skip_ws()
         if not self.skip_string('('):
             if paramMode == 'function':
@@ -2915,7 +2915,7 @@ class DefinitionParser(BaseParser):
         value = self._parse_expression_fallback(fallbackEnd, parser, allow=allowFallback)
         return ASTInitializer(value)
 
-    def _parse_type(self, named: Union[bool, str], outer: str = None) -> ASTType:
+    def _parse_type(self, named: Union[bool, str], outer: Optional[str] = None) -> ASTType:
         """
         named=False|'single'|True: 'single' is e.g., for function objects which
         doesn't need to name the arguments, but otherwise is a single name

@@ -7,7 +7,6 @@ import os
 import re
 
 import docutils
-import pygments
 import pytest
 from babel.messages import mofile, pofile
 from babel.messages.catalog import Catalog
@@ -24,8 +23,6 @@ sphinx_intl = pytest.mark.sphinx(
         'gettext_compact': False,
     },
 )
-
-pygments_version = tuple(int(v) for v in pygments.__version__.split('.'))
 
 
 def read_po(pathname):
@@ -1099,13 +1096,9 @@ def test_additional_targets_should_not_be_translated(app):
     assert_count(expected_expr, result, 1)
 
     # C code block with lang should not be translated but be *C* highlighted
-    if pygments_version < (2, 10, 0):
-        expected_expr = ("""<span class="cp">#include</span> """
-                         """<span class="cpf">&lt;stdio.h&gt;</span>""")
-    else:
-        expected_expr = ("""<span class="cp">#include</span>"""
-                         """<span class="w"> </span>"""
-                         """<span class="cpf">&lt;stdio.h&gt;</span>""")
+    expected_expr = ("""<span class="cp">#include</span>"""
+                     """<span class="w"> </span>"""
+                     """<span class="cpf">&lt;stdio.h&gt;</span>""")
     assert_count(expected_expr, result, 1)
 
     # literal block in list item should not be translated
@@ -1182,13 +1175,9 @@ def test_additional_targets_should_be_translated(app):
     assert_count(expected_expr, result, 1)
 
     # C code block with lang should be translated and be *C* highlighted
-    if pygments_version < (2, 10, 0):
-        expected_expr = ("""<span class="cp">#include</span> """
-                         """<span class="cpf">&lt;STDIO.H&gt;</span>""")
-    else:
-        expected_expr = ("""<span class="cp">#include</span>"""
-                         """<span class="w"> </span>"""
-                         """<span class="cpf">&lt;STDIO.H&gt;</span>""")
+    expected_expr = ("""<span class="cp">#include</span>"""
+                     """<span class="w"> </span>"""
+                     """<span class="cpf">&lt;STDIO.H&gt;</span>""")
     assert_count(expected_expr, result, 1)
 
     # literal block in list item should be translated

@@ -445,3 +445,43 @@ def test_labeled_rubric(app):
     domain = app.env.get_domain("std")
     assert 'label' in domain.labels
     assert domain.labels['label'] == ('index', 'label', 'blah blah blah')
+
+
+def test_labeled_definition(app):
+    text = (".. _label1:\n"
+            "\n"
+            "Foo blah *blah* blah\n"
+            "  Definition\n"
+            "\n"
+            ".. _label2:\n"
+            "\n"
+            "Bar blah *blah* blah\n"
+            "  Definition\n"
+            "\n")
+    restructuredtext.parse(app, text)
+
+    domain = app.env.get_domain("std")
+    assert 'label1' in domain.labels
+    assert domain.labels['label1'] == ('index', 'label1', 'Foo blah blah blah')
+    assert 'label2' in domain.labels
+    assert domain.labels['label2'] == ('index', 'label2', 'Bar blah blah blah')
+
+
+def test_labeled_field(app):
+    text = (".. _label1:\n"
+            "\n"
+            ":Foo blah *blah* blah:\n"
+            "  Definition\n"
+            "\n"
+            ".. _label2:\n"
+            "\n"
+            ":Bar blah *blah* blah:\n"
+            "  Definition\n"
+            "\n")
+    restructuredtext.parse(app, text)
+
+    domain = app.env.get_domain("std")
+    assert 'label1' in domain.labels
+    assert domain.labels['label1'] == ('index', 'label1', 'Foo blah blah blah')
+    assert 'label2' in domain.labels
+    assert domain.labels['label2'] == ('index', 'label2', 'Bar blah blah blah')

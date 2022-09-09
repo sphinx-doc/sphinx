@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, List, Set, Type
+from typing import Any, Callable, Dict, List, Optional, Set, Type
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -40,7 +40,7 @@ class DummyOptionSpec(dict):
 class DocumenterBridge:
     """A parameters container for Documenters."""
 
-    def __init__(self, env: BuildEnvironment, reporter: Reporter, options: Options,
+    def __init__(self, env: BuildEnvironment, reporter: Optional[Reporter], options: Options,
                  lineno: int, state: Any) -> None:
         self.env = env
         self._reporter = reporter

@@ -29,7 +29,7 @@ def get_assign_targets(node: ast.AST) -> List[ast.expr]:
         return [node.target]  # type: ignore
 
 
-def get_lvar_names(node: ast.AST, self: ast.arg = None) -> List[str]:
+def get_lvar_names(node: ast.AST, self: Optional[ast.arg] = None) -> List[str]:
     """Convert assignment-AST to variable names.
 
     This raises `TypeError` if the assignment does not create new variable::
@@ -128,7 +128,7 @@ class TokenProcessor:
         """Returns specified line."""
         return self.buffers[lineno - 1]
 
-    def fetch_token(self) -> Token:
+    def fetch_token(self) -> Optional[Token]:
         """Fetch the next token from source code.
 
         Returns ``None`` if sequence finished.

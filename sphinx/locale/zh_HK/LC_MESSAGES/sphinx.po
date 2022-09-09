@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-07-31 00:21+0000\n"
+"POT-Creation-Date: 2022-08-07 00:24+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Chinese (Hong Kong) (http://www.transifex.com/sphinx-doc/sphinx-1/language/zh_HK/)\n"
@@ -1882,7 +1882,7 @@ msgid "%s (C %s)"
 msgstr ""
 
 #: sphinx/domains/c.py:3347 sphinx/domains/cpp.py:7419
-#: sphinx/domains/python.py:435 sphinx/ext/napoleon/docstring.py:749
+#: sphinx/domains/python.py:435 sphinx/ext/napoleon/docstring.py:751
 msgid "Parameters"
 msgstr ""
 
@@ -3098,58 +3098,58 @@ msgid ""
 "%(default)s)"
 msgstr ""
 
-#: sphinx/ext/napoleon/__init__.py:339 sphinx/ext/napoleon/docstring.py:716
+#: sphinx/ext/napoleon/__init__.py:339 sphinx/ext/napoleon/docstring.py:718
 msgid "Keyword Arguments"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:670
+#: sphinx/ext/napoleon/docstring.py:672
 msgid "Example"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:671
+#: sphinx/ext/napoleon/docstring.py:673
 msgid "Examples"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:731
+#: sphinx/ext/napoleon/docstring.py:733
 msgid "Notes"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:740
+#: sphinx/ext/napoleon/docstring.py:742
 msgid "Other Parameters"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:776
+#: sphinx/ext/napoleon/docstring.py:778
 msgid "Receives"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:780
+#: sphinx/ext/napoleon/docstring.py:782
 msgid "References"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:812
+#: sphinx/ext/napoleon/docstring.py:814
 msgid "Warns"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:816
+#: sphinx/ext/napoleon/docstring.py:818
 msgid "Yields"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:986
+#: sphinx/ext/napoleon/docstring.py:988
 #, python-format
 msgid "invalid value set (missing closing brace): %s"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:993
+#: sphinx/ext/napoleon/docstring.py:995
 #, python-format
 msgid "invalid value set (missing opening brace): %s"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:1000
+#: sphinx/ext/napoleon/docstring.py:1002
 #, python-format
 msgid "malformed string literal (missing closing quote): %s"
 msgstr ""
 
-#: sphinx/ext/napoleon/docstring.py:1007
+#: sphinx/ext/napoleon/docstring.py:1009
 #, python-format
 msgid "malformed string literal (missing opening quote): %s"
 msgstr ""
