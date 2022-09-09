@@ -77,7 +77,7 @@ class TocTree(SphinxDirective):
         return ret
 
     def parse_content(self, toctree: addnodes.toctree) -> List[Node]:
-        generated_docnames = frozenset(self.env.domains['std'].labels.keys())  # type: ignore[attr-defined]  # NoQA: E501
+        generated_docnames = frozenset(self.env.domains['std'].initial_data['labels'].keys())  # type: ignore[attr-defined]  # NoQA: E501
         suffixes = self.config.source_suffix
 
         # glob target documents

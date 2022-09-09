@@ -201,7 +201,7 @@ class TocTreeCollector(EnvironmentCollector):
 
     def assign_figure_numbers(self, env: BuildEnvironment) -> List[str]:
         """Assign a figure number to each figure under a numbered toctree."""
-        generated_docnames = frozenset(env.domains['std'].labels.keys())  # type: ignore[attr-defined]  # NoQA: E501
+        generated_docnames = frozenset(env.domains['std'].initial_data['labels'].keys())  # type: ignore[attr-defined]  # NoQA: E501
 
         rewrite_needed = []
 
@@ -248,6 +248,7 @@ class TocTreeCollector(EnvironmentCollector):
             fignumbers[figure_id] = get_next_fignumber(figtype, secnum)
 
         def _walk_doctree(docname: str, doctree: Element, secnum: Tuple[int, ...]) -> None:
+            nonlocal generated_docnames
             for subnode in doctree.children:
                 if isinstance(subnode, nodes.section):
                     next_secnum = get_section_number(docname, subnode)
