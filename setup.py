@@ -96,11 +96,9 @@ setup(
         'requests>=2.5.0',
         'packaging',
         "importlib-metadata>=4.4; python_version < '3.10'",
+        "colorama>=0.3.5; sys_platform == 'win32'",
     ],
     extras_require={
-        ':sys_platform=="win32"': [
-            'colorama>=0.3.5',
-        ],
         'docs': [
             'sphinxcontrib-websupport',
         ],
