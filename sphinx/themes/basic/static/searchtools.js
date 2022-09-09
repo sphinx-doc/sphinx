@@ -64,7 +64,7 @@ const _displayItem = (item, highlightTerms, searchTerms) => {
   const docLinkSuffix = DOCUMENTATION_OPTIONS.LINK_SUFFIX;
   const showSearchSummary = DOCUMENTATION_OPTIONS.SHOW_SEARCH_SUMMARY;
 
-  const [docName, title, anchor, descr] = item;
+  const [docName, title, anchor, descr, score, _filename] = item;
 
   let listItem = document.createElement("li");
   let requestUrl;
@@ -86,6 +86,7 @@ const _displayItem = (item, highlightTerms, searchTerms) => {
   params.set("highlight", [...highlightTerms].join(" "));
   let linkEl = listItem.appendChild(document.createElement("a"));
   linkEl.href = linkUrl + "?" + params.toString() + anchor;
+  linkEl.dataset.score = score;
   linkEl.innerHTML = title;
   if (descr)
     listItem.appendChild(document.createElement("span")).innerHTML =
