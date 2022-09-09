@@ -20,10 +20,10 @@ from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
 from sphinx.events import EventManager
 from sphinx.locale import __
-from sphinx.util import (UnicodeDecodeErrorHandler, get_filetype, import_object, logging,
-                         progress_message, rst, status_iterator)
+from sphinx.util import UnicodeDecodeErrorHandler, get_filetype, import_object, logging, rst
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
+from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import sphinx_domains
 from sphinx.util.i18n import CatalogInfo, CatalogRepository, docname_to_domain
 from sphinx.util.osutil import SEP, ensuredir, relative_uri, relpath

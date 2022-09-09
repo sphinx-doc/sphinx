@@ -37,7 +37,8 @@ from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
-from sphinx.util import isurl, logging, md5, progress_message, status_iterator
+from sphinx.util import isurl, logging, md5
+from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date

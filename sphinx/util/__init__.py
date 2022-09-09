@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import functools
 import hashlib
 import os
 import posixpath
@@ -15,14 +14,15 @@ from datetime import datetime
 from importlib import import_module
 from os import path
 from time import mktime, strptime
-from typing import IO, TYPE_CHECKING, Any, Callable, Generator, Iterable, TypeVar
+from typing import IO, TYPE_CHECKING, Any, Iterable
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
-from sphinx.deprecation import RemovedInSphinx70Warning
+from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
 from sphinx.errors import ExtensionError, FiletypeNotFoundError, SphinxParallelError
 from sphinx.locale import __
+from sphinx.util import display as _display
 from sphinx.util import logging
-from sphinx.util.console import bold, colorize, strip_colors, term_width_line  # type: ignore
+from sphinx.util.console import strip_colors
 from sphinx.util.matching import patfilter  # noqa: F401
 from sphinx.util.nodes import (caption_ref_re, explicit_title_re,  # noqa: F401
                                nested_parse_with_titles, split_explicit_title)
@@ -444,90 +444,6 @@ def isurl(url: str) -> bool:
     return bool(url) and '://' in url
 
 
-def display_chunk(chunk: Any) -> str:
-    if isinstance(chunk, (list, tuple)):
-        if len(chunk) == 1:
-            return str(chunk[0])
-        return f'{chunk[0]} .. {chunk[-1]}'
-    return str(chunk)
-
-
-T = TypeVar('T')
-
-
-def old_status_iterator(iterable: Iterable[T], summary: str, color: str = "darkgreen",
-                        stringify_func: Callable[[Any], str] = display_chunk
-                        ) -> Generator[T, None, None]:
-    l = 0
-    for item in iterable:
-        if l == 0:
-            logger.info(bold(summary), nonl=True)
-            l = 1
-        logger.info(stringify_func(item), color=color, nonl=True)
-        logger.info(" ", nonl=True)
-        yield item
-    if l == 1:
-        logger.info('')
-
-
-# new version with progress info
-def status_iterator(iterable: Iterable[T], summary: str, color: str = "darkgreen",
-                    length: int = 0, verbosity: int = 0,
-                    stringify_func: Callable[[Any], str] = display_chunk
-                    ) -> Generator[T, None, None]:
-    if length == 0:
-        yield from old_status_iterator(iterable, summary, color, stringify_func)
-        return
-    l = 0
-    summary = bold(summary)
-    for item in iterable:
-        l += 1
-        s = '%s[%3d%%] %s' % (summary, 100 * l / length, colorize(color, stringify_func(item)))
-        if verbosity:
-            s += '\n'
-        else:
-            s = term_width_line(s)
-        logger.info(s, nonl=True)
-        yield item
-    if l > 0:
-        logger.info('')
-
-
-class SkipProgressMessage(Exception):
-    pass
-
-
-class progress_message:
-    def __init__(self, message: str) -> None:
-        self.message = message
-
-    def __enter__(self) -> None:
-        logger.info(bold(self.message + '... '), nonl=True)
-
-    def __exit__(
-        self, exc_type: type[Exception], exc_value: Exception, traceback: Any
-    ) -> bool:
-        if isinstance(exc_value, SkipProgressMessage):
-            logger.info(__('skipped'))
-            if exc_value.args:
-                logger.info(*exc_value.args)
-            return True
-        elif exc_type:
-            logger.info(__('failed'))
-        else:
-            logger.info(__('done'))
-
-        return False
-
-    def __call__(self, f: Callable) -> Callable:
-        @functools.wraps(f)
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
-            with self:
-                return f(*args, **kwargs)
-
-        return wrapper
-
-
 def epoch_to_rfc1123(epoch: float) -> str:
     """Convert datetime format epoch to RFC1123."""
     from babel.dates import format_datetime
@@ -567,3 +483,19 @@ def xmlname_checker() -> re.Pattern:
     start_chars_regex = convert(name_start_chars)
     name_chars_regex = convert(name_chars)
     return re.compile(f'({start_chars_regex})({start_chars_regex}|{name_chars_regex})*')
+
+
+deprecated_alias('sphinx.util',
+                 {
+                     'display_chunk': _display.display_chunk,
+                     'status_iterator': _display.status_iterator,
+                     'SkipProgressMessage': _display.SkipProgressMessage,
+                     'progress_message': _display.progress_message,
+                 },
+                 RemovedInSphinx70Warning,
+                 {
+                     'display_chunk': 'sphinx.util.display.display_chunk',
+                     'status_iterator': 'sphinx.util.display.status_iterator',
+                     'SkipProgressMessage': 'sphinx.util.display.SkipProgressMessage',
+                     'progress_message': 'sphinx.util.display.progress_message',
+                 })

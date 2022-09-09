@@ -14,8 +14,9 @@ from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.locale import __
-from sphinx.util import logging, progress_message
+from sphinx.util import logging
 from sphinx.util.console import darkgreen  # type: ignore
+from sphinx.util.display import progress_message
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import ensuredir, make_filename_from_project
 from sphinx.writers.manpage import ManualPageTranslator, ManualPageWriter
