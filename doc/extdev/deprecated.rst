@@ -22,6 +22,16 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
+   * - ``sphinx.util.epoch_to_rfc1123``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.http_date.epoch_to_rfc1123``
+
+   * - ``sphinx.util.rfc1123_to_epoch``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.http_date.rfc1123_to_epoch``
+
    * - ``sphinx.util.status_iterator``
      - 6.1
      - 8.0

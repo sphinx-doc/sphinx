@@ -10,10 +10,8 @@ import sys
 import tempfile
 import traceback
 import warnings
-from datetime import datetime
 from importlib import import_module
 from os import path
-from time import mktime, strptime
 from typing import IO, TYPE_CHECKING, Any, Iterable
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
@@ -21,6 +19,7 @@ from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
 from sphinx.errors import ExtensionError, FiletypeNotFoundError, SphinxParallelError
 from sphinx.locale import __
 from sphinx.util import display as _display
+from sphinx.util import http_date as _http_date
 from sphinx.util import logging
 from sphinx.util.console import strip_colors
 from sphinx.util.matching import patfilter  # noqa: F401
@@ -444,19 +443,6 @@ def isurl(url: str) -> bool:
     return bool(url) and '://' in url
 
 
-def epoch_to_rfc1123(epoch: float) -> str:
-    """Convert datetime format epoch to RFC1123."""
-    from babel.dates import format_datetime
-
-    dt = datetime.fromtimestamp(epoch)
-    fmt = 'EEE, dd LLL yyyy hh:mm:ss'
-    return format_datetime(dt, fmt, locale='en') + ' GMT'
-
-
-def rfc1123_to_epoch(rfc1123: str) -> float:
-    return mktime(strptime(rfc1123, '%a, %d %b %Y %H:%M:%S %Z'))
-
-
 def xmlname_checker() -> re.Pattern:
     # https://www.w3.org/TR/REC-xml/#NT-Name
     name_start_chars = [
@@ -491,6 +477,8 @@ deprecated_alias('sphinx.util',
                      'status_iterator': _display.status_iterator,
                      'SkipProgressMessage': _display.SkipProgressMessage,
                      'progress_message': _display.progress_message,
+                     'epoch_to_rfc1123': _http_date.epoch_to_rfc1123,
+                     'rfc1123_to_epoch': _http_date.rfc1123_to_epoch,
                  },
                  RemovedInSphinx70Warning,
                  {
@@ -498,4 +486,6 @@ deprecated_alias('sphinx.util',
                      'status_iterator': 'sphinx.util.display.status_iterator',
                      'SkipProgressMessage': 'sphinx.util.display.SkipProgressMessage',
                      'progress_message': 'sphinx.util.display.progress_message',
+                     'epoch_to_rfc1123': 'sphinx.http_date.epoch_to_rfc1123',
+                     'rfc1123_to_epoch': 'sphinx.http_date.rfc1123_to_epoch',
                  })

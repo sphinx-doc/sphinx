@@ -12,7 +12,8 @@ from docutils import nodes
 from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
-from sphinx.util import epoch_to_rfc1123, logging, requests, rfc1123_to_epoch, sha1
+from sphinx.util import logging, requests, sha1
+from sphinx.util.http_date import epoch_to_rfc1123, rfc1123_to_epoch
 from sphinx.util.images import get_image_extension, guess_mimetype, parse_data_uri
 from sphinx.util.osutil import ensuredir
 
