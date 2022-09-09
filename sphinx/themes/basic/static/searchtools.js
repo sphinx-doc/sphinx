@@ -280,12 +280,12 @@ const Search = {
 
     const queryLower = query.toLowerCase();
     for (const [title, foundTitles] of Object.entries(allTitles)) {
-      if (title.includes(queryLower) && (queryLower.length >= title.length/2)) {
+      if (title.toLowerCase().includes(queryLower) && (queryLower.length >= title.length/2)) {
         for (const [file, id] of foundTitles) {
           let score = Math.round(100 * queryLower.length / title.length)
           results.push([
             docNames[file],
-            titles[file],
+            title,
             id !== null ? "#" + id : "",
             null,
             score,
