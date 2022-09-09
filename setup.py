@@ -1,15 +1,9 @@
-import sys
-
 from setuptools import find_packages, setup
 
 import sphinx
 
 with open('README.rst', encoding='utf-8') as f:
     long_desc = f.read()
-
-if sys.version_info < (3, 6):
-    print('ERROR: Sphinx requires at least Python 3.6 to run.')
-    sys.exit(1)
 
 install_requires = [
     'sphinxcontrib-applehelp',
@@ -31,7 +25,6 @@ install_requires = [
 ]
 
 extras_require = {
-    # Environment Marker works for wheel 0.24 or later
     ':sys_platform=="win32"': [
         'colorama>=0.3.5',
     ],
