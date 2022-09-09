@@ -6,23 +6,21 @@ import hashlib
 import os
 import posixpath
 import re
-import sys
-import tempfile
-import traceback
 import warnings
 from importlib import import_module
 from os import path
-from typing import IO, TYPE_CHECKING, Any, Iterable
+from typing import IO, Any, Iterable
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
 from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
-from sphinx.errors import ExtensionError, FiletypeNotFoundError, SphinxParallelError
+from sphinx.errors import ExtensionError, FiletypeNotFoundError
 from sphinx.locale import __
 from sphinx.util import display as _display
+from sphinx.util import exceptions as _exceptions
 from sphinx.util import http_date as _http_date
 from sphinx.util import logging
 from sphinx.util import osutil as _osutil
-from sphinx.util.console import strip_colors
+from sphinx.util.console import strip_colors  # NoQA: F401
 from sphinx.util.matching import patfilter  # noqa: F401
 from sphinx.util.nodes import (caption_ref_re, explicit_title_re,  # noqa: F401
                                nested_parse_with_titles, split_explicit_title)
@@ -31,10 +29,6 @@ from sphinx.util.nodes import (caption_ref_re, explicit_title_re,  # noqa: F401
 from sphinx.util.osutil import (SEP, copyfile, copytimes, ensuredir,  # noqa: F401
                                 make_filename, mtimes_of_files, os_path, relative_uri)
 from sphinx.util.typing import PathMatcher
-
-if TYPE_CHECKING:
-    from sphinx.application import Sphinx
-
 
 logger = logging.getLogger(__name__)
 
@@ -193,54 +187,6 @@ class DownloadFiles(dict):
                 self.add_file(docname, filename)
 
 
-_DEBUG_HEADER = '''\
-# Sphinx version: %s
-# Python version: %s (%s)
-# Docutils version: %s %s
-# Jinja2 version: %s
-# Last messages:
-%s
-# Loaded extensions:
-'''
-
-
-def save_traceback(app: Sphinx | None) -> str:
-    """Save the current exception's traceback in a temporary file."""
-    import platform
-
-    import docutils
-    import jinja2
-
-    import sphinx
-    exc = sys.exc_info()[1]
-    if isinstance(exc, SphinxParallelError):
-        exc_format = '(Error in parallel process)\n' + exc.traceback
-    else:
-        exc_format = traceback.format_exc()
-    fd, path = tempfile.mkstemp('.log', 'sphinx-err-')
-    last_msgs = ''
-    if app is not None:
-        last_msgs = '\n'.join(
-            '#   %s' % strip_colors(s).strip()
-            for s in app.messagelog)
-    os.write(fd, (_DEBUG_HEADER %
-                  (sphinx.__display_version__,
-                   platform.python_version(),
-                   platform.python_implementation(),
-                   docutils.__version__, docutils.__version_details__,
-                   jinja2.__version__,
-                   last_msgs)).encode())
-    if app is not None:
-        for ext in app.extensions.values():
-            modfile = getattr(ext.module, '__file__', 'unknown')
-            if ext.version != 'builtin':
-                os.write(fd, ('#   %s (%s) from %s\n' %
-                              (ext.name, ext.version, modfile)).encode())
-    os.write(fd, exc_format.encode())
-    os.close(fd)
-    return path
-
-
 def get_full_modname(modname: str, attribute: str) -> str | None:
     if modname is None:
         # Prevents a TypeError: if the last getattr() call will return None
@@ -359,17 +305,6 @@ def split_index_msg(type: str, value: str) -> list[str]:
     return result
 
 
-def format_exception_cut_frames(x: int = 1) -> str:
-    """Format an exception with traceback, but only the last x frames."""
-    typ, val, tb = sys.exc_info()
-    # res = ['Traceback (most recent call last):\n']
-    res: list[str] = []
-    tbres = traceback.format_tb(tb)
-    res += tbres[-x:]
-    res += traceback.format_exception_only(typ, val)
-    return ''.join(res)
-
-
 def import_object(objname: str, source: str | None = None) -> Any:
     """Import python object by qualname."""
     try:
@@ -473,6 +408,8 @@ deprecated_alias('sphinx.util',
                      'progress_message': _display.progress_message,
                      'epoch_to_rfc1123': _http_date.epoch_to_rfc1123,
                      'rfc1123_to_epoch': _http_date.rfc1123_to_epoch,
+                     'save_traceback': _exceptions.save_traceback,
+                     'format_exception_cut_frames': _exceptions.format_exception_cut_frames,
                  },
                  RemovedInSphinx70Warning,
                  {
@@ -483,4 +420,6 @@ deprecated_alias('sphinx.util',
                      'progress_message': 'sphinx.util.display.progress_message',
                      'epoch_to_rfc1123': 'sphinx.http_date.epoch_to_rfc1123',
                      'rfc1123_to_epoch': 'sphinx.http_date.rfc1123_to_epoch',
+                     'save_traceback': 'sphinx.exceptions.save_traceback',
+                     'format_exception_cut_frames': 'sphinx.exceptions.format_exception_cut_frames',  # NoQA: E501
                  })
