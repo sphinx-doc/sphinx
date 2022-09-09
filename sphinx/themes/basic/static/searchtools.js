@@ -237,6 +237,11 @@ const Search = {
    * execute search (requires search index to be loaded)
    */
   query: (query) => {
+    const filenames = Search._index.filenames;
+    const docNames = Search._index.docnames;
+    const titles = Search._index.titles;
+    const allTitles = Search._index.alltitles;
+
     // stem the search terms and add them to the correct list
     const stemmer = new Stemmer();
     const searchTerms = new Set();
@@ -271,6 +276,23 @@ const Search = {
     // array of [docname, title, anchor, descr, score, filename]
     let results = [];
     _removeChildren(document.getElementById("search-progress"));
+
+    const queryLower = query.toLowerCase();
+    for (const [title, foundTitles] of Object.entries(allTitles)) {
+      if (title.includes(queryLower) && (queryLower.length >= title.length/2)) {
+        for (const [file, id] of foundTitles) {
+          let score = Math.round(100 * queryLower.length / title.length)
+          results.push([
+            docNames[file],
+            titles[file],
+            id !== null ? "#" + id : "",
+            null,
+            score,
+            filenames[file],
+          ]);
+        }
+      }
+    }
 
     // lookup as object
     objectTerms.forEach((term) =>
@@ -399,8 +421,8 @@ const Search = {
     // prepare search
     const terms = Search._index.terms;
     const titleTerms = Search._index.titleterms;
-    const docNames = Search._index.docnames;
     const filenames = Search._index.filenames;
+    const docNames = Search._index.docnames;
     const titles = Search._index.titles;
 
     const scoreMap = new Map();

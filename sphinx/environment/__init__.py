@@ -59,7 +59,7 @@ if docutils.__version_info__[:2] <= (0, 17):
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 56
+ENV_VERSION = 57
 
 # config status
 CONFIG_OK = 1
