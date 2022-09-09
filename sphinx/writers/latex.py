@@ -1710,8 +1710,8 @@ class LaTeXTranslator(SphinxTranslator):
         hlcode = self.highlighter.highlight_block(
             node.astext(), lang, opts=opts, location=node, nowrap=True)
         self.body.append(r'\sphinxcode{\sphinxupquote{%' + CR
-                         + hlcode.rstrip() + '%' + CR
-                         + '}}')
+                         + hlcode.rstrip() + '%' + CR  # NoQA: W503
+                         + '}}')  # NoQA: W503
         raise nodes.SkipNode
 
     def depart_literal(self, node: Element) -> None:
