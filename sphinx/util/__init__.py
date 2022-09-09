@@ -21,6 +21,7 @@ from sphinx.locale import __
 from sphinx.util import display as _display
 from sphinx.util import http_date as _http_date
 from sphinx.util import logging
+from sphinx.util import osutil as _osutil
 from sphinx.util.console import strip_colors
 from sphinx.util.matching import patfilter  # noqa: F401
 from sphinx.util.nodes import (caption_ref_re, explicit_title_re,  # noqa: F401
@@ -49,16 +50,6 @@ def docname_join(basedocname: str, docname: str) -> str:
         posixpath.join('/' + basedocname, '..', docname))[1:]
 
 
-def path_stabilize(filepath: str) -> str:
-    "Normalize path separator and unicode string"
-    warnings.warn("'sphinx.util.path_stabilize' is deprecated, use "
-                  "'sphinx.util.osutil.path_stabilize' instead.",
-                  RemovedInSphinx70Warning, stacklevel=2)
-    from sphinx.util import osutil
-
-    return osutil.path_stabilize(filepath)
-
-
 def get_matching_files(dirname: str,
                        exclude_matchers: tuple[PathMatcher, ...] = (),
                        include_matchers: tuple[PathMatcher, ...] = ()) -> Iterable[str]:
@@ -66,6 +57,8 @@ def get_matching_files(dirname: str,
 
     Exclude files and dirs matching some matcher in *exclude_matchers*.
     """
+    path_stabilize = _osutil.path_stabilize  # avoid warning
+
     warnings.warn("'sphinx.util.get_matching_files' is deprecated, use "
                   "'sphinx.util.matching.get_matching_files' instead. Note that"
                   "the types of the arguments have changed from callables to "
@@ -473,6 +466,7 @@ def xmlname_checker() -> re.Pattern:
 
 deprecated_alias('sphinx.util',
                  {
+                     'path_stabilize': _osutil.path_stabilize,
                      'display_chunk': _display.display_chunk,
                      'status_iterator': _display.status_iterator,
                      'SkipProgressMessage': _display.SkipProgressMessage,
@@ -482,6 +476,7 @@ deprecated_alias('sphinx.util',
                  },
                  RemovedInSphinx70Warning,
                  {
+                     'path_stabilize': 'sphinx.util.osutil.path_stabilize',
                      'display_chunk': 'sphinx.util.display.display_chunk',
                      'status_iterator': 'sphinx.util.display.status_iterator',
                      'SkipProgressMessage': 'sphinx.util.display.SkipProgressMessage',
