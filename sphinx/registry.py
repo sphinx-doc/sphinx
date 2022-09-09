@@ -4,7 +4,8 @@ import traceback
 import warnings
 from importlib import import_module
 from types import MethodType
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Tuple, Type, Union
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Optional, Tuple, Type,
+                    Union)
 
 from docutils import nodes
 from docutils.core import Publisher
