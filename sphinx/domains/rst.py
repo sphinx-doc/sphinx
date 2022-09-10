@@ -52,6 +52,34 @@ class ReSTMarkup(ObjectDescription[str]):
         """
         return self.objtype + '-' + name
 
+    def get_signatures(self) -> List[str]:
+        signatures = super().get_signatures()
+        directive_names = []
+        for parent in self.env.ref_context.get('rst:directives', ()):
+            directive_names += parent.split(':')
+        if len(signatures) >= 1:
+            stripped, _ = parse_directive(signatures[0])  # strip potential directive clutter
+            stripped, *_ = stripped.split(': ')  # strip potential directive option clutter
+            self._toc_parents = tuple(directive_names + stripped.strip().split(':'))
+            print(stripped, self._toc_parents)
+        return signatures
+
+    def _table_of_contents_name(self, node: addnodes.desc) -> str:
+        if not self._toc_parents:
+            return ''
+
+        config = self.env.app.config
+        *parents, name = self._toc_parents
+        if node.get('objtype') == 'directive:option':
+            return f':{name}:'
+        if config.toc_object_entries_show_parents in {'domain', 'all'}:
+            name = ':'.join(self._toc_parents)
+        if node.get('objtype') == 'role':
+            return f'{name}``'
+        if node.get('objtype') == 'directive':
+            return f'.. {name}::'
+        return ''
+
 
 def parse_directive(d: str) -> Tuple[str, str]:
     """Parse a directive signature.
