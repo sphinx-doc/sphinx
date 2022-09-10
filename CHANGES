@@ -18,6 +18,9 @@ Features added
 * #10755: linkcheck: Check the source URL of raw directives that use the ``url``
   option.
 * #10781: Allow :rst:role:`ref` role to be used with definitions and fields.
+* #10717: HTML Search: Increase priority for full title and
+  subtitle matches in search results
+* #10718: HTML Search: Save search result score to the HTML element for debugging
 * #6316, #10804: Add domain objects to the table of contents. Patch by Adam Turner
 
 Bugs fixed

@@ -59,7 +59,7 @@ if docutils.__version_info__[:2] <= (0, 17):
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 56
+ENV_VERSION = 57
 
 # config status
 CONFIG_OK = 1
@@ -79,6 +79,60 @@ versioning_conditions: Dict[str, Union[bool, Callable]] = {
     'text': is_translatable,
 }
 
+if TYPE_CHECKING:
+    from collections.abc import MutableMapping
+
+    from typing_extensions import Literal, overload
+
+    from sphinx.domains.c import CDomain
+    from sphinx.domains.changeset import ChangeSetDomain
+    from sphinx.domains.citation import CitationDomain
+    from sphinx.domains.cpp import CPPDomain
+    from sphinx.domains.index import IndexDomain
+    from sphinx.domains.javascript import JavaScriptDomain
+    from sphinx.domains.math import MathDomain
+    from sphinx.domains.python import PythonDomain
+    from sphinx.domains.rst import ReSTDomain
+    from sphinx.domains.std import StandardDomain
+    from sphinx.ext.duration import DurationDomain
+    from sphinx.ext.todo import TodoDomain
+
+    class DomainsType(MutableMapping[str, Domain]):
+        @overload
+        def __getitem__(self, key: Literal["c"]) -> CDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["cpp"]) -> CPPDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["changeset"]) -> ChangeSetDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["citation"]) -> CitationDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["index"]) -> IndexDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["js"]) -> JavaScriptDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["math"]) -> MathDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["py"]) -> PythonDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["rst"]) -> ReSTDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["std"]) -> StandardDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["duration"]) -> DurationDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["todo"]) -> TodoDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: str) -> Domain: ...  # NoQA: E704
+        def __getitem__(self, key): raise NotImplementedError  # NoQA: E704
+        def __setitem__(self, key, value): raise NotImplementedError  # NoQA: E704
+        def __delitem__(self, key): raise NotImplementedError  # NoQA: E704
+        def __iter__(self): raise NotImplementedError  # NoQA: E704
+        def __len__(self): raise NotImplementedError  # NoQA: E704
+
+else:
+    DomainsType = dict
+
 
 class BuildEnvironment:
     """
@@ -87,7 +141,7 @@ class BuildEnvironment:
     transformations to resolve links to them.
     """
 
-    domains: Dict[str, Domain]
+    domains: DomainsType
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
@@ -107,7 +161,7 @@ class BuildEnvironment:
         self.versioning_compare: bool = None
 
         # all the registered domains, set by the application
-        self.domains = {}
+        self.domains = DomainsType()
 
         # the docutils settings for building
         self.settings = default_settings.copy()
@@ -212,7 +266,7 @@ class BuildEnvironment:
         self.version = app.registry.get_envversion(app)
 
         # initialize domains
-        self.domains = {}
+        self.domains = DomainsType()
         for domain in app.registry.create_domains(self):
             self.domains[domain.name] = domain
 
