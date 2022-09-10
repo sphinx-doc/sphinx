@@ -651,16 +651,19 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
             return ''
 
         config = self.env.app.config
-        *parents, name = self._toc_parents
-        if (config.add_function_parentheses
-                and node['objtype'] in {'function', 'method'}):  # NoQA: W503
-            name += '()'
+        if config.add_function_parentheses and node['objtype'] in {'function', 'method'}:
+            parens = '()'
+        else:
+            parens = ''
+        if config.toc_object_entries_show_parents == 'domain':
+            return node.get('fullname', self._toc_parents[-1]) + parens
 
-        if config.toc_object_entries_parents == 'all':
-            return '.'.join(parents + [name])
-        if config.toc_object_entries_parents == 'immediate' and len(parents):
-            return f'{parents[-1]}.{name}'
-        return name
+        *parents, name = self._toc_parents
+        if config.toc_object_entries_show_parents == 'hide':
+            return name + parens
+        if config.toc_object_entries_show_parents == 'all':
+            return '.'.join(parents + [name, parens])
+        return ''
 
 
 class PyFunction(PyObject):
