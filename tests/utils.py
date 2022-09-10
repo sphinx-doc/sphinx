@@ -16,7 +16,7 @@ class HttpServerThread(threading.Thread):
         self.server = http.server.HTTPServer(("localhost", 7777), handler)
 
     def run(self):
-        self.server.serve_forever(poll_interval=0.01)
+        self.server.serve_forever(poll_interval=0.001)
 
     def terminate(self):
         self.server.shutdown()
