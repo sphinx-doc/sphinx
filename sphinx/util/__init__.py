@@ -371,32 +371,11 @@ def isurl(url: str) -> bool:
     return bool(url) and '://' in url
 
 
-def xmlname_checker() -> re.Pattern:
-    # https://www.w3.org/TR/REC-xml/#NT-Name
-    name_start_chars = [
-        ':', ['A', 'Z'], '_', ['a', 'z'], ['\u00C0', '\u00D6'],
-        ['\u00D8', '\u00F6'], ['\u00F8', '\u02FF'], ['\u0370', '\u037D'],
-        ['\u037F', '\u1FFF'], ['\u200C', '\u200D'], ['\u2070', '\u218F'],
-        ['\u2C00', '\u2FEF'], ['\u3001', '\uD7FF'], ['\uF900', '\uFDCF'],
-        ['\uFDF0', '\uFFFD'], ['\U00010000', '\U000EFFFF']]
+def _xml_name_checker():
+    # to prevent import cycles
+    from sphinx.builders.epub3 import _XML_NAME_PATTERN
 
-    name_chars = [
-        "\\-", "\\.", ['0', '9'], '\u00B7', ['\u0300', '\u036F'],
-        ['\u203F', '\u2040']
-    ]
-
-    def convert(entries: Any, splitter: str = '|') -> str:
-        results = []
-        for entry in entries:
-            if isinstance(entry, list):
-                results.append('[%s]' % convert(entry, '-'))
-            else:
-                results.append(entry)
-        return splitter.join(results)
-
-    start_chars_regex = convert(name_start_chars)
-    name_chars_regex = convert(name_chars)
-    return re.compile(f'({start_chars_regex})({start_chars_regex}|{name_chars_regex})*')
+    return _XML_NAME_PATTERN
 
 
 deprecated_alias('sphinx.util',
@@ -410,6 +389,7 @@ deprecated_alias('sphinx.util',
                      'rfc1123_to_epoch': _http_date.rfc1123_to_epoch,
                      'save_traceback': _exceptions.save_traceback,
                      'format_exception_cut_frames': _exceptions.format_exception_cut_frames,
+                     'xmlname_checker': _xml_name_checker,
                  },
                  RemovedInSphinx70Warning,
                  {
@@ -422,4 +402,5 @@ deprecated_alias('sphinx.util',
                      'rfc1123_to_epoch': 'sphinx.http_date.rfc1123_to_epoch',
                      'save_traceback': 'sphinx.exceptions.save_traceback',
                      'format_exception_cut_frames': 'sphinx.exceptions.format_exception_cut_frames',  # NoQA: E501
+                     'xmlname_checker': 'sphinx.builders.epub3._XML_NAME_PATTERN',
                  })

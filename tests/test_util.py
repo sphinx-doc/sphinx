@@ -6,7 +6,7 @@ import tempfile
 import pytest
 
 from sphinx.errors import ExtensionError
-from sphinx.util import encode_uri, ensuredir, import_object, parselinenos, xmlname_checker
+from sphinx.util import encode_uri, ensuredir, import_object, parselinenos
 
 
 def test_encode_uri():
@@ -75,10 +75,3 @@ def test_parselinenos():
         parselinenos('-', 10)
     with pytest.raises(ValueError):
         parselinenos('3-1', 10)
-
-
-def test_xmlname_check():
-    checker = xmlname_checker()
-    assert checker.match('id-pub')
-    assert checker.match('webpage')
-    assert not checker.match('1bfda21')

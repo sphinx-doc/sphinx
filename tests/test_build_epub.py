@@ -7,6 +7,8 @@ from xml.etree import ElementTree
 
 import pytest
 
+from sphinx.builders.epub3 import _XML_NAME_PATTERN
+
 
 # check given command is runnable
 def runnable(command):
@@ -382,3 +384,9 @@ def test_run_epubcheck(app):
             print(exc.stdout.decode('utf-8'))
             print(exc.stderr.decode('utf-8'))
             raise AssertionError('epubcheck exited with return code %s' % exc.returncode)
+
+
+def test_xml_name_pattern_check():
+    assert _XML_NAME_PATTERN.match('id-pub')
+    assert _XML_NAME_PATTERN.match('webpage')
+    assert not _XML_NAME_PATTERN.match('1bfda21')
