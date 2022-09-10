@@ -2,7 +2,7 @@
 
 import pytest
 from docutils import nodes
-from docutils.nodes import bullet_list, comment, list_item, reference, title
+from docutils.nodes import bullet_list, comment, list_item, literal, reference, title
 
 from sphinx import addnodes
 from sphinx.addnodes import compact_paragraph, only
@@ -142,7 +142,6 @@ def test_domain_objects(app):
 
     # tocs
     toctree = app.env.tocs['domains']
-    print(toctree[0][1][1][1][0])
     assert_node(toctree,
                 [bullet_list, list_item, (compact_paragraph,  # [0][0]
                                           [bullet_list, (list_item,  # [0][1][0]
@@ -159,11 +158,10 @@ def test_domain_objects(app):
                 [compact_paragraph, reference, "test-domain-objects"])
 
     assert_node(toctree[0][1][0],
-                [list_item, ([compact_paragraph, reference, "world()"])])
+                [list_item, ([compact_paragraph, reference, literal, "world()"])])
 
-    print(toctree[0][1][1][1][3])
     assert_node(toctree[0][1][1][1][3],
-                [list_item, ([compact_paragraph, reference, "print()"])])
+                [list_item, ([compact_paragraph, reference, literal, "print()"])])
 
 
 @pytest.mark.sphinx('xml', testroot='toctree')

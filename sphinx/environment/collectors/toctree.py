@@ -128,8 +128,8 @@ class TocTreeCollector(EnvironmentCollector):
 
                             anchorname = _make_anchor_name(ids, numentries)
                             reference = nodes.reference(
-                                '', toctreenode['_toc_name'], internal=True,
-                                refuri=docname, anchorname=anchorname)
+                                '', '', nodes.literal('', toctreenode['_toc_name']),
+                                internal=True, refuri=docname, anchorname=anchorname)
                             para = addnodes.compact_paragraph('', '', reference)
                             entries.append(nodes.list_item('', para))
 
