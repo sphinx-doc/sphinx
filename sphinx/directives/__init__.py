@@ -61,8 +61,16 @@ class ObjectDescription(SphinxDirective, Generic[T]):
 
     # Warning: this might be removed in future version. Don't touch this from extensions.
     _doc_field_type_map: Dict[str, Tuple[Field, bool]] = {}
-    # Don't touch this from extensions, will be removed without notice
     _toc_parents: Tuple[str, ...] = ()
+    """
+    Tuple of strings, one entry for each part of the object's hierarchy (e.g. 
+    ``('module', 'submodule', 'Class', 'method')``). This attribute is used to
+    properly nest children within parents in the table of contents, and can also
+    be used within the :py:meth:`_table_of_contents_name` method.
+    
+    This is a private attribute and should not be used outwith the table of 
+    contents generation process.
+    """
 
     def get_field_type_map(self) -> Dict[str, Tuple[Field, bool]]:
         if self._doc_field_type_map == {}:
@@ -134,6 +142,28 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         pass
 
     def _table_of_contents_name(self, node: addnodes.desc) -> str:
+        """
+        Returns the text of the table of contents entry for the object.
+
+        This function is called once, in :py:meth:`run`, to set the name for the
+        table of contents entry (a special attribute ``_toc_name`` is set on the
+        object node, later used in
+        ``environment.collectors.toctree.TocTreeCollector.process_doc().build_toc()``
+        when the table of contents entries are collected).
+
+        To support table of contents entries for their objects, domains must
+        override this method, also respecting the configuration setting
+        ``toc_object_entries_show_parents``. Domains must also set the
+        ``_toc_parents`` tuple, with one (string) entry for each part of the
+        object's hierarchy. This attribute can be used within the method, and is
+        also used to properly nest children within parents in the table of
+        contents.
+
+        An example implementations of this method is within the python domain
+        (``PyObject._table_of_contents_name``). The python domain sets the
+        ``_toc_parents`` attribute within the :py:meth:`handle_signature()`
+        method.
+        """
         return ''
 
     def run(self) -> List[Node]:
