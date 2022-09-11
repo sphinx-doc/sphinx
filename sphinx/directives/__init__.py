@@ -207,6 +207,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
         node['noindex'] = noindex = ('noindex' in self.options)
+        node['noindexentry'] = ('noindexentry' in self.options)
         if self.domain:
             node['classes'].append(self.domain)
         node['classes'].append(node['objtype'])

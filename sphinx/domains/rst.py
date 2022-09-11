@@ -28,6 +28,10 @@ class ReSTMarkup(ObjectDescription[str]):
     """
     Description of generic reST markup.
     """
+    option_spec: OptionSpec = {
+        'noindex': directives.flag,
+        'noindexentry': directives.flag,
+    }
 
     def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:
         node_id = make_id(self.env, self.state.document, self.objtype, name)
@@ -37,9 +41,10 @@ class ReSTMarkup(ObjectDescription[str]):
         domain = cast(ReSTDomain, self.env.get_domain('rst'))
         domain.note_object(self.objtype, name, node_id, location=signode)
 
-        indextext = self.get_index_text(self.objtype, name)
-        if indextext:
-            self.indexnode['entries'].append(('single', indextext, node_id, '', None))
+        if 'noindexentry' not in self.options:
+            indextext = self.get_index_text(self.objtype, name)
+            if indextext:
+                self.indexnode['entries'].append(('single', indextext, node_id, '', None))
 
     def get_index_text(self, objectname: str, name: str) -> str:
         return ''
