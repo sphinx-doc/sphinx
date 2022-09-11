@@ -57,31 +57,29 @@ class ReSTMarkup(ObjectDescription[str]):
         """
         return self.objtype + '-' + name
 
-    def get_signatures(self) -> List[str]:
-        signatures = super().get_signatures()
+    def _object_hierarchy_parts(self, sig_node: desc_signature) -> Tuple[str, ...]:
+        if 'fullname' not in sig_node:
+            return ()
         directive_names = []
         for parent in self.env.ref_context.get('rst:directives', ()):
             directive_names += parent.split(':')
-        if len(signatures) >= 1:
-            stripped, _ = parse_directive(signatures[0])  # strip potential directive clutter
-            stripped, *_ = stripped.split(': ')  # strip potential directive option clutter
-            self._toc_parents = tuple(directive_names + stripped.strip().split(':'))
-            print(stripped, self._toc_parents)
-        return signatures
+        name = sig_node['fullname']
+        return tuple(directive_names + name.split(':'))
 
-    def _table_of_contents_name(self, node: addnodes.desc) -> str:
-        if not self._toc_parents:
+    def _toc_entry_name(self, sig_node: desc_signature) -> str:
+        if not sig_node.get('_toc_parts'):
             return ''
 
         config = self.env.app.config
-        *parents, name = self._toc_parents
-        if node.get('objtype') == 'directive:option':
+        objtype = sig_node.parent.get('objtype')
+        *parents, name = sig_node['_toc_parts']
+        if objtype == 'directive:option':
             return f':{name}:'
         if config.toc_object_entries_show_parents in {'domain', 'all'}:
-            name = ':'.join(self._toc_parents)
-        if node.get('objtype') == 'role':
-            return f'{name}``'
-        if node.get('objtype') == 'directive':
+            name = ':'.join(sig_node['_toc_parts'])
+        if objtype == 'role':
+            return f':{name}:'
+        if objtype == 'directive':
             return f'.. {name}::'
         return ''
 
@@ -112,7 +110,8 @@ class ReSTDirective(ReSTMarkup):
     """
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         name, args = parse_directive(sig)
-        desc_name = '.. %s::' % name
+        desc_name = f'.. {name}::'
+        signode['fullname'] = name.strip()
         signode += addnodes.desc_name(desc_name, desc_name)
         if len(args) > 0:
             signode += addnodes.desc_addname(args, args)
@@ -147,7 +146,9 @@ class ReSTDirectiveOption(ReSTMarkup):
         except ValueError:
             name, argument = sig, None
 
-        signode += addnodes.desc_name(':%s:' % name, ':%s:' % name)
+        desc_name = f':{name}:'
+        signode['fullname'] = name.strip()
+        signode += addnodes.desc_name(desc_name, desc_name)
         if argument:
             signode += addnodes.desc_annotation(' ' + argument, ' ' + argument)
         if self.options.get('type'):
@@ -203,7 +204,9 @@ class ReSTRole(ReSTMarkup):
     Description of a reST role.
     """
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
-        signode += addnodes.desc_name(':%s:' % sig, ':%s:' % sig)
+        desc_name = f':{sig}:'
+        signode['fullname'] = sig.strip()
+        signode += addnodes.desc_name(desc_name, desc_name)
         return sig
 
     def get_index_text(self, objectname: str, name: str) -> str:

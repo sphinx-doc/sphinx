@@ -509,11 +509,6 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         signode['class'] = classname
         signode['fullname'] = fullname
 
-        if modname:
-            self._toc_parents = (modname, *fullname.split('.'))
-        else:
-            self._toc_parents = tuple(fullname.split('.'))
-
         sig_prefix = self.get_signature_prefix(sig)
         if sig_prefix:
             if type(sig_prefix) is str:
@@ -562,6 +557,15 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
                                                 nodes.Text(anno))
 
         return fullname, prefix
+
+    def _object_hierarchy_parts(self, signode: desc_signature) -> Tuple[str, ...]:
+        modname = signode['module']
+        fullname = signode['fullname']
+
+        if modname:
+            return tuple([modname, *fullname.split('.')])
+        else:
+            return tuple(fullname.split('.'))
 
     def get_index_text(self, modname: str, name: Tuple[str, str]) -> str:
         """Return the text for the index entry of the object."""
@@ -646,19 +650,19 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
             else:
                 self.env.ref_context.pop('py:module')
 
-    def _table_of_contents_name(self, node: addnodes.desc) -> str:
-        if not self._toc_parents:
+    def _toc_entry_name(self, sig_node: desc_signature) -> str:
+        if not sig_node.get('_toc_parts'):
             return ''
 
         config = self.env.app.config
-        if config.add_function_parentheses and node['objtype'] in {'function', 'method'}:
+        objtype = sig_node.parent.get('objtype')
+        if config.add_function_parentheses and objtype in {'function', 'method'}:
             parens = '()'
         else:
             parens = ''
+        *parents, name = sig_node['_toc_parts']
         if config.toc_object_entries_show_parents == 'domain':
-            return node.get('fullname', self._toc_parents[-1]) + parens
-
-        *parents, name = self._toc_parents
+            return sig_node.get('fullname', name) + parens
         if config.toc_object_entries_show_parents == 'hide':
             return name + parens
         if config.toc_object_entries_show_parents == 'all':

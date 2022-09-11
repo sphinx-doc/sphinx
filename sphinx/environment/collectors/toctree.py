@@ -58,8 +58,10 @@ class TocTreeCollector(EnvironmentCollector):
             node: Union[Element, Sequence[Element]],
             depth: int = 1
         ) -> Optional[nodes.bullet_list]:
+            # list of table of contents entries
             entries: List[Element] = []
-            memo_parents = ()  # sentinel, value unimportant
+            # cache of parents -> list item
+            memo_parents: Dict[Tuple[str, ...], nodes.list_item] = {}
             for sectionnode in node:
                 # find all toctree nodes in this section and add them
                 # to the toc (just copying the toctree node which is then
@@ -104,34 +106,41 @@ class TocTreeCollector(EnvironmentCollector):
                             TocTree(app.env).note(docname, toctreenode)
                         # add object signatures within a section to the ToC
                         elif isinstance(toctreenode, addnodes.desc):
-                            # Skip if no name set
-                            if not toctreenode.get('_toc_name', ''):
-                                continue
-                            # Skip entries with no ID (e.g. with :noindex: set)
-                            ids = toctreenode[0]['ids']
-                            if not ids:
-                                continue
+                            for sig_node in toctreenode:
+                                if not isinstance(sig_node, addnodes.desc_signature):
+                                    continue
+                                # Skip if no name set
+                                if not sig_node.get('_toc_name', ''):
+                                    continue
+                                # Skip entries with no ID (e.g. with :noindex: set)
+                                ids = sig_node['ids']
+                                if not ids or sig_node.parent.get('noindexentry'):
+                                    continue
 
-                            # Nest children within parents
-                            *parents, _ = toctreenode['_toc_parents']
-                            if parents and tuple(parents) == memo_parents:
-                                nested_toc = build_toc([toctreenode], depth + 1)
-                                if nested_toc:
-                                    last_entry: nodes.Element = entries[-1]
-                                    if not isinstance(last_entry[-1], nodes.bullet_list):
-                                        last_entry.append(nested_toc)
+                                anchorname = _make_anchor_name(ids, numentries)
+
+                                reference = nodes.reference(
+                                    '', '', nodes.literal('', sig_node['_toc_name']),
+                                    internal=True, refuri=docname, anchorname=anchorname)
+                                para = addnodes.compact_paragraph('', '', reference)
+                                entry = nodes.list_item('', para)
+                                *parents, _ = sig_node['_toc_parts']
+                                parents = tuple(parents)
+
+                                # Cache parents tuple
+                                if parents:
+                                    memo_parents[sig_node['_toc_parts']] = entry
+
+                                # Nest children within parents
+                                if parents and parents in memo_parents:
+                                    root_entry = memo_parents[parents]
+                                    if isinstance(root_entry[-1], nodes.bullet_list):
+                                        root_entry[-1].append(entry)
                                     else:
-                                        last_entry[-1].extend(nested_toc)
-                                continue
-                            else:
-                                memo_parents = toctreenode['_toc_parents']
+                                        root_entry.append(nodes.bullet_list('', entry))
+                                    continue
 
-                            anchorname = _make_anchor_name(ids, numentries)
-                            reference = nodes.reference(
-                                '', '', nodes.literal('', toctreenode['_toc_name']),
-                                internal=True, refuri=docname, anchorname=anchorname)
-                            para = addnodes.compact_paragraph('', '', reference)
-                            entries.append(nodes.list_item('', para))
+                                entries.append(entry)
 
             if entries:
                 return nodes.bullet_list('', *entries)

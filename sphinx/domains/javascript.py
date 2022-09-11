@@ -85,11 +85,6 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         signode['object'] = prefix
         signode['fullname'] = fullname
 
-        if mod_name:
-            self._toc_parents = (mod_name, *fullname.split('.'))
-        else:
-            self._toc_parents = tuple(fullname.split('.'))
-
         display_prefix = self.get_display_prefix()
         if display_prefix:
             signode += addnodes.desc_annotation('', '', *display_prefix)
@@ -112,6 +107,15 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
             else:
                 _pseudo_parse_arglist(signode, arglist)
         return fullname, prefix
+
+    def _object_hierarchy_parts(self, signode: desc_signature) -> Tuple[str, ...]:
+        modname = signode['module']
+        fullname = signode['fullname']
+
+        if modname:
+            return tuple([modname, *fullname.split('.')])
+        else:
+            return tuple(fullname.split('.'))
 
     def add_target_and_index(self, name_obj: Tuple[str, str], sig: str,
                              signode: desc_signature) -> None:
@@ -206,19 +210,19 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         """
         return fullname.replace('$', '_S_')
 
-    def _table_of_contents_name(self, node: addnodes.desc) -> str:
-        if not self._toc_parents:
+    def _toc_entry_name(self, sig_node: desc_signature) -> str:
+        if not sig_node.get('_toc_parts'):
             return ''
 
         config = self.env.app.config
-        if config.add_function_parentheses and node['objtype'] in {'function', 'method'}:
+        objtype = sig_node.parent.get('objtype')
+        if config.add_function_parentheses and objtype in {'function', 'method'}:
             parens = '()'
         else:
             parens = ''
+        *parents, name = sig_node['_toc_parts']
         if config.toc_object_entries_show_parents == 'domain':
-            return node.get('fullname', self._toc_parents[-1]) + parens
-
-        *parents, name = self._toc_parents
+            return sig_node.get('fullname', name) + parens
         if config.toc_object_entries_show_parents == 'hide':
             return name + parens
         if config.toc_object_entries_show_parents == 'all':
