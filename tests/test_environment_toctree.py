@@ -161,7 +161,7 @@ def test_domain_objects(app):
                 [list_item, ([compact_paragraph, reference, literal, "world()"])])
 
     assert_node(toctree[0][1][1][1][3],
-                [list_item, ([compact_paragraph, reference, literal, "print()"])])
+                [list_item, ([compact_paragraph, reference, literal, "HelloWorldPrinter.print()"])])
 
 
 @pytest.mark.sphinx('xml', testroot='toctree')
