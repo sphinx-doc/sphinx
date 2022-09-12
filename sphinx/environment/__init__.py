@@ -97,7 +97,7 @@ if TYPE_CHECKING:
     from sphinx.ext.duration import DurationDomain
     from sphinx.ext.todo import TodoDomain
 
-    class DomainsType(MutableMapping[str, Domain]):
+    class _DomainsType(MutableMapping[str, Domain]):
         @overload
         def __getitem__(self, key: Literal["c"]) -> CDomain: ...  # NoQA: E704
         @overload
@@ -131,7 +131,7 @@ if TYPE_CHECKING:
         def __len__(self): raise NotImplementedError  # NoQA: E704
 
 else:
-    DomainsType = dict
+    _DomainsType = dict
 
 
 class BuildEnvironment:
@@ -141,7 +141,7 @@ class BuildEnvironment:
     transformations to resolve links to them.
     """
 
-    domains: DomainsType
+    domains: _DomainsType
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
@@ -161,7 +161,7 @@ class BuildEnvironment:
         self.versioning_compare: bool = None
 
         # all the registered domains, set by the application
-        self.domains = DomainsType()
+        self.domains = _DomainsType()
 
         # the docutils settings for building
         self.settings = default_settings.copy()
@@ -266,7 +266,7 @@ class BuildEnvironment:
         self.version = app.registry.get_envversion(app)
 
         # initialize domains
-        self.domains = DomainsType()
+        self.domains = _DomainsType()
         for domain in app.registry.create_domains(self):
             self.domains[domain.name] = domain
 
