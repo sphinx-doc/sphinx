@@ -1,6 +1,7 @@
 """The standard domain."""
 
 import re
+import sys
 from copy import copy
 from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, List, Optional,
                     Tuple, Type, Union, cast)
@@ -28,6 +29,10 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+if sys.version_info[:2] >= (3, 8):
+    from typing import Final
+else:
+    Final = Any
 
 # RE for option descriptions
 option_desc_re = re.compile(r'((?:/|--|-|\+)?[^\s=]+)(=?\s*.*)')
@@ -584,7 +589,7 @@ class StandardDomain(Domain):
         'doc':     XRefRole(warn_dangling=True, innernodeclass=nodes.inline),
     }
 
-    initial_data = {
+    initial_data: Final = {
         'progoptions': {},      # (program, name) -> docname, labelid
         'objects': {},          # (type, name) -> docname, labelid
         'labels': {             # labelname -> docname, labelid, sectionname
