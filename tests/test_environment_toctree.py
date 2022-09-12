@@ -346,3 +346,17 @@ def test_get_toctree_for_includehidden(app):
 
     assert_node(toctree[2],
                 [bullet_list, list_item, compact_paragraph, reference, "baz"])
+
+
+@pytest.mark.sphinx('xml', testroot='toctree-index')
+def test_toctree_index(app):
+    app.build()
+    toctree = app.env.tocs['index']
+    assert_node(toctree,
+                [bullet_list, ([list_item, (compact_paragraph,  # [0][0]
+                                            [bullet_list, (addnodes.toctree,  # [0][1][0]
+                                                           addnodes.toctree)])])])  # [0][1][1]
+    assert_node(toctree[0][1][1], addnodes.toctree,
+                caption="Indices", glob=False, hidden=False,
+                titlesonly=False, maxdepth=-1, numbered=0,
+                entries=[(None, 'genindex'), (None, 'modindex'), (None, 'search')])

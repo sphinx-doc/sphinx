@@ -77,10 +77,11 @@ class TocTree(SphinxDirective):
         return ret
 
     def parse_content(self, toctree: addnodes.toctree) -> List[Node]:
+        generated_docnames = frozenset(self.env.domains['std'].initial_data['labels'].keys())
         suffixes = self.config.source_suffix
 
         # glob target documents
-        all_docnames = self.env.found_docs.copy()
+        all_docnames = self.env.found_docs.copy() | generated_docnames
         all_docnames.remove(self.env.docname)  # remove current document
 
         ret: List[Node] = []
@@ -95,6 +96,9 @@ class TocTree(SphinxDirective):
                 patname = docname_join(self.env.docname, entry)
                 docnames = sorted(patfilter(all_docnames, patname))
                 for docname in docnames:
+                    if docname in generated_docnames:
+                        # don't include generated documents in globs
+                        continue
                     all_docnames.remove(docname)  # don't include it again
                     toctree['entries'].append((None, docname))
                     toctree['includefiles'].append(docname)
@@ -118,7 +122,7 @@ class TocTree(SphinxDirective):
                 docname = docname_join(self.env.docname, docname)
                 if url_re.match(ref) or ref == 'self':
                     toctree['entries'].append((title, ref))
-                elif docname not in self.env.found_docs:
+                elif docname not in self.env.found_docs | generated_docnames:
                     if excluded(self.env.doc2path(docname, False)):
                         message = __('toctree contains reference to excluded document %r')
                         subtype = 'excluded'
