@@ -14,6 +14,7 @@ from docutils.nodes import Element, Node
 from sphinx import addnodes, package_dir
 from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.environment import BuildEnvironment
+from sphinx.util import split_into
 
 
 class SearchLanguage:
@@ -242,6 +243,7 @@ class IndexBuilder:
         # stemmed words in titles -> set(docname)
         self._title_mapping: Dict[str, Set[str]] = {}
         self._all_titles: Dict[str, List[Tuple[str, str]]] = {}  # docname -> all titles
+        self._index_entries: Dict[str, List[Tuple[str, str, str]]] = {}  # docname -> index entry
         self._stem_cache: Dict[str, str] = {}       # word -> stemmed word
         self._objtypes: Dict[Tuple[str, str], int] = {}     # objtype -> index
         # objtype index -> (domain, type, objname (localized))
@@ -380,10 +382,15 @@ class IndexBuilder:
             for title, titleid in titlelist:
                 alltitles.setdefault(title.lower(), []).append((fn2index[docname],  titleid))
 
+        index_entries: Dict[str, List[Tuple[int, str]]] = {}
+        for docname, entries in self._index_entries.items():
+            for entry, entry_id, main_entry in entries:
+                index_entries.setdefault(entry.lower(), []).append((fn2index[docname],  entry_id))
+
         return dict(docnames=docnames, filenames=filenames, titles=titles, terms=terms,
                     objects=objects, objtypes=objtypes, objnames=objnames,
                     titleterms=title_terms, envversion=self.env.version,
-                    alltitles=alltitles)
+                    alltitles=alltitles, indexentries=index_entries)
 
     def label(self) -> str:
         return "%s (code: %s)" % (self.lang.language_name, self.lang.lang)
@@ -440,6 +447,38 @@ class IndexBuilder:
             already_indexed = docname in self._title_mapping.get(stemmed_word, set())
             if _filter(stemmed_word) and not already_indexed:
                 self._mapping.setdefault(stemmed_word, set()).add(docname)
+
+        # find explicit entries within index directives
+        _index_entries: Set[Tuple[str, str, str]] = set()
+        for node in doctree.findall(addnodes.index):
+            for entry_type, value, tid, main, *index_key in node['entries']:
+                tid = tid or ''
+                try:
+                    if entry_type == 'single':
+                        try:
+                            entry, subentry = split_into(2, 'single', value)
+                        except ValueError:
+                            entry, = split_into(1, 'single', value)
+                            subentry = ''
+                        _index_entries.add((entry, tid, main))
+                        if subentry:
+                            _index_entries.add((subentry, tid, main))
+                    elif entry_type == 'pair':
+                        first, second = split_into(2, 'pair', value)
+                        _index_entries.add((first, tid, main))
+                        _index_entries.add((second, tid, main))
+                    elif entry_type == 'triple':
+                        first, second, third = split_into(3, 'triple', value)
+                        _index_entries.add((first, tid, main))
+                        _index_entries.add((second, tid, main))
+                        _index_entries.add((third, tid, main))
+                    elif entry_type in {'see', 'seealso'}:
+                        first, second = split_into(2, 'see', value)
+                        _index_entries.add((first, tid, main))
+                except ValueError:
+                    pass
+
+        self._index_entries[docname] = sorted(_index_entries)
 
     def context_for_searchtool(self) -> Dict[str, Any]:
         if self.lang.js_splitter_code:
