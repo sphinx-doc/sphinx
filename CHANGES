@@ -21,6 +21,7 @@ Features added
 * #10717: HTML Search: Increase priority for full title and
   subtitle matches in search results
 * #10718: HTML Search: Save search result score to the HTML element for debugging
+* #10673: Make toctree accept 'genindex', 'modindex' and 'search' docnames
 * #6316, #10804: Add domain objects to the table of contents. Patch by Adam Turner
 
 Bugs fixed

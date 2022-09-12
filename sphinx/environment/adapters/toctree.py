@@ -1,6 +1,6 @@
 """Toctree adapter for sphinx.environment."""
 
-from typing import TYPE_CHECKING, Any, Iterable, List, Optional, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -54,6 +54,7 @@ class TocTree:
         """
         if toctree.get('hidden', False) and not includehidden:
             return None
+        generated_docnames: Dict[str, Tuple[str, str, str]] = self.env.domains['std'].initial_data['labels'].copy()  # NoQA: E501
 
         # For reading the following two helper function, it is useful to keep
         # in mind the node structure of a toctree (using HTML-like node names
@@ -135,6 +136,16 @@ class TocTree:
                                                     refuri=ref,
                                                     anchorname='',
                                                     *[nodes.Text(title)])
+                        para = addnodes.compact_paragraph('', '', reference)
+                        item = nodes.list_item('', para)
+                        # don't show subitems
+                        toc = nodes.bullet_list('', item)
+                    elif ref in generated_docnames:
+                        docname, _, sectionname = generated_docnames[ref]
+                        if not title:
+                            title = sectionname
+                        reference = nodes.reference('', title, internal=True,
+                                                    refuri=docname, anchorname='')
                         para = addnodes.compact_paragraph('', '', reference)
                         item = nodes.list_item('', para)
                         # don't show subitems
