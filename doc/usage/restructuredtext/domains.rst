@@ -516,7 +516,8 @@ For functions with optional parameters that don't have default values
 (typically functions implemented in C extension modules without keyword
 argument support), you can use brackets to specify the optional parts:
 
-   .. py:function:: compile(source[, filename[, symbol]])
+.. py:function:: compile(source[, filename[, symbol]])
+   :noindex:
 
 It is customary to put the opening bracket before the comma.
 

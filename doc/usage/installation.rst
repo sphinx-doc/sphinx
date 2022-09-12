@@ -208,9 +208,9 @@ You can read more about them in the `Python Packaging User Guide`_.
    Note that in some Linux distributions, such as Debian and Ubuntu,
    this might require an extra installation step as follows.
 
-    .. code-block:: console
+   .. code-block:: console
 
-       $ apt-get install python3-venv
+      $ apt-get install python3-venv
 
 Docker
 ------
