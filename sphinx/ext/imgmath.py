@@ -1,11 +1,12 @@
 """Render math in HTML via dvipng or dvisvgm."""
 
+import base64
 import posixpath
 import re
 import shutil
 import subprocess
 import tempfile
-from os import path
+from os import path, remove
 from subprocess import PIPE, CalledProcessError
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -20,6 +21,7 @@ from sphinx.config import Config
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging, sha1
+from sphinx.util.images import guess_mimetype
 from sphinx.util.math import get_node_equation_number, wrap_displaymath
 from sphinx.util.osutil import ensuredir
 from sphinx.util.png import read_png_depth, write_png_depth
@@ -283,6 +285,18 @@ def get_tooltip(self: HTMLTranslator, node: Element) -> str:
     return ''
 
 
+def html_get_img_src(self: HTMLTranslator, fname: str) -> str:
+    if self.builder.config.imgmath_embed:
+        bname = path.basename(fname)
+        outfn = path.join(self.builder.outdir, self.builder.imagedir, 'math', bname)
+        mimetype = guess_mimetype(outfn, default='*')
+        encoded = base64.b64encode(open(outfn, "rb").read()).decode()
+        remove(outfn)
+        return f'data:{mimetype};base64,{encoded}'
+    else:
+        return fname
+
+
 def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
     try:
         fname, depth = render_math(self, '$' + node.astext() + '$')
@@ -298,7 +312,8 @@ def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
         self.body.append('<span class="math">%s</span>' %
                          self.encode(node.astext()).strip())
     else:
-        c = ('<img class="math" src="%s"' % fname) + get_tooltip(self, node)
+        img_src = html_get_img_src(self, fname)
+        c = ('<img class="math" src="%s"' % img_src) + get_tooltip(self, node)
         if depth is not None:
             c += ' style="vertical-align: %dpx"' % (-depth)
         self.body.append(c + '/>')
@@ -331,7 +346,8 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
         self.body.append('<span class="math">%s</span></p>\n</div>' %
                          self.encode(node.astext()).strip())
     else:
-        self.body.append(('<img src="%s"' % fname) + get_tooltip(self, node) +
+        img_src = html_get_img_src(self, fname)
+        self.body.append(('<img src="%s"' % img_src) + get_tooltip(self, node) +
                          '/></p>\n</div>')
     raise nodes.SkipNode
 
@@ -354,5 +370,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('imgmath_latex_preamble', '', 'html')
     app.add_config_value('imgmath_add_tooltips', True, 'html')
     app.add_config_value('imgmath_font_size', 12, 'html')
+    app.add_config_value('imgmath_embed', False, 'html', [bool])
     app.connect('build-finished', cleanup_tempdir)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
