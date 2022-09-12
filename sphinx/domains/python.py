@@ -558,12 +558,14 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
 
         return fullname, prefix
 
-    def _object_hierarchy_parts(self, signode: desc_signature) -> Tuple[str, ...]:
-        modname = signode['module']
-        fullname = signode['fullname']
+    def _object_hierarchy_parts(self, sig_node: desc_signature) -> Tuple[str, ...]:
+        if 'fullname' not in sig_node:
+            return ()
+        modname = sig_node.get('module')
+        fullname = sig_node['fullname']
 
         if modname:
-            return tuple([modname, *fullname.split('.')])
+            return (modname, *fullname.split('.'))
         else:
             return tuple(fullname.split('.'))
 
