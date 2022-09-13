@@ -2,6 +2,7 @@
 
 import traceback
 import warnings
+from contextlib import suppress
 from importlib import import_module
 from types import MethodType
 from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Optional, Tuple, Type,
@@ -479,10 +480,8 @@ class SphinxComponentRegistry:
         return envversion
 
     def get_publisher(self, app: "Sphinx", filetype: str) -> Publisher:
-        try:
+        with suppress(KeyError):
             return self.publishers[filetype]
-        except KeyError:
-            pass
         publisher = create_publisher(app, filetype)
         self.publishers[filetype] = publisher
         return publisher

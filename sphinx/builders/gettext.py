@@ -2,6 +2,7 @@
 
 from codecs import open
 from collections import OrderedDict, defaultdict
+from contextlib import suppress
 from datetime import datetime, timedelta, tzinfo
 from os import getenv, path, walk
 from time import time
@@ -194,7 +195,7 @@ ltz = LocalTimeZone()
 def should_write(filepath: str, new_content: str) -> bool:
     if not path.exists(filepath):
         return True
-    try:
+    with suppress(ValueError):
         with open(filepath, encoding='utf-8') as oldpot:
             old_content = oldpot.read()
             old_header_index = old_content.index('"POT-Creation-Date:')
@@ -203,8 +204,6 @@ def should_write(filepath: str, new_content: str) -> bool:
             new_body_index = new_content.index('"PO-Revision-Date:')
             return ((old_content[:old_header_index] != new_content[:new_header_index]) or
                     (new_content[new_body_index:] != old_content[old_body_index:]))
-    except ValueError:
-        pass
 
     return True
 

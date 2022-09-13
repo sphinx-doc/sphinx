@@ -5,6 +5,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+from contextlib import suppress
 from os import path
 from subprocess import CalledProcessError
 from typing import Any, Dict, List, Optional, Tuple
@@ -277,18 +278,14 @@ def clean_up_files(app: Sphinx, exc: Exception) -> None:
         return
 
     if hasattr(app.builder, '_imgmath_tempdir'):
-        try:
+        with suppress(Exception):
             shutil.rmtree(app.builder._imgmath_tempdir)
-        except Exception:
-            pass
 
     if app.builder.config.imgmath_embed:
         # in embed mode, the images are still generated in the math output dir
         # to be shared across workers, but are not useful to the final document
-        try:
+        with suppress(Exception):
             shutil.rmtree(path.join(app.builder.outdir, app.builder.imagedir, 'math'))
-        except Exception:
-            pass
 
 
 def get_tooltip(self: HTMLTranslator, node: Element) -> str:

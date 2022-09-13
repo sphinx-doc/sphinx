@@ -3,6 +3,7 @@
 import collections
 import inspect
 import re
+from contextlib import suppress
 from functools import partial
 from typing import Any, Callable, Dict, List, Tuple, Union
 
@@ -598,10 +599,8 @@ class GoogleDocstring:
 
         if self._name and self._what in ('attribute', 'data', 'property'):
             res: List[str] = []
-            try:
+            with suppress(StopIteration):
                 res = self._parse_attribute_docstring()
-            except StopIteration:
-                pass
             self._parsed_lines.extend(res)
             return
 

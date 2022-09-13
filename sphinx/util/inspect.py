@@ -352,12 +352,10 @@ def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
     except Exception as exc:
         # sometimes accessing a property raises an exception (e.g.
         # NotImplementedError), so let's try to read the attribute directly
-        try:
+        with contextlib.suppress(Exception):
             # In case the object does weird things with attribute access
             # such that accessing `obj.__dict__` may raise an exception
             return obj.__dict__[name]
-        except Exception:
-            pass
 
         # this is a catch-all for all the weird things that some modules do
         # with attribute access
@@ -601,7 +599,7 @@ def evaluate_signature(sig: inspect.Signature, globalns: Optional[Dict] = None,
 
     def evaluate(annotation: Any, globalns: Dict, localns: Dict) -> Any:
         """Evaluate unresolved type annotation."""
-        try:
+        with contextlib.suppress(NameError, TypeError):  # failed to evaluate type. skipped.
             if isinstance(annotation, str):
                 ref = ForwardRef(annotation, True)
                 annotation = evaluate_forwardref(ref, globalns, localns)
@@ -612,9 +610,6 @@ def evaluate_signature(sig: inspect.Signature, globalns: Optional[Dict] = None,
                     # might be a ForwardRef'ed annotation in overloaded functions
                     ref = ForwardRef(annotation, True)
                     annotation = evaluate_forwardref(ref, globalns, localns)
-        except (NameError, TypeError):
-            # failed to evaluate type. skipped.
-            pass
 
         return annotation
 

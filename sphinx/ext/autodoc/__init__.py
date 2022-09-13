@@ -6,6 +6,7 @@ for those who like elaborate docstrings.
 """
 
 import re
+from contextlib import suppress
 from inspect import Parameter, Signature
 from types import ModuleType
 from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Optional, Sequence,
@@ -457,11 +458,8 @@ class Documenter:
 
     def _call_format_args(self, **kwargs: Any) -> str:
         if kwargs:
-            try:
+            with suppress(TypeError):  # avoid chaining exceptions
                 return self.format_args(**kwargs)
-            except TypeError:
-                # avoid chaining exceptions, by putting nothing here
-                pass
 
         # retry without arguments for old documenters
         return self.format_args()
@@ -1914,7 +1912,7 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
             return super().import_object(raiseerror=True)  # type: ignore
         except ImportError as exc:
             # annotation only instance variable (PEP-526)
-            try:
+            with suppress(ImportError):
                 with mock(self.config.autodoc_mock_imports):
                     parent = import_module(self.modname, self.config.autodoc_warningiserror)
                     annotations = get_type_hints(parent, None,
@@ -1923,8 +1921,6 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
                         self.object = UNINITIALIZED_ATTR
                         self.parent = parent
                         return True
-            except ImportError:
-                pass
 
             if raiseerror:
                 raise
@@ -2014,15 +2010,13 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
                         objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
                     self.add_line('   :type: ' + objrepr, sourcename)
 
-            try:
+            with suppress(ValueError):
                 if (self.options.no_value or self.should_suppress_value_header() or
                         ismock(self.object)):
                     pass
                 else:
                     objrepr = object_description(self.object)
                     self.add_line('   :value: ' + objrepr, sourcename)
-            except ValueError:
-                pass
 
     def document_members(self, all_members: bool = False) -> None:
         pass
@@ -2419,7 +2413,7 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
         try:
             return super().import_object(raiseerror=True)  # type: ignore
         except ImportError as exc:
-            try:
+            with suppress(ImportError):
                 with mock(self.config.autodoc_mock_imports):
                     ret = import_object(self.modname, self.objpath[:-1], 'class',
                                         attrgetter=self.get_attr,  # type: ignore
@@ -2429,8 +2423,6 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
                         self.object = self.RUNTIME_INSTANCE_ATTRIBUTE
                         self.parent = parent
                         return True
-            except ImportError:
-                pass
 
             if raiseerror:
                 raise
@@ -2609,15 +2601,13 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
                         objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
                     self.add_line('   :type: ' + objrepr, sourcename)
 
-            try:
+            with suppress(ValueError):
                 if (self.options.no_value or self.should_suppress_value_header() or
                         ismock(self.object)):
                     pass
                 else:
                     objrepr = object_description(self.object)
                     self.add_line('   :value: ' + objrepr, sourcename)
-            except ValueError:
-                pass
 
     def get_attribute_comment(self, parent: Any, attrname: str) -> Optional[List[str]]:
         for cls in inspect.getmro(parent):

@@ -6,6 +6,7 @@ import posixpath
 import re
 import sys
 import warnings
+from contextlib import suppress
 from datetime import datetime
 from os import path
 from typing import IO, Any, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Type
@@ -598,12 +599,10 @@ class StandaloneHTMLBuilder(Builder):
                 # that gracefully
                 prev = None
         while related and related[0]:
-            try:
+            with suppress(KeyError):
                 parents.append(
                     {'link': self.get_relative_uri(docname, related[0]),
                      'title': self.render_partial(titles[related[0]])['title']})
-            except KeyError:
-                pass
             related = self.relations.get(related[0])
         if parents:
             # remove link to the master file; we have a generic
@@ -1072,7 +1071,7 @@ class StandaloneHTMLBuilder(Builder):
             templatename = newtmpl
 
         # sort JS/CSS before rendering HTML
-        try:
+        try:  # noqa: SIM105
             # Convert script_files to list to support non-list script_files (refs: #8889)
             ctx['script_files'] = sorted(ctx['script_files'], key=lambda js: js.priority)
         except AttributeError:
@@ -1082,10 +1081,8 @@ class StandaloneHTMLBuilder(Builder):
             # Note: priority sorting feature will not work in this case.
             pass
 
-        try:
+        with suppress(AttributeError):
             ctx['css_files'] = sorted(ctx['css_files'], key=lambda css: css.priority)
-        except AttributeError:
-            pass
 
         try:
             output = self.templates.render(templatename, ctx)

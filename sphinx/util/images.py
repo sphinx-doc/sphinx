@@ -3,6 +3,7 @@
 import base64
 import imghdr
 from collections import OrderedDict
+from contextlib import suppress
 from os import path
 from typing import IO, BinaryIO, NamedTuple, Optional, Tuple
 
@@ -97,11 +98,9 @@ def parse_data_uri(uri: str) -> Optional[DataURI]:
 
 def test_svg(h: bytes, f: Optional[BinaryIO]) -> Optional[str]:
     """An additional imghdr library helper; test the header is SVG's or not."""
-    try:
+    with suppress(UnicodeDecodeError):
         if '<svg' in h.decode().lower():
             return 'svg+xml'
-    except UnicodeDecodeError:
-        pass
 
     return None
 

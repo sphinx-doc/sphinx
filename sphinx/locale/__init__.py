@@ -1,6 +1,7 @@
 """Locale utilities."""
 
 import locale
+from contextlib import suppress
 from gettext import NullTranslations, translation
 from os import path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
@@ -153,10 +154,8 @@ def setlocale(category: int, value: Union[str, Iterable[str], None] = None) -> N
     .. note:: Only for internal use.  Please don't call this method from extensions.
               This will be removed in Sphinx 6.0.
     """
-    try:
+    with suppress(locale.Error):
         locale.setlocale(category, value)
-    except locale.Error:
-        pass
 
 
 _LOCALE_DIR = path.abspath(path.dirname(__file__))

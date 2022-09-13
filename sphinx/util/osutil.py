@@ -74,10 +74,8 @@ def mtimes_of_files(dirnames: List[str], suffix: str) -> Iterator[float]:
         for root, _dirs, files in os.walk(dirname):
             for sfile in files:
                 if sfile.endswith(suffix):
-                    try:
+                    with contextlib.suppress(OSError):
                         yield path.getmtime(path.join(root, sfile))
-                    except OSError:
-                        pass
 
 
 def copytimes(source: str, dest: str) -> None:
@@ -93,11 +91,9 @@ def copyfile(source: str, dest: str) -> None:
     Note: ``copyfile`` skips copying if the file has not been changed"""
     if not path.exists(dest) or not filecmp.cmp(source, dest):
         shutil.copyfile(source, dest)
-        try:
+        with contextlib.suppress(OSError):
             # don't do full copystat because the source may be read-only
             copytimes(source, dest)
-        except OSError:
-            pass
 
 
 no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
@@ -183,13 +179,11 @@ class FileAvoidWrite:
         buf = self.getvalue()
         self._io.close()
 
-        try:
+        with contextlib.suppress(OSError):
             with open(self._path, encoding='utf-8') as old_f:
                 old_content = old_f.read()
                 if old_content == buf:
                     return
-        except OSError:
-            pass
 
         with open(self._path, 'w', encoding='utf-8') as f:
             f.write(buf)

@@ -52,6 +52,7 @@ import posixpath
 import re
 import sys
 import warnings
+from contextlib import suppress
 from inspect import Parameter
 from os import path
 from types import ModuleType
@@ -399,11 +400,9 @@ class Autosummary(SphinxDirective):
                 vl.append(text, '%s:%d:<autosummary>' % (source, line))
                 with switch_source_input(self.state, vl):
                     self.state.nested_parse(vl, 0, node)
-                    try:
+                    with suppress(IndexError):
                         if isinstance(node[0], nodes.paragraph):
                             node = node[0]
-                    except IndexError:
-                        pass
                     row.append(nodes.entry('', node))
             body.append(row)
 

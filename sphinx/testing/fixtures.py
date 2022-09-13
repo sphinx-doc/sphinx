@@ -3,6 +3,7 @@
 import subprocess
 import sys
 from collections import namedtuple
+from contextlib import suppress
 from io import StringIO
 from typing import Any, Callable, Dict, Generator, Optional, Tuple
 
@@ -202,12 +203,10 @@ def if_graphviz_found(app: SphinxTestApp) -> None:
     dot command is not found.
     """
     graphviz_dot = getattr(app.config, 'graphviz_dot', '')
-    try:
+    with suppress(OSError):  # No such file or directory
         if graphviz_dot:
             subprocess.run([graphviz_dot, '-V'], capture_output=True)  # show version
             return
-    except OSError:  # No such file or directory
-        pass
 
     pytest.skip('graphviz "dot" is not available')
 

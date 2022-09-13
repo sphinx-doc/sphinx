@@ -4,6 +4,7 @@ import json
 import re
 import socket
 import time
+from contextlib import suppress
 from copy import deepcopy
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
@@ -359,10 +360,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 return 'broken', str(err), 0
             else:
                 netloc = urlparse(req_url).netloc
-                try:
+                with suppress(KeyError):
                     del self.rate_limits[netloc]
-                except KeyError:
-                    pass
             if response.url.rstrip('/') == req_url.rstrip('/'):
                 return 'working', '', 0
             else:
@@ -433,14 +432,12 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             if uri is None:
                 break
             netloc = urlparse(uri).netloc
-            try:
+            with suppress(KeyError):
                 # Refresh rate limit.
                 # When there are many links in the queue, workers are all stuck waiting
                 # for responses, but the builder keeps queuing. Links in the queue may
                 # have been queued before rate limits were discovered.
                 next_check = self.rate_limits[netloc].next_check
-            except KeyError:
-                pass
             if next_check > time.time():
                 # Sleep before putting message back in the queue to avoid
                 # waking up other threads.

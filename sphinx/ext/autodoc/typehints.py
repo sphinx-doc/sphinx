@@ -2,6 +2,7 @@
 
 import re
 from collections import OrderedDict
+from contextlib import suppress
 from typing import Any, Dict, Iterable, Set, cast
 
 from docutils import nodes
@@ -21,7 +22,7 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
     else:
         mode = 'fully-qualified'
 
-    try:
+    with suppress(TypeError, ValueError):
         if callable(obj):
             annotations = app.env.temp_data.setdefault('annotations', {})
             annotation = annotations.setdefault(name, OrderedDict())
@@ -31,8 +32,6 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
                     annotation[param.name] = typing.stringify(param.annotation, mode)
             if sig.return_annotation is not sig.empty:
                 annotation['return'] = typing.stringify(sig.return_annotation, mode)
-    except (TypeError, ValueError):
-        pass
 
 
 def merge_typehints(app: Sphinx, domain: str, objtype: str, contentnode: Element) -> None:

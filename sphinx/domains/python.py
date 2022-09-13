@@ -5,6 +5,7 @@ import builtins
 import inspect
 import re
 import typing
+from contextlib import suppress
 from inspect import Parameter
 from typing import Any, Dict, Iterable, Iterator, List, NamedTuple, Optional, Tuple, Type, cast
 
@@ -620,10 +621,8 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         """
         classes = self.env.ref_context.setdefault('py:classes', [])
         if self.allow_nesting:
-            try:
+            with suppress(IndexError):
                 classes.pop()
-            except IndexError:
-                pass
         self.env.ref_context['py:class'] = (classes[-1] if len(classes) > 0
                                             else None)
         if 'module' in self.options:

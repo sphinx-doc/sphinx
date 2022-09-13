@@ -1,5 +1,6 @@
 """The JavaScript domain."""
 
+from contextlib import suppress
 from typing import Any, Dict, Iterator, List, Optional, Tuple, cast
 
 from docutils import nodes
@@ -198,10 +199,8 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         """
         objects = self.env.ref_context.setdefault('js:objects', [])
         if self.allow_nesting:
-            try:
+            with suppress(IndexError):
                 objects.pop()
-            except IndexError:
-                pass
         self.env.ref_context['js:object'] = (objects[-1] if len(objects) > 0
                                              else None)
 

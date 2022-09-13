@@ -8,6 +8,7 @@ import os
 import pdb
 import sys
 import traceback
+from contextlib import suppress
 from os import path
 from typing import Any, List, Optional, TextIO
 
@@ -251,10 +252,8 @@ def _parse_arguments(argv: List[str] = sys.argv[1:]) -> argparse.Namespace:
             key, val = val.split('=')
         except ValueError:
             parser.error(__('-A option argument must be in the form name=value'))
-        try:
+        with suppress(ValueError):
             val = int(val)
-        except ValueError:
-            pass
         confoverrides['html_context.%s' % key] = val
 
     if args.nitpicky:
