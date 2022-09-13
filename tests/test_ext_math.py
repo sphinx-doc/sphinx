@@ -56,24 +56,6 @@ def test_imgmath_svg(app, status, warning):
     assert re.search(html, content, re.S)
 
 
-@pytest.mark.skipif(not has_binary('dvisvgm'),
-                    reason='Requires dvisvgm" binary')
-@pytest.mark.sphinx('html', testroot='ext-math-simple',
-                    confoverrides={'extensions': ['sphinx.ext.imgmath'],
-                                   'imgmath_image_format': 'svg',
-                                   'imgmath_embed': True})
-def test_imgmath_svg_embed(app, status, warning):
-    app.builder.build_all()
-    if "LaTeX command 'latex' cannot be run" in warning.getvalue():
-        raise pytest.skip.Exception('LaTeX command "latex" is not available')
-    if "dvisvgm command 'dvisvgm' cannot be run" in warning.getvalue():
-        raise pytest.skip.Exception('dvisvgm command "dvisvgm" is not available')
-
-    content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    html='<img src="data:image/svg\+xml;base64,[\w\+/]+="'
-    assert re.search(html, content, re.S)
-
-
 @pytest.mark.sphinx('html', testroot='ext-math',
                     confoverrides={'extensions': ['sphinx.ext.mathjax'],
                                    'mathjax_options': {'integrity': 'sha384-0123456789'}})
