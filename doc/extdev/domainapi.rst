@@ -17,6 +17,7 @@ Domain API
 
 .. autoclass:: ObjectDescription
    :members:
+   :private-members: _toc_entry_name, _object_hierarchy_parts
 
 Python Domain
 -------------

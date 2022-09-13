@@ -678,6 +678,24 @@ General configuration
    :term:`object` names (for object types where a "module" of some kind is
    defined), e.g. for :rst:dir:`py:function` directives.  Default is ``True``.
 
+.. confval:: toc_object_entries_show_parents
+
+   A string that determines how domain objects (e.g. functions, classes,
+   attributes, etc.) are displayed in their table of contents entry.
+
+   Use ``domain`` to allow the domain to determine the appropriate number of
+   parents to show. For example, the Python domain would show ``Class.method()``
+   and ``function()``, leaving out the ``module.`` level of parents.
+   This is the default setting.
+
+   Use ``hide`` to only show the name of the element without any parents
+   (i.e. ``method()``).
+
+   Use ``all`` to show the fully-qualified name for the object
+   (i.e. ``module.Class.method()``),  displaying all parents.
+
+   .. versionadded:: 5.2
+
 .. confval:: show_authors
 
    A boolean that decides whether :rst:dir:`codeauthor` and
