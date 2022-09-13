@@ -378,7 +378,7 @@ class IndexBuilder:
         alltitles: Dict[str, List[Tuple[int, str]]] = {}
         for docname, titlelist in self._all_titles.items():
             for title, titleid in titlelist:
-                alltitles.setdefault(title.lower(), []).append((fn2index[docname],  titleid))
+                alltitles.setdefault(title, []).append((fn2index[docname],  titleid))
 
         return dict(docnames=docnames, filenames=filenames, titles=titles, terms=terms,
                     objects=objects, objtypes=objtypes, objnames=objnames,
