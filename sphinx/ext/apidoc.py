@@ -224,11 +224,9 @@ def walk(rootpath: str, excludes: List[str], opts: Any
 
 def has_child_module(rootpath: str, excludes: List[str], opts: Any) -> bool:
     """Check the given directory contains child module/s (at least one)."""
-    for _root, _subs, files in walk(rootpath, excludes, opts):
-        if files:
-            return True
-
-    return False
+    return any(
+        files for _root, _subs, files in walk(rootpath, excludes, opts)
+    )
 
 
 def recurse_tree(rootpath: str, excludes: List[str], opts: Any,
@@ -291,10 +289,7 @@ def is_excluded(root: str, excludes: List[str]) -> bool:
     Note: by having trailing slashes, we avoid common prefix issues, like
           e.g. an exclude "foo" also accidentally excluding "foobar".
     """
-    for exclude in excludes:
-        if fnmatch(root, exclude):
-            return True
-    return False
+    return any(fnmatch(root, exclude) for exclude in excludes)
 
 
 def get_parser() -> argparse.ArgumentParser:

@@ -128,10 +128,9 @@ class CoverageBuilder(Builder):
                 op.write('\n')
 
     def ignore_pyobj(self, full_name: str) -> bool:
-        for exp in self.py_ignorexps:
-            if exp.search(full_name):
-                return True
-        return False
+        return any(
+            exp.search(full_name) for exp in self.py_ignorexps
+        )
 
     def build_py_coverage(self) -> None:
         objects = self.env.domaindata['py']['objects']
