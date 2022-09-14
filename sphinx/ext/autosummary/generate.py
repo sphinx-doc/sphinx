@@ -44,6 +44,12 @@ from sphinx.util.inspect import getall, safe_getattr
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
 
+try:
+    import shtab
+except ImportError:
+    from ... import _shtab as shtab
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -591,16 +597,19 @@ The format of the autosummary directive is documented in the
 
   pydoc sphinx.ext.autosummary
 """))
+    shtab.add_argument_to(parser)
 
     parser.add_argument('--version', action='version', dest='show_version',
                         version='%%(prog)s %s' % __display_version__)
 
     parser.add_argument('source_file', nargs='+',
-                        help=__('source files to generate rST files for'))
+                        help=__('source files to generate rST files for')
+                        ).complete = shtab.FILE
 
     parser.add_argument('-o', '--output-dir', action='store',
                         dest='output_dir',
-                        help=__('directory to place all output in'))
+                        help=__('directory to place all output in')
+                        ).complete = shtab.DIR
     parser.add_argument('-s', '--suffix', action='store', dest='suffix',
                         default='rst',
                         help=__('default suffix for files (default: '

@@ -23,6 +23,11 @@ from sphinx.util.console import color_terminal, nocolor, red, terminal_safe  # t
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath, ensuredir
 
+try:
+    import shtab
+except ImportError:
+    from .. import _shtab as shtab
+
 
 def handle_exception(
     app: Optional[Sphinx], args: Any, exception: BaseException, stderr: IO = sys.stderr
@@ -96,6 +101,7 @@ def jobs_argument(value: str) -> int:
 
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
+        'sphinx-build',
         usage='%(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]',
         epilog=__('For more information, visit <https://www.sphinx-doc.org/>.'),
         description=__("""
@@ -114,17 +120,21 @@ processing.
 By default, everything that is outdated is built. Output only for selected
 files can be built by specifying individual filenames.
 """))
+    shtab.add_argument_to(parser)
 
     parser.add_argument('--version', action='version', dest='show_version',
                         version='%%(prog)s %s' % __display_version__)
 
     parser.add_argument('sourcedir',
-                        help=__('path to documentation source files'))
+                        help=__('path to documentation source files')
+                        ).complete = shtab.DIR
     parser.add_argument('outputdir',
-                        help=__('path to output directory'))
+                        help=__('path to output directory')
+                        ).complete = shtab.DIR
     parser.add_argument('filenames', nargs='*',
                         help=__('a list of specific files to rebuild. Ignored '
-                                'if -a is specified'))
+                                'if -a is specified')
+                        ).complete = shtab.FILE
 
     group = parser.add_argument_group(__('general options'))
     group.add_argument('-b', metavar='BUILDER', dest='builder',
@@ -138,14 +148,16 @@ files can be built by specifying individual filenames.
                                'all files'))
     group.add_argument('-d', metavar='PATH', dest='doctreedir',
                        help=__('path for the cached environment and doctree '
-                               'files (default: OUTPUTDIR/.doctrees)'))
+                               'files (default: OUTPUTDIR/.doctrees)')
+                       ).complete = shtab.FILE
     group.add_argument('-j', metavar='N', default=1, type=jobs_argument, dest='jobs',
                        help=__('build in parallel with N processes where '
                                'possible (special value "auto" will set N to cpu-count)'))
     group = parser.add_argument_group('build configuration options')
     group.add_argument('-c', metavar='PATH', dest='confdir',
                        help=__('path where configuration file (conf.py) is '
-                               'located (default: same as SOURCEDIR)'))
+                               'located (default: same as SOURCEDIR)')
+                       ).complete = shtab.DIR
     group.add_argument('-C', action='store_true', dest='noconfig',
                        help=__('use no config file at all, only -D options'))
     group.add_argument('-D', metavar='setting=value', action='append',
@@ -176,7 +188,8 @@ files can be built by specifying individual filenames.
                        help=__('do not emit colored output (default: '
                                'auto-detect)'))
     group.add_argument('-w', metavar='FILE', dest='warnfile',
-                       help=__('write warnings (and errors) to given file'))
+                       help=__('write warnings (and errors) to given file')
+                       ).complete = shtab.FILE
     group.add_argument('-W', action='store_true', dest='warningiserror',
                        help=__('turn warnings into errors'))
     group.add_argument('--keep-going', action='store_true', dest='keep_going',

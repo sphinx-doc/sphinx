@@ -27,6 +27,12 @@ from sphinx.locale import __
 from sphinx.util.osutil import FileAvoidWrite, ensuredir
 from sphinx.util.template import ReSTRenderer
 
+try:
+    import shtab
+except ImportError:
+    from .. import _shtab as shtab
+
+
 # automodule options
 if 'SPHINX_APIDOC_OPTIONS' in os.environ:
     OPTIONS = os.environ['SPHINX_APIDOC_OPTIONS'].split(',')
@@ -299,6 +305,7 @@ def is_excluded(root: str, excludes: List[str]) -> bool:
 
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
+        'sphinx-apidoc',
         usage='%(prog)s [OPTIONS] -o <OUTPUT_PATH> <MODULE_PATH> '
               '[EXCLUDE_PATTERN, ...]',
         epilog=__('For more information, visit <https://www.sphinx-doc.org/>.'),
@@ -310,19 +317,22 @@ The <EXCLUDE_PATTERN>s can be file and/or directory patterns that will be
 excluded from generation.
 
 Note: By default this script will not overwrite already created files."""))
+    shtab.add_argument_to(parser)
 
     parser.add_argument('--version', action='version', dest='show_version',
                         version='%%(prog)s %s' % __display_version__)
 
     parser.add_argument('module_path',
-                        help=__('path to module to document'))
+                        help=__('path to module to document')
+                        ).complete = shtab.FILE
     parser.add_argument('exclude_pattern', nargs='*',
                         help=__('fnmatch-style file and/or directory patterns '
                                 'to exclude from generation'))
 
     parser.add_argument('-o', '--output-dir', action='store', dest='destdir',
                         required=True,
-                        help=__('directory to place all output'))
+                        help=__('directory to place all output')
+                        ).complete = shtab.DIR
     parser.add_argument('-q', action='store_true', dest='quiet',
                         help=__('no output on stdout, just warnings on stderr'))
     parser.add_argument('-d', '--maxdepth', action='store', dest='maxdepth',
@@ -389,7 +399,8 @@ Note: By default this script will not overwrite already created files."""))
     group = parser.add_argument_group(__('Project templating'))
     group.add_argument('-t', '--templatedir', metavar='TEMPLATEDIR',
                        dest='templatedir',
-                       help=__('template directory for template files'))
+                       help=__('template directory for template files')
+                       ).complete = shtab.DIR
 
     return parser
 

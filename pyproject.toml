@@ -97,6 +97,9 @@ test = [
     "typed_ast; python_version < '3.8'",
     "cython",
 ]
+completion = [
+    "shtab",
+]
 
 [[project.authors]]
 name = "Georg Brandl"

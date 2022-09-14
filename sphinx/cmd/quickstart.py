@@ -9,6 +9,12 @@ from collections import OrderedDict
 from os import path
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
+try:
+    import shtab
+except ImportError:
+    from .. import _shtab as shtab
+
+
 # try to import readline, unix specific enhancement
 try:
     import readline
@@ -464,9 +470,11 @@ def get_parser() -> argparse.ArgumentParser:
         "Makefile to be used with sphinx-build.\n"
     )
     parser = argparse.ArgumentParser(
+        'sphinx-quickstart',
         usage='%(prog)s [OPTIONS] <PROJECT_DIR>',
         epilog=__("For more information, visit <https://www.sphinx-doc.org/>."),
         description=description)
+    shtab.add_argument_to(parser)
 
     parser.add_argument('-q', '--quiet', action='store_true', dest='quiet',
                         default=None,
@@ -475,7 +483,8 @@ def get_parser() -> argparse.ArgumentParser:
                         version='%%(prog)s %s' % __display_version__)
 
     parser.add_argument('path', metavar='PROJECT_DIR', default='.', nargs='?',
-                        help=__('project root'))
+                        help=__('project root')
+                        ).complete = shtab.DIR
 
     group = parser.add_argument_group(__('Structure options'))
     group.add_argument('--sep', action='store_true', dest='sep', default=None,
@@ -531,7 +540,8 @@ def get_parser() -> argparse.ArgumentParser:
     group = parser.add_argument_group(__('Project templating'))
     group.add_argument('-t', '--templatedir', metavar='TEMPLATEDIR',
                        dest='templatedir',
-                       help=__('template directory for template files'))
+                       help=__('template directory for template files')
+                        ).complete = shtab.DIR
     group.add_argument('-d', metavar='NAME=VALUE', action='append',
                        dest='variables',
                        help=__('define a template variable'))
