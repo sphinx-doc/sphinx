@@ -70,7 +70,7 @@ def test_imgmath_svg_embed(app, status, warning):
         raise pytest.skip.Exception('dvisvgm command "dvisvgm" is not available')
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    html=r'<img src="data:image/svg\+xml;base64,[\w\+/=]+"'
+    html = r'<img src="data:image/svg\+xml;base64,[\w\+/=]+"'
     assert re.search(html, content, re.S)
 
 

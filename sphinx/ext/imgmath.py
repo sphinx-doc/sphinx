@@ -205,7 +205,8 @@ def convert_dvi_to_svg(dvipath: str, builder: Builder) -> Tuple[str, Optional[in
     return filename, depth
 
 
-def render_math(self: HTMLTranslator, math: str) -> Tuple[Optional[str], Optional[int], Optional[str], Optional[str]]:
+def render_math(self: HTMLTranslator, math: str) \
+    -> Tuple[Optional[str], Optional[int], Optional[str], Optional[str]]:
     """Render the LaTeX math expression *math* using latex and dvipng or
     dvisvgm.
 
