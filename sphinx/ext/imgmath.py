@@ -263,19 +263,20 @@ def render_math(self: HTMLTranslator, math: str) -> Tuple[Optional[str], Optiona
     return relfn, depth, imgpath, outfn
 
 
-def render_math_src(self: HTMLTranslator, math: str) -> str, int:
+def render_math_src(self: HTMLTranslator, math: str) -> Tuple[Optional[str], Optional[int]]:
     fname, depth, imgpath, outfn = render_math(self, math)
     if self.builder.config.imgmath_embed:
         image_format = self.builder.config.imgmath_image_format.lower()
         mimetype = {'png': 'image/png', 'svg': 'image/svg+xml'}[image_format]
         encoded = base64.b64encode(open(outfn, "rb").read()).decode()
-        return f'data:{mimetype};base64,{encoded}', depth
+        img_src = f'data:{mimetype};base64,{encoded}'
     else:
         # Move generated image on tempdir to build dir
         if imgpath is not None:
             ensuredir(path.dirname(outfn))
             shutil.move(imgpath, outfn)
-        return fname, depth
+        img_src = fname
+    return img_src, depth
 
 
 def cleanup_tempdir(app: Sphinx, exc: Exception) -> None:
@@ -323,7 +324,7 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
     else:
         latex = wrap_displaymath(node.astext(), None, False)
     try:
-        img_src, depth = render_math(self, latex)
+        img_src, depth = render_math_src(self, latex)
     except MathExtError as exc:
         msg = str(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
