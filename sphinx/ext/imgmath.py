@@ -265,7 +265,7 @@ def render_math(self: HTMLTranslator, math: str) \
     return relfn, depth, imgpath, outfn
 
 
-def get_img_src(self: HTMLTranslator, math: str) -> Tuple[Optional[str], Optional[int]]:
+def render_img_src(self: HTMLTranslator, math: str) -> Tuple[Optional[str], Optional[int]]:
     fname, depth, imgpath, outfn = render_math(self, math)
     if self.builder.config.imgmath_embed:
         image_format = self.builder.config.imgmath_image_format.lower()
@@ -300,7 +300,7 @@ def get_tooltip(self: HTMLTranslator, node: Element) -> str:
 
 def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
     try:
-        img_src, depth = get_img_src(self, '$' + node.astext() + '$')
+        img_src, depth = render_img_src(self, '$' + node.astext() + '$')
     except MathExtError as exc:
         msg = str(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
@@ -326,7 +326,7 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
     else:
         latex = wrap_displaymath(node.astext(), None, False)
     try:
-        img_src, depth = get_img_src(self, latex)
+        img_src, depth = render_img_src(self, latex)
     except MathExtError as exc:
         msg = str(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
