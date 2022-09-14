@@ -6,7 +6,7 @@ import re
 import shutil
 import subprocess
 import tempfile
-from os import path, remove
+from os import path
 from subprocess import PIPE, CalledProcessError
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -205,13 +205,14 @@ def convert_dvi_to_svg(dvipath: str, builder: Builder) -> Tuple[str, Optional[in
     return filename, depth
 
 
-def render_math(self: HTMLTranslator, math: str) -> Tuple[Optional[str], Optional[int]]:
+def render_math(self: HTMLTranslator, math: str) -> Tuple[Optional[str], Optional[int], Optional[str], Optional[str]]:
     """Render the LaTeX math expression *math* using latex and dvipng or
     dvisvgm.
 
     Return the filename relative to the built document and the "depth",
     that is, the distance of image bottom and baseline in pixels, if the
     option to use preview_latex is switched on.
+    Also return the temporary and destination files.
 
     Error handling may seem strange, but follows a pattern: if LaTeX or dvipng
     (dvisvgm) aren't available, only a warning is generated (since that enables
