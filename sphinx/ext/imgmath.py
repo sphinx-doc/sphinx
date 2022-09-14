@@ -236,19 +236,19 @@ def render_math(self: HTMLTranslator, math: str) -> Tuple[Optional[str], Optiona
             depth = read_png_depth(outfn)
         elif image_format == 'svg':
             depth = read_svg_depth(outfn)
-        return relfn, depth
+        return relfn, depth, None, outfn
 
     # if latex or dvipng (dvisvgm) has failed once, don't bother to try again
     if hasattr(self.builder, '_imgmath_warned_latex') or \
        hasattr(self.builder, '_imgmath_warned_image_translator'):
-        return None, None
+        return None, None, None, None
 
     # .tex -> .dvi
     try:
         dvipath = compile_math(latex, self.builder)
     except InvokeError:
         self.builder._imgmath_warned_latex = True  # type: ignore
-        return None, None
+        return None, None, None, None
 
     # .dvi -> .png/.svg
     try:
@@ -258,13 +258,24 @@ def render_math(self: HTMLTranslator, math: str) -> Tuple[Optional[str], Optiona
             imgpath, depth = convert_dvi_to_svg(dvipath, self.builder)
     except InvokeError:
         self.builder._imgmath_warned_image_translator = True  # type: ignore
-        return None, None
+        return None, None, None, None
 
-    # Move generated image on tempdir to build dir
-    ensuredir(path.dirname(outfn))
-    shutil.move(imgpath, outfn)
+    return relfn, depth, imgpath, outfn
 
-    return relfn, depth
+
+def render_math_src(self: HTMLTranslator, math: str) -> str, int:
+    fname, depth, imgpath, outfn = render_math(self, math)
+    if self.builder.config.imgmath_embed:
+        image_format = self.builder.config.imgmath_image_format.lower()
+        mimetype = {'png': 'image/png', 'svg': 'image/svg+xml'}[image_format]
+        encoded = base64.b64encode(open(outfn, "rb").read()).decode()
+        return f'data:{mimetype};base64,{encoded}', depth
+    else:
+        # Move generated image on tempdir to build dir
+        if imgpath is not None:
+            ensuredir(path.dirname(outfn))
+            shutil.move(imgpath, outfn)
+        return fname, depth
 
 
 def cleanup_tempdir(app: Sphinx, exc: Exception) -> None:
@@ -284,21 +295,9 @@ def get_tooltip(self: HTMLTranslator, node: Element) -> str:
     return ''
 
 
-def html_get_img_src(self: HTMLTranslator, fname: str) -> str:
-    if self.builder.config.imgmath_embed:
-        bname = path.basename(fname)
-        outfn = path.join(self.builder.outdir, self.builder.imagedir, 'math', bname)
-        mimetype = guess_mimetype(outfn, default='*')
-        encoded = base64.b64encode(open(outfn, "rb").read()).decode()
-        remove(outfn)
-        return f'data:{mimetype};base64,{encoded}'
-    else:
-        return fname
-
-
 def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
     try:
-        fname, depth = render_math(self, '$' + node.astext() + '$')
+        img_src, depth = render_math_src(self, '$' + node.astext() + '$')
     except MathExtError as exc:
         msg = str(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
@@ -306,12 +305,11 @@ def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
         sm.walkabout(self)
         logger.warning(__('display latex %r: %s'), node.astext(), msg)
         raise nodes.SkipNode from exc
-    if fname is None:
+    if img_src is None:
         # something failed -- use text-only as a bad substitute
         self.body.append('<span class="math">%s</span>' %
                          self.encode(node.astext()).strip())
     else:
-        img_src = html_get_img_src(self, fname)
         c = ('<img class="math" src="%s"' % img_src) + get_tooltip(self, node)
         if depth is not None:
             c += ' style="vertical-align: %dpx"' % (-depth)
@@ -325,7 +323,7 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
     else:
         latex = wrap_displaymath(node.astext(), None, False)
     try:
-        fname, depth = render_math(self, latex)
+        img_src, depth = render_math(self, latex)
     except MathExtError as exc:
         msg = str(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
@@ -340,12 +338,11 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
         self.body.append('<span class="eqno">(%s)' % number)
         self.add_permalink_ref(node, _('Permalink to this equation'))
         self.body.append('</span>')
-    if fname is None:
+    if img_src is None:
         # something failed -- use text-only as a bad substitute
         self.body.append('<span class="math">%s</span></p>\n</div>' %
                          self.encode(node.astext()).strip())
     else:
-        img_src = html_get_img_src(self, fname)
         self.body.append(('<img src="%s"' % img_src) + get_tooltip(self, node) +
                          '/></p>\n</div>')
     raise nodes.SkipNode
