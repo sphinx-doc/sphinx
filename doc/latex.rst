@@ -233,7 +233,7 @@ Keys that you may want to override include:
    .. code-block:: python
 
        latex_elements = {
-           'packages': r'\usepackage{isodate}'
+           'extrapackages': r'\usepackage{isodate}'
        }
 
    The specified LaTeX packages will be loaded before
