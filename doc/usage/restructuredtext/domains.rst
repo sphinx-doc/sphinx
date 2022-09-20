@@ -1775,6 +1775,10 @@ There is a set of directives allowing documenting command-line programs:
    referenceable by :rst:role:`option` (in the example case, you'd use something
    like ``:option:`dest_dir```, ``:option:`-m```, or ``:option:`--module```).
 
+   .. versionchanged:: 5.3
+
+      One can cross-reference including an option value: ``:option:`--module=foobar```.
+
    Use :confval:`option_emphasise_placeholders` for parsing of
    "variable part" of a literal text (similarly to the :rst:role:`samp` role).
 

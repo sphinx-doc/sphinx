@@ -780,7 +780,9 @@ class StandardDomain(Domain):
             self.labels[name] = docname, labelid, sectname
 
     def add_program_option(self, program: str, name: str, docname: str, labelid: str) -> None:
-        self.progoptions[program, name] = (docname, labelid)
+        # prefer first command option entry
+        if (program, name) not in self.progoptions:
+            self.progoptions[program, name] = (docname, labelid)
 
     def build_reference_node(self, fromdocname: str, builder: "Builder", docname: str,
                              labelid: str, sectname: str, rolename: str, **options: Any
@@ -941,6 +943,10 @@ class StandardDomain(Domain):
         progname = node.get('std:program')
         target = target.strip()
         docname, labelid = self.progoptions.get((progname, target), ('', ''))
+        # for :option:`-foo=bar` search for -foo option directive
+        if not docname and '=' in target:
+            target2 = target[:target.find('=')]
+            docname, labelid = self.progoptions.get((progname, target2), ('', ''))
         if not docname:
             commands = []
             while ws_re.search(target):
