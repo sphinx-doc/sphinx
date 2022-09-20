@@ -2,45 +2,21 @@
 
 import os
 import posixpath
-import re
 import urllib.parse
 import warnings
-from typing import TYPE_CHECKING, Iterable, Optional, Set, Tuple, cast
+from typing import Iterable, Optional, Set, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
-from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
-from sphinx.builders import Builder
 from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
-from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
-from sphinx.writers._html_base import HTMLTranslatorBase
-
-if TYPE_CHECKING:
-    from sphinx.builders.html import StandaloneHTMLBuilder
-
+from sphinx.writers._html_base import HTMLTranslatorBase, multiply_length
 
 logger = logging.getLogger(__name__)
-
-# A good overview of the purpose behind these classes can be found here:
-# http://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
-
-
-def multiply_length(length: str, scale: int) -> str:
-    """Multiply *length* (width or height) by *scale*."""
-    matched = re.match(r'^(\d*\.?\d*)\s*(\S*)$', length)
-    if not matched:
-        return length
-    elif scale == 100:
-        return length
-    else:
-        amount, unit = matched.groups()
-        result = float(amount) * scale / 100
-        return "%s%s" % (int(result), unit)
 
 
 class HTML5Translator(HTMLTranslatorBase):
@@ -53,37 +29,12 @@ class HTML5Translator(HTMLTranslatorBase):
     # converted to <s>...</s> by `visit_inline`.
     supported_inline_tags: Set[str] = set()
 
-    def visit_start_of_file(self, node: Element) -> None:
-        # only occurs in the single-file builder
-        self.docnames.append(node['docname'])
-        self.body.append('<span id="document-%s"></span>' % node['docname'])
-
-    def depart_start_of_file(self, node: Element) -> None:
-        self.docnames.pop()
-
     #############################################################
     # Domain-specific object descriptions
     #############################################################
 
     # Top-level nodes for descriptions
     ##################################
-
-    def visit_desc(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'dl'))
-
-    def depart_desc(self, node: Element) -> None:
-        self.body.append('</dl>\n\n')
-
-    def visit_desc_signature(self, node: Element) -> None:
-        # the id is set automatically
-        self.body.append(self.starttag(node, 'dt'))
-        self.protect_literal_text += 1
-
-    def depart_desc_signature(self, node: Element) -> None:
-        self.protect_literal_text -= 1
-        if not node.get('is_multiline'):
-            self.add_permalink_ref(node, _('Permalink to this definition'))
-        self.body.append('</dt>\n')
 
     def visit_desc_signature_line(self, node: Element) -> None:
         pass
@@ -298,11 +249,11 @@ class HTML5Translator(HTMLTranslatorBase):
             else:
                 append_fignumber(figtype, node['ids'][0])
 
-    def add_permalink_ref(self, node: Element, title: str) -> None:
-        if node['ids'] and self.config.html_permalinks and self.builder.add_permalinks:
-            format = '<a class="headerlink" href="#%s" title="%s">%s</a>'
-            self.body.append(format % (node['ids'][0], title,
-                                       self.config.html_permalinks_icon))
+    # def add_permalink_ref(self, node: Element, title: str) -> None:
+    #     if node['ids'] and self.config.html_permalinks and self.builder.add_permalinks:
+    #         format = '<a class="headerlink" href="#%s" title="%s">%s</a>'
+    #         self.body.append(format % (node['ids'][0], title,
+    #                                    self.config.html_permalinks_icon))
 
     # overwritten
     def visit_bullet_list(self, node: Element) -> None:
