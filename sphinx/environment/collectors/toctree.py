@@ -128,8 +128,7 @@ class TocTreeCollector(EnvironmentCollector):
                                 parents = tuple(parents)
 
                                 # Cache parents tuple
-                                if parents:
-                                    memo_parents[sig_node['_toc_parts']] = entry
+                                memo_parents[sig_node['_toc_parts']] = entry
 
                                 # Nest children within parents
                                 if parents and parents in memo_parents:
