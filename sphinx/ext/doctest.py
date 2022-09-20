@@ -454,8 +454,9 @@ Doctest summary
         if not groups:
             return
 
-        self._out('\nDocument: %s\n----------%s\n' %
-                  (docname, '-' * len(docname)))
+        if self.config.doctest_show_successes:
+            self._out('\nDocument: %s\n----------%s\n' %
+                      (docname, '-' * len(docname)))
         for group in groups.values():
             self.test_group(group)
         # Separately count results from setup code
@@ -463,12 +464,12 @@ Doctest summary
         self.setup_failures += res_f
         self.setup_tries += res_t
         if self.test_runner.tries:
-            res_f, res_t = self.test_runner.summarize(self._out, verbose=True)
+            res_f, res_t = self.test_runner.summarize(self._out, verbose=self.config.doctest_show_successes)
             self.total_failures += res_f
             self.total_tries += res_t
         if self.cleanup_runner.tries:
             res_f, res_t = self.cleanup_runner.summarize(self._out,
-                                                         verbose=True)
+                                                         verbose=self.config.doctest_show_successes)
             self.cleanup_failures += res_f
             self.cleanup_tries += res_t
 
@@ -555,6 +556,7 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_directive('testoutput', TestoutputDirective)
     app.add_builder(DocTestBuilder)
     # this config value adds to sys.path
+    app.add_config_value('doctest_show_successes', True, False)
     app.add_config_value('doctest_path', [], False)
     app.add_config_value('doctest_test_doctest_blocks', 'default', False)
     app.add_config_value('doctest_global_setup', '', False)
