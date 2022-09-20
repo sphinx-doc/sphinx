@@ -67,6 +67,7 @@ class HTMLWriter(Writer):
         self.clean_meta = ''.join(self.visitor.meta[2:])
 
 
+# RemovedInSphinx70Warning
 class HTMLTranslator(SphinxTranslator, BaseTranslator):
     """
     Our custom HTML translator.
