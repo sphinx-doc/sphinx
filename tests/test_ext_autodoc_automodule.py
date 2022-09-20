@@ -19,7 +19,7 @@ def test_empty_all(app):
         '',
         '.. py:module:: target.empty_all',
         '',
-        'docsting of empty_all module.',
+        '   docsting of empty_all module.',
         '',
     ]
 
