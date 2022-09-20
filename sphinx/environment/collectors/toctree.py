@@ -122,7 +122,8 @@ class TocTreeCollector(EnvironmentCollector):
                                 reference = nodes.reference(
                                     '', '', nodes.literal('', sig_node['_toc_name']),
                                     internal=True, refuri=docname, anchorname=anchorname)
-                                para = addnodes.compact_paragraph('', '', reference)
+                                para = addnodes.compact_paragraph('', '', reference,
+                                                                  skip_section_number=True)
                                 entry = nodes.list_item('', para)
                                 *parents, _ = sig_node['_toc_parts']
                                 parents = tuple(parents)
@@ -185,6 +186,8 @@ class TocTreeCollector(EnvironmentCollector):
                     _walk_toc(subnode, secnums, depth, titlenode)
                     titlenode = None
                 elif isinstance(subnode, addnodes.compact_paragraph):
+                    if 'skip_section_number' in subnode:
+                        continue
                     numstack[-1] += 1
                     reference = cast(nodes.reference, subnode[0])
                     if depth > 0:
