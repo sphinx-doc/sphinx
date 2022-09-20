@@ -23,7 +23,7 @@ def terminal_safe(s: str) -> str:
 
 
 def get_terminal_width() -> int:
-    """Get number of columns of the terminal."""
+    """Return the width of the terminal in columns."""
     return shutil.get_terminal_size().columns - 1
 
 
