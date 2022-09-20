@@ -9,16 +9,14 @@ from typing import TYPE_CHECKING, Iterable, Optional, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
-from docutils.writers.html4css1 import HTMLTranslator as BaseTranslator
 from docutils.writers.html4css1 import Writer
 
 from sphinx import addnodes
-from sphinx.builders import Builder
 from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
-from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
+from sphinx.writers._html_base import HTMLTranslatorBase
 
 if TYPE_CHECKING:
     from sphinx.builders.html import StandaloneHTMLBuilder
@@ -67,26 +65,10 @@ class HTMLWriter(Writer):
         self.clean_meta = ''.join(self.visitor.meta[2:])
 
 
-class HTMLTranslator(SphinxTranslator, BaseTranslator):
+class HTMLTranslator(HTMLTranslatorBase):
     """
     Our custom HTML translator.
     """
-
-    builder: "StandaloneHTMLBuilder" = None
-
-    def __init__(self, document: nodes.document, builder: Builder) -> None:
-        super().__init__(document, builder)
-
-        self.highlighter = self.builder.highlighter
-        self.docnames = [self.builder.current_docname]  # for singlehtml builder
-        self.manpages_url = self.config.manpages_url
-        self.protect_literal_text = 0
-        self.secnumber_suffix = self.config.html_secnumber_suffix
-        self.param_separator = ''
-        self.optional_param_level = 0
-        self._table_row_indices = [0]
-        self._fieldlist_row_indices = [0]
-        self.required_params_left = 0
 
     def visit_start_of_file(self, node: Element) -> None:
         # only occurs in the single-file builder
