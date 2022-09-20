@@ -47,7 +47,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     Our custom HTML translator.
     """
 
-    builder: "StandaloneHTMLBuilder" = None
+    builder: "StandaloneHTMLBuilder"
     # Override docutils.writers.html5_polyglot:HTMLTranslator
     # otherwise, nodes like <inline classes="s">...</inline> will be
     # converted to <s>...</s> by `visit_inline`.
@@ -260,7 +260,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_seealso(self, node: Element) -> None:
         self.depart_admonition(node)
 
-    def get_secnumber(self, node: Element) -> Tuple[int, ...]:
+    def get_secnumber(self, node: Element) -> Optional[Tuple[int, ...]]:
         if node.get('secnumber'):
             return node['secnumber']
 
