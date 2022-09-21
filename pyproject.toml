@@ -2,7 +2,6 @@
 requires = ["flit_core>=3.7"]
 build-backend = "flit_core.buildapi"
 
-
 # project metadata
 [project]
 name = "Sphinx"
