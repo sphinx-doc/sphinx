@@ -56,23 +56,23 @@ classifiers = [
     "Topic :: Utilities",
 ]
 dependencies = [
-    "alabaster>=0.7,<0.8",
-    "babel>=2.9",
-    "colorama>=0.4.5; sys_platform == 'win32'",
-    "docutils>=0.14,<0.20",
-    "imagesize>=1.3",
-    "importlib-metadata>=4.8; python_version < '3.10'",
-    "Jinja2>=3.0",
-    "packaging>=21.0",
-    "Pygments>=2.12",
-    "requests>=2.5.0",
-    "snowballstemmer>=2.0",
     "sphinxcontrib-applehelp",
     "sphinxcontrib-devhelp",
-    "sphinxcontrib-htmlhelp>=2.0.0",
     "sphinxcontrib-jsmath",
-    "sphinxcontrib-qthelp",
+    "sphinxcontrib-htmlhelp>=2.0.0",
     "sphinxcontrib-serializinghtml>=1.1.5",
+    "sphinxcontrib-qthelp",
+    "Jinja2>=3.0",
+    "Pygments>=2.12",
+    "docutils>=0.14,<0.20",
+    "snowballstemmer>=2.0",
+    "babel>=2.9",
+    "alabaster>=0.7,<0.8",
+    "imagesize>=1.3",
+    "requests>=2.5.0",
+    "packaging>=21.0",
+    "importlib-metadata>=4.8; python_version < '3.10'",
+    "colorama>=0.4.5; sys_platform == 'win32'",
 ]
 dynamic = ["version"]
 
@@ -81,22 +81,22 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "docutils-stubs",
-    "flake8-bugbear",
-    "flake8-comprehensions",
-    "flake8-simplify",
     "flake8>=3.5.0",
+    "flake8-comprehensions",
+    "flake8-bugbear",
+    "flake8-simplify",
     "isort",
     "mypy>=0.971",
     "sphinx-lint",
-    "types-requests",
+    "docutils-stubs",
     "types-typed-ast",
+    "types-requests",
 ]
 test = [
-    "cython",
-    "html5lib",
     "pytest>=4.6",
+    "html5lib",
     "typed_ast; python_version < '3.8'",
+    "cython",
 ]
 
 [[project.authors]]
