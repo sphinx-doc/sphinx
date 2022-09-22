@@ -1457,7 +1457,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
                             ) -> bool:
-        return isinstance(member, type) or inspect.isNewType(member)
+        return isinstance(member, type) or inspect.isNewType(member) or isinstance(member, TypeVar)
 
     def import_object(self, raiseerror: bool = False) -> bool:
         ret = super().import_object(raiseerror)
@@ -1468,7 +1468,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 self.doc_as_attr = (self.objpath[-1] != self.object.__name__)
             else:
                 self.doc_as_attr = True
-            if inspect.isNewType(self.object):
+            if inspect.isNewType(self.object) or isinstance(self.object, TypeVar):
                 modname = getattr(self.object, '__module__', self.modname)
                 if modname != self.modname and self.modname.startswith(modname):
                     bases = self.modname[len(modname):].strip('.').split('.')
@@ -1477,7 +1477,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         return ret
 
     def _get_signature(self) -> Tuple[Optional[Any], Optional[str], Optional[Signature]]:
-        if inspect.isNewType(self.object):
+        if inspect.isNewType(self.object) or isinstance(self.object, TypeVar):
             # Supress signature
             return None, None, None
 
@@ -1661,6 +1661,9 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             self.directivetype = 'attribute'
         super().add_directive_header(sig)
 
+        if inspect.isNewType(self.object) or isinstance(self.object, TypeVar):
+            return
+
         if self.analyzer and '.'.join(self.objpath) in self.analyzer.finals:
             self.add_line('   :final:', sourcename)
 
@@ -1714,6 +1717,9 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             return False, [m for m in members.values() if m.class_ == self.object]
 
     def get_doc(self) -> Optional[List[List[str]]]:
+        if isinstance(self.object, TypeVar):
+            if self.object.__doc__ == TypeVar.__doc__:
+                return []
         if self.doc_as_attr:
             # Don't show the docstring of the class when it is an alias.
             comment = self.get_variable_comment()
@@ -1785,6 +1791,28 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 supertype = restify(self.object.__supertype__)
 
             more_content = StringList([_('alias of %s') % supertype, ''], source='')
+        if isinstance(self.object, TypeVar):
+            attrs = [repr(self.object.__name__)]
+            for constraint in self.object.__constraints__:
+                if self.config.autodoc_typehints_format == "short":
+                    attrs.append(stringify_typehint(constraint, "smart"))
+                else:
+                    attrs.append(stringify_typehint(constraint))
+            if self.object.__bound__:
+                if self.config.autodoc_typehints_format == "short":
+                    bound = restify(self.object.__bound__, "smart")
+                else:
+                    bound = restify(self.object.__bound__)
+                attrs.append(r"bound=\ " + bound)
+            if self.object.__covariant__:
+                attrs.append("covariant=True")
+            if self.object.__contravariant__:
+                attrs.append("contravariant=True")
+
+            more_content = StringList(
+                [_('alias of TypeVar(%s)') % ", ".join(attrs), ''],
+                source=''
+            )
 
         if self.doc_as_attr and self.modname != self.get_real_modname():
             try:
@@ -1884,50 +1912,6 @@ class GenericAliasMixin(DataDocumenterMixinBase):
         super().update_content(more_content)
 
 
-class TypeVarMixin(DataDocumenterMixinBase):
-    """
-    Mixin for DataDocumenter and AttributeDocumenter to provide the feature for
-    supporting TypeVars.
-    """
-
-    def should_suppress_directive_header(self) -> bool:
-        return (isinstance(self.object, TypeVar) or
-                super().should_suppress_directive_header())
-
-    def get_doc(self) -> Optional[List[List[str]]]:
-        if isinstance(self.object, TypeVar):
-            if self.object.__doc__ != TypeVar.__doc__:
-                return super().get_doc()  # type: ignore
-            else:
-                return []
-        else:
-            return super().get_doc()  # type: ignore
-
-    def update_content(self, more_content: StringList) -> None:
-        if isinstance(self.object, TypeVar):
-            attrs = [repr(self.object.__name__)]
-            for constraint in self.object.__constraints__:
-                if self.config.autodoc_typehints_format == "short":
-                    attrs.append(stringify_typehint(constraint, "smart"))
-                else:
-                    attrs.append(stringify_typehint(constraint))
-            if self.object.__bound__:
-                if self.config.autodoc_typehints_format == "short":
-                    bound = restify(self.object.__bound__, "smart")
-                else:
-                    bound = restify(self.object.__bound__)
-                attrs.append(r"bound=\ " + bound)
-            if self.object.__covariant__:
-                attrs.append("covariant=True")
-            if self.object.__contravariant__:
-                attrs.append("contravariant=True")
-
-            more_content.append(_('alias of TypeVar(%s)') % ", ".join(attrs), '')
-            more_content.append('', '')
-
-        super().update_content(more_content)
-
-
 class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
     """
     Mixin for DataDocumenter to provide the feature for supporting uninitialized
@@ -1969,7 +1953,7 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
             return super().get_doc()  # type: ignore
 
 
-class DataDocumenter(GenericAliasMixin, TypeVarMixin,
+class DataDocumenter(GenericAliasMixin,
                      UninitializedGlobalVariableMixin, ModuleLevelDocumenter):
     """
     Specialized Documenter subclass for data items.
@@ -2523,7 +2507,7 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
 
 
 class AttributeDocumenter(GenericAliasMixin, SlotsMixin,  # type: ignore
-                          TypeVarMixin, RuntimeInstanceAttributeMixin,
+                          RuntimeInstanceAttributeMixin,
                           UninitializedInstanceAttributeMixin, NonDataDescriptorMixin,
                           DocstringStripSignatureMixin, ClassLevelDocumenter):
     """

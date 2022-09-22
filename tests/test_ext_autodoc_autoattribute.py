@@ -165,21 +165,6 @@ def test_autoattribute_GenericAlias(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autoattribute_TypeVar(app):
-    actual = do_autodoc(app, 'attribute', 'target.typevar.Class.T1')
-    assert list(actual) == [
-        '',
-        '.. py:attribute:: Class.T1',
-        '   :module: target.typevar',
-        '',
-        '   T1',
-        '',
-        "   alias of TypeVar('T1')",
-        '',
-    ]
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_hide_value(app):
     actual = do_autodoc(app, 'attribute', 'target.hide_value.Foo.SENTINEL1')
     assert list(actual) == [
