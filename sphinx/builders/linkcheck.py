@@ -201,7 +201,7 @@ class HyperlinkAvailabilityChecker:
         self.config = config
         self.env = env
         self.rate_limits: Dict[str, RateLimit] = {}
-        self.rqueue: Queue = Queue()
+        self.rqueue: Queue[CheckResult] = Queue()
         self.workers: List[Thread] = []
         self.wqueue: PriorityQueue[CheckRequest] = PriorityQueue()
 
@@ -246,8 +246,8 @@ class HyperlinkAvailabilityChecker:
 class HyperlinkAvailabilityCheckWorker(Thread):
     """A worker class for checking the availability of hyperlinks."""
 
-    def __init__(self, env: BuildEnvironment, config: Config, rqueue: Queue,
-                 wqueue: Queue, rate_limits: Dict[str, RateLimit]) -> None:
+    def __init__(self, env: BuildEnvironment, config: Config, rqueue: "Queue[CheckResult]",
+                 wqueue: "Queue[CheckRequest]", rate_limits: Dict[str, RateLimit]) -> None:
         self.config = config
         self.env = env
         self.rate_limits = rate_limits
@@ -428,7 +428,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 uri, docname, lineno = hyperlink
             except ValueError:
                 # old styled check_request (will be deprecated in Sphinx-5.0)
-                next_check, uri, docname, lineno = check_request
+                next_check, uri, docname, lineno = check_request  # type: ignore[misc]
 
             if uri is None:
                 break
