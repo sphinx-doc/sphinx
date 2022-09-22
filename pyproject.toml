@@ -151,6 +151,7 @@ show_error_context = true
 strict_optional = true
 warn_redundant_casts = true
 warn_unused_ignores = true
+disallow_any_generics = true
 
 [[tool.mypy.overrides]]
 module = [
@@ -181,6 +182,30 @@ module = [
     "sphinx.writers.xml"
 ]
 strict_optional = false
+
+[[tool.mypy.overrides]]
+module = [
+    "sphinx.application",
+    "sphinx.builders.*",
+    "sphinx.cmd.*",
+    "sphinx.config",
+    "sphinx.deprecation",
+    "sphinx.domains.*",
+    "sphinx.environment.*",
+    "sphinx.events",
+    "sphinx.ext.*",
+    "sphinx.highlighting",
+    "sphinx.jinja2glue",
+    "sphinx.locale",
+    "sphinx.pycode.*",
+    "sphinx.registry",
+    "sphinx.roles",
+    "sphinx.search.*",
+    "sphinx.testing.*",
+    "sphinx.util.*",
+    "sphinx.writers.*",
+]
+disallow_any_generics = false
 
 [tool.pytest.ini_options]
 filterwarnings = [
