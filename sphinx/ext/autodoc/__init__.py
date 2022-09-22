@@ -6,6 +6,7 @@ for those who like elaborate docstrings.
 """
 
 import re
+import sys
 import warnings
 from inspect import Parameter, Signature
 from types import ModuleType
@@ -1721,6 +1722,18 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if isinstance(self.object, TypeVar):
             if self.object.__doc__ == TypeVar.__doc__:
                 return []
+        if sys.version_info[:2] < (3, 10):
+            if inspect.isNewType(self.object) or isinstance(self.object, TypeVar):
+                try:
+                    analyzer = ModuleAnalyzer.for_module(self.modname)
+                    analyzer.analyze()
+                    key = ('', self.objpath[-1])
+                    comment = list(analyzer.attr_docs.get(key, []))
+                    if comment:
+                        return [comment]
+                except PycodeError:
+                    pass
+
         if self.doc_as_attr:
             # Don't show the docstring of the class when it is an alias.
             comment = self.get_variable_comment()
