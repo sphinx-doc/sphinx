@@ -1457,7 +1457,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
                             ) -> bool:
-        return isinstance(member, type) or inspect.isNewType(member) or isinstance(member, TypeVar)
+        return isinstance(member, type) or (
+            isattr and (inspect.isNewType(member) or isinstance(member, TypeVar)))
 
     def import_object(self, raiseerror: bool = False) -> bool:
         ret = super().import_object(raiseerror)
@@ -1669,7 +1670,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         canonical_fullname = self.get_canonical_fullname()
         if (not self.doc_as_attr and not inspect.isNewType(self.object)
-                and canonical_fullname and self.fullname != canonical_fullname):
+                and canonical_fullname and self.fullname != canonical_fullname):  # NoQA: W503
             self.add_line('   :canonical: %s' % canonical_fullname, sourcename)
 
         # add inheritance info, if wanted
