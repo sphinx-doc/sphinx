@@ -188,7 +188,7 @@ strict_optional = false
 module = [
     "sphinx.application",
     "sphinx.builders.*",
-    "sphinx.cmd.*",
+    "sphinx.cmd.quickstart",
     "sphinx.config",
     "sphinx.deprecation",
     "sphinx.domains.*",
