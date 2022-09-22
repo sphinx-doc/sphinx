@@ -190,7 +190,6 @@ module = [
     "sphinx.builders.*",
     "sphinx.cmd.*",
     "sphinx.config",
-    "sphinx.deprecation",
     "sphinx.domains.*",
     "sphinx.environment.*",
     "sphinx.events",
