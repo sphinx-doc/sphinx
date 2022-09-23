@@ -828,6 +828,8 @@ class PyMethod(PyObject):
             prefix.append(nodes.Text('classmethod'))
             prefix.append(addnodes.desc_sig_space())
         if 'property' in self.options:
+            logger.warning(_('Using the :property: flag with the py:method directive'
+                             'is deprecated, use ".. py:property::" instead.'))
             prefix.append(nodes.Text('property'))
             prefix.append(addnodes.desc_sig_space())
         if 'staticmethod' in self.options:
