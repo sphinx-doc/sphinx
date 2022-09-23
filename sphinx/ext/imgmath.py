@@ -31,6 +31,8 @@ logger = logging.getLogger(__name__)
 
 templates_path = path.join(package_dir, 'templates', 'imgmath')
 
+__all__ = ()
+
 
 class MathExtError(SphinxError):
     category = 'Math extension error'
@@ -205,8 +207,10 @@ def convert_dvi_to_svg(dvipath: str, builder: Builder) -> Tuple[str, Optional[in
     return filename, depth
 
 
-def render_math(self: HTMLTranslator, math: str) \
-        -> Tuple[Optional[str], Optional[int], Optional[str], Optional[str]]:
+def render_math(
+    self: HTMLTranslator,
+    math: str,
+) -> Tuple[Optional[str], Optional[int], Optional[str], Optional[str]]:
     """Render the LaTeX math expression *math* using latex and dvipng or
     dvisvgm.
 
@@ -265,20 +269,14 @@ def render_math(self: HTMLTranslator, math: str) \
     return relfn, depth, imgpath, outfn
 
 
-def render_img_src(self: HTMLTranslator, math: str) -> Tuple[Optional[str], Optional[int]]:
-    fname, depth, imgpath, outfn = render_math(self, math)
-    if self.builder.config.imgmath_embed:
-        image_format = self.builder.config.imgmath_image_format.lower()
-        mimetype = {'png': 'image/png', 'svg': 'image/svg+xml'}[image_format]
-        encoded = base64.b64encode(open(outfn, "rb").read()).decode()
-        img_src = f'data:{mimetype};base64,{encoded}'
-    else:
-        # Move generated image on tempdir to build dir
-        if imgpath is not None:
-            ensuredir(path.dirname(outfn))
-            shutil.move(imgpath, outfn)
-        img_src = fname
-    return img_src, depth
+def render_maths_to_base64(image_format: str, outfn: Optional[str]) -> str:
+    with open(outfn, "rb") as f:
+        encoded = base64.b64encode(f.read()).decode(encoding='utf-8')
+    if image_format == 'png':
+        return f'data:image/png;base64,{encoded}'
+    if image_format == 'svg':
+        return f'data:image/svg+xml;base64,{encoded}'
+    raise MathExtError('imgmath_image_format must be either "png" or "svg"')
 
 
 def cleanup_tempdir(app: Sphinx, exc: Exception) -> None:
@@ -300,7 +298,7 @@ def get_tooltip(self: HTMLTranslator, node: Element) -> str:
 
 def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
     try:
-        img_src, depth = render_img_src(self, '$' + node.astext() + '$')
+        fname, depth, imgpath, outfn = render_math(self, '$' + node.astext() + '$')
     except MathExtError as exc:
         msg = str(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
@@ -308,14 +306,23 @@ def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
         sm.walkabout(self)
         logger.warning(__('display latex %r: %s'), node.astext(), msg)
         raise nodes.SkipNode from exc
+    if self.builder.config.imgmath_embed:
+        image_format = self.builder.config.imgmath_image_format.lower()
+        img_src = render_maths_to_base64(image_format, outfn)
+    else:
+        # Move generated image on tempdir to build dir
+        if imgpath is not None:
+            ensuredir(path.dirname(outfn))
+            shutil.move(imgpath, outfn)
+        img_src = fname
     if img_src is None:
         # something failed -- use text-only as a bad substitute
         self.body.append('<span class="math">%s</span>' %
                          self.encode(node.astext()).strip())
     else:
-        c = ('<img class="math" src="%s"' % img_src) + get_tooltip(self, node)
+        c = f'<img class="math" src="{img_src}"' + get_tooltip(self, node)
         if depth is not None:
-            c += ' style="vertical-align: %dpx"' % (-depth)
+            c += f' style="vertical-align: {-depth:d}px"'
         self.body.append(c + '/>')
     raise nodes.SkipNode
 
@@ -326,7 +333,7 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
     else:
         latex = wrap_displaymath(node.astext(), None, False)
     try:
-        img_src, depth = render_img_src(self, latex)
+        fname, depth, imgpath, outfn = render_math(self, latex)
     except MathExtError as exc:
         msg = str(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
@@ -341,12 +348,21 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
         self.body.append('<span class="eqno">(%s)' % number)
         self.add_permalink_ref(node, _('Permalink to this equation'))
         self.body.append('</span>')
+    if self.builder.config.imgmath_embed:
+        image_format = self.builder.config.imgmath_image_format.lower()
+        img_src = render_maths_to_base64(image_format, outfn)
+    else:
+        # Move generated image on tempdir to build dir
+        if imgpath is not None:
+            ensuredir(path.dirname(outfn))
+            shutil.move(imgpath, outfn)
+        img_src = fname
     if img_src is None:
         # something failed -- use text-only as a bad substitute
         self.body.append('<span class="math">%s</span></p>\n</div>' %
                          self.encode(node.astext()).strip())
     else:
-        self.body.append(('<img src="%s"' % img_src) + get_tooltip(self, node) +
+        self.body.append(f'<img src="{img_src}"' + get_tooltip(self, node) +
                          '/></p>\n</div>')
     raise nodes.SkipNode
 

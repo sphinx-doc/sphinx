@@ -135,8 +135,8 @@ are built:
 
 .. confval:: imgmath_embed
 
-   Default: ``False``.  If true, inline LaTeX output as HTML base64 images
-   instead of separate png/svg files.
+   Default: ``False``.  If true, encode LaTeX output images within HTML files
+   (base64 encoded) and do not save separate png/svg files to disk.
 
    .. versionadded:: 5.2
 

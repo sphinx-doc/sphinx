@@ -65,13 +65,13 @@ def test_imgmath_svg(app, status, warning):
 def test_imgmath_svg_embed(app, status, warning):
     app.builder.build_all()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
-        raise pytest.skip.Exception('LaTeX command "latex" is not available')
+        pytest.skip('LaTeX command "latex" is not available')
     if "dvisvgm command 'dvisvgm' cannot be run" in warning.getvalue():
-        raise pytest.skip.Exception('dvisvgm command "dvisvgm" is not available')
+        pytest.skip('dvisvgm command "dvisvgm" is not available')
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     html = r'<img src="data:image/svg\+xml;base64,[\w\+/=]+"'
-    assert re.search(html, content, re.S)
+    assert re.search(html, content, re.DOTALL)
 
 
 @pytest.mark.sphinx('html', testroot='ext-math',
