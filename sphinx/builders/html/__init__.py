@@ -354,6 +354,7 @@ class StandaloneHTMLBuilder(Builder):
         self.add_js_file('underscore.js', priority=200)
         self.add_js_file('_sphinx_javascript_frameworks_compat.js', priority=200)
         self.add_js_file('doctools.js', priority=200)
+        self.add_js_file('sphinx_highlight.js', priority=200)
 
         for filename, attrs in self.app.registry.js_files:
             self.add_js_file(filename, **attrs)

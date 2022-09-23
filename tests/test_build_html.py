@@ -1232,7 +1232,8 @@ def test_assets_order(app):
 
     # js_files
     expected = ['_static/early.js', '_static/jquery.js', '_static/underscore.js',
-                '_static/doctools.js', 'https://example.com/script.js', '_static/normal.js',
+                '_static/doctools.js', '_static/sphinx_highlight.js',
+                'https://example.com/script.js', '_static/normal.js',
                 '_static/late.js', '_static/js/custom.js', '_static/lazy.js']
     pattern = '.*'.join('src="%s"' % f for f in expected)
     assert re.search(pattern, content, re.S)
