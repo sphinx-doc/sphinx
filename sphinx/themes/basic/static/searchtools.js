@@ -286,7 +286,7 @@ const Search = {
           let score = Math.round(100 * queryLower.length / title.length)
           results.push([
             docNames[file],
-            `${titles[file]} > ${title}`,
+            titles[file] !== title ? `${titles[file]} > ${title}` : title,
             id !== null ? "#" + id : "",
             null,
             score,
