@@ -7186,6 +7186,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
     ]
 
     option_spec: OptionSpec = {
+        'noindex': directives.flag,
         'noindexentry': directives.flag,
         'tparam-line-spec': directives.flag,
     }

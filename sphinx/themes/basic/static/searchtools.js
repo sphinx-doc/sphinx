@@ -242,6 +242,7 @@ const Search = {
     const docNames = Search._index.docnames;
     const titles = Search._index.titles;
     const allTitles = Search._index.alltitles;
+    const indexEntries = Search._index.indexentries;
 
     // stem the search terms and add them to the correct list
     const stemmer = new Stemmer();
@@ -280,13 +281,30 @@ const Search = {
 
     const queryLower = query.toLowerCase();
     for (const [title, foundTitles] of Object.entries(allTitles)) {
-      if (title.includes(queryLower) && (queryLower.length >= title.length/2)) {
+      if (title.toLowerCase().includes(queryLower) && (queryLower.length >= title.length/2)) {
         for (const [file, id] of foundTitles) {
           let score = Math.round(100 * queryLower.length / title.length)
           results.push([
             docNames[file],
-            titles[file],
+            `${titles[file]} > ${title}`,
             id !== null ? "#" + id : "",
+            null,
+            score,
+            filenames[file],
+          ]);
+        }
+      }
+    }
+
+    // search for explicit entries in index directives
+    for (const [entry, foundEntries] of Object.entries(indexEntries)) {
+      if (entry.includes(queryLower) && (queryLower.length >= entry.length/2)) {
+        for (const [file, id] of foundEntries) {
+          let score = Math.round(100 * queryLower.length / entry.length)
+          results.push([
+            docNames[file],
+            titles[file],
+            id ? "#" + id : "",
             null,
             score,
             filenames[file],
