@@ -13,7 +13,7 @@ urls.Download = "https://pypi.org/project/Sphinx/"
 urls.Homepage = "https://www.sphinx-doc.org/"
 urls."Issue tracker" = "https://github.com/sphinx-doc/sphinx/issues"
 license.text = "BSD"
-requires-python = ">=3.6"
+requires-python = ">=3.7"
 
 # Classifiers list: https://pypi.org/classifiers/
 classifiers = [
@@ -30,7 +30,6 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
@@ -144,7 +143,7 @@ disallow_incomplete_defs = true
 follow_imports = "skip"
 ignore_missing_imports = true
 no_implicit_optional = true
-python_version = "3.6"
+python_version = "3.7"
 show_column_numbers = true
 show_error_codes = true
 show_error_context = true
