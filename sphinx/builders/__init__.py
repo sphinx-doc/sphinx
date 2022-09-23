@@ -10,6 +10,7 @@ from typing import (TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Sequence
 
 from docutils import nodes
 from docutils.nodes import Node
+from docutils.utils import DependencyList
 
 from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx70Warning
@@ -490,6 +491,9 @@ class Builder:
         filename = self.env.doc2path(docname)
         filetype = get_filetype(self.app.config.source_suffix, filename)
         publisher = self.app.registry.get_publisher(self.app, filetype)
+        # record_dependencies is mutable even though it is in settings,
+        # explicitly re-initialise for each document
+        publisher.settings.record_dependencies = DependencyList()
         with sphinx_domains(self.env), rst.default_role(docname, self.config.default_role):
             # set up error_handler for the target document
             codecs.register_error('sphinx', UnicodeDecodeErrorHandler(docname))  # type: ignore
