@@ -1,5 +1,3 @@
-const DOCUMENTATION_OPTIONS = {};
-
 describe('highlightText', function() {
 
   const cyrillicTerm = 'шеллы';
