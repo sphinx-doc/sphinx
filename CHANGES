@@ -27,6 +27,9 @@ Features added
 * #10718: HTML Search: Save search result score to the HTML element for debugging
 * #10673: Make toctree accept 'genindex', 'modindex' and 'search' docnames
 * #6316, #10804: Add domain objects to the table of contents. Patch by Adam Turner
+* #6692: HTML Search: Include explicit :rst:dir:`index` directive index entries
+  in the search index and search results. Patch by Adam Turner
+* #10816: imgmath: Allow embedding images in HTML as base64
 
 Bugs fixed
 ----------

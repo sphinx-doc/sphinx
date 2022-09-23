@@ -73,7 +73,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
     Our custom HTML translator.
     """
 
-    builder: "StandaloneHTMLBuilder" = None
+    builder: "StandaloneHTMLBuilder"
 
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
@@ -283,7 +283,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
     def depart_seealso(self, node: Element) -> None:
         self.depart_admonition(node)
 
-    def get_secnumber(self, node: Element) -> Tuple[int, ...]:
+    def get_secnumber(self, node: Element) -> Optional[Tuple[int, ...]]:
         if node.get('secnumber'):
             return node['secnumber']
         elif isinstance(node.parent, nodes.section):

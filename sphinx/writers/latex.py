@@ -259,7 +259,7 @@ def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
 
 
 class LaTeXTranslator(SphinxTranslator):
-    builder: "LaTeXBuilder" = None
+    builder: "LaTeXBuilder"
 
     secnumdepth = 2  # legacy sphinxhowto.cls uses this, whereas article.cls
     # default is originally 3. For book/report, 2 is already LaTeX default.

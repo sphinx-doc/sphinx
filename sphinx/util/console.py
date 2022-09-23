@@ -2,6 +2,7 @@
 
 import os
 import re
+import shutil
 import sys
 from typing import Dict, Pattern
 
@@ -22,21 +23,8 @@ def terminal_safe(s: str) -> str:
 
 
 def get_terminal_width() -> int:
-    """Borrowed from the py lib."""
-    if sys.platform == "win32":
-        # For static typing, as fcntl & termios never exist on Windows.
-        return int(os.environ.get('COLUMNS', 80)) - 1
-    try:
-        import fcntl
-        import struct
-        import termios
-        call = fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack('hhhh', 0, 0, 0, 0))
-        height, width = struct.unpack('hhhh', call)[:2]
-        terminal_width = width
-    except Exception:
-        # FALLBACK
-        terminal_width = int(os.environ.get('COLUMNS', 80)) - 1
-    return terminal_width
+    """Return the width of the terminal in columns."""
+    return shutil.get_terminal_size().columns - 1
 
 
 _tw: int = get_terminal_width()
