@@ -1,6 +1,8 @@
 /* Highlighting utilities for Sphinx HTML documentation. */
 "use strict";
 
+const SPHINX_HIGHLIGHT_ENABLED = true
+
 /**
  * highlight a given string on a node by wrapping it in
  * span elements with the given class name.
@@ -68,11 +70,22 @@ const _highlightText = (thisNode, text, className) => {
 const SphinxHighlight = {
 
   /**
-   * highlight the search words provided in the url in the text
+   * highlight the search words provided in localstorage in the text
    */
   highlightSearchWords: () => {
+    if (!SPHINX_HIGHLIGHT_ENABLED) return;  // bail if no highlight
+
+    // get and clear terms from localstorage
+    const url = new URL(window.location);
     const highlight =
-      new URLSearchParams(window.location.search).get("highlight") || "";
+        localStorage.getItem("sphinx_highlight_terms")
+        || url.searchParams.get("highlight")
+        || "";
+    localStorage.removeItem("sphinx_highlight_terms")
+    url.searchParams.delete("highlight");
+    window.history.replaceState({}, "", url);
+
+    // get individual terms from highlight string
     const terms = highlight.toLowerCase().split(/\s+/).filter(x => x);
     if (terms.length === 0) return; // nothing to do
 
@@ -91,7 +104,7 @@ const SphinxHighlight = {
         .createContextualFragment(
           '<p class="highlight-link">' +
             '<a href="javascript:SphinxHighlight.hideSearchWords()">' +
-            Documentation.gettext("Hide Search Matches") +
+            _("Hide Search Matches") +
             "</a></p>"
         )
     );
@@ -107,39 +120,25 @@ const SphinxHighlight = {
     document
       .querySelectorAll("span.highlighted")
       .forEach((el) => el.classList.remove("highlighted"));
-    const url = new URL(window.location);
-    url.searchParams.delete("highlight");
-    window.history.replaceState({}, "", url);
+    localStorage.removeItem("sphinx_highlight_terms")
   },
 
-  initOnKeyListeners: () => {
+  initEscapeListener: () => {
     // only install a listener if it is really needed
-    if (
-      !DOCUMENTATION_OPTIONS.ENABLE_SEARCH_SHORTCUTS
-    )
-      return;
+    if (!DOCUMENTATION_OPTIONS.ENABLE_SEARCH_SHORTCUTS) return;
 
-    const blacklistedElements = new Set([
-      "TEXTAREA",
-      "INPUT",
-      "SELECT",
-      "BUTTON",
-    ]);
     document.addEventListener("keydown", (event) => {
-      if (blacklistedElements.has(document.activeElement.tagName)) return; // bail for input elements
-      if (event.altKey || event.ctrlKey || event.metaKey) return; // bail with special keys
-
-      if (!event.shiftKey) {
-        switch (event.key) {
-          case "Escape":
-            if (!DOCUMENTATION_OPTIONS.ENABLE_SEARCH_SHORTCUTS) break;
-            SphinxHighlight.hideSearchWords();
-            event.preventDefault();
-        }
+      // bail for input elements
+      if (BLACKLISTED_KEY_CONTROL_ELEMENTS.has(document.activeElement.tagName)) return;
+      // bail with special keys
+      if (event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return;
+      if (DOCUMENTATION_OPTIONS.ENABLE_SEARCH_SHORTCUTS && (event.key === "Escape")) {
+        SphinxHighlight.hideSearchWords();
+        event.preventDefault();
       }
     });
   },
 };
 
 _ready(SphinxHighlight.highlightSearchWords);
-_ready(SphinxHighlight.initOnKeyListeners);
+_ready(SphinxHighlight.initEscapeListener);
