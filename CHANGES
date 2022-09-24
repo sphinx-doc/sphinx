@@ -19,6 +19,8 @@ Deprecated
 Features added
 --------------
 
+* #10738: napoleon: Add support for docstring types using 'of', like
+  ``type of type``. Example: ``tuple of int``.
 * #10286: C++, support requires clauses not just between the template
   parameter lists and the declaration.
 * #10755: linkcheck: Check the source URL of raw directives that use the ``url``
@@ -38,37 +40,12 @@ Features added
 Bugs fixed
 ----------
 
+* #10723: LaTeX: 5.1.0 has made the 'sphinxsetup' ``verbatimwithframe=false``
+  become without effect.
 * #10257: C++, ensure consistent non-specialization template argument
   representation.
 * #10729: C++, fix parsing of certain non-type template parameter packs.
 * #10715: Revert #10520: "Fix" use of sidebar classes in ``agogo.css_t``
-
-Testing
---------
-
-Release 5.1.2 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-* #10738: napoleon: Add support for docstring types using 'of', like
-  ``type of type``. Example: ``tuple of int``.
-
-Bugs fixed
-----------
-
-* #10723: LaTeX: 5.1.0 has made the 'sphinxsetup' ``verbatimwithframe=false``
-  become without effect.
 
 Testing
 --------
