@@ -1,5 +1,5 @@
-Release 5.2.0 (in development)
-==============================
+Release 5.2.0 (released Sep 24, 2022)
+=====================================
 
 Dependencies
 ------------
@@ -7,9 +7,6 @@ Dependencies
 * #10356: Sphinx now uses declarative metadata with ``pyproject.toml`` to
   create packages, using PyPA's ``build`` project as a build backend. Patch by
   Adam Turner.
-
-Incompatible changes
---------------------
 
 Deprecated
 ----------
@@ -46,9 +43,6 @@ Bugs fixed
   representation.
 * #10729: C++, fix parsing of certain non-type template parameter packs.
 * #10715: Revert #10520: "Fix" use of sidebar classes in ``agogo.css_t``
-
-Testing
---------
 
 Release 5.1.1 (released Jul 26, 2022)
 =====================================
