@@ -1,12 +1,4 @@
-"""
-    test_doctest
-    ~~~~~~~~~~~~
-
-    Test the doctest extension.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the doctest extension."""
 import os
 from collections import Counter
 
@@ -26,7 +18,7 @@ def test_build(app, status, warning):
     cleanup_called = 0
     app.builder.build_all()
     if app.statuscode != 0:
-        assert False, 'failures in doctests:' + status.getvalue()
+        raise AssertionError('failures in doctests:' + status.getvalue())
     # in doctest.txt, there are two named groups and the default group,
     # so the cleanup function must be called three times
     assert cleanup_called == 3, 'testcleanup did not get executed enough times'
@@ -36,7 +28,7 @@ def test_build(app, status, warning):
 def test_highlight_language_default(app, status, warning):
     app.build()
     doctree = app.env.get_doctree('doctest')
-    for node in doctree.traverse(nodes.literal_block):
+    for node in doctree.findall(nodes.literal_block):
         assert node['language'] in ('python3', 'pycon3', 'none')
 
 
@@ -45,7 +37,7 @@ def test_highlight_language_default(app, status, warning):
 def test_highlight_language_python2(app, status, warning):
     app.build()
     doctree = app.env.get_doctree('doctest')
-    for node in doctree.traverse(nodes.literal_block):
+    for node in doctree.findall(nodes.literal_block):
         assert node['language'] in ('python', 'pycon', 'none')
 
 
@@ -96,7 +88,7 @@ def test_skipif(app, status, warning):
     recorded_calls = Counter()
     app.builder.build_all()
     if app.statuscode != 0:
-        assert False, 'failures in doctests:' + status.getvalue()
+        raise AssertionError('failures in doctests:' + status.getvalue())
     # The `:skipif:` expressions are always run.
     # Actual tests and setup/cleanup code is only run if the `:skipif:`
     # expression evaluates to a False value.

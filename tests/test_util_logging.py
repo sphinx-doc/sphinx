@@ -1,24 +1,15 @@
-"""
-    test_util_logging
-    ~~~~~~~~~~~~~~~~~
-
-    Test logging util.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test logging util."""
 
 import codecs
 import os
-import platform
-import sys
+import os.path
 
 import pytest
 from docutils import nodes
 
 from sphinx.errors import SphinxWarning
 from sphinx.testing.util import strip_escseq
-from sphinx.util import logging
+from sphinx.util import logging, osutil
 from sphinx.util.console import colorize
 from sphinx.util.logging import is_suppressed_warning, prefixed_warnings
 from sphinx.util.parallel import ParallelTasks
@@ -43,9 +34,9 @@ def test_info_and_warning(app, status, warning):
 
     assert 'message1' not in warning.getvalue()
     assert 'message2' not in warning.getvalue()
-    assert 'message3' in warning.getvalue()
-    assert 'message4' in warning.getvalue()
-    assert 'message5' in warning.getvalue()
+    assert 'WARNING: message3' in warning.getvalue()
+    assert 'CRITICAL: message4' in warning.getvalue()
+    assert 'ERROR: message5' in warning.getvalue()
 
 
 def test_Exception(app, status, warning):
@@ -307,8 +298,8 @@ def test_colored_logs(app, status, warning):
     assert 'message2\n' in status.getvalue()  # not colored
     assert 'message3\n' in status.getvalue()  # not colored
     assert colorize('red', 'WARNING: message4') in warning.getvalue()
-    assert 'WARNING: message5\n' in warning.getvalue()  # not colored
-    assert colorize('darkred', 'WARNING: message6') in warning.getvalue()
+    assert 'CRITICAL: message5\n' in warning.getvalue()  # not colored
+    assert colorize('darkred', 'ERROR: message6') in warning.getvalue()
 
     # color specification
     logger.debug('message7', color='white')
@@ -318,8 +309,6 @@ def test_colored_logs(app, status, warning):
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
-@pytest.mark.xfail(platform.system() == 'Darwin' and sys.version_info > (3, 8),
-                   reason="Not working on macOS and py38")
 def test_logging_in_ParallelTasks(app, status, warning):
     logging.setup(app, status, warning)
     logger = logging.getLogger(__name__)
@@ -391,3 +380,18 @@ def test_prefixed_warnings(app, status, warning):
     assert 'WARNING: Another PREFIX: message3' in warning.getvalue()
     assert 'WARNING: PREFIX: message4' in warning.getvalue()
     assert 'WARNING: message5' in warning.getvalue()
+
+
+def test_get_node_location_abspath():
+    # Ensure that node locations are reported as an absolute path,
+    # even if the source attribute is a relative path.
+
+    relative_filename = os.path.join('relative', 'path.txt')
+    absolute_filename = osutil.abspath(relative_filename)
+
+    n = nodes.Node()
+    n.source = relative_filename
+
+    location = logging.get_node_location(n)
+
+    assert location == absolute_filename + ':'

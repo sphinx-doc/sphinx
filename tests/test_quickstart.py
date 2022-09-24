@@ -1,12 +1,4 @@
-"""
-    test_quickstart
-    ~~~~~~~~~~~~~~~
-
-    Test the sphinx.quickstart module.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the sphinx.quickstart module."""
 
 import time
 from io import StringIO
@@ -108,7 +100,7 @@ def test_quickstart_defaults(tempdir):
     conffile = tempdir / 'conf.py'
     assert conffile.isfile()
     ns = {}
-    exec(conffile.read_text(), ns)
+    exec(conffile.read_text(encoding='utf8'), ns)
     assert ns['extensions'] == []
     assert ns['templates_path'] == ['_templates']
     assert ns['project'] == 'Sphinx Test'
@@ -158,7 +150,7 @@ def test_quickstart_all_answers(tempdir):
     conffile = tempdir / 'source' / 'conf.py'
     assert conffile.isfile()
     ns = {}
-    exec(conffile.read_text(), ns)
+    exec(conffile.read_text(encoding='utf8'), ns)
     assert ns['extensions'] == [
         'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo'
     ]
@@ -239,7 +231,7 @@ def test_default_filename(tempdir):
     conffile = tempdir / 'conf.py'
     assert conffile.isfile()
     ns = {}
-    exec(conffile.read_text(), ns)
+    exec(conffile.read_text(encoding='utf8'), ns)
 
 
 def test_extensions(tempdir):
@@ -249,7 +241,7 @@ def test_extensions(tempdir):
     conffile = tempdir / 'conf.py'
     assert conffile.isfile()
     ns = {}
-    exec(conffile.read_text(), ns)
+    exec(conffile.read_text(encoding='utf8'), ns)
     assert ns['extensions'] == ['foo', 'bar', 'baz']
 
 

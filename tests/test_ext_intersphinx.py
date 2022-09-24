@@ -1,12 +1,4 @@
-"""
-    test_intersphinx
-    ~~~~~~~~~~~~~~~~
-
-    Test the intersphinx extension.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the intersphinx extension."""
 
 import http.server
 import os
@@ -254,7 +246,7 @@ def test_missing_reference_cppdomain(tempdir, app, status, warning):
     load_mappings(app)
 
     app.build()
-    html = (app.outdir / 'index.html').read_text()
+    html = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<a class="reference external"'
             ' href="https://docs.python.org/index.html#cpp_foo_bar"'
             ' title="(in foo v2.0)">'
@@ -524,3 +516,48 @@ def test_inspect_main_url(capsys):
     stdout, stderr = capsys.readouterr()
     assert stdout.startswith("c:function\n")
     assert stderr == ""
+
+
+@pytest.mark.sphinx('html', testroot='ext-intersphinx-role')
+def test_intersphinx_role(app, warning):
+    inv_file = app.srcdir / 'inventory'
+    inv_file.write_bytes(inventory_v2)
+    app.config.intersphinx_mapping = {
+        'inv': ('http://example.org/', inv_file),
+    }
+    app.config.intersphinx_cache_limit = 0
+    app.config.nitpicky = True
+
+    # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    app.build()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    wStr = warning.getvalue()
+
+    html = '<a class="reference external" href="http://example.org/{}" title="(in foo v2.0)">'
+    assert html.format('foo.html#module-module1') in content
+    assert html.format('foo.html#module-module2') in content
+    assert "WARNING: external py:mod reference target not found: module3" in wStr
+    assert "WARNING: external py:mod reference target not found: module10" in wStr
+
+    assert html.format('sub/foo.html#module1.func') in content
+    assert "WARNING: external py:meth reference target not found: inv:Foo.bar" in wStr
+
+    assert "WARNING: role for external cross-reference not found: py:nope" in wStr
+
+    # default domain
+    assert html.format('index.html#std_uint8_t') in content
+    assert "WARNING: role for external cross-reference not found: nope" in wStr
+
+    # std roles without domain prefix
+    assert html.format('docname.html') in content
+    assert html.format('index.html#cmdoption-ls-l') in content
+
+    # explicit inventory
+    assert html.format('cfunc.html#CFunc') in content
+    assert "WARNING: inventory for external cross-reference not found: invNope" in wStr
+
+    # explicit title
+    assert html.format('index.html#foons') in content

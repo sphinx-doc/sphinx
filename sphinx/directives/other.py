@@ -1,11 +1,3 @@
-"""
-    sphinx.directives.other
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
 import re
 from typing import TYPE_CHECKING, Any, Dict, List, cast
 
@@ -85,10 +77,11 @@ class TocTree(SphinxDirective):
         return ret
 
     def parse_content(self, toctree: addnodes.toctree) -> List[Node]:
+        generated_docnames = frozenset(self.env.domains['std'].initial_data['labels'].keys())
         suffixes = self.config.source_suffix
 
         # glob target documents
-        all_docnames = self.env.found_docs.copy()
+        all_docnames = self.env.found_docs.copy() | generated_docnames
         all_docnames.remove(self.env.docname)  # remove current document
 
         ret: List[Node] = []
@@ -103,6 +96,9 @@ class TocTree(SphinxDirective):
                 patname = docname_join(self.env.docname, entry)
                 docnames = sorted(patfilter(all_docnames, patname))
                 for docname in docnames:
+                    if docname in generated_docnames:
+                        # don't include generated documents in globs
+                        continue
                     all_docnames.remove(docname)  # don't include it again
                     toctree['entries'].append((None, docname))
                     toctree['includefiles'].append(docname)
@@ -126,8 +122,8 @@ class TocTree(SphinxDirective):
                 docname = docname_join(self.env.docname, docname)
                 if url_re.match(ref) or ref == 'self':
                     toctree['entries'].append((title, ref))
-                elif docname not in self.env.found_docs:
-                    if excluded(self.env.doc2path(docname, None)):
+                elif docname not in self.env.found_docs | generated_docnames:
+                    if excluded(self.env.doc2path(docname, False)):
                         message = __('toctree contains reference to excluded document %r')
                         subtype = 'excluded'
                     else:
@@ -180,7 +176,7 @@ class Author(SphinxDirective):
             text = _('Code author: ')
         else:
             text = _('Author: ')
-        emph += nodes.Text(text, text)
+        emph += nodes.Text(text)
         inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
         emph.extend(inodes)
 
@@ -342,7 +338,7 @@ class Only(SphinxDirective):
             # be placed in the doctree.
             n_sects_to_raise = current_depth - nested_depth + 1
             parent = cast(nodes.Element, self.state.parent)
-            for i in range(n_sects_to_raise):
+            for _i in range(n_sects_to_raise):
                 if parent.parent:
                     parent = parent.parent
             parent.append(node)

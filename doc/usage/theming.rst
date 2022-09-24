@@ -70,7 +70,7 @@ directory containing :file:`conf.py` and use this configuration::
 The third form is a Python package.  If a theme you want to use is distributed
 as a Python package, you can use it after installing
 
-.. code-block:: bash
+.. code-block:: console
 
     # installing theme package
     $ pip install sphinxjp.themes.dotted
@@ -158,9 +158,18 @@ These themes are:
     dimension string such as '70em' or '50%'. Use 'none' if you don't
     want a width limit. Defaults may depend on the theme (often 800px).
 
-  - **navigation_with_keys** (true or false): Allow navigating to the
-    previous/next page using the keyboard's left and right arrows.  Defaults to
-    ``False``.
+  - **navigation_with_keys** (true or false): Allow navigating
+    with the following keyboard shortcuts:
+
+    - :kbd:`Left arrow`: previous page
+    - :kbd:`Right arrow`: next page
+
+    Defaults to ``False``.
+
+  - **enable_search_shortcuts** (true or false): Allow jumping to the search box
+    with :kbd:`/` and allow removal of search highlighting with :kbd:`Esc`.
+
+    Defaults to ``True``.
 
   - **globaltoc_collapse** (true or false): Only expand subsections
     of the current document in ``globaltoc.html``
@@ -336,10 +345,12 @@ These themes are:
    available, however it will emit a notice that it is an alias for the new
    'alabaster' theme.
 
+.. _third-party-themes:
+
 Third Party Themes
 ~~~~~~~~~~~~~~~~~~
 
-There are many third-party themes available for Sphinx. Some of these are for
+There are many third-party themes created for Sphinx. Some of these are for
 general use, while others are specific to an individual project.
 
 sphinx-themes.org__ is a gallery that showcases various themes for Sphinx,

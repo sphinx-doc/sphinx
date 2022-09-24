@@ -1,12 +1,4 @@
-"""
-    sphinx.search.pt
-    ~~~~~~~~~~~~~~~~
-
-    Portuguese search language: includes the JS Portuguese stemmer.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Portuguese search language: includes the JS Portuguese stemmer."""
 
 from typing import Dict
 

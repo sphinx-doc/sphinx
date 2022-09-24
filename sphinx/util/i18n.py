@@ -1,15 +1,8 @@
-"""
-    sphinx.util.i18n
-    ~~~~~~~~~~~~~~~~
-
-    Builder superclass for all builders.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Builder superclass for all builders."""
 
 import os
 import re
+import warnings
 from datetime import datetime, timezone
 from os import path
 from typing import TYPE_CHECKING, Callable, Generator, List, NamedTuple, Optional, Tuple, Union
@@ -18,6 +11,7 @@ import babel.dates
 from babel.messages.mofile import write_mo
 from babel.messages.pofile import read_po
 
+from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
@@ -173,9 +167,11 @@ date_format_mappings = {
 date_format_re = re.compile('(%s)' % '|'.join(date_format_mappings))
 
 
-def babel_format_date(date: datetime, format: str, locale: Optional[str],
+def babel_format_date(date: datetime, format: str, locale: str,
                       formatter: Callable = babel.dates.format_date) -> str:
     if locale is None:
+        warnings.warn('The locale argument for babel_format_date() becomes required.',
+                      RemovedInSphinx70Warning)
         locale = 'en'
 
     # Check if we have the tzinfo attribute. If not we cannot do any time
@@ -194,7 +190,9 @@ def babel_format_date(date: datetime, format: str, locale: Optional[str],
         return format
 
 
-def format_date(format: str, date: datetime = None, language: Optional[str] = None) -> str:
+def format_date(
+    format: str, date: Optional[datetime] = None, language: Optional[str] = None
+) -> str:
     if date is None:
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
         # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
@@ -203,6 +201,11 @@ def format_date(format: str, date: datetime = None, language: Optional[str] = No
             date = datetime.utcfromtimestamp(float(source_date_epoch))
         else:
             date = datetime.now(timezone.utc).astimezone()
+
+    if language is None:
+        warnings.warn('The language argument for format_date() becomes required.',
+                      RemovedInSphinx70Warning)
+        language = 'en'
 
     result = []
     tokens = date_format_re.split(format)
@@ -229,11 +232,8 @@ def format_date(format: str, date: datetime = None, language: Optional[str] = No
 
 
 def get_image_filename_for_language(filename: str, env: "BuildEnvironment") -> str:
-    if not env.config.language:
-        return filename
-
     filename_format = env.config.figure_language_filename
-    d = dict()
+    d = {}
     d['root'], d['ext'] = path.splitext(filename)
     dirname = path.dirname(d['root'])
     if dirname and not dirname.endswith(path.sep):
@@ -252,9 +252,6 @@ def get_image_filename_for_language(filename: str, env: "BuildEnvironment") -> s
 
 
 def search_image_for_language(filename: str, env: "BuildEnvironment") -> str:
-    if not env.config.language:
-        return filename
-
     translated = get_image_filename_for_language(filename, env)
     _, abspath = env.relfn2path(translated)
     if path.exists(abspath):

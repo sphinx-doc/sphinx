@@ -1,12 +1,4 @@
-"""
-    sphinx.util.logging
-    ~~~~~~~~~~~~~~~~~~~
-
-    Logging utility functions for Sphinx.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Logging utility functions for Sphinx."""
 
 import logging
 import logging.handlers
@@ -20,6 +12,7 @@ from docutils.utils import get_source_line
 
 from sphinx.errors import SphinxWarning
 from sphinx.util.console import colorize
+from sphinx.util.osutil import abspath
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -85,7 +78,7 @@ def convert_serializable(records: List[logging.LogRecord]) -> None:
 
         location = getattr(r, 'location', None)
         if isinstance(location, nodes.Node):
-            r.location = get_node_location(location)  # type: ignore
+            r.location = get_node_location(location)
 
 
 class SphinxLogRecord(logging.LogRecord):
@@ -111,14 +104,21 @@ class SphinxInfoLogRecord(SphinxLogRecord):
 
 class SphinxWarningLogRecord(SphinxLogRecord):
     """Warning log record class supporting location"""
-    prefix = 'WARNING: '
+    @property
+    def prefix(self) -> str:  # type: ignore
+        if self.levelno >= logging.CRITICAL:
+            return 'CRITICAL: '
+        elif self.levelno >= logging.ERROR:
+            return 'ERROR: '
+        else:
+            return 'WARNING: '
 
 
 class SphinxLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
     KEYWORDS = ['type', 'subtype', 'location', 'nonl', 'color', 'once']
 
-    def log(self, level: Union[int, str], msg: str, *args: Any, **kwargs: Any) -> None:
+    def log(self, level: Union[int, str], msg: str, *args: Any, **kwargs: Any) -> None:  # type: ignore # NOQA
         if isinstance(level, int):
             super().log(level, msg, *args, **kwargs)
         else:
@@ -368,12 +368,8 @@ def is_suppressed_warning(type: str, subtype: str, suppress_warnings: List[str])
         else:
             target, subtarget = warning_type, None
 
-        if target == type:
-            if ((subtype is None and subtarget is None) or
-                    subtarget is None or
-                    subtarget == subtype or
-                    subtarget == '*'):
-                return True
+        if target == type and subtarget in (None, subtype, "*"):
+            return True
 
     return False
 
@@ -386,8 +382,8 @@ class WarningSuppressor(logging.Filter):
         super().__init__()
 
     def filter(self, record: logging.LogRecord) -> bool:
-        type = getattr(record, 'type', None)
-        subtype = getattr(record, 'subtype', None)
+        type = getattr(record, 'type', '')
+        subtype = getattr(record, 'subtype', '')
 
         try:
             suppress_warnings = self.app.config.suppress_warnings
@@ -436,7 +432,7 @@ class DisableWarningIsErrorFilter(logging.Filter):
     """Disable WarningIsErrorFilter if this filter installed."""
 
     def filter(self, record: logging.LogRecord) -> bool:
-        record.skip_warningsiserror = True  # type: ignore
+        record.skip_warningsiserror = True
         return True
 
 
@@ -519,6 +515,8 @@ class WarningLogRecordTranslator(SphinxLogRecordTranslator):
 
 def get_node_location(node: Node) -> Optional[str]:
     (source, line) = get_source_line(node)
+    if source:
+        source = abspath(source)
     if source and line:
         return "%s:%s" % (source, line)
     elif source:

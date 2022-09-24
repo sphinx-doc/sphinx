@@ -137,10 +137,14 @@ declarations:
 
    This directive marks the beginning of the description of a module (or package
    submodule, in which case the name should be fully qualified, including the
-   package name).  It does not create content (like e.g. :rst:dir:`py:class`
-   does).
+   package name).  A description of the module such as the docstring can be
+   placed in the body of the directive.
 
    This directive will also cause an entry in the global module index.
+
+   .. versionchanged:: 5.2
+
+      Module directives support body content.
 
    .. rubric:: options
 
@@ -164,6 +168,8 @@ declarations:
 
       Mark a module as deprecated; it will be designated as such in various
       locations then.
+
+
 
 .. rst:directive:: .. py:currentmodule:: name
 
@@ -211,6 +217,12 @@ The following directives are provided for module and class contents:
 
       .. versionadded:: 4.0
 
+   .. rst::directive:option:: module
+      :type: text
+
+      Describe the location where the object is defined.  The default value is
+      the module specified by :rst:dir:`py:currentmodule`.
+
 .. rst:directive:: .. py:data:: name
 
    Describes global data in a module, including both variables and values used
@@ -237,6 +249,12 @@ The following directives are provided for module and class contents:
 
       .. versionadded:: 4.0
 
+   .. rst::directive:option:: module
+      :type: text
+
+      Describe the location where the object is defined.  The default value is
+      the module specified by :rst:dir:`py:currentmodule`.
+
 .. rst:directive:: .. py:exception:: name
 
    Describes an exception class.  The signature can, but need not include
@@ -250,6 +268,12 @@ The following directives are provided for module and class contents:
       Indicate the class is a final class.
 
       .. versionadded:: 3.1
+
+   .. rst::directive:option:: module
+      :type: text
+
+      Describe the location where the object is defined.  The default value is
+      the module specified by :rst:dir:`py:currentmodule`.
 
 .. rst:directive:: .. py:class:: name
                    .. py:class:: name(parameters)
@@ -291,6 +315,12 @@ The following directives are provided for module and class contents:
 
       .. versionadded:: 3.1
 
+   .. rst::directive:option:: module
+      :type: text
+
+      Describe the location where the object is defined.  The default value is
+      the module specified by :rst:dir:`py:currentmodule`.
+
 .. rst:directive:: .. py:attribute:: name
 
    Describes an object data attribute.  The description should include
@@ -317,6 +347,12 @@ The following directives are provided for module and class contents:
 
       .. versionadded:: 4.0
 
+   .. rst::directive:option:: module
+      :type: text
+
+      Describe the location where the object is defined.  The default value is
+      the module specified by :rst:dir:`py:currentmodule`.
+
 .. rst:directive:: .. py:property:: name
 
    Describes an object property.
@@ -339,6 +375,12 @@ The following directives are provided for module and class contents:
 
    .. rst:directive:option:: type: type of the property
       :type: text
+
+   .. rst::directive:option:: module
+      :type: text
+
+      Describe the location where the object is defined.  The default value is
+      the module specified by :rst:dir:`py:currentmodule`.
 
 .. rst:directive:: .. py:method:: name(parameters)
 
@@ -384,6 +426,12 @@ The following directives are provided for module and class contents:
       Indicate the class is a final method.
 
       .. versionadded:: 3.1
+
+   .. rst::directive:option:: module
+      :type: text
+
+      Describe the location where the object is defined.  The default value is
+      the module specified by :rst:dir:`py:currentmodule`.
 
    .. rst:directive:option:: property
       :type: no value
@@ -474,7 +522,8 @@ For functions with optional parameters that don't have default values
 (typically functions implemented in C extension modules without keyword
 argument support), you can use brackets to specify the optional parts:
 
-   .. py:function:: compile(source[, filename[, symbol]])
+.. py:function:: compile(source[, filename[, symbol]])
+   :noindex:
 
 It is customary to put the opening bracket before the comma.
 
@@ -530,20 +579,20 @@ explained by an example::
 
 This will render like this:
 
-   .. py:function:: send_message(sender, recipient, message_body, [priority=1])
-      :noindex:
+.. py:function:: send_message(sender, recipient, message_body, [priority=1])
+   :noindex:
 
-      Send a message to a recipient
+   Send a message to a recipient
 
-      :param str sender: The person sending the message
-      :param str recipient: The recipient of the message
-      :param str message_body: The body of the message
-      :param priority: The priority of the message, can be a number 1-5
-      :type priority: integer or None
-      :return: the message id
-      :rtype: int
-      :raises ValueError: if the message_body exceeds 160 characters
-      :raises TypeError: if the message_body is not a basestring
+   :param str sender: The person sending the message
+   :param str recipient: The recipient of the message
+   :param str message_body: The body of the message
+   :param priority: The priority of the message, can be a number 1-5
+   :type priority: integer or None
+   :return: the message id
+   :rtype: int
+   :raises ValueError: if the message_body exceeds 160 characters
+   :raises TypeError: if the message_body is not a basestring
 
 It is also possible to combine parameter type and description, if the type is a
 single word, like this::
@@ -813,12 +862,16 @@ Example::
 This will be rendered as:
 
 .. c:struct:: Data
+   :noindexentry:
 
    .. c:union:: @data
+      :noindexentry:
 
       .. c:var:: int a
+         :noindexentry:
 
       .. c:var:: double b
+         :noindexentry:
 
 Explicit ref: :c:var:`Data.@data.a`. Short-hand ref: :c:var:`Data.a`.
 
@@ -900,8 +953,10 @@ Inline Expressions and Types
    will be rendered as follows:
 
    .. c:var:: int a = 42
+      :noindexentry:
 
    .. c:function:: int f(int i)
+      :noindexentry:
 
    An expression: :c:expr:`a * f(a)` (or as text: :c:texpr:`a * f(a)`).
 
@@ -1111,19 +1166,23 @@ visibility statement (``public``, ``private`` or ``protected``).
    The example are rendered as follows.
 
    .. cpp:type:: std::vector<int> MyList
+      :noindex:
 
       A typedef-like declaration of a type.
 
    .. cpp:type:: MyContainer::const_iterator
+      :noindex:
 
       Declaration of a type alias with unspecified type.
 
    .. cpp:type:: MyType = std::unordered_map<int, std::string>
+      :noindex:
 
       Declaration of a type alias.
 
    .. cpp:type:: template<typename T> \
                  MyContainer = std::vector<T>
+      :noindex:
 
 .. rst:directive:: .. cpp:enum:: unscoped enum declaration
                    .. cpp:enum-struct:: scoped enum declaration
@@ -1250,12 +1309,16 @@ Example::
 This will be rendered as:
 
 .. cpp:class:: Data
+   :noindexentry:
 
    .. cpp:union:: @data
+      :noindexentry:
 
       .. cpp:var:: int a
+         :noindexentry:
 
       .. cpp:var:: double b
+         :noindexentry:
 
 Explicit ref: :cpp:var:`Data::@data::a`. Short-hand ref: :cpp:var:`Data::a`.
 
@@ -1361,10 +1424,12 @@ introduction` instead of a template parameter list::
 They are rendered as follows.
 
 .. cpp:function:: std::Iterator{It} void advance(It &it)
+   :noindexentry:
 
    A function template with a template parameter constrained to be an Iterator.
 
 .. cpp:class:: std::LessThanComparable{T} MySortedContainer
+   :noindexentry:
 
    A class template with a template parameter constrained to be
    LessThanComparable.
@@ -1394,8 +1459,10 @@ Inline Expressions and Types
    will be rendered as follows:
 
    .. cpp:var:: int a = 42
+      :noindexentry:
 
    .. cpp:function:: int f(int i)
+      :noindexentry:
 
    An expression: :cpp:expr:`a * f(a)` (or as text: :cpp:texpr:`a * f(a)`).
 
@@ -1708,6 +1775,9 @@ There is a set of directives allowing documenting command-line programs:
    referenceable by :rst:role:`option` (in the example case, you'd use something
    like ``:option:`dest_dir```, ``:option:`-m```, or ``:option:`--module```).
 
+   Use :confval:`option_emphasise_placeholders` for parsing of
+   "variable part" of a literal text (similarly to the :rst:role:`samp` role).
+
    ``cmdoption`` directive is a deprecated alias for the ``option`` directive.
 
 .. rst:directive:: .. envvar:: name
@@ -1781,6 +1851,9 @@ The JavaScript domain (name **js**) provides the following directives:
    current module name.
 
    .. versionadded:: 1.6
+   .. versionchanged:: 5.2
+
+      Module directives support body content.
 
 .. rst:directive:: .. js:function:: name(signature)
 
@@ -1804,15 +1877,16 @@ The JavaScript domain (name **js**) provides the following directives:
 
    This is rendered as:
 
-      .. js:function:: $.getJSON(href, callback[, errback])
+   .. js:function:: $.getJSON(href, callback[, errback])
+      :noindex:
 
-        :param string href: An URI to the location of the resource.
-        :param callback: Gets called with the object.
-        :param errback:
-            Gets called in case the request fails. And a lot of other
-            text so we need multiple lines.
-        :throws SomeError: For whatever reason in that case.
-        :returns: Something.
+      :param string href: An URI to the location of the resource.
+      :param callback: Gets called with the object.
+      :param errback:
+          Gets called in case the request fails. And a lot of other
+          text so we need multiple lines.
+      :throws SomeError: For whatever reason in that case.
+      :returns: Something.
 
 .. rst:directive:: .. js:method:: name(signature)
 
@@ -1833,10 +1907,11 @@ The JavaScript domain (name **js**) provides the following directives:
 
    This is rendered as:
 
-      .. js:class:: MyAnimal(name[, age])
+   .. js:class:: MyAnimal(name[, age])
+      :noindex:
 
-         :param string name: The name of the animal
-         :param number age: an optional age for the animal
+      :param string name: The name of the animal
+      :param number age: an optional age for the animal
 
 .. rst:directive:: .. js:data:: name
 
@@ -1879,13 +1954,15 @@ The reStructuredText domain (name **rst**) provides the following directives:
 
    will be rendered as:
 
-      .. rst:directive:: foo
+   .. rst:directive:: foo
+      :noindex:
 
-         Foo description.
+      Foo description.
 
-      .. rst:directive:: .. bar:: baz
+   .. rst:directive:: .. bar:: baz
+      :noindex:
 
-         Bar description.
+      Bar description.
 
 .. rst:directive:: .. rst:directive:option:: name
 
@@ -1901,12 +1978,14 @@ The reStructuredText domain (name **rst**) provides the following directives:
 
    will be rendered as:
 
-       .. rst:directive:: toctree
-          :noindex:
+   .. rst:directive:: toctree
+      :noindex:
 
-          .. rst:directive:option:: caption: caption of ToC
+      .. rst:directive:option:: caption: caption of ToC
+         :noindex:
 
-          .. rst:directive:option:: glob
+      .. rst:directive:option:: glob
+         :noindex:
 
    .. rubric:: options
 
@@ -1934,9 +2013,10 @@ The reStructuredText domain (name **rst**) provides the following directives:
 
    will be rendered as:
 
-      .. rst:role:: foo
+   .. rst:role:: foo
+      :noindex:
 
-         Foo description.
+      Foo description.
 
 .. _rst-roles:
 

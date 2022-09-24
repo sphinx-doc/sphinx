@@ -1,14 +1,7 @@
-"""
-    sphinx.transforms.i18n
-    ~~~~~~~~~~~~~~~~~~~~~~
-
-    Docutils transforms used by Sphinx when reading documents.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Docutils transforms used by Sphinx when reading documents."""
 
 from os import path
+from re import DOTALL, match
 from textwrap import indent
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, TypeVar
 
@@ -82,6 +75,14 @@ def publish_msgstr(app: "Sphinx", source: str, source_path: str, source_line: in
         config.rst_prolog = rst_prolog  # type: ignore
 
 
+def parse_noqa(source: str) -> Tuple[str, bool]:
+    m = match(r"(.*)(?<!\\)#\s*noqa\s*$", source, DOTALL)
+    if m:
+        return m.group(1), True
+    else:
+        return source, False
+
+
 class PreserveTranslatableMessages(SphinxTransform):
     """
     Preserve original translatable messages before translation
@@ -89,7 +90,7 @@ class PreserveTranslatableMessages(SphinxTransform):
     default_priority = 10  # this MUST be invoked before Locale transform
 
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.traverse(addnodes.translatable):
+        for node in self.document.findall(addnodes.translatable):
             node.preserve_original_messages()
 
 
@@ -119,6 +120,14 @@ class Locale(SphinxTransform):
         # phase1: replace reference ids with translated names
         for node, msg in extract_messages(self.document):
             msgstr = catalog.gettext(msg)
+
+            # There is no point in having #noqa on literal blocks because
+            # they cannot contain references.  Recognizing it would just
+            # completely prevent escaping the #noqa.  Outside of literal
+            # blocks, one can always write \#noqa.
+            if not isinstance(node, LITERAL_TYPE_NODES):
+                msgstr, _ = parse_noqa(msgstr)
+
             # XXX add marker to untranslated parts
             if not msgstr or msgstr == msg or not msgstr.strip():
                 # as-of-yet untranslated
@@ -139,6 +148,7 @@ class Locale(SphinxTransform):
 
             patch = publish_msgstr(self.app, msgstr, source,
                                    node.line, self.config, settings)
+            # FIXME: no warnings about inconsistent references in this part
             # XXX doctest and other block markup
             if not isinstance(patch, nodes.paragraph):
                 continue  # skip for now
@@ -199,7 +209,7 @@ class Locale(SphinxTransform):
 
                     # replace target's refname to new target name
                     matcher = NodeMatcher(nodes.target, refname=old_name)
-                    for old_target in self.document.traverse(matcher):  # type: nodes.target
+                    for old_target in self.document.findall(matcher):  # type: nodes.target
                         old_target['refname'] = new_name
 
                     processed = True
@@ -228,18 +238,29 @@ class Locale(SphinxTransform):
                 continue  # skip if the node is already translated by phase1
 
             msgstr = catalog.gettext(msg)
+            noqa = False
+
+            # See above.
+            if not isinstance(node, LITERAL_TYPE_NODES):
+                msgstr, noqa = parse_noqa(msgstr)
+
             # XXX add marker to untranslated parts
             if not msgstr or msgstr == msg:  # as-of-yet untranslated
                 continue
 
             # update translatable nodes
             if isinstance(node, addnodes.translatable):
-                node.apply_translated_message(msg, msgstr)
+                node.apply_translated_message(msg, msgstr)  # type: ignore
                 continue
 
             # update meta nodes
             if isinstance(node, nodes.pending) and is_pending_meta(node):
+                # docutils-0.17 or older
                 node.details['nodes'][0]['content'] = msgstr
+                continue
+            elif isinstance(node, addnodes.docutils_meta):
+                # docutils-0.18+
+                node['content'] = msgstr
                 continue
 
             if isinstance(node, nodes.image) and node.get('alt') == msg:
@@ -268,7 +289,6 @@ class Locale(SphinxTransform):
 
             patch = publish_msgstr(self.app, msgstr, source,
                                    node.line, self.config, settings)
-
             # Structural Subelements phase2
             if isinstance(node, nodes.title):
                 # get <title> node that placed as a first child
@@ -296,15 +316,15 @@ class Locale(SphinxTransform):
                     lst.append(new)
 
             is_autofootnote_ref = NodeMatcher(nodes.footnote_reference, auto=Any)
-            old_foot_refs: List[nodes.footnote_reference] = list(node.traverse(is_autofootnote_ref))  # NOQA
-            new_foot_refs: List[nodes.footnote_reference] = list(patch.traverse(is_autofootnote_ref))  # NOQA
-            if len(old_foot_refs) != len(new_foot_refs):
+            old_foot_refs: List[nodes.footnote_reference] = list(node.findall(is_autofootnote_ref))  # NOQA
+            new_foot_refs: List[nodes.footnote_reference] = list(patch.findall(is_autofootnote_ref))  # NOQA
+            if not noqa and len(old_foot_refs) != len(new_foot_refs):
                 old_foot_ref_rawsources = [ref.rawsource for ref in old_foot_refs]
                 new_foot_ref_rawsources = [ref.rawsource for ref in new_foot_refs]
                 logger.warning(__('inconsistent footnote references in translated message.' +
                                   ' original: {0}, translated: {1}')
                                .format(old_foot_ref_rawsources, new_foot_ref_rawsources),
-                               location=node)
+                               location=node, type='i18n', subtype='inconsistent_references')
             old_foot_namerefs: Dict[str, List[nodes.footnote_reference]] = {}
             for r in old_foot_refs:
                 old_foot_namerefs.setdefault(r.get('refname'), []).append(r)
@@ -339,15 +359,15 @@ class Locale(SphinxTransform):
             # * use translated refname for section refname.
             # * inline reference "`Python <...>`_" has no 'refname'.
             is_refnamed_ref = NodeMatcher(nodes.reference, refname=Any)
-            old_refs: List[nodes.reference] = list(node.traverse(is_refnamed_ref))
-            new_refs: List[nodes.reference] = list(patch.traverse(is_refnamed_ref))
-            if len(old_refs) != len(new_refs):
+            old_refs: List[nodes.reference] = list(node.findall(is_refnamed_ref))
+            new_refs: List[nodes.reference] = list(patch.findall(is_refnamed_ref))
+            if not noqa and len(old_refs) != len(new_refs):
                 old_ref_rawsources = [ref.rawsource for ref in old_refs]
                 new_ref_rawsources = [ref.rawsource for ref in new_refs]
                 logger.warning(__('inconsistent references in translated message.' +
                                   ' original: {0}, translated: {1}')
                                .format(old_ref_rawsources, new_ref_rawsources),
-                               location=node)
+                               location=node, type='i18n', subtype='inconsistent_references')
             old_ref_names = [r['refname'] for r in old_refs]
             new_ref_names = [r['refname'] for r in new_refs]
             orphans = list(set(old_ref_names) - set(new_ref_names))
@@ -366,16 +386,16 @@ class Locale(SphinxTransform):
 
             # refnamed footnote should use original 'ids'.
             is_refnamed_footnote_ref = NodeMatcher(nodes.footnote_reference, refname=Any)
-            old_foot_refs = list(node.traverse(is_refnamed_footnote_ref))
-            new_foot_refs = list(patch.traverse(is_refnamed_footnote_ref))
+            old_foot_refs = list(node.findall(is_refnamed_footnote_ref))
+            new_foot_refs = list(patch.findall(is_refnamed_footnote_ref))
             refname_ids_map: Dict[str, List[str]] = {}
-            if len(old_foot_refs) != len(new_foot_refs):
+            if not noqa and len(old_foot_refs) != len(new_foot_refs):
                 old_foot_ref_rawsources = [ref.rawsource for ref in old_foot_refs]
                 new_foot_ref_rawsources = [ref.rawsource for ref in new_foot_refs]
                 logger.warning(__('inconsistent footnote references in translated message.' +
                                   ' original: {0}, translated: {1}')
                                .format(old_foot_ref_rawsources, new_foot_ref_rawsources),
-                               location=node)
+                               location=node, type='i18n', subtype='inconsistent_references')
             for oldf in old_foot_refs:
                 refname_ids_map.setdefault(oldf["refname"], []).append(oldf["ids"])
             for newf in new_foot_refs:
@@ -385,16 +405,16 @@ class Locale(SphinxTransform):
 
             # citation should use original 'ids'.
             is_citation_ref = NodeMatcher(nodes.citation_reference, refname=Any)
-            old_cite_refs: List[nodes.citation_reference] = list(node.traverse(is_citation_ref))  # NOQA
-            new_cite_refs: List[nodes.citation_reference] = list(patch.traverse(is_citation_ref))  # NOQA
+            old_cite_refs: List[nodes.citation_reference] = list(node.findall(is_citation_ref))
+            new_cite_refs: List[nodes.citation_reference] = list(patch.findall(is_citation_ref))  # NOQA
             refname_ids_map = {}
-            if len(old_cite_refs) != len(new_cite_refs):
+            if not noqa and len(old_cite_refs) != len(new_cite_refs):
                 old_cite_ref_rawsources = [ref.rawsource for ref in old_cite_refs]
                 new_cite_ref_rawsources = [ref.rawsource for ref in new_cite_refs]
                 logger.warning(__('inconsistent citation references in translated message.' +
                                   ' original: {0}, translated: {1}')
                                .format(old_cite_ref_rawsources, new_cite_ref_rawsources),
-                               location=node)
+                               location=node, type='i18n', subtype='inconsistent_references')
             for oldc in old_cite_refs:
                 refname_ids_map.setdefault(oldc["refname"], []).append(oldc["ids"])
             for newc in new_cite_refs:
@@ -405,16 +425,16 @@ class Locale(SphinxTransform):
             # Original pending_xref['reftarget'] contain not-translated
             # target name, new pending_xref must use original one.
             # This code restricts to change ref-targets in the translation.
-            old_xrefs = list(node.traverse(addnodes.pending_xref))
-            new_xrefs = list(patch.traverse(addnodes.pending_xref))
+            old_xrefs = list(node.findall(addnodes.pending_xref))
+            new_xrefs = list(patch.findall(addnodes.pending_xref))
             xref_reftarget_map = {}
-            if len(old_xrefs) != len(new_xrefs):
+            if not noqa and len(old_xrefs) != len(new_xrefs):
                 old_xref_rawsources = [xref.rawsource for xref in old_xrefs]
                 new_xref_rawsources = [xref.rawsource for xref in new_xrefs]
                 logger.warning(__('inconsistent term references in translated message.' +
                                   ' original: {0}, translated: {1}')
                                .format(old_xref_rawsources, new_xref_rawsources),
-                               location=node)
+                               location=node, type='i18n', subtype='inconsistent_references')
 
             def get_ref_key(node: addnodes.pending_xref) -> Optional[Tuple[str, str, str]]:
                 case = node["refdomain"], node["reftype"]
@@ -457,7 +477,7 @@ class Locale(SphinxTransform):
             # Extract and translate messages for index entries.
             for node, entries in traverse_translatable_index(self.document):
                 new_entries: List[Tuple[str, str, str, str, str]] = []
-                for type, msg, tid, main, key_ in entries:
+                for type, msg, tid, main, _key in entries:
                     msg_parts = split_index_msg(type, msg)
                     msgstr_parts = []
                     for part in msg_parts:
@@ -472,7 +492,7 @@ class Locale(SphinxTransform):
                 node['entries'] = new_entries
 
         # remove translated attribute that is used for avoiding double translation.
-        for translated in self.document.traverse(NodeMatcher(translated=Any)):  # type: Element  # NOQA
+        for translated in self.document.findall(NodeMatcher(translated=Any)):  # type: Element  # NOQA
             translated.delattr('translated')
 
 
@@ -488,7 +508,7 @@ class RemoveTranslatableInline(SphinxTransform):
             return
 
         matcher = NodeMatcher(nodes.inline, translatable=Any)
-        for inline in list(self.document.traverse(matcher)):  # type: nodes.inline
+        for inline in list(self.document.findall(matcher)):  # type: nodes.inline
             inline.parent.remove(inline)
             inline.parent += inline.children
 

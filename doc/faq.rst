@@ -299,6 +299,10 @@ appear in the source.  Emacs, on the other-hand, will by default replace
 
     :ref:`texinfo-links`
 
+One can disable generation of the inline references in a document
+with :confval:`texinfo_cross_references`.  That makes
+an info file more readable with stand-alone reader (``info``).
+
 The exact behavior of how Emacs displays references is dependent on the variable
 ``Info-hide-note-references``.  If set to the value of ``hide``, Emacs will hide
 both the ``*note:`` part and the ``target-id``.  This is generally the best way
@@ -346,19 +350,3 @@ The following notes may be helpful if you want to create Texinfo files:
   scheme ``info``.  For example::
 
      info:Texinfo#makeinfo_options
-
-- Inline markup
-
-  The standard formatting for ``*strong*`` and ``_emphasis_`` can
-  result in ambiguous output when used to markup parameter names and
-  other values.  Since this is a fairly common practice, the default
-  formatting has been changed so that ``emphasis`` and ``strong`` are
-  now displayed like ```literal'``\s.
-
-  The standard formatting can be re-enabled by adding the following to
-  your :file:`conf.py`::
-
-     texinfo_elements = {'preamble': """
-     @definfoenclose strong,*,*
-     @definfoenclose emph,_,_
-     """}

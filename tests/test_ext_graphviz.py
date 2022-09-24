@@ -1,19 +1,11 @@
-"""
-    test_ext_graphviz
-    ~~~~~~~~~~~~~~~~~
-
-    Test sphinx.ext.graphviz extension.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test sphinx.ext.graphviz extension."""
 
 import re
 
+import docutils
 import pytest
 
 from sphinx.ext.graphviz import ClickableMapDefinition
-from sphinx.util import docutils
 
 
 @pytest.mark.sphinx('html', testroot='ext-graphviz')
@@ -21,7 +13,7 @@ from sphinx.util import docutils
 def test_graphviz_png_html(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
     if docutils.__version_info__ < (0, 17):
         html = (r'<div class="figure align-default" .*?>\s*'
                 r'<div class="graphviz"><img .*?/></div>\s*<p class="caption">'
@@ -64,7 +56,7 @@ def test_graphviz_png_html(app, status, warning):
 def test_graphviz_svg_html(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     if docutils.__version_info__ < (0, 17):
         html = (r'<div class=\"figure align-default\" .*?>\n'
@@ -126,7 +118,7 @@ def test_graphviz_svg_html(app, status, warning):
 def test_graphviz_latex(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'python.tex').read_text()
+    content = (app.outdir / 'python.tex').read_text(encoding='utf8')
     macro = ('\\\\begin{figure}\\[htbp\\]\n\\\\centering\n\\\\capstart\n\n'
              '\\\\sphinxincludegraphics\\[\\]{graphviz-\\w+.pdf}\n'
              '\\\\caption{caption of graph}\\\\label{.*}\\\\end{figure}')
@@ -152,7 +144,7 @@ def test_graphviz_latex(app, status, warning):
 def test_graphviz_i18n(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
     html = '<img src=".*?" alt="digraph {\n  BAR -&gt; BAZ\n}" class="graphviz" />'
     assert re.search(html, content, re.M)
 

@@ -1,16 +1,8 @@
-"""
-    sphinx.builders.latex.theming
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Theming support for LaTeX builder.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Theming support for LaTeX builder."""
 
 import configparser
 from os import path
-from typing import Dict
+from typing import Dict, Optional
 
 from sphinx.application import Sphinx
 from sphinx.config import Config
@@ -81,7 +73,7 @@ class UserTheme(Theme):
     def __init__(self, name: str, filename: str) -> None:
         super().__init__(name)
         self.config = configparser.RawConfigParser()
-        self.config.read(path.join(filename))
+        self.config.read(path.join(filename), encoding='utf-8')
 
         for key in self.REQUIRED_CONFIG_KEYS:
             try:
@@ -121,14 +113,12 @@ class ThemeFactory:
         if name in self.themes:
             theme = self.themes[name]
         else:
-            theme = self.find_user_theme(name)
-            if not theme:
-                theme = Theme(name)
+            theme = self.find_user_theme(name) or Theme(name)
 
         theme.update(self.config)
         return theme
 
-    def find_user_theme(self, name: str) -> Theme:
+    def find_user_theme(self, name: str) -> Optional[Theme]:
         """Find a theme named as *name* from latex_theme_path."""
         for theme_path in self.theme_paths:
             config_path = path.join(theme_path, name, 'theme.conf')

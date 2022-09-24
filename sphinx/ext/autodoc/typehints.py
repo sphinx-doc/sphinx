@@ -1,12 +1,4 @@
-"""
-    sphinx.ext.autodoc.typehints
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Generating content for autodoc using typehints
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Generating content for autodoc using typehints"""
 
 import re
 from collections import OrderedDict
@@ -23,6 +15,11 @@ from sphinx.util import inspect, typing
 def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
                      options: Dict, args: str, retann: str) -> None:
     """Record type hints to env object."""
+    if app.config.autodoc_typehints_format == 'short':
+        mode = 'smart'
+    else:
+        mode = 'fully-qualified'
+
     try:
         if callable(obj):
             annotations = app.env.temp_data.setdefault('annotations', {})
@@ -30,9 +27,9 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
             sig = inspect.signature(obj, type_aliases=app.config.autodoc_type_aliases)
             for param in sig.parameters.values():
                 if param.annotation is not param.empty:
-                    annotation[param.name] = typing.stringify(param.annotation)
+                    annotation[param.name] = typing.stringify(param.annotation, mode)
             if sig.return_annotation is not sig.empty:
-                annotation['return'] = typing.stringify(sig.return_annotation)
+                annotation['return'] = typing.stringify(sig.return_annotation, mode)
     except (TypeError, ValueError):
         pass
 
@@ -62,9 +59,18 @@ def merge_typehints(app: Sphinx, domain: str, objtype: str, contentnode: Element
 
         for field_list in field_lists:
             if app.config.autodoc_typehints_description_target == "all":
-                modify_field_list(field_list, annotations[fullname])
+                if objtype == 'class':
+                    modify_field_list(field_list, annotations[fullname], suppress_rtype=True)
+                else:
+                    modify_field_list(field_list, annotations[fullname])
+            elif app.config.autodoc_typehints_description_target == "documented_params":
+                augment_descriptions_with_types(
+                    field_list, annotations[fullname], force_rtype=True
+                )
             else:
-                augment_descriptions_with_types(field_list, annotations[fullname])
+                augment_descriptions_with_types(
+                    field_list, annotations[fullname], force_rtype=False
+                )
 
 
 def insert_field_list(node: Element) -> nodes.field_list:
@@ -80,7 +86,8 @@ def insert_field_list(node: Element) -> nodes.field_list:
     return field_list
 
 
-def modify_field_list(node: nodes.field_list, annotations: Dict[str, str]) -> None:
+def modify_field_list(node: nodes.field_list, annotations: Dict[str, str],
+                      suppress_rtype: bool = False) -> None:
     arguments: Dict[str, Dict[str, bool]] = {}
     fields = cast(Iterable[nodes.field], node)
     for field in fields:
@@ -108,7 +115,15 @@ def modify_field_list(node: nodes.field_list, annotations: Dict[str, str]) -> No
         if name == 'return':
             continue
 
-        arg = arguments.get(name, {})
+        if '*' + name in arguments:
+            name = '*' + name
+            arguments.get(name)
+        elif '**' + name in arguments:
+            name = '**' + name
+            arguments.get(name)
+        else:
+            arg = arguments.get(name, {})
+
         if not arg.get('type'):
             field = nodes.field()
             field += nodes.field_name('', 'type ' + name)
@@ -121,6 +136,10 @@ def modify_field_list(node: nodes.field_list, annotations: Dict[str, str]) -> No
             node += field
 
     if 'return' in annotations and 'return' not in arguments:
+        annotation = annotations['return']
+        if annotation == 'None' and suppress_rtype:
+            return
+
         field = nodes.field()
         field += nodes.field_name('', 'rtype')
         field += nodes.field_body('', nodes.paragraph('', annotation))
@@ -130,6 +149,7 @@ def modify_field_list(node: nodes.field_list, annotations: Dict[str, str]) -> No
 def augment_descriptions_with_types(
     node: nodes.field_list,
     annotations: Dict[str, str],
+    force_rtype: bool
 ) -> None:
     fields = cast(Iterable[nodes.field], node)
     has_description = set()  # type: Set[str]
@@ -155,21 +175,29 @@ def augment_descriptions_with_types(
             has_type.add('return')
 
     # Add 'type' for parameters with a description but no declared type.
-    for name in annotations:
+    for name, annotation in annotations.items():
         if name in ('return', 'returns'):
             continue
+
+        if '*' + name in has_description:
+            name = '*' + name
+        elif '**' + name in has_description:
+            name = '**' + name
+
         if name in has_description and name not in has_type:
             field = nodes.field()
             field += nodes.field_name('', 'type ' + name)
-            field += nodes.field_body('', nodes.paragraph('', annotations[name]))
+            field += nodes.field_body('', nodes.paragraph('', annotation))
             node += field
 
     # Add 'rtype' if 'return' is present and 'rtype' isn't.
     if 'return' in annotations:
-        if 'return' in has_description and 'return' not in has_type:
+        rtype = annotations['return']
+        if 'return' not in has_type and ('return' in has_description or
+                                         (force_rtype and rtype != "None")):
             field = nodes.field()
             field += nodes.field_name('', 'rtype')
-            field += nodes.field_body('', nodes.paragraph('', annotations['return']))
+            field += nodes.field_body('', nodes.paragraph('', rtype))
             node += field
 
 

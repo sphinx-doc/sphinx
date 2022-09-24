@@ -1,21 +1,44 @@
-"""
-    test_application
-    ~~~~~~~~~~~~~~~~
+"""Test the Sphinx class."""
 
-    Test the Sphinx class.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
+import shutil
+import sys
+from io import StringIO
+from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
 from docutils import nodes
 
+import sphinx.application
 from sphinx.errors import ExtensionError
-from sphinx.testing.util import strip_escseq
+from sphinx.testing.path import path
+from sphinx.testing.util import SphinxTestApp, strip_escseq
 from sphinx.util import logging
+
+
+def test_instantiation(tmp_path_factory, rootdir: str, monkeypatch):
+    # Given
+    src_dir = tmp_path_factory.getbasetemp() / 'root'
+
+    # special support for sphinx/tests
+    if rootdir and not src_dir.exists():
+        shutil.copytree(Path(str(rootdir)) / 'test-root', src_dir)
+
+    monkeypatch.setattr('sphinx.application.abspath', lambda x: x)
+
+    syspath = sys.path[:]
+
+    # When
+    app_ = SphinxTestApp(
+        srcdir=path(src_dir),
+        status=StringIO(),
+        warning=StringIO()
+    )
+    sys.path[:] = syspath
+    app_.cleanup()
+
+    # Then
+    assert isinstance(app_, sphinx.application.Sphinx)
 
 
 def test_events(app, status, warning):

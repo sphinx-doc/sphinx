@@ -1,14 +1,8 @@
-"""
-    sphinx.ext.todo
-    ~~~~~~~~~~~~~~~
+"""Allow todos to be inserted into your documentation.
 
-    Allow todos to be inserted into your documentation.  Inclusion of todos can
-    be switched of by a configuration variable.  The todolist directive collects
-    all todos of your project and lists them along with a backlink to the
-    original location.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+Inclusion of todos can be switched of by a configuration variable.
+The todolist directive collects all todos of your project and lists them along
+with a backlink to the original location.
 """
 
 from typing import Any, Dict, List, Tuple, cast
@@ -93,7 +87,7 @@ class TodoDomain(Domain):
     def process_doc(self, env: BuildEnvironment, docname: str,
                     document: nodes.document) -> None:
         todos = self.todos.setdefault(docname, [])
-        for todo in document.traverse(todo_node):
+        for todo in document.findall(todo_node):
             env.app.emit('todo-defined', todo)
             todos.append(todo)
 
@@ -131,7 +125,7 @@ class TodoListProcessor:
 
     def process(self, doctree: nodes.document, docname: str) -> None:
         todos: List[todo_node] = sum(self.domain.todos.values(), [])
-        for node in list(doctree.traverse(todolist)):
+        for node in list(doctree.findall(todolist)):
             if not self.config.todo_include_todos:
                 node.parent.remove(node)
                 continue
@@ -165,7 +159,7 @@ class TodoListProcessor:
         suffix = description[description.find('>>') + 2:]
 
         para = nodes.paragraph(classes=['todo-source'])
-        para += nodes.Text(prefix, prefix)
+        para += nodes.Text(prefix)
 
         # Create a reference
         linktext = nodes.emphasis(_('original entry'), _('original entry'))
@@ -178,13 +172,13 @@ class TodoListProcessor:
             pass
 
         para += reference
-        para += nodes.Text(suffix, suffix)
+        para += nodes.Text(suffix)
 
         return para
 
     def resolve_reference(self, todo: todo_node, docname: str) -> None:
         """Resolve references in the todo content."""
-        for node in todo.traverse(addnodes.pending_xref):
+        for node in todo.findall(addnodes.pending_xref):
             if 'refdoc' in node:
                 node['refdoc'] = docname
 

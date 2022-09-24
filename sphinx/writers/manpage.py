@@ -1,17 +1,9 @@
-"""
-    sphinx.writers.manpage
-    ~~~~~~~~~~~~~~~~~~~~~~
-
-    Manual page writer, extended for Sphinx custom nodes.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Manual page writer, extended for Sphinx custom nodes."""
 
 from typing import Any, Dict, Iterable, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node, TextElement
+from docutils.nodes import Element, TextElement
 from docutils.writers.manpage import Translator as BaseTranslator
 from docutils.writers.manpage import Writer
 
@@ -56,7 +48,7 @@ class NestedInlineTransform:
 
     def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.literal, nodes.emphasis, nodes.strong)
-        for node in list(self.document.traverse(matcher)):  # type: TextElement
+        for node in list(self.document.findall(matcher)):  # type: TextElement
             if any(matcher(subnode) for subnode in node):
                 pos = node.parent.index(node)
                 for subnode in reversed(list(node)):
@@ -107,7 +99,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
         # Overwrite admonition label translations with our own
         for label, translation in admonitionlabels.items():
-            self.language.labels[label] = self.deunicode(translation)  # type: ignore
+            self.language.labels[label] = self.deunicode(translation)
 
     # overwritten -- added quotes around all .TH arguments
     def header(self) -> str:
@@ -227,7 +219,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     # overwritten -- don't make whole of term bold if it includes strong node
     def visit_term(self, node: Element) -> None:
-        if list(node.traverse(nodes.strong)):
+        if any(node.findall(nodes.strong)):
             self.body.append('\n')
         else:
             super().visit_term(node)
@@ -462,6 +454,3 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     def depart_math_block(self, node: Element) -> None:
         self.depart_centered(node)
-
-    def unknown_visit(self, node: Node) -> None:
-        raise NotImplementedError('Unknown node: ' + node.__class__.__name__)

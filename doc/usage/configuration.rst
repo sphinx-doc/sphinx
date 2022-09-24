@@ -14,12 +14,12 @@ This file (containing Python code) is called the "build configuration file"
 and contains (almost) all configuration needed to customize Sphinx input
 and output behavior.
 
-  An optional file `docutils.conf`_ can be added to the configuration
-  directory to adjust `Docutils`_ configuration if not otherwise overridden or
-  set by Sphinx.
+An optional file `docutils.conf`_ can be added to the configuration
+directory to adjust `Docutils`_ configuration if not otherwise overridden or
+set by Sphinx.
 
-  .. _`docutils`: https://docutils.sourceforge.io/
-  .. _`docutils.conf`: https://docutils.sourceforge.io/docs/user/config.html
+.. _`docutils`: https://docutils.sourceforge.io/
+.. _`docutils.conf`: https://docutils.sourceforge.io/docs/user/config.html
 
 The configuration file is executed as Python code at build time (using
 :func:`importlib.import_module`, and with the current directory set to its
@@ -200,15 +200,14 @@ General configuration
 
 .. confval:: exclude_patterns
 
-   A list of glob-style patterns that should be excluded when looking for
-   source files. [1]_ They are matched against the source file names relative
+   A list of glob-style patterns [1]_ that should be excluded when looking for
+   source files. They are matched against the source file names relative
    to the source directory, using slashes as directory separators on all
    platforms.
 
    Example patterns:
 
-   - ``'library/xml.rst'`` -- ignores the ``library/xml.rst`` file (replaces
-     entry in :confval:`unused_docs`)
+   - ``'library/xml.rst'`` -- ignores the ``library/xml.rst`` file
    - ``'library/xml'`` -- ignores the ``library/xml`` directory
    - ``'library/xml*'`` -- ignores all files and directories starting with
      ``library/xml``
@@ -218,6 +217,23 @@ General configuration
    in :confval:`html_static_path` and :confval:`html_extra_path`.
 
    .. versionadded:: 1.0
+
+.. confval:: include_patterns
+
+   A list of glob-style patterns [1]_ that are used to find source files. They
+   are matched against the source file names relative to the source directory,
+   using slashes as directory separators on all platforms. The default is ``**``,
+   meaning that all files are recursively included from the source directory.
+
+   Example patterns:
+
+   - ``'**'`` -- all files in the source directory and subdirectories, recursively
+   - ``'library/xml'`` -- just the ``library/xml`` directory
+   - ``'library/xml*'`` -- all files and directories starting with ``library/xml``
+   - ``'**/doc'`` -- all ``doc`` directories (this might be useful if
+     documentation is co-located with source files)
+
+   .. versionadded:: 5.1
 
 .. confval:: templates_path
 
@@ -316,7 +332,11 @@ General configuration
    * ``app.add_role``
    * ``app.add_generic_role``
    * ``app.add_source_parser``
+   * ``autosectionlabel.*``
    * ``download.not_readable``
+   * ``epub.unknown_project_files``
+   * ``epub.duplicated_toc_entry``
+   * ``i18n.inconsistent_references``
    * ``image.not_readable``
    * ``ref.term``
    * ``ref.ref``
@@ -332,11 +352,9 @@ General configuration
    * ``toc.excluded``
    * ``toc.not_readable``
    * ``toc.secnum``
-   * ``epub.unknown_project_files``
-   * ``epub.duplicated_toc_entry``
-   * ``autosectionlabel.*``
 
-   You can choose from these types.
+   You can choose from these types.  You can also give only the first
+   component to exclude all warnings attached to it.
 
    Now, this option should be considered *experimental*.
 
@@ -366,6 +384,10 @@ General configuration
 
       Added ``toc.excluded`` and ``toc.not_readable``
 
+   .. versionadded:: 4.5
+
+      Added ``i18n.inconsistent_references``
+
 .. confval:: needs_sphinx
 
    If set to a ``major.minor`` version string like ``'1.1'``, Sphinx will
@@ -392,14 +414,14 @@ General configuration
 
 .. confval:: manpages_url
 
-   A URL to cross-reference :rst:role:`manpage` directives. If this is
+   A URL to cross-reference :rst:role:`manpage` roles. If this is
    defined to ``https://manpages.debian.org/{path}``, the
    :literal:`:manpage:`man(1)`` role will link to
    <https://manpages.debian.org/man(1)>. The patterns available are:
 
-     * ``page`` - the manual page (``man``)
-     * ``section`` - the manual section (``1``)
-     * ``path`` - the original manual page and section specified (``man(1)``)
+   * ``page`` - the manual page (``man``)
+   * ``section`` - the manual section (``1``)
+   * ``path`` - the original manual page and section specified (``man(1)``)
 
    This also supports manpages specified as ``man.1``.
 
@@ -546,7 +568,7 @@ General configuration
          make latex O="-D smartquotes_action="
 
       This can follow some ``make html`` with no problem, in contrast to the
-      situation from the prior note.  It requires Docutils 0.14 or later.
+      situation from the prior note.
 
    .. versionadded:: 1.6.6
 
@@ -656,6 +678,24 @@ General configuration
    :term:`object` names (for object types where a "module" of some kind is
    defined), e.g. for :rst:dir:`py:function` directives.  Default is ``True``.
 
+.. confval:: toc_object_entries_show_parents
+
+   A string that determines how domain objects (e.g. functions, classes,
+   attributes, etc.) are displayed in their table of contents entry.
+
+   Use ``domain`` to allow the domain to determine the appropriate number of
+   parents to show. For example, the Python domain would show ``Class.method()``
+   and ``function()``, leaving out the ``module.`` level of parents.
+   This is the default setting.
+
+   Use ``hide`` to only show the name of the element without any parents
+   (i.e. ``method()``).
+
+   Use ``all`` to show the fully-qualified name for the object
+   (i.e. ``module.Class.method()``),  displaying all parents.
+
+   .. versionadded:: 5.2
+
 .. confval:: show_authors
 
    A boolean that decides whether :rst:dir:`codeauthor` and
@@ -698,8 +738,17 @@ General configuration
    This was the behaviour before version 3.0, and setting this variable to
    ``True`` will reinstate that behaviour.
 
-    .. versionadded:: 3.0
+   .. versionadded:: 3.0
 
+.. confval:: option_emphasise_placeholders
+
+   Default is ``False``.
+   When enabled, emphasise placeholders in :rst:dir:`option` directives.
+   To display literal braces, escape with a backslash (``\{``). For example,
+   ``option_emphasise_placeholders=True`` and ``.. option:: -foption={TYPE}`` would
+   render with ``TYPE`` emphasised.
+
+   .. versionadded:: 5.1
 
 .. _intl-options:
 
@@ -719,13 +768,15 @@ documentation on :ref:`intl` for details.
    (e.g. the German version of ``myfigure.png`` will be ``myfigure.de.png``
    by default setting) and substitute them for original figures.  In the LaTeX
    builder, a suitable language will be selected as an option for the *Babel*
-   package.  Default is ``None``, which means that no translation will be done.
+   package.  Default is ``'en'``.
 
    .. versionadded:: 0.5
 
    .. versionchanged:: 1.4
 
       Support figure substitution
+
+   .. versionchanged:: 5.0
 
    Currently supported languages by Sphinx are:
 
@@ -739,7 +790,7 @@ documentation on :ref:`intl` for details.
    * ``da`` -- Danish
    * ``de`` -- German
    * ``el`` -- Greek
-   * ``en`` -- English
+   * ``en`` -- English (default)
    * ``eo`` -- Esperanto
    * ``es`` -- Spanish
    * ``et`` -- Estonian
@@ -1350,6 +1401,13 @@ that use Sphinx's HTMLWriter class.
    ``True``.
 
    .. versionadded:: 1.0
+
+.. confval:: html_show_search_summary
+
+   If true, the text around the keyword is shown as summary of each search result.
+   Default is ``True``.
+
+   .. versionadded:: 4.5
 
 .. confval:: html_show_sphinx
 
@@ -2499,6 +2557,13 @@ These options influence Texinfo output.
 
    .. versionadded:: 1.1
 
+.. confval:: texinfo_cross_references
+
+  If false, do not generate inline references in a document.  That makes
+  an info file more readable with stand-alone reader (``info``).
+  Default is ``True``.
+
+  .. versionadded:: 4.4
 
 .. _qthelp-options:
 
@@ -2683,6 +2748,19 @@ Options for the linkcheck builder
 
    .. versionadded:: 3.4
 
+.. confval:: linkcheck_exclude_documents
+
+   A list of regular expressions that match documents in which Sphinx should
+   not check the validity of links. This can be used for permitting link decay
+   in legacy or historical sections of the documentation.
+
+   Example::
+
+      # ignore all links in documents located in a subfolder named 'legacy'
+      linkcheck_exclude_documents = [r'.*/legacy/.*']
+
+   .. versionadded:: 4.4
+
 
 Options for the XML builder
 ---------------------------
@@ -2794,7 +2872,7 @@ Options for the Python domain
    .. note:: This configuration is still in experimental
 
 Example of configuration file
-=============================
+-----------------------------
 
 .. literalinclude:: /_static/conf.py.txt
    :language: python

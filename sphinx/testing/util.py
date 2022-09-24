@@ -1,19 +1,11 @@
-"""
-    sphinx.testing.util
-    ~~~~~~~~~~~~~~~~~~~
-
-    Sphinx test suite utilities
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Sphinx test suite utilities"""
 import functools
 import os
 import re
 import sys
 import warnings
 from io import StringIO
-from typing import IO, Any, Dict, Generator, List, Pattern
+from typing import IO, Any, Dict, Generator, List, Optional, Pattern
 from xml.etree import ElementTree
 
 from docutils import nodes
@@ -32,17 +24,17 @@ __all__ = [
 
 def assert_re_search(regex: Pattern, text: str, flags: int = 0) -> None:
     if not re.search(regex, text, flags):
-        assert False, '%r did not match %r' % (regex, text)
+        raise AssertionError('%r did not match %r' % (regex, text))
 
 
 def assert_not_re_search(regex: Pattern, text: str, flags: int = 0) -> None:
     if re.search(regex, text, flags):
-        assert False, '%r did match %r' % (regex, text)
+        raise AssertionError('%r did match %r' % (regex, text))
 
 
 def assert_startswith(thing: str, prefix: str) -> None:
     if not thing.startswith(prefix):
-        assert False, '%r does not start with %r' % (thing, prefix)
+        raise AssertionError('%r does not start with %r' % (thing, prefix))
 
 
 def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
@@ -99,13 +91,22 @@ class SphinxTestApp(application.Sphinx):
     A subclass of :class:`Sphinx` that runs on the test root, with some
     better default values for the initialization parameters.
     """
-    _status: StringIO = None
-    _warning: StringIO = None
+    _status: StringIO
+    _warning: StringIO
 
-    def __init__(self, buildername: str = 'html', srcdir: path = None, builddir: path = None,
-                 freshenv: bool = False, confoverrides: Dict = None, status: IO = None,
-                 warning: IO = None, tags: List[str] = None, docutilsconf: str = None,
-                 parallel: int = 0) -> None:
+    def __init__(
+        self,
+        buildername: str = 'html',
+        srcdir: Optional[path] = None,
+        builddir: Optional[path] = None,
+        freshenv: bool = False,
+        confoverrides: Optional[Dict] = None,
+        status: Optional[IO] = None,
+        warning: Optional[IO] = None,
+        tags: Optional[List[str]] = None,
+        docutilsconf: Optional[str] = None,
+        parallel: int = 0
+    ) -> None:
 
         if docutilsconf is not None:
             (srcdir / 'docutils.conf').write_text(docutilsconf)
@@ -177,10 +178,10 @@ class SphinxTestAppWrapperForSkipBuilding:
 _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
 
 
-def find_files(root: str, suffix: bool = None) -> Generator[str, None, None]:
-    for dirpath, dirs, files in os.walk(root, followlinks=True):
+def find_files(root: str, suffix: Optional[str] = None) -> Generator[str, None, None]:
+    for dirpath, _dirs, files in os.walk(root, followlinks=True):
         dirpath = path(dirpath)
-        for f in [f for f in files if not suffix or f.endswith(suffix)]:  # type: ignore
+        for f in [f for f in files if not suffix or f.endswith(suffix)]:
             fpath = dirpath / f
             yield relpath(fpath, root)
 

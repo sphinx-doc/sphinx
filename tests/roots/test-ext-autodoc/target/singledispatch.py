@@ -26,3 +26,11 @@ def _func_int(arg, kwarg=None):
 def _func_str(arg, kwarg=None):
     """A function for str."""
     pass
+
+
+@func.register
+def _func_dict(arg: dict, kwarg=None):
+    """A function for dict."""
+    # This function tests for specifying type through annotations
+    pass
+

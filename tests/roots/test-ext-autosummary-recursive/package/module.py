@@ -1,4 +1,4 @@
-from os import *  # NOQA
+from os import *
 
 
 class Foo:

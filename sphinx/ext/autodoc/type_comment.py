@@ -1,12 +1,4 @@
-"""
-    sphinx.ext.autodoc.type_comment
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Update annotations info of living objects using type_comments.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Update annotations info of living objects using type_comments."""
 
 from inspect import Parameter, Signature, getsource
 from typing import Any, Dict, List, cast

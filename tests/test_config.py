@@ -1,13 +1,4 @@
-"""
-    test_config
-    ~~~~~~~~~~~
-
-    Test the sphinx.config.Config class and its handling in the
-    Application class.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the sphinx.config.Config class."""
 
 from unittest import mock
 
@@ -57,13 +48,13 @@ def test_core_config(app, status, warning):
 
     # invalid values
     with pytest.raises(AttributeError):
-        getattr(cfg, '_value')
+        cfg._value
     with pytest.raises(AttributeError):
-        getattr(cfg, 'nonexisting_value')
+        cfg.nonexisting_value
 
     # non-value attributes are deleted from the namespace
     with pytest.raises(AttributeError):
-        getattr(cfg, 'sys')
+        cfg.sys
 
     # setting attributes
     cfg.project = 'Foo'
@@ -147,7 +138,7 @@ def test_errors_warnings(logger, tempdir):
     assert 'conf.py' in str(excinfo.value)
 
     # test the automatic conversion of 2.x only code in configs
-    (tempdir / 'conf.py').write_text('project = u"Jägermeister"\n')
+    (tempdir / 'conf.py').write_text('project = u"Jägermeister"\n', encoding='utf8')
     cfg = Config.read(tempdir, {}, None)
     cfg.init_values()
     assert cfg.project == 'Jägermeister'
@@ -156,7 +147,7 @@ def test_errors_warnings(logger, tempdir):
 
 def test_errors_if_setup_is_not_callable(tempdir, make_app):
     # test the error to call setup() in the config file
-    (tempdir / 'conf.py').write_text('setup = 1')
+    (tempdir / 'conf.py').write_text('setup = 1', encoding='utf8')
     with pytest.raises(ConfigError) as excinfo:
         make_app(srcdir=tempdir)
     assert 'callable' in str(excinfo.value)
@@ -164,7 +155,7 @@ def test_errors_if_setup_is_not_callable(tempdir, make_app):
 
 @pytest.fixture
 def make_app_with_empty_project(make_app, tempdir):
-    (tempdir / 'conf.py').write_text('')
+    (tempdir / 'conf.py').write_text('', encoding='utf8')
 
     def _make_app(*args, **kw):
         kw.setdefault('srcdir', path(tempdir))
@@ -390,3 +381,49 @@ def test_nitpick_ignore_regex_fullmatch(app, status, warning):
     assert len(warning) == len(nitpick_warnings)
     for actual, expected in zip(warning, nitpick_warnings):
         assert expected in actual
+
+
+def test_conf_py_language_none(tempdir):
+    """Regression test for #10474."""
+
+    # Given a conf.py file with language = None
+    (tempdir / 'conf.py').write_text("language = None", encoding='utf-8')
+
+    # When we load conf.py into a Config object
+    cfg = Config.read(tempdir, {}, None)
+    cfg.init_values()
+
+    # Then the language is coerced to English
+    assert cfg.language == "en"
+
+
+@mock.patch("sphinx.config.logger")
+def test_conf_py_language_none_warning(logger, tempdir):
+    """Regression test for #10474."""
+
+    # Given a conf.py file with language = None
+    (tempdir / 'conf.py').write_text("language = None", encoding='utf-8')
+
+    # When we load conf.py into a Config object
+    Config.read(tempdir, {}, None)
+
+    # Then a warning is raised
+    assert logger.warning.called
+    assert logger.warning.call_args[0][0] == (
+        "Invalid configuration value found: 'language = None'. "
+        "Update your configuration to a valid language code. "
+        "Falling back to 'en' (English).")
+
+
+def test_conf_py_no_language(tempdir):
+    """Regression test for #10474."""
+
+    # Given a conf.py file with no language attribute
+    (tempdir / 'conf.py').write_text("", encoding='utf-8')
+
+    # When we load conf.py into a Config object
+    cfg = Config.read(tempdir, {}, None)
+    cfg.init_values()
+
+    # Then the language is coerced to English
+    assert cfg.language == "en"

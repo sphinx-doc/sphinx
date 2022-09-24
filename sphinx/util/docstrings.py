@@ -1,12 +1,4 @@
-"""
-    sphinx.util.docstrings
-    ~~~~~~~~~~~~~~~~~~~~~~
-
-    Utilities for docstring processing.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Utilities for docstring processing."""
 
 import re
 import sys
@@ -15,7 +7,7 @@ from typing import Dict, List, Tuple
 
 from docutils.parsers.rst.states import Body
 
-from sphinx.deprecation import RemovedInSphinx50Warning, RemovedInSphinx60Warning
+from sphinx.deprecation import RemovedInSphinx60Warning
 
 field_list_item_re = re.compile(Body.patterns['field_marker'])
 
@@ -57,35 +49,27 @@ def extract_metadata(s: str) -> Dict[str, str]:
     return metadata
 
 
-def prepare_docstring(s: str, ignore: int = None, tabsize: int = 8) -> List[str]:
+def prepare_docstring(s: str, tabsize: int = 8) -> List[str]:
     """Convert a docstring into lines of parseable reST.  Remove common leading
-    indentation, where the indentation of a given number of lines (usually just
-    one) is ignored.
+    indentation, where the indentation of the first line is ignored.
 
     Return the docstring as a list of lines usable for inserting into a docutils
     ViewList (used as argument of nested_parse().)  An empty line is added to
     act as a separator between this docstring and following content.
     """
-    if ignore is None:
-        ignore = 1
-    else:
-        warnings.warn("The 'ignore' argument to prepare_docstring() is deprecated.",
-                      RemovedInSphinx50Warning, stacklevel=2)
-
     lines = s.expandtabs(tabsize).splitlines()
     # Find minimum indentation of any non-blank lines after ignored lines.
     margin = sys.maxsize
-    for line in lines[ignore:]:
+    for line in lines[1:]:
         content = len(line.lstrip())
         if content:
             indent = len(line) - content
             margin = min(margin, indent)
-    # Remove indentation from ignored lines.
-    for i in range(ignore):
-        if i < len(lines):
-            lines[i] = lines[i].lstrip()
+    # Remove indentation from the first line.
+    if len(lines):
+        lines[0] = lines[0].lstrip()
     if margin < sys.maxsize:
-        for i in range(ignore, len(lines)):
+        for i in range(1, len(lines)):
             lines[i] = lines[i][margin:]
     # Remove any leading blank lines.
     while lines and not lines[0]:

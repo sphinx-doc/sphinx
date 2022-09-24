@@ -1,40 +1,35 @@
-"""
-    sphinx.ext.intersphinx
-    ~~~~~~~~~~~~~~~~~~~~~~
+"""Insert links to objects documented in remote Sphinx documentation.
 
-    Insert links to objects documented in remote Sphinx documentation.
+This works as follows:
 
-    This works as follows:
+* Each Sphinx HTML build creates a file named "objects.inv" that contains a
+  mapping from object names to URIs relative to the HTML set's root.
 
-    * Each Sphinx HTML build creates a file named "objects.inv" that contains a
-      mapping from object names to URIs relative to the HTML set's root.
+* Projects using the Intersphinx extension can specify links to such mapping
+  files in the `intersphinx_mapping` config value.  The mapping will then be
+  used to resolve otherwise missing references to objects into links to the
+  other documentation.
 
-    * Projects using the Intersphinx extension can specify links to such mapping
-      files in the `intersphinx_mapping` config value.  The mapping will then be
-      used to resolve otherwise missing references to objects into links to the
-      other documentation.
-
-    * By default, the mapping file is assumed to be at the same location as the
-      rest of the documentation; however, the location of the mapping file can
-      also be specified individually, e.g. if the docs should be buildable
-      without Internet access.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+* By default, the mapping file is assumed to be at the same location as the
+  rest of the documentation; however, the location of the mapping file can
+  also be specified individually, e.g. if the docs should be buildable
+  without Internet access.
 """
 
 import concurrent.futures
 import functools
 import posixpath
+import re
 import sys
 import time
 from os import path
-from typing import IO, Any, Dict, List, Optional, Tuple
+from types import ModuleType
+from typing import IO, Any, Dict, List, Optional, Tuple, cast
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
-from docutils.nodes import Element, TextElement
-from docutils.utils import relative_path
+from docutils.nodes import Element, Node, TextElement, system_message
+from docutils.utils import Reporter, relative_path
 
 import sphinx
 from sphinx.addnodes import pending_xref
@@ -43,10 +38,13 @@ from sphinx.builders.html import INVENTORY_FILENAME
 from sphinx.config import Config
 from sphinx.domains import Domain
 from sphinx.environment import BuildEnvironment
+from sphinx.errors import ExtensionError
 from sphinx.locale import _, __
+from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging, requests
+from sphinx.util.docutils import CustomReSTDispatcher, SphinxRole
 from sphinx.util.inventory import InventoryFile
-from sphinx.util.typing import Inventory, InventoryItem
+from sphinx.util.typing import Inventory, InventoryItem, RoleFunction
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +98,7 @@ def _strip_basic_auth(url: str) -> str:
     return urlunsplit(frags)
 
 
-def _read_from_url(url: str, config: Config = None) -> IO:
+def _read_from_url(url: str, config: Optional[Config] = None) -> IO:
     """Reads data from *url* with an HTTP *GET*.
 
     This function supports fetching from resources which use basic HTTP auth as
@@ -466,6 +464,144 @@ def missing_reference(app: Sphinx, env: BuildEnvironment, node: pending_xref,
     return resolve_reference_detect_inventory(env, node, contnode)
 
 
+class IntersphinxDispatcher(CustomReSTDispatcher):
+    """Custom dispatcher for external role.
+
+    This enables :external:***:/:external+***: roles on parsing reST document.
+    """
+
+    def role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter
+             ) -> Tuple[RoleFunction, List[system_message]]:
+        if len(role_name) > 9 and role_name.startswith(('external:', 'external+')):
+            return IntersphinxRole(role_name), []
+        else:
+            return super().role(role_name, language_module, lineno, reporter)
+
+
+class IntersphinxRole(SphinxRole):
+    # group 1: just for the optionality of the inventory name
+    # group 2: the inventory name (optional)
+    # group 3: the domain:role or role part
+    _re_inv_ref = re.compile(r"(\+([^:]+))?:(.*)")
+
+    def __init__(self, orig_name: str) -> None:
+        self.orig_name = orig_name
+
+    def run(self) -> Tuple[List[Node], List[system_message]]:
+        assert self.name == self.orig_name.lower()
+        inventory, name_suffix = self.get_inventory_and_name_suffix(self.orig_name)
+        if inventory and not inventory_exists(self.env, inventory):
+            logger.warning(__('inventory for external cross-reference not found: %s'),
+                           inventory, location=(self.env.docname, self.lineno))
+            return [], []
+
+        role_name = self.get_role_name(name_suffix)
+        if role_name is None:
+            logger.warning(__('role for external cross-reference not found: %s'), name_suffix,
+                           location=(self.env.docname, self.lineno))
+            return [], []
+
+        result, messages = self.invoke_role(role_name)
+        for node in result:
+            if isinstance(node, pending_xref):
+                node['intersphinx'] = True
+                node['inventory'] = inventory
+
+        return result, messages
+
+    def get_inventory_and_name_suffix(self, name: str) -> Tuple[Optional[str], str]:
+        assert name.startswith('external'), name
+        assert name[8] in ':+', name
+        # either we have an explicit inventory name, i.e,
+        # :external+inv:role:        or
+        # :external+inv:domain:role:
+        # or we look in all inventories, i.e.,
+        # :external:role:            or
+        # :external:domain:role:
+        inv, suffix = IntersphinxRole._re_inv_ref.fullmatch(name, 8).group(2, 3)
+        return inv, suffix
+
+    def get_role_name(self, name: str) -> Optional[Tuple[str, str]]:
+        names = name.split(':')
+        if len(names) == 1:
+            # role
+            default_domain = self.env.temp_data.get('default_domain')
+            domain = default_domain.name if default_domain else None
+            role = names[0]
+        elif len(names) == 2:
+            # domain:role:
+            domain = names[0]
+            role = names[1]
+        else:
+            return None
+
+        if domain and self.is_existent_role(domain, role):
+            return (domain, role)
+        elif self.is_existent_role('std', role):
+            return ('std', role)
+        else:
+            return None
+
+    def is_existent_role(self, domain_name: str, role_name: str) -> bool:
+        try:
+            domain = self.env.get_domain(domain_name)
+            if role_name in domain.roles:
+                return True
+            else:
+                return False
+        except ExtensionError:
+            return False
+
+    def invoke_role(self, role: Tuple[str, str]) -> Tuple[List[Node], List[system_message]]:
+        domain = self.env.get_domain(role[0])
+        if domain:
+            role_func = domain.role(role[1])
+
+            return role_func(':'.join(role), self.rawtext, self.text, self.lineno,
+                             self.inliner, self.options, self.content)
+        else:
+            return [], []
+
+
+class IntersphinxRoleResolver(ReferencesResolver):
+    """pending_xref node resolver for intersphinx role.
+
+    This resolves pending_xref nodes generated by :intersphinx:***: role.
+    """
+
+    default_priority = ReferencesResolver.default_priority - 1
+
+    def run(self, **kwargs: Any) -> None:
+        for node in self.document.findall(pending_xref):
+            if 'intersphinx' not in node:
+                continue
+            contnode = cast(nodes.TextElement, node[0].deepcopy())
+            inv_name = node['inventory']
+            if inv_name is not None:
+                assert inventory_exists(self.env, inv_name)
+                newnode = resolve_reference_in_inventory(self.env, inv_name, node, contnode)
+            else:
+                newnode = resolve_reference_any_inventory(self.env, False, node, contnode)
+            if newnode is None:
+                typ = node['reftype']
+                msg = (__('external %s:%s reference target not found: %s') %
+                       (node['refdomain'], typ, node['reftarget']))
+                logger.warning(msg, location=node, type='ref', subtype=typ)
+                node.replace_self(contnode)
+            else:
+                node.replace_self(newnode)
+
+
+def install_dispatcher(app: Sphinx, docname: str, source: List[str]) -> None:
+    """Enable IntersphinxDispatcher.
+
+    .. note:: The installed dispatcher will be uninstalled on disabling sphinx_domain
+              automatically.
+    """
+    dispatcher = IntersphinxDispatcher()
+    dispatcher.enable()
+
+
 def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
     for key, value in config.intersphinx_mapping.copy().items():
         try:
@@ -494,10 +630,12 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('intersphinx_mapping', {}, True)
     app.add_config_value('intersphinx_cache_limit', 5, False)
     app.add_config_value('intersphinx_timeout', None, False)
-    app.add_config_value('intersphinx_disabled_reftypes', [], True)
+    app.add_config_value('intersphinx_disabled_reftypes', ['std:doc'], True)
     app.connect('config-inited', normalize_intersphinx_mapping, priority=800)
     app.connect('builder-inited', load_mappings)
+    app.connect('source-read', install_dispatcher)
     app.connect('missing-reference', missing_reference)
+    app.add_post_transform(IntersphinxRoleResolver)
     return {
         'version': sphinx.__display_version__,
         'env_version': 1,
@@ -514,7 +652,7 @@ def inspect_main(argv: List[str]) -> None:
         sys.exit(1)
 
     class MockConfig:
-        intersphinx_timeout: int = None
+        intersphinx_timeout: Optional[int] = None
         tls_verify = False
         user_agent = None
 

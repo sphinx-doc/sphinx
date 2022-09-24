@@ -1,12 +1,4 @@
-"""
-    test_pycode_ast
-    ~~~~~~~~~~~~~~~
-
-    Test pycode.ast
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test pycode.ast"""
 
 import sys
 
@@ -33,7 +25,7 @@ from sphinx.pycode import ast
     ("...", "..."),                             # Ellipsis
     ("a // b", "a // b"),                       # FloorDiv
     ("Tuple[int, int]", "Tuple[int, int]"),     # Index, Subscript
-    ("~ 1", "~ 1"),                             # Invert
+    ("~1", "~1"),                               # Invert
     ("lambda x, y: x + y",
      "lambda x, y: ..."),                       # Lambda
     ("[1, 2, 3]", "[1, 2, 3]"),                 # List
@@ -45,14 +37,14 @@ from sphinx.pycode import ast
     ("1234", "1234"),                           # Num
     ("not a", "not a"),                         # Not
     ("a or b", "a or b"),                       # Or
-    ("a ** b", "a ** b"),                       # Pow
+    ("a**b", "a**b"),                           # Pow
     ("a >> b", "a >> b"),                       # RShift
     ("{1, 2, 3}", "{1, 2, 3}"),                 # Set
     ("a - b", "a - b"),                         # Sub
     ("'str'", "'str'"),                         # Str
-    ("+ a", "+ a"),                             # UAdd
-    ("- 1", "- 1"),                             # UnaryOp
-    ("- a", "- a"),                             # USub
+    ("+a", "+a"),                               # UAdd
+    ("-1", "-1"),                               # UnaryOp
+    ("-a", "-a"),                               # USub
     ("(1, 2, 3)", "(1, 2, 3)"),                 # Tuple
     ("()", "()"),                               # Tuple (empty)
     ("(1,)", "(1,)"),                           # Tuple (single item)

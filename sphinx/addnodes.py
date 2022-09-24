@@ -1,20 +1,20 @@
-"""
-    sphinx.addnodes
-    ~~~~~~~~~~~~~~~
+"""Document tree nodes that Sphinx defines on top of those in Docutils."""
 
-    Document tree nodes that Sphinx defines on top of those in Docutils.
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import TYPE_CHECKING, Any, Dict, List, Sequence
-
+import docutils
 from docutils import nodes
 from docutils.nodes import Element
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+
+try:
+    from docutils.nodes import meta as docutils_meta  # type: ignore
+except ImportError:
+    # docutils-0.17 or older
+    from docutils.parsers.rst.directives.html import MetaBody
+    docutils_meta = MetaBody.meta
 
 
 class document(nodes.document):
@@ -27,9 +27,8 @@ class document(nodes.document):
                    in your extensions.  It will be removed without deprecation period.
     """
 
-    def set_id(self, node: Element, msgnode: Element = None,
+    def set_id(self, node: Element, msgnode: Optional[Element] = None,
                suggested_prefix: str = '') -> str:
-        from sphinx.util import docutils
         if docutils.__version_info__ >= (0, 16):
             ret = super().set_id(node, msgnode, suggested_prefix)  # type: ignore
         else:
@@ -85,7 +84,7 @@ class toctree(nodes.General, nodes.Element, translatable):
     def preserve_original_messages(self) -> None:
         # toctree entries
         rawentries = self.setdefault('rawentries', [])
-        for title, docname in self['entries']:
+        for title, _docname in self['entries']:
             if title:
                 rawentries.append(title)
 
@@ -527,8 +526,6 @@ class manpage(nodes.Inline, nodes.FixedTextElement):
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
-    from sphinx.util import docutils  # lazy import
-
     app.add_node(toctree)
 
     app.add_node(desc)

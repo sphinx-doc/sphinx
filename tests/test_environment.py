@@ -1,12 +1,4 @@
-"""
-    test_env
-    ~~~~~~~~
-
-    Test the BuildEnvironment class.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the BuildEnvironment class."""
 import os
 import shutil
 
@@ -57,8 +49,7 @@ def test_images(app):
     app.build()
 
     tree = app.env.get_doctree('images')
-    htmlbuilder = StandaloneHTMLBuilder(app)
-    htmlbuilder.set_environment(app.env)
+    htmlbuilder = StandaloneHTMLBuilder(app, app.env)
     htmlbuilder.init()
     htmlbuilder.imgpath = 'dummy'
     htmlbuilder.post_process_images(tree)
@@ -67,8 +58,7 @@ def test_images(app):
     assert set(htmlbuilder.images.values()) == \
         {'img.png', 'img1.png', 'simg.png', 'svgimg.svg', 'img.foo.png'}
 
-    latexbuilder = LaTeXBuilder(app)
-    latexbuilder.set_environment(app.env)
+    latexbuilder = LaTeXBuilder(app, app.env)
     latexbuilder.init()
     latexbuilder.post_process_images(tree)
     assert set(latexbuilder.images.keys()) == \

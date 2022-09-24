@@ -1,12 +1,7 @@
-"""
-    sphinx.util.docfields
-    ~~~~~~~~~~~~~~~~~~~~~
+"""Utility code for "Doc fields".
 
-    "Doc fields" are reST field lists in object descriptions that will
-    be domain-specifically transformed to a more appealing presentation.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+"Doc fields" are reST field lists in object descriptions that will
+be domain-specifically transformed to a more appealing presentation.
 """
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Type, Union, cast
 
@@ -21,7 +16,7 @@ from sphinx.util import logging
 from sphinx.util.typing import TextlikeNode
 
 if TYPE_CHECKING:
-    from sphinx.directive import ObjectDescription
+    from sphinx.directives import ObjectDescription
 
 logger = logging.getLogger(__name__)
 
@@ -78,8 +73,8 @@ class Field:
         role = env.get_domain(domain).role(rolename)
         if role is None or inliner is None:
             if role is None and inliner is not None:
-                msg = "Problem in %s domain: field is supposed "
-                msg += "to use role '%s', but that role is not in the domain."
+                msg = __("Problem in %s domain: field is supposed "
+                         "to use role '%s', but that role is not in the domain.")
                 logger.warning(__(msg), domain, rolename, location=location)
             refnode = addnodes.pending_xref('', refdomain=domain, refexplicit=False,
                                             reftype=rolename, reftarget=target)
@@ -316,8 +311,7 @@ class DocFieldTransformer:
             if is_typefield:
                 # filter out only inline nodes; others will result in invalid
                 # markup being written out
-                content = [n for n in content if isinstance(n, nodes.Inline) or
-                           isinstance(n, nodes.Text)]
+                content = [n for n in content if isinstance(n, (nodes.Inline, nodes.Text))]
                 if content:
                     types.setdefault(typename, {})[fieldarg] = content
                 continue

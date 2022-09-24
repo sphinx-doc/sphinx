@@ -1,12 +1,4 @@
-"""
-    sphinx.transforms.post_transforms.code
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    transforms for code-blocks.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""transforms for code-blocks."""
 
 import sys
 from typing import Any, Dict, List, NamedTuple
@@ -42,7 +34,7 @@ class HighlightLanguageTransform(SphinxTransform):
                                            self.config.highlight_language)
         self.document.walkabout(visitor)
 
-        for node in list(self.document.traverse(addnodes.highlightlang)):
+        for node in list(self.document.findall(addnodes.highlightlang)):
             node.parent.remove(node)
 
 
@@ -94,11 +86,11 @@ class TrimDoctestFlagsTransform(SphinxTransform):
     default_priority = HighlightLanguageTransform.default_priority + 1
 
     def apply(self, **kwargs: Any) -> None:
-        for lbnode in self.document.traverse(nodes.literal_block):  # type: nodes.literal_block
+        for lbnode in self.document.findall(nodes.literal_block):
             if self.is_pyconsole(lbnode):
                 self.strip_doctest_flags(lbnode)
 
-        for dbnode in self.document.traverse(nodes.doctest_block):  # type: nodes.doctest_block
+        for dbnode in self.document.findall(nodes.doctest_block):
             self.strip_doctest_flags(dbnode)
 
     def strip_doctest_flags(self, node: TextElement) -> None:

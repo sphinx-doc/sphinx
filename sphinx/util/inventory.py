@@ -1,12 +1,4 @@
-"""
-    sphinx.util.inventory
-    ~~~~~~~~~~~~~~~~~~~~~
-
-    Inventory utility functions for Sphinx.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Inventory utility functions for Sphinx."""
 import os
 import re
 import zlib

@@ -1,15 +1,6 @@
-"""
-    sphinx.errors
-    ~~~~~~~~~~~~~
+"""Contains SphinxError and a few subclasses."""
 
-    Contains SphinxError and a few subclasses (in an extra module to avoid
-    circular import problems).
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import Any
+from typing import Any, Optional
 
 
 class SphinxError(Exception):
@@ -48,7 +39,9 @@ class ApplicationError(SphinxError):
 class ExtensionError(SphinxError):
     """Extension error."""
 
-    def __init__(self, message: str, orig_exc: Exception = None, modname: str = None) -> None:
+    def __init__(
+        self, message: str, orig_exc: Optional[Exception] = None, modname: Optional[str] = None
+    ) -> None:
         super().__init__(message)
         self.message = message
         self.orig_exc = orig_exc

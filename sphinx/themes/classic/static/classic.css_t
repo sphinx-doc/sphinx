@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- classic theme.
  *
- * :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -28,6 +28,7 @@ body {
 }
 
 div.document {
+    display: flex;
     background-color: {{ theme_sidebarbgcolor }};
 }
 
@@ -153,9 +154,39 @@ div.sphinxsidebar input {
 }
 
 {% if theme_collapsiblesidebar|tobool %}
+{% if theme_rightsidebar|tobool %}
+    {% set side = 'right' %}
+    {% set opposite = 'left' %}
+{% else %}
+    {% set side = 'left' %}
+    {% set opposite = 'right' %}
+{% endif %}
 /* for collapsible sidebar */
-div#sidebarbutton {
+#sidebarbutton {
+    height: 100%;
     background-color: {{ theme_sidebarbtncolor }};
+    margin-{{side}}: 0;
+    color: #FFFFFF;
+    border-{{side}}: 1px solid {{ theme_relbarbgcolor }};
+    font-size: 1.2em;
+    cursor: pointer;
+    padding-top: 1px;
+    float: {{ 'left' if theme_rightsidebar|tobool else 'right' }};
+    display: table; /* for vertically centering the <span> */
+}
+
+#sidebarbutton:hover {
+    background-color: {{ theme_relbarbgcolor }};
+}
+
+#sidebarbutton span {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+div.sphinxsidebarwrapper {
+    float: {{side}};
+    margin-{{opposite}}: 0;
 }
 {% endif %}
 
@@ -259,6 +290,10 @@ div.seealso {
     border: 1px solid #ff6;
 }
 
+{%- if docutils_version_info[:2] >= (0, 18) %}
+nav.contents,
+aside.topic,
+{% endif %}
 div.topic {
     background-color: #eee;
 }

@@ -1,27 +1,25 @@
-"""
-    sphinx.util.smartypants
-    ~~~~~~~~~~~~~~~~~~~~~~~
+"""Deprecated backport of docutils.utils.smartquotes.
 
-    This is extracted (with minor adaptations for flake8 compliance) from
-    docutils’ docutils/utils/smartquotes.py as of revision 8097 (30 May 2017),
-    in order to backport for Sphinx usage with Docutils < 0.14 extra language
-    configurations and fixes. Replaces earlier smartypants version as used up
-    to Sphinx 1.5.6.
+This is extracted (with minor adaptations for flake8 compliance) from
+docutils’ docutils/utils/smartquotes.py as of revision 8097 (30 May 2017),
+in order to backport for Sphinx usage with Docutils < 0.14 extra language
+configurations and fixes. Replaces earlier smartypants version as used up
+to Sphinx 1.5.6.
 
-    :copyright: © 2010 Günter Milde,
-                original `SmartyPants`_: © 2003 John Gruber
-                smartypants.py:          © 2004, 2007 Chad Miller
-    :license: Released under the terms of the `2-Clause BSD license`_, in short:
+:copyright: © 2010 Günter Milde,
+            original `SmartyPants`_: © 2003 John Gruber
+            smartypants.py:          © 2004, 2007 Chad Miller
+:license: Released under the terms of the `2-Clause BSD license`_, in short:
 
-       Copying and distribution of this file, with or without modification,
-       are permitted in any medium without royalty provided the copyright
-       notices and this notice are preserved.
-       This file is offered as-is, without any warranty.
+   Copying and distribution of this file, with or without modification,
+   are permitted in any medium without royalty provided the copyright
+   notices and this notice are preserved.
+   This file is offered as-is, without any warranty.
 
-    .. _SmartyPants: https://daringfireball.net/projects/smartypants/
-    .. _2-Clause BSD license: https://spdx.org/licenses/BSD-2-Clause
+.. _SmartyPants: https://daringfireball.net/projects/smartypants/
+.. _2-Clause BSD license: https://spdx.org/licenses/BSD-2-Clause
 
-    See the LICENSE file and the original docutils code for details.
+See the LICENSE file and the original docutils code for details.
 
 """
 
@@ -32,7 +30,6 @@ from typing import Generator, Iterable, Tuple
 from docutils.utils import smartquotes
 
 from sphinx.deprecation import RemovedInSphinx60Warning
-from sphinx.util.docutils import __version_info__ as docutils_version
 
 warnings.warn('sphinx.util.smartypants is deprecated.',
               RemovedInSphinx60Warning)
@@ -375,17 +372,3 @@ def educate_tokens(text_tokens: Iterable[Tuple[str, str]],
         text = smartquotes.processEscapes(text, restore=True)
 
         yield text
-
-
-if docutils_version < (0, 13, 2):
-    # Monkey patch the old docutils versions to fix the issues mentioned
-    # at https://sourceforge.net/p/docutils/bugs/313/
-    # at https://sourceforge.net/p/docutils/bugs/317/
-    # and more
-    smartquotes.educateQuotes = educateQuotes
-    smartquotes.educate_tokens = educate_tokens
-
-    # Fix the issue with French quotes mentioned at
-    # https://sourceforge.net/p/docutils/mailman/message/35760696/
-    # Add/fix other languages as well
-    smartquotes.smartchars.quotes = langquotes

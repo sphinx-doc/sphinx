@@ -1,12 +1,4 @@
-"""
-    test_environment_indexentries
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Test the sphinx.environment.managers.indexentries.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the sphinx.environment.managers.indexentries."""
 
 import pytest
 

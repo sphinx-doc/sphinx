@@ -1,19 +1,8 @@
-"""
-    sphinx.testing.path
-    ~~~~~~~~~~~~~~~~~~~
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
 import builtins
 import os
 import shutil
 import sys
-import warnings
-from typing import IO, Any, Callable, List
-
-from sphinx.deprecation import RemovedInSphinx50Warning
+from typing import IO, Any, Callable, List, Optional
 
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
@@ -80,7 +69,7 @@ class path(str):
         """
         return os.path.ismount(self)
 
-    def rmtree(self, ignore_errors: bool = False, onerror: Callable = None) -> None:
+    def rmtree(self, ignore_errors: bool = False, onerror: Optional[Callable] = None) -> None:
         """
         Removes the file or directory and any files or directories it may
         contain.
@@ -115,7 +104,7 @@ class path(str):
             # as well.  To avoid failures when adding additional files/directories
             # to the destination tree, ensure destination directories are not marked
             # read-only.
-            for root, dirs, files in os.walk(destination):
+            for root, _dirs, files in os.walk(destination):
                 os.chmod(root, 0o755 & ~UMASK)
                 for name in files:
                     os.chmod(os.path.join(root, name), 0o644 & ~UMASK)
@@ -157,28 +146,12 @@ class path(str):
         with open(self, 'w', encoding=encoding, **kwargs) as f:
             f.write(text)
 
-    def text(self, encoding: str = 'utf-8', **kwargs: Any) -> str:
-        """
-        Returns the text in the file.
-        """
-        warnings.warn('Path.text() is deprecated.  Please use read_text() instead.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        return self.read_text(encoding, **kwargs)
-
     def read_text(self, encoding: str = 'utf-8', **kwargs: Any) -> str:
         """
         Returns the text in the file.
         """
         with open(self, encoding=encoding, **kwargs) as f:
             return f.read()
-
-    def bytes(self) -> builtins.bytes:
-        """
-        Returns the bytes in the file.
-        """
-        warnings.warn('Path.bytes() is deprecated.  Please use read_bytes() instead.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        return self.read_bytes()
 
     def read_bytes(self) -> builtins.bytes:
         """

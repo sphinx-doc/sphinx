@@ -1,12 +1,4 @@
-"""
-    test_build
-    ~~~~~~~~~~
-
-    Test all builders.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test all builders."""
 
 import sys
 from textwrap import dedent
@@ -45,14 +37,14 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
         (srcdir / (test_name + '.txt')).write_text(dedent("""
             nonascii file name page
             =======================
-            """))
+            """), encoding='utf8')
 
         root_doc = srcdir / 'index.txt'
-        root_doc.write_text(root_doc.read_text() + dedent("""
+        root_doc.write_text(root_doc.read_text(encoding='utf8') + dedent("""
                             .. toctree::
 
                                %(test_name)s/%(test_name)s
-                            """ % {'test_name': test_name}))
+                            """ % {'test_name': test_name}), encoding='utf8')
     return srcdir
 
 
@@ -71,7 +63,7 @@ def test_build_all(requests_head, make_app, nonascii_srcdir, buildername):
 
 
 def test_root_doc_not_found(tempdir, make_app):
-    (tempdir / 'conf.py').write_text('')
+    (tempdir / 'conf.py').write_text('', encoding='utf8')
     assert tempdir.listdir() == ['conf.py']
 
     app = make_app('dummy', srcdir=tempdir)

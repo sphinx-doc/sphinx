@@ -1,12 +1,6 @@
-"""
-    sphinx.builders.epub3
-    ~~~~~~~~~~~~~~~~~~~~~
+"""Build epub3 files.
 
-    Build epub3 files.
-    Originally derived from epub.py.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+Originally derived from epub.py.
 """
 
 import html
@@ -83,7 +77,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         self.build_toc()
         self.build_epub()
 
-    def content_metadata(self) -> Dict:
+    def content_metadata(self) -> Dict[str, Any]:
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
         """
@@ -94,7 +88,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         metadata['contributor'] = html.escape(self.config.epub_contributor)
         metadata['page_progression_direction'] = PAGE_PROGRESSION_DIRECTIONS.get(writing_mode)
         metadata['ibook_scroll_axis'] = IBOOK_SCROLL_AXIS.get(writing_mode)
-        metadata['date'] = html.escape(format_date("%Y-%m-%dT%H:%M:%SZ"))
+        metadata['date'] = html.escape(format_date("%Y-%m-%dT%H:%M:%SZ", language='en'))
         metadata['version'] = html.escape(self.config.version)
         metadata['epub_version'] = self.config.epub_version
         return metadata
@@ -150,11 +144,11 @@ class Epub3Builder(_epub_base.EpubBuilder):
 
         return navstack[0].children
 
-    def navigation_doc_metadata(self, navlist: List[NavPoint]) -> Dict:
+    def navigation_doc_metadata(self, navlist: List[NavPoint]) -> Dict[str, Any]:
         """Create a dictionary with all metadata for the nav.xhtml file
         properly escaped.
         """
-        metadata: Dict = {}
+        metadata = {}
         metadata['lang'] = html.escape(self.config.epub_language)
         metadata['toc_locale'] = html.escape(self.guide_titles['toc'])
         metadata['navlist'] = navlist
@@ -223,7 +217,7 @@ def validate_config_values(app: Sphinx) -> None:
 
 def convert_epub_css_files(app: Sphinx, config: Config) -> None:
     """This converts string styled epub_css_files to tuple styled one."""
-    epub_css_files: List[Tuple[str, Dict]] = []
+    epub_css_files: List[Tuple[str, Dict[str, Any]]] = []
     for entry in config.epub_css_files:
         if isinstance(entry, str):
             epub_css_files.append((entry, {}))
@@ -242,7 +236,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(Epub3Builder)
 
     # config values
-    app.add_config_value('epub_basename', lambda self: make_filename(self.project), None)
+    app.add_config_value('epub_basename', lambda self: make_filename(self.project), False)
     app.add_config_value('epub_version', 3.0, 'epub')  # experimental
     app.add_config_value('epub_theme', 'epub', 'epub')
     app.add_config_value('epub_theme_options', {}, 'epub')

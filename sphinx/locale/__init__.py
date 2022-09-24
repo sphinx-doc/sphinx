@@ -1,12 +1,4 @@
-"""
-    sphinx.locale
-    ~~~~~~~~~~~~~
-
-    Locale utilities.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Locale utilities."""
 
 import gettext
 import locale
@@ -67,19 +59,19 @@ class _TranslationProxy(UserString):
     def __add__(self, other: str) -> str:  # type: ignore
         return self.data + other
 
-    def __radd__(self, other: str) -> str:
+    def __radd__(self, other: str) -> str:  # type: ignore
         return other + self.data
 
     def __mod__(self, other: str) -> str:  # type: ignore
         return self.data % other
 
-    def __rmod__(self, other: str) -> str:
+    def __rmod__(self, other: str) -> str:  # type: ignore
         return other % self.data
 
     def __mul__(self, other: Any) -> str:  # type: ignore
         return self.data * other
 
-    def __rmul__(self, other: Any) -> str:
+    def __rmul__(self, other: Any) -> str:  # type: ignore
         return other * self.data
 
     def __getattr__(self, name: str) -> Any:
@@ -148,7 +140,7 @@ def init(locale_dirs: List[Optional[str]], language: Optional[str],
     return translator, has_translation
 
 
-def setlocale(category: int, value: Union[str, Iterable[str]] = None) -> None:
+def setlocale(category: int, value: Union[str, Iterable[str], None] = None) -> None:
     """Update locale settings.
 
     This does not throw any exception even if update fails.
@@ -175,7 +167,7 @@ def init_console(locale_dir: str, catalog: str) -> Tuple[NullTranslations, bool]
     """
     try:
         # encoding is ignored
-        language, _ = locale.getlocale(locale.LC_MESSAGES)  # type: Tuple[Optional[str], Any]
+        language, _ = locale.getlocale(locale.LC_MESSAGES)
     except AttributeError:
         # LC_MESSAGES is not always defined. Fallback to the default language
         # in case it is not.
@@ -199,7 +191,7 @@ def _lazy_translate(catalog: str, namespace: str, message: str) -> str:
     return translator.gettext(message)
 
 
-def get_translation(catalog: str, namespace: str = 'general') -> Callable:
+def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str], str]:
     """Get a translation function based on the *catalog* and *namespace*.
 
     The extension can use this API to translate the messages on the

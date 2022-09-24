@@ -1,12 +1,4 @@
-"""
-    test_util_docutils
-    ~~~~~~~~~~~~~~~~~~
-
-    Tests util.utils functions.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests util.utils functions."""
 
 import os
 

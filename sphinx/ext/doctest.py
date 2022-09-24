@@ -1,12 +1,6 @@
-"""
-    sphinx.ext.doctest
-    ~~~~~~~~~~~~~~~~~~
+"""Mimic doctest in Sphinx.
 
-    Mimic doctest by automatically executing code snippets and checking
-    their results.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+The extension automatically execute code snippets and checks their results.
 """
 
 import doctest
@@ -15,8 +9,8 @@ import sys
 import time
 from io import StringIO
 from os import path
-from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple,
-                    Type)
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Optional, Sequence,
+                    Set, Tuple, Type)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement
@@ -47,15 +41,15 @@ def is_allowed_version(spec: str, version: str) -> bool:
     """Check `spec` satisfies `version` or not.
 
     This obeys PEP-440 specifiers:
-    https://www.python.org/dev/peps/pep-0440/#version-specifiers
+    https://peps.python.org/pep-0440/#version-specifiers
 
     Some examples:
 
-        >>> is_allowed_version('3.3', '<=3.5')
+        >>> is_allowed_version('<=3.5', '3.3')
         True
-        >>> is_allowed_version('3.3', '<=3.2')
+        >>> is_allowed_version('<=3.2', '3.3')
         False
-        >>> is_allowed_version('3.3', '>3.2, <4.0')
+        >>> is_allowed_version('>3.2, <4.0', '3.3')
         True
     """
     return Version(version) in SpecifierSet(spec)
@@ -231,7 +225,7 @@ class TestGroup:
 
 class TestCode:
     def __init__(self, code: str, type: str, filename: str,
-                 lineno: int, options: Dict = None) -> None:
+                 lineno: int, options: Optional[Dict] = None) -> None:
         self.code = code
         self.type = type
         self.filename = filename
@@ -323,7 +317,7 @@ class DocTestBuilder(Builder):
             logger.info(text, nonl=True)
         self.outfile.write(text)
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
         return ''
 
     def get_outdated_docs(self) -> Set[str]:
@@ -368,11 +362,11 @@ Doctest summary
             filename = relpath(node.source, self.env.srcdir)\
                 .rsplit(':docstring of ', maxsplit=1)[0]
         except Exception:
-            filename = self.env.doc2path(docname, base=None)
+            filename = self.env.doc2path(docname, False)
         return filename
 
     @staticmethod
-    def get_line_number(node: Node) -> int:
+    def get_line_number(node: Node) -> Optional[int]:
         """Get the real line number or admit we don't know."""
         # TODO:  Work out how to store or calculate real (file-relative)
         #       line numbers for doctest blocks in docstrings.
@@ -422,7 +416,7 @@ Doctest summary
             def condition(node: Node) -> bool:
                 return isinstance(node, (nodes.literal_block, nodes.comment)) \
                     and 'testnodetype' in node
-        for node in doctree.traverse(condition):  # type: Element
+        for node in doctree.findall(condition):  # type: Element
             if self.skipped(node):
                 continue
 

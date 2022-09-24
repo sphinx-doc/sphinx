@@ -1,16 +1,9 @@
-"""
-    sphinx.jinja2glue
-    ~~~~~~~~~~~~~~~~~
+"""Glue code for the jinja2 templating engine."""
 
-    Glue code for the jinja2 templating engine.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
+import pathlib
 from os import path
 from pprint import pformat
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
 
 from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
 from jinja2.environment import Environment
@@ -124,7 +117,7 @@ class SphinxFileSystemLoader(FileSystemLoader):
 
     def get_source(self, environment: Environment, template: str) -> Tuple[str, str, Callable]:
         for searchpath in self.searchpath:
-            filename = path.join(searchpath, template)
+            filename = str(pathlib.Path(searchpath, template))
             f = open_if_exists(filename)
             if f is None:
                 continue
@@ -149,7 +142,12 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
     # TemplateBridge interface
 
-    def init(self, builder: "Builder", theme: Theme = None, dirs: List[str] = None) -> None:
+    def init(
+        self,
+        builder: "Builder",
+        theme: Optional[Theme] = None,
+        dirs: Optional[List[str]] = None
+    ) -> None:
         # create a chain of paths to search
         if theme:
             # the theme's own dir and its bases' dirs

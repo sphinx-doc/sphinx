@@ -1,17 +1,9 @@
-"""
-    sphinx.environment.adapters.indexentries
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Index entries adapters for sphinx.environment.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Index entries adapters for sphinx.environment."""
 
 import re
 import unicodedata
 from itertools import groupby
-from typing import Any, Dict, List, Pattern, Tuple, cast
+from typing import Any, Dict, List, Optional, Pattern, Tuple, cast
 
 from sphinx.builders import Builder
 from sphinx.domains.index import IndexDomain
@@ -33,8 +25,8 @@ class IndexEntries:
         """Create the real index from the collected index entries."""
         new: Dict[str, List] = {}
 
-        def add_entry(word: str, subword: str, main: str, link: bool = True,
-                      dic: Dict = new, key: str = None) -> None:
+        def add_entry(word: str, subword: str, main: Optional[str], link: bool = True,
+                      dic: Dict[str, List] = new, key: Optional[str] = None) -> None:
             # Force the word to be unicode if it's a ASCII bytestring.
             # This will solve problems with unicode normalization later.
             # For instance the RFC role will add bytestrings at the moment
@@ -55,7 +47,7 @@ class IndexEntries:
         domain = cast(IndexDomain, self.env.get_domain('index'))
         for fn, entries in domain.entries.items():
             # new entry types must be listed in directives/other.py!
-            for type, value, tid, main, index_key in entries:
+            for type, value, tid, main, index_key in entries:  # noqa: B007
                 try:
                     if type == 'single':
                         try:
@@ -126,7 +118,7 @@ class IndexEntries:
             #     (in module foo)
             #     (in module bar)
             oldkey = ''
-            oldsubitems: Dict[str, List] = None
+            oldsubitems: Optional[Dict[str, List]] = None
             i = 0
             while i < len(newlist):
                 key, (targets, subitems, _key) = newlist[i]

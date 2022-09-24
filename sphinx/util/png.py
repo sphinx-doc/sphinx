@@ -1,12 +1,4 @@
-"""
-    sphinx.util.png
-    ~~~~~~~~~~~~~~~
-
-    PNG image manipulation helpers.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""PNG image manipulation helpers."""
 
 import binascii
 import struct

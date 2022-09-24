@@ -10,7 +10,7 @@ for stable releases
 * Check diff by ``git diff``
 * ``git commit -am 'Bump to X.Y.Z final'``
 * ``make clean``
-* ``python setup.py release bdist_wheel sdist``
+* ``python -m build .``
 * ``twine upload dist/Sphinx-* --sign --identity [your GPG key]``
 * open https://pypi.org/project/Sphinx/ and check there are no obvious errors
 * ``sh utils/bump_docker.sh X.Y.Z``
@@ -34,7 +34,7 @@ for first beta releases
 * Check diff by ``git diff``
 * ``git commit -am 'Bump to X.Y.0 beta1'``
 * ``make clean``
-* ``python setup.py release bdist_wheel sdist``
+* ``python -m build .``
 * ``twine upload dist/Sphinx-* --sign --identity [your GPG key]``
 * open https://pypi.org/project/Sphinx/ and check there are no obvious errors
 * ``git tag vX.Y.0b1``
@@ -62,7 +62,7 @@ for other beta releases
 * Check diff by ``git diff``
 * ``git commit -am 'Bump to X.Y.0 betaN'``
 * ``make clean``
-* ``python setup.py release bdist_wheel sdist``
+* ``python -m build .``
 * ``twine upload dist/Sphinx-* --sign --identity [your GPG key]``
 * open https://pypi.org/project/Sphinx/ and check there are no obvious errors
 * ``git tag vX.Y.0bN``
@@ -87,7 +87,7 @@ for major releases
 * Check diff by ``git diff``
 * ``git commit -am 'Bump to X.Y.0 final'``
 * ``make clean``
-* ``python setup.py release bdist_wheel sdist``
+* ``python -m build .``
 * ``twine upload dist/Sphinx-* --sign --identity [your GPG key]``
 * open https://pypi.org/project/Sphinx/ and check there are no obvious errors
 * ``sh utils/bump_docker.sh X.Y.Z``

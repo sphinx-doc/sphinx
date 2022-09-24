@@ -1,12 +1,4 @@
-"""
-    sphinx.search.tr
-    ~~~~~~~~~~~~~~~~
-
-    Turkish search language: includes the JS Turkish stemmer.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Turkish search language: includes the JS Turkish stemmer."""
 
 from typing import Dict, Set
 

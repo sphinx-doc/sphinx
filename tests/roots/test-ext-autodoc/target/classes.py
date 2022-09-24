@@ -37,3 +37,6 @@ Alias = Foo
 
 #: docstring
 OtherAlias = Bar
+
+#: docstring
+IntAlias = int

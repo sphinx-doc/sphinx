@@ -1,12 +1,4 @@
-"""
-    sphinx.util.osutil
-    ~~~~~~~~~~~~~~~~~~
-
-    Operating system-related utility functions for Sphinx.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Operating system-related utility functions for Sphinx."""
 
 import contextlib
 import filecmp
@@ -14,12 +6,10 @@ import os
 import re
 import shutil
 import sys
-import warnings
+import unicodedata
 from io import StringIO
 from os import path
 from typing import Any, Generator, Iterator, List, Optional, Type
-
-from sphinx.deprecation import RemovedInSphinx50Warning
 
 try:
     # for ALT Linux (#6712)
@@ -43,6 +33,12 @@ def os_path(canonicalpath: str) -> str:
 def canon_path(nativepath: str) -> str:
     """Return path in OS-independent form"""
     return nativepath.replace(path.sep, SEP)
+
+
+def path_stabilize(filepath: str) -> str:
+    "Normalize path separator and unicode string"
+    new_path = canon_path(filepath)
+    return unicodedata.normalize('NFC', new_path)
 
 
 def relative_uri(base: str, to: str) -> str:
@@ -75,26 +71,13 @@ def ensuredir(path: str) -> None:
 
 def mtimes_of_files(dirnames: List[str], suffix: str) -> Iterator[float]:
     for dirname in dirnames:
-        for root, dirs, files in os.walk(dirname):
+        for root, _dirs, files in os.walk(dirname):
             for sfile in files:
                 if sfile.endswith(suffix):
                     try:
                         yield path.getmtime(path.join(root, sfile))
                     except OSError:
                         pass
-
-
-def movefile(source: str, dest: str) -> None:
-    """Move a file, removing the destination if it exists."""
-    warnings.warn('sphinx.util.osutil.movefile() is deprecated for removal. '
-                  'Please use os.replace() instead.',
-                  RemovedInSphinx50Warning, stacklevel=2)
-    if os.path.exists(dest):
-        try:
-            os.unlink(dest)
-        except OSError:
-            pass
-    os.rename(source, dest)
 
 
 def copytimes(source: str, dest: str) -> None:
@@ -129,7 +112,7 @@ def make_filename_from_project(project: str) -> str:
     return make_filename(project_suffix_re.sub('', project)).lower()
 
 
-def relpath(path: str, start: str = os.curdir) -> str:
+def relpath(path: str, start: Optional[str] = os.curdir) -> str:
     """Return a relative filepath to *path* either from the current directory or
     from an optional *start* directory.
 

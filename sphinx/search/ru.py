@@ -1,12 +1,4 @@
-"""
-    sphinx.search.ru
-    ~~~~~~~~~~~~~~~~
-
-    Russian search language: includes the JS Russian stemmer.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Russian search language: includes the JS Russian stemmer."""
 
 from typing import Dict
 

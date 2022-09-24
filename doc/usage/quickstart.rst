@@ -39,7 +39,7 @@ Sphinx comes with a script called :program:`sphinx-quickstart` that sets up a
 source directory and creates a default :file:`conf.py` with the most useful
 configuration values from a few questions it asks you. To use this, run:
 
-.. code-block:: shell
+.. code-block:: console
 
    $ sphinx-quickstart
 
@@ -128,7 +128,7 @@ Running the build
 Now that you have added some files and content, let's make a first build of the
 docs.  A build is started with the :program:`sphinx-build` program:
 
-.. code-block:: shell
+.. code-block:: console
 
    $ sphinx-build -b html sourcedir builddir
 
@@ -144,7 +144,7 @@ However, :program:`sphinx-quickstart` script creates a :file:`Makefile` and a
 :file:`make.bat` which make life even easier for you. These can be executed by
 running :command:`make` with the name of the builder. For example.
 
-.. code-block:: shell
+.. code-block:: console
 
    $ make html
 

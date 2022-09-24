@@ -1,12 +1,4 @@
-"""
-    test_ext_autodoc_events
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
-    Test the autodoc extension.  This tests mainly for autodoc events
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the autodoc extension.  This tests mainly for autodoc events"""
 
 import pytest
 

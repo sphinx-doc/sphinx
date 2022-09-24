@@ -1,12 +1,4 @@
-"""
-    sphinx.search.fr
-    ~~~~~~~~~~~~~~~~
-
-    French search language: includes the JS French stemmer.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""French search language: includes the JS French stemmer."""
 
 from typing import Dict
 
