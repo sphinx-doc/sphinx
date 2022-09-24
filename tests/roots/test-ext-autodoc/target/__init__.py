@@ -1,7 +1,7 @@
 import enum
 from io import StringIO
 
-from sphinx.util import save_traceback  # NOQA
+from sphinx.util import save_traceback
 
 __all__ = ['Class']
 

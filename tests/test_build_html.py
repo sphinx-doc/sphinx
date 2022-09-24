@@ -6,10 +6,8 @@ from itertools import chain, cycle
 from unittest.mock import ANY, call, patch
 
 import docutils
-import pygments
 import pytest
 from html5lib import HTMLParser
-from packaging import version
 
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.errors import ConfigError
@@ -21,9 +19,6 @@ if docutils.__version_info__ < (0, 17):
     FIGURE_CAPTION = ".//div[@class='figure align-default']/p[@class='caption']"
 else:
     FIGURE_CAPTION = ".//figure/figcaption/p"
-
-
-PYGMENTS_VERSION = version.parse(pygments.__version__).release
 
 
 ENV_WARNINGS = """\
@@ -134,6 +129,16 @@ def test_html_warnings(app, warning):
 @pytest.mark.sphinx('html', confoverrides={'html4_writer': True})
 def test_html4_output(app, status, warning):
     app.build()
+
+
+def test_html4_deprecation(make_app, tempdir):
+    (tempdir / 'conf.py').write_text('', encoding='utf-8')
+    app = make_app(
+        buildername='html',
+        srcdir=tempdir,
+        confoverrides={'html4_writer': True},
+    )
+    assert 'HTML 4 output is deprecated and will be removed' in app._warning.getvalue()
 
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
@@ -1631,13 +1636,10 @@ def test_html_codeblock_linenos_style_table(app):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
-    if PYGMENTS_VERSION >= (2, 8):
-        assert ('<div class="linenodiv"><pre><span class="normal">1</span>\n'
-                '<span class="normal">2</span>\n'
-                '<span class="normal">3</span>\n'
-                '<span class="normal">4</span></pre></div>') in content
-    else:
-        assert '<div class="linenodiv"><pre>1\n2\n3\n4</pre></div>' in content
+    assert ('<div class="linenodiv"><pre><span class="normal">1</span>\n'
+            '<span class="normal">2</span>\n'
+            '<span class="normal">3</span>\n'
+            '<span class="normal">4</span></pre></div>') in content
 
 
 @pytest.mark.sphinx('html', testroot='reST-code-block',
@@ -1646,10 +1648,7 @@ def test_html_codeblock_linenos_style_inline(app):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
-    if PYGMENTS_VERSION > (2, 7):
-        assert '<span class="linenos">1</span>' in content
-    else:
-        assert '<span class="lineno">1 </span>' in content
+    assert '<span class="linenos">1</span>' in content
 
 
 @pytest.mark.sphinx('html', testroot='highlight_options')

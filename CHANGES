@@ -4,26 +4,44 @@ Release 5.2.0 (in development)
 Dependencies
 ------------
 
+* #10356: Sphinx now uses declarative metadata with ``pyproject.toml`` to
+  create packages, using PyPA's ``build`` project as a build backend. Patch by
+  Adam Turner.
+
 Incompatible changes
 --------------------
 
 Deprecated
 ----------
 
+* #10843: Support for HTML 4 output. Patch by Adam Turner.
+
 Features added
 --------------
 
-- #10286: C++, support requires clauses not just between the template
+* #10286: C++, support requires clauses not just between the template
   parameter lists and the declaration.
-- #10759: LaTeX: add :confval:`latex_table_style` and support the
+* #10759: LaTeX: add :confval:`latex_table_style` and support the
   ``'booktabs'``, ``'borderless'``, and ``'colorrows'`` styles.
+* #10755: linkcheck: Check the source URL of raw directives that use the ``url``
+  option.
+* #10781: Allow :rst:role:`ref` role to be used with definitions and fields.
+* #10717: HTML Search: Increase priority for full title and
+  subtitle matches in search results
+* #10718: HTML Search: Save search result score to the HTML element for debugging
+* #10673: Make toctree accept 'genindex', 'modindex' and 'search' docnames
+* #6316, #10804: Add domain objects to the table of contents. Patch by Adam Turner
+* #6692: HTML Search: Include explicit :rst:dir:`index` directive index entries
+  in the search index and search results. Patch by Adam Turner
+* #10816: imgmath: Allow embedding images in HTML as base64
 
 Bugs fixed
 ----------
 
-- #10257: C++, ensure consistent non-specialization template argument
+* #10257: C++, ensure consistent non-specialization template argument
   representation.
-- #10729: C++, fix parsing of certain non-type template parameter packs.
+* #10729: C++, fix parsing of certain non-type template parameter packs.
+* #10715: Revert #10520: "Fix" use of sidebar classes in ``agogo.css_t``
 
 Testing
 --------
@@ -115,8 +133,8 @@ Bugs fixed
 * #10506: LaTeX: build error if highlighting inline code role in figure caption
   (refs: #10251)
 * #10634: Make -P (pdb) option work better with exceptions triggered from events
-* #10031: py domain: Fix spurious whitespace in unparsing various operators (``+``,
-  ``-``, ``~``, and ``**``). Patch by Adam Turner.
+* #10550: py domain: Fix spurious whitespace in unparsing various operators (``+``,
+  ``-``, ``~``, and ``**``). Patch by Adam Turner (refs: #10551).
 * #10460: logging: Always show node source locations as absolute paths.
 * HTML Search: HTML tags are displayed as a part of object name
 * HTML Search: search snipets should not be folded

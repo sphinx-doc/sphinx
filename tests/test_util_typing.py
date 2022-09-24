@@ -320,8 +320,8 @@ def test_stringify_type_hints_pep_585():
 @pytest.mark.skipif(sys.version_info < (3, 9), reason='python 3.9+ is required.')
 def test_stringify_Annotated():
     from typing import Annotated  # type: ignore
-    assert stringify(Annotated[str, "foo", "bar"]) == "str"  # NOQA
-    assert stringify(Annotated[str, "foo", "bar"], "smart") == "str"  # NOQA
+    assert stringify(Annotated[str, "foo", "bar"]) == "str"
+    assert stringify(Annotated[str, "foo", "bar"], "smart") == "str"
 
 
 def test_stringify_type_hints_string():

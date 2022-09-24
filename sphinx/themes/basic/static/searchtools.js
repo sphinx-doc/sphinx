@@ -64,7 +64,7 @@ const _displayItem = (item, highlightTerms, searchTerms) => {
   const docLinkSuffix = DOCUMENTATION_OPTIONS.LINK_SUFFIX;
   const showSearchSummary = DOCUMENTATION_OPTIONS.SHOW_SEARCH_SUMMARY;
 
-  const [docName, title, anchor, descr] = item;
+  const [docName, title, anchor, descr, score, _filename] = item;
 
   let listItem = document.createElement("li");
   let requestUrl;
@@ -86,6 +86,7 @@ const _displayItem = (item, highlightTerms, searchTerms) => {
   params.set("highlight", [...highlightTerms].join(" "));
   let linkEl = listItem.appendChild(document.createElement("a"));
   linkEl.href = linkUrl + "?" + params.toString() + anchor;
+  linkEl.dataset.score = score;
   linkEl.innerHTML = title;
   if (descr)
     listItem.appendChild(document.createElement("span")).innerHTML =
@@ -237,6 +238,12 @@ const Search = {
    * execute search (requires search index to be loaded)
    */
   query: (query) => {
+    const filenames = Search._index.filenames;
+    const docNames = Search._index.docnames;
+    const titles = Search._index.titles;
+    const allTitles = Search._index.alltitles;
+    const indexEntries = Search._index.indexentries;
+
     // stem the search terms and add them to the correct list
     const stemmer = new Stemmer();
     const searchTerms = new Set();
@@ -271,6 +278,40 @@ const Search = {
     // array of [docname, title, anchor, descr, score, filename]
     let results = [];
     _removeChildren(document.getElementById("search-progress"));
+
+    const queryLower = query.toLowerCase();
+    for (const [title, foundTitles] of Object.entries(allTitles)) {
+      if (title.toLowerCase().includes(queryLower) && (queryLower.length >= title.length/2)) {
+        for (const [file, id] of foundTitles) {
+          let score = Math.round(100 * queryLower.length / title.length)
+          results.push([
+            docNames[file],
+            titles[file] !== title ? `${titles[file]} > ${title}` : title,
+            id !== null ? "#" + id : "",
+            null,
+            score,
+            filenames[file],
+          ]);
+        }
+      }
+    }
+
+    // search for explicit entries in index directives
+    for (const [entry, foundEntries] of Object.entries(indexEntries)) {
+      if (entry.includes(queryLower) && (queryLower.length >= entry.length/2)) {
+        for (const [file, id] of foundEntries) {
+          let score = Math.round(100 * queryLower.length / entry.length)
+          results.push([
+            docNames[file],
+            titles[file],
+            id ? "#" + id : "",
+            null,
+            score,
+            filenames[file],
+          ]);
+        }
+      }
+    }
 
     // lookup as object
     objectTerms.forEach((term) =>
@@ -399,8 +440,8 @@ const Search = {
     // prepare search
     const terms = Search._index.terms;
     const titleTerms = Search._index.titleterms;
-    const docNames = Search._index.docnames;
     const filenames = Search._index.filenames;
+    const docNames = Search._index.docnames;
     const titles = Search._index.titles;
 
     const scoreMap = new Map();

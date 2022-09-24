@@ -239,7 +239,7 @@ class LiteralIncludeReader:
 
     def show_diff(self, location: Optional[Tuple[str, int]] = None) -> List[str]:
         new_lines = self.read_file(self.filename)
-        old_filename = self.options.get('diff')
+        old_filename = self.options['diff']
         old_lines = self.read_file(old_filename)
         diff = unified_diff(old_lines, new_lines, old_filename, self.filename)
         return list(diff)

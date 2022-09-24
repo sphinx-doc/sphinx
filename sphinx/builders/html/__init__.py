@@ -374,7 +374,7 @@ class StandaloneHTMLBuilder(Builder):
     @property
     def default_translator_class(self) -> Type[nodes.NodeVisitor]:  # type: ignore
         if self.config.html4_writer:
-            return HTMLTranslator
+            return HTMLTranslator  # RemovedInSphinx70Warning
         else:
             return HTML5Translator
 
@@ -447,7 +447,7 @@ class StandaloneHTMLBuilder(Builder):
     def get_asset_paths(self) -> List[str]:
         return self.config.html_extra_path + self.config.html_static_path
 
-    def render_partial(self, node: Node) -> Dict[str, str]:
+    def render_partial(self, node: Optional[Node]) -> Dict[str, str]:
         """Utility: Render a lone doctree node."""
         if node is None:
             return {'fragment': ''}
@@ -1338,6 +1338,16 @@ def migrate_html_add_permalinks(app: Sphinx, config: Config) -> None:
         html_add_permalinks
     )
 
+
+def deprecate_html_4(_app: Sphinx, config: Config) -> None:
+    """Warn on HTML 4."""
+    # RemovedInSphinx70Warning
+    if config.html4_writer:
+        logger.warning(_('Support for emitting HTML 4 output is deprecated and '
+                         'will be removed in Sphinx 7. ("html4_writer=True '
+                         'detected in configuration options)'))
+
+
 # for compatibility
 import sphinxcontrib.serializinghtml  # NOQA
 
@@ -1414,6 +1424,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('config-inited', validate_html_static_path, priority=800)
     app.connect('config-inited', validate_html_logo, priority=800)
     app.connect('config-inited', validate_html_favicon, priority=800)
+    app.connect('config-inited', deprecate_html_4, priority=800)
     app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_css_tag_helper)
     app.connect('html-page-context', setup_js_tag_helper)

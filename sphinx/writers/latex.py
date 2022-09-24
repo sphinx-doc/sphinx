@@ -282,7 +282,7 @@ def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
 
 
 class LaTeXTranslator(SphinxTranslator):
-    builder: "LaTeXBuilder" = None
+    builder: "LaTeXBuilder"
 
     secnumdepth = 2  # legacy sphinxhowto.cls uses this, whereas article.cls
     # default is originally 3. For book/report, 2 is already LaTeX default.
@@ -412,9 +412,9 @@ class LaTeXTranslator(SphinxTranslator):
         self.context: List[Any] = []
         self.descstack: List[str] = []
         self.tables: List[Table] = []
-        self.next_table_colspec: str = None
+        self.next_table_colspec: Optional[str] = None
         self.bodystack: List[List[str]] = []
-        self.footnote_restricted: Element = None
+        self.footnote_restricted: Optional[Element] = None
         self.pending_footnotes: List[nodes.footnote_reference] = []
         self.curfilestack: List[str] = []
         self.handled_abbrs: Set[str] = set()
@@ -1239,7 +1239,7 @@ class LaTeXTranslator(SphinxTranslator):
         # self.body.append(r'\columnbreak\n')
         pass
 
-    def latex_image_length(self, width_str: str, scale: int = 100) -> str:
+    def latex_image_length(self, width_str: str, scale: int = 100) -> Optional[str]:
         try:
             return rstdim_to_latexdim(width_str, scale)
         except ValueError:
@@ -1760,15 +1760,10 @@ class LaTeXTranslator(SphinxTranslator):
 
         opts = self.config.highlight_options.get(lang, {})
         hlcode = self.highlighter.highlight_block(
-            node.astext(), lang, opts=opts, location=node)
-        # TODO: Use nowrap option once LaTeX formatter supports it
-        # https://github.com/pygments/pygments/pull/1343
-        hlcode = hlcode.replace(r'\begin{Verbatim}[commandchars=\\\{\}]',
-                                r'\sphinxcode{\sphinxupquote{%')
-        # get consistent trailer
-        hlcode = hlcode.rstrip()[:-15]  # strip \n\end{Verbatim}
-        self.body.append(hlcode)
-        self.body.append('%' + CR + '}}')
+            node.astext(), lang, opts=opts, location=node, nowrap=True)
+        self.body.append(r'\sphinxcode{\sphinxupquote{%' + CR
+                         + hlcode.rstrip() + '%' + CR  # NoQA: W503
+                         + '}}')  # NoQA: W503
         raise nodes.SkipNode
 
     def depart_literal(self, node: Element) -> None:

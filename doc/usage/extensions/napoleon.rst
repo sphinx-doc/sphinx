@@ -94,38 +94,38 @@ Docstring Sections
 
 All of the following section headers are supported:
 
-    * ``Args`` *(alias of Parameters)*
-    * ``Arguments`` *(alias of Parameters)*
-    * ``Attention``
-    * ``Attributes``
-    * ``Caution``
-    * ``Danger``
-    * ``Error``
-    * ``Example``
-    * ``Examples``
-    * ``Hint``
-    * ``Important``
-    * ``Keyword Args`` *(alias of Keyword Arguments)*
-    * ``Keyword Arguments``
-    * ``Methods``
-    * ``Note``
-    * ``Notes``
-    * ``Other Parameters``
-    * ``Parameters``
-    * ``Return`` *(alias of Returns)*
-    * ``Returns``
-    * ``Raise`` *(alias of Raises)*
-    * ``Raises``
-    * ``References``
-    * ``See Also``
-    * ``Tip``
-    * ``Todo``
-    * ``Warning``
-    * ``Warnings`` *(alias of Warning)*
-    * ``Warn`` *(alias of Warns)*
-    * ``Warns``
-    * ``Yield`` *(alias of Yields)*
-    * ``Yields``
+* ``Args`` *(alias of Parameters)*
+* ``Arguments`` *(alias of Parameters)*
+* ``Attention``
+* ``Attributes``
+* ``Caution``
+* ``Danger``
+* ``Error``
+* ``Example``
+* ``Examples``
+* ``Hint``
+* ``Important``
+* ``Keyword Args`` *(alias of Keyword Arguments)*
+* ``Keyword Arguments``
+* ``Methods``
+* ``Note``
+* ``Notes``
+* ``Other Parameters``
+* ``Parameters``
+* ``Return`` *(alias of Returns)*
+* ``Returns``
+* ``Raise`` *(alias of Raises)*
+* ``Raises``
+* ``References``
+* ``See Also``
+* ``Tip``
+* ``Todo``
+* ``Warning``
+* ``Warnings`` *(alias of Warning)*
+* ``Warn`` *(alias of Warns)*
+* ``Warns``
+* ``Yield`` *(alias of Yields)*
+* ``Yields``
 
 Google vs NumPy
 ~~~~~~~~~~~~~~~

@@ -140,7 +140,7 @@ def init(locale_dirs: List[Optional[str]], language: Optional[str],
     return translator, has_translation
 
 
-def setlocale(category: int, value: Union[str, Iterable[str]] = None) -> None:
+def setlocale(category: int, value: Union[str, Iterable[str], None] = None) -> None:
     """Update locale settings.
 
     This does not throw any exception even if update fails.

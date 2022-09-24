@@ -46,7 +46,7 @@ extlinks = {'issue': ('http://bugs.python.org/issue%s', 'issue %s'),
             'pyurl': ('http://python.org/%s', None)}
 
 # modify tags from conf.py
-tags.add('confpytag')  # NOQA
+tags.add('confpytag')
 
 
 # -- extension API
