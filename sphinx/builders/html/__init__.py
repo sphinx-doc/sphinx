@@ -1327,8 +1327,12 @@ import sphinx.builders.singlehtml  # noqa: E402,F401
 deprecated_alias('sphinx.builders.html',
                  {
                      'html5_ready': True,
+                     'HTMLTranslator': HTML4Translator,
                  },
-                 RemovedInSphinx70Warning)
+                 RemovedInSphinx70Warning,
+                 {
+                     'HTMLTranslator': 'sphinx.writers.html.HTML5Translator',
+                 })
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

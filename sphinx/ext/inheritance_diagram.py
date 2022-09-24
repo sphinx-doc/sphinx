@@ -47,7 +47,7 @@ from sphinx.ext.graphviz import (figure_wrapper, graphviz, render_dot_html, rend
 from sphinx.util import md5
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.typing import OptionSpec
-from sphinx.writers.html import HTMLTranslator
+from sphinx.writers.html import HTML5Translator
 from sphinx.writers.latex import LaTeXTranslator
 from sphinx.writers.texinfo import TexinfoTranslator
 
@@ -387,7 +387,7 @@ def get_graph_hash(node: inheritance_diagram) -> str:
     return md5(encoded).hexdigest()[-10:]
 
 
-def html_visit_inheritance_diagram(self: HTMLTranslator, node: inheritance_diagram) -> None:
+def html_visit_inheritance_diagram(self: HTML5Translator, node: inheritance_diagram) -> None:
     """
     Output the graph for HTML.  This will insert a PNG with clickable
     image map.

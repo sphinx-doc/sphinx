@@ -84,7 +84,7 @@ from sphinx.util.docutils import (NullReporter, SphinxDirective, SphinxRole, new
 from sphinx.util.inspect import signature_from_str
 from sphinx.util.matching import Matcher
 from sphinx.util.typing import OptionSpec
-from sphinx.writers.html import HTMLTranslator
+from sphinx.writers.html import HTML5Translator
 
 logger = logging.getLogger(__name__)
 
@@ -116,7 +116,7 @@ class autosummary_table(nodes.comment):
     pass
 
 
-def autosummary_table_visit_html(self: HTMLTranslator, node: autosummary_table) -> None:
+def autosummary_table_visit_html(self: HTML5Translator, node: autosummary_table) -> None:
     """Make the first column of the table non-breaking."""
     try:
         table = cast(nodes.table, node[0])
