@@ -43,7 +43,8 @@ from sphinx.util.inventory import InventoryFile
 from sphinx.util.matching import DOTFILES, Matcher, patmatch
 from sphinx.util.osutil import copyfile, ensuredir, os_path, relative_uri
 from sphinx.util.tags import Tags
-from sphinx.writers.html import HTMLTranslator, HTMLWriter
+from sphinx.writers._html4 import HTML4Translator
+from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
 
 #: the filename for the inventory of objects
@@ -372,7 +373,7 @@ class StandaloneHTMLBuilder(Builder):
     @property
     def default_translator_class(self) -> Type[nodes.NodeVisitor]:  # type: ignore
         if self.config.html4_writer:
-            return HTMLTranslator  # RemovedInSphinx70Warning
+            return HTML4Translator  # RemovedInSphinx70Warning
         else:
             return HTML5Translator
 
