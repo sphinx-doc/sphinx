@@ -13,6 +13,9 @@ Deprecated
 Features added
 --------------
 
+* #10759: LaTeX: add :confval:`latex_table_style` and support the
+  ``'booktabs'``, ``'borderless'``, and ``'colorrows'`` styles.
+
 Bugs fixed
 ----------
 
@@ -41,8 +44,6 @@ Features added
   ``type of type``. Example: ``tuple of int``.
 * #10286: C++, support requires clauses not just between the template
   parameter lists and the declaration.
-* #10759: LaTeX: add :confval:`latex_table_style` and support the
-  ``'booktabs'``, ``'borderless'``, and ``'colorrows'`` styles.
 * #10755: linkcheck: Check the source URL of raw directives that use the ``url``
   option.
 * #10781: Allow :rst:role:`ref` role to be used with definitions and fields.
