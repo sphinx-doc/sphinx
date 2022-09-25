@@ -81,14 +81,23 @@ def test_default_highlight(logger):
     ret = bridge.highlight_block('reST ``like`` text', 'default')
     assert ret == '<div class="highlight"><pre><span></span>reST ``like`` text\n</pre></div>\n'
 
-    # python3: highlights as python3
-    ret = bridge.highlight_block('print "Hello sphinx world"', 'python3')
-    assert ret == ('<div class="highlight"><pre><span></span><span class="nb">print</span> '
-                   '<span class="s2">&quot;Hello sphinx world&quot;</span>\n</pre></div>\n')
+    # python: highlights as python3
+    ret = bridge.highlight_block('print("Hello sphinx world")', 'python')
+    assert ret == ('<div class="highlight"><pre><span></span><span class="nb">print</span>'
+                   '<span class="p">(</span>'
+                   '<span class="s2">&quot;Hello sphinx world&quot;</span>'
+                   '<span class="p">)</span>\n</pre></div>\n')
 
-    # python3: raises error if highlighting failed
-    ret = bridge.highlight_block('reST ``like`` text', 'python3')
+    # python3: highlights as python3
+    ret = bridge.highlight_block('print("Hello sphinx world")', 'python3')
+    assert ret == ('<div class="highlight"><pre><span></span><span class="nb">print</span>'
+                   '<span class="p">(</span>'
+                   '<span class="s2">&quot;Hello sphinx world&quot;</span>'
+                   '<span class="p">)</span>\n</pre></div>\n')
+
+    # python: raises error if highlighting failed
+    ret = bridge.highlight_block('reST ``like`` text', 'python')
     logger.warning.assert_called_with('Could not lex literal_block as "%s". '
-                                      'Highlighting skipped.', 'python3',
+                                      'Highlighting skipped.', 'python',
                                       type='misc', subtype='highlighting_failure',
                                       location=None)

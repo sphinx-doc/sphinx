@@ -19,6 +19,21 @@ Bugs fixed
 Testing
 --------
 
+Release 5.2.1 (released Sep 24, 2022)
+=====================================
+
+Bugs fixed
+----------
+
+* #10861: Always normalise the ``pycon3`` lexer to ``pycon``.
+* Fix using ``sphinx.ext.autosummary`` with modules containing titles in the
+  module-level docstring.
+
+Release 5.2.0.post0 (released Sep 24, 2022)
+===========================================
+
+* Recreated source tarballs for Debian maintainers.
+
 Release 5.2.0 (released Sep 24, 2022)
 =====================================
 
@@ -26,7 +41,7 @@ Dependencies
 ------------
 
 * #10356: Sphinx now uses declarative metadata with ``pyproject.toml`` to
-  create packages, using PyPA's ``build`` project as a build backend. Patch by
+  create packages, using PyPA's ``flit`` project as a build backend. Patch by
   Adam Turner.
 
 Deprecated
