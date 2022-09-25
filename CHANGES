@@ -1,5 +1,26 @@
-Release 5.2.0 (in development)
+Release 5.3.0 (in development)
 ==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 5.2.0 (released Sep 24, 2022)
+=====================================
 
 Dependencies
 ------------
@@ -7,9 +28,6 @@ Dependencies
 * #10356: Sphinx now uses declarative metadata with ``pyproject.toml`` to
   create packages, using PyPA's ``build`` project as a build backend. Patch by
   Adam Turner.
-
-Incompatible changes
---------------------
 
 Deprecated
 ----------
@@ -19,6 +37,8 @@ Deprecated
 Features added
 --------------
 
+* #10738: napoleon: Add support for docstring types using 'of', like
+  ``type of type``. Example: ``tuple of int``.
 * #10286: C++, support requires clauses not just between the template
   parameter lists and the declaration.
 * #10759: LaTeX: add :confval:`latex_table_style` and support the
@@ -34,44 +54,18 @@ Features added
 * #6692: HTML Search: Include explicit :rst:dir:`index` directive index entries
   in the search index and search results. Patch by Adam Turner
 * #10816: imgmath: Allow embedding images in HTML as base64
-
-Bugs fixed
-----------
-
-* #10257: C++, ensure consistent non-specialization template argument
-  representation.
-* #10729: C++, fix parsing of certain non-type template parameter packs.
-* #10715: Revert #10520: "Fix" use of sidebar classes in ``agogo.css_t``
-
-Testing
---------
-
-Release 5.1.2 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-* #10738: napoleon: Add support for docstring types using 'of', like
-  ``type of type``. Example: ``tuple of int``.
+* #10854: HTML Search: Use browser localstorage for highlight control, stop
+  storing highlight parameters in URL query strings. Patch by Adam Turner.
 
 Bugs fixed
 ----------
 
 * #10723: LaTeX: 5.1.0 has made the 'sphinxsetup' ``verbatimwithframe=false``
   become without effect.
-
-Testing
---------
+* #10257: C++, ensure consistent non-specialization template argument
+  representation.
+* #10729: C++, fix parsing of certain non-type template parameter packs.
+* #10715: Revert #10520: "Fix" use of sidebar classes in ``agogo.css_t``
 
 Release 5.1.1 (released Jul 26, 2022)
 =====================================
