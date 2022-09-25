@@ -10,7 +10,7 @@ Dependencies
 ------------
 
 * #10356: Sphinx now uses declarative metadata with ``pyproject.toml`` to
-  create packages, using PyPA's ``build`` project as a build backend. Patch by
+  create packages, using PyPA's ``flit`` project as a build backend. Patch by
   Adam Turner.
 
 Deprecated
