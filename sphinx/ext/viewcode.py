@@ -244,7 +244,7 @@ def collect_pages(app: Sphinx) -> Generator[Tuple[str, Dict[str, Any], str], Non
         # construct a page name for the highlighted source
         pagename = posixpath.join(OUTPUT_DIRNAME, modname.replace('.', '/'))
         # highlight the source using the builder's highlighter
-        if env.config.highlight_language in ('python3', 'default', 'none'):
+        if env.config.highlight_language in {'default', 'none'}:
             lexer = env.config.highlight_language
         else:
             lexer = 'python'

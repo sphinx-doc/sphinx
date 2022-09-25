@@ -493,12 +493,12 @@ class ProductionList(SphinxDirective):
         lines = nl_escape_re.sub('', self.arguments[0]).split('\n')
 
         productionGroup = ""
-        i = 0
+        first_rule_seen = False
         for rule in lines:
-            if i == 0 and ':' not in rule:
+            if not first_rule_seen and ':' not in rule:
                 productionGroup = rule.strip()
                 continue
-            i += 1
+            first_rule_seen = True
             try:
                 name, tokens = rule.split(':', 1)
             except ValueError:

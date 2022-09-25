@@ -939,6 +939,7 @@ class ModuleDocumenter(Documenter):
     objtype = 'module'
     content_indent = ''
     titles_allowed = True
+    _extra_indent = '   '
 
     option_spec: OptionSpec = {
         'members': members_option, 'undoc-members': bool_option,
@@ -958,7 +959,7 @@ class ModuleDocumenter(Documenter):
 
     def add_content(self, more_content: Optional[StringList]) -> None:
         old_indent = self.indent
-        self.indent += '   '
+        self.indent += self._extra_indent
         super().add_content(None)
         self.indent = old_indent
         if more_content:

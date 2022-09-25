@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - HTML 4 support
+     - 5.2
+     - 7.0
+     - N/A
+
    * - ``sphinx.util.path_stabilize``
      - 5.1
      - 7.0

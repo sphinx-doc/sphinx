@@ -94,15 +94,9 @@ class TestDirective(SphinxDirective):
             # only save if it differs from code
             node['test'] = test
         if self.name == 'doctest':
-            if self.config.highlight_language in ('py', 'python'):
-                node['language'] = 'pycon'
-            else:
-                node['language'] = 'pycon3'  # default
+            node['language'] = 'pycon'
         elif self.name == 'testcode':
-            if self.config.highlight_language in ('py', 'python'):
-                node['language'] = 'python'
-            else:
-                node['language'] = 'python3'  # default
+            node['language'] = 'python'
         elif self.name == 'testoutput':
             # don't try to highlight output
             node['language'] = 'none'

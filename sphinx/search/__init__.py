@@ -290,9 +290,11 @@ class IndexBuilder:
         self._titles = dict(zip(index2fn, frozen['titles']))
         self._all_titles = {}
 
+        for docname in self._titles.keys():
+            self._all_titles[docname] = []
         for title, doc_tuples in frozen['alltitles'].items():
             for doc, titleid in doc_tuples:
-                self._all_titles.setdefault(index2fn[doc], []).append((title, titleid))
+                self._all_titles[index2fn[doc]].append((title, titleid))
 
         def load_terms(mapping: Dict[str, Any]) -> Dict[str, Set[str]]:
             rv = {}
@@ -380,12 +382,12 @@ class IndexBuilder:
         alltitles: Dict[str, List[Tuple[int, str]]] = {}
         for docname, titlelist in self._all_titles.items():
             for title, titleid in titlelist:
-                alltitles.setdefault(title, []).append((fn2index[docname],  titleid))
+                alltitles.setdefault(title, []).append((fn2index[docname], titleid))
 
         index_entries: Dict[str, List[Tuple[int, str]]] = {}
         for docname, entries in self._index_entries.items():
             for entry, entry_id, main_entry in entries:
-                index_entries.setdefault(entry.lower(), []).append((fn2index[docname],  entry_id))
+                index_entries.setdefault(entry.lower(), []).append((fn2index[docname], entry_id))
 
         return dict(docnames=docnames, filenames=filenames, titles=titles, terms=terms,
                     objects=objects, objtypes=objtypes, objnames=objnames,

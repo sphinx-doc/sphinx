@@ -120,6 +120,8 @@ class PygmentsBridge:
                 lang = 'pycon'
             else:
                 lang = 'python'
+        if lang == 'pycon3':
+            lang = 'pycon'
 
         if lang in lexers:
             # just return custom lexers here (without installing raiseonerror filter)
