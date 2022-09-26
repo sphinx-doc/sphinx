@@ -74,7 +74,7 @@ class LaTeXWriter(writers.Writer):
         ('Document class', ['--docclass'], {'default': 'manual'}),
         ('Author', ['--author'], {'default': ''}),
     ))
-    settings_defaults: dict = {}
+    settings_defaults: dict[str, Any] = {}
 
     output = None
 
@@ -512,7 +512,7 @@ class LaTeXTranslator(SphinxTranslator):
 
         return ''.join(ret)
 
-    def render(self, template_name: str, variables: dict) -> str:
+    def render(self, template_name: str, variables: dict[str, Any]) -> str:
         renderer = LaTeXRenderer(latex_engine=self.config.latex_engine)
         for template_dir in self.config.templates_path:
             template = path.join(self.builder.confdir, template_dir,

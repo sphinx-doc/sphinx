@@ -277,7 +277,6 @@ module = [
     "sphinx.search.*",
     "sphinx.testing.*",
     "sphinx.util.*",
-    "sphinx.writers.*",
 ]
 disallow_any_generics = false
 
