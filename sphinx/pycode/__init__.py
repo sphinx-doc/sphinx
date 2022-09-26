@@ -124,7 +124,7 @@ class ModuleAnalyzer:
         cls.cache['module', modname] = obj
         return obj
 
-    def __init__(self, source: IO, modname: str, srcname: str) -> None:
+    def __init__(self, source: IO[Any], modname: str, srcname: str) -> None:
         self.modname = modname  # name of the module
         self.srcname = srcname  # name of the source file
 
