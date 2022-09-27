@@ -209,16 +209,7 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
     if not args.doctreedir:
         args.doctreedir = os.path.join(args.outputdir, '.doctrees')
 
-    # handle remaining filename arguments
-    filenames = args.filenames
-    missing_files = []
-    for filename in filenames:
-        if not os.path.isfile(filename):
-            missing_files.append(filename)
-    if missing_files:
-        parser.error(__('cannot find files %r') % missing_files)
-
-    if args.force_all and filenames:
+    if args.force_all and args.filenames:
         parser.error(__('cannot combine -a option and filenames'))
 
     if args.color == 'no' or (args.color == 'auto' and not color_terminal()):
@@ -276,7 +267,7 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
                          warning, args.freshenv, args.warningiserror,
                          args.tags, args.verbosity, args.jobs, args.keep_going,
                          args.pdb)
-            app.build(args.force_all, filenames)
+            app.build(args.force_all, args.filenames)
             return app.statuscode
     except (Exception, KeyboardInterrupt) as exc:
         handle_exception(app, args, exc, error)

@@ -252,6 +252,7 @@ class Builder:
         message = __('targets for %d po files that are specified') % len(catalogs)
         self.compile_catalogs(catalogs, message)
 
+    # TODO(stephenfin): This would make more sense as 'compile_outdated_catalogs'
     def compile_update_catalogs(self) -> None:
         repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
                                  self.config.language, self.config.source_encoding)
@@ -263,37 +264,44 @@ class Builder:
 
     def build_all(self) -> None:
         """Build all source files."""
+        self.compile_all_catalogs()
+
         self.build(None, summary=__('all source files'), method='all')
 
     def build_specific(self, filenames: List[str]) -> None:
         """Only rebuild as much as needed for changes in the *filenames*."""
-        # bring the filenames to the canonical format, that is,
-        # relative to the source directory and without source_suffix.
-        dirlen = len(self.srcdir) + 1
-        to_write = []
-        suffixes: Tuple[str] = tuple(self.config.source_suffix)  # type: ignore
+        docnames: List[str] = []
+
         for filename in filenames:
             filename = path.normpath(path.abspath(filename))
+
+            if not path.isfile(filename):
+                logger.warning(__('file %r given on command line does not exist, '),
+                               filename)
+                continue
+
             if not filename.startswith(self.srcdir):
                 logger.warning(__('file %r given on command line is not under the '
                                   'source directory, ignoring'), filename)
                 continue
-            if not path.isfile(filename):
-                logger.warning(__('file %r given on command line does not exist, '
-                                  'ignoring'), filename)
+
+            docname = self.env.path2doc(filename)
+            if not docname:
+                logger.warning(__('file %r given on command line is not a valid '
+                                  'document, ignoring'), filename)
                 continue
-            filename = filename[dirlen:]
-            for suffix in suffixes:
-                if filename.endswith(suffix):
-                    filename = filename[:-len(suffix)]
-                    break
-            filename = filename.replace(path.sep, SEP)
-            to_write.append(filename)
-        self.build(to_write, method='specific',
-                   summary=__('%d source files given on command line') % len(to_write))
+
+            docnames.append(docname)
+
+        self.compile_specific_catalogs(filenames)
+
+        self.build(docnames, method='specific',
+                   summary=__('%d source files given on command line') % len(docnames))
 
     def build_update(self) -> None:
         """Only rebuild what was changed or added since last build."""
+        self.compile_update_catalogs()
+
         to_build = self.get_outdated_docs()
         if isinstance(to_build, str):
             self.build(['__all__'], to_build)
