@@ -267,7 +267,7 @@ def _restify_py36(cls: Optional[Type], mode: str = 'fully-qualified-except-typin
             return reftext + '\\ [%s]' % param_str
         else:
             return reftext
-    elif isinstance(cls, typing.GenericMeta):
+    elif isinstance(cls, typing.GenericMeta):  # type: ignore[attr-defined]
         if module == 'typing':
             reftext = ':py:class:`~typing.%s`' % qualname
         else:
@@ -505,16 +505,16 @@ def _stringify_py36(annotation: Any, mode: str = 'fully-qualified-except-typing'
             return '%s%s[%s]' % (modprefix, qualname, param_str)
         else:
             return modprefix + qualname
-    elif isinstance(annotation, typing.GenericMeta):
+    elif isinstance(annotation, typing.GenericMeta):  # type: ignore[attr-defined]
         params = None
-        if annotation.__args__ is None or len(annotation.__args__) <= 2:  # type: ignore  # NOQA
-            params = annotation.__args__  # type: ignore
-        elif annotation.__origin__ == Generator:  # type: ignore
-            params = annotation.__args__  # type: ignore
+        if annotation.__args__ is None or len(annotation.__args__) <= 2:  # NOQA
+            params = annotation.__args__
+        elif annotation.__origin__ == Generator:
+            params = annotation.__args__
         else:  # typing.Callable
             args = ', '.join(stringify(arg, mode) for arg
-                             in annotation.__args__[:-1])  # type: ignore
-            result = stringify(annotation.__args__[-1])  # type: ignore
+                             in annotation.__args__[:-1])
+            result = stringify(annotation.__args__[-1])
             return '%s%s[[%s], %s]' % (modprefix, qualname, args, result)
         if params is not None:
             param_str = ', '.join(stringify(p, mode) for p in params)
