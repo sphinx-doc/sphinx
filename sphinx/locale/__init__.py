@@ -2,98 +2,94 @@
 
 import gettext
 import locale
-from collections import UserString, defaultdict
+from collections import defaultdict
 from gettext import NullTranslations
 from os import path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 
 
-class _TranslationProxy(UserString):
+class _TranslationProxy:
     """
     Class for proxy strings from gettext translations. This is a helper for the
     lazy_* functions from this module.
 
     The proxy implementation attempts to be as complete as possible, so that
     the lazy objects should mostly work as expected, for example for sorting.
-
-    This inherits from UserString because some docutils versions use UserString
-    for their Text nodes, which then checks its argument for being either a
-    basestring or UserString, otherwise calls str() -- not unicode() -- on it.
     """
     __slots__ = ('_func', '_args')
 
-    def __new__(cls, func: Callable, *args: str) -> object:  # type: ignore
+    def __new__(cls, func: 'Callable', *args: str) -> '_TranslationProxy':
         if not args:
             # not called with "function" and "arguments", but a plain string
-            return str(func)
+            return str(func)  # type: ignore[return-value]
         return object.__new__(cls)
 
-    def __getnewargs__(self) -> Tuple[str]:
+    def __getnewargs__(self) -> 'Tuple[str]':
         return (self._func,) + self._args  # type: ignore
 
-    def __init__(self, func: Callable, *args: str) -> None:
+    def __init__(self, func: 'Callable', *args: str) -> None:
         self._func = func
         self._args = args
 
-    @property
-    def data(self) -> str:  # type: ignore
-        return self._func(*self._args)
+    def __str__(self) -> str:
+        return str(self._func(*self._args))
 
-    # replace function from UserString; it instantiates a self.__class__
-    # for the encoding result
-
-    def encode(self, encoding: str = None, errors: str = None) -> bytes:  # type: ignore
-        if encoding:
-            if errors:
-                return self.data.encode(encoding, errors)
-            else:
-                return self.data.encode(encoding)
-        else:
-            return self.data.encode()
-
-    def __dir__(self) -> List[str]:
+    def __dir__(self) -> 'List[str]':
         return dir(str)
 
-    def __str__(self) -> str:
-        return str(self.data)
-
-    def __add__(self, other: str) -> str:  # type: ignore
-        return self.data + other
-
-    def __radd__(self, other: str) -> str:  # type: ignore
-        return other + self.data
-
-    def __mod__(self, other: str) -> str:  # type: ignore
-        return self.data % other
-
-    def __rmod__(self, other: str) -> str:  # type: ignore
-        return other % self.data
-
-    def __mul__(self, other: Any) -> str:  # type: ignore
-        return self.data * other
-
-    def __rmul__(self, other: Any) -> str:  # type: ignore
-        return other * self.data
-
     def __getattr__(self, name: str) -> Any:
-        if name == '__members__':
-            return self.__dir__()
-        return getattr(self.data, name)
+        return getattr(self.__str__(), name)
 
-    def __getstate__(self) -> Tuple[Callable, Tuple[str, ...]]:
+    def __getstate__(self) -> 'Tuple[Callable, Tuple[str, ...]]':
         return self._func, self._args
 
-    def __setstate__(self, tup: Tuple[Callable, Tuple[str]]) -> None:
+    def __setstate__(self, tup: 'Tuple[Callable, Tuple[str]]') -> None:
         self._func, self._args = tup
 
-    def __copy__(self) -> "_TranslationProxy":
-        return self
+    def __copy__(self) -> '_TranslationProxy':
+        return _TranslationProxy(self._func, *self._args)
 
     def __repr__(self) -> str:
         try:
-            return 'i' + repr(str(self.data))
+            return 'i' + repr(str(self.__str__()))
         except Exception:
-            return '<%s broken>' % self.__class__.__name__
+            return f'<{self.__class__.__name__} broken>'
+
+    def __add__(self, other: str) -> str:
+        return self.__str__() + other
+
+    def __radd__(self, other: str) -> str:
+        return other + self.__str__()
+
+    def __mod__(self, other: str) -> str:
+        return self.__str__() % other
+
+    def __rmod__(self, other: str) -> str:
+        return other % self.__str__()
+
+    def __mul__(self, other: Any) -> str:
+        return self.__str__() * other
+
+    def __rmul__(self, other: Any) -> str:
+        return other * self.__str__()
+
+    def __hash__(self):
+        return hash(self.__str__())
+
+    def __eq__(self, other):
+        return self.__str__() == other
+
+    def __lt__(self, string):
+        return self.__str__() < string
+
+    def __contains__(self, char):
+        return char in self.__str__()
+
+    def __len__(self):
+        return len(self.__str__())
+
+    def __getitem__(self, index):
+        return self.__str__()[index]
 
 
 translators: Dict[Tuple[str, str], NullTranslations] = defaultdict(NullTranslations)
