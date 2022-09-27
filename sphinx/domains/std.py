@@ -47,7 +47,7 @@ class GenericObject(ObjectDescription[str]):
     A generic x-ref directive registered with Sphinx.add_object_type().
     """
     indextemplate: str = ''
-    parse_node: Callable[["GenericObject", "BuildEnvironment", str, desc_signature], str] = None  # NOQA
+    parse_node: Callable[["BuildEnvironment", str, desc_signature], str] = None  # NOQA
 
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         if self.parse_node:
