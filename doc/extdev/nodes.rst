@@ -61,6 +61,8 @@ Special nodes
 .. autoclass:: only
 .. autoclass:: meta
 .. autoclass:: highlightlang
+.. autoclass:: collapsible
+.. autoclass:: collapsible_summary
 
 You should not need to generate the nodes below in extensions.
 
