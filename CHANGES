@@ -1,3 +1,9 @@
+Release 5.2.2 (in development)
+=====================================
+
+* #10872: Restore link targets for autodoc modules to the top of content.
+  Patch by Dominic Davis-Foster.
+
 Release 5.2.1 (released Sep 25, 2022)
 =====================================
 
