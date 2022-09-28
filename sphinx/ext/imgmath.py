@@ -308,7 +308,7 @@ def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
         raise nodes.SkipNode from exc
     if self.builder.config.imgmath_embed:
         image_format = self.builder.config.imgmath_image_format.lower()
-        img_src = render_maths_to_base64(image_format, outfn)
+        img_src = render_maths_to_base64(image_format, imgpath)
     else:
         # Move generated image on tempdir to build dir
         if imgpath is not None:
@@ -350,7 +350,7 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
         self.body.append('</span>')
     if self.builder.config.imgmath_embed:
         image_format = self.builder.config.imgmath_image_format.lower()
-        img_src = render_maths_to_base64(image_format, outfn)
+        img_src = render_maths_to_base64(image_format, imgpath)
     else:
         # Move generated image on tempdir to build dir
         if imgpath is not None:

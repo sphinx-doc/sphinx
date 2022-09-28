@@ -21,6 +21,24 @@ def has_binary(binary):
     return True
 
 
+@pytest.mark.skipif(not has_binary('dvisvgm'),
+                    reason='Requires dvisvgm" binary')
+@pytest.mark.sphinx('html', testroot='ext-math-simple',
+                    confoverrides={'extensions': ['sphinx.ext.imgmath'],
+                                   'imgmath_image_format': 'svg',
+                                   'imgmath_embed': True})
+def test_imgmath_svg_embed(app, status, warning):
+    app.builder.build_all()
+    if "LaTeX command 'latex' cannot be run" in warning.getvalue():
+        pytest.skip('LaTeX command "latex" is not available')
+    if "dvisvgm command 'dvisvgm' cannot be run" in warning.getvalue():
+        pytest.skip('dvisvgm command "dvisvgm" is not available')
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    html = r'<img src="data:image/svg\+xml;base64,[\w\+/=]+"'
+    assert re.search(html, content, re.DOTALL)
+
+
 @pytest.mark.skipif(not has_binary('dvipng'),
                     reason='Requires dvipng" binary')
 @pytest.mark.sphinx('html', testroot='ext-math-simple',
@@ -54,24 +72,6 @@ def test_imgmath_svg(app, status, warning):
     html = (r'<div class="math">\s*<p>\s*<img src="_images/math/\w+.svg"'
             r'\s*alt="a\^2\+b\^2=c\^2"/>\s*</p>\s*</div>')
     assert re.search(html, content, re.S)
-
-
-@pytest.mark.skipif(not has_binary('dvisvgm'),
-                    reason='Requires dvisvgm" binary')
-@pytest.mark.sphinx('html', testroot='ext-math-simple',
-                    confoverrides={'extensions': ['sphinx.ext.imgmath'],
-                                   'imgmath_image_format': 'svg',
-                                   'imgmath_embed': True})
-def test_imgmath_svg_embed(app, status, warning):
-    app.builder.build_all()
-    if "LaTeX command 'latex' cannot be run" in warning.getvalue():
-        pytest.skip('LaTeX command "latex" is not available')
-    if "dvisvgm command 'dvisvgm' cannot be run" in warning.getvalue():
-        pytest.skip('dvisvgm command "dvisvgm" is not available')
-
-    content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    html = r'<img src="data:image/svg\+xml;base64,[\w\+/=]+"'
-    assert re.search(html, content, re.DOTALL)
 
 
 @pytest.mark.sphinx('html', testroot='ext-math',
