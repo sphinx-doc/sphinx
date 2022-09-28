@@ -198,7 +198,6 @@ module = [
     "sphinx.highlighting",
     "sphinx.jinja2glue",
     "sphinx.locale",
-    "sphinx.pycode.*",
     "sphinx.registry",
     "sphinx.roles",
     "sphinx.search.*",

@@ -5,9 +5,8 @@ import tokenize
 from collections import OrderedDict
 from importlib import import_module
 from inspect import Signature
-from io import StringIO
 from os import path
-from typing import IO, Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from zipfile import ZipFile
 
 from sphinx.errors import PycodeError
@@ -76,7 +75,7 @@ class ModuleAnalyzer:
     @classmethod
     def for_string(cls, string: str, modname: str, srcname: str = '<string>'
                    ) -> "ModuleAnalyzer":
-        return cls(StringIO(string), modname, srcname)
+        return cls(string, modname, srcname)
 
     @classmethod
     def for_file(cls, filename: str, modname: str) -> "ModuleAnalyzer":
@@ -84,8 +83,9 @@ class ModuleAnalyzer:
             return cls.cache['file', filename]
         try:
             with tokenize.open(filename) as f:
-                obj = cls(f, modname, filename)
-                cls.cache['file', filename] = obj
+                string = f.read()
+            obj = cls(string, modname, filename)
+            cls.cache['file', filename] = obj
         except Exception as err:
             if '.egg' + path.sep in filename:
                 obj = cls.cache['file', filename] = cls.for_egg(filename, modname)
@@ -124,12 +124,12 @@ class ModuleAnalyzer:
         cls.cache['module', modname] = obj
         return obj
 
-    def __init__(self, source: IO, modname: str, srcname: str) -> None:
+    def __init__(self, source: str, modname: str, srcname: str) -> None:
         self.modname = modname  # name of the module
         self.srcname = srcname  # name of the source file
 
         # cache the source code as well
-        self.code = source.read()
+        self.code = source
 
         self._analyzed = False
 
