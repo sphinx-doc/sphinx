@@ -13,3 +13,11 @@
 .. autofunction:: target.overload.sum
 
 .. autofunction:: target.typehints.tuple_args
+
+.. autoclass:: target.typehints_lazy.LazyGeneric
+
+.. autoclass:: target.typehints_lazy.LazyInit
+
+.. autoclass:: target.typehints_lazy.LazyInitOldStyle
+
+.. autoclass:: target.classes.CommentTypeHints
