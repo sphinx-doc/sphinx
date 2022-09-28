@@ -3,11 +3,7 @@
 import locale
 from gettext import NullTranslations, translation
 from os import path
-
-if False:
-    # NoQA
-    from collections.abc import Callable, Iterable
-    from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 
 
 class _TranslationProxy:
@@ -20,32 +16,32 @@ class _TranslationProxy:
     """
     __slots__ = ('_func', '_args')
 
-    def __new__(cls, func: 'Callable', *args: str) -> '_TranslationProxy':
+    def __new__(cls, func: Callable, *args: str) -> '_TranslationProxy':
         if not args:
             # not called with "function" and "arguments", but a plain string
             return str(func)  # type: ignore[return-value]
         return object.__new__(cls)
 
-    def __getnewargs__(self) -> 'Tuple[str]':
+    def __getnewargs__(self) -> Tuple[str]:
         return (self._func,) + self._args  # type: ignore
 
-    def __init__(self, func: 'Callable', *args: str) -> None:
+    def __init__(self, func: Callable, *args: str) -> None:
         self._func = func
         self._args = args
 
     def __str__(self) -> str:
         return str(self._func(*self._args))
 
-    def __dir__(self) -> 'List[str]':
+    def __dir__(self) -> List[str]:
         return dir(str)
 
-    def __getattr__(self, name: str) -> 'Any':
+    def __getattr__(self, name: str) -> Any:
         return getattr(self.__str__(), name)
 
-    def __getstate__(self) -> 'Tuple[Callable, Tuple[str, ...]]':
+    def __getstate__(self) -> Tuple[Callable, Tuple[str, ...]]:
         return self._func, self._args
 
-    def __setstate__(self, tup: 'Tuple[Callable, Tuple[str]]') -> None:
+    def __setstate__(self, tup: Tuple[Callable, Tuple[str]]) -> None:
         self._func, self._args = tup
 
     def __copy__(self) -> '_TranslationProxy':
@@ -69,10 +65,10 @@ class _TranslationProxy:
     def __rmod__(self, other: str) -> str:
         return other % self.__str__()
 
-    def __mul__(self, other: 'Any') -> str:
+    def __mul__(self, other: Any) -> str:
         return self.__str__() * other
 
-    def __rmul__(self, other: 'Any') -> str:
+    def __rmul__(self, other: Any) -> str:
         return other * self.__str__()
 
     def __hash__(self):
@@ -94,15 +90,15 @@ class _TranslationProxy:
         return self.__str__()[index]
 
 
-translators: 'Dict[Tuple[str, str], NullTranslations]' = {}
+translators: Dict[Tuple[str, str], NullTranslations] = {}
 
 
 def init(
-    locale_dirs: 'List[Optional[str]]',
-    language: 'Optional[str]',
+    locale_dirs: List[Optional[str]],
+    language: Optional[str],
     catalog: str = 'sphinx',
     namespace: str = 'general',
-) -> 'Tuple[NullTranslations, bool]':
+) -> Tuple[NullTranslations, bool]:
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
     least a NullTranslations catalog set in `translators`. If called multiple
     times or if several ``.mo`` files are found, their contents are merged
@@ -118,7 +114,7 @@ def init(
 
     if language and '_' in language:
         # for language having country code (like "de_AT")
-        languages: 'Optional[List[str]]' = [language, language.split('_')[0]]
+        languages: Optional[List[str]] = [language, language.split('_')[0]]
     elif language:
         languages = [language]
     else:
@@ -143,7 +139,7 @@ def init(
     return translator, has_translation
 
 
-def setlocale(category: int, value: 'Union[str, Iterable[str], None]' = None) -> None:
+def setlocale(category: int, value: Union[str, Iterable[str], None] = None) -> None:
     """Update locale settings.
 
     This does not throw any exception even if update fails.
@@ -166,7 +162,7 @@ def setlocale(category: int, value: 'Union[str, Iterable[str], None]' = None) ->
 def init_console(
     locale_dir: str = path.abspath(path.dirname(__file__)),  # NoQA: B008
     catalog: str = 'sphinx',
-) -> 'Tuple[NullTranslations, bool]':
+) -> Tuple[NullTranslations, bool]:
     """Initialize locale for console.
 
     .. versionadded:: 1.8
@@ -197,7 +193,7 @@ def _lazy_translate(catalog: str, namespace: str, message: str) -> str:
     return translator.gettext(message)
 
 
-def get_translation(catalog: str, namespace: str = 'general') -> 'Callable[[str], str]':
+def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str], str]:
     """Get a translation function based on the *catalog* and *namespace*.
 
     The extension can use this API to translate the messages on the
@@ -222,7 +218,7 @@ def get_translation(catalog: str, namespace: str = 'general') -> 'Callable[[str]
 
     .. versionadded:: 1.8
     """
-    def gettext(message: str, *args: 'Any') -> str:
+    def gettext(message: str, *args: Any) -> str:
         if not is_translator_registered(catalog, namespace):
             # not initialized yet
             return _TranslationProxy(_lazy_translate, catalog, namespace, message)  # type: ignore  # NOQA
@@ -260,7 +256,7 @@ admonitionlabels = {
 }
 
 # Moved to sphinx.directives.other (will be overridden later)
-versionlabels: 'Dict[str, str]' = {}
+versionlabels: Dict[str, str] = {}
 
 # Moved to sphinx.domains.python (will be overridden later)
-pairindextypes: 'Dict[str, str]' = {}
+pairindextypes: Dict[str, str] = {}
