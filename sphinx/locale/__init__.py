@@ -4,7 +4,7 @@ import gettext
 import locale
 from collections import UserString, defaultdict
 from gettext import NullTranslations
-from os import path
+from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 
 
@@ -99,7 +99,7 @@ class _TranslationProxy(UserString):
 translators: Dict[Tuple[str, str], NullTranslations] = defaultdict(NullTranslations)
 
 
-def init(locale_dirs: List[Optional[str]], language: Optional[str],
+def init(locale_dirs: List[Optional[Path]], language: Optional[str],
          catalog: str = 'sphinx', namespace: str = 'general') -> Tuple[NullTranslations, bool]:
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
     least a NullTranslations catalog set in `translators`. If called multiple
@@ -161,8 +161,11 @@ def setlocale(category: int, value: Union[str, Iterable[str], None] = None) -> N
         pass
 
 
+LOCALE_DIR = Path(__file__).parent.absolute()
+
+
 def init_console(
-    locale_dir: str = path.abspath(path.dirname(__file__)),
+    locale_dir: Path = LOCALE_DIR,
     catalog: str = 'sphinx',
 ) -> Tuple[NullTranslations, bool]:
     """Initialize locale for console.
