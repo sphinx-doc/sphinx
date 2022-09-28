@@ -42,8 +42,8 @@ jobs:
         python-version: ${{ matrix.python }}
     - name: Check Python version
       run: python --version
-    - name: Install graphviz
-      run: sudo apt-get install graphviz
+    - name: Install system utils
+      run: sudo apt-get install graphviz dvipng texlive-latex-extra texlive-luatex texlive-xetex fonts-freefont-otf gettext
     - name: Install dependencies
       run: python -m pip install -U pip tox
     - name: Run Tox
