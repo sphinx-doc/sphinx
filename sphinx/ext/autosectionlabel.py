@@ -5,6 +5,7 @@ from typing import Any, Dict, cast
 from docutils import nodes
 from docutils.nodes import Node
 
+import sphinx
 from sphinx.application import Sphinx
 from sphinx.domains.std import StandardDomain
 from sphinx.locale import __
@@ -54,7 +55,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('doctree-read', register_sections_as_label)
 
     return {
-        'version': 'builtin',
+        'version': sphinx.__display_version__,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
