@@ -30,7 +30,7 @@ class FootnoteDocnameUpdater(SphinxTransform):
 
 
 class SubstitutionDefinitionsRemover(SphinxPostTransform):
-    """Remove ``substitution_definition node from doctrees."""
+    """Remove ``substitution_definition`` nodes from doctrees."""
 
     # should be invoked after Substitutions process
     default_priority = Substitutions.default_priority + 1

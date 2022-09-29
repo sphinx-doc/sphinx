@@ -57,7 +57,7 @@ const _removeChildren = (element) => {
 const _escapeRegExp = (string) =>
   string.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 
-const _displayItem = (item, highlightTerms, searchTerms) => {
+const _displayItem = (item, searchTerms) => {
   const docBuilder = DOCUMENTATION_OPTIONS.BUILDER;
   const docUrlRoot = DOCUMENTATION_OPTIONS.URL_ROOT;
   const docFileSuffix = DOCUMENTATION_OPTIONS.FILE_SUFFIX;
@@ -82,10 +82,8 @@ const _displayItem = (item, highlightTerms, searchTerms) => {
     requestUrl = docUrlRoot + docName + docFileSuffix;
     linkUrl = docName + docLinkSuffix;
   }
-  const params = new URLSearchParams();
-  params.set("highlight", [...highlightTerms].join(" "));
   let linkEl = listItem.appendChild(document.createElement("a"));
-  linkEl.href = linkUrl + "?" + params.toString() + anchor;
+  linkEl.href = linkUrl + anchor;
   linkEl.dataset.score = score;
   linkEl.innerHTML = title;
   if (descr)
@@ -97,7 +95,7 @@ const _displayItem = (item, highlightTerms, searchTerms) => {
       .then((data) => {
         if (data)
           listItem.appendChild(
-            Search.makeSearchSummary(data, searchTerms, highlightTerms)
+            Search.makeSearchSummary(data, searchTerms)
           );
       });
   Search.output.appendChild(listItem);
@@ -117,15 +115,14 @@ const _finishSearch = (resultCount) => {
 const _displayNextItem = (
   results,
   resultCount,
-  highlightTerms,
   searchTerms
 ) => {
   // results left, load the summary and display it
   // this is intended to be dynamic (don't sub resultsCount)
   if (results.length) {
-    _displayItem(results.pop(), highlightTerms, searchTerms);
+    _displayItem(results.pop(), searchTerms);
     setTimeout(
-      () => _displayNextItem(results, resultCount, highlightTerms, searchTerms),
+      () => _displayNextItem(results, resultCount, searchTerms),
       5
     );
   }
@@ -271,6 +268,10 @@ const Search = {
       }
     });
 
+    if (SPHINX_HIGHLIGHT_ENABLED) {  // set in sphinx_highlight.js
+      localStorage.setItem("sphinx_highlight_terms", [...highlightTerms].join(" "))
+    }
+
     // console.debug("SEARCH: searching for:");
     // console.info("required: ", [...searchTerms]);
     // console.info("excluded: ", [...excludedTerms]);
@@ -286,7 +287,7 @@ const Search = {
           let score = Math.round(100 * queryLower.length / title.length)
           results.push([
             docNames[file],
-            title,
+            titles[file] !== title ? `${titles[file]} > ${title}` : title,
             id !== null ? "#" + id : "",
             null,
             score,
@@ -359,7 +360,7 @@ const Search = {
     // console.info("search results:", Search.lastresults);
 
     // print the results
-    _displayNextItem(results, results.length, highlightTerms, searchTerms);
+    _displayNextItem(results, results.length, searchTerms);
   },
 
   /**
@@ -538,11 +539,9 @@ const Search = {
   /**
    * helper function to return a node containing the
    * search summary for a given text. keywords is a list
-   * of stemmed words, highlightWords is the list of normal, unstemmed
-   * words. the first one is used to find the occurrence, the
-   * latter for highlighting it.
+   * of stemmed words.
    */
-  makeSearchSummary: (htmlText, keywords, highlightWords) => {
+  makeSearchSummary: (htmlText, keywords) => {
     const text = Search.htmlToText(htmlText);
     if (text === "") return null;
 
@@ -559,10 +558,6 @@ const Search = {
     let summary = document.createElement("p");
     summary.classList.add("context");
     summary.textContent = top + text.substr(startWithContext, 240).trim() + tail;
-
-    highlightWords.forEach((highlightWord) =>
-      _highlightText(summary, highlightWord, "highlighted")
-    );
 
     return summary;
   },

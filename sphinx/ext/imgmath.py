@@ -1,5 +1,6 @@
 """Render math in HTML via dvipng or dvisvgm."""
 
+import base64
 import posixpath
 import re
 import shutil
@@ -29,6 +30,8 @@ from sphinx.writers.html import HTMLTranslator
 logger = logging.getLogger(__name__)
 
 templates_path = path.join(package_dir, 'templates', 'imgmath')
+
+__all__ = ()
 
 
 class MathExtError(SphinxError):
@@ -204,13 +207,17 @@ def convert_dvi_to_svg(dvipath: str, builder: Builder) -> Tuple[str, Optional[in
     return filename, depth
 
 
-def render_math(self: HTMLTranslator, math: str) -> Tuple[Optional[str], Optional[int]]:
+def render_math(
+    self: HTMLTranslator,
+    math: str,
+) -> Tuple[Optional[str], Optional[int], Optional[str], Optional[str]]:
     """Render the LaTeX math expression *math* using latex and dvipng or
     dvisvgm.
 
     Return the filename relative to the built document and the "depth",
     that is, the distance of image bottom and baseline in pixels, if the
     option to use preview_latex is switched on.
+    Also return the temporary and destination files.
 
     Error handling may seem strange, but follows a pattern: if LaTeX or dvipng
     (dvisvgm) aren't available, only a warning is generated (since that enables
@@ -235,19 +242,19 @@ def render_math(self: HTMLTranslator, math: str) -> Tuple[Optional[str], Optiona
             depth = read_png_depth(outfn)
         elif image_format == 'svg':
             depth = read_svg_depth(outfn)
-        return relfn, depth
+        return relfn, depth, None, outfn
 
     # if latex or dvipng (dvisvgm) has failed once, don't bother to try again
     if hasattr(self.builder, '_imgmath_warned_latex') or \
        hasattr(self.builder, '_imgmath_warned_image_translator'):
-        return None, None
+        return None, None, None, None
 
     # .tex -> .dvi
     try:
         dvipath = compile_math(latex, self.builder)
     except InvokeError:
         self.builder._imgmath_warned_latex = True  # type: ignore
-        return None, None
+        return None, None, None, None
 
     # .dvi -> .png/.svg
     try:
@@ -257,13 +264,19 @@ def render_math(self: HTMLTranslator, math: str) -> Tuple[Optional[str], Optiona
             imgpath, depth = convert_dvi_to_svg(dvipath, self.builder)
     except InvokeError:
         self.builder._imgmath_warned_image_translator = True  # type: ignore
-        return None, None
+        return None, None, None, None
 
-    # Move generated image on tempdir to build dir
-    ensuredir(path.dirname(outfn))
-    shutil.move(imgpath, outfn)
+    return relfn, depth, imgpath, outfn
 
-    return relfn, depth
+
+def render_maths_to_base64(image_format: str, outfn: Optional[str]) -> str:
+    with open(outfn, "rb") as f:
+        encoded = base64.b64encode(f.read()).decode(encoding='utf-8')
+    if image_format == 'png':
+        return f'data:image/png;base64,{encoded}'
+    if image_format == 'svg':
+        return f'data:image/svg+xml;base64,{encoded}'
+    raise MathExtError('imgmath_image_format must be either "png" or "svg"')
 
 
 def cleanup_tempdir(app: Sphinx, exc: Exception) -> None:
@@ -285,7 +298,7 @@ def get_tooltip(self: HTMLTranslator, node: Element) -> str:
 
 def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
     try:
-        fname, depth = render_math(self, '$' + node.astext() + '$')
+        fname, depth, imgpath, outfn = render_math(self, '$' + node.astext() + '$')
     except MathExtError as exc:
         msg = str(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
@@ -293,14 +306,23 @@ def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
         sm.walkabout(self)
         logger.warning(__('display latex %r: %s'), node.astext(), msg)
         raise nodes.SkipNode from exc
-    if fname is None:
+    if self.builder.config.imgmath_embed:
+        image_format = self.builder.config.imgmath_image_format.lower()
+        img_src = render_maths_to_base64(image_format, outfn)
+    else:
+        # Move generated image on tempdir to build dir
+        if imgpath is not None:
+            ensuredir(path.dirname(outfn))
+            shutil.move(imgpath, outfn)
+        img_src = fname
+    if img_src is None:
         # something failed -- use text-only as a bad substitute
         self.body.append('<span class="math">%s</span>' %
                          self.encode(node.astext()).strip())
     else:
-        c = ('<img class="math" src="%s"' % fname) + get_tooltip(self, node)
+        c = f'<img class="math" src="{img_src}"' + get_tooltip(self, node)
         if depth is not None:
-            c += ' style="vertical-align: %dpx"' % (-depth)
+            c += f' style="vertical-align: {-depth:d}px"'
         self.body.append(c + '/>')
     raise nodes.SkipNode
 
@@ -311,7 +333,7 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
     else:
         latex = wrap_displaymath(node.astext(), None, False)
     try:
-        fname, depth = render_math(self, latex)
+        fname, depth, imgpath, outfn = render_math(self, latex)
     except MathExtError as exc:
         msg = str(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
@@ -326,12 +348,21 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
         self.body.append('<span class="eqno">(%s)' % number)
         self.add_permalink_ref(node, _('Permalink to this equation'))
         self.body.append('</span>')
-    if fname is None:
+    if self.builder.config.imgmath_embed:
+        image_format = self.builder.config.imgmath_image_format.lower()
+        img_src = render_maths_to_base64(image_format, outfn)
+    else:
+        # Move generated image on tempdir to build dir
+        if imgpath is not None:
+            ensuredir(path.dirname(outfn))
+            shutil.move(imgpath, outfn)
+        img_src = fname
+    if img_src is None:
         # something failed -- use text-only as a bad substitute
         self.body.append('<span class="math">%s</span></p>\n</div>' %
                          self.encode(node.astext()).strip())
     else:
-        self.body.append(('<img src="%s"' % fname) + get_tooltip(self, node) +
+        self.body.append(f'<img src="{img_src}"' + get_tooltip(self, node) +
                          '/></p>\n</div>')
     raise nodes.SkipNode
 
@@ -354,5 +385,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('imgmath_latex_preamble', '', 'html')
     app.add_config_value('imgmath_add_tooltips', True, 'html')
     app.add_config_value('imgmath_font_size', 12, 'html')
+    app.add_config_value('imgmath_embed', False, 'html', [bool])
     app.connect('build-finished', cleanup_tempdir)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

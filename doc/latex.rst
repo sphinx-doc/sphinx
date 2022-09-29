@@ -233,7 +233,7 @@ Keys that you may want to override include:
    .. code-block:: python
 
        latex_elements = {
-           'packages': r'\usepackage{isodate}'
+           'extrapackages': r'\usepackage{isodate}'
        }
 
    The specified LaTeX packages will be loaded before
@@ -1299,6 +1299,12 @@ Macros
      done during loading of ``'manual'`` docclass are now executed later via
      ``\sphinxtableofcontentshook``.  This macro is also executed by the
      ``'howto'`` docclass, but defaults to empty with it.
+
+  .. hint::
+
+     If adding to preamble the loading of ``tocloft`` package, also add to
+     preamble ``\renewcommand\sphinxtableofcontentshook{}`` else it will reset
+     ``\l@section`` and ``\l@subsection`` cancelling ``tocloft`` customization.
 
 - ``\sphinxmaketitle``: Used as the default setting of the ``'maketitle'``
   :confval:`latex_elements` key.

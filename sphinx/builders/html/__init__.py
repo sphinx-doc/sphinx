@@ -354,6 +354,7 @@ class StandaloneHTMLBuilder(Builder):
         self.add_js_file('underscore.js', priority=200)
         self.add_js_file('_sphinx_javascript_frameworks_compat.js', priority=200)
         self.add_js_file('doctools.js', priority=200)
+        self.add_js_file('sphinx_highlight.js', priority=200)
 
         for filename, attrs in self.app.registry.js_files:
             self.add_js_file(filename, **attrs)
@@ -374,7 +375,7 @@ class StandaloneHTMLBuilder(Builder):
     @property
     def default_translator_class(self) -> Type[nodes.NodeVisitor]:  # type: ignore
         if self.config.html4_writer:
-            return HTMLTranslator
+            return HTMLTranslator  # RemovedInSphinx70Warning
         else:
             return HTML5Translator
 
@@ -1338,6 +1339,16 @@ def migrate_html_add_permalinks(app: Sphinx, config: Config) -> None:
         html_add_permalinks
     )
 
+
+def deprecate_html_4(_app: Sphinx, config: Config) -> None:
+    """Warn on HTML 4."""
+    # RemovedInSphinx70Warning
+    if config.html4_writer:
+        logger.warning(_('Support for emitting HTML 4 output is deprecated and '
+                         'will be removed in Sphinx 7. ("html4_writer=True '
+                         'detected in configuration options)'))
+
+
 # for compatibility
 import sphinxcontrib.serializinghtml  # NOQA
 
@@ -1414,6 +1425,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('config-inited', validate_html_static_path, priority=800)
     app.connect('config-inited', validate_html_logo, priority=800)
     app.connect('config-inited', validate_html_favicon, priority=800)
+    app.connect('config-inited', deprecate_html_4, priority=800)
     app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_css_tag_helper)
     app.connect('html-page-context', setup_js_tag_helper)

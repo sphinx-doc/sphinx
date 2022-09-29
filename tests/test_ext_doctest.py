@@ -29,16 +29,16 @@ def test_highlight_language_default(app, status, warning):
     app.build()
     doctree = app.env.get_doctree('doctest')
     for node in doctree.findall(nodes.literal_block):
-        assert node['language'] in ('python3', 'pycon3', 'none')
+        assert node['language'] in {'python', 'pycon', 'none'}
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-doctest',
                     confoverrides={'highlight_language': 'python'})
-def test_highlight_language_python2(app, status, warning):
+def test_highlight_language_python3(app, status, warning):
     app.build()
     doctree = app.env.get_doctree('doctest')
     for node in doctree.findall(nodes.literal_block):
-        assert node['language'] in ('python', 'pycon', 'none')
+        assert node['language'] in {'python', 'pycon', 'none'}
 
 
 def test_is_allowed_version():

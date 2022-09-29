@@ -298,7 +298,7 @@ class JSModule(SphinxDirective):
             content_node.document = self.state.document
             nested_parse_with_titles(self.state, self.content, content_node)
 
-        ret: List[Node] = [*content_node.children]
+        ret: List[Node] = []
         if not noindex:
             domain = cast(JavaScriptDomain, self.env.get_domain('js'))
 
@@ -315,6 +315,7 @@ class JSModule(SphinxDirective):
             indextext = _('%s (module)') % mod_name
             inode = addnodes.index(entries=[('single', indextext, node_id, '', None)])
             ret.append(inode)
+        ret.extend(content_node.children)
         return ret
 
     def make_old_id(self, modname: str) -> str:

@@ -131,6 +131,16 @@ def test_html4_output(app, status, warning):
     app.build()
 
 
+def test_html4_deprecation(make_app, tempdir):
+    (tempdir / 'conf.py').write_text('', encoding='utf-8')
+    app = make_app(
+        buildername='html',
+        srcdir=tempdir,
+        confoverrides={'html4_writer': True},
+    )
+    assert 'HTML 4 output is deprecated and will be removed' in app._warning.getvalue()
+
+
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'images.html': [
         (".//img[@src='_images/img.png']", ''),
@@ -1222,7 +1232,8 @@ def test_assets_order(app):
 
     # js_files
     expected = ['_static/early.js', '_static/jquery.js', '_static/underscore.js',
-                '_static/doctools.js', 'https://example.com/script.js', '_static/normal.js',
+                '_static/doctools.js', '_static/sphinx_highlight.js',
+                'https://example.com/script.js', '_static/normal.js',
                 '_static/late.js', '_static/js/custom.js', '_static/lazy.js']
     pattern = '.*'.join('src="%s"' % f for f in expected)
     assert re.search(pattern, content, re.S)
@@ -1751,6 +1762,15 @@ def test_option_emphasise_placeholders_default(app, status, warning):
     assert ('<span class="pre">--plugin.option</span></span>'
             '<span class="sig-prename descclassname"></span>'
             '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Permalink to this definition">¶</a></dt>') in content
+
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_option_reference_with_value(app, status, warning):
+    app.build()
+    content = (app.outdir / 'objects.html').read_text()
+    assert ('<span class="pre">-mapi</span></span><span class="sig-prename descclassname">'
+            '</span><a class="headerlink" href="#cmdoption-git-commit-mapi"') in content
+    assert 'first option <a class="reference internal" href="#cmdoption-git-commit-mapi">' in content
 
 
 @pytest.mark.sphinx('html', testroot='theming')

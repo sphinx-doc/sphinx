@@ -204,6 +204,19 @@ Link to :option:`hg commit` and :option:`git commit -p`.
 
 Foo bar.
 
+Test repeated option directive.
+
+.. option:: -mapi
+
+  My API.
+
+.. option:: -mapi=secret
+
+  My secret API.
+
+Reference the first option :option:`-mapi=secret`.
+
+
 User markup
 ===========
 

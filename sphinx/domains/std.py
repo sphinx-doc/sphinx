@@ -47,7 +47,7 @@ class GenericObject(ObjectDescription[str]):
     A generic x-ref directive registered with Sphinx.add_object_type().
     """
     indextemplate: str = ''
-    parse_node: Callable[["GenericObject", "BuildEnvironment", str, desc_signature], str] = None  # NOQA
+    parse_node: Callable[["BuildEnvironment", str, desc_signature], str] = None  # NOQA
 
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         if self.parse_node:
@@ -493,12 +493,12 @@ class ProductionList(SphinxDirective):
         lines = nl_escape_re.sub('', self.arguments[0]).split('\n')
 
         productionGroup = ""
-        i = 0
+        first_rule_seen = False
         for rule in lines:
-            if i == 0 and ':' not in rule:
+            if not first_rule_seen and ':' not in rule:
                 productionGroup = rule.strip()
                 continue
-            i += 1
+            first_rule_seen = True
             try:
                 name, tokens = rule.split(':', 1)
             except ValueError:
@@ -780,7 +780,9 @@ class StandardDomain(Domain):
             self.labels[name] = docname, labelid, sectname
 
     def add_program_option(self, program: str, name: str, docname: str, labelid: str) -> None:
-        self.progoptions[program, name] = (docname, labelid)
+        # prefer first command option entry
+        if (program, name) not in self.progoptions:
+            self.progoptions[program, name] = (docname, labelid)
 
     def build_reference_node(self, fromdocname: str, builder: "Builder", docname: str,
                              labelid: str, sectname: str, rolename: str, **options: Any
@@ -941,6 +943,10 @@ class StandardDomain(Domain):
         progname = node.get('std:program')
         target = target.strip()
         docname, labelid = self.progoptions.get((progname, target), ('', ''))
+        # for :option:`-foo=bar` search for -foo option directive
+        if not docname and '=' in target:
+            target2 = target[:target.find('=')]
+            docname, labelid = self.progoptions.get((progname, target2), ('', ''))
         if not docname:
             commands = []
             while ws_re.search(target):

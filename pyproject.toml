@@ -35,6 +35,7 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Framework :: Setuptools Plugin",
@@ -86,7 +87,7 @@ lint = [
     "flake8-bugbear",
     "flake8-simplify",
     "isort",
-    "mypy>=0.971",
+    "mypy>=0.981",
     "sphinx-lint",
     "docutils-stubs",
     "types-typed-ast",
@@ -134,3 +135,87 @@ include = [
 exclude = [
     "doc/_build",
 ]
+
+[tool.isort]
+line_length = 95
+
+[tool.mypy]
+check_untyped_defs = true
+disallow_incomplete_defs = true
+follow_imports = "skip"
+ignore_missing_imports = true
+no_implicit_optional = true
+python_version = "3.6"
+show_column_numbers = true
+show_error_codes = true
+show_error_context = true
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_any_generics = true
+
+[[tool.mypy.overrides]]
+module = [
+    "sphinx.application",
+    "sphinx.builders",
+    "sphinx.builders.html",
+    "sphinx.builders.latex",
+    "sphinx.builders.linkcheck",
+    "sphinx.directives.code",
+    "sphinx.domains.*",
+    "sphinx.environment",
+    "sphinx.environment.adapters.toctree",
+    "sphinx.environment.adapters.indexentries",
+    "sphinx.ext.*",
+    "sphinx.pycode.parser",
+    "sphinx.registry",
+    "sphinx.setup_command",
+    "sphinx.testing.util",
+    "sphinx.transforms.i18n",
+    "sphinx.transforms.post_transforms.images",
+    "sphinx.util.cfamily",
+    "sphinx.util.docfields",
+    "sphinx.util.docutils",
+    "sphinx.util.nodes",
+    "sphinx.util.typing",
+    "sphinx.writers.latex",
+    "sphinx.writers.text",
+    "sphinx.writers.xml"
+]
+strict_optional = false
+
+[[tool.mypy.overrides]]
+module = [
+    "sphinx.application",
+    "sphinx.builders.*",
+    "sphinx.cmd.quickstart",
+    "sphinx.config",
+    "sphinx.deprecation",
+    "sphinx.domains.*",
+    "sphinx.environment.*",
+    "sphinx.events",
+    "sphinx.ext.*",
+    "sphinx.highlighting",
+    "sphinx.jinja2glue",
+    "sphinx.locale",
+    "sphinx.registry",
+    "sphinx.roles",
+    "sphinx.search.*",
+    "sphinx.testing.*",
+    "sphinx.util.*",
+    "sphinx.writers.*",
+]
+disallow_any_generics = false
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "all",
+    "ignore::DeprecationWarning:docutils.io",
+    "ignore::DeprecationWarning:pyximport.pyximport",
+    "ignore::ImportWarning:importlib._bootstrap",
+]
+markers = [
+    "apidoc",
+    "setup_command",
+]
+testpaths = ["tests"]
