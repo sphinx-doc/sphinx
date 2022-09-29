@@ -531,7 +531,7 @@ For functions with optional parameters that don't have default values
 argument support), you can use brackets to specify the optional parts:
 
 .. py:function:: compile(source[, filename[, symbol]])
-   :nocontentsentry:
+   :noindex:
 
 It is customary to put the opening bracket before the comma.
 
@@ -588,7 +588,7 @@ explained by an example::
 This will render like this:
 
 .. py:function:: send_message(sender, recipient, message_body, [priority=1])
-   :nocontentsentry:
+   :noindex:
 
    Send a message to a recipient
 
@@ -871,15 +871,19 @@ This will be rendered as:
 
 .. c:struct:: Data
    :nocontentsentry:
+   :noindexentry:
 
    .. c:union:: @data
       :nocontentsentry:
+      :noindexentry:
 
       .. c:var:: int a
          :nocontentsentry:
+         :noindexentry:
 
       .. c:var:: double b
          :nocontentsentry:
+         :noindexentry:
 
 Explicit ref: :c:var:`Data.@data.a`. Short-hand ref: :c:var:`Data.a`.
 
@@ -962,9 +966,11 @@ Inline Expressions and Types
 
    .. c:var:: int a = 42
       :nocontentsentry:
+      :noindexentry:
 
    .. c:function:: int f(int i)
       :nocontentsentry:
+      :noindexentry:
 
    An expression: :c:expr:`a * f(a)` (or as text: :c:texpr:`a * f(a)`).
 
@@ -1174,23 +1180,23 @@ visibility statement (``public``, ``private`` or ``protected``).
    The example are rendered as follows.
 
    .. cpp:type:: std::vector<int> MyList
-      :nocontentsentry:
+      :noindex:
 
       A typedef-like declaration of a type.
 
    .. cpp:type:: MyContainer::const_iterator
-      :nocontentsentry:
+      :noindex:
 
       Declaration of a type alias with unspecified type.
 
    .. cpp:type:: MyType = std::unordered_map<int, std::string>
-      :nocontentsentry:
+      :noindex:
 
       Declaration of a type alias.
 
    .. cpp:type:: template<typename T> \
                  MyContainer = std::vector<T>
-      :nocontentsentry:
+      :noindex:
 
 .. rst:directive:: .. cpp:enum:: unscoped enum declaration
                    .. cpp:enum-struct:: scoped enum declaration
@@ -1318,15 +1324,19 @@ This will be rendered as:
 
 .. cpp:class:: Data
    :nocontentsentry:
+   :noindexentry:
 
    .. cpp:union:: @data
       :nocontentsentry:
+      :noindexentry:
 
       .. cpp:var:: int a
          :nocontentsentry:
+         :noindexentry:
 
       .. cpp:var:: double b
          :nocontentsentry:
+         :noindexentry:
 
 Explicit ref: :cpp:var:`Data::@data::a`. Short-hand ref: :cpp:var:`Data::a`.
 
@@ -1433,11 +1443,13 @@ They are rendered as follows.
 
 .. cpp:function:: std::Iterator{It} void advance(It &it)
    :nocontentsentry:
+   :noindexentry:
 
    A function template with a template parameter constrained to be an Iterator.
 
 .. cpp:class:: std::LessThanComparable{T} MySortedContainer
    :nocontentsentry:
+   :noindexentry:
 
    A class template with a template parameter constrained to be
    LessThanComparable.
@@ -1468,9 +1480,11 @@ Inline Expressions and Types
 
    .. cpp:var:: int a = 42
       :nocontentsentry:
+      :noindexentry:
 
    .. cpp:function:: int f(int i)
       :nocontentsentry:
+      :noindexentry:
 
    An expression: :cpp:expr:`a * f(a)` (or as text: :cpp:texpr:`a * f(a)`).
 
@@ -1886,7 +1900,7 @@ The JavaScript domain (name **js**) provides the following directives:
    This is rendered as:
 
    .. js:function:: $.getJSON(href, callback[, errback])
-      :nocontentsentry:
+      :noindex:
 
       :param string href: An URI to the location of the resource.
       :param callback: Gets called with the object.
@@ -1916,7 +1930,7 @@ The JavaScript domain (name **js**) provides the following directives:
    This is rendered as:
 
    .. js:class:: MyAnimal(name[, age])
-      :nocontentsentry:
+      :noindex:
 
       :param string name: The name of the animal
       :param number age: an optional age for the animal
@@ -1963,12 +1977,12 @@ The reStructuredText domain (name **rst**) provides the following directives:
    will be rendered as:
 
    .. rst:directive:: foo
-      :nocontentsentry:
+      :noindex:
 
       Foo description.
 
    .. rst:directive:: .. bar:: baz
-      :nocontentsentry:
+      :noindex:
 
       Bar description.
 
@@ -1987,13 +2001,13 @@ The reStructuredText domain (name **rst**) provides the following directives:
    will be rendered as:
 
    .. rst:directive:: toctree
-      :nocontentsentry:
+      :noindex:
 
       .. rst:directive:option:: caption: caption of ToC
-         :nocontentsentry:
+         :noindex:
 
       .. rst:directive:option:: glob
-         :nocontentsentry:
+         :noindex:
 
    .. rubric:: options
 
@@ -2022,7 +2036,7 @@ The reStructuredText domain (name **rst**) provides the following directives:
    will be rendered as:
 
    .. rst:role:: foo
-      :nocontentsentry:
+      :noindex:
 
       Foo description.
 
