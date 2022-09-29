@@ -1,0 +1,23 @@
+name: CI (LaTeX)
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: sphinxdoc/docker-ci
+    env:
+      DO_EPUBCHECK: 1
+      PATH: /python3.8/bin/:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    steps:
+    - uses: actions/checkout@v3
+    - name: Check Python version
+      run: python --version
+    - name: Install dependencies
+      run: pip install -U pip tox
+    - name: Run Tox
+      run: tox -e py -- -vv
