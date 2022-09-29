@@ -159,11 +159,11 @@ def setlocale(category: int, value: Union[str, Iterable[str], None] = None) -> N
         pass
 
 
-LOCALE_DIR = path.abspath(path.dirname(__file__))
+_LOCALE_DIR = path.abspath(path.dirname(__file__))
 
 
 def init_console(
-    locale_dir: str = LOCALE_DIR,
+    locale_dir: str = _LOCALE_DIR,
     catalog: str = 'sphinx',
 ) -> Tuple[NullTranslations, bool]:
     """Initialize locale for console.
