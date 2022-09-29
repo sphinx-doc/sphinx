@@ -29,6 +29,7 @@ class ReSTMarkup(ObjectDescription[str]):
     Description of generic reST markup.
     """
     option_spec: OptionSpec = {
+        'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
     }

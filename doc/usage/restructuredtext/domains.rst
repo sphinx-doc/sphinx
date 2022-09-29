@@ -1180,23 +1180,27 @@ visibility statement (``public``, ``private`` or ``protected``).
    The example are rendered as follows.
 
    .. cpp:type:: std::vector<int> MyList
-      :noindex:
+      :nocontentsentry:
+      :noindexentry:
 
       A typedef-like declaration of a type.
 
    .. cpp:type:: MyContainer::const_iterator
-      :noindex:
+      :nocontentsentry:
+      :noindexentry:
 
       Declaration of a type alias with unspecified type.
 
    .. cpp:type:: MyType = std::unordered_map<int, std::string>
-      :noindex:
+      :nocontentsentry:
+      :noindexentry:
 
       Declaration of a type alias.
 
    .. cpp:type:: template<typename T> \
                  MyContainer = std::vector<T>
-      :noindex:
+      :nocontentsentry:
+      :noindexentry:
 
 .. rst:directive:: .. cpp:enum:: unscoped enum declaration
                    .. cpp:enum-struct:: scoped enum declaration
