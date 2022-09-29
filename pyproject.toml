@@ -197,7 +197,6 @@ module = [
     "sphinx.ext.*",
     "sphinx.highlighting",
     "sphinx.jinja2glue",
-    "sphinx.locale",
     "sphinx.registry",
     "sphinx.roles",
     "sphinx.search.*",
