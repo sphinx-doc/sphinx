@@ -246,8 +246,8 @@ class HyperlinkAvailabilityChecker:
 class HyperlinkAvailabilityCheckWorker(Thread):
     """A worker class for checking the availability of hyperlinks."""
 
-    def __init__(self, env: BuildEnvironment, config: Config, rqueue: "Queue[CheckResult]",
-                 wqueue: "Queue[CheckRequest]", rate_limits: Dict[str, RateLimit]) -> None:
+    def __init__(self, env: BuildEnvironment, config: Config, rqueue: 'Queue[CheckResult]',
+                 wqueue: 'Queue[CheckRequest]', rate_limits: Dict[str, RateLimit]) -> None:
         self.config = config
         self.env = env
         self.rate_limits = rate_limits
