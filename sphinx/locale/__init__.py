@@ -1,7 +1,6 @@
 """Locale utilities."""
 
 import locale
-from collections import UserString, defaultdict
 from gettext import NullTranslations, translation
 from os import path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
