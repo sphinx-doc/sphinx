@@ -40,6 +40,7 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
     option_spec: OptionSpec = {
         'noindex': directives.flag,
         'noindexentry': directives.flag,
+        'nocontentsentry': directives.flag,
     }
 
     def get_display_prefix(self) -> List[Node]:
@@ -284,7 +285,8 @@ class JSModule(SphinxDirective):
     optional_arguments = 0
     final_argument_whitespace = False
     option_spec: OptionSpec = {
-        'noindex': directives.flag
+        'noindex': directives.flag,
+        'nocontentsentry': directives.flag,
     }
 
     def run(self) -> List[Node]:

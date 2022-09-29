@@ -42,11 +42,15 @@ Basic Markup
 Most domains provide a number of :dfn:`object description directives`, used to
 describe specific objects provided by modules.  Each directive requires one or
 more signatures to provide basic information about what is being described, and
-the content should be the description.  A domain will typically keep an
-internal index of all entities to aid cross-referencing. Typically it will
-also add entries in the shown general index.
+the content should be the description.
+
+A domain will typically keep an internal index of all entities to aid
+cross-referencing.
+Typically it will also add entries in the shown general index.
 If you want to suppress the addition of an entry in the shown index, you can
 give the directive option flag ``:noindexentry:``.
+If you want to exclude the object description from the table of contents, you
+can give the directive option flag ``:nocontentsentry:``.
 If you want to typeset an object description, without even making it available
 for cross-referencing, you can give the directive option flag ``:noindex:``
 (which implies ``:noindexentry:``).
@@ -56,6 +60,10 @@ options.
 .. versionadded:: 3.2
    The directive option ``noindexentry`` in the Python, C, C++, and Javascript
    domains.
+
+.. versionadded:: 5.2.3
+   The directive option ``:nocontentsentry:`` in the Python, C, C++, Javascript,
+   and reStructuredText domains.
 
 An example using a Python domain directive::
 
@@ -523,7 +531,7 @@ For functions with optional parameters that don't have default values
 argument support), you can use brackets to specify the optional parts:
 
 .. py:function:: compile(source[, filename[, symbol]])
-   :noindex:
+   :nocontentsentry:
 
 It is customary to put the opening bracket before the comma.
 
@@ -580,7 +588,7 @@ explained by an example::
 This will render like this:
 
 .. py:function:: send_message(sender, recipient, message_body, [priority=1])
-   :noindex:
+   :nocontentsentry:
 
    Send a message to a recipient
 
@@ -1166,23 +1174,23 @@ visibility statement (``public``, ``private`` or ``protected``).
    The example are rendered as follows.
 
    .. cpp:type:: std::vector<int> MyList
-      :noindex:
+      :nocontentsentry:
 
       A typedef-like declaration of a type.
 
    .. cpp:type:: MyContainer::const_iterator
-      :noindex:
+      :nocontentsentry:
 
       Declaration of a type alias with unspecified type.
 
    .. cpp:type:: MyType = std::unordered_map<int, std::string>
-      :noindex:
+      :nocontentsentry:
 
       Declaration of a type alias.
 
    .. cpp:type:: template<typename T> \
                  MyContainer = std::vector<T>
-      :noindex:
+      :nocontentsentry:
 
 .. rst:directive:: .. cpp:enum:: unscoped enum declaration
                    .. cpp:enum-struct:: scoped enum declaration
@@ -1277,7 +1285,7 @@ Options
 
 Some directives support options:
 
-- ``:noindexentry:``, see :ref:`basic-domain-markup`.
+- ``:noindexentry:`` and ``:nocontentsentry:``, see :ref:`basic-domain-markup`.
 - ``:tparam-line-spec:``, for templated declarations.
   If specified, each template parameter will be rendered on a separate line.
 
@@ -1878,7 +1886,7 @@ The JavaScript domain (name **js**) provides the following directives:
    This is rendered as:
 
    .. js:function:: $.getJSON(href, callback[, errback])
-      :noindex:
+      :nocontentsentry:
 
       :param string href: An URI to the location of the resource.
       :param callback: Gets called with the object.
@@ -1908,7 +1916,7 @@ The JavaScript domain (name **js**) provides the following directives:
    This is rendered as:
 
    .. js:class:: MyAnimal(name[, age])
-      :noindex:
+      :nocontentsentry:
 
       :param string name: The name of the animal
       :param number age: an optional age for the animal
@@ -1955,12 +1963,12 @@ The reStructuredText domain (name **rst**) provides the following directives:
    will be rendered as:
 
    .. rst:directive:: foo
-      :noindex:
+      :nocontentsentry:
 
       Foo description.
 
    .. rst:directive:: .. bar:: baz
-      :noindex:
+      :nocontentsentry:
 
       Bar description.
 
@@ -1979,13 +1987,13 @@ The reStructuredText domain (name **rst**) provides the following directives:
    will be rendered as:
 
    .. rst:directive:: toctree
-      :noindex:
+      :nocontentsentry:
 
       .. rst:directive:option:: caption: caption of ToC
-         :noindex:
+         :nocontentsentry:
 
       .. rst:directive:option:: glob
-         :noindex:
+         :nocontentsentry:
 
    .. rubric:: options
 
@@ -2014,7 +2022,7 @@ The reStructuredText domain (name **rst**) provides the following directives:
    will be rendered as:
 
    .. rst:role:: foo
-      :noindex:
+      :nocontentsentry:
 
       Foo description.
 

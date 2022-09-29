@@ -112,9 +112,12 @@ class TocTreeCollector(EnvironmentCollector):
                                 # Skip if no name set
                                 if not sig_node.get('_toc_name', ''):
                                     continue
+                                # Skip if explicitly disabled
+                                if sig_node.parent.get('nocontentsentry'):
+                                    continue
                                 # Skip entries with no ID (e.g. with :noindex: set)
                                 ids = sig_node['ids']
-                                if not ids or sig_node.parent.get('noindexentry'):
+                                if not ids:
                                     continue
 
                                 anchorname = _make_anchor_name(ids, numentries)
