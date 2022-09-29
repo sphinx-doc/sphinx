@@ -19,6 +19,8 @@ Features added
 Bugs fixed
 ----------
 
+* #9778: Address inconsistently localized entries in ``objects.inv`` by removing translation lazy-loader proxy class.
+
 Testing
 --------
 
