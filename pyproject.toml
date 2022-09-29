@@ -187,7 +187,9 @@ strict_optional = false
 [[tool.mypy.overrides]]
 module = [
     "sphinx.application",
-    "sphinx.builders.*",
+    "sphinx.builders._epub_base",
+    "sphinx.builders.html",
+    "sphinx.builders.linkcheck",
     "sphinx.cmd.quickstart",
     "sphinx.config",
     "sphinx.deprecation",
@@ -197,8 +199,6 @@ module = [
     "sphinx.ext.*",
     "sphinx.highlighting",
     "sphinx.jinja2glue",
-    "sphinx.locale",
-    "sphinx.pycode.*",
     "sphinx.registry",
     "sphinx.roles",
     "sphinx.search.*",
