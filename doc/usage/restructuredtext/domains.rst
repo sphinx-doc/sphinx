@@ -862,16 +862,16 @@ Example::
 This will be rendered as:
 
 .. c:struct:: Data
-   :noindexentry:
+   :nocontentsentry:
 
    .. c:union:: @data
-      :noindexentry:
+      :nocontentsentry:
 
       .. c:var:: int a
-         :noindexentry:
+         :nocontentsentry:
 
       .. c:var:: double b
-         :noindexentry:
+         :nocontentsentry:
 
 Explicit ref: :c:var:`Data.@data.a`. Short-hand ref: :c:var:`Data.a`.
 
@@ -953,10 +953,10 @@ Inline Expressions and Types
    will be rendered as follows:
 
    .. c:var:: int a = 42
-      :noindexentry:
+      :nocontentsentry:
 
    .. c:function:: int f(int i)
-      :noindexentry:
+      :nocontentsentry:
 
    An expression: :c:expr:`a * f(a)` (or as text: :c:texpr:`a * f(a)`).
 
@@ -1309,16 +1309,16 @@ Example::
 This will be rendered as:
 
 .. cpp:class:: Data
-   :noindexentry:
+   :nocontentsentry:
 
    .. cpp:union:: @data
-      :noindexentry:
+      :nocontentsentry:
 
       .. cpp:var:: int a
-         :noindexentry:
+         :nocontentsentry:
 
       .. cpp:var:: double b
-         :noindexentry:
+         :nocontentsentry:
 
 Explicit ref: :cpp:var:`Data::@data::a`. Short-hand ref: :cpp:var:`Data::a`.
 
@@ -1424,12 +1424,12 @@ introduction` instead of a template parameter list::
 They are rendered as follows.
 
 .. cpp:function:: std::Iterator{It} void advance(It &it)
-   :noindexentry:
+   :nocontentsentry:
 
    A function template with a template parameter constrained to be an Iterator.
 
 .. cpp:class:: std::LessThanComparable{T} MySortedContainer
-   :noindexentry:
+   :nocontentsentry:
 
    A class template with a template parameter constrained to be
    LessThanComparable.
@@ -1459,10 +1459,10 @@ Inline Expressions and Types
    will be rendered as follows:
 
    .. cpp:var:: int a = 42
-      :noindexentry:
+      :nocontentsentry:
 
    .. cpp:function:: int f(int i)
-      :noindexentry:
+      :nocontentsentry:
 
    An expression: :cpp:expr:`a * f(a)` (or as text: :cpp:texpr:`a * f(a)`).
 
