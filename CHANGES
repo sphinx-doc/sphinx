@@ -12,6 +12,8 @@ Deprecated
 
 Features added
 --------------
+* #10881: make debugging automatically generated section labels by
+  ``sphinx.ext.autosectionlabel`` easier.
 
 * #10840: One can cross-reference including an option value: ``:option:`--module=foobar```.
   Patch by Martin Liska.
