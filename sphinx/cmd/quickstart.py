@@ -177,7 +177,7 @@ class QuickstartRenderer(SphinxRenderer):
         else:
             return False
 
-    def render(self, template_name: str, context: Dict) -> str:
+    def render(self, template_name: str, context: Dict[str, Any]) -> str:
         if self._has_custom_template(template_name):
             custom_template = path.join(self.templatedir, path.basename(template_name))
             return self.render_from_file(custom_template, context)

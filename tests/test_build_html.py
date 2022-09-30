@@ -1709,6 +1709,15 @@ def test_option_emphasise_placeholders_default(app, status, warning):
             '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Permalink to this definition">¶</a></dt>') in content
 
 
+@pytest.mark.sphinx('html', testroot='root')
+def test_option_reference_with_value(app, status, warning):
+    app.build()
+    content = (app.outdir / 'objects.html').read_text()
+    assert ('<span class="pre">-mapi</span></span><span class="sig-prename descclassname">'
+            '</span><a class="headerlink" href="#cmdoption-git-commit-mapi"') in content
+    assert 'first option <a class="reference internal" href="#cmdoption-git-commit-mapi">' in content
+
+
 @pytest.mark.sphinx('html', testroot='theming')
 def test_theme_options(app, status, warning):
     app.build()

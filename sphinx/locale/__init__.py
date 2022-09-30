@@ -1,9 +1,8 @@
 """Locale utilities."""
 
-import gettext
 import locale
-from collections import defaultdict
-from gettext import NullTranslations
+from gettext import NullTranslations, translation
+from os import path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 
 
@@ -17,7 +16,7 @@ class _TranslationProxy:
     """
     __slots__ = ('_func', '_args')
 
-    def __new__(cls, func: Callable, *args: str) -> "_TranslationProxy":
+    def __new__(cls, func: Callable[..., str], *args: str) -> '_TranslationProxy':
         if not args:
             # not called with "function" and "arguments", but a plain string
             return str(func)  # type: ignore[return-value]
@@ -26,7 +25,7 @@ class _TranslationProxy:
     def __getnewargs__(self) -> Tuple[str]:
         return (self._func,) + self._args  # type: ignore
 
-    def __init__(self, func: Callable, *args: str) -> None:
+    def __init__(self, func: Callable[..., str], *args: str) -> None:
         self._func = func
         self._args = args
 
@@ -39,13 +38,13 @@ class _TranslationProxy:
     def __getattr__(self, name: str) -> Any:
         return getattr(self.__str__(), name)
 
-    def __getstate__(self) -> Tuple[Callable, Tuple[str, ...]]:
+    def __getstate__(self) -> Tuple[Callable[..., str], Tuple[str, ...]]:
         return self._func, self._args
 
-    def __setstate__(self, tup: Tuple[Callable, Tuple[str]]) -> None:
+    def __setstate__(self, tup: Tuple[Callable[..., str], Tuple[str]]) -> None:
         self._func, self._args = tup
 
-    def __copy__(self) -> "_TranslationProxy":
+    def __copy__(self) -> '_TranslationProxy':
         return _TranslationProxy(self._func, *self._args)
 
     def __repr__(self) -> str:
@@ -91,11 +90,15 @@ class _TranslationProxy:
         return self.__str__()[index]
 
 
-translators: Dict[Tuple[str, str], NullTranslations] = defaultdict(NullTranslations)
+translators: Dict[Tuple[str, str], NullTranslations] = {}
 
 
-def init(locale_dirs: List[Optional[str]], language: Optional[str],
-         catalog: str = 'sphinx', namespace: str = 'general') -> Tuple[NullTranslations, bool]:
+def init(
+    locale_dirs: List[Optional[str]],
+    language: Optional[str],
+    catalog: str = 'sphinx',
+    namespace: str = 'general',
+) -> Tuple[NullTranslations, bool]:
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
     least a NullTranslations catalog set in `translators`. If called multiple
     times or if several ``.mo`` files are found, their contents are merged
@@ -120,7 +123,7 @@ def init(locale_dirs: List[Optional[str]], language: Optional[str],
     # loading
     for dir_ in locale_dirs:
         try:
-            trans = gettext.translation(catalog, localedir=dir_, languages=languages)
+            trans = translation(catalog, localedir=dir_, languages=languages)
             if translator is None:
                 translator = trans
             else:
@@ -148,7 +151,7 @@ def setlocale(category: int, value: Union[str, Iterable[str], None] = None) -> N
     * https://bugs.python.org/issue18378#msg215215
 
     .. note:: Only for internal use.  Please don't call this method from extensions.
-              This will be removed in future.
+              This will be removed in Sphinx 6.0.
     """
     try:
         locale.setlocale(category, value)
@@ -156,7 +159,13 @@ def setlocale(category: int, value: Union[str, Iterable[str], None] = None) -> N
         pass
 
 
-def init_console(locale_dir: str, catalog: str) -> Tuple[NullTranslations, bool]:
+_LOCALE_DIR = path.abspath(path.dirname(__file__))
+
+
+def init_console(
+    locale_dir: str = _LOCALE_DIR,
+    catalog: str = 'sphinx',
+) -> Tuple[NullTranslations, bool]:
     """Initialize locale for console.
 
     .. versionadded:: 1.8
@@ -172,7 +181,7 @@ def init_console(locale_dir: str, catalog: str) -> Tuple[NullTranslations, bool]
 
 
 def get_translator(catalog: str = 'sphinx', namespace: str = 'general') -> NullTranslations:
-    return translators[(namespace, catalog)]
+    return translators.get((namespace, catalog), NullTranslations())
 
 
 def is_translator_registered(catalog: str = 'sphinx', namespace: str = 'general') -> bool:

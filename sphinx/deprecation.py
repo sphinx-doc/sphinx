@@ -52,10 +52,10 @@ class _ModuleWrapper:
         return self._objects[name]
 
 
-class DeprecatedDict(dict):
+class DeprecatedDict(Dict[str, Any]):
     """A deprecated dict which warns on each access."""
 
-    def __init__(self, data: Dict, message: str, warning: Type[Warning]) -> None:
+    def __init__(self, data: Dict[str, Any], message: str, warning: Type[Warning]) -> None:
         self.message = message
         self.warning = warning
         super().__init__(data)
@@ -68,7 +68,7 @@ class DeprecatedDict(dict):
         warnings.warn(self.message, self.warning, stacklevel=2)
         return super().setdefault(key, default)
 
-    def __getitem__(self, key: str) -> None:
+    def __getitem__(self, key: str) -> Any:
         warnings.warn(self.message, self.warning, stacklevel=2)
         return super().__getitem__(key)
 
@@ -76,6 +76,6 @@ class DeprecatedDict(dict):
         warnings.warn(self.message, self.warning, stacklevel=2)
         return super().get(key, default)
 
-    def update(self, other: Dict) -> None:  # type: ignore
+    def update(self, other: Dict[str, Any]) -> None:  # type: ignore
         warnings.warn(self.message, self.warning, stacklevel=2)
         super().update(other)

@@ -463,7 +463,7 @@ class DefinitionFinder(TokenProcessor):
         super().__init__(lines)
         self.decorator: Optional[Token] = None
         self.context: List[str] = []
-        self.indents: List = []
+        self.indents: List[Tuple[str, Optional[str], Optional[int]]] = []
         self.definitions: Dict[str, Tuple[str, int, int]] = {}
 
     def add_definition(self, name: str, entry: Tuple[str, int, int]) -> None:

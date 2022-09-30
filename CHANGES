@@ -38,11 +38,21 @@ Deprecated
 Features added
 --------------
 
+* #10840: One can cross-reference including an option value: ``:option:`--module=foobar```.
+  Patch by Martin Liska.
+
 Bugs fixed
 ----------
 
 Testing
 --------
+
+Release 5.2.3 (released Sep 30, 2022)
+=====================================
+
+* #10878: Fix base64 image embedding in ``sphinx.ext.imgmath``
+* #10886: Add ``:nocontentsentry:`` flag and global domain table of contents
+  entry control option. Patch by Adam Turner
 
 Release 5.2.2 (released Sep 27, 2022)
 =====================================

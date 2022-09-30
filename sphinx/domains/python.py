@@ -412,6 +412,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
     option_spec: OptionSpec = {
         'noindex': directives.flag,
         'noindexentry': directives.flag,
+        'nocontentsentry': directives.flag,
         'module': directives.unchanged,
         'canonical': directives.unchanged,
         'annotation': directives.unchanged,
@@ -978,6 +979,7 @@ class PyModule(SphinxDirective):
         'platform': lambda x: x,
         'synopsis': lambda x: x,
         'noindex': directives.flag,
+        'nocontentsentry': directives.flag,
         'deprecated': directives.flag,
     }
 

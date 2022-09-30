@@ -9,7 +9,7 @@ import pdb
 import sys
 import traceback
 from os import path
-from typing import IO, Any, List, Optional, TextIO
+from typing import Any, List, Optional, TextIO
 
 from docutils.utils import SystemMessage
 
@@ -25,7 +25,7 @@ from sphinx.util.osutil import abspath, ensuredir
 
 
 def handle_exception(
-    app: Optional[Sphinx], args: Any, exception: BaseException, stderr: IO = sys.stderr
+    app: Optional[Sphinx], args: Any, exception: BaseException, stderr: TextIO = sys.stderr
 ) -> None:
     if isinstance(exception, bdb.BdbQuit):
         return
