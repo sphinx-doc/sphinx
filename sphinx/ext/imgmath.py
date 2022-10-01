@@ -266,6 +266,10 @@ def render_math(
         self.builder._imgmath_warned_image_translator = True  # type: ignore
         return None, None, None, None
 
+    # Move generated image on tempdir to build dir
+    ensuredir(path.dirname(outfn))
+    shutil.move(imgpath, outfn)
+
     return relfn, depth, imgpath, outfn
 
 
@@ -306,20 +310,17 @@ def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
         sm.walkabout(self)
         logger.warning(__('display latex %r: %s'), node.astext(), msg)
         raise nodes.SkipNode from exc
-    if self.builder.config.imgmath_embed:
-        image_format = self.builder.config.imgmath_image_format.lower()
-        img_src = render_maths_to_base64(image_format, imgpath)
-    else:
-        # Move generated image on tempdir to build dir
-        if imgpath is not None:
-            ensuredir(path.dirname(outfn))
-            shutil.move(imgpath, outfn)
-        img_src = fname
-    if img_src is None:
+
+    if fname is None:
         # something failed -- use text-only as a bad substitute
         self.body.append('<span class="math">%s</span>' %
                          self.encode(node.astext()).strip())
     else:
+        if self.builder.config.imgmath_embed:
+            image_format = self.builder.config.imgmath_image_format.lower()
+            img_src = render_maths_to_base64(image_format, outfn)
+        else:
+            img_src = fname
         c = f'<img class="math" src="{img_src}"' + get_tooltip(self, node)
         if depth is not None:
             c += f' style="vertical-align: {-depth:d}px"'
@@ -348,20 +349,17 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
         self.body.append('<span class="eqno">(%s)' % number)
         self.add_permalink_ref(node, _('Permalink to this equation'))
         self.body.append('</span>')
-    if self.builder.config.imgmath_embed:
-        image_format = self.builder.config.imgmath_image_format.lower()
-        img_src = render_maths_to_base64(image_format, imgpath)
-    else:
-        # Move generated image on tempdir to build dir
-        if imgpath is not None:
-            ensuredir(path.dirname(outfn))
-            shutil.move(imgpath, outfn)
-        img_src = fname
-    if img_src is None:
+
+    if fname is None:
         # something failed -- use text-only as a bad substitute
         self.body.append('<span class="math">%s</span></p>\n</div>' %
                          self.encode(node.astext()).strip())
     else:
+        if self.builder.config.imgmath_embed:
+            image_format = self.builder.config.imgmath_image_format.lower()
+            img_src = render_maths_to_base64(image_format, outfn)
+        else:
+            img_src = fname
         self.body.append(f'<img src="{img_src}"' + get_tooltip(self, node) +
                          '/></p>\n</div>')
     raise nodes.SkipNode
