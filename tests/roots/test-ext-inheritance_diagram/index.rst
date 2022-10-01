@@ -18,6 +18,3 @@ test-ext-inheritance_diagram
 .. inheritance-diagram:: subdir.other.Bob
 
 .. py:class:: test.Alice
-
-.. toctree::
-   subdir/index
