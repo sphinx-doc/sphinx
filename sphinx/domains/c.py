@@ -3676,7 +3676,8 @@ class CXRefRole(XRefRole):
         return title, target
 
     def run(self) -> Tuple[List[Node], List[system_message]]:
-        if not self.env.config['c_allow_pre_v3']:
+        if not self.env.config['c_allow_pre_v3'] or self.disabled:
+            # workaround, remove entire method with c_allow_pre_v3 code
             return super().run()
 
         text = self.text.replace('\n', ' ')
