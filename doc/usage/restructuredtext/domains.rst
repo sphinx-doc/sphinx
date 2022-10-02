@@ -1803,7 +1803,8 @@ There is a set of directives allowing documenting command-line programs:
 
    .. versionchanged:: 5.3
 
-      One can cross-reference including an option value: ``:option:`--module=foobar```.
+      One can cross-reference including an option value: ``:option:`--module=foobar```,
+      ,``:option:`--module[=foobar]``` or ``:option:`--module foobar```.
 
    Use :confval:`option_emphasise_placeholders` for parsing of
    "variable part" of a literal text (similarly to the :rst:role:`samp` role).
