@@ -4,7 +4,6 @@ from typing import Generic
 from typing import Optional as Opt  # rename to test resolution
 from typing import TypeVar
 
-
 T = TypeVar("T")
 
 
