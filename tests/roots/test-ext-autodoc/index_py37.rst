@@ -14,4 +14,7 @@
 
 .. autofunction:: target.typehints.tuple_args
 
+.. automodule:: target.typehints_lazy
+   :members:
+
 .. autoclass:: target.typehints.NewComment

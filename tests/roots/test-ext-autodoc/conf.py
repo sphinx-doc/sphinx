@@ -13,3 +13,6 @@ autodoc_mock_imports = [
 ]
 
 nitpicky = True
+
+if sys.version_info < (3, 7):
+    exclude_patterns = ['index_py37.rst']
