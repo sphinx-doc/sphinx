@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from typing import (
-    Generic,
-    Optional as Opt,  # rename to test resolution
-    TypeVar,
-)
+from typing import Generic
+from typing import Optional as Opt  # rename to test resolution
+from typing import TypeVar
 
 
 T = TypeVar("T")
