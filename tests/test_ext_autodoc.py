@@ -2345,11 +2345,17 @@ def test_autodoc(app, status, warning):
 my_name
 
 alias of Foo"""
-    warning_lines = [line for line in warning.getvalue().split('\n') if line]
     # This might be a bug. We're not picking up the TypeVar T.
-    assert len(warning_lines) == 1
-    assert ('WARNING: py:class reference target not found: '
-            'target.typehints_lazy.T' in warning_lines[0])
+    if sys.version_info >= (3, 7):
+        warning_lines = [line for line in warning.getvalue().split('\n')
+                         if line]
+        assert len(warning_lines) == 2
+        assert ("index_py37.rst: WARNING: document isn't included in any "
+                "toctree" in warning_lines[0])
+        assert ('WARNING: py:class reference target not found: '
+                'target.typehints_lazy.T' in warning_lines[1])
+    else:
+        assert warning.getvalue() == ''
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')

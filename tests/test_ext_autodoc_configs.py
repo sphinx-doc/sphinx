@@ -951,11 +951,7 @@ def test_autodoc_typehints_none_for_overload(app):
                     confoverrides={'autodoc_typehints': "description"})
 def test_autodoc_typehints_description(app):
     app.build()
-    lazy_annotations_exist = sys.version_info >= (3, 7)
-    if lazy_annotations_exist:
-        context = (app.outdir / 'index_py37.txt').read_text(encoding='utf8')
-    else:
-        context = (app.outdir / 'index.txt').read_text(encoding='utf8')
+    context = (app.outdir / 'index.txt').read_text(encoding='utf8')
     assert ('target.typehints.incr(a, b=1)\n'
             '\n'
             '   Parameters:\n'
@@ -974,21 +970,6 @@ def test_autodoc_typehints_description(app):
             '   Return type:\n'
             '      *Tuple*[int, int]\n'
             in context)
-    if lazy_annotations_exist:
-        assert ('class target.typehints_lazy.LazyInit(x)\n'
-                '\n'
-                '   I am lazy!\n'
-                '\n'
-                '   Parameters:\n'
-                '      **x** (*Optional**[**int**]*) -- this is x\n'
-                in context)
-        assert ('class target.typehints_lazy.LazyGeneric(x)\n'
-                '\n'
-                '   Generic docstring ;)\n'
-                '\n'
-                '   Parameters:\n'
-                '      **x** (*Optional**[**T**]*) -- maybe also generic\n'
-                in context)
     assert ('class target.typehints.NewComment(i)\n'
             '\n'
             '   Parameters:\n'
@@ -1001,6 +982,29 @@ def test_autodoc_typehints_description(app):
             'target.overload.sum(x: str, y: str = None) -> str\n'
             '\n'
             '   docstring\n'
+            in context)
+
+
+@pytest.mark.skipif(sys.version_info < (3, 7),
+                    reason="requires python3.7 or higher")
+@pytest.mark.sphinx('text', testroot='ext-autodoc',
+                    confoverrides={'autodoc_typehints': "description"})
+def test_autodoc_lazy_typehints_description(app):
+    app.build()
+    context = (app.outdir / 'index_py37.txt').read_text(encoding='utf8')
+    assert ('class target.typehints_lazy.LazyInit(x)\n'
+            '\n'
+            '   I am lazy!\n'
+            '\n'
+            '   Parameters:\n'
+            '      **x** (*Optional**[**int**]*) -- this is x\n'
+            in context)
+    assert ('class target.typehints_lazy.LazyGeneric(x)\n'
+            '\n'
+            '   Generic docstring ;)\n'
+            '\n'
+            '   Parameters:\n'
+            '      **x** (*Optional**[**T**]*) -- maybe also generic\n'
             in context)
 
 
