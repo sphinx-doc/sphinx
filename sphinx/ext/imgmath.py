@@ -294,6 +294,20 @@ def cleanup_tempdir(app: Sphinx, exc: Exception) -> None:
         pass
 
 
+def cleanup_mathdir(app: Sphinx, exc: Exception) -> None:
+    if exc:
+        return
+    if not app.builder.config.imgmath_embed:
+        return
+    # in embed mode, the images are still generated in the math output dir
+    # to be shared across workers, but are not useful to the final document
+    mathdir = path.join(app.builder.outdir, app.builder.imagedir, 'math')
+    try:
+        shutil.rmtree(mathdir)
+    except Exception:
+        pass
+
+
 def get_tooltip(self: HTMLTranslator, node: Element) -> str:
     if self.builder.config.imgmath_add_tooltips:
         return ' alt="%s"' % self.encode(node.astext()).strip()
@@ -385,4 +399,5 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('imgmath_font_size', 12, 'html')
     app.add_config_value('imgmath_embed', False, 'html', [bool])
     app.connect('build-finished', cleanup_tempdir)
+    app.connect('build-finished', cleanup_mathdir)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
