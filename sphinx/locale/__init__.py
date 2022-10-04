@@ -16,7 +16,7 @@ class _TranslationProxy:
     """
     __slots__ = ('_func', '_args')
 
-    def __new__(cls, func: Callable, *args: str) -> '_TranslationProxy':
+    def __new__(cls, func: Callable[..., str], *args: str) -> '_TranslationProxy':
         if not args:
             # not called with "function" and "arguments", but a plain string
             return str(func)  # type: ignore[return-value]
@@ -25,7 +25,7 @@ class _TranslationProxy:
     def __getnewargs__(self) -> Tuple[str]:
         return (self._func,) + self._args  # type: ignore
 
-    def __init__(self, func: Callable, *args: str) -> None:
+    def __init__(self, func: Callable[..., str], *args: str) -> None:
         self._func = func
         self._args = args
 
@@ -38,10 +38,10 @@ class _TranslationProxy:
     def __getattr__(self, name: str) -> Any:
         return getattr(self.__str__(), name)
 
-    def __getstate__(self) -> Tuple[Callable, Tuple[str, ...]]:
+    def __getstate__(self) -> Tuple[Callable[..., str], Tuple[str, ...]]:
         return self._func, self._args
 
-    def __setstate__(self, tup: Tuple[Callable, Tuple[str]]) -> None:
+    def __setstate__(self, tup: Tuple[Callable[..., str], Tuple[str]]) -> None:
         self._func, self._args = tup
 
     def __copy__(self) -> '_TranslationProxy':
@@ -159,8 +159,11 @@ def setlocale(category: int, value: Union[str, Iterable[str], None] = None) -> N
         pass
 
 
+_LOCALE_DIR = path.abspath(path.dirname(__file__))
+
+
 def init_console(
-    locale_dir: str = path.abspath(path.dirname(__file__)),  # NoQA: B008
+    locale_dir: str = _LOCALE_DIR,
     catalog: str = 'sphinx',
 ) -> Tuple[NullTranslations, bool]:
     """Initialize locale for console.

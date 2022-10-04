@@ -1771,6 +1771,9 @@ def test_option_reference_with_value(app, status, warning):
     assert ('<span class="pre">-mapi</span></span><span class="sig-prename descclassname">'
             '</span><a class="headerlink" href="#cmdoption-git-commit-mapi"') in content
     assert 'first option <a class="reference internal" href="#cmdoption-git-commit-mapi">' in content
+    assert ('<a class="reference internal" href="#cmdoption-git-commit-mapi">'
+            '<code class="xref std std-option docutils literal notranslate"><span class="pre">-mapi[=xxx]</span></code></a>') in content
+    assert '<span class="pre">-mapi</span> <span class="pre">with_space</span>' in content
 
 
 @pytest.mark.sphinx('html', testroot='theming')
