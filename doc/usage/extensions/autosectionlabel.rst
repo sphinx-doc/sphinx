@@ -49,6 +49,7 @@ Configuration
 
 Debugging
 ---------
+
 The ``WARNING: undefined label`` indicates that your reference in
 :rst:role:`ref` is mis-spelled. Invoking :program:`sphinx-build` with ``-vv``
 (see :option:`-v`) will print all section names and the labels that have been
