@@ -5,8 +5,8 @@ import os
 import re
 from os import path
 from typing import Any, Dict, List, NamedTuple, Optional, Set, Tuple
-from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 from urllib.parse import quote
+from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
 from docutils import nodes
 from docutils.nodes import Element, Node
