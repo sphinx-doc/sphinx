@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-
-from __future__ import print_function
+#!/usr/bin/env python3
 
 import argparse
 import os
@@ -25,19 +23,23 @@ def stringify_version(version_info, in_develop=True):
 
 def bump_version(path, version_info, in_develop=True):
     version = stringify_version(version_info, in_develop)
-    release = version
-    if in_develop:
-        version += '+'
 
-    with open(path, 'r+') as f:
-        body = f.read()
-        body = re.sub(r"(?<=__version__ = ')[^']+", version, body)
-        body = re.sub(r"(?<=__released__ = ')[^']+", release, body)
-        body = re.sub(r"(?<=version_info = )\(.*\)", str(version_info), body)
+    with open(path, 'r', encoding='utf-8') as f:
+        lines = f.read().splitlines()
 
-        f.seek(0)
-        f.truncate(0)
-        f.write(body)
+    for i, line in enumerate(lines):
+        if line.startswith('__version__ = '):
+            lines[i] = f"__version__ = '{version}'"
+            continue
+        if line.startswith('version_info = '):
+            lines[i] = f'version_info = {version_info}'
+            continue
+        if line.startswith('_in_development = '):
+            lines[i] = f'_in_development = {in_develop}'
+            continue
+
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(lines) + '\n')
 
 
 def parse_version(version):
@@ -63,7 +65,7 @@ def parse_version(version):
         release = RELEASE_TYPE.get(typ, typ)
         return (int(major), int(minor), int(rev), release, int(relver))
 
-    raise RuntimeError('Unknown vesion: %s' % version)
+    raise RuntimeError('Unknown version: %s' % version)
 
 
 class Skip(Exception):
@@ -90,7 +92,7 @@ class Changes:
         self.fetch_version()
 
     def fetch_version(self):
-        with open(self.path) as f:
+        with open(self.path, encoding='utf-8') as f:
             version = f.readline().strip()
             matched = re.search(r'^Release (.*) \((.*)\)$', version)
             if matched is None:
@@ -107,7 +109,7 @@ class Changes:
         release_date = datetime.now().strftime('%b %d, %Y')
         heading = 'Release %s (released %s)' % (self.version, release_date)
 
-        with open(self.path, 'r+') as f:
+        with open(self.path, 'r+', encoding='utf-8') as f:
             f.readline()  # skip first two lines
             f.readline()
             body = f.read()
@@ -116,7 +118,7 @@ class Changes:
             f.truncate(0)
             f.write(heading + '\n')
             f.write('=' * len(heading) + '\n')
-            f.write(body)
+            f.write(self.filter_empty_sections(body))
 
     def add_release(self, version_info):
         if version_info[-2:] in (('beta', 0), ('final', 0)):
@@ -128,12 +130,12 @@ class Changes:
                                    version_info[4] or '')
         heading = 'Release %s (in development)' % version
 
-        with open(os.path.join(script_dir, 'CHANGES_template')) as f:
+        with open(os.path.join(script_dir, 'CHANGES_template'), encoding='utf-8') as f:
             f.readline()  # skip first two lines
             f.readline()
             tmpl = f.read()
 
-        with open(self.path, 'r+') as f:
+        with open(self.path, 'r+', encoding='utf-8') as f:
             body = f.read()
 
             f.seek(0)
@@ -143,6 +145,9 @@ class Changes:
             f.write(tmpl)
             f.write('\n')
             f.write(body)
+
+    def filter_empty_sections(self, body):
+        return re.sub('^\n.+\n-{3,}\n+(?=\n.+\n[-=]{3,}\n)', '', body, flags=re.M)
 
 
 def parse_options(argv):

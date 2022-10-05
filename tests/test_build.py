@@ -1,24 +1,13 @@
-# -*- coding: utf-8 -*-
-"""
-    test_build
-    ~~~~~~~~~~
+"""Test all builders."""
 
-    Test all builders.
-
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-import pickle
 import sys
 from textwrap import dedent
+from unittest import mock
 
-import mock
 import pytest
 from docutils import nodes
 
 from sphinx.errors import SphinxError
-from sphinx.testing.path import path
 
 
 def request_session_head(url, **kwargs):
@@ -31,39 +20,39 @@ def request_session_head(url, **kwargs):
 @pytest.fixture
 def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
     # If supported, build in a non-ASCII source dir
-    test_name = u'\u65e5\u672c\u8a9e'
+    test_name = '\u65e5\u672c\u8a9e'
     basedir = sphinx_test_tempdir / request.node.originalname
     try:
         srcdir = basedir / test_name
         if not srcdir.exists():
             (rootdir / 'test-root').copytree(srcdir)
     except UnicodeEncodeError:
+        # Now Python 3.7+ follows PEP-540 and uses utf-8 encoding for filesystem by default.
+        # So this error handling will be no longer used (after dropping python 3.6 support).
         srcdir = basedir / 'all'
+        if not srcdir.exists():
+            (rootdir / 'test-root').copytree(srcdir)
     else:
         # add a doc with a non-ASCII file name to the source dir
         (srcdir / (test_name + '.txt')).write_text(dedent("""
             nonascii file name page
             =======================
-            """))
+            """), encoding='utf8')
 
-        master_doc = srcdir / 'contents.txt'
-        master_doc.write_text(master_doc.text() + dedent(u"""
-                              .. toctree::
+        root_doc = srcdir / 'index.txt'
+        root_doc.write_text(root_doc.read_text(encoding='utf8') + dedent("""
+                            .. toctree::
 
-                                 %(test_name)s/%(test_name)s
-                              """ % {'test_name': test_name}))
+                               %(test_name)s/%(test_name)s
+                            """ % {'test_name': test_name}), encoding='utf8')
     return srcdir
 
 
 # note: this test skips building docs for some builders because they have independent testcase.
-#       (html, epub, latex, texinfo and manpage)
+#       (html, changes, epub, latex, texinfo and manpage)
 @pytest.mark.parametrize(
     "buildername",
-    [
-        # note: no 'html' - if it's ok with dirhtml it's ok with html
-        'dirhtml', 'singlehtml', 'pickle', 'json', 'text', 'htmlhelp', 'qthelp',
-        'applehelp', 'changes', 'xml', 'pseudoxml', 'linkcheck',
-    ],
+    ['dirhtml', 'singlehtml', 'text', 'xml', 'pseudoxml', 'linkcheck'],
 )
 @mock.patch('sphinx.builders.linkcheck.requests.head',
             side_effect=request_session_head)
@@ -73,13 +62,13 @@ def test_build_all(requests_head, make_app, nonascii_srcdir, buildername):
     app.build()
 
 
-def test_master_doc_not_found(tempdir, make_app):
-    (tempdir / 'conf.py').write_text('master_doc = "index"')
+def test_root_doc_not_found(tempdir, make_app):
+    (tempdir / 'conf.py').write_text('', encoding='utf8')
     assert tempdir.listdir() == ['conf.py']
 
     app = make_app('dummy', srcdir=tempdir)
     with pytest.raises(SphinxError):
-        app.builder.build_all()
+        app.builder.build_all()  # no index.rst
 
 
 @pytest.mark.sphinx(buildername='text', testroot='circular')
@@ -88,10 +77,10 @@ def test_circular_toctree(app, status, warning):
     warnings = warning.getvalue()
     assert (
         'circular toctree references detected, ignoring: '
-        'sub <- contents <- sub') in warnings
+        'sub <- index <- sub') in warnings
     assert (
         'circular toctree references detected, ignoring: '
-        'contents <- sub <- contents') in warnings
+        'index <- sub <- index') in warnings
 
 
 @pytest.mark.sphinx(buildername='text', testroot='numbered-circular')
@@ -100,10 +89,10 @@ def test_numbered_circular_toctree(app, status, warning):
     warnings = warning.getvalue()
     assert (
         'circular toctree references detected, ignoring: '
-        'sub <- contents <- sub') in warnings
+        'sub <- index <- sub') in warnings
     assert (
         'circular toctree references detected, ignoring: '
-        'contents <- sub <- contents') in warnings
+        'index <- sub <- index') in warnings
 
 
 @pytest.mark.sphinx(buildername='dummy', testroot='images')
@@ -111,7 +100,7 @@ def test_image_glob(app, status, warning):
     app.builder.build_all()
 
     # index.rst
-    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    doctree = app.env.get_doctree('index')
 
     assert isinstance(doctree[0][1], nodes.image)
     assert doctree[0][1]['candidates'] == {'*': 'rimg.png'}
@@ -136,20 +125,19 @@ def test_image_glob(app, status, warning):
     assert doctree[0][4][0]['uri'] == 'img.*'
 
     # subdir/index.rst
-    doctree = pickle.loads((app.doctreedir / 'subdir/index.doctree').bytes())
+    doctree = app.env.get_doctree('subdir/index')
 
     assert isinstance(doctree[0][1], nodes.image)
-    sub = path('subdir')
-    assert doctree[0][1]['candidates'] == {'*': sub / 'rimg.png'}
-    assert doctree[0][1]['uri'] == sub / 'rimg.png'
+    assert doctree[0][1]['candidates'] == {'*': 'subdir/rimg.png'}
+    assert doctree[0][1]['uri'] == 'subdir/rimg.png'
 
     assert isinstance(doctree[0][2], nodes.image)
     assert doctree[0][2]['candidates'] == {'application/pdf': 'subdir/svgimg.pdf',
                                            'image/svg+xml': 'subdir/svgimg.svg'}
-    assert doctree[0][2]['uri'] == sub / 'svgimg.*'
+    assert doctree[0][2]['uri'] == 'subdir/svgimg.*'
 
     assert isinstance(doctree[0][3], nodes.figure)
     assert isinstance(doctree[0][3][0], nodes.image)
     assert doctree[0][3][0]['candidates'] == {'application/pdf': 'subdir/svgimg.pdf',
                                               'image/svg+xml': 'subdir/svgimg.svg'}
-    assert doctree[0][3][0]['uri'] == sub / 'svgimg.*'
+    assert doctree[0][3][0]['uri'] == 'subdir/svgimg.*'

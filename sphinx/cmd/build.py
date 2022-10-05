@@ -1,24 +1,17 @@
-# -*- coding: utf-8 -*-
-"""
-    sphinx.cmd.build
-    ~~~~~~~~~~~~~~~~
-
-    Build documentation from a provided source.
-
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-from __future__ import print_function
+"""Build documentation from a provided source."""
 
 import argparse
+import bdb
 import locale
 import multiprocessing
 import os
+import pdb
 import sys
 import traceback
+from os import path
+from typing import Any, List, Optional, TextIO
 
 from docutils.utils import SystemMessage
-from six import text_type, binary_type
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
@@ -26,19 +19,18 @@ from sphinx.application import Sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
-from sphinx.util.console import red, nocolor, color_terminal  # type: ignore
+from sphinx.util.console import color_terminal, nocolor, red, terminal_safe  # type: ignore
 from sphinx.util.docutils import docutils_namespace, patch_docutils
-from sphinx.util.pycompat import terminal_safe
-
-if False:
-    # For type annotation
-    from typing import Any, IO, List, Union  # NOQA
+from sphinx.util.osutil import abspath, ensuredir
 
 
-def handle_exception(app, args, exception, stderr=sys.stderr):
-    # type: (Sphinx, Any, Union[Exception, KeyboardInterrupt], IO) -> None
+def handle_exception(
+    app: Optional[Sphinx], args: Any, exception: BaseException, stderr: TextIO = sys.stderr
+) -> None:
+    if isinstance(exception, bdb.BdbQuit):
+        return
+
     if args.pdb:
-        import pdb
         print(red(__('Exception occurred while building, starting debugger:')),
               file=stderr)
         traceback.print_exc()
@@ -49,28 +41,28 @@ def handle_exception(app, args, exception, stderr=sys.stderr):
             traceback.print_exc(None, stderr)
             print(file=stderr)
         if isinstance(exception, KeyboardInterrupt):
-            print(__('interrupted!'), file=stderr)
+            print(__('Interrupted!'), file=stderr)
         elif isinstance(exception, SystemMessage):
             print(red(__('reST markup error:')), file=stderr)
             print(terminal_safe(exception.args[0]), file=stderr)
         elif isinstance(exception, SphinxError):
             print(red('%s:' % exception.category), file=stderr)
-            print(terminal_safe(text_type(exception)), file=stderr)
+            print(str(exception), file=stderr)
         elif isinstance(exception, UnicodeError):
             print(red(__('Encoding error:')), file=stderr)
-            print(terminal_safe(text_type(exception)), file=stderr)
+            print(terminal_safe(str(exception)), file=stderr)
             tbpath = save_traceback(app)
             print(red(__('The full traceback has been saved in %s, if you want '
                          'to report the issue to the developers.') % tbpath),
                   file=stderr)
         elif isinstance(exception, RuntimeError) and 'recursion depth' in str(exception):
             print(red(__('Recursion error:')), file=stderr)
-            print(terminal_safe(text_type(exception)), file=stderr)
+            print(terminal_safe(str(exception)), file=stderr)
             print(file=stderr)
             print(__('This can happen with very large or deeply nested source '
-                     'files.  You can carefully increase the default Python '
+                     'files. You can carefully increase the default Python '
                      'recursion limit of 1000 in conf.py with e.g.:'), file=stderr)
-            print(__('    import sys; sys.setrecursionlimit(1500)'), file=stderr)
+            print('    import sys; sys.setrecursionlimit(1500)', file=stderr)
         else:
             print(red(__('Exception occurred:')), file=stderr)
             print(format_exception_cut_frames().rstrip(), file=stderr)
@@ -86,8 +78,7 @@ def handle_exception(app, args, exception, stderr=sys.stderr):
                   file=stderr)
 
 
-def jobs_argument(value):
-    # type: (str) -> int
+def jobs_argument(value: str) -> int:
     """
     Special type to handle 'auto' flags passed to 'sphinx-build' via -j flag. Can
     be expanded to handle other special scaling requests, such as setting job count
@@ -103,17 +94,16 @@ def jobs_argument(value):
             return jobs
 
 
-def get_parser():
-    # type: () -> argparse.ArgumentParser
+def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]',
-        epilog=__('For more information, visit <http://sphinx-doc.org/>.'),
+        epilog=__('For more information, visit <https://www.sphinx-doc.org/>.'),
         description=__("""
 Generate documentation from source files.
 
 sphinx-build generates documentation from the files in SOURCEDIR and places it
 in OUTPUTDIR. It looks for 'conf.py' in SOURCEDIR for the configuration
-settings.  The 'sphinx-quickstart' tool may be used to generate template files,
+settings. The 'sphinx-quickstart' tool may be used to generate template files,
 including 'conf.py'
 
 sphinx-build can create documentation in different formats. A format is
@@ -190,7 +180,7 @@ files can be built by specifying individual filenames.
     group.add_argument('-W', action='store_true', dest='warningiserror',
                        help=__('turn warnings into errors'))
     group.add_argument('--keep-going', action='store_true', dest='keep_going',
-                       help=__("With -W, Keep going when getting warnings"))
+                       help=__("with -W, keep going when getting warnings"))
     group.add_argument('-T', action='store_true', dest='traceback',
                        help=__('show full traceback on exception'))
     group.add_argument('-P', action='store_true', dest='pdb',
@@ -199,15 +189,13 @@ files can be built by specifying individual filenames.
     return parser
 
 
-def make_main(argv=sys.argv[1:]):  # type: ignore
-    # type: (List[unicode]) -> int
+def make_main(argv: List[str] = sys.argv[1:]) -> int:
     """Sphinx build "make mode" entry."""
     from sphinx.cmd import make_mode
     return make_mode.run_make_mode(argv[1:])
 
 
-def build_main(argv=sys.argv[1:]):  # type: ignore
-    # type: (List[unicode]) -> int
+def build_main(argv: List[str] = sys.argv[1:]) -> int:
     """Sphinx build "main" command-line entry."""
 
     parser = get_parser()
@@ -221,30 +209,14 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
     if not args.doctreedir:
         args.doctreedir = os.path.join(args.outputdir, '.doctrees')
 
-    # handle remaining filename arguments
-    filenames = args.filenames
-    missing_files = []
-    for filename in filenames:
-        if not os.path.isfile(filename):
-            missing_files.append(filename)
-    if missing_files:
-        parser.error(__('cannot find files %r') % missing_files)
-
-    # likely encoding used for command-line arguments
-    try:
-        locale = __import__('locale')  # due to submodule of the same name
-        likely_encoding = locale.getpreferredencoding()
-    except Exception:
-        likely_encoding = None
-
-    if args.force_all and filenames:
+    if args.force_all and args.filenames:
         parser.error(__('cannot combine -a option and filenames'))
 
     if args.color == 'no' or (args.color == 'auto' and not color_terminal()):
         nocolor()
 
-    status = sys.stdout
-    warning = sys.stderr
+    status: Optional[TextIO] = sys.stdout
+    warning: Optional[TextIO] = sys.stderr
     error = sys.stderr
 
     if args.quiet:
@@ -255,7 +227,9 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
 
     if warning and args.warnfile:
         try:
-            warnfp = open(args.warnfile, 'w')
+            warnfile = abspath(args.warnfile)
+            ensuredir(path.dirname(warnfile))
+            warnfp = open(args.warnfile, 'w', encoding="utf-8")
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
                 args.warnfile, exc))
@@ -268,11 +242,6 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
             key, val = val.split('=', 1)
         except ValueError:
             parser.error(__('-D option argument must be in the form name=value'))
-        if likely_encoding and isinstance(val, binary_type):
-            try:
-                val = val.decode(likely_encoding)
-            except UnicodeError:
-                pass
         confoverrides[key] = val
 
     for val in args.htmldefine:
@@ -283,11 +252,7 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
         try:
             val = int(val)
         except ValueError:
-            if likely_encoding and isinstance(val, binary_type):
-                try:
-                    val = val.decode(likely_encoding)
-                except UnicodeError:
-                    pass
+            pass
         confoverrides['html_context.%s' % key] = val
 
     if args.nitpicky:
@@ -300,17 +265,17 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
             app = Sphinx(args.sourcedir, args.confdir, args.outputdir,
                          args.doctreedir, args.builder, confoverrides, status,
                          warning, args.freshenv, args.warningiserror,
-                         args.tags, args.verbosity, args.jobs, args.keep_going)
-            app.build(args.force_all, filenames)
+                         args.tags, args.verbosity, args.jobs, args.keep_going,
+                         args.pdb)
+            app.build(args.force_all, args.filenames)
             return app.statuscode
     except (Exception, KeyboardInterrupt) as exc:
         handle_exception(app, args, exc, error)
         return 2
 
 
-def main(argv=sys.argv[1:]):  # type: ignore
-    # type: (List[unicode]) -> int
-    locale.setlocale(locale.LC_ALL, '')
+def main(argv: List[str] = sys.argv[1:]) -> int:
+    sphinx.locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
 
     if argv[:1] == ['-M']:
@@ -320,4 +285,4 @@ def main(argv=sys.argv[1:]):  # type: ignore
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))  # type: ignore
+    sys.exit(main(sys.argv[1:]))

@@ -3,22 +3,12 @@ var DOCUMENTATION_OPTIONS = {
     VERSION: '{{ release|e }}',
     LANGUAGE: '{{ language }}',
     COLLAPSE_INDEX: false,
-    FILE_SUFFIX: '{{ '' if no_search_suffix else file_suffix }}',
+    BUILDER: '{{ builder }}',
+    FILE_SUFFIX: '{{ file_suffix }}',
+    LINK_SUFFIX: '{{ link_suffix }}',
     HAS_SOURCE: {{ has_source|lower }},
     SOURCELINK_SUFFIX: '{{ sourcelink_suffix }}',
     NAVIGATION_WITH_KEYS: {{ 'true' if theme_navigation_with_keys|tobool else 'false'}},
-    SEARCH_LANGUAGE_STOP_WORDS: {{ search_language_stop_words }}
+    SHOW_SEARCH_SUMMARY: {{ 'true' if show_search_summary else 'false' }},
+    ENABLE_SEARCH_SHORTCUTS: {{ 'true' if theme_enable_search_shortcuts|tobool else 'false'}},
 };
-
-
-{% if search_language_stemming_code %}
-/* Non-minified version JS is _stemmer.js if file is provided */ {% endif -%}
-{{ search_language_stemming_code|safe }}
-
-{% if search_scorer_tool %}
-{{ search_scorer_tool|safe }}
-{% endif -%}
-
-{% if search_word_splitter_code %}
-{{ search_word_splitter_code }}
-{% endif -%}

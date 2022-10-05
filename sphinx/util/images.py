@@ -1,38 +1,17 @@
-# -*- coding: utf-8 -*-
-"""
-    sphinx.util.images
-    ~~~~~~~~~~~~~~~~~~
-
-    Image utility functions for Sphinx.
-
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-from __future__ import absolute_import
+"""Image utility functions for Sphinx."""
 
 import base64
 import imghdr
-import warnings
 from collections import OrderedDict
 from os import path
-from typing import NamedTuple
+from typing import IO, BinaryIO, NamedTuple, Optional, Tuple
 
 import imagesize
-from six import BytesIO, text_type
-
-from sphinx.deprecation import RemovedInSphinx30Warning
 
 try:
-    from PIL import Image        # check for the Python Imaging Library
+    from PIL import Image
 except ImportError:
-    try:
-        import Image
-    except ImportError:
-        Image = None
-
-if False:
-    # For type annotation
-    from typing import Dict, IO, List, Tuple  # NOQA
+    Image = None
 
 mime_suffixes = OrderedDict([
     ('.gif', 'image/gif'),
@@ -41,51 +20,45 @@ mime_suffixes = OrderedDict([
     ('.pdf', 'application/pdf'),
     ('.svg', 'image/svg+xml'),
     ('.svgz', 'image/svg+xml'),
-])  # type: Dict[unicode, unicode]
-
-DataURI = NamedTuple('DataURI', [('mimetype', text_type),
-                                 ('charset', text_type),
-                                 ('data', bytes)])
+    ('.ai', 'application/illustrator'),
+])
 
 
-def get_image_size(filename):
-    # type: (unicode) -> Tuple[int, int]
+class DataURI(NamedTuple):
+    mimetype: str
+    charset: str
+    data: bytes
+
+
+def get_image_size(filename: str) -> Optional[Tuple[int, int]]:
     try:
         size = imagesize.get(filename)
         if size[0] == -1:
             size = None
+        elif isinstance(size[0], float) or isinstance(size[1], float):
+            size = (int(size[0]), int(size[1]))
 
-        if size is None and Image:  # fallback to PIL
-            im = Image.open(filename)
-            size = im.size
-            try:
-                im.fp.close()
-            except Exception:
-                pass
+        if size is None and Image:  # fallback to Pillow
+            with Image.open(filename) as im:
+                size = im.size
 
         return size
     except Exception:
         return None
 
 
-def guess_mimetype_for_stream(stream, default=None):
-    # type: (IO, unicode) -> unicode
-    imgtype = imghdr.what(stream)  # type: ignore
+def guess_mimetype_for_stream(stream: IO, default: Optional[str] = None) -> Optional[str]:
+    imgtype = imghdr.what(stream)
     if imgtype:
         return 'image/' + imgtype
     else:
         return default
 
 
-def guess_mimetype(filename='', content=None, default=None):
-    # type: (unicode, bytes, unicode) -> unicode
+def guess_mimetype(filename: str = '', default: Optional[str] = None) -> Optional[str]:
     _, ext = path.splitext(filename.lower())
     if ext in mime_suffixes:
         return mime_suffixes[ext]
-    elif content:
-        warnings.warn('The content argument of guess_mimetype() is deprecated.',
-                      RemovedInSphinx30Warning)
-        return guess_mimetype_for_stream(BytesIO(content), default=default)
     elif path.exists(filename):
         with open(filename, 'rb') as f:
             return guess_mimetype_for_stream(f, default=default)
@@ -93,8 +66,7 @@ def guess_mimetype(filename='', content=None, default=None):
     return default
 
 
-def get_image_extension(mimetype):
-    # type: (unicode) -> unicode
+def get_image_extension(mimetype: str) -> Optional[str]:
     for ext, _mimetype in mime_suffixes.items():
         if mimetype == _mimetype:
             return ext
@@ -102,14 +74,13 @@ def get_image_extension(mimetype):
     return None
 
 
-def parse_data_uri(uri):
-    # type: (unicode) -> DataURI
+def parse_data_uri(uri: str) -> Optional[DataURI]:
     if not uri.startswith('data:'):
         return None
 
     # data:[<MIME-type>][;charset=<encoding>][;base64],<data>
-    mimetype = u'text/plain'
-    charset = u'US-ASCII'
+    mimetype = 'text/plain'
+    charset = 'US-ASCII'
 
     properties, data = uri[5:].split(',', 1)
     for prop in properties.split(';'):
@@ -124,11 +95,10 @@ def parse_data_uri(uri):
     return DataURI(mimetype, charset, image_data)
 
 
-def test_svg(h, f):
-    # type: (bytes, IO) -> unicode
+def test_svg(h: bytes, f: Optional[BinaryIO]) -> Optional[str]:
     """An additional imghdr library helper; test the header is SVG's or not."""
     try:
-        if '<svg' in h.decode('utf-8').lower():
+        if '<svg' in h.decode().lower():
             return 'svg+xml'
     except UnicodeDecodeError:
         pass
@@ -138,4 +108,4 @@ def test_svg(h, f):
 
 # install test_svg() to imghdr
 # refs: https://docs.python.org/3.6/library/imghdr.html#imghdr.tests
-imghdr.tests.append(test_svg)  # type: ignore
+imghdr.tests.append(test_svg)

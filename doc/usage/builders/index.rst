@@ -28,6 +28,7 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: supported_image_types
 
+.. module:: sphinx.builders.dirhtml
 .. class:: DirectoryHTMLBuilder
 
    This is a subclass of the standard HTML builder.  Its output is a directory
@@ -45,11 +46,12 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. versionadded:: 0.6
 
+.. module:: sphinx.builders.singlehtml
 .. class:: SingleFileHTMLBuilder
 
    This is an HTML builder that combines the whole project in one output file.
    (Obviously this only works with smaller projects.)  The file is named like
-   the master document.  No indices will be generated.
+   the root document.  No indices will be generated.
 
    .. autoattribute:: name
 
@@ -59,7 +61,7 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. versionadded:: 1.0
 
-.. module:: sphinx.builders.htmlhelp
+.. module:: sphinxcontrib.htmlhelp
 .. class:: HTMLHelpBuilder
 
    This builder produces the same output as the standalone HTML builder, but
@@ -72,12 +74,16 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: supported_image_types
 
-.. module:: sphinx.builders.qthelp
+.. module:: sphinxcontrib.qthelp
 .. class:: QtHelpBuilder
 
    This builder produces the same output as the standalone HTML builder, but
    also generates `Qt help`_ collection support files that allow the Qt
    collection generator to compile them.
+
+   .. versionchanged:: 2.0
+
+      Moved to sphinxcontrib.qthelp from sphinx.builders package.
 
    .. autoattribute:: name
 
@@ -87,7 +93,7 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. _Qt help: https://doc.qt.io/qt-4.8/qthelp-framework.html
 
-.. module:: sphinx.builders.applehelp
+.. module:: sphinxcontrib.applehelp
 .. class:: AppleHelpBuilder
 
    This builder produces an Apple Help Book based on the same output as the
@@ -113,7 +119,11 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. versionadded:: 1.3
 
-.. module:: sphinx.builders.devhelp
+   .. versionchanged:: 2.0
+
+      Moved to sphinxcontrib.applehelp from sphinx.builders package.
+
+.. module:: sphinxcontrib.devhelp
 .. class:: DevhelpBuilder
 
    This builder produces the same output as the standalone HTML builder, but
@@ -125,6 +135,10 @@ The builder's "name" must be given to the **-b** command-line option of
    .. autoattribute:: format
 
    .. autoattribute:: supported_image_types
+
+   .. versionchanged:: 2.0
+
+      Moved to sphinxcontrib.devhelp from sphinx.builders package.
 
 .. module:: sphinx.builders.epub3
 .. class:: Epub3Builder
@@ -158,23 +172,41 @@ The builder's "name" must be given to the **-b** command-line option of
    chapter :ref:`latex-options` for details.
 
    The produced LaTeX file uses several LaTeX packages that may not be present
-   in a "minimal" TeX distribution installation.  For example, on Ubuntu, the
-   following packages need to be installed for successful PDF builds:
+   in a "minimal" TeX distribution installation.
+
+   On Ubuntu xenial, the following packages need to be installed for
+   successful PDF builds:
 
    * ``texlive-latex-recommended``
    * ``texlive-fonts-recommended``
+   * ``tex-gyre`` (if :confval:`latex_engine` is ``'pdflatex'``)
    * ``texlive-latex-extra``
-   * ``latexmk`` (for ``make latexpdf`` on GNU/Linux and MacOS X)
-   * ``texlive-luatex``, ``texlive-xetex`` (see :confval:`latex_engine`)
+   * ``latexmk`` (this is a Sphinx requirement on GNU/Linux and MacOS X
+     for functioning of ``make latexpdf``)
 
-   The testing of Sphinx LaTeX is done on Ubuntu xenial with the above mentioned
-   packages, which are from a TeXLive 2015 snapshot dated March 2016.
+   Additional packages are needed in some circumstances (see the discussion of
+   the ``'fontpkg'`` key of :confval:`latex_elements` for more information):
+
+   * ``texlive-lang-cyrillic`` for Cyrillic (even individual letters), and,
+     ``cm-super`` or ``cm-super-minimal`` (if default fonts),
+   * ``texlive-lang-greek`` for Greek (even individual letters), and,
+     ``cm-super`` or ``cm-super-minimal`` (if default fonts),
+   * ``texlive-xetex`` if :confval:`latex_engine` is ``'xelatex'``,
+   * ``texlive-luatex`` if :confval:`latex_engine` is ``'lualatex'``,
+   * ``fonts-freefont-otf`` if :confval:`latex_engine` is ``'xelatex'``
+     or ``'lualatex'``.
+
+   The testing of Sphinx LaTeX is done on Ubuntu xenial whose TeX distribution
+   is based on a TeXLive 2015 snapshot dated March 2016.
 
    .. versionchanged:: 1.6
       Formerly, testing had been done on Ubuntu precise (TeXLive 2009).
 
    .. versionchanged:: 2.0
       Formerly, testing had been done on Ubuntu trusty (TeXLive 2013).
+
+   .. versionchanged:: 4.0.0
+      TeX Gyre fonts dependency for the default LaTeX font configuration.
 
    .. note::
 
@@ -191,20 +223,16 @@ The builder's "name" must be given to the **-b** command-line option of
 
       reduces console output to a minimum.
 
-      Also, if ``latexmk`` version is 4.52b or higher (Jan 17)
-      ``LATEXMKOPTS="-xelatex"`` will speed up PDF builds via XeLateX in case
+      Also, if ``latexmk`` is at version 4.52b or higher (January 2017)
+      ``LATEXMKOPTS="-xelatex"`` speeds up PDF builds via XeLateX in case
       of numerous graphics inclusions.
 
-      .. code-block:: console
-
-         make latexpdf LATEXMKOPTS="-xelatex"
-
-      To pass options directly to the ``(pdf|xe|lua)latex`` executable, use
-      variable ``LATEXOPTS``.
+      To pass options directly to the ``(pdf|xe|lua)latex`` binary, use
+      variable ``LATEXOPTS``, for example:
 
       .. code-block:: console
 
-         make latexpdf LATEXOPTS="--interaction=nonstopmode"
+         make latexpdf LATEXOPTS="--halt-on-error"
 
    .. autoattribute:: name
 
@@ -216,7 +244,7 @@ Note that a direct PDF builder is being provided by `rinohtype`_. The builder's
 name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
 
 .. _rinohtype: https://github.com/brechtm/rinohtype
-.. _rinohtype manual: http://www.mos6581.org/rinohtype/quickstart.html#sphinx-builder
+.. _rinohtype manual: https://www.mos6581.org/rinohtype/quickstart.html#sphinx-builder
 
 .. module:: sphinx.builders.text
 .. class:: TextBuilder
@@ -272,7 +300,7 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
    .. versionadded:: 1.1
 
 
-.. currentmodule:: sphinx.builders.html
+.. currentmodule:: sphinxcontrib.serializinghtml
 .. class:: SerializingHTMLBuilder
 
    This builder uses a module that implements the Python serialization API
@@ -414,6 +442,10 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
    .. versionchanged:: 1.5
 
       Since Sphinx-1.5, the linkcheck builder comes to use requests module.
+
+   .. versionchanged:: 3.4
+
+      The linkcheck builder retries links when servers apply rate limits.
 
 .. module:: sphinx.builders.xml
 .. class:: XMLBuilder

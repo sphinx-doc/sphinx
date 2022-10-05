@@ -1,17 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-    test_doctest
-    ~~~~~~~~~~~~
-
-    Test the doctest extension.
-
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the doctest extension."""
 import os
 from collections import Counter
 
 import pytest
+from docutils import nodes
 from packaging.specifiers import InvalidSpecifier
 from packaging.version import InvalidVersion
 
@@ -26,10 +18,27 @@ def test_build(app, status, warning):
     cleanup_called = 0
     app.builder.build_all()
     if app.statuscode != 0:
-        assert False, 'failures in doctests:' + status.getvalue()
+        raise AssertionError('failures in doctests:' + status.getvalue())
     # in doctest.txt, there are two named groups and the default group,
     # so the cleanup function must be called three times
     assert cleanup_called == 3, 'testcleanup did not get executed enough times'
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-doctest')
+def test_highlight_language_default(app, status, warning):
+    app.build()
+    doctree = app.env.get_doctree('doctest')
+    for node in doctree.findall(nodes.literal_block):
+        assert node['language'] in {'python', 'pycon', 'none'}
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-doctest',
+                    confoverrides={'highlight_language': 'python'})
+def test_highlight_language_python3(app, status, warning):
+    app.build()
+    doctree = app.env.get_doctree('doctest')
+    for node in doctree.findall(nodes.literal_block):
+        assert node['language'] in {'python', 'pycon', 'none'}
 
 
 def test_is_allowed_version():
@@ -79,7 +88,7 @@ def test_skipif(app, status, warning):
     recorded_calls = Counter()
     app.builder.build_all()
     if app.statuscode != 0:
-        assert False, 'failures in doctests:' + status.getvalue()
+        raise AssertionError('failures in doctests:' + status.getvalue())
     # The `:skipif:` expressions are always run.
     # Actual tests and setup/cleanup code is only run if the `:skipif:`
     # expression evaluates to a False value.

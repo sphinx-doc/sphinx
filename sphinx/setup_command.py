@@ -1,34 +1,27 @@
-# -*- coding: utf-8 -*-
-"""
-    sphinx.setup_command
-    ~~~~~~~~~~~~~~~~~~~~
+"""Setuptools/distutils commands to assist the building of sphinx documentation.
 
-    Setuptools/distutils commands to assist the building of sphinx
-    documentation.
-
-    :author: Sebastian Wiesner
-    :contact: basti.wiesner@gmx.net
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+:author: Sebastian Wiesner <basti.wiesner@gmx.net>
 """
-from __future__ import print_function
 
 import os
 import sys
-from distutils.cmd import Command
-from distutils.errors import DistutilsOptionError, DistutilsExecError
-
-from six import StringIO, string_types
+import warnings
+from io import StringIO
+from typing import Any, Dict, Optional
 
 from sphinx.application import Sphinx
 from sphinx.cmd.build import handle_exception
-from sphinx.util.console import nocolor, color_terminal
+from sphinx.deprecation import RemovedInSphinx70Warning
+from sphinx.util.console import color_terminal, nocolor
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath
 
-if False:
-    # For type annotation
-    from typing import Any, Dict, List, Tuple  # NOQA
+try:
+    from setuptools import Command
+    from setuptools.errors import ExecError
+except ImportError:
+    from distutils.cmd import Command
+    from distutils.errors import DistutilsExecError as ExecError
 
 
 class BuildDoc(Command):
@@ -36,8 +29,8 @@ class BuildDoc(Command):
     Distutils command to build Sphinx documentation.
 
     The Sphinx build can then be triggered from distutils, and some Sphinx
-    options can be set in ``setup.py`` or ``setup.cfg`` instead of Sphinx own
-    configuration file.
+    options can be set in ``setup.py`` or ``setup.cfg`` instead of Sphinx's
+    own configuration file.
 
     For instance, from `setup.py`::
 
@@ -87,55 +80,43 @@ class BuildDoc(Command):
         ('link-index', 'i', 'Link index.html to the master doc'),
         ('copyright', None, 'The copyright string'),
         ('pdb', None, 'Start pdb on exception'),
+        ('verbosity', 'v', 'increase verbosity (can be repeated)'),
         ('nitpicky', 'n', 'nit-picky mode, warn about all missing references'),
+        ('keep-going', None, 'With -W, keep going when getting warnings'),
     ]
     boolean_options = ['fresh-env', 'all-files', 'warning-is-error',
                        'link-index', 'nitpicky']
 
-    def initialize_options(self):
-        # type: () -> None
+    def initialize_options(self) -> None:
         self.fresh_env = self.all_files = False
         self.pdb = False
-        self.source_dir = self.build_dir = None  # type: unicode
+        self.source_dir: Optional[str] = None
+        self.build_dir: Optional[str] = None
         self.builder = 'html'
         self.warning_is_error = False
         self.project = ''
         self.version = ''
         self.release = ''
         self.today = ''
-        self.config_dir = None  # type: unicode
+        self.config_dir: Optional[str] = None
         self.link_index = False
         self.copyright = ''
-        self.verbosity = 0
+        # Link verbosity to distutils' (which uses 1 by default).
+        self.verbosity = self.distribution.verbose - 1
         self.traceback = False
         self.nitpicky = False
+        self.keep_going = False
 
-    def _guess_source_dir(self):
-        # type: () -> unicode
+    def _guess_source_dir(self) -> str:
         for guess in ('doc', 'docs'):
             if not os.path.isdir(guess):
                 continue
-            for root, dirnames, filenames in os.walk(guess):
+            for root, _dirnames, filenames in os.walk(guess):
                 if 'conf.py' in filenames:
                     return root
         return os.curdir
 
-    # Overriding distutils' Command._ensure_stringlike which doesn't support
-    # unicode, causing finalize_options to fail if invoked again. Workaround
-    # for https://bugs.python.org/issue19570
-    def _ensure_stringlike(self, option, what, default=None):
-        # type: (unicode, unicode, Any) -> Any
-        val = getattr(self, option)
-        if val is None:
-            setattr(self, option, default)
-            return default
-        elif not isinstance(val, string_types):
-            raise DistutilsOptionError("'%s' must be a %s (got `%s`)"
-                                       % (option, what, val))
-        return val
-
-    def finalize_options(self):
-        # type: () -> None
+    def finalize_options(self) -> None:
         self.ensure_string_list('builder')
 
         if self.source_dir is None:
@@ -149,23 +130,25 @@ class BuildDoc(Command):
 
         if self.build_dir is None:
             build = self.get_finalized_command('build')
-            self.build_dir = os.path.join(abspath(build.build_base), 'sphinx')  # type: ignore
+            self.build_dir = os.path.join(abspath(build.build_base), 'sphinx')
 
         self.doctree_dir = os.path.join(self.build_dir, 'doctrees')
 
         self.builder_target_dirs = [
             (builder, os.path.join(self.build_dir, builder))
-            for builder in self.builder]  # type: List[Tuple[str, unicode]]
+            for builder in self.builder]
 
-    def run(self):
-        # type: () -> None
+    def run(self) -> None:
+        warnings.warn('setup.py build_sphinx is deprecated.',
+                      RemovedInSphinx70Warning, stacklevel=2)
+
         if not color_terminal():
             nocolor()
-        if not self.verbose:  # type: ignore
+        if not self.verbose:
             status_stream = StringIO()
         else:
             status_stream = sys.stdout  # type: ignore
-        confoverrides = {}  # type: Dict[unicode, Any]
+        confoverrides: Dict[str, Any] = {}
         if self.project:
             confoverrides['project'] = self.project
         if self.version:
@@ -189,19 +172,19 @@ class BuildDoc(Command):
                                  builder_target_dir, self.doctree_dir,
                                  builder, confoverrides, status_stream,
                                  freshenv=self.fresh_env,
-                                 warningiserror=self.warning_is_error)
+                                 warningiserror=self.warning_is_error,
+                                 verbosity=self.verbosity, keep_going=self.keep_going)
                     app.build(force_all=self.all_files)
                     if app.statuscode:
-                        raise DistutilsExecError(
-                            'caused by %s builder.' % app.builder.name)
+                        raise ExecError('caused by %s builder.' % app.builder.name)
             except Exception as exc:
                 handle_exception(app, self, exc, sys.stderr)
                 if not self.pdb:
-                    raise SystemExit(1)
+                    raise SystemExit(1) from exc
 
             if not self.link_index:
                 continue
 
-            src = app.config.master_doc + app.builder.out_suffix  # type: ignore
+            src = app.config.root_doc + app.builder.out_suffix  # type: ignore
             dst = app.builder.get_outfilename('index')  # type: ignore
             os.symlink(src, dst)

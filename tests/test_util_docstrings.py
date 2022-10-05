@@ -1,15 +1,48 @@
-# -*- coding: utf-8 -*-
-"""
-    test_util_docstrings
-    ~~~~~~~~~~~~~~~~~~~~
+"""Test sphinx.util.docstrings."""
 
-    Test sphinx.util.docstrings.
+from sphinx.util.docstrings import prepare_commentdoc, prepare_docstring, separate_metadata
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
 
-from sphinx.util.docstrings import prepare_docstring, prepare_commentdoc
+def test_separate_metadata():
+    # metadata only
+    text = (":meta foo: bar\n"
+            ":meta baz:\n")
+    docstring, metadata = separate_metadata(text)
+    assert docstring == ''
+    assert metadata == {'foo': 'bar', 'baz': ''}
+
+    # non metadata field list item
+    text = (":meta foo: bar\n"
+            ":param baz:\n")
+    docstring, metadata = separate_metadata(text)
+    assert docstring == ':param baz:\n'
+    assert metadata == {'foo': 'bar'}
+
+    # field_list like text following just after paragraph is not a field_list
+    text = ("blah blah blah\n"
+            ":meta foo: bar\n"
+            ":meta baz:\n")
+    docstring, metadata = separate_metadata(text)
+    assert docstring == text
+    assert metadata == {}
+
+    # field_list like text following after blank line is a field_list
+    text = ("blah blah blah\n"
+            "\n"
+            ":meta foo: bar\n"
+            ":meta baz:\n")
+    docstring, metadata = separate_metadata(text)
+    assert docstring == "blah blah blah\n\n"
+    assert metadata == {'foo': 'bar', 'baz': ''}
+
+    # non field_list item breaks field_list
+    text = (":meta foo: bar\n"
+            "blah blah blah\n"
+            ":meta baz:\n")
+    docstring, metadata = separate_metadata(text)
+    assert docstring == ("blah blah blah\n"
+                         ":meta baz:\n")
+    assert metadata == {'foo': 'bar'}
 
 
 def test_prepare_docstring():
@@ -32,16 +65,6 @@ def test_prepare_docstring():
              "",
              "  Ut enim ad minim veniam, quis nostrud exercitation",
              "    ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-             ""])
-    assert (prepare_docstring(docstring, 5) ==
-            ["multiline docstring",
-             "",
-             "Lorem ipsum dolor sit amet, consectetur adipiscing elit,",
-             "sed do eiusmod tempor incididunt ut labore et dolore magna",
-             "aliqua::",
-             "",
-             "Ut enim ad minim veniam, quis nostrud exercitation",
-             "  ullamco laboris nisi ut aliquip ex ea commodo consequat.",
              ""])
 
     docstring = """

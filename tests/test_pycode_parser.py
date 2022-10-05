@@ -1,19 +1,7 @@
-# -*- coding: utf-8 -*-
-"""
-    test_pycode_parser
-    ~~~~~~~~~~~~~~~~~~
-
-    Test pycode.parser.
-
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-import sys
-
-import pytest
+"""Test pycode.parser."""
 
 from sphinx.pycode.parser import Parser
+from sphinx.util.inspect import signature_from_str
 
 
 def test_comment_picker_basic():
@@ -95,17 +83,23 @@ def test_comment_picker_location():
                                ('Foo', 'attr3'): 'comment for attr3(3)'}
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='tests for py36+ syntax')
-def test_annotated_assignment_py36():
+def test_annotated_assignment():
     source = ('a: str = "Sphinx"  #: comment\n'
               'b: int = 1\n'
               '"""string on next line"""\n'
-              'c: int  #: comment')
+              'c: int  #: comment\n'
+              'd = 1  # type: int\n'
+              '"""string on next line"""\n')
     parser = Parser(source)
     parser.parse()
     assert parser.comments == {('', 'a'): 'comment',
                                ('', 'b'): 'string on next line',
-                               ('', 'c'): 'comment'}
+                               ('', 'c'): 'comment',
+                               ('', 'd'): 'string on next line'}
+    assert parser.annotations == {('', 'a'): 'str',
+                                  ('', 'b'): 'int',
+                                  ('', 'c'): 'int',
+                                  ('', 'd'): 'int'}
     assert parser.definitions == {}
 
 
@@ -117,6 +111,9 @@ def test_complex_assignment():
               'f = g = None  #: multiple assignment at once\n'
               '(theta, phi) = (0, 0.5)  #: unpack assignment via tuple\n'
               '[x, y] = (5, 6)  #: unpack assignment via list\n'
+              'h, *i, j = (1, 2, 3, 4)  #: unpack assignment2\n'
+              'k, *self.attr = (5, 6, 7)  #: unpack assignment3\n'
+              'l, *m[0] = (8, 9, 0)  #: unpack assignment4\n'
               )
     parser = Parser(source)
     parser.parse()
@@ -130,24 +127,28 @@ def test_complex_assignment():
                                ('', 'phi'): 'unpack assignment via tuple',
                                ('', 'x'): 'unpack assignment via list',
                                ('', 'y'): 'unpack assignment via list',
+                               ('', 'h'): 'unpack assignment2',
+                               ('', 'i'): 'unpack assignment2',
+                               ('', 'j'): 'unpack assignment2',
+                               ('', 'k'): 'unpack assignment3',
+                               ('', 'l'): 'unpack assignment4',
                                }
     assert parser.definitions == {}
 
 
-def test_complex_assignment_py3():
-    source = ('a, *b, c = (1, 2, 3, 4)  #: unpack assignment\n'
-              'd, *self.attr = (5, 6, 7)  #: unpack assignment2\n'
-              'e, *f[0] = (8, 9, 0)  #: unpack assignment3\n'
-              )
+def test_assignment_in_try_clause():
+    source = ('try:\n'
+              '    a = None  #: comment\n'
+              'except:\n'
+              '    b = None  #: ignored\n'
+              'else:\n'
+              '    c = None  #: comment\n')
     parser = Parser(source)
     parser.parse()
-    assert parser.comments == {('', 'a'): 'unpack assignment',
-                               ('', 'b'): 'unpack assignment',
-                               ('', 'c'): 'unpack assignment',
-                               ('', 'd'): 'unpack assignment2',
-                               ('', 'e'): 'unpack assignment3',
-                               }
-    assert parser.definitions == {}
+    assert parser.comments == {('', 'a'): 'comment',
+                               ('', 'c'): 'comment'}
+    assert parser.deforders == {'a': 0,
+                                'c': 1}
 
 
 def test_obj_assignment():
@@ -207,7 +208,7 @@ def test_class():
               '\n'
               '    def __init__(self):\n'
               '        self.a = 1 + 1  #: comment3\n'
-              '        self.attr2 = 1 + 1  #: overrided\n'
+              '        self.attr2 = 1 + 1  #: overridden\n'
               '        b = 1 + 1  #: comment5\n'
               '\n'
               '    def some_method(self):\n'
@@ -216,7 +217,7 @@ def test_class():
     parser.parse()
     assert parser.comments == {('Foo', 'attr1'): 'comment1',
                                ('Foo', 'a'): 'comment3',
-                               ('Foo', 'attr2'): 'overrided'}
+                               ('Foo', 'attr2'): 'overridden'}
     assert parser.definitions == {'Foo': ('class', 1, 11),
                                   'Foo.__init__': ('def', 5, 8),
                                   'Foo.some_method': ('def', 10, 11)}
@@ -315,6 +316,37 @@ def test_decorators():
                                   'Foo.method': ('def', 13, 15)}
 
 
+def test_async_function_and_method():
+    source = ('async def some_function():\n'
+              '    """docstring"""\n'
+              '    a = 1 + 1  #: comment1\n'
+              '\n'
+              'class Foo:\n'
+              '    async def method(self):\n'
+              '        pass\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.definitions == {'some_function': ('def', 1, 3),
+                                  'Foo': ('class', 5, 7),
+                                  'Foo.method': ('def', 6, 7)}
+
+
+def test_imports():
+    source = ('import sys\n'
+              'from os import environment, path\n'
+              '\n'
+              'import sphinx as Sphinx\n'
+              'from sphinx.application import Sphinx as App\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.definitions == {}
+    assert parser.deforders == {'sys': 0,
+                                'environment': 1,
+                                'path': 2,
+                                'Sphinx': 3,
+                                'App': 4}
+
+
 def test_formfeed_char():
     source = ('class Foo:\n'
               '\f\n'
@@ -322,3 +354,158 @@ def test_formfeed_char():
     parser = Parser(source)
     parser.parse()
     assert parser.comments == {('Foo', 'attr'): 'comment'}
+
+
+def test_typing_final():
+    source = ('import typing\n'
+              '\n'
+              '@typing.final\n'
+              'def func(): pass\n'
+              '\n'
+              '@typing.final\n'
+              'class Foo:\n'
+              '    @typing.final\n'
+              '    def meth(self):\n'
+              '        pass\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.finals == ['func', 'Foo', 'Foo.meth']
+
+
+def test_typing_final_from_import():
+    source = ('from typing import final\n'
+              '\n'
+              '@final\n'
+              'def func(): pass\n'
+              '\n'
+              '@final\n'
+              'class Foo:\n'
+              '    @final\n'
+              '    def meth(self):\n'
+              '        pass\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.finals == ['func', 'Foo', 'Foo.meth']
+
+
+def test_typing_final_import_as():
+    source = ('import typing as foo\n'
+              '\n'
+              '@foo.final\n'
+              'def func(): pass\n'
+              '\n'
+              '@foo.final\n'
+              'class Foo:\n'
+              '    @typing.final\n'
+              '    def meth(self):\n'
+              '        pass\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.finals == ['func', 'Foo']
+
+
+def test_typing_final_from_import_as():
+    source = ('from typing import final as bar\n'
+              '\n'
+              '@bar\n'
+              'def func(): pass\n'
+              '\n'
+              '@bar\n'
+              'class Foo:\n'
+              '    @final\n'
+              '    def meth(self):\n'
+              '        pass\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.finals == ['func', 'Foo']
+
+
+def test_typing_final_not_imported():
+    source = ('@typing.final\n'
+              'def func(): pass\n'
+              '\n'
+              '@typing.final\n'
+              'class Foo:\n'
+              '    @final\n'
+              '    def meth(self):\n'
+              '        pass\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.finals == []
+
+
+def test_typing_overload():
+    source = ('import typing\n'
+              '\n'
+              '@typing.overload\n'
+              'def func(x: int, y: int) -> int: pass\n'
+              '\n'
+              '@typing.overload\n'
+              'def func(x: str, y: str) -> str: pass\n'
+              '\n'
+              'def func(x, y): pass\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.overloads == {'func': [signature_from_str('(x: int, y: int) -> int'),
+                                         signature_from_str('(x: str, y: str) -> str')]}
+
+
+def test_typing_overload_from_import():
+    source = ('from typing import overload\n'
+              '\n'
+              '@overload\n'
+              'def func(x: int, y: int) -> int: pass\n'
+              '\n'
+              '@overload\n'
+              'def func(x: str, y: str) -> str: pass\n'
+              '\n'
+              'def func(x, y): pass\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.overloads == {'func': [signature_from_str('(x: int, y: int) -> int'),
+                                         signature_from_str('(x: str, y: str) -> str')]}
+
+
+def test_typing_overload_import_as():
+    source = ('import typing as foo\n'
+              '\n'
+              '@foo.overload\n'
+              'def func(x: int, y: int) -> int: pass\n'
+              '\n'
+              '@foo.overload\n'
+              'def func(x: str, y: str) -> str: pass\n'
+              '\n'
+              'def func(x, y): pass\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.overloads == {'func': [signature_from_str('(x: int, y: int) -> int'),
+                                         signature_from_str('(x: str, y: str) -> str')]}
+
+
+def test_typing_overload_from_import_as():
+    source = ('from typing import overload as bar\n'
+              '\n'
+              '@bar\n'
+              'def func(x: int, y: int) -> int: pass\n'
+              '\n'
+              '@bar\n'
+              'def func(x: str, y: str) -> str: pass\n'
+              '\n'
+              'def func(x, y): pass\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.overloads == {'func': [signature_from_str('(x: int, y: int) -> int'),
+                                         signature_from_str('(x: str, y: str) -> str')]}
+
+
+def test_typing_overload_not_imported():
+    source = ('@typing.final\n'
+              'def func(x: int, y: int) -> int: pass\n'
+              '\n'
+              '@typing.final\n'
+              'def func(x: str, y: str) -> str: pass\n'
+              '\n'
+              'def func(x, y): pass\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.overloads == {}

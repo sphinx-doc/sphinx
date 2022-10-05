@@ -36,8 +36,8 @@ tables of contents.  The ``toctree`` directive is the central element.
 
 .. note::
 
-   For local tables of contents, use the standard reST :dudir:`contents
-   directive <table-of-contents>`.
+   To create table of contents for current document (.rst file), use the
+   standard reST :dudir:`contents directive <table-of-contents>`.
 
 .. rst:directive:: toctree
 
@@ -47,6 +47,12 @@ tables of contents.  The ``toctree`` directive is the central element.
    relative to the document the directive occurs in, absolute names are relative
    to the source directory.  A numeric ``maxdepth`` option may be given to
    indicate the depth of the tree; by default, all levels are included. [#]_
+
+   The representation of "TOC tree" is changed in each output format.  The
+   builders that output multiple files (ex. HTML) treat it as a collection of
+   hyperlinks.  On the other hand, the builders that output a single file (ex.
+   LaTeX, man page, etc.) replace it with the content of the documents on the
+   TOC tree.
 
    Consider this example (taken from the Python docs' library reference index)::
 
@@ -108,9 +114,9 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    **Additional options**
 
-   You can use ``caption`` option to provide a toctree caption and you can use
-   ``name`` option to provide implicit target name that can be referenced by
-   using :rst:role:`ref`::
+   You can use the ``caption`` option to provide a toctree caption and you can
+   use the ``name`` option to provide an implicit target name that can be
+   referenced by using :rst:role:`ref`::
 
       .. toctree::
          :caption: Table of Contents
@@ -191,9 +197,9 @@ tables of contents.  The ``toctree`` directive is the central element.
    <metadata>` to let a document be built, but notify Sphinx that it is not
    reachable via a toctree.
 
-   The "master document" (selected by :confval:`master_doc`) is the "root" of
-   the TOC tree hierarchy.  It can be used as the documentation's main page, or
-   as a "full table of contents" if you don't give a ``maxdepth`` option.
+   The "root document" (selected by :confval:`root_doc`) is the "root" of the TOC
+   tree hierarchy.  It can be used as the documentation's main page, or as a
+   "full table of contents" if you don't give a ``maxdepth`` option.
 
    .. versionchanged:: 0.3
       Added "globbing" option.
@@ -240,7 +246,7 @@ The special document names (and pages generated for them) are:
 
 * every name beginning with ``_``
 
-  Though only few such names are currently used by Sphinx, you should not
+  Though few such names are currently used by Sphinx, you should not
   create documents or document-containing directories with such names.  (Using
   ``_`` as a prefix for a custom template directory is fine.)
 
@@ -398,10 +404,15 @@ Showing code examples
            single: sourcecode
 
 There are multiple ways to show syntax-highlighted literal code blocks in
-Sphinx: using :ref:`reST doctest blocks <rst-doctest-blocks>`; using :ref:`reST
-literal blocks <rst-literal-blocks>`, optionally in combination with the
-:rst:dir:`highlight` directive; using the :rst:dir:`code-block` directive; and
-using the :rst:dir:`literalinclude` directive. Doctest blocks can only be used
+Sphinx:
+
+* using :ref:`reST doctest blocks <rst-doctest-blocks>`;
+* using :ref:`reST literal blocks <rst-literal-blocks>`, optionally in
+  combination with the :rst:dir:`highlight` directive;
+* using the :rst:dir:`code-block` directive;
+* and using the :rst:dir:`literalinclude` directive.
+
+Doctest blocks can only be used
 to show interactive Python sessions, while the remaining three can be used for
 other languages. Of these three, literal blocks are useful when an entire
 document, or at least large sections of it, use code blocks with the same
@@ -413,7 +424,7 @@ code blocks using multiple varied syntaxes. Finally, the
 in your documentation.
 
 In all cases, Syntax highlighting is provided by `Pygments
-<http://pygments.org>`_. When using literal blocks, this is configured using
+<https://pygments.org>`_. When using literal blocks, this is configured using
 any :rst:dir:`highlight` directives in the source file. When a ``highlight``
 directive is encountered, it is used until the next ``highlight`` directive is
 encountered. If there is no ``highlight`` directive in the file, the global
@@ -441,7 +452,7 @@ If highlighting with the selected language fails (i.e. Pygments emits an
    want to ensure consistent highlighting, you should fix your version of
    Pygments.
 
-__ http://pygments.org/docs/lexers/
+__ https://pygments.org/docs/lexers
 
 .. rst:directive:: .. highlight:: language
 
@@ -453,17 +464,31 @@ __ http://pygments.org/docs/lexers/
    As discussed previously, *language* can be any lexer alias supported by
    Pygments.
 
-   **Additional options**
+   .. rubric:: options
 
-   Pygments can generate line numbers for code blocks.  To enable this, use the
-   ``linenothreshold`` option. ::
+   .. rst:directive:option:: linenothreshold: threshold
+      :type: number (optional)
 
-      .. highlight:: python
-         :linenothreshold: 5
+      Enable to generate line numbers for code blocks.
 
-   This will produce line numbers for all code blocks longer than five lines.
+      This option takes an optional number as threshold parameter.  If any
+      threshold given, the directive will produce line numbers only for the code
+      blocks longer than N lines.  If not given, line numbers will be produced
+      for all of code blocks.
 
-.. rst:directive:: .. code-block:: language
+      Example::
+
+         .. highlight:: python
+            :linenothreshold: 5
+
+   .. rst:directive:option:: force
+      :type: no value
+
+      If given, minor errors on highlighting are ignored.
+
+      .. versionadded:: 2.1
+
+.. rst:directive:: .. code-block:: [language]
 
    Example::
 
@@ -471,67 +496,132 @@ __ http://pygments.org/docs/lexers/
 
          Some Ruby code.
 
-   The directive's alias name :rst:dir:`sourcecode` works as well.  As with
-   :rst:dir:`highlight`\ 's ``language`` option, ``language`` can be any lexer
-   alias supported by Pygments.
+   The directive's alias name :rst:dir:`sourcecode` works as well.  This
+   directive takes a language name as an argument.  It can be `any lexer alias
+   supported by Pygments <https://pygments.org/docs/lexers/>`_.  If it is not
+   given, the setting of :rst:dir:`highlight` directive will be used.  If not
+   set, :confval:`highlight_language` will be used.  To display a code example
+   *inline* within other text, rather than as a separate block, you can use the
+   :rst:role:`code` role instead.
 
-   **Additional options**
+   .. versionchanged:: 2.0
+      The ``language`` argument becomes optional.
 
-   Pygments can generate line numbers for code blocks. To enable this for, use
-   the ``linenos`` flag option. ::
+   .. rubric:: options
 
-      .. code-block:: ruby
-         :linenos:
+   .. rst:directive:option:: linenos
+      :type: no value
 
-         Some more Ruby code.
+      Enable to generate line numbers for the code block::
 
-   The first line number can be selected with the ``lineno-start`` option.  If
-   present, ``linenos`` flag is automatically activated::
+         .. code-block:: ruby
+            :linenos:
 
-      .. code-block:: ruby
-         :lineno-start: 10
+            Some more Ruby code.
 
-         Some more Ruby code, with line numbering starting at 10.
+   .. rst:directive:option:: lineno-start: number
+      :type: number
 
-   Additionally, an ``emphasize-lines`` option can be given to have Pygments
-   emphasize particular lines::
+      Set the first line number of the code block.  If present, ``linenos``
+      option is also automatically activated::
 
-    .. code-block:: python
-       :emphasize-lines: 3,5
+         .. code-block:: ruby
+            :lineno-start: 10
 
-       def some_function():
-           interesting = False
-           print 'This line is highlighted.'
-           print 'This one is not...'
-           print '...but this one is.'
+            Some more Ruby code, with line numbering starting at 10.
 
-   A ``caption`` option can be given to show that name before the code block.
-   A ``name`` option can be provided implicit target name that can be
-   referenced by using :rst:role:`ref`.  For example::
+      .. versionadded:: 1.3
 
-     .. code-block:: python
-        :caption: this.py
-        :name: this-py
+   .. rst:directive:option:: emphasize-lines: line numbers
+      :type: comma separated numbers
 
-        print 'Explicit is better than implicit.'
+      Emphasize particular lines of the code block::
 
-   A ``dedent`` option can be given to strip indentation characters from the
-   code block. For example::
+       .. code-block:: python
+          :emphasize-lines: 3,5
 
-      .. code-block:: ruby
-         :dedent: 4
+          def some_function():
+              interesting = False
+              print 'This line is highlighted.'
+              print 'This one is not...'
+              print '...but this one is.'
 
-             some ruby code
+      .. versionadded:: 1.1
+      .. versionchanged:: 1.6.6
+         LaTeX supports the ``emphasize-lines`` option.
 
-  .. versionchanged:: 1.1
-     The ``emphasize-lines`` option has been added.
+   .. rst:directive:option: force
+      :type: no value
 
-  .. versionchanged:: 1.3
-     The ``lineno-start``, ``caption``, ``name`` and ``dedent`` options have
-     been added.
+      Ignore minor errors on highlighting
 
-  .. versionchanged:: 1.6.6
-     LaTeX supports the ``emphasize-lines`` option.
+      .. versionchanged:: 2.1
+
+   .. rst:directive:option:: caption: caption of code block
+      :type: text
+
+      Set a caption to the code block.
+
+      .. versionadded:: 1.3
+
+   .. rst:directive:option:: name: a label for hyperlink
+      :type: text
+
+      Define implicit target name that can be referenced by using
+      :rst:role:`ref`.  For example::
+
+        .. code-block:: python
+           :caption: this.py
+           :name: this-py
+
+           print 'Explicit is better than implicit.'
+
+      In order to cross-reference a code-block using either the
+      :rst:role:`ref` or the :rst:role:`numref` role, it is necessary
+      that both :strong:`name` and :strong:`caption` be defined. The
+      argument of :strong:`name` can then be given to :rst:role:`numref`
+      to generate the cross-reference. Example::
+
+        See :numref:`this-py` for an example.
+
+      When using :rst:role:`ref`, it is possible to generate a cross-reference
+      with only :strong:`name` defined, provided an explicit title is
+      given. Example::
+
+        See :ref:`this code snippet <this-py>` for an example.
+
+      .. versionadded:: 1.3
+
+   .. rst:directive:option:: class: class names
+      :type: a list of class names separated by spaces
+
+      The class name of the graph.
+
+      .. versionadded:: 1.4
+
+   .. rst:directive:option:: dedent: number
+      :type: number or no value
+
+      Strip indentation characters from the code block.  When number given,
+      leading N characters are removed.  When no argument given, leading spaces
+      are removed via :func:`textwrap.dedent()`.  For example::
+
+         .. code-block:: ruby
+            :linenos:
+            :dedent: 4
+
+                some ruby code
+
+      .. versionadded:: 1.3
+      .. versionchanged:: 3.5
+         Support automatic dedent.
+
+   .. rst:directive:option:: force
+      :type: no value
+
+      If given, minor errors on highlighting are ignored.
+
+      .. versionadded:: 2.1
 
 .. rst:directive:: .. literalinclude:: filename
 
@@ -599,9 +689,43 @@ __ http://pygments.org/docs/lexers/
    string are included. The ``start-at`` and ``end-at`` options behave in a
    similar way, but the lines containing the matched string are included.
 
-   With lines selected using ``start-after`` it is still possible to use
-   ``lines``, the first allowed line having by convention the line number
-   ``1``.
+   ``start-after``/``start-at`` and ``end-before``/``end-at`` can have same string.
+   ``start-after``/``start-at`` filter lines before the line that contains
+   option string (``start-at`` will keep the line). Then ``end-before``/``end-at``
+   filter lines after the line that contains option string (``end-at`` will keep
+   the line and ``end-before`` skip the first line).
+
+   .. note::
+
+      If you want to select only ``[second-section]`` of ini file like the
+      following, you can use ``:start-at: [second-section]`` and
+      ``:end-before: [third-section]``:
+
+      .. code-block:: ini
+
+         [first-section]
+
+         var_in_first=true
+
+         [second-section]
+
+         var_in_second=true
+
+         [third-section]
+
+         var_in_third=true
+
+      Useful cases of these option is working with tag comments.
+      ``:start-after: [initialized]`` and ``:end-before: [initialized]`` options
+      keep lines between comments:
+
+      .. code-block:: py
+
+         if __name__ == "__main__":
+             # [initialize]
+             app.start(":8000")
+             # [initialize]
+
 
    When lines have been selected in any of the ways described above, the line
    numbers in ``emphasize-lines`` refer to those selected lines, counted
@@ -625,6 +749,8 @@ __ http://pygments.org/docs/lexers/
    This shows the diff between ``example.py`` and ``example.py.orig`` with
    unified diff format.
 
+   A ``force`` option can ignore minor errors on highlighting.
+
    .. versionchanged:: 0.4.3
       Added the ``encoding`` option.
 
@@ -639,12 +765,21 @@ __ http://pygments.org/docs/lexers/
       Added the ``diff``, ``lineno-match``, ``caption``, ``name``, and
       ``dedent`` options.
 
+   .. versionchanged:: 1.4
+      Added the ``class`` option.
+
    .. versionchanged:: 1.5
       Added the ``start-at``, and ``end-at`` options.
 
    .. versionchanged:: 1.6
       With both ``start-after`` and ``lines`` in use, the first line as per
       ``start-after`` is considered to be with line number ``1`` for ``lines``.
+
+   .. versionchanged:: 2.1
+      Added the ``force`` option.
+
+   .. versionchanged:: 3.5
+      Support automatic dedent.
 
 .. _glossary-directive:
 
@@ -654,7 +789,7 @@ Glossary
 .. rst:directive:: .. glossary::
 
    This directive must contain a reST definition-list-like markup with terms and
-   definitions.  The definitions will then be referencable with the
+   definitions.  The definitions will then be referenceable with the
    :rst:role:`term` role.  Example::
 
       .. glossary::
@@ -681,8 +816,8 @@ Glossary
 
    (When the glossary is sorted, the first term determines the sort order.)
 
-   If you want to specify "grouping key" for general index entries, you can put a "key"
-   as "term : key". For example::
+   If you want to specify "grouping key" for general index entries, you can put
+   a "key" as "term : key". For example::
 
       .. glossary::
 
@@ -692,12 +827,12 @@ Glossary
 
    Note that "key" is used for grouping key as is.
    The "key" isn't normalized; key "A" and "a" become different groups.
-   The whole characters in "key" is used instead of a first character; it is used for
-   "Combining Character Sequence" and "Surrogate Pairs" grouping key.
+   The whole characters in "key" is used instead of a first character; it is
+   used for "Combining Character Sequence" and "Surrogate Pairs" grouping key.
 
-   In i18n situation, you can specify "localized term : key" even if original text only
-   have "term" part. In this case, translated "localized term" will be categorized in
-   "key" group.
+   In i18n situation, you can specify "localized term : key" even if original
+   text only have "term" part. In this case, translated "localized term" will be
+   categorized in "key" group.
 
    .. versionadded:: 0.6
       You can now give the glossary directive a ``:sorted:`` flag that will
@@ -709,6 +844,9 @@ Glossary
    .. versionchanged:: 1.4
       Index key for glossary term should be considered *experimental*.
 
+   .. versionchanged:: 4.4
+      In internationalized documentation, the ``:sorted:`` flag sorts
+      according to translated terms.
 
 Meta-information markup
 -----------------------
@@ -817,6 +955,19 @@ mainly contained in information units, such as the language reference.
 
    .. versionchanged:: 1.1
       Added ``see`` and ``seealso`` types, as well as marking main entries.
+
+   .. rubric:: options
+
+   .. rst:directive:option:: name: a label for hyperlink
+      :type: text
+
+      Define implicit target name that can be referenced by using
+      :rst:role:`ref`.  For example::
+
+        .. index:: Python
+           :name: py-index
+
+   .. versionadded:: 3.0
 
 .. rst:role:: index
 
@@ -953,16 +1104,16 @@ this reason, the following directive exists:
    .. warning::
 
       Tables with more than 30 rows are rendered using ``longtable``, not
-      ``tabulary``, in order to allow pagebreaks. The ``L``, ``R``, ... specifiers
-      do not work for these tables.
+      ``tabulary``, in order to allow pagebreaks. The ``L``, ``R``, ...
+      specifiers do not work for these tables.
 
       Tables that contain list-like elements such as object descriptions,
       blockquotes or any kind of lists cannot be set out of the box with
-      ``tabulary``. They are therefore set with the standard LaTeX ``tabular`` (or
-      ``longtable``) environment if you don't give a ``tabularcolumns`` directive.
-      If you do, the table will be set with ``tabulary`` but you must use the
-      ``p{width}`` construct (or Sphinx's ``\X`` and ``\Y`` specifiers described
-      below) for the columns containing these elements.
+      ``tabulary``. They are therefore set with the standard LaTeX ``tabular``
+      (or ``longtable``) environment if you don't give a ``tabularcolumns``
+      directive.  If you do, the table will be set with ``tabulary`` but you
+      must use the ``p{width}`` construct (or Sphinx's ``\X`` and ``\Y``
+      specifiers described below) for the columns containing these elements.
 
       Literal blocks do not work with ``tabulary`` at all, so tables containing
       a literal block are always set with ``tabular``. The verbatim environment
@@ -991,10 +1142,11 @@ this reason, the following directive exists:
    .. versionchanged:: 1.6
 
       Merged cells from complex grid tables (either multi-row, multi-column, or
-      both) now allow blockquotes, lists, literal blocks, ... as do regular cells.
+      both) now allow blockquotes, lists, literal blocks, ... as do regular
+      cells.
 
-      Sphinx's merged cells interact well with ``p{width}``, ``\X{a}{b}``, ``Y{f}``
-      and tabulary's columns.
+      Sphinx's merged cells interact well with ``p{width}``, ``\X{a}{b}``,
+      ``\Y{f}`` and tabulary's columns.
 
    .. note::
 
@@ -1063,6 +1215,15 @@ or use Python raw strings (``r"raw"``).
 
 .. _AmSMath LaTeX package: https://www.ams.org/publications/authors/tex/amslatex
 
+.. seealso::
+
+   :ref:`math-support`
+      Rendering options for math with HTML builders.
+
+   :confval:`latex_engine`
+      Explains how to configure LaTeX builder to support Unicode literals in
+      math mark-up.
+
 
 Grammar production displays
 ---------------------------
@@ -1073,24 +1234,41 @@ derived forms), but provides enough to allow context-free grammars to be
 displayed in a way that causes uses of a symbol to be rendered as hyperlinks to
 the definition of the symbol.  There is this directive:
 
-.. rst:directive:: .. productionlist:: [name]
+.. rst:directive:: .. productionlist:: [productionGroup]
 
    This directive is used to enclose a group of productions.  Each production
    is given on a single line and consists of a name, separated by a colon from
    the following definition.  If the definition spans multiple lines, each
    continuation line must begin with a colon placed at the same column as in
    the first line.
-
-   The argument to :rst:dir:`productionlist` serves to distinguish different
-   sets of production lists that belong to different grammars.
-
    Blank lines are not allowed within ``productionlist`` directive arguments.
 
    The definition can contain token names which are marked as interpreted text
-   (e.g. ``sum ::= `integer` "+" `integer```) -- this generates
+   (e.g., "``sum ::= `integer` "+" `integer```") -- this generates
    cross-references to the productions of these tokens.  Outside of the
    production list, you can reference to token productions using
    :rst:role:`token`.
+
+   The *productionGroup* argument to :rst:dir:`productionlist` serves to
+   distinguish different sets of production lists that belong to different
+   grammars.  Multiple production lists with the same *productionGroup* thus
+   define rules in the same scope.
+
+   Inside of the production list, tokens implicitly refer to productions
+   from the current group. You can refer to the production of another
+   grammar by prefixing the token with its group name and a colon, e.g,
+   "``otherGroup:sum``". If the group of the token should not be shown in
+   the production, it can be prefixed by a tilde, e.g.,
+   "``~otherGroup:sum``". To refer to a production from an unnamed
+   grammar, the token should be prefixed by a colon, e.g., "``:sum``".
+
+   Outside of the production list,
+   if you have given a *productionGroup* argument you must prefix the
+   token name in the cross-reference with the group name and a colon,
+   e.g., "``myGroup:sum``" instead of just "``sum``".
+   If the group should not be shown in the title of the link either
+   an explicit title can be given (e.g., "``myTitle <myGroup:sum>``"),
+   or the target can be prefixed with a tilde (e.g., "``~myGroup:sum``").
 
    Note that no further reST parsing is done in the production, so that you
    don't have to escape ``*`` or ``|`` characters.

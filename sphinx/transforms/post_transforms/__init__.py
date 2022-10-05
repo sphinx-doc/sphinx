@@ -1,49 +1,77 @@
-# -*- coding: utf-8 -*-
-"""
-    sphinx.transforms.post_transforms
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Docutils transforms used by Sphinx."""
 
-    Docutils transforms used by Sphinx.
-
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+import re
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Type, cast
 
 from docutils import nodes
+from docutils.nodes import Element, Node
 
 from sphinx import addnodes
-from sphinx.environment import NoUri
+from sphinx.addnodes import pending_xref
+from sphinx.application import Sphinx
+from sphinx.domains import Domain
+from sphinx.errors import NoUri
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
-from sphinx.util.nodes import process_only_nodes
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, List, Tuple  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.domains import Domain  # NOQA
-
+from sphinx.util.docutils import SphinxTranslator
+from sphinx.util.nodes import find_pending_xref_condition, process_only_nodes
 
 logger = logging.getLogger(__name__)
 
 
-class ReferencesResolver(SphinxTransform):
+class SphinxPostTransform(SphinxTransform):
+    """A base class of post-transforms.
+
+    Post transforms are invoked to modify the document to restructure it for outputting.
+    They resolve references, convert images, do special transformation for each output
+    formats and so on.  This class helps to implement these post transforms.
+    """
+    builders: Tuple[str, ...] = ()
+    formats: Tuple[str, ...] = ()
+
+    def apply(self, **kwargs: Any) -> None:
+        if self.is_supported():
+            self.run(**kwargs)
+
+    def is_supported(self) -> bool:
+        """Check this transform working for current builder."""
+        if self.builders and self.app.builder.name not in self.builders:
+            return False
+        if self.formats and self.app.builder.format not in self.formats:
+            return False
+
+        return True
+
+    def run(self, **kwargs: Any) -> None:
+        """Main method of post transforms.
+
+        Subclasses should override this method instead of ``apply()``.
+        """
+        raise NotImplementedError
+
+
+class ReferencesResolver(SphinxPostTransform):
     """
     Resolves cross-references on doctrees.
     """
 
     default_priority = 10
 
-    def apply(self):
-        # type: () -> None
-        for node in self.document.traverse(addnodes.pending_xref):
-            contnode = node[0].deepcopy()
+    def run(self, **kwargs: Any) -> None:
+        for node in self.document.findall(addnodes.pending_xref):
+            content = self.find_pending_xref_condition(node, ("resolved", "*"))
+            if content:
+                contnode = cast(Element, content[0].deepcopy())
+            else:
+                contnode = cast(Element, node[0].deepcopy())
+
             newnode = None
 
             typ = node['reftype']
             target = node['reftarget']
-            refdoc = node.get('refdoc', self.env.docname)
+            node.setdefault('refdoc', self.env.docname)
+            refdoc = node.get('refdoc')
             domain = None
 
             try:
@@ -51,8 +79,8 @@ class ReferencesResolver(SphinxTransform):
                     # let the domain try to resolve the reference
                     try:
                         domain = self.env.domains[node['refdomain']]
-                    except KeyError:
-                        raise NoUri
+                    except KeyError as exc:
+                        raise NoUri(target, typ) from exc
                     newnode = domain.resolve_xref(self.env, refdoc, self.app.builder,
                                                   typ, target, node, contnode)
                 # really hardwired reference types
@@ -61,21 +89,36 @@ class ReferencesResolver(SphinxTransform):
                 # no new node found? try the missing-reference event
                 if newnode is None:
                     newnode = self.app.emit_firstresult('missing-reference', self.env,
-                                                        node, contnode)
+                                                        node, contnode,
+                                                        allowed_exceptions=(NoUri,))
                     # still not found? warn if node wishes to be warned about or
                     # we are in nit-picky mode
                     if newnode is None:
                         self.warn_missing_reference(refdoc, typ, target, node, domain)
             except NoUri:
-                newnode = contnode
-            node.replace_self(newnode or contnode)
+                newnode = None
 
-    def resolve_anyref(self, refdoc, node, contnode):
-        # type: (unicode, nodes.Node, nodes.Node) -> nodes.Node
+            if newnode:
+                newnodes: List[Node] = [newnode]
+            else:
+                newnodes = [contnode]
+                if newnode is None and isinstance(node[0], addnodes.pending_xref_condition):
+                    matched = self.find_pending_xref_condition(node, ("*",))
+                    if matched:
+                        newnodes = matched
+                    else:
+                        logger.warning(__('Could not determine the fallback text for the '
+                                          'cross-reference. Might be a bug.'), location=node)
+
+            node.replace_self(newnodes)
+
+    def resolve_anyref(
+        self, refdoc: str, node: pending_xref, contnode: Element
+    ) -> Optional[Element]:
         """Resolve reference generated by the "any" role."""
         stddomain = self.env.get_domain('std')
         target = node['reftarget']
-        results = []  # type: List[Tuple[unicode, nodes.Node]]
+        results: List[Tuple[str, Element]] = []
         # first, try resolving as :doc:
         doc_ref = stddomain.resolve_xref(self.env, refdoc, self.app.builder,
                                          'doc', target, node, contnode)
@@ -96,13 +139,13 @@ class ReferencesResolver(SphinxTransform):
                 for role in domain.roles:
                     res = domain.resolve_xref(self.env, refdoc, self.app.builder,
                                               role, target, node, contnode)
-                    if res and isinstance(res[0], nodes.Element):
+                    if res and len(res) > 0 and isinstance(res[0], nodes.Element):
                         results.append(('%s:%s' % (domain.name, role), res))
         # now, see how many matches we got...
         if not results:
             return None
         if len(results) > 1:
-            def stringify(name, node):
+            def stringify(name: str, node: Element) -> str:
                 reftitle = node.get('reftitle', node.astext())
                 return ':%s:`%s`' % (name, reftitle)
             candidates = ' or '.join(stringify(name, role) for name, role in results)
@@ -113,42 +156,67 @@ class ReferencesResolver(SphinxTransform):
         # Override "any" class with the actual role type to get the styling
         # approximately correct.
         res_domain = res_role.split(':')[0]
-        if newnode and newnode[0].get('classes'):
+        if (len(newnode) > 0 and
+                isinstance(newnode[0], nodes.Element) and
+                newnode[0].get('classes')):
             newnode[0]['classes'].append(res_domain)
             newnode[0]['classes'].append(res_role.replace(':', '-'))
         return newnode
 
-    def warn_missing_reference(self, refdoc, typ, target, node, domain):
-        # type: (unicode, unicode, unicode, nodes.Node, Domain) -> None
+    def warn_missing_reference(self, refdoc: str, typ: str, target: str,
+                               node: pending_xref, domain: Optional[Domain]) -> None:
         warn = node.get('refwarn')
         if self.config.nitpicky:
             warn = True
+            dtype = '%s:%s' % (domain.name, typ) if domain else typ
             if self.config.nitpick_ignore:
-                dtype = domain and '%s:%s' % (domain.name, typ) or typ
                 if (dtype, target) in self.config.nitpick_ignore:
                     warn = False
                 # for "std" types also try without domain name
                 if (not domain or domain.name == 'std') and \
                    (typ, target) in self.config.nitpick_ignore:
                     warn = False
+            if self.config.nitpick_ignore_regex:
+                def matches_ignore(entry_type: str, entry_target: str) -> bool:
+                    for ignore_type, ignore_target in self.config.nitpick_ignore_regex:
+                        if re.fullmatch(ignore_type, entry_type) and \
+                           re.fullmatch(ignore_target, entry_target):
+                            return True
+                    return False
+                if matches_ignore(dtype, target):
+                    warn = False
+                # for "std" types also try without domain name
+                if (not domain or domain.name == 'std') and \
+                   matches_ignore(typ, target):
+                    warn = False
         if not warn:
             return
-        if domain and typ in domain.dangling_warnings:
-            msg = domain.dangling_warnings[typ]
+
+        if self.app.emit_firstresult('warn-missing-reference', domain, node):
+            return
+        elif domain and typ in domain.dangling_warnings:
+            msg = domain.dangling_warnings[typ] % {'target': target}
         elif node.get('refdomain', 'std') not in ('', 'std'):
-            msg = (__('%s:%s reference target not found: %%(target)s') %
-                   (node['refdomain'], typ))
+            msg = (__('%s:%s reference target not found: %s') %
+                   (node['refdomain'], typ, target))
         else:
-            msg = __('%r reference target not found: %%(target)s') % typ
-        logger.warning(msg % {'target': target},
-                       location=node, type='ref', subtype=typ)
+            msg = __('%r reference target not found: %s') % (typ, target)
+        logger.warning(msg, location=node, type='ref', subtype=typ)
+
+    def find_pending_xref_condition(self, node: pending_xref, conditions: Sequence[str]
+                                    ) -> Optional[List[Node]]:
+        for condition in conditions:
+            matched = find_pending_xref_condition(node, condition)
+            if matched:
+                return matched.children
+        else:
+            return None
 
 
-class OnlyNodeTransform(SphinxTransform):
+class OnlyNodeTransform(SphinxPostTransform):
     default_priority = 50
 
-    def apply(self):
-        # type: () -> None
+    def run(self, **kwargs: Any) -> None:
         # A comment on the comment() nodes being inserted: replacing by [] would
         # result in a "Losing ids" exception if there is a target node before
         # the only node, so we make sure docutils can transfer the id to
@@ -156,10 +224,49 @@ class OnlyNodeTransform(SphinxTransform):
         process_only_nodes(self.document, self.app.builder.tags)
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+class SigElementFallbackTransform(SphinxPostTransform):
+    """Fallback various desc_* nodes to inline if translator does not support them."""
+    default_priority = 200
+
+    def run(self, **kwargs: Any) -> None:
+        def has_visitor(translator: Type[nodes.NodeVisitor], node: Type[Element]) -> bool:
+            return hasattr(translator, "visit_%s" % node.__name__)
+
+        translator = self.app.builder.get_translator_class()
+        if isinstance(translator, SphinxTranslator):
+            # subclass of SphinxTranslator supports desc_sig_element nodes automatically.
+            return
+
+        # for the leaf elements (desc_sig_element), the translator should support _all_
+        if not all(has_visitor(translator, node) for node in addnodes.SIG_ELEMENTS):
+            self.fallback(addnodes.desc_sig_element)
+
+        if not has_visitor(translator, addnodes.desc_inline):
+            self.fallback(addnodes.desc_inline)
+
+    def fallback(self, nodeType: Any) -> None:
+        for node in self.document.findall(nodeType):
+            newnode = nodes.inline()
+            newnode.update_all_atts(node)
+            newnode.extend(node)
+            node.replace_self(newnode)
+
+
+class PropagateDescDomain(SphinxPostTransform):
+    """Add the domain name of the parent node as a class in each desc_signature node."""
+    default_priority = 200
+
+    def run(self, **kwargs: Any) -> None:
+        for node in self.document.findall(addnodes.desc_signature):
+            if node.parent.get('domain'):
+                node['classes'].append(node.parent['domain'])
+
+
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_post_transform(ReferencesResolver)
     app.add_post_transform(OnlyNodeTransform)
+    app.add_post_transform(SigElementFallbackTransform)
+    app.add_post_transform(PropagateDescDomain)
 
     return {
         'version': 'builtin',

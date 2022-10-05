@@ -1,0 +1,103 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2012, foof
+# This file is distributed under the same license as the foo package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: sphinx 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-11-22 08:28+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "i18n with literal block"
+msgstr "I18N WITH LITERAL BLOCK"
+
+msgid "Correct literal block::"
+msgstr "CORRECT LITERAL BLOCK::"
+
+msgid "Missing literal block::"
+msgstr "MISSING LITERAL BLOCK::"
+
+msgid "That's all."
+msgstr "THAT'S ALL."
+
+msgid "included raw.txt"
+msgstr "INCLUDED RAW.TXT"
+
+msgid "code blocks"
+msgstr "CODE-BLOCKS"
+
+msgid ""
+"def main\n"
+"   'result'\n"
+"end"
+msgstr ""
+"def main\n"
+"   'RESULT'\n"
+"end"
+
+msgid "example of C language"
+msgstr "EXAMPLE OF C LANGUAGE"
+
+msgid ""
+"#include <stdlib.h>\n"
+"int main(int argc, char** argv)\n"
+"{\n"
+"    return 0;\n"
+"}"
+msgstr ""
+"#include <STDLIB.H>\n"
+"int main(int ARGC, char** ARGV)\n"
+"{\n"
+"    return 0;\n"
+"}"
+
+msgid ""
+"#include <stdio.h>\n"
+"int main(int argc, char** argv)\n"
+"{\n"
+"    return 0;\n"
+"}"
+msgstr ""
+"#include <STDIO.H>\n"
+"int main(int ARGC, char** ARGV)\n"
+"{\n"
+"    return 0;\n"
+"}"
+
+msgid "literal-block\n"
+"in list"
+msgstr "LITERAL-BLOCK\n"
+"IN LIST"
+
+msgid "test_code_for_noqa()\n"
+"continued()"
+msgstr ""
+"# TRAILING noqa SHOULD NOT GET STRIPPED\n"
+"# FROM THIS BLOCK. #noqa"
+
+msgid "doctest blocks"
+msgstr "DOCTEST-BLOCKS"
+
+msgid ""
+">>> import sys  # sys importing\n"
+">>> def main():  # define main function\n"
+"...     sys.stdout.write('hello')  # call write method of stdout object\n"
+">>>\n"
+">>> if __name__ == '__main__':  # if run this py file as python script\n"
+"...     main()  # call main"
+msgstr ""
+">>> import sys  # SYS IMPORTING\n"
+">>> def main():  # DEFINE MAIN FUNCTION\n"
+"...     sys.stdout.write('hello')  # CALL WRITE METHOD OF STDOUT OBJECT\n"
+">>>\n"
+">>> if __name__ == '__main__':  # IF RUN THIS PY FILE AS PYTHON SCRIPT\n"
+"...     main()  # CALL MAIN"
+

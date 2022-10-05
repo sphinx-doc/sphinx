@@ -8,40 +8,45 @@ Markdown
 
 `Markdown`__ is a lightweight markup language with a simplistic plain text
 formatting syntax.  It exists in many syntactically different *flavors*.  To
-support Markdown-based documentation, Sphinx can use `recommonmark`__.
-recommonmark is a Docutils bridge to `CommonMark-py`__, a Python package for
+support Markdown-based documentation, Sphinx can use `MyST-Parser`__.
+MyST-Parser is a Docutils bridge to `markdown-it-py`__, a Python package for
 parsing the `CommonMark`__ Markdown flavor.
 
 __ https://daringfireball.net/projects/markdown/
-__ https://recommonmark.readthedocs.io/en/latest/index.html
-__ https://github.com/rtfd/CommonMark-py
-__ http://commonmark.org/
+__ https://myst-parser.readthedocs.io/en/latest/
+__ https://github.com/executablebooks/markdown-it-py
+__ https://commonmark.org/
 
 Configuration
 -------------
 
 To configure your Sphinx project for Markdown support, proceed as follows:
 
-#. Install *recommonmark*::
+#. Install the Markdown parser *MyST-Parser*::
 
-      pip install recommonmark
+      pip install --upgrade myst-parser
 
-#. Add the Markdown parser to the ``source_parsers`` configuration variable in
-   your Sphinx configuration file::
+#. Add *myst_parser* to the
+   :confval:`list of configured extensions <extensions>`::
 
-      source_parsers = {
-         '.md': 'recommonmark.parser.CommonMarkParser',
+      extensions = ['myst_parser']
+
+   .. note::
+      MyST-Parser requires Sphinx 2.1 or newer.
+
+#. If you want to use Markdown files with extensions other than ``.md``, adjust
+   the :confval:`source_suffix` variable.  The following example configures
+   Sphinx to parse all files with the extensions ``.md`` and ``.txt`` as
+   Markdown::
+
+      source_suffix = {
+          '.rst': 'restructuredtext',
+          '.txt': 'markdown',
+          '.md': 'markdown',
       }
 
-   You can replace ``.md`` with a filename extension of your choice.
-
-#. Add the Markdown filename extension to the  ``source_suffix`` configuration
-   variable::
-
-      source_suffix = ['.rst', '.md']
-
-#. You can further configure *recommonmark* to allow custom syntax that
-   standard *CommonMark* doesn't support. Read more in the `recommonmark
+#. You can further configure *MyST-Parser* to allow custom syntax that
+   standard *CommonMark* doesn't support.  Read more in the `MyST-Parser
    documentation`__.
 
-__ https://recommonmark.readthedocs.io/en/latest/auto_structify.html
+__ https://myst-parser.readthedocs.io/en/latest/using/syntax-optional.html

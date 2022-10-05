@@ -16,7 +16,7 @@ LATEX = latex
 PDFLATEX = {{ latex_engine }}
 MAKEINDEX = makeindex
 
-{% if latex_engine == 'platex' %}
+{% if latex_engine in ('platex', 'uplatex') -%}
 all: all-pdf-ja
 all-pdf: all-pdf-ja
 {% else %}
@@ -28,12 +28,12 @@ all-ps: $(ALLPS)
 
 all-pdf-ja:
 	for f in *.pdf *.png *.gif *.jpg *.jpeg; do extractbb $$f; done
-	for f in *.tex; do platex -kanji=utf8 $(LATEXOPTS) $$f; done
-	for f in *.tex; do platex -kanji=utf8 $(LATEXOPTS) $$f; done
-	for f in *.tex; do platex -kanji=utf8 $(LATEXOPTS) $$f; done
+	for f in *.tex; do {{ latex_engine }} -kanji=utf8 $(LATEXOPTS) $$f; done
+	for f in *.tex; do {{ latex_engine }} -kanji=utf8 $(LATEXOPTS) $$f; done
+	for f in *.tex; do {{ latex_engine }} -kanji=utf8 $(LATEXOPTS) $$f; done
 	-for f in *.idx; do mendex -U -f -d "`basename $$f .idx`.dic" -s python.ist $$f; done
-	for f in *.tex; do platex -kanji=utf8 $(LATEXOPTS) $$f; done
-	for f in *.tex; do platex -kanji=utf8 $(LATEXOPTS) $$f; done
+	for f in *.tex; do {{ latex_engine }} -kanji=utf8 $(LATEXOPTS) $$f; done
+	for f in *.tex; do {{ latex_engine }} -kanji=utf8 $(LATEXOPTS) $$f; done
 	for f in *.dvi; do dvipdfmx $$f; done
 
 zip: all-$(FMT)

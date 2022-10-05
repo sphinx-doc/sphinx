@@ -1,30 +1,22 @@
-# -*- coding: utf-8 -*-
-"""
-    sphinx.extension
-    ~~~~~~~~~~~~~~~~
+"""Utilities for Sphinx extensions."""
 
-    Utilities for Sphinx extensions.
+from typing import TYPE_CHECKING, Any, Dict
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from packaging.version import InvalidVersion, Version
 
+from sphinx.config import Config
 from sphinx.errors import VersionRequirementError
 from sphinx.locale import __
 from sphinx.util import logging
 
-if False:
-    # For type annotation
-    from typing import Any, Dict  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.config import Config  # NOQA
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
 
 
 class Extension:
-    def __init__(self, name, module, **kwargs):
-        # type: (unicode, Any, Any) -> None
+    def __init__(self, name: str, module: Any, **kwargs: Any) -> None:
         self.name = name
         self.module = module
         self.metadata = kwargs
@@ -41,9 +33,15 @@ class Extension:
         self.parallel_write_safe = kwargs.pop('parallel_write_safe', True)
 
 
-def verify_needs_extensions(app, config):
-    # type: (Sphinx, Config) -> None
-    """Verify the required Sphinx extensions are loaded."""
+def verify_needs_extensions(app: "Sphinx", config: Config) -> None:
+    """Check that extensions mentioned in :confval:`needs_extensions` satisfy the version
+    requirement, and warn if an extension is not loaded.
+
+    Warns if an extension in :confval:`needs_extension` is not loaded.
+
+    :raises VersionRequirementError: if the version of an extension in
+    :confval:`needs_extension` is unknown or older than the required version.
+    """
     if config.needs_extensions is None:
         return
 
@@ -54,16 +52,26 @@ def verify_needs_extensions(app, config):
                               'but it is not loaded.'), extname)
             continue
 
-        if extension.version == 'unknown version' or reqversion > extension.version:
+        fulfilled = True
+        if extension.version == 'unknown version':
+            fulfilled = False
+        else:
+            try:
+                if Version(reqversion) > Version(extension.version):
+                    fulfilled = False
+            except InvalidVersion:
+                if reqversion > extension.version:
+                    fulfilled = False
+
+        if not fulfilled:
             raise VersionRequirementError(__('This project needs the extension %s at least in '
                                              'version %s and therefore cannot be built with '
                                              'the loaded version (%s).') %
                                           (extname, reqversion, extension.version))
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
-    app.connect('config-inited', verify_needs_extensions)
+def setup(app: "Sphinx") -> Dict[str, Any]:
+    app.connect('config-inited', verify_needs_extensions, priority=800)
 
     return {
         'version': 'builtin',

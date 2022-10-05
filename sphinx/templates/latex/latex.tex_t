@@ -13,10 +13,18 @@
 \ifdefined\pdfpxdimen
    \let\sphinxpxdimen\pdfpxdimen\else\newdimen\sphinxpxdimen
 \fi \sphinxpxdimen=<%= pxunit %>\relax
+\ifdefined\pdfimageresolution
+    \pdfimageresolution= \numexpr \dimexpr1in\relax/\sphinxpxdimen\relax
+\fi
+%% let collapsible pdf bookmarks panel have high depth per default
+\PassOptionsToPackage{bookmarksdepth=5}{hyperref}
 <% if use_xindy -%>
 %% turn off hyperref patch of \index as sphinx.xdy xindy module takes care of
 %% suitable \hyperpage mark-up, working around hyperref-xindy incompatibility
 \PassOptionsToPackage{hyperindex=false}{hyperref}
+%% memoir class requires extra handling
+\makeatletter\@ifclassloaded{memoir}
+{\ifdefined\memhyperindexfalse\memhyperindexfalse\fi}{}\makeatother
 <% endif -%>
 <%= passoptionstopackages %>
 \PassOptionsToPackage{warn}{textcomp}
@@ -26,28 +34,55 @@
 <%= fontenc %>
 <%= amsmath %>
 <%= multilingual %>
+<%= substitutefont %>
+<%= textcyrillic %>
 <%= fontpkg %>
+<%= fontsubstitution %>
+<%= textgreek %>
 <%= fncychap %>
 \usepackage<%= sphinxpkgoptions %>{sphinx}
 <%= sphinxsetup %>
 <%= fvset %>
 <%= geometry %>
-<%= usepackages %>
+<%= extrapackages %>
+
+<%- for name, option in packages %>
+<%- if option %>
+\usepackage[<%= option %>]{<%= name %>}
+<%- else %>
+\usepackage{<%= name %>}
+<%- endif %>
+<%- endfor %>
+
 <%= hyperref %>
+<%- for name, option in packages_after_hyperref %>
+<%- if option %>
+\usepackage[<%= option %>]{<%= name %>}
+<%- else %>
+\usepackage{<%= name %>}
+<%- endif %>
+<%- endfor %>
+
 <%= contentsname %>
-<%= numfig_format %>
-<%= translatablestrings %>
-<%= pageautorefname %>
+\usepackage{sphinxmessages}
 <%= tocdepth %>
 <%= secnumdepth %>
 <%= preamble %>
 
 \title{<%= title %>}
 \date{<%= date %>}
-\release{<%= release %>}
+\release{<%= release | e %>}
 \author{<%= author %>}
-\newcommand{\sphinxlogo}{<%= logo %>}
-\renewcommand{\releasename}{<%= releasename %>}
+<%- if logofilename %>
+\newcommand{\sphinxlogo}{\sphinxincludegraphics{<%= logofilename %>}\par}
+<%- else %>
+\newcommand{\sphinxlogo}{\vbox{}}
+<%- endif %>
+<%- if releasename or release %>
+\renewcommand{\releasename}{<%= releasename or _('Release') | e %>}
+<%- else %>
+\renewcommand{\releasename}{}
+<%- endif %>
 <%= makeindex %>
 \begin{document}
 <%= shorthandoff %>
@@ -59,6 +94,6 @@
 <%= body %>
 <%= atendofbody %>
 <%= indices %>
-\renewcommand{\indexname}{<%= indexname %>}
+\renewcommand{\indexname}{<%= _('Index') | e %>}
 <%= printindex %>
 \end{document}

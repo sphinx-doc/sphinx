@@ -3,7 +3,7 @@ Testing downloadable files
 
 Download :download:`img.png` here.
 Download :download:`this <subdir/img.png>` there.
-Don't download :download:`this <nonexisting.png>`.
+Download :download:`file with special characters <file_with_special_#_chars.xyz>`.
 
 Test file and literal inclusion
 ===============================

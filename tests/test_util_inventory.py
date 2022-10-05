@@ -1,38 +1,29 @@
-# -*- coding: utf-8 -*-
-"""
-    test_util_inventory
-    ~~~~~~~~~~~~~~~~~~~
-
-    Test inventory util functions.
-
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test inventory util functions."""
 
 import posixpath
 import zlib
-
-from six import BytesIO
+from io import BytesIO
 
 from sphinx.ext.intersphinx import InventoryFile
 
-inventory_v1 = '''\
+inventory_v1 = b'''\
 # Sphinx inventory version 1
 # Project: foo
 # Version: 1.0
 module mod foo.html
 module.cls class foo.html
-'''.encode('utf-8')
+'''
 
-inventory_v2 = '''\
+inventory_v2 = b'''\
 # Sphinx inventory version 2
 # Project: foo
 # Version: 2.0
 # The remainder of this file is compressed with zlib.
-'''.encode('utf-8') + zlib.compress('''\
+''' + zlib.compress(b'''\
 module1 py:module 0 foo.html#module-module1 Long Module desc
 module2 py:module 0 foo.html#module-$ -
 module1.func py:function 1 sub/foo.html#$ -
+module1.Foo.bar py:method 1 index.html#foo.Bar.baz -
 CFunc c:function 2 cfunc.html#CFunc -
 std cpp:type 1 index.html#std -
 std::uint8_t cpp:type 1 index.html#std_uint8_t -
@@ -48,16 +39,16 @@ foo.bar js:class 1 index.html#foo.bar -
 foo.bar.baz js:method 1 index.html#foo.bar.baz -
 foo.bar.qux js:data 1 index.html#foo.bar.qux -
 a term including:colon std:term -1 glossary.html#term-a-term-including-colon -
-'''.encode('utf-8'))
+''')
 
-inventory_v2_not_having_version = '''\
+inventory_v2_not_having_version = b'''\
 # Sphinx inventory version 2
 # Project: foo
-# Version: 
+# Version:
 # The remainder of this file is compressed with zlib.
-'''.encode('utf-8') + zlib.compress('''\
+''' + zlib.compress(b'''\
 module1 py:module 0 foo.html#module-module1 Long Module desc
-'''.encode('utf-8'))
+''')
 
 
 def test_read_inventory_v1():

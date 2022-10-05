@@ -1,166 +1,70 @@
-# -*- coding: utf-8 -*-
-"""
-    sphinx.ext.autodoc.importer
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Importer utilities for autodoc"""
 
-    Importer utilities for autodoc
-
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-import contextlib
-import sys
+import importlib
 import traceback
 import warnings
-from collections import namedtuple
-from types import FunctionType, MethodType, ModuleType
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, NamedTuple, Optional
 
-from six import iteritems
-
+from sphinx.ext.autodoc.mock import ismock, undecorate
+from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import logging
-from sphinx.util.inspect import isenumclass, safe_getattr
+from sphinx.util.inspect import (getannotations, getmro, getslots, isclass, isenumclass,
+                                 safe_getattr)
 
-if False:
-    # For type annotation
-    from typing import Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple  # NOQA
+if TYPE_CHECKING:
+    from sphinx.ext.autodoc import ObjectMember
 
 logger = logging.getLogger(__name__)
 
 
-class _MockObject:
-    """Used by autodoc_mock_imports."""
-
-    def __new__(cls, *args, **kwargs):
-        # type: (Any, Any) -> Any
-        if len(args) == 3 and isinstance(args[1], tuple) and args[1][-1].__class__ is cls:
-            # subclassing MockObject
-            return type(args[0], (_MockObject,), args[2], **kwargs)  # type: ignore
-        else:
-            return super(_MockObject, cls).__new__(cls)
-
-    def __init__(self, *args, **kwargs):
-        # type: (Any, Any) -> None
-        self.__qualname__ = ''
-
-    def __len__(self):
-        # type: () -> int
-        return 0
-
-    def __contains__(self, key):
-        # type: (str) -> bool
-        return False
-
-    def __iter__(self):
-        # type: () -> Iterator
-        return iter([])
-
-    def __mro_entries__(self, bases):
-        # type: (Tuple) -> Tuple
-        return bases
-
-    def __getitem__(self, key):
-        # type: (str) -> _MockObject
-        return self
-
-    def __getattr__(self, key):
-        # type: (str) -> _MockObject
-        return self
-
-    def __call__(self, *args, **kw):
-        # type: (Any, Any) -> Any
-        if args and type(args[0]) in [FunctionType, MethodType]:
-            # Appears to be a decorator, pass through unchanged
-            return args[0]
-        return self
-
-
-class _MockModule(ModuleType):
-    """Used by autodoc_mock_imports."""
-    __file__ = '/dev/null'
-
-    def __init__(self, name, loader):
-        # type: (str, _MockImporter) -> None
-        self.__name__ = self.__package__ = name
-        self.__loader__ = loader
-        self.__all__ = []  # type: List[str]
-        self.__path__ = []  # type: List[str]
-
-    def __getattr__(self, name):
-        # type: (str) -> _MockObject
-        o = _MockObject()
-        o.__module__ = self.__name__
-        return o
-
-
-class _MockImporter:
-    def __init__(self, names):
-        # type: (List[str]) -> None
-        self.names = names
-        self.mocked_modules = []  # type: List[str]
-        # enable hook by adding itself to meta_path
-        sys.meta_path.insert(0, self)
-
-    def disable(self):
-        # type: () -> None
-        # remove `self` from `sys.meta_path` to disable import hook
-        sys.meta_path = [i for i in sys.meta_path if i is not self]
-        # remove mocked modules from sys.modules to avoid side effects after
-        # running auto-documenter
-        for m in self.mocked_modules:
-            if m in sys.modules:
-                del sys.modules[m]
-
-    def find_module(self, name, path=None):
-        # type: (str, str) -> Any
-        # check if name is (or is a descendant of) one of our base_packages
-        for n in self.names:
-            if n == name or name.startswith(n + '.'):
-                return self
-        return None
-
-    def load_module(self, name):
-        # type: (str) -> ModuleType
-        if name in sys.modules:
-            # module has already been imported, return it
-            return sys.modules[name]
-        else:
-            logger.debug('[autodoc] adding a mock module %s!', name)
-            module = _MockModule(name, self)
-            sys.modules[name] = module
-            self.mocked_modules.append(name)
-            return module
-
-
-@contextlib.contextmanager
-def mock(names):
-    # type: (List[str]) -> Generator
+def mangle(subject: Any, name: str) -> str:
+    """Mangle the given name."""
     try:
-        importer = _MockImporter(names)
-        yield
-    finally:
-        importer.disable()
+        if isclass(subject) and name.startswith('__') and not name.endswith('__'):
+            return "_%s%s" % (subject.__name__, name)
+    except AttributeError:
+        pass
+
+    return name
 
 
-def import_module(modname, warningiserror=False):
-    # type: (str, bool) -> Any
+def unmangle(subject: Any, name: str) -> Optional[str]:
+    """Unmangle the given name."""
+    try:
+        if isclass(subject) and not name.endswith('__'):
+            prefix = "_%s__" % subject.__name__
+            if name.startswith(prefix):
+                return name.replace(prefix, "__", 1)
+            else:
+                for cls in subject.__mro__:
+                    prefix = "_%s__" % cls.__name__
+                    if name.startswith(prefix):
+                        # mangled attribute defined in parent class
+                        return None
+    except AttributeError:
+        pass
+
+    return name
+
+
+def import_module(modname: str, warningiserror: bool = False) -> Any:
     """
-    Call __import__(modname), convert exceptions to ImportError
+    Call importlib.import_module(modname), convert exceptions to ImportError
     """
     try:
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=ImportWarning)
             with logging.skip_warningiserror(not warningiserror):
-                __import__(modname)
-                return sys.modules[modname]
+                return importlib.import_module(modname)
     except BaseException as exc:
         # Importing modules may cause any side effects, including
         # SystemExit, so we need to catch all errors.
-        raise ImportError(exc, traceback.format_exc())
+        raise ImportError(exc, traceback.format_exc()) from exc
 
 
-def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warningiserror=False):
-    # type: (str, List[unicode], str, Callable[[Any, unicode], Any], bool) -> Any
+def import_object(modname: str, objpath: List[str], objtype: str = '',
+                  attrgetter: Callable[[Any, str], Any] = safe_getattr,
+                  warningiserror: bool = False) -> Any:
     if objpath:
         logger.debug('[autodoc] from %s import %s', modname, '.'.join(objpath))
     else:
@@ -190,8 +94,16 @@ def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warning
         for attrname in objpath:
             parent = obj
             logger.debug('[autodoc] getattr(_, %r)', attrname)
-            obj = attrgetter(obj, attrname)
-            logger.debug('[autodoc] => %r', obj)
+            mangled_name = mangle(obj, attrname)
+            obj = attrgetter(obj, mangled_name)
+
+            try:
+                logger.debug('[autodoc] => %r', obj)
+            except TypeError:
+                # fallback of failure on logging for broken object
+                # refs: https://github.com/sphinx-doc/sphinx/issues/9095
+                logger.debug('[autodoc] => %r', (obj,))
+
             object_name = attrname
         return [module, parent, object_name, obj]
     except (AttributeError, ImportError) as exc:
@@ -220,19 +132,24 @@ def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warning
             errmsg += '; the following exception was raised:\n%s' % traceback.format_exc()
 
         logger.debug(errmsg)
-        raise ImportError(errmsg)
+        raise ImportError(errmsg) from exc
 
 
-Attribute = namedtuple('Attribute', ['name', 'directly_defined', 'value'])
+class Attribute(NamedTuple):
+    name: str
+    directly_defined: bool
+    value: Any
 
 
-def get_object_members(subject, objpath, attrgetter, analyzer=None):
-    # type: (Any, List[unicode], Callable, Any) -> Dict[str, Attribute]  # NOQA
+def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
+                       analyzer: ModuleAnalyzer = None) -> Dict[str, Attribute]:
     """Get members and attributes of target object."""
+    from sphinx.ext.autodoc import INSTANCEATTR
+
     # the members directly defined in the class
     obj_dict = attrgetter(subject, '__dict__', {})
 
-    members = {}  # type: Dict[str, Attribute]
+    members: Dict[str, Attribute] = {}
 
     # enum members
     if isenumclass(subject):
@@ -241,27 +158,144 @@ def get_object_members(subject, objpath, attrgetter, analyzer=None):
                 members[name] = Attribute(name, True, value)
 
         superclass = subject.__mro__[1]
-        for name, value in iteritems(obj_dict):
+        for name in obj_dict:
             if name not in superclass.__dict__:
+                value = safe_getattr(subject, name)
                 members[name] = Attribute(name, True, value)
+
+    # members in __slots__
+    try:
+        __slots__ = getslots(subject)
+        if __slots__:
+            from sphinx.ext.autodoc import SLOTSATTR
+
+            for name in __slots__:
+                members[name] = Attribute(name, True, SLOTSATTR)
+    except (TypeError, ValueError):
+        pass
 
     # other members
     for name in dir(subject):
         try:
             value = attrgetter(subject, name)
             directly_defined = name in obj_dict
-            if name not in members:
+            name = unmangle(subject, name)
+            if name and name not in members:
                 members[name] = Attribute(name, directly_defined, value)
         except AttributeError:
             continue
 
+    # annotation only member (ex. attr: int)
+    for i, cls in enumerate(getmro(subject)):
+        for name in getannotations(cls):
+            name = unmangle(cls, name)
+            if name and name not in members:
+                members[name] = Attribute(name, i == 0, INSTANCEATTR)
+
     if analyzer:
         # append instance attributes (cf. self.attr1) if analyzer knows
-        from sphinx.ext.autodoc import INSTANCEATTR
-
         namespace = '.'.join(objpath)
         for (ns, name) in analyzer.find_attr_docs():
             if namespace == ns and name not in members:
                 members[name] = Attribute(name, True, INSTANCEATTR)
+
+    return members
+
+
+def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable,
+                      inherit_docstrings: bool = True) -> Dict[str, "ObjectMember"]:
+    """Get members and attributes of target class."""
+    from sphinx.ext.autodoc import INSTANCEATTR, ObjectMember
+
+    # the members directly defined in the class
+    obj_dict = attrgetter(subject, '__dict__', {})
+
+    members: Dict[str, ObjectMember] = {}
+
+    # enum members
+    if isenumclass(subject):
+        for name, value in subject.__members__.items():
+            if name not in members:
+                members[name] = ObjectMember(name, value, class_=subject)
+
+        superclass = subject.__mro__[1]
+        for name in obj_dict:
+            if name not in superclass.__dict__:
+                value = safe_getattr(subject, name)
+                members[name] = ObjectMember(name, value, class_=subject)
+
+    # members in __slots__
+    try:
+        __slots__ = getslots(subject)
+        if __slots__:
+            from sphinx.ext.autodoc import SLOTSATTR
+
+            for name, docstring in __slots__.items():
+                members[name] = ObjectMember(name, SLOTSATTR, class_=subject,
+                                             docstring=docstring)
+    except (TypeError, ValueError):
+        pass
+
+    # other members
+    for name in dir(subject):
+        try:
+            value = attrgetter(subject, name)
+            if ismock(value):
+                value = undecorate(value)
+
+            unmangled = unmangle(subject, name)
+            if unmangled and unmangled not in members:
+                if name in obj_dict:
+                    members[unmangled] = ObjectMember(unmangled, value, class_=subject)
+                else:
+                    members[unmangled] = ObjectMember(unmangled, value)
+        except AttributeError:
+            continue
+
+    try:
+        for cls in getmro(subject):
+            try:
+                modname = safe_getattr(cls, '__module__')
+                qualname = safe_getattr(cls, '__qualname__')
+                analyzer = ModuleAnalyzer.for_module(modname)
+                analyzer.analyze()
+            except AttributeError:
+                qualname = None
+                analyzer = None
+            except PycodeError:
+                analyzer = None
+
+            # annotation only member (ex. attr: int)
+            for name in getannotations(cls):
+                name = unmangle(cls, name)
+                if name and name not in members:
+                    if analyzer and (qualname, name) in analyzer.attr_docs:
+                        docstring = '\n'.join(analyzer.attr_docs[qualname, name])
+                    else:
+                        docstring = None
+
+                    members[name] = ObjectMember(name, INSTANCEATTR, class_=cls,
+                                                 docstring=docstring)
+
+            # append or complete instance attributes (cf. self.attr1) if analyzer knows
+            if analyzer:
+                for (ns, name), docstring in analyzer.attr_docs.items():
+                    if ns == qualname and name not in members:
+                        # otherwise unknown instance attribute
+                        members[name] = ObjectMember(name, INSTANCEATTR, class_=cls,
+                                                     docstring='\n'.join(docstring))
+                    elif (ns == qualname and docstring and
+                          isinstance(members[name], ObjectMember) and
+                          not members[name].docstring):
+                        if cls != subject and not inherit_docstrings:
+                            # If we are in the MRO of the class and not the class itself,
+                            # and we do not want to inherit docstrings, then skip setting
+                            # the docstring below
+                            continue
+                        # attribute is already known, because dir(subject) enumerates it.
+                        # But it has no docstring yet
+                        members[name].docstring = '\n'.join(docstring)
+    except AttributeError:
+        pass
 
     return members

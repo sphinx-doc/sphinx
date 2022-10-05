@@ -1,17 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-    test_directive_code
-    ~~~~~~~~~~~~~~~~~~~
-
-    Test the code-block directive.
-
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the code-block directive."""
 
 import os
 
 import pytest
+from docutils import nodes
 
 from sphinx.config import Config
 from sphinx.directives.code import LiteralIncludeReader
@@ -36,19 +28,19 @@ def test_LiteralIncludeReader(literal_inc_path):
     options = {'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
-    assert content == literal_inc_path.text()
-    assert lines == 14
+    assert content == literal_inc_path.read_text(encoding='utf8')
+    assert lines == 13
     assert reader.lineno_start == 1
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_lineno_start(literal_inc_path):
-    options = {'lineno-start': 5}
+    options = {'lineno-start': 4}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
-    assert content == literal_inc_path.text()
-    assert lines == 14
-    assert reader.lineno_start == 5
+    assert content == literal_inc_path.read_text(encoding='utf8')
+    assert lines == 13
+    assert reader.lineno_start == 4
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
@@ -58,7 +50,7 @@ def test_LiteralIncludeReader_pyobject1(literal_inc_path):
     content, lines = reader.read()
     assert content == ("class Foo:\n"
                        "    pass\n")
-    assert reader.lineno_start == 6
+    assert reader.lineno_start == 5
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
@@ -92,39 +84,38 @@ def test_LiteralIncludeReader_pyobject_and_lines(literal_inc_path):
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_lines1(literal_inc_path):
-    options = {'lines': '1-4'}
+    options = {'lines': '1-3'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
-    assert content == (u"# Literally included file using Python highlighting\n"
-                       u"# -*- coding: utf-8 -*-\n"
-                       u"\n"
-                       u"foo = \"Including Unicode characters: üöä\"\n")
+    assert content == ("# Literally included file using Python highlighting\n"
+                       "\n"
+                       "foo = \"Including Unicode characters: üöä\"\n")
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_lines2(literal_inc_path):
-    options = {'lines': '1,4,6'}
+    options = {'lines': '1,3,5'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
-    assert content == (u"# Literally included file using Python highlighting\n"
-                       u"foo = \"Including Unicode characters: üöä\"\n"
-                       u"class Foo:\n")
+    assert content == ("# Literally included file using Python highlighting\n"
+                       "foo = \"Including Unicode characters: üöä\"\n"
+                       "class Foo:\n")
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_lines_and_lineno_match1(literal_inc_path):
-    options = {'lines': '4-6', 'lineno-match': True}
+    options = {'lines': '3-5', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
-    assert content == (u"foo = \"Including Unicode characters: üöä\"\n"
-                       u"\n"
-                       u"class Foo:\n")
-    assert reader.lineno_start == 4
+    assert content == ("foo = \"Including Unicode characters: üöä\"\n"
+                       "\n"
+                       "class Foo:\n")
+    assert reader.lineno_start == 3
 
 
 @pytest.mark.sphinx()  # init locale for errors
 def test_LiteralIncludeReader_lines_and_lineno_match2(literal_inc_path, app, status, warning):
-    options = {'lines': '1,4,6', 'lineno-match': True}
+    options = {'lines': '0,3,5', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     with pytest.raises(ValueError):
         content, lines = reader.read()
@@ -147,7 +138,7 @@ def test_LiteralIncludeReader_start_at(literal_inc_path):
                        "    pass\n"
                        "\n"
                        "class Bar:\n")
-    assert reader.lineno_start == 6
+    assert reader.lineno_start == 5
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
@@ -157,13 +148,13 @@ def test_LiteralIncludeReader_start_after(literal_inc_path):
     content, lines = reader.read()
     assert content == ("    pass\n"
                        "\n")
-    assert reader.lineno_start == 7
+    assert reader.lineno_start == 6
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_start_after_and_lines(literal_inc_path):
     options = {'lineno-match': True, 'lines': '6-',
-               'start-after': 'coding', 'end-before': 'comment'}
+               'start-after': 'Literally', 'end-before': 'comment'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
     assert content == ("\n"
@@ -171,7 +162,7 @@ def test_LiteralIncludeReader_start_after_and_lines(literal_inc_path):
                        "    def baz():\n"
                        "        pass\n"
                        "\n")
-    assert reader.lineno_start == 8
+    assert reader.lineno_start == 7
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
@@ -207,6 +198,14 @@ def test_LiteralIncludeReader_missing_start_and_end(literal_inc_path):
         content, lines = reader.read()
 
 
+def test_LiteralIncludeReader_end_before(literal_inc_path):
+    options = {'end-before': 'nclud'}  # *nclud* matches first and third lines.
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("# Literally included file using Python highlighting\n"
+                       "\n")
+
+
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_prepend(literal_inc_path):
     options = {'lines': '1', 'prepend': 'Hello', 'append': 'Sphinx'}
@@ -220,7 +219,7 @@ def test_LiteralIncludeReader_prepend(literal_inc_path):
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_dedent(literal_inc_path):
     # dedent: 2
-    options = {'lines': '10-12', 'dedent': 2}
+    options = {'lines': '9-11', 'dedent': 2}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
     assert content == ("  def baz():\n"
@@ -228,7 +227,7 @@ def test_LiteralIncludeReader_dedent(literal_inc_path):
                        "\n")
 
     # dedent: 4
-    options = {'lines': '10-12', 'dedent': 4}
+    options = {'lines': '9-11', 'dedent': 4}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
     assert content == ("def baz():\n"
@@ -236,12 +235,33 @@ def test_LiteralIncludeReader_dedent(literal_inc_path):
                        "\n")
 
     # dedent: 6
-    options = {'lines': '10-12', 'dedent': 6}
+    options = {'lines': '9-11', 'dedent': 6}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
     assert content == ("f baz():\n"
                        "  pass\n"
                        "\n")
+
+    # dedent: None
+    options = {'lines': '9-11', 'dedent': None}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("def baz():\n"
+                       "    pass\n"
+                       "\n")
+
+
+@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
+def test_LiteralIncludeReader_dedent_and_append_and_prepend(literal_inc_path):
+    # dedent: 2
+    options = {'lines': '9-11', 'dedent': 2, 'prepend': 'class Foo:', 'append': '# comment'}
+    reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("class Foo:\n"
+                       "  def baz():\n"
+                       "      pass\n"
+                       "\n"
+                       "# comment\n")
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
@@ -279,7 +299,7 @@ def test_LiteralIncludeReader_diff(testroot, literal_inc_path):
     content, lines = reader.read()
     assert content == ("--- " + testroot + "/literal-diff.inc\n"
                        "+++ " + testroot + "/literal.inc\n"
-                       "@@ -7,8 +7,8 @@\n"
+                       "@@ -6,8 +6,8 @@\n"
                        "     pass\n"
                        " \n"
                        " class Bar:\n"
@@ -309,21 +329,27 @@ def test_code_block(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='directive-code')
+def test_force_option(app, status, warning):
+    app.builder.build(['force'])
+    assert 'force.rst' not in warning.getvalue()
+
+
+@pytest.mark.sphinx('html', testroot='directive-code')
 def test_code_block_caption_html(app, status, warning):
     app.builder.build(['caption'])
-    html = (app.outdir / 'caption.html').text(encoding='utf-8')
-    caption = (u'<div class="code-block-caption">'
-               u'<span class="caption-number">Listing 1 </span>'
-               u'<span class="caption-text">caption <em>test</em> rb'
-               u'</span><a class="headerlink" href="#id1" '
-               u'title="Permalink to this code">\xb6</a></div>')
+    html = (app.outdir / 'caption.html').read_text(encoding='utf8')
+    caption = ('<div class="code-block-caption">'
+               '<span class="caption-number">Listing 1 </span>'
+               '<span class="caption-text">caption <em>test</em> rb'
+               '</span><a class="headerlink" href="#id1" '
+               'title="Permalink to this code">\xb6</a></div>')
     assert caption in html
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_code_block_caption_latex(app, status, warning):
     app.builder.build_all()
-    latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
+    latex = (app.outdir / 'python.tex').read_text(encoding='utf8')
     caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstyleemphasis{test} rb}'
     label = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:id1}}}'
     link = '\\hyperref[\\detokenize{caption:name-test-rb}]' \
@@ -336,7 +362,7 @@ def test_code_block_caption_latex(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_code_block_namedlink_latex(app, status, warning):
     app.builder.build_all()
-    latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
+    latex = (app.outdir / 'python.tex').read_text(encoding='utf8')
     label1 = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:name-test-rb}}}'
     link1 = '\\hyperref[\\detokenize{caption:name-test-rb}]'\
             '{\\sphinxcrossref{\\DUrole{std,std-ref}{Ruby}}'
@@ -353,8 +379,10 @@ def test_code_block_namedlink_latex(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_code_block_emphasize_latex(app, status, warning):
     app.builder.build(['emphasize'])
-    latex = (app.outdir / 'Python.tex').text(encoding='utf-8').replace('\r\n', '\n')
-    includes = '\\fvset{hllines={, 5, 6, 13, 14, 15, 24, 25, 26, 27,}}%\n'
+    latex = (app.outdir / 'python.tex').read_text(encoding='utf8').replace('\r\n', '\n')
+    includes = '\\fvset{hllines={, 5, 6, 13, 14, 15, 24, 25, 26,}}%\n'
+    assert includes in latex
+    includes = '\\end{sphinxVerbatim}\n\\sphinxresetverbatimhllines\n'
     assert includes in latex
 
 
@@ -364,7 +392,7 @@ def test_literal_include(app, status, warning):
     et = etree_parse(app.outdir / 'index.xml')
     secs = et.findall('./section/section')
     literal_include = secs[1].findall('literal_block')
-    literal_src = (app.srcdir / 'literal.inc').text(encoding='utf-8')
+    literal_src = (app.srcdir / 'literal.inc').read_text(encoding='utf8')
     assert len(literal_include) > 0
     actual = literal_include[0].text
     assert actual == literal_src
@@ -397,55 +425,25 @@ def test_literal_include_block_start_with_comment_or_brank(app, status, warning)
 @pytest.mark.sphinx('html', testroot='directive-code')
 def test_literal_include_linenos(app, status, warning):
     app.builder.build(['linenos'])
-    html = (app.outdir / 'linenos.html').text(encoding='utf-8')
+    html = (app.outdir / 'linenos.html').read_text(encoding='utf8')
 
     # :linenos:
-    assert ('<td class="linenos"><div class="linenodiv"><pre>'
-            ' 1\n'
-            ' 2\n'
-            ' 3\n'
-            ' 4\n'
-            ' 5\n'
-            ' 6\n'
-            ' 7\n'
-            ' 8\n'
-            ' 9\n'
-            '10\n'
-            '11\n'
-            '12\n'
-            '13\n'
-            '14</pre></div></td>' in html)
+    assert ('<span class="linenos"> 1</span><span class="c1">'
+            '# Literally included file using Python highlighting</span>' in html)
 
     # :lineno-start:
-    assert ('<td class="linenos"><div class="linenodiv"><pre>'
-            '200\n'
-            '201\n'
-            '202\n'
-            '203\n'
-            '204\n'
-            '205\n'
-            '206\n'
-            '207\n'
-            '208\n'
-            '209\n'
-            '210\n'
-            '211\n'
-            '212\n'
-            '213</pre></div></td>' in html)
+    assert ('<span class="linenos">200</span><span class="c1">'
+            '# Literally included file using Python highlighting</span>' in html)
 
-    # :lineno-match:
-    assert ('<td class="linenos"><div class="linenodiv"><pre>'
-            '5\n'
-            '6\n'
-            '7\n'
-            '8\n'
-            '9</pre></div></td>' in html)
+    # :lines: 5-9
+    assert ('<span class="linenos">5</span><span class="k">class</span> '
+            '<span class="nc">Foo</span><span class="p">:</span>' in html)
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_literalinclude_file_whole_of_emptyline(app, status, warning):
     app.builder.build_all()
-    latex = (app.outdir / 'Python.tex').text(encoding='utf-8').replace('\r\n', '\n')
+    latex = (app.outdir / 'python.tex').read_text(encoding='utf8').replace('\r\n', '\n')
     includes = (
         '\\begin{sphinxVerbatim}'
         '[commandchars=\\\\\\{\\},numbers=left,firstnumber=1,stepnumber=1]\n'
@@ -459,19 +457,19 @@ def test_literalinclude_file_whole_of_emptyline(app, status, warning):
 @pytest.mark.sphinx('html', testroot='directive-code')
 def test_literalinclude_caption_html(app, status, warning):
     app.builder.build('index')
-    html = (app.outdir / 'caption.html').text(encoding='utf-8')
-    caption = (u'<div class="code-block-caption">'
-               u'<span class="caption-number">Listing 2 </span>'
-               u'<span class="caption-text">caption <strong>test</strong> py'
-               u'</span><a class="headerlink" href="#id2" '
-               u'title="Permalink to this code">\xb6</a></div>')
+    html = (app.outdir / 'caption.html').read_text(encoding='utf8')
+    caption = ('<div class="code-block-caption">'
+               '<span class="caption-number">Listing 2 </span>'
+               '<span class="caption-text">caption <strong>test</strong> py'
+               '</span><a class="headerlink" href="#id2" '
+               'title="Permalink to this code">\xb6</a></div>')
     assert caption in html
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_literalinclude_caption_latex(app, status, warning):
     app.builder.build('index')
-    latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
+    latex = (app.outdir / 'python.tex').read_text(encoding='utf8')
     caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstylestrong{test} py}'
     label = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:id2}}}'
     link = '\\hyperref[\\detokenize{caption:name-test-py}]' \
@@ -484,7 +482,7 @@ def test_literalinclude_caption_latex(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_literalinclude_namedlink_latex(app, status, warning):
     app.builder.build('index')
-    latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
+    latex = (app.outdir / 'python.tex').read_text(encoding='utf8')
     label1 = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:name-test-py}}}'
     link1 = '\\hyperref[\\detokenize{caption:name-test-py}]'\
             '{\\sphinxcrossref{\\DUrole{std,std-ref}{Python}}'
@@ -554,3 +552,63 @@ def test_literalinclude_pydecorators(app, status, warning):
         '    pass\n'
     )
     assert actual == expect
+
+
+@pytest.mark.sphinx('dummy', testroot='directive-code')
+def test_code_block_highlighted(app, status, warning):
+    app.builder.build(['highlight'])
+    doctree = app.env.get_doctree('highlight')
+    codeblocks = list(doctree.findall(nodes.literal_block))
+
+    assert codeblocks[0]['language'] == 'default'
+    assert codeblocks[1]['language'] == 'python2'
+    assert codeblocks[2]['language'] == 'python3'
+    assert codeblocks[3]['language'] == 'python2'
+
+
+@pytest.mark.sphinx('html', testroot='directive-code')
+def test_linenothreshold(app, status, warning):
+    app.builder.build(['linenothreshold'])
+    html = (app.outdir / 'linenothreshold.html').read_text(encoding='utf8')
+
+    # code-block using linenothreshold
+    assert ('<span class="linenos">1</span><span class="k">class</span> '
+            '<span class="nc">Foo</span><span class="p">:</span>' in html)
+
+    # code-block not using linenothreshold (no line numbers)
+    assert '<span></span><span class="c1"># comment</span>' in html
+
+    # literal include using linenothreshold
+    assert ('<span class="linenos"> 1</span><span class="c1">'
+            '# Literally included file using Python highlighting</span>' in html)
+
+    # literal include not using linenothreshold (no line numbers)
+    assert ('<span></span><span class="c1"># Very small literal include '
+            '(linenothreshold check)</span>' in html)
+
+
+@pytest.mark.sphinx('dummy', testroot='directive-code')
+def test_code_block_dedent(app, status, warning):
+    app.builder.build(['dedent'])
+    doctree = app.env.get_doctree('dedent')
+    codeblocks = list(doctree.findall(nodes.literal_block))
+    # Note: comparison string should not have newlines at the beginning or end
+    text_0_indent = '''First line
+Second line
+    Third line
+Fourth line'''
+    text_2_indent = '''  First line
+  Second line
+      Third line
+  Fourth line'''
+    text_4_indent = '''    First line
+    Second line
+        Third line
+    Fourth line'''
+
+    assert codeblocks[0].astext() == text_0_indent
+    assert codeblocks[1].astext() == text_0_indent
+    assert codeblocks[2].astext() == text_4_indent
+    assert codeblocks[3].astext() == text_2_indent
+    assert codeblocks[4].astext() == text_4_indent
+    assert codeblocks[5].astext() == text_0_indent

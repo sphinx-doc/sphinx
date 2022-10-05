@@ -1,13 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-    test_theming
-    ~~~~~~~~~~~~
-
-    Test the Theme class.
-
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the Theme class."""
 
 import os
 
@@ -31,10 +22,10 @@ def test_theme_api(app, status, warning):
         themes.append('alabaster')
 
     # test Theme class API
-    assert set(app.html_themes.keys()) == set(themes)
-    assert app.html_themes['test-theme'] == app.srcdir / 'test_theme' / 'test-theme'
-    assert app.html_themes['ziptheme'] == app.srcdir / 'ziptheme.zip'
-    assert app.html_themes['staticfiles'] == app.srcdir / 'test_theme' / 'staticfiles'
+    assert set(app.registry.html_themes.keys()) == set(themes)
+    assert app.registry.html_themes['test-theme'] == app.srcdir / 'test_theme' / 'test-theme'
+    assert app.registry.html_themes['ziptheme'] == app.srcdir / 'ziptheme.zip'
+    assert app.registry.html_themes['staticfiles'] == app.srcdir / 'test_theme' / 'staticfiles'
 
     # test Theme instance API
     theme = app.builder.theme
@@ -75,18 +66,18 @@ def test_js_source(app, status, warning):
 
     app.builder.build(['contents'])
 
-    v = '3.2.1'
+    v = '3.6.0'
     msg = 'jquery.js version does not match to {v}'.format(v=v)
-    jquery_min = (app.outdir / '_static' / 'jquery.js').text()
+    jquery_min = (app.outdir / '_static' / 'jquery.js').read_text(encoding='utf8')
     assert 'jQuery v{v}'.format(v=v) in jquery_min, msg
-    jquery_src = (app.outdir / '_static' / 'jquery-{v}.js'.format(v=v)).text()
+    jquery_src = (app.outdir / '_static' / 'jquery-{v}.js'.format(v=v)).read_text(encoding='utf8')
     assert 'jQuery JavaScript Library v{v}'.format(v=v) in jquery_src, msg
 
-    v = '1.3.1'
+    v = '1.13.1'
     msg = 'underscore.js version does not match to {v}'.format(v=v)
-    underscore_min = (app.outdir / '_static' / 'underscore.js').text()
+    underscore_min = (app.outdir / '_static' / 'underscore.js').read_text(encoding='utf8')
     assert 'Underscore.js {v}'.format(v=v) in underscore_min, msg
-    underscore_src = (app.outdir / '_static' / 'underscore-{v}.js'.format(v=v)).text()
+    underscore_src = (app.outdir / '_static' / 'underscore-{v}.js'.format(v=v)).read_text(encoding='utf8')
     assert 'Underscore.js {v}'.format(v=v) in underscore_src, msg
 
 
@@ -109,13 +100,29 @@ def test_staticfiles(app, status, warning):
     app.build()
     assert (app.outdir / '_static' / 'staticimg.png').exists()
     assert (app.outdir / '_static' / 'statictmpl.html').exists()
-    assert (app.outdir / '_static' / 'statictmpl.html').text() == (
+    assert (app.outdir / '_static' / 'statictmpl.html').read_text(encoding='utf8') == (
         '<!-- testing static templates -->\n'
         '<html><project>Python</project></html>'
     )
 
-    result = (app.outdir / 'index.html').text()
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert '<meta name="testopt" content="optdefault" />' in result
+
+
+@pytest.mark.sphinx(testroot='theming',
+                    confoverrides={'html_theme': 'test-theme'})
+def test_dark_style(app, status, warning):
+    style = app.builder.dark_highlighter.formatter_args.get('style')
+    assert style.__name__ == 'MonokaiStyle'
+
+    app.build()
+    assert (app.outdir / '_static' / 'pygments_dark.css').exists()
+
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert '<link rel="stylesheet" type="text/css" href="_static/pygments.css" />' in result
+    assert ('<link id="pygments_dark_css" media="(prefers-color-scheme: dark)" '
+            'rel="stylesheet" type="text/css" '
+            'href="_static/pygments_dark.css" />') in result
 
 
 @pytest.mark.sphinx(testroot='theming')
@@ -123,8 +130,8 @@ def test_theme_sidebars(app, status, warning):
     app.build()
 
     # test-theme specifies globaltoc and searchbox as default sidebars
-    result = (app.outdir / 'index.html').text(encoding='utf8')
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert '<h3><a href="#">Table of Contents</a></h3>' in result
     assert '<h3>Related Topics</h3>' not in result
     assert '<h3>This Page</h3>' not in result
-    assert '<h3>Quick search</h3>' in result
+    assert '<h3 id="searchlabel">Quick search</h3>' in result

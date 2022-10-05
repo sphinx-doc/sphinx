@@ -1,18 +1,6 @@
-# -*- coding: utf-8 -*-
-"""
-    sphinx.errors
-    ~~~~~~~~~~~~~
+"""Contains SphinxError and a few subclasses."""
 
-    Contains SphinxError and a few subclasses (in an extra module to avoid
-    circular import problems).
-
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-if False:
-    # For type annotation
-    from typing import Any  # NOQA
+from typing import Any, Optional
 
 
 class SphinxError(Exception):
@@ -50,24 +38,30 @@ class ApplicationError(SphinxError):
 
 class ExtensionError(SphinxError):
     """Extension error."""
-    category = 'Extension error'
 
-    def __init__(self, message, orig_exc=None):
-        # type: (unicode, Exception) -> None
-        SphinxError.__init__(self, message)
+    def __init__(
+        self, message: str, orig_exc: Optional[Exception] = None, modname: Optional[str] = None
+    ) -> None:
+        super().__init__(message)
         self.message = message
         self.orig_exc = orig_exc
+        self.modname = modname
 
-    def __repr__(self):
-        # type: () -> str
+    @property
+    def category(self) -> str:  # type: ignore
+        if self.modname:
+            return 'Extension error (%s)' % self.modname
+        else:
+            return 'Extension error'
+
+    def __repr__(self) -> str:
         if self.orig_exc:
             return '%s(%r, %r)' % (self.__class__.__name__,
                                    self.message, self.orig_exc)
         return '%s(%r)' % (self.__class__.__name__, self.message)
 
-    def __str__(self):
-        # type: () -> str
-        parent_str = SphinxError.__str__(self)
+    def __str__(self) -> str:
+        parent_str = super().__str__()
         if self.orig_exc:
             return '%s (exception: %s)' % (parent_str, self.orig_exc)
         return parent_str
@@ -103,22 +97,30 @@ class SphinxParallelError(SphinxError):
 
     category = 'Sphinx parallel build error'
 
-    def __init__(self, message, traceback):
-        # type: (str, Any) -> None
+    def __init__(self, message: str, traceback: Any) -> None:
         self.message = message
         self.traceback = traceback
 
-    def __str__(self):
-        # type: () -> str
+    def __str__(self) -> str:
         return self.message
 
 
 class PycodeError(Exception):
     """Pycode Python source code analyser error."""
 
-    def __str__(self):
-        # type: () -> str
+    def __str__(self) -> str:
         res = self.args[0]
         if len(self.args) > 1:
             res += ' (exception was: %r)' % self.args[1]
         return res
+
+
+class NoUri(Exception):
+    """Raised by builder.get_relative_uri() or from missing-reference handlers
+    if there is no URI available."""
+    pass
+
+
+class FiletypeNotFoundError(Exception):
+    """Raised by get_filetype() if a filename matches no source suffix."""
+    pass

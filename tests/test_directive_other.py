@@ -1,31 +1,11 @@
-# -*- coding: utf-8 -*-
-"""
-    test_directive_other
-    ~~~~~~~~~~~~~~~~~~~~
-
-    Test the other directives.
-
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the other directives."""
 
 import pytest
 from docutils import nodes
-from docutils.core import publish_doctree
 
 from sphinx import addnodes
-from sphinx.io import SphinxStandaloneReader
-from sphinx.parsers import RSTParser
+from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
-
-
-def parse(app, docname, text):
-    app.env.temp_data['docname'] = docname
-    return publish_doctree(text, app.srcdir / docname + '.rst',
-                           reader=SphinxStandaloneReader(app),
-                           parser=RSTParser(),
-                           settings_overrides={'env': app.env,
-                                               'gettext_compact': True})
 
 
 @pytest.mark.sphinx(testroot='toctree-glob')
@@ -37,7 +17,7 @@ def test_toctree(app):
             "   baz\n")
 
     app.env.find_files(app.config, app.builder)
-    doctree = parse(app, 'index', text)
+    doctree = restructuredtext.parse(app, text, 'index')
     assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
     assert_node(doctree[0][0],
                 entries=[(None, 'foo'), (None, 'bar/index'), (None, 'baz')],
@@ -54,7 +34,7 @@ def test_relative_toctree(app):
             "   ../quux\n")
 
     app.env.find_files(app.config, app.builder)
-    doctree = parse(app, 'bar/index', text)
+    doctree = restructuredtext.parse(app, text, 'bar/index')
     assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
     assert_node(doctree[0][0],
                 entries=[(None, 'bar/bar_1'), (None, 'bar/bar_2'), (None, 'bar/bar_3'),
@@ -71,7 +51,7 @@ def test_toctree_urls_and_titles(app):
             "   The BAR <bar/index>\n")
 
     app.env.find_files(app.config, app.builder)
-    doctree = parse(app, 'index', text)
+    doctree = restructuredtext.parse(app, text, 'index')
     assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
     assert_node(doctree[0][0],
                 entries=[('Sphinx', 'https://www.sphinx-doc.org/'),
@@ -88,7 +68,7 @@ def test_toctree_glob(app):
             "   *\n")
 
     app.env.find_files(app.config, app.builder)
-    doctree = parse(app, 'index', text)
+    doctree = restructuredtext.parse(app, text, 'index')
     assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
     assert_node(doctree[0][0],
                 entries=[(None, 'baz'), (None, 'foo'), (None, 'quux')],
@@ -102,7 +82,7 @@ def test_toctree_glob(app):
             "   *\n")
 
     app.env.find_files(app.config, app.builder)
-    doctree = parse(app, 'index', text)
+    doctree = restructuredtext.parse(app, text, 'index')
     assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
     assert_node(doctree[0][0],
                 entries=[(None, 'foo'), (None, 'baz'), (None, 'quux')],
@@ -116,7 +96,7 @@ def test_toctree_glob(app):
             "   foo\n")
 
     app.env.find_files(app.config, app.builder)
-    doctree = parse(app, 'index', text)
+    doctree = restructuredtext.parse(app, text, 'index')
     assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
     assert_node(doctree[0][0],
                 entries=[(None, 'baz'), (None, 'foo'), (None, 'quux'), (None, 'foo')],
@@ -131,11 +111,28 @@ def test_toctree_glob_and_url(app):
             "   https://example.com/?q=sphinx\n")
 
     app.env.find_files(app.config, app.builder)
-    doctree = parse(app, 'index', text)
+    doctree = restructuredtext.parse(app, text, 'index')
     assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
     assert_node(doctree[0][0],
                 entries=[(None, 'https://example.com/?q=sphinx')],
                 includefiles=[])
+
+
+@pytest.mark.sphinx(testroot='toctree-glob')
+def test_reversed_toctree(app):
+    text = (".. toctree::\n"
+            "   :reversed:\n"
+            "\n"
+            "   foo\n"
+            "   bar/index\n"
+            "   baz\n")
+
+    app.env.find_files(app.config, app.builder)
+    doctree = restructuredtext.parse(app, text, 'index')
+    assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
+    assert_node(doctree[0][0],
+                entries=[(None, 'baz'), (None, 'bar/index'), (None, 'foo')],
+                includefiles=['baz', 'bar/index', 'foo'])
 
 
 @pytest.mark.sphinx(testroot='toctree-glob')
@@ -146,7 +143,7 @@ def test_toctree_twice(app):
             "   foo\n")
 
     app.env.find_files(app.config, app.builder)
-    doctree = parse(app, 'index', text)
+    doctree = restructuredtext.parse(app, text, 'index')
     assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
     assert_node(doctree[0][0],
                 entries=[(None, 'foo'), (None, 'foo')],

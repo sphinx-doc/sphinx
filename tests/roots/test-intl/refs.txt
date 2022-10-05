@@ -5,7 +5,7 @@ Translation Tips
 -----------------
 
 .. _download Sphinx: https://pypi.org/project/Sphinx/
-.. _Docutils site: http://docutils.sourceforge.net/
+.. _Docutils site: https://docutils.sourceforge.io/
 .. _Sphinx site: http://sphinx-doc.org/
 
 

@@ -1,14 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-    test_writer_latex
-    ~~~~~~~~~~~~~~~~
-
-    Test the LaTeX writer
-
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-from __future__ import print_function
+"""Test the LaTeX writer"""
 
 import pytest
 
@@ -17,7 +7,7 @@ from sphinx.writers.latex import rstdim_to_latexdim
 
 def test_rstdim_to_latexdim():
     # Length units docutils supported
-    # http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#length-units
+    # https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#length-units
     assert rstdim_to_latexdim('160em') == '160em'
     assert rstdim_to_latexdim('160px') == '160\\sphinxpxdimen'
     assert rstdim_to_latexdim('160in') == '160in'

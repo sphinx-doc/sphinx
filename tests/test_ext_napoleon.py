@@ -1,22 +1,12 @@
-# -*- coding: utf-8 -*-
-"""
-    test_napoleon
-    ~~~~~~~~~~~~~
+"""Tests for :mod:`sphinx.ext.napoleon.__init__` module."""
 
-    Tests for :mod:`sphinx.ext.napoleon.__init__` module.
-
-
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
+import sys
 from collections import namedtuple
-from unittest import TestCase
-
-import mock
+from unittest import TestCase, mock
 
 from sphinx.application import Sphinx
-from sphinx.ext.napoleon import _process_docstring, _skip_member, Config, setup
+from sphinx.ext.napoleon import Config, _process_docstring, _skip_member, setup
+from sphinx.testing.util import simple_decorator
 
 
 def _private_doc():
@@ -50,6 +40,11 @@ class SampleClass:
         pass
 
     def __special_undoc__(self):
+        pass
+
+    @simple_decorator
+    def __decorated_func__(self):
+        """doc"""
         pass
 
 
@@ -97,24 +92,30 @@ class SetupTest(TestCase):
     def test_add_config_values(self):
         app = mock.Mock(Sphinx)
         setup(app)
-        for name, (default, rebuild) in Config._config_values.items():
+        for name in Config._config_values:
             has_config = False
-            for method_name, args, kwargs in app.method_calls:
-                if(method_name == 'add_config_value' and
-                   args[0] == name):
+            for method_name, args, _kwargs in app.method_calls:
+                if (
+                    method_name == 'add_config_value' and
+                    args[0] == name
+                ):
                     has_config = True
             if not has_config:
                 self.fail('Config value was not added to app %s' % name)
 
         has_process_docstring = False
         has_skip_member = False
-        for method_name, args, kwargs in app.method_calls:
+        for method_name, args, _kwargs in app.method_calls:
             if method_name == 'connect':
-                if(args[0] == 'autodoc-process-docstring' and
-                   args[1] == _process_docstring):
+                if (
+                    args[0] == 'autodoc-process-docstring' and
+                    args[1] == _process_docstring
+                ):
                     has_process_docstring = True
-                elif(args[0] == 'autodoc-skip-member' and
-                     args[1] == _skip_member):
+                elif (
+                    args[0] == 'autodoc-skip-member' and
+                    args[1] == _skip_member
+                ):
                     has_skip_member = True
         if not has_process_docstring:
             self.fail('autodoc-process-docstring never connected')
@@ -132,16 +133,25 @@ class SkipMemberTest(TestCase):
             self.assertEqual(None, _skip_member(app, what, member, obj, skip,
                                                 mock.Mock()))
         else:
-            self.assertFalse(_skip_member(app, what, member, obj, skip,
-                                          mock.Mock()))
+            self.assertIs(_skip_member(app, what, member, obj, skip,
+                                       mock.Mock()), False)
         setattr(app.config, config_name, False)
         self.assertEqual(None, _skip_member(app, what, member, obj, skip,
                                             mock.Mock()))
 
     def test_namedtuple(self):
-        self.assertSkip('class', '_asdict',
-                        SampleNamedTuple._asdict, False,
-                        'napoleon_include_private_with_doc')
+        if sys.version_info < (3, 7):
+            self.assertSkip('class', '_asdict',
+                            SampleNamedTuple._asdict, False,
+                            'napoleon_include_private_with_doc')
+        else:
+            # Since python 3.7, namedtuple._asdict() has not been documented
+            # because there is no way to check the method is a member of the
+            # namedtuple class.  This testcase confirms only it does not
+            # raise an error on building document (refs: #1455)
+            self.assertSkip('class', '_asdict',
+                            SampleNamedTuple._asdict, True,
+                            'napoleon_include_private_with_doc')
 
     def test_class_private_doc(self):
         self.assertSkip('class', '_private_doc',
@@ -161,6 +171,11 @@ class SkipMemberTest(TestCase):
     def test_class_special_undoc(self):
         self.assertSkip('class', '__special_undoc__',
                         SampleClass.__special_undoc__, True,
+                        'napoleon_include_special_with_doc')
+
+    def test_class_decorated_doc(self):
+        self.assertSkip('class', '__decorated_func__',
+                        SampleClass.__decorated_func__, False,
                         'napoleon_include_special_with_doc')
 
     def test_exception_private_doc(self):

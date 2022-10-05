@@ -1,11 +1,7 @@
-# -*- coding: utf-8 -*-
-
 import enum
+from io import StringIO
 
-from six import StringIO, add_metaclass
-
-from sphinx.util import save_traceback  # NOQA
-
+from sphinx.util import save_traceback
 
 __all__ = ['Class']
 
@@ -25,31 +21,6 @@ class CustomEx(Exception):
         """Exception method."""
 
 
-class CustomDataDescriptor(object):
-    """Descriptor class docstring."""
-
-    def __init__(self, doc):
-        self.__doc__ = doc
-
-    def __get__(self, obj, type=None):
-        if obj is None:
-            return self
-        return 42
-
-    def meth(self):
-        """Function."""
-        return "The Answer"
-
-
-class CustomDataDescriptorMeta(type):
-    """Descriptor metaclass docstring."""
-
-
-@add_metaclass(CustomDataDescriptorMeta)
-class CustomDataDescriptor2(CustomDataDescriptor):
-    """Descriptor class with custom metaclass docstring."""
-
-
 def _funky_classmethod(name, b, c, d, docstring=None):
     """Generates a classmethod for a class from a template by filling out
     some arguments."""
@@ -62,29 +33,8 @@ def _funky_classmethod(name, b, c, d, docstring=None):
     return classmethod(function)
 
 
-class Base(object):
-    def inheritedmeth(self):
-        """Inherited function."""
-
-    @classmethod
-    def inheritedclassmeth(cls):
-        """Inherited class method."""
-
-    @staticmethod
-    def inheritedstaticmeth(cls):
-        """Inherited static method."""
-
-
-class Derived(Base):
-    def inheritedmeth(self):
-        # no docstring here
-        pass
-
-
-class Class(Base):
+class Class(object):
     """Class to document."""
-
-    descr = CustomDataDescriptor("Descriptor instance docstring.")
 
     def meth(self):
         """Function."""
@@ -104,15 +54,11 @@ class Class(Base):
     #: should be documented -- süß
     attr = 'bar'
 
-    @property
-    def prop(self):
-        """Property."""
-
     docattr = 'baz'
     """should likewise be documented -- süß"""
 
     udocattr = 'quux'
-    u"""should be documented as well - süß"""
+    """should be documented as well - süß"""
 
     # initialized to any class imported from another module
     mdocattr = StringIO()
@@ -163,7 +109,25 @@ class Outer(object):
     factory = dict
 
 
+class InnerChild(Outer.Inner):
+    """InnerChild docstring"""
+
+
 class DocstringSig(object):
+    def __new__(cls, *new_args, **new_kwargs):
+        """__new__(cls, d, e=1) -> DocstringSig
+First line of docstring
+
+        rest of docstring
+        """
+
+    def __init__(self, *init_args, **init_kwargs):
+        """__init__(self, a, b=1) -> None
+First line of docstring
+
+        rest of docstring
+        """
+
     def meth(self):
         """meth(FOO, BAR=1) -> BAZ
 First line of docstring
@@ -194,6 +158,8 @@ First line of docstring
 
 
 class StrRepr(str):
+    """docstring"""
+
     def __repr__(self):
         return self
 

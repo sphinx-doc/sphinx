@@ -1,0 +1,14 @@
+.. cpp:class:: Class;
+.. cpp:struct:: Struct;
+.. cpp:union:: Union;
+.. cpp:function:: void f();
+.. cpp:member:: int member;
+.. cpp:var:: int var;
+.. cpp:type:: Type;
+.. cpp:type:: int TypeDef;
+.. cpp:type:: Alias = int;
+.. cpp:concept:: template<typename T> Concept;
+.. cpp:enum:: Enum;
+.. cpp:enum-struct:: EnumStruct;
+.. cpp:enum-class:: EnumClass;
+.. cpp:enumerator:: Enumerator;

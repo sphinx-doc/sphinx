@@ -1,0 +1,165 @@
+%% TOPIC AND CONTENTS BOXES
+%
+% change this info string if making any custom modification
+\ProvidesFile{sphinxlatexshadowbox.sty}[2022/07/03 sphinxShadowBox]
+
+% Provides support for this output mark-up from Sphinx latex writer:
+%
+% - sphinxShadowBox (environment)
+%
+% Dependencies (they do not need to be defined at time of loading):
+%
+% - of course the various colour and dimension options handled via sphinx.sty
+% - dimension register \spx@image@maxheight from sphinxlatexgraphics.sty
+% - \savenotes/\spewnotes from sphinxpackagefootnote
+% - \ifspx@inframed defined in sphinx.sty
+%
+% Requires:
+\RequirePackage{framed}
+\RequirePackage{sphinxpackageboxes}
+
+\def\spx@shadowbox@boxes@fcolorbox@setup{%
+%
+  \spx@boxes@border@top   \spx@topic@border@top
+  \spx@boxes@border@right \spx@topic@border@right
+  \spx@boxes@border@bottom\spx@topic@border@bottom
+  \spx@boxes@border@left  \spx@topic@border@left
+  \spx@boxes@border       \spxdimen@topic@border
+%
+  \spx@boxes@padding@top   \spx@topic@padding@top
+  \spx@boxes@padding@right \spx@topic@padding@right
+  \spx@boxes@padding@bottom\spx@topic@padding@bottom
+  \spx@boxes@padding@left  \spx@topic@padding@left
+%
+  \spx@boxes@radius@topleft     \spx@topic@radius@topleft
+  \spx@boxes@radius@topright    \spx@topic@radius@topright
+  \spx@boxes@radius@bottomright \spx@topic@radius@bottomright
+  \spx@boxes@radius@bottomleft  \spx@topic@radius@bottomleft\relax
+%
+  \ifspx@topic@withshadow
+     \spx@boxes@withshadowtrue
+     \spx@boxes@shadow@xoffset \spx@topic@shadow@xoffset
+     \spx@boxes@shadow@yoffset \spx@topic@shadow@yoffset\relax
+  \else
+     \spx@boxes@withshadowfalse
+  \fi
+  \ifspx@topic@insetshadow\spx@boxes@insetshadowtrue\else
+                          \spx@boxes@insetshadowfalse\fi
+  \ifspx@topic@withshadowcolor\spx@boxes@withshadowcolortrue\else
+                              \spx@boxes@withshadowcolorfalse\fi
+  %
+  \ifspx@topic@withbackgroundcolor\spx@boxes@withbackgroundcolortrue\else
+                                  \spx@boxes@withbackgroundcolorfalse\fi
+  \sphinxcolorlet{spx@boxes@backgroundcolor}{sphinxTopicBackgroundColor}%
+  %
+  \ifspx@topic@withbordercolor\spx@boxes@withbordercolortrue\else
+                                  \spx@boxes@withbordercolorfalse\fi
+  \sphinxcolorlet{spx@boxes@bordercolor}{sphinxTopicBorderColor}%
+  %
+  \ifspx@topic@withshadowcolor\spx@boxes@withshadowcolortrue\else
+                                  \spx@boxes@withshadowcolorfalse\fi
+  \sphinxcolorlet{spx@boxes@shadowcolor}{sphinxTopicShadowColor}%
+}%
+
+% At 5.1.0 the code formerly here has been refactored and incorporated
+% into more powerful \spx@boxes@fcolorbox from sphinxpackageboxes.sty
+\long\def\spx@ShadowFBox#1{%
+  \leavevmode
+  \setbox\z@\hbox{#1}%
+  \ifspx@topic@withshadow
+   \ifspx@topic@insetshadow\else
+    \ifdim\spx@topic@shadow@xoffset<\z@\hskip\spx@topic@shadow@xoffset\relax
+    \fi
+   \fi
+  \fi
+        \if1% use rounded boxes only if needed and possible
+          \ifdim\spx@topic@radius@topleft    >\z@0\fi
+          \ifdim\spx@topic@radius@topright   >\z@0\fi
+          \ifdim\spx@topic@radius@bottomright>\z@0\fi
+          \ifdim\spx@topic@radius@bottomleft >\z@0\fi
+          1\spx@boxes@fcolorbox{\box\z@}%
+        \else
+          \spx@ifpackageloaded@pictiie
+             {\ifspx@topic@insetshadow
+                \spx@boxes@fcolorbox{\box\z@}%
+              \else
+                \spx@boxes@fcolorbox@rounded{\box\z@}%
+              \fi}%
+             {\spx@boxes@fcolorbox{\box\z@}}%
+        \fi
+  \ifspx@topic@withshadow
+   \ifspx@topic@insetshadow\else
+    \ifdim\spx@topic@shadow@xoffset>\z@\hskip\spx@topic@shadow@xoffset\relax
+    \fi
+   \fi
+  \fi
+}
+
+% Use framed.sty \MakeFramed/\endMakeFramed to allow page breaks for topic
+% boxes.  Originally Sphinx used \shadowbox from fancybox.sty but it did not
+% allow pagebreaks (which was problematic for "contents" directive if there
+% are many subsections).
+%
+% Docutils does not allow topic to be nested within topics or other body
+% elements.  But the LaTeX code here does allow it:
+%
+% - a topic inside another topic would be rendered in a minipage (thus not
+%   allowing pagebreaks).  Its external frame would adapt perfectly to
+%   the *current (smaller) width for text*.
+%
+% - a topic inside (nested) lists or quote environments would have its frame
+%   take the *full width* of the page, but its text contents on the other hand
+%   would obey exactly the current indentation plus inner separation.  This is
+%   in contrast with the framing used for literal blocks, also based, but in a
+%   more sophisticated way on usage of \MakeFramed/\endMakeFramed, and
+%   adjusting to current text indentation.
+\newenvironment{sphinxShadowBox}
+  {%
+   \spx@shadowbox@boxes@fcolorbox@setup
+   \def\FrameCommand {\spx@ShadowFBox }%
+   \advance\spx@image@maxheight
+   -\dimexpr\spx@topic@border@top+\spx@topic@border@bottom
+           +\spx@topic@padding@top+\spx@topic@padding@bottom
+           +\ifdim\spx@topic@shadow@yoffset<\z@-\fi\spx@topic@shadow@yoffset
+           +\baselineskip\relax
+   % configure framed.sty not to add extra vertical spacing
+   \ltx@ifundefined{OuterFrameSep}{}{\OuterFrameSep\z@skip}%
+   % the \trivlist will add the vertical spacing on top and bottom which is
+   % typical of center environment as used in Sphinx <= 1.4.1
+   % the \noindent has the effet of an extra blank line on top, to
+   % imitate closely the layout from Sphinx <= 1.4.1; the \FrameHeightAdjust
+   % will put top part of frame on this baseline.
+   \def\FrameHeightAdjust {\baselineskip}%
+   % use package footnote to handle footnotes
+   \savenotes
+   \trivlist\item\noindent
+    % use a minipage if we are already inside a framed environment
+    \ifspx@inframed\begin{minipage}{\linewidth}\fi
+    \MakeFramed {\spx@inframedtrue
+    % framed.sty puts into "\width" the added width (=2shadowsep+2shadowrule)
+    % adjust \hsize to what the contents must use
+    \advance\hsize-\width
+    % adjust LaTeX parameters to behave properly in indented/quoted contexts
+    \FrameRestore
+    % typeset the contents as in a minipage (Sphinx <= 1.4.1 used a minipage and
+    % itemize/enumerate are therein typeset more tightly, we want to keep
+    % that). We copy-paste from LaTeX source code but don't do a real minipage.
+    \@pboxswfalse
+    \let\@listdepth\@mplistdepth \@mplistdepth\z@
+    \@minipagerestore
+    \@setminipage
+    }%
+    \color@begingroup % workaround upstream framed.sty bug
+  }%
+  {% insert the "endminipage" code
+    \par\unskip
+    \color@endgroup   % matches the \color@begingroup
+    \@minipagefalse
+   \endMakeFramed
+     \ifspx@inframed\end{minipage}\fi
+   \endtrivlist
+   % output the stored footnotes
+   \spewnotes
+  }
+
+\endinput

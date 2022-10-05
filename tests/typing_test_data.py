@@ -1,5 +1,6 @@
+from inspect import Signature
 from numbers import Integral
-from typing import Any, List, TypeVar, Union, Callable, Tuple, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
 
 
 def f0(x: int, y: Integral) -> None:
@@ -76,10 +77,31 @@ def f14() -> Any:
     pass
 
 
-def f15(arg1, arg2, *, arg3=None, arg4=None):
+def f15(x: "Unknown", y: "int") -> Any:  # type: ignore # NOQA
     pass
 
-def f16(*, arg3, arg4):
+
+def f16(arg1, arg2, *, arg3=None, arg4=None):
+    pass
+
+
+def f17(*, arg3, arg4):
+    pass
+
+
+def f18(self, arg1: Union[int, Tuple] = 10) -> List[Dict]:
+    pass
+
+
+def f19(*args: int, **kwargs: str):
+    pass
+
+
+def f20() -> Optional[Union[int, str]]:
+    pass
+
+
+def f21(arg1='whatever', arg2=Signature.empty):
     pass
 
 

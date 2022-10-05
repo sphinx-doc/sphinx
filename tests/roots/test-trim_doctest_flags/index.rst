@@ -21,3 +21,20 @@ test-trim_doctest_flags
 
    >>> datetime.date.now()   # doctest: +QUX
    datetime.date(2008, 1, 1)
+
+.. doctest::
+
+   >>> datetime.date.now()   # doctest: +QUUX
+   datetime.date(2008, 1, 1)
+
+.. doctest::
+   :trim-doctest-flags:
+
+   >>> datetime.date.now()   # doctest: +CORGE
+   datetime.date(2008, 1, 1)
+
+.. doctest::
+   :no-trim-doctest-flags:
+
+   >>> datetime.date.now()   # doctest: +GRAULT
+   datetime.date(2008, 1, 1)

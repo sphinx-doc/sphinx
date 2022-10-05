@@ -4,7 +4,7 @@ REM Command file for Sphinx documentation
 
 pushd %~dp0
 
-{% if latex_engine == 'platex' -%}
+{% if latex_engine in ('platex', 'uplatex') -%}
 REM latexmkrc is read then overridden by latexmkjarc
 set PDFLATEX=latexmk -r latexmkjarc -pdfdvi -dvi- -ps-
 {% else -%}
@@ -31,11 +31,6 @@ if "%1" == "" goto all-pdf
 
 if "%1" == "all-pdf" (
 	:all-pdf
-{%- if latex_engine == 'platex' %}
-	for %%i in (*.png *.gif *.jpg *.jpeg *.pdf) do (
-		extractbb %%i
-	)
-{%- endif %}
 	for %%i in (*.tex) do (
 		%PDFLATEX% %LATEXMKOPTS% %%i
 	)

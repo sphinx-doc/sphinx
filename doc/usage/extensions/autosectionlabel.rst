@@ -38,3 +38,19 @@ Configuration
    called ``Introduction`` that appears in document ``index.rst``.  Useful for
    avoiding ambiguity when the same section heading appears in different
    documents.
+
+.. confval:: autosectionlabel_maxdepth
+
+   If set, autosectionlabel chooses the sections for labeling by its depth. For
+   example, when set 1 to ``autosectionlabel_maxdepth``, labels are generated
+   only for top level sections, and deeper sections are not labeled.  It
+   defaults to ``None`` (disabled).
+
+
+Debugging
+---------
+
+The ``WARNING: undefined label`` indicates that your reference in
+:rst:role:`ref` is mis-spelled. Invoking :program:`sphinx-build` with ``-vv``
+(see :option:`-v`) will print all section names and the labels that have been
+generated for them. This output can help finding the right reference label.

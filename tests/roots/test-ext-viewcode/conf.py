@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import os
 import sys
 
@@ -7,11 +5,10 @@ source_dir = os.path.abspath('.')
 if source_dir not in sys.path:
     sys.path.insert(0, source_dir)
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
-master_doc = 'index'
 exclude_patterns = ['_build']
 
 
-if 'test_linkcode' in tags:  # NOQA
+if 'test_linkcode' in tags:
     extensions.remove('sphinx.ext.viewcode')
     extensions.append('sphinx.ext.linkcode')
 

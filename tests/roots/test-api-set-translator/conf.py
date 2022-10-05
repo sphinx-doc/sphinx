@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # set this by test
 # import os
 # import sys
@@ -12,9 +11,7 @@ from sphinx.writers.manpage import ManualPageTranslator
 from sphinx.writers.texinfo import TexinfoTranslator
 from sphinx.writers.text import TextTranslator
 
-
 project = 'test'
-master_doc = 'index'
 
 
 class ConfHTMLTranslator(HTMLTranslator):

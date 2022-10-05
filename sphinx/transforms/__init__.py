@@ -1,17 +1,13 @@
-# -*- coding: utf-8 -*-
-"""
-    sphinx.transforms
-    ~~~~~~~~~~~~~~~~~
-
-    Docutils transforms used by Sphinx when reading documents.
-
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Docutils transforms used by Sphinx when reading documents."""
 
 import re
+import unicodedata
+import warnings
+from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple, cast
 
+import docutils
 from docutils import nodes
+from docutils.nodes import Element, Node, Text
 from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
 from docutils.transforms.universal import SmartQuotes
@@ -19,28 +15,27 @@ from docutils.utils import normalize_language_tag
 from docutils.utils.smartquotes import smartchars
 
 from sphinx import addnodes
+from sphinx.config import Config
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.docutils import new_document
 from sphinx.util.i18n import format_date
-from sphinx.util.nodes import apply_source_workaround, is_smartquotable
+from sphinx.util.nodes import NodeMatcher, apply_source_workaround, is_smartquotable
 
-if False:
-    # For type annotation
-    from typing import Generator, List  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.config import Config  # NOQA
-    from sphinx.domain.std import StandardDomain  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+    from sphinx.domain.std import StandardDomain
+    from sphinx.environment import BuildEnvironment
 
 
 logger = logging.getLogger(__name__)
 
-default_substitutions = set([
+default_substitutions = {
     'version',
     'release',
     'today',
-])
+}
 
 
 class SphinxTransform(Transform):
@@ -51,22 +46,19 @@ class SphinxTransform(Transform):
     """
 
     @property
-    def app(self):
-        # type: () -> Sphinx
+    def app(self) -> "Sphinx":
         """Reference to the :class:`.Sphinx` object."""
-        return self.document.settings.env.app
+        return self.env.app
 
     @property
-    def env(self):
-        # type: () -> BuildEnvironment
+    def env(self) -> "BuildEnvironment":
         """Reference to the :class:`.BuildEnvironment` object."""
         return self.document.settings.env
 
     @property
-    def config(self):
-        # type: () -> Config
+    def config(self) -> Config:
         """Reference to the :class:`.Config` object."""
-        return self.document.settings.env.config
+        return self.env.config
 
 
 class SphinxTransformer(Transformer):
@@ -74,20 +66,18 @@ class SphinxTransformer(Transformer):
     A transformer for Sphinx.
     """
 
-    document = None  # type: nodes.Node
-    env = None  # type: BuildEnvironment
+    document: nodes.document
+    env: Optional["BuildEnvironment"] = None
 
-    def set_environment(self, env):
-        # type: (BuildEnvironment) -> None
+    def set_environment(self, env: "BuildEnvironment") -> None:
         self.env = env
 
-    def apply_transforms(self):
-        # type: () -> None
+    def apply_transforms(self) -> None:
         if isinstance(self.document, nodes.document):
             if not hasattr(self.document.settings, 'env') and self.env:
                 self.document.settings.env = self.env
 
-            Transformer.apply_transforms(self)
+            super().apply_transforms()
         else:
             # wrap the target node by document node during transforming
             try:
@@ -96,7 +86,7 @@ class SphinxTransformer(Transformer):
                     document.settings.env = self.env
                 document += self.document
                 self.document = document
-                Transformer.apply_transforms(self)
+                super().apply_transforms()
             finally:
                 self.document = self.document[0]
 
@@ -108,11 +98,10 @@ class DefaultSubstitutions(SphinxTransform):
     # run before the default Substitutions
     default_priority = 210
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs: Any) -> None:
         # only handle those not otherwise defined in the document
         to_handle = default_substitutions - set(self.document.substitution_defs)
-        for ref in self.document.traverse(nodes.substitution_reference):
+        for ref in self.document.findall(nodes.substitution_reference):
             refname = ref['refname']
             if refname in to_handle:
                 text = self.config[refname]
@@ -120,7 +109,7 @@ class DefaultSubstitutions(SphinxTransform):
                     # special handling: can also specify a strftime format
                     text = format_date(self.config.today_fmt or _('%b %d, %Y'),
                                        language=self.config.language)
-                ref.replace_self(nodes.Text(text, text))
+                ref.replace_self(nodes.Text(text))
 
 
 class MoveModuleTargets(SphinxTransform):
@@ -132,9 +121,8 @@ class MoveModuleTargets(SphinxTransform):
     """
     default_priority = 210
 
-    def apply(self):
-        # type: () -> None
-        for node in self.document.traverse(nodes.target):
+    def apply(self, **kwargs: Any) -> None:
+        for node in list(self.document.findall(nodes.target)):
             if not node['ids']:
                 continue
             if ('ismod' in node and
@@ -151,15 +139,14 @@ class HandleCodeBlocks(SphinxTransform):
     """
     default_priority = 210
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs: Any) -> None:
         # move doctest blocks out of blockquotes
-        for node in self.document.traverse(nodes.block_quote):
+        for node in self.document.findall(nodes.block_quote):
             if all(isinstance(child, nodes.doctest_block) for child
                    in node.children):
                 node.replace_self(node.children)
         # combine successive doctest blocks
-        # for node in self.document.traverse(nodes.doctest_block):
+        # for node in self.document.findall(nodes.doctest_block):
         #    if node not in node.parent.children:
         #        continue
         #    parindex = node.parent.index(node)
@@ -176,51 +163,26 @@ class AutoNumbering(SphinxTransform):
     """
     default_priority = 210
 
-    def apply(self):
-        # type: () -> None
-        domain = self.env.get_domain('std')  # type: StandardDomain
+    def apply(self, **kwargs: Any) -> None:
+        domain: StandardDomain = self.env.get_domain('std')
 
-        for node in self.document.traverse(nodes.Element):
-            if domain.is_enumerable_node(node) and domain.get_numfig_title(node) is not None:
+        for node in self.document.findall(nodes.Element):
+            if (domain.is_enumerable_node(node) and
+                    domain.get_numfig_title(node) is not None and
+                    node['ids'] == []):
                 self.document.note_implicit_target(node)
 
 
 class SortIds(SphinxTransform):
     """
-    Sort secion IDs so that the "id[0-9]+" one comes last.
+    Sort section IDs so that the "id[0-9]+" one comes last.
     """
     default_priority = 261
 
-    def apply(self):
-        # type: () -> None
-        for node in self.document.traverse(nodes.section):
+    def apply(self, **kwargs: Any) -> None:
+        for node in self.document.findall(nodes.section):
             if len(node['ids']) > 1 and node['ids'][0].startswith('id'):
                 node['ids'] = node['ids'][1:] + [node['ids'][0]]
-
-
-class CitationReferences(SphinxTransform):
-    """
-    Replace citation references by pending_xref nodes before the default
-    docutils transform tries to resolve them.
-    """
-    default_priority = 619
-
-    def apply(self):
-        # type: () -> None
-        # mark citation labels as not smartquoted
-        for citnode in self.document.traverse(nodes.citation):
-            citnode[0]['support_smartquotes'] = False
-
-        for citnode in self.document.traverse(nodes.citation_reference):
-            cittext = citnode.astext()
-            refnode = addnodes.pending_xref(cittext, refdomain='std', reftype='citation',
-                                            reftarget=cittext, refwarn=True,
-                                            support_smartquotes=False,
-                                            ids=citnode["ids"])
-            refnode.source = citnode.source or citnode.parent.source
-            refnode.line = citnode.line or citnode.parent.line
-            refnode += nodes.Text('[' + cittext + ']')
-            citnode.parent.replace(citnode, refnode)
 
 
 TRANSLATABLE_NODES = {
@@ -234,26 +196,24 @@ TRANSLATABLE_NODES = {
 
 class ApplySourceWorkaround(SphinxTransform):
     """
-    update source and rawsource attributes
+    Update source and rawsource attributes
     """
     default_priority = 10
 
-    def apply(self):
-        # type: () -> None
-        for n in self.document.traverse():
-            if isinstance(n, (nodes.TextElement, nodes.image)):
-                apply_source_workaround(n)
+    def apply(self, **kwargs: Any) -> None:
+        for node in self.document.findall():  # type: Node
+            if isinstance(node, (nodes.TextElement, nodes.image, nodes.topic)):
+                apply_source_workaround(node)
 
 
 class AutoIndexUpgrader(SphinxTransform):
     """
-    Detect old style; 4 column based indices and automatically upgrade to new style.
+    Detect old style (4 column based indices) and automatically upgrade to new style.
     """
     default_priority = 210
 
-    def apply(self):
-        # type: () -> None
-        for node in self.document.traverse(addnodes.index):
+    def apply(self, **kwargs: Any) -> None:
+        for node in self.document.findall(addnodes.index):
             if 'entries' in node and any(len(entry) == 4 for entry in node['entries']):
                 msg = __('4 column based index found. '
                          'It might be a bug of extensions you use: %r') % node['entries']
@@ -265,33 +225,30 @@ class AutoIndexUpgrader(SphinxTransform):
 
 class ExtraTranslatableNodes(SphinxTransform):
     """
-    make nodes translatable
+    Make nodes translatable
     """
     default_priority = 10
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs: Any) -> None:
         targets = self.config.gettext_additional_targets
         target_nodes = [v for k, v in TRANSLATABLE_NODES.items() if k in targets]
         if not target_nodes:
             return
 
-        def is_translatable_node(node):
-            # type: (nodes.Node) -> bool
+        def is_translatable_node(node: Node) -> bool:
             return isinstance(node, tuple(target_nodes))
 
-        for node in self.document.traverse(is_translatable_node):
+        for node in self.document.findall(is_translatable_node):  # type: Element
             node['translatable'] = True
 
 
 class UnreferencedFootnotesDetector(SphinxTransform):
     """
-    detect unreferenced footnotes and emit warnings
+    Detect unreferenced footnotes and emit warnings
     """
     default_priority = 200
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs: Any) -> None:
         for node in self.document.footnotes:
             if node['names'] == []:
                 # footnote having duplicated number.  It is already warned at parser.
@@ -308,14 +265,39 @@ class UnreferencedFootnotesDetector(SphinxTransform):
                                location=node)
 
 
+class DoctestTransform(SphinxTransform):
+    """Set "doctest" style to each doctest_block node"""
+    default_priority = 500
+
+    def apply(self, **kwargs: Any) -> None:
+        for node in self.document.findall(nodes.doctest_block):
+            node['classes'].append('doctest')
+
+
+class FigureAligner(SphinxTransform):
+    """
+    Align figures to center by default.
+    """
+    default_priority = 700
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        warnings.warn('FigureAilgner is deprecated.',
+                      RemovedInSphinx60Warning)
+        super().__init__(*args, **kwargs)
+
+    def apply(self, **kwargs: Any) -> None:
+        matcher = NodeMatcher(nodes.table, nodes.figure)
+        for node in self.document.findall(matcher):  # type: Element
+            node.setdefault('align', 'default')
+
+
 class FilterSystemMessages(SphinxTransform):
     """Filter system messages from a doctree."""
     default_priority = 999
 
-    def apply(self):
-        # type: () -> None
-        filterlevel = self.config.keep_warnings and 2 or 5
-        for node in self.document.traverse(nodes.system_message):
+    def apply(self, **kwargs: Any) -> None:
+        filterlevel = 2 if self.config.keep_warnings else 5
+        for node in list(self.document.findall(nodes.system_message)):
             if node['level'] < filterlevel:
                 logger.debug('%s [filtered system message]', node.astext())
                 node.parent.remove(node)
@@ -326,14 +308,9 @@ class SphinxContentsFilter(ContentsFilter):
     Used with BuildEnvironment.add_toc_from() to discard cross-file links
     within table-of-contents link nodes.
     """
-    def visit_pending_xref(self, node):
-        # type: (nodes.Node) -> None
-        text = node.astext()
-        self.parent.append(nodes.literal(text, text))
-        raise nodes.SkipNode
+    visit_pending_xref = ContentsFilter.ignore_node_but_process_children
 
-    def visit_image(self, node):
-        # type: (nodes.Node) -> None
+    def visit_image(self, node: nodes.image) -> None:
         raise nodes.SkipNode
 
 
@@ -345,15 +322,16 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
     """
     default_priority = 750
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs: Any) -> None:
         if not self.is_available():
             return
 
-        SmartQuotes.apply(self)
+        # override default settings with :confval:`smartquotes_action`
+        self.smartquotes_action = self.config.smartquotes_action
 
-    def is_available(self):
-        # type: () -> bool
+        super().apply()
+
+    def is_available(self) -> bool:
         builders = self.config.smartquotes_excludes.get('builders', [])
         languages = self.config.smartquotes_excludes.get('languages', [])
 
@@ -378,33 +356,28 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         else:
             return False
 
-    @property
-    def smartquotes_action(self):
-        # type: () -> unicode
-        """A smartquotes_action setting for SmartQuotes.
-
-        Users can change this setting through :confval:`smartquotes_action`.
-        """
-        return self.config.smartquotes_action
-
-    def get_tokens(self, txtnodes):
-        # type: (List[nodes.Node]) -> Generator
+    def get_tokens(self, txtnodes: List[Text]) -> Generator[Tuple[str, str], None, None]:
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
-
-        texttype = {True: 'literal',  # "literal" text is not changed:
-                    False: 'plain'}
         for txtnode in txtnodes:
-            notsmartquotable = not is_smartquotable(txtnode)
-            yield (texttype[notsmartquotable], txtnode.astext())
+            if is_smartquotable(txtnode):
+                if docutils.__version_info__ >= (0, 16):
+                    # SmartQuotes uses backslash escapes instead of null-escapes
+                    text = re.sub(r'(?<=\x00)([-\\\'".`])', r'\\\1', str(txtnode))
+                else:
+                    text = txtnode.astext()
+
+                yield ('plain', text)
+            else:
+                # skip smart quotes
+                yield ('literal', txtnode.astext())
 
 
 class DoctreeReadEvent(SphinxTransform):
     """Emit :event:`doctree-read` event."""
     default_priority = 880
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs: Any) -> None:
         self.app.emit('doctree-read', self.document)
 
 
@@ -412,12 +385,11 @@ class ManpageLink(SphinxTransform):
     """Find manpage section numbers and names"""
     default_priority = 999
 
-    def apply(self):
-        # type: () -> None
-        for node in self.document.traverse(addnodes.manpage):
+    def apply(self, **kwargs: Any) -> None:
+        for node in self.document.findall(addnodes.manpage):
             manpage = ' '.join([str(x) for x in node.children
                                 if isinstance(x, nodes.Text)])
-            pattern = r'^(?P<path>(?P<page>.+)[\(\.](?P<section>[1-9]\w*)?\)?)$'  # noqa
+            pattern = r'^(?P<path>(?P<page>.+)[\(\.](?P<section>[1-9]\w*)?\)?)$'
             info = {'path': manpage,
                     'page': manpage,
                     'section': ''}
@@ -425,3 +397,45 @@ class ManpageLink(SphinxTransform):
             if r:
                 info = r.groupdict()
             node.attributes.update(info)
+
+
+class GlossarySorter(SphinxTransform):
+    """Sort glossaries that have the ``sorted`` flag."""
+    # This must be done after i18n, therefore not right
+    # away in the glossary directive.
+    default_priority = 500
+
+    def apply(self, **kwargs: Any) -> None:
+        for glossary in self.document.findall(addnodes.glossary):
+            if glossary["sorted"]:
+                definition_list = cast(nodes.definition_list, glossary[0])
+                definition_list[:] = sorted(
+                    definition_list,
+                    key=lambda item: unicodedata.normalize(
+                        'NFD',
+                        cast(nodes.term, item)[0].astext().lower())
+                )
+
+
+def setup(app: "Sphinx") -> Dict[str, Any]:
+    app.add_transform(ApplySourceWorkaround)
+    app.add_transform(ExtraTranslatableNodes)
+    app.add_transform(DefaultSubstitutions)
+    app.add_transform(MoveModuleTargets)
+    app.add_transform(HandleCodeBlocks)
+    app.add_transform(SortIds)
+    app.add_transform(DoctestTransform)
+    app.add_transform(AutoNumbering)
+    app.add_transform(AutoIndexUpgrader)
+    app.add_transform(FilterSystemMessages)
+    app.add_transform(UnreferencedFootnotesDetector)
+    app.add_transform(SphinxSmartQuotes)
+    app.add_transform(DoctreeReadEvent)
+    app.add_transform(ManpageLink)
+    app.add_transform(GlossarySorter)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

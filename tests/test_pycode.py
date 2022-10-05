@@ -1,43 +1,53 @@
-# -*- coding: utf-8 -*-
-"""
-    test_pycode
-    ~~~~~~~~~~~
-
-    Test pycode.
-
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test pycode."""
 
 import os
 import sys
 
+import pytest
+
 import sphinx
+from sphinx.errors import PycodeError
 from sphinx.pycode import ModuleAnalyzer
 
 SPHINX_MODULE_PATH = os.path.splitext(sphinx.__file__)[0] + '.py'
+
+
+def test_ModuleAnalyzer_get_module_source():
+    assert ModuleAnalyzer.get_module_source('sphinx') == (sphinx.__file__, sphinx.__loader__.get_source('sphinx'))
+
+    # failed to obtain source information from builtin modules
+    with pytest.raises(PycodeError):
+        ModuleAnalyzer.get_module_source('builtins')
+    with pytest.raises(PycodeError):
+        ModuleAnalyzer.get_module_source('itertools')
 
 
 def test_ModuleAnalyzer_for_string():
     analyzer = ModuleAnalyzer.for_string('print("Hello world")', 'module_name')
     assert analyzer.modname == 'module_name'
     assert analyzer.srcname == '<string>'
-    assert analyzer.encoding is None
 
 
 def test_ModuleAnalyzer_for_file():
     analyzer = ModuleAnalyzer.for_string(SPHINX_MODULE_PATH, 'sphinx')
     assert analyzer.modname == 'sphinx'
     assert analyzer.srcname == '<string>'
-    assert analyzer.encoding is None
 
 
-def test_ModuleAnalyzer_for_module():
+def test_ModuleAnalyzer_for_module(rootdir):
     analyzer = ModuleAnalyzer.for_module('sphinx')
     assert analyzer.modname == 'sphinx'
     assert analyzer.srcname in (SPHINX_MODULE_PATH,
                                 os.path.abspath(SPHINX_MODULE_PATH))
-    assert analyzer.encoding == 'utf-8'
+
+    path = rootdir / 'test-pycode'
+    sys.path.insert(0, path)
+    try:
+        analyzer = ModuleAnalyzer.for_module('cp_1251_coded')
+        docs = analyzer.find_attr_docs()
+        assert docs == {('', 'X'): ['It MUST look like X="\u0425"', '']}
+    finally:
+        sys.path.pop(0)
 
 
 def test_ModuleAnalyzer_for_file_in_egg(rootdir):
@@ -173,3 +183,18 @@ def test_ModuleAnalyzer_find_attr_docs():
                                  'Qux': 15,
                                  'Qux.attr1': 16,
                                  'Qux.attr2': 17}
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8),
+                    reason='posonlyargs are available since python3.8.')
+def test_ModuleAnalyzer_find_attr_docs_for_posonlyargs_method():
+    code = ('class Foo(object):\n'
+            '    def __init__(self, /):\n'
+            '       self.attr = None  #: attribute comment\n')
+    analyzer = ModuleAnalyzer.for_string(code, 'module')
+    docs = analyzer.find_attr_docs()
+    assert set(docs) == {('Foo', 'attr')}
+    assert docs[('Foo', 'attr')] == ['attribute comment', '']
+    assert analyzer.tagorder == {'Foo': 0,
+                                 'Foo.__init__': 1,
+                                 'Foo.attr': 2}

@@ -31,6 +31,7 @@ clean-backupfiles:
 clean-generated:
 	find . -name '.DS_Store' -exec rm -f {} +
 	rm -rf Sphinx.egg-info/
+	rm -rf dist/
 	rm -rf doc/_build/
 	rm -f sphinx/pycode/*.pickle
 	rm -f utils/*3.py*
@@ -49,7 +50,7 @@ clean-buildfiles:
 
 .PHONY: clean-mypyfiles
 clean-mypyfiles:
-	rm -rf .mypy_cache/
+	find . -name '.mypy_cache' -exec rm -rf {} +
 
 .PHONY: style-check
 style-check:
@@ -57,27 +58,27 @@ style-check:
 
 .PHONY: type-check
 type-check:
-	mypy sphinx/
+	mypy sphinx
 
-.PHONY: pylint
-pylint:
-	@pylint --rcfile utils/pylintrc sphinx
+.PHONY: doclinter
+doclinter:
+	sphinx-lint --enable line-too-long --max-line-length 85 CHANGES *.rst doc/
 
 .PHONY: test
 test:
-	@$(PYTHON) -m pytest -v $(TEST)
+	@$(PYTHON) -X dev -X warn_default_encoding -m pytest -v $(TEST)
 
 .PHONY: covertest
 covertest:
-	@$(PYTHON) -m pytest -v --cov=sphinx --junitxml=.junit.xml $(TEST)
+	@$(PYTHON) -X dev -X warn_default_encoding -m pytest -v --cov=sphinx --junitxml=.junit.xml $(TEST)
 
 .PHONY: build
 build:
-	@$(PYTHON) setup.py build
+	@$(PYTHON) -m build .
 
 .PHONY: docs
 docs:
 ifndef target
-	$(info You need to give a provide a target variable, e.g. `make docs target=html`.)
+	$(info You need to provide a target variable, e.g. `make docs target=html`.)
 endif
 	$(MAKE) -C doc $(target)

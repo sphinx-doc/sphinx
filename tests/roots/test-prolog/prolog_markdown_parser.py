@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from docutils.parsers import Parser
 
 

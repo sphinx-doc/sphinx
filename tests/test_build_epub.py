@@ -1,16 +1,8 @@
-# -*- coding: utf-8 -*-
-"""
-    test_build_html
-    ~~~~~~~~~~~~~~~
-
-    Test the HTML builder and check output against XPath.
-
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the HTML builder and check output against XPath."""
 
 import os
-from subprocess import Popen, PIPE
+import subprocess
+from subprocess import PIPE, CalledProcessError
 from xml.etree import ElementTree
 
 import pytest
@@ -19,13 +11,10 @@ import pytest
 # check given command is runnable
 def runnable(command):
     try:
-        p = Popen(command, stdout=PIPE, stderr=PIPE)
-    except OSError:
-        # command not found
-        return False
-    else:
-        p.communicate()
-        return p.returncode == 0
+        subprocess.run(command, stdout=PIPE, stderr=PIPE, check=True)
+        return True
+    except (OSError, CalledProcessError):
+        return False  # command not found or exit with non-zero
 
 
 class EPUBElementTree:
@@ -68,12 +57,12 @@ class EPUBElementTree:
 @pytest.mark.sphinx('epub', testroot='basic')
 def test_build_epub(app):
     app.build()
-    assert (app.outdir / 'mimetype').text() == 'application/epub+zip'
+    assert (app.outdir / 'mimetype').read_text(encoding='utf8') == 'application/epub+zip'
     assert (app.outdir / 'META-INF' / 'container.xml').exists()
 
     # toc.ncx
-    toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').text())
-    assert toc.find("./ncx:docTitle/ncx:text").text == 'Python  documentation'
+    toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').read_text(encoding='utf8'))
+    assert toc.find("./ncx:docTitle/ncx:text").text == 'Python'
 
     # toc.ncx / head
     meta = list(toc.find("./ncx:head"))
@@ -92,12 +81,12 @@ def test_build_epub(app):
     assert navlabel.text == 'The basic Sphinx documentation for testing'
 
     # content.opf
-    opf = EPUBElementTree.fromstring((app.outdir / 'content.opf').text())
+    opf = EPUBElementTree.fromstring((app.outdir / 'content.opf').read_text(encoding='utf8'))
 
     # content.opf / metadata
     metadata = opf.find("./idpf:metadata")
     assert metadata.find("./dc:language").text == 'en'
-    assert metadata.find("./dc:title").text == 'Python  documentation'
+    assert metadata.find("./dc:title").text == 'Python'
     assert metadata.find("./dc:description").text == 'unknown'
     assert metadata.find("./dc:creator").text == 'unknown'
     assert metadata.find("./dc:contributor").text == 'unknown'
@@ -144,7 +133,7 @@ def test_build_epub(app):
     assert reference.get('href') == 'index.xhtml'
 
     # nav.xhtml
-    nav = EPUBElementTree.fromstring((app.outdir / 'nav.xhtml').text())
+    nav = EPUBElementTree.fromstring((app.outdir / 'nav.xhtml').read_text(encoding='utf8'))
     assert nav.attrib == {'lang': 'en',
                           '{http://www.w3.org/XML/1998/namespace}lang': 'en'}
     assert nav.find("./xhtml:head/xhtml:title").text == 'Table of Contents'
@@ -164,7 +153,7 @@ def test_epub_cover(app):
     app.build()
 
     # content.opf / metadata
-    opf = EPUBElementTree.fromstring((app.outdir / 'content.opf').text())
+    opf = EPUBElementTree.fromstring((app.outdir / 'content.opf').read_text(encoding='utf8'))
     cover_image = opf.find("./idpf:manifest/idpf:item[@href='%s']" % app.config.epub_cover[0])
     cover = opf.find("./idpf:metadata/idpf:meta[@name='cover']")
     assert cover
@@ -176,8 +165,8 @@ def test_nested_toc(app):
     app.build()
 
     # toc.ncx
-    toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').bytes())
-    assert toc.find("./ncx:docTitle/ncx:text").text == 'Python  documentation'
+    toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').read_bytes())
+    assert toc.find("./ncx:docTitle/ncx:text").text == 'Python'
 
     # toc.ncx / navPoint
     def navinfo(elem):
@@ -189,7 +178,7 @@ def test_nested_toc(app):
     navpoints = toc.findall("./ncx:navMap/ncx:navPoint")
     assert len(navpoints) == 4
     assert navinfo(navpoints[0]) == ('navPoint1', '1', 'index.xhtml',
-                                     u"Welcome to Sphinx Tests’s documentation!")
+                                     "Welcome to Sphinx Tests’s documentation!")
     assert navpoints[0].findall("./ncx:navPoint") == []
 
     # toc.ncx / nested navPoints
@@ -206,11 +195,11 @@ def test_nested_toc(app):
         anchor = elem.find("./xhtml:a")
         return (anchor.get('href'), anchor.text)
 
-    nav = EPUBElementTree.fromstring((app.outdir / 'nav.xhtml').bytes())
+    nav = EPUBElementTree.fromstring((app.outdir / 'nav.xhtml').read_bytes())
     toc = nav.findall("./xhtml:body/xhtml:nav/xhtml:ol/xhtml:li")
     assert len(toc) == 4
     assert navinfo(toc[0]) == ('index.xhtml',
-                               u"Welcome to Sphinx Tests’s documentation!")
+                               "Welcome to Sphinx Tests’s documentation!")
     assert toc[0].findall("./xhtml:ol") == []
 
     # nav.xhtml / nested toc
@@ -231,9 +220,8 @@ def test_escaped_toc(app):
     app.build()
 
     # toc.ncx
-    toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').bytes())
-    assert toc.find("./ncx:docTitle/ncx:text").text == ('need <b>"escaped"</b> '
-                                                        'project  documentation')
+    toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').read_bytes())
+    assert toc.find("./ncx:docTitle/ncx:text").text == 'need <b>"escaped"</b> project'
 
     # toc.ncx / navPoint
     def navinfo(elem):
@@ -245,7 +233,7 @@ def test_escaped_toc(app):
     navpoints = toc.findall("./ncx:navMap/ncx:navPoint")
     assert len(navpoints) == 4
     assert navinfo(navpoints[0]) == ('navPoint1', '1', 'index.xhtml',
-                                     u"Welcome to Sphinx Tests's documentation!")
+                                     "Welcome to Sphinx Tests's documentation!")
     assert navpoints[0].findall("./ncx:navPoint") == []
 
     # toc.ncx / nested navPoints
@@ -254,7 +242,7 @@ def test_escaped_toc(app):
     assert len(navchildren) == 4
     assert navinfo(navchildren[0]) == ('navPoint3', '2', 'foo.xhtml', '<foo>')
     assert navinfo(navchildren[1]) == ('navPoint4', '3', 'quux.xhtml', 'quux')
-    assert navinfo(navchildren[2]) == ('navPoint5', '4', 'foo.xhtml#foo-1', u'foo “1”')
+    assert navinfo(navchildren[2]) == ('navPoint5', '4', 'foo.xhtml#foo-1', 'foo “1”')
     assert navinfo(navchildren[3]) == ('navPoint8', '6', 'foo.xhtml#foo-2', 'foo.2')
 
     # nav.xhtml / nav
@@ -262,7 +250,7 @@ def test_escaped_toc(app):
         anchor = elem.find("./xhtml:a")
         return (anchor.get('href'), anchor.text)
 
-    nav = EPUBElementTree.fromstring((app.outdir / 'nav.xhtml').bytes())
+    nav = EPUBElementTree.fromstring((app.outdir / 'nav.xhtml').read_bytes())
     toc = nav.findall("./xhtml:body/xhtml:nav/xhtml:ol/xhtml:li")
     assert len(toc) == 4
     assert navinfo(toc[0]) == ('index.xhtml',
@@ -274,7 +262,7 @@ def test_escaped_toc(app):
     tocchildren = toc[1].findall("./xhtml:ol/xhtml:li")
     assert len(tocchildren) == 3
     assert navinfo(tocchildren[0]) == ('quux.xhtml', 'quux')
-    assert navinfo(tocchildren[1]) == ('foo.xhtml#foo-1', u'foo “1”')
+    assert navinfo(tocchildren[1]) == ('foo.xhtml#foo-1', 'foo “1”')
     assert navinfo(tocchildren[2]) == ('foo.xhtml#foo-2', 'foo.2')
 
     grandchild = tocchildren[1].findall("./xhtml:ol/xhtml:li")
@@ -288,7 +276,7 @@ def test_epub_writing_mode(app):
     app.build()
 
     # horizontal / page-progression-direction
-    opf = EPUBElementTree.fromstring((app.outdir / 'content.opf').text())
+    opf = EPUBElementTree.fromstring((app.outdir / 'content.opf').read_text(encoding='utf8'))
     assert opf.find("./idpf:spine").get('page-progression-direction') == 'ltr'
 
     # horizontal / ibooks:scroll-axis
@@ -296,7 +284,7 @@ def test_epub_writing_mode(app):
     assert metadata.find("./idpf:meta[@property='ibooks:scroll-axis']").text == 'vertical'
 
     # horizontal / writing-mode (CSS)
-    css = (app.outdir / '_static' / 'epub.css').text()
+    css = (app.outdir / '_static' / 'epub.css').read_text(encoding='utf8')
     assert 'writing-mode: horizontal-tb;' in css
 
     # vertical
@@ -305,7 +293,7 @@ def test_epub_writing_mode(app):
     app.build()
 
     # vertical / page-progression-direction
-    opf = EPUBElementTree.fromstring((app.outdir / 'content.opf').text())
+    opf = EPUBElementTree.fromstring((app.outdir / 'content.opf').read_text(encoding='utf8'))
     assert opf.find("./idpf:spine").get('page-progression-direction') == 'rtl'
 
     # vertical / ibooks:scroll-axis
@@ -313,7 +301,7 @@ def test_epub_writing_mode(app):
     assert metadata.find("./idpf:meta[@property='ibooks:scroll-axis']").text == 'horizontal'
 
     # vertical / writing-mode (CSS)
-    css = (app.outdir / '_static' / 'epub.css').text()
+    css = (app.outdir / '_static' / 'epub.css').read_text(encoding='utf8')
     assert 'writing-mode: vertical-rl;' in css
 
 
@@ -321,8 +309,11 @@ def test_epub_writing_mode(app):
 def test_epub_anchor_id(app):
     app.build()
 
-    html = (app.outdir / 'index.xhtml').text()
-    assert '<p id="std-setting-STATICFILES_FINDERS">blah blah blah</p>' in html
+    html = (app.outdir / 'index.xhtml').read_text(encoding='utf8')
+    assert ('<p id="std-setting-STATICFILES_FINDERS">'
+            'blah blah blah</p>' in html)
+    assert ('<span id="std-setting-STATICFILES_SECTION"></span>'
+            '<h1>blah blah blah</h1>' in html)
     assert 'see <a class="reference internal" href="#std-setting-STATICFILES_FINDERS">' in html
 
 
@@ -331,7 +322,7 @@ def test_epub_assets(app):
     app.builder.build_all()
 
     # epub_sytlesheets (same as html_css_files)
-    content = (app.outdir / 'index.xhtml').text()
+    content = (app.outdir / 'index.xhtml').read_text(encoding='utf8')
     assert ('<link rel="stylesheet" type="text/css" href="_static/css/style.css" />'
             in content)
     assert ('<link media="print" rel="stylesheet" title="title" type="text/css" '
@@ -344,10 +335,10 @@ def test_epub_css_files(app):
     app.builder.build_all()
 
     # epub_css_files
-    content = (app.outdir / 'index.xhtml').text()
+    content = (app.outdir / 'index.xhtml').read_text(encoding='utf8')
     assert '<link rel="stylesheet" type="text/css" href="_static/css/epub.css" />' in content
 
-    # files in html_css_files are not outputed
+    # files in html_css_files are not outputted
     assert ('<link rel="stylesheet" type="text/css" href="_static/css/style.css" />'
             not in content)
     assert ('<link media="print" rel="stylesheet" title="title" type="text/css" '
@@ -359,7 +350,7 @@ def test_html_download_role(app, status, warning):
     app.build()
     assert not (app.outdir / '_downloads' / 'dummy.dat').exists()
 
-    content = (app.outdir / 'index.xhtml').text()
+    content = (app.outdir / 'index.xhtml').read_text(encoding='utf8')
     assert ('<li><p><code class="xref download docutils literal notranslate">'
             '<span class="pre">dummy.dat</span></code></p></li>' in content)
     assert ('<li><p><code class="xref download docutils literal notranslate">'
@@ -370,6 +361,12 @@ def test_html_download_role(app, status, warning):
             '/_static/sphinxheader.png]</span></p></li>' in content)
 
 
+@pytest.mark.sphinx('epub', testroot='toctree-duplicated')
+def test_duplicated_toctree_entry(app, status, warning):
+    app.build()
+    assert 'WARNING: duplicated ToC entry found: foo.xhtml' in warning.getvalue()
+
+
 @pytest.mark.skipif('DO_EPUBCHECK' not in os.environ,
                     reason='Skipped because DO_EPUBCHECK is not set')
 @pytest.mark.sphinx('epub')
@@ -378,10 +375,10 @@ def test_run_epubcheck(app):
 
     epubcheck = os.environ.get('EPUBCHECK_PATH', '/usr/share/java/epubcheck.jar')
     if runnable(['java', '-version']) and os.path.exists(epubcheck):
-        p = Popen(['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],
-                  stdout=PIPE, stderr=PIPE)
-        stdout, stderr = p.communicate()
-        if p.returncode != 0:
-            print(stdout)
-            print(stderr)
-            assert False, 'epubcheck exited with return code %s' % p.returncode
+        try:
+            subprocess.run(['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],
+                           stdout=PIPE, stderr=PIPE, check=True)
+        except CalledProcessError as exc:
+            print(exc.stdout.decode('utf-8'))
+            print(exc.stderr.decode('utf-8'))
+            raise AssertionError('epubcheck exited with return code %s' % exc.returncode)

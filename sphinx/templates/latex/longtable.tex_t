@@ -1,5 +1,5 @@
 \begin{savenotes}\sphinxatlongtablestart\begin{longtable}
-<%- if table.align == 'center' -%>
+<%- if table.align in ('center', 'default') -%>
   [c]
 <%- elif table.align == 'left' -%>
   [l]
@@ -8,6 +8,7 @@
 <%- endif -%>
 <%= table.get_colspec() %>
 <%- if table.caption -%>
+\sphinxthelongtablecaptionisattop
 \caption{<%= ''.join(table.caption) %>\strut}<%= labels %>\\*[\sphinxlongtablecapskipadjust]
 \hline
 <% elif labels -%>
@@ -19,13 +20,13 @@
 \endfirsthead
 
 \multicolumn{<%= table.colcount %>}{c}%
-{\makebox[0pt]{\sphinxtablecontinued{\tablename\ \thetable{} -- <%= _('continued from previous page') %>}}}\\
+{\makebox[0pt]{\sphinxtablecontinued{\tablename\ \thetable{} \textendash{} <%= _('continued from previous page') %>}}}\\
 \hline
 <%= ''.join(table.header) %>
 \endhead
 
 \hline
-\multicolumn{<%= table.colcount %>}{r}{\makebox[0pt][r]{\sphinxtablecontinued{<%= _('Continued on next page') %>}}}\\
+\multicolumn{<%= table.colcount %>}{r}{\makebox[0pt][r]{\sphinxtablecontinued{<%= _('continues on next page') %>}}}\\
 \endfoot
 
 \endlastfoot

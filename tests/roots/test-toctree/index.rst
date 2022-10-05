@@ -16,6 +16,7 @@ Contents:
    foo
    bar
    http://sphinx-doc.org/
+   self
 
 .. only:: html
 

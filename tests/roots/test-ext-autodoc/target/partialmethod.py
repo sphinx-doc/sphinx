@@ -14,5 +14,5 @@ class Cell(object):
     #: Make a cell alive.
     set_alive = partialmethod(set_state, True)
 
+    # a partialmethod with no docstring
     set_dead = partialmethod(set_state, False)
-    """Make a cell dead."""

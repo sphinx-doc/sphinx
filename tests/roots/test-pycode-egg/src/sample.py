@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 #: constant on sample.py
 CONSTANT = 1
 

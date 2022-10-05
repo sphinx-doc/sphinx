@@ -1,18 +1,10 @@
-# -*- coding: utf-8 -*-
-"""
-    test_highlighting
-    ~~~~~~~~~~~~~~~~~
+"""Test the Pygments highlighting bridge."""
 
-    Test the Pygments highlighting bridge.
+from unittest import mock
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-import mock
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexer import RegexLexer
-from pygments.token import Text, Name
+from pygments.token import Name, Text
 
 from sphinx.highlighting import PygmentsBridge
 
@@ -40,7 +32,7 @@ class ComplainOnUnhighlighted(PygmentsBridge):
 
 
 def test_add_lexer(app, status, warning):
-    app.add_lexer('test', MyLexer())
+    app.add_lexer('test', MyLexer)
 
     bridge = PygmentsBridge('html')
     ret = bridge.highlight_block('ab', 'test')
@@ -89,14 +81,23 @@ def test_default_highlight(logger):
     ret = bridge.highlight_block('reST ``like`` text', 'default')
     assert ret == '<div class="highlight"><pre><span></span>reST ``like`` text\n</pre></div>\n'
 
-    # python3: highlights as python3
-    ret = bridge.highlight_block('print "Hello sphinx world"', 'python3')
-    assert ret == ('<div class="highlight"><pre><span></span><span class="nb">print</span> '
-                   '<span class="s2">&quot;Hello sphinx world&quot;</span>\n</pre></div>\n')
+    # python: highlights as python3
+    ret = bridge.highlight_block('print("Hello sphinx world")', 'python')
+    assert ret == ('<div class="highlight"><pre><span></span><span class="nb">print</span>'
+                   '<span class="p">(</span>'
+                   '<span class="s2">&quot;Hello sphinx world&quot;</span>'
+                   '<span class="p">)</span>\n</pre></div>\n')
 
-    # python3: raises error if highlighting failed
-    ret = bridge.highlight_block('reST ``like`` text', 'python3')
+    # python3: highlights as python3
+    ret = bridge.highlight_block('print("Hello sphinx world")', 'python3')
+    assert ret == ('<div class="highlight"><pre><span></span><span class="nb">print</span>'
+                   '<span class="p">(</span>'
+                   '<span class="s2">&quot;Hello sphinx world&quot;</span>'
+                   '<span class="p">)</span>\n</pre></div>\n')
+
+    # python: raises error if highlighting failed
+    ret = bridge.highlight_block('reST ``like`` text', 'python')
     logger.warning.assert_called_with('Could not lex literal_block as "%s". '
-                                      'Highlighting skipped.', 'python3',
+                                      'Highlighting skipped.', 'python',
                                       type='misc', subtype='highlighting_failure',
                                       location=None)

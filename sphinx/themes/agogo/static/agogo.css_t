@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- agogo theme.
  *
- * :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -175,7 +175,11 @@ div.document {
 }
 
 div.body {
+  {%- if theme_rightsidebar|tobool %}
   padding-right: 2em;
+  {%- else %}
+  padding-left: 2em;
+  {% endif %}
   text-align: {{ theme_textalign }};
 }
 
@@ -203,7 +207,6 @@ div.document .section:first-child {
 
 div.document div.highlight {
   padding: 3px;
-  background-color: #eeeeec;
   border-top: 2px solid #dddddd;
   border-bottom: 2px solid #dddddd;
   margin-top: .8em;
@@ -268,32 +271,40 @@ div.document ol {
 
 /* Sidebar */
 
-div.sidebar {
+div.sidebar,
+aside.sidebar {
   width: {{ theme_sidebarwidth|todim }};
+  {%- if theme_rightsidebar|tobool %}
   float: right;
+  {%- else %}
+  float: left;
+  {%- endif %}
   font-size: .9em;
 }
 
-div.sidebar a, div.header a {
+div.sidebar a, aside.sidebar a, div.header a {
   text-decoration: none;
 }
 
-div.sidebar a:hover, div.header a:hover {
+div.sidebar a:hover, aside.sidebar a:hover, div.header a:hover {
   text-decoration: underline;
 }
 
-div.sidebar h3 {
+div.sidebar h3,
+aside.sidebar h3 {
   color: #2e3436;
   text-transform: uppercase;
   font-size: 130%;
   letter-spacing: .1em;
 }
 
-div.sidebar ul {
+div.sidebar ul,
+aside.sidebar ul {
   list-style-type: none;
 }
 
-div.sidebar li.toctree-l1 a {
+div.sidebar li.toctree-l1 a,
+aside.sidebar li.toctree-l1 a {
   display: block;
   padding: 1px;
   border: 1px solid #dddddd;
@@ -303,37 +314,44 @@ div.sidebar li.toctree-l1 a {
   color: #2e3436;
 }
 
-div.sidebar li.toctree-l2 a {
+div.sidebar li.toctree-l2 a,
+aside.sidebar li.toctree-l2 a {
   background-color: transparent;
   border: none;
   margin-left: 1em;
   border-bottom: 1px solid #dddddd;
 }
 
-div.sidebar li.toctree-l3 a {
+div.sidebar li.toctree-l3 a,
+aside.sidebar li.toctree-l3 a {
   background-color: transparent;
   border: none;
   margin-left: 2em;
   border-bottom: 1px solid #dddddd;
 }
 
-div.sidebar li.toctree-l2:last-child a {
+div.sidebar li.toctree-l2:last-child a,
+aside.sidebar li.toctree-l2:last-child a {
   border-bottom: none;
 }
 
-div.sidebar li.toctree-l1.current a {
+div.sidebar li.toctree-l1.current a,
+aside.sidebar li.toctree-l1.current a {
   border-right: 5px solid {{ theme_headerlinkcolor }};
 }
 
-div.sidebar li.toctree-l1.current li.toctree-l2 a {
+div.sidebar li.toctree-l1.current li.toctree-l2 a,
+aside.sidebar li.toctree-l1.current li.toctree-l2 a {
   border-right: none;
 }
 
-div.sidebar input[type="text"] {
+div.sidebar input[type="text"],
+aside.sidebar input[type="text"] {
   width: 170px;
 }
 
-div.sidebar input[type="submit"] {
+div.sidebar input[type="submit"],
+aside.sidebar input[type="submit"] {
   width: 30px;
 }
 
@@ -363,19 +381,25 @@ div.footer .left {
 
 /* Styles copied from basic theme */
 
-img.align-left, .figure.align-left, object.align-left {
+img.align-left, figure.align-left, .figure.align-left, object.align-left {
     clear: left;
     float: left;
     margin-right: 1em;
 }
 
-img.align-right, .figure.align-right, object.align-right {
+img.align-right, figure.align-right, .figure.align-right, object.align-right {
     clear: right;
     float: right;
     margin-left: 1em;
 }
 
-img.align-center, .figure.align-center, object.align-center {
+img.align-center, figure.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+img.align-default, figure.align-default, .figure.align-default {
   display: block;
   margin-left: auto;
   margin-right: auto;
@@ -400,11 +424,13 @@ table caption span.caption-number {
 table caption span.caption-text {
 }
 
-div.figure p.caption span.caption-number {
+div.figure p.caption span.caption-number,
+figcaption span.caption-number {
     font-style: italic;
 }
 
-div.figure p.caption span.caption-text {
+div.figure p.caption span.caption-text,
+figcaption span.caption-text {
 }
 
 /* -- search page ----------------------------------------------------------- */

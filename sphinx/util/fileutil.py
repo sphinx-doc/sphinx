@@ -1,31 +1,21 @@
-# -*- coding: utf-8 -*-
-"""
-    sphinx.util.fileutil
-    ~~~~~~~~~~~~~~~~~~~~
-
-    File utility functions for Sphinx.
-
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-from __future__ import absolute_import
+"""File utility functions for Sphinx."""
 
 import os
 import posixpath
+from typing import TYPE_CHECKING, Callable, Dict, Optional
 
 from docutils.utils import relative_path
 
-from sphinx.util.osutil import copyfile, ensuredir, walk
+from sphinx.util.osutil import copyfile, ensuredir
+from sphinx.util.typing import PathMatcher
 
-if False:
-    # For type annotation
-    from typing import Callable, Dict, Union  # NOQA
-    from sphinx.util.matching import Matcher  # NOQA
-    from sphinx.util.template import BaseRenderer  # NOQA
+if TYPE_CHECKING:
+    from sphinx.util.template import BaseRenderer
 
 
-def copy_asset_file(source, destination, context=None, renderer=None):
-    # type: (unicode, unicode, Dict, BaseRenderer) -> None
+def copy_asset_file(source: str, destination: str,
+                    context: Optional[Dict] = None,
+                    renderer: Optional["BaseRenderer"] = None) -> None:
     """Copy an asset file to destination.
 
     On copying, it expands the template variables if context argument is given and
@@ -39,26 +29,27 @@ def copy_asset_file(source, destination, context=None, renderer=None):
     if not os.path.exists(source):
         return
 
-    if os.path.exists(destination) and os.path.isdir(destination):
+    if os.path.isdir(destination):
         # Use source filename if destination points a directory
         destination = os.path.join(destination, os.path.basename(source))
 
-    if source.lower().endswith('_t') and context:
+    if source.lower().endswith('_t') and context is not None:
         if renderer is None:
             from sphinx.util.template import SphinxRenderer
             renderer = SphinxRenderer()
 
-        with open(source, 'r', encoding='utf-8') as fsrc:  # type: ignore
+        with open(source, encoding='utf-8') as fsrc:
             if destination.lower().endswith('_t'):
                 destination = destination[:-2]
-            with open(destination, 'w', encoding='utf-8') as fdst:  # type: ignore
+            with open(destination, 'w', encoding='utf-8') as fdst:
                 fdst.write(renderer.render_string(fsrc.read(), context))
     else:
         copyfile(source, destination)
 
 
-def copy_asset(source, destination, excluded=lambda path: False, context=None, renderer=None):
-    # type: (unicode, unicode, Union[Callable[[unicode], bool], Matcher], Dict, BaseRenderer) -> None  # NOQA
+def copy_asset(source: str, destination: str, excluded: PathMatcher = lambda path: False,
+               context: Optional[Dict] = None, renderer: Optional["BaseRenderer"] = None,
+               onerror: Optional[Callable[[str, Exception], None]] = None) -> None:
     """Copy asset files to destination recursively.
 
     On copying, it expands the template variables if context argument is given and
@@ -69,6 +60,7 @@ def copy_asset(source, destination, excluded=lambda path: False, context=None, r
     :param excluded: The matcher to determine the given path should be copied or not
     :param context: The template variables.  If not given, template files are simply copied
     :param renderer: The template engine.  If not given, SphinxRenderer is used by default
+    :param onerror: The error handler.
     """
     if not os.path.exists(source):
         return
@@ -82,7 +74,7 @@ def copy_asset(source, destination, excluded=lambda path: False, context=None, r
         copy_asset_file(source, destination, context, renderer)
         return
 
-    for root, dirs, files in walk(source, followlinks=True):
+    for root, dirs, files in os.walk(source, followlinks=True):
         reldir = relative_path(source, root)
         for dir in dirs[:]:
             if excluded(posixpath.join(reldir, dir)):
@@ -92,6 +84,12 @@ def copy_asset(source, destination, excluded=lambda path: False, context=None, r
 
         for filename in files:
             if not excluded(posixpath.join(reldir, filename)):
-                copy_asset_file(posixpath.join(root, filename),
-                                posixpath.join(destination, reldir),
-                                context, renderer)
+                try:
+                    copy_asset_file(posixpath.join(root, filename),
+                                    posixpath.join(destination, reldir),
+                                    context, renderer)
+                except Exception as exc:
+                    if onerror:
+                        onerror(posixpath.join(root, filename), exc)
+                    else:
+                        raise

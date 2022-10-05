@@ -1,18 +1,11 @@
-# -*- coding: utf-8 -*-
-"""
-    sphinx.builders.changes
-    ~~~~~~~~~~~~~~~~~~~~~~~
+"""Changelog builder."""
 
-    Changelog builder.
-
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
+import html
 from os import path
-from typing import cast
+from typing import Any, Dict, List, Tuple, cast
 
 from sphinx import package_dir
+from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.domains.changeset import ChangeSetDomain
 from sphinx.locale import _, __
@@ -21,13 +14,6 @@ from sphinx.util import logging
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import ensuredir, os_path
-from sphinx.util.pycompat import htmlescape
-
-if False:
-    # For type annotation
-    from typing import Any, Dict, List, Tuple  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-
 
 logger = logging.getLogger(__name__)
 
@@ -39,35 +25,34 @@ class ChangesBuilder(Builder):
     name = 'changes'
     epilog = __('The overview file is in %(outdir)s.')
 
-    def init(self):
-        # type: () -> None
+    def init(self) -> None:
         self.create_template_bridge()
         theme_factory = HTMLThemeFactory(self.app)
         self.theme = theme_factory.create('default')
         self.templates.init(self, self.theme)
 
-    def get_outdated_docs(self):
-        # type: () -> unicode
+    def get_outdated_docs(self) -> str:
         return self.outdir
 
     typemap = {
         'versionadded': 'added',
         'versionchanged': 'changed',
         'deprecated': 'deprecated',
-    }  # type: Dict[unicode, unicode]
+    }
 
-    def write(self, *ignored):
-        # type: (Any) -> None
+    def write(self, *ignored: Any) -> None:
         version = self.config.version
         domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
-        libchanges = {}     # type: Dict[unicode, List[Tuple[unicode, unicode, int]]]
-        apichanges = []     # type: List[Tuple[unicode, unicode, int]]
-        otherchanges = {}   # type: Dict[Tuple[unicode, unicode], List[Tuple[unicode, unicode, int]]]  # NOQA
-        if version not in self.env.versionchanges:
+        libchanges: Dict[str, List[Tuple[str, str, int]]] = {}
+        apichanges: List[Tuple[str, str, int]] = []
+        otherchanges: Dict[Tuple[str, str], List[Tuple[str, str, int]]] = {}
+
+        changesets = domain.get_changesets_for(version)
+        if not changesets:
             logger.info(bold(__('no changes in version %s.') % version))
             return
-        logger.info(bold('writing summary file...'))
-        for changeset in domain.get_changesets_for(version):
+        logger.info(bold(__('writing summary file...')))
+        for changeset in changesets:
             if isinstance(changeset.descname, tuple):
                 descname = changeset.descname[0]
             else:
@@ -82,8 +67,7 @@ class ChangesBuilder(Builder):
                     entry = '<b>%s</b>: <i>%s</i>.' % (descname, ttext)
                 apichanges.append((entry, changeset.docname, changeset.lineno))
             elif descname or changeset.module:
-                if not changeset.module:
-                    module = _('Builtins')
+                module = changeset.module or _('Builtins')
                 if not descname:
                     descname = _('Module level')
                 if context:
@@ -112,20 +96,17 @@ class ChangesBuilder(Builder):
             'show_copyright': self.config.html_show_copyright,
             'show_sphinx': self.config.html_show_sphinx,
         }
-        with open(path.join(self.outdir, 'index.html'), 'w',  # type: ignore
-                  encoding='utf8') as f:
+        with open(path.join(self.outdir, 'index.html'), 'w', encoding='utf8') as f:
             f.write(self.templates.render('changes/frameset.html', ctx))
-        with open(path.join(self.outdir, 'changes.html'), 'w',  # type: ignore
-                  encoding='utf8') as f:
+        with open(path.join(self.outdir, 'changes.html'), 'w', encoding='utf8') as f:
             f.write(self.templates.render('changes/versionchanges.html', ctx))
 
         hltext = ['.. versionadded:: %s' % version,
                   '.. versionchanged:: %s' % version,
                   '.. deprecated:: %s' % version]
 
-        def hl(no, line):
-            # type: (int, unicode) -> unicode
-            line = '<a name="L%s"> </a>' % no + htmlescape(line)
+        def hl(no: int, line: str) -> str:
+            line = '<a name="L%s"> </a>' % no + html.escape(line)
             for x in hltext:
                 if x in line:
                     line = '<span class="hl">%s</span>' % line
@@ -134,7 +115,7 @@ class ChangesBuilder(Builder):
 
         logger.info(bold(__('copying source files...')))
         for docname in self.env.all_docs:
-            with open(self.env.doc2path(docname), 'r',  # type: ignore
+            with open(self.env.doc2path(docname),
                       encoding=self.env.config.source_encoding) as f:
                 try:
                     lines = f.readlines()
@@ -143,35 +124,32 @@ class ChangesBuilder(Builder):
                     continue
             targetfn = path.join(self.outdir, 'rst', os_path(docname)) + '.html'
             ensuredir(path.dirname(targetfn))
-            with open(targetfn, 'w', encoding='utf-8') as f:  # type: ignore
+            with open(targetfn, 'w', encoding='utf-8') as f:
                 text = ''.join(hl(i + 1, line) for (i, line) in enumerate(lines))
                 ctx = {
-                    'filename': self.env.doc2path(docname, None),
+                    'filename': self.env.doc2path(docname, False),
                     'text': text
                 }
                 f.write(self.templates.render('changes/rstsource.html', ctx))
-        themectx = dict(('theme_' + key, val) for (key, val) in
-                        self.theme.get_options({}).items())
+        themectx = {'theme_' + key: val for (key, val) in
+                    self.theme.get_options({}).items()}
         copy_asset_file(path.join(package_dir, 'themes', 'default', 'static', 'default.css_t'),
                         self.outdir, context=themectx, renderer=self.templates)
         copy_asset_file(path.join(package_dir, 'themes', 'basic', 'static', 'basic.css'),
                         self.outdir)
 
-    def hl(self, text, version):
-        # type: (unicode, unicode) -> unicode
-        text = htmlescape(text)
-        for directive in ['versionchanged', 'versionadded', 'deprecated']:
+    def hl(self, text: str, version: str) -> str:
+        text = html.escape(text)
+        for directive in ('versionchanged', 'versionadded', 'deprecated'):
             text = text.replace('.. %s:: %s' % (directive, version),
                                 '<b>.. %s:: %s</b>' % (directive, version))
         return text
 
-    def finish(self):
-        # type: () -> None
+    def finish(self) -> None:
         pass
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_builder(ChangesBuilder)
 
     return {

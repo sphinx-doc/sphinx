@@ -1,5 +1,4 @@
 # Literally included file using Python highlighting
-# -*- coding: utf-8 -*-
 
 foo = "Including Unicode characters: üöä"  # This will be changed
 

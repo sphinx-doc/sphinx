@@ -15,7 +15,7 @@ language, this will not take too long.
 .. seealso::
 
    The authoritative `reStructuredText User Documentation
-   <http://docutils.sourceforge.net/rst.html>`_.  The "ref" links in this
+   <https://docutils.sourceforge.io/rst.html>`_.  The "ref" links in this
    document link to the description of the individual constructs in the reST
    reference.
 
@@ -159,7 +159,7 @@ Doctest blocks
 Doctest blocks (:duref:`ref <doctest-blocks>`) are interactive Python sessions
 cut-and-pasted into docstrings. They do not require the
 :ref:`literal blocks <rst-literal-blocks>` syntax. The doctest block must end
-with a blank line and should *not* end with with an unused prompt::
+with a blank line and should *not* end with an unused prompt::
 
     >>> 1 + 1
     2
@@ -224,6 +224,8 @@ Internal linking is done via a special reST role provided by Sphinx, see the
 section on specific markup, :ref:`ref-role`.
 
 
+.. _rst-sections:
+
 Sections
 --------
 
@@ -243,10 +245,10 @@ follow:
 
 * ``#`` with overline, for parts
 * ``*`` with overline, for chapters
-* ``=``, for sections
-* ``-``, for subsections
-* ``^``, for subsubsections
-* ``"``, for paragraphs
+* ``=`` for sections
+* ``-`` for subsections
+* ``^`` for subsubsections
+* ``"`` for paragraphs
 
 Of course, you are free to use your own marker characters (see the reST
 documentation), and use a deeper nesting level, but keep in mind that most
@@ -288,7 +290,7 @@ Roles
 -----
 
 A role or "custom interpreted text role" (:duref:`ref <roles>`) is an inline
-piece of explicit markup. It signifies that that the enclosed text should be
+piece of explicit markup. It signifies that the enclosed text should be
 interpreted in a specific way.  Sphinx uses this to provide semantic markup and
 cross-referencing of identifiers, as described in the appropriate section.  The
 general syntax is ``:rolename:`content```.
@@ -372,7 +374,8 @@ Docutils supports the following directives:
 
 * HTML specifics:
 
-  - :dudir:`meta` (generation of HTML ``<meta>`` tags)
+  - :dudir:`meta`
+    (generation of HTML ``<meta>`` tags, see also :ref:`html-meta` below)
   - :dudir:`title <metadata-document-title>` (override document title)
 
 * Influencing markup:
@@ -407,7 +410,27 @@ following the arguments and indicated by the colons).  Options must be indented
 to the same level as the directive content.
 
 The directive content follows after a blank line and is indented relative to
-the directive start.
+the directive start or if options are present, by the same amount as the
+options.
+
+Be careful as the indent is not a fixed number of whitespace, e.g. three, but
+any number whitespace.  This can be surprising when a fixed indent is used
+throughout the document and can make a difference for directives which are
+sensitive to whitespace. Compare::
+
+   .. code-block::
+      :caption: A cool example
+
+          The output of this line starts with four spaces.
+
+   .. code-block::
+
+          The output of this line has no spaces at the beginning.
+
+In the first code block, the indent for the content was fixated by the option
+line to three spaces, consequently the content starts with four spaces.
+In the latter the indent was fixed by the content itself to seven spaces, thus
+it does not start with a space.
 
 
 Images
@@ -536,6 +559,45 @@ You can indent text after a comment start to form multiline comments::
       is a comment.
 
       Still in the comment.
+
+
+.. _html-meta:
+
+HTML Metadata
+-------------
+
+The :rst:dir:`meta` directive (:dudir:`ref <meta>`) allows specifying the HTML
+`metadata element`_ of a Sphinx documentation page.  For example, the
+directive::
+
+   .. meta::
+      :description: The Sphinx documentation builder
+      :keywords: Sphinx, documentation, builder
+
+will generate the following HTML output:
+
+.. code:: html
+
+   <meta name="description" content="The Sphinx documentation builder">
+   <meta name="keywords" content="Sphinx, documentation, builder">
+
+Also, Sphinx will add the keywords as specified in the meta directive to the
+search index.  Thereby, the ``lang`` attribute of the meta element is
+considered.  For example, the directive::
+
+   .. meta::
+      :keywords: backup
+      :keywords lang=en: pleasefindthiskey pleasefindthiskeytoo
+      :keywords lang=de: bittediesenkeyfinden
+
+adds the following words to the search indices of builds with different language
+configurations:
+
+* ``pleasefindthiskey``, ``pleasefindthiskeytoo`` to *English* builds;
+* ``bittediesenkeyfinden`` to *German* builds;
+* ``backup`` to builds in all languages.
+
+.. _metadata element: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta
 
 
 Source encoding

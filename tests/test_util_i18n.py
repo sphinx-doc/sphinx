@@ -1,17 +1,8 @@
-# -*- coding: utf-8 -*-
-"""
-    test_util_i18n
-    ~~~~~~~~~~~~~~
-
-    Test i18n util.
-
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-from __future__ import print_function
+"""Test i18n util."""
 
 import datetime
 import os
+import warnings
 
 import pytest
 from babel.messages.mofile import read_mo
@@ -37,12 +28,12 @@ def test_catalog_info_for_sub_domain_file_and_path():
 
 
 def test_catalog_outdated(tempdir):
-    (tempdir / 'test.po').write_text('#')
+    (tempdir / 'test.po').write_text('#', encoding='utf8')
     cat = i18n.CatalogInfo(tempdir, 'test', 'utf-8')
     assert cat.is_outdated()  # if mo is not exist
 
     mo_file = (tempdir / 'test.mo')
-    mo_file.write_text('#')
+    mo_file.write_text('#', encoding='utf8')
     assert not cat.is_outdated()  # if mo is exist and newer than po
 
     os.utime(mo_file, (os.stat(mo_file).st_mtime - 10,) * 2)  # to be outdate
@@ -50,7 +41,7 @@ def test_catalog_outdated(tempdir):
 
 
 def test_catalog_write_mo(tempdir):
-    (tempdir / 'test.po').write_text('#')
+    (tempdir / 'test.po').write_text('#', encoding='utf8')
     cat = i18n.CatalogInfo(tempdir, 'test', 'utf-8')
     cat.write_mo('en')
     assert os.path.exists(cat.mo_path)
@@ -58,158 +49,51 @@ def test_catalog_write_mo(tempdir):
         assert read_mo(f) is not None
 
 
-def test_get_catalogs_for_xx(tempdir):
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test2.po').write_text('#')
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test3.pot').write_text('#')
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub').makedirs()
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test4.po').write_text('#')
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test5.po').write_text('#')
-    (tempdir / 'loc1' / 'en' / 'LC_MESSAGES').makedirs()
-    (tempdir / 'loc1' / 'en' / 'LC_MESSAGES' / 'test6.po').write_text('#')
-    (tempdir / 'loc1' / 'xx' / 'LC_ALL').makedirs()
-    (tempdir / 'loc1' / 'xx' / 'LC_ALL' / 'test7.po').write_text('#')
-
-    catalogs = i18n.find_catalog_source_files([tempdir / 'loc1'], 'xx', force_all=False)
-    domains = set(c.domain for c in catalogs)
-    assert domains == set([
-        'test1',
-        'test2',
-        'sub/test4',
-        'sub/test5',
-    ])
-
-
-def test_get_catalogs_for_en(tempdir):
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'xx_dom.po').write_text('#')
-    (tempdir / 'loc1' / 'en' / 'LC_MESSAGES').makedirs()
-    (tempdir / 'loc1' / 'en' / 'LC_MESSAGES' / 'en_dom.po').write_text('#')
-
-    catalogs = i18n.find_catalog_source_files([tempdir / 'loc1'], 'en', force_all=False)
-    domains = set(c.domain for c in catalogs)
-    assert domains == set(['en_dom'])
-
-
-def test_get_catalogs_with_non_existent_locale(tempdir):
-    catalogs = i18n.find_catalog_source_files([tempdir / 'loc1'], 'xx')
-    assert not catalogs
-
-    catalogs = i18n.find_catalog_source_files([tempdir / 'loc1'], None)
-    assert not catalogs
-
-
-def test_get_catalogs_with_non_existent_locale_dirs():
-    catalogs = i18n.find_catalog_source_files(['dummy'], 'xx')
-    assert not catalogs
-
-
-def test_get_catalogs_for_xx_without_outdated(tempdir):
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.mo').write_text('#')
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test2.po').write_text('#')
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test2.mo').write_text('#')
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test3.pot').write_text('#')
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test3.mo').write_text('#')
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub').makedirs()
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test4.po').write_text('#')
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test4.mo').write_text('#')
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test5.po').write_text('#')
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test5.mo').write_text('#')
-
-    catalogs = i18n.find_catalog_source_files([tempdir / 'loc1'], 'xx', force_all=False)
-    assert not catalogs
-
-    catalogs = i18n.find_catalog_source_files([tempdir / 'loc1'], 'xx', force_all=True)
-    domains = set(c.domain for c in catalogs)
-    assert domains == set([
-        'test1',
-        'test2',
-        'sub/test4',
-        'sub/test5',
-    ])
-
-
-def test_get_catalogs_from_multiple_locale_dirs(tempdir):
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
-    (tempdir / 'loc2' / 'xx' / 'LC_MESSAGES').makedirs()
-    (tempdir / 'loc2' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
-    (tempdir / 'loc2' / 'xx' / 'LC_MESSAGES' / 'test2.po').write_text('#')
-
-    catalogs = i18n.find_catalog_source_files([tempdir / 'loc1', tempdir / 'loc2'], 'xx')
-    domains = sorted(c.domain for c in catalogs)
-    assert domains == ['test1', 'test1', 'test2']
-
-
-def test_get_catalogs_with_compact(tempdir):
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test2.po').write_text('#')
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub').makedirs()
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test3.po').write_text('#')
-    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test4.po').write_text('#')
-
-    catalogs = i18n.find_catalog_source_files([tempdir / 'loc1'], 'xx', gettext_compact=True)
-    domains = set(c.domain for c in catalogs)
-    assert domains == set(['test1', 'test2', 'sub/test3', 'sub/test4'])
-
-
-def test_get_catalogs_excluded(tempdir):
-    (tempdir / 'loc1' / 'en' / 'LC_MESSAGES' / '.git').makedirs()
-    (tempdir / 'loc1' / 'en' / 'LC_MESSAGES' / 'en_dom.po').write_text('#')
-    (tempdir / 'loc1' / 'en' / 'LC_MESSAGES' / '.git' / 'no_no.po').write_text('#')
-
-    catalogs = i18n.find_catalog_source_files(
-        [tempdir / 'loc1'], 'en', force_all=False, excluded=lambda path: '.git' in path)
-    domains = set(c.domain for c in catalogs)
-    assert domains == set(['en_dom'])
-
-
 def test_format_date():
     date = datetime.date(2016, 2, 7)
 
     # strftime format
     format = '%B %d, %Y'
-    assert i18n.format_date(format, date=date) == 'February 07, 2016'
+    with warnings.catch_warnings():
+        # Test format_date() with no language argument -- this form will be
+        # removed in Sphinx 7 (xref RemovedInSphinx70Warning)
+        warnings.simplefilter("ignore")
+        assert i18n.format_date(format, date=date) == 'February 07, 2016'
     assert i18n.format_date(format, date=date, language='') == 'February 07, 2016'
     assert i18n.format_date(format, date=date, language='unknown') == 'February 07, 2016'
     assert i18n.format_date(format, date=date, language='en') == 'February 07, 2016'
-    assert i18n.format_date(format, date=date, language='ja') == u'2月 07, 2016'
+    assert i18n.format_date(format, date=date, language='ja') == '2月 07, 2016'
     assert i18n.format_date(format, date=date, language='de') == 'Februar 07, 2016'
 
     # raw string
     format = 'Mon Mar 28 12:37:08 2016, commit 4367aef'
-    assert i18n.format_date(format, date=date) == format
+    assert i18n.format_date(format, date=date, language='en') == format
 
     format = '%B %d, %Y, %H:%M:%S %I %p'
     datet = datetime.datetime(2016, 2, 7, 5, 11, 17, 0)
-    assert i18n.format_date(format, date=datet) == 'February 07, 2016, 05:11:17 05 AM'
+    assert i18n.format_date(format, date=datet, language='en') == 'February 07, 2016, 05:11:17 05 AM'
 
     format = '%B %-d, %Y, %-H:%-M:%-S %-I %p'
-    assert i18n.format_date(format, date=datet) == 'February 7, 2016, 5:11:17 5 AM'
+    assert i18n.format_date(format, date=datet, language='en') == 'February 7, 2016, 5:11:17 5 AM'
     format = '%x'
-    assert i18n.format_date(format, date=datet) == 'Feb 7, 2016'
+    assert i18n.format_date(format, date=datet, language='en') == 'Feb 7, 2016'
     format = '%X'
-    assert i18n.format_date(format, date=datet) == '5:11:17 AM'
-    assert i18n.format_date(format, date=date) == 'Feb 7, 2016'
+    assert i18n.format_date(format, date=datet, language='en') == '5:11:17 AM'
+    assert i18n.format_date(format, date=date, language='en') == 'Feb 7, 2016'
     format = '%c'
-    assert i18n.format_date(format, date=datet) == 'Feb 7, 2016, 5:11:17 AM'
-    assert i18n.format_date(format, date=date) == 'Feb 7, 2016'
+    assert i18n.format_date(format, date=datet, language='en') == 'Feb 7, 2016, 5:11:17 AM'
+    assert i18n.format_date(format, date=date, language='en') == 'Feb 7, 2016'
+
+    # timezone
+    format = '%Z'
+    assert i18n.format_date(format, date=datet, language='en') == 'UTC'
+    format = '%z'
+    assert i18n.format_date(format, date=datet, language='en') == '+0000'
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Path separators don't match on windows")
 def test_get_filename_for_language(app):
-    # language is None
-    app.env.config.language = None
-    assert app.env.config.language is None
-    assert i18n.get_image_filename_for_language('foo.png', app.env) == 'foo.png'
-    assert i18n.get_image_filename_for_language('foo.bar.png', app.env) == 'foo.bar.png'
-    assert i18n.get_image_filename_for_language('subdir/foo.png', app.env) == 'subdir/foo.png'
-    assert i18n.get_image_filename_for_language('../foo.png', app.env) == '../foo.png'
-    assert i18n.get_image_filename_for_language('foo', app.env) == 'foo'
+    app.env.temp_data['docname'] = 'index'
 
     # language is en
     app.env.config.language = 'en'
@@ -218,15 +102,6 @@ def test_get_filename_for_language(app):
     assert i18n.get_image_filename_for_language('dir/foo.png', app.env) == 'dir/foo.en.png'
     assert i18n.get_image_filename_for_language('../foo.png', app.env) == '../foo.en.png'
     assert i18n.get_image_filename_for_language('foo', app.env) == 'foo.en'
-
-    # modify figure_language_filename and language is None
-    app.env.config.language = None
-    app.env.config.figure_language_filename = 'images/{language}/{root}{ext}'
-    assert i18n.get_image_filename_for_language('foo.png', app.env) == 'foo.png'
-    assert i18n.get_image_filename_for_language('foo.bar.png', app.env) == 'foo.bar.png'
-    assert i18n.get_image_filename_for_language('subdir/foo.png', app.env) == 'subdir/foo.png'
-    assert i18n.get_image_filename_for_language('../foo.png', app.env) == '../foo.png'
-    assert i18n.get_image_filename_for_language('foo', app.env) == 'foo'
 
     # modify figure_language_filename and language is 'en'
     app.env.config.language = 'en'
@@ -256,3 +131,58 @@ def test_get_filename_for_language(app):
     app.env.config.figure_language_filename = '{root}.{invalid}{ext}'
     with pytest.raises(SphinxError):
         i18n.get_image_filename_for_language('foo.png', app.env)
+
+    # docpath (for a document in the top of source directory)
+    app.env.config.language = 'en'
+    app.env.config.figure_language_filename = '/{docpath}{language}/{basename}{ext}'
+    assert (i18n.get_image_filename_for_language('foo.png', app.env) ==
+            '/en/foo.png')
+
+    # docpath (for a document in the sub directory)
+    app.env.temp_data['docname'] = 'subdir/index'
+    assert (i18n.get_image_filename_for_language('foo.png', app.env) ==
+            '/subdir/en/foo.png')
+
+
+def test_CatalogRepository(tempdir):
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#', encoding='utf8')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test2.po').write_text('#', encoding='utf8')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub').makedirs()
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test3.po').write_text('#', encoding='utf8')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test4.po').write_text('#', encoding='utf8')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / '.dotdir').makedirs()
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / '.dotdir' / 'test5.po').write_text('#', encoding='utf8')
+    (tempdir / 'loc1' / 'yy' / 'LC_MESSAGES').makedirs()
+    (tempdir / 'loc1' / 'yy' / 'LC_MESSAGES' / 'test6.po').write_text('#', encoding='utf8')
+    (tempdir / 'loc2' / 'xx' / 'LC_MESSAGES').makedirs()
+    (tempdir / 'loc2' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#', encoding='utf8')
+    (tempdir / 'loc2' / 'xx' / 'LC_MESSAGES' / 'test7.po').write_text('#', encoding='utf8')
+
+    # for language xx
+    repo = i18n.CatalogRepository(tempdir, ['loc1', 'loc2'], 'xx', 'utf-8')
+    assert list(repo.locale_dirs) == [str(tempdir / 'loc1'),
+                                      str(tempdir / 'loc2')]
+    assert all(isinstance(c, i18n.CatalogInfo) for c in repo.catalogs)
+    assert sorted(c.domain for c in repo.catalogs) == ['sub/test3', 'sub/test4',
+                                                       'test1', 'test1', 'test2', 'test7']
+
+    # for language yy
+    repo = i18n.CatalogRepository(tempdir, ['loc1', 'loc2'], 'yy', 'utf-8')
+    assert sorted(c.domain for c in repo.catalogs) == ['test6']
+
+    # unknown languages
+    repo = i18n.CatalogRepository(tempdir, ['loc1', 'loc2'], 'zz', 'utf-8')
+    assert sorted(c.domain for c in repo.catalogs) == []
+
+    # no languages
+    repo = i18n.CatalogRepository(tempdir, ['loc1', 'loc2'], None, 'utf-8')
+    assert sorted(c.domain for c in repo.catalogs) == []
+
+    # unknown locale_dirs
+    repo = i18n.CatalogRepository(tempdir, ['loc3'], None, 'utf-8')
+    assert sorted(c.domain for c in repo.catalogs) == []
+
+    # no locale_dirs
+    repo = i18n.CatalogRepository(tempdir, [], None, 'utf-8')
+    assert sorted(c.domain for c in repo.catalogs) == []

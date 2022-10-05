@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-
 from sphinx.writers.html import HTMLTranslator
 
 project = 'test'
-master_doc = 'index'
 
 
 class ConfHTMLTranslator(HTMLTranslator):

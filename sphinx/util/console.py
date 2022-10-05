@@ -1,17 +1,10 @@
-# -*- coding: utf-8 -*-
-"""
-    sphinx.util.console
-    ~~~~~~~~~~~~~~~~~~~
-
-    Format colored console output.
-
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Format colored console output."""
 
 import os
 import re
+import shutil
 import sys
+from typing import Dict, Pattern
 
 try:
     # check if colorama is installed to support color on Windows
@@ -19,37 +12,25 @@ try:
 except ImportError:
     colorama = None
 
-if False:
-    # For type annotation
-    from typing import Dict  # NOQA
+
+_ansi_re: Pattern = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
+codes: Dict[str, str] = {}
 
 
-_ansi_re = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
-codes = {}  # type: Dict[str, str]
+def terminal_safe(s: str) -> str:
+    """Safely encode a string for printing to the terminal."""
+    return s.encode('ascii', 'backslashreplace').decode('ascii')
 
 
-def get_terminal_width():
-    # type: () -> int
-    """Borrowed from the py lib."""
-    try:
-        import termios
-        import fcntl
-        import struct
-        call = fcntl.ioctl(0, termios.TIOCGWINSZ,
-                           struct.pack('hhhh', 0, 0, 0, 0))
-        height, width = struct.unpack('hhhh', call)[:2]
-        terminal_width = width
-    except Exception:
-        # FALLBACK
-        terminal_width = int(os.environ.get('COLUMNS', "80")) - 1
-    return terminal_width
+def get_terminal_width() -> int:
+    """Return the width of the terminal in columns."""
+    return shutil.get_terminal_size().columns - 1
 
 
-_tw = get_terminal_width()
+_tw: int = get_terminal_width()
 
 
-def term_width_line(text):
-    # type: (str) -> str
+def term_width_line(text: str) -> str:
     if not codes:
         # if no coloring, don't output fancy backspaces
         return text + '\n'
@@ -58,10 +39,13 @@ def term_width_line(text):
         return text.ljust(_tw + len(text) - len(_ansi_re.sub('', text))) + '\r'
 
 
-def color_terminal():
-    # type: () -> bool
+def color_terminal() -> bool:
+    if 'NO_COLOR' in os.environ:
+        return False
     if sys.platform == 'win32' and colorama is not None:
         colorama.init()
+        return True
+    if 'FORCE_COLOR' in os.environ:
         return True
     if not hasattr(sys.stdout, 'isatty'):
         return False
@@ -75,21 +59,18 @@ def color_terminal():
     return False
 
 
-def nocolor():
-    # type: () -> None
+def nocolor() -> None:
     if sys.platform == 'win32' and colorama is not None:
         colorama.deinit()
     codes.clear()
 
 
-def coloron():
-    # type: () -> None
+def coloron() -> None:
     codes.update(_orig_codes)
 
 
-def colorize(name, text, input_mode=False):
-    # type: (str, unicode, bool) -> unicode
-    def escseq(name):
+def colorize(name: str, text: str, input_mode: bool = False) -> str:
+    def escseq(name: str) -> str:
         # Wrap escape sequence with ``\1`` and ``\2`` to let readline know
         # it is non-printable characters
         # ref: https://tiswww.case.edu/php/chet/readline/readline.html
@@ -104,15 +85,12 @@ def colorize(name, text, input_mode=False):
     return escseq(name) + text + escseq('reset')
 
 
-def strip_colors(s):
-    # type: (str) -> str
+def strip_colors(s: str) -> str:
     return re.compile('\x1b.*?m').sub('', s)
 
 
-def create_color_func(name):
-    # type: (str) -> None
-    def inner(text):
-        # type: (unicode) -> unicode
+def create_color_func(name: str) -> None:
+    def inner(text: str) -> str:
         return colorize(name, text)
     globals()[name] = inner
 
@@ -140,9 +118,9 @@ _colors = [
     ('lightgray', 'white'),
 ]
 
-for i, (dark, light) in enumerate(_colors):
-    codes[dark] = '\x1b[%im' % (i + 30)
-    codes[light] = '\x1b[%i;01m' % (i + 30)
+for i, (dark, light) in enumerate(_colors, 30):
+    codes[dark] = '\x1b[%im' % i
+    codes[light] = '\x1b[%im' % (i + 60)
 
 _orig_codes = codes.copy()
 

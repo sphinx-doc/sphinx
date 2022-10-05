@@ -1,0 +1,238 @@
+%% NOTICES AND ADMONITIONS
+%
+% change this info string if making any custom modification
+\ProvidesFile{sphinxlatexadmonitions.sty}[2022/07/03 admonitions]
+
+% Provides support for this output mark-up from Sphinx latex writer:
+%
+% - sphinxadmonition (environment)
+%   This is a dispatch supporting
+%
+%   - note, hint, important, tip                 (via sphinxlightbox)
+%   - warning, caution, attention, danger, error (via sphinxheavybox)
+%
+%   Each sphinx<notice name> environment can be redefined by user.
+%   The defaults are customizable via various colour and dimension
+%   settings, cf sphinx docs (latex customization).
+%
+% Requires:
+\RequirePackage{sphinxpackageboxes}
+\RequirePackage{framed}% used by sphinxheavybox
+%
+% Dependencies (they do not need to be defined at time of loading):
+% - of course the various colour and dimension options handled via sphinx.sty
+% - \sphinxstrong (for sphinxlightbox and sphinxheavybox)
+% - dimension register \spx@image@maxheight from sphinxlatexgraphics.sty
+% - \savenotes/\spewnotes from sphinxpackagefootnote (for sphinxheavybox)
+
+% Provides: (also in sphinxlatexliterals.sty)
+\providecommand*\sphinxvspacefixafterfrenchlists{%
+   \ifvmode\ifdim\lastskip<\z@ \vskip\parskip\fi\else\par\fi
+}
+
+% Some are quite plain
+% the spx@notice@bordercolor etc are set in the sphinxadmonition environment
+\newenvironment{sphinxlightbox}{%
+  \par
+  \noindent{\color{spx@notice@bordercolor}%
+            \rule{\linewidth}{\spx@notice@border}}\par\nobreak
+  {\parskip\z@skip\noindent}%
+  }
+  {%
+  % counteract previous possible negative skip (French lists!):
+  % (we can't cancel that any earlier \vskip introduced a potential pagebreak)
+  \sphinxvspacefixafterfrenchlists
+  \nobreak\vbox{\noindent\kern\@totalleftmargin
+      {\color{spx@notice@bordercolor}%
+       \rule[\dimexpr.4\baselineskip-\spx@notice@border\relax]
+             {\linewidth}{\spx@notice@border}}\hss}\allowbreak
+  }% end of sphinxlightbox environment definition
+% may be renewenvironment'd by user for complete customization
+\newenvironment{sphinxnote}[1]
+  {\begin{sphinxlightbox}\sphinxstrong{#1} }{\end{sphinxlightbox}}
+\newenvironment{sphinxhint}[1]
+  {\begin{sphinxlightbox}\sphinxstrong{#1} }{\end{sphinxlightbox}}
+\newenvironment{sphinximportant}[1]
+  {\begin{sphinxlightbox}\sphinxstrong{#1} }{\end{sphinxlightbox}}
+\newenvironment{sphinxtip}[1]
+  {\begin{sphinxlightbox}\sphinxstrong{#1} }{\end{sphinxlightbox}}
+% or just use the package options
+% these are needed for common handling by notice environment of lightbox
+% and heavybox but they are  currently not used by lightbox environment
+% and there is consequently no corresponding package option
+\definecolor{sphinxnoteBgColor}{rgb}{1,1,1}
+\definecolor{sphinxhintBgColor}{rgb}{1,1,1}
+\definecolor{sphinximportantBgColor}{rgb}{1,1,1}
+\definecolor{sphinxtipBgColor}{rgb}{1,1,1}
+
+% Others get more distinction
+\def\spx@admonitions@boxes@fcolorbox@setup{%
+  \spx@boxes@border@top   \@nameuse{spx@\spx@noticetype @border@top}%
+  \spx@boxes@border@right \@nameuse{spx@\spx@noticetype @border@right}%
+  \spx@boxes@border@bottom\@nameuse{spx@\spx@noticetype @border@bottom}%
+  \spx@boxes@border@left  \@nameuse{spx@\spx@noticetype @border@left}%
+  \spx@boxes@border       \spx@notice@border
+%
+  \spx@boxes@padding@top   \@nameuse{spx@\spx@noticetype @padding@top}%
+  \spx@boxes@padding@right \@nameuse{spx@\spx@noticetype @padding@right}%
+  \spx@boxes@padding@bottom\@nameuse{spx@\spx@noticetype @padding@bottom}%
+  \spx@boxes@padding@left  \@nameuse{spx@\spx@noticetype @padding@left}%
+%
+  \spx@boxes@radius@topleft     \@nameuse{spx@\spx@noticetype @radius@topleft}%
+  \spx@boxes@radius@topright    \@nameuse{spx@\spx@noticetype @radius@topright}%
+  \spx@boxes@radius@bottomright \@nameuse{spx@\spx@noticetype @radius@bottomright}%
+  \spx@boxes@radius@bottomleft  \@nameuse{spx@\spx@noticetype @radius@bottomleft}%
+  \relax
+  \iftrue\@nameuse{ifspx@\spx@noticetype @withshadow}%
+     \spx@boxes@withshadowtrue
+     \spx@boxes@shadow@xoffset \@nameuse{spx@\spx@noticetype @box@shadow@xoffset}%
+     \spx@boxes@shadow@yoffset \@nameuse{spx@\spx@noticetype @box@shadow@yoffset}\relax
+  \else
+     \spx@boxes@withshadowfalse
+  \fi\@nameuse{fi}%
+  \iftrue\@nameuse{ifspx@\spx@noticetype @insetshadow}%
+     \spx@boxes@insetshadowtrue
+  \else
+     \spx@boxes@insetshadowfalse
+  \fi\@nameuse{fi}%
+  \iftrue\@nameuse{ifspx@\spx@noticetype @withshadowcolor}%
+    \spx@boxes@withshadowcolortrue
+  \else
+    \spx@boxes@withshadowcolorfalse
+  \fi\@nameuse{fi}%
+  %
+  \iftrue\@nameuse{ifspx@\spx@noticetype @withbackgroundcolor}%
+    \spx@boxes@withbackgroundcolortrue
+  \else
+    \spx@boxes@withbackgroundcolorfalse
+  \fi\@nameuse{fi}%
+  \sphinxcolorlet{spx@boxes@backgroundcolor}{spx@notice@bgcolor}%
+  %
+  \iftrue\@nameuse{ifspx@\spx@noticetype @withbordercolor}%
+    \spx@boxes@withbordercolortrue
+  \else
+    \spx@boxes@withbordercolorfalse
+  \fi\@nameuse{fi}%
+  \sphinxcolorlet{spx@boxes@bordercolor}{spx@notice@bordercolor}%
+  %
+  \iftrue\@nameuse{ifspx@\spx@noticetype @withshadowcolor}%
+    \spx@boxes@withshadowcolortrue
+  \else
+    \spx@boxes@withshadowcolorfalse
+  \fi\@nameuse{fi}%
+  \sphinxcolorlet{spx@boxes@shadowcolor}{sphinx\spx@noticetype ShadowColor}%
+}
+% Code adapted from framed.sty's "snugshade" environment.
+% Nesting works (inner frames do not allow page breaks).
+\newenvironment{sphinxheavybox}{\par
+   \spx@admonitions@boxes@fcolorbox@setup
+   % Those are used by sphinxVerbatim if the \ifspx@inframed boolean is true
+   \setlength{\FrameRule}{0.5\dimexpr\spx@boxes@border@top+\spx@boxes@border@bottom\relax}%
+   % MEMO: prior to 5.1.0 \FrameSep was determined as 0.6\baselineskip -
+   % \FrameRule, and there was no possibility for user to adjust padding.
+   % Then \fcolorbox was used with \fboxrule set to \FrameRule and \fboxsep
+   % set to \FrameSep.
+   % The 5.1.0 default calculation of padding parameters maintains PDF output
+   % identical to legacy behaviour, as long as padding is not set by user.
+   \setlength{\FrameSep}{0.5\dimexpr\spx@boxes@padding@top+\spx@boxes@padding@bottom\relax}%
+   \advance\spx@image@maxheight
+   -\dimexpr\spx@boxes@border@top+\spx@boxes@border@bottom
+           +\spx@boxes@padding@top+\spx@boxes@padding@bottom
+           +\baselineskip\relax % will happen again if nested, needed indeed!
+   % MEMO: the next comment is before boxing was extended to allow padding and
+   % multiple border-widths, not to mention shadows...
+   % configure framed.sty's parameters to obtain same vertical spacing
+   % as for "light" boxes. We need for this to manually insert parskip glue and
+   % revert a skip done by framed before the frame.
+    \ltx@ifundefined{OuterFrameSep}{}{\OuterFrameSep\z@skip}%
+    \vspace{\FrameHeightAdjust}
+   % copied/adapted from framed.sty's snugshade
+   % but now using in place of \fcolorbox the Sphinx sophisticated own
+   \def\FrameCommand##1{\hskip\@totalleftmargin
+  \ifspx@boxes@withshadow
+   \ifspx@boxes@insetshadow\else
+    \ifdim\spx@boxes@shadow@xoffset<\z@\hskip\spx@boxes@shadow@xoffset\relax
+    \fi
+   \fi
+  \fi
+        \if1% use rounded boxes only if needed and possible
+          \ifdim\spx@boxes@radius@topleft    >\z@0\fi
+          \ifdim\spx@boxes@radius@topright   >\z@0\fi
+          \ifdim\spx@boxes@radius@bottomright>\z@0\fi
+          \ifdim\spx@boxes@radius@bottomleft >\z@0\fi
+          1\spx@boxes@fcolorbox{##1}%
+        \else
+          \spx@ifpackageloaded@pictiie
+             {\ifspx@boxes@insetshadow
+                \spx@boxes@fcolorbox{##1}%
+              \else
+                \spx@boxes@fcolorbox@rounded{##1}%
+              \fi}%
+             {\spx@boxes@fcolorbox{##1}}%
+        \fi
+  \ifspx@boxes@withshadow
+   \ifspx@boxes@insetshadow\else
+    \ifdim\spx@boxes@shadow@xoffset>\z@\hskip-\spx@boxes@shadow@xoffset\relax
+    \fi
+   \fi
+  \fi
+       \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+   \savenotes
+   % use a minipage if we are already inside a framed environment
+   \ifspx@inframed
+       \noindent\begin{minipage}{\linewidth}
+   \else
+       % handle case where notice is first thing in a list item (or is quoted)
+       \if@inlabel
+        \noindent\par\vspace{-\baselineskip}
+       \else
+        \vspace{\parskip}
+       \fi
+   \fi
+   \MakeFramed {\spx@inframedtrue
+     \advance\hsize-\width \@totalleftmargin\z@ \linewidth\hsize
+     % minipage initialization copied from LaTeX source code.
+     \@pboxswfalse
+     \let\@listdepth\@mplistdepth \@mplistdepth\z@
+     \@minipagerestore
+     \@setminipage }%
+   \color@begingroup % workaround to an upstream framed.sty bug
+   }
+   {%
+   \par\unskip
+   \color@endgroup   % matches the \color@begingroup
+   \@minipagefalse
+   \endMakeFramed
+   \ifspx@inframed\end{minipage}\fi
+   % set footnotes at bottom of page
+   \spewnotes
+   % arrange for similar spacing below frame as for "light" boxes.
+   \vskip .4\baselineskip
+   }% end of sphinxheavybox environment definition
+% may be renewenvironment'd by user for complete customization
+\newenvironment{sphinxwarning}[1]
+  {\begin{sphinxheavybox}\sphinxstrong{#1} }{\end{sphinxheavybox}}
+\newenvironment{sphinxcaution}[1]
+  {\begin{sphinxheavybox}\sphinxstrong{#1} }{\end{sphinxheavybox}}
+\newenvironment{sphinxattention}[1]
+  {\begin{sphinxheavybox}\sphinxstrong{#1} }{\end{sphinxheavybox}}
+\newenvironment{sphinxdanger}[1]
+  {\begin{sphinxheavybox}\sphinxstrong{#1} }{\end{sphinxheavybox}}
+\newenvironment{sphinxerror}[1]
+  {\begin{sphinxheavybox}\sphinxstrong{#1} }{\end{sphinxheavybox}}
+% or just use package options
+
+% the main dispatch for all types of notices
+\newenvironment{sphinxadmonition}[2]{% #1=type, #2=heading
+  % can't use #1 directly in definition of end part
+  \def\spx@noticetype {#1}%
+  % set parameters of heavybox/lightbox
+  \sphinxcolorlet{spx@notice@bordercolor}{sphinx#1BorderColor}%
+  \sphinxcolorlet{spx@notice@bgcolor}{sphinx#1BgColor}%
+  \spx@notice@border \dimexpr\csname spx@opt@#1border\endcsname\relax
+  % start specific environment, passing the heading as argument
+  \begin{sphinx#1}{#2}}
+  % workaround some LaTeX "feature" of \end command
+ {\edef\spx@temp{\noexpand\end{sphinx\spx@noticetype}}\spx@temp}
+
+\endinput

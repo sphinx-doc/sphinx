@@ -4,9 +4,6 @@ Sphinx image handling
 .. first, a simple test with direct filename
 .. image:: img.png
 
-.. a non-existing image with direct filename
-.. image:: foo.png
-
 .. an image with path name (relative to this directory!)
 .. image:: subdir/img.png
    :height: 100

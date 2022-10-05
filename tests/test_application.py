@@ -1,19 +1,44 @@
-# -*- coding: utf-8 -*-
-"""
-    test_application
-    ~~~~~~~~~~~~~~~~
+"""Test the Sphinx class."""
 
-    Test the Sphinx class.
+import shutil
+import sys
+from io import StringIO
+from pathlib import Path
+from unittest.mock import Mock
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
 import pytest
 from docutils import nodes
 
+import sphinx.application
 from sphinx.errors import ExtensionError
-from sphinx.testing.util import strip_escseq
+from sphinx.testing.path import path
+from sphinx.testing.util import SphinxTestApp, strip_escseq
 from sphinx.util import logging
+
+
+def test_instantiation(tmp_path_factory, rootdir: str, monkeypatch):
+    # Given
+    src_dir = tmp_path_factory.getbasetemp() / 'root'
+
+    # special support for sphinx/tests
+    if rootdir and not src_dir.exists():
+        shutil.copytree(Path(str(rootdir)) / 'test-root', src_dir)
+
+    monkeypatch.setattr('sphinx.application.abspath', lambda x: x)
+
+    syspath = sys.path[:]
+
+    # When
+    app_ = SphinxTestApp(
+        srcdir=path(src_dir),
+        status=StringIO(),
+        warning=StringIO()
+    )
+    sys.path[:] = syspath
+    app_.cleanup()
+
+    # Then
+    assert isinstance(app_, sphinx.application.Sphinx)
 
 
 def test_events(app, status, warning):
@@ -42,13 +67,14 @@ def test_events(app, status, warning):
 
 
 def test_emit_with_nonascii_name_node(app, status, warning):
-    node = nodes.section(names=[u'\u65e5\u672c\u8a9e'])
+    node = nodes.section(names=['\u65e5\u672c\u8a9e'])
     app.emit('my_event', node)
 
 
 def test_extensions(app, status, warning):
     app.setup_extension('shutil')
-    assert strip_escseq(warning.getvalue()).startswith("WARNING: extension 'shutil'")
+    warning = strip_escseq(warning.getvalue())
+    assert "extension 'shutil' has no setup() function" in warning
 
 
 def test_extension_in_blacklist(app, status, warning):
@@ -59,16 +85,11 @@ def test_extension_in_blacklist(app, status, warning):
 
 @pytest.mark.sphinx(testroot='add_source_parser')
 def test_add_source_parser(app, status, warning):
-    assert set(app.config.source_suffix) == set(['.rst', '.md', '.test'])
+    assert set(app.config.source_suffix) == {'.rst', '.test'}
 
     # .rst; only in :confval:`source_suffix`
     assert '.rst' not in app.registry.get_source_parsers()
     assert app.registry.source_suffix['.rst'] is None
-
-    # .md; configured by :confval:`source_suffix` and :confval:`source_parsers`
-    assert '.md' in app.registry.get_source_parsers()
-    assert app.registry.source_suffix['.md'] == '.md'
-    assert app.registry.get_source_parsers()['.md'].__name__ == 'DummyMarkdownParser'
 
     # .test; configured by API
     assert app.registry.source_suffix['.test'] == 'test'
@@ -100,6 +121,8 @@ def test_add_is_parallel_allowed(app, status, warning):
 
     app.setup_extension('read_serial')
     assert app.is_parallel_allowed('read') is False
+    assert "the read_serial extension is not safe for parallel reading" in warning.getvalue()
+    warning.truncate(0)  # reset warnings
     assert app.is_parallel_allowed('write') is True
     assert warning.getvalue() == ''
     app.extensions.pop('read_serial')
@@ -111,3 +134,22 @@ def test_add_is_parallel_allowed(app, status, warning):
             "for parallel reading, assuming it isn't - please ") in warning.getvalue()
     app.extensions.pop('write_serial')
     warning.truncate(0)  # reset warnings
+
+
+@pytest.mark.sphinx('dummy', testroot='root')
+def test_build_specific(app):
+    app.builder.build = Mock()
+    filenames = [app.srcdir / 'index.txt',                      # normal
+                 app.srcdir / 'images',                         # without suffix
+                 app.srcdir / 'notfound.txt',                   # not found
+                 app.srcdir / 'img.png',                        # unknown suffix
+                 '/index.txt',                                  # external file
+                 app.srcdir / 'subdir',                         # directory
+                 app.srcdir / 'subdir/includes.txt',            # file on subdir
+                 app.srcdir / 'subdir/../subdir/excluded.txt']  # not normalized
+    app.build(False, filenames)
+
+    expected = ['index', 'subdir/includes', 'subdir/excluded']
+    app.builder.build.assert_called_with(expected,
+                                         method='specific',
+                                         summary='3 source files given on command line')

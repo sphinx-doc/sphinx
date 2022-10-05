@@ -1,9 +1,9 @@
 %
-% sphinxhowto.cls for Sphinx (http://sphinx-doc.org/)
+% sphinxhowto.cls for Sphinx (https://www.sphinx-doc.org/)
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{sphinxhowto}[2018/09/18 v1.8.1 Document class (Sphinx HOWTO)]
+\ProvidesClass{sphinxhowto}[2019/12/01 v2.3.0 Document class (Sphinx howto)]
 
 % 'oneside' option overriding the 'twoside' default
 \newif\if@oneside
@@ -27,11 +27,22 @@
 \setcounter{secnumdepth}{2}
 \setcounter{tocdepth}{2}% i.e. section and subsection
 
+% Adapt \and command to the flushright context of \sphinxmaketitle, to
+% avoid ragged line endings if author names do not fit all on one single line
+\DeclareRobustCommand{\and}{%
+    \end{tabular}\kern-\tabcolsep
+    \allowbreak
+    \hskip\dimexpr1em+\tabcolsep\@plus.17fil\begin{tabular}[t]{c}%
+}%
+% If it is desired that each author name be on its own line, use in preamble:
+%\DeclareRobustCommand{\and}{%
+%   \end{tabular}\kern-\tabcolsep\\\begin{tabular}[t]{c}%
+%}%
 % Change the title page to look a bit better, and fit in with the fncychap
 % ``Bjarne'' style a bit better.
 %
-\renewcommand{\maketitle}{%
-  \noindent\rule{\textwidth}{1pt}\par
+\newcommand{\sphinxmaketitle}{%
+  \noindent\rule{\linewidth}{1pt}\par
     \begingroup % for PDF information dictionary
        \def\endgraf{ }\def\and{\& }%
        \pdfstringdefDisableCommands{\def\\{, }}% overwrite hyperref setup
@@ -46,7 +57,7 @@
     {\Large
       \begin{tabular}[t]{c}
         \@author
-      \end{tabular}}\par
+      \end{tabular}\kern-\tabcolsep}\par
     \vspace{25pt}
     \@date \par
     \py@authoraddress \par
@@ -57,15 +68,16 @@
   %\gdef\@thanks{}\gdef\@author{}\gdef\@title{}
 }
 
-\newcommand{\sphinxtableofcontents}{
+\newcommand{\sphinxtableofcontents}{%
   \begingroup
-    \parskip = 0mm
+    \parskip \z@skip
+    \sphinxtableofcontentshook
     \tableofcontents
   \endgroup
-  \rule{\textwidth}{1pt}
-  \vspace{12pt}
-}  
-
+  \noindent\rule{\linewidth}{1pt}\par
+  \vspace{12pt}%
+}
+\newcommand\sphinxtableofcontentshook{}
 \pagenumbering{arabic}
 
 % Fix the bibliography environment to add an entry to the Table of
