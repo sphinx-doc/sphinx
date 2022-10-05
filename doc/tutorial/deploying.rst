@@ -190,11 +190,11 @@ contents:
      build:
        runs-on: ubuntu-latest
        steps:
-       - uses: actions/checkout@v2
+       - uses: actions/checkout@v3
        - name: Build HTML
-         uses: ammaraskar/sphinx-action@0.4
+         uses: ammaraskar/sphinx-action@master
        - name: Upload artifacts
-         uses: actions/upload-artifact@v1
+         uses: actions/upload-artifact@v3
          with:
            name: html-docs
            path: docs/build/html/

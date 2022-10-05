@@ -1,18 +1,10 @@
-"""
-    sphinx.builders._epub_base
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Base class of epub2/epub3 builders.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Base class of epub2/epub3 builders."""
 
 import html
 import os
 import re
 from os import path
-from typing import Any, Dict, List, NamedTuple, Set, Tuple
+from typing import Any, Dict, List, NamedTuple, Optional, Set, Tuple
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
 from docutils import nodes
@@ -64,6 +56,7 @@ MEDIA_TYPES = {
     '.xhtml': 'application/xhtml+xml',
     '.css': 'text/css',
     '.png': 'image/png',
+    '.webp': 'image/webp',
     '.gif': 'image/gif',
     '.svg': 'image/svg+xml',
     '.jpg': 'image/jpeg',
@@ -453,7 +446,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         pass
 
     def handle_page(self, pagename: str, addctx: Dict, templatename: str = 'page.html',
-                    outfilename: str = None, event_arg: Any = None) -> None:
+                    outfilename: Optional[str] = None, event_arg: Any = None) -> None:
         """Create a rendered page.
 
         This method is overwritten for genindex pages in order to fix href link
@@ -471,7 +464,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         logger.info(__('writing mimetype file...'))
         copy_asset_file(path.join(self.template_dir, 'mimetype'), self.outdir)
 
-    def build_container(self, outname: str = 'META-INF/container.xml') -> None:  # NOQA
+    def build_container(self, outname: str = 'META-INF/container.xml') -> None:
         """Write the metainfo file META-INF/container.xml."""
         logger.info(__('writing META-INF/container.xml file...'))
         outdir = path.join(self.outdir, 'META-INF')
@@ -491,7 +484,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['copyright'] = html.escape(self.config.epub_copyright)
         metadata['scheme'] = html.escape(self.config.epub_scheme)
         metadata['id'] = html.escape(self.config.epub_identifier)
-        metadata['date'] = html.escape(format_date("%Y-%m-%d"))
+        metadata['date'] = html.escape(format_date("%Y-%m-%d", language='en'))
         metadata['manifest_items'] = []
         metadata['spines'] = []
         metadata['guides'] = []

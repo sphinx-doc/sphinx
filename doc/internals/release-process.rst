@@ -100,6 +100,27 @@ But you can also explicitly enable the pending ones using e.g.
 ``PYTHONWARNINGS=default`` (see the :ref:`Python docs on configuring warnings
 <python:describing-warning-filters>`) for more details.
 
+Python version support policy
+-----------------------------
+
+The minimum Python version Sphinx supports is the default Python version
+installed in the oldest `Long Term Support version of
+Ubuntu <https://ubuntu.com/about/release-cycle>`_ that has standard support.
+For example, as of July 2021, Ubuntu 16.04 has just entered extended
+security maintenance (therefore, it doesn't count as standard support) and
+the oldest LTS release to consider is Ubuntu 18.04 LTS, supported until
+April 2023 and shipping Python 3.6.
+
+This is a summary table with the current policy:
+
+========== ========= ======
+Date       Ubuntu    Python
+========== ========= ======
+April 2021 18.04 LTS 3.6+
+---------- --------- ------
+April 2023 20.04 LTS 3.8+
+========== ========= ======
+
 Release procedures
 ------------------
 

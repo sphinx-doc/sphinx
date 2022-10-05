@@ -1,12 +1,4 @@
-"""
-    sphinx.util.typing
-    ~~~~~~~~~~~~~~~~~~
-
-    The composite types for Sphinx.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""The composite types for Sphinx."""
 
 import sys
 import typing
@@ -38,16 +30,19 @@ try:
 except ImportError:
     UnionType = None
 
-if False:
-    # For type annotation
-    from typing import Type  # NOQA # for python3.5.1
-
-
 # builtin classes that have incorrect __module__
 INVALID_BUILTIN_CLASSES = {
     Struct: 'struct.Struct',  # Before Python 3.9
     TracebackType: 'types.TracebackType',
 }
+
+
+def is_invalid_builtin_class(obj: Any) -> bool:
+    """Check *obj* is an invalid built-in class."""
+    try:
+        return obj in INVALID_BUILTIN_CLASSES
+    except TypeError:  # unhashable type
+        return False
 
 
 # Text like nodes which are initialized with text and rawsource
@@ -74,8 +69,11 @@ InventoryItem = Tuple[str, str, str, str]
 Inventory = Dict[str, Dict[str, InventoryItem]]
 
 
-def get_type_hints(obj: Any, globalns: Dict = None, localns: Dict = None) -> Dict[str, Any]:
-    """Return a dictionary containing type hints for a function, method, module or class object.
+def get_type_hints(
+    obj: Any, globalns: Optional[Dict[str, Any]] = None, localns: Optional[Dict] = None
+) -> Dict[str, Any]:
+    """Return a dictionary containing type hints for a function, method, module or class
+    object.
 
     This is a simple wrapper of `typing.get_type_hints()` that does not raise an error on
     runtime.
@@ -116,6 +114,7 @@ def restify(cls: Optional[Type], mode: str = 'fully-qualified-except-typing') ->
                  'smart'
                      Show the name of the annotation.
     """
+    from sphinx.ext.autodoc.mock import ismock, ismockmodule  # lazy loading
     from sphinx.util import inspect  # lazy loading
 
     if mode == 'smart':
@@ -130,7 +129,11 @@ def restify(cls: Optional[Type], mode: str = 'fully-qualified-except-typing') ->
             return '...'
         elif isinstance(cls, str):
             return cls
-        elif cls in INVALID_BUILTIN_CLASSES:
+        elif ismockmodule(cls):
+            return ':py:class:`%s%s`' % (modprefix, cls.__name__)
+        elif ismock(cls):
+            return ':py:class:`%s%s.%s`' % (modprefix, cls.__module__, cls.__name__)
+        elif is_invalid_builtin_class(cls):
             return ':py:class:`%s%s`' % (modprefix, INVALID_BUILTIN_CLASSES[cls])
         elif inspect.isNewType(cls):
             if sys.version_info > (3, 10):
@@ -210,6 +213,9 @@ def _restify_py37(cls: Optional[Type], mode: str = 'fully-qualified-except-typin
         return text
     elif isinstance(cls, typing._SpecialForm):
         return ':py:obj:`~%s.%s`' % (cls.__module__, cls._name)
+    elif sys.version_info >= (3, 11) and cls is typing.Any:
+        # handle bpo-46998
+        return f':py:obj:`~{cls.__module__}.{cls.__name__}`'
     elif hasattr(cls, '__qualname__'):
         if cls.__module__ == 'typing':
             return ':py:class:`~%s.%s`' % (cls.__module__, cls.__qualname__)
@@ -261,7 +267,7 @@ def _restify_py36(cls: Optional[Type], mode: str = 'fully-qualified-except-typin
             return reftext + '\\ [%s]' % param_str
         else:
             return reftext
-    elif isinstance(cls, typing.GenericMeta):
+    elif isinstance(cls, typing.GenericMeta):  # type: ignore[attr-defined]
         if module == 'typing':
             reftext = ':py:class:`~typing.%s`' % qualname
         else:
@@ -335,6 +341,7 @@ def stringify(annotation: Any, mode: str = 'fully-qualified-except-typing') -> s
                  'fully-qualified'
                      Show the module name and qualified name of the annotation.
     """
+    from sphinx.ext.autodoc.mock import ismock, ismockmodule  # lazy loading
     from sphinx.util import inspect  # lazy loading
 
     if mode == 'smart':
@@ -364,7 +371,11 @@ def stringify(annotation: Any, mode: str = 'fully-qualified-except-typing') -> s
         return repr(annotation)
     elif annotation is NoneType:
         return 'None'
-    elif annotation in INVALID_BUILTIN_CLASSES:
+    elif ismockmodule(annotation):
+        return modprefix + annotation.__name__
+    elif ismock(annotation):
+        return modprefix + '%s.%s' % (annotation.__module__, annotation.__name__)
+    elif is_invalid_builtin_class(annotation):
         return modprefix + INVALID_BUILTIN_CLASSES[annotation]
     elif str(annotation).startswith('typing.Annotated'):  # for py310+
         pass
@@ -494,16 +505,16 @@ def _stringify_py36(annotation: Any, mode: str = 'fully-qualified-except-typing'
             return '%s%s[%s]' % (modprefix, qualname, param_str)
         else:
             return modprefix + qualname
-    elif isinstance(annotation, typing.GenericMeta):
+    elif isinstance(annotation, typing.GenericMeta):  # type: ignore[attr-defined]
         params = None
-        if annotation.__args__ is None or len(annotation.__args__) <= 2:  # type: ignore  # NOQA
-            params = annotation.__args__  # type: ignore
-        elif annotation.__origin__ == Generator:  # type: ignore
-            params = annotation.__args__  # type: ignore
+        if annotation.__args__ is None or len(annotation.__args__) <= 2:  # NOQA
+            params = annotation.__args__
+        elif annotation.__origin__ == Generator:
+            params = annotation.__args__
         else:  # typing.Callable
             args = ', '.join(stringify(arg, mode) for arg
-                             in annotation.__args__[:-1])  # type: ignore
-            result = stringify(annotation.__args__[-1])  # type: ignore
+                             in annotation.__args__[:-1])
+            result = stringify(annotation.__args__[-1])
             return '%s%s[[%s], %s]' % (modprefix, qualname, args, result)
         if params is not None:
             param_str = ', '.join(stringify(p, mode) for p in params)

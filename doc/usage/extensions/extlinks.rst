@@ -59,3 +59,11 @@ The extension adds a config value:
 
    Since links are generated from the role in the reading stage, they appear as
    ordinary links to e.g. the ``linkcheck`` builder.
+
+.. confval:: extlinks_detect_hardcoded_links
+
+   If enabled, extlinks emits a warning if a hardcoded link is replaceable
+   by an extlink, and suggests a replacement via warning.  It defaults to
+   ``False``.
+
+   .. versionadded:: 4.5

@@ -1,7 +1,7 @@
 %% TOPIC AND CONTENTS BOXES
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexshadowbox.sty}[2021/01/27 sphinxShadowBox]
+\ProvidesFile{sphinxlatexshadowbox.sty}[2022/07/03 sphinxShadowBox]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -16,48 +16,111 @@
 %
 % Requires:
 \RequirePackage{framed}
+\RequirePackage{sphinxpackageboxes}
 
-% Again based on use of "framed.sty", this allows breakable framed boxes.
+\def\spx@shadowbox@boxes@fcolorbox@setup{%
+%
+  \spx@boxes@border@top   \spx@topic@border@top
+  \spx@boxes@border@right \spx@topic@border@right
+  \spx@boxes@border@bottom\spx@topic@border@bottom
+  \spx@boxes@border@left  \spx@topic@border@left
+  \spx@boxes@border       \spxdimen@topic@border
+%
+  \spx@boxes@padding@top   \spx@topic@padding@top
+  \spx@boxes@padding@right \spx@topic@padding@right
+  \spx@boxes@padding@bottom\spx@topic@padding@bottom
+  \spx@boxes@padding@left  \spx@topic@padding@left
+%
+  \spx@boxes@radius@topleft     \spx@topic@radius@topleft
+  \spx@boxes@radius@topright    \spx@topic@radius@topright
+  \spx@boxes@radius@bottomright \spx@topic@radius@bottomright
+  \spx@boxes@radius@bottomleft  \spx@topic@radius@bottomleft\relax
+%
+  \ifspx@topic@withshadow
+     \spx@boxes@withshadowtrue
+     \spx@boxes@shadow@xoffset \spx@topic@shadow@xoffset
+     \spx@boxes@shadow@yoffset \spx@topic@shadow@yoffset\relax
+  \else
+     \spx@boxes@withshadowfalse
+  \fi
+  \ifspx@topic@insetshadow\spx@boxes@insetshadowtrue\else
+                          \spx@boxes@insetshadowfalse\fi
+  \ifspx@topic@withshadowcolor\spx@boxes@withshadowcolortrue\else
+                              \spx@boxes@withshadowcolorfalse\fi
+  %
+  \ifspx@topic@withbackgroundcolor\spx@boxes@withbackgroundcolortrue\else
+                                  \spx@boxes@withbackgroundcolorfalse\fi
+  \sphinxcolorlet{spx@boxes@backgroundcolor}{sphinxTopicBackgroundColor}%
+  %
+  \ifspx@topic@withbordercolor\spx@boxes@withbordercolortrue\else
+                                  \spx@boxes@withbordercolorfalse\fi
+  \sphinxcolorlet{spx@boxes@bordercolor}{sphinxTopicBorderColor}%
+  %
+  \ifspx@topic@withshadowcolor\spx@boxes@withshadowcolortrue\else
+                                  \spx@boxes@withshadowcolorfalse\fi
+  \sphinxcolorlet{spx@boxes@shadowcolor}{sphinxTopicShadowColor}%
+}%
+
+% At 5.1.0 the code formerly here has been refactored and incorporated
+% into more powerful \spx@boxes@fcolorbox from sphinxpackageboxes.sty
 \long\def\spx@ShadowFBox#1{%
-  \leavevmode\begingroup
-  % first we frame the box #1
-  \setbox\@tempboxa
-   \hbox{\vrule\@width\sphinxshadowrule
-         \vbox{\hrule\@height\sphinxshadowrule
-               \kern\sphinxshadowsep
-               \hbox{\kern\sphinxshadowsep #1\kern\sphinxshadowsep}%
-               \kern\sphinxshadowsep
-               \hrule\@height\sphinxshadowrule}%
-         \vrule\@width\sphinxshadowrule}%
-  % Now we add the shadow, like \shadowbox from fancybox.sty would do
-  \dimen@\dimexpr.5\sphinxshadowrule+\sphinxshadowsize\relax
-  \hbox{\vbox{\offinterlineskip
-              \hbox{\copy\@tempboxa\kern-.5\sphinxshadowrule
-                    % add shadow on right side
-                    \lower\sphinxshadowsize
-                          \hbox{\vrule\@height\ht\@tempboxa \@width\dimen@}%
-                    }%
-              \kern-\dimen@ % shift back vertically to bottom of frame
-              % and add shadow at bottom
-              \moveright\sphinxshadowsize
-                    \vbox{\hrule\@width\wd\@tempboxa \@height\dimen@}%
-              }%
-        % move left by the size of right shadow so shadow adds no width
-        \kern-\sphinxshadowsize
-       }%
-  \endgroup
+  \leavevmode
+  \setbox\z@\hbox{#1}%
+  \ifspx@topic@withshadow
+   \ifspx@topic@insetshadow\else
+    \ifdim\spx@topic@shadow@xoffset<\z@\hskip\spx@topic@shadow@xoffset\relax
+    \fi
+   \fi
+  \fi
+        \if1% use rounded boxes only if needed and possible
+          \ifdim\spx@topic@radius@topleft    >\z@0\fi
+          \ifdim\spx@topic@radius@topright   >\z@0\fi
+          \ifdim\spx@topic@radius@bottomright>\z@0\fi
+          \ifdim\spx@topic@radius@bottomleft >\z@0\fi
+          1\spx@boxes@fcolorbox{\box\z@}%
+        \else
+          \spx@ifpackageloaded@pictiie
+             {\ifspx@topic@insetshadow
+                \spx@boxes@fcolorbox{\box\z@}%
+              \else
+                \spx@boxes@fcolorbox@rounded{\box\z@}%
+              \fi}%
+             {\spx@boxes@fcolorbox{\box\z@}}%
+        \fi
+  \ifspx@topic@withshadow
+   \ifspx@topic@insetshadow\else
+    \ifdim\spx@topic@shadow@xoffset>\z@\hskip\spx@topic@shadow@xoffset\relax
+    \fi
+   \fi
+  \fi
 }
 
-% use framed.sty to allow page breaks in frame+shadow
-% works well inside Lists and Quote-like environments
-% produced by ``topic'' directive (or local contents)
-% could nest if LaTeX writer authorized it
+% Use framed.sty \MakeFramed/\endMakeFramed to allow page breaks for topic
+% boxes.  Originally Sphinx used \shadowbox from fancybox.sty but it did not
+% allow pagebreaks (which was problematic for "contents" directive if there
+% are many subsections).
+%
+% Docutils does not allow topic to be nested within topics or other body
+% elements.  But the LaTeX code here does allow it:
+%
+% - a topic inside another topic would be rendered in a minipage (thus not
+%   allowing pagebreaks).  Its external frame would adapt perfectly to
+%   the *current (smaller) width for text*.
+%
+% - a topic inside (nested) lists or quote environments would have its frame
+%   take the *full width* of the page, but its text contents on the other hand
+%   would obey exactly the current indentation plus inner separation.  This is
+%   in contrast with the framing used for literal blocks, also based, but in a
+%   more sophisticated way on usage of \MakeFramed/\endMakeFramed, and
+%   adjusting to current text indentation.
 \newenvironment{sphinxShadowBox}
-  {\def\FrameCommand {\spx@ShadowFBox }%
+  {%
+   \spx@shadowbox@boxes@fcolorbox@setup
+   \def\FrameCommand {\spx@ShadowFBox }%
    \advance\spx@image@maxheight
-   -\dimexpr2\sphinxshadowrule
-           +2\sphinxshadowsep
-           +\sphinxshadowsize
+   -\dimexpr\spx@topic@border@top+\spx@topic@border@bottom
+           +\spx@topic@padding@top+\spx@topic@padding@bottom
+           +\ifdim\spx@topic@shadow@yoffset<\z@-\fi\spx@topic@shadow@yoffset
            +\baselineskip\relax
    % configure framed.sty not to add extra vertical spacing
    \ltx@ifundefined{OuterFrameSep}{}{\OuterFrameSep\z@skip}%
@@ -86,9 +149,11 @@
     \@minipagerestore
     \@setminipage
     }%
+    \color@begingroup % workaround upstream framed.sty bug
   }%
   {% insert the "endminipage" code
     \par\unskip
+    \color@endgroup   % matches the \color@begingroup
     \@minipagefalse
    \endMakeFramed
      \ifspx@inframed\end{minipage}\fi

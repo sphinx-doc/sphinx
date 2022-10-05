@@ -48,14 +48,14 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
 
    produces a table like this:
 
-       .. currentmodule:: sphinx
+   .. currentmodule:: sphinx
 
-       .. autosummary::
+   .. autosummary::
 
-          environment.BuildEnvironment
-          util.relative_uri
+      environment.BuildEnvironment
+      util.relative_uri
 
-       .. currentmodule:: sphinx.ext.autosummary
+   .. currentmodule:: sphinx.ext.autosummary
 
    Autosummary preprocesses the docstrings and signatures with the same
    :event:`autodoc-process-docstring` and :event:`autodoc-process-signature`
@@ -255,7 +255,7 @@ Autosummary uses the following Jinja template files:
 - :file:`autosummary/attribute.rst` -- template for class attributes
 - :file:`autosummary/method.rst` -- template for class methods
 
-The following variables available in the templates:
+The following variables are available in the templates:
 
 .. currentmodule:: None
 
@@ -300,7 +300,7 @@ The following variables available in the templates:
 .. data:: functions
 
    List containing names of "public" functions in the module.  Here, "public"
-   here means that the name does not start with an underscore. Only available
+   means that the name does not start with an underscore. Only available
    for modules.
 
 .. data:: classes
@@ -323,9 +323,9 @@ The following variables available in the templates:
    List containing names of "public" attributes in the class/module.  Only
    available for classes and modules.
 
-    .. versionchanged:: 3.1
+   .. versionchanged:: 3.1
 
-       Attributes of modules are supported.
+      Attributes of modules are supported.
 
 .. data:: modules
 

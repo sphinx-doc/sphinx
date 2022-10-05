@@ -1,12 +1,4 @@
-"""
-    sphinx.util.logging
-    ~~~~~~~~~~~~~~~~~~~
-
-    Logging utility functions for Sphinx.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Logging utility functions for Sphinx."""
 
 import logging
 import logging.handlers
@@ -20,6 +12,7 @@ from docutils.utils import get_source_line
 
 from sphinx.errors import SphinxWarning
 from sphinx.util.console import colorize
+from sphinx.util.osutil import abspath
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -85,7 +78,7 @@ def convert_serializable(records: List[logging.LogRecord]) -> None:
 
         location = getattr(r, 'location', None)
         if isinstance(location, nodes.Node):
-            r.location = get_node_location(location)  # type: ignore
+            r.location = get_node_location(location)
 
 
 class SphinxLogRecord(logging.LogRecord):
@@ -389,8 +382,8 @@ class WarningSuppressor(logging.Filter):
         super().__init__()
 
     def filter(self, record: logging.LogRecord) -> bool:
-        type = getattr(record, 'type', None)
-        subtype = getattr(record, 'subtype', None)
+        type = getattr(record, 'type', '')
+        subtype = getattr(record, 'subtype', '')
 
         try:
             suppress_warnings = self.app.config.suppress_warnings
@@ -439,7 +432,7 @@ class DisableWarningIsErrorFilter(logging.Filter):
     """Disable WarningIsErrorFilter if this filter installed."""
 
     def filter(self, record: logging.LogRecord) -> bool:
-        record.skip_warningsiserror = True  # type: ignore
+        record.skip_warningsiserror = True
         return True
 
 
@@ -522,6 +515,8 @@ class WarningLogRecordTranslator(SphinxLogRecordTranslator):
 
 def get_node_location(node: Node) -> Optional[str]:
     (source, line) = get_source_line(node)
+    if source:
+        source = abspath(source)
     if source and line:
         return "%s:%s" % (source, line)
     elif source:

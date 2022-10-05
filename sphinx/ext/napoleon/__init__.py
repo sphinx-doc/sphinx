@@ -1,16 +1,8 @@
-"""
-    sphinx.ext.napoleon
-    ~~~~~~~~~~~~~~~~~~~
-
-    Support for NumPy and Google style docstrings.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Support for NumPy and Google style docstrings."""
 
 from typing import Any, Dict, List
 
-from sphinx import __display_version__ as __version__
+import sphinx
 from sphinx.application import Sphinx
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 from sphinx.util import inspect
@@ -49,7 +41,7 @@ class Config:
     .. _Google style:
        https://google.github.io/styleguide/pyguide.html
     .. _NumPy style:
-       https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+       https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
     Attributes
     ----------
@@ -318,7 +310,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     """
     if not isinstance(app, Sphinx):
         # probably called by tests
-        return {'version': __version__, 'parallel_read_safe': True}
+        return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
 
     _patch_python_domain()
 
@@ -328,7 +320,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     for name, (default, rebuild) in Config._config_values.items():
         app.add_config_value(name, default, rebuild)
-    return {'version': __version__, 'parallel_read_safe': True}
+    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
 
 
 def _patch_python_domain() -> None:

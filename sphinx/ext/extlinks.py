@@ -1,32 +1,24 @@
-"""
-    sphinx.ext.extlinks
-    ~~~~~~~~~~~~~~~~~~~
+"""Extension to save typing and prevent hard-coding of base URLs in reST files.
 
-    Extension to save typing and prevent hard-coding of base URLs in the reST
-    files.
+This adds a new config value called ``extlinks`` that is created like this::
 
-    This adds a new config value called ``extlinks`` that is created like this::
+   extlinks = {'exmpl': ('https://example.invalid/%s.html', caption), ...}
 
-       extlinks = {'exmpl': ('https://example.invalid/%s.html', caption), ...}
+Now you can use e.g. :exmpl:`foo` in your documents.  This will create a
+link to ``https://example.invalid/foo.html``.  The link caption depends on
+the *caption* value given:
 
-    Now you can use e.g. :exmpl:`foo` in your documents.  This will create a
-    link to ``https://example.invalid/foo.html``.  The link caption depends on
-    the *caption* value given:
+- If it is ``None``, the caption will be the full URL.
+- If it is a string, it must contain ``%s`` exactly once.  In this case the
+  caption will be *caption* with the role content substituted for ``%s``.
 
-    - If it is ``None``, the caption will be the full URL.
-    - If it is a string, it must contain ``%s`` exactly once.  In this case the
-      caption will be *caption* with the role content substituted for ``%s``.
+You can also give an explicit caption, e.g. :exmpl:`Foo <foo>`.
 
-    You can also give an explicit caption, e.g. :exmpl:`Foo <foo>`.
-
-    Both, the url string and the caption string must escape ``%`` as ``%%``.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+Both, the url string and the caption string must escape ``%`` as ``%%``.
 """
 
 import re
-import warnings
+import sys
 from typing import Any, Dict, List, Tuple
 
 from docutils import nodes, utils
@@ -35,10 +27,9 @@ from docutils.parsers.rst.states import Inliner
 
 import sphinx
 from sphinx.application import Sphinx
-from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
-from sphinx.util import logging
+from sphinx.util import logging, rst
 from sphinx.util.nodes import split_explicit_title
 from sphinx.util.typing import RoleFunction
 
@@ -55,6 +46,9 @@ class ExternalLinksChecker(SphinxPostTransform):
     default_priority = 500
 
     def run(self, **kwargs: Any) -> None:
+        if not self.config.extlinks_detect_hardcoded_links:
+            return
+
         for refnode in self.document.findall(nodes.reference):
             self.check_uri(refnode)
 
@@ -67,9 +61,16 @@ class ExternalLinksChecker(SphinxPostTransform):
             return
 
         uri = refnode['refuri']
+        title = refnode.astext()
 
         for alias, (base_uri, _caption) in self.app.config.extlinks.items():
-            uri_pattern = re.compile(base_uri.replace('%s', '(?P<value>.+)'))
+            if sys.version_info < (3, 7):
+                # Replace a leading backslash because re.escape() inserts a backslash before %
+                # on python 3.6
+                uri_pattern = re.compile(re.escape(base_uri).replace('\\%s', '(?P<value>.+)'))
+            else:
+                uri_pattern = re.compile(re.escape(base_uri).replace('%s', '(?P<value>.+)'))
+
             match = uri_pattern.match(uri)
             if (
                 match and
@@ -79,7 +80,11 @@ class ExternalLinksChecker(SphinxPostTransform):
                 # build a replacement suggestion
                 msg = __('hardcoded link %r could be replaced by an extlink '
                          '(try using %r instead)')
-                replacement = f":{alias}:`{match.groupdict().get('value')}`"
+                value = match.groupdict().get('value')
+                if uri != title:
+                    replacement = f":{alias}:`{rst.escape(title)} <{value}>`"
+                else:
+                    replacement = f":{alias}:`{value}`"
                 logger.warning(msg, uri, replacement, location=refnode)
 
 
@@ -92,17 +97,17 @@ def make_link_role(name: str, base_url: str, caption: str) -> RoleFunction:
     try:
         base_url % 'dummy'
     except (TypeError, ValueError):
-        warnings.warn('extlinks: Sphinx-6.0 will require base URL to '
-                      'contain exactly one \'%s\' and all other \'%\' need '
-                      'to be escaped as \'%%\'.', RemovedInSphinx60Warning)
+        logger.warning(__('extlinks: Sphinx-6.0 will require base URL to '
+                          'contain exactly one \'%s\' and all other \'%\' need '
+                          'to be escaped as \'%%\'.'))  # RemovedInSphinx60Warning
         base_url = base_url.replace('%', '%%') + '%s'
     if caption is not None:
         try:
             caption % 'dummy'
         except (TypeError, ValueError):
-            warnings.warn('extlinks: Sphinx-6.0 will require a caption string to '
-                          'contain exactly one \'%s\' and all other \'%\' need '
-                          'to be escaped as \'%%\'.', RemovedInSphinx60Warning)
+            logger.warning(__('extlinks: Sphinx-6.0 will require a caption string to '
+                              'contain exactly one \'%s\' and all other \'%\' need '
+                              'to be escaped as \'%%\'.'))  # RemovedInSphinx60Warning
             caption = caption.replace('%', '%%') + '%s'
 
     def role(typ: str, rawtext: str, text: str, lineno: int,
@@ -128,6 +133,8 @@ def setup_link_roles(app: Sphinx) -> None:
 
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('extlinks', {}, 'env')
+    app.add_config_value('extlinks_detect_hardcoded_links', False, 'env')
+
     app.connect('builder-inited', setup_link_roles)
     app.add_post_transform(ExternalLinksChecker)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

@@ -1,187 +1,79 @@
-/*
- * sphinx13.css
- * ~~~~~~~~~~~~
- *
- * Sphinx stylesheet -- sphinx13 theme.
- *
- * :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
- * :license: BSD, see LICENSE for details.
- *
- */
+/* Stylesheet for Sphinx's documentation */
 
-@import url("basic.css");
-
-/* -- page layout ----------------------------------------------------------- */
+/* Set master colours */
+:root {
+    --fonts-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    --colour-sphinx-blue: #0A507A;
+    --colour-text: #333;
+    --colour-links-light: #057;
+}
 
 body {
-    font-family: 'Open Sans', 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva',
-                 'Verdana', sans-serif;
-    font-size: 14px;
-    text-align: center;
-    background-image: url(bodybg.png);
-    color: black;
-    padding: 0;
-    border-right: 1px solid #0a507a;
-    border-left: 1px solid #0a507a;
-
+    font-family: var(--fonts-sans-serif);
     margin: 0 auto;
-    min-width: 780px;
-    max-width: 1080px;
+    color: var(--colour-text);
 }
 
 .pageheader {
-    background-image: url(headerbg.png);
-    text-align: left;
+    background-color: var(--colour-sphinx-blue);
     padding: 10px 15px;
 }
 
-.pageheader ul {
-    float: right;
-    color: white;
-    list-style-type: none;
-    padding-left: 0;
-    margin-top: 30px;
-    margin-right: 10px;
-}
-
-.pageheader li {
-    float: left;
-    margin: 0 0 0 10px;
-}
-
-.pageheader li a {
-    border-radius: 1px;
-    padding: 8px 12px;
-    color: #f9f9f0;
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-}
-
-.pageheader li a:hover {
-    background-color: #f9f9f0;
-    color: #0a507a;
-    text-shadow: none;
-}
-
 div.document {
-    background-color: white;
-    text-align: left;
-}
-
-div.bodywrapper {
-    margin: 0 240px 0 0;
-    border-right: 1px solid #0a507a;
+    display: flex;
+    margin: 0 0.5em;
 }
 
 div.body {
+    border-left: 1px solid var(--colour-sphinx-blue);
     margin: 0;
-    padding: 0.5em 20px 20px 20px;
+    padding: 0.5em 1.75em;
+    min-width: 0;
+    max-width: 800px;
 }
 
 div.related {
-    font-size: 1em;
+    display: flex;
     color: white;
-}
-
-div.related ul {
-    background-image: url(relbg.png);
-    height: 1.9em;
+    background-color: var(--colour-sphinx-blue);
     border-top: 1px solid #002e50;
-    border-bottom: 1px solid #002e50;
 }
 
 div.related ul li {
     margin: 0 5px 0 0;
-    padding: 0;
     float: left;
 }
 
-div.related ul li.right {
-    float: right;
-    margin-right: 5px;
-}
-
 div.related ul li a {
-    margin: 0;
     padding: 0 5px 0 5px;
     line-height: 1.75em;
-    color: #f9f9f0;
-    text-shadow: 0px 0px 1px rgba(0, 0, 0, 0.5);
+    color: white;
 }
 
 div.related ul li a:hover {
-    color: white;
-    /*text-decoration: underline;*/
-    text-shadow: 0px 0px 1px rgba(255, 255, 255, 0.5);
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
 }
 
 div.sphinxsidebarwrapper {
-    position: relative;
-    top: 0px;
     padding: 0;
 }
 
 div.sphinxsidebar {
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    height: 100vh;
+    width: 250px;
+    overflow-y: auto;
+    overflow-wrap: break-word;
     margin: 0;
-    padding: 0 15px 15px 0;
-    width: 210px;
-    float: right;
+    padding-right: 15px;
     font-size: 1em;
-    text-align: left;
-    max-height: 0px;
-}
-
-div.sphinxsidebar .logo {
-    font-size: 1.8em;
-    color: #0A507A;
-    font-weight: 300;
-    text-align: center;
-}
-
-div.sphinxsidebar .logo img {
-    vertical-align: middle;
-}
-
-div.sphinxsidebar .download a img {
-    vertical-align: middle;
-}
-
-div.subscribeformwrapper {
-    display: block;
-    overflow: auto;
-    margin-bottom: 1.2em;
-}
-
-div.sphinxsidebar input {
-    border: 1px solid #aaa;
-    font-family: 'Open Sans', 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva',
-                 'Verdana', sans-serif;
-}
-
-div.sphinxsidebar .subscribeform {
-    margin-top: 0;
-}
-
-div.sphinxsidebar .subscribeform input {
-    border: 1px solid #aaa;
-    font-size: 0.9em;
-    float: left;
-    padding: 0.25em 0.5em;
-    box-sizing: border-box;
-}
-
-div.sphinxsidebar .subscribeform input[type="text"] {
-    width: 60%;
-}
-
-div.sphinxsidebar .subscribeform input[type="submit"] {
-    width: 40%;
-    border-left: none;
 }
 
 div.sphinxsidebar h3 {
     font-size: 1.5em;
-    border-top: 1px solid #0a507a;
-    margin-top: 1em;
+    margin-top: 0;
     margin-bottom: 0.5em;
     padding-top: 0.5em;
 }
@@ -198,12 +90,6 @@ div.sphinxsidebar h3, div.sphinxsidebar h4 {
     padding-left: 14px;
     color: #333;
     font-weight: 300;
-    /*text-shadow: 0px 0px 0.5px rgba(0, 0, 0, 0.4);*/
-}
-
-div.sphinxsidebarwrapper > h3:first-child {
-    margin-top: 0.5em;
-    border: none;
 }
 
 div.sphinxsidebar h3 a {
@@ -218,18 +104,36 @@ div.sphinxsidebar ul {
 }
 
 div.sphinxsidebar ul ul {
-    margin-left: 20px;
-    list-style-image: url(listitem.png);
+    margin-left: 1rem;
+    list-style-type: none;
+    font-size: .9em;
+}
+
+/* De-dent the first list because we hide the top-level item */
+.sphinxsidebar .sphinxsidebar-navigation__contents > ul > li > ul {
+    margin-left: 0;
+}
+
+div.sphinxsidebar p.caption {
+    font-weight: 300;
+    font-size: 1.2rem;
+}
+
+div.sphinxsidebar li.current > a {
+    font-weight: 600;
+}
+
+.sphinxsidebar-navigation__contents > ul > li > a {
+    display: none;
 }
 
 div.footer {
-    background-image: url(footerbg.png);
+    background-color: var(--colour-sphinx-blue);
     color: #ccc;
     text-shadow: 0 0 .2px rgba(255, 255, 255, 0.8);
-    padding: 3px 8px 3px 0;
+    padding: 3px 8px 3px 8px;
     clear: both;
     font-size: 0.8em;
-    text-align: right;
 }
 
 /* no need to make a visible link to Sphinx on the Sphinx page */
@@ -244,12 +148,8 @@ p {
 }
 
 a {
-    color: #A2881D;
+    color: var(--colour-links-light);
     text-decoration: none;
-}
-
-a:hover {
-    color: #E1C13F;
 }
 
 div.body a {
@@ -259,12 +159,18 @@ div.body a {
 h1 {
     margin: 10px 0 0 0;
     font-size: 2.4em;
-    color: #0A507A;
+    color: var(--colour-sphinx-blue);
     font-weight: 300;
 }
 
+h1 span.pre {
+    /* for code in titles */
+    word-break: break-all;
+    white-space: normal;
+}
+
 h2 {
-    margin: 1.em 0 0.2em 0;
+    margin: 1em 0 0.2em 0;
     font-size: 1.5em;
     font-weight: 300;
     padding: 0;
@@ -282,17 +188,16 @@ div.body h1 a, div.body h2 a, div.body h3 a, div.body h4 a, div.body h5 a, div.b
 }
 
 div.body h1 a tt, div.body h2 a tt, div.body h3 a tt, div.body h4 a tt, div.body h5 a tt, div.body h6 a tt {
-    color: #0A507A !important;
+    color: var(--colour-sphinx-blue) !important;
     font-size: inherit !important;
 }
 
 a.headerlink {
-    color: #0A507A !important;
-    font-size: 12px;
+    color: var(--colour-sphinx-blue) !important;
+    font-size: .8em;
     margin-left: 6px;
     padding: 0 4px 0 4px;
     text-decoration: none !important;
-    float: right;
 }
 
 a.headerlink:hover {
@@ -308,7 +213,7 @@ h1 code, h2 code, h3 code, h4 code {
 cite, code, tt {
     font-family: 'Consolas', 'DejaVu Sans Mono',
                  'Bitstream Vera Sans Mono', monospace;
-    font-size: 14px;
+    font-size: 1em;
     letter-spacing: -0.02em;
 }
 
@@ -335,17 +240,13 @@ hr {
 
 a tt {
     border: 0;
-    color: #a2881d;
-}
-
-a tt:hover {
-    color: #e1c13f;
+    color: var(--colour-links-light);
 }
 
 pre {
     font-family: 'Consolas', 'Courier New', 'DejaVu Sans Mono',
                  'Bitstream Vera Sans Mono', monospace;
-    font-size: 13px;
+    font-size: 1em;
     letter-spacing: 0.015em;
     line-height: 120%;
     padding: 0.5em;
@@ -372,7 +273,15 @@ div.quotebar {
     margin-left: 1em;
 }
 
-div.topic {
+blockquote.epigraph {
+    font-size: 1.5em;
+    padding-left: 1rem;
+    margin-left: 0;
+}
+
+nav.contents,
+div.topic,
+aside.topic {
     background-color: #f8f8f8;
 }
 
@@ -391,11 +300,11 @@ div.admonition, div.warning {
     border: 1px solid #86989B;
     border-radius: 2px;
     background-color: #f7f7f7;
-    padding: 0;
+    padding: 1rem;
 }
 
 div.admonition > p, div.warning > p {
-    margin: 0.5em 1em 0.5em 1em;
+    margin: 0;
     padding: 0;
 }
 
@@ -405,7 +314,6 @@ div.admonition > pre, div.warning > pre {
 
 div.admonition > p.admonition-title,
 div.warning > p.admonition-title {
-    margin-top: 0.5em;
     font-weight: bold;
 }
 
@@ -426,8 +334,7 @@ div.admonition div.highlight {
 }
 
 .viewcode-back {
-    font-family: 'Open Sans', 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva',
-                 'Verdana', sans-serif;
+    font-family: var(--fonts-sans-serif);
 }
 
 div.viewcode-block:target {
@@ -436,8 +343,15 @@ div.viewcode-block:target {
     border-bottom: 1px solid #ac9;
 }
 
-.contentstable {
-    margin-left: 30px;
-    margin: 0 auto;
-    table-layout: fixed;
+
+/* media queries */
+
+/* Reduce padding & margins for smaller screens */
+@media (max-width: 750px) {
+    .sphinxsidebar {
+        display: none;
+    }
+    div.body {
+        border-left: none;
+    }
 }

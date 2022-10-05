@@ -1,16 +1,7 @@
-"""
-    sphinx.ext.viewcode
-    ~~~~~~~~~~~~~~~~~~~
-
-    Add links to module code in Python object descriptions.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Add links to module code in Python object descriptions."""
 
 import posixpath
 import traceback
-import warnings
 from os import path
 from typing import Any, Dict, Generator, Iterable, Optional, Set, Tuple, cast
 
@@ -22,7 +13,6 @@ from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
@@ -195,18 +185,6 @@ class ViewcodeAnchorTransform(SphinxPostTransform):
             node.parent.remove(node)
 
 
-def missing_reference(app: Sphinx, env: BuildEnvironment, node: Element, contnode: Node
-                      ) -> Optional[Node]:
-    # resolve our "viewcode" reference nodes -- they need special treatment
-    if node['reftype'] == 'viewcode':
-        warnings.warn('viewcode extension is no longer use pending_xref node. '
-                      'Please update your extension.', RemovedInSphinx50Warning)
-        return make_refnode(app.builder, node['refdoc'], node['reftarget'],
-                            node['refid'], contnode)
-
-    return None
-
-
 def get_module_filename(app: Sphinx, modname: str) -> Optional[str]:
     """Get module filename for *modname*."""
     source_info = app.emit_firstresult('viewcode-find-source', modname)
@@ -266,7 +244,7 @@ def collect_pages(app: Sphinx) -> Generator[Tuple[str, Dict[str, Any], str], Non
         # construct a page name for the highlighted source
         pagename = posixpath.join(OUTPUT_DIRNAME, modname.replace('.', '/'))
         # highlight the source using the builder's highlighter
-        if env.config.highlight_language in ('python3', 'default', 'none'):
+        if env.config.highlight_language in {'default', 'none'}:
             lexer = env.config.highlight_language
         else:
             lexer = 'python'
@@ -349,7 +327,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('env-merge-info', env_merge_info)
     app.connect('env-purge-doc', env_purge_doc)
     app.connect('html-collect-pages', collect_pages)
-    app.connect('missing-reference', missing_reference)
     # app.add_config_value('viewcode_include_modules', [], 'env')
     # app.add_config_value('viewcode_exclude_modules', [], 'env')
     app.add_event('viewcode-find-source')

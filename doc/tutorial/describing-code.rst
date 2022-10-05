@@ -57,7 +57,7 @@ Notice several things:
 - Sphinx parsed the argument of the ``.. py:function`` directive and
   highlighted the module, the function name, and the parameters appropriately.
 - The directive content includes a one-line description of the function,
-  as well as a :ref:`info field list <info-field-lists>` containing the function
+  as well as an :ref:`info field list <info-field-lists>` containing the function
   parameter, its expected type, the return value, and the return type.
 
 .. note::
@@ -85,10 +85,11 @@ you can use :rst:role:`py:func` for that, as follows:
    or ``"veggies"``. Otherwise, :py:func:`lumache.get_random_ingredients`
    will raise an exception.
 
-When generating code documentation, Sphinx will generate a cross-reference automatically just
-by using the name of the object, without you having to explicitly use a role
-for that. For example, you can describe the custom exception raised by the
-function using the :rst:dir:`py:exception` directive:
+When generating code documentation, Sphinx will generate a
+cross-reference automatically just by using the name of the object,
+without you having to explicitly use a role for that. For example, you
+can describe the custom exception raised by the function using the
+:rst:dir:`py:exception` directive:
 
 .. code-block:: rst
    :caption: docs/source/usage.rst

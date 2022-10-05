@@ -1,16 +1,7 @@
-"""
-    sphinx.writers.texinfo
-    ~~~~~~~~~~~~~~~~~~~~~~
-
-    Custom docutils writer for Texinfo.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Custom docutils writer for Texinfo."""
 
 import re
 import textwrap
-import warnings
 from os import path
 from typing import (TYPE_CHECKING, Any, Dict, Iterable, Iterator, List, Optional, Pattern, Set,
                     Tuple, Union, cast)
@@ -19,7 +10,6 @@ from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
 
 from sphinx import __display_version__, addnodes
-from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.domains import IndexEntry
 from sphinx.domains.index import IndexDomain
 from sphinx.errors import ExtensionError
@@ -60,8 +50,6 @@ TEMPLATE = """\
 @exampleindent %(exampleindent)s
 @finalout
 %(direntry)s
-@definfoenclose strong,`,'
-@definfoenclose emph,`,'
 @c %%**end of header
 
 @copying
@@ -103,7 +91,7 @@ def find_subsections(section: Element) -> List[nodes.section]:
     return result
 
 
-def smart_capwords(s: str, sep: str = None) -> str:
+def smart_capwords(s: str, sep: Optional[str] = None) -> str:
     """Like string.capwords() but does not capitalize words that already
     contain a capital letter."""
     words = s.split(sep)
@@ -127,7 +115,7 @@ class TexinfoWriter(writers.Writer):
 
     settings_defaults: Dict = {}
 
-    output: str = None
+    output: Optional[str] = None  # type: ignore[assignment]
 
     visitor_attributes = ('output', 'fragment')
 
@@ -146,8 +134,8 @@ class TexinfoWriter(writers.Writer):
 
 class TexinfoTranslator(SphinxTranslator):
 
-    builder: "TexinfoBuilder" = None
     ignore_missing_images = False
+    builder: "TexinfoBuilder"
 
     default_elements = {
         'author': '',
@@ -185,18 +173,18 @@ class TexinfoTranslator(SphinxTranslator):
         self.body: List[str] = []
         self.context: List[str] = []
         self.descs: List[addnodes.desc] = []
-        self.previous_section: nodes.section = None
+        self.previous_section: Optional[nodes.section] = None
         self.section_level = 0
         self.seen_title = False
         self.next_section_ids: Set[str] = set()
         self.escape_newlines = 0
         self.escape_hyphens = 0
         self.curfilestack: List[str] = []
-        self.footnotestack: List[Dict[str, List[Union[collected_footnote, bool]]]] = []  # NOQA
+        self.footnotestack: List[Dict[str, List[Union[collected_footnote, bool]]]] = []
         self.in_footnote = 0
         self.in_samp = 0
         self.handled_abbrs: Set[str] = set()
-        self.colwidths: List[int] = None
+        self.colwidths: List[int] = []
 
     def finish(self) -> None:
         if self.previous_section is None:
@@ -777,10 +765,10 @@ class TexinfoTranslator(SphinxTranslator):
         self.ensure_eol()
         self.body.append('@end quotation\n')
 
-    def visit_literal_block(self, node: Element) -> None:
+    def visit_literal_block(self, node: Optional[Element]) -> None:
         self.body.append('\n@example\n')
 
-    def depart_literal_block(self, node: Element) -> None:
+    def depart_literal_block(self, node: Optional[Element]) -> None:
         self.ensure_eol()
         self.body.append('@end example\n')
 
@@ -807,17 +795,21 @@ class TexinfoTranslator(SphinxTranslator):
     # -- Inline
 
     def visit_strong(self, node: Element) -> None:
-        self.body.append('@strong{')
+        self.body.append('`')
 
     def depart_strong(self, node: Element) -> None:
-        self.body.append('}')
+        self.body.append("'")
 
     def visit_emphasis(self, node: Element) -> None:
-        element = 'emph' if not self.in_samp else 'var'
-        self.body.append('@%s{' % element)
+        if self.in_samp:
+            self.body.append('@var{')
+            self.context.append('}')
+        else:
+            self.body.append('`')
+            self.context.append("'")
 
     def depart_emphasis(self, node: Element) -> None:
-        self.body.append('}')
+        self.body.append(self.context.pop())
 
     def is_samp(self, node: Element) -> bool:
         return 'samp' in node['classes']
@@ -1412,7 +1404,7 @@ class TexinfoTranslator(SphinxTranslator):
         category = self.escape_arg(smart_capwords(name))
         self.body.append('\n%s {%s} ' % (self.at_deffnx, category))
         self.at_deffnx = '@deffnx'
-        self.desc_type_name = name
+        self.desc_type_name: Optional[str] = name
 
     def depart_desc_signature(self, node: Element) -> None:
         self.body.append("\n")
@@ -1562,11 +1554,3 @@ class TexinfoTranslator(SphinxTranslator):
         self.body.append('\n\n@example\n%s\n@end example\n\n' %
                          self.escape_arg(node.astext()))
         raise nodes.SkipNode
-
-    @property
-    def desc(self) -> Optional[addnodes.desc]:
-        warnings.warn('TexinfoWriter.desc is deprecated.', RemovedInSphinx50Warning)
-        if len(self.descs):
-            return self.descs[-1]
-        else:
-            return None

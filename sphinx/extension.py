@@ -1,12 +1,4 @@
-"""
-    sphinx.extension
-    ~~~~~~~~~~~~~~~~
-
-    Utilities for Sphinx extensions.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Utilities for Sphinx extensions."""
 
 from typing import TYPE_CHECKING, Any, Dict
 
@@ -42,7 +34,14 @@ class Extension:
 
 
 def verify_needs_extensions(app: "Sphinx", config: Config) -> None:
-    """Verify the required Sphinx extensions are loaded."""
+    """Check that extensions mentioned in :confval:`needs_extensions` satisfy the version
+    requirement, and warn if an extension is not loaded.
+
+    Warns if an extension in :confval:`needs_extension` is not loaded.
+
+    :raises VersionRequirementError: if the version of an extension in
+    :confval:`needs_extension` is unknown or older than the required version.
+    """
     if config.needs_extensions is None:
         return
 

@@ -1,0 +1,423 @@
+%% COLOURED BOXES
+%
+% change this info string if making any custom modification
+\ProvidesPackage{sphinxpackageboxes}[2022/07/04 v5.1.0 advanced colored boxes]
+% Optionally executes \RequirePackage for:
+%
+% - pict2e.  Ideally we would like to use the v0.4a 2020/08/16 release of this
+%   package as it allows dimensional arguments to its \moveto, \lineto, etc...
+%   Or we could use extra package "picture".  We opt for custom wrappers
+%   \spx@moveto, \spx@lineto, ..., working with old versions.
+
+% Provides box registers \spx@tempboxa, \spx@tempboxb usable in other places
+\newbox\spx@tempboxa
+\newbox\spx@tempboxb
+
+% Internal dimens, conditionals, and colour parameters to be configured
+% by callers in "setup" macros
+\newif\ifspx@boxes@withshadow         
+\newif\ifspx@boxes@insetshadow         
+\newif\ifspx@boxes@withbackgroundcolor
+\newif\ifspx@boxes@withshadowcolor    
+\newif\ifspx@boxes@withbordercolor    
+%
+\newdimen\spx@boxes@border
+\newdimen\spx@boxes@border@top
+\newdimen\spx@boxes@border@right
+\newdimen\spx@boxes@border@bottom
+\newdimen\spx@boxes@border@left
+%
+\newdimen\spx@boxes@padding@top
+\newdimen\spx@boxes@padding@right
+\newdimen\spx@boxes@padding@bottom
+\newdimen\spx@boxes@padding@left
+%
+\newdimen\spx@boxes@shadow@xoffset
+\newdimen\spx@boxes@shadow@yoffset
+%
+\newdimen\spx@boxes@radius@topleft % only circular arcs, x-radius same as y-radius
+\newdimen\spx@boxes@radius@topright
+\newdimen\spx@boxes@radius@bottomright
+\newdimen\spx@boxes@radius@bottomleft
+%
+% These colours have to be defined appropriately by the callers:
+% spx@boxes@bordercolor
+% spx@boxes@backgroundcolor
+% spx@boxes@shadowcolor
+
+%%%%%%%%%%%%%%%%
+% MACROS
+%
+% - \spx@boxes@fcolorbox (4 padding parameters, 4 border widths, 2 shadow widths,
+%   and three colours: background, border and shadow; same as in CSS styling)
+%
+% - \spx@boxes@fcolorbox@insetshadow (same as in CSS styling)
+%
+% - \spx@boxes@fcolorbox@rounded: rounded corners using the picture environment
+%   and pict2e package for its low-weight interface to PDF graphics operations
+
+% MEMO: we have also successfully tested usage of tcolorbox.sty (its \tcbox) but
+% decided to use pict2e.sty for the following reasons:
+% 1- PDF build was observed to be an order of magnitude faster,
+% 2- the boxes we can do with pict2e appear to be fancy enough,
+%    almost matching what one can see in HTML renderings,
+% 2- orders of magnitude smaller dependency (tcolorbox uses the pgf TeX
+%    framework), although on Ubuntu it seems texlive-pictures is
+%    needed which also contains the whole of pgf/TikZ... so this point
+%    is a bit moot...
+
+% For code-blocks, attachements of caption and continuation hints are done
+% exactly as prior to extension of Sphinx via this package, whether the box
+% has straight or rounded corners.  The vertical space occupied is the same,
+% if nothing else is changed (perhaps in future the title itself could be also
+% rendered in a rounded box?)
+
+%//// \spx@boxes@fcolorbox
+% This box will have the same baseline as its argument (which is typeset in
+% horizontal mode).  It takes into account four border widths parameters, four
+% padding parameters, two shadow widths (each possibly negative), and three
+% colors: background, border and shadow.  Its boundary box takes into account
+% all of shadow, border and padding.  It is up to the caller to take steps for
+% the shadow (and perhaps also border, and padding) to go into margin or stay
+% inside the text area, in collaboration with framed.sty.  In usage as a
+% "FrameCommand" with framed.sty, the argument will already be a collection
+% of TeX boxes (and interline glues).
+%
+% The customization of the various parameters are under responsability of
+% the caller, before exapnsion of \spx@boxes@fcolorbox.
+% An extra hook is provided:
+\let\spx@boxes@fcolorbox@setuphook\@empty
+%
+% The parameters are interpreted as they would as CSS properties.
+% For inset shadows see separate \spx@boxes@fcolorbox@insetshadow.
+\long\def\spx@boxes@fcolorbox#1{%
+  \hbox\bgroup
+  \spx@boxes@fcolorbox@setuphook
+  \setbox\spx@tempboxa
+   \hbox{\kern\dimexpr\spx@boxes@border@left+\spx@boxes@padding@left\relax
+         {#1}%
+         \kern\dimexpr\spx@boxes@padding@right+\spx@boxes@border@right\relax}%
+  \ht\spx@tempboxa
+     \dimexpr\ht\spx@tempboxa+\spx@boxes@border@top+\spx@boxes@padding@top\relax
+  \dp\spx@tempboxa
+     \dimexpr\dp\spx@tempboxa+\spx@boxes@padding@bottom+\spx@boxes@border@bottom\relax
+  \ifspx@boxes@insetshadow
+     \expandafter\spx@boxes@fcolorbox@insetshadow
+  \else
+     \expandafter\spx@boxes@fcolorbox@externalshadow
+  \fi
+}
+
+\def\spx@boxes@fcolorbox@externalshadow{%
+  % reserve space to shadow if on left
+  \ifspx@boxes@withshadow
+    \ifdim\spx@boxes@shadow@xoffset<\z@\kern-\spx@boxes@shadow@xoffset\fi
+  \fi
+  % BACKGROUND
+  % draw background and move back to reference point
+  \ifspx@boxes@withbackgroundcolor
+   {\color{spx@boxes@backgroundcolor}%
+    \vrule\@height\ht\spx@tempboxa
+          \@depth\dp\spx@tempboxa
+          \@width\wd\spx@tempboxa
+    \kern-\wd\spx@tempboxa
+    }%
+  \fi
+  % BOX SHADOW
+  % draw shadow and move back to reference point
+  \ifspx@boxes@withshadow
+  \vbox{%
+    \moveright\spx@boxes@shadow@xoffset
+    \hbox{\lower\spx@boxes@shadow@yoffset
+          \vbox{\ifspx@boxes@withshadowcolor\color{spx@boxes@shadowcolor}\fi
+                \ifdim\spx@boxes@shadow@yoffset<\z@
+                  \hrule\@height-\spx@boxes@shadow@yoffset
+                  \kern\spx@boxes@shadow@yoffset
+                \fi
+                \setbox\spx@tempboxb\hb@xt@\wd\spx@tempboxa{%
+                 \ifdim\spx@boxes@shadow@xoffset<\z@\vrule\@width-\spx@boxes@shadow@xoffset\fi
+                 \hss
+                 \ifdim\spx@boxes@shadow@xoffset>\z@\vrule\@width\spx@boxes@shadow@xoffset\fi
+                 }%
+                \ht\spx@tempboxb\ht\spx@tempboxa
+                \dp\spx@tempboxb\dp\spx@tempboxa
+                \box\spx@tempboxb
+                \ifdim\spx@boxes@shadow@yoffset>\z@
+                  \kern-\spx@boxes@shadow@yoffset
+                  \hrule\@height\spx@boxes@shadow@yoffset
+                \fi
+                \kern-\dp\spx@tempboxa
+               }% end of \vbox, attention it will have zero depth if yoffset>0
+          \kern-\wd\spx@tempboxa
+          \ifdim\spx@boxes@shadow@xoffset>\z@
+            \kern-\spx@boxes@shadow@xoffset
+          \fi
+         }% end of \hbox, attention its depth is only yoffset if yoffset>0
+       }% end of \vbox
+  \fi % end of shadow drawing, and we are back to horizontal reference point
+  % BOX BORDER
+  \vbox{\ifspx@boxes@withbordercolor\color{spx@boxes@bordercolor}\fi
+        \hrule\@height\spx@boxes@border@top
+           \kern-\spx@boxes@border@top
+        \setbox\spx@tempboxb\hb@xt@\wd\spx@tempboxa
+                  {\vrule\@width\spx@boxes@border@left
+                   \hss\vrule\@width\spx@boxes@border@right
+                  }%
+            \ht\spx@tempboxb\ht\spx@tempboxa
+            \dp\spx@tempboxb\dp\spx@tempboxa
+        \box\spx@tempboxb
+        \kern-\spx@boxes@border@bottom
+        \hrule\@height\spx@boxes@border@bottom
+        \kern-\dp\spx@tempboxa
+       }% attention this box has zero depth due to \hrule at bottom
+  % step back to horizontal reference point
+  \kern-\wd\spx@tempboxa
+  % end of border drawing
+  % CONTENTS
+  % adjust the total depth to include the bottom shadow
+  \ifspx@boxes@withshadow
+    \ifdim\spx@boxes@shadow@yoffset>\z@
+      \dp\spx@tempboxa\dimexpr\dp\spx@tempboxa+\spx@boxes@shadow@yoffset\relax
+    \fi
+  \fi
+  \box\spx@tempboxa
+  % include lateral shadow in total width
+  \ifspx@boxes@withshadow
+    \ifdim\spx@boxes@shadow@xoffset>\z@\kern\spx@boxes@shadow@xoffset\fi
+  \fi
+  \egroup
+}
+
+%//// \spx@boxes@fcolorbox@insetshadow
+% The parameters are interpreted as in CSS styling.
+\def\spx@boxes@fcolorbox@insetshadow{%
+  % BACKGROUND
+  % draw background and move back to reference point
+  \ifspx@boxes@withbackgroundcolor
+   {\color{spx@boxes@backgroundcolor}%
+    \vrule\@height\ht\spx@tempboxa
+          \@depth\dp\spx@tempboxa
+          \@width\wd\spx@tempboxa
+    \kern-\wd\spx@tempboxa
+    }%
+  \fi
+  % BOX SHADOW
+  % draw shadow and move back to reference point
+  \ifspx@boxes@withshadow
+    \hbox{\vbox{\ifspx@boxes@withshadowcolor\color{spx@boxes@shadowcolor}\fi
+% NOTA BENE
+% We deliberately draw shadow partially under an area later covered by frame
+% with the idea to avoid anti-aliasing problems but in fact this may be a bad
+% idea with border is thin.
+% This may need some extra testing with PDF viewers... reports welcome!
+                \ifdim\spx@boxes@shadow@yoffset>\z@
+                  \hrule\@height\dimexpr\spx@boxes@border@top+\spx@boxes@shadow@yoffset\relax
+                  \kern-\spx@boxes@shadow@yoffset
+                  \kern-\spx@boxes@border@top
+                \fi
+                \setbox\spx@tempboxb\hb@xt@\wd\spx@tempboxa{%
+                 \ifdim\spx@boxes@shadow@xoffset>\z@
+                  \vrule\@width\dimexpr\spx@boxes@border@left+\spx@boxes@shadow@xoffset\relax\fi
+                 \hss
+                 \ifdim\spx@boxes@shadow@xoffset<\z@
+                  \vrule\@width\dimexpr-\spx@boxes@shadow@xoffset+\spx@boxes@border@right\relax\fi
+                 }%
+                \ht\spx@tempboxb\ht\spx@tempboxa
+                \dp\spx@tempboxb\dp\spx@tempboxa
+                \box\spx@tempboxb
+                \ifdim\spx@boxes@shadow@yoffset<\z@
+                  \kern\spx@boxes@shadow@yoffset
+                  \kern-\spx@boxes@border@bottom
+                  \hrule\@height\dimexpr-\spx@boxes@shadow@yoffset+\spx@boxes@border@bottom\relax
+                \fi
+                \kern-\dp\spx@tempboxa
+               }% end of \vbox, attention it will have zero depth if yoffset<0
+          \kern-\wd\spx@tempboxa
+         }% end of \hbox, attention its depth is only |yoffset| if yoffset<0
+  \fi % end of inset shadow drawing, and we are back to horizontal reference point
+  % BOX BORDER
+  \vbox{\ifspx@boxes@withbordercolor\color{spx@boxes@bordercolor}\fi
+        \hrule\@height\spx@boxes@border@top
+           \kern-\spx@boxes@border@top
+        \setbox\spx@tempboxb\hb@xt@\wd\spx@tempboxa
+                  {\vrule\@width\spx@boxes@border@left
+                   \hss\vrule\@width\spx@boxes@border@right
+                  }%
+            \ht\spx@tempboxb\ht\spx@tempboxa
+            \dp\spx@tempboxb\dp\spx@tempboxa
+        \box\spx@tempboxb
+        \kern-\spx@boxes@border@bottom
+        \hrule\@height\spx@boxes@border@bottom
+        \kern-\dp\spx@tempboxa
+       }% attention this box has zero depth due to \hrule at bottom
+  % step back to horizontal reference point
+  \kern-\wd\spx@tempboxa
+  % end of border drawing
+  % CONTENTS
+  \box\spx@tempboxa
+  \egroup
+}
+
+
+%%%%%%%%
+% \spx@boxes@fcolorbox@rounded
+%
+% Various radii but only one border-width parameter.
+% Shadow too.
+
+% wrappers for pict2e usage if old
+% Better not to copy over 2020 pict2e definitions in case
+% something internal changes
+% However our wrappers will work ONLY with dimensional inputs
+% No need to pre-expand the arguments
+% Braces in case the expression uses parentheses
+\def\spx@moveto(#1,#2){\moveto({\strip@pt\dimexpr#1\relax},{\strip@pt\dimexpr#2\relax})}
+\def\spx@lineto(#1,#2){\lineto({\strip@pt\dimexpr#1\relax},{\strip@pt\dimexpr#2\relax})}
+% attention here the [N] becomes mandatory
+\def\spx@circlearc[#1]#2#3#4%#5#6
+   {\circlearc[#1]{\strip@pt\dimexpr#2\relax}%
+                  {\strip@pt\dimexpr#3\relax}%
+                  {\strip@pt\dimexpr#4\relax}}
+
+% This macro will when executed in a picture environment prepare a path which
+% is both used for filling backround color and stroking border
+% The coordinate origin in the LaTeX picture environment will be at half the
+% border width (d/2, d/2), d = constant border width
+\def\spx@boxes@borderpath{%
+  \spx@moveto(\spx@boxes@radius@bottomleft,\z@)% \z@ not 0 as our \spx@moveto is quite dumb
+  \spx@lineto(\wd\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@bottomright,\z@)%
+  \spx@circlearc[2]{\wd\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@bottomright}%
+                {\spx@boxes@radius@bottomright}%
+                {\spx@boxes@radius@bottomright}{-90}{0}%
+  \spx@lineto(\wd\spx@tempboxa-\spx@boxes@border,%
+              \ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@topright)%
+  \spx@circlearc[2]{\wd\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@topright}
+                {\ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@topright}%
+                {\spx@boxes@radius@topright}{0}{90}%
+  \spx@lineto(\spx@boxes@radius@topleft,\ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border)%
+  \spx@circlearc[2]{\spx@boxes@radius@topleft}%
+                {\ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@topleft}%
+                {\spx@boxes@radius@topleft}{90}{180}%
+  \spx@lineto(\z@,\spx@boxes@radius@bottomleft)%
+  \spx@circlearc[2]{\spx@boxes@radius@bottomleft}%
+                   {\spx@boxes@radius@bottomleft}%
+                   {\spx@boxes@radius@bottomleft}{180}{270}%
+}% end of definition of \spx@boxes@borderpath
+\def\spx@boxes@borderpath@opentop{%
+  \spx@moveto(\z@,\ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border)%
+  \spx@lineto(\z@,\spx@boxes@radius@bottomleft)%
+  \spx@circlearc[2]{\spx@boxes@radius@bottomleft}%
+                   {\spx@boxes@radius@bottomleft}%
+                   {\spx@boxes@radius@bottomleft}{180}{270}%
+  \spx@lineto(\wd\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@bottomright,\z@)%
+  \spx@circlearc[2]{\wd\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@bottomright}%
+                {\spx@boxes@radius@bottomright}%
+                {\spx@boxes@radius@bottomright}{-90}{0}%
+  \spx@lineto(\wd\spx@tempboxa-\spx@boxes@border,%
+              \ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border)%
+}% end of definition of \spx@boxes@borderpath@opentop
+\def\spx@boxes@borderpath@openbottom{%
+  \spx@moveto(\wd\spx@tempboxa-\spx@boxes@border,\z@)%
+  \spx@lineto(\wd\spx@tempboxa-\spx@boxes@border,%
+              \ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@topright)%
+  \spx@circlearc[2]{\wd\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@topright}
+                {\ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@topright}%
+                {\spx@boxes@radius@topright}{0}{90}%
+  \spx@lineto(\spx@boxes@radius@topleft,\ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border)%
+  \spx@circlearc[2]{\spx@boxes@radius@topleft}%
+                {\ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border-\spx@boxes@radius@topleft}%
+                {\spx@boxes@radius@topleft}{90}{180}%
+  \spx@lineto(\z@,\z@)%
+}% end of definition of \spx@boxes@borderpath@openbottom
+\def\spx@boxes@borderpath@openboth{%
+  \spx@moveto(\wd\spx@tempboxa-\spx@boxes@border,\z@)%
+  \spx@lineto(\wd\spx@tempboxa-\spx@boxes@border,%
+              \ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border)%
+  \spx@moveto(\z@,\ht\spx@tempboxa+\dp\spx@tempboxa-\spx@boxes@border)%
+  \spx@lineto(\z@,\z@)%
+}% end of definition of \spx@boxes@borderpath@openboth
+
+\long\def\spx@boxes@fcolorbox@rounded #1{%
+  \hbox{%
+   \spx@boxes@fcolorbox@setuphook
+   % reserve space to shadow if on left
+   \ifspx@boxes@withshadow
+     \ifdim\spx@boxes@shadow@xoffset<\z@\kern-\spx@boxes@shadow@xoffset\fi
+   \fi
+   \vbox{%
+     % adjust vertical bbox
+     \ifspx@boxes@withshadow
+       \ifdim\spx@boxes@shadow@yoffset<\z@
+           \kern-\spx@boxes@shadow@yoffset
+       \fi
+     \fi
+     \setlength{\unitlength}{1pt}%
+     \setbox\spx@tempboxa
+     \hbox{\kern\dimexpr\spx@boxes@border+\spx@boxes@padding@left\relax
+           {#1}%
+           \kern\dimexpr\spx@boxes@padding@right+\spx@boxes@border\relax}%
+     \ht\spx@tempboxa
+     \dimexpr\ht\spx@tempboxa+\spx@boxes@border+\spx@boxes@padding@top\relax
+     \dp\spx@tempboxa
+     \dimexpr\dp\spx@tempboxa+\spx@boxes@padding@bottom+\spx@boxes@border\relax
+     \hbox{%
+   \begin{picture}%
+      % \strip@pt\dimexpr to work around "old" LaTeX picture limitation
+      % (we could use the "picture" package, this would add another dependency)
+      (\strip@pt\wd\spx@tempboxa,\strip@pt\dimexpr\ht\spx@tempboxa+\dp\spx@tempboxa\relax)%
+      (\strip@pt\dimexpr-.5\spx@boxes@border\relax,\strip@pt\dimexpr-.5\spx@boxes@border\relax)%
+\ifspx@boxes@withshadow
+              \color{spx@boxes@shadowcolor}%
+              \put(\strip@pt\dimexpr\ifdim\spx@boxes@shadow@xoffset<\z@-\fi
+                           0.5\spx@boxes@border+\spx@boxes@shadow@xoffset\relax,%
+                   \strip@pt\dimexpr\ifdim\spx@boxes@shadow@yoffset<\z@\else-\fi
+                           0.5\spx@boxes@border-\spx@boxes@shadow@yoffset\relax)
+                   {\spx@boxes@borderpath\fillpath}%
+              {\ifspx@boxes@withbackgroundcolor\else
+                   \color{white}% or rather try to use page color?
+                   \spx@boxes@borderpath\fillpath
+              \fi}%
+\fi
+{\ifspx@boxes@withbackgroundcolor
+              \color{spx@boxes@backgroundcolor}%
+              \spx@boxes@borderpath\fillpath
+\fi}%
+\ifdim\spx@boxes@border>\z@
+% even with \spx@boxes@border set to 0pt as done if verbatimwithframe=false
+% stroke will produce a visible contour, so we exclude doing it in that case
+    \ifspx@boxes@withbordercolor
+              \color{spx@boxes@bordercolor}%
+    \fi
+              \linethickness{\spx@boxes@border}%
+              \ifdim\spx@boxes@border@top=\z@
+                    \ifdim\spx@boxes@border@bottom=\z@
+                          \spx@boxes@borderpath@openboth
+                    \else \spx@boxes@borderpath@opentop
+                    \fi
+              \else
+              \ifdim\spx@boxes@border@bottom=\z@
+                    \spx@boxes@borderpath@openbottom
+              \else\spx@boxes@borderpath\strokepath
+              \fi\fi
+              \strokepath
+\fi
+   \end{picture}}% end of picture \hbox in \vbox
+   % back-up vertically for outputting the contents
+   \kern-\dimexpr\ht\spx@tempboxa+\dp\spx@tempboxa\relax
+     % adjust vertical bbox
+     \ifspx@boxes@withshadow
+       \ifdim\spx@boxes@shadow@yoffset>\z@
+           \dp\spx@tempboxa\dimexpr\dp\spx@tempboxa+\spx@boxes@shadow@yoffset\relax
+       \fi
+     \fi
+   \box\spx@tempboxa
+   }% end of \vbox
+  % include lateral shadow in total width
+  \ifspx@boxes@withshadow
+    \ifdim\spx@boxes@shadow@xoffset>\z@\kern\spx@boxes@shadow@xoffset\fi
+  \fi
+  }% end of \hbox
+}%
+
+
+\endinput

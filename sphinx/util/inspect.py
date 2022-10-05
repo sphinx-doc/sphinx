@@ -1,12 +1,4 @@
-"""
-    sphinx.util.inspect
-    ~~~~~~~~~~~~~~~~~~~
-
-    Helpers for inspecting Python modules.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Helpers for inspecting Python modules."""
 
 import builtins
 import contextlib
@@ -16,15 +8,13 @@ import re
 import sys
 import types
 import typing
-import warnings
 from functools import partial, partialmethod
 from importlib import import_module
 from inspect import Parameter, isclass, ismethod, ismethoddescriptor, ismodule  # NOQA
 from io import StringIO
-from types import ModuleType
+from types import MethodType, ModuleType
 from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, Type, cast
 
-from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.pycode.ast import ast  # for py36-37
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
@@ -38,76 +28,9 @@ else:
     MethodDescriptorType = type(str.join)
     WrapperDescriptorType = type(dict.__dict__['fromkeys'])
 
-if False:
-    # For type annotation
-    from typing import Type  # NOQA
-
 logger = logging.getLogger(__name__)
 
 memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>)', re.IGNORECASE)
-
-
-# Copied from the definition of inspect.getfullargspec from Python master,
-# and modified to remove the use of special flags that break decorated
-# callables and bound methods in the name of backwards compatibility. Used
-# under the terms of PSF license v2, which requires the above statement
-# and the following:
-#
-#   Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,
-#   2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Python Software
-#   Foundation; All Rights Reserved
-def getargspec(func: Callable) -> Any:
-    """Like inspect.getfullargspec but supports bound methods, and wrapped
-    methods."""
-    warnings.warn('sphinx.ext.inspect.getargspec() is deprecated',
-                  RemovedInSphinx50Warning, stacklevel=2)
-
-    sig = inspect.signature(func)
-
-    args = []
-    varargs = None
-    varkw = None
-    kwonlyargs = []
-    defaults = ()
-    annotations = {}
-    defaults = ()
-    kwdefaults = {}
-
-    if sig.return_annotation is not sig.empty:
-        annotations['return'] = sig.return_annotation
-
-    for param in sig.parameters.values():
-        kind = param.kind
-        name = param.name
-
-        if kind is Parameter.POSITIONAL_ONLY:
-            args.append(name)
-        elif kind is Parameter.POSITIONAL_OR_KEYWORD:
-            args.append(name)
-            if param.default is not param.empty:
-                defaults += (param.default,)  # type: ignore
-        elif kind is Parameter.VAR_POSITIONAL:
-            varargs = name
-        elif kind is Parameter.KEYWORD_ONLY:
-            kwonlyargs.append(name)
-            if param.default is not param.empty:
-                kwdefaults[name] = param.default
-        elif kind is Parameter.VAR_KEYWORD:
-            varkw = name
-
-        if param.annotation is not param.empty:
-            annotations[name] = param.annotation
-
-    if not kwdefaults:
-        # compatibility with 'func.__kwdefaults__'
-        kwdefaults = None
-
-    if not defaults:
-        # compatibility with 'func.__defaults__'
-        defaults = None
-
-    return inspect.FullArgSpec(args, varargs, varkw, defaults,
-                               kwonlyargs, kwdefaults, annotations)
 
 
 def unwrap(obj: Any) -> Any:
@@ -123,7 +46,7 @@ def unwrap(obj: Any) -> Any:
         return obj
 
 
-def unwrap_all(obj: Any, *, stop: Callable = None) -> Any:
+def unwrap_all(obj: Any, *, stop: Optional[Callable] = None) -> Any:
     """
     Get an original object from wrapped object (unwrapping partials, wrapped
     functions, and other decorators).
@@ -183,7 +106,7 @@ def getmro(obj: Any) -> Tuple[Type, ...]:
     if isinstance(__mro__, tuple):
         return __mro__
     else:
-        return tuple()
+        return ()
 
 
 def getorigbases(obj: Any) -> Optional[Tuple[Any, ...]]:
@@ -263,7 +186,7 @@ def ispartial(obj: Any) -> bool:
     return isinstance(obj, (partial, partialmethod))
 
 
-def isclassmethod(obj: Any, cls: Any = None, name: str = None) -> bool:
+def isclassmethod(obj: Any, cls: Any = None, name: Optional[str] = None) -> bool:
     """Check if the object is classmethod."""
     if isinstance(obj, classmethod):
         return True
@@ -279,7 +202,7 @@ def isclassmethod(obj: Any, cls: Any = None, name: str = None) -> bool:
     return False
 
 
-def isstaticmethod(obj: Any, cls: Any = None, name: str = None) -> bool:
+def isstaticmethod(obj: Any, cls: Any = None, name: Optional[str] = None) -> bool:
     """Check if the object is staticmethod."""
     if isinstance(obj, staticmethod):
         return True
@@ -309,6 +232,11 @@ def isdescriptor(x: Any) -> bool:
 def isabstractmethod(obj: Any) -> bool:
     """Check if the object is an abstractmethod."""
     return safe_getattr(obj, '__isabstractmethod__', False) is True
+
+
+def isboundmethod(method: MethodType) -> bool:
+    """Check if the method is a bound method."""
+    return safe_getattr(method, '__self__', None) is not None
 
 
 def is_cython_function_or_method(obj: Any) -> bool:
@@ -555,6 +483,12 @@ class TypeAliasForwardRef:
     def __eq__(self, other: Any) -> bool:
         return self.name == other
 
+    def __hash__(self) -> int:
+        return hash(self.name)
+
+    def __repr__(self) -> str:
+        return self.name
+
 
 class TypeAliasModule:
     """Pseudo module class for autodoc_type_aliases."""
@@ -623,26 +557,19 @@ def _should_unwrap(subject: Callable) -> bool:
     return False
 
 
-def signature(subject: Callable, bound_method: bool = False, follow_wrapped: bool = None,
-              type_aliases: Dict = {}) -> inspect.Signature:
+def signature(subject: Callable, bound_method: bool = False, type_aliases: Dict = {}
+              ) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
     :param bound_method: Specify *subject* is a bound method or not
-    :param follow_wrapped: Same as ``inspect.signature()``.
     """
-
-    if follow_wrapped is None:
-        follow_wrapped = True
-    else:
-        warnings.warn('The follow_wrapped argument of sphinx.util.inspect.signature() is '
-                      'deprecated', RemovedInSphinx50Warning, stacklevel=2)
 
     try:
         try:
             if _should_unwrap(subject):
                 signature = inspect.signature(subject)
             else:
-                signature = inspect.signature(subject, follow_wrapped=follow_wrapped)
+                signature = inspect.signature(subject, follow_wrapped=True)
         except ValueError:
             # follow built-in wrappers up (ex. functools.lru_cache)
             signature = inspect.signature(subject)
@@ -696,7 +623,8 @@ def signature(subject: Callable, bound_method: bool = False, follow_wrapped: boo
                              __validate_parameters__=False)
 
 
-def evaluate_signature(sig: inspect.Signature, globalns: Dict = None, localns: Dict = None
+def evaluate_signature(sig: inspect.Signature, globalns: Optional[Dict] = None,
+                       localns: Optional[Dict] = None
                        ) -> inspect.Signature:
     """Evaluate unresolved type annotations in a signature object."""
     def evaluate_forwardref(ref: ForwardRef, globalns: Dict, localns: Dict) -> Any:
@@ -855,7 +783,10 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
                                 annotation=annotation))
 
     for i, arg in enumerate(args.kwonlyargs):
-        default = ast_unparse(args.kw_defaults[i], code) or Parameter.empty  # type: ignore
+        if args.kw_defaults[i] is None:
+            default = Parameter.empty
+        else:
+            default = DefaultValue(ast_unparse(args.kw_defaults[i], code))  # type: ignore  # NOQA
         annotation = ast_unparse(arg.annotation, code) or Parameter.empty
         params.append(Parameter(arg.arg, Parameter.KEYWORD_ONLY, default=default,
                                 annotation=annotation))
@@ -870,8 +801,13 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
     return inspect.Signature(params, return_annotation=return_annotation)
 
 
-def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
-           allow_inherited: bool = False, cls: Any = None, name: str = None) -> str:
+def getdoc(
+    obj: Any,
+    attrgetter: Callable = safe_getattr,
+    allow_inherited: bool = False,
+    cls: Any = None,
+    name: Optional[str] = None
+) -> Optional[str]:
     """Get the docstring for the object.
 
     This tries to obtain the docstring for some kind of objects additionally:
@@ -891,7 +827,7 @@ def getdoc(obj: Any, attrgetter: Callable = safe_getattr,
         for basecls in getmro(cls):
             meth = basecls.__dict__.get(name)
             if meth and hasattr(meth, '__func__'):
-                doc = getdoc(meth.__func__)
+                doc: Optional[str] = getdoc(meth.__func__)
                 if doc is not None or not allow_inherited:
                     return doc
 

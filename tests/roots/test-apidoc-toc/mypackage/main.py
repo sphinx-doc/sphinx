@@ -10,6 +10,6 @@ if __name__ == "__main__":
 
     res_path = \
         os.path.join(os.path.dirname(mod_resource.__file__), 'resource.txt')
-    with open(res_path) as f:
+    with open(res_path, encoding='utf-8') as f:
         text = f.read()
     print("From mod_resource:resource.txt -> {}".format(text))

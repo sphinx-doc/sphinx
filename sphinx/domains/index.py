@@ -1,12 +1,4 @@
-"""
-    sphinx.domains.index
-    ~~~~~~~~~~~~~~~~~~~~
-
-    The index domain.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""The index domain."""
 
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Tuple
 
@@ -110,7 +102,7 @@ class IndexRole(ReferenceRole):
 
         index = addnodes.index(entries=entries)
         target = nodes.target('', '', ids=[target_id])
-        text = nodes.Text(title, title)
+        text = nodes.Text(title)
         self.set_source_info(index)
         return [index, target, text], []
 

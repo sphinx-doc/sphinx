@@ -1,15 +1,7 @@
-"""
-    sphinx.domains.std
-    ~~~~~~~~~~~~~~~~~~
-
-    The standard domain.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""The standard domain."""
 
 import re
-import warnings
+import sys
 from copy import copy
 from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, List, Optional,
                     Tuple, Type, Union, cast)
@@ -21,11 +13,10 @@ from docutils.statemachine import StringList
 
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature, pending_xref
-from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.locale import _, __
-from sphinx.roles import XRefRole
+from sphinx.roles import EmphasizedLiteral, XRefRole
 from sphinx.util import docname_join, logging, ws_re
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import clean_astext, make_id, make_refnode
@@ -38,11 +29,17 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+if sys.version_info[:2] >= (3, 8):
+    from typing import Final
+else:
+    Final = Any
 
 # RE for option descriptions
 option_desc_re = re.compile(r'((?:/|--|-|\+)?[^\s=]+)(=?\s*.*)')
 # RE for grammar tokens
 token_re = re.compile(r'`((~?\w*:)?\w+)`', re.U)
+
+samp_role = EmphasizedLiteral()
 
 
 class GenericObject(ObjectDescription[str]):
@@ -50,7 +47,7 @@ class GenericObject(ObjectDescription[str]):
     A generic x-ref directive registered with Sphinx.add_object_type().
     """
     indextemplate: str = ''
-    parse_node: Callable[["GenericObject", "BuildEnvironment", str, desc_signature], str] = None  # NOQA
+    parse_node: Callable[["BuildEnvironment", str, desc_signature], str] = None  # NOQA
 
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         if self.parse_node:
@@ -65,13 +62,6 @@ class GenericObject(ObjectDescription[str]):
     def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:
         node_id = make_id(self.env, self.state.document, self.objtype, name)
         signode['ids'].append(node_id)
-
-        # Assign old styled node_id not to break old hyperlinks (if possible)
-        # Note: Will be removed in Sphinx-5.0 (RemovedInSphinx50Warning)
-        old_node_id = self.make_old_id(name)
-        if old_node_id not in self.state.document.ids and old_node_id not in signode['ids']:
-            signode['ids'].append(old_node_id)
-
         self.state.document.note_explicit_target(signode)
 
         if self.indextemplate:
@@ -139,13 +129,6 @@ class Target(SphinxDirective):
         node_id = make_id(self.env, self.state.document, self.name, fullname)
         node = nodes.target('', '', ids=[node_id])
         self.set_source_info(node)
-
-        # Assign old styled node_id not to break old hyperlinks (if possible)
-        # Note: Will be removed in Sphinx-5.0 (RemovedInSphinx50Warning)
-        old_node_id = self.make_old_id(fullname)
-        if old_node_id not in self.state.document.ids and old_node_id not in node['ids']:
-            node['ids'].append(old_node_id)
-
         self.state.document.note_explicit_target(node)
         ret: List[Node] = [node]
         if self.indextemplate:
@@ -194,15 +177,40 @@ class Cmdoption(ObjectDescription[str]):
                                location=signode)
                 continue
             optname, args = m.groups()
-            if optname.endswith('[') and args.endswith(']'):
+            if optname[-1] == '[' and args[-1] == ']':
                 # optional value surrounded by brackets (ex. foo[=bar])
                 optname = optname[:-1]
                 args = '[' + args
 
             if count:
-                signode += addnodes.desc_addname(', ', ', ')
+                if self.env.config.option_emphasise_placeholders:
+                    signode += addnodes.desc_sig_punctuation(',', ',')
+                    signode += addnodes.desc_sig_space()
+                else:
+                    signode += addnodes.desc_addname(', ', ', ')
             signode += addnodes.desc_name(optname, optname)
-            signode += addnodes.desc_addname(args, args)
+            if self.env.config.option_emphasise_placeholders:
+                add_end_bracket = False
+                if args:
+                    if args[0] == '[' and args[-1] == ']':
+                        add_end_bracket = True
+                        signode += addnodes.desc_sig_punctuation('[', '[')
+                        args = args[1:-1]
+                    elif args[0] == ' ':
+                        signode += addnodes.desc_sig_space()
+                        args = args.strip()
+                    elif args[0] == '=':
+                        signode += addnodes.desc_sig_punctuation('=', '=')
+                        args = args[1:]
+                    for part in samp_role.parse(args):
+                        if isinstance(part, nodes.Text):
+                            signode += nodes.Text(part.astext())
+                        else:
+                            signode += part
+                if add_end_bracket:
+                    signode += addnodes.desc_sig_punctuation(']', ']')
+            else:
+                signode += addnodes.desc_addname(args, args)
             if not count:
                 firstname = optname
                 signode['allnames'] = [optname]
@@ -440,7 +448,7 @@ def token_xrefs(text: str, productionGroup: str = '') -> List[Node]:
     for m in token_re.finditer(text):
         if m.start() > pos:
             txt = text[pos:m.start()]
-            retnodes.append(nodes.Text(txt, txt))
+            retnodes.append(nodes.Text(txt))
         token = m.group(1)
         if ':' in token:
             if token[0] == '~':
@@ -461,7 +469,7 @@ def token_xrefs(text: str, productionGroup: str = '') -> List[Node]:
         retnodes.append(refnode)
         pos = m.end()
     if pos < len(text):
-        retnodes.append(nodes.Text(text[pos:], text[pos:]))
+        retnodes.append(nodes.Text(text[pos:]))
     return retnodes
 
 
@@ -485,12 +493,12 @@ class ProductionList(SphinxDirective):
         lines = nl_escape_re.sub('', self.arguments[0]).split('\n')
 
         productionGroup = ""
-        i = 0
+        first_rule_seen = False
         for rule in lines:
-            if i == 0 and ':' not in rule:
+            if not first_rule_seen and ':' not in rule:
                 productionGroup = rule.strip()
                 continue
-            i += 1
+            first_rule_seen = True
             try:
                 name, tokens = rule.split(':', 1)
             except ValueError:
@@ -502,14 +510,6 @@ class ProductionList(SphinxDirective):
                 prefix = 'grammar-token-%s' % productionGroup
                 node_id = make_id(self.env, self.state.document, prefix, name)
                 subnode['ids'].append(node_id)
-
-                # Assign old styled node_id not to break old hyperlinks (if possible)
-                # Note: Will be removed in Sphinx-5.0 (RemovedInSphinx50Warning)
-                old_node_id = self.make_old_id(name)
-                if (old_node_id not in self.state.document.ids and
-                        old_node_id not in subnode['ids']):
-                    subnode['ids'].append(old_node_id)
-
                 self.state.document.note_implicit_target(subnode, subnode)
 
                 if len(productionGroup) != 0:
@@ -589,7 +589,7 @@ class StandardDomain(Domain):
         'doc':     XRefRole(warn_dangling=True, innernodeclass=nodes.inline),
     }
 
-    initial_data = {
+    initial_data: Final = {
         'progoptions': {},      # (program, name) -> docname, labelid
         'objects': {},          # (type, name) -> docname, labelid
         'labels': {             # labelname -> docname, labelid, sectionname
@@ -605,11 +605,11 @@ class StandardDomain(Domain):
     }
 
     dangling_warnings = {
-        'term': 'term not in glossary: %(target)s',
-        'numref':  'undefined label: %(target)s',
-        'keyword': 'unknown keyword: %(target)s',
-        'doc': 'unknown document: %(target)s',
-        'option': 'unknown option: %(target)s',
+        'term': 'term not in glossary: %(target)r',
+        'numref':  'undefined label: %(target)r',
+        'keyword': 'unknown keyword: %(target)r',
+        'doc': 'unknown document: %(target)r',
+        'option': 'unknown option: %(target)r',
     }
 
     # node_class -> (figtype, title_getter)
@@ -666,11 +666,6 @@ class StandardDomain(Domain):
             logger.warning(__('duplicate %s description of %s, other instance in %s'),
                            objtype, name, docname, location=location)
         self.objects[objtype, name] = (self.env.docname, labelid)
-
-    def add_object(self, objtype: str, name: str, docname: str, labelid: str) -> None:
-        warnings.warn('StandardDomain.add_object() is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        self.objects[objtype, name] = (docname, labelid)
 
     @property
     def _terms(self) -> Dict[str, Tuple[str, str]]:
@@ -762,23 +757,32 @@ class StandardDomain(Domain):
                 sectname = clean_astext(title)
             elif node.tagname == 'rubric':
                 sectname = clean_astext(node)
-            elif node.tagname == 'target' and len(node) > 0:
-                # inline target (ex: blah _`blah` blah)
-                sectname = clean_astext(node)
             elif self.is_enumerable_node(node):
                 sectname = self.get_numfig_title(node)
-            else:
-                toctree = next(node.findall(addnodes.toctree), None)
-                if toctree and toctree.get('caption'):
-                    sectname = toctree.get('caption')
-                else:
-                    # anonymous-only labels
+                if not sectname:
                     continue
-            if sectname:
-                self.labels[name] = docname, labelid, sectname
+            else:
+                if (isinstance(node, (nodes.definition_list,
+                                      nodes.field_list)) and
+                        node.children):
+                    node = cast(nodes.Element, node.children[0])
+                if isinstance(node, (nodes.field, nodes.definition_list_item)):
+                    node = cast(nodes.Element, node.children[0])
+                if isinstance(node, (nodes.term, nodes.field_name)):
+                    sectname = clean_astext(node)
+                else:
+                    toctree = next(node.findall(addnodes.toctree), None)
+                    if toctree and toctree.get('caption'):
+                        sectname = toctree.get('caption')
+                    else:
+                        # anonymous-only labels
+                        continue
+            self.labels[name] = docname, labelid, sectname
 
     def add_program_option(self, program: str, name: str, docname: str, labelid: str) -> None:
-        self.progoptions[program, name] = (docname, labelid)
+        # prefer first command option entry
+        if (program, name) not in self.progoptions:
+            self.progoptions[program, name] = (docname, labelid)
 
     def build_reference_node(self, fromdocname: str, builder: "Builder", docname: str,
                              labelid: str, sectname: str, rolename: str, **options: Any
@@ -940,6 +944,17 @@ class StandardDomain(Domain):
         target = target.strip()
         docname, labelid = self.progoptions.get((progname, target), ('', ''))
         if not docname:
+            # Support also reference that contain an option value:
+            # * :option:`-foo=bar`
+            # * :option:`-foo[=bar]`
+            # * :option:`-foo bar`
+            for needle in {'=', '[=', ' '}:
+                if needle in target:
+                    stem, _, _ = target.partition(needle)
+                    docname, labelid = self.progoptions.get((progname, stem), ('', ''))
+                    if docname:
+                        break
+        if not docname:
             commands = []
             while ws_re.search(target):
                 subcommand, target = ws_re.split(target, 1)
@@ -1070,7 +1085,7 @@ class StandardDomain(Domain):
                       figtype: str, docname: str, target_node: Element) -> Tuple[int, ...]:
         if figtype == 'section':
             if builder.name == 'latex':
-                return tuple()
+                return ()
             elif docname not in env.toc_secnumbers:
                 raise ValueError  # no number assigned
             else:
@@ -1111,9 +1126,9 @@ def warn_missing_reference(app: "Sphinx", domain: Domain, node: pending_xref
     else:
         target = node['reftarget']
         if target not in domain.anonlabels:  # type: ignore
-            msg = __('undefined label: %s')
+            msg = __('undefined label: %r')
         else:
-            msg = __('Failed to create a cross reference. A title or caption not found: %s')
+            msg = __('Failed to create a cross reference. A title or caption not found: %r')
 
         logger.warning(msg % target, location=node, type='ref', subtype=node['reftype'])
         return True

@@ -1,12 +1,4 @@
-"""
-    test_util_typing
-    ~~~~~~~~~~~~~~~~
-
-    Tests util.typing functions.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests util.typing functions."""
 
 import sys
 from numbers import Integral
@@ -78,7 +70,12 @@ def test_restify_type_hints_containers():
                                              "[:py:class:`str`, :py:class:`str`, "
                                              ":py:class:`str`]")
     assert restify(Tuple[str, ...]) == ":py:class:`~typing.Tuple`\\ [:py:class:`str`, ...]"
-    assert restify(Tuple[()]) == ":py:class:`~typing.Tuple`\\ [()]"
+
+    if sys.version_info < (3, 11):
+        assert restify(Tuple[()]) == ":py:class:`~typing.Tuple`\\ [()]"
+    else:
+        assert restify(Tuple[()]) == ":py:class:`~typing.Tuple`"
+
     assert restify(List[Dict[str, Tuple]]) == (":py:class:`~typing.List`\\ "
                                                "[:py:class:`~typing.Dict`\\ "
                                                "[:py:class:`str`, :py:class:`~typing.Tuple`]]")
@@ -213,6 +210,7 @@ def test_restify_broken_type_hints():
 def test_restify_mock():
     with mock(['unknown']):
         import unknown
+        assert restify(unknown) == ':py:class:`unknown`'
         assert restify(unknown.secret.Class) == ':py:class:`unknown.secret.Class`'
         assert restify(unknown.secret.Class, "smart") == ':py:class:`~unknown.secret.Class`'
 
@@ -270,9 +268,14 @@ def test_stringify_type_hints_containers():
     assert stringify(Tuple[str, ...], "fully-qualified") == "typing.Tuple[str, ...]"
     assert stringify(Tuple[str, ...], "smart") == "~typing.Tuple[str, ...]"
 
-    assert stringify(Tuple[()]) == "Tuple[()]"
-    assert stringify(Tuple[()], "fully-qualified") == "typing.Tuple[()]"
-    assert stringify(Tuple[()], "smart") == "~typing.Tuple[()]"
+    if sys.version_info < (3, 11):
+        assert stringify(Tuple[()]) == "Tuple[()]"
+        assert stringify(Tuple[()], "fully-qualified") == "typing.Tuple[()]"
+        assert stringify(Tuple[()], "smart") == "~typing.Tuple[()]"
+    else:
+        assert stringify(Tuple[()]) == "Tuple"
+        assert stringify(Tuple[()], "fully-qualified") == "typing.Tuple"
+        assert stringify(Tuple[()], "smart") == "~typing.Tuple"
 
     assert stringify(List[Dict[str, Tuple]]) == "List[Dict[str, Tuple]]"
     assert stringify(List[Dict[str, Tuple]], "fully-qualified") == "typing.List[typing.Dict[str, typing.Tuple]]"
@@ -317,8 +320,8 @@ def test_stringify_type_hints_pep_585():
 @pytest.mark.skipif(sys.version_info < (3, 9), reason='python 3.9+ is required.')
 def test_stringify_Annotated():
     from typing import Annotated  # type: ignore
-    assert stringify(Annotated[str, "foo", "bar"]) == "str"  # NOQA
-    assert stringify(Annotated[str, "foo", "bar"], "smart") == "str"  # NOQA
+    assert stringify(Annotated[str, "foo", "bar"]) == "str"
+    assert stringify(Annotated[str, "foo", "bar"], "smart") == "str"
 
 
 def test_stringify_type_hints_string():
@@ -480,5 +483,6 @@ def test_stringify_broken_type_hints():
 def test_stringify_mock():
     with mock(['unknown']):
         import unknown
+        assert stringify(unknown) == 'unknown'
         assert stringify(unknown.secret.Class) == 'unknown.secret.Class'
         assert stringify(unknown.secret.Class, "smart") == 'unknown.secret.Class'

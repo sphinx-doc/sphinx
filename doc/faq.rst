@@ -350,19 +350,3 @@ The following notes may be helpful if you want to create Texinfo files:
   scheme ``info``.  For example::
 
      info:Texinfo#makeinfo_options
-
-- Inline markup
-
-  The standard formatting for ``*strong*`` and ``_emphasis_`` can
-  result in ambiguous output when used to markup parameter names and
-  other values.  Since this is a fairly common practice, the default
-  formatting has been changed so that ``emphasis`` and ``strong`` are
-  now displayed like ```literal'``\s.
-
-  The standard formatting can be re-enabled by adding the following to
-  your :file:`conf.py`::
-
-     texinfo_elements = {'preamble': """
-     @definfoenclose strong,*,*
-     @definfoenclose emph,_,_
-     """}

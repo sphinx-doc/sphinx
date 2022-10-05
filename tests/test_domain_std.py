@@ -1,12 +1,4 @@
-"""
-    test_domain_std
-    ~~~~~~~~~~~~~~~
-
-    Tests the std domain
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests the std domain"""
 
 from unittest import mock
 
@@ -416,7 +408,7 @@ def test_productionlist(app, status, warning):
         ('SecondLine', 'firstLineRule.html#grammar-token-SecondLine', 'SecondLine'),
     ]
 
-    text = (app.outdir / 'LineContinuation.html').read_text()
+    text = (app.outdir / 'LineContinuation.html').read_text(encoding='utf8')
     assert "A</strong> ::=  B C D    E F G" in text
 
 
@@ -455,10 +447,41 @@ def test_labeled_rubric(app):
     assert domain.labels['label'] == ('index', 'label', 'blah blah blah')
 
 
-def test_inline_target(app):
-    text = "blah _`inline target` blah\n"
+def test_labeled_definition(app):
+    text = (".. _label1:\n"
+            "\n"
+            "Foo blah *blah* blah\n"
+            "  Definition\n"
+            "\n"
+            ".. _label2:\n"
+            "\n"
+            "Bar blah *blah* blah\n"
+            "  Definition\n"
+            "\n")
     restructuredtext.parse(app, text)
 
     domain = app.env.get_domain("std")
-    assert 'inline target' in domain.labels
-    assert domain.labels['inline target'] == ('index', 'inline-target', 'inline target')
+    assert 'label1' in domain.labels
+    assert domain.labels['label1'] == ('index', 'label1', 'Foo blah blah blah')
+    assert 'label2' in domain.labels
+    assert domain.labels['label2'] == ('index', 'label2', 'Bar blah blah blah')
+
+
+def test_labeled_field(app):
+    text = (".. _label1:\n"
+            "\n"
+            ":Foo blah *blah* blah:\n"
+            "  Definition\n"
+            "\n"
+            ".. _label2:\n"
+            "\n"
+            ":Bar blah *blah* blah:\n"
+            "  Definition\n"
+            "\n")
+    restructuredtext.parse(app, text)
+
+    domain = app.env.get_domain("std")
+    assert 'label1' in domain.labels
+    assert domain.labels['label1'] == ('index', 'label1', 'Foo blah blah blah')
+    assert 'label2' in domain.labels
+    assert domain.labels['label2'] == ('index', 'label2', 'Bar blah blah blah')

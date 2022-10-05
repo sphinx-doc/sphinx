@@ -105,7 +105,7 @@ Sphinx.
    :linenos:
    :lines: 12-
 
-The simplest thing you can do it call the :meth:`~Sphinx.add_directive` method,
+The simplest thing you can do is to call the :meth:`~Sphinx.add_directive` method,
 which is what we've done here. For this particular call, the first argument is
 the name of the directive itself as used in a reST file. In this case, we would
 use ``helloworld``. For example:

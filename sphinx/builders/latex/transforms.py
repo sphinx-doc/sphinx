@@ -1,14 +1,6 @@
-"""
-    sphinx.builders.latex.transforms
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Transforms for LaTeX builder."""
 
-    Transforms for LaTeX builder.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import Any, Dict, List, Set, Tuple, cast
+from typing import Any, Dict, List, Optional, Set, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -38,7 +30,7 @@ class FootnoteDocnameUpdater(SphinxTransform):
 
 
 class SubstitutionDefinitionsRemover(SphinxPostTransform):
-    """Remove ``substitution_definition node from doctrees."""
+    """Remove ``substitution_definition`` nodes from doctrees."""
 
     # should be invoked after Substitutions process
     default_priority = Substitutions.default_priority + 1
@@ -102,13 +94,17 @@ class ShowUrlsTransform(SphinxPostTransform):
     def get_docname_for_node(self, node: Node) -> str:
         while node:
             if isinstance(node, nodes.document):
-                return self.env.path2doc(node['source'])
+                return self.env.path2doc(node['source']) or ''
             elif isinstance(node, addnodes.start_of_file):
                 return node['docname']
             else:
                 node = node.parent
 
-        return None  # never reached here. only for type hinting
+        try:
+            source = node['source']  # type: ignore[index]
+        except TypeError:
+            raise ValueError('Failed to get a docname!') from None
+        raise ValueError(f'Failed to get a docname for source {source!r}!')
 
     def create_footnote(self, uri: str, docname: str) -> Tuple[nodes.footnote, nodes.footnote_reference]:  # NOQA
         reference = nodes.reference('', nodes.Text(uri), refuri=uri, nolinkurl=True)
@@ -237,7 +233,8 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
           blah blah blah ...
 
     * Replace second and subsequent footnote references which refers same footnote definition
-      by footnotemark node.
+      by footnotemark node.  Additionally, the footnote definition node is marked as
+      "referred".
 
       Before::
 
@@ -258,7 +255,7 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
       After::
 
           blah blah blah
-          <footnote ids="id1">
+          <footnote ids="id1" referred=True>
               <label>
                   1
               <paragraph>
@@ -358,11 +355,11 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
 
 class LaTeXFootnoteVisitor(nodes.NodeVisitor):
     def __init__(self, document: nodes.document, footnotes: List[nodes.footnote]) -> None:
-        self.appeared: Set[Tuple[str, str]] = set()
+        self.appeared: Dict[Tuple[str, str], nodes.footnote] = {}
         self.footnotes: List[nodes.footnote] = footnotes
         self.pendings: List[nodes.footnote] = []
         self.table_footnotes: List[nodes.footnote] = []
-        self.restricted: Element = None
+        self.restricted: Optional[Element] = None
         super().__init__(document)
 
     def unknown_visit(self, node: Node) -> None:
@@ -439,22 +436,24 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
     def visit_footnote_reference(self, node: nodes.footnote_reference) -> None:
         number = node.astext().strip()
         docname = node['docname']
-        if self.restricted:
-            mark = footnotemark('', number, refid=node['refid'])
-            node.replace_self(mark)
-            if (docname, number) not in self.appeared:
-                footnote = self.get_footnote_by_reference(node)
-                self.pendings.append(footnote)
-        elif (docname, number) in self.appeared:
+        if (docname, number) in self.appeared:
+            footnote = self.appeared[(docname, number)]
+            footnote["referred"] = True
+
             mark = footnotemark('', number, refid=node['refid'])
             node.replace_self(mark)
         else:
             footnote = self.get_footnote_by_reference(node)
-            self.footnotes.remove(footnote)
-            node.replace_self(footnote)
-            footnote.walkabout(self)
+            if self.restricted:
+                mark = footnotemark('', number, refid=node['refid'])
+                node.replace_self(mark)
+                self.pendings.append(footnote)
+            else:
+                self.footnotes.remove(footnote)
+                node.replace_self(footnote)
+                footnote.walkabout(self)
 
-        self.appeared.add((docname, number))
+            self.appeared[(docname, number)] = footnote
         raise nodes.SkipNode
 
     def get_footnote_by_reference(self, node: nodes.footnote_reference) -> nodes.footnote:
@@ -463,7 +462,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
             if docname == footnote['docname'] and footnote['ids'][0] == node['refid']:
                 return footnote
 
-        return None
+        raise ValueError('No footnote not found for given reference node %r' % node)
 
 
 class BibliographyTransform(SphinxPostTransform):

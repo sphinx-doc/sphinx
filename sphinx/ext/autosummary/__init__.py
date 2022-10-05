@@ -1,55 +1,49 @@
-"""
-    sphinx.ext.autosummary
-    ~~~~~~~~~~~~~~~~~~~~~~
+"""Extension that adds an autosummary:: directive.
 
-    Sphinx extension that adds an autosummary:: directive, which can be
-    used to generate function/method/attribute/etc. summary lists, similar
-    to those output eg. by Epydoc and other API doc generation tools.
+The directive can be used to generate function/method/attribute/etc. summary
+lists, similar to those output eg. by Epydoc and other API doc generation tools.
 
-    An :autolink: role is also provided.
+An :autolink: role is also provided.
 
-    autosummary directive
-    ---------------------
+autosummary directive
+---------------------
 
-    The autosummary directive has the form::
+The autosummary directive has the form::
 
-        .. autosummary::
-           :nosignatures:
-           :toctree: generated/
+    .. autosummary::
+       :nosignatures:
+       :toctree: generated/
 
-           module.function_1
-           module.function_2
-           ...
+       module.function_1
+       module.function_2
+       ...
 
-    and it generates an output table (containing signatures, optionally)
+and it generates an output table (containing signatures, optionally)
 
-        ========================  =============================================
-        module.function_1(args)   Summary line from the docstring of function_1
-        module.function_2(args)   Summary line from the docstring
-        ...
-        ========================  =============================================
+    ========================  =============================================
+    module.function_1(args)   Summary line from the docstring of function_1
+    module.function_2(args)   Summary line from the docstring
+    ...
+    ========================  =============================================
 
-    If the :toctree: option is specified, files matching the function names
-    are inserted to the toctree with the given prefix:
+If the :toctree: option is specified, files matching the function names
+are inserted to the toctree with the given prefix:
 
-        generated/module.function_1
-        generated/module.function_2
-        ...
+    generated/module.function_1
+    generated/module.function_2
+    ...
 
-    Note: The file names contain the module:: or currentmodule:: prefixes.
+Note: The file names contain the module:: or currentmodule:: prefixes.
 
-    .. seealso:: autosummary_generate.py
+.. seealso:: autosummary_generate.py
 
 
-    autolink role
-    -------------
+autolink role
+-------------
 
-    The autolink role functions as ``:obj:`` when the name referred can be
-    resolved to a Python object, and otherwise it becomes simple emphasis.
-    This can be used as the default role to make links 'smart'.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+The autolink role functions as ``:obj:`` when the name referred can be
+resolved to a Python object, and otherwise it becomes simple emphasis.
+This can be used as the default role to make links 'smart'.
 """
 
 import inspect
@@ -64,7 +58,7 @@ from types import ModuleType
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Type, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node, system_message
+from docutils.nodes import Node, system_message
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.states import RSTStateMachine, Struct, state_classes
 from docutils.statemachine import StringList
@@ -73,14 +67,14 @@ import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.config import Config
-from sphinx.deprecation import (RemovedInSphinx50Warning, RemovedInSphinx60Warning,
+from sphinx.deprecation import (RemovedInSphinx60Warning, RemovedInSphinx70Warning,
                                 deprecated_alias)
 from sphinx.environment import BuildEnvironment
-from sphinx.environment.adapters.toctree import TocTree
 from sphinx.ext.autodoc import INSTANCEATTR, Documenter
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
+from sphinx.extension import Extension
 from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.pycode import ModuleAnalyzer, PycodeError
@@ -106,32 +100,6 @@ WELL_KNOWN_ABBREVIATIONS = ('et al.', ' i.e.',)
 
 class autosummary_toc(nodes.comment):
     pass
-
-
-def process_autosummary_toc(app: Sphinx, doctree: nodes.document) -> None:
-    """Insert items described in autosummary:: to the TOC tree, but do
-    not generate the toctree:: list.
-    """
-    warnings.warn('process_autosummary_toc() is deprecated',
-                  RemovedInSphinx50Warning, stacklevel=2)
-    env = app.builder.env
-    crawled = {}
-
-    def crawl_toc(node: Element, depth: int = 1) -> None:
-        crawled[node] = True
-        for subnode in node:
-            try:
-                if (isinstance(subnode, autosummary_toc) and
-                        isinstance(subnode[0], addnodes.toctree)):
-                    TocTree(env).note(env.docname, subnode[0])
-                    continue
-            except IndexError:
-                continue
-            if not isinstance(subnode, nodes.section):
-                continue
-            if subnode not in crawled:
-                crawl_toc(subnode, depth + 1)
-    crawl_toc(doctree)
 
 
 def autosummary_toc_visit_html(self: nodes.NodeVisitor, node: autosummary_toc) -> None:
@@ -178,10 +146,10 @@ deprecated_alias('sphinx.ext.autosummary',
 
 
 class FakeApplication:
-    def __init__(self):
+    def __init__(self) -> None:
         self.doctreedir = None
         self.events = None
-        self.extensions = {}
+        self.extensions: Dict[str, Extension] = {}
         self.srcdir = None
         self.config = Config()
         self.project = Project(None, None)
@@ -276,7 +244,7 @@ class Autosummary(SphinxDirective):
                 docname = posixpath.join(tree_prefix, real_name)
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
                 if docname not in self.env.found_docs:
-                    if excluded(self.env.doc2path(docname, None)):
+                    if excluded(self.env.doc2path(docname, False)):
                         msg = __('autosummary references excluded document %r. Ignored.')
                     else:
                         msg = __('autosummary: stub file not found %r. '
@@ -303,10 +271,12 @@ class Autosummary(SphinxDirective):
 
         return nodes
 
-    def import_by_name(self, name: str, prefixes: List[str]) -> Tuple[str, Any, Any, str]:
+    def import_by_name(
+        self, name: str, prefixes: List[Optional[str]]
+    ) -> Tuple[str, Any, Any, str]:
         with mock(self.config.autosummary_mock_imports):
             try:
-                return import_by_name(name, prefixes, grouped_exception=True)
+                return import_by_name(name, prefixes)
             except ImportExceptionGroup as exc:
                 # check existence of instance attribute
                 try:
@@ -348,7 +318,7 @@ class Autosummary(SphinxDirective):
             try:
                 real_name, obj, parent, modname = self.import_by_name(name, prefixes=prefixes)
             except ImportExceptionGroup as exc:
-                errors = list(set("* %s: %s" % (type(e).__name__, e) for e in exc.exceptions))
+                errors = list({"* %s: %s" % (type(e).__name__, e) for e in exc.exceptions})
                 logger.warning(__('autosummary: failed to import %s.\nPossible hints:\n%s'),
                                name, '\n'.join(errors), location=self.get_location())
                 continue
@@ -401,6 +371,9 @@ class Autosummary(SphinxDirective):
 
             # -- Grab the summary
 
+            # bodge for ModuleDocumenter
+            documenter._extra_indent = ''  # type: ignore[attr-defined]
+
             documenter.add_content(None)
             summary = extract_summary(self.bridge.result.data[:], self.state.document)
 
@@ -417,7 +390,7 @@ class Autosummary(SphinxDirective):
         table_spec['spec'] = r'\X{1}{2}\X{1}{2}'
 
         table = autosummary_table('')
-        real_table = nodes.table('', classes=['longtable'])
+        real_table = nodes.table('', classes=['autosummary longtable'])
         table.append(real_table)
         group = nodes.tgroup('', cols=2)
         real_table.append(group)
@@ -634,7 +607,7 @@ class ImportExceptionGroup(Exception):
         self.exceptions = list(exceptions)
 
 
-def get_import_prefixes_from_env(env: BuildEnvironment) -> List[str]:
+def get_import_prefixes_from_env(env: BuildEnvironment) -> List[Optional[str]]:
     """
     Obtain current Python import prefixes (for `import_by_name`)
     from ``document.env``
@@ -655,11 +628,18 @@ def get_import_prefixes_from_env(env: BuildEnvironment) -> List[str]:
     return prefixes
 
 
-def import_by_name(name: str, prefixes: List[str] = [None], grouped_exception: bool = False
-                   ) -> Tuple[str, Any, Any, str]:
+def import_by_name(
+    name: str, prefixes: List[Optional[str]] = [None], grouped_exception: bool = True
+) -> Tuple[str, Any, Any, str]:
     """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
+    if grouped_exception is False:
+        warnings.warn('Using grouped_exception keyword for import_by_name() is not '
+                      'recommended. It will be removed at v7.0.  Therefore you should '
+                      'catch ImportExceptionGroup exception instead of ImportError.',
+                      RemovedInSphinx70Warning, stacklevel=2)
+
     tried = []
     errors: List[ImportExceptionGroup] = []
     for prefix in prefixes:
@@ -683,7 +663,7 @@ def import_by_name(name: str, prefixes: List[str] = [None], grouped_exception: b
         raise ImportError('no module named %s' % ' or '.join(tried))
 
 
-def _import_by_name(name: str, grouped_exception: bool = False) -> Tuple[Any, Any, str]:
+def _import_by_name(name: str, grouped_exception: bool = True) -> Tuple[Any, Any, str]:
     """Import a Python object given its full name."""
     errors: List[BaseException] = []
 
@@ -730,8 +710,8 @@ def _import_by_name(name: str, grouped_exception: bool = False) -> Tuple[Any, An
             raise ImportError(*exc.args) from exc
 
 
-def import_ivar_by_name(name: str, prefixes: List[str] = [None],
-                        grouped_exception: bool = False) -> Tuple[str, Any, Any, str]:
+def import_ivar_by_name(name: str, prefixes: List[Optional[str]] = [None],
+                        grouped_exception: bool = True) -> Tuple[str, Any, Any, str]:
     """Import an instance variable that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
@@ -772,7 +752,7 @@ class AutoLink(SphinxRole):
         try:
             # try to import object by name
             prefixes = get_import_prefixes_from_env(self.env)
-            import_by_name(pending_xref['reftarget'], prefixes, grouped_exception=True)
+            import_by_name(pending_xref['reftarget'], prefixes)
         except ImportExceptionGroup:
             literal = cast(nodes.literal, pending_xref[0])
             objects[0] = nodes.emphasis(self.rawtext, literal.astext(),
@@ -781,14 +761,14 @@ class AutoLink(SphinxRole):
         return objects, errors
 
 
-def get_rst_suffix(app: Sphinx) -> str:
+def get_rst_suffix(app: Sphinx) -> Optional[str]:
     def get_supported_format(suffix: str) -> Tuple[str, ...]:
         parser_class = app.registry.get_source_parsers().get(suffix)
         if parser_class is None:
             return ('restructuredtext',)
         return parser_class.supported
 
-    suffix: str = None
+    suffix = None
     for suffix in app.config.source_suffix:
         if 'restructuredtext' in get_supported_format(suffix):
             return suffix
@@ -801,7 +781,7 @@ def process_generate_options(app: Sphinx) -> None:
 
     if genfiles is True:
         env = app.builder.env
-        genfiles = [env.doc2path(x, base=None) for x in env.found_docs
+        genfiles = [env.doc2path(x, base=False) for x in env.found_docs
                     if os.path.isfile(env.doc2path(x))]
     elif genfiles is False:
         pass
