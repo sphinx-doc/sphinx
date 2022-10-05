@@ -50,8 +50,8 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
                 continue
 
             # Get the source lines
-            info['start_line'] = None
-            info['end_line'] = None
+            info['start_line'] = -1
+            info['end_line'] = -1
             tags_source = False
             modname = signode.get('module')
             code_tags = app.emit_firstresult('viewcode-find-source', modname)

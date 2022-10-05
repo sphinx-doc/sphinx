@@ -38,9 +38,10 @@ Configuration
    - ``javascript``: ``object`` (name of the object), ``fullname``
      (name of the item)
 
-   The ``start_line`` and ``end_line`` keys are also always present in the
-   ``info`` dictionnary, but may be None if they are not found. By default,
-   theses values are found using the :event:`viewcode-find-source` event but you
+   The ``start_line`` and ``end_line`` keys are always present in the
+   ``info`` dictionary. If start and end line numbers are not found, the keys
+   have the default value ``-1``.
+   By default, these values are found using the :event:`viewcode-find-source` event but you
    can set the :confval:`linkcode_line_try_import` setting to ``True`` to use
    the same import mechanism as in :mod:`sphinx.ext.viewcode`.
 
@@ -55,7 +56,7 @@ Configuration
               return None
           filename = info['module'].replace('.', '/')
           line_anchor = ""
-          if info['start_line'] is not None:
+          if info['start_line'] >= 0:
             line_anchor = "#L%s" % info['start_line']
           return "https://somesite/sourcerepo/%s.py%s" % filename, line_anchor
 
