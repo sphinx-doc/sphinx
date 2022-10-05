@@ -109,9 +109,9 @@ class TrimDoctestFlagsTransform(SphinxTransform):
             return False  # skip parsed-literal node
 
         language = node.get('language')
-        if language in ('pycon', 'pycon3'):
+        if language in {'pycon', 'pycon3'}:
             return True
-        elif language in ('py', 'py3', 'python', 'python3', 'default'):
+        elif language in {'py', 'python', 'py3', 'python3', 'default'}:
             return node.rawsource.startswith('>>>')
         elif language == 'guess':
             try:

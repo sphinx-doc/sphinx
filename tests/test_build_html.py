@@ -633,7 +633,6 @@ def test_tocdepth(app, cached_etree_parse, fname, expect):
     ],
 }))
 @pytest.mark.sphinx('singlehtml', testroot='tocdepth')
-@pytest.mark.test_params(shared_result='test_build_html_tocdepth')
 def test_tocdepth_singlehtml(app, cached_etree_parse, fname, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
@@ -1138,7 +1137,6 @@ def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, expect):
     ],
 }))
 @pytest.mark.sphinx('singlehtml', testroot='numfig', confoverrides={'numfig': True})
-@pytest.mark.test_params(shared_result='test_build_html_numfig_on')
 def test_numfig_with_singlehtml(app, cached_etree_parse, fname, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
@@ -1762,6 +1760,18 @@ def test_option_emphasise_placeholders_default(app, status, warning):
     assert ('<span class="pre">--plugin.option</span></span>'
             '<span class="sig-prename descclassname"></span>'
             '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Permalink to this definition">¶</a></dt>') in content
+
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_option_reference_with_value(app, status, warning):
+    app.build()
+    content = (app.outdir / 'objects.html').read_text()
+    assert ('<span class="pre">-mapi</span></span><span class="sig-prename descclassname">'
+            '</span><a class="headerlink" href="#cmdoption-git-commit-mapi"') in content
+    assert 'first option <a class="reference internal" href="#cmdoption-git-commit-mapi">' in content
+    assert ('<a class="reference internal" href="#cmdoption-git-commit-mapi">'
+            '<code class="xref std std-option docutils literal notranslate"><span class="pre">-mapi[=xxx]</span></code></a>') in content
+    assert '<span class="pre">-mapi</span> <span class="pre">with_space</span>' in content
 
 
 @pytest.mark.sphinx('html', testroot='theming')

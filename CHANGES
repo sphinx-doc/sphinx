@@ -15,12 +15,46 @@ Features added
 
 * #10759: LaTeX: add :confval:`latex_table_style` and support the
   ``'booktabs'``, ``'borderless'``, and ``'colorrows'`` styles.
+* #10840: One can cross-reference including an option value like ``:option:`--module=foobar```,
+  ``:option:`--module[=foobar]``` or ``:option:`--module foobar```.
+  Patch by Martin Liska.
+* #10881: autosectionlabel: Record the generated section label to the debug log.
+* #9360: Fix caching for now-outdated files for some builders (e.g. manpage)
+  when there is no change in source files. Patch by Martin Liska.
 
 Bugs fixed
 ----------
 
 Testing
 --------
+
+Release 5.2.3 (released Sep 30, 2022)
+=====================================
+
+* #10878: Fix base64 image embedding in ``sphinx.ext.imgmath``
+* #10886: Add ``:nocontentsentry:`` flag and global domain table of contents
+  entry control option. Patch by Adam Turner
+
+Release 5.2.2 (released Sep 27, 2022)
+=====================================
+
+* #10872: Restore link targets for autodoc modules to the top of content.
+  Patch by Dominic Davis-Foster.
+
+Release 5.2.1 (released Sep 25, 2022)
+=====================================
+
+Bugs fixed
+----------
+
+* #10861: Always normalise the ``pycon3`` lexer to ``pycon``.
+* Fix using ``sphinx.ext.autosummary`` with modules containing titles in the
+  module-level docstring.
+
+Release 5.2.0.post0 (released Sep 24, 2022)
+===========================================
+
+* Recreated source tarballs for Debian maintainers.
 
 Release 5.2.0 (released Sep 24, 2022)
 =====================================
@@ -29,7 +63,7 @@ Dependencies
 ------------
 
 * #10356: Sphinx now uses declarative metadata with ``pyproject.toml`` to
-  create packages, using PyPA's ``build`` project as a build backend. Patch by
+  create packages, using PyPA's ``flit`` project as a build backend. Patch by
   Adam Turner.
 
 Deprecated

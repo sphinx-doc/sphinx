@@ -17,6 +17,8 @@ https://github.com/octocat
 
 `replaceable link`_
 
+`non replaceable link <https://github.com/sphinx-doc/sphinx/pulls>`_
+
 .. hyperlinks
 
 .. _replaceable link: https://github.com/octocat

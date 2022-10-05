@@ -678,6 +678,11 @@ General configuration
    :term:`object` names (for object types where a "module" of some kind is
    defined), e.g. for :rst:dir:`py:function` directives.  Default is ``True``.
 
+.. confval:: toc_object_entries
+
+  Create table of contents entries for domain objects (e.g. functions, classes,
+  attributes, etc.). Default is ``True``.
+
 .. confval:: toc_object_entries_show_parents
 
    A string that determines how domain objects (e.g. functions, classes,

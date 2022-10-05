@@ -3142,8 +3142,8 @@ class CObject(ObjectDescription[ASTDeclaration]):
     """
 
     option_spec: OptionSpec = {
-        'noindex': directives.flag,
         'noindexentry': directives.flag,
+        'nocontentsentry': directives.flag,
     }
 
     def _add_enumerator_to_parent(self, ast: ASTDeclaration) -> None:
@@ -3676,7 +3676,8 @@ class CXRefRole(XRefRole):
         return title, target
 
     def run(self) -> Tuple[List[Node], List[system_message]]:
-        if not self.env.config['c_allow_pre_v3']:
+        if not self.env.config['c_allow_pre_v3'] or self.disabled:
+            # workaround, remove entire method with c_allow_pre_v3 code
             return super().run()
 
         text = self.text.replace('\n', ' ')

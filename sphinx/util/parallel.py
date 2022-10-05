@@ -19,10 +19,11 @@ from sphinx.util import logging
 logger = logging.getLogger(__name__)
 
 if sys.platform != "win32":
+    ForkContext = multiprocessing.context.ForkContext
     ForkProcess = multiprocessing.context.ForkProcess
 else:
     # For static typing, as ForkProcess doesn't exist on Windows
-    ForkProcess = multiprocessing.process.BaseProcess
+    ForkContext = ForkProcess = Any
 
 # our parallel functionality only works for the forking Process
 parallel_available = multiprocessing and os.name == 'posix'
@@ -92,7 +93,7 @@ class ParallelTasks:
         self._result_funcs[tid] = result_func or (lambda arg, result: None)
         self._args[tid] = arg
         precv, psend = multiprocessing.Pipe(False)
-        context = multiprocessing.get_context('fork')
+        context: ForkContext = multiprocessing.get_context('fork')
         proc = context.Process(target=self._process, args=(psend, task_func, arg))
         self._procs[tid] = proc
         self._precvsWaiting[tid] = precv

@@ -427,6 +427,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
     option_spec: OptionSpec = {
         'noindex': directives.flag,
         'noindexentry': directives.flag,
+        'nocontentsentry': directives.flag,
         'module': directives.unchanged,
         'canonical': directives.unchanged,
         'annotation': directives.unchanged,
@@ -1008,6 +1009,7 @@ class PyModule(SphinxDirective):
         'platform': lambda x: x,
         'synopsis': lambda x: x,
         'noindex': directives.flag,
+        'nocontentsentry': directives.flag,
         'deprecated': directives.flag,
     }
 
@@ -1024,7 +1026,7 @@ class PyModule(SphinxDirective):
             content_node.document = self.state.document
             nested_parse_with_titles(self.state, self.content, content_node)
 
-        ret: List[Node] = [*content_node.children]
+        ret: List[Node] = []
         if not noindex:
             # note module to the domain
             node_id = make_id(self.env, self.state.document, 'module', modname)
@@ -1045,6 +1047,7 @@ class PyModule(SphinxDirective):
             indextext = '%s; %s' % (pairindextypes['module'], modname)
             inode = addnodes.index(entries=[('pair', indextext, node_id, '', None)])
             ret.append(inode)
+        ret.extend(content_node.children)
         return ret
 
     def make_old_id(self, name: str) -> str:

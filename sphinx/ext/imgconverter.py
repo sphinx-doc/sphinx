@@ -5,6 +5,7 @@ import sys
 from subprocess import PIPE, CalledProcessError
 from typing import Any, Dict
 
+import sphinx
 from sphinx.application import Sphinx
 from sphinx.errors import ExtensionError
 from sphinx.locale import __
@@ -83,7 +84,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
         app.add_config_value('image_converter_args', [], 'env')
 
     return {
-        'version': 'builtin',
+        'version': sphinx.__display_version__,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

@@ -2,7 +2,7 @@
 
 from typing import Any, Dict, List
 
-from sphinx import __display_version__ as __version__
+import sphinx
 from sphinx.application import Sphinx
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 from sphinx.util import inspect
@@ -310,7 +310,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     """
     if not isinstance(app, Sphinx):
         # probably called by tests
-        return {'version': __version__, 'parallel_read_safe': True}
+        return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
 
     _patch_python_domain()
 
@@ -320,7 +320,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
     for name, (default, rebuild) in Config._config_values.items():
         app.add_config_value(name, default, rebuild)
-    return {'version': __version__, 'parallel_read_safe': True}
+    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
 
 
 def _patch_python_domain() -> None:

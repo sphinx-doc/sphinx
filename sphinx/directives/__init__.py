@@ -51,6 +51,8 @@ class ObjectDescription(SphinxDirective, Generic[T]):
     final_argument_whitespace = True
     option_spec: OptionSpec = {
         'noindex': directives.flag,
+        'noindexentry': directives.flag,
+        'nocontentsentry': directives.flag,
     }
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
@@ -211,6 +213,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         node['objtype'] = node['desctype'] = self.objtype
         node['noindex'] = noindex = ('noindex' in self.options)
         node['noindexentry'] = ('noindexentry' in self.options)
+        node['nocontentsentry'] = ('nocontentsentry' in self.options)
         if self.domain:
             node['classes'].append(self.domain)
         node['classes'].append(node['objtype'])
@@ -236,8 +239,12 @@ class ObjectDescription(SphinxDirective, Generic[T]):
             finally:
                 # Private attributes for ToC generation. Will be modified or removed
                 # without notice.
-                signode['_toc_parts'] = self._object_hierarchy_parts(signode)
-                signode['_toc_name'] = self._toc_entry_name(signode)
+                if self.env.app.config.toc_object_entries:
+                    signode['_toc_parts'] = self._object_hierarchy_parts(signode)
+                    signode['_toc_name'] = self._toc_entry_name(signode)
+                else:
+                    signode['_toc_parts'] = ()
+                    signode['_toc_name'] = ''
             if name not in self.names:
                 self.names.append(name)
                 if not noindex:

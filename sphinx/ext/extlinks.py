@@ -72,7 +72,11 @@ class ExternalLinksChecker(SphinxPostTransform):
                 uri_pattern = re.compile(re.escape(base_uri).replace('%s', '(?P<value>.+)'))
 
             match = uri_pattern.match(uri)
-            if match and match.groupdict().get('value'):
+            if (
+                match and
+                match.groupdict().get('value') and
+                '/' not in match.groupdict()['value']
+            ):
                 # build a replacement suggestion
                 msg = __('hardcoded link %r could be replaced by an extlink '
                          '(try using %r instead)')

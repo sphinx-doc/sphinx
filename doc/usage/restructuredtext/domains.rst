@@ -42,11 +42,15 @@ Basic Markup
 Most domains provide a number of :dfn:`object description directives`, used to
 describe specific objects provided by modules.  Each directive requires one or
 more signatures to provide basic information about what is being described, and
-the content should be the description.  A domain will typically keep an
-internal index of all entities to aid cross-referencing. Typically it will
-also add entries in the shown general index.
+the content should be the description.
+
+A domain will typically keep an internal index of all entities to aid
+cross-referencing.
+Typically it will also add entries in the shown general index.
 If you want to suppress the addition of an entry in the shown index, you can
 give the directive option flag ``:noindexentry:``.
+If you want to exclude the object description from the table of contents, you
+can give the directive option flag ``:nocontentsentry:``.
 If you want to typeset an object description, without even making it available
 for cross-referencing, you can give the directive option flag ``:noindex:``
 (which implies ``:noindexentry:``).
@@ -56,6 +60,10 @@ options.
 .. versionadded:: 3.2
    The directive option ``noindexentry`` in the Python, C, C++, and Javascript
    domains.
+
+.. versionadded:: 5.2.3
+   The directive option ``:nocontentsentry:`` in the Python, C, C++, Javascript,
+   and reStructuredText domains.
 
 An example using a Python domain directive::
 
@@ -862,15 +870,19 @@ Example::
 This will be rendered as:
 
 .. c:struct:: Data
+   :nocontentsentry:
    :noindexentry:
 
    .. c:union:: @data
+      :nocontentsentry:
       :noindexentry:
 
       .. c:var:: int a
+         :nocontentsentry:
          :noindexentry:
 
       .. c:var:: double b
+         :nocontentsentry:
          :noindexentry:
 
 Explicit ref: :c:var:`Data.@data.a`. Short-hand ref: :c:var:`Data.a`.
@@ -953,9 +965,11 @@ Inline Expressions and Types
    will be rendered as follows:
 
    .. c:var:: int a = 42
+      :nocontentsentry:
       :noindexentry:
 
    .. c:function:: int f(int i)
+      :nocontentsentry:
       :noindexentry:
 
    An expression: :c:expr:`a * f(a)` (or as text: :c:texpr:`a * f(a)`).
@@ -1166,23 +1180,27 @@ visibility statement (``public``, ``private`` or ``protected``).
    The example are rendered as follows.
 
    .. cpp:type:: std::vector<int> MyList
-      :noindex:
+      :nocontentsentry:
+      :noindexentry:
 
       A typedef-like declaration of a type.
 
    .. cpp:type:: MyContainer::const_iterator
-      :noindex:
+      :nocontentsentry:
+      :noindexentry:
 
       Declaration of a type alias with unspecified type.
 
    .. cpp:type:: MyType = std::unordered_map<int, std::string>
-      :noindex:
+      :nocontentsentry:
+      :noindexentry:
 
       Declaration of a type alias.
 
    .. cpp:type:: template<typename T> \
                  MyContainer = std::vector<T>
-      :noindex:
+      :nocontentsentry:
+      :noindexentry:
 
 .. rst:directive:: .. cpp:enum:: unscoped enum declaration
                    .. cpp:enum-struct:: scoped enum declaration
@@ -1277,7 +1295,7 @@ Options
 
 Some directives support options:
 
-- ``:noindexentry:``, see :ref:`basic-domain-markup`.
+- ``:noindexentry:`` and ``:nocontentsentry:``, see :ref:`basic-domain-markup`.
 - ``:tparam-line-spec:``, for templated declarations.
   If specified, each template parameter will be rendered on a separate line.
 
@@ -1309,15 +1327,19 @@ Example::
 This will be rendered as:
 
 .. cpp:class:: Data
+   :nocontentsentry:
    :noindexentry:
 
    .. cpp:union:: @data
+      :nocontentsentry:
       :noindexentry:
 
       .. cpp:var:: int a
+         :nocontentsentry:
          :noindexentry:
 
       .. cpp:var:: double b
+         :nocontentsentry:
          :noindexentry:
 
 Explicit ref: :cpp:var:`Data::@data::a`. Short-hand ref: :cpp:var:`Data::a`.
@@ -1424,11 +1446,13 @@ introduction` instead of a template parameter list::
 They are rendered as follows.
 
 .. cpp:function:: std::Iterator{It} void advance(It &it)
+   :nocontentsentry:
    :noindexentry:
 
    A function template with a template parameter constrained to be an Iterator.
 
 .. cpp:class:: std::LessThanComparable{T} MySortedContainer
+   :nocontentsentry:
    :noindexentry:
 
    A class template with a template parameter constrained to be
@@ -1459,9 +1483,11 @@ Inline Expressions and Types
    will be rendered as follows:
 
    .. cpp:var:: int a = 42
+      :nocontentsentry:
       :noindexentry:
 
    .. cpp:function:: int f(int i)
+      :nocontentsentry:
       :noindexentry:
 
    An expression: :cpp:expr:`a * f(a)` (or as text: :cpp:texpr:`a * f(a)`).
@@ -1774,6 +1800,11 @@ There is a set of directives allowing documenting command-line programs:
    The directive will create cross-reference targets for the given options,
    referenceable by :rst:role:`option` (in the example case, you'd use something
    like ``:option:`dest_dir```, ``:option:`-m```, or ``:option:`--module```).
+
+   .. versionchanged:: 5.3
+
+      One can cross-reference including an option value: ``:option:`--module=foobar```,
+      ,``:option:`--module[=foobar]``` or ``:option:`--module foobar```.
 
    Use :confval:`option_emphasise_placeholders` for parsing of
    "variable part" of a literal text (similarly to the :rst:role:`samp` role).

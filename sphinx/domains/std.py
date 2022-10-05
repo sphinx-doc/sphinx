@@ -47,7 +47,7 @@ class GenericObject(ObjectDescription[str]):
     A generic x-ref directive registered with Sphinx.add_object_type().
     """
     indextemplate: str = ''
-    parse_node: Callable[["GenericObject", "BuildEnvironment", str, desc_signature], str] = None  # NOQA
+    parse_node: Callable[["BuildEnvironment", str, desc_signature], str] = None  # NOQA
 
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         if self.parse_node:
@@ -780,7 +780,9 @@ class StandardDomain(Domain):
             self.labels[name] = docname, labelid, sectname
 
     def add_program_option(self, program: str, name: str, docname: str, labelid: str) -> None:
-        self.progoptions[program, name] = (docname, labelid)
+        # prefer first command option entry
+        if (program, name) not in self.progoptions:
+            self.progoptions[program, name] = (docname, labelid)
 
     def build_reference_node(self, fromdocname: str, builder: "Builder", docname: str,
                              labelid: str, sectname: str, rolename: str, **options: Any
@@ -941,6 +943,17 @@ class StandardDomain(Domain):
         progname = node.get('std:program')
         target = target.strip()
         docname, labelid = self.progoptions.get((progname, target), ('', ''))
+        if not docname:
+            # Support also reference that contain an option value:
+            # * :option:`-foo=bar`
+            # * :option:`-foo[=bar]`
+            # * :option:`-foo bar`
+            for needle in {'=', '[=', ' '}:
+                if needle in target:
+                    stem, _, _ = target.partition(needle)
+                    docname, labelid = self.progoptions.get((progname, stem), ('', ''))
+                    if docname:
+                        break
         if not docname:
             commands = []
             while ws_re.search(target):

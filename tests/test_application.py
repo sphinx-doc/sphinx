@@ -149,7 +149,7 @@ def test_build_specific(app):
                  app.srcdir / 'subdir/../subdir/excluded.txt']  # not normalized
     app.build(False, filenames)
 
-    expected = ['index', 'img.png', 'subdir/includes', 'subdir/excluded']
+    expected = ['index', 'subdir/includes', 'subdir/excluded']
     app.builder.build.assert_called_with(expected,
                                          method='specific',
-                                         summary='4 source files given on command line')
+                                         summary='3 source files given on command line')
