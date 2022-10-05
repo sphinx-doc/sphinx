@@ -633,7 +633,6 @@ def test_tocdepth(app, cached_etree_parse, fname, expect):
     ],
 }))
 @pytest.mark.sphinx('singlehtml', testroot='tocdepth')
-@pytest.mark.test_params(shared_result='test_build_html_tocdepth')
 def test_tocdepth_singlehtml(app, cached_etree_parse, fname, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
@@ -1138,7 +1137,6 @@ def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, expect):
     ],
 }))
 @pytest.mark.sphinx('singlehtml', testroot='numfig', confoverrides={'numfig': True})
-@pytest.mark.test_params(shared_result='test_build_html_numfig_on')
 def test_numfig_with_singlehtml(app, cached_etree_parse, fname, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)

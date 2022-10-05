@@ -17,6 +17,8 @@ Features added
   ``:option:`--module[=foobar]``` or ``:option:`--module foobar```.
   Patch by Martin Liska.
 * #10881: autosectionlabel: Record the generated section label to the debug log.
+* #9360: Fix caching for now-outdated files for some builders (e.g. manpage)
+  when there is no change in source files. Patch by Martin Liska.
 
 Bugs fixed
 ----------
