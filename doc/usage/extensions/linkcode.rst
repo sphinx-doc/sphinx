@@ -80,17 +80,3 @@ Configuration
       main routine is protected by a ``if __name__ == '__main__'`` condition.
 
    The default is ``False``.
-
-.. event:: viewcode-find-source (app, modname)
-
-   .. versionadded:: 4.1.3
-
-   Find the source code for a module.
-   An event handler for this event should return a tuple of the source code
-   itself and a dictionary of tags.
-   The dictionary maps the name of a class, function, attribute, etc to a tuple
-   of its type, the start line number, and the end line number.
-   The type should be one of "class", "def", or "other".
-
-   :param app: The Sphinx application object.
-   :param modname: The name of the module to find source code for.
