@@ -13,7 +13,8 @@ Deprecated
 Features added
 --------------
 
-* #10840: One can cross-reference including an option value: ``:option:`--module=foobar```.
+* #10840: One can cross-reference including an option value like ``:option:`--module=foobar```,
+  ``:option:`--module[=foobar]``` or ``:option:`--module foobar```.
   Patch by Martin Liska.
 * #10881: autosectionlabel: Record the generated section label to the debug log.
 
