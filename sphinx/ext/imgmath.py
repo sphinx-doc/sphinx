@@ -285,7 +285,7 @@ def cleanup_tempdir(app: Sphinx, exc: Exception) -> None:
     if not hasattr(app.builder, '_imgmath_tempdir'):
         return
     try:
-        shutil.rmtree(app.builder._mathpng_tempdir)  # type: ignore
+        shutil.rmtree(app.builder._imgmath_tempdir)  # type: ignore
     except Exception:
         pass
 
