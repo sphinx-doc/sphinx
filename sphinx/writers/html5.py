@@ -1,12 +1,4 @@
-"""
-    sphinx.writers.html5
-    ~~~~~~~~~~~~~~~~~~~~
-
-    Experimental docutils writers for HTML5 handling Sphinx's custom nodes.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Experimental docutils writers for HTML5 handling Sphinx's custom nodes."""
 
 import os
 import posixpath
@@ -21,7 +13,7 @@ from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx50Warning, RemovedInSphinx60Warning
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
@@ -55,7 +47,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     Our custom HTML translator.
     """
 
-    builder: "StandaloneHTMLBuilder" = None
+    builder: "StandaloneHTMLBuilder"
     # Override docutils.writers.html5_polyglot:HTMLTranslator
     # otherwise, nodes like <inline classes="s">...</inline> will be
     # converted to <s>...</s> by `visit_inline`.
@@ -268,7 +260,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_seealso(self, node: Element) -> None:
         self.depart_admonition(node)
 
-    def get_secnumber(self, node: Element) -> Tuple[int, ...]:
+    def get_secnumber(self, node: Element) -> Optional[Tuple[int, ...]]:
         if node.get('secnumber'):
             return node['secnumber']
 
@@ -392,12 +384,12 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                 node.parent.hasattr('ids') and node.parent['ids']):
             # add permalink anchor
             if close_tag.startswith('</h'):
-                self.add_permalink_ref(node.parent, _('Permalink to this headline'))
+                self.add_permalink_ref(node.parent, _('Permalink to this heading'))
             elif close_tag.startswith('</a></h'):
                 self.body.append('</a><a class="headerlink" href="#%s" ' %
                                  node.parent['ids'][0] +
                                  'title="%s">%s' % (
-                                     _('Permalink to this headline'),
+                                     _('Permalink to this heading'),
                                      self.config.html_permalinks_icon))
             elif isinstance(node.parent, nodes.table):
                 self.body.append('</span>')
@@ -470,10 +462,25 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         if 'kbd' in node['classes']:
             self.body.append(self.starttag(node, 'kbd', '',
                                            CLASS='docutils literal notranslate'))
-        else:
+            return
+        lang = node.get("language", None)
+        if 'code' not in node['classes'] or not lang:
             self.body.append(self.starttag(node, 'code', '',
                                            CLASS='docutils literal notranslate'))
             self.protect_literal_text += 1
+            return
+
+        opts = self.config.highlight_options.get(lang, {})
+        highlighted = self.highlighter.highlight_block(
+            node.astext(), lang, opts=opts, location=node, nowrap=True)
+        starttag = self.starttag(
+            node,
+            "code",
+            suffix="",
+            CLASS="docutils literal highlight highlight-%s" % lang,
+        )
+        self.body.append(starttag + highlighted.strip() + "</code>")
+        raise nodes.SkipNode
 
     def depart_literal(self, node: Element) -> None:
         if 'kbd' in node['classes']:
@@ -814,12 +821,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         if depart:
             depart(self, node)
 
-    @property
-    def permalink_text(self) -> str:
-        warnings.warn('HTMLTranslator.permalink_text is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        return self.config.html_permalinks_icon
-
     def generate_targets_for_table(self, node: Element) -> None:
         """Generate hyperlink targets for tables.
 
@@ -836,13 +837,13 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             node['ids'].remove(id)
 
     @property
-    def _fieldlist_row_index(self):
+    def _fieldlist_row_index(self) -> int:
         warnings.warn('_fieldlist_row_index is deprecated',
                       RemovedInSphinx60Warning, stacklevel=2)
         return self._fieldlist_row_indices[-1]
 
     @property
-    def _table_row_index(self):
+    def _table_row_index(self) -> int:
         warnings.warn('_table_row_index is deprecated',
                       RemovedInSphinx60Warning, stacklevel=2)
         return self._table_row_indices[-1]

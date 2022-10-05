@@ -1,12 +1,4 @@
-"""
-    test_util_inspect
-    ~~~~~~~~~~~~~~~
-
-    Tests util.inspect functions.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests util.inspect functions."""
 
 import ast
 import datetime
@@ -15,11 +7,21 @@ import functools
 import sys
 import types
 from inspect import Parameter
+from typing import Optional
 
 import pytest
 
 from sphinx.util import inspect
-from sphinx.util.inspect import TypeAliasNamespace, stringify_signature
+from sphinx.util.inspect import TypeAliasForwardRef, TypeAliasNamespace, stringify_signature
+from sphinx.util.typing import stringify
+
+
+def test_TypeAliasForwardRef():
+    alias = TypeAliasForwardRef('example')
+    assert stringify(alias) == 'example'
+
+    alias = Optional[alias]
+    assert stringify(alias) == 'Optional[example]'
 
 
 def test_TypeAliasNamespace():
@@ -647,12 +649,12 @@ def test_isattributedescriptor(app):
     assert inspect.isattributedescriptor(Base.meth) is False                   # method
     assert inspect.isattributedescriptor(Base.staticmeth) is False             # staticmethod
     assert inspect.isattributedescriptor(Base.classmeth) is False              # classmetho
-    assert inspect.isattributedescriptor(Descriptor) is False                  # custom descriptor class    # NOQA
-    assert inspect.isattributedescriptor(str.join) is False                    # MethodDescriptorType       # NOQA
-    assert inspect.isattributedescriptor(object.__init__) is False             # WrapperDescriptorType      # NOQA
-    assert inspect.isattributedescriptor(dict.__dict__['fromkeys']) is False   # ClassMethodDescriptorType  # NOQA
-    assert inspect.isattributedescriptor(types.FrameType.f_locals) is True     # GetSetDescriptorType       # NOQA
-    assert inspect.isattributedescriptor(datetime.timedelta.days) is True      # MemberDescriptorType       # NOQA
+    assert inspect.isattributedescriptor(Descriptor) is False                  # custom descriptor class
+    assert inspect.isattributedescriptor(str.join) is False                    # MethodDescriptorType
+    assert inspect.isattributedescriptor(object.__init__) is False             # WrapperDescriptorType
+    assert inspect.isattributedescriptor(dict.__dict__['fromkeys']) is False   # ClassMethodDescriptorType
+    assert inspect.isattributedescriptor(types.FrameType.f_locals) is True     # GetSetDescriptorType
+    assert inspect.isattributedescriptor(datetime.timedelta.days) is True      # MemberDescriptorType
 
     try:
         # _testcapi module cannot be importable in some distro
@@ -660,7 +662,7 @@ def test_isattributedescriptor(app):
         import _testcapi
 
         testinstancemethod = _testcapi.instancemethod(str.__repr__)
-        assert inspect.isattributedescriptor(testinstancemethod) is False      # instancemethod (C-API)     # NOQA
+        assert inspect.isattributedescriptor(testinstancemethod) is False      # instancemethod (C-API)
     except ImportError:
         pass
 
@@ -728,7 +730,7 @@ def test_getdoc_inherited_decorated_method():
             """
 
     class Bar(Foo):
-        @functools.lru_cache()
+        @functools.lru_cache()  # noqa: B019
         def meth(self):
             # inherited and decorated method
             pass

@@ -1,12 +1,4 @@
-"""
-    sphinx.domains.python
-    ~~~~~~~~~~~~~~~~~~~~~
-
-    The Python domain.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""The Python domain."""
 
 import builtins
 import inspect
@@ -26,7 +18,7 @@ from sphinx import addnodes
 from sphinx.addnodes import desc_signature, pending_xref, pending_xref_condition
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx50Warning, RemovedInSphinx60Warning
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, Index, IndexEntry, ObjType
 from sphinx.environment import BuildEnvironment
@@ -36,9 +28,10 @@ from sphinx.pycode.ast import parse as ast_parse
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
-from sphinx.util.docutils import SphinxDirective
+from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.inspect import signature_from_str
-from sphinx.util.nodes import find_pending_xref_condition, make_id, make_refnode
+from sphinx.util.nodes import (find_pending_xref_condition, make_id, make_refnode,
+                               nested_parse_with_titles)
 from sphinx.util.typing import OptionSpec, TextlikeNode
 
 logger = logging.getLogger(__name__)
@@ -107,8 +100,8 @@ def parse_reftarget(reftarget: str, suppress_prefix: bool = False
     return reftype, reftarget, title, refspecific
 
 
-def type_to_xref(target: str, env: BuildEnvironment = None, suppress_prefix: bool = False
-                 ) -> addnodes.pending_xref:
+def type_to_xref(target: str, env: Optional[BuildEnvironment] = None,
+                 suppress_prefix: bool = False) -> addnodes.pending_xref:
     """Convert a type string to a cross reference node."""
     if env:
         kwargs = {'py:module': env.ref_context.get('py:module'),
@@ -133,7 +126,7 @@ def type_to_xref(target: str, env: BuildEnvironment = None, suppress_prefix: boo
                         refspecific=refspecific, **kwargs)
 
 
-def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Node]:
+def _parse_annotation(annotation: str, env: BuildEnvironment) -> List[Node]:
     """Parse type annotation."""
     def unparse(node: ast.AST) -> List[Node]:
         if isinstance(node, ast.Attribute):
@@ -227,10 +220,6 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
 
             raise SyntaxError  # unsupported syntax
 
-    if env is None:
-        warnings.warn("The env parameter for _parse_annotation becomes required now.",
-                      RemovedInSphinx50Warning, stacklevel=2)
-
     try:
         tree = ast_parse(annotation)
         result: List[Node] = []
@@ -251,7 +240,9 @@ def _parse_annotation(annotation: str, env: BuildEnvironment = None) -> List[Nod
         return [type_to_xref(annotation, env)]
 
 
-def _parse_arglist(arglist: str, env: BuildEnvironment = None) -> addnodes.desc_parameterlist:
+def _parse_arglist(
+    arglist: str, env: Optional[BuildEnvironment] = None
+) -> addnodes.desc_parameterlist:
     """Parse a list of arguments using AST parser"""
     params = addnodes.desc_parameterlist(arglist)
     sig = signature_from_str('(%s)' % arglist)
@@ -390,7 +381,7 @@ class PyXrefMixin:
                    innernode: Type[TextlikeNode] = nodes.emphasis,
                    contnode: Node = None, env: BuildEnvironment = None,
                    inliner: Inliner = None, location: Node = None) -> List[Node]:
-        delims = r'(\s*[\[\]\(\),](?:\s*or\s)?\s*|\s+or\s+|\s*\|\s*|\.\.\.)'
+        delims = r'(\s*[\[\]\(\),](?:\s*o[rf]\s)?\s*|\s+o[rf]\s+|\s*\|\s*|\.\.\.)'
         delims_re = re.compile(delims)
         sub_targets = re.split(delims, target)
 
@@ -408,7 +399,7 @@ class PyXrefMixin:
                 results.append(self.make_xref(rolename, domain, sub_target,
                                               innernode, contnode, env, inliner, location))
 
-            if sub_target in ('Literal', 'typing.Literal'):
+            if sub_target in ('Literal', 'typing.Literal', '~typing.Literal'):
                 in_literal = True
 
         return results
@@ -436,6 +427,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
     option_spec: OptionSpec = {
         'noindex': directives.flag,
         'noindexentry': directives.flag,
+        'nocontentsentry': directives.flag,
         'module': directives.unchanged,
         'canonical': directives.unchanged,
         'annotation': directives.unchanged,
@@ -567,6 +559,17 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
 
         return fullname, prefix
 
+    def _object_hierarchy_parts(self, sig_node: desc_signature) -> Tuple[str, ...]:
+        if 'fullname' not in sig_node:
+            return ()
+        modname = sig_node.get('module')
+        fullname = sig_node['fullname']
+
+        if modname:
+            return (modname, *fullname.split('.'))
+        else:
+            return tuple(fullname.split('.'))
+
     def get_index_text(self, modname: str, name: Tuple[str, str]) -> str:
         """Return the text for the index entry of the object."""
         raise NotImplementedError('must be implemented in subclasses')
@@ -577,12 +580,6 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         fullname = (modname + '.' if modname else '') + name_cls[0]
         node_id = make_id(self.env, self.state.document, '', fullname)
         signode['ids'].append(node_id)
-
-        # Assign old styled node_id(fullname) not to break old hyperlinks (if possible)
-        # Note: Will removed in Sphinx-5.0  (RemovedInSphinx50Warning)
-        if node_id != fullname and fullname not in self.state.document.ids:
-            signode['ids'].append(fullname)
-
         self.state.document.note_explicit_target(signode)
 
         domain = cast(PythonDomain, self.env.get_domain('py'))
@@ -655,6 +652,25 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
                 self.env.ref_context['py:module'] = modules.pop()
             else:
                 self.env.ref_context.pop('py:module')
+
+    def _toc_entry_name(self, sig_node: desc_signature) -> str:
+        if not sig_node.get('_toc_parts'):
+            return ''
+
+        config = self.env.app.config
+        objtype = sig_node.parent.get('objtype')
+        if config.add_function_parentheses and objtype in {'function', 'method'}:
+            parens = '()'
+        else:
+            parens = ''
+        *parents, name = sig_node['_toc_parts']
+        if config.toc_object_entries_show_parents == 'domain':
+            return sig_node.get('fullname', name) + parens
+        if config.toc_object_entries_show_parents == 'hide':
+            return name + parens
+        if config.toc_object_entries_show_parents == 'all':
+            return '.'.join(parents + [name + parens])
+        return ''
 
 
 class PyFunction(PyObject):
@@ -813,6 +829,8 @@ class PyMethod(PyObject):
             prefix.append(nodes.Text('classmethod'))
             prefix.append(addnodes.desc_sig_space())
         if 'property' in self.options:
+            logger.warning(_('Using the :property: flag with the py:method directive'
+                             'is deprecated, use ".. py:property::" instead.'))
             prefix.append(nodes.Text('property'))
             prefix.append(addnodes.desc_sig_space())
         if 'staticmethod' in self.options:
@@ -978,35 +996,12 @@ class PyProperty(PyObject):
         return _('%s (%s property)') % (attrname, clsname)
 
 
-class PyDecoratorMixin:
-    """
-    Mixin for decorator directives.
-    """
-    def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
-        for cls in self.__class__.__mro__:
-            if cls.__name__ != 'DirectiveAdapter':
-                warnings.warn('PyDecoratorMixin is deprecated. '
-                              'Please check the implementation of %s' % cls,
-                              RemovedInSphinx50Warning, stacklevel=2)
-                break
-        else:
-            warnings.warn('PyDecoratorMixin is deprecated',
-                          RemovedInSphinx50Warning, stacklevel=2)
-
-        ret = super().handle_signature(sig, signode)  # type: ignore
-        signode.insert(0, addnodes.desc_addname('@', '@'))
-        return ret
-
-    def needs_arglist(self) -> bool:
-        return False
-
-
 class PyModule(SphinxDirective):
     """
     Directive to mark description of a new module.
     """
 
-    has_content = False
+    has_content = True
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
@@ -1014,6 +1009,7 @@ class PyModule(SphinxDirective):
         'platform': lambda x: x,
         'synopsis': lambda x: x,
         'noindex': directives.flag,
+        'nocontentsentry': directives.flag,
         'deprecated': directives.flag,
     }
 
@@ -1023,19 +1019,19 @@ class PyModule(SphinxDirective):
         modname = self.arguments[0].strip()
         noindex = 'noindex' in self.options
         self.env.ref_context['py:module'] = modname
+
+        content_node: Element = nodes.section()
+        with switch_source_input(self.state, self.content):
+            # necessary so that the child nodes get the right source/line set
+            content_node.document = self.state.document
+            nested_parse_with_titles(self.state, self.content, content_node)
+
         ret: List[Node] = []
         if not noindex:
             # note module to the domain
             node_id = make_id(self.env, self.state.document, 'module', modname)
             target = nodes.target('', '', ids=[node_id], ismod=True)
             self.set_source_info(target)
-
-            # Assign old styled node_id not to break old hyperlinks (if possible)
-            # Note: Will removed in Sphinx-5.0  (RemovedInSphinx50Warning)
-            old_node_id = self.make_old_id(modname)
-            if node_id != old_node_id and old_node_id not in self.state.document.ids:
-                target['ids'].append(old_node_id)
-
             self.state.document.note_explicit_target(target)
 
             domain.note_module(modname,
@@ -1051,6 +1047,7 @@ class PyModule(SphinxDirective):
             indextext = '%s; %s' % (pairindextypes['module'], modname)
             inode = addnodes.index(entries=[('pair', indextext, node_id, '', None)])
             ret.append(inode)
+        ret.extend(content_node.children)
         return ret
 
     def make_old_id(self, name: str) -> str:
@@ -1116,11 +1113,11 @@ def filter_meta_fields(app: Sphinx, domain: str, objtype: str, content: Element)
     for node in content:
         if isinstance(node, nodes.field_list):
             fields = cast(List[nodes.field], node)
-            for field in fields:
+            # removing list items while iterating the list needs reversed()
+            for field in reversed(fields):
                 field_name = cast(nodes.field_body, field[0]).astext().strip()
                 if field_name == 'meta' or field_name.startswith('meta '):
                     node.remove(field)
-                    break
 
 
 class PythonModuleIndex(Index):
@@ -1413,7 +1410,14 @@ class PythonDomain(Domain):
 
         # always search in "refspecific" mode with the :any: role
         matches = self.find_obj(env, modname, clsname, target, None, 1)
+        multiple_matches = len(matches) > 1
+
         for name, obj in matches:
+
+            if multiple_matches and obj.aliased:
+                # Skip duplicated matches
+                continue
+
             if obj[2] == 'module':
                 results.append(('py:mod',
                                 self._make_module_refnode(builder, fromdocname,
@@ -1474,7 +1478,7 @@ def builtin_resolver(app: Sphinx, env: BuildEnvironment,
         if s.startswith('typing.'):
             s = s.split('.', 1)[1]
 
-        return s in typing.__all__  # type: ignore
+        return s in typing.__all__
 
     if node.get('refdomain') != 'py':
         return None

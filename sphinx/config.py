@@ -1,12 +1,4 @@
-"""
-    sphinx.config
-    ~~~~~~~~~~~~~
-
-    Build configuration file handling.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Build configuration file handling."""
 
 import re
 import traceback
@@ -100,7 +92,7 @@ class Config:
         # the real default is locale-dependent
         'today_fmt': (None, 'env', [str]),
 
-        'language': (None, 'env', [str]),
+        'language': ('en', 'env', [str]),
         'locale_dirs': (['locales'], 'env', []),
         'figure_language_filename': ('{root}.{language}{ext}', 'env', [str]),
         'gettext_allow_fuzzy_translations': (False, 'gettext', []),
@@ -109,10 +101,14 @@ class Config:
         'root_doc': (lambda config: config.master_doc, 'env', []),
         'source_suffix': ({'.rst': 'restructuredtext'}, 'env', Any),
         'source_encoding': ('utf-8-sig', 'env', []),
-        'exclude_patterns': ([], 'env', []),
+        'exclude_patterns': ([], 'env', [str]),
+        'include_patterns': (["**"], 'env', [str]),
         'default_role': (None, 'env', [str]),
         'add_function_parentheses': (True, 'env', []),
         'add_module_names': (True, 'env', []),
+        'toc_object_entries': (True, 'env', [bool]),
+        'toc_object_entries_show_parents': ('domain', 'env',
+                                            ENUM('domain', 'all', 'hide')),
         'trim_footnote_reference_space': (False, 'env', []),
         'show_authors': (False, 'env', []),
         'pygments_style': (None, 'html', [str]),
@@ -148,6 +144,7 @@ class Config:
         'smartquotes_excludes': ({'languages': ['ja'],
                                   'builders': ['man', 'text']},
                                  'env', []),
+        'option_emphasise_placeholders': (False, 'env', []),
     }
 
     def __init__(self, config: Dict[str, Any] = {}, overrides: Dict[str, Any] = {}) -> None:
@@ -164,13 +161,26 @@ class Config:
         self.extensions: List[str] = config.get('extensions', [])
 
     @classmethod
-    def read(cls, confdir: str, overrides: Dict = None, tags: Tags = None) -> "Config":
+    def read(
+        cls, confdir: str, overrides: Optional[Dict] = None, tags: Optional[Tags] = None
+    ) -> "Config":
         """Create a Config object from configuration file."""
         filename = path.join(confdir, CONFIG_FILENAME)
         if not path.isfile(filename):
             raise ConfigError(__("config directory doesn't contain a conf.py file (%s)") %
                               confdir)
         namespace = eval_config_file(filename, tags)
+
+        # Note: Old sphinx projects have been configured as "language = None" because
+        #       sphinx-quickstart previously generated this by default.
+        #       To keep compatibility, they should be fallback to 'en' for a while
+        #       (This conversion should not be removed before 2025-01-01).
+        if namespace.get("language", ...) is None:
+            logger.warning(__("Invalid configuration value found: 'language = None'. "
+                              "Update your configuration to a valid language code. "
+                              "Falling back to 'en' (English)."))
+            namespace["language"] = "en"
+
         return cls(namespace, overrides or {})
 
     def convert_overrides(self, name: str, value: Any) -> Any:
@@ -413,11 +423,11 @@ def correct_copyright_year(app: "Sphinx", config: Config) -> None:
     if getenv('SOURCE_DATE_EPOCH') is not None:
         for k in ('copyright', 'epub_copyright'):
             if k in config:
-                replace = r'\g<1>%s' % format_date('%Y')
+                replace = r'\g<1>%s' % format_date('%Y', language='en')
                 config[k] = copyright_year_re.sub(replace, config[k])
 
 
-def check_confval_types(app: "Sphinx", config: Config) -> None:
+def check_confval_types(app: Optional["Sphinx"], config: Config) -> None:
     """Check all values for deviation from the default value's type, since
     that can result in TypeErrors all over the place NB.
     """

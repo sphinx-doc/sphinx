@@ -5,50 +5,62 @@ on:
   - cron: "0 0 * * SUN"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   push:
+    if: github.repository_owner == 'sphinx-doc'
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
-        ref: 4.x
+        ref: 5.x
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: 3.9  # https://github.com/transifex/transifex-client/pull/330
     - name: Install dependencies
       run:  pip install -U babel jinja2 transifex-client
+    - name: Install Sphinx
+      run:  pip install .
     - name: Extract translations from source code
-      run:  python setup.py extract_messages
+      run:  python utils/babel_runner.py extract
     - name: Push translations to transifex.com
       run:  cd sphinx/locale && tx push -s --no-interactive --parallel
       env:
         TX_TOKEN: ${{ secrets.TX_TOKEN }}
 
   pull:
+    permissions:
+      contents: write  # for peter-evans/create-pull-request to create branch
+      pull-requests: write  # for peter-evans/create-pull-request to create a PR
+    if: github.repository_owner == 'sphinx-doc'
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
-        ref: 4.x
+        ref: 5.x
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: 3.9  # https://github.com/transifex/transifex-client/pull/330
     - name: Install dependencies
       run:  pip install -U babel jinja2 transifex-client
+    - name: Install Sphinx
+      run:  pip install .
     - name: Extract translations from source code
-      run:  python setup.py extract_messages
+      run:  python utils/babel_runner.py extract
     - name: Pull translations to transifex.com
       run:  cd sphinx/locale && tx pull -a -f --no-interactive --parallel
       env:
         TX_TOKEN: ${{ secrets.TX_TOKEN }}
     - name: Compile message catalogs
-      run:  python setup.py compile_catalog
+      run:  python utils/babel_runner.py compile
     - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v3
+      uses: peter-evans/create-pull-request@v4
       with:
         commit-message: 'Update message catalogs'
         branch: bot/pull-translations

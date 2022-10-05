@@ -62,19 +62,19 @@ type-check:
 
 .PHONY: doclinter
 doclinter:
-	python utils/doclinter.py CHANGES *.rst doc/
+	sphinx-lint --enable line-too-long --max-line-length 85 CHANGES *.rst doc/
 
 .PHONY: test
 test:
-	@$(PYTHON) -X dev -m pytest -v $(TEST)
+	@$(PYTHON) -X dev -X warn_default_encoding -m pytest -v $(TEST)
 
 .PHONY: covertest
 covertest:
-	@$(PYTHON) -X dev -m pytest -v --cov=sphinx --junitxml=.junit.xml $(TEST)
+	@$(PYTHON) -X dev -X warn_default_encoding -m pytest -v --cov=sphinx --junitxml=.junit.xml $(TEST)
 
 .PHONY: build
 build:
-	@$(PYTHON) setup.py build
+	@$(PYTHON) -m build .
 
 .PHONY: docs
 docs:

@@ -276,6 +276,34 @@ The following role creates a cross-reference to a term in a
    If you use a term that's not explained in a glossary, you'll get a warning
    during build.
 
+Inline code highlighting
+------------------------
+
+.. rst:role:: code
+
+   An *inline* code example.  When used directly, this role just displays the
+   text *without* syntax highlighting, as a literal.
+
+   .. code-block:: rst
+
+      By default, inline code such as :code:`1 + 2` just displays without
+      highlighting.
+
+   Unlike the :rst:dir:`code-block` directive, this role does not respect the
+   default language set by the :rst:dir:`highlight` directive.
+
+   To enable syntax highlighting, you must first use the Docutils :dudir:`role`
+   directive to define a custom role associated with a specific language:
+
+   .. code-block:: rst
+
+      .. role:: python(code)
+         :language: python
+
+      In Python, :python:`1 + 2` is equal to :python:`3`.
+
+   To display a multi-line code example, use the :rst:dir:`code-block` directive
+   instead.
 
 Math
 ----
@@ -321,7 +349,7 @@ different style:
    The name of a file or directory.  Within the contents, you can use curly
    braces to indicate a "variable" part, for example::
 
-      ... is installed in :file:`/usr/lib/python2.{x}/site-packages` ...
+      ... is installed in :file:`/usr/lib/python3.{x}/site-packages` ...
 
    In the built documentation, the ``x`` will be displayed differently to
    indicate that it is to be replaced by the Python minor version.
@@ -418,7 +446,7 @@ different style:
    emphasized.
 
    If you don't need the "variable part" indication, use the standard
-   ````code```` instead.
+   :rst:role:`code` role instead.
 
    .. versionchanged:: 1.8
       Allowed to escape curly braces with backslash

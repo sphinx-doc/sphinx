@@ -10,11 +10,11 @@ for stable releases
 * Check diff by ``git diff``
 * ``git commit -am 'Bump to X.Y.Z final'``
 * ``make clean``
-* ``python setup.py release bdist_wheel sdist``
+* ``python -m build .``
 * ``twine upload dist/Sphinx-* --sign --identity [your GPG key]``
 * open https://pypi.org/project/Sphinx/ and check there are no obvious errors
 * ``sh utils/bump_docker.sh X.Y.Z``
-* ``git tag vX.Y.Z``
+* ``git tag vX.Y.Z -m "Sphinx X.Y.Z"``
 * ``python utils/bump_version.py --in-develop X.Y.Zb0`` (ex. 1.5.3b0)
 * Check diff by ``git diff``
 * ``git commit -am 'Bump version'``
@@ -34,10 +34,10 @@ for first beta releases
 * Check diff by ``git diff``
 * ``git commit -am 'Bump to X.Y.0 beta1'``
 * ``make clean``
-* ``python setup.py release bdist_wheel sdist``
+* ``python -m build .``
 * ``twine upload dist/Sphinx-* --sign --identity [your GPG key]``
 * open https://pypi.org/project/Sphinx/ and check there are no obvious errors
-* ``git tag vX.Y.0b1``
+* ``git tag vX.Y.0b1 -m "Sphinx X.Y.0b1"``
 * ``python utils/bump_version.py --in-develop X.Y.0b2`` (ex. 1.6.0b2)
 * Check diff by ``git diff``
 * ``git commit -am 'Bump version'``
@@ -62,10 +62,10 @@ for other beta releases
 * Check diff by ``git diff``
 * ``git commit -am 'Bump to X.Y.0 betaN'``
 * ``make clean``
-* ``python setup.py release bdist_wheel sdist``
+* ``python -m build .``
 * ``twine upload dist/Sphinx-* --sign --identity [your GPG key]``
 * open https://pypi.org/project/Sphinx/ and check there are no obvious errors
-* ``git tag vX.Y.0bN``
+* ``git tag vX.Y.0bN -m "Sphinx X.Y.0bN"``
 * ``python utils/bump_version.py --in-develop X.Y.0bM`` (ex. 1.6.0b3)
 * Check diff by `git diff``
 * ``git commit -am 'Bump version'``
@@ -87,11 +87,11 @@ for major releases
 * Check diff by ``git diff``
 * ``git commit -am 'Bump to X.Y.0 final'``
 * ``make clean``
-* ``python setup.py release bdist_wheel sdist``
+* ``python -m build .``
 * ``twine upload dist/Sphinx-* --sign --identity [your GPG key]``
 * open https://pypi.org/project/Sphinx/ and check there are no obvious errors
 * ``sh utils/bump_docker.sh X.Y.Z``
-* ``git tag vX.Y.0``
+* ``git tag vX.Y.0 -m "Sphinx X.Y.0"``
 * ``python utils/bump_version.py --in-develop X.Y.1b0`` (ex. 1.6.1b0)
 * Check diff by ``git diff``
 * ``git commit -am 'Bump version'``
@@ -101,7 +101,7 @@ for major releases
 * ``git push origin master``
 * open https://github.com/sphinx-doc/sphinx/settings/branches and make ``A.B`` branch *not* protected
 * ``git checkout A.B`` (checkout old stable)
-* Run ``git tag A.B`` to paste a tag instead branch
+* Run ``git tag A.B -m "Sphinx A.B"`` to paste a tag instead branch
 * Run ``git push origin :A.B --tags`` to remove old stable branch
 * open https://readthedocs.org/dashboard/sphinx/versions/ and enable the released version
 * Add new version/milestone to tracker categories

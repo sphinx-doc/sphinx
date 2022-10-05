@@ -1,12 +1,4 @@
-"""
-    sphinx.theming
-    ~~~~~~~~~~~~~~
-
-    Theming support for HTML builders.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Theming support for HTML builders."""
 
 import configparser
 import os
@@ -72,7 +64,7 @@ class Theme:
             extract_zip(theme_path, self.themedir)
 
         self.config = configparser.RawConfigParser()
-        self.config.read(path.join(self.themedir, THEMECONF))
+        self.config.read(path.join(self.themedir, THEMECONF), encoding='utf-8')
 
         try:
             inherit = self.config.get('theme', 'inherit')

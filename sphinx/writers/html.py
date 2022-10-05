@@ -1,12 +1,4 @@
-"""
-    sphinx.writers.html
-    ~~~~~~~~~~~~~~~~~~~
-
-    docutils writers handling Sphinx' custom nodes.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""docutils writers handling Sphinx' custom nodes."""
 
 import os
 import posixpath
@@ -22,7 +14,7 @@ from docutils.writers.html4css1 import Writer
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx50Warning, RemovedInSphinx60Warning
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
@@ -75,12 +67,13 @@ class HTMLWriter(Writer):
         self.clean_meta = ''.join(self.visitor.meta[2:])
 
 
+# RemovedInSphinx70Warning
 class HTMLTranslator(SphinxTranslator, BaseTranslator):
     """
     Our custom HTML translator.
     """
 
-    builder: "StandaloneHTMLBuilder" = None
+    builder: "StandaloneHTMLBuilder"
 
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
@@ -290,7 +283,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
     def depart_seealso(self, node: Element) -> None:
         self.depart_admonition(node)
 
-    def get_secnumber(self, node: Element) -> Tuple[int, ...]:
+    def get_secnumber(self, node: Element) -> Optional[Tuple[int, ...]]:
         if node.get('secnumber'):
             return node['secnumber']
         elif isinstance(node.parent, nodes.section):
@@ -433,12 +426,12 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
            node.parent.hasattr('ids') and node.parent['ids']):
             # add permalink anchor
             if close_tag.startswith('</h'):
-                self.add_permalink_ref(node.parent, _('Permalink to this headline'))
+                self.add_permalink_ref(node.parent, _('Permalink to this heading'))
             elif close_tag.startswith('</a></h'):
                 self.body.append('</a><a class="headerlink" href="#%s" ' %
                                  node.parent['ids'][0] +
                                  'title="%s">%s' % (
-                                     _('Permalink to this headline'),
+                                     _('Permalink to this heading'),
                                      self.config.html_permalinks_icon))
             elif isinstance(node.parent, nodes.table):
                 self.body.append('</span>')
@@ -511,10 +504,25 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         if 'kbd' in node['classes']:
             self.body.append(self.starttag(node, 'kbd', '',
                                            CLASS='docutils literal notranslate'))
-        else:
+            return
+        lang = node.get("language", None)
+        if 'code' not in node['classes'] or not lang:
             self.body.append(self.starttag(node, 'code', '',
                                            CLASS='docutils literal notranslate'))
             self.protect_literal_text += 1
+            return
+
+        opts = self.config.highlight_options.get(lang, {})
+        highlighted = self.highlighter.highlight_block(
+            node.astext(), lang, opts=opts, location=node, nowrap=True)
+        starttag = self.starttag(
+            node,
+            "code",
+            suffix="",
+            CLASS="docutils literal highlight highlight-%s" % lang,
+        )
+        self.body.append(starttag + highlighted.strip() + "</code>")
+        raise nodes.SkipNode
 
     def depart_literal(self, node: Element) -> None:
         if 'kbd' in node['classes']:
@@ -874,12 +882,6 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         _, depart = self.builder.app.registry.html_block_math_renderers[name]
         if depart:
             depart(self, node)
-
-    @property
-    def permalink_text(self) -> str:
-        warnings.warn('HTMLTranslator.permalink_text is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        return self.config.html_permalinks_icon
 
     @property
     def _fieldlist_row_index(self):

@@ -1,27 +1,20 @@
-"""
-    sphinx.writers.latex
-    ~~~~~~~~~~~~~~~~~~~~
+"""Custom docutils writer for LaTeX.
 
-    Custom docutils writer for LaTeX.
-
-    Much of this code is adapted from Dave Kuhlman's "docpy" writer from his
-    docutils sandbox.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+Much of this code is adapted from Dave Kuhlman's "docpy" writer from his
+docutils sandbox.
 """
 
 import re
 import warnings
 from collections import defaultdict
 from os import path
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Set, Tuple, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Set, Tuple, cast
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
 
 from sphinx import addnodes, highlighting
-from sphinx.deprecation import RemovedInSphinx50Warning
+from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.domains import IndexEntry
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
@@ -89,13 +82,7 @@ class LaTeXWriter(writers.Writer):
         self.theme: Theme = None
 
     def translate(self) -> None:
-        try:
-            visitor = self.builder.create_translator(self.document, self.builder, self.theme)
-        except TypeError:
-            warnings.warn('LaTeXTranslator now takes 3rd argument; "theme".',
-                          RemovedInSphinx50Warning, stacklevel=2)
-            visitor = self.builder.create_translator(self.document, self.builder)
-
+        visitor = self.builder.create_translator(self.document, self.builder, self.theme)
         self.document.walkabout(visitor)
         self.output = cast(LaTeXTranslator, visitor).astext()
 
@@ -185,7 +172,9 @@ class Table:
                 assert self.cells[(self.row + row, self.col + col)] == 0
                 self.cells[(self.row + row, self.col + col)] = self.cell_id
 
-    def cell(self, row: int = None, col: int = None) -> "TableCell":
+    def cell(
+        self, row: Optional[int] = None, col: Optional[int] = None
+    ) -> Optional["TableCell"]:
         """Returns a cell object (i.e. rectangular area) containing given position.
 
         If no option arguments: ``row`` or ``col`` are given, the current position;
@@ -270,24 +259,17 @@ def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
 
 
 class LaTeXTranslator(SphinxTranslator):
-    builder: "LaTeXBuilder" = None
+    builder: "LaTeXBuilder"
 
     secnumdepth = 2  # legacy sphinxhowto.cls uses this, whereas article.cls
     # default is originally 3. For book/report, 2 is already LaTeX default.
     ignore_missing_images = False
 
-    # sphinx specific document classes
-    docclasses = ('howto', 'manual')
-
     def __init__(self, document: nodes.document, builder: "LaTeXBuilder",
-                 theme: "Theme" = None) -> None:
+                 theme: "Theme") -> None:
         super().__init__(document, builder)
         self.body: List[str] = []
         self.theme = theme
-
-        if theme is None:
-            warnings.warn('LaTeXTranslator now takes 3rd argument; "theme".',
-                          RemovedInSphinx50Warning, stacklevel=2)
 
         # flags
         self.in_title = 0
@@ -313,30 +295,8 @@ class LaTeXTranslator(SphinxTranslator):
 
         # initial section names
         self.sectionnames = LATEXSECTIONNAMES[:]
-
-        if self.theme:
-            # new style: control sectioning via theme's setting
-            #
-            # .. note:: template variables(elements) are already assigned in builder
-            docclass = self.theme.docclass
-            if self.theme.toplevel_sectioning == 'section':
-                self.sectionnames.remove('chapter')
-        else:
-            # old style: sectioning control is hard-coded
-            # but some have other interface in config file
-            self.elements['wrapperclass'] = self.format_docclass(self.settings.docclass)
-
-            # we assume LaTeX class provides \chapter command except in case
-            # of non-Japanese 'howto' case
-            if document.get('docclass') == 'howto':
-                docclass = self.config.latex_docclass.get('howto', 'article')
-                if docclass[0] == 'j':  # Japanese class...
-                    pass
-                else:
-                    self.sectionnames.remove('chapter')
-            else:
-                docclass = self.config.latex_docclass.get('manual', 'report')
-            self.elements['docclass'] = docclass
+        if self.theme.toplevel_sectioning == 'section':
+            self.sectionnames.remove('chapter')
 
         # determine top section level
         self.top_sectionlevel = 1
@@ -346,7 +306,7 @@ class LaTeXTranslator(SphinxTranslator):
                     self.sectionnames.index(self.config.latex_toplevel_sectioning)
             except ValueError:
                 logger.warning(__('unknown %r toplevel_sectioning for class %r') %
-                               (self.config.latex_toplevel_sectioning, docclass))
+                               (self.config.latex_toplevel_sectioning, self.theme.docclass))
 
         if self.config.numfig:
             self.numfig_secnum_depth = self.config.numfig_secnum_depth
@@ -369,7 +329,7 @@ class LaTeXTranslator(SphinxTranslator):
         if self.config.numfig and self.config.math_numfig:
             sphinxpkgoptions.append('mathnumfig')
 
-        if (self.config.language not in {None, 'en', 'ja'} and
+        if (self.config.language not in {'en', 'ja'} and
                 'fncychap' not in self.config.latex_elements):
             # use Sonny style if any language specified (except English)
             self.elements['fncychap'] = (r'\usepackage[Sonny]{fncychap}' + CR +
@@ -377,7 +337,7 @@ class LaTeXTranslator(SphinxTranslator):
                                          r'\ChTitleVar{\Large\normalfont\sffamily}')
 
         self.babel = self.builder.babel
-        if self.config.language and not self.babel.is_supported_language():
+        if not self.babel.is_supported_language():
             # emit warning if specified language is invalid
             # (only emitting, nothing changed to processing)
             logger.warning(__('no Babel option known for language %r'),
@@ -429,9 +389,9 @@ class LaTeXTranslator(SphinxTranslator):
         self.context: List[Any] = []
         self.descstack: List[str] = []
         self.tables: List[Table] = []
-        self.next_table_colspec: str = None
+        self.next_table_colspec: Optional[str] = None
         self.bodystack: List[List[str]] = []
-        self.footnote_restricted: Element = None
+        self.footnote_restricted: Optional[Element] = None
         self.pending_footnotes: List[nodes.footnote_reference] = []
         self.curfilestack: List[str] = []
         self.handled_abbrs: Set[str] = set()
@@ -444,14 +404,6 @@ class LaTeXTranslator(SphinxTranslator):
         body = self.body
         self.body = self.bodystack.pop()
         return body
-
-    def format_docclass(self, docclass: str) -> str:
-        """Prepends prefix to sphinx document classes"""
-        warnings.warn('LaTeXWriter.format_docclass() is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        if docclass in self.docclasses:
-            docclass = 'sphinx' + docclass
-        return docclass
 
     def astext(self) -> str:
         self.elements.update({
@@ -546,7 +498,7 @@ class LaTeXTranslator(SphinxTranslator):
         return renderer.render(template_name, variables)
 
     @property
-    def table(self) -> Table:
+    def table(self) -> Optional[Table]:
         """Get current table."""
         if self.tables:
             return self.tables[-1]
@@ -737,10 +689,10 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append('}')
 
     def visit_desc_signature(self, node: Element) -> None:
+        hyper = ''
         if node.parent['objtype'] != 'describe' and node['ids']:
-            hyper = self.hypertarget(node['ids'][0])
-        else:
-            hyper = ''
+            for id in node['ids']:
+                hyper += self.hypertarget(id)
         self.body.append(hyper)
         if not self.in_desc_signature:
             self.in_desc_signature = True
@@ -864,16 +816,14 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_footnote(self, node: Element) -> None:
         self.in_footnote += 1
         label = cast(nodes.label, node[0])
-        if 'referred' in node:
-            self.body.append(r'\sphinxstepexplicit ')
         if self.in_parsed_literal:
             self.body.append(r'\begin{footnote}[%s]' % label.astext())
         else:
             self.body.append('%' + CR)
             self.body.append(r'\begin{footnote}[%s]' % label.astext())
         if 'referred' in node:
-            self.body.append(r'\phantomsection'
-                             r'\label{\thesphinxscope.%s}%%' % label.astext() + CR)
+            # TODO: in future maybe output a latex macro with backrefs here
+            pass
         self.body.append(r'\sphinxAtStartFootnote' + CR)
 
     def depart_footnote(self, node: Element) -> None:
@@ -918,7 +868,7 @@ class LaTeXTranslator(SphinxTranslator):
         labels = self.hypertarget_to(node)
         table_type = self.table.get_table_type()
         table = self.render(table_type + '.tex_t',
-                            dict(table=self.table, labels=labels))
+                            {'table': self.table, 'labels': labels})
         self.body.append(BLANKLINE)
         self.body.append(table)
         self.body.append(CR)
@@ -1143,8 +1093,8 @@ class LaTeXTranslator(SphinxTranslator):
             ctx = r'\phantomsection'
             for node_id in node['ids']:
                 ctx += self.hypertarget(node_id, anchor=False)
-        ctx += r'}] \leavevmode'
-        self.body.append(r'\item[{')
+        ctx += r'}'
+        self.body.append(r'\sphinxlineitem{')
         self.context.append(ctx)
 
     def depart_term(self, node: Element) -> None:
@@ -1237,7 +1187,7 @@ class LaTeXTranslator(SphinxTranslator):
         # self.body.append(r'\columnbreak\n')
         pass
 
-    def latex_image_length(self, width_str: str, scale: int = 100) -> str:
+    def latex_image_length(self, width_str: str, scale: int = 100) -> Optional[str]:
         try:
             return rstdim_to_latexdim(width_str, scale)
         except ValueError:
@@ -1750,10 +1700,22 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_literal(self, node: Element) -> None:
         if self.in_title:
             self.body.append(r'\sphinxstyleliteralintitle{\sphinxupquote{')
+            return
         elif 'kbd' in node['classes']:
             self.body.append(r'\sphinxkeyboard{\sphinxupquote{')
-        else:
+            return
+        lang = node.get("language", None)
+        if 'code' not in node['classes'] or not lang:
             self.body.append(r'\sphinxcode{\sphinxupquote{')
+            return
+
+        opts = self.config.highlight_options.get(lang, {})
+        hlcode = self.highlighter.highlight_block(
+            node.astext(), lang, opts=opts, location=node, nowrap=True)
+        self.body.append(r'\sphinxcode{\sphinxupquote{%' + CR
+                         + hlcode.rstrip() + '%' + CR  # NoQA: W503
+                         + '}}')  # NoQA: W503
+        raise nodes.SkipNode
 
     def depart_literal(self, node: Element) -> None:
         self.body.append('}}')
@@ -1770,9 +1732,7 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_footnotetext(self, node: Element) -> None:
         label = cast(nodes.label, node[0])
         self.body.append('%' + CR)
-        self.body.append(r'\begin{footnotetext}[%s]'
-                         r'\phantomsection\label{\thesphinxscope.%s}%%'
-                         % (label.astext(), label.astext()) + CR)
+        self.body.append(r'\begin{footnotetext}[%s]' % label.astext())
         self.body.append(r'\sphinxAtStartFootnote' + CR)
 
     def depart_footnotetext(self, node: Element) -> None:
@@ -2085,6 +2045,13 @@ class LaTeXTranslator(SphinxTranslator):
 
     def depart_math_reference(self, node: Element) -> None:
         pass
+
+    @property
+    def docclasses(self) -> Tuple[str, str]:
+        """Prepends prefix to sphinx document classes"""
+        warnings.warn('LaTeXWriter.docclasses() is deprecated.',
+                      RemovedInSphinx70Warning, stacklevel=2)
+        return ('howto', 'manual')
 
 
 # FIXME: Workaround to avoid circular import

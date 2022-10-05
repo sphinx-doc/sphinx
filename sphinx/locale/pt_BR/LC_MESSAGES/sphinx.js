@@ -30,8 +30,6 @@ Documentation.addTranslations({
         "Next topic": "Pr\u00f3ximo t\u00f3pico",
         "Other changes": "Outras altera\u00e7\u00f5es",
         "Overview": "Vis\u00e3o geral",
-        "Permalink to this definition": "Link permanente para esta defini\u00e7\u00e3o",
-        "Permalink to this headline": "Link permanente para este t\u00edtulo",
         "Please activate JavaScript to enable the search\n    functionality.": "Por favor, ativar JavaScript para habilitar a\nfuncionalidade de busca.",
         "Preparing search...": "Preparando a busca...",
         "Previous topic": "T\u00f3pico anterior",
@@ -39,7 +37,7 @@ Documentation.addTranslations({
         "Search": "Buscar",
         "Search Page": "P\u00e1gina de Busca",
         "Search Results": "Resultados da Busca",
-        "Search finished, found %s page(s) matching the search query.": "Busca conclu\u00edda. %s p\u00e1gina(s) que atendem a consulta.",
+        "Search finished, found ${resultCount} page(s) matching the search query.": "Pesquisa finalizada, encontrada(s) ${resultCount} p\u00e1gina(s) correspondendo \u00e0 consulta da pesquisa.",
         "Search within %(docstitle)s": "Pesquisar dentro de %(docstitle)s",
         "Searching": "Buscando",
         "Searching for multiple words only shows matches that contain\n    all words.": "Pesquisando por v\u00e1rias palavras s\u00f3 mostra correspond\u00eancias\nque cont\u00eam todas as palavras.",
@@ -59,5 +57,5 @@ Documentation.addTranslations({
         "search this documentation": "Buscar nessa documenta\u00e7\u00e3o",
         "the documentation for": "documenta\u00e7\u00e3o para"
     },
-    "plural_expr": "(n > 1)"
+    "plural_expr": "(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2"
 });

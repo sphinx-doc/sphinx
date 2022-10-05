@@ -6,118 +6,57 @@
    :target: https://pypi.org/project/Sphinx/
    :alt: Package on PyPI
 
+.. image:: https://github.com/sphinx-doc/sphinx/actions/workflows/main.yml/badge.svg
+   :target: https://github.com/sphinx-doc/sphinx/actions/workflows/main.yml
+   :alt: Build Status
+
 .. image:: https://readthedocs.org/projects/sphinx/badge/?version=master
-   :target: http://www.sphinx-doc.org/
+   :target: https://www.sphinx-doc.org/
    :alt: Documentation Status
 
-.. image:: https://ci.appveyor.com/api/projects/status/github/sphinx-doc/sphinx?branch=master&svg=true
-   :target: https://ci.appveyor.com/project/sphinxdoc/sphinx
-   :alt: Build Status (AppVeyor)
+.. image:: https://img.shields.io/badge/License-BSD%202--Clause-blue.svg
+   :target: https://opensource.org/licenses/BSD-2-Clause
+   :alt: BSD 2 Clause
 
-.. image:: https://circleci.com/gh/sphinx-doc/sphinx.svg?style=shield
-   :target: https://circleci.com/gh/sphinx-doc/sphinx
-   :alt: Build Status (CircleCI)
-
-.. image:: https://codecov.io/gh/sphinx-doc/sphinx/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/sphinx-doc/sphinx
-   :alt: Code Coverage Status (Codecov)
-
-.. image:: https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
-   :target: https://opensource.org/licenses/BSD-3-Clause
-   :alt: BSD 3 Clause
-
-.. image:: https://codetriage.com/sphinx-doc/sphinx/badges/users.svg
-   :target: https://codetriage.com/sphinx-doc/sphinx
-   :alt: Open Source Helpers badge
-
-Sphinx is a tool that makes it easy to create intelligent and beautiful
-documentation for Python projects (or other documents consisting of multiple
-reStructuredText sources), written by Georg Brandl.  It was originally created
-for the new Python documentation, and has excellent facilities for Python
-project documentation, but C/C++ is supported as well, and more languages are
-planned.
+**Sphinx makes it easy to create intelligent and beautiful documentation.**
 
 Sphinx uses reStructuredText as its markup language, and many of its strengths
 come from the power and straightforwardness of reStructuredText and its parsing
 and translating suite, the Docutils.
 
-Among its features are the following:
+Features
+========
 
-* Output formats: HTML (including derivative formats such as HTML Help, Epub
-  and Qt Help), plain text, manual pages and LaTeX or direct PDF output
-  using rst2pdf
-* Extensive cross-references: semantic markup and automatic links
+* **Output formats**: HTML, PDF, plain text, EPUB, TeX, manual pages, and more
+* **Extensive cross-references**: semantic markup and automatic links
   for functions, classes, glossary terms and similar pieces of information
-* Hierarchical structure: easy definition of a document tree, with automatic
+* **Hierarchical structure**: easy definition of a document tree, with automatic
   links to siblings, parents and children
-* Automatic indices: general index as well as a module index
-* Code handling: automatic highlighting using the Pygments highlighter
-* Flexible HTML output using the Jinja 2 templating engine
-* Various extensions are available, e.g. for automatic testing of snippets
-  and inclusion of appropriately formatted docstrings
-* Setuptools integration
+* **Automatic indices**: general index as well as a module index
+* **Code highlighting**: automatic highlighting using the Pygments highlighter
+* **Templating**: Flexible HTML output using the Jinja 2 templating engine
+* **Extension ecosystem**: Many extensions are available, for example for
+  automatic function documentation or working with Jupyter notebooks.
+* **Language Support**: Python, C, C++, JavaScript, mathematics, and many other
+  languages through extensions.
 
-For more information, refer to the `the documentation`__.
-
-.. __: http://www.sphinx-doc.org/
+For more information, refer to the `the documentation`_.
 
 Installation
 ============
 
-Sphinx is published on `PyPI`__ and can be installed from there::
+The following command installs Sphinx from the `Python Package Index`_. You will
+need a working installation of Python and pip.
+
+.. code-block:: sh
 
    pip install -U sphinx
-
-We also publish beta releases::
-
-   pip install -U --pre sphinx
-
-If you wish to install `Sphinx` for development purposes, refer to `the
-contributors guide`__.
-
-__ https://pypi.org/project/Sphinx/
-__ http://www.sphinx-doc.org/en/master/internals/contributing.html
-
-Documentation
-=============
-
-Documentation is available from `sphinx-doc.org`__.
-
-__ http://www.sphinx-doc.org/
-
-Get in touch
-============
-
-- Report bugs, suggest features or view the source code `on GitHub`_.
-- For less well defined questions or ideas, use the `mailing list`_.
-
-.. _on GitHub: https://github.com/sphinx-doc/sphinx
-.. _mailing list: https://groups.google.com/forum/#!forum/sphinx-users
-
-Please adhere to our `code of conduct`__.
-
-__ http://www.sphinx-doc.org/en/master/code_of_conduct.html
-
-Testing
-=======
-
-Continuous testing is provided by `Travis`__ (for unit tests and style checks
-on Linux), `AppVeyor`__ (for unit tests on Windows), and `CircleCI`__ (for
-large processes like TeX compilation).
-
-For information on running tests locally, refer to `the contributors guide`__.
-
-__ https://travis-ci.org/sphinx-doc/sphinx
-__ https://ci.appveyor.com/project/sphinxdoc/sphinx
-__ https://circleci.com/gh/sphinx-doc/sphinx
-__ http://www.sphinx-doc.org/en/master/internals/contributing.html
 
 Contributing
 ============
 
-Refer to `the contributors guide`__.
-
-__ http://www.sphinx-doc.org/en/master/internals/contributing.html
+We appreciate all contributions! Refer to `the contributors guide`_ for
+information.
 
 Release signatures
 ==================
@@ -126,3 +65,8 @@ Releases are signed with following keys:
 
 * `498D6B9E <https://pgp.mit.edu/pks/lookup?op=vindex&search=0x102C2C17498D6B9E>`_
 * `5EBA0E07 <https://pgp.mit.edu/pks/lookup?op=vindex&search=0x1425F8CE5EBA0E07>`_
+* `61F0FB52 <https://pgp.mit.edu/pks/lookup?op=vindex&search=0x52C8F72A61F0FB52>`_
+
+.. _the documentation: https://www.sphinx-doc.org/
+.. _the contributors guide: https://www.sphinx-doc.org/en/master/internals/contributing.html
+.. _Python Package Index: https://pypi.org/project/Sphinx/

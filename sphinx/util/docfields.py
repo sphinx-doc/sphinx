@@ -1,12 +1,7 @@
-"""
-    sphinx.util.docfields
-    ~~~~~~~~~~~~~~~~~~~~~
+"""Utility code for "Doc fields".
 
-    "Doc fields" are reST field lists in object descriptions that will
-    be domain-specifically transformed to a more appealing presentation.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+"Doc fields" are reST field lists in object descriptions that will
+be domain-specifically transformed to a more appealing presentation.
 """
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Type, Union, cast
 

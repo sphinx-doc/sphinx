@@ -1,13 +1,8 @@
-"""
-    sphinx.ext.mathjax
-    ~~~~~~~~~~~~~~~~~~
+"""Allow `MathJax`_ to be used to display math in Sphinx's HTML writer.
 
-    Allow `MathJax <https://www.mathjax.org/>`_ to be used to display math in
-    Sphinx's HTML writer -- requires the MathJax JavaScript library on your
-    webserver/computer.
+This requires the MathJax JavaScript library on your webserver/computer.
 
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+.. _MathJax: https://www.mathjax.org/
 """
 
 import json
@@ -70,7 +65,7 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
     raise nodes.SkipNode
 
 
-def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: Dict,
+def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: Dict[str, Any],
                     event_arg: Any) -> None:
     if app.builder.format != 'html' or app.builder.math_renderer_name != 'mathjax':  # type: ignore  # NOQA
         return

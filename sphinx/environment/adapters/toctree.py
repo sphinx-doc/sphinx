@@ -1,14 +1,6 @@
-"""
-    sphinx.environment.adapters.toctree
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Toctree adapter for sphinx.environment."""
 
-    Toctree adapter for sphinx.environment.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import TYPE_CHECKING, Any, Iterable, List, Optional, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -62,6 +54,7 @@ class TocTree:
         """
         if toctree.get('hidden', False) and not includehidden:
             return None
+        generated_docnames: Dict[str, Tuple[str, str, str]] = self.env.domains['std'].initial_data['labels'].copy()  # NoQA: E501
 
         # For reading the following two helper function, it is useful to keep
         # in mind the node structure of a toctree (using HTML-like node names
@@ -82,6 +75,7 @@ class TocTree:
         # interactions between marking and pruning the tree (see bug #1046).
 
         toctree_ancestors = self.get_toctree_ancestors(docname)
+        included = Matcher(self.env.config.include_patterns)
         excluded = Matcher(self.env.config.exclude_patterns)
 
         def _toctree_add_classes(node: Element, depth: int) -> None:
@@ -146,6 +140,16 @@ class TocTree:
                         item = nodes.list_item('', para)
                         # don't show subitems
                         toc = nodes.bullet_list('', item)
+                    elif ref in generated_docnames:
+                        docname, _, sectionname = generated_docnames[ref]
+                        if not title:
+                            title = sectionname
+                        reference = nodes.reference('', title, internal=True,
+                                                    refuri=docname, anchorname='')
+                        para = addnodes.compact_paragraph('', '', reference)
+                        item = nodes.list_item('', para)
+                        # don't show subitems
+                        toc = nodes.bullet_list('', item)
                     else:
                         if ref in parents:
                             logger.warning(__('circular toctree references '
@@ -172,8 +176,10 @@ class TocTree:
                                        ref, location=toctreenode)
                 except KeyError:
                     # this is raised if the included file does not exist
-                    if excluded(self.env.doc2path(ref, None)):
+                    if excluded(self.env.doc2path(ref, False)):
                         message = __('toctree contains reference to excluded document %r')
+                    elif not included(self.env.doc2path(ref, False)):
+                        message = __('toctree contains reference to non-included document %r')
                     else:
                         message = __('toctree contains reference to nonexisting document %r')
 

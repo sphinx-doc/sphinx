@@ -1,17 +1,9 @@
-"""
-    sphinx.util.nodes
-    ~~~~~~~~~~~~~~~~~
-
-    Docutils node-related utility functions for Sphinx.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Docutils node-related utility functions for Sphinx."""
 
 import re
 import unicodedata
 from typing import (TYPE_CHECKING, Any, Callable, Iterable, List, Optional, Set, Tuple, Type,
-                    Union, cast)
+                    Union)
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -420,7 +412,7 @@ def inline_all_toctrees(builder: "Builder", docnameset: Set[str], docname: str,
 
     Record all docnames in *docnameset*, and output docnames with *colorfunc*.
     """
-    tree = cast(nodes.document, tree.deepcopy())
+    tree = tree.deepcopy()
     for toctreenode in list(tree.findall(addnodes.toctree)):
         newnodes = []
         includefiles = map(str, toctreenode['includefiles'])
@@ -521,7 +513,7 @@ _non_id_translate_digraphs = {
 
 
 def make_id(env: "BuildEnvironment", document: nodes.document,
-            prefix: str = '', term: str = None) -> str:
+            prefix: str = '', term: Optional[str] = None) -> str:
     """Generate an appropriate node_id for given *prefix* and *term*."""
     node_id = None
     if prefix:
@@ -558,7 +550,8 @@ def find_pending_xref_condition(node: addnodes.pending_xref, condition: str
 
 
 def make_refnode(builder: "Builder", fromdocname: str, todocname: str, targetid: str,
-                 child: Union[Node, List[Node]], title: str = None) -> nodes.reference:
+                 child: Union[Node, List[Node]], title: Optional[str] = None
+                 ) -> nodes.reference:
     """Shortcut to create a reference node."""
     node = nodes.reference('', '', internal=True)
     if fromdocname == todocname and targetid:

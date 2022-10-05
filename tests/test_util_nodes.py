@@ -1,12 +1,5 @@
-"""
-    test_util_nodes
-    ~~~~~~~~~~~~~~~
-
-    Tests uti.nodes functions.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests uti.nodes functions."""
+import warnings
 from textwrap import dedent
 from typing import Any
 
@@ -25,8 +18,12 @@ def _transform(doctree):
 
 
 def create_new_document():
-    settings = frontend.OptionParser(
-        components=(rst.Parser,)).get_default_values()
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore', category=DeprecationWarning)
+        # DeprecationWarning: The frontend.OptionParser class will be replaced
+        # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
+        settings = frontend.OptionParser(
+            components=(rst.Parser,)).get_default_values()
     settings.id_prefix = 'id'
     document = new_document('dummy.txt', settings)
     return document

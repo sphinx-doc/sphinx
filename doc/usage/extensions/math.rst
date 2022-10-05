@@ -133,6 +133,12 @@ are built:
    elements (cf the `dvisvgm FAQ`_). This option is used only when
    ``imgmath_image_format`` is ``'svg'``.
 
+.. confval:: imgmath_embed
+
+   Default: ``False``.  If true, encode LaTeX output images within HTML files
+   (base64 encoded) and do not save separate png/svg files to disk.
+
+   .. versionadded:: 5.2
 
 :mod:`sphinx.ext.mathjax` -- Render math via JavaScript
 -------------------------------------------------------

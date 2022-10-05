@@ -1,17 +1,9 @@
-"""
-    sphinx.builders.latex
-    ~~~~~~~~~~~~~~~~~~~~~
-
-    LaTeX builder.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""LaTeX builder."""
 
 import os
 import warnings
 from os import path
-from typing import Any, Dict, Iterable, List, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 from docutils.frontend import OptionParser
 from docutils.nodes import Node
@@ -24,7 +16,6 @@ from sphinx.builders.latex.constants import ADDITIONAL_SETTINGS, DEFAULT_SETTING
 from sphinx.builders.latex.theming import Theme, ThemeFactory
 from sphinx.builders.latex.util import ExtBabel
 from sphinx.config import ENUM, Config
-from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
@@ -136,13 +127,13 @@ class LaTeXBuilder(Builder):
     def get_outdated_docs(self) -> Union[str, List[str]]:
         return 'all documents'  # for now
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
         if docname not in self.docnames:
             raise NoUri(docname, typ)
         else:
             return '%' + docname
 
-    def get_relative_uri(self, from_: str, to: str, typ: str = None) -> str:
+    def get_relative_uri(self, from_: str, to: str, typ: Optional[str] = None) -> str:
         # ignore source path
         return self.get_target_uri(to, typ)
 
@@ -172,9 +163,8 @@ class LaTeXBuilder(Builder):
         self.context.update(ADDITIONAL_SETTINGS.get(self.config.latex_engine, {}))
 
         # Add special settings for (latex_engine, language_code)
-        if self.config.language:
-            key = (self.config.latex_engine, self.config.language[:2])
-            self.context.update(ADDITIONAL_SETTINGS.get(key, {}))
+        key = (self.config.latex_engine, self.config.language[:2])
+        self.context.update(ADDITIONAL_SETTINGS.get(key, {}))
 
         # Apply user settings to context
         self.context.update(self.config.latex_elements)
@@ -205,7 +195,7 @@ class LaTeXBuilder(Builder):
 
     def init_babel(self) -> None:
         self.babel = ExtBabel(self.config.language, not self.context['babel'])
-        if self.config.language and not self.babel.is_supported_language():
+        if not self.babel.is_supported_language():
             # emit warning if specified language is invalid
             # (only emitting, nothing changed to processing)
             logger.warning(__('no Babel option known for language %r'),
@@ -234,12 +224,11 @@ class LaTeXBuilder(Builder):
             self.context['classoptions'] += ',' + self.babel.get_language()
             # this branch is not taken for xelatex/lualatex if default settings
             self.context['multilingual'] = self.context['babel']
-            if self.config.language:
-                self.context['shorthandoff'] = SHORTHANDOFF
+            self.context['shorthandoff'] = SHORTHANDOFF
 
-                # Times fonts don't work with Cyrillic languages
-                if self.babel.uses_cyrillic() and 'fontpkg' not in self.config.latex_elements:
-                    self.context['fontpkg'] = ''
+            # Times fonts don't work with Cyrillic languages
+            if self.babel.uses_cyrillic() and 'fontpkg' not in self.config.latex_elements:
+                self.context['fontpkg'] = ''
         elif self.context['polyglossia']:
             self.context['classoptions'] += ',' + self.babel.get_language()
             options = self.babel.get_mainlanguage_options()
@@ -253,19 +242,23 @@ class LaTeXBuilder(Builder):
     def write_stylesheet(self) -> None:
         highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style)
         stylesheet = path.join(self.outdir, 'sphinxhighlight.sty')
-        with open(stylesheet, 'w') as f:
+        with open(stylesheet, 'w', encoding="utf-8") as f:
             f.write('\\NeedsTeXFormat{LaTeX2e}[1995/12/01]\n')
             f.write('\\ProvidesPackage{sphinxhighlight}'
-                    '[2016/05/29 stylesheet for highlighting with pygments]\n')
+                    '[2022/06/30 stylesheet for highlighting with pygments]\n')
             f.write('% Its contents depend on pygments_style configuration variable.\n\n')
             f.write(highlighter.get_stylesheet())
 
     def write(self, *ignored: Any) -> None:
         docwriter = LaTeXWriter(self)
-        docsettings: Any = OptionParser(
-            defaults=self.env.settings,
-            components=(docwriter,),
-            read_config_files=True).get_default_values()
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', category=DeprecationWarning)
+            # DeprecationWarning: The frontend.OptionParser class will be replaced
+            # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
+            docsettings: Any = OptionParser(
+                defaults=self.env.settings,
+                components=(docwriter,),
+                read_config_files=True).get_default_values()
 
         self.init_document_data()
         self.write_stylesheet()
@@ -359,9 +352,9 @@ class LaTeXBuilder(Builder):
             newnodes: List[Node] = [nodes.emphasis(sectname, sectname)]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
-                    newnodes.append(nodes.Text(_(' (in '), _(' (in ')))
+                    newnodes.append(nodes.Text(_(' (in ')))
                     newnodes.append(nodes.emphasis(title, title))
-                    newnodes.append(nodes.Text(')', ')'))
+                    newnodes.append(nodes.Text(')'))
                     break
             else:
                 pass
@@ -382,14 +375,10 @@ class LaTeXBuilder(Builder):
         # configure usage of xindy (impacts Makefile and latexmkrc)
         # FIXME: convert this rather to a confval with suitable default
         #        according to language ? but would require extra documentation
-        if self.config.language:
-            xindy_lang_option = \
-                XINDY_LANG_OPTIONS.get(self.config.language[:2],
-                                       '-L general -C utf8 ')
-            xindy_cyrillic = self.config.language[:2] in XINDY_CYRILLIC_SCRIPTS
-        else:
-            xindy_lang_option = '-L english -C utf8 '
-            xindy_cyrillic = False
+        xindy_lang_option = XINDY_LANG_OPTIONS.get(self.config.language[:2],
+                                                   '-L general -C utf8 ')
+        xindy_cyrillic = self.config.language[:2] in XINDY_CYRILLIC_SCRIPTS
+
         context = {
             'latex_engine':      self.config.latex_engine,
             'xindy_use':         self.config.latex_use_xindy,
@@ -449,18 +438,6 @@ class LaTeXBuilder(Builder):
         filename = path.join(package_dir, 'templates', 'latex', 'sphinxmessages.sty_t')
         copy_asset_file(filename, self.outdir, context=context, renderer=LaTeXRenderer())
 
-    @property
-    def usepackages(self) -> List[Tuple[str, str]]:
-        warnings.warn('LaTeXBuilder.usepackages is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        return self.app.registry.latex_packages
-
-    @property
-    def usepackages_after_hyperref(self) -> List[Tuple[str, str]]:
-        warnings.warn('LaTeXBuilder.usepackages_after_hyperref is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        return self.app.registry.latex_packages_after_hyperref
-
 
 def validate_config_values(app: Sphinx, config: Config) -> None:
     for key in list(config.latex_elements):
@@ -488,7 +465,7 @@ def default_latex_engine(config: Config) -> str:
     """ Better default latex_engine settings for specific languages. """
     if config.language == 'ja':
         return 'uplatex'
-    elif (config.language or '').startswith('zh'):
+    elif config.language.startswith('zh'):
         return 'xelatex'
     elif config.language == 'el':
         return 'xelatex'
@@ -533,25 +510,25 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('config-inited', validate_latex_theme_options, priority=800)
     app.connect('builder-inited', install_packages_for_ja)
 
-    app.add_config_value('latex_engine', default_latex_engine, None,
+    app.add_config_value('latex_engine', default_latex_engine, False,
                          ENUM('pdflatex', 'xelatex', 'lualatex', 'platex', 'uplatex'))
-    app.add_config_value('latex_documents', default_latex_documents, None)
-    app.add_config_value('latex_logo', None, None, [str])
-    app.add_config_value('latex_appendices', [], None)
-    app.add_config_value('latex_use_latex_multicolumn', False, None)
-    app.add_config_value('latex_use_xindy', default_latex_use_xindy, None, [bool])
-    app.add_config_value('latex_toplevel_sectioning', None, None,
+    app.add_config_value('latex_documents', default_latex_documents, False)
+    app.add_config_value('latex_logo', None, False, [str])
+    app.add_config_value('latex_appendices', [], False)
+    app.add_config_value('latex_use_latex_multicolumn', False, False)
+    app.add_config_value('latex_use_xindy', default_latex_use_xindy, False, [bool])
+    app.add_config_value('latex_toplevel_sectioning', None, False,
                          ENUM(None, 'part', 'chapter', 'section'))
-    app.add_config_value('latex_domain_indices', True, None, [list])
-    app.add_config_value('latex_show_urls', 'no', None)
-    app.add_config_value('latex_show_pagerefs', False, None)
-    app.add_config_value('latex_elements', {}, None)
-    app.add_config_value('latex_additional_files', [], None)
-    app.add_config_value('latex_theme', 'manual', None, [str])
-    app.add_config_value('latex_theme_options', {}, None)
-    app.add_config_value('latex_theme_path', [], None, [list])
+    app.add_config_value('latex_domain_indices', True, False, [list])
+    app.add_config_value('latex_show_urls', 'no', False)
+    app.add_config_value('latex_show_pagerefs', False, False)
+    app.add_config_value('latex_elements', {}, False)
+    app.add_config_value('latex_additional_files', [], False)
+    app.add_config_value('latex_theme', 'manual', False, [str])
+    app.add_config_value('latex_theme_options', {}, False)
+    app.add_config_value('latex_theme_path', [], False, [list])
 
-    app.add_config_value('latex_docclass', default_latex_docclass, None)
+    app.add_config_value('latex_docclass', default_latex_docclass, False)
 
     return {
         'version': 'builtin',

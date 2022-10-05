@@ -1,19 +1,12 @@
-"""
-    sphinx.builders.gettext
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
-    The MessageCatalogBuilder class.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""The MessageCatalogBuilder class."""
 
 from codecs import open
 from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta, tzinfo
 from os import getenv, path, walk
 from time import time
-from typing import Any, DefaultDict, Dict, Generator, Iterable, List, Set, Tuple, Union
+from typing import (Any, DefaultDict, Dict, Generator, Iterable, List, Optional, Set, Tuple,
+                    Union)
 from uuid import uuid4
 
 from docutils import nodes
@@ -61,11 +54,15 @@ class Catalog:
         if msg not in self.metadata:  # faster lookup in hash
             self.messages.append(msg)
             self.metadata[msg] = []
-        self.metadata[msg].append((origin.source, origin.line, origin.uid))  # type: ignore
+        line = origin.line
+        if line is None:
+            line = -1
+        self.metadata[msg].append((origin.source, line, origin.uid))  # type: ignore
 
     def __iter__(self) -> Generator[Message, None, None]:
         for message in self.messages:
-            positions = [(source, line) for source, line, uuid in self.metadata[message]]
+            positions = sorted({(source, line) for source, line, uuid
+                               in self.metadata[message]})
             uuids = [uuid for source, line, uuid in self.metadata[message]]
             yield Message(message, positions, uuids)
 
@@ -82,7 +79,9 @@ class MsgOrigin:
 
 
 class GettextRenderer(SphinxRenderer):
-    def __init__(self, template_path: str = None, outdir: str = None) -> None:
+    def __init__(
+        self, template_path: Optional[str] = None, outdir: Optional[str] = None
+    ) -> None:
         self.outdir = outdir
         if template_path is None:
             template_path = path.join(package_dir, 'templates', 'gettext')
@@ -97,7 +96,7 @@ class GettextRenderer(SphinxRenderer):
         self.env.filters['e'] = escape
         self.env.filters['escape'] = escape
 
-    def render(self, filename: str, context: Dict) -> str:
+    def render(self, filename: str, context: Dict[str, Any]) -> str:
         def _relpath(s: str) -> str:
             return canon_path(relpath(s, self.outdir))
 
@@ -121,7 +120,6 @@ class I18nBuilder(Builder):
     """
     name = 'i18n'
     versioning_method = 'text'
-    versioning_compare: bool = None  # be set by `gettext_uuid`
     use_message_catalog = False
 
     def init(self) -> None:
@@ -131,7 +129,7 @@ class I18nBuilder(Builder):
         self.tags = I18nTags()
         self.catalogs: DefaultDict[str, Catalog] = defaultdict(Catalog)
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
         return ''
 
     def get_outdated_docs(self) -> Set[str]:
@@ -183,10 +181,10 @@ class LocalTimeZone(tzinfo):
         super().__init__(*args, **kwargs)
         self.tzdelta = tzdelta
 
-    def utcoffset(self, dt: datetime) -> timedelta:
+    def utcoffset(self, dt: Optional[datetime]) -> timedelta:
         return self.tzdelta
 
-    def dst(self, dt: datetime) -> timedelta:
+    def dst(self, dt: Optional[datetime]) -> timedelta:
         return timedelta(0)
 
 
@@ -253,7 +251,9 @@ class MessageCatalogBuilder(I18nBuilder):
             except Exception as exc:
                 raise ThemeError('%s: %r' % (template, exc)) from exc
 
-    def build(self, docnames: Iterable[str], summary: str = None, method: str = 'update') -> None:  # NOQA
+    def build(
+        self, docnames: Iterable[str], summary: Optional[str] = None, method: str = 'update'
+    ) -> None:
         self._extract_from_template()
         super().build(docnames, summary, method)
 

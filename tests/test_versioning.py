@@ -1,12 +1,4 @@
-"""
-    test_versioning
-    ~~~~~~~~~~~~~~~
-
-    Test the versioning implementation.
-
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the versioning implementation."""
 
 import pickle
 
