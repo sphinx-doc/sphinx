@@ -11,6 +11,27 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #7405: Removed the jQuery and underscore.js JavaScript frameworks.
+
+  These frameworks are no longer be automatically injected into themes from
+  Sphinx 6.0. If you develop a theme or extension that uses the
+  ``jQuery``, ``$``, or ``$u`` global objects, you need to update your
+  JavaScript to modern standards, or use the mitigation below.
+
+  To re-add jQuery and underscore.js, you will need to copy ``jquery.js`` and
+  ``underscore.js`` from `the Sphinx repository`_ to your ``static`` directory,
+  and add the following to your ``layout.html``:
+
+  .. code-block:: html+jinja
+
+     {%- block scripts %}
+         <script src="{{ pathto('_static/jquery.js', resource=True) }}"></script>
+         <script src="{{ pathto('_static/underscore.js', resource=True) }}"></script>
+         {{ super() }}
+     {%- endblock %}
+
+  Patch by Adam Turner.
+
 Deprecated
 ----------
 
