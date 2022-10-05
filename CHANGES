@@ -16,6 +16,8 @@ Features added
 * #10840: One can cross-reference including an option value: ``:option:`--module=foobar```.
   Patch by Martin Liska.
 * #10881: autosectionlabel: Record the generated section label to the debug log.
+* #9360: Fix caching for now-outdates files for some builders when there is not change
+  in source files. Patch by Martin Liska.
 
 Bugs fixed
 ----------
