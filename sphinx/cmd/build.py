@@ -1,12 +1,4 @@
-"""
-    sphinx.cmd.build
-    ~~~~~~~~~~~~~~~~
-
-    Build documentation from a provided source.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Build documentation from a provided source."""
 
 import argparse
 import bdb
@@ -16,7 +8,8 @@ import os
 import pdb
 import sys
 import traceback
-from typing import IO, Any, List
+from os import path
+from typing import Any, List, Optional, TextIO
 
 from docutils.utils import SystemMessage
 
@@ -28,9 +21,12 @@ from sphinx.locale import __
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
 from sphinx.util.console import color_terminal, nocolor, red, terminal_safe  # type: ignore
 from sphinx.util.docutils import docutils_namespace, patch_docutils
+from sphinx.util.osutil import abspath, ensuredir
 
 
-def handle_exception(app: Sphinx, args: Any, exception: BaseException, stderr: IO = sys.stderr) -> None:  # NOQA
+def handle_exception(
+    app: Optional[Sphinx], args: Any, exception: BaseException, stderr: TextIO = sys.stderr
+) -> None:
     if isinstance(exception, bdb.BdbQuit):
         return
 
@@ -101,7 +97,7 @@ def jobs_argument(value: str) -> int:
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]',
-        epilog=__('For more information, visit <http://sphinx-doc.org/>.'),
+        epilog=__('For more information, visit <https://www.sphinx-doc.org/>.'),
         description=__("""
 Generate documentation from source files.
 
@@ -213,23 +209,14 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
     if not args.doctreedir:
         args.doctreedir = os.path.join(args.outputdir, '.doctrees')
 
-    # handle remaining filename arguments
-    filenames = args.filenames
-    missing_files = []
-    for filename in filenames:
-        if not os.path.isfile(filename):
-            missing_files.append(filename)
-    if missing_files:
-        parser.error(__('cannot find files %r') % missing_files)
-
-    if args.force_all and filenames:
+    if args.force_all and args.filenames:
         parser.error(__('cannot combine -a option and filenames'))
 
     if args.color == 'no' or (args.color == 'auto' and not color_terminal()):
         nocolor()
 
-    status = sys.stdout
-    warning = sys.stderr
+    status: Optional[TextIO] = sys.stdout
+    warning: Optional[TextIO] = sys.stderr
     error = sys.stderr
 
     if args.quiet:
@@ -240,7 +227,9 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
 
     if warning and args.warnfile:
         try:
-            warnfp = open(args.warnfile, 'w')
+            warnfile = abspath(args.warnfile)
+            ensuredir(path.dirname(warnfile))
+            warnfp = open(args.warnfile, 'w', encoding="utf-8")
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
                 args.warnfile, exc))
@@ -276,8 +265,9 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
             app = Sphinx(args.sourcedir, args.confdir, args.outputdir,
                          args.doctreedir, args.builder, confoverrides, status,
                          warning, args.freshenv, args.warningiserror,
-                         args.tags, args.verbosity, args.jobs, args.keep_going)
-            app.build(args.force_all, filenames)
+                         args.tags, args.verbosity, args.jobs, args.keep_going,
+                         args.pdb)
+            app.build(args.force_all, args.filenames)
             return app.statuscode
     except (Exception, KeyboardInterrupt) as exc:
         handle_exception(app, args, exc, error)

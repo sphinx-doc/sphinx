@@ -39,6 +39,10 @@ Options
 
    Document imported members.
 
+.. option:: -a, --respect-module-all
+
+   Document exactly the members in a module's ``__all__`` attribute.
+
 Example
 -------
 
@@ -71,7 +75,7 @@ and assuming ``docs/index.rst`` contained the following:
 
 If you run the following:
 
-.. code-block:: bash
+.. code-block:: console
 
     $ PYTHONPATH=. sphinx-autogen docs/index.rst
 

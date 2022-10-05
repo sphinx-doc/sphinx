@@ -1,12 +1,4 @@
-"""
-    sphinx.domains.javascript
-    ~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    The JavaScript domain.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""The JavaScript domain."""
 
 from typing import Any, Dict, Iterator, List, Optional, Tuple, cast
 
@@ -26,8 +18,8 @@ from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
-from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import make_id, make_refnode
+from sphinx.util.docutils import SphinxDirective, switch_source_input
+from sphinx.util.nodes import make_id, make_refnode, nested_parse_with_titles
 from sphinx.util.typing import OptionSpec
 
 logger = logging.getLogger(__name__)
@@ -41,9 +33,6 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
     #: added
     has_arguments = False
 
-    #: what is displayed right before the documentation entry
-    display_prefix: str = None
-
     #: If ``allow_nesting`` is ``True``, the object prefixes will be accumulated
     #: based on directive nesting
     allow_nesting = False
@@ -51,7 +40,12 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
     option_spec: OptionSpec = {
         'noindex': directives.flag,
         'noindexentry': directives.flag,
+        'nocontentsentry': directives.flag,
     }
+
+    def get_display_prefix(self) -> List[Node]:
+        #: what is displayed right before the documentation entry
+        return []
 
     def handle_signature(self, sig: str, signode: desc_signature) -> Tuple[str, str]:
         """Breaks down construct signatures
@@ -71,6 +65,7 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         # If construct is nested, prefix the current prefix
         prefix = self.env.ref_context.get('js:object', None)
         mod_name = self.env.ref_context.get('js:module')
+
         name = member
         try:
             member_prefix, member_name = member.rsplit('.', 1)
@@ -91,14 +86,22 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         signode['object'] = prefix
         signode['fullname'] = fullname
 
-        if self.display_prefix:
-            signode += addnodes.desc_annotation(self.display_prefix,
-                                                self.display_prefix)
+        display_prefix = self.get_display_prefix()
+        if display_prefix:
+            signode += addnodes.desc_annotation('', '', *display_prefix)
+
+        actual_prefix = None
         if prefix:
-            signode += addnodes.desc_addname(prefix + '.', prefix + '.')
+            actual_prefix = prefix
         elif mod_name:
-            signode += addnodes.desc_addname(mod_name + '.', mod_name + '.')
-        signode += addnodes.desc_name(name, name)
+            actual_prefix = mod_name
+        if actual_prefix:
+            addName = addnodes.desc_addname('', '')
+            for p in actual_prefix.split('.'):
+                addName += addnodes.desc_sig_name(p, p)
+                addName += addnodes.desc_sig_punctuation('.', '.')
+            signode += addName
+        signode += addnodes.desc_name('', '', addnodes.desc_sig_name(name, name))
         if self.has_arguments:
             if not arglist:
                 signode += addnodes.desc_parameterlist()
@@ -106,19 +109,23 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
                 _pseudo_parse_arglist(signode, arglist)
         return fullname, prefix
 
+    def _object_hierarchy_parts(self, sig_node: desc_signature) -> Tuple[str, ...]:
+        if 'fullname' not in sig_node:
+            return ()
+        modname = sig_node.get('module')
+        fullname = sig_node['fullname']
+
+        if modname:
+            return (modname, *fullname.split('.'))
+        else:
+            return tuple(fullname.split('.'))
+
     def add_target_and_index(self, name_obj: Tuple[str, str], sig: str,
                              signode: desc_signature) -> None:
         mod_name = self.env.ref_context.get('js:module')
         fullname = (mod_name + '.' if mod_name else '') + name_obj[0]
         node_id = make_id(self.env, self.state.document, '', fullname)
         signode['ids'].append(node_id)
-
-        # Assign old styled node_id not to break old hyperlinks (if possible)
-        # Note: Will be removed in Sphinx-5.0 (RemovedInSphinx50Warning)
-        old_node_id = self.make_old_id(fullname)
-        if old_node_id not in self.state.document.ids and old_node_id not in signode['ids']:
-            signode['ids'].append(old_node_id)
-
         self.state.document.note_explicit_target(signode)
 
         domain = cast(JavaScriptDomain, self.env.get_domain('js'))
@@ -206,6 +213,25 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
         """
         return fullname.replace('$', '_S_')
 
+    def _toc_entry_name(self, sig_node: desc_signature) -> str:
+        if not sig_node.get('_toc_parts'):
+            return ''
+
+        config = self.env.app.config
+        objtype = sig_node.parent.get('objtype')
+        if config.add_function_parentheses and objtype in {'function', 'method'}:
+            parens = '()'
+        else:
+            parens = ''
+        *parents, name = sig_node['_toc_parts']
+        if config.toc_object_entries_show_parents == 'domain':
+            return sig_node.get('fullname', name) + parens
+        if config.toc_object_entries_show_parents == 'hide':
+            return name + parens
+        if config.toc_object_entries_show_parents == 'all':
+            return '.'.join(parents + [name + parens])
+        return ''
+
 
 class JSCallable(JSObject):
     """Description of a JavaScript function, method or constructor."""
@@ -227,8 +253,12 @@ class JSCallable(JSObject):
 
 class JSConstructor(JSCallable):
     """Like a callable but with a different prefix."""
-    display_prefix = 'class '
+
     allow_nesting = True
+
+    def get_display_prefix(self) -> List[Node]:
+        return [addnodes.desc_sig_keyword('class', 'class'),
+                addnodes.desc_sig_space()]
 
 
 class JSModule(SphinxDirective):
@@ -250,18 +280,26 @@ class JSModule(SphinxDirective):
     :param mod_name: Module name
     """
 
-    has_content = False
+    has_content = True
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
     option_spec: OptionSpec = {
-        'noindex': directives.flag
+        'noindex': directives.flag,
+        'nocontentsentry': directives.flag,
     }
 
     def run(self) -> List[Node]:
         mod_name = self.arguments[0].strip()
         self.env.ref_context['js:module'] = mod_name
         noindex = 'noindex' in self.options
+
+        content_node: Element = nodes.section()
+        with switch_source_input(self.state, self.content):
+            # necessary so that the child nodes get the right source/line set
+            content_node.document = self.state.document
+            nested_parse_with_titles(self.state, self.content, content_node)
+
         ret: List[Node] = []
         if not noindex:
             domain = cast(JavaScriptDomain, self.env.get_domain('js'))
@@ -274,18 +312,12 @@ class JSModule(SphinxDirective):
                                location=(self.env.docname, self.lineno))
 
             target = nodes.target('', '', ids=[node_id], ismod=True)
-
-            # Assign old styled node_id not to break old hyperlinks (if possible)
-            # Note: Will be removed in Sphinx-5.0 (RemovedInSphinx50Warning)
-            old_node_id = self.make_old_id(mod_name)
-            if old_node_id not in self.state.document.ids and old_node_id not in target['ids']:
-                target['ids'].append(old_node_id)
-
             self.state.document.note_explicit_target(target)
             ret.append(target)
             indextext = _('%s (module)') % mod_name
             inode = addnodes.index(entries=[('single', indextext, node_id, '', None)])
             ret.append(inode)
+        ret.extend(content_node.children)
         return ret
 
     def make_old_id(self, modname: str) -> str:
@@ -371,10 +403,10 @@ class JavaScriptDomain(Domain):
         self.modules[modname] = (self.env.docname, node_id)
 
     def clear_doc(self, docname: str) -> None:
-        for fullname, (pkg_docname, node_id, _l) in list(self.objects.items()):
+        for fullname, (pkg_docname, _node_id, _l) in list(self.objects.items()):
             if pkg_docname == docname:
                 del self.objects[fullname]
-        for modname, (pkg_docname, node_id) in list(self.modules.items()):
+        for modname, (pkg_docname, _node_id) in list(self.modules.items()):
             if pkg_docname == docname:
                 del self.modules[modname]
 

@@ -1,13 +1,8 @@
-"""
-    sphinx.ext.mathjax
-    ~~~~~~~~~~~~~~~~~~
+"""Allow `MathJax`_ to be used to display math in Sphinx's HTML writer.
 
-    Allow `MathJax <https://www.mathjax.org/>`_ to be used to display math in
-    Sphinx's HTML writer -- requires the MathJax JavaScript library on your
-    webserver/computer.
+This requires the MathJax JavaScript library on your webserver/computer.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+.. _MathJax: https://www.mathjax.org/
 """
 
 import json
@@ -70,7 +65,7 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
     raise nodes.SkipNode
 
 
-def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: Dict,
+def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: Dict[str, Any],
                     event_arg: Any) -> None:
     if app.builder.format != 'html' or app.builder.math_renderer_name != 'mathjax':  # type: ignore  # NOQA
         return
@@ -81,11 +76,6 @@ def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: Dict
     domain = cast(MathDomain, app.env.get_domain('math'))
     if app.registry.html_assets_policy == 'always' or domain.has_equations(pagename):
         # Enable mathjax only if equations exists
-        options = {'async': 'async'}
-        if app.config.mathjax_options:
-            options.update(app.config.mathjax_options)
-        app.add_js_file(app.config.mathjax_path, **options)  # type: ignore
-
         if app.config.mathjax2_config:
             if app.config.mathjax_path == MATHJAX_URL:
                 logger.warning(
@@ -96,6 +86,18 @@ def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: Dict
         if app.config.mathjax3_config:
             body = 'window.MathJax = %s' % json.dumps(app.config.mathjax3_config)
             app.add_js_file(None, body=body)
+
+        options = {}
+        if app.config.mathjax_options:
+            options.update(app.config.mathjax_options)
+        if 'async' not in options and 'defer' not in options:
+            if app.config.mathjax3_config:
+                # Load MathJax v3 via "defer" method
+                options['defer'] = 'defer'
+            else:
+                # Load other MathJax via "async" method
+                options['async'] = 'async'
+        app.add_js_file(app.config.mathjax_path, **options)
 
 
 def setup(app: Sphinx) -> Dict[str, Any]:

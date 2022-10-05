@@ -133,6 +133,12 @@ are built:
    elements (cf the `dvisvgm FAQ`_). This option is used only when
    ``imgmath_image_format`` is ``'svg'``.
 
+.. confval:: imgmath_embed
+
+   Default: ``False``.  If true, encode LaTeX output images within HTML files
+   (base64 encoded) and do not save separate png/svg files to disk.
+
+   .. versionadded:: 5.2
 
 :mod:`sphinx.ext.mathjax` -- Render math via JavaScript
 -------------------------------------------------------
@@ -199,6 +205,11 @@ Sphinx but is set to automatically include it from a third-party site.
    The default is empty (``{}``).
 
    .. versionadded:: 1.8
+
+   .. versionchanged:: 4.4.1
+
+      Allow to change the loading method (async or defer) of MathJax if "async"
+      or "defer" key is set.
 
 .. confval:: mathjax3_config
 

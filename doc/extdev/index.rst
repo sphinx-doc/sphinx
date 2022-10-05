@@ -97,49 +97,49 @@ in which a Sphinx project is built: this works in several phases.
 
 **Phase 0: Initialization**
 
-   In this phase, almost nothing of interest to us happens.  The source
-   directory is searched for source files, and extensions are initialized.
-   Should a stored build environment exist, it is loaded, otherwise a new one is
-   created.
+In this phase, almost nothing of interest to us happens.  The source
+directory is searched for source files, and extensions are initialized.
+Should a stored build environment exist, it is loaded, otherwise a new one is
+created.
 
 **Phase 1: Reading**
 
-   In Phase 1, all source files (and on subsequent builds, those that are new or
-   changed) are read and parsed.  This is the phase where directives and roles
-   are encountered by docutils, and the corresponding code is executed.  The
-   output of this phase is a *doctree* for each source file; that is a tree of
-   docutils nodes.  For document elements that aren't fully known until all
-   existing files are read, temporary nodes are created.
+In Phase 1, all source files (and on subsequent builds, those that are new or
+changed) are read and parsed.  This is the phase where directives and roles
+are encountered by docutils, and the corresponding code is executed.  The
+output of this phase is a *doctree* for each source file; that is a tree of
+docutils nodes.  For document elements that aren't fully known until all
+existing files are read, temporary nodes are created.
 
-   There are nodes provided by docutils, which are documented `in the docutils
-   documentation <https://docutils.sourceforge.io/docs/ref/doctree.html>`__.
-   Additional nodes are provided by Sphinx and :ref:`documented here <nodes>`.
+There are nodes provided by docutils, which are documented `in the docutils
+documentation <https://docutils.sourceforge.io/docs/ref/doctree.html>`__.
+Additional nodes are provided by Sphinx and :ref:`documented here <nodes>`.
 
-   During reading, the build environment is updated with all meta- and cross
-   reference data of the read documents, such as labels, the names of headings,
-   described Python objects and index entries.  This will later be used to
-   replace the temporary nodes.
+During reading, the build environment is updated with all meta- and cross
+reference data of the read documents, such as labels, the names of headings,
+described Python objects and index entries.  This will later be used to
+replace the temporary nodes.
 
-   The parsed doctrees are stored on the disk, because it is not possible to
-   hold all of them in memory.
+The parsed doctrees are stored on the disk, because it is not possible to
+hold all of them in memory.
 
 **Phase 2: Consistency checks**
 
-   Some checking is done to ensure no surprises in the built documents.
+Some checking is done to ensure no surprises in the built documents.
 
 **Phase 3: Resolving**
 
-   Now that the metadata and cross-reference data of all existing documents is
-   known, all temporary nodes are replaced by nodes that can be converted into
-   output using components called transforms.  For example, links are created
-   for object references that exist, and simple literal nodes are created for
-   those that don't.
+Now that the metadata and cross-reference data of all existing documents is
+known, all temporary nodes are replaced by nodes that can be converted into
+output using components called transforms.  For example, links are created
+for object references that exist, and simple literal nodes are created for
+those that don't.
 
 **Phase 4: Writing**
 
-   This phase converts the resolved doctrees to the desired output format, such
-   as HTML or LaTeX.  This happens via a so-called docutils writer that visits
-   the individual nodes of each doctree and produces some output in the process.
+This phase converts the resolved doctrees to the desired output format, such
+as HTML or LaTeX.  This happens via a so-called docutils writer that visits
+the individual nodes of each doctree and produces some output in the process.
 
 .. note::
 
@@ -178,7 +178,7 @@ as metadata of the extension.  Metadata keys currently recognized are:
             * The core logic of the extension is parallelly executable during
               the reading phase.
             * It has event handlers for :event:`env-merge-info` and
-              :event:`env-purge-doc` events if it stores dataa to the build
+              :event:`env-purge-doc` events if it stores data to the build
               environment object (env) during the reading phase.
 
 * ``'parallel_write_safe'``: a boolean that specifies if parallel writing of

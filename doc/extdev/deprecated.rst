@@ -22,6 +22,106 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - HTML 4 support
+     - 5.2
+     - 7.0
+     - N/A
+
+   * - ``sphinx.util.path_stabilize``
+     - 5.1
+     - 7.0
+     - ``sphinx.util.osutil.path_stabilize``
+
+   * - ``sphinx.util.get_matching_files``
+     - 5.1
+     - 7.0
+     - ``sphinx.util.matching.get_matching_files``
+
+   * - ``sphinx.ext.napoleon.iterators``
+     - 5.1
+     - 7.0
+     - ``pockets.iterators``
+
+   * - ``sphinx.util.stemmer``
+     - 5.1
+     - 7.0
+     - ``snowballstemmer``
+
+   * - ``sphinx.util.jsdump``
+     - 5.0
+     - 7.0
+     - The standard library ``json`` module.
+
+   * - :doc:`Setuptools integration </usage/advanced/setuptools>`
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - The ``locale`` argument of ``sphinx.util.i18n:babel_format_date()``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - The ``language`` argument of ``sphinx.util.i18n:format_date()``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - ``sphinx.builders.html.html5_ready``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - ``sphinx.io.read_doc()``
+     - 5.0
+     - 7.0
+     - ``sphinx.builders.Builder.read_doc()``
+
+   * - ``sphinx.util.docutils.__version_info__``
+     - 5.0
+     - 7.0
+     - ``docutils.__version_info__``
+
+   * - ``sphinx.util.docutils.is_html5_writer_available()``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXWriter.docclasses``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - ``sphinx.ext.napoleon.docstring.GoogleDocstring._qualify_name()``
+     - 4.5
+     - 6.0
+     - N/A
+
+   * - ``sphinx.ext.autodoc.AttributeDocumenter._datadescriptor``
+     - 4.3
+     - 6.0
+     - N/A
+
+   * - ``sphinx.writers.html.HTMLTranslator._fieldlist_row_index``
+     - 4.3
+     - 6.0
+     - ``sphinx.writers.html.HTMLTranslator._fieldlist_row_indices``
+
+   * - ``sphinx.writers.html.HTMLTranslator._table_row_index``
+     - 4.3
+     - 6.0
+     - ``sphinx.writers.html.HTMLTranslator._table_row_indices``
+
+   * - ``sphinx.writers.html5.HTML5Translator._fieldlist_row_index``
+     - 4.3
+     - 6.0
+     - ``sphinx.writers.html5.HTML5Translator._fieldlist_row_indices``
+
+   * - ``sphinx.writers.html5.HTML5Translator._table_row_index``
+     - 4.3
+     - 6.0
+     - ``sphinx.writers.html5.HTML5Translator._table_row_indices``
+
    * - The optional argument ``app`` for ``sphinx.environment.BuildEnvironment``
      - 4.1
      - 6.0
@@ -748,6 +848,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.domains.std.StandardDomain.process_doc()``
 
+   * - ``sphinx.domains.js.JSObject.display_prefix``
+     -
+     - 4.3
+     - ``sphinx.domains.js.JSObject.get_display_prefix()``
+
    * - ``sphinx.environment.NoUri``
      - 2.1
      - 3.0
@@ -1207,7 +1312,7 @@ The following is a list of deprecated interfaces.
 
    * - :meth:`~sphinx.application.Sphinx.add_stylesheet()`
      - 1.8
-     - 4.0
+     - 6.0
      - :meth:`~sphinx.application.Sphinx.add_css_file()`
 
    * - :meth:`~sphinx.application.Sphinx.add_javascript()`

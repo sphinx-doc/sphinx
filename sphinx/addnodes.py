@@ -1,20 +1,20 @@
-"""
-    sphinx.addnodes
-    ~~~~~~~~~~~~~~~
+"""Document tree nodes that Sphinx defines on top of those in Docutils."""
 
-    Additional docutils nodes.
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import TYPE_CHECKING, Any, Dict, List, Sequence
-
+import docutils
 from docutils import nodes
 from docutils.nodes import Element
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+
+try:
+    from docutils.nodes import meta as docutils_meta  # type: ignore
+except ImportError:
+    # docutils-0.17 or older
+    from docutils.parsers.rst.directives.html import MetaBody
+    docutils_meta = MetaBody.meta
 
 
 class document(nodes.document):
@@ -27,9 +27,8 @@ class document(nodes.document):
                    in your extensions.  It will be removed without deprecation period.
     """
 
-    def set_id(self, node: Element, msgnode: Element = None,
+    def set_id(self, node: Element, msgnode: Optional[Element] = None,
                suggested_prefix: str = '') -> str:
-        from sphinx.util import docutils
         if docutils.__version_info__ >= (0, 16):
             ret = super().set_id(node, msgnode, suggested_prefix)  # type: ignore
         else:
@@ -85,7 +84,7 @@ class toctree(nodes.General, nodes.Element, translatable):
     def preserve_original_messages(self) -> None:
         # toctree entries
         rawentries = self.setdefault('rawentries', [])
-        for title, docname in self['entries']:
+        for title, _docname in self['entries']:
             if title:
                 rawentries.append(title)
 
@@ -120,7 +119,7 @@ class toctree(nodes.General, nodes.Element, translatable):
 #############################################################
 
 class _desc_classes_injector(nodes.Element, not_smartquotable):
-    """Helper base class for injecting a fixes list of classes.
+    """Helper base class for injecting a fixed list of classes.
 
     Use as the first base class.
     """
@@ -391,7 +390,7 @@ class index(nodes.Invisible, nodes.Inline, nodes.TextElement):
 
 
 class centered(nodes.Part, nodes.TextElement):
-    """Deprecated."""
+    """This node is deprecated."""
 
 
 class acks(nodes.Element):
@@ -456,13 +455,18 @@ class pending_xref(nodes.Inline, nodes.Element):
 
 
 class pending_xref_condition(nodes.Inline, nodes.TextElement):
-    """Node for cross-references that are used to choose appropriate
-    content of the reference by conditions on the resolving phase.
+    """Node representing a potential way to create a cross-reference and the
+    condition in which this way should be used.
 
-    When the :py:class:`pending_xref` node contains one or more
-    **pending_xref_condition** nodes, the cross-reference resolver
-    should choose the content of the reference using defined conditions
-    in ``condition`` attribute of each pending_xref_condition nodes::
+    This node is only allowed to be placed under a :py:class:`pending_xref`
+    node.  A **pending_xref** node must contain either no **pending_xref_condition**
+    nodes or it must only contains **pending_xref_condition** nodes.
+
+    The cross-reference resolver will replace a :py:class:`pending_xref` which
+    contains **pending_xref_condition** nodes by the content of exactly one of
+    those **pending_xref_condition** nodes' content. It uses the **condition**
+    attribute to decide which **pending_xref_condition** node's content to
+    use. For example, let us consider how the cross-reference resolver acts on::
 
         <pending_xref refdomain="py" reftarget="io.StringIO ...>
             <pending_xref_condition condition="resolved">
@@ -472,32 +476,26 @@ class pending_xref_condition(nodes.Inline, nodes.TextElement):
                 <literal>
                     io.StringIO
 
-    After the processing of cross-reference resolver, one of the content node
-    under pending_xref_condition node is chosen by its condition and to be
-    removed all of pending_xref_condition nodes::
+    If the cross-reference resolver successfully resolves the cross-reference,
+    then it rewrites the **pending_xref** as::
 
-        # When resolved the cross-reference successfully
         <reference>
             <literal>
                 StringIO
 
-        # When resolution is failed
+    Otherwise, if the cross-reference resolution failed, it rewrites the
+    **pending_xref** as::
+
         <reference>
             <literal>
                 io.StringIO
 
-    .. note:: This node is only allowed to be placed under pending_xref node.
-              It is not allows to place it under other nodes.  In addition,
-              pending_xref node must contain only pending_xref_condition
-              nodes if it contains one or more pending_xref_condition nodes.
-
-    The pending_xref_condition node should have **condition** attribute.
+    The **pending_xref_condition** node should have **condition** attribute.
     Domains can be store their individual conditions into the attribute to
     filter contents on resolving phase.  As a reserved condition name,
     ``condition="*"`` is used for the fallback of resolution failure.
     Additionally, as a recommended condition name, ``condition="resolved"``
-    is used for the representation of resolstion success in the intersphinx
-    module.
+    represents a resolution success in the intersphinx module.
 
     .. versionadded:: 4.0
     """
@@ -563,13 +561,15 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_node(start_of_file)
     app.add_node(highlightlang)
     app.add_node(tabular_col_spec)
-    app.add_node(meta)
     app.add_node(pending_xref)
     app.add_node(number_reference)
     app.add_node(download_reference)
     app.add_node(literal_emphasis)
     app.add_node(literal_strong)
     app.add_node(manpage)
+
+    if docutils.__version_info__ < (0, 18):
+        app.add_node(meta)
 
     return {
         'version': 'builtin',

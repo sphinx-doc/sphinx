@@ -1,8 +1,8 @@
 .. _tutorial:
 
-===============
-Sphinx tutorial
-===============
+========================
+Build your first project
+========================
 
 In this tutorial you will build a simple documentation project using Sphinx, and
 view it in your browser as HTML.  The project will include narrative,
@@ -33,4 +33,7 @@ project.
    first-steps
    more-sphinx-customization
    narrative-documentation
+   describing-code
+   automatic-doc-generation
+   deploying
    end

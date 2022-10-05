@@ -13,6 +13,11 @@ Domain API
 .. autoclass:: Index
    :members:
 
+.. module:: sphinx.directives
+
+.. autoclass:: ObjectDescription
+   :members:
+   :private-members: _toc_entry_name, _object_hierarchy_parts
 
 Python Domain
 -------------

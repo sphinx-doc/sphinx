@@ -8,20 +8,25 @@
 
 .. versionadded:: 0.5
 
-This extension can generate automatic links to the documentation of objects in
-other projects.
+This extension can generate links to the documentation of objects in external
+projects, either explicitly through the :rst:role:`external` role, or as a
+fallback resolution for any other cross-reference.
 
-Usage is simple: whenever Sphinx encounters a cross-reference that has no
-matching target in the current documentation set, it looks for targets in the
-documentation sets configured in :confval:`intersphinx_mapping`.  A reference
-like ``:py:class:`zipfile.ZipFile``` can then link to the Python documentation
+Usage for fallback resolution is simple: whenever Sphinx encounters a
+cross-reference that has no matching target in the current documentation set,
+it looks for targets in the external documentation sets configured in
+:confval:`intersphinx_mapping`.  A reference like
+``:py:class:`zipfile.ZipFile``` can then link to the Python documentation
 for the ZipFile class, without you having to specify where it is located
 exactly.
 
-When using the "new" format (see below), you can even force lookup in a foreign
-set by prefixing the link target appropriately.  A link like ``:ref:`comparison
-manual <python:comparisons>``` will then link to the label "comparisons" in the
-doc set "python", if it exists.
+When using the :rst:role:`external` role, you can force lookup to any external
+projects, and optionally to a specific external project.
+A link like ``:external:ref:`comparison manual <comparisons>``` will then link
+to the label "comparisons" in whichever configured external project, if it
+exists,
+and a link like ``:external+python:ref:`comparison manual <comparisons>``` will
+link to the label "comparisons" only in the doc set "python", if it exists.
 
 Behind the scenes, this works as follows:
 
@@ -30,8 +35,8 @@ Behind the scenes, this works as follows:
 
 * Projects using the Intersphinx extension can specify the location of such
   mapping files in the :confval:`intersphinx_mapping` config value.  The mapping
-  will then be used to resolve otherwise missing references to objects into
-  links to the other documentation.
+  will then be used to resolve both :rst:role:`external` references, and also
+  otherwise missing references to objects into links to the other documentation.
 
 * By default, the mapping file is assumed to be at the same location as the rest
   of the documentation; however, the location of the mapping file can also be
@@ -79,10 +84,10 @@ linking:
    at the same location as the base URI) or another local file path or a full
    HTTP URI to an inventory file.
 
-   The unique identifier can be used to prefix cross-reference targets, so that
+   The unique identifier can be used in the :rst:role:`external` role, so that
    it is clear which intersphinx set the target belongs to.  A link like
-   ``:ref:`comparison manual <python:comparisons>``` will link to the label
-   "comparisons" in the doc set "python", if it exists.
+   ``external:python+ref:`comparison manual <comparisons>``` will link to the
+   label "comparisons" in the doc set "python", if it exists.
 
    **Example**
 
@@ -148,6 +153,68 @@ linking:
       exception is raised if the server has not issued a response for timeout
       seconds.
 
+.. confval:: intersphinx_disabled_reftypes
+
+   .. versionadded:: 4.3
+
+   .. versionchanged:: 5.0
+
+      Changed default value from an empty list to ``['std:doc']``.
+
+   A list of strings being either:
+
+   - the name of a specific reference type in a domain,
+     e.g., ``std:doc``, ``py:func``, or ``cpp:class``,
+   - the name of a domain, and a wildcard, e.g.,
+     ``std:*``, ``py:*``, or ``cpp:*``, or
+   - simply a wildcard ``*``.
+
+   The default value is ``['std:doc']``.
+
+   When a non-:rst:role:`external` cross-reference is being resolved by
+   intersphinx, skip resolution if it matches one of the specifications in this
+   list.
+
+   For example, with ``intersphinx_disabled_reftypes = ['std:doc']``
+   a cross-reference ``:doc:`installation``` will not be attempted to be
+   resolved by intersphinx, but ``:external+otherbook:doc:`installation``` will
+   be attempted to be resolved in the inventory named ``otherbook`` in
+   :confval:`intersphinx_mapping`.
+   At the same time, all cross-references generated in, e.g., Python,
+   declarations will still be attempted to be resolved by intersphinx.
+
+   If ``*`` is in the list of domains, then no non-:rst:role:`external`
+   references will be resolved by intersphinx.
+
+Explicitly Reference External Objects
+-------------------------------------
+
+The Intersphinx extension provides the following role.
+
+.. rst:role:: external
+
+   .. versionadded:: 4.4
+
+   Use Intersphinx to perform lookup only in external projects, and not the
+   current project. Intersphinx still needs to know the type of object you
+   would like to find, so the general form of this role is to write the
+   cross-refererence as if the object is in the current project, but then prefix
+   it with ``:external``.
+   The two forms are then
+
+   - ``:external:domain:reftype:`target```,
+     e.g., ``:external:py:class:`zipfile.ZipFile```, or
+   - ``:external:reftype:`target```,
+     e.g., ``:external:doc:`installation```.
+
+   If you would like to constrain the lookup to a specific external project,
+   then the key of the project, as specified in :confval:`intersphinx_mapping`,
+   is added as well to get the two forms
+
+   - ``:external+invname:domain:reftype:`target```,
+     e.g., ``:external+python:py:class:`zipfile.ZipFile```, or
+   - ``:external+invname:reftype:`target```,
+     e.g., ``:external+python:doc:`installation```.
 
 Showing all links of an Intersphinx mapping file
 ------------------------------------------------
@@ -158,7 +225,7 @@ searching for the root cause of a broken Intersphinx link in a documentation
 project. The following example prints the Intersphinx mapping of the Python 3
 documentation::
 
-   $ python -msphinx.ext.intersphinx https://docs.python.org/3/objects.inv
+   $ python -m sphinx.ext.intersphinx https://docs.python.org/3/objects.inv
 
 Using Intersphinx with inventory file under Basic Authorization
 ---------------------------------------------------------------

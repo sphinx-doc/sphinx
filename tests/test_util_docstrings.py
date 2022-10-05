@@ -1,12 +1,4 @@
-"""
-    test_util_docstrings
-    ~~~~~~~~~~~~~~~~~~~~
-
-    Test sphinx.util.docstrings.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test sphinx.util.docstrings."""
 
 from sphinx.util.docstrings import prepare_commentdoc, prepare_docstring, separate_metadata
 
@@ -26,7 +18,7 @@ def test_separate_metadata():
     assert docstring == ':param baz:\n'
     assert metadata == {'foo': 'bar'}
 
-    # field_list like text following just after paragaph is not a field_list
+    # field_list like text following just after paragraph is not a field_list
     text = ("blah blah blah\n"
             ":meta foo: bar\n"
             ":meta baz:\n")

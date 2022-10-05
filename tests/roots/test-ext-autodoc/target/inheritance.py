@@ -1,4 +1,7 @@
 class Base(object):
+    #: docstring
+    inheritedattr = None
+
     def inheritedmeth(self):
         """Inherited function."""
 
@@ -15,3 +18,8 @@ class Derived(Base):
     def inheritedmeth(self):
         # no docstring here
         pass
+
+
+class MyList(list):
+    def meth(self):
+        """docstring"""

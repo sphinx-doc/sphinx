@@ -1,12 +1,6 @@
-"""
-    sphinx.util.math
-    ~~~~~~~~~~~~~~~~
+"""Utility functions for math."""
 
-    Utility functions for math.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from typing import Optional
 
 from docutils import nodes
 
@@ -28,7 +22,7 @@ def get_node_equation_number(writer: HTMLTranslator, node: nodes.math_block) -> 
         return node['number']
 
 
-def wrap_displaymath(text: str, label: str, numbering: bool) -> str:
+def wrap_displaymath(text: str, label: Optional[str], numbering: bool) -> str:
     def is_equation(part: str) -> str:
         return part.strip()
 

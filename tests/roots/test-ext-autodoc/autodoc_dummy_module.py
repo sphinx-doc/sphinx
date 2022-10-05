@@ -1,6 +1,6 @@
-from dummy import *  # NOQA
+from dummy import *
 
 
 def test():
     """Dummy function using dummy.*"""
-    dummy_function()   # NOQA
+    dummy_function()

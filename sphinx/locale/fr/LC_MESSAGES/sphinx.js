@@ -13,7 +13,7 @@ Documentation.addTranslations({
         "Complete Table of Contents": "Table des mati\u00e8res compl\u00e8te",
         "Contents": "Contenu",
         "Copyright": "Copyright",
-        "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "",
+        "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "Cr\u00e9\u00e9 en utilisant <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.",
         "Expand sidebar": "Agrandir la barre lat\u00e9rale",
         "Full index on one page": "Index complet sur une seule page",
         "General Index": "Index g\u00e9n\u00e9ral",
@@ -30,8 +30,6 @@ Documentation.addTranslations({
         "Next topic": "Sujet suivant",
         "Other changes": "Autres modifications",
         "Overview": "R\u00e9sum\u00e9",
-        "Permalink to this definition": "Lien permanent vers cette d\u00e9finition",
-        "Permalink to this headline": "Lien permanent vers ce titre",
         "Please activate JavaScript to enable the search\n    functionality.": "Veuillez activer le JavaScript pour que la recherche fonctionne.",
         "Preparing search...": "Pr\u00e9paration de la recherche...",
         "Previous topic": "Sujet pr\u00e9c\u00e9dent",
@@ -39,7 +37,7 @@ Documentation.addTranslations({
         "Search": "Recherche",
         "Search Page": "Page de recherche",
         "Search Results": "R\u00e9sultats de la recherche",
-        "Search finished, found %s page(s) matching the search query.": "La recherche est finie, %s page(s) trouv\u00e9e(s) qui corresponde(nt) \u00e0 la recherche.",
+        "Search finished, found ${resultCount} page(s) matching the search query.": "Recherche termin\u00e9e, ${resultCount} page(s) correspondant \u00e0 la requ\u00eate de recherche ont \u00e9t\u00e9 trouv\u00e9es.",
         "Search within %(docstitle)s": "Recherchez dans %(docstitle)s",
         "Searching": "Recherche en cours",
         "Searching for multiple words only shows matches that contain\n    all words.": "Une recherche sur plusieurs mots ne retourne que les r\u00e9sultats contenant tous les mots.",
@@ -59,5 +57,5 @@ Documentation.addTranslations({
         "search this documentation": "rechercher dans cette documentation",
         "the documentation for": "la documentation pour"
     },
-    "plural_expr": "(n > 1)"
+    "plural_expr": "(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2"
 });

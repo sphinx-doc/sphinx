@@ -245,10 +245,10 @@ follow:
 
 * ``#`` with overline, for parts
 * ``*`` with overline, for chapters
-* ``=``, for sections
-* ``-``, for subsections
-* ``^``, for subsubsections
-* ``"``, for paragraphs
+* ``=`` for sections
+* ``-`` for subsections
+* ``^`` for subsubsections
+* ``"`` for paragraphs
 
 Of course, you are free to use your own marker characters (see the reST
 documentation), and use a deeper nesting level, but keep in mind that most
@@ -410,7 +410,27 @@ following the arguments and indicated by the colons).  Options must be indented
 to the same level as the directive content.
 
 The directive content follows after a blank line and is indented relative to
-the directive start.
+the directive start or if options are present, by the same amount as the
+options.
+
+Be careful as the indent is not a fixed number of whitespace, e.g. three, but
+any number whitespace.  This can be surprising when a fixed indent is used
+throughout the document and can make a difference for directives which are
+sensitive to whitespace. Compare::
+
+   .. code-block::
+      :caption: A cool example
+
+          The output of this line starts with four spaces.
+
+   .. code-block::
+
+          The output of this line has no spaces at the beginning.
+
+In the first code block, the indent for the content was fixated by the option
+line to three spaces, consequently the content starts with four spaces.
+In the latter the indent was fixed by the content itself to seven spaces, thus
+it does not start with a space.
 
 
 Images

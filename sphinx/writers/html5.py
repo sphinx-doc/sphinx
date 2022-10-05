@@ -1,18 +1,11 @@
-"""
-    sphinx.writers.html5
-    ~~~~~~~~~~~~~~~~~~~~
-
-    Experimental docutils writers for HTML5 handling Sphinx's custom nodes.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Experimental docutils writers for HTML5 handling Sphinx's custom nodes."""
 
 import os
 import posixpath
 import re
+import urllib.parse
 import warnings
-from typing import TYPE_CHECKING, Iterable, Tuple, cast
+from typing import TYPE_CHECKING, Iterable, Optional, Set, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
@@ -20,7 +13,7 @@ from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx50Warning, RemovedInSphinx60Warning
+from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
@@ -54,7 +47,11 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     Our custom HTML translator.
     """
 
-    builder: "StandaloneHTMLBuilder" = None
+    builder: "StandaloneHTMLBuilder"
+    # Override docutils.writers.html5_polyglot:HTMLTranslator
+    # otherwise, nodes like <inline classes="s">...</inline> will be
+    # converted to <s>...</s> by `visit_inline`.
+    supported_inline_tags: Set[str] = set()
 
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
@@ -66,8 +63,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.secnumber_suffix = self.config.html_secnumber_suffix
         self.param_separator = ''
         self.optional_param_level = 0
-        self._table_row_index = 0
-        self._fieldlist_row_index = 0
+        self._table_row_indices = [0]
+        self._fieldlist_row_indices = [0]
         self.required_params_left = 0
 
     def visit_start_of_file(self, node: Element) -> None:
@@ -254,13 +251,16 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         if name:
             node.insert(0, nodes.title(name, admonitionlabels[name]))
 
+    def depart_admonition(self, node: Optional[Element] = None) -> None:
+        self.body.append('</div>\n')
+
     def visit_seealso(self, node: Element) -> None:
         self.visit_admonition(node, 'seealso')
 
     def depart_seealso(self, node: Element) -> None:
         self.depart_admonition(node)
 
-    def get_secnumber(self, node: Element) -> Tuple[int, ...]:
+    def get_secnumber(self, node: Element) -> Optional[Tuple[int, ...]]:
         if node.get('secnumber'):
             return node['secnumber']
 
@@ -384,12 +384,12 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                 node.parent.hasattr('ids') and node.parent['ids']):
             # add permalink anchor
             if close_tag.startswith('</h'):
-                self.add_permalink_ref(node.parent, _('Permalink to this headline'))
+                self.add_permalink_ref(node.parent, _('Permalink to this heading'))
             elif close_tag.startswith('</a></h'):
                 self.body.append('</a><a class="headerlink" href="#%s" ' %
                                  node.parent['ids'][0] +
                                  'title="%s">%s' % (
-                                     _('Permalink to this headline'),
+                                     _('Permalink to this heading'),
                                      self.config.html_permalinks_icon))
             elif isinstance(node.parent, nodes.table):
                 self.body.append('</span>')
@@ -462,10 +462,25 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         if 'kbd' in node['classes']:
             self.body.append(self.starttag(node, 'kbd', '',
                                            CLASS='docutils literal notranslate'))
-        else:
+            return
+        lang = node.get("language", None)
+        if 'code' not in node['classes'] or not lang:
             self.body.append(self.starttag(node, 'code', '',
                                            CLASS='docutils literal notranslate'))
             self.protect_literal_text += 1
+            return
+
+        opts = self.config.highlight_options.get(lang, {})
+        highlighted = self.highlighter.highlight_block(
+            node.astext(), lang, opts=opts, location=node, nowrap=True)
+        starttag = self.starttag(
+            node,
+            "code",
+            suffix="",
+            CLASS="docutils literal highlight highlight-%s" % lang,
+        )
+        self.body.append(starttag + highlighted.strip() + "</code>")
+        raise nodes.SkipNode
 
     def depart_literal(self, node: Element) -> None:
         if 'kbd' in node['classes']:
@@ -529,7 +544,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             self.context.append('</a>')
         elif 'filename' in node:
             atts['class'] += ' internal'
-            atts['href'] = posixpath.join(self.builder.dlpath, node['filename'])
+            atts['href'] = posixpath.join(self.builder.dlpath,
+                                          urllib.parse.quote(node['filename']))
             self.body.append(self.starttag(node, 'a', '', **atts))
             self.context.append('</a>')
         else:
@@ -741,7 +757,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     # overwritten to add even/odd classes
 
     def visit_table(self, node: Element) -> None:
-        self._table_row_index = 0
+        self._table_row_indices.append(0)
 
         atts = {}
         classes = [cls.strip(' \t\n') for cls in self.settings.table_style.split(',')]
@@ -755,9 +771,13 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         tag = self.starttag(node, 'table', CLASS=' '.join(classes), **atts)
         self.body.append(tag)
 
+    def depart_table(self, node: Element) -> None:
+        self._table_row_indices.pop()
+        super().depart_table(node)
+
     def visit_row(self, node: Element) -> None:
-        self._table_row_index += 1
-        if self._table_row_index % 2 == 0:
+        self._table_row_indices[-1] += 1
+        if self._table_row_indices[-1] % 2 == 0:
             node['classes'].append('row-even')
         else:
             node['classes'].append('row-odd')
@@ -765,12 +785,16 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         node.column = 0  # type: ignore
 
     def visit_field_list(self, node: Element) -> None:
-        self._fieldlist_row_index = 0
+        self._fieldlist_row_indices.append(0)
         return super().visit_field_list(node)
 
+    def depart_field_list(self, node: Element) -> None:
+        self._fieldlist_row_indices.pop()
+        return super().depart_field_list(node)
+
     def visit_field(self, node: Element) -> None:
-        self._fieldlist_row_index += 1
-        if self._fieldlist_row_index % 2 == 0:
+        self._fieldlist_row_indices[-1] += 1
+        if self._fieldlist_row_indices[-1] % 2 == 0:
             node['classes'].append('field-even')
         else:
             node['classes'].append('field-odd')
@@ -797,15 +821,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         if depart:
             depart(self, node)
 
-    def unknown_visit(self, node: Node) -> None:
-        raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
-
-    @property
-    def permalink_text(self) -> str:
-        warnings.warn('HTMLTranslator.permalink_text is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        return self.config.html_permalinks_icon
-
     def generate_targets_for_table(self, node: Element) -> None:
         """Generate hyperlink targets for tables.
 
@@ -820,3 +835,15 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         for id in node['ids'][1:]:
             self.body.append('<span id="%s"></span>' % id)
             node['ids'].remove(id)
+
+    @property
+    def _fieldlist_row_index(self) -> int:
+        warnings.warn('_fieldlist_row_index is deprecated',
+                      RemovedInSphinx60Warning, stacklevel=2)
+        return self._fieldlist_row_indices[-1]
+
+    @property
+    def _table_row_index(self) -> int:
+        warnings.warn('_table_row_index is deprecated',
+                      RemovedInSphinx60Warning, stacklevel=2)
+        return self._table_row_indices[-1]

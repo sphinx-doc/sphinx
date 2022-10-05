@@ -1,18 +1,10 @@
-"""
-    sphinx.application
-    ~~~~~~~~~~~~~~~~~~
+"""Sphinx application class and extensibility interface.
 
-    Sphinx application class and extensibility interface.
-
-    Gracefully adapted from the TextPress system by Armin.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+Gracefully adapted from the TextPress system by Armin.
 """
 
 import os
 import pickle
-import platform
 import sys
 import warnings
 from collections import deque
@@ -136,16 +128,15 @@ class Sphinx:
     _warncount: int
 
     def __init__(self, srcdir: str, confdir: Optional[str], outdir: str, doctreedir: str,
-                 buildername: str, confoverrides: Dict = None,
-                 status: IO = sys.stdout, warning: IO = sys.stderr,
-                 freshenv: bool = False, warningiserror: bool = False, tags: List[str] = None,
-                 verbosity: int = 0, parallel: int = 0, keep_going: bool = False) -> None:
+                 buildername: str, confoverrides: Optional[Dict] = None,
+                 status: Optional[IO] = sys.stdout, warning: Optional[IO] = sys.stderr,
+                 freshenv: bool = False, warningiserror: bool = False,
+                 tags: Optional[List[str]] = None,
+                 verbosity: int = 0, parallel: int = 0, keep_going: bool = False,
+                 pdb: bool = False) -> None:
         self.phase = BuildPhase.INITIALIZATION
         self.verbosity = verbosity
         self.extensions: Dict[str, Extension] = {}
-        self.builder: Optional[Builder] = None
-        self.env: Optional[BuildEnvironment] = None
-        self.project: Optional[Project] = None
         self.registry = SphinxComponentRegistry()
 
         # validate provided directories
@@ -184,6 +175,7 @@ class Sphinx:
             self.warningiserror = False
         else:
             self.warningiserror = warningiserror
+        self.pdb = pdb
         logging.setup(self, self._status, self._warning)
 
         self.events = EventManager(self)
@@ -194,12 +186,6 @@ class Sphinx:
 
         # say hello to the world
         logger.info(bold(__('Running Sphinx v%s') % sphinx.__display_version__))
-
-        # notice for parallel build on macOS and py38+
-        if sys.version_info > (3, 8) and platform.system() == 'Darwin' and parallel > 1:
-            logger.info(bold(__("For security reasons, parallel mode is disabled on macOS and "
-                                "python3.8 and above. For more details, please read "
-                                "https://github.com/sphinx-doc/sphinx/issues/6803")))
 
         # status code for command-line application
         self.statuscode = 0
@@ -262,10 +248,16 @@ class Sphinx:
 
         # create the project
         self.project = Project(self.srcdir, self.config.source_suffix)
+
+        # set up the build environment
+        self.env = self._init_env(freshenv)
+
         # create the builder
         self.builder = self.create_builder(buildername)
-        # set up the build environment
-        self._init_env(freshenv)
+
+        # build environment post-initialisation, after creating the builder
+        self._post_init_env()
+
         # set up the builder
         self._init_builder()
 
@@ -273,7 +265,7 @@ class Sphinx:
         """Load translated strings from the configured localedirs if enabled in
         the configuration.
         """
-        if self.config.language is None:
+        if self.config.language == 'en':
             self.translator, has_translation = locale.init([], None)
         else:
             logger.info(bold(__('loading translations [%s]... ') % self.config.language),
@@ -284,33 +276,47 @@ class Sphinx:
                                      self.config.language, self.config.source_encoding)
             for catalog in repo.catalogs:
                 if catalog.domain == 'sphinx' and catalog.is_outdated():
-                    catalog.write_mo(self.config.language)
+                    catalog.write_mo(self.config.language,
+                                     self.config.gettext_allow_fuzzy_translations)
 
             locale_dirs: List[Optional[str]] = list(repo.locale_dirs)
             locale_dirs += [None]
             locale_dirs += [path.join(package_dir, 'locale')]
 
             self.translator, has_translation = locale.init(locale_dirs, self.config.language)
-            if has_translation or self.config.language == 'en':
-                # "en" never needs to be translated
+            if has_translation:
                 logger.info(__('done'))
             else:
                 logger.info(__('not available for built-in messages'))
 
-    def _init_env(self, freshenv: bool) -> None:
+    def _init_env(self, freshenv: bool) -> BuildEnvironment:
         filename = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
         if freshenv or not os.path.exists(filename):
-            self.env = BuildEnvironment(self)
-            self.env.find_files(self.config, self.builder)
+            return self._create_fresh_env()
         else:
-            try:
-                with progress_message(__('loading pickled environment')):
-                    with open(filename, 'rb') as f:
-                        self.env = pickle.load(f)
-                        self.env.setup(self)
-            except Exception as err:
-                logger.info(__('failed: %s'), err)
-                self._init_env(freshenv=True)
+            return self._load_existing_env(filename)
+
+    def _create_fresh_env(self) -> BuildEnvironment:
+        env = BuildEnvironment(self)
+        self._fresh_env_used = True
+        return env
+
+    def _load_existing_env(self, filename: str) -> BuildEnvironment:
+        try:
+            with progress_message(__('loading pickled environment')):
+                with open(filename, 'rb') as f:
+                    env = pickle.load(f)
+                    env.setup(self)
+                    self._fresh_env_used = False
+        except Exception as err:
+            logger.info(__('failed: %s'), err)
+            env = self._create_fresh_env()
+        return env
+
+    def _post_init_env(self) -> None:
+        if self._fresh_env_used:
+            self.env.find_files(self.config, self.builder)
+        del self._fresh_env_used
 
     def preload_builder(self, name: str) -> None:
         self.registry.preload_builder(self, name)
@@ -320,55 +326,27 @@ class Sphinx:
             logger.info(__('No builder selected, using default: html'))
             name = 'html'
 
-        return self.registry.create_builder(self, name)
+        return self.registry.create_builder(self, name, self.env)
 
     def _init_builder(self) -> None:
-        self.builder.set_environment(self.env)
+        if not hasattr(self.builder, "env"):
+            self.builder.set_environment(self.env)
         self.builder.init()
         self.events.emit('builder-inited')
 
     # ---- main "build" method -------------------------------------------------
 
-    def build(self, force_all: bool = False, filenames: List[str] = None) -> None:
+    def build(self, force_all: bool = False, filenames: Optional[List[str]] = None) -> None:
         self.phase = BuildPhase.READING
         try:
             if force_all:
-                self.builder.compile_all_catalogs()
                 self.builder.build_all()
             elif filenames:
-                self.builder.compile_specific_catalogs(filenames)
                 self.builder.build_specific(filenames)
             else:
-                self.builder.compile_update_catalogs()
                 self.builder.build_update()
 
-            if self._warncount and self.keep_going:
-                self.statuscode = 1
-
-            status = (__('succeeded') if self.statuscode == 0
-                      else __('finished with problems'))
-            if self._warncount:
-                if self.warningiserror:
-                    if self._warncount == 1:
-                        msg = __('build %s, %s warning (with warnings treated as errors).')
-                    else:
-                        msg = __('build %s, %s warnings (with warnings treated as errors).')
-                else:
-                    if self._warncount == 1:
-                        msg = __('build %s, %s warning.')
-                    else:
-                        msg = __('build %s, %s warnings.')
-
-                logger.info(bold(msg % (status, self._warncount)))
-            else:
-                logger.info(bold(__('build %s.') % status))
-
-            if self.statuscode == 0 and self.builder.epilog:
-                logger.info('')
-                logger.info(self.builder.epilog % {
-                    'outdir': relpath(self.outdir),
-                    'project': self.config.project
-                })
+            self.events.emit('build-finished', None)
         except Exception as err:
             # delete the saved env to force a fresh build next time
             envfile = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
@@ -376,8 +354,35 @@ class Sphinx:
                 os.unlink(envfile)
             self.events.emit('build-finished', err)
             raise
+
+        if self._warncount and self.keep_going:
+            self.statuscode = 1
+
+        status = (__('succeeded') if self.statuscode == 0
+                  else __('finished with problems'))
+        if self._warncount:
+            if self.warningiserror:
+                if self._warncount == 1:
+                    msg = __('build %s, %s warning (with warnings treated as errors).')
+                else:
+                    msg = __('build %s, %s warnings (with warnings treated as errors).')
+            else:
+                if self._warncount == 1:
+                    msg = __('build %s, %s warning.')
+                else:
+                    msg = __('build %s, %s warnings.')
+
+            logger.info(bold(msg % (status, self._warncount)))
         else:
-            self.events.emit('build-finished', None)
+            logger.info(bold(__('build %s.') % status))
+
+        if self.statuscode == 0 and self.builder.epilog:
+            logger.info('')
+            logger.info(self.builder.epilog % {
+                'outdir': relpath(self.outdir),
+                'project': self.config.project
+            })
+
         self.builder.cleanup()
 
     # ---- general extensibility interface -------------------------------------
@@ -598,7 +603,7 @@ class Sphinx:
         self.registry.add_translation_handlers(node, **kwargs)
 
     def add_enumerable_node(self, node: Type[Element], figtype: str,
-                            title_getter: TitleGetter = None, override: bool = False,
+                            title_getter: Optional[TitleGetter] = None, override: bool = False,
                             **kwargs: Tuple[Callable, Callable]) -> None:
         """Register a Docutils node class as a numfig target.
 
@@ -631,8 +636,9 @@ class Sphinx:
 
         :param name: The name of the directive
         :param cls: A directive class
-        :param override: If true, install the directive forcedly even if another directive
+        :param override: If false, do not install it if another directive
                          is already installed as the same name
+                         If true, unconditionally install the directive.
 
         For example, a custom directive named ``my-directive`` would be added
         like this:
@@ -679,8 +685,9 @@ class Sphinx:
 
         :param name: The name of role
         :param role: A role function
-        :param override: If true, install the role forcedly even if another role is already
-                         installed as the same name
+        :param override: If false, do not install it if another role
+                         is already installed as the same name
+                         If true, unconditionally install the role.
 
         For more details about role functions, see `the Docutils docs
         <https://docutils.sourceforge.io/docs/howto/rst-roles.html>`__ .
@@ -700,8 +707,9 @@ class Sphinx:
         Register a Docutils role that does nothing but wrap its contents in the
         node given by *nodeclass*.
 
-        If *override* is True, the given *nodeclass* is forcedly installed even if
-        a role named as *name* is already installed.
+        :param override: If false, do not install it if another role
+                         is already installed as the same name
+                         If true, unconditionally install the role.
 
         .. versionadded:: 0.6
         .. versionchanged:: 1.8
@@ -720,8 +728,9 @@ class Sphinx:
         """Register a domain.
 
         :param domain: A domain class
-        :param override: If true, install the domain forcedly even if another domain
+        :param override: If false, do not install it if another domain
                          is already installed as the same name
+                         If true, unconditionally install the domain.
 
         .. versionadded:: 1.0
         .. versionchanged:: 1.8
@@ -739,8 +748,9 @@ class Sphinx:
         :param domain: The name of target domain
         :param name: A name of directive
         :param cls: A directive class
-        :param override: If true, install the directive forcedly even if another directive
+        :param override: If false, do not install it if another directive
                          is already installed as the same name
+                         If true, unconditionally install the directive.
 
         .. versionadded:: 1.0
         .. versionchanged:: 1.8
@@ -758,8 +768,9 @@ class Sphinx:
         :param domain: The name of the target domain
         :param name: The name of the role
         :param role: The role function
-        :param override: If true, install the role forcedly even if another role is already
-                         installed as the same name
+        :param override: If false, do not install it if another role
+                         is already installed as the same name
+                         If true, unconditionally install the role.
 
         .. versionadded:: 1.0
         .. versionchanged:: 1.8
@@ -775,8 +786,9 @@ class Sphinx:
 
         :param domain: The name of the target domain
         :param index: The index class
-        :param override: If true, install the index forcedly even if another index is
-                         already installed as the same name
+        :param override: If false, do not install it if another index
+                         is already installed as the same name
+                         If true, unconditionally install the index.
 
         .. versionadded:: 1.0
         .. versionchanged:: 1.8
@@ -785,7 +797,8 @@ class Sphinx:
         self.registry.add_index_to_domain(domain, index)
 
     def add_object_type(self, directivename: str, rolename: str, indextemplate: str = '',
-                        parse_node: Callable = None, ref_nodeclass: Type[TextElement] = None,
+                        parse_node: Optional[Callable] = None,
+                        ref_nodeclass: Optional[Type[TextElement]] = None,
                         objname: str = '', doc_field_types: List = [], override: bool = False
                         ) -> None:
         """Register a new object type.
@@ -852,7 +865,7 @@ class Sphinx:
                                       override=override)
 
     def add_crossref_type(self, directivename: str, rolename: str, indextemplate: str = '',
-                          ref_nodeclass: Type[TextElement] = None, objname: str = '',
+                          ref_nodeclass: Optional[Type[TextElement]] = None, objname: str = '',
                           override: bool = False) -> None:
         """Register a new crossref object type.
 
@@ -880,8 +893,10 @@ class Sphinx:
         (Of course, the element following the ``topic`` directive needn't be a
         section.)
 
-        If *override* is True, the given crossref_type is forcedly installed even if
-        a crossref_type having the same name is already installed.
+
+        :param override: If false, do not install it if another cross-reference type
+                         is already installed as the same name
+                         If true, unconditionally install the cross-reference type.
 
         .. versionchanged:: 1.8
            Add *override* keyword.
@@ -936,24 +951,33 @@ class Sphinx:
         """
         self.registry.add_post_transform(transform)
 
-    def add_js_file(self, filename: str, priority: int = 500, **kwargs: Any) -> None:
+    def add_js_file(self, filename: Optional[str], priority: int = 500,
+                    loading_method: Optional[str] = None, **kwargs: Any) -> None:
         """Register a JavaScript file to include in the HTML output.
 
-        Add *filename* to the list of JavaScript files that the default HTML
-        template will include in order of *priority* (ascending).  The filename
-        must be relative to the HTML static path , or a full URI with scheme.
-        If the priority of the JavaScript file is the same as others, the JavaScript
-        files will be included in order of registration.  If the keyword
-        argument ``body`` is given, its value will be added between the
-        ``<script>`` tags. Extra keyword arguments are included as attributes of
-        the ``<script>`` tag.
+        :param filename: The name of a JavaScript file that the default HTML
+                         template will include. It must be relative to the HTML
+                         static path, or a full URI with scheme, or ``None`` .
+                         The ``None`` value is used to create an inline
+                         ``<script>`` tag.  See the description of *kwargs*
+                         below.
+        :param priority: Files are included in ascending order of priority. If
+                         multiple JavaScript files have the same priority,
+                         those files will be included in order of registration.
+                         See list of "prority range for JavaScript files" below.
+        :param loading_method: The loading method for the JavaScript file.
+                               Either ``'async'`` or ``'defer'`` are allowed.
+        :param kwargs: Extra keyword arguments are included as attributes of the
+                       ``<script>`` tag.  If the special keyword argument
+                       ``body`` is given, its value will be added as the content
+                       of the  ``<script>`` tag.
 
         Example::
 
             app.add_js_file('example.js')
             # => <script src="_static/example.js"></script>
 
-            app.add_js_file('example.js', async="async")
+            app.add_js_file('example.js', loading_method="async")
             # => <script src="_static/example.js" async="async"></script>
 
             app.add_js_file(None, body="var myVariable = 'foo';")
@@ -982,20 +1006,32 @@ class Sphinx:
 
         .. versionchanged:: 3.5
            Take priority argument.  Allow to add a JavaScript file to the specific page.
+        .. versionchanged:: 4.4
+           Take loading_method argument.  Allow to change the loading method of the
+           JavaScript file.
         """
+        if loading_method == 'async':
+            kwargs['async'] = 'async'
+        elif loading_method == 'defer':
+            kwargs['defer'] = 'defer'
+
         self.registry.add_js_file(filename, priority=priority, **kwargs)
-        if hasattr(self.builder, 'add_js_file'):
-            self.builder.add_js_file(filename, priority=priority, **kwargs)  # type: ignore
+        if hasattr(self, 'builder') and hasattr(self.builder, 'add_js_file'):
+            self.builder.add_js_file(filename,  # type: ignore[attr-defined]
+                                     priority=priority, **kwargs)
 
     def add_css_file(self, filename: str, priority: int = 500, **kwargs: Any) -> None:
         """Register a stylesheet to include in the HTML output.
 
-        Add *filename* to the list of CSS files that the default HTML template
-        will include in order of *priority* (ascending).  The filename must be
-        relative to the HTML static path, or a full URI with scheme.  If the
-        priority of the CSS file is the same as others, the CSS files will be
-        included in order of registration.  The keyword arguments are also
-        accepted for attributes of ``<link>`` tag.
+        :param filename: The name of a CSS file that the default HTML
+                         template will include. It must be relative to the HTML
+                         static path, or a full URI with scheme.
+        :param priority: Files are included in ascending order of priority. If
+                         multiple CSS files have the same priority,
+                         those files will be included in order of registration.
+                         See list of "prority range for CSS files" below.
+        :param kwargs: Extra keyword arguments are included as attributes of the
+                       ``<link>`` tag.
 
         Example::
 
@@ -1043,10 +1079,32 @@ class Sphinx:
         """
         logger.debug('[app] adding stylesheet: %r', filename)
         self.registry.add_css_files(filename, priority=priority, **kwargs)
-        if hasattr(self.builder, 'add_css_file'):
-            self.builder.add_css_file(filename, priority=priority, **kwargs)  # type: ignore
+        if hasattr(self, 'builder') and hasattr(self.builder, 'add_css_file'):
+            self.builder.add_css_file(filename,  # type: ignore[attr-defined]
+                                      priority=priority, **kwargs)
 
-    def add_latex_package(self, packagename: str, options: str = None,
+    def add_stylesheet(
+        self, filename: str, alternate: bool = False, title: Optional[str] = None
+    ) -> None:
+        """An alias of :meth:`add_css_file`.
+
+        .. deprecated:: 1.8
+        """
+        logger.warning('The app.add_stylesheet() is deprecated. '
+                       'Please use app.add_css_file() instead.')
+
+        attributes = {}  # type: Dict[str, Any]
+        if alternate:
+            attributes['rel'] = 'alternate stylesheet'
+        else:
+            attributes['rel'] = 'stylesheet'
+
+        if title:
+            attributes['title'] = title
+
+        self.add_css_file(filename, **attributes)
+
+    def add_latex_package(self, packagename: str, options: Optional[str] = None,
                           after_hyperref: bool = False) -> None:
         r"""Register a package to include in the LaTeX source code.
 
@@ -1142,8 +1200,9 @@ class Sphinx:
         Same as :confval:`source_suffix`.  The users can override this
         using the config setting.
 
-        If *override* is True, the given *suffix* is forcedly installed even if
-        the same suffix is already installed.
+        :param override: If false, do not install it the same suffix
+                         is already installed.
+                         If true, unconditionally install the suffix.
 
         .. versionadded:: 1.8
         """
@@ -1152,8 +1211,9 @@ class Sphinx:
     def add_source_parser(self, parser: Type[Parser], override: bool = False) -> None:
         """Register a parser class.
 
-        If *override* is True, the given *parser* is forcedly installed even if
-        a parser for the same suffix is already installed.
+        :param override: If false, do not install it if another parser
+                         is already installed for the same suffix.
+                         If true, unconditionally install the parser.
 
         .. versionadded:: 1.4
         .. versionchanged:: 1.8
@@ -1275,7 +1335,12 @@ class TemplateBridge:
     that renders templates given a template name and a context.
     """
 
-    def init(self, builder: "Builder", theme: Theme = None, dirs: List[str] = None) -> None:
+    def init(
+        self,
+        builder: "Builder",
+        theme: Optional[Theme] = None,
+        dirs: Optional[List[str]] = None
+    ) -> None:
         """Called by the builder to initialize the template system.
 
         *builder* is the builder object; you'll probably want to look at the

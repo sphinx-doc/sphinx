@@ -1,12 +1,4 @@
-"""
-    sphinx.pycode.parser
-    ~~~~~~~~~~~~~~~~~~~~
-
-    Utilities parsing and analyzing Python code.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Utilities parsing and analyzing Python code."""
 import inspect
 import itertools
 import re
@@ -37,7 +29,7 @@ def get_assign_targets(node: ast.AST) -> List[ast.expr]:
         return [node.target]  # type: ignore
 
 
-def get_lvar_names(node: ast.AST, self: ast.arg = None) -> List[str]:
+def get_lvar_names(node: ast.AST, self: Optional[ast.arg] = None) -> List[str]:
     """Convert assignment-AST to variable names.
 
     This raises `TypeError` if the assignment does not create new variable::
@@ -136,7 +128,7 @@ class TokenProcessor:
         """Returns specified line."""
         return self.buffers[lineno - 1]
 
-    def fetch_token(self) -> Token:
+    def fetch_token(self) -> Optional[Token]:
         """Fetch the next token from source code.
 
         Returns ``None`` if sequence finished.
@@ -312,6 +304,10 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Returns the name of the first argument if in a function."""
         if self.current_function and self.current_function.args.args:
             return self.current_function.args.args[0]
+        elif (self.current_function and
+              getattr(self.current_function.args, 'posonlyargs', None)):
+            # for py38+
+            return self.current_function.args.posonlyargs[0]  # type: ignore
         else:
             return None
 
@@ -468,7 +464,7 @@ class DefinitionFinder(TokenProcessor):
         super().__init__(lines)
         self.decorator: Optional[Token] = None
         self.context: List[str] = []
-        self.indents: List = []
+        self.indents: List[Tuple[str, Optional[str], Optional[int]]] = []
         self.definitions: Dict[str, Tuple[str, int, int]] = {}
 
     def add_definition(self, name: str, entry: Tuple[str, int, int]) -> None:

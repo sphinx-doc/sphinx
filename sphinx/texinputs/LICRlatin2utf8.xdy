@@ -24,7 +24,7 @@
 ;;   covered by original tex/inputenc/utf8.xdy.
 ;;
 ;; - There is a problem that ȷ is not supported out-of-the box by LaTeX
-;;   with inputenc, one must add explicitely
+;;   with inputenc, one must add explicitly
 ;;       \DeclareUnicodeCharacter{0237}{\j}
 ;;   to preamble of LaTeX document.  However this character is not supported
 ;;   by the TeX "times" font used by default by Sphinx for pdflatex engine.

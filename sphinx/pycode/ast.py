@@ -1,12 +1,4 @@
-"""
-    sphinx.pycode.ast
-    ~~~~~~~~~~~~~~~~~
-
-    Helpers for AST (Abstract Syntax Tree).
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Helpers for AST (Abstract Syntax Tree)."""
 
 import sys
 from typing import Dict, List, Optional, Type, overload
@@ -149,6 +141,9 @@ class _UnparseVisitor(ast.NodeVisitor):
         return "%s.%s" % (self.visit(node.value), node.attr)
 
     def visit_BinOp(self, node: ast.BinOp) -> str:
+        # Special case ``**`` to not have surrounding spaces.
+        if isinstance(node.op, ast.Pow):
+            return "".join(map(self.visit, (node.left, node.op, node.right)))
         return " ".join(self.visit(e) for e in [node.left, node.op, node.right])
 
     def visit_BoolOp(self, node: ast.BoolOp) -> str:
@@ -210,7 +205,11 @@ class _UnparseVisitor(ast.NodeVisitor):
             return "%s[%s]" % (self.visit(node.value), self.visit(node.slice))
 
     def visit_UnaryOp(self, node: ast.UnaryOp) -> str:
-        return "%s %s" % (self.visit(node.op), self.visit(node.operand))
+        # UnaryOp is one of {UAdd, USub, Invert, Not}, which refer to ``+x``,
+        # ``-x``, ``~x``, and ``not x``. Only Not needs a space.
+        if isinstance(node.op, ast.Not):
+            return "%s %s" % (self.visit(node.op), self.visit(node.operand))
+        return "%s%s" % (self.visit(node.op), self.visit(node.operand))
 
     def visit_Tuple(self, node: ast.Tuple) -> str:
         if len(node.elts) == 0:

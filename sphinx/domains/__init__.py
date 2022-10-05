@@ -1,12 +1,7 @@
-"""
-    sphinx.domains
-    ~~~~~~~~~~~~~~
+"""Support for domains.
 
-    Support for domains, which are groupings of description directives
-    and roles describing e.g. constructs of one programming language.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+Domains are groupings of description directives
+and roles describing e.g. constructs of one programming language.
 """
 
 import copy

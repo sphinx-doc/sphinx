@@ -1,13 +1,4 @@
-"""
-    test_napoleon
-    ~~~~~~~~~~~~~
-
-    Tests for :mod:`sphinx.ext.napoleon.__init__` module.
-
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests for :mod:`sphinx.ext.napoleon.__init__` module."""
 
 import sys
 from collections import namedtuple
@@ -101,24 +92,30 @@ class SetupTest(TestCase):
     def test_add_config_values(self):
         app = mock.Mock(Sphinx)
         setup(app)
-        for name, (default, rebuild) in Config._config_values.items():
+        for name in Config._config_values:
             has_config = False
-            for method_name, args, kwargs in app.method_calls:
-                if(method_name == 'add_config_value' and
-                   args[0] == name):
+            for method_name, args, _kwargs in app.method_calls:
+                if (
+                    method_name == 'add_config_value' and
+                    args[0] == name
+                ):
                     has_config = True
             if not has_config:
                 self.fail('Config value was not added to app %s' % name)
 
         has_process_docstring = False
         has_skip_member = False
-        for method_name, args, kwargs in app.method_calls:
+        for method_name, args, _kwargs in app.method_calls:
             if method_name == 'connect':
-                if(args[0] == 'autodoc-process-docstring' and
-                   args[1] == _process_docstring):
+                if (
+                    args[0] == 'autodoc-process-docstring' and
+                    args[1] == _process_docstring
+                ):
                     has_process_docstring = True
-                elif(args[0] == 'autodoc-skip-member' and
-                     args[1] == _skip_member):
+                elif (
+                    args[0] == 'autodoc-skip-member' and
+                    args[1] == _skip_member
+                ):
                     has_skip_member = True
         if not has_process_docstring:
             self.fail('autodoc-process-docstring never connected')

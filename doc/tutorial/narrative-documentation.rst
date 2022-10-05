@@ -85,14 +85,13 @@ introduction paragraph in ``index.rst``:
 
    Check out the :doc:`usage` section for further information.
 
-The :rst:role:`doc` role you used automatically references a specific document
-in the project, in this case the ``usage.rst`` you created earlier.
+The :rst:role:`doc` :ref:`role <rst-roles-alt>` you used automatically
+references a specific document in the project, in this case the ``usage.rst``
+you created earlier.
 
 Alternatively, you can also add a cross-reference to an arbitrary part of the
 project. For that, you need to use the :rst:role:`ref` role, and add an
-explicit *label* that acts as `a target`__.
-
-__ https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#hyperlink-targets
+explicit *label* that acts as :duref:`a target <hyperlink-targets>`.
 
 For example, to reference the "Installation" subsection, add a label right
 before the heading, as follows:
@@ -126,3 +125,6 @@ cross-reference to. If you do not include an explicit title, hence using
 ``:ref:`installation```, the section title will be used (in this case,
 ``Installation``). Both the ``:doc:`` and the ``:ref:`` roles will be rendered
 as hyperlinks in the HTML documentation.
+
+What about :doc:`documenting code objects in Sphinx </tutorial/describing-code>`?
+Read on!

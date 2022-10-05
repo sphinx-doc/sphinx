@@ -1,45 +1,38 @@
-r"""
-    sphinx.ext.inheritance_diagram
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+r"""Defines a docutils directive for inserting inheritance diagrams.
 
-    Defines a docutils directive for inserting inheritance diagrams.
+Provide the directive with one or more classes or modules (separated
+by whitespace).  For modules, all of the classes in that module will
+be used.
 
-    Provide the directive with one or more classes or modules (separated
-    by whitespace).  For modules, all of the classes in that module will
-    be used.
+Example::
 
-    Example::
+   Given the following classes:
 
-       Given the following classes:
+   class A: pass
+   class B(A): pass
+   class C(A): pass
+   class D(B, C): pass
+   class E(B): pass
 
-       class A: pass
-       class B(A): pass
-       class C(A): pass
-       class D(B, C): pass
-       class E(B): pass
+   .. inheritance-diagram: D E
 
-       .. inheritance-diagram: D E
+   Produces a graph like the following:
 
-       Produces a graph like the following:
+               A
+              / \
+             B   C
+            / \ /
+           E   D
 
-                   A
-                  / \
-                 B   C
-                / \ /
-               E   D
-
-    The graph is inserted as a PNG+image map into HTML and a PDF in
-    LaTeX.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+The graph is inserted as a PNG+image map into HTML and a PDF in
+LaTeX.
 """
 
 import builtins
 import inspect
 import re
 from importlib import import_module
-from typing import Any, Dict, Iterable, List, Tuple, cast
+from typing import Any, Dict, Iterable, List, Optional, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -138,8 +131,9 @@ class InheritanceGraph:
     graphviz dot graph from them.
     """
     def __init__(self, class_names: List[str], currmodule: str, show_builtins: bool = False,
-                 private_bases: bool = False, parts: int = 0, aliases: Dict[str, str] = None,
-                 top_classes: List[Any] = []) -> None:
+                 private_bases: bool = False, parts: int = 0,
+                 aliases: Optional[Dict[str, str]] = None, top_classes: List[Any] = []
+                 ) -> None:
         """*class_names* is a list of child classes to show bases from.
 
         If *show_builtins* is True, then Python builtins will be shown
@@ -219,7 +213,9 @@ class InheritanceGraph:
 
         return list(all_classes.values())
 
-    def class_name(self, cls: Any, parts: int = 0, aliases: Dict[str, str] = None) -> str:
+    def class_name(
+        self, cls: Any, parts: int = 0, aliases: Optional[Dict[str, str]] = None
+    ) -> str:
         """Given a class object, return a fully-qualified name.
 
         This works for things I've tested in matplotlib so far, but may not be
@@ -263,13 +259,14 @@ class InheritanceGraph:
         'style': '"setlinewidth(0.5)"',
     }
 
-    def _format_node_attrs(self, attrs: Dict) -> str:
+    def _format_node_attrs(self, attrs: Dict[str, Any]) -> str:
         return ','.join(['%s=%s' % x for x in sorted(attrs.items())])
 
-    def _format_graph_attrs(self, attrs: Dict) -> str:
+    def _format_graph_attrs(self, attrs: Dict[str, Any]) -> str:
         return ''.join(['%s=%s;\n' % x for x in sorted(attrs.items())])
 
-    def generate_dot(self, name: str, urls: Dict = {}, env: BuildEnvironment = None,
+    def generate_dot(self, name: str, urls: Dict[str, str] = {},
+                     env: Optional[BuildEnvironment] = None,
                      graph_attrs: Dict = {}, node_attrs: Dict = {}, edge_attrs: Dict = {}
                      ) -> str:
         """Generate a graphviz dot graph from the classes that were passed in

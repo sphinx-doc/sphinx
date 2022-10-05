@@ -1,12 +1,4 @@
-"""
-    sphinx.builders.latex.constants
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    consntants for LaTeX builder.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""consntants for LaTeX builder."""
 
 from typing import Any, Dict
 
@@ -199,7 +191,7 @@ ADDITIONAL_SETTINGS: Dict[Any, Dict[str, Any]] = {
         'babel':        '\\usepackage{babel}',
         'fontenc':      '\\usepackage{xeCJK}',
         # set formatcom=\xeCJKVerbAddon to prevent xeCJK from adding extra spaces in
-        # fancyvrb Verbatim enviroment.
+        # fancyvrb Verbatim environment.
         'fvset':        '\\fvset{fontsize=\\small,formatcom=\\xeCJKVerbAddon}',
     },
     ('xelatex', 'el'): {

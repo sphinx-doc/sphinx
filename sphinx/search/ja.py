@@ -1,12 +1,4 @@
-"""
-    sphinx.search.ja
-    ~~~~~~~~~~~~~~~~
-
-    Japanese search language: includes routine to split words.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Japanese search language: includes routine to split words."""
 
 # Python Version of TinySegmenter
 # (http://chasen.org/~taku/software/TinySegmenter/)

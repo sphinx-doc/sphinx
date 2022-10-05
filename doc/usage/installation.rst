@@ -118,9 +118,9 @@ Chocolatey
 ::
 
    $ choco install sphinx
-   
+
 You would need to `install Chocolatey
-<https://chocolatey.org/install/>`_
+<https://chocolatey.org/install>`_
 before running this.
 
 For more information, refer to the `chocolatey page`__.
@@ -208,9 +208,9 @@ You can read more about them in the `Python Packaging User Guide`_.
    Note that in some Linux distributions, such as Debian and Ubuntu,
    this might require an extra installation step as follows.
 
-    .. code-block:: console
+   .. code-block:: console
 
-       $ apt-get install python3-venv
+      $ apt-get install python3-venv
 
 Docker
 ------
@@ -222,8 +222,8 @@ of images:
 - `sphinxdoc/sphinx-latexpdf`_
 
 .. _Docker Hub: https://hub.docker.com/
-.. _sphinxdoc/sphinx: https://hub.docker.com/repository/docker/sphinxdoc/sphinx
-.. _sphinxdoc/sphinx-latexpdf: https://hub.docker.com/repository/docker/sphinxdoc/sphinx-latexpdf
+.. _sphinxdoc/sphinx: https://hub.docker.com/r/sphinxdoc/sphinx
+.. _sphinxdoc/sphinx-latexpdf: https://hub.docker.com/r/sphinxdoc/sphinx-latexpdf
 
 Former one is used for standard usage of Sphinx, and latter one is mainly used for
 PDF builds using LaTeX.  Please choose one for your purpose.
@@ -239,19 +239,19 @@ PDF builds using LaTeX.  Please choose one for your purpose.
    commands.  For example, you can use following command to create a Sphinx
    project:
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ docker run -it --rm -v /path/to/document:/docs sphinxdoc/sphinx sphinx-quickstart
 
-   And you can following command this to build HTML document:
+   And you can use the following command to build HTML document:
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ docker run --rm -v /path/to/document:/docs sphinxdoc/sphinx make html
 
 For more details, please read `README file`__ of docker images.
 
-.. __: https://hub.docker.com/repository/docker/sphinxdoc/sphinx
+.. __: https://hub.docker.com/r/sphinxdoc/sphinx
 
 
 Installation from source

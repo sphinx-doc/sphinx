@@ -1,12 +1,4 @@
-"""
-    test_writer_latex
-    ~~~~~~~~~~~~~~~~
-
-    Test the LaTeX writer
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the LaTeX writer"""
 
 import pytest
 

@@ -129,7 +129,7 @@ Javascript items
 .. js:function:: bar.baz(href, callback[, errback])
 
    :param string href: The location of the resource.
-   :param callback: Get's called with the data returned by the resource.
+   :param callback: Gets called with the data returned by the resource.
    :throws InvalidHref: If the `href` is invalid.
    :returns: `undefined`
 
@@ -193,6 +193,29 @@ Link to :option:`perl +p`, :option:`--ObjC++`, :option:`--plugin.option`, :optio
 .. option:: -p
 
 Link to :option:`hg commit` and :option:`git commit -p`.
+
+.. option:: --abi={TYPE}
+
+.. option:: --test={WHERE}-{COUNT}
+
+.. option:: --wrap=\{\{value\}\}
+
+.. option:: -allowable_client {client_name}
+
+Foo bar.
+
+Test repeated option directive.
+
+.. option:: -mapi
+
+  My API.
+
+.. option:: -mapi=secret
+
+  My secret API.
+
+Reference the first option :option:`-mapi=secret`, :option:`-mapi[=xxx]`
+or :option:`-mapi with_space`.
 
 
 User markup

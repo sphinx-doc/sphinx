@@ -1,17 +1,13 @@
-"""
-    sphinx.ext.napoleon.iterators
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-    A collection of helpful iterators.
-
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""A collection of helpful iterators."""
 
 import collections
+import warnings
 from typing import Any, Iterable, Optional
+
+from sphinx.deprecation import RemovedInSphinx70Warning
+
+warnings.warn('sphinx.ext.napoleon.iterators is deprecated.',
+              RemovedInSphinx70Warning)
 
 
 class peek_iter:
@@ -59,7 +55,7 @@ class peek_iter:
     def __iter__(self) -> "peek_iter":
         return self
 
-    def __next__(self, n: int = None) -> Any:
+    def __next__(self, n: Optional[int] = None) -> Any:
         return self.next(n)
 
     def _fillcache(self, n: Optional[int]) -> None:
@@ -88,7 +84,7 @@ class peek_iter:
         """
         return self.peek() != self.sentinel
 
-    def next(self, n: int = None) -> Any:
+    def next(self, n: Optional[int] = None) -> Any:
         """Get the next item or `n` items of the iterator.
 
         Parameters

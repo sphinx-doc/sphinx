@@ -1,12 +1,4 @@
-"""
-    sphinx.transforms.post_transforms.images
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Docutils transforms used by Sphinx.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Docutils transforms used by Sphinx."""
 
 import os
 import re
@@ -30,7 +22,7 @@ CRITICAL_PATH_CHAR_RE = re.compile('[:;<>|*" ]')
 
 class BaseImageConverter(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.traverse(nodes.image):
+        for node in self.document.findall(nodes.image):
             if self.match(node):
                 self.handle(node)
 
@@ -196,6 +188,8 @@ class ImageConverter(BaseImageConverter):
 
     def match(self, node: nodes.image) -> bool:
         if not self.app.builder.supported_image_types:
+            return False
+        elif '?' in node['candidates']:
             return False
         elif set(self.guess_mimetypes(node)) & set(self.app.builder.supported_image_types):
             # builder supports the image; no need to convert

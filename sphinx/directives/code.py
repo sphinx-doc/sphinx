@@ -1,15 +1,7 @@
-"""
-    sphinx.directives.code
-    ~~~~~~~~~~~~~~~~~~~~~~
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
 import sys
 import textwrap
 from difflib import unified_diff
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -56,8 +48,10 @@ class Highlight(SphinxDirective):
                                        linenothreshold=linenothreshold)]
 
 
-def dedent_lines(lines: List[str], dedent: int, location: Tuple[str, int] = None) -> List[str]:
-    if not dedent:
+def dedent_lines(
+    lines: List[str], dedent: Optional[int], location: Optional[Tuple[str, int]] = None
+) -> List[str]:
+    if dedent is None:
         return textwrap.dedent(''.join(lines)).splitlines(True)
 
     if any(s[:dedent].strip() for s in lines):
@@ -138,9 +132,9 @@ class CodeBlock(SphinxDirective):
 
         if 'dedent' in self.options:
             location = self.state_machine.get_source_and_line(self.lineno)
-            lines = code.split('\n')
+            lines = code.splitlines(True)
             lines = dedent_lines(lines, self.options['dedent'], location=location)
-            code = '\n'.join(lines)
+            code = ''.join(lines)
 
         literal: Element = nodes.literal_block(code, code)
         if 'linenos' in self.options or 'lineno-start' in self.options:
@@ -194,7 +188,7 @@ class LiteralIncludeReader:
         ('diff', 'end-at'),
     ]
 
-    def __init__(self, filename: str, options: Dict, config: Config) -> None:
+    def __init__(self, filename: str, options: Dict[str, Any], config: Config) -> None:
         self.filename = filename
         self.options = options
         self.encoding = options.get('encoding', config.source_encoding)
@@ -208,7 +202,9 @@ class LiteralIncludeReader:
                 raise ValueError(__('Cannot use both "%s" and "%s" options') %
                                  (option1, option2))
 
-    def read_file(self, filename: str, location: Tuple[str, int] = None) -> List[str]:
+    def read_file(
+        self, filename: str, location: Optional[Tuple[str, int]] = None
+    ) -> List[str]:
         try:
             with open(filename, encoding=self.encoding, errors='strict') as f:
                 text = f.read()
@@ -224,7 +220,7 @@ class LiteralIncludeReader:
                                   'be wrong, try giving an :encoding: option') %
                                (self.encoding, filename)) from exc
 
-    def read(self, location: Tuple[str, int] = None) -> Tuple[str, int]:
+    def read(self, location: Optional[Tuple[str, int]] = None) -> Tuple[str, int]:
         if 'diff' in self.options:
             lines = self.show_diff()
         else:
@@ -232,23 +228,25 @@ class LiteralIncludeReader:
                        self.start_filter,
                        self.end_filter,
                        self.lines_filter,
+                       self.dedent_filter,
                        self.prepend_filter,
-                       self.append_filter,
-                       self.dedent_filter]
+                       self.append_filter]
             lines = self.read_file(self.filename, location=location)
             for func in filters:
                 lines = func(lines, location=location)
 
         return ''.join(lines), len(lines)
 
-    def show_diff(self, location: Tuple[str, int] = None) -> List[str]:
+    def show_diff(self, location: Optional[Tuple[str, int]] = None) -> List[str]:
         new_lines = self.read_file(self.filename)
-        old_filename = self.options.get('diff')
+        old_filename = self.options['diff']
         old_lines = self.read_file(old_filename)
         diff = unified_diff(old_lines, new_lines, old_filename, self.filename)
         return list(diff)
 
-    def pyobject_filter(self, lines: List[str], location: Tuple[str, int] = None) -> List[str]:
+    def pyobject_filter(
+        self, lines: List[str], location: Optional[Tuple[str, int]] = None
+    ) -> List[str]:
         pyobject = self.options.get('pyobject')
         if pyobject:
             from sphinx.pycode import ModuleAnalyzer
@@ -266,7 +264,9 @@ class LiteralIncludeReader:
 
         return lines
 
-    def lines_filter(self, lines: List[str], location: Tuple[str, int] = None) -> List[str]:
+    def lines_filter(
+        self, lines: List[str], location: Optional[Tuple[str, int]] = None
+    ) -> List[str]:
         linespec = self.options.get('lines')
         if linespec:
             linelist = parselinenos(linespec, len(lines))
@@ -290,7 +290,9 @@ class LiteralIncludeReader:
 
         return lines
 
-    def start_filter(self, lines: List[str], location: Tuple[str, int] = None) -> List[str]:
+    def start_filter(
+        self, lines: List[str], location: Optional[Tuple[str, int]] = None
+    ) -> List[str]:
         if 'start-at' in self.options:
             start = self.options.get('start-at')
             inclusive = False
@@ -321,7 +323,9 @@ class LiteralIncludeReader:
 
         return lines
 
-    def end_filter(self, lines: List[str], location: Tuple[str, int] = None) -> List[str]:
+    def end_filter(
+        self, lines: List[str], location: Optional[Tuple[str, int]] = None
+    ) -> List[str]:
         if 'end-at' in self.options:
             end = self.options.get('end-at')
             inclusive = True
@@ -348,21 +352,27 @@ class LiteralIncludeReader:
 
         return lines
 
-    def prepend_filter(self, lines: List[str], location: Tuple[str, int] = None) -> List[str]:
+    def prepend_filter(
+        self, lines: List[str], location: Optional[Tuple[str, int]] = None
+    ) -> List[str]:
         prepend = self.options.get('prepend')
         if prepend:
             lines.insert(0, prepend + '\n')
 
         return lines
 
-    def append_filter(self, lines: List[str], location: Tuple[str, int] = None) -> List[str]:
+    def append_filter(
+        self, lines: List[str], location: Optional[Tuple[str, int]] = None
+    ) -> List[str]:
         append = self.options.get('append')
         if append:
             lines.append(append + '\n')
 
         return lines
 
-    def dedent_filter(self, lines: List[str], location: Tuple[str, int] = None) -> List[str]:
+    def dedent_filter(
+        self, lines: List[str], location: Optional[Tuple[str, int]] = None
+    ) -> List[str]:
         if 'dedent' in self.options:
             return dedent_lines(lines, self.options.get('dedent'), location=location)
         else:
