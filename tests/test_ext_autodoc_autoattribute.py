@@ -1,12 +1,7 @@
-"""
-    test_ext_autodoc_autoattribute
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Test the autodoc extension.
 
-    Test the autodoc extension.  This tests mainly the Documenters; the auto
-    directives are tested in a test source file translated by test_build.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+This tests mainly the Documenters; the auto directives are tested in a test
+source file translated by test_build.
 """
 
 import sys
@@ -32,7 +27,7 @@ def test_autoattribute(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_novalue(app):
-    options = {'no-value': True}
+    options = {'no-value': None}
     actual = do_autodoc(app, 'attribute', 'target.Class.attr', options)
     assert list(actual) == [
         '',
@@ -44,7 +39,6 @@ def test_autoattribute_novalue(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_typed_variable(app):
     actual = do_autodoc(app, 'attribute', 'target.typed_vars.Class.attr2')
@@ -57,7 +51,6 @@ def test_autoattribute_typed_variable(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_typed_variable_in_alias(app):
     actual = do_autodoc(app, 'attribute', 'target.typed_vars.Alias.attr2')
@@ -70,7 +63,6 @@ def test_autoattribute_typed_variable_in_alias(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_instance_variable(app):
     actual = do_autodoc(app, 'attribute', 'target.typed_vars.Class.attr4')
@@ -85,7 +77,6 @@ def test_autoattribute_instance_variable(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_instance_variable_in_alias(app):
     actual = do_autodoc(app, 'attribute', 'target.typed_vars.Alias.attr4')
@@ -183,7 +174,7 @@ def test_autoattribute_NewType(app):
         '',
         '   T6',
         '',
-        '   alias of :py:class:`int`',
+        '   alias of :py:class:`~datetime.date`',
         '',
     ]
 
@@ -203,7 +194,6 @@ def test_autoattribute_TypeVar(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_hide_value(app):
     actual = do_autodoc(app, 'attribute', 'target.hide_value.Foo.SENTINEL1')

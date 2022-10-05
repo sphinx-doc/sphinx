@@ -1,14 +1,6 @@
-"""
-    sphinx.builders.dummy
-    ~~~~~~~~~~~~~~~~~~~~~
+"""Do syntax checks, but no writing."""
 
-    Do syntax checks, but no writing.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import Any, Dict, Set
+from typing import Any, Dict, Optional, Set
 
 from docutils.nodes import Node
 
@@ -29,7 +21,7 @@ class DummyBuilder(Builder):
     def get_outdated_docs(self) -> Set[str]:
         return self.env.found_docs
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
         return ''
 
     def prepare_writing(self, docnames: Set[str]) -> None:

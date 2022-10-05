@@ -1,18 +1,11 @@
-"""
-    sphinx.ext.autosectionlabel
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Allow reference sections by :ref: role using its title.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Allow reference sections by :ref: role using its title."""
 
 from typing import Any, Dict, cast
 
 from docutils import nodes
 from docutils.nodes import Node
 
+import sphinx
 from sphinx.application import Sphinx
 from sphinx.domains.std import StandardDomain
 from sphinx.locale import __
@@ -33,7 +26,7 @@ def get_node_depth(node: Node) -> int:
 
 def register_sections_as_label(app: Sphinx, document: Node) -> None:
     domain = cast(StandardDomain, app.env.get_domain('std'))
-    for node in document.traverse(nodes.section):
+    for node in document.findall(nodes.section):
         if (app.config.autosectionlabel_maxdepth and
                 get_node_depth(node) >= app.config.autosectionlabel_maxdepth):
             continue
@@ -47,6 +40,9 @@ def register_sections_as_label(app: Sphinx, document: Node) -> None:
             name = nodes.fully_normalize_name(ref_name)
         sectname = clean_astext(title)
 
+        logger.debug(__('section "%s" gets labeled as "%s"'),
+                     ref_name, name,
+                     location=node, type='autosectionlabel', subtype=docname)
         if name in domain.labels:
             logger.warning(__('duplicate label %s, other instance in %s'),
                            name, app.env.doc2path(domain.labels[name][0]),
@@ -62,7 +58,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('doctree-read', register_sections_as_label)
 
     return {
-        'version': 'builtin',
+        'version': sphinx.__display_version__,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

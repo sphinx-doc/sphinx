@@ -1,12 +1,7 @@
-"""
-    test_ext_autodoc_autoclass
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Test the autodoc extension.
 
-    Test the autodoc extension.  This tests mainly the Documenters; the auto
-    directives are tested in a test source file translated by test_build.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+This tests mainly the Documenters; the auto directives are tested in a test
+source file translated by test_build.
 """
 
 import sys
@@ -107,7 +102,6 @@ def test_inherited_instance_variable(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='py36+ is available since python3.6.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_uninitialized_attributes(app):
     options = {"members": None,
@@ -135,7 +129,6 @@ def test_uninitialized_attributes(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='py36+ is available since python3.6.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_undocumented_uninitialized_attributes(app):
     options = {"members": None,
@@ -284,7 +277,7 @@ def test_show_inheritance_for_decendants_of_generic_type(app):
         '.. py:class:: Corge(iterable=(), /)',
         '   :module: target.classes',
         '',
-        '   Bases: :py:class:`target.classes.Quux`',
+        '   Bases: :py:class:`~target.classes.Quux`',
         '',
     ]
 
@@ -391,7 +384,7 @@ def test_class_alias(app):
         '.. py:attribute:: Alias',
         '   :module: target.classes',
         '',
-        '   alias of :py:class:`target.classes.Foo`',
+        '   alias of :py:class:`~target.classes.Foo`',
     ]
 
 
@@ -400,6 +393,18 @@ def test_class_alias_having_doccomment(app):
     assert list(actual) == [
         '',
         '.. py:attribute:: OtherAlias',
+        '   :module: target.classes',
+        '',
+        '   docstring',
+        '',
+    ]
+
+
+def test_class_alias_for_imported_object_having_doccomment(app):
+    actual = do_autodoc(app, 'class', 'target.classes.IntAlias')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: IntAlias',
         '   :module: target.classes',
         '',
         '   docstring',

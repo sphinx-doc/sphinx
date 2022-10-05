@@ -13,7 +13,7 @@ Documentation.addTranslations({
         "Complete Table of Contents": "\u00cdndice de contenidos completo",
         "Contents": "Contenidos",
         "Copyright": "Copyright",
-        "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "",
+        "Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.": "Creado usando <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s.",
         "Expand sidebar": "Expandir barra lateral",
         "Full index on one page": "\u00cdndice completo en una p\u00e1gina",
         "General Index": "\u00cdndice General",
@@ -30,8 +30,6 @@ Documentation.addTranslations({
         "Next topic": "Pr\u00f3ximo tema",
         "Other changes": "Otros cambios",
         "Overview": "Resumen",
-        "Permalink to this definition": "Enlazar permanentemente con esta definici\u00f3n",
-        "Permalink to this headline": "Enlazar permanentemente con este t\u00edtulo",
         "Please activate JavaScript to enable the search\n    functionality.": "Por favor, active JavaScript para habilitar la funcionalidad\n    de b\u00fasqueda.",
         "Preparing search...": "Preparando b\u00fasqueda...",
         "Previous topic": "Tema anterior",
@@ -39,7 +37,7 @@ Documentation.addTranslations({
         "Search": "B\u00fasqueda",
         "Search Page": "P\u00e1gina de B\u00fasqueda",
         "Search Results": "Resultados de la b\u00fasqueda",
-        "Search finished, found %s page(s) matching the search query.": "B\u00fasqueda finalizada, encontr\u00f3 %s p\u00e1gina(s) acorde con la consulta de b\u00fasqueda.",
+        "Search finished, found ${resultCount} page(s) matching the search query.": "B\u00fasqueda finalizada, se encontraron ${resultCount} p\u00e1ginas que coinciden con la consulta de b\u00fasqueda.",
         "Search within %(docstitle)s": "Buscar en %(docstitle)s",
         "Searching": "Buscando",
         "Searching for multiple words only shows matches that contain\n    all words.": "La b\u00fasqueda de varias palabras solo muestra coincidencias que contienen\n    todas las palabras.",
@@ -59,5 +57,5 @@ Documentation.addTranslations({
         "search this documentation": "buscar en esta documentaci\u00f3n",
         "the documentation for": "la documentaci\u00f3n para"
     },
-    "plural_expr": "(n != 1)"
+    "plural_expr": "n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2"
 });

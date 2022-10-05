@@ -1,12 +1,4 @@
-"""
-    test_util_inspect
-    ~~~~~~~~~~~~~~~
-
-    Tests util.inspect functions.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests util.inspect functions."""
 
 import ast
 import datetime
@@ -15,12 +7,21 @@ import functools
 import sys
 import types
 from inspect import Parameter
+from typing import Optional
 
-import _testcapi
 import pytest
 
 from sphinx.util import inspect
-from sphinx.util.inspect import TypeAliasNamespace, stringify_signature
+from sphinx.util.inspect import TypeAliasForwardRef, TypeAliasNamespace, stringify_signature
+from sphinx.util.typing import stringify
+
+
+def test_TypeAliasForwardRef():
+    alias = TypeAliasForwardRef('example')
+    assert stringify(alias) == 'example'
+
+    alias = Optional[alias]
+    assert stringify(alias) == 'Optional[example]'
 
 
 def test_TypeAliasNamespace():
@@ -158,21 +159,24 @@ def test_signature_annotations():
 
     # Generic types with concrete parameters
     sig = inspect.signature(f1)
-    assert stringify_signature(sig) == '(x: List[int]) -> List[int]'
+    assert stringify_signature(sig) == '(x: typing.List[int]) -> typing.List[int]'
 
     # TypeVars and generic types with TypeVars
     sig = inspect.signature(f2)
     if sys.version_info < (3, 7):
-        assert stringify_signature(sig) == '(x: List[T], y: List[T_co], z: T) -> List[T_contra]'
+        assert stringify_signature(sig) == ('(x: typing.List[typing.T],'
+                                            ' y: typing.List[typing.T_co],'
+                                            ' z: typing.T'
+                                            ') -> typing.List[typing.T_contra]')
     else:
-        assert stringify_signature(sig) == ('(x: List[tests.typing_test_data.T],'
-                                            ' y: List[tests.typing_test_data.T_co],'
+        assert stringify_signature(sig) == ('(x: typing.List[tests.typing_test_data.T],'
+                                            ' y: typing.List[tests.typing_test_data.T_co],'
                                             ' z: tests.typing_test_data.T'
-                                            ') -> List[tests.typing_test_data.T_contra]')
+                                            ') -> typing.List[tests.typing_test_data.T_contra]')
 
     # Union types
     sig = inspect.signature(f3)
-    assert stringify_signature(sig) == '(x: Union[str, numbers.Integral]) -> None'
+    assert stringify_signature(sig) == '(x: typing.Union[str, numbers.Integral]) -> None'
 
     # Quoted annotations
     sig = inspect.signature(f4)
@@ -188,18 +192,21 @@ def test_signature_annotations():
 
     # Space around '=' for defaults
     sig = inspect.signature(f7)
-    assert stringify_signature(sig) == '(x: Optional[int] = None, y: dict = {}) -> None'
+    if sys.version_info < (3, 11):
+        assert stringify_signature(sig) == '(x: typing.Optional[int] = None, y: dict = {}) -> None'
+    else:
+        assert stringify_signature(sig) == '(x: int = None, y: dict = {}) -> None'
 
     # Callable types
     sig = inspect.signature(f8)
-    assert stringify_signature(sig) == '(x: Callable[[int, str], int]) -> None'
+    assert stringify_signature(sig) == '(x: typing.Callable[[int, str], int]) -> None'
 
     sig = inspect.signature(f9)
-    assert stringify_signature(sig) == '(x: Callable) -> None'
+    assert stringify_signature(sig) == '(x: typing.Callable) -> None'
 
     # Tuple types
     sig = inspect.signature(f10)
-    assert stringify_signature(sig) == '(x: Tuple[int, str], y: Tuple[int, ...]) -> None'
+    assert stringify_signature(sig) == '(x: typing.Tuple[int, str], y: typing.Tuple[int, ...]) -> None'
 
     # Instance annotations
     sig = inspect.signature(f11)
@@ -207,24 +214,24 @@ def test_signature_annotations():
 
     # tuple with more than two items
     sig = inspect.signature(f12)
-    assert stringify_signature(sig) == '() -> Tuple[int, str, int]'
+    assert stringify_signature(sig) == '() -> typing.Tuple[int, str, int]'
 
     # optional
     sig = inspect.signature(f13)
-    assert stringify_signature(sig) == '() -> Optional[str]'
+    assert stringify_signature(sig) == '() -> typing.Optional[str]'
 
     # optional union
     sig = inspect.signature(f20)
-    assert stringify_signature(sig) in ('() -> Optional[Union[int, str]]',
-                                        '() -> Optional[Union[str, int]]')
+    assert stringify_signature(sig) in ('() -> typing.Optional[typing.Union[int, str]]',
+                                        '() -> typing.Optional[typing.Union[str, int]]')
 
     # Any
     sig = inspect.signature(f14)
-    assert stringify_signature(sig) == '() -> Any'
+    assert stringify_signature(sig) == '() -> typing.Any'
 
     # ForwardRef
     sig = inspect.signature(f15)
-    assert stringify_signature(sig) == '(x: Unknown, y: int) -> Any'
+    assert stringify_signature(sig) == '(x: Unknown, y: int) -> typing.Any'
 
     # keyword only arguments (1)
     sig = inspect.signature(f16)
@@ -235,7 +242,8 @@ def test_signature_annotations():
     assert stringify_signature(sig) == '(*, arg3, arg4)'
 
     sig = inspect.signature(f18)
-    assert stringify_signature(sig) == '(self, arg1: Union[int, Tuple] = 10) -> List[Dict]'
+    assert stringify_signature(sig) == ('(self, arg1: typing.Union[int, typing.Tuple] = 10) -> '
+                                        'typing.List[typing.Dict]')
 
     # annotations for variadic and keyword parameters
     sig = inspect.signature(f19)
@@ -247,10 +255,10 @@ def test_signature_annotations():
 
     # type hints by string
     sig = inspect.signature(Node.children)
-    assert stringify_signature(sig) == '(self) -> List[tests.typing_test_data.Node]'
+    assert stringify_signature(sig) == '(self) -> typing.List[tests.typing_test_data.Node]'
 
     sig = inspect.signature(Node.__init__)
-    assert stringify_signature(sig) == '(self, parent: Optional[tests.typing_test_data.Node]) -> None'
+    assert stringify_signature(sig) == '(self, parent: typing.Optional[tests.typing_test_data.Node]) -> None'
 
     # show_annotation is False
     sig = inspect.signature(f7)
@@ -258,7 +266,17 @@ def test_signature_annotations():
 
     # show_return_annotation is False
     sig = inspect.signature(f7)
-    assert stringify_signature(sig, show_return_annotation=False) == '(x: Optional[int] = None, y: dict = {})'
+    if sys.version_info < (3, 11):
+        assert stringify_signature(sig, show_return_annotation=False) == '(x: typing.Optional[int] = None, y: dict = {})'
+    else:
+        assert stringify_signature(sig, show_return_annotation=False) == '(x: int = None, y: dict = {})'
+
+    # unqualified_typehints is True
+    sig = inspect.signature(f7)
+    if sys.version_info < (3, 11):
+        assert stringify_signature(sig, unqualified_typehints=True) == '(x: ~typing.Optional[int] = None, y: dict = {}) -> None'
+    else:
+        assert stringify_signature(sig, unqualified_typehints=True) == '(x: int = None, y: dict = {}) -> None'
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
@@ -627,19 +645,26 @@ def test_isattributedescriptor(app):
         def __get__(self, obj, typ=None):
             pass
 
-    testinstancemethod = _testcapi.instancemethod(str.__repr__)
-
     assert inspect.isattributedescriptor(Base.prop) is True                    # property
     assert inspect.isattributedescriptor(Base.meth) is False                   # method
     assert inspect.isattributedescriptor(Base.staticmeth) is False             # staticmethod
     assert inspect.isattributedescriptor(Base.classmeth) is False              # classmetho
-    assert inspect.isattributedescriptor(Descriptor) is False                  # custom descriptor class    # NOQA
-    assert inspect.isattributedescriptor(str.join) is False                    # MethodDescriptorType       # NOQA
-    assert inspect.isattributedescriptor(object.__init__) is False             # WrapperDescriptorType      # NOQA
-    assert inspect.isattributedescriptor(dict.__dict__['fromkeys']) is False   # ClassMethodDescriptorType  # NOQA
-    assert inspect.isattributedescriptor(types.FrameType.f_locals) is True     # GetSetDescriptorType       # NOQA
-    assert inspect.isattributedescriptor(datetime.timedelta.days) is True      # MemberDescriptorType       # NOQA
-    assert inspect.isattributedescriptor(testinstancemethod) is False          # instancemethod (C-API)     # NOQA
+    assert inspect.isattributedescriptor(Descriptor) is False                  # custom descriptor class
+    assert inspect.isattributedescriptor(str.join) is False                    # MethodDescriptorType
+    assert inspect.isattributedescriptor(object.__init__) is False             # WrapperDescriptorType
+    assert inspect.isattributedescriptor(dict.__dict__['fromkeys']) is False   # ClassMethodDescriptorType
+    assert inspect.isattributedescriptor(types.FrameType.f_locals) is True     # GetSetDescriptorType
+    assert inspect.isattributedescriptor(datetime.timedelta.days) is True      # MemberDescriptorType
+
+    try:
+        # _testcapi module cannot be importable in some distro
+        # refs: https://github.com/sphinx-doc/sphinx/issues/9868
+        import _testcapi
+
+        testinstancemethod = _testcapi.instancemethod(str.__repr__)
+        assert inspect.isattributedescriptor(testinstancemethod) is False      # instancemethod (C-API)
+    except ImportError:
+        pass
 
 
 def test_isproperty(app):
@@ -677,6 +702,25 @@ def test_unpartial():
     assert inspect.unpartial(func3) is func1
 
 
+def test_getdoc_inherited_classmethod():
+    class Foo:
+        @classmethod
+        def meth(self):
+            """
+            docstring
+                indented text
+            """
+
+    class Bar(Foo):
+        @classmethod
+        def meth(self):
+            # inherited classmethod
+            pass
+
+    assert inspect.getdoc(Bar.meth, getattr, False, Bar, "meth") is None
+    assert inspect.getdoc(Bar.meth, getattr, True, Bar, "meth") == Foo.meth.__doc__
+
+
 def test_getdoc_inherited_decorated_method():
     class Foo:
         def meth(self):
@@ -686,7 +730,7 @@ def test_getdoc_inherited_decorated_method():
             """
 
     class Bar(Foo):
-        @functools.lru_cache()
+        @functools.lru_cache()  # noqa: B019
         def meth(self):
             # inherited and decorated method
             pass

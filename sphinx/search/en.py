@@ -1,17 +1,10 @@
-"""
-    sphinx.search.en
-    ~~~~~~~~~~~~~~~~
-
-    English search language: includes the JS porter stemmer.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""English search language: includes the JS porter stemmer."""
 
 from typing import Dict
 
+import snowballstemmer
+
 from sphinx.search import SearchLanguage
-from sphinx.util.stemmer import get_stemmer
 
 english_stopwords = set("""
 a  and  are  as  at
@@ -219,7 +212,7 @@ class SearchEnglish(SearchLanguage):
     stopwords = english_stopwords
 
     def init(self, options: Dict) -> None:
-        self.stemmer = get_stemmer()
+        self.stemmer = snowballstemmer.stemmer('porter')
 
     def stem(self, word: str) -> str:
-        return self.stemmer.stem(word.lower())
+        return self.stemmer.stemWord(word.lower())

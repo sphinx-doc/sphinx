@@ -1,12 +1,4 @@
-"""
-    test_domain_std
-    ~~~~~~~~~~~~~~~
-
-    Tests the std domain
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Tests the std domain"""
 
 from unittest import mock
 
@@ -36,7 +28,7 @@ def test_process_doc_handle_figure_caption():
         ids={'testid': figure_node},
         citation_refs={},
     )
-    document.traverse.return_value = []
+    document.findall.return_value = []
 
     domain = StandardDomain(env)
     if 'testname' in domain.data['labels']:
@@ -60,7 +52,7 @@ def test_process_doc_handle_table_title():
         ids={'testid': table_node},
         citation_refs={},
     )
-    document.traverse.return_value = []
+    document.findall.return_value = []
 
     domain = StandardDomain(env)
     if 'testname' in domain.data['labels']:
@@ -97,6 +89,9 @@ def test_cmd_option_with_optional_value(app):
                           [desc, ([desc_signature, ([desc_name, '-j'],
                                                     [desc_addname, '[=N]'])],
                                   [desc_content, ()])]))
+    assert_node(doctree[0], addnodes.index,
+                entries=[('pair', 'command line option; -j', 'cmdoption-j', '', None)])
+
     objects = list(app.env.get_domain("std").get_objects())
     assert ('-j', '-j', 'cmdoption', 'index', 'cmdoption-j', 1) in objects
 
@@ -355,10 +350,8 @@ def test_multiple_cmdoptions(app):
                                                     [desc_addname, " directory"])],
                                   [desc_content, ()])]))
     assert_node(doctree[0], addnodes.index,
-                entries=[('pair', 'cmd command line option; -o directory',
-                          'cmdoption-cmd-o', '', None),
-                         ('pair', 'cmd command line option; --output directory',
-                          'cmdoption-cmd-o', '', None)])
+                entries=[('pair', 'cmd command line option; -o', 'cmdoption-cmd-o', '', None),
+                         ('pair', 'cmd command line option; --output', 'cmdoption-cmd-o', '', None)])
     assert ('cmd', '-o') in domain.progoptions
     assert ('cmd', '--output') in domain.progoptions
     assert domain.progoptions[('cmd', '-o')] == ('index', 'cmdoption-cmd-o')
@@ -415,7 +408,7 @@ def test_productionlist(app, status, warning):
         ('SecondLine', 'firstLineRule.html#grammar-token-SecondLine', 'SecondLine'),
     ]
 
-    text = (app.outdir / 'LineContinuation.html').read_text()
+    text = (app.outdir / 'LineContinuation.html').read_text(encoding='utf8')
     assert "A</strong> ::=  B C D    E F G" in text
 
 
@@ -424,7 +417,7 @@ def test_productionlist2(app):
             "   A: `:A` `A`\n"
             "   B: `P1:B` `~P1:B`\n")
     doctree = restructuredtext.parse(app, text)
-    refnodes = list(doctree.traverse(pending_xref))
+    refnodes = list(doctree.findall(pending_xref))
     assert_node(refnodes[0], pending_xref, reftarget="A")
     assert_node(refnodes[1], pending_xref, reftarget="P2:A")
     assert_node(refnodes[2], pending_xref, reftarget="P1:B")
@@ -452,3 +445,43 @@ def test_labeled_rubric(app):
     domain = app.env.get_domain("std")
     assert 'label' in domain.labels
     assert domain.labels['label'] == ('index', 'label', 'blah blah blah')
+
+
+def test_labeled_definition(app):
+    text = (".. _label1:\n"
+            "\n"
+            "Foo blah *blah* blah\n"
+            "  Definition\n"
+            "\n"
+            ".. _label2:\n"
+            "\n"
+            "Bar blah *blah* blah\n"
+            "  Definition\n"
+            "\n")
+    restructuredtext.parse(app, text)
+
+    domain = app.env.get_domain("std")
+    assert 'label1' in domain.labels
+    assert domain.labels['label1'] == ('index', 'label1', 'Foo blah blah blah')
+    assert 'label2' in domain.labels
+    assert domain.labels['label2'] == ('index', 'label2', 'Bar blah blah blah')
+
+
+def test_labeled_field(app):
+    text = (".. _label1:\n"
+            "\n"
+            ":Foo blah *blah* blah:\n"
+            "  Definition\n"
+            "\n"
+            ".. _label2:\n"
+            "\n"
+            ":Bar blah *blah* blah:\n"
+            "  Definition\n"
+            "\n")
+    restructuredtext.parse(app, text)
+
+    domain = app.env.get_domain("std")
+    assert 'label1' in domain.labels
+    assert domain.labels['label1'] == ('index', 'label1', 'Foo blah blah blah')
+    assert 'label2' in domain.labels
+    assert domain.labels['label2'] == ('index', 'label2', 'Bar blah blah blah')

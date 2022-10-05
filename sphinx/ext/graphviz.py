@@ -1,12 +1,4 @@
-"""
-    sphinx.ext.graphviz
-    ~~~~~~~~~~~~~~~~~~~
-
-    Allow graphviz-formatted graphs to be included in Sphinx-generated
-    documents inline.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+"""Allow graphviz-formatted graphs to be included inline in generated documents.
 """
 
 import posixpath
@@ -14,7 +6,7 @@ import re
 import subprocess
 from os import path
 from subprocess import PIPE, CalledProcessError
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -50,14 +42,14 @@ class ClickableMapDefinition:
     href_re = re.compile('href=".*?"')
 
     def __init__(self, filename: str, content: str, dot: str = '') -> None:
-        self.id: str = None
+        self.id: Optional[str] = None
         self.filename = filename
         self.content = content.splitlines()
         self.clickable: List[str] = []
 
         self.parse(dot=dot)
 
-    def parse(self, dot: str = None) -> None:
+    def parse(self, dot: str) -> None:
         matched = self.maptag_re.match(self.content[0])
         if not matched:
             raise GraphvizError('Invalid clickable map file found: %s' % self.filename)
@@ -218,7 +210,8 @@ class GraphvizSimple(SphinxDirective):
 
 
 def render_dot(self: SphinxTranslator, code: str, options: Dict, format: str,
-               prefix: str = 'graphviz', filename: str = None) -> Tuple[str, str]:
+               prefix: str = 'graphviz', filename: Optional[str] = None
+               ) -> Tuple[Optional[str], Optional[str]]:
     """Render graphviz code into a PNG or PDF output file."""
     graphviz_dot = options.get('graphviz_dot', self.builder.config.graphviz_dot)
     hashkey = (code + str(options) + str(graphviz_dot) +
@@ -232,7 +225,7 @@ def render_dot(self: SphinxTranslator, code: str, options: Dict, format: str,
         return relfn, outfn
 
     if (hasattr(self.builder, '_graphviz_warned_dot') and
-       self.builder._graphviz_warned_dot.get(graphviz_dot)):  # type: ignore  # NOQA
+       self.builder._graphviz_warned_dot.get(graphviz_dot)):  # type: ignore[attr-defined]
         return None, None
 
     ensuredir(path.dirname(outfn))
@@ -270,8 +263,9 @@ def render_dot(self: SphinxTranslator, code: str, options: Dict, format: str,
 
 
 def render_dot_html(self: HTMLTranslator, node: graphviz, code: str, options: Dict,
-                    prefix: str = 'graphviz', imgcls: str = None, alt: str = None,
-                    filename: str = None) -> Tuple[str, str]:
+                    prefix: str = 'graphviz', imgcls: Optional[str] = None,
+                    alt: Optional[str] = None, filename: Optional[str] = None
+                    ) -> Tuple[str, str]:
     format = self.builder.config.graphviz_output_format
     try:
         if format not in ('png', 'svg'):
@@ -326,7 +320,7 @@ def html_visit_graphviz(self: HTMLTranslator, node: graphviz) -> None:
 
 
 def render_dot_latex(self: LaTeXTranslator, node: graphviz, code: str,
-                     options: Dict, prefix: str = 'graphviz', filename: str = None
+                     options: Dict, prefix: str = 'graphviz', filename: Optional[str] = None
                      ) -> None:
     try:
         fname, outfn = render_dot(self, code, options, 'pdf', prefix, filename)

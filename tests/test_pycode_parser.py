@@ -1,12 +1,4 @@
-"""
-    test_pycode_parser
-    ~~~~~~~~~~~~~~~~~~
-
-    Test pycode.parser.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test pycode.parser."""
 
 from sphinx.pycode.parser import Parser
 from sphinx.util.inspect import signature_from_str
@@ -119,6 +111,9 @@ def test_complex_assignment():
               'f = g = None  #: multiple assignment at once\n'
               '(theta, phi) = (0, 0.5)  #: unpack assignment via tuple\n'
               '[x, y] = (5, 6)  #: unpack assignment via list\n'
+              'h, *i, j = (1, 2, 3, 4)  #: unpack assignment2\n'
+              'k, *self.attr = (5, 6, 7)  #: unpack assignment3\n'
+              'l, *m[0] = (8, 9, 0)  #: unpack assignment4\n'
               )
     parser = Parser(source)
     parser.parse()
@@ -132,22 +127,11 @@ def test_complex_assignment():
                                ('', 'phi'): 'unpack assignment via tuple',
                                ('', 'x'): 'unpack assignment via list',
                                ('', 'y'): 'unpack assignment via list',
-                               }
-    assert parser.definitions == {}
-
-
-def test_complex_assignment_py3():
-    source = ('a, *b, c = (1, 2, 3, 4)  #: unpack assignment\n'
-              'd, *self.attr = (5, 6, 7)  #: unpack assignment2\n'
-              'e, *f[0] = (8, 9, 0)  #: unpack assignment3\n'
-              )
-    parser = Parser(source)
-    parser.parse()
-    assert parser.comments == {('', 'a'): 'unpack assignment',
-                               ('', 'b'): 'unpack assignment',
-                               ('', 'c'): 'unpack assignment',
-                               ('', 'd'): 'unpack assignment2',
-                               ('', 'e'): 'unpack assignment3',
+                               ('', 'h'): 'unpack assignment2',
+                               ('', 'i'): 'unpack assignment2',
+                               ('', 'j'): 'unpack assignment2',
+                               ('', 'k'): 'unpack assignment3',
+                               ('', 'l'): 'unpack assignment4',
                                }
     assert parser.definitions == {}
 

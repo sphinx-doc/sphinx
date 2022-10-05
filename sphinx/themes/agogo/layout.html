@@ -5,7 +5,7 @@
     Sphinx layout template for the agogo theme, originally written
     by Andi Albrecht.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
 {%- extends "basic/layout.html" %}
@@ -36,7 +36,7 @@
 {%- macro agogo_sidebar() %}
           {%- block sidebartoc %}
           <h3>{{ _('Table of Contents') }}</h3>
-          {{ toctree() }}
+          {{ toctree(includehidden=True) }}
           {%- endblock %}
           {%- block sidebarsearch %}
           <div role="search">

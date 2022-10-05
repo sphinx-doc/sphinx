@@ -1,12 +1,4 @@
-"""
-    sphinx.search.de
-    ~~~~~~~~~~~~~~~~
-
-    German search language: includes the JS German stemmer.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""German search language: includes the JS German stemmer."""
 
 from typing import Dict
 

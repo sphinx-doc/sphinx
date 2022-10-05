@@ -1,12 +1,4 @@
-"""
-    test_only_directive
-    ~~~~~~~~~~~~~~~~~~~
-
-    Test the only directive with the test root.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the only directive with the test root."""
 
 import re
 

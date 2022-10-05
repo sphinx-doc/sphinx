@@ -1,12 +1,4 @@
-"""
-    test_pycode
-    ~~~~~~~~~~~
-
-    Test pycode.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test pycode."""
 
 import os
 import sys
@@ -191,3 +183,18 @@ def test_ModuleAnalyzer_find_attr_docs():
                                  'Qux': 15,
                                  'Qux.attr1': 16,
                                  'Qux.attr2': 17}
+
+
+@pytest.mark.skipif(sys.version_info < (3, 8),
+                    reason='posonlyargs are available since python3.8.')
+def test_ModuleAnalyzer_find_attr_docs_for_posonlyargs_method():
+    code = ('class Foo(object):\n'
+            '    def __init__(self, /):\n'
+            '       self.attr = None  #: attribute comment\n')
+    analyzer = ModuleAnalyzer.for_string(code, 'module')
+    docs = analyzer.find_attr_docs()
+    assert set(docs) == {('Foo', 'attr')}
+    assert docs[('Foo', 'attr')] == ['attribute comment', '']
+    assert analyzer.tagorder == {'Foo': 0,
+                                 'Foo.__init__': 1,
+                                 'Foo.attr': 2}

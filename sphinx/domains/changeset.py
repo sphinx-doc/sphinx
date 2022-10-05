@@ -1,12 +1,4 @@
-"""
-    sphinx.domains.changeset
-    ~~~~~~~~~~~~~~~~~~~~~~~~
-
-    The changeset domain.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""The changeset domain."""
 
 from typing import TYPE_CHECKING, Any, Dict, List, NamedTuple, cast
 
@@ -84,7 +76,7 @@ class VersionChange(SphinxDirective):
                 content += node[0].children
                 node[0].replace_self(nodes.paragraph('', '', content, translatable=False))
 
-            para = cast(nodes.paragraph, node[0])
+            para = node[0]
             para.insert(0, nodes.inline('', '%s: ' % text, classes=classes))
         elif len(node) > 0:
             # the contents do not starts with a paragraph
@@ -130,7 +122,7 @@ class ChangeSetDomain(Domain):
         self.changesets.setdefault(version, []).append(changeset)
 
     def clear_doc(self, docname: str) -> None:
-        for version, changes in self.changesets.items():
+        for changes in self.changesets.values():
             for changeset in changes[:]:
                 if changeset.docname == docname:
                     changes.remove(changeset)

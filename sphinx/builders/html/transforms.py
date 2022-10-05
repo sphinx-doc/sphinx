@@ -1,12 +1,4 @@
-"""
-    sphinx.builders.html.transforms
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Transforms for HTML builder.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Transforms for HTML builder."""
 
 import re
 from typing import Any, Dict, List
@@ -36,7 +28,7 @@ class KeyboardTransform(SphinxPostTransform):
                 x
     """
     default_priority = 400
-    builders = ('html',)
+    formats = ('html',)
     pattern = re.compile(r'(?<=.)(-|\+|\^|\s+)(?=.)')
     multiwords_keys = (('caps', 'lock'),
                        ('page' 'down'),
@@ -48,7 +40,9 @@ class KeyboardTransform(SphinxPostTransform):
 
     def run(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.literal, classes=["kbd"])
-        for node in self.document.traverse(matcher):  # type: nodes.literal
+        # this list must be pre-created as during iteration new nodes
+        # are added which match the condition in the NodeMatcher.
+        for node in list(self.document.findall(matcher)):  # type: nodes.literal
             parts = self.pattern.split(node[-1].astext())
             if len(parts) == 1 or self.is_multiwords_key(parts):
                 continue

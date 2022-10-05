@@ -1,19 +1,11 @@
-"""
-    sphinx.testing.fixtures
-    ~~~~~~~~~~~~~~~~~~~~~~~
-
-    Sphinx test fixtures for pytest
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Sphinx test fixtures for pytest"""
 
 import subprocess
 import sys
 from collections import namedtuple
 from io import StringIO
 from subprocess import PIPE
-from typing import Any, Callable, Dict, Generator, Tuple
+from typing import Any, Callable, Dict, Generator, Optional, Tuple
 
 import pytest
 
@@ -36,7 +28,7 @@ def pytest_configure(config):
 
 
 @pytest.fixture(scope='session')
-def rootdir() -> str:
+def rootdir() -> Optional[str]:
     return None
 
 
@@ -72,19 +64,14 @@ def app_params(request: Any, test_params: Dict, shared_result: SharedResult,
 
     # ##### process pytest.mark.sphinx
 
-    if hasattr(request.node, 'iter_markers'):  # pytest-3.6.0 or newer
-        markers = request.node.iter_markers("sphinx")
-    else:
-        markers = request.node.get_marker("sphinx")
     pargs = {}
     kwargs: Dict[str, Any] = {}
 
-    if markers is not None:
-        # to avoid stacking positional args
-        for info in reversed(list(markers)):
-            for i, a in enumerate(info.args):
-                pargs[i] = a
-            kwargs.update(info.kwargs)
+    # to avoid stacking positional args
+    for info in reversed(list(request.node.iter_markers("sphinx"))):
+        for i, a in enumerate(info.args):
+            pargs[i] = a
+        kwargs.update(info.kwargs)
 
     args = [pargs[i] for i in sorted(pargs.keys())]
 
@@ -121,10 +108,7 @@ def test_params(request: Any) -> Dict:
        have same 'shared_result' value.
        **NOTE**: You can not specify both shared_result and srcdir.
     """
-    if hasattr(request.node, 'get_closest_marker'):  # pytest-3.6.0 or newer
-        env = request.node.get_closest_marker('test_params')
-    else:
-        env = request.node.get_marker('test_params')
+    env = request.node.get_closest_marker('test_params')
     kwargs = env.kwargs if env else {}
     result = {
         'shared_result': None,

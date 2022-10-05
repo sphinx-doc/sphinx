@@ -1,13 +1,7 @@
-"""
-    test_search
-    ~~~~~~~~~~~
+"""Test the search index builder."""
 
-    Test the search index builder.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
+import json
+import warnings
 from collections import namedtuple
 from io import BytesIO
 
@@ -16,7 +10,6 @@ from docutils import frontend, utils
 from docutils.parsers import rst
 
 from sphinx.search import IndexBuilder
-from sphinx.util import jsdump
 
 DummyEnvironment = namedtuple('DummyEnvironment', ['version', 'domains'])
 
@@ -35,17 +28,21 @@ settings = parser = None
 
 def setup_module():
     global settings, parser
-    optparser = frontend.OptionParser(components=(rst.Parser,))
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore', category=DeprecationWarning)
+        # DeprecationWarning: The frontend.OptionParser class will be replaced
+        # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
+        optparser = frontend.OptionParser(components=(rst.Parser,))
     settings = optparser.get_default_values()
     parser = rst.Parser()
 
 
-def jsload(path):
-    searchindex = path.read_text()
+def load_searchindex(path):
+    searchindex = path.read_text(encoding='utf8')
     assert searchindex.startswith('Search.setIndex(')
     assert searchindex.endswith(')')
 
-    return jsdump.loads(searchindex[16:-1])
+    return json.loads(searchindex[16:-1])
 
 
 def is_registered_term(index, keyword):
@@ -65,18 +62,18 @@ test that non-comments are indexed: fermion
 @pytest.mark.sphinx(testroot='ext-viewcode')
 def test_objects_are_escaped(app, status, warning):
     app.builder.build_all()
-    index = jsload(app.outdir / 'searchindex.js')
+    index = load_searchindex(app.outdir / 'searchindex.js')
     for item in index.get('objects').get(''):
         if item[-1] == 'n::Array&lt;T, d&gt;':  # n::Array<T,d> is escaped
             break
     else:
-        assert False, index.get('objects').get('')
+        raise AssertionError(index.get('objects').get(''))
 
 
 @pytest.mark.sphinx(testroot='search')
 def test_meta_keys_are_handled_for_language_en(app, status, warning):
     app.builder.build_all()
-    searchindex = jsload(app.outdir / 'searchindex.js')
+    searchindex = load_searchindex(app.outdir / 'searchindex.js')
     assert not is_registered_term(searchindex, 'thisnoteith')
     assert is_registered_term(searchindex, 'thisonetoo')
     assert is_registered_term(searchindex, 'findthiskei')
@@ -89,7 +86,7 @@ def test_meta_keys_are_handled_for_language_en(app, status, warning):
 @pytest.mark.sphinx(testroot='search', confoverrides={'html_search_language': 'de'})
 def test_meta_keys_are_handled_for_language_de(app, status, warning):
     app.builder.build_all()
-    searchindex = jsload(app.outdir / 'searchindex.js')
+    searchindex = load_searchindex(app.outdir / 'searchindex.js')
     assert not is_registered_term(searchindex, 'thisnoteith')
     assert is_registered_term(searchindex, 'thisonetoo')
     assert not is_registered_term(searchindex, 'findthiskei')
@@ -102,13 +99,13 @@ def test_meta_keys_are_handled_for_language_de(app, status, warning):
 @pytest.mark.sphinx(testroot='search')
 def test_stemmer_does_not_remove_short_words(app, status, warning):
     app.builder.build_all()
-    searchindex = (app.outdir / 'searchindex.js').read_text()
+    searchindex = (app.outdir / 'searchindex.js').read_text(encoding='utf8')
     assert 'zfs' in searchindex
 
 
 @pytest.mark.sphinx(testroot='search')
 def test_stemmer(app, status, warning):
-    searchindex = jsload(app.outdir / 'searchindex.js')
+    searchindex = load_searchindex(app.outdir / 'searchindex.js')
     print(searchindex)
     assert is_registered_term(searchindex, 'findthisstemmedkei')
     assert is_registered_term(searchindex, 'intern')
@@ -116,17 +113,17 @@ def test_stemmer(app, status, warning):
 
 @pytest.mark.sphinx(testroot='search')
 def test_term_in_heading_and_section(app, status, warning):
-    searchindex = (app.outdir / 'searchindex.js').read_text()
+    searchindex = (app.outdir / 'searchindex.js').read_text(encoding='utf8')
     # if search term is in the title of one doc and in the text of another
     # both documents should be a hit in the search index as a title,
     # respectively text hit
-    assert 'textinhead:2' in searchindex
-    assert 'textinhead:0' in searchindex
+    assert '"textinhead": 2' in searchindex
+    assert '"textinhead": 0' in searchindex
 
 
 @pytest.mark.sphinx(testroot='search')
 def test_term_in_raw_directive(app, status, warning):
-    searchindex = jsload(app.outdir / 'searchindex.js')
+    searchindex = load_searchindex(app.outdir / 'searchindex.js')
     assert not is_registered_term(searchindex, 'raw')
     assert is_registered_term(searchindex, 'rawword')
     assert not is_registered_term(searchindex, 'latex_keyword')
@@ -180,7 +177,9 @@ def test_IndexBuilder():
                   'non': [0, 1, 2, 3],
                   'test': [0, 1, 2, 3]},
         'titles': ('title1_1', 'title1_2', 'title2_1', 'title2_2'),
-        'titleterms': {'section_titl': [0, 1, 2, 3]}
+        'titleterms': {'section_titl': [0, 1, 2, 3]},
+        'alltitles': {'section_title': [(0, 'section-title'), (1, 'section-title'), (2, 'section-title'), (3, 'section-title')]},
+        'indexentries': {},
     }
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
     assert index._objnames == {0: ('dummy1', 'objtype1', 'objtype1'),
@@ -237,7 +236,9 @@ def test_IndexBuilder():
                   'non': [0, 1],
                   'test': [0, 1]},
         'titles': ('title1_2', 'title2_2'),
-        'titleterms': {'section_titl': [0, 1]}
+        'titleterms': {'section_titl': [0, 1]},
+        'alltitles': {'section_title': [(0, 'section-title'), (1, 'section-title')]},
+        'indexentries': {},
     }
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
     assert index._objnames == {0: ('dummy1', 'objtype1', 'objtype1'),
@@ -263,18 +264,17 @@ def test_IndexBuilder_lookup():
 )
 def test_search_index_gen_zh(app, status, warning):
     app.builder.build_all()
-    # jsdump fails if search language is 'zh'; hence we just get the text:
-    searchindex = (app.outdir / 'searchindex.js').read_text()
-    assert 'chinesetest ' not in searchindex
-    assert 'chinesetest' in searchindex
-    assert 'chinesetesttwo' in searchindex
-    assert 'cas' in searchindex
+    index = load_searchindex(app.outdir / 'searchindex.js')
+    assert 'chinesetest ' not in index['terms']
+    assert 'chinesetest' in index['terms']
+    assert 'chinesetesttwo' in index['terms']
+    assert 'cas' in index['terms']
 
 
 @pytest.mark.sphinx(testroot='search')
 def test_nosearch(app):
     app.build()
-    index = jsload(app.outdir / 'searchindex.js')
+    index = load_searchindex(app.outdir / 'searchindex.js')
     assert index['docnames'] == ['index', 'nosearch', 'tocitem']
     assert 'latex' not in index['terms']
     assert 'zfs' in index['terms']

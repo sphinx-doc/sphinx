@@ -1,12 +1,7 @@
-"""
-    sphinx.ext.coverage
-    ~~~~~~~~~~~~~~~~~~~
+"""Check Python modules and C API for coverage.
 
-    Check Python modules and C API for coverage.  Mostly written by Josip
-    Dzolonga for the Google Highly Open Participation contest.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+Mostly written by Josip Dzolonga for the Google Highly Open Participation
+contest.
 """
 
 import glob
@@ -29,12 +24,12 @@ logger = logging.getLogger(__name__)
 
 
 # utility
-def write_header(f: IO, text: str, char: str = '-') -> None:
+def write_header(f: IO[str], text: str, char: str = '-') -> None:
     f.write(text + '\n')
     f.write(char * len(text) + '\n')
 
 
-def compile_regex_list(name: str, exps: str) -> List[Pattern]:
+def compile_regex_list(name: str, exps: str) -> List[Pattern[str]]:
     lst = []
     for exp in exps:
         try:
@@ -58,14 +53,14 @@ class CoverageBuilder(Builder):
             pattern = path.join(self.srcdir, pattern)
             self.c_sourcefiles.extend(glob.glob(pattern))
 
-        self.c_regexes: List[Tuple[str, Pattern]] = []
+        self.c_regexes: List[Tuple[str, Pattern[str]]] = []
         for (name, exp) in self.config.coverage_c_regexes.items():
             try:
                 self.c_regexes.append((name, re.compile(exp)))
             except Exception:
                 logger.warning(__('invalid regex %r in coverage_c_regexes'), exp)
 
-        self.c_ignorexps: Dict[str, List[Pattern]] = {}
+        self.c_ignorexps: Dict[str, List[Pattern[str]]] = {}
         for (name, exps) in self.config.coverage_ignore_c_items.items():
             self.c_ignorexps[name] = compile_regex_list('coverage_ignore_c_items',
                                                         exps)
@@ -95,7 +90,7 @@ class CoverageBuilder(Builder):
         c_objects = self.env.domaindata['c']['objects']
         for filename in self.c_sourcefiles:
             undoc: Set[Tuple[str, str]] = set()
-            with open(filename) as f:
+            with open(filename, encoding="utf-8") as f:
                 for line in f:
                     for key, regex in self.c_regexes:
                         match = regex.match(line)
@@ -113,7 +108,7 @@ class CoverageBuilder(Builder):
 
     def write_c_coverage(self) -> None:
         output_file = path.join(self.outdir, 'c.txt')
-        with open(output_file, 'w') as op:
+        with open(output_file, 'w', encoding="utf-8") as op:
             if self.config.coverage_write_headline:
                 write_header(op, 'Undocumented C API elements', '=')
             op.write('\n')
@@ -232,7 +227,7 @@ class CoverageBuilder(Builder):
     def write_py_coverage(self) -> None:
         output_file = path.join(self.outdir, 'python.txt')
         failed = []
-        with open(output_file, 'w') as op:
+        with open(output_file, 'w', encoding="utf-8") as op:
             if self.config.coverage_write_headline:
                 write_header(op, 'Undocumented Python objects', '=')
             keys = sorted(self.py_undoc.keys())

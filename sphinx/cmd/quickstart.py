@@ -1,12 +1,4 @@
-"""
-    sphinx.cmd.quickstart
-    ~~~~~~~~~~~~~~~~~~~~~
-
-    Quickly setup documentation source to work with Sphinx.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Quickly setup documentation source to work with Sphinx."""
 
 import argparse
 import locale
@@ -15,11 +7,14 @@ import sys
 import time
 from collections import OrderedDict
 from os import path
-from typing import Any, Callable, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
 # try to import readline, unix specific enhancement
 try:
     import readline
+    if TYPE_CHECKING and sys.platform == "win32":  # always false, for type checking
+        raise ImportError
+    READLINE_AVAILABLE = True
     if readline.__doc__ and 'libedit' in readline.__doc__:
         readline.parse_and_bind("bind ^I rl_complete")
         USE_LIBEDIT = True
@@ -27,7 +22,7 @@ try:
         readline.parse_and_bind("tab: complete")
         USE_LIBEDIT = False
 except ImportError:
-    readline = None
+    READLINE_AVAILABLE = False
     USE_LIBEDIT = False
 
 from docutils.utils import column_width
@@ -135,7 +130,9 @@ def ok(x: str) -> str:
     return x
 
 
-def do_prompt(text: str, default: str = None, validator: Callable[[str], Any] = nonempty) -> Union[str, bool]:  # NOQA
+def do_prompt(
+    text: str, default: Optional[str] = None, validator: Callable[[str], Any] = nonempty
+) -> Union[str, bool]:
     while True:
         if default is not None:
             prompt = PROMPT_PREFIX + '%s [%s]: ' % (text, default)
@@ -146,7 +143,7 @@ def do_prompt(text: str, default: str = None, validator: Callable[[str], Any] = 
             # sequence (see #5335).  To avoid the problem, all prompts are not colored
             # on libedit.
             pass
-        elif readline:
+        elif READLINE_AVAILABLE:
             # pass input_mode=True if readline available
             prompt = colorize(COLOR_QUESTION, prompt, input_mode=True)
         else:
@@ -164,8 +161,8 @@ def do_prompt(text: str, default: str = None, validator: Callable[[str], Any] = 
 
 
 class QuickstartRenderer(SphinxRenderer):
-    def __init__(self, templatedir: str) -> None:
-        self.templatedir = templatedir or ''
+    def __init__(self, templatedir: str = '') -> None:
+        self.templatedir = templatedir
         super().__init__()
 
     def _has_custom_template(self, template_name: str) -> bool:
@@ -180,7 +177,7 @@ class QuickstartRenderer(SphinxRenderer):
         else:
             return False
 
-    def render(self, template_name: str, context: Dict) -> str:
+    def render(self, template_name: str, context: Dict[str, Any]) -> str:
         if self._has_custom_template(template_name):
             custom_template = path.join(self.templatedir, path.basename(template_name))
             return self.render_from_file(custom_template, context)
@@ -188,7 +185,7 @@ class QuickstartRenderer(SphinxRenderer):
             return super().render(template_name, context)
 
 
-def ask_user(d: Dict) -> None:
+def ask_user(d: Dict[str, Any]) -> None:
     """Ask the user for quickstart values missing from *d*.
 
     Values are:
@@ -326,10 +323,11 @@ def ask_user(d: Dict) -> None:
     print()
 
 
-def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir: str = None
-             ) -> None:
+def generate(
+    d: Dict, overwrite: bool = True, silent: bool = False, templatedir: Optional[str] = None
+) -> None:
     """Generate project based on values in *d*."""
-    template = QuickstartRenderer(templatedir=templatedir)
+    template = QuickstartRenderer(templatedir or '')
 
     if 'mastertoctree' not in d:
         d['mastertoctree'] = ''
@@ -362,7 +360,7 @@ def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir:
     ensuredir(path.join(srcdir, d['dot'] + 'templates'))
     ensuredir(path.join(srcdir, d['dot'] + 'static'))
 
-    def write_file(fpath: str, content: str, newline: str = None) -> None:
+    def write_file(fpath: str, content: str, newline: Optional[str] = None) -> None:
         if overwrite or not path.isfile(fpath):
             if 'quiet' not in d:
                 print(__('Creating file %s.') % fpath)
@@ -375,7 +373,7 @@ def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir:
     conf_path = os.path.join(templatedir, 'conf.py_t') if templatedir else None
     if not conf_path or not path.isfile(conf_path):
         conf_path = os.path.join(package_dir, 'templates', 'quickstart', 'conf.py_t')
-    with open(conf_path) as f:
+    with open(conf_path, encoding="utf-8") as f:
         conf_text = f.read()
 
     write_file(path.join(srcdir, 'conf.py'), template.render_string(conf_text, d))

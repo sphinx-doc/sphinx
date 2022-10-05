@@ -352,7 +352,7 @@ This tests :CLASS:`role names in uppercase`.
    über
       Gewisse
 
-   änhlich
+   ähnlich
       Dinge
 
 .. productionlist::

@@ -1,12 +1,4 @@
-"""
-    sphinx.search.es
-    ~~~~~~~~~~~~~~~~
-
-    Spanish search language: includes the JS Spanish stemmer.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Spanish search language: includes the JS Spanish stemmer."""
 
 from typing import Dict
 

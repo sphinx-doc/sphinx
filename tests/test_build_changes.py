@@ -1,12 +1,4 @@
-"""
-    test_build_changes
-    ~~~~~~~~~~~~~~~~~~
-
-    Test the ChangesBuilder class.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the ChangesBuilder class."""
 
 import pytest
 
@@ -16,7 +8,7 @@ def test_build(app):
     app.build()
 
     # TODO: Use better checking of html content
-    htmltext = (app.outdir / 'changes.html').read_text()
+    htmltext = (app.outdir / 'changes.html').read_text(encoding='utf8')
     assert 'New in version 0.6: Some funny stuff.' in htmltext
     assert 'Changed in version 0.6: Even more funny stuff.' in htmltext
     assert 'Deprecated since version 0.6: Boring stuff.' in htmltext

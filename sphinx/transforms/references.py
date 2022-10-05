@@ -1,12 +1,4 @@
-"""
-    sphinx.transforms.references
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Docutils transforms used by Sphinx.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Docutils transforms used by Sphinx."""
 
 from typing import TYPE_CHECKING, Any, Dict
 

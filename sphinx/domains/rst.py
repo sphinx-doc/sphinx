@@ -1,12 +1,4 @@
-"""
-    sphinx.domains.rst
-    ~~~~~~~~~~~~~~~~~~
-
-    The reStructuredText domain.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""The reStructuredText domain."""
 
 import re
 from typing import Any, Dict, Iterator, List, Optional, Tuple, cast
@@ -36,25 +28,24 @@ class ReSTMarkup(ObjectDescription[str]):
     """
     Description of generic reST markup.
     """
+    option_spec: OptionSpec = {
+        'noindex': directives.flag,
+        'noindexentry': directives.flag,
+        'nocontentsentry': directives.flag,
+    }
 
     def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:
         node_id = make_id(self.env, self.state.document, self.objtype, name)
         signode['ids'].append(node_id)
-
-        # Assign old styled node_id not to break old hyperlinks (if possible)
-        # Note: Will be removed in Sphinx-5.0 (RemovedInSphinx50Warning)
-        old_node_id = self.make_old_id(name)
-        if old_node_id not in self.state.document.ids and old_node_id not in signode['ids']:
-            signode['ids'].append(old_node_id)
-
         self.state.document.note_explicit_target(signode)
 
         domain = cast(ReSTDomain, self.env.get_domain('rst'))
         domain.note_object(self.objtype, name, node_id, location=signode)
 
-        indextext = self.get_index_text(self.objtype, name)
-        if indextext:
-            self.indexnode['entries'].append(('single', indextext, node_id, '', None))
+        if 'noindexentry' not in self.options:
+            indextext = self.get_index_text(self.objtype, name)
+            if indextext:
+                self.indexnode['entries'].append(('single', indextext, node_id, '', None))
 
     def get_index_text(self, objectname: str, name: str) -> str:
         return ''
@@ -66,6 +57,32 @@ class ReSTMarkup(ObjectDescription[str]):
                   This will be removed in Sphinx-5.0.
         """
         return self.objtype + '-' + name
+
+    def _object_hierarchy_parts(self, sig_node: desc_signature) -> Tuple[str, ...]:
+        if 'fullname' not in sig_node:
+            return ()
+        directive_names = []
+        for parent in self.env.ref_context.get('rst:directives', ()):
+            directive_names += parent.split(':')
+        name = sig_node['fullname']
+        return tuple(directive_names + name.split(':'))
+
+    def _toc_entry_name(self, sig_node: desc_signature) -> str:
+        if not sig_node.get('_toc_parts'):
+            return ''
+
+        config = self.env.app.config
+        objtype = sig_node.parent.get('objtype')
+        *parents, name = sig_node['_toc_parts']
+        if objtype == 'directive:option':
+            return f':{name}:'
+        if config.toc_object_entries_show_parents in {'domain', 'all'}:
+            name = ':'.join(sig_node['_toc_parts'])
+        if objtype == 'role':
+            return f':{name}:'
+        if objtype == 'directive':
+            return f'.. {name}::'
+        return ''
 
 
 def parse_directive(d: str) -> Tuple[str, str]:
@@ -94,7 +111,8 @@ class ReSTDirective(ReSTMarkup):
     """
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         name, args = parse_directive(sig)
-        desc_name = '.. %s::' % name
+        desc_name = f'.. {name}::'
+        signode['fullname'] = name.strip()
         signode += addnodes.desc_name(desc_name, desc_name)
         if len(args) > 0:
             signode += addnodes.desc_addname(args, args)
@@ -129,7 +147,9 @@ class ReSTDirectiveOption(ReSTMarkup):
         except ValueError:
             name, argument = sig, None
 
-        signode += addnodes.desc_name(':%s:' % name, ':%s:' % name)
+        desc_name = f':{name}:'
+        signode['fullname'] = name.strip()
+        signode += addnodes.desc_name(desc_name, desc_name)
         if argument:
             signode += addnodes.desc_annotation(' ' + argument, ' ' + argument)
         if self.options.get('type'):
@@ -150,13 +170,6 @@ class ReSTDirectiveOption(ReSTMarkup):
 
         node_id = make_id(self.env, self.state.document, prefix, name)
         signode['ids'].append(node_id)
-
-        # Assign old styled node_id not to break old hyperlinks (if possible)
-        # Note: Will be removed in Sphinx-5.0 (RemovedInSphinx50Warning)
-        old_node_id = self.make_old_id(name)
-        if old_node_id not in self.state.document.ids and old_node_id not in signode['ids']:
-            signode['ids'].append(old_node_id)
-
         self.state.document.note_explicit_target(signode)
         domain.note_object(self.objtype, objname, node_id, location=signode)
 
@@ -192,7 +205,9 @@ class ReSTRole(ReSTMarkup):
     Description of a reST role.
     """
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
-        signode += addnodes.desc_name(':%s:' % sig, ':%s:' % sig)
+        desc_name = f':{sig}:'
+        signode['fullname'] = sig.strip()
+        signode += addnodes.desc_name(desc_name, desc_name)
         return sig
 
     def get_index_text(self, objectname: str, name: str) -> str:
@@ -235,7 +250,7 @@ class ReSTDomain(Domain):
         self.objects[objtype, name] = (self.env.docname, node_id)
 
     def clear_doc(self, docname: str) -> None:
-        for (typ, name), (doc, node_id) in list(self.objects.items()):
+        for (typ, name), (doc, _node_id) in list(self.objects.items()):
             if doc == docname:
                 del self.objects[typ, name]
 

@@ -1,15 +1,7 @@
-"""
-    sphinx.directives.patches
-    ~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
 import os
 import warnings
 from os import path
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Sequence, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Node, make_id, system_message
@@ -29,13 +21,10 @@ from sphinx.util.osutil import SEP, os_path, relpath
 from sphinx.util.typing import OptionSpec
 
 try:
-    from docutils.nodes import meta as meta_node  # type: ignore
     from docutils.parsers.rst.directives.misc import Meta as MetaBase  # type: ignore
 except ImportError:
     # docutils-0.17 or older
     from docutils.parsers.rst.directives.html import Meta as MetaBase
-    from docutils.parsers.rst.directives.html import MetaBody
-    meta_node = MetaBody.meta
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -71,11 +60,13 @@ class Figure(images.Figure):
 
 
 class Meta(MetaBase, SphinxDirective):
-    def run(self) -> List[Node]:
+    def run(self) -> Sequence[Node]:
         result = super().run()
         for node in result:
+            # for docutils-0.17 or older.  Since docutils-0.18, patching is no longer needed
+            # because it uses picklable node; ``docutils.nodes.meta``.
             if (isinstance(node, nodes.pending) and
-               isinstance(node.details['nodes'][0], meta_node)):
+               isinstance(node.details['nodes'][0], addnodes.docutils_meta)):
                 meta = node.details['nodes'][0]
                 meta.source = self.env.doc2path(self.env.docname)
                 meta.line = self.lineno

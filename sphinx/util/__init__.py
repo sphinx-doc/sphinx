@@ -1,12 +1,4 @@
-"""
-    sphinx.util
-    ~~~~~~~~~~~
-
-    Utility functions for Sphinx.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Utility functions for Sphinx."""
 
 import functools
 import hashlib
@@ -16,17 +8,16 @@ import re
 import sys
 import tempfile
 import traceback
-import unicodedata
 import warnings
 from datetime import datetime
 from importlib import import_module
 from os import path
 from time import mktime, strptime
-from typing import (IO, TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, List, Optional,
-                    Pattern, Set, Tuple, Type)
+from typing import (IO, TYPE_CHECKING, Any, Callable, Dict, Generator, Iterable, List,
+                    Optional, Pattern, Set, Tuple, Type, TypeVar)
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
-from sphinx.deprecation import RemovedInSphinx50Warning
+from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.errors import ExtensionError, FiletypeNotFoundError, SphinxParallelError
 from sphinx.locale import __
 from sphinx.util import logging
@@ -37,7 +28,7 @@ from sphinx.util.nodes import (caption_ref_re, explicit_title_re,  # noqa
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
 from sphinx.util.osutil import (SEP, copyfile, copytimes, ensuredir, make_filename,  # noqa
-                                movefile, mtimes_of_files, os_path, relative_uri)
+                                mtimes_of_files, os_path, relative_uri)
 from sphinx.util.typing import PathMatcher
 
 if TYPE_CHECKING:
@@ -60,22 +51,32 @@ def docname_join(basedocname: str, docname: str) -> str:
 
 def path_stabilize(filepath: str) -> str:
     "Normalize path separator and unicode string"
-    newpath = filepath.replace(os.path.sep, SEP)
-    return unicodedata.normalize('NFC', newpath)
+    warnings.warn("'sphinx.util.path_stabilize' is deprecated, use "
+                  "'sphinx.util.osutil.path_stabilize' instead.",
+                  RemovedInSphinx70Warning, stacklevel=2)
+    from sphinx.util import osutil
+
+    return osutil.path_stabilize(filepath)
 
 
 def get_matching_files(dirname: str,
-                       exclude_matchers: Tuple[PathMatcher, ...] = ()) -> Iterable[str]:  # NOQA
+                       exclude_matchers: Tuple[PathMatcher, ...] = (),
+                       include_matchers: Tuple[PathMatcher, ...] = ()) -> Iterable[str]:  # NOQA
     """Get all file names in a directory, recursively.
 
     Exclude files and dirs matching some matcher in *exclude_matchers*.
     """
+    warnings.warn("'sphinx.util.get_matching_files' is deprecated, use "
+                  "'sphinx.util.matching.get_matching_files' instead. Note that"
+                  "the types of the arguments have changed from callables to "
+                  "plain string glob patterns.", RemovedInSphinx70Warning, stacklevel=2)
     # dirname is a normalized absolute path.
     dirname = path.normpath(path.abspath(dirname))
-    dirlen = len(dirname) + 1    # exclude final os.path.sep
 
     for root, dirs, files in os.walk(dirname, followlinks=True):
-        relativeroot = root[dirlen:]
+        relativeroot = path.relpath(root, dirname)
+        if relativeroot == ".":
+            relativeroot = ""  # suppress dirname for files on the target dir
 
         qdirs = enumerate(path_stabilize(path.join(relativeroot, dn))
                           for dn in dirs)  # type: Iterable[Tuple[int, str]]
@@ -87,7 +88,7 @@ def get_matching_files(dirname: str,
 
         dirs[:] = sorted(dirs[i] for (i, _) in qdirs)
 
-        for i, filename in sorted(qfiles):
+        for _i, filename in sorted(qfiles):
             yield filename
 
 
@@ -131,7 +132,7 @@ class FilenameUniqDict(dict):
                 self._existing.discard(unique)
 
     def merge_other(self, docnames: Set[str], other: Dict[str, Tuple[Set[str], Any]]) -> None:
-        for filename, (docs, unique) in other.items():
+        for filename, (docs, _unique) in other.items():
             for doc in docs & set(docnames):
                 self.add_file(doc, filename)
 
@@ -153,7 +154,7 @@ def md5(data=b'', **kwargs):
     """
 
     try:
-        return hashlib.md5(data, **kwargs)  # type: ignore
+        return hashlib.md5(data, **kwargs)
     except ValueError:
         return hashlib.md5(data, **kwargs, usedforsecurity=False)  # type: ignore
 
@@ -167,7 +168,7 @@ def sha1(data=b'', **kwargs):
     """
 
     try:
-        return hashlib.sha1(data, **kwargs)  # type: ignore
+        return hashlib.sha1(data, **kwargs)
     except ValueError:
         return hashlib.sha1(data, **kwargs, usedforsecurity=False)  # type: ignore
 
@@ -189,13 +190,13 @@ class DownloadFiles(dict):
         return self[filename][1]
 
     def purge_doc(self, docname: str) -> None:
-        for filename, (docs, dest) in list(self.items()):
+        for filename, (docs, _dest) in list(self.items()):
             docs.discard(docname)
             if not docs:
                 del self[filename]
 
     def merge_other(self, docnames: Set[str], other: Dict[str, Tuple[Set[str], Any]]) -> None:
-        for filename, (docs, dest) in other.items():
+        for filename, (docs, _dest) in other.items():
             for docname in docs & set(docnames):
                 self.add_file(docname, filename)
 
@@ -211,7 +212,7 @@ _DEBUG_HEADER = '''\
 '''
 
 
-def save_traceback(app: "Sphinx") -> str:
+def save_traceback(app: Optional["Sphinx"]) -> str:
     """Save the current exception's traceback in a temporary file."""
     import platform
 
@@ -248,7 +249,7 @@ def save_traceback(app: "Sphinx") -> str:
     return path
 
 
-def get_full_modname(modname: str, attribute: str) -> str:
+def get_full_modname(modname: str, attribute: str) -> Optional[str]:
     if modname is None:
         # Prevents a TypeError: if the last getattr() call will return None
         # then it's better to return it directly
@@ -314,7 +315,7 @@ def parselinenos(spec: str, total: int) -> List[int]:
     """Parse a line number spec (such as "1,2,4-6") and return a list of
     wanted line numbers.
     """
-    items = list()
+    items = []
     parts = spec.split(',')
     for part in parts:
         try:
@@ -335,32 +336,6 @@ def parselinenos(spec: str, total: int) -> List[int]:
             raise ValueError('invalid line number spec: %r' % spec) from exc
 
     return items
-
-
-def force_decode(string: str, encoding: str) -> str:
-    """Forcibly get a unicode string out of a bytestring."""
-    warnings.warn('force_decode() is deprecated.',
-                  RemovedInSphinx50Warning, stacklevel=2)
-    if isinstance(string, bytes):
-        try:
-            if encoding:
-                string = string.decode(encoding)
-            else:
-                # try decoding with utf-8, should only work for real UTF-8
-                string = string.decode()
-        except UnicodeError:
-            # last resort -- can't fail
-            string = string.decode('latin1')
-    return string
-
-
-def rpartition(s: str, t: str) -> Tuple[str, str]:
-    """Similar to str.rpartition from 2.5, but doesn't return the separator."""
-    warnings.warn('rpartition() is now deprecated.', RemovedInSphinx50Warning, stacklevel=2)
-    i = s.rfind(t)
-    if i != -1:
-        return s[:i], s[i + len(t):]
-    return '', s
 
 
 def split_into(n: int, type: str, value: str) -> List[str]:
@@ -403,7 +378,7 @@ def format_exception_cut_frames(x: int = 1) -> str:
     return ''.join(res)
 
 
-def import_object(objname: str, source: str = None) -> Any:
+def import_object(objname: str, source: Optional[str] = None) -> Any:
     """Import python object by qualname."""
     try:
         objpath = objname.split('.')
@@ -429,7 +404,7 @@ def split_full_qualified_name(name: str) -> Tuple[Optional[str], str]:
     """Split full qualified name to a pair of modname and qualname.
 
     A qualname is an abbreviation for "Qualified name" introduced at PEP-3155
-    (https://www.python.org/dev/peps/pep-3155/).  It is a dotted path name
+    (https://peps.python.org/pep-3155/).  It is a dotted path name
     from the module top-level.
 
     A "full" qualified name means a string containing both module name and
@@ -440,7 +415,7 @@ def split_full_qualified_name(name: str) -> Tuple[Optional[str], str]:
               calling this function.
     """
     parts = name.split('.')
-    for i, part in enumerate(parts, 1):
+    for i, _part in enumerate(parts, 1):
         try:
             modname = ".".join(parts[:i])
             import_module(modname)
@@ -459,7 +434,7 @@ def encode_uri(uri: str) -> str:
     split = list(urlsplit(uri))
     split[1] = split[1].encode('idna').decode('ascii')
     split[2] = quote_plus(split[2].encode(), '/')
-    query = list((q, v.encode()) for (q, v) in parse_qsl(split[3]))
+    query = [(q, v.encode()) for (q, v) in parse_qsl(split[3])]
     split[3] = urlencode(query)
     return urlunsplit(split)
 
@@ -480,8 +455,12 @@ def display_chunk(chunk: Any) -> str:
     return str(chunk)
 
 
-def old_status_iterator(iterable: Iterable, summary: str, color: str = "darkgreen",
-                        stringify_func: Callable[[Any], str] = display_chunk) -> Iterator:
+T = TypeVar('T')
+
+
+def old_status_iterator(iterable: Iterable[T], summary: str, color: str = "darkgreen",
+                        stringify_func: Callable[[Any], str] = display_chunk
+                        ) -> Generator[T, None, None]:
     l = 0
     for item in iterable:
         if l == 0:
@@ -495,9 +474,10 @@ def old_status_iterator(iterable: Iterable, summary: str, color: str = "darkgree
 
 
 # new version with progress info
-def status_iterator(iterable: Iterable, summary: str, color: str = "darkgreen",
+def status_iterator(iterable: Iterable[T], summary: str, color: str = "darkgreen",
                     length: int = 0, verbosity: int = 0,
-                    stringify_func: Callable[[Any], str] = display_chunk) -> Iterable:
+                    stringify_func: Callable[[Any], str] = display_chunk
+                    ) -> Generator[T, None, None]:
     if length == 0:
         yield from old_status_iterator(iterable, summary, color, stringify_func)
         return

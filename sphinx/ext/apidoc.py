@@ -1,17 +1,12 @@
-"""
-    sphinx.ext.apidoc
-    ~~~~~~~~~~~~~~~~~
+"""Creates reST files corresponding to Python modules for code documentation.
 
-    Parses a directory tree looking for Python modules and packages and creates
-    ReST files appropriately to create code documentation with Sphinx.  It also
-    creates a modules index (named modules.<suffix>).
+Parses a directory tree looking for Python modules and packages and creates
+ReST files appropriately to create code documentation with Sphinx.  It also
+creates a modules index (named modules.<suffix>).
 
-    This is derived from the "sphinx-autopackage" script, which is:
-    Copyright 2008 Société des arts technologiques (SAT),
-    https://sat.qc.ca/
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+This is derived from the "sphinx-autopackage" script, which is:
+Copyright 2008 Société des arts technologiques (SAT),
+https://sat.qc.ca/
 """
 
 import argparse
@@ -23,7 +18,7 @@ from copy import copy
 from fnmatch import fnmatch
 from importlib.machinery import EXTENSION_SUFFIXES
 from os import path
-from typing import Any, Generator, List, Tuple
+from typing import Any, Generator, List, Optional, Tuple
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
@@ -63,7 +58,7 @@ def module_join(*modnames: str) -> str:
     return '.'.join(filter(None, modnames))
 
 
-def is_packagedir(dirname: str = None, files: List[str] = None) -> bool:
+def is_packagedir(dirname: Optional[str] = None, files: Optional[List[str]] = None) -> bool:
     """Check given *files* contains __init__ file."""
     if files is None and dirname is None:
         return False
@@ -93,7 +88,7 @@ def write_file(name: str, text: str, opts: Any) -> None:
 
 
 def create_module_file(package: str, basename: str, opts: Any,
-                       user_template_dir: str = None) -> None:
+                       user_template_dir: Optional[str] = None) -> None:
     """Build the text of the file and write the file."""
     options = copy(OPTIONS)
     if opts.includeprivate and 'private-members' not in options:
@@ -112,7 +107,8 @@ def create_module_file(package: str, basename: str, opts: Any,
 
 def create_package_file(root: str, master_package: str, subroot: str, py_files: List[str],
                         opts: Any, subs: List[str], is_namespace: bool,
-                        excludes: List[str] = [], user_template_dir: str = None) -> None:
+                        excludes: List[str] = [], user_template_dir: Optional[str] = None
+                        ) -> None:
     """Build the text of the file and write the file."""
     # build a list of sub packages (directories containing an __init__ file)
     subpackages = [module_join(master_package, subroot, pkgname)
@@ -122,6 +118,7 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files: 
     submodules = [sub.split('.')[0] for sub in py_files
                   if not is_skipped_module(path.join(root, sub), opts, excludes) and
                   not is_initpy(sub)]
+    submodules = sorted(set(submodules))
     submodules = [module_join(master_package, subroot, modname)
                   for modname in submodules]
     options = copy(OPTIONS)
@@ -149,7 +146,7 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files: 
 
 
 def create_modules_toc_file(modules: List[str], opts: Any, name: str = 'modules',
-                            user_template_dir: str = None) -> None:
+                            user_template_dir: Optional[str] = None) -> None:
     """Create the module's index."""
     modules.sort()
     prev_module = ''
@@ -227,7 +224,7 @@ def walk(rootpath: str, excludes: List[str], opts: Any
 
 def has_child_module(rootpath: str, excludes: List[str], opts: Any) -> bool:
     """Check the given directory contains child module/s (at least one)."""
-    for root, subs, files in walk(rootpath, excludes, opts):
+    for _root, _subs, files in walk(rootpath, excludes, opts):
         if files:
             return True
 
@@ -235,7 +232,7 @@ def has_child_module(rootpath: str, excludes: List[str], opts: Any) -> bool:
 
 
 def recurse_tree(rootpath: str, excludes: List[str], opts: Any,
-                 user_template_dir: str = None) -> List[str]:
+                 user_template_dir: Optional[str] = None) -> List[str]:
     """
     Look for every file in the directory tree and create the corresponding
     ReST files.

@@ -1,22 +1,14 @@
-"""
-    test_ext_inheritance_diagram
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Test sphinx.ext.inheritance_diagram extension.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test sphinx.ext.inheritance_diagram extension."""
 
 import os
 import re
 import sys
 
+import docutils
 import pytest
 
 from sphinx.ext.inheritance_diagram import (InheritanceDiagram, InheritanceException,
                                             import_classes)
-from sphinx.util import docutils
 
 
 @pytest.mark.sphinx(buildername="html", testroot="inheritance")
@@ -146,7 +138,7 @@ def test_inheritance_diagram(app, status, warning):
 def test_inheritance_diagram_png_html(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     if docutils.__version_info__ < (0, 17):
         pattern = ('<div class="figure align-default" id="id1">\n'
@@ -171,7 +163,7 @@ def test_inheritance_diagram_png_html(app, status, warning):
 def test_inheritance_diagram_svg_html(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     if docutils.__version_info__ < (0, 17):
         pattern = ('<div class="figure align-default" id="id1">\n'
@@ -200,7 +192,7 @@ def test_inheritance_diagram_svg_html(app, status, warning):
 def test_inheritance_diagram_latex(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'python.tex').read_text()
+    content = (app.outdir / 'python.tex').read_text(encoding='utf8')
 
     pattern = ('\\\\begin{figure}\\[htbp]\n\\\\centering\n\\\\capstart\n\n'
                '\\\\sphinxincludegraphics\\[\\]{inheritance-\\w+.pdf}\n'
@@ -222,7 +214,7 @@ def test_inheritance_diagram_latex_alias(app, status, warning):
     assert ('test.Bar', 'test.Bar', ['alias.Foo'], None) in aliased_graph
     assert ('alias.Foo', 'alias.Foo', [], None) in aliased_graph
 
-    content = (app.outdir / 'index.html').read_text()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     if docutils.__version_info__ < (0, 17):
         pattern = ('<div class="figure align-default" id="id1">\n'

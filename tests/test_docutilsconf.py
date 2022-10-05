@@ -1,12 +1,4 @@
-"""
-    test_docutilsconf
-    ~~~~~~~~~~~~~~~~~
-
-    Test docutils.conf support for several writers.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test docutils.conf support for several writers."""
 
 import pytest
 from docutils import nodes

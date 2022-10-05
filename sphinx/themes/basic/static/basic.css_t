@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- basic theme.
  *
- * :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -237,6 +237,7 @@ a.headerlink {
     visibility: hidden;
 }
 
+{%- if docutils_version_info[:2] < (0, 18) %}
 a.brackets:before,
 span.brackets > a:before{
     content: "[";
@@ -246,6 +247,7 @@ a.brackets:after,
 span.brackets > a:after {
     content: "]";
 }
+{% endif %}
 
 h1:hover > a.headerlink,
 h2:hover > a.headerlink,
@@ -335,12 +337,20 @@ p.sidebar-title {
     font-weight: bold;
 }
 
+{%- if docutils_version_info[:2] >= (0, 18) %}
+nav.contents,
+aside.topic,
+{%- endif %}
 div.admonition, div.topic, blockquote {
     clear: left;
 }
 
 /* -- topics ---------------------------------------------------------------- */
 
+{%- if docutils_version_info[:2] >= (0, 18) %}
+nav.contents,
+aside.topic,
+{%- endif %}
 div.topic {
     border: 1px solid #ccc;
     padding: 7px;
@@ -379,6 +389,10 @@ div.body p.centered {
 
 div.sidebar > :last-child,
 aside.sidebar > :last-child,
+{%- if docutils_version_info[:2] >= (0, 18) %}
+nav.contents > :last-child,
+aside.topic > :last-child,
+{%- endif %}
 div.topic > :last-child,
 div.admonition > :last-child {
     margin-bottom: 0;
@@ -386,6 +400,10 @@ div.admonition > :last-child {
 
 div.sidebar::after,
 aside.sidebar::after,
+{%- if docutils_version_info[:2] >= (0, 18) %}
+nav.contents::after,
+aside.topic::after,
+{%- endif %}
 div.topic::after,
 div.admonition::after,
 blockquote::after {
@@ -426,10 +444,6 @@ table.docutils td, table.docutils th {
     border-left: 0;
     border-right: 0;
     border-bottom: 1px solid #aaa;
-}
-
-table.footnote td, table.footnote th {
-    border: 0 !important;
 }
 
 th {
@@ -615,6 +629,7 @@ ul.simple p {
     margin-bottom: 0;
 }
 
+{%- if docutils_version_info[:2] < (0, 18) %}
 dl.footnote > dt,
 dl.citation > dt {
     float: left;
@@ -631,6 +646,31 @@ dl.citation > dd:after {
     content: "";
     clear: both;
 }
+{%- elif docutils_version_info[:2] >= (0, 18) %}
+aside.footnote > span,
+div.citation > span {
+    float: left;
+}
+aside.footnote > span:last-of-type,
+div.citation > span:last-of-type {
+  padding-right: 0.5em;
+}
+aside.footnote > p {
+  margin-left: 2em;
+}
+div.citation > p {
+  margin-left: 4em;
+}
+aside.footnote > p:last-of-type,
+div.citation > p:last-of-type {
+    margin-bottom: 0em;
+}
+aside.footnote > p:last-of-type:after,
+div.citation > p:last-of-type:after {
+    content: "";
+    clear: both;
+}
+{%- endif %}
 
 dl.field-list {
     display: grid;
@@ -644,9 +684,11 @@ dl.field-list > dt {
     padding-right: 5px;
 }
 
+{%- if docutils_version_info[:2] < (0, 18) %}
 dl.field-list > dt:after {
     content: ":";
 }
+{% endif %}
 
 dl.field-list > dd {
     padding-left: 0.5em;
@@ -757,6 +799,7 @@ span.pre {
     -ms-hyphens: none;
     -webkit-hyphens: none;
     hyphens: none;
+    white-space: nowrap;
 }
 
 div[class*="highlight-"] {

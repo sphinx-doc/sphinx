@@ -6,6 +6,10 @@ Setuptools integration
 Sphinx supports integration with setuptools and distutils through a custom
 command - :class:`~sphinx.setup_command.BuildDoc`.
 
+.. deprecated:: 5.0
+
+   This feature will be removed in v7.0.
+
 Using setuptools integration
 ----------------------------
 
@@ -64,7 +68,7 @@ Options for setuptools integration
 
    This can also be set by passing the `-E` flag to ``setup.py``:
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ python setup.py build_sphinx -E
 
@@ -75,7 +79,7 @@ Options for setuptools integration
 
    This can also be set by passing the `-a` flag to ``setup.py``:
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ python setup.py build_sphinx -a
 
@@ -88,7 +92,7 @@ Options for setuptools integration
 
    This can also be set by passing the `-s` flag to ``setup.py``:
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ python setup.py build_sphinx -s $SOURCE_DIR
 
@@ -105,7 +109,7 @@ Options for setuptools integration
 
    This can also be set by passing the `-c` flag to ``setup.py``:
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ python setup.py build_sphinx -c $CONFIG_DIR
 
@@ -117,7 +121,7 @@ Options for setuptools integration
 
    This can also be set by passing the `-b` flag to ``setup.py``:
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ python setup.py build_sphinx -b $BUILDER
 
@@ -131,7 +135,7 @@ Options for setuptools integration
 
    This can also be set by passing the `-W` flag to ``setup.py``:
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ python setup.py build_sphinx -W
 
@@ -169,7 +173,7 @@ Options for setuptools integration
 
    This can also be set by passing the `-i` flag to ``setup.py``:
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ python setup.py build_sphinx -i
 

@@ -49,6 +49,14 @@ code blocks
       literal-block
       in list
 
+.. highlight:: none
+
+::
+
+   test_code_for_noqa()
+   continued()
+
+
 doctest blocks
 ==============
 
