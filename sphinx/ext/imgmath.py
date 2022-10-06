@@ -157,13 +157,10 @@ def convert_dvi_to_image(command: List[str], name: str) -> Tuple[str, str]:
         raise MathExtError('%s exited with error' % name, exc.stderr, exc.stdout) from exc
 
 
-def convert_dvi_to_png(dvipath: str, builder: Builder) -> Tuple[str, Optional[int]]:
+def convert_dvi_to_png(dvipath: str, builder: Builder, out_path: str) -> Optional[int]:
     """Convert DVI file to PNG image."""
-    tempdir = ensure_tempdir(builder)
-    filename = path.join(tempdir, 'math.png')
-
     name = 'dvipng'
-    command = [builder.config.imgmath_dvipng, '-o', filename, '-T', 'tight', '-z9']
+    command = [builder.config.imgmath_dvipng, '-o', out_path, '-T', 'tight', '-z9']
     command.extend(builder.config.imgmath_dvipng_args)
     if builder.config.imgmath_use_preview:
         command.append('--depth')
@@ -177,19 +174,16 @@ def convert_dvi_to_png(dvipath: str, builder: Builder) -> Tuple[str, Optional[in
             matched = depth_re.match(line)
             if matched:
                 depth = int(matched.group(1))
-                write_png_depth(filename, depth)
+                write_png_depth(out_path, depth)
                 break
 
-    return filename, depth
+    return depth
 
 
-def convert_dvi_to_svg(dvipath: str, builder: Builder) -> Tuple[str, Optional[int]]:
+def convert_dvi_to_svg(dvipath: str, builder: Builder, out_path: str) -> Optional[int]:
     """Convert DVI file to SVG image."""
-    tempdir = ensure_tempdir(builder)
-    filename = path.join(tempdir, 'math.svg')
-
     name = 'dvisvgm'
-    command = [builder.config.imgmath_dvisvgm, '-o', filename]
+    command = [builder.config.imgmath_dvisvgm, '-o', out_path]
     command.extend(builder.config.imgmath_dvisvgm_args)
     command.append(dvipath)
 
@@ -201,10 +195,10 @@ def convert_dvi_to_svg(dvipath: str, builder: Builder) -> Tuple[str, Optional[in
             matched = depthsvg_re.match(line)
             if matched:
                 depth = round(float(matched.group(1)) * 100 / 72.27)  # assume 100ppi
-                write_svg_depth(filename, depth)
+                write_svg_depth(out_path, depth)
                 break
 
-    return filename, depth
+    return depth
 
 
 def render_math(
@@ -237,6 +231,7 @@ def render_math(
     filename = f"{sha1(latex.encode()).hexdigest()}.{image_format}"
     relative_path = posixpath.join(self.builder.imgpath, 'math', filename)
     generated_path = path.join(self.builder.outdir, self.builder.imagedir, 'math', filename)
+    ensuredir(path.dirname(generated_path))
     if path.isfile(generated_path):
         if image_format == 'png':
             depth = read_png_depth(generated_path)
@@ -259,16 +254,12 @@ def render_math(
     # .dvi -> .png/.svg
     try:
         if image_format == 'png':
-            image_path, depth = convert_dvi_to_png(dvipath, self.builder)
+            depth = convert_dvi_to_png(dvipath, self.builder, generated_path)
         elif image_format == 'svg':
-            image_path, depth = convert_dvi_to_svg(dvipath, self.builder)
+            depth = convert_dvi_to_svg(dvipath, self.builder, generated_path)
     except InvokeError:
         self.builder._imgmath_warned_image_translator = True  # type: ignore
         return None, None, None
-
-    # Move generated image on tempdir to build dir
-    ensuredir(path.dirname(generated_path))
-    shutil.move(image_path, generated_path)
 
     return relative_path, depth, generated_path
 
@@ -283,29 +274,23 @@ def render_maths_to_base64(image_format: str, generated_path: Optional[str]) -> 
     raise MathExtError('imgmath_image_format must be either "png" or "svg"')
 
 
-def cleanup_tempdir(app: Sphinx, exc: Exception) -> None:
+def clean_up_files(app: Sphinx, exc: Exception) -> None:
     if exc:
         return
-    if not hasattr(app.builder, '_imgmath_tempdir'):
-        return
-    try:
-        shutil.rmtree(app.builder._mathpng_tempdir)  # type: ignore
-    except Exception:
-        pass
 
+    if hasattr(app.builder, '_imgmath_tempdir'):
+        try:
+            shutil.rmtree(app.builder._imgmath_tempdir)  # type: ignore
+        except Exception:
+            pass
 
-def cleanup_mathdir(app: Sphinx, exc: Exception) -> None:
-    if exc:
-        return
-    if not app.builder.config.imgmath_embed:
-        return
-    # in embed mode, the images are still generated in the math output dir
-    # to be shared across workers, but are not useful to the final document
-    mathdir = path.join(app.builder.outdir, app.builder.imagedir, 'math')
-    try:
-        shutil.rmtree(mathdir)
-    except Exception:
-        pass
+    if app.builder.config.imgmath_embed:
+        # in embed mode, the images are still generated in the math output dir
+        # to be shared across workers, but are not useful to the final document
+        try:
+            shutil.rmtree(path.join(app.builder.outdir, app.builder.imagedir, 'math'))
+        except Exception:
+            pass
 
 
 def get_tooltip(self: HTMLTranslator, node: Element) -> str:
@@ -398,6 +383,5 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('imgmath_add_tooltips', True, 'html')
     app.add_config_value('imgmath_font_size', 12, 'html')
     app.add_config_value('imgmath_embed', False, 'html', [bool])
-    app.connect('build-finished', cleanup_tempdir)
-    app.connect('build-finished', cleanup_mathdir)
+    app.connect('build-finished', clean_up_files)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
