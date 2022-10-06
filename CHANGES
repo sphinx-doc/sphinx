@@ -33,6 +33,9 @@ Incompatible changes
   Patch by Adam Turner.
 * #10471, #10565: Removed deprecated APIs scheduled for removal in Sphinx 6.0. See
   :ref:`dev-deprecated-apis` for details. Patch by Adam Turner.
+* XXXXXX: C Domain: Remove support for parsing pre-v3 style type directives and
+  roles. Also remove associated configuration variables ``c_allow_pre_v3`` and
+  ``c_warn_on_allowed_pre_v3``.
 
 Deprecated
 ----------
