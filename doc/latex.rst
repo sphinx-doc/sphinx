@@ -877,24 +877,19 @@ Do not use quotes to enclose values, whether numerical or strings.
 
     .. versionadded:: 1.6.6
 
-    .. note::
-
-       Starting with this colour, and for all others following, the
-       names declared to "color" or "xcolor" are prefixed with "sphinx".
+.. _tablecolors:
 
 ``TableRowColorHeader``
-    Sets the background colour for (all) the header rows.
+    Sets the background colour for (all) the header rows of tables.
 
-    This (as the other ``Table...`` colour keys) applies to all tables if
-    ``'colorrows'`` is contained in :confval:`latex_table_style`, except to
-    those with ``nocolorrows`` class; in absence of ``'colorrows'`` in
-    :confval:`latex_table_style` it will apply to tables with ``colorrows``
-    class.
+    It will have an effect only if either the :confval:`latex_table_style`
+    contains ``'colorrows'`` or if the table is assigned the ``colorrows``
+    class.  It is ignored for tables with ``nocolorrows`` class.
 
-    As for the other ``'sphinxsetup'`` keys, it can be set or modified inside
-    the document from a ``\sphinxsetup{...}`` LaTeX command inserted via the
-    :dudir:`raw` directive, or from a LaTeX environment associated to a
-    `container class <latexcontainer_>`_.
+    As for the other ``'sphinxsetup'`` keys, it can also be set or modified
+    from a ``\sphinxsetup{...}`` LaTeX command inserted via the :dudir:`raw`
+    directive, or also from a LaTeX environment associated to a `container
+    class <latexcontainer_>`_ and using such ``\sphinxsetup{...}``.
 
     Default: ``{gray}{0.86}``
 
@@ -904,8 +899,10 @@ Do not use quotes to enclose values, whether numerical or strings.
     .. versionadded:: 5.2.0
 
 ``TableRowColorOdd``
-    Sets the background colour for odd rows in tables (the row count starts
-    at ``1`` at the first non-header row).
+    Sets the background colour for odd rows in tables (the row count starts at
+    ``1`` at the first non-header row).  Has an effect only if the
+    :confval:`latex_table_style` contains ``'colorrows'`` or for specific
+    tables assigned the ``colorrows`` class.
 
     Default: ``{gray}{0.92}``
 

@@ -2242,10 +2242,17 @@ These options influence LaTeX output.
 
    - ``'borderless'``: no lines whatsoever.
 
-   - ``'colorrows'``: the body rows are rendered with alternating background
-     colours, see the :ref:`latexsphinxsetup` keys ``TableRowColorOdd`` and
-     ``TableRowColorEven`` for configuration.  And ``TableRowColorHeader``
-     for the header rows.
+   - ``'colorrows'``: the table rows are rendered with alternating background
+     colours.  The interface to customize them is via :ref:`dedicated keys
+     <tablecolors>` of :ref:`latexsphinxsetup`.
+
+     .. important::
+
+        With the ``'colorrows'`` style, the ``\rowcolors`` LaTeX command
+        becomes a no-op (this command has limitations and has never correctly
+        supported all types of tables Sphinx produces in LaTeX).  Please
+        update your project to use instead
+        the :ref:`latex table color configuration <tablecolors>` keys.
 
    Default: ``[]``
 
