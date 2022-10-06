@@ -40,6 +40,9 @@ def register_sections_as_label(app: Sphinx, document: Node) -> None:
             name = nodes.fully_normalize_name(ref_name)
         sectname = clean_astext(title)
 
+        logger.debug(__('section "%s" gets labeled as "%s"'),
+                     ref_name, name,
+                     location=node, type='autosectionlabel', subtype=docname)
         if name in domain.labels:
             logger.warning(__('duplicate label %s, other instance in %s'),
                            name, app.env.doc2path(domain.labels[name][0]),

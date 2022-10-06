@@ -60,7 +60,7 @@ def test_texinfo(app, status, warning):
 
 @pytest.mark.sphinx('texinfo', testroot='markup-rubric')
 def test_texinfo_rubric(app, status, warning):
-    app.build()
+    app.build(force_all=True)
 
     output = (app.outdir / 'python.texi').read_text(encoding='utf8')
     assert '@heading This is a rubric' in output
