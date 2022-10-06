@@ -210,7 +210,7 @@ def convert_dvi_to_svg(dvipath: str, builder: Builder) -> Tuple[str, Optional[in
 def render_math(
     self: HTMLTranslator,
     math: str,
-) -> Tuple[Optional[str], Optional[int], Optional[str], Optional[str]]:
+) -> Tuple[Optional[str], Optional[int], Optional[str]]:
     """Render the LaTeX math expression *math* using latex and dvipng or
     dvisvgm.
 
@@ -234,47 +234,47 @@ def render_math(
                                  self.builder.config,
                                  self.builder.confdir)
 
-    filename = "%s.%s" % (sha1(latex.encode()).hexdigest(), image_format)
-    relfn = posixpath.join(self.builder.imgpath, 'math', filename)
-    outfn = path.join(self.builder.outdir, self.builder.imagedir, 'math', filename)
-    if path.isfile(outfn):
+    filename = f"{sha1(latex.encode()).hexdigest()}.{image_format}"
+    relative_path = posixpath.join(self.builder.imgpath, 'math', filename)
+    generated_path = path.join(self.builder.outdir, self.builder.imagedir, 'math', filename)
+    if path.isfile(generated_path):
         if image_format == 'png':
-            depth = read_png_depth(outfn)
+            depth = read_png_depth(generated_path)
         elif image_format == 'svg':
-            depth = read_svg_depth(outfn)
-        return relfn, depth, None, outfn
+            depth = read_svg_depth(generated_path)
+        return relative_path, depth, generated_path
 
     # if latex or dvipng (dvisvgm) has failed once, don't bother to try again
     if hasattr(self.builder, '_imgmath_warned_latex') or \
        hasattr(self.builder, '_imgmath_warned_image_translator'):
-        return None, None, None, None
+        return None, None, None
 
     # .tex -> .dvi
     try:
         dvipath = compile_math(latex, self.builder)
     except InvokeError:
         self.builder._imgmath_warned_latex = True  # type: ignore
-        return None, None, None, None
+        return None, None, None
 
     # .dvi -> .png/.svg
     try:
         if image_format == 'png':
-            imgpath, depth = convert_dvi_to_png(dvipath, self.builder)
+            image_path, depth = convert_dvi_to_png(dvipath, self.builder)
         elif image_format == 'svg':
-            imgpath, depth = convert_dvi_to_svg(dvipath, self.builder)
+            image_path, depth = convert_dvi_to_svg(dvipath, self.builder)
     except InvokeError:
         self.builder._imgmath_warned_image_translator = True  # type: ignore
-        return None, None, None, None
+        return None, None, None
 
     # Move generated image on tempdir to build dir
-    ensuredir(path.dirname(outfn))
-    shutil.move(imgpath, outfn)
+    ensuredir(path.dirname(generated_path))
+    shutil.move(image_path, generated_path)
 
-    return relfn, depth, imgpath, outfn
+    return relative_path, depth, generated_path
 
 
-def render_maths_to_base64(image_format: str, outfn: Optional[str]) -> str:
-    with open(outfn, "rb") as f:
+def render_maths_to_base64(image_format: str, generated_path: Optional[str]) -> str:
+    with open(generated_path, "rb") as f:
         encoded = base64.b64encode(f.read()).decode(encoding='utf-8')
     if image_format == 'png':
         return f'data:image/png;base64,{encoded}'
@@ -316,7 +316,7 @@ def get_tooltip(self: HTMLTranslator, node: Element) -> str:
 
 def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
     try:
-        fname, depth, imgpath, outfn = render_math(self, '$' + node.astext() + '$')
+        fname, depth, generated_path = render_math(self, '$' + node.astext() + '$')
     except MathExtError as exc:
         msg = str(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
@@ -332,7 +332,7 @@ def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
     else:
         if self.builder.config.imgmath_embed:
             image_format = self.builder.config.imgmath_image_format.lower()
-            img_src = render_maths_to_base64(image_format, outfn)
+            img_src = render_maths_to_base64(image_format, generated_path)
         else:
             img_src = fname
         c = f'<img class="math" src="{img_src}"' + get_tooltip(self, node)
@@ -348,7 +348,7 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
     else:
         latex = wrap_displaymath(node.astext(), None, False)
     try:
-        fname, depth, imgpath, outfn = render_math(self, latex)
+        fname, depth, generated_path = render_math(self, latex)
     except MathExtError as exc:
         msg = str(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
@@ -371,7 +371,7 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
     else:
         if self.builder.config.imgmath_embed:
             image_format = self.builder.config.imgmath_image_format.lower()
-            img_src = render_maths_to_base64(image_format, outfn)
+            img_src = render_maths_to_base64(image_format, generated_path)
         else:
             img_src = fname
         self.body.append(f'<img src="{img_src}"' + get_tooltip(self, node) +
