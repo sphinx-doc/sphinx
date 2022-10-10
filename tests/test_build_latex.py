@@ -1604,7 +1604,7 @@ def test_latex_container(app, status, warning):
 
 @pytest.mark.sphinx('latex', testroot='reST-code-role')
 def test_latex_code_role(app):
-    app.build(force_all=True)
+    app.build()
     content = (app.outdir / 'python.tex').read_text()
 
     common_content = (

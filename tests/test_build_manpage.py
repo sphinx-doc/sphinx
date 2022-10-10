@@ -42,7 +42,7 @@ def test_man_pages_empty_description(app, status, warning):
 @pytest.mark.sphinx('man', testroot='basic',
                     confoverrides={'man_make_section_directory': True})
 def test_man_make_section_directory(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     assert (app.outdir / 'man1' / 'python.1').exists()
 
 
