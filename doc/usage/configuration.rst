@@ -2256,7 +2256,7 @@ These options influence LaTeX output.
 
    Default: ``[]``
 
-   .. versionadded:: 5.2.0
+   .. versionadded:: 5.3.0
 
    If using ``'booktabs'`` or ``'borderless'`` it seems recommended to also
    opt for ``'colorrows'``...
@@ -2322,7 +2322,7 @@ These options influence LaTeX output.
       to add ``r'\usepackage{booktabs}'`` to the LaTeX preamble.
 
       On the other hand one can use ``colorrows`` class for individual tables
-      with no extra package (as Sphinx since 5.2.0 always loads colortbl_).
+      with no extra package (as Sphinx since 5.3.0 always loads colortbl_).
 
    .. _booktabs: https://ctan.org/pkg/booktabs
    .. _colortbl: https://ctan.org/pkg/colortbl

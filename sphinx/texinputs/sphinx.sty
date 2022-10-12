@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2022/08/15 v5.2.0 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2022/08/15 v5.3.0 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -90,7 +90,7 @@
     {\expandafter\let\csname\@backslashchar color@#1\expandafter\endcsname
                      \csname\@backslashchar color@#2\endcsname }
 
-% (5.2.0) allow colour options to use both the \definecolor and the \colorlet
+% (5.3.0) allow colour options to use both the \definecolor and the \colorlet
 % syntaxes, for example VerbatimColor={gray}{0.9} or VerbatimColor=red!10
 % In the latter case we need the real \colorlet from xcolor package.
 \def\spx@defineorletcolor#1{%

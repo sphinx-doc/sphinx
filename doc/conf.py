@@ -78,7 +78,7 @@ latex_elements = {
              {\begin{sphinxtheindex}\end{sphinxtheindex}}
 ''',
     'sphinxsetup': """%
-VerbatimColor=black!5,% tests 5.2.0 extended syntax
+VerbatimColor=black!5,% tests 5.3.0 extended syntax
 VerbatimBorderColor={RGB}{32,32,32},%
 pre_border-radius=3pt,%
 pre_box-decoration-break=slice,%

@@ -840,7 +840,7 @@ Do not use quotes to enclose values, whether numerical or strings.
 
    .. _xcolor: https://ctan.org/pkg/xcolor
 
-   .. versionchanged:: 5.2.0
+   .. versionchanged:: 5.3.0
       Formerly only the ``\definecolor`` syntax was accepted.
 
 ``TitleColor``
@@ -896,7 +896,7 @@ Do not use quotes to enclose values, whether numerical or strings.
     There is also ``TableMergeColorHeader``.  If used, sets a specific colour
     for merged single-row cells in the header.
 
-    .. versionadded:: 5.2.0
+    .. versionadded:: 5.3.0
 
 ``TableRowColorOdd``
     Sets the background colour for odd rows in tables (the row count starts at
@@ -908,7 +908,7 @@ Do not use quotes to enclose values, whether numerical or strings.
 
     There is also ``TableMergeColorOdd``.
 
-    .. versionadded:: 5.2.0
+    .. versionadded:: 5.3.0
 
 ``TableRowColorEven``
     Sets the background colour for even rows in tables.
@@ -917,7 +917,7 @@ Do not use quotes to enclose values, whether numerical or strings.
 
     There is also ``TableMergeColorEven``.
 
-    .. versionadded:: 5.2.0
+    .. versionadded:: 5.3.0
 
 ``verbatimsep``
     The separation between code lines and the frame.

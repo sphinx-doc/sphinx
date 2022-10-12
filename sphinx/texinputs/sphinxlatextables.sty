@@ -68,7 +68,7 @@
 % \spx@arrayrulewidth is used internally and its meaning will be set according
 % to the table type; no extra user code should modify it.  In particular any
 % \setlength{\spx@arrayrulewidth}{...} may break all of LaTeX... (really...)
-\def\spx@arrayrulewidth{\arrayrulewidth}% 5.2.0, to be adjusted by each table
+\def\spx@arrayrulewidth{\arrayrulewidth}% 5.3.0, to be adjusted by each table
 % using here T (for Tabulary) feels less of a problem than the X could be
 \newcolumntype{T}{J}%
 % For tables allowing pagebreaks
@@ -193,7 +193,7 @@
 % NOTA BENE: since the multicolumn and multirow code was written Sphinx
 % decided to prefix non public internal macros by \spx@ and in fact all
 % such macros here should now be prefixed by \spx@table@, but doing the
-% update is delayed to later. (written at 5.2.0)
+% update is delayed to later. (written at 5.3.0)
 
 %%%%%%%%%%%%%%%%%%%%%
 % --- MULTICOLUMN ---
@@ -236,7 +236,7 @@
 % \arrayrulewidth space for each column separation in its estimate of available
 % width).
 %
-% Update at 5.2.0: code uses \spx@arrayrulewidth which is kept in sync with the
+% Update at 5.3.0: code uses \spx@arrayrulewidth which is kept in sync with the
 % table column specification (aka preamble):
 % - no | in preamble:             \spx@arrayrulewidth -> \z@
 % - at least a | in the preamble: \spx@arrayrulewidth -> \arrayrulewidth
@@ -267,7 +267,7 @@
 % Sphinx generates no nested tables, and if some LaTeX macro uses internally a
 % tabular this will not have a \sphinxstartmulticolumn within it!
 %
-% 5.2.0 adds a check for multirow as single-row multi-column will allow a row
+% 5.3.0 adds a check for multirow as single-row multi-column will allow a row
 % colour but multi-row multi-column should not.
 % Attention that this assumes \sphinxstartmulticolumn is always followed
 % in latex mark-up either by \sphinxmultirow or \begin (from \begin{varwidth}).
@@ -431,13 +431,13 @@
 % to row color for the duration of the Sphinx multicolumn... the (provisional?)
 % choice has been made to cancel the colortbl colours for the multicolumn
 % duration.
-% Sphinx 5.2.0 comment:
+% Sphinx 5.3.0 comment:
 % - colortbl has no mechanism to disable colour background in a given cell:
 %   \cellcolor triggers one more \color, but has no possibility to revert
 %   a previously emitted \color, only to override it via an additional \color
-% - prior to <5.2.0, Sphinx did not officially support colour in tables,
+% - prior to 5.3.0, Sphinx did not officially support colour in tables,
 %   but it did have a mechanism to protect merged cells from being partly
-%   covered by colour panels at various places.  At 5.2.0 this mechanism
+%   covered by colour panels at various places.  At 5.3.0 this mechanism
 %   is relaxed a bit to allow row colour for a single-row merged cell.
 %
 % fixcolorpanel
@@ -480,7 +480,7 @@
 }
 \def\spx@CT@setup@nocolor#1\endgroup{%
         \global\let\CT@cell@color\relax
-    % the above fix was added at 5.2.0
+    % the above fix was added at 5.3.0
     % formerly a \cellcolor added by a raw latex directive in the merged cell
     % would have caused colour to apply to the *next* cell after the merged
     % one; we don't support \cellcolor from merged cells contents anyhow.
@@ -551,7 +551,7 @@
 % The colour issue is "solved" by clearing colour panels in all cells,
 % whether or not the multirow is single-column or multi-column.
 %
-% MEMO at 5.2.0: to allow a multirow cell in a single column to react to
+% MEMO at 5.3.0: to allow a multirow cell in a single column to react to
 % \columncolor correctly, it seems only way is that the contents
 % are inserted by bottom cell (this is mentioned in multirow.sty doc, too).
 % Sphinx could at Python level "move" the contents to that cell.  But the
