@@ -78,7 +78,7 @@ latex_elements = {
              {\begin{sphinxtheindex}\end{sphinxtheindex}}
 ''',
     'sphinxsetup': """%
-VerbatimColor={RGB}{242,242,242},%
+VerbatimColor=black!5,% tests 5.2.0 extended syntax
 VerbatimBorderColor={RGB}{32,32,32},%
 pre_border-radius=3pt,%
 pre_box-decoration-break=slice,%
@@ -86,6 +86,7 @@ pre_box-decoration-break=slice,%
 }
 latex_show_urls = 'footnote'
 latex_use_xindy = True
+latex_table_style = ['booktabs', 'colorrows']
 
 autodoc_member_order = 'groupwise'
 autosummary_generate = False

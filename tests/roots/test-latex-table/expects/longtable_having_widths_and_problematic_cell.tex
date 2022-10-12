@@ -1,7 +1,10 @@
 \label{\detokenize{longtable:longtable-having-both-widths-and-problematic-cell}}
 
-\begin{savenotes}\sphinxatlongtablestart\begin{longtable}[c]{|\X{30}{100}|\X{70}{100}|}
-\hline
+\begin{savenotes}
+\sphinxatlongtablestart
+\sphinxthistablewithglobalstyle
+\begin{longtable}[c]{|\X{30}{100}|\X{70}{100}|}
+\sphinxtoprule
 \sphinxstyletheadfamily 
 \sphinxAtStartPar
 header1
@@ -9,12 +12,13 @@ header1
 \sphinxAtStartPar
 header2
 \\
-\hline
+\sphinxmidrule
 \endfirsthead
 
-\multicolumn{2}{c}%
-{\makebox[0pt]{\sphinxtablecontinued{\tablename\ \thetable{} \textendash{} continued from previous page}}}\\
-\hline
+\multicolumn{2}{c}{\sphinxnorowcolor
+    \makebox[0pt]{\sphinxtablecontinued{\tablename\ \thetable{} \textendash{} continued from previous page}}%
+}\\
+\sphinxtoprule
 \sphinxstyletheadfamily 
 \sphinxAtStartPar
 header1
@@ -22,14 +26,17 @@ header1
 \sphinxAtStartPar
 header2
 \\
-\hline
+\sphinxmidrule
 \endhead
 
-\hline
-\multicolumn{2}{r}{\makebox[0pt][r]{\sphinxtablecontinued{continues on next page}}}\\
+\sphinxbottomrule
+\multicolumn{2}{r}{\sphinxnorowcolor
+    \makebox[0pt][r]{\sphinxtablecontinued{continues on next page}}%
+}\\
 \endfoot
 
 \endlastfoot
+\sphinxtableatstartofbodyhook
 \begin{itemize}
 \item {} 
 \sphinxAtStartPar
@@ -44,19 +51,22 @@ item2
 \sphinxAtStartPar
 cell1\sphinxhyphen{}2
 \\
-\hline
+\sphinxhline
 \sphinxAtStartPar
 cell2\sphinxhyphen{}1
 &
 \sphinxAtStartPar
 cell2\sphinxhyphen{}2
 \\
-\hline
+\sphinxhline
 \sphinxAtStartPar
 cell3\sphinxhyphen{}1
 &
 \sphinxAtStartPar
 cell3\sphinxhyphen{}2
 \\
-\hline
-\end{longtable}\sphinxatlongtableend\end{savenotes}
+\sphinxbottomrule
+\end{longtable}
+\sphinxtableafterendhook
+\sphinxatlongtableend
+\end{savenotes}
