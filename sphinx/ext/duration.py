@@ -7,6 +7,7 @@ from typing import Any, Dict, List, cast
 
 from docutils import nodes
 
+import sphinx
 from sphinx.application import Sphinx
 from sphinx.domains import Domain
 from sphinx.locale import __
@@ -81,7 +82,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('build-finished', on_build_finished)
 
     return {
-        'version': 'builtin',
+        'version': sphinx.__display_version__,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

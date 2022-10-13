@@ -170,6 +170,9 @@ class LaTeXBuilder(Builder):
         self.context.update(self.config.latex_elements)
         self.context['release'] = self.config.release
         self.context['use_xindy'] = self.config.latex_use_xindy
+        self.context['booktabs'] = 'booktabs' in self.config.latex_table_style
+        self.context['borderless'] = 'borderless' in self.config.latex_table_style
+        self.context['colorrows'] = 'colorrows' in self.config.latex_table_style
 
         if self.config.today:
             self.context['date'] = self.config.today
@@ -524,6 +527,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('latex_show_pagerefs', False, False)
     app.add_config_value('latex_elements', {}, False)
     app.add_config_value('latex_additional_files', [], False)
+    app.add_config_value('latex_table_style', [], False, [list])
     app.add_config_value('latex_theme', 'manual', False, [str])
     app.add_config_value('latex_theme_options', {}, False)
     app.add_config_value('latex_theme_path', [], False, [list])

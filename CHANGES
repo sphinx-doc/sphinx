@@ -13,14 +13,26 @@ Deprecated
 Features added
 --------------
 
-* #10840: One can cross-reference including an option value: ``:option:`--module=foobar```.
+* #10759: LaTeX: add :confval:`latex_table_style` and support the
+  ``'booktabs'``, ``'borderless'``, and ``'colorrows'`` styles.
+  (thanks to Stefan Wiehler for initial pull requests #6666, #6671)
+* #10840: One can cross-reference including an option value like ``:option:`--module=foobar```,
+  ``:option:`--module[=foobar]``` or ``:option:`--module foobar```.
   Patch by Martin Liska.
+* #10881: autosectionlabel: Record the generated section label to the debug log.
 
 Bugs fixed
 ----------
 
 Testing
 --------
+
+Release 5.2.3 (released Sep 30, 2022)
+=====================================
+
+* #10878: Fix base64 image embedding in ``sphinx.ext.imgmath``
+* #10886: Add ``:nocontentsentry:`` flag and global domain table of contents
+  entry control option. Patch by Adam Turner
 
 Release 5.2.2 (released Sep 27, 2022)
 =====================================
