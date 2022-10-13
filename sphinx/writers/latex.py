@@ -1319,14 +1319,17 @@ class LaTeXTranslator(SphinxTranslator):
         if include_graphics_options:
             options = '[%s]' % ','.join(include_graphics_options)
         base, ext = path.splitext(uri)
+
         if self.in_title and base:
             # Lowercase tokens forcely because some fncychap themes capitalize
             # the options of \sphinxincludegraphics unexpectedly (ex. WIDTH=...).
-            self.body.append(r'\lowercase{\sphinxincludegraphics%s}{{%s}%s}' %
-                             (options, base, ext))
+            cmd = r'\lowercase{\sphinxincludegraphics%s}{{%s}%s}' % (options, base, ext)
         else:
-            self.body.append(r'\sphinxincludegraphics%s{{%s}%s}' %
-                             (options, base, ext))
+            cmd = r'\sphinxincludegraphics%s{{%s}%s}' % (options, base, ext)
+        # escape filepath for includegraphics, https://tex.stackexchange.com/a/202714/41112
+        if '#' in base:
+            cmd = r'{\catcode`\#=12' + cmd + '}'
+        self.body.append(cmd)
         self.body.extend(post)
 
     def depart_image(self, node: Element) -> None:

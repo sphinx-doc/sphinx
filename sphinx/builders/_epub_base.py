@@ -5,6 +5,7 @@ import os
 import re
 from os import path
 from typing import Any, Dict, List, NamedTuple, Optional, Set, Tuple
+from urllib.parse import quote
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
 from docutils import nodes
@@ -524,7 +525,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                                        type='epub', subtype='unknown_project_files')
                     continue
                 filename = filename.replace(os.sep, '/')
-                item = ManifestItem(html.escape(filename),
+                item = ManifestItem(html.escape(quote(filename)),
                                     html.escape(self.make_id(filename)),
                                     html.escape(self.media_types[ext]))
                 metadata['manifest_items'].append(item)
