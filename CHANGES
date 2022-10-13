@@ -20,7 +20,7 @@ Features added
   ``:option:`--module[=foobar]``` or ``:option:`--module foobar```.
   Patch by Martin Liska.
 * #10881: autosectionlabel: Record the generated section label to the debug log.
-# 10268: Correctly URI-escape image filenames.
+* #10268: Correctly URI-escape image filenames.
 
 Bugs fixed
 ----------
