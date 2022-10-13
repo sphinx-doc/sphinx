@@ -1,6 +1,7 @@
 """Test math extensions."""
 
 import re
+import shutil
 import subprocess
 import warnings
 
@@ -33,6 +34,7 @@ def test_imgmath_png(app, status, warning):
         raise pytest.skip.Exception('dvipng command "dvipng" is not available')
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    shutil.rmtree(app.outdir)
     html = (r'<div class="math">\s*<p>\s*<img src="_images/math/\w+.png"'
             r'\s*alt="a\^2\+b\^2=c\^2"/>\s*</p>\s*</div>')
     assert re.search(html, content, re.S)
@@ -51,6 +53,7 @@ def test_imgmath_svg(app, status, warning):
         raise pytest.skip.Exception('dvisvgm command "dvisvgm" is not available')
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    shutil.rmtree(app.outdir)
     html = (r'<div class="math">\s*<p>\s*<img src="_images/math/\w+.svg"'
             r'\s*alt="a\^2\+b\^2=c\^2"/>\s*</p>\s*</div>')
     assert re.search(html, content, re.S)
@@ -70,6 +73,7 @@ def test_imgmath_svg_embed(app, status, warning):
         pytest.skip('dvisvgm command "dvisvgm" is not available')
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    shutil.rmtree(app.outdir)
     html = r'<img src="data:image/svg\+xml;base64,[\w\+/=]+"'
     assert re.search(html, content, re.DOTALL)
 
@@ -81,6 +85,7 @@ def test_mathjax_options(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    shutil.rmtree(app.outdir)
     assert ('<script async="async" integrity="sha384-0123456789" '
             'src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">'
             '</script>' in content)
@@ -92,6 +97,7 @@ def test_mathjax_align(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    shutil.rmtree(app.outdir)
     html = (r'<div class="math notranslate nohighlight">\s*'
             r'\\\[ \\begin\{align\}\\begin\{aligned\}S \&amp;= \\pi r\^2\\\\'
             r'V \&amp;= \\frac\{4\}\{3\} \\pi r\^3\\end\{aligned\}\\end\{align\} \\\]</div>')

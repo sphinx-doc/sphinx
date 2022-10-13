@@ -371,8 +371,9 @@ units as well as normal text.
       .. centered:: LICENSE AGREEMENT
 
    .. deprecated:: 1.1
-      This presentation-only directive is a legacy from older versions.  Use a
-      :rst:dir:`rst-class` directive instead and add an appropriate style.
+      This presentation-only directive is a legacy from older versions.
+      Use a :ref:`rst-class <rstclass>` directive instead and add an
+      appropriate style.
 
 .. rst:directive:: hlist
 
@@ -1045,114 +1046,78 @@ Use :ref:`reStructuredText tables <rst-tables>`, i.e. either
 The :dudir:`table` directive serves as optional wrapper of the *grid* and
 *simple* syntaxes.
 
-They work fine in HTML output, however there are some gotchas when using tables
-in LaTeX: the column width is hard to determine correctly automatically.  For
-this reason, the following directive exists:
+They work fine in HTML output, but rendering tables to LaTeX is complex.
+Check the :confval:`latex_table_style`.
+
+.. versionchanged:: 1.6
+   Merged cells (multi-row, multi-column, both) from grid tables containing
+   complex contents such as multiple paragraphs, blockquotes, lists, literal
+   blocks, will render correctly to LaTeX output.
 
 .. rst:directive:: .. tabularcolumns:: column spec
 
-   This directive gives a "column spec" for the next table occurring in the
-   source file.  The spec is the second argument to the LaTeX ``tabulary``
-   package's environment (which Sphinx uses to translate tables).  It can have
-   values like ::
+   This directive influences only the LaTeX output for the next table in
+   source.  The mandatory argument is a column specification (known as an
+   "alignment preamble" in LaTeX idiom).  Please refer to a LaTeX
+   documentation, such as the `wiki page`_, for basics of such a column
+   specification.
 
-      |l|l|l|
-
-   which means three left-adjusted, nonbreaking columns.  For columns with
-   longer text that should automatically be broken, use either the standard
-   ``p{width}`` construct, or tabulary's automatic specifiers:
-
-   +-----+------------------------------------------+
-   |``L``| flush left column with automatic width   |
-   +-----+------------------------------------------+
-   |``R``| flush right column with automatic width  |
-   +-----+------------------------------------------+
-   |``C``| centered column with automatic width     |
-   +-----+------------------------------------------+
-   |``J``| justified column with automatic width    |
-   +-----+------------------------------------------+
-
-   The automatic widths of the ``LRCJ`` columns are attributed by ``tabulary``
-   in proportion to the observed shares in a first pass where the table cells
-   are rendered at their natural "horizontal" widths.
-
-   By default, Sphinx uses a table layout with ``J`` for every column.
+   .. _wiki page: https://en.wikibooks.org/wiki/LaTeX/Tables
 
    .. versionadded:: 0.3
-
-   .. versionchanged:: 1.6
-      Merged cells may now contain multiple paragraphs and are much better
-      handled, thanks to custom Sphinx LaTeX macros. This novel situation
-      motivated the switch to ``J`` specifier and not ``L`` by default.
-
-   .. hint::
-
-      Sphinx actually uses ``T`` specifier having done ``\newcolumntype{T}{J}``.
-      To revert to previous default, insert ``\newcolumntype{T}{L}`` in the
-      LaTeX preamble (see :confval:`latex_elements`).
-
-      A frequent issue with tabulary is that columns with little contents are
-      "squeezed". The minimal column width is a tabulary parameter called
-      ``\tymin``. You may set it globally in the LaTeX preamble via
-      ``\setlength{\tymin}{40pt}`` for example.
-
-      Else, use the :rst:dir:`tabularcolumns` directive with an explicit
-      ``p{40pt}`` (for example) for that column. You may use also ``l``
-      specifier but this makes the task of setting column widths more difficult
-      if some merged cell intersects that column.
-
-   .. warning::
-
-      Tables with more than 30 rows are rendered using ``longtable``, not
-      ``tabulary``, in order to allow pagebreaks. The ``L``, ``R``, ...
-      specifiers do not work for these tables.
-
-      Tables that contain list-like elements such as object descriptions,
-      blockquotes or any kind of lists cannot be set out of the box with
-      ``tabulary``. They are therefore set with the standard LaTeX ``tabular``
-      (or ``longtable``) environment if you don't give a ``tabularcolumns``
-      directive.  If you do, the table will be set with ``tabulary`` but you
-      must use the ``p{width}`` construct (or Sphinx's ``\X`` and ``\Y``
-      specifiers described below) for the columns containing these elements.
-
-      Literal blocks do not work with ``tabulary`` at all, so tables containing
-      a literal block are always set with ``tabular``. The verbatim environment
-      used for literal blocks only works in ``p{width}`` (and ``\X`` or ``\Y``)
-      columns, hence Sphinx generates such column specs for tables containing
-      literal blocks.
-
-   Since Sphinx 1.5, the ``\X{a}{b}`` specifier is used (there *is* a backslash
-   in the specifier letter). It is like ``p{width}`` with the width set to a
-   fraction ``a/b`` of the current line width. You can use it in the
-   :rst:dir:`tabularcolumns` (it is not a problem if some LaTeX macro is also
-   called ``\X``.)
-
-   It is *not* needed for ``b`` to be the total number of columns, nor for the
-   sum of the fractions of the ``\X`` specifiers to add  up to one. For example
-   ``|\X{2}{5}|\X{1}{5}|\X{1}{5}|`` is legitimate and the table will occupy
-   80% of the line width, the first of its three columns having the same width
-   as the sum  of the next two.
-
-   This is used by the ``:widths:`` option of the :dudir:`table` directive.
-
-   Since Sphinx 1.6, there is also the ``\Y{f}`` specifier which admits a
-   decimal argument, such has ``\Y{0.15}``: this would have the same effect as
-   ``\X{3}{20}``.
-
-   .. versionchanged:: 1.6
-
-      Merged cells from complex grid tables (either multi-row, multi-column, or
-      both) now allow blockquotes, lists, literal blocks, ... as do regular
-      cells.
-
-      Sphinx's merged cells interact well with ``p{width}``, ``\X{a}{b}``,
-      ``\Y{f}`` and tabulary's columns.
 
    .. note::
 
       :rst:dir:`tabularcolumns` conflicts with ``:widths:`` option of table
       directives.  If both are specified, ``:widths:`` option will be ignored.
 
+   Sphinx will render tables with more than 30 rows with ``longtable``.
+   Besides the ``l``, ``r``, ``c`` and ``p{width}`` column specifiers, one can
+   also use ``\X{a}{b}`` (new in version 1.5) which configures the column
+   width to be a fraction ``a/b`` of the total line width and ``\Y{f}`` (new
+   in version 1.6) where ``f`` is a decimal: for example ``\Y{0.2}`` means that
+   the column will occupy ``0.2`` times the line width.
+
+   When this directive is used for a table with at most 30 rows, Sphinx will
+   render it with ``tabulary``.  One can then use specific column types ``L``
+   (left), ``R`` (right), ``C`` (centered) and ``J`` (justified).  They have
+   the effect of a ``p{width}`` (i.e. each cell is a LaTeX ``\parbox``) with
+   the specified internal text alignment and an automatically computed
+   ``width``.
+
+   .. warning::
+
+      - Cells that contain list-like elements such as object descriptions,
+        blockquotes or any kind of lists are not compatible with the ``LRCJ``
+        column types.  The column type must then be some ``p{width}`` with an
+        explicit ``width`` (or ``\X{a}{b}`` or ``\Y{f}``).
+
+      - Literal blocks do not work with ``tabulary`` at all.  Sphinx will
+        fall back to ``tabular`` or ``longtable`` environments and generate a
+        suitable column specification.
+
+In absence of the :rst:dir:`tabularcolumns` directive, and for a table with at
+most 30 rows and no problematic cells as described in the above warning,
+Sphinx uses ``tabulary`` and the ``J`` column-type for every column.
+
+.. versionchanged:: 1.6
+
+   Formerly, the ``L`` column-type was used (text is flushed-left).  To revert
+   to this, include ``\newcolumntype{T}{L}`` in the LaTeX preamble, as in fact
+   Sphinx uses ``T`` and sets it by default to be an alias of ``J``.
+
+.. hint::
+
+   A frequent issue with ``tabulary`` is that columns with little contents
+   appear to be "squeezed".  One can add to the LaTeX preamble for example
+   ``\setlength{\tymin}{40pt}`` to ensure a minimal column width of ``40pt``,
+   the ``tabulary`` default of ``10pt`` being too small.
+
+.. hint::
+
+   To force usage of the LaTeX ``longtable`` environment pass ``longtable`` as
+   a ``:class:`` option to :dudir:`table`, :dudir:`csv-table`, or
+   :dudir:`list-table`.  Use :ref:`rst-class <rstclass>` for other tables.
 
 Math
 ----

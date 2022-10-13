@@ -1,7 +1,7 @@
 %% TITLES
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexstyleheadings.sty}[2021/01/27 headings]
+\ProvidesFile{sphinxlatexstyleheadings.sty}[2022/08/15 headings]
 
 \RequirePackage[nobottomtitles*]{titlesec}
 \@ifpackagelater{titlesec}{2016/03/15}%
@@ -25,6 +25,7 @@
 ******** and Sphinx could not patch it, perhaps because your local ...|^^J%
 ******** copy is already fixed without a changed release date. .......|^^J%
 ******** If not, you must update titlesec! ...........................|}}%
+     \sphinxbuildwarning{badtitlesec}%
    \fi
   }%
  }{}

@@ -943,10 +943,17 @@ class StandardDomain(Domain):
         progname = node.get('std:program')
         target = target.strip()
         docname, labelid = self.progoptions.get((progname, target), ('', ''))
-        # for :option:`-foo=bar` search for -foo option directive
-        if not docname and '=' in target:
-            target2 = target[:target.find('=')]
-            docname, labelid = self.progoptions.get((progname, target2), ('', ''))
+        if not docname:
+            # Support also reference that contain an option value:
+            # * :option:`-foo=bar`
+            # * :option:`-foo[=bar]`
+            # * :option:`-foo bar`
+            for needle in {'=', '[=', ' '}:
+                if needle in target:
+                    stem, _, _ = target.partition(needle)
+                    docname, labelid = self.progoptions.get((progname, stem), ('', ''))
+                    if docname:
+                        break
         if not docname:
             commands = []
             while ws_re.search(target):

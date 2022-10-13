@@ -8,6 +8,7 @@ from typing import Any, Dict, Iterable, Set, cast
 from docutils import nodes
 from docutils.nodes import Element
 
+import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.util import typing
@@ -205,7 +206,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.connect('object-description-transform', merge_typehints)
 
     return {
-        'version': 'builtin',
+        'version': sphinx.__display_version__,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
