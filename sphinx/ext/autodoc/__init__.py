@@ -1728,8 +1728,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 parts = self.modname.strip('.').split('.')
                 orig_objpath = self.objpath
                 for i in range(len(parts)):
-                    new_modname = '.'.join(parts[:len(parts)-i])
-                    new_objpath = parts[len(parts)-i:] + orig_objpath
+                    new_modname = '.'.join(parts[:len(parts) - i])
+                    new_objpath = parts[len(parts) - i:] + orig_objpath
                     try:
                         analyzer = ModuleAnalyzer.for_module(new_modname)
                         analyzer.analyze()
