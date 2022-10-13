@@ -28,6 +28,7 @@ def test_all_replacements_suggested_if_multiple_replacements_possible(app, warni
     app.build()
     warning_output = warning.getvalue()
     # there should be six warnings for replaceable URLs, three pairs per link
+    assert warning_output.count("WARNING: hardcoded link") == 6
     message = (
         "index.rst:%d: WARNING: hardcoded link 'https://github.com/octocat' "
         "could be replaced by an extlink (try using '%s' instead)"

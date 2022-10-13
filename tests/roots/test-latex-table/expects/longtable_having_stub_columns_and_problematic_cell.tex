@@ -1,7 +1,10 @@
 \label{\detokenize{longtable:longtable-having-both-stub-columns-and-problematic-cell}}
 
-\begin{savenotes}\sphinxatlongtablestart\begin{longtable}[c]{|*{3}{\X{1}{3}|}}
-\hline
+\begin{savenotes}
+\sphinxatlongtablestart
+\sphinxthistablewithglobalstyle
+\begin{longtable}[c]{|*{3}{\X{1}{3}|}}
+\sphinxtoprule
 \sphinxstyletheadfamily 
 \sphinxAtStartPar
 header1
@@ -12,12 +15,13 @@ header2
 \sphinxAtStartPar
 header3
 \\
-\hline
+\sphinxmidrule
 \endfirsthead
 
-\multicolumn{3}{c}%
-{\makebox[0pt]{\sphinxtablecontinued{\tablename\ \thetable{} \textendash{} continued from previous page}}}\\
-\hline
+\multicolumn{3}{c}{\sphinxnorowcolor
+    \makebox[0pt]{\sphinxtablecontinued{\tablename\ \thetable{} \textendash{} continued from previous page}}%
+}\\
+\sphinxtoprule
 \sphinxstyletheadfamily 
 \sphinxAtStartPar
 header1
@@ -28,14 +32,17 @@ header2
 \sphinxAtStartPar
 header3
 \\
-\hline
+\sphinxmidrule
 \endhead
 
-\hline
-\multicolumn{3}{r}{\makebox[0pt][r]{\sphinxtablecontinued{continues on next page}}}\\
+\sphinxbottomrule
+\multicolumn{3}{r}{\sphinxnorowcolor
+    \makebox[0pt][r]{\sphinxtablecontinued{continues on next page}}%
+}\\
 \endfoot
 
 \endlastfoot
+\sphinxtableatstartofbodyhook
 \sphinxstyletheadfamily \begin{itemize}
 \item {} 
 \sphinxAtStartPar
@@ -53,7 +60,7 @@ instub1\sphinxhyphen{}2
 \sphinxAtStartPar
 notinstub1\sphinxhyphen{}3
 \\
-\hline\sphinxstyletheadfamily 
+\sphinxhline\sphinxstyletheadfamily 
 \sphinxAtStartPar
 cell2\sphinxhyphen{}1
 &\sphinxstyletheadfamily 
@@ -63,5 +70,8 @@ cell2\sphinxhyphen{}2
 \sphinxAtStartPar
 cell2\sphinxhyphen{}3
 \\
-\hline
-\end{longtable}\sphinxatlongtableend\end{savenotes}
+\sphinxbottomrule
+\end{longtable}
+\sphinxtableafterendhook
+\sphinxatlongtableend
+\end{savenotes}
