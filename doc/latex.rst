@@ -823,15 +823,30 @@ Do not use quotes to enclose values, whether numerical or strings.
        definition of the continuation symbol was changed at 1.5 to accommodate
        various font sizes (e.g. code-blocks can be in footnotes).
 
+.. note::
+
+   Values for colour keys must either:
+
+   - obey the syntax of the ``\definecolor`` LaTeX command, e.g. something
+     such as ``VerbatimColor={rgb}{0.2,0.3,0.5}`` or ``{RGB}{37,23,255}`` or
+     ``{gray}{0.75}`` or (only with package ``xcolor``) ``{HTML}{808080}`` or
+     ...
+
+   - or obey the syntax of the ``\colorlet`` command from package ``xcolor``
+     (which then must exist in the LaTeX installation),
+     e.g. ``VerbatimColor=red!10`` or ``red!50!green`` or ``-red!75`` or
+     ``MyPreviouslyDefinedColour`` or... Refer to xcolor_ documentation for
+     this syntax.
+
+   .. _xcolor: https://ctan.org/pkg/xcolor
+
+   .. versionchanged:: 5.3.0
+      Formerly only the ``\definecolor`` syntax was accepted.
+
 ``TitleColor``
     The colour for titles (as configured via use of package "titlesec".)
 
     Default: ``{rgb}{0.126,0.263,0.361}``
-
-    .. warning::
-
-       Colours set via ``'sphinxsetup'``  must obey the syntax of the
-       argument of the ``color/xcolor`` packages ``\definecolor`` command.
 
 ``InnerLinkColor``
     A colour passed to ``hyperref`` as value of ``linkcolor``  and
@@ -862,10 +877,47 @@ Do not use quotes to enclose values, whether numerical or strings.
 
     .. versionadded:: 1.6.6
 
-    .. note::
+.. _tablecolors:
 
-       Starting with this colour, and for all others following, the
-       names declared to "color" or "xcolor" are prefixed with "sphinx".
+``TableRowColorHeader``
+    Sets the background colour for (all) the header rows of tables.
+
+    It will have an effect only if either the :confval:`latex_table_style`
+    contains ``'colorrows'`` or if the table is assigned the ``colorrows``
+    class.  It is ignored for tables with ``nocolorrows`` class.
+
+    As for the other ``'sphinxsetup'`` keys, it can also be set or modified
+    from a ``\sphinxsetup{...}`` LaTeX command inserted via the :dudir:`raw`
+    directive, or also from a LaTeX environment associated to a `container
+    class <latexcontainer_>`_ and using such ``\sphinxsetup{...}``.
+
+    Default: ``{gray}{0.86}``
+
+    There is also ``TableMergeColorHeader``.  If used, sets a specific colour
+    for merged single-row cells in the header.
+
+    .. versionadded:: 5.3.0
+
+``TableRowColorOdd``
+    Sets the background colour for odd rows in tables (the row count starts at
+    ``1`` at the first non-header row).  Has an effect only if the
+    :confval:`latex_table_style` contains ``'colorrows'`` or for specific
+    tables assigned the ``colorrows`` class.
+
+    Default: ``{gray}{0.92}``
+
+    There is also ``TableMergeColorOdd``.
+
+    .. versionadded:: 5.3.0
+
+``TableRowColorEven``
+    Sets the background colour for even rows in tables.
+
+    Default ``{gray}{0.98}``
+
+    There is also ``TableMergeColorEven``.
+
+    .. versionadded:: 5.3.0
 
 ``verbatimsep``
     The separation between code lines and the frame.
@@ -1424,6 +1476,8 @@ Miscellany
   .. versionchanged:: 1.5
      Formerly, use of *fncychap* with other styles than ``Bjarne`` was
      dysfunctional.
+
+.. _latexcontainer:
 
 - Docutils :dudir:`container` directives are supported in LaTeX output: to
   let a container class with name ``foo`` influence the final PDF via LaTeX,
