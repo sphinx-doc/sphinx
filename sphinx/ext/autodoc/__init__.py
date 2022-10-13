@@ -1725,15 +1725,22 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 return []
         if sys.version_info[:2] < (3, 10):
             if inspect.isNewType(self.object) or isinstance(self.object, TypeVar):
-                try:
-                    analyzer = ModuleAnalyzer.for_module(self.modname)
-                    analyzer.analyze()
-                    key = ('', self.objpath[-1])
-                    comment = list(analyzer.attr_docs.get(key, []))
-                    if comment:
-                        return [comment]
-                except PycodeError:
-                    pass
+                parts = self.modname.strip('.').split('.')
+                orig_objpath = self.objpath
+                for i in range(len(parts)):
+                    new_modname = '.'.join(parts[:len(parts)-i])
+                    new_objpath = parts[len(parts)-i:] + orig_objpath
+                    try:
+                        analyzer = ModuleAnalyzer.for_module(new_modname)
+                        analyzer.analyze()
+                        key = ('', new_objpath[-1])
+                        comment = list(analyzer.attr_docs.get(key, []))
+                        if comment:
+                            self.objpath = new_objpath
+                            self.modname = new_modname
+                            return [comment]
+                    except PycodeError:
+                        pass
 
         if self.doc_as_attr:
             # Don't show the docstring of the class when it is an alias.
