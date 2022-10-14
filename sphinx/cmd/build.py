@@ -195,9 +195,7 @@ def make_main(argv: List[str] = sys.argv[1:]) -> int:
     return make_mode.run_make_mode(argv[1:])
 
 
-def build_main(argv: List[str] = sys.argv[1:]) -> int:
-    """Sphinx build "main" command-line entry."""
-
+def _parse_arguments(argv: List[str] = sys.argv[1:]) -> argparse.Namespace:
     parser = get_parser()
     args = parser.parse_args(argv)
 
@@ -236,6 +234,10 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
         warning = Tee(warning, warnfp)  # type: ignore
         error = warning
 
+    args.status = status
+    args.warning = warning
+    args.error = error
+
     confoverrides = {}
     for val in args.define:
         try:
@@ -258,26 +260,55 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
     if args.nitpicky:
         confoverrides['nitpicky'] = True
 
+    args.confoverrides = confoverrides
+
+    return args
+
+
+def build_main(argv: List[str] = sys.argv[1:]) -> int:
+    """Sphinx build "main" command-line entry."""
+    args = _parse_arguments(argv)
+
     app = None
     try:
         confdir = args.confdir or args.sourcedir
         with patch_docutils(confdir), docutils_namespace():
             app = Sphinx(args.sourcedir, args.confdir, args.outputdir,
-                         args.doctreedir, args.builder, confoverrides, status,
-                         warning, args.freshenv, args.warningiserror,
+                         args.doctreedir, args.builder, args.confoverrides, args.status,
+                         args.warning, args.freshenv, args.warningiserror,
                          args.tags, args.verbosity, args.jobs, args.keep_going,
                          args.pdb)
             app.build(args.force_all, args.filenames)
             return app.statuscode
     except (Exception, KeyboardInterrupt) as exc:
-        handle_exception(app, args, exc, error)
+        handle_exception(app, args, exc, args.error)
         return 2
+
+
+def _bug_report_info() -> int:
+    from platform import platform, python_implementation
+
+    import docutils
+    import jinja2
+
+    print('Please paste all output below into the bug report template\n\n')
+    print('```text')
+    print(f'Platform:              {sys.platform}; ({platform()})')
+    print(f'Python version:        {sys.version})')
+    print(f'Python implementation: {python_implementation()}')
+    print(f'Sphinx version:        {sphinx.__display_version__}')
+    print(f'Docutils version:      {docutils.__version__}')
+    print(f'Jinja2 version:        {jinja2.__version__}')
+    print('```')
+    return 0
 
 
 def main(argv: List[str] = sys.argv[1:]) -> int:
     sphinx.locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
 
+    if argv[:1] == ['--bug-report']:
+        return _bug_report_info()
     if argv[:1] == ['-M']:
         return make_main(argv)
     else:
