@@ -13,6 +13,7 @@ from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.typing import OptionSpec
+from sphinx.util.nodes import nested_parse_with_titles
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -259,7 +260,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
             # needed for association of version{added,changed} directives
             self.env.temp_data['object'] = self.names[0]
         self.before_content()
-        self.state.nested_parse(self.content, self.content_offset, contentnode)
+        nested_parse_with_titles(self.state, self.content, contentnode)
         self.transform_content(contentnode)
         self.env.app.emit('object-description-transform',
                           self.domain, self.objtype, contentnode)
