@@ -15,5 +15,5 @@ def test_object_description_sections(app):
         '   ********',
         '',
         '   Lorem ipsum dolar sit amet',
-        ''
+        '',
     ]
