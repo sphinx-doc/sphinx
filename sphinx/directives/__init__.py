@@ -12,8 +12,8 @@ from sphinx.addnodes import desc_signature
 from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.typing import OptionSpec
 from sphinx.util.nodes import nested_parse_with_titles
+from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
