@@ -21,6 +21,8 @@ Features added
   Patch by Martin Liska.
 * #10881: autosectionlabel: Record the generated section label to the debug log.
 * #10268: Correctly URI-escape image filenames.
+* #10887: domains: Allow sections in all the content of all object description
+  directives (e.g. :rst:dir:`py:function`). Patch by Adam Turner
 
 Bugs fixed
 ----------
