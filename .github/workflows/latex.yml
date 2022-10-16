@@ -6,15 +6,16 @@ permissions:
   contents: read
 
 jobs:
-  build:
-    runs-on: ubuntu-18.04
-    name: Python 3.8
+  test:
+    runs-on: ubuntu-latest
+    name: Test on LaTeX image
     container:
-      image: sphinxdoc/docker-ci
+      image: ghcr.io/sphinx-doc/sphinx-ci
     env:
       DO_EPUBCHECK: 1
-      PATH: /python3.8/bin/:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     steps:
+    - name: Alias python3 to python
+      run: ln -s /usr/bin/python3 /usr/bin/python
     - uses: actions/checkout@v3
     - name: Check Python version
       run: python --version

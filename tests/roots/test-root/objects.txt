@@ -214,7 +214,8 @@ Test repeated option directive.
 
   My secret API.
 
-Reference the first option :option:`-mapi=secret`.
+Reference the first option :option:`-mapi=secret`, :option:`-mapi[=xxx]`
+or :option:`-mapi with_space`.
 
 
 User markup

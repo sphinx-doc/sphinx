@@ -30,7 +30,7 @@ __display_version__ = __version__  # used for command line version
 #:
 #: .. versionadded:: 1.2
 #:    Before version 1.2, check the string ``sphinx.__version__``.
-version_info = (6, 0, 0, 'final', 0)
+version_info = (6, 0, 0, 'beta', 0)
 
 package_dir = path.abspath(path.dirname(__file__))
 

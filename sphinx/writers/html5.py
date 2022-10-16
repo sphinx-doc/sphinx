@@ -562,7 +562,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         # rewrite the URI if the environment knows about it
         if olduri in self.builder.images:
             node['uri'] = posixpath.join(self.builder.imgpath,
-                                         self.builder.images[olduri])
+                                         urllib.parse.quote(self.builder.images[olduri]))
 
         if 'scale' in node:
             # Try to figure out image height and width.  Docutils does that too,

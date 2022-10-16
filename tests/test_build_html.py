@@ -1355,6 +1355,15 @@ def test_html_remote_images(app, status, warning):
     assert not (app.outdir / 'python-logo.png').exists()
 
 
+@pytest.mark.sphinx('html', testroot='image-escape')
+def test_html_encoded_image(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'index.html').read_text()
+    assert ('<img alt="_images/img_%231.png" src="_images/img_%231.png" />' in result)
+    assert (app.outdir / '_images/img_#1.png').exists()
+
+
 @pytest.mark.sphinx('html', testroot='remote-logo')
 def test_html_remote_logo(app, status, warning):
     app.builder.build_all()
@@ -1716,6 +1725,9 @@ def test_option_reference_with_value(app, status, warning):
     assert ('<span class="pre">-mapi</span></span><span class="sig-prename descclassname">'
             '</span><a class="headerlink" href="#cmdoption-git-commit-mapi"') in content
     assert 'first option <a class="reference internal" href="#cmdoption-git-commit-mapi">' in content
+    assert ('<a class="reference internal" href="#cmdoption-git-commit-mapi">'
+            '<code class="xref std std-option docutils literal notranslate"><span class="pre">-mapi[=xxx]</span></code></a>') in content
+    assert '<span class="pre">-mapi</span> <span class="pre">with_space</span>' in content
 
 
 @pytest.mark.sphinx('html', testroot='theming')
