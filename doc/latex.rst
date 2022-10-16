@@ -863,12 +863,16 @@ Do not use quotes to enclose values, whether numerical or strings.
 ``VerbatimColor``
     The background colour for :rst:dir:`code-block`\ s.
 
-    Default: ``{rgb}{1,1,1}`` (white)
+    Default: ``{gray}{0.95}``
+
+    .. versionchanged:: 6.0.0
 
 ``VerbatimBorderColor``
     The frame color.
 
-    Default: ``{rgb}{0,0,0}`` (black)
+    Default: ``{RGB}{32,32,32}``
+
+    .. versionchanged:: 6.0.0
 
 ``VerbatimHighlightColor``
     The color for highlighted lines.
@@ -1070,7 +1074,7 @@ Options for code-blocks:
     default, and the ones of the separate widths is the setting of
     ``\fboxrule`` in the preamble, i.e. normally ``0.4pt``.
 - ``pre_box-decoration-break`` can be set to ``clone`` or ``slice``, default
-  is ``clone`` for backwards compatibility.
+  is ``slice`` since 6.0.0. (former default was ``clone``).
 - | ``pre_padding-top``,
   | ``pre_padding-right``,
   | ``pre_padding-bottom``,
@@ -1082,7 +1086,7 @@ Options for code-blocks:
   | ``pre_border-bottom-right-radius``,
   | ``pre_border-bottom-left-radius``,
   | ``pre_border-radius``, are all single dimensions (rounded corners are
-    circular arcs only), which default to ``0pt``.
+    circular arcs only), which default (since 6.0.0) to ``3pt``.
 - ``pre_box-shadow`` is special in so far as it may be the ``none`` keyword,
   or a single dimension
   which will be assigned to both x-offset and y-offset, or two dimensions, or
@@ -1092,9 +1096,9 @@ Options for code-blocks:
   | ``pre_background-TeXcolor``,
   | ``pre_box-shadow-TeXcolor``.
 
-  They must all be of the format as accepted by LaTeX ``\definecolor``.  They
-  default to ``{rgb}{0,0,0}``, ``{rgb}{1,1,1}`` and ``{rgb}{0,0,0}``
-  respectively.
+  They
+  default to ``{RGB}{32,32,32}``, ``{gray}{0.95}`` and ``{rgb}{0,0,0}``
+  respectively (since 6.0.0).
 
 If one of the radius parameters is positive, the separate border widths will
 be ignored and only the value set by ``pre_border-width`` will be used.  Also,
@@ -1138,8 +1142,7 @@ Options for topic boxes:
   | ``div.topic_background-TeXcolor``,
   | ``div.topic_box-shadow-TeXcolor``.
 
-  They  must all be of the format as accepted by
-  LaTeX ``\definecolor``.  They default to ``{rgb}{0,0,0}``, ``{rgb}{1,1,1}``
+  They default to ``{rgb}{0,0,0}``, ``{rgb}{1,1,1}``
   and ``{rgb}{0,0,0}`` respectively.
 
 Options for ``warning`` (and similarly for  ``caution``, ``attention``,
@@ -1180,8 +1183,7 @@ Options for ``warning`` (and similarly for  ``caution``, ``attention``,
   | ``div.warning_background-TeXcolor``,
   | ``div.warning_box-shadow-TeXcolor``.
 
-  They  must all be of the format as accepted by
-  LaTeX ``\definecolor``.  They default to ``{rgb}{0,0,0}``, ``{rgb}{1,1,1}``
+  They default to ``{rgb}{0,0,0}``, ``{rgb}{1,1,1}``
   and ``{rgb}{0,0,0}`` respectively.
 
 In the above replace ``warning`` by one of ``caution``, ``attention``,
