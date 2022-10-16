@@ -1,14 +1,5 @@
-Release 5.3.0 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
+Release 5.3.0 (released Oct 16, 2022)
+=====================================
 
 Features added
 --------------
@@ -23,12 +14,6 @@ Features added
 * #10268: Correctly URI-escape image filenames.
 * #10887: domains: Allow sections in all the content of all object description
   directives (e.g. :rst:dir:`py:function`). Patch by Adam Turner
-
-Bugs fixed
-----------
-
-Testing
---------
 
 Release 5.2.3 (released Sep 30, 2022)
 =====================================
