@@ -446,10 +446,13 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
             return super().visit_literal_block(node)
 
         lang = node.get('language', 'default')
-        linenos = node.get('linenos', False) and "inline"
+        linenos = node.get('linenos', False)
         highlight_args = node.get('highlight_args', {})
         highlight_args['force'] = node.get('force', False)
         opts = self.config.highlight_options.get(lang, {})
+
+        if linenos and self.config.html_codeblock_linenos_style:
+            linenos = self.config.html_codeblock_linenos_style
 
         highlighted = self.highlighter.highlight_block(
             node.rawsource, lang, opts=opts, linenos=linenos,
