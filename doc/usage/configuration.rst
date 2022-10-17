@@ -2236,7 +2236,7 @@ These options influence LaTeX output.
         update your project to use instead
         the :ref:`latex table color configuration <tablecolors>` keys.
 
-   Default: ``['booktabs','colorrows']``
+   Default: ``['booktabs', 'colorrows']``
 
    .. versionadded:: 5.3.0
 
