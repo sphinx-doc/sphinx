@@ -4,7 +4,6 @@ import subprocess
 import sys
 from collections import namedtuple
 from io import StringIO
-from subprocess import PIPE
 from typing import Any, Callable, Dict, Generator, Optional, Tuple
 
 import pytest
@@ -205,7 +204,7 @@ def if_graphviz_found(app: SphinxTestApp) -> None:
     graphviz_dot = getattr(app.config, 'graphviz_dot', '')
     try:
         if graphviz_dot:
-            subprocess.run([graphviz_dot, '-V'], stdout=PIPE, stderr=PIPE)  # show version
+            subprocess.run([graphviz_dot, '-V'], capture_output=True)  # show version
             return
     except OSError:  # No such file or directory
         pass

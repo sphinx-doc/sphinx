@@ -88,7 +88,7 @@ def get_full_module_name(node: Node) -> str:
     :param nodes.Node node: target node
     :return: full module dotted path
     """
-    return '{}.{}'.format(node.__module__, node.__class__.__name__)
+    return f'{node.__module__}.{node.__class__.__name__}'
 
 
 def repr_domxml(node: Node, length: int = 80) -> str:

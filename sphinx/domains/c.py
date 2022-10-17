@@ -1826,7 +1826,7 @@ class Symbol:
             Symbol.debug_indent += 1
             Symbol.debug_print("nn:       ", nestedName)
             Symbol.debug_print("decl:     ", declaration)
-            Symbol.debug_print("location: {}:{}".format(docname, line))
+            Symbol.debug_print(f"location: {docname}:{line}")
 
         def onMissingQualifiedSymbol(parentSymbol: "Symbol", ident: ASTIdentifier) -> "Symbol":
             if Symbol.debug_lookup:
@@ -1852,7 +1852,7 @@ class Symbol:
                 Symbol.debug_indent += 1
                 Symbol.debug_print("ident:       ", lookupResult.ident)
                 Symbol.debug_print("declaration: ", declaration)
-                Symbol.debug_print("location:    {}:{}".format(docname, line))
+                Symbol.debug_print(f"location:    {docname}:{line}")
                 Symbol.debug_indent -= 1
             symbol = Symbol(parent=lookupResult.parentSymbol,
                             ident=lookupResult.ident,

@@ -24,7 +24,7 @@ def stringify_version(version_info, in_develop=True):
 def bump_version(path, version_info, in_develop=True):
     version = stringify_version(version_info, in_develop)
 
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, encoding='utf-8') as f:
         lines = f.read().splitlines()
 
     for i, line in enumerate(lines):

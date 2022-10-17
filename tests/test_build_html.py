@@ -105,9 +105,9 @@ def check_xpath(etree, fname, path, check, be_found=True):
             if all(not rex.search(get_text(node)) for node in nodes):
                 return
 
-        raise AssertionError(('%r not found in any node matching '
-                              'path %s in %s: %r' % (check, path, fname,
-                                                     [node.text for node in nodes])))
+        raise AssertionError('%r not found in any node matching '
+                             'path %s in %s: %r' % (check, path, fname,
+                                                    [node.text for node in nodes]))
 
 
 @pytest.mark.sphinx('html', testroot='warnings')

@@ -6,7 +6,7 @@ import shutil
 import subprocess
 import tempfile
 from os import path
-from subprocess import PIPE, CalledProcessError
+from subprocess import CalledProcessError
 from typing import Any, Dict, List, Optional, Tuple
 
 from docutils import nodes
@@ -130,7 +130,7 @@ def compile_math(latex: str, builder: Builder) -> str:
     command.append('math.tex')
 
     try:
-        subprocess.run(command, stdout=PIPE, stderr=PIPE, cwd=tempdir, check=True,
+        subprocess.run(command, capture_output=True, cwd=tempdir, check=True,
                        encoding='ascii')
         return path.join(tempdir, 'math.dvi')
     except OSError as exc:
@@ -145,7 +145,7 @@ def compile_math(latex: str, builder: Builder) -> str:
 def convert_dvi_to_image(command: List[str], name: str) -> Tuple[str, str]:
     """Convert DVI file to specific image format."""
     try:
-        ret = subprocess.run(command, stdout=PIPE, stderr=PIPE, check=True, encoding='ascii')
+        ret = subprocess.run(command, capture_output=True, check=True, encoding='ascii')
         return ret.stdout, ret.stderr
     except OSError as exc:
         logger.warning(__('%s command %r cannot be run (needed for math '

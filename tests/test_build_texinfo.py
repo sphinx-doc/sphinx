@@ -3,7 +3,7 @@
 import os
 import re
 import subprocess
-from subprocess import PIPE, CalledProcessError
+from subprocess import CalledProcessError
 from unittest.mock import Mock
 
 import pytest
@@ -49,7 +49,7 @@ def test_texinfo(app, status, warning):
     # now, try to run makeinfo over it
     try:
         args = ['makeinfo', '--no-split', 'sphinxtests.texi']
-        subprocess.run(args, stdout=PIPE, stderr=PIPE, cwd=app.outdir, check=True)
+        subprocess.run(args, capture_output=True, cwd=app.outdir, check=True)
     except OSError as exc:
         raise pytest.skip.Exception from exc  # most likely makeinfo was not found
     except CalledProcessError as exc:

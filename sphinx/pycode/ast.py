@@ -70,7 +70,7 @@ class _UnparseVisitor(ast.NodeVisitor):
     def _visit_op(self, node: ast.AST) -> str:
         return OPERATORS[node.__class__]
     for _op in OPERATORS:
-        locals()['visit_{}'.format(_op.__name__)] = _visit_op
+        locals()[f'visit_{_op.__name__}'] = _visit_op
 
     def visit_arg(self, node: ast.arg) -> str:
         if node.annotation:

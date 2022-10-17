@@ -4,7 +4,7 @@ import gettext
 import os
 import re
 import subprocess
-from subprocess import PIPE, CalledProcessError
+from subprocess import CalledProcessError
 
 import pytest
 
@@ -54,7 +54,7 @@ def test_msgfmt(app):
     with cd(app.outdir):
         try:
             args = ['msginit', '--no-translator', '-i', 'markup.pot', '--locale', 'en_US']
-            subprocess.run(args, stdout=PIPE, stderr=PIPE, check=True)
+            subprocess.run(args, capture_output=True, check=True)
         except OSError:
             pytest.skip()  # most likely msginit was not found
         except CalledProcessError as exc:
@@ -66,7 +66,7 @@ def test_msgfmt(app):
         try:
             args = ['msgfmt', 'en_US.po',
                     '-o', os.path.join('en', 'LC_MESSAGES', 'test_root.mo')]
-            subprocess.run(args, stdout=PIPE, stderr=PIPE, check=True)
+            subprocess.run(args, capture_output=True, check=True)
         except OSError:
             pytest.skip()  # most likely msgfmt was not found
         except CalledProcessError as exc:

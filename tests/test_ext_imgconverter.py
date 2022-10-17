@@ -1,7 +1,6 @@
 """Test sphinx.ext.imgconverter extension."""
 
 import subprocess
-from subprocess import PIPE
 
 import pytest
 
@@ -11,7 +10,7 @@ def if_converter_found(app):
     image_converter = getattr(app.config, 'image_converter', '')
     try:
         if image_converter:
-            subprocess.run([image_converter, '-version'], stdout=PIPE, stderr=PIPE)  # show version
+            subprocess.run([image_converter, '-version'], capture_output=True)  # show version
             return
     except OSError:  # No such file or directory
         pass

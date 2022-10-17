@@ -5,7 +5,7 @@ import re
 import subprocess
 from itertools import product
 from shutil import copyfile
-from subprocess import PIPE, CalledProcessError
+from subprocess import CalledProcessError
 
 import pytest
 
@@ -36,7 +36,7 @@ LATEX_WARNINGS = ENV_WARNINGS + """\
 # only run latex if all needed packages are there
 def kpsetest(*filenames):
     try:
-        subprocess.run(['kpsewhich'] + list(filenames), stdout=PIPE, stderr=PIPE, check=True)
+        subprocess.run(['kpsewhich'] + list(filenames), capture_output=True, check=True)
         return True
     except (OSError, CalledProcessError):
         return False  # command not found or exit with non-zero
@@ -55,7 +55,7 @@ def compile_latex_document(app, filename='python.tex'):
                     '--interaction=nonstopmode',
                     '-output-directory=%s' % app.config.latex_engine,
                     filename]
-            subprocess.run(args, stdout=PIPE, stderr=PIPE, check=True)
+            subprocess.run(args, capture_output=True, check=True)
     except OSError as exc:  # most likely the latex executable was not found
         raise pytest.skip.Exception from exc
     except CalledProcessError as exc:

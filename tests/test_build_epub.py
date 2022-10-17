@@ -2,7 +2,7 @@
 
 import os
 import subprocess
-from subprocess import PIPE, CalledProcessError
+from subprocess import CalledProcessError
 from xml.etree import ElementTree
 
 import pytest
@@ -11,7 +11,7 @@ import pytest
 # check given command is runnable
 def runnable(command):
     try:
-        subprocess.run(command, stdout=PIPE, stderr=PIPE, check=True)
+        subprocess.run(command, capture_output=True, check=True)
         return True
     except (OSError, CalledProcessError):
         return False  # command not found or exit with non-zero
@@ -377,7 +377,7 @@ def test_run_epubcheck(app):
     if runnable(['java', '-version']) and os.path.exists(epubcheck):
         try:
             subprocess.run(['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],
-                           stdout=PIPE, stderr=PIPE, check=True)
+                           capture_output=True, check=True)
         except CalledProcessError as exc:
             print(exc.stdout.decode('utf-8'))
             print(exc.stderr.decode('utf-8'))

@@ -1,7 +1,7 @@
 from functools import partialmethod
 
 
-class Cell(object):
+class Cell:
     """An example for partialmethod.
 
     refs: https://docs.python.jp/3/library/functools.html#functools.partialmethod

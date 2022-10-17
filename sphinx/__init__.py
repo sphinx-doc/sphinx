@@ -43,8 +43,7 @@ if _in_development:
         ret = subprocess.run(
             ['git', 'show', '-s', '--pretty=format:%h'],
             cwd=package_dir,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             encoding='ascii',
         ).stdout
         if ret:
