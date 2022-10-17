@@ -1110,6 +1110,8 @@ Options for code-blocks:
    and ``pre_background-TeXcolor`` (aka ``VerbatimBorderColor`` and
    ``VerbatimColor``) where ``{rgb}{0,0,0}`` (black border) and
    ``{rgb}{1,1,1}`` (white background) respectively.
+   Also ``pre_box-decoration-break`` was changed from ``clone`` into
+   ``slice`` for "open" framing at pagebreaks.
 
 If one of the radius parameters is positive, the separate border widths will
 be ignored and only the value set by ``pre_border-width`` will be used.  Also,
