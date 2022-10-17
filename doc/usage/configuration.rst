@@ -2236,12 +2236,13 @@ These options influence LaTeX output.
         update your project to use instead
         the :ref:`latex table color configuration <tablecolors>` keys.
 
-   Default: ``[]``
+   Default: ``['booktabs', 'colorrows']``
 
    .. versionadded:: 5.3.0
 
-   If using ``'booktabs'`` or ``'borderless'`` it seems recommended to also
-   opt for ``'colorrows'``...
+   .. versionchanged:: 6.0.0
+
+      Modify default from ``[]`` to ``['booktabs', 'colorrows']``.
 
    Each table can override the global style via ``:class:`` option, or
    ``.. rst-class::`` for no-directive tables (cf.  :ref:`table-directives`).

@@ -527,7 +527,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('latex_show_pagerefs', False, False)
     app.add_config_value('latex_elements', {}, False)
     app.add_config_value('latex_additional_files', [], False)
-    app.add_config_value('latex_table_style', [], False, [list])
+    app.add_config_value('latex_table_style', ['booktabs', 'colorrows'], False, [list])
     app.add_config_value('latex_theme', 'manual', False, [str])
     app.add_config_value('latex_theme_options', {}, False)
     app.add_config_value('latex_theme_path', [], False, [list])

@@ -1168,7 +1168,8 @@ def test_maxlistdepth_at_ten(app, status, warning):
     compile_latex_document(app, 'python.tex')
 
 
-@pytest.mark.sphinx('latex', testroot='latex-table')
+@pytest.mark.sphinx('latex', testroot='latex-table',
+                    confoverrides={'latex_table_style': []})
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_tabulars(app, status, warning):
     app.builder.build_all()
@@ -1238,7 +1239,8 @@ def test_latex_table_tabulars(app, status, warning):
     assert actual == expected
 
 
-@pytest.mark.sphinx('latex', testroot='latex-table')
+@pytest.mark.sphinx('latex', testroot='latex-table',
+                    confoverrides={'latex_table_style': []})
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_longtable(app, status, warning):
     app.builder.build_all()
@@ -1298,7 +1300,8 @@ def test_latex_table_longtable(app, status, warning):
     assert actual == expected
 
 
-@pytest.mark.sphinx('latex', testroot='latex-table')
+@pytest.mark.sphinx('latex', testroot='latex-table',
+                    confoverrides={'latex_table_style': []})
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_complex_tables(app, status, warning):
     app.builder.build_all()
@@ -1329,8 +1332,7 @@ def test_latex_table_complex_tables(app, status, warning):
     assert actual == expected
 
 
-@pytest.mark.sphinx('latex', testroot='latex-table',
-                    confoverrides={'latex_table_style': ['booktabs', 'colorrows']})
+@pytest.mark.sphinx('latex', testroot='latex-table')
 def test_latex_table_with_booktabs_and_colorrows(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
