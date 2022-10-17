@@ -43,6 +43,11 @@ Deprecated
 Features added
 --------------
 
+* #10924: LaTeX: adopt better looking defaults for tables and code-blocks.
+  See :confval:`latex_table_style` and the ``pre_border-radius`` and
+  ``pre_background-TeXcolor`` :ref:`additionalcss` for the former defaults
+  and how to re-enact them if desired.
+
 Bugs fixed
 ----------
 

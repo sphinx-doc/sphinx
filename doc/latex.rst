@@ -867,12 +867,16 @@ Do not use quotes to enclose values, whether numerical or strings.
 
     .. versionchanged:: 6.0.0
 
+       Formerly, it was ``{rgb}{1,1,1}`` (white).
+
 ``VerbatimBorderColor``
     The frame color.
 
     Default: ``{RGB}{32,32,32}``
 
     .. versionchanged:: 6.0.0
+
+       Formerly it was ``{rgb}{0,0,0}`` (black).
 
 ``VerbatimHighlightColor``
     The color for highlighted lines.
@@ -1099,6 +1103,13 @@ Options for code-blocks:
   They
   default to ``{RGB}{32,32,32}``, ``{gray}{0.95}`` and ``{rgb}{0,0,0}``
   respectively (since 6.0.0).
+
+.. versionchanged:: 6.0.0
+   Formerly ``pre_border-radius`` (aka ``VerbatimBorder``) was ``0pt``
+   (i.e. straight corners) and the colours ``pre_border-TeXcolor``
+   and ``pre_background-TeXcolor`` (aka ``VerbatimBorderColor`` and
+   ``VerbatimColor``) where ``{rgb}{0,0,0}`` (black border) and
+   ``{rgb}{1,1,1}`` (white background) respectively.
 
 If one of the radius parameters is positive, the separate border widths will
 be ignored and only the value set by ``pre_border-width`` will be used.  Also,
