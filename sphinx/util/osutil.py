@@ -11,19 +11,15 @@ import sys
 import unicodedata
 from io import StringIO
 from os import path
-from typing import TYPE_CHECKING, Any
+from pathlib import Path as Path
+from typing import TYPE_CHECKING, Any, Union
 
 from sphinx.deprecation import _deprecation_warning
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-try:
-    # for ALT Linux (#6712)
-    from sphinx.testing.path import path as Path
-except ImportError:
-    Path = None  # type: ignore
-
+StrPath = Union[str, os.PathLike[str]]
 
 # SEP separates path elements in the canonical file names
 #
@@ -71,9 +67,11 @@ def relative_uri(base: str, to: str) -> str:
     return ('..' + SEP) * (len(b2) - 1) + SEP.join(t2)
 
 
-def ensuredir(path: str) -> None:
+def ensuredir(file: StrPath) -> None:
     """Ensure that a path exists."""
-    os.makedirs(path, exist_ok=True)
+    file = path.normpath(file)
+    if not path.exists(file):
+        os.makedirs(file)
 
 
 def mtimes_of_files(dirnames: list[str], suffix: str) -> Iterator[float]:
@@ -119,7 +117,7 @@ def make_filename_from_project(project: str) -> str:
     return make_filename(project_suffix_re.sub('', project)).lower()
 
 
-def relpath(path: str, start: str | None = os.curdir) -> str:
+def relpath(path: StrPath, start: StrPath | None = os.curdir) -> str:
     """Return a relative filepath to *path* either from the current directory or
     from an optional *start* directory.
 
@@ -129,26 +127,23 @@ def relpath(path: str, start: str | None = os.curdir) -> str:
     try:
         return os.path.relpath(path, start)
     except ValueError:
-        return path
+        return str(path)
 
 
 safe_relpath = relpath  # for compatibility
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
-def abspath(pathdir: str) -> str:
-    if Path is not None and isinstance(pathdir, Path):
-        return pathdir.abspath()
-    else:
-        pathdir = path.abspath(pathdir)
-        if isinstance(pathdir, bytes):
-            try:
-                pathdir = pathdir.decode(fs_encoding)
-            except UnicodeDecodeError as exc:
-                raise UnicodeDecodeError('multibyte filename not supported on '
-                                         'this filesystem encoding '
-                                         '(%r)' % fs_encoding) from exc
-        return pathdir
+def abspath(pathdir: StrPath) -> str:
+    pathdir = path.abspath(pathdir)
+    if isinstance(pathdir, bytes):
+        try:
+            pathdir = pathdir.decode(fs_encoding)
+        except UnicodeDecodeError as exc:
+            raise UnicodeDecodeError('multibyte filename not supported on '
+                                     'this filesystem encoding '
+                                     '(%r)' % fs_encoding) from exc
+    return pathdir
 
 
 class _chdir:

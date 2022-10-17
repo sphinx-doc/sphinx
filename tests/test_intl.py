@@ -4,8 +4,11 @@ Runs the text builder in the test root.
 """
 
 import os
+import os.path
 import re
+import shutil
 import time
+from pathlib import Path
 
 import pygments
 import pytest
@@ -14,13 +17,8 @@ from babel.messages.catalog import Catalog
 from docutils import nodes
 
 from sphinx import locale
-from sphinx.testing.util import (
-    assert_node,
-    assert_not_re_search,
-    assert_re_search,
-    assert_startswith,
-    etree_parse,
-    path,
+from sphinx.testing.util import (assert_node, assert_not_re_search, assert_re_search,
+                                 assert_startswith, etree_parse,
     strip_escseq,
 )
 from sphinx.util.nodes import NodeMatcher
@@ -35,28 +33,29 @@ sphinx_intl = pytest.mark.sphinx(
 
 
 def read_po(pathname):
-    with pathname.open(encoding='utf-8') as f:
+    with open(pathname, encoding='utf-8') as f:
         return pofile.read_po(f)
 
 
 def write_mo(pathname, po):
-    with pathname.open('wb') as f:
+    with open(pathname, 'wb') as f:
         return mofile.write_mo(f, po)
 
 
 @pytest.fixture(autouse=True)
 def _setup_intl(app_params):
-    srcdir = path(app_params.kwargs['srcdir'])
+    assert isinstance(app_params.kwargs['srcdir'], Path)
+    srcdir = app_params.kwargs['srcdir']
     for dirpath, _dirs, files in os.walk(srcdir):
-        dirpath = path(dirpath)
+        dirpath = Path(dirpath)
         for f in [f for f in files if f.endswith('.po')]:
-            po = dirpath / f
+            po = str(dirpath / f)
             mo = srcdir / 'xx' / 'LC_MESSAGES' / (
                 os.path.relpath(po[:-3], srcdir) + '.mo')
             if not mo.parent.exists():
-                mo.parent.makedirs()
+                mo.parent.mkdir(parents=True, exist_ok=True)
 
-            if not mo.exists() or mo.stat().st_mtime < po.stat().st_mtime:
+            if not mo.exists() or os.stat(mo).st_mtime < os.stat(po).st_mtime:
                 # compile .mo file only if needed
                 write_mo(mo, read_po(po))
 
@@ -697,13 +696,13 @@ def test_gettext_dont_rebuild_mo(make_app, app_params):
     # When rewriting the timestamp of mo file, the number of documents to be
     # updated will be changed.
     mtime = (app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').stat().st_mtime
-    (app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').utime((mtime + 5, mtime + 5))
+    os.utime(app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo', (mtime + 5, mtime + 5))
     update_targets = get_update_targets(app0)
     assert update_targets[1] == {'bom'}, update_targets
 
     # Because doctree for gettext builder can not be shared with other builders,
     # erase doctreedir before gettext build.
-    app0.doctreedir.rmtree()
+    shutil.rmtree(app0.doctreedir)
 
     # phase2: build document with gettext builder.
     # The mo file in the srcdir directory is retained.
@@ -715,7 +714,7 @@ def test_gettext_dont_rebuild_mo(make_app, app_params):
     assert update_targets[1] == set(), update_targets
     # Even if the timestamp of the mo file is updated, the number of documents
     # to be updated is 0. gettext builder does not rebuild because of mo update.
-    (app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').utime((mtime + 10, mtime + 10))
+    os.utime(app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo', (mtime + 10, mtime + 10))
     update_targets = get_update_targets(app)
     assert update_targets[1] == set(), update_targets
 
@@ -867,7 +866,7 @@ def test_html_rebuild_mo(app):
     assert len(updated) == 0
 
     mtime = (app.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').stat().st_mtime
-    (app.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').utime((mtime + 5, mtime + 5))
+    os.utime(app.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo', (mtime + 5, mtime + 5))
     app.env.find_files(app.config, app.builder)
     _, updated, _ = app.env.get_outdated_files(config_changed=False)
     assert len(updated) == 1
@@ -1401,7 +1400,7 @@ def getwarning(warnings):
                     })
 def test_gettext_allow_fuzzy_translations(app):
     locale_dir = app.srcdir / 'locales' / 'de' / 'LC_MESSAGES'
-    locale_dir.makedirs()
+    locale_dir.mkdir(parents=True, exist_ok=True)
     with (locale_dir / 'index.po').open('wb') as f:
         catalog = Catalog()
         catalog.add('features', 'FEATURES', flags=('fuzzy',))
@@ -1420,7 +1419,7 @@ def test_gettext_allow_fuzzy_translations(app):
                     })
 def test_gettext_disallow_fuzzy_translations(app):
     locale_dir = app.srcdir / 'locales' / 'de' / 'LC_MESSAGES'
-    locale_dir.makedirs()
+    locale_dir.mkdir(parents=True, exist_ok=True)
     with (locale_dir / 'index.po').open('wb') as f:
         catalog = Catalog()
         catalog.add('features', 'FEATURES', flags=('fuzzy',))
@@ -1439,7 +1438,7 @@ def test_customize_system_message(make_app, app_params, sphinx_test_tempdir):
 
         # prepare message catalog (.po)
         locale_dir = sphinx_test_tempdir / 'basic' / 'locales' / 'de' / 'LC_MESSAGES'
-        locale_dir.makedirs()
+        locale_dir.mkdir(parents=True, exist_ok=True)
         with (locale_dir / 'sphinx.po').open('wb') as f:
             catalog = Catalog()
             catalog.add('Quick search', 'QUICK SEARCH')

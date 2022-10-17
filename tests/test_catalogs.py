@@ -1,5 +1,6 @@
 """Test the base build process."""
 import shutil
+from pathlib import Path
 
 import pytest
 
@@ -8,6 +9,7 @@ from sphinx.testing.util import find_files
 
 @pytest.fixture()
 def _setup_test(app_params):
+    assert isinstance(app_params.kwargs['srcdir'], Path)
     srcdir = app_params.kwargs['srcdir']
     src_locale_dir = srcdir / 'xx' / 'LC_MESSAGES'
     dest_locale_dir = srcdir / 'locale'
@@ -15,14 +17,14 @@ def _setup_test(app_params):
     for po in find_files(src_locale_dir, '.po'):
         copy_po = (dest_locale_dir / 'en' / 'LC_MESSAGES' / po)
         if not copy_po.parent.exists():
-            copy_po.parent.makedirs()
+            copy_po.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(src_locale_dir / po, copy_po)
 
     yield
 
     # delete remnants left over after failed build
-    dest_locale_dir.rmtree(True)
-    (srcdir / '_build').rmtree(True)
+    shutil.rmtree(dest_locale_dir, ignore_errors=True)
+    shutil.rmtree(srcdir / '_build', ignore_errors=True)
 
 
 @pytest.mark.usefixtures('_setup_test')
@@ -35,10 +37,7 @@ def test_compile_all_catalogs(app, status, warning):
 
     locale_dir = app.srcdir / 'locale'
     catalog_dir = locale_dir / app.config.language / 'LC_MESSAGES'
-    expect = {
-        x.replace('.po', '.mo')
-        for x in find_files(catalog_dir, '.po')
-    }
+    expect = {x.with_suffix('.mo') for x in find_files(catalog_dir, '.po')}
     actual = set(find_files(catalog_dir, '.mo'))
     assert actual  # not empty
     assert actual == expect
@@ -59,7 +58,7 @@ def test_compile_specific_catalogs(app, status, warning):
     actual_on_boot = get_actual()  # sphinx.mo might be included
     app.builder.compile_specific_catalogs([app.srcdir / 'admonitions.txt'])
     actual = get_actual() - actual_on_boot
-    assert actual == {'admonitions.mo'}
+    assert set(map(str, actual)) == {'admonitions.mo'}
 
 
 @pytest.mark.usefixtures('_setup_test')
@@ -72,10 +71,7 @@ def test_compile_update_catalogs(app, status, warning):
 
     locale_dir = app.srcdir / 'locale'
     catalog_dir = locale_dir / app.config.language / 'LC_MESSAGES'
-    expect = {
-        x.replace('.po', '.mo')
-        for x in find_files(catalog_dir, '.po')
-    }
+    expect = {x.with_suffix('.mo') for x in find_files(catalog_dir, '.po')}
     actual = set(find_files(catalog_dir, '.mo'))
     assert actual  # not empty
     assert actual == expect

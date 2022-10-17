@@ -786,7 +786,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_download_files(self) -> None:
         def to_relpath(f: str) -> str:
-            return relative_path(self.srcdir, f)
+            return relative_path(str(self.srcdir), f)
 
         # copy downloadable files
         if self.env.dlfiles:
@@ -1305,7 +1305,7 @@ def validate_html_extra_path(app: Sphinx, config: Config) -> None:
             logger.warning(__('html_extra_path entry %r does not exist'), entry)
             config.html_extra_path.remove(entry)
         elif (path.splitdrive(app.outdir)[0] == path.splitdrive(extra_path)[0] and
-              path.commonpath([app.outdir, extra_path]) == app.outdir):
+              path.commonpath((app.outdir, extra_path)) == path.normpath(app.outdir)):
             logger.warning(__('html_extra_path entry %r is placed inside outdir'), entry)
             config.html_extra_path.remove(entry)
 
@@ -1318,7 +1318,7 @@ def validate_html_static_path(app: Sphinx, config: Config) -> None:
             logger.warning(__('html_static_path entry %r does not exist'), entry)
             config.html_static_path.remove(entry)
         elif (path.splitdrive(app.outdir)[0] == path.splitdrive(static_path)[0] and
-              path.commonpath([app.outdir, static_path]) == app.outdir):
+              path.commonpath((app.outdir, static_path)) == path.normpath(app.outdir)):
             logger.warning(__('html_static_path entry %r is placed inside outdir'), entry)
             config.html_static_path.remove(entry)
 

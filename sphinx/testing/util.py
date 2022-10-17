@@ -6,6 +6,8 @@ import os
 import re
 import sys
 import warnings
+from io import StringIO
+from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any
 from xml.etree import ElementTree
 
@@ -15,8 +17,6 @@ from docutils.parsers.rst import directives, roles
 
 from sphinx import application, locale
 from sphinx.pycode import ModuleAnalyzer
-from sphinx.testing.path import path
-from sphinx.util.osutil import relpath
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -102,8 +102,8 @@ class SphinxTestApp(application.Sphinx):
     def __init__(
         self,
         buildername: str = 'html',
-        srcdir: path | None = None,
-        builddir: path | None = None,
+        srcdir: Path | None = None,
+        builddir: Path | None = None,
         freshenv: bool = False,
         confoverrides: dict | None = None,
         status: IO | None = None,
@@ -123,9 +123,9 @@ class SphinxTestApp(application.Sphinx):
 
         confdir = srcdir
         outdir = builddir.joinpath(buildername)
-        outdir.makedirs(exist_ok=True)
+        outdir.mkdir(parents=True, exist_ok=True)
         doctreedir = builddir.joinpath('doctrees')
-        doctreedir.makedirs(exist_ok=True)
+        doctreedir.mkdir(parents=True, exist_ok=True)
         if confoverrides is None:
             confoverrides = {}
         warningiserror = False
@@ -138,7 +138,7 @@ class SphinxTestApp(application.Sphinx):
                                    if v.startswith('visit_')}
 
         try:
-            super().__init__(srcdir, confdir, outdir, doctreedir,
+            super().__init__(str(srcdir), str(confdir), str(outdir), str(doctreedir),
                              buildername, confoverrides, status, warning,
                              freshenv, warningiserror, tags, parallel=parallel)
         except Exception:
@@ -184,7 +184,7 @@ class SphinxTestAppWrapperForSkipBuilding:
         return getattr(self.app, name)
 
     def build(self, *args: Any, **kwargs: Any) -> None:
-        if not self.app.outdir.listdir():  # type: ignore
+        if not os.listdir(self.app.outdir):
             # if listdir is empty, do build.
             self.app.build(*args, **kwargs)
             # otherwise, we can use built cache
@@ -193,12 +193,12 @@ class SphinxTestAppWrapperForSkipBuilding:
 _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
 
 
-def find_files(root: str, suffix: str | None = None) -> Generator[str, None, None]:
-    for dirpath, _dirs, files in os.walk(root, followlinks=True):
-        dirpath = path(dirpath)
-        for f in [f for f in files if not suffix or f.endswith(suffix)]:
-            fpath = dirpath / f
-            yield relpath(fpath, root)
+def find_files(root: str, suffix: str) -> Iterator[Path]:
+    for file, _dirs, files in os.walk(root, followlinks=True):
+        dir_path = Path(file)
+        for f in files:
+            if f.endswith(suffix):
+                yield (dir_path / f).relative_to(root)
 
 
 def strip_escseq(text: str) -> str:

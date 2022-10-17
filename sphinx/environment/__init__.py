@@ -10,7 +10,7 @@ from copy import copy
 from datetime import datetime, timezone
 from os import path
 from typing import TYPE_CHECKING, Any, Callable
-
+from pathlib import Path
 from docutils import nodes
 from docutils.nodes import Node
 
@@ -27,7 +27,7 @@ from sphinx.util import DownloadFiles, FilenameUniqDict, logging
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.nodes import is_translatable
-from sphinx.util.osutil import canon_path, os_path
+from sphinx.util.osutil import canon_path, os_path, StrPath
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
@@ -147,8 +147,8 @@ class BuildEnvironment:
 
     def __init__(self, app: Sphinx):
         self.app: Sphinx = app
-        self.doctreedir: str = app.doctreedir
-        self.srcdir: str = app.srcdir
+        self.doctreedir: Path = app.doctreedir
+        self.srcdir: Path = app.srcdir
         self.config: Config = None  # type: ignore[assignment]
         self.config_status: int = CONFIG_UNSET
         self.config_status_extra: str = ''
@@ -387,7 +387,7 @@ class BuildEnvironment:
             domain.merge_domaindata(docnames, other.domaindata[domainname])
         self.events.emit('env-merge-info', self, docnames, other)
 
-    def path2doc(self, filename: str) -> str | None:
+    def path2doc(self, filename: StrPath) -> str | None:
         """Return the docname for the filename if the file is document.
 
         *filename* should be absolute or relative to the source directory.

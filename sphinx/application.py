@@ -11,8 +11,9 @@ import sys
 from collections import deque
 from io import StringIO
 from os import path
+from os.path import abspath
 from typing import IO, TYPE_CHECKING, Any, Callable
-
+from pathlib import Path
 from docutils import nodes
 from docutils.nodes import Element, TextElement
 from docutils.parsers import Parser
@@ -41,7 +42,7 @@ from sphinx.util.console import bold  # type: ignore
 from sphinx.util.display import progress_message
 from sphinx.util.i18n import CatalogRepository
 from sphinx.util.logging import prefixed_warnings
-from sphinx.util.osutil import abspath, ensuredir, relpath
+from sphinx.util.osutil import ensuredir, relpath, StrPath
 from sphinx.util.tags import Tags
 from sphinx.util.typing import RoleFunction, TitleGetter
 
@@ -132,7 +133,7 @@ class Sphinx:
     warningiserror: bool
     _warncount: int
 
-    def __init__(self, srcdir: str, confdir: str | None, outdir: str, doctreedir: str,
+    def __init__(self, srcdir: StrPath, confdir: StrPath | None, outdir: StrPath, doctreedir: StrPath,
                  buildername: str, confoverrides: dict | None = None,
                  status: IO | None = sys.stdout, warning: IO | None = sys.stderr,
                  freshenv: bool = False, warningiserror: bool = False,
@@ -145,9 +146,9 @@ class Sphinx:
         self.registry = SphinxComponentRegistry()
 
         # validate provided directories
-        self.srcdir = abspath(srcdir)
-        self.outdir = abspath(outdir)
-        self.doctreedir = abspath(doctreedir)
+        self.srcdir = Path(abspath(srcdir))
+        self.outdir = Path(abspath(outdir))
+        self.doctreedir = Path(abspath(doctreedir))
 
         if not path.isdir(self.srcdir):
             raise ApplicationError(__('Cannot find source directory (%s)') %
@@ -203,7 +204,7 @@ class Sphinx:
             self.confdir = self.srcdir
             self.config = Config({}, confoverrides or {})
         else:
-            self.confdir = abspath(confdir)
+            self.confdir = Path(abspath(confdir))
             self.config = Config.read(self.confdir, confoverrides or {}, self.tags)
 
         # initialize some limited config variables before initialize i18n and loading

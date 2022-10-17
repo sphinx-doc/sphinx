@@ -35,7 +35,7 @@ def copy_asset_file(source: str, destination: str,
         # Use source filename if destination points a directory
         destination = os.path.join(destination, os.path.basename(source))
 
-    if source.lower().endswith('_t') and context is not None:
+    if str(source).lower().endswith('_t') and context is not None:
         if renderer is None:
             from sphinx.util.template import SphinxRenderer
             renderer = SphinxRenderer()

@@ -15,7 +15,7 @@ from babel.messages.pofile import read_po
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.osutil import SEP, canon_path, relpath
+from sphinx.util.osutil import SEP, canon_path, relpath, StrPath
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -73,7 +73,7 @@ class CatalogInfo(LocaleFileInfoBase):
 class CatalogRepository:
     """A repository for message catalogs."""
 
-    def __init__(self, basedir: str, locale_dirs: list[str],
+    def __init__(self, basedir: StrPath, locale_dirs: list[str],
                  language: str, encoding: str) -> None:
         self.basedir = basedir
         self._locale_dirs = locale_dirs

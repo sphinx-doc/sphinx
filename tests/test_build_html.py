@@ -116,7 +116,7 @@ def test_html_warnings(app, warning):
     app.build()
     html_warnings = strip_escseq(re.sub(re.escape(os.sep) + '{1,2}', '/', warning.getvalue()))
     html_warnings_exp = HTML_WARNINGS % {
-        'root': re.escape(app.srcdir.replace(os.sep, '/'))}
+        'root': re.escape(app.srcdir.as_posix())}
     assert re.match(html_warnings_exp + '$', html_warnings), \
         "Warnings don't match:\n" + \
         '--- Expected (regex):\n' + html_warnings_exp + \
@@ -753,7 +753,7 @@ def test_numfig_without_numbered_toctree(app, cached_etree_parse, fname, expect)
     index = re.sub(':numbered:.*', '', index)
     (app.srcdir / 'index.rst').write_text(index, encoding='utf8')
 
-    if not app.outdir.listdir():
+    if not os.listdir(app.outdir):
         app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
@@ -1563,7 +1563,7 @@ def test_html_dark_pygments_style_default(app):
 
 @pytest.mark.sphinx(testroot='basic', srcdir='validate_html_extra_path')
 def test_validate_html_extra_path(app):
-    (app.confdir / '_static').makedirs()
+    (app.confdir / '_static').mkdir(parents=True, exist_ok=True)
     app.config.html_extra_path = [
         '/path/to/not_found',       # not found
         '_static',
@@ -1576,7 +1576,7 @@ def test_validate_html_extra_path(app):
 
 @pytest.mark.sphinx(testroot='basic', srcdir='validate_html_static_path')
 def test_validate_html_static_path(app):
-    (app.confdir / '_static').makedirs()
+    (app.confdir / '_static').mkdir(parents=True, exist_ok=True)
     app.config.html_static_path = [
         '/path/to/not_found',       # not found
         '_static',

@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 import sys
 from collections import namedtuple
 from io import StringIO
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable
 
 import pytest
@@ -96,7 +98,7 @@ def app_params(request: Any, test_params: dict, shared_result: SharedResult,
     # special support for sphinx/tests
     if rootdir and not srcdir.exists():
         testroot_path = rootdir / ('test-' + testroot)
-        testroot_path.copytree(srcdir)
+        shutil.copytree(testroot_path, srcdir)
 
     return namedtuple('app_params', 'args,kwargs')(args, kwargs)  # type: ignore
 
@@ -218,21 +220,9 @@ def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
 
 
 @pytest.fixture(scope='session')
-def sphinx_test_tempdir(tmpdir_factory: Any) -> util.path:
-    """
-    Temporary directory wrapped with `path` class.
-    """
-    tmpdir = tmpdir_factory.getbasetemp()
-    return util.path(tmpdir).abspath()
-
-
-@pytest.fixture()
-def tempdir(tmpdir: str) -> util.path:
-    """
-    Temporary directory wrapped with `path` class.
-    This fixture is for back-compatibility with old test implementation.
-    """
-    return util.path(tmpdir)
+def sphinx_test_tempdir(tmp_path_factory: Any) -> Path:
+    """Temporary directory."""
+    return tmp_path_factory.getbasetemp()
 
 
 @pytest.fixture()
