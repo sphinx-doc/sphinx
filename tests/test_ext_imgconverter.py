@@ -1,7 +1,7 @@
 """Test sphinx.ext.imgconverter extension."""
 
-from contextlib import suppress
 import subprocess
+from contextlib import suppress
 
 import pytest
 
