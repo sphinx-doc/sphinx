@@ -186,12 +186,9 @@ class InheritanceGraph:
 
             # Use first line of docstring as tooltip, if available
             tooltip = None
-            with suppress(AttributeError):
-                # might raise AttributeError for strange classes
-                if cls.__doc__:
-                    doc = cls.__doc__.strip().split("\n")[0]
-                    if doc:
-                        tooltip = '"%s"' % doc.replace('"', '\\"')
+            doc = getattr(cls, '__doc__', '').strip().split("\n")[0].replace('"', '\\"')
+            if doc:
+                tooltip = f'"{doc}"'
 
             baselist: List[str] = []
             all_classes[cls] = (nodename, fullname, baselist, tooltip)
