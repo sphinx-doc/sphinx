@@ -31,7 +31,6 @@ LaTeX.
 import builtins
 import inspect
 import re
-from contextlib import suppress
 from importlib import import_module
 from typing import Any, Dict, Iterable, List, Optional, Tuple, cast
 
