@@ -3,11 +3,14 @@
 import collections
 import inspect
 import re
+import warnings
 from functools import partial
-from typing import Any, Callable, Dict, List, Tuple, Union
+from typing import Any, Callable, Dict, List, Tuple, Type, Union
 
 from sphinx.application import Sphinx
 from sphinx.config import Config as SphinxConfig
+from sphinx.deprecation import RemovedInSphinx60Warning
+from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.inspect import stringify_annotation
@@ -41,29 +44,6 @@ _default_regex = re.compile(
     r"^default[^_0-9A-Za-z].*$",
 )
 _SINGLETONS = ("None", "True", "False", "Ellipsis")
-
-
-class Deque(collections.deque):
-    """
-    A subclass of deque that mimics ``pockets.iterators.modify_iter``.
-
-    The `.Deque.get` and `.Deque.next` methods are added.
-    """
-
-    sentinel = object()
-
-    def get(self, n: int) -> Any:
-        """
-        Return the nth element of the stack, or ``self.sentinel`` if n is
-        greater than the stack size.
-        """
-        return self[n] if n < len(self) else self.sentinel
-
-    def next(self) -> Any:
-        if self:
-            return super().popleft()
-        else:
-            raise StopIteration
 
 
 def _convert_type_spec(_type: str, translations: Dict[str, str] = {}) -> str:
@@ -173,7 +153,7 @@ class GoogleDocstring:
             lines = docstring.splitlines()
         else:
             lines = docstring
-        self._lines = Deque(map(str.rstrip, lines))
+        self._line_iter = modify_iter(lines, modifier=lambda s: s.rstrip())
         self._parsed_lines: List[str] = []
         self._is_in_section = False
         self._section_indent = 0
@@ -245,34 +225,32 @@ class GoogleDocstring:
 
     def _consume_indented_block(self, indent: int = 1) -> List[str]:
         lines = []
-        line = self._lines.get(0)
-        while (
-            not self._is_section_break() and
-            (not line or self._is_indented(line, indent))
-        ):
-            lines.append(self._lines.next())
-            line = self._lines.get(0)
+        line = self._line_iter.peek()
+        while(not self._is_section_break() and
+              (not line or self._is_indented(line, indent))):
+            lines.append(next(self._line_iter))
+            line = self._line_iter.peek()
         return lines
 
     def _consume_contiguous(self) -> List[str]:
         lines = []
-        while (self._lines and
-               self._lines.get(0) and
+        while (self._line_iter.has_next() and
+               self._line_iter.peek() and
                not self._is_section_header()):
-            lines.append(self._lines.next())
+            lines.append(next(self._line_iter))
         return lines
 
     def _consume_empty(self) -> List[str]:
         lines = []
-        line = self._lines.get(0)
-        while self._lines and not line:
-            lines.append(self._lines.next())
-            line = self._lines.get(0)
+        line = self._line_iter.peek()
+        while self._line_iter.has_next() and not line:
+            lines.append(next(self._line_iter))
+            line = self._line_iter.peek()
         return lines
 
     def _consume_field(self, parse_type: bool = True, prefer_type: bool = False
                        ) -> Tuple[str, str, List[str]]:
-        line = self._lines.next()
+        line = next(self._line_iter)
 
         before, colon, after = self._partition_field_on_colon(line)
         _name, _type, _desc = before, '', after
@@ -310,7 +288,7 @@ class GoogleDocstring:
         return fields
 
     def _consume_inline_attribute(self) -> Tuple[str, List[str]]:
-        line = self._lines.next()
+        line = next(self._line_iter)
         _type, colon, _desc = self._partition_field_on_colon(line)
         if not colon or not _desc:
             _type, _desc = _desc, _type
@@ -348,7 +326,7 @@ class GoogleDocstring:
         return lines
 
     def _consume_section_header(self) -> str:
-        section = self._lines.next()
+        section = next(self._line_iter)
         stripped_section = section.strip(':')
         if stripped_section.lower() in self._sections:
             section = stripped_section
@@ -356,15 +334,15 @@ class GoogleDocstring:
 
     def _consume_to_end(self) -> List[str]:
         lines = []
-        while self._lines:
-            lines.append(self._lines.next())
+        while self._line_iter.has_next():
+            lines.append(next(self._line_iter))
         return lines
 
     def _consume_to_next_section(self) -> List[str]:
         self._consume_empty()
         lines = []
         while not self._is_section_break():
-            lines.append(self._lines.next())
+            lines.append(next(self._line_iter))
         return lines + self._consume_empty()
 
     def _dedent(self, lines: List[str], full: bool = False) -> List[str]:
@@ -490,12 +468,12 @@ class GoogleDocstring:
         return lines
 
     def _get_current_indent(self, peek_ahead: int = 0) -> int:
-        line = self._lines.get(peek_ahead)
-        while line is not self._lines.sentinel:
+        line = self._line_iter.peek(peek_ahead + 1)[peek_ahead]
+        while line != self._line_iter.sentinel:
             if line:
                 return self._get_indent(line)
             peek_ahead += 1
-            line = self._lines.get(peek_ahead)
+            line = self._line_iter.peek(peek_ahead + 1)[peek_ahead]
         return 0
 
     def _get_indent(self, line: str) -> int:
@@ -550,7 +528,7 @@ class GoogleDocstring:
         return next_indent > indent
 
     def _is_section_header(self) -> bool:
-        section = self._lines.get(0).lower()
+        section = self._line_iter.peek().lower()
         match = _google_section_regex.match(section)
         if match and section.strip(':') in self._sections:
             header_indent = self._get_indent(section)
@@ -564,8 +542,8 @@ class GoogleDocstring:
         return False
 
     def _is_section_break(self) -> bool:
-        line = self._lines.get(0)
-        return (not self._lines or
+        line = self._line_iter.peek()
+        return (not self._line_iter.has_next() or
                 self._is_section_header() or
                 (self._is_in_section and
                     line and
@@ -586,6 +564,9 @@ class GoogleDocstring:
                     elif entry[1] == "returns_style":
                         self._sections[entry[0].lower()] = \
                             self._parse_custom_returns_style_section
+                    elif callable(entry[1]):
+                        # [0] is new section, [1] is the custom parsing method
+                        self._sections[entry[0].lower()] = entry[1].__get__(self)
                     else:
                         # [0] is new section, [1] is the section to alias.
                         # in the case of key mismatch, just handle as generic section.
@@ -597,6 +578,8 @@ class GoogleDocstring:
         self._parsed_lines = self._consume_empty()
 
         if self._name and self._what in ('attribute', 'data', 'property'):
+            # Implicit stop using StopIteration no longer allowed in
+            # Python 3.7; see PEP 479
             res: List[str] = []
             try:
                 res = self._parse_attribute_docstring()
@@ -605,7 +588,7 @@ class GoogleDocstring:
             self._parsed_lines.extend(res)
             return
 
-        while self._lines:
+        while self._line_iter.has_next():
             if self._is_section_header():
                 try:
                     section = self._consume_section_header()
@@ -835,6 +818,19 @@ class GoogleDocstring:
                 colon,
                 "".join(after_colon).strip())
 
+    def _qualify_name(self, attr_name: str, klass: Type) -> str:
+        warnings.warn('%s._qualify_name() is deprecated.' %
+                      self.__class__.__name__, RemovedInSphinx60Warning)
+        if klass and '.' not in attr_name:
+            if attr_name.startswith('~'):
+                attr_name = attr_name[1:]
+            try:
+                q = klass.__qualname__
+            except AttributeError:
+                q = klass.__name__
+            return '~%s.%s' % (q, attr_name)
+        return attr_name
+
     def _strip_empty(self, lines: List[str]) -> List[str]:
         if lines:
             start = -1
@@ -938,12 +934,12 @@ def _tokenize_type_spec(spec: str) -> List[str]:
         else:
             return [item]
 
-    tokens = [
+    tokens = list(
         item
         for raw_token in _token_regex.split(spec)
         for item in postprocess(raw_token)
         if item
-    ]
+    )
     return tokens
 
 
@@ -1165,7 +1161,7 @@ class NumpyDocstring(GoogleDocstring):
 
     def _consume_field(self, parse_type: bool = True, prefer_type: bool = False
                        ) -> Tuple[str, str, List[str]]:
-        line = self._lines.next()
+        line = next(self._line_iter)
         if parse_type:
             _name, _, _type = self._partition_field_on_colon(line)
         else:
@@ -1196,15 +1192,15 @@ class NumpyDocstring(GoogleDocstring):
         return self._consume_fields(prefer_type=True)
 
     def _consume_section_header(self) -> str:
-        section = self._lines.next()
+        section = next(self._line_iter)
         if not _directive_regex.match(section):
             # Consume the header underline
-            self._lines.next()
+            next(self._line_iter)
         return section
 
     def _is_section_break(self) -> bool:
-        line1, line2 = self._lines.get(0), self._lines.get(1)
-        return (not self._lines or
+        line1, line2 = self._line_iter.peek(2)
+        return (not self._line_iter.has_next() or
                 self._is_section_header() or
                 ['', ''] == [line1, line2] or
                 (self._is_in_section and
@@ -1212,7 +1208,7 @@ class NumpyDocstring(GoogleDocstring):
                     not self._is_indented(line1, self._section_indent)))
 
     def _is_section_header(self) -> bool:
-        section, underline = self._lines.get(0), self._lines.get(1)
+        section, underline = self._line_iter.peek(2)
         section = section.lower()
         if section in self._sections and isinstance(underline, str):
             return bool(_numpy_section_regex.match(underline))
