@@ -464,12 +464,13 @@ Doctest summary
         self.setup_failures += res_f
         self.setup_tries += res_t
         if self.test_runner.tries:
-            res_f, res_t = self.test_runner.summarize(self._out, verbose=self.config.doctest_show_successes)
+            res_f, res_t = self.test_runner.summarize(
+                self._out, verbose=self.config.doctest_show_successes)
             self.total_failures += res_f
             self.total_tries += res_t
         if self.cleanup_runner.tries:
-            res_f, res_t = self.cleanup_runner.summarize(self._out,
-                                                         verbose=self.config.doctest_show_successes)
+            res_f, res_t = self.cleanup_runner.summarize(
+                self._out, verbose=self.config.doctest_show_successes)
             self.cleanup_failures += res_f
             self.cleanup_tries += res_t
 
