@@ -25,6 +25,7 @@ jobs:
         docutils:
         - "du18"
         - "du19"
+        - "du-latest"
 
     steps:
     - uses: actions/checkout@v3
