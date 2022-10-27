@@ -5,7 +5,6 @@ import re
 from itertools import chain, cycle
 from unittest.mock import ANY, call, patch
 
-import docutils
 import pytest
 from html5lib import HTMLParser
 
@@ -15,10 +14,7 @@ from sphinx.testing.util import strip_escseq
 from sphinx.util import md5
 from sphinx.util.inventory import InventoryFile
 
-if docutils.__version_info__ < (0, 17):
-    FIGURE_CAPTION = ".//div[@class='figure align-default']/p[@class='caption']"
-else:
-    FIGURE_CAPTION = ".//figure/figcaption/p"
+FIGURE_CAPTION = ".//figure/figcaption/p"
 
 
 ENV_WARNINGS = """\
@@ -109,9 +105,9 @@ def check_xpath(etree, fname, path, check, be_found=True):
             if all(not rex.search(get_text(node)) for node in nodes):
                 return
 
-        raise AssertionError(('%r not found in any node matching '
-                              'path %s in %s: %r' % (check, path, fname,
-                                                     [node.text for node in nodes])))
+        raise AssertionError('%r not found in any node matching '
+                             'path %s in %s: %r' % (check, path, fname,
+                                                    [node.text for node in nodes]))
 
 
 @pytest.mark.sphinx('html', testroot='warnings')
@@ -410,39 +406,6 @@ def test_html5_output(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
-@pytest.mark.skipif(docutils.__version_info__ >= (0, 18), reason='docutils-0.17 or below is required.')
-@pytest.mark.parametrize("fname,expect", flat_dict({
-    'index.html': [
-        (".//dt[@class='label']/span[@class='brackets']", r'Ref1'),
-        (".//dt[@class='label']", ''),
-    ],
-    'footnote.html': [
-        (".//a[@class='footnote-reference brackets'][@href='#id9'][@id='id1']", r"1"),
-        (".//a[@class='footnote-reference brackets'][@href='#id10'][@id='id2']", r"2"),
-        (".//a[@class='footnote-reference brackets'][@href='#foo'][@id='id3']", r"3"),
-        (".//a[@class='reference internal'][@href='#bar'][@id='id4']/span", r"\[bar\]"),
-        (".//a[@class='reference internal'][@href='#baz-qux'][@id='id5']/span", r"\[baz_qux\]"),
-        (".//a[@class='footnote-reference brackets'][@href='#id11'][@id='id6']", r"4"),
-        (".//a[@class='footnote-reference brackets'][@href='#id12'][@id='id7']", r"5"),
-        (".//a[@class='fn-backref'][@href='#id1']", r"1"),
-        (".//a[@class='fn-backref'][@href='#id2']", r"2"),
-        (".//a[@class='fn-backref'][@href='#id3']", r"3"),
-        (".//a[@class='fn-backref'][@href='#id4']", r"bar"),
-        (".//a[@class='fn-backref'][@href='#id5']", r"baz_qux"),
-        (".//a[@class='fn-backref'][@href='#id6']", r"4"),
-        (".//a[@class='fn-backref'][@href='#id7']", r"5"),
-        (".//a[@class='fn-backref'][@href='#id8']", r"6"),
-    ],
-}))
-@pytest.mark.sphinx('html')
-@pytest.mark.test_params(shared_result='test_build_html_output_docutils17')
-def test_docutils17_output(app, cached_etree_parse, fname, expect):
-    app.build()
-    print(app.outdir / fname)
-    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
-
-
-@pytest.mark.skipif(docutils.__version_info__ < (0, 18), reason='docutils-0.18+ is required.')
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
         (".//div[@class='citation']/span", r'Ref1'),
@@ -468,7 +431,7 @@ def test_docutils17_output(app, cached_etree_parse, fname, expect):
 }))
 @pytest.mark.sphinx('html')
 @pytest.mark.test_params(shared_result='test_build_html_output_docutils18')
-def test_docutils18_output(app, cached_etree_parse, fname, expect):
+def test_docutils_output(app, cached_etree_parse, fname, expect):
     app.build()
     print(app.outdir / fname)
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
@@ -1231,7 +1194,7 @@ def test_assets_order(app):
     assert re.search(pattern, content, re.S)
 
     # js_files
-    expected = ['_static/early.js', '_static/jquery.js', '_static/underscore.js',
+    expected = ['_static/early.js',
                 '_static/doctools.js', '_static/sphinx_highlight.js',
                 'https://example.com/script.js', '_static/normal.js',
                 '_static/late.js', '_static/js/custom.js', '_static/lazy.js']
@@ -1324,14 +1287,9 @@ def test_html_inventory(app):
 def test_html_anchor_for_figure(app):
     app.builder.build_all()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    if docutils.__version_info__ < (0, 17):
-        assert ('<p class="caption"><span class="caption-text">The caption of pic</span>'
-                '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>'
-                in content)
-    else:
-        assert ('<figcaption>\n<p><span class="caption-text">The caption of pic</span>'
-                '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>\n</figcaption>'
-                in content)
+    assert ('<figcaption>\n<p><span class="caption-text">The caption of pic</span>'
+            '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>\n</figcaption>'
+            in content)
 
 
 @pytest.mark.sphinx('html', testroot='directives-raw')
@@ -1395,6 +1353,15 @@ def test_html_remote_images(app, status, warning):
     assert ('<img alt="https://www.python.org/static/img/python-logo.png" '
             'src="https://www.python.org/static/img/python-logo.png" />' in result)
     assert not (app.outdir / 'python-logo.png').exists()
+
+
+@pytest.mark.sphinx('html', testroot='image-escape')
+def test_html_encoded_image(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'index.html').read_text()
+    assert ('<img alt="_images/img_%231.png" src="_images/img_%231.png" />' in result)
+    assert (app.outdir / '_images/img_#1.png').exists()
 
 
 @pytest.mark.sphinx('html', testroot='remote-logo')

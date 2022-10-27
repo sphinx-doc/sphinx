@@ -1229,24 +1229,6 @@ that use Sphinx's HTMLWriter class.
    .. deprecated:: 1.6
       To disable smart quotes, use rather :confval:`smartquotes`.
 
-.. confval:: html_add_permalinks
-
-   Sphinx will add "permalinks" for each heading and description environment as
-   paragraph signs that become visible when the mouse hovers over them.
-
-   This value determines the text for the permalink; it defaults to ``"¶"``.
-   Set it to ``None`` or the empty string to disable permalinks.
-
-   .. versionadded:: 0.6
-      Previously, this was always activated.
-
-   .. versionchanged:: 1.1
-      This can now be a string to select the actual text of the link.
-      Previously, only boolean values were accepted.
-
-   .. deprecated:: 3.5
-      This has been replaced by :confval:`html_permalinks`
-
 .. confval:: html_permalinks
 
    If true, Sphinx will add "permalinks" for each heading and description
@@ -2254,12 +2236,13 @@ These options influence LaTeX output.
         update your project to use instead
         the :ref:`latex table color configuration <tablecolors>` keys.
 
-   Default: ``[]``
+   Default: ``['booktabs', 'colorrows']``
 
    .. versionadded:: 5.3.0
 
-   If using ``'booktabs'`` or ``'borderless'`` it seems recommended to also
-   opt for ``'colorrows'``...
+   .. versionchanged:: 6.0.0
+
+      Modify default from ``[]`` to ``['booktabs', 'colorrows']``.
 
    Each table can override the global style via ``:class:`` option, or
    ``.. rst-class::`` for no-directive tables (cf.  :ref:`table-directives`).
@@ -2910,24 +2893,6 @@ Options for the C domain
   'noreturn', 'static_assert', 'thread_local']``.
 
   .. versionadded:: 4.0.3
-
-.. confval:: c_allow_pre_v3
-
-   A boolean (default ``False``) controlling whether to parse and try to
-   convert pre-v3 style type directives and type roles.
-
-   .. versionadded:: 3.2
-   .. deprecated:: 3.2
-      Use the directives and roles added in v3.
-
-.. confval:: c_warn_on_allowed_pre_v3
-
-   A boolean (default ``True``) controlling whether to warn when a pre-v3
-   style type directive/role is parsed and converted.
-
-   .. versionadded:: 3.2
-   .. deprecated:: 3.2
-      Use the directives and roles added in v3.
 
 .. _cpp-config:
 

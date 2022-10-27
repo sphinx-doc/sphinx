@@ -6,14 +6,11 @@ and keep them not evaluated for readability.
 
 import ast
 import inspect
-import sys
-from inspect import Parameter
 from typing import Any, Dict, List, Optional
 
 import sphinx
 from sphinx.application import Sphinx
 from sphinx.locale import __
-from sphinx.pycode.ast import parse as ast_parse
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
 
@@ -38,10 +35,10 @@ def get_function_def(obj: Any) -> Optional[ast.FunctionDef]:
         if source.startswith((' ', r'\t')):
             # subject is placed inside class or block.  To read its docstring,
             # this adds if-block before the declaration.
-            module = ast_parse('if True:\n' + source)
+            module = ast.parse('if True:\n' + source)
             return module.body[0].body[0]  # type: ignore
         else:
-            module = ast_parse(source)
+            module = ast.parse(source)
             return module.body[0]  # type: ignore
     except (OSError, TypeError):  # failed to load source code
         return None
@@ -49,9 +46,7 @@ def get_function_def(obj: Any) -> Optional[ast.FunctionDef]:
 
 def get_default_value(lines: List[str], position: ast.AST) -> Optional[str]:
     try:
-        if sys.version_info < (3, 8):  # only for py38+
-            return None
-        elif position.lineno == position.end_lineno:
+        if position.lineno == position.end_lineno:
             line = lines[position.lineno - 1]
             return line[position.col_offset:position.end_col_offset]
         else:
@@ -90,18 +85,18 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
                         default = defaults.pop(0)
                         value = get_default_value(lines, default)
                         if value is None:
-                            value = ast_unparse(default)  # type: ignore
+                            value = ast_unparse(default)
                         parameters[i] = param.replace(default=DefaultValue(value))
                     else:
                         default = kw_defaults.pop(0)
                         value = get_default_value(lines, default)
                         if value is None:
-                            value = ast_unparse(default)  # type: ignore
+                            value = ast_unparse(default)
                         parameters[i] = param.replace(default=DefaultValue(value))
 
             if bound_method and inspect.ismethod(obj):
                 # classmethods
-                cls = inspect.Parameter('cls', Parameter.POSITIONAL_OR_KEYWORD)
+                cls = inspect.Parameter('cls', inspect.Parameter.POSITIONAL_OR_KEYWORD)
                 parameters.insert(0, cls)
 
             sig = sig.replace(parameters=parameters)

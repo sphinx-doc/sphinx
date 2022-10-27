@@ -2,7 +2,7 @@
 
 import subprocess
 import sys
-from subprocess import PIPE, CalledProcessError
+from subprocess import CalledProcessError
 from typing import Any, Dict
 
 import sphinx
@@ -28,7 +28,7 @@ class ImagemagickConverter(ImageConverter):
         try:
             args = [self.config.image_converter, '-version']
             logger.debug('Invoking %r ...', args)
-            subprocess.run(args, stdout=PIPE, stderr=PIPE, check=True)
+            subprocess.run(args, capture_output=True, check=True)
             return True
         except OSError as exc:
             logger.warning(__(
@@ -56,7 +56,7 @@ class ImagemagickConverter(ImageConverter):
                     self.config.image_converter_args +
                     [_from, _to])
             logger.debug('Invoking %r ...', args)
-            subprocess.run(args, stdout=PIPE, stderr=PIPE, check=True)
+            subprocess.run(args, capture_output=True, check=True)
             return True
         except OSError:
             logger.warning(__('convert command %r cannot be run, '

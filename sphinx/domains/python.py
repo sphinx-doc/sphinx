@@ -1,11 +1,10 @@
 """The Python domain."""
 
+import ast
 import builtins
 import inspect
 import re
-import sys
 import typing
-import warnings
 from inspect import Parameter
 from typing import Any, Dict, Iterable, Iterator, List, NamedTuple, Optional, Tuple, Type, cast
 
@@ -18,13 +17,10 @@ from sphinx import addnodes
 from sphinx.addnodes import desc_signature, pending_xref, pending_xref_condition
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, Index, IndexEntry, ObjType
 from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
-from sphinx.pycode.ast import ast
-from sphinx.pycode.ast import parse as ast_parse
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
@@ -140,7 +136,7 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> List[Node]:
             return [addnodes.desc_sig_space(),
                     addnodes.desc_sig_punctuation('', '|'),
                     addnodes.desc_sig_space()]
-        elif isinstance(node, ast.Constant):  # type: ignore
+        elif isinstance(node, ast.Constant):
             if node.value is Ellipsis:
                 return [addnodes.desc_sig_punctuation('', "...")]
             elif isinstance(node.value, bool):
@@ -206,22 +202,10 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> List[Node]:
 
             return result
         else:
-            if sys.version_info < (3, 8):
-                if isinstance(node, ast.Bytes):
-                    return [addnodes.desc_sig_literal_string('', repr(node.s))]
-                elif isinstance(node, ast.Ellipsis):
-                    return [addnodes.desc_sig_punctuation('', "...")]
-                elif isinstance(node, ast.NameConstant):
-                    return [nodes.Text(node.value)]
-                elif isinstance(node, ast.Num):
-                    return [addnodes.desc_sig_literal_string('', repr(node.n))]
-                elif isinstance(node, ast.Str):
-                    return [addnodes.desc_sig_literal_string('', repr(node.s))]
-
             raise SyntaxError  # unsupported syntax
 
     try:
-        tree = ast_parse(annotation)
+        tree = ast.parse(annotation, type_comments=True)
         result: List[Node] = []
         for node in unparse(tree):
             if isinstance(node, nodes.literal):
@@ -513,14 +497,10 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         sig_prefix = self.get_signature_prefix(sig)
         if sig_prefix:
             if type(sig_prefix) is str:
-                warnings.warn(
+                raise TypeError(
                     "Python directive method get_signature_prefix()"
-                    " returning a string is deprecated."
-                    " It must now return a list of nodes."
-                    " Return value was '{}'.".format(sig_prefix),
-                    RemovedInSphinx60Warning)
-                signode += addnodes.desc_annotation(sig_prefix, '',  # type: ignore
-                                                    nodes.Text(sig_prefix))  # type: ignore
+                    " must return a list of nodes."
+                    f" Return value was '{sig_prefix}'.")
             else:
                 signode += addnodes.desc_annotation(str(sig_prefix), '', *sig_prefix)
 
@@ -804,15 +784,11 @@ class PyMethod(PyObject):
         'async': directives.flag,
         'classmethod': directives.flag,
         'final': directives.flag,
-        'property': directives.flag,
         'staticmethod': directives.flag,
     })
 
     def needs_arglist(self) -> bool:
-        if 'property' in self.options:
-            return False
-        else:
-            return True
+        return True
 
     def get_signature_prefix(self, sig: str) -> List[nodes.Node]:
         prefix: List[nodes.Node] = []
@@ -827,11 +803,6 @@ class PyMethod(PyObject):
             prefix.append(addnodes.desc_sig_space())
         if 'classmethod' in self.options:
             prefix.append(nodes.Text('classmethod'))
-            prefix.append(addnodes.desc_sig_space())
-        if 'property' in self.options:
-            logger.warning(_('Using the :property: flag with the py:method directive'
-                             'is deprecated, use ".. py:property::" instead.'))
-            prefix.append(nodes.Text('property'))
             prefix.append(addnodes.desc_sig_space())
         if 'staticmethod' in self.options:
             prefix.append(nodes.Text('static'))
@@ -852,8 +823,6 @@ class PyMethod(PyObject):
 
         if 'classmethod' in self.options:
             return _('%s() (%s class method)') % (methname, clsname)
-        elif 'property' in self.options:
-            return _('%s (%s property)') % (methname, clsname)
         elif 'staticmethod' in self.options:
             return _('%s() (%s static method)') % (methname, clsname)
         else:

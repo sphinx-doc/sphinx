@@ -213,7 +213,7 @@ def should_generate_module_page(app: Sphinx, modname: str) -> bool:
         if path.getmtime(module_filename) <= path.getmtime(page_filename):
             # generation is not needed if the HTML page is newer than module file.
             return False
-    except IOError:
+    except OSError:
         pass
 
     return True

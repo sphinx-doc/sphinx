@@ -2,10 +2,8 @@
 
 import re
 import unicodedata
-import warnings
 from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple, cast
 
-import docutils
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
 from docutils.transforms import Transform, Transformer
@@ -16,12 +14,11 @@ from docutils.utils.smartquotes import smartchars
 
 from sphinx import addnodes
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.docutils import new_document
 from sphinx.util.i18n import format_date
-from sphinx.util.nodes import NodeMatcher, apply_source_workaround, is_smartquotable
+from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -274,23 +271,6 @@ class DoctestTransform(SphinxTransform):
             node['classes'].append('doctest')
 
 
-class FigureAligner(SphinxTransform):
-    """
-    Align figures to center by default.
-    """
-    default_priority = 700
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        warnings.warn('FigureAilgner is deprecated.',
-                      RemovedInSphinx60Warning)
-        super().__init__(*args, **kwargs)
-
-    def apply(self, **kwargs: Any) -> None:
-        matcher = NodeMatcher(nodes.table, nodes.figure)
-        for node in self.document.findall(matcher):  # type: Element
-            node.setdefault('align', 'default')
-
-
 class FilterSystemMessages(SphinxTransform):
     """Filter system messages from a doctree."""
     default_priority = 999
@@ -361,16 +341,12 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
         for txtnode in txtnodes:
             if is_smartquotable(txtnode):
-                if docutils.__version_info__ >= (0, 16):
-                    # SmartQuotes uses backslash escapes instead of null-escapes
-                    text = re.sub(r'(?<=\x00)([-\\\'".`])', r'\\\1', str(txtnode))
-                else:
-                    text = txtnode.astext()
-
-                yield ('plain', text)
+                # SmartQuotes uses backslash escapes instead of null-escapes
+                text = re.sub(r'(?<=\x00)([-\\\'".`])', r'\\\1', str(txtnode))
+                yield 'plain', text
             else:
                 # skip smart quotes
-                yield ('literal', txtnode.astext())
+                yield 'literal', txtnode.astext()
 
 
 class DoctreeReadEvent(SphinxTransform):

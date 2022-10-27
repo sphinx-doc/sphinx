@@ -1,5 +1,6 @@
 """Helpers for inspecting Python modules."""
 
+import ast
 import builtins
 import contextlib
 import enum
@@ -8,25 +9,19 @@ import re
 import sys
 import types
 import typing
-from functools import partial, partialmethod
+from functools import cached_property, partial, partialmethod, singledispatchmethod
 from importlib import import_module
-from inspect import Parameter, isclass, ismethod, ismethoddescriptor, ismodule  # NOQA
+from inspect import (Parameter, isasyncgenfunction, isclass, ismethod,  # NOQA
+                     ismethoddescriptor, ismodule)
 from io import StringIO
-from types import MethodType, ModuleType
+from types import (ClassMethodDescriptorType, MethodDescriptorType, MethodType, ModuleType,
+                   WrapperDescriptorType)
 from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, Type, cast
 
-from sphinx.pycode.ast import ast  # for py36-37
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
 from sphinx.util.typing import ForwardRef
 from sphinx.util.typing import stringify as stringify_annotation
-
-if sys.version_info > (3, 7):
-    from types import ClassMethodDescriptorType, MethodDescriptorType, WrapperDescriptorType
-else:
-    ClassMethodDescriptorType = type(object.__init__)
-    MethodDescriptorType = type(str.join)
-    WrapperDescriptorType = type(dict.__dict__['fromkeys'])
 
 logger = logging.getLogger(__name__)
 
@@ -149,7 +144,7 @@ def getslots(obj: Any) -> Optional[Dict]:
 
 def isNewType(obj: Any) -> bool:
     """Check the if object is a kind of NewType."""
-    if sys.version_info >= (3, 10):
+    if sys.version_info[:2] >= (3, 10):
         return isinstance(obj, typing.NewType)
     else:
         __module__ = safe_getattr(obj, '__module__', None)
@@ -291,11 +286,7 @@ def is_singledispatch_function(obj: Any) -> bool:
 
 def is_singledispatch_method(obj: Any) -> bool:
     """Check if the object is singledispatch method."""
-    try:
-        from functools import singledispatchmethod  # type: ignore
-        return isinstance(obj, singledispatchmethod)
-    except ImportError:  # py36-37
-        return False
+    return isinstance(obj, singledispatchmethod)
 
 
 def isfunction(obj: Any) -> bool:
@@ -335,30 +326,14 @@ def iscoroutinefunction(obj: Any) -> bool:
         return False
 
 
-def isasyncgenfunction(obj: Any) -> bool:
-    """Check if the object is async-gen function."""
-    if hasattr(obj, '__code__') and inspect.isasyncgenfunction(obj):
-        # check obj.__code__ because isasyncgenfunction() crashes for custom method-like
-        # objects on python3.7 (see https://github.com/sphinx-doc/sphinx/issues/9838)
-        return True
-    else:
-        return False
-
-
 def isproperty(obj: Any) -> bool:
     """Check if the object is property."""
-    if sys.version_info >= (3, 8):
-        from functools import cached_property  # cached_property is available since py3.8
-        if isinstance(obj, cached_property):
-            return True
-
-    return isinstance(obj, property)
+    return isinstance(obj, (property, cached_property))
 
 
 def isgenericalias(obj: Any) -> bool:
     """Check if the object is GenericAlias."""
-    if (hasattr(typing, '_GenericAlias') and  # only for py37+
-            isinstance(obj, typing._GenericAlias)):  # type: ignore
+    if isinstance(obj, typing._GenericAlias):  # type: ignore
         return True
     elif (hasattr(types, 'GenericAlias') and  # only for py39+
           isinstance(obj, types.GenericAlias)):  # type: ignore
@@ -565,25 +540,15 @@ def signature(subject: Callable, bound_method: bool = False, type_aliases: Dict 
     """
 
     try:
-        try:
-            if _should_unwrap(subject):
-                signature = inspect.signature(subject)
-            else:
-                signature = inspect.signature(subject, follow_wrapped=True)
-        except ValueError:
-            # follow built-in wrappers up (ex. functools.lru_cache)
+        if _should_unwrap(subject):
             signature = inspect.signature(subject)
-        parameters = list(signature.parameters.values())
-        return_annotation = signature.return_annotation
-    except IndexError:
-        # Until python 3.6.4, cpython has been crashed on inspection for
-        # partialmethods not having any arguments.
-        # https://bugs.python.org/issue33009
-        if hasattr(subject, '_partialmethod'):
-            parameters = []
-            return_annotation = Parameter.empty
         else:
-            raise
+            signature = inspect.signature(subject, follow_wrapped=True)
+    except ValueError:
+        # follow built-in wrappers up (ex. functools.lru_cache)
+        signature = inspect.signature(subject)
+    parameters = list(signature.parameters.values())
+    return_annotation = signature.return_annotation
 
     try:
         # Resolve annotations using ``get_type_hints()`` and type_aliases.
@@ -629,7 +594,7 @@ def evaluate_signature(sig: inspect.Signature, globalns: Optional[Dict] = None,
     """Evaluate unresolved type annotations in a signature object."""
     def evaluate_forwardref(ref: ForwardRef, globalns: Dict, localns: Dict) -> Any:
         """Evaluate a forward reference."""
-        if sys.version_info > (3, 9):
+        if sys.version_info[:2] >= (3, 9):
             return ref._evaluate(globalns, localns, frozenset())
         else:
             return ref._evaluate(globalns, localns)
@@ -736,7 +701,7 @@ def signature_from_str(signature: str) -> inspect.Signature:
     """Create a Signature object from string."""
     code = 'def func' + signature + ': pass'
     module = ast.parse(code)
-    function = cast(ast.FunctionDef, module.body[0])  # type: ignore
+    function = cast(ast.FunctionDef, module.body[0])
 
     return signature_from_ast(function, code)
 
@@ -747,7 +712,7 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
     defaults = list(args.defaults)
     params = []
     if hasattr(args, "posonlyargs"):
-        posonlyargs = len(args.posonlyargs)  # type: ignore
+        posonlyargs = len(args.posonlyargs)
         positionals = posonlyargs + len(args.args)
     else:
         posonlyargs = 0
@@ -757,7 +722,7 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
         defaults.insert(0, Parameter.empty)  # type: ignore
 
     if hasattr(args, "posonlyargs"):
-        for i, arg in enumerate(args.posonlyargs):  # type: ignore
+        for i, arg in enumerate(args.posonlyargs):
             if defaults[i] is Parameter.empty:
                 default = Parameter.empty
             else:

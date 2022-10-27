@@ -107,5 +107,5 @@ def test_svg(h: bytes, f: Optional[BinaryIO]) -> Optional[str]:
 
 
 # install test_svg() to imghdr
-# refs: https://docs.python.org/3.6/library/imghdr.html#imghdr.tests
+# refs: https://docs.python.org/3.9/library/imghdr.html#imghdr.tests
 imghdr.tests.append(test_svg)

@@ -224,7 +224,7 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
     def gettext(message: str, *args: Any) -> str:
         if not is_translator_registered(catalog, namespace):
             # not initialized yet
-            return _TranslationProxy(_lazy_translate, catalog, namespace, message)  # type: ignore  # NOQA
+            return _TranslationProxy(_lazy_translate, catalog, namespace, message)  # type: ignore[return-value]  # NOQA
         else:
             translator = get_translator(catalog, namespace)
             if len(args) <= 1:

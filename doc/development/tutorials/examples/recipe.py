@@ -140,8 +140,8 @@ class RecipeDomain(Domain):
 
     def add_recipe(self, signature, ingredients):
         """Add a new recipe to the domain."""
-        name = '{}.{}'.format('recipe', signature)
-        anchor = 'recipe-{}'.format(signature)
+        name = f'recipe.{signature}'
+        anchor = f'recipe-{signature}'
 
         self.data['recipe_ingredients'][name] = ingredients
         # name, dispname, type, docname, anchor, priority

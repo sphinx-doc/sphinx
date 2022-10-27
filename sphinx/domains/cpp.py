@@ -954,7 +954,7 @@ class ASTUserDefinedLiteral(ASTLiteral):
 
     def get_id(self, version: int) -> str:
         # mangle as if it was a function call: ident(literal)
-        return 'clL_Zli{}E{}E'.format(self.ident.get_id(version), self.literal.get_id(version))
+        return f'clL_Zli{self.ident.get_id(version)}E{self.literal.get_id(version)}E'
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
@@ -4635,7 +4635,7 @@ class Symbol:
             Symbol.debug_print("tdecls:", ",".join(str(t) for t in templateDecls))
             Symbol.debug_print("nn:       ", nestedName)
             Symbol.debug_print("decl:     ", declaration)
-            Symbol.debug_print("location: {}:{}".format(docname, line))
+            Symbol.debug_print(f"location: {docname}:{line}")
 
         def onMissingQualifiedSymbol(parentSymbol: "Symbol",
                                      identOrOp: Union[ASTIdentifier, ASTOperator],
@@ -4673,7 +4673,7 @@ class Symbol:
                 Symbol.debug_print("identOrOp:     ", lookupResult.identOrOp)
                 Symbol.debug_print("templateArgs:  ", lookupResult.templateArgs)
                 Symbol.debug_print("declaration:   ", declaration)
-                Symbol.debug_print("location:      {}:{}".format(docname, line))
+                Symbol.debug_print(f"location:      {docname}:{line}")
                 Symbol.debug_indent -= 1
             symbol = Symbol(parent=lookupResult.parentSymbol,
                             identOrOp=lookupResult.identOrOp,
@@ -6025,23 +6025,23 @@ class DefinitionParser(BaseParser):
                      'float', 'double',
                      '__float80', '_Float64x', '__float128', '_Float128'):
                 if typ is not None:
-                    self.fail("Can not have both {} and {}.".format(t, typ))
+                    self.fail(f"Can not have both {t} and {typ}.")
                 typ = t
             elif t in ('signed', 'unsigned'):
                 if signedness is not None:
-                    self.fail("Can not have both {} and {}.".format(t, signedness))
+                    self.fail(f"Can not have both {t} and {signedness}.")
                 signedness = t
             elif t == 'short':
                 if len(width) != 0:
-                    self.fail("Can not have both {} and {}.".format(t, width[0]))
+                    self.fail(f"Can not have both {t} and {width[0]}.")
                 width.append(t)
             elif t == 'long':
                 if len(width) != 0 and width[0] != 'long':
-                    self.fail("Can not have both {} and {}.".format(t, width[0]))
+                    self.fail(f"Can not have both {t} and {width[0]}.")
                 width.append(t)
             elif t in ('_Imaginary', '_Complex'):
                 if modifier is not None:
-                    self.fail("Can not have both {} and {}.".format(t, modifier))
+                    self.fail(f"Can not have both {t} and {modifier}.")
                 modifier = t
             self.skip_ws()
         if len(names) == 0:
@@ -6051,41 +6051,41 @@ class DefinitionParser(BaseParser):
                    'wchar_t', 'char8_t', 'char16_t', 'char32_t',
                    '__float80', '_Float64x', '__float128', '_Float128'):
             if modifier is not None:
-                self.fail("Can not have both {} and {}.".format(typ, modifier))
+                self.fail(f"Can not have both {typ} and {modifier}.")
             if signedness is not None:
-                self.fail("Can not have both {} and {}.".format(typ, signedness))
+                self.fail(f"Can not have both {typ} and {signedness}.")
             if len(width) != 0:
                 self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
         elif typ == 'char':
             if modifier is not None:
-                self.fail("Can not have both {} and {}.".format(typ, modifier))
+                self.fail(f"Can not have both {typ} and {modifier}.")
             if len(width) != 0:
                 self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
         elif typ == 'int':
             if modifier is not None:
-                self.fail("Can not have both {} and {}.".format(typ, modifier))
+                self.fail(f"Can not have both {typ} and {modifier}.")
         elif typ in ('__int64', '__int128'):
             if modifier is not None:
-                self.fail("Can not have both {} and {}.".format(typ, modifier))
+                self.fail(f"Can not have both {typ} and {modifier}.")
             if len(width) != 0:
                 self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
         elif typ == 'float':
             if signedness is not None:
-                self.fail("Can not have both {} and {}.".format(typ, signedness))
+                self.fail(f"Can not have both {typ} and {signedness}.")
             if len(width) != 0:
                 self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
         elif typ == 'double':
             if signedness is not None:
-                self.fail("Can not have both {} and {}.".format(typ, signedness))
+                self.fail(f"Can not have both {typ} and {signedness}.")
             if len(width) > 1:
                 self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
             if len(width) == 1 and width[0] != 'long':
                 self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
         elif typ is None:
             if modifier is not None:
-                self.fail("Can not have {} without a floating point type.".format(modifier))
+                self.fail(f"Can not have {modifier} without a floating point type.")
         else:
-            raise AssertionError("Unhandled type {}".format(typ))
+            raise AssertionError(f"Unhandled type {typ}")
 
         canonNames: List[str] = []
         if modifier is not None:

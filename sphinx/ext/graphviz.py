@@ -5,7 +5,7 @@ import posixpath
 import re
 import subprocess
 from os import path
-from subprocess import PIPE, CalledProcessError
+from subprocess import CalledProcessError
 from typing import Any, Dict, List, Optional, Tuple
 
 from docutils import nodes
@@ -244,7 +244,7 @@ def render_dot(self: SphinxTranslator, code: str, options: Dict, format: str,
         dot_args.extend(['-Tcmapx', '-o%s.map' % outfn])
 
     try:
-        ret = subprocess.run(dot_args, input=code.encode(), stdout=PIPE, stderr=PIPE,
+        ret = subprocess.run(dot_args, input=code.encode(), capture_output=True,
                              cwd=cwd, check=True)
         if not path.isfile(outfn):
             raise GraphvizError(__('dot did not produce an output file:\n[stderr]\n%r\n'

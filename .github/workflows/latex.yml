@@ -5,9 +5,13 @@ on: [push, pull_request]
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   test:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     name: Test on LaTeX image
     container:
       image: ghcr.io/sphinx-doc/sphinx-ci

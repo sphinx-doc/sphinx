@@ -6,7 +6,6 @@ Runs the text builder in the test root.
 import os
 import re
 
-import docutils
 import pytest
 from babel.messages import mofile, pofile
 from babel.messages.catalog import Catalog
@@ -1121,12 +1120,8 @@ def test_additional_targets_should_not_be_translated(app):
     result = (app.outdir / 'raw.html').read_text(encoding='utf8')
 
     # raw block should not be translated
-    if docutils.__version_info__ < (0, 17):
-        expected_expr = """<iframe src="http://sphinx-doc.org"></iframe></div>"""
-        assert_count(expected_expr, result, 1)
-    else:
-        expected_expr = """<iframe src="http://sphinx-doc.org"></iframe></section>"""
-        assert_count(expected_expr, result, 1)
+    expected_expr = """<iframe src="http://sphinx-doc.org"></iframe></section>"""
+    assert_count(expected_expr, result, 1)
 
     # [figure.txt]
 
@@ -1203,12 +1198,8 @@ def test_additional_targets_should_be_translated(app):
     result = (app.outdir / 'raw.html').read_text(encoding='utf8')
 
     # raw block should be translated
-    if docutils.__version_info__ < (0, 17):
-        expected_expr = """<iframe src="HTTP://SPHINX-DOC.ORG"></iframe></div>"""
-        assert_count(expected_expr, result, 1)
-    else:
-        expected_expr = """<iframe src="HTTP://SPHINX-DOC.ORG"></iframe></section>"""
-        assert_count(expected_expr, result, 1)
+    expected_expr = """<iframe src="HTTP://SPHINX-DOC.ORG"></iframe></section>"""
+    assert_count(expected_expr, result, 1)
 
     # [figure.txt]
 

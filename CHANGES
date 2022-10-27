@@ -1,17 +1,61 @@
-Release 5.3.0 (in development)
+Release 6.0.0 (in development)
 ==============================
 
 Dependencies
 ------------
 
+* #10468: Drop Python 3.6 support
+* #10470: Drop Python 3.7, Docutils 0.14, Docutils 0.15, Docutils 0.16, and
+  Docutils 0.17 support. Patch by Adam Turner
+
 Incompatible changes
 --------------------
+
+* #7405: Removed the jQuery and underscore.js JavaScript frameworks.
+
+  These frameworks are no longer be automatically injected into themes from
+  Sphinx 6.0. If you develop a theme or extension that uses the
+  ``jQuery``, ``$``, or ``$u`` global objects, you need to update your
+  JavaScript to modern standards, or use the mitigation below.
+
+  To re-add jQuery and underscore.js, you will need to copy ``jquery.js`` and
+  ``underscore.js`` from `the Sphinx repository`_ to your ``static`` directory,
+  and add the following to your ``layout.html``:
+
+  .. code-block:: html+jinja
+
+     {%- block scripts %}
+         <script src="{{ pathto('_static/jquery.js', resource=True) }}"></script>
+         <script src="{{ pathto('_static/underscore.js', resource=True) }}"></script>
+         {{ super() }}
+     {%- endblock %}
+
+  Patch by Adam Turner.
+* #10471, #10565: Removed deprecated APIs scheduled for removal in Sphinx 6.0. See
+  :ref:`dev-deprecated-apis` for details. Patch by Adam Turner.
+* #10901: C Domain: Remove support for parsing pre-v3 style type directives and
+  roles. Also remove associated configuration variables ``c_allow_pre_v3`` and
+  ``c_warn_on_allowed_pre_v3``. Patch by Adam Turner.
 
 Deprecated
 ----------
 
 Features added
 --------------
+
+* #10924: LaTeX: adopt better looking defaults for tables and code-blocks.
+  See :confval:`latex_table_style` and the ``pre_border-radius`` and
+  ``pre_background-TeXcolor`` :ref:`additionalcss` for the former defaults
+  and how to re-enact them if desired.
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 5.3.0 (released Oct 16, 2022)
+=====================================
 
 * #10759: LaTeX: add :confval:`latex_table_style` and support the
   ``'booktabs'``, ``'borderless'``, and ``'colorrows'`` styles.
@@ -20,12 +64,9 @@ Features added
   ``:option:`--module[=foobar]``` or ``:option:`--module foobar```.
   Patch by Martin Liska.
 * #10881: autosectionlabel: Record the generated section label to the debug log.
-
-Bugs fixed
-----------
-
-Testing
---------
+* #10268: Correctly URI-escape image filenames.
+* #10887: domains: Allow sections in all the content of all object description
+  directives (e.g. :rst:dir:`py:function`). Patch by Adam Turner
 
 Release 5.2.3 (released Sep 30, 2022)
 =====================================
@@ -273,7 +314,7 @@ Deprecated
   ``underscore.js`` from `the Sphinx repository`_ to your ``static`` directory,
   and add the following to your ``layout.html``:
 
-  .. _the Sphinx repository: https://github.com/sphinx-doc/sphinx/tree/v4.3.2/sphinx/themes/basic/static
+  .. _the Sphinx repository: https://github.com/sphinx-doc/sphinx/tree/v5.3.0/sphinx/themes/basic/static
   .. code-block:: html+jinja
 
      {%- block scripts %}
@@ -6632,7 +6673,7 @@ Features added
 * HTML builder:
 
   - Added ``pyramid`` theme.
-  - #559: `html_add_permalinks` is now a string giving the
+  - #559: ``html_add_permalinks`` is now a string giving the
     text to display in permalinks.
   - #259: HTML table rows now have even/odd CSS classes to enable
     "Zebra styling".

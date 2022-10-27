@@ -234,8 +234,8 @@ will be set to white}%
 \sphinxDeclareColorOption{TitleColor}{{rgb}{0.126,0.263,0.361}}
 \sphinxDeclareColorOption{InnerLinkColor}{{rgb}{0.208,0.374,0.486}}
 \sphinxDeclareColorOption{OuterLinkColor}{{rgb}{0.216,0.439,0.388}}
-\sphinxDeclareColorOption{VerbatimColor}{{rgb}{1,1,1}}
-\sphinxDeclareColorOption{VerbatimBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareColorOption{VerbatimColor}{{gray}{0.95}}
+\sphinxDeclareColorOption{VerbatimBorderColor}{{RGB}{32,32,32}}
 % all other colours will be named with a "sphinx" prefix
 \newcommand*{\sphinxDeclareSphinxColorOption}[2]{%
    % set the initial default; only \definecolor syntax for defaults!
@@ -321,7 +321,8 @@ will be set to white}%
 \let\spx@pre@border@left  \spx@pre@border@top
 \expandafter\let\expandafter\KV@sphinx@verbatimborder
                             \csname KV@sphinx@pre_border-width\endcsname
-\newif\ifspx@pre@border@open % defaults to false (at least for 5.x series)
+\newif\ifspx@pre@border@open
+\spx@pre@border@opentrue    % 6.0.0 (i.e. "slice")
 \define@key{sphinx}{pre_box-decoration-break}%
            {\begingroup\edef\spx@tempa{#1}\expandafter\endgroup
             \ifx\spx@tempa\spxstring@clone
@@ -361,10 +362,10 @@ will be set to white}%
 }
 % MEMO: keep in mind in using these macros in code elsewhere that they can
 % thus be dimen registers or simply dimensional specs such as 3pt
-\let\spx@pre@radius@topleft    \z@
-\let\spx@pre@radius@topright   \z@
-\let\spx@pre@radius@bottomright\z@
-\let\spx@pre@radius@bottomleft \z@
+\def\spx@pre@radius@topleft   {3pt}%
+\let\spx@pre@radius@topright   \spx@pre@radius@topleft
+\let\spx@pre@radius@bottomright\spx@pre@radius@topleft
+\let\spx@pre@radius@bottomleft \spx@pre@radius@topleft
 \AtBeginDocument{\if1\ifdim\spx@pre@radius@topleft>\z@0\fi
                      \ifdim\spx@pre@radius@topright>\z@0\fi
                      \ifdim\spx@pre@radius@bottomright>\z@0\fi
@@ -395,6 +396,7 @@ will be set to white}%
 \spx@pre@box@shadow@setter none {} {} \@nnil
 %
 \newif\ifspx@pre@withbordercolor
+\spx@pre@withbordercolortrue        % 6.0.0
 \define@key{sphinx}{pre_border-TeXcolor}{%
     \spx@pre@withbordercolortrue
     \spx@defineorletcolor{VerbatimBorderColor}#1\relax
@@ -402,6 +404,7 @@ will be set to white}%
 \expandafter\let\expandafter\KV@sphinx@VerbatimBorderColor
                             \csname KV@sphinx@pre_border-TeXcolor\endcsname
 \newif\ifspx@pre@withbackgroundcolor
+\spx@pre@withbackgroundcolortrue    % 6.0.0
 \define@key{sphinx}{pre_background-TeXcolor}{%
     \spx@pre@withbackgroundcolortrue
     \spx@defineorletcolor{VerbatimColor}#1\relax

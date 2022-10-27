@@ -1,10 +1,9 @@
 """The standard domain."""
 
 import re
-import sys
 from copy import copy
-from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, List, Optional,
-                    Tuple, Type, Union, cast)
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Final, Iterable, Iterator, List,
+                    Optional, Tuple, Type, Union, cast)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -28,11 +27,6 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
 
 logger = logging.getLogger(__name__)
-
-if sys.version_info[:2] >= (3, 8):
-    from typing import Final
-else:
-    Final = Any
 
 # RE for option descriptions
 option_desc_re = re.compile(r'((?:/|--|-|\+)?[^\s=]+)(=?\s*.*)')
@@ -589,7 +583,7 @@ class StandardDomain(Domain):
         'doc':     XRefRole(warn_dangling=True, innernodeclass=nodes.inline),
     }
 
-    initial_data: Final = {
+    initial_data: Final = {  # type: ignore[misc]
         'progoptions': {},      # (program, name) -> docname, labelid
         'objects': {},          # (type, name) -> docname, labelid
         'labels': {             # labelname -> docname, labelid, sectionname
@@ -602,6 +596,12 @@ class StandardDomain(Domain):
             'modindex': ('py-modindex', ''),
             'search':   ('search', ''),
         },
+    }
+
+    _virtual_doc_names: Dict[str, Tuple[str, str]] = {  # labelname -> docname, sectionname
+        'genindex': ('genindex', _('Index')),
+        'modindex': ('py-modindex', _('Module Index')),
+        'search': ('search', _('Search Page')),
     }
 
     dangling_warnings = {

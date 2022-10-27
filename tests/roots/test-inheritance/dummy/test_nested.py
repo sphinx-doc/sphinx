@@ -2,8 +2,8 @@
 """
 
 
-class A(object):
-    class B(object):
+class A:
+    class B:
         pass
 
 

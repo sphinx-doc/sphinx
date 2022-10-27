@@ -228,7 +228,7 @@ def ask_user(d: Dict[str, Any]) -> None:
         d['path'] = do_prompt(__('Please enter a new root path (or just Enter to exit)'),
                               '', is_path_or_empty)
         if not d['path']:
-            sys.exit(1)
+            raise SystemExit(1)
 
     if 'sep' not in d:
         print()
@@ -364,7 +364,7 @@ def generate(
         if overwrite or not path.isfile(fpath):
             if 'quiet' not in d:
                 print(__('Creating file %s.') % fpath)
-            with open(fpath, 'wt', encoding='utf-8', newline=newline) as f:
+            with open(fpath, 'w', encoding='utf-8', newline=newline) as f:
                 f.write(content)
         else:
             if 'quiet' not in d:
@@ -382,7 +382,7 @@ def generate(
     if template._has_custom_template('quickstart/master_doc.rst_t'):
         msg = ('A custom template `master_doc.rst_t` found. It has been renamed to '
                '`root_doc.rst_t`.  Please rename it on your project too.')
-        print(colorize('red', msg))  # RemovedInSphinx60Warning
+        print(colorize('red', msg))
         write_file(masterfile, template.render('quickstart/master_doc.rst_t', d))
     else:
         write_file(masterfile, template.render('quickstart/root_doc.rst_t', d))
@@ -605,4 +605,4 @@ def main(argv: List[str] = sys.argv[1:]) -> int:
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))
+    raise SystemExit(main())

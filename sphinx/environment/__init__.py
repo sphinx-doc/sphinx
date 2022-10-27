@@ -2,7 +2,6 @@
 
 import os
 import pickle
-import warnings
 from collections import defaultdict
 from copy import copy
 from datetime import datetime
@@ -10,13 +9,11 @@ from os import path
 from typing import (TYPE_CHECKING, Any, Callable, Dict, Generator, Iterator, List, Optional,
                     Set, Tuple, Union)
 
-import docutils
 from docutils import nodes
 from docutils.nodes import Node
 
 from sphinx import addnodes
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.domains import Domain
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.errors import BuildEnvironmentError, DocumentError, ExtensionError, SphinxError
@@ -54,8 +51,6 @@ default_settings: Dict[str, Any] = {
     'file_insertion_enabled': True,
     'smartquotes_locales': [],
 }
-if docutils.__version_info__[:2] <= (0, 17):
-    default_settings['embed_images'] = False
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
@@ -81,8 +76,9 @@ versioning_conditions: Dict[str, Union[bool, Callable]] = {
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping
+    from typing import Literal
 
-    from typing_extensions import Literal, overload
+    from typing_extensions import overload
 
     from sphinx.domains.c import CDomain
     from sphinx.domains.changeset import ChangeSetDomain
@@ -145,7 +141,7 @@ class BuildEnvironment:
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
-    def __init__(self, app: Optional["Sphinx"] = None):
+    def __init__(self, app: "Sphinx"):
         self.app: Sphinx = None
         self.doctreedir: str = None
         self.srcdir: str = None
@@ -233,11 +229,7 @@ class BuildEnvironment:
         self.ref_context: Dict[str, Any] = {}
 
         # set up environment
-        if app:
-            self.setup(app)
-        else:
-            warnings.warn("The 'app' argument for BuildEnvironment() becomes required now.",
-                          RemovedInSphinx60Warning, stacklevel=2)
+        self.setup(app)
 
     def __getstate__(self) -> Dict:
         """Obtains serializable data for pickling."""

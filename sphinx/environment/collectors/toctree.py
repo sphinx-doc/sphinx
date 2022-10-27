@@ -239,7 +239,7 @@ class TocTreeCollector(EnvironmentCollector):
 
     def assign_figure_numbers(self, env: BuildEnvironment) -> List[str]:
         """Assign a figure number to each figure under a numbered toctree."""
-        generated_docnames = frozenset(env.domains['std'].initial_data['labels'].keys())
+        generated_docnames = frozenset(env.domains['std']._virtual_doc_names)
 
         rewrite_needed = []
 

@@ -9,7 +9,6 @@ from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Optional
 
 from docutils import nodes
 from docutils.core import Publisher
-from docutils.io import Input
 from docutils.nodes import Element, Node, TextElement
 from docutils.parsers import Parser
 from docutils.parsers.rst import Directive
@@ -22,7 +21,7 @@ except ImportError:
 
 from sphinx.builders import Builder
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx60Warning, RemovedInSphinx70Warning
+from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.domains import Domain, Index, ObjType
 from sphinx.domains.std import GenericObject, Target
 from sphinx.environment import BuildEnvironment
@@ -110,9 +109,6 @@ class SphinxComponentRegistry:
 
         #: source paresrs; file type -> parser class
         self.source_parsers: Dict[str, Type[Parser]] = {}
-
-        #: source inputs; file type -> input class
-        self.source_inputs: Dict[str, Type[Input]] = {}
 
         #: source suffix: suffix -> file type
         self.source_suffix: Dict[str, str] = {}
@@ -318,19 +314,6 @@ class SphinxComponentRegistry:
         if isinstance(parser, SphinxParser):
             parser.set_application(app)
         return parser
-
-    def get_source_input(self, filetype: str) -> Optional[Type[Input]]:
-        warnings.warn('SphinxComponentRegistry.get_source_input() is deprecated.',
-                      RemovedInSphinx60Warning)
-
-        try:
-            return self.source_inputs[filetype]
-        except KeyError:
-            try:
-                # use special source_input for unknown filetype
-                return self.source_inputs['*']
-            except KeyError:
-                return None
 
     def add_translator(self, name: str, translator: Type[nodes.NodeVisitor],
                        override: bool = False) -> None:

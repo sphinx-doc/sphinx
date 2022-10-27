@@ -5,7 +5,7 @@ import re
 import subprocess
 from itertools import product
 from shutil import copyfile
-from subprocess import PIPE, CalledProcessError
+from subprocess import CalledProcessError
 
 import pytest
 
@@ -36,7 +36,7 @@ LATEX_WARNINGS = ENV_WARNINGS + """\
 # only run latex if all needed packages are there
 def kpsetest(*filenames):
     try:
-        subprocess.run(['kpsewhich'] + list(filenames), stdout=PIPE, stderr=PIPE, check=True)
+        subprocess.run(['kpsewhich'] + list(filenames), capture_output=True, check=True)
         return True
     except (OSError, CalledProcessError):
         return False  # command not found or exit with non-zero
@@ -55,12 +55,12 @@ def compile_latex_document(app, filename='python.tex'):
                     '--interaction=nonstopmode',
                     '-output-directory=%s' % app.config.latex_engine,
                     filename]
-            subprocess.run(args, stdout=PIPE, stderr=PIPE, check=True)
+            subprocess.run(args, capture_output=True, check=True)
     except OSError as exc:  # most likely the latex executable was not found
         raise pytest.skip.Exception from exc
     except CalledProcessError as exc:
-        print(exc.stdout)
-        print(exc.stderr)
+        print(exc.stdout.decode('utf8'))
+        print(exc.stderr.decode('utf8'))
         raise AssertionError('%s exited with return code %s' % (app.config.latex_engine,
                                                                 exc.returncode))
 
@@ -1168,7 +1168,8 @@ def test_maxlistdepth_at_ten(app, status, warning):
     compile_latex_document(app, 'python.tex')
 
 
-@pytest.mark.sphinx('latex', testroot='latex-table')
+@pytest.mark.sphinx('latex', testroot='latex-table',
+                    confoverrides={'latex_table_style': []})
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_tabulars(app, status, warning):
     app.builder.build_all()
@@ -1238,7 +1239,8 @@ def test_latex_table_tabulars(app, status, warning):
     assert actual == expected
 
 
-@pytest.mark.sphinx('latex', testroot='latex-table')
+@pytest.mark.sphinx('latex', testroot='latex-table',
+                    confoverrides={'latex_table_style': []})
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_longtable(app, status, warning):
     app.builder.build_all()
@@ -1298,7 +1300,8 @@ def test_latex_table_longtable(app, status, warning):
     assert actual == expected
 
 
-@pytest.mark.sphinx('latex', testroot='latex-table')
+@pytest.mark.sphinx('latex', testroot='latex-table',
+                    confoverrides={'latex_table_style': []})
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_complex_tables(app, status, warning):
     app.builder.build_all()
@@ -1329,8 +1332,7 @@ def test_latex_table_complex_tables(app, status, warning):
     assert actual == expected
 
 
-@pytest.mark.sphinx('latex', testroot='latex-table',
-                    confoverrides={'latex_table_style': ['booktabs', 'colorrows']})
+@pytest.mark.sphinx('latex', testroot='latex-table')
 def test_latex_table_with_booktabs_and_colorrows(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')

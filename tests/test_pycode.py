@@ -185,8 +185,6 @@ def test_ModuleAnalyzer_find_attr_docs():
                                  'Qux.attr2': 17}
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8),
-                    reason='posonlyargs are available since python3.8.')
 def test_ModuleAnalyzer_find_attr_docs_for_posonlyargs_method():
     code = ('class Foo(object):\n'
             '    def __init__(self, /):\n'

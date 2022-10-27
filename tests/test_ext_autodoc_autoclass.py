@@ -4,7 +4,6 @@ This tests mainly the Documenters; the auto directives are tested in a test
 source file translated by test_build.
 """
 
-import sys
 from typing import List, Union
 
 import pytest
@@ -249,7 +248,6 @@ def test_slots_attribute(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_show_inheritance_for_subclass_of_generic_type(app):
     options = {'show-inheritance': None}
@@ -267,7 +265,6 @@ def test_show_inheritance_for_subclass_of_generic_type(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_show_inheritance_for_decendants_of_generic_type(app):
     options = {'show-inheritance': None}
@@ -299,28 +296,16 @@ def test_autodoc_process_bases(app):
 
     options = {'show-inheritance': None}
     actual = do_autodoc(app, 'class', 'target.classes.Quux', options)
-    if sys.version_info < (3, 7):
-        assert list(actual) == [
-            '',
-            '.. py:class:: Quux(*args, **kwds)',
-            '   :module: target.classes',
-            '',
-            '   Bases: :py:class:`int`, :py:class:`str`',
-            '',
-            '   A subclass of List[Union[int, float]]',
-            '',
-        ]
-    else:
-        assert list(actual) == [
-            '',
-            '.. py:class:: Quux(iterable=(), /)',
-            '   :module: target.classes',
-            '',
-            '   Bases: :py:class:`int`, :py:class:`str`',
-            '',
-            '   A subclass of List[Union[int, float]]',
-            '',
-        ]
+    assert list(actual) == [
+        '',
+        '.. py:class:: Quux(iterable=(), /)',
+        '   :module: target.classes',
+        '',
+        '   Bases: :py:class:`int`, :py:class:`str`',
+        '',
+        '   A subclass of List[Union[int, float]]',
+        '',
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')

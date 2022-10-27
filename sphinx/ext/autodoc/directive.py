@@ -1,4 +1,3 @@
-import warnings
 from typing import Any, Callable, Dict, List, Optional, Set, Type
 
 from docutils import nodes
@@ -8,7 +7,6 @@ from docutils.statemachine import StringList
 from docutils.utils import Reporter, assemble_option_dict
 
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.autodoc import Documenter, Options
 from sphinx.util import logging
@@ -51,18 +49,6 @@ class DocumenterBridge:
         self.record_dependencies: Set[str] = set()
         self.result = StringList()
         self.state = state
-
-    def warn(self, msg: str) -> None:
-        warnings.warn('DocumenterBridge.warn is deprecated.  Please use sphinx.util.logging '
-                      'module instead.',
-                      RemovedInSphinx60Warning, stacklevel=2)
-        logger.warning(msg, location=(self.env.docname, self.lineno))
-
-    @property
-    def filename_set(self) -> Set:
-        warnings.warn('DocumenterBridge.filename_set is deprecated.',
-                      RemovedInSphinx60Warning, stacklevel=2)
-        return self.record_dependencies
 
 
 def process_documenter_options(documenter: Type[Documenter], config: Config, options: Dict

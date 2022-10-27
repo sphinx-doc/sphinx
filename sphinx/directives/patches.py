@@ -1,16 +1,14 @@
 import os
-import warnings
 from os import path
-from typing import TYPE_CHECKING, Any, Dict, List, Sequence, Tuple, cast
+from typing import TYPE_CHECKING, Any, Dict, List, cast
 
 from docutils import nodes
-from docutils.nodes import Node, make_id, system_message
+from docutils.nodes import Node, make_id
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import images, tables
+from docutils.parsers.rst.directives.misc import Meta  # type: ignore[attr-defined]
 from docutils.parsers.rst.roles import set_classes
 
-from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.directives import optional_int
 from sphinx.domains.math import MathDomain
 from sphinx.locale import __
@@ -19,12 +17,6 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import SEP, os_path, relpath
 from sphinx.util.typing import OptionSpec
-
-try:
-    from docutils.parsers.rst.directives.misc import Meta as MetaBase  # type: ignore
-except ImportError:
-    # docutils-0.17 or older
-    from docutils.parsers.rst.directives.html import Meta as MetaBase
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -59,43 +51,6 @@ class Figure(images.Figure):
         return [figure_node]
 
 
-class Meta(MetaBase, SphinxDirective):
-    def run(self) -> Sequence[Node]:
-        result = super().run()
-        for node in result:
-            # for docutils-0.17 or older.  Since docutils-0.18, patching is no longer needed
-            # because it uses picklable node; ``docutils.nodes.meta``.
-            if (isinstance(node, nodes.pending) and
-               isinstance(node.details['nodes'][0], addnodes.docutils_meta)):
-                meta = node.details['nodes'][0]
-                meta.source = self.env.doc2path(self.env.docname)
-                meta.line = self.lineno
-                meta.rawcontent = meta['content']
-
-                # docutils' meta nodes aren't picklable because the class is nested
-                meta.__class__ = addnodes.meta
-
-        return result
-
-
-class RSTTable(tables.RSTTable):
-    """The table directive which sets source and line information to its caption.
-
-    Only for docutils-0.13 or older version."""
-
-    def run(self) -> List[Node]:
-        warnings.warn('RSTTable is deprecated.',
-                      RemovedInSphinx60Warning)
-        return super().run()
-
-    def make_title(self) -> Tuple[nodes.title, List[system_message]]:
-        title, message = super().make_title()
-        if title:
-            set_source_info(self, title)
-
-        return title, message
-
-
 class CSVTable(tables.CSVTable):
     """The csv-table directive which searches a CSV file from Sphinx project's source
     directory when an absolute path is given via :file: option.
@@ -116,24 +71,6 @@ class CSVTable(tables.CSVTable):
                 self.options['file'] = relpath(abspath, docdir)
 
         return super().run()
-
-
-class ListTable(tables.ListTable):
-    """The list-table directive which sets source and line information to its caption.
-
-    Only for docutils-0.13 or older version."""
-
-    def run(self) -> List[Node]:
-        warnings.warn('ListTable is deprecated.',
-                      RemovedInSphinx60Warning)
-        return super().run()
-
-    def make_title(self) -> Tuple[nodes.title, List[system_message]]:
-        title, message = super().make_title()
-        if title:
-            set_source_info(self, title)
-
-        return title, message
 
 
 class Code(SphinxDirective):

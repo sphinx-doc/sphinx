@@ -6,7 +6,6 @@ Gracefully adapted from the TextPress system by Armin.
 import os
 import pickle
 import sys
-import warnings
 from collections import deque
 from io import StringIO
 from os import path
@@ -22,7 +21,6 @@ from pygments.lexer import Lexer
 import sphinx
 from sphinx import locale, package_dir
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.domains import Domain, Index
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
@@ -91,7 +89,6 @@ builtin_extensions = (
     'sphinx.transforms.post_transforms',
     'sphinx.transforms.post_transforms.code',
     'sphinx.transforms.post_transforms.images',
-    'sphinx.util.compat',
     'sphinx.versioning',
     # collectors should be loaded by specific order
     'sphinx.environment.collectors.dependencies',
@@ -1083,27 +1080,6 @@ class Sphinx:
             self.builder.add_css_file(filename,  # type: ignore[attr-defined]
                                       priority=priority, **kwargs)
 
-    def add_stylesheet(
-        self, filename: str, alternate: bool = False, title: Optional[str] = None
-    ) -> None:
-        """An alias of :meth:`add_css_file`.
-
-        .. deprecated:: 1.8
-        """
-        logger.warning('The app.add_stylesheet() is deprecated. '
-                       'Please use app.add_css_file() instead.')
-
-        attributes = {}  # type: Dict[str, Any]
-        if alternate:
-            attributes['rel'] = 'alternate stylesheet'
-        else:
-            attributes['rel'] = 'stylesheet'
-
-        if title:
-            attributes['title'] = title
-
-        self.add_css_file(filename, **attributes)
-
     def add_latex_package(self, packagename: str, options: Optional[str] = None,
                           after_hyperref: bool = False) -> None:
         r"""Register a package to include in the LaTeX source code.
@@ -1321,12 +1297,6 @@ class Sphinx:
         if policy not in ('always', 'per_page'):
             raise ValueError('policy %s is not supported' % policy)
         self.registry.html_assets_policy = policy
-
-    @property
-    def html_themes(self) -> Dict[str, str]:
-        warnings.warn('app.html_themes is deprecated.',
-                      RemovedInSphinx60Warning)
-        return self.registry.html_themes
 
 
 class TemplateBridge:

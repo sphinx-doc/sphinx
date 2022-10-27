@@ -1319,14 +1319,17 @@ class LaTeXTranslator(SphinxTranslator):
         if include_graphics_options:
             options = '[%s]' % ','.join(include_graphics_options)
         base, ext = path.splitext(uri)
+
         if self.in_title and base:
             # Lowercase tokens forcely because some fncychap themes capitalize
             # the options of \sphinxincludegraphics unexpectedly (ex. WIDTH=...).
-            self.body.append(r'\lowercase{\sphinxincludegraphics%s}{{%s}%s}' %
-                             (options, base, ext))
+            cmd = r'\lowercase{\sphinxincludegraphics%s}{{%s}%s}' % (options, base, ext)
         else:
-            self.body.append(r'\sphinxincludegraphics%s{{%s}%s}' %
-                             (options, base, ext))
+            cmd = r'\sphinxincludegraphics%s{{%s}%s}' % (options, base, ext)
+        # escape filepath for includegraphics, https://tex.stackexchange.com/a/202714/41112
+        if '#' in base:
+            cmd = r'{\catcode`\#=12' + cmd + '}'
+        self.body.append(cmd)
         self.body.extend(post)
 
     def depart_image(self, node: Element) -> None:
@@ -1525,7 +1528,7 @@ class LaTeXTranslator(SphinxTranslator):
             try:
                 if type == 'single':
                     try:
-                        p1, p2 = [escape(x) for x in split_into(2, 'single', string)]
+                        p1, p2 = (escape(x) for x in split_into(2, 'single', string))
                         P1, P2 = style(p1), style(p2)
                         self.body.append(r'\index{%s@%s!%s@%s%s}' % (p1, P1, p2, P2, m))
                     except ValueError:
@@ -1533,12 +1536,12 @@ class LaTeXTranslator(SphinxTranslator):
                         P = style(p)
                         self.body.append(r'\index{%s@%s%s}' % (p, P, m))
                 elif type == 'pair':
-                    p1, p2 = [escape(x) for x in split_into(2, 'pair', string)]
+                    p1, p2 = (escape(x) for x in split_into(2, 'pair', string))
                     P1, P2 = style(p1), style(p2)
                     self.body.append(r'\index{%s@%s!%s@%s%s}\index{%s@%s!%s@%s%s}' %
                                      (p1, P1, p2, P2, m, p2, P2, p1, P1, m))
                 elif type == 'triple':
-                    p1, p2, p3 = [escape(x) for x in split_into(3, 'triple', string)]
+                    p1, p2, p3 = (escape(x) for x in split_into(3, 'triple', string))
                     P1, P2, P3 = style(p1), style(p2), style(p3)
                     self.body.append(
                         r'\index{%s@%s!%s %s@%s %s%s}'
@@ -1548,11 +1551,11 @@ class LaTeXTranslator(SphinxTranslator):
                          p2, P2, p3, p1, P3, P1, m,
                          p3, P3, p1, p2, P1, P2, m))
                 elif type == 'see':
-                    p1, p2 = [escape(x) for x in split_into(2, 'see', string)]
+                    p1, p2 = (escape(x) for x in split_into(2, 'see', string))
                     P1 = style(p1)
                     self.body.append(r'\index{%s@%s|see{%s}}' % (p1, P1, p2))
                 elif type == 'seealso':
-                    p1, p2 = [escape(x) for x in split_into(2, 'seealso', string)]
+                    p1, p2 = (escape(x) for x in split_into(2, 'seealso', string))
                     P1 = style(p1)
                     self.body.append(r'\index{%s@%s|see{%s}}' % (p1, P1, p2))
                 else:

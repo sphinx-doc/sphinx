@@ -181,15 +181,6 @@ class HTMLThemeFactory:
         import alabaster
         self.themes['alabaster'] = path.join(alabaster.get_path(), 'alabaster')
 
-    def load_sphinx_rtd_theme(self) -> None:
-        """Load sphinx_rtd_theme theme (if installed)."""
-        try:
-            import sphinx_rtd_theme
-            theme_path = sphinx_rtd_theme.get_html_theme_path()
-            self.themes['sphinx_rtd_theme'] = path.join(theme_path, 'sphinx_rtd_theme')
-        except ImportError:
-            pass
-
     def load_external_theme(self, name: str) -> None:
         """Try to load a theme using entry_points.
 
@@ -230,12 +221,6 @@ class HTMLThemeFactory:
         """Create an instance of theme."""
         if name not in self.themes:
             self.load_extra_theme(name)
-
-        if name not in self.themes and name == 'sphinx_rtd_theme':
-            # sphinx_rtd_theme (< 0.2.5)  # RemovedInSphinx60Warning
-            logger.warning(__('sphinx_rtd_theme (< 0.3.0) found. '
-                              'It will not be available since Sphinx-6.0'))
-            self.load_sphinx_rtd_theme()
 
         if name not in self.themes:
             raise ThemeError(__('no theme named %r found (missing theme.conf?)') % name)

@@ -2,19 +2,24 @@
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence
 
-import docutils
 from docutils import nodes
 from docutils.nodes import Element
+
+from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
-try:
-    from docutils.nodes import meta as docutils_meta  # type: ignore
-except ImportError:
-    # docutils-0.17 or older
-    from docutils.parsers.rst.directives.html import MetaBody
-    docutils_meta = MetaBody.meta
+deprecated_alias('sphinx.addnodes',
+                 {
+                     'meta': nodes.meta,  # type: ignore
+                     'docutils_meta': nodes.meta,  # type: ignore
+                 },
+                 RemovedInSphinx70Warning,
+                 {
+                     'meta': 'docutils.nodes.meta',
+                     'docutils_meta': 'docutils.nodes.meta',
+                 })
 
 
 class document(nodes.document):
@@ -29,18 +34,7 @@ class document(nodes.document):
 
     def set_id(self, node: Element, msgnode: Optional[Element] = None,
                suggested_prefix: str = '') -> str:
-        if docutils.__version_info__ >= (0, 16):
-            ret = super().set_id(node, msgnode, suggested_prefix)  # type: ignore
-        else:
-            ret = super().set_id(node, msgnode)
-
-        if docutils.__version_info__ < (0, 17):
-            # register other node IDs forcedly
-            for node_id in node['ids']:
-                if node_id not in self.ids:
-                    self.ids[node_id] = node
-
-        return ret
+        return super().set_id(node, msgnode, suggested_prefix)  # type: ignore
 
 
 class translatable(nodes.Node):
@@ -198,7 +192,7 @@ class desc_inline(_desc_classes_injector, nodes.Inline, nodes.TextElement):
     classes = ['sig', 'sig-inline']
 
     def __init__(self, domain: str, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs, domain=domain)
         self['classes'].append(domain)
 
 
@@ -250,7 +244,7 @@ class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     child_text_separator = ', '
 
     def astext(self):
-        return '({})'.format(super().astext())
+        return f'({super().astext()})'
 
 
 class desc_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
@@ -435,13 +429,6 @@ class tabular_col_spec(nodes.Element):
     """Node for specifying tabular columns, used for LaTeX output."""
 
 
-class meta(nodes.Special, nodes.PreBibliographic, nodes.Element):
-    """Node for meta directive -- same as docutils' standard meta node,
-    but pickleable.
-    """
-    rawcontent = None
-
-
 # inline nodes
 
 class pending_xref(nodes.Inline, nodes.Element):
@@ -567,9 +554,6 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_node(literal_emphasis)
     app.add_node(literal_strong)
     app.add_node(manpage)
-
-    if docutils.__version_info__ < (0, 18):
-        app.add_node(meta)
 
     return {
         'version': 'builtin',

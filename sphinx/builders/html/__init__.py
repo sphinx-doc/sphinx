@@ -348,11 +348,6 @@ class StandaloneHTMLBuilder(Builder):
         self.script_files = []
         self.add_js_file('documentation_options.js', id="documentation_options",
                          data_url_root='', priority=200)
-        # Remove frameworks and compatability module below in Sphinx 6.0
-        # xref RemovedInSphinx60Warning
-        self.add_js_file('jquery.js', priority=200)
-        self.add_js_file('underscore.js', priority=200)
-        self.add_js_file('_sphinx_javascript_frameworks_compat.js', priority=200)
         self.add_js_file('doctools.js', priority=200)
         self.add_js_file('sphinx_highlight.js', priority=200)
 
@@ -564,8 +559,8 @@ class StandaloneHTMLBuilder(Builder):
             'rellinks': rellinks,
             'builder': self.name,
             'parents': [],
-            'logo': logo,
-            'favicon': favicon,
+            'logo_url': logo,
+            'favicon_url': favicon,
             'html5_doctype': not self.config.html4_writer,
         }
         if self.theme:
@@ -1243,18 +1238,14 @@ def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,
     pathto = context.get('pathto')
 
     # favicon_url
-    favicon = context.get('favicon')
-    if favicon and not isurl(favicon):
-        context['favicon_url'] = pathto('_static/' + favicon, resource=True)
-    else:
-        context['favicon_url'] = favicon
+    favicon_url = context.get('favicon_url')
+    if favicon_url and not isurl(favicon_url):
+        context['favicon_url'] = pathto('_static/' + favicon_url, resource=True)
 
     # logo_url
-    logo = context.get('logo')
-    if logo and not isurl(logo):
-        context['logo_url'] = pathto('_static/' + logo, resource=True)
-    else:
-        context['logo_url'] = logo
+    logo_url = context.get('logo_url')
+    if logo_url and not isurl(logo_url):
+        context['logo_url'] = pathto('_static/' + logo_url, resource=True)
 
 
 def validate_math_renderer(app: Sphinx) -> None:
@@ -1313,33 +1304,6 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
         config.html_favicon = None  # type: ignore
 
 
-class _stable_repr_object():
-
-    def __repr__(self):
-        return '<object>'
-
-
-UNSET = _stable_repr_object()
-
-
-def migrate_html_add_permalinks(app: Sphinx, config: Config) -> None:
-    """Migrate html_add_permalinks to html_permalinks*."""
-    html_add_permalinks = config.html_add_permalinks
-    if html_add_permalinks is UNSET:
-        return
-
-    # RemovedInSphinx60Warning
-    logger.warning(__('html_add_permalinks has been deprecated since v3.5.0. '
-                      'Please use html_permalinks and html_permalinks_icon instead.'))
-    if not html_add_permalinks:
-        config.html_permalinks = False  # type: ignore[attr-defined]
-        return
-
-    config.html_permalinks_icon = html.escape(  # type: ignore[attr-defined]
-        html_add_permalinks
-    )
-
-
 def deprecate_html_4(_app: Sphinx, config: Config) -> None:
     """Warn on HTML 4."""
     # RemovedInSphinx70Warning
@@ -1385,7 +1349,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
     app.add_config_value('html_domain_indices', True, 'html', [list])
-    app.add_config_value('html_add_permalinks', UNSET, 'html')
     app.add_config_value('html_permalinks', True, 'html')
     app.add_config_value('html_permalinks_icon', '¶', 'html')
     app.add_config_value('html_use_index', True, 'html')
@@ -1408,7 +1371,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_search_scorer', '', None)
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_baseurl', '', 'html')
-    app.add_config_value('html_codeblock_linenos_style', 'inline', 'html',  # RemovedInSphinx60Warning  # NOQA
+    app.add_config_value('html_codeblock_linenos_style', 'inline', 'html',  # RemovedInSphinx70Warning  # NOQA
                          ENUM('table', 'inline'))
     app.add_config_value('html_math_renderer', None, 'env')
     app.add_config_value('html4_writer', False, 'html')
@@ -1420,7 +1383,6 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     # event handlers
     app.connect('config-inited', convert_html_css_files, priority=800)
     app.connect('config-inited', convert_html_js_files, priority=800)
-    app.connect('config-inited', migrate_html_add_permalinks, priority=800)
     app.connect('config-inited', validate_html_extra_path, priority=800)
     app.connect('config-inited', validate_html_static_path, priority=800)
     app.connect('config-inited', validate_html_logo, priority=800)

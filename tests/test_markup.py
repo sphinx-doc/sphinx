@@ -3,7 +3,6 @@
 import re
 import warnings
 
-import docutils
 import pytest
 from docutils import frontend, nodes, utils
 from docutils.parsers.rst import Parser as RstParser
@@ -395,8 +394,6 @@ def test_inline(get_verifier, type, rst, html_expected, latex_expected):
         None,
     ),
 ])
-@pytest.mark.skipif(docutils.__version_info__ < (0, 16),
-                    reason='docutils-0.16 or above is required')
 def test_inline_docutils16(get_verifier, type, rst, html_expected, latex_expected):
     verifier = get_verifier(type)
     verifier(rst, html_expected, latex_expected)
