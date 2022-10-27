@@ -12,17 +12,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-        - python: "3.8"
-          docutils: du18
-        - python: "3.9"
-          docutils: du19
-        - python: "3.10"
-          docutils: du19
-        - python: "3.10"
-          docutils: du19
-        - python: "3.11-dev"
-          docutils: py311
+        python:
+        - "3.8"
+        - "3.9"
+        - "3.10"
+        - "3.11"
+        - "3.12-dev"
+        docutils:
+        - "du18"
+        - "du19"
 
     steps:
     - uses: actions/checkout@v3
