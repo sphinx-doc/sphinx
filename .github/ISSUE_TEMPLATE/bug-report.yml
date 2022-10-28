@@ -54,8 +54,8 @@ body:
     attributes:
       label: Environment Information
       description: >-
-        Install development Sphinx 
-        ``pip install https://github.com/AA-Turner/sphinx/archive/refs/heads/5.x.zip``
+        Install the latest Sphinx 
+        ``pip install -U "sphinx>=5.3"``
         then run ``sphinx-build --bug-report`` or ``python -m sphinx --bug-report``.
         and paste the output here.
     validations:
