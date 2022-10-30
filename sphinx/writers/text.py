@@ -420,7 +420,7 @@ class TextTranslator(SphinxTranslator):
             result.append((indent, res))
         for itemindent, item in content:
             if itemindent == -1:
-                toformat.append(item)  # type: ignore
+                toformat.append(str(item))  # type: ignore
             else:
                 do_format()
                 result.append((indent + itemindent, item))  # type: ignore

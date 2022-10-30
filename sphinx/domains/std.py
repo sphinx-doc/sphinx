@@ -245,7 +245,7 @@ class Cmdoption(ObjectDescription[str]):
         else:
             descr = _('command line option')
         for option in signode.get('allnames', []):
-            entry = '; '.join([descr, option])
+            entry = '; '.join([str(descr), option])
             self.indexnode['entries'].append(('pair', entry, signode['ids'][0], '', None))
 
     def make_old_id(self, prefix: str, optname: str) -> str:
