@@ -2,7 +2,7 @@
 
 import locale
 from gettext import NullTranslations, translation
-from os import path
+from os import getenv, path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 
 
@@ -111,7 +111,11 @@ def init(
     # the None entry is the system's default locale path
     has_translation = True
 
-    if language and '_' in language:
+    if getenv('SOURCE_DATE_EPOCH') is not None:
+        # Disable localization during reproducible source builds
+        # See https://reproducible-builds.org/docs/source-date-epoch/
+        languages = None
+    elif language and '_' in language:
         # for language having country code (like "de_AT")
         languages: Optional[List[str]] = [language, language.split('_')[0]]
     elif language:
