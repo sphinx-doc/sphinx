@@ -70,6 +70,7 @@ latex_elements = {
 \DeclareUnicodeCharacter{229E}{\ensuremath{\boxplus}}
 \setcounter{tocdepth}{3}%    depth of what main TOC shows (3=subsubsection)
 \setcounter{secnumdepth}{1}% depth of section numbering
+\setlength{\tymin}{2cm}%     avoid too cramped table columns
 ''',
     # fix missing index entry due to RTD doing only once pdflatex after makeindex
     'printindex': r'''
