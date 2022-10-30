@@ -5,6 +5,7 @@ import zlib
 from io import BytesIO
 
 from sphinx.ext.intersphinx import InventoryFile
+from sphinx.testing.util import SphinxTestApp
 
 inventory_v1 = b'''\
 # Sphinx inventory version 1
@@ -83,3 +84,29 @@ def test_read_inventory_v2_not_having_version():
     invdata = InventoryFile.load(f, '/util', posixpath.join)
     assert invdata['py:module']['module1'] == \
         ('foo', '', '/util/foo.html#module-module1', 'Long Module desc')
+
+
+def _app_language(tempdir, language):
+    (tempdir / language).makedirs()
+    (tempdir / language / 'conf.py').write_text(f'language = "{language}"', encoding='utf8')
+    (tempdir / language / 'index.rst').write_text('index.rst', encoding='utf8')
+    assert (tempdir / language).listdir() == ['conf.py', 'index.rst']
+    assert (tempdir / language / 'index.rst').exists()
+    return SphinxTestApp(srcdir=(tempdir / language))
+
+
+def test_inventory_localization(tempdir):
+    # Build an app using Estonian (EE) locale
+    app_et = _app_language(tempdir, "et")
+    app_et.build()
+    inventory_et = (app_et.outdir / 'objects.inv').read_bytes()
+    app_et.cleanup()
+
+    # Build the same app using English (US) locale
+    app_en = _app_language(tempdir, "en")
+    app_en.build()
+    inventory_en = (app_en.outdir / 'objects.inv').read_bytes()
+    app_en.cleanup()
+
+    # Ensure that the inventory contents differ
+    assert inventory_et != inventory_en
