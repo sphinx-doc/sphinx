@@ -116,17 +116,18 @@ def test_inventory_localization(tempdir):
 
 
 def test_inventory_reproducible(tempdir, monkeypatch):
-    # Configure reproducible builds
-    # See: https://reproducible-builds.org/docs/source-date-epoch/
-    monkeypatch.setenv("SOURCE_DATE_EPOCH", "0")
+    with monkeypatch.context() as m:
+        # Configure reproducible builds
+        # See: https://reproducible-builds.org/docs/source-date-epoch/
+        m.setenv("SOURCE_DATE_EPOCH", "0")
 
-    # Build an app using Estonian (EE) locale
-    srcdir_et = _write_appconfig(tempdir, "et")
-    inventory_et = _build_inventory(srcdir_et)
+        # Build an app using Estonian (EE) locale
+        srcdir_et = _write_appconfig(tempdir, "et")
+        inventory_et = _build_inventory(srcdir_et)
 
-    # Build the same app using English (US) locale
-    srcdir_en = _write_appconfig(tempdir, "en")
-    inventory_en = _build_inventory(srcdir_en)
+        # Build the same app using English (US) locale
+        srcdir_en = _write_appconfig(tempdir, "en")
+        inventory_en = _build_inventory(srcdir_en)
 
     # Ensure that the inventory contents are identical
     assert inventory_et.read_bytes() == inventory_en.read_bytes()
