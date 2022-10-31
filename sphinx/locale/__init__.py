@@ -199,12 +199,15 @@ def is_translator_registered(catalog: str = 'sphinx', namespace: str = 'general'
     return (namespace, catalog) in translators
 
 
-def _lazy_translate(catalog: str, namespace: str, message: str) -> str:
+def _lazy_translate(catalog: str, namespace: str, message: str, *args: Any) -> str:
     """Used instead of _ when creating TranslationProxy, because _ is
     not bound yet at that time.
     """
     translator = get_translator(catalog, namespace)
-    return translator.gettext(message)
+    if len(args) <= 1:
+        return translator.gettext(message)
+    else:  # support pluralization
+        return translator.ngettext(message, args[0], args[1])
 
 
 def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str], str]:
@@ -233,7 +236,7 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
     .. versionadded:: 1.8
     """
     def gettext(message: str, *args: Any) -> str:
-        return _TranslationProxy(_lazy_translate, catalog, namespace, message)  # type: ignore[return-value]  # NOQA
+        return _TranslationProxy(_lazy_translate, catalog, namespace, message, *args)  # type: ignore[return-value]  # NOQA
 
     return gettext
 
