@@ -130,5 +130,12 @@ def test_inventory_reproducible(tempdir, monkeypatch):
         srcdir_en = _write_appconfig(tempdir, "en")
         reproducible_inventory_en = _build_inventory(srcdir_en)
 
+    # Also build the app using Estonian (EE) locale without build reproducibility enabled
+    srcdir_et = _write_appconfig(tempdir, "et", prefix="localized")
+    localized_inventory_et = _build_inventory(srcdir_et)
+
     # Ensure that the reproducible inventory contents are identical
     assert reproducible_inventory_et.read_bytes() == reproducible_inventory_en.read_bytes()
+
+    # Ensure that inventory contents are different between a localized and non-localized build
+    assert reproducible_inventory_et.read_bytes() != localized_inventory_et.read_bytes()
