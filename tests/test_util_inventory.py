@@ -86,30 +86,33 @@ def test_read_inventory_v2_not_having_version():
         ('foo', '', '/util/foo.html#module-module1', 'Long Module desc')
 
 
-def _app_language(tempdir, language):
-    (tempdir / language).makedirs()
-    (tempdir / language / 'conf.py').write_text(f'language = "{language}"', encoding='utf8')
-    (tempdir / language / 'index.rst').write_text('index.rst', encoding='utf8')
-    assert (tempdir / language).listdir() == ['conf.py', 'index.rst']
-    assert (tempdir / language / 'index.rst').exists()
-    return SphinxTestApp(srcdir=(tempdir / language))
+def _write_appconfig(dir, language):
+    (dir / language).makedirs()
+    (dir / language / 'conf.py').write_text(f'language = "{language}"', encoding='utf8')
+    (dir / language / 'index.rst').write_text('index.rst', encoding='utf8')
+    assert (dir / language).listdir() == ['conf.py', 'index.rst']
+    assert (dir / language / 'index.rst').exists()
+    return (dir / language)
+
+
+def _build_inventory(srcdir):
+    app = SphinxTestApp(srcdir=srcdir)
+    app.build()
+    app.cleanup()
+    return (app.outdir / 'objects.inv')
 
 
 def test_inventory_localization(tempdir):
     # Build an app using Estonian (EE) locale
-    app_et = _app_language(tempdir, "et")
-    app_et.build()
-    inventory_et = (app_et.outdir / 'objects.inv').read_bytes()
-    app_et.cleanup()
+    srcdir_et = _write_appconfig(tempdir, "et")
+    inventory_et = _build_inventory(srcdir_et)
 
     # Build the same app using English (US) locale
-    app_en = _app_language(tempdir, "en")
-    app_en.build()
-    inventory_en = (app_en.outdir / 'objects.inv').read_bytes()
-    app_en.cleanup()
+    srcdir_en = _write_appconfig(tempdir, "en")
+    inventory_en = _build_inventory(srcdir_en)
 
     # Ensure that the inventory contents differ
-    assert inventory_et != inventory_en
+    assert inventory_et.read_bytes() != inventory_en.read_bytes()
 
 
 def test_inventory_reproducible(tempdir, monkeypatch):
@@ -118,16 +121,12 @@ def test_inventory_reproducible(tempdir, monkeypatch):
     monkeypatch.setenv("SOURCE_DATE_EPOCH", "0")
 
     # Build an app using Estonian (EE) locale
-    app_et = _app_language(tempdir, "et")
-    app_et.build()
-    inventory_et = (app_et.outdir / 'objects.inv').read_bytes()
-    app_et.cleanup()
+    srcdir_et = _write_appconfig(tempdir, "et")
+    inventory_et = _build_inventory(srcdir_et)
 
     # Build the same app using English (US) locale
-    app_en = _app_language(tempdir, "en")
-    app_en.build()
-    inventory_en = (app_en.outdir / 'objects.inv').read_bytes()
-    app_en.cleanup()
+    srcdir_en = _write_appconfig(tempdir, "en")
+    inventory_en = _build_inventory(srcdir_en)
 
     # Ensure that the inventory contents are identical
-    assert inventory_et == inventory_en
+    assert inventory_et.read_bytes() == inventory_en.read_bytes()
