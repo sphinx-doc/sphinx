@@ -114,6 +114,14 @@ def init(
     if getenv('SOURCE_DATE_EPOCH') is not None:
         # Disable localization during reproducible source builds
         # See https://reproducible-builds.org/docs/source-date-epoch/
+        #
+        # Note: Providing an empty/none value to gettext.translation causes
+        # it to consult various language-related environment variables to find
+        # locale(s).  We don't want that during a reproducible build; we want
+        # to run through the same code path, but to return NullTranslations.
+        #
+        # To achieve that, specify the ISO-639-3 'undetermined' language code,
+        # which should not match any translation catalogs.
         languages: Optional[List[str]] = ['und']
     elif language and '_' in language:
         # for language having country code (like "de_AT")
