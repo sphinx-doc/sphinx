@@ -86,13 +86,14 @@ def test_read_inventory_v2_not_having_version():
         ('foo', '', '/util/foo.html#module-module1', 'Long Module desc')
 
 
-def _write_appconfig(dir, language):
-    (dir / language).makedirs()
-    (dir / language / 'conf.py').write_text(f'language = "{language}"', encoding='utf8')
-    (dir / language / 'index.rst').write_text('index.rst', encoding='utf8')
-    assert (dir / language).listdir() == ['conf.py', 'index.rst']
-    assert (dir / language / 'index.rst').exists()
-    return (dir / language)
+def _write_appconfig(dir, language, prefix=None):
+    prefix = prefix or language
+    (dir / prefix).makedirs()
+    (dir / prefix / 'conf.py').write_text(f'language = "{language}"', encoding='utf8')
+    (dir / prefix / 'index.rst').write_text('index.rst', encoding='utf8')
+    assert (dir / prefix).listdir() == ['conf.py', 'index.rst']
+    assert (dir / prefix / 'index.rst').exists()
+    return (dir / prefix)
 
 
 def _build_inventory(srcdir):
@@ -123,11 +124,11 @@ def test_inventory_reproducible(tempdir, monkeypatch):
 
         # Build an app using Estonian (EE) locale
         srcdir_et = _write_appconfig(tempdir, "et")
-        inventory_et = _build_inventory(srcdir_et)
+        reproducible_inventory_et = _build_inventory(srcdir_et)
 
         # Build the same app using English (US) locale
         srcdir_en = _write_appconfig(tempdir, "en")
-        inventory_en = _build_inventory(srcdir_en)
+        reproducible_inventory_en = _build_inventory(srcdir_en)
 
-    # Ensure that the inventory contents are identical
-    assert inventory_et.read_bytes() == inventory_en.read_bytes()
+    # Ensure that the reproducible inventory contents are identical
+    assert reproducible_inventory_et.read_bytes() == reproducible_inventory_en.read_bytes()
