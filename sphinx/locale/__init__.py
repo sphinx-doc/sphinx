@@ -114,7 +114,7 @@ def init(
     if getenv('SOURCE_DATE_EPOCH') is not None:
         # Disable localization during reproducible source builds
         # See https://reproducible-builds.org/docs/source-date-epoch/
-        languages: Optional[List[str]] = None
+        languages: Optional[List[str]] = ['und']
     elif language and '_' in language:
         # for language having country code (like "de_AT")
         languages = [language, language.split('_')[0]]
