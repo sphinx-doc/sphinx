@@ -31,12 +31,12 @@ class KeyboardTransform(SphinxPostTransform):
     formats = ('html',)
     pattern = re.compile(r'(?<=.)(-|\+|\^|\s+)(?=.)')
     multiwords_keys = (('caps', 'lock'),
-                       ('page' 'down'),
+                       ('page', 'down'),
                        ('page', 'up'),
-                       ('scroll' 'lock'),
+                       ('scroll', 'lock'),
                        ('num', 'lock'),
-                       ('sys' 'rq'),
-                       ('back' 'space'))
+                       ('sys', 'rq'),
+                       ('back', 'space'))
 
     def run(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.literal, classes=["kbd"])
