@@ -92,7 +92,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         if self.config.today:
             self._docinfo['date'] = self.config.today
         else:
-            self._docinfo['date'] = format_date(self.config.today_fmt or _('%b %d, %Y'),
+            self._docinfo['date'] = format_date(self.config.today_fmt or str(_('%b %d, %Y')),
                                                 language=self.config.language)
         self._docinfo['copyright'] = self.config.copyright
         self._docinfo['version'] = self.config.version

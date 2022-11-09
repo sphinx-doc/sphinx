@@ -208,7 +208,7 @@ def format_date(
         language = 'en'
 
     result = []
-    tokens = date_format_re.split(str(format))
+    tokens = date_format_re.split(format)
     for token in tokens:
         if token in date_format_mappings:
             babel_format = date_format_mappings.get(token, '')
