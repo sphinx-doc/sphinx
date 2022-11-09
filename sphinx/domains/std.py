@@ -241,11 +241,11 @@ class Cmdoption(ObjectDescription[str]):
 
         # create an index entry
         if currprogram:
-            descr = _('%s command line option') % currprogram
+            descr = str(_('%s command line option') % currprogram)
         else:
-            descr = _('command line option')
+            descr = str(_('command line option'))
         for option in signode.get('allnames', []):
-            entry = '; '.join([str(descr), option])
+            entry = '; '.join([descr, option])
             self.indexnode['entries'].append(('pair', entry, signode['ids'][0], '', None))
 
     def make_old_id(self, prefix: str, optname: str) -> str:
