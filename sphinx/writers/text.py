@@ -420,7 +420,7 @@ class TextTranslator(SphinxTranslator):
             result.append((indent, res))
         for itemindent, item in content:
             if itemindent == -1:
-                toformat.append(str(item))  # type: ignore
+                toformat.append(item)  # type: ignore
             else:
                 do_format()
                 result.append((indent + itemindent, item))  # type: ignore
@@ -792,8 +792,8 @@ class TextTranslator(SphinxTranslator):
 
     def visit_image(self, node: Element) -> None:
         if 'alt' in node.attributes:
-            self.add_text(_('[image: %s]') % node['alt'])
-        self.add_text(_('[image]'))
+            self.add_text(str(_('[image: %s]') % node['alt']))
+        self.add_text(str(_('[image]')))
         raise nodes.SkipNode
 
     def visit_transition(self, node: Element) -> None:
