@@ -317,7 +317,8 @@ def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
             image_format = self.builder.config.imgmath_image_format.lower()
             img_src = render_maths_to_base64(image_format, rendered_path)
         else:
-            relative_path = path.relpath(rendered_path, self.builder.outdir)
+            bname = path.basename(rendered_path)
+            relative_path = path.join(self.builder.imgpath, 'math', bname)
             img_src = relative_path.replace(path.sep, '/')
         c = f'<img class="math" src="{img_src}"' + get_tooltip(self, node)
         if depth is not None:
@@ -357,7 +358,8 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
             image_format = self.builder.config.imgmath_image_format.lower()
             img_src = render_maths_to_base64(image_format, rendered_path)
         else:
-            relative_path = path.relpath(rendered_path, self.builder.outdir)
+            bname = path.basename(rendered_path)
+            relative_path = path.join(self.builder.imgpath, 'math', bname)
             img_src = relative_path.replace(path.sep, '/')
         self.body.append(f'<img src="{img_src}"' + get_tooltip(self, node) +
                          '/></p>\n</div>')
