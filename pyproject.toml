@@ -85,7 +85,7 @@ lint = [
     "flake8-bugbear",
     "flake8-simplify",
     "isort",
-    "mypy>=0.981",
+    "mypy>=0.990",
     "sphinx-lint",
     "docutils-stubs",
     "types-requests",

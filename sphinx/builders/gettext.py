@@ -57,7 +57,7 @@ class Catalog:
         line = origin.line
         if line is None:
             line = -1
-        self.metadata[msg].append((origin.source, line, origin.uid))  # type: ignore
+        self.metadata[msg].append((origin.source, line, origin.uid))
 
     def __iter__(self) -> Generator[Message, None, None]:
         for message in self.messages:

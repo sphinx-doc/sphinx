@@ -551,7 +551,7 @@ def main(argv: List[str] = sys.argv[1:]) -> int:
     try:
         args = parser.parse_args(argv)
     except SystemExit as err:
-        return err.code
+        return err.code  # type: ignore[return-value]
 
     d = vars(args)
     # delete None or False value

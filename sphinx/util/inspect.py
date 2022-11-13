@@ -52,7 +52,7 @@ def unwrap_all(obj: Any, *, stop: Optional[Callable] = None) -> Any:
         elif ispartial(obj):
             obj = obj.func
         elif inspect.isroutine(obj) and hasattr(obj, '__wrapped__'):
-            obj = obj.__wrapped__  # type: ignore
+            obj = obj.__wrapped__
         elif isclassmethod(obj):
             obj = obj.__func__
         elif isstaticmethod(obj):
@@ -278,7 +278,7 @@ def is_singledispatch_function(obj: Any) -> bool:
     if (inspect.isfunction(obj) and
             hasattr(obj, 'dispatch') and
             hasattr(obj, 'register') and
-            obj.dispatch.__module__ == 'functools'):  # type: ignore
+            obj.dispatch.__module__ == 'functools'):
         return True
     else:
         return False
@@ -336,10 +336,10 @@ def isgenericalias(obj: Any) -> bool:
     if isinstance(obj, typing._GenericAlias):  # type: ignore
         return True
     elif (hasattr(types, 'GenericAlias') and  # only for py39+
-          isinstance(obj, types.GenericAlias)):  # type: ignore
+          isinstance(obj, types.GenericAlias)):
         return True
     elif (hasattr(typing, '_SpecialGenericAlias') and  # for py39+
-            isinstance(obj, typing._SpecialGenericAlias)):  # type: ignore
+            isinstance(obj, typing._SpecialGenericAlias)):
         return True
     else:
         return False

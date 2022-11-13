@@ -285,7 +285,7 @@ class DefaultRole(SphinxDirective):
         role_name = self.arguments[0]
         role, messages = roles.role(role_name, self.state_machine.language,
                                     self.lineno, self.state.reporter)
-        if role:
+        if role:  # type: ignore[truthy-function]
             docutils.register_role('', role)
             self.env.temp_data['default_role'] = role_name
         else:

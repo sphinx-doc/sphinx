@@ -167,7 +167,7 @@ def fetch_inventory(app: Sphinx, uri: str, inv: Any) -> Any:
         raise
     try:
         if hasattr(f, 'url'):
-            newinv = f.url  # type: ignore
+            newinv = f.url
             if inv != newinv:
                 logger.info(__('intersphinx inventory has moved: %s -> %s'), inv, newinv)
 

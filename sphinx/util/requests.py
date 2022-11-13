@@ -19,7 +19,7 @@ useragent_header = [('User-Agent',
 @contextmanager
 def ignore_insecure_warning(**kwargs: Any) -> Generator[None, None, None]:
     with warnings.catch_warnings():
-        if not kwargs.get('verify') and InsecureRequestWarning:
+        if not kwargs.get('verify'):
             # ignore InsecureRequestWarning if verify=False
             warnings.filterwarnings("ignore", category=InsecureRequestWarning)
         yield
