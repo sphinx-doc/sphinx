@@ -53,7 +53,6 @@ creating and building your own documentation from scratch.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Get started
 
    usage/quickstart
    usage/installation
@@ -71,7 +70,6 @@ starting with :ref:`get-started`.
 
 .. toctree::
    :maxdepth: 2
-   :caption: User Guides
 
    usage/index
    development/index
@@ -91,7 +89,6 @@ like to contribute to the project.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Community
 
    support
    internals/index
@@ -106,7 +103,6 @@ usecase-driven documentation, see :ref:`get-started` or :ref:`user-guides`.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Reference
 
    man/index
    glossary
