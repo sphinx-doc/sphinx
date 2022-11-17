@@ -10,12 +10,13 @@ https://sat.qc.ca/
 """
 
 import argparse
+import fnmatch
 import glob
 import locale
 import os
+import re
 import sys
 from copy import copy
-from fnmatch import fnmatch
 from importlib.machinery import EXTENSION_SUFFIXES
 from os import path
 from typing import Any, Generator, List, Optional, Tuple
@@ -107,7 +108,8 @@ def create_module_file(package: str, basename: str, opts: Any,
 
 def create_package_file(root: str, master_package: str, subroot: str, py_files: List[str],
                         opts: Any, subs: List[str], is_namespace: bool,
-                        excludes: List[str] = [], user_template_dir: Optional[str] = None
+                        excludes: List[re.Pattern] = [],
+                        user_template_dir: Optional[str] = None
                         ) -> None:
     """Build the text of the file and write the file."""
     # build a list of sub packages (directories containing an __init__ file)
@@ -166,7 +168,7 @@ def create_modules_toc_file(modules: List[str], opts: Any, name: str = 'modules'
     write_file(name, text, opts)
 
 
-def is_skipped_package(dirname: str, opts: Any, excludes: List[str] = []) -> bool:
+def is_skipped_package(dirname: str, opts: Any, excludes: List[re.Pattern] = []) -> bool:
     """Check if we want to skip this module."""
     if not path.isdir(dirname):
         return False
@@ -185,7 +187,7 @@ def is_skipped_package(dirname: str, opts: Any, excludes: List[str] = []) -> boo
         return False
 
 
-def is_skipped_module(filename: str, opts: Any, excludes: List[str]) -> bool:
+def is_skipped_module(filename: str, opts: Any, excludes: List[re.Pattern]) -> bool:
     """Check if we want to skip this module."""
     if not path.exists(filename):
         # skip if the file doesn't exist
@@ -197,7 +199,7 @@ def is_skipped_module(filename: str, opts: Any, excludes: List[str]) -> bool:
         return False
 
 
-def walk(rootpath: str, excludes: List[str], opts: Any
+def walk(rootpath: str, excludes: List[re.Pattern], opts: Any
          ) -> Generator[Tuple[str, List[str], List[str]], None, None]:
     """Walk through the directory and list files and subdirectories up."""
     followlinks = getattr(opts, 'followlinks', False)
@@ -222,7 +224,7 @@ def walk(rootpath: str, excludes: List[str], opts: Any
         yield root, subs, files
 
 
-def has_child_module(rootpath: str, excludes: List[str], opts: Any) -> bool:
+def has_child_module(rootpath: str, excludes: List[re.Pattern], opts: Any) -> bool:
     """Check the given directory contains child module/s (at least one)."""
     for _root, _subs, files in walk(rootpath, excludes, opts):
         if files:
@@ -231,7 +233,7 @@ def has_child_module(rootpath: str, excludes: List[str], opts: Any) -> bool:
     return False
 
 
-def recurse_tree(rootpath: str, excludes: List[str], opts: Any,
+def recurse_tree(rootpath: str, excludes: List[re.Pattern], opts: Any,
                  user_template_dir: Optional[str] = None) -> List[str]:
     """
     Look for every file in the directory tree and create the corresponding
@@ -285,14 +287,14 @@ def recurse_tree(rootpath: str, excludes: List[str], opts: Any,
     return toplevels
 
 
-def is_excluded(root: str, excludes: List[str]) -> bool:
+def is_excluded(root: str, excludes: List[re.Pattern]) -> bool:
     """Check if the directory is in the exclude list.
 
     Note: by having trailing slashes, we avoid common prefix issues, like
           e.g. an exclude "foo" also accidentally excluding "foobar".
     """
     for exclude in excludes:
-        if fnmatch(root, exclude):
+        if exclude.match(root):
             return True
     return False
 
@@ -415,7 +417,10 @@ def main(argv: List[str] = sys.argv[1:]) -> int:
         raise SystemExit(1)
     if not args.dryrun:
         ensuredir(args.destdir)
-    excludes = [path.abspath(exclude) for exclude in args.exclude_pattern]
+    excludes = [
+        re.compile(fnmatch.translate(path.abspath(exclude)))
+        for exclude in args.exclude_pattern
+    ]
     modules = recurse_tree(rootpath, excludes, args, args.templatedir)
 
     if args.full:
