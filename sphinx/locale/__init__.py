@@ -1,105 +1,104 @@
 """Locale utilities."""
 
-import gettext
 import locale
-from collections import UserString, defaultdict
-from gettext import NullTranslations
+from gettext import NullTranslations, translation
+from os import path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 
 
-class _TranslationProxy(UserString):
+class _TranslationProxy:
     """
     Class for proxy strings from gettext translations. This is a helper for the
     lazy_* functions from this module.
 
     The proxy implementation attempts to be as complete as possible, so that
     the lazy objects should mostly work as expected, for example for sorting.
-
-    This inherits from UserString because some docutils versions use UserString
-    for their Text nodes, which then checks its argument for being either a
-    basestring or UserString, otherwise calls str() -- not unicode() -- on it.
     """
     __slots__ = ('_func', '_args')
 
-    def __new__(cls, func: Callable, *args: str) -> object:  # type: ignore
+    def __new__(cls, func: Callable[..., str], *args: str) -> '_TranslationProxy':
         if not args:
             # not called with "function" and "arguments", but a plain string
-            return str(func)
+            return str(func)  # type: ignore[return-value]
         return object.__new__(cls)
 
     def __getnewargs__(self) -> Tuple[str]:
         return (self._func,) + self._args  # type: ignore
 
-    def __init__(self, func: Callable, *args: str) -> None:
+    def __init__(self, func: Callable[..., str], *args: str) -> None:
         self._func = func
         self._args = args
 
-    @property
-    def data(self) -> str:  # type: ignore
-        return self._func(*self._args)
-
-    # replace function from UserString; it instantiates a self.__class__
-    # for the encoding result
-
-    def encode(self, encoding: str = None, errors: str = None) -> bytes:  # type: ignore
-        if encoding:
-            if errors:
-                return self.data.encode(encoding, errors)
-            else:
-                return self.data.encode(encoding)
-        else:
-            return self.data.encode()
+    def __str__(self) -> str:
+        return str(self._func(*self._args))
 
     def __dir__(self) -> List[str]:
         return dir(str)
 
-    def __str__(self) -> str:
-        return str(self.data)
-
-    def __add__(self, other: str) -> str:  # type: ignore
-        return self.data + other
-
-    def __radd__(self, other: str) -> str:  # type: ignore
-        return other + self.data
-
-    def __mod__(self, other: str) -> str:  # type: ignore
-        return self.data % other
-
-    def __rmod__(self, other: str) -> str:  # type: ignore
-        return other % self.data
-
-    def __mul__(self, other: Any) -> str:  # type: ignore
-        return self.data * other
-
-    def __rmul__(self, other: Any) -> str:  # type: ignore
-        return other * self.data
-
     def __getattr__(self, name: str) -> Any:
-        if name == '__members__':
-            return self.__dir__()
-        return getattr(self.data, name)
+        return getattr(self.__str__(), name)
 
-    def __getstate__(self) -> Tuple[Callable, Tuple[str, ...]]:
+    def __getstate__(self) -> Tuple[Callable[..., str], Tuple[str, ...]]:
         return self._func, self._args
 
-    def __setstate__(self, tup: Tuple[Callable, Tuple[str]]) -> None:
+    def __setstate__(self, tup: Tuple[Callable[..., str], Tuple[str]]) -> None:
         self._func, self._args = tup
 
-    def __copy__(self) -> "_TranslationProxy":
-        return self
+    def __copy__(self) -> '_TranslationProxy':
+        return _TranslationProxy(self._func, *self._args)
 
     def __repr__(self) -> str:
         try:
-            return 'i' + repr(str(self.data))
+            return 'i' + repr(str(self.__str__()))
         except Exception:
-            return '<%s broken>' % self.__class__.__name__
+            return f'<{self.__class__.__name__} broken>'
+
+    def __add__(self, other: str) -> str:
+        return self.__str__() + other
+
+    def __radd__(self, other: str) -> str:
+        return other + self.__str__()
+
+    def __mod__(self, other: str) -> str:
+        return self.__str__() % other
+
+    def __rmod__(self, other: str) -> str:
+        return other % self.__str__()
+
+    def __mul__(self, other: Any) -> str:
+        return self.__str__() * other
+
+    def __rmul__(self, other: Any) -> str:
+        return other * self.__str__()
+
+    def __hash__(self):
+        return hash(self.__str__())
+
+    def __eq__(self, other):
+        return self.__str__() == other
+
+    def __lt__(self, string):
+        return self.__str__() < string
+
+    def __contains__(self, char):
+        return char in self.__str__()
+
+    def __len__(self):
+        return len(self.__str__())
+
+    def __getitem__(self, index):
+        return self.__str__()[index]
 
 
-translators: Dict[Tuple[str, str], NullTranslations] = defaultdict(NullTranslations)
+translators: Dict[Tuple[str, str], NullTranslations] = {}
 
 
-def init(locale_dirs: List[Optional[str]], language: Optional[str],
-         catalog: str = 'sphinx', namespace: str = 'general') -> Tuple[NullTranslations, bool]:
+def init(
+    locale_dirs: List[Optional[str]],
+    language: Optional[str],
+    catalog: str = 'sphinx',
+    namespace: str = 'general',
+) -> Tuple[NullTranslations, bool]:
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
     least a NullTranslations catalog set in `translators`. If called multiple
     times or if several ``.mo`` files are found, their contents are merged
@@ -124,7 +123,7 @@ def init(locale_dirs: List[Optional[str]], language: Optional[str],
     # loading
     for dir_ in locale_dirs:
         try:
-            trans = gettext.translation(catalog, localedir=dir_, languages=languages)
+            trans = translation(catalog, localedir=dir_, languages=languages)
             if translator is None:
                 translator = trans
             else:
@@ -140,7 +139,7 @@ def init(locale_dirs: List[Optional[str]], language: Optional[str],
     return translator, has_translation
 
 
-def setlocale(category: int, value: Union[str, Iterable[str]] = None) -> None:
+def setlocale(category: int, value: Union[str, Iterable[str], None] = None) -> None:
     """Update locale settings.
 
     This does not throw any exception even if update fails.
@@ -152,7 +151,7 @@ def setlocale(category: int, value: Union[str, Iterable[str]] = None) -> None:
     * https://bugs.python.org/issue18378#msg215215
 
     .. note:: Only for internal use.  Please don't call this method from extensions.
-              This will be removed in future.
+              This will be removed in Sphinx 6.0.
     """
     try:
         locale.setlocale(category, value)
@@ -160,7 +159,13 @@ def setlocale(category: int, value: Union[str, Iterable[str]] = None) -> None:
         pass
 
 
-def init_console(locale_dir: str, catalog: str) -> Tuple[NullTranslations, bool]:
+_LOCALE_DIR = path.abspath(path.dirname(__file__))
+
+
+def init_console(
+    locale_dir: str = _LOCALE_DIR,
+    catalog: str = 'sphinx',
+) -> Tuple[NullTranslations, bool]:
     """Initialize locale for console.
 
     .. versionadded:: 1.8
@@ -176,7 +181,7 @@ def init_console(locale_dir: str, catalog: str) -> Tuple[NullTranslations, bool]
 
 
 def get_translator(catalog: str = 'sphinx', namespace: str = 'general') -> NullTranslations:
-    return translators[(namespace, catalog)]
+    return translators.get((namespace, catalog), NullTranslations())
 
 
 def is_translator_registered(catalog: str = 'sphinx', namespace: str = 'general') -> bool:
@@ -219,7 +224,7 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
     def gettext(message: str, *args: Any) -> str:
         if not is_translator_registered(catalog, namespace):
             # not initialized yet
-            return _TranslationProxy(_lazy_translate, catalog, namespace, message)  # type: ignore  # NOQA
+            return _TranslationProxy(_lazy_translate, catalog, namespace, message)  # type: ignore[return-value]  # NOQA
         else:
             translator = get_translator(catalog, namespace)
             if len(args) <= 1:

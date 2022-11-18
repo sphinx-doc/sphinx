@@ -105,6 +105,22 @@ def f21(arg1='whatever', arg2=Signature.empty):
     pass
 
 
+def f22(*, a, b):
+    pass
+
+
+def f23(a, b, /, c, d):
+    pass
+
+
+def f24(a, /, *, b):
+    pass
+
+
+def f25(a, b, /):
+    pass
+
+
 class Node:
     def __init__(self, parent: Optional['Node']) -> None:
         pass

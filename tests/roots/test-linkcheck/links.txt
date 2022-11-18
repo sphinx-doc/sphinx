@@ -17,3 +17,6 @@ Some additional anchors to exercise ignore code
 
 .. image:: https://www.google.com/image.png
 .. figure:: https://www.google.com/image2.png
+
+.. raw:: html
+   :url: https://www.sphinx-doc.org/

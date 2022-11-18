@@ -88,7 +88,7 @@ writing your own themes, refer to :doc:`/development/theming`.
 Builtin themes
 ~~~~~~~~~~~~~~
 
-.. cssclass:: longtable
+.. cssclass:: longtable, standard
 
 +--------------------+--------------------+
 | **Theme overview** |                    |

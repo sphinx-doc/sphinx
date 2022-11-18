@@ -4,7 +4,6 @@ import os
 import re
 import sys
 
-import docutils
 import pytest
 
 from sphinx.ext.inheritance_diagram import (InheritanceDiagram, InheritanceException,
@@ -140,20 +139,12 @@ def test_inheritance_diagram_png_html(app, status, warning):
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
-    if docutils.__version_info__ < (0, 17):
-        pattern = ('<div class="figure align-default" id="id1">\n'
-                   '<div class="graphviz">'
-                   '<img src="_images/inheritance-\\w+.png" alt="Inheritance diagram of test.Foo" '
-                   'class="inheritance graphviz" /></div>\n<p class="caption">'
-                   '<span class="caption-text">Test Foo!</span><a class="headerlink" href="#id1" '
-                   'title="Permalink to this image">\xb6</a></p>\n</div>\n')
-    else:
-        pattern = ('<figure class="align-default" id="id1">\n'
-                   '<div class="graphviz">'
-                   '<img src="_images/inheritance-\\w+.png" alt="Inheritance diagram of test.Foo" '
-                   'class="inheritance graphviz" /></div>\n<figcaption>\n<p>'
-                   '<span class="caption-text">Test Foo!</span><a class="headerlink" href="#id1" '
-                   'title="Permalink to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
+    pattern = ('<figure class="align-default" id="id1">\n'
+               '<div class="graphviz">'
+               '<img src="_images/inheritance-\\w+.png" alt="Inheritance diagram of test.Foo" '
+               'class="inheritance graphviz" /></div>\n<figcaption>\n<p>'
+               '<span class="caption-text">Test Foo!</span><a class="headerlink" href="#id1" '
+               'title="Permalink to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
     assert re.search(pattern, content, re.M)
 
 
@@ -165,24 +156,14 @@ def test_inheritance_diagram_svg_html(app, status, warning):
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
-    if docutils.__version_info__ < (0, 17):
-        pattern = ('<div class="figure align-default" id="id1">\n'
-                   '<div class="graphviz">'
-                   '<object data="_images/inheritance-\\w+.svg" '
-                   'type="image/svg\\+xml" class="inheritance graphviz">\n'
-                   '<p class=\"warning\">Inheritance diagram of test.Foo</p>'
-                   '</object></div>\n<p class="caption"><span class="caption-text">'
-                   'Test Foo!</span><a class="headerlink" href="#id1" '
-                   'title="Permalink to this image">\xb6</a></p>\n</div>\n')
-    else:
-        pattern = ('<figure class="align-default" id="id1">\n'
-                   '<div class="graphviz">'
-                   '<object data="_images/inheritance-\\w+.svg" '
-                   'type="image/svg\\+xml" class="inheritance graphviz">\n'
-                   '<p class=\"warning\">Inheritance diagram of test.Foo</p>'
-                   '</object></div>\n<figcaption>\n<p><span class="caption-text">'
-                   'Test Foo!</span><a class="headerlink" href="#id1" '
-                   'title="Permalink to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
+    pattern = ('<figure class="align-default" id="id1">\n'
+               '<div class="graphviz">'
+               '<object data="_images/inheritance-\\w+.svg" '
+               'type="image/svg\\+xml" class="inheritance graphviz">\n'
+               '<p class=\"warning\">Inheritance diagram of test.Foo</p>'
+               '</object></div>\n<figcaption>\n<p><span class="caption-text">'
+               'Test Foo!</span><a class="headerlink" href="#id1" '
+               'title="Permalink to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
 
     assert re.search(pattern, content, re.M)
 
@@ -216,20 +197,12 @@ def test_inheritance_diagram_latex_alias(app, status, warning):
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
-    if docutils.__version_info__ < (0, 17):
-        pattern = ('<div class="figure align-default" id="id1">\n'
-                   '<div class="graphviz">'
-                   '<img src="_images/inheritance-\\w+.png" alt="Inheritance diagram of test.Foo" '
-                   'class="inheritance graphviz" /></div>\n<p class="caption">'
-                   '<span class="caption-text">Test Foo!</span><a class="headerlink" href="#id1" '
-                   'title="Permalink to this image">\xb6</a></p>\n</div>\n')
-    else:
-        pattern = ('<figure class="align-default" id="id1">\n'
-                   '<div class="graphviz">'
-                   '<img src="_images/inheritance-\\w+.png" alt="Inheritance diagram of test.Foo" '
-                   'class="inheritance graphviz" /></div>\n<figcaption>\n<p>'
-                   '<span class="caption-text">Test Foo!</span><a class="headerlink" href="#id1" '
-                   'title="Permalink to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
+    pattern = ('<figure class="align-default" id="id1">\n'
+               '<div class="graphviz">'
+               '<img src="_images/inheritance-\\w+.png" alt="Inheritance diagram of test.Foo" '
+               'class="inheritance graphviz" /></div>\n<figcaption>\n<p>'
+               '<span class="caption-text">Test Foo!</span><a class="headerlink" href="#id1" '
+               'title="Permalink to this image">\xb6</a></p>\n</figcaption>\n</figure>\n')
     assert re.search(pattern, content, re.M)
 
 

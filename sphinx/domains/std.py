@@ -2,8 +2,8 @@
 
 import re
 from copy import copy
-from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, List, Optional,
-                    Tuple, Type, Union, cast)
+from typing import (TYPE_CHECKING, Any, Callable, Dict, Final, Iterable, Iterator, List,
+                    Optional, Tuple, Type, Union, cast)
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -28,7 +28,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-
 # RE for option descriptions
 option_desc_re = re.compile(r'((?:/|--|-|\+)?[^\s=]+)(=?\s*.*)')
 # RE for grammar tokens
@@ -42,7 +41,7 @@ class GenericObject(ObjectDescription[str]):
     A generic x-ref directive registered with Sphinx.add_object_type().
     """
     indextemplate: str = ''
-    parse_node: Callable[["GenericObject", "BuildEnvironment", str, desc_signature], str] = None  # NOQA
+    parse_node: Callable[["BuildEnvironment", str, desc_signature], str] = None  # NOQA
 
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         if self.parse_node:
@@ -488,12 +487,12 @@ class ProductionList(SphinxDirective):
         lines = nl_escape_re.sub('', self.arguments[0]).split('\n')
 
         productionGroup = ""
-        i = 0
+        first_rule_seen = False
         for rule in lines:
-            if i == 0 and ':' not in rule:
+            if not first_rule_seen and ':' not in rule:
                 productionGroup = rule.strip()
                 continue
-            i += 1
+            first_rule_seen = True
             try:
                 name, tokens = rule.split(':', 1)
             except ValueError:
@@ -584,7 +583,7 @@ class StandardDomain(Domain):
         'doc':     XRefRole(warn_dangling=True, innernodeclass=nodes.inline),
     }
 
-    initial_data = {
+    initial_data: Final = {  # type: ignore[misc]
         'progoptions': {},      # (program, name) -> docname, labelid
         'objects': {},          # (type, name) -> docname, labelid
         'labels': {             # labelname -> docname, labelid, sectionname
@@ -597,6 +596,12 @@ class StandardDomain(Domain):
             'modindex': ('py-modindex', ''),
             'search':   ('search', ''),
         },
+    }
+
+    _virtual_doc_names: Dict[str, Tuple[str, str]] = {  # labelname -> docname, sectionname
+        'genindex': ('genindex', _('Index')),
+        'modindex': ('py-modindex', _('Module Index')),
+        'search': ('search', _('Search Page')),
     }
 
     dangling_warnings = {
@@ -757,16 +762,27 @@ class StandardDomain(Domain):
                 if not sectname:
                     continue
             else:
-                toctree = next(node.findall(addnodes.toctree), None)
-                if toctree and toctree.get('caption'):
-                    sectname = toctree.get('caption')
+                if (isinstance(node, (nodes.definition_list,
+                                      nodes.field_list)) and
+                        node.children):
+                    node = cast(nodes.Element, node.children[0])
+                if isinstance(node, (nodes.field, nodes.definition_list_item)):
+                    node = cast(nodes.Element, node.children[0])
+                if isinstance(node, (nodes.term, nodes.field_name)):
+                    sectname = clean_astext(node)
                 else:
-                    # anonymous-only labels
-                    continue
+                    toctree = next(node.findall(addnodes.toctree), None)
+                    if toctree and toctree.get('caption'):
+                        sectname = toctree.get('caption')
+                    else:
+                        # anonymous-only labels
+                        continue
             self.labels[name] = docname, labelid, sectname
 
     def add_program_option(self, program: str, name: str, docname: str, labelid: str) -> None:
-        self.progoptions[program, name] = (docname, labelid)
+        # prefer first command option entry
+        if (program, name) not in self.progoptions:
+            self.progoptions[program, name] = (docname, labelid)
 
     def build_reference_node(self, fromdocname: str, builder: "Builder", docname: str,
                              labelid: str, sectname: str, rolename: str, **options: Any
@@ -927,6 +943,17 @@ class StandardDomain(Domain):
         progname = node.get('std:program')
         target = target.strip()
         docname, labelid = self.progoptions.get((progname, target), ('', ''))
+        if not docname:
+            # Support also reference that contain an option value:
+            # * :option:`-foo=bar`
+            # * :option:`-foo[=bar]`
+            # * :option:`-foo bar`
+            for needle in {'=', '[=', ' '}:
+                if needle in target:
+                    stem, _, _ = target.partition(needle)
+                    docname, labelid = self.progoptions.get((progname, stem), ('', ''))
+                    if docname:
+                        break
         if not docname:
             commands = []
             while ws_re.search(target):

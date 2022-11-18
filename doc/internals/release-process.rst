@@ -2,35 +2,28 @@
 Sphinx's release process
 ========================
 
-Branch Model
-------------
+Versioning
+----------
 
-Sphinx project uses following branches for developing that conforms to Semantic
-Versioning 2.0.0 (refs: https://semver.org/ ).
+Sphinx adheres to :pep:`440` versions, with a ``major.minor.micro`` scheme for
+the *release segment* (e.g. 1.2.3).
+The major, minor, and micro version parts should be altered as follows:
 
-``master``
-    Development for MAJOR version.
-    All changes including incompatible behaviors and public API updates are
-    allowed.
+* The major version part should be incremented for incompatible behavior change and
+  public API updates.
 
-``A.x`` (ex. ``2.x``)
-    Where ``A.x`` is the ``MAJOR.MINOR`` release.  Used to maintain current
-    MINOR release. All changes are allowed if the change preserves
-    backwards-compatibility of API and features.
+* The minor version part should be incremented for most releases of Sphinx, where
+  backwards-compatibility of API and features are preserves.
 
-    Only the most recent ``MAJOR.MINOR`` branch is currently retained. When a
-    new MAJOR version is released, the old ``MAJOR.MINOR`` branch will be
-    deleted and replaced by an equivalent tag.
+* The micro version part should only be incremented for urgent bugfix-only releases.
 
-``A.B.x`` (ex. ``2.4.x``)
-    Where ``A.B.x`` is the ``MAJOR.MINOR.PATCH`` release.  Only
-    backwards-compatible bug fixes are allowed. In Sphinx project, PATCH
-    version is used for urgent bug fix.
+When the major version part is incremented, the minor and micro version parts
+must be set to ``0``.
+When the minor version part is incremented, the micro version part must be set
+to ``0``.
 
-    ``MAJOR.MINOR.PATCH`` branch will be branched from the ``v`` prefixed
-    release tag (ex. make 2.3.1 that branched from v2.3.0) when a urgent
-    release is needed. When new PATCH version is released, the branch will be
-    deleted and replaced by an equivalent tag (ex. v2.3.1).
+New major versions should come with a beta-testing period before the final
+release.
 
 
 Deprecating a feature
@@ -103,23 +96,28 @@ But you can also explicitly enable the pending ones using e.g.
 Python version support policy
 -----------------------------
 
-The minimum Python version Sphinx supports is the default Python version
-installed in the oldest `Long Term Support version of
-Ubuntu <https://ubuntu.com/about/release-cycle>`_ that has standard support.
-For example, as of July 2021, Ubuntu 16.04 has just entered extended
-security maintenance (therefore, it doesn't count as standard support) and
-the oldest LTS release to consider is Ubuntu 18.04 LTS, supported until
-April 2023 and shipping Python 3.6.
+Sphinx supports at all minor versions of Python released in the past 42 months
+from the anticipated release date with a minimum of 3 minor versions of Python.
+This policy is derived from `NEP 29`_, a scientific Python domain standard.
+
+.. _NEP 29: https://numpy.org/neps/nep-0029-deprecation_policy.html
+
+For example, a version of Sphinx released in May 2024 would support Python 3.10,
+3.11, and 3.12.
 
 This is a summary table with the current policy:
 
-========== ========= ======
-Date       Ubuntu    Python
-========== ========= ======
-April 2021 18.04 LTS 3.6+
----------- --------- ------
-April 2023 20.04 LTS 3.8+
-========== ========= ======
+=========== ======
+Date        Python
+=========== ======
+26 Dec 2021 3.8+
+----------- ------
+14 Apr 2023 3.9+
+----------- ------
+05 Apr 2024 3.10+
+----------- ------
+04 Apr 2025 3.11+
+=========== ======
 
 Release procedures
 ------------------

@@ -1,4 +1,6 @@
 """Utilities parsing and analyzing Python code."""
+
+import ast
 import inspect
 import itertools
 import re
@@ -9,8 +11,7 @@ from token import DEDENT, INDENT, NAME, NEWLINE, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
 from typing import Any, Dict, List, Optional, Tuple
 
-from sphinx.pycode.ast import ast  # for py37 or older
-from sphinx.pycode.ast import parse, unparse
+from sphinx.pycode.ast import unparse as ast_unparse
 
 comment_re = re.compile('^\\s*#: ?(.*)\r?\n?$')
 indent_re = re.compile('^\\s*$')
@@ -29,7 +30,7 @@ def get_assign_targets(node: ast.AST) -> List[ast.expr]:
         return [node.target]  # type: ignore
 
 
-def get_lvar_names(node: ast.AST, self: ast.arg = None) -> List[str]:
+def get_lvar_names(node: ast.AST, self: Optional[ast.arg] = None) -> List[str]:
     """Convert assignment-AST to variable names.
 
     This raises `TypeError` if the assignment does not create new variable::
@@ -128,7 +129,7 @@ class TokenProcessor:
         """Returns specified line."""
         return self.buffers[lineno - 1]
 
-    def fetch_token(self) -> Token:
+    def fetch_token(self) -> Optional[Token]:
         """Fetch the next token from source code.
 
         Returns ``None`` if sequence finished.
@@ -266,7 +267,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         qualname = self.get_qualname_for(name)
         if qualname:
             basename = ".".join(qualname[:-1])
-            self.annotations[(basename, name)] = unparse(annotation)
+            self.annotations[(basename, name)] = ast_unparse(annotation)
 
     def is_final(self, decorators: List[ast.expr]) -> bool:
         final = []
@@ -277,7 +278,7 @@ class VariableCommentPicker(ast.NodeVisitor):
 
         for decorator in decorators:
             try:
-                if unparse(decorator) in final:
+                if ast_unparse(decorator) in final:
                     return True
             except NotImplementedError:
                 pass
@@ -293,7 +294,7 @@ class VariableCommentPicker(ast.NodeVisitor):
 
         for decorator in decorators:
             try:
-                if unparse(decorator) in overload:
+                if ast_unparse(decorator) in overload:
                     return True
             except NotImplementedError:
                 pass
@@ -304,12 +305,9 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Returns the name of the first argument if in a function."""
         if self.current_function and self.current_function.args.args:
             return self.current_function.args.args[0]
-        elif (self.current_function and
-              getattr(self.current_function.args, 'posonlyargs', None)):
-            # for py38+
-            return self.current_function.args.posonlyargs[0]  # type: ignore
-        else:
-            return None
+        if self.current_function and self.current_function.args.posonlyargs:
+            return self.current_function.args.posonlyargs[0]
+        return None
 
     def get_line(self, lineno: int) -> str:
         """Returns specified line."""
@@ -352,9 +350,9 @@ class VariableCommentPicker(ast.NodeVisitor):
             return  # this assignment is not new definition!
 
         # record annotation
-        if hasattr(node, 'annotation') and node.annotation:  # type: ignore
+        if hasattr(node, 'annotation') and node.annotation:
             for varname in varnames:
-                self.add_variable_annotation(varname, node.annotation)  # type: ignore
+                self.add_variable_annotation(varname, node.annotation)
         elif hasattr(node, 'type_comment') and node.type_comment:
             for varname in varnames:
                 self.add_variable_annotation(varname, node.type_comment)  # type: ignore
@@ -464,7 +462,7 @@ class DefinitionFinder(TokenProcessor):
         super().__init__(lines)
         self.decorator: Optional[Token] = None
         self.context: List[str] = []
-        self.indents: List = []
+        self.indents: List[Tuple[str, Optional[str], Optional[int]]] = []
         self.definitions: Dict[str, Tuple[str, int, int]] = {}
 
     def add_definition(self, name: str, entry: Tuple[str, int, int]) -> None:
@@ -553,7 +551,7 @@ class Parser:
 
     def parse_comments(self) -> None:
         """Parse the code and pick up comments."""
-        tree = parse(self.code)
+        tree = ast.parse(self.code, type_comments=True)
         picker = VariableCommentPicker(self.code.splitlines(True), self.encoding)
         picker.visit(tree)
         self.annotations = picker.annotations

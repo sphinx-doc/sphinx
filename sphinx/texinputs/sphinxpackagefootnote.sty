@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{sphinxpackagefootnote}%
- [2022/02/12 v4.5.0 Sphinx custom footnotehyper package (Sphinx team)]
+ [2022/08/15 v5.3.0 Sphinx custom footnotehyper package (Sphinx team)]
 %%
 %% Package: sphinxpackagefootnote
 %% Version: based on footnotehyper.sty 2021/02/04 v1.1d
@@ -338,6 +338,7 @@
 }%
 % slight reformulation for Sphinx
 \def\FNH@bad@makefntext@alert{%
+  \sphinxbuildwarning{badfootnotes}%
   \PackageWarningNoLine{sphinxpackagefootnote}%
     {Footnotes will be sub-optimal, sorry. This is due to the document class or^^J
   some package modifying macro \string\@makefntext.^^J

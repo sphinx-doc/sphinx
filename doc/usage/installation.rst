@@ -12,7 +12,7 @@ Installing Sphinx
 Overview
 --------
 
-Sphinx is written in `Python`__ and supports Python 3.6+. It builds upon the
+Sphinx is written in `Python`__ and supports Python 3.8+. It builds upon the
 shoulders of many third-party libraries such as `Docutils`__ and `Jinja`__,
 which are installed when Sphinx is installed.
 
@@ -208,9 +208,9 @@ You can read more about them in the `Python Packaging User Guide`_.
    Note that in some Linux distributions, such as Debian and Ubuntu,
    this might require an extra installation step as follows.
 
-    .. code-block:: console
+   .. code-block:: console
 
-       $ apt-get install python3-venv
+      $ apt-get install python3-venv
 
 Docker
 ------

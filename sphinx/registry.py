@@ -9,7 +9,6 @@ from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Optional
 
 from docutils import nodes
 from docutils.core import Publisher
-from docutils.io import Input
 from docutils.nodes import Element, Node, TextElement
 from docutils.parsers import Parser
 from docutils.parsers.rst import Directive
@@ -22,7 +21,7 @@ except ImportError:
 
 from sphinx.builders import Builder
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx60Warning, RemovedInSphinx70Warning
+from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.domains import Domain, Index, ObjType
 from sphinx.domains.std import GenericObject, Target
 from sphinx.environment import BuildEnvironment
@@ -111,9 +110,6 @@ class SphinxComponentRegistry:
         #: source paresrs; file type -> parser class
         self.source_parsers: Dict[str, Type[Parser]] = {}
 
-        #: source inputs; file type -> input class
-        self.source_inputs: Dict[str, Type[Input]] = {}
-
         #: source suffix: suffix -> file type
         self.source_suffix: Dict[str, str] = {}
 
@@ -154,7 +150,7 @@ class SphinxComponentRegistry:
             self.load_extension(app, entry_point.module)
 
     def create_builder(self, app: "Sphinx", name: str,
-                       env: BuildEnvironment = None) -> Builder:
+                       env: Optional[BuildEnvironment] = None) -> Builder:
         if name not in self.builders:
             raise SphinxError(__('Builder name %s not registered') % name)
 
@@ -228,10 +224,17 @@ class SphinxComponentRegistry:
                                  (index.name, domain))
         indices.append(index)
 
-    def add_object_type(self, directivename: str, rolename: str, indextemplate: str = '',
-                        parse_node: Callable = None, ref_nodeclass: Type[TextElement] = None,
-                        objname: str = '', doc_field_types: List = [], override: bool = False
-                        ) -> None:
+    def add_object_type(
+        self,
+        directivename: str,
+        rolename: str,
+        indextemplate: str = '',
+        parse_node: Optional[Callable] = None,
+        ref_nodeclass: Optional[Type[TextElement]] = None,
+        objname: str = '',
+        doc_field_types: List = [],
+        override: bool = False
+    ) -> None:
         logger.debug('[app] adding object type: %r',
                      (directivename, rolename, indextemplate, parse_node,
                       ref_nodeclass, objname, doc_field_types))
@@ -252,9 +255,15 @@ class SphinxComponentRegistry:
                                  directivename)
         object_types[directivename] = ObjType(objname or directivename, rolename)
 
-    def add_crossref_type(self, directivename: str, rolename: str, indextemplate: str = '',
-                          ref_nodeclass: Type[TextElement] = None, objname: str = '',
-                          override: bool = False) -> None:
+    def add_crossref_type(
+        self,
+        directivename: str,
+        rolename: str,
+        indextemplate: str = '',
+        ref_nodeclass: Optional[Type[TextElement]] = None,
+        objname: str = '',
+        override: bool = False
+    ) -> None:
         logger.debug('[app] adding crossref type: %r',
                      (directivename, rolename, indextemplate, ref_nodeclass, objname))
 
@@ -305,19 +314,6 @@ class SphinxComponentRegistry:
         if isinstance(parser, SphinxParser):
             parser.set_application(app)
         return parser
-
-    def get_source_input(self, filetype: str) -> Optional[Type[Input]]:
-        warnings.warn('SphinxComponentRegistry.get_source_input() is deprecated.',
-                      RemovedInSphinx60Warning)
-
-        try:
-            return self.source_inputs[filetype]
-        except KeyError:
-            try:
-                # use special source_input for unknown filetype
-                return self.source_inputs['*']
-            except KeyError:
-                return None
 
     def add_translator(self, name: str, translator: Type[nodes.NodeVisitor],
                        override: bool = False) -> None:
@@ -404,8 +400,12 @@ class SphinxComponentRegistry:
         else:
             self.latex_packages.append((name, options))
 
-    def add_enumerable_node(self, node: Type[Node], figtype: str,
-                            title_getter: TitleGetter = None, override: bool = False) -> None:
+    def add_enumerable_node(
+        self,
+        node: Type[Node],
+        figtype: str,
+        title_getter: Optional[TitleGetter] = None, override: bool = False
+    ) -> None:
         logger.debug('[app] adding enumerable node: (%r, %r, %r)', node, figtype, title_getter)
         if node in self.enumerable_nodes and not override:
             raise ExtensionError(__('enumerable_node %r already registered') % node)

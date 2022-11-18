@@ -2,28 +2,30 @@ name: CI
 
 on: [push, pull_request]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   ubuntu:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     name: Python ${{ matrix.python }} (${{ matrix.docutils }})
     strategy:
       fail-fast: false
       matrix:
-        include:
-        - python: "3.6"
-          docutils: du14
-        - python: "3.7"
-          docutils: du15
-        - python: "3.8"
-          docutils: du16
-        - python: "3.9"
-          docutils: du17
-        - python: "3.10"
-          docutils: du18
-        - python: "3.10"
-          docutils: du19
-        - python: "3.11-dev"
-          docutils: py311
+        python:
+        - "3.8"
+        - "3.9"
+        - "3.10"
+        - "3.11"
+        - "3.12-dev"
+        docutils:
+        - "du18"
+        - "du19"
+        - "du-latest"
 
     steps:
     - uses: actions/checkout@v3

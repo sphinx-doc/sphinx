@@ -5,6 +5,7 @@ import os
 import re
 from os import path
 from typing import Any, Dict, List, NamedTuple, Optional, Set, Tuple
+from urllib.parse import quote
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
 from docutils import nodes
@@ -464,7 +465,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         logger.info(__('writing mimetype file...'))
         copy_asset_file(path.join(self.template_dir, 'mimetype'), self.outdir)
 
-    def build_container(self, outname: str = 'META-INF/container.xml') -> None:  # NOQA
+    def build_container(self, outname: str = 'META-INF/container.xml') -> None:
         """Write the metainfo file META-INF/container.xml."""
         logger.info(__('writing META-INF/container.xml file...'))
         outdir = path.join(self.outdir, 'META-INF')
@@ -524,7 +525,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                                        type='epub', subtype='unknown_project_files')
                     continue
                 filename = filename.replace(os.sep, '/')
-                item = ManifestItem(html.escape(filename),
+                item = ManifestItem(html.escape(quote(filename)),
                                     html.escape(self.make_id(filename)),
                                     html.escape(self.media_types[ext]))
                 metadata['manifest_items'].append(item)

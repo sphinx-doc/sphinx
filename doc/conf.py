@@ -47,8 +47,9 @@ epub_pre_files = [('index.xhtml', 'Welcome')]
 epub_post_files = [('usage/installation.xhtml', 'Installing Sphinx'),
                    ('develop.xhtml', 'Sphinx development')]
 epub_exclude_files = ['_static/opensearch.xml', '_static/doctools.js',
-                      '_static/jquery.js', '_static/searchtools.js',
-                      '_static/underscore.js', '_static/basic.css',
+                      '_static/searchtools.js',
+                      '_static/sphinx_highlight.js',
+                      '_static/basic.css',
                       '_static/language_data.js',
                       'search.html', '_static/websupport.js']
 epub_fix_images = False
@@ -69,6 +70,7 @@ latex_elements = {
 \DeclareUnicodeCharacter{229E}{\ensuremath{\boxplus}}
 \setcounter{tocdepth}{3}%    depth of what main TOC shows (3=subsubsection)
 \setcounter{secnumdepth}{1}% depth of section numbering
+\setlength{\tymin}{2cm}%     avoid too cramped table columns
 ''',
     # fix missing index entry due to RTD doing only once pdflatex after makeindex
     'printindex': r'''
@@ -76,12 +78,6 @@ latex_elements = {
              {\footnotesize\raggedright\printindex}
              {\begin{sphinxtheindex}\end{sphinxtheindex}}
 ''',
-    'sphinxsetup': """%
-VerbatimColor={RGB}{242,242,242},%
-VerbatimBorderColor={RGB}{32,32,32},%
-pre_border-radius=3pt,%
-pre_box-decoration-break=slice,%
-""",
 }
 latex_show_urls = 'footnote'
 latex_use_xindy = True
@@ -163,7 +159,7 @@ def linkify_issues_in_changelog(app, docname, source):
 
         def linkify(match):
             url = 'https://github.com/sphinx-doc/sphinx/issues/' + match[1]
-            return '`{} <{}>`_'.format(match[0], url)
+            return f'`{match[0]} <{url}>`_'
 
         linkified_changelog = re.sub(r'(?:PR)?#([0-9]+)\b', linkify, changelog)
 
@@ -185,6 +181,13 @@ def setup(app):
                          names=['param'], can_collapse=True)
     app.add_object_type('event', 'event', 'pair: %s; event', parse_event,
                         doc_field_types=[fdesc])
+
+    # Load jQuery and patches to make readthedocs-doc-embed.js available (refs: #10574)
+    app.add_js_file('https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js',
+                    priority=100)
+    app.add_js_file('https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.1/underscore-min.js',  # NoQA
+                    priority=100)
+    app.add_js_file('_sphinx_javascript_frameworks_compat.js', priority=105)
 
     # workaround for RTD
     from sphinx.util import logging

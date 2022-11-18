@@ -2,7 +2,6 @@
 
 import os
 import pickle
-import warnings
 from collections import defaultdict
 from copy import copy
 from datetime import datetime
@@ -10,13 +9,11 @@ from os import path
 from typing import (TYPE_CHECKING, Any, Callable, Dict, Generator, Iterator, List, Optional,
                     Set, Tuple, Union)
 
-import docutils
 from docutils import nodes
 from docutils.nodes import Node
 
 from sphinx import addnodes
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.domains import Domain
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.errors import BuildEnvironmentError, DocumentError, ExtensionError, SphinxError
@@ -54,12 +51,10 @@ default_settings: Dict[str, Any] = {
     'file_insertion_enabled': True,
     'smartquotes_locales': [],
 }
-if docutils.__version_info__[:2] <= (0, 17):
-    default_settings['embed_images'] = False
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 56
+ENV_VERSION = 57
 
 # config status
 CONFIG_OK = 1
@@ -79,6 +74,61 @@ versioning_conditions: Dict[str, Union[bool, Callable]] = {
     'text': is_translatable,
 }
 
+if TYPE_CHECKING:
+    from collections.abc import MutableMapping
+    from typing import Literal
+
+    from typing_extensions import overload
+
+    from sphinx.domains.c import CDomain
+    from sphinx.domains.changeset import ChangeSetDomain
+    from sphinx.domains.citation import CitationDomain
+    from sphinx.domains.cpp import CPPDomain
+    from sphinx.domains.index import IndexDomain
+    from sphinx.domains.javascript import JavaScriptDomain
+    from sphinx.domains.math import MathDomain
+    from sphinx.domains.python import PythonDomain
+    from sphinx.domains.rst import ReSTDomain
+    from sphinx.domains.std import StandardDomain
+    from sphinx.ext.duration import DurationDomain
+    from sphinx.ext.todo import TodoDomain
+
+    class _DomainsType(MutableMapping[str, Domain]):
+        @overload
+        def __getitem__(self, key: Literal["c"]) -> CDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["cpp"]) -> CPPDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["changeset"]) -> ChangeSetDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["citation"]) -> CitationDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["index"]) -> IndexDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["js"]) -> JavaScriptDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["math"]) -> MathDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["py"]) -> PythonDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["rst"]) -> ReSTDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["std"]) -> StandardDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["duration"]) -> DurationDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: Literal["todo"]) -> TodoDomain: ...  # NoQA: E704
+        @overload
+        def __getitem__(self, key: str) -> Domain: ...  # NoQA: E704
+        def __getitem__(self, key): raise NotImplementedError  # NoQA: E704
+        def __setitem__(self, key, value): raise NotImplementedError  # NoQA: E704
+        def __delitem__(self, key): raise NotImplementedError  # NoQA: E704
+        def __iter__(self): raise NotImplementedError  # NoQA: E704
+        def __len__(self): raise NotImplementedError  # NoQA: E704
+
+else:
+    _DomainsType = dict
+
 
 class BuildEnvironment:
     """
@@ -87,11 +137,11 @@ class BuildEnvironment:
     transformations to resolve links to them.
     """
 
-    domains: Dict[str, Domain]
+    domains: _DomainsType
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
-    def __init__(self, app: "Sphinx" = None):
+    def __init__(self, app: "Sphinx"):
         self.app: Sphinx = None
         self.doctreedir: str = None
         self.srcdir: str = None
@@ -107,7 +157,7 @@ class BuildEnvironment:
         self.versioning_compare: bool = None
 
         # all the registered domains, set by the application
-        self.domains = {}
+        self.domains = _DomainsType()
 
         # the docutils settings for building
         self.settings = default_settings.copy()
@@ -179,11 +229,7 @@ class BuildEnvironment:
         self.ref_context: Dict[str, Any] = {}
 
         # set up environment
-        if app:
-            self.setup(app)
-        else:
-            warnings.warn("The 'app' argument for BuildEnvironment() becomes required now.",
-                          RemovedInSphinx60Warning, stacklevel=2)
+        self.setup(app)
 
     def __getstate__(self) -> Dict:
         """Obtains serializable data for pickling."""
@@ -212,7 +258,7 @@ class BuildEnvironment:
         self.version = app.registry.get_envversion(app)
 
         # initialize domains
-        self.domains = {}
+        self.domains = _DomainsType()
         for domain in app.registry.create_domains(self):
             self.domains[domain.name] = domain
 
@@ -327,7 +373,7 @@ class BuildEnvironment:
         """
         return self.project.doc2path(docname, base)
 
-    def relfn2path(self, filename: str, docname: str = None) -> Tuple[str, str]:
+    def relfn2path(self, filename: str, docname: Optional[str] = None) -> Tuple[str, str]:
         """Return paths to a file referenced from a document, relative to
         documentation root and absolute.
 
@@ -340,7 +386,7 @@ class BuildEnvironment:
             rel_fn = filename[1:]
         else:
             docdir = path.dirname(self.doc2path(docname or self.docname,
-                                                base=None))
+                                                base=False))
             rel_fn = path.join(docdir, filename)
 
         return (canon_path(path.normpath(rel_fn)),
@@ -488,7 +534,9 @@ class BuildEnvironment:
 
         *filename* should be absolute or relative to the source directory.
         """
-        self.included[self.docname].add(self.path2doc(filename))
+        doc = self.path2doc(filename)
+        if doc:
+            self.included[self.docname].add(doc)
 
     def note_reread(self) -> None:
         """Add the current document to the list of documents that will
@@ -517,9 +565,14 @@ class BuildEnvironment:
         doctree.reporter = LoggingReporter(self.doc2path(docname))
         return doctree
 
-    def get_and_resolve_doctree(self, docname: str, builder: "Builder",
-                                doctree: nodes.document = None, prune_toctrees: bool = True,
-                                includehidden: bool = False) -> nodes.document:
+    def get_and_resolve_doctree(
+        self,
+        docname: str,
+        builder: "Builder",
+        doctree: Optional[nodes.document] = None,
+        prune_toctrees: bool = True,
+        includehidden: bool = False
+    ) -> nodes.document:
         """Read the doctree from the pickle, resolve cross-references and
         toctrees and return it.
         """
@@ -543,7 +596,7 @@ class BuildEnvironment:
 
     def resolve_toctree(self, docname: str, builder: "Builder", toctree: addnodes.toctree,
                         prune: bool = True, maxdepth: int = 0, titles_only: bool = False,
-                        collapse: bool = False, includehidden: bool = False) -> Node:
+                        collapse: bool = False, includehidden: bool = False) -> Optional[Node]:
         """Resolve a *toctree* node into individual bullet lists with titles
         as items, returning None (if no containing titles are found) or
         a new node.
@@ -583,7 +636,9 @@ class BuildEnvironment:
     def collect_relations(self) -> Dict[str, List[Optional[str]]]:
         traversed = set()
 
-        def traverse_toctree(parent: str, docname: str) -> Iterator[Tuple[str, str]]:
+        def traverse_toctree(
+            parent: Optional[str], docname: str
+        ) -> Iterator[Tuple[Optional[str], str]]:
             if parent == docname:
                 logger.warning(__('self referenced toctree found. Ignored.'),
                                location=docname, type='toc',

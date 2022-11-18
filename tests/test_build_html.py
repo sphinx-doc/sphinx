@@ -5,11 +5,8 @@ import re
 from itertools import chain, cycle
 from unittest.mock import ANY, call, patch
 
-import docutils
-import pygments
 import pytest
 from html5lib import HTMLParser
-from packaging import version
 
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.errors import ConfigError
@@ -17,13 +14,7 @@ from sphinx.testing.util import strip_escseq
 from sphinx.util import md5
 from sphinx.util.inventory import InventoryFile
 
-if docutils.__version_info__ < (0, 17):
-    FIGURE_CAPTION = ".//div[@class='figure align-default']/p[@class='caption']"
-else:
-    FIGURE_CAPTION = ".//figure/figcaption/p"
-
-
-PYGMENTS_VERSION = version.parse(pygments.__version__).release
+FIGURE_CAPTION = ".//figure/figcaption/p"
 
 
 ENV_WARNINGS = """\
@@ -114,9 +105,9 @@ def check_xpath(etree, fname, path, check, be_found=True):
             if all(not rex.search(get_text(node)) for node in nodes):
                 return
 
-        raise AssertionError(('%r not found in any node matching '
-                              'path %s in %s: %r' % (check, path, fname,
-                                                     [node.text for node in nodes])))
+        raise AssertionError('%r not found in any node matching '
+                             'path %s in %s: %r' % (check, path, fname,
+                                                    [node.text for node in nodes]))
 
 
 @pytest.mark.sphinx('html', testroot='warnings')
@@ -134,6 +125,16 @@ def test_html_warnings(app, warning):
 @pytest.mark.sphinx('html', confoverrides={'html4_writer': True})
 def test_html4_output(app, status, warning):
     app.build()
+
+
+def test_html4_deprecation(make_app, tempdir):
+    (tempdir / 'conf.py').write_text('', encoding='utf-8')
+    app = make_app(
+        buildername='html',
+        srcdir=tempdir,
+        confoverrides={'html4_writer': True},
+    )
+    assert 'HTML 4 output is deprecated and will be removed' in app._warning.getvalue()
 
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
@@ -405,39 +406,6 @@ def test_html5_output(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
-@pytest.mark.skipif(docutils.__version_info__ >= (0, 18), reason='docutils-0.17 or below is required.')
-@pytest.mark.parametrize("fname,expect", flat_dict({
-    'index.html': [
-        (".//dt[@class='label']/span[@class='brackets']", r'Ref1'),
-        (".//dt[@class='label']", ''),
-    ],
-    'footnote.html': [
-        (".//a[@class='footnote-reference brackets'][@href='#id9'][@id='id1']", r"1"),
-        (".//a[@class='footnote-reference brackets'][@href='#id10'][@id='id2']", r"2"),
-        (".//a[@class='footnote-reference brackets'][@href='#foo'][@id='id3']", r"3"),
-        (".//a[@class='reference internal'][@href='#bar'][@id='id4']/span", r"\[bar\]"),
-        (".//a[@class='reference internal'][@href='#baz-qux'][@id='id5']/span", r"\[baz_qux\]"),
-        (".//a[@class='footnote-reference brackets'][@href='#id11'][@id='id6']", r"4"),
-        (".//a[@class='footnote-reference brackets'][@href='#id12'][@id='id7']", r"5"),
-        (".//a[@class='fn-backref'][@href='#id1']", r"1"),
-        (".//a[@class='fn-backref'][@href='#id2']", r"2"),
-        (".//a[@class='fn-backref'][@href='#id3']", r"3"),
-        (".//a[@class='fn-backref'][@href='#id4']", r"bar"),
-        (".//a[@class='fn-backref'][@href='#id5']", r"baz_qux"),
-        (".//a[@class='fn-backref'][@href='#id6']", r"4"),
-        (".//a[@class='fn-backref'][@href='#id7']", r"5"),
-        (".//a[@class='fn-backref'][@href='#id8']", r"6"),
-    ],
-}))
-@pytest.mark.sphinx('html')
-@pytest.mark.test_params(shared_result='test_build_html_output_docutils17')
-def test_docutils17_output(app, cached_etree_parse, fname, expect):
-    app.build()
-    print(app.outdir / fname)
-    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
-
-
-@pytest.mark.skipif(docutils.__version_info__ < (0, 18), reason='docutils-0.18+ is required.')
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
         (".//div[@class='citation']/span", r'Ref1'),
@@ -463,7 +431,7 @@ def test_docutils17_output(app, cached_etree_parse, fname, expect):
 }))
 @pytest.mark.sphinx('html')
 @pytest.mark.test_params(shared_result='test_build_html_output_docutils18')
-def test_docutils18_output(app, cached_etree_parse, fname, expect):
+def test_docutils_output(app, cached_etree_parse, fname, expect):
     app.build()
     print(app.outdir / fname)
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
@@ -1226,8 +1194,9 @@ def test_assets_order(app):
     assert re.search(pattern, content, re.S)
 
     # js_files
-    expected = ['_static/early.js', '_static/jquery.js', '_static/underscore.js',
-                '_static/doctools.js', 'https://example.com/script.js', '_static/normal.js',
+    expected = ['_static/early.js',
+                '_static/doctools.js', '_static/sphinx_highlight.js',
+                'https://example.com/script.js', '_static/normal.js',
                 '_static/late.js', '_static/js/custom.js', '_static/lazy.js']
     pattern = '.*'.join('src="%s"' % f for f in expected)
     assert re.search(pattern, content, re.S)
@@ -1318,14 +1287,9 @@ def test_html_inventory(app):
 def test_html_anchor_for_figure(app):
     app.builder.build_all()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    if docutils.__version_info__ < (0, 17):
-        assert ('<p class="caption"><span class="caption-text">The caption of pic</span>'
-                '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>'
-                in content)
-    else:
-        assert ('<figcaption>\n<p><span class="caption-text">The caption of pic</span>'
-                '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>\n</figcaption>'
-                in content)
+    assert ('<figcaption>\n<p><span class="caption-text">The caption of pic</span>'
+            '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>\n</figcaption>'
+            in content)
 
 
 @pytest.mark.sphinx('html', testroot='directives-raw')
@@ -1389,6 +1353,15 @@ def test_html_remote_images(app, status, warning):
     assert ('<img alt="https://www.python.org/static/img/python-logo.png" '
             'src="https://www.python.org/static/img/python-logo.png" />' in result)
     assert not (app.outdir / 'python-logo.png').exists()
+
+
+@pytest.mark.sphinx('html', testroot='image-escape')
+def test_html_encoded_image(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'index.html').read_text()
+    assert ('<img alt="_images/img_%231.png" src="_images/img_%231.png" />' in result)
+    assert (app.outdir / '_images/img_#1.png').exists()
 
 
 @pytest.mark.sphinx('html', testroot='remote-logo')
@@ -1631,13 +1604,10 @@ def test_html_codeblock_linenos_style_table(app):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
-    if PYGMENTS_VERSION >= (2, 8):
-        assert ('<div class="linenodiv"><pre><span class="normal">1</span>\n'
-                '<span class="normal">2</span>\n'
-                '<span class="normal">3</span>\n'
-                '<span class="normal">4</span></pre></div>') in content
-    else:
-        assert '<div class="linenodiv"><pre>1\n2\n3\n4</pre></div>' in content
+    assert ('<div class="linenodiv"><pre><span class="normal">1</span>\n'
+            '<span class="normal">2</span>\n'
+            '<span class="normal">3</span>\n'
+            '<span class="normal">4</span></pre></div>') in content
 
 
 @pytest.mark.sphinx('html', testroot='reST-code-block',
@@ -1646,10 +1616,7 @@ def test_html_codeblock_linenos_style_inline(app):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
-    if PYGMENTS_VERSION > (2, 7):
-        assert '<span class="linenos">1</span>' in content
-    else:
-        assert '<span class="lineno">1 </span>' in content
+    assert '<span class="linenos">1</span>' in content
 
 
 @pytest.mark.sphinx('html', testroot='highlight_options')
@@ -1762,6 +1729,18 @@ def test_option_emphasise_placeholders_default(app, status, warning):
     assert ('<span class="pre">--plugin.option</span></span>'
             '<span class="sig-prename descclassname"></span>'
             '<a class="headerlink" href="#cmdoption-perl-plugin.option" title="Permalink to this definition">¶</a></dt>') in content
+
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_option_reference_with_value(app, status, warning):
+    app.build()
+    content = (app.outdir / 'objects.html').read_text()
+    assert ('<span class="pre">-mapi</span></span><span class="sig-prename descclassname">'
+            '</span><a class="headerlink" href="#cmdoption-git-commit-mapi"') in content
+    assert 'first option <a class="reference internal" href="#cmdoption-git-commit-mapi">' in content
+    assert ('<a class="reference internal" href="#cmdoption-git-commit-mapi">'
+            '<code class="xref std std-option docutils literal notranslate"><span class="pre">-mapi[=xxx]</span></code></a>') in content
+    assert '<span class="pre">-mapi</span> <span class="pre">with_space</span>' in content
 
 
 @pytest.mark.sphinx('html', testroot='theming')

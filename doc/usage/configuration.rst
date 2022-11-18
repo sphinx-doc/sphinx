@@ -14,12 +14,12 @@ This file (containing Python code) is called the "build configuration file"
 and contains (almost) all configuration needed to customize Sphinx input
 and output behavior.
 
-  An optional file `docutils.conf`_ can be added to the configuration
-  directory to adjust `Docutils`_ configuration if not otherwise overridden or
-  set by Sphinx.
+An optional file `docutils.conf`_ can be added to the configuration
+directory to adjust `Docutils`_ configuration if not otherwise overridden or
+set by Sphinx.
 
-  .. _`docutils`: https://docutils.sourceforge.io/
-  .. _`docutils.conf`: https://docutils.sourceforge.io/docs/user/config.html
+.. _`docutils`: https://docutils.sourceforge.io/
+.. _`docutils.conf`: https://docutils.sourceforge.io/docs/user/config.html
 
 The configuration file is executed as Python code at build time (using
 :func:`importlib.import_module`, and with the current directory set to its
@@ -419,9 +419,9 @@ General configuration
    :literal:`:manpage:`man(1)`` role will link to
    <https://manpages.debian.org/man(1)>. The patterns available are:
 
-     * ``page`` - the manual page (``man``)
-     * ``section`` - the manual section (``1``)
-     * ``path`` - the original manual page and section specified (``man(1)``)
+   * ``page`` - the manual page (``man``)
+   * ``section`` - the manual section (``1``)
+   * ``path`` - the original manual page and section specified (``man(1)``)
 
    This also supports manpages specified as ``man.1``.
 
@@ -677,6 +677,29 @@ General configuration
    A boolean that decides whether module names are prepended to all
    :term:`object` names (for object types where a "module" of some kind is
    defined), e.g. for :rst:dir:`py:function` directives.  Default is ``True``.
+
+.. confval:: toc_object_entries
+
+  Create table of contents entries for domain objects (e.g. functions, classes,
+  attributes, etc.). Default is ``True``.
+
+.. confval:: toc_object_entries_show_parents
+
+   A string that determines how domain objects (e.g. functions, classes,
+   attributes, etc.) are displayed in their table of contents entry.
+
+   Use ``domain`` to allow the domain to determine the appropriate number of
+   parents to show. For example, the Python domain would show ``Class.method()``
+   and ``function()``, leaving out the ``module.`` level of parents.
+   This is the default setting.
+
+   Use ``hide`` to only show the name of the element without any parents
+   (i.e. ``method()``).
+
+   Use ``all`` to show the fully-qualified name for the object
+   (i.e. ``module.Class.method()``),  displaying all parents.
+
+   .. versionadded:: 5.2
 
 .. confval:: show_authors
 
@@ -1205,24 +1228,6 @@ that use Sphinx's HTMLWriter class.
 
    .. deprecated:: 1.6
       To disable smart quotes, use rather :confval:`smartquotes`.
-
-.. confval:: html_add_permalinks
-
-   Sphinx will add "permalinks" for each heading and description environment as
-   paragraph signs that become visible when the mouse hovers over them.
-
-   This value determines the text for the permalink; it defaults to ``"¶"``.
-   Set it to ``None`` or the empty string to disable permalinks.
-
-   .. versionadded:: 0.6
-      Previously, this was always activated.
-
-   .. versionchanged:: 1.1
-      This can now be a string to select the actual text of the link.
-      Previously, only boolean values were accepted.
-
-   .. deprecated:: 3.5
-      This has been replaced by :confval:`html_permalinks`
 
 .. confval:: html_permalinks
 
@@ -2210,6 +2215,102 @@ These options influence LaTeX output.
 
    .. versionadded:: 1.6
 
+.. confval:: latex_table_style
+
+   A list of styling classes (strings).  Currently supported:
+
+   - ``'booktabs'``: no vertical lines, and only 2 or 3 horizontal lines (the
+     latter if there is a header), using the booktabs_ package.
+
+   - ``'borderless'``: no lines whatsoever.
+
+   - ``'colorrows'``: the table rows are rendered with alternating background
+     colours.  The interface to customize them is via :ref:`dedicated keys
+     <tablecolors>` of :ref:`latexsphinxsetup`.
+
+     .. important::
+
+        With the ``'colorrows'`` style, the ``\rowcolors`` LaTeX command
+        becomes a no-op (this command has limitations and has never correctly
+        supported all types of tables Sphinx produces in LaTeX).  Please
+        update your project to use instead
+        the :ref:`latex table color configuration <tablecolors>` keys.
+
+   Default: ``['booktabs', 'colorrows']``
+
+   .. versionadded:: 5.3.0
+
+   .. versionchanged:: 6.0.0
+
+      Modify default from ``[]`` to ``['booktabs', 'colorrows']``.
+
+   Each table can override the global style via ``:class:`` option, or
+   ``.. rst-class::`` for no-directive tables (cf.  :ref:`table-directives`).
+   Currently recognized classes are ``booktabs``, ``borderless``,
+   ``standard``, ``colorrows``, ``nocolorrows``.  The latter two can be
+   combined with any of the first three.  The ``standard`` class produces
+   tables with both horizontal and vertical lines (as has been the default so
+   far with Sphinx).
+
+   A single-row multi-column merged cell will obey the row colour, if it is
+   set.  See also ``TableMergeColor{Header,Odd,Even}`` in the
+   :ref:`latexsphinxsetup` section.
+
+   .. note::
+
+      - It is hard-coded in LaTeX that a single cell will obey the row colour
+        even if there is a column colour set via ``\columncolor`` from a
+        column specification (see :rst:dir:`tabularcolumns`).  Sphinx provides
+        ``\sphinxnorowcolor`` which can be used like this:
+
+        .. code-block:: latex
+
+           >{\columncolor{blue}\sphinxnorowcolor}
+
+        in a table column specification.
+
+      - Sphinx also provides ``\sphinxcolorblend`` which however requires the
+        xcolor_ package.  Here is an example:
+
+        .. code-block:: latex
+
+           >{\sphinxcolorblend{!95!red}}
+
+        It means that in this column, the row colours will be slightly tinted
+        by red; refer to xcolor_ documentation for more on the syntax of its
+        ``\blendcolors`` command (a ``\blendcolors`` in place of
+        ``\sphinxcolorblend`` would modify colours of the cell *contents*, not
+        of the cell *background colour panel*...).  You can find an example of
+        usage in the :ref:`dev-deprecated-apis` section of this document in
+        PDF format.
+
+        .. hint::
+
+           If you want to use a special colour for the *contents* of the
+           cells of a given column use ``>{\noindent\color{<color>}}``,
+           possibly in addition to the above.
+
+      - Multi-row merged cells, whether single column or multi-column
+        currently ignore any set column, row, or cell colour.
+
+      - It is possible for a simple cell to set a custom colour via the
+        :dudir:`raw` directive and the ``\cellcolor`` LaTeX command used
+        anywhere in the cell contents.  This currently is without effect
+        in a merged cell, whatever its kind.
+
+   .. hint::
+
+      In a document not using ``'booktabs'`` globally, it is possible to style
+      an individual table via the ``booktabs`` class, but it will be necessary
+      to add ``r'\usepackage{booktabs}'`` to the LaTeX preamble.
+
+      On the other hand one can use ``colorrows`` class for individual tables
+      with no extra package (as Sphinx since 5.3.0 always loads colortbl_).
+
+   .. _booktabs: https://ctan.org/pkg/booktabs
+   .. _colortbl: https://ctan.org/pkg/colortbl
+   .. _xcolor: https://ctan.org/pkg/xcolor
+
 .. confval:: latex_use_xindy
 
    If ``True``, the PDF build from the LaTeX files created by Sphinx
@@ -2792,24 +2893,6 @@ Options for the C domain
   'noreturn', 'static_assert', 'thread_local']``.
 
   .. versionadded:: 4.0.3
-
-.. confval:: c_allow_pre_v3
-
-   A boolean (default ``False``) controlling whether to parse and try to
-   convert pre-v3 style type directives and type roles.
-
-   .. versionadded:: 3.2
-   .. deprecated:: 3.2
-      Use the directives and roles added in v3.
-
-.. confval:: c_warn_on_allowed_pre_v3
-
-   A boolean (default ``True``) controlling whether to warn when a pre-v3
-   style type directive/role is parsed and converted.
-
-   .. versionadded:: 3.2
-   .. deprecated:: 3.2
-      Use the directives and roles added in v3.
 
 .. _cpp-config:
 

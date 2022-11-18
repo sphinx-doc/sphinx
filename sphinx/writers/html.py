@@ -4,7 +4,6 @@ import os
 import posixpath
 import re
 import urllib.parse
-import warnings
 from typing import TYPE_CHECKING, Iterable, Optional, Tuple, cast
 
 from docutils import nodes
@@ -14,7 +13,6 @@ from docutils.writers.html4css1 import Writer
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
@@ -67,12 +65,13 @@ class HTMLWriter(Writer):
         self.clean_meta = ''.join(self.visitor.meta[2:])
 
 
+# RemovedInSphinx70Warning
 class HTMLTranslator(SphinxTranslator, BaseTranslator):
     """
     Our custom HTML translator.
     """
 
-    builder: "StandaloneHTMLBuilder" = None
+    builder: "StandaloneHTMLBuilder"
 
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
@@ -282,7 +281,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
     def depart_seealso(self, node: Element) -> None:
         self.depart_admonition(node)
 
-    def get_secnumber(self, node: Element) -> Tuple[int, ...]:
+    def get_secnumber(self, node: Element) -> Optional[Tuple[int, ...]]:
         if node.get('secnumber'):
             return node['secnumber']
         elif isinstance(node.parent, nodes.section):
@@ -619,7 +618,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         # rewrite the URI if the environment knows about it
         if olduri in self.builder.images:
             node['uri'] = posixpath.join(self.builder.imgpath,
-                                         self.builder.images[olduri])
+                                         urllib.parse.quote(self.builder.images[olduri]))
 
         if 'scale' in node:
             # Try to figure out image height and width.  Docutils does that too,
@@ -868,7 +867,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
     def depart_math(self, node: Element, math_env: str = '') -> None:
         name = self.builder.math_renderer_name
         _, depart = self.builder.app.registry.html_inline_math_renderers[name]
-        if depart:
+        if depart:  # type: ignore[truthy-function]
             depart(self, node)
 
     def visit_math_block(self, node: Element, math_env: str = '') -> None:
@@ -879,17 +878,5 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
     def depart_math_block(self, node: Element, math_env: str = '') -> None:
         name = self.builder.math_renderer_name
         _, depart = self.builder.app.registry.html_block_math_renderers[name]
-        if depart:
+        if depart:  # type: ignore[truthy-function]
             depart(self, node)
-
-    @property
-    def _fieldlist_row_index(self):
-        warnings.warn('_fieldlist_row_index is deprecated',
-                      RemovedInSphinx60Warning, stacklevel=2)
-        return self._fieldlist_row_indices[-1]
-
-    @property
-    def _table_row_index(self):
-        warnings.warn('_table_row_index is deprecated',
-                      RemovedInSphinx60Warning, stacklevel=2)
-        return self._table_row_indices[-1]

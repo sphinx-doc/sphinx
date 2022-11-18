@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2022/06/30 v5.1.0 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2022/08/15 v5.3.0 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -17,6 +17,7 @@
 %% for deprecation warnings
 \newcommand\sphinxdeprecationwarning[4]{% #1 the deprecated macro or name,
 % #2 = when deprecated, #3 = when removed, #4 = additional info
+  {% limit scope of \spx@tempa, \AtEndDocument works even if nested.
   \edef\spx@tempa{\detokenize{#1}}%
   \ltx@ifundefined{sphinx_depr_\spx@tempa}{%
      \global\expandafter\let\csname sphinx_depr_\spx@tempa\endcsname\spx@tempa
@@ -28,7 +29,43 @@
          \@spaces- and removed at Sphinx #3.^^J
          #4^^J****}}%
   }{% warning already emitted (at end of latex log), don't repeat
-  }}
+   }%
+  }% end of scope limiting group for \spx@tempa
+}
+%% important build warnings use an undefined reference to induce latexmk
+%% into complaining (once per warning) at very end of console output
+\newcommand\sphinxbuildwarning[1]{%
+  \ifcsname sphinx_emitted_#1\endcsname
+  \else
+    \global\expandafter\let\csname sphinx_emitted_#1\endcsname\@empty
+    \AtEndDocument{\hbox{% should the printing of text be made conditional on
+                         % some boolean?
+                         \bfseries\color{red}%
+                         \@nameuse{sphinx_buildwarning_#1}%
+                         % place an undefined reference deliberately
+                         \let\nfss@text\@gobble % no ??
+                         \ref{!!\@nameuse{sphinx_buildwarning_#1}}%
+                         }}%
+  \fi
+}
+\@namedef{sphinx_buildwarning_coloursyntax}{%
+   The colours whose definition used xcolor syntax were set to white
+   as xcolor was not found; check the latex log warnings for details}
+\@namedef{sphinx_buildwarning_colorblend}{%
+   Command \string\sphinxcolorblend\space seen but ignored in tables
+   as xcolor was not found; check the latex log warnings for details}
+\@namedef{sphinx_buildwarning_nopict2e}{%
+   Some radii options for box corners used; they were ignored as pict2e
+   was not found}
+\@namedef{sphinx_buildwarning_badtitlesec}{%
+   Your system has titlesec version 2.10.1 which causes disappearance
+   of section numbers; check the latex log warning for details}
+\@namedef{sphinx_buildwarning_booktabs}{%
+   Some tables with booktabs class (check latex log) but booktabs
+   package not loaded; add its loading to the latex preamble}%
+\@namedef{sphinx_buildwarning_badfootnotes}{%
+   Footnote rendering may have had problems, due to extra package or
+   document class; check latex log for instructions}%
 
 
 %% OPTION HANDLING
@@ -47,16 +84,62 @@
 }{
     \RequirePackage{color}
 }
-% the \colorlet of xcolor (if at all loaded) is overkill for our use case
+
+% the \colorlet of xcolor (if at all loaded) is overkill for our internal use
 \newcommand{\sphinxcolorlet}[2]
     {\expandafter\let\csname\@backslashchar color@#1\expandafter\endcsname
                      \csname\@backslashchar color@#2\endcsname }
+
+% (5.3.0) allow colour options to use both the \definecolor and the \colorlet
+% syntaxes, for example VerbatimColor={gray}{0.9} or VerbatimColor=red!10
+% In the latter case we need the real \colorlet from xcolor package.
+\def\spx@defineorletcolor#1{%
+    \def\spx@definedcolor{{#1}}%
+    \futurelet\spx@token\spx@defineorlet}
+\def\spx@defineorlet{%
+    \ifx\spx@token\bgroup
+    \expandafter\spx@definecolor\else\expandafter\spx@colorlet\fi}
+\def\spx@colorlet#1\relax{\expandafter\colorlet\spx@definedcolor{#1}}
+\def\spx@definecolor{\expandafter\definecolor\spx@definedcolor}
+%
+\@ifpackageloaded{xcolor}%
+   {}%
+   {% xcolor not loaded because it was not found in the LaTeX installation
+\def\spx@colorlet#1\relax{%
+    \sphinxbuildwarning{coloursyntax}%
+    \PackageWarning{sphinx}{%
+Sorry, the #1 syntax requires package xcolor,\MessageBreak
+which was not found on your TeX/LaTeX installation.\MessageBreak
+\@spaces\expandafter\@firstofone\spx@definedcolor\MessageBreak
+will be set to white}%
+    \expandafter\definecolor\spx@definedcolor{rgb}{1,1,1}%
+    }% end of redefinition of \spx@colorlet
+   }% end of xcolor not found branch
 
 
 % Handle options via "kvoptions" (later loaded by hyperref anyhow)
 \RequirePackage{kvoptions}
 \SetupKeyvalOptions{prefix=spx@opt@} % use \spx@opt@ prefix
 
+% Optional usage of booktabs package for tables
+\DeclareBoolOption[false]{booktabs}
+\DeclareBoolOption[false]{borderless}
+\DeclareBoolOption[true]{booktabscolorgaps}
+\DeclareVoidOption{booktabsnogaps}{%
+  \ifx\@nodocument\relax
+  % in body
+    \expandafter\@firstofone
+  \else
+  % in preamble, wait for at begin document
+    \expandafter\AtBeginDocument
+  \fi
+  {\ifdefined\abovetopsep % silently do nothing if booktabs not loaded
+      \abovetopsep\z@\belowrulesep\z@\aboverulesep\z@\belowbottomsep\z@
+   \fi
+  }%
+}
+% Coloured table rows
+\DeclareBoolOption[false]{colorrows}
 % Sphinx legacy text layout: 1in margins on all four sides
 \ifx\@jsc@uplatextrue\@undefined
 \DeclareStringOption[1in]{hmargin}
@@ -143,20 +226,42 @@
 % same problems as for dimensions: we want the key handler to use \definecolor.
 % first, some colours with no prefix, for backwards compatibility
 \newcommand*{\sphinxDeclareColorOption}[2]{%
+   % set the initial default; only \definecolor syntax for defaults!
    \definecolor{#1}#2%
-   \define@key{sphinx}{#1}{\definecolor{#1}##1}%
+   % set the key handler to accept both \definecolor and \colorlet syntax
+   \define@key{sphinx}{#1}{\spx@defineorletcolor{#1}##1\relax}%
 }%
 \sphinxDeclareColorOption{TitleColor}{{rgb}{0.126,0.263,0.361}}
 \sphinxDeclareColorOption{InnerLinkColor}{{rgb}{0.208,0.374,0.486}}
 \sphinxDeclareColorOption{OuterLinkColor}{{rgb}{0.216,0.439,0.388}}
-\sphinxDeclareColorOption{VerbatimColor}{{rgb}{1,1,1}}
-\sphinxDeclareColorOption{VerbatimBorderColor}{{rgb}{0,0,0}}
-% now the colours defined with "sphinx" prefix in their names
+\sphinxDeclareColorOption{VerbatimColor}{{gray}{0.95}}
+\sphinxDeclareColorOption{VerbatimBorderColor}{{RGB}{32,32,32}}
+% all other colours will be named with a "sphinx" prefix
 \newcommand*{\sphinxDeclareSphinxColorOption}[2]{%
-   % set the initial default
+   % set the initial default; only \definecolor syntax for defaults!
    \definecolor{sphinx#1}#2%
-   % set the key handler. The "value" ##1 must be acceptable by \definecolor.
-   \define@key{sphinx}{#1}{\definecolor{sphinx#1}##1}%
+   % set the key handler to accept both \definecolor and \colorlet syntax
+   \define@key{sphinx}{#1}{\spx@defineorletcolor{sphinx#1}##1\relax}%
+}%
+% table row colors
+\sphinxDeclareSphinxColorOption{TableRowColorHeader}{{gray}{0.86}}
+\sphinxDeclareSphinxColorOption{TableRowColorOdd}{{gray}{0.92}}
+\sphinxDeclareSphinxColorOption{TableRowColorEven}{{gray}{0.98}}
+% if not set, the "Merge" colour will keep in sync with the "Row" colour
+\def\sphinxTableMergeColorHeader{sphinxTableRowColorHeader}
+\define@key{sphinx}{TableMergeColorHeader}{%
+    \spx@defineorletcolor{sphinxTableMergeColorHeader}#1\relax
+    \def\sphinxTableMergeColorHeader{sphinxTableMergeColorHeader}%
+}%
+\def\sphinxTableMergeColorOdd{sphinxTableRowColorOdd}
+\define@key{sphinx}{TableMergeColorOdd}{%
+    \spx@defineorletcolor{sphinxTableMergeColorOdd}#1\relax
+    \def\sphinxTableMergeColorOdd{sphinxTableMergeColorOdd}%
+}%
+\def\sphinxTableMergeColorEven{sphinxTableRowColorEven}
+\define@key{sphinx}{TableMergeColorEven}{%
+    \spx@defineorletcolor{sphinxTableMergeColorEven}#1\relax
+    \def\sphinxTableMergeColorEven{sphinxTableMergeColorEven}%
 }%
 % Default color chosen to be as in minted.sty LaTeX package!
 \sphinxDeclareSphinxColorOption{VerbatimHighlightColor}{{rgb}{0.878,1,1}}
@@ -216,7 +321,8 @@
 \let\spx@pre@border@left  \spx@pre@border@top
 \expandafter\let\expandafter\KV@sphinx@verbatimborder
                             \csname KV@sphinx@pre_border-width\endcsname
-\newif\ifspx@pre@border@open % defaults to false (at least for 5.x series)
+\newif\ifspx@pre@border@open
+\spx@pre@border@opentrue    % 6.0.0 (i.e. "slice")
 \define@key{sphinx}{pre_box-decoration-break}%
            {\begingroup\edef\spx@tempa{#1}\expandafter\endgroup
             \ifx\spx@tempa\spxstring@clone
@@ -256,10 +362,10 @@
 }
 % MEMO: keep in mind in using these macros in code elsewhere that they can
 % thus be dimen registers or simply dimensional specs such as 3pt
-\let\spx@pre@radius@topleft    \z@
-\let\spx@pre@radius@topright   \z@
-\let\spx@pre@radius@bottomright\z@
-\let\spx@pre@radius@bottomleft \z@
+\def\spx@pre@radius@topleft   {3pt}%
+\let\spx@pre@radius@topright   \spx@pre@radius@topleft
+\let\spx@pre@radius@bottomright\spx@pre@radius@topleft
+\let\spx@pre@radius@bottomleft \spx@pre@radius@topleft
 \AtBeginDocument{\if1\ifdim\spx@pre@radius@topleft>\z@0\fi
                      \ifdim\spx@pre@radius@topright>\z@0\fi
                      \ifdim\spx@pre@radius@bottomright>\z@0\fi
@@ -290,23 +396,25 @@
 \spx@pre@box@shadow@setter none {} {} \@nnil
 %
 \newif\ifspx@pre@withbordercolor
+\spx@pre@withbordercolortrue        % 6.0.0
 \define@key{sphinx}{pre_border-TeXcolor}{%
     \spx@pre@withbordercolortrue
-    \definecolor{VerbatimBorderColor}#1% legacy colour name with no sphinx prefix
+    \spx@defineorletcolor{VerbatimBorderColor}#1\relax
 }
 \expandafter\let\expandafter\KV@sphinx@VerbatimBorderColor
                             \csname KV@sphinx@pre_border-TeXcolor\endcsname
 \newif\ifspx@pre@withbackgroundcolor
+\spx@pre@withbackgroundcolortrue    % 6.0.0
 \define@key{sphinx}{pre_background-TeXcolor}{%
     \spx@pre@withbackgroundcolortrue
-    \definecolor{VerbatimColor}#1% legacy colour name with no sphinx prefix
+    \spx@defineorletcolor{VerbatimColor}#1\relax
 }
 \expandafter\let\expandafter\KV@sphinx@VerbatimColor
                             \csname KV@sphinx@pre_background-TeXcolor\endcsname
 \newif\ifspx@pre@withshadowcolor
 \define@key{sphinx}{pre_box-shadow-TeXcolor}{%
     \spx@pre@withshadowcolortrue
-    \definecolor{sphinxVerbatimShadowColor}#1%
+    \spx@defineorletcolor{sphinxVerbatimShadowColor}#1\relax
 }
 \definecolor{sphinxVerbatimShadowColor}{rgb}{0,0,0}
 % topics
@@ -412,17 +520,17 @@
 \newif\ifspx@topic@withbordercolor
 \define@key{sphinx}{div.topic_border-TeXcolor}{%
     \spx@topic@withbordercolortrue
-    \definecolor{sphinxTopicBorderColor}#1%
+    \spx@defineorletcolor{sphinxTopicBorderColor}#1\relax
 }
 \newif\ifspx@topic@withbackgroundcolor
 \define@key{sphinx}{div.topic_background-TeXcolor}{%
     \spx@topic@withbackgroundcolortrue
-    \definecolor{sphinxTopicBackgroundColor}#1%
+    \spx@defineorletcolor{sphinxTopicBackgroundColor}#1\relax
 }
 \newif\ifspx@topic@withshadowcolor
 \define@key{sphinx}{div.topic_box-shadow-TeXcolor}{%
     \spx@topic@withshadowcolortrue
-    \definecolor{sphinxTopicShadowColor}#1%
+    \spx@defineorletcolor{sphinxTopicShadowColor}#1\relax
 }
 % warning, caution, attention, danger, error
 \def\spx@tempa#1{%
@@ -572,9 +680,12 @@
   \definecolor{sphinx#4BorderColor}{rgb}{0,0,0}%
   \definecolor{sphinx#4BgColor}{rgb}{1,1,1}%
   \definecolor{sphinx#4ShadowColor}{rgb}{0,0,0}%
-  \define@key{sphinx}{div.#4_border-TeXcolor}{#1\definecolor{sphinx#4BorderColor}##1}%
-  \define@key{sphinx}{div.#4_background-TeXcolor}{#2\definecolor{sphinx#4BgColor}##1}%
-  \define@key{sphinx}{div.#4_box-shadow-TeXcolor}{#3\definecolor{sphinx#4ShadowColor}##1}%
+  \define@key{sphinx}{div.#4_border-TeXcolor}%
+     {#1\spx@defineorletcolor{sphinx#4BorderColor}##1\relax}%
+  \define@key{sphinx}{div.#4_background-TeXcolor}%
+     {#2\spx@defineorletcolor{sphinx#4BgColor}##1\relax}%
+  \define@key{sphinx}{div.#4_box-shadow-TeXcolor}%
+     {#3\spx@defineorletcolor{sphinx#4ShadowColor}##1\relax}%
   \expandafter\let\csname KV@sphinx@#4BorderColor\expandafter\endcsname
                   \csname KV@sphinx@div.#4_border-TeXcolor\endcsname
   \expandafter\let\csname KV@sphinx@#4BgColor\expandafter\endcsname
@@ -594,6 +705,9 @@
 \DisableKeyvalOption{sphinx}{numfigreset}
 \DisableKeyvalOption{sphinx}{nonumfigreset}
 \DisableKeyvalOption{sphinx}{mathnumfig}
+\DisableKeyvalOption{sphinx}{booktabs}
+\DisableKeyvalOption{sphinx}{borderless}
+\DisableKeyvalOption{sphinx}{rowcolors}
 % FIXME: this is unrelated to an option, move this elsewhere
 % To allow hyphenation of first word in narrow contexts; no option,
 % customization to be done via 'preamble' key
@@ -693,11 +807,8 @@
    {\PackageWarningNoLine{sphinx}{%
        The package pict2e is required for rounded boxes.\MessageBreak
        It does not seem to be available on your system.\MessageBreak
-       Options for setting radii will thus be ignored}%
-    \AtEndDocument{\PackageWarningNoLine{sphinx}{%
-       I issued a warning which may have gotten lost in the\MessageBreak
-       gigantic console output: pict2e.sty was not found,\MessageBreak
-       and radii setting options have been ignored}}%
+       Options for setting radii have thus been ignored}%
+    \sphinxbuildwarning{nopict2e}%
     \def\spx@boxes@fcolorbox@rounded{\spx@boxes@fcolorbox}%
    }%
 }%

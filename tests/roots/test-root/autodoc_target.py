@@ -19,7 +19,7 @@ class CustomEx(Exception):
         """Exception method."""
 
 
-class CustomDataDescriptor(object):
+class CustomDataDescriptor:
     """Descriptor class docstring."""
 
     def __init__(self, doc):
@@ -56,7 +56,7 @@ def _funky_classmethod(name, b, c, d, docstring=None):
     return classmethod(function)
 
 
-class Base(object):
+class Base:
     def inheritedmeth(self):
         """Inherited function."""
 
@@ -136,10 +136,10 @@ def function(foo, *args, **kwds):
     pass
 
 
-class Outer(object):
+class Outer:
     """Foo"""
 
-    class Inner(object):
+    class Inner:
         """Foo"""
 
         def meth(self):
@@ -149,7 +149,7 @@ class Outer(object):
     factory = dict
 
 
-class DocstringSig(object):
+class DocstringSig:
     def meth(self):
         """meth(FOO, BAR=1) -> BAZ
 First line of docstring
@@ -184,12 +184,12 @@ class StrRepr(str):
         return self
 
 
-class AttCls(object):
+class AttCls:
     a1 = StrRepr('hello\nworld')
     a2 = None
 
 
-class InstAttCls(object):
+class InstAttCls:
     """Class with documented class and instance attributes."""
 
     #: Doc comment for class attribute InstAttCls.ca1.

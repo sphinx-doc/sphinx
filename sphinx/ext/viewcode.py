@@ -136,7 +136,7 @@ def env_merge_info(app: Sphinx, env: BuildEnvironment, docnames: Iterable[str],
     if not hasattr(env, '_viewcode_modules'):
         env._viewcode_modules = {}  # type: ignore
     # now merge in the information from the subprocess
-    for modname, entry in other._viewcode_modules.items():  # type: ignore
+    for modname, entry in other._viewcode_modules.items():
         if modname not in env._viewcode_modules:  # type: ignore
             env._viewcode_modules[modname] = entry  # type: ignore
         else:
@@ -213,7 +213,7 @@ def should_generate_module_page(app: Sphinx, modname: str) -> bool:
         if path.getmtime(module_filename) <= path.getmtime(page_filename):
             # generation is not needed if the HTML page is newer than module file.
             return False
-    except IOError:
+    except OSError:
         pass
 
     return True
@@ -228,12 +228,12 @@ def collect_pages(app: Sphinx) -> Generator[Tuple[str, Dict[str, Any], str], Non
     highlighter = app.builder.highlighter  # type: ignore
     urito = app.builder.get_relative_uri
 
-    modnames = set(env._viewcode_modules)  # type: ignore
+    modnames = set(env._viewcode_modules)
 
     for modname, entry in status_iterator(
-            sorted(env._viewcode_modules.items()),  # type: ignore
+            sorted(env._viewcode_modules.items()),
             __('highlighting module code... '), "blue",
-            len(env._viewcode_modules),  # type: ignore
+            len(env._viewcode_modules),
             app.verbosity, lambda x: x[0]):
         if not entry:
             continue
@@ -244,7 +244,7 @@ def collect_pages(app: Sphinx) -> Generator[Tuple[str, Dict[str, Any], str], Non
         # construct a page name for the highlighted source
         pagename = posixpath.join(OUTPUT_DIRNAME, modname.replace('.', '/'))
         # highlight the source using the builder's highlighter
-        if env.config.highlight_language in ('python3', 'default', 'none'):
+        if env.config.highlight_language in {'default', 'none'}:
             lexer = env.config.highlight_language
         else:
             lexer = 'python'

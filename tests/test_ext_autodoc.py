@@ -363,7 +363,7 @@ def test_get_doc(app):
 
     # verify that method docstrings get extracted in both normal case
     # and in case of bound method posing as a function
-    class J:  # NOQA
+    class J:
         def foo(self):
             """Method docstring"""
     assert getdocl('method', J.foo) == ['Method docstring']
@@ -808,7 +808,7 @@ def test_autodoc_imported_members(app):
                "imported-members": None,
                "ignore-module-all": None}
     actual = do_autodoc(app, 'module', 'target', options)
-    assert '.. py:function:: save_traceback(app: Sphinx) -> str' in actual
+    assert '.. py:function:: save_traceback(app: ~typing.Optional[Sphinx]) -> str' in actual
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -1072,8 +1072,6 @@ def test_autodoc_descriptor(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8),
-                    reason='cached_property is available since python3.8.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_cached_property(app):
     options = {"members": None,
@@ -1404,7 +1402,7 @@ def test_enum_class(app):
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.enums.EnumCls', options)
 
-    if sys.version_info > (3, 11):
+    if sys.version_info[:2] >= (3, 11):
         args = ('(value, names=None, *, module=None, qualname=None, '
                 'type=None, start=1, boundary=None)')
     else:
@@ -1860,70 +1858,40 @@ def test_autodoc_GenericAlias(app):
     options = {"members": None,
                "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.genericalias', options)
-    if sys.version_info < (3, 7):
-        assert list(actual) == [
-            '',
-            '.. py:module:: target.genericalias',
-            '',
-            '',
-            '.. py:class:: Class()',
-            '   :module: target.genericalias',
-            '',
-            '',
-            '   .. py:attribute:: Class.T',
-            '      :module: target.genericalias',
-            '',
-            '      A list of int',
-            '',
-            '      alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
-            '',
-            '.. py:attribute:: L',
-            '   :module: target.genericalias',
-            '',
-            '   A list of Class',
-            '',
-            '',
-            '.. py:attribute:: T',
-            '   :module: target.genericalias',
-            '',
-            '   A list of int',
-            '',
-        ]
-    else:
-        assert list(actual) == [
-            '',
-            '.. py:module:: target.genericalias',
-            '',
-            '',
-            '.. py:class:: Class()',
-            '   :module: target.genericalias',
-            '',
-            '',
-            '   .. py:attribute:: Class.T',
-            '      :module: target.genericalias',
-            '',
-            '      A list of int',
-            '',
-            '      alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
-            '',
-            '',
-            '.. py:data:: L',
-            '   :module: target.genericalias',
-            '',
-            '   A list of Class',
-            '',
-            '   alias of :py:class:`~typing.List`\\ '
-            '[:py:class:`~target.genericalias.Class`]',
-            '',
-            '',
-            '.. py:data:: T',
-            '   :module: target.genericalias',
-            '',
-            '   A list of int',
-            '',
-            '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
-            '',
-        ]
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.genericalias',
+        '',
+        '',
+        '.. py:class:: Class()',
+        '   :module: target.genericalias',
+        '',
+        '',
+        '   .. py:attribute:: Class.T',
+        '      :module: target.genericalias',
+        '',
+        '      A list of int',
+        '',
+        '      alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
+        '',
+        '',
+        '.. py:data:: L',
+        '   :module: target.genericalias',
+        '',
+        '   A list of Class',
+        '',
+        '   alias of :py:class:`~typing.List`\\ '
+        '[:py:class:`~target.genericalias.Class`]',
+        '',
+        '',
+        '.. py:data:: T',
+        '   :module: target.genericalias',
+        '',
+        '   A list of int',
+        '',
+        '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
+        '',
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -2006,7 +1974,7 @@ def test_autodoc_TypeVar(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason='py39+ is required.')
+@pytest.mark.skipif(sys.version_info[:2] <= (3, 8), reason='py39+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_Annotated(app):
     options = {"members": None}
@@ -2072,41 +2040,23 @@ def test_autodoc_for_egged_code(app):
 def test_singledispatch(app):
     options = {"members": None}
     actual = do_autodoc(app, 'module', 'target.singledispatch', options)
-    if sys.version_info < (3, 7):
-        assert list(actual) == [
-            '',
-            '.. py:module:: target.singledispatch',
-            '',
-            '',
-            '.. py:function:: func(arg, kwarg=None)',
-            '                 func(arg: float, kwarg=None)',
-            '                 func(arg: int, kwarg=None)',
-            '                 func(arg: str, kwarg=None)',
-            '   :module: target.singledispatch',
-            '',
-            '   A function for general use.',
-            '',
-        ]
-    else:
-        assert list(actual) == [
-            '',
-            '.. py:module:: target.singledispatch',
-            '',
-            '',
-            '.. py:function:: func(arg, kwarg=None)',
-            '                 func(arg: float, kwarg=None)',
-            '                 func(arg: int, kwarg=None)',
-            '                 func(arg: str, kwarg=None)',
-            '                 func(arg: dict, kwarg=None)',
-            '   :module: target.singledispatch',
-            '',
-            '   A function for general use.',
-            '',
-        ]
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.singledispatch',
+        '',
+        '',
+        '.. py:function:: func(arg, kwarg=None)',
+        '                 func(arg: float, kwarg=None)',
+        '                 func(arg: int, kwarg=None)',
+        '                 func(arg: str, kwarg=None)',
+        '                 func(arg: dict, kwarg=None)',
+        '   :module: target.singledispatch',
+        '',
+        '   A function for general use.',
+        '',
+    ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8),
-                    reason='singledispatchmethod is available since python3.8')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_singledispatchmethod(app):
     options = {"members": None}
@@ -2134,8 +2084,6 @@ def test_singledispatchmethod(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8),
-                    reason='singledispatchmethod is available since python3.8')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_singledispatchmethod_automethod(app):
     options = {}
@@ -2154,7 +2102,7 @@ def test_singledispatchmethod_automethod(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info > (3, 11),
+@pytest.mark.skipif(sys.version_info[:2] >= (3, 11),
                     reason=('cython does not support python-3.11 yet. '
                             'see https://github.com/cython/cython/issues/4365'))
 @pytest.mark.skipif(pyximport is None, reason='cython is not installed')
@@ -2188,8 +2136,6 @@ def test_cython(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8),
-                    reason='typing.final is available since python3.8')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_final(app):
     options = {"members": None}
@@ -2416,7 +2362,6 @@ def test_name_mangling(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 7), reason='python 3.7+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_type_union_operator(app):
     options = {'members': None}

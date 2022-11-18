@@ -233,7 +233,7 @@ Keys that you may want to override include:
    .. code-block:: python
 
        latex_elements = {
-           'packages': r'\usepackage{isodate}'
+           'extrapackages': r'\usepackage{isodate}'
        }
 
    The specified LaTeX packages will be loaded before
@@ -407,12 +407,16 @@ Keys that don't need to be overridden unless in special cases are:
 ``'geometry'``
    "geometry" package inclusion, the default definition is:
 
-     ``'\\usepackage{geometry}'``
+   .. code:: latex
+
+      '\\usepackage{geometry}'
 
    with an additional ``[dvipdfm]`` for Japanese documents.
    The Sphinx LaTeX style file executes:
 
-     ``\PassOptionsToPackage{hmargin=1in,vmargin=1in,marginpar=0.5in}{geometry}``
+   .. code:: latex
+
+      \PassOptionsToPackage{hmargin=1in,vmargin=1in,marginpar=0.5in}{geometry}
 
    which can be customized via corresponding :ref:`'sphinxsetup' options
    <latexsphinxsetup>`.
@@ -819,15 +823,30 @@ Do not use quotes to enclose values, whether numerical or strings.
        definition of the continuation symbol was changed at 1.5 to accommodate
        various font sizes (e.g. code-blocks can be in footnotes).
 
+.. note::
+
+   Values for colour keys must either:
+
+   - obey the syntax of the ``\definecolor`` LaTeX command, e.g. something
+     such as ``VerbatimColor={rgb}{0.2,0.3,0.5}`` or ``{RGB}{37,23,255}`` or
+     ``{gray}{0.75}`` or (only with package ``xcolor``) ``{HTML}{808080}`` or
+     ...
+
+   - or obey the syntax of the ``\colorlet`` command from package ``xcolor``
+     (which then must exist in the LaTeX installation),
+     e.g. ``VerbatimColor=red!10`` or ``red!50!green`` or ``-red!75`` or
+     ``MyPreviouslyDefinedColour`` or... Refer to xcolor_ documentation for
+     this syntax.
+
+   .. _xcolor: https://ctan.org/pkg/xcolor
+
+   .. versionchanged:: 5.3.0
+      Formerly only the ``\definecolor`` syntax was accepted.
+
 ``TitleColor``
     The colour for titles (as configured via use of package "titlesec".)
 
     Default: ``{rgb}{0.126,0.263,0.361}``
-
-    .. warning::
-
-       Colours set via ``'sphinxsetup'``  must obey the syntax of the
-       argument of the ``color/xcolor`` packages ``\definecolor`` command.
 
 ``InnerLinkColor``
     A colour passed to ``hyperref`` as value of ``linkcolor``  and
@@ -844,12 +863,20 @@ Do not use quotes to enclose values, whether numerical or strings.
 ``VerbatimColor``
     The background colour for :rst:dir:`code-block`\ s.
 
-    Default: ``{rgb}{1,1,1}`` (white)
+    Default: ``{gray}{0.95}``
+
+    .. versionchanged:: 6.0.0
+
+       Formerly, it was ``{rgb}{1,1,1}`` (white).
 
 ``VerbatimBorderColor``
     The frame color.
 
-    Default: ``{rgb}{0,0,0}`` (black)
+    Default: ``{RGB}{32,32,32}``
+
+    .. versionchanged:: 6.0.0
+
+       Formerly it was ``{rgb}{0,0,0}`` (black).
 
 ``VerbatimHighlightColor``
     The color for highlighted lines.
@@ -858,10 +885,47 @@ Do not use quotes to enclose values, whether numerical or strings.
 
     .. versionadded:: 1.6.6
 
-    .. note::
+.. _tablecolors:
 
-       Starting with this colour, and for all others following, the
-       names declared to "color" or "xcolor" are prefixed with "sphinx".
+``TableRowColorHeader``
+    Sets the background colour for (all) the header rows of tables.
+
+    It will have an effect only if either the :confval:`latex_table_style`
+    contains ``'colorrows'`` or if the table is assigned the ``colorrows``
+    class.  It is ignored for tables with ``nocolorrows`` class.
+
+    As for the other ``'sphinxsetup'`` keys, it can also be set or modified
+    from a ``\sphinxsetup{...}`` LaTeX command inserted via the :dudir:`raw`
+    directive, or also from a LaTeX environment associated to a `container
+    class <latexcontainer_>`_ and using such ``\sphinxsetup{...}``.
+
+    Default: ``{gray}{0.86}``
+
+    There is also ``TableMergeColorHeader``.  If used, sets a specific colour
+    for merged single-row cells in the header.
+
+    .. versionadded:: 5.3.0
+
+``TableRowColorOdd``
+    Sets the background colour for odd rows in tables (the row count starts at
+    ``1`` at the first non-header row).  Has an effect only if the
+    :confval:`latex_table_style` contains ``'colorrows'`` or for specific
+    tables assigned the ``colorrows`` class.
+
+    Default: ``{gray}{0.92}``
+
+    There is also ``TableMergeColorOdd``.
+
+    .. versionadded:: 5.3.0
+
+``TableRowColorEven``
+    Sets the background colour for even rows in tables.
+
+    Default ``{gray}{0.98}``
+
+    There is also ``TableMergeColorEven``.
+
+    .. versionadded:: 5.3.0
 
 ``verbatimsep``
     The separation between code lines and the frame.
@@ -1014,7 +1078,7 @@ Options for code-blocks:
     default, and the ones of the separate widths is the setting of
     ``\fboxrule`` in the preamble, i.e. normally ``0.4pt``.
 - ``pre_box-decoration-break`` can be set to ``clone`` or ``slice``, default
-  is ``clone`` for backwards compatibility.
+  is ``slice`` since 6.0.0. (former default was ``clone``).
 - | ``pre_padding-top``,
   | ``pre_padding-right``,
   | ``pre_padding-bottom``,
@@ -1026,7 +1090,7 @@ Options for code-blocks:
   | ``pre_border-bottom-right-radius``,
   | ``pre_border-bottom-left-radius``,
   | ``pre_border-radius``, are all single dimensions (rounded corners are
-    circular arcs only), which default to ``0pt``.
+    circular arcs only), which default (since 6.0.0) to ``3pt``.
 - ``pre_box-shadow`` is special in so far as it may be the ``none`` keyword,
   or a single dimension
   which will be assigned to both x-offset and y-offset, or two dimensions, or
@@ -1036,9 +1100,18 @@ Options for code-blocks:
   | ``pre_background-TeXcolor``,
   | ``pre_box-shadow-TeXcolor``.
 
-  They must all be of the format as accepted by LaTeX ``\definecolor``.  They
-  default to ``{rgb}{0,0,0}``, ``{rgb}{1,1,1}`` and ``{rgb}{0,0,0}``
-  respectively.
+  They
+  default to ``{RGB}{32,32,32}``, ``{gray}{0.95}`` and ``{rgb}{0,0,0}``
+  respectively (since 6.0.0).
+
+.. versionchanged:: 6.0.0
+   Formerly ``pre_border-radius`` (aka ``VerbatimBorder``) was ``0pt``
+   (i.e. straight corners) and the colours ``pre_border-TeXcolor``
+   and ``pre_background-TeXcolor`` (aka ``VerbatimBorderColor`` and
+   ``VerbatimColor``) where ``{rgb}{0,0,0}`` (black border) and
+   ``{rgb}{1,1,1}`` (white background) respectively.
+   Also ``pre_box-decoration-break`` was changed from ``clone`` into
+   ``slice`` for "open" framing at pagebreaks.
 
 If one of the radius parameters is positive, the separate border widths will
 be ignored and only the value set by ``pre_border-width`` will be used.  Also,
@@ -1082,8 +1155,7 @@ Options for topic boxes:
   | ``div.topic_background-TeXcolor``,
   | ``div.topic_box-shadow-TeXcolor``.
 
-  They  must all be of the format as accepted by
-  LaTeX ``\definecolor``.  They default to ``{rgb}{0,0,0}``, ``{rgb}{1,1,1}``
+  They default to ``{rgb}{0,0,0}``, ``{rgb}{1,1,1}``
   and ``{rgb}{0,0,0}`` respectively.
 
 Options for ``warning`` (and similarly for  ``caution``, ``attention``,
@@ -1124,8 +1196,7 @@ Options for ``warning`` (and similarly for  ``caution``, ``attention``,
   | ``div.warning_background-TeXcolor``,
   | ``div.warning_box-shadow-TeXcolor``.
 
-  They  must all be of the format as accepted by
-  LaTeX ``\definecolor``.  They default to ``{rgb}{0,0,0}``, ``{rgb}{1,1,1}``
+  They default to ``{rgb}{0,0,0}``, ``{rgb}{1,1,1}``
   and ``{rgb}{0,0,0}`` respectively.
 
 In the above replace ``warning`` by one of ``caution``, ``attention``,
@@ -1296,6 +1367,12 @@ Macros
      ``\sphinxtableofcontentshook``.  This macro is also executed by the
      ``'howto'`` docclass, but defaults to empty with it.
 
+  .. hint::
+
+     If adding to preamble the loading of ``tocloft`` package, also add to
+     preamble ``\renewcommand\sphinxtableofcontentshook{}`` else it will reset
+     ``\l@section`` and ``\l@subsection`` cancelling ``tocloft`` customization.
+
 - ``\sphinxmaketitle``: Used as the default setting of the ``'maketitle'``
   :confval:`latex_elements` key.
   Defined in the class files :file:`sphinxmanual.cls` and
@@ -1414,6 +1491,8 @@ Miscellany
   .. versionchanged:: 1.5
      Formerly, use of *fncychap* with other styles than ``Bjarne`` was
      dysfunctional.
+
+.. _latexcontainer:
 
 - Docutils :dudir:`container` directives are supported in LaTeX output: to
   let a container class with name ``foo`` influence the final PDF via LaTeX,

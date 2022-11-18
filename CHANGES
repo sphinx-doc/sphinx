@@ -1,11 +1,50 @@
-Release 5.2.0 (in development)
+Release 6.0.0 (in development)
 ==============================
 
 Dependencies
 ------------
 
+* #10468: Drop Python 3.6 support
+* #10470: Drop Python 3.7, Docutils 0.14, Docutils 0.15, Docutils 0.16, and
+  Docutils 0.17 support. Patch by Adam Turner
+
 Incompatible changes
 --------------------
+
+* #7405: Removed the jQuery and underscore.js JavaScript frameworks.
+
+  These frameworks are no longer be automatically injected into themes from
+  Sphinx 6.0. If you develop a theme or extension that uses the
+  ``jQuery``, ``$``, or ``$u`` global objects, you need to update your
+  JavaScript to modern standards, or use the mitigation below.
+
+  The first option is to use the sphinxcontrib.jquery_ extension, which has been
+  developed by the Sphinx team and contributors. To use this, add
+  ``sphinxcontrib.jquery`` to the ``extensions`` list in ``conf.py``, or call
+  ``app.setup_extension("sphinxcontrib.jquery")`` if you develop a Sphinx theme
+  or extension.
+
+  The second option is to manually ensure that the frameworks are present.
+  To re-add jQuery and underscore.js, you will need to copy ``jquery.js`` and
+  ``underscore.js`` from `the Sphinx repository`_ to your ``static`` directory,
+  and add the following to your ``layout.html``:
+
+  .. code-block:: html+jinja
+
+     {%- block scripts %}
+         <script src="{{ pathto('_static/jquery.js', resource=True) }}"></script>
+         <script src="{{ pathto('_static/underscore.js', resource=True) }}"></script>
+         {{ super() }}
+     {%- endblock %}
+
+  .. _sphinxcontrib.jquery: https://github.com/sphinx-contrib/jquery/
+
+  Patch by Adam Turner.
+* #10471, #10565: Removed deprecated APIs scheduled for removal in Sphinx 6.0. See
+  :ref:`dev-deprecated-apis` for details. Patch by Adam Turner.
+* #10901: C Domain: Remove support for parsing pre-v3 style type directives and
+  roles. Also remove associated configuration variables ``c_allow_pre_v3`` and
+  ``c_warn_on_allowed_pre_v3``. Patch by Adam Turner.
 
 Deprecated
 ----------
@@ -13,45 +52,104 @@ Deprecated
 Features added
 --------------
 
-- #10286: C++, support requires clauses not just between the template
-  parameter lists and the declaration.
+* #10924: LaTeX: adopt better looking defaults for tables and code-blocks.
+  See :confval:`latex_table_style` and the ``pre_border-radius`` and
+  ``pre_background-TeXcolor`` :ref:`additionalcss` for the former defaults
+  and how to re-enact them if desired.
 
 Bugs fixed
 ----------
 
-- #10257: C++, ensure consistent non-specialization template argument
-  representation.
-- #10729: C++, fix parsing of certain non-type template parameter packs.
-
 Testing
 --------
 
-Release 5.1.2 (in development)
-==============================
+Release 5.3.0 (released Oct 16, 2022)
+=====================================
+
+* #10759: LaTeX: add :confval:`latex_table_style` and support the
+  ``'booktabs'``, ``'borderless'``, and ``'colorrows'`` styles.
+  (thanks to Stefan Wiehler for initial pull requests #6666, #6671)
+* #10840: One can cross-reference including an option value like ``:option:`--module=foobar```,
+  ``:option:`--module[=foobar]``` or ``:option:`--module foobar```.
+  Patch by Martin Liska.
+* #10881: autosectionlabel: Record the generated section label to the debug log.
+* #10268: Correctly URI-escape image filenames.
+* #10887: domains: Allow sections in all the content of all object description
+  directives (e.g. :rst:dir:`py:function`). Patch by Adam Turner
+
+Release 5.2.3 (released Sep 30, 2022)
+=====================================
+
+* #10878: Fix base64 image embedding in ``sphinx.ext.imgmath``
+* #10886: Add ``:nocontentsentry:`` flag and global domain table of contents
+  entry control option. Patch by Adam Turner
+
+Release 5.2.2 (released Sep 27, 2022)
+=====================================
+
+* #10872: Restore link targets for autodoc modules to the top of content.
+  Patch by Dominic Davis-Foster.
+
+Release 5.2.1 (released Sep 25, 2022)
+=====================================
+
+Bugs fixed
+----------
+
+* #10861: Always normalise the ``pycon3`` lexer to ``pycon``.
+* Fix using ``sphinx.ext.autosummary`` with modules containing titles in the
+  module-level docstring.
+
+Release 5.2.0.post0 (released Sep 24, 2022)
+===========================================
+
+* Recreated source tarballs for Debian maintainers.
+
+Release 5.2.0 (released Sep 24, 2022)
+=====================================
 
 Dependencies
 ------------
 
-Incompatible changes
---------------------
+* #10356: Sphinx now uses declarative metadata with ``pyproject.toml`` to
+  create packages, using PyPA's ``flit`` project as a build backend. Patch by
+  Adam Turner.
 
 Deprecated
 ----------
+
+* #10843: Support for HTML 4 output. Patch by Adam Turner.
 
 Features added
 --------------
 
 * #10738: napoleon: Add support for docstring types using 'of', like
   ``type of type``. Example: ``tuple of int``.
+* #10286: C++, support requires clauses not just between the template
+  parameter lists and the declaration.
+* #10755: linkcheck: Check the source URL of raw directives that use the ``url``
+  option.
+* #10781: Allow :rst:role:`ref` role to be used with definitions and fields.
+* #10717: HTML Search: Increase priority for full title and
+  subtitle matches in search results
+* #10718: HTML Search: Save search result score to the HTML element for debugging
+* #10673: Make toctree accept 'genindex', 'modindex' and 'search' docnames
+* #6316, #10804: Add domain objects to the table of contents. Patch by Adam Turner
+* #6692: HTML Search: Include explicit :rst:dir:`index` directive index entries
+  in the search index and search results. Patch by Adam Turner
+* #10816: imgmath: Allow embedding images in HTML as base64
+* #10854: HTML Search: Use browser localstorage for highlight control, stop
+  storing highlight parameters in URL query strings. Patch by Adam Turner.
 
 Bugs fixed
 ----------
 
 * #10723: LaTeX: 5.1.0 has made the 'sphinxsetup' ``verbatimwithframe=false``
   become without effect.
-
-Testing
---------
+* #10257: C++, ensure consistent non-specialization template argument
+  representation.
+* #10729: C++, fix parsing of certain non-type template parameter packs.
+* #10715: Revert #10520: "Fix" use of sidebar classes in ``agogo.css_t``
 
 Release 5.1.1 (released Jul 26, 2022)
 =====================================
@@ -113,8 +211,8 @@ Bugs fixed
 * #10506: LaTeX: build error if highlighting inline code role in figure caption
   (refs: #10251)
 * #10634: Make -P (pdb) option work better with exceptions triggered from events
-* #10031: py domain: Fix spurious whitespace in unparsing various operators (``+``,
-  ``-``, ``~``, and ``**``). Patch by Adam Turner.
+* #10550: py domain: Fix spurious whitespace in unparsing various operators (``+``,
+  ``-``, ``~``, and ``**``). Patch by Adam Turner (refs: #10551).
 * #10460: logging: Always show node source locations as absolute paths.
 * HTML Search: HTML tags are displayed as a part of object name
 * HTML Search: search snipets should not be folded
@@ -225,7 +323,7 @@ Deprecated
   ``underscore.js`` from `the Sphinx repository`_ to your ``static`` directory,
   and add the following to your ``layout.html``:
 
-  .. _the Sphinx repository: https://github.com/sphinx-doc/sphinx/tree/v4.3.2/sphinx/themes/basic/static
+  .. _the Sphinx repository: https://github.com/sphinx-doc/sphinx/tree/v5.3.0/sphinx/themes/basic/static
   .. code-block:: html+jinja
 
      {%- block scripts %}
@@ -6584,7 +6682,7 @@ Features added
 * HTML builder:
 
   - Added ``pyramid`` theme.
-  - #559: `html_add_permalinks` is now a string giving the
+  - #559: ``html_add_permalinks`` is now a string giving the
     text to display in permalinks.
   - #259: HTML table rows now have even/odd CSS classes to enable
     "Zebra styling".

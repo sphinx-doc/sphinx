@@ -42,11 +42,15 @@ Basic Markup
 Most domains provide a number of :dfn:`object description directives`, used to
 describe specific objects provided by modules.  Each directive requires one or
 more signatures to provide basic information about what is being described, and
-the content should be the description.  A domain will typically keep an
-internal index of all entities to aid cross-referencing. Typically it will
-also add entries in the shown general index.
+the content should be the description.
+
+A domain will typically keep an internal index of all entities to aid
+cross-referencing.
+Typically it will also add entries in the shown general index.
 If you want to suppress the addition of an entry in the shown index, you can
 give the directive option flag ``:noindexentry:``.
+If you want to exclude the object description from the table of contents, you
+can give the directive option flag ``:nocontentsentry:``.
 If you want to typeset an object description, without even making it available
 for cross-referencing, you can give the directive option flag ``:noindex:``
 (which implies ``:noindexentry:``).
@@ -56,6 +60,10 @@ options.
 .. versionadded:: 3.2
    The directive option ``noindexentry`` in the Python, C, C++, and Javascript
    domains.
+
+.. versionadded:: 5.2.3
+   The directive option ``:nocontentsentry:`` in the Python, C, C++, Javascript,
+   and reStructuredText domains.
 
 An example using a Python domain directive::
 
@@ -137,10 +145,14 @@ declarations:
 
    This directive marks the beginning of the description of a module (or package
    submodule, in which case the name should be fully qualified, including the
-   package name).  It does not create content (like e.g. :rst:dir:`py:class`
-   does).
+   package name).  A description of the module such as the docstring can be
+   placed in the body of the directive.
 
    This directive will also cause an entry in the global module index.
+
+   .. versionchanged:: 5.2
+
+      Module directives support body content.
 
    .. rubric:: options
 
@@ -164,6 +176,8 @@ declarations:
 
       Mark a module as deprecated; it will be designated as such in various
       locations then.
+
+
 
 .. rst:directive:: .. py:currentmodule:: name
 
@@ -427,17 +441,6 @@ The following directives are provided for module and class contents:
       Describe the location where the object is defined.  The default value is
       the module specified by :rst:dir:`py:currentmodule`.
 
-   .. rst:directive:option:: property
-      :type: no value
-
-      Indicate the method is a property.
-
-      .. versionadded:: 2.1
-
-      .. deprecated:: 4.0
-
-         Use :rst:dir:`py:property` instead.
-
    .. rst:directive:option:: staticmethod
       :type: no value
 
@@ -516,7 +519,8 @@ For functions with optional parameters that don't have default values
 (typically functions implemented in C extension modules without keyword
 argument support), you can use brackets to specify the optional parts:
 
-   .. py:function:: compile(source[, filename[, symbol]])
+.. py:function:: compile(source[, filename[, symbol]])
+   :noindex:
 
 It is customary to put the opening bracket before the comma.
 
@@ -572,20 +576,20 @@ explained by an example::
 
 This will render like this:
 
-   .. py:function:: send_message(sender, recipient, message_body, [priority=1])
-      :noindex:
+.. py:function:: send_message(sender, recipient, message_body, [priority=1])
+   :noindex:
 
-      Send a message to a recipient
+   Send a message to a recipient
 
-      :param str sender: The person sending the message
-      :param str recipient: The recipient of the message
-      :param str message_body: The body of the message
-      :param priority: The priority of the message, can be a number 1-5
-      :type priority: integer or None
-      :return: the message id
-      :rtype: int
-      :raises ValueError: if the message_body exceeds 160 characters
-      :raises TypeError: if the message_body is not a basestring
+   :param str sender: The person sending the message
+   :param str recipient: The recipient of the message
+   :param str message_body: The body of the message
+   :param priority: The priority of the message, can be a number 1-5
+   :type priority: integer or None
+   :return: the message id
+   :rtype: int
+   :raises ValueError: if the message_body exceeds 160 characters
+   :raises TypeError: if the message_body is not a basestring
 
 It is also possible to combine parameter type and description, if the type is a
 single word, like this::
@@ -855,12 +859,20 @@ Example::
 This will be rendered as:
 
 .. c:struct:: Data
+   :nocontentsentry:
+   :noindexentry:
 
    .. c:union:: @data
+      :nocontentsentry:
+      :noindexentry:
 
       .. c:var:: int a
+         :nocontentsentry:
+         :noindexentry:
 
       .. c:var:: double b
+         :nocontentsentry:
+         :noindexentry:
 
 Explicit ref: :c:var:`Data.@data.a`. Short-hand ref: :c:var:`Data.a`.
 
@@ -942,8 +954,12 @@ Inline Expressions and Types
    will be rendered as follows:
 
    .. c:var:: int a = 42
+      :nocontentsentry:
+      :noindexentry:
 
    .. c:function:: int f(int i)
+      :nocontentsentry:
+      :noindexentry:
 
    An expression: :c:expr:`a * f(a)` (or as text: :c:texpr:`a * f(a)`).
 
@@ -1153,19 +1169,27 @@ visibility statement (``public``, ``private`` or ``protected``).
    The example are rendered as follows.
 
    .. cpp:type:: std::vector<int> MyList
+      :nocontentsentry:
+      :noindexentry:
 
       A typedef-like declaration of a type.
 
    .. cpp:type:: MyContainer::const_iterator
+      :nocontentsentry:
+      :noindexentry:
 
       Declaration of a type alias with unspecified type.
 
    .. cpp:type:: MyType = std::unordered_map<int, std::string>
+      :nocontentsentry:
+      :noindexentry:
 
       Declaration of a type alias.
 
    .. cpp:type:: template<typename T> \
                  MyContainer = std::vector<T>
+      :nocontentsentry:
+      :noindexentry:
 
 .. rst:directive:: .. cpp:enum:: unscoped enum declaration
                    .. cpp:enum-struct:: scoped enum declaration
@@ -1260,7 +1284,7 @@ Options
 
 Some directives support options:
 
-- ``:noindexentry:``, see :ref:`basic-domain-markup`.
+- ``:noindexentry:`` and ``:nocontentsentry:``, see :ref:`basic-domain-markup`.
 - ``:tparam-line-spec:``, for templated declarations.
   If specified, each template parameter will be rendered on a separate line.
 
@@ -1292,12 +1316,20 @@ Example::
 This will be rendered as:
 
 .. cpp:class:: Data
+   :nocontentsentry:
+   :noindexentry:
 
    .. cpp:union:: @data
+      :nocontentsentry:
+      :noindexentry:
 
       .. cpp:var:: int a
+         :nocontentsentry:
+         :noindexentry:
 
       .. cpp:var:: double b
+         :nocontentsentry:
+         :noindexentry:
 
 Explicit ref: :cpp:var:`Data::@data::a`. Short-hand ref: :cpp:var:`Data::a`.
 
@@ -1403,10 +1435,14 @@ introduction` instead of a template parameter list::
 They are rendered as follows.
 
 .. cpp:function:: std::Iterator{It} void advance(It &it)
+   :nocontentsentry:
+   :noindexentry:
 
    A function template with a template parameter constrained to be an Iterator.
 
 .. cpp:class:: std::LessThanComparable{T} MySortedContainer
+   :nocontentsentry:
+   :noindexentry:
 
    A class template with a template parameter constrained to be
    LessThanComparable.
@@ -1436,8 +1472,12 @@ Inline Expressions and Types
    will be rendered as follows:
 
    .. cpp:var:: int a = 42
+      :nocontentsentry:
+      :noindexentry:
 
    .. cpp:function:: int f(int i)
+      :nocontentsentry:
+      :noindexentry:
 
    An expression: :cpp:expr:`a * f(a)` (or as text: :cpp:texpr:`a * f(a)`).
 
@@ -1750,6 +1790,11 @@ There is a set of directives allowing documenting command-line programs:
    referenceable by :rst:role:`option` (in the example case, you'd use something
    like ``:option:`dest_dir```, ``:option:`-m```, or ``:option:`--module```).
 
+   .. versionchanged:: 5.3
+
+      One can cross-reference including an option value: ``:option:`--module=foobar```,
+      ,``:option:`--module[=foobar]``` or ``:option:`--module foobar```.
+
    Use :confval:`option_emphasise_placeholders` for parsing of
    "variable part" of a literal text (similarly to the :rst:role:`samp` role).
 
@@ -1826,6 +1871,9 @@ The JavaScript domain (name **js**) provides the following directives:
    current module name.
 
    .. versionadded:: 1.6
+   .. versionchanged:: 5.2
+
+      Module directives support body content.
 
 .. rst:directive:: .. js:function:: name(signature)
 
@@ -1849,15 +1897,16 @@ The JavaScript domain (name **js**) provides the following directives:
 
    This is rendered as:
 
-      .. js:function:: $.getJSON(href, callback[, errback])
+   .. js:function:: $.getJSON(href, callback[, errback])
+      :noindex:
 
-        :param string href: An URI to the location of the resource.
-        :param callback: Gets called with the object.
-        :param errback:
-            Gets called in case the request fails. And a lot of other
-            text so we need multiple lines.
-        :throws SomeError: For whatever reason in that case.
-        :returns: Something.
+      :param string href: An URI to the location of the resource.
+      :param callback: Gets called with the object.
+      :param errback:
+          Gets called in case the request fails. And a lot of other
+          text so we need multiple lines.
+      :throws SomeError: For whatever reason in that case.
+      :returns: Something.
 
 .. rst:directive:: .. js:method:: name(signature)
 
@@ -1878,10 +1927,11 @@ The JavaScript domain (name **js**) provides the following directives:
 
    This is rendered as:
 
-      .. js:class:: MyAnimal(name[, age])
+   .. js:class:: MyAnimal(name[, age])
+      :noindex:
 
-         :param string name: The name of the animal
-         :param number age: an optional age for the animal
+      :param string name: The name of the animal
+      :param number age: an optional age for the animal
 
 .. rst:directive:: .. js:data:: name
 
@@ -1924,13 +1974,15 @@ The reStructuredText domain (name **rst**) provides the following directives:
 
    will be rendered as:
 
-      .. rst:directive:: foo
+   .. rst:directive:: foo
+      :noindex:
 
-         Foo description.
+      Foo description.
 
-      .. rst:directive:: .. bar:: baz
+   .. rst:directive:: .. bar:: baz
+      :noindex:
 
-         Bar description.
+      Bar description.
 
 .. rst:directive:: .. rst:directive:option:: name
 
@@ -1946,12 +1998,14 @@ The reStructuredText domain (name **rst**) provides the following directives:
 
    will be rendered as:
 
-       .. rst:directive:: toctree
-          :noindex:
+   .. rst:directive:: toctree
+      :noindex:
 
-          .. rst:directive:option:: caption: caption of ToC
+      .. rst:directive:option:: caption: caption of ToC
+         :noindex:
 
-          .. rst:directive:option:: glob
+      .. rst:directive:option:: glob
+         :noindex:
 
    .. rubric:: options
 
@@ -1979,9 +2033,10 @@ The reStructuredText domain (name **rst**) provides the following directives:
 
    will be rendered as:
 
-      .. rst:role:: foo
+   .. rst:role:: foo
+      :noindex:
 
-         Foo description.
+      Foo description.
 
 .. _rst-roles:
 

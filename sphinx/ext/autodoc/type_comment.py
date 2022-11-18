@@ -1,13 +1,12 @@
 """Update annotations info of living objects using type_comments."""
 
+import ast
 from inspect import Parameter, Signature, getsource
 from typing import Any, Dict, List, cast
 
 import sphinx
 from sphinx.application import Sphinx
 from sphinx.locale import __
-from sphinx.pycode.ast import ast
-from sphinx.pycode.ast import parse as ast_parse
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import inspect, logging
 
@@ -34,10 +33,9 @@ def signature_from_ast(node: ast.FunctionDef, bound_method: bool,
     :param bound_method: Specify *node* is a bound method or not
     """
     params = []
-    if hasattr(node.args, "posonlyargs"):  # for py38+
-        for arg in node.args.posonlyargs:  # type: ignore
-            param = Parameter(arg.arg, Parameter.POSITIONAL_ONLY, annotation=arg.type_comment)
-            params.append(param)
+    for arg in node.args.posonlyargs:
+        param = Parameter(arg.arg, Parameter.POSITIONAL_ONLY, annotation=arg.type_comment)
+        params.append(param)
 
     for arg in node.args.args:
         param = Parameter(arg.arg, Parameter.POSITIONAL_OR_KEYWORD,
@@ -80,21 +78,21 @@ def get_type_comment(obj: Any, bound_method: bool = False) -> Signature:
     """Get type_comment'ed FunctionDef object from living object.
 
     This tries to parse original code for living object and returns
-    Signature for given *obj*.  It requires py38+ or typed_ast module.
+    Signature for given *obj*.
     """
     try:
         source = getsource(obj)
         if source.startswith((' ', r'\t')):
             # subject is placed inside class or block.  To read its docstring,
             # this adds if-block before the declaration.
-            module = ast_parse('if True:\n' + source)
+            module = ast.parse('if True:\n' + source, type_comments=True)
             subject = cast(ast.FunctionDef, module.body[0].body[0])  # type: ignore
         else:
-            module = ast_parse(source)
-            subject = cast(ast.FunctionDef, module.body[0])  # type: ignore
+            module = ast.parse(source, type_comments=True)
+            subject = cast(ast.FunctionDef, module.body[0])
 
         if getattr(subject, "type_comment", None):
-            function = ast_parse(subject.type_comment, mode='func_type')
+            function = ast.parse(subject.type_comment, mode='func_type', type_comments=True)
             return signature_from_ast(subject, bound_method, function)  # type: ignore
         else:
             return None

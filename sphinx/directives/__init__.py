@@ -1,7 +1,7 @@
 """Handlers for additional ReST directives."""
 
 import re
-from typing import TYPE_CHECKING, Any, Dict, Generic, List, Tuple, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Dict, Generic, List, Optional, Tuple, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -12,6 +12,7 @@ from sphinx.addnodes import desc_signature
 from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
+from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
@@ -51,13 +52,15 @@ class ObjectDescription(SphinxDirective, Generic[T]):
     final_argument_whitespace = True
     option_spec: OptionSpec = {
         'noindex': directives.flag,
+        'noindexentry': directives.flag,
+        'nocontentsentry': directives.flag,
     }
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
     doc_field_types: List[Field] = []
-    domain: str = None
-    objtype: str = None
-    indexnode: addnodes.index = None
+    domain: Optional[str] = None
+    objtype: Optional[str] = None
+    indexnode: Optional[addnodes.index] = None
 
     # Warning: this might be removed in future version. Don't touch this from extensions.
     _doc_field_type_map: Dict[str, Tuple[Field, bool]] = {}
@@ -131,6 +134,44 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         """
         pass
 
+    def _object_hierarchy_parts(self, sig_node: desc_signature) -> Tuple[str, ...]:
+        """
+        Returns a tuple of strings, one entry for each part of the object's
+        hierarchy (e.g. ``('module', 'submodule', 'Class', 'method')``). The
+        returned tuple is used to properly nest children within parents in the
+        table of contents, and can also be used within the
+        :py:meth:`_toc_entry_name` method.
+
+        This method must not be used outwith table of contents generation.
+        """
+        return ()
+
+    def _toc_entry_name(self, sig_node: desc_signature) -> str:
+        """
+        Returns the text of the table of contents entry for the object.
+
+        This function is called once, in :py:meth:`run`, to set the name for the
+        table of contents entry (a special attribute ``_toc_name`` is set on the
+        object node, later used in
+        ``environment.collectors.toctree.TocTreeCollector.process_doc().build_toc()``
+        when the table of contents entries are collected).
+
+        To support table of contents entries for their objects, domains must
+        override this method, also respecting the configuration setting
+        ``toc_object_entries_show_parents``. Domains must also override
+        :py:meth:`_object_hierarchy_parts`, with one (string) entry for each part of the
+        object's hierarchy. The result of this method is set on the signature
+        node, and can be accessed as ``sig_node['_toc_parts']`` for use within
+        this method. The resulting tuple is also used to properly nest children
+        within parents in the table of contents.
+
+        An example implementations of this method is within the python domain
+        (:meth:`PyObject._toc_entry_name`). The python domain sets the
+        ``_toc_parts`` attribute within the :py:meth:`handle_signature()`
+        method.
+        """
+        return ''
+
     def run(self) -> List[Node]:
         """
         Main directive entry function, called by docutils upon encountering the
@@ -172,6 +213,8 @@ class ObjectDescription(SphinxDirective, Generic[T]):
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
         node['noindex'] = noindex = ('noindex' in self.options)
+        node['noindexentry'] = ('noindexentry' in self.options)
+        node['nocontentsentry'] = ('nocontentsentry' in self.options)
         if self.domain:
             node['classes'].append(self.domain)
         node['classes'].append(node['objtype'])
@@ -194,6 +237,15 @@ class ObjectDescription(SphinxDirective, Generic[T]):
                 signode.clear()
                 signode += addnodes.desc_name(sig, sig)
                 continue  # we don't want an index entry here
+            finally:
+                # Private attributes for ToC generation. Will be modified or removed
+                # without notice.
+                if self.env.app.config.toc_object_entries:
+                    signode['_toc_parts'] = self._object_hierarchy_parts(signode)
+                    signode['_toc_name'] = self._toc_entry_name(signode)
+                else:
+                    signode['_toc_parts'] = ()
+                    signode['_toc_name'] = ''
             if name not in self.names:
                 self.names.append(name)
                 if not noindex:
@@ -203,11 +255,12 @@ class ObjectDescription(SphinxDirective, Generic[T]):
 
         contentnode = addnodes.desc_content()
         node.append(contentnode)
+
         if self.names:
             # needed for association of version{added,changed} directives
             self.env.temp_data['object'] = self.names[0]
         self.before_content()
-        self.state.nested_parse(self.content, self.content_offset, contentnode)
+        nested_parse_with_titles(self.state, self.content, contentnode)
         self.transform_content(contentnode)
         self.env.app.emit('object-description-transform',
                           self.domain, self.objtype, contentnode)
@@ -232,7 +285,7 @@ class DefaultRole(SphinxDirective):
         role_name = self.arguments[0]
         role, messages = roles.role(role_name, self.state_machine.language,
                                     self.lineno, self.state.reporter)
-        if role:
+        if role:  # type: ignore[truthy-function]
             docutils.register_role('', role)
             self.env.temp_data['default_role'] = role_name
         else:

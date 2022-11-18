@@ -6,7 +6,6 @@ for those who like elaborate docstrings.
 """
 
 import re
-import warnings
 from inspect import Parameter, Signature
 from types import ModuleType
 from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Optional, Sequence,
@@ -17,10 +16,8 @@ from docutils.statemachine import StringList
 import sphinx
 from sphinx.application import Sphinx
 from sphinx.config import ENUM, Config
-from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.environment import BuildEnvironment
-from sphinx.ext.autodoc.importer import (get_class_members, get_object_members, import_module,
-                                         import_object)
+from sphinx.ext.autodoc.importer import get_class_members, import_module, import_object
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
@@ -244,7 +241,7 @@ class Options(dict):
 class ObjectMember(tuple):
     """A member of object.
 
-    This is used for the result of `Documenter.get_object_members()` to
+    This is used for the result of `Documenter.get_module_members()` to
     represent each member of the object.
 
     .. Note::
@@ -614,26 +611,7 @@ class Documenter:
         If *want_all* is True, return all members.  Else, only return those
         members given by *self.options.members* (which may also be None).
         """
-        warnings.warn('The implementation of Documenter.get_object_members() will be '
-                      'removed from Sphinx-6.0.', RemovedInSphinx60Warning)
-        members = get_object_members(self.object, self.objpath, self.get_attr, self.analyzer)
-        if not want_all:
-            if not self.options.members:
-                return False, []  # type: ignore
-            # specific members given
-            selected = []
-            for name in self.options.members:
-                if name in members:
-                    selected.append((name, members[name].value))
-                else:
-                    logger.warning(__('missing attribute %s in object %s') %
-                                   (name, self.fullname), type='autodoc')
-            return False, selected
-        elif self.options.inherited_members:
-            return False, [(m.name, m.value) for m in members.values()]
-        else:
-            return False, [(m.name, m.value) for m in members.values()
-                           if m.directly_defined]
+        raise NotImplementedError('must be implemented in subclasses')
 
     def filter_members(self, members: ObjectMembers, want_all: bool
                        ) -> List[Tuple[str, Any, bool]]:
@@ -842,6 +820,8 @@ class Documenter:
             # sort by group; alphabetically within groups
             documenters.sort(key=lambda e: (e[0].member_order, e[0].name))
         elif order == 'bysource':
+            # By default, member discovery order matches source order,
+            # as dicts are insertion-ordered from Python 3.7.
             if self.analyzer:
                 # sort by source order, by virtue of the module analyzer
                 tagorder = self.analyzer.tagorder
@@ -850,11 +830,6 @@ class Documenter:
                     fullname = entry[0].name.split('::')[1]
                     return tagorder.get(fullname, len(tagorder))
                 documenters.sort(key=keyfunc)
-            else:
-                # Assume that member discovery order matches source order.
-                # This is a reasonable assumption in Python 3.6 and up, where
-                # module.__dict__ is insertion-ordered.
-                pass
         else:  # alphabetical
             documenters.sort(key=lambda e: e[0].name)
 
@@ -961,6 +936,7 @@ class ModuleDocumenter(Documenter):
     objtype = 'module'
     content_indent = ''
     titles_allowed = True
+    _extra_indent = '   '
 
     option_spec: OptionSpec = {
         'members': members_option, 'undoc-members': bool_option,
@@ -977,6 +953,15 @@ class ModuleDocumenter(Documenter):
         super().__init__(*args)
         merge_members_option(self.options)
         self.__all__: Optional[Sequence[str]] = None
+
+    def add_content(self, more_content: Optional[StringList]) -> None:
+        old_indent = self.indent
+        self.indent += self._extra_indent
+        super().add_content(None)
+        self.indent = old_indent
+        if more_content:
+            for line, src in zip(more_content.data, more_content.items):
+                self.add_line(line, src[0], src[1])
 
     @classmethod
     def can_document_member(cls, member: Any, membername: str, isattr: bool, parent: Any
@@ -2384,15 +2369,6 @@ class SlotsMixin(DataDocumenterMixinBase):
                 return []
         else:
             return super().get_doc()  # type: ignore
-
-    @property
-    def _datadescriptor(self) -> bool:
-        warnings.warn('AttributeDocumenter._datadescriptor() is deprecated.',
-                      RemovedInSphinx60Warning)
-        if self.object is SLOTSATTR:
-            return True
-        else:
-            return False
 
 
 class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):

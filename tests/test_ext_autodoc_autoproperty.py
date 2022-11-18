@@ -4,8 +4,6 @@ This tests mainly the Documenters; the auto directives are tested in a test
 source file translated by test_build.
 """
 
-import sys
-
 import pytest
 
 from .test_ext_autodoc import do_autodoc
@@ -40,7 +38,6 @@ def test_class_properties(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8), reason='python 3.8+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_cached_properties(app):
     actual = do_autodoc(app, 'property', 'target.cached_property.Foo.prop')

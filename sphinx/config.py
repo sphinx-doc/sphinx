@@ -106,6 +106,9 @@ class Config:
         'default_role': (None, 'env', [str]),
         'add_function_parentheses': (True, 'env', []),
         'add_module_names': (True, 'env', []),
+        'toc_object_entries': (True, 'env', [bool]),
+        'toc_object_entries_show_parents': ('domain', 'env',
+                                            ENUM('domain', 'all', 'hide')),
         'trim_footnote_reference_space': (False, 'env', []),
         'show_authors': (False, 'env', []),
         'pygments_style': (None, 'html', [str]),
@@ -461,7 +464,7 @@ def check_confval_types(app: Optional["Sphinx"], config: Config) -> None:
             if annotations:
                 msg = __("The config value `{name}' has type `{current.__name__}'; "
                          "expected {permitted}.")
-                wrapped_annotations = ["`{}'".format(c.__name__) for c in annotations]
+                wrapped_annotations = [f"`{c.__name__}'" for c in annotations]
                 if len(wrapped_annotations) > 2:
                     permitted = "{}, or {}".format(
                         ", ".join(wrapped_annotations[:-1]),

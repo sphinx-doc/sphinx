@@ -1,17 +1,10 @@
 """Helpers for AST (Abstract Syntax Tree)."""
 
-import sys
+import ast
+import warnings
 from typing import Dict, List, Optional, Type, overload
 
-if sys.version_info > (3, 8):
-    import ast
-else:
-    try:
-        # use typed_ast module if installed
-        from typed_ast import ast3 as ast
-    except ImportError:
-        import ast  # type: ignore
-
+from sphinx.deprecation import RemovedInSphinx70Warning
 
 OPERATORS: Dict[Type[ast.AST], str] = {
     ast.Add: "+",
@@ -37,20 +30,16 @@ OPERATORS: Dict[Type[ast.AST], str] = {
 
 
 def parse(code: str, mode: str = 'exec') -> "ast.AST":
-    """Parse the *code* using the built-in ast or typed_ast libraries.
-
-    This enables "type_comments" feature if possible.
-    """
+    """Parse the *code* using the built-in ast module."""
+    warnings.warn(
+        "'sphinx.pycode.ast.parse' is deprecated, use 'ast.parse' instead.",
+        RemovedInSphinx70Warning, stacklevel=2
+    )
     try:
-        # type_comments parameter is available on py38+
-        return ast.parse(code, mode=mode, type_comments=True)  # type: ignore
+        return ast.parse(code, mode=mode, type_comments=True)
     except SyntaxError:
         # Some syntax error found. To ignore invalid type comments, retry parsing without
         # type_comments parameter (refs: https://github.com/sphinx-doc/sphinx/issues/8652).
-        return ast.parse(code, mode=mode)
-    except TypeError:
-        # fallback to ast module.
-        # typed_ast is used to parse type_comments if installed.
         return ast.parse(code, mode=mode)
 
 
@@ -81,7 +70,7 @@ class _UnparseVisitor(ast.NodeVisitor):
     def _visit_op(self, node: ast.AST) -> str:
         return OPERATORS[node.__class__]
     for _op in OPERATORS:
-        locals()['visit_{}'.format(_op.__name__)] = _visit_op
+        locals()[f'visit_{_op.__name__}'] = _visit_op
 
     def visit_arg(self, node: ast.arg) -> str:
         if node.annotation:
@@ -102,10 +91,8 @@ class _UnparseVisitor(ast.NodeVisitor):
     def visit_arguments(self, node: ast.arguments) -> str:
         defaults: List[Optional[ast.expr]] = list(node.defaults)
         positionals = len(node.args)
-        posonlyargs = 0
-        if hasattr(node, "posonlyargs"):  # for py38+
-            posonlyargs += len(node.posonlyargs)  # type:ignore
-            positionals += posonlyargs
+        posonlyargs = len(node.posonlyargs)
+        positionals += posonlyargs
         for _ in range(len(defaults), positionals):
             defaults.insert(0, None)
 
@@ -114,12 +101,11 @@ class _UnparseVisitor(ast.NodeVisitor):
             kw_defaults.insert(0, None)
 
         args: List[str] = []
-        if hasattr(node, "posonlyargs"):  # for py38+
-            for i, arg in enumerate(node.posonlyargs):  # type: ignore
-                args.append(self._visit_arg_with_default(arg, defaults[i]))
+        for i, arg in enumerate(node.posonlyargs):
+            args.append(self._visit_arg_with_default(arg, defaults[i]))
 
-            if node.posonlyargs:  # type: ignore
-                args.append('/')
+        if node.posonlyargs:
+            args.append('/')
 
         for i, arg in enumerate(node.args):
             args.append(self._visit_arg_with_default(arg, defaults[i + posonlyargs]))
@@ -155,19 +141,19 @@ class _UnparseVisitor(ast.NodeVisitor):
                 ["%s=%s" % (k.arg, self.visit(k.value)) for k in node.keywords])
         return "%s(%s)" % (self.visit(node.func), ", ".join(args))
 
-    def visit_Constant(self, node: ast.Constant) -> str:  # type: ignore
+    def visit_Constant(self, node: ast.Constant) -> str:
         if node.value is Ellipsis:
             return "..."
         elif isinstance(node.value, (int, float, complex)):
-            if self.code and sys.version_info > (3, 8):
-                return ast.get_source_segment(self.code, node)  # type: ignore
+            if self.code:
+                return ast.get_source_segment(self.code, node) or repr(node.value)
             else:
                 return repr(node.value)
         else:
             return repr(node.value)
 
     def visit_Dict(self, node: ast.Dict) -> str:
-        keys = (self.visit(k) for k in node.keys)
+        keys = (self.visit(k) for k in node.keys if k is not None)
         values = (self.visit(v) for v in node.values)
         items = (k + ": " + v for k, v in zip(keys, values))
         return "{" + ", ".join(items) + "}"
@@ -218,23 +204,6 @@ class _UnparseVisitor(ast.NodeVisitor):
             return "(%s,)" % self.visit(node.elts[0])
         else:
             return "(" + ", ".join(self.visit(e) for e in node.elts) + ")"
-
-    if sys.version_info < (3, 8):
-        # these ast nodes were deprecated in python 3.8
-        def visit_Bytes(self, node: ast.Bytes) -> str:
-            return repr(node.s)
-
-        def visit_Ellipsis(self, node: ast.Ellipsis) -> str:
-            return "..."
-
-        def visit_NameConstant(self, node: ast.NameConstant) -> str:
-            return repr(node.value)
-
-        def visit_Num(self, node: ast.Num) -> str:
-            return repr(node.n)
-
-        def visit_Str(self, node: ast.Str) -> str:
-            return repr(node.s)
 
     def generic_visit(self, node):
         raise NotImplementedError('Unable to parse %s object' % type(node).__name__)

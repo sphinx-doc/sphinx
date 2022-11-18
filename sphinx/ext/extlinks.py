@@ -18,7 +18,6 @@ Both, the url string and the caption string must escape ``%`` as ``%%``.
 """
 
 import re
-import sys
 from typing import Any, Dict, List, Tuple
 
 from docutils import nodes, utils
@@ -64,15 +63,14 @@ class ExternalLinksChecker(SphinxPostTransform):
         title = refnode.astext()
 
         for alias, (base_uri, _caption) in self.app.config.extlinks.items():
-            if sys.version_info < (3, 7):
-                # Replace a leading backslash because re.escape() inserts a backslash before %
-                # on python 3.6
-                uri_pattern = re.compile(re.escape(base_uri).replace('\\%s', '(?P<value>.+)'))
-            else:
-                uri_pattern = re.compile(re.escape(base_uri).replace('%s', '(?P<value>.+)'))
+            uri_pattern = re.compile(re.escape(base_uri).replace('%s', '(?P<value>.+)'))
 
             match = uri_pattern.match(uri)
-            if match and match.groupdict().get('value'):
+            if (
+                match and
+                match.groupdict().get('value') and
+                '/' not in match.groupdict()['value']
+            ):
                 # build a replacement suggestion
                 msg = __('hardcoded link %r could be replaced by an extlink '
                          '(try using %r instead)')
@@ -90,22 +88,6 @@ def make_link_role(name: str, base_url: str, caption: str) -> RoleFunction:
     # a prefix.
     # Remark: It is an implementation detail that we use Pythons %-formatting.
     # So far we only expose ``%s`` and require quoting of ``%`` using ``%%``.
-    try:
-        base_url % 'dummy'
-    except (TypeError, ValueError):
-        logger.warning(__('extlinks: Sphinx-6.0 will require base URL to '
-                          'contain exactly one \'%s\' and all other \'%\' need '
-                          'to be escaped as \'%%\'.'))  # RemovedInSphinx60Warning
-        base_url = base_url.replace('%', '%%') + '%s'
-    if caption is not None:
-        try:
-            caption % 'dummy'
-        except (TypeError, ValueError):
-            logger.warning(__('extlinks: Sphinx-6.0 will require a caption string to '
-                              'contain exactly one \'%s\' and all other \'%\' need '
-                              'to be escaped as \'%%\'.'))  # RemovedInSphinx60Warning
-            caption = caption.replace('%', '%%') + '%s'
-
     def role(typ: str, rawtext: str, text: str, lineno: int,
              inliner: Inliner, options: Dict = {}, content: List[str] = []
              ) -> Tuple[List[Node], List[system_message]]:

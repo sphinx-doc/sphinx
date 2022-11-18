@@ -7,14 +7,14 @@ import sys
 import time
 from collections import OrderedDict
 from os import path
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
 # try to import readline, unix specific enhancement
 try:
     import readline
     if TYPE_CHECKING and sys.platform == "win32":  # always false, for type checking
         raise ImportError
-
+    READLINE_AVAILABLE = True
     if readline.__doc__ and 'libedit' in readline.__doc__:
         readline.parse_and_bind("bind ^I rl_complete")
         USE_LIBEDIT = True
@@ -22,7 +22,7 @@ try:
         readline.parse_and_bind("tab: complete")
         USE_LIBEDIT = False
 except ImportError:
-    readline = None
+    READLINE_AVAILABLE = False
     USE_LIBEDIT = False
 
 from docutils.utils import column_width
@@ -130,7 +130,9 @@ def ok(x: str) -> str:
     return x
 
 
-def do_prompt(text: str, default: str = None, validator: Callable[[str], Any] = nonempty) -> Union[str, bool]:  # NOQA
+def do_prompt(
+    text: str, default: Optional[str] = None, validator: Callable[[str], Any] = nonempty
+) -> Union[str, bool]:
     while True:
         if default is not None:
             prompt = PROMPT_PREFIX + '%s [%s]: ' % (text, default)
@@ -141,7 +143,7 @@ def do_prompt(text: str, default: str = None, validator: Callable[[str], Any] = 
             # sequence (see #5335).  To avoid the problem, all prompts are not colored
             # on libedit.
             pass
-        elif readline:
+        elif READLINE_AVAILABLE:
             # pass input_mode=True if readline available
             prompt = colorize(COLOR_QUESTION, prompt, input_mode=True)
         else:
@@ -159,8 +161,8 @@ def do_prompt(text: str, default: str = None, validator: Callable[[str], Any] = 
 
 
 class QuickstartRenderer(SphinxRenderer):
-    def __init__(self, templatedir: str) -> None:
-        self.templatedir = templatedir or ''
+    def __init__(self, templatedir: str = '') -> None:
+        self.templatedir = templatedir
         super().__init__()
 
     def _has_custom_template(self, template_name: str) -> bool:
@@ -175,7 +177,7 @@ class QuickstartRenderer(SphinxRenderer):
         else:
             return False
 
-    def render(self, template_name: str, context: Dict) -> str:
+    def render(self, template_name: str, context: Dict[str, Any]) -> str:
         if self._has_custom_template(template_name):
             custom_template = path.join(self.templatedir, path.basename(template_name))
             return self.render_from_file(custom_template, context)
@@ -226,7 +228,7 @@ def ask_user(d: Dict[str, Any]) -> None:
         d['path'] = do_prompt(__('Please enter a new root path (or just Enter to exit)'),
                               '', is_path_or_empty)
         if not d['path']:
-            sys.exit(1)
+            raise SystemExit(1)
 
     if 'sep' not in d:
         print()
@@ -321,10 +323,11 @@ def ask_user(d: Dict[str, Any]) -> None:
     print()
 
 
-def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir: str = None
-             ) -> None:
+def generate(
+    d: Dict, overwrite: bool = True, silent: bool = False, templatedir: Optional[str] = None
+) -> None:
     """Generate project based on values in *d*."""
-    template = QuickstartRenderer(templatedir=templatedir)
+    template = QuickstartRenderer(templatedir or '')
 
     if 'mastertoctree' not in d:
         d['mastertoctree'] = ''
@@ -357,11 +360,11 @@ def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir:
     ensuredir(path.join(srcdir, d['dot'] + 'templates'))
     ensuredir(path.join(srcdir, d['dot'] + 'static'))
 
-    def write_file(fpath: str, content: str, newline: str = None) -> None:
+    def write_file(fpath: str, content: str, newline: Optional[str] = None) -> None:
         if overwrite or not path.isfile(fpath):
             if 'quiet' not in d:
                 print(__('Creating file %s.') % fpath)
-            with open(fpath, 'wt', encoding='utf-8', newline=newline) as f:
+            with open(fpath, 'w', encoding='utf-8', newline=newline) as f:
                 f.write(content)
         else:
             if 'quiet' not in d:
@@ -379,7 +382,7 @@ def generate(d: Dict, overwrite: bool = True, silent: bool = False, templatedir:
     if template._has_custom_template('quickstart/master_doc.rst_t'):
         msg = ('A custom template `master_doc.rst_t` found. It has been renamed to '
                '`root_doc.rst_t`.  Please rename it on your project too.')
-        print(colorize('red', msg))  # RemovedInSphinx60Warning
+        print(colorize('red', msg))
         write_file(masterfile, template.render('quickstart/master_doc.rst_t', d))
     else:
         write_file(masterfile, template.render('quickstart/root_doc.rst_t', d))
@@ -548,7 +551,7 @@ def main(argv: List[str] = sys.argv[1:]) -> int:
     try:
         args = parser.parse_args(argv)
     except SystemExit as err:
-        return err.code
+        return err.code  # type: ignore[return-value]
 
     d = vars(args)
     # delete None or False value
@@ -602,4 +605,4 @@ def main(argv: List[str] = sys.argv[1:]) -> int:
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))
+    raise SystemExit(main())

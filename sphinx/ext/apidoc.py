@@ -412,7 +412,7 @@ def main(argv: List[str] = sys.argv[1:]) -> int:
         args.suffix = args.suffix[1:]
     if not path.isdir(rootpath):
         print(__('%s is not a directory.') % rootpath, file=sys.stderr)
-        sys.exit(1)
+        raise SystemExit(1)
     if not args.dryrun:
         ensuredir(args.destdir)
     excludes = [path.abspath(exclude) for exclude in args.exclude_pattern]

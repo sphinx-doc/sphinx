@@ -4,7 +4,6 @@ import os
 import posixpath
 import re
 import urllib.parse
-import warnings
 from typing import TYPE_CHECKING, Iterable, Optional, Set, Tuple, cast
 
 from docutils import nodes
@@ -13,7 +12,6 @@ from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
@@ -47,7 +45,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     Our custom HTML translator.
     """
 
-    builder: "StandaloneHTMLBuilder" = None
+    builder: "StandaloneHTMLBuilder"
     # Override docutils.writers.html5_polyglot:HTMLTranslator
     # otherwise, nodes like <inline classes="s">...</inline> will be
     # converted to <s>...</s> by `visit_inline`.
@@ -260,7 +258,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_seealso(self, node: Element) -> None:
         self.depart_admonition(node)
 
-    def get_secnumber(self, node: Element) -> Tuple[int, ...]:
+    def get_secnumber(self, node: Element) -> Optional[Tuple[int, ...]]:
         if node.get('secnumber'):
             return node['secnumber']
 
@@ -567,7 +565,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         # rewrite the URI if the environment knows about it
         if olduri in self.builder.images:
             node['uri'] = posixpath.join(self.builder.imgpath,
-                                         self.builder.images[olduri])
+                                         urllib.parse.quote(self.builder.images[olduri]))
 
         if 'scale' in node:
             # Try to figure out image height and width.  Docutils does that too,
@@ -807,7 +805,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_math(self, node: Element, math_env: str = '') -> None:
         name = self.builder.math_renderer_name
         _, depart = self.builder.app.registry.html_inline_math_renderers[name]
-        if depart:
+        if depart:  # type: ignore[truthy-function]
             depart(self, node)
 
     def visit_math_block(self, node: Element, math_env: str = '') -> None:
@@ -818,32 +816,5 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_math_block(self, node: Element, math_env: str = '') -> None:
         name = self.builder.math_renderer_name
         _, depart = self.builder.app.registry.html_block_math_renderers[name]
-        if depart:
+        if depart:  # type: ignore[truthy-function]
             depart(self, node)
-
-    def generate_targets_for_table(self, node: Element) -> None:
-        """Generate hyperlink targets for tables.
-
-        Original visit_table() generates hyperlink targets inside table tags
-        (<table>) if multiple IDs are assigned to listings.
-        That is invalid DOM structure.  (This is a bug of docutils <= 0.13.1)
-
-        This exports hyperlink targets before tables to make valid DOM structure.
-        """
-        warnings.warn('generate_targets_for_table() is deprecated',
-                      RemovedInSphinx60Warning, stacklevel=2)
-        for id in node['ids'][1:]:
-            self.body.append('<span id="%s"></span>' % id)
-            node['ids'].remove(id)
-
-    @property
-    def _fieldlist_row_index(self) -> int:
-        warnings.warn('_fieldlist_row_index is deprecated',
-                      RemovedInSphinx60Warning, stacklevel=2)
-        return self._fieldlist_row_indices[-1]
-
-    @property
-    def _table_row_index(self) -> int:
-        warnings.warn('_table_row_index is deprecated',
-                      RemovedInSphinx60Warning, stacklevel=2)
-        return self._table_row_indices[-1]

@@ -45,11 +45,11 @@ def is_allowed_version(spec: str, version: str) -> bool:
 
     Some examples:
 
-        >>> is_allowed_version('3.3', '<=3.5')
+        >>> is_allowed_version('<=3.5', '3.3')
         True
-        >>> is_allowed_version('3.3', '<=3.2')
+        >>> is_allowed_version('<=3.2', '3.3')
         False
-        >>> is_allowed_version('3.3', '>3.2, <4.0')
+        >>> is_allowed_version('>3.2, <4.0', '3.3')
         True
     """
     return Version(version) in SpecifierSet(spec)
@@ -94,15 +94,9 @@ class TestDirective(SphinxDirective):
             # only save if it differs from code
             node['test'] = test
         if self.name == 'doctest':
-            if self.config.highlight_language in ('py', 'python'):
-                node['language'] = 'pycon'
-            else:
-                node['language'] = 'pycon3'  # default
+            node['language'] = 'pycon'
         elif self.name == 'testcode':
-            if self.config.highlight_language in ('py', 'python'):
-                node['language'] = 'python'
-            else:
-                node['language'] = 'python3'  # default
+            node['language'] = 'python'
         elif self.name == 'testoutput':
             # don't try to highlight output
             node['language'] = 'none'

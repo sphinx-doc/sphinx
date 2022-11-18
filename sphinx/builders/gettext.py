@@ -57,7 +57,7 @@ class Catalog:
         line = origin.line
         if line is None:
             line = -1
-        self.metadata[msg].append((origin.source, line, origin.uid))  # type: ignore
+        self.metadata[msg].append((origin.source, line, origin.uid))
 
     def __iter__(self) -> Generator[Message, None, None]:
         for message in self.messages:
@@ -120,7 +120,6 @@ class I18nBuilder(Builder):
     """
     name = 'i18n'
     versioning_method = 'text'
-    versioning_compare: bool = None  # be set by `gettext_uuid`
     use_message_catalog = False
 
     def init(self) -> None:

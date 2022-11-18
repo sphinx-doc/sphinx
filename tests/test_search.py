@@ -177,7 +177,9 @@ def test_IndexBuilder():
                   'non': [0, 1, 2, 3],
                   'test': [0, 1, 2, 3]},
         'titles': ('title1_1', 'title1_2', 'title2_1', 'title2_2'),
-        'titleterms': {'section_titl': [0, 1, 2, 3]}
+        'titleterms': {'section_titl': [0, 1, 2, 3]},
+        'alltitles': {'section_title': [(0, 'section-title'), (1, 'section-title'), (2, 'section-title'), (3, 'section-title')]},
+        'indexentries': {},
     }
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
     assert index._objnames == {0: ('dummy1', 'objtype1', 'objtype1'),
@@ -234,7 +236,9 @@ def test_IndexBuilder():
                   'non': [0, 1],
                   'test': [0, 1]},
         'titles': ('title1_2', 'title2_2'),
-        'titleterms': {'section_titl': [0, 1]}
+        'titleterms': {'section_titl': [0, 1]},
+        'alltitles': {'section_title': [(0, 'section-title'), (1, 'section-title')]},
+        'indexentries': {},
     }
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
     assert index._objnames == {0: ('dummy1', 'objtype1', 'objtype1'),

@@ -2,7 +2,7 @@
 
 import os
 import posixpath
-from typing import TYPE_CHECKING, Callable, Dict
+from typing import TYPE_CHECKING, Callable, Dict, Optional
 
 from docutils.utils import relative_path
 
@@ -14,7 +14,8 @@ if TYPE_CHECKING:
 
 
 def copy_asset_file(source: str, destination: str,
-                    context: Dict = None, renderer: "BaseRenderer" = None) -> None:
+                    context: Optional[Dict] = None,
+                    renderer: Optional["BaseRenderer"] = None) -> None:
     """Copy an asset file to destination.
 
     On copying, it expands the template variables if context argument is given and
@@ -47,8 +48,8 @@ def copy_asset_file(source: str, destination: str,
 
 
 def copy_asset(source: str, destination: str, excluded: PathMatcher = lambda path: False,
-               context: Dict = None, renderer: "BaseRenderer" = None,
-               onerror: Callable[[str, Exception], None] = None) -> None:
+               context: Optional[Dict] = None, renderer: Optional["BaseRenderer"] = None,
+               onerror: Optional[Callable[[str, Exception], None]] = None) -> None:
     """Copy asset files to destination recursively.
 
     On copying, it expands the template variables if context argument is given and

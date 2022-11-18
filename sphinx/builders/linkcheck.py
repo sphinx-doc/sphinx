@@ -201,7 +201,7 @@ class HyperlinkAvailabilityChecker:
         self.config = config
         self.env = env
         self.rate_limits: Dict[str, RateLimit] = {}
-        self.rqueue: Queue = Queue()
+        self.rqueue: Queue[CheckResult] = Queue()
         self.workers: List[Thread] = []
         self.wqueue: PriorityQueue[CheckRequest] = PriorityQueue()
 
@@ -246,8 +246,8 @@ class HyperlinkAvailabilityChecker:
 class HyperlinkAvailabilityCheckWorker(Thread):
     """A worker class for checking the availability of hyperlinks."""
 
-    def __init__(self, env: BuildEnvironment, config: Config, rqueue: Queue,
-                 wqueue: Queue, rate_limits: Dict[str, RateLimit]) -> None:
+    def __init__(self, env: BuildEnvironment, config: Config, rqueue: 'Queue[CheckResult]',
+                 wqueue: 'Queue[CheckRequest]', rate_limits: Dict[str, RateLimit]) -> None:
         self.config = config
         self.env = env
         self.rate_limits = rate_limits
@@ -428,7 +428,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 uri, docname, lineno = hyperlink
             except ValueError:
                 # old styled check_request (will be deprecated in Sphinx-5.0)
-                next_check, uri, docname, lineno = check_request
+                next_check, uri, docname, lineno = check_request  # type: ignore[misc]
 
             if uri is None:
                 break
@@ -502,32 +502,34 @@ class HyperlinkCollector(SphinxPostTransform):
         builder = cast(CheckExternalLinksBuilder, self.app.builder)
         hyperlinks = builder.hyperlinks
 
+        def add_uri(uri: str, node: nodes.Element) -> None:
+            newuri = self.app.emit_firstresult('linkcheck-process-uri', uri)
+            if newuri:
+                uri = newuri
+
+            lineno = get_node_line(node)
+            uri_info = Hyperlink(uri, self.env.docname, lineno)
+            if uri not in hyperlinks:
+                hyperlinks[uri] = uri_info
+
         # reference nodes
         for refnode in self.document.findall(nodes.reference):
             if 'refuri' not in refnode:
                 continue
             uri = refnode['refuri']
-            newuri = self.app.emit_firstresult('linkcheck-process-uri', uri)
-            if newuri:
-                uri = newuri
-
-            lineno = get_node_line(refnode)
-            uri_info = Hyperlink(uri, self.env.docname, lineno)
-            if uri not in hyperlinks:
-                hyperlinks[uri] = uri_info
+            add_uri(uri, refnode)
 
         # image nodes
         for imgnode in self.document.findall(nodes.image):
             uri = imgnode['candidates'].get('?')
             if uri and '://' in uri:
-                newuri = self.app.emit_firstresult('linkcheck-process-uri', uri)
-                if newuri:
-                    uri = newuri
+                add_uri(uri, imgnode)
 
-                lineno = get_node_line(imgnode)
-                uri_info = Hyperlink(uri, self.env.docname, lineno)
-                if uri not in hyperlinks:
-                    hyperlinks[uri] = uri_info
+        # raw nodes
+        for rawnode in self.document.findall(nodes.raw):
+            uri = rawnode.get('source')
+            if uri and '://' in uri:
+                add_uri(uri, rawnode)
 
 
 def rewrite_github_anchor(app: Sphinx, uri: str) -> Optional[str]:
