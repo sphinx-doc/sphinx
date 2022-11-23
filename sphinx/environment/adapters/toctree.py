@@ -1,6 +1,6 @@
 """Toctree adapter for sphinx.environment."""
 
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -158,10 +158,12 @@ class TocTree:
                                            location=ref, type='toc', subtype='circular')
                             continue
                         refdoc = ref
-                        toc = self.env.tocs[ref].deepcopy()
                         maxdepth = self.env.metadata[ref].get('tocdepth', 0)
+                        toc = self.env.tocs[ref]
                         if ref not in toctree_ancestors or (prune and maxdepth > 0):
-                            self._toctree_prune(toc, 2, maxdepth, collapse)
+                            toc = self._toctree_copy(toc, 2, maxdepth, collapse)
+                        else:
+                            toc = toc.deepcopy()
                         process_only_nodes(toc, builder.tags)
                         if title and toc.children and len(toc.children) == 1:
                             child = toc.children[0]
@@ -281,9 +283,41 @@ class TocTree:
             d = parent[d]
         return ancestors
 
+    ET = TypeVar('ET', bound=Element)
+
+    def _toctree_copy(self, node: ET, depth: int, maxdepth: int, collapse: bool = False) -> ET:
+        """Utility: deep-copy a TOC but omit things with the semantics of ._toctree_prune.
+
+        !!! MUST be kept consistent with ._toctree_prune !!!
+        """
+        copy = node.copy()
+        for subnode in node.children:
+            if isinstance(subnode, (addnodes.compact_paragraph,
+                                    nodes.list_item)):
+                # for <p> and <li>, just recurse
+                copy.append(self._toctree_copy(subnode, depth, maxdepth, collapse))
+            elif isinstance(subnode, nodes.bullet_list):
+                # for <ul>, determine if the depth is too large or if the
+                # entry is to be collapsed
+                if maxdepth > 0 and depth > maxdepth:
+                    pass
+                else:
+                    # cull sub-entries whose parents aren't 'current'
+                    if (collapse and depth > 1 and
+                            'iscurrent' not in subnode.parent):
+                        pass
+                    else:
+                        # recurse on visible children
+                        copy.append(self._toctree_copy(subnode, depth + 1, maxdepth, collapse))
+            else:
+                copy.append(subnode.deepcopy())
+        return copy
+
     def _toctree_prune(self, node: Element, depth: int, maxdepth: int, collapse: bool = False
                        ) -> None:
-        """Utility: Cut a TOC at a specified depth."""
+        """Utility: Cut a TOC at a specified depth.
+
+        !!! MUST be kept consistent with ._toctree_copy !!!"""
         for subnode in node.children[:]:
             if isinstance(subnode, (addnodes.compact_paragraph,
                                     nodes.list_item)):
@@ -307,8 +341,7 @@ class TocTree:
         """Return a TOC nodetree -- for use on the same page only!"""
         tocdepth = self.env.metadata[docname].get('tocdepth', 0)
         try:
-            toc = self.env.tocs[docname].deepcopy()
-            self._toctree_prune(toc, 2, tocdepth)
+            toc = self._toctree_copy(self.env.tocs[docname], 2, tocdepth)
         except KeyError:
             # the document does not exist anymore: return a dummy node that
             # renders to nothing
