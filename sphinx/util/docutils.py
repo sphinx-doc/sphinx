@@ -370,17 +370,17 @@ def switch_source_input(state: State, content: StringList) -> Generator[None, No
     """Switch current source input of state temporarily."""
     try:
         # remember the original ``get_source_and_line()`` method
-        get_source_and_line = state.memo.reporter.get_source_and_line
+        get_source_and_line = state.memo.reporter.get_source_and_line  # type: ignore[attr-defined]
 
         # replace it by new one
         state_machine = StateMachine([], None)
         state_machine.input_lines = content
-        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line
+        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]
 
         yield
     finally:
         # restore the method
-        state.memo.reporter.get_source_and_line = get_source_and_line
+        state.memo.reporter.get_source_and_line = get_source_and_line  # type: ignore[attr-defined]
 
 
 class SphinxFileOutput(FileOutput):
