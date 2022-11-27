@@ -3,7 +3,7 @@
 "Doc fields" are reST field lists in object descriptions that will
 be domain-specifically transformed to a more appealing presentation.
 """
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Type, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -26,7 +26,7 @@ def _is_single_paragraph(node: nodes.field_body) -> bool:
     if len(node) == 0:
         return False
     elif len(node) > 1:
-        for subnode in node[1:]:  # type: Node
+        for subnode in node[1:]:
             if not isinstance(subnode, nodes.system_message):
                 return False
     if isinstance(node[0], nodes.paragraph):
@@ -50,8 +50,15 @@ class Field:
     is_grouped = False
     is_typed = False
 
-    def __init__(self, name: str, names: Tuple[str, ...] = (), label: str = None,
-                 has_arg: bool = True, rolename: str = None, bodyrolename: str = None) -> None:
+    def __init__(
+        self,
+        name: str,
+        names: Tuple[str, ...] = (),
+        label: Optional[str] = None,
+        has_arg: bool = True,
+        rolename: Optional[str] = None,
+        bodyrolename: Optional[str] = None,
+    ) -> None:
         self.name = name
         self.names = names
         self.label = label
@@ -59,10 +66,17 @@ class Field:
         self.rolename = rolename
         self.bodyrolename = bodyrolename
 
-    def make_xref(self, rolename: str, domain: str, target: str,
-                  innernode: Type[TextlikeNode] = addnodes.literal_emphasis,
-                  contnode: Node = None, env: BuildEnvironment = None,
-                  inliner: Inliner = None, location: Node = None) -> Node:
+    def make_xref(
+        self,
+        rolename: str,
+        domain: str,
+        target: str,
+        innernode: Type[TextlikeNode] = addnodes.literal_emphasis,
+        contnode: Optional[Node] = None,
+        env: Optional[BuildEnvironment] = None,
+        inliner: Optional[Inliner] = None,
+        location: Optional[Node] = None
+    ) -> Node:
         # note: for backwards compatibility env is last, but not optional
         assert env is not None
         assert (inliner is None) == (location is None), (inliner, location)
@@ -85,19 +99,32 @@ class Field:
         ns, messages = role(rolename, target, target, lineno, inliner, {}, [])
         return nodes.inline(target, '', *ns)
 
-    def make_xrefs(self, rolename: str, domain: str, target: str,
-                   innernode: Type[TextlikeNode] = addnodes.literal_emphasis,
-                   contnode: Node = None, env: BuildEnvironment = None,
-                   inliner: Inliner = None, location: Node = None) -> List[Node]:
+    def make_xrefs(
+        self,
+        rolename: str,
+        domain: str,
+        target: str,
+        innernode: Type[TextlikeNode] = addnodes.literal_emphasis,
+        contnode: Optional[Node] = None,
+        env: Optional[BuildEnvironment] = None,
+        inliner: Optional[Inliner] = None,
+        location: Optional[Node] = None,
+    ) -> List[Node]:
         return [self.make_xref(rolename, domain, target, innernode, contnode,
                                env, inliner, location)]
 
     def make_entry(self, fieldarg: str, content: List[Node]) -> Tuple[str, List[Node]]:
         return (fieldarg, content)
 
-    def make_field(self, types: Dict[str, List[Node]], domain: str,
-                   item: Tuple, env: BuildEnvironment = None,
-                   inliner: Inliner = None, location: Node = None) -> nodes.field:
+    def make_field(
+        self,
+        types: Dict[str, List[Node]],
+        domain: str,
+        item: Tuple,
+        env: Optional[BuildEnvironment] = None,
+        inliner: Optional[Inliner] = None,
+        location: Optional[Node] = None
+    ) -> nodes.field:
         fieldarg, content = item
         fieldname = nodes.field_name('', self.label)
         if fieldarg:
@@ -133,14 +160,26 @@ class GroupedField(Field):
     is_grouped = True
     list_type = nodes.bullet_list
 
-    def __init__(self, name: str, names: Tuple[str, ...] = (), label: str = None,
-                 rolename: str = None, can_collapse: bool = False) -> None:
+    def __init__(
+        self,
+        name: str,
+        names: Tuple[str, ...] = (),
+        label: Optional[str] = None,
+        rolename: Optional[str] = None,
+        can_collapse: bool = False
+    ) -> None:
         super().__init__(name, names, label, True, rolename)
         self.can_collapse = can_collapse
 
-    def make_field(self, types: Dict[str, List[Node]], domain: str,
-                   items: Tuple, env: BuildEnvironment = None,
-                   inliner: Inliner = None, location: Node = None) -> nodes.field:
+    def make_field(
+        self,
+        types: Dict[str, List[Node]],
+        domain: str,
+        items: Tuple,
+        env: Optional[BuildEnvironment] = None,
+        inliner: Optional[Inliner] = None,
+        location: Optional[Node] = None,
+    ) -> nodes.field:
         fieldname = nodes.field_name('', self.label)
         listnode = self.list_type()
         for fieldarg, content in items:
@@ -182,16 +221,29 @@ class TypedField(GroupedField):
     """
     is_typed = True
 
-    def __init__(self, name: str, names: Tuple[str, ...] = (), typenames: Tuple[str, ...] = (),
-                 label: str = None, rolename: str = None, typerolename: str = None,
-                 can_collapse: bool = False) -> None:
+    def __init__(
+        self,
+        name: str,
+        names: Tuple[str, ...] = (),
+        typenames: Tuple[str, ...] = (),
+        label: Optional[str] = None,
+        rolename: Optional[str] = None,
+        typerolename: Optional[str] = None,
+        can_collapse: bool = False,
+    ) -> None:
         super().__init__(name, names, label, rolename, can_collapse)
         self.typenames = typenames
         self.typerolename = typerolename
 
-    def make_field(self, types: Dict[str, List[Node]], domain: str,
-                   items: Tuple, env: BuildEnvironment = None,
-                   inliner: Inliner = None, location: Node = None) -> nodes.field:
+    def make_field(
+        self,
+        types: Dict[str, List[Node]],
+        domain: str,
+        items: Tuple,
+        env: Optional[BuildEnvironment] = None,
+        inliner: Optional[Inliner] = None,
+        location: Optional[Node] = None,
+    ) -> nodes.field:
         def handle_item(fieldarg: str, content: str) -> nodes.paragraph:
             par = nodes.paragraph()
             par.extend(self.make_xrefs(self.rolename, domain, fieldarg,

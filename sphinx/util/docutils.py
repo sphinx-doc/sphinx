@@ -134,7 +134,7 @@ def patched_get_language() -> Generator[None, None, None]:
     """
     from docutils.languages import get_language
 
-    def patched_get_language(language_code: str, reporter: Reporter = None) -> Any:
+    def patched_get_language(language_code: str, reporter: Optional[Reporter] = None) -> Any:
         return get_language(language_code)
 
     try:
@@ -158,7 +158,7 @@ def patched_rst_get_language() -> Generator[None, None, None]:
     """
     from docutils.parsers.rst.languages import get_language
 
-    def patched_get_language(language_code: str, reporter: Reporter = None) -> Any:
+    def patched_get_language(language_code: str, reporter: Optional[Reporter] = None) -> Any:
         return get_language(language_code)
 
     try:
@@ -370,17 +370,17 @@ def switch_source_input(state: State, content: StringList) -> Generator[None, No
     """Switch current source input of state temporarily."""
     try:
         # remember the original ``get_source_and_line()`` method
-        get_source_and_line = state.memo.reporter.get_source_and_line  # type: ignore
+        get_source_and_line = state.memo.reporter.get_source_and_line
 
         # replace it by new one
         state_machine = StateMachine([], None)
         state_machine.input_lines = content
-        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore  # noqa: E501
+        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line
 
         yield
     finally:
         # restore the method
-        state.memo.reporter.get_source_and_line = get_source_and_line  # type: ignore
+        state.memo.reporter.get_source_and_line = get_source_and_line
 
 
 class SphinxFileOutput(FileOutput):
@@ -487,12 +487,12 @@ class SphinxRole:
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
-    def get_source_info(self, lineno: int = None) -> Tuple[str, int]:
+    def get_source_info(self, lineno: Optional[int] = None) -> Tuple[str, int]:
         if lineno is None:
             lineno = self.lineno
         return self.inliner.reporter.get_source_and_line(lineno)  # type: ignore
 
-    def set_source_info(self, node: Node, lineno: int = None) -> None:
+    def set_source_info(self, node: Node, lineno: Optional[int] = None) -> None:
         node.source, node.line = self.get_source_info(lineno)
 
     def get_location(self) -> str:
