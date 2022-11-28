@@ -109,6 +109,8 @@ class Builder:
         self.imagedir = ""
         # relative path to image directory from current docname (used at writing docs)
         self.imgpath = ""
+        # set batchsize preference for parallel builds
+        self.batchsize = env.config.batchsize
 
         # these get set later
         self.parallel_ok = False
@@ -454,7 +456,7 @@ class Builder:
             self.read_doc(docname)
 
     def _read_parallel(self, docnames: List[str], nproc: int) -> None:
-        chunks = make_chunks(docnames, nproc)
+        chunks = make_chunks(docnames, nproc, self.batchsize)
 
         # create a status_iterator to step progressbar after reading a document
         # (see: ``merge()`` function)
@@ -595,7 +597,7 @@ class Builder:
         self.write_doc(firstname, doctree)
 
         tasks = ParallelTasks(nproc)
-        chunks = make_chunks(docnames, nproc)
+        chunks = make_chunks(docnames, nproc, self.batchsize)
 
         # create a status_iterator to step progressbar after writing a document
         # (see: ``on_chunk_done()`` function)
