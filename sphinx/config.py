@@ -145,7 +145,7 @@ class Config:
                                   'builders': ['man', 'text']},
                                  'env', []),
         'option_emphasise_placeholders': (False, 'env', []),
-        'batchsize': (10, 'env', [int]),
+        'parallel_batchsize': (10, 'env', [int]),
     }
 
     def __init__(self, config: Dict[str, Any] = {}, overrides: Dict[str, Any] = {}) -> None:

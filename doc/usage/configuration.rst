@@ -755,6 +755,17 @@ General configuration
 
    .. versionadded:: 5.1
 
+.. confval:: parallel_batchsize
+
+   Sets the preferred batchsize for parallel builds.
+   Ideally, Sphinx will try to distribute the processing of documentation files equally among the available processors.
+   However, if the number of documents allocated to each process exceeds the configured value, Sphinx will adjust the batches accordingly.
+
+   Default is ``10``.
+
+   .. versionadded:: 6.0
+      Previously, Sphinx always set this to ``10``, which lead to performance issues in bigger documentation builds.
+
 .. _intl-options:
 
 Options for internationalization
