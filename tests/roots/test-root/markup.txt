@@ -355,6 +355,26 @@ This tests :CLASS:`role names in uppercase`.
    ähnlich
       Dinge
 
+.. glossary:: ID
+   :sorted:
+
+   boson
+      Particle with integer spin.
+
+   *fermion*
+      Particle with half-integer spin.
+
+   tauon
+   myon
+   electron
+      Examples for fermions.
+
+   über
+      Gewisse
+
+   ähnlich
+      Dinge
+
 .. productionlist::
    try_stmt: `try1_stmt` | `try2_stmt`
    try1_stmt: "try" ":" `suite`

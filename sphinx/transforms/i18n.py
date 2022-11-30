@@ -220,7 +220,7 @@ class Locale(SphinxTransform):
                     parts = split_term_classifiers(msgstr)
                     patch = publish_msgstr(self.app, parts[0], source,
                                            node.line, self.config, settings)
-                    patch = make_glossary_term(self.env, patch, parts[1],
+                    patch = make_glossary_term(self.env, patch, '', parts[1],
                                                source, node.line, _id,
                                                self.document)
                     processed = True

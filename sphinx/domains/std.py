@@ -290,30 +290,31 @@ def split_term_classifiers(line: str) -> List[Optional[str]]:
     return parts
 
 
-def make_glossary_term(env: "BuildEnvironment", textnodes: Iterable[Node], index_key: str,
-                       source: str, lineno: int, node_id: str, document: nodes.document
+def make_glossary_term(env: "BuildEnvironment", textnodes: Iterable[Node], key: str,
+                       index_key: str, source: str, lineno: int, node_id: str,
+                       document: nodes.document
                        ) -> nodes.term:
     # get a text-only representation of the term and register it
-    # as a cross-reference target
+    # as a cross-reference target with the proper key.
     term = nodes.term('', '', *textnodes)
     term.source = source
     term.line = lineno
-    termtext = term.astext()
+    term_reference = key + term.astext()
 
     if node_id:
         # node_id is given from outside (mainly i18n module), use it forcedly
         term['ids'].append(node_id)
     else:
-        node_id = make_id(env, document, 'term', termtext)
+        node_id = make_id(env, document, 'term', term_reference)
         term['ids'].append(node_id)
         document.note_explicit_target(term)
 
     std = cast(StandardDomain, env.get_domain('std'))
-    std._note_term(termtext, node_id, location=term)
+    std._note_term(term_reference, node_id, location=term)
 
     # add an index entry too
     indexnode = addnodes.index()
-    indexnode['entries'] = [('single', termtext, node_id, 'main', index_key)]
+    indexnode['entries'] = [('single', term_reference, node_id, 'main', index_key)]
     indexnode.source, indexnode.line = term.source, term.line
     term.append(indexnode)
 
@@ -328,13 +329,18 @@ class Glossary(SphinxDirective):
 
     has_content = True
     required_arguments = 0
-    optional_arguments = 0
+    optional_arguments = 1
     final_argument_whitespace = False
     option_spec: OptionSpec = {
         'sorted': directives.flag,
     }
 
     def run(self) -> List[Node]:
+        if self.arguments:
+            key = self.arguments[0].strip() + ":"
+        else:
+            key = ''
+
         node = addnodes.glossary()
         node.document = self.state.document
         node['sorted'] = ('sorted' in self.options)
@@ -413,7 +419,7 @@ class Glossary(SphinxDirective):
                 textnodes, sysmsg = self.state.inline_text(parts[0], lineno)
 
                 # use first classifier as a index key
-                term = make_glossary_term(self.env, textnodes, parts[1], source, lineno,
+                term = make_glossary_term(self.env, textnodes, key, parts[1], source, lineno,
                                           node_id=None, document=self.state.document)
                 term.rawsource = line
                 system_messages.extend(sysmsg)

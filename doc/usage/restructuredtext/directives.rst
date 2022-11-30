@@ -831,6 +831,25 @@ Glossary
    The whole characters in "key" is used instead of a first character; it is
    used for "Combining Character Sequence" and "Surrogate Pairs" grouping key.
 
+   If you want to specify a "glossary key" to make glossaries unique even if
+   they have terms with the same names, you can put a "key" as
+   ".. glossary:: key". For example::
+
+      .. glossary::
+
+         term 1
+            Definition
+      
+      .. glossary:: second
+
+         term 1
+            Different Definition
+
+   This "glossary key" makes is so that you can properly reference glossaries as::
+      
+      The syntax to reference the first glossary is :term:`term 1` and to reference
+      the second glossary the syntax is :term:`second:term 1`.
+
    In i18n situation, you can specify "localized term : key" even if original
    text only have "term" part. In this case, translated "localized term" will be
    categorized in "key" group.
