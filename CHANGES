@@ -60,6 +60,9 @@ Features added
 Bugs fixed
 ----------
 
+* #10984: LaTeX: Document :confval:`latex_additional_files` behavior for files
+  with ``.tex`` extension.
+
 Testing
 --------
 
