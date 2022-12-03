@@ -251,21 +251,22 @@ def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Nod
 
 
 def _parse_arglist(
-    arglist: str, env: BuildEnvironment | None = None
+    arglist: str, env: BuildEnvironment | None = None, multiline=False
 ) -> addnodes.desc_parameterlist:
     """Parse a list of arguments using AST parser"""
     params = addnodes.desc_parameterlist(arglist)
     sig = signature_from_str('(%s)' % arglist)
     last_kind = None
     for param in sig.parameters.values():
+        param_node = addnodes.desc_compact_content() if multiline else params
         if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:
             # PEP-570: Separator for Positional Only Parameter: /
-            params += addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '/'))
+            param_node += addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '/'))
         if param.kind == param.KEYWORD_ONLY and last_kind in (param.POSITIONAL_OR_KEYWORD,
                                                               param.POSITIONAL_ONLY,
                                                               None):
             # PEP-3102: Separator for Keyword Only Parameter: *
-            params += addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '*'))
+            param_node += addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '*'))
 
         node = addnodes.desc_parameter()
         if param.kind == param.VAR_POSITIONAL:
@@ -292,7 +293,9 @@ def _parse_arglist(
             node += nodes.inline('', param.default, classes=['default_value'],
                                  support_smartquotes=False)
 
-        params += node
+        param_node += node
+        if multiline:
+            params += param_node
         last_kind = param.kind
 
     if last_kind == Parameter.POSITIONAL_ONLY:
@@ -452,6 +455,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
+        'singlelinesig': directives.flag,
         'module': directives.unchanged,
         'canonical': directives.unchanged,
         'annotation': directives.unchanged,
@@ -533,6 +537,13 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         signode['module'] = modname
         signode['class'] = classname
         signode['fullname'] = fullname
+        max_len = self.env.config.python_maximum_signature_line_length
+        multiline = (
+            max_len >= 0
+            and 'singlelinesig' not in self.options
+            and len(sig) > max_len
+        )
+        signode['is_multiline'] = multiline
 
         sig_prefix = self.get_signature_prefix(sig)
         if sig_prefix:
@@ -553,7 +564,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         signode += addnodes.desc_name(name, name)
         if arglist:
             try:
-                signode += _parse_arglist(arglist, self.env)
+                signode += _parse_arglist(arglist, self.env, multiline=multiline)
             except SyntaxError:
                 # fallback to parse arglist original parser.
                 # it supports to represent optional arguments (ex. "func(foo [, bar])")
@@ -1510,6 +1521,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
     app.add_domain(PythonDomain)
     app.add_config_value('python_use_unqualified_type_names', False, 'env')
+    app.add_config_value('python_maximum_signature_line_length', -1, 'env')
     app.connect('object-description-transform', filter_meta_fields)
     app.connect('missing-reference', builtin_resolver, priority=900)
 

@@ -114,6 +114,12 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_desc_content(self, node: Element) -> None:
         self.body.append('</dd>')
 
+    def visit_desc_compact_content(self, node: Element) -> None:
+        self.body.append(self.starttag(node, 'dd', '', classes=['compact']))
+
+    def depart_desc_compact_content(self, node: Element) -> None:
+        self.body.append('</dd>')
+
     def visit_desc_inline(self, node: Element) -> None:
         self.body.append(self.starttag(node, 'span', ''))
 

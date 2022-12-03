@@ -183,6 +183,13 @@ class desc_content(nodes.General, nodes.Element):
     """
 
 
+class desc_compact_content(nodes.General, nodes.Element):
+    """Node for compact object description content.
+
+    Must be the last child node in a :py:class:`desc` node.
+    """
+
+
 class desc_inline(_desc_classes_injector, nodes.Inline, nodes.TextElement):
     """Node for a signature fragment in inline text.
 
