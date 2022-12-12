@@ -446,6 +446,9 @@ def test_stringify_type_union_operator():
     assert stringify_annotation(int | str | None) == "int | str | None"  # type: ignore
     assert stringify_annotation(int | str | None, "smart") == "int | str | None"  # type: ignore
 
+    assert stringify(int | Struct) == "int | struct.Struct"  # type: ignore
+    assert stringify(int | Struct, "smart") == "int | ~struct.Struct"  # type: ignore
+
 
 def test_stringify_broken_type_hints():
     assert stringify_annotation(BrokenType, 'fully-qualified-except-typing') == 'tests.test_util_typing.BrokenType'
