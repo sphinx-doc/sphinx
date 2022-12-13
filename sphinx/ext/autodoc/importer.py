@@ -2,7 +2,6 @@
 
 import importlib
 import traceback
-import warnings
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, NamedTuple, Optional
 
 from sphinx.ext.autodoc.mock import ismock, undecorate
