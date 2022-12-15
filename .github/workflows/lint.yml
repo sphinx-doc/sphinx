@@ -27,3 +27,13 @@ jobs:
       run:  python -m pip install -U tox pip
     - name: Run Tox
       run:  tox -e ${{ matrix.tool }}
+
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - uses: pre-commit/action@v3.0.0
