@@ -106,7 +106,9 @@ class ShowUrlsTransform(SphinxPostTransform):
             raise ValueError('Failed to get a docname!') from None
         raise ValueError(f'Failed to get a docname for source {source!r}!')
 
-    def create_footnote(self, uri: str, docname: str) -> Tuple[nodes.footnote, nodes.footnote_reference]:  # NOQA
+    def create_footnote(
+        self, uri: str, docname: str
+    ) -> Tuple[nodes.footnote, nodes.footnote_reference]:
         reference = nodes.reference('', nodes.Text(uri), refuri=uri, nolinkurl=True)
         footnote = nodes.footnote(uri, auto=1, docname=docname)
         footnote['names'].append('#')

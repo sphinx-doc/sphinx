@@ -735,7 +735,7 @@ def test_domain_c_build_intersphinx(tempdir, app, status, warning):
 
 .. c:type:: _type
 .. c:function:: void _functionParam(int param)
-"""  # noqa
+"""  # noqa: F841
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
@@ -755,7 +755,7 @@ _struct c:struct 1 index.html#c.$ -
 _type c:type 1 index.html#c.$ -
 _union c:union 1 index.html#c.$ -
 _var c:member 1 index.html#c.$ -
-'''))  # noqa
+'''))  # noqa: W291
     app.config.intersphinx_mapping = {
         'https://localhost/intersphinx/c/': inv_file,
     }

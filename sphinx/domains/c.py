@@ -1743,7 +1743,7 @@ class Symbol:
             Symbol.debug_indent -= 2
 
     def _symbol_lookup(self, nestedName: ASTNestedName,
-                       onMissingQualifiedSymbol: Callable[["Symbol", ASTIdentifier], "Symbol"],  # NOQA
+                       onMissingQualifiedSymbol: Callable[["Symbol", ASTIdentifier], "Symbol"],
                        ancestorLookupType: str, matchSelf: bool,
                        recurseInAnon: bool, searchInSiblings: bool) -> SymbolLookupResult:
         # TODO: further simplification from C++ to C
@@ -1948,7 +1948,9 @@ class Symbol:
         # if there is an empty symbol, fill that one
         if len(noDecl) == 0:
             if Symbol.debug_lookup:
-                Symbol.debug_print("no match, no empty, candSybmol is not None?:", candSymbol is not None)  # NOQA
+                Symbol.debug_print(
+                    "no match, no empty, candSybmol is not None?:", candSymbol is not None,
+                )
                 Symbol.debug_indent -= 2
             if candSymbol is not None:
                 return candSymbol
@@ -3684,7 +3686,7 @@ class CDomain(Domain):
         'enumerator': ObjType(_('enumerator'), 'enumerator',    'identifier'),
         'type': ObjType(_('type'),                              'identifier', 'type'),
         # generated object types
-        'functionParam': ObjType(_('function parameter'),       'identifier', 'var', 'member', 'data'),  # noqa
+        'functionParam': ObjType(_('function parameter'),       'identifier', 'var', 'member', 'data'),  # noqa: E501
     }
 
     directives = {

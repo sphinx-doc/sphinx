@@ -122,7 +122,9 @@ class TexinfoBuilder(Builder):
                 docwriter.write(doctree, destination)
                 self.copy_image_files(targetname[:-5])
 
-    def assemble_doctree(self, indexfile: str, toctree_only: bool, appendices: List[str]) -> nodes.document:  # NOQA
+    def assemble_doctree(
+        self, indexfile: str, toctree_only: bool, appendices: List[str]
+    ) -> nodes.document:
         self.docnames = set([indexfile] + appendices)
         logger.info(darkgreen(indexfile) + " ", nonl=True)
         tree = self.env.get_doctree(indexfile)
@@ -192,7 +194,9 @@ class TexinfoBuilder(Builder):
             logger.warning(__("error writing file Makefile: %s"), err)
 
 
-def default_texinfo_documents(config: Config) -> List[Tuple[str, str, str, str, str, str, str]]:  # NOQA
+def default_texinfo_documents(
+    config: Config
+) -> List[Tuple[str, str, str, str, str, str, str]]:
     """ Better default texinfo_documents settings. """
     filename = make_filename_from_project(config.project)
     return [(config.root_doc, filename, config.project, config.author, filename,

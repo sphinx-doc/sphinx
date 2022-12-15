@@ -9,7 +9,7 @@ from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
 
 from sphinx import addnodes
-from sphinx.domains.changeset import VersionChange  # NOQA  # for compatibility
+from sphinx.domains.changeset import VersionChange  # noqa: F401  # for compatibility
 from sphinx.locale import _, __
 from sphinx.util import docname_join, logging, url_re
 from sphinx.util.docutils import SphinxDirective

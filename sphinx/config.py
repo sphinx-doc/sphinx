@@ -380,7 +380,7 @@ def convert_source_suffix(app: "Sphinx", config: Config) -> None:
         config.source_suffix = OrderedDict({source_suffix: None})  # type: ignore
     elif isinstance(source_suffix, (list, tuple)):
         # if list, considers as all of them are default filetype
-        config.source_suffix = OrderedDict([(s, None) for s in source_suffix])  # type: ignore  # NOQA
+        config.source_suffix = OrderedDict([(s, None) for s in source_suffix])  # type: ignore
     elif isinstance(source_suffix, dict):
         # if dict, convert it to OrderedDict
         config.source_suffix = OrderedDict(config.source_suffix)  # type: ignore
