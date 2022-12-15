@@ -43,7 +43,7 @@ from sphinx.util.tags import Tags
 from sphinx.util.typing import RoleFunction, TitleGetter
 
 if TYPE_CHECKING:
-    from docutils.nodes import Node  # NOQA
+    from docutils.nodes import Node  # noqa: F401
 
     from sphinx.builders import Builder
 
@@ -934,7 +934,7 @@ class Sphinx:
         refs: `Transform Priority Range Categories`__
 
         __ https://docutils.sourceforge.io/docs/ref/transforms.html#transform-priority-range-categories
-        """  # NOQA
+        """  # noqa: E501
         self.registry.add_transform(transform)
 
     def add_post_transform(self, transform: Type[Transform]) -> None:

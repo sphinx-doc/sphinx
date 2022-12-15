@@ -59,7 +59,10 @@ def get_lvar_names(node: ast.AST, self: Optional[ast.arg] = None) -> List[str]:
                 pass
         return members
     elif node_name == 'Attribute':
-        if node.value.__class__.__name__ == 'Name' and self and node.value.id == self_id:  # type: ignore  # NOQA
+        if (
+            node.value.__class__.__name__ == 'Name' and  # type: ignore[attr-defined]
+            self and node.value.id == self_id  # type: ignore[attr-defined]
+        ):
             # instance variable
             return ["%s" % get_lvar_names(node.attr, self)[0]]  # type: ignore
         else:
@@ -344,7 +347,9 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Handles Assign node and pick up a variable comment."""
         try:
             targets = get_assign_targets(node)
-            varnames: List[str] = sum([get_lvar_names(t, self=self.get_self()) for t in targets], [])  # NOQA
+            varnames: List[str] = sum(
+                [get_lvar_names(t, self=self.get_self()) for t in targets], []
+            )
             current_line = self.get_line(node.lineno)
         except TypeError:
             return  # this assignment is not new definition!

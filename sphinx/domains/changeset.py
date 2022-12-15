@@ -135,7 +135,9 @@ class ChangeSetDomain(Domain):
                 if changeset.docname in docnames:
                     changes.append(changeset)
 
-    def process_doc(self, env: "BuildEnvironment", docname: str, document: nodes.document) -> None:  # NOQA
+    def process_doc(
+        self, env: "BuildEnvironment", docname: str, document: nodes.document
+    ) -> None:
         pass  # nothing to do here. All changesets are registered on calling directive.
 
     def get_changesets_for(self, version: str) -> List[ChangeSet]:
