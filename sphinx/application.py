@@ -26,7 +26,6 @@ from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
-from sphinx.ext.autodoc import Documenter
 from sphinx.extension import Extension
 from sphinx.highlighting import lexer_classes
 from sphinx.locale import __
@@ -48,6 +47,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Node  # noqa: F401
 
     from sphinx.builders import Builder
+    from sphinx.ext.autodoc import Documenter
 
 
 builtin_extensions = (
