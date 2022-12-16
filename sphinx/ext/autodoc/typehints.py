@@ -153,8 +153,8 @@ def augment_descriptions_with_types(
     force_rtype: bool
 ) -> None:
     fields = cast(Iterable[nodes.field], node)
-    has_description = set()  # type: Set[str]
-    has_type = set()  # type: Set[str]
+    has_description: Set[str] = set()
+    has_type: Set[str] = set()
     for field in fields:
         field_name = field[0].astext()
         parts = re.split(' +', field_name)
