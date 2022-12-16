@@ -390,7 +390,7 @@ class SphinxComponentRegistry:
         packages = self.latex_packages + self.latex_packages_after_hyperref
         return bool([x for x in packages if x[0] == name])
 
-    def add_latex_package(self, name: str, options: str, after_hyperref: bool = False) -> None:
+    def add_latex_package(self, name: str, options: Optional[str], after_hyperref: bool = False) -> None:
         if self.has_latex_package(name):
             logger.warning("latex package '%s' already included", name)
 
@@ -411,9 +411,12 @@ class SphinxComponentRegistry:
             raise ExtensionError(__('enumerable_node %r already registered') % node)
         self.enumerable_nodes[node] = (figtype, title_getter)
 
-    def add_html_math_renderer(self, name: str,
-                               inline_renderers: Tuple[Callable, Callable],
-                               block_renderers: Tuple[Callable, Callable]) -> None:
+    def add_html_math_renderer(
+        self,
+        name: str,
+        inline_renderers: Optional[Tuple[Callable, Callable]],
+        block_renderers: Optional[Tuple[Callable, Callable]],
+    ) -> None:
         logger.debug('[app] adding html_math_renderer: %s, %r, %r',
                      name, inline_renderers, block_renderers)
         if name in self.html_inline_math_renderers:

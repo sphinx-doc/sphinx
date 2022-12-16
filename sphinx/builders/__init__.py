@@ -33,10 +33,6 @@ from sphinx.util.typing import NoneType
 # side effect: registers roles and directives
 from sphinx import directives  # noqa: F401  isort:skip
 from sphinx import roles  # noqa: F401  isort:skip
-try:
-    import multiprocessing
-except ImportError:
-    multiprocessing = None
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -61,7 +57,7 @@ class Builder:
 
     #: default translator class for the builder.  This can be overridden by
     #: :py:meth:`app.set_translator()`.
-    default_translator_class: Type[nodes.NodeVisitor] = None
+    default_translator_class: Type[nodes.NodeVisitor]
     # doctree versioning method
     versioning_method = 'none'
     versioning_compare = False
@@ -78,7 +74,7 @@ class Builder:
     #: The builder supports data URIs or not.
     supported_data_uri_images = False
 
-    def __init__(self, app: "Sphinx", env: BuildEnvironment = None) -> None:
+    def __init__(self, app: "Sphinx", env: Optional[BuildEnvironment] = None) -> None:
         self.srcdir = app.srcdir
         self.confdir = app.confdir
         self.outdir = app.outdir
@@ -94,7 +90,7 @@ class Builder:
             # ... is passed by SphinxComponentRegistry.create_builder to not show two warnings.
             warnings.warn("The 'env' argument to Builder will be required from Sphinx 7.",
                           RemovedInSphinx70Warning, stacklevel=2)
-            self.env = None
+            self.env = None  # type: ignore[assignment]
         self.events: EventManager = app.events
         self.config: Config = app.config
         self.tags: Tags = app.tags
@@ -151,7 +147,7 @@ class Builder:
             from sphinx.jinja2glue import BuiltinTemplateLoader
             self.templates = BuiltinTemplateLoader()
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
         """Return the target URI for a document name.
 
         *typ* can be used to qualify the link characteristic for individual
@@ -159,7 +155,7 @@ class Builder:
         """
         raise NotImplementedError
 
-    def get_relative_uri(self, from_: str, to: str, typ: str = None) -> str:
+    def get_relative_uri(self, from_: str, to: str, typ: Optional[str] = None) -> str:
         """Return a relative URI between two source filenames.
 
         May raise environment.NoUri if there's no way to return a sensible URI.
@@ -312,7 +308,10 @@ class Builder:
                        len(to_build))
 
     def build(
-        self, docnames: Iterable[str], summary: Optional[str] = None, method: str = 'update'
+        self,
+        docnames: Optional[Iterable[str]],
+        summary: Optional[str] = None,
+        method: str = 'update'
     ) -> None:
         """Main build method.
 
@@ -543,7 +542,7 @@ class Builder:
 
     def write(
         self,
-        build_docnames: Iterable[str],
+        build_docnames: Optional[Iterable[str]],
         updated_docnames: Sequence[str],
         method: str = 'update'
     ) -> None:

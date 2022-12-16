@@ -26,12 +26,14 @@ from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
+from sphinx.ext.autodoc import Documenter
 from sphinx.extension import Extension
 from sphinx.highlighting import lexer_classes
 from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.roles import XRefRole
+from sphinx.search import SearchLanguage
 from sphinx.theming import Theme
 from sphinx.util import docutils, logging, progress_message
 from sphinx.util.build_phase import BuildPhase
@@ -1116,7 +1118,7 @@ class Sphinx:
         logger.debug('[app] adding lexer: %r', (alias, lexer))
         lexer_classes[alias] = lexer
 
-    def add_autodocumenter(self, cls: Any, override: bool = False) -> None:
+    def add_autodocumenter(self, cls: Type[Documenter], override: bool = False) -> None:
         """Register a new documenter class for the autodoc extension.
 
         Add *cls* as a new documenter class for the :mod:`sphinx.ext.autodoc`
@@ -1154,7 +1156,7 @@ class Sphinx:
         logger.debug('[app] adding autodoc attrgetter: %r', (typ, getter))
         self.registry.add_autodoc_attrgetter(typ, getter)
 
-    def add_search_language(self, cls: Any) -> None:
+    def add_search_language(self, cls: Type[SearchLanguage]) -> None:
         """Register a new language for the HTML search index.
 
         Add *cls*, which must be a subclass of
@@ -1168,6 +1170,7 @@ class Sphinx:
         logger.debug('[app] adding search language: %r', cls)
         from sphinx.search import SearchLanguage, languages
         assert issubclass(cls, SearchLanguage)
+        assert cls.lang is not None
         languages[cls.lang] = cls
 
     def add_source_suffix(self, suffix: str, filetype: str, override: bool = False) -> None:
@@ -1221,9 +1224,11 @@ class Sphinx:
         logger.debug('[app] adding HTML theme: %r, %r', name, theme_path)
         self.registry.add_html_theme(name, theme_path)
 
-    def add_html_math_renderer(self, name: str,
-                               inline_renderers: Tuple[Callable, Callable] = None,
-                               block_renderers: Tuple[Callable, Callable] = None) -> None:
+    def add_html_math_renderer(
+        self, name: str,
+        inline_renderers: Optional[Tuple[Callable, Callable]] = None,
+        block_renderers: Optional[Tuple[Callable, Callable]] = None
+    ) -> None:
         """Register a math renderer for HTML.
 
         The *name* is a name of math renderer.  Both *inline_renderers* and
