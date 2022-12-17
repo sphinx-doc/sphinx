@@ -254,11 +254,11 @@ def _parse_arglist(
     arglist: str, env: BuildEnvironment | None = None, multiline=False
 ) -> addnodes.desc_parameterlist:
     """Parse a list of arguments using AST parser"""
-    params = addnodes.desc_parameterlist(arglist)
+    params = addnodes.desc_multiline_parameterlist(arglist) if multiline else addnodes.desc_parameterlist(arglist)
     sig = signature_from_str('(%s)' % arglist)
     last_kind = None
     for param in sig.parameters.values():
-        param_node = addnodes.desc_compact_content() if multiline else params
+        param_node = addnodes.desc_content() if multiline else params
         if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:
             # PEP-570: Separator for Positional Only Parameter: /
             param_node += addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '/'))

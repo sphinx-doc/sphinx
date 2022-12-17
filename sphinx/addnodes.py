@@ -183,13 +183,6 @@ class desc_content(nodes.General, nodes.Element):
     """
 
 
-class desc_compact_content(nodes.General, nodes.Element):
-    """Node for compact object description content.
-
-    Must be the last child node in a :py:class:`desc` node.
-    """
-
-
 class desc_inline(_desc_classes_injector, nodes.Inline, nodes.TextElement):
     """Node for a signature fragment in inline text.
 
@@ -250,6 +243,15 @@ class desc_returns(desc_type):
 
 class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a general parameter list."""
+    child_text_separator = ', '
+
+    def astext(self):
+        return f'({super().astext()})'
+
+
+class desc_multiline_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
+    """Node for a multiline parameter list.
+    """
     child_text_separator = ', '
 
     def astext(self):

@@ -114,12 +114,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_desc_content(self, node: Element) -> None:
         self.body.append('</dd>')
 
-    def visit_desc_compact_content(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'dd', '', classes=['compact']))
-
-    def depart_desc_compact_content(self, node: Element) -> None:
-        self.body.append('</dd>')
-
     def visit_desc_inline(self, node: Element) -> None:
         self.body.append(self.starttag(node, 'span', ''))
 
@@ -165,6 +159,20 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.param_separator = node.child_text_separator
 
     def depart_desc_parameterlist(self, node: Element) -> None:
+        self.body.append('<span class="sig-paren">)</span>')
+
+    def visit_desc_multiline_parameterlist(self, node: Element) -> None:
+        self.body.append('<span class="sig-paren">(</span>')
+        self.first_param = 1
+        self.optional_param_level = 0
+        # How many required parameters are left.
+        self.required_params_left = sum([isinstance(c, addnodes.desc_parameter)
+                                         for c in node.children])
+        self.param_separator = node.child_text_separator
+        self.body.append(self.starttag(node, 'dl'))
+
+    def depart_desc_multiline_parameterlist(self, node: Element) -> None:
+        self.body.append('</dl>\n\n')
         self.body.append('<span class="sig-paren">)</span>')
 
     # If required parameters are still to come, then put the comma after
