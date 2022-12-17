@@ -95,7 +95,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def depart_desc_signature(self, node: Element) -> None:
         self.protect_literal_text -= 1
-        if not node.get('is_multiline'):
+        if not node.get('is_multiline') or node.get('add_permalink'):
             self.add_permalink_ref(node, _('Permalink to this definition'))
         self.body.append('</dt>\n')
 

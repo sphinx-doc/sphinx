@@ -544,6 +544,8 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
             and len(sig) > max_len
         )
         signode['is_multiline'] = multiline
+        if multiline:
+            signode['add_permalink'] = True
 
         sig_prefix = self.get_signature_prefix(sig)
         if sig_prefix:
