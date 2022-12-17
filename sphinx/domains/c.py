@@ -687,9 +687,15 @@ class ASTFunctionParameter(ASTBase):
 
 
 class ASTParameters(ASTBase):
-    def __init__(self, args: list[ASTFunctionParameter], attrs: ASTAttributeList) -> None:
+    def __init__(
+        self,
+        args: list[ASTFunctionParameter],
+        attrs: ASTAttributeList,
+        multiline: bool = False,
+    ) -> None:
         self.args = args
         self.attrs = attrs
+        self.multiline = multiline
 
     @property
     def function_params(self) -> list[ASTFunctionParameter]:
@@ -713,13 +719,17 @@ class ASTParameters(ASTBase):
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:
         verify_description_mode(mode)
+        multiline = self.multiline
         # only use the desc_parameterlist for the outer list, not for inner lists
         if mode == 'lastIsName':
-            paramlist = addnodes.desc_parameterlist()
+            paramlist = addnodes.desc_multiline_parameterlist() if multiline else addnodes.desc_parameterlist()
             for arg in self.args:
+                param_node = addnodes.desc_content() if multiline else paramlist
                 param = addnodes.desc_parameter('', '', noemph=True)
                 arg.describe_signature(param, 'param', env, symbol=symbol)
-                paramlist += param
+                param_node += param
+                if multiline:
+                    paramlist += param_node
             signode += paramlist
         else:
             signode += addnodes.desc_sig_punctuation('(', '(')
@@ -2670,7 +2680,7 @@ class DefinitionParser(BaseParser):
                         'got "%s".' % self.current_char)
 
         attrs = self._parse_attribute_list()
-        return ASTParameters(args, attrs)
+        return ASTParameters(args, attrs, multiline=self.multiline)
 
     def _parse_decl_specs_simple(
         self, outer: str | None, typed: bool
@@ -3149,6 +3159,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
     option_spec: OptionSpec = {
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
+        'singlelinesig': directives.flag,
     }
 
     def _add_enumerator_to_parent(self, ast: ASTDeclaration) -> None:
@@ -3254,7 +3265,14 @@ class CObject(ObjectDescription[ASTDeclaration]):
     def handle_signature(self, sig: str, signode: TextElement) -> ASTDeclaration:
         parentSymbol: Symbol = self.env.temp_data['c:parent_symbol']
 
-        parser = DefinitionParser(sig, location=signode, config=self.env.config)
+        max_len = self.env.config.c_maximum_signature_line_length
+        multiline = (
+            max_len >= 0
+            and 'singlelinesig' not in self.options
+            and len(sig) > max_len
+        )
+        signode['is_multiline'] = multiline
+        parser = DefinitionParser(sig, location=signode, config=self.env.config, multiline=multiline)
         try:
             ast = self.parse_definition(parser)
             parser.assert_end()
@@ -3870,6 +3888,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value("c_id_attributes", [], 'env')
     app.add_config_value("c_paren_attributes", [], 'env')
     app.add_config_value("c_extra_keywords", _macroKeywords, 'env')
+    app.add_config_value("c_maximum_signature_line_length", -1, 'env')
     app.add_post_transform(AliasTransform)
 
     return {

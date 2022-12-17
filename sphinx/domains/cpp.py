@@ -2049,7 +2049,7 @@ class ASTParametersQualifiers(ASTBase):
                  refQual: str | None, exceptionSpec: ASTNoexceptSpec,
                  trailingReturn: ASTType,
                  override: bool, final: bool, attrs: ASTAttributeList,
-                 initializer: str | None) -> None:
+                 initializer: str | None, multiline: bool = False) -> None:
         self.args = args
         self.volatile = volatile
         self.const = const
@@ -2060,6 +2060,7 @@ class ASTParametersQualifiers(ASTBase):
         self.final = final
         self.attrs = attrs
         self.initializer = initializer
+        self.multiline = multiline
 
     @property
     def function_params(self) -> list[ASTFunctionParameter]:
@@ -2129,13 +2130,17 @@ class ASTParametersQualifiers(ASTBase):
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:
         verify_description_mode(mode)
+        multiline = self.multiline
         # only use the desc_parameterlist for the outer list, not for inner lists
         if mode == 'lastIsName':
-            paramlist = addnodes.desc_parameterlist()
+            paramlist = addnodes.desc_multiline_parameterlist() if multiline else addnodes.desc_parameterlist()
             for arg in self.args:
+                param_node = addnodes.desc_content() if multiline else paramlist
                 param = addnodes.desc_parameter('', '', noemph=True)
                 arg.describe_signature(param, 'param', env, symbol=symbol)
-                paramlist += param
+                param_node += param
+                if multiline:
+                    paramlist += param_node
             signode += paramlist
         else:
             signode += addnodes.desc_sig_punctuation('(', '(')
@@ -6240,7 +6245,7 @@ class DefinitionParser(BaseParser):
 
         return ASTParametersQualifiers(
             args, volatile, const, refQual, exceptionSpec, trailingReturn,
-            override, final, attrs, initializer)
+            override, final, attrs, initializer, multiline=self.multiline)
 
     def _parse_decl_specs_simple(self, outer: str, typed: bool) -> ASTDeclSpecsSimple:
         """Just parse the simple ones."""
@@ -7194,6 +7199,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
         'tparam-line-spec': directives.flag,
+        'singlelinesig': directives.flag,
     }
 
     def _add_enumerator_to_parent(self, ast: ASTDeclaration) -> None:
@@ -7350,7 +7356,14 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
     def handle_signature(self, sig: str, signode: desc_signature) -> ASTDeclaration:
         parentSymbol: Symbol = self.env.temp_data['cpp:parent_symbol']
 
-        parser = DefinitionParser(sig, location=signode, config=self.env.config)
+        max_len = self.env.config.cpp_maximum_signature_line_length
+        multiline = (
+            max_len >= 0
+            and 'singlelinesig' not in self.options
+            and len(sig) > max_len
+        )
+        signode['is_multiline'] = multiline
+        parser = DefinitionParser(sig, location=signode, config=self.env.config, multiline=multiline)
         try:
             ast = self.parse_definition(parser)
             parser.assert_end()
@@ -8142,6 +8155,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value("cpp_index_common_prefix", [], 'env')
     app.add_config_value("cpp_id_attributes", [], 'env')
     app.add_config_value("cpp_paren_attributes", [], 'env')
+    app.add_config_value("cpp_maximum_signature_line_length", -1, 'env')
     app.add_post_transform(AliasTransform)
 
     # debug stuff
