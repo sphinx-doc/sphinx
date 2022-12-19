@@ -163,13 +163,15 @@ _LOCALE_DIR = path.abspath(path.dirname(__file__))
 
 
 def init_console(
-    locale_dir: str = _LOCALE_DIR,
+    locale_dir: Optional[str] = None,
     catalog: str = 'sphinx',
 ) -> Tuple[NullTranslations, bool]:
     """Initialize locale for console.
 
     .. versionadded:: 1.8
     """
+    if locale_dir is None:
+        locale_dir = _LOCALE_DIR
     try:
         # encoding is ignored
         language, _ = locale.getlocale(locale.LC_MESSAGES)
