@@ -160,7 +160,7 @@ def merge_members_option(options: Dict) -> None:
 
 # Some useful event listener factories for autodoc-process-docstring.
 
-def cut_lines(pre: int, post: int = 0, what: str = None) -> Callable:
+def cut_lines(pre: int, post: int = 0, what: Optional[str] = None) -> Callable:
     """Return a listener that removes the first *pre* and last *post*
     lines of every docstring.  If *what* is a sequence of strings,
     only docstrings of a type in *what* will be processed.
@@ -188,8 +188,12 @@ def cut_lines(pre: int, post: int = 0, what: str = None) -> Callable:
     return process
 
 
-def between(marker: str, what: Sequence[str] = None, keepempty: bool = False,
-            exclude: bool = False) -> Callable:
+def between(
+    marker: str,
+    what: Optional[Sequence[str]] = None,
+    keepempty: bool = False,
+    exclude: bool = False
+) -> Callable:
     """Return a listener that either keeps, or if *exclude* is True excludes,
     lines between lines that match the *marker* regular expression.  If no line
     matches, the resulting docstring would be empty, so no change will be made
@@ -437,7 +441,7 @@ class Documenter:
             return False
         return True
 
-    def format_args(self, **kwargs: Any) -> str:
+    def format_args(self, **kwargs: Any) -> Optional[str]:
         """Format the argument signature of *self.object*.
 
         Should return None if the object does not have a signature.
@@ -455,7 +459,7 @@ class Documenter:
         # directives of course)
         return '.'.join(self.objpath) or self.modname
 
-    def _call_format_args(self, **kwargs: Any) -> str:
+    def _call_format_args(self, **kwargs: Any) -> Optional[str]:
         if kwargs:
             try:
                 return self.format_args(**kwargs)
@@ -835,8 +839,13 @@ class Documenter:
 
         return documenters
 
-    def generate(self, more_content: Optional[StringList] = None, real_modname: str = None,
-                 check_module: bool = False, all_members: bool = False) -> None:
+    def generate(
+        self,
+        more_content: Optional[StringList] = None,
+        real_modname: Optional[str] = None,
+        check_module: bool = False,
+        all_members: bool = False
+    ) -> None:
         """Generate reST for the object given by *self.name*, and possibly for
         its members.
 
@@ -1146,7 +1155,7 @@ class DocstringSignatureMixin:
     _new_docstrings: List[List[str]] = None
     _signatures: List[str] = None
 
-    def _find_signature(self) -> Tuple[str, str]:
+    def _find_signature(self) -> Tuple[Optional[str], Optional[str]]:
         # candidates of the object name
         valid_names = [self.objpath[-1]]  # type: ignore
         if isinstance(self, ClassDocumenter):
@@ -1200,7 +1209,7 @@ class DocstringSignatureMixin:
     def get_doc(self) -> List[List[str]]:
         if self._new_docstrings is not None:
             return self._new_docstrings
-        return super().get_doc()  # type: ignore
+        return super().get_doc()  # type: ignore[misc]
 
     def format_signature(self, **kwargs: Any) -> str:
         if self.args is None and self.config.autodoc_docstring_signature:  # type: ignore
@@ -1222,7 +1231,7 @@ class DocstringStripSignatureMixin(DocstringSignatureMixin):
     feature of stripping any function signature from the docstring.
     """
     def format_signature(self, **kwargs: Any) -> str:
-        if self.args is None and self.config.autodoc_docstring_signature:  # type: ignore
+        if self.args is None and self.config.autodoc_docstring_signature:  # type: ignore[attr-defined]
             # only act if a signature is not explicitly given already, and if
             # the feature is enabled
             result = self._find_signature()
@@ -1248,7 +1257,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         return (inspect.isfunction(member) or inspect.isbuiltin(member) or
                 (inspect.isroutine(member) and isinstance(parent, ModuleDocumenter)))
 
-    def format_args(self, **kwargs: Any) -> str:
+    def format_args(self, **kwargs: Any) -> Optional[str]:
         if self.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
         if self.config.autodoc_typehints_format == "short":
@@ -1519,7 +1528,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         # with __init__ in C and no `__text_signature__`.
         return None, None, None
 
-    def format_args(self, **kwargs: Any) -> str:
+    def format_args(self, **kwargs: Any) -> Optional[str]:
         if self.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
         if self.config.autodoc_typehints_format == "short":
@@ -1592,7 +1601,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                     analyzer.analyze()
                     qualname = '.'.join([cls.__qualname__, self._signature_method_name])
                     if qualname in analyzer.overloads:
-                        return analyzer.overloads.get(qualname)
+                        return analyzer.overloads.get(qualname, [])
                     elif qualname in analyzer.tagorder:
                         # the constructor is defined in the class, but not overridden.
                         return []
@@ -1763,8 +1772,13 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             return
         super().document_members(all_members)
 
-    def generate(self, more_content: Optional[StringList] = None, real_modname: str = None,
-                 check_module: bool = False, all_members: bool = False) -> None:
+    def generate(
+        self,
+        more_content: Optional[StringList] = None,
+        real_modname: Optional[str] = None,
+        check_module: bool = False,
+        all_members: bool = False
+    ) -> None:
         # Do not pass real_modname and use the name from the __module__
         # attribute of the class.
         # If a class gets imported into the module real_modname
@@ -2112,7 +2126,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
         return ret
 
-    def format_args(self, **kwargs: Any) -> str:
+    def format_args(self, **kwargs: Any) -> Optional[str]:
         if self.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
         if self.config.autodoc_typehints_format == "short":
