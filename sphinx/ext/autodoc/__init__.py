@@ -1231,7 +1231,10 @@ class DocstringStripSignatureMixin(DocstringSignatureMixin):
     feature of stripping any function signature from the docstring.
     """
     def format_signature(self, **kwargs: Any) -> str:
-        if self.args is None and self.config.autodoc_docstring_signature:  # type: ignore[attr-defined]
+        if (
+            self.args is None and
+            self.config.autodoc_docstring_signature  # type: ignore[attr-defined]
+        ):
             # only act if a signature is not explicitly given already, and if
             # the feature is enabled
             result = self._find_signature()
