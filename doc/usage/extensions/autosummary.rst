@@ -235,7 +235,7 @@ Autosummary uses the following Jinja template files:
 - :file:`autosummary/attribute.rst` -- template for class attributes
 - :file:`autosummary/method.rst` -- template for class methods
 
-The following variables available in the templates:
+The following variables are available in the templates:
 
 .. currentmodule:: None
 
@@ -250,6 +250,12 @@ The following variables available in the templates:
 .. data:: fullname
 
    Full name of the documented object, including module and class parts.
+
+.. data:: objtype
+
+   Type of the documented object, one of ``"module"``, ``"function"``,
+   ``"class"``, ``"method"``, ``"attribute"``, ``"data"``, ``"object"``,
+   ``"exception"``, ``"newvarattribute"``, ``"newtypedata"``, ``"property"``.
 
 .. data:: module
 
