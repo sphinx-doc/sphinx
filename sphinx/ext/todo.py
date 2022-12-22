@@ -5,7 +5,7 @@ The todolist directive collects all todos of your project and lists them along
 with a backlink to the original location.
 """
 
-from typing import Any, Dict, List, Tuple, cast
+from typing import Any, Dict, List, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -55,7 +55,7 @@ class Todo(BaseAdmonition, SphinxDirective):
         if not self.options.get('class'):
             self.options['class'] = ['admonition-todo']
 
-        (todo,) = super().run()  # type: Tuple[Node]
+        (todo,) = super().run()
         if isinstance(todo, nodes.system_message):
             return [todo]
         elif isinstance(todo, todo_node):

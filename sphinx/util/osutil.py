@@ -197,7 +197,9 @@ class FileAvoidWrite:
     def __enter__(self) -> "FileAvoidWrite":
         return self
 
-    def __exit__(self, exc_type: Type[Exception], exc_value: Exception, traceback: Any) -> bool:  # NOQA
+    def __exit__(
+        self, exc_type: Type[Exception], exc_value: Exception, traceback: Any
+    ) -> bool:
         self.close()
         return True
 

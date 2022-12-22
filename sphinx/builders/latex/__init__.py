@@ -8,7 +8,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 from docutils.frontend import OptionParser
 from docutils.nodes import Node
 
-import sphinx.builders.latex.nodes  # NOQA  # Workaround: import this before writer to avoid ImportError
+import sphinx.builders.latex.nodes  # noqa: F401,E501  # Workaround: import this before writer to avoid ImportError
 from sphinx import addnodes, highlighting, package_dir
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
@@ -321,7 +321,9 @@ class LaTeXBuilder(Builder):
         self.context['pointsize'] = theme.pointsize
         self.context['wrapperclass'] = theme.wrapperclass
 
-    def assemble_doctree(self, indexfile: str, toctree_only: bool, appendices: List[str]) -> nodes.document:  # NOQA
+    def assemble_doctree(
+        self, indexfile: str, toctree_only: bool, appendices: List[str]
+    ) -> nodes.document:
         self.docnames = set([indexfile] + appendices)
         logger.info(darkgreen(indexfile) + " ", nonl=True)
         tree = self.env.get_doctree(indexfile)

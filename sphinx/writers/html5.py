@@ -574,8 +574,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             if not ('width' in node and 'height' in node):
                 size = get_image_size(os.path.join(self.builder.srcdir, olduri))
                 if size is None:
-                    logger.warning(__('Could not obtain image size. :scale: option is ignored.'),  # NOQA
-                                   location=node)
+                    logger.warning(
+                        __('Could not obtain image size. :scale: option is ignored.'),
+                        location=node,
+                    )
                 else:
                     if 'width' not in node:
                         node['width'] = str(size[0])

@@ -5,7 +5,8 @@ import unicodedata
 from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node, Text
+from docutils.nodes import Element  # noqa: F401 (used for type comments only)
+from docutils.nodes import Node, Text
 from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
 from docutils.transforms.universal import SmartQuotes

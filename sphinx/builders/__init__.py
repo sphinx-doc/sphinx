@@ -31,8 +31,8 @@ from sphinx.util.tags import Tags
 from sphinx.util.typing import NoneType
 
 # side effect: registers roles and directives
-from sphinx import directives  # NOQA isort:skip
-from sphinx import roles  # NOQA isort:skip
+from sphinx import directives  # noqa: F401  isort:skip
+from sphinx import roles  # noqa: F401  isort:skip
 try:
     import multiprocessing
 except ImportError:
@@ -541,7 +541,12 @@ class Builder:
         with open(doctree_filename, 'wb') as f:
             pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
 
-    def write(self, build_docnames: Iterable[str], updated_docnames: Sequence[str], method: str = 'update') -> None:  # NOQA
+    def write(
+        self,
+        build_docnames: Iterable[str],
+        updated_docnames: Sequence[str],
+        method: str = 'update'
+    ) -> None:
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all
             build_docnames = self.env.found_docs
