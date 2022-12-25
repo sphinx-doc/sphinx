@@ -67,7 +67,9 @@ def dedent_lines(
     return new_lines
 
 
-def container_wrapper(directive: SphinxDirective, literal_node: Node, caption: str) -> nodes.container:  # NOQA
+def container_wrapper(
+    directive: SphinxDirective, literal_node: Node, caption: str
+) -> nodes.container:
     container_node = nodes.container('', literal_block=True,
                                      classes=['literal-block-wrapper'])
     parsed = nodes.Element()

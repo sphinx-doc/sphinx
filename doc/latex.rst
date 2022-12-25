@@ -207,6 +207,9 @@ Keys that you may want to override include:
 
       latex_additional_files = ["mystyle.sty"]
 
+   Do not use ``.tex`` as suffix, else the file is submitted itself to the PDF
+   build process, use ``.tex.txt`` or ``.sty`` as in the examples above.
+
    Default: ``''``
 
 ``'figure_align'``

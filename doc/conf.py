@@ -124,7 +124,7 @@ gettext_compact = False
 
 # -- Extension interface -------------------------------------------------------
 
-from sphinx import addnodes  # noqa
+from sphinx import addnodes  # noqa: E402
 
 event_sig_re = re.compile(r'([a-zA-Z-]+)\s*\((.*)\)')
 
@@ -185,8 +185,10 @@ def setup(app):
     # Load jQuery and patches to make readthedocs-doc-embed.js available (refs: #10574)
     app.add_js_file('https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js',
                     priority=100)
-    app.add_js_file('https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.1/underscore-min.js',  # NoQA
-                    priority=100)
+    app.add_js_file(
+        'https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.1/underscore-min.js',
+        priority=100,
+    )
     app.add_js_file('_sphinx_javascript_frameworks_compat.js', priority=105)
 
     # workaround for RTD

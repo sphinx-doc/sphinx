@@ -4494,12 +4494,18 @@ class Symbol:
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 2
 
-    def _symbol_lookup(self, nestedName: ASTNestedName, templateDecls: List[Any],
-                       onMissingQualifiedSymbol: Callable[["Symbol", Union[ASTIdentifier, ASTOperator], Any, ASTTemplateArgs], "Symbol"],  # NOQA
-                       strictTemplateParamArgLists: bool, ancestorLookupType: str,
-                       templateShorthand: bool, matchSelf: bool,
-                       recurseInAnon: bool, correctPrimaryTemplateArgs: bool,
-                       searchInSiblings: bool) -> SymbolLookupResult:
+    def _symbol_lookup(
+        self,
+        nestedName: ASTNestedName,
+        templateDecls: List[Any],
+        onMissingQualifiedSymbol: Callable[
+            ["Symbol", Union[ASTIdentifier, ASTOperator], Any, ASTTemplateArgs], "Symbol"
+        ],
+        strictTemplateParamArgLists: bool, ancestorLookupType: str,
+        templateShorthand: bool, matchSelf: bool,
+        recurseInAnon: bool, correctPrimaryTemplateArgs: bool,
+        searchInSiblings: bool
+    ) -> SymbolLookupResult:
         # ancestorLookupType: if not None, specifies the target type of the lookup
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
@@ -4788,7 +4794,10 @@ class Symbol:
                 return makeCandSymbol()
         else:
             if Symbol.debug_lookup:
-                Symbol.debug_print("no match, but fill an empty declaration, candSybmol is not None?:", candSymbol is not None)  # NOQA
+                Symbol.debug_print(
+                    "no match, but fill an empty declaration, candSybmol is not None?:",
+                    candSymbol is not None,
+                )
                 Symbol.debug_indent -= 2
             if candSymbol is not None:
                 candSymbol.remove()
@@ -7839,9 +7848,9 @@ class CPPDomain(Domain):
         'enum':       ObjType(_('enum'),       'enum',              'identifier', 'type'),
         'enumerator': ObjType(_('enumerator'), 'enumerator',        'identifier'),
         # generated object types
-        'functionParam': ObjType(_('function parameter'),           'identifier', 'member', 'var'),  # noqa
+        'functionParam': ObjType(_('function parameter'),           'identifier', 'member', 'var'),  # noqa: E501
         'templateParam': ObjType(_('template parameter'),
-                                 'identifier', 'class', 'struct', 'union', 'member', 'var', 'type'),  # noqa
+                                 'identifier', 'class', 'struct', 'union', 'member', 'var', 'type'),  # noqa: E501
     }
 
     directives = {
