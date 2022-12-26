@@ -245,14 +245,9 @@ class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a general parameter list."""
     child_text_separator = ', '
 
-    def astext(self):
-        return f'({super().astext()})'
-
-
-class desc_multiline_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
-    """Node for a multiline parameter list.
-    """
-    child_text_separator = ', '
+    def __init__(self, *args: Any, multiline: bool = False, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.multiline = multiline
 
     def astext(self):
         return f'({super().astext()})'

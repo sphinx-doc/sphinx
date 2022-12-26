@@ -254,7 +254,7 @@ def _parse_arglist(
     arglist: str, env: BuildEnvironment | None = None, multiline=False
 ) -> addnodes.desc_parameterlist:
     """Parse a list of arguments using AST parser"""
-    params = addnodes.desc_multiline_parameterlist(arglist) if multiline else addnodes.desc_parameterlist(arglist)
+    params = addnodes.desc_parameterlist(multiline=multiline)
     sig = signature_from_str('(%s)' % arglist)
     last_kind = None
     for param in sig.parameters.values():
