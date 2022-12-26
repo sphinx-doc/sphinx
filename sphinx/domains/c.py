@@ -722,7 +722,8 @@ class ASTParameters(ASTBase):
         multiline = self.multiline
         # only use the desc_parameterlist for the outer list, not for inner lists
         if mode == 'lastIsName':
-            paramlist = addnodes.desc_parameterlist(multiline=multiline)
+            paramlist = addnodes.desc_parameterlist()
+            paramlist['is_multiline'] = multiline
             for arg in self.args:
                 param_node = addnodes.desc_content() if multiline else paramlist
                 param = addnodes.desc_parameter('', '', noemph=True)
