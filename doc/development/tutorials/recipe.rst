@@ -85,7 +85,7 @@ because ``ObjectDescription`` is a special-purpose directive that's intended
 for describing things like classes, functions, or, in our case, recipes. More
 specifically, ``handle_signature`` implements parsing the signature of the
 directive and passes on the object's name and type to its superclass, while
-``add_taget_and_index`` adds a target (to link to) and an entry to the index
+``add_target_and_index`` adds a target (to link to) and an entry to the index
 for this node.
 
 We also see that this directive defines ``has_content``, ``required_arguments``
@@ -122,9 +122,10 @@ all it really is is a list of tuples like ``('tomato', 'TomatoSoup', 'test',
 'rec-TomatoSoup',...)``. Refer to the :doc:`domain API guide
 </extdev/domainapi>` for more information on this API.
 
-These index pages can be referred by combination of domain name and its
-``name`` using :rst:role:`ref` role.  For example, ``RecipeIndex`` can be
-referred by ``:ref:`recipe-recipe```.
+These index pages can be referenced with the :rst:role:`ref` role by combining
+the domain name and the index ``name`` value. For example, ``RecipeIndex`` can be
+referenced with ``:ref:`recipe-recipe``` and ``IngredientIndex`` can be referenced
+with ``:ref:`recipe-ingredient```.
 
 .. rubric:: The domain
 
@@ -152,7 +153,7 @@ Moving on, we can see that we've defined ``initial_data``. The values defined in
 ``initial_data`` will be copied to ``env.domaindata[domain_name]`` as the
 initial data of the domain, and domain instances can access it via
 ``self.data``. We see that we have defined two items in ``initial_data``:
-``recipes`` and ``recipe2ingredient``. These contain a list of all objects
+``recipes`` and ``recipe_ingredients``. Each contains a list of all objects
 defined (i.e. all recipes) and a hash that maps a canonical ingredient name to
 the list of objects. The way we name objects is common across our extension and
 is defined in the ``get_full_qualified_name`` method. For each object created,
@@ -214,7 +215,7 @@ You can now use the extension throughout your project. For example:
 
 The important things to note are the use of the ``:recipe:ref:`` role to
 cross-reference the recipe actually defined elsewhere (using the
-``:recipe:recipe:`` directive.
+``:recipe:recipe:`` directive).
 
 
 Further reading
