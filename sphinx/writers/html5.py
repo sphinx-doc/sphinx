@@ -165,6 +165,12 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             self.body.append('</dl>\n\n')
         self.body.append('<span class="sig-paren">)</span>')
 
+    def visit_desc_parameterline(self, node: Element) -> None:
+        self.body.append(self.starttag(node, 'dd', ''))
+
+    def depart_desc_parameterline(self, node: Element) -> None:
+        self.body.append('</dd>')
+
     # If required parameters are still to come, then put the comma after
     # the parameter.  Otherwise, put the comma before.  This ensures that
     # signatures like the following render correctly (see issue #1001):

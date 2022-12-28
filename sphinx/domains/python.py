@@ -259,7 +259,7 @@ def _parse_arglist(
     sig = signature_from_str('(%s)' % arglist)
     last_kind = None
     for param in sig.parameters.values():
-        param_node = addnodes.desc_content() if multiline else params
+        param_node = addnodes.desc_parameterline() if multiline else params
         if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:
             # PEP-570: Separator for Positional Only Parameter: /
             param_node += addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '/'))

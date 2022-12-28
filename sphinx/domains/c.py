@@ -725,7 +725,7 @@ class ASTParameters(ASTBase):
             paramlist = addnodes.desc_parameterlist()
             paramlist['is_multiline'] = multiline
             for arg in self.args:
-                param_node = addnodes.desc_content() if multiline else paramlist
+                param_node = addnodes.desc_parameterline() if multiline else paramlist
                 param = addnodes.desc_parameter('', '', noemph=True)
                 arg.describe_signature(param, 'param', env, symbol=symbol)
                 param_node += param

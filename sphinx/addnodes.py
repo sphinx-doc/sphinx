@@ -249,6 +249,10 @@ class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
         return f'({super().astext()})'
 
 
+class desc_parameterline(nodes.General, nodes.Element):
+    """Node for a parameter line."""
+
+
 class desc_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a single parameter."""
 
