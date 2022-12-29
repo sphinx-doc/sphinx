@@ -185,6 +185,7 @@ select = [
     "S",   # flake8-bandit
     "SIM", # flake8-simplify
     "T10", # flake8-debugger
+    "UP",  # pyupgrade
     "RUF100",  # yesqa
 ]
 
