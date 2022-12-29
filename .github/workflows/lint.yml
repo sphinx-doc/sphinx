@@ -43,13 +43,3 @@ jobs:
         python -m pip install --upgrade ruff
     - name: Lint with Ruff
       run:  ruff .  --diff --format github
-
-  pre-commit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set Up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-      - uses: pre-commit/action@v3.0.0
