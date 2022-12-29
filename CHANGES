@@ -1,5 +1,5 @@
-Release 6.0.0 (in development)
-==============================
+Release 6.0.0 (released Dec 29, 2022)
+=====================================
 
 Dependencies
 ------------
@@ -46,9 +46,6 @@ Incompatible changes
   roles. Also remove associated configuration variables ``c_allow_pre_v3`` and
   ``c_warn_on_allowed_pre_v3``. Patch by Adam Turner.
 
-Deprecated
-----------
-
 Features added
 --------------
 
@@ -62,9 +59,6 @@ Bugs fixed
 
 * #10984: LaTeX: Document :confval:`latex_additional_files` behavior for files
   with ``.tex`` extension.
-
-Testing
---------
 
 Release 5.3.0 (released Oct 16, 2022)
 =====================================
