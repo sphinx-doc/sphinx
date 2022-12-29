@@ -311,8 +311,12 @@ class Locale(SphinxTransform):
                     lst.append(new)
 
             is_autofootnote_ref = NodeMatcher(nodes.footnote_reference, auto=Any)
-            old_foot_refs: List[nodes.footnote_reference] = list(node.findall(is_autofootnote_ref))  # NOQA
-            new_foot_refs: List[nodes.footnote_reference] = list(patch.findall(is_autofootnote_ref))  # NOQA
+            old_foot_refs: List[nodes.footnote_reference] = list(
+                node.findall(is_autofootnote_ref)
+            )
+            new_foot_refs: List[nodes.footnote_reference] = list(
+                patch.findall(is_autofootnote_ref)
+            )
             if not noqa and len(old_foot_refs) != len(new_foot_refs):
                 old_foot_ref_rawsources = [ref.rawsource for ref in old_foot_refs]
                 new_foot_ref_rawsources = [ref.rawsource for ref in new_foot_refs]
@@ -401,7 +405,9 @@ class Locale(SphinxTransform):
             # citation should use original 'ids'.
             is_citation_ref = NodeMatcher(nodes.citation_reference, refname=Any)
             old_cite_refs: List[nodes.citation_reference] = list(node.findall(is_citation_ref))
-            new_cite_refs: List[nodes.citation_reference] = list(patch.findall(is_citation_ref))  # NOQA
+            new_cite_refs: List[nodes.citation_reference] = list(
+                patch.findall(is_citation_ref)
+            )
             refname_ids_map = {}
             if not noqa and len(old_cite_refs) != len(new_cite_refs):
                 old_cite_ref_rawsources = [ref.rawsource for ref in old_cite_refs]
@@ -487,7 +493,7 @@ class Locale(SphinxTransform):
                 node['entries'] = new_entries
 
         # remove translated attribute that is used for avoiding double translation.
-        for translated in self.document.findall(NodeMatcher(translated=Any)):  # type: Element  # NOQA
+        for translated in self.document.findall(NodeMatcher(translated=Any)):  # type: Element
             translated.delattr('translated')
 
 

@@ -262,7 +262,7 @@ def render_math(
     return generated_path, depth
 
 
-def render_maths_to_base64(image_format: str, generated_path: Optional[str]) -> str:
+def render_maths_to_base64(image_format: str, generated_path: str) -> str:
     with open(generated_path, "rb") as f:
         encoded = base64.b64encode(f.read()).decode(encoding='utf-8')
     if image_format == 'png':

@@ -1765,8 +1765,8 @@ class LaTeXTranslator(SphinxTranslator):
         hlcode = self.highlighter.highlight_block(
             node.astext(), lang, opts=opts, location=node, nowrap=True)
         self.body.append(r'\sphinxcode{\sphinxupquote{%' + CR
-                         + hlcode.rstrip() + '%' + CR  # NoQA: W503
-                         + '}}')  # NoQA: W503
+                         + hlcode.rstrip() + '%' + CR
+                         + '}}')
         raise nodes.SkipNode
 
     def depart_literal(self, node: Element) -> None:
@@ -2108,6 +2108,6 @@ class LaTeXTranslator(SphinxTranslator):
 
 # FIXME: Workaround to avoid circular import
 # refs: https://github.com/sphinx-doc/sphinx/issues/5433
-from sphinx.builders.latex.nodes import ( # NOQA isort:skip
+from sphinx.builders.latex.nodes import (  # noqa: E402  # isort:skip
     HYPERLINK_SUPPORT_NODES, captioned_literal_block, footnotetext,
 )

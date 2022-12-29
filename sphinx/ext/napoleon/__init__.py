@@ -324,22 +324,17 @@ def setup(app: Sphinx) -> Dict[str, Any]:
 
 
 def _patch_python_domain() -> None:
-    try:
-        from sphinx.domains.python import PyTypedField
-    except ImportError:
-        pass
-    else:
-        import sphinx.domains.python
-        from sphinx.locale import _
-        for doc_field in sphinx.domains.python.PyObject.doc_field_types:
-            if doc_field.name == 'parameter':
-                doc_field.names = ('param', 'parameter', 'arg', 'argument')
-                break
-        sphinx.domains.python.PyObject.doc_field_types.append(
-            PyTypedField('keyword', label=_('Keyword Arguments'),
-                         names=('keyword', 'kwarg', 'kwparam'),
-                         typerolename='obj', typenames=('paramtype', 'kwtype'),
-                         can_collapse=True))
+    from sphinx.domains.python import PyObject, PyTypedField
+    from sphinx.locale import _
+    for doc_field in PyObject.doc_field_types:
+        if doc_field.name == 'parameter':
+            doc_field.names = ('param', 'parameter', 'arg', 'argument')
+            break
+    PyObject.doc_field_types.append(
+        PyTypedField('keyword', label=_('Keyword Arguments'),
+                     names=('keyword', 'kwarg', 'kwparam'),
+                     typerolename='obj', typenames=('paramtype', 'kwtype'),
+                     can_collapse=True))
 
 
 def _process_docstring(app: Sphinx, what: str, name: str, obj: Any,

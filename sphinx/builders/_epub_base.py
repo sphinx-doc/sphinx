@@ -179,7 +179,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
             self.id_cache[name] = id
         return id
 
-    def get_refnodes(self, doctree: Node, result: List[Dict[str, Any]]) -> List[Dict[str, Any]]:  # NOQA
+    def get_refnodes(
+        self, doctree: Node, result: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Collect section titles, their depth in the toc and the refuri."""
         # XXX: is there a better way than checking the attribute
         # toctree-l[1-8] on the parent node?

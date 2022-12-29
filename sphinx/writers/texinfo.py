@@ -490,7 +490,9 @@ class TexinfoTranslator(SphinxTranslator):
     # this is copied from the latex writer
     # TODO: move this to sphinx.util
 
-    def collect_footnotes(self, node: Element) -> Dict[str, List[Union[collected_footnote, bool]]]:  # NOQA
+    def collect_footnotes(
+        self, node: Element
+    ) -> Dict[str, List[Union[collected_footnote, bool]]]:
         def footnotes_under(n: Element) -> Iterator[nodes.footnote]:
             if isinstance(n, nodes.footnote):
                 yield n

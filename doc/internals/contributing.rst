@@ -179,11 +179,11 @@ of targets and allows testing against multiple different Python environments:
       tox -e py310
 
 * To run unit tests for a specific Python version and turn on deprecation
-  warnings on so they're shown in the test output::
+  warnings so they're shown in the test output::
 
       PYTHONWARNINGS=all tox -e py310
 
-* Arguments to ``pytest`` can be passed via ``tox``, e.g. in order to run a
+* Arguments to ``pytest`` can be passed via ``tox``, e.g., in order to run a
   particular test::
 
       tox -e py310 tests/test_module.py::test_new_feature
@@ -224,7 +224,7 @@ necessary:
 
 Utility functions and pytest fixtures for testing are provided in
 ``sphinx.testing``. If you are a developer of Sphinx extensions, you can write
-unit tests with using pytest. At this time, ``sphinx.testing`` will help your
+unit tests by using pytest. At this time, ``sphinx.testing`` will help your
 test implementation.
 
 How to use pytest fixtures that are provided by ``sphinx.testing``?  You can
@@ -234,7 +234,7 @@ files like this::
    pytest_plugins = 'sphinx.testing.fixtures'
 
 If you want to know more detailed usage, please refer to ``tests/conftest.py``
-and other ``test_*.py`` files under ``tests`` directory.
+and other ``test_*.py`` files under the ``tests`` directory.
 
 
 Contribute documentation
@@ -254,7 +254,7 @@ Build the documentation
 
 We use `the tox tool <https://tox.wiki/en/latest/>`__ to quickly build the
 documentation. Tox is kind-of like a Makefile, but includes the ability to
-intsall an isolated environment used to run each task.
+install an isolated environment used to run each task.
 
 To build the documentation with ``tox``, run the following command::
 

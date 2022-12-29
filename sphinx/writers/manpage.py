@@ -3,7 +3,8 @@
 from typing import Any, Dict, Iterable, cast
 
 from docutils import nodes
-from docutils.nodes import Element, TextElement
+from docutils.nodes import TextElement  # noqa: F401 (used for type comments only)
+from docutils.nodes import Element
 from docutils.writers.manpage import Translator as BaseTranslator
 from docutils.writers.manpage import Writer
 
