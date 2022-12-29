@@ -134,6 +134,7 @@ exclude = [
 
 [tool.isort]
 line_length = 95
+remove_redundant_aliases = true
 
 [tool.ruff]
 target-version = "py38"  # Pin Ruff to Python 3.8
