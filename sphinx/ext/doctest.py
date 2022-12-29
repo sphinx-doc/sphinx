@@ -383,7 +383,7 @@ Doctest summary
             context: Dict[str, Any] = {}
             if self.config.doctest_global_setup:
                 exec(self.config.doctest_global_setup, context)
-            should_skip = eval(condition, context)
+            should_skip = eval(condition, context)  # NoQA: PGH001
             if self.config.doctest_global_cleanup:
                 exec(self.config.doctest_global_cleanup, context)
             return should_skip
