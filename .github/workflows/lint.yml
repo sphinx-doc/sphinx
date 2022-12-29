@@ -28,12 +28,18 @@ jobs:
     - name: Run Tox
       run:  tox -e ${{ matrix.tool }}
 
-  pre-commit:
+  ruff:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Set Up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-      - uses: pre-commit/action@v3.0.0
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3
+    - name: Install dependencies
+      run:  |
+        python -m pip install --upgrade pip
+        python -m pip install --upgrade ruff
+    - name: Lint with Ruff
+      run:  ruff .  --diff --format github
