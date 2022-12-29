@@ -141,8 +141,12 @@ class Attribute(NamedTuple):
     value: Any
 
 
-def get_object_members(subject: Any, objpath: List[str], attrgetter: Callable,
-                       analyzer: ModuleAnalyzer = None) -> Dict[str, Attribute]:
+def get_object_members(
+    subject: Any,
+    objpath: List[str],
+    attrgetter: Callable,
+    analyzer: Optional[ModuleAnalyzer] = None
+) -> Dict[str, Attribute]:
     """Get members and attributes of target object."""
     from sphinx.ext.autodoc import INSTANCEATTR
 
