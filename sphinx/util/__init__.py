@@ -97,8 +97,7 @@ def get_filetype(source_suffix: Dict[str, str], filename: str) -> str:
         if filename.endswith(suffix):
             # If default filetype (None), considered as restructuredtext.
             return filetype or 'restructuredtext'
-    else:
-        raise FiletypeNotFoundError
+    raise FiletypeNotFoundError
 
 
 class FilenameUniqDict(dict):

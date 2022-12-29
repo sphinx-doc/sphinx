@@ -104,7 +104,6 @@ def init(
     times or if several ``.mo`` files are found, their contents are merged
     together (thus making ``init`` reentrant).
     """
-    global translators
     translator = translators.get((namespace, catalog))
     # ignore previously failed attempts to find message catalogs
     if translator.__class__ is NullTranslations:

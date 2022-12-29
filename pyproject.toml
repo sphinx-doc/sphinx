@@ -159,6 +159,8 @@ ignore = [
     'B905',
     # pygrep-hooks
     "PGH003",
+    # pylint
+    "PLC2201",
 ]
 external = [  # Whitelist for RUF100 unkown code warnings
     "E704",
@@ -173,6 +175,10 @@ select = [
     "B",   # flake8-bugbear
     "C4",  # flake8-comprehensions
     "PGH", # pygrep-hooks
+    "PLC", # pylint
+    "PLE", # pylint
+    "PLR", # pylint
+    "PLW", # pylint
     "SIM", # flake8-simplify
     "RUF100",  # yesqa
 ]

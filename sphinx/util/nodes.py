@@ -525,8 +525,7 @@ def find_pending_xref_condition(node: addnodes.pending_xref, condition: str
         if (isinstance(subnode, addnodes.pending_xref_condition) and
                 subnode.get('condition') == condition):
             return subnode
-    else:
-        return None
+    return None
 
 
 def make_refnode(builder: "Builder", fromdocname: str, todocname: str, targetid: str,
