@@ -557,7 +557,7 @@ def test_too_many_requests_user_timeout(app, capsys):
 
 
 class FakeResponse:
-    headers = {}  # type: Dict[str, str]
+    headers: Dict[str, str] = {}
     url = "http://localhost/"
 
 

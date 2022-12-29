@@ -239,9 +239,9 @@ def ask_user(d: Dict[str, Any]) -> None:
 
     if 'dot' not in d:
         print()
-        print(__('Inside the root directory, two more directories will be created; "_templates"\n'      # NOQA
-                 'for custom HTML templates and "_static" for custom stylesheets and other static\n'    # NOQA
-                 'files. You can enter another prefix (such as ".") to replace the underscore.'))       # NOQA
+        print(__('Inside the root directory, two more directories will be created; "_templates"\n'      # noqa: E501
+                 'for custom HTML templates and "_static" for custom stylesheets and other static\n'    # noqa: E501
+                 'files. You can enter another prefix (such as ".") to replace the underscore.'))       # noqa: E501
         d['dot'] = do_prompt(__('Name prefix for templates and static dir'), '_', ok)
 
     if 'project' not in d:
@@ -264,12 +264,14 @@ def ask_user(d: Dict[str, Any]) -> None:
 
     if 'language' not in d:
         print()
-        print(__('If the documents are to be written in a language other than English,\n'
-                 'you can select a language here by its language code. Sphinx will then\n'
-                 'translate text that it generates into that language.\n'
-                 '\n'
-                 'For a list of supported codes, see\n'
-                 'https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language.'))  # NOQA
+        print(__(
+            'If the documents are to be written in a language other than English,\n'
+            'you can select a language here by its language code. Sphinx will then\n'
+            'translate text that it generates into that language.\n'
+            '\n'
+            'For a list of supported codes, see\n'
+            'https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language.'
+        ))
         d['language'] = do_prompt(__('Project language'), 'en')
         if d['language'] == 'en':
             d['language'] = None

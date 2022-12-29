@@ -14,7 +14,7 @@ from docutils.statemachine import ViewList
 from sphinx import addnodes
 from sphinx.ext.autodoc import ALL, ModuleLevelDocumenter, Options
 from sphinx.ext.autodoc.directive import DocumenterBridge, process_documenter_options
-from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
+from sphinx.testing.util import SphinxTestApp, Struct  # noqa: F401
 from sphinx.util.docutils import LoggingReporter
 
 try:

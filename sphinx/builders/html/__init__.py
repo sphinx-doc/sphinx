@@ -156,7 +156,9 @@ class BuildInfo:
         except Exception as exc:
             raise ValueError(__('build info file is broken: %r') % exc) from exc
 
-    def __init__(self, config: Config = None, tags: Tags = None, config_categories: List[str] = []) -> None:  # NOQA
+    def __init__(
+        self, config: Config = None, tags: Tags = None, config_categories: List[str] = []
+    ) -> None:
         self.config_hash = ''
         self.tags_hash = ''
 
@@ -1035,7 +1037,9 @@ class StandaloneHTMLBuilder(Builder):
         else:
             ctx['pageurl'] = None
 
-        def pathto(otheruri: str, resource: bool = False, baseuri: str = default_baseuri) -> str:  # NOQA
+        def pathto(
+            otheruri: str, resource: bool = False, baseuri: str = default_baseuri
+        ) -> str:
             if resource and '://' in otheruri:
                 # allow non-local resources given by scheme
                 return otheruri
@@ -1314,10 +1318,10 @@ def deprecate_html_4(_app: Sphinx, config: Config) -> None:
 
 
 # for compatibility
-import sphinxcontrib.serializinghtml  # NOQA
+import sphinxcontrib.serializinghtml  # noqa: E402,F401
 
-import sphinx.builders.dirhtml  # NOQA
-import sphinx.builders.singlehtml  # NOQA
+import sphinx.builders.dirhtml  # noqa: E402,F401
+import sphinx.builders.singlehtml  # noqa: E402,F401
 
 deprecated_alias('sphinx.builders.html',
                  {
@@ -1371,7 +1375,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_search_scorer', '', None)
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_baseurl', '', 'html')
-    app.add_config_value('html_codeblock_linenos_style', 'inline', 'html',  # RemovedInSphinx70Warning  # NOQA
+    app.add_config_value('html_codeblock_linenos_style', 'inline', 'html',  # RemovedInSphinx70Warning  # noqa: E501
                          ENUM('table', 'inline'))
     app.add_config_value('html_math_renderer', None, 'env')
     app.add_config_value('html4_writer', False, 'html')
