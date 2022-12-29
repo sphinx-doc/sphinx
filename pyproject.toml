@@ -184,6 +184,7 @@ select = [
     "PLW", # pylint
     "S",   # flake8-bandit
     "SIM", # flake8-simplify
+    "T10", # flake8-debugger
     "RUF100",  # yesqa
 ]
 
