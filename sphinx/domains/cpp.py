@@ -8173,7 +8173,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
     return {
         'version': 'builtin',
-        'env_version': 8,
+        'env_version': 9,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
