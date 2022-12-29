@@ -29,7 +29,7 @@ jobs:
     - name: Run Tox
       run: tox --sitepackages -e py -- -vv
       env:
-        PYTEST_ADDOPTS: "--cov ./ --cov-append --cov-config setup.cfg"
+        PYTEST_ADDOPTS: "--cov ./ --cov-append --cov-config pyproject.toml"
 
     - name: codecov
       uses: codecov/codecov-action@v3
