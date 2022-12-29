@@ -161,6 +161,9 @@ ignore = [
     "PGH003",
     # pylint
     "PLC2201",
+    # flake8-bandit
+    "S101",  # assert used
+    "S105",  # possible hardcoded password
 ]
 external = [  # Whitelist for RUF100 unkown code warnings
     "E704",
@@ -179,6 +182,7 @@ select = [
     "PLE", # pylint
     "PLR", # pylint
     "PLW", # pylint
+    "S",   # flake8-bandit
     "SIM", # flake8-simplify
     "RUF100",  # yesqa
 ]
