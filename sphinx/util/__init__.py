@@ -27,7 +27,7 @@ from sphinx.util.nodes import (caption_ref_re, explicit_title_re,  # noqa: F401
                                nested_parse_with_titles, split_explicit_title)
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
-from sphinx.util.osutil import (SEP, copyfile, copytimes, ensuredir,  # noqa: F401,E501
+from sphinx.util.osutil import (SEP, copyfile, copytimes, ensuredir,  # noqa: F401
                                 make_filename, mtimes_of_files, os_path, relative_uri)
 from sphinx.util.typing import PathMatcher
 

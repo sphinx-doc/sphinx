@@ -1320,7 +1320,7 @@ def deprecate_html_4(_app: Sphinx, config: Config) -> None:
 # for compatibility
 import sphinxcontrib.serializinghtml  # noqa: E402,F401
 
-import sphinx.builders.dirhtml  # noqa: E402,F401
+import sphinx.builders.dirhtml  # noqa: E402,F401,RUF100
 import sphinx.builders.singlehtml  # noqa: E402,F401
 
 deprecated_alias('sphinx.builders.html',
