@@ -168,6 +168,7 @@ external = [  # Whitelist for RUF100 unkown code warnings
     "E704",
     "W291",
     "W293",
+    "SIM105",
 ]
 select = [
     "E",   # pycodestyle
