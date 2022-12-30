@@ -1,5 +1,7 @@
 """Support for NumPy and Google style docstrings."""
 
+from __future__ import annotations
+
 from typing import Any, Dict, List
 
 import sphinx

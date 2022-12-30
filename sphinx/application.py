@@ -3,6 +3,8 @@
 Gracefully adapted from the TextPress system by Armin.
 """
 
+from __future__ import annotations
+
 import os
 import pickle
 import sys

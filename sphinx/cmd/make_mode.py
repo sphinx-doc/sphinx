@@ -7,6 +7,8 @@ This is in its own module so that importing it is fast.  It should not
 import the main Sphinx modules (like sphinx.applications, sphinx.builders).
 """
 
+from __future__ import annotations
+
 import os
 import subprocess
 import sys

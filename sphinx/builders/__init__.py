@@ -1,5 +1,7 @@
 """Builder superclass for all builders."""
 
+from __future__ import annotations
+
 import codecs
 import pickle
 import time

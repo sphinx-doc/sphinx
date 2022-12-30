@@ -1,5 +1,7 @@
 """Index entries adapters for sphinx.environment."""
 
+from __future__ import annotations
+
 import re
 import unicodedata
 from itertools import groupby

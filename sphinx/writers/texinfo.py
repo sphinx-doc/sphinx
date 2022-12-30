@@ -1,5 +1,7 @@
 """Custom docutils writer for Texinfo."""
 
+from __future__ import annotations
+
 import re
 import textwrap
 from os import path

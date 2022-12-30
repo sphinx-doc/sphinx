@@ -1588,7 +1588,7 @@ def test_autodoc_default_options(app):
     actual = do_autodoc(app, 'class', 'target.CustomIter')
     assert '   .. py:method:: target.CustomIter' not in actual
     actual = do_autodoc(app, 'module', 'target')
-    assert '.. py:function:: save_traceback(app)' not in actual
+    assert '.. py:function:: function_to_be_imported(app)' not in actual
 
     # with :members:
     app.config.autodoc_default_options = {'members': None}

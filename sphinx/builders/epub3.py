@@ -3,6 +3,8 @@
 Originally derived from epub.py.
 """
 
+from __future__ import annotations
+
 import html
 from os import path
 from typing import Any, Dict, List, NamedTuple, Set, Tuple

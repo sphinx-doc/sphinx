@@ -1,5 +1,7 @@
 """To publish HTML docs at GitHub Pages, create .nojekyll file."""
 
+from __future__ import annotations
+
 import os
 import urllib
 from typing import Any, Dict

@@ -1,5 +1,7 @@
 """Docutils transforms used by Sphinx when reading documents."""
 
+from __future__ import annotations
+
 from typing import Any, Dict, List, cast
 
 from docutils import nodes

@@ -1,5 +1,7 @@
 """Test the build process with manpage builder with the test root."""
 
+from __future__ import annotations
+
 import http.server
 import json
 import re
@@ -8,7 +10,6 @@ import time
 import wsgiref.handlers
 from datetime import datetime
 from queue import Queue
-from typing import Dict
 from unittest import mock
 
 import pytest
@@ -555,7 +556,7 @@ def test_too_many_requests_user_timeout(app, capsys):
 
 
 class FakeResponse:
-    headers: Dict[str, str] = {}
+    headers: dict[str, str] = {}
     url = "http://localhost/"
 
 

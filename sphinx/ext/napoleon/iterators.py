@@ -1,5 +1,7 @@
 """A collection of helpful iterators."""
 
+from __future__ import annotations
+
 import collections
 import warnings
 from typing import Any, Iterable, Optional

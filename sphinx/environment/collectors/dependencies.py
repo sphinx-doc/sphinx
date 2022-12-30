@@ -1,5 +1,7 @@
 """The dependencies collector components for sphinx.environment."""
 
+from __future__ import annotations
+
 import os
 from os import path
 from typing import Any, Dict, Set

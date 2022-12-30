@@ -1,5 +1,7 @@
 """Tests util.inspect functions."""
 
+from __future__ import annotations
+
 import ast
 import datetime
 import enum

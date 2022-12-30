@@ -1,5 +1,7 @@
 """Dutch search language: includes the JS porter stemmer."""
 
+from __future__ import annotations
+
 from typing import Dict
 
 import snowballstemmer

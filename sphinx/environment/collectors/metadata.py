@@ -1,5 +1,7 @@
 """The metadata collector components for sphinx.environment."""
 
+from __future__ import annotations
+
 from typing import Any, Dict, List, Set, cast
 
 from docutils import nodes

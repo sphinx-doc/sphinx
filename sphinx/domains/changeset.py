@@ -1,5 +1,7 @@
 """The changeset domain."""
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Any, Dict, List, NamedTuple, cast
 
 from docutils import nodes

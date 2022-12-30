@@ -1,5 +1,7 @@
 """mock for autodoc"""
 
+from __future__ import annotations
+
 import contextlib
 import os
 import sys

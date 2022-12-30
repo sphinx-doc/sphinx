@@ -1,5 +1,7 @@
 """The MessageCatalogBuilder class."""
 
+from __future__ import annotations
+
 from codecs import open
 from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta, tzinfo

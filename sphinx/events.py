@@ -3,6 +3,8 @@
 Gracefully adapted from the TextPress system by Armin.
 """
 
+from __future__ import annotations
+
 from collections import defaultdict
 from operator import attrgetter
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, NamedTuple, Tuple, Type

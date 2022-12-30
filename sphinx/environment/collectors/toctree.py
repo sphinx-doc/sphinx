@@ -1,5 +1,7 @@
 """Toctree collector for sphinx.environment."""
 
+from __future__ import annotations
+
 from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, TypeVar, Union, cast
 
 from docutils import nodes

@@ -1,5 +1,7 @@
 """Transforms for LaTeX builder."""
 
+from __future__ import annotations
+
 from typing import Any, Dict, List, Optional, Set, Tuple, cast
 
 from docutils import nodes

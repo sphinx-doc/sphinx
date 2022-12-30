@@ -1,5 +1,7 @@
 """Docutils-native XML and pseudo-XML writers."""
 
+from __future__ import annotations
+
 from typing import Any
 
 from docutils.writers.docutils_xml import Writer as BaseXMLWriter

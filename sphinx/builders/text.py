@@ -1,5 +1,7 @@
 """Plain-text Sphinx builder."""
 
+from __future__ import annotations
+
 from os import path
 from typing import Any, Dict, Iterator, Optional, Set, Tuple
 

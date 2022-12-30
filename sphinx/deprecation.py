@@ -1,5 +1,7 @@
 """Sphinx deprecation classes and utilities."""
 
+from __future__ import annotations
+
 import sys
 import warnings
 from importlib import import_module

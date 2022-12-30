@@ -1,5 +1,7 @@
 """Toctree adapter for sphinx.environment."""
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, cast
 
 from docutils import nodes

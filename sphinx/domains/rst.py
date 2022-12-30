@@ -1,5 +1,7 @@
 """The reStructuredText domain."""
 
+from __future__ import annotations
+
 import re
 from typing import Any, Dict, Iterator, List, Optional, Tuple, cast
 

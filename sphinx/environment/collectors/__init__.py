@@ -1,5 +1,7 @@
 """The data collector components for sphinx.environment."""
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Dict, List, Optional, Set
 
 from docutils import nodes

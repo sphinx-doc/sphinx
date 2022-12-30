@@ -1,5 +1,7 @@
 """Single HTML builders."""
 
+from __future__ import annotations
+
 from os import path
 from typing import Any, Dict, List, Optional, Tuple, Union
 

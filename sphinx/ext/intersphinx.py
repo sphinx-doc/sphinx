@@ -16,6 +16,8 @@ This works as follows:
   without Internet access.
 """
 
+from __future__ import annotations
+
 import concurrent.futures
 import functools
 import posixpath

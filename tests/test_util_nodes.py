@@ -1,4 +1,6 @@
 """Tests uti.nodes functions."""
+from __future__ import annotations
+
 import warnings
 from textwrap import dedent
 from typing import Any

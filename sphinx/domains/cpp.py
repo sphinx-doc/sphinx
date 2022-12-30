@@ -1,5 +1,7 @@
 """The C++ language domain."""
 
+from __future__ import annotations
+
 import re
 from typing import (Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple, TypeVar,
                     Union)

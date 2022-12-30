@@ -1,5 +1,7 @@
 """Docutils-native XML and pseudo-XML builders."""
 
+from __future__ import annotations
+
 from os import path
 from typing import Any, Dict, Iterator, Optional, Set, Type, Union
 

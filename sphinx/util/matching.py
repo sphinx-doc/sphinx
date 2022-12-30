@@ -1,5 +1,7 @@
 """Pattern-matching utility functions for Sphinx."""
 
+from __future__ import annotations
+
 import os.path
 import re
 from typing import Callable, Dict, Iterable, Iterator, List, Match, Optional, Pattern

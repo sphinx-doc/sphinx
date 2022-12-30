@@ -1,4 +1,6 @@
 """Create a full-text search index for offline search."""
+from __future__ import annotations
+
 import html
 import json
 import pickle

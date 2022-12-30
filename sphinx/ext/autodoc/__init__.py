@@ -5,6 +5,8 @@ the doctree, thus avoiding duplication between docstrings and documentation
 for those who like elaborate docstrings.
 """
 
+from __future__ import annotations
+
 import re
 from inspect import Parameter, Signature
 from types import ModuleType

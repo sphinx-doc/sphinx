@@ -1,5 +1,7 @@
 """The JavaScript domain."""
 
+from __future__ import annotations
+
 from typing import Any, Dict, Iterator, List, Optional, Tuple, cast
 
 from docutils import nodes

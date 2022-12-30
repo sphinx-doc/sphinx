@@ -1,5 +1,7 @@
 """Simple requests package loader"""
 
+from __future__ import annotations
+
 import sys
 import warnings
 from contextlib import contextmanager

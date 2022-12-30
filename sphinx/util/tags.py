@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Iterator, List, Optional
 
 from jinja2 import nodes

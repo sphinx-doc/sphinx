@@ -1,4 +1,6 @@
 """Sphinx test suite utilities"""
+from __future__ import annotations
+
 import functools
 import os
 import re

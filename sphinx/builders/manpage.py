@@ -1,5 +1,7 @@
 """Manual pages builder."""
 
+from __future__ import annotations
+
 import warnings
 from os import path
 from typing import Any, Dict, List, Optional, Set, Tuple, Union

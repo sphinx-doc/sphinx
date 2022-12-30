@@ -1,5 +1,7 @@
 """Frozen HTML 4 translator."""
 
+from __future__ import annotations
+
 import os
 import posixpath
 import re

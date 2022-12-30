@@ -1,5 +1,7 @@
 """PNG image manipulation helpers."""
 
+from __future__ import annotations
+
 import binascii
 import struct
 from typing import Optional

@@ -1,5 +1,7 @@
 """Build configuration file handling."""
 
+from __future__ import annotations
+
 import re
 import traceback
 import types

@@ -4,6 +4,8 @@ Preserve the default argument values of function signatures in source code
 and keep them not evaluated for readability.
 """
 
+from __future__ import annotations
+
 import ast
 import inspect
 from typing import Any, Dict, List, Optional

@@ -4,6 +4,8 @@ Domains are groupings of description directives
 and roles describing e.g. constructs of one programming language.
 """
 
+from __future__ import annotations
+
 import copy
 from abc import ABC, abstractmethod
 from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, List, NamedTuple, Optional,

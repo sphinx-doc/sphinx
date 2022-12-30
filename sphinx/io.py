@@ -1,4 +1,6 @@
 """Input/Output files"""
+from __future__ import annotations
+
 import codecs
 import warnings
 from typing import TYPE_CHECKING, Any, List, Type

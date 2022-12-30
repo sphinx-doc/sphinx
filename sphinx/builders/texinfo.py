@@ -1,5 +1,7 @@
 """Texinfo builder."""
 
+from __future__ import annotations
+
 import os
 import warnings
 from os import path

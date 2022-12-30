@@ -1,4 +1,6 @@
 """Custom docutils writer for plain text."""
+from __future__ import annotations
+
 import math
 import os
 import re

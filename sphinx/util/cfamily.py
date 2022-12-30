@@ -1,5 +1,7 @@
 """Utility functions common to the C and C++ domains."""
 
+from __future__ import annotations
+
 import re
 from copy import deepcopy
 from typing import Any, Callable, List, Match, Optional, Pattern, Tuple, Union

@@ -1,5 +1,7 @@
 """Docutils node-related utility functions for Sphinx."""
 
+from __future__ import annotations
+
 import re
 import unicodedata
 from typing import (TYPE_CHECKING, Any, Callable, Iterable, List, Optional, Set, Tuple, Type,
@@ -45,7 +47,8 @@ class NodeMatcher:
     A special value ``typing.Any`` matches any kind of node-attributes.  For example,
     following example searches ``reference`` node having ``refdomain`` attributes::
 
-        from typing import Any
+        from __future__ import annotations
+from typing import Any
         matcher = NodeMatcher(nodes.reference, refdomain=Any)
         doctree.findall(matcher)
         # => [<reference ...>, <reference ...>, ...]

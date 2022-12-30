@@ -1,5 +1,7 @@
 """The citation domain."""
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, cast
 
 from docutils import nodes

@@ -8,6 +8,8 @@
 # Python Version was developed by xnights <programming.magic(at)gmail.com>.
 # For details, see http://programming-magic.com/?id=170
 
+from __future__ import annotations
+
 import os
 import re
 import sys

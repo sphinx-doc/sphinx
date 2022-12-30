@@ -1,5 +1,7 @@
 """Hungarian search language: includes the JS Hungarian stemmer."""
 
+from __future__ import annotations
+
 from typing import Dict
 
 import snowballstemmer

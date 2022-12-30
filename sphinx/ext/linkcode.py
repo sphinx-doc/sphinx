@@ -1,5 +1,7 @@
 """Add external links to module code in Python object descriptions."""
 
+from __future__ import annotations
+
 from typing import Any, Dict, Set
 
 from docutils import nodes

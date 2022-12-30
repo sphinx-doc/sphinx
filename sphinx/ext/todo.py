@@ -5,6 +5,8 @@ The todolist directive collects all todos of your project and lists them along
 with a backlink to the original location.
 """
 
+from __future__ import annotations
+
 from typing import Any, Dict, List, cast
 
 from docutils import nodes

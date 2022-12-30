@@ -1,5 +1,7 @@
 """Quickly setup documentation source to work with Sphinx."""
 
+from __future__ import annotations
+
 import argparse
 import locale
 import os

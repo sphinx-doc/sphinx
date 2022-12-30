@@ -1,5 +1,7 @@
 """Base class of epub2/epub3 builders."""
 
+from __future__ import annotations
+
 import html
 import os
 import re

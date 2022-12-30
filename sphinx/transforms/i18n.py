@@ -1,5 +1,7 @@
 """Docutils transforms used by Sphinx when reading documents."""
 
+from __future__ import annotations
+
 from os import path
 from re import DOTALL, match
 from textwrap import indent

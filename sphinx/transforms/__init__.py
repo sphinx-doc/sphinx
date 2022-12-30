@@ -1,5 +1,7 @@
 """Docutils transforms used by Sphinx when reading documents."""
 
+from __future__ import annotations
+
 import re
 import unicodedata
 from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple, cast

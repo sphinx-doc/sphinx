@@ -1,5 +1,7 @@
 """Utilities for LaTeX builder."""
 
+from __future__ import annotations
+
 from typing import Optional
 
 from docutils.writers.latex2e import Babel

@@ -1,5 +1,7 @@
 """Do syntax checks, but no writing."""
 
+from __future__ import annotations
+
 from typing import Any, Dict, Optional, Set
 
 from docutils.nodes import Node

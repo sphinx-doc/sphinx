@@ -1,5 +1,7 @@
 """Turkish search language: includes the JS Turkish stemmer."""
 
+from __future__ import annotations
+
 from typing import Dict, Set
 
 import snowballstemmer

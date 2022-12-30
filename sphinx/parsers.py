@@ -1,5 +1,7 @@
 """A Base class for additional parsers."""
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Any, Dict, List, Type, Union
 
 import docutils.parsers

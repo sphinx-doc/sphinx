@@ -1,5 +1,7 @@
 """Update annotations info of living objects using type_comments."""
 
+from __future__ import annotations
+
 import ast
 from inspect import Parameter, Signature, getsource
 from typing import Any, Dict, List, Optional, cast

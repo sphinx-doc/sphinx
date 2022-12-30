@@ -1,5 +1,7 @@
 """Helpers for AST (Abstract Syntax Tree)."""
 
+from __future__ import annotations
+
 import ast
 import warnings
 from typing import Dict, List, Optional, Type, overload

@@ -3,6 +3,8 @@
 Uses the basestring encode function from simplejson by Bob Ippolito.
 """
 
+from __future__ import annotations
+
 import re
 import warnings
 from typing import IO, Any, Dict, List, Match, Union

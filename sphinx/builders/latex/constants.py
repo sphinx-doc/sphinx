@@ -1,5 +1,7 @@
 """consntants for LaTeX builder."""
 
+from __future__ import annotations
+
 from typing import Any, Dict
 
 PDFLATEX_DEFAULT_FONTPKG = r'''

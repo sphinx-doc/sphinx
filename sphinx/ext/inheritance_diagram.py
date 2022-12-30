@@ -28,6 +28,8 @@ The graph is inserted as a PNG+image map into HTML and a PDF in
 LaTeX.
 """
 
+from __future__ import annotations
+
 import builtins
 import inspect
 import re

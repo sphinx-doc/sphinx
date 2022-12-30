@@ -1,5 +1,7 @@
 """Theming support for HTML builders."""
 
+from __future__ import annotations
+
 import configparser
 import os
 import shutil

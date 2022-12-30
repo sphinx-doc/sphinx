@@ -1,6 +1,8 @@
 """Allow graphviz-formatted graphs to be included inline in generated documents.
 """
 
+from __future__ import annotations
+
 import posixpath
 import re
 import subprocess

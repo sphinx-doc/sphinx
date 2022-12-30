@@ -1,5 +1,7 @@
 """Utilities parsing and analyzing Python code."""
 
+from __future__ import annotations
+
 import re
 import tokenize
 from collections import OrderedDict

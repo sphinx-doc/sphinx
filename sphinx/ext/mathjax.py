@@ -5,6 +5,8 @@ This requires the MathJax JavaScript library on your webserver/computer.
 .. _MathJax: https://www.mathjax.org/
 """
 
+from __future__ import annotations
+
 import json
 from typing import Any, Dict, cast
 

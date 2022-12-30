@@ -1,5 +1,7 @@
 """Manual page writer, extended for Sphinx custom nodes."""
 
+from __future__ import annotations
+
 from typing import Any, Dict, Iterable, cast
 
 from docutils import nodes

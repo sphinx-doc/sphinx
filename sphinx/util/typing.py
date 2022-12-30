@@ -1,5 +1,7 @@
 """The composite types for Sphinx."""
 
+from __future__ import annotations
+
 import sys
 import typing
 from struct import Struct

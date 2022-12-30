@@ -4,6 +4,8 @@ Mostly written by Josip Dzolonga for the Google Highly Open Participation
 contest.
 """
 
+from __future__ import annotations
+
 import glob
 import inspect
 import pickle

@@ -3,6 +3,8 @@
 The extension automatically execute code snippets and checks their results.
 """
 
+from __future__ import annotations
+
 import doctest
 import re
 import sys

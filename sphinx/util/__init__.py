@@ -1,5 +1,7 @@
 """Utility functions for Sphinx."""
 
+from __future__ import annotations
+
 import functools
 import hashlib
 import os

@@ -1,5 +1,7 @@
 """docutils writers handling Sphinx' custom nodes."""
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, cast
 
 from docutils.writers.html4css1 import Writer

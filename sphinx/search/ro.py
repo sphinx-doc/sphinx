@@ -1,5 +1,7 @@
 """Romanian search language: includes the JS Romanian stemmer."""
 
+from __future__ import annotations
+
 from typing import Dict, Set
 
 import snowballstemmer

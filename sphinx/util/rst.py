@@ -1,5 +1,7 @@
 """reST helper functions."""
 
+from __future__ import annotations
+
 import re
 from collections import defaultdict
 from contextlib import contextmanager

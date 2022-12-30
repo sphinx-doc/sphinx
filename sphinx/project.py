@@ -1,5 +1,7 @@
 """Utility function and classes for Sphinx projects."""
 
+from __future__ import annotations
+
 import os
 from glob import glob
 from typing import Dict, Iterable, Optional, Set

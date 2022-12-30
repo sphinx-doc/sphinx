@@ -1,5 +1,7 @@
 """Measure durations of Sphinx processing."""
 
+from __future__ import annotations
+
 from datetime import datetime, timedelta
 from itertools import islice
 from operator import itemgetter

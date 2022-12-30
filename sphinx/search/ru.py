@@ -1,5 +1,7 @@
 """Russian search language: includes the JS Russian stemmer."""
 
+from __future__ import annotations
+
 from typing import Dict
 
 import snowballstemmer

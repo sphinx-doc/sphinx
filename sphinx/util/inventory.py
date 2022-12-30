@@ -1,4 +1,6 @@
 """Inventory utility functions for Sphinx."""
+from __future__ import annotations
+
 import os
 import re
 import zlib

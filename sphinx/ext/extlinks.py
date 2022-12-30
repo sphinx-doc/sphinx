@@ -17,6 +17,8 @@ You can also give an explicit caption, e.g. :exmpl:`Foo <foo>`.
 Both, the url string and the caption string must escape ``%`` as ``%%``.
 """
 
+from __future__ import annotations
+
 import re
 from typing import Any, Dict, List, Tuple
 

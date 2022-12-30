@@ -1,4 +1,6 @@
 """Sphinx test comparer for pytest"""
+from __future__ import annotations
+
 import difflib
 import pathlib
 from typing import Any, List, Union

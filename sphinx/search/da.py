@@ -1,5 +1,7 @@
 """Danish search language: includes the JS Danish stemmer."""
 
+from __future__ import annotations
+
 from typing import Dict
 
 import snowballstemmer

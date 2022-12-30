@@ -1,5 +1,7 @@
 """Logging utility functions for Sphinx."""
 
+from __future__ import annotations
+
 import logging
 import logging.handlers
 from collections import defaultdict

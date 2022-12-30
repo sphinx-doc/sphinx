@@ -1,5 +1,7 @@
 """Utility functions for docutils."""
 
+from __future__ import annotations
+
 import os
 import re
 import warnings

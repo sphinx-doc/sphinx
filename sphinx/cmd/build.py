@@ -1,5 +1,7 @@
 """Build documentation from a provided source."""
 
+from __future__ import annotations
+
 import argparse
 import bdb
 import locale

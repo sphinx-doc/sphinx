@@ -1,5 +1,7 @@
 """Generating content for autodoc using typehints"""
 
+from __future__ import annotations
+
 import re
 from collections import OrderedDict
 from typing import Any, Dict, Iterable, Set, cast

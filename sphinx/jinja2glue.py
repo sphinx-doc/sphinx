@@ -1,5 +1,7 @@
 """Glue code for the jinja2 templating engine."""
 
+from __future__ import annotations
+
 import pathlib
 from os import path
 from pprint import pformat

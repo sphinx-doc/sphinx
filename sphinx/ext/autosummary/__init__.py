@@ -46,6 +46,8 @@ resolved to a Python object, and otherwise it becomes simple emphasis.
 This can be used as the default role to make links 'smart'.
 """
 
+from __future__ import annotations
+
 import inspect
 import os
 import posixpath

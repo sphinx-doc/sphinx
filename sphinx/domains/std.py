@@ -1,5 +1,7 @@
 """The standard domain."""
 
+from __future__ import annotations
+
 import re
 from copy import copy
 from typing import (TYPE_CHECKING, Any, Callable, Dict, Final, Iterable, Iterator, List,

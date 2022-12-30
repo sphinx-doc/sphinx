@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 from os import path
 from typing import TYPE_CHECKING, Any, Dict, List, cast

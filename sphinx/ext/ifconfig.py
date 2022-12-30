@@ -14,6 +14,8 @@ namespace of the project configuration (that is, all variables from
 ``conf.py`` are available.)
 """
 
+from __future__ import annotations
+
 from typing import Any, Dict, List
 
 from docutils import nodes

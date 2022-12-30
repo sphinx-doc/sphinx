@@ -1,5 +1,7 @@
 """The title collector components for sphinx.environment."""
 
+from __future__ import annotations
+
 from typing import Any, Dict, Set
 
 from docutils import nodes

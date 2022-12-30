@@ -1,5 +1,7 @@
 """Docutils transforms used by Sphinx."""
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Any, Dict
 
 from docutils.transforms.references import DanglingReferences

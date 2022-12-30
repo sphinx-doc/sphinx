@@ -1,5 +1,7 @@
 """transforms for code-blocks."""
 
+from __future__ import annotations
+
 import sys
 from typing import Any, Dict, List, NamedTuple
 

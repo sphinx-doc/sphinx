@@ -1,5 +1,7 @@
 """Directory HTML builders."""
 
+from __future__ import annotations
+
 from os import path
 from typing import Any, Dict, Optional
 

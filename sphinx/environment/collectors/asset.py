@@ -1,5 +1,7 @@
 """The image collector for sphinx.environment."""
 
+from __future__ import annotations
+
 import os
 from glob import glob
 from os import path

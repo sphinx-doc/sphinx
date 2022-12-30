@@ -1,5 +1,7 @@
 """Highlight code blocks using Pygments."""
 
+from __future__ import annotations
+
 from functools import partial
 from importlib import import_module
 from typing import Any, Dict, Optional, Type, Union

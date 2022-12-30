@@ -1,5 +1,7 @@
 """Experimental docutils writers for HTML5 handling Sphinx's custom nodes."""
 
+from __future__ import annotations
+
 import os
 import posixpath
 import re

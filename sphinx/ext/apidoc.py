@@ -9,6 +9,8 @@ Copyright 2008 Société des arts technologiques (SAT),
 https://sat.qc.ca/
 """
 
+from __future__ import annotations
+
 import argparse
 import glob
 import locale

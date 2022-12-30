@@ -1,5 +1,7 @@
 """Spanish search language: includes the JS Spanish stemmer."""
 
+from __future__ import annotations
+
 from typing import Dict
 
 import snowballstemmer

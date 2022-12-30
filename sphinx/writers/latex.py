@@ -4,6 +4,8 @@ Much of this code is adapted from Dave Kuhlman's "docpy" writer from his
 docutils sandbox.
 """
 
+from __future__ import annotations
+
 import re
 import warnings
 from collections import defaultdict

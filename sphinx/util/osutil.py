@@ -1,5 +1,7 @@
 """Operating system-related utility functions for Sphinx."""
 
+from __future__ import annotations
+
 import contextlib
 import filecmp
 import os

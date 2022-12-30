@@ -1,5 +1,7 @@
 """Theming support for LaTeX builder."""
 
+from __future__ import annotations
+
 import configparser
 from os import path
 from typing import Dict, Optional

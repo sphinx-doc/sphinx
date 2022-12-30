@@ -1,5 +1,7 @@
 """Classes for docstring parsing and formatting."""
 
+from __future__ import annotations
+
 import collections
 import inspect
 import re

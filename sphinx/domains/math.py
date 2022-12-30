@@ -1,5 +1,7 @@
 """The math domain."""
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple
 
 from docutils import nodes

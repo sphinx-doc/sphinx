@@ -1,5 +1,7 @@
 """Add links to module code in Python object descriptions."""
 
+from __future__ import annotations
+
 import posixpath
 import traceback
 from os import path

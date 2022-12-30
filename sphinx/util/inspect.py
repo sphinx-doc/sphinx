@@ -1,5 +1,7 @@
 """Helpers for inspecting Python modules."""
 
+from __future__ import annotations
+
 import ast
 import builtins
 import contextlib
