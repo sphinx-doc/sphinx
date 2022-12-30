@@ -1055,39 +1055,41 @@ def test_autodoc_typehints_description_no_undoc_doc_rtype(app):
     )
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
-    assert ('target.typehints.incr(a, b=1)\n'
-            '\n'
-            '   Return type:\n'
-            '      int\n'
-            '\n'
-            'target.typehints.decr(a, b=1)\n'
-            '\n'
-            '   Returns:\n'
-            '      decremented number\n'
-            '\n'
-            '   Return type:\n'
-            '      int\n'
-            '\n'
-            'target.typehints.tuple_args(x)\n'
-            '\n'
-            '   Parameters:\n'
-            '      **x** (*Tuple**[**int**, **Union**[**int**, **str**]**]*) -- arg\n'
-            '\n'
-            '   Returns:\n'
-            '      another tuple\n'
-            '\n'
-            '   Return type:\n'
-            '      *Tuple*[int, int]\n'
-            '\n'
-            'target.typehints.Math.nothing(self)\n'
-            '\n'
-            'target.typehints.Math.horse(self, a, b)\n'
-            '\n'
-            '   Returns:\n'
-            '      nothing\n'
-            '\n'
-            '   Return type:\n'
-            '      None\n' == context)
+    assert context == (
+        'target.typehints.incr(a, b=1)\n'
+        '\n'
+        '   Return type:\n'
+        '      int\n'
+        '\n'
+        'target.typehints.decr(a, b=1)\n'
+        '\n'
+        '   Returns:\n'
+        '      decremented number\n'
+        '\n'
+        '   Return type:\n'
+        '      int\n'
+        '\n'
+        'target.typehints.tuple_args(x)\n'
+        '\n'
+        '   Parameters:\n'
+        '      **x** (*Tuple**[**int**, **Union**[**int**, **str**]**]*) -- arg\n'
+        '\n'
+        '   Returns:\n'
+        '      another tuple\n'
+        '\n'
+        '   Return type:\n'
+        '      *Tuple*[int, int]\n'
+        '\n'
+        'target.typehints.Math.nothing(self)\n'
+        '\n'
+        'target.typehints.Math.horse(self, a, b)\n'
+        '\n'
+        '   Returns:\n'
+        '      nothing\n'
+        '\n'
+        '   Return type:\n'
+        '      None\n'
+    )
 
 
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
@@ -1100,30 +1102,32 @@ def test_autodoc_typehints_description_with_documented_init(app):
     )
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
-    assert ('class target.typehints._ClassWithDocumentedInit(x, *args, **kwargs)\n'
-            '\n'
-            '   Class docstring.\n'
-            '\n'
-            '   Parameters:\n'
-            '      * **x** (*int*) --\n'
-            '\n'
-            '      * **args** (*int*) --\n'
-            '\n'
-            '      * **kwargs** (*int*) --\n'
-            '\n'
-            '   __init__(x, *args, **kwargs)\n'
-            '\n'
-            '      Init docstring.\n'
-            '\n'
-            '      Parameters:\n'
-            '         * **x** (*int*) -- Some integer\n'
-            '\n'
-            '         * **args** (*int*) -- Some integer\n'
-            '\n'
-            '         * **kwargs** (*int*) -- Some integer\n'
-            '\n'
-            '      Return type:\n'
-            '         None\n' == context)
+    assert context == (
+        'class target.typehints._ClassWithDocumentedInit(x, *args, **kwargs)\n'
+        '\n'
+        '   Class docstring.\n'
+        '\n'
+        '   Parameters:\n'
+        '      * **x** (*int*) --\n'
+        '\n'
+        '      * **args** (*int*) --\n'
+        '\n'
+        '      * **kwargs** (*int*) --\n'
+        '\n'
+        '   __init__(x, *args, **kwargs)\n'
+        '\n'
+        '      Init docstring.\n'
+        '\n'
+        '      Parameters:\n'
+        '         * **x** (*int*) -- Some integer\n'
+        '\n'
+        '         * **args** (*int*) -- Some integer\n'
+        '\n'
+        '         * **kwargs** (*int*) -- Some integer\n'
+        '\n'
+        '      Return type:\n'
+        '         None\n'
+    )
 
 
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
@@ -1137,20 +1141,22 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc(app):
     )
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
-    assert ('class target.typehints._ClassWithDocumentedInit(x, *args, **kwargs)\n'
-            '\n'
-            '   Class docstring.\n'
-            '\n'
-            '   __init__(x, *args, **kwargs)\n'
-            '\n'
-            '      Init docstring.\n'
-            '\n'
-            '      Parameters:\n'
-            '         * **x** (*int*) -- Some integer\n'
-            '\n'
-            '         * **args** (*int*) -- Some integer\n'
-            '\n'
-            '         * **kwargs** (*int*) -- Some integer\n' == context)
+    assert context == (
+        'class target.typehints._ClassWithDocumentedInit(x, *args, **kwargs)\n'
+        '\n'
+        '   Class docstring.\n'
+        '\n'
+        '   __init__(x, *args, **kwargs)\n'
+        '\n'
+        '      Init docstring.\n'
+        '\n'
+        '      Parameters:\n'
+        '         * **x** (*int*) -- Some integer\n'
+        '\n'
+        '         * **args** (*int*) -- Some integer\n'
+        '\n'
+        '         * **kwargs** (*int*) -- Some integer\n'
+    )
 
 
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
@@ -1167,20 +1173,22 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc_doc_rtype(a
     )
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
-    assert ('class target.typehints._ClassWithDocumentedInit(x, *args, **kwargs)\n'
-            '\n'
-            '   Class docstring.\n'
-            '\n'
-            '   __init__(x, *args, **kwargs)\n'
-            '\n'
-            '      Init docstring.\n'
-            '\n'
-            '      Parameters:\n'
-            '         * **x** (*int*) -- Some integer\n'
-            '\n'
-            '         * **args** (*int*) -- Some integer\n'
-            '\n'
-            '         * **kwargs** (*int*) -- Some integer\n' == context)
+    assert context == (
+        'class target.typehints._ClassWithDocumentedInit(x, *args, **kwargs)\n'
+        '\n'
+        '   Class docstring.\n'
+        '\n'
+        '   __init__(x, *args, **kwargs)\n'
+        '\n'
+        '      Init docstring.\n'
+        '\n'
+        '      Parameters:\n'
+        '         * **x** (*int*) -- Some integer\n'
+        '\n'
+        '         * **args** (*int*) -- Some integer\n'
+        '\n'
+        '         * **kwargs** (*int*) -- Some integer\n'
+    )
 
 
 @pytest.mark.sphinx('text', testroot='ext-autodoc',
@@ -1383,17 +1391,19 @@ def test_autodoc_typehints_description_and_type_aliases(app):
     (app.srcdir / 'autodoc_type_aliases.rst').write_text('.. autofunction:: target.autodoc_type_aliases.sum', encoding='utf8')
     app.build()
     context = (app.outdir / 'autodoc_type_aliases.txt').read_text(encoding='utf8')
-    assert ('target.autodoc_type_aliases.sum(x, y)\n'
-            '\n'
-            '   docstring\n'
-            '\n'
-            '   Parameters:\n'
-            '      * **x** (*myint*) --\n'
-            '\n'
-            '      * **y** (*myint*) --\n'
-            '\n'
-            '   Return type:\n'
-            '      myint\n' == context)
+    assert context == (
+        'target.autodoc_type_aliases.sum(x, y)\n'
+        '\n'
+        '   docstring\n'
+        '\n'
+        '   Parameters:\n'
+        '      * **x** (*myint*) --\n'
+        '\n'
+        '      * **y** (*myint*) --\n'
+        '\n'
+        '   Return type:\n'
+        '      myint\n'
+    )
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc',

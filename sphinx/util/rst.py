@@ -98,7 +98,7 @@ def prepend_prolog(content: StringList, prolog: str) -> None:
 def append_epilog(content: StringList, epilog: str) -> None:
     """Append a string to content body as epilog."""
     if epilog:
-        if 0 < len(content):
+        if len(content) > 0:
             source, lineno = content.info(-1)
         else:
             source = '<generated>'

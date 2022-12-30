@@ -11,7 +11,7 @@ import types
 import typing
 from functools import cached_property, partial, partialmethod, singledispatchmethod
 from importlib import import_module
-from inspect import (Parameter, isasyncgenfunction, isclass, ismethod,  # NOQA
+from inspect import (Parameter, isasyncgenfunction, isclass, ismethod,  # noqa: F401
                      ismethoddescriptor, ismodule)
 from io import StringIO
 from types import (ClassMethodDescriptorType, MethodDescriptorType, MethodType, ModuleType,
@@ -731,7 +731,9 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
         if defaults[i + posonlyargs] is Parameter.empty:
             default = Parameter.empty
         else:
-            default = DefaultValue(ast_unparse(defaults[i + posonlyargs], code))  # type: ignore  # NOQA
+            default = DefaultValue(
+                ast_unparse(defaults[i + posonlyargs], code)  # type: ignore
+            )
 
         annotation = ast_unparse(arg.annotation, code) or Parameter.empty
         params.append(Parameter(arg.arg, Parameter.POSITIONAL_OR_KEYWORD,
@@ -746,7 +748,7 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
         if args.kw_defaults[i] is None:
             default = Parameter.empty
         else:
-            default = DefaultValue(ast_unparse(args.kw_defaults[i], code))  # type: ignore  # NOQA
+            default = DefaultValue(ast_unparse(args.kw_defaults[i], code))  # type: ignore
         annotation = ast_unparse(arg.annotation, code) or Parameter.empty
         params.append(Parameter(arg.arg, Parameter.KEYWORD_ONLY, default=default,
                                 annotation=annotation))

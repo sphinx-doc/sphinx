@@ -5,7 +5,7 @@ import inspect
 import re
 from contextlib import suppress
 from functools import partial
-from typing import Any, Callable, Dict, List, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 from sphinx.application import Sphinx
 from sphinx.config import Config as SphinxConfig
@@ -146,9 +146,16 @@ class GoogleDocstring:
     _name_rgx = re.compile(r"^\s*((?::(?P<role>\S+):)?`(?P<name>~?[a-zA-Z0-9_.-]+)`|"
                            r" (?P<name2>~?[a-zA-Z0-9_.-]+))\s*", re.X)
 
-    def __init__(self, docstring: Union[str, List[str]], config: SphinxConfig = None,
-                 app: Sphinx = None, what: str = '', name: str = '',
-                 obj: Any = None, options: Any = None) -> None:
+    def __init__(
+        self,
+        docstring: Union[str, List[str]],
+        config: Optional[SphinxConfig] = None,
+        app: Optional[Sphinx] = None,
+        what: str = '',
+        name: str = '',
+        obj: Any = None,
+        options: Any = None
+    ) -> None:
         self._config = config
         self._app = app
 
@@ -409,7 +416,9 @@ class GoogleDocstring:
         else:
             return ['.. %s::' % admonition, '']
 
-    def _format_block(self, prefix: str, lines: List[str], padding: str = None) -> List[str]:
+    def _format_block(
+        self, prefix: str, lines: List[str], padding: Optional[str] = None
+    ) -> List[str]:
         if lines:
             if padding is None:
                 padding = ' ' * len(prefix)
@@ -946,7 +955,7 @@ def _tokenize_type_spec(spec: str) -> List[str]:
     return tokens
 
 
-def _token_type(token: str, location: str = None) -> str:
+def _token_type(token: str, location: Optional[str] = None) -> str:
     def is_numeric(token):
         try:
             # use complex to make sure every numeric value is detected as literal
@@ -1005,7 +1014,9 @@ def _token_type(token: str, location: str = None) -> str:
     return type_
 
 
-def _convert_numpy_type_spec(_type: str, location: str = None, translations: dict = {}) -> str:
+def _convert_numpy_type_spec(
+    _type: str, location: Optional[str] = None, translations: dict = {}
+) -> str:
     def convert_obj(obj, translations, default_translation):
         translation = translations.get(obj, obj)
 
@@ -1134,13 +1145,20 @@ class NumpyDocstring(GoogleDocstring):
             The lines of the docstring in a list.
 
     """
-    def __init__(self, docstring: Union[str, List[str]], config: SphinxConfig = None,
-                 app: Sphinx = None, what: str = '', name: str = '',
-                 obj: Any = None, options: Any = None) -> None:
+    def __init__(
+        self,
+        docstring: Union[str, List[str]],
+        config: Optional[SphinxConfig] = None,
+        app: Optional[Sphinx] = None,
+        what: str = '',
+        name: str = '',
+        obj: Any = None,
+        options: Any = None
+    ) -> None:
         self._directive_sections = ['.. index::']
         super().__init__(docstring, config, app, what, name, obj, options)
 
-    def _get_location(self) -> str:
+    def _get_location(self) -> Optional[str]:
         try:
             filepath = inspect.getfile(self._obj) if self._obj is not None else None
         except TypeError:
@@ -1243,7 +1261,7 @@ class NumpyDocstring(GoogleDocstring):
         """
         items = []
 
-        def parse_item_name(text: str) -> Tuple[str, str]:
+        def parse_item_name(text: str) -> Tuple[str, Optional[str]]:
             """Match ':role:`name`' or 'name'"""
             m = self._name_rgx.match(text)
             if m:
@@ -1256,7 +1274,7 @@ class NumpyDocstring(GoogleDocstring):
 
         def push_item(name: str, rest: List[str]) -> None:
             if not name:
-                return
+                return None
             name, role = parse_item_name(name)
             items.append((name, list(rest), role))
             del rest[:]

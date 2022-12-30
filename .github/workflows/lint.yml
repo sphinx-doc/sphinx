@@ -27,3 +27,19 @@ jobs:
       run:  python -m pip install -U tox pip
     - name: Run Tox
       run:  tox -e ${{ matrix.tool }}
+
+  ruff:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3
+    - name: Install dependencies
+      run:  |
+        python -m pip install --upgrade pip
+        python -m pip install --upgrade ruff
+    - name: Lint with Ruff
+      run:  ruff .  --diff --format github

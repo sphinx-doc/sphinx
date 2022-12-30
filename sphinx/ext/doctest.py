@@ -382,10 +382,10 @@ Doctest summary
             condition = node['skipif']
             context: Dict[str, Any] = {}
             if self.config.doctest_global_setup:
-                exec(self.config.doctest_global_setup, context)
-            should_skip = eval(condition, context)
+                exec(self.config.doctest_global_setup, context)  # NoQA: S102
+            should_skip = eval(condition, context)  # NoQA: PGH001
             if self.config.doctest_global_cleanup:
-                exec(self.config.doctest_global_cleanup, context)
+                exec(self.config.doctest_global_cleanup, context)  # NoQA: S102
             return should_skip
 
     def test_doc(self, docname: str, doctree: Node) -> None:

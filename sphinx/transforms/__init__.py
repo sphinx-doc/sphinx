@@ -334,8 +334,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         for tag in normalize_language_tag(language):
             if tag in smartchars.quotes:
                 return True
-        else:
-            return False
+        return False
 
     def get_tokens(self, txtnodes: List[Text]) -> Generator[Tuple[str, str], None, None]:
         # A generator that yields ``(texttype, nodetext)`` tuples for a list

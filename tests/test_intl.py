@@ -1383,3 +1383,13 @@ def test_customize_system_message(make_app, app_params, sphinx_test_tempdir):
         assert 'QUICK SEARCH' in content
     finally:
         locale.translators.clear()
+
+
+@pytest.mark.sphinx('html', testroot='intl', confoverrides={'today_fmt': '%Y-%m-%d'})
+def test_customize_today_date_format(app, monkeypatch):
+    with monkeypatch.context() as m:
+        m.setenv('SOURCE_DATE_EPOCH', '1439131307')
+        app.build()
+        content = (app.outdir / 'refs.html').read_text(encoding='utf8')
+
+    assert '2015-08-09' in content

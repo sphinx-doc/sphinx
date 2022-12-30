@@ -23,7 +23,7 @@ from sphinx.util.i18n import search_image_for_language
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import ensuredir
 from sphinx.util.typing import OptionSpec
-from sphinx.writers.html import HTMLTranslator
+from sphinx.writers.html import HTML5Translator
 from sphinx.writers.latex import LaTeXTranslator
 from sphinx.writers.manpage import ManualPageTranslator
 from sphinx.writers.texinfo import TexinfoTranslator
@@ -262,7 +262,7 @@ def render_dot(self: SphinxTranslator, code: str, options: Dict, format: str,
                                '[stdout]\n%r') % (exc.stderr, exc.stdout)) from exc
 
 
-def render_dot_html(self: HTMLTranslator, node: graphviz, code: str, options: Dict,
+def render_dot_html(self: HTML5Translator, node: graphviz, code: str, options: Dict,
                     prefix: str = 'graphviz', imgcls: Optional[str] = None,
                     alt: Optional[str] = None, filename: Optional[str] = None
                     ) -> Tuple[str, str]:
@@ -315,7 +315,7 @@ def render_dot_html(self: HTMLTranslator, node: graphviz, code: str, options: Di
     raise nodes.SkipNode
 
 
-def html_visit_graphviz(self: HTMLTranslator, node: graphviz) -> None:
+def html_visit_graphviz(self: HTML5Translator, node: graphviz) -> None:
     render_dot_html(self, node, node['code'], node['options'], filename=node.get('filename'))
 
 

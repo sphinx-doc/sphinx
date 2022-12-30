@@ -11,7 +11,7 @@ class ModuleIsDeprecatedTest(TestCase):
     def test_module_is_deprecated(self):
         sys.modules.pop("sphinx.ext.napoleon.iterators")
         with self.assertWarns(RemovedInSphinx70Warning):
-            import sphinx.ext.napoleon.iterators  # noqa
+            import sphinx.ext.napoleon.iterators  # noqa: F401
 
 
 class BaseIteratorsTest(TestCase):

@@ -209,8 +209,7 @@ class ReferencesResolver(SphinxPostTransform):
             matched = find_pending_xref_condition(node, condition)
             if matched:
                 return matched.children
-        else:
-            return None
+        return None
 
 
 class OnlyNodeTransform(SphinxPostTransform):

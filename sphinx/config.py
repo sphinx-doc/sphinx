@@ -347,7 +347,7 @@ def eval_config_file(filename: str, tags: Optional[Tags]) -> Dict[str, Any]:
         try:
             with open(filename, 'rb') as f:
                 code = compile(f.read(), filename.encode(fs_encoding), 'exec')
-                exec(code, namespace)
+                exec(code, namespace)  # NoQA: S102
         except SyntaxError as err:
             msg = __("There is a syntax error in your configuration file: %s\n")
             raise ConfigError(msg % err) from err
@@ -380,7 +380,7 @@ def convert_source_suffix(app: "Sphinx", config: Config) -> None:
         config.source_suffix = OrderedDict({source_suffix: None})  # type: ignore
     elif isinstance(source_suffix, (list, tuple)):
         # if list, considers as all of them are default filetype
-        config.source_suffix = OrderedDict([(s, None) for s in source_suffix])  # type: ignore  # NOQA
+        config.source_suffix = OrderedDict([(s, None) for s in source_suffix])  # type: ignore
     elif isinstance(source_suffix, dict):
         # if dict, convert it to OrderedDict
         config.source_suffix = OrderedDict(config.source_suffix)  # type: ignore

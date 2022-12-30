@@ -5,7 +5,7 @@ import bdb
 import locale
 import multiprocessing
 import os
-import pdb
+import pdb  # NoQA: T100
 import sys
 import traceback
 from contextlib import suppress

@@ -159,7 +159,7 @@ def test_restify_type_hints_alias():
 
 def test_restify_type_ForwardRef():
     from typing import ForwardRef  # type: ignore
-    assert restify(ForwardRef("myint")) == ":py:class:`myint`"
+    assert restify(ForwardRef("myint")) == ":py:class:`myint`"  # NoQA: F821
 
 
 def test_restify_type_Literal():

@@ -49,8 +49,7 @@ def is_initpy(filename: str) -> bool:
     for suffix in sorted(PY_SUFFIXES, key=len, reverse=True):
         if basename == '__init__' + suffix:
             return True
-    else:
-        return False
+    return False
 
 
 def module_join(*modnames: str) -> str:

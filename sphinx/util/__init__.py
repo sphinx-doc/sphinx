@@ -22,13 +22,13 @@ from sphinx.errors import ExtensionError, FiletypeNotFoundError, SphinxParallelE
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import bold, colorize, strip_colors, term_width_line  # type: ignore
-from sphinx.util.matching import patfilter  # noqa
-from sphinx.util.nodes import (caption_ref_re, explicit_title_re,  # noqa
+from sphinx.util.matching import patfilter  # noqa: F401
+from sphinx.util.nodes import (caption_ref_re, explicit_title_re,  # noqa: F401
                                nested_parse_with_titles, split_explicit_title)
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
-from sphinx.util.osutil import (SEP, copyfile, copytimes, ensuredir, make_filename,  # noqa
-                                mtimes_of_files, os_path, relative_uri)
+from sphinx.util.osutil import (SEP, copyfile, copytimes, ensuredir,  # noqa: F401
+                                make_filename, mtimes_of_files, os_path, relative_uri)
 from sphinx.util.typing import PathMatcher
 
 if TYPE_CHECKING:
@@ -61,7 +61,7 @@ def path_stabilize(filepath: str) -> str:
 
 def get_matching_files(dirname: str,
                        exclude_matchers: Tuple[PathMatcher, ...] = (),
-                       include_matchers: Tuple[PathMatcher, ...] = ()) -> Iterable[str]:  # NOQA
+                       include_matchers: Tuple[PathMatcher, ...] = ()) -> Iterable[str]:
     """Get all file names in a directory, recursively.
 
     Exclude files and dirs matching some matcher in *exclude_matchers*.
@@ -97,8 +97,7 @@ def get_filetype(source_suffix: Dict[str, str], filename: str) -> str:
         if filename.endswith(suffix):
             # If default filetype (None), considered as restructuredtext.
             return filetype or 'restructuredtext'
-    else:
-        raise FiletypeNotFoundError
+    raise FiletypeNotFoundError
 
 
 class FilenameUniqDict(dict):
@@ -507,7 +506,9 @@ class progress_message:
     def __enter__(self) -> None:
         logger.info(bold(self.message + '... '), nonl=True)
 
-    def __exit__(self, exc_type: Type[Exception], exc_value: Exception, traceback: Any) -> bool:  # NOQA
+    def __exit__(
+        self, exc_type: Type[Exception], exc_value: Exception, traceback: Any
+    ) -> bool:
         if isinstance(exc_value, SkipProgressMessage):
             logger.info(__('skipped'))
             if exc_value.args:

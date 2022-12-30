@@ -51,7 +51,7 @@ def encode_string(s: str) -> str:
 
 
 def decode_string(s: str) -> str:
-    return ESCAPED.sub(lambda m: eval('"' + m.group() + '"'), s)
+    return ESCAPED.sub(lambda m: eval('"' + m.group() + '"'), s)  # NoQA: PGH001
 
 
 reswords = set("""\

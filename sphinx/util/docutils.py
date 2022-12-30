@@ -242,7 +242,9 @@ class CustomReSTDispatcher:
     def __enter__(self) -> None:
         self.enable()
 
-    def __exit__(self, exc_type: Type[Exception], exc_value: Exception, traceback: Any) -> None:  # NOQA
+    def __exit__(
+        self, exc_type: Type[Exception], exc_value: Exception, traceback: Any
+    ) -> None:
         self.disable()
 
     def enable(self) -> None:
@@ -373,7 +375,7 @@ def switch_source_input(state: State, content: StringList) -> Generator[None, No
         # replace it by new one
         state_machine = StateMachine([], None)
         state_machine.input_lines = content
-        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore  # NOQA
+        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore  # noqa: E501
 
         yield
     finally:
