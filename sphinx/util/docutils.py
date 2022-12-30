@@ -21,7 +21,6 @@ from docutils.statemachine import State, StateMachine, StringList
 from docutils.utils import Reporter, unescape
 from docutils.writers._html_base import HTMLTranslator
 
-from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -37,14 +36,23 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
 
-deprecated_alias('sphinx.util.docutils',
-                 {
-                     '__version_info__': docutils.__version_info__,
-                 },
-                 RemovedInSphinx70Warning,
-                 {
-                     '__version_info__': 'docutils.__version_info__',
-                 })
+# deprecated name -> (object to return, canonical path or empty string)
+_DEPRECATED_OBJECTS = {
+    '__version_info__': (docutils.__version_info__, 'docutils.__version_info__'),
+}
+
+
+def __getattr__(name):
+    if name not in _DEPRECATED_OBJECTS:
+        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+
+    from sphinx.deprecation import _deprecation_warning
+
+    deprecated_object, canonical_name = _DEPRECATED_OBJECTS[name]
+    _deprecation_warning(__name__, name, canonical_name, remove=(7, 0))
+    return deprecated_object
+
+
 additional_nodes: set[type[Element]] = set()
 
 
@@ -361,6 +369,8 @@ class NullReporter(Reporter):
 
 
 def is_html5_writer_available() -> bool:
+    from sphinx.deprecation import RemovedInSphinx70Warning
+
     warnings.warn('is_html5_writer_available() is deprecated.',
                   RemovedInSphinx70Warning)
     return True
