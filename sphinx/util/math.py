@@ -4,10 +4,10 @@ from typing import Optional
 
 from docutils import nodes
 
-from sphinx.builders.html import HTMLTranslator
+from sphinx.builders.html import HTML5Translator
 
 
-def get_node_equation_number(writer: HTMLTranslator, node: nodes.math_block) -> str:
+def get_node_equation_number(writer: HTML5Translator, node: nodes.math_block) -> str:
     if writer.builder.config.math_numfig and writer.builder.config.numfig:
         figtype = 'displaymath'
         if writer.builder.name == 'singlehtml':

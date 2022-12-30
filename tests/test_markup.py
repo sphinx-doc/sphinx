@@ -16,7 +16,7 @@ from sphinx.testing.util import Struct, assert_node
 from sphinx.transforms import SphinxSmartQuotes
 from sphinx.util import texescape
 from sphinx.util.docutils import sphinx_domains
-from sphinx.writers.html import HTMLTranslator, HTMLWriter
+from sphinx.writers.html import HTML5Translator, HTMLWriter
 from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 
 
@@ -81,7 +81,7 @@ class ForgivingTranslator:
         pass
 
 
-class ForgivingHTMLTranslator(HTMLTranslator, ForgivingTranslator):
+class ForgivingHTMLTranslator(HTML5Translator, ForgivingTranslator):
     pass
 
 
@@ -357,27 +357,27 @@ def get_verifier(verify, verify_re):
         # description list: simple
         'verify',
         'term\n    description',
-        '<dl class="docutils">\n<dt>term</dt><dd>description</dd>\n</dl>',
+        '<dl class="simple">\n<dt>term</dt><dd><p>description</p>\n</dd>\n</dl>',
         None,
     ),
     (
         # description list: with classifiers
         'verify',
         'term : class1 : class2\n    description',
-        ('<dl class="docutils">\n<dt>term<span class="classifier">class1</span>'
-         '<span class="classifier">class2</span></dt><dd>description</dd>\n</dl>'),
+        ('<dl class="simple">\n<dt>term<span class="classifier">class1</span>'
+         '<span class="classifier">class2</span></dt><dd><p>description</p>\n</dd>\n</dl>'),
         None,
     ),
     (
         # glossary (description list): multiple terms
         'verify',
         '.. glossary::\n\n   term1\n   term2\n       description',
-        ('<dl class="glossary docutils">\n'
+        ('<dl class="simple glossary">\n'
          '<dt id="term-term1">term1<a class="headerlink" href="#term-term1"'
          ' title="Permalink to this term">¶</a></dt>'
          '<dt id="term-term2">term2<a class="headerlink" href="#term-term2"'
          ' title="Permalink to this term">¶</a></dt>'
-         '<dd>description</dd>\n</dl>'),
+         '<dd><p>description</p>\n</dd>\n</dl>'),
         None,
     ),
 ])

@@ -22,7 +22,7 @@ from sphinx.locale import _, __
 from sphinx.util import logging, texescape
 from sphinx.util.docutils import SphinxDirective, new_document
 from sphinx.util.typing import OptionSpec
-from sphinx.writers.html import HTMLTranslator
+from sphinx.writers.html import HTML5Translator
 from sphinx.writers.latex import LaTeXTranslator
 
 logger = logging.getLogger(__name__)
@@ -188,14 +188,14 @@ class TodoListProcessor:
         self.document.remove(todo)
 
 
-def visit_todo_node(self: HTMLTranslator, node: todo_node) -> None:
+def visit_todo_node(self: HTML5Translator, node: todo_node) -> None:
     if self.config.todo_include_todos:
         self.visit_admonition(node)
     else:
         raise nodes.SkipNode
 
 
-def depart_todo_node(self: HTMLTranslator, node: todo_node) -> None:
+def depart_todo_node(self: HTML5Translator, node: todo_node) -> None:
     self.depart_admonition(node)
 
 

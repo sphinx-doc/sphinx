@@ -24,7 +24,7 @@ from sphinx.util.math import get_node_equation_number, wrap_displaymath
 from sphinx.util.osutil import ensuredir
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.template import LaTeXRenderer
-from sphinx.writers.html import HTMLTranslator
+from sphinx.writers.html import HTML5Translator
 
 logger = logging.getLogger(__name__)
 
@@ -201,7 +201,7 @@ def convert_dvi_to_svg(dvipath: str, builder: Builder, out_path: str) -> Optiona
 
 
 def render_math(
-    self: HTMLTranslator,
+    self: HTML5Translator,
     math: str,
 ) -> Tuple[Optional[str], Optional[int]]:
     """Render the LaTeX math expression *math* using latex and dvipng or
@@ -291,13 +291,13 @@ def clean_up_files(app: Sphinx, exc: Exception) -> None:
             pass
 
 
-def get_tooltip(self: HTMLTranslator, node: Element) -> str:
+def get_tooltip(self: HTML5Translator, node: Element) -> str:
     if self.builder.config.imgmath_add_tooltips:
         return ' alt="%s"' % self.encode(node.astext()).strip()
     return ''
 
 
-def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
+def html_visit_math(self: HTML5Translator, node: nodes.math) -> None:
     try:
         rendered_path, depth = render_math(self, '$' + node.astext() + '$')
     except MathExtError as exc:
@@ -326,7 +326,7 @@ def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
     raise nodes.SkipNode
 
 
-def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None:
+def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> None:
     if node['nowrap']:
         latex = node.astext()
     else:
