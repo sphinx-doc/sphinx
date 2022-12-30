@@ -599,15 +599,15 @@ class TextTranslator(SphinxTranslator):
     def depart_desc_parameterlist(self, node: Element) -> None:
         self.add_text(')')
 
-    def visit_desc_parameterline(self, node: Element) -> None:
+    def visit_desc_parameter_line(self, node: Element) -> None:
         self.new_state()
 
-    def depart_desc_parameterline(self, node: Element) -> None:
+    def depart_desc_parameter_line(self, node: Element) -> None:
         self.add_text(',')
         self.end_state(wrap=False, end=None)
 
     def visit_desc_parameter(self, node: Element) -> None:
-        if not self.first_param and not node.parent.parent.get('is_multiline'):
+        if not self.first_param and not node.parent.parent.get('is_multi_line'):
             self.add_text(', ')
         else:
             self.first_param = 0

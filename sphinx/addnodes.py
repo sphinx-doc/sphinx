@@ -150,7 +150,7 @@ class desc_signature(_desc_classes_injector, nodes.Part, nodes.Inline, nodes.Tex
     """Node for a single object signature.
 
     As default the signature is a single-line signature.
-    Set ``is_multiline = True`` to describe a multi-line signature.
+    Set ``is_multi_line = True`` to describe a multi-line signature.
     In that case all child nodes must be :py:class:`desc_signature_line` nodes.
 
     This node always has the classes ``sig``, ``sig-object``, and the domain it belongs to.
@@ -160,7 +160,7 @@ class desc_signature(_desc_classes_injector, nodes.Part, nodes.Inline, nodes.Tex
 
     @property
     def child_text_separator(self):
-        if self.get('is_multiline'):
+        if self.get('is_multi_line'):
             return ' '
         else:
             return super().child_text_separator
@@ -170,7 +170,7 @@ class desc_signature_line(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a line in a multi-line object signature.
 
     It should only be used as a child of a :py:class:`desc_signature`
-    with ``is_multiline`` set to ``True``.
+    with ``is_multi_line`` set to ``True``.
     Set ``add_permalink = True`` for the line that should get the permalink.
     """
     sphinx_line_type = ''
@@ -249,8 +249,7 @@ class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
         return f'({super().astext()})'
 
 
-class desc_parameterline(nodes.General, nodes.Element):
-    """Node for a parameter line."""
+class desc_parameter_line(nodes.General, nodes.Element):
 
 
 class desc_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):

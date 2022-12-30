@@ -251,15 +251,15 @@ def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Nod
 
 
 def _parse_arglist(
-    arglist: str, env: BuildEnvironment | None = None, multiline: bool = False
+    arglist: str, env: BuildEnvironment | None = None, multi_line: bool = False
 ) -> addnodes.desc_parameterlist:
     """Parse a list of arguments using AST parser"""
     params = addnodes.desc_parameterlist()
-    params['is_multiline'] = multiline
+    params['is_multi_line'] = multi_line
     sig = signature_from_str('(%s)' % arglist)
     last_kind = None
     for param in sig.parameters.values():
-        param_node = addnodes.desc_parameterline() if multiline else params
+        param_node = addnodes.desc_parameter_line() if multi_line else params
         if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:
             # PEP-570: Separator for Positional Only Parameter: /
             param_node += addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '/'))
@@ -295,7 +295,7 @@ def _parse_arglist(
                                  support_smartquotes=False)
 
         param_node += node
-        if multiline:
+        if multi_line:
             params += param_node
         last_kind = param.kind
 
@@ -456,7 +456,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         'noindex': directives.flag,
         'noindexentry': directives.flag,
         'nocontentsentry': directives.flag,
-        'singlelinesig': directives.flag,
+        'single-line-signature': directives.flag,
         'module': directives.unchanged,
         'canonical': directives.unchanged,
         'annotation': directives.unchanged,
@@ -539,13 +539,13 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         signode['class'] = classname
         signode['fullname'] = fullname
         max_len = self.env.config.python_maximum_signature_line_length
-        multiline = (
+        multi_line = (
             max_len >= 0
-            and 'singlelinesig' not in self.options
+            and 'single-line-signature' not in self.options
             and len(sig) > max_len
         )
-        signode['is_multiline'] = multiline
-        if multiline:
+        signode['is_multi_line'] = multi_line
+        if multi_line:
             signode['add_permalink'] = True
 
         sig_prefix = self.get_signature_prefix(sig)
@@ -567,7 +567,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         signode += addnodes.desc_name(name, name)
         if arglist:
             try:
-                signode += _parse_arglist(arglist, self.env, multiline=multiline)
+                signode += _parse_arglist(arglist, self.env, multi_line=multi_line)
             except SyntaxError:
                 # fallback to parse arglist original parser.
                 # it supports to represent optional arguments (ex. "func(foo [, bar])")
