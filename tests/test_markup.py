@@ -300,6 +300,14 @@ def get_verifier(verify, verify_re):
          '\\sphinxkeyboard{\\sphinxupquote{Caps Lock}}'),
     ),
     (
+        # kbd role
+        'verify',
+        ':kbd:`sys   rq`',
+        '<p><kbd class="kbd docutils literal notranslate">sys   rq</kbd></p>',
+        ('\\sphinxAtStartPar\n'
+         '\\sphinxkeyboard{\\sphinxupquote{sys   rq}}'),
+    ),
+    (
         # non-interpolation of dashes in option role
         'verify_re',
         ':option:`--with-option`',
