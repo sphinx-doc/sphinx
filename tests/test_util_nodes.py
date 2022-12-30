@@ -168,14 +168,14 @@ def test_extract_messages_without_rawsource():
 
 def test_clean_astext():
     node = nodes.paragraph(text='hello world')
-    assert 'hello world' == clean_astext(node)
+    assert clean_astext(node) == 'hello world'
 
     node = nodes.image(alt='hello world')
-    assert '' == clean_astext(node)
+    assert clean_astext(node) == ''
 
     node = nodes.paragraph(text='hello world')
     node += nodes.raw('', 'raw text', format='html')
-    assert 'hello world' == clean_astext(node)
+    assert clean_astext(node) == 'hello world'
 
 
 @pytest.mark.parametrize(

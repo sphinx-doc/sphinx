@@ -1085,7 +1085,7 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_enumerated_list(self, node: Element) -> None:
         def get_enumtype(node: Element) -> str:
             enumtype = node.get('enumtype', 'arabic')
-            if 'alpha' in enumtype and 26 < node.get('start', 0) + len(node):
+            if 'alpha' in enumtype and (node.get('start', 0) + len(node)) > 26:
                 # fallback to arabic if alphabet counter overflows
                 enumtype = 'arabic'
 

@@ -160,8 +160,6 @@ ignore = [
     'B905',
     # pygrep-hooks
     "PGH003",
-    # pylint
-    "PLC2201",
     # flake8-bandit
     "S101",  # assert used
     "S105",  # possible hardcoded password
