@@ -204,10 +204,7 @@ def _lazy_translate(catalog: str, namespace: str, message: str, *args: Any) -> s
     not bound yet at that time.
     """
     translator = get_translator(catalog, namespace)
-    if len(args) <= 1:
-        return translator.gettext(message)
-    else:  # support pluralization
-        return translator.ngettext(message, args[0], args[1])
+    return translator.gettext(message)
 
 
 def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str], str]:
