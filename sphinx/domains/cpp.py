@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import (Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple, TypeVar,
-                    Union)
+from typing import Any, Callable, Generator, Iterator, Optional, TypeVar, Union
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement, system_message
@@ -544,7 +543,7 @@ _id_operator_unary_v2 = {
     '!': 'nt', 'not': 'nt',
     '~': 'co', 'compl': 'co'
 }
-_id_char_from_prefix: Dict[Optional[str], str] = {
+_id_char_from_prefix: dict[Optional[str], str] = {
     None: 'c', 'u8': 'c',
     'u': 'Ds', 'U': 'Di', 'L': 'w'
 }
@@ -699,8 +698,8 @@ class ASTNestedNameElement(ASTBase):
 
 
 class ASTNestedName(ASTBase):
-    def __init__(self, names: List[ASTNestedNameElement],
-                 templates: List[bool], rooted: bool) -> None:
+    def __init__(self, names: list[ASTNestedNameElement],
+                 templates: list[bool], rooted: bool) -> None:
         assert len(names) > 0
         self.names = names
         self.templates = templates
@@ -778,7 +777,7 @@ class ASTNestedName(ASTBase):
             # prefix. however, only the identifier part should be a link, such
             # that template args can be a link as well.
             # For 'lastIsName' we should also prepend template parameter lists.
-            templateParams: List[Any] = []
+            templateParams: list[Any] = []
             if mode == 'lastIsName':
                 assert symbol is not None
                 if symbol.declaration.templatePrefix is not None:
@@ -1178,7 +1177,7 @@ class ASTPostfixCallExpr(ASTPostfixOp):
 
 
 class ASTPostfixExpr(ASTExpression):
-    def __init__(self, prefix: "ASTType", postFixes: List[ASTPostfixOp]):
+    def __init__(self, prefix: "ASTType", postFixes: list[ASTPostfixOp]):
         self.prefix = prefix
         self.postFixes = postFixes
 
@@ -1482,7 +1481,7 @@ class ASTCastExpr(ASTExpression):
 
 
 class ASTBinOpExpr(ASTExpression):
-    def __init__(self, exprs: List[ASTExpression], ops: List[str]):
+    def __init__(self, exprs: list[ASTExpression], ops: list[str]):
         assert len(exprs) > 0
         assert len(exprs) == len(ops) + 1
         self.exprs = exprs
@@ -1560,7 +1559,7 @@ class ASTConditionalExpr(ASTExpression):
 
 
 class ASTBracedInitList(ASTBase):
-    def __init__(self, exprs: List[Union[ASTExpression, "ASTBracedInitList"]],
+    def __init__(self, exprs: list[Union[ASTExpression, "ASTBracedInitList"]],
                  trailingComma: bool) -> None:
         self.exprs = exprs
         self.trailingComma = trailingComma
@@ -1627,7 +1626,7 @@ class ASTAssignmentExpr(ASTExpression):
 
 
 class ASTCommaExpr(ASTExpression):
-    def __init__(self, exprs: List[ASTExpression]):
+    def __init__(self, exprs: list[ASTExpression]):
         assert len(exprs) > 0
         self.exprs = exprs
 
@@ -1813,7 +1812,7 @@ class ASTTemplateArgConstant(ASTBase):
 
 
 class ASTTemplateArgs(ASTBase):
-    def __init__(self, args: List[Union["ASTType", ASTTemplateArgConstant]],
+    def __init__(self, args: list[Union["ASTType", ASTTemplateArgConstant]],
                  packExpansion: bool) -> None:
         assert args is not None
         self.args = args
@@ -1875,7 +1874,7 @@ class ASTTrailingTypeSpec(ASTBase):
 
 
 class ASTTrailingTypeSpecFundamental(ASTTrailingTypeSpec):
-    def __init__(self, names: List[str], canonNames: List[str]) -> None:
+    def __init__(self, names: list[str], canonNames: list[str]) -> None:
         assert len(names) != 0
         assert len(names) == len(canonNames), (names, canonNames)
         self.names = names
@@ -2047,7 +2046,7 @@ class ASTNoexceptSpec(ASTBase):
 
 
 class ASTParametersQualifiers(ASTBase):
-    def __init__(self, args: List[ASTFunctionParameter], volatile: bool, const: bool,
+    def __init__(self, args: list[ASTFunctionParameter], volatile: bool, const: bool,
                  refQual: Optional[str], exceptionSpec: ASTNoexceptSpec,
                  trailingReturn: "ASTType",
                  override: bool, final: bool, attrs: ASTAttributeList,
@@ -2064,7 +2063,7 @@ class ASTParametersQualifiers(ASTBase):
         self.initializer = initializer
 
     @property
-    def function_params(self) -> List[ASTFunctionParameter]:
+    def function_params(self) -> list[ASTFunctionParameter]:
         return self.args
 
     def get_modifiers_id(self, version: int) -> str:
@@ -2244,7 +2243,7 @@ class ASTDeclSpecsSimple(ASTBase):
                                   self.attrs + other.attrs)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res: List[str] = []
+        res: list[str] = []
         if len(self.attrs) != 0:
             res.append(transform(self.attrs))
         if self.storage:
@@ -2340,7 +2339,7 @@ class ASTDeclSpecs(ASTBase):
         return ''.join(res)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res: List[str] = []
+        res: list[str] = []
         l = transform(self.leftSpecs)
         if len(l) > 0:
             res.append(l)
@@ -2425,7 +2424,7 @@ class ASTDeclarator(ASTBase):
         raise NotImplementedError(repr(self))
 
     @property
-    def function_params(self) -> List[ASTFunctionParameter]:
+    def function_params(self) -> list[ASTFunctionParameter]:
         raise NotImplementedError(repr(self))
 
     @property
@@ -2457,7 +2456,7 @@ class ASTDeclarator(ASTBase):
 
 class ASTDeclaratorNameParamQual(ASTDeclarator):
     def __init__(self, declId: ASTNestedName,
-                 arrayOps: List[ASTArray],
+                 arrayOps: list[ASTArray],
                  paramQual: ASTParametersQualifiers) -> None:
         self.declId = declId
         self.arrayOps = arrayOps
@@ -2476,7 +2475,7 @@ class ASTDeclaratorNameParamQual(ASTDeclarator):
         return False
 
     @property
-    def function_params(self) -> List[ASTFunctionParameter]:
+    def function_params(self) -> list[ASTFunctionParameter]:
         return self.paramQual.function_params
 
     @property
@@ -2611,7 +2610,7 @@ class ASTDeclaratorPtr(ASTDeclarator):
         return self.next.isPack
 
     @property
-    def function_params(self) -> List[ASTFunctionParameter]:
+    def function_params(self) -> list[ASTFunctionParameter]:
         return self.next.function_params
 
     @property
@@ -2716,7 +2715,7 @@ class ASTDeclaratorRef(ASTDeclarator):
         return self.next.isPack
 
     @property
-    def function_params(self) -> List[ASTFunctionParameter]:
+    def function_params(self) -> list[ASTFunctionParameter]:
         return self.next.function_params
 
     @property
@@ -2778,7 +2777,7 @@ class ASTDeclaratorParamPack(ASTDeclarator):
         self.next.name = name
 
     @property
-    def function_params(self) -> List[ASTFunctionParameter]:
+    def function_params(self) -> list[ASTFunctionParameter]:
         return self.next.function_params
 
     @property
@@ -2850,7 +2849,7 @@ class ASTDeclaratorMemPtr(ASTDeclarator):
         return self.next.isPack
 
     @property
-    def function_params(self) -> List[ASTFunctionParameter]:
+    def function_params(self) -> list[ASTFunctionParameter]:
         return self.next.function_params
 
     @property
@@ -2951,7 +2950,7 @@ class ASTDeclaratorParen(ASTDeclarator):
         return self.inner.isPack or self.next.isPack
 
     @property
-    def function_params(self) -> List[ASTFunctionParameter]:
+    def function_params(self) -> list[ASTFunctionParameter]:
         return self.inner.function_params
 
     @property
@@ -3022,7 +3021,7 @@ class ASTPackExpansionExpr(ASTExpression):
 
 
 class ASTParenExprList(ASTBaseParenExprList):
-    def __init__(self, exprs: List[Union[ASTExpression, ASTBracedInitList]]) -> None:
+    def __init__(self, exprs: list[Union[ASTExpression, ASTBracedInitList]]) -> None:
         self.exprs = exprs
 
     def get_id(self, version: int) -> str:
@@ -3090,7 +3089,7 @@ class ASTType(ASTBase):
         return self.decl.isPack
 
     @property
-    def function_params(self) -> List[ASTFunctionParameter]:
+    def function_params(self) -> list[ASTFunctionParameter]:
         return self.decl.function_params
 
     @property
@@ -3357,7 +3356,7 @@ class ASTBaseClass(ASTBase):
 
 
 class ASTClass(ASTBase):
-    def __init__(self, name: ASTNestedName, final: bool, bases: List[ASTBaseClass],
+    def __init__(self, name: ASTNestedName, final: bool, bases: list[ASTBaseClass],
                  attrs: ASTAttributeList) -> None:
         self.name = name
         self.final = final
@@ -3725,7 +3724,7 @@ class ASTTemplateParamNonType(ASTTemplateParam):
 
 
 class ASTTemplateParams(ASTBase):
-    def __init__(self, params: List[ASTTemplateParam],
+    def __init__(self, params: list[ASTTemplateParam],
                  requiresClause: Optional["ASTRequiresClause"]) -> None:
         assert params is not None
         self.params = params
@@ -3857,7 +3856,7 @@ class ASTTemplateIntroductionParameter(ASTBase):
 
 class ASTTemplateIntroduction(ASTBase):
     def __init__(self, concept: ASTNestedName,
-                 params: List[ASTTemplateIntroductionParameter]) -> None:
+                 params: list[ASTTemplateIntroductionParameter]) -> None:
         assert len(params) > 0
         self.concept = concept
         self.params = params
@@ -3911,7 +3910,7 @@ class ASTTemplateIntroduction(ASTBase):
 
 class ASTTemplateDeclarationPrefix(ASTBase):
     def __init__(self,
-                 templates: List[Union[ASTTemplateParams,
+                 templates: list[Union[ASTTemplateParams,
                                        ASTTemplateIntroduction]]) -> None:
         # templates is None means it's an explicit instantiation of a variable
         self.templates = templates
@@ -3999,7 +3998,7 @@ class ASTDeclaration(ASTBase):
         return self.declaration.name
 
     @property
-    def function_params(self) -> List[ASTFunctionParameter]:
+    def function_params(self) -> list[ASTFunctionParameter]:
         if self.objectType != 'function':
             return None
         return self.declaration.function_params
@@ -4068,7 +4067,7 @@ class ASTDeclaration(ASTBase):
         return ''.join(res)
 
     def describe_signature(self, signode: desc_signature, mode: str,
-                           env: "BuildEnvironment", options: Dict) -> None:
+                           env: "BuildEnvironment", options: dict) -> None:
         verify_description_mode(mode)
         assert self.symbol
         # The caller of the domain added a desc_signature node.
@@ -4160,7 +4159,7 @@ class SymbolLookupResult:
 
 
 class LookupKey:
-    def __init__(self, data: List[Tuple[ASTNestedNameElement,
+    def __init__(self, data: list[tuple[ASTNestedNameElement,
                                         Union[ASTTemplateParams,
                                               ASTTemplateIntroduction],
                                         str]]) -> None:
@@ -4260,8 +4259,8 @@ class Symbol:
         self._assert_invariants()
 
         # Remember to modify Symbol.remove if modifications to the parent change.
-        self._children: List[Symbol] = []
-        self._anonChildren: List[Symbol] = []
+        self._children: list[Symbol] = []
+        self._anonChildren: list[Symbol] = []
         # note: _children includes _anonChildren
         if self.parent:
             self.parent._children.append(self)
@@ -4331,7 +4330,7 @@ class Symbol:
         self.parent = None
 
     def clear_doc(self, docname: str) -> None:
-        newChildren: List[Symbol] = []
+        newChildren: list[Symbol] = []
         for sChild in self._children:
             sChild.clear_doc(docname)
             if sChild.declaration and sChild.docname == docname:
@@ -4499,7 +4498,7 @@ class Symbol:
     def _symbol_lookup(
         self,
         nestedName: ASTNestedName,
-        templateDecls: List[Any],
+        templateDecls: list[Any],
         onMissingQualifiedSymbol: Callable[
             ["Symbol", Union[ASTIdentifier, ASTOperator], Any, ASTTemplateArgs], "Symbol"
         ],
@@ -4631,7 +4630,7 @@ class Symbol:
         return SymbolLookupResult(symbols, parentSymbol,
                                   identOrOp, templateParams, templateArgs)
 
-    def _add_symbols(self, nestedName: ASTNestedName, templateDecls: List[Any],
+    def _add_symbols(self, nestedName: ASTNestedName, templateDecls: list[Any],
                      declaration: ASTDeclaration, docname: str, line: int) -> "Symbol":
         # Used for adding a whole path of symbols, where the last may or may not
         # be an actual declaration.
@@ -4815,7 +4814,7 @@ class Symbol:
             symbol._fill_empty(declaration, docname, line)
             return symbol
 
-    def merge_with(self, other: "Symbol", docnames: List[str],
+    def merge_with(self, other: "Symbol", docnames: list[str],
                    env: "BuildEnvironment") -> None:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
@@ -5027,9 +5026,9 @@ class Symbol:
             Symbol.debug_indent -= 2
         return s
 
-    def find_name(self, nestedName: ASTNestedName, templateDecls: List[Any],
+    def find_name(self, nestedName: ASTNestedName, templateDecls: list[Any],
                   typ: str, templateShorthand: bool, matchSelf: bool,
-                  recurseInAnon: bool, searchInSiblings: bool) -> Tuple[List["Symbol"], str]:
+                  recurseInAnon: bool, searchInSiblings: bool) -> tuple[list["Symbol"], str]:
         # templateShorthand: missing template parameter lists for templates is ok
         # If the first component is None,
         # then the second component _may_ be a string explaining why.
@@ -5368,7 +5367,7 @@ class DefinitionParser(BaseParser):
         return None
 
     def _parse_initializer_list(self, name: str, open: str, close: str
-                                ) -> Tuple[List[Union[ASTExpression,
+                                ) -> tuple[list[Union[ASTExpression,
                                                       ASTBracedInitList]],
                                            bool]:
         # Parse open and close with the actual initializer-list in between
@@ -5380,7 +5379,7 @@ class DefinitionParser(BaseParser):
         if self.skip_string(close):
             return [], False
 
-        exprs: List[Union[ASTExpression, ASTBracedInitList]] = []
+        exprs: list[Union[ASTExpression, ASTBracedInitList]] = []
         trailingComma = False
         while True:
             self.skip_ws()
@@ -5542,7 +5541,7 @@ class DefinitionParser(BaseParser):
                     raise self._make_multi_error(errors, header) from eInner
 
         # and now parse postfixes
-        postFixes: List[ASTPostfixOp] = []
+        postFixes: list[ASTPostfixOp] = []
         while True:
             self.skip_ws()
             if prefixType in ('expr', 'cast', 'typeid'):
@@ -5828,7 +5827,7 @@ class DefinitionParser(BaseParser):
         else:
             return ASTCommaExpr(exprs)
 
-    def _parse_expression_fallback(self, end: List[str],
+    def _parse_expression_fallback(self, end: list[str],
                                    parser: Callable[[], ASTExpression],
                                    allow: bool = True) -> ASTExpression:
         # Stupidly "parse" an expression.
@@ -5855,7 +5854,7 @@ class DefinitionParser(BaseParser):
         else:
             # TODO: add handling of more bracket-like things, and quote handling
             brackets = {'(': ')', '{': '}', '[': ']', '<': '>'}
-            symbols: List[str] = []
+            symbols: list[str] = []
             while not self.eof:
                 if (len(symbols) == 0 and self.current_char in end):
                     break
@@ -5918,7 +5917,7 @@ class DefinitionParser(BaseParser):
         if self.skip_string('>'):
             return ASTTemplateArgs([], False)
         prevErrors = []
-        templateArgs: List[Union[ASTType, ASTTemplateArgConstant]] = []
+        templateArgs: list[Union[ASTType, ASTTemplateArgConstant]] = []
         packExpansion = False
         while 1:
             pos = self.pos
@@ -5970,8 +5969,8 @@ class DefinitionParser(BaseParser):
         return ASTTemplateArgs(templateArgs, packExpansion)
 
     def _parse_nested_name(self, memberPointer: bool = False) -> ASTNestedName:
-        names: List[ASTNestedNameElement] = []
-        templates: List[bool] = []
+        names: list[ASTNestedNameElement] = []
+        templates: list[bool] = []
 
         self.skip_ws()
         rooted = False
@@ -6022,9 +6021,9 @@ class DefinitionParser(BaseParser):
     def _parse_simple_type_specifiers(self) -> ASTTrailingTypeSpecFundamental:
         modifier: Optional[str] = None
         signedness: Optional[str] = None
-        width: List[str] = []
+        width: list[str] = []
         typ: Optional[str] = None
-        names: List[str] = []  # the parsed sequence
+        names: list[str] = []  # the parsed sequence
 
         self.skip_ws()
         while self.match(_simple_type_specifiers_re):
@@ -6098,7 +6097,7 @@ class DefinitionParser(BaseParser):
         else:
             raise AssertionError(f"Unhandled type {typ}")
 
-        canonNames: List[str] = []
+        canonNames: list[str] = []
         if modifier is not None:
             canonNames.append(modifier)
         if signedness is not None:
@@ -6571,7 +6570,7 @@ class DefinitionParser(BaseParser):
             return ASTInitializer(bracedInit)
 
         if outer == 'member':
-            fallbackEnd: List[str] = []
+            fallbackEnd: list[str] = []
         elif outer == 'templateParam':
             fallbackEnd = [',', '>']
         elif outer is None:  # function parameter
@@ -6862,7 +6861,7 @@ class DefinitionParser(BaseParser):
     def _parse_template_parameter_list(self) -> ASTTemplateParams:
         # only: '<' parameter-list '>'
         # we assume that 'template' has just been parsed
-        templateParams: List[ASTTemplateParam] = []
+        templateParams: list[ASTTemplateParam] = []
         self.skip_ws()
         if not self.skip_string("<"):
             self.fail("Expected '<' after 'template'")
@@ -6986,7 +6985,7 @@ class DefinitionParser(BaseParser):
 
     def _parse_template_declaration_prefix(self, objectType: str
                                            ) -> Optional[ASTTemplateDeclarationPrefix]:
-        templates: List[Union[ASTTemplateParams, ASTTemplateIntroduction]] = []
+        templates: list[Union[ASTTemplateParams, ASTTemplateIntroduction]] = []
         while 1:
             self.skip_ws()
             # the saved position is only used to provide a better error message
@@ -7048,7 +7047,7 @@ class DefinitionParser(BaseParser):
                 msg += str(nestedName)
                 self.warn(msg)
 
-            newTemplates: List[Union[ASTTemplateParams, ASTTemplateIntroduction]] = []
+            newTemplates: list[Union[ASTTemplateParams, ASTTemplateIntroduction]] = []
             for _i in range(numExtra):
                 newTemplates.append(ASTTemplateParams([], requiresClause=None))
             if templatePrefix and not isMemberInstantiation:
@@ -7130,7 +7129,7 @@ class DefinitionParser(BaseParser):
         res.objectType = 'namespace'  # type: ignore
         return res
 
-    def parse_xref_object(self) -> Tuple[Union[ASTNamespace, ASTDeclaration], bool]:
+    def parse_xref_object(self) -> tuple[Union[ASTNamespace, ASTDeclaration], bool]:
         pos = self.pos
         try:
             templatePrefix = self._parse_template_declaration_prefix(objectType="xref")
@@ -7190,7 +7189,7 @@ def _make_phony_error_name() -> ASTNestedName:
 class CPPObject(ObjectDescription[ASTDeclaration]):
     """Description of a C++ language object."""
 
-    doc_field_types: List[Field] = [
+    doc_field_types: list[Field] = [
         GroupedField('template parameter', label=_('Template Parameters'),
                      names=('tparam', 'template parameter'),
                      can_collapse=True),
@@ -7315,10 +7314,10 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         return parser.parse_declaration(self.object_type, self.objtype)
 
     def describe_signature(self, signode: desc_signature,
-                           ast: ASTDeclaration, options: Dict) -> None:
+                           ast: ASTDeclaration, options: dict) -> None:
         ast.describe_signature(signode, 'lastIsName', self.env, options)
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         env = self.state.document.settings.env  # from ObjectDescription.run
         if 'cpp:parent_symbol' not in env.temp_data:
             root = env.domaindata['cpp']['root_symbol']
@@ -7479,11 +7478,11 @@ class CPPNamespaceObject(SphinxDirective):
     final_argument_whitespace = True
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         rootSymbol = self.env.domaindata['cpp']['root_symbol']
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
             symbol = rootSymbol
-            stack: List[Symbol] = []
+            stack: list[Symbol] = []
         else:
             parser = DefinitionParser(self.arguments[0],
                                       location=self.get_location(),
@@ -7510,7 +7509,7 @@ class CPPNamespacePushObject(SphinxDirective):
     final_argument_whitespace = True
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
             return []
         parser = DefinitionParser(self.arguments[0],
@@ -7542,7 +7541,7 @@ class CPPNamespacePopObject(SphinxDirective):
     final_argument_whitespace = True
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         stack = self.env.temp_data.get('cpp:namespace_stack', None)
         if not stack or len(stack) == 0:
             logger.warning("C++ namespace pop on empty stack. Defaulting to global scope.",
@@ -7587,7 +7586,7 @@ class AliasTransform(SphinxTransform):
 
     def _render_symbol(self, s: Symbol, maxdepth: int, skipThis: bool,
                        aliasOptions: dict, renderOptions: dict,
-                       document: Any) -> List[Node]:
+                       document: Any) -> list[Node]:
         if maxdepth == 0:
             recurse = True
         elif maxdepth == 1:
@@ -7596,7 +7595,7 @@ class AliasTransform(SphinxTransform):
             maxdepth -= 1
             recurse = True
 
-        nodes: List[Node] = []
+        nodes: list[Node] = []
         if not skipThis:
             signode = addnodes.desc_signature('', '')
             nodes.append(signode)
@@ -7604,7 +7603,7 @@ class AliasTransform(SphinxTransform):
 
         if recurse:
             if skipThis:
-                childContainer: Union[List[Node], addnodes.desc] = nodes
+                childContainer: Union[list[Node], addnodes.desc] = nodes
             else:
                 content = addnodes.desc_content()
                 desc = addnodes.desc()
@@ -7660,7 +7659,7 @@ class AliasTransform(SphinxTransform):
                 print(rootSymbol.dump(1))
             assert parentSymbol  # should be there
 
-            symbols: List[Symbol] = []
+            symbols: list[Symbol] = []
             if isShorthand:
                 assert isinstance(ast, ASTNamespace)
                 ns = ast
@@ -7722,7 +7721,7 @@ class CPPAliasObject(ObjectDescription):
         'noroot': directives.flag,
     }
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         """
         On purpose this doesn't call the ObjectDescription version, but is based on it.
         Each alias signature may expand into multiple real signatures (an overload set).
@@ -7739,7 +7738,7 @@ class CPPAliasObject(ObjectDescription):
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
 
-        self.names: List[str] = []
+        self.names: list[str] = []
         aliasOptions = {
             'maxdepth': self.options.get('maxdepth', 1),
             'noroot': 'noroot' in self.options,
@@ -7765,7 +7764,7 @@ class CPPAliasObject(ObjectDescription):
 
 class CPPXRefRole(XRefRole):
     def process_link(self, env: BuildEnvironment, refnode: Element, has_explicit_title: bool,
-                     title: str, target: str) -> Tuple[str, str]:
+                     title: str, target: str) -> tuple[str, str]:
         refnode.attributes.update(env.ref_context)
 
         if not has_explicit_title:
@@ -7803,7 +7802,7 @@ class CPPExprRole(SphinxRole):
             # render the expression as inline text
             self.class_type = 'cpp-texpr'
 
-    def run(self) -> Tuple[List[Node], List[system_message]]:
+    def run(self) -> tuple[list[Node], list[system_message]]:
         text = self.text.replace('\n', ' ')
         parser = DefinitionParser(text,
                                   location=self.get_location(),
@@ -7925,7 +7924,7 @@ class CPPDomain(Domain):
     def process_field_xref(self, pnode: pending_xref) -> None:
         pnode.attributes.update(self.env.ref_context)
 
-    def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
+    def merge_domaindata(self, docnames: list[str], otherdata: dict) -> None:
         if Symbol.debug_show_tree:
             print("merge_domaindata:")
             print("\tself:")
@@ -7951,7 +7950,7 @@ class CPPDomain(Domain):
 
     def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                             typ: str, target: str, node: pending_xref,
-                            contnode: Element) -> Tuple[Optional[Element], Optional[str]]:
+                            contnode: Element) -> tuple[Optional[Element], Optional[str]]:
         # add parens again for those that could be functions
         if typ in ('any', 'func'):
             target += '()'
@@ -7960,7 +7959,7 @@ class CPPDomain(Domain):
             ast, isShorthand = parser.parse_xref_object()
         except DefinitionError as e:
             # as arg to stop flake8 from complaining
-            def findWarning(e: Exception) -> Tuple[str, Exception]:
+            def findWarning(e: Exception) -> tuple[str, Exception]:
                 if typ != 'any' and typ != 'func':
                     return target, e
                 # hax on top of the paren hax to try to get correct errors
@@ -8106,7 +8105,7 @@ class CPPDomain(Domain):
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element
-                         ) -> List[Tuple[str, Element]]:
+                         ) -> list[tuple[str, Element]]:
         with logging.suppress_logging():
             retnode, objtype = self._resolve_xref_inner(env, fromdocname, builder,
                                                         'any', target, node, contnode)
@@ -8117,7 +8116,7 @@ class CPPDomain(Domain):
                 return [('cpp:' + self.role_for_objtype(objtype), retnode)]
         return []
 
-    def get_objects(self) -> Iterator[Tuple[str, str, str, str, str, int]]:
+    def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:
         rootSymbol = self.data['root_symbol']
         for symbol in rootSymbol.get_all_symbols():
             if symbol.declaration is None:
@@ -8145,7 +8144,7 @@ class CPPDomain(Domain):
         return '::'.join([str(parentName), target])
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_domain(CPPDomain)
     app.add_config_value("cpp_index_common_prefix", [], 'env')
     app.add_config_value("cpp_id_attributes", [], 'env')

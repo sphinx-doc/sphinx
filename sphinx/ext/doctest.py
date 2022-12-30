@@ -11,8 +11,7 @@ import sys
 import time
 from io import StringIO
 from os import path
-from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Optional, Sequence,
-                    Set, Tuple, Type)
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Sequence
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement
@@ -69,7 +68,7 @@ class TestDirective(SphinxDirective):
     optional_arguments = 1
     final_argument_whitespace = True
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         # use ordinary docutils nodes for test code: they get special attributes
         # so that our builder recognizes them, and the other builders are happy.
         code = '\n'.join(self.content)
@@ -83,7 +82,7 @@ class TestDirective(SphinxDirective):
                 if not test:
                     test = code
                 code = doctestopt_re.sub('', code)
-        nodetype: Type[TextElement] = nodes.literal_block
+        nodetype: type[TextElement] = nodes.literal_block
         if self.name in ('testsetup', 'testcleanup') or 'hide' in self.options:
             nodetype = nodes.comment
         if self.arguments:
@@ -192,9 +191,9 @@ parser = doctest.DocTestParser()
 class TestGroup:
     def __init__(self, name: str) -> None:
         self.name = name
-        self.setup: List[TestCode] = []
-        self.tests: List[List[TestCode]] = []
-        self.cleanup: List[TestCode] = []
+        self.setup: list[TestCode] = []
+        self.tests: list[list[TestCode]] = []
+        self.cleanup: list[TestCode] = []
 
     def add_code(self, code: "TestCode", prepend: bool = False) -> None:
         if code.type == 'testsetup':
@@ -221,7 +220,7 @@ class TestGroup:
 
 class TestCode:
     def __init__(self, code: str, type: str, filename: str,
-                 lineno: int, options: Optional[Dict] = None) -> None:
+                 lineno: int, options: Optional[dict] = None) -> None:
         self.code = code
         self.type = type
         self.filename = filename
@@ -235,7 +234,7 @@ class TestCode:
 
 class SphinxDocTestRunner(doctest.DocTestRunner):
     def summarize(self, out: Callable, verbose: bool = None  # type: ignore
-                  ) -> Tuple[int, int]:
+                  ) -> tuple[int, int]:
         string_io = StringIO()
         old_stdout = sys.stdout
         sys.stdout = string_io
@@ -316,7 +315,7 @@ class DocTestBuilder(Builder):
     def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
         return ''
 
-    def get_outdated_docs(self) -> Set[str]:
+    def get_outdated_docs(self) -> set[str]:
         return self.env.found_docs
 
     def finish(self) -> None:
@@ -382,7 +381,7 @@ Doctest summary
             return False
         else:
             condition = node['skipif']
-            context: Dict[str, Any] = {}
+            context: dict[str, Any] = {}
             if self.config.doctest_global_setup:
                 exec(self.config.doctest_global_setup, context)  # NoQA: S102
             should_skip = eval(condition, context)  # NoQA: PGH001
@@ -391,7 +390,7 @@ Doctest summary
             return should_skip
 
     def test_doc(self, docname: str, doctree: Node) -> None:
-        groups: Dict[str, TestGroup] = {}
+        groups: dict[str, TestGroup] = {}
         add_to_all_groups = []
         self.setup_runner = SphinxDocTestRunner(verbose=False,
                                                 optionflags=self.opt)
@@ -472,9 +471,9 @@ Doctest summary
         return compile(code, name, self.type, flags, dont_inherit)
 
     def test_group(self, group: TestGroup) -> None:
-        ns: Dict = {}
+        ns: dict = {}
 
-        def run_setup_cleanup(runner: Any, testcodes: List[TestCode], what: Any) -> bool:
+        def run_setup_cleanup(runner: Any, testcodes: list[TestCode], what: Any) -> bool:
             examples = []
             for testcode in testcodes:
                 example = doctest.Example(testcode.code, '', lineno=testcode.lineno)
@@ -543,7 +542,7 @@ Doctest summary
         run_setup_cleanup(self.cleanup_runner, group.cleanup, 'cleanup')
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: "Sphinx") -> dict[str, Any]:
     app.add_directive('testsetup', TestsetupDirective)
     app.add_directive('testcleanup', TestcleanupDirective)
     app.add_directive('doctest', DoctestDirective)

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 from glob import glob
-from typing import Dict, Iterable, Optional, Set
+from typing import Iterable, Optional
 
 from sphinx.locale import __
 from sphinx.util import logging
@@ -18,7 +18,7 @@ EXCLUDE_PATHS = ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
 class Project:
     """A project is the source code set of the Sphinx document(s)."""
 
-    def __init__(self, srcdir: str, source_suffix: Dict[str, str]) -> None:
+    def __init__(self, srcdir: str, source_suffix: dict[str, str]) -> None:
         #: Source directory.
         self.srcdir = srcdir
 
@@ -26,14 +26,14 @@ class Project:
         self.source_suffix = source_suffix
 
         #: The name of documents belongs to this project.
-        self.docnames: Set[str] = set()
+        self.docnames: set[str] = set()
 
     def restore(self, other: "Project") -> None:
         """Take over a result of last build."""
         self.docnames = other.docnames
 
     def discover(self, exclude_paths: Iterable[str] = (),
-                 include_paths: Iterable[str] = ("**",)) -> Set[str]:
+                 include_paths: Iterable[str] = ("**",)) -> set[str]:
         """Find all document files in the source directory and put them in
         :attr:`docnames`.
         """

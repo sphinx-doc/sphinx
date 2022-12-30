@@ -9,7 +9,7 @@ import subprocess
 import tempfile
 from os import path
 from subprocess import CalledProcessError
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 from docutils import nodes
 from docutils.nodes import Element
@@ -144,7 +144,7 @@ def compile_math(latex: str, builder: Builder) -> str:
         raise MathExtError('latex exited with error', exc.stderr, exc.stdout) from exc
 
 
-def convert_dvi_to_image(command: List[str], name: str) -> Tuple[str, str]:
+def convert_dvi_to_image(command: list[str], name: str) -> tuple[str, str]:
     """Convert DVI file to specific image format."""
     try:
         ret = subprocess.run(command, capture_output=True, check=True, encoding='ascii')
@@ -205,7 +205,7 @@ def convert_dvi_to_svg(dvipath: str, builder: Builder, out_path: str) -> Optiona
 def render_math(
     self: HTML5Translator,
     math: str,
-) -> Tuple[Optional[str], Optional[int]]:
+) -> tuple[Optional[str], Optional[int]]:
     """Render the LaTeX math expression *math* using latex and dvipng or
     dvisvgm.
 
@@ -366,7 +366,7 @@ def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> Non
     raise nodes.SkipNode
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_html_math_renderer('imgmath',
                                (html_visit_math, None),
                                (html_visit_displaymath, None))

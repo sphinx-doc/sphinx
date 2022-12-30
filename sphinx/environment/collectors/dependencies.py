@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 from os import path
-from typing import Any, Dict, Set
+from typing import Any
 
 from docutils import nodes
 from docutils.utils import relative_path
@@ -22,7 +22,7 @@ class DependenciesCollector(EnvironmentCollector):
         env.dependencies.pop(docname, None)
 
     def merge_other(self, app: Sphinx, env: BuildEnvironment,
-                    docnames: Set[str], other: BuildEnvironment) -> None:
+                    docnames: set[str], other: BuildEnvironment) -> None:
         for docname in docnames:
             if docname in other.dependencies:
                 env.dependencies[docname] = other.dependencies[docname]
@@ -44,7 +44,7 @@ class DependenciesCollector(EnvironmentCollector):
             app.env.dependencies[app.env.docname].add(relpath)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_env_collector(DependenciesCollector)
 
     return {

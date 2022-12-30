@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import ast
 from inspect import Parameter, Signature, getsource
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Optional, cast
 
 import sphinx
 from sphinx.application import Sphinx
@@ -15,7 +15,7 @@ from sphinx.util import inspect, logging
 logger = logging.getLogger(__name__)
 
 
-def not_suppressed(argtypes: List[ast.AST] = []) -> bool:
+def not_suppressed(argtypes: list[ast.AST] = []) -> bool:
     """Check given *argtypes* is suppressed type_comment or not."""
     if len(argtypes) == 0:  # no argtypees
         return False
@@ -125,7 +125,7 @@ def update_annotations_using_type_comments(app: Sphinx, obj: Any, bound_method: 
         logger.warning(__("Failed to parse type_comment for %r: %s"), obj, exc)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.connect('autodoc-before-process-signature', update_annotations_using_type_comments)
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

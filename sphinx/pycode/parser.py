@@ -11,7 +11,7 @@ from collections import OrderedDict
 from inspect import Signature
 from token import DEDENT, INDENT, NAME, NEWLINE, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 from sphinx.pycode.ast import unparse as ast_unparse
 
@@ -24,7 +24,7 @@ def filter_whitespace(code: str) -> str:
     return code.replace('\f', ' ')  # replace FF (form feed) with whitespace
 
 
-def get_assign_targets(node: ast.AST) -> List[ast.expr]:
+def get_assign_targets(node: ast.AST) -> list[ast.expr]:
     """Get list of targets from Assign and AnnAssign node."""
     if isinstance(node, ast.Assign):
         return node.targets
@@ -32,7 +32,7 @@ def get_assign_targets(node: ast.AST) -> List[ast.expr]:
         return [node.target]  # type: ignore
 
 
-def get_lvar_names(node: ast.AST, self: Optional[ast.arg] = None) -> List[str]:
+def get_lvar_names(node: ast.AST, self: Optional[ast.arg] = None) -> list[str]:
     """Convert assignment-AST to variable names.
 
     This raises `TypeError` if the assignment does not create new variable::
@@ -94,7 +94,7 @@ def dedent_docstring(s: str) -> str:
 class Token:
     """Better token wrapper for tokenize module."""
 
-    def __init__(self, kind: int, value: Any, start: Tuple[int, int], end: Tuple[int, int],
+    def __init__(self, kind: int, value: Any, start: tuple[int, int], end: tuple[int, int],
                  source: str) -> None:
         self.kind = kind
         self.value = value
@@ -123,7 +123,7 @@ class Token:
 
 
 class TokenProcessor:
-    def __init__(self, buffers: List[str]) -> None:
+    def __init__(self, buffers: list[str]) -> None:
         lines = iter(buffers)
         self.buffers = buffers
         self.tokens = tokenize.generate_tokens(lambda: next(lines))
@@ -147,7 +147,7 @@ class TokenProcessor:
 
         return self.current
 
-    def fetch_until(self, condition: Any) -> List[Token]:
+    def fetch_until(self, condition: Any) -> list[Token]:
         """Fetch tokens until specified token appeared.
 
         .. note:: This also handles parenthesis well.
@@ -174,11 +174,11 @@ class AfterCommentParser(TokenProcessor):
     and returns the comment for the variable if one exists.
     """
 
-    def __init__(self, lines: List[str]) -> None:
+    def __init__(self, lines: list[str]) -> None:
         super().__init__(lines)
         self.comment: Optional[str] = None
 
-    def fetch_rvalue(self) -> List[Token]:
+    def fetch_rvalue(self) -> list[Token]:
         """Fetch right-hand value of assignment."""
         tokens = []
         while self.fetch_token():
@@ -215,25 +215,25 @@ class AfterCommentParser(TokenProcessor):
 class VariableCommentPicker(ast.NodeVisitor):
     """Python source code parser to pick up variable comments."""
 
-    def __init__(self, buffers: List[str], encoding: str) -> None:
+    def __init__(self, buffers: list[str], encoding: str) -> None:
         self.counter = itertools.count()
         self.buffers = buffers
         self.encoding = encoding
-        self.context: List[str] = []
-        self.current_classes: List[str] = []
+        self.context: list[str] = []
+        self.current_classes: list[str] = []
         self.current_function: Optional[ast.FunctionDef] = None
-        self.comments: Dict[Tuple[str, str], str] = OrderedDict()
-        self.annotations: Dict[Tuple[str, str], str] = {}
+        self.comments: dict[tuple[str, str], str] = OrderedDict()
+        self.annotations: dict[tuple[str, str], str] = {}
         self.previous: Optional[ast.AST] = None
-        self.deforders: Dict[str, int] = {}
-        self.finals: List[str] = []
-        self.overloads: Dict[str, List[Signature]] = {}
+        self.deforders: dict[str, int] = {}
+        self.finals: list[str] = []
+        self.overloads: dict[str, list[Signature]] = {}
         self.typing: Optional[str] = None
         self.typing_final: Optional[str] = None
         self.typing_overload: Optional[str] = None
         super().__init__()
 
-    def get_qualname_for(self, name: str) -> Optional[List[str]]:
+    def get_qualname_for(self, name: str) -> Optional[list[str]]:
         """Get qualified name for given object as a list of string(s)."""
         if self.current_function:
             if self.current_classes and self.context[-1] == "__init__":
@@ -274,7 +274,7 @@ class VariableCommentPicker(ast.NodeVisitor):
             basename = ".".join(qualname[:-1])
             self.annotations[(basename, name)] = ast_unparse(annotation)
 
-    def is_final(self, decorators: List[ast.expr]) -> bool:
+    def is_final(self, decorators: list[ast.expr]) -> bool:
         final = []
         if self.typing:
             final.append('%s.final' % self.typing)
@@ -290,7 +290,7 @@ class VariableCommentPicker(ast.NodeVisitor):
 
         return False
 
-    def is_overload(self, decorators: List[ast.expr]) -> bool:
+    def is_overload(self, decorators: list[ast.expr]) -> bool:
         overload = []
         if self.typing:
             overload.append('%s.overload' % self.typing)
@@ -349,7 +349,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Handles Assign node and pick up a variable comment."""
         try:
             targets = get_assign_targets(node)
-            varnames: List[str] = sum(
+            varnames: list[str] = sum(
                 [get_lvar_names(t, self=self.get_self()) for t in targets], []
             )
             current_line = self.get_line(node.lineno)
@@ -465,14 +465,14 @@ class DefinitionFinder(TokenProcessor):
     classes and methods.
     """
 
-    def __init__(self, lines: List[str]) -> None:
+    def __init__(self, lines: list[str]) -> None:
         super().__init__(lines)
         self.decorator: Optional[Token] = None
-        self.context: List[str] = []
-        self.indents: List[Tuple[str, Optional[str], Optional[int]]] = []
-        self.definitions: Dict[str, Tuple[str, int, int]] = {}
+        self.context: list[str] = []
+        self.indents: list[tuple[str, Optional[str], Optional[int]]] = []
+        self.definitions: dict[str, tuple[str, int, int]] = {}
 
-    def add_definition(self, name: str, entry: Tuple[str, int, int]) -> None:
+    def add_definition(self, name: str, entry: tuple[str, int, int]) -> None:
         """Add a location of definition."""
         if self.indents and self.indents[-1][0] == 'def' and entry[0] == 'def':
             # ignore definition of inner function
@@ -544,12 +544,12 @@ class Parser:
     def __init__(self, code: str, encoding: str = 'utf-8') -> None:
         self.code = filter_whitespace(code)
         self.encoding = encoding
-        self.annotations: Dict[Tuple[str, str], str] = {}
-        self.comments: Dict[Tuple[str, str], str] = {}
-        self.deforders: Dict[str, int] = {}
-        self.definitions: Dict[str, Tuple[str, int, int]] = {}
-        self.finals: List[str] = []
-        self.overloads: Dict[str, List[Signature]] = {}
+        self.annotations: dict[tuple[str, str], str] = {}
+        self.comments: dict[tuple[str, str], str] = {}
+        self.deforders: dict[str, int] = {}
+        self.definitions: dict[str, tuple[str, int, int]] = {}
+        self.finals: list[str] = []
+        self.overloads: dict[str, list[Signature]] = {}
 
     def parse(self) -> None:
         """Parse the source code."""

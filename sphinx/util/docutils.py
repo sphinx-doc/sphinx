@@ -9,8 +9,7 @@ from contextlib import contextmanager
 from copy import copy
 from os import path
 from types import ModuleType
-from typing import (IO, TYPE_CHECKING, Any, Callable, Dict, Generator, List, Optional, Set,
-                    Tuple, Type, cast)
+from typing import IO, TYPE_CHECKING, Any, Callable, Generator, Optional, cast
 
 import docutils
 from docutils import nodes
@@ -46,7 +45,7 @@ deprecated_alias('sphinx.util.docutils',
                  {
                      '__version_info__': 'docutils.__version_info__',
                  })
-additional_nodes: Set[Type[Element]] = set()
+additional_nodes: set[type[Element]] = set()
 
 
 @contextmanager
@@ -71,7 +70,7 @@ def is_directive_registered(name: str) -> bool:
     return name in directives._directives  # type: ignore
 
 
-def register_directive(name: str, directive: Type[Directive]) -> None:
+def register_directive(name: str, directive: type[Directive]) -> None:
     """Register a directive to docutils.
 
     This modifies global state of docutils.  So it is better to use this
@@ -99,12 +98,12 @@ def unregister_role(name: str) -> None:
     roles._roles.pop(name, None)  # type: ignore
 
 
-def is_node_registered(node: Type[Element]) -> bool:
+def is_node_registered(node: type[Element]) -> bool:
     """Check the *node* is already registered."""
     return hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__)
 
 
-def register_node(node: Type[Element]) -> None:
+def register_node(node: type[Element]) -> None:
     """Register a node to docutils.
 
     This modifies global state of some visitors.  So it is better to use this
@@ -115,7 +114,7 @@ def register_node(node: Type[Element]) -> None:
         additional_nodes.add(node)
 
 
-def unregister_node(node: Type[Element]) -> None:
+def unregister_node(node: type[Element]) -> None:
     """Unregister a node from docutils.
 
     This is inverse of ``nodes._add_nodes_class_names()``.
@@ -245,7 +244,7 @@ class CustomReSTDispatcher:
         self.enable()
 
     def __exit__(
-        self, exc_type: Type[Exception], exc_value: Exception, traceback: Any
+        self, exc_type: type[Exception], exc_value: Exception, traceback: Any
     ) -> None:
         self.disable()
 
@@ -262,11 +261,11 @@ class CustomReSTDispatcher:
 
     def directive(self,
                   directive_name: str, language_module: ModuleType, document: nodes.document
-                  ) -> Tuple[Optional[Type[Directive]], List[system_message]]:
+                  ) -> tuple[Optional[type[Directive]], list[system_message]]:
         return self.directive_func(directive_name, language_module, document)
 
     def role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter
-             ) -> Tuple[RoleFunction, List[system_message]]:
+             ) -> tuple[RoleFunction, list[system_message]]:
         return self.role_func(role_name, language_module, lineno, reporter)
 
 
@@ -314,14 +313,14 @@ class sphinx_domains(CustomReSTDispatcher):
 
     def directive(self,
                   directive_name: str, language_module: ModuleType, document: nodes.document
-                  ) -> Tuple[Optional[Type[Directive]], List[system_message]]:
+                  ) -> tuple[Optional[type[Directive]], list[system_message]]:
         try:
             return self.lookup_domain_element('directive', directive_name)
         except ElementLookupError:
             return super().directive(directive_name, language_module, document)
 
     def role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter
-             ) -> Tuple[RoleFunction, List[system_message]]:
+             ) -> tuple[RoleFunction, list[system_message]]:
         try:
             return self.lookup_domain_element('role', role_name)
         except ElementLookupError:
@@ -423,7 +422,7 @@ class SphinxDirective(Directive):
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
-    def get_source_info(self) -> Tuple[str, int]:
+    def get_source_info(self) -> tuple[str, int]:
         """Get source and line number."""
         return self.state_machine.get_source_and_line(self.lineno)
 
@@ -449,14 +448,14 @@ class SphinxRole:
     text: str           #: The interpreted text content.
     lineno: int         #: The line number where the interpreted text begins.
     inliner: Inliner    #: The ``docutils.parsers.rst.states.Inliner`` object.
-    options: Dict       #: A dictionary of directive options for customization
+    options: dict       #: A dictionary of directive options for customization
                         #: (from the "role" directive).
-    content: List[str]  #: A list of strings, the directive content for customization
+    content: list[str]  #: A list of strings, the directive content for customization
                         #: (from the "role" directive).
 
     def __call__(self, name: str, rawtext: str, text: str, lineno: int,
-                 inliner: Inliner, options: Dict = {}, content: List[str] = []
-                 ) -> Tuple[List[Node], List[system_message]]:
+                 inliner: Inliner, options: dict = {}, content: list[str] = []
+                 ) -> tuple[list[Node], list[system_message]]:
         self.rawtext = rawtext
         self.text = unescape(text)
         self.lineno = lineno
@@ -476,7 +475,7 @@ class SphinxRole:
 
         return self.run()
 
-    def run(self) -> Tuple[List[Node], List[system_message]]:
+    def run(self) -> tuple[list[Node], list[system_message]]:
         raise NotImplementedError
 
     @property
@@ -489,7 +488,7 @@ class SphinxRole:
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
-    def get_source_info(self, lineno: int = None) -> Tuple[str, int]:
+    def get_source_info(self, lineno: int = None) -> tuple[str, int]:
         if lineno is None:
             lineno = self.lineno
         return self.inliner.reporter.get_source_and_line(lineno)  # type: ignore
@@ -518,8 +517,8 @@ class ReferenceRole(SphinxRole):
     explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<(.*?)>$', re.DOTALL)
 
     def __call__(self, name: str, rawtext: str, text: str, lineno: int,
-                 inliner: Inliner, options: Dict = {}, content: List[str] = []
-                 ) -> Tuple[List[Node], List[system_message]]:
+                 inliner: Inliner, options: dict = {}, content: list[str] = []
+                 ) -> tuple[list[Node], list[system_message]]:
         # if the first character is a bang, don't cross-reference at all
         self.disabled = text.startswith('!')
 
@@ -594,7 +593,7 @@ class SphinxTranslator(nodes.NodeVisitor):
 
 # cache a vanilla instance of nodes.document
 # Used in new_document() function
-__document_cache__: Tuple["Values", Reporter]
+__document_cache__: tuple["Values", Reporter]
 
 
 def new_document(source_path: str, settings: Any = None) -> nodes.document:

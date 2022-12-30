@@ -11,7 +11,7 @@ import pdb  # NoQA: T100
 import sys
 import traceback
 from os import path
-from typing import Any, List, Optional, TextIO
+from typing import Any, Optional, TextIO
 
 from docutils.utils import SystemMessage
 
@@ -191,13 +191,13 @@ files can be built by specifying individual filenames.
     return parser
 
 
-def make_main(argv: List[str] = sys.argv[1:]) -> int:
+def make_main(argv: list[str] = sys.argv[1:]) -> int:
     """Sphinx build "make mode" entry."""
     from sphinx.cmd import make_mode
     return make_mode.run_make_mode(argv[1:])
 
 
-def _parse_arguments(argv: List[str] = sys.argv[1:]) -> argparse.Namespace:
+def _parse_arguments(argv: list[str] = sys.argv[1:]) -> argparse.Namespace:
     parser = get_parser()
     args = parser.parse_args(argv)
 
@@ -267,7 +267,7 @@ def _parse_arguments(argv: List[str] = sys.argv[1:]) -> argparse.Namespace:
     return args
 
 
-def build_main(argv: List[str] = sys.argv[1:]) -> int:
+def build_main(argv: list[str] = sys.argv[1:]) -> int:
     """Sphinx build "main" command-line entry."""
     args = _parse_arguments(argv)
 
@@ -307,7 +307,7 @@ def _bug_report_info() -> int:
     return 0
 
 
-def main(argv: List[str] = sys.argv[1:]) -> int:
+def main(argv: list[str] = sys.argv[1:]) -> int:
     sphinx.locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
 

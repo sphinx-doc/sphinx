@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, List, Optional, Set
+from typing import TYPE_CHECKING, Optional
 
 from docutils import nodes
 
@@ -21,7 +21,7 @@ class EnvironmentCollector:
     entries and toctrees, etc.
     """
 
-    listener_ids: Optional[Dict[str, int]] = None
+    listener_ids: Optional[dict[str, int]] = None
 
     def enable(self, app: "Sphinx") -> None:
         assert self.listener_ids is None
@@ -46,7 +46,7 @@ class EnvironmentCollector:
         raise NotImplementedError
 
     def merge_other(self, app: "Sphinx", env: BuildEnvironment,
-                    docnames: Set[str], other: BuildEnvironment) -> None:
+                    docnames: set[str], other: BuildEnvironment) -> None:
         """Merge in specified data regarding docnames from a different `BuildEnvironment`
         object which coming from a subprocess in parallel builds."""
         raise NotImplementedError
@@ -57,7 +57,7 @@ class EnvironmentCollector:
         This method is called after the document is read."""
         raise NotImplementedError
 
-    def get_updated_docs(self, app: "Sphinx", env: BuildEnvironment) -> List[str]:
+    def get_updated_docs(self, app: "Sphinx", env: BuildEnvironment) -> list[str]:
         """Return a list of docnames to re-read.
 
         This methods is called after reading the whole of documents (experimental).
@@ -65,7 +65,7 @@ class EnvironmentCollector:
         return []
 
     def get_outdated_docs(self, app: "Sphinx", env: BuildEnvironment,
-                          added: Set[str], changed: Set[str], removed: Set[str]) -> List[str]:
+                          added: set[str], changed: set[str], removed: set[str]) -> list[str]:
         """Return a list of docnames to re-read.
 
         This methods is called before reading the documents.

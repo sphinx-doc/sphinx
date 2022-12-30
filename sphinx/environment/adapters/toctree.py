@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Any, Iterable, Optional, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -56,7 +56,7 @@ class TocTree:
         """
         if toctree.get('hidden', False) and not includehidden:
             return None
-        generated_docnames: Dict[str, Tuple[str, str]] = self.env.domains['std']._virtual_doc_names.copy()  # NoQA: E501
+        generated_docnames: dict[str, tuple[str, str]] = self.env.domains['std']._virtual_doc_names.copy()  # NoQA: E501
 
         # For reading the following two helper function, it is useful to keep
         # in mind the node structure of a toctree (using HTML-like node names
@@ -110,12 +110,12 @@ class TocTree:
                             subnode['iscurrent'] = True
                             subnode = subnode.parent
 
-        def _entries_from_toctree(toctreenode: addnodes.toctree, parents: List[str],
+        def _entries_from_toctree(toctreenode: addnodes.toctree, parents: list[str],
                                   separate: bool = False, subtree: bool = False
-                                  ) -> List[Element]:
+                                  ) -> list[Element]:
             """Return TOC entries for a toctree node."""
             refs = [(e[0], e[1]) for e in toctreenode['entries']]
-            entries: List[Element] = []
+            entries: list[Element] = []
             for (title, ref) in refs:
                 try:
                     refdoc = None
@@ -271,12 +271,12 @@ class TocTree:
                     docname, refnode['refuri']) + refnode['anchorname']
         return newnode
 
-    def get_toctree_ancestors(self, docname: str) -> List[str]:
+    def get_toctree_ancestors(self, docname: str) -> list[str]:
         parent = {}
         for p, children in self.env.toctree_includes.items():
             for child in children:
                 parent[child] = p
-        ancestors: List[str] = []
+        ancestors: list[str] = []
         d = docname
         while d in parent and d not in ancestors:
             ancestors.append(d)
@@ -324,7 +324,7 @@ class TocTree:
                         **kwargs: Any) -> Optional[Element]:
         """Return the global TOC nodetree."""
         doctree = self.env.get_doctree(self.env.config.root_doc)
-        toctrees: List[Element] = []
+        toctrees: list[Element] = []
         if 'includehidden' not in kwargs:
             kwargs['includehidden'] = True
         if 'maxdepth' not in kwargs or not kwargs['maxdepth']:

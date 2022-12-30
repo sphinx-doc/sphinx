@@ -6,7 +6,7 @@ import base64
 import imghdr
 from collections import OrderedDict
 from os import path
-from typing import IO, BinaryIO, NamedTuple, Optional, Tuple
+from typing import IO, BinaryIO, NamedTuple, Optional
 
 import imagesize
 
@@ -32,7 +32,7 @@ class DataURI(NamedTuple):
     data: bytes
 
 
-def get_image_size(filename: str) -> Optional[Tuple[int, int]]:
+def get_image_size(filename: str) -> Optional[tuple[int, int]]:
     try:
         size = imagesize.get(filename)
         if size[0] == -1:

@@ -10,7 +10,7 @@ import sys
 import warnings
 from datetime import datetime
 from os import path
-from typing import IO, Any, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Type
+from typing import IO, Any, Iterable, Iterator, List, Optional, Tuple, Type
 from urllib.parse import quote
 
 import docutils.readers.doctree
@@ -98,7 +98,7 @@ class Stylesheet(str):
     its filename (str).
     """
 
-    attributes: Dict[str, str] = None
+    attributes: dict[str, str] = None
     filename: str = None
     priority: int = None
 
@@ -124,7 +124,7 @@ class JavaScript(str):
     its filename (str).
     """
 
-    attributes: Dict[str, str] = None
+    attributes: dict[str, str] = None
     filename: str = None
     priority: int = None
 
@@ -160,7 +160,7 @@ class BuildInfo:
             raise ValueError(__('build info file is broken: %r') % exc) from exc
 
     def __init__(
-        self, config: Config = None, tags: Tags = None, config_categories: List[str] = []
+        self, config: Config = None, tags: Tags = None, config_categories: list[str] = []
     ) -> None:
         self.config_hash = ''
         self.tags_hash = ''
@@ -214,16 +214,16 @@ class StandaloneHTMLBuilder(Builder):
     download_support = True  # enable download role
 
     imgpath: str = None
-    domain_indices: List[DOMAIN_INDEX_TYPE] = []
+    domain_indices: list[DOMAIN_INDEX_TYPE] = []
 
     def __init__(self, app: Sphinx, env: BuildEnvironment = None) -> None:
         super().__init__(app, env)
 
         # CSS files
-        self.css_files: List[Stylesheet] = []
+        self.css_files: list[Stylesheet] = []
 
         # JS files
-        self.script_files: List[JavaScript] = []
+        self.script_files: list[JavaScript] = []
 
         # Cached Publisher for writing doctrees to HTML
         reader = docutils.readers.doctree.Reader(parser_name='restructuredtext')
@@ -246,7 +246,7 @@ class StandaloneHTMLBuilder(Builder):
         # basename of images directory
         self.imagedir = '_images'
         # section numbers for headings in the currently visited document
-        self.secnumbers: Dict[str, Tuple[int, ...]] = {}
+        self.secnumbers: dict[str, tuple[int, ...]] = {}
         # currently written docname
         self.current_docname: str = None
 
@@ -295,7 +295,7 @@ class StandaloneHTMLBuilder(Builder):
         else:
             yield 'default.css'
 
-    def get_theme_config(self) -> Tuple[str, Dict]:
+    def get_theme_config(self) -> tuple[str, dict]:
         return self.config.html_theme, self.config.html_theme_options
 
     def init_templates(self) -> None:
@@ -373,7 +373,7 @@ class StandaloneHTMLBuilder(Builder):
         self.script_files.append(JavaScript(filename, **kwargs))
 
     @property
-    def default_translator_class(self) -> Type[nodes.NodeVisitor]:  # type: ignore
+    def default_translator_class(self) -> type[nodes.NodeVisitor]:  # type: ignore
         if self.config.html4_writer:
             return HTML4Translator  # RemovedInSphinx70Warning
         else:
@@ -445,10 +445,10 @@ class StandaloneHTMLBuilder(Builder):
                 # source doesn't exist anymore
                 pass
 
-    def get_asset_paths(self) -> List[str]:
+    def get_asset_paths(self) -> list[str]:
         return self.config.html_extra_path + self.config.html_static_path
 
-    def render_partial(self, node: Optional[Node]) -> Dict[str, str]:
+    def render_partial(self, node: Optional[Node]) -> dict[str, str]:
         """Utility: Render a lone doctree node."""
         if node is None:
             return {'fragment': ''}
@@ -459,7 +459,7 @@ class StandaloneHTMLBuilder(Builder):
         self._publisher.publish()
         return self._publisher.writer.parts
 
-    def prepare_writing(self, docnames: Set[str]) -> None:
+    def prepare_writing(self, docnames: set[str]) -> None:
         # create the search indexer
         self.indexer = None
         if self.search:
@@ -519,7 +519,7 @@ class StandaloneHTMLBuilder(Builder):
 
         self.relations = self.env.collect_relations()
 
-        rellinks: List[Tuple[str, str, str, str]] = []
+        rellinks: list[tuple[str, str, str, str]] = []
         if self.use_index:
             rellinks.append(('genindex', _('General Index'), 'I', _('index')))
         for indexname, indexcls, _content, _collapse in self.domain_indices:
@@ -574,7 +574,7 @@ class StandaloneHTMLBuilder(Builder):
                 self.theme.get_options(self.theme_options).items())
         self.globalcontext.update(self.config.html_context)
 
-    def get_doc_context(self, docname: str, body: str, metatags: str) -> Dict[str, Any]:
+    def get_doc_context(self, docname: str, body: str, metatags: str) -> dict[str, Any]:
         """Collect items for the template context of a page."""
         # find out relations
         prev = next = None
@@ -824,7 +824,7 @@ class StandaloneHTMLBuilder(Builder):
                 if jsfile:
                     copyfile(jsfile, path.join(self.outdir, '_static', '_stemmer.js'))
 
-    def copy_theme_static_files(self, context: Dict[str, Any]) -> None:
+    def copy_theme_static_files(self, context: dict[str, Any]) -> None:
         def onerror(filename: str, error: Exception) -> None:
             logger.warning(__('Failed to copy a file in html_static_file: %s: %r'),
                            filename, error)
@@ -836,7 +836,7 @@ class StandaloneHTMLBuilder(Builder):
                            excluded=DOTFILES, context=context,
                            renderer=self.templates, onerror=onerror)
 
-    def copy_html_static_files(self, context: Dict) -> None:
+    def copy_html_static_files(self, context: dict) -> None:
         def onerror(filename: str, error: Exception) -> None:
             logger.warning(__('Failed to copy a file in html_static_file: %s: %r'),
                            filename, error)
@@ -968,7 +968,7 @@ class StandaloneHTMLBuilder(Builder):
     def get_outfilename(self, pagename: str) -> str:
         return path.join(self.outdir, os_path(pagename) + self.out_suffix)
 
-    def add_sidebars(self, pagename: str, ctx: Dict) -> None:
+    def add_sidebars(self, pagename: str, ctx: dict) -> None:
         def has_wildcard(pattern: str) -> bool:
             return any(char in pattern for char in '*?[')
 
@@ -1023,7 +1023,7 @@ class StandaloneHTMLBuilder(Builder):
     def get_target_uri(self, docname: str, typ: str = None) -> str:
         return quote(docname) + self.link_suffix
 
-    def handle_page(self, pagename: str, addctx: Dict, templatename: str = 'page.html',
+    def handle_page(self, pagename: str, addctx: dict, templatename: str = 'page.html',
                     outfilename: Optional[str] = None, event_arg: Any = None) -> None:
         ctx = self.globalcontext.copy()
         # current_page_name is backwards compatibility
@@ -1123,7 +1123,7 @@ class StandaloneHTMLBuilder(Builder):
             copyfile(self.env.doc2path(pagename), source_name)
 
     def update_page_context(self, pagename: str, templatename: str,
-                            ctx: Dict, event_arg: Any) -> None:
+                            ctx: dict, event_arg: Any) -> None:
         pass
 
     def handle_finish(self) -> None:
@@ -1152,7 +1152,7 @@ class StandaloneHTMLBuilder(Builder):
 
 def convert_html_css_files(app: Sphinx, config: Config) -> None:
     """This converts string styled html_css_files to tuple styled one."""
-    html_css_files: List[Tuple[str, Dict]] = []
+    html_css_files: list[tuple[str, dict]] = []
     for entry in config.html_css_files:
         if isinstance(entry, str):
             html_css_files.append((entry, {}))
@@ -1169,7 +1169,7 @@ def convert_html_css_files(app: Sphinx, config: Config) -> None:
 
 def convert_html_js_files(app: Sphinx, config: Config) -> None:
     """This converts string styled html_js_files to tuple styled one."""
-    html_js_files: List[Tuple[str, Dict]] = []
+    html_js_files: list[tuple[str, dict]] = []
     for entry in config.html_js_files:
         if isinstance(entry, str):
             html_js_files.append((entry, {}))
@@ -1185,7 +1185,7 @@ def convert_html_js_files(app: Sphinx, config: Config) -> None:
 
 
 def setup_css_tag_helper(app: Sphinx, pagename: str, templatename: str,
-                         context: Dict, doctree: Node) -> None:
+                         context: dict, doctree: Node) -> None:
     """Set up css_tag() template helper.
 
     .. note:: This set up function is added to keep compatibility with webhelper.
@@ -1205,7 +1205,7 @@ def setup_css_tag_helper(app: Sphinx, pagename: str, templatename: str,
 
 
 def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
-                        context: Dict, doctree: Node) -> None:
+                        context: dict, doctree: Node) -> None:
     """Set up js_tag() template helper.
 
     .. note:: This set up function is added to keep compatibility with webhelper.
@@ -1240,7 +1240,7 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
 
 
 def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,
-                         context: Dict, doctree: Node) -> None:
+                         context: dict, doctree: Node) -> None:
     """Set up relative resource paths."""
     pathto = context.get('pathto')
 
@@ -1337,7 +1337,7 @@ deprecated_alias('sphinx.builders.html',
                  })
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     # builders
     app.add_builder(StandaloneHTMLBuilder)
 

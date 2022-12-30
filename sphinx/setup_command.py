@@ -9,7 +9,7 @@ import os
 import sys
 import warnings
 from io import StringIO
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from sphinx.application import Sphinx
 from sphinx.cmd.build import handle_exception
@@ -150,7 +150,7 @@ class BuildDoc(Command):
             status_stream = StringIO()
         else:
             status_stream = sys.stdout  # type: ignore
-        confoverrides: Dict[str, Any] = {}
+        confoverrides: dict[str, Any] = {}
         if self.project:
             confoverrides['project'] = self.project
         if self.version:

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import difflib
 import pathlib
-from typing import Any, List, Union
+from typing import Any, Union
 
 
 class PathComparer:
@@ -41,7 +41,7 @@ class PathComparer:
     def __eq__(self, other: Union[str, pathlib.Path]) -> bool:  # type: ignore
         return not bool(self.ldiff(other))
 
-    def diff(self, other: Union[str, pathlib.Path]) -> List[str]:
+    def diff(self, other: Union[str, pathlib.Path]) -> list[str]:
         """compare self and other.
 
         When different is not exist, return empty list.
@@ -60,19 +60,19 @@ class PathComparer:
         """
         return self.ldiff(other)
 
-    def ldiff(self, other: Union[str, pathlib.Path]) -> List[str]:
+    def ldiff(self, other: Union[str, pathlib.Path]) -> list[str]:
         return self._diff(
             self.path,
             pathlib.Path(other),
         )
 
-    def rdiff(self, other: Union[str, pathlib.Path]) -> List[str]:
+    def rdiff(self, other: Union[str, pathlib.Path]) -> list[str]:
         return self._diff(
             pathlib.Path(other),
             self.path,
         )
 
-    def _diff(self, lhs: pathlib.Path, rhs: pathlib.Path) -> List[str]:
+    def _diff(self, lhs: pathlib.Path, rhs: pathlib.Path) -> list[str]:
         if lhs == rhs:
             return []
 
@@ -88,7 +88,7 @@ class PathComparer:
         return [line.strip() for line in difflib.Differ().compare([s_path], [o_path])]
 
 
-def pytest_assertrepr_compare(op: str, left: Any, right: Any) -> List[str]:
+def pytest_assertrepr_compare(op: str, left: Any, right: Any) -> list[str]:
     if isinstance(left, PathComparer) and op == "==":
         return ['Comparing path:'] + left.ldiff(right)
     elif isinstance(right, PathComparer) and op == "==":

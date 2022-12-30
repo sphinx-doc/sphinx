@@ -5,8 +5,7 @@ from __future__ import annotations
 import re
 import textwrap
 from os import path
-from typing import (TYPE_CHECKING, Any, Dict, Iterable, Iterator, List, Optional, Pattern, Set,
-                    Tuple, Union, cast)
+from typing import TYPE_CHECKING, Any, Iterable, Iterator, Optional, Union, cast
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
@@ -81,7 +80,7 @@ TEMPLATE = """\
 """
 
 
-def find_subsections(section: Element) -> List[nodes.section]:
+def find_subsections(section: Element) -> list[nodes.section]:
     """Return a list of subsections for the given ``section``."""
     result = []
     for child in section:
@@ -107,7 +106,7 @@ class TexinfoWriter(writers.Writer):
     """Texinfo writer for generating Texinfo documents."""
     supported = ('texinfo', 'texi')
 
-    settings_spec: Tuple[str, Any, Tuple[Tuple[str, List[str], Dict[str, str]], ...]] = (
+    settings_spec: tuple[str, Any, tuple[tuple[str, list[str], dict[str, str]], ...]] = (
         'Texinfo Specific Options', None, (
             ("Name of the Info file", ['--texinfo-filename'], {'default': ''}),
             ('Dir entry', ['--texinfo-dir-entry'], {'default': ''}),
@@ -115,7 +114,7 @@ class TexinfoWriter(writers.Writer):
             ('Category', ['--texinfo-dir-category'], {'default':
                                                       'Miscellaneous'})))
 
-    settings_defaults: Dict = {}
+    settings_defaults: dict = {}
 
     output: Optional[str] = None  # type: ignore[assignment]
 
@@ -158,35 +157,35 @@ class TexinfoTranslator(SphinxTranslator):
         super().__init__(document, builder)
         self.init_settings()
 
-        self.written_ids: Set[str] = set()          # node names and anchors in output
+        self.written_ids: set[str] = set()          # node names and anchors in output
         # node names and anchors that should be in output
-        self.referenced_ids: Set[str] = set()
-        self.indices: List[Tuple[str, str]] = []    # (node name, content)
-        self.short_ids: Dict[str, str] = {}         # anchors --> short ids
-        self.node_names: Dict[str, str] = {}        # node name --> node's name to display
-        self.node_menus: Dict[str, List[str]] = {}  # node name --> node's menu entries
-        self.rellinks: Dict[str, List[str]] = {}    # node name --> (next, previous, up)
+        self.referenced_ids: set[str] = set()
+        self.indices: list[tuple[str, str]] = []    # (node name, content)
+        self.short_ids: dict[str, str] = {}         # anchors --> short ids
+        self.node_names: dict[str, str] = {}        # node name --> node's name to display
+        self.node_menus: dict[str, list[str]] = {}  # node name --> node's menu entries
+        self.rellinks: dict[str, list[str]] = {}    # node name --> (next, previous, up)
 
         self.collect_indices()
         self.collect_node_names()
         self.collect_node_menus()
         self.collect_rellinks()
 
-        self.body: List[str] = []
-        self.context: List[str] = []
-        self.descs: List[addnodes.desc] = []
+        self.body: list[str] = []
+        self.context: list[str] = []
+        self.descs: list[addnodes.desc] = []
         self.previous_section: Optional[nodes.section] = None
         self.section_level = 0
         self.seen_title = False
-        self.next_section_ids: Set[str] = set()
+        self.next_section_ids: set[str] = set()
         self.escape_newlines = 0
         self.escape_hyphens = 0
-        self.curfilestack: List[str] = []
-        self.footnotestack: List[Dict[str, List[Union[collected_footnote, bool]]]] = []
+        self.curfilestack: list[str] = []
+        self.footnotestack: list[dict[str, list[Union[collected_footnote, bool]]]] = []
         self.in_footnote = 0
         self.in_samp = 0
-        self.handled_abbrs: Set[str] = set()
-        self.colwidths: List[int] = []
+        self.handled_abbrs: set[str] = set()
+        self.colwidths: list[int] = []
 
     def finish(self) -> None:
         if self.previous_section is None:
@@ -284,7 +283,7 @@ class TexinfoTranslator(SphinxTranslator):
     def collect_node_menus(self) -> None:
         """Collect the menu entries for each "node" section."""
         node_menus = self.node_menus
-        targets: List[Element] = [self.document]
+        targets: list[Element] = [self.document]
         targets.extend(self.document.findall(nodes.section))
         for node in targets:
             assert 'node_name' in node and node['node_name']
@@ -392,7 +391,7 @@ class TexinfoTranslator(SphinxTranslator):
                           textwrap.wrap(desc, width=78 - offset))
         return s + wdesc.strip() + '\n'
 
-    def add_menu_entries(self, entries: List[str], reg: Pattern = re.compile(r'\s+---?\s+')
+    def add_menu_entries(self, entries: list[str], reg: re.Pattern = re.compile(r'\s+---?\s+')
                          ) -> None:
         for entry in entries:
             name = self.node_names[entry]
@@ -454,7 +453,7 @@ class TexinfoTranslator(SphinxTranslator):
         return res
 
     def collect_indices(self) -> None:
-        def generate(content: List[Tuple[str, List[IndexEntry]]], collapsed: bool) -> str:
+        def generate(content: list[tuple[str, list[IndexEntry]]], collapsed: bool) -> str:
             ret = ['\n@menu\n']
             for _letter, entries in content:
                 for entry in entries:
@@ -494,7 +493,7 @@ class TexinfoTranslator(SphinxTranslator):
 
     def collect_footnotes(
         self, node: Element
-    ) -> Dict[str, List[Union[collected_footnote, bool]]]:
+    ) -> dict[str, list[Union[collected_footnote, bool]]]:
         def footnotes_under(n: Element) -> Iterator[nodes.footnote]:
             if isinstance(n, nodes.footnote):
                 yield n
@@ -504,7 +503,7 @@ class TexinfoTranslator(SphinxTranslator):
                         continue
                     elif isinstance(c, nodes.Element):
                         yield from footnotes_under(c)
-        fnotes: Dict[str, List[Union[collected_footnote, bool]]] = {}
+        fnotes: dict[str, list[Union[collected_footnote, bool]]] = {}
         for fn in footnotes_under(node):
             label = cast(nodes.label, fn[0])
             num = label.astext().strip()

@@ -5,7 +5,7 @@ from __future__ import annotations
 import posixpath
 import traceback
 from os import path
-from typing import Any, Dict, Generator, Iterable, Optional, Set, Tuple, cast
+from typing import Any, Generator, Iterable, Optional, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -103,7 +103,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
     for objnode in list(doctree.findall(addnodes.desc)):
         if objnode.get('domain') != 'py':
             continue
-        names: Set[str] = set()
+        names: set[str] = set()
         for signode in objnode:
             if not isinstance(signode, addnodes.desc_signature):
                 continue
@@ -221,7 +221,7 @@ def should_generate_module_page(app: Sphinx, modname: str) -> bool:
     return True
 
 
-def collect_pages(app: Sphinx) -> Generator[Tuple[str, Dict[str, Any], str], None, None]:
+def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], None, None]:
     env = app.builder.env
     if not hasattr(env, '_viewcode_modules'):
         return
@@ -321,7 +321,7 @@ def collect_pages(app: Sphinx) -> Generator[Tuple[str, Dict[str, Any], str], Non
     yield (posixpath.join(OUTPUT_DIRNAME, 'index'), context, 'page.html')
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('viewcode_import', None, False)
     app.add_config_value('viewcode_enable_epub', False, False)
     app.add_config_value('viewcode_follow_imported_members', True, False)

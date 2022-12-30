@@ -6,7 +6,7 @@ import os
 import time
 import traceback
 from math import sqrt
-from typing import Any, Callable, Dict, List, Optional, Sequence
+from typing import Any, Callable, Optional, Sequence
 
 try:
     import multiprocessing
@@ -49,15 +49,15 @@ class ParallelTasks:
     def __init__(self, nproc: int) -> None:
         self.nproc = nproc
         # (optional) function performed by each task on the result of main task
-        self._result_funcs: Dict[int, Callable] = {}
+        self._result_funcs: dict[int, Callable] = {}
         # task arguments
-        self._args: Dict[int, Optional[List[Any]]] = {}
+        self._args: dict[int, Optional[list[Any]]] = {}
         # list of subprocesses (both started and waiting)
-        self._procs: Dict[int, Any] = {}
+        self._procs: dict[int, Any] = {}
         # list of receiving pipe connections of running subprocesses
-        self._precvs: Dict[int, Any] = {}
+        self._precvs: dict[int, Any] = {}
         # list of receiving pipe connections of waiting subprocesses
-        self._precvsWaiting: Dict[int, Any] = {}
+        self._precvsWaiting: dict[int, Any] = {}
         # number of working subprocesses
         self._pworking = 0
         # task number of each subprocess
@@ -136,7 +136,7 @@ class ParallelTasks:
         return joined_any
 
 
-def make_chunks(arguments: Sequence[str], nproc: int, maxbatch: int = 10) -> List[Any]:
+def make_chunks(arguments: Sequence[str], nproc: int, maxbatch: int = 10) -> list[Any]:
     # determine how many documents to read in one go
     nargs = len(arguments)
     chunksize = nargs // nproc

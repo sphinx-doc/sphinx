@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from functools import partial
 from importlib import import_module
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any, Optional, Union
 
 from pygments import highlight
 from pygments.filters import ErrorToken
@@ -23,8 +23,8 @@ from sphinx.util import logging, texescape
 
 logger = logging.getLogger(__name__)
 
-lexers: Dict[str, Lexer] = {}
-lexer_classes: Dict[str, Union[Type[Lexer], 'partial[Lexer]']] = {
+lexers: dict[str, Lexer] = {}
+lexer_classes: dict[str, Union[type[Lexer], 'partial[Lexer]']] = {
     'none': partial(TextLexer, stripnl=False),
     'python': partial(PythonLexer, stripnl=False),
     'pycon': partial(PythonConsoleLexer, stripnl=False),
@@ -88,7 +88,7 @@ class PygmentsBridge:
         self.latex_engine = latex_engine
 
         style = self.get_style(stylename)
-        self.formatter_args: Dict[str, Any] = {'style': style}
+        self.formatter_args: dict[str, Any] = {'style': style}
         if dest == 'html':
             self.formatter = self.html_formatter
         else:
@@ -110,7 +110,7 @@ class PygmentsBridge:
         kwargs.update(self.formatter_args)
         return self.formatter(**kwargs)
 
-    def get_lexer(self, source: str, lang: str, opts: Optional[Dict] = None,
+    def get_lexer(self, source: str, lang: str, opts: Optional[dict] = None,
                   force: bool = False, location: Any = None) -> Lexer:
         if not opts:
             opts = {}
@@ -146,7 +146,7 @@ class PygmentsBridge:
 
         return lexer
 
-    def highlight_block(self, source: str, lang: str, opts: Optional[Dict] = None,
+    def highlight_block(self, source: str, lang: str, opts: Optional[dict] = None,
                         force: bool = False, location: Any = None, **kwargs: Any) -> str:
         if not isinstance(source, str):
             source = source.decode()

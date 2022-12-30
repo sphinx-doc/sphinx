@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import (Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple, TypeVar,
-                    Union, cast)
+from typing import Any, Callable, Generator, Iterator, Optional, TypeVar, Union, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement, system_message
@@ -173,7 +172,7 @@ class ASTIdentifier(ASTBaseBase):
 
 
 class ASTNestedName(ASTBase):
-    def __init__(self, names: List[ASTIdentifier], rooted: bool) -> None:
+    def __init__(self, names: list[ASTIdentifier], rooted: bool) -> None:
         assert len(names) > 0
         self.names = names
         self.rooted = rooted
@@ -426,7 +425,7 @@ class ASTPostfixMemberOfPointer(ASTPostfixOp):
 
 
 class ASTPostfixExpr(ASTExpression):
-    def __init__(self, prefix: ASTExpression, postFixes: List[ASTPostfixOp]):
+    def __init__(self, prefix: ASTExpression, postFixes: list[ASTPostfixOp]):
         self.prefix = prefix
         self.postFixes = postFixes
 
@@ -535,7 +534,7 @@ class ASTCastExpr(ASTExpression):
 
 
 class ASTBinOpExpr(ASTBase):
-    def __init__(self, exprs: List[ASTExpression], ops: List[str]):
+    def __init__(self, exprs: list[ASTExpression], ops: list[str]):
         assert len(exprs) > 0
         assert len(exprs) == len(ops) + 1
         self.exprs = exprs
@@ -566,7 +565,7 @@ class ASTBinOpExpr(ASTBase):
 
 
 class ASTAssignmentExpr(ASTExpression):
-    def __init__(self, exprs: List[ASTExpression], ops: List[str]):
+    def __init__(self, exprs: list[ASTExpression], ops: list[str]):
         assert len(exprs) > 0
         assert len(exprs) == len(ops) + 1
         self.exprs = exprs
@@ -620,7 +619,7 @@ class ASTTrailingTypeSpec(ASTBase):
 
 
 class ASTTrailingTypeSpecFundamental(ASTTrailingTypeSpec):
-    def __init__(self, names: List[str]) -> None:
+    def __init__(self, names: list[str]) -> None:
         assert len(names) != 0
         self.names = names
 
@@ -688,12 +687,12 @@ class ASTFunctionParameter(ASTBase):
 
 
 class ASTParameters(ASTBase):
-    def __init__(self, args: List[ASTFunctionParameter], attrs: ASTAttributeList) -> None:
+    def __init__(self, args: list[ASTFunctionParameter], attrs: ASTAttributeList) -> None:
         self.args = args
         self.attrs = attrs
 
     @property
-    def function_params(self) -> List[ASTFunctionParameter]:
+    def function_params(self) -> list[ASTFunctionParameter]:
         return self.args
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -761,7 +760,7 @@ class ASTDeclSpecsSimple(ASTBaseBase):
                                   self.attrs + other.attrs)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res: List[str] = []
+        res: list[str] = []
         if len(self.attrs) != 0:
             res.append(transform(self.attrs))
         if self.storage:
@@ -778,8 +777,8 @@ class ASTDeclSpecsSimple(ASTBaseBase):
             res.append('const')
         return ' '.join(res)
 
-    def describe_signature(self, modifiers: List[Node]) -> None:
-        def _add(modifiers: List[Node], text: str) -> None:
+    def describe_signature(self, modifiers: list[Node]) -> None:
+        def _add(modifiers: list[Node], text: str) -> None:
             if len(modifiers) != 0:
                 modifiers.append(addnodes.desc_sig_space())
             modifiers.append(addnodes.desc_sig_keyword(text, text))
@@ -817,7 +816,7 @@ class ASTDeclSpecs(ASTBase):
         self.trailingTypeSpec = trailing
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res: List[str] = []
+        res: list[str] = []
         l = transform(self.leftSpecs)
         if len(l) > 0:
             res.append(l)
@@ -835,7 +834,7 @@ class ASTDeclSpecs(ASTBase):
     def describe_signature(self, signode: TextElement, mode: str,
                            env: "BuildEnvironment", symbol: "Symbol") -> None:
         verify_description_mode(mode)
-        modifiers: List[Node] = []
+        modifiers: list[Node] = []
 
         self.leftSpecs.describe_signature(modifiers)
 
@@ -922,7 +921,7 @@ class ASTDeclarator(ASTBase):
         raise NotImplementedError(repr(self))
 
     @property
-    def function_params(self) -> List[ASTFunctionParameter]:
+    def function_params(self) -> list[ASTFunctionParameter]:
         raise NotImplementedError(repr(self))
 
     def require_space_after_declSpecs(self) -> bool:
@@ -931,7 +930,7 @@ class ASTDeclarator(ASTBase):
 
 class ASTDeclaratorNameParam(ASTDeclarator):
     def __init__(self, declId: ASTNestedName,
-                 arrayOps: List[ASTArray], param: ASTParameters) -> None:
+                 arrayOps: list[ASTArray], param: ASTParameters) -> None:
         self.declId = declId
         self.arrayOps = arrayOps
         self.param = param
@@ -941,7 +940,7 @@ class ASTDeclaratorNameParam(ASTDeclarator):
         return self.declId
 
     @property
-    def function_params(self) -> List[ASTFunctionParameter]:
+    def function_params(self) -> list[ASTFunctionParameter]:
         return self.param.function_params
 
     # ------------------------------------------------------------------------
@@ -1018,7 +1017,7 @@ class ASTDeclaratorPtr(ASTDeclarator):
         return self.next.name
 
     @property
-    def function_params(self) -> List[ASTFunctionParameter]:
+    def function_params(self) -> list[ASTFunctionParameter]:
         return self.next.function_params
 
     def require_space_after_declSpecs(self) -> bool:
@@ -1087,7 +1086,7 @@ class ASTDeclaratorParen(ASTDeclarator):
         return self.inner.name
 
     @property
-    def function_params(self) -> List[ASTFunctionParameter]:
+    def function_params(self) -> list[ASTFunctionParameter]:
         return self.inner.function_params
 
     def require_space_after_declSpecs(self) -> bool:
@@ -1113,7 +1112,7 @@ class ASTDeclaratorParen(ASTDeclarator):
 ################################################################################
 
 class ASTParenExprList(ASTBaseParenExprList):
-    def __init__(self, exprs: List[ASTExpression]) -> None:
+    def __init__(self, exprs: list[ASTExpression]) -> None:
         self.exprs = exprs
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -1136,7 +1135,7 @@ class ASTParenExprList(ASTBaseParenExprList):
 
 
 class ASTBracedInitList(ASTBase):
-    def __init__(self, exprs: List[ASTExpression], trailingComma: bool) -> None:
+    def __init__(self, exprs: list[ASTExpression], trailingComma: bool) -> None:
         self.exprs = exprs
         self.trailingComma = trailingComma
 
@@ -1200,7 +1199,7 @@ class ASTType(ASTBase):
         return symbol.get_full_nested_name().get_id(version)
 
     @property
-    def function_params(self) -> List[ASTFunctionParameter]:
+    def function_params(self) -> list[ASTFunctionParameter]:
         return self.decl.function_params
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -1287,7 +1286,7 @@ class ASTMacroParameter(ASTBase):
 
 
 class ASTMacro(ASTBase):
-    def __init__(self, ident: ASTNestedName, args: List[ASTMacroParameter]) -> None:
+    def __init__(self, ident: ASTNestedName, args: list[ASTMacroParameter]) -> None:
         self.ident = ident
         self.args = args
 
@@ -1428,7 +1427,7 @@ class ASTDeclaration(ASTBaseBase):
         return decl.name
 
     @property
-    def function_params(self) -> List[ASTFunctionParameter]:
+    def function_params(self) -> list[ASTFunctionParameter]:
         if self.objectType != 'function':
             return None
         decl = cast(ASTType, self.declaration)
@@ -1453,7 +1452,7 @@ class ASTDeclaration(ASTBaseBase):
         return res
 
     def describe_signature(self, signode: TextElement, mode: str,
-                           env: "BuildEnvironment", options: Dict) -> None:
+                           env: "BuildEnvironment", options: dict) -> None:
         verify_description_mode(mode)
         assert self.symbol
         # The caller of the domain added a desc_signature node.
@@ -1504,7 +1503,7 @@ class SymbolLookupResult:
 
 
 class LookupKey:
-    def __init__(self, data: List[Tuple[ASTIdentifier, str]]) -> None:
+    def __init__(self, data: list[tuple[ASTIdentifier, str]]) -> None:
         self.data = data
 
     def __str__(self) -> str:
@@ -1562,8 +1561,8 @@ class Symbol:
         self._assert_invariants()
 
         # Remember to modify Symbol.remove if modifications to the parent change.
-        self._children: List[Symbol] = []
-        self._anonChildren: List[Symbol] = []
+        self._children: list[Symbol] = []
+        self._anonChildren: list[Symbol] = []
         # note: _children includes _anonChildren
         if self.parent:
             self.parent._children.append(self)
@@ -1978,7 +1977,7 @@ class Symbol:
             symbol._fill_empty(declaration, docname, line)
             return symbol
 
-    def merge_with(self, other: "Symbol", docnames: List[str],
+    def merge_with(self, other: "Symbol", docnames: list[str],
                    env: "BuildEnvironment") -> None:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
@@ -2249,7 +2248,7 @@ class DefinitionParser(BaseParser):
         return None
 
     def _parse_initializer_list(self, name: str, open: str, close: str
-                                ) -> Tuple[List[ASTExpression], bool]:
+                                ) -> tuple[list[ASTExpression], bool]:
         # Parse open and close with the actual initializer-list in between
         # -> initializer-clause '...'[opt]
         #  | initializer-list ',' initializer-clause '...'[opt]
@@ -2312,7 +2311,7 @@ class DefinitionParser(BaseParser):
         prefix = self._parse_primary_expression()
 
         # and now parse postfixes
-        postFixes: List[ASTPostfixOp] = []
+        postFixes: list[ASTPostfixOp] = []
         while True:
             self.skip_ws()
             if self.skip_string_and_ws('['):
@@ -2503,7 +2502,7 @@ class DefinitionParser(BaseParser):
         return self._parse_assignment_expression()
 
     def _parse_expression_fallback(
-            self, end: List[str],
+            self, end: list[str],
             parser: Callable[[], ASTExpression],
             allow: bool = True) -> ASTExpression:
         # Stupidly "parse" an expression.
@@ -2530,7 +2529,7 @@ class DefinitionParser(BaseParser):
         else:
             # TODO: add handling of more bracket-like things, and quote handling
             brackets = {'(': ')', '{': '}', '[': ']'}
-            symbols: List[str] = []
+            symbols: list[str] = []
             while not self.eof:
                 if (len(symbols) == 0 and self.current_char in end):
                     break
@@ -2546,7 +2545,7 @@ class DefinitionParser(BaseParser):
         return ASTFallbackExpr(value.strip())
 
     def _parse_nested_name(self) -> ASTNestedName:
-        names: List[Any] = []
+        names: list[Any] = []
 
         self.skip_ws()
         rooted = False
@@ -2585,7 +2584,7 @@ class DefinitionParser(BaseParser):
         return None
 
     def _parse_simple_type_specifiers(self) -> ASTTrailingTypeSpecFundamental:
-        names: List[str] = []
+        names: list[str] = []
 
         self.skip_ws()
         while True:
@@ -2905,7 +2904,7 @@ class DefinitionParser(BaseParser):
             return ASTInitializer(bracedInit)
 
         if outer == 'member':
-            fallbackEnd: List[str] = []
+            fallbackEnd: list[str] = []
         elif outer is None:  # function parameter
             fallbackEnd = [',', ')']
         else:
@@ -3216,10 +3215,10 @@ class CObject(ObjectDescription[ASTDeclaration]):
         return parser.parse_declaration(self.object_type, self.objtype)
 
     def describe_signature(self, signode: TextElement, ast: ASTDeclaration,
-                           options: Dict) -> None:
+                           options: dict) -> None:
         ast.describe_signature(signode, 'lastIsName', self.env, options)
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         env = self.state.document.settings.env  # from ObjectDescription.run
         if 'c:parent_symbol' not in env.temp_data:
             root = env.domaindata['c']['root_symbol']
@@ -3366,11 +3365,11 @@ class CNamespaceObject(SphinxDirective):
     final_argument_whitespace = True
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         rootSymbol = self.env.domaindata['c']['root_symbol']
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
             symbol = rootSymbol
-            stack: List[Symbol] = []
+            stack: list[Symbol] = []
         else:
             parser = DefinitionParser(self.arguments[0],
                                       location=self.get_location(),
@@ -3396,7 +3395,7 @@ class CNamespacePushObject(SphinxDirective):
     final_argument_whitespace = True
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
             return []
         parser = DefinitionParser(self.arguments[0],
@@ -3427,7 +3426,7 @@ class CNamespacePopObject(SphinxDirective):
     final_argument_whitespace = True
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         stack = self.env.temp_data.get('c:namespace_stack', None)
         if not stack or len(stack) == 0:
             logger.warning("C namespace pop on empty stack. Defaulting to global scope.",
@@ -3473,7 +3472,7 @@ class AliasTransform(SphinxTransform):
 
     def _render_symbol(self, s: Symbol, maxdepth: int, skipThis: bool,
                        aliasOptions: dict, renderOptions: dict,
-                       document: Any) -> List[Node]:
+                       document: Any) -> list[Node]:
         if maxdepth == 0:
             recurse = True
         elif maxdepth == 1:
@@ -3482,7 +3481,7 @@ class AliasTransform(SphinxTransform):
             maxdepth -= 1
             recurse = True
 
-        nodes: List[Node] = []
+        nodes: list[Node] = []
         if not skipThis:
             signode = addnodes.desc_signature('', '')
             nodes.append(signode)
@@ -3490,7 +3489,7 @@ class AliasTransform(SphinxTransform):
 
         if recurse:
             if skipThis:
-                childContainer: Union[List[Node], addnodes.desc] = nodes
+                childContainer: Union[list[Node], addnodes.desc] = nodes
             else:
                 content = addnodes.desc_content()
                 desc = addnodes.desc()
@@ -3584,7 +3583,7 @@ class CAliasObject(ObjectDescription):
         'noroot': directives.flag,
     }
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         """
         On purpose this doesn't call the ObjectDescription version, but is based on it.
         Each alias signature may expand into multiple real signatures if 'noroot'.
@@ -3602,7 +3601,7 @@ class CAliasObject(ObjectDescription):
         node['objtype'] = node['desctype'] = self.objtype
         node['noindex'] = True
 
-        self.names: List[str] = []
+        self.names: list[str] = []
         aliasOptions = {
             'maxdepth': self.options.get('maxdepth', 1),
             'noroot': 'noroot' in self.options,
@@ -3620,7 +3619,7 @@ class CAliasObject(ObjectDescription):
 
 class CXRefRole(XRefRole):
     def process_link(self, env: BuildEnvironment, refnode: Element,
-                     has_explicit_title: bool, title: str, target: str) -> Tuple[str, str]:
+                     has_explicit_title: bool, title: str, target: str) -> tuple[str, str]:
         refnode.attributes.update(env.ref_context)
 
         if not has_explicit_title:
@@ -3650,7 +3649,7 @@ class CExprRole(SphinxRole):
             # render the expression as inline text
             self.class_type = 'c-texpr'
 
-    def run(self) -> Tuple[List[Node], List[system_message]]:
+    def run(self) -> tuple[list[Node], list[system_message]]:
         text = self.text.replace('\n', ' ')
         parser = DefinitionParser(text, location=self.get_location(),
                                   config=self.env.config)
@@ -3722,7 +3721,7 @@ class CDomain(Domain):
         'expr': CExprRole(asCode=True),
         'texpr': CExprRole(asCode=False)
     }
-    initial_data: Dict[str, Union[Symbol, Dict[str, Tuple[str, str, str]]]] = {
+    initial_data: dict[str, Union[Symbol, dict[str, tuple[str, str, str]]]] = {
         'root_symbol': Symbol(None, None, None, None, None),
         'objects': {},  # fullname -> docname, node_id, objtype
     }
@@ -3753,7 +3752,7 @@ class CDomain(Domain):
     def process_field_xref(self, pnode: pending_xref) -> None:
         pnode.attributes.update(self.env.ref_context)
 
-    def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
+    def merge_domaindata(self, docnames: list[str], otherdata: dict) -> None:
         if Symbol.debug_show_tree:
             print("merge_domaindata:")
             print("\tself:")
@@ -3775,7 +3774,7 @@ class CDomain(Domain):
 
     def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                             typ: str, target: str, node: pending_xref,
-                            contnode: Element) -> Tuple[Optional[Element], Optional[str]]:
+                            contnode: Element) -> tuple[Optional[Element], Optional[str]]:
         parser = DefinitionParser(target, location=node, config=env.config)
         try:
             name = parser.parse_xref_object()
@@ -3818,7 +3817,7 @@ class CDomain(Domain):
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element
-                         ) -> List[Tuple[str, Element]]:
+                         ) -> list[tuple[str, Element]]:
         with logging.suppress_logging():
             retnode, objtype = self._resolve_xref_inner(env, fromdocname, builder,
                                                         'any', target, node, contnode)
@@ -3826,7 +3825,7 @@ class CDomain(Domain):
             return [('c:' + self.role_for_objtype(objtype), retnode)]
         return []
 
-    def get_objects(self) -> Iterator[Tuple[str, str, str, str, str, int]]:
+    def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:
         rootSymbol = self.data['root_symbol']
         for symbol in rootSymbol.get_all_symbols():
             if symbol.declaration is None:
@@ -3841,7 +3840,7 @@ class CDomain(Domain):
             yield (name, dispname, objectType, docname, newestId, 1)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_domain(CDomain)
     app.add_config_value("c_id_attributes", [], 'env')
     app.add_config_value("c_paren_attributes", [], 'env')

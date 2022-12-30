@@ -4,7 +4,7 @@ import builtins
 import os
 import shutil
 import sys
-from typing import IO, Any, Callable, List, Optional
+from typing import IO, Any, Callable, Optional
 
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
@@ -201,7 +201,7 @@ class path(str):
         """
         return self.__class__(os.path.join(self, *map(self.__class__, args)))
 
-    def listdir(self) -> List[str]:
+    def listdir(self) -> list[str]:
         return os.listdir(self)
 
     __div__ = __truediv__ = joinpath

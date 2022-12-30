@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import ast
 import warnings
-from typing import Dict, List, Optional, Type, overload
+from typing import Optional, overload
 
 from sphinx.deprecation import RemovedInSphinx70Warning
 
-OPERATORS: Dict[Type[ast.AST], str] = {
+OPERATORS: dict[type[ast.AST], str] = {
     ast.Add: "+",
     ast.And: "and",
     ast.BitAnd: "&",
@@ -91,18 +91,18 @@ class _UnparseVisitor(ast.NodeVisitor):
         return name
 
     def visit_arguments(self, node: ast.arguments) -> str:
-        defaults: List[Optional[ast.expr]] = list(node.defaults)
+        defaults: list[Optional[ast.expr]] = list(node.defaults)
         positionals = len(node.args)
         posonlyargs = len(node.posonlyargs)
         positionals += posonlyargs
         for _ in range(len(defaults), positionals):
             defaults.insert(0, None)
 
-        kw_defaults: List[Optional[ast.expr]] = list(node.kw_defaults)
+        kw_defaults: list[Optional[ast.expr]] = list(node.kw_defaults)
         for _ in range(len(kw_defaults), len(node.kwonlyargs)):
             kw_defaults.insert(0, None)
 
-        args: List[str] = []
+        args: list[str] = []
         for i, arg in enumerate(node.posonlyargs):
             args.append(self._visit_arg_with_default(arg, defaults[i]))
 

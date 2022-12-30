@@ -6,7 +6,7 @@ import os
 import posixpath
 import re
 import urllib.parse
-from typing import TYPE_CHECKING, Iterable, Optional, Set, Tuple, cast
+from typing import TYPE_CHECKING, Iterable, Optional, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
@@ -51,7 +51,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     # Override docutils.writers.html5_polyglot:HTMLTranslator
     # otherwise, nodes like <inline classes="s">...</inline> will be
     # converted to <s>...</s> by `visit_inline`.
-    supported_inline_tags: Set[str] = set()
+    supported_inline_tags: set[str] = set()
 
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
@@ -260,7 +260,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_seealso(self, node: Element) -> None:
         self.depart_admonition(node)
 
-    def get_secnumber(self, node: Element) -> Optional[Tuple[int, ...]]:
+    def get_secnumber(self, node: Element) -> Optional[tuple[int, ...]]:
         if node.get('secnumber'):
             return node['secnumber']
 

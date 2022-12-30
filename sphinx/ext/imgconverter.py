@@ -5,7 +5,7 @@ from __future__ import annotations
 import subprocess
 import sys
 from subprocess import CalledProcessError
-from typing import Any, Dict
+from typing import Any
 
 import sphinx
 from sphinx.application import Sphinx
@@ -71,7 +71,7 @@ class ImagemagickConverter(ImageConverter):
                                  (exc.stderr, exc.stdout)) from exc
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_post_transform(ImagemagickConverter)
     if sys.platform == 'win32':
         # On Windows, we use Imagemagik v7 by default to avoid the trouble for

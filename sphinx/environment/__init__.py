@@ -8,8 +8,7 @@ from collections import defaultdict
 from copy import copy
 from datetime import datetime
 from os import path
-from typing import (TYPE_CHECKING, Any, Callable, Dict, Generator, Iterator, List, Optional,
-                    Set, Tuple, Union)
+from typing import TYPE_CHECKING, Any, Callable, Generator, Iterator, Optional, Union
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -36,7 +35,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-default_settings: Dict[str, Any] = {
+default_settings: dict[str, Any] = {
     'auto_id_prefix': 'id',
     'image_loading': 'link',
     'embed_stylesheet': False,
@@ -71,14 +70,13 @@ CONFIG_CHANGED_REASON = {
 }
 
 
-versioning_conditions: Dict[str, Union[bool, Callable]] = {
+versioning_conditions: dict[str, Union[bool, Callable]] = {
     'none': False,
     'text': is_translatable,
 }
 
 if TYPE_CHECKING:
-    from collections.abc import MutableMapping
-    from typing import Literal
+    from typing import Literal, MutableMapping
 
     from typing_extensions import overload
 
@@ -152,7 +150,7 @@ class BuildEnvironment:
         self.config_status_extra: str = None
         self.events: EventManager = None
         self.project: Project = None
-        self.version: Dict[str, str] = None
+        self.version: dict[str, str] = None
 
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition: Union[bool, Callable] = None
@@ -170,50 +168,50 @@ class BuildEnvironment:
 
         # docname -> mtime at the time of reading
         # contains all read docnames
-        self.all_docs: Dict[str, float] = {}
+        self.all_docs: dict[str, float] = {}
         # docname -> set of dependent file
         # names, relative to documentation root
-        self.dependencies: Dict[str, Set[str]] = defaultdict(set)
+        self.dependencies: dict[str, set[str]] = defaultdict(set)
         # docname -> set of included file
         # docnames included from other documents
-        self.included: Dict[str, Set[str]] = defaultdict(set)
+        self.included: dict[str, set[str]] = defaultdict(set)
         # docnames to re-read unconditionally on next build
-        self.reread_always: Set[str] = set()
+        self.reread_always: set[str] = set()
 
         # File metadata
         # docname -> dict of metadata items
-        self.metadata: Dict[str, Dict[str, Any]] = defaultdict(dict)
+        self.metadata: dict[str, dict[str, Any]] = defaultdict(dict)
 
         # TOC inventory
         # docname -> title node
-        self.titles: Dict[str, nodes.title] = {}
+        self.titles: dict[str, nodes.title] = {}
         # docname -> title node; only different if
         # set differently with title directive
-        self.longtitles: Dict[str, nodes.title] = {}
+        self.longtitles: dict[str, nodes.title] = {}
         # docname -> table of contents nodetree
-        self.tocs: Dict[str, nodes.bullet_list] = {}
+        self.tocs: dict[str, nodes.bullet_list] = {}
         # docname -> number of real entries
-        self.toc_num_entries: Dict[str, int] = {}
+        self.toc_num_entries: dict[str, int] = {}
 
         # used to determine when to show the TOC
         # in a sidebar (don't show if it's only one item)
         # docname -> dict of sectionid -> number
-        self.toc_secnumbers: Dict[str, Dict[str, Tuple[int, ...]]] = {}
+        self.toc_secnumbers: dict[str, dict[str, tuple[int, ...]]] = {}
         # docname -> dict of figtype -> dict of figureid -> number
-        self.toc_fignumbers: Dict[str, Dict[str, Dict[str, Tuple[int, ...]]]] = {}
+        self.toc_fignumbers: dict[str, dict[str, dict[str, tuple[int, ...]]]] = {}
 
         # docname -> list of toctree includefiles
-        self.toctree_includes: Dict[str, List[str]] = {}
+        self.toctree_includes: dict[str, list[str]] = {}
         # docname -> set of files (containing its TOCs) to rebuild too
-        self.files_to_rebuild: Dict[str, Set[str]] = {}
+        self.files_to_rebuild: dict[str, set[str]] = {}
         # docnames that have :glob: toctrees
-        self.glob_toctrees: Set[str] = set()
+        self.glob_toctrees: set[str] = set()
         # docnames that have :numbered: toctrees
-        self.numbered_toctrees: Set[str] = set()
+        self.numbered_toctrees: set[str] = set()
 
         # domain-specific inventories, here to be pickled
         # domainname -> domain-specific dict
-        self.domaindata: Dict[str, Dict] = {}
+        self.domaindata: dict[str, dict] = {}
 
         # these map absolute path -> (docnames, unique filename)
         self.images: FilenameUniqDict = FilenameUniqDict()
@@ -221,25 +219,25 @@ class BuildEnvironment:
         self.dlfiles: DownloadFiles = DownloadFiles()
 
         # the original URI for images
-        self.original_image_uri: Dict[str, str] = {}
+        self.original_image_uri: dict[str, str] = {}
 
         # temporary data storage while reading a document
-        self.temp_data: Dict[str, Any] = {}
+        self.temp_data: dict[str, Any] = {}
         # context for cross-references (e.g. current module or class)
         # this is similar to temp_data, but will for example be copied to
         # attributes of "any" cross references
-        self.ref_context: Dict[str, Any] = {}
+        self.ref_context: dict[str, Any] = {}
 
         # set up environment
         self.setup(app)
 
-    def __getstate__(self) -> Dict:
+    def __getstate__(self) -> dict:
         """Obtains serializable data for pickling."""
         __dict__ = self.__dict__.copy()
         __dict__.update(app=None, domains={}, events=None)  # clear unpickable attributes
         return __dict__
 
-    def __setstate__(self, state: Dict) -> None:
+    def __setstate__(self, state: dict) -> None:
         self.__dict__.update(state)
 
     def setup(self, app: "Sphinx") -> None:
@@ -342,7 +340,7 @@ class BuildEnvironment:
         for domain in self.domains.values():
             domain.clear_doc(docname)
 
-    def merge_info_from(self, docnames: List[str], other: "BuildEnvironment",
+    def merge_info_from(self, docnames: list[str], other: "BuildEnvironment",
                         app: "Sphinx") -> None:
         """Merge global information gathered about *docnames* while reading them
         from the *other* environment.
@@ -375,7 +373,7 @@ class BuildEnvironment:
         """
         return self.project.doc2path(docname, base)
 
-    def relfn2path(self, filename: str, docname: Optional[str] = None) -> Tuple[str, str]:
+    def relfn2path(self, filename: str, docname: Optional[str] = None) -> tuple[str, str]:
         """Return paths to a file referenced from a document, relative to
         documentation root and absolute.
 
@@ -395,7 +393,7 @@ class BuildEnvironment:
                 path.normpath(path.join(self.srcdir, rel_fn)))
 
     @property
-    def found_docs(self) -> Set[str]:
+    def found_docs(self) -> set[str]:
         """contains all existing docnames."""
         return self.project.docnames
 
@@ -428,13 +426,13 @@ class BuildEnvironment:
             raise DocumentError(__('Failed to scan documents in %s: %r') %
                                 (self.srcdir, exc)) from exc
 
-    def get_outdated_files(self, config_changed: bool) -> Tuple[Set[str], Set[str], Set[str]]:
+    def get_outdated_files(self, config_changed: bool) -> tuple[set[str], set[str], set[str]]:
         """Return (added, changed, removed) sets."""
         # clear all files no longer present
         removed = set(self.all_docs) - self.found_docs
 
-        added: Set[str] = set()
-        changed: Set[str] = set()
+        added: set[str] = set()
+        changed: set[str] = set()
 
         if config_changed:
             # config values affect e.g. substitutions
@@ -485,8 +483,8 @@ class BuildEnvironment:
 
         return added, changed, removed
 
-    def check_dependents(self, app: "Sphinx", already: Set[str]) -> Generator[str, None, None]:
-        to_rewrite: List[str] = []
+    def check_dependents(self, app: "Sphinx", already: set[str]) -> Generator[str, None, None]:
+        to_rewrite: list[str] = []
         for docnames in self.events.emit('env-get-updated', self):
             to_rewrite.extend(docnames)
         for docname in set(to_rewrite):
@@ -635,12 +633,12 @@ class BuildEnvironment:
         # allow custom references to be resolved
         self.events.emit('doctree-resolved', doctree, docname)
 
-    def collect_relations(self) -> Dict[str, List[Optional[str]]]:
+    def collect_relations(self) -> dict[str, list[Optional[str]]]:
         traversed = set()
 
         def traverse_toctree(
             parent: Optional[str], docname: str
-        ) -> Iterator[Tuple[Optional[str], str]]:
+        ) -> Iterator[tuple[Optional[str], str]]:
             if parent == docname:
                 logger.warning(__('self referenced toctree found. Ignored.'),
                                location=docname, type='toc',

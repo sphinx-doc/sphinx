@@ -15,8 +15,7 @@ from datetime import datetime
 from importlib import import_module
 from os import path
 from time import mktime, strptime
-from typing import (IO, TYPE_CHECKING, Any, Callable, Dict, Generator, Iterable, List,
-                    Optional, Pattern, Set, Tuple, Type, TypeVar)
+from typing import IO, TYPE_CHECKING, Any, Callable, Generator, Iterable, Optional, TypeVar
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
 from sphinx.deprecation import RemovedInSphinx70Warning
@@ -40,8 +39,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 # Generally useful regular expressions.
-ws_re: Pattern = re.compile(r'\s+')
-url_re: Pattern = re.compile(r'(?P<schema>.+)://.*')
+ws_re: re.Pattern = re.compile(r'\s+')
+url_re: re.Pattern = re.compile(r'(?P<schema>.+)://.*')
 
 
 # High-level utility functions.
@@ -62,8 +61,8 @@ def path_stabilize(filepath: str) -> str:
 
 
 def get_matching_files(dirname: str,
-                       exclude_matchers: Tuple[PathMatcher, ...] = (),
-                       include_matchers: Tuple[PathMatcher, ...] = ()) -> Iterable[str]:
+                       exclude_matchers: tuple[PathMatcher, ...] = (),
+                       include_matchers: tuple[PathMatcher, ...] = ()) -> Iterable[str]:
     """Get all file names in a directory, recursively.
 
     Exclude files and dirs matching some matcher in *exclude_matchers*.
@@ -81,9 +80,9 @@ def get_matching_files(dirname: str,
             relativeroot = ""  # suppress dirname for files on the target dir
 
         qdirs = enumerate(path_stabilize(path.join(relativeroot, dn))
-                          for dn in dirs)  # type: Iterable[Tuple[int, str]]
+                          for dn in dirs)  # type: Iterable[tuple[int, str]]
         qfiles = enumerate(path_stabilize(path.join(relativeroot, fn))
-                           for fn in files)  # type: Iterable[Tuple[int, str]]
+                           for fn in files)  # type: Iterable[tuple[int, str]]
         for matcher in exclude_matchers:
             qdirs = [entry for entry in qdirs if not matcher(entry[1])]
             qfiles = [entry for entry in qfiles if not matcher(entry[1])]
@@ -94,7 +93,7 @@ def get_matching_files(dirname: str,
             yield filename
 
 
-def get_filetype(source_suffix: Dict[str, str], filename: str) -> str:
+def get_filetype(source_suffix: dict[str, str], filename: str) -> str:
     for suffix, filetype in source_suffix.items():
         if filename.endswith(suffix):
             # If default filetype (None), considered as restructuredtext.
@@ -109,7 +108,7 @@ class FilenameUniqDict(dict):
     appear in.  Used for images and downloadable files in the environment.
     """
     def __init__(self) -> None:
-        self._existing: Set[str] = set()
+        self._existing: set[str] = set()
 
     def add_file(self, docname: str, newfile: str) -> str:
         if newfile in self:
@@ -132,15 +131,15 @@ class FilenameUniqDict(dict):
                 del self[filename]
                 self._existing.discard(unique)
 
-    def merge_other(self, docnames: Set[str], other: Dict[str, Tuple[Set[str], Any]]) -> None:
+    def merge_other(self, docnames: set[str], other: dict[str, tuple[set[str], Any]]) -> None:
         for filename, (docs, _unique) in other.items():
             for doc in docs & set(docnames):
                 self.add_file(doc, filename)
 
-    def __getstate__(self) -> Set[str]:
+    def __getstate__(self) -> set[str]:
         return self._existing
 
-    def __setstate__(self, state: Set[str]) -> None:
+    def __setstate__(self, state: set[str]) -> None:
         self._existing = state
 
 
@@ -196,7 +195,7 @@ class DownloadFiles(dict):
             if not docs:
                 del self[filename]
 
-    def merge_other(self, docnames: Set[str], other: Dict[str, Tuple[Set[str], Any]]) -> None:
+    def merge_other(self, docnames: set[str], other: dict[str, tuple[set[str], Any]]) -> None:
         for filename, (docs, _dest) in other.items():
             for docname in docs & set(docnames):
                 self.add_file(docname, filename)
@@ -277,7 +276,7 @@ class UnicodeDecodeErrorHandler:
     def __init__(self, docname: str) -> None:
         self.docname = docname
 
-    def __call__(self, error: UnicodeDecodeError) -> Tuple[str, int]:
+    def __call__(self, error: UnicodeDecodeError) -> tuple[str, int]:
         linestart = error.object.rfind(b'\n', 0, error.start)
         lineend = error.object.find(b'\n', error.start)
         if lineend == -1:
@@ -312,7 +311,7 @@ class Tee:
             self.stream2.flush()
 
 
-def parselinenos(spec: str, total: int) -> List[int]:
+def parselinenos(spec: str, total: int) -> list[int]:
     """Parse a line number spec (such as "1,2,4-6") and return a list of
     wanted line numbers.
     """
@@ -339,7 +338,7 @@ def parselinenos(spec: str, total: int) -> List[int]:
     return items
 
 
-def split_into(n: int, type: str, value: str) -> List[str]:
+def split_into(n: int, type: str, value: str) -> list[str]:
     """Split an index entry into a given number of parts at semicolons."""
     parts = [x.strip() for x in value.split(';', n - 1)]
     if sum(1 for part in parts if part) < n:
@@ -347,7 +346,7 @@ def split_into(n: int, type: str, value: str) -> List[str]:
     return parts
 
 
-def split_index_msg(type: str, value: str) -> List[str]:
+def split_index_msg(type: str, value: str) -> list[str]:
     # new entry types must be listed in directives/other.py!
     if type == 'single':
         try:
@@ -372,7 +371,7 @@ def format_exception_cut_frames(x: int = 1) -> str:
     """Format an exception with traceback, but only the last x frames."""
     typ, val, tb = sys.exc_info()
     # res = ['Traceback (most recent call last):\n']
-    res: List[str] = []
+    res: list[str] = []
     tbres = traceback.format_tb(tb)
     res += tbres[-x:]
     res += traceback.format_exception_only(typ, val)
@@ -401,7 +400,7 @@ def import_object(objname: str, source: Optional[str] = None) -> Any:
             raise ExtensionError('Could not import %s' % objname, exc) from exc
 
 
-def split_full_qualified_name(name: str) -> Tuple[Optional[str], str]:
+def split_full_qualified_name(name: str) -> tuple[Optional[str], str]:
     """Split full qualified name to a pair of modname and qualname.
 
     A qualname is an abbreviation for "Qualified name" introduced at PEP-3155
@@ -509,7 +508,7 @@ class progress_message:
         logger.info(bold(self.message + '... '), nonl=True)
 
     def __exit__(
-        self, exc_type: Type[Exception], exc_value: Exception, traceback: Any
+        self, exc_type: type[Exception], exc_value: Exception, traceback: Any
     ) -> bool:
         if isinstance(exc_value, SkipProgressMessage):
             logger.info(__('skipped'))
@@ -545,7 +544,7 @@ def rfc1123_to_epoch(rfc1123: str) -> float:
     return mktime(strptime(rfc1123, '%a, %d %b %Y %H:%M:%S %Z'))
 
 
-def xmlname_checker() -> Pattern:
+def xmlname_checker() -> re.Pattern:
     # https://www.w3.org/TR/REC-xml/#NT-Name
     name_start_chars = [
         ':', ['A', 'Z'], '_', ['a', 'z'], ['\u00C0', '\u00D6'],

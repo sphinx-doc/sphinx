@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import html
 from os import path
-from typing import Any, Dict, List, Tuple, cast
+from typing import Any, cast
 
 from sphinx import package_dir
 from sphinx.application import Sphinx
@@ -45,9 +45,9 @@ class ChangesBuilder(Builder):
     def write(self, *ignored: Any) -> None:
         version = self.config.version
         domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
-        libchanges: Dict[str, List[Tuple[str, str, int]]] = {}
-        apichanges: List[Tuple[str, str, int]] = []
-        otherchanges: Dict[Tuple[str, str], List[Tuple[str, str, int]]] = {}
+        libchanges: dict[str, list[tuple[str, str, int]]] = {}
+        apichanges: list[tuple[str, str, int]] = []
+        otherchanges: dict[tuple[str, str], list[tuple[str, str, int]]] = {}
 
         changesets = domain.get_changesets_for(version)
         if not changesets:
@@ -151,7 +151,7 @@ class ChangesBuilder(Builder):
         pass
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_builder(ChangesBuilder)
 
     return {

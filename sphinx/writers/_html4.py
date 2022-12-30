@@ -6,7 +6,7 @@ import os
 import posixpath
 import re
 import urllib.parse
-from typing import TYPE_CHECKING, Iterable, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Iterable, Optional, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
@@ -255,7 +255,7 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
     def depart_seealso(self, node: Element) -> None:
         self.depart_admonition(node)
 
-    def get_secnumber(self, node: Element) -> Optional[Tuple[int, ...]]:
+    def get_secnumber(self, node: Element) -> Optional[tuple[int, ...]]:
         if node.get('secnumber'):
             return node['secnumber']
         elif isinstance(node.parent, nodes.section):

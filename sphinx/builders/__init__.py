@@ -7,8 +7,7 @@ import pickle
 import time
 import warnings
 from os import path
-from typing import (TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Sequence, Set, Tuple,
-                    Type, Union)
+from typing import TYPE_CHECKING, Any, Iterable, Optional, Sequence, Union
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -63,7 +62,7 @@ class Builder:
 
     #: default translator class for the builder.  This can be overridden by
     #: :py:meth:`app.set_translator()`.
-    default_translator_class: Type[nodes.NodeVisitor] = None
+    default_translator_class: type[nodes.NodeVisitor] = None
     # doctree versioning method
     versioning_method = 'none'
     versioning_compare = False
@@ -74,7 +73,7 @@ class Builder:
 
     #: The list of MIME types of image formats supported by the builder.
     #: Image files are searched in the order in which they appear here.
-    supported_image_types: List[str] = []
+    supported_image_types: list[str] = []
     #: The builder supports remote images or not.
     supported_remote_images = False
     #: The builder supports data URIs or not.
@@ -106,7 +105,7 @@ class Builder:
         self.tags.add("builder_%s" % self.name)
 
         # images that need to be copied over (source -> dest)
-        self.images: Dict[str, str] = {}
+        self.images: dict[str, str] = {}
         # basename of images directory
         self.imagedir = ""
         # relative path to image directory from current docname (used at writing docs)
@@ -125,7 +124,7 @@ class Builder:
         self.env.set_versioning_method(self.versioning_method,
                                        self.versioning_compare)
 
-    def get_translator_class(self, *args: Any) -> Type[nodes.NodeVisitor]:
+    def get_translator_class(self, *args: Any) -> type[nodes.NodeVisitor]:
         """Return a class of translator."""
         return self.app.registry.get_translator_class(self)
 
@@ -179,7 +178,7 @@ class Builder:
         """
         raise NotImplementedError
 
-    def get_asset_paths(self) -> List[str]:
+    def get_asset_paths(self) -> list[str]:
         """Return list of paths for assets (ex. templates, CSS, etc.)."""
         return []
 
@@ -216,7 +215,7 @@ class Builder:
 
     # compile po methods
 
-    def compile_catalogs(self, catalogs: Set[CatalogInfo], message: str) -> None:
+    def compile_catalogs(self, catalogs: set[CatalogInfo], message: str) -> None:
         if not self.config.gettext_auto_build:
             return
 
@@ -236,7 +235,7 @@ class Builder:
         message = __('all of %d po files') % len(list(repo.catalogs))
         self.compile_catalogs(set(repo.catalogs), message)
 
-    def compile_specific_catalogs(self, specified_files: List[str]) -> None:
+    def compile_specific_catalogs(self, specified_files: list[str]) -> None:
         def to_domain(fpath: str) -> Optional[str]:
             docname = self.env.path2doc(path.abspath(fpath))
             if docname:
@@ -270,9 +269,9 @@ class Builder:
 
         self.build(None, summary=__('all source files'), method='all')
 
-    def build_specific(self, filenames: List[str]) -> None:
+    def build_specific(self, filenames: list[str]) -> None:
         """Only rebuild as much as needed for changes in the *filenames*."""
-        docnames: List[str] = []
+        docnames: list[str] = []
 
         for filename in filenames:
             filename = path.normpath(path.abspath(filename))
@@ -383,7 +382,7 @@ class Builder:
         # wait for all tasks
         self.finish_tasks.join()
 
-    def read(self) -> List[str]:
+    def read(self) -> list[str]:
         """(Re-)read all files new or changed since last update.
 
         Store all environment docnames in the canonical format (ie using SEP as
@@ -447,7 +446,7 @@ class Builder:
 
         return sorted(docnames)
 
-    def _read_serial(self, docnames: List[str]) -> None:
+    def _read_serial(self, docnames: list[str]) -> None:
         for docname in status_iterator(docnames, __('reading sources... '), "purple",
                                        len(docnames), self.app.verbosity):
             # remove all inventory entries for that file
@@ -455,7 +454,7 @@ class Builder:
             self.env.clear_doc(docname)
             self.read_doc(docname)
 
-    def _read_parallel(self, docnames: List[str], nproc: int) -> None:
+    def _read_parallel(self, docnames: list[str], nproc: int) -> None:
         chunks = make_chunks(docnames, nproc)
 
         # create a status_iterator to step progressbar after reading a document
@@ -468,14 +467,14 @@ class Builder:
             self.events.emit('env-purge-doc', self.env, docname)
             self.env.clear_doc(docname)
 
-        def read_process(docs: List[str]) -> bytes:
+        def read_process(docs: list[str]) -> bytes:
             self.env.app = self.app
             for docname in docs:
                 self.read_doc(docname)
             # allow pickling self to send it back
             return pickle.dumps(self.env, pickle.HIGHEST_PROTOCOL)
 
-        def merge(docs: List[str], otherenv: bytes) -> None:
+        def merge(docs: list[str], otherenv: bytes) -> None:
             env = pickle.loads(otherenv)
             self.env.merge_info_from(docs, env, self.app)
 
@@ -588,7 +587,7 @@ class Builder:
                 self.write_doc(docname, doctree)
 
     def _write_parallel(self, docnames: Sequence[str], nproc: int) -> None:
-        def write_process(docs: List[Tuple[str, nodes.document]]) -> None:
+        def write_process(docs: list[tuple[str, nodes.document]]) -> None:
             self.app.phase = BuildPhase.WRITING
             for docname, doctree in docs:
                 self.write_doc(docname, doctree)
@@ -609,7 +608,7 @@ class Builder:
         progress = status_iterator(chunks, __('writing output... '), "darkgreen",
                                    len(chunks), self.app.verbosity)
 
-        def on_chunk_done(args: List[Tuple[str, NoneType]], result: NoneType) -> None:
+        def on_chunk_done(args: list[tuple[str, NoneType]], result: NoneType) -> None:
             next(progress)
 
         self.app.phase = BuildPhase.RESOLVING
@@ -625,7 +624,7 @@ class Builder:
         tasks.join()
         logger.info('')
 
-    def prepare_writing(self, docnames: Set[str]) -> None:
+    def prepare_writing(self, docnames: set[str]) -> None:
         """A place where you can add logic before :meth:`write_doc` is run"""
         raise NotImplementedError
 

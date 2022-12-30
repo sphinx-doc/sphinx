@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Set, cast
+from typing import Any, List, cast
 
 from docutils import nodes
 
@@ -18,7 +18,7 @@ class MetadataCollector(EnvironmentCollector):
         env.metadata.pop(docname, None)
 
     def merge_other(self, app: Sphinx, env: BuildEnvironment,
-                    docnames: Set[str], other: BuildEnvironment) -> None:
+                    docnames: set[str], other: BuildEnvironment) -> None:
         for docname in docnames:
             env.metadata[docname] = other.metadata[docname]
 
@@ -58,7 +58,7 @@ class MetadataCollector(EnvironmentCollector):
             doctree.pop(index)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_env_collector(MetadataCollector)
 
     return {

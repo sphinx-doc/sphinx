@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Any, Generator, Optional, cast
 
 from docutils import nodes
 from docutils.nodes import Element  # noqa: F401 (used for type comments only)
@@ -338,7 +338,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
                 return True
         return False
 
-    def get_tokens(self, txtnodes: List[Text]) -> Generator[Tuple[str, str], None, None]:
+    def get_tokens(self, txtnodes: list[Text]) -> Generator[tuple[str, str], None, None]:
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
         for txtnode in txtnodes:
@@ -395,7 +395,7 @@ class GlossarySorter(SphinxTransform):
                 )
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: "Sphinx") -> dict[str, Any]:
     app.add_transform(ApplySourceWorkaround)
     app.add_transform(ExtraTranslatableNodes)
     app.add_transform(DefaultSubstitutions)

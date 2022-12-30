@@ -9,7 +9,7 @@ import sys
 import time
 from collections import OrderedDict
 from os import path
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Optional, Union
 
 # try to import readline, unix specific enhancement
 try:
@@ -179,7 +179,7 @@ class QuickstartRenderer(SphinxRenderer):
         else:
             return False
 
-    def render(self, template_name: str, context: Dict[str, Any]) -> str:
+    def render(self, template_name: str, context: dict[str, Any]) -> str:
         if self._has_custom_template(template_name):
             custom_template = path.join(self.templatedir, path.basename(template_name))
             return self.render_from_file(custom_template, context)
@@ -187,7 +187,7 @@ class QuickstartRenderer(SphinxRenderer):
             return super().render(template_name, context)
 
 
-def ask_user(d: Dict[str, Any]) -> None:
+def ask_user(d: dict[str, Any]) -> None:
     """Ask the user for quickstart values missing from *d*.
 
     Values are:
@@ -328,7 +328,7 @@ def ask_user(d: Dict[str, Any]) -> None:
 
 
 def generate(
-    d: Dict, overwrite: bool = True, silent: bool = False, templatedir: Optional[str] = None
+    d: dict, overwrite: bool = True, silent: bool = False, templatedir: Optional[str] = None
 ) -> None:
     """Generate project based on values in *d*."""
     template = QuickstartRenderer(templatedir or '')
@@ -429,7 +429,7 @@ def generate(
     print()
 
 
-def valid_dir(d: Dict) -> bool:
+def valid_dir(d: dict) -> bool:
     dir = d['path']
     if not path.exists(dir):
         return True
@@ -543,7 +543,7 @@ def get_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: List[str] = sys.argv[1:]) -> int:
+def main(argv: list[str] = sys.argv[1:]) -> int:
     sphinx.locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
 

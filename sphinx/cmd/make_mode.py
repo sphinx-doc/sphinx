@@ -13,7 +13,7 @@ import os
 import subprocess
 import sys
 from os import path
-from typing import List, Optional
+from typing import Optional
 
 import sphinx
 from sphinx.cmd.build import build_main
@@ -50,7 +50,7 @@ BUILDERS = [
 
 
 class Make:
-    def __init__(self, srcdir: str, builddir: str, opts: List[str]) -> None:
+    def __init__(self, srcdir: str, builddir: str, opts: list[str]) -> None:
         self.srcdir = srcdir
         self.builddir = builddir
         self.opts = opts
@@ -150,7 +150,7 @@ class Make:
         return build_main(args + opts)
 
 
-def run_make_mode(args: List[str]) -> int:
+def run_make_mode(args: list[str]) -> int:
     if len(args) < 3:
         print('Error: at least 3 arguments (builder, source '
               'dir, build dir) are required.', file=sys.stderr)

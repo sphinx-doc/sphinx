@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys
 import textwrap
 from difflib import unified_diff
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Optional
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -39,7 +39,7 @@ class Highlight(SphinxDirective):
         'linenothreshold': directives.positive_int,
     }
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         language = self.arguments[0].strip()
         linenothreshold = self.options.get('linenothreshold', sys.maxsize)
         force = 'force' in self.options
@@ -51,8 +51,8 @@ class Highlight(SphinxDirective):
 
 
 def dedent_lines(
-    lines: List[str], dedent: Optional[int], location: Optional[Tuple[str, int]] = None
-) -> List[str]:
+    lines: list[str], dedent: Optional[int], location: Optional[tuple[str, int]] = None
+) -> list[str]:
     if dedent is None:
         return textwrap.dedent(''.join(lines)).splitlines(True)
 
@@ -113,7 +113,7 @@ class CodeBlock(SphinxDirective):
         'name': directives.unchanged,
     }
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         document = self.state.document
         code = '\n'.join(self.content)
         location = self.state_machine.get_source_and_line(self.lineno)
@@ -192,7 +192,7 @@ class LiteralIncludeReader:
         ('diff', 'end-at'),
     ]
 
-    def __init__(self, filename: str, options: Dict[str, Any], config: Config) -> None:
+    def __init__(self, filename: str, options: dict[str, Any], config: Config) -> None:
         self.filename = filename
         self.options = options
         self.encoding = options.get('encoding', config.source_encoding)
@@ -207,8 +207,8 @@ class LiteralIncludeReader:
                                  (option1, option2))
 
     def read_file(
-        self, filename: str, location: Optional[Tuple[str, int]] = None
-    ) -> List[str]:
+        self, filename: str, location: Optional[tuple[str, int]] = None
+    ) -> list[str]:
         try:
             with open(filename, encoding=self.encoding, errors='strict') as f:
                 text = f.read()
@@ -224,7 +224,7 @@ class LiteralIncludeReader:
                                   'be wrong, try giving an :encoding: option') %
                                (self.encoding, filename)) from exc
 
-    def read(self, location: Optional[Tuple[str, int]] = None) -> Tuple[str, int]:
+    def read(self, location: Optional[tuple[str, int]] = None) -> tuple[str, int]:
         if 'diff' in self.options:
             lines = self.show_diff()
         else:
@@ -241,7 +241,7 @@ class LiteralIncludeReader:
 
         return ''.join(lines), len(lines)
 
-    def show_diff(self, location: Optional[Tuple[str, int]] = None) -> List[str]:
+    def show_diff(self, location: Optional[tuple[str, int]] = None) -> list[str]:
         new_lines = self.read_file(self.filename)
         old_filename = self.options['diff']
         old_lines = self.read_file(old_filename)
@@ -249,8 +249,8 @@ class LiteralIncludeReader:
         return list(diff)
 
     def pyobject_filter(
-        self, lines: List[str], location: Optional[Tuple[str, int]] = None
-    ) -> List[str]:
+        self, lines: list[str], location: Optional[tuple[str, int]] = None
+    ) -> list[str]:
         pyobject = self.options.get('pyobject')
         if pyobject:
             from sphinx.pycode import ModuleAnalyzer
@@ -269,8 +269,8 @@ class LiteralIncludeReader:
         return lines
 
     def lines_filter(
-        self, lines: List[str], location: Optional[Tuple[str, int]] = None
-    ) -> List[str]:
+        self, lines: list[str], location: Optional[tuple[str, int]] = None
+    ) -> list[str]:
         linespec = self.options.get('lines')
         if linespec:
             linelist = parselinenos(linespec, len(lines))
@@ -295,8 +295,8 @@ class LiteralIncludeReader:
         return lines
 
     def start_filter(
-        self, lines: List[str], location: Optional[Tuple[str, int]] = None
-    ) -> List[str]:
+        self, lines: list[str], location: Optional[tuple[str, int]] = None
+    ) -> list[str]:
         if 'start-at' in self.options:
             start = self.options.get('start-at')
             inclusive = False
@@ -328,8 +328,8 @@ class LiteralIncludeReader:
         return lines
 
     def end_filter(
-        self, lines: List[str], location: Optional[Tuple[str, int]] = None
-    ) -> List[str]:
+        self, lines: list[str], location: Optional[tuple[str, int]] = None
+    ) -> list[str]:
         if 'end-at' in self.options:
             end = self.options.get('end-at')
             inclusive = True
@@ -357,8 +357,8 @@ class LiteralIncludeReader:
         return lines
 
     def prepend_filter(
-        self, lines: List[str], location: Optional[Tuple[str, int]] = None
-    ) -> List[str]:
+        self, lines: list[str], location: Optional[tuple[str, int]] = None
+    ) -> list[str]:
         prepend = self.options.get('prepend')
         if prepend:
             lines.insert(0, prepend + '\n')
@@ -366,8 +366,8 @@ class LiteralIncludeReader:
         return lines
 
     def append_filter(
-        self, lines: List[str], location: Optional[Tuple[str, int]] = None
-    ) -> List[str]:
+        self, lines: list[str], location: Optional[tuple[str, int]] = None
+    ) -> list[str]:
         append = self.options.get('append')
         if append:
             lines.append(append + '\n')
@@ -375,8 +375,8 @@ class LiteralIncludeReader:
         return lines
 
     def dedent_filter(
-        self, lines: List[str], location: Optional[Tuple[str, int]] = None
-    ) -> List[str]:
+        self, lines: list[str], location: Optional[tuple[str, int]] = None
+    ) -> list[str]:
         if 'dedent' in self.options:
             return dedent_lines(lines, self.options.get('dedent'), location=location)
         else:
@@ -418,7 +418,7 @@ class LiteralInclude(SphinxDirective):
         'diff': directives.unchanged_required,
     }
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         document = self.state.document
         if not document.settings.file_insertion_enabled:
             return [document.reporter.warning('File insertion disabled',
@@ -470,7 +470,7 @@ class LiteralInclude(SphinxDirective):
             return [document.reporter.warning(exc, line=self.lineno)]
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: "Sphinx") -> dict[str, Any]:
     directives.register_directive('highlight', Highlight)
     directives.register_directive('code-block', CodeBlock)
     directives.register_directive('sourcecode', CodeBlock)

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence
+from typing import TYPE_CHECKING, Any, Optional, Sequence
 
 from docutils import nodes
 from docutils.nodes import Element
@@ -98,8 +98,8 @@ class toctree(nodes.General, nodes.Element, translatable):
         if self.get('rawcaption') == original_message:
             self['caption'] = translated_message
 
-    def extract_original_messages(self) -> List[str]:
-        messages: List[str] = []
+    def extract_original_messages(self) -> list[str]:
+        messages: list[str] = []
 
         # toctree entries
         messages.extend(self.get('rawentries', []))
@@ -120,7 +120,7 @@ class _desc_classes_injector(nodes.Element, not_smartquotable):
     Use as the first base class.
     """
 
-    classes: List[str] = []
+    classes: list[str] = []
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -274,7 +274,7 @@ class desc_annotation(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 
 class desc_sig_element(nodes.inline, _desc_classes_injector):
     """Common parent class of nodes for inline text of a signature."""
-    classes: List[str] = []
+    classes: list[str] = []
 
     def __init__(self, rawsource: str = '', text: str = '',
                  *children: Element, **attributes: Any) -> None:
@@ -514,7 +514,7 @@ class manpage(nodes.Inline, nodes.FixedTextElement):
     """Node for references to manpages."""
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: "Sphinx") -> dict[str, Any]:
     app.add_node(toctree)
 
     app.add_node(desc)

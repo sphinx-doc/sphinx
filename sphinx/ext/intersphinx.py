@@ -26,7 +26,7 @@ import sys
 import time
 from os import path
 from types import ModuleType
-from typing import IO, Any, Dict, List, Optional, Tuple, cast
+from typing import IO, Any, Optional, cast
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
@@ -63,7 +63,7 @@ class InventoryAdapter:
             self.env.intersphinx_named_inventory = {}  # type: ignore
 
     @property
-    def cache(self) -> Dict[str, Tuple[str, int, Inventory]]:
+    def cache(self) -> dict[str, tuple[str, int, Inventory]]:
         return self.env.intersphinx_cache  # type: ignore
 
     @property
@@ -71,7 +71,7 @@ class InventoryAdapter:
         return self.env.intersphinx_inventory  # type: ignore
 
     @property
-    def named_inventory(self) -> Dict[str, Inventory]:
+    def named_inventory(self) -> dict[str, Inventory]:
         return self.env.intersphinx_named_inventory  # type: ignore
 
     def clear(self) -> None:
@@ -291,7 +291,7 @@ def _create_element_from_result(domain: Domain, inv_name: Optional[str],
 
 def _resolve_reference_in_domain_by_target(
         inv_name: Optional[str], inventory: Inventory,
-        domain: Domain, objtypes: List[str],
+        domain: Domain, objtypes: list[str],
         target: str,
         node: pending_xref, contnode: TextElement) -> Optional[Element]:
     for objtype in objtypes:
@@ -324,7 +324,7 @@ def _resolve_reference_in_domain_by_target(
 def _resolve_reference_in_domain(env: BuildEnvironment,
                                  inv_name: Optional[str], inventory: Inventory,
                                  honor_disabled_refs: bool,
-                                 domain: Domain, objtypes: List[str],
+                                 domain: Domain, objtypes: list[str],
                                  node: pending_xref, contnode: TextElement
                                  ) -> Optional[Element]:
     # we adjust the object types for backwards compatibility
@@ -473,7 +473,7 @@ class IntersphinxDispatcher(CustomReSTDispatcher):
     """
 
     def role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter
-             ) -> Tuple[RoleFunction, List[system_message]]:
+             ) -> tuple[RoleFunction, list[system_message]]:
         if len(role_name) > 9 and role_name.startswith(('external:', 'external+')):
             return IntersphinxRole(role_name), []
         else:
@@ -489,7 +489,7 @@ class IntersphinxRole(SphinxRole):
     def __init__(self, orig_name: str) -> None:
         self.orig_name = orig_name
 
-    def run(self) -> Tuple[List[Node], List[system_message]]:
+    def run(self) -> tuple[list[Node], list[system_message]]:
         assert self.name == self.orig_name.lower()
         inventory, name_suffix = self.get_inventory_and_name_suffix(self.orig_name)
         if inventory and not inventory_exists(self.env, inventory):
@@ -511,7 +511,7 @@ class IntersphinxRole(SphinxRole):
 
         return result, messages
 
-    def get_inventory_and_name_suffix(self, name: str) -> Tuple[Optional[str], str]:
+    def get_inventory_and_name_suffix(self, name: str) -> tuple[Optional[str], str]:
         assert name.startswith('external'), name
         assert name[8] in ':+', name
         # either we have an explicit inventory name, i.e,
@@ -523,7 +523,7 @@ class IntersphinxRole(SphinxRole):
         inv, suffix = IntersphinxRole._re_inv_ref.fullmatch(name, 8).group(2, 3)
         return inv, suffix
 
-    def get_role_name(self, name: str) -> Optional[Tuple[str, str]]:
+    def get_role_name(self, name: str) -> Optional[tuple[str, str]]:
         names = name.split(':')
         if len(names) == 1:
             # role
@@ -554,7 +554,7 @@ class IntersphinxRole(SphinxRole):
         except ExtensionError:
             return False
 
-    def invoke_role(self, role: Tuple[str, str]) -> Tuple[List[Node], List[system_message]]:
+    def invoke_role(self, role: tuple[str, str]) -> tuple[list[Node], list[system_message]]:
         domain = self.env.get_domain(role[0])
         if domain:
             role_func = domain.role(role[1])
@@ -594,7 +594,7 @@ class IntersphinxRoleResolver(ReferencesResolver):
                 node.replace_self(newnode)
 
 
-def install_dispatcher(app: Sphinx, docname: str, source: List[str]) -> None:
+def install_dispatcher(app: Sphinx, docname: str, source: list[str]) -> None:
     """Enable IntersphinxDispatcher.
 
     .. note:: The installed dispatcher will be uninstalled on disabling sphinx_domain
@@ -628,7 +628,7 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
             config.intersphinx_mapping.pop(key)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('intersphinx_mapping', {}, True)
     app.add_config_value('intersphinx_cache_limit', 5, False)
     app.add_config_value('intersphinx_timeout', None, False)
@@ -645,7 +645,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     }
 
 
-def inspect_main(argv: List[str]) -> None:
+def inspect_main(argv: list[str]) -> None:
     """Debug functionality to print out an inventory"""
     if len(argv) < 1:
         print("Print out an inventory file.\n"

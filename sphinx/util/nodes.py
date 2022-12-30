@@ -4,8 +4,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from typing import (TYPE_CHECKING, Any, Callable, Iterable, List, Optional, Set, Tuple, Type,
-                    Union)
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Union
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -54,7 +53,7 @@ from typing import Any
         # => [<reference ...>, <reference ...>, ...]
     """
 
-    def __init__(self, *node_classes: Type[Node], **attrs: Any) -> None:
+    def __init__(self, *node_classes: type[Node], **attrs: Any) -> None:
         self.classes = node_classes
         self.attrs = attrs
 
@@ -237,7 +236,7 @@ IMAGE_TYPE_NODES = (
 )
 
 
-def extract_messages(doctree: Element) -> Iterable[Tuple[Element, str]]:
+def extract_messages(doctree: Element) -> Iterable[tuple[Element, str]]:
     """Extract translatable messages from a document tree."""
     for node in doctree.findall(is_translatable):  # type: Element
         if isinstance(node, addnodes.translatable):
@@ -296,7 +295,7 @@ def get_prev_node(node: Node) -> Optional[Node]:
 
 def traverse_translatable_index(
     doctree: Element
-) -> Iterable[Tuple[Element, List["IndexEntry"]]]:
+) -> Iterable[tuple[Element, list["IndexEntry"]]]:
     """Traverse translatable index node from a document tree."""
     matcher = NodeMatcher(addnodes.index, inline=False)
     for node in doctree.findall(matcher):  # type: addnodes.index
@@ -336,7 +335,7 @@ def clean_astext(node: Element) -> str:
     return node.astext()
 
 
-def split_explicit_title(text: str) -> Tuple[bool, str, str]:
+def split_explicit_title(text: str) -> tuple[bool, str, str]:
     """Split role content into title and target, if given."""
     match = explicit_title_re.match(text)
     if match:
@@ -350,10 +349,10 @@ indextypes = [
 
 
 def process_index_entry(entry: str, targetid: str
-                        ) -> List[Tuple[str, str, str, str, Optional[str]]]:
+                        ) -> list[tuple[str, str, str, str, Optional[str]]]:
     from sphinx.domains.python import pairindextypes
 
-    indexentries: List[Tuple[str, str, str, str, Optional[str]]] = []
+    indexentries: list[tuple[str, str, str, str, Optional[str]]] = []
     entry = entry.strip()
     oentry = entry
     main = ''
@@ -388,8 +387,8 @@ def process_index_entry(entry: str, targetid: str
     return indexentries
 
 
-def inline_all_toctrees(builder: "Builder", docnameset: Set[str], docname: str,
-                        tree: nodes.document, colorfunc: Callable, traversed: List[str]
+def inline_all_toctrees(builder: "Builder", docnameset: set[str], docname: str,
+                        tree: nodes.document, colorfunc: Callable, traversed: list[str]
                         ) -> nodes.document:
     """Inline all toctrees in the *tree*.
 
@@ -532,7 +531,7 @@ def find_pending_xref_condition(node: addnodes.pending_xref, condition: str
 
 
 def make_refnode(builder: "Builder", fromdocname: str, todocname: str, targetid: str,
-                 child: Union[Node, List[Node]], title: Optional[str] = None
+                 child: Union[Node, list[Node]], title: Optional[str] = None
                  ) -> nodes.reference:
     """Shortcut to create a reference node."""
     node = nodes.reference('', '', internal=True)

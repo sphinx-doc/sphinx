@@ -8,8 +8,7 @@ from __future__ import annotations
 
 import copy
 from abc import ABC, abstractmethod
-from typing import (TYPE_CHECKING, Any, Callable, Dict, Iterable, List, NamedTuple, Optional,
-                    Tuple, Type, Union, cast)
+from typing import TYPE_CHECKING, Any, Callable, Iterable, NamedTuple, Optional, Union, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -47,8 +46,8 @@ class ObjType:
 
     def __init__(self, lname: str, *roles: Any, **attrs: Any) -> None:
         self.lname = lname
-        self.roles: Tuple = roles
-        self.attrs: Dict = self.known_attrs.copy()
+        self.roles: tuple = roles
+        self.attrs: dict = self.known_attrs.copy()
         self.attrs.update(attrs)
 
 
@@ -97,7 +96,7 @@ class Index(ABC):
 
     @abstractmethod
     def generate(self, docnames: Iterable[str] = None
-                 ) -> Tuple[List[Tuple[str, List[IndexEntry]]], bool]:
+                 ) -> tuple[list[tuple[str, list[IndexEntry]]], bool]:
         """Get entries for the index.
 
         If ``docnames`` is given, restrict to entries referring to these
@@ -178,31 +177,31 @@ class Domain:
     #: domain label: longer, more descriptive (used in messages)
     label = ''
     #: type (usually directive) name -> ObjType instance
-    object_types: Dict[str, ObjType] = {}
+    object_types: dict[str, ObjType] = {}
     #: directive name -> directive class
-    directives: Dict[str, Any] = {}
+    directives: dict[str, Any] = {}
     #: role name -> role callable
-    roles: Dict[str, Union[RoleFunction, XRefRole]] = {}
+    roles: dict[str, Union[RoleFunction, XRefRole]] = {}
     #: a list of Index subclasses
-    indices: List[Type[Index]] = []
+    indices: list[type[Index]] = []
     #: role name -> a warning message if reference is missing
-    dangling_warnings: Dict[str, str] = {}
+    dangling_warnings: dict[str, str] = {}
     #: node_class -> (enum_node_type, title_getter)
-    enumerable_nodes: Dict[Type[Node], Tuple[str, Callable]] = {}
+    enumerable_nodes: dict[type[Node], tuple[str, Callable]] = {}
 
     #: data value for a fresh environment
-    initial_data: Dict = {}
+    initial_data: dict = {}
     #: data value
-    data: Dict
+    data: dict
     #: data version, bump this when the format of `self.data` changes
     data_version = 0
 
     def __init__(self, env: "BuildEnvironment") -> None:
         self.env: BuildEnvironment = env
-        self._role_cache: Dict[str, Callable] = {}
-        self._directive_cache: Dict[str, Callable] = {}
-        self._role2type: Dict[str, List[str]] = {}
-        self._type2role: Dict[str, str] = {}
+        self._role_cache: dict[str, Callable] = {}
+        self._directive_cache: dict[str, Callable] = {}
+        self._role2type: dict[str, list[str]] = {}
+        self._type2role: dict[str, str] = {}
 
         # convert class variables to instance one (to enhance through API)
         self.object_types = dict(self.object_types)
@@ -223,7 +222,7 @@ class Domain:
             for rolename in obj.roles:
                 self._role2type.setdefault(rolename, []).append(name)
             self._type2role[name] = obj.roles[0] if obj.roles else ''
-        self.objtypes_for_role: Callable[[str], List[str]] = self._role2type.get
+        self.objtypes_for_role: Callable[[str], list[str]] = self._role2type.get
         self.role_for_objtype: Callable[[str], str] = self._type2role.get
 
     def setup(self) -> None:
@@ -259,8 +258,8 @@ class Domain:
         fullname = '%s:%s' % (self.name, name)
 
         def role_adapter(typ: str, rawtext: str, text: str, lineno: int,
-                         inliner: Inliner, options: Dict = {}, content: List[str] = []
-                         ) -> Tuple[List[Node], List[system_message]]:
+                         inliner: Inliner, options: dict = {}, content: list[str] = []
+                         ) -> tuple[list[Node], list[system_message]]:
             return self.roles[name](fullname, rawtext, text, lineno,
                                     inliner, options, content)
         self._role_cache[name] = role_adapter
@@ -278,7 +277,7 @@ class Domain:
         BaseDirective = self.directives[name]
 
         class DirectiveAdapter(BaseDirective):  # type: ignore
-            def run(self) -> List[Node]:
+            def run(self) -> list[Node]:
                 self.name = fullname
                 return super().run()
         self._directive_cache[name] = DirectiveAdapter
@@ -290,7 +289,7 @@ class Domain:
         """Remove traces of a document in the domain-specific inventories."""
         pass
 
-    def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
+    def merge_domaindata(self, docnames: list[str], otherdata: dict) -> None:
         """Merge in data regarding *docnames* from a different domaindata
         inventory (coming from a subprocess in parallel builds).
         """
@@ -333,7 +332,7 @@ class Domain:
 
     def resolve_any_xref(self, env: "BuildEnvironment", fromdocname: str, builder: "Builder",
                          target: str, node: pending_xref, contnode: Element
-                         ) -> List[Tuple[str, Element]]:
+                         ) -> list[tuple[str, Element]]:
         """Resolve the pending_xref *node* with the given *target*.
 
         The reference comes from an "any" or similar role, which means that we
@@ -349,7 +348,7 @@ class Domain:
         """
         raise NotImplementedError
 
-    def get_objects(self) -> Iterable[Tuple[str, str, str, str, str, int]]:
+    def get_objects(self) -> Iterable[tuple[str, str, str, str, str, int]]:
         """Return an iterable of "object descriptions".
 
         Object descriptions are tuples with six items:

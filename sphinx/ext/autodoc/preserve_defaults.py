@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import ast
 import inspect
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import sphinx
 from sphinx.application import Sphinx
@@ -46,7 +46,7 @@ def get_function_def(obj: Any) -> Optional[ast.FunctionDef]:
         return None
 
 
-def get_default_value(lines: List[str], position: ast.AST) -> Optional[str]:
+def get_default_value(lines: list[str], position: ast.AST) -> Optional[str]:
     try:
         if position.lineno == position.end_lineno:
             line = lines[position.lineno - 1]
@@ -114,7 +114,7 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
         logger.warning(__("Failed to parse a default argument value for %r: %s"), obj, exc)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('autodoc_preserve_defaults', False, True)
     app.connect('autodoc-before-process-signature', update_defvalue)
 

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from os import path
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from sphinx.application import Sphinx
 from sphinx.builders.html import StandaloneHTMLBuilder
@@ -39,7 +39,7 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
         return outfilename
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.setup_extension('sphinx.builders.html')
 
     app.add_builder(DirectoryHTMLBuilder)

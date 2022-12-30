@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Dict, List
+from typing import Any
 
 from docutils import nodes
 
@@ -66,7 +66,7 @@ class KeyboardTransform(SphinxPostTransform):
                 except IndexError:
                     pass
 
-    def is_multiwords_key(self, parts: List[str]) -> bool:
+    def is_multiwords_key(self, parts: list[str]) -> bool:
         if len(parts) >= 3 and parts[1].strip() == '':
             name = parts[0].lower(), parts[2].lower()
             if name in self.multiwords_keys:
@@ -77,7 +77,7 @@ class KeyboardTransform(SphinxPostTransform):
             return False
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_post_transform(KeyboardTransform)
 
     return {

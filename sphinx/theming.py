@@ -7,7 +7,7 @@ import os
 import shutil
 import tempfile
 from os import path
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING, Any
 from zipfile import ZipFile
 
 try:  # Python < 3.10 (backport)
@@ -82,7 +82,7 @@ class Theme:
                 raise ThemeError(__('no theme named %r found, inherited by %r') %
                                  (inherit, name)) from exc
 
-    def get_theme_dirs(self) -> List[str]:
+    def get_theme_dirs(self) -> list[str]:
         """Return a list of theme directories, beginning with this theme's,
         then the base theme's, then that one's base theme's, etc.
         """
@@ -107,7 +107,7 @@ class Theme:
             else:
                 return default
 
-    def get_options(self, overrides: Dict[str, Any] = {}) -> Dict[str, Any]:
+    def get_options(self, overrides: dict[str, Any] = {}) -> dict[str, Any]:
         """Return a dictionary of theme options and their values."""
         if self.base:
             options = self.base.get_options()
@@ -198,9 +198,9 @@ class HTMLThemeFactory:
         except KeyError:
             pass
 
-    def find_themes(self, theme_path: str) -> Dict[str, str]:
+    def find_themes(self, theme_path: str) -> dict[str, str]:
         """Search themes from specified directory."""
-        themes: Dict[str, str] = {}
+        themes: dict[str, str] = {}
         if not path.isdir(theme_path):
             return themes
 

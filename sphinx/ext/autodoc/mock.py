@@ -8,7 +8,7 @@ import sys
 from importlib.abc import Loader, MetaPathFinder
 from importlib.machinery import ModuleSpec
 from types import MethodType, ModuleType
-from typing import Any, Generator, Iterator, List, Optional, Sequence, Tuple, Union
+from typing import Any, Generator, Iterator, Optional, Sequence, Union
 
 from sphinx.util import logging
 from sphinx.util.inspect import isboundmethod, safe_getattr
@@ -22,7 +22,7 @@ class _MockObject:
     __display_name__ = '_MockObject'
     __name__ = ''
     __sphinx_mock__ = True
-    __sphinx_decorator_args__: Tuple[Any, ...] = ()
+    __sphinx_decorator_args__: tuple[Any, ...] = ()
 
     def __new__(cls, *args: Any, **kwargs: Any) -> Any:
         if len(args) == 3 and isinstance(args[1], tuple):
@@ -46,7 +46,7 @@ class _MockObject:
     def __iter__(self) -> Iterator:
         return iter([])
 
-    def __mro_entries__(self, bases: Tuple) -> Tuple:
+    def __mro_entries__(self, bases: tuple) -> tuple:
         return (self.__class__,)
 
     def __getitem__(self, key: Any) -> "_MockObject":
@@ -65,7 +65,7 @@ class _MockObject:
 
 
 def _make_subclass(name: str, module: str, superclass: Any = _MockObject,
-                   attributes: Any = None, decorator_args: Tuple = ()) -> Any:
+                   attributes: Any = None, decorator_args: tuple = ()) -> Any:
     attrs = {'__module__': module,
              '__display_name__': module + '.' + name,
              '__name__': name,
@@ -82,8 +82,8 @@ class _MockModule(ModuleType):
 
     def __init__(self, name: str) -> None:
         super().__init__(name)
-        self.__all__: List[str] = []
-        self.__path__: List[str] = []
+        self.__all__: list[str] = []
+        self.__path__: list[str] = []
 
     def __getattr__(self, name: str) -> _MockObject:
         return _make_subclass(name, self.__name__)()
@@ -110,11 +110,11 @@ class MockLoader(Loader):
 class MockFinder(MetaPathFinder):
     """A finder for mocking."""
 
-    def __init__(self, modnames: List[str]) -> None:
+    def __init__(self, modnames: list[str]) -> None:
         super().__init__()
         self.modnames = modnames
         self.loader = MockLoader(self)
-        self.mocked_modules: List[str] = []
+        self.mocked_modules: list[str] = []
 
     def find_spec(self, fullname: str, path: Optional[Sequence[Union[bytes, str]]],
                   target: ModuleType = None) -> Optional[ModuleSpec]:
@@ -132,7 +132,7 @@ class MockFinder(MetaPathFinder):
 
 
 @contextlib.contextmanager
-def mock(modnames: List[str]) -> Generator[None, None, None]:
+def mock(modnames: list[str]) -> Generator[None, None, None]:
     """Insert mock modules during context::
 
         with mock(['target.module.name']):

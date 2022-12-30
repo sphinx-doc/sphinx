@@ -7,7 +7,7 @@ with a backlink to the original location.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, cast
+from typing import Any, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -53,7 +53,7 @@ class Todo(BaseAdmonition, SphinxDirective):
         'name': directives.unchanged,
     }
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         if not self.options.get('class'):
             self.options['class'] = ['admonition-todo']
 
@@ -76,13 +76,13 @@ class TodoDomain(Domain):
     label = 'todo'
 
     @property
-    def todos(self) -> Dict[str, List[todo_node]]:
+    def todos(self) -> dict[str, list[todo_node]]:
         return self.data.setdefault('todos', {})
 
     def clear_doc(self, docname: str) -> None:
         self.todos.pop(docname, None)
 
-    def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
+    def merge_domaindata(self, docnames: list[str], otherdata: dict) -> None:
         for docname in docnames:
             self.todos[docname] = otherdata['todos'][docname]
 
@@ -109,7 +109,7 @@ class TodoList(SphinxDirective):
     final_argument_whitespace = False
     option_spec: OptionSpec = {}
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         # Simply insert an empty todolist node which will be replaced later
         # when process_todo_nodes is called
         return [todolist('')]
@@ -126,14 +126,14 @@ class TodoListProcessor:
         self.process(doctree, docname)
 
     def process(self, doctree: nodes.document, docname: str) -> None:
-        todos: List[todo_node] = sum(self.domain.todos.values(), [])
+        todos: list[todo_node] = sum(self.domain.todos.values(), [])
         for node in list(doctree.findall(todolist)):
             if not self.config.todo_include_todos:
                 node.parent.remove(node)
                 continue
 
             if node.get('ids'):
-                content: List[Element] = [nodes.target()]
+                content: list[Element] = [nodes.target()]
             else:
                 content = []
 
@@ -218,7 +218,7 @@ def latex_depart_todo_node(self: LaTeXTranslator, node: todo_node) -> None:
     self.body.append('\\end{sphinxadmonition}\n')
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_event('todo-defined')
     app.add_config_value('todo_include_todos', False, 'html')
     app.add_config_value('todo_link_only', False, 'html')

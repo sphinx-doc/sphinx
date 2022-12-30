@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Type, Union
+from typing import TYPE_CHECKING, Any, Union
 
 import docutils.parsers
 import docutils.parsers.rst
@@ -48,7 +48,7 @@ class Parser(docutils.parsers.Parser):
 class RSTParser(docutils.parsers.rst.Parser, Parser):
     """A reST parser for Sphinx."""
 
-    def get_transforms(self) -> List[Type[Transform]]:
+    def get_transforms(self) -> list[type[Transform]]:
         """
         Sphinx's reST parser replaces a transform class for smart-quotes by its own
 
@@ -86,7 +86,7 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         append_epilog(content, self.config.rst_epilog)
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: "Sphinx") -> dict[str, Any]:
     app.add_source_parser(RSTParser)
 
     return {

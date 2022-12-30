@@ -7,8 +7,8 @@ import traceback
 import types
 from collections import OrderedDict
 from os import getenv, path
-from typing import (TYPE_CHECKING, Any, Callable, Dict, Generator, Iterator, List, NamedTuple,
-                    Optional, Set, Tuple, Union)
+from typing import (TYPE_CHECKING, Any, Callable, Generator, Iterator, NamedTuple, Optional,
+                    Union)
 
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
@@ -58,7 +58,7 @@ class ENUM:
     def __init__(self, *candidates: str) -> None:
         self.candidates = candidates
 
-    def match(self, value: Union[str, List, Tuple]) -> bool:
+    def match(self, value: Union[str, list, tuple]) -> bool:
         if isinstance(value, (list, tuple)):
             return all(item in self.candidates for item in value)
         else:
@@ -82,7 +82,7 @@ class Config:
     # If you add a value here, don't forget to include it in the
     # quickstart.py file template as well as in the docs!
 
-    config_values: Dict[str, Tuple] = {
+    config_values: dict[str, tuple] = {
         # general options
         'project': ('Python', 'env', []),
         'author': ('unknown', 'env', []),
@@ -149,7 +149,7 @@ class Config:
         'option_emphasise_placeholders': (False, 'env', []),
     }
 
-    def __init__(self, config: Dict[str, Any] = {}, overrides: Dict[str, Any] = {}) -> None:
+    def __init__(self, config: dict[str, Any] = {}, overrides: dict[str, Any] = {}) -> None:
         self.overrides = dict(overrides)
         self.values = Config.config_values.copy()
         self._raw_config = config
@@ -160,11 +160,11 @@ class Config:
                 config['extensions'] = self.overrides.pop('extensions').split(',')
             else:
                 config['extensions'] = self.overrides.pop('extensions')
-        self.extensions: List[str] = config.get('extensions', [])
+        self.extensions: list[str] = config.get('extensions', [])
 
     @classmethod
     def read(
-        cls, confdir: str, overrides: Optional[Dict] = None, tags: Optional[Tags] = None
+        cls, confdir: str, overrides: Optional[dict] = None, tags: Optional[Tags] = None
     ) -> "Config":
         """Create a Config object from configuration file."""
         filename = path.join(confdir, CONFIG_FILENAME)
@@ -306,12 +306,12 @@ class Config:
         else:
             self.values[name] = (default, rebuild, types)
 
-    def filter(self, rebuild: Union[str, List[str]]) -> Iterator[ConfigValue]:
+    def filter(self, rebuild: Union[str, list[str]]) -> Iterator[ConfigValue]:
         if isinstance(rebuild, str):
             rebuild = [rebuild]
         return (value for value in self if value.rebuild in rebuild)
 
-    def __getstate__(self) -> Dict:
+    def __getstate__(self) -> dict:
         """Obtains serializable data for pickling."""
         # remove potentially pickling-problematic values from config
         __dict__ = {}
@@ -334,13 +334,13 @@ class Config:
 
         return __dict__
 
-    def __setstate__(self, state: Dict) -> None:
+    def __setstate__(self, state: dict) -> None:
         self.__dict__.update(state)
 
 
-def eval_config_file(filename: str, tags: Optional[Tags]) -> Dict[str, Any]:
+def eval_config_file(filename: str, tags: Optional[Tags]) -> dict[str, Any]:
     """Evaluate a config file."""
-    namespace: Dict[str, Any] = {}
+    namespace: dict[str, Any] = {}
     namespace['__file__'] = filename
     namespace['tags'] = tags
 
@@ -491,8 +491,8 @@ def check_primary_domain(app: "Sphinx", config: Config) -> None:
         config.primary_domain = None  # type: ignore
 
 
-def check_root_doc(app: "Sphinx", env: "BuildEnvironment", added: Set[str],
-                   changed: Set[str], removed: Set[str]) -> Set[str]:
+def check_root_doc(app: "Sphinx", env: "BuildEnvironment", added: set[str],
+                   changed: set[str], removed: set[str]) -> set[str]:
     """Adjust root_doc to 'contents' to support an old project which does not have
     any root_doc setting.
     """
@@ -506,7 +506,7 @@ def check_root_doc(app: "Sphinx", env: "BuildEnvironment", added: Set[str],
     return changed
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: "Sphinx") -> dict[str, Any]:
     app.connect('config-inited', convert_source_suffix, priority=800)
     app.connect('config-inited', convert_highlight_options, priority=800)
     app.connect('config-inited', init_numfig_format, priority=800)

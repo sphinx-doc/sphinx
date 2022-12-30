@@ -10,7 +10,7 @@ import re
 import warnings
 from collections import defaultdict
 from os import path
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Set, Tuple, cast
+from typing import TYPE_CHECKING, Any, Iterable, Optional, cast
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
@@ -74,7 +74,7 @@ class LaTeXWriter(writers.Writer):
         ('Document class', ['--docclass'], {'default': 'manual'}),
         ('Author', ['--author'], {'default': ''}),
     ))
-    settings_defaults: Dict = {}
+    settings_defaults: dict = {}
 
     output = None
 
@@ -95,11 +95,11 @@ class Table:
     """A table data"""
 
     def __init__(self, node: Element) -> None:
-        self.header: List[str] = []
-        self.body: List[str] = []
+        self.header: list[str] = []
+        self.body: list[str] = []
         self.align = node.get('align', 'default')
-        self.classes: List[str] = node.get('classes', [])
-        self.styles: List[str] = []
+        self.classes: list[str] = node.get('classes', [])
+        self.styles: list[str] = []
         if 'standard' in self.classes:
             self.styles.append('standard')
         elif 'borderless' in self.classes:
@@ -117,19 +117,19 @@ class Table:
             self.colsep = ''
         elif 'standard' in self.styles:
             self.colsep = '|'
-        self.colwidths: List[int] = []
+        self.colwidths: list[int] = []
         self.has_problematic = False
         self.has_oldproblematic = False
         self.has_verbatim = False
-        self.caption: List[str] = None
-        self.stubs: List[int] = []
+        self.caption: list[str] = None
+        self.stubs: list[int] = []
 
         # current position
         self.col = 0
         self.row = 0
 
         # A dict mapping a table location to a cell_id (cell = rectangular area)
-        self.cells: Dict[Tuple[int, int], int] = defaultdict(int)
+        self.cells: dict[tuple[int, int], int] = defaultdict(int)
         self.cell_id = 0  # last assigned cell_id
 
     def is_longtable(self) -> bool:
@@ -293,7 +293,7 @@ class LaTeXTranslator(SphinxTranslator):
     def __init__(self, document: nodes.document, builder: "LaTeXBuilder",
                  theme: "Theme") -> None:
         super().__init__(document, builder)
-        self.body: List[str] = []
+        self.body: list[str] = []
         self.theme = theme
 
         # flags
@@ -411,21 +411,21 @@ class LaTeXTranslator(SphinxTranslator):
 
         self.highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style,
                                                        latex_engine=self.config.latex_engine)
-        self.context: List[Any] = []
-        self.descstack: List[str] = []
-        self.tables: List[Table] = []
+        self.context: list[Any] = []
+        self.descstack: list[str] = []
+        self.tables: list[Table] = []
         self.next_table_colspec: Optional[str] = None
-        self.bodystack: List[List[str]] = []
+        self.bodystack: list[list[str]] = []
         self.footnote_restricted: Optional[Element] = None
-        self.pending_footnotes: List[nodes.footnote_reference] = []
-        self.curfilestack: List[str] = []
-        self.handled_abbrs: Set[str] = set()
+        self.pending_footnotes: list[nodes.footnote_reference] = []
+        self.curfilestack: list[str] = []
+        self.handled_abbrs: set[str] = set()
 
-    def pushbody(self, newbody: List[str]) -> None:
+    def pushbody(self, newbody: list[str]) -> None:
         self.bodystack.append(self.body)
         self.body = newbody
 
-    def popbody(self) -> List[str]:
+    def popbody(self) -> list[str]:
         body = self.body
         self.body = self.bodystack.pop()
         return body
@@ -474,7 +474,7 @@ class LaTeXTranslator(SphinxTranslator):
         return r'%s\renewcommand{%s}{%s}%s' % (prefix, command, definition, suffix) + CR
 
     def generate_indices(self) -> str:
-        def generate(content: List[Tuple[str, List[IndexEntry]]], collapsed: bool) -> None:
+        def generate(content: list[tuple[str, list[IndexEntry]]], collapsed: bool) -> None:
             ret.append(r'\begin{sphinxtheindex}' + CR)
             ret.append(r'\let\bigletter\sphinxstyleindexlettergroup' + CR)
             for i, (letter, entries) in enumerate(content):
@@ -512,7 +512,7 @@ class LaTeXTranslator(SphinxTranslator):
 
         return ''.join(ret)
 
-    def render(self, template_name: str, variables: Dict) -> str:
+    def render(self, template_name: str, variables: dict) -> str:
         renderer = LaTeXRenderer(latex_engine=self.config.latex_engine)
         for template_dir in self.config.templates_path:
             template = path.join(self.builder.confdir, template_dir,
@@ -1253,8 +1253,8 @@ class LaTeXTranslator(SphinxTranslator):
         return isinstance(node.parent, nodes.TextElement)
 
     def visit_image(self, node: Element) -> None:
-        pre: List[str] = []  # in reverse order
-        post: List[str] = []
+        pre: list[str] = []  # in reverse order
+        post: list[str] = []
         include_graphics_options = []
         has_hyperlink = isinstance(node.parent, nodes.reference)
         if has_hyperlink:
@@ -2101,7 +2101,7 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     @property
-    def docclasses(self) -> Tuple[str, str]:
+    def docclasses(self) -> tuple[str, str]:
         """Prepends prefix to sphinx document classes"""
         warnings.warn('LaTeXWriter.docclasses() is deprecated.',
                       RemovedInSphinx70Warning, stacklevel=2)

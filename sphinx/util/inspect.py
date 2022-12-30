@@ -18,7 +18,7 @@ from inspect import (Parameter, isasyncgenfunction, isclass, ismethod,  # noqa: 
 from io import StringIO
 from types import (ClassMethodDescriptorType, MethodDescriptorType, MethodType, ModuleType,
                    WrapperDescriptorType)
-from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, Type, cast
+from typing import Any, Callable, Dict, Mapping, Optional, Sequence, cast
 
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
@@ -97,7 +97,7 @@ def getglobals(obj: Any) -> Mapping[str, Any]:
         return {}
 
 
-def getmro(obj: Any) -> Tuple[Type, ...]:
+def getmro(obj: Any) -> tuple[type, ...]:
     """Get __mro__ from given *obj* safely."""
     __mro__ = safe_getattr(obj, '__mro__', None)
     if isinstance(__mro__, tuple):
@@ -106,7 +106,7 @@ def getmro(obj: Any) -> Tuple[Type, ...]:
         return ()
 
 
-def getorigbases(obj: Any) -> Optional[Tuple[Any, ...]]:
+def getorigbases(obj: Any) -> Optional[tuple[Any, ...]]:
     """Get __orig_bases__ from *obj* safely."""
     if not inspect.isclass(obj):
         return None
@@ -121,7 +121,7 @@ def getorigbases(obj: Any) -> Optional[Tuple[Any, ...]]:
         return None
 
 
-def getslots(obj: Any) -> Optional[Dict]:
+def getslots(obj: Any) -> Optional[dict]:
     """Get __slots__ attribute of the class as dict.
 
     Return None if gienv *obj* does not have __slots__.
@@ -470,7 +470,7 @@ class TypeAliasForwardRef:
 class TypeAliasModule:
     """Pseudo module class for autodoc_type_aliases."""
 
-    def __init__(self, modname: str, mapping: Dict[str, str]) -> None:
+    def __init__(self, modname: str, mapping: dict[str, str]) -> None:
         self.__modname = modname
         self.__mapping = mapping
 
@@ -506,7 +506,7 @@ class TypeAliasNamespace(Dict[str, Any]):
     This enables to look up nested modules and classes like `mod1.mod2.Class`.
     """
 
-    def __init__(self, mapping: Dict[str, str]) -> None:
+    def __init__(self, mapping: dict[str, str]) -> None:
         self.__mapping = mapping
 
     def __getitem__(self, key: str) -> Any:
@@ -534,7 +534,7 @@ def _should_unwrap(subject: Callable) -> bool:
     return False
 
 
-def signature(subject: Callable, bound_method: bool = False, type_aliases: Dict = {}
+def signature(subject: Callable, bound_method: bool = False, type_aliases: dict = {}
               ) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
@@ -590,18 +590,18 @@ def signature(subject: Callable, bound_method: bool = False, type_aliases: Dict 
                              __validate_parameters__=False)
 
 
-def evaluate_signature(sig: inspect.Signature, globalns: Optional[Dict] = None,
-                       localns: Optional[Dict] = None
+def evaluate_signature(sig: inspect.Signature, globalns: Optional[dict] = None,
+                       localns: Optional[dict] = None
                        ) -> inspect.Signature:
     """Evaluate unresolved type annotations in a signature object."""
-    def evaluate_forwardref(ref: ForwardRef, globalns: Dict, localns: Dict) -> Any:
+    def evaluate_forwardref(ref: ForwardRef, globalns: dict, localns: dict) -> Any:
         """Evaluate a forward reference."""
         if sys.version_info[:2] >= (3, 9):
             return ref._evaluate(globalns, localns, frozenset())
         else:
             return ref._evaluate(globalns, localns)
 
-    def evaluate(annotation: Any, globalns: Dict, localns: Dict) -> Any:
+    def evaluate(annotation: Any, globalns: dict, localns: dict) -> Any:
         """Evaluate unresolved type annotation."""
         try:
             if isinstance(annotation, str):

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from os import path
-from typing import Any, Dict, Iterator, Optional, Set, Type, Union
+from typing import Any, Iterator, Optional, Union
 
 from docutils import nodes
 from docutils.io import StringOutput
@@ -31,7 +31,7 @@ class XMLBuilder(Builder):
     out_suffix = '.xml'
     allow_parallel = True
 
-    _writer_class: Union[Type[XMLWriter], Type[PseudoXMLWriter]] = XMLWriter
+    _writer_class: Union[type[XMLWriter], type[PseudoXMLWriter]] = XMLWriter
     default_translator_class = XMLTranslator
 
     def init(self) -> None:
@@ -58,7 +58,7 @@ class XMLBuilder(Builder):
     def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
         return docname
 
-    def prepare_writing(self, docnames: Set[str]) -> None:
+    def prepare_writing(self, docnames: set[str]) -> None:
         self.writer = self._writer_class(self)
 
     def write_doc(self, docname: str, doctree: Node) -> None:
@@ -104,7 +104,7 @@ class PseudoXMLBuilder(XMLBuilder):
     _writer_class = PseudoXMLWriter
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_builder(XMLBuilder)
     app.add_builder(PseudoXMLBuilder)
 

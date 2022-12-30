@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os.path
 import re
-from typing import Callable, Dict, Iterable, Iterator, List, Match, Optional, Pattern
+from typing import Callable, Iterable, Iterator, Optional
 
 from sphinx.util.osutil import canon_path, path_stabilize
 
@@ -55,7 +55,9 @@ def _translate_pattern(pat: str) -> str:
     return res + '$'
 
 
-def compile_matchers(patterns: Iterable[str]) -> List[Callable[[str], Optional[Match[str]]]]:
+def compile_matchers(
+    patterns: Iterable[str],
+) -> list[Callable[[str], Optional[re.Match[str]]]]:
     return [re.compile(_translate_pattern(pat)).match for pat in patterns]
 
 
@@ -81,10 +83,10 @@ class Matcher:
 DOTFILES = Matcher(['**/.*'])
 
 
-_pat_cache: Dict[str, Pattern] = {}
+_pat_cache: dict[str, re.Pattern] = {}
 
 
-def patmatch(name: str, pat: str) -> Optional[Match[str]]:
+def patmatch(name: str, pat: str) -> Optional[re.Match[str]]:
     """Return if name matches the regular expression (pattern)
     ``pat```. Adapted from fnmatch module."""
     if pat not in _pat_cache:
@@ -92,7 +94,7 @@ def patmatch(name: str, pat: str) -> Optional[Match[str]]:
     return _pat_cache[pat].match(name)
 
 
-def patfilter(names: Iterable[str], pat: str) -> List[str]:
+def patfilter(names: Iterable[str], pat: str) -> list[str]:
     """Return the subset of the list ``names`` that match
     the regular expression (pattern) ``pat``.
 

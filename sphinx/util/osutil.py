@@ -11,7 +11,7 @@ import sys
 import unicodedata
 from io import StringIO
 from os import path
-from typing import Any, Generator, Iterator, List, Optional, Type
+from typing import Any, Generator, Iterator, Optional
 
 try:
     # for ALT Linux (#6712)
@@ -71,7 +71,7 @@ def ensuredir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
 
 
-def mtimes_of_files(dirnames: List[str], suffix: str) -> Iterator[float]:
+def mtimes_of_files(dirnames: list[str], suffix: str) -> Iterator[float]:
     for dirname in dirnames:
         for root, _dirs, files in os.walk(dirname):
             for sfile in files:
@@ -200,7 +200,7 @@ class FileAvoidWrite:
         return self
 
     def __exit__(
-        self, exc_type: Type[Exception], exc_value: Exception, traceback: Any
+        self, exc_type: type[Exception], exc_value: Exception, traceback: Any
     ) -> bool:
         self.close()
         return True

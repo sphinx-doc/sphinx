@@ -20,7 +20,7 @@ from copy import copy
 from fnmatch import fnmatch
 from importlib.machinery import EXTENSION_SUFFIXES
 from os import path
-from typing import Any, Generator, List, Optional, Tuple
+from typing import Any, Generator, Optional
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
@@ -59,7 +59,7 @@ def module_join(*modnames: str) -> str:
     return '.'.join(filter(None, modnames))
 
 
-def is_packagedir(dirname: Optional[str] = None, files: Optional[List[str]] = None) -> bool:
+def is_packagedir(dirname: Optional[str] = None, files: Optional[list[str]] = None) -> bool:
     """Check given *files* contains __init__ file."""
     if files is None and dirname is None:
         return False
@@ -106,9 +106,9 @@ def create_module_file(package: str, basename: str, opts: Any,
     write_file(qualname, text, opts)
 
 
-def create_package_file(root: str, master_package: str, subroot: str, py_files: List[str],
-                        opts: Any, subs: List[str], is_namespace: bool,
-                        excludes: List[str] = [], user_template_dir: Optional[str] = None
+def create_package_file(root: str, master_package: str, subroot: str, py_files: list[str],
+                        opts: Any, subs: list[str], is_namespace: bool,
+                        excludes: list[str] = [], user_template_dir: Optional[str] = None
                         ) -> None:
     """Build the text of the file and write the file."""
     # build a list of sub packages (directories containing an __init__ file)
@@ -146,7 +146,7 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files: 
             create_module_file(None, submodule, opts, user_template_dir)
 
 
-def create_modules_toc_file(modules: List[str], opts: Any, name: str = 'modules',
+def create_modules_toc_file(modules: list[str], opts: Any, name: str = 'modules',
                             user_template_dir: Optional[str] = None) -> None:
     """Create the module's index."""
     modules.sort()
@@ -167,7 +167,7 @@ def create_modules_toc_file(modules: List[str], opts: Any, name: str = 'modules'
     write_file(name, text, opts)
 
 
-def is_skipped_package(dirname: str, opts: Any, excludes: List[str] = []) -> bool:
+def is_skipped_package(dirname: str, opts: Any, excludes: list[str] = []) -> bool:
     """Check if we want to skip this module."""
     if not path.isdir(dirname):
         return False
@@ -186,7 +186,7 @@ def is_skipped_package(dirname: str, opts: Any, excludes: List[str] = []) -> boo
         return False
 
 
-def is_skipped_module(filename: str, opts: Any, excludes: List[str]) -> bool:
+def is_skipped_module(filename: str, opts: Any, excludes: list[str]) -> bool:
     """Check if we want to skip this module."""
     if not path.exists(filename):
         # skip if the file doesn't exist
@@ -198,8 +198,8 @@ def is_skipped_module(filename: str, opts: Any, excludes: List[str]) -> bool:
         return False
 
 
-def walk(rootpath: str, excludes: List[str], opts: Any
-         ) -> Generator[Tuple[str, List[str], List[str]], None, None]:
+def walk(rootpath: str, excludes: list[str], opts: Any
+         ) -> Generator[tuple[str, list[str], list[str]], None, None]:
     """Walk through the directory and list files and subdirectories up."""
     followlinks = getattr(opts, 'followlinks', False)
     includeprivate = getattr(opts, 'includeprivate', False)
@@ -213,7 +213,7 @@ def walk(rootpath: str, excludes: List[str], opts: Any
         # remove hidden ('.') and private ('_') directories, as well as
         # excluded dirs
         if includeprivate:
-            exclude_prefixes: Tuple[str, ...] = ('.',)
+            exclude_prefixes: tuple[str, ...] = ('.',)
         else:
             exclude_prefixes = ('.', '_')
 
@@ -223,7 +223,7 @@ def walk(rootpath: str, excludes: List[str], opts: Any
         yield root, subs, files
 
 
-def has_child_module(rootpath: str, excludes: List[str], opts: Any) -> bool:
+def has_child_module(rootpath: str, excludes: list[str], opts: Any) -> bool:
     """Check the given directory contains child module/s (at least one)."""
     for _root, _subs, files in walk(rootpath, excludes, opts):
         if files:
@@ -232,8 +232,8 @@ def has_child_module(rootpath: str, excludes: List[str], opts: Any) -> bool:
     return False
 
 
-def recurse_tree(rootpath: str, excludes: List[str], opts: Any,
-                 user_template_dir: Optional[str] = None) -> List[str]:
+def recurse_tree(rootpath: str, excludes: list[str], opts: Any,
+                 user_template_dir: Optional[str] = None) -> list[str]:
     """
     Look for every file in the directory tree and create the corresponding
     ReST files.
@@ -286,7 +286,7 @@ def recurse_tree(rootpath: str, excludes: List[str], opts: Any,
     return toplevels
 
 
-def is_excluded(root: str, excludes: List[str]) -> bool:
+def is_excluded(root: str, excludes: list[str]) -> bool:
     """Check if the directory is in the exclude list.
 
     Note: by having trailing slashes, we avoid common prefix issues, like
@@ -395,7 +395,7 @@ Note: By default this script will not overwrite already created files."""))
     return parser
 
 
-def main(argv: List[str] = sys.argv[1:]) -> int:
+def main(argv: list[str] = sys.argv[1:]) -> int:
     """Parse and check the command line arguments."""
     sphinx.locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')

@@ -7,7 +7,7 @@ import re
 import warnings
 from datetime import datetime, timezone
 from os import path
-from typing import TYPE_CHECKING, Callable, Generator, List, NamedTuple, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Callable, Generator, NamedTuple, Optional, Union
 
 import babel.dates
 from babel.messages.mofile import write_mo
@@ -73,7 +73,7 @@ class CatalogInfo(LocaleFileInfoBase):
 class CatalogRepository:
     """A repository for message catalogs."""
 
-    def __init__(self, basedir: str, locale_dirs: List[str],
+    def __init__(self, basedir: str, locale_dirs: list[str],
                  language: str, encoding: str) -> None:
         self.basedir = basedir
         self._locale_dirs = locale_dirs
@@ -94,7 +94,7 @@ class CatalogRepository:
                 logger.verbose(__('locale_dir %s does not exists'), locale_path)
 
     @property
-    def pofiles(self) -> Generator[Tuple[str, str], None, None]:
+    def pofiles(self) -> Generator[tuple[str, str], None, None]:
         for locale_dir in self.locale_dirs:
             basedir = path.join(locale_dir, self.language, 'LC_MESSAGES')
             for root, dirnames, filenames in os.walk(basedir):

@@ -34,7 +34,7 @@ import builtins
 import inspect
 import re
 from importlib import import_module
-from typing import Any, Dict, Iterable, List, Optional, Tuple, cast
+from typing import Any, Iterable, Optional, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -132,9 +132,9 @@ class InheritanceGraph:
     from all the way to the root "object", and then is able to generate a
     graphviz dot graph from them.
     """
-    def __init__(self, class_names: List[str], currmodule: str, show_builtins: bool = False,
+    def __init__(self, class_names: list[str], currmodule: str, show_builtins: bool = False,
                  private_bases: bool = False, parts: int = 0,
-                 aliases: Optional[Dict[str, str]] = None, top_classes: List[Any] = []
+                 aliases: Optional[dict[str, str]] = None, top_classes: list[Any] = []
                  ) -> None:
         """*class_names* is a list of child classes to show bases from.
 
@@ -149,16 +149,16 @@ class InheritanceGraph:
             raise InheritanceException('No classes found for '
                                        'inheritance diagram')
 
-    def _import_classes(self, class_names: List[str], currmodule: str) -> List[Any]:
+    def _import_classes(self, class_names: list[str], currmodule: str) -> list[Any]:
         """Import a list of classes."""
-        classes: List[Any] = []
+        classes: list[Any] = []
         for name in class_names:
             classes.extend(import_classes(name, currmodule))
         return classes
 
-    def _class_info(self, classes: List[Any], show_builtins: bool, private_bases: bool,
-                    parts: int, aliases: Dict[str, str], top_classes: List[Any]
-                    ) -> List[Tuple[str, str, List[str], str]]:
+    def _class_info(self, classes: list[Any], show_builtins: bool, private_bases: bool,
+                    parts: int, aliases: dict[str, str], top_classes: list[Any]
+                    ) -> list[tuple[str, str, list[str], str]]:
         """Return name and bases for all classes that are ancestors of
         *classes*.
 
@@ -195,7 +195,7 @@ class InheritanceGraph:
             except Exception:  # might raise AttributeError for strange classes
                 pass
 
-            baselist: List[str] = []
+            baselist: list[str] = []
             all_classes[cls] = (nodename, fullname, baselist, tooltip)
 
             if fullname in top_classes:
@@ -216,7 +216,7 @@ class InheritanceGraph:
         return list(all_classes.values())
 
     def class_name(
-        self, cls: Any, parts: int = 0, aliases: Optional[Dict[str, str]] = None
+        self, cls: Any, parts: int = 0, aliases: Optional[dict[str, str]] = None
     ) -> str:
         """Given a class object, return a fully-qualified name.
 
@@ -237,7 +237,7 @@ class InheritanceGraph:
             return aliases[result]
         return result
 
-    def get_all_class_names(self) -> List[str]:
+    def get_all_class_names(self) -> list[str]:
         """Get all of the class names involved in the graph."""
         return [fullname for (_, fullname, _, _) in self.class_info]
 
@@ -261,15 +261,15 @@ class InheritanceGraph:
         'style': '"setlinewidth(0.5)"',
     }
 
-    def _format_node_attrs(self, attrs: Dict[str, Any]) -> str:
+    def _format_node_attrs(self, attrs: dict[str, Any]) -> str:
         return ','.join(['%s=%s' % x for x in sorted(attrs.items())])
 
-    def _format_graph_attrs(self, attrs: Dict[str, Any]) -> str:
+    def _format_graph_attrs(self, attrs: dict[str, Any]) -> str:
         return ''.join(['%s=%s;\n' % x for x in sorted(attrs.items())])
 
-    def generate_dot(self, name: str, urls: Dict[str, str] = {},
+    def generate_dot(self, name: str, urls: dict[str, str] = {},
                      env: Optional[BuildEnvironment] = None,
-                     graph_attrs: Dict = {}, node_attrs: Dict = {}, edge_attrs: Dict = {}
+                     graph_attrs: dict = {}, node_attrs: dict = {}, edge_attrs: dict = {}
                      ) -> str:
         """Generate a graphviz dot graph from the classes that were passed in
         to __init__.
@@ -292,7 +292,7 @@ class InheritanceGraph:
             n_attrs.update(env.config.inheritance_node_attrs)
             e_attrs.update(env.config.inheritance_edge_attrs)
 
-        res: List[str] = []
+        res: list[str] = []
         res.append('digraph %s {\n' % name)
         res.append(self._format_graph_attrs(g_attrs))
 
@@ -338,7 +338,7 @@ class InheritanceDiagram(SphinxDirective):
         'top-classes': directives.unchanged_required,
     }
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         node = inheritance_diagram()
         node.document = self.state.document
         class_names = self.arguments[0].split()
@@ -457,7 +457,7 @@ def skip(self: nodes.NodeVisitor, node: inheritance_diagram) -> None:
     raise nodes.SkipNode
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.setup_extension('sphinx.ext.graphviz')
     app.add_node(
         inheritance_diagram,

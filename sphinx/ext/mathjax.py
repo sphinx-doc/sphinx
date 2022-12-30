@@ -8,7 +8,7 @@ This requires the MathJax JavaScript library on your webserver/computer.
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, cast
+from typing import Any, cast
 
 from docutils import nodes
 
@@ -67,7 +67,7 @@ def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> Non
     raise nodes.SkipNode
 
 
-def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: Dict[str, Any],
+def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: dict[str, Any],
                     event_arg: Any) -> None:
     if (
         app.builder.format != 'html' or
@@ -105,7 +105,7 @@ def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: Dict
         app.add_js_file(app.config.mathjax_path, **options)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_html_math_renderer('mathjax',
                                (html_visit_math, None),
                                (html_visit_displaymath, None))

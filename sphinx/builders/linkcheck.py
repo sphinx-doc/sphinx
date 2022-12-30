@@ -13,7 +13,7 @@ from html.parser import HTMLParser
 from os import path
 from queue import PriorityQueue, Queue
 from threading import Thread
-from typing import Any, Dict, Generator, List, NamedTuple, Optional, Tuple, Union, cast
+from typing import Any, Generator, NamedTuple, Optional, Tuple, Union, cast
 from urllib.parse import unquote, urlparse, urlunparse
 
 from docutils import nodes
@@ -115,7 +115,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
     def init(self) -> None:
         self.broken_hyperlinks = 0
-        self.hyperlinks: Dict[str, Hyperlink] = {}
+        self.hyperlinks: dict[str, Hyperlink] = {}
         # set a timeout for non-responding servers
         socket.setdefaulttimeout(5.0)
 
@@ -202,9 +202,9 @@ class HyperlinkAvailabilityChecker:
     def __init__(self, env: BuildEnvironment, config: Config) -> None:
         self.config = config
         self.env = env
-        self.rate_limits: Dict[str, RateLimit] = {}
+        self.rate_limits: dict[str, RateLimit] = {}
         self.rqueue: Queue[CheckResult] = Queue()
-        self.workers: List[Thread] = []
+        self.workers: list[Thread] = []
         self.wqueue: PriorityQueue[CheckRequest] = PriorityQueue()
 
         self.to_ignore = [re.compile(x) for x in self.config.linkcheck_ignore]
@@ -222,7 +222,7 @@ class HyperlinkAvailabilityChecker:
         for _worker in self.workers:
             self.wqueue.put(CheckRequest(CHECK_IMMEDIATELY, None), False)
 
-    def check(self, hyperlinks: Dict[str, Hyperlink]) -> Generator[CheckResult, None, None]:
+    def check(self, hyperlinks: dict[str, Hyperlink]) -> Generator[CheckResult, None, None]:
         self.invoke_threads()
 
         total_links = 0
@@ -249,7 +249,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
     """A worker class for checking the availability of hyperlinks."""
 
     def __init__(self, env: BuildEnvironment, config: Config, rqueue: 'Queue[CheckResult]',
-                 wqueue: 'Queue[CheckRequest]', rate_limits: Dict[str, RateLimit]) -> None:
+                 wqueue: 'Queue[CheckRequest]', rate_limits: dict[str, RateLimit]) -> None:
         self.config = config
         self.env = env
         self.rate_limits = rate_limits
@@ -270,7 +270,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         if self.config.linkcheck_timeout:
             kwargs['timeout'] = self.config.linkcheck_timeout
 
-        def get_request_headers() -> Dict[str, str]:
+        def get_request_headers() -> dict[str, str]:
             url = urlparse(uri)
             candidates = ["%s://%s" % (url.scheme, url.netloc),
                           "%s://%s/" % (url.scheme, url.netloc),
@@ -285,7 +285,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
             return {}
 
-        def check_uri() -> Tuple[str, str, int]:
+        def check_uri() -> tuple[str, str, int]:
             # split off anchor
             if '#' in uri:
                 req_url, anchor = uri.split('#', 1)
@@ -388,7 +388,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
             return False
 
-        def check(docname: str) -> Tuple[str, str, int]:
+        def check(docname: str) -> tuple[str, str, int]:
             # check for various conditions without bothering the network
 
             for doc_matcher in self.documents_exclude:
@@ -562,7 +562,7 @@ def compile_linkcheck_allowed_redirects(app: Sphinx, config: Config) -> None:
             app.config.linkcheck_allowed_redirects.pop(url)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_builder(CheckExternalLinksBuilder)
     app.add_post_transform(HyperlinkCollector)
 

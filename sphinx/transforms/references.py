@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any
 
 from docutils.transforms.references import DanglingReferences
 
@@ -36,7 +36,7 @@ class SphinxDomains(SphinxTransform):
             domain.process_doc(self.env, self.env.docname, self.document)
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: "Sphinx") -> dict[str, Any]:
     app.add_transform(SphinxDanglingReferences)
     app.add_transform(SphinxDomains)
 

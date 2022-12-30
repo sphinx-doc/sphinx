@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any
 
 from packaging.version import InvalidVersion, Version
 
@@ -72,7 +72,7 @@ def verify_needs_extensions(app: "Sphinx", config: Config) -> None:
                                           (extname, reqversion, extension.version))
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: "Sphinx") -> dict[str, Any]:
     app.connect('config-inited', verify_needs_extensions, priority=800)
 
     return {

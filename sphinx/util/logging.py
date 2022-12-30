@@ -6,7 +6,7 @@ import logging
 import logging.handlers
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import IO, TYPE_CHECKING, Any, Dict, Generator, List, Optional, Tuple, Type, Union
+from typing import IO, TYPE_CHECKING, Any, Generator, Optional, Union
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 NAMESPACE = 'sphinx'
 VERBOSE = 15
 
-LEVEL_NAMES: Dict[str, int] = defaultdict(lambda: logging.WARNING)
+LEVEL_NAMES: dict[str, int] = defaultdict(lambda: logging.WARNING)
 LEVEL_NAMES.update({
     'CRITICAL': logging.CRITICAL,
     'SEVERE': logging.CRITICAL,
@@ -34,7 +34,7 @@ LEVEL_NAMES.update({
     'DEBUG': logging.DEBUG,
 })
 
-VERBOSITY_MAP: Dict[int, int] = defaultdict(lambda: 0)
+VERBOSITY_MAP: dict[int, int] = defaultdict(lambda: 0)
 VERBOSITY_MAP.update({
     0: logging.INFO,
     1: VERBOSE,
@@ -71,7 +71,7 @@ def getLogger(name: str) -> "SphinxLoggerAdapter":
     return SphinxLoggerAdapter(logger, {})
 
 
-def convert_serializable(records: List[logging.LogRecord]) -> None:
+def convert_serializable(records: list[logging.LogRecord]) -> None:
     """Convert LogRecord serializable."""
     for r in records:
         # extract arguments to a message and clear them
@@ -132,7 +132,7 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
     def verbose(self, msg: str, *args: Any, **kwargs: Any) -> None:
         self.log(VERBOSE, msg, *args, **kwargs)
 
-    def process(self, msg: str, kwargs: Dict) -> Tuple[str, Dict]:  # type: ignore
+    def process(self, msg: str, kwargs: dict) -> tuple[str, dict]:  # type: ignore
         extra = kwargs.setdefault('extra', {})
         for keyword in self.KEYWORDS:
             if keyword in kwargs:
@@ -167,7 +167,7 @@ class NewLineStreamHandler(logging.StreamHandler):
 class MemoryHandler(logging.handlers.BufferingHandler):
     """Handler buffering all logs."""
 
-    buffer: List[logging.LogRecord]
+    buffer: list[logging.LogRecord]
 
     def __init__(self) -> None:
         super().__init__(-1)
@@ -189,7 +189,7 @@ class MemoryHandler(logging.handlers.BufferingHandler):
         finally:
             self.release()
 
-    def clear(self) -> List[logging.LogRecord]:
+    def clear(self) -> list[logging.LogRecord]:
         buffer, self.buffer = self.buffer, []
         return buffer
 
@@ -339,7 +339,7 @@ def prefixed_warnings(prefix: str) -> Generator[None, None, None]:
 
 class LogCollector:
     def __init__(self) -> None:
-        self.logs: List[logging.LogRecord] = []
+        self.logs: list[logging.LogRecord] = []
 
     @contextmanager
     def collect(self) -> Generator[None, None, None]:
@@ -359,7 +359,7 @@ class InfoFilter(logging.Filter):
             return False
 
 
-def is_suppressed_warning(type: str, subtype: str, suppress_warnings: List[str]) -> bool:
+def is_suppressed_warning(type: str, subtype: str, suppress_warnings: list[str]) -> bool:
     """Check whether the warning is suppressed or not."""
     if type is None:
         return False
@@ -458,7 +458,7 @@ class OnceFilter(logging.Filter):
 
     def __init__(self, name: str = '') -> None:
         super().__init__(name)
-        self.messages: Dict[str, List] = {}
+        self.messages: dict[str, list] = {}
 
     def filter(self, record: logging.LogRecord) -> bool:
         once = getattr(record, 'once', '')
@@ -479,7 +479,7 @@ class SphinxLogRecordTranslator(logging.Filter):
     * Make a instance of SphinxLogRecord
     * docname to path if location given
     """
-    LogRecordClass: Type[logging.LogRecord]
+    LogRecordClass: type[logging.LogRecord]
 
     def __init__(self, app: "Sphinx") -> None:
         self.app = app

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from os import path
-from typing import Any, Dict, Iterator, Optional, Set, Tuple
+from typing import Any, Iterator, Optional
 
 from docutils.io import StringOutput
 from docutils.nodes import Node
@@ -31,7 +31,7 @@ class TextBuilder(Builder):
 
     def init(self) -> None:
         # section numbers for headings in the currently visited document
-        self.secnumbers: Dict[str, Tuple[int, ...]] = {}
+        self.secnumbers: dict[str, tuple[int, ...]] = {}
 
     def get_outdated_docs(self) -> Iterator[str]:
         for docname in self.env.found_docs:
@@ -54,7 +54,7 @@ class TextBuilder(Builder):
     def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
         return ''
 
-    def prepare_writing(self, docnames: Set[str]) -> None:
+    def prepare_writing(self, docnames: set[str]) -> None:
         self.writer = TextWriter(self)
 
     def write_doc(self, docname: str, doctree: Node) -> None:
@@ -74,7 +74,7 @@ class TextBuilder(Builder):
         pass
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_builder(TextBuilder)
 
     app.add_config_value('text_sectionchars', '*=-~"+`', 'env')

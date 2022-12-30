@@ -7,7 +7,7 @@ import re
 import sys
 import warnings
 from io import StringIO
-from typing import IO, Any, Dict, Generator, List, Optional, Pattern
+from typing import IO, Any, Generator, Optional
 from xml.etree import ElementTree
 
 from docutils import nodes
@@ -24,12 +24,12 @@ __all__ = [
 ]
 
 
-def assert_re_search(regex: Pattern, text: str, flags: int = 0) -> None:
+def assert_re_search(regex: re.Pattern, text: str, flags: int = 0) -> None:
     if not re.search(regex, text, flags):
         raise AssertionError('%r did not match %r' % (regex, text))
 
 
-def assert_not_re_search(regex: Pattern, text: str, flags: int = 0) -> None:
+def assert_not_re_search(regex: re.Pattern, text: str, flags: int = 0) -> None:
     if re.search(regex, text, flags):
         raise AssertionError('%r did match %r' % (regex, text))
 
@@ -102,10 +102,10 @@ class SphinxTestApp(application.Sphinx):
         srcdir: Optional[path] = None,
         builddir: Optional[path] = None,
         freshenv: bool = False,
-        confoverrides: Optional[Dict] = None,
+        confoverrides: Optional[dict] = None,
         status: Optional[IO] = None,
         warning: Optional[IO] = None,
-        tags: Optional[List[str]] = None,
+        tags: Optional[list[str]] = None,
         docutilsconf: Optional[str] = None,
         parallel: int = 0
     ) -> None:

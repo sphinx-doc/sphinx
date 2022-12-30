@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import warnings
 from os import path
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
+from typing import Any, Iterable, Optional, Union
 
 from docutils.frontend import OptionParser
 from docutils.nodes import Node
@@ -116,9 +116,9 @@ class LaTeXBuilder(Builder):
 
     def init(self) -> None:
         self.babel: ExtBabel = None
-        self.context: Dict[str, Any] = {}
+        self.context: dict[str, Any] = {}
         self.docnames: Iterable[str] = {}
-        self.document_data: List[Tuple[str, str, str, str, str, bool]] = []
+        self.document_data: list[tuple[str, str, str, str, str, bool]] = []
         self.themes = ThemeFactory(self.app)
         texescape.init()
 
@@ -126,7 +126,7 @@ class LaTeXBuilder(Builder):
         self.init_babel()
         self.init_multilingual()
 
-    def get_outdated_docs(self) -> Union[str, List[str]]:
+    def get_outdated_docs(self) -> Union[str, list[str]]:
         return 'all documents'  # for now
 
     def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
@@ -146,7 +146,7 @@ class LaTeXBuilder(Builder):
                               'will be written'))
             return
         # assign subdirs to titles
-        self.titles: List[Tuple[str, str]] = []
+        self.titles: list[tuple[str, str]] = []
         for entry in preliminary_document_data:
             docname = entry[0]
             if docname not in self.env.all_docs:
@@ -324,7 +324,7 @@ class LaTeXBuilder(Builder):
         self.context['wrapperclass'] = theme.wrapperclass
 
     def assemble_doctree(
-        self, indexfile: str, toctree_only: bool, appendices: List[str]
+        self, indexfile: str, toctree_only: bool, appendices: list[str]
     ) -> nodes.document:
         self.docnames = set([indexfile] + appendices)
         logger.info(darkgreen(indexfile) + " ", nonl=True)
@@ -356,7 +356,7 @@ class LaTeXBuilder(Builder):
         for pendingnode in largetree.findall(addnodes.pending_xref):
             docname = pendingnode['refdocname']
             sectname = pendingnode['refsectname']
-            newnodes: List[Node] = [nodes.emphasis(sectname, sectname)]
+            newnodes: list[Node] = [nodes.emphasis(sectname, sectname)]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
                     newnodes.append(nodes.Text(_(' (in ')))
@@ -480,7 +480,7 @@ def default_latex_engine(config: Config) -> str:
         return 'pdflatex'
 
 
-def default_latex_docclass(config: Config) -> Dict[str, str]:
+def default_latex_docclass(config: Config) -> dict[str, str]:
     """ Better default latex_docclass settings for specific languages. """
     if config.language == 'ja':
         if config.latex_engine == 'uplatex':
@@ -498,7 +498,7 @@ def default_latex_use_xindy(config: Config) -> bool:
     return config.latex_engine in {'xelatex', 'lualatex'}
 
 
-def default_latex_documents(config: Config) -> List[Tuple[str, str, str, str, str]]:
+def default_latex_documents(config: Config) -> list[tuple[str, str, str, str, str]]:
     """ Better default latex_documents settings. """
     project = texescape.escape(config.project, config.latex_engine)
     author = texescape.escape(config.author, config.latex_engine)
@@ -509,7 +509,7 @@ def default_latex_documents(config: Config) -> List[Tuple[str, str, str, str, st
              config.latex_theme)]
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.setup_extension('sphinx.builders.latex.transforms')
 
     app.add_builder(LaTeXBuilder)

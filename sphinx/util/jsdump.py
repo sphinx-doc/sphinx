@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import re
 import warnings
-from typing import IO, Any, Dict, List, Match, Union
+from typing import IO, Any, Union
 
 from sphinx.deprecation import RemovedInSphinx70Warning
 
@@ -35,7 +35,7 @@ ESCAPED = re.compile(r'\\u.{4}|\\.')
 
 
 def encode_string(s: str) -> str:
-    def replace(match: Match) -> str:
+    def replace(match: re.Match) -> str:
         s = match.group(0)
         try:
             return ESCAPE_DICT[s]
@@ -111,7 +111,7 @@ def loads(x: str) -> Any:
     nothing = object()
     i = 0
     n = len(x)
-    stack: List[Union[List, Dict]] = []
+    stack: list[Union[list, dict]] = []
     obj: Any = nothing
     key = False
     keys = []

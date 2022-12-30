@@ -5,7 +5,7 @@ from __future__ import annotations
 import importlib
 import traceback
 import warnings
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, NamedTuple, Optional
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple, Optional
 
 from sphinx.ext.autodoc.mock import ismock, undecorate
 from sphinx.pycode import ModuleAnalyzer, PycodeError
@@ -64,7 +64,7 @@ def import_module(modname: str, warningiserror: bool = False) -> Any:
         raise ImportError(exc, traceback.format_exc()) from exc
 
 
-def import_object(modname: str, objpath: List[str], objtype: str = '',
+def import_object(modname: str, objpath: list[str], objtype: str = '',
                   attrgetter: Callable[[Any, str], Any] = safe_getattr,
                   warningiserror: bool = False) -> Any:
     if objpath:
@@ -145,17 +145,17 @@ class Attribute(NamedTuple):
 
 def get_object_members(
     subject: Any,
-    objpath: List[str],
+    objpath: list[str],
     attrgetter: Callable,
     analyzer: Optional[ModuleAnalyzer] = None
-) -> Dict[str, Attribute]:
+) -> dict[str, Attribute]:
     """Get members and attributes of target object."""
     from sphinx.ext.autodoc import INSTANCEATTR
 
     # the members directly defined in the class
     obj_dict = attrgetter(subject, '__dict__', {})
 
-    members: Dict[str, Attribute] = {}
+    members: dict[str, Attribute] = {}
 
     # enum members
     if isenumclass(subject):
@@ -208,15 +208,15 @@ def get_object_members(
     return members
 
 
-def get_class_members(subject: Any, objpath: List[str], attrgetter: Callable,
-                      inherit_docstrings: bool = True) -> Dict[str, "ObjectMember"]:
+def get_class_members(subject: Any, objpath: list[str], attrgetter: Callable,
+                      inherit_docstrings: bool = True) -> dict[str, "ObjectMember"]:
     """Get members and attributes of target class."""
     from sphinx.ext.autodoc import INSTANCEATTR, ObjectMember
 
     # the members directly defined in the class
     obj_dict = attrgetter(subject, '__dict__', {})
 
-    members: Dict[str, ObjectMember] = {}
+    members: dict[str, ObjectMember] = {}
 
     # enum members
     if isenumclass(subject):

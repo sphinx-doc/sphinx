@@ -7,8 +7,7 @@ from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta, tzinfo
 from os import getenv, path, walk
 from time import time
-from typing import (Any, DefaultDict, Dict, Generator, Iterable, List, Optional, Set, Tuple,
-                    Union)
+from typing import Any, Generator, Iterable, Optional, Union
 from uuid import uuid4
 
 from docutils import nodes
@@ -33,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 class Message:
     """An entry of translatable message."""
-    def __init__(self, text: str, locations: List[Tuple[str, int]], uuids: List[str]):
+    def __init__(self, text: str, locations: list[tuple[str, int]], uuids: list[str]):
         self.text = text
         self.locations = locations
         self.uuids = uuids
@@ -43,10 +42,10 @@ class Catalog:
     """Catalog of translatable messages."""
 
     def __init__(self) -> None:
-        self.messages: List[str] = []  # retain insertion order, a la OrderedDict
+        self.messages: list[str] = []  # retain insertion order, a la OrderedDict
 
         # msgid -> file, line, uid
-        self.metadata: Dict[str, List[Tuple[str, int, str]]] = OrderedDict()
+        self.metadata: dict[str, list[tuple[str, int, str]]] = OrderedDict()
 
     def add(self, msg: str, origin: Union[Element, "MsgOrigin"]) -> None:
         if not hasattr(origin, 'uid'):
@@ -98,7 +97,7 @@ class GettextRenderer(SphinxRenderer):
         self.env.filters['e'] = escape
         self.env.filters['escape'] = escape
 
-    def render(self, filename: str, context: Dict[str, Any]) -> str:
+    def render(self, filename: str, context: dict[str, Any]) -> str:
         def _relpath(s: str) -> str:
             return canon_path(relpath(s, self.outdir))
 
@@ -129,18 +128,18 @@ class I18nBuilder(Builder):
         self.env.set_versioning_method(self.versioning_method,
                                        self.env.config.gettext_uuid)
         self.tags = I18nTags()
-        self.catalogs: DefaultDict[str, Catalog] = defaultdict(Catalog)
+        self.catalogs: defaultdict[str, Catalog] = defaultdict(Catalog)
 
     def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
         return ''
 
-    def get_outdated_docs(self) -> Set[str]:
+    def get_outdated_docs(self) -> set[str]:
         return self.env.found_docs
 
-    def prepare_writing(self, docnames: Set[str]) -> None:
+    def prepare_writing(self, docnames: set[str]) -> None:
         return
 
-    def compile_catalogs(self, catalogs: Set[CatalogInfo], message: str) -> None:
+    def compile_catalogs(self, catalogs: set[CatalogInfo], message: str) -> None:
         return
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
@@ -223,7 +222,7 @@ class MessageCatalogBuilder(I18nBuilder):
         self.create_template_bridge()
         self.templates.init(self)
 
-    def _collect_templates(self) -> Set[str]:
+    def _collect_templates(self) -> set[str]:
         template_files = set()
         for template_path in self.config.templates_path:
             tmpl_abs_path = path.join(self.app.srcdir, template_path)
@@ -288,7 +287,7 @@ class MessageCatalogBuilder(I18nBuilder):
                     pofile.write(content)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_builder(MessageCatalogBuilder)
 
     app.add_config_value('gettext_compact', True, 'gettext', {bool, str})

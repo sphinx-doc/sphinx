@@ -24,7 +24,7 @@ import re
 import sys
 from gettext import NullTranslations
 from os import path
-from typing import Any, Dict, List, NamedTuple, Optional, Sequence, Set, Tuple, Type
+from typing import Any, NamedTuple, Optional, Sequence
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -55,7 +55,7 @@ class DummyApplication:
     def __init__(self, translator: NullTranslations) -> None:
         self.config = Config()
         self.registry = SphinxComponentRegistry()
-        self.messagelog: List[str] = []
+        self.messagelog: list[str] = []
         self.srcdir = "/"
         self.translator = translator
         self.verbosity = 0
@@ -84,7 +84,7 @@ def setup_documenters(app: Any) -> None:
                                     FunctionDocumenter, MethodDocumenter, ModuleDocumenter,
                                     NewTypeAttributeDocumenter, NewTypeDataDocumenter,
                                     PropertyDocumenter)
-    documenters: List[Type[Documenter]] = [
+    documenters: list[type[Documenter]] = [
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, NewTypeAttributeDocumenter,
         NewTypeDataDocumenter, AttributeDocumenter, DecoratorDocumenter, PropertyDocumenter,
@@ -119,7 +119,7 @@ class AutosummaryRenderer:
             self.env.add_extension("jinja2.ext.i18n")
             self.env.install_gettext_translations(app.translator)
 
-    def render(self, template_name: str, context: Dict) -> str:
+    def render(self, template_name: str, context: dict) -> str:
         """Render a template file."""
         try:
             template = self.env.get_template(template_name)
@@ -155,7 +155,7 @@ class ModuleScanner:
                            name, exc, type='autosummary')
             return False
 
-    def scan(self, imported_members: bool) -> List[str]:
+    def scan(self, imported_members: bool) -> list[str]:
         members = []
         try:
             analyzer = ModuleAnalyzer.for_module(self.object.__name__)
@@ -213,7 +213,7 @@ def members_of(obj: Any, conf: Config) -> Sequence[str]:
 def generate_autosummary_content(name: str, obj: Any, parent: Any,
                                  template: AutosummaryRenderer, template_name: str,
                                  imported_members: bool, app: Any,
-                                 recursive: bool, context: Dict,
+                                 recursive: bool, context: dict,
                                  modname: Optional[str] = None,
                                  qualname: Optional[str] = None) -> str:
     doc = get_documenter(app, obj, parent)
@@ -228,11 +228,11 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                            name, exc, type='autosummary')
             return False
 
-    def get_class_members(obj: Any) -> Dict[str, Any]:
+    def get_class_members(obj: Any) -> dict[str, Any]:
         members = sphinx.ext.autodoc.get_class_members(obj, [qualname], safe_getattr)
         return {name: member.object for name, member in members.items()}
 
-    def get_module_members(obj: Any) -> Dict[str, Any]:
+    def get_module_members(obj: Any) -> dict[str, Any]:
         members = {}
         for name in members_of(obj, app.config):
             try:
@@ -241,17 +241,17 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                 continue
         return members
 
-    def get_all_members(obj: Any) -> Dict[str, Any]:
+    def get_all_members(obj: Any) -> dict[str, Any]:
         if doc.objtype == "module":
             return get_module_members(obj)
         elif doc.objtype == "class":
             return get_class_members(obj)
         return {}
 
-    def get_members(obj: Any, types: Set[str], include_public: List[str] = [],
-                    imported: bool = True) -> Tuple[List[str], List[str]]:
-        items: List[str] = []
-        public: List[str] = []
+    def get_members(obj: Any, types: set[str], include_public: list[str] = [],
+                    imported: bool = True) -> tuple[list[str], list[str]]:
+        items: list[str] = []
+        public: list[str] = []
 
         all_members = get_all_members(obj)
         for name, value in all_members.items():
@@ -273,7 +273,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                             public.append(name)
         return public, items
 
-    def get_module_attrs(members: Any) -> Tuple[List[str], List[str]]:
+    def get_module_attrs(members: Any) -> tuple[list[str], list[str]]:
         """Find module attributes with docstrings."""
         attrs, public = [], []
         try:
@@ -288,8 +288,8 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
             pass    # give up if ModuleAnalyzer fails to parse code
         return public, attrs
 
-    def get_modules(obj: Any) -> Tuple[List[str], List[str]]:
-        items: List[str] = []
+    def get_modules(obj: Any) -> tuple[list[str], list[str]]:
+        items: list[str] = []
         for _, modname, _ispkg in pkgutil.iter_modules(obj.__path__):
             fullname = name + '.' + modname
             try:
@@ -303,7 +303,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         public = [x for x in items if not x.split('.')[-1].startswith('_')]
         return public, items
 
-    ns: Dict[str, Any] = {}
+    ns: dict[str, Any] = {}
     ns.update(context)
 
     if doc.objtype == 'module':
@@ -354,7 +354,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         return template.render(doc.objtype, ns)
 
 
-def generate_autosummary_docs(sources: List[str], output_dir: Optional[str] = None,
+def generate_autosummary_docs(sources: list[str], output_dir: Optional[str] = None,
                               suffix: str = '.rst', base_path: Optional[str] = None,
                               imported_members: bool = False, app: Any = None,
                               overwrite: bool = True, encoding: str = 'utf-8') -> None:
@@ -403,7 +403,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: Optional[str] = No
                 qualname = name.replace(modname + ".", "")
             except ImportError as exc2:
                 if exc2.__cause__:
-                    exceptions: List[BaseException] = exc.exceptions + [exc2.__cause__]
+                    exceptions: list[BaseException] = exc.exceptions + [exc2.__cause__]
                 else:
                     exceptions = exc.exceptions + [exc2]
 
@@ -412,7 +412,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: Optional[str] = No
                                entry.name, '\n'.join(errors))
                 continue
 
-        context: Dict[str, Any] = {}
+        context: dict[str, Any] = {}
         if app:
             context.update(app.config.autosummary_context)
 
@@ -446,12 +446,12 @@ def generate_autosummary_docs(sources: List[str], output_dir: Optional[str] = No
 
 # -- Finding documented entries in files ---------------------------------------
 
-def find_autosummary_in_files(filenames: List[str]) -> List[AutosummaryEntry]:
+def find_autosummary_in_files(filenames: list[str]) -> list[AutosummaryEntry]:
     """Find out what items are documented in source/*.rst.
 
     See `find_autosummary_in_lines`.
     """
-    documented: List[AutosummaryEntry] = []
+    documented: list[AutosummaryEntry] = []
     for filename in filenames:
         with open(filename, encoding='utf-8', errors='ignore') as f:
             lines = f.read().splitlines()
@@ -461,7 +461,7 @@ def find_autosummary_in_files(filenames: List[str]) -> List[AutosummaryEntry]:
 
 def find_autosummary_in_docstring(
     name: str, filename: Optional[str] = None
-) -> List[AutosummaryEntry]:
+) -> list[AutosummaryEntry]:
     """Find out what items are documented in the given object's docstring.
 
     See `find_autosummary_in_lines`.
@@ -482,8 +482,8 @@ def find_autosummary_in_docstring(
 
 
 def find_autosummary_in_lines(
-    lines: List[str], module: Optional[str] = None, filename: Optional[str] = None
-) -> List[AutosummaryEntry]:
+    lines: list[str], module: Optional[str] = None, filename: Optional[str] = None
+) -> list[AutosummaryEntry]:
     """Find out what items appear in autosummary:: directives in the
     given lines.
 
@@ -504,7 +504,7 @@ def find_autosummary_in_lines(
     toctree_arg_re = re.compile(r'^\s+:toctree:\s*(.*?)\s*$')
     template_arg_re = re.compile(r'^\s+:template:\s*(.*?)\s*$')
 
-    documented: List[AutosummaryEntry] = []
+    documented: list[AutosummaryEntry] = []
 
     recursive = False
     toctree: Optional[str] = None
@@ -623,7 +623,7 @@ The format of the autosummary directive is documented in the
     return parser
 
 
-def main(argv: List[str] = sys.argv[1:]) -> None:
+def main(argv: list[str] = sys.argv[1:]) -> None:
     sphinx.locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
     translator, _ = sphinx.locale.init([], None)

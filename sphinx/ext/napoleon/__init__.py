@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any
 
 import sphinx
 from sphinx.application import Sphinx
@@ -288,7 +288,7 @@ class Config:
             setattr(self, name, value)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     """Sphinx extension setup function.
 
     When the extension is loaded, Sphinx imports this module and executes
@@ -340,7 +340,7 @@ def _patch_python_domain() -> None:
 
 
 def _process_docstring(app: Sphinx, what: str, name: str, obj: Any,
-                       options: Any, lines: List[str]) -> None:
+                       options: Any, lines: list[str]) -> None:
     """Process the docstring for a given python object.
 
     Called when autodoc has read and processed a docstring. `lines` is a list
