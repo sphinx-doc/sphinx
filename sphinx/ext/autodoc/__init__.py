@@ -2353,10 +2353,7 @@ class SlotsMixin(DataDocumenterMixinBase):
         """Check the subject is an attribute in __slots__."""
         try:
             __slots__ = inspect.getslots(self.parent)
-            if __slots__ and self.objpath[-1] in __slots__:
-                return True
-            else:
-                return False
+            return bool(__slots__) and self.objpath[-1] in __slots__
         except (ValueError, TypeError):
             return False
 
@@ -2484,10 +2481,7 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
     def is_uninitialized_instance_attribute(self, parent: Any) -> bool:
         """Check the subject is an annotation only attribute."""
         annotations = get_type_hints(parent, None, self.config.autodoc_type_aliases)
-        if self.objpath[-1] in annotations:
-            return True
-        else:
-            return False
+        return self.objpath[-1] in annotations
 
     def import_object(self, raiseerror: bool = False) -> bool:
         """Check the exisitence of uninitialized instance attribute when failed to import

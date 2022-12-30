@@ -547,10 +547,7 @@ class IntersphinxRole(SphinxRole):
     def is_existent_role(self, domain_name: str, role_name: str) -> bool:
         try:
             domain = self.env.get_domain(domain_name)
-            if role_name in domain.roles:
-                return True
-            else:
-                return False
+            return role_name in domain.roles
         except ExtensionError:
             return False
 
