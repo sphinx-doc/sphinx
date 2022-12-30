@@ -46,10 +46,10 @@ template_dir = path.join(package_dir, 'templates', 'apidoc')
 def is_initpy(filename: str) -> bool:
     """Check *filename* is __init__ file or not."""
     basename = path.basename(filename)
-    for suffix in sorted(PY_SUFFIXES, key=len, reverse=True):
-        if basename == '__init__' + suffix:
-            return True
-    return False
+    return any(
+        basename == '__init__' + suffix
+        for suffix in sorted(PY_SUFFIXES, key=len, reverse=True)
+    )
 
 
 def module_join(*modnames: str) -> str:
@@ -223,11 +223,10 @@ def walk(rootpath: str, excludes: List[str], opts: Any
 
 def has_child_module(rootpath: str, excludes: List[str], opts: Any) -> bool:
     """Check the given directory contains child module/s (at least one)."""
-    for _root, _subs, files in walk(rootpath, excludes, opts):
-        if files:
-            return True
-
-    return False
+    return any(
+        files
+        for _root, _subs, files in walk(rootpath, excludes, opts)
+    )
 
 
 def recurse_tree(rootpath: str, excludes: List[str], opts: Any,
@@ -290,10 +289,10 @@ def is_excluded(root: str, excludes: List[str]) -> bool:
     Note: by having trailing slashes, we avoid common prefix issues, like
           e.g. an exclude "foo" also accidentally excluding "foobar".
     """
-    for exclude in excludes:
-        if fnmatch(root, exclude):
-            return True
-    return False
+    return any(
+        fnmatch(root, exclude)
+        for exclude in excludes
+    )
 
 
 def get_parser() -> argparse.ArgumentParser:

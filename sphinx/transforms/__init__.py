@@ -331,10 +331,10 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
 
         # confirm selected language supports smart_quotes or not
         language = self.env.settings['language_code']
-        for tag in normalize_language_tag(language):
-            if tag in smartchars.quotes:
-                return True
-        return False
+        return any(
+            tag in smartchars.quotes
+            for tag in normalize_language_tag(language)
+        )
 
     def get_tokens(self, txtnodes: List[Text]) -> Generator[Tuple[str, str], None, None]:
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
