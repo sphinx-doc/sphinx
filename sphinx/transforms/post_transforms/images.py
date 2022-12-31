@@ -231,10 +231,10 @@ class ImageConverter(BaseImageConverter):
     def handle(self, node: nodes.image) -> None:
         _from, _to = self.get_conversion_rule(node)
 
-        if _from in node['candidates']:
-            srcpath = node['candidates'][_from]
-        else:
-            srcpath = node['candidates']['*']
+        srcpath = node['candidates'].get(
+            _from,
+            node['candidates']['*']
+        )
 
         filename = get_filename_for(srcpath, _to)
         ensuredir(self.imagedir)

@@ -18,7 +18,6 @@ ignore =
     SIM115,
     SIM117,
     SIM223,
-    SIM401,
     SIM907,
 exclude =
     .git,

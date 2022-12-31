@@ -299,10 +299,7 @@ def traverse_translatable_index(
     """Traverse translatable index node from a document tree."""
     matcher = NodeMatcher(addnodes.index, inline=False)
     for node in doctree.findall(matcher):  # type: addnodes.index
-        if 'raw_entries' in node:
-            entries = node['raw_entries']
-        else:
-            entries = node['entries']
+        entries = node.get('raw_entries', node['entries'])
         yield node, entries
 
 
