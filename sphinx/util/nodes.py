@@ -264,18 +264,18 @@ def extract_messages(doctree: Element) -> Iterable[tuple[Element, str]]:
             yield node, msg
 
 
-def get_node_source(node: Element) -> str | None:
+def get_node_source(node: Element) -> str:
     for pnode in traverse_parent(node):
         if pnode.source:
             return pnode.source
-    return None
+    raise ValueError("node source not found")
 
 
-def get_node_line(node: Element) -> int | None:
+def get_node_line(node: Element) -> int:
     for pnode in traverse_parent(node):
         if pnode.line:
             return pnode.line
-    return None
+    raise ValueError("node line not found")
 
 
 def traverse_parent(node: Element, cls: Any = None) -> Iterable[Element]:
