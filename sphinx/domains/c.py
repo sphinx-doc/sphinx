@@ -1285,7 +1285,7 @@ class ASTMacroParameter(ASTBase):
 
 
 class ASTMacro(ASTBase):
-    def __init__(self, ident: ASTNestedName, args: List[ASTMacroParameter]) -> None:
+    def __init__(self, ident: ASTNestedName, args: Optional[List[ASTMacroParameter]]) -> None:
         self.ident = ident
         self.args = args
 
@@ -2887,8 +2887,11 @@ class DefinitionParser(BaseParser):
             header = "Error in declarator or parameters"
             raise self._make_multi_error(prevErrors, header) from e
 
-    def _parse_initializer(self, outer: str = None, allowFallback: bool = True
-                           ) -> ASTInitializer:
+    def _parse_initializer(
+        self,
+        outer: Optional[str] = None,
+        allowFallback: bool = True
+    ) -> Optional[ASTInitializer]:
         self.skip_ws()
         if outer == 'member' and False:  # TODO
             bracedInit = self._parse_braced_init_list()

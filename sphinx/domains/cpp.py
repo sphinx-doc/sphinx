@@ -669,7 +669,7 @@ class ASTIdentifier(ASTBase):
 
 class ASTNestedNameElement(ASTBase):
     def __init__(self, identOrOp: Union[ASTIdentifier, "ASTOperator"],
-                 templateArgs: "ASTTemplateArgs") -> None:
+                 templateArgs: Optional["ASTTemplateArgs"]) -> None:
         self.identOrOp = identOrOp
         self.templateArgs = templateArgs
 
@@ -2000,7 +2000,12 @@ class ASTFunctionParameter(ASTBase):
         self.arg = arg
         self.ellipsis = ellipsis
 
-    def get_id(self, version: int, objectType: str = None, symbol: "Symbol" = None) -> str:
+    def get_id(
+        self,
+        version: int,
+        objectType: Optional[str] = None,
+        symbol: Optional["Symbol"] = None
+    ) -> str:
         # this is not part of the normal name mangling in C++
         if symbol:
             # the anchor will be our parent
@@ -3192,7 +3197,12 @@ class ASTTemplateParamConstrainedTypeWithInit(ASTBase):
     def isPack(self) -> bool:
         return self.type.isPack
 
-    def get_id(self, version: int, objectType: str = None, symbol: "Symbol" = None) -> str:
+    def get_id(
+        self,
+        version: int,
+        objectType: Optional[str] = None,
+        symbol: Optional["Symbol"] = None
+    ) -> str:
         # this is not part of the normal name mangling in C++
         assert version >= 2
         if symbol:
@@ -3231,8 +3241,12 @@ class ASTTypeWithInit(ASTBase):
     def isPack(self) -> bool:
         return self.type.isPack
 
-    def get_id(self, version: int, objectType: str = None,
-               symbol: "Symbol" = None) -> str:
+    def get_id(
+        self,
+        version: int,
+        objectType: Optional[str] = None,
+        symbol: Optional["Symbol"] = None,
+    ) -> str:
         if objectType != 'member':
             return self.type.get_id(version, objectType)
         if version == 1:
@@ -3260,8 +3274,12 @@ class ASTTypeUsing(ASTBase):
         self.name = name
         self.type = type
 
-    def get_id(self, version: int, objectType: str = None,
-               symbol: "Symbol" = None) -> str:
+    def get_id(
+        self,
+        version: int,
+        objectType: Optional[str] = None,
+        symbol: Optional["Symbol"] = None,
+    ) -> str:
         if version == 1:
             raise NoOldIdError()
         return symbol.get_full_nested_name().get_id(version)
@@ -3300,8 +3318,12 @@ class ASTConcept(ASTBase):
     def name(self) -> ASTNestedName:
         return self.nestedName
 
-    def get_id(self, version: int, objectType: str = None,
-               symbol: "Symbol" = None) -> str:
+    def get_id(
+        self,
+        version: int,
+        objectType: Optional[str] = None,
+        symbol: Optional["Symbol"] = None,
+    ) -> str:
         if version == 1:
             raise NoOldIdError()
         return symbol.get_full_nested_name().get_id(version)
@@ -4501,11 +4523,11 @@ class Symbol:
         onMissingQualifiedSymbol: Callable[
             ["Symbol", Union[ASTIdentifier, ASTOperator], Any, ASTTemplateArgs], "Symbol"
         ],
-        strictTemplateParamArgLists: bool, ancestorLookupType: str,
+        strictTemplateParamArgLists: bool, ancestorLookupType: Optional[str],
         templateShorthand: bool, matchSelf: bool,
         recurseInAnon: bool, correctPrimaryTemplateArgs: bool,
         searchInSiblings: bool
-    ) -> SymbolLookupResult:
+    ) -> Optional[SymbolLookupResult]:
         # ancestorLookupType: if not None, specifies the target type of the lookup
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
@@ -4629,8 +4651,14 @@ class Symbol:
         return SymbolLookupResult(symbols, parentSymbol,
                                   identOrOp, templateParams, templateArgs)
 
-    def _add_symbols(self, nestedName: ASTNestedName, templateDecls: List[Any],
-                     declaration: ASTDeclaration, docname: str, line: int) -> "Symbol":
+    def _add_symbols(
+        self,
+        nestedName: ASTNestedName,
+        templateDecls: List[Any],
+        declaration: Optional[ASTDeclaration],
+        docname: Optional[str],
+        line: Optional[int],
+    ) -> "Symbol":
         # Used for adding a whole path of symbols, where the last may or may not
         # be an actual declaration.
 
@@ -4955,7 +4983,7 @@ class Symbol:
 
     def find_identifier(self, identOrOp: Union[ASTIdentifier, ASTOperator],
                         matchSelf: bool, recurseInAnon: bool, searchInSiblings: bool
-                        ) -> "Symbol":
+                        ) -> Optional["Symbol"]:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
             Symbol.debug_print("find_identifier:")
@@ -4984,7 +5012,7 @@ class Symbol:
             current = current.siblingAbove
         return None
 
-    def direct_lookup(self, key: "LookupKey") -> "Symbol":
+    def direct_lookup(self, key: "LookupKey") -> Optional["Symbol"]:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
             Symbol.debug_print("direct_lookup:")
@@ -5025,9 +5053,16 @@ class Symbol:
             Symbol.debug_indent -= 2
         return s
 
-    def find_name(self, nestedName: ASTNestedName, templateDecls: List[Any],
-                  typ: str, templateShorthand: bool, matchSelf: bool,
-                  recurseInAnon: bool, searchInSiblings: bool) -> Tuple[List["Symbol"], str]:
+    def find_name(
+        self,
+        nestedName: ASTNestedName,
+        templateDecls: List[Any],
+        typ: str,
+        templateShorthand: bool,
+        matchSelf: bool,
+        recurseInAnon: bool,
+        searchInSiblings: bool
+    ) -> Tuple[Optional[List["Symbol"]], Optional[str]]:
         # templateShorthand: missing template parameter lists for templates is ok
         # If the first component is None,
         # then the second component _may_ be a string explaining why.

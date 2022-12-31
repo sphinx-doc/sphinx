@@ -94,8 +94,10 @@ class Index(ABC):
         self.domain = domain
 
     @abstractmethod
-    def generate(self, docnames: Iterable[str] = None
-                 ) -> Tuple[List[Tuple[str, List[IndexEntry]]], bool]:
+    def generate(
+        self,
+        docnames: Optional[Iterable[str]] = None,
+    ) -> Tuple[List[Tuple[str, List[IndexEntry]]], bool]:
         """Get entries for the index.
 
         If ``docnames`` is given, restrict to entries referring to these

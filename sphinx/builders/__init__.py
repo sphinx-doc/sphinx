@@ -151,7 +151,7 @@ class Builder:
             from sphinx.jinja2glue import BuiltinTemplateLoader
             self.templates = BuiltinTemplateLoader()
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
         """Return the target URI for a document name.
 
         *typ* can be used to qualify the link characteristic for individual
@@ -159,7 +159,7 @@ class Builder:
         """
         raise NotImplementedError
 
-    def get_relative_uri(self, from_: str, to: str, typ: str = None) -> str:
+    def get_relative_uri(self, from_: str, to: str, typ: Optional[str] = None) -> str:
         """Return a relative URI between two source filenames.
 
         May raise environment.NoUri if there's no way to return a sensible URI.
@@ -312,7 +312,10 @@ class Builder:
                        len(to_build))
 
     def build(
-        self, docnames: Iterable[str], summary: Optional[str] = None, method: str = 'update'
+        self,
+        docnames: Optional[Iterable[str]],
+        summary: Optional[str] = None,
+        method: str = 'update',
     ) -> None:
         """Main build method.
 

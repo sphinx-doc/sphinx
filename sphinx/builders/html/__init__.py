@@ -96,9 +96,9 @@ class Stylesheet(str):
     its filename (str).
     """
 
-    attributes: Dict[str, str] = None
-    filename: str = None
-    priority: int = None
+    attributes: Dict[str, str]
+    filename: str
+    priority: int
 
     def __new__(cls, filename: str, *args: str, priority: int = 500, **attributes: Any
                 ) -> "Stylesheet":
@@ -122,9 +122,9 @@ class JavaScript(str):
     its filename (str).
     """
 
-    attributes: Dict[str, str] = None
-    filename: str = None
-    priority: int = None
+    attributes: Dict[str, str]
+    filename: str
+    priority: int
 
     def __new__(cls, filename: str, priority: int = 500, **attributes: str) -> "JavaScript":
         self = str.__new__(cls, filename)
@@ -158,7 +158,10 @@ class BuildInfo:
             raise ValueError(__('build info file is broken: %r') % exc) from exc
 
     def __init__(
-        self, config: Config = None, tags: Tags = None, config_categories: List[str] = []
+        self,
+        config: Optional[Config] = None,
+        tags: Optional[Tags] = None,
+        config_categories: List[str] = [],
     ) -> None:
         self.config_hash = ''
         self.tags_hash = ''
@@ -1018,7 +1021,7 @@ class StandaloneHTMLBuilder(Builder):
 
     # --------- these are overwritten by the serialization builder
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
         return quote(docname) + self.link_suffix
 
     def handle_page(self, pagename: str, addctx: Dict, templatename: str = 'page.html',
