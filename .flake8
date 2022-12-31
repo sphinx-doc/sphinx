@@ -20,7 +20,6 @@ ignore =
     SIM117,
     SIM223,
     SIM401,
-    SIM905,
     SIM907,
 exclude =
     .git,
@@ -35,3 +34,4 @@ application-import-names = sphinx
 import-order-style = smarkets
 per-file-ignores =
     tests/*: E501
+    sphinx/util/jsdump.py: SIM905
