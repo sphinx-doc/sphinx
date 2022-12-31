@@ -144,12 +144,12 @@ The following is a list of deprecated interfaces.
 
    * - ``favicon`` variable in HTML templates
      - 4.0
-     - TBD
+     - 6.0
      - ``favicon_url``
 
    * - ``logo`` variable in HTML templates
      - 4.0
-     - TBD
+     - 6.0
      - ``logo_url``
 
    * - ``sphinx.directives.patches.ListTable``
