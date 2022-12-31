@@ -38,6 +38,13 @@ Configuration
    - ``javascript``: ``object`` (name of the object), ``fullname``
      (name of the item)
 
+   The ``start_line`` and ``end_line`` keys are always present in the
+   ``info`` dictionary. If start and end line numbers are not found, the keys
+   have the default value ``-1``.
+   By default, these values are found using the :event:`viewcode-find-source` event but you
+   can set the :confval:`linkcode_line_try_import` setting to ``True`` to use
+   the same import mechanism as in :mod:`sphinx.ext.viewcode`.
+
    Example:
 
    .. code-block:: python
@@ -48,4 +55,29 @@ Configuration
           if not info['module']:
               return None
           filename = info['module'].replace('.', '/')
-          return "https://somesite/sourcerepo/%s.py" % filename
+          line_anchor = ""
+          if info['start_line'] >= 0:
+            line_anchor = "#L%s" % info['start_line']
+          return "https://somesite/sourcerepo/%s.py%s" % filename, line_anchor
+
+.. confval:: linkcode_line_try_import
+
+   .. versionadded:: 4.1.3
+
+   If this is ``True``, the extension will try to find the related source lines
+   using the same import mechanism used by :mod:`sphinx.ext.viewcode`
+   (:class:`~sphinx.pycode.ModuleAnalyzer`) after the
+   :event:`viewcode-find-source` event has been tried. Otherwise only the event
+   is used.
+
+   .. warning::
+
+      The same warning as in :mod:`sphinx.ext.viewcode` applies: using this
+      method will import the modules being linked to.
+      If any modules have side effects on import, these will be executed when
+      ``sphinx-build`` is run.
+
+      If you document scripts (as opposed to library modules), make sure their
+      main routine is protected by a ``if __name__ == '__main__'`` condition.
+
+   The default is ``False``.
