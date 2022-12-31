@@ -1402,7 +1402,10 @@ def test_enum_class(app):
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.enums.EnumCls', options)
 
-    if sys.version_info[:2] >= (3, 11):
+    if sys.version_info[:2] >= (3, 12):
+        args = ('(value, names=None, *values, module=None, '
+                'qualname=None, type=None, start=1, boundary=None)')
+    elif sys.version_info[:2] >= (3, 11):
         args = ('(value, names=None, *, module=None, qualname=None, '
                 'type=None, start=1, boundary=None)')
     else:
