@@ -2270,7 +2270,7 @@ class DefinitionParser(BaseParser):
             if self.skip_string(close):
                 break
             if not self.skip_string_and_ws(','):
-                self.fail("Error in {}, expected ',' or '{}'.".format(name, close))
+                self.fail(f"Error in {name}, expected ',' or '{close}'.")
             if self.current_char == close and close == '}':
                 self.pos += 1
                 trailingComma = True

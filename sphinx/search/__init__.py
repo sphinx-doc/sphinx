@@ -398,7 +398,7 @@ class IndexBuilder:
                     alltitles=alltitles, indexentries=index_entries)
 
     def label(self) -> str:
-        return "{} (code: {})".format(self.lang.language_name, self.lang.lang)
+        return f"{self.lang.language_name} (code: {self.lang.lang})"
 
     def prune(self, docnames: Iterable[str]) -> None:
         """Remove data for all docnames not in the list."""

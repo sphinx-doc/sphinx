@@ -5388,7 +5388,7 @@ class DefinitionParser(BaseParser):
             if self.skip_string(close):
                 break
             if not self.skip_string_and_ws(','):
-                self.fail("Error in {}, expected ',' or '{}'.".format(name, close))
+                self.fail(f"Error in {name}, expected ',' or '{close}'.")
             if self.current_char == close and close == '}':
                 self.pos += 1
                 trailingComma = True
@@ -8031,7 +8031,7 @@ class CPPDomain(Domain):
             objtypes = self.objtypes_for_role(typ)
             if objtypes:
                 return declTyp in objtypes
-            print("Type is {}, declaration type is {}".format(typ, declTyp))
+            print(f"Type is {typ}, declaration type is {declTyp}")
             raise AssertionError()
         if not checkType():
             logger.warning("cpp:%s targets a %s (%s).",

@@ -482,7 +482,7 @@ Doctest summary
                 return True
             # simulate a doctest with the code
             sim_doctest = doctest.DocTest(examples, {},
-                                          '{} ({} code)'.format(group.name, what),
+                                          f'{group.name} ({what} code)',
                                           testcodes[0].filename, 0, None)
             sim_doctest.globs = ns
             old_f = runner.failures

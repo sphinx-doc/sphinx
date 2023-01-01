@@ -489,7 +489,7 @@ class StandaloneHTMLBuilder(Builder):
             for domain_name in sorted(self.env.domains):
                 domain: Domain = self.env.domains[domain_name]
                 for indexcls in domain.indices:
-                    indexname = '{}-{}'.format(domain.name, indexcls.name)
+                    indexname = f'{domain.name}-{indexcls.name}'
                     if isinstance(indices_config, list):
                         if indexname not in indices_config:
                             continue
@@ -1197,7 +1197,7 @@ def setup_css_tag_helper(app: Sphinx, pagename: str, templatename: str,
         for key in sorted(css.attributes):
             value = css.attributes[key]
             if value is not None:
-                attrs.append('{}="{}"'.format(key, html.escape(value, True)))
+                attrs.append(f'{key}="{html.escape(value, True)}"')
         attrs.append('href="%s"' % pathto(css.filename, resource=True))
         return '<link %s />' % ' '.join(attrs)
 
@@ -1224,7 +1224,7 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
                     elif key == 'data_url_root':
                         attrs.append('data-url_root="%s"' % pathto('', resource=True))
                     else:
-                        attrs.append('{}="{}"'.format(key, html.escape(value, True)))
+                        attrs.append(f'{key}="{html.escape(value, True)}"')
             if js.filename:
                 attrs.append('src="%s"' % pathto(js.filename, resource=True))
         else:

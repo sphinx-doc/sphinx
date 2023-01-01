@@ -142,14 +142,14 @@ class ReferencesResolver(SphinxPostTransform):
                     res = domain.resolve_xref(self.env, refdoc, self.app.builder,
                                               role, target, node, contnode)
                     if res and len(res) > 0 and isinstance(res[0], nodes.Element):
-                        results.append(('{}:{}'.format(domain.name, role), res))
+                        results.append((f'{domain.name}:{role}', res))
         # now, see how many matches we got...
         if not results:
             return None
         if len(results) > 1:
             def stringify(name: str, node: Element) -> str:
                 reftitle = node.get('reftitle', node.astext())
-                return ':{}:`{}`'.format(name, reftitle)
+                return f':{name}:`{reftitle}`'
             candidates = ' or '.join(stringify(name, role) for name, role in results)
             logger.warning(__('more than one target found for \'any\' cross-'
                               'reference %r: could be %s'), target, candidates,
@@ -170,7 +170,7 @@ class ReferencesResolver(SphinxPostTransform):
         warn = node.get('refwarn')
         if self.config.nitpicky:
             warn = True
-            dtype = '{}:{}'.format(domain.name, typ) if domain else typ
+            dtype = f'{domain.name}:{typ}' if domain else typ
             if self.config.nitpick_ignore:
                 if (dtype, target) in self.config.nitpick_ignore:
                     warn = False

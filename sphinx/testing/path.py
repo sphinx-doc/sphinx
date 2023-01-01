@@ -207,4 +207,4 @@ class path(str):
     __div__ = __truediv__ = joinpath
 
     def __repr__(self) -> str:
-        return '{}({})'.format(self.__class__.__name__, super().__repr__())
+        return f'{self.__class__.__name__}({super().__repr__()})'

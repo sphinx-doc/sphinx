@@ -57,7 +57,7 @@ def heading(env: Environment, text: str, level: int = 1) -> str:
     assert level <= 3
     width = textwidth(text, WIDECHARS[env.language])
     sectioning_char = SECTIONING_CHARS[level - 1]
-    return '{}\n{}'.format(text, sectioning_char * width)
+    return f'{text}\n{sectioning_char * width}'
 
 
 @contextmanager

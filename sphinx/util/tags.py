@@ -32,7 +32,7 @@ class BooleanParser(Parser):
             node = self.parse_expression()
             self.stream.expect('rparen')
         else:
-            self.fail("unexpected token '{}'".format(token), token.lineno)
+            self.fail(f"unexpected token '{token}'", token.lineno)
         return node
 
 

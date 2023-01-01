@@ -60,12 +60,12 @@ class ExtensionError(SphinxError):
         if self.orig_exc:
             return '{}({!r}, {!r})'.format(self.__class__.__name__,
                                    self.message, self.orig_exc)
-        return '{}({!r})'.format(self.__class__.__name__, self.message)
+        return f'{self.__class__.__name__}({self.message!r})'
 
     def __str__(self) -> str:
         parent_str = super().__str__()
         if self.orig_exc:
-            return '{} (exception: {})'.format(parent_str, self.orig_exc)
+            return f'{parent_str} (exception: {self.orig_exc})'
         return parent_str
 
 

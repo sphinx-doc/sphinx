@@ -508,7 +508,7 @@ class ProductionList(SphinxDirective):
                 self.state.document.note_implicit_target(subnode, subnode)
 
                 if len(productionGroup) != 0:
-                    objName = "{}:{}".format(productionGroup, name)
+                    objName = f"{productionGroup}:{name}"
                 else:
                     objName = name
                 domain.note_object('token', objName, node_id, location=node)
