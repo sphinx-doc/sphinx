@@ -43,13 +43,13 @@ class _ModuleWrapper:
 
         canonical_name = self._names.get(name, None)
         if canonical_name is not None:
-            warnings.warn(
-                "The alias '{}.{}' is deprecated, use '{}' instead. Check CHANGES for "
-                "Sphinx API modifications.".format(self._modname, name, canonical_name),
-                self._warning, stacklevel=3)
+            warnings.warn(f"The alias '{self._modname}.{name}' is deprecated, "
+                          f"use '{canonical_name}' instead. "
+                          "Check CHANGES for Sphinx API modifications.",
+                          self._warning, stacklevel=3)
         else:
-            warnings.warn("{}.{} is deprecated. Check CHANGES for Sphinx "
-                          "API modifications.".format(self._modname, name),
+            warnings.warn(f"{self._modname}.{name} is deprecated. "
+                          "Check CHANGES for Sphinx API modifications.",
                           self._warning, stacklevel=3)
         return self._objects[name]
 

@@ -467,9 +467,8 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
                          "expected {permitted}.")
                 wrapped_annotations = [f"`{c.__name__}'" for c in annotations]
                 if len(wrapped_annotations) > 2:
-                    permitted = "{}, or {}".format(
-                        ", ".join(wrapped_annotations[:-1]),
-                        wrapped_annotations[-1])
+                    permitted = (", ".join(wrapped_annotations[:-1])
+                                 + f", or {wrapped_annotations[-1]}")
                 else:
                     permitted = " or ".join(wrapped_annotations)
                 logger.warning(msg.format(name=confval.name,

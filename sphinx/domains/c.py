@@ -1140,9 +1140,9 @@ class ASTBracedInitList(ASTBase):
         self.trailingComma = trailingComma
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        exprs = [transform(e) for e in self.exprs]
+        exprs = ', '.join(transform(e) for e in self.exprs)
         trailingComma = ',' if self.trailingComma else ''
-        return '{{{}{}}}'.format(', '.join(exprs), trailingComma)
+        return f'{{{exprs}{trailingComma}}}'
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:
@@ -1507,8 +1507,8 @@ class LookupKey:
         self.data = data
 
     def __str__(self) -> str:
-        return '[{}]'.format(', '.join("({}, {})".format(
-            ident, id_) for ident, id_ in self.data))
+        inner = ', '.join(f"({ident}, {id_})" for ident, id_ in self.data)
+        return f'[{inner}]'
 
 
 class Symbol:

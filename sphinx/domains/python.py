@@ -685,7 +685,7 @@ class PyFunction(PyObject):
                 text = _('%s() (in module %s)') % (name, modname)
                 self.indexnode['entries'].append(('single', text, node_id, '', None))
             else:
-                text = '{}; {}()'.format(pairindextypes['builtin'], name)
+                text = f'{pairindextypes["builtin"]}; {name}()'
                 self.indexnode['entries'].append(('pair', text, node_id, '', None))
 
     def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str:
@@ -1015,7 +1015,7 @@ class PyModule(SphinxDirective):
             # the platform and synopsis aren't printed; in fact, they are only
             # used in the modindex currently
             ret.append(target)
-            indextext = '{}; {}'.format(pairindextypes['module'], modname)
+            indextext = f'{pairindextypes["module"]}; {modname}'
             inode = addnodes.index(entries=[('pair', indextext, node_id, '', None)])
             ret.append(inode)
         ret.extend(content_node.children)

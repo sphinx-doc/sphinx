@@ -1281,16 +1281,16 @@ def test_domain_cpp_build_xref_consistency(app, status, warning):
     output = (app.outdir / test).read_text(encoding='utf8')
 
     def classes(role, tag):
-        pattern = (r'{role}-role:.*?'
-                   r'<(?P<tag>{tag}) .*?class=["\'](?P<classes>.*?)["\'].*?>'
+        pattern = (fr'{role}-role:.*?'
+                   fr'<(?P<tag>{tag}) .*?class=["\'](?P<classes>.*?)["\'].*?>'
                    r'.*'
-                   r'</(?P=tag)>').format(role=role, tag=tag)
+                   r'</(?P=tag)>')
         result = re.search(pattern, output)
-        expect = '''\
+        expect = f'''\
 Pattern for role `{role}` with tag `{tag}`
 \t{pattern}
 not found in `{test}`
-'''.format(role=role, tag=tag, pattern=pattern, test=test)
+'''
         assert result, expect
         return set(result.group('classes').split())
 

@@ -1568,9 +1568,9 @@ class ASTBracedInitList(ASTBase):
         return "il%sE" % ''.join(e.get_id(version) for e in self.exprs)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        exprs = [transform(e) for e in self.exprs]
+        exprs = ', '.join(transform(e) for e in self.exprs)
         trailingComma = ',' if self.trailingComma else ''
-        return '{{{}{}}}'.format(', '.join(exprs), trailingComma)
+        return f'{{{exprs}{trailingComma}}}'
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:
@@ -6060,12 +6060,12 @@ class DefinitionParser(BaseParser):
             if signedness is not None:
                 self.fail(f"Can not have both {typ} and {signedness}.")
             if len(width) != 0:
-                self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
+                self.fail(f"Can not have both {typ} and {' '.join(width)}.")
         elif typ == 'char':
             if modifier is not None:
                 self.fail(f"Can not have both {typ} and {modifier}.")
             if len(width) != 0:
-                self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
+                self.fail(f"Can not have both {typ} and {' '.join(width)}.")
         elif typ == 'int':
             if modifier is not None:
                 self.fail(f"Can not have both {typ} and {modifier}.")
@@ -6073,19 +6073,19 @@ class DefinitionParser(BaseParser):
             if modifier is not None:
                 self.fail(f"Can not have both {typ} and {modifier}.")
             if len(width) != 0:
-                self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
+                self.fail(f"Can not have both {typ} and {' '.join(width)}.")
         elif typ == 'float':
             if signedness is not None:
                 self.fail(f"Can not have both {typ} and {signedness}.")
             if len(width) != 0:
-                self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
+                self.fail(f"Can not have both {typ} and {' '.join(width)}.")
         elif typ == 'double':
             if signedness is not None:
                 self.fail(f"Can not have both {typ} and {signedness}.")
             if len(width) > 1:
-                self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
+                self.fail(f"Can not have both {typ} and {' '.join(width)}.")
             if len(width) == 1 and width[0] != 'long':
-                self.fail("Can not have both {} and {}.".format(typ, ' '.join(width)))
+                self.fail(f"Can not have both {typ} and {' '.join(width)}.")
         elif typ is None:
             if modifier is not None:
                 self.fail(f"Can not have {modifier} without a floating point type.")
@@ -7333,12 +7333,10 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         parentSymbol = env.temp_data['cpp:parent_symbol']
         parentDecl = parentSymbol.declaration
         if parentDecl is not None and parentDecl.objectType == 'function':
-            msg = "C++ declarations inside functions are not supported." \
-                  " Parent function: {}\nDirective name: {}\nDirective arg: {}"
-            logger.warning(msg.format(
-                str(parentSymbol.get_full_nested_name()),
-                self.name, self.arguments[0]
-            ), location=self.get_location())
+            msg = ("C++ declarations inside functions are not supported. "
+                   f"Parent function: {parentSymbol.get_full_nested_name()}\n"
+                   f"Directive name: {self.name}\nDirective arg: {self.arguments[0]}")
+            logger.warning(msg, location=self.get_location())
             name = _make_phony_error_name()
             symbol = parentSymbol.add_name(name)
             env.temp_data['cpp:last_symbol'] = symbol

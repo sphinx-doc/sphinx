@@ -118,8 +118,7 @@ class Token:
         return any(self == candidate for candidate in conditions)
 
     def __repr__(self) -> str:
-        return '<Token kind={!r} value={!r}>'.format(tokenize.tok_name[self.kind],
-                                             self.value.strip())
+        return f'<Token kind={tokenize.tok_name[self.kind]!r} value={self.value.strip()!r}>'
 
 
 class TokenProcessor:

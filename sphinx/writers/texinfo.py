@@ -1210,7 +1210,7 @@ class TexinfoTranslator(SphinxTranslator):
         width = self.tex_image_length(node.get('width', ''))
         height = self.tex_image_length(node.get('height', ''))
         alt = self.escape_arg(node.get('alt', ''))
-        filename = "{}-figures/{}".format(self.elements['filename'][:-5], name)  # type: ignore
+        filename = f"{self.elements['filename'][:-5]}-figures/{name}"  # type: ignore
         self.body.append('\n@image{%s,%s,%s,%s,%s}\n' %
                          (filename, width, height, alt, ext[1:]))
 

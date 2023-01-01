@@ -33,9 +33,7 @@ class Cell:
         self.row: int | None = None
 
     def __repr__(self) -> str:
-        return "<Cell {!r} {}v{}/{}>{}>".format(
-            self.text, self.row, self.rowspan, self.col, self.colspan
-        )
+        return f"<Cell {self.text!r} {self.row}v{self.rowspan}/{self.col}>{self.colspan}>"
 
     def __hash__(self) -> int:
         return hash((self.col, self.row))

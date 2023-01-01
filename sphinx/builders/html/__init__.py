@@ -1232,9 +1232,9 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
             attrs.append('src="%s"' % pathto(js, resource=True))
 
         if attrs:
-            return '<script {}>{}</script>'.format(' '.join(attrs), body)
+            return f'<script {" ".join(attrs)}>{body}</script>'
         else:
-            return '<script>%s</script>' % body
+            return f'<script>{body}</script>'
 
     context['js_tag'] = js_tag
 

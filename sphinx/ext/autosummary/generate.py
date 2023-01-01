@@ -473,8 +473,8 @@ def find_autosummary_in_docstring(
     except AttributeError:
         pass
     except ImportExceptionGroup as exc:
-        errors = list({f"* {type(e).__name__}: {e}" for e in exc.exceptions})
-        print('Failed to import {}.\nPossible hints:\n{}'.format(name, '\n'.join(errors)))
+        errors = '\n'.join({f"* {type(e).__name__}: {e}" for e in exc.exceptions})
+        print(f'Failed to import {name}.\nPossible hints:\n{errors}')
     except SystemExit:
         print("Failed to import '%s'; the module executes module level "
               "statement and it might call sys.exit()." % name)

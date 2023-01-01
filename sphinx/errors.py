@@ -58,8 +58,7 @@ class ExtensionError(SphinxError):
 
     def __repr__(self) -> str:
         if self.orig_exc:
-            return '{}({!r}, {!r})'.format(self.__class__.__name__,
-                                   self.message, self.orig_exc)
+            return f'{self.__class__.__name__}({self.message!r}, {self.orig_exc!r})'
         return f'{self.__class__.__name__}({self.message!r})'
 
     def __str__(self) -> str:

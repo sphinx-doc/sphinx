@@ -307,10 +307,9 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
                 stack.pop()
                 html.append('</ul>')
             stack.append(modname + '.')
-        html.append('<li><a href="{}">{}</a></li>\n'.format(
-            urito(posixpath.join(OUTPUT_DIRNAME, 'index'),
-                  posixpath.join(OUTPUT_DIRNAME, modname.replace('.', '/'))),
-            modname))
+        relative_uri = urito(posixpath.join(OUTPUT_DIRNAME, 'index'),
+                             posixpath.join(OUTPUT_DIRNAME, modname.replace('.', '/')))
+        html.append(f'<li><a href="{relative_uri}">{modname}</a></li>\n')
     html.append('</ul>' * (len(stack) - 1))
     context = {
         'title': _('Overview: module code'),

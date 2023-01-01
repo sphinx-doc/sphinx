@@ -1735,8 +1735,8 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_citation(self, node: Element) -> None:
         label = cast(nodes.label, node[0])
-        self.body.append(r'\bibitem[{}]{{{}:{}}}'.format(self.encode(label.astext()),
-                                                   node['docname'], node['ids'][0]))
+        self.body.append(fr'\bibitem[{self.encode(label.astext())}]'
+                         fr'{{{node["docname"]}:{node["ids"][0]}}}')
 
     def depart_citation(self, node: Element) -> None:
         pass
@@ -1745,7 +1745,7 @@ class LaTeXTranslator(SphinxTranslator):
         if self.in_title:
             pass
         else:
-            self.body.append(r'\sphinxcite{{{}:{}}}'.format(node['docname'], node['refname']))
+            self.body.append(fr'\sphinxcite{{{node["docname"]}:{node["refname"]}}}')
             raise nodes.SkipNode
 
     def depart_citation_reference(self, node: Element) -> None:
@@ -2069,7 +2069,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_math_block(self, node: Element) -> None:
         if node.get('label'):
-            label = "equation:{}:{}".format(node['docname'], node['label'])
+            label = f"equation:{node['docname']}:{node['label']}"
         else:
             label = None
 
@@ -2084,7 +2084,7 @@ class LaTeXTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_math_reference(self, node: Element) -> None:
-        label = "equation:{}:{}".format(node['docname'], node['target'])
+        label = f"equation:{node['docname']}:{node['target']}"
         eqref_format = self.config.math_eqref_format
         if eqref_format:
             try:

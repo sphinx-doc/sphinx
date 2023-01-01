@@ -261,7 +261,7 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
         elif isinstance(node.parent, nodes.section):
             if self.builder.name == 'singlehtml':
                 docname = self.docnames[-1]
-                anchorname = "{}/#{}".format(docname, node.parent['ids'][0])
+                anchorname = f"{docname}/#{node.parent['ids'][0]}"
                 if anchorname not in self.builder.secnumbers:
                     anchorname = "%s/" % docname  # try first heading which has no anchor
             else:

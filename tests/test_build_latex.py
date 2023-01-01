@@ -61,8 +61,8 @@ def compile_latex_document(app, filename='python.tex'):
     except CalledProcessError as exc:
         print(exc.stdout.decode('utf8'))
         print(exc.stderr.decode('utf8'))
-        raise AssertionError('{} exited with return code {}'.format(app.config.latex_engine,
-                                                                exc.returncode))
+        raise AssertionError(f'{app.config.latex_engine} exited with '
+                             f'return code {exc.returncode}')
 
 
 def skip_if_requested(testfunc):

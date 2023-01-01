@@ -135,10 +135,8 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif cls.__module__ in ('__builtin__', 'builtins'):
             if hasattr(cls, '__args__'):
-                return ':py:class:`{}`\\ [{}]'.format(
-                    cls.__name__,
-                    ', '.join(restify(arg, mode) for arg in cls.__args__),
-                )
+                concatenated_args = ', '.join(restify(arg, mode) for arg in cls.__args__)
+                return fr':py:class:`{cls.__name__}`\ [{concatenated_args}]'
             else:
                 return ':py:class:`%s`' % cls.__name__
         elif (inspect.isgenericalias(cls)
@@ -309,8 +307,7 @@ def stringify(annotation: Any, mode: str = 'fully-qualified-except-typing') -> s
                     args = ', '.join(stringify(a, mode) for a in annotation.__args__[:-1])
                     return f'{modprefix}Optional[{modprefix}Union[{args}]]'
                 else:
-                    return '{}Optional[{}]'.format(modprefix,
-                                               stringify(annotation.__args__[0], mode))
+                    return f'{modprefix}Optional[{stringify(annotation.__args__[0], mode)}]'
             else:
                 args = ', '.join(stringify(a, mode) for a in annotation.__args__)
                 return f'{modprefix}Union[{args}]'

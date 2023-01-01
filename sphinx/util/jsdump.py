@@ -89,10 +89,9 @@ def dumps(obj: Any, key: bool = False) -> str:
     elif isinstance(obj, (int, float)):
         return str(obj)
     elif isinstance(obj, dict):
-        return '{%s}' % ','.join(sorted('{}:{}'.format(
-            dumps(key, True),
-            dumps(value)
-        ) for key, value in obj.items()))
+        return '{%s}' % ','.join(
+            sorted(f'{dumps(key, True)}:{dumps(value)}' for key, value in obj.items())
+        )
     elif isinstance(obj, set):
         return '[%s]' % ','.join(sorted(dumps(x) for x in obj))
     elif isinstance(obj, (tuple, list)):

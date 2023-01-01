@@ -569,5 +569,4 @@ def xmlname_checker() -> re.Pattern:
 
     start_chars_regex = convert(name_start_chars)
     name_chars_regex = convert(name_chars)
-    return re.compile('({})({}|{})*'.format(
-        start_chars_regex, start_chars_regex, name_chars_regex))
+    return re.compile(f'({start_chars_regex})({start_chars_regex}|{name_chars_regex})*')

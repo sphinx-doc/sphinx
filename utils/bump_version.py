@@ -125,9 +125,8 @@ class Changes:
             version = stringify_version(version_info)
         else:
             reltype = version_info[3]
-            version = '{} {}{}'.format(stringify_version(version_info),
-                                   RELEASE_TYPE.get(reltype, reltype),
-                                   version_info[4] or '')
+            version = (f'{stringify_version(version_info)} '
+                       f'{RELEASE_TYPE.get(reltype, reltype)}{version_info[4] or ""}')
         heading = 'Release %s (in development)' % version
 
         with open(os.path.join(script_dir, 'CHANGES_template'), encoding='utf-8') as f:

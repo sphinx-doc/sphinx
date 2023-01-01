@@ -1478,7 +1478,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         call = get_user_defined_function_or_method(type(self.object), '__call__')
 
         if call is not None:
-            if "{0.__module__}.{0.__qualname__}".format(call) in _METACLASS_CALL_BLACKLIST:
+            if f"{call.__module__}.{call.__qualname__}" in _METACLASS_CALL_BLACKLIST:
                 call = None
 
         if call is not None:
@@ -1494,7 +1494,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         new = get_user_defined_function_or_method(self.object, '__new__')
 
         if new is not None:
-            if "{0.__module__}.{0.__qualname__}".format(new) in _CLASS_NEW_BLACKLIST:
+            if f"{new.__module__}.{new.__qualname__}" in _CLASS_NEW_BLACKLIST:
                 new = None
 
         if new is not None:

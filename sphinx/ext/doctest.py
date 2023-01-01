@@ -214,8 +214,8 @@ class TestGroup:
             raise RuntimeError(__('invalid TestCode type'))
 
     def __repr__(self) -> str:
-        return 'TestGroup(name={!r}, setup={!r}, cleanup={!r}, tests={!r})'.format(
-            self.name, self.setup, self.cleanup, self.tests)
+        return (f'TestGroup(name={self.name!r}, setup={self.setup!r}, '
+                f'cleanup={self.cleanup!r}, tests={self.tests!r})')
 
 
 class TestCode:
@@ -228,8 +228,8 @@ class TestCode:
         self.options = options or {}
 
     def __repr__(self) -> str:
-        return 'TestCode({!r}, {!r}, filename={!r}, lineno={!r}, options={!r})'.format(
-            self.code, self.type, self.filename, self.lineno, self.options)
+        return (f'TestCode({self.code!r}, {self.type!r}, filename={self.filename!r}, '
+                f'lineno={self.lineno!r}, options={self.options!r})')
 
 
 class SphinxDocTestRunner(doctest.DocTestRunner):
