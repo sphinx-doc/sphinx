@@ -28,7 +28,7 @@ strip_backslash_re = re.compile(r'\\(.)')
 T = TypeVar('T')
 
 
-def optional_int(argument: str) -> int:
+def optional_int(argument: str) -> int | None:
     """
     Check for an integer argument or None value; raise ``ValueError`` if not.
     """
@@ -62,7 +62,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
     doc_field_types: list[Field] = []
     domain: str | None = None
     objtype: str | None = None
-    indexnode: addnodes.index | None = None
+    indexnode: addnodes.index
 
     # Warning: this might be removed in future version. Don't touch this from extensions.
     _doc_field_type_map: dict[str, tuple[Field, bool]] = {}
