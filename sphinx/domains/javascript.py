@@ -412,7 +412,7 @@ class JavaScriptDomain(Domain):
             if pkg_docname == docname:
                 del self.modules[modname]
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict) -> None:
+    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
         # XXX check duplicates
         for fullname, (fn, node_id, objtype) in otherdata['objects'].items():
             if fn in docnames:
@@ -421,8 +421,15 @@ class JavaScriptDomain(Domain):
             if pkg_docname in docnames:
                 self.modules[mod_name] = (pkg_docname, node_id)
 
-    def find_obj(self, env: BuildEnvironment, mod_name: str, prefix: str, name: str,
-                 typ: str, searchorder: int = 0) -> tuple[str, tuple[str, str, str]]:
+    def find_obj(
+        self,
+        env: BuildEnvironment,
+        mod_name: str,
+        prefix: str,
+        name: str,
+        typ: str | None,
+        searchorder: int = 0
+    ) -> tuple[str | None, tuple[str, str, str] | None]:
         if name[-2:] == '()':
             name = name[:-2]
 
@@ -471,7 +478,7 @@ class JavaScriptDomain(Domain):
         for refname, (docname, node_id, typ) in list(self.objects.items()):
             yield refname, refname, typ, docname, node_id, 1
 
-    def get_full_qualified_name(self, node: Element) -> str:
+    def get_full_qualified_name(self, node: Element) -> str | None:
         modname = node.get('js:module')
         prefix = node.get('js:object')
         target = node.get('reftarget')
