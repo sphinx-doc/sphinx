@@ -148,11 +148,11 @@ class Epub3Builder(_epub_base.EpubBuilder):
         """Create a dictionary with all metadata for the nav.xhtml file
         properly escaped.
         """
-        metadata = {}
-        metadata['lang'] = html.escape(self.config.epub_language)
-        metadata['toc_locale'] = html.escape(self.guide_titles['toc'])
-        metadata['navlist'] = navlist
-        return metadata
+        return {
+            'lang': html.escape(self.config.epub_language),
+            'toc_locale': html.escape(self.guide_titles['toc']),
+            'navlist': navlist
+        }
 
     def build_navigation_doc(self) -> None:
         """Write the metainfo file nav.xhtml."""
