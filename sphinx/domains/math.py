@@ -35,7 +35,7 @@ class MathDomain(Domain):
     name = 'math'
     label = 'mathematics'
 
-    initial_data: dict = {
+    initial_data: dict[str, Any] = {
         'objects': {},  # labelid -> (docname, eqno)
         'has_equations': {},  # docname -> bool
     }
@@ -61,7 +61,7 @@ class MathDomain(Domain):
 
         self.equations[labelid] = (docname, self.env.new_serialno('eqno') + 1)
 
-    def get_equation_number_for(self, labelid: str) -> int:
+    def get_equation_number_for(self, labelid: str) -> int | None:
         if labelid in self.equations:
             return self.equations[labelid][1]
         else:
@@ -81,7 +81,7 @@ class MathDomain(Domain):
 
         self.data['has_equations'].pop(docname, None)
 
-    def merge_domaindata(self, docnames: Iterable[str], otherdata: dict) -> None:
+    def merge_domaindata(self, docnames: Iterable[str], otherdata: dict[str, Any]) -> None:
         for labelid, (doc, eqno) in otherdata['objects'].items():
             if doc in docnames:
                 self.equations[labelid] = (doc, eqno)
@@ -93,8 +93,9 @@ class MathDomain(Domain):
                      typ: str, target: str, node: pending_xref, contnode: Element
                      ) -> Element | None:
         assert typ in ('eq', 'numref')
-        docname, number = self.equations.get(target, (None, None))
-        if docname:
+        result = self.equations.get(target)
+        if result:
+            docname, number = result
             # TODO: perhaps use rather a sphinx-core provided prefix here?
             node_id = make_id('equation-%s' % target)
             if env.config.math_numfig and env.config.numfig:
@@ -127,10 +128,10 @@ class MathDomain(Domain):
         else:
             return [('eq', refnode)]
 
-    def get_objects(self) -> list:
+    def get_objects(self) -> Iterable[tuple[str, str, str, str, str, int]]:
         return []
 
-    def has_equations(self, docname: str = None) -> bool:
+    def has_equations(self, docname: str | None = None) -> bool:
         if docname:
             return self.data['has_equations'].get(docname, False)
         else:

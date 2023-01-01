@@ -190,7 +190,7 @@ class Domain:
     #: role name -> a warning message if reference is missing
     dangling_warnings: dict[str, str] = {}
     #: node_class -> (enum_node_type, title_getter)
-    enumerable_nodes: dict[type[Node], tuple[str, TitleGetter]] = {}
+    enumerable_nodes: dict[type[Node], tuple[str, TitleGetter | None]] = {}
     #: data value for a fresh environment
     initial_data: dict = {}
     #: data value
