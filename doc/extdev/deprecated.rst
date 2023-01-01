@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
+   * - ``sphinx.util.typing.stringify``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.typing.stringify_annotation``
+
    * - HTML 4 support
      - 5.2
      - 7.0

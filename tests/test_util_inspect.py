@@ -15,15 +15,15 @@ import pytest
 
 from sphinx.util import inspect
 from sphinx.util.inspect import TypeAliasForwardRef, TypeAliasNamespace, stringify_signature
-from sphinx.util.typing import stringify
+from sphinx.util.typing import stringify_annotation
 
 
 def test_TypeAliasForwardRef():
     alias = TypeAliasForwardRef('example')
-    assert stringify(alias) == 'example'
+    assert stringify_annotation(alias, 'fully-qualified-except-typing') == 'example'
 
     alias = Optional[alias]
-    assert stringify(alias) == 'Optional[example]'
+    assert stringify_annotation(alias, 'fully-qualified-except-typing') == 'Optional[example]'
 
 
 def test_TypeAliasNamespace():

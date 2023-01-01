@@ -12,8 +12,7 @@ from sphinx.application import Sphinx
 from sphinx.config import Config as SphinxConfig
 from sphinx.locale import _, __
 from sphinx.util import logging
-from sphinx.util.inspect import stringify_annotation
-from sphinx.util.typing import get_type_hints
+from sphinx.util.typing import get_type_hints, stringify_annotation
 
 logger = logging.getLogger(__name__)
 
@@ -876,7 +875,8 @@ class GoogleDocstring:
                                    ) or {})
                     self._annotations = get_type_hints(self._obj, None, localns)
                 if _name in self._annotations:
-                    return stringify_annotation(self._annotations[_name])
+                    return stringify_annotation(self._annotations[_name],
+                                                'fully-qualified-except-typing')
         # No annotation found
         return ""
 

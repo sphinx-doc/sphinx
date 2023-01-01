@@ -12,7 +12,8 @@ from docutils.nodes import Element
 import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
-from sphinx.util import inspect, typing
+from sphinx.util import inspect
+from sphinx.util.typing import stringify_annotation
 
 
 def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
@@ -30,9 +31,9 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
             sig = inspect.signature(obj, type_aliases=app.config.autodoc_type_aliases)
             for param in sig.parameters.values():
                 if param.annotation is not param.empty:
-                    annotation[param.name] = typing.stringify(param.annotation, mode)
+                    annotation[param.name] = stringify_annotation(param.annotation, mode)
             if sig.return_annotation is not sig.empty:
-                annotation['return'] = typing.stringify(sig.return_annotation, mode)
+                annotation['return'] = stringify_annotation(sig.return_annotation, mode)
     except (TypeError, ValueError):
         pass
 

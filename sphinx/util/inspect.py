@@ -22,8 +22,7 @@ from typing import Any, Callable, Dict, Mapping, Sequence, cast
 
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
-from sphinx.util.typing import ForwardRef
-from sphinx.util.typing import stringify as stringify_annotation
+from sphinx.util.typing import ForwardRef, stringify_annotation
 
 logger = logging.getLogger(__name__)
 

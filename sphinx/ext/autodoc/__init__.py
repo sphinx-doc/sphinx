@@ -27,8 +27,7 @@ from sphinx.util import inspect, logging
 from sphinx.util.docstrings import prepare_docstring, separate_metadata
 from sphinx.util.inspect import (evaluate_signature, getdoc, object_description, safe_getattr,
                                  stringify_signature)
-from sphinx.util.typing import OptionSpec, get_type_hints, restify
-from sphinx.util.typing import stringify as stringify_typehint
+from sphinx.util.typing import OptionSpec, get_type_hints, restify, stringify_annotation
 
 if TYPE_CHECKING:
     from sphinx.ext.autodoc.directive import DocumenterBridge
@@ -1902,9 +1901,10 @@ class TypeVarMixin(DataDocumenterMixinBase):
             attrs = [repr(self.object.__name__)]
             for constraint in self.object.__constraints__:
                 if self.config.autodoc_typehints_format == "short":
-                    attrs.append(stringify_typehint(constraint, "smart"))
+                    attrs.append(stringify_annotation(constraint, "smart"))
                 else:
-                    attrs.append(stringify_typehint(constraint))
+                    attrs.append(stringify_annotation(constraint,
+                                                      "fully-qualified-except-typing"))
             if self.object.__bound__:
                 if self.config.autodoc_typehints_format == "short":
                     bound = restify(self.object.__bound__, "smart")
@@ -2027,10 +2027,11 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
                                              self.config.autodoc_type_aliases)
                 if self.objpath[-1] in annotations:
                     if self.config.autodoc_typehints_format == "short":
-                        objrepr = stringify_typehint(annotations.get(self.objpath[-1]),
-                                                     "smart")
+                        objrepr = stringify_annotation(annotations.get(self.objpath[-1]),
+                                                       "smart")
                     else:
-                        objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
+                        objrepr = stringify_annotation(annotations.get(self.objpath[-1]),
+                                                       "fully-qualified-except-typing")
                     self.add_line('   :type: ' + objrepr, sourcename)
 
             try:
@@ -2622,10 +2623,11 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
                                              self.config.autodoc_type_aliases)
                 if self.objpath[-1] in annotations:
                     if self.config.autodoc_typehints_format == "short":
-                        objrepr = stringify_typehint(annotations.get(self.objpath[-1]),
-                                                     "smart")
+                        objrepr = stringify_annotation(annotations.get(self.objpath[-1]),
+                                                       "smart")
                     else:
-                        objrepr = stringify_typehint(annotations.get(self.objpath[-1]))
+                        objrepr = stringify_annotation(annotations.get(self.objpath[-1]),
+                                                       "fully-qualified-except-typing")
                     self.add_line('   :type: ' + objrepr, sourcename)
 
             try:
@@ -2750,9 +2752,10 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
                                               type_aliases=self.config.autodoc_type_aliases)
                 if signature.return_annotation is not Parameter.empty:
                     if self.config.autodoc_typehints_format == "short":
-                        objrepr = stringify_typehint(signature.return_annotation, "smart")
+                        objrepr = stringify_annotation(signature.return_annotation, "smart")
                     else:
-                        objrepr = stringify_typehint(signature.return_annotation)
+                        objrepr = stringify_annotation(signature.return_annotation,
+                                                       "fully-qualified-except-typing")
                     self.add_line('   :type: ' + objrepr, sourcename)
             except TypeError as exc:
                 logger.warning(__("Failed to get a function signature for %s: %s"),
