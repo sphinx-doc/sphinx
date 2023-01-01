@@ -62,7 +62,7 @@ dependencies = [
     "sphinxcontrib-serializinghtml>=1.1.5",
     "sphinxcontrib-qthelp",
     "Jinja2>=3.0",
-    "Pygments>=2.12",
+    "Pygments>=2.13",
     "docutils>=0.18,<0.20",
     "snowballstemmer>=2.0",
     "babel>=2.9",
