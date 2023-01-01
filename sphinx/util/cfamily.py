@@ -458,5 +458,5 @@ class BaseParser:
             res.append(attr)
         return ASTAttributeList(res)
 
-    def _parse_paren_expression_list(self) -> ASTBaseParenExprList:
+    def _parse_paren_expression_list(self) -> ASTBaseParenExprList | None:
         raise NotImplementedError
