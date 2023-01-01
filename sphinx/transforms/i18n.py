@@ -64,7 +64,7 @@ def publish_msgstr(app: Sphinx, source: str, source_path: str, source_line: int,
         parser = app.registry.create_source_parser(app, filetype)
         doc = reader.read(
             source=StringInput(source=source,
-                               source_path="%s:%s:<translated>" % (source_path, source_line)),
+                               source_path="{}:{}:<translated>".format(source_path, source_line)),
             parser=parser,
             settings=settings,
         )

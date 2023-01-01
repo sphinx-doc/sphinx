@@ -397,7 +397,7 @@ def object_description(object: Any) -> str:
             return "frozenset({%s})" % ", ".join(object_description(x)
                                                  for x in sorted_values)
     elif isinstance(object, enum.Enum):
-        return "%s.%s" % (object.__class__.__name__, object.name)
+        return "{}.{}".format(object.__class__.__name__, object.name)
 
     try:
         s = repr(object)
@@ -696,7 +696,7 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
         return '(%s)' % ', '.join(args)
     else:
         annotation = stringify_annotation(sig.return_annotation, mode)
-        return '(%s) -> %s' % (', '.join(args), annotation)
+        return '({}) -> {}'.format(', '.join(args), annotation)
 
 
 def signature_from_str(signature: str) -> inspect.Signature:

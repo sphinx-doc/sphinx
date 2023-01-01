@@ -137,7 +137,7 @@ def do_prompt(
 ) -> str | bool:
     while True:
         if default is not None:
-            prompt = PROMPT_PREFIX + '%s [%s]: ' % (text, default)
+            prompt = PROMPT_PREFIX + '{} [{}]: '.format(text, default)
         else:
             prompt = PROMPT_PREFIX + text + ': '
         if USE_LIBEDIT:
@@ -306,7 +306,7 @@ def ask_user(d: dict[str, Any]) -> None:
         print(__('Indicate which of the following Sphinx extensions should be enabled:'))
         d['extensions'] = []
         for name, description in EXTENSIONS.items():
-            if do_prompt('%s: %s (y/n)' % (name, description), 'n', boolean):
+            if do_prompt('{}: {} (y/n)'.format(name, description), 'n', boolean):
                 d['extensions'].append('sphinx.ext.%s' % name)
 
         # Handle conflicting options

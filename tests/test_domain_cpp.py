@@ -1199,7 +1199,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_True(app, status, war
         pattern = '<li><p>%s<a .*?><code .*?><span .*?>%s</span></code></a></p></li>' % spec
         res = re.search(pattern, text)
         if not res:
-            print("Pattern\n\t%s\nnot found in %s" % (pattern, file))
+            print("Pattern\n\t{}\nnot found in {}".format(pattern, file))
             raise AssertionError()
     rolePatterns = [
         ('', 'Sphinx'),
@@ -1240,7 +1240,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_False(app, status, wa
         pattern = '<li><p>%s<a .*?><code .*?><span .*?>%s</span></code></a></p></li>' % spec
         res = re.search(pattern, text)
         if not res:
-            print("Pattern\n\t%s\nnot found in %s" % (pattern, file))
+            print("Pattern\n\t{}\nnot found in {}".format(pattern, file))
             raise AssertionError()
     rolePatterns = [
         ('', 'Sphinx'),

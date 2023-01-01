@@ -11,7 +11,7 @@ def get_node_equation_number(writer: HTML5Translator, node: nodes.math_block) ->
     if writer.builder.config.math_numfig and writer.builder.config.numfig:
         figtype = 'displaymath'
         if writer.builder.name == 'singlehtml':
-            key = "%s/%s" % (writer.docnames[-1], figtype)
+            key = "{}/{}".format(writer.docnames[-1], figtype)
         else:
             key = figtype
 
@@ -54,4 +54,4 @@ def wrap_displaymath(text: str, label: str | None, numbering: bool) -> str:
         for part in parts:
             equations.append('%s\\\\\n' % part.strip())
 
-    return '%s\n%s%s' % (begin, ''.join(equations), end)
+    return '{}\n{}{}'.format(begin, ''.join(equations), end)

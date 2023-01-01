@@ -515,9 +515,9 @@ class Documenter:
         sourcename = self.get_sourcename()
 
         # one signature per line, indented by column
-        prefix = '.. %s:%s:: ' % (domain, directive)
+        prefix = '.. {}:{}:: '.format(domain, directive)
         for i, sig_line in enumerate(sig.split("\n")):
-            self.add_line('%s%s%s' % (prefix, name, sig_line),
+            self.add_line('{}{}{}'.format(prefix, name, sig_line),
                           sourcename)
             if i == 0:
                 prefix = " " * len(prefix)
@@ -562,12 +562,12 @@ class Documenter:
                 inspect.safe_getattr(self.object, '__qualname__', None)):
             # Get the correct location of docstring from self.object
             # to support inherited methods
-            fullname = '%s.%s' % (self.object.__module__, self.object.__qualname__)
+            fullname = '{}.{}'.format(self.object.__module__, self.object.__qualname__)
         else:
             fullname = self.fullname
 
         if self.analyzer:
-            return '%s:docstring of %s' % (self.analyzer.srcname, fullname)
+            return '{}:docstring of {}'.format(self.analyzer.srcname, fullname)
         else:
             return 'docstring of %s' % fullname
 
@@ -1200,7 +1200,7 @@ class DocstringSignatureMixin:
                     result = args, retann
                 else:
                     # subsequent signatures
-                    self._signatures.append("(%s) -> %s" % (args, retann))
+                    self._signatures.append("({}) -> {}".format(args, retann))
 
             if result:
                 # finish the loop when signature found

@@ -280,7 +280,7 @@ class BaseParser:
     def status(self, msg: str) -> None:
         # for debugging
         indicator = '-' * self.pos + '^'
-        print("%s\n%s\n%s" % (msg, self.definition, indicator))
+        print("{}\n{}\n{}".format(msg, self.definition, indicator))
 
     def fail(self, msg: str) -> None:
         errors = []

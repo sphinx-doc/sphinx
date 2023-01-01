@@ -286,14 +286,14 @@ class BuildEnvironment:
                 extension = extensions[0]
             else:
                 extension = '%d' % (len(extensions),)
-            self.config_status_extra = ' (%r)' % (extension,)
+            self.config_status_extra = ' ({!r})'.format(extension)
         else:
             # check if a config value was changed that affects how
             # doctrees are read
             for item in config.filter('env'):
                 if self.config[item.name] != item.value:
                     self.config_status = CONFIG_CHANGED
-                    self.config_status_extra = ' (%r)' % (item.name,)
+                    self.config_status_extra = ' ({!r})'.format(item.name)
                     break
 
         self.config = config

@@ -662,8 +662,8 @@ class Builder:
         # At the moment, only XXX_use_index is looked up this way.
         # Every new builder variant must be registered in Config.config_values.
         try:
-            optname = '%s_%s' % (self.name, option)
+            optname = '{}_{}'.format(self.name, option)
             return getattr(self.config, optname)
         except AttributeError:
-            optname = '%s_%s' % (default, option)
+            optname = '{}_{}'.format(default, option)
             return getattr(self.config, optname)

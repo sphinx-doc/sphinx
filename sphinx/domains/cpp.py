@@ -1570,7 +1570,7 @@ class ASTBracedInitList(ASTBase):
     def _stringify(self, transform: StringifyTransform) -> str:
         exprs = [transform(e) for e in self.exprs]
         trailingComma = ',' if self.trailingComma else ''
-        return '{%s%s}' % (', '.join(exprs), trailingComma)
+        return '{{{}{}}}'.format(', '.join(exprs), trailingComma)
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:
@@ -5388,7 +5388,7 @@ class DefinitionParser(BaseParser):
             if self.skip_string(close):
                 break
             if not self.skip_string_and_ws(','):
-                self.fail("Error in %s, expected ',' or '%s'." % (name, close))
+                self.fail("Error in {}, expected ',' or '{}'.".format(name, close))
             if self.current_char == close and close == '}':
                 self.pos += 1
                 trailingComma = True
@@ -8031,7 +8031,7 @@ class CPPDomain(Domain):
             objtypes = self.objtypes_for_role(typ)
             if objtypes:
                 return declTyp in objtypes
-            print("Type is %s, declaration type is %s" % (typ, declTyp))
+            print("Type is {}, declaration type is {}".format(typ, declTyp))
             raise AssertionError()
         if not checkType():
             logger.warning("cpp:%s targets a %s (%s).",

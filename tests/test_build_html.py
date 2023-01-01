@@ -70,7 +70,7 @@ def tail_check(check):
         for node in nodes:
             if node.tail and rex.search(node.tail):
                 return True
-        raise AssertionError('%r not found in tail of any nodes %s' % (check, nodes))
+        raise AssertionError('{!r} not found in tail of any nodes {}'.format(check, nodes))
     return checker
 
 

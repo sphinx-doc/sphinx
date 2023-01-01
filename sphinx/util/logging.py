@@ -92,7 +92,7 @@ class SphinxLogRecord(logging.LogRecord):
         message = super().getMessage()
         location = getattr(self, 'location', None)
         if location:
-            message = '%s: %s%s' % (location, self.prefix, message)
+            message = '{}: {}{}'.format(location, self.prefix, message)
         elif self.prefix not in message:
             message = self.prefix + message
 
@@ -494,7 +494,7 @@ class SphinxLogRecordTranslator(logging.Filter):
         if isinstance(location, tuple):
             docname, lineno = location
             if docname and lineno:
-                record.location = '%s:%s' % (self.app.env.doc2path(docname), lineno)
+                record.location = '{}:{}'.format(self.app.env.doc2path(docname), lineno)
             elif docname:
                 record.location = '%s' % self.app.env.doc2path(docname)
             else:
@@ -522,7 +522,7 @@ def get_node_location(node: Node) -> str | None:
     if source:
         source = abspath(source)
     if source and line:
-        return "%s:%s" % (source, line)
+        return "{}:{}".format(source, line)
     elif source:
         return "%s:" % source
     elif line:

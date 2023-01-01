@@ -23,7 +23,7 @@ def mangle(subject: Any, name: str) -> str:
     """Mangle the given name."""
     try:
         if isclass(subject) and name.startswith('__') and not name.endswith('__'):
-            return "_%s%s" % (subject.__name__, name)
+            return "_{}{}".format(subject.__name__, name)
     except AttributeError:
         pass
 
@@ -117,7 +117,7 @@ def import_object(modname: str, objpath: list[str], objtype: str = '',
             errmsg = ('autodoc: failed to import %s %r from module %r' %
                       (objtype, '.'.join(objpath), modname))
         else:
-            errmsg = 'autodoc: failed to import %s %r' % (objtype, modname)
+            errmsg = 'autodoc: failed to import {} {!r}'.format(objtype, modname)
 
         if isinstance(exc, ImportError):
             # import_module() raises ImportError having real exception obj and

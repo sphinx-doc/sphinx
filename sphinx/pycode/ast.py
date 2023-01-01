@@ -76,7 +76,7 @@ class _UnparseVisitor(ast.NodeVisitor):
 
     def visit_arg(self, node: ast.arg) -> str:
         if node.annotation:
-            return "%s: %s" % (node.arg, self.visit(node.annotation))
+            return "{}: {}".format(node.arg, self.visit(node.annotation))
         else:
             return node.arg
 
@@ -126,7 +126,7 @@ class _UnparseVisitor(ast.NodeVisitor):
         return ", ".join(args)
 
     def visit_Attribute(self, node: ast.Attribute) -> str:
-        return "%s.%s" % (self.visit(node.value), node.attr)
+        return "{}.{}".format(self.visit(node.value), node.attr)
 
     def visit_BinOp(self, node: ast.BinOp) -> str:
         # Special case ``**`` to not have surrounding spaces.
@@ -140,8 +140,8 @@ class _UnparseVisitor(ast.NodeVisitor):
 
     def visit_Call(self, node: ast.Call) -> str:
         args = ([self.visit(e) for e in node.args] +
-                ["%s=%s" % (k.arg, self.visit(k.value)) for k in node.keywords])
-        return "%s(%s)" % (self.visit(node.func), ", ".join(args))
+                ["{}={}".format(k.arg, self.visit(k.value)) for k in node.keywords])
+        return "{}({})".format(self.visit(node.func), ", ".join(args))
 
     def visit_Constant(self, node: ast.Constant) -> str:
         if node.value is Ellipsis:
@@ -185,19 +185,19 @@ class _UnparseVisitor(ast.NodeVisitor):
 
         if is_simple_tuple(node.slice):
             elts = ", ".join(self.visit(e) for e in node.slice.elts)  # type: ignore
-            return "%s[%s]" % (self.visit(node.value), elts)
+            return "{}[{}]".format(self.visit(node.value), elts)
         elif isinstance(node.slice, ast.Index) and is_simple_tuple(node.slice.value):
             elts = ", ".join(self.visit(e) for e in node.slice.value.elts)  # type: ignore
-            return "%s[%s]" % (self.visit(node.value), elts)
+            return "{}[{}]".format(self.visit(node.value), elts)
         else:
-            return "%s[%s]" % (self.visit(node.value), self.visit(node.slice))
+            return "{}[{}]".format(self.visit(node.value), self.visit(node.slice))
 
     def visit_UnaryOp(self, node: ast.UnaryOp) -> str:
         # UnaryOp is one of {UAdd, USub, Invert, Not}, which refer to ``+x``,
         # ``-x``, ``~x``, and ``not x``. Only Not needs a space.
         if isinstance(node.op, ast.Not):
-            return "%s %s" % (self.visit(node.op), self.visit(node.operand))
-        return "%s%s" % (self.visit(node.op), self.visit(node.operand))
+            return "{} {}".format(self.visit(node.op), self.visit(node.operand))
+        return "{}{}".format(self.visit(node.op), self.visit(node.operand))
 
     def visit_Tuple(self, node: ast.Tuple) -> str:
         if len(node.elts) == 0:

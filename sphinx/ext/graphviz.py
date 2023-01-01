@@ -219,7 +219,7 @@ def render_dot(self: SphinxTranslator, code: str, options: dict, format: str,
     hashkey = (code + str(options) + str(graphviz_dot) +
                str(self.builder.config.graphviz_dot_args)).encode()
 
-    fname = '%s-%s.%s' % (prefix, sha1(hashkey).hexdigest(), format)
+    fname = '{}-{}.{}'.format(prefix, sha1(hashkey).hexdigest(), format)
     relfn = posixpath.join(self.builder.imgpath, fname)
     outfn = path.join(self.builder.outdir, self.builder.imagedir, fname)
 

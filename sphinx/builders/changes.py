@@ -63,26 +63,26 @@ class ChangesBuilder(Builder):
             context = changeset.content.replace('\n', ' ')
             if descname and changeset.docname.startswith('c-api'):
                 if context:
-                    entry = '<b>%s</b>: <i>%s:</i> %s' % (descname, ttext,
+                    entry = '<b>{}</b>: <i>{}:</i> {}'.format(descname, ttext,
                                                           context)
                 else:
-                    entry = '<b>%s</b>: <i>%s</i>.' % (descname, ttext)
+                    entry = '<b>{}</b>: <i>{}</i>.'.format(descname, ttext)
                 apichanges.append((entry, changeset.docname, changeset.lineno))
             elif descname or changeset.module:
                 module = changeset.module or _('Builtins')
                 if not descname:
                     descname = _('Module level')
                 if context:
-                    entry = '<b>%s</b>: <i>%s:</i> %s' % (descname, ttext,
+                    entry = '<b>{}</b>: <i>{}:</i> {}'.format(descname, ttext,
                                                           context)
                 else:
-                    entry = '<b>%s</b>: <i>%s</i>.' % (descname, ttext)
+                    entry = '<b>{}</b>: <i>{}</i>.'.format(descname, ttext)
                 libchanges.setdefault(module, []).append((entry, changeset.docname,
                                                           changeset.lineno))
             else:
                 if not context:
                     continue
-                entry = '<i>%s:</i> %s' % (ttext.capitalize(), context)
+                entry = '<i>{}:</i> {}'.format(ttext.capitalize(), context)
                 title = self.env.titles[changeset.docname].astext()
                 otherchanges.setdefault((changeset.docname, title), []).append(
                     (entry, changeset.docname, changeset.lineno))
@@ -143,8 +143,8 @@ class ChangesBuilder(Builder):
     def hl(self, text: str, version: str) -> str:
         text = html.escape(text)
         for directive in ('versionchanged', 'versionadded', 'deprecated'):
-            text = text.replace('.. %s:: %s' % (directive, version),
-                                '<b>.. %s:: %s</b>' % (directive, version))
+            text = text.replace('.. {}:: {}'.format(directive, version),
+                                '<b>.. {}:: {}</b>'.format(directive, version))
         return text
 
     def finish(self) -> None:

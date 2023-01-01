@@ -173,7 +173,7 @@ class Table:
         if self.colwidths and 'colwidths-given' in self.classes:
             total = sum(self.colwidths)
             colspecs = [r'\X{%d}{%d}' % (width, total) for width in self.colwidths]
-            return '{%s%s%s}' % (_colsep, _colsep.join(colspecs), _colsep) + CR
+            return '{{{}{}{}}}'.format(_colsep, _colsep.join(colspecs), _colsep) + CR
         elif self.has_problematic:
             return r'{%s*{%d}{\X{1}{%d}%s}}' % (_colsep, self.colcount,
                                                 self.colcount, _colsep) + CR
@@ -279,7 +279,7 @@ def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
         elif unit == "%":
             res = r"%.5f\linewidth" % (amount_float / 100.0)
         else:
-            res = "%.5f%s" % (amount_float, unit)
+            res = "{:.5f}{}".format(amount_float, unit)
     return res
 
 
@@ -471,7 +471,7 @@ class LaTeXTranslator(SphinxTranslator):
             prefix = ''
             suffix = ''
 
-        return r'%s\renewcommand{%s}{%s}%s' % (prefix, command, definition, suffix) + CR
+        return r'{}\renewcommand{{{}}}{{{}}}{}'.format(prefix, command, definition, suffix) + CR
 
     def generate_indices(self) -> str:
         def generate(content: list[tuple[str, list[IndexEntry]]], collapsed: bool) -> None:
@@ -499,7 +499,7 @@ class LaTeXTranslator(SphinxTranslator):
         if indices_config:
             for domain in self.builder.env.domains.values():
                 for indexcls in domain.indices:
-                    indexname = '%s-%s' % (domain.name, indexcls.name)
+                    indexname = '{}-{}'.format(domain.name, indexcls.name)
                     if isinstance(indices_config, list):
                         if indexname not in indices_config:
                             continue
@@ -634,10 +634,10 @@ class LaTeXTranslator(SphinxTranslator):
                     short = ('[%s]' % self.escape(' '.join(clean_astext(node).split())))
 
                 try:
-                    self.body.append(r'\%s%s{' % (self.sectionnames[self.sectionlevel], short))
+                    self.body.append(r'\{}{}{{'.format(self.sectionnames[self.sectionlevel], short))
                 except IndexError:
                     # just use "subparagraph", it's not numbered anyway
-                    self.body.append(r'\%s%s{' % (self.sectionnames[-1], short))
+                    self.body.append(r'\{}{}{{'.format(self.sectionnames[-1], short))
                 self.context.append('}' + CR + self.hypertarget_to(node.parent))
         elif isinstance(parent, nodes.topic):
             self.body.append(r'\sphinxstyletopictitle{')
@@ -1325,9 +1325,9 @@ class LaTeXTranslator(SphinxTranslator):
         if self.in_title and base:
             # Lowercase tokens forcely because some fncychap themes capitalize
             # the options of \sphinxincludegraphics unexpectedly (ex. WIDTH=...).
-            cmd = r'\lowercase{\sphinxincludegraphics%s}{{%s}%s}' % (options, base, ext)
+            cmd = r'\lowercase{{\sphinxincludegraphics{}}}{{{{{}}}{}}}'.format(options, base, ext)
         else:
-            cmd = r'\sphinxincludegraphics%s{{%s}%s}' % (options, base, ext)
+            cmd = r'\sphinxincludegraphics{}{{{{{}}}{}}}'.format(options, base, ext)
         # escape filepath for includegraphics, https://tex.stackexchange.com/a/202714/41112
         if '#' in base:
             cmd = r'{\catcode`\#=12' + cmd + '}'
@@ -1532,11 +1532,11 @@ class LaTeXTranslator(SphinxTranslator):
                     try:
                         p1, p2 = (escape(x) for x in split_into(2, 'single', string))
                         P1, P2 = style(p1), style(p2)
-                        self.body.append(r'\index{%s@%s!%s@%s%s}' % (p1, P1, p2, P2, m))
+                        self.body.append(r'\index{{{}@{}!{}@{}{}}}'.format(p1, P1, p2, P2, m))
                     except ValueError:
                         p = escape(split_into(1, 'single', string)[0])
                         P = style(p)
-                        self.body.append(r'\index{%s@%s%s}' % (p, P, m))
+                        self.body.append(r'\index{{{}@{}{}}}'.format(p, P, m))
                 elif type == 'pair':
                     p1, p2 = (escape(x) for x in split_into(2, 'pair', string))
                     P1, P2 = style(p1), style(p2)
@@ -1555,11 +1555,11 @@ class LaTeXTranslator(SphinxTranslator):
                 elif type == 'see':
                     p1, p2 = (escape(x) for x in split_into(2, 'see', string))
                     P1 = style(p1)
-                    self.body.append(r'\index{%s@%s|see{%s}}' % (p1, P1, p2))
+                    self.body.append(r'\index{{{}@{}|see{{{}}}}}'.format(p1, P1, p2))
                 elif type == 'seealso':
                     p1, p2 = (escape(x) for x in split_into(2, 'seealso', string))
                     P1 = style(p1)
-                    self.body.append(r'\index{%s@%s|see{%s}}' % (p1, P1, p2))
+                    self.body.append(r'\index{{{}@{}|see{{{}}}}}'.format(p1, P1, p2))
                 else:
                     logger.warning(__('unknown index entry type %s found'), type)
             except ValueError as err:
@@ -1653,7 +1653,7 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             # old style format (cf. "Fig.%{number}")
             text = escape_abbr(title) % (r'\ref{%s}' % self.idescape(id))
-        hyperref = r'\hyperref[%s]{%s}' % (self.idescape(id), text)
+        hyperref = r'\hyperref[{}]{{{}}}'.format(self.idescape(id), text)
         self.body.append(hyperref)
 
         raise nodes.SkipNode
@@ -1735,7 +1735,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_citation(self, node: Element) -> None:
         label = cast(nodes.label, node[0])
-        self.body.append(r'\bibitem[%s]{%s:%s}' % (self.encode(label.astext()),
+        self.body.append(r'\bibitem[{}]{{{}:{}}}'.format(self.encode(label.astext()),
                                                    node['docname'], node['ids'][0]))
 
     def depart_citation(self, node: Element) -> None:
@@ -1745,7 +1745,7 @@ class LaTeXTranslator(SphinxTranslator):
         if self.in_title:
             pass
         else:
-            self.body.append(r'\sphinxcite{%s:%s}' % (node['docname'], node['refname']))
+            self.body.append(r'\sphinxcite{{{}:{}}}'.format(node['docname'], node['refname']))
             raise nodes.SkipNode
 
     def depart_citation_reference(self, node: Element) -> None:
@@ -2069,7 +2069,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_math_block(self, node: Element) -> None:
         if node.get('label'):
-            label = "equation:%s:%s" % (node['docname'], node['label'])
+            label = "equation:{}:{}".format(node['docname'], node['label'])
         else:
             label = None
 
@@ -2084,7 +2084,7 @@ class LaTeXTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_math_reference(self, node: Element) -> None:
-        label = "equation:%s:%s" % (node['docname'], node['target'])
+        label = "equation:{}:{}".format(node['docname'], node['target'])
         eqref_format = self.config.math_eqref_format
         if eqref_format:
             try:

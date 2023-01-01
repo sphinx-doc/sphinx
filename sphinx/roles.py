@@ -98,7 +98,7 @@ class XRefRole(ReferenceRole):
             self.classes = ['xref', self.reftype]
         else:
             self.refdomain, self.reftype = self.name.split(':', 1)
-            self.classes = ['xref', self.refdomain, '%s-%s' % (self.refdomain, self.reftype)]
+            self.classes = ['xref', self.refdomain, '{}-{}'.format(self.refdomain, self.reftype)]
 
         if self.disabled:
             return self.create_non_xref_node()
