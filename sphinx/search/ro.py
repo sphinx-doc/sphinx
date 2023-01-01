@@ -13,9 +13,9 @@ class SearchRomanian(SearchLanguage):
     lang = 'ro'
     language_name = 'Romanian'
     js_stemmer_rawcode = 'romanian-stemmer.js'
-    stopwords: Set[str] = set()
+    stopwords: set[str] = set()
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict) -> None:
         self.stemmer = snowballstemmer.stemmer('romanian')
 
     def stem(self, word: str) -> str:

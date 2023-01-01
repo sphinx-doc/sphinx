@@ -779,8 +779,7 @@ def test_autodoc_typehints_signature(app):
         '   :module: target.typehints',
         '',
         '',
-        '.. py:function:: tuple_args(x: ~typing.Tuple[int, ~typing.Union[int, str]]) '
-        '-> ~typing.Tuple[int, int]',
+        '.. py:function:: tuple_args(x: tuple[int, int | str]) -> tuple[int, int]',
         '   :module: target.typehints',
         '',
     ]
@@ -965,10 +964,10 @@ def test_autodoc_typehints_description(app):
     assert ('target.typehints.tuple_args(x)\n'
             '\n'
             '   Parameters:\n'
-            '      **x** (*Tuple**[**int**, **Union**[**int**, **str**]**]*) --\n'
+            '      **x** (*tuple**[**int**, **int** | **str**]*) --\n'
             '\n'
             '   Return type:\n'
-            '      *Tuple*[int, int]\n'
+            '      tuple[int, int]\n'
             in context)
 
     # Overloads still get displayed in the signature
@@ -1015,13 +1014,13 @@ def test_autodoc_typehints_description_no_undoc(app):
             'target.typehints.tuple_args(x)\n'
             '\n'
             '   Parameters:\n'
-            '      **x** (*Tuple**[**int**, **Union**[**int**, **str**]**]*) -- arg\n'
+            '      **x** (*tuple**[**int**, **int** | **str**]*) -- arg\n'
             '\n'
             '   Returns:\n'
             '      another tuple\n'
             '\n'
             '   Return type:\n'
-            '      *Tuple*[int, int]\n'
+            '      tuple[int, int]\n'
             in context)
 
 
@@ -1072,13 +1071,13 @@ def test_autodoc_typehints_description_no_undoc_doc_rtype(app):
         'target.typehints.tuple_args(x)\n'
         '\n'
         '   Parameters:\n'
-        '      **x** (*Tuple**[**int**, **Union**[**int**, **str**]**]*) -- arg\n'
+        '      **x** (*tuple**[**int**, **int** | **str**]*) -- arg\n'
         '\n'
         '   Returns:\n'
         '      another tuple\n'
         '\n'
         '   Return type:\n'
-        '      *Tuple*[int, int]\n'
+        '      tuple[int, int]\n'
         '\n'
         'target.typehints.Math.nothing(self)\n'
         '\n'
@@ -1221,13 +1220,13 @@ def test_autodoc_typehints_both(app):
             '   Return type:\n'
             '      int\n'
             in context)
-    assert ('target.typehints.tuple_args(x: Tuple[int, Union[int, str]]) -> Tuple[int, int]\n'
+    assert ('target.typehints.tuple_args(x: tuple[int, int | str]) -> tuple[int, int]\n'
             '\n'
             '   Parameters:\n'
-            '      **x** (*Tuple**[**int**, **Union**[**int**, **str**]**]*) --\n'
+            '      **x** (*tuple**[**int**, **int** | **str**]*) --\n'
             '\n'
             '   Return type:\n'
-            '      *Tuple*[int, int]\n'
+            '      tuple[int, int]\n'
             in context)
 
     # Overloads still get displayed in the signature
@@ -1527,8 +1526,7 @@ def test_autodoc_typehints_format_fully_qualified(app):
         '   :module: target.typehints',
         '',
         '',
-        '.. py:function:: tuple_args(x: typing.Tuple[int, typing.Union[int, str]]) '
-        '-> typing.Tuple[int, int]',
+        '.. py:function:: tuple_args(x: tuple[int, int | str]) -> tuple[int, int]',
         '   :module: target.typehints',
         '',
     ]
