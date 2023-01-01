@@ -283,7 +283,7 @@ class Autosummary(SphinxDirective):
                     raise ImportExceptionGroup(exc.args[0], errors)
 
     def create_documenter(self, app: Sphinx, obj: Any,
-                          parent: Any, full_name: str) -> "Documenter":
+                          parent: Any, full_name: str) -> Documenter:
         """Get an autodoc.Documenter class suitable for documenting the given
         object.
 

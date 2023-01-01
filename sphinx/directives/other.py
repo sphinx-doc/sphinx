@@ -367,7 +367,7 @@ class Include(BaseInclude, SphinxDirective):
         return super().run()
 
 
-def setup(app: "Sphinx") -> dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     directives.register_directive('toctree', TocTree)
     directives.register_directive('sectionauthor', Author)
     directives.register_directive('moduleauthor', Author)

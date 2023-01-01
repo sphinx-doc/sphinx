@@ -39,7 +39,7 @@ EXCLUDED_PENDING_XREF_ATTRIBUTES = ('refexplicit',)
 N = TypeVar('N', bound=nodes.Node)
 
 
-def publish_msgstr(app: "Sphinx", source: str, source_path: str, source_line: int,
+def publish_msgstr(app: Sphinx, source: str, source_path: str, source_line: int,
                    config: Config, settings: Any) -> Element:
     """Publish msgstr (single line) into docutils document
 
@@ -516,7 +516,7 @@ class RemoveTranslatableInline(SphinxTransform):
             inline.parent += inline.children
 
 
-def setup(app: "Sphinx") -> dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_transform(PreserveTranslatableMessages)
     app.add_transform(Locale)
     app.add_transform(RemoveTranslatableInline)

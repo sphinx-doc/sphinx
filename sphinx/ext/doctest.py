@@ -195,7 +195,7 @@ class TestGroup:
         self.tests: list[list[TestCode]] = []
         self.cleanup: list[TestCode] = []
 
-    def add_code(self, code: "TestCode", prepend: bool = False) -> None:
+    def add_code(self, code: TestCode, prepend: bool = False) -> None:
         if code.type == 'testsetup':
             if prepend:
                 self.setup.insert(0, code)
@@ -542,7 +542,7 @@ Doctest summary
         run_setup_cleanup(self.cleanup_runner, group.cleanup, 'cleanup')
 
 
-def setup(app: "Sphinx") -> dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_directive('testsetup', TestsetupDirective)
     app.add_directive('testcleanup', TestcleanupDirective)
     app.add_directive('doctest', DoctestDirective)

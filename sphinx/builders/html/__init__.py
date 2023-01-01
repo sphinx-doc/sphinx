@@ -103,7 +103,7 @@ class Stylesheet(str):
     priority: int = None
 
     def __new__(cls, filename: str, *args: str, priority: int = 500, **attributes: Any
-                ) -> "Stylesheet":
+                ) -> Stylesheet:
         self = str.__new__(cls, filename)
         self.filename = filename
         self.priority = priority
@@ -128,7 +128,7 @@ class JavaScript(str):
     filename: str = None
     priority: int = None
 
-    def __new__(cls, filename: str, priority: int = 500, **attributes: str) -> "JavaScript":
+    def __new__(cls, filename: str, priority: int = 500, **attributes: str) -> JavaScript:
         self = str.__new__(cls, filename)
         self.filename = filename
         self.priority = priority
@@ -145,7 +145,7 @@ class BuildInfo:
     """
 
     @classmethod
-    def load(cls, f: IO) -> "BuildInfo":
+    def load(cls, f: IO) -> BuildInfo:
         try:
             lines = f.readlines()
             assert lines[0].rstrip() == '# Sphinx build info version 1'
@@ -172,7 +172,7 @@ class BuildInfo:
         if tags:
             self.tags_hash = get_stable_hash(sorted(tags))
 
-    def __eq__(self, other: "BuildInfo") -> bool:  # type: ignore
+    def __eq__(self, other: BuildInfo) -> bool:  # type: ignore
         return (self.config_hash == other.config_hash and
                 self.tags_hash == other.tags_hash)
 

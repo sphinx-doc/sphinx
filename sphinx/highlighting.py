@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from functools import partial
 from importlib import import_module
-from typing import Any, Union
+from typing import Any
 
 from pygments import highlight
 from pygments.filters import ErrorToken
@@ -24,7 +24,7 @@ from sphinx.util import logging, texescape
 logger = logging.getLogger(__name__)
 
 lexers: dict[str, Lexer] = {}
-lexer_classes: dict[str, Union[type[Lexer], 'partial[Lexer]']] = {
+lexer_classes: dict[str, type[Lexer] | partial[Lexer]] = {
     'none': partial(TextLexer, stripnl=False),
     'python': partial(PythonLexer, stripnl=False),
     'pycon': partial(PythonConsoleLexer, stripnl=False),

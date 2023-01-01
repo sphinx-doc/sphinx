@@ -209,7 +209,7 @@ def get_object_members(
 
 
 def get_class_members(subject: Any, objpath: list[str], attrgetter: Callable,
-                      inherit_docstrings: bool = True) -> dict[str, "ObjectMember"]:
+                      inherit_docstrings: bool = True) -> dict[str, ObjectMember]:
     """Get members and attributes of target class."""
     from sphinx.ext.autodoc import INSTANCEATTR, ObjectMember
 

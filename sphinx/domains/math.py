@@ -89,7 +89,7 @@ class MathDomain(Domain):
         for docname in docnames:
             self.data['has_equations'][docname] = otherdata['has_equations'][docname]
 
-    def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: "Builder",
+    def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element
                      ) -> Element | None:
         assert typ in ('eq', 'numref')
@@ -118,7 +118,7 @@ class MathDomain(Domain):
         else:
             return None
 
-    def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: "Builder",
+    def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element
                          ) -> list[tuple[str, Element]]:
         refnode = self.resolve_xref(env, fromdocname, builder, 'eq', target, node, contnode)
@@ -137,7 +137,7 @@ class MathDomain(Domain):
             return any(self.data['has_equations'].values())
 
 
-def setup(app: "Sphinx") -> dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_domain(MathDomain)
     app.add_role('eq', MathReferenceRole(warn_dangling=True))
 

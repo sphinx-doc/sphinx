@@ -514,7 +514,7 @@ class manpage(nodes.Inline, nodes.FixedTextElement):
     """Node for references to manpages."""
 
 
-def setup(app: "Sphinx") -> dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_node(toctree)
 
     app.add_node(desc)

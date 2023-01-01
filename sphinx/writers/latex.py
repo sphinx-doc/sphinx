@@ -10,7 +10,7 @@ import re
 import warnings
 from collections import defaultdict
 from os import path
-from typing import TYPE_CHECKING, Any, Iterable, Optional, cast
+from typing import TYPE_CHECKING, Any, Iterable, cast
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
@@ -78,7 +78,7 @@ class LaTeXWriter(writers.Writer):
 
     output = None
 
-    def __init__(self, builder: "LaTeXBuilder") -> None:
+    def __init__(self, builder: LaTeXBuilder) -> None:
         super().__init__()
         self.builder = builder
         self.theme: Theme = None
@@ -199,7 +199,7 @@ class Table:
 
     def cell(
         self, row: int | None = None, col: int | None = None
-    ) -> Optional["TableCell"]:
+    ) -> TableCell | None:
         """Returns a cell object (i.e. rectangular area) containing given position.
 
         If no option arguments: ``row`` or ``col`` are given, the current position;
@@ -284,14 +284,14 @@ def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
 
 
 class LaTeXTranslator(SphinxTranslator):
-    builder: "LaTeXBuilder"
+    builder: LaTeXBuilder
 
     secnumdepth = 2  # legacy sphinxhowto.cls uses this, whereas article.cls
     # default is originally 3. For book/report, 2 is already LaTeX default.
     ignore_missing_images = False
 
-    def __init__(self, document: nodes.document, builder: "LaTeXBuilder",
-                 theme: "Theme") -> None:
+    def __init__(self, document: nodes.document, builder: LaTeXBuilder,
+                 theme: Theme) -> None:
         super().__init__(document, builder)
         self.body: list[str] = []
         self.theme = theme

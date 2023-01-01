@@ -277,7 +277,7 @@ class sphinx_domains(CustomReSTDispatcher):
     """Monkey-patch directive and role dispatch, so that domain-specific
     markup takes precedence.
     """
-    def __init__(self, env: "BuildEnvironment") -> None:
+    def __init__(self, env: BuildEnvironment) -> None:
         self.env = env
         super().__init__()
 
@@ -340,7 +340,7 @@ class WarningStream:
 
 class LoggingReporter(Reporter):
     @classmethod
-    def from_reporter(cls, reporter: Reporter) -> "LoggingReporter":
+    def from_reporter(cls, reporter: Reporter) -> LoggingReporter:
         """Create an instance of LoggingReporter from other reporter object."""
         return cls(reporter.source, reporter.report_level, reporter.halt_level,
                    reporter.debug_flag, reporter.error_handler)
@@ -413,12 +413,12 @@ class SphinxDirective(Directive):
     """
 
     @property
-    def env(self) -> "BuildEnvironment":
+    def env(self) -> BuildEnvironment:
         """Reference to the :class:`.BuildEnvironment` object."""
         return self.state.document.settings.env
 
     @property
-    def config(self) -> "Config":
+    def config(self) -> Config:
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
@@ -479,12 +479,12 @@ class SphinxRole:
         raise NotImplementedError
 
     @property
-    def env(self) -> "BuildEnvironment":
+    def env(self) -> BuildEnvironment:
         """Reference to the :class:`.BuildEnvironment` object."""
         return self.inliner.document.settings.env
 
     @property
-    def config(self) -> "Config":
+    def config(self) -> Config:
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
@@ -547,7 +547,7 @@ class SphinxTranslator(nodes.NodeVisitor):
               This class is strongly coupled with Sphinx.
     """
 
-    def __init__(self, document: nodes.document, builder: "Builder") -> None:
+    def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document)
         self.builder = builder
         self.config = builder.config
@@ -593,7 +593,7 @@ class SphinxTranslator(nodes.NodeVisitor):
 
 # cache a vanilla instance of nodes.document
 # Used in new_document() function
-__document_cache__: tuple["Values", Reporter]
+__document_cache__: tuple[Values, Reporter]
 
 
 def new_document(source_path: str, settings: Any = None) -> nodes.document:

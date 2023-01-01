@@ -7,7 +7,7 @@ from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta, tzinfo
 from os import getenv, path, walk
 from time import time
-from typing import Any, Generator, Iterable, Union
+from typing import Any, Generator, Iterable
 from uuid import uuid4
 
 from docutils import nodes
@@ -47,7 +47,7 @@ class Catalog:
         # msgid -> file, line, uid
         self.metadata: dict[str, list[tuple[str, int, str]]] = OrderedDict()
 
-    def add(self, msg: str, origin: Union[Element, "MsgOrigin"]) -> None:
+    def add(self, msg: str, origin: Element | MsgOrigin) -> None:
         if not hasattr(origin, 'uid'):
             # Nodes that are replicated like todo don't have a uid,
             # however i18n is also unnecessary.

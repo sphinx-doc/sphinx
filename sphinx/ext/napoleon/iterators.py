@@ -54,7 +54,7 @@ class peek_iter:
         else:
             self.sentinel = object()
 
-    def __iter__(self) -> "peek_iter":
+    def __iter__(self) -> peek_iter:
         return self
 
     def __next__(self, n: int | None = None) -> Any:

@@ -42,7 +42,7 @@ class GenericObject(ObjectDescription[str]):
     A generic x-ref directive registered with Sphinx.add_object_type().
     """
     indextemplate: str = ''
-    parse_node: Callable[["BuildEnvironment", str, desc_signature], str] = None
+    parse_node: Callable[[BuildEnvironment, str, desc_signature], str] = None
 
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         if self.parse_node:
@@ -90,7 +90,7 @@ class EnvVarXRefRole(XRefRole):
     Cross-referencing role for environment variables (adds an index entry).
     """
 
-    def result_nodes(self, document: nodes.document, env: "BuildEnvironment", node: Element,
+    def result_nodes(self, document: nodes.document, env: BuildEnvironment, node: Element,
                      is_ref: bool) -> tuple[list[Node], list[system_message]]:
         if not is_ref:
             return [node], []
@@ -279,7 +279,7 @@ class Program(SphinxDirective):
 
 
 class OptionXRefRole(XRefRole):
-    def process_link(self, env: "BuildEnvironment", refnode: Element, has_explicit_title: bool,
+    def process_link(self, env: BuildEnvironment, refnode: Element, has_explicit_title: bool,
                      title: str, target: str) -> tuple[str, str]:
         refnode['std:program'] = env.ref_context.get('std:program')
         return title, target
@@ -291,7 +291,7 @@ def split_term_classifiers(line: str) -> list[str | None]:
     return parts
 
 
-def make_glossary_term(env: "BuildEnvironment", textnodes: Iterable[Node], index_key: str,
+def make_glossary_term(env: BuildEnvironment, textnodes: Iterable[Node], index_key: str,
                        source: str, lineno: int, node_id: str, document: nodes.document
                        ) -> nodes.term:
     # get a text-only representation of the term and register it
@@ -526,7 +526,7 @@ class ProductionList(SphinxDirective):
 
 
 class TokenXRefRole(XRefRole):
-    def process_link(self, env: "BuildEnvironment", refnode: Element, has_explicit_title: bool,
+    def process_link(self, env: BuildEnvironment, refnode: Element, has_explicit_title: bool,
                      title: str, target: str) -> tuple[str, str]:
         target = target.lstrip('~')  # a title-specific thing
         if not self.has_explicit_title and title[0] == '~':
@@ -620,7 +620,7 @@ class StandardDomain(Domain):
         nodes.container: ('code-block', None),
     }
 
-    def __init__(self, env: "BuildEnvironment") -> None:
+    def __init__(self, env: BuildEnvironment) -> None:
         super().__init__(env)
 
         # set up enumerable nodes
@@ -731,7 +731,7 @@ class StandardDomain(Domain):
                 self.anonlabels[key] = data
 
     def process_doc(
-        self, env: "BuildEnvironment", docname: str, document: nodes.document
+        self, env: BuildEnvironment, docname: str, document: nodes.document
     ) -> None:
         for name, explicit in document.nametypes.items():
             if not explicit:
@@ -787,7 +787,7 @@ class StandardDomain(Domain):
         if (program, name) not in self.progoptions:
             self.progoptions[program, name] = (docname, labelid)
 
-    def build_reference_node(self, fromdocname: str, builder: "Builder", docname: str,
+    def build_reference_node(self, fromdocname: str, builder: Builder, docname: str,
                              labelid: str, sectname: str, rolename: str, **options: Any
                              ) -> Element:
         nodeclass = options.pop('nodeclass', nodes.reference)
@@ -812,7 +812,7 @@ class StandardDomain(Domain):
         newnode.append(innernode)
         return newnode
 
-    def resolve_xref(self, env: "BuildEnvironment", fromdocname: str, builder: "Builder",
+    def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element
                      ) -> Element | None:
         if typ == 'ref':
@@ -832,8 +832,8 @@ class StandardDomain(Domain):
 
         return resolver(env, fromdocname, builder, typ, target, node, contnode)
 
-    def _resolve_ref_xref(self, env: "BuildEnvironment", fromdocname: str,
-                          builder: "Builder", typ: str, target: str, node: pending_xref,
+    def _resolve_ref_xref(self, env: BuildEnvironment, fromdocname: str,
+                          builder: Builder, typ: str, target: str, node: pending_xref,
                           contnode: Element) -> Element | None:
         if node['refexplicit']:
             # reference to anonymous label; the reference uses
@@ -850,8 +850,8 @@ class StandardDomain(Domain):
         return self.build_reference_node(fromdocname, builder,
                                          docname, labelid, sectname, 'ref')
 
-    def _resolve_numref_xref(self, env: "BuildEnvironment", fromdocname: str,
-                             builder: "Builder", typ: str, target: str,
+    def _resolve_numref_xref(self, env: BuildEnvironment, fromdocname: str,
+                             builder: Builder, typ: str, target: str,
                              node: pending_xref, contnode: Element) -> Element | None:
         if target in self.labels:
             docname, labelid, figname = self.labels.get(target, ('', '', ''))
@@ -913,8 +913,8 @@ class StandardDomain(Domain):
                                          nodeclass=addnodes.number_reference,
                                          title=title)
 
-    def _resolve_keyword_xref(self, env: "BuildEnvironment", fromdocname: str,
-                              builder: "Builder", typ: str, target: str,
+    def _resolve_keyword_xref(self, env: BuildEnvironment, fromdocname: str,
+                              builder: Builder, typ: str, target: str,
                               node: pending_xref, contnode: Element) -> Element | None:
         # keywords are oddballs: they are referenced by named labels
         docname, labelid, _ = self.labels.get(target, ('', '', ''))
@@ -923,8 +923,8 @@ class StandardDomain(Domain):
         return make_refnode(builder, fromdocname, docname,
                             labelid, contnode)
 
-    def _resolve_doc_xref(self, env: "BuildEnvironment", fromdocname: str,
-                          builder: "Builder", typ: str, target: str,
+    def _resolve_doc_xref(self, env: BuildEnvironment, fromdocname: str,
+                          builder: Builder, typ: str, target: str,
                           node: pending_xref, contnode: Element) -> Element | None:
         # directly reference to document by source name; can be absolute or relative
         refdoc = node.get('refdoc', fromdocname)
@@ -940,8 +940,8 @@ class StandardDomain(Domain):
             innernode = nodes.inline(caption, caption, classes=['doc'])
             return make_refnode(builder, fromdocname, docname, None, innernode)
 
-    def _resolve_option_xref(self, env: "BuildEnvironment", fromdocname: str,
-                             builder: "Builder", typ: str, target: str,
+    def _resolve_option_xref(self, env: BuildEnvironment, fromdocname: str,
+                             builder: Builder, typ: str, target: str,
                              node: pending_xref, contnode: Element) -> Element | None:
         progname = node.get('std:program')
         target = target.strip()
@@ -973,8 +973,8 @@ class StandardDomain(Domain):
         return make_refnode(builder, fromdocname, docname,
                             labelid, contnode)
 
-    def _resolve_term_xref(self, env: "BuildEnvironment", fromdocname: str,
-                           builder: "Builder", typ: str, target: str,
+    def _resolve_term_xref(self, env: BuildEnvironment, fromdocname: str,
+                           builder: Builder, typ: str, target: str,
                            node: pending_xref, contnode: Element) -> Element:
         result = self._resolve_obj_xref(env, fromdocname, builder, typ,
                                         target, node, contnode)
@@ -988,8 +988,8 @@ class StandardDomain(Domain):
             else:
                 return None
 
-    def _resolve_obj_xref(self, env: "BuildEnvironment", fromdocname: str,
-                          builder: "Builder", typ: str, target: str,
+    def _resolve_obj_xref(self, env: BuildEnvironment, fromdocname: str,
+                          builder: Builder, typ: str, target: str,
                           node: pending_xref, contnode: Element) -> Element | None:
         objtypes = self.objtypes_for_role(typ) or []
         for objtype in objtypes:
@@ -1003,8 +1003,8 @@ class StandardDomain(Domain):
         return make_refnode(builder, fromdocname, docname,
                             labelid, contnode)
 
-    def resolve_any_xref(self, env: "BuildEnvironment", fromdocname: str,
-                         builder: "Builder", target: str, node: pending_xref,
+    def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str,
+                         builder: Builder, target: str, node: pending_xref,
                          contnode: Element) -> list[tuple[str, Element]]:
         results: list[tuple[str, Element]] = []
         ltarget = target.lower()  # :ref: lowercases its target automatically
@@ -1084,7 +1084,7 @@ class StandardDomain(Domain):
             figtype, _ = self.enumerable_nodes.get(node.__class__, (None, None))
             return figtype
 
-    def get_fignumber(self, env: "BuildEnvironment", builder: "Builder",
+    def get_fignumber(self, env: BuildEnvironment, builder: Builder,
                       figtype: str, docname: str, target_node: Element) -> tuple[int, ...]:
         if figtype == 'section':
             if builder.name == 'latex':
@@ -1122,7 +1122,7 @@ class StandardDomain(Domain):
             return None
 
 
-def warn_missing_reference(app: "Sphinx", domain: Domain, node: pending_xref
+def warn_missing_reference(app: Sphinx, domain: Domain, node: pending_xref
                            ) -> bool | None:
     if (domain and domain.name != 'std') or node['reftype'] != 'ref':
         return None
@@ -1137,7 +1137,7 @@ def warn_missing_reference(app: "Sphinx", domain: Domain, node: pending_xref
         return True
 
 
-def setup(app: "Sphinx") -> dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_domain(StandardDomain)
     app.connect('warn-missing-reference', warn_missing_reference)
 

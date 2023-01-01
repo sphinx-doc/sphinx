@@ -45,7 +45,7 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
     Our custom HTML translator.
     """
 
-    builder: "StandaloneHTMLBuilder"
+    builder: StandaloneHTMLBuilder
 
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)

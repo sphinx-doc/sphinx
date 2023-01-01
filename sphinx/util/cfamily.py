@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from copy import deepcopy
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 from docutils import nodes
 from docutils.nodes import TextElement
@@ -135,7 +135,7 @@ class ASTCPPAttribute(ASTAttribute):
 
 
 class ASTGnuAttribute(ASTBaseBase):
-    def __init__(self, name: str, args: Optional["ASTBaseParenExprList"]) -> None:
+    def __init__(self, name: str, args: ASTBaseParenExprList | None) -> None:
         self.name = name
         self.args = args
 
@@ -201,7 +201,7 @@ class ASTAttributeList(ASTBaseBase):
     def __len__(self) -> int:
         return len(self.attrs)
 
-    def __add__(self, other: "ASTAttributeList") -> "ASTAttributeList":
+    def __add__(self, other: ASTAttributeList) -> ASTAttributeList:
         return ASTAttributeList(self.attrs + other.attrs)
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -237,7 +237,7 @@ class DefinitionError(Exception):
 class BaseParser:
     def __init__(self, definition: str, *,
                  location: nodes.Node | tuple[str, int] | str,
-                 config: "Config") -> None:
+                 config: Config) -> None:
         self.definition = definition.strip()
         self.location = location  # for warnings
         self.config = config

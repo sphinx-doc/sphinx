@@ -35,7 +35,7 @@ class Parser(docutils.parsers.Parser):
     #: The environment object
     env: BuildEnvironment
 
-    def set_application(self, app: "Sphinx") -> None:
+    def set_application(self, app: Sphinx) -> None:
         """set_application will be called from Sphinx to set app and other instance variables
 
         :param sphinx.application.Sphinx app: Sphinx application object
@@ -86,7 +86,7 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         append_epilog(content, self.config.rst_epilog)
 
 
-def setup(app: "Sphinx") -> dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_source_parser(RSTParser)
 
     return {

@@ -120,7 +120,7 @@ class TexinfoWriter(writers.Writer):
 
     visitor_attributes = ('output', 'fragment')
 
-    def __init__(self, builder: "TexinfoBuilder") -> None:
+    def __init__(self, builder: TexinfoBuilder) -> None:
         super().__init__()
         self.builder = builder
 
@@ -136,7 +136,7 @@ class TexinfoWriter(writers.Writer):
 class TexinfoTranslator(SphinxTranslator):
 
     ignore_missing_images = False
-    builder: "TexinfoBuilder"
+    builder: TexinfoBuilder
 
     default_elements = {
         'author': '',
@@ -153,7 +153,7 @@ class TexinfoTranslator(SphinxTranslator):
         'title': '',
     }
 
-    def __init__(self, document: nodes.document, builder: "TexinfoBuilder") -> None:
+    def __init__(self, document: nodes.document, builder: TexinfoBuilder) -> None:
         super().__init__(document, builder)
         self.init_settings()
 

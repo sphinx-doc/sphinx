@@ -362,7 +362,7 @@ class TextWriter(writers.Writer):
 
     output: str = None
 
-    def __init__(self, builder: "TextBuilder") -> None:
+    def __init__(self, builder: TextBuilder) -> None:
         super().__init__()
         self.builder = builder
 
@@ -373,9 +373,9 @@ class TextWriter(writers.Writer):
 
 
 class TextTranslator(SphinxTranslator):
-    builder: "TextBuilder" = None
+    builder: TextBuilder = None
 
-    def __init__(self, document: nodes.document, builder: "TextBuilder") -> None:
+    def __init__(self, document: nodes.document, builder: TextBuilder) -> None:
         super().__init__(document, builder)
 
         newlines = self.config.text_newlines

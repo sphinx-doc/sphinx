@@ -146,7 +146,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
     def init(
         self,
-        builder: "Builder",
+        builder: Builder,
         theme: Theme | None = None,
         dirs: list[str] | None = None
     ) -> None:

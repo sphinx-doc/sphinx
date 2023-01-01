@@ -15,7 +15,7 @@ from datetime import datetime
 from importlib import import_module
 from os import path
 from time import mktime, strptime
-from typing import IO, TYPE_CHECKING, Any, Callable, Generator, Iterable, Optional, TypeVar
+from typing import IO, TYPE_CHECKING, Any, Callable, Generator, Iterable, TypeVar
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
 from sphinx.deprecation import RemovedInSphinx70Warning
@@ -212,7 +212,7 @@ _DEBUG_HEADER = '''\
 '''
 
 
-def save_traceback(app: Optional["Sphinx"]) -> str:
+def save_traceback(app: Sphinx | None) -> str:
     """Save the current exception's traceback in a temporary file."""
     import platform
 

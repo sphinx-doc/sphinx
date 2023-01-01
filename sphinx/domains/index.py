@@ -109,7 +109,7 @@ class IndexRole(ReferenceRole):
         return [index, target, text], []
 
 
-def setup(app: "Sphinx") -> dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_domain(IndexDomain)
     app.add_directive('index', IndexDirective)
     app.add_role('index', IndexRole())

@@ -50,7 +50,7 @@ class Theme:
 
     This class supports both theme directory and theme archive (zipped theme)."""
 
-    def __init__(self, name: str, theme_path: str, factory: "HTMLThemeFactory") -> None:
+    def __init__(self, name: str, theme_path: str, factory: HTMLThemeFactory) -> None:
         self.name = name
         self.base = None
         self.rootdir = None
@@ -150,7 +150,7 @@ def is_archived_theme(filename: str) -> bool:
 class HTMLThemeFactory:
     """A factory class for HTML Themes."""
 
-    def __init__(self, app: "Sphinx") -> None:
+    def __init__(self, app: Sphinx) -> None:
         self.app = app
         self.themes = app.registry.html_themes
         self.load_builtin_themes()

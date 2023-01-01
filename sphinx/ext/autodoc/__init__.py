@@ -234,7 +234,7 @@ def between(
 # But we define this class here to keep compatibility (see #4538)
 class Options(dict):
     """A dict/attribute hybrid that returns None on nonexisting keys."""
-    def copy(self) -> "Options":
+    def copy(self) -> Options:
         return Options(super().copy())
 
     def __getattr__(self, name: str) -> Any:
@@ -314,7 +314,7 @@ class Documenter:
         """Called to see if a member can be documented by this Documenter."""
         raise NotImplementedError('must be implemented in subclasses')
 
-    def __init__(self, directive: "DocumenterBridge", name: str, indent: str = '') -> None:
+    def __init__(self, directive: DocumenterBridge, name: str, indent: str = '') -> None:
         self.directive = directive
         self.config: Config = directive.env.config
         self.env: BuildEnvironment = directive.env
@@ -340,7 +340,7 @@ class Documenter:
         self.analyzer: ModuleAnalyzer = None
 
     @property
-    def documenters(self) -> dict[str, type["Documenter"]]:
+    def documenters(self) -> dict[str, type[Documenter]]:
         """Returns registered Documenter classes"""
         return self.env.app.registry.documenters
 
@@ -819,8 +819,8 @@ class Documenter:
         self.env.temp_data['autodoc:module'] = None
         self.env.temp_data['autodoc:class'] = None
 
-    def sort_members(self, documenters: list[tuple["Documenter", bool]],
-                     order: str) -> list[tuple["Documenter", bool]]:
+    def sort_members(self, documenters: list[tuple[Documenter, bool]],
+                     order: str) -> list[tuple[Documenter, bool]]:
         """Sort the given member list."""
         if order == 'groupwise':
             # sort by group; alphabetically within groups
@@ -1075,8 +1075,8 @@ class ModuleDocumenter(Documenter):
                                    type='autodoc')
             return False, ret
 
-    def sort_members(self, documenters: list[tuple["Documenter", bool]],
-                     order: str) -> list[tuple["Documenter", bool]]:
+    def sort_members(self, documenters: list[tuple[Documenter, bool]],
+                     order: str) -> list[tuple[Documenter, bool]]:
         if order == 'bysource' and self.__all__:
             # Sort alphabetically first (for members not listed on the __all__)
             documenters.sort(key=lambda e: e[0].name)

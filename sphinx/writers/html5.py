@@ -47,7 +47,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     Our custom HTML translator.
     """
 
-    builder: "StandaloneHTMLBuilder"
+    builder: StandaloneHTMLBuilder
     # Override docutils.writers.html5_polyglot:HTMLTranslator
     # otherwise, nodes like <inline classes="s">...</inline> will be
     # converted to <s>...</s> by `visit_inline`.

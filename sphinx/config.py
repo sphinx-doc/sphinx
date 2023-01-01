@@ -7,7 +7,7 @@ import traceback
 import types
 from collections import OrderedDict
 from os import getenv, path
-from typing import TYPE_CHECKING, Any, Callable, Generator, Iterator, NamedTuple, Optional
+from typing import TYPE_CHECKING, Any, Callable, Generator, Iterator, NamedTuple
 
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
@@ -164,7 +164,7 @@ class Config:
     @classmethod
     def read(
         cls, confdir: str, overrides: dict | None = None, tags: Tags | None = None
-    ) -> "Config":
+    ) -> Config:
         """Create a Config object from configuration file."""
         filename = path.join(confdir, CONFIG_FILENAME)
         if not path.isfile(filename):
@@ -366,7 +366,7 @@ def eval_config_file(filename: str, tags: Tags | None) -> dict[str, Any]:
     return namespace
 
 
-def convert_source_suffix(app: "Sphinx", config: Config) -> None:
+def convert_source_suffix(app: Sphinx, config: Config) -> None:
     """Convert old styled source_suffix to new styled one.
 
     * old style: str or list
@@ -391,7 +391,7 @@ def convert_source_suffix(app: "Sphinx", config: Config) -> None:
                           "But `%r' is given." % source_suffix))
 
 
-def convert_highlight_options(app: "Sphinx", config: Config) -> None:
+def convert_highlight_options(app: Sphinx, config: Config) -> None:
     """Convert old styled highlight_options to new styled one.
 
     * old style: options
@@ -403,7 +403,7 @@ def convert_highlight_options(app: "Sphinx", config: Config) -> None:
         config.highlight_options = {config.highlight_language: options}  # type: ignore
 
 
-def init_numfig_format(app: "Sphinx", config: Config) -> None:
+def init_numfig_format(app: Sphinx, config: Config) -> None:
     """Initialize :confval:`numfig_format`."""
     numfig_format = {'section': _('Section %s'),
                      'figure': _('Fig. %s'),
@@ -415,7 +415,7 @@ def init_numfig_format(app: "Sphinx", config: Config) -> None:
     config.numfig_format = numfig_format  # type: ignore
 
 
-def correct_copyright_year(app: "Sphinx", config: Config) -> None:
+def correct_copyright_year(app: Sphinx, config: Config) -> None:
     """Correct values of copyright year that are not coherent with
     the SOURCE_DATE_EPOCH environment variable (if set)
 
@@ -428,7 +428,7 @@ def correct_copyright_year(app: "Sphinx", config: Config) -> None:
                 config[k] = copyright_year_re.sub(replace, config[k])
 
 
-def check_confval_types(app: Optional["Sphinx"], config: Config) -> None:
+def check_confval_types(app: Sphinx | None, config: Config) -> None:
     """Check all values for deviation from the default value's type, since
     that can result in TypeErrors all over the place NB.
     """
@@ -483,14 +483,14 @@ def check_confval_types(app: Optional["Sphinx"], config: Config) -> None:
                                           default=type(default)), once=True)
 
 
-def check_primary_domain(app: "Sphinx", config: Config) -> None:
+def check_primary_domain(app: Sphinx, config: Config) -> None:
     primary_domain = config.primary_domain
     if primary_domain and not app.registry.has_domain(primary_domain):
         logger.warning(__('primary_domain %r not found, ignored.'), primary_domain)
         config.primary_domain = None  # type: ignore
 
 
-def check_root_doc(app: "Sphinx", env: "BuildEnvironment", added: set[str],
+def check_root_doc(app: Sphinx, env: BuildEnvironment, added: set[str],
                    changed: set[str], removed: set[str]) -> set[str]:
     """Adjust root_doc to 'contents' to support an old project which does not have
     any root_doc setting.
@@ -505,7 +505,7 @@ def check_root_doc(app: "Sphinx", env: "BuildEnvironment", added: set[str],
     return changed
 
 
-def setup(app: "Sphinx") -> dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.connect('config-inited', convert_source_suffix, priority=800)
     app.connect('config-inited', convert_highlight_options, priority=800)
     app.connect('config-inited', init_numfig_format, priority=800)

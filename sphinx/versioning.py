@@ -166,7 +166,7 @@ class UIDTransform(SphinxTransform):
             list(merge_doctrees(old_doctree, self.document, env.versioning_condition))
 
 
-def setup(app: "Sphinx") -> dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_transform(UIDTransform)
 
     return {

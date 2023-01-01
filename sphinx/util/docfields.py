@@ -235,7 +235,7 @@ class DocFieldTransformer:
     """
     typemap: dict[str, tuple[Field, bool]]
 
-    def __init__(self, directive: "ObjectDescription") -> None:
+    def __init__(self, directive: ObjectDescription) -> None:
         self.directive = directive
 
         self.typemap = directive.get_field_type_map()

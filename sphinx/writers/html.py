@@ -26,7 +26,7 @@ class HTMLWriter(Writer):
     # override embed-stylesheet default value to False.
     settings_default_overrides = {"embed_stylesheet": False}
 
-    def __init__(self, builder: "StandaloneHTMLBuilder") -> None:
+    def __init__(self, builder: StandaloneHTMLBuilder) -> None:
         super().__init__()
         self.builder = builder
 

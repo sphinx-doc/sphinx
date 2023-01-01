@@ -36,7 +36,7 @@ class SphinxDomains(SphinxTransform):
             domain.process_doc(self.env, self.env.docname, self.document)
 
 
-def setup(app: "Sphinx") -> dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_transform(SphinxDanglingReferences)
     app.add_transform(SphinxDomains)
 
