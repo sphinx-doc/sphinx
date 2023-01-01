@@ -289,6 +289,7 @@ def _bug_report_info() -> int:
 
     import docutils
     import jinja2
+    import pygments
 
     print('Please paste all output below into the bug report template\n\n')
     print('```text')
@@ -298,6 +299,7 @@ def _bug_report_info() -> int:
     print(f'Sphinx version:        {sphinx.__display_version__}')
     print(f'Docutils version:      {docutils.__version__}')
     print(f'Jinja2 version:        {jinja2.__version__}')
+    print(f'Pygments version:      {pygments.__version__}')
     print('```')
     return 0
 

@@ -18,9 +18,7 @@ ignore =
     SIM115,
     SIM117,
     SIM223,
-    SIM300,
     SIM401,
-    SIM904,
     SIM905,
     SIM907,
 exclude =
