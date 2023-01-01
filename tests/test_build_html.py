@@ -1370,7 +1370,7 @@ def test_html_remote_logo(app, status, warning):
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<img class="logo" src="https://www.python.org/static/img/python-logo.png" alt="Logo"/>' in result)
-    assert ('<link rel="shortcut icon" href="https://www.python.org/static/favicon.ico"/>' in result)
+    assert ('<link rel="icon" href="https://www.python.org/static/favicon.ico"/>' in result)
     assert not (app.outdir / 'python-logo.png').exists()
 
 
