@@ -358,7 +358,7 @@ def test_html4_deprecation(make_app, tempdir):
         (".//li[@class='toctree-l1']/a", 'Testing various markup'),
         (".//li[@class='toctree-l2']/a", 'Inline markup'),
         (".//title", 'Sphinx <Tests>'),
-        (".//div[@class='footer']", 'Georg Brandl & Team'),
+        (".//div[@class='footer']", 'copyright text credits'),
         (".//a[@href='http://python.org/']"
          "[@class='reference external']", ''),
         (".//li/p/a[@href='genindex.html']/span", 'Index'),
