@@ -24,7 +24,7 @@ import re
 import sys
 from gettext import NullTranslations
 from os import path
-from typing import Any, NamedTuple, Optional, Sequence
+from typing import Any, NamedTuple, Sequence
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -214,8 +214,8 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
                                  template: AutosummaryRenderer, template_name: str,
                                  imported_members: bool, app: Any,
                                  recursive: bool, context: dict,
-                                 modname: Optional[str] = None,
-                                 qualname: Optional[str] = None) -> str:
+                                 modname: str | None = None,
+                                 qualname: str | None = None) -> str:
     doc = get_documenter(app, obj, parent)
 
     def skip_member(obj: Any, name: str, objtype: str) -> bool:
@@ -354,8 +354,8 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         return template.render(doc.objtype, ns)
 
 
-def generate_autosummary_docs(sources: list[str], output_dir: Optional[str] = None,
-                              suffix: str = '.rst', base_path: Optional[str] = None,
+def generate_autosummary_docs(sources: list[str], output_dir: str | None = None,
+                              suffix: str = '.rst', base_path: str | None = None,
                               imported_members: bool = False, app: Any = None,
                               overwrite: bool = True, encoding: str = 'utf-8') -> None:
     showed_sources = sorted(sources)
@@ -460,7 +460,7 @@ def find_autosummary_in_files(filenames: list[str]) -> list[AutosummaryEntry]:
 
 
 def find_autosummary_in_docstring(
-    name: str, filename: Optional[str] = None
+    name: str, filename: str | None = None
 ) -> list[AutosummaryEntry]:
     """Find out what items are documented in the given object's docstring.
 
@@ -482,7 +482,7 @@ def find_autosummary_in_docstring(
 
 
 def find_autosummary_in_lines(
-    lines: list[str], module: Optional[str] = None, filename: Optional[str] = None
+    lines: list[str], module: str | None = None, filename: str | None = None
 ) -> list[AutosummaryEntry]:
     """Find out what items appear in autosummary:: directives in the
     given lines.
@@ -507,7 +507,7 @@ def find_autosummary_in_lines(
     documented: list[AutosummaryEntry] = []
 
     recursive = False
-    toctree: Optional[str] = None
+    toctree: str | None = None
     template = None
     current_module = module
     in_autosummary = False

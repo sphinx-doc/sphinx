@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from functools import partial
 from importlib import import_module
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 from pygments import highlight
 from pygments.filters import ErrorToken
@@ -83,7 +83,7 @@ class PygmentsBridge:
     latex_formatter = LatexFormatter
 
     def __init__(self, dest: str = 'html', stylename: str = 'sphinx',
-                 latex_engine: Optional[str] = None) -> None:
+                 latex_engine: str | None = None) -> None:
         self.dest = dest
         self.latex_engine = latex_engine
 
@@ -110,7 +110,7 @@ class PygmentsBridge:
         kwargs.update(self.formatter_args)
         return self.formatter(**kwargs)
 
-    def get_lexer(self, source: str, lang: str, opts: Optional[dict] = None,
+    def get_lexer(self, source: str, lang: str, opts: dict | None = None,
                   force: bool = False, location: Any = None) -> Lexer:
         if not opts:
             opts = {}
@@ -146,7 +146,7 @@ class PygmentsBridge:
 
         return lexer
 
-    def highlight_block(self, source: str, lang: str, opts: Optional[dict] = None,
+    def highlight_block(self, source: str, lang: str, opts: dict | None = None,
                         force: bool = False, location: Any = None, **kwargs: Any) -> str:
         if not isinstance(source, str):
             source = source.decode()

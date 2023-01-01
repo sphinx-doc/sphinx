@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import copy
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Iterable, NamedTuple, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, Iterable, NamedTuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -181,7 +181,7 @@ class Domain:
     #: directive name -> directive class
     directives: dict[str, Any] = {}
     #: role name -> role callable
-    roles: dict[str, Union[RoleFunction, XRefRole]] = {}
+    roles: dict[str, RoleFunction | XRefRole] = {}
     #: a list of Index subclasses
     indices: list[type[Index]] = []
     #: role name -> a warning message if reference is missing
@@ -247,7 +247,7 @@ class Domain:
         for role in objtype.roles:
             self._role2type.setdefault(role, []).append(name)
 
-    def role(self, name: str) -> Optional[RoleFunction]:
+    def role(self, name: str) -> RoleFunction | None:
         """Return a role adapter function that always gives the registered
         role its full name ('domain:name') as the first argument.
         """
@@ -265,7 +265,7 @@ class Domain:
         self._role_cache[name] = role_adapter
         return role_adapter
 
-    def directive(self, name: str) -> Optional[Callable]:
+    def directive(self, name: str) -> Callable | None:
         """Return a directive adapter class that always gives the registered
         directive its full name ('domain:name') as ``self.name``.
         """
@@ -314,7 +314,7 @@ class Domain:
 
     def resolve_xref(self, env: "BuildEnvironment", fromdocname: str, builder: "Builder",
                      typ: str, target: str, node: pending_xref, contnode: Element
-                     ) -> Optional[Element]:
+                     ) -> Element | None:
         """Resolve the pending_xref *node* with the given *typ* and *target*.
 
         This method should return a new node, to replace the xref node,
@@ -389,11 +389,11 @@ class Domain:
             return type.lname
         return _('%s %s') % (self.label, type.lname)
 
-    def get_enumerable_node_type(self, node: Node) -> Optional[str]:
+    def get_enumerable_node_type(self, node: Node) -> str | None:
         """Get type of enumerable nodes (experimental)."""
         enum_node_type, _ = self.enumerable_nodes.get(node.__class__, (None, None))
         return enum_node_type
 
-    def get_full_qualified_name(self, node: Element) -> Optional[str]:
+    def get_full_qualified_name(self, node: Element) -> str | None:
         """Return full qualified name for given node."""
         return None

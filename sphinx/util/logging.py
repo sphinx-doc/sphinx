@@ -6,7 +6,7 @@ import logging
 import logging.handlers
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import IO, TYPE_CHECKING, Any, Generator, Optional, Union
+from typing import IO, TYPE_CHECKING, Any, Generator
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -121,7 +121,7 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
     KEYWORDS = ['type', 'subtype', 'location', 'nonl', 'color', 'once']
 
     def log(  # type: ignore[override]
-        self, level: Union[int, str], msg: str, *args: Any, **kwargs: Any
+        self, level: int | str, msg: str, *args: Any, **kwargs: Any
     ) -> None:
         if isinstance(level, int):
             super().log(level, msg, *args, **kwargs)
@@ -364,7 +364,7 @@ def is_suppressed_warning(type: str, subtype: str, suppress_warnings: list[str])
     if type is None:
         return False
 
-    subtarget: Optional[str]
+    subtarget: str | None
 
     for warning_type in suppress_warnings:
         if '.' in warning_type:
@@ -517,7 +517,7 @@ class WarningLogRecordTranslator(SphinxLogRecordTranslator):
     LogRecordClass = SphinxWarningLogRecord
 
 
-def get_node_location(node: Node) -> Optional[str]:
+def get_node_location(node: Node) -> str | None:
     (source, line) = get_source_line(node)
     if source:
         source = abspath(source)

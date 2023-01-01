@@ -5,7 +5,7 @@ from __future__ import annotations
 import importlib
 import traceback
 import warnings
-from typing import TYPE_CHECKING, Any, Callable, NamedTuple, Optional
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple
 
 from sphinx.ext.autodoc.mock import ismock, undecorate
 from sphinx.pycode import ModuleAnalyzer, PycodeError
@@ -30,7 +30,7 @@ def mangle(subject: Any, name: str) -> str:
     return name
 
 
-def unmangle(subject: Any, name: str) -> Optional[str]:
+def unmangle(subject: Any, name: str) -> str | None:
     """Unmangle the given name."""
     try:
         if isclass(subject) and not name.endswith('__'):
@@ -147,7 +147,7 @@ def get_object_members(
     subject: Any,
     objpath: list[str],
     attrgetter: Callable,
-    analyzer: Optional[ModuleAnalyzer] = None
+    analyzer: ModuleAnalyzer | None = None
 ) -> dict[str, Attribute]:
     """Get members and attributes of target object."""
     from sphinx.ext.autodoc import INSTANCEATTR

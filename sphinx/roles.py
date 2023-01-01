@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 import docutils.parsers.rst.directives
 import docutils.parsers.rst.roles
@@ -66,8 +66,8 @@ class XRefRole(ReferenceRole):
     innernodeclass: type[TextElement] = nodes.literal
 
     def __init__(self, fix_parens: bool = False, lowercase: bool = False,
-                 nodeclass: Optional[type[Element]] = None,
-                 innernodeclass: Optional[type[TextElement]] = None,
+                 nodeclass: type[Element] | None = None,
+                 innernodeclass: type[TextElement] | None = None,
                  warn_dangling: bool = False) -> None:
         self.fix_parens = fix_parens
         self.lowercase = lowercase

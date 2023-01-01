@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from os import path
-from typing import Any, Iterator, Optional
+from typing import Any, Iterator
 
 from docutils.io import StringOutput
 from docutils.nodes import Node
@@ -27,7 +27,7 @@ class TextBuilder(Builder):
     allow_parallel = True
     default_translator_class = TextTranslator
 
-    current_docname: Optional[str] = None
+    current_docname: str | None = None
 
     def init(self) -> None:
         # section numbers for headings in the currently visited document
@@ -51,7 +51,7 @@ class TextBuilder(Builder):
                 # source doesn't exist anymore
                 pass
 
-    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         return ''
 
     def prepare_writing(self, docnames: set[str]) -> None:

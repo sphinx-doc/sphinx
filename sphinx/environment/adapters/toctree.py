@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Iterable, Optional, cast
+from typing import TYPE_CHECKING, Any, Iterable, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -42,7 +42,7 @@ class TocTree:
 
     def resolve(self, docname: str, builder: "Builder", toctree: addnodes.toctree,
                 prune: bool = True, maxdepth: int = 0, titles_only: bool = False,
-                collapse: bool = False, includehidden: bool = False) -> Optional[Element]:
+                collapse: bool = False, includehidden: bool = False) -> Element | None:
         """Resolve a *toctree* node into individual bullet lists with titles
         as items, returning None (if no containing titles are found) or
         a new node.
@@ -321,7 +321,7 @@ class TocTree:
         return toc
 
     def get_toctree_for(self, docname: str, builder: "Builder", collapse: bool,
-                        **kwargs: Any) -> Optional[Element]:
+                        **kwargs: Any) -> Element | None:
         """Return the global TOC nodetree."""
         doctree = self.env.get_doctree(self.env.config.root_doc)
         toctrees: list[Element] = []

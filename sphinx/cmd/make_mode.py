@@ -13,7 +13,6 @@ import os
 import subprocess
 import sys
 from os import path
-from typing import Optional
 
 import sphinx
 from sphinx.cmd.build import build_main
@@ -134,7 +133,7 @@ class Make:
             return 1
         return 0
 
-    def run_generic_build(self, builder: str, doctreedir: Optional[str] = None) -> int:
+    def run_generic_build(self, builder: str, doctreedir: str | None = None) -> int:
         # compatibility with old Makefile
         papersize = os.getenv('PAPER', '')
         opts = self.opts

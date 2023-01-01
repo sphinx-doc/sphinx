@@ -6,7 +6,7 @@ import collections
 import inspect
 import re
 from functools import partial
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable
 
 from sphinx.application import Sphinx
 from sphinx.config import Config as SphinxConfig
@@ -149,9 +149,9 @@ class GoogleDocstring:
 
     def __init__(
         self,
-        docstring: Union[str, list[str]],
-        config: Optional[SphinxConfig] = None,
-        app: Optional[Sphinx] = None,
+        docstring: str | list[str],
+        config: SphinxConfig | None = None,
+        app: Sphinx | None = None,
         what: str = '',
         name: str = '',
         obj: Any = None,
@@ -418,7 +418,7 @@ class GoogleDocstring:
             return ['.. %s::' % admonition, '']
 
     def _format_block(
-        self, prefix: str, lines: list[str], padding: Optional[str] = None
+        self, prefix: str, lines: list[str], padding: str | None = None
     ) -> list[str]:
         if lines:
             if padding is None:
@@ -958,7 +958,7 @@ def _tokenize_type_spec(spec: str) -> list[str]:
     return tokens
 
 
-def _token_type(token: str, location: Optional[str] = None) -> str:
+def _token_type(token: str, location: str | None = None) -> str:
     def is_numeric(token):
         try:
             # use complex to make sure every numeric value is detected as literal
@@ -1018,7 +1018,7 @@ def _token_type(token: str, location: Optional[str] = None) -> str:
 
 
 def _convert_numpy_type_spec(
-    _type: str, location: Optional[str] = None, translations: dict = {}
+    _type: str, location: str | None = None, translations: dict = {}
 ) -> str:
     def convert_obj(obj, translations, default_translation):
         translation = translations.get(obj, obj)
@@ -1150,9 +1150,9 @@ class NumpyDocstring(GoogleDocstring):
     """
     def __init__(
         self,
-        docstring: Union[str, list[str]],
-        config: Optional[SphinxConfig] = None,
-        app: Optional[Sphinx] = None,
+        docstring: str | list[str],
+        config: SphinxConfig | None = None,
+        app: Sphinx | None = None,
         what: str = '',
         name: str = '',
         obj: Any = None,
@@ -1161,7 +1161,7 @@ class NumpyDocstring(GoogleDocstring):
         self._directive_sections = ['.. index::']
         super().__init__(docstring, config, app, what, name, obj, options)
 
-    def _get_location(self) -> Optional[str]:
+    def _get_location(self) -> str | None:
         try:
             filepath = inspect.getfile(self._obj) if self._obj is not None else None
         except TypeError:
@@ -1264,7 +1264,7 @@ class NumpyDocstring(GoogleDocstring):
         """
         items = []
 
-        def parse_item_name(text: str) -> tuple[str, Optional[str]]:
+        def parse_item_name(text: str) -> tuple[str, str | None]:
             """Match ':role:`name`' or 'name'"""
             m = self._name_rgx.match(text)
             if m:

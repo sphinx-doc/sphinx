@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Iterable
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -264,14 +264,14 @@ def extract_messages(doctree: Element) -> Iterable[tuple[Element, str]]:
             yield node, msg
 
 
-def get_node_source(node: Element) -> Optional[str]:
+def get_node_source(node: Element) -> str | None:
     for pnode in traverse_parent(node):
         if pnode.source:
             return pnode.source
     return None
 
 
-def get_node_line(node: Element) -> Optional[int]:
+def get_node_line(node: Element) -> int | None:
     for pnode in traverse_parent(node):
         if pnode.line:
             return pnode.line
@@ -285,7 +285,7 @@ def traverse_parent(node: Element, cls: Any = None) -> Iterable[Element]:
         node = node.parent
 
 
-def get_prev_node(node: Node) -> Optional[Node]:
+def get_prev_node(node: Node) -> Node | None:
     pos = node.parent.index(node)
     if pos > 0:
         return node.parent[pos - 1]
@@ -349,10 +349,10 @@ indextypes = [
 
 
 def process_index_entry(entry: str, targetid: str
-                        ) -> list[tuple[str, str, str, str, Optional[str]]]:
+                        ) -> list[tuple[str, str, str, str, str | None]]:
     from sphinx.domains.python import pairindextypes
 
-    indexentries: list[tuple[str, str, str, str, Optional[str]]] = []
+    indexentries: list[tuple[str, str, str, str, str | None]] = []
     entry = entry.strip()
     oentry = entry
     main = ''
@@ -495,7 +495,7 @@ _non_id_translate_digraphs = {
 
 
 def make_id(env: "BuildEnvironment", document: nodes.document,
-            prefix: str = '', term: Optional[str] = None) -> str:
+            prefix: str = '', term: str | None = None) -> str:
     """Generate an appropriate node_id for given *prefix* and *term*."""
     node_id = None
     if prefix:
@@ -521,7 +521,7 @@ def make_id(env: "BuildEnvironment", document: nodes.document,
 
 
 def find_pending_xref_condition(node: addnodes.pending_xref, condition: str
-                                ) -> Optional[Element]:
+                                ) -> Element | None:
     """Pick matched pending_xref_condition node up from the pending_xref."""
     for subnode in node:
         if (isinstance(subnode, addnodes.pending_xref_condition) and
@@ -531,7 +531,7 @@ def find_pending_xref_condition(node: addnodes.pending_xref, condition: str
 
 
 def make_refnode(builder: "Builder", fromdocname: str, todocname: str, targetid: str,
-                 child: Union[Node, list[Node]], title: Optional[str] = None
+                 child: Node | list[Node], title: str | None = None
                  ) -> nodes.reference:
     """Shortcut to create a reference node."""
     node = nodes.reference('', '', internal=True)

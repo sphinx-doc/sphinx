@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from os import path
-from typing import Any, Optional
+from typing import Any
 
 from sphinx.application import Sphinx
 from sphinx.builders.html import StandaloneHTMLBuilder
@@ -21,7 +21,7 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
     """
     name = 'dirhtml'
 
-    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         if docname == 'index':
             return ''
         if docname.endswith(SEP + 'index'):

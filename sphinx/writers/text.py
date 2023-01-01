@@ -6,7 +6,7 @@ import os
 import re
 import textwrap
 from itertools import chain, groupby
-from typing import TYPE_CHECKING, Any, Generator, Iterable, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Generator, Iterable, cast
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Text
@@ -29,8 +29,8 @@ class Cell:
         self.wrapped: list[str] = []
         self.rowspan = rowspan
         self.colspan = colspan
-        self.col: Optional[int] = None
-        self.row: Optional[int] = None
+        self.col: int | None = None
+        self.row: int | None = None
 
     def __repr__(self) -> str:
         return "<Cell {!r} {}v{}/{}>{}>".format(
@@ -192,7 +192,7 @@ class Table:
         out = []
         self.rewrap()
 
-        def writesep(char: str = "-", lineno: Optional[int] = None) -> str:
+        def writesep(char: str = "-", lineno: int | None = None) -> str:
             """Called on the line *before* lineno.
             Called with no *lineno* for the last sep.
             """
@@ -388,7 +388,7 @@ class TextTranslator(SphinxTranslator):
         self.sectionchars = self.config.text_sectionchars
         self.add_secnumbers = self.config.text_add_secnumbers
         self.secnumber_suffix = self.config.text_secnumber_suffix
-        self.states: list[list[tuple[int, Union[str, list[str]]]]] = [[]]
+        self.states: list[list[tuple[int, str | list[str]]]] = [[]]
         self.stateindent = [0]
         self.list_counter: list[int] = []
         self.sectionlevel = 0

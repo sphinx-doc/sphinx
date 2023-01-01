@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 
 class SphinxError(Exception):
@@ -42,7 +42,7 @@ class ExtensionError(SphinxError):
     """Extension error."""
 
     def __init__(
-        self, message: str, orig_exc: Optional[Exception] = None, modname: Optional[str] = None
+        self, message: str, orig_exc: Exception | None = None, modname: str | None = None
     ) -> None:
         super().__init__(message)
         self.message = message

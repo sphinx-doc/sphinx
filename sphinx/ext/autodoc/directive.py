@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -42,7 +42,7 @@ class DummyOptionSpec(dict):
 class DocumenterBridge:
     """A parameters container for Documenters."""
 
-    def __init__(self, env: BuildEnvironment, reporter: Optional[Reporter], options: Options,
+    def __init__(self, env: BuildEnvironment, reporter: Reporter | None, options: Options,
                  lineno: int, state: Any) -> None:
         self.env = env
         self._reporter = reporter

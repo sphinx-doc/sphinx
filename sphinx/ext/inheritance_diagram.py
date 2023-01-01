@@ -34,7 +34,7 @@ import builtins
 import inspect
 import re
 from importlib import import_module
-from typing import Any, Iterable, Optional, cast
+from typing import Any, Iterable, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -134,7 +134,7 @@ class InheritanceGraph:
     """
     def __init__(self, class_names: list[str], currmodule: str, show_builtins: bool = False,
                  private_bases: bool = False, parts: int = 0,
-                 aliases: Optional[dict[str, str]] = None, top_classes: list[Any] = []
+                 aliases: dict[str, str] | None = None, top_classes: list[Any] = []
                  ) -> None:
         """*class_names* is a list of child classes to show bases from.
 
@@ -216,7 +216,7 @@ class InheritanceGraph:
         return list(all_classes.values())
 
     def class_name(
-        self, cls: Any, parts: int = 0, aliases: Optional[dict[str, str]] = None
+        self, cls: Any, parts: int = 0, aliases: dict[str, str] | None = None
     ) -> str:
         """Given a class object, return a fully-qualified name.
 
@@ -268,7 +268,7 @@ class InheritanceGraph:
         return ''.join(['%s=%s;\n' % x for x in sorted(attrs.items())])
 
     def generate_dot(self, name: str, urls: dict[str, str] = {},
-                     env: Optional[BuildEnvironment] = None,
+                     env: BuildEnvironment | None = None,
                      graph_attrs: dict = {}, node_attrs: dict = {}, edge_attrs: dict = {}
                      ) -> str:
         """Generate a graphviz dot graph from the classes that were passed in

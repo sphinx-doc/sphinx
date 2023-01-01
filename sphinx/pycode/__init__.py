@@ -8,7 +8,7 @@ from collections import OrderedDict
 from importlib import import_module
 from inspect import Signature
 from os import path
-from typing import Any, Optional
+from typing import Any
 from zipfile import ZipFile
 
 from sphinx.errors import PycodeError
@@ -27,7 +27,7 @@ class ModuleAnalyzer:
     cache: dict[tuple[str, str], Any] = {}
 
     @staticmethod
-    def get_module_source(modname: str) -> tuple[Optional[str], Optional[str]]:
+    def get_module_source(modname: str) -> tuple[str | None, str | None]:
         """Try to find the source code for a module.
 
         Returns ('filename', 'source'). One of it can be None if

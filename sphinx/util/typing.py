@@ -6,7 +6,7 @@ import sys
 import typing
 from struct import Struct
 from types import TracebackType
-from typing import Any, Callable, Dict, ForwardRef, List, Optional, Tuple, TypeVar, Union
+from typing import Any, Callable, Dict, ForwardRef, List, Tuple, TypeVar, Union
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
@@ -56,7 +56,7 @@ Inventory = Dict[str, Dict[str, InventoryItem]]
 
 
 def get_type_hints(
-    obj: Any, globalns: Optional[dict[str, Any]] = None, localns: Optional[dict] = None
+    obj: Any, globalns: dict[str, Any] | None = None, localns: dict | None = None
 ) -> dict[str, Any]:
     """Return a dictionary containing type hints for a function, method, module or class
     object.
@@ -89,7 +89,7 @@ def is_system_TypeVar(typ: Any) -> bool:
     return modname == 'typing' and isinstance(typ, TypeVar)
 
 
-def restify(cls: Optional[type], mode: str = 'fully-qualified-except-typing') -> str:
+def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> str:
     """Convert python class to a reST reference.
 
     :param mode: Specify a method how annotations will be stringified.

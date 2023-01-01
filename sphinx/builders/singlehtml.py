@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from os import path
-from typing import Any, Optional, Union
+from typing import Any
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -29,10 +29,10 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 
     copysource = False
 
-    def get_outdated_docs(self) -> Union[str, list[str]]:  # type: ignore[override]
+    def get_outdated_docs(self) -> str | list[str]:  # type: ignore[override]
         return 'all documents'
 
-    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         if docname in self.env.all_docs:
             # all references are on the same page...
             return self.config.root_doc + self.out_suffix + \
@@ -41,7 +41,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             # chances are this is a html_additional_page
             return docname + self.out_suffix
 
-    def get_relative_uri(self, from_: str, to: str, typ: Optional[str] = None) -> str:
+    def get_relative_uri(self, from_: str, to: str, typ: str | None = None) -> str:
         # ignore source
         return self.get_target_uri(to, typ)
 

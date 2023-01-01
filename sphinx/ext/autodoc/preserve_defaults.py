@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import ast
 import inspect
-from typing import Any, Optional
+from typing import Any
 
 import sphinx
 from sphinx.application import Sphinx
@@ -27,7 +27,7 @@ class DefaultValue:
         return self.name
 
 
-def get_function_def(obj: Any) -> Optional[ast.FunctionDef]:
+def get_function_def(obj: Any) -> ast.FunctionDef | None:
     """Get FunctionDef object from living object.
     This tries to parse original code for living object and returns
     AST node for given *obj*.
@@ -46,7 +46,7 @@ def get_function_def(obj: Any) -> Optional[ast.FunctionDef]:
         return None
 
 
-def get_default_value(lines: list[str], position: ast.AST) -> Optional[str]:
+def get_default_value(lines: list[str], position: ast.AST) -> str | None:
     try:
         if position.lineno == position.end_lineno:
             line = lines[position.lineno - 1]

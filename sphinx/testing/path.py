@@ -4,7 +4,7 @@ import builtins
 import os
 import shutil
 import sys
-from typing import IO, Any, Callable, Optional
+from typing import IO, Any, Callable
 
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
@@ -71,7 +71,7 @@ class path(str):
         """
         return os.path.ismount(self)
 
-    def rmtree(self, ignore_errors: bool = False, onerror: Optional[Callable] = None) -> None:
+    def rmtree(self, ignore_errors: bool = False, onerror: Callable | None = None) -> None:
         """
         Removes the file or directory and any files or directories it may
         contain.

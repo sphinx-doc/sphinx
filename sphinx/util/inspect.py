@@ -18,7 +18,7 @@ from inspect import (Parameter, isasyncgenfunction, isclass, ismethod,  # noqa: 
 from io import StringIO
 from types import (ClassMethodDescriptorType, MethodDescriptorType, MethodType, ModuleType,
                    WrapperDescriptorType)
-from typing import Any, Callable, Dict, Mapping, Optional, Sequence, cast
+from typing import Any, Callable, Dict, Mapping, Sequence, cast
 
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
@@ -43,7 +43,7 @@ def unwrap(obj: Any) -> Any:
         return obj
 
 
-def unwrap_all(obj: Any, *, stop: Optional[Callable] = None) -> Any:
+def unwrap_all(obj: Any, *, stop: Callable | None = None) -> Any:
     """
     Get an original object from wrapped object (unwrapping partials, wrapped
     functions, and other decorators).
@@ -63,7 +63,7 @@ def unwrap_all(obj: Any, *, stop: Optional[Callable] = None) -> Any:
             return obj
 
 
-def getall(obj: Any) -> Optional[Sequence[str]]:
+def getall(obj: Any) -> Sequence[str] | None:
     """Get __all__ attribute of the module as dict.
 
     Return None if given *obj* does not have __all__.
@@ -106,7 +106,7 @@ def getmro(obj: Any) -> tuple[type, ...]:
         return ()
 
 
-def getorigbases(obj: Any) -> Optional[tuple[Any, ...]]:
+def getorigbases(obj: Any) -> tuple[Any, ...] | None:
     """Get __orig_bases__ from *obj* safely."""
     if not inspect.isclass(obj):
         return None
@@ -121,7 +121,7 @@ def getorigbases(obj: Any) -> Optional[tuple[Any, ...]]:
         return None
 
 
-def getslots(obj: Any) -> Optional[dict]:
+def getslots(obj: Any) -> dict | None:
     """Get __slots__ attribute of the class as dict.
 
     Return None if gienv *obj* does not have __slots__.
@@ -183,7 +183,7 @@ def ispartial(obj: Any) -> bool:
     return isinstance(obj, (partial, partialmethod))
 
 
-def isclassmethod(obj: Any, cls: Any = None, name: Optional[str] = None) -> bool:
+def isclassmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
     """Check if the object is classmethod."""
     if isinstance(obj, classmethod):
         return True
@@ -199,7 +199,7 @@ def isclassmethod(obj: Any, cls: Any = None, name: Optional[str] = None) -> bool
     return False
 
 
-def isstaticmethod(obj: Any, cls: Any = None, name: Optional[str] = None) -> bool:
+def isstaticmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
     """Check if the object is staticmethod."""
     if isinstance(obj, staticmethod):
         return True
@@ -474,7 +474,7 @@ class TypeAliasModule:
         self.__modname = modname
         self.__mapping = mapping
 
-        self.__module: Optional[ModuleType] = None
+        self.__module: ModuleType | None = None
 
     def __getattr__(self, name: str) -> Any:
         fullname = '.'.join(filter(None, [self.__modname, name]))
@@ -590,8 +590,8 @@ def signature(subject: Callable, bound_method: bool = False, type_aliases: dict 
                              __validate_parameters__=False)
 
 
-def evaluate_signature(sig: inspect.Signature, globalns: Optional[dict] = None,
-                       localns: Optional[dict] = None
+def evaluate_signature(sig: inspect.Signature, globalns: dict | None = None,
+                       localns: dict | None = None
                        ) -> inspect.Signature:
     """Evaluate unresolved type annotations in a signature object."""
     def evaluate_forwardref(ref: ForwardRef, globalns: dict, localns: dict) -> Any:
@@ -775,8 +775,8 @@ def getdoc(
     attrgetter: Callable = safe_getattr,
     allow_inherited: bool = False,
     cls: Any = None,
-    name: Optional[str] = None
-) -> Optional[str]:
+    name: str | None = None
+) -> str | None:
     """Get the docstring for the object.
 
     This tries to obtain the docstring for some kind of objects additionally:
@@ -785,7 +785,7 @@ def getdoc(
     * inherited docstring
     * inherited decorated methods
     """
-    def getdoc_internal(obj: Any, attrgetter: Callable = safe_getattr) -> Optional[str]:
+    def getdoc_internal(obj: Any, attrgetter: Callable = safe_getattr) -> str | None:
         doc = attrgetter(obj, '__doc__', None)
         if isinstance(doc, str):
             return doc
@@ -796,7 +796,7 @@ def getdoc(
         for basecls in getmro(cls):
             meth = basecls.__dict__.get(name)
             if meth and hasattr(meth, '__func__'):
-                doc: Optional[str] = getdoc(meth.__func__)
+                doc: str | None = getdoc(meth.__func__)
                 if doc is not None or not allow_inherited:
                     return doc
 

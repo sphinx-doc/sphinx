@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import ast
 from inspect import Parameter, Signature, getsource
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 import sphinx
 from sphinx.application import Sphinx
@@ -76,7 +76,7 @@ def signature_from_ast(node: ast.FunctionDef, bound_method: bool,
         return Signature(params)
 
 
-def get_type_comment(obj: Any, bound_method: bool = False) -> Optional[Signature]:
+def get_type_comment(obj: Any, bound_method: bool = False) -> Signature | None:
     """Get type_comment'ed FunctionDef object from living object.
 
     This tries to parse original code for living object and returns

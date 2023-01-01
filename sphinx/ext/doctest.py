@@ -11,7 +11,7 @@ import sys
 import time
 from io import StringIO
 from os import path
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Sequence
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Sequence
 
 from docutils import nodes
 from docutils.nodes import Element, Node, TextElement
@@ -220,7 +220,7 @@ class TestGroup:
 
 class TestCode:
     def __init__(self, code: str, type: str, filename: str,
-                 lineno: int, options: Optional[dict] = None) -> None:
+                 lineno: int, options: dict | None = None) -> None:
         self.code = code
         self.type = type
         self.filename = filename
@@ -312,7 +312,7 @@ class DocTestBuilder(Builder):
             logger.info(text, nonl=True)
         self.outfile.write(text)
 
-    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         return ''
 
     def get_outdated_docs(self) -> set[str]:
@@ -361,7 +361,7 @@ Doctest summary
         return filename
 
     @staticmethod
-    def get_line_number(node: Node) -> Optional[int]:
+    def get_line_number(node: Node) -> int | None:
         """Get the real line number or admit we don't know."""
         # TODO:  Work out how to store or calculate real (file-relative)
         #       line numbers for doctest blocks in docstrings.

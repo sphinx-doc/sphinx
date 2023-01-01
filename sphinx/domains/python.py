@@ -8,7 +8,7 @@ import inspect
 import re
 import typing
 from inspect import Parameter
-from typing import Any, Iterable, Iterator, List, NamedTuple, Optional, Tuple, cast
+from typing import Any, Iterable, Iterator, List, NamedTuple, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -98,7 +98,7 @@ def parse_reftarget(reftarget: str, suppress_prefix: bool = False
     return reftype, reftarget, title, refspecific
 
 
-def type_to_xref(target: str, env: Optional[BuildEnvironment] = None,
+def type_to_xref(target: str, env: BuildEnvironment | None = None,
                  suppress_prefix: bool = False) -> addnodes.pending_xref:
     """Convert a type string to a cross reference node."""
     if env:
@@ -227,7 +227,7 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
 
 
 def _parse_arglist(
-    arglist: str, env: Optional[BuildEnvironment] = None
+    arglist: str, env: BuildEnvironment | None = None
 ) -> addnodes.desc_parameterlist:
     """Parse a list of arguments using AST parser"""
     params = addnodes.desc_parameterlist(arglist)
@@ -1327,7 +1327,7 @@ class PythonDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      type: str, target: str, node: pending_xref, contnode: Element
-                     ) -> Optional[Element]:
+                     ) -> Element | None:
         modname = node.get('py:module')
         clsname = node.get('py:class')
         searchmode = 1 if node.hasattr('refspecific') else 0
@@ -1432,7 +1432,7 @@ class PythonDomain(Domain):
                 else:
                     yield (refname, refname, obj.objtype, obj.docname, obj.node_id, 1)
 
-    def get_full_qualified_name(self, node: Element) -> Optional[str]:
+    def get_full_qualified_name(self, node: Element) -> str | None:
         modname = node.get('py:module')
         clsname = node.get('py:class')
         target = node.get('reftarget')

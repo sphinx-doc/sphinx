@@ -1162,7 +1162,7 @@ class ASTBracedInitList(ASTBase):
 
 
 class ASTInitializer(ASTBase):
-    def __init__(self, value: Union[ASTBracedInitList, ASTExpression],
+    def __init__(self, value: ASTBracedInitList | ASTExpression,
                  hasAssign: bool = True) -> None:
         self.value = value
         self.hasAssign = hasAssign
@@ -1374,7 +1374,7 @@ class ASTEnum(ASTBase):
 
 
 class ASTEnumerator(ASTBase):
-    def __init__(self, name: ASTNestedName, init: Optional[ASTInitializer],
+    def __init__(self, name: ASTNestedName, init: ASTInitializer | None,
                  attrs: ASTAttributeList) -> None:
         self.name = name
         self.init = init
@@ -1406,7 +1406,7 @@ class ASTEnumerator(ASTBase):
 
 class ASTDeclaration(ASTBaseBase):
     def __init__(self, objectType: str, directiveType: str,
-                 declaration: Union[DeclarationType, ASTFunctionParameter],
+                 declaration: DeclarationType | ASTFunctionParameter,
                  semicolon: bool = False) -> None:
         self.objectType = objectType
         self.directiveType = directiveType
@@ -2574,7 +2574,7 @@ class DefinitionParser(BaseParser):
                 break
         return ASTNestedName(names, rooted)
 
-    def _parse_simple_type_specifier(self) -> Optional[str]:
+    def _parse_simple_type_specifier(self) -> str | None:
         if self.match(_simple_type_specifiers_re):
             return self.matched_text
         for t in ('bool', 'complex', 'imaginary'):
@@ -2616,7 +2616,7 @@ class DefinitionParser(BaseParser):
         nestedName = self._parse_nested_name()
         return ASTTrailingTypeSpecName(prefix, nestedName)
 
-    def _parse_parameters(self, paramMode: str) -> Optional[ASTParameters]:
+    def _parse_parameters(self, paramMode: str) -> ASTParameters | None:
         self.skip_ws()
         if not self.skip_string('('):
             if paramMode == 'function':
@@ -2727,7 +2727,7 @@ class DefinitionParser(BaseParser):
         return ASTDeclSpecs(outer, leftSpecs, rightSpecs, trailing)
 
     def _parse_declarator_name_suffix(
-            self, named: Union[bool, str], paramMode: str, typed: bool
+            self, named: bool | str, paramMode: str, typed: bool
     ) -> ASTDeclarator:
         assert named in (True, False, 'single')
         # now we should parse the name, and then suffixes
@@ -2807,7 +2807,7 @@ class DefinitionParser(BaseParser):
         return ASTDeclaratorNameParam(declId=declId, arrayOps=arrayOps,
                                       param=param)
 
-    def _parse_declarator(self, named: Union[bool, str], paramMode: str,
+    def _parse_declarator(self, named: bool | str, paramMode: str,
                           typed: bool = True) -> ASTDeclarator:
         # 'typed' here means 'parse return type stuff'
         if paramMode not in ('type', 'function'):
@@ -2917,7 +2917,7 @@ class DefinitionParser(BaseParser):
         value = self._parse_expression_fallback(fallbackEnd, parser, allow=allowFallback)
         return ASTInitializer(value)
 
-    def _parse_type(self, named: Union[bool, str], outer: Optional[str] = None) -> ASTType:
+    def _parse_type(self, named: bool | str, outer: str | None = None) -> ASTType:
         """
         named=False|'single'|True: 'single' is e.g., for function objects which
         doesn't need to name the arguments, but otherwise is a single name
@@ -2976,7 +2976,7 @@ class DefinitionParser(BaseParser):
             decl = self._parse_declarator(named=named, paramMode=paramMode)
         return ASTType(declSpecs, decl)
 
-    def _parse_type_with_init(self, named: Union[bool, str], outer: str) -> ASTTypeWithInit:
+    def _parse_type_with_init(self, named: bool | str, outer: str) -> ASTTypeWithInit:
         if outer:
             assert outer in ('type', 'member', 'function')
         type = self._parse_type(outer=outer, named=named)
@@ -3095,9 +3095,9 @@ class DefinitionParser(BaseParser):
         self.assert_end()
         return name
 
-    def parse_expression(self) -> Union[ASTExpression, ASTType]:
+    def parse_expression(self) -> ASTExpression | ASTType:
         pos = self.pos
-        res: Union[ASTExpression, ASTType] = None
+        res: ASTExpression | ASTType = None
         try:
             res = self._parse_expression()
             self.skip_ws()
@@ -3489,7 +3489,7 @@ class AliasTransform(SphinxTransform):
 
         if recurse:
             if skipThis:
-                childContainer: Union[list[Node], addnodes.desc] = nodes
+                childContainer: list[Node] | addnodes.desc = nodes
             else:
                 content = addnodes.desc_content()
                 desc = addnodes.desc()
@@ -3721,7 +3721,7 @@ class CDomain(Domain):
         'expr': CExprRole(asCode=True),
         'texpr': CExprRole(asCode=False)
     }
-    initial_data: dict[str, Union[Symbol, dict[str, tuple[str, str, str]]]] = {
+    initial_data: dict[str, Symbol | dict[str, tuple[str, str, str]]] = {
         'root_symbol': Symbol(None, None, None, None, None),
         'objects': {},  # fullname -> docname, node_id, objtype
     }
@@ -3774,7 +3774,7 @@ class CDomain(Domain):
 
     def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                             typ: str, target: str, node: pending_xref,
-                            contnode: Element) -> tuple[Optional[Element], Optional[str]]:
+                            contnode: Element) -> tuple[Element | None, str | None]:
         parser = DefinitionParser(target, location=node, config=env.config)
         try:
             name = parser.parse_xref_object()
@@ -3811,7 +3811,7 @@ class CDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref,
-                     contnode: Element) -> Optional[Element]:
+                     contnode: Element) -> Element | None:
         return self._resolve_xref_inner(env, fromdocname, builder, typ,
                                         target, node, contnode)[0]
 

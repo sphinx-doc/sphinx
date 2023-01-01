@@ -11,7 +11,7 @@ import pdb  # NoQA: T100
 import sys
 import traceback
 from os import path
-from typing import Any, Optional, TextIO
+from typing import Any, TextIO
 
 from docutils.utils import SystemMessage
 
@@ -27,7 +27,7 @@ from sphinx.util.osutil import abspath, ensuredir
 
 
 def handle_exception(
-    app: Optional[Sphinx], args: Any, exception: BaseException, stderr: TextIO = sys.stderr
+    app: Sphinx | None, args: Any, exception: BaseException, stderr: TextIO = sys.stderr
 ) -> None:
     if isinstance(exception, bdb.BdbQuit):
         return
@@ -215,8 +215,8 @@ def _parse_arguments(argv: list[str] = sys.argv[1:]) -> argparse.Namespace:
     if args.color == 'no' or (args.color == 'auto' and not color_terminal()):
         nocolor()
 
-    status: Optional[TextIO] = sys.stdout
-    warning: Optional[TextIO] = sys.stderr
+    status: TextIO | None = sys.stdout
+    warning: TextIO | None = sys.stderr
     error = sys.stderr
 
     if args.quiet:

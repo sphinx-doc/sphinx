@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from copy import deepcopy
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Optional
 
 from docutils import nodes
 from docutils.nodes import TextElement
@@ -236,7 +236,7 @@ class DefinitionError(Exception):
 
 class BaseParser:
     def __init__(self, definition: str, *,
-                 location: Union[nodes.Node, tuple[str, int], str],
+                 location: nodes.Node | tuple[str, int] | str,
                  config: "Config") -> None:
         self.definition = definition.strip()
         self.location = location  # for warnings
@@ -393,7 +393,7 @@ class BaseParser:
                       % startPos)
         return self.definition[startPos:self.pos]
 
-    def _parse_attribute(self) -> Optional[ASTAttribute]:
+    def _parse_attribute(self) -> ASTAttribute | None:
         self.skip_ws()
         # try C++11 style
         startPos = self.pos

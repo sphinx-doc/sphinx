@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 import unicodedata
 from itertools import groupby
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 from sphinx.builders import Builder
 from sphinx.domains.index import IndexDomain
@@ -27,8 +27,8 @@ class IndexEntries:
         """Create the real index from the collected index entries."""
         new: dict[str, list] = {}
 
-        def add_entry(word: str, subword: str, main: Optional[str], link: bool = True,
-                      dic: dict[str, list] = new, key: Optional[str] = None) -> None:
+        def add_entry(word: str, subword: str, main: str | None, link: bool = True,
+                      dic: dict[str, list] = new, key: str | None = None) -> None:
             # Force the word to be unicode if it's a ASCII bytestring.
             # This will solve problems with unicode normalization later.
             # For instance the RFC role will add bytestrings at the moment
@@ -120,7 +120,7 @@ class IndexEntries:
             #     (in module foo)
             #     (in module bar)
             oldkey = ''
-            oldsubitems: Optional[dict[str, list]] = None
+            oldsubitems: dict[str, list] | None = None
             i = 0
             while i < len(newlist):
                 key, (targets, subitems, _key) = newlist[i]

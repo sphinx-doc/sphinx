@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any
 
 import docutils.parsers
 import docutils.parsers.rst
@@ -58,7 +58,7 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         transforms.remove(SmartQuotes)
         return transforms
 
-    def parse(self, inputstring: Union[str, StringList], document: nodes.document) -> None:
+    def parse(self, inputstring: str | StringList, document: nodes.document) -> None:
         """Parse text and generate a document tree."""
         self.setup_parse(inputstring, document)  # type: ignore
         self.statemachine = states.RSTStateMachine(

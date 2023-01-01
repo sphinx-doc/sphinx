@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import ast
 import warnings
-from typing import Optional, overload
+from typing import overload
 
 from sphinx.deprecation import RemovedInSphinx70Warning
 
@@ -55,7 +55,7 @@ def unparse(node: ast.AST, code: str = '') -> str:
     ...
 
 
-def unparse(node: Optional[ast.AST], code: str = '') -> Optional[str]:
+def unparse(node: ast.AST | None, code: str = '') -> str | None:
     """Unparse an AST to string."""
     if node is None:
         return None
@@ -80,7 +80,7 @@ class _UnparseVisitor(ast.NodeVisitor):
         else:
             return node.arg
 
-    def _visit_arg_with_default(self, arg: ast.arg, default: Optional[ast.AST]) -> str:
+    def _visit_arg_with_default(self, arg: ast.arg, default: ast.AST | None) -> str:
         """Unparse a single argument to a string."""
         name = self.visit(arg)
         if default:
@@ -91,14 +91,14 @@ class _UnparseVisitor(ast.NodeVisitor):
         return name
 
     def visit_arguments(self, node: ast.arguments) -> str:
-        defaults: list[Optional[ast.expr]] = list(node.defaults)
+        defaults: list[ast.expr | None] = list(node.defaults)
         positionals = len(node.args)
         posonlyargs = len(node.posonlyargs)
         positionals += posonlyargs
         for _ in range(len(defaults), positionals):
             defaults.insert(0, None)
 
-        kw_defaults: list[Optional[ast.expr]] = list(node.kw_defaults)
+        kw_defaults: list[ast.expr | None] = list(node.kw_defaults)
         for _ in range(len(kw_defaults), len(node.kwonlyargs)):
             kw_defaults.insert(0, None)
 

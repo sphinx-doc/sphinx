@@ -7,7 +7,7 @@ import re
 import sys
 import warnings
 from io import StringIO
-from typing import IO, Any, Generator, Optional
+from typing import IO, Any, Generator
 from xml.etree import ElementTree
 
 from docutils import nodes
@@ -99,14 +99,14 @@ class SphinxTestApp(application.Sphinx):
     def __init__(
         self,
         buildername: str = 'html',
-        srcdir: Optional[path] = None,
-        builddir: Optional[path] = None,
+        srcdir: path | None = None,
+        builddir: path | None = None,
         freshenv: bool = False,
-        confoverrides: Optional[dict] = None,
-        status: Optional[IO] = None,
-        warning: Optional[IO] = None,
-        tags: Optional[list[str]] = None,
-        docutilsconf: Optional[str] = None,
+        confoverrides: dict | None = None,
+        status: IO | None = None,
+        warning: IO | None = None,
+        tags: list[str] | None = None,
+        docutilsconf: str | None = None,
         parallel: int = 0
     ) -> None:
 
@@ -180,7 +180,7 @@ class SphinxTestAppWrapperForSkipBuilding:
 _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
 
 
-def find_files(root: str, suffix: Optional[str] = None) -> Generator[str, None, None]:
+def find_files(root: str, suffix: str | None = None) -> Generator[str, None, None]:
     for dirpath, _dirs, files in os.walk(root, followlinks=True):
         dirpath = path(dirpath)
         for f in [f for f in files if not suffix or f.endswith(suffix)]:

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import re
 import warnings
-from typing import IO, Any, Union
+from typing import IO, Any
 
 from sphinx.deprecation import RemovedInSphinx70Warning
 
@@ -111,7 +111,7 @@ def loads(x: str) -> Any:
     nothing = object()
     i = 0
     n = len(x)
-    stack: list[Union[list, dict]] = []
+    stack: list[list | dict] = []
     obj: Any = nothing
     key = False
     keys = []

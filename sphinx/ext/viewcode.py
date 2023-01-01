@@ -5,7 +5,7 @@ from __future__ import annotations
 import posixpath
 import traceback
 from os import path
-from typing import Any, Generator, Iterable, Optional, cast
+from typing import Any, Generator, Iterable, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -37,7 +37,7 @@ class viewcode_anchor(Element):
     """
 
 
-def _get_full_modname(app: Sphinx, modname: str, attribute: str) -> Optional[str]:
+def _get_full_modname(app: Sphinx, modname: str, attribute: str) -> str | None:
     try:
         return get_full_modname(modname, attribute)
     except AttributeError:
@@ -187,7 +187,7 @@ class ViewcodeAnchorTransform(SphinxPostTransform):
             node.parent.remove(node)
 
 
-def get_module_filename(app: Sphinx, modname: str) -> Optional[str]:
+def get_module_filename(app: Sphinx, modname: str) -> str | None:
     """Get module filename for *modname*."""
     source_info = app.emit_firstresult('viewcode-find-source', modname)
     if source_info:

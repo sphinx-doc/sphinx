@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from docutils.nodes import Node
 
@@ -23,7 +23,7 @@ class DummyBuilder(Builder):
     def get_outdated_docs(self) -> set[str]:
         return self.env.found_docs
 
-    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         return ''
 
     def prepare_writing(self, docnames: set[str]) -> None:

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
@@ -21,7 +21,7 @@ class EnvironmentCollector:
     entries and toctrees, etc.
     """
 
-    listener_ids: Optional[dict[str, int]] = None
+    listener_ids: dict[str, int] | None = None
 
     def enable(self, app: "Sphinx") -> None:
         assert self.listener_ids is None

@@ -13,7 +13,7 @@ from html.parser import HTMLParser
 from os import path
 from queue import PriorityQueue, Queue
 from threading import Thread
-from typing import Any, Generator, NamedTuple, Optional, Tuple, Union, cast
+from typing import Any, Generator, NamedTuple, Tuple, Union, cast
 from urllib.parse import unquote, urlparse, urlunparse
 
 from docutils import nodes
@@ -38,12 +38,12 @@ uri_re = re.compile('([a-z]+:)?//')  # matches to foo:// and // (a protocol rela
 class Hyperlink(NamedTuple):
     uri: str
     docname: str
-    lineno: Optional[int]
+    lineno: int | None
 
 
 class CheckRequest(NamedTuple):
     next_check: float
-    hyperlink: Optional[Hyperlink]
+    hyperlink: Hyperlink | None
 
 
 class CheckResult(NamedTuple):
@@ -457,7 +457,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 self.rqueue.put(CheckResult(uri, docname, lineno, status, info, code))
             self.wqueue.task_done()
 
-    def limit_rate(self, response: Response) -> Optional[float]:
+    def limit_rate(self, response: Response) -> float | None:
         next_check = None
         retry_after = response.headers.get("Retry-After")
         if retry_after:
@@ -534,7 +534,7 @@ class HyperlinkCollector(SphinxPostTransform):
                 add_uri(uri, rawnode)
 
 
-def rewrite_github_anchor(app: Sphinx, uri: str) -> Optional[str]:
+def rewrite_github_anchor(app: Sphinx, uri: str) -> str | None:
     """Rewrite anchor name of the hyperlink to github.com
 
     The hyperlink anchors in github.com are dynamically generated.  This rewrites

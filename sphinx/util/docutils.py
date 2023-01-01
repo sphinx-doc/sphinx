@@ -9,7 +9,7 @@ from contextlib import contextmanager
 from copy import copy
 from os import path
 from types import ModuleType
-from typing import IO, TYPE_CHECKING, Any, Callable, Generator, Optional, cast
+from typing import IO, TYPE_CHECKING, Any, Callable, Generator, cast
 
 import docutils
 from docutils import nodes
@@ -171,7 +171,7 @@ def patched_rst_get_language() -> Generator[None, None, None]:
 
 
 @contextmanager
-def using_user_docutils_conf(confdir: Optional[str]) -> Generator[None, None, None]:
+def using_user_docutils_conf(confdir: str | None) -> Generator[None, None, None]:
     """Let docutils know the location of ``docutils.conf`` for Sphinx."""
     try:
         docutilsconfig = os.environ.get('DOCUTILSCONFIG', None)
@@ -220,7 +220,7 @@ def du19_footnotes() -> Generator[None, None, None]:
 
 
 @contextmanager
-def patch_docutils(confdir: Optional[str] = None) -> Generator[None, None, None]:
+def patch_docutils(confdir: str | None = None) -> Generator[None, None, None]:
     """Patch to docutils temporarily."""
     with patched_get_language(), \
          patched_rst_get_language(), \
@@ -261,7 +261,7 @@ class CustomReSTDispatcher:
 
     def directive(self,
                   directive_name: str, language_module: ModuleType, document: nodes.document
-                  ) -> tuple[Optional[type[Directive]], list[system_message]]:
+                  ) -> tuple[type[Directive] | None, list[system_message]]:
         return self.directive_func(directive_name, language_module, document)
 
     def role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter
@@ -313,7 +313,7 @@ class sphinx_domains(CustomReSTDispatcher):
 
     def directive(self,
                   directive_name: str, language_module: ModuleType, document: nodes.document
-                  ) -> tuple[Optional[type[Directive]], list[system_message]]:
+                  ) -> tuple[type[Directive] | None, list[system_message]]:
         try:
             return self.lookup_domain_element('directive', directive_name)
         except ElementLookupError:

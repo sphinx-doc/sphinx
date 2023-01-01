@@ -9,7 +9,7 @@ import sys
 import time
 from collections import OrderedDict
 from os import path
-from typing import TYPE_CHECKING, Any, Callable, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable
 
 # try to import readline, unix specific enhancement
 try:
@@ -133,8 +133,8 @@ def ok(x: str) -> str:
 
 
 def do_prompt(
-    text: str, default: Optional[str] = None, validator: Callable[[str], Any] = nonempty
-) -> Union[str, bool]:
+    text: str, default: str | None = None, validator: Callable[[str], Any] = nonempty
+) -> str | bool:
     while True:
         if default is not None:
             prompt = PROMPT_PREFIX + '%s [%s]: ' % (text, default)
@@ -328,7 +328,7 @@ def ask_user(d: dict[str, Any]) -> None:
 
 
 def generate(
-    d: dict, overwrite: bool = True, silent: bool = False, templatedir: Optional[str] = None
+    d: dict, overwrite: bool = True, silent: bool = False, templatedir: str | None = None
 ) -> None:
     """Generate project based on values in *d*."""
     template = QuickstartRenderer(templatedir or '')
@@ -364,7 +364,7 @@ def generate(
     ensuredir(path.join(srcdir, d['dot'] + 'templates'))
     ensuredir(path.join(srcdir, d['dot'] + 'static'))
 
-    def write_file(fpath: str, content: str, newline: Optional[str] = None) -> None:
+    def write_file(fpath: str, content: str, newline: str | None = None) -> None:
         if overwrite or not path.isfile(fpath):
             if 'quiet' not in d:
                 print(__('Creating file %s.') % fpath)

@@ -11,7 +11,7 @@ from collections import OrderedDict
 from inspect import Signature
 from token import DEDENT, INDENT, NAME, NEWLINE, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
-from typing import Any, Optional
+from typing import Any
 
 from sphinx.pycode.ast import unparse as ast_unparse
 
@@ -32,7 +32,7 @@ def get_assign_targets(node: ast.AST) -> list[ast.expr]:
         return [node.target]  # type: ignore
 
 
-def get_lvar_names(node: ast.AST, self: Optional[ast.arg] = None) -> list[str]:
+def get_lvar_names(node: ast.AST, self: ast.arg | None = None) -> list[str]:
     """Convert assignment-AST to variable names.
 
     This raises `TypeError` if the assignment does not create new variable::
@@ -127,14 +127,14 @@ class TokenProcessor:
         lines = iter(buffers)
         self.buffers = buffers
         self.tokens = tokenize.generate_tokens(lambda: next(lines))
-        self.current: Optional[Token] = None
-        self.previous: Optional[Token] = None
+        self.current: Token | None = None
+        self.previous: Token | None = None
 
     def get_line(self, lineno: int) -> str:
         """Returns specified line."""
         return self.buffers[lineno - 1]
 
-    def fetch_token(self) -> Optional[Token]:
+    def fetch_token(self) -> Token | None:
         """Fetch the next token from source code.
 
         Returns ``None`` if sequence finished.
@@ -176,7 +176,7 @@ class AfterCommentParser(TokenProcessor):
 
     def __init__(self, lines: list[str]) -> None:
         super().__init__(lines)
-        self.comment: Optional[str] = None
+        self.comment: str | None = None
 
     def fetch_rvalue(self) -> list[Token]:
         """Fetch right-hand value of assignment."""
@@ -221,19 +221,19 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.encoding = encoding
         self.context: list[str] = []
         self.current_classes: list[str] = []
-        self.current_function: Optional[ast.FunctionDef] = None
+        self.current_function: ast.FunctionDef | None = None
         self.comments: dict[tuple[str, str], str] = OrderedDict()
         self.annotations: dict[tuple[str, str], str] = {}
-        self.previous: Optional[ast.AST] = None
+        self.previous: ast.AST | None = None
         self.deforders: dict[str, int] = {}
         self.finals: list[str] = []
         self.overloads: dict[str, list[Signature]] = {}
-        self.typing: Optional[str] = None
-        self.typing_final: Optional[str] = None
-        self.typing_overload: Optional[str] = None
+        self.typing: str | None = None
+        self.typing_final: str | None = None
+        self.typing_overload: str | None = None
         super().__init__()
 
-    def get_qualname_for(self, name: str) -> Optional[list[str]]:
+    def get_qualname_for(self, name: str) -> list[str] | None:
         """Get qualified name for given object as a list of string(s)."""
         if self.current_function:
             if self.current_classes and self.context[-1] == "__init__":
@@ -306,7 +306,7 @@ class VariableCommentPicker(ast.NodeVisitor):
 
         return False
 
-    def get_self(self) -> Optional[ast.arg]:
+    def get_self(self) -> ast.arg | None:
         """Returns the name of the first argument if in a function."""
         if self.current_function and self.current_function.args.args:
             return self.current_function.args.args[0]
@@ -467,9 +467,9 @@ class DefinitionFinder(TokenProcessor):
 
     def __init__(self, lines: list[str]) -> None:
         super().__init__(lines)
-        self.decorator: Optional[Token] = None
+        self.decorator: Token | None = None
         self.context: list[str] = []
-        self.indents: list[tuple[str, Optional[str], Optional[int]]] = []
+        self.indents: list[tuple[str, str | None, int | None]] = []
         self.definitions: dict[str, tuple[str, int, int]] = {}
 
     def add_definition(self, name: str, entry: tuple[str, int, int]) -> None:

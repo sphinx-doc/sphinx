@@ -10,7 +10,7 @@ import sys
 import warnings
 from datetime import datetime
 from os import path
-from typing import IO, Any, Iterable, Iterator, List, Optional, Tuple, Type
+from typing import IO, Any, Iterable, Iterator, List, Tuple, Type
 from urllib.parse import quote
 
 import docutils.readers.doctree
@@ -80,7 +80,7 @@ def get_stable_hash(obj: Any) -> str:
     return md5(str(obj).encode()).hexdigest()
 
 
-def convert_locale_to_language_tag(locale: Optional[str]) -> Optional[str]:
+def convert_locale_to_language_tag(locale: str | None) -> str | None:
     """Convert a locale string to a language tag (ex. en_US -> en-US).
 
     refs: BCP 47 (:rfc:`5646`)
@@ -448,7 +448,7 @@ class StandaloneHTMLBuilder(Builder):
     def get_asset_paths(self) -> list[str]:
         return self.config.html_extra_path + self.config.html_static_path
 
-    def render_partial(self, node: Optional[Node]) -> dict[str, str]:
+    def render_partial(self, node: Node | None) -> dict[str, str]:
         """Utility: Render a lone doctree node."""
         if node is None:
             return {'fragment': ''}
@@ -1024,7 +1024,7 @@ class StandaloneHTMLBuilder(Builder):
         return quote(docname) + self.link_suffix
 
     def handle_page(self, pagename: str, addctx: dict, templatename: str = 'page.html',
-                    outfilename: Optional[str] = None, event_arg: Any = None) -> None:
+                    outfilename: str | None = None, event_arg: Any = None) -> None:
         ctx = self.globalcontext.copy()
         # current_page_name is backwards compatibility
         ctx['pagename'] = ctx['current_page_name'] = pagename

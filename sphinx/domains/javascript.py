@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterator, Optional, Tuple, cast
+from typing import Any, Iterator, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -447,7 +447,7 @@ class JavaScriptDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element
-                     ) -> Optional[Element]:
+                     ) -> Element | None:
         mod_name = node.get('js:module')
         prefix = node.get('js:object')
         searchorder = 1 if node.hasattr('refspecific') else 0

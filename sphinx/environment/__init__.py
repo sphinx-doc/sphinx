@@ -8,7 +8,7 @@ from collections import defaultdict
 from copy import copy
 from datetime import datetime
 from os import path
-from typing import TYPE_CHECKING, Any, Callable, Generator, Iterator, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Generator, Iterator
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -70,7 +70,7 @@ CONFIG_CHANGED_REASON = {
 }
 
 
-versioning_conditions: dict[str, Union[bool, Callable]] = {
+versioning_conditions: dict[str, bool | Callable] = {
     'none': False,
     'text': is_translatable,
 }
@@ -153,7 +153,7 @@ class BuildEnvironment:
         self.version: dict[str, str] = None
 
         # the method of doctree versioning; see set_versioning_method
-        self.versioning_condition: Union[bool, Callable] = None
+        self.versioning_condition: bool | Callable = None
         self.versioning_compare: bool = None
 
         # all the registered domains, set by the application
@@ -307,7 +307,7 @@ class BuildEnvironment:
         # Allow to disable by 3rd party extension (workaround)
         self.settings.setdefault('smart_quotes', True)
 
-    def set_versioning_method(self, method: Union[str, Callable], compare: bool) -> None:
+    def set_versioning_method(self, method: str | Callable, compare: bool) -> None:
         """This sets the doctree versioning method for this environment.
 
         Versioning methods are a builder property; only builders with the same
@@ -315,7 +315,7 @@ class BuildEnvironment:
         raise an exception if the user tries to use an environment with an
         incompatible versioning method.
         """
-        condition: Union[bool, Callable]
+        condition: bool | Callable
         if callable(method):
             condition = method
         else:
@@ -358,7 +358,7 @@ class BuildEnvironment:
             domain.merge_domaindata(docnames, other.domaindata[domainname])
         self.events.emit('env-merge-info', self, docnames, other)
 
-    def path2doc(self, filename: str) -> Optional[str]:
+    def path2doc(self, filename: str) -> str | None:
         """Return the docname for the filename if the file is document.
 
         *filename* should be absolute or relative to the source directory.
@@ -373,7 +373,7 @@ class BuildEnvironment:
         """
         return self.project.doc2path(docname, base)
 
-    def relfn2path(self, filename: str, docname: Optional[str] = None) -> tuple[str, str]:
+    def relfn2path(self, filename: str, docname: str | None = None) -> tuple[str, str]:
         """Return paths to a file referenced from a document, relative to
         documentation root and absolute.
 
@@ -569,7 +569,7 @@ class BuildEnvironment:
         self,
         docname: str,
         builder: "Builder",
-        doctree: Optional[nodes.document] = None,
+        doctree: nodes.document | None = None,
         prune_toctrees: bool = True,
         includehidden: bool = False
     ) -> nodes.document:
@@ -596,7 +596,7 @@ class BuildEnvironment:
 
     def resolve_toctree(self, docname: str, builder: "Builder", toctree: addnodes.toctree,
                         prune: bool = True, maxdepth: int = 0, titles_only: bool = False,
-                        collapse: bool = False, includehidden: bool = False) -> Optional[Node]:
+                        collapse: bool = False, includehidden: bool = False) -> Node | None:
         """Resolve a *toctree* node into individual bullet lists with titles
         as items, returning None (if no containing titles are found) or
         a new node.
@@ -633,12 +633,12 @@ class BuildEnvironment:
         # allow custom references to be resolved
         self.events.emit('doctree-resolved', doctree, docname)
 
-    def collect_relations(self) -> dict[str, list[Optional[str]]]:
+    def collect_relations(self) -> dict[str, list[str | None]]:
         traversed = set()
 
         def traverse_toctree(
-            parent: Optional[str], docname: str
-        ) -> Iterator[tuple[Optional[str], str]]:
+            parent: str | None, docname: str
+        ) -> Iterator[tuple[str | None, str]]:
             if parent == docname:
                 logger.warning(__('self referenced toctree found. Ignored.'),
                                location=docname, type='toc',

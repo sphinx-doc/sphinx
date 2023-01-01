@@ -5,7 +5,7 @@ be domain-specifically transformed to a more appealing presentation.
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, List, Tuple, Union, cast
+from typing import TYPE_CHECKING, Any, List, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -251,7 +251,7 @@ class DocFieldTransformer:
         """Transform a single field list *node*."""
         typemap = self.typemap
 
-        entries: list[Union[nodes.field, tuple[Field, Any, Node]]] = []
+        entries: list[nodes.field | tuple[Field, Any, Node]] = []
         groupindices: dict[str, int] = {}
         types: dict[str, dict] = {}
 

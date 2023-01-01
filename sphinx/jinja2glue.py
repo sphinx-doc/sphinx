@@ -5,7 +5,7 @@ from __future__ import annotations
 import pathlib
 from os import path
 from pprint import pformat
-from typing import TYPE_CHECKING, Any, Callable, Iterator, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Iterator
 
 from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
 from jinja2.environment import Environment
@@ -39,7 +39,7 @@ def _toint(val: str) -> int:
         return 0
 
 
-def _todim(val: Union[int, str]) -> str:
+def _todim(val: int | str) -> str:
     """
     Make val a css dimension. In particular the following transformations
     are performed:
@@ -147,8 +147,8 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
     def init(
         self,
         builder: "Builder",
-        theme: Optional[Theme] = None,
-        dirs: Optional[list[str]] = None
+        theme: Theme | None = None,
+        dirs: list[str] | None = None
     ) -> None:
         # create a chain of paths to search
         if theme:

@@ -7,7 +7,7 @@ import pickle
 import time
 import warnings
 from os import path
-from typing import TYPE_CHECKING, Any, Iterable, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -168,7 +168,7 @@ class Builder:
         return relative_uri(self.get_target_uri(from_),
                             self.get_target_uri(to, typ))
 
-    def get_outdated_docs(self) -> Union[str, Iterable[str]]:
+    def get_outdated_docs(self) -> str | Iterable[str]:
         """Return an iterable of output files that are outdated, or a string
         describing what an update build will build.
 
@@ -236,7 +236,7 @@ class Builder:
         self.compile_catalogs(set(repo.catalogs), message)
 
     def compile_specific_catalogs(self, specified_files: list[str]) -> None:
-        def to_domain(fpath: str) -> Optional[str]:
+        def to_domain(fpath: str) -> str | None:
             docname = self.env.path2doc(path.abspath(fpath))
             if docname:
                 return docname_to_domain(docname, self.config.gettext_compact)
@@ -313,7 +313,7 @@ class Builder:
                        len(to_build))
 
     def build(
-        self, docnames: Iterable[str], summary: Optional[str] = None, method: str = 'update'
+        self, docnames: Iterable[str], summary: str | None = None, method: str = 'update'
     ) -> None:
         """Main build method.
 

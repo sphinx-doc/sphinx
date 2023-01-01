@@ -10,8 +10,8 @@ from __future__ import annotations
 import re
 from inspect import Parameter, Signature
 from types import ModuleType
-from typing import (TYPE_CHECKING, Any, Callable, Iterator, List, Optional, Sequence, Tuple,
-                    TypeVar, Union)
+from typing import (TYPE_CHECKING, Any, Callable, Iterator, List, Sequence, Tuple, TypeVar,
+                    Union)
 
 from docutils.statemachine import StringList
 
@@ -81,7 +81,7 @@ INSTANCEATTR = object()
 SLOTSATTR = object()
 
 
-def members_option(arg: Any) -> Union[object, list[str]]:
+def members_option(arg: Any) -> object | list[str]:
     """Used to convert the :members: option to auto directives."""
     if arg in (None, True):
         return ALL
@@ -91,7 +91,7 @@ def members_option(arg: Any) -> Union[object, list[str]]:
         return [x.strip() for x in arg.split(',') if x.strip()]
 
 
-def exclude_members_option(arg: Any) -> Union[object, set[str]]:
+def exclude_members_option(arg: Any) -> object | set[str]:
     """Used to convert the :exclude-members: option."""
     if arg in (None, True):
         return EMPTY
@@ -108,7 +108,7 @@ def inherited_members_option(arg: Any) -> set[str]:
         return set()
 
 
-def member_order_option(arg: Any) -> Optional[str]:
+def member_order_option(arg: Any) -> str | None:
     """Used to convert the :member-order: option to auto directives."""
     if arg in (None, True):
         return None
@@ -118,7 +118,7 @@ def member_order_option(arg: Any) -> Optional[str]:
         raise ValueError(__('invalid value for member-order option: %s') % arg)
 
 
-def class_doc_from_option(arg: Any) -> Optional[str]:
+def class_doc_from_option(arg: Any) -> str | None:
     """Used to convert the :class-doc-from: option to autoclass directives."""
     if arg in ('both', 'class', 'init'):
         return arg
@@ -162,7 +162,7 @@ def merge_members_option(options: dict) -> None:
 
 # Some useful event listener factories for autodoc-process-docstring.
 
-def cut_lines(pre: int, post: int = 0, what: Optional[str] = None) -> Callable:
+def cut_lines(pre: int, post: int = 0, what: str | None = None) -> Callable:
     """Return a listener that removes the first *pre* and last *post*
     lines of every docstring.  If *what* is a sequence of strings,
     only docstrings of a type in *what* will be processed.
@@ -192,7 +192,7 @@ def cut_lines(pre: int, post: int = 0, what: Optional[str] = None) -> Callable:
 
 def between(
     marker: str,
-    what: Optional[Sequence[str]] = None,
+    what: Sequence[str] | None = None,
     keepempty: bool = False,
     exclude: bool = False
 ) -> Callable:
@@ -261,7 +261,7 @@ class ObjectMember(tuple):
     def __new__(cls, name: str, obj: Any, **kwargs: Any) -> Any:
         return super().__new__(cls, (name, obj))  # type: ignore
 
-    def __init__(self, name: str, obj: Any, docstring: Optional[str] = None,
+    def __init__(self, name: str, obj: Any, docstring: str | None = None,
                  class_: Any = None, skipped: bool = False) -> None:
         self.__name__ = name
         self.object = obj
@@ -443,7 +443,7 @@ class Documenter:
             return False
         return True
 
-    def format_args(self, **kwargs: Any) -> Optional[str]:
+    def format_args(self, **kwargs: Any) -> str | None:
         """Format the argument signature of *self.object*.
 
         Should return None if the object does not have a signature.
@@ -461,7 +461,7 @@ class Documenter:
         # directives of course)
         return '.'.join(self.objpath) or self.modname
 
-    def _call_format_args(self, **kwargs: Any) -> Optional[str]:
+    def _call_format_args(self, **kwargs: Any) -> str | None:
         if kwargs:
             try:
                 return self.format_args(**kwargs)
@@ -529,7 +529,7 @@ class Documenter:
             # etc. don't support a prepended module name
             self.add_line('   :module: %s' % self.modname, sourcename)
 
-    def get_doc(self) -> Optional[list[list[str]]]:
+    def get_doc(self) -> list[list[str]] | None:
         """Decode and return lines of the docstring(s) for the object.
 
         When it returns None, autodoc-process-docstring will not be called for this
@@ -571,7 +571,7 @@ class Documenter:
         else:
             return 'docstring of %s' % fullname
 
-    def add_content(self, more_content: Optional[StringList]) -> None:
+    def add_content(self, more_content: StringList | None) -> None:
         """Add content from docstrings, attribute documentation and user."""
         docstring = True
 
@@ -843,8 +843,8 @@ class Documenter:
 
     def generate(
         self,
-        more_content: Optional[StringList] = None,
-        real_modname: Optional[str] = None,
+        more_content: StringList | None = None,
+        real_modname: str | None = None,
         check_module: bool = False,
         all_members: bool = False
     ) -> None:
@@ -963,9 +963,9 @@ class ModuleDocumenter(Documenter):
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
         merge_members_option(self.options)
-        self.__all__: Optional[Sequence[str]] = None
+        self.__all__: Sequence[str] | None = None
 
-    def add_content(self, more_content: Optional[StringList]) -> None:
+    def add_content(self, more_content: StringList | None) -> None:
         old_indent = self.indent
         self.indent += self._extra_indent
         super().add_content(None)
@@ -1157,7 +1157,7 @@ class DocstringSignatureMixin:
     _new_docstrings: list[list[str]] = None
     _signatures: list[str] = None
 
-    def _find_signature(self) -> tuple[Optional[str], Optional[str]]:
+    def _find_signature(self) -> tuple[str | None, str | None]:
         # candidates of the object name
         valid_names = [self.objpath[-1]]  # type: ignore
         if isinstance(self, ClassDocumenter):
@@ -1262,7 +1262,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         return (inspect.isfunction(member) or inspect.isbuiltin(member) or
                 (inspect.isroutine(member) and isinstance(parent, ModuleDocumenter)))
 
-    def format_args(self, **kwargs: Any) -> Optional[str]:
+    def format_args(self, **kwargs: Any) -> str | None:
         if self.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
         if self.config.autodoc_typehints_format == "short":
@@ -1345,7 +1345,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
 
         return overload.replace(parameters=parameters)
 
-    def annotate_to_first_argument(self, func: Callable, typ: type) -> Optional[Callable]:
+    def annotate_to_first_argument(self, func: Callable, typ: type) -> Callable | None:
         """Annotate type hint to the first argument of function if needed."""
         try:
             sig = inspect.signature(func, type_aliases=self.config.autodoc_type_aliases)
@@ -1455,7 +1455,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 self.doc_as_attr = True
         return ret
 
-    def _get_signature(self) -> tuple[Optional[Any], Optional[str], Optional[Signature]]:
+    def _get_signature(self) -> tuple[Any | None, str | None, Signature | None]:
         def get_user_defined_function_or_method(obj: Any, attr: str) -> Any:
             """ Get the `attr` function or method from `obj`, if it is user-defined. """
             if inspect.is_builtin_class_method(obj, attr):
@@ -1533,7 +1533,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         # with __init__ in C and no `__text_signature__`.
         return None, None, None
 
-    def format_args(self, **kwargs: Any) -> Optional[str]:
+    def format_args(self, **kwargs: Any) -> str | None:
         if self.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
         if self.config.autodoc_typehints_format == "short":
@@ -1615,7 +1615,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         return []
 
-    def get_canonical_fullname(self) -> Optional[str]:
+    def get_canonical_fullname(self) -> str | None:
         __modname__ = safe_getattr(self.object, '__module__', self.modname)
         __qualname__ = safe_getattr(self.object, '__qualname__', None)
         if __qualname__ is None:
@@ -1687,7 +1687,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         else:
             return False, [m for m in members.values() if m.class_ == self.object]
 
-    def get_doc(self) -> Optional[list[list[str]]]:
+    def get_doc(self) -> list[list[str]] | None:
         if self.doc_as_attr:
             # Don't show the docstring of the class when it is an alias.
             comment = self.get_variable_comment()
@@ -1739,7 +1739,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         tab_width = self.directive.state.document.settings.tab_width
         return [prepare_docstring(docstring, tab_width) for docstring in docstrings]
 
-    def get_variable_comment(self) -> Optional[list[str]]:
+    def get_variable_comment(self) -> list[str] | None:
         try:
             key = ('', '.'.join(self.objpath))
             if self.doc_as_attr:
@@ -1751,7 +1751,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         except PycodeError:
             return None
 
-    def add_content(self, more_content: Optional[StringList]) -> None:
+    def add_content(self, more_content: StringList | None) -> None:
         if self.doc_as_attr and self.modname != self.get_real_modname():
             try:
                 # override analyzer to obtain doccomment around its definition.
@@ -1779,8 +1779,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
     def generate(
         self,
-        more_content: Optional[StringList] = None,
-        real_modname: Optional[str] = None,
+        more_content: StringList | None = None,
+        real_modname: str | None = None,
         check_module: bool = False,
         all_members: bool = False
     ) -> None:
@@ -1888,7 +1888,7 @@ class TypeVarMixin(DataDocumenterMixinBase):
         return (isinstance(self.object, TypeVar) or
                 super().should_suppress_directive_header())
 
-    def get_doc(self) -> Optional[list[list[str]]]:
+    def get_doc(self) -> list[list[str]] | None:
         if isinstance(self.object, TypeVar):
             if self.object.__doc__ != TypeVar.__doc__:
                 return super().get_doc()  # type: ignore
@@ -1956,7 +1956,7 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
         return (self.object is UNINITIALIZED_ATTR or
                 super().should_suppress_value_header())
 
-    def get_doc(self) -> Optional[list[list[str]]]:
+    def get_doc(self) -> list[list[str]] | None:
         if self.object is UNINITIALIZED_ATTR:
             return []
         else:
@@ -2050,7 +2050,7 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
         real_modname = self.get_attr(self.parent or self.object, '__module__', None)
         return real_modname or self.modname
 
-    def get_module_comment(self, attrname: str) -> Optional[list[str]]:
+    def get_module_comment(self, attrname: str) -> list[str] | None:
         try:
             analyzer = ModuleAnalyzer.for_module(self.modname)
             analyzer.analyze()
@@ -2062,7 +2062,7 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
 
         return None
 
-    def get_doc(self) -> Optional[list[list[str]]]:
+    def get_doc(self) -> list[list[str]] | None:
         # Check the variable has a docstring-comment
         comment = self.get_module_comment(self.objpath[-1])
         if comment:
@@ -2070,7 +2070,7 @@ class DataDocumenter(GenericAliasMixin, NewTypeMixin, TypeVarMixin,
         else:
             return super().get_doc()
 
-    def add_content(self, more_content: Optional[StringList]) -> None:
+    def add_content(self, more_content: StringList | None) -> None:
         # Disable analyzing variable comment on Documenter.add_content() to control it on
         # DataDocumenter.add_content()
         self.analyzer = None
@@ -2131,7 +2131,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
         return ret
 
-    def format_args(self, **kwargs: Any) -> Optional[str]:
+    def format_args(self, **kwargs: Any) -> str | None:
         if self.config.autodoc_typehints in ('none', 'description'):
             kwargs.setdefault('show_annotation', False)
         if self.config.autodoc_typehints_format == "short":
@@ -2247,7 +2247,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
         return overload.replace(parameters=parameters)
 
-    def annotate_to_first_argument(self, func: Callable, typ: type) -> Optional[Callable]:
+    def annotate_to_first_argument(self, func: Callable, typ: type) -> Callable | None:
         """Annotate type hint to the first argument of function if needed."""
         try:
             sig = inspect.signature(func, type_aliases=self.config.autodoc_type_aliases)
@@ -2276,7 +2276,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
         return func
 
-    def get_doc(self) -> Optional[list[list[str]]]:
+    def get_doc(self) -> list[list[str]] | None:
         if self._new_docstrings is not None:
             # docstring already returned previously, then modified by
             # `DocstringSignatureMixin`.  Just return the previously-computed
@@ -2335,7 +2335,7 @@ class NonDataDescriptorMixin(DataDocumenterMixinBase):
         return (not getattr(self, 'non_data_descriptor', False) or
                 super().should_suppress_directive_header())
 
-    def get_doc(self) -> Optional[list[list[str]]]:
+    def get_doc(self) -> list[list[str]] | None:
         if getattr(self, 'non_data_descriptor', False):
             # the docstring of non datadescriptor is very probably the wrong thing
             # to display
@@ -2373,7 +2373,7 @@ class SlotsMixin(DataDocumenterMixinBase):
         else:
             return super().should_suppress_value_header()
 
-    def get_doc(self) -> Optional[list[list[str]]]:
+    def get_doc(self) -> list[list[str]] | None:
         if self.object is SLOTSATTR:
             try:
                 __slots__ = inspect.getslots(self.parent)
@@ -2462,7 +2462,7 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
         return (self.object is self.RUNTIME_INSTANCE_ATTRIBUTE or
                 super().should_suppress_value_header())
 
-    def get_doc(self) -> Optional[list[list[str]]]:
+    def get_doc(self) -> list[list[str]] | None:
         if (self.object is self.RUNTIME_INSTANCE_ATTRIBUTE and
                 self.is_runtime_instance_attribute_not_commented(self.parent)):
             return None
@@ -2518,7 +2518,7 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
         return (self.object is UNINITIALIZED_ATTR or
                 super().should_suppress_value_header())
 
-    def get_doc(self) -> Optional[list[list[str]]]:
+    def get_doc(self) -> list[list[str]] | None:
         if self.object is UNINITIALIZED_ATTR:
             return None
         else:
@@ -2638,7 +2638,7 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
             except ValueError:
                 pass
 
-    def get_attribute_comment(self, parent: Any, attrname: str) -> Optional[list[str]]:
+    def get_attribute_comment(self, parent: Any, attrname: str) -> list[str] | None:
         for cls in inspect.getmro(parent):
             try:
                 module = safe_getattr(cls, '__module__')
@@ -2655,7 +2655,7 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
 
         return None
 
-    def get_doc(self) -> Optional[list[list[str]]]:
+    def get_doc(self) -> list[list[str]] | None:
         # Check the attribute has a docstring-comment
         comment = self.get_attribute_comment(self.parent, self.objpath[-1])
         if comment:
@@ -2671,7 +2671,7 @@ class AttributeDocumenter(GenericAliasMixin, NewTypeMixin, SlotsMixin,  # type: 
         finally:
             self.config.autodoc_inherit_docstrings = orig  # type: ignore
 
-    def add_content(self, more_content: Optional[StringList]) -> None:
+    def add_content(self, more_content: StringList | None) -> None:
         # Disable analyzing attribute comment on Documenter.add_content() to control it on
         # AttributeDocumenter.add_content()
         self.analyzer = None

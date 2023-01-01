@@ -8,7 +8,7 @@ import re
 import subprocess
 from os import path
 from subprocess import CalledProcessError
-from typing import Any, Optional
+from typing import Any
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -44,7 +44,7 @@ class ClickableMapDefinition:
     href_re = re.compile('href=".*?"')
 
     def __init__(self, filename: str, content: str, dot: str = '') -> None:
-        self.id: Optional[str] = None
+        self.id: str | None = None
         self.filename = filename
         self.content = content.splitlines()
         self.clickable: list[str] = []
@@ -212,8 +212,8 @@ class GraphvizSimple(SphinxDirective):
 
 
 def render_dot(self: SphinxTranslator, code: str, options: dict, format: str,
-               prefix: str = 'graphviz', filename: Optional[str] = None
-               ) -> tuple[Optional[str], Optional[str]]:
+               prefix: str = 'graphviz', filename: str | None = None
+               ) -> tuple[str | None, str | None]:
     """Render graphviz code into a PNG or PDF output file."""
     graphviz_dot = options.get('graphviz_dot', self.builder.config.graphviz_dot)
     hashkey = (code + str(options) + str(graphviz_dot) +
@@ -265,8 +265,8 @@ def render_dot(self: SphinxTranslator, code: str, options: dict, format: str,
 
 
 def render_dot_html(self: HTML5Translator, node: graphviz, code: str, options: dict,
-                    prefix: str = 'graphviz', imgcls: Optional[str] = None,
-                    alt: Optional[str] = None, filename: Optional[str] = None
+                    prefix: str = 'graphviz', imgcls: str | None = None,
+                    alt: str | None = None, filename: str | None = None
                     ) -> tuple[str, str]:
     format = self.builder.config.graphviz_output_format
     try:
@@ -322,7 +322,7 @@ def html_visit_graphviz(self: HTML5Translator, node: graphviz) -> None:
 
 
 def render_dot_latex(self: LaTeXTranslator, node: graphviz, code: str,
-                     options: dict, prefix: str = 'graphviz', filename: Optional[str] = None
+                     options: dict, prefix: str = 'graphviz', filename: str | None = None
                      ) -> None:
     try:
         fname, outfn = render_dot(self, code, options, 'pdf', prefix, filename)

@@ -6,7 +6,7 @@ import os
 import posixpath
 import re
 import urllib.parse
-from typing import TYPE_CHECKING, Iterable, Optional, cast
+from typing import TYPE_CHECKING, Iterable, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
@@ -251,7 +251,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         if name:
             node.insert(0, nodes.title(name, admonitionlabels[name]))
 
-    def depart_admonition(self, node: Optional[Element] = None) -> None:
+    def depart_admonition(self, node: Element | None = None) -> None:
         self.body.append('</div>\n')
 
     def visit_seealso(self, node: Element) -> None:
@@ -260,7 +260,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_seealso(self, node: Element) -> None:
         self.depart_admonition(node)
 
-    def get_secnumber(self, node: Element) -> Optional[tuple[int, ...]]:
+    def get_secnumber(self, node: Element) -> tuple[int, ...] | None:
         if node.get('secnumber'):
             return node['secnumber']
 

@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 def copy_asset_file(source: str, destination: str,
-                    context: Optional[dict] = None,
+                    context: dict | None = None,
                     renderer: Optional["BaseRenderer"] = None) -> None:
     """Copy an asset file to destination.
 
@@ -50,8 +50,8 @@ def copy_asset_file(source: str, destination: str,
 
 
 def copy_asset(source: str, destination: str, excluded: PathMatcher = lambda path: False,
-               context: Optional[dict] = None, renderer: Optional["BaseRenderer"] = None,
-               onerror: Optional[Callable[[str, Exception], None]] = None) -> None:
+               context: dict | None = None, renderer: Optional["BaseRenderer"] = None,
+               onerror: Callable[[str, Exception], None] | None = None) -> None:
     """Copy asset files to destination recursively.
 
     On copying, it expands the template variables if context argument is given and

@@ -7,8 +7,7 @@ import traceback
 import types
 from collections import OrderedDict
 from os import getenv, path
-from typing import (TYPE_CHECKING, Any, Callable, Generator, Iterator, NamedTuple, Optional,
-                    Union)
+from typing import TYPE_CHECKING, Any, Callable, Generator, Iterator, NamedTuple, Optional
 
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
@@ -32,7 +31,7 @@ copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 class ConfigValue(NamedTuple):
     name: str
     value: Any
-    rebuild: Union[bool, str]
+    rebuild: bool | str
 
 
 def is_serializable(obj: Any) -> bool:
@@ -58,7 +57,7 @@ class ENUM:
     def __init__(self, *candidates: str) -> None:
         self.candidates = candidates
 
-    def match(self, value: Union[str, list, tuple]) -> bool:
+    def match(self, value: str | list | tuple) -> bool:
         if isinstance(value, (list, tuple)):
             return all(item in self.candidates for item in value)
         else:
@@ -153,7 +152,7 @@ class Config:
         self.overrides = dict(overrides)
         self.values = Config.config_values.copy()
         self._raw_config = config
-        self.setup: Optional[Callable] = config.get('setup', None)
+        self.setup: Callable | None = config.get('setup', None)
 
         if 'extensions' in self.overrides:
             if isinstance(self.overrides['extensions'], str):
@@ -164,7 +163,7 @@ class Config:
 
     @classmethod
     def read(
-        cls, confdir: str, overrides: Optional[dict] = None, tags: Optional[Tags] = None
+        cls, confdir: str, overrides: dict | None = None, tags: Tags | None = None
     ) -> "Config":
         """Create a Config object from configuration file."""
         filename = path.join(confdir, CONFIG_FILENAME)
@@ -300,13 +299,13 @@ class Config:
         for name, value in self.values.items():
             yield ConfigValue(name, getattr(self, name), value[1])
 
-    def add(self, name: str, default: Any, rebuild: Union[bool, str], types: Any) -> None:
+    def add(self, name: str, default: Any, rebuild: bool | str, types: Any) -> None:
         if name in self.values:
             raise ExtensionError(__('Config value %r already present') % name)
         else:
             self.values[name] = (default, rebuild, types)
 
-    def filter(self, rebuild: Union[str, list[str]]) -> Iterator[ConfigValue]:
+    def filter(self, rebuild: str | list[str]) -> Iterator[ConfigValue]:
         if isinstance(rebuild, str):
             rebuild = [rebuild]
         return (value for value in self if value.rebuild in rebuild)
@@ -338,7 +337,7 @@ class Config:
         self.__dict__.update(state)
 
 
-def eval_config_file(filename: str, tags: Optional[Tags]) -> dict[str, Any]:
+def eval_config_file(filename: str, tags: Tags | None) -> dict[str, Any]:
     """Evaluate a config file."""
     namespace: dict[str, Any] = {}
     namespace['__file__'] = filename

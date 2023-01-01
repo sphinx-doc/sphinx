@@ -249,7 +249,7 @@ def save_traceback(app: Optional["Sphinx"]) -> str:
     return path
 
 
-def get_full_modname(modname: str, attribute: str) -> Optional[str]:
+def get_full_modname(modname: str, attribute: str) -> str | None:
     if modname is None:
         # Prevents a TypeError: if the last getattr() call will return None
         # then it's better to return it directly
@@ -378,7 +378,7 @@ def format_exception_cut_frames(x: int = 1) -> str:
     return ''.join(res)
 
 
-def import_object(objname: str, source: Optional[str] = None) -> Any:
+def import_object(objname: str, source: str | None = None) -> Any:
     """Import python object by qualname."""
     try:
         objpath = objname.split('.')
@@ -400,7 +400,7 @@ def import_object(objname: str, source: Optional[str] = None) -> Any:
             raise ExtensionError('Could not import %s' % objname, exc) from exc
 
 
-def split_full_qualified_name(name: str) -> tuple[Optional[str], str]:
+def split_full_qualified_name(name: str) -> tuple[str | None, str]:
     """Split full qualified name to a pair of modname and qualname.
 
     A qualname is an abbreviation for "Qualified name" introduced at PEP-3155

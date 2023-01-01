@@ -198,7 +198,7 @@ class Table:
                 self.cells[(self.row + row, self.col + col)] = self.cell_id
 
     def cell(
-        self, row: Optional[int] = None, col: Optional[int] = None
+        self, row: int | None = None, col: int | None = None
     ) -> Optional["TableCell"]:
         """Returns a cell object (i.e. rectangular area) containing given position.
 
@@ -414,9 +414,9 @@ class LaTeXTranslator(SphinxTranslator):
         self.context: list[Any] = []
         self.descstack: list[str] = []
         self.tables: list[Table] = []
-        self.next_table_colspec: Optional[str] = None
+        self.next_table_colspec: str | None = None
         self.bodystack: list[list[str]] = []
-        self.footnote_restricted: Optional[Element] = None
+        self.footnote_restricted: Element | None = None
         self.pending_footnotes: list[nodes.footnote_reference] = []
         self.curfilestack: list[str] = []
         self.handled_abbrs: set[str] = set()
@@ -523,7 +523,7 @@ class LaTeXTranslator(SphinxTranslator):
         return renderer.render(template_name, variables)
 
     @property
-    def table(self) -> Optional[Table]:
+    def table(self) -> Table | None:
         """Get current table."""
         if self.tables:
             return self.tables[-1]
@@ -1241,7 +1241,7 @@ class LaTeXTranslator(SphinxTranslator):
         # self.body.append(r'\columnbreak\n')
         pass
 
-    def latex_image_length(self, width_str: str, scale: int = 100) -> Optional[str]:
+    def latex_image_length(self, width_str: str, scale: int = 100) -> str | None:
         try:
             return rstdim_to_latexdim(width_str, scale)
         except ValueError:

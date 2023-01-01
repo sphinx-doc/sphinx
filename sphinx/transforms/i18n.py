@@ -5,7 +5,7 @@ from __future__ import annotations
 from os import path
 from re import DOTALL, match
 from textwrap import indent
-from typing import TYPE_CHECKING, Any, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from docutils import nodes
 from docutils.io import StringInput
@@ -439,7 +439,7 @@ class Locale(SphinxTransform):
                                .format(old_xref_rawsources, new_xref_rawsources),
                                location=node, type='i18n', subtype='inconsistent_references')
 
-            def get_ref_key(node: addnodes.pending_xref) -> Optional[tuple[str, str, str]]:
+            def get_ref_key(node: addnodes.pending_xref) -> tuple[str, str, str] | None:
                 case = node["refdomain"], node["reftype"]
                 if case == ('std', 'term'):
                     return None

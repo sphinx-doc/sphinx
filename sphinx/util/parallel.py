@@ -6,7 +6,7 @@ import os
 import time
 import traceback
 from math import sqrt
-from typing import Any, Callable, Optional, Sequence
+from typing import Any, Callable, Sequence
 
 try:
     import multiprocessing
@@ -30,7 +30,7 @@ class SerialTasks:
         pass
 
     def add_task(
-        self, task_func: Callable, arg: Any = None, result_func: Optional[Callable] = None
+        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None
     ) -> None:
         if arg is not None:
             res = task_func(arg)
@@ -51,7 +51,7 @@ class ParallelTasks:
         # (optional) function performed by each task on the result of main task
         self._result_funcs: dict[int, Callable] = {}
         # task arguments
-        self._args: dict[int, Optional[list[Any]]] = {}
+        self._args: dict[int, list[Any] | None] = {}
         # list of subprocesses (both started and waiting)
         self._procs: dict[int, Any] = {}
         # list of receiving pipe connections of running subprocesses
@@ -80,7 +80,7 @@ class ParallelTasks:
         pipe.send((failed, collector.logs, ret))
 
     def add_task(
-        self, task_func: Callable, arg: Any = None, result_func: Optional[Callable] = None
+        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None
     ) -> None:
         tid = self._taskid
         self._taskid += 1

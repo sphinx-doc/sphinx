@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -363,7 +363,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         self.footnotes: list[nodes.footnote] = footnotes
         self.pendings: list[nodes.footnote] = []
         self.table_footnotes: list[nodes.footnote] = []
-        self.restricted: Optional[Element] = None
+        self.restricted: Element | None = None
         super().__init__(document)
 
     def unknown_visit(self, node: Node) -> None:

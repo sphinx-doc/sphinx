@@ -57,7 +57,7 @@ import warnings
 from inspect import Parameter
 from os import path
 from types import ModuleType
-from typing import Any, List, Optional, Sequence, cast
+from typing import Any, List, Sequence, cast
 
 from docutils import nodes
 from docutils.nodes import Node, system_message
@@ -265,7 +265,7 @@ class Autosummary(SphinxDirective):
         return nodes
 
     def import_by_name(
-        self, name: str, prefixes: list[Optional[str]]
+        self, name: str, prefixes: list[str | None]
     ) -> tuple[str, Any, Any, str]:
         with mock(self.config.autosummary_mock_imports):
             try:
@@ -595,17 +595,17 @@ class ImportExceptionGroup(Exception):
     It contains an error messages and a list of exceptions as its arguments.
     """
 
-    def __init__(self, message: Optional[str], exceptions: Sequence[BaseException]):
+    def __init__(self, message: str | None, exceptions: Sequence[BaseException]):
         super().__init__(message)
         self.exceptions = list(exceptions)
 
 
-def get_import_prefixes_from_env(env: BuildEnvironment) -> list[Optional[str]]:
+def get_import_prefixes_from_env(env: BuildEnvironment) -> list[str | None]:
     """
     Obtain current Python import prefixes (for `import_by_name`)
     from ``document.env``
     """
-    prefixes: list[Optional[str]] = [None]
+    prefixes: list[str | None] = [None]
 
     currmodule = env.ref_context.get('py:module')
     if currmodule:
@@ -622,7 +622,7 @@ def get_import_prefixes_from_env(env: BuildEnvironment) -> list[Optional[str]]:
 
 
 def import_by_name(
-    name: str, prefixes: list[Optional[str]] = [None], grouped_exception: bool = True
+    name: str, prefixes: list[str | None] = [None], grouped_exception: bool = True
 ) -> tuple[str, Any, Any, str]:
     """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
@@ -703,7 +703,7 @@ def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any
             raise ImportError(*exc.args) from exc
 
 
-def import_ivar_by_name(name: str, prefixes: list[Optional[str]] = [None],
+def import_ivar_by_name(name: str, prefixes: list[str | None] = [None],
                         grouped_exception: bool = True) -> tuple[str, Any, Any, str]:
     """Import an instance variable that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
@@ -754,7 +754,7 @@ class AutoLink(SphinxRole):
         return objects, errors
 
 
-def get_rst_suffix(app: Sphinx) -> Optional[str]:
+def get_rst_suffix(app: Sphinx) -> str | None:
     def get_supported_format(suffix: str) -> tuple[str, ...]:
         parser_class = app.registry.get_source_parsers().get(suffix)
         if parser_class is None:

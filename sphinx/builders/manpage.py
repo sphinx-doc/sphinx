@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import warnings
 from os import path
-from typing import Any, Optional, Union
+from typing import Any
 
 from docutils.frontend import OptionParser
 from docutils.io import FileOutput
@@ -39,10 +39,10 @@ class ManualPageBuilder(Builder):
             logger.warning(__('no "man_pages" config value found; no manual pages '
                               'will be written'))
 
-    def get_outdated_docs(self) -> Union[str, list[str]]:
+    def get_outdated_docs(self) -> str | list[str]:
         return 'all manpages'  # for now
 
-    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         return ''
 
     @progress_message(__('writing'))

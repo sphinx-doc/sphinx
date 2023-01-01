@@ -7,7 +7,7 @@ from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta, tzinfo
 from os import getenv, path, walk
 from time import time
-from typing import Any, Generator, Iterable, Optional, Union
+from typing import Any, Generator, Iterable, Union
 from uuid import uuid4
 
 from docutils import nodes
@@ -81,7 +81,7 @@ class MsgOrigin:
 
 class GettextRenderer(SphinxRenderer):
     def __init__(
-        self, template_path: Optional[str] = None, outdir: Optional[str] = None
+        self, template_path: str | None = None, outdir: str | None = None
     ) -> None:
         self.outdir = outdir
         if template_path is None:
@@ -130,7 +130,7 @@ class I18nBuilder(Builder):
         self.tags = I18nTags()
         self.catalogs: defaultdict[str, Catalog] = defaultdict(Catalog)
 
-    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         return ''
 
     def get_outdated_docs(self) -> set[str]:
@@ -182,10 +182,10 @@ class LocalTimeZone(tzinfo):
         super().__init__(*args, **kwargs)
         self.tzdelta = tzdelta
 
-    def utcoffset(self, dt: Optional[datetime]) -> timedelta:
+    def utcoffset(self, dt: datetime | None) -> timedelta:
         return self.tzdelta
 
-    def dst(self, dt: Optional[datetime]) -> timedelta:
+    def dst(self, dt: datetime | None) -> timedelta:
         return timedelta(0)
 
 
@@ -253,7 +253,7 @@ class MessageCatalogBuilder(I18nBuilder):
                 raise ThemeError('%s: %r' % (template, exc)) from exc
 
     def build(
-        self, docnames: Iterable[str], summary: Optional[str] = None, method: str = 'update'
+        self, docnames: Iterable[str], summary: str | None = None, method: str = 'update'
     ) -> None:
         self._extract_from_template()
         super().build(docnames, summary, method)

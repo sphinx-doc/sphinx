@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional, Sequence, TypeVar, Union, cast
+from typing import Any, Sequence, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -57,9 +57,9 @@ class TocTreeCollector(EnvironmentCollector):
         numentries = [0]  # nonlocal again...
 
         def build_toc(
-            node: Union[Element, Sequence[Element]],
+            node: Element | Sequence[Element],
             depth: int = 1
-        ) -> Optional[nodes.bullet_list]:
+        ) -> nodes.bullet_list | None:
             # list of table of contents entries
             entries: list[Element] = []
             # cache of parents -> list item
@@ -171,7 +171,7 @@ class TocTreeCollector(EnvironmentCollector):
         env.toc_secnumbers = {}
 
         def _walk_toc(
-            node: Element, secnums: dict, depth: int, titlenode: Optional[nodes.title] = None
+            node: Element, secnums: dict, depth: int, titlenode: nodes.title | None = None
         ) -> None:
             # titlenode is the title of the document, it will get assigned a
             # secnumber too, so that it shows up in next/prev/parent rellinks
@@ -250,7 +250,7 @@ class TocTreeCollector(EnvironmentCollector):
         env.toc_fignumbers = {}
         fignum_counter: dict[str, dict[tuple[int, ...], int]] = {}
 
-        def get_figtype(node: Node) -> Optional[str]:
+        def get_figtype(node: Node) -> str | None:
             for domain in env.domains.values():
                 figtype = domain.get_enumerable_node_type(node)
                 if (domain.name == 'std'

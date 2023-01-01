@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Optional, Sequence
+from typing import TYPE_CHECKING, Any, Sequence
 
 from docutils import nodes
 from docutils.nodes import Element
@@ -34,7 +34,7 @@ class document(nodes.document):
                    in your extensions.  It will be removed without deprecation period.
     """
 
-    def set_id(self, node: Element, msgnode: Optional[Element] = None,
+    def set_id(self, node: Element, msgnode: Element | None = None,
                suggested_prefix: str = '') -> str:
         return super().set_id(node, msgnode, suggested_prefix)  # type: ignore
 

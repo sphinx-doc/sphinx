@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, Generic, List, Optional, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Generic, List, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -60,9 +60,9 @@ class ObjectDescription(SphinxDirective, Generic[T]):
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
     doc_field_types: list[Field] = []
-    domain: Optional[str] = None
-    objtype: Optional[str] = None
-    indexnode: Optional[addnodes.index] = None
+    domain: str | None = None
+    objtype: str | None = None
+    indexnode: addnodes.index | None = None
 
     # Warning: this might be removed in future version. Don't touch this from extensions.
     _doc_field_type_map: dict[str, tuple[Field, bool]] = {}

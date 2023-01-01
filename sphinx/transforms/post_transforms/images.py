@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import re
 from math import ceil
-from typing import Any, Optional
+from typing import Any
 
 from docutils import nodes
 
@@ -172,7 +172,7 @@ class ImageConverter(BaseImageConverter):
     #:
     #: .. todo:: This should be refactored not to store the state without class
     #:           variable.
-    available: Optional[bool] = None
+    available: bool | None = None
 
     #: A conversion rules the image converter supports.
     #: It is represented as a list of pair of source image format (mimetype) and

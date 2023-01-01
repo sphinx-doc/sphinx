@@ -11,7 +11,7 @@ import sys
 from collections import deque
 from io import StringIO
 from os import path
-from typing import IO, TYPE_CHECKING, Any, Callable, Optional, Union
+from typing import IO, TYPE_CHECKING, Any, Callable
 
 from docutils import nodes
 from docutils.nodes import Element, TextElement
@@ -126,11 +126,11 @@ class Sphinx:
     warningiserror: bool
     _warncount: int
 
-    def __init__(self, srcdir: str, confdir: Optional[str], outdir: str, doctreedir: str,
-                 buildername: str, confoverrides: Optional[dict] = None,
-                 status: Optional[IO] = sys.stdout, warning: Optional[IO] = sys.stderr,
+    def __init__(self, srcdir: str, confdir: str | None, outdir: str, doctreedir: str,
+                 buildername: str, confoverrides: dict | None = None,
+                 status: IO | None = sys.stdout, warning: IO | None = sys.stderr,
                  freshenv: bool = False, warningiserror: bool = False,
-                 tags: Optional[list[str]] = None,
+                 tags: list[str] | None = None,
                  verbosity: int = 0, parallel: int = 0, keep_going: bool = False,
                  pdb: bool = False) -> None:
         self.phase = BuildPhase.INITIALIZATION
@@ -278,7 +278,7 @@ class Sphinx:
                     catalog.write_mo(self.config.language,
                                      self.config.gettext_allow_fuzzy_translations)
 
-            locale_dirs: list[Optional[str]] = list(repo.locale_dirs)
+            locale_dirs: list[str | None] = list(repo.locale_dirs)
             locale_dirs += [None]
             locale_dirs += [path.join(package_dir, 'locale')]
 
@@ -335,7 +335,7 @@ class Sphinx:
 
     # ---- main "build" method -------------------------------------------------
 
-    def build(self, force_all: bool = False, filenames: Optional[list[str]] = None) -> None:
+    def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
         self.phase = BuildPhase.READING
         try:
             if force_all:
@@ -489,7 +489,7 @@ class Sphinx:
         self.registry.add_builder(builder, override=override)
 
     # TODO(stephenfin): Describe 'types' parameter
-    def add_config_value(self, name: str, default: Any, rebuild: Union[bool, str],
+    def add_config_value(self, name: str, default: Any, rebuild: bool | str,
                          types: Any = ()) -> None:
         """Register a configuration value.
 
@@ -558,7 +558,7 @@ class Sphinx:
         self.registry.add_translator(name, translator_class, override=override)
 
     def add_node(self, node: type[Element], override: bool = False,
-                 **kwargs: tuple[Callable, Optional[Callable]]) -> None:
+                 **kwargs: tuple[Callable, Callable | None]) -> None:
         """Register a Docutils node class.
 
         This is necessary for Docutils internals.  It may also be used in the
@@ -602,7 +602,7 @@ class Sphinx:
         self.registry.add_translation_handlers(node, **kwargs)
 
     def add_enumerable_node(self, node: type[Element], figtype: str,
-                            title_getter: Optional[TitleGetter] = None, override: bool = False,
+                            title_getter: TitleGetter | None = None, override: bool = False,
                             **kwargs: tuple[Callable, Callable]) -> None:
         """Register a Docutils node class as a numfig target.
 
@@ -757,7 +757,7 @@ class Sphinx:
         """
         self.registry.add_directive_to_domain(domain, name, cls, override=override)
 
-    def add_role_to_domain(self, domain: str, name: str, role: Union[RoleFunction, XRefRole],
+    def add_role_to_domain(self, domain: str, name: str, role: RoleFunction | XRefRole,
                            override: bool = False) -> None:
         """Register a Docutils role in a domain.
 
@@ -796,8 +796,8 @@ class Sphinx:
         self.registry.add_index_to_domain(domain, index)
 
     def add_object_type(self, directivename: str, rolename: str, indextemplate: str = '',
-                        parse_node: Optional[Callable] = None,
-                        ref_nodeclass: Optional[type[TextElement]] = None,
+                        parse_node: Callable | None = None,
+                        ref_nodeclass: type[TextElement] | None = None,
                         objname: str = '', doc_field_types: list = [], override: bool = False
                         ) -> None:
         """Register a new object type.
@@ -864,7 +864,7 @@ class Sphinx:
                                       override=override)
 
     def add_crossref_type(self, directivename: str, rolename: str, indextemplate: str = '',
-                          ref_nodeclass: Optional[type[TextElement]] = None, objname: str = '',
+                          ref_nodeclass: type[TextElement] | None = None, objname: str = '',
                           override: bool = False) -> None:
         """Register a new crossref object type.
 
@@ -950,8 +950,8 @@ class Sphinx:
         """
         self.registry.add_post_transform(transform)
 
-    def add_js_file(self, filename: Optional[str], priority: int = 500,
-                    loading_method: Optional[str] = None, **kwargs: Any) -> None:
+    def add_js_file(self, filename: str | None, priority: int = 500,
+                    loading_method: str | None = None, **kwargs: Any) -> None:
         """Register a JavaScript file to include in the HTML output.
 
         :param filename: The name of a JavaScript file that the default HTML
@@ -1082,7 +1082,7 @@ class Sphinx:
             self.builder.add_css_file(filename,
                                       priority=priority, **kwargs)
 
-    def add_latex_package(self, packagename: str, options: Optional[str] = None,
+    def add_latex_package(self, packagename: str, options: str | None = None,
                           after_hyperref: bool = False) -> None:
         r"""Register a package to include in the LaTeX source code.
 
@@ -1310,8 +1310,8 @@ class TemplateBridge:
     def init(
         self,
         builder: "Builder",
-        theme: Optional[Theme] = None,
-        dirs: Optional[list[str]] = None
+        theme: Theme | None = None,
+        dirs: list[str] | None = None
     ) -> None:
         """Called by the builder to initialize the template system.
 

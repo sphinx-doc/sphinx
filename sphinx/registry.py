@@ -6,7 +6,7 @@ import traceback
 import warnings
 from importlib import import_module
 from types import MethodType
-from typing import TYPE_CHECKING, Any, Callable, Iterator, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Iterator
 
 from docutils import nodes
 from docutils.core import Publisher
@@ -80,7 +80,7 @@ class SphinxComponentRegistry:
 
         #: additional roles for domains
         #: a dict of domain name -> dict of role name -> role impl.
-        self.domain_roles: dict[str, dict[str, Union[RoleFunction, XRefRole]]] = {}
+        self.domain_roles: dict[str, dict[str, RoleFunction | XRefRole]] = {}
 
         #: additional enumerable nodes
         #: a dict of node class -> tuple of figtype and title_getter function
@@ -151,7 +151,7 @@ class SphinxComponentRegistry:
             self.load_extension(app, entry_point.module)
 
     def create_builder(self, app: "Sphinx", name: str,
-                       env: Optional[BuildEnvironment] = None) -> Builder:
+                       env: BuildEnvironment | None = None) -> Builder:
         if name not in self.builders:
             raise SphinxError(__('Builder name %s not registered') % name)
 
@@ -203,7 +203,7 @@ class SphinxComponentRegistry:
         directives[name] = cls
 
     def add_role_to_domain(self, domain: str, name: str,
-                           role: Union[RoleFunction, XRefRole], override: bool = False
+                           role: RoleFunction | XRefRole, override: bool = False
                            ) -> None:
         logger.debug('[app] adding role to domain: %r', (domain, name, role))
         if domain not in self.domains:
@@ -230,8 +230,8 @@ class SphinxComponentRegistry:
         directivename: str,
         rolename: str,
         indextemplate: str = '',
-        parse_node: Optional[Callable] = None,
-        ref_nodeclass: Optional[type[TextElement]] = None,
+        parse_node: Callable | None = None,
+        ref_nodeclass: type[TextElement] | None = None,
         objname: str = '',
         doc_field_types: list = [],
         override: bool = False
@@ -261,7 +261,7 @@ class SphinxComponentRegistry:
         directivename: str,
         rolename: str,
         indextemplate: str = '',
-        ref_nodeclass: Optional[type[TextElement]] = None,
+        ref_nodeclass: type[TextElement] | None = None,
         objname: str = '',
         override: bool = False
     ) -> None:
@@ -405,7 +405,7 @@ class SphinxComponentRegistry:
         self,
         node: type[Node],
         figtype: str,
-        title_getter: Optional[TitleGetter] = None, override: bool = False
+        title_getter: TitleGetter | None = None, override: bool = False
     ) -> None:
         logger.debug('[app] adding enumerable node: (%r, %r, %r)', node, figtype, title_getter)
         if node in self.enumerable_nodes and not override:

@@ -7,7 +7,7 @@ import re
 import warnings
 from datetime import datetime, timezone
 from os import path
-from typing import TYPE_CHECKING, Callable, Generator, NamedTuple, Optional, Union
+from typing import TYPE_CHECKING, Callable, Generator, NamedTuple
 
 import babel.dates
 from babel.messages.mofile import write_mo
@@ -115,7 +115,7 @@ class CatalogRepository:
             yield CatalogInfo(basedir, domain, self.encoding)
 
 
-def docname_to_domain(docname: str, compaction: Union[bool, str]) -> str:
+def docname_to_domain(docname: str, compaction: bool | str) -> str:
     """Convert docname to domain for catalogs."""
     if isinstance(compaction, str):
         return compaction
@@ -193,7 +193,7 @@ def babel_format_date(date: datetime, format: str, locale: str,
 
 
 def format_date(
-    format: str, date: Optional[datetime] = None, language: Optional[str] = None
+    format: str, date: datetime | None = None, language: str | None = None
 ) -> str:
     if date is None:
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable

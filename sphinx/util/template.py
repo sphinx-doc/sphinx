@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from functools import partial
 from os import path
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable
 
 from jinja2 import TemplateNotFound
 from jinja2.environment import Environment
@@ -19,7 +19,7 @@ from sphinx.util import rst, texescape
 
 
 class BaseRenderer:
-    def __init__(self, loader: Optional[BaseLoader] = None) -> None:
+    def __init__(self, loader: BaseLoader | None = None) -> None:
         self.env = SandboxedEnvironment(loader=loader, extensions=['jinja2.ext.i18n'])
         self.env.filters['repr'] = repr
         self.env.install_gettext_translations(get_translator())
@@ -32,7 +32,7 @@ class BaseRenderer:
 
 
 class FileRenderer(BaseRenderer):
-    def __init__(self, search_path: Union[str, list[str]]) -> None:
+    def __init__(self, search_path: str | list[str]) -> None:
         if isinstance(search_path, str):
             search_path = [search_path]
         else:
@@ -50,7 +50,7 @@ class FileRenderer(BaseRenderer):
 
 
 class SphinxRenderer(FileRenderer):
-    def __init__(self, template_path: Union[None, str, list[str]] = None) -> None:
+    def __init__(self, template_path: None | str | list[str] = None) -> None:
         if template_path is None:
             template_path = os.path.join(package_dir, 'templates')
         super().__init__(template_path)
@@ -62,7 +62,7 @@ class SphinxRenderer(FileRenderer):
 
 class LaTeXRenderer(SphinxRenderer):
     def __init__(
-        self, template_path: Optional[str] = None, latex_engine: Optional[str] = None
+        self, template_path: str | None = None, latex_engine: str | None = None
     ) -> None:
         if template_path is None:
             template_path = os.path.join(package_dir, 'templates', 'latex')
@@ -86,7 +86,7 @@ class LaTeXRenderer(SphinxRenderer):
 
 class ReSTRenderer(SphinxRenderer):
     def __init__(
-        self, template_path: Union[None, str, list[str]] = None, language: Optional[str] = None
+        self, template_path: None | str | list[str] = None, language: str | None = None
     ) -> None:
         super().__init__(template_path)
 

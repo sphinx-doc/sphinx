@@ -6,7 +6,7 @@ import html
 import os
 import re
 from os import path
-from typing import Any, NamedTuple, Optional
+from typing import Any, NamedTuple
 from urllib.parse import quote
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
@@ -451,7 +451,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         pass
 
     def handle_page(self, pagename: str, addctx: dict, templatename: str = 'page.html',
-                    outfilename: Optional[str] = None, event_arg: Any = None) -> None:
+                    outfilename: str | None = None, event_arg: Any = None) -> None:
         """Create a rendered page.
 
         This method is overwritten for genindex pages in order to fix href link

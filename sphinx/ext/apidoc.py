@@ -20,7 +20,7 @@ from copy import copy
 from fnmatch import fnmatch
 from importlib.machinery import EXTENSION_SUFFIXES
 from os import path
-from typing import Any, Generator, Optional
+from typing import Any, Generator
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
@@ -59,7 +59,7 @@ def module_join(*modnames: str) -> str:
     return '.'.join(filter(None, modnames))
 
 
-def is_packagedir(dirname: Optional[str] = None, files: Optional[list[str]] = None) -> bool:
+def is_packagedir(dirname: str | None = None, files: list[str] | None = None) -> bool:
     """Check given *files* contains __init__ file."""
     if files is None and dirname is None:
         return False
@@ -89,7 +89,7 @@ def write_file(name: str, text: str, opts: Any) -> None:
 
 
 def create_module_file(package: str, basename: str, opts: Any,
-                       user_template_dir: Optional[str] = None) -> None:
+                       user_template_dir: str | None = None) -> None:
     """Build the text of the file and write the file."""
     options = copy(OPTIONS)
     if opts.includeprivate and 'private-members' not in options:
@@ -108,7 +108,7 @@ def create_module_file(package: str, basename: str, opts: Any,
 
 def create_package_file(root: str, master_package: str, subroot: str, py_files: list[str],
                         opts: Any, subs: list[str], is_namespace: bool,
-                        excludes: list[str] = [], user_template_dir: Optional[str] = None
+                        excludes: list[str] = [], user_template_dir: str | None = None
                         ) -> None:
     """Build the text of the file and write the file."""
     # build a list of sub packages (directories containing an __init__ file)
@@ -147,7 +147,7 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files: 
 
 
 def create_modules_toc_file(modules: list[str], opts: Any, name: str = 'modules',
-                            user_template_dir: Optional[str] = None) -> None:
+                            user_template_dir: str | None = None) -> None:
     """Create the module's index."""
     modules.sort()
     prev_module = ''
@@ -233,7 +233,7 @@ def has_child_module(rootpath: str, excludes: list[str], opts: Any) -> bool:
 
 
 def recurse_tree(rootpath: str, excludes: list[str], opts: Any,
-                 user_template_dir: Optional[str] = None) -> list[str]:
+                 user_template_dir: str | None = None) -> list[str]:
     """
     Look for every file in the directory tree and create the corresponding
     ReST files.

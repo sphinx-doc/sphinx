@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 import textwrap
 from os import path
-from typing import TYPE_CHECKING, Any, Iterable, Iterator, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Iterable, Iterator, cast
 
 from docutils import nodes, writers
 from docutils.nodes import Element, Node, Text
@@ -92,7 +92,7 @@ def find_subsections(section: Element) -> list[nodes.section]:
     return result
 
 
-def smart_capwords(s: str, sep: Optional[str] = None) -> str:
+def smart_capwords(s: str, sep: str | None = None) -> str:
     """Like string.capwords() but does not capitalize words that already
     contain a capital letter."""
     words = s.split(sep)
@@ -116,7 +116,7 @@ class TexinfoWriter(writers.Writer):
 
     settings_defaults: dict = {}
 
-    output: Optional[str] = None  # type: ignore[assignment]
+    output: str | None = None  # type: ignore[assignment]
 
     visitor_attributes = ('output', 'fragment')
 
@@ -174,14 +174,14 @@ class TexinfoTranslator(SphinxTranslator):
         self.body: list[str] = []
         self.context: list[str] = []
         self.descs: list[addnodes.desc] = []
-        self.previous_section: Optional[nodes.section] = None
+        self.previous_section: nodes.section | None = None
         self.section_level = 0
         self.seen_title = False
         self.next_section_ids: set[str] = set()
         self.escape_newlines = 0
         self.escape_hyphens = 0
         self.curfilestack: list[str] = []
-        self.footnotestack: list[dict[str, list[Union[collected_footnote, bool]]]] = []
+        self.footnotestack: list[dict[str, list[collected_footnote | bool]]] = []
         self.in_footnote = 0
         self.in_samp = 0
         self.handled_abbrs: set[str] = set()
@@ -493,7 +493,7 @@ class TexinfoTranslator(SphinxTranslator):
 
     def collect_footnotes(
         self, node: Element
-    ) -> dict[str, list[Union[collected_footnote, bool]]]:
+    ) -> dict[str, list[collected_footnote | bool]]:
         def footnotes_under(n: Element) -> Iterator[nodes.footnote]:
             if isinstance(n, nodes.footnote):
                 yield n
@@ -503,7 +503,7 @@ class TexinfoTranslator(SphinxTranslator):
                         continue
                     elif isinstance(c, nodes.Element):
                         yield from footnotes_under(c)
-        fnotes: dict[str, list[Union[collected_footnote, bool]]] = {}
+        fnotes: dict[str, list[collected_footnote | bool]] = {}
         for fn in footnotes_under(node):
             label = cast(nodes.label, fn[0])
             num = label.astext().strip()
@@ -768,10 +768,10 @@ class TexinfoTranslator(SphinxTranslator):
         self.ensure_eol()
         self.body.append('@end quotation\n')
 
-    def visit_literal_block(self, node: Optional[Element]) -> None:
+    def visit_literal_block(self, node: Element | None) -> None:
         self.body.append('\n@example\n')
 
-    def depart_literal_block(self, node: Optional[Element]) -> None:
+    def depart_literal_block(self, node: Element | None) -> None:
         self.ensure_eol()
         self.body.append('@end example\n')
 
@@ -1407,7 +1407,7 @@ class TexinfoTranslator(SphinxTranslator):
         category = self.escape_arg(smart_capwords(name))
         self.body.append('\n%s {%s} ' % (self.at_deffnx, category))
         self.at_deffnx = '@deffnx'
-        self.desc_type_name: Optional[str] = name
+        self.desc_type_name: str | None = name
 
     def depart_desc_signature(self, node: Element) -> None:
         self.body.append("\n")

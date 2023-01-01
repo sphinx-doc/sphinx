@@ -11,7 +11,7 @@ import sys
 import unicodedata
 from io import StringIO
 from os import path
-from typing import Any, Generator, Iterator, Optional
+from typing import Any, Generator, Iterator
 
 try:
     # for ALT Linux (#6712)
@@ -114,7 +114,7 @@ def make_filename_from_project(project: str) -> str:
     return make_filename(project_suffix_re.sub('', project)).lower()
 
 
-def relpath(path: str, start: Optional[str] = os.curdir) -> str:
+def relpath(path: str, start: str | None = os.curdir) -> str:
     """Return a relative filepath to *path* either from the current directory or
     from an optional *start* directory.
 
@@ -170,7 +170,7 @@ class FileAvoidWrite:
     """
     def __init__(self, path: str) -> None:
         self._path = path
-        self._io: Optional[StringIO] = None
+        self._io: StringIO | None = None
 
     def write(self, data: str) -> None:
         if not self._io:

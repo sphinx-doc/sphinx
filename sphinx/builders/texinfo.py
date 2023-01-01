@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import warnings
 from os import path
-from typing import Any, Iterable, Optional, Union
+from typing import Any, Iterable
 
 from docutils import nodes
 from docutils.frontend import OptionParser
@@ -51,16 +51,16 @@ class TexinfoBuilder(Builder):
         self.docnames: Iterable[str] = []
         self.document_data: list[tuple[str, str, str, str, str, str, str, bool]] = []
 
-    def get_outdated_docs(self) -> Union[str, list[str]]:
+    def get_outdated_docs(self) -> str | list[str]:
         return 'all documents'  # for now
 
-    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         if docname not in self.docnames:
             raise NoUri(docname, typ)
         else:
             return '%' + docname
 
-    def get_relative_uri(self, from_: str, to: str, typ: Optional[str] = None) -> str:
+    def get_relative_uri(self, from_: str, to: str, typ: str | None = None) -> str:
         # ignore source path
         return self.get_target_uri(to, typ)
 

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Iterator, Optional, cast
+from typing import Any, Iterator, cast
 
 from docutils.nodes import Element
 from docutils.parsers.rst import directives
@@ -264,7 +264,7 @@ class ReSTDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element
-                     ) -> Optional[Element]:
+                     ) -> Element | None:
         objtypes = self.objtypes_for_role(typ)
         for objtype in objtypes:
             todocname, node_id = self.objects.get((objtype, target), (None, None))

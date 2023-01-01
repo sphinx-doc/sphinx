@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 from glob import glob
-from typing import Iterable, Optional
+from typing import Iterable
 
 from sphinx.locale import __
 from sphinx.util import logging
@@ -58,7 +58,7 @@ class Project:
 
         return self.docnames
 
-    def path2doc(self, filename: str) -> Optional[str]:
+    def path2doc(self, filename: str) -> str | None:
         """Return the docname for the filename if the file is a document.
 
         *filename* should be absolute or relative to the source directory.

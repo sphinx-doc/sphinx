@@ -9,7 +9,7 @@ import subprocess
 import tempfile
 from os import path
 from subprocess import CalledProcessError
-from typing import Any, Optional
+from typing import Any
 
 from docutils import nodes
 from docutils.nodes import Element
@@ -39,7 +39,7 @@ class MathExtError(SphinxError):
     category = 'Math extension error'
 
     def __init__(
-        self, msg: str, stderr: Optional[str] = None, stdout: Optional[str] = None
+        self, msg: str, stderr: str | None = None, stdout: str | None = None
     ) -> None:
         if stderr:
             msg += '\n[stderr]\n' + stderr
@@ -59,7 +59,7 @@ depthsvg_re = re.compile(r'.*, depth=(.*)pt')
 depthsvgcomment_re = re.compile(r'<!-- DEPTH=(-?\d+) -->')
 
 
-def read_svg_depth(filename: str) -> Optional[int]:
+def read_svg_depth(filename: str) -> int | None:
     """Read the depth from comment at last line of SVG file
     """
     with open(filename, encoding="utf-8") as f:
@@ -158,7 +158,7 @@ def convert_dvi_to_image(command: list[str], name: str) -> tuple[str, str]:
         raise MathExtError('%s exited with error' % name, exc.stderr, exc.stdout) from exc
 
 
-def convert_dvi_to_png(dvipath: str, builder: Builder, out_path: str) -> Optional[int]:
+def convert_dvi_to_png(dvipath: str, builder: Builder, out_path: str) -> int | None:
     """Convert DVI file to PNG image."""
     name = 'dvipng'
     command = [builder.config.imgmath_dvipng, '-o', out_path, '-T', 'tight', '-z9']
@@ -181,7 +181,7 @@ def convert_dvi_to_png(dvipath: str, builder: Builder, out_path: str) -> Optiona
     return depth
 
 
-def convert_dvi_to_svg(dvipath: str, builder: Builder, out_path: str) -> Optional[int]:
+def convert_dvi_to_svg(dvipath: str, builder: Builder, out_path: str) -> int | None:
     """Convert DVI file to SVG image."""
     name = 'dvisvgm'
     command = [builder.config.imgmath_dvisvgm, '-o', out_path]
@@ -205,7 +205,7 @@ def convert_dvi_to_svg(dvipath: str, builder: Builder, out_path: str) -> Optiona
 def render_math(
     self: HTML5Translator,
     math: str,
-) -> tuple[Optional[str], Optional[int]]:
+) -> tuple[str | None, int | None]:
     """Render the LaTeX math expression *math* using latex and dvipng or
     dvisvgm.
 

@@ -26,7 +26,7 @@ import sys
 import time
 from os import path
 from types import ModuleType
-from typing import IO, Any, Optional, cast
+from typing import IO, Any, cast
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
@@ -100,7 +100,7 @@ def _strip_basic_auth(url: str) -> str:
     return urlunsplit(frags)
 
 
-def _read_from_url(url: str, config: Optional[Config] = None) -> IO:
+def _read_from_url(url: str, config: Config | None = None) -> IO:
     """Reads data from *url* with an HTTP *GET*.
 
     This function supports fetching from resources which use basic HTTP auth as
@@ -259,7 +259,7 @@ def load_mappings(app: Sphinx) -> None:
                 inventories.main_inventory.setdefault(type, {}).update(objects)
 
 
-def _create_element_from_result(domain: Domain, inv_name: Optional[str],
+def _create_element_from_result(domain: Domain, inv_name: str | None,
                                 data: InventoryItem,
                                 node: pending_xref, contnode: TextElement) -> Element:
     proj, version, uri, dispname = data
@@ -290,10 +290,10 @@ def _create_element_from_result(domain: Domain, inv_name: Optional[str],
 
 
 def _resolve_reference_in_domain_by_target(
-        inv_name: Optional[str], inventory: Inventory,
+        inv_name: str | None, inventory: Inventory,
         domain: Domain, objtypes: list[str],
         target: str,
-        node: pending_xref, contnode: TextElement) -> Optional[Element]:
+        node: pending_xref, contnode: TextElement) -> Element | None:
     for objtype in objtypes:
         if objtype not in inventory:
             # Continue if there's nothing of this kind in the inventory
@@ -322,11 +322,11 @@ def _resolve_reference_in_domain_by_target(
 
 
 def _resolve_reference_in_domain(env: BuildEnvironment,
-                                 inv_name: Optional[str], inventory: Inventory,
+                                 inv_name: str | None, inventory: Inventory,
                                  honor_disabled_refs: bool,
                                  domain: Domain, objtypes: list[str],
                                  node: pending_xref, contnode: TextElement
-                                 ) -> Optional[Element]:
+                                 ) -> Element | None:
     # we adjust the object types for backwards compatibility
     if domain.name == 'std' and 'cmdoption' in objtypes:
         # until Sphinx-1.6, cmdoptions are stored as std:option
@@ -357,9 +357,9 @@ def _resolve_reference_in_domain(env: BuildEnvironment,
                                                   full_qualified_name, node, contnode)
 
 
-def _resolve_reference(env: BuildEnvironment, inv_name: Optional[str], inventory: Inventory,
+def _resolve_reference(env: BuildEnvironment, inv_name: str | None, inventory: Inventory,
                        honor_disabled_refs: bool,
-                       node: pending_xref, contnode: TextElement) -> Optional[Element]:
+                       node: pending_xref, contnode: TextElement) -> Element | None:
     # disabling should only be done if no inventory is given
     honor_disabled_refs = honor_disabled_refs and inv_name is None
 
@@ -405,7 +405,7 @@ def inventory_exists(env: BuildEnvironment, inv_name: str) -> bool:
 def resolve_reference_in_inventory(env: BuildEnvironment,
                                    inv_name: str,
                                    node: pending_xref, contnode: TextElement
-                                   ) -> Optional[Element]:
+                                   ) -> Element | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
     Resolution is tried in the given inventory with the target as is.
@@ -420,7 +420,7 @@ def resolve_reference_in_inventory(env: BuildEnvironment,
 def resolve_reference_any_inventory(env: BuildEnvironment,
                                     honor_disabled_refs: bool,
                                     node: pending_xref, contnode: TextElement
-                                    ) -> Optional[Element]:
+                                    ) -> Element | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
     Resolution is tried with the target as is in any inventory.
@@ -432,7 +432,7 @@ def resolve_reference_any_inventory(env: BuildEnvironment,
 
 def resolve_reference_detect_inventory(env: BuildEnvironment,
                                        node: pending_xref, contnode: TextElement
-                                       ) -> Optional[Element]:
+                                       ) -> Element | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
     Resolution is tried first with the target as is in any inventory.
@@ -460,7 +460,7 @@ def resolve_reference_detect_inventory(env: BuildEnvironment,
 
 
 def missing_reference(app: Sphinx, env: BuildEnvironment, node: pending_xref,
-                      contnode: TextElement) -> Optional[Element]:
+                      contnode: TextElement) -> Element | None:
     """Attempt to resolve a missing reference via intersphinx references."""
 
     return resolve_reference_detect_inventory(env, node, contnode)
@@ -511,7 +511,7 @@ class IntersphinxRole(SphinxRole):
 
         return result, messages
 
-    def get_inventory_and_name_suffix(self, name: str) -> tuple[Optional[str], str]:
+    def get_inventory_and_name_suffix(self, name: str) -> tuple[str | None, str]:
         assert name.startswith('external'), name
         assert name[8] in ':+', name
         # either we have an explicit inventory name, i.e,
@@ -523,7 +523,7 @@ class IntersphinxRole(SphinxRole):
         inv, suffix = IntersphinxRole._re_inv_ref.fullmatch(name, 8).group(2, 3)
         return inv, suffix
 
-    def get_role_name(self, name: str) -> Optional[tuple[str, str]]:
+    def get_role_name(self, name: str) -> tuple[str, str] | None:
         names = name.split(':')
         if len(names) == 1:
             # role
@@ -654,7 +654,7 @@ def inspect_main(argv: list[str]) -> None:
         raise SystemExit(1)
 
     class MockConfig:
-        intersphinx_timeout: Optional[int] = None
+        intersphinx_timeout: int | None = None
         tls_verify = False
         user_agent = None
 
