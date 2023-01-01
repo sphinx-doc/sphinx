@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import copy
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Iterable, NamedTuple, cast
+from typing import TYPE_CHECKING, Any, Callable, Iterable, NamedTuple, Optional, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -84,9 +84,9 @@ class Index(ABC):
        :rst:role:`ref` role.
     """
 
-    name: str = None
-    localname: str = None
-    shortname: str = None
+    name: str
+    localname: str
+    shortname: str | None = None
 
     def __init__(self, domain: Domain) -> None:
         if self.name is None or self.localname is None:
@@ -95,7 +95,7 @@ class Index(ABC):
         self.domain = domain
 
     @abstractmethod
-    def generate(self, docnames: Iterable[str] = None
+    def generate(self, docnames: Iterable[str] | None = None
                  ) -> tuple[list[tuple[str, list[IndexEntry]]], bool]:
         """Get entries for the index.
 
@@ -149,6 +149,9 @@ class Index(ABC):
         raise NotImplementedError
 
 
+TitleGetter = Callable[[Node], Optional[str]]
+
+
 class Domain:
     """
     A Domain is meant to be a group of "object" description directives for
@@ -187,8 +190,7 @@ class Domain:
     #: role name -> a warning message if reference is missing
     dangling_warnings: dict[str, str] = {}
     #: node_class -> (enum_node_type, title_getter)
-    enumerable_nodes: dict[type[Node], tuple[str, Callable]] = {}
-
+    enumerable_nodes: dict[type[Node], tuple[str, TitleGetter]] = {}
     #: data value for a fresh environment
     initial_data: dict = {}
     #: data value
@@ -276,7 +278,7 @@ class Domain:
         fullname = f'{self.name}:{name}'
         BaseDirective = self.directives[name]
 
-        class DirectiveAdapter(BaseDirective):  # type: ignore
+        class DirectiveAdapter(BaseDirective):  # type: ignore[valid-type,misc]
             def run(self) -> list[Node]:
                 self.name = fullname
                 return super().run()
