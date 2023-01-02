@@ -1549,7 +1549,7 @@ class Symbol:
 
     def __init__(
         self,
-        parent: "Symbol",
+        parent: Symbol,
         ident: ASTIdentifier,
         declaration: ASTDeclaration | None,
         docname: str | None,
