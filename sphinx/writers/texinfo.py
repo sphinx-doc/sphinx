@@ -114,9 +114,9 @@ class TexinfoWriter(writers.Writer):
             ('Category', ['--texinfo-dir-category'], {'default':
                                                       'Miscellaneous'})))
 
-    settings_defaults: dict = {}
+    settings_defaults: dict[str, Any] = {}
 
-    output: str | None = None  # type: ignore[assignment]
+    output: str
 
     visitor_attributes = ('output', 'fragment')
 
@@ -391,8 +391,11 @@ class TexinfoTranslator(SphinxTranslator):
                           textwrap.wrap(desc, width=78 - offset))
         return s + wdesc.strip() + '\n'
 
-    def add_menu_entries(self, entries: list[str], reg: re.Pattern = re.compile(r'\s+---?\s+')
-                         ) -> None:
+    def add_menu_entries(
+        self,
+        entries: list[str],
+        reg: re.Pattern[str] = re.compile(r'\s+---?\s+'),
+    ) -> None:
         for entry in entries:
             name = self.node_names[entry]
             # special formatting for entries that are divided by an em-dash

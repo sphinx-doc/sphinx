@@ -356,7 +356,7 @@ def my_wrap(text: str, width: int = MAXWIDTH, **kwargs: Any) -> list[str]:
 class TextWriter(writers.Writer):
     supported = ('text',)
     settings_spec = ('No options here.', '', ())
-    settings_defaults: dict = {}
+    settings_defaults: dict[str, Any] = {}
 
     output: str = None
 
@@ -371,7 +371,7 @@ class TextWriter(writers.Writer):
 
 
 class TextTranslator(SphinxTranslator):
-    builder: TextBuilder = None
+    builder: TextBuilder
 
     def __init__(self, document: nodes.document, builder: TextBuilder) -> None:
         super().__init__(document, builder)
