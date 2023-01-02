@@ -1659,7 +1659,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         canonical_fullname = self.get_canonical_fullname()
         if (not self.doc_as_attr and not inspect.isNewType(self.object)
-                and canonical_fullname and self.fullname != canonical_fullname):  # NoQA: W503
+                and canonical_fullname and self.fullname != canonical_fullname):
             self.add_line('   :canonical: %s' % canonical_fullname, sourcename)
 
         # add inheritance info, if wanted
@@ -1803,9 +1803,9 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             attrs = [repr(self.object.__name__)]
             for constraint in self.object.__constraints__:
                 if self.config.autodoc_typehints_format == "short":
-                    attrs.append(stringify_typehint(constraint, "smart"))
+                    attrs.append(stringify_annotation(constraint, "smart"))
                 else:
-                    attrs.append(stringify_typehint(constraint))
+                    attrs.append(stringify_annotation(constraint))
             if self.object.__bound__:
                 if self.config.autodoc_typehints_format == "short":
                     bound = restify(self.object.__bound__, "smart")
