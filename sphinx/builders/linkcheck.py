@@ -382,11 +382,11 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     return 'redirected', new_url, 0
 
         def allowed_redirect(url: str, new_url: str) -> bool:
-            for from_url, to_url in self.config.linkcheck_allowed_redirects.items():
-                if from_url.match(url) and to_url.match(new_url):
-                    return True
-
-            return False
+            return any(
+                from_url.match(url) and to_url.match(new_url)
+                for from_url, to_url
+                in self.config.linkcheck_allowed_redirects.items()
+            )
 
         def check(docname: str) -> tuple[str, str, int]:
             # check for various conditions without bothering the network

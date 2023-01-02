@@ -180,11 +180,14 @@ class ReferencesResolver(SphinxPostTransform):
                     warn = False
             if self.config.nitpick_ignore_regex:
                 def matches_ignore(entry_type: str, entry_target: str) -> bool:
-                    for ignore_type, ignore_target in self.config.nitpick_ignore_regex:
-                        if re.fullmatch(ignore_type, entry_type) and \
-                           re.fullmatch(ignore_target, entry_target):
-                            return True
-                    return False
+                    return any(
+                        (
+                            re.fullmatch(ignore_type, entry_type)
+                            and re.fullmatch(ignore_target, entry_target)
+                        )
+                        for ignore_type, ignore_target
+                        in self.config.nitpick_ignore_regex
+                    )
                 if matches_ignore(dtype, target):
                     warn = False
                 # for "std" types also try without domain name
