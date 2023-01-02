@@ -1259,7 +1259,7 @@ class ASTTypeWithInit(ASTBase):
 
 
 class ASTMacroParameter(ASTBase):
-    def __init__(self, arg: ASTNestedName, ellipsis: bool = False,
+    def __init__(self, arg: ASTNestedName | None, ellipsis: bool = False,
                  variadic: bool = False) -> None:
         self.arg = arg
         self.ellipsis = ellipsis
@@ -1286,7 +1286,7 @@ class ASTMacroParameter(ASTBase):
 
 
 class ASTMacro(ASTBase):
-    def __init__(self, ident: ASTNestedName, args: list[ASTMacroParameter]) -> None:
+    def __init__(self, ident: ASTNestedName, args: list[ASTMacroParameter] | None) -> None:
         self.ident = ident
         self.args = args
 
@@ -1405,7 +1405,7 @@ class ASTEnumerator(ASTBase):
 
 
 class ASTDeclaration(ASTBaseBase):
-    def __init__(self, objectType: str, directiveType: str,
+    def __init__(self, objectType: str, directiveType: str | None,
                  declaration: DeclarationType | ASTFunctionParameter,
                  semicolon: bool = False) -> None:
         self.objectType = objectType
@@ -1427,7 +1427,7 @@ class ASTDeclaration(ASTBaseBase):
         return decl.name
 
     @property
-    def function_params(self) -> list[ASTFunctionParameter]:
+    def function_params(self) -> list[ASTFunctionParameter] | None:
         if self.objectType != 'function':
             return None
         decl = cast(ASTType, self.declaration)
@@ -1547,8 +1547,14 @@ class Symbol:
         else:
             return super().__setattr__(key, value)
 
-    def __init__(self, parent: Symbol, ident: ASTIdentifier,
-                 declaration: ASTDeclaration, docname: str, line: int) -> None:
+    def __init__(
+        self,
+        parent: Symbol,
+        ident: ASTIdentifier,
+        declaration: ASTDeclaration | None,
+        docname: str | None,
+        line: int | None,
+    ) -> None:
         self.parent = parent
         # declarations in a single directive are linked together
         self.siblingAbove: Symbol = None
@@ -1682,7 +1688,7 @@ class Symbol:
         return ASTNestedName(names, rooted=False)
 
     def _find_first_named_symbol(self, ident: ASTIdentifier,
-                                 matchSelf: bool, recurseInAnon: bool) -> Symbol:
+                                 matchSelf: bool, recurseInAnon: bool) -> Symbol | None:
         # TODO: further simplification from C++ to C
         if Symbol.debug_lookup:
             Symbol.debug_print("_find_first_named_symbol ->")
@@ -1743,10 +1749,15 @@ class Symbol:
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 2
 
-    def _symbol_lookup(self, nestedName: ASTNestedName,
-                       onMissingQualifiedSymbol: Callable[[Symbol, ASTIdentifier], Symbol],
-                       ancestorLookupType: str, matchSelf: bool,
-                       recurseInAnon: bool, searchInSiblings: bool) -> SymbolLookupResult:
+    def _symbol_lookup(
+        self,
+        nestedName: ASTNestedName,
+        onMissingQualifiedSymbol: Callable[[Symbol, ASTIdentifier], Symbol | None],
+        ancestorLookupType: str | None,
+        matchSelf: bool,
+        recurseInAnon: bool,
+        searchInSiblings: bool
+    ) -> SymbolLookupResult | None:
         # TODO: further simplification from C++ to C
         # ancestorLookupType: if not None, specifies the target type of the lookup
         if Symbol.debug_lookup:
@@ -1815,8 +1826,13 @@ class Symbol:
             Symbol.debug_indent -= 2
         return SymbolLookupResult(symbols, parentSymbol, ident)
 
-    def _add_symbols(self, nestedName: ASTNestedName,
-                     declaration: ASTDeclaration, docname: str, line: int) -> Symbol:
+    def _add_symbols(
+        self,
+        nestedName: ASTNestedName,
+        declaration: ASTDeclaration | None,
+        docname: str | None,
+        line: int | None,
+    ) -> Symbol:
         # TODO: further simplification from C++ to C
         # Used for adding a whole path of symbols, where the last may or may not
         # be an actual declaration.
@@ -2038,7 +2054,7 @@ class Symbol:
 
     def find_identifier(self, ident: ASTIdentifier,
                         matchSelf: bool, recurseInAnon: bool, searchInSiblings: bool
-                        ) -> Symbol:
+                        ) -> Symbol | None:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
             Symbol.debug_print("find_identifier:")
@@ -2067,7 +2083,7 @@ class Symbol:
             current = current.siblingAbove
         return None
 
-    def direct_lookup(self, key: LookupKey) -> Symbol:
+    def direct_lookup(self, key: LookupKey) -> Symbol | None:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
             Symbol.debug_print("direct_lookup:")
@@ -2096,14 +2112,16 @@ class Symbol:
         return s
 
     def find_declaration(self, nestedName: ASTNestedName, typ: str,
-                         matchSelf: bool, recurseInAnon: bool) -> Symbol:
+                         matchSelf: bool, recurseInAnon: bool) -> Symbol | None:
         # templateShorthand: missing template parameter lists for templates is ok
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
             Symbol.debug_print("find_declaration:")
 
-        def onMissingQualifiedSymbol(parentSymbol: Symbol,
-                                     ident: ASTIdentifier) -> Symbol:
+        def onMissingQualifiedSymbol(
+            parentSymbol: Symbol,
+            ident: ASTIdentifier,
+        ) -> Symbol | None:
             return None
 
         lookupResult = self._symbol_lookup(nestedName,
@@ -2163,7 +2181,7 @@ class DefinitionParser(BaseParser):
     def paren_attributes(self):
         return self.config.c_paren_attributes
 
-    def _parse_string(self) -> str:
+    def _parse_string(self) -> str | None:
         if self.current_char != '"':
             return None
         startPos = self.pos
@@ -2182,7 +2200,7 @@ class DefinitionParser(BaseParser):
             self.pos += 1
         return self.definition[startPos:self.pos]
 
-    def _parse_literal(self) -> ASTLiteral:
+    def _parse_literal(self) -> ASTLiteral | None:
         # -> integer-literal
         #  | character-literal
         #  | floating-literal
@@ -2220,7 +2238,7 @@ class DefinitionParser(BaseParser):
                           " resulting in multiple decoded characters.")
         return None
 
-    def _parse_paren_expression(self) -> ASTExpression:
+    def _parse_paren_expression(self) -> ASTExpression | None:
         # "(" expression ")"
         if self.current_char != '(':
             return None
@@ -2231,12 +2249,12 @@ class DefinitionParser(BaseParser):
             self.fail("Expected ')' in end of parenthesized expression.")
         return ASTParenExpr(res)
 
-    def _parse_primary_expression(self) -> ASTExpression:
+    def _parse_primary_expression(self) -> ASTExpression | None:
         # literal
         # "(" expression ")"
         # id-expression -> we parse this with _parse_nested_name
         self.skip_ws()
-        res: ASTExpression = self._parse_literal()
+        res: ASTExpression | None = self._parse_literal()
         if res is not None:
             return res
         res = self._parse_paren_expression()
@@ -2277,7 +2295,7 @@ class DefinitionParser(BaseParser):
                 break
         return exprs, trailingComma
 
-    def _parse_paren_expression_list(self) -> ASTParenExprList:
+    def _parse_paren_expression_list(self) -> ASTParenExprList | None:
         # -> '(' expression-list ')'
         # though, we relax it to also allow empty parens
         # as it's needed in some cases
@@ -2290,7 +2308,7 @@ class DefinitionParser(BaseParser):
             return None
         return ASTParenExprList(exprs)
 
-    def _parse_braced_init_list(self) -> ASTBracedInitList:
+    def _parse_braced_init_list(self) -> ASTBracedInitList | None:
         # -> '{' initializer-list ','[opt] '}'
         #  | '{' '}'
         exprs, trailingComma = self._parse_initializer_list("braced-init-list", '{', '}')
@@ -2455,7 +2473,7 @@ class DefinitionParser(BaseParser):
             return ASTBinOpExpr(exprs, ops)
         return _parse_bin_op_expr(self, 0)
 
-    def _parse_conditional_expression_tail(self, orExprHead: Any) -> ASTExpression:
+    def _parse_conditional_expression_tail(self, orExprHead: Any) -> ASTExpression | None:
         # -> "?" expression ":" assignment-expression
         return None
 
@@ -2583,7 +2601,7 @@ class DefinitionParser(BaseParser):
                     return t
         return None
 
-    def _parse_simple_type_specifiers(self) -> ASTTrailingTypeSpecFundamental:
+    def _parse_simple_type_specifiers(self) -> ASTTrailingTypeSpecFundamental | None:
         names: list[str] = []
 
         self.skip_ws()
@@ -2654,7 +2672,9 @@ class DefinitionParser(BaseParser):
         attrs = self._parse_attribute_list()
         return ASTParameters(args, attrs)
 
-    def _parse_decl_specs_simple(self, outer: str, typed: bool) -> ASTDeclSpecsSimple:
+    def _parse_decl_specs_simple(
+        self, outer: str | None, typed: bool
+    ) -> ASTDeclSpecsSimple:
         """Just parse the simple ones."""
         storage = None
         threadLocal = None
@@ -2712,7 +2732,7 @@ class DefinitionParser(BaseParser):
         return ASTDeclSpecsSimple(storage, threadLocal, inline,
                                   restrict, volatile, const, ASTAttributeList(attrs))
 
-    def _parse_decl_specs(self, outer: str, typed: bool = True) -> ASTDeclSpecs:
+    def _parse_decl_specs(self, outer: str | None, typed: bool = True) -> ASTDeclSpecs:
         if outer:
             if outer not in ('type', 'member', 'function'):
                 raise Exception('Internal error, unknown outer "%s".' % outer)
@@ -2888,8 +2908,8 @@ class DefinitionParser(BaseParser):
             header = "Error in declarator or parameters"
             raise self._make_multi_error(prevErrors, header) from e
 
-    def _parse_initializer(self, outer: str = None, allowFallback: bool = True
-                           ) -> ASTInitializer:
+    def _parse_initializer(self, outer: str | None = None, allowFallback: bool = True
+                           ) -> ASTInitializer | None:
         self.skip_ws()
         if outer == 'member' and False:  # TODO
             bracedInit = self._parse_braced_init_list()
@@ -2976,7 +2996,7 @@ class DefinitionParser(BaseParser):
             decl = self._parse_declarator(named=named, paramMode=paramMode)
         return ASTType(declSpecs, decl)
 
-    def _parse_type_with_init(self, named: bool | str, outer: str) -> ASTTypeWithInit:
+    def _parse_type_with_init(self, named: bool | str, outer: str | None) -> ASTTypeWithInit:
         if outer:
             assert outer in ('type', 'member', 'function')
         type = self._parse_type(outer=outer, named=named)
@@ -3445,9 +3465,14 @@ class CNamespacePopObject(SphinxDirective):
 
 
 class AliasNode(nodes.Element):
-    def __init__(self, sig: str, aliasOptions: dict,
-                 document: Any, env: BuildEnvironment = None,
-                 parentKey: LookupKey = None) -> None:
+    def __init__(
+        self,
+        sig: str,
+        aliasOptions: dict,
+        document: Any,
+        env: BuildEnvironment | None = None,
+        parentKey: LookupKey | None = None,
+    ) -> None:
         super().__init__()
         self.sig = sig
         self.aliasOptions = aliasOptions

@@ -35,8 +35,8 @@ class ChangeSet(NamedTuple):
     type: str
     docname: str
     lineno: int
-    module: str
-    descname: str
+    module: str | None
+    descname: str | None
     content: str
 
 
@@ -107,7 +107,7 @@ class ChangeSetDomain(Domain):
     name = 'changeset'
     label = 'changeset'
 
-    initial_data: dict = {
+    initial_data: dict[str, Any] = {
         'changes': {},      # version -> list of ChangeSet
     }
 
@@ -129,7 +129,7 @@ class ChangeSetDomain(Domain):
                 if changeset.docname == docname:
                     changes.remove(changeset)
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict) -> None:
+    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
         # XXX duplicates?
         for version, otherchanges in otherdata['changes'].items():
             changes = self.changesets.setdefault(version, [])

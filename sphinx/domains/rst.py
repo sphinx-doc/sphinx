@@ -256,7 +256,7 @@ class ReSTDomain(Domain):
             if doc == docname:
                 del self.objects[typ, name]
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict) -> None:
+    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
         # XXX check duplicates
         for (typ, name), (doc, node_id) in otherdata['objects'].items():
             if doc in docnames:
@@ -267,8 +267,9 @@ class ReSTDomain(Domain):
                      ) -> Element | None:
         objtypes = self.objtypes_for_role(typ)
         for objtype in objtypes:
-            todocname, node_id = self.objects.get((objtype, target), (None, None))
-            if todocname:
+            result = self.objects.get((objtype, target))
+            if result:
+                todocname, node_id = result
                 return make_refnode(builder, fromdocname, todocname, node_id,
                                     contnode, target + ' ' + objtype)
         return None
@@ -278,8 +279,9 @@ class ReSTDomain(Domain):
                          ) -> list[tuple[str, Element]]:
         results: list[tuple[str, Element]] = []
         for objtype in self.object_types:
-            todocname, node_id = self.objects.get((objtype, target), (None, None))
-            if todocname:
+            result = self.objects.get((objtype, target))
+            if result:
+                todocname, node_id = result
                 results.append(('rst:' + self.role_for_objtype(objtype),
                                 make_refnode(builder, fromdocname, todocname, node_id,
                                              contnode, target + ' ' + objtype)))

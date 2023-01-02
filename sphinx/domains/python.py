@@ -124,7 +124,7 @@ def type_to_xref(target: str, env: BuildEnvironment | None = None,
                         refspecific=refspecific, **kwargs)
 
 
-def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
+def _parse_annotation(annotation: str, env: BuildEnvironment | None) -> list[Node]:
     """Parse type annotation."""
     def unparse(node: ast.AST) -> list[Node]:
         if isinstance(node, ast.Attribute):
@@ -354,10 +354,17 @@ def _pseudo_parse_arglist(signode: desc_signature, arglist: str) -> None:
 # This override allows our inline type specifiers to behave like :class: link
 # when it comes to handling "." and "~" prefixes.
 class PyXrefMixin:
-    def make_xref(self, rolename: str, domain: str, target: str,
-                  innernode: type[TextlikeNode] = nodes.emphasis,
-                  contnode: Node = None, env: BuildEnvironment = None,
-                  inliner: Inliner = None, location: Node = None) -> Node:
+    def make_xref(
+        self,
+        rolename: str,
+        domain: str,
+        target: str,
+        innernode: type[TextlikeNode] = nodes.emphasis,
+        contnode: Node | None = None,
+        env: BuildEnvironment | None = None,
+        inliner: Inliner | None = None,
+        location: Node | None = None
+    ) -> Node:
         # we use inliner=None to make sure we get the old behaviour with a single
         # pending_xref node
         result = super().make_xref(rolename, domain, target,  # type: ignore
@@ -387,10 +394,17 @@ class PyXrefMixin:
 
         return result
 
-    def make_xrefs(self, rolename: str, domain: str, target: str,
-                   innernode: type[TextlikeNode] = nodes.emphasis,
-                   contnode: Node = None, env: BuildEnvironment = None,
-                   inliner: Inliner = None, location: Node = None) -> list[Node]:
+    def make_xrefs(
+        self,
+        rolename: str,
+        domain: str,
+        target: str,
+        innernode: type[TextlikeNode] = nodes.emphasis,
+        contnode: Node | None = None,
+        env: BuildEnvironment | None = None,
+        inliner: Inliner | None = None,
+        location: Node | None = None,
+    ) -> list[Node]:
         delims = r'(\s*[\[\]\(\),](?:\s*o[rf]\s)?\s*|\s+o[rf]\s+|\s*\|\s*|\.\.\.)'
         delims_re = re.compile(delims)
         sub_targets = re.split(delims, target)
@@ -712,7 +726,7 @@ class PyFunction(PyObject):
                 text = f'{pairindextypes["builtin"]}; {name}()'
                 self.indexnode['entries'].append(('pair', text, node_id, '', None))
 
-    def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str:
+    def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str | None:
         # add index in own add_target_and_index() instead.
         return None
 
@@ -1124,7 +1138,7 @@ class PythonModuleIndex(Index):
     localname = _('Python Module Index')
     shortname = _('modules')
 
-    def generate(self, docnames: Iterable[str] = None
+    def generate(self, docnames: Iterable[str] | None = None
                  ) -> tuple[list[tuple[str, list[IndexEntry]]], bool]:
         content: dict[str, list[IndexEntry]] = {}
         # list of prefixes to ignore
@@ -1284,7 +1298,7 @@ class PythonDomain(Domain):
             if mod.docname == docname:
                 del self.modules[modname]
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict) -> None:
+    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
         # XXX check duplicates?
         for fullname, obj in otherdata['objects'].items():
             if obj.docname in docnames:
@@ -1294,7 +1308,7 @@ class PythonDomain(Domain):
                 self.modules[modname] = mod
 
     def find_obj(self, env: BuildEnvironment, modname: str, classname: str,
-                 name: str, type: str, searchmode: int = 0
+                 name: str, type: str | None, searchmode: int = 0
                  ) -> list[tuple[str, ObjectEntry]]:
         """Find a Python object for "name", perhaps using the given module
         and/or classname.  Returns a list of (name, object entry) tuples.
@@ -1467,7 +1481,7 @@ class PythonDomain(Domain):
 
 
 def builtin_resolver(app: Sphinx, env: BuildEnvironment,
-                     node: pending_xref, contnode: Element) -> Element:
+                     node: pending_xref, contnode: Element) -> Element | None:
     """Do not emit nitpicky warnings for built-in types."""
     def istyping(s: str) -> bool:
         if s.startswith('typing.'):

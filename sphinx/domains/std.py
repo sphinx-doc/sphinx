@@ -14,7 +14,7 @@ from docutils.statemachine import StringList
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature, pending_xref
 from sphinx.directives import ObjectDescription
-from sphinx.domains import Domain, ObjType
+from sphinx.domains import Domain, ObjType, TitleGetter
 from sphinx.locale import _, __
 from sphinx.roles import EmphasizedLiteral, XRefRole
 from sphinx.util import docname_join, logging, ws_re
@@ -42,7 +42,7 @@ class GenericObject(ObjectDescription[str]):
     A generic x-ref directive registered with Sphinx.add_object_type().
     """
     indextemplate: str = ''
-    parse_node: Callable[[BuildEnvironment, str, desc_signature], str] = None
+    parse_node: Callable[[BuildEnvironment, str, desc_signature], str] | None = None
 
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         if self.parse_node:
@@ -292,7 +292,7 @@ def split_term_classifiers(line: str) -> list[str | None]:
 
 
 def make_glossary_term(env: BuildEnvironment, textnodes: Iterable[Node], index_key: str,
-                       source: str, lineno: int, node_id: str, document: nodes.document
+                       source: str, lineno: int, node_id: str | None, document: nodes.document
                        ) -> nodes.term:
     # get a text-only representation of the term and register it
     # as a cross-reference target
@@ -614,7 +614,7 @@ class StandardDomain(Domain):
     }
 
     # node_class -> (figtype, title_getter)
-    enumerable_nodes: dict[type[Node], tuple[str, Callable | None]] = {
+    enumerable_nodes: dict[type[Node], tuple[str, TitleGetter | None]] = {
         nodes.figure: ('figure', None),
         nodes.table: ('table', None),
         nodes.container: ('code-block', None),
@@ -712,7 +712,7 @@ class StandardDomain(Domain):
             if fn == docname:
                 del self.anonlabels[key]
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict) -> None:
+    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
         # XXX duplicates?
         for key, data in otherdata['progoptions'].items():
             if data[0] in docnames:
@@ -757,7 +757,7 @@ class StandardDomain(Domain):
             self.anonlabels[name] = docname, labelid
             if node.tagname == 'section':
                 title = cast(nodes.title, node[0])
-                sectname = clean_astext(title)
+                sectname: str | None = clean_astext(title)
             elif node.tagname == 'rubric':
                 sectname = clean_astext(node)
             elif self.is_enumerable_node(node):
@@ -975,7 +975,7 @@ class StandardDomain(Domain):
 
     def _resolve_term_xref(self, env: BuildEnvironment, fromdocname: str,
                            builder: Builder, typ: str, target: str,
-                           node: pending_xref, contnode: Element) -> Element:
+                           node: pending_xref, contnode: Element) -> Element | None:
         result = self._resolve_obj_xref(env, fromdocname, builder, typ,
                                         target, node, contnode)
         if result:
@@ -1084,8 +1084,14 @@ class StandardDomain(Domain):
             figtype, _ = self.enumerable_nodes.get(node.__class__, (None, None))
             return figtype
 
-    def get_fignumber(self, env: BuildEnvironment, builder: Builder,
-                      figtype: str, docname: str, target_node: Element) -> tuple[int, ...]:
+    def get_fignumber(
+        self,
+        env: BuildEnvironment,
+        builder: Builder,
+        figtype: str,
+        docname: str,
+        target_node: Element
+    ) -> tuple[int, ...] | None:
         if figtype == 'section':
             if builder.name == 'latex':
                 return ()
