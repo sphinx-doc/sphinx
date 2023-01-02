@@ -392,7 +392,9 @@ class TexinfoTranslator(SphinxTranslator):
         return s + wdesc.strip() + '\n'
 
     def add_menu_entries(
-        self, entries: list[str], reg: re.Pattern[str] = re.compile(r'\s+---?\s+')
+        self,
+        entries: list[str],
+        reg: re.Pattern[str] = re.compile(r'\s+---?\s+'),
     ) -> None:
         for entry in entries:
             name = self.node_names[entry]
