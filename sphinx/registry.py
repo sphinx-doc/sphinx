@@ -68,7 +68,7 @@ class SphinxComponentRegistry:
 
         #: additional directives for domains
         #: a dict of domain name -> dict of directive name -> directive
-        self.domain_directives: dict[str, dict[str, Any]] = {}
+        self.domain_directives: dict[str, dict[str, type[Directive]]] = {}
 
         #: additional indices for domains
         #: a dict of domain name -> list of index class
@@ -196,7 +196,7 @@ class SphinxComponentRegistry:
         if domain not in self.domains:
             raise ExtensionError(__('domain %s not yet registered') % domain)
 
-        directives = self.domain_directives.setdefault(domain, {})
+        directives: dict[str, type[Directive]] = self.domain_directives.setdefault(domain, {})
         if name in directives and not override:
             raise ExtensionError(__('The %r directive is already registered to domain %s') %
                                  (name, domain))

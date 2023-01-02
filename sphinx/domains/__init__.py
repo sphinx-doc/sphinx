@@ -21,6 +21,8 @@ from sphinx.roles import XRefRole
 from sphinx.util.typing import RoleFunction
 
 if TYPE_CHECKING:
+    from docutils.parsers.rst import Directive
+
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
 
@@ -182,7 +184,7 @@ class Domain:
     #: type (usually directive) name -> ObjType instance
     object_types: dict[str, ObjType] = {}
     #: directive name -> directive class
-    directives: dict[str, Any] = {}
+    directives: dict[str, type[Directive]] = {}
     #: role name -> role callable
     roles: dict[str, RoleFunction | XRefRole] = {}
     #: a list of Index subclasses
