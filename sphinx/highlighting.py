@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from functools import partial
 from importlib import import_module
-from typing import Any
+from typing import Any, cast
 
 from pygments import highlight
 from pygments.filters import ErrorToken
@@ -95,7 +95,7 @@ class PygmentsBridge:
             self.formatter = self.latex_formatter
             self.formatter_args['commandprefix'] = 'PYG'
 
-    def get_style(self, stylename: str) -> Style:
+    def get_style(self, stylename: str) -> type[Style]:
         if stylename is None or stylename == 'sphinx':
             return SphinxStyle
         elif stylename == 'none':
@@ -104,13 +104,13 @@ class PygmentsBridge:
             module, stylename = stylename.rsplit('.', 1)
             return getattr(import_module(module), stylename)
         else:
-            return get_style_by_name(stylename)
+            return cast(type[Style], get_style_by_name(stylename))
 
     def get_formatter(self, **kwargs: Any) -> Formatter:
         kwargs.update(self.formatter_args)
         return self.formatter(**kwargs)
 
-    def get_lexer(self, source: str, lang: str, opts: dict | None = None,
+    def get_lexer(self, source: str, lang: str, opts: dict[str, Any] | None = None,
                   force: bool = False, location: Any = None) -> Lexer:
         if not opts:
             opts = {}
@@ -146,7 +146,7 @@ class PygmentsBridge:
 
         return lexer
 
-    def highlight_block(self, source: str, lang: str, opts: dict | None = None,
+    def highlight_block(self, source: str, lang: str, opts: dict[str, Any] | None = None,
                         force: bool = False, location: Any = None, **kwargs: Any) -> str:
         if not isinstance(source, str):
             source = source.decode()

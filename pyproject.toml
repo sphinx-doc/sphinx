@@ -277,7 +277,6 @@ module = [
     "sphinx.environment.*",
     "sphinx.events",
     "sphinx.ext.*",
-    "sphinx.highlighting",
     "sphinx.jinja2glue",
     "sphinx.registry",
     "sphinx.roles",
