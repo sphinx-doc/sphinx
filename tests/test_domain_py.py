@@ -866,10 +866,11 @@ def test_pyattribute(app):
     assert_node(doctree[1][1][1], ([desc_signature, ([desc_name, "attr"],
                                                      [desc_annotation, ([desc_sig_punctuation, ':'],
                                                                         desc_sig_space,
-                                                                        [pending_xref, "Optional"],
-                                                                        [desc_sig_punctuation, "["],
                                                                         [pending_xref, "str"],
-                                                                        [desc_sig_punctuation, "]"])],
+                                                                        desc_sig_space,
+                                                                        [desc_sig_punctuation, "|"],
+                                                                        desc_sig_space,
+                                                                        [pending_xref, "None"])],
                                                      [desc_annotation, (desc_sig_space,
                                                                         [desc_sig_punctuation, '='],
                                                                         desc_sig_space,
@@ -877,7 +878,7 @@ def test_pyattribute(app):
                                                      )],
                                    [desc_content, ()]))
     assert_node(doctree[1][1][1][0][1][2], pending_xref, **{"py:class": "Class"})
-    assert_node(doctree[1][1][1][0][1][4], pending_xref, **{"py:class": "Class"})
+    assert_node(doctree[1][1][1][0][1][6], pending_xref, **{"py:class": "Class"})
     assert 'Class.attr' in domain.objects
     assert domain.objects['Class.attr'] == ('index', 'Class.attr', 'attribute', False)
 
