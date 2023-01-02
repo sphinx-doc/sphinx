@@ -51,7 +51,7 @@ class CitationDomain(Domain):
             elif docname in docnames:
                 docnames.remove(docname)
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict) -> None:
+    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
         # XXX duplicates?
         for key, data in otherdata['citations'].items():
             if data[0] in docnames:
