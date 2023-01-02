@@ -415,7 +415,7 @@ def test_load_mappings_fallback(tempdir, app, status, warning):
     normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
     assert "encountered some issues with some of the inventories" in status.getvalue()
-    assert "" == warning.getvalue()
+    assert warning.getvalue() == ""
 
     rn = reference_check(app, 'py', 'func', 'module1.func', 'foo')
     assert isinstance(rn, nodes.reference)

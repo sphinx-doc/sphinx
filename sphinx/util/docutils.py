@@ -1,5 +1,7 @@
 """Utility functions for docutils."""
 
+from __future__ import annotations
+
 import os
 import re
 import warnings
@@ -7,8 +9,7 @@ from contextlib import contextmanager
 from copy import copy
 from os import path
 from types import ModuleType
-from typing import (IO, TYPE_CHECKING, Any, Callable, Dict, Generator, List, Optional, Set,
-                    Tuple, Type, cast)
+from typing import IO, TYPE_CHECKING, Any, Callable, Generator, cast
 
 import docutils
 from docutils import nodes
@@ -44,7 +45,7 @@ deprecated_alias('sphinx.util.docutils',
                  {
                      '__version_info__': 'docutils.__version_info__',
                  })
-additional_nodes: Set[Type[Element]] = set()
+additional_nodes: set[type[Element]] = set()
 
 
 @contextmanager
@@ -69,7 +70,7 @@ def is_directive_registered(name: str) -> bool:
     return name in directives._directives  # type: ignore
 
 
-def register_directive(name: str, directive: Type[Directive]) -> None:
+def register_directive(name: str, directive: type[Directive]) -> None:
     """Register a directive to docutils.
 
     This modifies global state of docutils.  So it is better to use this
@@ -97,12 +98,12 @@ def unregister_role(name: str) -> None:
     roles._roles.pop(name, None)  # type: ignore
 
 
-def is_node_registered(node: Type[Element]) -> bool:
+def is_node_registered(node: type[Element]) -> bool:
     """Check the *node* is already registered."""
     return hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__)
 
 
-def register_node(node: Type[Element]) -> None:
+def register_node(node: type[Element]) -> None:
     """Register a node to docutils.
 
     This modifies global state of some visitors.  So it is better to use this
@@ -113,7 +114,7 @@ def register_node(node: Type[Element]) -> None:
         additional_nodes.add(node)
 
 
-def unregister_node(node: Type[Element]) -> None:
+def unregister_node(node: type[Element]) -> None:
     """Unregister a node from docutils.
 
     This is inverse of ``nodes._add_nodes_class_names()``.
@@ -170,7 +171,7 @@ def patched_rst_get_language() -> Generator[None, None, None]:
 
 
 @contextmanager
-def using_user_docutils_conf(confdir: Optional[str]) -> Generator[None, None, None]:
+def using_user_docutils_conf(confdir: str | None) -> Generator[None, None, None]:
     """Let docutils know the location of ``docutils.conf`` for Sphinx."""
     try:
         docutilsconfig = os.environ.get('DOCUTILSCONFIG', None)
@@ -219,7 +220,7 @@ def du19_footnotes() -> Generator[None, None, None]:
 
 
 @contextmanager
-def patch_docutils(confdir: Optional[str] = None) -> Generator[None, None, None]:
+def patch_docutils(confdir: str | None = None) -> Generator[None, None, None]:
     """Patch to docutils temporarily."""
     with patched_get_language(), \
          patched_rst_get_language(), \
@@ -242,7 +243,9 @@ class CustomReSTDispatcher:
     def __enter__(self) -> None:
         self.enable()
 
-    def __exit__(self, exc_type: Type[Exception], exc_value: Exception, traceback: Any) -> None:  # NOQA
+    def __exit__(
+        self, exc_type: type[Exception], exc_value: Exception, traceback: Any
+    ) -> None:
         self.disable()
 
     def enable(self) -> None:
@@ -258,11 +261,11 @@ class CustomReSTDispatcher:
 
     def directive(self,
                   directive_name: str, language_module: ModuleType, document: nodes.document
-                  ) -> Tuple[Optional[Type[Directive]], List[system_message]]:
+                  ) -> tuple[type[Directive] | None, list[system_message]]:
         return self.directive_func(directive_name, language_module, document)
 
     def role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter
-             ) -> Tuple[RoleFunction, List[system_message]]:
+             ) -> tuple[RoleFunction, list[system_message]]:
         return self.role_func(role_name, language_module, lineno, reporter)
 
 
@@ -274,7 +277,7 @@ class sphinx_domains(CustomReSTDispatcher):
     """Monkey-patch directive and role dispatch, so that domain-specific
     markup takes precedence.
     """
-    def __init__(self, env: "BuildEnvironment") -> None:
+    def __init__(self, env: BuildEnvironment) -> None:
         self.env = env
         super().__init__()
 
@@ -310,14 +313,14 @@ class sphinx_domains(CustomReSTDispatcher):
 
     def directive(self,
                   directive_name: str, language_module: ModuleType, document: nodes.document
-                  ) -> Tuple[Optional[Type[Directive]], List[system_message]]:
+                  ) -> tuple[type[Directive] | None, list[system_message]]:
         try:
             return self.lookup_domain_element('directive', directive_name)
         except ElementLookupError:
             return super().directive(directive_name, language_module, document)
 
     def role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter
-             ) -> Tuple[RoleFunction, List[system_message]]:
+             ) -> tuple[RoleFunction, list[system_message]]:
         try:
             return self.lookup_domain_element('role', role_name)
         except ElementLookupError:
@@ -337,7 +340,7 @@ class WarningStream:
 
 class LoggingReporter(Reporter):
     @classmethod
-    def from_reporter(cls, reporter: Reporter) -> "LoggingReporter":
+    def from_reporter(cls, reporter: Reporter) -> LoggingReporter:
         """Create an instance of LoggingReporter from other reporter object."""
         return cls(reporter.source, reporter.report_level, reporter.halt_level,
                    reporter.debug_flag, reporter.error_handler)
@@ -373,7 +376,7 @@ def switch_source_input(state: State, content: StringList) -> Generator[None, No
         # replace it by new one
         state_machine = StateMachine([], None)
         state_machine.input_lines = content
-        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore  # NOQA
+        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore  # noqa: E501
 
         yield
     finally:
@@ -410,16 +413,16 @@ class SphinxDirective(Directive):
     """
 
     @property
-    def env(self) -> "BuildEnvironment":
+    def env(self) -> BuildEnvironment:
         """Reference to the :class:`.BuildEnvironment` object."""
         return self.state.document.settings.env
 
     @property
-    def config(self) -> "Config":
+    def config(self) -> Config:
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
-    def get_source_info(self) -> Tuple[str, int]:
+    def get_source_info(self) -> tuple[str, int]:
         """Get source and line number."""
         return self.state_machine.get_source_and_line(self.lineno)
 
@@ -445,14 +448,14 @@ class SphinxRole:
     text: str           #: The interpreted text content.
     lineno: int         #: The line number where the interpreted text begins.
     inliner: Inliner    #: The ``docutils.parsers.rst.states.Inliner`` object.
-    options: Dict       #: A dictionary of directive options for customization
+    options: dict       #: A dictionary of directive options for customization
                         #: (from the "role" directive).
-    content: List[str]  #: A list of strings, the directive content for customization
+    content: list[str]  #: A list of strings, the directive content for customization
                         #: (from the "role" directive).
 
     def __call__(self, name: str, rawtext: str, text: str, lineno: int,
-                 inliner: Inliner, options: Dict = {}, content: List[str] = []
-                 ) -> Tuple[List[Node], List[system_message]]:
+                 inliner: Inliner, options: dict = {}, content: list[str] = []
+                 ) -> tuple[list[Node], list[system_message]]:
         self.rawtext = rawtext
         self.text = unescape(text)
         self.lineno = lineno
@@ -472,20 +475,20 @@ class SphinxRole:
 
         return self.run()
 
-    def run(self) -> Tuple[List[Node], List[system_message]]:
+    def run(self) -> tuple[list[Node], list[system_message]]:
         raise NotImplementedError
 
     @property
-    def env(self) -> "BuildEnvironment":
+    def env(self) -> BuildEnvironment:
         """Reference to the :class:`.BuildEnvironment` object."""
         return self.inliner.document.settings.env
 
     @property
-    def config(self) -> "Config":
+    def config(self) -> Config:
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
-    def get_source_info(self, lineno: int = None) -> Tuple[str, int]:
+    def get_source_info(self, lineno: int = None) -> tuple[str, int]:
         if lineno is None:
             lineno = self.lineno
         return self.inliner.reporter.get_source_and_line(lineno)  # type: ignore
@@ -514,8 +517,8 @@ class ReferenceRole(SphinxRole):
     explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<(.*?)>$', re.DOTALL)
 
     def __call__(self, name: str, rawtext: str, text: str, lineno: int,
-                 inliner: Inliner, options: Dict = {}, content: List[str] = []
-                 ) -> Tuple[List[Node], List[system_message]]:
+                 inliner: Inliner, options: dict = {}, content: list[str] = []
+                 ) -> tuple[list[Node], list[system_message]]:
         # if the first character is a bang, don't cross-reference at all
         self.disabled = text.startswith('!')
 
@@ -544,7 +547,7 @@ class SphinxTranslator(nodes.NodeVisitor):
               This class is strongly coupled with Sphinx.
     """
 
-    def __init__(self, document: nodes.document, builder: "Builder") -> None:
+    def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document)
         self.builder = builder
         self.config = builder.config
@@ -590,7 +593,7 @@ class SphinxTranslator(nodes.NodeVisitor):
 
 # cache a vanilla instance of nodes.document
 # Used in new_document() function
-__document_cache__: Tuple["Values", Reporter]
+__document_cache__: tuple[Values, Reporter]
 
 
 def new_document(source_path: str, settings: Any = None) -> nodes.document:

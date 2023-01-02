@@ -1,7 +1,9 @@
 """The reStructuredText domain."""
 
+from __future__ import annotations
+
 import re
-from typing import Any, Dict, Iterator, List, Optional, Tuple, cast
+from typing import Any, Iterator, cast
 
 from docutils.nodes import Element
 from docutils.parsers.rst import directives
@@ -58,7 +60,7 @@ class ReSTMarkup(ObjectDescription[str]):
         """
         return self.objtype + '-' + name
 
-    def _object_hierarchy_parts(self, sig_node: desc_signature) -> Tuple[str, ...]:
+    def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
         if 'fullname' not in sig_node:
             return ()
         directive_names = []
@@ -85,7 +87,7 @@ class ReSTMarkup(ObjectDescription[str]):
         return ''
 
 
-def parse_directive(d: str) -> Tuple[str, str]:
+def parse_directive(d: str) -> tuple[str, str]:
     """Parse a directive signature.
 
     Returns (directive, arguments) string tuple.  If no arguments are given,
@@ -233,12 +235,12 @@ class ReSTDomain(Domain):
         'dir':  XRefRole(),
         'role': XRefRole(),
     }
-    initial_data: Dict[str, Dict[Tuple[str, str], str]] = {
+    initial_data: dict[str, dict[tuple[str, str], str]] = {
         'objects': {},  # fullname -> docname, objtype
     }
 
     @property
-    def objects(self) -> Dict[Tuple[str, str], Tuple[str, str]]:
+    def objects(self) -> dict[tuple[str, str], tuple[str, str]]:
         return self.data.setdefault('objects', {})  # (objtype, fullname) -> (docname, node_id)
 
     def note_object(self, objtype: str, name: str, node_id: str, location: Any = None) -> None:
@@ -254,7 +256,7 @@ class ReSTDomain(Domain):
             if doc == docname:
                 del self.objects[typ, name]
 
-    def merge_domaindata(self, docnames: List[str], otherdata: Dict) -> None:
+    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
         # XXX check duplicates
         for (typ, name), (doc, node_id) in otherdata['objects'].items():
             if doc in docnames:
@@ -262,33 +264,35 @@ class ReSTDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element
-                     ) -> Optional[Element]:
+                     ) -> Element | None:
         objtypes = self.objtypes_for_role(typ)
         for objtype in objtypes:
-            todocname, node_id = self.objects.get((objtype, target), (None, None))
-            if todocname:
+            result = self.objects.get((objtype, target))
+            if result:
+                todocname, node_id = result
                 return make_refnode(builder, fromdocname, todocname, node_id,
                                     contnode, target + ' ' + objtype)
         return None
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element
-                         ) -> List[Tuple[str, Element]]:
-        results: List[Tuple[str, Element]] = []
+                         ) -> list[tuple[str, Element]]:
+        results: list[tuple[str, Element]] = []
         for objtype in self.object_types:
-            todocname, node_id = self.objects.get((objtype, target), (None, None))
-            if todocname:
+            result = self.objects.get((objtype, target))
+            if result:
+                todocname, node_id = result
                 results.append(('rst:' + self.role_for_objtype(objtype),
                                 make_refnode(builder, fromdocname, todocname, node_id,
                                              contnode, target + ' ' + objtype)))
         return results
 
-    def get_objects(self) -> Iterator[Tuple[str, str, str, str, str, int]]:
+    def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:
         for (typ, name), (docname, node_id) in self.data['objects'].items():
             yield name, name, typ, docname, node_id, 1
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_domain(ReSTDomain)
 
     return {

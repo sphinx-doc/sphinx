@@ -1,9 +1,11 @@
 """Simple requests package loader"""
 
+from __future__ import annotations
+
 import sys
 import warnings
 from contextlib import contextmanager
-from typing import Any, Generator, Union
+from typing import Any, Generator
 from urllib.parse import urlsplit
 
 import requests
@@ -19,13 +21,13 @@ useragent_header = [('User-Agent',
 @contextmanager
 def ignore_insecure_warning(**kwargs: Any) -> Generator[None, None, None]:
     with warnings.catch_warnings():
-        if not kwargs.get('verify') and InsecureRequestWarning:
+        if not kwargs.get('verify'):
             # ignore InsecureRequestWarning if verify=False
             warnings.filterwarnings("ignore", category=InsecureRequestWarning)
         yield
 
 
-def _get_tls_cacert(url: str, config: Config) -> Union[str, bool]:
+def _get_tls_cacert(url: str, config: Config) -> str | bool:
     """Get additional CA cert for a specific URL.
 
     This also returns ``False`` if verification is disabled.

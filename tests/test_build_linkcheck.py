@@ -1,5 +1,7 @@
 """Test the build process with manpage builder with the test root."""
 
+from __future__ import annotations
+
 import http.server
 import json
 import re
@@ -8,7 +10,6 @@ import time
 import wsgiref.handlers
 from datetime import datetime
 from queue import Queue
-from typing import Dict
 from unittest import mock
 
 import pytest
@@ -87,10 +88,8 @@ def test_defaults_json(app):
         'info': '404 Client Error: Not Found for url: https://www.google.com/image2.png'
     }
     # looking for '#top' and '#does-not-exist' not found should fail
-    assert "Anchor 'top' not found" == \
-        rowsby["https://www.google.com/#top"]["info"]
-    assert "Anchor 'does-not-exist' not found" == \
-        rowsby["http://www.sphinx-doc.org/en/master/index.html#does-not-exist"]["info"]
+    assert rowsby["https://www.google.com/#top"]["info"] == "Anchor 'top' not found"
+    assert rowsby["http://www.sphinx-doc.org/en/master/index.html#does-not-exist"]["info"] == "Anchor 'does-not-exist' not found"
     # images should fail
     assert "Not Found for url: https://www.google.com/image.png" in \
         rowsby["https://www.google.com/image.png"]["info"]
@@ -557,7 +556,7 @@ def test_too_many_requests_user_timeout(app, capsys):
 
 
 class FakeResponse:
-    headers = {}  # type: Dict[str, str]
+    headers: dict[str, str] = {}
     url = "http://localhost/"
 
 

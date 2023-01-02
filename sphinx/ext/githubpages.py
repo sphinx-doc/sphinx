@@ -1,8 +1,10 @@
 """To publish HTML docs at GitHub Pages, create .nojekyll file."""
 
+from __future__ import annotations
+
 import os
 import urllib
-from typing import Any, Dict
+from typing import Any
 
 import sphinx
 from sphinx.application import Sphinx
@@ -24,6 +26,6 @@ def create_nojekyll_and_cname(app: Sphinx, env: BuildEnvironment) -> None:
                     f.write(domain)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.connect('env-updated', create_nojekyll_and_cname)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

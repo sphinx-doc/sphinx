@@ -1,5 +1,7 @@
 """Norwegian search language: includes the JS Norwegian stemmer."""
 
+from __future__ import annotations
+
 from typing import Dict
 
 import snowballstemmer
@@ -193,7 +195,7 @@ class SearchNorwegian(SearchLanguage):
     js_stemmer_rawcode = 'norwegian-stemmer.js'
     stopwords = norwegian_stopwords
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict) -> None:
         self.stemmer = snowballstemmer.stemmer('norwegian')
 
     def stem(self, word: str) -> str:

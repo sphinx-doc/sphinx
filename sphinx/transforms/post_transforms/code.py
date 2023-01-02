@@ -1,7 +1,9 @@
 """transforms for code-blocks."""
 
+from __future__ import annotations
+
 import sys
-from typing import Any, Dict, List, NamedTuple
+from typing import Any, NamedTuple
 
 from docutils import nodes
 from docutils.nodes import Node, TextElement
@@ -41,7 +43,7 @@ class HighlightLanguageTransform(SphinxTransform):
 class HighlightLanguageVisitor(nodes.NodeVisitor):
     def __init__(self, document: nodes.document, default_language: str) -> None:
         self.default_setting = HighlightSetting(default_language, False, sys.maxsize)
-        self.settings: List[HighlightSetting] = []
+        self.settings: list[HighlightSetting] = []
         super().__init__(document)
 
     def unknown_visit(self, node: Node) -> None:
@@ -123,7 +125,7 @@ class TrimDoctestFlagsTransform(SphinxTransform):
         return False
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_post_transform(HighlightLanguageTransform)
     app.add_post_transform(TrimDoctestFlagsTransform)
 

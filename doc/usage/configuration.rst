@@ -1550,12 +1550,12 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_scaled_image_link
 
-   If true, images itself links to the original image if it doesn't have
+   If true, image itself links to the original image if it doesn't have
    'target' option or scale related options: 'scale', 'width', 'height'.
    The default is ``True``.
 
-   Document authors can this feature manually with giving ``no-scaled-link``
-   class to the image:
+   Document authors can disable this feature manually with giving
+   ``no-scaled-link`` class to the image:
 
    .. code-block:: rst
 
@@ -2371,6 +2371,15 @@ These options influence LaTeX output.
 
    You have to make sure yourself that the filenames don't collide with those
    of any automatically copied files.
+
+   .. attention::
+
+      Filenames with extension ``.tex`` will automatically be handed over to
+      the PDF build process triggered by :option:`sphinx-build -M`
+      ``latexpdf`` or by :program:`make latexpdf`.  If the file was added only
+      to be ``\input{}`` from a modified preamble, you must add a further
+      suffix such as ``.txt`` to the filename and adjust accordingly the
+      ``\input{}`` command added to the LaTeX document preamble.
 
    .. versionadded:: 0.6
 

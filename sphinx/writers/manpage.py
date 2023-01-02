@@ -1,9 +1,12 @@
 """Manual page writer, extended for Sphinx custom nodes."""
 
-from typing import Any, Dict, Iterable, cast
+from __future__ import annotations
+
+from typing import Any, Iterable, cast
 
 from docutils import nodes
-from docutils.nodes import Element, TextElement
+from docutils.nodes import TextElement  # noqa: F401 (used for type comments only)
+from docutils.nodes import Element
 from docutils.writers.manpage import Translator as BaseTranslator
 from docutils.writers.manpage import Writer
 
@@ -68,7 +71,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     Custom man page translator.
     """
 
-    _docinfo: Dict[str, Any] = {}
+    _docinfo: dict[str, Any] = {}
 
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)

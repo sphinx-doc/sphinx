@@ -70,7 +70,7 @@ def tail_check(check):
         for node in nodes:
             if node.tail and rex.search(node.tail):
                 return True
-        raise AssertionError('%r not found in tail of any nodes %s' % (check, nodes))
+        raise AssertionError(f'{check!r} not found in tail of any nodes {nodes}')
     return checker
 
 
@@ -358,7 +358,7 @@ def test_html4_deprecation(make_app, tempdir):
         (".//li[@class='toctree-l1']/a", 'Testing various markup'),
         (".//li[@class='toctree-l2']/a", 'Inline markup'),
         (".//title", 'Sphinx <Tests>'),
-        (".//div[@class='footer']", 'Georg Brandl & Team'),
+        (".//div[@class='footer']", 'copyright text credits'),
         (".//a[@href='http://python.org/']"
          "[@class='reference external']", ''),
         (".//li/p/a[@href='genindex.html']/span", 'Index'),
@@ -1370,7 +1370,7 @@ def test_html_remote_logo(app, status, warning):
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<img class="logo" src="https://www.python.org/static/img/python-logo.png" alt="Logo"/>' in result)
-    assert ('<link rel="shortcut icon" href="https://www.python.org/static/favicon.ico"/>' in result)
+    assert ('<link rel="icon" href="https://www.python.org/static/favicon.ico"/>' in result)
     assert not (app.outdir / 'python-logo.png').exists()
 
 

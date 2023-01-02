@@ -62,7 +62,7 @@ def test_mangle_signature():
             if '::' in x]
     for inp, outp in TEST:
         res = mangle_signature(inp).strip().replace("\u00a0", " ")
-        assert res == outp, ("'%s' -> '%s' != '%s'" % (inp, res, outp))
+        assert res == outp, (f"'{inp}' -> '{res}' != '{outp}'")
 
 
 def test_extract_summary(capsys):

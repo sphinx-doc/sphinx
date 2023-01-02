@@ -70,6 +70,7 @@ latex_elements = {
 \DeclareUnicodeCharacter{229E}{\ensuremath{\boxplus}}
 \setcounter{tocdepth}{3}%    depth of what main TOC shows (3=subsubsection)
 \setcounter{secnumdepth}{1}% depth of section numbering
+\setlength{\tymin}{2cm}%     avoid too cramped table columns
 ''',
     # fix missing index entry due to RTD doing only once pdflatex after makeindex
     'printindex': r'''
@@ -123,7 +124,7 @@ gettext_compact = False
 
 # -- Extension interface -------------------------------------------------------
 
-from sphinx import addnodes  # noqa
+from sphinx import addnodes  # noqa: E402
 
 event_sig_re = re.compile(r'([a-zA-Z-]+)\s*\((.*)\)')
 
@@ -184,8 +185,10 @@ def setup(app):
     # Load jQuery and patches to make readthedocs-doc-embed.js available (refs: #10574)
     app.add_js_file('https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js',
                     priority=100)
-    app.add_js_file('https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.1/underscore-min.js',  # NoQA
-                    priority=100)
+    app.add_js_file(
+        'https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.1/underscore-min.js',
+        priority=100,
+    )
     app.add_js_file('_sphinx_javascript_frameworks_compat.js', priority=105)
 
     # workaround for RTD

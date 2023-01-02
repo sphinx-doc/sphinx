@@ -1,8 +1,10 @@
 """A collection of helpful iterators."""
 
+from __future__ import annotations
+
 import collections
 import warnings
-from typing import Any, Iterable, Optional
+from typing import Any, Iterable
 
 from sphinx.deprecation import RemovedInSphinx70Warning
 
@@ -52,13 +54,13 @@ class peek_iter:
         else:
             self.sentinel = object()
 
-    def __iter__(self) -> "peek_iter":
+    def __iter__(self) -> peek_iter:
         return self
 
-    def __next__(self, n: Optional[int] = None) -> Any:
+    def __next__(self, n: int | None = None) -> Any:
         return self.next(n)
 
-    def _fillcache(self, n: Optional[int]) -> None:
+    def _fillcache(self, n: int | None) -> None:
         """Cache `n` items. If `n` is 0 or None, then 1 item is cached."""
         if not n:
             n = 1
@@ -84,7 +86,7 @@ class peek_iter:
         """
         return self.peek() != self.sentinel
 
-    def next(self, n: Optional[int] = None) -> Any:
+    def next(self, n: int | None = None) -> Any:
         """Get the next item or `n` items of the iterator.
 
         Parameters
@@ -119,7 +121,7 @@ class peek_iter:
             result = [self._cache.popleft() for i in range(n)]
         return result
 
-    def peek(self, n: Optional[int] = None) -> Any:
+    def peek(self, n: int | None = None) -> Any:
         """Preview the next item or `n` items of the iterator.
 
         The iterator is not advanced when peek is called.
@@ -216,7 +218,7 @@ class modify_iter(peek_iter):
                             'modifier must be callable')
         super().__init__(*args)
 
-    def _fillcache(self, n: Optional[int]) -> None:
+    def _fillcache(self, n: int | None) -> None:
         """Cache `n` modified items. If `n` is 0 or None, 1 item is cached.
 
         Each item returned by the iterator is passed through the

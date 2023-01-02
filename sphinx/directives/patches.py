@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import os
 from os import path
-from typing import TYPE_CHECKING, Any, Dict, List, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 from docutils.nodes import Node, make_id
@@ -30,7 +32,7 @@ class Figure(images.Figure):
     instead of the image node.
     """
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         name = self.options.pop('name', None)
         result = super().run()
         if len(result) == 2 or isinstance(result[0], nodes.system_message):
@@ -56,7 +58,7 @@ class CSVTable(tables.CSVTable):
     directory when an absolute path is given via :file: option.
     """
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         if 'file' in self.options and self.options['file'].startswith((SEP, os.sep)):
             env = self.state.document.settings.env
             filename = self.options['file']
@@ -87,7 +89,7 @@ class Code(SphinxDirective):
     }
     has_content = True
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         self.assert_has_content()
 
         set_classes(self.options)
@@ -131,7 +133,7 @@ class MathDirective(SphinxDirective):
         'nowrap': directives.flag,
     }
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         latex = '\n'.join(self.content)
         if self.arguments and self.arguments[0]:
             latex = self.arguments[0] + '\n\n' + latex
@@ -145,11 +147,11 @@ class MathDirective(SphinxDirective):
         self.add_name(node)
         self.set_source_info(node)
 
-        ret: List[Node] = [node]
+        ret: list[Node] = [node]
         self.add_target(ret)
         return ret
 
-    def add_target(self, ret: List[Node]) -> None:
+    def add_target(self, ret: list[Node]) -> None:
         node = cast(nodes.math_block, ret[0])
 
         # assign label automatically if math_number_all enabled
@@ -173,7 +175,7 @@ class MathDirective(SphinxDirective):
         ret.insert(0, target)
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     directives.register_directive('figure', Figure)
     directives.register_directive('meta', Meta)
     directives.register_directive('csv-table', CSVTable)

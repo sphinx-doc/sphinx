@@ -23,7 +23,7 @@ body:
         ``index.rst`` file, and for ``sphinx.ext.autodoc`` bugs, this should
         ideally be a single ``index.rst`` file, and a single example Python 
         module.
-      value: |
+      placeholder: |
         Minimal method (you can also paste the contents of ``index.rst`` and
         ``conf.py`` into this report):
         ```bash
@@ -50,24 +50,26 @@ body:
       value: |
         ## Environment info
 
-  - type: input
+  - type: textarea
     attributes:
       label: Environment Information
+      render: text
       description: >-
-        Install development Sphinx 
-        ``pip install https://github.com/AA-Turner/sphinx/archive/refs/heads/5.x.zip``
+        Install the latest Sphinx 
+        ``pip install -U "sphinx>=5.3"``
         then run ``sphinx-build --bug-report`` or ``python -m sphinx --bug-report``.
         and paste the output here.
     validations:
       required: true
-  - type: input
+  - type: textarea
     attributes:
       label: Sphinx extensions
+      render: python
       description: >-
         Attempt to reproduce your error with the smallest set of extensions possible.
         This makes it easier to determine where the problem you are encountering is.
         
-        e.g. ["sphinx.ext.autodoc", "recommonmark"]
+        e.g. ``["sphinx.ext.autodoc", "recommonmark"]``
     validations:
       required: false
   - type: textarea

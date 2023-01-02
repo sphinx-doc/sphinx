@@ -11,7 +11,12 @@ from docutils.parsers import rst
 
 from sphinx.search import IndexBuilder
 
-DummyEnvironment = namedtuple('DummyEnvironment', ['version', 'domains'])
+
+class DummyEnvironment(namedtuple('DummyEnvironment', ['version', 'domains'])):
+    def __getattr__(self, name):
+        if name.startswith('_search_index_'):
+            setattr(self, name, {})
+        return getattr(self, name, {})
 
 
 class DummyDomain:
@@ -184,6 +189,8 @@ def test_IndexBuilder():
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
     assert index._objnames == {0: ('dummy1', 'objtype1', 'objtype1'),
                                1: ('dummy2', 'objtype1', 'objtype1')}
+
+    env = DummyEnvironment('1.0', {'dummy1': domain1, 'dummy2': domain2})
 
     # dump / load
     stream = BytesIO()

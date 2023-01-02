@@ -1,5 +1,26 @@
-Release 6.0.0 (in development)
+Release 6.0.1 (in development)
 ==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 6.0.0 (released Dec 29, 2022)
+=====================================
 
 Dependencies
 ------------
@@ -18,6 +39,13 @@ Incompatible changes
   ``jQuery``, ``$``, or ``$u`` global objects, you need to update your
   JavaScript to modern standards, or use the mitigation below.
 
+  The first option is to use the sphinxcontrib.jquery_ extension, which has been
+  developed by the Sphinx team and contributors. To use this, add
+  ``sphinxcontrib.jquery`` to the ``extensions`` list in ``conf.py``, or call
+  ``app.setup_extension("sphinxcontrib.jquery")`` if you develop a Sphinx theme
+  or extension.
+
+  The second option is to manually ensure that the frameworks are present.
   To re-add jQuery and underscore.js, you will need to copy ``jquery.js`` and
   ``underscore.js`` from `the Sphinx repository`_ to your ``static`` directory,
   and add the following to your ``layout.html``:
@@ -30,15 +58,14 @@ Incompatible changes
          {{ super() }}
      {%- endblock %}
 
+  .. _sphinxcontrib.jquery: https://github.com/sphinx-contrib/jquery/
+
   Patch by Adam Turner.
 * #10471, #10565: Removed deprecated APIs scheduled for removal in Sphinx 6.0. See
   :ref:`dev-deprecated-apis` for details. Patch by Adam Turner.
 * #10901: C Domain: Remove support for parsing pre-v3 style type directives and
   roles. Also remove associated configuration variables ``c_allow_pre_v3`` and
   ``c_warn_on_allowed_pre_v3``. Patch by Adam Turner.
-
-Deprecated
-----------
 
 Features added
 --------------
@@ -51,8 +78,8 @@ Features added
 Bugs fixed
 ----------
 
-Testing
---------
+* #10984: LaTeX: Document :confval:`latex_additional_files` behavior for files
+  with ``.tex`` extension.
 
 Release 5.3.0 (released Oct 16, 2022)
 =====================================

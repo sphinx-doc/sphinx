@@ -1,18 +1,19 @@
 """Utilities for docstring processing."""
 
+from __future__ import annotations
+
 import re
 import sys
-from typing import Dict, List, Tuple
 
 from docutils.parsers.rst.states import Body
 
 field_list_item_re = re.compile(Body.patterns['field_marker'])
 
 
-def separate_metadata(s: str) -> Tuple[str, Dict[str, str]]:
+def separate_metadata(s: str) -> tuple[str, dict[str, str]]:
     """Separate docstring into metadata and others."""
     in_other_element = False
-    metadata: Dict[str, str] = {}
+    metadata: dict[str, str] = {}
     lines = []
 
     if not s:
@@ -38,7 +39,7 @@ def separate_metadata(s: str) -> Tuple[str, Dict[str, str]]:
     return '\n'.join(lines), metadata
 
 
-def prepare_docstring(s: str, tabsize: int = 8) -> List[str]:
+def prepare_docstring(s: str, tabsize: int = 8) -> list[str]:
     """Convert a docstring into lines of parseable reST.  Remove common leading
     indentation, where the indentation of the first line is ignored.
 
@@ -69,7 +70,7 @@ def prepare_docstring(s: str, tabsize: int = 8) -> List[str]:
     return lines
 
 
-def prepare_commentdoc(s: str) -> List[str]:
+def prepare_commentdoc(s: str) -> list[str]:
     """Extract documentation comment lines (starting with #:) and return them
     as a list of lines.  Returns an empty list if there is no documentation.
     """

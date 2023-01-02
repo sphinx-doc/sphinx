@@ -1,5 +1,7 @@
 """Test the autodoc extension."""
 
+from __future__ import annotations
+
 import abc
 import sys
 from importlib import import_module

@@ -1,4 +1,6 @@
 """Inventory utility functions for Sphinx."""
+from __future__ import annotations
+
 import os
 import re
 import zlib
@@ -112,8 +114,8 @@ class InventoryFile:
 
         for line in stream.read_compressed_lines():
             # be careful to handle names with embedded spaces correctly
-            m = re.match(r'(?x)(.+?)\s+(\S+)\s+(-?\d+)\s+?(\S*)\s+(.*)',
-                         line.rstrip())
+            m = re.match(r'(.+?)\s+(\S+)\s+(-?\d+)\s+?(\S*)\s+(.*)',
+                         line.rstrip(), flags=re.VERBOSE)
             if not m:
                 continue
             name, type, prio, location, dispname = m.groups()
@@ -136,7 +138,7 @@ class InventoryFile:
         return invdata
 
     @classmethod
-    def dump(cls, filename: str, env: "BuildEnvironment", builder: "Builder") -> None:
+    def dump(cls, filename: str, env: BuildEnvironment, builder: Builder) -> None:
         def escape(string: str) -> str:
             return re.sub("\\s+", " ", string)
 

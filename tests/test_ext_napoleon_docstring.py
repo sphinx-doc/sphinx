@@ -410,25 +410,24 @@ class GoogleDocstringTest(BaseDocstringTest):
         config = Config()
         for section, admonition in admonition_map.items():
             # Multiline
-            actual = str(GoogleDocstring(("{}:\n"
-                                          "    this is the first line\n"
-                                          "\n"
-                                          "    and this is the second line\n"
-                                          ).format(section), config))
-            expect = (".. {}::\n"
+            actual = str(GoogleDocstring(f"{section}:\n"
+                                         "    this is the first line\n"
+                                         "\n"
+                                         "    and this is the second line\n",
+                                         config))
+            expect = (f".. {admonition}::\n"
                       "\n"
                       "   this is the first line\n"
                       "   \n"
                       "   and this is the second line\n"
-                      ).format(admonition)
+                      )
             self.assertEqual(expect, actual)
 
             # Single line
-            actual = str(GoogleDocstring(("{}:\n"
-                                          "    this is a single line\n"
-                                          ).format(section), config))
-            expect = (".. {}:: this is a single line\n"
-                      ).format(admonition)
+            actual = str(GoogleDocstring(f"{section}:\n"
+                                         "    this is a single line\n",
+                                         config))
+            expect = f".. {admonition}:: this is a single line\n"
             self.assertEqual(expect, actual)
 
     def test_docstrings(self):
@@ -1172,7 +1171,7 @@ Methods:
 
    
    description
-"""  # NOQA
+"""  # noqa: W293
         config = Config()
         actual = str(GoogleDocstring(docstring, config=config, app=None, what='module',
                                      options={'noindex': True}))
@@ -1472,27 +1471,26 @@ class NumpyDocstringTest(BaseDocstringTest):
         config = Config()
         for section, admonition in admonition_map.items():
             # Multiline
-            actual = str(NumpyDocstring(("{}\n"
-                                         "{}\n"
-                                         "    this is the first line\n"
-                                         "\n"
-                                         "    and this is the second line\n"
-                                         ).format(section, '-' * len(section)), config))
-            expect = (".. {}::\n"
+            actual = str(NumpyDocstring(f"{section}\n"
+                                        f"{'-' * len(section)}\n"
+                                        "    this is the first line\n"
+                                        "\n"
+                                        "    and this is the second line\n",
+                                        config))
+            expect = (f".. {admonition}::\n"
                       "\n"
                       "   this is the first line\n"
                       "   \n"
                       "   and this is the second line\n"
-                      ).format(admonition)
+                      )
             self.assertEqual(expect, actual)
 
             # Single line
-            actual = str(NumpyDocstring(("{}\n"
-                                         "{}\n"
-                                         "    this is a single line\n"
-                                         ).format(section, '-' * len(section)), config))
-            expect = (".. {}:: this is a single line\n"
-                      ).format(admonition)
+            actual = str(NumpyDocstring(f"{section}\n"
+                                        f"{'-' * len(section)}\n"
+                                        f"    this is a single line\n",
+                                        config))
+            expect = f".. {admonition}:: this is a single line\n"
             self.assertEqual(expect, actual)
 
     def test_docstrings(self):

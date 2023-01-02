@@ -1,7 +1,9 @@
 """Single HTML builders."""
 
+from __future__ import annotations
+
 from os import path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -27,10 +29,10 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 
     copysource = False
 
-    def get_outdated_docs(self) -> Union[str, List[str]]:  # type: ignore[override]
+    def get_outdated_docs(self) -> str | list[str]:  # type: ignore[override]
         return 'all documents'
 
-    def get_target_uri(self, docname: str, typ: Optional[str] = None) -> str:
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         if docname in self.env.all_docs:
             # all references are on the same page...
             return self.config.root_doc + self.out_suffix + \
@@ -39,7 +41,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             # chances are this is a html_additional_page
             return docname + self.out_suffix
 
-    def get_relative_uri(self, from_: str, to: str, typ: Optional[str] = None) -> str:
+    def get_relative_uri(self, from_: str, to: str, typ: str | None = None) -> str:
         # ignore source
         return self.get_target_uri(to, typ)
 
@@ -74,7 +76,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         self.fix_refuris(tree)
         return tree
 
-    def assemble_toc_secnumbers(self) -> Dict[str, Dict[str, Tuple[int, ...]]]:
+    def assemble_toc_secnumbers(self) -> dict[str, dict[str, tuple[int, ...]]]:
         # Assemble toc_secnumbers to resolve section numbers on SingleHTML.
         # Merge all secnumbers to single secnumber.
         #
@@ -84,15 +86,15 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         #
         #       There are related codes in inline_all_toctres() and
         #       HTMLTranslter#add_secnumber().
-        new_secnumbers: Dict[str, Tuple[int, ...]] = {}
+        new_secnumbers: dict[str, tuple[int, ...]] = {}
         for docname, secnums in self.env.toc_secnumbers.items():
             for id, secnum in secnums.items():
-                alias = "%s/%s" % (docname, id)
+                alias = f"{docname}/{id}"
                 new_secnumbers[alias] = secnum
 
         return {self.config.root_doc: new_secnumbers}
 
-    def assemble_toc_fignumbers(self) -> Dict[str, Dict[str, Dict[str, Tuple[int, ...]]]]:
+    def assemble_toc_fignumbers(self) -> dict[str, dict[str, dict[str, tuple[int, ...]]]]:
         # Assemble toc_fignumbers to resolve figure numbers on SingleHTML.
         # Merge all fignumbers to single fignumber.
         #
@@ -102,18 +104,18 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         #
         #       There are related codes in inline_all_toctres() and
         #       HTMLTranslter#add_fignumber().
-        new_fignumbers: Dict[str, Dict[str, Tuple[int, ...]]] = {}
+        new_fignumbers: dict[str, dict[str, tuple[int, ...]]] = {}
         # {'foo': {'figure': {'id2': (2,), 'id1': (1,)}}, 'bar': {'figure': {'id1': (3,)}}}
         for docname, fignumlist in self.env.toc_fignumbers.items():
             for figtype, fignums in fignumlist.items():
-                alias = "%s/%s" % (docname, figtype)
+                alias = f"{docname}/{figtype}"
                 new_fignumbers.setdefault(alias, {})
                 for id, fignum in fignums.items():
                     new_fignumbers[alias][id] = fignum
 
         return {self.config.root_doc: new_fignumbers}
 
-    def get_doc_context(self, docname: str, body: str, metatags: str) -> Dict[str, Any]:
+    def get_doc_context(self, docname: str, body: str, metatags: str) -> dict[str, Any]:
         # no relation links...
         toctree = TocTree(self.env).get_toctree_for(self.config.root_doc, self, False)
         # if there is no toctree, toc is None
@@ -178,7 +180,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.setup_extension('sphinx.builders.html')
 
     app.add_builder(SingleFileHTMLBuilder)

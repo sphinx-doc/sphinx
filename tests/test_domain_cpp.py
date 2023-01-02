@@ -1199,7 +1199,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_True(app, status, war
         pattern = '<li><p>%s<a .*?><code .*?><span .*?>%s</span></code></a></p></li>' % spec
         res = re.search(pattern, text)
         if not res:
-            print("Pattern\n\t%s\nnot found in %s" % (pattern, file))
+            print(f"Pattern\n\t{pattern}\nnot found in {file}")
             raise AssertionError()
     rolePatterns = [
         ('', 'Sphinx'),
@@ -1240,7 +1240,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_False(app, status, wa
         pattern = '<li><p>%s<a .*?><code .*?><span .*?>%s</span></code></a></p></li>' % spec
         res = re.search(pattern, text)
         if not res:
-            print("Pattern\n\t%s\nnot found in %s" % (pattern, file))
+            print(f"Pattern\n\t{pattern}\nnot found in {file}")
             raise AssertionError()
     rolePatterns = [
         ('', 'Sphinx'),
@@ -1281,16 +1281,16 @@ def test_domain_cpp_build_xref_consistency(app, status, warning):
     output = (app.outdir / test).read_text(encoding='utf8')
 
     def classes(role, tag):
-        pattern = (r'{role}-role:.*?'
-                   r'<(?P<tag>{tag}) .*?class=["\'](?P<classes>.*?)["\'].*?>'
+        pattern = (fr'{role}-role:.*?'
+                   fr'<(?P<tag>{tag}) .*?class=["\'](?P<classes>.*?)["\'].*?>'
                    r'.*'
-                   r'</(?P=tag)>').format(role=role, tag=tag)
+                   r'</(?P=tag)>')
         result = re.search(pattern, output)
-        expect = '''\
+        expect = f'''\
 Pattern for role `{role}` with tag `{tag}`
 \t{pattern}
 not found in `{test}`
-'''.format(role=role, tag=tag, pattern=pattern, test=test)
+'''
         assert result, expect
         return set(result.group('classes').split())
 
@@ -1366,7 +1366,7 @@ def test_domain_cpp_build_intersphinx(tempdir, app, status, warning):
 .. cpp:enum-class:: _enumClass
 .. cpp:function:: void _functionParam(int param)
 .. cpp:function:: template<typename TParam> void _templateParam()
-"""  # noqa
+"""  # noqa: F841
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
@@ -1393,7 +1393,7 @@ _templateParam::TParam cpp:templateParam 1 index.html#_CPPv4I0E14_templateParamv
 _type cpp:type 1 index.html#_CPPv45$ -
 _union cpp:union 1 index.html#_CPPv46$ -
 _var cpp:member 1 index.html#_CPPv44$ -
-'''))  # noqa
+'''))  # noqa: W291
     app.config.intersphinx_mapping = {
         'https://localhost/intersphinx/cpp/': inv_file,
     }

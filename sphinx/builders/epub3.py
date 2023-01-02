@@ -3,9 +3,11 @@
 Originally derived from epub.py.
 """
 
+from __future__ import annotations
+
 import html
 from os import path
-from typing import Any, Dict, List, NamedTuple, Set, Tuple
+from typing import Any, NamedTuple
 
 from sphinx import package_dir
 from sphinx.application import Sphinx
@@ -23,7 +25,7 @@ logger = logging.getLogger(__name__)
 class NavPoint(NamedTuple):
     text: str
     refuri: str
-    children: List[Any]     # mypy does not support recursive types
+    children: list[Any]     # mypy does not support recursive types
                             # https://github.com/python/mypy/issues/7069
 
 
@@ -77,7 +79,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         self.build_toc()
         self.build_epub()
 
-    def content_metadata(self) -> Dict[str, Any]:
+    def content_metadata(self) -> dict[str, Any]:
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
         """
@@ -93,7 +95,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         metadata['epub_version'] = self.config.epub_version
         return metadata
 
-    def prepare_writing(self, docnames: Set[str]) -> None:
+    def prepare_writing(self, docnames: set[str]) -> None:
         super().prepare_writing(docnames)
 
         writing_mode = self.config.epub_writing_mode
@@ -102,7 +104,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         self.globalcontext['use_meta_charset'] = self.use_meta_charset
         self.globalcontext['skip_ua_compatible'] = True
 
-    def build_navlist(self, navnodes: List[Dict[str, Any]]) -> List[NavPoint]:
+    def build_navlist(self, navnodes: list[dict[str, Any]]) -> list[NavPoint]:
         """Create the toc navigation structure.
 
         This method is almost same as build_navpoints method in epub.py.
@@ -112,7 +114,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         The difference from build_navpoints method is templates which are used
         when generating navigation documents.
         """
-        navstack: List[NavPoint] = []
+        navstack: list[NavPoint] = []
         navstack.append(NavPoint('', '', []))
         level = 0
         for node in navnodes:
@@ -144,15 +146,15 @@ class Epub3Builder(_epub_base.EpubBuilder):
 
         return navstack[0].children
 
-    def navigation_doc_metadata(self, navlist: List[NavPoint]) -> Dict[str, Any]:
+    def navigation_doc_metadata(self, navlist: list[NavPoint]) -> dict[str, Any]:
         """Create a dictionary with all metadata for the nav.xhtml file
         properly escaped.
         """
-        metadata = {}
-        metadata['lang'] = html.escape(self.config.epub_language)
-        metadata['toc_locale'] = html.escape(self.guide_titles['toc'])
-        metadata['navlist'] = navlist
-        return metadata
+        return {
+            'lang': html.escape(self.config.epub_language),
+            'toc_locale': html.escape(self.guide_titles['toc']),
+            'navlist': navlist
+        }
 
     def build_navigation_doc(self) -> None:
         """Write the metainfo file nav.xhtml."""
@@ -217,7 +219,7 @@ def validate_config_values(app: Sphinx) -> None:
 
 def convert_epub_css_files(app: Sphinx, config: Config) -> None:
     """This converts string styled epub_css_files to tuple styled one."""
-    epub_css_files: List[Tuple[str, Dict[str, Any]]] = []
+    epub_css_files: list[tuple[str, dict[str, Any]]] = []
     for entry in config.epub_css_files:
         if isinstance(entry, str):
             epub_css_files.append((entry, {}))
@@ -232,7 +234,7 @@ def convert_epub_css_files(app: Sphinx, config: Config) -> None:
     config.epub_css_files = epub_css_files  # type: ignore
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_builder(Epub3Builder)
 
     # config values

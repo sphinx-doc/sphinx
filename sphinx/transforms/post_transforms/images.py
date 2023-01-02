@@ -1,9 +1,11 @@
 """Docutils transforms used by Sphinx."""
 
+from __future__ import annotations
+
 import os
 import re
 from math import ceil
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from docutils import nodes
 
@@ -170,7 +172,7 @@ class ImageConverter(BaseImageConverter):
     #:
     #: .. todo:: This should be refactored not to store the state without class
     #:           variable.
-    available: Optional[bool] = None
+    available: bool | None = None
 
     #: A conversion rules the image converter supports.
     #: It is represented as a list of pair of source image format (mimetype) and
@@ -181,7 +183,7 @@ class ImageConverter(BaseImageConverter):
     #:         ('image/gif', 'image/png'),
     #:         ('application/pdf', 'image/png'),
     #:     ]
-    conversion_rules: List[Tuple[str, str]] = []
+    conversion_rules: list[tuple[str, str]] = []
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -202,12 +204,9 @@ class ImageConverter(BaseImageConverter):
             return False
         else:
             rule = self.get_conversion_rule(node)
-            if rule:
-                return True
-            else:
-                return False
+            return bool(rule)
 
-    def get_conversion_rule(self, node: nodes.image) -> Tuple[str, str]:
+    def get_conversion_rule(self, node: nodes.image) -> tuple[str, str]:
         for candidate in self.guess_mimetypes(node):
             for supported in self.app.builder.supported_image_types:
                 rule = (candidate, supported)
@@ -220,7 +219,7 @@ class ImageConverter(BaseImageConverter):
         """Return the image converter is available or not."""
         raise NotImplementedError()
 
-    def guess_mimetypes(self, node: nodes.image) -> List[str]:
+    def guess_mimetypes(self, node: nodes.image) -> list[str]:
         if '?' in node['candidates']:
             return []
         elif '*' in node['candidates']:
@@ -260,7 +259,7 @@ class ImageConverter(BaseImageConverter):
         raise NotImplementedError()
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_post_transform(ImageDownloader)
     app.add_post_transform(DataURIExtractor)
 
