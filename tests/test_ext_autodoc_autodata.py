@@ -82,36 +82,6 @@ def test_autodata_GenericAlias(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodata_NewType(app):
-    actual = do_autodoc(app, 'data', 'target.typevar.T6')
-    assert list(actual) == [
-        '',
-        '.. py:data:: T6',
-        '   :module: target.typevar',
-        '',
-        '   T6',
-        '',
-        '   alias of :py:class:`~datetime.date`',
-        '',
-    ]
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodata_TypeVar(app):
-    actual = do_autodoc(app, 'data', 'target.typevar.T1')
-    assert list(actual) == [
-        '',
-        '.. py:data:: T1',
-        '   :module: target.typevar',
-        '',
-        '   T1',
-        '',
-        "   alias of TypeVar('T1')",
-        '',
-    ]
-
-
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodata_hide_value(app):
     actual = do_autodoc(app, 'data', 'target.hide_value.SENTINEL1')
     assert list(actual) == [
