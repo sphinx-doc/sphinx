@@ -1,6 +1,8 @@
 """Create a full-text search index for offline search."""
 from __future__ import annotations
 
+import dataclasses
+import functools
 import html
 import json
 import pickle
@@ -66,7 +68,7 @@ var Stemmer = function() {
 }
 """
 
-    _word_re = re.compile(r'(?u)\w+')
+    _word_re = re.compile(r'\w+')
 
     def __init__(self, options: dict) -> None:
         self.options = options
@@ -179,6 +181,27 @@ class _JavaScriptIndex:
 js_index = _JavaScriptIndex()
 
 
+def _is_meta_keywords(
+    node: nodes.meta,  # type: ignore[name-defined]
+    lang: str | None,
+) -> bool:
+    if node.get('name') == 'keywords':
+        meta_lang = node.get('lang')
+        if meta_lang is None:  # lang not specified
+            return True
+        elif meta_lang == lang:  # matched to html_search_language
+            return True
+
+    return False
+
+
+@dataclasses.dataclass
+class WordStore:
+    words: list[str] = dataclasses.field(default_factory=list)
+    titles: list[tuple[str, str]] = dataclasses.field(default_factory=list)
+    title_words: list[str] = dataclasses.field(default_factory=list)
+
+
 class WordCollector(nodes.NodeVisitor):
     """
     A special visitor that collects words for the `IndexBuilder`.
@@ -190,17 +213,6 @@ class WordCollector(nodes.NodeVisitor):
         self.found_titles: list[tuple[str, str]] = []
         self.found_title_words: list[str] = []
         self.lang = lang
-
-    def is_meta_keywords(self, node: Element) -> bool:
-        if (isinstance(node, nodes.meta)  # type: ignore
-                and node.get('name') == 'keywords'):
-            meta_lang = node.get('lang')
-            if meta_lang is None:  # lang not specified
-                return True
-            elif meta_lang == self.lang.lang:  # matched to html_search_language
-                return True
-
-        return False
 
     def dispatch_visit(self, node: Node) -> None:
         if isinstance(node, nodes.comment):
@@ -222,7 +234,7 @@ class WordCollector(nodes.NodeVisitor):
             ids = node.parent['ids']
             self.found_titles.append((title, ids[0] if ids else None))
             self.found_title_words.extend(self.lang.split(title))
-        elif isinstance(node, Element) and self.is_meta_keywords(node):
+        elif isinstance(node, Element) and _is_meta_keywords(node, self.lang.lang):
             keywords = node['content']
             keywords = [keyword.strip() for keyword in keywords.split(',')]
             self.found_words.extend(keywords)
@@ -240,17 +252,22 @@ class IndexBuilder:
 
     def __init__(self, env: BuildEnvironment, lang: str, options: dict, scoring: str) -> None:
         self.env = env
-        self._titles: dict[str, str] = {}           # docname -> title
-        self._filenames: dict[str, str] = {}        # docname -> filename
-        self._mapping: dict[str, set[str]] = {}     # stemmed word -> set(docname)
+        # docname -> title
+        self._titles: dict[str, str] = env._search_index_titles
+        # docname -> filename
+        self._filenames: dict[str, str] = env._search_index_filenames
+        # stemmed words -> set(docname)
+        self._mapping: dict[str, set[str]] = env._search_index_mapping
         # stemmed words in titles -> set(docname)
-        self._title_mapping: dict[str, set[str]] = {}
-        self._all_titles: dict[str, list[tuple[str, str]]] = {}  # docname -> all titles
-        self._index_entries: dict[str, list[tuple[str, str, str]]] = {}  # docname -> index entry
-        self._stem_cache: dict[str, str] = {}       # word -> stemmed word
-        self._objtypes: dict[tuple[str, str], int] = {}     # objtype -> index
+        self._title_mapping: dict[str, set[str]] = env._search_index_title_mapping
+        # docname -> all titles in document
+        self._all_titles: dict[str, list[tuple[str, str]]] = env._search_index_all_titles
+        # docname -> list(index entry)
+        self._index_entries: dict[str, list[tuple[str, str, str]]] = env._search_index_index_entries
+        # objtype -> index
+        self._objtypes: dict[tuple[str, str], int] = env._search_index_objtypes
         # objtype index -> (domain, type, objname (localized))
-        self._objnames: dict[int, tuple[str, str, str]] = {}
+        self._objnames: dict[int, tuple[str, str, str]] = env._search_index_objnames
         # add language-specific SearchLanguage instance
         lang_class = languages.get(lang)
 
@@ -423,67 +440,80 @@ class IndexBuilder:
         self._titles[docname] = title
         self._filenames[docname] = filename
 
-        visitor = WordCollector(doctree, self.lang)
-        doctree.walk(visitor)
+        word_store = self._word_collector(doctree)
 
-        # memoize self.lang.stem
-        def stem(word: str) -> str:
-            try:
-                return self._stem_cache[word]
-            except KeyError:
-                self._stem_cache[word] = self.lang.stem(word).lower()
-                return self._stem_cache[word]
         _filter = self.lang.word_filter
+        _stem = self.lang.stem
 
-        self._all_titles[docname] = visitor.found_titles
+        # memoise self.lang.stem
+        @functools.lru_cache(maxsize=None)
+        def stem(word_to_stem: str) -> str:
+            return _stem(word_to_stem).lower()
 
-        for word in visitor.found_title_words:
+        self._all_titles[docname] = word_store.titles
+
+        for word in word_store.title_words:
+            # add stemmed and unstemmed as the stemmer must not remove words
+            # from search index.
             stemmed_word = stem(word)
             if _filter(stemmed_word):
                 self._title_mapping.setdefault(stemmed_word, set()).add(docname)
-            elif _filter(word): # stemmer must not remove words from search index
+            elif _filter(word):
                 self._title_mapping.setdefault(word, set()).add(docname)
 
-        for word in visitor.found_words:
+        for word in word_store.words:
+            # add stemmed and unstemmed as the stemmer must not remove words
+            # from search index.
             stemmed_word = stem(word)
-            # again, stemmer must not remove words from search index
             if not _filter(stemmed_word) and _filter(word):
                 stemmed_word = word
-            already_indexed = docname in self._title_mapping.get(stemmed_word, set())
+            already_indexed = docname in self._title_mapping.get(stemmed_word, ())
             if _filter(stemmed_word) and not already_indexed:
                 self._mapping.setdefault(stemmed_word, set()).add(docname)
 
         # find explicit entries within index directives
         _index_entries: set[tuple[str, str, str]] = set()
         for node in doctree.findall(addnodes.index):
-            for entry_type, value, tid, main, *index_key in node['entries']:
-                tid = tid or ''
-                try:
-                    if entry_type == 'single':
-                        try:
-                            entry, subentry = split_into(2, 'single', value)
-                        except ValueError:
-                            entry, = split_into(1, 'single', value)
-                            subentry = ''
-                        _index_entries.add((entry, tid, main))
-                        if subentry:
-                            _index_entries.add((subentry, tid, main))
-                    elif entry_type == 'pair':
-                        first, second = split_into(2, 'pair', value)
-                        _index_entries.add((first, tid, main))
-                        _index_entries.add((second, tid, main))
-                    elif entry_type == 'triple':
-                        first, second, third = split_into(3, 'triple', value)
-                        _index_entries.add((first, tid, main))
-                        _index_entries.add((second, tid, main))
-                        _index_entries.add((third, tid, main))
-                    elif entry_type in {'see', 'seealso'}:
-                        first, second = split_into(2, 'see', value)
-                        _index_entries.add((first, tid, main))
-                except ValueError:
-                    pass
-
+            for entry_type, value, target_id, main, *index_key in node['entries']:
+                _index_entries |= _parse_index_entry(entry_type, value, target_id, main)
         self._index_entries[docname] = sorted(_index_entries)
+
+    def _word_collector(self, doctree: nodes.document) -> WordStore:
+        def _visit_nodes(node):
+            if isinstance(node, nodes.comment):
+                return
+            elif isinstance(node, nodes.raw):
+                if 'html' in node.get('format', '').split():
+                    # Some people might put content in raw HTML that should be searched,
+                    # so we just amateurishly strip HTML tags and index the remaining
+                    # content
+                    nodetext = re.sub(r'<style.*?</style>', '', node.astext(),
+                                      flags=re.IGNORECASE | re.DOTALL)
+                    nodetext = re.sub(r'<script.*?</script>', '', nodetext,
+                                      flags=re.IGNORECASE | re.DOTALL)
+                    nodetext = re.sub(r'<[^<]+?>', '', nodetext)
+                    word_store.words.extend(split(nodetext))
+                return
+            elif (isinstance(node, nodes.meta)  # type: ignore[attr-defined]
+                  and _is_meta_keywords(node, language)):
+                keywords = [keyword.strip() for keyword in node['content'].split(',')]
+                word_store.words.extend(keywords)
+            elif isinstance(node, nodes.Text):
+                word_store.words.extend(split(node.astext()))
+            elif isinstance(node, nodes.title):
+                title = node.astext()
+                ids = node.parent['ids']
+                word_store.titles.append((title, ids[0] if ids else None))
+                word_store.title_words.extend(split(title))
+            for child in node.children:
+                _visit_nodes(child)
+            return
+
+        word_store = WordStore()
+        split = self.lang.split
+        language = self.lang.lang
+        _visit_nodes(doctree)
+        return word_store
 
     def context_for_searchtool(self) -> dict[str, Any]:
         if self.lang.js_splitter_code:
@@ -523,3 +553,41 @@ class IndexBuilder:
                     (base_js, language_js, self.lang.language_name))
         else:
             return self.lang.js_stemmer_code
+
+
+def _parse_index_entry(
+    entry_type: str,
+    value: str,
+    target_id: str,
+    main: str
+) -> set[tuple[str, str, str]]:
+    target_id = target_id or ''
+    if entry_type == 'single':
+        try:
+            entry, subentry = split_into(2, 'single', value)
+            if subentry:
+                return {(entry, target_id, main), (subentry, target_id, main)}
+        except ValueError:
+            entry, = split_into(1, 'single', value)
+        return {(entry, target_id, main)}
+    elif entry_type == 'pair':
+        try:
+            first, second = split_into(2, 'pair', value)
+            return {(first, target_id, main), (second, target_id, main)}
+        except ValueError:
+            pass
+    elif entry_type == 'triple':
+        try:
+            first, second, third = split_into(3, 'triple', value)
+            return {(first, target_id, main),
+                    (second, target_id, main),
+                    (third, target_id, main)}
+        except ValueError:
+            pass
+    elif entry_type in {'see', 'seealso'}:
+        try:
+            first, second = split_into(2, 'see', value)
+            return {(first, target_id, main)}
+        except ValueError:
+            pass
+    return set()

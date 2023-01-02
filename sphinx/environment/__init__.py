@@ -228,6 +228,25 @@ class BuildEnvironment:
         # attributes of "any" cross references
         self.ref_context: dict[str, Any] = {}
 
+        # search index data
+
+        # docname -> title
+        self._search_index_titles: dict[str, str] = {}
+        # docname -> filename
+        self._search_index_filenames: dict[str, str] = {}
+        # stemmed words -> set(docname)
+        self._search_index_mapping: dict[str, set[str]] = {}
+        # stemmed words in titles -> set(docname)
+        self._search_index_title_mapping: dict[str, set[str]] = {}
+        # docname -> all titles in document
+        self._search_index_all_titles: dict[str, list[tuple[str, str]]] = {}
+        # docname -> list(index entry)
+        self._search_index_index_entries: dict[str, list[tuple[str, str, str]]] = {}
+        # objtype -> index
+        self._search_index_objtypes: dict[tuple[str, str], int] = {}
+        # objtype index -> (domain, type, objname (localized))
+        self._search_index_objnames: dict[int, tuple[str, str, str]] = {}
+
         # set up environment
         self.setup(app)
 
