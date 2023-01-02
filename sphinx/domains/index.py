@@ -35,7 +35,7 @@ class IndexDomain(Domain):
     def clear_doc(self, docname: str) -> None:
         self.entries.pop(docname, None)
 
-    def merge_domaindata(self, docnames: Iterable[str], otherdata: dict) -> None:
+    def merge_domaindata(self, docnames: Iterable[str], otherdata: dict[str, Any]) -> None:
         for docname in docnames:
             self.entries[docname] = otherdata['entries'][docname]
 
