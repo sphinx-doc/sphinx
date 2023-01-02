@@ -1752,7 +1752,7 @@ class Symbol:
     def _symbol_lookup(
         self,
         nestedName: ASTNestedName,
-        onMissingQualifiedSymbol: Callable[["Symbol", ASTIdentifier], Symbol | None],
+        onMissingQualifiedSymbol: Callable[[Symbol, ASTIdentifier], Symbol | None],
         ancestorLookupType: str | None,
         matchSelf: bool,
         recurseInAnon: bool,
