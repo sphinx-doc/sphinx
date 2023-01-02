@@ -309,18 +309,23 @@ def test_stringify_Annotated():
 
 def test_stringify_type_hints_string():
     assert stringify_annotation("int", 'fully-qualified-except-typing') == "int"
+    assert stringify_annotation("int", 'fully-qualified') == "int"
     assert stringify_annotation("int", "smart") == "int"
 
     assert stringify_annotation("str", 'fully-qualified-except-typing') == "str"
+    assert stringify_annotation("str", 'fully-qualified') == "str"
     assert stringify_annotation("str", "smart") == "str"
 
     assert stringify_annotation(List["int"], 'fully-qualified-except-typing') == "List[int]"
+    assert stringify_annotation(List["int"], 'fully-qualified') == "typing.List[int]"
     assert stringify_annotation(List["int"], "smart") == "~typing.List[int]"
 
     assert stringify_annotation("Tuple[str]", 'fully-qualified-except-typing') == "Tuple[str]"
+    assert stringify_annotation("Tuple[str]", 'fully-qualified') == "Tuple[str]"
     assert stringify_annotation("Tuple[str]", "smart") == "Tuple[str]"
 
     assert stringify_annotation("unknown", 'fully-qualified-except-typing') == "unknown"
+    assert stringify_annotation("unknown", 'fully-qualified') == "unknown"
     assert stringify_annotation("unknown", "smart") == "unknown"
 
 
@@ -339,28 +344,28 @@ def test_stringify_type_hints_Callable():
 
 
 def test_stringify_type_hints_Union():
-    assert stringify_annotation(Optional[int], 'fully-qualified-except-typing') == "Optional[int]"
-    assert stringify_annotation(Optional[int], "fully-qualified") == "typing.Optional[int]"
-    assert stringify_annotation(Optional[int], "smart") == "~typing.Optional[int]"
+    assert stringify_annotation(Optional[int], 'fully-qualified-except-typing') == "int | None"
+    assert stringify_annotation(Optional[int], "fully-qualified") == "int | None"
+    assert stringify_annotation(Optional[int], "smart") == "int | None"
 
-    assert stringify_annotation(Union[str, None], 'fully-qualified-except-typing') == "Optional[str]"
-    assert stringify_annotation(Union[str, None], "fully-qualified") == "typing.Optional[str]"
-    assert stringify_annotation(Union[str, None], "smart") == "~typing.Optional[str]"
+    assert stringify_annotation(Union[str, None], 'fully-qualified-except-typing') == "str | None"
+    assert stringify_annotation(Union[str, None], "fully-qualified") == "str | None"
+    assert stringify_annotation(Union[str, None], "smart") == "str | None"
 
-    assert stringify_annotation(Union[int, str], 'fully-qualified-except-typing') == "Union[int, str]"
-    assert stringify_annotation(Union[int, str], "fully-qualified") == "typing.Union[int, str]"
-    assert stringify_annotation(Union[int, str], "smart") == "~typing.Union[int, str]"
+    assert stringify_annotation(Union[int, str], 'fully-qualified-except-typing') == "int | str"
+    assert stringify_annotation(Union[int, str], "fully-qualified") == "int | str"
+    assert stringify_annotation(Union[int, str], "smart") == "int | str"
 
-    assert stringify_annotation(Union[int, Integral], 'fully-qualified-except-typing') == "Union[int, numbers.Integral]"
-    assert stringify_annotation(Union[int, Integral], "fully-qualified") == "typing.Union[int, numbers.Integral]"
-    assert stringify_annotation(Union[int, Integral], "smart") == "~typing.Union[int, ~numbers.Integral]"
+    assert stringify_annotation(Union[int, Integral], 'fully-qualified-except-typing') == "int | numbers.Integral"
+    assert stringify_annotation(Union[int, Integral], "fully-qualified") == "int | numbers.Integral"
+    assert stringify_annotation(Union[int, Integral], "smart") == "int | ~numbers.Integral"
 
     assert (stringify_annotation(Union[MyClass1, MyClass2], 'fully-qualified-except-typing') ==
-            "Union[tests.test_util_typing.MyClass1, tests.test_util_typing.<MyClass2>]")
+            "tests.test_util_typing.MyClass1 | tests.test_util_typing.<MyClass2>")
     assert (stringify_annotation(Union[MyClass1, MyClass2], "fully-qualified") ==
-            "typing.Union[tests.test_util_typing.MyClass1, tests.test_util_typing.<MyClass2>]")
+            "tests.test_util_typing.MyClass1 | tests.test_util_typing.<MyClass2>")
     assert (stringify_annotation(Union[MyClass1, MyClass2], "smart") ==
-            "~typing.Union[~tests.test_util_typing.MyClass1, ~tests.test_util_typing.<MyClass2>]")
+            "~tests.test_util_typing.MyClass1 | ~tests.test_util_typing.<MyClass2>")
 
 
 def test_stringify_type_hints_typevars():

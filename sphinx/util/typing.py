@@ -321,23 +321,8 @@ def stringify_annotation(
         if not isinstance(annotation_args, (list, tuple)):
             # broken __args__ found
             pass
-        elif qualname in {'Optional', 'Union'}:
-            if len(annotation_args) > 1 and annotation_args[-1] is NoneType:
-                # typing.Optional or typing.Union[..., None]
-                args = ', '.join(stringify_annotation(a, mode) for a in annotation_args[:-1])
-                if len(annotation_args) > 2:
-                    args = f'{module_prefix}Union[{args}]'
-                return f'{module_prefix}Optional[{args}]'
-            else:
-                # typing.Union
-                args = ', '.join(stringify_annotation(a, mode) for a in annotation_args)
-                return f'{module_prefix}Union[{args}]'
-        elif qualname == 'types.UnionType':
-            if len(annotation_args) > 1 and None in annotation_args:
-                args = ' | '.join(stringify_annotation(a) for a in annotation_args if a)
-                return f'{module_prefix}Optional[{args}]'
-            else:
-                return ' | '.join(stringify_annotation(a, mode) for a in annotation_args)
+        elif qualname in {'Optional', 'Union', 'types.UnionType'}:
+            return ' | '.join(stringify_annotation(a, mode) for a in annotation_args)
         elif qualname == 'Callable':
             args = ', '.join(stringify_annotation(a, mode) for a in annotation_args[:-1])
             returns = stringify_annotation(annotation_args[-1], mode)
