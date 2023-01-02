@@ -176,6 +176,8 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
         elif isinstance(node, ast.Name):
             return [nodes.Text(node.id)]
         elif isinstance(node, ast.Subscript):
+            if getattr(node.value, 'id', '') in {'Optional', 'Union'}:
+                return _unparse_pep_604_annotation(node)
             result = unparse(node.value)
             result.append(addnodes.desc_sig_punctuation('', '['))
             result.extend(unparse(node.slice))
@@ -205,6 +207,28 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
             return result
         else:
             raise SyntaxError  # unsupported syntax
+
+    def _unparse_pep_604_annotation(node: ast.Subscript) -> list[Node]:
+        subscript = node.slice
+        if isinstance(subscript, ast.Index):
+            # py38 only
+            subscript = subscript.value  # type: ignore[assignment]
+
+        flattened: list[Node] = []
+        if isinstance(subscript, ast.Tuple):
+            flattened.extend(unparse(subscript.elts[0]))
+            for elt in subscript.elts[1:]:
+                flattened.extend(unparse(ast.BitOr()))
+                flattened.extend(unparse(elt))
+        else:
+            # e.g. a Union[] inside an Optional[]
+            flattened.extend(unparse(subscript))
+
+        if getattr(node.value, 'id', '') == 'Optional':
+            flattened.extend(unparse(ast.BitOr()))
+            flattened.append(nodes.Text('None'))
+
+        return flattened
 
     try:
         tree = ast.parse(annotation, type_comments=True)
