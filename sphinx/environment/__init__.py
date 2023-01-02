@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import functools
 import os
 import pickle
 from collections import defaultdict
-from copy import copy
+from copy import copy, deepcopy
 from datetime import datetime
 from os import path
 from typing import TYPE_CHECKING, Any, Callable, Generator, Iterator
@@ -31,7 +32,6 @@ from sphinx.util.osutil import canon_path, os_path
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
-
 
 logger = logging.getLogger(__name__)
 
@@ -558,9 +558,16 @@ class BuildEnvironment:
 
     def get_doctree(self, docname: str) -> nodes.document:
         """Read the doctree for a file from the pickle and return it."""
-        filename = path.join(self.doctreedir, docname + '.doctree')
-        with open(filename, 'rb') as f:
-            doctree = pickle.load(f)
+        doctreedir = self.doctreedir
+
+        @functools.lru_cache(maxsize=None)
+        def _load_doctree_from_disk(docname: str) -> nodes.document:
+            """Read the doctree for a file from the pickle and return it."""
+            filename = path.join(doctreedir, docname + '.doctree')
+            with open(filename, 'rb') as f:
+                return pickle.load(f)
+
+        doctree = deepcopy(_load_doctree_from_disk(docname))
         doctree.settings.env = self
         doctree.reporter = LoggingReporter(self.doc2path(docname))
         return doctree
