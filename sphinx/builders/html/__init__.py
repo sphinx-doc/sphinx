@@ -655,12 +655,18 @@ class StandaloneHTMLBuilder(Builder):
         }
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
+        self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
+        self.post_process_images(doctree)
+
+        title_node = self.env.longtitles.get(docname)
+        title = self.render_partial(title_node)['title'] if title_node else ''
+        self.index_page(docname, doctree, title)
+
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
 
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         self.fignumbers = self.env.toc_fignumbers.get(docname, {})
-        self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
         self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')
         self.current_docname = docname
         self.docwriter.write(doctree, destination)
@@ -670,13 +676,6 @@ class StandaloneHTMLBuilder(Builder):
 
         ctx = self.get_doc_context(docname, body, metatags)
         self.handle_page(docname, ctx, event_arg=doctree)
-
-    def write_doc_serialized(self, docname: str, doctree: nodes.document) -> None:
-        self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
-        self.post_process_images(doctree)
-        title_node = self.env.longtitles.get(docname)
-        title = self.render_partial(title_node)['title'] if title_node else ''
-        self.index_page(docname, doctree, title)
 
     def finish(self) -> None:
         self.finish_tasks.add_task(self.gen_indices)
@@ -904,7 +903,7 @@ class StandaloneHTMLBuilder(Builder):
         """Pick the best candidate for an image and link down-scaled images to
         their high res version.
         """
-        Builder.post_process_images(self, doctree)
+        super().post_process_images(doctree)
 
         if self.config.html_scaled_image_link and self.html_scaled_image_link:
             for node in doctree.findall(nodes.image):
