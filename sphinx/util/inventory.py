@@ -114,8 +114,8 @@ class InventoryFile:
 
         for line in stream.read_compressed_lines():
             # be careful to handle names with embedded spaces correctly
-            m = re.match(r'(?x)(.+?)\s+(\S+)\s+(-?\d+)\s+?(\S*)\s+(.*)',
-                         line.rstrip())
+            m = re.match(r'(.+?)\s+(\S+)\s+(-?\d+)\s+?(\S*)\s+(.*)',
+                         line.rstrip(), flags=re.VERBOSE)
             if not m:
                 continue
             name, type, prio, location, dispname = m.groups()

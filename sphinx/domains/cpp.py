@@ -289,13 +289,13 @@ T = TypeVar('T')
             nested-name
 """
 
-udl_identifier_re = re.compile(r'''(?x)
+udl_identifier_re = re.compile(r'''
     [a-zA-Z_][a-zA-Z0-9_]*\b   # note, no word boundary in the beginning
-''')
+''', re.VERBOSE)
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
 _visibility_re = re.compile(r'\b(public|private|protected)\b')
-_operator_re = re.compile(r'''(?x)
+_operator_re = re.compile(r'''
         \[\s*\]
     |   \(\s*\)
     |   \+\+ | --
@@ -304,13 +304,13 @@ _operator_re = re.compile(r'''(?x)
     |   <=>
     |   [!<>=/*%+|&^~-]=?
     |   (\b(and|and_eq|bitand|bitor|compl|not|not_eq|or|or_eq|xor|xor_eq)\b)
-''')
-_fold_operator_re = re.compile(r'''(?x)
+''', re.VERBOSE)
+_fold_operator_re = re.compile(r'''
         ->\*    |    \.\*    |    \,
     |   (<<|>>)=?    |    &&    |    \|\|
     |   !=
     |   [<>=/*%+|&^~-]=?
-''')
+''', re.VERBOSE)
 # see https://en.cppreference.com/w/cpp/keyword
 _keywords = [
     'alignas', 'alignof', 'and', 'and_eq', 'asm', 'auto', 'bitand', 'bitor',
@@ -330,7 +330,7 @@ _keywords = [
 ]
 
 
-_simple_type_specifiers_re = re.compile(r"""(?x)
+_simple_type_specifiers_re = re.compile(r"""
     \b(
     auto|void|bool
     |signed|unsigned
@@ -342,7 +342,7 @@ _simple_type_specifiers_re = re.compile(r"""(?x)
     |__float80|_Float64x|__float128|_Float128  # extension
     |_Complex|_Imaginary  # extension
     )\b
-""")
+""", re.VERBOSE)
 
 _max_id = 4
 _id_prefix = [None, '', '_CPPv2', '_CPPv3', '_CPPv4']

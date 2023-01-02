@@ -210,8 +210,8 @@ class WordCollector(nodes.NodeVisitor):
                 # Some people might put content in raw HTML that should be searched,
                 # so we just amateurishly strip HTML tags and index the remaining
                 # content
-                nodetext = re.sub(r'(?is)<style.*?</style>', '', node.astext())
-                nodetext = re.sub(r'(?is)<script.*?</script>', '', nodetext)
+                nodetext = re.sub(r'<style.*?</style>', '', node.astext(), flags=re.IGNORECASE|re.DOTALL)
+                nodetext = re.sub(r'<script.*?</script>', '', nodetext, flags=re.IGNORECASE|re.DOTALL)
                 nodetext = re.sub(r'<[^<]+?>', '', nodetext)
                 self.found_words.extend(self.lang.split(nodetext))
             raise nodes.SkipNode

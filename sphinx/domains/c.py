@@ -85,7 +85,7 @@ _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
 
 # bool, complex, and imaginary are macro "keywords", so they are handled seperately
-_simple_type_specifiers_re = re.compile(r"""(?x)
+_simple_type_specifiers_re = re.compile(r"""
     \b(
     void|_Bool
     |signed|unsigned
@@ -101,7 +101,7 @@ _simple_type_specifiers_re = re.compile(r"""(?x)
     |__fp16  # extension
     |_Sat|_Fract|fract|_Accum|accum  # extension
     )\b
-""")
+""", re.VERBOSE)
 
 
 class _DuplicateSymbolError(Exception):

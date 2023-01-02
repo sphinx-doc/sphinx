@@ -18,21 +18,21 @@ logger = logging.getLogger(__name__)
 StringifyTransform = Callable[[Any], str]
 
 
-_whitespace_re = re.compile(r'(?u)\s+')
+_whitespace_re = re.compile(r'\s+')
 anon_identifier_re = re.compile(r'(@[a-zA-Z0-9_])[a-zA-Z0-9_]*\b')
-identifier_re = re.compile(r'''(?x)
+identifier_re = re.compile(r'''
     (   # This 'extends' _anon_identifier_re with the ordinary identifiers,
         # make sure they are in sync.
         (~?\b[a-zA-Z_])  # ordinary identifiers
     |   (@[a-zA-Z0-9_])  # our extension for names of anonymous entities
     )
     [a-zA-Z0-9_]*\b
-''')
+''', flags=re.VERBOSE)
 integer_literal_re = re.compile(r'[1-9][0-9]*(\'[0-9]+)*')
 octal_literal_re = re.compile(r'0[0-7]*(\'[0-7]+)*')
 hex_literal_re = re.compile(r'0[xX][0-9a-fA-F]+(\'[0-9a-fA-F]+)*')
 binary_literal_re = re.compile(r'0[bB][01]+(\'[01]+)*')
-integers_literal_suffix_re = re.compile(r'''(?x)
+integers_literal_suffix_re = re.compile(r'''
     # unsigned and/or (long) long, in any order, but at least one of them
     (
         ([uU]    ([lL]  |  (ll)  |  (LL))?)
@@ -41,8 +41,8 @@ integers_literal_suffix_re = re.compile(r'''(?x)
     )\b
     # the ending word boundary is important for distinguishing
     # between suffixes and UDLs in C++
-''')
-float_literal_re = re.compile(r'''(?x)
+''', flags=re.VERBOSE)
+float_literal_re = re.compile(r'''
     [+-]?(
     # decimal
       ([0-9]+(\'[0-9]+)*[eE][+-]?[0-9]+(\'[0-9]+)*)
@@ -54,10 +54,10 @@ float_literal_re = re.compile(r'''(?x)
         [0-9a-fA-F]+(\'[0-9a-fA-F]+)*([pP][+-]?[0-9a-fA-F]+(\'[0-9a-fA-F]+)*)?)
     | (0[xX][0-9a-fA-F]+(\'[0-9a-fA-F]+)*\.([pP][+-]?[0-9a-fA-F]+(\'[0-9a-fA-F]+)*)?)
     )
-''')
+''', flags=re.VERBOSE)
 float_literal_suffix_re = re.compile(r'[fFlL]\b')
 # the ending word boundary is important for distinguishing between suffixes and UDLs in C++
-char_literal_re = re.compile(r'''(?x)
+char_literal_re = re.compile(r'''
     ((?:u8)|u|U|L)?
     '(
       (?:[^\\'])
@@ -69,7 +69,7 @@ char_literal_re = re.compile(r'''(?x)
       | (?:U[0-9a-fA-F]{8})
       ))
     )'
-''')
+''', flags=re.VERBOSE)
 
 
 def verify_description_mode(mode: str) -> None:
