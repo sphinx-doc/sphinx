@@ -179,11 +179,7 @@ def is_skipped_package(dirname: str, opts: Any, excludes: list[str] = []) -> boo
         return True
 
     # Check there is some showable module inside package
-    if all(is_excluded(path.join(dirname, f), excludes) for f in files):
-        # all submodules are excluded
-        return True
-    else:
-        return False
+    return all(is_excluded(path.join(dirname, f), excludes) for f in files)
 
 
 def is_skipped_module(filename: str, opts: Any, excludes: list[str]) -> bool:

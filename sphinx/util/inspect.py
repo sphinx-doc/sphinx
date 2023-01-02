@@ -151,10 +151,7 @@ def isNewType(obj: Any) -> bool:
     else:
         __module__ = safe_getattr(obj, '__module__', None)
         __qualname__ = safe_getattr(obj, '__qualname__', None)
-        if __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type':
-            return True
-        else:
-            return False
+        return __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type'
 
 
 def isenumclass(x: Any) -> bool:
@@ -210,10 +207,7 @@ def isstaticmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
         for basecls in getattr(cls, '__mro__', [cls]):
             meth = basecls.__dict__.get(name)
             if meth:
-                if isinstance(meth, staticmethod):
-                    return True
-                else:
-                    return False
+                return isinstance(meth, staticmethod)
 
     return False
 
@@ -277,13 +271,10 @@ def isattributedescriptor(obj: Any) -> bool:
 
 def is_singledispatch_function(obj: Any) -> bool:
     """Check if the object is singledispatch function."""
-    if (inspect.isfunction(obj) and
+    return (inspect.isfunction(obj) and
             hasattr(obj, 'dispatch') and
             hasattr(obj, 'register') and
-            obj.dispatch.__module__ == 'functools'):
-        return True
-    else:
-        return False
+            obj.dispatch.__module__ == 'functools')
 
 
 def is_singledispatch_method(obj: Any) -> bool:
@@ -314,18 +305,10 @@ def iscoroutinefunction(obj: Any) -> bool:
             # staticmethod, classmethod and partial method are not a wrapped coroutine-function
             # Note: Since 3.10, staticmethod and classmethod becomes a kind of wrappers
             return False
-        elif hasattr(obj, '__wrapped__'):
-            return True
-        else:
-            return False
+        return hasattr(obj, '__wrapped__')
 
     obj = unwrap_all(obj, stop=iswrappedcoroutine)
-    if hasattr(obj, '__code__') and inspect.iscoroutinefunction(obj):
-        # check obj.__code__ because iscoroutinefunction() crashes for custom method-like
-        # objects (see https://github.com/sphinx-doc/sphinx/issues/6605)
-        return True
-    else:
-        return False
+    return inspect.iscoroutinefunction(obj)
 
 
 def isproperty(obj: Any) -> bool:
