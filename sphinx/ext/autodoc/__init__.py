@@ -1471,6 +1471,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if inspect.isNewType(self.object) or isinstance(self.object, TypeVar):
             # Supress signature
             return None, None, None
+
         def get_user_defined_function_or_method(obj: Any, attr: str) -> Any:
             """ Get the `attr` function or method from `obj`, if it is user-defined. """
             if inspect.is_builtin_class_method(obj, attr):
