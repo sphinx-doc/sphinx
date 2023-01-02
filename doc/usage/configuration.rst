@@ -1550,12 +1550,12 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_scaled_image_link
 
-   If true, images itself links to the original image if it doesn't have
+   If true, image itself links to the original image if it doesn't have
    'target' option or scale related options: 'scale', 'width', 'height'.
    The default is ``True``.
 
-   Document authors can this feature manually with giving ``no-scaled-link``
-   class to the image:
+   Document authors can disable this feature manually with giving
+   ``no-scaled-link`` class to the image:
 
    .. code-block:: rst
 
