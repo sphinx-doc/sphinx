@@ -530,7 +530,7 @@ def find_pending_xref_condition(node: addnodes.pending_xref, condition: str
     return None
 
 
-def make_refnode(builder: Builder, fromdocname: str, todocname: str, targetid: str,
+def make_refnode(builder: Builder, fromdocname: str, todocname: str, targetid: str | None,
                  child: Node | list[Node], title: str | None = None
                  ) -> nodes.reference:
     """Shortcut to create a reference node."""

@@ -275,7 +275,6 @@ module = [
     "sphinx.domains",
     "sphinx.domains.c",
     "sphinx.domains.cpp",
-    "sphinx.domains.std",
     "sphinx.environment.*",
     "sphinx.events",
     "sphinx.ext.*",
