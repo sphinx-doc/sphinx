@@ -141,7 +141,7 @@ class BuildEnvironment:
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
-    def __init__(self, app: "Sphinx"):
+    def __init__(self, app: Sphinx):
         self.app: Sphinx = None
         self.doctreedir: str = None
         self.srcdir: str = None
@@ -240,7 +240,7 @@ class BuildEnvironment:
     def __setstate__(self, state: dict) -> None:
         self.__dict__.update(state)
 
-    def setup(self, app: "Sphinx") -> None:
+    def setup(self, app: Sphinx) -> None:
         """Set up BuildEnvironment object."""
         if self.version and self.version != app.registry.get_envversion(app):
             raise BuildEnvironmentError(__('build environment version not current'))
@@ -286,14 +286,14 @@ class BuildEnvironment:
                 extension = extensions[0]
             else:
                 extension = '%d' % (len(extensions),)
-            self.config_status_extra = ' (%r)' % (extension,)
+            self.config_status_extra = f' ({extension!r})'
         else:
             # check if a config value was changed that affects how
             # doctrees are read
             for item in config.filter('env'):
                 if self.config[item.name] != item.value:
                     self.config_status = CONFIG_CHANGED
-                    self.config_status_extra = ' (%r)' % (item.name,)
+                    self.config_status_extra = f' ({item.name!r})'
                     break
 
         self.config = config
@@ -340,8 +340,8 @@ class BuildEnvironment:
         for domain in self.domains.values():
             domain.clear_doc(docname)
 
-    def merge_info_from(self, docnames: list[str], other: "BuildEnvironment",
-                        app: "Sphinx") -> None:
+    def merge_info_from(self, docnames: list[str], other: BuildEnvironment,
+                        app: Sphinx) -> None:
         """Merge global information gathered about *docnames* while reading them
         from the *other* environment.
 
@@ -397,7 +397,7 @@ class BuildEnvironment:
         """contains all existing docnames."""
         return self.project.docnames
 
-    def find_files(self, config: Config, builder: "Builder") -> None:
+    def find_files(self, config: Config, builder: Builder) -> None:
         """Find all source files in the source dir and put them in
         self.found_docs.
         """
@@ -483,7 +483,7 @@ class BuildEnvironment:
 
         return added, changed, removed
 
-    def check_dependents(self, app: "Sphinx", already: set[str]) -> Generator[str, None, None]:
+    def check_dependents(self, app: Sphinx, already: set[str]) -> Generator[str, None, None]:
         to_rewrite: list[str] = []
         for docnames in self.events.emit('env-get-updated', self):
             to_rewrite.extend(docnames)
@@ -568,7 +568,7 @@ class BuildEnvironment:
     def get_and_resolve_doctree(
         self,
         docname: str,
-        builder: "Builder",
+        builder: Builder,
         doctree: nodes.document | None = None,
         prune_toctrees: bool = True,
         includehidden: bool = False
@@ -594,7 +594,7 @@ class BuildEnvironment:
 
         return doctree
 
-    def resolve_toctree(self, docname: str, builder: "Builder", toctree: addnodes.toctree,
+    def resolve_toctree(self, docname: str, builder: Builder, toctree: addnodes.toctree,
                         prune: bool = True, maxdepth: int = 0, titles_only: bool = False,
                         collapse: bool = False, includehidden: bool = False) -> Node | None:
         """Resolve a *toctree* node into individual bullet lists with titles
@@ -613,7 +613,7 @@ class BuildEnvironment:
                                      includehidden)
 
     def resolve_references(self, doctree: nodes.document, fromdocname: str,
-                           builder: "Builder") -> None:
+                           builder: Builder) -> None:
         self.apply_post_transforms(doctree, fromdocname)
 
     def apply_post_transforms(self, doctree: nodes.document, docname: str) -> None:

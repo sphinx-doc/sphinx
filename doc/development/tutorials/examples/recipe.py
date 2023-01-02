@@ -117,7 +117,7 @@ class RecipeDomain(Domain):
     }
 
     def get_full_qualified_name(self, node):
-        return '{}.{}'.format('recipe', node.arguments[0])
+        return f'recipe.{node.arguments[0]}'
 
     def get_objects(self):
         yield from self.data['recipes']

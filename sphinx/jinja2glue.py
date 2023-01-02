@@ -105,7 +105,7 @@ class idgen:
 def warning(context: dict, message: str, *args: Any, **kwargs: Any) -> str:
     if 'pagename' in context:
         filename = context.get('pagename') + context.get('file_suffix', '')
-        message = 'in rendering %s: %s' % (filename, message)
+        message = f'in rendering {filename}: {message}'
     logger = logging.getLogger('sphinx.themes')
     logger.warning(message, *args, **kwargs)
     return ''  # return empty string not to output any values
@@ -146,7 +146,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
     def init(
         self,
-        builder: "Builder",
+        builder: Builder,
         theme: Theme | None = None,
         dirs: list[str] | None = None
     ) -> None:

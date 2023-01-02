@@ -79,7 +79,7 @@ class Builder:
     #: The builder supports data URIs or not.
     supported_data_uri_images = False
 
-    def __init__(self, app: "Sphinx", env: BuildEnvironment = None) -> None:
+    def __init__(self, app: Sphinx, env: BuildEnvironment = None) -> None:
         self.srcdir = app.srcdir
         self.confdir = app.confdir
         self.outdir = app.outdir
@@ -662,8 +662,8 @@ class Builder:
         # At the moment, only XXX_use_index is looked up this way.
         # Every new builder variant must be registered in Config.config_values.
         try:
-            optname = '%s_%s' % (self.name, option)
+            optname = f'{self.name}_{option}'
             return getattr(self.config, optname)
         except AttributeError:
-            optname = '%s_%s' % (default, option)
+            optname = f'{default}_{option}'
             return getattr(self.config, optname)

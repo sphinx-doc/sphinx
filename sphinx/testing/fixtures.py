@@ -215,7 +215,7 @@ def if_graphviz_found(app: SphinxTestApp) -> None:
 
 
 @pytest.fixture(scope='session')
-def sphinx_test_tempdir(tmpdir_factory: Any) -> "util.path":
+def sphinx_test_tempdir(tmpdir_factory: Any) -> util.path:
     """
     Temporary directory wrapped with `path` class.
     """
@@ -224,7 +224,7 @@ def sphinx_test_tempdir(tmpdir_factory: Any) -> "util.path":
 
 
 @pytest.fixture
-def tempdir(tmpdir: str) -> "util.path":
+def tempdir(tmpdir: str) -> util.path:
     """
     Temporary directory wrapped with `path` class.
     This fixture is for back-compatibility with old test implementation.

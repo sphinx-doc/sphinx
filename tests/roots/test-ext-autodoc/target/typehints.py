@@ -56,12 +56,12 @@ class Math:
         return pathlib.PurePosixPath("/a/b/c")
 
 
-def tuple_args(x: Tuple[int, Union[int, str]]) -> Tuple[int, int]:
+def tuple_args(x: tuple[int, int | str]) -> tuple[int, int]:
     pass
 
 
 class NewAnnotation:
-    def __new__(cls, i: int) -> 'NewAnnotation':
+    def __new__(cls, i: int) -> NewAnnotation:
         pass
 
 

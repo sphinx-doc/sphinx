@@ -50,7 +50,7 @@ core_events = {
 class EventManager:
     """Event manager for Sphinx."""
 
-    def __init__(self, app: "Sphinx") -> None:
+    def __init__(self, app: Sphinx) -> None:
         self.app = app
         self.events = core_events.copy()
         self.listeners: dict[str, list[EventListener]] = defaultdict(list)

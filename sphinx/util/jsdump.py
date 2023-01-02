@@ -42,13 +42,13 @@ def encode_string(s: str) -> str:
         except KeyError:
             n = ord(s)
             if n < 0x10000:
-                return '\\u%04x' % (n,)
+                return f'\\u{n:04x}'
             else:
                 # surrogate pair
                 n -= 0x10000
                 s1 = 0xd800 | ((n >> 10) & 0x3ff)
                 s2 = 0xdc00 | (n & 0x3ff)
-                return '\\u%04x\\u%04x' % (s1, s2)
+                return f'\\u{s1:04x}\\u{s2:04x}'
     return '"' + str(ESCAPE_ASCII.sub(replace, s)) + '"'
 
 
@@ -89,10 +89,9 @@ def dumps(obj: Any, key: bool = False) -> str:
     elif isinstance(obj, (int, float)):
         return str(obj)
     elif isinstance(obj, dict):
-        return '{%s}' % ','.join(sorted('%s:%s' % (
-            dumps(key, True),
-            dumps(value)
-        ) for key, value in obj.items()))
+        return '{%s}' % ','.join(
+            sorted(f'{dumps(key, True)}:{dumps(value)}' for key, value in obj.items())
+        )
     elif isinstance(obj, set):
         return '[%s]' % ','.join(sorted(dumps(x) for x in obj))
     elif isinstance(obj, (tuple, list)):

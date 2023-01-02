@@ -49,7 +49,7 @@ COLOR_MAP = defaultdict(lambda: 'blue',
                         })
 
 
-def getLogger(name: str) -> "SphinxLoggerAdapter":
+def getLogger(name: str) -> SphinxLoggerAdapter:
     """Get logger wrapped by :class:`sphinx.util.logging.SphinxLoggerAdapter`.
 
     Sphinx logger always uses ``sphinx.*`` namespace to be independent from
@@ -92,7 +92,7 @@ class SphinxLogRecord(logging.LogRecord):
         message = super().getMessage()
         location = getattr(self, 'location', None)
         if location:
-            message = '%s: %s%s' % (location, self.prefix, message)
+            message = f'{location}: {self.prefix}{message}'
         elif self.prefix not in message:
             message = self.prefix + message
 
@@ -381,7 +381,7 @@ def is_suppressed_warning(type: str, subtype: str, suppress_warnings: list[str])
 class WarningSuppressor(logging.Filter):
     """Filter logs by `suppress_warnings`."""
 
-    def __init__(self, app: "Sphinx") -> None:
+    def __init__(self, app: Sphinx) -> None:
         self.app = app
         super().__init__()
 
@@ -405,7 +405,7 @@ class WarningSuppressor(logging.Filter):
 class WarningIsErrorFilter(logging.Filter):
     """Raise exception if warning emitted."""
 
-    def __init__(self, app: "Sphinx") -> None:
+    def __init__(self, app: Sphinx) -> None:
         self.app = app
         super().__init__()
 
@@ -481,7 +481,7 @@ class SphinxLogRecordTranslator(logging.Filter):
     """
     LogRecordClass: type[logging.LogRecord]
 
-    def __init__(self, app: "Sphinx") -> None:
+    def __init__(self, app: Sphinx) -> None:
         self.app = app
         super().__init__()
 
@@ -494,7 +494,7 @@ class SphinxLogRecordTranslator(logging.Filter):
         if isinstance(location, tuple):
             docname, lineno = location
             if docname and lineno:
-                record.location = '%s:%s' % (self.app.env.doc2path(docname), lineno)
+                record.location = f'{self.app.env.doc2path(docname)}:{lineno}'
             elif docname:
                 record.location = '%s' % self.app.env.doc2path(docname)
             else:
@@ -522,7 +522,7 @@ def get_node_location(node: Node) -> str | None:
     if source:
         source = abspath(source)
     if source and line:
-        return "%s:%s" % (source, line)
+        return f"{source}:{line}"
     elif source:
         return "%s:" % source
     elif line:
@@ -565,14 +565,14 @@ class SafeEncodingWriter:
 
 class LastMessagesWriter:
     """Stream writer storing last 10 messages in memory to save trackback"""
-    def __init__(self, app: "Sphinx", stream: IO) -> None:
+    def __init__(self, app: Sphinx, stream: IO) -> None:
         self.app = app
 
     def write(self, data: str) -> None:
         self.app.messagelog.append(data)
 
 
-def setup(app: "Sphinx", status: IO, warning: IO) -> None:
+def setup(app: Sphinx, status: IO, warning: IO) -> None:
     """Setup root logger for Sphinx"""
     logger = logging.getLogger(NAMESPACE)
     logger.setLevel(logging.DEBUG)

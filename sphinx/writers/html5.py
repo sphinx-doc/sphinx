@@ -39,7 +39,7 @@ def multiply_length(length: str, scale: int) -> str:
     else:
         amount, unit = matched.groups()
         result = float(amount) * scale / 100
-        return "%s%s" % (int(result), unit)
+        return f"{int(result)}{unit}"
 
 
 class HTML5Translator(SphinxTranslator, BaseTranslator):
@@ -47,7 +47,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     Our custom HTML translator.
     """
 
-    builder: "StandaloneHTMLBuilder"
+    builder: StandaloneHTMLBuilder
     # Override docutils.writers.html5_polyglot:HTMLTranslator
     # otherwise, nodes like <inline classes="s">...</inline> will be
     # converted to <s>...</s> by `visit_inline`.
@@ -267,7 +267,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         if isinstance(node.parent, nodes.section):
             if self.builder.name == 'singlehtml':
                 docname = self.docnames[-1]
-                anchorname = "%s/#%s" % (docname, node.parent['ids'][0])
+                anchorname = "{}/#{}".format(docname, node.parent['ids'][0])
                 if anchorname not in self.builder.secnumbers:
                     anchorname = "%s/" % docname  # try first heading which has no anchor
             else:
@@ -289,7 +289,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def add_fignumber(self, node: Element) -> None:
         def append_fignumber(figtype: str, figure_id: str) -> None:
             if self.builder.name == 'singlehtml':
-                key = "%s/%s" % (self.docnames[-1], figtype)
+                key = f"{self.docnames[-1]}/{figtype}"
             else:
                 key = figtype
 
@@ -388,7 +388,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             elif close_tag.startswith('</a></h'):
                 self.body.append('</a><a class="headerlink" href="#%s" ' %
                                  node.parent['ids'][0] +
-                                 'title="%s">%s' % (
+                                 'title="{}">{}'.format(
                                      _('Permalink to this heading'),
                                      self.config.html_permalinks_icon))
             elif isinstance(node.parent, nodes.table):

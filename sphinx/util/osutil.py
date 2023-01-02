@@ -196,7 +196,7 @@ class FileAvoidWrite:
         with open(self._path, 'w', encoding='utf-8') as f:
             f.write(buf)
 
-    def __enter__(self) -> "FileAvoidWrite":
+    def __enter__(self) -> FileAvoidWrite:
         return self
 
     def __exit__(

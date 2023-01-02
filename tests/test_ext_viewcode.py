@@ -36,8 +36,7 @@ def test_viewcode(app, status, warning):
         assert ('<div class="viewcode-block" id="Class1"><a class="viewcode-back" '
                 'href="../../index.html#spam.Class1">[docs]</a>'
                 '<span>@decorator</span>\n'
-                '<span>class</span> <span>Class1</span>'
-                '<span>(</span><span>object</span><span>):</span>\n'
+                '<span>class</span> <span>Class1</span><span>:</span>\n'
                 '<span>    </span><span>&quot;&quot;&quot;</span>\n'
                 '<span>    this is Class1</span>\n'
                 '<span>    &quot;&quot;&quot;</span></div>\n') in result
@@ -45,8 +44,7 @@ def test_viewcode(app, status, warning):
         assert ('<div class="viewcode-block" id="Class1"><a class="viewcode-back" '
                 'href="../../index.html#spam.Class1">[docs]</a>'
                 '<span>@decorator</span>\n'
-                '<span>class</span> <span>Class1</span>'
-                '<span>(</span><span>object</span><span>):</span>\n'
+                '<span>class</span> <span>Class1</span><span>:</span>\n'
                 '    <span>&quot;&quot;&quot;</span>\n'
                 '<span>    this is Class1</span>\n'
                 '<span>    &quot;&quot;&quot;</span></div>\n') in result

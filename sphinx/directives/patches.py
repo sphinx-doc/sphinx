@@ -175,7 +175,7 @@ class MathDirective(SphinxDirective):
         ret.insert(0, target)
 
 
-def setup(app: "Sphinx") -> dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     directives.register_directive('figure', Figure)
     directives.register_directive('meta', Meta)
     directives.register_directive('csv-table', CSVTable)

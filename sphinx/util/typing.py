@@ -116,15 +116,15 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
         elif isinstance(cls, str):
             return cls
         elif ismockmodule(cls):
-            return ':py:class:`%s%s`' % (modprefix, cls.__name__)
+            return f':py:class:`{modprefix}{cls.__name__}`'
         elif ismock(cls):
-            return ':py:class:`%s%s.%s`' % (modprefix, cls.__module__, cls.__name__)
+            return f':py:class:`{modprefix}{cls.__module__}.{cls.__name__}`'
         elif is_invalid_builtin_class(cls):
-            return ':py:class:`%s%s`' % (modprefix, INVALID_BUILTIN_CLASSES[cls])
+            return f':py:class:`{modprefix}{INVALID_BUILTIN_CLASSES[cls]}`'
         elif inspect.isNewType(cls):
             if sys.version_info[:2] >= (3, 10):
                 # newtypes have correct module info since Python 3.10+
-                return ':py:class:`%s%s.%s`' % (modprefix, cls.__module__, cls.__name__)
+                return f':py:class:`{modprefix}{cls.__module__}.{cls.__name__}`'
             else:
                 return ':py:class:`%s`' % cls.__name__
         elif UnionType and isinstance(cls, UnionType):
@@ -135,10 +135,8 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif cls.__module__ in ('__builtin__', 'builtins'):
             if hasattr(cls, '__args__'):
-                return ':py:class:`%s`\\ [%s]' % (
-                    cls.__name__,
-                    ', '.join(restify(arg, mode) for arg in cls.__args__),
-                )
+                concatenated_args = ', '.join(restify(arg, mode) for arg in cls.__args__)
+                return fr':py:class:`{cls.__name__}`\ [{concatenated_args}]'
             else:
                 return ':py:class:`%s`' % cls.__name__
         elif (inspect.isgenericalias(cls)
@@ -178,7 +176,7 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
             elif (cls.__module__ == 'typing'
                   and cls._name == 'Callable'):  # type: ignore[attr-defined]
                 args = ', '.join(restify(a, mode) for a in cls.__args__[:-1])
-                text += r"\ [[%s], %s]" % (args, restify(cls.__args__[-1], mode))
+                text += fr"\ [[{args}], {restify(cls.__args__[-1], mode)}]"
             elif cls.__module__ == 'typing' and getattr(origin, '_name', None) == 'Literal':
                 text += r"\ [%s]" % ', '.join(repr(a) for a in cls.__args__)
             elif cls.__args__:
@@ -192,17 +190,17 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
             return f':py:obj:`~{cls.__module__}.{cls.__name__}`'
         elif hasattr(cls, '__qualname__'):
             if cls.__module__ == 'typing':
-                return ':py:class:`~%s.%s`' % (cls.__module__, cls.__qualname__)
+                return f':py:class:`~{cls.__module__}.{cls.__qualname__}`'
             else:
-                return ':py:class:`%s%s.%s`' % (modprefix, cls.__module__, cls.__qualname__)
+                return f':py:class:`{modprefix}{cls.__module__}.{cls.__qualname__}`'
         elif isinstance(cls, ForwardRef):
             return ':py:class:`%s`' % cls.__forward_arg__
         else:
             # not a class (ex. TypeVar)
             if cls.__module__ == 'typing':
-                return ':py:obj:`~%s.%s`' % (cls.__module__, cls.__name__)
+                return f':py:obj:`~{cls.__module__}.{cls.__name__}`'
             else:
-                return ':py:obj:`%s%s.%s`' % (modprefix, cls.__module__, cls.__name__)
+                return f':py:obj:`{modprefix}{cls.__module__}.{cls.__name__}`'
     except (AttributeError, TypeError):
         return inspect.object_description(cls)
 
@@ -243,7 +241,7 @@ def stringify(annotation: Any, mode: str = 'fully-qualified-except-typing') -> s
     elif inspect.isNewType(annotation):
         if sys.version_info[:2] >= (3, 10):
             # newtypes have correct module info since Python 3.10+
-            return modprefix + '%s.%s' % (annotation.__module__, annotation.__name__)
+            return modprefix + f'{annotation.__module__}.{annotation.__name__}'
         else:
             return annotation.__name__
     elif not annotation:
@@ -253,7 +251,7 @@ def stringify(annotation: Any, mode: str = 'fully-qualified-except-typing') -> s
     elif ismockmodule(annotation):
         return modprefix + annotation.__name__
     elif ismock(annotation):
-        return modprefix + '%s.%s' % (annotation.__module__, annotation.__name__)
+        return modprefix + f'{annotation.__module__}.{annotation.__name__}'
     elif is_invalid_builtin_class(annotation):
         return modprefix + INVALID_BUILTIN_CLASSES[annotation]
     elif str(annotation).startswith('typing.Annotated'):  # for py310+
@@ -307,26 +305,25 @@ def stringify(annotation: Any, mode: str = 'fully-qualified-except-typing') -> s
             if len(annotation.__args__) > 1 and annotation.__args__[-1] is NoneType:
                 if len(annotation.__args__) > 2:
                     args = ', '.join(stringify(a, mode) for a in annotation.__args__[:-1])
-                    return '%sOptional[%sUnion[%s]]' % (modprefix, modprefix, args)
+                    return f'{modprefix}Optional[{modprefix}Union[{args}]]'
                 else:
-                    return '%sOptional[%s]' % (modprefix,
-                                               stringify(annotation.__args__[0], mode))
+                    return f'{modprefix}Optional[{stringify(annotation.__args__[0], mode)}]'
             else:
                 args = ', '.join(stringify(a, mode) for a in annotation.__args__)
-                return '%sUnion[%s]' % (modprefix, args)
+                return f'{modprefix}Union[{args}]'
         elif qualname == 'types.Union':
             if len(annotation.__args__) > 1 and None in annotation.__args__:
                 args = ' | '.join(stringify(a) for a in annotation.__args__ if a)
-                return '%sOptional[%s]' % (modprefix, args)
+                return f'{modprefix}Optional[{args}]'
             else:
                 return ' | '.join(stringify(a) for a in annotation.__args__)
         elif qualname == 'Callable':
             args = ', '.join(stringify(a, mode) for a in annotation.__args__[:-1])
             returns = stringify(annotation.__args__[-1], mode)
-            return '%s%s[[%s], %s]' % (modprefix, qualname, args, returns)
+            return f'{modprefix}{qualname}[[{args}], {returns}]'
         elif qualname == 'Literal':
             args = ', '.join(repr(a) for a in annotation.__args__)
-            return '%s%s[%s]' % (modprefix, qualname, args)
+            return f'{modprefix}{qualname}[{args}]'
         elif str(annotation).startswith('typing.Annotated'):  # for py39+
             return stringify(annotation.__args__[0], mode)
         elif all(is_system_TypeVar(a) for a in annotation.__args__):
@@ -334,6 +331,6 @@ def stringify(annotation: Any, mode: str = 'fully-qualified-except-typing') -> s
             return modprefix + qualname
         else:
             args = ', '.join(stringify(a, mode) for a in annotation.__args__)
-            return '%s%s[%s]' % (modprefix, qualname, args)
+            return f'{modprefix}{qualname}[{args}]'
 
     return modprefix + qualname

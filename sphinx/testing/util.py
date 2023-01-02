@@ -26,17 +26,17 @@ __all__ = [
 
 def assert_re_search(regex: re.Pattern, text: str, flags: int = 0) -> None:
     if not re.search(regex, text, flags):
-        raise AssertionError('%r did not match %r' % (regex, text))
+        raise AssertionError(f'{regex!r} did not match {text!r}')
 
 
 def assert_not_re_search(regex: re.Pattern, text: str, flags: int = 0) -> None:
     if re.search(regex, text, flags):
-        raise AssertionError('%r did match %r' % (regex, text))
+        raise AssertionError(f'{regex!r} did match {text!r}')
 
 
 def assert_startswith(thing: str, prefix: str) -> None:
     if not thing.startswith(prefix):
-        raise AssertionError('%r does not start with %r' % (thing, prefix))
+        raise AssertionError(f'{thing!r} does not start with {prefix!r}')
 
 
 def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
@@ -61,10 +61,10 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
                 path = xpath + "[%d]" % i
                 assert_node(node[i], nodecls, xpath=path, **kwargs)
         elif isinstance(cls, str):
-            assert node == cls, 'The node %r is not %r: %r' % (xpath, cls, node)
+            assert node == cls, f'The node {xpath!r} is not {cls!r}: {node!r}'
         else:
             assert isinstance(node, cls), \
-                'The node%s is not subclass of %r: %r' % (xpath, cls, node)
+                f'The node{xpath} is not subclass of {cls!r}: {node!r}'
 
     if kwargs:
         assert isinstance(node, nodes.Element), \
@@ -72,9 +72,9 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
 
         for key, value in kwargs.items():
             assert key in node, \
-                'The node%s does not have %r attribute: %r' % (xpath, key, node)
+                f'The node{xpath} does not have {key!r} attribute: {node!r}'
             assert node[key] == value, \
-                'The node%s[%s] is not %r: %r' % (xpath, key, value, node[key])
+                f'The node{xpath}[{key}] is not {value!r}: {node[key]!r}'
 
 
 def etree_parse(path: str) -> Any:
@@ -154,7 +154,7 @@ class SphinxTestApp(application.Sphinx):
                 delattr(nodes.GenericNodeVisitor, 'depart_' + method[6:])
 
     def __repr__(self) -> str:
-        return '<%s buildername=%r>' % (self.__class__.__name__, self.builder.name)
+        return f'<{self.__class__.__name__} buildername={self.builder.name!r}>'
 
 
 class SphinxTestAppWrapperForSkipBuilding:

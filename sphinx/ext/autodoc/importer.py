@@ -23,7 +23,7 @@ def mangle(subject: Any, name: str) -> str:
     """Mangle the given name."""
     try:
         if isclass(subject) and name.startswith('__') and not name.endswith('__'):
-            return "_%s%s" % (subject.__name__, name)
+            return f"_{subject.__name__}{name}"
     except AttributeError:
         pass
 
@@ -117,7 +117,7 @@ def import_object(modname: str, objpath: list[str], objtype: str = '',
             errmsg = ('autodoc: failed to import %s %r from module %r' %
                       (objtype, '.'.join(objpath), modname))
         else:
-            errmsg = 'autodoc: failed to import %s %r' % (objtype, modname)
+            errmsg = f'autodoc: failed to import {objtype} {modname!r}'
 
         if isinstance(exc, ImportError):
             # import_module() raises ImportError having real exception obj and
@@ -209,7 +209,7 @@ def get_object_members(
 
 
 def get_class_members(subject: Any, objpath: list[str], attrgetter: Callable,
-                      inherit_docstrings: bool = True) -> dict[str, "ObjectMember"]:
+                      inherit_docstrings: bool = True) -> dict[str, ObjectMember]:
     """Get members and attributes of target class."""
     from sphinx.ext.autodoc import INSTANCEATTR, ObjectMember
 

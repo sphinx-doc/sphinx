@@ -53,7 +53,7 @@ class SphinxBaseReader(standalone.Reader):
 
         super().__init__(*args, **kwargs)
 
-    def setup(self, app: "Sphinx") -> None:
+    def setup(self, app: Sphinx) -> None:
         self._app = app      # hold application object only for compatibility
         self._env = app.env
 
@@ -92,7 +92,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
     A basic document reader for Sphinx.
     """
 
-    def setup(self, app: "Sphinx") -> None:
+    def setup(self, app: Sphinx) -> None:
         self.transforms = self.transforms + app.registry.get_transforms()
         super().setup(app)
 
@@ -124,7 +124,7 @@ class SphinxI18nReader(SphinxBaseReader):
     Because the translated texts are partial and they don't have correct line numbers.
     """
 
-    def setup(self, app: "Sphinx") -> None:
+    def setup(self, app: Sphinx) -> None:
         super().setup(app)
 
         self.transforms = self.transforms + app.registry.get_transforms()
@@ -157,7 +157,7 @@ class SphinxFileInput(FileInput):
         super().__init__(*args, **kwargs)
 
 
-def read_doc(app: "Sphinx", env: BuildEnvironment, filename: str) -> nodes.document:
+def read_doc(app: Sphinx, env: BuildEnvironment, filename: str) -> nodes.document:
     """Parse a document and convert to doctree."""
     warnings.warn('sphinx.io.read_doc() is deprecated.',
                   RemovedInSphinx70Warning, stacklevel=2)
@@ -189,7 +189,7 @@ def read_doc(app: "Sphinx", env: BuildEnvironment, filename: str) -> nodes.docum
     return pub.document
 
 
-def create_publisher(app: "Sphinx", filetype: str) -> Publisher:
+def create_publisher(app: Sphinx, filetype: str) -> Publisher:
     reader = SphinxStandaloneReader()
     reader.setup(app)
 

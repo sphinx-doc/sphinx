@@ -98,7 +98,7 @@ class XRefRole(ReferenceRole):
             self.classes = ['xref', self.reftype]
         else:
             self.refdomain, self.reftype = self.name.split(':', 1)
-            self.classes = ['xref', self.refdomain, '%s-%s' % (self.refdomain, self.reftype)]
+            self.classes = ['xref', self.refdomain, f'{self.refdomain}-{self.reftype}']
 
         if self.disabled:
             return self.create_non_xref_node()
@@ -141,7 +141,7 @@ class XRefRole(ReferenceRole):
 
     # methods that can be overwritten
 
-    def process_link(self, env: "BuildEnvironment", refnode: Element, has_explicit_title: bool,
+    def process_link(self, env: BuildEnvironment, refnode: Element, has_explicit_title: bool,
                      title: str, target: str) -> tuple[str, str]:
         """Called after parsing title and target text, and creating the
         reference node (given in *refnode*).  This method can alter the
@@ -150,7 +150,7 @@ class XRefRole(ReferenceRole):
         """
         return title, ws_re.sub(' ', target)
 
-    def result_nodes(self, document: nodes.document, env: "BuildEnvironment", node: Element,
+    def result_nodes(self, document: nodes.document, env: BuildEnvironment, node: Element,
                      is_ref: bool) -> tuple[list[Node], list[system_message]]:
         """Called before returning the finished nodes.  *node* is the reference
         node if one was created (*is_ref* is then true), else the content node.
@@ -161,7 +161,7 @@ class XRefRole(ReferenceRole):
 
 
 class AnyXRefRole(XRefRole):
-    def process_link(self, env: "BuildEnvironment", refnode: Element, has_explicit_title: bool,
+    def process_link(self, env: BuildEnvironment, refnode: Element, has_explicit_title: bool,
                      title: str, target: str) -> tuple[str, str]:
         result = super().process_link(env, refnode, has_explicit_title, title, target)
         # add all possible context info (i.e. std:program, py:module etc.)
@@ -406,7 +406,7 @@ specific_docroles: dict[str, RoleFunction] = {
 }
 
 
-def setup(app: "Sphinx") -> dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     from docutils.parsers.rst import roles
 
     for rolename, nodeclass in generic_docroles.items():

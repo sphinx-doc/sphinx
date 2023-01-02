@@ -397,7 +397,7 @@ def object_description(object: Any) -> str:
             return "frozenset({%s})" % ", ".join(object_description(x)
                                                  for x in sorted_values)
     elif isinstance(object, enum.Enum):
-        return "%s.%s" % (object.__class__.__name__, object.name)
+        return f"{object.__class__.__name__}.{object.name}"
 
     try:
         s = repr(object)
@@ -690,13 +690,14 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
         # PEP-570: Separator for Positional Only Parameter: /
         args.append('/')
 
+    concatenated_args = ', '.join(args)
     if (sig.return_annotation is Parameter.empty or
             show_annotation is False or
             show_return_annotation is False):
-        return '(%s)' % ', '.join(args)
+        return f'({concatenated_args})'
     else:
         annotation = stringify_annotation(sig.return_annotation, mode)
-        return '(%s) -> %s' % (', '.join(args), annotation)
+        return f'({concatenated_args}) -> {annotation}'
 
 
 def signature_from_str(signature: str) -> inspect.Signature:

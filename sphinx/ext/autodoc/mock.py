@@ -49,10 +49,10 @@ class _MockObject:
     def __mro_entries__(self, bases: tuple) -> tuple:
         return (self.__class__,)
 
-    def __getitem__(self, key: Any) -> "_MockObject":
+    def __getitem__(self, key: Any) -> _MockObject:
         return _make_subclass(str(key), self.__display_name__, self.__class__)()
 
-    def __getattr__(self, key: str) -> "_MockObject":
+    def __getattr__(self, key: str) -> _MockObject:
         return _make_subclass(key, self.__display_name__, self.__class__)()
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
@@ -94,7 +94,7 @@ class _MockModule(ModuleType):
 
 class MockLoader(Loader):
     """A loader for mocking."""
-    def __init__(self, finder: "MockFinder") -> None:
+    def __init__(self, finder: MockFinder) -> None:
         super().__init__()
         self.finder = finder
 

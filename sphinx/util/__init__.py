@@ -15,7 +15,7 @@ from datetime import datetime
 from importlib import import_module
 from os import path
 from time import mktime, strptime
-from typing import IO, TYPE_CHECKING, Any, Callable, Generator, Iterable, Optional, TypeVar
+from typing import IO, TYPE_CHECKING, Any, Callable, Generator, Iterable, TypeVar
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
 from sphinx.deprecation import RemovedInSphinx70Warning
@@ -119,7 +119,7 @@ class FilenameUniqDict(dict):
         i = 0
         while uniquename in self._existing:
             i += 1
-            uniquename = '%s%s%s' % (base, i, ext)
+            uniquename = f'{base}{i}{ext}'
         self[newfile] = ({docname}, uniquename)
         self._existing.add(uniquename)
         return uniquename
@@ -183,7 +183,7 @@ class DownloadFiles(dict):
     def add_file(self, docname: str, filename: str) -> str:
         if filename not in self:
             digest = md5(filename.encode()).hexdigest()
-            dest = '%s/%s' % (digest, os.path.basename(filename))
+            dest = f'{digest}/{os.path.basename(filename)}'
             self[filename] = (set(), dest)
 
         self[filename][0].add(docname)
@@ -212,7 +212,7 @@ _DEBUG_HEADER = '''\
 '''
 
 
-def save_traceback(app: Optional["Sphinx"]) -> str:
+def save_traceback(app: Sphinx | None) -> str:
     """Save the current exception's traceback in a temporary file."""
     import platform
 
@@ -342,7 +342,7 @@ def split_into(n: int, type: str, value: str) -> list[str]:
     """Split an index entry into a given number of parts at semicolons."""
     parts = [x.strip() for x in value.split(';', n - 1)]
     if sum(1 for part in parts if part) < n:
-        raise ValueError('invalid %s index entry %r' % (type, value))
+        raise ValueError(f'invalid {type} index entry {value!r}')
     return parts
 
 
@@ -362,7 +362,7 @@ def split_index_msg(type: str, value: str) -> list[str]:
     elif type == 'seealso':
         result = split_into(2, 'see', value)
     else:
-        raise ValueError('invalid %s index entry %r' % (type, value))
+        raise ValueError(f'invalid {type} index entry {value!r}')
 
     return result
 
@@ -451,7 +451,7 @@ def display_chunk(chunk: Any) -> str:
     if isinstance(chunk, (list, tuple)):
         if len(chunk) == 1:
             return str(chunk[0])
-        return '%s .. %s' % (chunk[0], chunk[-1])
+        return f'{chunk[0]} .. {chunk[-1]}'
     return str(chunk)
 
 
@@ -569,5 +569,4 @@ def xmlname_checker() -> re.Pattern:
 
     start_chars_regex = convert(name_start_chars)
     name_chars_regex = convert(name_chars)
-    return re.compile('(%s)(%s|%s)*' % (
-        start_chars_regex, start_chars_regex, name_chars_regex))
+    return re.compile(f'({start_chars_regex})({start_chars_regex}|{name_chars_regex})*')

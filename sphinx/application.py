@@ -320,7 +320,7 @@ class Sphinx:
     def preload_builder(self, name: str) -> None:
         self.registry.preload_builder(self, name)
 
-    def create_builder(self, name: str) -> "Builder":
+    def create_builder(self, name: str) -> Builder:
         if name is None:
             logger.info(__('No builder selected, using default: html'))
             name = 'html'
@@ -476,7 +476,7 @@ class Sphinx:
 
     # registering addon parts
 
-    def add_builder(self, builder: type["Builder"], override: bool = False) -> None:
+    def add_builder(self, builder: type[Builder], override: bool = False) -> None:
         """Register a new builder.
 
         :param builder: A builder class
@@ -1309,7 +1309,7 @@ class TemplateBridge:
 
     def init(
         self,
-        builder: "Builder",
+        builder: Builder,
         theme: Theme | None = None,
         dirs: list[str] | None = None
     ) -> None:

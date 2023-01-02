@@ -323,7 +323,7 @@ class DefaultDomain(SphinxDirective):
         return []
 
 
-def setup(app: "Sphinx") -> dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value("strip_signature_backslash", False, 'env')
     directives.register_directive('default-role', DefaultRole)
     directives.register_directive('default-domain', DefaultDomain)

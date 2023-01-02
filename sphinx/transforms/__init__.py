@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Any, Generator, Optional, cast
+from typing import TYPE_CHECKING, Any, Generator, cast
 
 from docutils import nodes
 from docutils.nodes import Element  # noqa: F401 (used for type comments only)
@@ -46,12 +46,12 @@ class SphinxTransform(Transform):
     """
 
     @property
-    def app(self) -> "Sphinx":
+    def app(self) -> Sphinx:
         """Reference to the :class:`.Sphinx` object."""
         return self.env.app
 
     @property
-    def env(self) -> "BuildEnvironment":
+    def env(self) -> BuildEnvironment:
         """Reference to the :class:`.BuildEnvironment` object."""
         return self.document.settings.env
 
@@ -67,9 +67,9 @@ class SphinxTransformer(Transformer):
     """
 
     document: nodes.document
-    env: Optional["BuildEnvironment"] = None
+    env: BuildEnvironment | None = None
 
-    def set_environment(self, env: "BuildEnvironment") -> None:
+    def set_environment(self, env: BuildEnvironment) -> None:
         self.env = env
 
     def apply_transforms(self) -> None:
@@ -395,7 +395,7 @@ class GlossarySorter(SphinxTransform):
                 )
 
 
-def setup(app: "Sphinx") -> dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_transform(ApplySourceWorkaround)
     app.add_transform(ExtraTranslatableNodes)
     app.add_transform(DefaultSubstitutions)

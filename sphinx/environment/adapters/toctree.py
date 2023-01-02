@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class TocTree:
-    def __init__(self, env: "BuildEnvironment") -> None:
+    def __init__(self, env: BuildEnvironment) -> None:
         self.env = env
 
     def note(self, docname: str, toctreenode: addnodes.toctree) -> None:
@@ -40,7 +40,7 @@ class TocTree:
             self.env.files_to_rebuild.setdefault(includefile, set()).add(docname)
         self.env.toctree_includes.setdefault(docname, []).extend(includefiles)
 
-    def resolve(self, docname: str, builder: "Builder", toctree: addnodes.toctree,
+    def resolve(self, docname: str, builder: Builder, toctree: addnodes.toctree,
                 prune: bool = True, maxdepth: int = 0, titles_only: bool = False,
                 collapse: bool = False, includehidden: bool = False) -> Element | None:
         """Resolve a *toctree* node into individual bullet lists with titles
@@ -305,7 +305,7 @@ class TocTree:
                         # recurse on visible children
                         self._toctree_prune(subnode, depth + 1, maxdepth,  collapse)
 
-    def get_toc_for(self, docname: str, builder: "Builder") -> Node:
+    def get_toc_for(self, docname: str, builder: Builder) -> Node:
         """Return a TOC nodetree -- for use on the same page only!"""
         tocdepth = self.env.metadata[docname].get('tocdepth', 0)
         try:
@@ -320,7 +320,7 @@ class TocTree:
             node['refuri'] = node['anchorname'] or '#'
         return toc
 
-    def get_toctree_for(self, docname: str, builder: "Builder", collapse: bool,
+    def get_toctree_for(self, docname: str, builder: Builder, collapse: bool,
                         **kwargs: Any) -> Element | None:
         """Return the global TOC nodetree."""
         doctree = self.env.get_doctree(self.env.config.root_doc)

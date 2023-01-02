@@ -7,4 +7,4 @@ if TYPE_CHECKING:
 
 
 class Foo:
-    attr1: "StringIO"
+    attr1: StringIO

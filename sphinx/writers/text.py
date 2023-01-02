@@ -33,9 +33,7 @@ class Cell:
         self.row: int | None = None
 
     def __repr__(self) -> str:
-        return "<Cell {!r} {}v{}/{}>{}>".format(
-            self.text, self.row, self.rowspan, self.col, self.colspan
-        )
+        return f"<Cell {self.text!r} {self.row}v{self.rowspan}/{self.col}>{self.colspan}>"
 
     def __hash__(self) -> int:
         return hash((self.col, self.row))
@@ -362,7 +360,7 @@ class TextWriter(writers.Writer):
 
     output: str = None
 
-    def __init__(self, builder: "TextBuilder") -> None:
+    def __init__(self, builder: TextBuilder) -> None:
         super().__init__()
         self.builder = builder
 
@@ -373,9 +371,9 @@ class TextWriter(writers.Writer):
 
 
 class TextTranslator(SphinxTranslator):
-    builder: "TextBuilder" = None
+    builder: TextBuilder = None
 
-    def __init__(self, document: nodes.document, builder: "TextBuilder") -> None:
+    def __init__(self, document: nodes.document, builder: TextBuilder) -> None:
         super().__init__(document, builder)
 
         newlines = self.config.text_newlines

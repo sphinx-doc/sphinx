@@ -120,7 +120,7 @@ class TexinfoWriter(writers.Writer):
 
     visitor_attributes = ('output', 'fragment')
 
-    def __init__(self, builder: "TexinfoBuilder") -> None:
+    def __init__(self, builder: TexinfoBuilder) -> None:
         super().__init__()
         self.builder = builder
 
@@ -136,7 +136,7 @@ class TexinfoWriter(writers.Writer):
 class TexinfoTranslator(SphinxTranslator):
 
     ignore_missing_images = False
-    builder: "TexinfoBuilder"
+    builder: TexinfoBuilder
 
     default_elements = {
         'author': '',
@@ -153,7 +153,7 @@ class TexinfoTranslator(SphinxTranslator):
         'title': '',
     }
 
-    def __init__(self, document: nodes.document, builder: "TexinfoBuilder") -> None:
+    def __init__(self, document: nodes.document, builder: TexinfoBuilder) -> None:
         super().__init__(document, builder)
         self.init_settings()
 
@@ -194,13 +194,13 @@ class TexinfoTranslator(SphinxTranslator):
             name, content = index
             pointers = tuple([name] + self.rellinks[name])
             self.body.append('\n@node %s,%s,%s,%s\n' % pointers)
-            self.body.append('@unnumbered %s\n\n%s\n' % (name, content))
+            self.body.append(f'@unnumbered {name}\n\n{content}\n')
 
         while self.referenced_ids:
             # handle xrefs with missing anchors
             r = self.referenced_ids.pop()
             if r not in self.written_ids:
-                self.body.append('@anchor{%s}@w{%s}\n' % (r, ' ' * 30))
+                self.body.append('@anchor{{{}}}@w{{{}}}\n'.format(r, ' ' * 30))
         self.ensure_eol()
         self.fragment = ''.join(self.body)
         self.elements['body'] = self.fragment
@@ -383,9 +383,9 @@ class TexinfoTranslator(SphinxTranslator):
 
     def format_menu_entry(self, name: str, node_name: str, desc: str) -> str:
         if name == node_name:
-            s = '* %s:: ' % (name,)
+            s = f'* {name}:: '
         else:
-            s = '* %s: %s. ' % (name, node_name)
+            s = f'* {name}: {node_name}. '
         offset = max((24, (len(name) + 4) % 78))
         wdesc = '\n'.join(' ' * offset + l for l in
                           textwrap.wrap(desc, width=78 - offset))
@@ -460,7 +460,7 @@ class TexinfoTranslator(SphinxTranslator):
                     if not entry[3]:
                         continue
                     name = self.escape_menu(entry[0])
-                    sid = self.get_short_id('%s:%s' % (entry[2], entry[3]))
+                    sid = self.get_short_id(f'{entry[2]}:{entry[3]}')
                     desc = self.escape_arg(entry[6])
                     me = self.format_menu_entry(name, sid, desc)
                     ret.append(me)
@@ -471,7 +471,7 @@ class TexinfoTranslator(SphinxTranslator):
         if indices_config:
             for domain in self.builder.env.domains.values():
                 for indexcls in domain.indices:
-                    indexname = '%s-%s' % (domain.name, indexcls.name)
+                    indexname = f'{domain.name}-{indexcls.name}'
                     if isinstance(indices_config, list):
                         if indexname not in indices_config:
                             continue
@@ -538,7 +538,7 @@ class TexinfoTranslator(SphinxTranslator):
         name = self.escape_menu(name)
         sid = self.get_short_id(id)
         if self.config.texinfo_cross_references:
-            self.body.append('@ref{%s,,%s}' % (sid, name))
+            self.body.append(f'@ref{{{sid},,{name}}}')
             self.referenced_ids.add(sid)
             self.referenced_ids.add(self.escape_id(id))
         else:
@@ -696,7 +696,7 @@ class TexinfoTranslator(SphinxTranslator):
             if not name or name == uri:
                 self.body.append('@email{%s}' % uri)
             else:
-                self.body.append('@email{%s,%s}' % (uri, name))
+                self.body.append(f'@email{{{uri},{name}}}')
         elif uri.startswith('#'):
             # references to labels in the same document
             id = self.curfilestack[-1] + ':' + uri[1:]
@@ -721,9 +721,9 @@ class TexinfoTranslator(SphinxTranslator):
             id = self.escape_id(id)
             name = self.escape_menu(name)
             if name == id:
-                self.body.append('@ref{%s,,,%s}' % (id, uri))
+                self.body.append(f'@ref{{{id},,,{uri}}}')
             else:
-                self.body.append('@ref{%s,,%s,%s}' % (id, name, uri))
+                self.body.append(f'@ref{{{id},,{name},{uri}}}')
         else:
             uri = self.escape_arg(uri)
             name = self.escape_arg(name)
@@ -733,11 +733,11 @@ class TexinfoTranslator(SphinxTranslator):
             if not name or uri == name:
                 self.body.append('@indicateurl{%s}' % uri)
             elif show_urls == 'inline':
-                self.body.append('@uref{%s,%s}' % (uri, name))
+                self.body.append(f'@uref{{{uri},{name}}}')
             elif show_urls == 'no':
-                self.body.append('@uref{%s,,%s}' % (uri, name))
+                self.body.append(f'@uref{{{uri},,{name}}}')
             else:
-                self.body.append('%s@footnote{%s}' % (name, uri))
+                self.body.append(f'{name}@footnote{{{uri}}}')
         raise nodes.SkipNode
 
     def depart_reference(self, node: Element) -> None:
@@ -1210,7 +1210,7 @@ class TexinfoTranslator(SphinxTranslator):
         width = self.tex_image_length(node.get('width', ''))
         height = self.tex_image_length(node.get('height', ''))
         alt = self.escape_arg(node.get('alt', ''))
-        filename = "%s-figures/%s" % (self.elements['filename'][:-5], name)  # type: ignore
+        filename = f"{self.elements['filename'][:-5]}-figures/{name}"  # type: ignore
         self.body.append('\n@image{%s,%s,%s,%s,%s}\n' %
                          (filename, width, height, alt, ext[1:]))
 
@@ -1405,7 +1405,7 @@ class TexinfoTranslator(SphinxTranslator):
             name = objtype
         # by convention, the deffn category should be capitalized like a title
         category = self.escape_arg(smart_capwords(name))
-        self.body.append('\n%s {%s} ' % (self.at_deffnx, category))
+        self.body.append(f'\n{self.at_deffnx} {{{category}}} ')
         self.at_deffnx = '@deffnx'
         self.desc_type_name: str | None = name
 

@@ -63,26 +63,24 @@ class ChangesBuilder(Builder):
             context = changeset.content.replace('\n', ' ')
             if descname and changeset.docname.startswith('c-api'):
                 if context:
-                    entry = '<b>%s</b>: <i>%s:</i> %s' % (descname, ttext,
-                                                          context)
+                    entry = f'<b>{descname}</b>: <i>{ttext}:</i> {context}'
                 else:
-                    entry = '<b>%s</b>: <i>%s</i>.' % (descname, ttext)
+                    entry = f'<b>{descname}</b>: <i>{ttext}</i>.'
                 apichanges.append((entry, changeset.docname, changeset.lineno))
             elif descname or changeset.module:
                 module = changeset.module or _('Builtins')
                 if not descname:
                     descname = _('Module level')
                 if context:
-                    entry = '<b>%s</b>: <i>%s:</i> %s' % (descname, ttext,
-                                                          context)
+                    entry = f'<b>{descname}</b>: <i>{ttext}:</i> {context}'
                 else:
-                    entry = '<b>%s</b>: <i>%s</i>.' % (descname, ttext)
+                    entry = f'<b>{descname}</b>: <i>{ttext}</i>.'
                 libchanges.setdefault(module, []).append((entry, changeset.docname,
                                                           changeset.lineno))
             else:
                 if not context:
                     continue
-                entry = '<i>%s:</i> %s' % (ttext.capitalize(), context)
+                entry = f'<i>{ttext.capitalize()}:</i> {context}'
                 title = self.env.titles[changeset.docname].astext()
                 otherchanges.setdefault((changeset.docname, title), []).append(
                     (entry, changeset.docname, changeset.lineno))
@@ -143,8 +141,8 @@ class ChangesBuilder(Builder):
     def hl(self, text: str, version: str) -> str:
         text = html.escape(text)
         for directive in ('versionchanged', 'versionadded', 'deprecated'):
-            text = text.replace('.. %s:: %s' % (directive, version),
-                                '<b>.. %s:: %s</b>' % (directive, version))
+            text = text.replace(f'.. {directive}:: {version}',
+                                f'<b>.. {directive}:: {version}</b>')
         return text
 
     def finish(self) -> None:

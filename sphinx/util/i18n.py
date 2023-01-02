@@ -233,7 +233,7 @@ def format_date(
     return "".join(result)
 
 
-def get_image_filename_for_language(filename: str, env: "BuildEnvironment") -> str:
+def get_image_filename_for_language(filename: str, env: BuildEnvironment) -> str:
     filename_format = env.config.figure_language_filename
     d = {}
     d['root'], d['ext'] = path.splitext(filename)
@@ -253,7 +253,7 @@ def get_image_filename_for_language(filename: str, env: "BuildEnvironment") -> s
         raise SphinxError('Invalid figure_language_filename: %r' % exc) from exc
 
 
-def search_image_for_language(filename: str, env: "BuildEnvironment") -> str:
+def search_image_for_language(filename: str, env: BuildEnvironment) -> str:
     translated = get_image_filename_for_language(filename, env)
     _, abspath = env.relfn2path(translated)
     if path.exists(abspath):

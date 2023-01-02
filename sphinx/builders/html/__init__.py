@@ -103,7 +103,7 @@ class Stylesheet(str):
     priority: int = None
 
     def __new__(cls, filename: str, *args: str, priority: int = 500, **attributes: Any
-                ) -> "Stylesheet":
+                ) -> Stylesheet:
         self = str.__new__(cls, filename)
         self.filename = filename
         self.priority = priority
@@ -128,7 +128,7 @@ class JavaScript(str):
     filename: str = None
     priority: int = None
 
-    def __new__(cls, filename: str, priority: int = 500, **attributes: str) -> "JavaScript":
+    def __new__(cls, filename: str, priority: int = 500, **attributes: str) -> JavaScript:
         self = str.__new__(cls, filename)
         self.filename = filename
         self.priority = priority
@@ -145,7 +145,7 @@ class BuildInfo:
     """
 
     @classmethod
-    def load(cls, f: IO) -> "BuildInfo":
+    def load(cls, f: IO) -> BuildInfo:
         try:
             lines = f.readlines()
             assert lines[0].rstrip() == '# Sphinx build info version 1'
@@ -172,7 +172,7 @@ class BuildInfo:
         if tags:
             self.tags_hash = get_stable_hash(sorted(tags))
 
-    def __eq__(self, other: "BuildInfo") -> bool:  # type: ignore
+    def __eq__(self, other: BuildInfo) -> bool:  # type: ignore
         return (self.config_hash == other.config_hash and
                 self.tags_hash == other.tags_hash)
 
@@ -489,7 +489,7 @@ class StandaloneHTMLBuilder(Builder):
             for domain_name in sorted(self.env.domains):
                 domain: Domain = self.env.domains[domain_name]
                 for indexcls in domain.indices:
-                    indexname = '%s-%s' % (domain.name, indexcls.name)
+                    indexname = f'{domain.name}-{indexcls.name}'
                     if isinstance(indices_config, list):
                         if indexname not in indices_config:
                             continue
@@ -1197,7 +1197,7 @@ def setup_css_tag_helper(app: Sphinx, pagename: str, templatename: str,
         for key in sorted(css.attributes):
             value = css.attributes[key]
             if value is not None:
-                attrs.append('%s="%s"' % (key, html.escape(value, True)))
+                attrs.append(f'{key}="{html.escape(value, True)}"')
         attrs.append('href="%s"' % pathto(css.filename, resource=True))
         return '<link %s />' % ' '.join(attrs)
 
@@ -1224,7 +1224,7 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
                     elif key == 'data_url_root':
                         attrs.append('data-url_root="%s"' % pathto('', resource=True))
                     else:
-                        attrs.append('%s="%s"' % (key, html.escape(value, True)))
+                        attrs.append(f'{key}="{html.escape(value, True)}"')
             if js.filename:
                 attrs.append('src="%s"' % pathto(js.filename, resource=True))
         else:
@@ -1232,9 +1232,9 @@ def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
             attrs.append('src="%s"' % pathto(js, resource=True))
 
         if attrs:
-            return '<script %s>%s</script>' % (' '.join(attrs), body)
+            return f'<script {" ".join(attrs)}>{body}</script>'
         else:
-            return '<script>%s</script>' % body
+            return f'<script>{body}</script>'
 
     context['js_tag'] = js_tag
 

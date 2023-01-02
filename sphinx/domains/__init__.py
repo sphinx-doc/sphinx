@@ -88,7 +88,7 @@ class Index(ABC):
     localname: str = None
     shortname: str = None
 
-    def __init__(self, domain: "Domain") -> None:
+    def __init__(self, domain: Domain) -> None:
         if self.name is None or self.localname is None:
             raise SphinxError('Index subclass %s has no valid name or localname'
                               % self.__class__.__name__)
@@ -196,7 +196,7 @@ class Domain:
     #: data version, bump this when the format of `self.data` changes
     data_version = 0
 
-    def __init__(self, env: "BuildEnvironment") -> None:
+    def __init__(self, env: BuildEnvironment) -> None:
         self.env: BuildEnvironment = env
         self._role_cache: dict[str, Callable] = {}
         self._directive_cache: dict[str, Callable] = {}
@@ -233,7 +233,7 @@ class Domain:
         std = cast(StandardDomain, self.env.get_domain('std'))
         for index in self.indices:
             if index.name and index.localname:
-                docname = "%s-%s" % (self.name, index.name)
+                docname = f"{self.name}-{index.name}"
                 std.note_hyperlink_target(docname, docname, '', index.localname)
 
     def add_object_type(self, name: str, objtype: ObjType) -> None:
@@ -255,7 +255,7 @@ class Domain:
             return self._role_cache[name]
         if name not in self.roles:
             return None
-        fullname = '%s:%s' % (self.name, name)
+        fullname = f'{self.name}:{name}'
 
         def role_adapter(typ: str, rawtext: str, text: str, lineno: int,
                          inliner: Inliner, options: dict = {}, content: list[str] = []
@@ -273,7 +273,7 @@ class Domain:
             return self._directive_cache[name]
         if name not in self.directives:
             return None
-        fullname = '%s:%s' % (self.name, name)
+        fullname = f'{self.name}:{name}'
         BaseDirective = self.directives[name]
 
         class DirectiveAdapter(BaseDirective):  # type: ignore
@@ -297,7 +297,7 @@ class Domain:
                                   'to be able to do parallel builds!' %
                                   self.__class__)
 
-    def process_doc(self, env: "BuildEnvironment", docname: str,
+    def process_doc(self, env: BuildEnvironment, docname: str,
                     document: nodes.document) -> None:
         """Process a document after it is read by the environment."""
         pass
@@ -312,7 +312,7 @@ class Domain:
         """
         pass
 
-    def resolve_xref(self, env: "BuildEnvironment", fromdocname: str, builder: "Builder",
+    def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element
                      ) -> Element | None:
         """Resolve the pending_xref *node* with the given *typ* and *target*.
@@ -330,7 +330,7 @@ class Domain:
         """
         pass
 
-    def resolve_any_xref(self, env: "BuildEnvironment", fromdocname: str, builder: "Builder",
+    def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element
                          ) -> list[tuple[str, Element]]:
         """Resolve the pending_xref *node* with the given *target*.

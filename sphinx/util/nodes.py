@@ -295,7 +295,7 @@ def get_prev_node(node: Node) -> Node | None:
 
 def traverse_translatable_index(
     doctree: Element
-) -> Iterable[tuple[Element, list["IndexEntry"]]]:
+) -> Iterable[tuple[Element, list[IndexEntry]]]:
     """Traverse translatable index node from a document tree."""
     matcher = NodeMatcher(addnodes.index, inline=False)
     for node in doctree.findall(matcher):  # type: addnodes.index
@@ -387,7 +387,7 @@ def process_index_entry(entry: str, targetid: str
     return indexentries
 
 
-def inline_all_toctrees(builder: "Builder", docnameset: set[str], docname: str,
+def inline_all_toctrees(builder: Builder, docnameset: set[str], docname: str,
                         tree: nodes.document, colorfunc: Callable, traversed: list[str]
                         ) -> nodes.document:
     """Inline all toctrees in the *tree*.
@@ -494,7 +494,7 @@ _non_id_translate_digraphs = {
 }
 
 
-def make_id(env: "BuildEnvironment", document: nodes.document,
+def make_id(env: BuildEnvironment, document: nodes.document,
             prefix: str = '', term: str | None = None) -> str:
     """Generate an appropriate node_id for given *prefix* and *term*."""
     node_id = None
@@ -530,7 +530,7 @@ def find_pending_xref_condition(node: addnodes.pending_xref, condition: str
     return None
 
 
-def make_refnode(builder: "Builder", fromdocname: str, todocname: str, targetid: str,
+def make_refnode(builder: Builder, fromdocname: str, todocname: str, targetid: str,
                  child: Node | list[Node], title: str | None = None
                  ) -> nodes.reference:
     """Shortcut to create a reference node."""
@@ -588,7 +588,7 @@ def is_smartquotable(node: Node) -> bool:
     return True
 
 
-def process_only_nodes(document: Node, tags: "Tags") -> None:
+def process_only_nodes(document: Node, tags: Tags) -> None:
     """Filter ``only`` nodes which do not match *tags*."""
     for node in document.findall(addnodes.only):
         try:

@@ -195,7 +195,7 @@ class TestGroup:
         self.tests: list[list[TestCode]] = []
         self.cleanup: list[TestCode] = []
 
-    def add_code(self, code: "TestCode", prepend: bool = False) -> None:
+    def add_code(self, code: TestCode, prepend: bool = False) -> None:
         if code.type == 'testsetup':
             if prepend:
                 self.setup.insert(0, code)
@@ -214,8 +214,8 @@ class TestGroup:
             raise RuntimeError(__('invalid TestCode type'))
 
     def __repr__(self) -> str:
-        return 'TestGroup(name=%r, setup=%r, cleanup=%r, tests=%r)' % (
-            self.name, self.setup, self.cleanup, self.tests)
+        return (f'TestGroup(name={self.name!r}, setup={self.setup!r}, '
+                f'cleanup={self.cleanup!r}, tests={self.tests!r})')
 
 
 class TestCode:
@@ -228,8 +228,8 @@ class TestCode:
         self.options = options or {}
 
     def __repr__(self) -> str:
-        return 'TestCode(%r, %r, filename=%r, lineno=%r, options=%r)' % (
-            self.code, self.type, self.filename, self.lineno, self.options)
+        return (f'TestCode({self.code!r}, {self.type!r}, filename={self.filename!r}, '
+                f'lineno={self.lineno!r}, options={self.options!r})')
 
 
 class SphinxDocTestRunner(doctest.DocTestRunner):
@@ -482,7 +482,7 @@ Doctest summary
                 return True
             # simulate a doctest with the code
             sim_doctest = doctest.DocTest(examples, {},
-                                          '%s (%s code)' % (group.name, what),
+                                          f'{group.name} ({what} code)',
                                           testcodes[0].filename, 0, None)
             sim_doctest.globs = ns
             old_f = runner.failures
@@ -542,7 +542,7 @@ Doctest summary
         run_setup_cleanup(self.cleanup_runner, group.cleanup, 'cleanup')
 
 
-def setup(app: "Sphinx") -> dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_directive('testsetup', TestsetupDirective)
     app.add_directive('testcleanup', TestcleanupDirective)
     app.add_directive('doctest', DoctestDirective)

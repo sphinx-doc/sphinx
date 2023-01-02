@@ -7,7 +7,7 @@ from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta, tzinfo
 from os import getenv, path, walk
 from time import time
-from typing import Any, Generator, Iterable, Union
+from typing import Any, Generator, Iterable
 from uuid import uuid4
 
 from docutils import nodes
@@ -47,7 +47,7 @@ class Catalog:
         # msgid -> file, line, uid
         self.metadata: dict[str, list[tuple[str, int, str]]] = OrderedDict()
 
-    def add(self, msg: str, origin: Union[Element, "MsgOrigin"]) -> None:
+    def add(self, msg: str, origin: Element | MsgOrigin) -> None:
         if not hasattr(origin, 'uid'):
             # Nodes that are replicated like todo don't have a uid,
             # however i18n is also unnecessary.
@@ -250,7 +250,7 @@ class MessageCatalogBuilder(I18nBuilder):
                     origin = MsgOrigin(template, line)
                     self.catalogs['sphinx'].add(msg, origin)
             except Exception as exc:
-                raise ThemeError('%s: %r' % (template, exc)) from exc
+                raise ThemeError(f'{template}: {exc!r}') from exc
 
     def build(
         self, docnames: Iterable[str], summary: str | None = None, method: str = 'update'

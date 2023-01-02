@@ -76,11 +76,11 @@ class ModuleAnalyzer:
 
     @classmethod
     def for_string(cls, string: str, modname: str, srcname: str = '<string>'
-                   ) -> "ModuleAnalyzer":
+                   ) -> ModuleAnalyzer:
         return cls(string, modname, srcname)
 
     @classmethod
-    def for_file(cls, filename: str, modname: str) -> "ModuleAnalyzer":
+    def for_file(cls, filename: str, modname: str) -> ModuleAnalyzer:
         if ('file', filename) in cls.cache:
             return cls.cache['file', filename]
         try:
@@ -96,7 +96,7 @@ class ModuleAnalyzer:
         return obj
 
     @classmethod
-    def for_egg(cls, filename: str, modname: str) -> "ModuleAnalyzer":
+    def for_egg(cls, filename: str, modname: str) -> ModuleAnalyzer:
         SEP = re.escape(path.sep)
         eggpath, relpath = re.split('(?<=\\.egg)' + SEP, filename)
         try:
@@ -107,7 +107,7 @@ class ModuleAnalyzer:
             raise PycodeError('error opening %r' % filename, exc) from exc
 
     @classmethod
-    def for_module(cls, modname: str) -> "ModuleAnalyzer":
+    def for_module(cls, modname: str) -> ModuleAnalyzer:
         if ('module', modname) in cls.cache:
             entry = cls.cache['module', modname]
             if isinstance(entry, PycodeError):
@@ -158,7 +158,7 @@ class ModuleAnalyzer:
             self.tagorder = parser.deforders
             self._analyzed = True
         except Exception as exc:
-            raise PycodeError('parsing %r failed: %r' % (self.srcname, exc)) from exc
+            raise PycodeError(f'parsing {self.srcname!r} failed: {exc!r}') from exc
 
     def find_attr_docs(self) -> dict[tuple[str, str], list[str]]:
         """Find class and module-level attributes and their documentation."""

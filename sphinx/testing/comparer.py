@@ -36,7 +36,7 @@ class PathComparer:
         return self.path.as_posix()
 
     def __repr__(self) -> str:
-        return "<{0.__class__.__name__}: '{0}'>".format(self)
+        return f"<{self.__class__.__name__}: '{self}'>"
 
     def __eq__(self, other: str | pathlib.Path) -> bool:  # type: ignore
         return not bool(self.ldiff(other))

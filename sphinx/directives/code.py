@@ -470,7 +470,7 @@ class LiteralInclude(SphinxDirective):
             return [document.reporter.warning(exc, line=self.lineno)]
 
 
-def setup(app: "Sphinx") -> dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     directives.register_directive('highlight', Highlight)
     directives.register_directive('code-block', CodeBlock)
     directives.register_directive('sourcecode', CodeBlock)

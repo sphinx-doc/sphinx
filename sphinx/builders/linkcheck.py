@@ -177,7 +177,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
     def write_entry(self, what: str, docname: str, filename: str, line: int,
                     uri: str) -> None:
-        self.txt_outfile.write("%s:%s: [%s] %s\n" % (filename, line, what, uri))
+        self.txt_outfile.write(f"{filename}:{line}: [{what}] {uri}\n")
 
     def write_linkstat(self, data: dict) -> None:
         self.json_outfile.write(json.dumps(data))
@@ -248,8 +248,8 @@ class HyperlinkAvailabilityChecker:
 class HyperlinkAvailabilityCheckWorker(Thread):
     """A worker class for checking the availability of hyperlinks."""
 
-    def __init__(self, env: BuildEnvironment, config: Config, rqueue: 'Queue[CheckResult]',
-                 wqueue: 'Queue[CheckRequest]', rate_limits: dict[str, RateLimit]) -> None:
+    def __init__(self, env: BuildEnvironment, config: Config, rqueue: Queue[CheckResult],
+                 wqueue: Queue[CheckRequest], rate_limits: dict[str, RateLimit]) -> None:
         self.config = config
         self.env = env
         self.rate_limits = rate_limits
@@ -272,8 +272,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
         def get_request_headers() -> dict[str, str]:
             url = urlparse(uri)
-            candidates = ["%s://%s" % (url.scheme, url.netloc),
-                          "%s://%s/" % (url.scheme, url.netloc),
+            candidates = [f"{url.scheme}://{url.netloc}",
+                          f"{url.scheme}://{url.netloc}/",
                           uri,
                           "*"]
 

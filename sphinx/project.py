@@ -28,7 +28,7 @@ class Project:
         #: The name of documents belongs to this project.
         self.docnames: set[str] = set()
 
-    def restore(self, other: "Project") -> None:
+    def restore(self, other: Project) -> None:
         """Take over a result of last build."""
         self.docnames = other.docnames
 

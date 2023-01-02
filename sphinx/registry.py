@@ -136,7 +136,7 @@ class SphinxComponentRegistry:
                                  (builder.name, self.builders[builder.name].__module__))
         self.builders[builder.name] = builder
 
-    def preload_builder(self, app: "Sphinx", name: str) -> None:
+    def preload_builder(self, app: Sphinx, name: str) -> None:
         if name is None:
             return
 
@@ -150,7 +150,7 @@ class SphinxComponentRegistry:
 
             self.load_extension(app, entry_point.module)
 
-    def create_builder(self, app: "Sphinx", name: str,
+    def create_builder(self, app: Sphinx, name: str,
                        env: BuildEnvironment | None = None) -> Builder:
         if name not in self.builders:
             raise SphinxError(__('Builder name %s not registered') % name)
@@ -309,7 +309,7 @@ class SphinxComponentRegistry:
     def get_source_parsers(self) -> dict[str, type[Parser]]:
         return self.source_parsers
 
-    def create_source_parser(self, app: "Sphinx", filename: str) -> Parser:
+    def create_source_parser(self, app: Sphinx, filename: str) -> Parser:
         parser_class = self.get_source_parser(filename)
         parser = parser_class()
         if isinstance(parser, SphinxParser):
@@ -373,7 +373,7 @@ class SphinxComponentRegistry:
     def get_post_transforms(self) -> list[type[Transform]]:
         return self.post_transforms
 
-    def add_documenter(self, objtype: str, documenter: type["Documenter"]) -> None:
+    def add_documenter(self, objtype: str, documenter: type[Documenter]) -> None:
         self.documenters[objtype] = documenter
 
     def add_autodoc_attrgetter(self, typ: type,
@@ -426,7 +426,7 @@ class SphinxComponentRegistry:
     def add_html_theme(self, name: str, theme_path: str) -> None:
         self.html_themes[name] = theme_path
 
-    def load_extension(self, app: "Sphinx", extname: str) -> None:
+    def load_extension(self, app: Sphinx, extname: str) -> None:
         """Load a Sphinx extension."""
         if extname in app.extensions:  # already loaded
             return
@@ -472,14 +472,14 @@ class SphinxComponentRegistry:
 
             app.extensions[extname] = Extension(extname, mod, **metadata)
 
-    def get_envversion(self, app: "Sphinx") -> dict[str, str]:
+    def get_envversion(self, app: Sphinx) -> dict[str, str]:
         from sphinx.environment import ENV_VERSION
         envversion = {ext.name: ext.metadata['env_version'] for ext in app.extensions.values()
                       if ext.metadata.get('env_version')}
         envversion['sphinx'] = ENV_VERSION
         return envversion
 
-    def get_publisher(self, app: "Sphinx", filetype: str) -> Publisher:
+    def get_publisher(self, app: Sphinx, filetype: str) -> Publisher:
         try:
             return self.publishers[filetype]
         except KeyError:
@@ -489,7 +489,7 @@ class SphinxComponentRegistry:
         return publisher
 
 
-def merge_source_suffix(app: "Sphinx", config: Config) -> None:
+def merge_source_suffix(app: Sphinx, config: Config) -> None:
     """Merge any user-specified source_suffix with any added by extensions."""
     for suffix, filetype in app.registry.source_suffix.items():
         if suffix not in app.config.source_suffix:
@@ -503,7 +503,7 @@ def merge_source_suffix(app: "Sphinx", config: Config) -> None:
     app.registry.source_suffix = app.config.source_suffix
 
 
-def setup(app: "Sphinx") -> dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.connect('config-inited', merge_source_suffix, priority=800)
 
     return {

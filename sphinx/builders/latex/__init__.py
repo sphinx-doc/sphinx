@@ -238,11 +238,11 @@ class LaTeXBuilder(Builder):
             self.context['classoptions'] += ',' + self.babel.get_language()
             options = self.babel.get_mainlanguage_options()
             if options:
-                language = r'\setmainlanguage[%s]{%s}' % (options, self.babel.get_language())
+                language = fr'\setmainlanguage[{options}]{{{self.babel.get_language()}}}'
             else:
                 language = r'\setmainlanguage{%s}' % self.babel.get_language()
 
-            self.context['multilingual'] = '%s\n%s' % (self.context['polyglossia'], language)
+            self.context['multilingual'] = f'{self.context["polyglossia"]}\n{language}'
 
     def write_stylesheet(self) -> None:
         highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style)
