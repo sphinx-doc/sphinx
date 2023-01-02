@@ -98,10 +98,9 @@ class ParallelTasks:
             while self._pworking:
                 if not self._join_one():
                     time.sleep(0.02)
-        except Exception:
+        finally:
             # shutdown other child processes on failure
             self.terminate()
-            raise
 
     def terminate(self) -> None:
         for tid in list(self._precvs):
