@@ -86,7 +86,7 @@ class TocTree:
                 if isinstance(subnode, (addnodes.compact_paragraph,
                                         nodes.list_item)):
                     # for <p> and <li>, indicate the depth level and recurse
-                    subnode['classes'].append('toctree-l%d' % (depth - 1))
+                    subnode['classes'].append(f'toctree-l{depth - 1}')
                     _toctree_add_classes(subnode, depth)
                 elif isinstance(subnode, nodes.bullet_list):
                     # for <ul>, just recurse
@@ -111,8 +111,7 @@ class TocTree:
                             subnode = subnode.parent
 
         def _entries_from_toctree(toctreenode: addnodes.toctree, parents: list[str],
-                                  separate: bool = False, subtree: bool = False
-                                  ) -> list[Element]:
+                                  subtree: bool = False) -> list[Element]:
             """Return TOC entries for a toctree node."""
             refs = [(e[0], e[1]) for e in toctreenode['entries']]
             entries: list[Element] = []
@@ -189,15 +188,15 @@ class TocTree:
 
                     logger.warning(message, ref, location=toctreenode)
                 else:
+                    # children of toc are:
+                    # - list_item + compact_paragraph + (reference and subtoc)
+                    # - only + subtoc
+                    # - toctree
+                    children = cast(Iterable[nodes.Element], toc)
+
                     # if titles_only is given, only keep the main title and
                     # sub-toctrees
                     if titles_only:
-                        # children of toc are:
-                        # - list_item + compact_paragraph + (reference and subtoc)
-                        # - only + subtoc
-                        # - toctree
-                        children = cast(Iterable[nodes.Element], toc)
-
                         # delete everything but the toplevel title(s)
                         # and toctrees
                         for toplevel in children:
@@ -209,22 +208,19 @@ class TocTree:
                                 else:
                                     toplevel.pop(1)
                     # resolve all sub-toctrees
-                    for subtocnode in list(toc.findall(addnodes.toctree)):
-                        if not (subtocnode.get('hidden', False) and
-                                not includehidden):
-                            i = subtocnode.parent.index(subtocnode) + 1
-                            for entry in _entries_from_toctree(
-                                    subtocnode, [refdoc] + parents,
-                                    subtree=True):
-                                subtocnode.parent.insert(i, entry)
-                                i += 1
-                            subtocnode.parent.remove(subtocnode)
-                    if separate:
-                        entries.append(toc)
-                    else:
-                        children = cast(Iterable[nodes.Element], toc)
-                        entries.extend(children)
-            if not subtree and not separate:
+                    for sub_toc_node in list(toc.findall(addnodes.toctree)):
+                        if sub_toc_node.get('hidden', False) and not includehidden:
+                            continue
+                        for i, entry in enumerate(
+                            _entries_from_toctree(sub_toc_node, [refdoc] + parents,
+                                                  subtree=True),
+                            start=sub_toc_node.parent.index(sub_toc_node) + 1
+                        ):
+                            sub_toc_node.parent.insert(i, entry)
+                        sub_toc_node.parent.remove(sub_toc_node)
+
+                    entries.extend(children)
+            if not subtree:
                 ret = nodes.bullet_list()
                 ret += entries
                 return [ret]
@@ -236,10 +232,7 @@ class TocTree:
         if not includehidden and toctree.get('includehidden', False):
             includehidden = True
 
-        # NOTE: previously, this was separate=True, but that leads to artificial
-        # separation when two or more toctree entries form a logical unit, so
-        # separating mode is no longer used -- it's kept here for history's sake
-        tocentries = _entries_from_toctree(toctree, [], separate=False)
+        tocentries = _entries_from_toctree(toctree, [])
         if not tocentries:
             return None
 
