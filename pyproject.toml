@@ -251,11 +251,10 @@ module = [
     "sphinx.util.cfamily",
     "sphinx.util.docfields",
     "sphinx.util.docutils",
-    "sphinx.util.nodes",
     "sphinx.util.typing",
     "sphinx.writers.latex",
     "sphinx.writers.text",
-    "sphinx.writers.xml"
+    "sphinx.writers.xml",
 ]
 strict_optional = false
 
