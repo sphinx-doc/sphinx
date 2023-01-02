@@ -1,6 +1,8 @@
 """Toctree adapter for sphinx.environment."""
 
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, TypeVar, cast
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Iterable, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -20,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class TocTree:
-    def __init__(self, env: "BuildEnvironment") -> None:
+    def __init__(self, env: BuildEnvironment) -> None:
         self.env = env
 
     def note(self, docname: str, toctreenode: addnodes.toctree) -> None:
@@ -38,9 +40,9 @@ class TocTree:
             self.env.files_to_rebuild.setdefault(includefile, set()).add(docname)
         self.env.toctree_includes.setdefault(docname, []).extend(includefiles)
 
-    def resolve(self, docname: str, builder: "Builder", toctree: addnodes.toctree,
+    def resolve(self, docname: str, builder: Builder, toctree: addnodes.toctree,
                 prune: bool = True, maxdepth: int = 0, titles_only: bool = False,
-                collapse: bool = False, includehidden: bool = False) -> Optional[Element]:
+                collapse: bool = False, includehidden: bool = False) -> Element | None:
         """Resolve a *toctree* node into individual bullet lists with titles
         as items, returning None (if no containing titles are found) or
         a new node.
@@ -54,7 +56,7 @@ class TocTree:
         """
         if toctree.get('hidden', False) and not includehidden:
             return None
-        generated_docnames: Dict[str, Tuple[str, str]] = self.env.domains['std']._virtual_doc_names.copy()  # NoQA: E501
+        generated_docnames: dict[str, tuple[str, str]] = self.env.domains['std']._virtual_doc_names.copy()  # NoQA: E501
 
         # For reading the following two helper function, it is useful to keep
         # in mind the node structure of a toctree (using HTML-like node names
@@ -108,12 +110,12 @@ class TocTree:
                             subnode['iscurrent'] = True
                             subnode = subnode.parent
 
-        def _entries_from_toctree(toctreenode: addnodes.toctree, parents: List[str],
+        def _entries_from_toctree(toctreenode: addnodes.toctree, parents: list[str],
                                   separate: bool = False, subtree: bool = False
-                                  ) -> List[Element]:
+                                  ) -> list[Element]:
             """Return TOC entries for a toctree node."""
             refs = [(e[0], e[1]) for e in toctreenode['entries']]
-            entries: List[Element] = []
+            entries: list[Element] = []
             for (title, ref) in refs:
                 try:
                     refdoc = None
@@ -271,12 +273,12 @@ class TocTree:
                     docname, refnode['refuri']) + refnode['anchorname']
         return newnode
 
-    def get_toctree_ancestors(self, docname: str) -> List[str]:
+    def get_toctree_ancestors(self, docname: str) -> list[str]:
         parent = {}
         for p, children in self.env.toctree_includes.items():
             for child in children:
                 parent[child] = p
-        ancestors: List[str] = []
+        ancestors: list[str] = []
         d = docname
         while d in parent and d not in ancestors:
             ancestors.append(d)
@@ -337,7 +339,7 @@ class TocTree:
                         # recurse on visible children
                         self._toctree_prune(subnode, depth + 1, maxdepth,  collapse)
 
-    def get_toc_for(self, docname: str, builder: "Builder") -> Node:
+    def get_toc_for(self, docname: str, builder: Builder) -> Node:
         """Return a TOC nodetree -- for use on the same page only!"""
         tocdepth = self.env.metadata[docname].get('tocdepth', 0)
         try:
@@ -351,11 +353,11 @@ class TocTree:
             node['refuri'] = node['anchorname'] or '#'
         return toc
 
-    def get_toctree_for(self, docname: str, builder: "Builder", collapse: bool,
-                        **kwargs: Any) -> Optional[Element]:
+    def get_toctree_for(self, docname: str, builder: Builder, collapse: bool,
+                        **kwargs: Any) -> Element | None:
         """Return the global TOC nodetree."""
         doctree = self.env.get_doctree(self.env.config.root_doc)
-        toctrees: List[Element] = []
+        toctrees: list[Element] = []
         if 'includehidden' not in kwargs:
             kwargs['includehidden'] = True
         if 'maxdepth' not in kwargs or not kwargs['maxdepth']:

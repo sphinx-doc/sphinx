@@ -1,5 +1,7 @@
 """The CheckExternalLinksBuilder class."""
 
+from __future__ import annotations
+
 import json
 import re
 import socket
@@ -11,7 +13,7 @@ from html.parser import HTMLParser
 from os import path
 from queue import PriorityQueue, Queue
 from threading import Thread
-from typing import Any, Dict, Generator, List, NamedTuple, Optional, Tuple, Union, cast
+from typing import Any, Generator, NamedTuple, Tuple, Union, cast
 from urllib.parse import unquote, urlparse, urlunparse
 
 from docutils import nodes
@@ -36,12 +38,12 @@ uri_re = re.compile('([a-z]+:)?//')  # matches to foo:// and // (a protocol rela
 class Hyperlink(NamedTuple):
     uri: str
     docname: str
-    lineno: Optional[int]
+    lineno: int | None
 
 
 class CheckRequest(NamedTuple):
     next_check: float
-    hyperlink: Optional[Hyperlink]
+    hyperlink: Hyperlink | None
 
 
 class CheckResult(NamedTuple):
@@ -113,7 +115,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
     def init(self) -> None:
         self.broken_hyperlinks = 0
-        self.hyperlinks: Dict[str, Hyperlink] = {}
+        self.hyperlinks: dict[str, Hyperlink] = {}
         # set a timeout for non-responding servers
         socket.setdefaulttimeout(5.0)
 
@@ -175,7 +177,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
     def write_entry(self, what: str, docname: str, filename: str, line: int,
                     uri: str) -> None:
-        self.txt_outfile.write("%s:%s: [%s] %s\n" % (filename, line, what, uri))
+        self.txt_outfile.write(f"{filename}:{line}: [{what}] {uri}\n")
 
     def write_linkstat(self, data: dict) -> None:
         self.json_outfile.write(json.dumps(data))
@@ -200,9 +202,9 @@ class HyperlinkAvailabilityChecker:
     def __init__(self, env: BuildEnvironment, config: Config) -> None:
         self.config = config
         self.env = env
-        self.rate_limits: Dict[str, RateLimit] = {}
+        self.rate_limits: dict[str, RateLimit] = {}
         self.rqueue: Queue[CheckResult] = Queue()
-        self.workers: List[Thread] = []
+        self.workers: list[Thread] = []
         self.wqueue: PriorityQueue[CheckRequest] = PriorityQueue()
 
         self.to_ignore = [re.compile(x) for x in self.config.linkcheck_ignore]
@@ -220,7 +222,7 @@ class HyperlinkAvailabilityChecker:
         for _worker in self.workers:
             self.wqueue.put(CheckRequest(CHECK_IMMEDIATELY, None), False)
 
-    def check(self, hyperlinks: Dict[str, Hyperlink]) -> Generator[CheckResult, None, None]:
+    def check(self, hyperlinks: dict[str, Hyperlink]) -> Generator[CheckResult, None, None]:
         self.invoke_threads()
 
         total_links = 0
@@ -246,8 +248,8 @@ class HyperlinkAvailabilityChecker:
 class HyperlinkAvailabilityCheckWorker(Thread):
     """A worker class for checking the availability of hyperlinks."""
 
-    def __init__(self, env: BuildEnvironment, config: Config, rqueue: 'Queue[CheckResult]',
-                 wqueue: 'Queue[CheckRequest]', rate_limits: Dict[str, RateLimit]) -> None:
+    def __init__(self, env: BuildEnvironment, config: Config, rqueue: Queue[CheckResult],
+                 wqueue: Queue[CheckRequest], rate_limits: dict[str, RateLimit]) -> None:
         self.config = config
         self.env = env
         self.rate_limits = rate_limits
@@ -268,10 +270,10 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         if self.config.linkcheck_timeout:
             kwargs['timeout'] = self.config.linkcheck_timeout
 
-        def get_request_headers() -> Dict[str, str]:
+        def get_request_headers() -> dict[str, str]:
             url = urlparse(uri)
-            candidates = ["%s://%s" % (url.scheme, url.netloc),
-                          "%s://%s/" % (url.scheme, url.netloc),
+            candidates = [f"{url.scheme}://{url.netloc}",
+                          f"{url.scheme}://{url.netloc}/",
                           uri,
                           "*"]
 
@@ -283,7 +285,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
             return {}
 
-        def check_uri() -> Tuple[str, str, int]:
+        def check_uri() -> tuple[str, str, int]:
             # split off anchor
             if '#' in uri:
                 req_url, anchor = uri.split('#', 1)
@@ -380,13 +382,13 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     return 'redirected', new_url, 0
 
         def allowed_redirect(url: str, new_url: str) -> bool:
-            for from_url, to_url in self.config.linkcheck_allowed_redirects.items():
-                if from_url.match(url) and to_url.match(new_url):
-                    return True
+            return any(
+                from_url.match(url) and to_url.match(new_url)
+                for from_url, to_url
+                in self.config.linkcheck_allowed_redirects.items()
+            )
 
-            return False
-
-        def check(docname: str) -> Tuple[str, str, int]:
+        def check(docname: str) -> tuple[str, str, int]:
             # check for various conditions without bothering the network
 
             for doc_matcher in self.documents_exclude:
@@ -455,7 +457,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 self.rqueue.put(CheckResult(uri, docname, lineno, status, info, code))
             self.wqueue.task_done()
 
-    def limit_rate(self, response: Response) -> Optional[float]:
+    def limit_rate(self, response: Response) -> float | None:
         next_check = None
         retry_after = response.headers.get("Retry-After")
         if retry_after:
@@ -532,7 +534,7 @@ class HyperlinkCollector(SphinxPostTransform):
                 add_uri(uri, rawnode)
 
 
-def rewrite_github_anchor(app: Sphinx, uri: str) -> Optional[str]:
+def rewrite_github_anchor(app: Sphinx, uri: str) -> str | None:
     """Rewrite anchor name of the hyperlink to github.com
 
     The hyperlink anchors in github.com are dynamically generated.  This rewrites
@@ -560,7 +562,7 @@ def compile_linkcheck_allowed_redirects(app: Sphinx, config: Config) -> None:
             app.config.linkcheck_allowed_redirects.pop(url)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_builder(CheckExternalLinksBuilder)
     app.add_post_transform(HyperlinkCollector)
 

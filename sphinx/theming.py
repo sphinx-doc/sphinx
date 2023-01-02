@@ -1,11 +1,13 @@
 """Theming support for HTML builders."""
 
+from __future__ import annotations
+
 import configparser
 import os
 import shutil
 import tempfile
 from os import path
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING, Any
 from zipfile import ZipFile
 
 try:  # Python < 3.10 (backport)
@@ -48,7 +50,7 @@ class Theme:
 
     This class supports both theme directory and theme archive (zipped theme)."""
 
-    def __init__(self, name: str, theme_path: str, factory: "HTMLThemeFactory") -> None:
+    def __init__(self, name: str, theme_path: str, factory: HTMLThemeFactory) -> None:
         self.name = name
         self.base = None
         self.rootdir = None
@@ -80,7 +82,7 @@ class Theme:
                 raise ThemeError(__('no theme named %r found, inherited by %r') %
                                  (inherit, name)) from exc
 
-    def get_theme_dirs(self) -> List[str]:
+    def get_theme_dirs(self) -> list[str]:
         """Return a list of theme directories, beginning with this theme's,
         then the base theme's, then that one's base theme's, etc.
         """
@@ -105,7 +107,7 @@ class Theme:
             else:
                 return default
 
-    def get_options(self, overrides: Dict[str, Any] = {}) -> Dict[str, Any]:
+    def get_options(self, overrides: dict[str, Any] = {}) -> dict[str, Any]:
         """Return a dictionary of theme options and their values."""
         if self.base:
             options = self.base.get_options()
@@ -148,7 +150,7 @@ def is_archived_theme(filename: str) -> bool:
 class HTMLThemeFactory:
     """A factory class for HTML Themes."""
 
-    def __init__(self, app: "Sphinx") -> None:
+    def __init__(self, app: Sphinx) -> None:
         self.app = app
         self.themes = app.registry.html_themes
         self.load_builtin_themes()
@@ -196,9 +198,9 @@ class HTMLThemeFactory:
         except KeyError:
             pass
 
-    def find_themes(self, theme_path: str) -> Dict[str, str]:
+    def find_themes(self, theme_path: str) -> dict[str, str]:
         """Search themes from specified directory."""
-        themes: Dict[str, str] = {}
+        themes: dict[str, str] = {}
         if not path.isdir(theme_path):
             return themes
 

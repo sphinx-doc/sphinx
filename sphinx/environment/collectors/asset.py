@@ -1,9 +1,11 @@
 """The image collector for sphinx.environment."""
 
+from __future__ import annotations
+
 import os
 from glob import glob
 from os import path
-from typing import Any, Dict, List, Set
+from typing import Any
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -28,7 +30,7 @@ class ImageCollector(EnvironmentCollector):
         env.images.purge_doc(docname)
 
     def merge_other(self, app: Sphinx, env: BuildEnvironment,
-                    docnames: Set[str], other: BuildEnvironment) -> None:
+                    docnames: set[str], other: BuildEnvironment) -> None:
         env.images.merge_other(docnames, other.images)
 
     def process_doc(self, app: Sphinx, doctree: nodes.document) -> None:
@@ -40,7 +42,7 @@ class ImageCollector(EnvironmentCollector):
             # choose the best image from these candidates.  The special key * is
             # set if there is only single candidate to be used by a writer.
             # The special key ? is set for nonlocal URIs.
-            candidates: Dict[str, str] = {}
+            candidates: dict[str, str] = {}
             node['candidates'] = candidates
             imguri = node['uri']
             if imguri.startswith('data:'):
@@ -83,8 +85,8 @@ class ImageCollector(EnvironmentCollector):
                 app.env.images.add_file(docname, imgpath)
 
     def collect_candidates(self, env: BuildEnvironment, imgpath: str,
-                           candidates: Dict[str, str], node: Node) -> None:
-        globbed: Dict[str, List[str]] = {}
+                           candidates: dict[str, str], node: Node) -> None:
+        globbed: dict[str, list[str]] = {}
         for filename in glob(imgpath):
             new_imgpath = relative_path(path.join(env.srcdir, 'dummy'),
                                         filename)
@@ -109,7 +111,7 @@ class DownloadFileCollector(EnvironmentCollector):
         env.dlfiles.purge_doc(docname)
 
     def merge_other(self, app: Sphinx, env: BuildEnvironment,
-                    docnames: Set[str], other: BuildEnvironment) -> None:
+                    docnames: set[str], other: BuildEnvironment) -> None:
         env.dlfiles.merge_other(docnames, other.dlfiles)
 
     def process_doc(self, app: Sphinx, doctree: nodes.document) -> None:
@@ -128,7 +130,7 @@ class DownloadFileCollector(EnvironmentCollector):
                 node['filename'] = app.env.dlfiles.add_file(app.env.docname, rel_filename)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_env_collector(ImageCollector)
     app.add_env_collector(DownloadFileCollector)
 

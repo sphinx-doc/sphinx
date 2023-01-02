@@ -115,7 +115,6 @@ def test_skipif(app, status, warning):
 
 
 def record(directive, part, should_skip):
-    global recorded_calls
     recorded_calls[(directive, part, should_skip)] += 1
     return f'Recorded {directive} {part} {should_skip}'
 

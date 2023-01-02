@@ -1,5 +1,7 @@
 """Spanish search language: includes the JS Spanish stemmer."""
 
+from __future__ import annotations
+
 from typing import Dict
 
 import snowballstemmer
@@ -354,7 +356,7 @@ class SearchSpanish(SearchLanguage):
     js_stemmer_rawcode = 'spanish-stemmer.js'
     stopwords = spanish_stopwords
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict) -> None:
         self.stemmer = snowballstemmer.stemmer('spanish')
 
     def stem(self, word: str) -> str:

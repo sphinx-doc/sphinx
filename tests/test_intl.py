@@ -6,6 +6,7 @@ Runs the text builder in the test root.
 import os
 import re
 
+import pygments
 import pytest
 from babel.messages import mofile, pofile
 from babel.messages.catalog import Catalog
@@ -704,12 +705,12 @@ def test_html_index_entries(app):
     def wrap(tag, keyword):
         start_tag = "<%s[^>]*>" % tag
         end_tag = "</%s>" % tag
-        return r"%s\s*%s\s*%s" % (start_tag, keyword, end_tag)
+        return fr"{start_tag}\s*{keyword}\s*{end_tag}"
 
     def wrap_nest(parenttag, childtag, keyword):
         start_tag1 = "<%s[^>]*>" % parenttag
         start_tag2 = "<%s[^>]*>" % childtag
-        return r"%s\s*%s\s*%s" % (start_tag1, keyword, start_tag2)
+        return fr"{start_tag1}\s*{keyword}\s*{start_tag2}"
     expected_exprs = [
         wrap('a', 'NEWSLETTER'),
         wrap('a', 'MAILING LIST'),
@@ -1104,8 +1105,11 @@ def test_additional_targets_should_not_be_translated(app):
     expected_expr = ("""<span class="n">literal</span>"""
                      """<span class="o">-</span>"""
                      """<span class="n">block</span>\n"""
-                     """<span class="k">in</span> """
+                     """<span class="k">in</span>"""
+                     """<span class="w"> </span>"""
                      """<span class="n">list</span>""")
+    if pygments.__version__ < '2.14.0':
+        expected_expr = expected_expr.replace("""<span class="w"> </span>""", ' ')
     assert_count(expected_expr, result, 1)
 
     # doctest block should not be translated but be highlighted
@@ -1179,8 +1183,11 @@ def test_additional_targets_should_be_translated(app):
     expected_expr = ("""<span class="no">LITERAL</span>"""
                      """<span class="o">-</span>"""
                      """<span class="no">BLOCK</span>\n"""
-                     """<span class="no">IN</span> """
+                     """<span class="no">IN</span>"""
+                     """<span class="w"> </span>"""
                      """<span class="no">LIST</span>""")
+    if pygments.__version__ < '2.14.0':
+        expected_expr = expected_expr.replace("""<span class="w"> </span>""", ' ')
     assert_count(expected_expr, result, 1)
 
     # doctest block should not be translated but be highlighted

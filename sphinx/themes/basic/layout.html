@@ -4,7 +4,7 @@
 
     Master layout template for Sphinx themes.
 
-    :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2023 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
 {%- block doctype -%}{%- if html5_doctype %}
@@ -137,7 +137,7 @@
           href="{{ pathto('_static/opensearch.xml', 1) }}"/>
     {%- endif %}
     {%- if favicon_url %}
-    <link rel="shortcut icon" href="{{ favicon_url|e }}"/>
+    <link rel="icon" href="{{ favicon_url|e }}"/>
     {%- endif %}
     {%- endif %}
 {%- block linktags %}

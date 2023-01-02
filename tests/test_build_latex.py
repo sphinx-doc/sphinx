@@ -61,8 +61,8 @@ def compile_latex_document(app, filename='python.tex'):
     except CalledProcessError as exc:
         print(exc.stdout.decode('utf8'))
         print(exc.stderr.decode('utf8'))
-        raise AssertionError('%s exited with return code %s' % (app.config.latex_engine,
-                                                                exc.returncode))
+        raise AssertionError(f'{app.config.latex_engine} exited with '
+                             f'return code {exc.returncode}')
 
 
 def skip_if_requested(testfunc):
@@ -1623,7 +1623,7 @@ def test_latex_elements_extrapackages(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='nested-tables')
 def test_latex_nested_tables(app, status, warning):
     app.builder.build_all()
-    assert '' == warning.getvalue()
+    assert warning.getvalue() == ''
 
 
 @pytest.mark.sphinx('latex', testroot='latex-container')

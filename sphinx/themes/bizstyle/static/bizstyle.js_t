@@ -6,7 +6,7 @@
 //
 // This theme was created by referring to 'sphinxdoc'
 //
-// :copyright: Copyright 2012-2014 by Sphinx team, see AUTHORS.
+// :copyright: Copyright 2007-2023 by Sphinx team, see AUTHORS.
 // :license: BSD, see LICENSE for details.
 //
 const initialiseBizStyle = () => {

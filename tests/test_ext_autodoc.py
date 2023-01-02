@@ -808,7 +808,7 @@ def test_autodoc_imported_members(app):
                "imported-members": None,
                "ignore-module-all": None}
     actual = do_autodoc(app, 'module', 'target', options)
-    assert '.. py:function:: save_traceback(app: ~typing.Optional[Sphinx]) -> str' in actual
+    assert '.. py:function:: function_to_be_imported(app: ~typing.Optional[Sphinx]) -> str' in actual
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -1402,7 +1402,10 @@ def test_enum_class(app):
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.enums.EnumCls', options)
 
-    if sys.version_info[:2] >= (3, 11):
+    if sys.version_info[:2] >= (3, 12):
+        args = ('(value, names=None, *values, module=None, '
+                'qualname=None, type=None, start=1, boundary=None)')
+    elif sys.version_info[:2] >= (3, 11):
         args = ('(value, names=None, *, module=None, qualname=None, '
                 'type=None, start=1, boundary=None)')
     else:

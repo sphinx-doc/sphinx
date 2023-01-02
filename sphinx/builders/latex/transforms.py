@@ -1,6 +1,8 @@
 """Transforms for LaTeX builder."""
 
-from typing import Any, Dict, List, Optional, Set, Tuple, cast
+from __future__ import annotations
+
+from typing import Any, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -108,7 +110,7 @@ class ShowUrlsTransform(SphinxPostTransform):
 
     def create_footnote(
         self, uri: str, docname: str
-    ) -> Tuple[nodes.footnote, nodes.footnote_reference]:
+    ) -> tuple[nodes.footnote, nodes.footnote_reference]:
         reference = nodes.reference('', nodes.Text(uri), refuri=uri, nolinkurl=True)
         footnote = nodes.footnote(uri, auto=1, docname=docname)
         footnote['names'].append('#')
@@ -155,9 +157,9 @@ class FootnoteCollector(nodes.NodeVisitor):
     """Collect footnotes and footnote references on the document"""
 
     def __init__(self, document: nodes.document) -> None:
-        self.auto_footnotes: List[nodes.footnote] = []
-        self.used_footnote_numbers: Set[str] = set()
-        self.footnote_refs: List[nodes.footnote_reference] = []
+        self.auto_footnotes: list[nodes.footnote] = []
+        self.used_footnote_numbers: set[str] = set()
+        self.footnote_refs: list[nodes.footnote_reference] = []
         super().__init__(document)
 
     def unknown_visit(self, node: Node) -> None:
@@ -356,12 +358,12 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
 
 
 class LaTeXFootnoteVisitor(nodes.NodeVisitor):
-    def __init__(self, document: nodes.document, footnotes: List[nodes.footnote]) -> None:
-        self.appeared: Dict[Tuple[str, str], nodes.footnote] = {}
-        self.footnotes: List[nodes.footnote] = footnotes
-        self.pendings: List[nodes.footnote] = []
-        self.table_footnotes: List[nodes.footnote] = []
-        self.restricted: Optional[Element] = None
+    def __init__(self, document: nodes.document, footnotes: list[nodes.footnote]) -> None:
+        self.appeared: dict[tuple[str, str], nodes.footnote] = {}
+        self.footnotes: list[nodes.footnote] = footnotes
+        self.pendings: list[nodes.footnote] = []
+        self.table_footnotes: list[nodes.footnote] = []
+        self.restricted: Element | None = None
         super().__init__(document)
 
     def unknown_visit(self, node: Node) -> None:
@@ -611,7 +613,7 @@ class IndexInSectionTitleTransform(SphinxPostTransform):
                     node.parent.insert(i + 1, index)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_transform(FootnoteDocnameUpdater)
     app.add_post_transform(SubstitutionDefinitionsRemover)
     app.add_post_transform(BibliographyTransform)

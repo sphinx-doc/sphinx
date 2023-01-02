@@ -16,6 +16,8 @@ This works as follows:
   without Internet access.
 """
 
+from __future__ import annotations
+
 import concurrent.futures
 import functools
 import posixpath
@@ -24,7 +26,7 @@ import sys
 import time
 from os import path
 from types import ModuleType
-from typing import IO, Any, Dict, List, Optional, Tuple, cast
+from typing import IO, Any, cast
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
@@ -61,7 +63,7 @@ class InventoryAdapter:
             self.env.intersphinx_named_inventory = {}  # type: ignore
 
     @property
-    def cache(self) -> Dict[str, Tuple[str, int, Inventory]]:
+    def cache(self) -> dict[str, tuple[str, int, Inventory]]:
         return self.env.intersphinx_cache  # type: ignore
 
     @property
@@ -69,7 +71,7 @@ class InventoryAdapter:
         return self.env.intersphinx_inventory  # type: ignore
 
     @property
-    def named_inventory(self) -> Dict[str, Inventory]:
+    def named_inventory(self) -> dict[str, Inventory]:
         return self.env.intersphinx_named_inventory  # type: ignore
 
     def clear(self) -> None:
@@ -98,7 +100,7 @@ def _strip_basic_auth(url: str) -> str:
     return urlunsplit(frags)
 
 
-def _read_from_url(url: str, config: Optional[Config] = None) -> IO:
+def _read_from_url(url: str, config: Config | None = None) -> IO:
     """Reads data from *url* with an HTTP *GET*.
 
     This function supports fetching from resources which use basic HTTP auth as
@@ -257,7 +259,7 @@ def load_mappings(app: Sphinx) -> None:
                 inventories.main_inventory.setdefault(type, {}).update(objects)
 
 
-def _create_element_from_result(domain: Domain, inv_name: Optional[str],
+def _create_element_from_result(domain: Domain, inv_name: str | None,
                                 data: InventoryItem,
                                 node: pending_xref, contnode: TextElement) -> Element:
     proj, version, uri, dispname = data
@@ -288,10 +290,10 @@ def _create_element_from_result(domain: Domain, inv_name: Optional[str],
 
 
 def _resolve_reference_in_domain_by_target(
-        inv_name: Optional[str], inventory: Inventory,
-        domain: Domain, objtypes: List[str],
+        inv_name: str | None, inventory: Inventory,
+        domain: Domain, objtypes: list[str],
         target: str,
-        node: pending_xref, contnode: TextElement) -> Optional[Element]:
+        node: pending_xref, contnode: TextElement) -> Element | None:
     for objtype in objtypes:
         if objtype not in inventory:
             # Continue if there's nothing of this kind in the inventory
@@ -320,11 +322,11 @@ def _resolve_reference_in_domain_by_target(
 
 
 def _resolve_reference_in_domain(env: BuildEnvironment,
-                                 inv_name: Optional[str], inventory: Inventory,
+                                 inv_name: str | None, inventory: Inventory,
                                  honor_disabled_refs: bool,
-                                 domain: Domain, objtypes: List[str],
+                                 domain: Domain, objtypes: list[str],
                                  node: pending_xref, contnode: TextElement
-                                 ) -> Optional[Element]:
+                                 ) -> Element | None:
     # we adjust the object types for backwards compatibility
     if domain.name == 'std' and 'cmdoption' in objtypes:
         # until Sphinx-1.6, cmdoptions are stored as std:option
@@ -355,9 +357,9 @@ def _resolve_reference_in_domain(env: BuildEnvironment,
                                                   full_qualified_name, node, contnode)
 
 
-def _resolve_reference(env: BuildEnvironment, inv_name: Optional[str], inventory: Inventory,
+def _resolve_reference(env: BuildEnvironment, inv_name: str | None, inventory: Inventory,
                        honor_disabled_refs: bool,
-                       node: pending_xref, contnode: TextElement) -> Optional[Element]:
+                       node: pending_xref, contnode: TextElement) -> Element | None:
     # disabling should only be done if no inventory is given
     honor_disabled_refs = honor_disabled_refs and inv_name is None
 
@@ -403,7 +405,7 @@ def inventory_exists(env: BuildEnvironment, inv_name: str) -> bool:
 def resolve_reference_in_inventory(env: BuildEnvironment,
                                    inv_name: str,
                                    node: pending_xref, contnode: TextElement
-                                   ) -> Optional[Element]:
+                                   ) -> Element | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
     Resolution is tried in the given inventory with the target as is.
@@ -418,7 +420,7 @@ def resolve_reference_in_inventory(env: BuildEnvironment,
 def resolve_reference_any_inventory(env: BuildEnvironment,
                                     honor_disabled_refs: bool,
                                     node: pending_xref, contnode: TextElement
-                                    ) -> Optional[Element]:
+                                    ) -> Element | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
     Resolution is tried with the target as is in any inventory.
@@ -430,7 +432,7 @@ def resolve_reference_any_inventory(env: BuildEnvironment,
 
 def resolve_reference_detect_inventory(env: BuildEnvironment,
                                        node: pending_xref, contnode: TextElement
-                                       ) -> Optional[Element]:
+                                       ) -> Element | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
     Resolution is tried first with the target as is in any inventory.
@@ -458,7 +460,7 @@ def resolve_reference_detect_inventory(env: BuildEnvironment,
 
 
 def missing_reference(app: Sphinx, env: BuildEnvironment, node: pending_xref,
-                      contnode: TextElement) -> Optional[Element]:
+                      contnode: TextElement) -> Element | None:
     """Attempt to resolve a missing reference via intersphinx references."""
 
     return resolve_reference_detect_inventory(env, node, contnode)
@@ -471,7 +473,7 @@ class IntersphinxDispatcher(CustomReSTDispatcher):
     """
 
     def role(self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter
-             ) -> Tuple[RoleFunction, List[system_message]]:
+             ) -> tuple[RoleFunction, list[system_message]]:
         if len(role_name) > 9 and role_name.startswith(('external:', 'external+')):
             return IntersphinxRole(role_name), []
         else:
@@ -487,7 +489,7 @@ class IntersphinxRole(SphinxRole):
     def __init__(self, orig_name: str) -> None:
         self.orig_name = orig_name
 
-    def run(self) -> Tuple[List[Node], List[system_message]]:
+    def run(self) -> tuple[list[Node], list[system_message]]:
         assert self.name == self.orig_name.lower()
         inventory, name_suffix = self.get_inventory_and_name_suffix(self.orig_name)
         if inventory and not inventory_exists(self.env, inventory):
@@ -509,7 +511,7 @@ class IntersphinxRole(SphinxRole):
 
         return result, messages
 
-    def get_inventory_and_name_suffix(self, name: str) -> Tuple[Optional[str], str]:
+    def get_inventory_and_name_suffix(self, name: str) -> tuple[str | None, str]:
         assert name.startswith('external'), name
         assert name[8] in ':+', name
         # either we have an explicit inventory name, i.e,
@@ -521,7 +523,7 @@ class IntersphinxRole(SphinxRole):
         inv, suffix = IntersphinxRole._re_inv_ref.fullmatch(name, 8).group(2, 3)
         return inv, suffix
 
-    def get_role_name(self, name: str) -> Optional[Tuple[str, str]]:
+    def get_role_name(self, name: str) -> tuple[str, str] | None:
         names = name.split(':')
         if len(names) == 1:
             # role
@@ -545,14 +547,11 @@ class IntersphinxRole(SphinxRole):
     def is_existent_role(self, domain_name: str, role_name: str) -> bool:
         try:
             domain = self.env.get_domain(domain_name)
-            if role_name in domain.roles:
-                return True
-            else:
-                return False
+            return role_name in domain.roles
         except ExtensionError:
             return False
 
-    def invoke_role(self, role: Tuple[str, str]) -> Tuple[List[Node], List[system_message]]:
+    def invoke_role(self, role: tuple[str, str]) -> tuple[list[Node], list[system_message]]:
         domain = self.env.get_domain(role[0])
         if domain:
             role_func = domain.role(role[1])
@@ -592,7 +591,7 @@ class IntersphinxRoleResolver(ReferencesResolver):
                 node.replace_self(newnode)
 
 
-def install_dispatcher(app: Sphinx, docname: str, source: List[str]) -> None:
+def install_dispatcher(app: Sphinx, docname: str, source: list[str]) -> None:
     """Enable IntersphinxDispatcher.
 
     .. note:: The installed dispatcher will be uninstalled on disabling sphinx_domain
@@ -626,7 +625,7 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
             config.intersphinx_mapping.pop(key)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('intersphinx_mapping', {}, True)
     app.add_config_value('intersphinx_cache_limit', 5, False)
     app.add_config_value('intersphinx_timeout', None, False)
@@ -643,7 +642,7 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     }
 
 
-def inspect_main(argv: List[str]) -> None:
+def inspect_main(argv: list[str]) -> None:
     """Debug functionality to print out an inventory"""
     if len(argv) < 1:
         print("Print out an inventory file.\n"
@@ -652,7 +651,7 @@ def inspect_main(argv: List[str]) -> None:
         raise SystemExit(1)
 
     class MockConfig:
-        intersphinx_timeout: Optional[int] = None
+        intersphinx_timeout: int | None = None
         tls_verify = False
         user_agent = None
 

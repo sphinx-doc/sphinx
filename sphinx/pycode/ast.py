@@ -1,12 +1,14 @@
 """Helpers for AST (Abstract Syntax Tree)."""
 
+from __future__ import annotations
+
 import ast
 import warnings
-from typing import Dict, List, Optional, Type, overload
+from typing import overload
 
 from sphinx.deprecation import RemovedInSphinx70Warning
 
-OPERATORS: Dict[Type[ast.AST], str] = {
+OPERATORS: dict[type[ast.AST], str] = {
     ast.Add: "+",
     ast.And: "and",
     ast.BitAnd: "&",
@@ -29,7 +31,7 @@ OPERATORS: Dict[Type[ast.AST], str] = {
 }
 
 
-def parse(code: str, mode: str = 'exec') -> "ast.AST":
+def parse(code: str, mode: str = 'exec') -> ast.AST:
     """Parse the *code* using the built-in ast module."""
     warnings.warn(
         "'sphinx.pycode.ast.parse' is deprecated, use 'ast.parse' instead.",
@@ -53,7 +55,7 @@ def unparse(node: ast.AST, code: str = '') -> str:
     ...
 
 
-def unparse(node: Optional[ast.AST], code: str = '') -> Optional[str]:
+def unparse(node: ast.AST | None, code: str = '') -> str | None:
     """Unparse an AST to string."""
     if node is None:
         return None
@@ -74,11 +76,11 @@ class _UnparseVisitor(ast.NodeVisitor):
 
     def visit_arg(self, node: ast.arg) -> str:
         if node.annotation:
-            return "%s: %s" % (node.arg, self.visit(node.annotation))
+            return f"{node.arg}: {self.visit(node.annotation)}"
         else:
             return node.arg
 
-    def _visit_arg_with_default(self, arg: ast.arg, default: Optional[ast.AST]) -> str:
+    def _visit_arg_with_default(self, arg: ast.arg, default: ast.AST | None) -> str:
         """Unparse a single argument to a string."""
         name = self.visit(arg)
         if default:
@@ -89,18 +91,18 @@ class _UnparseVisitor(ast.NodeVisitor):
         return name
 
     def visit_arguments(self, node: ast.arguments) -> str:
-        defaults: List[Optional[ast.expr]] = list(node.defaults)
+        defaults: list[ast.expr | None] = list(node.defaults)
         positionals = len(node.args)
         posonlyargs = len(node.posonlyargs)
         positionals += posonlyargs
         for _ in range(len(defaults), positionals):
             defaults.insert(0, None)
 
-        kw_defaults: List[Optional[ast.expr]] = list(node.kw_defaults)
+        kw_defaults: list[ast.expr | None] = list(node.kw_defaults)
         for _ in range(len(kw_defaults), len(node.kwonlyargs)):
             kw_defaults.insert(0, None)
 
-        args: List[str] = []
+        args: list[str] = []
         for i, arg in enumerate(node.posonlyargs):
             args.append(self._visit_arg_with_default(arg, defaults[i]))
 
@@ -124,7 +126,7 @@ class _UnparseVisitor(ast.NodeVisitor):
         return ", ".join(args)
 
     def visit_Attribute(self, node: ast.Attribute) -> str:
-        return "%s.%s" % (self.visit(node.value), node.attr)
+        return f"{self.visit(node.value)}.{node.attr}"
 
     def visit_BinOp(self, node: ast.BinOp) -> str:
         # Special case ``**`` to not have surrounding spaces.
@@ -137,9 +139,9 @@ class _UnparseVisitor(ast.NodeVisitor):
         return op.join(self.visit(e) for e in node.values)
 
     def visit_Call(self, node: ast.Call) -> str:
-        args = ([self.visit(e) for e in node.args] +
-                ["%s=%s" % (k.arg, self.visit(k.value)) for k in node.keywords])
-        return "%s(%s)" % (self.visit(node.func), ", ".join(args))
+        args = ', '.join([self.visit(e) for e in node.args]
+                         + [f"{k.arg}={self.visit(k.value)}" for k in node.keywords])
+        return f"{self.visit(node.func)}({args})"
 
     def visit_Constant(self, node: ast.Constant) -> str:
         if node.value is Ellipsis:
@@ -183,19 +185,19 @@ class _UnparseVisitor(ast.NodeVisitor):
 
         if is_simple_tuple(node.slice):
             elts = ", ".join(self.visit(e) for e in node.slice.elts)  # type: ignore
-            return "%s[%s]" % (self.visit(node.value), elts)
+            return f"{self.visit(node.value)}[{elts}]"
         elif isinstance(node.slice, ast.Index) and is_simple_tuple(node.slice.value):
             elts = ", ".join(self.visit(e) for e in node.slice.value.elts)  # type: ignore
-            return "%s[%s]" % (self.visit(node.value), elts)
+            return f"{self.visit(node.value)}[{elts}]"
         else:
-            return "%s[%s]" % (self.visit(node.value), self.visit(node.slice))
+            return f"{self.visit(node.value)}[{self.visit(node.slice)}]"
 
     def visit_UnaryOp(self, node: ast.UnaryOp) -> str:
         # UnaryOp is one of {UAdd, USub, Invert, Not}, which refer to ``+x``,
         # ``-x``, ``~x``, and ``not x``. Only Not needs a space.
         if isinstance(node.op, ast.Not):
-            return "%s %s" % (self.visit(node.op), self.visit(node.operand))
-        return "%s%s" % (self.visit(node.op), self.visit(node.operand))
+            return f"{self.visit(node.op)} {self.visit(node.operand)}"
+        return f"{self.visit(node.op)}{self.visit(node.operand)}"
 
     def visit_Tuple(self, node: ast.Tuple) -> str:
         if len(node.elts) == 0:

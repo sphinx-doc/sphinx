@@ -1,8 +1,10 @@
 """Utility functions common to the C and C++ domains."""
 
+from __future__ import annotations
+
 import re
 from copy import deepcopy
-from typing import Any, Callable, List, Match, Optional, Pattern, Tuple, Union
+from typing import Any, Callable
 
 from docutils import nodes
 from docutils.nodes import TextElement
@@ -133,7 +135,7 @@ class ASTCPPAttribute(ASTAttribute):
 
 
 class ASTGnuAttribute(ASTBaseBase):
-    def __init__(self, name: str, args: Optional["ASTBaseParenExprList"]) -> None:
+    def __init__(self, name: str, args: ASTBaseParenExprList | None) -> None:
         self.name = name
         self.args = args
 
@@ -145,7 +147,7 @@ class ASTGnuAttribute(ASTBaseBase):
 
 
 class ASTGnuAttributeList(ASTAttribute):
-    def __init__(self, attrs: List[ASTGnuAttribute]) -> None:
+    def __init__(self, attrs: list[ASTGnuAttribute]) -> None:
         self.attrs = attrs
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -193,13 +195,13 @@ class ASTParenAttribute(ASTAttribute):
 
 
 class ASTAttributeList(ASTBaseBase):
-    def __init__(self, attrs: List[ASTAttribute]) -> None:
+    def __init__(self, attrs: list[ASTAttribute]) -> None:
         self.attrs = attrs
 
     def __len__(self) -> int:
         return len(self.attrs)
 
-    def __add__(self, other: "ASTAttributeList") -> "ASTAttributeList":
+    def __add__(self, other: ASTAttributeList) -> ASTAttributeList:
         return ASTAttributeList(self.attrs + other.attrs)
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -234,22 +236,22 @@ class DefinitionError(Exception):
 
 class BaseParser:
     def __init__(self, definition: str, *,
-                 location: Union[nodes.Node, Tuple[str, int], str],
-                 config: "Config") -> None:
+                 location: nodes.Node | tuple[str, int] | str,
+                 config: Config) -> None:
         self.definition = definition.strip()
         self.location = location  # for warnings
         self.config = config
 
         self.pos = 0
         self.end = len(self.definition)
-        self.last_match: Match = None
-        self._previous_state: Tuple[int, Match] = (0, None)
-        self.otherErrors: List[DefinitionError] = []
+        self.last_match: re.Match = None
+        self._previous_state: tuple[int, re.Match] = (0, None)
+        self.otherErrors: list[DefinitionError] = []
 
         # in our tests the following is set to False to capture bad parsing
         self.allowFallbackExpressionParsing = True
 
-    def _make_multi_error(self, errors: List[Any], header: str) -> DefinitionError:
+    def _make_multi_error(self, errors: list[Any], header: str) -> DefinitionError:
         if len(errors) == 1:
             if len(header) > 0:
                 return DefinitionError(header + '\n' + str(errors[0][0]))
@@ -278,7 +280,7 @@ class BaseParser:
     def status(self, msg: str) -> None:
         # for debugging
         indicator = '-' * self.pos + '^'
-        print("%s\n%s\n%s" % (msg, self.definition, indicator))
+        print(f"{msg}\n{self.definition}\n{indicator}")
 
     def fail(self, msg: str) -> None:
         errors = []
@@ -295,7 +297,7 @@ class BaseParser:
     def warn(self, msg: str) -> None:
         logger.warning(msg, location=self.location)
 
-    def match(self, regex: Pattern) -> bool:
+    def match(self, regex: re.Pattern) -> bool:
         match = regex.match(self.definition, self.pos)
         if match is not None:
             self._previous_state = (self.pos, self.last_match)
@@ -371,11 +373,11 @@ class BaseParser:
     def paren_attributes(self):
         raise NotImplementedError
 
-    def _parse_balanced_token_seq(self, end: List[str]) -> str:
+    def _parse_balanced_token_seq(self, end: list[str]) -> str:
         # TODO: add handling of string literals and similar
         brackets = {'(': ')', '[': ']', '{': '}'}
         startPos = self.pos
-        symbols: List[str] = []
+        symbols: list[str] = []
         while not self.eof:
             if len(symbols) == 0 and self.current_char in end:
                 break
@@ -391,7 +393,7 @@ class BaseParser:
                       % startPos)
         return self.definition[startPos:self.pos]
 
-    def _parse_attribute(self) -> Optional[ASTAttribute]:
+    def _parse_attribute(self) -> ASTAttribute | None:
         self.skip_ws()
         # try C++11 style
         startPos = self.pos

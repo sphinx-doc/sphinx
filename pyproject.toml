@@ -12,7 +12,7 @@ urls.Code = "https://github.com/sphinx-doc/sphinx"
 urls.Download = "https://pypi.org/project/Sphinx/"
 urls.Homepage = "https://www.sphinx-doc.org/"
 urls."Issue tracker" = "https://github.com/sphinx-doc/sphinx/issues"
-license.text = "BSD"
+license.text = "BSD-2-Clause"
 requires-python = ">=3.8"
 
 # Classifiers list: https://pypi.org/classifiers/
@@ -62,7 +62,7 @@ dependencies = [
     "sphinxcontrib-serializinghtml>=1.1.5",
     "sphinxcontrib-qthelp",
     "Jinja2>=3.0",
-    "Pygments>=2.12",
+    "Pygments>=2.13",
     "docutils>=0.18,<0.20",
     "snowballstemmer>=2.0",
     "babel>=2.9",
@@ -134,6 +134,7 @@ exclude = [
 
 [tool.isort]
 line_length = 95
+remove_redundant_aliases = true
 
 [tool.ruff]
 target-version = "py38"  # Pin Ruff to Python 3.8
@@ -157,11 +158,17 @@ ignore = [
     # flake8-bugbear opinionated (disabled by default in flake8)
     'B904',
     'B905',
+    # pygrep-hooks
+    "PGH003",
+    # flake8-bandit
+    "S101",  # assert used
+    "S105",  # possible hardcoded password
 ]
 external = [  # Whitelist for RUF100 unkown code warnings
     "E704",
     "W291",
     "W293",
+    "SIM110",
 ]
 select = [
     "E",   # pycodestyle
@@ -170,8 +177,16 @@ select = [
     # plugins:
     "B",   # flake8-bugbear
     "C4",  # flake8-comprehensions
+    "PGH", # pygrep-hooks
+    "PLC", # pylint
+    "PLE", # pylint
+    "PLR", # pylint
+    "PLW", # pylint
+    "S",   # flake8-bandit
     "SIM", # flake8-simplify
-    "RUF100"  # yesqa
+    "T10", # flake8-debugger
+    "UP",  # pyupgrade
+    "RUF100",  # yesqa
 ]
 
 [tool.ruff.per-file-ignores]
@@ -263,7 +278,6 @@ module = [
     "sphinx.search.*",
     "sphinx.testing.*",
     "sphinx.util.*",
-    "sphinx.writers.*",
 ]
 disallow_any_generics = false
 

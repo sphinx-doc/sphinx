@@ -1,4 +1,6 @@
 """Inventory utility functions for Sphinx."""
+from __future__ import annotations
+
 import os
 import re
 import zlib
@@ -136,7 +138,7 @@ class InventoryFile:
         return invdata
 
     @classmethod
-    def dump(cls, filename: str, env: "BuildEnvironment", builder: "Builder") -> None:
+    def dump(cls, filename: str, env: BuildEnvironment, builder: Builder) -> None:
         def escape(string: str) -> str:
             return re.sub("\\s+", " ", string)
 

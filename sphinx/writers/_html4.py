@@ -1,4 +1,4 @@
-"""Experimental docutils writers for HTML5 handling Sphinx's custom nodes."""
+"""Frozen HTML 4 translator."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Iterable, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, Text
-from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
+from docutils.writers.html4css1 import HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
 from sphinx.builders import Builder
@@ -24,9 +24,6 @@ if TYPE_CHECKING:
 
 
 logger = logging.getLogger(__name__)
-
-# A good overview of the purpose behind these classes can be found here:
-# http://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
 
 
 def multiply_length(length: str, scale: int) -> str:
@@ -42,16 +39,13 @@ def multiply_length(length: str, scale: int) -> str:
         return f"{int(result)}{unit}"
 
 
-class HTML5Translator(SphinxTranslator, BaseTranslator):
+# RemovedInSphinx70Warning
+class HTML4Translator(SphinxTranslator, BaseTranslator):
     """
     Our custom HTML translator.
     """
 
     builder: StandaloneHTMLBuilder
-    # Override docutils.writers.html5_polyglot:HTMLTranslator
-    # otherwise, nodes like <inline classes="s">...</inline> will be
-    # converted to <s>...</s> by `visit_inline`.
-    supported_inline_tags: set[str] = set()
 
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
@@ -124,16 +118,16 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     ##############################################
 
     def visit_desc_name(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'span', ''))
+        self.body.append(self.starttag(node, 'code', ''))
 
     def depart_desc_name(self, node: Element) -> None:
-        self.body.append('</span>')
+        self.body.append('</code>')
 
     def visit_desc_addname(self, node: Element) -> None:
-        self.body.append(self.starttag(node, 'span', ''))
+        self.body.append(self.starttag(node, 'code', ''))
 
     def depart_desc_addname(self, node: Element) -> None:
-        self.body.append('</span>')
+        self.body.append('</code>')
 
     def visit_desc_type(self, node: Element) -> None:
         pass
@@ -175,7 +169,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         if self.optional_param_level == 0:
             self.required_params_left -= 1
         if not node.hasattr('noemph'):
-            self.body.append('<em class="sig-param">')
+            self.body.append('<em>')
 
     def depart_desc_parameter(self, node: Element) -> None:
         if not node.hasattr('noemph'):
@@ -250,6 +244,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             node, 'div', CLASS=('admonition ' + name)))
         if name:
             node.insert(0, nodes.title(name, admonitionlabels[name]))
+        self.set_first_last(node)
 
     def depart_admonition(self, node: Element | None = None) -> None:
         self.body.append('</div>\n')
@@ -263,11 +258,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def get_secnumber(self, node: Element) -> tuple[int, ...] | None:
         if node.get('secnumber'):
             return node['secnumber']
-
-        if isinstance(node.parent, nodes.section):
+        elif isinstance(node.parent, nodes.section):
             if self.builder.name == 'singlehtml':
                 docname = self.docnames[-1]
-                anchorname = "{}/#{}".format(docname, node.parent['ids'][0])
+                anchorname = f"{docname}/#{node.parent['ids'][0]}"
                 if anchorname not in self.builder.secnumbers:
                     anchorname = "%s/" % docname  # try first heading which has no anchor
             else:
@@ -318,12 +312,32 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             self.body.append(format % (node['ids'][0], title,
                                        self.config.html_permalinks_icon))
 
+    def generate_targets_for_listing(self, node: Element) -> None:
+        """Generate hyperlink targets for listings.
+
+        Original visit_bullet_list(), visit_definition_list() and visit_enumerated_list()
+        generates hyperlink targets inside listing tags (<ul>, <ol> and <dl>) if multiple
+        IDs are assigned to listings.  That is invalid DOM structure.
+        (This is a bug of docutils <= 0.12)
+
+        This exports hyperlink targets before listings to make valid DOM structure.
+        """
+        for id in node['ids'][1:]:
+            self.body.append('<span id="%s"></span>' % id)
+            node['ids'].remove(id)
+
     # overwritten
     def visit_bullet_list(self, node: Element) -> None:
         if len(node) == 1 and isinstance(node[0], addnodes.toctree):
             # avoid emitting empty <ul></ul>
             raise nodes.SkipNode
+        self.generate_targets_for_listing(node)
         super().visit_bullet_list(node)
+
+    # overwritten
+    def visit_enumerated_list(self, node: Element) -> None:
+        self.generate_targets_for_listing(node)
+        super().visit_enumerated_list(node)
 
     # overwritten
     def visit_definition(self, node: Element) -> None:
@@ -381,7 +395,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_title(self, node: Element) -> None:
         close_tag = self.context[-1]
         if (self.config.html_permalinks and self.builder.add_permalinks and
-                node.parent.hasattr('ids') and node.parent['ids']):
+           node.parent.hasattr('ids') and node.parent['ids']):
             # add permalink anchor
             if close_tag.startswith('</h'):
                 self.add_permalink_ref(node.parent, _('Permalink to this heading'))
@@ -525,6 +539,17 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_centered(self, node: Element) -> None:
         self.body.append('</strong></p>')
 
+    # overwritten
+    def should_be_compact_paragraph(self, node: Node) -> bool:
+        """Determine if the <p> tags around paragraph can be omitted."""
+        if isinstance(node.parent, addnodes.desc_content):
+            # Never compact desc_content items.
+            return False
+        if isinstance(node.parent, addnodes.versionmodified):
+            # Never compact versionmodified nodes.
+            return False
+        return super().should_be_compact_paragraph(node)
+
     def visit_compact_paragraph(self, node: Element) -> None:
         pass
 
@@ -648,6 +673,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def depart_hlistcol(self, node: Element) -> None:
         self.body.append('</td>')
 
+    def visit_option_group(self, node: Element) -> None:
+        super().visit_option_group(node)
+        self.context[-2] = self.context[-2].replace('&nbsp;', '&#160;')
+
     # overwritten
     def visit_Text(self, node: Text) -> None:
         text = node.astext()
@@ -761,17 +790,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def visit_table(self, node: Element) -> None:
         self._table_row_indices.append(0)
 
-        atts = {}
-        classes = [cls.strip(' \t\n') for cls in self.settings.table_style.split(',')]
-        classes.insert(0, "docutils")  # compat
+        # set align=default if align not specified to give a default style
+        node.setdefault('align', 'default')
 
-        # set align-default if align not specified to give a default style
-        classes.append('align-%s' % node.get('align', 'default'))
-
-        if 'width' in node:
-            atts['style'] = 'width: %s' % node['width']
-        tag = self.starttag(node, 'table', CLASS=' '.join(classes), **atts)
-        self.body.append(tag)
+        return super().visit_table(node)
 
     def depart_table(self, node: Element) -> None:
         self._table_row_indices.pop()
@@ -785,6 +807,11 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             node['classes'].append('row-odd')
         self.body.append(self.starttag(node, 'tr', ''))
         node.column = 0  # type: ignore
+
+    def visit_entry(self, node: Element) -> None:
+        super().visit_entry(node)
+        if self.body[-1] == '&nbsp;':
+            self.body[-1] = '&#160;'
 
     def visit_field_list(self, node: Element) -> None:
         self._fieldlist_row_indices.append(0)
@@ -800,6 +827,13 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             node['classes'].append('field-even')
         else:
             node['classes'].append('field-odd')
+        self.body.append(self.starttag(node, 'tr', '', CLASS='field'))
+
+    def visit_field_name(self, node: Element) -> None:
+        context_count = len(self.context)
+        super().visit_field_name(node)
+        if context_count != len(self.context):
+            self.context[-1] = self.context[-1].replace('&nbsp;', '&#160;')
 
     def visit_math(self, node: Element, math_env: str = '') -> None:
         name = self.builder.math_renderer_name
