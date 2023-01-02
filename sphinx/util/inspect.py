@@ -308,9 +308,7 @@ def iscoroutinefunction(obj: Any) -> bool:
         return hasattr(obj, '__wrapped__')
 
     obj = unwrap_all(obj, stop=iswrappedcoroutine)
-    # check obj.__code__ because iscoroutinefunction() crashes for custom method-like
-    # objects (see https://github.com/sphinx-doc/sphinx/issues/6605)
-    return hasattr(obj, '__code__') and inspect.iscoroutinefunction(obj)
+    return inspect.iscoroutinefunction(obj)
 
 
 def isproperty(obj: Any) -> bool:
