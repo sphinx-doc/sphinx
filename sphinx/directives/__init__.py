@@ -61,7 +61,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
     # types of doc fields that this directive handles, see sphinx.util.docfields
     doc_field_types: list[Field] = []
     domain: str | None = None
-    objtype: str | None = None
+    objtype: str  # set when `run` method is called
     indexnode: addnodes.index
 
     # Warning: this might be removed in future version. Don't touch this from extensions.
