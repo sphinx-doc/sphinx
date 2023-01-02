@@ -371,7 +371,7 @@ class TextWriter(writers.Writer):
 
 
 class TextTranslator(SphinxTranslator):
-    builder: TextBuilder = None
+    builder: TextBuilder
 
     def __init__(self, document: nodes.document, builder: TextBuilder) -> None:
         super().__init__(document, builder)
