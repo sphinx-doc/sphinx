@@ -2136,7 +2136,7 @@ class ASTParametersQualifiers(ASTBase):
             paramlist = addnodes.desc_parameterlist()
             paramlist['is_multi_line'] = multi_line
             for arg in self.args:
-                param_node = addnodes.desc_parameterline() if multi_line else paramlist
+                param_node = addnodes.desc_parameter_line() if multi_line else paramlist
                 param = addnodes.desc_parameter('', '', noemph=True)
                 arg.describe_signature(param, 'param', env, symbol=symbol)
                 param_node += param
