@@ -18,6 +18,8 @@ Bugs fixed
 
 * #6744: LaTeX: support for seealso directive should be via an environment
   to allow styling.
+* #11074: LaTeX: Can't change sphinxnote to use sphinxheavybox starting with
+  5.1.0
 
 Testing
 --------
