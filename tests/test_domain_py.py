@@ -9,7 +9,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.addnodes import (desc, desc_addname, desc_annotation, desc_content, desc_name,
-                             desc_optional, desc_parameter, desc_parameter_line, 
+                             desc_optional, desc_parameter, desc_parameter_line,
                              desc_parameterlist, desc_returns, desc_sig_keyword,
                              desc_sig_literal_number, desc_sig_literal_string,
                              desc_sig_name, desc_sig_operator, desc_sig_punctuation, desc_sig_space, desc_signature, pending_xref)
@@ -1462,7 +1462,6 @@ def test_pyfunction_signature_with_python_maximum_signature_line_length(app):
                                                          [nodes.inline, pending_xref, "str"])]
     assert_node(doctree[1][0][1], expected_sig)
 
-    
     text = (".. py:function:: hello(names: str) -> str\n"
             "   :single-line-signature:")
     signame_node[1] = "names"
@@ -1474,11 +1473,10 @@ def test_pyfunction_signature_with_python_maximum_signature_line_length(app):
 
     text = ".. py:function:: hello(names: str) -> str"
     doctree = restructuredtext.parse(app, text)
+    expected_sig.insert(1, desc_parameter_line)
     assert_node(doctree, expected_doctree)
     assert_node(doctree[1], addnodes.desc, desctype="function",
                 domain="py", objtype="function", noindex=False)
-    expected_sig.insert(1, desc_parameter_line)
-    
     assert_node(doctree[1][0][1], expected_sig)
 
 
