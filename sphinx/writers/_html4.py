@@ -152,11 +152,12 @@ class HTML4Translator(SphinxTranslator, BaseTranslator):
                                          for c in node.children])
         self.param_separator = node.child_text_separator
         if node.get('is_multi_line'):
+            self.body.append('\n\n')
             self.body.append(self.starttag(node, 'dl'))
 
     def depart_desc_parameterlist(self, node: Element) -> None:
         if node.get('is_multi_line'):
-            self.body.append('</dl>\n\n')
+            self.body.append('\n</dl>\n\n')
         self.body.append('<span class="sig-paren">)</span>')
 
     def visit_desc_parameter_line(self, node: Element) -> None:
