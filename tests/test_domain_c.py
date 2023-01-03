@@ -5,7 +5,6 @@ import zlib
 from xml.etree import ElementTree
 
 import pytest
-from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.addnodes import (desc, desc_name, desc_content, desc_parameter,
@@ -744,7 +743,7 @@ def test_domain_c_build_intersphinx(tempdir, app, status, warning):
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
 # Project: C Intersphinx Test
-# Version: 
+# Version:
 # The remainder of this file is compressed using zlib.
 ''' + zlib.compress(b'''\
 _enum c:enum 1 index.html#c.$ -
@@ -837,7 +836,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length(app):
                                                          desc_sig_space,
                                                          signame_node)]
     assert_node(doctree[1][0][0][3], expected_sig)
-    
+
     text = (".. c:function:: str hello(str names)\n"
             "   :single-line-signature:")
     signame_node[1] = "names"

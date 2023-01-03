@@ -5,7 +5,6 @@ import re
 import zlib
 
 import pytest
-from docutils import nodes
 
 import sphinx.domains.cpp as cppDomain
 from sphinx import addnodes
@@ -13,7 +12,6 @@ from sphinx.addnodes import (desc, desc_name, desc_content, desc_parameter,
                              desc_parameter_line, desc_parameterlist, desc_sig_name,
                              desc_sig_space, desc_signature, desc_signature_line,
                              pending_xref)
-from sphinx.addnodes import desc
 from sphinx.domains.cpp import (DefinitionError, DefinitionParser, NoOldIdError, Symbol,
                                 _id_prefix, _max_id)
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
@@ -1376,7 +1374,7 @@ def test_domain_cpp_build_intersphinx(tempdir, app, status, warning):
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
 # Project: C Intersphinx Test
-# Version: 
+# Version:
 # The remainder of this file is compressed using zlib.
 ''' + zlib.compress(b'''\
 _class cpp:class 1 index.html#_CPPv46$ -
@@ -1510,7 +1508,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length(app):
                                                          desc_sig_space,
                                                          signame_node)]
     assert_node(doctree[1][0][0][3], expected_sig)
-    
+
     text = (".. cpp:function:: str hello(str names)\n"
             "   :single-line-signature:")
     signame_node[1] = "names"
