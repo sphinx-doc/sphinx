@@ -2911,7 +2911,7 @@ class DefinitionParser(BaseParser):
     def _parse_initializer(self, outer: str | None = None, allowFallback: bool = True
                            ) -> ASTInitializer | None:
         self.skip_ws()
-        if outer == 'member' and False:  # TODO
+        if outer == 'member' and False:  # NoQA: SIM223  # TODO
             bracedInit = self._parse_braced_init_list()
             if bracedInit is not None:
                 return ASTInitializer(bracedInit, hasAssign=False)

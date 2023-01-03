@@ -194,10 +194,6 @@ select = [
 "sphinx/environment/collectors/toctree.py" = ["B026"]
 "sphinx/environment/adapters/toctree.py" = ["B026"]
 
-# Ruff does not support 'import-order-style = smarkets'
-"sphinx/util/__init__.py" = ["F401"]
-"sphinx/util/inspect.py" = ["F401"]
-
 [tool.mypy]
 check_untyped_defs = true
 disallow_incomplete_defs = true
