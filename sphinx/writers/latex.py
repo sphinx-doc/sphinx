@@ -821,10 +821,11 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_seealso(self, node: Element) -> None:
         self.body.append(BLANKLINE)
-        self.body.append(r'\sphinxstrong{%s:}' % admonitionlabels['seealso'] + CR)
-        self.body.append(r'\nopagebreak' + BLANKLINE)
+        self.body.append(r'\begin{sphinxseealso}{%s}' % admonitionlabels['seealso'] + CR)
 
     def depart_seealso(self, node: Element) -> None:
+        self.body.append(BLANKLINE)
+        self.body.append(r'\end{sphinxseealso}')
         self.body.append(BLANKLINE)
 
     def visit_rubric(self, node: Element) -> None:

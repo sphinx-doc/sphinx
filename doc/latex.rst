@@ -1431,6 +1431,14 @@ Environments
      parameters, such as ``noteBorderColor``, ``noteborder``,
      ``warningBgColor``, ``warningBorderColor``, ``warningborder``, ...
 
+- Environment for the :rst:dir:`seealso` directive: ``sphinxseealso``.
+  It takes one argument which will be the localized string ``See also``.  Its
+  default definition maintains the legacy behaviour: the localized ``See
+  also``, followed with a colon, will be rendered using ``\sphinxstrong``.
+  Nothing particular is done for the contents.
+
+  .. versionadded:: 6.1.0
+
 - The :dudir:`contents` directive (with ``:local:`` option) and the
   :dudir:`topic` directive are implemented by environment ``sphinxShadowBox``.
 

@@ -1,9 +1,11 @@
 %% NOTICES AND ADMONITIONS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexadmonitions.sty}[2022/07/03 admonitions]
+\ProvidesFile{sphinxlatexadmonitions.sty}[2023/01/03 admonitions]
 
 % Provides support for this output mark-up from Sphinx latex writer:
+%
+% - sphinxseealso environment added at 6.1.0
 %
 % - sphinxadmonition (environment)
 %   This is a dispatch supporting
@@ -31,6 +33,8 @@
 }
 
 % Some are quite plain
+\newenvironment{sphinxseealso}[1]{\sphinxstrong{#1:}\par\nopagebreak}{}
+
 % the spx@notice@bordercolor etc are set in the sphinxadmonition environment
 \newenvironment{sphinxlightbox}{%
   \par
