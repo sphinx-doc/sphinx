@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #6744: LaTeX: support for seealso directive should be via an environment
+  to allow styling.
+
 Testing
 --------
 
