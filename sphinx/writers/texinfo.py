@@ -1469,6 +1469,12 @@ class TexinfoTranslator(SphinxTranslator):
     def depart_desc_parameterlist(self, node: Element) -> None:
         self.body.append(')')
 
+    def visit_desc_parameter_line(self, node: Element) -> None:
+        pass
+
+    def depart_desc_parameter_line(self, node: Element) -> None:
+        pass
+
     def visit_desc_parameter(self, node: Element) -> None:
         if not self.first_param:
             self.body.append(', ')
