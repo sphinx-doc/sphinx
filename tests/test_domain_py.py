@@ -11,8 +11,9 @@ from sphinx import addnodes
 from sphinx.addnodes import (desc, desc_addname, desc_annotation, desc_content, desc_name,
                              desc_optional, desc_parameter, desc_parameter_line,
                              desc_parameterlist, desc_returns, desc_sig_keyword,
-                             desc_sig_literal_number, desc_sig_literal_string,
-                             desc_sig_name, desc_sig_operator, desc_sig_punctuation, desc_sig_space, desc_signature, pending_xref)
+                             desc_sig_literal_number, desc_sig_literal_string, desc_sig_name,
+                             desc_sig_operator, desc_sig_punctuation, desc_sig_space,
+                             desc_signature, pending_xref)
 from sphinx.domains import IndexEntry
 from sphinx.domains.python import (PythonDomain, PythonModuleIndex, _parse_annotation,
                                    _pseudo_parse_arglist, py_sig_re)

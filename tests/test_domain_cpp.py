@@ -8,10 +8,9 @@ import pytest
 
 import sphinx.domains.cpp as cppDomain
 from sphinx import addnodes
-from sphinx.addnodes import (desc, desc_name, desc_content, desc_parameter,
+from sphinx.addnodes import (desc, desc_content, desc_name, desc_parameter,
                              desc_parameter_line, desc_parameterlist, desc_sig_name,
-                             desc_sig_space, desc_signature, desc_signature_line,
-                             pending_xref)
+                             desc_sig_space, desc_signature, desc_signature_line, pending_xref)
 from sphinx.domains.cpp import (DefinitionError, DefinitionParser, NoOldIdError, Symbol,
                                 _id_prefix, _max_id)
 from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
