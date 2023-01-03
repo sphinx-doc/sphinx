@@ -2905,12 +2905,13 @@ Options for the C domain
 
 .. confval:: c_maximum_signature_line_length
 
-   An integer representing the maximum number of characters that cannot be exceeded by a
-   C object's signature. When negative (the default), there is no maximum, no line break
-   will be introduced no matter how long the signature. When positive, all objects whose
-   signature exceed the given character limit will have each of their arguments
-   displayed on a separate, indented line. The directive
-   :rst:dir:`single-line-signature` allows to disable this behavior on specific objects.
+   An integer representing the maximum number of characters that cannot be exceeded
+   by a C object's signature. When negative (the default), there is no maximum, no
+   line break will be introduced no matter how long the signature. When positive, all
+   objects whose signature exceed the given character limit will have each of their
+   arguments displayed on a separate, indented line. The directive
+   :rst:dir:`single-line-signature` allows to disable this behavior on specific
+   objects.
 
    .. versionadded:: 6.x
 
@@ -2946,12 +2947,13 @@ Options for the C++ domain
 
 .. confval:: cpp_maximum_signature_line_length
 
-   An integer representing the maximum number of characters that cannot be exceeded by a
-   C++ object's signature. When negative (the default), there is no maximum, no line
-   break will be introduced no matter how long the signature. When positive, all objects
-   whose signature exceed the given character limit will have each of their arguments
-   displayed on a separate, indented line. The directive
-   :rst:dir:`single-line-signature` allows to disable this behavior on specific objects.
+   An integer representing the maximum number of characters that cannot be exceeded
+   by a C++ object's signature. When negative (the default), there is no maximum, no
+   line break will be introduced no matter how long the signature. When positive, all
+   objects whose signature exceed the given character limit will have each of their
+   arguments displayed on a separate, indented line. The directive
+   :rst:dir:`single-line-signature` allows to disable this behavior on specific
+   objects.
 
    .. versionadded:: 6.x
 
@@ -2969,12 +2971,13 @@ Options for the Python domain
 
 .. confval:: python_maximum_signature_line_length
 
-   An integer representing the maximum number of characters that cannot be exceeded by a
-   Python object's signature. When negative (the default), there is no maximum, no line
-   break will be introduced no matter how long the signature. When positive, all objects
-   whose signature exceed the given character limit will have each of their arguments
-   displayed on a separate, indented line. The directive
-   :rst:dir:`single-line-signature` allows to disable this behavior on specific objects.
+   An integer representing the maximum number of characters that cannot be exceeded
+   by a Python object's signature. When negative (the default), there is no maximum,
+   no line break will be introduced no matter how long the signature. When positive,
+   all objects whose signature exceed the given character limit will have each of
+   their arguments displayed on a separate, indented line. The directive
+   :rst:dir:`single-line-signature` allows to disable this behavior on specific
+   objects.
 
    .. versionadded:: 6.x
 
