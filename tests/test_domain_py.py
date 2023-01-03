@@ -9,11 +9,10 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.addnodes import (desc, desc_addname, desc_annotation, desc_content, desc_name,
-                             desc_optional, desc_parameter, desc_parameterlist, desc_returns,
-                             desc_sig_keyword, desc_sig_literal_number,
-                             desc_sig_literal_string, desc_sig_name, desc_sig_operator,
-                             desc_sig_punctuation, desc_sig_space, desc_signature,
-                             pending_xref)
+                             desc_optional, desc_parameter, desc_parameter_line, 
+                             desc_parameterlist, desc_returns, desc_sig_keyword,
+                             desc_sig_literal_number, desc_sig_literal_string,
+                             desc_sig_name, desc_sig_operator, desc_sig_punctuation, desc_sig_space, desc_signature, pending_xref)
 from sphinx.domains import IndexEntry
 from sphinx.domains.python import (PythonDomain, PythonModuleIndex, _parse_annotation,
                                    _pseudo_parse_arglist, py_sig_re)
@@ -1439,3 +1438,71 @@ def test_signature_line_number(app, include_options):
     source, line = docutils.utils.get_source_line(xrefs[0])
     assert 'index.rst' in source
     assert line == 1
+
+
+@pytest.mark.sphinx(
+    'html',
+    confoverrides={'python_maximum_signature_line_length': len("hello(name: str) -> str")}
+)
+def test_pyfunction_signature_with_python_maximum_signature_line_length(app):
+    text = ".. py:function:: hello(name: str) -> str"
+    doctree = restructuredtext.parse(app, text)
+    expected_doctree = (addnodes.index,
+                        [desc, ([desc_signature, ([desc_name, "hello"],
+                                                  desc_parameterlist,
+                                                  [desc_returns, pending_xref, "str"])],
+                                desc_content)])
+    assert_node(doctree, expected_doctree)
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="py", objtype="function", noindex=False)
+    signame_node = [desc_sig_name, "name"]
+    expected_sig = [desc_parameterlist, desc_parameter, (signame_node,
+                                                         [desc_sig_punctuation, ":"],
+                                                         desc_sig_space,
+                                                         [nodes.inline, pending_xref, "str"])]
+    assert_node(doctree[1][0][1], expected_sig)
+
+    
+    text = (".. py:function:: hello(names: str) -> str\n"
+            "   :single-line-signature:")
+    signame_node[1] = "names"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, expected_doctree)
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="py", objtype="function", noindex=False)
+    assert_node(doctree[1][0][1], expected_sig)
+
+    text = ".. py:function:: hello(names: str) -> str"
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, expected_doctree)
+    assert_node(doctree[1], addnodes.desc, desctype="function",
+                domain="py", objtype="function", noindex=False)
+    expected_sig.insert(1, desc_parameter_line)
+    
+    assert_node(doctree[1][0][1], expected_sig)
+
+
+@pytest.mark.sphinx(
+    'html', testroot='domain-py-python_maximum_signature_line_length',
+)
+def test_python_python_maximum_signature_line_length(app, status, warning):
+    app.build()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    expected = '\n'.join((
+        '<dl>',
+        (
+            '<dd><em class="sig-param"><span class="n"><span class="pre">name</span></span>'
+            '<span class="p"><span class="pre">:</span></span><span class="w"> </span>'
+            '<span class="n"><span class="pre">str</span></span></em>, </dd>'
+        ),
+        '</dl>',
+        '',
+        (
+            '<span class="sig-paren">)</span> <span class="sig-return">'
+            '<span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint">'
+            '<span class="pre">str</span></span></span>'
+            '<a class="headerlink" href="#hello" title="Permalink to this definition">¶</a>'
+            '</dt>'
+        ),
+    ))
+    assert expected in content
