@@ -542,6 +542,8 @@ class Builder:
         with open(doctree_filename, 'wb') as f:
             pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
 
+        self.env._write_doc_doctree_cache[docname] = doctree
+
     def write(
         self,
         build_docnames: Iterable[str],
