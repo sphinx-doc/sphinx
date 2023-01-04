@@ -665,7 +665,7 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
     index = (app.srcdir / 'index.rst').read_text(encoding='utf8')
     index = re.sub(':numbered:.*', '', index)
     (app.srcdir / 'index.rst').write_text(index, encoding='utf8')
-    app.builder.build_all()
+    app.build()
 
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings

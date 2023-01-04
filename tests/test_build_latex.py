@@ -429,7 +429,7 @@ def test_numref_with_prefix2(app, status, warning):
     'latex', testroot='numfig',
     confoverrides={'numfig': True, 'language': 'ja'})
 def test_numref_with_language_ja(app, status, warning):
-    app.builder.build_all()
+    app.build()
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
