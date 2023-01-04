@@ -3222,7 +3222,7 @@ msgstr "proviene de la página anterior"
 #: sphinx/templates/latex/longtable.tex_t:29
 #: sphinx/templates/latex/sphinxmessages.sty_t:9
 msgid "continues on next page"
-msgstr "continué en la próxima página"
+msgstr "continúe en la próxima página"
 
 #: sphinx/templates/latex/sphinxmessages.sty_t:10
 msgid "Non-alphabetical"
