@@ -207,10 +207,9 @@ def render_math(
     """Render the LaTeX math expression *math* using latex and dvipng or
     dvisvgm.
 
-    Return the filename relative to the built document and the "depth",
+    Return the image absolute filename and the "depth",
     that is, the distance of image bottom and baseline in pixels, if the
     option to use preview_latex is switched on.
-    Also return the temporary and destination files.
 
     Error handling may seem strange, but follows a pattern: if LaTeX or dvipng
     (dvisvgm) aren't available, only a warning is generated (since that enables
