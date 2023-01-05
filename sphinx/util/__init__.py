@@ -12,7 +12,8 @@ from os import path
 from typing import IO, Any, Iterable
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
-from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
+from sphinx.deprecation import (RemovedInSphinx70Warning, RemovedInSphinx80Warning,
+                                deprecated_alias)
 from sphinx.errors import ExtensionError, FiletypeNotFoundError
 from sphinx.locale import __
 from sphinx.util import display as _display
@@ -391,7 +392,7 @@ deprecated_alias('sphinx.util',
                      'format_exception_cut_frames': _exceptions.format_exception_cut_frames,
                      'xmlname_checker': _xml_name_checker,
                  },
-                 RemovedInSphinx70Warning,
+                 RemovedInSphinx80Warning,
                  {
                      'path_stabilize': 'sphinx.util.osutil.path_stabilize',
                      'display_chunk': 'sphinx.util.display.display_chunk',
