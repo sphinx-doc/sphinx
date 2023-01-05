@@ -1,5 +1,5 @@
-Release 6.1.0 (in development)
-==============================
+Release 6.1.0 (released Jan 05, 2023)
+=====================================
 
 Dependencies
 ------------
@@ -64,9 +64,6 @@ Bugs fixed
   to allow styling.
 * #11074: LaTeX: Can't change sphinxnote to use sphinxheavybox starting with
   5.1.0
-
-Testing
---------
 
 Release 6.0.1 (released Jan 05, 2023)
 =====================================
