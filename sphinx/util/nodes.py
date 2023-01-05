@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import re
 import unicodedata
 from typing import TYPE_CHECKING, Any, Callable, Iterable
@@ -152,7 +153,8 @@ def apply_source_workaround(node: Element) -> None:
 
     # workaround: literal_block under bullet list (#4913)
     if isinstance(node, nodes.literal_block) and node.source is None:
-        node.source = get_node_source(node)
+        with contextlib.suppress(ValueError):
+            node.source = get_node_source(node)
 
     # workaround: recommonmark-0.2.0 doesn't set rawsource attribute
     if not node.rawsource:
