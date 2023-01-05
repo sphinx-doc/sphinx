@@ -81,7 +81,6 @@ docs = [
 ]
 lint = [
     "flake8>=3.5.0",
-    "flake8-bugbear",
     "flake8-simplify",
     "isort",
     "mypy>=0.990",
