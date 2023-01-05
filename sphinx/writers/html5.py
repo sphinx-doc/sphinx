@@ -803,22 +803,22 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def visit_math(self, node: Element, math_env: str = '') -> None:
         name = self.builder.math_renderer_name
-        visit, _ = self.builder.app.registry.html_inline_math_renderers[name]
+        visit, _ = self.builder.app.registry.html_inline_math_renderers[name]  # type: ignore[index]  # noqa: E501
         visit(self, node)
 
     def depart_math(self, node: Element, math_env: str = '') -> None:
         name = self.builder.math_renderer_name
-        _, depart = self.builder.app.registry.html_inline_math_renderers[name]
+        _, depart = self.builder.app.registry.html_inline_math_renderers[name]  # type: ignore[index]  # noqa: E501
         if depart:  # type: ignore[truthy-function]
             depart(self, node)
 
     def visit_math_block(self, node: Element, math_env: str = '') -> None:
         name = self.builder.math_renderer_name
-        visit, _ = self.builder.app.registry.html_block_math_renderers[name]
+        visit, _ = self.builder.app.registry.html_block_math_renderers[name]  # type: ignore[index]  # noqa: E501
         visit(self, node)
 
     def depart_math_block(self, node: Element, math_env: str = '') -> None:
         name = self.builder.math_renderer_name
-        _, depart = self.builder.app.registry.html_block_math_renderers[name]
+        _, depart = self.builder.app.registry.html_block_math_renderers[name]  # type: ignore[index]  # noqa: E501
         if depart:  # type: ignore[truthy-function]
             depart(self, node)

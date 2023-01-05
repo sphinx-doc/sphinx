@@ -116,7 +116,7 @@ class LaTeXBuilder(Builder):
     default_translator_class = LaTeXTranslator
 
     def init(self) -> None:
-        self.babel: ExtBabel = None
+        self.babel: ExtBabel | None = None
         self.context: dict[str, Any] = {}
         self.docnames: Iterable[str] = {}
         self.document_data: list[tuple[str, str, str, str, str, bool]] = []
@@ -306,7 +306,7 @@ class LaTeXBuilder(Builder):
                 docwriter.theme = theme
                 docwriter.write(doctree, destination)
 
-    def get_contentsname(self, indexfile: str) -> str:
+    def get_contentsname(self, indexfile: str) -> str | None:
         tree = self.env.get_doctree(indexfile)
         contentsname = None
         for toctree in tree.findall(addnodes.toctree):
