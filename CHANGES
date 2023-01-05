@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #11091: Fix ``util.nodes.apply_source_workaround`` for ``literal_block`` nodes
+  with no source information in the node or the node's parents.
+
 Testing
 --------
 
