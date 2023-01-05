@@ -422,15 +422,11 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
         while True:
             check_request = self.wqueue.get()
-            try:
-                next_check, hyperlink = check_request
-                if hyperlink is None:
-                    break
+            next_check, hyperlink = check_request
+            if hyperlink is None:
+                break
 
-                uri, docname, lineno = hyperlink
-            except ValueError:
-                # old styled check_request (will be deprecated in Sphinx-5.0)
-                next_check, uri, docname, lineno = check_request  # type: ignore[misc]
+            uri, docname, lineno = hyperlink
 
             if uri is None:
                 break
