@@ -62,7 +62,7 @@ Options
 
 .. option:: -d <MAXDEPTH>
 
-   Maximum depth for the generated table of contents file. Defaults to ``4``. 
+   Maximum depth for the generated table of contents file. Defaults to ``4``.
 
 .. option:: --tocfile
 
