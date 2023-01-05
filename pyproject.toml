@@ -83,6 +83,7 @@ lint = [
     "flake8>=3.5.0",
     "flake8-simplify",
     "isort",
+    "ruff",
     "mypy>=0.990",
     "sphinx-lint",
     "docutils-stubs",
