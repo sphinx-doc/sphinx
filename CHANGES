@@ -1,27 +1,15 @@
-Release 6.0.1 (in development)
-==============================
+Release 6.0.1 (released Jan 05, 2023)
+=====================================
 
 Dependencies
 ------------
 
 * Require Pygments 2.13 or later.
 
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
 Bugs fixed
 ----------
 
 * #10944: imgmath:  Fix resolving image paths for files in nested folders.
-
-Testing
---------
 
 Release 6.0.0 (released Dec 29, 2022)
 =====================================
