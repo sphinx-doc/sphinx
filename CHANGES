@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #10944: imgmath:  Fix resolving image paths for files in nested folders.
+
 Testing
 --------
 
