@@ -945,12 +945,14 @@ Do not use quotes to enclose values, whether numerical or strings.
     Default: ``\fboxrule``
 
 ``shadowsep``
-    The separation between contents and frame for :dudir:`contents` and
+    The separation between contents and frame for contents_ and
     :dudir:`topic` boxes.
 
     See :ref:`additionalcss` for the alias ``div.topic_padding``.
 
     Default: ``5pt``
+
+    .. _contents: https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents
 
 ``shadowsize``
     The width of the lateral "shadow" to the right and bottom.
@@ -1456,7 +1458,7 @@ Environments
 
   .. versionadded:: 6.1.0
 
-- The :dudir:`contents` directive (with ``:local:`` option) and the
+- The contents_ directive (with ``:local:`` option) and the
   :dudir:`topic` directive are implemented by environment ``sphinxShadowBox``.
 
   .. versionadded:: 1.4.2
