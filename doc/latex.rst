@@ -963,7 +963,7 @@ Do not use quotes to enclose values, whether numerical or strings.
     Default: ``4pt``
 
     .. versionchanged:: 6.1.2
-       Fixed a regression introduced at `5.1.0` which modified unintentionally
+       Fixed a regression introduced at ``5.1.0`` which modified unintentionally
        the width of topic boxes and worse had made usage of this key break PDF
        builds.
 
