@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2023/01/03 v6.1.0 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2023/01/06 v6.1.2 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -508,10 +508,10 @@ will be set to white}%
   \edef\spx@topic@shadow@xoffset{\number\dimexpr#1\relax sp}%
   \let\spx@topic@shadow@yoffset\spx@topic@shadow@xoffset
   \ifdim\spx@topic@shadow@xoffset=\z@
-      \spx@topic@box@withshadowtrue
+      \spx@topic@withshadowfalse
   \else
-      \spx@topic@box@withshadowfalse
-      \spx@topic@box@shadow@insetfalse
+      \spx@topic@withshadowtrue
+      \spx@topic@insetshadowfalse
   \fi
 }%
 \definecolor{sphinxTopicBorderColor}{rgb}{0,0,0}
