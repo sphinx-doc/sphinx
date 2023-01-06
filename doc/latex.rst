@@ -1165,6 +1165,10 @@ Options for topic boxes:
   | ``div.topic_padding-left``,
   | ``div.topic_padding``,
     again this is a single dimension.  Its default is ``5pt``.
+
+  .. versionchanged:: 6.1.2
+     These keys had been implemented at 5.1.0 without ``div.`` in
+     their names.
 - | ``div.topic_border-top-left-radius``,
   | ``div.topic_border-top-right-radius``,
   | ``div.topic_border-bottom-right-radius``,

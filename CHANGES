@@ -4,9 +4,11 @@ Release 6.1.2 (in development)
 Bugs fixed
 ----------
 
-* #11099: LaTeX: shadowrule key of sphinxsetup causes PDF build to crash
+* #11101: LaTeX: ``div.topic_padding`` key of sphinxsetup documented at 5.1.0 was
+  implemented with name ``topic_padding``
+* #11099: LaTeX: ``shadowrule`` key of sphinxsetup causes PDF build to crash
   since Sphinx 5.1.0
-* #11096: LaTeX: shadowsize key of sphinxsetup causes PDF build to crash
+* #11096: LaTeX: ``shadowsize`` key of sphinxsetup causes PDF build to crash
   since Sphinx 5.1.0
 * #11095: LaTeX: shadow of :dudir:`topic` and contents_ boxes not in page
   margin since Sphinx 5.1.0

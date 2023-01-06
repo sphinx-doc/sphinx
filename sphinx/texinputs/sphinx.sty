@@ -445,11 +445,13 @@ will be set to white}%
             \else\spx@topic@border@opentrue\fi}%
 %
 % MEMO: \sphinxshadowsep not used anywhere anymore in code base and to be removed
-\define@key{sphinx}{topic_padding-top}{\def\spx@topic@padding@top{#1}}
-\define@key{sphinx}{topic_padding-right}{\def\spx@topic@padding@right{#1}}
-\define@key{sphinx}{topic_padding-bottom}{\def\spx@topic@padding@bottom{#1}}
-\define@key{sphinx}{topic_padding-left}{\def\spx@topic@padding@left{#1}}
-\define@key{sphinx}{topic_padding}{%
+% Sadly the 5.1.0 definitions forgot the "div." part of the key names
+% Fixed at 6.1.2
+\define@key{sphinx}{div.topic_padding-top}{\def\spx@topic@padding@top{#1}}
+\define@key{sphinx}{div.topic_padding-right}{\def\spx@topic@padding@right{#1}}
+\define@key{sphinx}{div.topic_padding-bottom}{\def\spx@topic@padding@bottom{#1}}
+\define@key{sphinx}{div.topic_padding-left}{\def\spx@topic@padding@left{#1}}
+\define@key{sphinx}{div.topic_padding}{%
    \def\spx@topic@padding@top   {#1}%
    \let\spx@topic@padding@right \spx@topic@padding@top
    \let\spx@topic@padding@bottom\spx@topic@padding@top
@@ -460,7 +462,7 @@ will be set to white}%
 \let\spx@topic@padding@bottom\spx@topic@padding@top
 \let\spx@topic@padding@left  \spx@topic@padding@top
 \expandafter\let\expandafter\KV@sphinx@shadowsep
-                            \csname KV@sphinx@topic_padding\endcsname
+                            \csname KV@sphinx@div.topic_padding\endcsname
 %
 \define@key{sphinx}{div.topic_border-top-left-radius}{\def\spx@topic@radius@topleft{#1}}
 \define@key{sphinx}{div.topic_border-top-right-radius}{\def\spx@topic@radius@topright{#1}}
@@ -504,6 +506,7 @@ will be set to white}%
 \spx@topic@box@shadow@setter 4pt 4pt {} \@nnil
 % Suport for legacy shadowsize, the \sphinxshadowsize \dimen register
 % is not used anymore and should not even be allocated in future
+% This definition was broken at 5.1.0 and fixed at 6.1.2
 \define@key{sphinx}{shadowsize}{%
   \edef\spx@topic@shadow@xoffset{\number\dimexpr#1\relax sp}%
   \let\spx@topic@shadow@yoffset\spx@topic@shadow@xoffset
