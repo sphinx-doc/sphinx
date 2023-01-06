@@ -4,6 +4,8 @@ Release 6.1.2 (in development)
 Bugs fixed
 ----------
 
+* #11099: LaTeX: shadowrule key of sphinxsetup causes PDF build to crash
+  since Sphinx 5.1.0
 * #11096: LaTeX: shadowsize key of sphinxsetup causes PDF build to crash
   since Sphinx 5.1.0
 * #11095: LaTeX: shadow of :dudir:`topic` and contents_ boxes not in page
