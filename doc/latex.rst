@@ -933,26 +933,43 @@ Do not use quotes to enclose values, whether numerical or strings.
 ``verbatimsep``
     The separation between code lines and the frame.
 
+    See :ref:`additionalcss` for its alias  ``pre_padding`` and
+    additional keys.
+
     Default: ``\fboxsep``
 
 ``verbatimborder``
-    The width of the frame around :rst:dir:`code-block`\ s.
+    The width of the frame around :rst:dir:`code-block`\ s.  See also
+    :ref:`additionalcss` for ``pre_border-width``.
 
     Default: ``\fboxrule``
 
 ``shadowsep``
-    The separation between contents and frame for :dudir:`contents` and
+    The separation between contents and frame for contents_ and
     :dudir:`topic` boxes.
 
+    See :ref:`additionalcss` for the alias ``div.topic_padding``.
+
     Default: ``5pt``
+
+    .. _contents: https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents
 
 ``shadowsize``
     The width of the lateral "shadow" to the right and bottom.
 
+    See :ref:`additionalcss` for ``div.topic_box-shadow`` which allows to
+    configure separately the widths of the vertical and horizontal shadows.
+
     Default: ``4pt``
 
+    .. versionchanged:: 6.1.2
+       Fixed a regression introduced at `5.1.0` which modified unintentionally
+       the width of topic boxes and worse had made usage of this key break PDF
+       builds.
+
 ``shadowrule``
-    The width of the frame around :dudir:`topic` boxes.
+    The width of the frame around :dudir:`topic` boxes.  See also
+    :ref:`additionalcss` for ``div.topic_border-width``.
 
     Default: ``\fboxrule``
 
@@ -987,7 +1004,9 @@ Do not use quotes to enclose values, whether numerical or strings.
     Default: ``{rgb}{1,1,1}`` (white)
 
 |warningborders|
-    The width of the frame.
+    The width of the frame.  See
+    :ref:`additionalcss` for keys allowing to configure separately each
+    border width.
 
     Default: ``1pt``
 
@@ -1146,6 +1165,10 @@ Options for topic boxes:
   | ``div.topic_padding-left``,
   | ``div.topic_padding``,
     again this is a single dimension.  Its default is ``5pt``.
+
+  .. versionchanged:: 6.1.2
+     These keys had been implemented at 5.1.0 without ``div.`` in
+     their names.
 - | ``div.topic_border-top-left-radius``,
   | ``div.topic_border-top-right-radius``,
   | ``div.topic_border-bottom-right-radius``,
@@ -1439,7 +1462,7 @@ Environments
 
   .. versionadded:: 6.1.0
 
-- The :dudir:`contents` directive (with ``:local:`` option) and the
+- The contents_ directive (with ``:local:`` option) and the
   :dudir:`topic` directive are implemented by environment ``sphinxShadowBox``.
 
   .. versionadded:: 1.4.2
