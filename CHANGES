@@ -19,6 +19,15 @@ Bugs fixed
 Testing
 --------
 
+Release 6.1.1 (released Jan 05, 2023)
+=====================================
+
+Bugs fixed
+----------
+
+* #11091: Fix ``util.nodes.apply_source_workaround`` for ``literal_block`` nodes
+  with no source information in the node or the node's parents.
+
 Release 6.1.0 (released Jan 05, 2023)
 =====================================
 
