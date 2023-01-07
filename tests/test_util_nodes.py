@@ -11,8 +11,14 @@ from docutils.parsers import rst
 from docutils.utils import new_document
 
 from sphinx.transforms import ApplySourceWorkaround
-from sphinx.util.nodes import (NodeMatcher, apply_source_workaround, clean_astext,
-                               extract_messages, make_id, split_explicit_title)
+from sphinx.util.nodes import (
+    NodeMatcher,
+    apply_source_workaround,
+    clean_astext,
+    extract_messages,
+    make_id,
+    split_explicit_title,
+)
 
 
 def _transform(doctree):

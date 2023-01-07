@@ -11,8 +11,15 @@ from pygments.filters import ErrorToken
 from pygments.formatter import Formatter
 from pygments.formatters import HtmlFormatter, LatexFormatter
 from pygments.lexer import Lexer
-from pygments.lexers import (CLexer, PythonConsoleLexer, PythonLexer, RstLexer, TextLexer,
-                             get_lexer_by_name, guess_lexer)
+from pygments.lexers import (
+    CLexer,
+    PythonConsoleLexer,
+    PythonLexer,
+    RstLexer,
+    TextLexer,
+    get_lexer_by_name,
+    guess_lexer,
+)
 from pygments.style import Style
 from pygments.styles import get_style_by_name
 from pygments.util import ClassNotFound

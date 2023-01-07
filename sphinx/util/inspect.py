@@ -13,11 +13,22 @@ import types
 import typing
 from functools import cached_property, partial, partialmethod, singledispatchmethod
 from importlib import import_module
-from inspect import (Parameter, isasyncgenfunction, isclass, ismethod,  # noqa: F401
-                     ismethoddescriptor, ismodule)
+from inspect import (  # noqa: F401
+    Parameter,
+    isasyncgenfunction,
+    isclass,
+    ismethod,
+    ismethoddescriptor,
+    ismodule,
+)
 from io import StringIO
-from types import (ClassMethodDescriptorType, MethodDescriptorType, MethodType, ModuleType,
-                   WrapperDescriptorType)
+from types import (
+    ClassMethodDescriptorType,
+    MethodDescriptorType,
+    MethodType,
+    ModuleType,
+    WrapperDescriptorType,
+)
 from typing import Any, Callable, Dict, Mapping, Sequence, cast
 
 from sphinx.pycode.ast import unparse as ast_unparse

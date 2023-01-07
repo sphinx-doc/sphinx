@@ -13,8 +13,11 @@ from os import path
 from typing import IO, Any, Iterable
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
-from sphinx.deprecation import (RemovedInSphinx70Warning, RemovedInSphinx80Warning,
-                                deprecated_alias)
+from sphinx.deprecation import (
+    RemovedInSphinx70Warning,
+    RemovedInSphinx80Warning,
+    deprecated_alias,
+)
 from sphinx.errors import ExtensionError, FiletypeNotFoundError
 from sphinx.locale import __
 from sphinx.util import display as _display
@@ -24,12 +27,25 @@ from sphinx.util import logging
 from sphinx.util import osutil as _osutil
 from sphinx.util.console import strip_colors  # NoQA: F401
 from sphinx.util.matching import patfilter  # noqa: F401
-from sphinx.util.nodes import (caption_ref_re, explicit_title_re,  # noqa: F401
-                               nested_parse_with_titles, split_explicit_title)
+from sphinx.util.nodes import (  # noqa: F401
+    caption_ref_re,
+    explicit_title_re,
+    nested_parse_with_titles,
+    split_explicit_title,
+)
+
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
-from sphinx.util.osutil import (SEP, copyfile, copytimes, ensuredir,  # noqa: F401
-                                make_filename, mtimes_of_files, os_path, relative_uri)
+from sphinx.util.osutil import (  # noqa: F401
+    SEP,
+    copyfile,
+    copytimes,
+    ensuredir,
+    make_filename,
+    mtimes_of_files,
+    os_path,
+    relative_uri,
+)
 from sphinx.util.typing import PathMatcher
 
 logger = logging.getLogger(__name__)

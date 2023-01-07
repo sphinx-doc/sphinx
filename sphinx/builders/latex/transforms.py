@@ -10,8 +10,13 @@ from docutils.transforms.references import Substitutions
 
 from sphinx import addnodes
 from sphinx.application import Sphinx
-from sphinx.builders.latex.nodes import (captioned_literal_block, footnotemark, footnotetext,
-                                         math_reference, thebibliography)
+from sphinx.builders.latex.nodes import (
+    captioned_literal_block,
+    footnotemark,
+    footnotetext,
+    math_reference,
+    thebibliography,
+)
 from sphinx.domains.citation import CitationDomain
 from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import SphinxPostTransform
