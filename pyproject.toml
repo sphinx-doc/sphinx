@@ -166,6 +166,7 @@ ignore = [
     "S324",  # probable use of insecure hash functions
     # flake8-simplify
     "SIM102", # nested 'if' statements
+    "SIM103", # return condition directly
     "SIM105", # use contextlib.suppress
     "SIM108", # use ternary operator
     "SIM117", # use single 'with' statement
