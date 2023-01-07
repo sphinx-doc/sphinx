@@ -236,7 +236,8 @@ class ImageConverter(BaseImageConverter):
         else:
             srcpath = node['candidates']['*']
 
-        filename = get_filename_for(srcpath, _to)
+        filename = self.env.images[srcpath][1]
+        filename = get_filename_for(filename, _to)
         ensuredir(self.imagedir)
         destpath = os.path.join(self.imagedir, filename)
 
