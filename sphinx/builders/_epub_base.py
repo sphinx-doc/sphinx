@@ -401,9 +401,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
         the format and resizing the image if necessary/possible.
         """
         ensuredir(path.join(self.outdir, self.imagedir))
-        for src in status_iterator(self.images, __('copying images... '), "brown",
-                                   len(self.images), self.app.verbosity):
-            dest = self.images[src]
+        converted_images = {*self.env.original_image_uri.values()}
+        for src in status_iterator(self.env.images, __('copying images... '), "brown",
+                                   len(self.env.images), self.app.verbosity):
+            if src in converted_images:
+                continue
+            _docnames, dest = self.env.images[src]
             try:
                 img = Image.open(path.join(self.srcdir, src))
             except OSError:
@@ -438,7 +441,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Copy image files to destination directory.
         This overwritten method can use Pillow to convert image files.
         """
-        if self.images:
+        if self.env.images:
             if self.config.epub_fix_images or self.config.epub_max_image_width:
                 if not Image:
                     logger.warning(__('Pillow not found - copying image files'))
