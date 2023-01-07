@@ -14,6 +14,7 @@ Bugs fixed
   margin since Sphinx 5.1.0
 
   .. _contents: https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents
+* #11100: Fix copying images when running under parallel mode.
 
 Release 6.1.1 (released Jan 05, 2023)
 =====================================
