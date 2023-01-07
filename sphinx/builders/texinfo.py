@@ -173,12 +173,15 @@ class TexinfoBuilder(Builder):
         self.copy_support_files()
 
     def copy_image_files(self, targetname: str) -> None:
-        if self.images:
+        if self.env.images:
+            converted_images = {*self.env.original_image_uri.values()}
             stringify_func = ImageAdapter(self.app.env).get_original_image_uri
-            for src in status_iterator(self.images, __('copying images... '), "brown",
-                                       len(self.images), self.app.verbosity,
+            for src in status_iterator(self.env.images, __('copying images... '), "brown",
+                                       len(self.env.images), self.app.verbosity,
                                        stringify_func=stringify_func):
-                dest = self.images[src]
+                if src in converted_images:
+                    continue
+                _docnames, dest = self.env.images[src]
                 try:
                     imagedir = path.join(self.outdir, targetname + '-figures')
                     ensuredir(imagedir)

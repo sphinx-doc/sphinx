@@ -4,6 +4,7 @@ import os
 import re
 import subprocess
 from itertools import product
+from pathlib import Path
 from shutil import copyfile
 from subprocess import CalledProcessError
 
@@ -1670,3 +1671,25 @@ def test_latex_code_role(app):
             common_content + '%\n}} code block') in content
     assert (r'\begin{sphinxVerbatim}[commandchars=\\\{\}]' +
             '\n' + common_content + '\n' + r'\end{sphinxVerbatim}') in content
+
+
+@pytest.mark.sphinx('latex', testroot='images')
+def test_copy_images(app, status, warning):
+    app.build()
+
+    test_dir = Path(app.outdir)
+    images = {
+        image.name for image in test_dir.rglob('*')
+        if image.suffix in {'.gif', '.pdf', '.png', '.svg'}
+    }
+    assert images == {
+        'img.gif',
+        'img.pdf',
+        'img.png',
+        'python-logo.png',
+        'rimg.png',
+        'rimg1.png',
+        'svgimg.pdf',
+        'svgimg.svg',
+        'testimäge.png',
+    }

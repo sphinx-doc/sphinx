@@ -29,8 +29,29 @@ Bugs fixed
 Testing
 --------
 
-Release 6.1.2 (in development)
+Release 6.1.3 (in development)
 ==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 6.1.2 (released Jan 07, 2023)
+=====================================
 
 Bugs fixed
 ----------
@@ -45,6 +66,7 @@ Bugs fixed
   margin since Sphinx 5.1.0
 
   .. _contents: https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents
+* #11100: Fix copying images when running under parallel mode.
 
 Release 6.1.1 (released Jan 05, 2023)
 =====================================

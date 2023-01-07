@@ -3,6 +3,7 @@
 import os
 import re
 import subprocess
+from pathlib import Path
 from subprocess import CalledProcessError
 from unittest.mock import Mock
 
@@ -137,3 +138,22 @@ def test_texinfo_samp_with_variable(app, status, warning):
     assert '@code{@var{variable_only}}' in output
     assert '@code{@var{variable} and text}' in output
     assert '@code{Show @var{variable} in the middle}' in output
+
+
+@pytest.mark.sphinx('texinfo', testroot='images')
+def test_copy_images(app, status, warning):
+    app.build()
+
+    images_dir = Path(app.outdir) / 'python-figures'
+    images = {image.name for image in images_dir.rglob('*')}
+    assert images == {
+        'img.gif',
+        'img.pdf',
+        'img.png',
+        'python-logo.png',
+        'rimg.png',
+        'rimg1.png',
+        'svgimg.pdf',
+        'svgimg.svg',
+        'testimäge.png',
+    }

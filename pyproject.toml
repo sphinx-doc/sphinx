@@ -162,9 +162,12 @@ ignore = [
     # flake8-bandit
     "S101",  # assert used
     "S105",  # possible hardcoded password
+    "S113",  # probable use of requests call without timeout
+    "S324",  # probable use of insecure hash functions
     # flake8-simplify
     "SIM102", # nested 'if' statements
     "SIM105", # use contextlib.suppress
+    "SIM108", # use ternary operator
     "SIM117", # use single 'with' statement
 ]
 external = [  # Whitelist for RUF100 unkown code warnings
