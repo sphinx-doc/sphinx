@@ -765,11 +765,14 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_image_files(self) -> None:
         if self.env.images:
+            converted_images = {*self.env.original_image_uri.values()}
             stringify_func = ImageAdapter(self.app.env).get_original_image_uri
             ensuredir(path.join(self.outdir, self.imagedir))
             for src in status_iterator(self.env.images, __('copying images... '), "brown",
                                        len(self.env.images), self.app.verbosity,
                                        stringify_func=stringify_func):
+                if src in converted_images:
+                    continue
                 _docnames, dest = self.env.images[src]
                 try:
                     copyfile(path.join(self.srcdir, src),
