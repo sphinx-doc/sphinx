@@ -1,7 +1,7 @@
 %% TOPIC AND CONTENTS BOXES
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexshadowbox.sty}[2022/07/03 sphinxShadowBox]
+\ProvidesFile{sphinxlatexshadowbox.sty}[2023/01/06 sphinxShadowBox]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -89,7 +89,9 @@
         \fi
   \ifspx@topic@withshadow
    \ifspx@topic@insetshadow\else
-    \ifdim\spx@topic@shadow@xoffset>\z@\hskip\spx@topic@shadow@xoffset\relax
+    % A strangely unnoticed 5.1.0 breakage of the legacy placement of the
+    % shadow was caused by a lacking minus sign here, fixed at 6.1.2
+    \ifdim\spx@topic@shadow@xoffset>\z@\hskip-\spx@topic@shadow@xoffset\relax
     \fi
    \fi
   \fi
