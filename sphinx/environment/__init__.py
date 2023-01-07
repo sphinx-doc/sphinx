@@ -307,10 +307,7 @@ class BuildEnvironment:
             self.config_status = CONFIG_EXTENSIONS_CHANGED
             extensions = sorted(
                 set(self.config.extensions) ^ set(config.extensions))
-            if len(extensions) == 1:
-                extension = extensions[0]
-            else:
-                extension = '%d' % (len(extensions),)
+            extension = extensions[0] if len(extensions) == 1 else "%d" % (len(extensions),)
             self.config_status_extra = f' ({extension!r})'
         else:
             # check if a config value was changed that affects how

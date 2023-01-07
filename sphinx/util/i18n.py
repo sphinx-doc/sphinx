@@ -199,10 +199,7 @@ def format_date(
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
         # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
         source_date_epoch = os.getenv('SOURCE_DATE_EPOCH')
-        if source_date_epoch is not None:
-            date = datetime.utcfromtimestamp(float(source_date_epoch))
-        else:
-            date = datetime.now(timezone.utc).astimezone()
+        date = datetime.utcfromtimestamp(float(source_date_epoch)) if source_date_epoch is not None else datetime.now(timezone.utc).astimezone()
 
     if language is None:
         warnings.warn('The language argument for format_date() becomes required.',

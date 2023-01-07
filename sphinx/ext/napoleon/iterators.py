@@ -111,10 +111,7 @@ class peek_iter:
         if not n:
             if self._cache[0] == self.sentinel:
                 raise StopIteration
-            if n is None:
-                result = self._cache.popleft()
-            else:
-                result = []
+            result = self._cache.popleft() if n is None else []
         else:
             if self._cache[n - 1] == self.sentinel:
                 raise StopIteration
@@ -142,10 +139,7 @@ class peek_iter:
 
         """
         self._fillcache(n)
-        if n is None:
-            result = self._cache[0]
-        else:
-            result = [self._cache[i] for i in range(n)]
+        result = self._cache[0] if n is None else [self._cache[i] for i in range(n)]
         return result
 
 

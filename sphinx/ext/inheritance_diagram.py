@@ -224,10 +224,7 @@ class InheritanceGraph:
         completely general.
         """
         module = cls.__module__
-        if module in ('__builtin__', 'builtins'):
-            fullname = cls.__name__
-        else:
-            fullname = f'{module}.{cls.__qualname__}'
+        fullname = cls.__name__ if module in ("__builtin__", "builtins") else f"{module}.{cls.__qualname__}"
         if parts == 0:
             result = fullname
         else:

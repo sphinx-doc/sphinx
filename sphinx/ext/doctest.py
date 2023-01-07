@@ -85,10 +85,7 @@ class TestDirective(SphinxDirective):
         nodetype: type[TextElement] = nodes.literal_block
         if self.name in ('testsetup', 'testcleanup') or 'hide' in self.options:
             nodetype = nodes.comment
-        if self.arguments:
-            groups = [x.strip() for x in self.arguments[0].split(',')]
-        else:
-            groups = ['default']
+        groups = [x.strip() for x in self.arguments[0].split(",")] if self.arguments else ["default"]
         node = nodetype(code, code, testnodetype=self.name, groups=groups)
         self.set_source_info(node)
         if test is not None:
@@ -524,10 +521,7 @@ Doctest summary
                 options[doctest.DONT_ACCEPT_BLANKLINE] = True
                 # find out if we're testing an exception
                 m = parser._EXCEPTION_RE.match(output)  # type: ignore
-                if m:
-                    exc_msg = m.group('msg')
-                else:
-                    exc_msg = None
+                exc_msg = m.group("msg") if m else None
                 example = doctest.Example(code[0].code, output, exc_msg=exc_msg,
                                           lineno=code[0].lineno, options=options)
                 test = doctest.DocTest([example], {}, group.name,

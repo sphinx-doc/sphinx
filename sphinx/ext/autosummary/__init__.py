@@ -175,15 +175,9 @@ def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
         return ModuleDocumenter
 
     # Construct a fake documenter for *parent*
-    if parent is not None:
-        parent_doc_cls = get_documenter(app, parent, None)
-    else:
-        parent_doc_cls = ModuleDocumenter
+    parent_doc_cls = get_documenter(app, parent, None) if parent is not None else ModuleDocumenter
 
-    if hasattr(parent, '__name__'):
-        parent_doc = parent_doc_cls(FakeDirective(), parent.__name__)
-    else:
-        parent_doc = parent_doc_cls(FakeDirective(), "")
+    parent_doc = parent_doc_cls(FakeDirective(), parent.__name__) if hasattr(parent, "__name__") else parent_doc_cls(FakeDirective(), "")
 
     # Get the correct documenter class for *obj*
     classes = [cls for cls in app.registry.documenters.values()
@@ -237,11 +231,7 @@ class Autosummary(SphinxDirective):
                 docname = posixpath.join(tree_prefix, real_name)
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
                 if docname not in self.env.found_docs:
-                    if excluded(self.env.doc2path(docname, False)):
-                        msg = __('autosummary references excluded document %r. Ignored.')
-                    else:
-                        msg = __('autosummary: stub file not found %r. '
-                                 'Check your autosummary_generate setting.')
+                    msg = __("autosummary references excluded document %r. Ignored.") if excluded(self.env.doc2path(docname, False)) else __("autosummary: stub file not found %r. Check your autosummary_generate setting.")
 
                     logger.warning(msg, real_name, location=self.get_location())
                     continue
@@ -411,10 +401,7 @@ class Autosummary(SphinxDirective):
 
         for name, sig, summary, real_name in items:
             qualifier = 'obj'
-            if 'nosignatures' not in self.options:
-                col1 = f':py:{qualifier}:`{name} <{real_name}>`\\ {rst.escape(sig)}'
-            else:
-                col1 = f':py:{qualifier}:`{name} <{real_name}>`'
+            col1 = f":py:{qualifier}:`{name} <{real_name}>`\\ {rst.escape(sig)}" if "nosignatures" not in self.options else f":py:{qualifier}:`{name} <{real_name}>`"
             col2 = summary
             append_row(col1, col2)
 
@@ -637,10 +624,7 @@ def import_by_name(
     errors: list[ImportExceptionGroup] = []
     for prefix in prefixes:
         try:
-            if prefix:
-                prefixed_name = '.'.join([prefix, name])
-            else:
-                prefixed_name = name
+            prefixed_name = ".".join([prefix, name]) if prefix else name
             obj, parent, modname = _import_by_name(prefixed_name, grouped_exception)
             return prefixed_name, obj, parent, modname
         except ImportError:

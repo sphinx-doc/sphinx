@@ -33,11 +33,7 @@ class BaseRenderer:
 
 class FileRenderer(BaseRenderer):
     def __init__(self, search_path: str | list[str]) -> None:
-        if isinstance(search_path, str):
-            search_path = [search_path]
-        else:
-            # filter "None" paths
-            search_path = list(filter(None, search_path))
+        search_path = [search_path] if isinstance(search_path, str) else list(filter(None, search_path))
 
         loader = SphinxFileSystemLoader(search_path)
         super().__init__(loader)

@@ -252,10 +252,7 @@ def extract_messages(doctree: Element) -> Iterable[tuple[Element, str]]:
         elif isinstance(node, nodes.image):
             if node.get('alt'):
                 yield node, node['alt']
-            if node.get('translatable'):
-                msg = '.. image:: %s' % node['uri']
-            else:
-                msg = ''
+            msg = ".. image:: %s" % node["uri"] if node.get("translatable") else ""
         elif isinstance(node, nodes.meta):  # type: ignore
             msg = node["content"]
         else:
@@ -301,10 +298,7 @@ def traverse_translatable_index(
     """Traverse translatable index node from a document tree."""
     matcher = NodeMatcher(addnodes.index, inline=False)
     for node in doctree.findall(matcher):  # type: addnodes.index
-        if 'raw_entries' in node:
-            entries = node['raw_entries']
-        else:
-            entries = node['entries']
+        entries = node["raw_entries"] if "raw_entries" in node else node["entries"]
         yield node, entries
 
 
@@ -500,10 +494,7 @@ def make_id(env: BuildEnvironment, document: nodes.document,
             prefix: str = '', term: str | None = None) -> str:
     """Generate an appropriate node_id for given *prefix* and *term*."""
     node_id = None
-    if prefix:
-        idformat = prefix + "-%s"
-    else:
-        idformat = (document.settings.id_prefix or "id") + "%s"
+    idformat = prefix + "-%s" if prefix else (document.settings.id_prefix or "id") + "%s"
 
     # try to generate node_id by *term*
     if prefix and term:

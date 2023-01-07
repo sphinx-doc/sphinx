@@ -241,10 +241,7 @@ class Cmdoption(ObjectDescription[str]):
                                       self.env.docname, signode['ids'][0])
 
         # create an index entry
-        if currprogram:
-            descr = _('%s command line option') % currprogram
-        else:
-            descr = _('command line option')
+        descr = _("%s command line option") % currprogram if currprogram else _("command line option")
         for option in signode.get('allnames', []):
             entry = '; '.join([descr, option])
             self.indexnode['entries'].append(('pair', entry, signode['ids'][0], '', None))
@@ -507,10 +504,7 @@ class ProductionList(SphinxDirective):
                 subnode['ids'].append(node_id)
                 self.state.document.note_implicit_target(subnode, subnode)
 
-                if len(productionGroup) != 0:
-                    objName = f"{productionGroup}:{name}"
-                else:
-                    objName = name
+                objName = f"{productionGroup}:{name}" if len(productionGroup) != 0 else name
                 domain.note_object('token', objName, node_id, location=node)
             subnode.extend(token_xrefs(tokens, productionGroup))
             node.append(subnode)
@@ -882,25 +876,14 @@ class StandardDomain(Domain):
             return contnode
 
         try:
-            if node['refexplicit']:
-                title = contnode.astext()
-            else:
-                title = env.config.numfig_format.get(figtype, '')
+            title = contnode.astext() if node["refexplicit"] else env.config.numfig_format.get(figtype, "")
 
             if figname is None and '{name}' in title:
                 logger.warning(__('the link has no caption: %s'), title, location=node)
                 return contnode
             else:
                 fignum = '.'.join(map(str, fignumber))
-                if '{name}' in title or 'number' in title:
-                    # new style format (cf. "Fig.{number}")
-                    if figname:
-                        newtitle = title.format(name=figname, number=fignum)
-                    else:
-                        newtitle = title.format(number=fignum)
-                else:
-                    # old style format (cf. "Fig.%s")
-                    newtitle = title % fignum
+                newtitle = (title.format(name=figname, number=fignum) if figname else title.format(number=fignum)) if "{name}" in title or "number" in title else title % fignum
         except KeyError as exc:
             logger.warning(__('invalid numfig_format: %s (%r)'), title, exc, location=node)
             return contnode
@@ -932,11 +915,7 @@ class StandardDomain(Domain):
         if docname not in env.all_docs:
             return None
         else:
-            if node['refexplicit']:
-                # reference with explicit title
-                caption = node.astext()
-            else:
-                caption = clean_astext(env.titles[docname])
+            caption = node.astext() if node["refexplicit"] else clean_astext(env.titles[docname])
             innernode = nodes.inline(caption, caption, classes=['doc'])
             return make_refnode(builder, fromdocname, docname, None, innernode)
 
@@ -1134,10 +1113,7 @@ def warn_missing_reference(app: Sphinx, domain: Domain, node: pending_xref
         return None
     else:
         target = node['reftarget']
-        if target not in domain.anonlabels:  # type: ignore
-            msg = __('undefined label: %r')
-        else:
-            msg = __('Failed to create a cross reference. A title or caption not found: %r')
+        msg = __("undefined label: %r") if target not in domain.anonlabels else __("Failed to create a cross reference. A title or caption not found: %r")
 
         logger.warning(msg % target, location=node, type='ref', subtype=node['reftype'])
         return True

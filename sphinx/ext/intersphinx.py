@@ -159,10 +159,7 @@ def fetch_inventory(app: Sphinx, uri: str, inv: Any) -> Any:
         # case: inv URI points to remote resource; strip any existing auth
         uri = _strip_basic_auth(uri)
     try:
-        if '://' in inv:
-            f = _read_from_url(inv, config=app.config)
-        else:
-            f = open(path.join(app.srcdir, inv), 'rb')
+        f = _read_from_url(inv, config=app.config) if "://" in inv else open(path.join(app.srcdir, inv), "rb")
     except Exception as err:
         err.args = ('intersphinx inventory %r not fetchable due to %s: %s',
                     inv, err.__class__, str(err))
@@ -266,10 +263,7 @@ def _create_element_from_result(domain: Domain, inv_name: str | None,
     if '://' not in uri and node.get('refdoc'):
         # get correct path in case of subdirectories
         uri = path.join(relative_path(node['refdoc'], '.'), uri)
-    if version:
-        reftitle = _('(in %s v%s)') % (proj, version)
-    else:
-        reftitle = _('(in %s)') % (proj,)
+    reftitle = _("(in %s v%s)") % (proj, version) if version else _("(in %s)") % (proj,)
     newnode = nodes.reference('', '', internal=False, refuri=uri, reftitle=reftitle)
     if node.get('refexplicit'):
         # use whatever title was given

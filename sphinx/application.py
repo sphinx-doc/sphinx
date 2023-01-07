@@ -362,10 +362,7 @@ class Sphinx:
                   else __('finished with problems'))
         if self._warncount:
             if self.warningiserror:
-                if self._warncount == 1:
-                    msg = __('build %s, %s warning (with warnings treated as errors).')
-                else:
-                    msg = __('build %s, %s warnings (with warnings treated as errors).')
+                msg = __("build %s, %s warning (with warnings treated as errors).") if self._warncount == 1 else __("build %s, %s warnings (with warnings treated as errors).")
             else:
                 if self._warncount == 1:
                     msg = __('build %s, %s warning.')

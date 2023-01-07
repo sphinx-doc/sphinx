@@ -63,10 +63,7 @@ class ReferencesResolver(SphinxPostTransform):
     def run(self, **kwargs: Any) -> None:
         for node in self.document.findall(addnodes.pending_xref):
             content = self.find_pending_xref_condition(node, ("resolved", "*"))
-            if content:
-                contnode = cast(Element, content[0].deepcopy())
-            else:
-                contnode = cast(Element, node[0].deepcopy())
+            contnode = cast(Element, content[0].deepcopy()) if content else cast(Element, node[0].deepcopy())
 
             newnode = None
 

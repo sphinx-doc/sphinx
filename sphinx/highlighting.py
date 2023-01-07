@@ -117,11 +117,7 @@ class PygmentsBridge:
 
         # find out which lexer to use
         if lang in {'py', 'python', 'py3', 'python3', 'default'}:
-            if source.startswith('>>>'):
-                # interactive session
-                lang = 'pycon'
-            else:
-                lang = 'python'
+            lang = "pycon" if source.startswith(">>>") else "python"
         if lang == 'pycon3':
             lang = 'pycon'
 
@@ -132,10 +128,7 @@ class PygmentsBridge:
             lexer = lexer_classes[lang](**opts)
         else:
             try:
-                if lang == 'guess':
-                    lexer = guess_lexer(source, **opts)
-                else:
-                    lexer = get_lexer_by_name(lang, **opts)
+                lexer = guess_lexer(source, **opts) if lang == "guess" else get_lexer_by_name(lang, **opts)
             except ClassNotFound:
                 logger.warning(__('Pygments lexer name %r is not known'), lang,
                                location=location)

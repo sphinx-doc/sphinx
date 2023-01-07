@@ -382,10 +382,7 @@ class TexinfoTranslator(SphinxTranslator):
             self.body.append('\n')
 
     def format_menu_entry(self, name: str, node_name: str, desc: str) -> str:
-        if name == node_name:
-            s = f'* {name}:: '
-        else:
-            s = f'* {name}: {node_name}. '
+        s = f"* {name}:: " if name == node_name else f"* {name}: {node_name}. "
         offset = max((24, (len(name) + 4) % 78))
         wdesc = '\n'.join(' ' * offset + l for l in
                           textwrap.wrap(desc, width=78 - offset))
@@ -707,12 +704,7 @@ class TexinfoTranslator(SphinxTranslator):
         elif uri.startswith('%'):
             # references to documents or labels inside documents
             hashindex = uri.find('#')
-            if hashindex == -1:
-                # reference to the document
-                id = uri[1:] + '::doc'
-            else:
-                # reference to a label
-                id = uri[1:].replace('#', ':')
+            id = uri[1:] + "::doc" if hashindex == -1 else uri[1:].replace("#", ":")
             self.add_xref(id, name, node)
         elif uri.startswith('info:'):
             # references to an external Info file

@@ -10,10 +10,7 @@ from sphinx.builders.html import HTML5Translator
 def get_node_equation_number(writer: HTML5Translator, node: nodes.math_block) -> str:
     if writer.builder.config.math_numfig and writer.builder.config.numfig:
         figtype = 'displaymath'
-        if writer.builder.name == 'singlehtml':
-            key = f"{writer.docnames[-1]}/{figtype}"
-        else:
-            key = figtype
+        key = f"{writer.docnames[-1]}/{figtype}" if writer.builder.name == "singlehtml" else figtype
 
         id = node['ids'][0]
         number = writer.builder.fignumbers.get(key, {}).get(id, ())

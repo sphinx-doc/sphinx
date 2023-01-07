@@ -89,11 +89,7 @@ def parse_reftarget(reftarget: str, suppress_prefix: bool = False
     else:
         title = reftarget
 
-    if reftarget == 'None' or reftarget.startswith('typing.'):
-        # typing module provides non-class types.  Obj reference is good to refer them.
-        reftype = 'obj'
-    else:
-        reftype = 'class'
+    reftype = "obj" if reftarget == "None" or reftarget.startswith("typing.") else "class"
 
     return reftype, reftarget, title, refspecific
 
@@ -101,11 +97,7 @@ def parse_reftarget(reftarget: str, suppress_prefix: bool = False
 def type_to_xref(target: str, env: BuildEnvironment | None = None,
                  suppress_prefix: bool = False) -> addnodes.pending_xref:
     """Convert a type string to a cross reference node."""
-    if env:
-        kwargs = {'py:module': env.ref_context.get('py:module'),
-                  'py:class': env.ref_context.get('py:class')}
-    else:
-        kwargs = {}
+    kwargs = {'py:module': env.ref_context.get('py:module'), 'py:class': env.ref_context.get('py:class')} if env else {}
 
     reftype, target, title, refspecific = parse_reftarget(target, suppress_prefix)
 
@@ -679,10 +671,7 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
 
         config = self.env.app.config
         objtype = sig_node.parent.get('objtype')
-        if config.add_function_parentheses and objtype in {'function', 'method'}:
-            parens = '()'
-        else:
-            parens = ''
+        parens = "()" if config.add_function_parentheses and objtype in {"function", "method"} else ""
         *parents, name = sig_node['_toc_parts']
         if config.toc_object_entries_show_parents == 'domain':
             return sig_node.get('fullname', name) + parens
@@ -1324,10 +1313,7 @@ class PythonDomain(Domain):
 
         newname = None
         if searchmode == 1:
-            if type is None:
-                objtypes = list(self.object_types)
-            else:
-                objtypes = self.objtypes_for_role(type)
+            objtypes = list(self.object_types) if type is None else self.objtypes_for_role(type)
             if objtypes is not None:
                 if modname and classname:
                     fullname = modname + '.' + classname + '.' + name
@@ -1402,11 +1388,7 @@ class PythonDomain(Domain):
         else:
             # determine the content of the reference by conditions
             content = find_pending_xref_condition(node, 'resolved')
-            if content:
-                children = content.children
-            else:
-                # if not found, use contnode
-                children = [contnode]
+            children = content.children if content else [contnode]
 
             return make_refnode(builder, fromdocname, obj[0], obj[1], children, name)
 
@@ -1434,11 +1416,7 @@ class PythonDomain(Domain):
             else:
                 # determine the content of the reference by conditions
                 content = find_pending_xref_condition(node, 'resolved')
-                if content:
-                    children = content.children
-                else:
-                    # if not found, use contnode
-                    children = [contnode]
+                children = content.children if content else [contnode]
 
                 results.append(('py:' + self.role_for_objtype(obj[2]),
                                 make_refnode(builder, fromdocname, obj[0], obj[1],

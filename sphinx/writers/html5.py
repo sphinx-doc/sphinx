@@ -288,10 +288,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def add_fignumber(self, node: Element) -> None:
         def append_fignumber(figtype: str, figure_id: str) -> None:
-            if self.builder.name == 'singlehtml':
-                key = f"{self.docnames[-1]}/{figtype}"
-            else:
-                key = figtype
+            key = f"{self.docnames[-1]}/{figtype}" if self.builder.name == "singlehtml" else figtype
 
             if figure_id in self.builder.fignumbers.get(key, {}):  # type: ignore[has-type]
                 self.body.append('<span class="caption-number">')

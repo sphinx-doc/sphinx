@@ -266,10 +266,7 @@ class TocTreeCollector(EnvironmentCollector):
         def get_section_number(docname: str, section: nodes.section) -> tuple[int, ...]:
             anchorname = '#' + section['ids'][0]
             secnumbers = env.toc_secnumbers.get(docname, {})
-            if anchorname in secnumbers:
-                secnum = secnumbers.get(anchorname)
-            else:
-                secnum = secnumbers.get('')
+            secnum = secnumbers.get(anchorname) if anchorname in secnumbers else secnumbers.get("")
 
             return secnum or ()
 
@@ -330,12 +327,7 @@ class TocTreeCollector(EnvironmentCollector):
 
 
 def _make_anchor_name(ids: list[str], num_entries: list[int]) -> str:
-    if not num_entries[0]:
-        # for the very first toc entry, don't add an anchor
-        # as it is the file's title anyway
-        anchorname = ''
-    else:
-        anchorname = '#' + ids[0]
+    anchorname = "" if not num_entries[0] else "#" + ids[0]
     num_entries[0] += 1
     return anchorname
 

@@ -100,12 +100,7 @@ class IndexEntries:
             if lckey.startswith('\N{RIGHT-TO-LEFT MARK}'):
                 lckey = lckey[1:]
 
-            if lckey[0:1].isalpha() or lckey.startswith('_'):
-                # put non-symbol characters at the following group (1)
-                sortkey = (1, lckey)
-            else:
-                # put symbols at the front of the index (0)
-                sortkey = (0, lckey)
+            sortkey = (1, lckey) if lckey[0:1].isalpha() or lckey.startswith("_") else (0, lckey)
             # ensure a deterministic order *within* letters by also sorting on
             # the entry itself
             return (sortkey, entry[0])

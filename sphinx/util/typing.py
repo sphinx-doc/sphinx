@@ -105,10 +105,7 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
     from sphinx.ext.autodoc.mock import ismock, ismockmodule  # lazy loading
     from sphinx.util import inspect  # lazy loading
 
-    if mode == 'smart':
-        modprefix = '~'
-    else:
-        modprefix = ''
+    modprefix = "~" if mode == "smart" else ""
 
     try:
         if cls is None or cls is NoneType:
@@ -162,10 +159,7 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 text = restify(cls.__origin__, mode)  # type: ignore
             elif getattr(cls, '_name', None):
                 cls_name = cls._name  # type: ignore[attr-defined]
-                if cls.__module__ == 'typing':
-                    text = f':py:class:`~{cls.__module__}.{cls_name}`'
-                else:
-                    text = f':py:class:`{modprefix}{cls.__module__}.{cls_name}`'
+                text = f":py:class:`~{cls.__module__}.{cls_name}`" if cls.__module__ == "typing" else f":py:class:`{modprefix}{cls.__module__}.{cls_name}`"
             else:
                 text = restify(cls.__origin__, mode)  # type: ignore[attr-defined]
 
@@ -232,10 +226,7 @@ def stringify_annotation(
         raise ValueError("'mode' must be one of 'fully-qualified-except-typing', "
                          f"'fully-qualified', or 'smart'; got {mode!r}.")
 
-    if mode == 'smart':
-        module_prefix = '~'
-    else:
-        module_prefix = ''
+    module_prefix = "~" if mode == "smart" else ""
 
     annotation_qualname = getattr(annotation, '__qualname__', '')
     annotation_module = getattr(annotation, '__module__', '')

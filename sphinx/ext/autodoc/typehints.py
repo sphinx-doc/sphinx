@@ -19,10 +19,7 @@ from sphinx.util.typing import stringify_annotation
 def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
                      options: dict, args: str, retann: str) -> None:
     """Record type hints to env object."""
-    if app.config.autodoc_typehints_format == 'short':
-        mode = 'smart'
-    else:
-        mode = 'fully-qualified'
+    mode = "smart" if app.config.autodoc_typehints_format == "short" else "fully-qualified"
 
     try:
         if callable(obj):
@@ -46,10 +43,7 @@ def merge_typehints(app: Sphinx, domain: str, objtype: str, contentnode: Element
 
     try:
         signature = cast(addnodes.desc_signature, contentnode.parent[0])
-        if signature['module']:
-            fullname = '.'.join([signature['module'], signature['fullname']])
-        else:
-            fullname = signature['fullname']
+        fullname = ".".join([signature["module"], signature["fullname"]]) if signature["module"] else signature["fullname"]
     except KeyError:
         # signature node does not have valid context info for the target object
         return

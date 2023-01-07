@@ -247,10 +247,7 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
         # construct a page name for the highlighted source
         pagename = posixpath.join(OUTPUT_DIRNAME, modname.replace('.', '/'))
         # highlight the source using the builder's highlighter
-        if env.config.highlight_language in {'default', 'none'}:
-            lexer = env.config.highlight_language
-        else:
-            lexer = 'python'
+        lexer = env.config.highlight_language if env.config.highlight_language in {"default", "none"} else "python"
         highlighted = highlighter.highlight_block(code, lexer, linenos=False)
         # split the code into lines
         lines = highlighted.splitlines()

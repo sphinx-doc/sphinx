@@ -90,10 +90,7 @@ def generate_latex_macro(image_format: str,
         'math': math
     }
 
-    if config.imgmath_use_preview:
-        template_name = 'preview.tex_t'
-    else:
-        template_name = 'template.tex_t'
+    template_name = "preview.tex_t" if config.imgmath_use_preview else "template.tex_t"
 
     for template_dir in config.templates_path:
         template = path.join(confdir, template_dir, template_name)
@@ -329,10 +326,7 @@ def html_visit_math(self: HTML5Translator, node: nodes.math) -> None:
 
 
 def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> None:
-    if node['nowrap']:
-        latex = node.astext()
-    else:
-        latex = wrap_displaymath(node.astext(), None, False)
+    latex = node.astext() if node["nowrap"] else wrap_displaymath(node.astext(), None, False)
     try:
         rendered_path, depth = render_math(self, latex)
     except MathExtError as exc:

@@ -558,13 +558,7 @@ class Documenter:
             yield from docstringlines
 
     def get_sourcename(self) -> str:
-        if (inspect.safe_getattr(self.object, '__module__', None) and
-                inspect.safe_getattr(self.object, '__qualname__', None)):
-            # Get the correct location of docstring from self.object
-            # to support inherited methods
-            fullname = f'{self.object.__module__}.{self.object.__qualname__}'
-        else:
-            fullname = self.fullname
+        fullname = f"{self.object.__module__}.{self.object.__qualname__}" if inspect.safe_getattr(self.object, "__module__", None) and inspect.safe_getattr(self.object, "__qualname__", None) else self.fullname
 
         if self.analyzer:
             return f'{self.analyzer.srcname}:docstring of {fullname}'
@@ -656,10 +650,7 @@ class Documenter:
         # search for members in source code too
         namespace = '.'.join(self.objpath)  # will be empty for modules
 
-        if self.analyzer:
-            attr_docs = self.analyzer.find_attr_docs()
-        else:
-            attr_docs = {}
+        attr_docs = self.analyzer.find_attr_docs() if self.analyzer else {}
 
         # process members and determine which to skip
         for obj in members:
@@ -724,14 +715,7 @@ class Documenter:
                     else:
                         keep = False
                 elif (namespace, membername) in attr_docs:
-                    if want_all and isprivate:
-                        if self.options.private_members is None:
-                            keep = False
-                        else:
-                            keep = membername in self.options.private_members
-                    else:
-                        # keep documented attributes
-                        keep = True
+                    keep = (False if self.options.private_members is None else membername in self.options.private_members) if want_all and isprivate else True
                 elif want_all and isprivate:
                     if has_doc or self.options.undoc_members:
                         if self.options.private_members is None:
@@ -1024,10 +1008,7 @@ class ModuleDocumenter(Documenter):
 
     def get_module_members(self) -> dict[str, ObjectMember]:
         """Get members of target module."""
-        if self.analyzer:
-            attr_docs = self.analyzer.attr_docs
-        else:
-            attr_docs = {}
+        attr_docs = self.analyzer.attr_docs if self.analyzer else {}
 
         members: dict[str, ObjectMember] = {}
         for name in dir(self.object):
@@ -1678,10 +1659,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             self.env.events.emit('autodoc-process-bases',
                                  self.fullname, self.object, self.options, bases)
 
-            if self.config.autodoc_typehints_format == "short":
-                base_classes = [restify(cls, "smart") for cls in bases]
-            else:
-                base_classes = [restify(cls) for cls in bases]
+            base_classes = [restify(cls, "smart") for cls in bases] if self.config.autodoc_typehints_format == "short" else [restify(cls) for cls in bases]
 
             sourcename = self.get_sourcename()
             self.add_line('', sourcename)
@@ -1783,10 +1761,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     def get_variable_comment(self) -> list[str] | None:
         try:
             key = ('', '.'.join(self.objpath))
-            if self.doc_as_attr:
-                analyzer = ModuleAnalyzer.for_module(self.modname)
-            else:
-                analyzer = ModuleAnalyzer.for_module(self.get_real_modname())
+            analyzer = ModuleAnalyzer.for_module(self.modname) if self.doc_as_attr else ModuleAnalyzer.for_module(self.get_real_modname())
             analyzer.analyze()
             return list(analyzer.attr_docs.get(key, []))
         except PycodeError:
@@ -1794,10 +1769,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
     def add_content(self, more_content: StringList | None) -> None:
         if inspect.isNewType(self.object):
-            if self.config.autodoc_typehints_format == "short":
-                supertype = restify(self.object.__supertype__, "smart")
-            else:
-                supertype = restify(self.object.__supertype__)
+            supertype = restify(self.object.__supertype__, "smart") if self.config.autodoc_typehints_format == "short" else restify(self.object.__supertype__)
 
             more_content = StringList([_('alias of %s') % supertype, ''], source='')
         if isinstance(self.object, TypeVar):
@@ -1808,10 +1780,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 else:
                     attrs.append(stringify_annotation(constraint))
             if self.object.__bound__:
-                if self.config.autodoc_typehints_format == "short":
-                    bound = restify(self.object.__bound__, "smart")
-                else:
-                    bound = restify(self.object.__bound__)
+                bound = restify(self.object.__bound__, "smart") if self.config.autodoc_typehints_format == "short" else restify(self.object.__bound__)
                 attrs.append(r"bound=\ " + bound)
             if self.object.__covariant__:
                 attrs.append("covariant=True")
@@ -1832,10 +1801,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         if self.doc_as_attr and not self.get_variable_comment():
             try:
-                if self.config.autodoc_typehints_format == "short":
-                    alias = restify(self.object, "smart")
-                else:
-                    alias = restify(self.object)
+                alias = restify(self.object, "smart") if self.config.autodoc_typehints_format == "short" else restify(self.object)
                 more_content = StringList([_('alias of %s') % alias], source='')
             except AttributeError:
                 pass  # Invalid class object is passed.
@@ -1914,10 +1880,7 @@ class GenericAliasMixin(DataDocumenterMixinBase):
 
     def update_content(self, more_content: StringList) -> None:
         if inspect.isgenericalias(self.object):
-            if self.config.autodoc_typehints_format == "short":
-                alias = restify(self.object, "smart")
-            else:
-                alias = restify(self.object)
+            alias = restify(self.object, "smart") if self.config.autodoc_typehints_format == "short" else restify(self.object)
 
             more_content.append(_('alias of %s') % alias, '')
             more_content.append('', '')
@@ -2029,12 +1992,7 @@ class DataDocumenter(GenericAliasMixin,
                 annotations = get_type_hints(self.parent, None,
                                              self.config.autodoc_type_aliases)
                 if self.objpath[-1] in annotations:
-                    if self.config.autodoc_typehints_format == "short":
-                        objrepr = stringify_annotation(annotations.get(self.objpath[-1]),
-                                                       "smart")
-                    else:
-                        objrepr = stringify_annotation(annotations.get(self.objpath[-1]),
-                                                       "fully-qualified-except-typing")
+                    objrepr = stringify_annotation(annotations.get(self.objpath[-1]), "smart") if self.config.autodoc_typehints_format == "short" else stringify_annotation(annotations.get(self.objpath[-1]), "fully-qualified-except-typing")
                     self.add_line('   :type: ' + objrepr, sourcename)
 
             try:
@@ -2201,12 +2159,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                         documenter.objpath = [None]
                         sigs.append(documenter.format_signature())
         if overloaded:
-            if inspect.isstaticmethod(self.object, cls=self.parent, name=self.object_name):
-                actual = inspect.signature(self.object, bound_method=False,
-                                           type_aliases=self.config.autodoc_type_aliases)
-            else:
-                actual = inspect.signature(self.object, bound_method=True,
-                                           type_aliases=self.config.autodoc_type_aliases)
+            actual = inspect.signature(self.object, bound_method=False, type_aliases=self.config.autodoc_type_aliases) if inspect.isstaticmethod(self.object, cls=self.parent, name=self.object_name) else inspect.signature(self.object, bound_method=True, type_aliases=self.config.autodoc_type_aliases)
 
             __globals__ = safe_getattr(self.object, '__globals__', {})
             for overload in self.analyzer.overloads.get('.'.join(self.objpath)):
@@ -2601,12 +2554,7 @@ class AttributeDocumenter(GenericAliasMixin, SlotsMixin,  # type: ignore
                 annotations = get_type_hints(self.parent, None,
                                              self.config.autodoc_type_aliases)
                 if self.objpath[-1] in annotations:
-                    if self.config.autodoc_typehints_format == "short":
-                        objrepr = stringify_annotation(annotations.get(self.objpath[-1]),
-                                                       "smart")
-                    else:
-                        objrepr = stringify_annotation(annotations.get(self.objpath[-1]),
-                                                       "fully-qualified-except-typing")
+                    objrepr = stringify_annotation(annotations.get(self.objpath[-1]), "smart") if self.config.autodoc_typehints_format == "short" else stringify_annotation(annotations.get(self.objpath[-1]), "fully-qualified-except-typing")
                     self.add_line('   :type: ' + objrepr, sourcename)
 
             try:
@@ -2730,11 +2678,7 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
                 signature = inspect.signature(func,
                                               type_aliases=self.config.autodoc_type_aliases)
                 if signature.return_annotation is not Parameter.empty:
-                    if self.config.autodoc_typehints_format == "short":
-                        objrepr = stringify_annotation(signature.return_annotation, "smart")
-                    else:
-                        objrepr = stringify_annotation(signature.return_annotation,
-                                                       "fully-qualified-except-typing")
+                    objrepr = stringify_annotation(signature.return_annotation, "smart") if self.config.autodoc_typehints_format == "short" else stringify_annotation(signature.return_annotation, "fully-qualified-except-typing")
                     self.add_line('   :type: ' + objrepr, sourcename)
             except TypeError as exc:
                 logger.warning(__("Failed to get a function signature for %s: %s"),

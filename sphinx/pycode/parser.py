@@ -406,10 +406,7 @@ class VariableCommentPicker(ast.NodeVisitor):
                 targets = get_assign_targets(self.previous)
                 varnames = get_lvar_names(targets[0], self.get_self())
                 for varname in varnames:
-                    if isinstance(node.value.s, str):
-                        docstring = node.value.s
-                    else:
-                        docstring = node.value.s.decode(self.encoding or 'utf-8')
+                    docstring = node.value.s if isinstance(node.value.s, str) else node.value.s.decode(self.encoding or "utf-8")
 
                     self.add_variable_comment(varname, dedent_docstring(docstring))
                     self.add_entry(varname)

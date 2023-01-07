@@ -177,10 +177,7 @@ class GoogleDocstring:
         self._name = name
         self._obj = obj
         self._opt = options
-        if isinstance(docstring, str):
-            lines = docstring.splitlines()
-        else:
-            lines = docstring
+        lines = docstring.splitlines() if isinstance(docstring, str) else docstring
         self._lines = Deque(map(str.rstrip, lines))
         self._parsed_lines: list[str] = []
         self._is_in_section = False
@@ -335,10 +332,7 @@ class GoogleDocstring:
             _name, _type, _desc = '', '', lines
 
             if colon:
-                if after:
-                    _desc = [after] + lines[1:]
-                else:
-                    _desc = lines[1:]
+                _desc = [after] + lines[1:] if after else lines[1:]
 
                 _type = before
 
@@ -400,10 +394,7 @@ class GoogleDocstring:
             desc_block = desc[1:]
             indent = self._get_indent(desc[0])
             block_indent = self._get_initial_indent(desc_block)
-            if block_indent > indent:
-                desc = [''] + desc
-            else:
-                desc = ['', desc[0]] + self._indent(desc_block, 4)
+            desc = [""] + desc if block_indent > indent else ["", desc[0]] + self._indent(desc_block, 4)
         return desc
 
     def _format_admonition(self, admonition: str, lines: list[str]) -> list[str]:
@@ -456,18 +447,9 @@ class GoogleDocstring:
         has_desc = any(_desc)
         separator = ' -- ' if has_desc else ''
         if _name:
-            if _type:
-                if '`' in _type:
-                    field = f'**{_name}** ({_type}){separator}'
-                else:
-                    field = f'**{_name}** (*{_type}*){separator}'
-            else:
-                field = f'**{_name}**{separator}'
+            field = (f"**{_name}** ({_type}){separator}" if "`" in _type else f"**{_name}** (*{_type}*){separator}") if _type else f"**{_name}**{separator}"
         elif _type:
-            if '`' in _type:
-                field = f'{_type}{separator}'
-            else:
-                field = f'*{_type}*{separator}'
+            field = f"{_type}{separator}" if "`" in _type else f"*{_type}*{separator}"
         else:
             field = ''
 
@@ -621,10 +603,7 @@ class GoogleDocstring:
                     section = self._consume_section_header()
                     self._is_in_section = True
                     self._section_indent = self._get_current_indent()
-                    if _directive_regex.match(section):
-                        lines = [section] + self._consume_to_next_section()
-                    else:
-                        lines = self._sections[section.lower()](section)
+                    lines = [section] + self._consume_to_next_section() if _directive_regex.match(section) else self._sections[section.lower()](section)
                 finally:
                     self._is_in_section = False
                     self._section_indent = 0
@@ -794,10 +773,7 @@ class GoogleDocstring:
         lines: list[str] = []
 
         for _name, _type, _desc in fields:
-            if use_rtype:
-                field = self._format_field(_name, '', _desc)
-            else:
-                field = self._format_field(_name, _type, _desc)
+            field = self._format_field(_name, "", _desc) if use_rtype else self._format_field(_name, _type, _desc)
 
             if multi:
                 if lines:
@@ -1337,10 +1313,7 @@ class NumpyDocstring(GoogleDocstring):
         lines: list[str] = []
         last_had_desc = True
         for name, desc, role in items:
-            if role:
-                link = f':{role}:`{name}`'
-            else:
-                link = ':obj:`%s`' % name
+            link = f":{role}:`{name}`" if role else ":obj:`%s`" % name
             if desc or last_had_desc:
                 lines += ['']
                 lines += [link]

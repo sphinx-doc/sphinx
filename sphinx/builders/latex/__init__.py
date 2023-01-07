@@ -238,10 +238,7 @@ class LaTeXBuilder(Builder):
         elif self.context['polyglossia']:
             self.context['classoptions'] += ',' + self.babel.get_language()
             options = self.babel.get_mainlanguage_options()
-            if options:
-                language = fr'\setmainlanguage[{options}]{{{self.babel.get_language()}}}'
-            else:
-                language = r'\setmainlanguage{%s}' % self.babel.get_language()
+            language = f"\\setmainlanguage[{options}]{{{self.babel.get_language()}}}" if options else "\\setmainlanguage{%s}" % self.babel.get_language()
 
             self.context['multilingual'] = f'{self.context["polyglossia"]}\n{language}'
 
@@ -280,10 +277,7 @@ class LaTeXBuilder(Builder):
             with progress_message(__("processing %s") % targetname):
                 doctree = self.env.get_doctree(docname)
                 toctree = next(doctree.findall(addnodes.toctree), None)
-                if toctree and toctree.get('maxdepth') > 0:
-                    tocdepth = toctree.get('maxdepth')
-                else:
-                    tocdepth = None
+                tocdepth = toctree.get("maxdepth") if toctree and toctree.get("maxdepth") > 0 else None
 
                 doctree = self.assemble_doctree(
                     docname, toctree_only,

@@ -62,11 +62,7 @@ DEFAULTS = {
 
 PROMPT_PREFIX = '> '
 
-if sys.platform == 'win32':
-    # On Windows, show questions as bold because of color scheme of PowerShell (refs: #5294).
-    COLOR_QUESTION = 'bold'
-else:
-    COLOR_QUESTION = 'purple'
+COLOR_QUESTION = "bold" if sys.platform == "win32" else "purple"
 
 
 # function to get input from terminal -- overridden by the test suite
@@ -136,10 +132,7 @@ def do_prompt(
     text: str, default: str | None = None, validator: Callable[[str], Any] = nonempty
 ) -> str | bool:
     while True:
-        if default is not None:
-            prompt = PROMPT_PREFIX + f'{text} [{default}]: '
-        else:
-            prompt = PROMPT_PREFIX + text + ': '
+        prompt = PROMPT_PREFIX + f"{text} [{default}]: " if default is not None else PROMPT_PREFIX + text + ": "
         if USE_LIBEDIT:
             # Note: libedit has a problem for combination of ``input()`` and escape
             # sequence (see #5335).  To avoid the problem, all prompts are not colored

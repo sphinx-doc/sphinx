@@ -151,11 +151,7 @@ class TodoListProcessor:
             node.replace_self(content)
 
     def create_todo_reference(self, todo: todo_node, docname: str) -> nodes.paragraph:
-        if self.config.todo_link_only:
-            description = _('<<original entry>>')
-        else:
-            description = (_('(The <<original entry>> is located in %s, line %d.)') %
-                           (todo.source, todo.line))
+        description = _("<<original entry>>") if self.config.todo_link_only else _("(The <<original entry>> is located in %s, line %d.)") % (todo.source, todo.line)
 
         prefix = description[:description.find('<<')]
         suffix = description[description.find('>>') + 2:]

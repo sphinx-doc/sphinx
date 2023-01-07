@@ -65,10 +65,7 @@ class ManualPageBuilder(Builder):
                                   'document %s'), docname)
                 continue
             if isinstance(authors, str):
-                if authors:
-                    authors = [authors]
-                else:
-                    authors = []
+                authors = [authors] if authors else []
 
             docsettings.title = name
             docsettings.subtitle = description

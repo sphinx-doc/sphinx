@@ -111,10 +111,7 @@ class ThemeFactory:
 
     def get(self, name: str) -> Theme:
         """Get a theme for given *name*."""
-        if name in self.themes:
-            theme = self.themes[name]
-        else:
-            theme = self.find_user_theme(name) or Theme(name)
+        theme = self.themes[name] if name in self.themes else self.find_user_theme(name) or Theme(name)
 
         theme.update(self.config)
         return theme

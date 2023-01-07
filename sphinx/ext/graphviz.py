@@ -237,10 +237,7 @@ def render_dot(self: SphinxTranslator, code: str, options: dict, format: str,
     dot_args.extend(['-T' + format, '-o' + outfn])
 
     docname = options.get('docname', 'index')
-    if filename:
-        cwd = path.dirname(path.join(self.builder.srcdir, filename))
-    else:
-        cwd = path.dirname(path.join(self.builder.srcdir, docname))
+    cwd = path.dirname(path.join(self.builder.srcdir, filename)) if filename else path.dirname(path.join(self.builder.srcdir, docname))
 
     if format == 'png':
         dot_args.extend(['-Tcmapx', '-o%s.map' % outfn])

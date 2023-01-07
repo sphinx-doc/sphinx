@@ -629,10 +629,7 @@ class ASTIdentifier(ASTBase):
     def describe_signature(self, signode: TextElement, mode: str, env: BuildEnvironment,
                            prefix: str, templateArgs: str, symbol: Symbol) -> None:
         verify_description_mode(mode)
-        if self.is_anon():
-            node = addnodes.desc_sig_name(text="[anonymous]")
-        else:
-            node = addnodes.desc_sig_name(self.identifier, self.identifier)
+        node = addnodes.desc_sig_name(text="[anonymous]") if self.is_anon() else addnodes.desc_sig_name(self.identifier, self.identifier)
         if mode == 'markType':
             targetText = prefix + self.identifier + templateArgs
             pnode = addnodes.pending_xref('', refdomain='cpp',
@@ -1436,10 +1433,7 @@ class ASTDeleteExpr(ASTExpression):
         return ''.join(res)
 
     def get_id(self, version: int) -> str:
-        if self.array:
-            id = "da"
-        else:
-            id = "dl"
+        id = "da" if self.array else "dl"
         return id + self.expr.get_id(version)
 
     def describe_signature(self, signode: TextElement, mode: str,
@@ -3130,10 +3124,7 @@ class ASTType(ASTBase):
                     templ = symbol.declaration.templatePrefix
                     if templ is not None:
                         typeId = self.decl.get_ptr_suffix_id(version)
-                        if self.trailingReturn:
-                            returnTypeId = self.trailingReturn.get_id(version)
-                        else:
-                            returnTypeId = self.declSpecs.get_id(version)
+                        returnTypeId = self.trailingReturn.get_id(version) if self.trailingReturn else self.declSpecs.get_id(version)
                         res.append(typeId)
                         res.append(returnTypeId)
                 res.append(self.decl.get_param_id(version))
@@ -4010,10 +4001,7 @@ class ASTDeclaration(ASTBase):
         # version >= 2
         if self.objectType == 'enumerator' and self.enumeratorScopedSymbol:
             return self.enumeratorScopedSymbol.declaration.get_id(version, prefixed)
-        if prefixed:
-            res = [_id_prefix[version]]
-        else:
-            res = []
+        res = [_id_prefix[version]] if prefixed else []
         # (See also https://github.com/sphinx-doc/sphinx/pull/10286#issuecomment-1168102147)
         # The first implementation of requires clauses only supported a single clause after the
         # template prefix, and no trailing clause. It put the ID after the template parameter
@@ -4295,10 +4283,7 @@ class Symbol:
                 if not tp.get_identifier():
                     continue
                 # only add a declaration if we our self are from a declaration
-                if self.declaration:
-                    decl = ASTDeclaration(objectType='templateParam', declaration=tp)
-                else:
-                    decl = None
+                decl = ASTDeclaration(objectType="templateParam", declaration=tp) if self.declaration else None
                 nne = ASTNestedNameElement(tp.get_identifier(), None)
                 nn = ASTNestedName([nne], [False], rooted=False)
                 self._add_symbols(nn, [], decl, self.docname, self.line)
@@ -4922,10 +4907,7 @@ class Symbol:
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
             Symbol.debug_print("add_name:")
-        if templatePrefix:
-            templateDecls = templatePrefix.templates
-        else:
-            templateDecls = []
+        templateDecls = templatePrefix.templates if templatePrefix else []
         res = self._add_symbols(nestedName, templateDecls,
                                 declaration=None, docname=None, line=None)
         if Symbol.debug_lookup:
@@ -4941,10 +4923,7 @@ class Symbol:
         assert docname is not None
         assert line is not None
         nestedName = declaration.name
-        if declaration.templatePrefix:
-            templateDecls = declaration.templatePrefix.templates
-        else:
-            templateDecls = []
+        templateDecls = declaration.templatePrefix.templates if declaration.templatePrefix else []
         res = self._add_symbols(nestedName, templateDecls, declaration, docname, line)
         if Symbol.debug_lookup:
             Symbol.debug_indent -= 1
@@ -5106,10 +5085,7 @@ class Symbol:
             Symbol.debug_indent += 1
             Symbol.debug_print("find_declaration:")
         nestedName = declaration.name
-        if declaration.templatePrefix:
-            templateDecls = declaration.templatePrefix.templates
-        else:
-            templateDecls = []
+        templateDecls = declaration.templatePrefix.templates if declaration.templatePrefix else []
 
         def onMissingQualifiedSymbol(parentSymbol: Symbol,
                                      identOrOp: ASTIdentifier | ASTOperator,
@@ -5595,10 +5571,7 @@ class DefinitionParser(BaseParser):
         self.skip_ws()
         for op in _expression_unary_ops:
             # TODO: hmm, should we be able to backtrack here?
-            if op[0] in 'cn':
-                res = self.skip_word(op)
-            else:
-                res = self.skip_string(op)
+            res = self.skip_word(op) if op[0] in "cn" else self.skip_string(op)
             if res:
                 expr = self._parse_cast_expression()
                 return ASTUnaryOpExpr(op, expr)
@@ -5973,10 +5946,7 @@ class DefinitionParser(BaseParser):
             rooted = True
         while 1:
             self.skip_ws()
-            if len(names) > 0:
-                template = self.skip_word_and_ws('template')
-            else:
-                template = False
+            template = self.skip_word_and_ws("template") if len(names) > 0 else False
             templates.append(template)
             identOrOp: ASTIdentifier | ASTOperator = None
             if self.skip_word_and_ws('operator'):
@@ -6209,10 +6179,7 @@ class DefinitionParser(BaseParser):
                 exceptionSpec = ASTNoexceptSpec(None)
 
         self.skip_ws()
-        if self.skip_string('->'):
-            trailingReturn = self._parse_type(named=False)
-        else:
-            trailingReturn = None
+        trailingReturn = self._parse_type(named=False) if self.skip_string("->") else None
 
         self.skip_ws()
         override = self.skip_word_and_ws('override')
@@ -6792,11 +6759,7 @@ class DefinitionParser(BaseParser):
 
     def _parse_template_parameter(self) -> ASTTemplateParam:
         self.skip_ws()
-        if self.skip_word('template'):
-            # declare a template template parameter
-            nestedParams = self._parse_template_parameter_list()
-        else:
-            nestedParams = None
+        nestedParams = self._parse_template_parameter_list() if self.skip_word("template") else None
 
         pos = self.pos
         try:
@@ -6816,10 +6779,7 @@ class DefinitionParser(BaseParser):
             self.skip_ws()
             parameterPack = self.skip_string('...')
             self.skip_ws()
-            if self.match(identifier_re):
-                identifier = ASTIdentifier(self.matched_text)
-            else:
-                identifier = None
+            identifier = ASTIdentifier(self.matched_text) if self.match(identifier_re) else None
             self.skip_ws()
             if not parameterPack and self.skip_string('='):
                 default = self._parse_type(named=False, outer=None)
@@ -7542,10 +7502,7 @@ class CPPNamespacePopObject(SphinxDirective):
             stack = []
         else:
             stack.pop()
-        if len(stack) > 0:
-            symbol = stack[-1]
-        else:
-            symbol = self.env.domaindata['cpp']['root_symbol']
+        symbol = stack[-1] if len(stack) > 0 else self.env.domaindata["cpp"]["root_symbol"]
         self.env.temp_data['cpp:parent_symbol'] = symbol
         self.env.temp_data['cpp:namespace_stack'] = stack
         self.env.ref_context['cpp:parent_key'] = symbol.get_lookup_key()
@@ -7657,10 +7614,7 @@ class AliasTransform(SphinxTransform):
                 assert isinstance(ast, ASTNamespace)
                 ns = ast
                 name = ns.nestedName
-                if ns.templatePrefix:
-                    templateDecls = ns.templatePrefix.templates
-                else:
-                    templateDecls = []
+                templateDecls = ns.templatePrefix.templates if ns.templatePrefix else []
                 symbols, failReason = parentSymbol.find_name(
                     nestedName=name,
                     templateDecls=templateDecls,
@@ -7985,10 +7939,7 @@ class CPPDomain(Domain):
             assert isinstance(ast, ASTNamespace)
             ns = ast
             name = ns.nestedName
-            if ns.templatePrefix:
-                templateDecls = ns.templatePrefix.templates
-            else:
-                templateDecls = []
+            templateDecls = ns.templatePrefix.templates if ns.templatePrefix else []
             # let's be conservative with the sibling lookup for now
             searchInSiblings = (not name.rooted) and len(name.names) == 1
             symbols, failReason = parentSymbol.find_name(

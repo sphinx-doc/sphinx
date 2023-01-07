@@ -91,10 +91,7 @@ class Make:
         if self.run_generic_build('latex') > 0:
             return 1
 
-        if sys.platform == 'win32':
-            makecmd = os.environ.get('MAKE', 'make.bat')
-        else:
-            makecmd = self.makecmd
+        makecmd = os.environ.get("MAKE", "make.bat") if sys.platform == "win32" else self.makecmd
         try:
             with cd(self.builddir_join('latex')):
                 return subprocess.call([makecmd, 'all-pdf'])
@@ -106,10 +103,7 @@ class Make:
         if self.run_generic_build('latex') > 0:
             return 1
 
-        if sys.platform == 'win32':
-            makecmd = os.environ.get('MAKE', 'make.bat')
-        else:
-            makecmd = self.makecmd
+        makecmd = os.environ.get("MAKE", "make.bat") if sys.platform == "win32" else self.makecmd
         try:
             with cd(self.builddir_join('latex')):
                 return subprocess.call([makecmd, 'all-pdf'])

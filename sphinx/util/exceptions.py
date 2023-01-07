@@ -22,10 +22,7 @@ def save_traceback(app: Sphinx | None, exc: BaseException) -> str:
 
     import sphinx
 
-    if isinstance(exc, SphinxParallelError):
-        exc_format = '(Error in parallel process)\n' + exc.traceback
-    else:
-        exc_format = traceback.format_exc()
+    exc_format = "(Error in parallel process)\n" + exc.traceback if isinstance(exc, SphinxParallelError) else traceback.format_exc()
 
     if app is None:
         last_msgs = exts_list = ''

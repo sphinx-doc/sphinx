@@ -77,10 +77,7 @@ class ExternalLinksChecker(SphinxPostTransform):
                 msg = __('hardcoded link %r could be replaced by an extlink '
                          '(try using %r instead)')
                 value = match.groupdict().get('value')
-                if uri != title:
-                    replacement = f":{alias}:`{rst.escape(title)} <{value}>`"
-                else:
-                    replacement = f":{alias}:`{value}`"
+                replacement = f":{alias}:`{rst.escape(title)} <{value}>`" if uri != title else f":{alias}:`{value}`"
                 logger.warning(msg, uri, replacement, location=refnode)
 
 
@@ -97,10 +94,7 @@ def make_link_role(name: str, base_url: str, caption: str) -> RoleFunction:
         has_explicit_title, title, part = split_explicit_title(text)
         full_url = base_url % part
         if not has_explicit_title:
-            if caption is None:
-                title = full_url
-            else:
-                title = caption % part
+            title = full_url if caption is None else caption % part
         pnode = nodes.reference(title, title, internal=False, refuri=full_url)
         return [pnode], []
     return role

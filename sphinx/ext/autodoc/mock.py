@@ -167,10 +167,7 @@ def ismock(subject: Any) -> bool:
         return True
 
     # check the object is bound method
-    if isinstance(subject, MethodType) and isboundmethod(subject):
-        tmp_subject = subject.__func__
-    else:
-        tmp_subject = subject
+    tmp_subject = subject.__func__ if isinstance(subject, MethodType) and isboundmethod(subject) else subject
 
     try:
         # check the object is mocked object

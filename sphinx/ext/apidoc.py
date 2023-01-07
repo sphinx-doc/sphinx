@@ -30,15 +30,7 @@ from sphinx.util.osutil import FileAvoidWrite, ensuredir
 from sphinx.util.template import ReSTRenderer
 
 # automodule options
-if 'SPHINX_APIDOC_OPTIONS' in os.environ:
-    OPTIONS = os.environ['SPHINX_APIDOC_OPTIONS'].split(',')
-else:
-    OPTIONS = [
-        'members',
-        'undoc-members',
-        # 'inherited-members', # disabled because there's a bug in sphinx
-        'show-inheritance',
-    ]
+OPTIONS = os.environ["SPHINX_APIDOC_OPTIONS"].split(",") if "SPHINX_APIDOC_OPTIONS" in os.environ else ["members", "undoc-members", "show-inheritance"]
 
 PY_SUFFIXES = ('.py', '.pyx') + tuple(EXTENSION_SUFFIXES)
 
@@ -236,11 +228,7 @@ def recurse_tree(rootpath: str, excludes: list[str], opts: Any,
     implicit_namespaces = getattr(opts, 'implicit_namespaces', False)
 
     # check if the base directory is a package and get its name
-    if is_packagedir(rootpath) or implicit_namespaces:
-        root_package = rootpath.split(path.sep)[-1]
-    else:
-        # otherwise, the base is a directory with packages
-        root_package = None
+    root_package = rootpath.split(path.sep)[-1] if is_packagedir(rootpath) or implicit_namespaces else None
 
     toplevels = []
     for root, subs, files in walk(rootpath, excludes, opts):

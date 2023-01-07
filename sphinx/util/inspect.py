@@ -524,10 +524,7 @@ def signature(subject: Callable, bound_method: bool = False, type_aliases: dict 
     """
 
     try:
-        if _should_unwrap(subject):
-            signature = inspect.signature(subject)
-        else:
-            signature = inspect.signature(subject, follow_wrapped=True)
+        signature = inspect.signature(subject) if _should_unwrap(subject) else inspect.signature(subject, follow_wrapped=True)
     except ValueError:
         # follow built-in wrappers up (ex. functools.lru_cache)
         signature = inspect.signature(subject)
@@ -545,10 +542,7 @@ def signature(subject: Callable, bound_method: bool = False, type_aliases: dict 
                     annotation = annotation.name
                 parameters[i] = param.replace(annotation=annotation)
         if 'return' in annotations:
-            if isinstance(annotations['return'], TypeAliasForwardRef):
-                return_annotation = annotations['return'].name
-            else:
-                return_annotation = annotations['return']
+            return_annotation = annotations["return"].name if isinstance(annotations["return"], TypeAliasForwardRef) else annotations["return"]
     except Exception:
         # ``get_type_hints()`` does not support some kind of objects like partial,
         # ForwardRef and so on.
@@ -630,10 +624,7 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
     :param unqualified_typehints: If enabled, show annotations as unqualified
                                   (ex. io.StringIO -> StringIO)
     """
-    if unqualified_typehints:
-        mode = 'smart'
-    else:
-        mode = 'fully-qualified'
+    mode = "smart" if unqualified_typehints else "fully-qualified"
 
     args = []
     last_kind = None
@@ -708,22 +699,14 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
 
     if hasattr(args, "posonlyargs"):
         for i, arg in enumerate(args.posonlyargs):
-            if defaults[i] is Parameter.empty:
-                default = Parameter.empty
-            else:
-                default = DefaultValue(ast_unparse(defaults[i], code))  # type: ignore
+            default = Parameter.empty if defaults[i] is Parameter.empty else DefaultValue(ast_unparse(defaults[i], code))  # type: ignore
 
             annotation = ast_unparse(arg.annotation, code) or Parameter.empty
             params.append(Parameter(arg.arg, Parameter.POSITIONAL_ONLY,
                                     default=default, annotation=annotation))
 
     for i, arg in enumerate(args.args):
-        if defaults[i + posonlyargs] is Parameter.empty:
-            default = Parameter.empty
-        else:
-            default = DefaultValue(
-                ast_unparse(defaults[i + posonlyargs], code)  # type: ignore
-            )
+        default = Parameter.empty if defaults[i + posonlyargs] is Parameter.empty else DefaultValue(ast_unparse(defaults[i + posonlyargs], code))
 
         annotation = ast_unparse(arg.annotation, code) or Parameter.empty
         params.append(Parameter(arg.arg, Parameter.POSITIONAL_OR_KEYWORD,
@@ -735,10 +718,7 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signatu
                                 annotation=annotation))
 
     for i, arg in enumerate(args.kwonlyargs):
-        if args.kw_defaults[i] is None:
-            default = Parameter.empty
-        else:
-            default = DefaultValue(ast_unparse(args.kw_defaults[i], code))  # type: ignore
+        default = Parameter.empty if args.kw_defaults[i] is None else DefaultValue(ast_unparse(args.kw_defaults[i], code))  # type: ignore
         annotation = ast_unparse(arg.annotation, code) or Parameter.empty
         params.append(Parameter(arg.arg, Parameter.KEYWORD_ONLY, default=default,
                                 annotation=annotation))

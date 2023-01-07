@@ -423,10 +423,7 @@ class Builder:
         self.events.emit('env-before-read-docs', self.env, docnames)
 
         # check if we should do parallel or serial read
-        if parallel_available and len(docnames) > 5 and self.app.parallel > 1:
-            par_ok = self.app.is_parallel_allowed('read')
-        else:
-            par_ok = False
+        par_ok = self.app.is_parallel_allowed("read") if parallel_available and len(docnames) > 5 and self.app.parallel > 1 else False
 
         if par_ok:
             self._read_parallel(docnames, nproc=self.app.parallel)
@@ -553,11 +550,7 @@ class Builder:
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all
             build_docnames = self.env.found_docs
-        if method == 'update':
-            # build updated ones as well
-            docnames = set(build_docnames) | set(updated_docnames)
-        else:
-            docnames = set(build_docnames)
+        docnames = set(build_docnames) | set(updated_docnames) if method == "update" else set(build_docnames)
         logger.debug(__('docnames to write: %s'), ', '.join(sorted(docnames)))
 
         # add all toctree-containing files that may have changed

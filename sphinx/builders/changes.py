@@ -55,26 +55,17 @@ class ChangesBuilder(Builder):
             return
         logger.info(bold(__('writing summary file...')))
         for changeset in changesets:
-            if isinstance(changeset.descname, tuple):
-                descname = changeset.descname[0]
-            else:
-                descname = changeset.descname
+            descname = changeset.descname[0] if isinstance(changeset.descname, tuple) else changeset.descname
             ttext = self.typemap[changeset.type]
             context = changeset.content.replace('\n', ' ')
             if descname and changeset.docname.startswith('c-api'):
-                if context:
-                    entry = f'<b>{descname}</b>: <i>{ttext}:</i> {context}'
-                else:
-                    entry = f'<b>{descname}</b>: <i>{ttext}</i>.'
+                entry = f"<b>{descname}</b>: <i>{ttext}:</i> {context}" if context else f"<b>{descname}</b>: <i>{ttext}</i>."
                 apichanges.append((entry, changeset.docname, changeset.lineno))
             elif descname or changeset.module:
                 module = changeset.module or _('Builtins')
                 if not descname:
                     descname = _('Module level')
-                if context:
-                    entry = f'<b>{descname}</b>: <i>{ttext}:</i> {context}'
-                else:
-                    entry = f'<b>{descname}</b>: <i>{ttext}</i>.'
+                entry = f"<b>{descname}</b>: <i>{ttext}:</i> {context}" if context else f"<b>{descname}</b>: <i>{ttext}</i>."
                 libchanges.setdefault(module, []).append((entry, changeset.docname,
                                                           changeset.lineno))
             else:

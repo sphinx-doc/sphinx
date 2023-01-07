@@ -148,10 +148,7 @@ class ASTIdentifier(ASTBaseBase):
                            prefix: str, symbol: Symbol) -> None:
         # note: slightly different signature of describe_signature due to the prefix
         verify_description_mode(mode)
-        if self.is_anon():
-            node = addnodes.desc_sig_name(text="[anonymous]")
-        else:
-            node = addnodes.desc_sig_name(self.identifier, self.identifier)
+        node = addnodes.desc_sig_name(text="[anonymous]") if self.is_anon() else addnodes.desc_sig_name(self.identifier, self.identifier)
         if mode == 'markType':
             targetText = prefix + self.identifier
             pnode = addnodes.pending_xref('', refdomain='c',
@@ -2372,10 +2369,7 @@ class DefinitionParser(BaseParser):
         self.skip_ws()
         for op in _expression_unary_ops:
             # TODO: hmm, should we be able to backtrack here?
-            if op[0] in 'cn':
-                res = self.skip_word(op)
-            else:
-                res = self.skip_string(op)
+            res = self.skip_word(op) if op[0] in "cn" else self.skip_string(op)
             if res:
                 expr = self._parse_cast_expression()
                 return ASTUnaryOpExpr(op, expr)
@@ -3454,10 +3448,7 @@ class CNamespacePopObject(SphinxDirective):
             stack = []
         else:
             stack.pop()
-        if len(stack) > 0:
-            symbol = stack[-1]
-        else:
-            symbol = self.env.domaindata['c']['root_symbol']
+        symbol = stack[-1] if len(stack) > 0 else self.env.domaindata["c"]["root_symbol"]
         self.env.temp_data['c:parent_symbol'] = symbol
         self.env.temp_data['c:namespace_stack'] = stack
         self.env.ref_context['cp:parent_key'] = symbol.get_lookup_key()

@@ -113,11 +113,7 @@ def import_object(modname: str, objpath: list[str], objtype: str = '',
             # restore ImportError
             exc = exc_on_importing
 
-        if objpath:
-            errmsg = ('autodoc: failed to import %s %r from module %r' %
-                      (objtype, '.'.join(objpath), modname))
-        else:
-            errmsg = f'autodoc: failed to import {objtype} {modname!r}'
+        errmsg = "autodoc: failed to import %s %r from module %r" % (objtype, ".".join(objpath), modname) if objpath else f"autodoc: failed to import {objtype} {modname!r}"
 
         if isinstance(exc, ImportError):
             # import_module() raises ImportError having real exception obj and
@@ -275,10 +271,7 @@ def get_class_members(subject: Any, objpath: list[str], attrgetter: Callable,
             for name in getannotations(cls):
                 name = unmangle(cls, name)
                 if name and name not in members:
-                    if analyzer and (qualname, name) in analyzer.attr_docs:
-                        docstring = '\n'.join(analyzer.attr_docs[qualname, name])
-                    else:
-                        docstring = None
+                    docstring = "\n".join(analyzer.attr_docs[qualname, name]) if analyzer and (qualname, name) in analyzer.attr_docs else None
 
                     members[name] = ObjectMember(name, INSTANCEATTR, class_=cls,
                                                  docstring=docstring)

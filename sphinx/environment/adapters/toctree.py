@@ -161,10 +161,7 @@ class TocTree:
                         refdoc = ref
                         maxdepth = self.env.metadata[ref].get('tocdepth', 0)
                         toc = self.env.tocs[ref]
-                        if ref not in toctree_ancestors or (prune and maxdepth > 0):
-                            toc = self._toctree_copy(toc, 2, maxdepth, collapse)
-                        else:
-                            toc = toc.deepcopy()
+                        toc = self._toctree_copy(toc, 2, maxdepth, collapse) if ref not in toctree_ancestors or prune and maxdepth > 0 else toc.deepcopy()
                         process_only_nodes(toc, builder.tags)
                         if title and toc.children and len(toc.children) == 1:
                             child = toc.children[0]

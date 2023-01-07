@@ -317,10 +317,7 @@ class StandaloneHTMLBuilder(Builder):
             style = 'sphinx'
         self.highlighter = PygmentsBridge('html', style)
 
-        if self.theme:
-            dark_style = self.theme.get_config('theme', 'pygments_dark_style', None)
-        else:
-            dark_style = None
+        dark_style = self.theme.get_config("theme", "pygments_dark_style", None) if self.theme else None
 
         if dark_style is not None:
             self.dark_highlighter = PygmentsBridge('html', dark_style)
@@ -415,10 +412,7 @@ class StandaloneHTMLBuilder(Builder):
             # ignore errors on reading
             pass
 
-        if self.templates:
-            template_mtime = self.templates.newest_template_mtime()
-        else:
-            template_mtime = 0
+        template_mtime = self.templates.newest_template_mtime() if self.templates else 0
         for docname in self.env.found_docs:
             if docname not in self.env.all_docs:
                 logger.debug('[build target] did not in env: %r', docname)

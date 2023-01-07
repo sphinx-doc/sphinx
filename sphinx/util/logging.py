@@ -417,10 +417,7 @@ class WarningIsErrorFilter(logging.Filter):
             except (TypeError, ValueError):
                 message = record.msg  # use record.msg itself
 
-            if location:
-                exc = SphinxWarning(location + ":" + str(message))
-            else:
-                exc = SphinxWarning(message)
+            exc = SphinxWarning(location + ":" + str(message)) if location else SphinxWarning(message)
             if record.exc_info is not None:
                 raise exc from record.exc_info[1]
             else:

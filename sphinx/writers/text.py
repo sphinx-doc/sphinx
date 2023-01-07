@@ -266,10 +266,7 @@ class TextWrapper(textwrap.TextWrapper):
             cur_line = []
             cur_len = 0
 
-            if lines:
-                indent = self.subsequent_indent
-            else:
-                indent = self.initial_indent
+            indent = self.subsequent_indent if lines else self.initial_indent
 
             width = self.width - column_width(indent)
 
@@ -410,10 +407,7 @@ class TextTranslator(SphinxTranslator):
         def do_format() -> None:
             if not toformat:
                 return
-            if wrap:
-                res = my_wrap(''.join(toformat), width=MAXWIDTH - maxindent)
-            else:
-                res = ''.join(toformat).splitlines()
+            res = my_wrap("".join(toformat), width=MAXWIDTH - maxindent) if wrap else "".join(toformat).splitlines()
             if end:
                 res += end
             result.append((indent, res))
@@ -499,10 +493,7 @@ class TextTranslator(SphinxTranslator):
         return ''
 
     def depart_title(self, node: Element) -> None:
-        if isinstance(node.parent, nodes.section):
-            char = self._title_char
-        else:
-            char = '^'
+        char = self._title_char if isinstance(node.parent, nodes.section) else "^"
         text = ''
         text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore
         if self.add_secnumbers:

@@ -221,10 +221,7 @@ class JSObject(ObjectDescription[Tuple[str, str]]):
 
         config = self.env.app.config
         objtype = sig_node.parent.get('objtype')
-        if config.add_function_parentheses and objtype in {'function', 'method'}:
-            parens = '()'
-        else:
-            parens = ''
+        parens = "()" if config.add_function_parentheses and objtype in {"function", "method"} else ""
         *parents, name = sig_node['_toc_parts']
         if config.toc_object_entries_show_parents == 'domain':
             return sig_node.get('fullname', name) + parens

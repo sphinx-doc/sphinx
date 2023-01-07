@@ -1258,22 +1258,13 @@ class LaTeXTranslator(SphinxTranslator):
         post: list[str] = []
         include_graphics_options = []
         has_hyperlink = isinstance(node.parent, nodes.reference)
-        if has_hyperlink:
-            is_inline = self.is_inline(node.parent)
-        else:
-            is_inline = self.is_inline(node)
+        is_inline = self.is_inline(node.parent) if has_hyperlink else self.is_inline(node)
         if 'width' in node:
-            if 'scale' in node:
-                w = self.latex_image_length(node['width'], node['scale'])
-            else:
-                w = self.latex_image_length(node['width'])
+            w = self.latex_image_length(node["width"], node["scale"]) if "scale" in node else self.latex_image_length(node["width"])
             if w:
                 include_graphics_options.append('width=%s' % w)
         if 'height' in node:
-            if 'scale' in node:
-                h = self.latex_image_length(node['height'], node['scale'])
-            else:
-                h = self.latex_image_length(node['height'])
+            h = self.latex_image_length(node["height"], node["scale"]) if "scale" in node else self.latex_image_length(node["height"])
             if h:
                 include_graphics_options.append('height=%s' % h)
         if 'scale' in node:
@@ -1323,12 +1314,7 @@ class LaTeXTranslator(SphinxTranslator):
             options = '[%s]' % ','.join(include_graphics_options)
         base, ext = path.splitext(uri)
 
-        if self.in_title and base:
-            # Lowercase tokens forcely because some fncychap themes capitalize
-            # the options of \sphinxincludegraphics unexpectedly (ex. WIDTH=...).
-            cmd = fr'\lowercase{{\sphinxincludegraphics{options}}}{{{{{base}}}{ext}}}'
-        else:
-            cmd = fr'\sphinxincludegraphics{options}{{{{{base}}}{ext}}}'
+        cmd = f"\\lowercase{{\\sphinxincludegraphics{options}}}{{{{{base}}}{ext}}}" if self.in_title and base else f"\\sphinxincludegraphics{options}{{{{{base}}}{ext}}}"
         # escape filepath for includegraphics, https://tex.stackexchange.com/a/202714/41112
         if '#' in base:
             cmd = r'{\catcode`\#=12' + cmd + '}'
@@ -1603,12 +1589,7 @@ class LaTeXTranslator(SphinxTranslator):
         elif uri.startswith('%'):
             # references to documents or labels inside documents
             hashindex = uri.find('#')
-            if hashindex == -1:
-                # reference to the document
-                id = uri[1:] + '::doc'
-            else:
-                # reference to a label
-                id = uri[1:].replace('#', ':')
+            id = uri[1:] + "::doc" if hashindex == -1 else uri[1:].replace("#", ":")
             self.body.append(self.hyperlink(id))
             if (len(node) and
                     isinstance(node[0], nodes.Element) and
@@ -1640,10 +1621,7 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append(CR)
 
     def visit_number_reference(self, node: Element) -> None:
-        if node.get('refid'):
-            id = self.curfilestack[-1] + ':' + node['refid']
-        else:
-            id = node.get('refuri', '')[1:].replace('#', ':')
+        id = self.curfilestack[-1] + ":" + node["refid"] if node.get("refid") else node.get("refuri", "")[1:].replace("#", ":")
 
         title = self.escape(node.get('title', '%s')).replace(r'\%s', '%s')
         if r'\{name\}' in title or r'\{number\}' in title:
@@ -2069,10 +2047,7 @@ class LaTeXTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_math_block(self, node: Element) -> None:
-        if node.get('label'):
-            label = f"equation:{node['docname']}:{node['label']}"
-        else:
-            label = None
+        label = f'equation:{node["docname"]}:{node["label"]}' if node.get("label") else None
 
         if node.get('nowrap'):
             if label:

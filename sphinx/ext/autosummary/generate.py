@@ -334,10 +334,7 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
     if doc.objtype in ('method', 'attribute', 'property'):
         ns['class'] = qualname.rsplit(".", 1)[0]
 
-    if doc.objtype in ('class',):
-        shortname = qualname
-    else:
-        shortname = qualname.rsplit(".", 1)[-1]
+    shortname = qualname if doc.objtype in ("class",) else qualname.rsplit(".", 1)[-1]
 
     ns['fullname'] = name
     ns['module'] = modname
@@ -377,10 +374,7 @@ def generate_autosummary_docs(sources: list[str], output_dir: str | None = None,
     # keep track of new files
     new_files = []
 
-    if app:
-        filename_map = app.config.autosummary_filename_map
-    else:
-        filename_map = {}
+    filename_map = app.config.autosummary_filename_map if app else {}
 
     # write
     for entry in sorted(set(items), key=str):
