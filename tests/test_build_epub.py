@@ -2,6 +2,7 @@
 
 import os
 import subprocess
+from pathlib import Path
 from subprocess import CalledProcessError
 from xml.etree import ElementTree
 
@@ -390,3 +391,21 @@ def test_xml_name_pattern_check():
     assert _XML_NAME_PATTERN.match('id-pub')
     assert _XML_NAME_PATTERN.match('webpage')
     assert not _XML_NAME_PATTERN.match('1bfda21')
+
+
+@pytest.mark.sphinx('epub', testroot='images')
+def test_copy_images(app, status, warning):
+    app.build()
+
+    images_dir = Path(app.outdir) / '_images'
+    images = {image.name for image in images_dir.rglob('*')}
+    assert images == {
+        'img.gif',
+        'img.pdf',
+        'img.png',
+        'rimg.png',
+        'rimg1.png',
+        'svgimg.pdf',
+        'svgimg.svg',
+        'testimäge.png',
+    }
