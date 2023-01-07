@@ -6,13 +6,15 @@ import hashlib
 import os
 import posixpath
 import re
+import sys
 import warnings
 from importlib import import_module
 from os import path
 from typing import IO, Any, Iterable
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
-from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
+from sphinx.deprecation import (RemovedInSphinx70Warning, RemovedInSphinx80Warning,
+                                deprecated_alias)
 from sphinx.errors import ExtensionError, FiletypeNotFoundError
 from sphinx.locale import __
 from sphinx.util import display as _display
@@ -132,31 +134,23 @@ class FilenameUniqDict(dict):
 def md5(data=b'', **kwargs):
     """Wrapper around hashlib.md5
 
-    Attempt call with 'usedforsecurity=False' if we get a ValueError, which happens when
-    OpenSSL FIPS mode is enabled:
-    ValueError: error:060800A3:digital envelope routines:EVP_DigestInit_ex:disabled for fips
-
-    See: https://github.com/sphinx-doc/sphinx/issues/7611
+    Attempt call with 'usedforsecurity=False' if supported.
     """
 
-    try:
-        return hashlib.md5(data, **kwargs)
-    except ValueError:
-        return hashlib.md5(data, **kwargs, usedforsecurity=False)  # type: ignore
+    if sys.version_info[:2] > (3, 8):
+        return hashlib.md5(data, usedforsecurity=False)
+    return hashlib.md5(data, **kwargs)
 
 
 def sha1(data=b'', **kwargs):
     """Wrapper around hashlib.sha1
 
-    Attempt call with 'usedforsecurity=False' if we get a ValueError
-
-    See: https://github.com/sphinx-doc/sphinx/issues/7611
+    Attempt call with 'usedforsecurity=False' if supported.
     """
 
-    try:
-        return hashlib.sha1(data, **kwargs)
-    except ValueError:
-        return hashlib.sha1(data, **kwargs, usedforsecurity=False)  # type: ignore
+    if sys.version_info[:2] > (3, 8):
+        return hashlib.sha1(data, usedforsecurity=False)
+    return hashlib.sha1(data, **kwargs)
 
 
 class DownloadFiles(dict):
@@ -391,7 +385,7 @@ deprecated_alias('sphinx.util',
                      'format_exception_cut_frames': _exceptions.format_exception_cut_frames,
                      'xmlname_checker': _xml_name_checker,
                  },
-                 RemovedInSphinx70Warning,
+                 RemovedInSphinx80Warning,
                  {
                      'path_stabilize': 'sphinx.util.osutil.path_stabilize',
                      'display_chunk': 'sphinx.util.display.display_chunk',

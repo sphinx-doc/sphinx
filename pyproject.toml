@@ -81,10 +81,9 @@ docs = [
 ]
 lint = [
     "flake8>=3.5.0",
-    "flake8-comprehensions",
-    "flake8-bugbear",
     "flake8-simplify",
     "isort",
+    "ruff",
     "mypy>=0.990",
     "sphinx-lint",
     "docutils-stubs",
@@ -163,12 +162,17 @@ ignore = [
     # flake8-bandit
     "S101",  # assert used
     "S105",  # possible hardcoded password
+    # flake8-simplify
+    "SIM102", # nested 'if' statements
+    "SIM105", # use contextlib.suppress
+    "SIM117", # use single 'with' statement
 ]
 external = [  # Whitelist for RUF100 unkown code warnings
     "E704",
     "W291",
     "W293",
     "SIM110",
+    "SIM113",
 ]
 select = [
     "E",   # pycodestyle

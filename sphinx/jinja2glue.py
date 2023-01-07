@@ -68,7 +68,7 @@ def _slice_index(values: list, slices: int) -> Iterator[list]:
         count = 0
         start = offset
         if slices == slice_number + 1:  # last column
-            offset = len(seq)
+            offset = len(seq)  # noqa: SIM113
         else:
             for value in values[offset:]:
                 count += 1 + len(value[1][1])
