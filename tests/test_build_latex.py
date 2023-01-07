@@ -1677,12 +1677,16 @@ def test_latex_code_role(app):
 def test_copy_images(app, status, warning):
     app.build()
 
-    images_dir = Path(app.outdir) / '_images'
-    images = {image.name for image in images_dir.rglob('*')}
+    test_dir = Path(app.outdir)
+    images = {
+        image.name for image in test_dir.rglob('*')
+        if image.suffix in {'.gif', '.pdf', '.png', '.svg'}
+    }
     assert images == {
         'img.gif',
         'img.pdf',
         'img.png',
+        'python-logo.png',
         'rimg.png',
         'rimg1.png',
         'svgimg.pdf',

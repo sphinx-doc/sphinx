@@ -403,6 +403,7 @@ def test_copy_images(app, status, warning):
         'img.gif',
         'img.pdf',
         'img.png',
+        'python-logo.png',
         'rimg.png',
         'rimg1.png',
         'svgimg.pdf',

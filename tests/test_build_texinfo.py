@@ -144,12 +144,13 @@ def test_texinfo_samp_with_variable(app, status, warning):
 def test_copy_images(app, status, warning):
     app.build()
 
-    images_dir = Path(app.outdir) / '_images'
+    images_dir = Path(app.outdir) / 'python-figures'
     images = {image.name for image in images_dir.rglob('*')}
     assert images == {
         'img.gif',
         'img.pdf',
         'img.png',
+        'python-logo.png',
         'rimg.png',
         'rimg1.png',
         'svgimg.pdf',
