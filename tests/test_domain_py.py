@@ -1470,3 +1470,70 @@ def test_module_content_line_number(app):
     source, line = docutils.utils.get_source_line(xrefs[0])
     assert 'index.rst' in source
     assert line == 3
+
+
+@pytest.mark.sphinx(freshenv=True, confoverrides={'python_display_short_literal_types': True})
+def test_short_literal_types(app):
+    text = """\
+.. py:function:: literal_ints(x: Literal[1, 2, 3] = 1) -> None
+.. py:function:: literal_union(x: Union[Literal["a"], Literal["b"], Literal["c"]]) -> None
+"""
+    doctree = restructuredtext.parse(app, text)
+    assert_node(doctree, (
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_name, 'literal_ints'],
+                [desc_parameterlist, (
+                    [desc_parameter, (
+                        [desc_sig_name, 'x'],
+                        [desc_sig_punctuation, ':'],
+                        desc_sig_space,
+                        [desc_sig_name, (
+                            [desc_sig_literal_number, '1'],
+                            desc_sig_space,
+                            [desc_sig_punctuation, '|'],
+                            desc_sig_space,
+                            [desc_sig_literal_number, '2'],
+                            desc_sig_space,
+                            [desc_sig_punctuation, '|'],
+                            desc_sig_space,
+                            [desc_sig_literal_number, '3'],
+                        )],
+                        desc_sig_space,
+                        [desc_sig_operator, '='],
+                        desc_sig_space,
+                        [nodes.inline, '1'],
+                    )],
+                )],
+                [desc_returns, pending_xref, 'None'],
+            )],
+            [desc_content, ()],
+        )],
+        addnodes.index,
+        [desc, (
+            [desc_signature, (
+                [desc_name, 'literal_union'],
+                [desc_parameterlist, (
+                    [desc_parameter, (
+                        [desc_sig_name, 'x'],
+                        [desc_sig_punctuation, ':'],
+                        desc_sig_space,
+                        [desc_sig_name, (
+                            [desc_sig_literal_string, "'a'"],
+                            desc_sig_space,
+                            [desc_sig_punctuation, '|'],
+                            desc_sig_space,
+                            [desc_sig_literal_string, "'b'"],
+                            desc_sig_space,
+                            [desc_sig_punctuation, '|'],
+                            desc_sig_space,
+                            [desc_sig_literal_string, "'c'"],
+                        )],
+                    )],
+                )],
+                [desc_returns, pending_xref, 'None'],
+            )],
+            [desc_content, ()],
+        )],
+    ))
