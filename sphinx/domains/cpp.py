@@ -8158,7 +8158,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value("cpp_index_common_prefix", [], 'env')
     app.add_config_value("cpp_id_attributes", [], 'env')
     app.add_config_value("cpp_paren_attributes", [], 'env')
-    app.add_config_value("cpp_maximum_signature_line_length", -1, 'env')
+    app.add_config_value("cpp_maximum_signature_line_length", -1, 'env', types=[int])
     app.add_post_transform(AliasTransform)
 
     # debug stuff

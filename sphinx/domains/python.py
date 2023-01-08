@@ -1524,7 +1524,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
 
     app.add_domain(PythonDomain)
     app.add_config_value('python_use_unqualified_type_names', False, 'env')
-    app.add_config_value('python_maximum_signature_line_length', -1, 'env')
+    app.add_config_value('python_maximum_signature_line_length', -1, 'env', types=[int])
     app.connect('object-description-transform', filter_meta_fields)
     app.connect('missing-reference', builtin_resolver, priority=900)
 

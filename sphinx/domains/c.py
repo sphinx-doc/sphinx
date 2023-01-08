@@ -3891,7 +3891,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value("c_id_attributes", [], 'env')
     app.add_config_value("c_paren_attributes", [], 'env')
     app.add_config_value("c_extra_keywords", _macroKeywords, 'env')
-    app.add_config_value("c_maximum_signature_line_length", -1, 'env')
+    app.add_config_value("c_maximum_signature_line_length", -1, 'env', types=[int])
     app.add_post_transform(AliasTransform)
 
     return {
