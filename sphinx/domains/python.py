@@ -538,7 +538,9 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
         signode['module'] = modname
         signode['class'] = classname
         signode['fullname'] = fullname
-        max_len = self.env.config.python_maximum_signature_line_length
+        py_max_len = self.env.config.python_maximum_signature_line_length
+        global_max_len = self.env.config.maximum_signature_line_length
+        max_len = py_max_len if py_max_len >= 0 else global_max_len
         multi_line = (
             max_len >= 0
             and 'single-line-signature' not in self.options

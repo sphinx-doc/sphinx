@@ -7357,7 +7357,9 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
     def handle_signature(self, sig: str, signode: desc_signature) -> ASTDeclaration:
         parentSymbol: Symbol = self.env.temp_data['cpp:parent_symbol']
 
-        max_len = self.env.config.cpp_maximum_signature_line_length
+        cpp_max_len = self.env.config.cpp_maximum_signature_line_length
+        global_max_len = self.env.config.maximum_signature_line_length
+        max_len = cpp_max_len if cpp_max_len >= 0 else global_max_len
         multi_line = (
             max_len >= 0
             and 'single-line-signature' not in self.options

@@ -3266,7 +3266,9 @@ class CObject(ObjectDescription[ASTDeclaration]):
     def handle_signature(self, sig: str, signode: TextElement) -> ASTDeclaration:
         parentSymbol: Symbol = self.env.temp_data['c:parent_symbol']
 
-        max_len = self.env.config.c_maximum_signature_line_length
+        c_max_len = self.env.config.c_maximum_signature_line_length
+        global_max_len = self.env.config.maximum_signature_line_length
+        max_len = c_max_len if c_max_len >= 0 else global_max_len
         multi_line = (
             max_len >= 0
             and 'single-line-signature' not in self.options
