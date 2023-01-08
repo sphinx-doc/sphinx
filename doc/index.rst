@@ -109,6 +109,9 @@ usecase-driven documentation, see :ref:`get-started` or :ref:`user-guides`.
    :caption: Reference
 
    man/index
+   usage/configuration
+   usage/extensions
+   usage/restructuredtext
    glossary
    changes
    examples
