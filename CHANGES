@@ -26,6 +26,9 @@ Features added
 Bugs fixed
 ----------
 
+* #11079: LaTeX: figures with align attribute may disappear and strangely impact
+  following lists
+
 Testing
 --------
 
