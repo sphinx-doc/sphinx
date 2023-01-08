@@ -1488,7 +1488,7 @@ def test_domain_cpp_normalize_unspecialized_template_args(make_app, app_params):
     'html',
     confoverrides={'cpp_maximum_signature_line_length': len("str hello(str name)")}
 )
-def test_cfunction_signature_with_c_maximum_signature_line_length(app):
+def test_cppfunction_signature_with_cpp_maximum_signature_line_length(app):
     text = ".. cpp:function:: str hello(str name)"
     doctree = restructuredtext.parse(app, text)
     expected_doctree = (
