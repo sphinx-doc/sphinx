@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2023/01/06 v6.1.2 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2023/01/08 v6.2.0 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -162,7 +162,7 @@ will be set to white}%
 % INFO: the keys for padding and border widths were extended at 5.1.0,
 % and legacy names for user interface were kept, but their definitions
 % are delayed further down.  The legacy dimen registers used internally
-% \sphinxverbatimborder and \sphinxverbatimsep got removed at 7.0.0.
+% \sphinxverbatimborder and \sphinxverbatimsep got removed at 6.2.0.
 \DeclareBoolOption[true]{verbatimwithframe}
 \DeclareBoolOption[true]{verbatimwrapslines}
 \DeclareBoolOption[false]{verbatimforcewraps}
@@ -186,7 +186,7 @@ will be set to white}%
 % down for definitions.  Unfortunately this had bugs due to typos, which got
 % fixed later at 6.1.2.  The \sphinxshadowsep, \sphinxshadowsize,
 % \sphinxshadowrule \dimen registers became at 5.1.0 either no-op or, for the
-% latter, got used under an aliased name.  They got removed at 7.0.0.
+% latter, got used under an aliased name.  They got removed at 6.2.0.
 %
 % notices/admonitions
 % the dimensions for notices/admonitions are kept as macros and assigned to
@@ -289,7 +289,7 @@ will be set to white}%
 % besides the legacy ones already defined.
 %
 % code-blocks
-% 7.0.0 removes \sphinxverbatimborder and \sphinxverbatimsep
+% 6.2.0 removes \sphinxverbatimborder and \sphinxverbatimsep
 \newdimen\spxdimen@pre@border
 \spxdimen@pre@border=\fboxrule
 \define@key{sphinx}{pre_border-top-width}{\def\spx@pre@border@top{#1}}
@@ -409,7 +409,7 @@ will be set to white}%
 }
 \definecolor{sphinxVerbatimShadowColor}{rgb}{0,0,0}
 % topics
-% 7.0.0 removes \sphinxshadowrule, \sphinxshadowsep and \sphinxshadowsize
+% 6.2.0 removes \sphinxshadowrule, \sphinxshadowsep and \sphinxshadowsize
 \newdimen\spxdimen@topic@border
 \spxdimen@topic@border=\fboxrule % catches current value (probably 0.4pt)
 \define@key{sphinx}{div.topic_border-top-width}{\def\spx@topic@border@top{#1}}
