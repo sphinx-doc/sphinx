@@ -96,6 +96,7 @@ like to contribute to the project.
    support
    internals/index
    faq
+   authors
 
 Reference guide
 ===============
