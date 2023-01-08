@@ -20,4 +20,5 @@ the extension interface see :doc:`/extdev/index`.
    :caption: Theming
    :maxdepth: 2
 
+   templating
    theming

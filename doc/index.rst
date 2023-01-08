@@ -75,7 +75,6 @@ starting with :ref:`get-started`.
 
    usage/index
    development/index
-   templating
    latex
    extdev/index
 
