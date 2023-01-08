@@ -110,8 +110,8 @@ usecase-driven documentation, see :ref:`get-started` or :ref:`user-guides`.
 
    man/index
    usage/configuration
-   usage/extensions
-   usage/restructuredtext
+   usage/extensions/index
+   usage/restructuredtext/index
    glossary
    changes
    examples
