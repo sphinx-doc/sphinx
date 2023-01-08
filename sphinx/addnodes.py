@@ -7,21 +7,25 @@ from typing import TYPE_CHECKING, Any, Sequence
 from docutils import nodes
 from docutils.nodes import Element
 
-from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
-
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
-deprecated_alias('sphinx.addnodes',
-                 {
-                     'meta': nodes.meta,  # type: ignore
-                     'docutils_meta': nodes.meta,  # type: ignore
-                 },
-                 RemovedInSphinx70Warning,
-                 {
-                     'meta': 'docutils.nodes.meta',
-                     'docutils_meta': 'docutils.nodes.meta',
-                 })
+# deprecated name -> (object to return, canonical path or empty string)
+_DEPRECATED_OBJECTS = {
+    'meta': (nodes.meta, 'docutils.nodes.meta'),  # type: ignore[attr-defined]
+    'docutils_meta': (nodes.meta, 'docutils.nodes.meta'),  # type: ignore[attr-defined]
+}
+
+
+def __getattr__(name):
+    if name not in _DEPRECATED_OBJECTS:
+        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+
+    from sphinx.deprecation import _deprecation_warning
+
+    deprecated_object, canonical_name = _DEPRECATED_OBJECTS[name]
+    _deprecation_warning(__name__, name, canonical_name, remove=(7, 0))
+    return deprecated_object
 
 
 class document(nodes.document):

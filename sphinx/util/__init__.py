@@ -13,11 +13,7 @@ from os import path
 from typing import IO, Any, Iterable
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
-from sphinx.deprecation import (
-    RemovedInSphinx70Warning,
-    RemovedInSphinx80Warning,
-    deprecated_alias,
-)
+from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.errors import ExtensionError, FiletypeNotFoundError
 from sphinx.locale import __
 from sphinx.util import display as _display
@@ -388,29 +384,29 @@ def _xml_name_checker():
     return _XML_NAME_PATTERN
 
 
-deprecated_alias('sphinx.util',
-                 {
-                     'path_stabilize': _osutil.path_stabilize,
-                     'display_chunk': _display.display_chunk,
-                     'status_iterator': _display.status_iterator,
-                     'SkipProgressMessage': _display.SkipProgressMessage,
-                     'progress_message': _display.progress_message,
-                     'epoch_to_rfc1123': _http_date.epoch_to_rfc1123,
-                     'rfc1123_to_epoch': _http_date.rfc1123_to_epoch,
-                     'save_traceback': _exceptions.save_traceback,
-                     'format_exception_cut_frames': _exceptions.format_exception_cut_frames,
-                     'xmlname_checker': _xml_name_checker,
-                 },
-                 RemovedInSphinx80Warning,
-                 {
-                     'path_stabilize': 'sphinx.util.osutil.path_stabilize',
-                     'display_chunk': 'sphinx.util.display.display_chunk',
-                     'status_iterator': 'sphinx.util.display.status_iterator',
-                     'SkipProgressMessage': 'sphinx.util.display.SkipProgressMessage',
-                     'progress_message': 'sphinx.util.display.progress_message',
-                     'epoch_to_rfc1123': 'sphinx.http_date.epoch_to_rfc1123',
-                     'rfc1123_to_epoch': 'sphinx.http_date.rfc1123_to_epoch',
-                     'save_traceback': 'sphinx.exceptions.save_traceback',
-                     'format_exception_cut_frames': 'sphinx.exceptions.format_exception_cut_frames',  # NoQA: E501
-                     'xmlname_checker': 'sphinx.builders.epub3._XML_NAME_PATTERN',
-                 })
+# deprecated name -> (object to return, canonical path or empty string)
+_DEPRECATED_OBJECTS = {
+    'path_stabilize': (_osutil.path_stabilize, 'sphinx.util.osutil.path_stabilize'),
+    'display_chunk': (_display.display_chunk, 'sphinx.util.display.display_chunk'),
+    'status_iterator': (_display.status_iterator, 'sphinx.util.display.status_iterator'),
+    'SkipProgressMessage': (_display.SkipProgressMessage,
+                            'sphinx.util.display.SkipProgressMessage'),
+    'progress_message': (_display.progress_message, 'sphinx.http_date.epoch_to_rfc1123'),
+    'epoch_to_rfc1123': (_http_date.epoch_to_rfc1123, 'sphinx.http_date.rfc1123_to_epoch'),
+    'rfc1123_to_epoch': (_http_date.rfc1123_to_epoch, 'sphinx.http_date.rfc1123_to_epoch'),
+    'save_traceback': (_exceptions.save_traceback, 'sphinx.exceptions.save_traceback'),
+    'format_exception_cut_frames': (_exceptions.format_exception_cut_frames,
+                                    'sphinx.exceptions.format_exception_cut_frames'),
+    'xmlname_checker': (_xml_name_checker, 'sphinx.builders.epub3._XML_NAME_PATTERN'),
+}
+
+
+def __getattr__(name):
+    if name not in _DEPRECATED_OBJECTS:
+        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+
+    from sphinx.deprecation import _deprecation_warning
+
+    deprecated_object, canonical_name = _DEPRECATED_OBJECTS[name]
+    _deprecation_warning(__name__, name, canonical_name, remove=(8, 0))
+    return deprecated_object
