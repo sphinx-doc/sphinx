@@ -138,7 +138,7 @@
     % use a minipage if we are already inside a framed environment
     \ifspx@inframed\begin{minipage}{\linewidth}\fi
     \MakeFramed {\spx@inframedtrue
-    % framed.sty puts into "\width" the added width (padding+border widths)
+    % framed.sty puts into "\width" the added width (=2shadowsep+2shadowrule)
     % adjust \hsize to what the contents must use
     \advance\hsize-\width
     % adjust LaTeX parameters to behave properly in indented/quoted contexts

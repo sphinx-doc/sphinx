@@ -7,13 +7,18 @@ Dependencies
 Incompatible changes
 --------------------
 
-* LaTeX: removal of some internal TeX ``\dimen`` registers (not previously
-  publicly documented) as per 5.1.0 code comments in ``sphinx.sty``:
-  ``\sphinxverbatimsep``, ``\sphinxverbatimborder``, ``\sphinxshadowsep``,
-  ``\sphinxshadowsize``, and ``\sphinxshadowrule``. (refs: #11105)
-
 Deprecated
 ----------
+
+* LaTeX: some internal TeX ``\dimen`` registers are since 5.1.0 either not
+  used (and assigning them some dimension value is with no effect), or used
+  via changed names.  They never were mentioned in the docs but do have usable
+  public names, hence this deprecation notice.  They are
+  ``\sphinxverbatimsep``, ``\sphinxverbatimborder``, ``\sphinxshadowsep``,
+  ``\sphinxshadowsize``, and ``\sphinxshadowrule``.  It would be complicated
+  to let their use trigger some warning during PDF builds, so this will be the
+  sole announcement.  They will get removed from LaTeX support files at 7.0.0.
+  (refs: #11105)
 
 Features added
 --------------
