@@ -12,8 +12,8 @@ if TYPE_CHECKING:
 
 # deprecated name -> (object to return, canonical path or empty string)
 _DEPRECATED_OBJECTS = {
-    'meta': (nodes.meta, 'docutils.nodes.meta'),
-    'docutils_meta': (nodes.meta, 'docutils.nodes.meta'),
+    'meta': (nodes.meta, 'docutils.nodes.meta'),  # type: ignore[attr-defined]
+    'docutils_meta': (nodes.meta, 'docutils.nodes.meta'),  # type: ignore[attr-defined]
 }
 
 

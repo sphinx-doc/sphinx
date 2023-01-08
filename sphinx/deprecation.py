@@ -47,7 +47,7 @@ def _deprecation_warning(
     """
 
     if remove == (7, 0):
-        warning_class = RemovedInSphinx70Warning
+        warning_class: type[Warning] = RemovedInSphinx70Warning
     elif remove == (8, 0):
         warning_class = RemovedInSphinx80Warning
     else:
