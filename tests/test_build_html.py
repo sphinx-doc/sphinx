@@ -1780,12 +1780,9 @@ def test_copy_images(app, status, warning):
     images_dir = Path(app.outdir) / '_images'
     images = {image.name for image in images_dir.rglob('*')}
     assert images == {
-        'img.gif',
-        'img.pdf',
         'img.png',
         'rimg.png',
         'rimg1.png',
-        'svgimg.pdf',
         'svgimg.svg',
         'testimäge.png',
     }

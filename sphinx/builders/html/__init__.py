@@ -656,9 +656,6 @@ class StandaloneHTMLBuilder(Builder):
         }
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
-        self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
-        self.post_process_images(doctree)
-
         title_node = self.env.longtitles.get(docname)
         title = self.render_partial(title_node)['title'] if title_node else ''
         self.index_page(docname, doctree, title)
@@ -668,6 +665,7 @@ class StandaloneHTMLBuilder(Builder):
 
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         self.fignumbers = self.env.toc_fignumbers.get(docname, {})
+        self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
         self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')
         self.current_docname = docname
         self.docwriter.write(doctree, destination)
@@ -677,6 +675,10 @@ class StandaloneHTMLBuilder(Builder):
 
         ctx = self.get_doc_context(docname, body, metatags)
         self.handle_page(docname, ctx, event_arg=doctree)
+
+    def write_doc_serialized(self, docname: str, doctree: nodes.document) -> None:
+        self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
+        self.post_process_images(doctree)
 
     def finish(self) -> None:
         self.finish_tasks.add_task(self.gen_indices)
@@ -764,16 +766,13 @@ class StandaloneHTMLBuilder(Builder):
             self.handle_page(indexname, indexcontext, 'domainindex.html')
 
     def copy_image_files(self) -> None:
-        if self.env.images:
-            converted_images = {*self.env.original_image_uri.values()}
+        if self.images:
             stringify_func = ImageAdapter(self.app.env).get_original_image_uri
             ensuredir(path.join(self.outdir, self.imagedir))
-            for src in status_iterator(self.env.images, __('copying images... '), "brown",
-                                       len(self.env.images), self.app.verbosity,
+            for src in status_iterator(self.images, __('copying images... '), "brown",
+                                       len(self.images), self.app.verbosity,
                                        stringify_func=stringify_func):
-                if src in converted_images:
-                    continue
-                _docnames, dest = self.env.images[src]
+                dest = self.images[src]
                 try:
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, self.imagedir, dest))
