@@ -608,3 +608,18 @@ def process_only_nodes(document: Node, tags: Tags) -> None:
                 # the only node, so we make sure docutils can transfer the id to
                 # something, even if it's just a comment and will lose the id anyway...
                 node.replace_self(nodes.comment())
+
+
+def _copy_except__document(self: Element) -> Element:
+    """Monkey-patch ```nodes.Element.copy``` to not copy the ``_document``
+    attribute.
+
+    xref: https://github.com/sphinx-doc/sphinx/issues/11116#issuecomment-1376767086
+    """
+    newnode = self.__class__(rawsource=self.rawsource, **self.attributes)
+    newnode.source = self.source
+    newnode.line = self.line
+    return newnode
+
+
+nodes.Element.copy = _copy_except__document  # type: ignore
