@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #11116: Reverted to previous Sphinx 5 node copying method
+* #11117: Reverted changes to parallel image processing from Sphinx 6.1.0
+* #11119: Supress ``ValueError`` in the ``linkcheck`` builder
+
 Testing
 --------
 
