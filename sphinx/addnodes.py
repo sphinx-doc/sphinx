@@ -555,6 +555,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_node(highlightlang)
     app.add_node(tabular_col_spec)
     app.add_node(pending_xref)
+    app.add_node(pending_xref_condition)
     app.add_node(number_reference)
     app.add_node(download_reference)
     app.add_node(literal_emphasis)
