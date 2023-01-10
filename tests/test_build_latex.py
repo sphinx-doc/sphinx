@@ -1685,14 +1685,9 @@ def test_copy_images(app, status, warning):
         image.name for image in test_dir.rglob('*')
         if image.suffix in {'.gif', '.pdf', '.png', '.svg'}
     }
+    images.discard('python-logo.png')
     assert images == {
-        'img.gif',
         'img.pdf',
-        'img.png',
-        'python-logo.png',
         'rimg.png',
-        'rimg1.png',
-        'svgimg.pdf',
-        'svgimg.svg',
         'testimäge.png',
     }
