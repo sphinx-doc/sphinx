@@ -172,7 +172,10 @@ def apply_source_workaround(node: Element) -> None:
     ))):
         logger.debug('[i18n] PATCH: %r to have source and line: %s',
                      get_full_module_name(node), repr_domxml(node))
-        node.source = get_node_source(node) or ''
+        try:
+            node.source = get_node_source(node)
+        except ValueError:
+            node.source = ''
         node.line = 0  # need fix docutils to get `node.line`
         return
 
@@ -561,8 +564,9 @@ def set_role_source_info(inliner: Inliner, lineno: int, node: Node) -> None:
 
 
 def copy_source_info(src: Element, dst: Element) -> None:
-    dst.source = get_node_source(src)
-    dst.line = get_node_line(src)
+    with contextlib.suppress(ValueError):
+        dst.source = get_node_source(src)
+        dst.line = get_node_line(src)
 
 
 NON_SMARTQUOTABLE_PARENT_NODES = (
