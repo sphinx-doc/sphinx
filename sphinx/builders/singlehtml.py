@@ -12,8 +12,9 @@ from sphinx.application import Sphinx
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.locale import __
-from sphinx.util import logging, progress_message
+from sphinx.util import logging
 from sphinx.util.console import darkgreen  # type: ignore
+from sphinx.util.display import progress_message
 from sphinx.util.nodes import inline_all_toctrees
 
 logger = logging.getLogger(__name__)

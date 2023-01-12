@@ -10,8 +10,22 @@ import re
 import warnings
 from importlib import import_module
 from os import path
-from typing import (IO, Any, Callable, Dict, Generator, Iterable, Iterator, List, Optional,
-                    Sequence, Set, Tuple, Type, Union)
+from typing import (
+    IO,
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Type,
+    Union,
+)
 
 from docutils import nodes
 from docutils.nodes import Element, Node

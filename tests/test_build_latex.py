@@ -4,6 +4,7 @@ import os
 import re
 import subprocess
 from itertools import product
+from pathlib import Path
 from shutil import copyfile
 from subprocess import CalledProcessError
 
@@ -119,21 +120,35 @@ def test_writer(app, status, warning):
     assert ('\\begin{wrapfigure}{r}{0pt}\n\\centering\n'
             '\\noindent\\sphinxincludegraphics{{rimg}.png}\n'
             '\\caption{figure with align option}\\label{\\detokenize{markup:id9}}'
-            '\\end{wrapfigure}' in result)
+            '\\end{wrapfigure}\n\n'
+            '\\mbox{}\\par\\vskip-\\dimexpr\\baselineskip+\\parskip\\relax' in result)
 
     assert ('\\begin{wrapfigure}{r}{0.500\\linewidth}\n\\centering\n'
             '\\noindent\\sphinxincludegraphics{{rimg}.png}\n'
             '\\caption{figure with align \\& figwidth option}'
             '\\label{\\detokenize{markup:id10}}'
-            '\\end{wrapfigure}' in result)
+            '\\end{wrapfigure}\n\n'
+            '\\mbox{}\\par\\vskip-\\dimexpr\\baselineskip+\\parskip\\relax' in result)
 
     assert ('\\begin{wrapfigure}{r}{3cm}\n\\centering\n'
             '\\noindent\\sphinxincludegraphics[width=3cm]{{rimg}.png}\n'
             '\\caption{figure with align \\& width option}'
             '\\label{\\detokenize{markup:id11}}'
-            '\\end{wrapfigure}' in result)
+            '\\end{wrapfigure}\n\n'
+            '\\mbox{}\\par\\vskip-\\dimexpr\\baselineskip+\\parskip\\relax' in result)
 
     assert 'Footnotes' not in result
+
+    assert ('\\begin{sphinxseealso}{See also}\n\n'
+            '\\sphinxAtStartPar\n'
+            'something, something else, something more\n'
+            '\\begin{description}\n'
+            '\\sphinxlineitem{\\sphinxhref{http://www.google.com}{Google}}\n'
+            '\\sphinxAtStartPar\n'
+            'For everything.\n'
+            '\n'
+            '\\end{description}\n'
+            '\n\n\\end{sphinxseealso}\n\n' in result)
 
 
 @pytest.mark.sphinx('latex', testroot='warnings', freshenv=True)
@@ -418,7 +433,7 @@ def test_numref_with_prefix2(app, status, warning):
     'latex', testroot='numfig',
     confoverrides={'numfig': True, 'language': 'ja'})
 def test_numref_with_language_ja(app, status, warning):
-    app.builder.build_all()
+    app.build()
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
@@ -1659,3 +1674,20 @@ def test_latex_code_role(app):
             common_content + '%\n}} code block') in content
     assert (r'\begin{sphinxVerbatim}[commandchars=\\\{\}]' +
             '\n' + common_content + '\n' + r'\end{sphinxVerbatim}') in content
+
+
+@pytest.mark.sphinx('latex', testroot='images')
+def test_copy_images(app, status, warning):
+    app.build()
+
+    test_dir = Path(app.outdir)
+    images = {
+        image.name for image in test_dir.rglob('*')
+        if image.suffix in {'.gif', '.pdf', '.png', '.svg'}
+    }
+    images.discard('python-logo.png')
+    assert images == {
+        'img.pdf',
+        'rimg.png',
+        'testimäge.png',
+    }

@@ -156,6 +156,10 @@ class SphinxTestApp(application.Sphinx):
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__} buildername={self.builder.name!r}>'
 
+    def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
+        self.env._pickled_doctree_cache.clear()
+        super().build(force_all, filenames)
+
 
 class SphinxTestAppWrapperForSkipBuilding:
     """

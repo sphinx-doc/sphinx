@@ -821,10 +821,11 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_seealso(self, node: Element) -> None:
         self.body.append(BLANKLINE)
-        self.body.append(r'\sphinxstrong{%s:}' % admonitionlabels['seealso'] + CR)
-        self.body.append(r'\nopagebreak' + BLANKLINE)
+        self.body.append(r'\begin{sphinxseealso}{%s}' % admonitionlabels['seealso'] + CR)
 
     def depart_seealso(self, node: Element) -> None:
+        self.body.append(BLANKLINE)
+        self.body.append(r'\end{sphinxseealso}')
         self.body.append(BLANKLINE)
 
     def visit_rubric(self, node: Element) -> None:
@@ -1365,7 +1366,10 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append(r'\begin{wrapfigure}{%s}{%s}' %
                              ('r' if node['align'] == 'right' else 'l', length or '0pt') + CR)
             self.body.append(r'\centering')
-            self.context.append(r'\end{wrapfigure}' + CR)
+            self.context.append(r'\end{wrapfigure}' +
+                                BLANKLINE +
+                                r'\mbox{}\par\vskip-\dimexpr\baselineskip+\parskip\relax' +
+                                CR)  # avoid disappearance if no text next issues/11079
         elif self.in_minipage:
             self.body.append(CR + r'\begin{center}')
             self.context.append(r'\end{center}' + CR)

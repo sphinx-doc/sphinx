@@ -19,7 +19,8 @@ from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.transforms.post_transforms import SphinxPostTransform
-from sphinx.util import get_full_modname, logging, status_iterator
+from sphinx.util import get_full_modname, logging
+from sphinx.util.display import status_iterator
 from sphinx.util.nodes import make_refnode
 
 logger = logging.getLogger(__name__)

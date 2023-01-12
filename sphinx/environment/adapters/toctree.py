@@ -319,7 +319,7 @@ class TocTree:
     def get_toctree_for(self, docname: str, builder: Builder, collapse: bool,
                         **kwargs: Any) -> Element | None:
         """Return the global TOC nodetree."""
-        doctree = self.env.get_doctree(self.env.config.root_doc)
+        doctree = self.env.master_doctree
         toctrees: list[Element] = []
         if 'includehidden' not in kwargs:
             kwargs['includehidden'] = True

@@ -21,13 +21,27 @@ from sphinx.roles import SphinxRole, XRefRole
 from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging
-from sphinx.util.cfamily import (ASTAttributeList, ASTBaseBase, ASTBaseParenExprList,
-                                 BaseParser, DefinitionError, NoOldIdError, StringifyTransform,
-                                 UnsupportedMultiCharacterCharLiteral, anon_identifier_re,
-                                 binary_literal_re, char_literal_re, float_literal_re,
-                                 float_literal_suffix_re, hex_literal_re, identifier_re,
-                                 integer_literal_re, integers_literal_suffix_re,
-                                 octal_literal_re, verify_description_mode)
+from sphinx.util.cfamily import (
+    ASTAttributeList,
+    ASTBaseBase,
+    ASTBaseParenExprList,
+    BaseParser,
+    DefinitionError,
+    NoOldIdError,
+    StringifyTransform,
+    UnsupportedMultiCharacterCharLiteral,
+    anon_identifier_re,
+    binary_literal_re,
+    char_literal_re,
+    float_literal_re,
+    float_literal_suffix_re,
+    hex_literal_re,
+    identifier_re,
+    integer_literal_re,
+    integers_literal_suffix_re,
+    octal_literal_re,
+    verify_description_mode,
+)
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
@@ -2911,7 +2925,7 @@ class DefinitionParser(BaseParser):
     def _parse_initializer(self, outer: str | None = None, allowFallback: bool = True
                            ) -> ASTInitializer | None:
         self.skip_ws()
-        if outer == 'member' and False:  # TODO
+        if outer == 'member' and False:  # NoQA: SIM223  # TODO
             bracedInit = self._parse_braced_init_list()
             if bracedInit is not None:
                 return ASTInitializer(bracedInit, hasAssign=False)

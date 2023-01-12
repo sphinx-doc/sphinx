@@ -21,8 +21,11 @@ from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx70Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.transforms import AutoIndexUpgrader, DoctreeReadEvent, SphinxTransformer
-from sphinx.transforms.i18n import (Locale, PreserveTranslatableMessages,
-                                    RemoveTranslatableInline)
+from sphinx.transforms.i18n import (
+    Locale,
+    PreserveTranslatableMessages,
+    RemoveTranslatableInline,
+)
 from sphinx.transforms.references import SphinxDomains
 from sphinx.util import UnicodeDecodeErrorHandler, get_filetype, logging
 from sphinx.util.docutils import LoggingReporter

@@ -17,7 +17,8 @@ from docutils.utils import smartquotes
 from sphinx import addnodes
 from sphinx.builders.html import BuildInfo, StandaloneHTMLBuilder
 from sphinx.locale import __
-from sphinx.util import logging, status_iterator
+from sphinx.util import logging
+from sphinx.util.display import status_iterator
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.i18n import format_date
 from sphinx.util.osutil import copyfile, ensuredir

@@ -19,7 +19,7 @@ warnings.filterwarnings('ignore', "'U' mode is deprecated",
 warnings.filterwarnings('ignore', 'The frontend.Option class .*',
                         DeprecationWarning, module='docutils.frontend')
 
-__version__ = '6.0.1'
+__version__ = '6.2.0'
 __display_version__ = __version__  # used for command line version
 
 #: Version info for better programmatic use.
@@ -30,7 +30,7 @@ __display_version__ = __version__  # used for command line version
 #:
 #: .. versionadded:: 1.2
 #:    Before version 1.2, check the string ``sphinx.__version__``.
-version_info = (6, 0, 1, 'beta', 0)
+version_info = (6, 2, 0, 'beta', 0)
 
 package_dir = path.abspath(path.dirname(__file__))
 
