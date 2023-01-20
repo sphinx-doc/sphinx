@@ -2,39 +2,47 @@
 
 from __future__ import annotations
 
-import functools
 import hashlib
 import os
 import posixpath
 import re
 import sys
-import tempfile
-import traceback
 import warnings
-from datetime import datetime
 from importlib import import_module
 from os import path
-from time import mktime, strptime
-from typing import IO, TYPE_CHECKING, Any, Callable, Generator, Iterable, TypeVar
+from typing import IO, Any, Iterable
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
 from sphinx.deprecation import RemovedInSphinx70Warning
-from sphinx.errors import ExtensionError, FiletypeNotFoundError, SphinxParallelError
+from sphinx.errors import ExtensionError, FiletypeNotFoundError
 from sphinx.locale import __
+from sphinx.util import display as _display
+from sphinx.util import exceptions as _exceptions
+from sphinx.util import http_date as _http_date
 from sphinx.util import logging
-from sphinx.util.console import bold, colorize, strip_colors, term_width_line  # type: ignore
+from sphinx.util import osutil as _osutil
+from sphinx.util.console import strip_colors  # NoQA: F401
 from sphinx.util.matching import patfilter  # noqa: F401
-from sphinx.util.nodes import (caption_ref_re, explicit_title_re,  # noqa: F401
-                               nested_parse_with_titles, split_explicit_title)
+from sphinx.util.nodes import (  # noqa: F401
+    caption_ref_re,
+    explicit_title_re,
+    nested_parse_with_titles,
+    split_explicit_title,
+)
+
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
-from sphinx.util.osutil import (SEP, copyfile, copytimes, ensuredir,  # noqa: F401
-                                make_filename, mtimes_of_files, os_path, relative_uri)
+from sphinx.util.osutil import (  # noqa: F401
+    SEP,
+    copyfile,
+    copytimes,
+    ensuredir,
+    make_filename,
+    mtimes_of_files,
+    os_path,
+    relative_uri,
+)
 from sphinx.util.typing import PathMatcher
-
-if TYPE_CHECKING:
-    from sphinx.application import Sphinx
-
 
 logger = logging.getLogger(__name__)
 
@@ -50,16 +58,6 @@ def docname_join(basedocname: str, docname: str) -> str:
         posixpath.join('/' + basedocname, '..', docname))[1:]
 
 
-def path_stabilize(filepath: str) -> str:
-    "Normalize path separator and unicode string"
-    warnings.warn("'sphinx.util.path_stabilize' is deprecated, use "
-                  "'sphinx.util.osutil.path_stabilize' instead.",
-                  RemovedInSphinx70Warning, stacklevel=2)
-    from sphinx.util import osutil
-
-    return osutil.path_stabilize(filepath)
-
-
 def get_matching_files(dirname: str,
                        exclude_matchers: tuple[PathMatcher, ...] = (),
                        include_matchers: tuple[PathMatcher, ...] = ()) -> Iterable[str]:
@@ -67,6 +65,8 @@ def get_matching_files(dirname: str,
 
     Exclude files and dirs matching some matcher in *exclude_matchers*.
     """
+    path_stabilize = _osutil.path_stabilize  # avoid warning
+
     warnings.warn("'sphinx.util.get_matching_files' is deprecated, use "
                   "'sphinx.util.matching.get_matching_files' instead. Note that"
                   "the types of the arguments have changed from callables to "
@@ -146,31 +146,23 @@ class FilenameUniqDict(dict):
 def md5(data=b'', **kwargs):
     """Wrapper around hashlib.md5
 
-    Attempt call with 'usedforsecurity=False' if we get a ValueError, which happens when
-    OpenSSL FIPS mode is enabled:
-    ValueError: error:060800A3:digital envelope routines:EVP_DigestInit_ex:disabled for fips
-
-    See: https://github.com/sphinx-doc/sphinx/issues/7611
+    Attempt call with 'usedforsecurity=False' if supported.
     """
 
-    try:
-        return hashlib.md5(data, **kwargs)
-    except ValueError:
-        return hashlib.md5(data, **kwargs, usedforsecurity=False)  # type: ignore
+    if sys.version_info[:2] > (3, 8):
+        return hashlib.md5(data, usedforsecurity=False)
+    return hashlib.md5(data, **kwargs)
 
 
 def sha1(data=b'', **kwargs):
     """Wrapper around hashlib.sha1
 
-    Attempt call with 'usedforsecurity=False' if we get a ValueError
-
-    See: https://github.com/sphinx-doc/sphinx/issues/7611
+    Attempt call with 'usedforsecurity=False' if supported.
     """
 
-    try:
-        return hashlib.sha1(data, **kwargs)
-    except ValueError:
-        return hashlib.sha1(data, **kwargs, usedforsecurity=False)  # type: ignore
+    if sys.version_info[:2] > (3, 8):
+        return hashlib.sha1(data, usedforsecurity=False)
+    return hashlib.sha1(data, **kwargs)
 
 
 class DownloadFiles(dict):
@@ -199,54 +191,6 @@ class DownloadFiles(dict):
         for filename, (docs, _dest) in other.items():
             for docname in docs & set(docnames):
                 self.add_file(docname, filename)
-
-
-_DEBUG_HEADER = '''\
-# Sphinx version: %s
-# Python version: %s (%s)
-# Docutils version: %s %s
-# Jinja2 version: %s
-# Last messages:
-%s
-# Loaded extensions:
-'''
-
-
-def save_traceback(app: Sphinx | None) -> str:
-    """Save the current exception's traceback in a temporary file."""
-    import platform
-
-    import docutils
-    import jinja2
-
-    import sphinx
-    exc = sys.exc_info()[1]
-    if isinstance(exc, SphinxParallelError):
-        exc_format = '(Error in parallel process)\n' + exc.traceback
-    else:
-        exc_format = traceback.format_exc()
-    fd, path = tempfile.mkstemp('.log', 'sphinx-err-')
-    last_msgs = ''
-    if app is not None:
-        last_msgs = '\n'.join(
-            '#   %s' % strip_colors(s).strip()
-            for s in app.messagelog)
-    os.write(fd, (_DEBUG_HEADER %
-                  (sphinx.__display_version__,
-                   platform.python_version(),
-                   platform.python_implementation(),
-                   docutils.__version__, docutils.__version_details__,
-                   jinja2.__version__,
-                   last_msgs)).encode())
-    if app is not None:
-        for ext in app.extensions.values():
-            modfile = getattr(ext.module, '__file__', 'unknown')
-            if ext.version != 'builtin':
-                os.write(fd, ('#   %s (%s) from %s\n' %
-                              (ext.name, ext.version, modfile)).encode())
-    os.write(fd, exc_format.encode())
-    os.close(fd)
-    return path
 
 
 def get_full_modname(modname: str, attribute: str) -> str | None:
@@ -367,17 +311,6 @@ def split_index_msg(type: str, value: str) -> list[str]:
     return result
 
 
-def format_exception_cut_frames(x: int = 1) -> str:
-    """Format an exception with traceback, but only the last x frames."""
-    typ, val, tb = sys.exc_info()
-    # res = ['Traceback (most recent call last):\n']
-    res: list[str] = []
-    tbres = traceback.format_tb(tb)
-    res += tbres[-x:]
-    res += traceback.format_exception_only(typ, val)
-    return ''.join(res)
-
-
 def import_object(objname: str, source: str | None = None) -> Any:
     """Import python object by qualname."""
     try:
@@ -444,126 +377,36 @@ def isurl(url: str) -> bool:
     return bool(url) and '://' in url
 
 
-def display_chunk(chunk: Any) -> str:
-    if isinstance(chunk, (list, tuple)):
-        if len(chunk) == 1:
-            return str(chunk[0])
-        return f'{chunk[0]} .. {chunk[-1]}'
-    return str(chunk)
+def _xml_name_checker():
+    # to prevent import cycles
+    from sphinx.builders.epub3 import _XML_NAME_PATTERN
+
+    return _XML_NAME_PATTERN
 
 
-T = TypeVar('T')
+# deprecated name -> (object to return, canonical path or empty string)
+_DEPRECATED_OBJECTS = {
+    'path_stabilize': (_osutil.path_stabilize, 'sphinx.util.osutil.path_stabilize'),
+    'display_chunk': (_display.display_chunk, 'sphinx.util.display.display_chunk'),
+    'status_iterator': (_display.status_iterator, 'sphinx.util.display.status_iterator'),
+    'SkipProgressMessage': (_display.SkipProgressMessage,
+                            'sphinx.util.display.SkipProgressMessage'),
+    'progress_message': (_display.progress_message, 'sphinx.http_date.epoch_to_rfc1123'),
+    'epoch_to_rfc1123': (_http_date.epoch_to_rfc1123, 'sphinx.http_date.rfc1123_to_epoch'),
+    'rfc1123_to_epoch': (_http_date.rfc1123_to_epoch, 'sphinx.http_date.rfc1123_to_epoch'),
+    'save_traceback': (_exceptions.save_traceback, 'sphinx.exceptions.save_traceback'),
+    'format_exception_cut_frames': (_exceptions.format_exception_cut_frames,
+                                    'sphinx.exceptions.format_exception_cut_frames'),
+    'xmlname_checker': (_xml_name_checker, 'sphinx.builders.epub3._XML_NAME_PATTERN'),
+}
 
 
-def old_status_iterator(iterable: Iterable[T], summary: str, color: str = "darkgreen",
-                        stringify_func: Callable[[Any], str] = display_chunk
-                        ) -> Generator[T, None, None]:
-    l = 0
-    for item in iterable:
-        if l == 0:
-            logger.info(bold(summary), nonl=True)
-            l = 1
-        logger.info(stringify_func(item), color=color, nonl=True)
-        logger.info(" ", nonl=True)
-        yield item
-    if l == 1:
-        logger.info('')
+def __getattr__(name):
+    if name not in _DEPRECATED_OBJECTS:
+        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
 
+    from sphinx.deprecation import _deprecation_warning
 
-# new version with progress info
-def status_iterator(iterable: Iterable[T], summary: str, color: str = "darkgreen",
-                    length: int = 0, verbosity: int = 0,
-                    stringify_func: Callable[[Any], str] = display_chunk
-                    ) -> Generator[T, None, None]:
-    if length == 0:
-        yield from old_status_iterator(iterable, summary, color, stringify_func)
-        return
-    l = 0
-    summary = bold(summary)
-    for item in iterable:
-        l += 1
-        s = '%s[%3d%%] %s' % (summary, 100 * l / length, colorize(color, stringify_func(item)))
-        if verbosity:
-            s += '\n'
-        else:
-            s = term_width_line(s)
-        logger.info(s, nonl=True)
-        yield item
-    if l > 0:
-        logger.info('')
-
-
-class SkipProgressMessage(Exception):
-    pass
-
-
-class progress_message:
-    def __init__(self, message: str) -> None:
-        self.message = message
-
-    def __enter__(self) -> None:
-        logger.info(bold(self.message + '... '), nonl=True)
-
-    def __exit__(
-        self, exc_type: type[Exception], exc_value: Exception, traceback: Any
-    ) -> bool:
-        if isinstance(exc_value, SkipProgressMessage):
-            logger.info(__('skipped'))
-            if exc_value.args:
-                logger.info(*exc_value.args)
-            return True
-        elif exc_type:
-            logger.info(__('failed'))
-        else:
-            logger.info(__('done'))
-
-        return False
-
-    def __call__(self, f: Callable) -> Callable:
-        @functools.wraps(f)
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
-            with self:
-                return f(*args, **kwargs)
-
-        return wrapper
-
-
-def epoch_to_rfc1123(epoch: float) -> str:
-    """Convert datetime format epoch to RFC1123."""
-    from babel.dates import format_datetime
-
-    dt = datetime.fromtimestamp(epoch)
-    fmt = 'EEE, dd LLL yyyy hh:mm:ss'
-    return format_datetime(dt, fmt, locale='en') + ' GMT'
-
-
-def rfc1123_to_epoch(rfc1123: str) -> float:
-    return mktime(strptime(rfc1123, '%a, %d %b %Y %H:%M:%S %Z'))
-
-
-def xmlname_checker() -> re.Pattern:
-    # https://www.w3.org/TR/REC-xml/#NT-Name
-    name_start_chars = [
-        ':', ['A', 'Z'], '_', ['a', 'z'], ['\u00C0', '\u00D6'],
-        ['\u00D8', '\u00F6'], ['\u00F8', '\u02FF'], ['\u0370', '\u037D'],
-        ['\u037F', '\u1FFF'], ['\u200C', '\u200D'], ['\u2070', '\u218F'],
-        ['\u2C00', '\u2FEF'], ['\u3001', '\uD7FF'], ['\uF900', '\uFDCF'],
-        ['\uFDF0', '\uFFFD'], ['\U00010000', '\U000EFFFF']]
-
-    name_chars = [
-        "\\-", "\\.", ['0', '9'], '\u00B7', ['\u0300', '\u036F'],
-        ['\u203F', '\u2040']
-    ]
-
-    def convert(entries: Any, splitter: str = '|') -> str:
-        results = []
-        for entry in entries:
-            if isinstance(entry, list):
-                results.append('[%s]' % convert(entry, '-'))
-            else:
-                results.append(entry)
-        return splitter.join(results)
-
-    start_chars_regex = convert(name_start_chars)
-    name_chars_regex = convert(name_chars)
-    return re.compile(f'({start_chars_regex})({start_chars_regex}|{name_chars_regex})*')
+    deprecated_object, canonical_name = _DEPRECATED_OBJECTS[name]
+    _deprecation_warning(__name__, name, canonical_name, remove=(8, 0))
+    return deprecated_object

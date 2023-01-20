@@ -6,7 +6,7 @@ import functools
 import os
 import pickle
 from collections import defaultdict
-from copy import copy, deepcopy
+from copy import copy
 from datetime import datetime
 from os import path
 from typing import TYPE_CHECKING, Any, Callable, Generator, Iterator
@@ -177,6 +177,12 @@ class BuildEnvironment:
         self.included: dict[str, set[str]] = defaultdict(set)
         # docnames to re-read unconditionally on next build
         self.reread_always: set[str] = set()
+
+        # docname -> pickled doctree
+        self._pickled_doctree_cache: dict[str, bytes] = {}
+
+        # docname -> doctree
+        self._write_doc_doctree_cache: dict[str, nodes.document] = {}
 
         # File metadata
         # docname -> dict of metadata items
@@ -577,19 +583,21 @@ class BuildEnvironment:
 
     def get_doctree(self, docname: str) -> nodes.document:
         """Read the doctree for a file from the pickle and return it."""
-        doctreedir = self.doctreedir
-
-        @functools.lru_cache(maxsize=None)
-        def _load_doctree_from_disk(docname: str) -> nodes.document:
-            """Read the doctree for a file from the pickle and return it."""
-            filename = path.join(doctreedir, docname + '.doctree')
+        try:
+            serialised = self._pickled_doctree_cache[docname]
+        except KeyError:
+            filename = path.join(self.doctreedir, docname + '.doctree')
             with open(filename, 'rb') as f:
-                return pickle.load(f)
+                serialised = self._pickled_doctree_cache[docname] = f.read()
 
-        doctree = deepcopy(_load_doctree_from_disk(docname))
+        doctree = pickle.loads(serialised)
         doctree.settings.env = self
         doctree.reporter = LoggingReporter(self.doc2path(docname))
         return doctree
+
+    @functools.cached_property
+    def master_doctree(self) -> nodes.document:
+        return self.get_doctree(self.config.root_doc)
 
     def get_and_resolve_doctree(
         self,
@@ -603,7 +611,12 @@ class BuildEnvironment:
         toctrees and return it.
         """
         if doctree is None:
-            doctree = self.get_doctree(docname)
+            try:
+                doctree = self._write_doc_doctree_cache.pop(docname)
+                doctree.settings.env = self
+                doctree.reporter = LoggingReporter(self.doc2path(docname))
+            except KeyError:
+                doctree = self.get_doctree(docname)
 
         # resolve all pending cross-references
         self.apply_post_transforms(doctree, docname)

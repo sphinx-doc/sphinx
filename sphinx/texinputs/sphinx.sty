@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2022/08/15 v5.3.0 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2023/01/08 v6.2.0 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -159,20 +159,10 @@ will be set to white}%
 \define@key{sphinx}{bookmarksdepth}{\AtBeginDocument{\hypersetup{bookmarksdepth=#1}}}
 \AtBeginDocument{\define@key{sphinx}{bookmarksdepth}{\hypersetup{bookmarksdepth=#1}}}
 % \DeclareBoolOption[false]{usespart}% not used
-% dimensions, we declare the \dimen registers here.
-\newdimen\sphinxverbatimsep    % <-- TO BE REMOVED NOT USED ANYMORE AT 5.1.0
-\newdimen\sphinxverbatimborder
-%
-% \DeclareStringOption is not convenient for the handling of these dimensions
-% because we want to assign the values to the corresponding registers. Even if
-% we added the code to the key handler it would be too late for the initial
-% set-up and we would need to do initial assignments explicitly. We end up
-% using \define@key directly.
-% verbatim
-\sphinxverbatimsep=\fboxsep    % <-- TO BE REMOVED NOT USED ANYMORE AT 5.1.0
-  \define@key{sphinx}{verbatimsep}{\sphinxverbatimsep\dimexpr #1\relax}
-\sphinxverbatimborder=\fboxrule
-  \define@key{sphinx}{verbatimborder}{\sphinxverbatimborder\dimexpr #1\relax}
+% INFO: the keys for padding and border widths were extended at 5.1.0,
+% and legacy names for user interface were kept, but their definitions
+% are delayed further down.  The legacy dimen registers used internally
+% \sphinxverbatimborder and \sphinxverbatimsep got removed at 6.2.0.
 \DeclareBoolOption[true]{verbatimwithframe}
 \DeclareBoolOption[true]{verbatimwrapslines}
 \DeclareBoolOption[false]{verbatimforcewraps}
@@ -191,16 +181,13 @@ will be set to white}%
   [{\makebox[2\fontcharwd\font`\x][r]{\textcolor{red}{\tiny$\m@th\hookrightarrow$}}}]%
   {verbatimcontinued}
 % topic boxes
-% alternative names and definitions in 5.1.0 section below
-\newdimen\sphinxshadowsep  % <-- TO BE REMOVED NOT USED ANYMORE AT 5.1.0
-\newdimen\sphinxshadowsize % <-- TO BE REMOVED NOT USED ANYMORE AT 5.1.0
-\newdimen\sphinxshadowrule
-\sphinxshadowsep=5pt
-  \define@key{sphinx}{shadowsep}{\sphinxshadowsep\dimexpr #1\relax}%
-\sphinxshadowsize=4pt
-  \define@key{sphinx}{shadowsize}{\sphinxshadowsize\dimexpr #1\relax}
-\sphinxshadowrule=\fboxrule % catches current value (probably 0.4pt)
-  \define@key{sphinx}{shadowrule}{\sphinxshadowrule\dimexpr #1\relax}
+% 5.1.0 added new keys for configuration. The legacy keys shadowsep,
+% shadowsize, shadowrule are kept for backwards compatibility.  See further
+% down for definitions.  Unfortunately this had bugs due to typos, which got
+% fixed later at 6.1.2.  The \sphinxshadowsep, \sphinxshadowsize,
+% \sphinxshadowrule \dimen registers became at 5.1.0 either no-op or, for the
+% latter, got used under an aliased name.  They got removed at 6.2.0.
+%
 % notices/admonitions
 % the dimensions for notices/admonitions are kept as macros and assigned to
 % \spx@notice@border at time of use, hence \DeclareStringOption is ok for this
@@ -302,7 +289,9 @@ will be set to white}%
 % besides the legacy ones already defined.
 %
 % code-blocks
-\let\spxdimen@pre@border\sphinxverbatimborder
+% 6.2.0 removes \sphinxverbatimborder and \sphinxverbatimsep
+\newdimen\spxdimen@pre@border
+\spxdimen@pre@border=\fboxrule
 \define@key{sphinx}{pre_border-top-width}{\def\spx@pre@border@top{#1}}
 \define@key{sphinx}{pre_border-right-width}{\def\spx@pre@border@right{#1}}
 \define@key{sphinx}{pre_border-bottom-width}{\def\spx@pre@border@bottom{#1}}
@@ -319,6 +308,7 @@ will be set to white}%
 \let\spx@pre@border@right \spx@pre@border@top
 \let\spx@pre@border@bottom\spx@pre@border@top
 \let\spx@pre@border@left  \spx@pre@border@top
+% define legacy verbatimborder key as alias to pre_border-width
 \expandafter\let\expandafter\KV@sphinx@verbatimborder
                             \csname KV@sphinx@pre_border-width\endcsname
 \newif\ifspx@pre@border@open
@@ -329,27 +319,28 @@ will be set to white}%
                  \spx@pre@border@openfalse
             \else\spx@pre@border@opentrue\fi}
 %
-% MEMO: \sphinxverbatimsep not used anywhere anymore in the code, to be removed
+% no \dimen but only macros used for the padding user interface
+% (\dimen's are defined and used by sphinxpackageboxes.sty)
 \define@key{sphinx}{pre_padding-top}{\def\spx@pre@padding@top{#1}}
 \define@key{sphinx}{pre_padding-right}{\def\spx@pre@padding@right{#1}}
 \define@key{sphinx}{pre_padding-bottom}{\def\spx@pre@padding@bottom{#1}}
 \define@key{sphinx}{pre_padding-left}{\def\spx@pre@padding@left{#1}}
 \define@key{sphinx}{pre_padding}{%
-   \def\spx@pre@padding@top   {#1}% use some pre \dimexpr expansion?
+   \def\spx@pre@padding@top   {#1}% (use here some \dimexpr wrapper?)
    \let\spx@pre@padding@right \spx@pre@padding@top
    \let\spx@pre@padding@bottom\spx@pre@padding@top
    \let\spx@pre@padding@left  \spx@pre@padding@top
 }
-\edef\spx@pre@padding@top {\number\fboxsep sp}% \sphinxverbatimsep to be removed
+\edef\spx@pre@padding@top {\number\fboxsep sp}
 \let\spx@pre@padding@right \spx@pre@padding@top
 \let\spx@pre@padding@bottom\spx@pre@padding@top
 \let\spx@pre@padding@left  \spx@pre@padding@top
+% define legacy verbatimsep key as alias of pre_padding key
 \expandafter\let\expandafter\KV@sphinx@verbatimsep
                             \csname KV@sphinx@pre_padding\endcsname
 %
-% We do not define a new \dimen (in 5.x pre-5.1.0 dev branch there
-% was a \sphinxverbatimradius when rounded boxes were first introduced,
-% but we removed it).
+% no \dimen but only macros used for the radii user interface
+% (\dimen's are defined and used by sphinxpackageboxes.sty)
 \define@key{sphinx}{pre_border-top-left-radius}{\def\spx@pre@radius@topleft{#1}}
 \define@key{sphinx}{pre_border-top-right-radius}{\edef\spx@pre@radius@topright{#1}}
 \define@key{sphinx}{pre_border-bottom-right-radius}{\def\spx@pre@radius@bottomright{#1}}
@@ -361,7 +352,7 @@ will be set to white}%
    \let\spx@pre@radius@bottomleft \spx@pre@radius@topleft
 }
 % MEMO: keep in mind in using these macros in code elsewhere that they can
-% thus be dimen registers or simply dimensional specs such as 3pt
+% expand to dimen registers or dimension specs like here "3pt"
 \def\spx@pre@radius@topleft   {3pt}%
 \let\spx@pre@radius@topright   \spx@pre@radius@topleft
 \let\spx@pre@radius@bottomright\spx@pre@radius@topleft
@@ -418,7 +409,9 @@ will be set to white}%
 }
 \definecolor{sphinxVerbatimShadowColor}{rgb}{0,0,0}
 % topics
-\let\spxdimen@topic@border\sphinxshadowrule
+% 6.2.0 removes \sphinxshadowrule, \sphinxshadowsep and \sphinxshadowsize
+\newdimen\spxdimen@topic@border
+\spxdimen@topic@border=\fboxrule % catches current value (probably 0.4pt)
 \define@key{sphinx}{div.topic_border-top-width}{\def\spx@topic@border@top{#1}}
 \define@key{sphinx}{div.topic_border-right-width}{\def\spx@topic@border@right{#1}}
 \define@key{sphinx}{div.topic_border-bottom-width}{\def\spx@topic@border@bottom{#1}}
@@ -435,8 +428,10 @@ will be set to white}%
 \let\spx@topic@border@right \spx@topic@border@top
 \let\spx@topic@border@bottom\spx@topic@border@top
 \let\spx@topic@border@left  \spx@topic@border@top
+% define legacy shadowrule key to act like div.topic_border-width
+% (sadly 5.1.0 had forgotten the "div." here, fixed at 6.1.2)
 \expandafter\let\expandafter\KV@sphinx@shadowrule
-                            \csname KV@sphinx@topic_border-width\endcsname
+                            \csname KV@sphinx@div.topic_border-width\endcsname
 \newif\ifspx@topic@border@open % defaults to false (legacy)
 \define@key{sphinx}{div.topic_box-decoration-break}%
            {\begingroup\edef\spx@tempa{#1}\expandafter\endgroup
@@ -444,24 +439,30 @@ will be set to white}%
                  \spx@topic@border@openfalse
             \else\spx@topic@border@opentrue\fi}%
 %
-% MEMO: \sphinxshadowsep not used anywhere anymore in code base and to be removed
-\define@key{sphinx}{topic_padding-top}{\def\spx@topic@padding@top{#1}}
-\define@key{sphinx}{topic_padding-right}{\def\spx@topic@padding@right{#1}}
-\define@key{sphinx}{topic_padding-bottom}{\def\spx@topic@padding@bottom{#1}}
-\define@key{sphinx}{topic_padding-left}{\def\spx@topic@padding@left{#1}}
-\define@key{sphinx}{topic_padding}{%
+% no \dimen but only macros used for the padding user interface
+% (\dimen's are defined and used by sphinxpackageboxes.sty)
+% Sadly the 5.1.0 definitions forgot the "div." part of the key names
+% Fixed at 6.1.2
+\define@key{sphinx}{div.topic_padding-top}{\def\spx@topic@padding@top{#1}}
+\define@key{sphinx}{div.topic_padding-right}{\def\spx@topic@padding@right{#1}}
+\define@key{sphinx}{div.topic_padding-bottom}{\def\spx@topic@padding@bottom{#1}}
+\define@key{sphinx}{div.topic_padding-left}{\def\spx@topic@padding@left{#1}}
+\define@key{sphinx}{div.topic_padding}{%
    \def\spx@topic@padding@top   {#1}%
    \let\spx@topic@padding@right \spx@topic@padding@top
    \let\spx@topic@padding@bottom\spx@topic@padding@top
    \let\spx@topic@padding@left  \spx@topic@padding@top
 }
-\def\spx@topic@padding@top   {5pt}% no usage anymore of \sphinxshadowsep dimen register
+\def\spx@topic@padding@top   {5pt}
 \let\spx@topic@padding@right \spx@topic@padding@top
 \let\spx@topic@padding@bottom\spx@topic@padding@top
 \let\spx@topic@padding@left  \spx@topic@padding@top
+% define legacy shadowsep key to act like div.topic_padding
 \expandafter\let\expandafter\KV@sphinx@shadowsep
-                            \csname KV@sphinx@topic_padding\endcsname
+                            \csname KV@sphinx@div.topic_padding\endcsname
 %
+% no \dimen but only macros used for the radii user interface
+% (\dimen's are defined and used by sphinxpackageboxes.sty)
 \define@key{sphinx}{div.topic_border-top-left-radius}{\def\spx@topic@radius@topleft{#1}}
 \define@key{sphinx}{div.topic_border-top-right-radius}{\def\spx@topic@radius@topright{#1}}
 \define@key{sphinx}{div.topic_border-bottom-right-radius}{\def\spx@topic@radius@bottomright{#1}}
@@ -482,6 +483,8 @@ will be set to white}%
                      \ifdim\spx@topic@radius@bottomleft>\z@0\fi
                     1\else\spx@RequirePackage@PictIIe\fi}
 %
+% no \dimen but only macros used for the shadow user interface
+% (\dimen's are defined and used by sphinxpackageboxes.sty)
 \newif\ifspx@topic@withshadow
 \newif\ifspx@topic@insetshadow
 % Attention only "none" or "<xoffset> <yoffset> [optional inset]", no color
@@ -502,16 +505,16 @@ will be set to white}%
   \fi     
 }%
 \spx@topic@box@shadow@setter 4pt 4pt {} \@nnil
-% Suport for legacy shadowsize, the \sphinxshadowsize \dimen register
-% is not used anymore and should not even be allocated in future
+% Support for legacy shadowsize
+% This definition was broken at 5.1.0 and fixed at 6.1.2
 \define@key{sphinx}{shadowsize}{%
   \edef\spx@topic@shadow@xoffset{\number\dimexpr#1\relax sp}%
   \let\spx@topic@shadow@yoffset\spx@topic@shadow@xoffset
   \ifdim\spx@topic@shadow@xoffset=\z@
-      \spx@topic@box@withshadowtrue
+      \spx@topic@withshadowfalse
   \else
-      \spx@topic@box@withshadowfalse
-      \spx@topic@box@shadow@insetfalse
+      \spx@topic@withshadowtrue
+      \spx@topic@insetshadowfalse
   \fi
 }%
 \definecolor{sphinxTopicBorderColor}{rgb}{0,0,0}

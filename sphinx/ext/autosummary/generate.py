@@ -36,8 +36,12 @@ from sphinx.builders import Builder
 from sphinx.config import Config
 from sphinx.ext.autodoc import Documenter
 from sphinx.ext.autodoc.importer import import_module
-from sphinx.ext.autosummary import (ImportExceptionGroup, get_documenter, import_by_name,
-                                    import_ivar_by_name)
+from sphinx.ext.autosummary import (
+    ImportExceptionGroup,
+    get_documenter,
+    import_by_name,
+    import_ivar_by_name,
+)
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.registry import SphinxComponentRegistry
@@ -79,10 +83,17 @@ class AutosummaryEntry(NamedTuple):
 
 
 def setup_documenters(app: Any) -> None:
-    from sphinx.ext.autodoc import (AttributeDocumenter, ClassDocumenter, DataDocumenter,
-                                    DecoratorDocumenter, ExceptionDocumenter,
-                                    FunctionDocumenter, MethodDocumenter, ModuleDocumenter,
-                                    PropertyDocumenter)
+    from sphinx.ext.autodoc import (
+        AttributeDocumenter,
+        ClassDocumenter,
+        DataDocumenter,
+        DecoratorDocumenter,
+        ExceptionDocumenter,
+        FunctionDocumenter,
+        MethodDocumenter,
+        ModuleDocumenter,
+        PropertyDocumenter,
+    )
     documenters: list[type[Documenter]] = [
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter,

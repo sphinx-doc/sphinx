@@ -50,7 +50,7 @@ Options
 
 .. option:: -l, --follow-links
 
-   Follow symbolic links.
+   Follow symbolic links. Defaults to ``False``.
 
 .. option:: -n, --dry-run
 
@@ -62,7 +62,7 @@ Options
 
 .. option:: -d <MAXDEPTH>
 
-   Maximum depth for the generated table of contents file.
+   Maximum depth for the generated table of contents file. Defaults to ``4``.
 
 .. option:: --tocfile
 

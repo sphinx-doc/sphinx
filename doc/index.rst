@@ -75,7 +75,6 @@ starting with :ref:`get-started`.
 
    usage/index
    development/index
-   templating
    latex
    extdev/index
 
@@ -96,6 +95,7 @@ like to contribute to the project.
    support
    internals/index
    faq
+   authors
 
 Reference guide
 ===============
@@ -109,6 +109,9 @@ usecase-driven documentation, see :ref:`get-started` or :ref:`user-guides`.
    :caption: Reference
 
    man/index
+   usage/configuration
+   usage/extensions/index
+   usage/restructuredtext/index
    glossary
    changes
    examples

@@ -6,6 +6,7 @@ Originally derived from epub.py.
 from __future__ import annotations
 
 import html
+import re
 from os import path
 from typing import Any, NamedTuple
 
@@ -14,7 +15,7 @@ from sphinx.application import Sphinx
 from sphinx.builders import _epub_base
 from sphinx.config import ENUM, Config
 from sphinx.locale import __
-from sphinx.util import logging, xmlname_checker
+from sphinx.util import logging
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.i18n import format_date
 from sphinx.util.osutil import make_filename
@@ -49,6 +50,19 @@ HTML_TAG = (
     '<html xmlns="http://www.w3.org/1999/xhtml" '
     'xmlns:epub="http://www.idpf.org/2007/ops">'
 )
+
+# https://www.w3.org/TR/REC-xml/#NT-Name
+_xml_name_start_char = (
+    ':|[A-Z]|_|[a-z]|[\u00C0-\u00D6]'
+    '|[\u00D8-\u00F6]|[\u00F8-\u02FF]|[\u0370-\u037D]'
+    '|[\u037F-\u1FFF]|[\u200C-\u200D]|[\u2070-\u218F]'
+    '|[\u2C00-\u2FEF]|[\u3001-\uD7FF]|[\uF900-\uFDCF]'
+    '|[\uFDF0-\uFFFD]|[\U00010000-\U000EFFFF]'
+)
+_xml_name_char = (
+    _xml_name_start_char + r'\-|\.' '|[0-9]|\u00B7|[\u0300-\u036F]|[\u203F-\u2040]'
+)
+_XML_NAME_PATTERN = re.compile(f'({_xml_name_start_char})({_xml_name_char})*')
 
 
 class Epub3Builder(_epub_base.EpubBuilder):
@@ -187,7 +201,7 @@ def validate_config_values(app: Sphinx) -> None:
         logger.warning(__('conf value "epub_language" (or "language") '
                           'should not be empty for EPUB3'))
     # <package> unique-identifier attribute
-    if not xmlname_checker().match(app.config.epub_uid):
+    if not _XML_NAME_PATTERN.match(app.config.epub_uid):
         logger.warning(__('conf value "epub_uid" should be XML NAME for EPUB3'))
     # dc:title
     if not app.config.epub_title:

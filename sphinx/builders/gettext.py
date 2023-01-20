@@ -19,8 +19,9 @@ from sphinx.builders import Builder
 from sphinx.domains.python import pairindextypes
 from sphinx.errors import ThemeError
 from sphinx.locale import __
-from sphinx.util import logging, split_index_msg, status_iterator
+from sphinx.util import logging, split_index_msg
 from sphinx.util.console import bold  # type: ignore
+from sphinx.util.display import status_iterator
 from sphinx.util.i18n import CatalogInfo, docname_to_domain
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import canon_path, ensuredir, relpath

@@ -19,6 +19,7 @@ These extensions are built in and can be activated by respective entries in the
 :confval:`extensions` configuration value:
 
 .. toctree::
+   :maxdepth: 1
 
    autodoc
    autosectionlabel

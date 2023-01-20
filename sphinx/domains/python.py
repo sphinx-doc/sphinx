@@ -28,8 +28,12 @@ from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.inspect import signature_from_str
-from sphinx.util.nodes import (find_pending_xref_condition, make_id, make_refnode,
-                               nested_parse_with_titles)
+from sphinx.util.nodes import (
+    find_pending_xref_condition,
+    make_id,
+    make_refnode,
+    nested_parse_with_titles,
+)
 from sphinx.util.typing import OptionSpec, TextlikeNode
 
 logger = logging.getLogger(__name__)

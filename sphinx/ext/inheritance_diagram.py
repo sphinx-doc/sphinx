@@ -44,8 +44,13 @@ import sphinx
 from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.environment import BuildEnvironment
-from sphinx.ext.graphviz import (figure_wrapper, graphviz, render_dot_html, render_dot_latex,
-                                 render_dot_texinfo)
+from sphinx.ext.graphviz import (
+    figure_wrapper,
+    graphviz,
+    render_dot_html,
+    render_dot_latex,
+    render_dot_texinfo,
+)
 from sphinx.util import md5
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.typing import OptionSpec

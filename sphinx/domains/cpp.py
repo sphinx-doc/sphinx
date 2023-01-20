@@ -22,13 +22,27 @@ from sphinx.roles import SphinxRole, XRefRole
 from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging
-from sphinx.util.cfamily import (ASTAttributeList, ASTBaseBase, ASTBaseParenExprList,
-                                 BaseParser, DefinitionError, NoOldIdError, StringifyTransform,
-                                 UnsupportedMultiCharacterCharLiteral, anon_identifier_re,
-                                 binary_literal_re, char_literal_re, float_literal_re,
-                                 float_literal_suffix_re, hex_literal_re, identifier_re,
-                                 integer_literal_re, integers_literal_suffix_re,
-                                 octal_literal_re, verify_description_mode)
+from sphinx.util.cfamily import (
+    ASTAttributeList,
+    ASTBaseBase,
+    ASTBaseParenExprList,
+    BaseParser,
+    DefinitionError,
+    NoOldIdError,
+    StringifyTransform,
+    UnsupportedMultiCharacterCharLiteral,
+    anon_identifier_re,
+    binary_literal_re,
+    char_literal_re,
+    float_literal_re,
+    float_literal_suffix_re,
+    hex_literal_re,
+    identifier_re,
+    integer_literal_re,
+    integers_literal_suffix_re,
+    octal_literal_re,
+    verify_description_mode,
+)
 from sphinx.util.docfields import Field, GroupedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
