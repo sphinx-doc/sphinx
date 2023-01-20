@@ -546,7 +546,6 @@ class PyObject(ObjectDescription[Tuple[str, str]]):
             and 'single-line-signature' not in self.options
             and len(sig) > max_len
         )
-        signode['is_multi_line'] = multi_line
         if multi_line:
             signode['add_permalink'] = True
 

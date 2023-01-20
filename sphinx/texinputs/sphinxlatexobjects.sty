@@ -146,6 +146,22 @@
   \item[{#1\sphinxcode{(}\py@sigparams{#2}{#3}\strut}]
   \pysigadjustitemsep
 }
+\newcommand{\pysigmultilinewithargsret}[3]{%
+  % as #1 may contain a footnote using \label we need to make \label
+  % a no-op here to avoid LaTeX complaining about duplicates
+\let\spx@label\label\let\label\@gobble
+  \settowidth{\py@argswidth}{#1\sphinxcode{(}}%
+\let\label\spx@label
+  \py@argswidth=\dimexpr\linewidth+\labelwidth-\py@argswidth\relax\relax
+  \item[#1\sphinxcode{(}]
+
+  \@for\param:=#2\do{
+    \param\sphinxcode{,}
+
+  }
+  \item[\sphinxcode{)}#3\strut]
+  \pysigadjustitemsep
+}
 \newcommand{\pysigadjustitemsep}{%
   % adjust \itemsep to control the separation with the next signature
   % sharing common description

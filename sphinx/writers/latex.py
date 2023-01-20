@@ -705,7 +705,10 @@ class LaTeXTranslator(SphinxTranslator):
     def _visit_signature_line(self, node: Element) -> None:
         for child in node:
             if isinstance(child, addnodes.desc_parameterlist):
-                self.body.append(CR + r'\pysiglinewithargsret{')
+                if child.get('is_multi_line'):
+                    self.body.append(CR + r'\pysigmultilinewithargsret{')
+                else:
+                    self.body.append(CR + r'\pysiglinewithargsret{')
                 break
         else:
             self.body.append(CR + r'\pysigline{')
@@ -722,13 +725,13 @@ class LaTeXTranslator(SphinxTranslator):
         if not self.in_desc_signature:
             self.in_desc_signature = True
             self.body.append(CR + r'\pysigstartsignatures')
-        if not node.get('is_multiline'):
+        if not node.get('is_multi_line'):
             self._visit_signature_line(node)
         else:
             self.body.append(CR + r'\pysigstartmultiline')
 
     def depart_desc_signature(self, node: Element) -> None:
-        if not node.get('is_multiline'):
+        if not node.get('is_multi_line'):
             self._depart_signature_line(node)
         else:
             self.body.append(CR + r'\pysigstopmultiline')
@@ -792,6 +795,12 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_desc_parameterlist(self, node: Element) -> None:
         # close parameterlist, open return annotation
         self.body.append('}{')
+
+    def visit_desc_parameter_line(self, node: Element) -> None:
+        pass
+
+    def depart_desc_parameter_line(self, node: Element) -> None:
+        pass
 
     def visit_desc_parameter(self, node: Element) -> None:
         if not self.first_param:
