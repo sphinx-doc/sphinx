@@ -668,17 +668,18 @@ General configuration
 
 .. confval:: maximum_signature_line_length
 
-   An integer representing the maximum number of characters that cannot be exceeded by
-   the signature of a Python, C or C++ object (which can be overridden with,
+   An integer representing the maximum number of characters that cannot be exceeded
+   by the signature of a Python, C or C++ object (which can be overridden with,
    respectively, :confval:`python_maximum_signature_line_length`,
    :confval:`c_maximum_signature_line_length` and
-   :confval:`cpp_maximum_signature_line_length`). When negative (the default), there is
-   no maximum, no line break will be introduced no matter how long the signature. When
-   positive, all objects whose signature exceed the given character limit will have each
-   of their arguments displayed on a separate, indented line. This introduces hard line
-   breaks, however, it does not override a potential soft wrapping introduced in
-   the format in which the documentation is built. The directive
-   :rst:dir:`single-line-signature` allows to disable this behavior on specific objects.
+   :confval:`cpp_maximum_signature_line_length`). When negative (the default), there
+   is no maximum, no line break will be introduced no matter how long the signature.
+   When positive, all objects whose signature exceed the given character limit will
+   have each of their arguments displayed on a separate, indented line. This
+   introduces hard line breaks, however, it does not override a potential soft
+   wrapping introduced in the format in which the documentation is built. The
+   directive :rst:dir:`single-line-signature` allows to disable this behavior on
+   specific objects.
 
    .. versionadded:: 6.x
 
@@ -2978,7 +2979,8 @@ Options for the Python domain
 .. confval:: python_maximum_signature_line_length
 
    An integer representing the maximum number of characters that cannot be exceeded
-   by a Python object's signature. Overrides :confval:`maximum_signature_line_length`.
+   by a Python object's signature. Overrides
+   :confval:`maximum_signature_line_length`.
 
    .. versionadded:: 6.x
 
