@@ -172,8 +172,8 @@ def test_get_items_summary(make_app, app_params):
         'C.C2': 'This is a nested inner class docstring',
     }
     for key, expected in expected_values.items():
-        assert autosummary_items[key][2] == expected, 'Summary for %s was %r -'\
-            ' expected %r' % (key, autosummary_items[key], expected)
+        assert autosummary_items[key][2] == expected, 'Summary for {} was {!r} -'\
+            ' expected {!r}'.format(key, autosummary_items[key], expected)
 
     # check an item in detail
     assert 'func' in autosummary_items

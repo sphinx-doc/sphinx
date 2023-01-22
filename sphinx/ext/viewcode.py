@@ -266,8 +266,8 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
             type, start, end = tags[name]
             backlink = urito(pagename, docname) + '#' + refname + '.' + name
             lines[start] = (
-                '<div class="viewcode-block" id="%s"><a class="viewcode-back" '
-                'href="%s">%s</a>' % (name, backlink, _('[docs]')) +
+                '<div class="viewcode-block" id="{}"><a class="viewcode-back" '
+                'href="{}">{}</a>'.format(name, backlink, _('[docs]')) +
                 lines[start])
             lines[min(end, maxindex)] += '</div>'
         # try to find parents (for submodules)

@@ -79,11 +79,11 @@ def check_xpath(etree, fname, path, check, be_found=True):
     nodes = list(etree.findall(path))
     if check is None:
         assert nodes == [], ('found any nodes matching xpath '
-                             '%r in file %s' % (path, fname))
+                             '{!r} in file {}'.format(path, fname))
         return
     else:
         assert nodes != [], ('did not find any node matching xpath '
-                             '%r in file %s' % (path, fname))
+                             '{!r} in file {}'.format(path, fname))
     if callable(check):
         check(nodes)
     elif not check:
@@ -106,8 +106,8 @@ def check_xpath(etree, fname, path, check, be_found=True):
             if all(not rex.search(get_text(node)) for node in nodes):
                 return
 
-        raise AssertionError('%r not found in any node matching '
-                             'path %s in %s: %r' % (check, path, fname,
+        raise AssertionError('{!r} not found in any node matching '
+                             'path {} in {}: {!r}'.format(check, path, fname,
                                                     [node.text for node in nodes]))
 
 
