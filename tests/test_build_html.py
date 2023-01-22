@@ -108,7 +108,7 @@ def check_xpath(etree, fname, path, check, be_found=True):
 
         raise AssertionError('{!r} not found in any node matching '
                              'path {} in {}: {!r}'.format(check, path, fname,
-                                                    [node.text for node in nodes]))
+                                                          [node.text for node in nodes]))
 
 
 @pytest.mark.sphinx('html', testroot='warnings')
