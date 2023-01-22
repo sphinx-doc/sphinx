@@ -2,6 +2,7 @@
 
 from unittest.mock import Mock
 
+import docutils.utils
 import pytest
 from docutils import nodes
 
@@ -229,3 +230,15 @@ def test_noindexentry(app):
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
     assert_node(doctree[0], addnodes.index, entries=[('single', 'f() (built-in function)', 'f', '', None)])
     assert_node(doctree[2], addnodes.index, entries=[])
+
+
+def test_module_content_line_number(app):
+    text = (".. js:module:: foo\n" +
+            "\n" +
+            "   Some link here: :ref:`abc`\n")
+    doc = restructuredtext.parse(app, text)
+    xrefs = list(doc.findall(condition=addnodes.pending_xref))
+    assert len(xrefs) == 1
+    source, line = docutils.utils.get_source_line(xrefs[0])
+    assert 'index.rst' in source
+    assert line == 3

@@ -20,7 +20,7 @@ from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
-from sphinx.util.docutils import SphinxDirective, switch_source_input
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_id, make_refnode, nested_parse_with_titles
 from sphinx.util.typing import OptionSpec
 
@@ -297,10 +297,9 @@ class JSModule(SphinxDirective):
         noindex = 'noindex' in self.options
 
         content_node: Element = nodes.section()
-        with switch_source_input(self.state, self.content):
-            # necessary so that the child nodes get the right source/line set
-            content_node.document = self.state.document
-            nested_parse_with_titles(self.state, self.content, content_node)
+        # necessary so that the child nodes get the right source/line set
+        content_node.document = self.state.document
+        nested_parse_with_titles(self.state, self.content, content_node, self.content_offset)
 
         ret: list[Node] = []
         if not noindex:

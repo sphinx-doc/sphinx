@@ -262,7 +262,7 @@ class ObjectDescription(SphinxDirective, Generic[T]):
             # needed for association of version{added,changed} directives
             self.env.temp_data['object'] = self.names[0]
         self.before_content()
-        nested_parse_with_titles(self.state, self.content, contentnode)
+        nested_parse_with_titles(self.state, self.content, contentnode, self.content_offset)
         self.transform_content(contentnode)
         self.env.app.emit('object-description-transform',
                           self.domain, self.objtype, contentnode)
