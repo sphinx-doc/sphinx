@@ -171,6 +171,8 @@ ignore = [
     "SIM105", # use contextlib.suppress
     "SIM108", # use ternary operator
     "SIM117", # use single 'with' statement
+    # pyupgrade
+    "UP031", # replace with format specifiers
 ]
 external = [  # Whitelist for RUF100 unkown code warnings
     "E704",
