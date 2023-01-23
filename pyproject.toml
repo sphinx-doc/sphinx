@@ -192,6 +192,7 @@ select = [
     # plugins:
     "B",   # flake8-bugbear
     "C4",  # flake8-comprehensions
+    "I",   # isort
     "PGH", # pygrep-hooks
     "PL",  # pylint
     "S",   # flake8-bandit
