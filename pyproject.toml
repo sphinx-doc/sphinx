@@ -167,6 +167,7 @@ ignore = [
     "S105",  # possible hardcoded password
     "S113",  # probable use of requests call without timeout
     "S324",  # probable use of insecure hash functions
+    "S701",  # use autoescape=True for Jinja
     # flake8-simplify
     "SIM102", # nested 'if' statements
     "SIM103", # return condition directly
