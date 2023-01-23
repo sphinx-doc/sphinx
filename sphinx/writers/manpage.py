@@ -5,8 +5,10 @@ from __future__ import annotations
 from typing import Any, Iterable, cast
 
 from docutils import nodes
-from docutils.nodes import TextElement  # noqa: F401 (used for type comments only)
-from docutils.nodes import Element
+from docutils.nodes import (
+    Element,
+    TextElement,  # NoQA: F401 (used for type annotations only)
+)
 from docutils.writers.manpage import Translator as BaseTranslator
 from docutils.writers.manpage import Writer
 
