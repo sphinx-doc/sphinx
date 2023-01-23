@@ -7,7 +7,6 @@ import unicodedata
 from typing import TYPE_CHECKING, Any, Generator, cast
 
 from docutils import nodes
-from docutils.nodes import Element  # noqa: F401 (used for type comments only)
 from docutils.nodes import Node, Text
 from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
@@ -238,7 +237,7 @@ class ExtraTranslatableNodes(SphinxTransform):
         def is_translatable_node(node: Node) -> bool:
             return isinstance(node, tuple(target_nodes))
 
-        for node in self.document.findall(is_translatable_node):  # type: Element
+        for node in self.document.findall(is_translatable_node):  # type: nodes.Element
             node['translatable'] = True
 
 
