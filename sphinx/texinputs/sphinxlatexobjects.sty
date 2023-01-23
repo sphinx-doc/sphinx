@@ -147,19 +147,18 @@
   \pysigadjustitemsep
 }
 \newcommand{\pysigmultilinewithargsret}[3]{%
-  % as #1 may contain a footnote using \label we need to make \label
-  % a no-op here to avoid LaTeX complaining about duplicates
-\let\spx@label\label\let\label\@gobble
-  \settowidth{\py@argswidth}{#1\sphinxcode{(}}%
-\let\label\spx@label
-  \py@argswidth=\dimexpr\linewidth+\labelwidth-\py@argswidth\relax\relax
-  \item[#1\sphinxcode{(}]
+  % render each argument on its own line
+  \item[#1\sphinxcode{(}\strut]
 
   \@for\param:=#2\do{
     \param\sphinxcode{,}
 
   }
+  \itemsep\z@skip
   \item[\sphinxcode{)}#3\strut]
+  % alternative to above two lines, which aligns the closing parenthesis
+  % with the arguments:
+  % \noindent\sphinxcode{)}{#3}
   \pysigadjustitemsep
 }
 \newcommand{\pysigadjustitemsep}{%
