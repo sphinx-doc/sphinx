@@ -160,6 +160,8 @@ ignore = [
     'B905',
     # pygrep-hooks
     "PGH003",
+    # pylint
+    "PLR2004",  # avoid magic values
     # flake8-bandit
     "S101",  # assert used
     "S105",  # possible hardcoded password
@@ -189,10 +191,7 @@ select = [
     "B",   # flake8-bugbear
     "C4",  # flake8-comprehensions
     "PGH", # pygrep-hooks
-    "PLC", # pylint
-    "PLE", # pylint
-    "PLR", # pylint
-    "PLW", # pylint
+    "PL",  # pylint
     "S",   # flake8-bandit
     "SIM", # flake8-simplify
     "T10", # flake8-debugger
