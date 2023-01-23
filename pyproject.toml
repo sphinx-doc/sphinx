@@ -172,6 +172,7 @@ ignore = [
     "SIM103", # return condition directly
     "SIM105", # use contextlib.suppress
     "SIM108", # use ternary operator
+    "SIM115", # use context handler for opening files
     "SIM117", # use single 'with' statement
     # pyupgrade
     "UP031", # replace with format specifiers
