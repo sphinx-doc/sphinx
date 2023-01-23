@@ -5,10 +5,7 @@ from __future__ import annotations
 from typing import Any, Iterable, cast
 
 from docutils import nodes
-from docutils.nodes import (
-    Element,
-    TextElement,  # NoQA: F401 (used for type annotations only)
-)
+from docutils.nodes import Element
 from docutils.writers.manpage import Translator as BaseTranslator
 from docutils.writers.manpage import Writer
 
@@ -53,7 +50,7 @@ class NestedInlineTransform:
 
     def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.literal, nodes.emphasis, nodes.strong)
-        for node in list(self.document.findall(matcher)):  # type: TextElement
+        for node in list(self.document.findall(matcher)):  # type: nodes.TextElement
             if any(matcher(subnode) for subnode in node):
                 pos = node.parent.index(node)
                 for subnode in reversed(list(node)):
