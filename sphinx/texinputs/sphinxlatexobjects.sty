@@ -151,10 +151,7 @@
   \item[#1\sphinxcode{(}\strut]
   \leavevmode\par\nopagebreak
   % this relies on \pysigstartsignatures having set \parskip to zero
-  \@for\param:=#2\do{
-    \param\sphinxcode{,}
-
-  }
+  \@for\param:=#2\do{\param\sphinxcode{,}\par}
   \itemsep\z@skip
   \item[\sphinxcode{)}#3\strut]
   % alternative to above two lines, which aligns the closing parenthesis
