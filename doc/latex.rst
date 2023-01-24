@@ -1332,14 +1332,19 @@ Macros
 - Text styling commands:
 
   - ``\sphinxstrong``,
+  - ``\sphinxcode``,
   - ``\sphinxbfcode``,
   - ``\sphinxemail``,
   - ``\sphinxtablecontinued``,
   - ``\sphinxtitleref``,
   - ``\sphinxmenuselection``,
+  - ``\sphinxguilabel``,
+  - ``\sphinxkeyboard``,
   - ``\sphinxaccelerator``,
   - ``\sphinxcrossref``,
   - ``\sphinxtermref``,
+  - ``\sphinxsamedocref``,
+  - ``\sphinxparam``,
   - ``\sphinxoptional``.
 
   .. versionadded:: 1.4.5
