@@ -706,7 +706,7 @@ class LaTeXTranslator(SphinxTranslator):
         for child in node:
             if isinstance(child, addnodes.desc_parameterlist):
                 if child.get('is_multi_line'):
-                    self.body.append(CR + r'\pysigwithmultilineargsret{')
+                    self.body.append(CR + r'\pysigwithonelineperarg{')
                 else:
                     self.body.append(CR + r'\pysiglinewithargsret{')
                 break
