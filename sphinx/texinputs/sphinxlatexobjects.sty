@@ -152,11 +152,8 @@
   \leavevmode\par\nopagebreak
   % this relies on \pysigstartsignatures having set \parskip to zero
   \@for\param:=#2\do{\param\sphinxcode{,}\par}
-  \itemsep\z@skip
-  \item[\sphinxcode{)}#3\strut]
-  % alternative to above two lines, which aligns the closing parenthesis
-  % with the arguments:
-  % \noindent\sphinxcode{)}{#3}
+  % fulllineitems sets \labelwidth to be like \leftmargin
+  \nopagebreak\noindent\kern-\labelwidth\sphinxcode{)}{#3}
   \pysigadjustitemsep
 }
 \newcommand{\pysigadjustitemsep}{%
