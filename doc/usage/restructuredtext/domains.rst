@@ -232,6 +232,8 @@ The following directives are provided for module and class contents:
       the module specified by :rst:dir:`py:currentmodule`.
 
 
+   .. _pyfuncsinglelinesig:
+
    .. rst:directive:option:: single-line-signature
       :type: no value
 
