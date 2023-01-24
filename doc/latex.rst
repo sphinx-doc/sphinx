@@ -1331,44 +1331,66 @@ Macros
 
 - Text styling commands:
 
-  - ``\sphinxstrong``,
-  - ``\sphinxcode``,
-  - ``\sphinxbfcode``,
-  - ``\sphinxemail``,
-  - ``\sphinxtablecontinued``,
-  - ``\sphinxtitleref``,
-  - ``\sphinxmenuselection``,
-  - ``\sphinxguilabel``,
-  - ``\sphinxkeyboard``,
-  - ``\sphinxaccelerator``,
-  - ``\sphinxcrossref``,
-  - ``\sphinxtermref``,
-  - ``\sphinxsamedocref``,
-  - ``\sphinxparam``,
-  - ``\sphinxoptional``.
+  .. csv-table::
+     :header: Name, ``maps argument #1 to:``
+     :align: left
+     :delim: ;
+
+     ``\sphinxstrong``;         ``\textbf{#1}``
+     ``\sphinxcode``;           ``\texttt{#1}``
+     ``\sphinxbfcode``;         ``\textbf{\sphinxcode{#1}}``
+     ``\sphinxemail``;          ``\textsf{#1}``
+     ``\sphinxtablecontinued``; ``\textsf{#1}``
+     ``\sphinxtitleref``;       ``\emph{#1}``
+     ``\sphinxmenuselection``;  ``\emph{#1}``
+     ``\sphinxguilabel``;       ``\emph{#1}``
+     ``\sphinxkeyboard``;       ``\sphinxcode{#1}``
+     ``\sphinxaccelerator``;    ``\underline{#1}``
+     ``\sphinxcrossref``;       ``\emph{#1}``
+     ``\sphinxtermref``;        ``\emph{#1}``
+     ``\sphinxsamedocref``;     ``\emph{#1}``
+     ``\sphinxparam``;          ``\emph{#1}``
+     ``\sphinxoptional``; ``[#1]`` with larger brackets, see source
 
   .. versionadded:: 1.4.5
      Use of ``\sphinx`` prefixed macro names to limit possibilities of conflict
      with LaTeX packages.
 
+  .. versionadded:: 1.8
+     ``\sphinxguilabel``
+
+  .. versionadded:: 3.0
+     ``\sphinxkeyboard``
+
+  .. versionadded:: 6.2.0
+     ``\sphinxparam``, ``\sphinxsamedocref``
+
 - More text styling:
 
-  - ``\sphinxstyleindexentry``,
-  - ``\sphinxstyleindexextra``,
-  - ``\sphinxstyleindexpageref``,
-  - ``\sphinxstyletopictitle``,
-  - ``\sphinxstylesidebartitle``,
-  - ``\sphinxstyleothertitle``,
-  - ``\sphinxstylesidebarsubtitle``,
-  - ``\sphinxstyletheadfamily``,
-  - ``\sphinxstyleemphasis``,
-  - ``\sphinxstyleliteralemphasis``,
-  - ``\sphinxstylestrong``,
-  - ``\sphinxstyleliteralstrong``,
-  - ``\sphinxstyleabbreviation``,
-  - ``\sphinxstyleliteralintitle``,
-  - ``\sphinxstylecodecontinued``,
-  - ``\sphinxstylecodecontinues``.
+  .. csv-table::
+     :header: Name, ``maps argument #1 to:``
+     :align: left
+     :delim: ;
+
+     ``\sphinxstyleindexentry``;              ``\texttt{#1}``
+     ``\sphinxstyleindexextra``;              ``(\emph{#1})`` (with a space upfront)
+     ``\sphinxstyleindexpageref``;            ``, \pageref{#1}``
+     ``\sphinxstyleindexpagemain``;           ``\textbf{#1}``
+     ``\sphinxstyleindexlettergroup``;        ``{\Large\sffamily#1}\nopagebreak\vspace{1mm}``
+     ``\sphinxstyleindexlettergroupDefault``; check source, too long for here
+     ``\sphinxstyletopictitle``;              ``\textbf{#1}\par\medskip``
+     ``\sphinxstylesidebartitle``;            ``\textbf{#1}\par\medskip``
+     ``\sphinxstyleothertitle``;              ``\textbf{#1}``
+     ``\sphinxstylesidebarsubtitle``;         ``~\\\textbf{#1} \smallskip``
+     ``\sphinxstyletheadfamily``;             ``\sffamily`` (*this one has no argument*)
+     ``\sphinxstyleemphasis``;                ``\emph{#1}``
+     ``\sphinxstyleliteralemphasis``;         ``\emph{\sphinxcode{#1}}``
+     ``\sphinxstylestrong``;                  ``\textbf{#1}``
+     ``\sphinxstyleliteralstrong``;           ``\sphinxbfcode{#1}``
+     ``\sphinxstyleabbreviation``;            ``\textsc{#1}``
+     ``\sphinxstyleliteralintitle``;          ``\sphinxcode{#1}``
+     ``\sphinxstylecodecontinued``;           ``{\footnotesize(#1)}}``
+     ``\sphinxstylecodecontinues``;           ``{\footnotesize(#1)}}``
 
   .. versionadded:: 1.5
      These macros were formerly hard-coded as non customizable ``\texttt``,
@@ -1381,8 +1403,9 @@ Macros
   .. versionadded:: 1.6.3
      ``\sphinxstylecodecontinued`` and ``\sphinxstylecodecontinues``.
 
-  .. versionadded:: 3.0
-     ``\sphinxkeyboard``
+  .. versionadded:: 1.8
+     ``\sphinxstyleindexlettergroup``, ``\sphinxstyleindexlettergroupDefault``.
+
 
 - ``\sphinxtableofcontents``: A wrapper (defined differently in
   :file:`sphinxhowto.cls` and in :file:`sphinxmanual.cls`) of standard
