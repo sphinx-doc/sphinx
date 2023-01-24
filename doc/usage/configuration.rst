@@ -681,7 +681,7 @@ General configuration
    directive :rst:dir:`single-line-signature` allows to disable this behavior on
    specific objects.
 
-   .. versionadded:: 6.x
+   .. versionadded:: 6.2.0
 
 .. confval:: add_function_parentheses
 
@@ -2925,7 +2925,7 @@ Options for the C domain
    An integer representing the maximum number of characters that cannot be exceeded
    by a C object's signature. Overrides :confval:`maximum_signature_line_length`.
 
-   .. versionadded:: 6.x
+   .. versionadded:: 6.2.0
 
 .. _cpp-config:
 
@@ -2962,7 +2962,7 @@ Options for the C++ domain
    An integer representing the maximum number of characters that cannot be exceeded
    by a C++ object's signature. Overrides :confval:`maximum_signature_line_length`.
 
-   .. versionadded:: 6.x
+   .. versionadded:: 6.2.0
 
 Options for the Python domain
 -----------------------------
@@ -2982,7 +2982,7 @@ Options for the Python domain
    by a Python object's signature. Overrides
    :confval:`maximum_signature_line_length`.
 
-   .. versionadded:: 6.x
+   .. versionadded:: 6.2.0
 
 Example of configuration file
 -----------------------------

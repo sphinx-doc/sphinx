@@ -238,6 +238,8 @@ The following directives are provided for module and class contents:
       Forbids the potential introduction of line breaks between parameters of the
       documented object, ignoring :confval:`python_maximum_signature_line_length`.
 
+      .. versionadded:: 6.2.0
+
 
 .. rst:directive:: .. py:data:: name
 
@@ -342,6 +344,8 @@ The following directives are provided for module and class contents:
 
       Forbids the potential introduction of line breaks between parameters of the
       documented object, ignoring :confval:`python_maximum_signature_line_length`.
+
+      .. versionadded:: 6.2.0
 
 .. rst:directive:: .. py:attribute:: name
 
@@ -461,6 +465,8 @@ The following directives are provided for module and class contents:
       Forbids the potential introduction of line breaks between parameters of the
       documented object, ignoring :confval:`python_maximum_signature_line_length`.
 
+      .. versionadded:: 6.2.0
+
    .. rst:directive:option:: staticmethod
       :type: no value
 
@@ -519,6 +525,8 @@ The following directives are provided for module and class contents:
 
       Forbids the potential introduction of line breaks between parameters of the
       documented object, ignoring :confval:`python_maximum_signature_line_length`.
+
+      .. versionadded:: 6.2.0
 
 .. rst:directive:: .. py:decoratormethod:: name
                    .. py:decoratormethod:: name(signature)
@@ -756,6 +764,8 @@ The C domain (name **c**) is suited for documentation of C API.
       Forbids the potential introduction of line breaks between parameters of the
       documented object, ignoring :confval:`c_maximum_signature_line_length`.
 
+      .. versionadded:: 6.2.0
+
    In the description of a function you can use the following info fields
    (see also :ref:`info-field-lists`).
 
@@ -807,6 +817,8 @@ The C domain (name **c**) is suited for documentation of C API.
 
       Forbids the potential introduction of line breaks between parameters of the
       documented object, ignoring :confval:`c_maximum_signature_line_length`.
+
+      .. versionadded:: 6.2.0
 
    In the description of a macro you can use the same info fields as for the
    :rst:dir:`c:function` directive.
@@ -1169,6 +1181,8 @@ visibility statement (``public``, ``private`` or ``protected``).
 
       Forbids the potential introduction of line breaks between parameters of the
       documented object, ignoring :confval:`cpp_maximum_signature_line_length`.
+
+      .. versionadded:: 6.2.0
 
 .. rst:directive:: .. cpp:member:: (member) variable declaration
                    .. cpp:var:: (member) variable declaration
