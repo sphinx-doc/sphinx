@@ -678,9 +678,9 @@ General configuration
    have each of their arguments displayed on a separate, indented line. This
    introduces hard line breaks, however, it does not override a potential soft
    wrapping introduced in the format in which the documentation is built. The
-   directive option :ref:`single-line-signature <pyfuncsinglelinesig>`
-   (here for the example of the :rst:dir:`py:function` directive) allows to disable
-   this behavior on specific objects.
+   directive option :rst:dir:`py:function:single-line-signature` (here for the
+   example of the :rst:dir:`py:function` directive) allows to disable this behavior
+   on specific objects.
 
    .. versionadded:: 6.2.0
 

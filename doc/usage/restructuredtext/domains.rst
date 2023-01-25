@@ -231,9 +231,6 @@ The following directives are provided for module and class contents:
       Describe the location where the object is defined.  The default value is
       the module specified by :rst:dir:`py:currentmodule`.
 
-
-   .. _pyfuncsinglelinesig:
-
    .. rst:directive:option:: single-line-signature
       :type: no value
 
