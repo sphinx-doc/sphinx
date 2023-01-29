@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Any, TypeVar
 from docutils import nodes
 from docutils.io import StringInput
 from docutils.nodes import Element
-from docutils.utils import relative_path
 
 from sphinx import addnodes
 from sphinx.config import Config
@@ -111,11 +110,7 @@ class Locale(SphinxTransform):
         settings, source = self.document.settings, self.document['source']
         msgstr = ''
 
-        # XXX check if this is reliable
-        assert source.startswith(self.env.srcdir)
-        docname = path.splitext(relative_path(path.join(self.env.srcdir, 'dummy'),
-                                              source))[0]
-        textdomain = docname_to_domain(docname, self.config.gettext_compact)
+        textdomain = docname_to_domain(self.env.docname, self.config.gettext_compact)
 
         # fetch translations
         dirs = [path.join(self.env.srcdir, directory)
