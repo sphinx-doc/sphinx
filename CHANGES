@@ -7,6 +7,35 @@ Dependencies
 Incompatible changes
 --------------------
 
+* LaTeX: removal of some internal TeX ``\dimen`` registers (not previously
+  publicly documented) as per 5.1.0 code comments in ``sphinx.sty``:
+  ``\sphinxverbatimsep``, ``\sphinxverbatimborder``, ``\sphinxshadowsep``,
+  ``\sphinxshadowsize``, and ``\sphinxshadowrule``. (refs: #11105)
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+* #11079: LaTeX: figures with align attribute may disappear and strangely impact
+  following lists
+
+Testing
+--------
+
+Release 6.1.4 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
 Deprecated
 ----------
 
@@ -18,6 +47,43 @@ Bugs fixed
 
 Testing
 --------
+
+Release 6.1.3 (released Jan 10, 2023)
+=====================================
+
+Bugs fixed
+----------
+
+* #11116: Reverted to previous Sphinx 5 node copying method
+* #11117: Reverted changes to parallel image processing from Sphinx 6.1.0
+* #11119: Supress ``ValueError`` in the ``linkcheck`` builder
+
+Release 6.1.2 (released Jan 07, 2023)
+=====================================
+
+Bugs fixed
+----------
+
+* #11101: LaTeX: ``div.topic_padding`` key of sphinxsetup documented at 5.1.0 was
+  implemented with name ``topic_padding``
+* #11099: LaTeX: ``shadowrule`` key of sphinxsetup causes PDF build to crash
+  since Sphinx 5.1.0
+* #11096: LaTeX: ``shadowsize`` key of sphinxsetup causes PDF build to crash
+  since Sphinx 5.1.0
+* #11095: LaTeX: shadow of :dudir:`topic` and contents_ boxes not in page
+  margin since Sphinx 5.1.0
+
+  .. _contents: https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents
+* #11100: Fix copying images when running under parallel mode.
+
+Release 6.1.1 (released Jan 05, 2023)
+=====================================
+
+Bugs fixed
+----------
+
+* #11091: Fix ``util.nodes.apply_source_workaround`` for ``literal_block`` nodes
+  with no source information in the node or the node's parents.
 
 Release 6.1.0 (released Jan 05, 2023)
 =====================================

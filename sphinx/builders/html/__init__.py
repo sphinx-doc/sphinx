@@ -26,7 +26,6 @@ from sphinx import version_info as sphinx_version
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.config import ENUM, Config
-from sphinx.deprecation import RemovedInSphinx70Warning, deprecated_alias
 from sphinx.domains import Domain, Index, IndexEntry
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.asset import ImageAdapter
@@ -656,9 +655,6 @@ class StandaloneHTMLBuilder(Builder):
         }
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
-        self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
-        self.post_process_images(doctree)
-
         title_node = self.env.longtitles.get(docname)
         title = self.render_partial(title_node)['title'] if title_node else ''
         self.index_page(docname, doctree, title)
@@ -668,6 +664,7 @@ class StandaloneHTMLBuilder(Builder):
 
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         self.fignumbers = self.env.toc_fignumbers.get(docname, {})
+        self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
         self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')
         self.current_docname = docname
         self.docwriter.write(doctree, destination)
@@ -677,6 +674,10 @@ class StandaloneHTMLBuilder(Builder):
 
         ctx = self.get_doc_context(docname, body, metatags)
         self.handle_page(docname, ctx, event_arg=doctree)
+
+    def write_doc_serialized(self, docname: str, doctree: nodes.document) -> None:
+        self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
+        self.post_process_images(doctree)
 
     def finish(self) -> None:
         self.finish_tasks.add_task(self.gen_indices)
@@ -1326,16 +1327,6 @@ import sphinxcontrib.serializinghtml  # noqa: E402,F401
 import sphinx.builders.dirhtml  # noqa: E402,F401,RUF100
 import sphinx.builders.singlehtml  # noqa: E402,F401
 
-deprecated_alias('sphinx.builders.html',
-                 {
-                     'html5_ready': True,
-                     'HTMLTranslator': HTML4Translator,
-                 },
-                 RemovedInSphinx70Warning,
-                 {
-                     'HTMLTranslator': 'sphinx.writers.html.HTML5Translator',
-                 })
-
 
 def setup(app: Sphinx) -> dict[str, Any]:
     # builders
@@ -1415,3 +1406,21 @@ def setup(app: Sphinx) -> dict[str, Any]:
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
+
+
+# deprecated name -> (object to return, canonical path or empty string)
+_DEPRECATED_OBJECTS = {
+    'html5_ready': (True, ''),
+    'HTMLTranslator': (HTML4Translator, 'sphinx.writers.html.HTML5Translator'),
+}
+
+
+def __getattr__(name):
+    if name not in _DEPRECATED_OBJECTS:
+        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+
+    from sphinx.deprecation import _deprecation_warning
+
+    deprecated_object, canonical_name = _DEPRECATED_OBJECTS[name]
+    _deprecation_warning(__name__, name, canonical_name, remove=(7, 0))
+    return deprecated_object

@@ -293,14 +293,14 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             else:
                 key = figtype
 
-            if figure_id in self.builder.fignumbers.get(key, {}):  # type: ignore[has-type]
+            if figure_id in self.builder.fignumbers.get(key, {}):
                 self.body.append('<span class="caption-number">')
                 prefix = self.config.numfig_format.get(figtype)
                 if prefix is None:
                     msg = __('numfig_format is not defined for %s') % figtype
                     logger.warning(msg)
                 else:
-                    numbers = self.builder.fignumbers[key][figure_id]  # type: ignore[has-type]
+                    numbers = self.builder.fignumbers[key][figure_id]
                     self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
                     self.body.append('</span>')
 
@@ -544,7 +544,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             self.context.append('</a>')
         elif 'filename' in node:
             atts['class'] += ' internal'
-            atts['href'] = posixpath.join(self.builder.dlpath,  # type: ignore[has-type]
+            atts['href'] = posixpath.join(self.builder.dlpath,
                                           urllib.parse.quote(node['filename']))
             self.body.append(self.starttag(node, 'a', '', **atts))
             self.context.append('</a>')

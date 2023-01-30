@@ -133,6 +133,7 @@ exclude = [
 
 [tool.isort]
 line_length = 95
+profile = "black"
 remove_redundant_aliases = true
 
 [tool.ruff]
@@ -159,13 +160,25 @@ ignore = [
     'B905',
     # pygrep-hooks
     "PGH003",
+    # flake8-pie
+    "PIE790",   # unnecessary 'pass' statement
+    # pylint
+    "PLR2004",  # avoid magic values
     # flake8-bandit
     "S101",  # assert used
     "S105",  # possible hardcoded password
+    "S113",  # probable use of requests call without timeout
+    "S324",  # probable use of insecure hash functions
+    "S701",  # use autoescape=True for Jinja
     # flake8-simplify
     "SIM102", # nested 'if' statements
+    "SIM103", # return condition directly
     "SIM105", # use contextlib.suppress
+    "SIM108", # use ternary operator
+    "SIM115", # use context handler for opening files
     "SIM117", # use single 'with' statement
+    # pyupgrade
+    "UP031", # replace with format specifiers
 ]
 external = [  # Whitelist for RUF100 unkown code warnings
     "E704",
@@ -181,19 +194,27 @@ select = [
     # plugins:
     "B",   # flake8-bugbear
     "C4",  # flake8-comprehensions
+    "EXE", # flake8-executable
+    "I",   # isort
+    "ICN", # flake8-import-conventions
+    "INP", # flake8-no-pep420
     "PGH", # pygrep-hooks
-    "PLC", # pylint
-    "PLE", # pylint
-    "PLR", # pylint
-    "PLW", # pylint
+    "PIE", # flake8-pie
+    "PL",  # pylint
     "S",   # flake8-bandit
     "SIM", # flake8-simplify
     "T10", # flake8-debugger
+    "TID", # flake8-tidy-imports
+    "TYP", # flake8-type-checking
     "UP",  # pyupgrade
+    "YTT", # flake8-2020
     "RUF100",  # yesqa
 ]
 
 [tool.ruff.per-file-ignores]
+"doc/conf.py" = ["INP001"]
+"doc/development/tutorials/examples/*" = ["INP001"]
+
 "tests/*" = ["E501"]
 "sphinx/environment/collectors/toctree.py" = ["B026"]
 "sphinx/environment/adapters/toctree.py" = ["B026"]

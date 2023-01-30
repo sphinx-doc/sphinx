@@ -26,8 +26,6 @@ exclude =
     doc/_build/*,
     sphinx/search/*,
     doc/usage/extensions/example*.py,
-application-import-names = sphinx
-import-order-style = smarkets
 per-file-ignores =
     tests/*: E501
     sphinx/util/jsdump.py: SIM905

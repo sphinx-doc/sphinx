@@ -1,7 +1,7 @@
 .. _dev-extensions:
 
-Developing extensions for Sphinx
-================================
+Sphinx Extensions API
+=====================
 
 Since many projects will need special features in their documentation, Sphinx
 is designed to be extensible on several levels.

@@ -81,8 +81,13 @@ from sphinx.project import Project
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging, rst
-from sphinx.util.docutils import (NullReporter, SphinxDirective, SphinxRole, new_document,
-                                  switch_source_input)
+from sphinx.util.docutils import (
+    NullReporter,
+    SphinxDirective,
+    SphinxRole,
+    new_document,
+    switch_source_input,
+)
 from sphinx.util.inspect import signature_from_str
 from sphinx.util.matching import Matcher
 from sphinx.util.typing import OptionSpec

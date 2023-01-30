@@ -3,6 +3,7 @@
 import os
 import re
 from itertools import chain, cycle
+from pathlib import Path
 from unittest.mock import ANY, call, patch
 
 import pytest
@@ -1770,3 +1771,18 @@ def test_theme_having_multiple_stylesheets(app):
 
     assert '<link rel="stylesheet" type="text/css" href="_static/mytheme.css" />' in content
     assert '<link rel="stylesheet" type="text/css" href="_static/extra.css" />' in content
+
+
+@pytest.mark.sphinx('html', testroot='images')
+def test_copy_images(app, status, warning):
+    app.build()
+
+    images_dir = Path(app.outdir) / '_images'
+    images = {image.name for image in images_dir.rglob('*')}
+    assert images == {
+        'img.png',
+        'rimg.png',
+        'rimg1.png',
+        'svgimg.svg',
+        'testimäge.png',
+    }

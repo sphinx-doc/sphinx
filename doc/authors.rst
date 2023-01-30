@@ -6,4 +6,4 @@
 Sphinx authors
 ==============
 
-.. include:: ../../AUTHORS
+.. include:: ../AUTHORS

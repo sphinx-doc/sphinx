@@ -6,8 +6,12 @@ import pytest
 
 from sphinx.testing.util import strip_escseq
 from sphinx.util import logging
-from sphinx.util.display import (SkipProgressMessage, display_chunk, progress_message,
-                                 status_iterator)
+from sphinx.util.display import (
+    SkipProgressMessage,
+    display_chunk,
+    progress_message,
+    status_iterator,
+)
 
 
 def test_display_chunk():

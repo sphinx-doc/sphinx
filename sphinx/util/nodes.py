@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import re
 import unicodedata
 from typing import TYPE_CHECKING, Any, Callable, Iterable
@@ -152,7 +153,8 @@ def apply_source_workaround(node: Element) -> None:
 
     # workaround: literal_block under bullet list (#4913)
     if isinstance(node, nodes.literal_block) and node.source is None:
-        node.source = get_node_source(node)
+        with contextlib.suppress(ValueError):
+            node.source = get_node_source(node)
 
     # workaround: recommonmark-0.2.0 doesn't set rawsource attribute
     if not node.rawsource:
@@ -170,7 +172,10 @@ def apply_source_workaround(node: Element) -> None:
     ))):
         logger.debug('[i18n] PATCH: %r to have source and line: %s',
                      get_full_module_name(node), repr_domxml(node))
-        node.source = get_node_source(node) or ''
+        try:
+            node.source = get_node_source(node)
+        except ValueError:
+            node.source = ''
         node.line = 0  # need fix docutils to get `node.line`
         return
 
@@ -559,8 +564,9 @@ def set_role_source_info(inliner: Inliner, lineno: int, node: Node) -> None:
 
 
 def copy_source_info(src: Element, dst: Element) -> None:
-    dst.source = get_node_source(src)
-    dst.line = get_node_line(src)
+    with contextlib.suppress(ValueError):
+        dst.source = get_node_source(src)
+        dst.line = get_node_line(src)
 
 
 NON_SMARTQUOTABLE_PARENT_NODES = (
@@ -606,3 +612,18 @@ def process_only_nodes(document: Node, tags: Tags) -> None:
                 # the only node, so we make sure docutils can transfer the id to
                 # something, even if it's just a comment and will lose the id anyway...
                 node.replace_self(nodes.comment())
+
+
+def _copy_except__document(self: Element) -> Element:
+    """Monkey-patch ```nodes.Element.copy``` to not copy the ``_document``
+    attribute.
+
+    xref: https://github.com/sphinx-doc/sphinx/issues/11116#issuecomment-1376767086
+    """
+    newnode = self.__class__(rawsource=self.rawsource, **self.attributes)
+    newnode.source = self.source
+    newnode.line = self.line
+    return newnode
+
+
+nodes.Element.copy = _copy_except__document  # type: ignore
