@@ -277,7 +277,7 @@ class TocTreeCollector(EnvironmentCollector):
             counter = fignum_counter.setdefault(figtype, {})
 
             secnum = secnum[:env.config.numfig_secnum_depth]
-            counter[secnum] = counter.get(secnum, 0) + 1
+            counter[secnum][figtype] = counter.get(secnum, 0) + 1
             return secnum + (counter[secnum],)
 
         def register_fignumber(docname: str, secnum: tuple[int, ...],
