@@ -4,15 +4,31 @@ from __future__ import annotations
 
 import os
 import posixpath
-from typing import TYPE_CHECKING, Callable
+import warnings
+from typing import TYPE_CHECKING, Callable, Optional
 
 from docutils.utils import relative_path
 
+from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.util.osutil import copyfile, ensuredir
 from sphinx.util.typing import PathMatcher
 
 if TYPE_CHECKING:
     from sphinx.util.template import BaseRenderer
+
+
+def _template_basename(filename: str) -> Optional[str]:
+    # TODO: remove this method
+    if filename.lower().endswith('_t'):
+        warnings.warn(
+            f"{filename!r}: filename suffix '_t' for templates is deprecated. "
+            "If the file is a Jinja2 template, use the suffix '.jinja2' instead.",
+            RemovedInSphinx80Warning
+        )
+        return filename[:-2]
+    elif filename.lower().endswith(".jinja2"):
+        return filename[:-7]
+    return None
 
 
 def copy_asset_file(source: str, destination: str,
@@ -35,14 +51,13 @@ def copy_asset_file(source: str, destination: str,
         # Use source filename if destination points a directory
         destination = os.path.join(destination, os.path.basename(source))
 
-    if source.lower().endswith('_t') and context is not None:
+    if _template_basename(source) and context is not None:
         if renderer is None:
             from sphinx.util.template import SphinxRenderer
             renderer = SphinxRenderer()
 
         with open(source, encoding='utf-8') as fsrc:
-            if destination.lower().endswith('_t'):
-                destination = destination[:-2]
+            destination = _template_basename(destination) or destination
             with open(destination, 'w', encoding='utf-8') as fdst:
                 fdst.write(renderer.render_string(fsrc.read(), context))
     else:

@@ -1108,7 +1108,7 @@ msgid "\"latex_documents\" config value references unknown document %s"
 msgstr ""
 
 #: sphinx/builders/latex/__init__.py:184 sphinx/domains/std.py:596
-#: sphinx/templates/latex/latex.tex_t:97
+#: sphinx/templates/latex/latex.tex.jinja2:97
 #: sphinx/themes/basic/genindex-single.html:30
 #: sphinx/themes/basic/genindex-single.html:55
 #: sphinx/themes/basic/genindex-split.html:11
@@ -1119,7 +1119,7 @@ msgstr ""
 msgid "Index"
 msgstr "Indeks"
 
-#: sphinx/builders/latex/__init__.py:187 sphinx/templates/latex/latex.tex_t:82
+#: sphinx/builders/latex/__init__.py:187 sphinx/templates/latex/latex.tex.jinja2:82
 msgid "Release"
 msgstr "Udgave"
 
@@ -2396,7 +2396,7 @@ msgid "unknown index entry type %r"
 msgstr ""
 
 #: sphinx/environment/adapters/indexentries.py:166
-#: sphinx/templates/latex/sphinxmessages.sty_t:11
+#: sphinx/templates/latex/sphinxmessages.sty.jinja2:11
 msgid "Symbols"
 msgstr "Symboler"
 
@@ -3210,25 +3210,25 @@ msgstr "Tip"
 msgid "Warning"
 msgstr "Advarsel"
 
-#: sphinx/templates/latex/longtable.tex_t:23
-#: sphinx/templates/latex/sphinxmessages.sty_t:8
+#: sphinx/templates/latex/longtable.tex.jinja2:23
+#: sphinx/templates/latex/sphinxmessages.sty.jinja2:8
 msgid "continued from previous page"
 msgstr "fortsat fra forrige side"
 
-#: sphinx/templates/latex/longtable.tex_t:29
-#: sphinx/templates/latex/sphinxmessages.sty_t:9
+#: sphinx/templates/latex/longtable.tex.jinja2:29
+#: sphinx/templates/latex/sphinxmessages.sty.jinja2:9
 msgid "continues on next page"
 msgstr "fortsætter på næste side"
 
-#: sphinx/templates/latex/sphinxmessages.sty_t:10
+#: sphinx/templates/latex/sphinxmessages.sty.jinja2:10
 msgid "Non-alphabetical"
 msgstr ""
 
-#: sphinx/templates/latex/sphinxmessages.sty_t:12
+#: sphinx/templates/latex/sphinxmessages.sty.jinja2:12
 msgid "Numbers"
 msgstr ""
 
-#: sphinx/templates/latex/sphinxmessages.sty_t:13
+#: sphinx/templates/latex/sphinxmessages.sty.jinja2:13
 msgid "page"
 msgstr "side"
 
@@ -3460,11 +3460,11 @@ msgid "Hide Search Matches"
 msgstr "Skjul søgeresultater"
 
 #: sphinx/themes/classic/layout.html:20
-#: sphinx/themes/classic/static/sidebar.js_t:57
+#: sphinx/themes/classic/static/sidebar.js.jinja2:57
 msgid "Collapse sidebar"
 msgstr "Sammenfold sidebjælke"
 
-#: sphinx/themes/classic/static/sidebar.js_t:48
+#: sphinx/themes/classic/static/sidebar.js.jinja2:48
 msgid "Expand sidebar"
 msgstr "Udfold sidebjælke"
 

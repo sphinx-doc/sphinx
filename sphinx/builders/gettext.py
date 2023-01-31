@@ -280,7 +280,7 @@ class MessageCatalogBuilder(I18nBuilder):
             ensuredir(path.join(self.outdir, path.dirname(textdomain)))
 
             context['messages'] = list(catalog)
-            content = GettextRenderer(outdir=self.outdir).render('message.pot_t', context)
+            content = GettextRenderer(outdir=self.outdir).render('message.pot.jinja2', context)
 
             pofn = path.join(self.outdir, textdomain + '.pot')
             if should_write(pofn, content):

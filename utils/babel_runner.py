@@ -87,7 +87,7 @@ class compile_catalog_plusjs(compile_catalog):
 
             jscatalog = {}
             for message in catalog:
-                if any(x[0].endswith(('.js', '.js_t', '.html'))
+                if any(x[0].endswith(('.js', '.js.jinja2', '.html'))
                        for x in message.locations):
                     msgid = message.id
                     if isinstance(msgid, (list, tuple)):
