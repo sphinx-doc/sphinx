@@ -158,15 +158,19 @@ ignore = [
     # flake8-bugbear opinionated (disabled by default in flake8)
     'B904',
     'B905',
+    # flake8-executable
+    "EXE002",  # file executable but no shebang present
     # pygrep-hooks
     "PGH003",
     # flake8-pie
     "PIE790",   # unnecessary 'pass' statement
     # pylint
     "PLR2004",  # avoid magic values
+    "PLR0913",  # too many arguments to function call
     # flake8-bandit
     "S101",  # assert used
     "S105",  # possible hardcoded password
+    "S110",  # try/except/pass detected
     "S113",  # probable use of requests call without timeout
     "S324",  # probable use of insecure hash functions
     "S701",  # use autoescape=True for Jinja
@@ -177,6 +181,9 @@ ignore = [
     "SIM108", # use ternary operator
     "SIM115", # use context handler for opening files
     "SIM117", # use single 'with' statement
+    # flake8-type-checking
+    "TCH001", # move application import into a type-checking block
+    "TCH002", # move third-party import into a type-checking block
     # pyupgrade
     "UP031", # replace with format specifiers
 ]
