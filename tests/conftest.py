@@ -19,6 +19,7 @@ def _init_console(locale_dir=sphinx.locale._LOCALE_DIR, catalog='sphinx'):
     """
     return sphinx.locale.NullTranslations(), False
 
+
 sphinx.locale.init_console = _init_console
 
 pytest_plugins = 'sphinx.testing.fixtures'
