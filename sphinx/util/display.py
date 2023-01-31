@@ -8,7 +8,7 @@ from sphinx.util import logging
 from sphinx.util.console import bold, colorize, term_width_line  # type: ignore
 
 if False:
-    from types import TracebackType
+    from types import TracebackType  # NoQA: TCH003
 
 logger = logging.getLogger(__name__)
 

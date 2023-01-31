@@ -6,13 +6,15 @@ import re
 import tokenize
 from collections import OrderedDict
 from importlib import import_module
-from inspect import Signature
 from os import path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from zipfile import ZipFile
 
 from sphinx.errors import PycodeError
 from sphinx.pycode.parser import Parser
+
+if TYPE_CHECKING:
+    from inspect import Signature
 
 
 class ModuleAnalyzer:
