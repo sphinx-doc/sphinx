@@ -204,8 +204,8 @@ select = [
     "S",   # flake8-bandit
     "SIM", # flake8-simplify
     "T10", # flake8-debugger
+    "TCH", # flake8-type-checking
     "TID", # flake8-tidy-imports
-    "TYP", # flake8-type-checking
     "UP",  # pyupgrade
     "YTT", # flake8-2020
     "RUF100",  # yesqa
