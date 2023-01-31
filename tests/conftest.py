@@ -9,6 +9,7 @@ import sphinx.locale
 from sphinx.testing import comparer
 from sphinx.testing.path import path
 
+
 def _init_console(locale_dir=sphinx.locale._LOCALE_DIR, catalog='sphinx'):
     """Monkeypatch ``init_console`` to skip its action.
 
