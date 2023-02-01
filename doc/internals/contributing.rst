@@ -181,7 +181,7 @@ of targets and allows testing against multiple different Python environments:
 * To run unit tests for a specific Python version and turn on deprecation
   warnings so they're shown in the test output::
 
-      PYTHONWARNINGS=all tox -e py310
+      PYTHONWARNINGS=error tox -e py310
 
 * Arguments to ``pytest`` can be passed via ``tox``, e.g., in order to run a
   particular test::

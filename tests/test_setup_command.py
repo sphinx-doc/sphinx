@@ -33,7 +33,7 @@ def setup_command(request, tempdir, rootdir):
 
         proc = subprocess.Popen(
             command,
-            env=dict(os.environ, PYTHONPATH=pythonpath),
+            env=dict(os.environ, PYTHONPATH=pythonpath, PYTHONWARNINGS='default'),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
         yield namedtuple('setup', 'pkgroot,proc')(pkgrootdir, proc)
