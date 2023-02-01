@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-import builtins
 import os
 import shutil
 import sys
-from typing import IO, Any, Callable
+from typing import IO, TYPE_CHECKING, Any, Callable
+
+if TYPE_CHECKING:
+    import builtins
 
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
 

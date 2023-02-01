@@ -6,8 +6,7 @@ import os
 import re
 import sys
 import warnings
-from io import StringIO
-from typing import IO, Any, Generator
+from typing import IO, TYPE_CHECKING, Any, Generator
 from xml.etree import ElementTree
 
 from docutils import nodes
@@ -18,6 +17,9 @@ from sphinx import application, locale
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.testing.path import path
 from sphinx.util.osutil import relpath
+
+if TYPE_CHECKING:
+    from io import StringIO
 
 __all__ = [
     'Struct', 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding',

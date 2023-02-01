@@ -8,7 +8,6 @@ import warnings
 from contextlib import contextmanager
 from copy import copy
 from os import path
-from types import ModuleType
 from typing import IO, TYPE_CHECKING, Any, Callable, Generator, cast
 
 import docutils
@@ -30,6 +29,8 @@ logger = logging.getLogger(__name__)
 report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) ')
 
 if TYPE_CHECKING:
+    from types import ModuleType
+
     from docutils.frontend import Values
 
     from sphinx.builders import Builder
