@@ -55,15 +55,45 @@ This will present to you a series of questions required to create the basic
 directory and configuration layout for your project inside the ``docs`` folder.
 To proceed, answer each question as follows:
 
-- ``> Separate source and build directories (y/n) [n]``: Write "``y``" (without
+- ``> Separate source and build directories (y/N) [n]``: Write "``y``" (without
   quotes) and press :kbd:`Enter`.
+- ``> Name prefix for templates and static dir [_]:`` Leave it empty and press
+  :kbd:`Enter`.
 - ``> Project name``: Write "``Lumache``" (without quotes) and press
   :kbd:`Enter`.
 - ``> Author name(s)``: Write "``Graziella``" (without quotes) and press
   :kbd:`Enter`.
-- ``> Project release []``: Write "``0.1``" (without quotes) and press
+- ``> Project version``: Write "``0.1``" (without quotes) and press
   :kbd:`Enter`.
-- ``> Project language [en]``: Leave it empty (the default, English) and press
+- ``> Project release [0.1]``: Leave it empty and press
+  :kbd:`Enter`.
+- ``> Source file suffix [.rst]``: Leave it empty and press
+  :kbd:`Enter`.
+- ``> Name of your master document (without suffix) [index]``: Leave it empty and press
+  :kbd:`Enter`.
+- ``> Do you want to use the epub builder (y/N) [n]``: Leave it empty and press
+  :kbd:`Enter`.
+- ``> autodoc: automatically insert docstrings from modules (y/N) [n]``: Leave it empty and press
+  :kbd:`Enter`.
+- ``> autodoc: automatically insert docstrings from modules (y/N) [n]``: Leave it empty and press
+  :kbd:`Enter`.
+- ``> intersphinx: link between Sphinx documentation of different projects (y/N) [n]``: Leave it empty and press
+  :kbd:`Enter`.
+- ``> todo: write "todo" entries that can be shown or hidden on build (y/N) [n]``: Leave it empty and press
+  :kbd:`Enter`.
+- ``> coverage: checks for documentation coverage (y/N) [n]``: Leave it empty and press
+  :kbd:`Enter`.
+- ``> pngmath: include math, rendered as PNG images (y/N) [n]``: Leave it empty and press
+  :kbd:`Enter`.
+- ``> mathjax: include math, rendered in the browser by MathJax (y/N) [n]``: Leave it empty and press
+  :kbd:`Enter`.
+- ``> ifconfig: conditional inclusion of content based on config values (y/N) [n]``: Leave it empty and press
+  :kbd:`Enter`.
+- ``> viewcode: include links to the source code of documented Python objects (y/N) [n]``: Leave it empty and press
+  :kbd:`Enter`.
+- ``> Create Makefile? (Y/n) [y]``: Leave it empty and press
+  :kbd:`Enter`.
+- ``> Create Windows command file? (Y/n) [y]``: Leave it empty and press
   :kbd:`Enter`.
 
 After the last question, you will see the new ``docs`` directory with the
