@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import posixpath
 import warnings
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import TYPE_CHECKING, Callable
 
 from docutils.utils import relative_path
 
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from sphinx.util.template import BaseRenderer
 
 
-def _template_basename(filename: str) -> Optional[str]:
+def _template_basename(filename: str) -> str | None:
     # TODO: remove this method
     if filename.lower().endswith('_t'):
         warnings.warn(
