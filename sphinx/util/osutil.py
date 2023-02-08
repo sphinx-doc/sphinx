@@ -123,7 +123,7 @@ def relpath(path: str, start: str | None = os.curdir) -> str:
     """
     try:
         return os.path.relpath(path, start)
-    except ValueError:
+    except (ValueError, TypeError):
         return path
 
 
