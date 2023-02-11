@@ -190,8 +190,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         # toctree-l[1-8] on the parent node?
         if isinstance(doctree, nodes.reference) and doctree.get('refuri'):
             refuri = doctree['refuri']
-            if refuri.startswith('http://') or refuri.startswith('https://') \
-               or refuri.startswith('irc:') or refuri.startswith('mailto:'):
+            if refuri.startswith(('http://', 'https://', 'irc:', 'mailto:')):
                 return result
             classes = doctree.parent.attributes['classes']
             for level in range(8, 0, -1):  # or range(1, 8)?
@@ -343,8 +342,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             nr = 1
         for node in list(tree.findall(nodes.reference)):
             uri = node.get('refuri', '')
-            if (uri.startswith('http:') or uri.startswith('https:') or
-                    uri.startswith('ftp:')) and uri not in node.astext():
+            if uri.startswith(('http:', 'https:', 'ftp:')) and uri not in node.astext():
                 idx = node.parent.index(node) + 1
                 if show_urls == 'inline':
                     uri = self.link_target_template % {'uri': uri}

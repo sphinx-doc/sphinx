@@ -300,8 +300,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         self.body.append(self.defs['reference'][1])
 
         uri = node.get('refuri', '')
-        if uri.startswith('mailto:') or uri.startswith('http:') or \
-           uri.startswith('https:') or uri.startswith('ftp:'):
+        if uri.startswith(('mailto:', 'http:', 'https:', 'ftp:')):
             # if configured, put the URL after the link
             if self.config.man_show_urls and node.astext() != uri:
                 if uri.startswith('mailto:'):
