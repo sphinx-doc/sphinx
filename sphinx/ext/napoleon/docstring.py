@@ -991,14 +991,14 @@ def _token_type(token: str, location: str | None = None) -> str:
             location=location,
         )
         type_ = "literal"
-    elif token.startswith("'") or token.startswith('"'):
+    elif token.startswith(("'", '"')):
         logger.warning(
             __("malformed string literal (missing closing quote): %s"),
             token,
             location=location,
         )
         type_ = "literal"
-    elif token.endswith("'") or token.endswith('"'):
+    elif token.endswith(("'", '"')):
         logger.warning(
             __("malformed string literal (missing opening quote): %s"),
             token,

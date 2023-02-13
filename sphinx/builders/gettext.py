@@ -183,6 +183,9 @@ class LocalTimeZone(tzinfo):
         super().__init__(*args, **kwargs)
         self.tzdelta = tzdelta
 
+    def tzname(self, dt: datetime | None) -> str:  # purely to satisfy mypy
+        return "local"
+
     def utcoffset(self, dt: datetime | None) -> timedelta:
         return self.tzdelta
 
